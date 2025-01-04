@@ -26,18 +26,30 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+      
       - name: Set up .NET
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '5.0.100'
+      
+      - name: Install MSBuild.Community.Tasks
+        run: nuget install MSBuild.Community.Tasks -Version 1.5.0.235 -OutputDirectory packages
+      
+      - name: Install Microsoft.Build.Utilities.v4.0
+        run: nuget install Microsoft.Build.Utilities.v4.0 -Version 4.0.0 -OutputDirectory packages
+
       - name: Restore nuget packages and generate credential templates
-        run: dotnet msbuild src/Greenshot.sln /restore /t:PrepareForBuild /p:Configuration=Release /p:Platform="Any CPU"
+        run: |
+          dotnet msbuild src/Greenshot.sln /restore /t:PrepareForBuild /p:Configuration=Release /p:Platform="Any CPU" /p:MSBuildExtensionsPath=$(pwd)/packages/MSBuild.Community.Tasks.1.5.0.235/tools
+      
       - name: Build and package
-        run: dotnet msbuild src/Greenshot.sln /p:Configuration=Release /p:Platform="Any CPU"
+        run: dotnet msbuild src/Greenshot.sln /p:Configuration=Release /p:Platform="Any CPU" /p:MSBuildExtensionsPath=$(pwd)/packages/MSBuild.Community.Tasks.1.5.0.235/tools
+      
       - name: Copy Files to artifact staging directory
         run: |
           mkdir -p ${{ github.workspace }}/artifacts
           cp $(Build.SourcesDirectory)/installer/Greenshot-INSTALLER-*.exe ${{ github.workspace }}/artifacts
+      
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v3
         with:
@@ -53,6 +65,7 @@ jobs:
         with:
           name: drop
           path: ${{ github.workspace }}/drop
+      
       - name: Create GitHub Release
         uses: actions/create-release@v1
         env:
