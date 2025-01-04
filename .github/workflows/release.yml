@@ -26,45 +26,38 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-      
+
       - name: Set up .NET
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '5.0.100'
 
-      - name: Configure NuGet sources
-        run: |
-          nuget sources Add -Name "NuGet.org" -Source "https://api.nuget.org/v3/index.json" || echo "NuGet.org source already exists"
-          nuget sources Add -Name "Microsoft" -Source "https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-public/nuget/v3/index.json" || echo "Microsoft source already exists"
-
-      - name: Verify NuGet sources
-        run: nuget sources list
-
-      - name: Install MSBuild.Community.Tasks
-        run: |
-          echo "Installing MSBuild.Community.Tasks..."
-          nuget install MSBuild.Community.Tasks -Version 1.5.0.235 -OutputDirectory packages
-          if ($?) {
-            echo "Installation successful."
-          } else {
-            echo "Installation failed."
-          }
-
-      - name: Install Microsoft.Build.Utilities.v4.0
-        run: nuget install Microsoft.Build.Utilities.v4.0 -Version 4.0.0 -OutputDirectory packages
-
       - name: Restore nuget packages and generate credential templates
         run: |
-          dotnet msbuild src/Greenshot.sln /restore /t:PrepareForBuild /p:Configuration=Release /p:Platform="Any CPU" /p:MSBuildExtensionsPath=$(pwd)/packages/MSBuild.Community.Tasks.1.5.0.235/tools || exit 1
-      
+          dotnet msbuild src/Greenshot.sln /restore /t:PrepareForBuild /p:Configuration=Release /p:Platform="Any CPU"
+
       - name: Build and package
-        run: dotnet msbuild src/Greenshot.sln /p:Configuration=Release /p:Platform="Any CPU" /p:MSBuildExtensionsPath=$(pwd)/packages/MSBuild.Community.Tasks.1.5.0.235/tools || exit 1
-      
+        run: |
+          dotnet msbuild src/Greenshot.sln /p:Configuration=Release /p:Platform="Any CPU"
+        env:
+          Box13_ClientId: ${{ secrets.Box13_ClientId }}
+          Box13_ClientSecret: ${{ secrets.Box13_ClientSecret }}
+          DropBox13_ClientId: ${{ secrets.DropBox13_ClientId }}
+          DropBox13_ClientSecret: ${{ secrets.DropBox13_ClientSecret }}
+          Flickr_ClientId: ${{ secrets.Flickr_ClientId }}
+          Flickr_ClientSecret: ${{ secrets.Flickr_ClientSecret }}
+          Imgur13_ClientId: ${{ secrets.Imgur13_ClientId }}
+          Imgur13_ClientSecret: ${{ secrets.Imgur13_ClientSecret }}
+          Photobucket_ClientId: ${{ secrets.Photobucket_ClientId }}
+          Photobucket_ClientSecret: ${{ secrets.Photobucket_ClientSecret }}
+          Picasa_ClientId: ${{ secrets.Picasa_ClientId }}
+          Picasa_ClientSecret: ${{ secrets.Picasa_ClientSecret }}
+
       - name: Copy Files to artifact staging directory
         run: |
           mkdir -p ${{ github.workspace }}/artifacts
-          cp $(Build.SourcesDirectory)/installer/Greenshot-INSTALLER-*.exe ${{ github.workspace }}/artifacts || exit 1
-      
+          cp ${{ github.workspace }}/installer/Greenshot-INSTALLER-*.exe ${{ github.workspace }}/artifacts
+
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v3
         with:
@@ -80,7 +73,7 @@ jobs:
         with:
           name: drop
           path: ${{ github.workspace }}/drop
-      
+
       - name: Create GitHub Release
         uses: actions/create-release@v1
         env:
