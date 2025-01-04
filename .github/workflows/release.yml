@@ -32,6 +32,9 @@ jobs:
         with:
           dotnet-version: '5.0.100'
       
+      - name: Configure NuGet
+        run: nuget sources Add -Name "NuGet.org" -Source "https://api.nuget.org/v3/index.json"
+
       - name: Install MSBuild.Community.Tasks
         run: nuget install MSBuild.Community.Tasks -Version 1.5.0.235 -OutputDirectory packages
       
