@@ -93,11 +93,9 @@
   </ItemGroup>
 
   <!-- Add MSBuild.Community.Tasks to use the TemplateFile Task-->
-  <!-- TODO find a solution for token replacement
   <ItemGroup>
     <PackageReference Include="MSBuildTasks" Version="1.5.0.235" GeneratePathProperty="true" DevelopmentDependency="true" />
   </ItemGroup>
-  -->
 
   <Target Name="PostBuild" BeforeTargets="PostBuildEvent" Condition="$(MSBuildProjectName.StartsWith('Greenshot.Plugin.'))">
     <Exec Command="
