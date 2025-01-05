@@ -41,7 +41,7 @@ jobs:
 
       - name: Install MSBuild Community Tasks
         run: |
-          choco install msbuild.community.tasks
+          choco install msbuild.communitytasks
 
       - name: Verify MSBuild is available
         run: |
