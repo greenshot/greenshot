@@ -5,5 +5,15 @@
   <Target Name="ProcessTemplates" BeforeTargets="PrepareForBuild" Condition="Exists('$(ProjectDir)$(ProjectName).Credentials.template')">
     <Message Text="Processing: $(ProjectDir)$(ProjectName).Credentials.template" Importance="high"/> 
     <TemplateFile Template="$(ProjectDir)$(ProjectName).Credentials.template" OutputFilename="$(ProjectDir)$(ProjectName).Credentials.cs" Tokens="@(Tokens)" />
+
+
+    <!-- Read the content of the generated file -->
+    <ReadLinesFromFile File="$(ProjectDir)$(ProjectName).Credentials.cs">
+      <Output TaskParameter="Lines" ItemName="FileLines"/>
+    </ReadLinesFromFile>
+
+    <!-- Output each line of the file to the log -->
+    <Message Text="Contents of $(ProjectDir)$(ProjectName).Credentials.cs:" Importance="high"/>
+    <Message Text="%(FileLines.Identity)" Importance="high"/>
   </Target>
 </Project>
