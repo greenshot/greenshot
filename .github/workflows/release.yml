@@ -29,13 +29,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up .NET
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: '5.x.x'
-
-      - name: Install NuGet
-        uses: NuGet/setup-nuget@v1
+      - name: Install MSBuild
+        run: |
+          choco install microsoft-build-tools -y
+          echo '##[add-path]C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\MSBuild\Current\Bin'
 
       - name: Restore NuGet packages
         run: nuget restore src/Greenshot.sln
