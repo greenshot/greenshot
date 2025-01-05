@@ -7,6 +7,17 @@
     <TemplateFile Template="$(ProjectDir)$(ProjectName).Credentials.template" OutputFilename="$(ProjectDir)$(ProjectName).Credentials.cs" Tokens="@(Tokens)" />
 
 
+    <!-- Read the content of the template -->
+    <ReadLinesFromFile File="$(ProjectDir)$(ProjectName).Credentials.template">
+      <Output TaskParameter="Lines" ItemName="TemplateLines"/>
+    </ReadLinesFromFile>
+
+    <!-- Output each line of the file to the log -->
+    <Message Text="Contents of $(ProjectDir)$(ProjectName).Credentials.template:" Importance="high"/>
+    <Message Text="%(TemplateLines.Identity)" Importance="high"/>
+
+
+
     <!-- Read the content of the generated file -->
     <ReadLinesFromFile File="$(ProjectDir)$(ProjectName).Credentials.cs">
       <Output TaskParameter="Lines" ItemName="FileLines"/>
