@@ -4,10 +4,12 @@
       <MSBuildCommunityTasksPath>$(PkgMSBuildTasks)\tools\</MSBuildCommunityTasksPath>
   </PropertyGroup>
   
+  <!-- TODO find a solution for token replacement
   <Import Project="$(MSBuildCommunityTasksPath)MSBuild.Community.Tasks.Targets" Condition="Exists('$(ProjectDir)$(ProjectName).Credentials.template')"/>
 
   <Target Name="ProcessTemplates" BeforeTargets="PrepareForBuild" Condition="Exists('$(ProjectDir)$(ProjectName).Credentials.template')">
     <Message Text="Processing: $(ProjectDir)$(ProjectName).Credentials.template" Importance="high"/> 
     <TemplateFile Template="$(ProjectDir)$(ProjectName).Credentials.template" OutputFilename="$(ProjectDir)$(ProjectName).Credentials.cs" Tokens="@(Tokens)" />
   </Target>
+  -->
 </Project>
