@@ -43,7 +43,8 @@ jobs:
         run: nuget restore src/Greenshot.sln
 
       - name: Build and package
-        run: &"C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\MSBuild\Current\Bin\MSBuild.exe" src/Greenshot.sln /p:Configuration=Release
+        run: |
+          &"C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\MSBuild\Current\Bin\MSBuild.exe" src/Greenshot.sln /p:Configuration=Release
 
       - name: Copy Files to artifact staging directory
         run: |
