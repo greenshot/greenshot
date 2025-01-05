@@ -39,6 +39,10 @@ jobs:
           choco install visualstudio2019buildtools --version=16.11.7
           choco install microsoft-build-tools --version=15.0.26320.2
 
+      - name: Install MSBuild Community Tasks
+        run: |
+          choco install msbuild.community.tasks
+
       - name: Verify MSBuild is available
         run: |
           echo "Checking MSBuild version"
