@@ -32,29 +32,16 @@ jobs:
       - name: Set up .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '5.0.100'
-          
+          dotnet-version: '5.x.x'
 
-      - name: Restore nuget packages and generate credential templates
-        run: |
-          dotnet msbuild src/Greenshot.sln /restore /t:PrepareForBuild /p:Configuration=Release /p:Platform="Any CPU"
+      - name: Install NuGet
+        uses: NuGet/setup-nuget@v1
+
+      - name: Restore NuGet packages
+        run: nuget restore src/Greenshot.sln
 
       - name: Build and package
-        run: |
-          dotnet msbuild src/Greenshot.sln /p:Configuration=Release /p:Platform="Any CPU"
-        env:
-          Box13_ClientId: ${{ secrets.Box13_ClientId }}
-          Box13_ClientSecret: ${{ secrets.Box13_ClientSecret }}
-          DropBox13_ClientId: ${{ secrets.DropBox13_ClientId }}
-          DropBox13_ClientSecret: ${{ secrets.DropBox13_ClientSecret }}
-          Flickr_ClientId: ${{ secrets.Flickr_ClientId }}
-          Flickr_ClientSecret: ${{ secrets.Flickr_ClientSecret }}
-          Imgur13_ClientId: ${{ secrets.Imgur13_ClientId }}
-          Imgur13_ClientSecret: ${{ secrets.Imgur13_ClientSecret }}
-          Photobucket_ClientId: ${{ secrets.Photobucket_ClientId }}
-          Photobucket_ClientSecret: ${{ secrets.Photobucket_ClientSecret }}
-          Picasa_ClientId: ${{ secrets.Picasa_ClientId }}
-          Picasa_ClientSecret: ${{ secrets.Picasa_ClientSecret }}
+        run: msbuild src/Greenshot.sln /p:Configuration=Release
 
       - name: Copy Files to artifact staging directory
         run: |
@@ -66,24 +53,3 @@ jobs:
         with:
           name: drop
           path: ${{ github.workspace }}/artifacts
-
-  deploy:
-    runs-on: windows-latest
-    needs: build
-    steps:
-      - name: Download Build Artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: drop
-          path: ${{ github.workspace }}/drop
-
-      - name: Create GitHub Release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: v${{ github.run_number }}
-          release_name: "Greenshot ${{ github.run_number }} unstable"
-          draft: true
-          prerelease: true
-          files: ${{ github.workspace }}/drop/*.exe
