@@ -31,13 +31,11 @@ jobs:
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '5.0.100'
-
-      - name: Install Microsoft.Build.Utilities.v4.0
-        run: nuget install Microsoft.Build.Utilities.v4.0 -Version 4.0.0 -OutputDirectory packages
+          
 
       - name: Restore nuget packages and generate credential templates
         run: |
-          dotnet msbuild src/Greenshot.sln /restore /t:PrepareForBuild /p:Configuration=Release /p:Platform="Any CPU" /p:MSBuildExtensionsPath=$(pwd)/packages/MSBuild.Community.Tasks.1.5.0.235/tools
+          dotnet msbuild src/Greenshot.sln /restore /t:PrepareForBuild /p:Configuration=Release /p:Platform="Any CPU"
 
       - name: Build and package
         run: |
