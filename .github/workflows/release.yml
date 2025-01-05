@@ -34,6 +34,11 @@ jobs:
         with:
           dotnet-version: '5.x.x'
 
+      - name: Install Visual Studio Build Tools
+        run: |
+          choco install visualstudio2019buildtools --version=16.11.7
+          choco install microsoft-build-tools --version=15.0.26320.2
+
       - name: Verify MSBuild is available
         run: |
           echo "Checking MSBuild version"
