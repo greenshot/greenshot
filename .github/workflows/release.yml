@@ -29,16 +29,21 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install MSBuild
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '5.x.x'
+
+      - name: Verify MSBuild is available
         run: |
-          choco install microsoft-build-tools -y
-          echo '##[add-path]C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\MSBuild\Current\Bin'
+          echo "Checking MSBuild version"
+          &"C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\MSBuild\Current\Bin\MSBuild.exe" -version
 
       - name: Restore NuGet packages
         run: nuget restore src/Greenshot.sln
 
       - name: Build and package
-        run: msbuild src/Greenshot.sln /p:Configuration=Release
+        run: &"C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\MSBuild\Current\Bin\MSBuild.exe" src/Greenshot.sln /p:Configuration=Release
 
       - name: Copy Files to artifact staging directory
         run: |
