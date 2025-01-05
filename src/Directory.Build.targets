@@ -1,10 +1,6 @@
 <Project>
 
-  <PropertyGroup Condition="Exists('$(ProjectDir)$(ProjectName).Credentials.template')">
-      <MSBuildCommunityTasksPath>$(PkgMSBuildTasks)\tools\</MSBuildCommunityTasksPath>
-  </PropertyGroup>
-  
-  <Import Project="$(MSBuildCommunityTasksPath)MSBuild.Community.Tasks.Targets" Condition="Exists('$(ProjectDir)$(ProjectName).Credentials.template')"/>
+  <Import Project="$(MSBuildExtensionsPath)\MSBuildCommunityTasks\MSBuild.Community.Tasks.Targets" Condition="Exists('$(ProjectDir)$(ProjectName).Credentials.template')"/>
 
   <Target Name="ProcessTemplates" BeforeTargets="PrepareForBuild" Condition="Exists('$(ProjectDir)$(ProjectName).Credentials.template')">
     <Message Text="Processing: $(ProjectDir)$(ProjectName).Credentials.template" Importance="high"/> 
