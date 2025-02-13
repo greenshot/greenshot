@@ -1,40 +1,13 @@
 <Project>
 
-  <PropertyGroup Condition="'$(CI)' != 'true' And Exists('$(ProjectDir)$(ProjectName).Credentials.template')">
-    <MSBuildCommunityTasksPath>$(PkgMSBuildTasks)\tools\</MSBuildCommunityTasksPath>
+  <PropertyGroup Condition="Exists('$(ProjectDir)$(ProjectName).Credentials.template')">
+      <MSBuildCommunityTasksPath>$(PkgMSBuildTasks)\tools\</MSBuildCommunityTasksPath>
   </PropertyGroup>
-
-  <PropertyGroup Condition="'$(CI)' == 'true' And Exists('$(ProjectDir)$(ProjectName).Credentials.template')">
-    <MSBuildCommunityTasksPath>$(MSBuildExtensionsPath)\MSBuildCommunityTasks\</MSBuildCommunityTasksPath>
-  </PropertyGroup>
-
+  
   <Import Project="$(MSBuildCommunityTasksPath)MSBuild.Community.Tasks.Targets" Condition="Exists('$(ProjectDir)$(ProjectName).Credentials.template')"/>
 
-<!--
   <Target Name="ProcessTemplates" BeforeTargets="PrepareForBuild" Condition="Exists('$(ProjectDir)$(ProjectName).Credentials.template')">
     <Message Text="Processing: $(ProjectDir)$(ProjectName).Credentials.template" Importance="high"/> 
     <TemplateFile Template="$(ProjectDir)$(ProjectName).Credentials.template" OutputFilename="$(ProjectDir)$(ProjectName).Credentials.cs" Tokens="@(Tokens)" />
-
-
-    <!- - Read the content of the template - ->
-    <ReadLinesFromFile File="$(ProjectDir)$(ProjectName).Credentials.template">
-      <Output TaskParameter="Lines" ItemName="TemplateLines"/>
-    </ReadLinesFromFile>
-
-    <!- - Output each line of the file to the log - ->
-    <Message Text="Contents of $(ProjectDir)$(ProjectName).Credentials.template:" Importance="high"/>
-    <Message Text="%(TemplateLines.Identity)" Importance="high"/>
-
-
-
-    <!- - Read the content of the generated file - ->
-    <ReadLinesFromFile File="$(ProjectDir)$(ProjectName).Credentials.cs">
-      <Output TaskParameter="Lines" ItemName="FileLines"/>
-    </ReadLinesFromFile>
-
-    <!- - Output each line of the file to the log - ->
-    <Message Text="Contents of $(ProjectDir)$(ProjectName).Credentials.cs:" Importance="high"/>
-    <Message Text="%(FileLines.Identity)" Importance="high"/>
   </Target>
-  -->
 </Project>

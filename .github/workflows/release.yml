@@ -4,72 +4,84 @@ on:
   push:
     branches:
       - 'release/1.*'
+  pull_request:
+    branches:
+      - 'release/1.*'
     paths-ignore:
       - 'develop/**'
 
 jobs:
   build:
     runs-on: windows-latest
-    env:
-      Box13_ClientId: ${{ secrets.Box13_ClientId }}
-      Box13_ClientSecret: ${{ secrets.Box13_ClientSecret }}
-      DropBox13_ClientId: ${{ secrets.DropBox13_ClientId }}
-      DropBox13_ClientSecret: ${{ secrets.DropBox13_ClientSecret }}
-      Flickr_ClientId: ${{ secrets.Flickr_ClientId }}
-      Flickr_ClientSecret: ${{ secrets.Flickr_ClientSecret }}
-      Imgur13_ClientId: ${{ secrets.Imgur13_ClientId }}
-      Imgur13_ClientSecret: ${{ secrets.Imgur13_ClientSecret }}
-      Photobucket_ClientId: ${{ secrets.Photobucket_ClientId }}
-      Photobucket_ClientSecret: ${{ secrets.Photobucket_ClientSecret }}
-      Picasa_ClientId: ${{ secrets.Picasa_ClientId }}
-      Picasa_ClientSecret: ${{ secrets.Picasa_ClientSecret }}
+
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+    - uses: actions/checkout@v2
 
-      - name: Set up .NET
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: '5.x.x'
+    - name: Set up .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '5.x'
 
-      - name: Install Visual Studio Build Tools
-        run: |
-          choco install visualstudio2019buildtools --version=16.11.7
-          choco install microsoft-build-tools --version=15.0.26320.2
+    - name: Restore nuget packages and generate credential templates
+      run: dotnet restore src/Greenshot.sln --configfile nuget.config --source https://api.nuget.org/v3/index.json
+      env:
+        Box13_ClientId: ${{ secrets.Box13_ClientId }}
+        Box13_ClientSecret: ${{ secrets.Box13_ClientSecret }}
+        DropBox13_ClientId: ${{ secrets.DropBox13_ClientId }}
+        DropBox13_ClientSecret: ${{ secrets.DropBox13_ClientSecret }}
+        Flickr_ClientId: ${{ secrets.Flickr_ClientId }}
+        Flickr_ClientSecret: ${{ secrets.Flickr_ClientSecret }}
+        Imgur13_ClientId: ${{ secrets.Imgur13_ClientId }}
+        Imgur13_ClientSecret: ${{ secrets.Imgur13_ClientSecret }}
+        Photobucket_ClientId: ${{ secrets.Photobucket_ClientId }}
+        Photobucket_ClientSecret: ${{ secrets.Photobucket_ClientSecret }}
+        Picasa_ClientId: ${{ secrets.Picasa_ClientId }}
+        Picasa_ClientSecret: ${{ secrets.Picasa_ClientSecret }}
 
-      - name: Install MSBuild Community Tasks
-        run: |
-          choco install msbuild.communitytasks
+    - name: Build and package
+      run: dotnet build src/Greenshot.sln --configuration Release --no-restore
+      env:
+        Box13_ClientId: ${{ secrets.Box13_ClientId }}
+        Box13_ClientSecret: ${{ secrets.Box13_ClientSecret }}
+        DropBox13_ClientId: ${{ secrets.DropBox13_ClientId }}
+        DropBox13_ClientSecret: ${{ secrets.DropBox13_ClientSecret }}
+        Flickr_ClientId: ${{ secrets.Flickr_ClientId }}
+        Flickr_ClientSecret: ${{ secrets.Flickr_ClientSecret }}
+        Imgur13_ClientId: ${{ secrets.Imgur13_ClientId }}
+        Imgur13_ClientSecret: ${{ secrets.Imgur13_ClientSecret }}
+        Photobucket_ClientId: ${{ secrets.Photobucket_ClientId }}
+        Photobucket_ClientSecret: ${{ secrets.Photobucket_ClientSecret }}
+        Picasa_ClientId: ${{ secrets.Picasa_ClientId }}
+        Picasa_ClientSecret: ${{ secrets.Picasa_ClientSecret }}
 
-      - name: Verify MSBuild is available
-        run: |
-          echo "Checking MSBuild version"
-          if (Test-Path "C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\MSBuild\Current\Bin\MSBuild.exe") {
-            &"C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\MSBuild\Current\Bin\MSBuild.exe" -version
-          } else {
-            Write-Error "MSBuild.exe not found"
-          }
+    - name: Copy Files
+      run: |
+        mkdir -p ${{ github.workspace }}/artifacts
+        cp $(Build.SourcesDirectory)/installer/Greenshot-INSTALLER-*.exe ${{ github.workspace }}/artifacts/
+    
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: drop
+        path: ${{ github.workspace }}/artifacts
 
-      - name: Restore NuGet packages
-        run: nuget restore src/Greenshot.sln
+  deploy:
+    runs-on: windows-latest
+    needs: build
 
-      - name: Build and package
-        run: |
-          if (Test-Path "C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\MSBuild\Current\Bin\MSBuild.exe") {
-            &"C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\MSBuild\Current\Bin\MSBuild.exe" src/Greenshot.sln /p:Configuration=Release
-          } else {
-            Write-Error "MSBuild.exe not found"
-          }
+    steps:
+    - name: Download Artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: drop
 
-      - name: Copy Files to artifact staging directory
-        run: |
-          mkdir -p ${{ github.workspace }}/artifacts
-          cp ${{ github.workspace }}/installer/Greenshot-INSTALLER-*.exe ${{ github.workspace }}/artifacts
-
-      - name: Upload Build Artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: drop
-          path: ${{ github.workspace }}/artifacts
+    - name: Create GitHub Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v${{ github.run_number }}
+        release_name: "Greenshot ${{ github.run_number }} unstable"
+        draft: true
+        prerelease: true
+        files: ${{ github.workspace }}/drop/*.exe
