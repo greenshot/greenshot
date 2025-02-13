@@ -1,4 +1,7 @@
 <Project>
+    <UsingTask TaskName="MSBuild.Community.Tasks.TemplateFile"
+             AssemblyFile="$(NuGetPackageRoot)msbuildtasks/1.5.0.235/tools/MSBuild.Community.Tasks.dll" />
+
 
   <PropertyGroup Condition="Exists('$(ProjectDir)$(ProjectName).Credentials.template')">
       <MSBuildCommunityTasksPath>$(PkgMSBuildTasks)\tools\</MSBuildCommunityTasksPath>
