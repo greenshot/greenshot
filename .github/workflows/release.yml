@@ -60,10 +60,10 @@ jobs:
         cp $(Build.SourcesDirectory)/installer/Greenshot-INSTALLER-*.exe ${{ github.workspace }}/artifacts/
     
     - name: Upload Artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
-        name: drop
-        path: ${{ github.workspace }}/artifacts
+       name: drop
+       path: ${{ github.workspace }}/artifacts
 
   deploy:
     runs-on: windows-latest
