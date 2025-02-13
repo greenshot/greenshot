@@ -1,13 +1,12 @@
 <Project>
-    <UsingTask TaskName="MSBuild.Community.Tasks.TemplateFile"
+  <UsingTask TaskName="MSBuild.Community.Tasks.TemplateFile"
              AssemblyFile="$(NuGetPackageRoot)msbuildtasks/1.5.0.235/tools/MSBuild.Community.Tasks.dll" />
 
-
   <PropertyGroup Condition="Exists('$(ProjectDir)$(ProjectName).Credentials.template')">
-      <MSBuildCommunityTasksPath>$(PkgMSBuildTasks)\tools\</MSBuildCommunityTasksPath>
+    <MSBuildCommunityTasksPath>$(NuGetPackageRoot)msbuildtasks/1.5.0.235/tools/</MSBuildCommunityTasksPath>
   </PropertyGroup>
-  
-  <Import Project="$(MSBuildCommunityTasksPath)MSBuild.Community.Tasks.Targets" Condition="Exists('$(ProjectDir)$(ProjectName).Credentials.template')"/>
+
+  <Import Project="$(MSBuildCommunityTasksPath)MSBuild.Community.Tasks.Targets" Condition="Exists('$(ProjectDir)$(ProjectName).Credentials.template')" />
 
   <Target Name="ProcessTemplates" BeforeTargets="PrepareForBuild" Condition="Exists('$(ProjectDir)$(ProjectName).Credentials.template')">
     <Message Text="Processing: $(ProjectDir)$(ProjectName).Credentials.template" Importance="high"/> 
