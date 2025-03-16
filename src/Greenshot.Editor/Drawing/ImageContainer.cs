@@ -181,6 +181,12 @@ namespace Greenshot.Editor.Drawing
         /// <param name="matrix"></param>
         public override void Transform(Matrix matrix)
         {
+            if (_image == null)
+            {
+                base.Transform(matrix);
+                return;
+            }
+
             int rotateAngle = CalculateAngle(matrix);
             // we currently assume only one transformation has been made.
             if (rotateAngle != 0)

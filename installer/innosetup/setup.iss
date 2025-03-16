@@ -31,6 +31,15 @@ Source: {#ReleaseDir}\Svg.dll; DestDir: {app}; Components: greenshot; Flags: ove
 Source: {#ReleaseDir}\Fizzler.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
 Source: {#ReleaseDir}\HtmlAgilityPack.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
 Source: {#ReleaseDir}\Newtonsoft.Json.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
+Source: {#ReleaseDir}\SixLabors.ImageSharp.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
+Source: {#ReleaseDir}\SixLabors.ImageSharp.Drawing.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
+Source: {#ReleaseDir}\SixLabors.Fonts.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
+Source: {#ReleaseDir}\System.Memory.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
+Source: {#ReleaseDir}\System.Numerics.Vectors.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
+Source: {#ReleaseDir}\System.Runtime.CompilerServices.Unsafe.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
+Source: {#ReleaseDir}\System.Buffers.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
+Source: {#ReleaseDir}\Twemoji.Mozilla.ttf; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
+Source: {#ReleaseDir}\emojis.xml; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
 Source: {#GreenshotProjectDir}\log4net.xml; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion
 Source: {#ReleaseDir}\checksum.SHA256; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
 ;Source: ..\greenshot-defaults.ini; DestDir: {app}; Flags: overwritereadonly ignoreversion replacesameversion
