@@ -7,7 +7,7 @@
       <PrivateAssets>all</PrivateAssets>
       <ExcludeAssets>runtime</ExcludeAssets>
     </PackageReference>   
-    <PackageReference Include="SixLabors.ImageSharp.Drawing" version="1.0.0-beta15" />
+    <PackageReference Include="SixLabors.ImageSharp.Drawing" version="1.0.0" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\Greenshot.Editor\Controls\Emoji\Emojis.cs">
