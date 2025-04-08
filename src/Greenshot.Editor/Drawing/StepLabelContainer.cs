@@ -23,7 +23,6 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
-using System.Runtime.Serialization;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
@@ -37,11 +36,11 @@ namespace Greenshot.Editor.Drawing
     /// This is an enumerated label, every single StepLabelContainer shows the number of the order it was created.
     /// To make sure that deleting recalculates, we check the location before every draw.
     /// </summary>
-    [Serializable]
     public sealed class StepLabelContainer : DrawableContainer
     {
-        [NonSerialized] private StringFormat _stringFormat = new StringFormat();
+        private StringFormat _stringFormat = new StringFormat();
 
+        // TODO: currently not in use, but implemented. Define a new Boolean-Field for this, so it can be changed in the UI
         private readonly bool _drawAsRectangle = false;
 
         public StepLabelContainer(ISurface parent) : base(parent)
@@ -56,44 +55,23 @@ namespace Greenshot.Editor.Drawing
             CreateDefaultAdorners();
         }
 
-        // Used to store the number of this label, so when deserializing it can be placed back to the StepLabels list in the right location
-        private int _number;
-
-        // Used to store the counter start of the Surface, as the surface is NOT stored.
+        /// <summary>
+        /// Used to store the counter start of the Surface on serialization / deserialization.
+        /// </summary>
+        /// <remarks>The Surface itself is not stored. All StepLabelContainer will store the same start value. It's a bit hacky. </remarks>
         private int _counterStart = 1;
 
-        public int Number
-        {
-            get { return _number; }
-            set { _number = value; }
-        }
-
         /// <summary>
-        /// Retrieve the counter before serializing
+        ///  Used to store the number of this label on serialization / deserialization.
         /// </summary>
-        /// <param name="context"></param>
-        [OnSerializing]
-        private void SetValuesOnSerializing(StreamingContext context)
-        {
-            if (InternalParent == null) return;
+        /// <remarks> This is not the displayed number, but the internal number of the label. The displayed number is calculated based on position in container list in the Surface, while drawing <see cref="Draw"/>. </remarks>
+        public int Number { get;set; }
 
-            Number = InternalParent.CountStepLabels(this);
-            _counterStart = InternalParent.CounterStart;
-        }
-
-        /// <summary>
-        /// Restore values that don't serialize
-        /// </summary>
-        /// <param name="context"></param>
-        protected override void OnDeserialized(StreamingContext context)
-        {
-            Init();
-            _stringFormat = new StringFormat
-            {
-                Alignment = StringAlignment.Center,
-                LineAlignment = StringAlignment.Center
-            };
-        }
+        /// <inheritdoc cref="_counterStart"/>
+        public int CounterStart {
+            get { return _counterStart; }
+            set { _counterStart = value; }
+        } 
 
         /// <summary>
         /// Add the StepLabel to the parent

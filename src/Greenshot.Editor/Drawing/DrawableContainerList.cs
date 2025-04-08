@@ -42,7 +42,6 @@ namespace Greenshot.Editor.Drawing
     /// <summary>
     /// Dispatches most of a DrawableContainer's public properties and methods to a list of DrawableContainers.
     /// </summary>
-    [Serializable]
     public class DrawableContainerList : List<IDrawableContainer>, IDrawableContainerList
     {
         private static readonly ComponentResourceManager EditorFormResources = new(typeof(ImageEditorForm));

@@ -19,7 +19,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -41,7 +40,6 @@ namespace Greenshot.Editor.Drawing.Fields
     ///    Properties that do not apply for ALL selected elements are null (or 0 respectively)
     ///    If the property values of the selected elements differ, the value of the last bound element wins.
     /// </summary>
-    [Serializable]
     public sealed class FieldAggregator : AbstractFieldHolder, IFieldAggregator
     {
         private readonly IDrawableContainerList _boundContainers;

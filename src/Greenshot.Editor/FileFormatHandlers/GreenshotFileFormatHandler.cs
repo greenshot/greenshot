@@ -22,112 +22,96 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
-using System.Reflection;
-using System.Text;
-using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.Editor.Drawing;
+using Greenshot.Editor.FileFormat;
 using log4net;
 
-namespace Greenshot.Editor.FileFormatHandlers
+namespace Greenshot.Editor.FileFormatHandlers;
+
+public sealed class GreenshotFileFormatHandler : AbstractFileFormatHandler, IFileFormatHandler
 {
-    public class GreenshotFileFormatHandler : AbstractFileFormatHandler, IFileFormatHandler
+    private static readonly ILog Log = LogManager.GetLogger(typeof(GreenshotFileFormatHandler));
+    private readonly IReadOnlyCollection<string> _ourExtensions = new[] { ".greenshot" };
+    public GreenshotFileFormatHandler()
     {
-        private static readonly ILog Log = LogManager.GetLogger(typeof(GreenshotFileFormatHandler));
-        private readonly IReadOnlyCollection<string> _ourExtensions = new [] { ".greenshot" };
-        public GreenshotFileFormatHandler()
+        SupportedExtensions[FileFormatHandlerActions.LoadDrawableFromStream] = _ourExtensions;
+        SupportedExtensions[FileFormatHandlerActions.LoadFromStream] = _ourExtensions;
+        SupportedExtensions[FileFormatHandlerActions.SaveToStream] = _ourExtensions;
+    }
+
+    /// <summary>
+    /// Save the surface to the specified stream in the current .greenshot file format.
+    /// </summary>
+    /// <remarks>Ignores the given bitmap, as the .greenshot file always uses the original surface image.</remarks>
+    /// <returns><see langword="true"/> if the surface was successfully saved to the stream; otherwise, <see langword="false"/>.</returns>
+    public override bool TrySaveToStream(Bitmap bitmap, Stream stream, string extension, ISurface surface = null, SurfaceOutputSettings surfaceOutputSettings = null)
+    {
+        if (surface == null)
         {
-            SupportedExtensions[FileFormatHandlerActions.LoadDrawableFromStream] = _ourExtensions;
-            SupportedExtensions[FileFormatHandlerActions.LoadFromStream] = _ourExtensions;
-            SupportedExtensions[FileFormatHandlerActions.SaveToStream] = _ourExtensions;
-        }
-
-        public override bool TrySaveToStream(Bitmap bitmap, Stream stream, string extension, ISurface surface = null, SurfaceOutputSettings surfaceOutputSettings = null)
-        {
-            if (surface == null)
-            {
-                return false;
-            }
-
-            try
-            {
-                bitmap.Save(stream, ImageFormat.Png);
-                using MemoryStream tmpStream = new MemoryStream();
-                long bytesWritten = surface.SaveElementsToStream(tmpStream);
-                using BinaryWriter writer = new BinaryWriter(tmpStream);
-                writer.Write(bytesWritten);
-                Version v = Assembly.GetExecutingAssembly().GetName().Version;
-                byte[] marker = Encoding.ASCII.GetBytes($"Greenshot{v.Major:00}.{v.Minor:00}");
-                writer.Write(marker);
-                tmpStream.WriteTo(stream);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                Log.Error("Couldn't save surface as .greenshot: ", ex);
-            }
-
             return false;
         }
 
-        public override bool TryLoadFromStream(Stream stream, string extension, out Bitmap bitmap)
+        try
         {
-            try
-            {
-                var surface = LoadSurface(stream);
-                bitmap = (Bitmap)surface.GetImageForExport();
-                return true;
-            }
-            catch (Exception ex)
-            {
-                Log.Error("Couldn't load .greenshot: ", ex);
-            }
-            bitmap = null;
-            return false;
+            //ignore the given bitmap, in .greenshot file we always use the original surface image
+            return GreenshotFileVersionHandler.SaveToStreamInCurrentVersion(surface, stream);
+        }
+        catch (Exception ex)
+        {
+            Log.Error("Couldn't save surface as .greenshot: ", ex);
         }
 
-        private ISurface LoadSurface(Stream surfaceFileStream)
+        return false;
+    }
+
+    /// <summary>
+    /// <inheritdoc />
+    /// </summary>
+    /// <remarks>This implementation loads the <see cref="GreenshotFile"/> from stream. Use this to creates a <see cref="ISurface"/> and uses <see cref="Surface.GetImageForExport"/> wich renders all contained elements into the image.</remarks>
+    /// <returns><see langword="true"/> if the bitmap was successfully loaded from the stream; otherwise, <see
+    /// langword="false"/>.</returns>
+    public override bool TryLoadFromStream(Stream stream, string extension, out Bitmap bitmap)
+    {
+        try
         {
-            var returnSurface = SimpleServiceProvider.Current.GetInstance<Func<ISurface>>().Invoke();
-            Bitmap captureBitmap;
+            var surface = GreenshotFileVersionHandler.CreateSurfaceFromStream(stream);
 
-            // Fixed problem that the bitmap stream is disposed... by Cloning the image
-            // This also ensures the bitmap is correctly created
-            using (Image tmpImage = Image.FromStream(surfaceFileStream, true, true))
-            {
-                Log.DebugFormat("Loaded capture from .greenshot file with Size {0}x{1} and PixelFormat {2}", tmpImage.Width, tmpImage.Height, tmpImage.PixelFormat);
-                captureBitmap = ImageHelper.Clone(tmpImage) as Bitmap;
-            }
-
-            // Start at -14 read "GreenshotXX.YY" (XX=Major, YY=Minor)
-            const int markerSize = 14;
-            surfaceFileStream.Seek(-markerSize, SeekOrigin.End);
-            using (var streamReader = new StreamReader(surfaceFileStream))
-            {
-                var greenshotMarker = streamReader.ReadToEnd();
-                if (!greenshotMarker.StartsWith("Greenshot"))
-                {
-                    throw new ArgumentException("Stream is not a Greenshot file!");
-                }
-
-                Log.InfoFormat("Greenshot file format: {0}", greenshotMarker);
-                const int fileSizeLocation = 8 + markerSize;
-                surfaceFileStream.Seek(-fileSizeLocation, SeekOrigin.End);
-                using BinaryReader reader = new BinaryReader(surfaceFileStream);
-                long bytesWritten = reader.ReadInt64();
-                surfaceFileStream.Seek(-(bytesWritten + fileSizeLocation), SeekOrigin.End);
-                returnSurface.LoadElementsFromStream(surfaceFileStream);
-            }
-
-            if (captureBitmap != null)
-            {
-                returnSurface.Image = captureBitmap;
-                Log.InfoFormat("Information about .greenshot file: {0}x{1}-{2} Resolution {3}x{4}", captureBitmap.Width, captureBitmap.Height, captureBitmap.PixelFormat, captureBitmap.HorizontalResolution, captureBitmap.VerticalResolution);
-            }
-
-            return returnSurface;
+            bitmap = (Bitmap)surface.GetImageForExport();
+            return true;
         }
+        catch (Exception ex)
+        {
+            Log.Error("Couldn't load .greenshot: ", ex);
+        }
+        bitmap = null;
+        return false;
+    }
+
+    /// <summary>
+    /// Load a <see cref="ISurface"/> from file path
+    /// </summary>
+    /// <remarks>This implementation loads the <see cref="GreenshotFile"/> from file. Use this to creates a <see cref="ISurface"/>.</remarks>
+    /// <param name="fullPath"></param>
+    /// <returns></returns>
+    public ISurface LoadGreenshotSurface(string fullPath)
+    {
+        if (string.IsNullOrEmpty(fullPath))
+        {
+            Log.Warn("No file path provided for loading Greenshot surface.");
+            return null;
+        }
+        Log.InfoFormat("Loading surface data from file {0}", fullPath);
+
+        using Stream greenshotFileStream = File.OpenRead(fullPath);
+        ISurface returnSurface = GreenshotFileVersionHandler.CreateSurfaceFromStream(greenshotFileStream);
+
+        Log.InfoFormat("Information about file {0}: {1}x{2}-{3} Resolution {4}x{5}", fullPath, returnSurface.Image.Width, returnSurface.Image.Height,
+                returnSurface.Image.PixelFormat, returnSurface.Image.HorizontalResolution, returnSurface.Image.VerticalResolution);
+
+        return returnSurface;
     }
 }
+
