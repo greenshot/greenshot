@@ -18,8 +18,13 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
+
+ 
+
     - name: Set up .NET
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '5.x'
 
@@ -40,7 +45,7 @@ jobs:
         Picasa_ClientSecret: ${{ secrets.Picasa_ClientSecret }}
 
     - name: Build and package
-      run: dotnet build src/Greenshot.sln --configuration Release --no-restore
+      run: msbuild src/Greenshot.sln /p:Configuration=Release /t:Rebuild /v:normal
       env:
         Box13_ClientId: ${{ secrets.Box13_ClientId }}
         Box13_ClientSecret: ${{ secrets.Box13_ClientSecret }}
