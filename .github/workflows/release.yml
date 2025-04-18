@@ -88,7 +88,7 @@ jobs:
 
       # Step 3: Create GitHub Release using softprops/gh-release
       - name: Create GitHub Release
-        uses: softprops/gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: drop/*.exe
           draft: true
