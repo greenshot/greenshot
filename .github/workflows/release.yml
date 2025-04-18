@@ -78,18 +78,49 @@ jobs:
     needs: build
 
     steps:
-    - name: Download Artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: drop
+     # Step 2: Download artifacts (drop)
+      - name: Download build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: drop # Name of the artifact uploaded in previous steps
+          path: drop # Local folder where artifacts are downloaded
 
-    - name: Create GitHub Release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: v${{ github.run_number }}
-        release_name: "Greenshot ${{ github.run_number }} unstable"
-        draft: true
-        prerelease: true
-        files: ${{ github.workspace }}/drop/*.exe
+      # Step 3: Create GitHub Release
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ github.run_number }}
+          release_name: "Greenshot ${{ github.run_number }} unstable"
+          draft: true
+          prerelease: true
+
+      # Step 4: Upload Release Assets
+      - name: Upload Release Assets
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: drop/*.exe
+          asset_name: Greenshot-${{ github.run_number }}.exe
+          asset_content_type: application/octet-stream
+
+    
+
+#    steps:
+#    - name: Download Artifact
+#      uses: actions/download-artifact@v4
+#      with:
+#        name: drop
+#
+#    - name: Create GitHub Release
+#      uses: actions/create-release@v1
+#      env:
+#        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#      with:
+#        tag_name: v${{ github.run_number }}
+#        release_name: "Greenshot ${{ github.run_number }} unstable"
+#        draft: true
+#        prerelease: true
+#        files: ${{ github.workspace }}/drop/*.exe
