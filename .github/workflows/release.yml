@@ -85,26 +85,38 @@ jobs:
           name: drop # Name of the artifact uploaded in previous steps
           path: drop # Local folder where artifacts are downloaded
 
-      # Step 3: Create GitHub Release
+
+      # Step 3: Create GitHub Release using softprops/gh-release
       - name: Create GitHub Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/gh-release@v1
         with:
-          tag_name: v${{ github.run_number }}
-          release_name: "Greenshot ${{ github.run_number }} unstable"
+          files: drop/*.exe
           draft: true
           prerelease: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
 
-      # Step 4: Upload Release Assets
-      - name: Upload Release Assets
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: "*"
-          asset_name: Greenshot-${{ github.run_number }}.exe
-          asset_content_type: application/octet-stream
+      # Step 3: Create GitHub Release
+#      - name: Create GitHub Release
+#        id: create_release
+#        uses: actions/create-release@v1
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#        with:
+#          tag_name: v${{ github.run_number }}
+#          release_name: "Greenshot ${{ github.run_number }} unstable"
+#          draft: true
+#          prerelease: true
+
+#      # Step 4: Upload Release Assets
+#      - name: Upload Release Assets
+#        uses: actions/upload-release-asset@v1
+#        with:
+#          upload_url: ${{ steps.create_release.outputs.upload_url }}
+#          asset_path: "*"
+#          asset_name: Greenshot-${{ github.run_number }}.exe
+#          asset_content_type: application/octet-stream
 
     
 
