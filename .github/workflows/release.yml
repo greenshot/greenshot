@@ -28,7 +28,7 @@ jobs:
     - name: Set up .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '5.x'
+        dotnet-version: '7.x'
 
     - name: Restore nuget packages and generate credential templates
       run: dotnet restore src/Greenshot.sln --configfile nuget.config --source https://api.nuget.org/v3/index.json
