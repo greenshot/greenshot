@@ -80,7 +80,7 @@ jobs:
     steps:
      # Step 2: Download artifacts (drop)
       - name: Download build artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: drop # Name of the artifact uploaded in previous steps
           path: drop # Local folder where artifacts are downloaded
