@@ -30,21 +30,9 @@ jobs:
       with:
         dotnet-version: '7.x'
 
-    - name: Restore nuget packages and generate credential templates
-      run: dotnet restore src/Greenshot.sln --configfile nuget.config --source https://api.nuget.org/v3/index.json
-      env:
-        Box13_ClientId: ${{ secrets.Box13_ClientId }}
-        Box13_ClientSecret: ${{ secrets.Box13_ClientSecret }}
-        DropBox13_ClientId: ${{ secrets.DropBox13_ClientId }}
-        DropBox13_ClientSecret: ${{ secrets.DropBox13_ClientSecret }}
-        Flickr_ClientId: ${{ secrets.Flickr_ClientId }}
-        Flickr_ClientSecret: ${{ secrets.Flickr_ClientSecret }}
-        Imgur13_ClientId: ${{ secrets.Imgur13_ClientId }}
-        Imgur13_ClientSecret: ${{ secrets.Imgur13_ClientSecret }}
-        Photobucket_ClientId: ${{ secrets.Photobucket_ClientId }}
-        Photobucket_ClientSecret: ${{ secrets.Photobucket_ClientSecret }}
-        Picasa_ClientId: ${{ secrets.Picasa_ClientId }}
-        Picasa_ClientSecret: ${{ secrets.Picasa_ClientSecret }}
+    - name: Restore NuGet packages 
+      run: |
+        msbuild src/Greenshot.sln /p:Configuration=Release /restore /t:PrepareForBuild
 
     - name: Build and package
       run: msbuild src/Greenshot.sln /p:Configuration=Release /t:Rebuild /v:normal
