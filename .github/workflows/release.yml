@@ -62,11 +62,16 @@ jobs:
         Picasa_ClientId: ${{ secrets.Picasa_ClientId }}
         Picasa_ClientSecret: ${{ secrets.Picasa_ClientSecret }}
 
-    - name: Extract version
+    - name: Extract version from file name
+      id: extract_version
       run: |
-        FILE_NAME=$(ls Greenshot-INSTALLER-*.exe | head -n 1)
-        VERSION=$(echo "$FILE_NAME" | sed -E 's/Greenshot-INSTALLER-([0-9]+\.[0-9]+\.[0-9]+)-.*/\1/')
-        echo "VERSION=$VERSION" >> $GITHUB_ENV
+        $file = Get-ChildItem drop -Filter "Greenshot-INSTALLER-*.exe" | Select-Object -First 1
+        if ($file -match "Greenshot-INSTALLER-([\d\.]+).*\.exe") {
+          echo "VERSION=$($matches[1])" >> $GITHUB_ENV
+        } else {
+          throw "Version number could not be extracted from file name: $file"
+        }
+      shell: pwsh
 
 
     - name: Create tag
