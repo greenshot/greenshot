@@ -97,16 +97,6 @@ jobs:
           }
         shell: pwsh
 
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          name: "Greenshot v${{ steps.extract_version.outputs.version }} unstable"
-          files: drop/*.exe
-          draft: true
-          prerelease: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Checkout repository
         uses: actions/checkout@v2
         with:
@@ -118,6 +108,18 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git tag -a "${{ steps.extract_version.outputs.version }}" -m "v${{ steps.extract_version.outputs.version }}"
           git push origin "${{ steps.extract_version.outputs.version }}"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "Greenshot v${{ steps.extract_version.outputs.version }} unstable"
+          tag_name: "v${{ steps.extract_version.outputs.version }}"
+          files: drop/*.exe
+          draft: true
+          prerelease: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
           
 
 # TODOs
