@@ -84,9 +84,21 @@ jobs:
           name: drop # Name of the artifact uploaded in previous steps
           path: drop # Local folder where artifacts are downloaded
 
+      - name: Extract version from file name
+        id: extract_version
+        run: |
+          $file = Get-ChildItem drop -Filter "Greenshot-INSTALLER-*.exe" | Select-Object -First 1
+          if ($file -match "Greenshot-INSTALLER-([\d\.]+)\.exe") {
+            echo "::set-output name=version::$($matches[1])"
+          } else {
+            throw "Version number could not be extracted from file name."
+          }
+        shell: pwsh
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
+          name: "Greenshot Release v${{ steps.extract_version.outputs.version }}" # Add version to release name
           files: drop/*.exe
           draft: true
           prerelease: true
