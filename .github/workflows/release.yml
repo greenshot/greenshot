@@ -88,17 +88,20 @@ jobs:
         id: extract_version
         run: |
           $file = Get-ChildItem drop -Filter "Greenshot-INSTALLER-*.exe" | Select-Object -First 1
-          if ($file -match "Greenshot-INSTALLER-([\d\.]+).*\.exe") {
-            echo "version=$($matches[1])" >> $GITHUB_OUTPUT
+          if (-not $file) {
+            throw "No matching file found in 'drop' directory."
+          }
+          if ($file.Name -match "Greenshot-INSTALLER-([\d\.]+).*\.exe") {
+            echo "version=$($matches[1])" >> $Env:GITHUB_OUTPUT
           } else {
-            throw "Version number could not be extracted from file name: $file"
+            throw "Version number could not be extracted from file name: $($file.Name)"
           }
         shell: pwsh
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          name: "Greenshot Release v${{ steps.extract_version.outputs.version }}"
+          name: "Greenshot v${{ steps.extract_version.outputs.version }} unstable"
           files: drop/*.exe
           draft: true
           prerelease: true
