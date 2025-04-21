@@ -62,6 +62,21 @@ jobs:
         Picasa_ClientId: ${{ secrets.Picasa_ClientId }}
         Picasa_ClientSecret: ${{ secrets.Picasa_ClientSecret }}
 
+    - name: Extract version
+      run: |
+        FILE_NAME=$(ls Greenshot-INSTALLER-*.exe | head -n 1)
+        VERSION=$(echo "$FILE_NAME" | sed -E 's/Greenshot-INSTALLER-([0-9]+\.[0-9]+\.[0-9]+)-.*/\1/')
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+
+    - name: Create tag
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git tag -a "$VERSION" -m "Release version $VERSION"
+        git push origin "$VERSION"
+
+
     - name: Copy Files
       run: |
         mkdir -p ${{ github.workspace }}/artifacts
@@ -81,24 +96,13 @@ jobs:
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
-          name: drop # Name of the artifact uploaded in previous steps
-          path: drop # Local folder where artifacts are downloaded
-
-      - name: Extract version from file name
-        id: extract_version
-        run: |
-          $file = Get-ChildItem drop -Filter "Greenshot-INSTALLER-*.exe" | Select-Object -First 1
-          if ($file -match "Greenshot-INSTALLER-([\d\.]+).*\.exe") {
-            echo "::set-output name=version::$($matches[1])"
-          } else {
-            throw "Version number could not be extracted from file name."
-          }
-        shell: pwsh
+          name: drop
+          path: drop
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          name: "Greenshot Release v${{ steps.extract_version.outputs.version }}" # Add version to release name
+          name: "Greenshot $VERSION unstable"
           files: drop/*.exe
           draft: true
           prerelease: true
@@ -107,10 +111,10 @@ jobs:
           
 
 # TODOs
-# * code signing (setup.iss / innosetup)
-# * name of release
-# * version tag
-# * change log (?) (release-drafter action)
-# * update gh-pages automatically (?)
+# [ ] code signing (setup.iss / innosetup)
+# [x] name of release
+# [ ] version tag
+# [ ] change log (?) (release-drafter action)
+# [ ] update gh-pages automatically (?)
 
   
