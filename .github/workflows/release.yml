@@ -62,26 +62,6 @@ jobs:
         Picasa_ClientId: ${{ secrets.Picasa_ClientId }}
         Picasa_ClientSecret: ${{ secrets.Picasa_ClientSecret }}
 
-    - name: Extract version from file name
-      id: extract_version
-      run: |
-        $file = Get-ChildItem drop -Filter "Greenshot-INSTALLER-*.exe" | Select-Object -First 1
-        if ($file -match "Greenshot-INSTALLER-([\d\.]+).*\.exe") {
-          echo "VERSION=$($matches[1])" >> $GITHUB_ENV
-        } else {
-          throw "Version number could not be extracted from file name: $file"
-        }
-      shell: pwsh
-
-
-    - name: Create tag
-      run: |
-        git config user.name "github-actions[bot]"
-        git config user.email "github-actions[bot]@users.noreply.github.com"
-        git tag -a "$VERSION" -m "Release version $VERSION"
-        git push origin "$VERSION"
-
-
     - name: Copy Files
       run: |
         mkdir -p ${{ github.workspace }}/artifacts
@@ -101,18 +81,36 @@ jobs:
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
-          name: drop
-          path: drop
+          name: drop # Name of the artifact uploaded in previous steps
+          path: drop # Local folder where artifacts are downloaded
+
+      - name: Extract version from file name
+        id: extract_version
+        run: |
+          $file = Get-ChildItem drop -Filter "Greenshot-INSTALLER-*.exe" | Select-Object -First 1
+          if ($file -match "Greenshot-INSTALLER-([\d\.]+).*\.exe") {
+            echo "version=$($matches[1])" >> $GITHUB_OUTPUT
+          } else {
+            throw "Version number could not be extracted from file name: $file"
+          }
+        shell: pwsh
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          name: "Greenshot $VERSION unstable"
+          name: "Greenshot Release v${{ steps.extract_version.outputs.version }}"
           files: drop/*.exe
           draft: true
           prerelease: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+   
+      - name: Create tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "${{ steps.extract_version.outputs.version }}" -m "v${{ steps.extract_version.outputs.version }}"
+          git push origin "${{ steps.extract_version.outputs.version }}"
           
 
 # TODOs
