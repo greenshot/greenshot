@@ -9,71 +9,32 @@
       <Reference Include="System.Text.RegularExpressions" />
       <Code Type="Fragment" Language="cs">
         <![CDATA[
-
         var output = new List<ITaskItem>();
- 
         foreach (var line in InputLines)
-
         {
-
             string text = line.ItemSpec;
- 
             foreach (var token in Tokens)
-
             {
-
-                // Hole den Token-Namen (z. B. Box13_ClientId)
-
                 string tokenName = token.ItemSpec;
-                
                 // Skip if tokenName is null or empty
                 if (string.IsNullOrEmpty(tokenName))
                   continue;
                 
-                Log.LogMessage(MessageImportance.High, "Token name: "+tokenName);
- 
-               Log.LogMessage(MessageImportance.High, "Token: "+ token);
- 
-                // Hole den tatsächlichen Wert des Tokens, der ersetzt werden soll
-
                 string replacementValue = token.GetMetadata("ReplacementValue");
-               Log.LogMessage(MessageImportance.High, "replacementValue: "+ replacementValue);
- 
-                // Ersetze das Token durch den Wert 
-
                 if (!string.IsNullOrEmpty(replacementValue))
-
                 {
-
                     string placeholder = "$"+ "{"+tokenName+"}";  // Token-Format wie $(Box13_ClientId)
-                    
-                    Log.LogMessage(MessageImportance.High, "placeholder: "+ placeholder);
-
                     text = text.Replace(placeholder, replacementValue);
-
                 }
-
             }
- 
             output.Add(new Microsoft.Build.Utilities.TaskItem(text));
-
         }
- 
         OutputLines = output.ToArray();
-
       ]]>
       </Code>
     </Task>
   </UsingTask>
 
-
-
-
-
-<!--
-  <UsingTask TaskName="MSBuild.Community.Tasks.TemplateFile"
-             AssemblyFile="$(NuGetPackageRoot)msbuildtasks/1.5.0.235/tools/MSBuild.Community.Tasks.dll" />
--->
   <PropertyGroup Condition="Exists('$(ProjectDir)$(ProjectName).Credentials.template')">
     <MSBuildCommunityTasksPath>$(NuGetPackageRoot)msbuildtasks/1.5.0.235/tools/</MSBuildCommunityTasksPath>
   </PropertyGroup>
@@ -96,56 +57,6 @@
       File="$(ProjectDir)$(ProjectName).Credentials.cs"
       Lines="@(ProcessedLines)"
       Overwrite="true" />
-
-    <!-- 
-    
-    <ReadLinesFromFile File="$(ProjectDir)$(ProjectName).Credentials.template">
-      <Output TaskParameter="Lines" ItemName="TemplateLines" />
-    </ReadLinesFromFile>
- 
-    <Message Text="Ersetze Umgebungsvariablen in Template..." Importance="High" />
- 
-    <ItemGroup>
-      <ProcessedLines>
-        <Output>$([System.Text.RegularExpressions.Regex]::Replace('%(TemplateLines.Identity)', '\{\{API_KEY\}\}', '$(API_KEY)'))</Output>
-      </ProcessedLines>
-    </ItemGroup>
- 
-    <WriteLinesToFile
-      File="$(ProjectDir)$(ProjectName).Credentials.cs"
-      Lines="@(ProcessedLines->'%(Output)')"
-      Overwrite="true" />
--->
-
-    <!--  
-    
-    <ReadLinesFromFile File="$(ProjectDir)$(ProjectName).Credentials.template">
-<Output TaskParameter="Lines" ItemName="TemplateLines" />
-</ReadLinesFromFile>
- 
-  <ItemGroup>
-<ProcessedLines Include="@(TemplateLines)">
-<Output1>$([System.String]::Copy('%(Identity)'))</Output1>
-</ProcessedLines>
-</ItemGroup>
- 
-<ItemGroup>
-<ProcessedLines>
-<Output1>$([System.Text.RegularExpressions.Regex]::Replace('%(Output1)', '\$\{Photobucket_ClientId\}', '$(Photobucket_ClientId)'))</Output1>
-<Output1>$([System.Text.RegularExpressions.Regex]::Replace('%(Output1)', \$\{Photobucket_ClientSecret\}', '$(Photobucket_ClientSecret)'))</Output1>
-</ProcessedLines>
-</ItemGroup>
- 
-  <WriteLinesToFile
-    File="$(ProjectDir)$(ProjectName).Credentials.cs"
-    Lines="@(ProcessedLines->'%(Output1)')"
-    Overwrite="true" />
-    
-  
--->
-
-
-
   </Target>
 </Project>
 
