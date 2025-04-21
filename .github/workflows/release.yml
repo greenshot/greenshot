@@ -113,7 +113,7 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          name: "Greenshot v${{ steps.extract_version.outputs.version }} unstable"
+          name: "Greenshot ${{ steps.extract_version.outputs.version }} unstable"
           tag_name: "v${{ steps.extract_version.outputs.version }}"
           files: drop/*.exe
           draft: true
@@ -126,7 +126,7 @@ jobs:
 # TODOs
 # [ ] code signing (setup.iss / innosetup)
 # [x] name of release
-# [ ] version tag
+# [x] version tag
 # [ ] change log (?) (release-drafter action)
 # [ ] update gh-pages automatically (?)
 
