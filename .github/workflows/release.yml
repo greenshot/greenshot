@@ -88,7 +88,7 @@ jobs:
         id: extract_version
         run: |
           $file = Get-ChildItem drop -Filter "Greenshot-INSTALLER-*.exe" | Select-Object -First 1
-          if ($file -match "Greenshot-INSTALLER-([\d\.]+)\.exe") {
+          if ($file -match "Greenshot-INSTALLER-([\d\.]+).*\.exe") {
             echo "::set-output name=version::$($matches[1])"
           } else {
             throw "Version number could not be extracted from file name."
