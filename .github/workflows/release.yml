@@ -1,15 +1,9 @@
 name: Build and Deploy
 
 on:
-  workflow_dispatch:
   push:
     branches:
       - 'release/1.*'
-  pull_request:
-    branches:
-      - 'release/1.*'
-    paths-ignore:
-      - 'develop/**'
 
 jobs:
   build:
