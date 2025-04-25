@@ -116,13 +116,20 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Rebuild GitHub Pages for new release
+        run: |
+          # Create a dummy commit to trigger rebuild
+          git checkout gh-pages
+          git commit --allow-empty "Trigger rebuild for v${{ steps.extract_version.outputs.version }}"
+          git push origin gh-pages
+
           
 
 # TODOs
 # [ ] code signing (setup.iss / innosetup)
 # [x] name of release
 # [x] version tag
-# [ ] change log (?) (release-drafter action)
+# [x] change log (?) (release-drafter action)
 # [ ] update gh-pages automatically (?)
 
   
