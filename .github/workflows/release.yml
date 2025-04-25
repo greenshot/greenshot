@@ -116,6 +116,7 @@ jobs:
           name: "Greenshot ${{ steps.extract_version.outputs.version }} unstable"
           tag_name: "v${{ steps.extract_version.outputs.version }}"
           files: drop/*.exe
+          generate_release_notes: true
           draft: true
           prerelease: true
         env:
