@@ -122,7 +122,7 @@ jobs:
           git checkout gh-pages
           touch README.md
           git add README.md
-          git commit --allow-empty "Trigger rebuild for v${{ steps.extract_version.outputs.version }}"
+          git commit -m "Trigger rebuild for v${{ steps.extract_version.outputs.version }}"
           git push origin gh-pages
 
           
