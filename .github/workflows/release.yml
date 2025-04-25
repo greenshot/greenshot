@@ -120,6 +120,8 @@ jobs:
         run: |
           # Create a dummy commit to trigger rebuild
           git checkout gh-pages
+          touch README.md
+          git add README.md
           git commit --allow-empty "Trigger rebuild for v${{ steps.extract_version.outputs.version }}"
           git push origin gh-pages
 
@@ -130,6 +132,6 @@ jobs:
 # [x] name of release
 # [x] version tag
 # [x] change log (?) (release-drafter action)
-# [ ] update gh-pages automatically (?)
+# [x] update gh-pages automatically (?)
 
   
