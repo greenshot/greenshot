@@ -122,7 +122,7 @@ $FileHeaders = @{
 $FileName = [System.IO.Path]::GetFileName($ExeFilePath)
 
 Invoke-RestMethod `
-    -Uri "$UploadUrl?name=$FileName" `
+    -Uri "$($UploadUrl)?name=$FileName" `
     -Method POST `
     -Headers $FileHeaders `
     -InFile $ExeFilePath `
