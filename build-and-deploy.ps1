@@ -1,3 +1,7 @@
+# USAGE
+#
+
+
 # Variables
 $RepoPath = "."  # Replace with your local repo path
 $ArtifactsPath = "$RepoPath\artifacts"
@@ -16,6 +20,9 @@ $SolutionFile = "$RepoPath\src\Greenshot.sln"
 #$Env:Photobucket_ClientSecret = "your_photobucket_client_secret"
 #$Env:Picasa_ClientId = "your_picasa_client_id"
 #$Env:Picasa_ClientSecret = "your_picasa_client_secret"
+
+# Step 0: Update Local Repository
+git pull
 
 # Step 1: Restore NuGet Packages
 Write-Host "Restoring NuGet packages..."
@@ -136,14 +143,14 @@ if ($LASTEXITCODE -ne 0) {
 Write-Host "File uploaded successfully: $FileName"
 
 # Step 7: Trigger GitHub Pages Rebuild
-Write-Host "Triggering GitHub Pages rebuild..."
-Invoke-RestMethod `
-    -Uri "https://api.github.com/repos/jklingen/greenshot/pages/builds" `
-    -Method POST `
-    -Headers $Headers
-if ($LASTEXITCODE -ne 0) {
-    Write-Error "Failed to trigger GitHub Pages rebuild."
-    exit $LASTEXITCODE
-}
-
-Write-Host "GitHub Pages rebuild triggered successfully."
+#Write-Host "Triggering GitHub Pages rebuild..."
+#Invoke-RestMethod `
+#    -Uri "https://api.github.com/repos/jklingen/greenshot/pages/builds" `
+#    -Method POST `
+#    -Headers $Headers
+#if ($LASTEXITCODE -ne 0) {
+#    Write-Error "Failed to trigger GitHub Pages rebuild."
+#    exit $LASTEXITCODE
+#}
+#
+#Write-Host "GitHub Pages rebuild triggered successfully."
