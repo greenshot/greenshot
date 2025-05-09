@@ -1,9 +1,9 @@
 name: Build and Deploy
 
-on:
-  push:
-    branches:
-      - 'release/1.*'
+#on:
+#  push:
+#    branches:
+#      - 'release/1.*'
 
 jobs:
   build:
