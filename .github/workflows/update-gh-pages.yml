@@ -1,7 +1,9 @@
+name: Update GitHub Pages
+
 on:
+  workflow_dispatch:
   release:
     types: [published]
-
 
 jobs:
   update-gh-pages:
