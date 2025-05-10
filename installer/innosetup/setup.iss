@@ -140,7 +140,8 @@ SetupIconFile=..\..\src\Greenshot\icons\applicationIcon\icon.ico
 ; SignTool=SignTool sign /debug /fd sha1 /tr https://time.certum.pl /td sha1 $f
 ; Append a SHA256 to the previous SHA1 signature (this is what as does)
 ; SignTool=SignTool sign /debug /as /fd sha256 /tr https://time.certum.pl /td sha256 $f
-; SignedUninstaller=yes
+SignTool=SignTool sign /sha1 "{#GetEnv('CertumThumbprint')}" /tr http://time.certum.pl /td sha256 /fd sha256 /v $f
+;SignedUninstaller=yes
 UninstallDisplayIcon={app}\{#ExeName}.exe
 Uninstallable=true
 VersionInfoCompany={#ExeName}

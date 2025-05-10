@@ -76,6 +76,7 @@
   <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(Configuration)' == 'Release'">
     <SetEnvironmentVariableTask Name="BuildVersionSimple" Value="$(BuildVersionSimple)" />
     <SetEnvironmentVariableTask Name="AssemblyInformationalVersion" Value="$(AssemblyInformationalVersion)" />
+    <Exec Command='signtool.exe sign /sha1 "$(CertumThumbprint)" /tr http://time.certum.pl /td sha256 /fd sha256 /v "$(OutDir)Greenshot.exe"' />
     <Exec Command="$(PkgTools_InnoSetup)\tools\ISCC.exe $(SolutionDir)\..\installer\innosetup\setup.iss" />
   </Target>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
