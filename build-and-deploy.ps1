@@ -1,5 +1,14 @@
 # USAGE
-#
+# * Enable script execution in Powershell: 'Set-ExecutionPolicy RemoteSigned'
+# * Create a GitHub personal access token (PAT) for greenshot repository
+#   * user must be owner of the repository
+#   * token needs read and write permissions ""for Contents"" and ""Pages""
+# * Execute the script and paste your token
+
+# Prompt the user to securely input the Github token
+$SecureToken = Read-Host "Please enter your GitHub personal access token" -AsSecureString
+$ReleaseToken = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto([System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($SecureToken))
+
 
 
 # Variables
@@ -34,7 +43,7 @@ if ($LASTEXITCODE -ne 0) {
 
 # Step 2: Build and Package
 Write-Host "Building and packaging the solution..."
-msbuild "$SolutionFile" /p:Configuration=Release /t:Rebuild /v:normal
+msbuild "$SolutionFile" /p:Configuration=Debug /t:Rebuild /v:normal
 if ($LASTEXITCODE -ne 0) {
     Write-Error "Build failed."
     exit $LASTEXITCODE
@@ -82,7 +91,7 @@ if ($LASTEXITCODE -ne 0) {
 # Step 6: Create GitHub Release
 Write-Host "Creating GitHub release..."
 $Headers = @{
-    Authorization = "Bearer $Env:GITHUB_TOKEN"
+    Authorization = "Bearer $ReleaseToken"
     Accept        = "application/vnd.github+json"
 }
 $ReleaseData = @{
@@ -123,7 +132,7 @@ $UploadUrl = $ReleaseResponse.upload_url -replace "{.*}", ""
 
 # Upload the file
 $FileHeaders = @{
-    Authorization = "Bearer $Env:GITHUB_TOKEN"
+    Authorization = "Bearer $ReleaseToken"
     ContentType   = "application/octet-stream"
 }
 $FileName = [System.IO.Path]::GetFileName($ExeFilePath)
