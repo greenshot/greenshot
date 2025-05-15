@@ -43,7 +43,7 @@ if ($LASTEXITCODE -ne 0) {
 
 # Step 2: Build and Package
 Write-Host "Building and packaging the solution..."
-msbuild "$SolutionFile" /p:Configuration=Debug /t:Rebuild /v:normal
+msbuild "$SolutionFile" /p:Configuration=Release /t:Rebuild /v:normal
 if ($LASTEXITCODE -ne 0) {
     Write-Error "Build failed."
     exit $LASTEXITCODE
