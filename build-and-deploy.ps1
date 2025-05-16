@@ -9,26 +9,10 @@
 $SecureToken = Read-Host "Please enter your GitHub personal access token" -AsSecureString
 $ReleaseToken = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto([System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($SecureToken))
 
-
-
 # Variables
 $RepoPath = "."  # Replace with your local repo path
 $ArtifactsPath = "$RepoPath\artifacts"
 $SolutionFile = "$RepoPath\src\Greenshot.sln"
-
-# Secrets - Replace these with your actual values
-#$Env:Box13_ClientId = "your_box13_client_id"
-#$Env:Box13_ClientSecret = "your_box13_client_secret"
-#$Env:DropBox13_ClientId = "your_dropbox13_client_id"
-#$Env:DropBox13_ClientSecret = "your_dropbox13_client_secret"
-#$Env:Flickr_ClientId = "your_flickr_client_id"
-#$Env:Flickr_ClientSecret = "your_flickr_client_secret"
-#$Env:Imgur13_ClientId = "your_imgur13_client_id"
-#$Env:Imgur13_ClientSecret = "your_imgur13_client_secret"
-#$Env:Photobucket_ClientId = "your_photobucket_client_id" 
-#$Env:Photobucket_ClientSecret = "your_photobucket_client_secret"
-#$Env:Picasa_ClientId = "your_picasa_client_id"
-#$Env:Picasa_ClientSecret = "your_picasa_client_secret"
 
 # Step 0: Update Local Repository
 git pull
