@@ -1,0 +1,126 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches:
+      - 'release/1.*'
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
+
+    - name: Set up .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '7.x'
+
+    - name: Restore NuGet packages 
+      run: msbuild src/Greenshot.sln /p:Configuration=Release /restore /t:PrepareForBuild
+      env:
+        Box13_ClientId: ${{ secrets.Box13_ClientId }}
+        Box13_ClientSecret: ${{ secrets.Box13_ClientSecret }}
+        DropBox13_ClientId: ${{ secrets.DropBox13_ClientId }}
+        DropBox13_ClientSecret: ${{ secrets.DropBox13_ClientSecret }}
+        Flickr_ClientId: ${{ secrets.Flickr_ClientId }}
+        Flickr_ClientSecret: ${{ secrets.Flickr_ClientSecret }}
+        Imgur13_ClientId: ${{ secrets.Imgur13_ClientId }}
+        Imgur13_ClientSecret: ${{ secrets.Imgur13_ClientSecret }}
+        Photobucket_ClientId: ${{ secrets.Photobucket_ClientId }}
+        Photobucket_ClientSecret: ${{ secrets.Photobucket_ClientSecret }}
+        Picasa_ClientId: ${{ secrets.Picasa_ClientId }}
+        Picasa_ClientSecret: ${{ secrets.Picasa_ClientSecret }}
+
+    - name: Build and package
+      run: msbuild src/Greenshot.sln /p:Configuration=Release /t:Rebuild /v:normal
+      env:
+        Box13_ClientId: ${{ secrets.Box13_ClientId }}
+        Box13_ClientSecret: ${{ secrets.Box13_ClientSecret }}
+        DropBox13_ClientId: ${{ secrets.DropBox13_ClientId }}
+        DropBox13_ClientSecret: ${{ secrets.DropBox13_ClientSecret }}
+        Flickr_ClientId: ${{ secrets.Flickr_ClientId }}
+        Flickr_ClientSecret: ${{ secrets.Flickr_ClientSecret }}
+        Imgur13_ClientId: ${{ secrets.Imgur13_ClientId }}
+        Imgur13_ClientSecret: ${{ secrets.Imgur13_ClientSecret }}
+        Photobucket_ClientId: ${{ secrets.Photobucket_ClientId }}
+        Photobucket_ClientSecret: ${{ secrets.Photobucket_ClientSecret }}
+        Picasa_ClientId: ${{ secrets.Picasa_ClientId }}
+        Picasa_ClientSecret: ${{ secrets.Picasa_ClientSecret }}
+
+    - name: Copy Files
+      run: |
+        mkdir -p ${{ github.workspace }}/artifacts
+        cp installer/Greenshot-INSTALLER-*.exe ${{ github.workspace }}/artifacts/
+    
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+       name: drop
+       path: ${{ github.workspace }}/artifacts
+
+#  deploy:
+#    runs-on: windows-latest
+#    needs: build
+#
+#    steps:
+#    
+#      - name: Checkout repository
+#        uses: actions/checkout@v2
+#        with:
+#          fetch-depth: 0
+#
+#      - name: Download build artifacts
+#        uses: actions/download-artifact@v4
+#        with:
+#          name: drop Name of the artifact uploaded in previous steps
+#          path: drop Local folder where artifacts are downloaded
+#
+#      - name: Extract version from file name
+#        id: extract_version
+#        run: |
+#          $file = Get-ChildItem drop -Filter "Greenshot-INSTALLER-*.exe" | Select-Object -First 1
+#          if (-not $file) {
+#            throw "No matching file found in 'drop' directory."
+#          }
+#          if ($file.Name -match "Greenshot-INSTALLER-([\d\.]+).*\.exe") {
+#            echo "version=$($matches[1])" >> $Env:GITHUB_OUTPUT
+#          } else {
+#            throw "Version number could not be extracted from file name: $($file.Name)"
+#          }
+#        shell: pwsh
+#   
+#      - name: Create tag
+#        run: |
+#          git config user.name "github-actions[bot]"
+#          git config user.email "github-actions[bot]@users.noreply.github.com"
+#          git tag -a "v${{ steps.extract_version.outputs.version }}" -m "v${{ steps.extract_version.outputs.version }}"
+#          git push origin "v${{ steps.extract_version.outputs.version }}"
+#
+#      - name: Create GitHub Release
+#        uses: softprops/action-gh-release@v2
+#        with:
+#          name: "Greenshot ${{ steps.extract_version.outputs.version }} unstable"
+#          tag_name: "v${{ steps.extract_version.outputs.version }}"
+#          files: drop/*.exe
+#          generate_release_notes: true
+#          draft: true
+#          prerelease: true
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#
+#     - name: Trigger GitHub Pages rebuild
+#        shell: bash
+#        run: |
+#          curl -X POST \
+#            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+#            -H "Accept: application/vnd.github+json" \
+#            https://api.github.com/repos/${{ github.repository }}/pages/builds
+
