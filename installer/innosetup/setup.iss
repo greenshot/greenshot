@@ -1,12 +1,17 @@
-﻿#define ExeName "Greenshot"
-#define Version GetEnv('BuildVersionSimple')
-#define FileVersion GetEnv('AssemblyInformationalVersion')
-#define BaseDir "..\..\src"
+﻿#define ExeName             "Greenshot"
+#define Version             GetEnv('BuildVersionSimple')
+#define FileVersion         GetEnv('AssemblyInformationalVersion')
+#define BaseDir             "..\..\src"
 #define GreenshotProjectDir "..\..\src\Greenshot"
-#define LanguagesDir "..\..\src\Greenshot\Languages"
-#define BinDir "bin\Release\net472"
-#define ReleaseDir "..\..\src\Greenshot\bin\Release\net472"
-#define PluginDir "..\..\src\Greenshot\bin\Release\net472\Plugins"
+#define LanguagesDir        "..\..\src\Greenshot\Languages"
+#define BinDir              "bin\Release\net472"
+#define ReleaseDir          "..\..\src\Greenshot\bin\Release\net472"
+#define PluginDir           "..\..\src\Greenshot\bin\Release\net472\Plugins"
+#define SupportURL          "https://getgreenshot.org"
+#define ReadmeFile          "..\additional_files\readme.txt"
+#define LicenseFile         ".\additional_files\license.txt"
+#define SetupIconFile       "..\..\src\Greenshot\icons\applicationIcon\icon.ico"
+#define CurrentYear         GetDateTimeString('yyyy','','')
 
 ; Include the scripts to install .NET Framework
 ; See https://www.codeproject.com/KB/install/dotnetfx_innosetup_instal.aspx
@@ -18,6 +23,323 @@
 #include "scripts\products\msi31.iss"
 #include "scripts\products\dotnetfxversion.iss"
 #include "scripts\products\dotnetfx47.iss"
+
+[Setup]
+AppId={#ExeName}
+AppMutex=F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08
+AppName={#ExeName}
+AppVersion={#Version}
+AppVerName={#ExeName} {#Version}
+
+AppPublisherURL={#SupportURL}
+AppSupportURL={#SupportURL}
+AppUpdatesURL={#SupportURL}
+
+VersionInfoCompany={#ExeName}
+VersionInfoProductName={#ExeName}
+VersionInfoProductTextVersion={#FileVersion}
+VersionInfoTextVersion={#FileVersion}
+VersionInfoVersion={#Version}
+
+AppCopyright=(c) {#CurrentYear} {#ExeName} 
+
+UninstallDisplayIcon={app}\{#ExeName}.exe
+Uninstallable=true
+AppPublisher={#ExeName}
+
+ShowLanguageDialog=yes
+UsePreviousLanguage=no
+LanguageDetectionMethod=uilanguage
+
+; Reference a bitmap, max size 164x314
+WizardImageFile=installer-large.bmp
+; Reference a bitmap, max size 55x58
+WizardSmallImageFile=installer-small.bmp
+
+; changes associations is used when the installer installs new extensions, it clears the explorer icon cache
+ChangesAssociations=yes
+
+InfoBeforeFile={#ReadmeFile}
+LicenseFile={#LicenseFile}
+
+DefaultDirName={code:DefDirRoot}\{#ExeName}
+DefaultGroupName={#ExeName}
+
+OutputDir=..\
+OutputBaseFilename={#ExeName}-INSTALLER-{#Version}-UNSTABLE
+
+SetupIconFile={#SetupIconFile}
+
+ArchitecturesInstallIn64BitMode=x64
+Compression=lzma2/ultra64
+SolidCompression=yes
+MinVersion=6.1sp1
+PrivilegesRequired=lowest
+; Create a SHA1 signature
+; SignTool=SignTool sign /debug /fd sha1 /tr https://time.certum.pl /td sha1 $f
+; Append a SHA256 to the previous SHA1 signature (this is what as does)
+; SignTool=SignTool sign /debug /as /fd sha256 /tr https://time.certum.pl /td sha256 $f
+SignTool=SignTool sign /sha1 "{#GetEnv('CertumThumbprint')}" /tr http://time.certum.pl /td sha256 /fd sha256 /v $f
+;SignedUninstaller=yes
+
+[Languages]
+Name: en; MessagesFile: compiler:Default.isl
+Name: cn; MessagesFile: Languages\ChineseSimplified.isl
+Name: de; MessagesFile: compiler:Languages\German.isl
+Name: es; MessagesFile: compiler:Languages\Spanish.isl
+Name: fi; MessagesFile: compiler:Languages\Finnish.isl
+Name: fr; MessagesFile: compiler:Languages\French.isl
+Name: it; MessagesFile: compiler:Languages\Italian.isl
+Name: nl; MessagesFile: compiler:Languages\Dutch.isl
+Name: lt; MessagesFile: Languages\Latvian.isl
+Name: nn; MessagesFile: Languages\NorwegianNynorsk.isl
+Name: ru; MessagesFile: compiler:Languages\Russian.isl
+Name: sr; MessagesFile: Languages\SerbianCyrillic.isl
+Name: sv; MessagesFile: Languages\Swedish.isl
+Name: uk; MessagesFile: compiler:Languages\Ukrainian.isl
+
+[CustomMessages]
+;Language names in the original language
+en.dexfranconia=Frängisch (Deutsch)
+en.arSY=العربية
+en.caCA=Català
+en.csCZ=Čeština
+en.daDK=Dansk
+en.elGR=ελληνικά
+en.esES=Español
+en.etEE=Eesti
+en.faIR=پارسی
+en.fiFI=Suomi
+en.frFR=Français
+en.frQC=Français - Québec
+en.heIL=עִבְרִית
+en.huHU=Magyar
+en.idID=Bahasa Indonesia
+en.itIT=Italiano
+en.jaJP=日本語
+en.kabDZ=Taqbaylit
+en.koKR=한국어
+en.ltLT=Lietuvių
+en.lvLV=Latviski
+en.nnNO=Nynorsk
+en.plPL=Polski
+en.ptBR=Português do Brasil
+en.ptPT=Português de Portugal
+en.roRO=Română
+en.ruRU=Pусский
+en.skSK=Slovenčina
+en.slSI=Slovenščina
+en.srRS=Српски
+en.svSE=Svenska
+en.trTR=Türk
+en.ukUA=Українська
+en.viVN=Việt
+en.zhCN=简体中文
+en.zhTW=繁體中文
+
+en.box=Box plug-in
+en.confluence=Confluence plug-in
+en.default=Default installation
+en.dropbox=Dropbox plug-in
+en.externalcommand=Open with external command plug-in
+en.flickr=Flickr plug-in
+en.imgur=Imgur plug-in (See: https://imgur.com)
+en.jira=Jira plug-in
+en.language=Additional languages
+en.office=Microsoft Office plug-in
+en.optimize=Optimizing performance, this may take a while.
+en.photobucket=Photobucket plug-in
+en.startgreenshot=Start {#ExeName}
+en.startup=Start {#ExeName} with Windows start
+en.win10=Windows 10 plug-in
+en.UninstallIconDescription=Uninstall
+en.ShowLicense=Show license
+en.ShowReadme=Show Readme
+en.disablewin11snippingtool=Disable Win11 default PrtScr snipping tool
+
+cn.confluence=Confluence插件
+cn.default=${default}
+cn.externalcommand=使用外部命令打开插件
+cn.imgur=Imgur插件( (请访问： https://imgur.com))
+cn.jira=Jira插件
+cn.language=其它语言
+cn.optimize=正在优化性能，这可能需要一点时间。
+cn.startgreenshot=启动{#ExeName}
+cn.startup=让{#ExeName}随Windows一起启动
+cn.win10=Windows 10插件
+
+de.confluence=Confluence Plug-in
+de.default=Standard installation
+de.externalcommand=Externes Kommando Plug-in
+de.imgur=Imgur Plug-in (Siehe: https://imgur.com)
+de.jira=Jira Plug-in
+de.language=Zusätzliche Sprachen
+de.office=Microsoft Office Plug-in
+de.optimize=Optimierung der Leistung, kann etwas dauern.
+de.startgreenshot={#ExeName} starten
+de.startup={#ExeName} starten wenn Windows hochfährt
+de.win10=Windows 10 Plug-in
+de.disablewin11snippingtool=Deaktiviere das Standard Windows 11 Snipping Tool auf "Druck"
+
+es.confluence=Extensión para Confluence
+es.default=${default}
+es.externalcommand=Extensión para abrir con programas externos
+es.imgur=Extensión para Imgur (Ver https://imgur.com)
+es.jira=Extensión para Jira
+es.language=Idiomas adicionales
+es.optimize=Optimizando rendimiento; por favor, espera.
+es.startgreenshot=Lanzar {#ExeName}
+es.startup=Lanzar {#ExeName} al iniciarse Windows
+es.win10=Extensión para Windows 10
+
+fi.confluence=Confluence-liitännäinen
+fi.default=${default}
+fi.externalcommand=Avaa Ulkoinen komento-liitännäisellä
+fi.imgur=Imgur-liitännäinen (Katso: https://imgur.com)
+fi.jira=Jira-liitännäinen
+fi.language=Lisäkielet
+fi.office=Microsoft-Office-liitännäinen
+fi.optimize=Optimoidaan suorituskykyä, tämä voi kestää hetken.
+fi.startgreenshot=Käynnistä {#ExeName}
+fi.startup=Käynnistä {#ExeName} Windowsin käynnistyessä
+fi.win10=Windows 10-liitännäinen
+
+fr.confluence=Greffon Confluence
+fr.default=${default}
+fr.externalcommand=Ouvrir avec le greffon de commande externe
+fr.imgur=Greffon Imgur (Voir: https://imgur.com)
+fr.jira=Greffon Jira
+fr.language=Langues additionnelles
+fr.office=Greffon Microsoft Office
+fr.optimize=Optimisation des performances, Ceci peut prendre un certain temps.
+fr.startgreenshot=Démarrer {#ExeName}
+fr.startup=Lancer {#ExeName} au démarrage de Windows
+fr.win10=Greffon Windows 10
+
+it.dexfranconia=Fräncofono (Tedesco)
+it.arSY=Arabo (Siria)
+it.caCA=Catalano
+it.csCZ=Ceco
+it.daDK=Danese
+it.elGR=Greco
+it.esES=Spagnolo
+it.etEE=Eesti
+it.faIR=Farsi (Iran)
+it.fiFI=Suomi
+it.frFR=Francese
+it.frQC=Francese (Québec)
+it.heIL=Ebraico (Israele)
+it.huHU=Ungherese
+it.idID=Bahasa Indonesia
+it.itIT=Italiano
+it.jaJP=Giapponese
+it.kabDZ=Taqbaylit
+it.koKR=Coreano
+it.ltLT=Lituano
+it.lvLV=Latviano
+it.nnNO=Norvegese
+it.plPL=Polacco
+it.ptBR=Portoghese (Brasile)
+it.ptPT=Portoghese (Portogallo)
+it.roRO=Rumeno
+it.ruRU=Russo
+it.skSK=Slovacco
+it.slSI=Sloveno
+it.srRS=Serbo (Russia)
+it.svSE=Svedese
+it.trTR=Türco
+it.ukUA=Ucraino
+it.viVN=Vietnamita
+it.zhCN=Cinese (Semplificato)
+it.zhTW=Cinese (Taiwan)
+
+it.box=Plugin Box
+it.confluence=Plugin Confluence
+it.default=Installazione predefinita
+it.dropbox=Plugin Dropbox
+it.externalcommand=Apri con comando esterno plugin
+it.flickr=Plugin Flickr
+it.imgur=Plugin Imgur (vedi: https://imgur.com)
+it.jira=Plugin Jira
+it.language=Lingue aggiuntive
+it.office=Plugin Microsoft Office
+it.optimize=Ottimizzazione prestazioni (può richiedere tempo).
+it.photobucket=Plugin Photobucket
+it.startgreenshot=Esegui {#ExeName}
+it.startup=Esegui {#ExeName} all'avvio di Windows
+it.win10=Plugin Windows 10
+it.UninstallIconDescription=Disinstalla
+it.ShowLicense=Visualizza licenza (in inglese)
+it.ShowReadme=Visualizza Readme (in inglese)
+it.disablewin11snippingtool=Disabilita cattura schermo predefinito Windows 11
+
+nl.confluence=Confluence plug-in
+nl.default=Standaardinstallatie
+nl.externalcommand=Openen met extern commando plug-in
+nl.imgur=Imgur plug-in (zie: https://imgur.com)
+nl.jira=Jira plug-in
+nl.language=Extra talen
+nl.office=Microsoft Office plug-in
+nl.optimize=Prestaties verbeteren, even geduld.
+nl.startgreenshot={#ExeName} starten
+nl.startup={#ExeName} automatisch starten met Windows
+nl.win10=Windows 10 plug-in
+
+nn.confluence=Confluence-tillegg
+nn.default=Default installation
+nn.externalcommand=Tillegg for å opne med ekstern kommando
+nn.imgur=Imgur-tillegg (sjå https://imgur.com)
+nn.jira=Jira-tillegg
+nn.language=Andre språk
+nn.office=Microsoft Office Tillegg
+nn.optimize=Optimaliserar ytelse, dette kan ta litt tid...
+nn.startgreenshot=Start {#ExeName}
+nn.startup=Start {#ExeName} når Windows startar
+nn.win10=Windows 10 Tillegg
+
+ru.confluence=Плагин Confluence
+ru.default=${default}
+ru.externalcommand=Открыть с плагином с помощью внешней команды
+ru.imgur=Плагин Imgur (смотрите https://imgur.com/)
+ru.jira=Плагин Jira
+ru.language=Дополнительные языки
+ru.office=Плагин Microsoft Office
+ru.optimize=Идет оптимизация производительности, это может занять некоторое время.
+ru.startgreenshot=Запустить {#ExeName}
+ru.startup=Запускать {#ExeName} при старте Windows
+ru.win10=Плагин Windows 10
+
+sr.confluence=Прикључак за Конфлуенс
+sr.default=${default}
+sr.externalcommand=Отвори са прикључком за спољне наредбе
+sr.imgur=Прикључак за Имиџер (https://imgur.com)
+sr.jira=Прикључак за Џиру
+sr.language=Додатни језици
+sr.optimize=Оптимизујем перформансе…
+sr.startgreenshot=Покрени Гриншот
+sr.startup=Покрени програм са системом
+sr.win10=Прикључак за Windows 10
+
+sv.confluence=Confluence-insticksprogram
+sv.externalcommand=Öppna med externt kommando-insticksprogram
+sv.imgur=Imgur-insticksprogram (Se: https://imgur.com)
+sv.jira=Jira-insticksprogram
+sv.language=Ytterligare språk
+sv.optimize=Optimerar prestanda, detta kan ta en stund.
+sv.startgreenshot=Starta {#ExeName}
+sv.startup=Starta {#ExeName} med Windows
+sv.win10=Windows 10-insticksprogram
+
+uk.confluence=Плагін Confluence
+uk.default=${default}
+uk.externalcommand=Плагін запуску зовнішньої команди
+uk.imgur=Плагін Imgur (див.: https://imgur.com)
+uk.jira=Плагін Jira
+uk.language=Додаткові мови
+uk.optimize=Оптимізація продуктивності, це може забрати час.
+uk.startgreenshot=Запустити {#ExeName}
+uk.startup=Запускати {#ExeName} під час запуску Windows
+uk.win10=Плагін Windows 10
 
 [Files]
 Source: {#ReleaseDir}\Greenshot.exe; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
@@ -111,48 +433,6 @@ Source: {#BaseDir}\Greenshot.Plugin.ExternalCommand\Languages\language_externalc
 Source: {#PluginDir}\Greenshot.Plugin.Win10\Greenshot.Plugin.Win10.dll; DestDir: {app}\Plugins\Win10; Components: plugins\win10; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
 Source: {#PluginDir}\Greenshot.Plugin.Win10\Microsoft.Toolkit.Uwp.Notifications.dll; DestDir: {app}\Plugins\Win10; Components: plugins\win10; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
 
-[Setup]
-; changes associations is used when the installer installs new extensions, it clears the explorer icon cache
-ChangesAssociations=yes
-AppId={#ExeName}
-AppName={#ExeName}
-AppMutex=F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08
-AppPublisher={#ExeName}
-AppPublisherURL=https://getgreenshot.org
-AppSupportURL=https://getgreenshot.org
-AppUpdatesURL=https://getgreenshot.org
-AppVerName={#ExeName} {#Version}
-AppVersion={#Version}
-ArchitecturesInstallIn64BitMode=x64
-Compression=lzma2/ultra64
-SolidCompression=yes
-DefaultDirName={code:DefDirRoot}\{#ExeName}
-DefaultGroupName={#ExeName}
-InfoBeforeFile=..\additional_files\readme.txt
-LicenseFile=..\additional_files\license.txt
-LanguageDetectionMethod=uilanguage
-MinVersion=6.1sp1
-OutputBaseFilename={#ExeName}-INSTALLER-{#Version}-UNSTABLE
-OutputDir=..\
-PrivilegesRequired=lowest
-SetupIconFile=..\..\src\Greenshot\icons\applicationIcon\icon.ico
-; Create a SHA1 signature
-; SignTool=SignTool sign /debug /fd sha1 /tr https://time.certum.pl /td sha1 $f
-; Append a SHA256 to the previous SHA1 signature (this is what as does)
-; SignTool=SignTool sign /debug /as /fd sha256 /tr https://time.certum.pl /td sha256 $f
-SignTool=SignTool sign /sha1 "{#GetEnv('CertumThumbprint')}" /tr http://time.certum.pl /td sha256 /fd sha256 /v $f
-;SignedUninstaller=yes
-UninstallDisplayIcon={app}\{#ExeName}.exe
-Uninstallable=true
-VersionInfoCompany={#ExeName}
-VersionInfoProductName={#ExeName}
-VersionInfoProductTextVersion={#FileVersion}
-VersionInfoTextVersion={#FileVersion}
-VersionInfoVersion={#Version}
-; Reference a bitmap, max size 164x314
-WizardImageFile=installer-large.bmp
-; Reference a bitmap, max size 55x58
-WizardSmallImageFile=installer-small.bmp
 [Registry]
 ; Delete all startup entries, so we don't have leftover values
 Root: HKCU; Subkey: Software\Microsoft\Windows\CurrentVersion\Run; ValueType: none; ValueName: {#ExeName}; Flags: deletevalue noerror;
@@ -196,289 +476,8 @@ Name: {group}\{cm:UninstallIconDescription} {#ExeName}; Filename: {uninstallexe}
 Name: {group}\{cm:ShowReadme}; Filename: {app}\readme.txt; WorkingDir: {app}
 Name: {group}\{cm:ShowLicense}; Filename: {app}\license.txt; WorkingDir: {app}
 
-[Languages]
-Name: en; MessagesFile: compiler:Default.isl
-Name: cn; MessagesFile: Languages\ChineseSimplified.isl
-Name: de; MessagesFile: compiler:Languages\German.isl
-Name: es; MessagesFile: compiler:Languages\Spanish.isl
-Name: fi; MessagesFile: compiler:Languages\Finnish.isl
-Name: fr; MessagesFile: compiler:Languages\French.isl
-Name: it; MessagesFile: compiler:Languages\Italian.isl
-Name: nl; MessagesFile: compiler:Languages\Dutch.isl
-Name: lt; MessagesFile: Languages\Latvian.isl
-Name: nn; MessagesFile: Languages\NorwegianNynorsk.isl
-Name: ru; MessagesFile: compiler:Languages\Russian.isl
-Name: sr; MessagesFile: Languages\SerbianCyrillic.isl
-Name: sv; MessagesFile: Languages\Swedish.isl
-Name: uk; MessagesFile: compiler:Languages\Ukrainian.isl
-
 [Tasks]
 Name: startup; Description: {cm:startup}
-
-[CustomMessages]
-;Language names in the original language
-dexfranconia=Frängisch (Deutsch)
-arSY=العربية
-caCA=Català
-csCZ=Čeština
-daDK=Dansk
-elGR=ελληνικά
-esES=Español
-etEE=Eesti
-faIR=پارسی
-fiFI=Suomi
-frFR=Français
-frQC=Français - Québec
-heIL=עִבְרִית
-huHU=Magyar
-idID=Bahasa Indonesia
-itIT=Italiano
-jaJP=日本語
-kabDZ=Taqbaylit
-koKR=한국어
-ltLT=Lietuvių
-lvLV=Latviski
-nnNO=Nynorsk
-plPL=Polski
-ptBR=Português do Brasil
-ptPT=Português de Portugal
-roRO=Română
-ruRU=Pусский
-skSK=Slovenčina
-slSI=Slovenščina
-srRS=Српски
-svSE=Svenska
-trTR=Türk
-ukUA=Українська
-viVN=Việt
-zhCN=简体中文
-zhTW=繁體中文
-
-en.box=Box plug-in
-en.confluence=Confluence plug-in
-en.default=Default installation
-en.dropbox=Dropbox plug-in
-en.externalcommand=Open with external command plug-in
-en.flickr=Flickr plug-in
-en.imgur=Imgur plug-in (See: https://imgur.com)
-en.jira=Jira plug-in
-en.language=Additional languages
-en.office=Microsoft Office plug-in
-en.optimize=Optimizing performance, this may take a while.
-en.photobucket=Photobucket plug-in
-en.startgreenshot=Start {#ExeName}
-en.startup=Start {#ExeName} with Windows start
-en.win10=Windows 10 plug-in
-en.UninstallIconDescription=Uninstall
-en.ShowLicense=Show license
-en.ShowReadme=Show Readme
-en.disablewin11snippingtool=Disable Win11 default PrtScr snipping tool
-
-de.confluence=Confluence Plug-in
-de.default=Standard installation
-de.externalcommand=Externes Kommando Plug-in
-de.imgur=Imgur Plug-in (Siehe: https://imgur.com)
-de.jira=Jira Plug-in
-de.language=Zusätzliche Sprachen
-de.office=Microsoft Office Plug-in
-de.optimize=Optimierung der Leistung, kann etwas dauern.
-de.startgreenshot={#ExeName} starten
-de.startup={#ExeName} starten wenn Windows hochfährt
-de.win10=Windows 10 Plug-in
-de.disablewin11snippingtool=Deaktiviere das Standard Windows 11 Snipping Tool auf "Druck"
-
-es.confluence=Extensión para Confluence
-es.default=${default}
-es.externalcommand=Extensión para abrir con programas externos
-es.imgur=Extensión para Imgur (Ver https://imgur.com)
-es.jira=Extensión para Jira
-es.language=Idiomas adicionales
-es.optimize=Optimizando rendimiento; por favor, espera.
-es.startgreenshot=Lanzar {#ExeName}
-es.startup=Lanzar {#ExeName} al iniciarse Windows
-es.win10=Extensión para Windows 10
-
-fi.confluence=Confluence-liitännäinen
-fi.default=${default}
-fi.externalcommand=Avaa Ulkoinen komento-liitännäisellä
-fi.imgur=Imgur-liitännäinen (Katso: https://imgur.com)
-fi.jira=Jira-liitännäinen
-fi.language=Lisäkielet
-fi.office=Microsoft-Office-liitännäinen
-fi.optimize=Optimoidaan suorituskykyä, tämä voi kestää hetken.
-fi.startgreenshot=Käynnistä {#ExeName}
-fi.startup=Käynnistä {#ExeName} Windowsin käynnistyessä
-fi.win10=Windows 10-liitännäinen
-
-fr.confluence=Greffon Confluence
-fr.default=${default}
-fr.externalcommand=Ouvrir avec le greffon de commande externe
-fr.imgur=Greffon Imgur (Voir: https://imgur.com)
-fr.jira=Greffon Jira
-fr.language=Langues additionnelles
-fr.office=Greffon Microsoft Office
-fr.optimize=Optimisation des performances, Ceci peut prendre un certain temps.
-fr.startgreenshot=Démarrer {#ExeName}
-fr.startup=Lancer {#ExeName} au démarrage de Windows
-fr.win10=Greffon Windows 10
-
-it.box=Plugin Box
-it.confluence=Plugin Confluence
-it.default=Installazione predefinita
-it.dropbox=Plugin Dropbox
-it.externalcommand=Apri con comando esterno plugin
-it.flickr=Plugin Flickr
-it.imgur=Plugin Imgur (vedi: https://imgur.com)
-it.jira=Plugin Jira
-it.language=Lingue aggiuntive
-it.office=Plugin Microsoft Office
-it.optimize=Ottimizzazione prestazioni (può richiedere tempo).
-it.photobucket=Plugin Photobucket
-it.startgreenshot=Esegui {#ExeName}
-it.startup=Esegui {#ExeName} all''avvio di Windows
-it.win10=Plugin Windows 10
-it.UninstallIconDescription=Disinstalla
-it.ShowLicense=Visualizza licenza (in inglese)
-it.ShowReadme=Visualizza Readme (in inglese)
-it.dexfranconia=Fräncofono (Tedesco)
-it.arSY=Arabo (Siria)
-it.caCA=Catalano
-it.csCZ=Ceco
-it.daDK=Danese
-it.elGR=Greco
-it.esES=Spagnolo
-it.etEE=Eesti
-it.faIR=Farsi (Iran)
-it.fiFI=Suomi
-it.frFR=Francese
-it.frQC=Francese (Québec)
-it.heIL=Ebraico (Israele)
-it.huHU=Ungherese
-it.idID=Bahasa Indonesia
-it.itIT=Italiano
-it.jaJP=Giapponese
-it.kabDZ=Taqbaylit
-it.koKR=Coreano
-it.ltLT=Lituano
-it.lvLV=Latviano
-it.nnNO=Norvegese
-it.plPL=Polacco
-it.ptBR=Portoghese (Brasile)
-it.ptPT=Portoghese (Portogallo)
-it.roRO=Rumeno
-it.ruRU=Russo
-it.skSK=Slovacco
-it.slSI=Sloveno
-it.srRS=Serbo (Russia)
-it.svSE=Svedese
-it.trTR=Türco
-it.ukUA=Ucraino
-it.viVN=Vietnamita
-it.zhCN=Cinese (Semplificato)
-it.zhTW=Cinese (Taiwan)
-
-lt.confluence=Confluence spraudnis
-lt.default=${default}
-lt.externalcommand=Pielāgotu darbību spraudnis
-lt.imgur=Imgur spraudnis (Vairāk šeit: https://imgur.com)
-lt.jira=Jira spraudnis
-lt.language=Papildus valodas
-lt.office=Microsoft Office spraudnis
-lt.optimize=Uzlaboju veikstpēju, tas prasīs kādu laiciņu.
-lt.startgreenshot=Palaist {#ExeName}
-lt.startup=Palaist {#ExeName} uzsākot darbus
-lt.win10=Windows 10 spraudnis
-
-lt.confluence=Confluence spraudnis
-lt.default=${default}
-lt.externalcommand=Pielāgotu darbību spraudnis
-lt.imgur=Imgur spraudnis (Vairāk šeit: https://imgur.com)
-lt.jira=Jira spraudnis
-lt.language=Papildus valodas
-lt.office=Microsoft Office spraudnis
-lt.optimize=Uzlaboju veikstpēju, tas prasīs kādu laiciņu.
-lt.startgreenshot=Palaist {#ExeName}
-lt.startup=Palaist {#ExeName} uzsākot darbus
-lt.win10=Windows 10 spraudnis
-
-nl.confluence=Confluence plug-in
-nl.default=Standaardinstallatie
-nl.externalcommand=Openen met extern commando plug-in
-nl.imgur=Imgur plug-in (zie: https://imgur.com)
-nl.jira=Jira plug-in
-nl.language=Extra talen
-nl.office=Microsoft Office plug-in
-nl.optimize=Prestaties verbeteren, even geduld.
-nl.startgreenshot={#ExeName} starten
-nl.startup={#ExeName} automatisch starten met Windows
-nl.win10=Windows 10 plug-in
-
-nn.confluence=Confluence-tillegg
-nn.default=Default installation
-nn.externalcommand=Tillegg for å opne med ekstern kommando
-nn.imgur=Imgur-tillegg (sjå https://imgur.com)
-nn.jira=Jira-tillegg
-nn.language=Andre språk
-nn.office=Microsoft Office Tillegg
-nn.optimize=Optimaliserar ytelse, dette kan ta litt tid...
-nn.startgreenshot=Start {#ExeName}
-nn.startup=Start {#ExeName} når Windows startar
-nn.win10=Windows 10 Tillegg
-
-ru.confluence=Плагин Confluence
-ru.default=${default}
-ru.externalcommand=Открыть с плагином с помощью внешней команды
-ru.imgur=Плагин Imgur (смотрите https://imgur.com/)
-ru.jira=Плагин Jira
-ru.language=Дополнительные языки
-ru.office=Плагин Microsoft Office
-ru.optimize=Идет оптимизация производительности, это может занять некоторое время.
-ru.startgreenshot=Запустить {#ExeName}
-ru.startup=Запускать {#ExeName} при старте Windows
-ru.win10=Плагин Windows 10
-
-sr.confluence=Прикључак за Конфлуенс
-sr.default=${default}
-sr.externalcommand=Отвори са прикључком за спољне наредбе
-sr.imgur=Прикључак за Имиџер (https://imgur.com)
-sr.jira=Прикључак за Џиру
-sr.language=Додатни језици
-sr.optimize=Оптимизујем перформансе…
-sr.startgreenshot=Покрени Гриншот
-sr.startup=Покрени програм са системом
-sr.win10=Прикључак за Windows 10
-
-sv.confluence=Confluence-insticksprogram
-sv.externalcommand=Öppna med externt kommando-insticksprogram
-sv.imgur=Imgur-insticksprogram (Se: https://imgur.com)
-sv.jira=Jira-insticksprogram
-sv.language=Ytterligare språk
-sv.optimize=Optimerar prestanda, detta kan ta en stund.
-sv.startgreenshot=Starta {#ExeName}
-sv.startup=Starta {#ExeName} med Windows
-sv.win10=Windows 10-insticksprogram
-
-uk.confluence=Плагін Confluence
-uk.default=${default}
-uk.externalcommand=Плагін запуску зовнішньої команди
-uk.imgur=Плагін Imgur (див.: https://imgur.com)
-uk.jira=Плагін Jira
-uk.language=Додаткові мови
-uk.optimize=Оптимізація продуктивності, це може забрати час.
-uk.startgreenshot=Запустити {#ExeName}
-uk.startup=Запускати {#ExeName} під час запуску Windows
-uk.win10=Плагін Windows 10
-
-cn.confluence=Confluence插件
-cn.default=${default}
-cn.externalcommand=使用外部命令打开插件
-cn.imgur=Imgur插件( (请访问： https://imgur.com))
-cn.jira=Jira插件
-cn.language=其它语言
-cn.optimize=正在优化性能，这可能需要一点时间。
-cn.startgreenshot=启动{#ExeName}
-cn.startup=让{#ExeName}随Windows一起启动
-cn.win10=Windows 10插件
 
 [Types]
 Name: "default"; Description: "{cm:default}"
