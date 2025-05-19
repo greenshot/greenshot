@@ -136,8 +136,10 @@ OutputBaseFilename={#ExeName}-INSTALLER-{#Version}-UNSTABLE
 OutputDir=..\
 PrivilegesRequired=lowest
 SetupIconFile=..\..\src\Greenshot\icons\applicationIcon\icon.ico
-SignTool=SignTool sign /sha1 "{#GetEnv('CertumThumbprint')}" /tr http://time.certum.pl /td sha256 /fd sha256 /v $f
-SignedUninstaller=yes
+#if GetEnv('CertumThumbprint') != ""
+  SignTool=SignTool sign /sha1 "{#GetEnv('CertumThumbprint')}" /tr http://time.certum.pl /td sha256 /fd sha256 /v $f
+  SignedUninstaller=yes
+#endif
 UninstallDisplayIcon={app}\{#ExeName}.exe
 Uninstallable=true
 VersionInfoCompany={#ExeName}
