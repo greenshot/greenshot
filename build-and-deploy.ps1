@@ -138,6 +138,7 @@ Write-Host "File uploaded successfully: $FileName"
 # Step 7: Trigger GitHub Pages Rebuild
 #Write-Host "Triggering GitHub Pages rebuild..."
 #Invoke-RestMethod `
+#    -Uri "https://api.github.com/repos/greenshot/greenshot/pages/builds" `
 #    -Method POST `
 #    -Headers $Headers
 #if ($LASTEXITCODE -ne 0) {
