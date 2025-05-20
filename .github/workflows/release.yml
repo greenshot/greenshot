@@ -92,7 +92,6 @@ jobs:
           }
           if ($file.Name -match "Greenshot-INSTALLER-([\d\.]+)(.*)\.exe") {
             echo "version=$($matches[1])" >> $Env:GITHUB_OUTPUT
-            echo "attribs=$($matches[2])"  | tr -d '-' ' ' | tr '[:upper:]' '[:lower:]' >> $Env:GITHUB_OUTPUT
           } else {
             throw "Version number could not be extracted from file name: $($file.Name)"
           }
@@ -108,11 +107,11 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          name: "Greenshot ${{ steps.extract_version.outputs.version }}${{ steps.extract_version.outputs.attribs }}"
+          name: "Greenshot ${{ steps.extract_version.outputs.version }} (continuous build)"
           tag_name: "v${{ steps.extract_version.outputs.version }}"
           files: drop/*.exe
           generate_release_notes: true
-#          draft: true
+          draft: false
           prerelease: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
