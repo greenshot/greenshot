@@ -90,7 +90,7 @@ jobs:
           if (-not $file) {
             throw "No matching file found in 'drop' directory."
           }
-          if ($file.Name -match "Greenshot-INSTALLER-([\d\.]+).*\.exe") {
+          if ($file.Name -match "Greenshot-INSTALLER-([\d\.]+)(.*)\.exe") {
             echo "version=$($matches[1])" >> $Env:GITHUB_OUTPUT
             echo "attribs=$($matches[2])"  | tr -d '-' ' ' | tr '[:upper:]' '[:lower:]' >> $Env:GITHUB_OUTPUT
           } else {
