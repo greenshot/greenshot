@@ -66,61 +66,62 @@ jobs:
        name: drop
        path: ${{ github.workspace }}/artifacts
 
-#  deploy:
-#    runs-on: windows-latest
-#    needs: build
-#
-#    steps:
-#    
-#      - name: Checkout repository
-#        uses: actions/checkout@v2
-#        with:
-#          fetch-depth: 0
-#
-#      - name: Download build artifacts
-#        uses: actions/download-artifact@v4
-#        with:
-#          name: drop Name of the artifact uploaded in previous steps
-#          path: drop Local folder where artifacts are downloaded
-#
-#      - name: Extract version from file name
-#        id: extract_version
-#        run: |
-#          $file = Get-ChildItem drop -Filter "Greenshot-INSTALLER-*.exe" | Select-Object -First 1
-#          if (-not $file) {
-#            throw "No matching file found in 'drop' directory."
-#          }
-#          if ($file.Name -match "Greenshot-INSTALLER-([\d\.]+).*\.exe") {
-#            echo "version=$($matches[1])" >> $Env:GITHUB_OUTPUT
-#          } else {
-#            throw "Version number could not be extracted from file name: $($file.Name)"
-#          }
-#        shell: pwsh
-#   
-#      - name: Create tag
-#        run: |
-#          git config user.name "github-actions[bot]"
-#          git config user.email "github-actions[bot]@users.noreply.github.com"
-#          git tag -a "v${{ steps.extract_version.outputs.version }}" -m "v${{ steps.extract_version.outputs.version }}"
-#          git push origin "v${{ steps.extract_version.outputs.version }}"
-#
-#      - name: Create GitHub Release
-#        uses: softprops/action-gh-release@v2
-#        with:
-#          name: "Greenshot ${{ steps.extract_version.outputs.version }} unstable"
-#          tag_name: "v${{ steps.extract_version.outputs.version }}"
-#          files: drop/*.exe
-#          generate_release_notes: true
+  deploy:
+    runs-on: windows-latest
+    needs: build
+
+    steps:
+    
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: drop Name of the artifact uploaded in previous steps
+          path: drop Local folder where artifacts are downloaded
+
+      - name: Extract version from file name
+        id: extract_version
+        run: |
+          $file = Get-ChildItem drop -Filter "Greenshot-INSTALLER-*.exe" | Select-Object -First 1
+          if (-not $file) {
+            throw "No matching file found in 'drop' directory."
+          }
+          if ($file.Name -match "Greenshot-INSTALLER-([\d\.]+).*\.exe") {
+            echo "version=$($matches[1])" >> $Env:GITHUB_OUTPUT
+            echo "attribs=$($matches[2])"  | tr -d '-' ' ' | tr '[:upper:]' '[:lower:]' >> $Env:GITHUB_OUTPUT
+          } else {
+            throw "Version number could not be extracted from file name: $($file.Name)"
+          }
+        shell: pwsh
+   
+      - name: Create tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "v${{ steps.extract_version.outputs.version }}" -m "v${{ steps.extract_version.outputs.version }}"
+          git push origin "v${{ steps.extract_version.outputs.version }}"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "Greenshot ${{ steps.extract_version.outputs.version }}${{ steps.extract_version.outputs.attribs }}"
+          tag_name: "v${{ steps.extract_version.outputs.version }}"
+          files: drop/*.exe
+          generate_release_notes: true
 #          draft: true
-#          prerelease: true
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#
-#     - name: Trigger GitHub Pages rebuild
-#        shell: bash
-#        run: |
-#          curl -X POST \
-#            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-#            -H "Accept: application/vnd.github+json" \
-#            https://api.github.com/repos/${{ github.repository }}/pages/builds
+          prerelease: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Trigger GitHub Pages rebuild
+        shell: bash
+        run: |
+          curl -X POST \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/${{ github.repository }}/pages/builds
 
