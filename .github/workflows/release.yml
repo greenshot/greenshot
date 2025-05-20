@@ -80,8 +80,8 @@ jobs:
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
-          name: drop Name of the artifact uploaded in previous steps
-          path: drop Local folder where artifacts are downloaded
+          name: drop # Name of the artifact uploaded in previous steps
+          path: drop # Local folder where artifacts are downloaded
 
       - name: Extract version from file name
         id: extract_version
