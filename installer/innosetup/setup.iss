@@ -138,7 +138,7 @@ PrivilegesRequired=lowest
 SetupIconFile=..\..\src\Greenshot\icons\applicationIcon\icon.ico
 #if CertumThumbprint  != ""
  OutputBaseFilename={#ExeName}-INSTALLER-{#Version}-UNSTABLE
-  SignTool=SignTool sign /sha1 "{#CertumThumbprint }" /tr http://time.certum.pl /td sha256 /fd sha256 /v $f
+  SignTool=SignTool sign /sha1 "{#CertumThumbprint}" /tr http://time.certum.pl /td sha256 /fd sha256 /v $f
   SignedUninstaller=yes
 #else
   OutputBaseFilename={#ExeName}-INSTALLER-{#Version}-UNSTABLE-UNSIGNED
