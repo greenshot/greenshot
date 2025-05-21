@@ -22,3 +22,9 @@ Being easy to understand and configurable, Greenshot is an efficient tool for pr
 About this repository
 ---------------------
 This repository is for Greenshot 1.3, currently in development, but is the next planned release
+
+Releases
+--------
+
+You can find a list of all releases (stable and unstable) in the [Github releases](https://github.com/greenshot/greenshot/releases) or in the [version history on our website](https://getgreenshot.org/version-history/).
+The [downloads page on our website](https://getgreenshot.org/downloads/) always links to the latest stable release.

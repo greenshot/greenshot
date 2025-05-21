@@ -43,10 +43,12 @@ namespace Greenshot.Editor.Drawing
             0.5f, 0.25f, 0.75f
         };
 
-        [NonSerialized] private GraphicsPath freehandPath = new GraphicsPath();
-        private NativeRect myBounds = NativeRect.Empty;
-        private NativePoint lastMouse = NativePoint.Empty;
-        private readonly List<Point> capturePoints = new List<Point>();
+        [NonSerialized]
+        private GraphicsPath freehandPath = new GraphicsPath();
+
+        private Rectangle myBounds = NativeRect.Empty;
+        private Point lastMouse = NativePoint.Empty;
+        private List<Point> capturePoints = new List<Point>();
         private bool isRecalculated;
 
         /// <summary>
@@ -319,5 +321,5 @@ namespace Greenshot.Editor.Drawing
 
             return returnValue;
         }
-    }
+   }
 }

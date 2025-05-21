@@ -39,10 +39,10 @@ namespace Greenshot.Editor.Drawing
     [Serializable]
     public class SpeechbubbleContainer : TextContainer
     {
-        private NativePoint _initialGripperPoint;
+        private Point _initialGripperPoint;
 
         // Only used for serializing the TargetGripper location
-        private NativePoint _storedTargetGripperLocation;
+        private Point _storedTargetGripperLocation;
 
         /// <summary>
         /// Store the current location of the target gripper
@@ -120,7 +120,8 @@ namespace Greenshot.Editor.Drawing
             int xOffset = leftAligned ? -20 : 20;
             int yOffset = topAligned ? -20 : 20;
 
-            NativePoint newGripperLocation = _initialGripperPoint.Offset(xOffset, yOffset);
+            NativePoint initialGripperPoint = _initialGripperPoint;
+            NativePoint newGripperLocation = initialGripperPoint.Offset(xOffset, yOffset);
 
             if (TargetAdorner.Location != newGripperLocation)
             {

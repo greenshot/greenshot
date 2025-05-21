@@ -215,3 +215,5 @@ ModelManifest.xml
 
 # Rider files
 .idea
+
+/installer/Greenshot-INSTALLER-*.exe
