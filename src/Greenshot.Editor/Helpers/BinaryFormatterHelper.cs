@@ -54,6 +54,7 @@ namespace Greenshot.Editor.Helpers
             {"System.Collections.Generic.List`1[[Greenshot.Base.Interfaces.Drawing.IField", typeof(List<IField>)},
             {"System.Collections.Generic.List`1[[System.Drawing.Point", typeof(List<System.Drawing.Point>)},
             {"Greenshot.Editor.Drawing.ArrowContainer", typeof(ArrowContainer) },
+            {"Greenshot.Editor.Drawing.ArrowContainer+ArrowHeadCombination", typeof(ArrowContainer.ArrowHeadCombination) },
             {"Greenshot.Editor.Drawing.LineContainer", typeof(LineContainer) },
             {"Greenshot.Editor.Drawing.TextContainer", typeof(TextContainer) },
             {"Greenshot.Editor.Drawing.SpeechbubbleContainer", typeof(SpeechbubbleContainer) },
