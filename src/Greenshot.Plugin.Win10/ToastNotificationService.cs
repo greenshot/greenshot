@@ -102,7 +102,8 @@ namespace Greenshot.Plugin.Win10
             }
             catch (Exception ex)
             {
-                Log.Warn("Ignoring exception as this means that it was not possible to create a toast notifier.", ex);
+                Log.Warn("Could not create a toast notifier.", ex);
+
                 return;
             }
 
