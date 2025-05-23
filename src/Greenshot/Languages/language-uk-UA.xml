@@ -306,7 +306,7 @@ ${hostname} назва комп’ютера
     <resource name="editor_counter">Додати лічильник (Ш)</resource>
     <resource name="editor_speechbubble">Додати словесну бульбашку (І)</resource>
 
-    <resource name="editor_resize">Змінити розмір</resource>
+    <resource name="editor_resize">Змінити розмір (Z)</resource>
     <resource name="editor_resize_settings">Параметри зміни розміру</resource>
     <resource name="editor_resize_aspectratio">Зберігати пропорції</resource>
     <resource name="editor_resize_width">Ширина</resource>
