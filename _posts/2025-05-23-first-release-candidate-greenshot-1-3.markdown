@@ -2,7 +2,7 @@
 layout: post
 status: publish
 published: true
-title: Greenshot 1.3 Release Candidate: Ready for Testing!
+title: 🎉 Greenshot 1.3 Release Candidate - Ready for Testing!
 tags:
 - status
 - '1.3'
