@@ -29,6 +29,7 @@ Stay tuned for the final release, and happy screenshotting!
 
 Here is the full list of changes since the latest Greenshot 1.2 version
 
+* Fixed Insecure Deserialization Arbitrary Code Execution - CVE-2023-34634 https://github.com/greenshot/greenshot/issues/579
 * Update master to latest, first 1.2.9 by @Lakritzator in https://github.com/greenshot/greenshot/pull/70
 * Release/1.2.9 bf2 -> master by @Lakritzator in https://github.com/greenshot/greenshot/pull/71
 * Release/1.2.10 -> master by @Lakritzator in https://github.com/greenshot/greenshot/pull/72
