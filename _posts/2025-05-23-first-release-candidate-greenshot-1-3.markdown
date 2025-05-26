@@ -12,7 +12,7 @@ We’re excited to announce the release of the first Release Candidate (RC) for 
 
 #### How to Get Greenshot 1.3 RC
 
-Head over to our [version history page]([https://github.com/greenshot/greenshot/releases](https://getgreenshot.org/version-history/)) to download **Greenshot 1.3.290 RC1**.
+Head over to our [version history page](https://getgreenshot.org/version-history/) to download **Greenshot 1.3.290 RC1**.
 
 #### How You Can Help
 
