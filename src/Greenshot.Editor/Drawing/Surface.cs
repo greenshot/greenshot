@@ -1771,14 +1771,14 @@ namespace Greenshot.Editor.Drawing
                 {
                     targetClipRectangle = targetClipRectangle
                         .ChangeX(targetClipRectangle.X - horizontalCorrection)
-                        .ChangeWidth(targetClipRectangle.Width + horizontalCorrection);
+                        .ChangeWidth(targetClipRectangle.X + horizontalCorrection);
                 }
 
                 if (verticalCorrection != 0)
                 {
                     targetClipRectangle = targetClipRectangle
                         .ChangeY(targetClipRectangle.Y - verticalCorrection)
-                        .ChangeHeight(targetClipRectangle.Height + verticalCorrection);
+                        .ChangeHeight(targetClipRectangle.Y + verticalCorrection);
                 }
             }
 
