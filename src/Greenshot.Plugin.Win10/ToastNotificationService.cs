@@ -95,7 +95,17 @@ namespace Greenshot.Plugin.Win10
             }
 
             // Prepare the toast notifier. Be sure to specify the AppUserModelId on your application's shortcut!
-            var toastNotifier = ToastNotificationManagerCompat.CreateToastNotifier();
+            Microsoft.Toolkit.Uwp.Notifications.ToastNotifierCompat toastNotifier = null;
+            try
+            {
+                toastNotifier = ToastNotificationManagerCompat.CreateToastNotifier();
+            }
+            catch (Exception ex)
+            {
+                Log.Warn("Could not create a toast notifier.", ex);
+
+                return;
+            }
 
             // Here is an interesting article on reading the settings: https://www.rudyhuyn.com/blog/2018/02/10/toastnotifier-and-settings-careful-with-non-uwp-applications/
             try

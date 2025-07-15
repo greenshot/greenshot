@@ -308,7 +308,7 @@ Všechny funkce Greenshotu jsou stále dostupné přímo z místní nabídky bez
 		<resource name="editor_counter">Přidat počítadlo (I)</resource>
 		<resource name="editor_speechbubble">Přidat textovou bublinu (S)</resource>
 
-		<resource name="editor_resize">Změnit velikost</resource>
+		<resource name="editor_resize">Změnit velikost (Z)</resource>
 		<resource name="editor_resize_settings">Nastavení změny velikosti</resource>
 		<resource name="editor_resize_aspectratio">Zachovat poměr stran</resource>
 		<resource name="editor_resize_width">Šířka</resource>
