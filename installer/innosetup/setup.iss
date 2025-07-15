@@ -191,6 +191,18 @@ Root: HKLM; Subkey: Software\Classes\Greenshot; ValueType: string; ValueName: ""
 Root: HKLM; Subkey: Software\Classes\Greenshot\DefaultIcon; ValueType: string; ValueName: ""; ValueData: """{app}\Greenshot.EXE,0"""; Permissions: admins-modify; Flags: uninsdeletevalue noerror; Check: not IsRegularUser
 Root: HKLM; Subkey: Software\Classes\Greenshot\shell\open\command; ValueType: string; ValueName: ""; ValueData: """{app}\Greenshot.EXE"" --openfile ""%1"""; Permissions: admins-modify; Flags: uninsdeletevalue noerror; Check: not IsRegularUser
 
+; Uninstall info for per-user installs
+Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Uninstall\Greenshot_is1"; ValueType: string; ValueName: "DisplayName"; ValueData: "{#ExeName}"; Flags: uninsdeletekey; Check: IsRegularUser
+Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Uninstall\Greenshot_is1"; ValueType: string; ValueName: "UninstallString"; ValueData: """{uninstallexe}"""; Flags: uninsdeletekey; Check: IsRegularUser
+Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Uninstall\Greenshot_is1"; ValueType: string; ValueName: "DisplayIcon"; ValueData: "{app}\{#ExeName}.exe"; Flags: uninsdeletekey; Check: IsRegularUser
+Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Uninstall\Greenshot_is1"; ValueType: string; ValueName: "InstallDate"; ValueData: "{code:GetDate}"; Flags: uninsdeletekey; Check: IsRegularUser
+
+; Uninstall info for machine-wide installs
+Root: HKLM; Subkey: "Software\Microsoft\Windows\CurrentVersion\Uninstall\Greenshot_is1"; ValueType: string; ValueName: "DisplayName"; ValueData: "{#ExeName}"; Flags: uninsdeletekey; Check: not IsRegularUser
+Root: HKLM; Subkey: "Software\Microsoft\Windows\CurrentVersion\Uninstall\Greenshot_is1"; ValueType: string; ValueName: "UninstallString"; ValueData: """{uninstallexe}"""; Flags: uninsdeletekey; Check: not IsRegularUser
+Root: HKLM; Subkey: "Software\Microsoft\Windows\CurrentVersion\Uninstall\Greenshot_is1"; ValueType: string; ValueName: "DisplayIcon"; ValueData: "{app}\{#ExeName}.exe"; Flags: uninsdeletekey; Check: not IsRegularUser
+Root: HKLM; Subkey: "Software\Microsoft\Windows\CurrentVersion\Uninstall\Greenshot_is1"; ValueType: string; ValueName: "InstallDate"; ValueData: "{code:GetDate}"; Flags: uninsdeletekey; Check: not IsRegularUser
+
 [Icons]
 Name: {group}\{#ExeName}; Filename: {app}\{#ExeName}.exe; WorkingDir: {app}; AppUserModelID: "{#ExeName}"
 Name: {group}\{cm:UninstallIconDescription} {#ExeName}; Filename: {uninstallexe}; WorkingDir: {app};
@@ -766,9 +778,22 @@ begin
   Result := IsComponentSelected('disablesnippingtool');
 end;
 
+function GetDate(Param: String): String;
+var
+  sDate: String;
+begin
+  // GetDateTimeString returns something like '2025-07-15 09:25:20'
+  sDate := GetDateTimeString('yyyy-mm-dd', #0, #0);
+  Result := sDate;
+end;
+
 [Run]
 Filename: "{app}\{#ExeName}.exe"; Description: "{cm:startgreenshot}"; Parameters: "{code:GetParamsForGS}"; WorkingDir: "{app}"; Flags: nowait postinstall runasoriginaluser
 Filename: "https://getgreenshot.org/thank-you/?language={language}&version={#Version}"; Flags: shellexec runasoriginaluser
 
 [InstallDelete]
 Name: {app}; Type: dirifempty;
+
+
+
+
