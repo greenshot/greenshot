@@ -501,7 +501,7 @@ namespace Greenshot.Helpers
                         _capture = WindowCapture.CaptureRectangle(_capture, CoreConfig.LastCapturedRegion);
                         // TODO: Reactive / check if the elements code is activated
                         //if (windowDetailsThread != null) {
-                        //	windowDetailsThread.Join();
+                        //    windowDetailsThread.Join();
                         //}
 
                         // Set capture title, fixing bug #3569703

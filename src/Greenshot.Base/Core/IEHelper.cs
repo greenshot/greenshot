@@ -128,7 +128,7 @@ namespace Greenshot.Base.Core
         {
             ModifyRegistry("HKEY_CURRENT_USER", applicationName + ".exe", ieVersion);
 #if DEBUG
-			ModifyRegistry("HKEY_CURRENT_USER", applicationName + ".vshost.exe", ieVersion);
+            ModifyRegistry("HKEY_CURRENT_USER", applicationName + ".vshost.exe", ieVersion);
 #endif
         }
 

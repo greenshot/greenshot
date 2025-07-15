@@ -282,8 +282,8 @@ namespace Greenshot.Plugin.Office.OfficeExport
 
                 // Use this to change the format, it will probably lose the current selection.
                 //if (!OlBodyFormat.olFormatHTML.Equals(currentMail.BodyFormat)) {
-                //	Log.Info().WriteLine("Changing format to HTML.");
-                //	currentMail.BodyFormat = OlBodyFormat.olFormatHTML;
+                //    Log.Info().WriteLine("Changing format to HTML.");
+                //    currentMail.BodyFormat = OlBodyFormat.olFormatHTML;
                 //}
 
                 bool inlinePossible = false;
