@@ -34,6 +34,7 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Configuration;
 using Greenshot.Editor.Drawing.Fields;
+using Greenshot.Editor.Drawing.Filters;
 using Greenshot.Editor.Forms;
 using Greenshot.Editor.Memento;
 
@@ -328,9 +329,10 @@ namespace Greenshot.Editor.Drawing
                 return;
             }
 
-            foreach (var drawableContainer in this)
+            var drawableContainers = this.Cast<DrawableContainer>();
+
+            foreach (var dc in drawableContainers)
             {
-                var dc = (DrawableContainer) drawableContainer;
                 if (dc.Parent == null)
                 {
                     continue;
