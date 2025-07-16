@@ -331,6 +331,8 @@ namespace Greenshot.Editor.Drawing
 
             var drawableContainers = this.Cast<DrawableContainer>();
 
+            ApplyGrayscaleFilters(g, drawableContainers, bitmap);
+
             foreach (var dc in drawableContainers)
             {
                 if (dc.Parent == null)
@@ -342,6 +344,30 @@ namespace Greenshot.Editor.Drawing
                 {
                     dc.DrawContent(g, bitmap, renderMode, clipRectangle);
                 }
+            }
+
+            // To support multiple grayscale filters we merge them before applying them
+            static void ApplyGrayscaleFilters(Graphics g, IEnumerable<DrawableContainer> drawableContainers, Bitmap bitmap)
+            {
+                if (bitmap is null) return;
+
+                var grayFilters = drawableContainers.SelectMany(x => x.Filters.Where(filter => filter is GrayscaleFilter).Cast<GrayscaleFilter>());
+                // These rects shall not be grayed out
+                var rects = grayFilters.Select(x => x.Parent.Bounds);
+
+                // full bitmap size because the GrayscaleFilter is an inverted filter covering the full bitmap
+                var applyRect = new NativeRect(0, 0, bitmap.Width, bitmap.Height);
+
+                GraphicsState state = g.Save();
+                // Set a clipping region and then exclude the highlight areas so only "everything else" gets greyed out
+                g.SetClip(applyRect);
+                foreach (var rect in rects)
+                {
+                    g.ExcludeClip(rect);
+                }
+                GrayscaleFilter.DrawGray(g, bitmap, applyRect);
+
+                g.Restore(state);
             }
         }
 
