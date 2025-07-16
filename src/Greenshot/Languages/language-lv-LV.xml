@@ -306,7 +306,7 @@ Arī bez karstiem taustiņiem visas darbības iespējams veikt izmantojot „Gre
     <resource name="editor_counter">Pievienot skaitli (I)</resource>
     <resource name="editor_speechbubble">Pievienot teksta norādi (S)</resource>
 
-    <resource name="editor_resize">Mainīt izmēru</resource>
+    <resource name="editor_resize">Mainīt izmēru (Z)</resource>
     <resource name="editor_resize_settings">Izmēra maiņas iestatījumi</resource>
     <resource name="editor_resize_aspectratio">Saglabāt izmēru attiecības</resource>
     <resource name="editor_resize_width">Platums</resource>

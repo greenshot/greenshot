@@ -7,6 +7,7 @@
 #define BinDir "bin\Release\net472"
 #define ReleaseDir "..\..\src\Greenshot\bin\Release\net472"
 #define PluginDir "..\..\src\Greenshot\bin\Release\net472\Plugins"
+#define CertumThumbprint GetEnv('CertumThumbprint')
 
 ; Include the scripts to install .NET Framework
 ; See https://www.codeproject.com/KB/install/dotnetfx_innosetup_instal.aspx
@@ -132,15 +133,17 @@ InfoBeforeFile=..\additional_files\readme.txt
 LicenseFile=..\additional_files\license.txt
 LanguageDetectionMethod=uilanguage
 MinVersion=6.1sp1
-OutputBaseFilename={#ExeName}-INSTALLER-{#Version}-UNSTABLE
 OutputDir=..\
 PrivilegesRequired=lowest
+PrivilegesRequiredOverridesAllowed=commandline
 SetupIconFile=..\..\src\Greenshot\icons\applicationIcon\icon.ico
-; Create a SHA1 signature
-; SignTool=SignTool sign /debug /fd sha1 /tr https://time.certum.pl /td sha1 $f
-; Append a SHA256 to the previous SHA1 signature (this is what as does)
-; SignTool=SignTool sign /debug /as /fd sha256 /tr https://time.certum.pl /td sha256 $f
-; SignedUninstaller=yes
+#if CertumThumbprint  != ""
+ OutputBaseFilename={#ExeName}-INSTALLER-{#Version}-UNSTABLE
+  SignTool=SignTool sign /sha1 "{#CertumThumbprint}" /tr http://time.certum.pl /td sha256 /fd sha256 /v $f
+  SignedUninstaller=yes
+#else
+  OutputBaseFilename={#ExeName}-INSTALLER-{#Version}-UNSTABLE-UNSIGNED
+#endif
 UninstallDisplayIcon={app}\{#ExeName}.exe
 Uninstallable=true
 VersionInfoCompany={#ExeName}

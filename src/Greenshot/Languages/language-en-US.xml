@@ -312,7 +312,7 @@ All Greenshot features still work directly from the tray icon context menu witho
     <resource name="editor_counter">Add counter (I)</resource>
     <resource name="editor_speechbubble">Add speechbubble (S)</resource>
 
-    <resource name="editor_resize">Resize</resource>
+    <resource name="editor_resize">Resize (Z)</resource>
     <resource name="editor_resize_settings">Resize settings</resource>
     <resource name="editor_resize_aspectratio">Maintain aspect ratio</resource>
     <resource name="editor_resize_width">Width</resource>

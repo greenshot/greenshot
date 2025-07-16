@@ -322,7 +322,7 @@ In alternativa alle scorciatoie di tastiera, tutte le funzioni di Greenshot sono
     <resource name="editor_counter">Aggiungi conteggio</resource>
     <resource name="editor_speechbubble">Aggiungi nuvoletta</resource>
 
-    <resource name="editor_resize">Ridimensiona</resource>
+    <resource name="editor_resize">Ridimensiona (Z)</resource>
     <resource name="editor_resize_settings">Impostazioni ridimensionamento</resource>
     <resource name="editor_resize_aspectratio">Mantieni rapporto dimensioni</resource>
     <resource name="editor_resize_width">Larghezza</resource>
