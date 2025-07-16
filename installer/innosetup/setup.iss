@@ -135,6 +135,7 @@ LanguageDetectionMethod=uilanguage
 MinVersion=6.1sp1
 OutputDir=..\
 PrivilegesRequired=lowest
+PrivilegesRequiredOverridesAllowed=commandline
 SetupIconFile=..\..\src\Greenshot\icons\applicationIcon\icon.ico
 #if CertumThumbprint  != ""
  OutputBaseFilename={#ExeName}-INSTALLER-{#Version}-UNSTABLE
