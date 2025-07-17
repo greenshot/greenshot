@@ -1,13 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Português Brasileiro" ietf="pt-BR" version="1.0.0" languagegroup="1">
+<language description="Português Brasileiro" ietf="pt-BR" version="1.0.4" languagegroup="1">
 	<resources>
 		<resource name="about_bugs">Por favor reporte os erros em</resource>
 		<resource name="about_donations">Se você gosta do Greenshot você é bem-vindo pra nos ajudar com suporte:</resource>
 		<resource name="about_host">O Greenshot está hospedado no GitHub em</resource>
 		<resource name="about_icons">Ícones do conjunto de ícones do Fugue do Yusuke Kamiyamane (Licença da Creative Commons Attribution 3.0)</resource>
 		<resource name="about_license">Copyright (C) 2007-2024 Thomas Braun, Jens Klingen, Robin Krom
-O Greenshot não vem com ABSOLUTAMENTE NENHUMA GARANTIA. Este é um software grátis e você é bem-vindo pra redistribuí-lo sob certas condições. Os detalhes sobre a Licença Pública Geral do GNU:</resource>
+O Greenshot não vem com ABSOLUTAMENTE NENHUMA GARANTIA. Este é um software grátis e você é bem-vindo pra redistribuí-lo sob certas condições.
+Os detalhes sobre a Licença Pública Geral do GNU:</resource>
 		<resource name="about_title">Sobre o Greenshot</resource>
+		<resource name="about_translation"><!-- diplayed in about dialog, use to add credits or other translation-related info, e.g. "English translation by Jane Doe" --></resource>
 		<resource name="application_title">Greenshot - O utilitário revolucionário de screenshots</resource>
 		<resource name="bugreport_cancel">Fechar</resource>
 		<resource name="bugreport_info">Lamento, um erro inesperado ocorreu.
@@ -16,11 +18,11 @@ A boa notícia é: você pode nos ajudar a livrar-nos dele preenchendo um relat�
 Por favor visite a URL abaixo, crie um novo relatório de bug e cole o conteúdo da área do texto na descrição.
 
 Por favor adicione um sumário significativo e cole qualquer informação que você considere ser útil pra reproduzir o problema.
-Também, nós apreciaríamos mutio se você verificasse se um item no tracker já existe pra este bug. (Você pode usar a busca pra achar esses rapidamente.) Obrigado :)</resource>
+Também, nós apreciaríamos muito se você verificasse se um item no tracker já existe pra este bug. (Você pode usar a busca pra achar esses rapidamente.) Obrigado :)</resource>
 		<resource name="bugreport_title">Erro</resource>
 		<resource name="CANCEL">Cancelar</resource>
-		<resource name="clipboard_error">Um erro inesperado ocorreu ao tentar escrever na área de transferência.</resource>
-		<resource name="clipboard_inuse">O Greenshot não conseguiu escrever na área de transferência porque o processo {0} bloqueou o acesso.</resource>
+		<resource name="clipboard_error">Um erro inesperado ocorreu enquanto escrevia na área de transferência.</resource>
+		<resource name="clipboard_inuse">O Greenshot não foi capaz de escrever na área de transferência porque o processo {0} bloqueou o acesso.</resource>
 		<resource name="clipboard_noimage">Não pôde achar uma imagem da área de trabalho.</resource>
 		<resource name="ClipboardFormat.BITMAP">Bitmap do Windows</resource>
 		<resource name="ClipboardFormat.DIB">Bitmap Independente do Dispositivo (DIB)</resource>
@@ -31,11 +33,11 @@ Também, nós apreciaríamos mutio se você verificasse se um item no tracker j�
 		<resource name="colorpicker_apply">Aplicar</resource>
 		<resource name="colorpicker_blue">Azul</resource>
 		<resource name="colorpicker_green">Verde</resource>
-		<resource name="colorpicker_htmlcolor">Cor HTML</resource>
+		<resource name="colorpicker_htmlcolor">Cor do HTML</resource>
 		<resource name="colorpicker_recentcolors">Cores usadas recentemente</resource>
 		<resource name="colorpicker_red">Vermelho</resource>
 		<resource name="colorpicker_title">Escolhedor de Cores</resource>
-		<resource name="colorpicker_transparent">Transparência</resource>
+		<resource name="colorpicker_transparent">Transparente</resource>
 		<resource name="com_rejected">O destino {0} rejeitou o acesso do Greenshot, provavelmente um diálogo está aberto. Feche o diálogo e tente de novo.</resource>
 		<resource name="com_rejected_title">Acesso do Greenshot rejeitado</resource>
 		<resource name="config_unauthorizedaccess_write">Não pôde salvar o arquivo de configuração do Greenshot. Por favor verifique as permissões de acceso a '{0}'.</resource>
@@ -43,7 +45,7 @@ Também, nós apreciaríamos mutio se você verificasse se um item no tracker j�
 		<resource name="contextmenu_capturearea">Capturar região</resource>
 		<resource name="contextmenu_captureclipboard">Abrir imagen da área de transferência</resource>
 		<resource name="contextmenu_capturefullscreen">Capturar a tela inteira</resource>
-		<resource name="contextmenu_capturefullscreen_all">todos</resource>
+		<resource name="contextmenu_capturefullscreen_all">tudo</resource>
 		<resource name="contextmenu_capturefullscreen_bottom">rodapé</resource>
 		<resource name="contextmenu_capturefullscreen_left">esquerda</resource>
 		<resource name="contextmenu_capturefullscreen_right">direita</resource>
@@ -51,9 +53,9 @@ Também, nós apreciaríamos mutio se você verificasse se um item no tracker j�
 		<resource name="contextmenu_captureie">Capturar o Internet Explorer</resource>
 		<resource name="contextmenu_captureiefromlist">Capturar o Internet Explorer da lista</resource>
 		<resource name="contextmenu_capturelastregion">Capturar a última região</resource>
-		<resource name="contextmenu_capturewindow">Capturar tela</resource>
+		<resource name="contextmenu_capturewindow">Capturar janela</resource>
 		<resource name="contextmenu_capturewindowfromlist">Capturar a janela da lista</resource>
-		<resource name="contextmenu_donate">Dê Suporte ao Greenshot</resource>
+		<resource name="contextmenu_donate">Apoie o Greenshot</resource>
 		<resource name="contextmenu_exit">Sair</resource>
 		<resource name="contextmenu_help">Ajuda</resource>
 		<resource name="contextmenu_openfile">Abrir imagem do arquivo</resource>
@@ -91,25 +93,30 @@ Também, nós apreciaríamos mutio se você verificasse se um item no tracker j�
 		<resource name="editor_copypathtoclipboard">Copiar o caminho pra área de transferência</resource>
 		<resource name="editor_copytoclipboard">Copiar</resource>
 		<resource name="editor_crop">Cortar (C)</resource>
-		<resource name="editor_cursortool">Ferramenta de Seleção (ESC)</resource>
+		<resource name="editor_crop_mode">Modo de corte</resource>
+		<resource name="editor_cropmode_default">Cortar</resource>
+		<resource name="editor_cropmode_vertical">Cortar verticalmente</resource>
+		<resource name="editor_cropmode_horizontal">Cortar horizontalmente</resource>
+		<resource name="editor_cropmode_auto">Auto-cortar</resource>
+                <resource name="editor_cursortool">Ferramenta de Seleção (ESC)</resource>
 		<resource name="editor_cuttoclipboard">Cortar</resource>
 		<resource name="editor_deleteelement">Apagar</resource>
 		<resource name="editor_downonelevel">Abaixar um nível</resource>
 		<resource name="editor_downtobottom">Descer até o rodapé</resource>
 		<resource name="editor_drawarrow">Desenhar a seta (A)</resource>
-		<resource name="editor_drawellipse">Desenhar o elipse (E)</resource>
+		<resource name="editor_drawellipse">Desenhar a elipse (E)</resource>
 		<resource name="editor_drawfreehand">Desenhar a mão livre (F)</resource>
 		<resource name="editor_drawhighlighter">Destacar (H)</resource>
 		<resource name="editor_drawline">Desenhar linha (L)</resource>
 		<resource name="editor_drawrectangle">Desenhar retángulo (R)</resource>
-		<resource name="editor_drawtextbox">Desenhar caixa de texto (T)</resource>
+		<resource name="editor_drawtextbox">Adicionar caixa de texto (T)</resource>
 		<resource name="editor_duplicate">Duplicar o elemento selecionado</resource>
 		<resource name="editor_edit">Editar</resource>
 		<resource name="editor_effects">Efeitos</resource>
 		<resource name="editor_email">E-Mail</resource>
 		<resource name="editor_file">Arquivo</resource>
 		<resource name="editor_fontsize">Tamanho</resource>
-		<resource name="editor_forecolor">Cor da linha</resource>
+		<resource name="editor_forecolor">Cor da linha (NumPad0-9, Shift+0-9)</resource>
 		<resource name="editor_grayscale">Tom de cinza</resource>
 		<resource name="editor_highlight_area">Destacar área</resource>
 		<resource name="editor_highlight_grayscale">Tom de cinza</resource>
@@ -157,21 +164,21 @@ Também, nós apreciaríamos mutio se você verificasse se um item no tracker j�
 		<resource name="EmailFormat.OUTLOOK_HTML">Outlook com HTML</resource>
 		<resource name="EmailFormat.OUTLOOK_TXT">Outlook com texto</resource>
 		<resource name="error">Erro</resource>
-		<resource name="error_multipleinstances">Uma instância do Greenshot já está executando.</resource>
+		<resource name="error_multipleinstances">Uma instância do Greenshot já está em execução.</resource>
 		<resource name="error_nowriteaccess">Não pôde salvar o arquivo em {0}.
 Por favor verifique a acessibilidade da gravação do local de armazenagem selecionado.</resource>
 		<resource name="error_openfile">O arquivo "{0}" não põde ser aberto.</resource>
 		<resource name="error_openlink">Não pôde abrir o link '{0}'.</resource>
 		<resource name="error_save">Não pôde salvar a screenshot, por favor ache um local adequado.</resource>
-		<resource name="error_save_invalid_chars">O nome do arquivo gerado ou nome do diretório não é válido. Por favor conserte o modelo do nome do arquivo e então tente de novo</resource>
+    <resource name="error_save_invalid_chars">O nome do arquivo gerado ou nome do diretório não é válido. Por favor conserte o modelo do nome do arquivo e então tente de novo</resource>
 		<resource name="expertsettings">Expert</resource>
-		<resource name="expertsettings_autoreducecolors">Crie uma imagem de 8 bits se as cores são menores do que 256 enquanto tendo uma &gt; imagem de 8 bits</resource>
+		<resource name="expertsettings_autoreducecolors">Crie uma imagem de 8 bits se as cores tem menos do que 256 enquanto tendo uma &gt; imagem de 8 bits</resource>
 		<resource name="expertsettings_checkunstableupdates">Procurar atualizações instáveis</resource>
 		<resource name="expertsettings_clipboardformats">Formatos da área de transferência</resource>
-		<resource name="expertsettings_counter">Número pro ${NUM} no modelo do nome do arquivo</resource>
+		<resource name="expertsettings_counter">O número do ${NUM} no modelo do nome do arquivo</resource>
 		<resource name="expertsettings_enableexpert">Eu sei o que eu estou fazendo!</resource>
 		<resource name="expertsettings_footerpattern">Modelo do rodapé da impressora</resource>
-		<resource name="expertsettings_minimizememoryfootprint">Minimizar impressão da memória com penalidade na performance (não aconselhado).</resource>
+		<resource name="expertsettings_minimizememoryfootprint">Minimizar impressão da memória mas com uma penalidade na performance (não aconselhado).</resource>
 		<resource name="expertsettings_optimizeforrdp">Fazer alguma otimizações pra uso com a área de trabalho remota</resource>
 		<resource name="expertsettings_reuseeditorifpossible">Re-usar o editor se possível</resource>
 		<resource name="expertsettings_suppresssavedialogatclose">Suprimir o diálogo pra salvar quando fechar o editor</resource>
@@ -187,14 +194,14 @@ Por favor verifique a acessibilidade da gravação do local de armazenagem selec
 		<resource name="printoptions_allowenlarge">Aumentar a impressão pra encaixar no tamanho da página</resource>
 		<resource name="printoptions_allowrotate">Rotacionar a impressão com a orientação da página</resource>
 		<resource name="printoptions_allowshrink">Encolher a impressão pra encaixar na página</resource>
-		<resource name="printoptions_colors">Configurações das cores</resource>
-		<resource name="printoptions_dontaskagain">Salvar as opções como padrão e não perguntar de novo</resource>
+    <resource name="printoptions_colors">Configurações das cores</resource>
+    <resource name="printoptions_dontaskagain">Salvar as opções como padrão e não perguntar de novo</resource>
 		<resource name="printoptions_inverted">Imprimir com cores invertidas</resource>
-		<resource name="printoptions_layout">Configurações do esquema da página</resource>
-		<resource name="printoptions_printcolor">Impressão total das cores</resource>
-		<resource name="printoptions_printgrayscale">Forçar a impressão do tom de cinza</resource>
-		<resource name="printoptions_printmonochrome">Forçar impressão preta/branca</resource>
-		<resource name="printoptions_timestamp">Imprimir data/hora no rodapé da página</resource>
+    <resource name="printoptions_layout">Configurações do esquema da página</resource>
+    <resource name="printoptions_printcolor">Impressão total das cores</resource>
+    <resource name="printoptions_printgrayscale">Forçar a impressão do tom de cinza</resource>
+    <resource name="printoptions_printmonochrome">Forçar impressão preta/branca</resource>
+    <resource name="printoptions_timestamp">Imprimir data/hora no rodapé da página</resource>
 		<resource name="printoptions_title">Opções de impressão do Greenshot</resource>
 		<resource name="qualitydialog_dontaskagain">Salvar como qualidade padrão e não perguntar de novo</resource>
 		<resource name="qualitydialog_title">Qualidade do Greenshot</resource>
@@ -205,12 +212,12 @@ Por favor verifique a acessibilidade da gravação do local de armazenagem selec
 		<resource name="settings_autostartshortcut">Executar o Greenshot na inicialização</resource>
 		<resource name="settings_capture">Captura</resource>
 		<resource name="settings_capture_mousepointer">Capturar o ponteiro do mouse</resource>
-		<resource name="settings_capture_windows_interactive">Usar o modo de captura interativo da janela</resource>
+		<resource name="settings_capture_windows_interactive">Usar o modo de captura da janela interativa</resource>
 		<resource name="settings_checkperiod">Atualizar o intervalo da verificação em dias (0=sem verificação)</resource>
 		<resource name="settings_configureplugin">Configurar</resource>
 		<resource name="settings_copypathtoclipboard">Copiar o caminho do arquivo pra área de transferência toda vez que uma imagem é salva</resource>
 		<resource name="settings_destination">Destino</resource>
-		<resource name="settings_destination_clipboard">Área de transferência</resource>
+		<resource name="settings_destination_clipboard">Copiar pra área de transferência</resource>
 		<resource name="settings_destination_editor">Abrir no editor de imagens</resource>
 		<resource name="settings_destination_email">E-Mail</resource>
 		<resource name="settings_destination_file">Salvar diretamente (usando as configurações abaixo)</resource>
@@ -224,21 +231,23 @@ Por favor verifique a acessibilidade da gravação do local de armazenagem selec
 		<resource name="settings_jpegquality">Qualidade do JPEG</resource>
 		<resource name="settings_language">Idioma</resource>
 		<resource name="settings_message_filenamepattern">Os espaços reservados a seguir serão substituídos automaticamente no modelo definido:
-${YYYY} ano, 4 dígitos
+${AAAA} ano, 4 dígitos
 ${MM} mês, 2 dígitos
 ${DD} dia, 2 dígitos
 ${hh} hora, 2 dígitos
 ${mm} minuto, 2 dígitos
 ${ss} segundo, 2 dígitos
 ${NUM} número de acréscimo, 6 dígitos
+${RRR...} alfa-numéricos aleatórios, do mesmo tamanho que o 'R's
 ${título} Título da janela
 ${usuário} Usuário da janela
 ${domínio} Domínio da janela
 ${nome do hospedeiro} Nome do PC
 
 Você também pode fazer o Greenshot criar diretórios dinamicamente simplesmente use o símbolo do backslash (\) pra separar as pastas e o nome do arquivo.
-Exemplo: o modelo ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss} gerará uma pasta para o dia atual no seu local de armazenagem padrão, ex: 2008-06-29, o nome do arquivo da 
-screenshot contida será baseado no tempo atual, ex: 11_58_32 (mais a extensão definida nas configurações)</resource>
+Exemplo: o modelo ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss} 
+gerará uma pasta para o dia atual no seu local de armazenagem padrão, ex: 2008-06-29, o nome do arquivo da screenshot contida será baseado no tempo atual,
+ex: 11_58_32 (mais a extensão definida nas configurações)</resource>
 		<resource name="settings_network">Rede e atualizações</resource>
 		<resource name="settings_output">Saída</resource>
 		<resource name="settings_playsound">Reproduzir o som da câmera</resource>
@@ -259,7 +268,7 @@ screenshot contida será baseado no tempo atual, ex: 11_58_32 (mais a extensão 
 		<resource name="settings_zoom">Mostrar a lupa</resource>
 		<resource name="settings_storagelocation">Local da armazenagem</resource>
 		<resource name="settings_title">Configurações</resource>
-		<resource name="settings_tooltip_filenamepattern">Modelo usado pra gerar nomes dos arquivos quando salvar uma screenshots</resource>
+		<resource name="settings_tooltip_filenamepattern">Modelo usado pra gerar os nomes dos arquivos quando salvar as screenshots</resource>
 		<resource name="settings_tooltip_language">Idioma da interface do usuário do Greenshot</resource>
 		<resource name="settings_tooltip_primaryimageformat">Formato de imagem usado por padrão</resource>
 		<resource name="settings_tooltip_registerhotkeys">Define se os atalhos Prnt, Ctrl + Print, Alt + Prnt estão reservados pra uso global pelo Greenshot na inicialização do programa até o program ser desligado.</resource>
@@ -273,34 +282,41 @@ screenshot contida será baseado no tempo atual, ex: 11_58_32 (mais a extensão 
 		<resource name="update_found">Uma versão mais nova do Greenshot está disponível! Você quer baixar o Greenshot {0}?</resource>
 		<resource name="wait_ie_capture">Por favor espere enquanto a página no Internet Explorer é capturada...</resource>
 		<resource name="warning">Aviso</resource>
-		<resource name="warning_hotkeys">As teclas de atalho "{0}" não puderam ser registradas. Este problema provavelmente é causado por outra ferramenta{1} clamando o uso das mesmas teclas de atalho! Você poderia ou mudar suas configurações das teclas de atalho ou desativar/mudar o software fazendo uso das teclas de atalho. Todas as funções do Greenshot ainda funcionarão diretamente do menu de contexto do ícone do tray sem as teclas de atalho.</resource>
-		<resource name="WindowCaptureMode.Aero">Usar cor personalizada</resource>
+		<resource name="warning_hotkeys">As teclas de atalho "{0}" não puderam ser registradas. Este problema provavelmente é causado por outra ferramenta{1} clamando o uso das mesmas teclas de atalho! Você poderia ou mudar suas configurações das teclas de atalho ou desativar/mudar o software fazendo uso das teclas de atalho.
+
+Todas as funções do Greenshot ainda funcionarão diretamente no menu de contexto do ícone do tray sem as teclas de atalho.</resource>
+                <resource name="WindowCaptureMode.Aero">Usar cor personalizada</resource>
 		<resource name="WindowCaptureMode.AeroTransparent">Preservar transparência</resource>
 		<resource name="WindowCaptureMode.Auto">Automaticamente</resource>
 		<resource name="WindowCaptureMode.GDI">Usar a cor padrão</resource>
-		<resource name="WindowCaptureMode.Screen">Como exibido</resource>
-		<!-- 1.2 -->
-		<resource name="editor_dropshadow_darkness">Escuridão da sombra</resource>
-		<resource name="editor_dropshadow_offset">Deslocamento da sombra</resource>
-		<resource name="editor_dropshadow_settings">Configurações da soltura da sombra</resource>
-		<resource name="editor_dropshadow_thickness">Grossura da sombra</resource>
-		<resource name="editor_tornedge_horizontaltoothrange">Alcance do dente horizontal</resource>
-		<resource name="editor_tornedge_settings">Configurações das bordas rasgadas</resource>
-		<resource name="editor_tornedge_toothsize">Tamanho do dente</resource>
-		<resource name="editor_tornedge_verticaltoothrange">Alcance do dente vertical</resource>
-		<resource name="editor_tornedge_all">Rasgar todos os lados</resource>
-		<resource name="editor_tornedge_left">Lado esquerdo</resource>
-		<resource name="editor_tornedge_right">Lado direito</resource>
-		<resource name="editor_tornedge_top">Topo</resource>
-		<resource name="editor_tornedge_bottom">Rodapé</resource>
-		<resource name="editor_tornedge_shadow">Gerar sombra</resource>
-		<resource name="editor_counter">Adicionar contador (I)</resource>
-		<resource name="editor_speechbubble">Adicionar bolha do discurso (S)</resource>
-		<resource name="editor_resize">Re-dimensionar</resource>
-		<resource name="editor_resize_settings">Configurações do redimensionamento</resource>
-		<resource name="editor_resize_aspectratio">Manter proporção do aspecto</resource>
-		<resource name="editor_resize_width">Largura</resource>
-		<resource name="editor_resize_height">Altura</resource>
-		<resource name="settings_iconsize">Tamanho do ícone</resource>
-	</resources>
+		<resource name="WindowCaptureMode.Screen">Conforme exibido</resource>
+		
+    <!-- 1.2 -->
+    <resource name="editor_dropshadow_darkness">Escuridão da sombra</resource>
+    <resource name="editor_dropshadow_offset">Deslocamento da sombra</resource>
+    <resource name="editor_dropshadow_settings">Configurações da soltura da sombra</resource>
+    <resource name="editor_dropshadow_thickness">Grossura da sombra</resource>
+		
+    <resource name="editor_tornedge_horizontaltoothrange">Alcance do dente horizontal</resource>
+    <resource name="editor_tornedge_settings">Configurações das bordas rasgadas</resource>
+    <resource name="editor_tornedge_toothsize">Tamanho do dente</resource>
+    <resource name="editor_tornedge_verticaltoothrange">Alcance do dente vertical</resource>
+    <resource name="editor_tornedge_all">Rasgar todos os lados</resource>
+    <resource name="editor_tornedge_left">Lado esquerdo</resource>
+    <resource name="editor_tornedge_right">Lado direito</resource>
+    <resource name="editor_tornedge_top">Topo</resource>
+    <resource name="editor_tornedge_bottom">Rodapé</resource>
+    <resource name="editor_tornedge_shadow">Gerar sombra</resource>
+		
+    <resource name="editor_counter">Adicionar contador (I)</resource>
+    <resource name="editor_speechbubble">Adicionar bolha do discurso (S)</resource>
+		
+    <resource name="editor_resize">Re-dimensionar</resource>
+    <resource name="editor_resize_settings">Configurações do redimensionamento</resource>
+    <resource name="editor_resize_aspectratio">Manter a proporção do aspecto</resource>
+    <resource name="editor_resize_width">Largura</resource>
+    <resource name="editor_resize_height">Altura</resource>
+        <resource name="settings_iconsize">Tamanho do ícone</resource>
+	
+  </resources>
 </language>
