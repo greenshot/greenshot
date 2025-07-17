@@ -57,6 +57,9 @@ namespace Greenshot.Editor.Drawing
         private const int M11 = 0;
         private const int M22 = 3;
 
+        public static bool IsBlurFilterApplied = false;
+        public static bool IsBrightnessFilterApplied = false;
+
         [OnDeserialized]
         private void OnDeserializedInit(StreamingContext context)
         {
@@ -416,7 +419,26 @@ namespace Greenshot.Editor.Drawing
                         {
                             if (filter.Invert)
                             {
-                                filter.Apply(graphics, bmp, Bounds, renderMode, areasToExcludeFromFilters);
+                                if (filter is BlurFilter)
+                                {
+                                    if (!IsBlurFilterApplied)
+                                    {
+                                        filter.Apply(graphics, bmp, Bounds, renderMode, areasToExcludeFromFilters);
+                                        IsBlurFilterApplied = true;
+                                    }
+                                }
+                                else if (filter is BrightnessFilter)
+                                {
+                                    if (!IsBrightnessFilterApplied)
+                                    {
+                                        filter.Apply(graphics, bmp, Bounds, renderMode, areasToExcludeFromFilters);
+                                        IsBrightnessFilterApplied = true;
+                                    }
+                                }
+                                else
+                                {
+                                    filter.Apply(graphics, bmp, Bounds, renderMode, areasToExcludeFromFilters);
+                                }
                             }
                             else
                             {

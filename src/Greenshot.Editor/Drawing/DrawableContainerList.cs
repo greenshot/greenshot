@@ -328,6 +328,9 @@ namespace Greenshot.Editor.Drawing
                 return;
             }
 
+            DrawableContainer.IsBlurFilterApplied = false;
+            DrawableContainer.IsBrightnessFilterApplied = false;
+
             foreach (var drawableContainer in this)
             {
                 var dc = (DrawableContainer) drawableContainer;
