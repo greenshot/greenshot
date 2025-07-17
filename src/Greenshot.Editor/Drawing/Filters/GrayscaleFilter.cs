@@ -55,6 +55,10 @@ namespace Greenshot.Editor.Drawing.Filters
             {
                 graphics.SetClip(applyRect);
                 graphics.ExcludeClip(rect);
+                foreach (NativeRect area in areasToExcludeFromFilters)
+                {
+                    graphics.ExcludeClip(area);
+                }
             }
 
             ColorMatrix grayscaleMatrix = new ColorMatrix(new[]

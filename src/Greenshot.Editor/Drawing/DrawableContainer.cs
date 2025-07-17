@@ -396,7 +396,7 @@ namespace Greenshot.Editor.Drawing
 
         public bool HasFilters => Filters.Count > 0;
 
-        public bool IsAreaHighlightContainer => Filters.Any(f => f is BrightnessFilter) && Filters.Any(f => f is BlurFilter);
+        public bool IsAreaHighlightContainer => Filters.Any(f => f.Invert && (f is BrightnessFilter || f is BlurFilter || f is GrayscaleFilter));
 
         public abstract void Draw(Graphics graphics, RenderMode renderMode);
 
