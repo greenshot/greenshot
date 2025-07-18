@@ -9,14 +9,16 @@ tags:
 ---
 
 
-# 🎉 Greenshot v1.3.290 RC1 Released — Fixed Vulnerability, Zoom, improved HiDPI awareness & More!
+# 🎉 Greenshot v1.3 Released — Fixed Vulnerability, Zoom, improved HiDPI awareness & More!
+
+**Update 2025-07-17: we have published a bug fix release (v1.3.202) which fixes some problems when running the installer as administrator.**
 
 We're excited to announce the release of **Greenshot v1.3.290 (Final Release)** – a significant step forward for one of the most popular open-source screenshot tools for Windows. 
 This version introduces **new features**, **UI improvements**, and **important bug fixes** that refine the overall user experience.
 
 
 
-## 🛠 Fixed Vulerability Issue
+## 🛠 Fixed Vulnerability Issue
 
 Greenshot 1.2.10 and below allowed arbitrary code execution because .NET content is insecurely deserialized when a .greenshot file is opened.
 This long awaited fix has already been provided in unstable versions and now found it's way into the final release of version 1.3.
