@@ -136,8 +136,8 @@ jobs:
       - name: Rename installer for non-release branch
         if: env.IS_RELEASE_BRANCH != 'true'
         run: |
-          $branch = "${{ github.ref }}" -replace '^refs/heads/', ''
-          $sanitized = $branch -replace '[^a-zA-Z0-9._-]', '_'
+          branch="${BRANCH_NAME:-${GITHUB_REF#refs/heads/}}"
+          sanitized=$(echo "$branch" | sed 's/[^a-zA-Z0-9._-]/_/g')
           mv drop/Greenshot-INSTALLER-*.exe "drop/Greenshot-INSTALLER-${sanitized}.exe"
         shell: bash
 
