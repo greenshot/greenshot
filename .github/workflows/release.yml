@@ -133,6 +133,14 @@ jobs:
           git tag -a "v${{ steps.version_info.outputs.version }}" -m "v${{ steps.version_info.outputs.version }}"
           git push origin "v${{ steps.version_info.outputs.version }}"
 
+      - name: Rename installer for non-release branch
+        if: env.IS_RELEASE_BRANCH != 'true'
+        run: |
+          $branch = "${{ github.ref }}" -replace '^refs/heads/', ''
+          $sanitized = $branch -replace '[^a-zA-Z0-9._-]', '_'
+          mv drop/Greenshot-INSTALLER-*.exe "drop/Greenshot-INSTALLER-${sanitized}.exe"
+        shell: bash
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
