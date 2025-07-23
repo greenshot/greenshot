@@ -3,7 +3,7 @@ name: Update GitHub Pages
 on:
   workflow_dispatch:
   release:
-    types: [published]
+    types: [published, unpublished, created, edited, deleted, prereleased, released]
 
 jobs:
   update-gh-pages:
