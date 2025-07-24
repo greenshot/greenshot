@@ -1,3 +1,7 @@
+env:
+  IS_RELEASE_BRANCH: ${{ startsWith(github.ref, 'refs/heads/release/') }}
+  BRANCH_NAME: ${{ github.ref_name }}
+
 name: Build and Deploy
 
 on:
@@ -5,6 +9,12 @@ on:
   push:
     branches:
       - 'release/1.*'
+    paths-ignore:
+      - '.github/**'
+      - '.gitignore'
+      - '*.md'
+      - 'LICENSE'
+      - 'build-and-deploy.ps1'
 
 jobs:
   build:
@@ -85,7 +95,8 @@ jobs:
           path: drop # Local folder where artifacts are downloaded
 
       - name: Extract version from file name
-        id: extract_version
+        if: env.IS_RELEASE_BRANCH == 'true'
+        id: version_from_filename
         run: |
           $file = Get-ChildItem drop -Filter "Greenshot-INSTALLER-*.exe" | Select-Object -First 1
           if (-not $file) {
@@ -97,22 +108,47 @@ jobs:
             throw "Version number could not be extracted from file name: $($file.Name)"
           }
         shell: pwsh
+
+      - name: Set version from sanitized branch name
+        if: env.IS_RELEASE_BRANCH != 'true'
+        id: version_from_branchname
+        run: |
+          $branch = "${{ github.ref }}" -replace '^refs/heads/', ''
+          $sanitized = $branch -replace '[^a-zA-Z0-9._-]', '_'
+          echo "version=$sanitized" >> $Env:GITHUB_OUTPUT
+        shell: pwsh
+
+      - name: Set version info
+        id: version_info
+        run: |
+          echo "version=${{ steps.version_from_filename.outputs.version || steps.version_from_branchname.outputs.version }}" >> $GITHUB_OUTPUT
+        shell: bash
+        
    
       - name: Create tag
+        if: env.IS_RELEASE_BRANCH == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag -a "v${{ steps.extract_version.outputs.version }}" -m "v${{ steps.extract_version.outputs.version }}"
-          git push origin "v${{ steps.extract_version.outputs.version }}"
+          git tag -a "v${{ steps.version_info.outputs.version }}" -m "v${{ steps.version_info.outputs.version }}"
+          git push origin "v${{ steps.version_info.outputs.version }}"
+
+      - name: Rename installer for non-release branch
+        if: env.IS_RELEASE_BRANCH != 'true'
+        run: |
+          branch="${BRANCH_NAME:-${GITHUB_REF#refs/heads/}}"
+          sanitized=$(echo "$branch" | sed 's/[^a-zA-Z0-9._-]/_/g')
+          mv drop/Greenshot-INSTALLER-*.exe "drop/Greenshot-INSTALLER-${sanitized}.exe"
+        shell: bash
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          name: "Greenshot ${{ steps.extract_version.outputs.version }} (continuous build)"
-          tag_name: "v${{ steps.extract_version.outputs.version }}"
+          name: "Greenshot ${{ steps.version_info.outputs.version }} (continuous build)"
+          tag_name: ${{ env.IS_RELEASE_BRANCH == 'true' && format('v{0}', steps.version_info.outputs.version) || env.BRANCH_NAME }}
           files: drop/*.exe
           generate_release_notes: true
-          draft: false
+          draft: ${{ env.IS_RELEASE_BRANCH != 'true'  }}
           prerelease: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
