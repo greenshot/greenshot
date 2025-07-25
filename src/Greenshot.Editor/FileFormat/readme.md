@@ -84,7 +84,7 @@ Greenshot template files supports two file formats:
 
 - **Serialization:** Uses [MessagePack](https://github.com/MessagePack-CSharp/MessagePack-CSharp/) for serialization.
 - **Marker:** Files are identified by the marker string `"GreenshotTemplate02"` at the beginning of the file. _(Note: Schema version (i.e. `".01"` ) is not part of the marker)_.
-- **Implementation:** See `Greenshot.Editor.FileFormat.V2.GreenshotFileV2`.
+- **Implementation:** See `Greenshot.Editor.FileFormat.V2.GreenshotTemplateV2`.
 - **Binary Data Structure:**
   The file consists of:
   1. 22 bytes for the Greenshot marker string with complete version string (i.e. `"GreenshotTemplate02.01"` ).
@@ -192,7 +192,7 @@ From `FileFormatHandler` to the implementation, only first-class domain objects 
 # Serialization
 
 The serialization is done by these steps:
- 1. Convert the domain object (`GreenshotFile` or `GreenshotTemplate`) to a DTO (`GreenshotFileDto` or `GreenshotTemplateDto`) by using `Greenshot.Editor.FileFormat.Dto.ConvertDtoToDomain.ToDto()`
+ 1. Convert the domain object (`GreenshotFile` or `GreenshotTemplate`) to a DTO (`GreenshotFileDto` or `GreenshotTemplateDto`) by using `Greenshot.Editor.FileFormat.Dto.ConvertDomainToDto.ToDto()`
  1. Convert the DTO to binary data using the MessagePack serializer. _(Serialization with BinaryFormatter is not implemented anymore.)_
 
 # Deserialization
