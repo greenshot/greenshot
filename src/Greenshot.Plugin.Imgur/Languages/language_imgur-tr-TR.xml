@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<language description="Türkçe" ietf="tr-TR" version="1.0.0">
+  <resources>
+	<resource name="upload_menu_item">
+		Imgur'a yükle
+	</resource>
+	<resource name="settings_title">
+		Imgur ayarları
+	</resource>
+	<resource name="label_url">
+		Url
+	</resource>
+	<resource name="OK">
+		Tamam
+	</resource>
+	<resource name="CANCEL">
+		İptal et
+	</resource>
+	<resource name="upload_success">
+		Görüntü Imgur'a başarıyla yüklendi
+	</resource>
+	<resource name="upload_failure">
+		Imgur'a yükleme sırasında bir hata oluştu:
+	</resource>
+	<resource name="label_upload_format">
+		Görüntü biçimi
+	</resource>
+	<resource name="communication_wait">
+		Imgur ile iletişim kuruluyor. Lütfen bekleyin...
+	</resource>
+	<resource name="delete_question">
+		Imgur'dan {0} adlı görüntüyü silmek istiyor musunuz?
+	</resource>
+	<resource name="clear_question">
+		Yerel Imgur geçmişini silmek istediğinize emin misiniz?
+	</resource>
+	<resource name="delete_title">
+		Görüntüyü sil {0}
+	</resource>
+	<resource name="anonymous_access">
+		Anonim link kullanın
+	</resource>
+	<resource name="use_page_link">
+		Panodaki görüntü linki yerine web sayfası linki kullan
+	</resource>
+	<resource name="history">
+		Geçmiş
+	</resource>
+	<resource name="configure">
+		Yapılandır
+	</resource>
+  </resources>
+</language>
