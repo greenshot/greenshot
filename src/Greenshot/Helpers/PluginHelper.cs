@@ -224,10 +224,13 @@ namespace Greenshot.Helpers
                     var pluginEntryName = $"{assemblyName}.{assemblyName.Replace("Greenshot.Plugin.", string.Empty)}Plugin";
                     var pluginEntryType = assembly.GetType(pluginEntryName, false, true);
 
-                    if (CoreConfig.ExcludePlugins != null && CoreConfig.ExcludePlugins.Contains(pluginEntryName))
+                    // the sub namespace from plugin is used to exclude plugins
+                    var excludeIdentifier = assemblyName.Replace("Greenshot.Plugin.", string.Empty);
+
+                    if (CoreConfig.ExcludePlugins != null && CoreConfig.ExcludePlugins.Contains(excludeIdentifier))
                     {
                         Log.WarnFormat("Exclude list: {0}", string.Join(",", CoreConfig.ExcludePlugins));
-                        Log.WarnFormat("Skipping the excluded plugin {0} with version {1} from {2}", pluginEntryName, assembly.GetName().Version, pluginFile);
+                        Log.WarnFormat("Skipping the excluded plugin {0} with version {1} from {2}", excludeIdentifier, assembly.GetName().Version, pluginFile);
                         continue;
                     }
 
