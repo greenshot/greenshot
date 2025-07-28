@@ -30,24 +30,24 @@ Here is an example on how to exclude plugins by adding the plugins you don't wan
 An example to exclude the box and dropbox plug-ins add the following line somewhere under the ```[Core]``` section:
 
 ```
-ExcludePlugins=Box Plugin,Dropbox Plugin
+ExcludePlugins=Box,Dropbox
 ```
 
-The names of the plugin are visible in the Plugins tab of the settings or the greenshot.log (due to unfortunate decision while coding, they all end with " Plugin".
+The names of the plugin are visible in the Plugins directory within Greenshot's installation directory (without the prefix "Greenshot.Plugin." ).
 
 For completeness we describe the plugins here (do not include the quotes!):
 
-* "Box Plugin"
-* "Confluence Plugin"
-* "Dropbox Plugin"
-* "External command Plugin"
-* "Flickr Plugin"
-* "Imgur Plugin"
-* "Jira Plugin"
-* "OCR Plugin"
-* "Office Plugin"
-* "Photobucket Plugin"
-* "Picasa-Web Plugin"
+* "Box"
+* "Confluence"
+* "Dropbox"
+* "ExternalCommand"
+* "Flickr"
+* "GooglePhotos"
+* "Imgur"
+* "Jira"
+* "Office"
+* "Photobucket"
+* "Win10"
 
 
 Destination
