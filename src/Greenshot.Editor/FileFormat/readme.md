@@ -115,8 +115,8 @@ The version is composed of two parts:
 
 The version is represented as `{format version}.{schema version}` (i.e. as string, `02.01`, this pattern still matches markers in V1 and V2).
 
-- **Format Version:** See `VersionHandler.GreenshotFileFormatVersion`.
-- **Schema Version:** See `VersionHandler.SchemaVersion`.
+- **Format Version:** See `GreenshotFileVersionHandler.GreenshotFileFormatVersion`.
+- **Schema Version:** See `GreenshotFileVersionHandler.CurrentSchemaVersion`.
 
 ---
 
@@ -185,7 +185,7 @@ It provides methods to save and load files. There is a `GreenshotFileFormatHandl
 
 Every `FileFormatHandler` calls the associated `VersionHandler` wich determines the file format version and calls the appropriate class that implements the serialization/deserialization logic.
 
-From `FileFormatHandler` to the implementation, only first-class domain objects (`GreenshotFile`, `GreenshotTemplate`) or file streams are passed as parameters. 
+From `FileFormatHandler` to the implementation, only first-class domain objects (`GreenshotFile`, `GreenshotTemplate`) or file streams are passed as parameters. _(In particular, no `Surface` or `DrawableContainer`.)_
 
 ---
 

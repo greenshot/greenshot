@@ -30,7 +30,7 @@ namespace Greenshot.Editor.FileFormat.Dto;
 
 /// <summary>
 /// All DTO classes should not contain any business logic. This applies to helper methods as well
-/// So this is the placae for them.
+/// So this is the place for them.
 /// </summary>
 public static class DtoHelper
 {
@@ -48,7 +48,7 @@ public static class DtoHelper
     }
 
     /// <summary>
-    /// We store Color as an ARGB integer, so we have to compare two colors in by their ARGB values
+    /// We store Color as an ARGB integer, so we have to compare two colors by their ARGB values
     /// </summary>
     /// <param name="leftColor"></param>
     /// <param name="rightColor"></param>
