@@ -224,13 +224,23 @@ namespace Greenshot.Helpers
                     var pluginEntryName = $"{assemblyName}.{assemblyName.Replace("Greenshot.Plugin.", string.Empty)}Plugin";
                     var pluginEntryType = assembly.GetType(pluginEntryName, false, true);
 
-                    // the sub namespace from plugin is used to exclude plugins
+                    // the sub namespace from plugin is used to include/exclude plugins
                     var excludeIdentifier = assemblyName.Replace("Greenshot.Plugin.", string.Empty);
 
-                    if (CoreConfig.ExcludePlugins != null && CoreConfig.ExcludePlugins.Contains(excludeIdentifier))
+                    if (CoreConfig.IncludePlugins is {} includePlugins
+                        && includePlugins.Count(p => !string.IsNullOrWhiteSpace(p)) > 0 // ignore empty entries i.e. a whitespace
+                        && !includePlugins.Contains(excludeIdentifier))
                     {
-                        Log.WarnFormat("Exclude list: {0}", string.Join(",", CoreConfig.ExcludePlugins));
-                        Log.WarnFormat("Skipping the excluded plugin {0} with version {1} from {2}", excludeIdentifier, assembly.GetName().Version, pluginFile);
+                        Log.WarnFormat("Include plugin list: {0}", string.Join(",", includePlugins));
+                        Log.WarnFormat("Skipping the not included plugin '{0}' with version {1} from {2}", excludeIdentifier, assembly.GetName().Version, pluginFile);
+                        continue;
+                    }
+
+                    if (CoreConfig.ExcludePlugins is { } excludePlugins
+                        && excludePlugins.Contains(excludeIdentifier))
+                    {
+                        Log.WarnFormat("Exclude plugin list: {0}", string.Join(",", excludePlugins));
+                        Log.WarnFormat("Skipping the excluded plugin '{0}' with version {1} from {2}", excludeIdentifier, assembly.GetName().Version, pluginFile);
                         continue;
                     }
 
