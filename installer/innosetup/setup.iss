@@ -127,15 +127,19 @@ AppVersion={#Version}
 ArchitecturesInstallIn64BitMode=x64
 Compression=lzma2/ultra64
 SolidCompression=yes
-DefaultDirName={code:DefDirRoot}\{#ExeName}
+DefaultDirName={autopf}\{#ExeName}
 DefaultGroupName={#ExeName}
 InfoBeforeFile=..\additional_files\readme.txt
 LicenseFile=..\additional_files\license.txt
 LanguageDetectionMethod=uilanguage
 MinVersion=6.1sp1
 OutputDir=..\
+; user may choose between all-users vs. current-user installation in a dialog or by using the /ALLUSERS flag (on the command line)
+; in registry section, HKA will take care of the appropriate root key (HKLM vs. HKCU), see https://jrsoftware.org/ishelp/index.php?topic=admininstallmode
+PrivilegesRequiredOverridesAllowed=dialog
+; admin privileges not required, unless user chooses all-users installation
+; the installer will ask for elevation if needed
 PrivilegesRequired=lowest
-PrivilegesRequiredOverridesAllowed=commandline
 SetupIconFile=..\..\src\Greenshot\icons\applicationIcon\icon.ico
 #if CertumThumbprint  != ""
  OutputBaseFilename={#ExeName}-INSTALLER-{#Version}-UNSTABLE
@@ -155,6 +159,7 @@ VersionInfoVersion={#Version}
 WizardImageFile=installer-large.bmp
 ; Reference a bitmap, max size 55x58
 WizardSmallImageFile=installer-small.bmp
+
 [Registry]
 ; Delete all startup entries, so we don't have leftover values
 Root: HKCU; Subkey: Software\Microsoft\Windows\CurrentVersion\Run; ValueType: none; ValueName: {#ExeName}; Flags: deletevalue noerror;
@@ -173,24 +178,16 @@ Root: HKLM; Subkey: Software\Classes\.greenshot; ValueType: none; ValueName: {#E
 Root: HKLM; Subkey: Software\Classes\Greenshot; ValueType: none; ValueName: {#ExeName}; Flags: deletevalue noerror;
 
 ; Create the startup entries if requested to do so
-; HKEY_LOCAL_USER - for current user only
-Root: HKCU; Subkey: Software\Microsoft\Windows\CurrentVersion\Run; ValueType: string; ValueName: {#ExeName}; ValueData: """{app}\{#ExeName}.exe"""; Permissions: users-modify; Flags: uninsdeletevalue noerror; Tasks: startup; Check: IsRegularUser
-; HKEY_LOCAL_MACHINE - for all users when admin
-Root: HKLM; Subkey: Software\Microsoft\Windows\CurrentVersion\Run; ValueType: string; ValueName: {#ExeName}; ValueData: """{app}\{#ExeName}.exe"""; Permissions: admins-modify; Flags: uninsdeletevalue noerror; Tasks: startup; Check: not IsRegularUser
+Root: HKA; Subkey: Software\Microsoft\Windows\CurrentVersion\Run; ValueType: string; ValueName: {#ExeName}; ValueData: """{app}\{#ExeName}.exe"""; Flags: uninsdeletevalue noerror; Tasks: startup
 
 ; Register our own filetype for all users
-; HKEY_LOCAL_USER - for current user only
-Root: HKCU; Subkey: Software\Classes\.greenshot; ValueType: string; ValueName: ""; ValueData: "Greenshot"; Permissions: users-modify; Flags: uninsdeletevalue noerror; Check: IsRegularUser
-Root: HKCU; Subkey: Software\Classes\Greenshot; ValueType: string; ValueName: ""; ValueData: "Greenshot File"; Permissions: users-modify; Flags: uninsdeletevalue noerror; Check: IsRegularUser
-Root: HKCU; Subkey: Software\Classes\Greenshot\DefaultIcon; ValueType: string; ValueName: ""; ValueData: """{app}\Greenshot.EXE,0"""; Permissions: users-modify; Flags: uninsdeletevalue noerror; Check: IsRegularUser
-Root: HKCU; Subkey: Software\Classes\Greenshot\shell\open\command; ValueType: string; ValueName: ""; ValueData: """{app}\Greenshot.EXE"" --openfile ""%1"""; Permissions: users-modify; Flags: uninsdeletevalue noerror; Check: IsRegularUser
+Root: HKA; Subkey: Software\Classes\.greenshot; ValueType: string; ValueName: ""; ValueData: "Greenshot"; Flags: uninsdeletevalue noerror
+Root: HKA; Subkey: Software\Classes\Greenshot; ValueType: string; ValueName: ""; ValueData: "Greenshot File"; Flags: uninsdeletevalue noerror
+Root: HKA; Subkey: Software\Classes\Greenshot\DefaultIcon; ValueType: string; ValueName: ""; ValueData: """{app}\Greenshot.EXE,0"""; Flags: uninsdeletevalue noerror
+Root: HKA; Subkey: Software\Classes\Greenshot\shell\open\command; ValueType: string; ValueName: ""; ValueData: """{app}\Greenshot.EXE"" --openfile ""%1"""; Flags: uninsdeletevalue noerror
+
 ; Disable the default PRTSCR Snipping Tool in Windows 11
 Root: HKCU; Subkey: Control Panel\Keyboard; ValueType: dword; ValueName: "PrintScreenKeyForSnippingEnabled"; ValueData: "0"; Flags: uninsdeletevalue; Check: ShouldDisableSnippingTool
-; HKEY_LOCAL_MACHINE - for all users when admin
-Root: HKLM; Subkey: Software\Classes\.greenshot; ValueType: string; ValueName: ""; ValueData: "Greenshot"; Permissions: admins-modify; Flags: uninsdeletevalue noerror; Check: not IsRegularUser
-Root: HKLM; Subkey: Software\Classes\Greenshot; ValueType: string; ValueName: ""; ValueData: "Greenshot File"; Permissions: admins-modify; Flags: uninsdeletevalue noerror; Check: not IsRegularUser
-Root: HKLM; Subkey: Software\Classes\Greenshot\DefaultIcon; ValueType: string; ValueName: ""; ValueData: """{app}\Greenshot.EXE,0"""; Permissions: admins-modify; Flags: uninsdeletevalue noerror; Check: not IsRegularUser
-Root: HKLM; Subkey: Software\Classes\Greenshot\shell\open\command; ValueType: string; ValueName: ""; ValueData: """{app}\Greenshot.EXE"" --openfile ""%1"""; Permissions: admins-modify; Flags: uninsdeletevalue noerror; Check: not IsRegularUser
 
 [Icons]
 Name: {group}\{#ExeName}; Filename: {app}\{#ExeName}.exe; WorkingDir: {app}; AppUserModelID: "{#ExeName}"
@@ -541,22 +538,6 @@ Name: "languages\zhCN"; Description: {cm:zhCN}; Types: full custom; Flags: disab
 Name: "languages\zhTW"; Description: {cm:zhTW}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('9')
 
 [Code]
-// Do we have a regular user trying to install this?
-function IsRegularUser(): Boolean;
-begin
-	Result := not (IsAdmin or IsAdminInstallMode);
-end;
-
-// The following code is used to select the installation path, this is localappdata if non poweruser
-function DefDirRoot(Param: String): String;
-begin
-	if IsRegularUser then
-		Result := ExpandConstant('{localappdata}')
-	else
-		Result := ExpandConstant('{pf}')
-end;
-
-
 function FullInstall(Param : String) : String;
 begin
 	result := SetupMessage(msgFullInstallation);
