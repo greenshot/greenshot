@@ -27,7 +27,10 @@ using Greenshot.Base.Interfaces.Plugin;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyDescription("A plugin to upload images to GooglePhotos")]
-[assembly: AssemblyPluginIdentifier("GooglePhotos Plugin")]
+
+// Still using the old name 'Picasa-Web Plugin' as identifier for backwards compatibility
+// TODO: replace plugin identifier with "GooglePhotos Plugin" in the future
+[assembly: AssemblyPluginIdentifier("Picasa-Web Plugin")]
 
 // This sets the default COM visibility of types in the assembly to invisible.
 // If you need to expose a type to COM, use [ComVisible(true)] on that type.
