@@ -33,8 +33,8 @@ An example to exclude the box and dropbox plug-ins add the following line somewh
 ExcludePlugins=Box Plugin,Dropbox Plugin
 ```
 
-The names of the plugin are visible in the Plugins tab of the settings or the greenshot.log (due to unfortunate decision while coding, they all end with " Plugin".
-
+The names of the plugin are visible in the Plugins tab of the settings or the greenshot.log (due to unfortunate decision while coding, they all end with " Plugin").
+For compatibility reasons, the name for "GooglePhotos Plugin" is "Picasa-Web Plugin".
 For completeness we describe the plugins here (do not include the quotes!):
 
 * "Box Plugin"
@@ -44,10 +44,10 @@ For completeness we describe the plugins here (do not include the quotes!):
 * "Flickr Plugin"
 * "Imgur Plugin"
 * "Jira Plugin"
-* "OCR Plugin"
 * "Office Plugin"
 * "Photobucket Plugin"
 * "Picasa-Web Plugin"
+* "Win10 Plugin"
 
 
 Destination
