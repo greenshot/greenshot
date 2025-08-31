@@ -6,6 +6,7 @@
 		<resource name="label_command">命令</resource>
 		<resource name="label_information">{0} 是螢幕擷圖的檔案名稱</resource>
 		<resource name="label_name">名稱</resource>
+		<resource name="label_outputimageformat">圖片格式</resource>
 		<resource name="settings_delete">刪除</resource>
 		<resource name="settings_detail_title">組態命令</resource>
 		<resource name="settings_edit">編輯</resource>
