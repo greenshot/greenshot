@@ -31,5 +31,6 @@
     <resource name="label_information">
       {0} d isem n ufaylu n tuṭṭfa yinek n ugdil
     </resource>
+    <resource name="label_outputimageformat">Amasal n tugna</resource>
   </resources>
 </language>

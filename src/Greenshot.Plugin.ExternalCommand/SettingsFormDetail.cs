@@ -24,6 +24,7 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.Enums;
 using Greenshot.Base.IniFile;
 
 namespace Greenshot.Plugin.ExternalCommand
@@ -35,6 +36,7 @@ namespace Greenshot.Plugin.ExternalCommand
     {
         private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(SettingsFormDetail));
         private static readonly ExternalCommandConfiguration ExternalCommandConfig = IniConfig.GetIniSection<ExternalCommandConfiguration>();
+        private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
 
         private readonly string _commando;
         private readonly int _commandIndex;
@@ -45,17 +47,20 @@ namespace Greenshot.Plugin.ExternalCommand
             AcceptButton = buttonOk;
             CancelButton = buttonCancel;
             _commando = commando;
+            comboBox_outputFormat.Populate(typeof(OutputFormat));
 
             if (commando != null)
             {
                 textBox_name.Text = commando;
                 textBox_commandline.Text = ExternalCommandConfig.Commandline[commando];
                 textBox_arguments.Text = ExternalCommandConfig.Argument[commando];
+                comboBox_outputFormat.SetValue(ExternalCommandConfig.OutputFormat[commando]);
                 _commandIndex = ExternalCommandConfig.Commands.FindIndex(s => s == commando);
             }
             else
             {
                 textBox_arguments.Text = "\"{0}\"";
+                comboBox_outputFormat.SetValue(CoreConfig.OutputFileFormat);
             }
 
             OkButtonState();
@@ -65,7 +70,10 @@ namespace Greenshot.Plugin.ExternalCommand
         {
             string commandName = textBox_name.Text;
             string commandLine = textBox_commandline.Text;
-            string arguments = textBox_arguments.Text;
+            string arguments = textBox_arguments.Text;          
+            OutputFormat outputFormat = Enum.TryParse(comboBox_outputFormat.SelectedItem as string, true, out OutputFormat parsedFormat)
+                ? parsedFormat
+                : OutputFormat.png;
             if (_commando != null)
             {
                 ExternalCommandConfig.Commands[_commandIndex] = commandName;
@@ -73,12 +81,15 @@ namespace Greenshot.Plugin.ExternalCommand
                 ExternalCommandConfig.Commandline.Add(commandName, commandLine);
                 ExternalCommandConfig.Argument.Remove(_commando);
                 ExternalCommandConfig.Argument.Add(commandName, arguments);
+                ExternalCommandConfig.OutputFormat.Remove(_commando);
+                ExternalCommandConfig.OutputFormat.Add(commandName, outputFormat);
             }
             else
             {
                 ExternalCommandConfig.Commands.Add(commandName);
                 ExternalCommandConfig.Commandline.Add(commandName, commandLine);
                 ExternalCommandConfig.Argument.Add(commandName, arguments);
+                ExternalCommandConfig.OutputFormat.Add(commandName, outputFormat);
             }
         }
 
@@ -159,6 +170,12 @@ namespace Greenshot.Plugin.ExternalCommand
                 }
             }
 
+            // output file format is mandatory
+            if(comboBox_outputFormat.SelectedItem is null)
+            {
+                buttonOk.Enabled = false;
+            }
+
             // Are the arguments in a valid format? 
             try
             {
@@ -185,6 +202,11 @@ namespace Greenshot.Plugin.ExternalCommand
         }
 
         private void textBox_arguments_TextChanged(object sender, EventArgs e)
+        {
+            OkButtonState();
+        }
+
+        private void ComboBox_outputFormat_SelectedValueChanged(object sender, System.EventArgs e)
         {
             OkButtonState();
         }
