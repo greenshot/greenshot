@@ -21,6 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="MessagePack" Version="3.1.4" />
     <PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.13.9" />
     <PackageReference Include="Tools.InnoSetup" version="6.2.1" GeneratePathProperty="true" />
   </ItemGroup>
