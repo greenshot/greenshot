@@ -608,6 +608,10 @@ internal class SafeSerializationBinder : SerializationBinder
     private static readonly Type[] AllowedTypes = new Type[]
     {
         typeof(CopyDataObjectData),
+        typeof(CopyDataTransport),
+        typeof(KeyValuePair<CommandEnum, string>),
+        typeof(List<KeyValuePair<CommandEnum, string>>),
+        typeof(CommandEnum),
     };
 
     public override Type BindToType(string assemblyName, string typeName)
