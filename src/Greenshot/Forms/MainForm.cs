@@ -273,19 +273,10 @@ namespace Greenshot.Forms
                             using Process currentProcess = Process.GetCurrentProcess();
                             instanceInfo.Append(index + ": ").AppendLine(Kernel32Api.GetProcessPath(currentProcess.Id));
                         }
-
-                        // A dirty fix to make sure the message box is visible as a Greenshot window on the taskbar
-                        using Form dummyForm = new Form
+                        using (var settingsForm = new SettingsForm())
                         {
-                            Icon = GreenshotResources.GetGreenshotIcon(),
-                            ShowInTaskbar = true,
-                            FormBorderStyle = FormBorderStyle.None,
-                            Location = new Point(int.MinValue, int.MinValue)
-                        };
-                        dummyForm.Load += delegate { dummyForm.Size = Size.Empty; };
-                        dummyForm.Show();
-                        MessageBox.Show(dummyForm, Language.GetString(LangKey.error_multipleinstances) + "\r\n" + instanceInfo, Language.GetString(LangKey.error),
-                            MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                            settingsForm.ShowDialog();
+                        }
                     }
 
                     FreeMutex();
