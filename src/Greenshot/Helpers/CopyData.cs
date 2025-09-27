@@ -24,9 +24,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.ServiceModel.Security;
 using System.Windows.Forms;
 using Greenshot.Base.Core;
+using Greenshot.Helpers;
+using log4net;
 
 namespace Greenshot.Helpers
 {
@@ -122,6 +126,7 @@ namespace Greenshot.Helpers
                     Marshal.Copy(cds.lpData, data, 0, cds.cbData);
                     MemoryStream stream = new MemoryStream(data);
                     BinaryFormatter b = new BinaryFormatter();
+                    b.Binder = new SafeSerializationBinder();
                     CopyDataObjectData cdo = (CopyDataObjectData) b.Deserialize(stream);
 
                     if (_channels != null && _channels.Contains(cdo.Channel))
@@ -594,5 +599,28 @@ namespace Greenshot.Helpers
             Channel = channel;
             Sent = DateTime.Now;
         }
+    }
+}
+
+internal class SafeSerializationBinder : SerializationBinder
+{
+    private static readonly ILog LOG = LogManager.GetLogger(typeof(SafeSerializationBinder));
+    private static readonly Type[] AllowedTypes = new Type[]
+    {
+        typeof(CopyDataObjectData),
+    };
+
+    public override Type BindToType(string assemblyName, string typeName)
+    {
+        foreach (var type in AllowedTypes)
+        {
+            if (type.FullName == typeName && type.Assembly.FullName == assemblyName)
+            {
+                return type;
+            }
+        }
+
+        LOG.Warn($"Unexpected type received via WM_COPYDATA, a malicious process might be trying to attack. Cancelling deserialization. Suspicious type: {assemblyName} - {typeName}");
+        throw new SecurityAccessDeniedException($"Suspicious type received via WM_COPYDATA: {assemblyName} - {typeName}");
     }
 }
