@@ -201,7 +201,7 @@ Seçili kayıt yolunun yazılabilir olduğundan emin olun.</resource>
     <resource name="printoptions_printcolor">Tam renkli baskı</resource>
     <resource name="printoptions_printgrayscale">Gri tonlamalı yazdırmaya zorla</resource>
     <resource name="printoptions_printmonochrome">Siyah/beyaz yazdırmaya zorla</resource>
-		<resource name="printoptions_timestamp">Sayfa altına tarih/saat yazdır</resource>
+	<resource name="printoptions_timestamp">Sayfa altına tarih/saat yazdır</resource>
 		<resource name="printoptions_title">Greenshot yazdırma ayarları</resource>
 		<resource name="qualitydialog_dontaskagain">Varsayılan kalite olarak kaydet ve bir daha sorma</resource>
 		<resource name="qualitydialog_title">Greenshot kalitesi</resource>
