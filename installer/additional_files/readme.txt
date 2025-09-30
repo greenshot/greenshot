@@ -7,7 +7,7 @@ CHANGE LOG:
 
 All details to our tickets can be found here: https://greenshot.atlassian.net
 
-# Greenshot 1.3.xxx
+# Greenshot 1.3.301
 
 Bugs fixed:
 * Security advisory GHSA-8f7f-x7ww-xx5w
@@ -673,6 +673,7 @@ Features added:
 * when clicking two overlapping elements, the one created later gets selected [ 1725175 ]
 * created textboxes can now be edited with a doubleclick [ 1704408 ]
 * selected font is now stored in the application config file [ 1704411 ]
+
 
 
 
