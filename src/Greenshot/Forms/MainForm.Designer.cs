@@ -102,7 +102,9 @@ namespace Greenshot.Forms {
 									this.contextmenu_donate,
 									this.contextmenu_about,
 									this.toolStripCloseSeparator,
-									this.contextmenu_exit});
+									this.contextmenu_exit,
+									this.contextmenu_copyfilepath,
+									this.contextmenu_copyfile});
 			this.contextMenu.Name = "contextMenu";
 			this.contextMenu.Closing += new System.Windows.Forms.ToolStripDropDownClosingEventHandler(this.ContextMenuClosing);
 			this.contextMenu.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenuOpening);
@@ -250,6 +252,20 @@ namespace Greenshot.Forms {
 			this.contextmenu_exit.Size = new System.Drawing.Size(170, 22);
 			this.contextmenu_exit.Click += new System.EventHandler(this.Contextmenu_ExitClick);
 			// 
+			// contextmenu_copyfilepath
+			// 
+			this.contextmenu_copyfilepath.Image = ((System.Drawing.Image)(resources.GetObject("contextmenu_copyfilepath.Image")));
+			this.contextmenu_copyfilepath.Name = "contextmenu_copyfilepath";
+			this.contextmenu_copyfilepath.Size = new System.Drawing.Size(170, 22);
+			this.contextmenu_copyfilepath.Click += new System.EventHandler(this.Contextmenu_CopyFilePathClick);
+			// 
+			// contextmenu_copyfile
+			// 
+			this.contextmenu_copyfile.Image = ((System.Drawing.Image)(resources.GetObject("contextmenu_copyfile.Image")));
+			this.contextmenu_copyfile.Name = "contextmenu_copyfile";
+			this.contextmenu_copyfile.Size = new System.Drawing.Size(170, 22);
+			this.contextmenu_copyfile.Click += new System.EventHandler(this.Contextmenu_CopyFileClick);
+			// 
 			// notifyIcon
 			// 
             this.notifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
@@ -297,5 +313,7 @@ namespace Greenshot.Forms {
 		private GreenshotToolStripMenuItem contextmenu_exit;
 		private System.Windows.Forms.ContextMenuStrip contextMenu;
 		private GreenshotToolStripMenuItem contextmenu_settings;
+		private GreenshotToolStripMenuItem contextmenu_copyfilepath;
+		private GreenshotToolStripMenuItem contextmenu_copyfile;
 	}
 }
