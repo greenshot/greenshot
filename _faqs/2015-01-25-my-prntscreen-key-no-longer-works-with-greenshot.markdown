@@ -17,3 +17,11 @@ tags: []
 <li>Turn off Dropbox' screenshot feature in the Dropbox settings</li>
 <li>Change Greenshot's hotkey for screenshots to anything else in the Greenshot settings</li>
 </ul>
+
+<p>When using Windows 11, pressing the <kbd>PrntScreen</kbd> key may start the Snipping Tool. To set it back to Greenshot, follow the steps below.</p>
+<ul>
+<li>Open the Start menu.</li>
+<li>Search for "open screen".</li>
+<li>Click the search result "Use the Print screen key to open screen capture".</li>
+<li>Disable the setting, then restart Greenshot.</li> 
+</ul>
