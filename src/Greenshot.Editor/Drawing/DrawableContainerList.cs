@@ -34,6 +34,7 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Configuration;
 using Greenshot.Editor.Drawing.Fields;
+using Greenshot.Editor.FileFormat.Dto;
 using Greenshot.Editor.Forms;
 using Greenshot.Editor.Memento;
 
@@ -130,7 +131,7 @@ namespace Greenshot.Editor.Drawing
                 ParentID = value?.ID ?? Guid.NewGuid();
                 foreach (var drawableContainer in this)
                 {
-                    var dc = (DrawableContainer) drawableContainer;
+                    var dc = (DrawableContainer)drawableContainer;
                     dc.Parent = value;
                 }
             }
@@ -249,7 +250,7 @@ namespace Greenshot.Editor.Drawing
         {
             foreach (var drawableContainer in this)
             {
-                var dc = (DrawableContainer) drawableContainer;
+                var dc = (DrawableContainer)drawableContainer;
                 dc.OnDoubleClick();
             }
         }
@@ -329,7 +330,7 @@ namespace Greenshot.Editor.Drawing
 
             foreach (var drawableContainer in this)
             {
-                var dc = (DrawableContainer) drawableContainer;
+                var dc = (DrawableContainer)drawableContainer;
                 if (dc.Parent == null)
                 {
                     continue;
@@ -351,7 +352,7 @@ namespace Greenshot.Editor.Drawing
         {
             foreach (var drawableContainer in this)
             {
-                var dc = (DrawableContainer) drawableContainer;
+                var dc = (DrawableContainer)drawableContainer;
                 dc.HandleFieldChanged(sender, e);
             }
         }
@@ -442,66 +443,66 @@ namespace Greenshot.Editor.Drawing
 
         public void SetForegroundColor(Color color)
         {
-	        var dcs = ToArray();
-	        var field = FieldType.LINE_COLOR;
-	        foreach (var dc in dcs)
-	        {
-		        if (dc is not AbstractFieldHolderWithChildren fh) continue;
-		        if (!fh.HasField(field)) continue;
-		        
-		        fh.SetFieldValue(field, color);
-	        }
+            var dcs = ToArray();
+            var field = FieldType.LINE_COLOR;
+            foreach (var dc in dcs)
+            {
+                if (dc is not AbstractFieldHolderWithChildren fh) continue;
+                if (!fh.HasField(field)) continue;
+
+                fh.SetFieldValue(field, color);
+            }
         }
 
         public void SetBackgroundColor(Color color)
         {
-	        var dcs = ToArray();
-	        var field = FieldType.FILL_COLOR;
-	        foreach (var dc in dcs)
-	        {
-		        if (dc is not AbstractFieldHolderWithChildren fh) continue;
-		        if (!fh.HasField(field)) continue;
+            var dcs = ToArray();
+            var field = FieldType.FILL_COLOR;
+            foreach (var dc in dcs)
+            {
+                if (dc is not AbstractFieldHolderWithChildren fh) continue;
+                if (!fh.HasField(field)) continue;
 
-		        fh.SetFieldValue(field, color);
-	        }
+                fh.SetFieldValue(field, color);
+            }
         }
 
         public int IncreaseLineThickness(int increaseBy)
         {
-	        var dcs = ToArray();
-	        var field = FieldType.LINE_THICKNESS;
-	        var lastThickness = 0;
-	        foreach (var dc in dcs)
-	        {
-		        if (dc is not AbstractFieldHolderWithChildren fh) continue;
-		        if (!fh.HasField(field)) continue;
+            var dcs = ToArray();
+            var field = FieldType.LINE_THICKNESS;
+            var lastThickness = 0;
+            foreach (var dc in dcs)
+            {
+                if (dc is not AbstractFieldHolderWithChildren fh) continue;
+                if (!fh.HasField(field)) continue;
 
-		        var currentThickness = (int)fh.GetFieldValue(field);
-		        var thickness = Math.Max(0, currentThickness + increaseBy);
-		        fh.SetFieldValue(field, thickness);
-		        lastThickness = thickness;
-	        }
+                var currentThickness = (int)fh.GetFieldValue(field);
+                var thickness = Math.Max(0, currentThickness + increaseBy);
+                fh.SetFieldValue(field, thickness);
+                lastThickness = thickness;
+            }
 
-	        return lastThickness;
+            return lastThickness;
         }
 
         public bool FlipShadow()
         {
-	        var dcs = ToArray();
-	        var field = FieldType.SHADOW;
-	        var lastShadow = false;
-	        foreach (var dc in dcs)
-	        {
-		        if (dc is not AbstractFieldHolderWithChildren fh) continue;
-		        if (!fh.HasField(field)) continue;
+            var dcs = ToArray();
+            var field = FieldType.SHADOW;
+            var lastShadow = false;
+            foreach (var dc in dcs)
+            {
+                if (dc is not AbstractFieldHolderWithChildren fh) continue;
+                if (!fh.HasField(field)) continue;
 
-		        var currentShadow = (bool)fh.GetFieldValue(field);
-		        var shadow = !currentShadow;
-		        fh.SetFieldValue(field, shadow);
-		        lastShadow = shadow;
-	        }
+                var currentShadow = (bool)fh.GetFieldValue(field);
+                var shadow = !currentShadow;
+                fh.SetFieldValue(field, shadow);
+                lastShadow = shadow;
+            }
 
-	        return lastShadow;
+            return lastShadow;
         }
 
         /// <summary>
@@ -654,7 +655,7 @@ namespace Greenshot.Editor.Drawing
             // Copy
             item = new ToolStripMenuItem(Language.GetString(LangKey.editor_copytoclipboard))
             {
-                Image = (Image) EditorFormResources.GetObject("copyToolStripMenuItem.Image")
+                Image = (Image)EditorFormResources.GetObject("copyToolStripMenuItem.Image")
             };
             item.Click += delegate { ClipboardHelper.SetClipboardData(typeof(IDrawableContainerList), this); };
             menu.Items.Add(item);
@@ -662,7 +663,7 @@ namespace Greenshot.Editor.Drawing
             // Cut
             item = new ToolStripMenuItem(Language.GetString(LangKey.editor_cuttoclipboard))
             {
-                Image = (Image) EditorFormResources.GetObject("btnCut.Image")
+                Image = (Image)EditorFormResources.GetObject("btnCut.Image")
             };
             item.Click += delegate
             {
@@ -674,7 +675,7 @@ namespace Greenshot.Editor.Drawing
             // Delete
             item = new ToolStripMenuItem(Language.GetString(LangKey.editor_deleteelement))
             {
-                Image = (Image) EditorFormResources.GetObject("removeObjectToolStripMenuItem.Image")
+                Image = (Image)EditorFormResources.GetObject("removeObjectToolStripMenuItem.Image")
             };
             item.Click += delegate { surface.RemoveElements(this); };
             menu.Items.Add(item);
@@ -691,7 +692,7 @@ namespace Greenshot.Editor.Drawing
                     MakeBoundsChangeUndoable(false);
                     foreach (var drawableContainer in this)
                     {
-                        var container = (DrawableContainer) drawableContainer;
+                        var container = (DrawableContainer)drawableContainer;
                         if (!container.HasDefaultSize)
                         {
                             continue;
@@ -725,7 +726,7 @@ namespace Greenshot.Editor.Drawing
             bool hasMenu = this.Cast<DrawableContainer>().Any(container => container.HasContextMenu);
 
             if (!hasMenu) return;
-            
+
             ContextMenuStrip menu = new ContextMenuStrip();
             AddContextMenuItems(menu, surface, mouseEventArgs);
             if (menu.Items.Count <= 0) return;
@@ -778,6 +779,15 @@ namespace Greenshot.Editor.Drawing
             {
                 drawableContainer.AdjustToDpi(dpi);
             }
+        }
+
+        /// <summary>
+        /// Creates a clone by using serialization 
+        /// </summary>
+        /// <returns></returns>
+        public IDrawableContainerList Clone()
+        {
+            return ConvertDtoToDomain.ToDomain(ConvertDomainToDto.ToDto(this));
         }
     }
 }
