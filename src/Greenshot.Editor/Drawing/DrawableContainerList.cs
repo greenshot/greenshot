@@ -782,7 +782,7 @@ namespace Greenshot.Editor.Drawing
         }
 
         /// <summary>
-        /// Creates a clone by using serialization 
+        /// Creates a clone by using our own DTO/domain conversion logic.
         /// </summary>
         /// <returns></returns>
         public IDrawableContainerList Clone()

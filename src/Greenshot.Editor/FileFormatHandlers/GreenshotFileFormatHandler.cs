@@ -70,7 +70,7 @@ public sealed class GreenshotFileFormatHandler : AbstractFileFormatHandler, IFil
     /// <summary>
     /// <inheritdoc />
     /// </summary>
-    /// <remarks>This implementation loads the <see cref="GreenshotFile"/> from stream. Use this to creates a <see cref="ISurface"/> and uses <see cref="Surface.GetImageForExport"/> wich renders all contained elements into the image.</remarks>
+    /// <remarks>This implementation loads the <see cref="GreenshotFile"/> from stream. Creates a <see cref="ISurface"/> and uses <see cref="Surface.GetImageForExport"/> wich renders all contained elements into the image.</remarks>
     /// <returns><see langword="true"/> if the bitmap was successfully loaded from the stream; otherwise, <see
     /// langword="false"/>.</returns>
     public override bool TryLoadFromStream(Stream stream, string extension, out Bitmap bitmap)
@@ -93,7 +93,7 @@ public sealed class GreenshotFileFormatHandler : AbstractFileFormatHandler, IFil
     /// <summary>
     /// Load a <see cref="ISurface"/> from file path
     /// </summary>
-    /// <remarks>This implementation loads the <see cref="GreenshotFile"/> from file. Use this to creates a <see cref="ISurface"/>.</remarks>
+    /// <remarks>This implementation loads the <see cref="GreenshotFile"/> from file. Creates a <see cref="ISurface"/>.</remarks>
     /// <param name="fullPath"></param>
     /// <returns></returns>
     public ISurface LoadGreenshotSurface(string fullPath)

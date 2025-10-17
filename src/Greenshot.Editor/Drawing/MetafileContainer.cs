@@ -119,7 +119,7 @@ namespace Greenshot.Editor.Drawing
                 IntPtr hdc = referenceGraphics.GetHdc();
                 try
                 {
-                    // Erstelle ein neues Metafile mit der Größe des Bildes
+                    // Create a new Metafile with the size of the image
                     Metafile metafile = new Metafile(hdc, new Rectangle(0, 0, image.Width, image.Height), MetafileFrameUnit.Pixel, EmfType.EmfOnly);
                     using (Graphics gMetafile = Graphics.FromImage(metafile))
                     {
