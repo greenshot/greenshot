@@ -74,7 +74,7 @@ jobs:
         mkdir -p ${{ github.workspace }}/artifacts
         cp installer/Greenshot-INSTALLER-*.exe ${{ github.workspace }}/artifacts/
     
-    - name: Upload Insaller Artifact
+    - name: Upload Installer Artifact
       uses: actions/upload-artifact@v4
       with:
        name: artifacts-installer
@@ -162,7 +162,7 @@ jobs:
 
       - name: Create ZIP archive
         run: |
-          $zipName = "greenshot-portable-${{ needs.pre_deploy.outputs.version }}.zip"
+          $zipName = "Greenshot-PORTABLE-${{ needs.pre_deploy.outputs.version }}-UNSTABLE-UNSIGNED.zip"
           Compress-Archive -Path "${{ github.workspace }}/portable/*" -DestinationPath $zipName -Force
         shell: pwsh
       
@@ -170,7 +170,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: artifacts-greenshot-portable
-          path: greenshot-portable-*.zip
+          path: Greenshot-PORTABLE-*.zip
           if-no-files-found: error
 
   deploy:
