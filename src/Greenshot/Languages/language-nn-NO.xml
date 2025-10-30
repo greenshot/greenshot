@@ -73,6 +73,7 @@ Me sett òg pris på om du ved hjelp av søkefunksjonen på sida kan sjekke om d
 		<resource name="editor_cancel">Avbryt</resource>
 		<resource name="editor_clipboardfailed">Kunne ikkje bruke utklyppstavla! Ver venleg og prøv att.</resource>
 		<resource name="editor_close">Lukk</resource>
+		<resource name="editor_close_all">Lukk alle</resource>
 		<resource name="editor_close_on_save">Vil du lagre skjermbildet?</resource>
 		<resource name="editor_close_on_save_title">Vil du lagre bildet?</resource>
 		<resource name="editor_confirm">Stadfest</resource>
