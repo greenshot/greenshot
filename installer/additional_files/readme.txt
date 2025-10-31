@@ -7,7 +7,7 @@ CHANGE LOG:
 
 All details to our tickets can be found here: https://greenshot.atlassian.net
 
-# Greenshot 1.3.xxx
+# Greenshot 1.3.301
 
 Bugs fixed:
 * File Association and Launch with File Arguments Not Working When Already Running [#685](https://github.com/greenshot/greenshot/issues/685) thanks to @Christian-Schulz
