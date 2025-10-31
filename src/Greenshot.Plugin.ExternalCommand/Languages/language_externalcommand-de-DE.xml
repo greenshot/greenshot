@@ -26,10 +26,11 @@
       Befehl
     </resource>
     <resource name="label_argument">
-      Arguments
+      Argumente
     </resource>
     <resource name="label_information">
       {0} ist der Dateiname des Screenshots
     </resource>
+    <resource name="label_outputimageformat">Bildformat</resource>
   </resources>
 </language>
