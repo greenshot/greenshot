@@ -32,7 +32,6 @@ namespace Greenshot.Editor.Drawing.Filters
     /// <summary>
     /// Magnify an area
     /// </summary>
-    [Serializable]
     public class MagnifierFilter : AbstractFilter
     {
         public MagnifierFilter(DrawableContainer parent) : base(parent)

@@ -99,8 +99,13 @@ namespace Greenshot.Base.Interfaces
         IImageContainer AddImageContainer(string filename, int x, int y);
         ICursorContainer AddCursorContainer(string filename, int x, int y);
         IIconContainer AddIconContainer(string filename, int x, int y);
-        long SaveElementsToStream(Stream stream);
-        void LoadElementsFromStream(Stream stream);
+
+        /// <summary>
+        /// Adds all container to the Surface.
+        /// Ensure that all new container are correctly integrated into Surface
+        /// </summary>
+        /// <param name="containerList"></param>
+        void LoadElements(IDrawableContainerList containerList);
 
         /// <summary>
         /// Provides the selected elements

@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -28,6 +29,7 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Editor.Drawing;
+using log4net;
 
 namespace Greenshot.Editor.FileFormatHandlers
 {
@@ -36,6 +38,7 @@ namespace Greenshot.Editor.FileFormatHandlers
     /// </summary>
     public class MetaFileFormatHandler : AbstractFileFormatHandler, IFileFormatHandler
     {
+        private static readonly ILog Log = LogManager.GetLogger(typeof(MetaFileFormatHandler));
         private readonly IReadOnlyCollection<string> _ourExtensions = new[] { ".wmf", ".emf" };
         
         public MetaFileFormatHandler()
@@ -72,9 +75,18 @@ namespace Greenshot.Editor.FileFormatHandlers
         /// <inheritdoc />
         public override IEnumerable<IDrawableContainer> LoadDrawablesFromStream(Stream stream, string extension, ISurface surface = null)
         {
-            if (Image.FromStream(stream, true, true) is Metafile metaFile)
+            MetafileContainer metafileContainer = null;
+            try
             {
-                yield return new MetafileContainer(metaFile, surface);
+                metafileContainer = new MetafileContainer(stream, surface);
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Can't load Metafile", ex);
+            }
+            if (metafileContainer != null)
+            {
+                yield return metafileContainer;
             }
         }
     }

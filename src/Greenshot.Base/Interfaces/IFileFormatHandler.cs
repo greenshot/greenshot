@@ -60,7 +60,7 @@ namespace Greenshot.Base.Interfaces
         /// Try to save the specified bitmap to the stream in the format belonging to the extension
         /// </summary>
         /// <param name="bitmap">Bitmap</param>
-        /// <param name="destination">Stream</param>
+        /// <param name="destination">Stream for destination</param>
         /// <param name="extension">extension</param>
         /// <param name="surface">ISurface with the elements for those file types which can store a surface (.greenshot)</param>
         /// <param name="surfaceOutputSettings">SurfaceOutputSettings</param>
@@ -68,21 +68,22 @@ namespace Greenshot.Base.Interfaces
         public bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension, ISurface surface = null, SurfaceOutputSettings surfaceOutputSettings = null);
 
         /// <summary>
-        /// 
+        /// Try to load an Image from the stream
         /// </summary>
         /// <param name="stream"></param>
         /// <param name="extension"></param>
         /// <param name="bitmap"></param>
-        /// <returns>bool true if it was successful</returns>
+        /// <returns><see langword="true"/> if the image was successfully loaded into a <see cref="Bitmap"/>; otherwise, <see
+        /// langword="false"/>.</returns>
         public bool TryLoadFromStream(Stream stream, string extension, out Bitmap bitmap);
 
         /// <summary>
-        /// Try to load a drawable container from the stream
+        /// Try to load drawable container from the stream
         /// </summary>
         /// <param name="stream">Stream</param>
         /// <param name="extension">string</param>
-        /// <param name="parentSurface">ISurface</param>
-        /// <returns>IEnumerable{IDrawableContainer}</returns>
+        /// <param name="parentSurface">Parent <see cref="ISurface"/> to initialize the container</param>
+        /// <returns>All <see cref="IDrawableContainer"/> that could be loaded from the stream</returns>
         public IEnumerable<IDrawableContainer> LoadDrawablesFromStream(Stream stream, string extension, ISurface parentSurface = null);
     }
 }

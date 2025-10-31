@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
@@ -41,6 +42,7 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Configuration;
 using Greenshot.Editor.Destinations;
 using Greenshot.Editor.Drawing;
+using Greenshot.Editor.FileFormatHandlers;
 using Greenshot.Forms;
 
 namespace Greenshot.Helpers
@@ -432,37 +434,45 @@ namespace Greenshot.Helpers
                     Image fileImage = null;
                     string filename = _capture.CaptureDetails.Filename;
 
-                    if (!string.IsNullOrEmpty(filename))
+                    if (string.IsNullOrEmpty(filename))
                     {
-                        // TODO: Fix that the Greenshot format needs a separate code path
-                        try
-                        {
-                            if (filename.ToLower().EndsWith("." + OutputFormat.greenshot))
-                            {
-                                ISurface surface = new Surface();
-                                surface = ImageIO.LoadGreenshotSurface(filename, surface);
-                                surface.CaptureDetails = _capture.CaptureDetails;
-                                DestinationHelper.GetDestination(EditorDestination.DESIGNATION).ExportCapture(true, surface, _capture.CaptureDetails);
-                                break;
-                            }
-                        }
-                        catch (Exception e)
-                        {
-                            Log.Error(e.Message, e);
-                            MessageBox.Show(Language.GetFormattedString(LangKey.error_openfile, filename));
-                        }
+                        break;
+                    }
 
-                        // TODO: Remove Image loading for here
-                        try
+                    // TODO: Fix that the Greenshot format needs a separate code path
+                    try
+                    {
+                        if (filename.ToLower().EndsWith("." + OutputFormat.greenshot))
                         {
-                            fileImage = ImageIO.LoadImage(filename);
-                        }
-                        catch (Exception e)
-                        {
-                            Log.Error(e.Message, e);
-                            MessageBox.Show(Language.GetFormattedString(LangKey.error_openfile, filename));
+                            var greenshotFileFormatHandler = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>().OfType<GreenshotFileFormatHandler>().FirstOrDefault();
+                            if (greenshotFileFormatHandler is null)
+                            {
+                                throw new Exception($"No instance of {nameof(GreenshotFileFormatHandler)} found in service provider.");
+                            }
+
+                            ISurface surface = greenshotFileFormatHandler.LoadGreenshotSurface(filename);
+                            surface.CaptureDetails = _capture.CaptureDetails;
+                            DestinationHelper.GetDestination(EditorDestination.DESIGNATION).ExportCapture(true, surface, _capture.CaptureDetails);
+                            break;
                         }
                     }
+                    catch (Exception e)
+                    {
+                        Log.Error(e.Message, e);
+                        MessageBox.Show(Language.GetFormattedString(LangKey.error_openfile, filename));
+                    }
+
+                    // TODO: Remove Image loading for here
+                    try
+                    {
+                        fileImage = ImageIO.LoadImage(filename);
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Error(e.Message, e);
+                        MessageBox.Show(Language.GetFormattedString(LangKey.error_openfile, filename));
+                    }
+                    
 
                     if (fileImage != null)
                     {

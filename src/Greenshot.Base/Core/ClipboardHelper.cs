@@ -610,6 +610,7 @@ EndSelection:<<<<<<<4
             }
             var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
             var supportedExtensions = fileFormatHandlers.ExtensionsFor(FileFormatHandlerActions.LoadDrawableFromStream).ToList();
+            var foundContainer = false;
 
             foreach (var (stream, filename) in IterateClipboardContent(dataObject))
             {
@@ -622,7 +623,8 @@ EndSelection:<<<<<<<4
                 IEnumerable<IDrawableContainer> drawableContainers;
                 try
                 {
-                    drawableContainers = fileFormatHandlers.LoadDrawablesFromStream(stream, extension);
+                    // without toList() here, LoadDrawablesFromStream() are called after the stream has been disposed
+                    drawableContainers = fileFormatHandlers.LoadDrawablesFromStream(stream, extension).ToList();
                 }
                 catch (Exception ex)
                 {
@@ -636,9 +638,13 @@ EndSelection:<<<<<<<4
                 // If we get here, there is an image
                 foreach (var container in drawableContainers)
                 {
+                    foundContainer = true;
                     yield return container;
                 }
             }
+
+            // we found sth., prevent multiple imports of the same content
+            if (foundContainer) yield break;
 
             // check if files are supplied
             foreach (string imageFile in GetImageFilenames(dataObject))

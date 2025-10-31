@@ -25,7 +25,6 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
-using System.Runtime.Serialization;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
@@ -40,7 +39,6 @@ namespace Greenshot.Editor.Drawing
     /// <summary>
     /// Represents a textbox (extends RectangleContainer for border/background support
     /// </summary>
-    [Serializable]
     public class TextContainer : RectangleContainer, ITextContainer
     {
         // If makeUndoable is true the next text-change will make the change undoable.
@@ -48,15 +46,15 @@ namespace Greenshot.Editor.Drawing
         // Although the name is wrong, we can't change it due to file serialization
         // ReSharper disable once InconsistentNaming
         private bool makeUndoable;
-        [NonSerialized] private Font _font;
+        private Font _font;
         public Font Font => _font;
 
-        [NonSerialized] private TextBox _textBox;
+        private TextBox _textBox;
 
         /// <summary>
         /// The StringFormat object is not serializable!!
         /// </summary>
-        [NonSerialized] private StringFormat _stringFormat = new StringFormat();
+        private StringFormat _stringFormat = new StringFormat();
 
         public StringFormat StringFormat => _stringFormat;
 
@@ -70,24 +68,25 @@ namespace Greenshot.Editor.Drawing
             get => text;
             set => ChangeText(value, true);
         }
-
-        internal void ChangeText(string newText, bool allowUndoable)
-        {
-            if ((text != null || newText == null) && string.Equals(text, newText)) return;
-
-            if (makeUndoable && allowUndoable && IsUndoable)
-            {
-                makeUndoable = false;
-                _parent.MakeUndoable(new TextChangeMemento(this), false);
-            }
-
-            text = newText;
-            OnPropertyChanged("Text");
-        }
-
         public TextContainer(ISurface parent) : base(parent)
         {
             Init();
+        }
+
+        private void Init()
+        {
+            _stringFormat = new StringFormat
+            {
+                Trimming = StringTrimming.EllipsisWord
+            };
+
+            CreateTextBox();
+
+            UpdateFormat();
+            UpdateTextBoxFormat();
+
+            PropertyChanged += TextContainer_PropertyChanged;
+            FieldChanged += TextContainer_FieldChanged;
         }
 
         protected override void InitializeFields()
@@ -102,16 +101,6 @@ namespace Greenshot.Editor.Drawing
             AddField(GetType(), FieldType.FONT_SIZE, 11f);
             AddField(GetType(), FieldType.TEXT_HORIZONTAL_ALIGNMENT, StringAlignment.Center);
             AddField(GetType(), FieldType.TEXT_VERTICAL_ALIGNMENT, StringAlignment.Center);
-        }
-
-        /// <summary>
-        /// Do some logic to make sure all field are initiated correctly
-        /// </summary>
-        /// <param name="streamingContext">StreamingContext</param>
-        protected override void OnDeserialized(StreamingContext streamingContext)
-        {
-            base.OnDeserialized(streamingContext);
-            Init();
         }
 
         protected override void Dispose(bool disposing)
@@ -140,20 +129,18 @@ namespace Greenshot.Editor.Drawing
             base.Dispose(disposing);
         }
 
-        private void Init()
+        internal void ChangeText(string newText, bool allowUndoable)
         {
-            _stringFormat = new StringFormat
+            if ((text != null || newText == null) && string.Equals(text, newText)) return;
+
+            if (makeUndoable && allowUndoable && IsUndoable)
             {
-                Trimming = StringTrimming.EllipsisWord
-            };
+                makeUndoable = false;
+                _parent.MakeUndoable(new TextChangeMemento(this), false);
+            }
 
-            CreateTextBox();
-
-            UpdateFormat();
-            UpdateTextBoxFormat();
-
-            PropertyChanged += TextContainer_PropertyChanged;
-            FieldChanged += TextContainer_FieldChanged;
+            text = newText;
+            OnPropertyChanged("Text");
         }
 
         protected override void SwitchParent(ISurface newParent)
