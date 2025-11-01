@@ -2,8 +2,8 @@
   "$schema": "https://raw.githubusercontent.com/AArnott/Nerdbank.GitVersioning/master/src/NerdBank.GitVersioning/version.schema.json",
   "version": "1.4",
   "publicReleaseRefSpec": [
-    ".*/main$",
-	  ".*/release/*$"
+    "^refs/heads/main$",
+    "^refs/heads/release/.+$"
   ],
   "nugetPackageVersion": {
      "semVer": 2
