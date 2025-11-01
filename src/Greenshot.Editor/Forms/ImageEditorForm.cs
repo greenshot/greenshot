@@ -635,8 +635,8 @@ namespace Greenshot.Editor.Forms
         }
 
         /**
-		 * Interfaces for plugins, see GreenshotInterface for more details!
-		 */
+         * Interfaces for plugins, see GreenshotInterface for more details!
+         */
         public Image GetImageForExport()
         {
             return _surface.GetImageForExport();
