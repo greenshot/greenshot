@@ -42,6 +42,11 @@ namespace Greenshot.Base.IniFile
         private static readonly object IniLock = new object();
 
         /// <summary>
+        /// A lock object for the section map
+        /// </summary>
+        private static readonly object SectionMapLock = new object();
+
+        /// <summary>
         /// As the ini implementation is kept someone generic, for reusing, this holds the name of the application
         /// </summary>
         private static string _applicationName;
@@ -290,23 +295,26 @@ namespace Greenshot.Base.IniFile
             // Load the fixed settings
             _fixedProperties = Read(CreateIniLocation(_configName + FixedPostfix + IniExtension, true));
 
-            foreach (IniSection section in SectionMap.Values)
+            lock (SectionMapLock)
             {
-                try
+                foreach (IniSection section in SectionMap.Values)
                 {
-                    section.Fill(PropertiesForSection(section));
-                    FixProperties(section);
-                }
-                catch (Exception ex)
-                {
-                    string sectionName = "unknown";
-                    if (section?.IniSectionAttribute?.Name != null)
+                    try
                     {
-                        sectionName = section.IniSectionAttribute.Name;
+                        section.Fill(PropertiesForSection(section));
+                        FixProperties(section);
                     }
+                    catch (Exception ex)
+                    {
+                        string sectionName = "unknown";
+                        if (section?.IniSectionAttribute?.Name != null)
+                        {
+                            sectionName = section.IniSectionAttribute.Name;
+                        }
 
-                    Log.WarnFormat("Problem reading the ini section {0}", sectionName);
-                    Log.Warn("Exception", ex);
+                        Log.WarnFormat("Problem reading the ini section {0}", sectionName);
+                        Log.Warn("Exception", ex);
+                    }
                 }
             }
         }
@@ -389,7 +397,12 @@ namespace Greenshot.Base.IniFile
         {
             get
             {
-                foreach (string sectionName in SectionMap.Keys)
+                List<string> sectionNames;
+                lock (SectionMapLock)
+                {
+                    sectionNames = [.. SectionMap.Keys];
+                }
+                foreach (string sectionName in sectionNames)
                 {
                     yield return sectionName;
                 }
@@ -403,10 +416,13 @@ namespace Greenshot.Base.IniFile
         /// <returns></returns>
         public static IniSection GetIniSection(string sectionName)
         {
-            SectionMap.TryGetValue(sectionName, out var returnValue);
-            return returnValue;
+            lock (SectionMapLock)
+            {
+                SectionMap.TryGetValue(sectionName, out var returnValue);
+                return returnValue;
+            }
         }
-
+                    
         /// <summary>
         /// A generic method which returns an instance of the supplied type, filled with it's configuration
         /// </summary>
@@ -429,20 +445,24 @@ namespace Greenshot.Base.IniFile
 
             Type iniSectionType = typeof(T);
             string sectionName = IniSection.GetIniSectionAttribute(iniSectionType).Name;
-            if (SectionMap.ContainsKey(sectionName))
+
+            lock (SectionMapLock)
             {
+                if (SectionMap.ContainsKey(sectionName))
+                {
                 //LOG.Debug("Returning pre-mapped section " + sectionName);
-                section = (T) SectionMap[sectionName];
-            }
-            else
-            {
+                    section = (T)SectionMap[sectionName];
+                }
+                else
+                {
                 // Create instance of this type
-                section = (T) Activator.CreateInstance(iniSectionType);
+                    section = (T)Activator.CreateInstance(iniSectionType);
 
                 // Store for later save & retrieval
-                SectionMap.Add(sectionName, section);
-                section.Fill(PropertiesForSection(section));
-                FixProperties(section);
+                    SectionMap.Add(sectionName, section);
+                    section.Fill(PropertiesForSection(section));
+                    FixProperties(section);
+                }
             }
 
             if (allowSave && section.IsDirty)
