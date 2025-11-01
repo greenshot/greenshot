@@ -21,7 +21,7 @@ Being easy to understand and configurable, Greenshot is an efficient tool for pr
 
 About this repository
 ---------------------
-This is the development branch is for Greenshot 1.3, which has been first released on 2025-07-14. 
+This is the development branch is for Greenshot 1.3, which has been first released on 2025-07-14. No more features will be added in this branch.
 
 Releases
 --------
