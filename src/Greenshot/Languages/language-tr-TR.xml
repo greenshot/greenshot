@@ -155,7 +155,7 @@ Benzer bir hatanın daha önce bildirilip bildirilmediğini kontrol ederseniz ç
 		<resource name="editor_shadow">Gölge ekle (/)</resource>
 		<resource name="editor_storedtoclipboard">Görüntü panoya kaydedildi.</resource>
 		<resource name="editor_thickness">Çizgi kalınlığı</resource>
-		<resource name="editor_title">Greenshot görüntü düzenleyici</resource>
+		<resource name="editor_title">Greenshot editörü</resource>
 		<resource name="editor_torn_edge">Kenarı yırt</resource>
 		<resource name="editor_undo">Geri al {0}</resource>
 		<resource name="editor_uponelevel">Bir üste</resource>
@@ -180,8 +180,8 @@ Seçili kayıt yolunun yazılabilir olduğundan emin olun.</resource>
 		<resource name="expertsettings_footerpattern">Yazıcı altbilgi şablonu</resource>
 		<resource name="expertsettings_minimizememoryfootprint">Bellek kullanımını azaltın, fakat performansı düşürür (önerilmez).</resource>
 		<resource name="expertsettings_optimizeforrdp">Uzak masaüstü ile kullanım için bazı iyileştirmeler yap</resource>
-        <resource name="expertsettings_reuseeditorifpossible">Mümkünse görüntü düzenleyiciyi yeniden kullan</resource>
-		<resource name="expertsettings_suppresssavedialogatclose">Görüntü düzenleyiciyi kapatırken kaydetmeyi sorma</resource>
+        <resource name="expertsettings_reuseeditorifpossible">Mümkünse editörü yeniden kullan</resource>
+		<resource name="expertsettings_suppresssavedialogatclose">Editörü kapatırken kaydetmeyi sorma</resource>
 		<resource name="expertsettings_thumbnailpreview">İçerik menüsünde küçük resimleri göster (Vista ve windows 7 için)</resource>
 		<resource name="exported_to">{0} konumuna aktarıldı</resource>
         <resource name="exported_to_error">{0} konumuna aktarırken bir hata oluştu:</resource>
@@ -218,13 +218,13 @@ Seçili kayıt yolunun yazılabilir olduğundan emin olun.</resource>
 		<resource name="settings_copypathtoclipboard">Her görüntü kaydedildiğinde dosya yolunu panoya kopyala</resource>
 		<resource name="settings_destination">Hedef</resource>
 		<resource name="settings_destination_clipboard">Panoya kopyala</resource>
-		<resource name="settings_destination_editor">Görüntü düzenleyicide aç</resource>
+		<resource name="settings_destination_editor">Editörde aç</resource>
 		<resource name="settings_destination_email">E-Posta gönder</resource>
 		<resource name="settings_destination_file">Doğrudan kaydet (aşağıdaki ayarları kullanarak)</resource>
 		<resource name="settings_destination_fileas">Farklı kaydet (iletişim kutusu gösterilir)</resource>
 		<resource name="settings_destination_picker">Hedefi dinamik olarak seç</resource>
 		<resource name="settings_destination_printer">Yazıcıya gönder</resource>
-		<resource name="settings_editor">Görüntü düzenleyici</resource>
+		<resource name="settings_editor">Editör</resource>
 		<resource name="settings_filenamepattern">Dosya adı biçimi</resource>
 		<resource name="settings_general">Genel</resource>
 		<resource name="settings_iecapture">Internet Explorer'ı yakala</resource>
