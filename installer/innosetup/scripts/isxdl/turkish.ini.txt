@@ -1,0 +1,49 @@
+[strings]
+; Genel
+100=Dosya indirme
+101=İndirmeyi iptal etmek istiyor musunuz?
+102=%1 (%3 toplamda %2)
+103=%1 KB
+104=%2 KB toplamda %1 KB (%3%)
+
+; Durum bilgisi
+110=Dosya bilgisi alınıyor...
+111=%1 adresine yönlendiriliyor
+112=İstek gönderiliyor...
+113=%1 çözümleniyor
+114=%1 adresine bağlanıldı
+115=Alınıyor...
+116=%1 adresine bağlanılıyor
+
+; Hata mesajları
+120=İnternete bağlanırken hata oluştu.\n\n%1
+121=%1 açılamadı.\n\nSunucu %2 durum kodunu döndürdü.
+122=URL okunurken hata oluştu.\n\n%1
+123=%1 dosyası yazılırken hata oluştu.\n\n%2
+124=%1 dosyası açılırken hata oluştu.\n\n%2
+125='%1' geçersiz bir URL.
+126=%1 açılamadı.\n\n%2
+127=İstek gönderilirken hata oluştu.\n\n%1
+128=Desteklenmeyen protokol. Yalnızca HTTP ve FTP protokolleri desteklenir.
+129=%1 adresine bağlanılamadı.\n\n%2
+130=Durum kodu sorgulanamadı.\n\n%1
+131=Dosya istenirken hata oluştu.\n\n%1
+
+; Diğer
+144=Hakkında...
+146=İndir
+147=Kurulum, bilgisayarınıza ek dosyalar indiriyor.
+
+; Etiketler
+160=Dosya:
+161=Hız:
+162=Durum:
+163=Geçen Süre:
+164=Kalan Süre:
+165=Mevcut Dosya:
+166=Genel İlerleme:
+167=İptal
+168=Tamam
+169=Kullanıcı Adı ve Parola
+170=Kullanıcı Adı:
+171=Parola:
