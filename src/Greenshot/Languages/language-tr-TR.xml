@@ -211,7 +211,7 @@ Seçili kayıt yolunun yazılabilir olduğundan emin olun.</resource>
 		<resource name="settings_applicationsettings">Uygulama ayarları</resource>
 		<resource name="settings_autostartshortcut">Windows başlangıcında çalıştır</resource>
 		<resource name="settings_capture">Yakala</resource>
-		<resource name="settings_capture_mousepointer">Fare imlecini de yakala</resource>
+		<resource name="settings_capture_mousepointer">Fare imlecini yakala</resource>
 		<resource name="settings_capture_windows_interactive">Etkileşimli pencere yakalama modunu kullan</resource>
 		<resource name="settings_checkperiod">Gün bazında güncelleme kontrol sıklığı (0=kontrol yok)</resource>
 		<resource name="settings_configureplugin">Yapılandır</resource>
