@@ -1,7 +1,7 @@
 Greenshot - a free screenshot tool optimized for productivity
 =============================================================
 
-Welcome to the source repository for Greenshot
+Welcome to the source repository for Greenshot.
 
 What is Greenshot?
 ------------------
