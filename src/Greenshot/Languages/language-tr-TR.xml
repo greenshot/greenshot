@@ -123,7 +123,7 @@ Benzer bir hatanın daha önce bildirilip bildirilmediğini kontrol ederseniz ç
 		<resource name="editor_highlight_magnify">Büyüt</resource>
 		<resource name="editor_highlight_mode">Vurgulama modu</resource>
 		<resource name="editor_highlight_text">Metni vurgula</resource>
-        <resource name="editor_image_shadow">Alt gölge</resource>
+        <resource name="editor_image_shadow">Gölge</resource>
 		<resource name="editor_imagesaved">Görüntü {0} konumuna kaydedildi.</resource>
 		<resource name="editor_insertwindow">Pencere ekle</resource>
 		<resource name="editor_invert">Renkleri ters çevir</resource>
@@ -131,9 +131,9 @@ Benzer bir hatanın daha önce bildirilip bildirilmediğini kontrol ederseniz ç
 		<resource name="editor_load_objects">Dosyadan nesneleri yükle</resource>
 		<resource name="editor_magnification_factor">Büyütme katsayısı</resource>
 		<resource name="editor_match_capture_size">Yakalama boyutuyla eşleştir</resource>
-		<resource name="editor_obfuscate">Karart (O)</resource>
+		<resource name="editor_obfuscate">Bulanıklaştır (O)</resource>
 		<resource name="editor_obfuscate_blur">Bulanıklaştır</resource>
-		<resource name="editor_obfuscate_mode">Karartma modu</resource>
+		<resource name="editor_obfuscate_mode">Bulanıklaştırma modu</resource>
 		<resource name="editor_obfuscate_pixelize">Pikselleştir</resource>
 		<resource name="editor_object">Nesne</resource>
 		<resource name="editor_opendirinexplorer">Klasörü Dosya Gezgini ile aç</resource>
@@ -292,7 +292,7 @@ Greenshot özellikleri, kısayol tuşları olmadan sistem tepsisi menüsünden k
     <!-- 1.2 -->
     <resource name="editor_dropshadow_darkness">Koyuluk</resource>
     <resource name="editor_dropshadow_offset">Kaydırma</resource>
-    <resource name="editor_dropshadow_settings">Alt gölge ayarları</resource>
+    <resource name="editor_dropshadow_settings">Gölge ayarları</resource>
     <resource name="editor_dropshadow_thickness">Gölge kalınlığı</resource>
 
     <resource name="editor_tornedge_horizontaltoothrange">Yatay eksende yırtık yoğunluğu</resource>
