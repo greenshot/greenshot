@@ -71,10 +71,10 @@ Benzer bir hatanın daha önce bildirilip bildirilmediğini kontrol ederseniz ç
 		<resource name="editor_align_top">Üste</resource>
 		<resource name="editor_align_vertical">Dikey hizala</resource>
 		<resource name="editor_arrange">Düzenle</resource>
-		<resource name="editor_arrowheads">Ok başları</resource>
+		<resource name="editor_arrowheads">Ok uçları</resource>
 		<resource name="editor_arrowheads_both">İki uçta da</resource>
 		<resource name="editor_arrowheads_end">Bitişte</resource>
-		<resource name="editor_arrowheads_none">Ok ucu olmasın</resource>
+		<resource name="editor_arrowheads_none">Ok ucu yok</resource>
 		<resource name="editor_arrowheads_start">Başlangıçta</resource>
 		<resource name="editor_autocrop">Otomatik kırp</resource>
         <resource name="editor_autocrop_not_possible">Otomatik kırpma yapılamıyor</resource>
