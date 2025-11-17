@@ -25,7 +25,8 @@ Continous builds are not code-signed due to restrictions of the EV code signing 
 
 **Stable releases** (and release candidates) always should be code-signed and therefore cannot be 
 built by the Github workflow mentioned above, due to restrictions mentioned above. Hence, we have a 
-separate [release script for signed releases](../build-and-deploy.ps1).
+separate [release script for signed releases](../build-and-deploy.ps1), which is triggered manually
+in a dedicated environment for building and signing releases.
 
 ## Version History Updates
 
