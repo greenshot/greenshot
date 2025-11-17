@@ -114,7 +114,7 @@ jobs:
           if (-not $file) {
             throw "No matching file found in 'artifacts-installer' directory."
           }
-          if ($file.Name -match "Greenshot-INSTALLER-([\d\.]+)(.*)\.exe") {
+          if ($file.Name -match "Greenshot-INSTALLER-([\d\.]+(-g[\da-f]+)?)(.*)\.exe") {
             echo "version=$($matches[1])" >> $Env:GITHUB_OUTPUT
           } else {
             throw "Version number could not be extracted from file name: $($file.Name)"
