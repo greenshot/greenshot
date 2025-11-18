@@ -1,5 +1,5 @@
 env:
-  IS_RELEASE_BRANCH: ${{ startsWith(github.ref, 'refs/heads/release/') }}
+  IS_MAIN_OR_RELEASE_BRANCH: ${{ startsWith(github.ref, 'refs/heads/release/') || github.ref_name == 'main' }}
   BRANCH_NAME: ${{ github.ref_name }}
 
 name: Build and Deploy
@@ -8,6 +8,7 @@ on:
   workflow_dispatch:
   push:
     branches:
+      - 'main'
       - 'release/1.*'
     paths-ignore:
       - '.github/**'
@@ -96,7 +97,7 @@ jobs:
     needs: build
     outputs:
       version: ${{ steps.version_info.outputs.version }}
-      tag_name: ${{ env.IS_RELEASE_BRANCH == 'true' && format('v{0}', steps.version_info.outputs.version) || env.BRANCH_NAME }}
+      tag_name: ${{ env.IS_MAIN_OR_RELEASE_BRANCH == 'true' && format('v{0}', steps.version_info.outputs.version) || env.BRANCH_NAME }}
     steps: 
 
       - name: Download build artifacts
@@ -106,14 +107,14 @@ jobs:
           path: artifacts-installer # Local folder where artifacts are downloaded
 
       - name: Extract version from file name
-        if: env.IS_RELEASE_BRANCH == 'true'
+        if: env.IS_MAIN_OR_RELEASE_BRANCH == 'true'
         id: version_from_filename
         run: |
           $file = Get-ChildItem artifacts-installer -Filter "Greenshot-INSTALLER-*.exe" | Select-Object -First 1
           if (-not $file) {
             throw "No matching file found in 'artifacts-installer' directory."
           }
-          if ($file.Name -match "Greenshot-INSTALLER-([\d\.]+)(.*)\.exe") {
+          if ($file.Name -match "Greenshot-INSTALLER-([\d\.]+(-g[\da-f]+)?)(.*)\.exe") {
             echo "version=$($matches[1])" >> $Env:GITHUB_OUTPUT
           } else {
             throw "Version number could not be extracted from file name: $($file.Name)"
@@ -121,7 +122,7 @@ jobs:
         shell: pwsh
 
       - name: Set version from sanitized branch name
-        if: env.IS_RELEASE_BRANCH != 'true'
+        if: env.IS_MAIN_OR_RELEASE_BRANCH != 'true'
         id: version_from_branchname
         run: |
           $branch = "${{ github.ref }}" -replace '^refs/heads/', ''
@@ -203,7 +204,7 @@ jobs:
           path: artifacts-greenshot-portable
 
       - name: Create tag
-        if: env.IS_RELEASE_BRANCH == 'true'
+        if: env.IS_MAIN_OR_RELEASE_BRANCH == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -211,7 +212,7 @@ jobs:
           git push origin "v${{ needs.pre_deploy.outputs.version }}"
 
       - name: Rename installer for non-release branch
-        if: env.IS_RELEASE_BRANCH != 'true'
+        if: env.IS_MAIN_OR_RELEASE_BRANCH != 'true'
         run: |
           branch="${BRANCH_NAME:-${GITHUB_REF#refs/heads/}}"
           sanitized=$(echo "$branch" | sed 's/[^a-zA-Z0-9._-]/_/g')
@@ -225,7 +226,7 @@ jobs:
           tag_name: ${{ needs.pre_deploy.outputs.tag_name }}
           files: artifacts-installer/*.exe, artifacts-greenshot-portable/*.zip
           generate_release_notes: true
-          draft: ${{ env.IS_RELEASE_BRANCH != 'true'  }}
+          draft: ${{ env.IS_MAIN_OR_RELEASE_BRANCH != 'true'  }}
           prerelease: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

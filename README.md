@@ -1,7 +1,7 @@
 Greenshot - a free screenshot tool optimized for productivity
 =============================================================
 
-Welcome to the source repository for Greenshot
+Welcome to the source repository for Greenshot.
 
 What is Greenshot?
 ------------------
@@ -21,7 +21,7 @@ Being easy to understand and configurable, Greenshot is an efficient tool for pr
 
 About this repository
 ---------------------
-This is the development branch is for Greenshot 1.3, which has been first released on 2025-07-14. No more features will be added in this branch.
+This is the ongoing development branch for future Greenshot releases. 
 
 Releases
 --------
