@@ -475,6 +475,8 @@ namespace Greenshot.Editor.Forms
             fileStripMenuItem.DropDownItems.Add(toolStripSeparator9);
             fileStripMenuItem.DropDownItems.Add(closeAllToolStripMenuItem);
             fileStripMenuItem.DropDownItems.Add(closeToolStripMenuItem);
+            // reassign the close shortcuts besause ClearItems above removes them
+            closeToolStripMenuItem.ShortcutKeys = Keys.Alt | Keys.F4;
         }
 
         private delegate void SurfaceMessageReceivedThreadSafeDelegate(object sender, SurfaceMessageEventArgs eventArgs);
