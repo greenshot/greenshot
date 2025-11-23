@@ -450,10 +450,6 @@ namespace Greenshot.Editor.Forms
         {
             ClearItems(fileStripMenuItem.DropDownItems);
 
-            // check if CTRL is pressed and toggle CloseMenu
-            bool ctrlActive = (ModifierKeys & Keys.Control) == Keys.Control;
-            ToggleCloseMenuItemAction(ctrlActive);
-
             // Add the destinations
             foreach (IDestination destination in DestinationHelper.GetAllDestinations())
             {
@@ -477,65 +473,8 @@ namespace Greenshot.Editor.Forms
 
             // add the elements after the destinations
             fileStripMenuItem.DropDownItems.Add(toolStripSeparator9);
+            fileStripMenuItem.DropDownItems.Add(closeAllToolStripMenuItem);
             fileStripMenuItem.DropDownItems.Add(closeToolStripMenuItem);
-
-            // register events to handle CTRL in DropDown
-            var dropDown = fileStripMenuItem.DropDown;
-
-            // remove event handler if already exists
-            dropDown.PreviewKeyDown -= FileMenuDropDown_PreviewKeyDown;
-            dropDown.KeyUp -= FileMenuDropDown_KeyUp;
-
-            // add event handler
-            dropDown.PreviewKeyDown += FileMenuDropDown_PreviewKeyDown;
-            dropDown.KeyUp += FileMenuDropDown_KeyUp;
-
-        }
-
-        /// <summary>
-        /// calls <see cref="ToggleCloseMenuItemAction"/> if CRTL is pressed
-        /// </summary>
-        private void FileMenuDropDown_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
-        {
-            if (e.Control)
-            {
-                ToggleCloseMenuItemAction(useCloseAllAction: true);
-            }
-        }
-
-        /// <summary>
-        /// calls <see cref="ToggleCloseMenuItemAction"/> if CRTL is released
-        /// </summary>
-        private void FileMenuDropDown_KeyUp(object sender, KeyEventArgs e)
-        {
-            if (!e.Control)
-            {
-                ToggleCloseMenuItemAction(useCloseAllAction: false);
-            }
-        }
-
-        /// <summary>
-        /// toggle closing action. "close current editor" -- "close all open editors"
-        /// </summary>
-        /// <param name="useCloseAllAction">if true the menu action is "close all open editors" </param>
-        private void ToggleCloseMenuItemAction(bool useCloseAllAction)
-        {
-            if (useCloseAllAction)
-            {
-                closeToolStripMenuItem.LanguageKey = "editor_close_all";
-                closeToolStripMenuItem.ShortcutKeys = Keys.None;
-                closeToolStripMenuItem.Click -= CloseToolStripMenuItemClick;
-                closeToolStripMenuItem.Click += CloseAllToolStripMenuItemClick;
-            }
-            else
-            {
-                closeToolStripMenuItem.LanguageKey = "editor_close";
-                closeToolStripMenuItem.ShortcutKeys = Keys.Alt | Keys.F4;
-                closeToolStripMenuItem.Click -= CloseAllToolStripMenuItemClick;
-                closeToolStripMenuItem.Click += CloseToolStripMenuItemClick;
-            }
-
-            ApplyLanguage(closeToolStripMenuItem);
         }
 
         private delegate void SurfaceMessageReceivedThreadSafeDelegate(object sender, SurfaceMessageEventArgs eventArgs);
@@ -1458,6 +1397,7 @@ namespace Greenshot.Editor.Forms
                     ToolStripItemEndisabler.Disable(destinationsToolStrip);
                     ToolStripItemEndisabler.Disable(toolsToolStrip);
                     ToolStripItemEndisabler.Enable(closeToolStripMenuItem);
+                    ToolStripItemEndisabler.Enable(closeAllToolStripMenuItem);
                     ToolStripItemEndisabler.Enable(helpToolStripMenuItem);
                     ToolStripItemEndisabler.Enable(aboutToolStripMenuItem);
                     ToolStripItemEndisabler.Enable(preferencesToolStripMenuItem);
