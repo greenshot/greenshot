@@ -80,6 +80,9 @@ namespace Greenshot.Editor.Configuration
         [IniProperty("BorderEffectSettings", Description = "Settings for the border effect. Key:BorderEffect|Color:203,203,203|Width:1")]
         public BorderEffect BorderEffectSettings { get; set; }
 
+        [IniProperty("UseBestFit", Description = "Automatically zoom in to fit small size image", DefaultValue = "false")]
+        public bool UseBestFit { get; set; }
+
         [IniProperty("DefaultEditorSize", Description = "The size for the editor when it's opened without a capture", DefaultValue = "500,500")]
         public NativeSize DefaultEditorSize { get; set; }
 

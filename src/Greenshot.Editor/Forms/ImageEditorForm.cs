@@ -193,7 +193,7 @@ namespace Greenshot.Editor.Forms
                 _ => false
             };
 
-            if (useBestFit)
+            if (useBestFit && EditorConfiguration.UseBestFit)
             {
                 ZoomBestFitMenuItemClick(this, EventArgs.Empty);
             }
