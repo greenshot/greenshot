@@ -5,8 +5,8 @@
 		<resource name="about_donations">Greenshot'ı sevdiyseniz, bizi destekleyin:</resource>
 		<resource name="about_host">Greenshot GitHub üzerinde şu adreste barındırılmaktadır:</resource>
 		<resource name="about_icons">Simgeler Yusuke Kamiyamane'nin Fugue simge setidir (Creative Commons Attribution 3.0 lisansı)</resource>
-		<resource name="about_license">Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
-Greenshot HİÇ BİR GARANTİ vermez. Serbest bir yazılımdır ve belirli koşullar altında dağıtmakta serbestsiniz. 
+		<resource name="about_license">Telif Hakkı (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+Greenshot HİÇBİR GARANTİ olmaksızın sunulmaktadır. Bu ücretsiz bir yazılımdır ve belirli koşullar altında dağıtmakta serbestsiniz. 
 GNU Genel Kamu Lisansı hakkında ayrıntılar:</resource>
 		<resource name="about_title">Greenshot Hakkında</resource>
 		<resource name="application_title">Greenshot - devrimsel ekran yakalama aracı</resource>
@@ -109,7 +109,7 @@ Benzer bir hatanın daha önce bildirilip bildirilmediğini kontrol ederseniz ç
 		<resource name="editor_drawhighlighter">Vurgula (H)</resource>
 		<resource name="editor_drawline">Çizgi çiz (L)</resource>
 		<resource name="editor_drawrectangle">Dikdörtgen çiz (R)</resource>
-		<resource name="editor_drawtextbox">Yazı ekle (T)</resource>
+		<resource name="editor_drawtextbox">Metin ekle (T)</resource>
 		<resource name="editor_duplicate">Seçili ögeyi çoğalt</resource>
 		<resource name="editor_edit">Düzenle</resource>
 		<resource name="editor_effects">Efektler</resource>
