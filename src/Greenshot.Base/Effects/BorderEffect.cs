@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using Greenshot.Base.Core;
@@ -28,6 +29,7 @@ namespace Greenshot.Base.Effects
     /// <summary>
     /// BorderEffect
     /// </summary>
+    [TypeConverter(typeof(EffectConverter))]
     public class BorderEffect : IEffect
     {
         public BorderEffect()
@@ -37,11 +39,13 @@ namespace Greenshot.Base.Effects
 
         public Color Color { get; set; }
         public int Width { get; set; }
+        public string Key { get; set; }
 
         public void Reset()
         {
             Width = 2;
             Color = Color.Black;
+            Key = "BorderEffect";
         }
 
         public Image Apply(Image sourceImage, Matrix matrix)
