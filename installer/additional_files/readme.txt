@@ -10,6 +10,12 @@ All details to our tickets can be found here: https://greenshot.atlassian.net
 # Greenshot 1.3.xxx
 
 Bugs fixed:
+* File Association and Launch with File Arguments Not Working When Already Running [#685](https://github.com/greenshot/greenshot/issues/685) thanks to @Christian-Schulz
+* ZIP Releases are Missing [#609](https://github.com/greenshot/greenshot/issues/609) thanks to @Christian-Schulz
+
+# Greenshot 1.3.301
+
+Bugs fixed:
 * Security advisory GHSA-8f7f-x7ww-xx5w
 
 # Greenshot 1.3.300
@@ -673,6 +679,7 @@ Features added:
 * when clicking two overlapping elements, the one created later gets selected [ 1725175 ]
 * created textboxes can now be edited with a doubleclick [ 1704408 ]
 * selected font is now stored in the application config file [ 1704411 ]
+
 
 
 
