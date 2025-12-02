@@ -1,6 +1,8 @@
 ﻿#define ExeName "Greenshot"
+; Basic build version determined by nerdbank gitversioning, e.g. 1.2.345
 #define Version GetEnv('BuildVersionSimple')
-#define FileVersion GetEnv('AssemblyInformationalVersion')
+; Build version with optional suffix depending on branch, e.g. 1.2.345-g1tc033174ef
+#define VersionEnhanced GetEnv('BuildVersionEnhanced')
 #define BaseDir "..\..\src"
 #define GreenshotProjectDir "..\..\src\Greenshot"
 #define LanguagesDir "..\..\src\Greenshot\Languages"
@@ -142,18 +144,18 @@ PrivilegesRequiredOverridesAllowed=dialog
 PrivilegesRequired=lowest
 SetupIconFile=..\..\src\Greenshot\icons\applicationIcon\icon.ico
 #if CertumThumbprint  != ""
- OutputBaseFilename={#ExeName}-INSTALLER-{#Version}-UNSTABLE
+ OutputBaseFilename={#ExeName}-INSTALLER-{#VersionEnhanced}-UNSTABLE
   SignTool=SignTool sign /sha1 "{#CertumThumbprint}" /tr http://time.certum.pl /td sha256 /fd sha256 /v $f
   SignedUninstaller=yes
 #else
-  OutputBaseFilename={#ExeName}-INSTALLER-{#Version}-UNSTABLE-UNSIGNED
+  OutputBaseFilename={#ExeName}-INSTALLER-{#VersionEnhanced}-UNSTABLE-UNSIGNED
 #endif
 UninstallDisplayIcon={app}\{#ExeName}.exe
 Uninstallable=true
 VersionInfoCompany={#ExeName}
 VersionInfoProductName={#ExeName}
-VersionInfoProductTextVersion={#FileVersion}
-VersionInfoTextVersion={#FileVersion}
+VersionInfoProductTextVersion={#VersionEnhanced}
+VersionInfoTextVersion={#VersionEnhanced}
 VersionInfoVersion={#Version}
 ; Reference a bitmap, max size 164x314
 WizardImageFile=installer-large.bmp
