@@ -132,6 +132,9 @@ namespace Greenshot.Base.Core
         [IniProperty("OutputFileCopyPathToClipboard", Description = "When saving a screenshot, copy the path to the clipboard?", DefaultValue = "true")]
         public bool OutputFileCopyPathToClipboard { get; set; }
 
+        [IniProperty("EditorRecopyToClipboardOnSave", Description = "When saving from the editor, automatically copy the image to clipboard?", DefaultValue = "false")]
+        public bool EditorRecopyToClipboardOnSave { get; set; }
+
         [IniProperty("OutputFileAsFullpath", Description = "SaveAs Full path?")]
         public string OutputFileAsFullpath { get; set; }
 

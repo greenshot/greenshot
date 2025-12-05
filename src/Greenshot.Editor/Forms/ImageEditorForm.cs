@@ -60,6 +60,7 @@ namespace Greenshot.Editor.Forms
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(ImageEditorForm));
         private static readonly EditorConfiguration EditorConfiguration = IniConfig.GetIniSection<EditorConfiguration>();
+        private static readonly CoreConfiguration CoreConfiguration = IniConfig.GetIniSection<CoreConfiguration>();
 
         private static readonly List<string> IgnoreDestinations = new()
         {
@@ -653,6 +654,11 @@ namespace Greenshot.Editor.Forms
             }
 
             DestinationHelper.ExportCapture(true, destinationDesignation, _surface, _surface.CaptureDetails);
+
+            if (CoreConfiguration.EditorRecopyToClipboardOnSave)
+            {
+                DestinationHelper.ExportCapture(true, WellKnownDestinations.Clipboard, _surface, _surface.CaptureDetails);
+            }
         }
 
         private void BtnClipboardClick(object sender, EventArgs e)

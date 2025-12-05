@@ -78,6 +78,7 @@ namespace Greenshot.Forms {
 			this.textBoxJpegQuality = new System.Windows.Forms.TextBox();
 			this.trackBarJpegQuality = new System.Windows.Forms.TrackBar();
 			this.groupbox_destination = new GreenshotGroupBox();
+			this.checkbox_recopy_on_save = new GreenshotCheckBox();
 			this.checkbox_picker = new GreenshotCheckBox();
 			this.listview_destinations = new System.Windows.Forms.ListView();
 			this.destination = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -421,18 +422,29 @@ namespace Greenshot.Forms {
 			this.trackBarJpegQuality.Scroll += new System.EventHandler(this.TrackBarJpegQualityScroll);
 			// 
 			// groupbox_destination
-			// 
+			//
+			this.groupbox_destination.Controls.Add(this.checkbox_recopy_on_save);
 			this.groupbox_destination.Controls.Add(this.checkbox_picker);
 			this.groupbox_destination.Controls.Add(this.listview_destinations);
 			this.groupbox_destination.LanguageKey = "settings_destination";
 			this.groupbox_destination.Location = new System.Drawing.Point(2, 6);
 			this.groupbox_destination.Name = "groupbox_destination";
-			this.groupbox_destination.Size = new System.Drawing.Size(412, 311);
+			this.groupbox_destination.Size = new System.Drawing.Size(412, 340);
 			this.groupbox_destination.TabIndex = 16;
 			this.groupbox_destination.TabStop = false;
 			// 
+			// checkbox_recopy_on_save
+			//
+			this.checkbox_recopy_on_save.Location = new System.Drawing.Point(6, 308);
+			this.checkbox_recopy_on_save.Name = "checkbox_recopy_on_save";
+			this.checkbox_recopy_on_save.PropertyName = nameof(CoreConfiguration.EditorRecopyToClipboardOnSave);
+			this.checkbox_recopy_on_save.Size = new System.Drawing.Size(394, 24);
+			this.checkbox_recopy_on_save.TabIndex = 3;
+			this.checkbox_recopy_on_save.Text = "Recopy to clipboard on save (editor)";
+			this.checkbox_recopy_on_save.UseVisualStyleBackColor = true;
+			//
 			// checkbox_picker
-			// 
+			//
 			this.checkbox_picker.LanguageKey = "settings_destination_picker";
 			this.checkbox_picker.Location = new System.Drawing.Point(6, 14);
 			this.checkbox_picker.Name = "checkbox_picker";
@@ -440,7 +452,7 @@ namespace Greenshot.Forms {
 			this.checkbox_picker.TabIndex = 1;
 			this.checkbox_picker.UseVisualStyleBackColor = true;
 			this.checkbox_picker.CheckStateChanged += new System.EventHandler(this.DestinationsCheckStateChanged);
-			// 
+			//
 			// listview_destinations
 			// 
 			this.listview_destinations.Alignment = System.Windows.Forms.ListViewAlignment.Left;
@@ -1310,6 +1322,7 @@ namespace Greenshot.Forms {
 		private GreenshotCheckBox checkbox_notifications;
 		private GreenshotCheckBox checkbox_minimizememoryfootprint;
 		private System.Windows.Forms.ColumnHeader destination;
+		private GreenshotCheckBox checkbox_recopy_on_save;
 		private GreenshotCheckBox checkbox_picker;
 		private System.Windows.Forms.ListView listview_destinations;
 		private GreenshotGroupBox groupbox_editor;
