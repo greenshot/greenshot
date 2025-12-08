@@ -129,6 +129,9 @@ namespace Greenshot.Base.Core
         [IniProperty("OutputFileReduceColorsTo", Description = "Amount of colors to reduce to, when reducing", DefaultValue = "256")]
         public int OutputFileReduceColorsTo { get; set; }
 
+        [IniProperty("OutputFileCopyPathToClipboard", Description = "When saving a screenshot, copy the path to the clipboard?", DefaultValue = "true", ExcludeIfNull = true)]
+        public bool? OutputFileCopyPathToClipboard { get; set; }
+
         [IniProperty("OutputFilePostSaveBehavior", Description = "Behavior after saving a screenshot", DefaultValue = "CopyFilePathToClipboard")]
         public PostSaveBehavior OutputFilePostSaveBehavior { get; set; }
 
@@ -472,15 +475,6 @@ namespace Greenshot.Base.Core
                 }
             }
 
-            // Migrate old OutputFileCopyPathToClipboard boolean to new PostSaveBehavior enum
-            if ("OutputFileCopyPathToClipboard".Equals(propertyName))
-            {
-                if (bool.TryParse(propertyValue, out bool copyPathToClipboard))
-                {
-                    return copyPathToClipboard ? "CopyFilePathToClipboard" : "None";
-                }
-            }
-
             return base.PreCheckValue(propertyName, propertyValue);
         }
 
@@ -505,6 +499,17 @@ namespace Greenshot.Base.Core
         /// </summary>
         public override void AfterLoad()
         {
+            // Migrate old OutputFileCopyPathToClipboard boolean to new PostSaveBehavior enum
+            if (OutputFileCopyPathToClipboard.HasValue)
+            {
+                OutputFilePostSaveBehavior = OutputFileCopyPathToClipboard.Value
+                    ? PostSaveBehavior.CopyFilePathToClipboard
+                    : PostSaveBehavior.None;
+                // Set to null so it won't be written back to the INI file (ExcludeIfNull)
+                OutputFileCopyPathToClipboard = null;
+                IsDirty = true;
+            }
+
             // Comment with releases
             // CheckForUnstable = true;
 
@@ -555,9 +560,6 @@ namespace Greenshot.Base.Core
             {
                 OutputDestinations.Add("Editor");
             }
-
-            // Note: OutputFilePostSaveBehavior is independent of clipboard destination
-            // since it controls editor save behavior, not initial capture behavior
 
             // Make sure we have clipboard formats, otherwise a paste doesn't make sense!
             if (ClipboardFormats == null || ClipboardFormats.Count == 0)

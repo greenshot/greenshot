@@ -755,8 +755,6 @@ namespace Greenshot.Forms
             }
             else
             {
-                // The post-save behavior dropdown is independent of the clipboard destination
-                // since it controls what happens when saving from the editor, not initial capture
                 combobox_postsavebehavior.Enabled = true;
             }
         }
