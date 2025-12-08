@@ -217,7 +217,7 @@ Please check write accessibility of the selected storage location.</resource>
 		<resource name="settings_checkperiod">Update check interval in days (0=no check)</resource>
 		<resource name="settings_configureplugin">Configure</resource>
 		<resource name="settings_copypathtoclipboard">Copy file path to clipboard every time an image is saved</resource>
-		<resource name="settings_postsavebehavior">Behavior after saving:</resource>
+		<resource name="settings_postsavebehavior">Behavior after saving</resource>
 		<resource name="settings_destination">Destination</resource>
 		<resource name="settings_destination_clipboard">Copy to clipboard</resource>
 		<resource name="settings_destination_editor">Open in image editor</resource>
