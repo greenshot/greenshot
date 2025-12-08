@@ -238,10 +238,10 @@ ${hh} saat, 2 hane
 ${mm} dakika, 2 hane
 ${ss} saniye, 2 hane
 ${NUM} artan sayı, 6 hane
-${RRR...} rasgele harf ve rakamlar, 'R'lerle aynı uzunlukta
+${RRR...} rastgele harf ve rakamlar, 'R'lerle aynı uzunlukta
 ${title} Pencere başlığı
 ${user} Windows kullanıcısı
-${domain} Windows etki alanı
+${domain} Windows alan adı
 ${hostname} Bilgisayar adı
 
 Greenshot ile dinamik klasör oluşturabilirsiniz. Klasör ve dosya adını ayırmak için ters eğik çizgi (\) kullanın.
