@@ -217,6 +217,7 @@ Please check write accessibility of the selected storage location.</resource>
 		<resource name="settings_checkperiod">Update check interval in days (0=no check)</resource>
 		<resource name="settings_configureplugin">Configure</resource>
 		<resource name="settings_copypathtoclipboard">Copy file path to clipboard every time an image is saved</resource>
+		<resource name="settings_postsavebehavior">Behavior after saving:</resource>
 		<resource name="settings_destination">Destination</resource>
 		<resource name="settings_destination_clipboard">Copy to clipboard</resource>
 		<resource name="settings_destination_editor">Open in image editor</resource>
@@ -291,6 +292,9 @@ All Greenshot features still work directly from the tray icon context menu witho
 		<resource name="WindowCaptureMode.Auto">Automatically</resource>
 		<resource name="WindowCaptureMode.GDI">Use default color</resource>
 		<resource name="WindowCaptureMode.Screen">As displayed</resource>
+		<resource name="PostSaveBehavior.None">None</resource>
+		<resource name="PostSaveBehavior.CopyImageToClipboard">Copy image to clipboard</resource>
+		<resource name="PostSaveBehavior.CopyFilePathToClipboard">Copy file path to clipboard</resource>
 
     <!-- 1.2 -->
     <resource name="editor_dropshadow_darkness">Shadow darkness</resource>

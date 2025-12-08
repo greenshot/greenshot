@@ -129,11 +129,8 @@ namespace Greenshot.Base.Core
         [IniProperty("OutputFileReduceColorsTo", Description = "Amount of colors to reduce to, when reducing", DefaultValue = "256")]
         public int OutputFileReduceColorsTo { get; set; }
 
-        [IniProperty("OutputFileCopyPathToClipboard", Description = "When saving a screenshot, copy the path to the clipboard?", DefaultValue = "true")]
-        public bool OutputFileCopyPathToClipboard { get; set; }
-
-        [IniProperty("EditorRecopyToClipboardOnSave", Description = "When saving from the editor, automatically copy the image to clipboard?", DefaultValue = "false")]
-        public bool EditorRecopyToClipboardOnSave { get; set; }
+        [IniProperty("OutputFilePostSaveBehavior", Description = "Behavior after saving a screenshot", DefaultValue = "CopyFilePathToClipboard")]
+        public PostSaveBehavior OutputFilePostSaveBehavior { get; set; }
 
         [IniProperty("OutputFileAsFullpath", Description = "SaveAs Full path?")]
         public string OutputFileAsFullpath { get; set; }
@@ -475,6 +472,15 @@ namespace Greenshot.Base.Core
                 }
             }
 
+            // Migrate old OutputFileCopyPathToClipboard boolean to new PostSaveBehavior enum
+            if ("OutputFileCopyPathToClipboard".Equals(propertyName))
+            {
+                if (bool.TryParse(propertyValue, out bool copyPathToClipboard))
+                {
+                    return copyPathToClipboard ? "CopyFilePathToClipboard" : "None";
+                }
+            }
+
             return base.PreCheckValue(propertyName, propertyValue);
         }
 
@@ -550,11 +556,8 @@ namespace Greenshot.Base.Core
                 OutputDestinations.Add("Editor");
             }
 
-            // Prevent both settings at once, bug #3435056
-            if (OutputDestinations.Contains("Clipboard") && OutputFileCopyPathToClipboard)
-            {
-                OutputFileCopyPathToClipboard = false;
-            }
+            // Note: OutputFilePostSaveBehavior is independent of clipboard destination
+            // since it controls editor save behavior, not initial capture behavior
 
             // Make sure we have clipboard formats, otherwise a paste doesn't make sense!
             if (ClipboardFormats == null || ClipboardFormats.Count == 0)

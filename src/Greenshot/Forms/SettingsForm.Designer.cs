@@ -67,7 +67,8 @@ namespace Greenshot.Forms {
 			this.label_primaryimageformat = new GreenshotLabel();
 			this.groupbox_preferredfilesettings = new GreenshotGroupBox();
 			this.btnPatternHelp = new System.Windows.Forms.Button();
-			this.checkbox_copypathtoclipboard = new GreenshotCheckBox();
+			this.label_postsavebehavior = new GreenshotLabel();
+			this.combobox_postsavebehavior = new GreenshotComboBox();
 			this.checkbox_zoomer = new GreenshotCheckBox();
 			this.groupbox_applicationsettings = new GreenshotGroupBox();
 			this.checkbox_autostartshortcut = new GreenshotCheckBox();
@@ -78,7 +79,6 @@ namespace Greenshot.Forms {
 			this.textBoxJpegQuality = new System.Windows.Forms.TextBox();
 			this.trackBarJpegQuality = new System.Windows.Forms.TrackBar();
 			this.groupbox_destination = new GreenshotGroupBox();
-			this.checkbox_recopy_on_save = new GreenshotCheckBox();
 			this.checkbox_picker = new GreenshotCheckBox();
 			this.listview_destinations = new System.Windows.Forms.ListView();
 			this.destination = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -282,7 +282,8 @@ namespace Greenshot.Forms {
 			// groupbox_preferredfilesettings
 			// 
 			this.groupbox_preferredfilesettings.Controls.Add(this.btnPatternHelp);
-			this.groupbox_preferredfilesettings.Controls.Add(this.checkbox_copypathtoclipboard);
+			this.groupbox_preferredfilesettings.Controls.Add(this.label_postsavebehavior);
+			this.groupbox_preferredfilesettings.Controls.Add(this.combobox_postsavebehavior);
 			this.groupbox_preferredfilesettings.Controls.Add(this.combobox_primaryimageformat);
 			this.groupbox_preferredfilesettings.Controls.Add(this.label_primaryimageformat);
 			this.groupbox_preferredfilesettings.Controls.Add(this.label_storagelocation);
@@ -306,17 +307,25 @@ namespace Greenshot.Forms {
 			this.btnPatternHelp.Text = "?";
 			this.btnPatternHelp.UseVisualStyleBackColor = true;
 			this.btnPatternHelp.Click += new System.EventHandler(this.BtnPatternHelpClick);
-			// 
-			// checkbox_copypathtoclipboard
-			// 
-			this.checkbox_copypathtoclipboard.LanguageKey = "settings_copypathtoclipboard";
-			this.checkbox_copypathtoclipboard.Location = new System.Drawing.Point(12, 89);
-			this.checkbox_copypathtoclipboard.Name = "checkbox_copypathtoclipboard";
-			this.checkbox_copypathtoclipboard.PropertyName = nameof(CoreConfiguration.OutputFileCopyPathToClipboard);
-			this.checkbox_copypathtoclipboard.Size = new System.Drawing.Size(394, 24);
-			this.checkbox_copypathtoclipboard.TabIndex = 6;
-			this.checkbox_copypathtoclipboard.UseVisualStyleBackColor = true;
-			// 
+			//
+			// label_postsavebehavior
+			//
+			this.label_postsavebehavior.LanguageKey = "settings_postsavebehavior";
+			this.label_postsavebehavior.Location = new System.Drawing.Point(6, 92);
+			this.label_postsavebehavior.Name = "label_postsavebehavior";
+			this.label_postsavebehavior.Size = new System.Drawing.Size(126, 19);
+			this.label_postsavebehavior.TabIndex = 6;
+			//
+			// combobox_postsavebehavior
+			//
+			this.combobox_postsavebehavior.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			this.combobox_postsavebehavior.FormattingEnabled = true;
+			this.combobox_postsavebehavior.Location = new System.Drawing.Point(138, 89);
+			this.combobox_postsavebehavior.Name = "combobox_postsavebehavior";
+			this.combobox_postsavebehavior.PropertyName = nameof(CoreConfiguration.OutputFilePostSaveBehavior);
+			this.combobox_postsavebehavior.Size = new System.Drawing.Size(268, 21);
+			this.combobox_postsavebehavior.TabIndex = 7;
+			//
             // groupbox_applicationsettings
 			// 
 			this.groupbox_applicationsettings.Controls.Add(this.label_language);
@@ -423,25 +432,14 @@ namespace Greenshot.Forms {
 			// 
 			// groupbox_destination
 			//
-			this.groupbox_destination.Controls.Add(this.checkbox_recopy_on_save);
 			this.groupbox_destination.Controls.Add(this.checkbox_picker);
 			this.groupbox_destination.Controls.Add(this.listview_destinations);
 			this.groupbox_destination.LanguageKey = "settings_destination";
 			this.groupbox_destination.Location = new System.Drawing.Point(2, 6);
 			this.groupbox_destination.Name = "groupbox_destination";
-			this.groupbox_destination.Size = new System.Drawing.Size(412, 340);
+			this.groupbox_destination.Size = new System.Drawing.Size(412, 311);
 			this.groupbox_destination.TabIndex = 16;
 			this.groupbox_destination.TabStop = false;
-			// 
-			// checkbox_recopy_on_save
-			//
-			this.checkbox_recopy_on_save.Location = new System.Drawing.Point(6, 308);
-			this.checkbox_recopy_on_save.Name = "checkbox_recopy_on_save";
-			this.checkbox_recopy_on_save.PropertyName = nameof(CoreConfiguration.EditorRecopyToClipboardOnSave);
-			this.checkbox_recopy_on_save.Size = new System.Drawing.Size(394, 24);
-			this.checkbox_recopy_on_save.TabIndex = 3;
-			this.checkbox_recopy_on_save.Text = "Recopy to clipboard on save (editor)";
-			this.checkbox_recopy_on_save.UseVisualStyleBackColor = true;
 			//
 			// checkbox_picker
 			//
@@ -1322,7 +1320,6 @@ namespace Greenshot.Forms {
 		private GreenshotCheckBox checkbox_notifications;
 		private GreenshotCheckBox checkbox_minimizememoryfootprint;
 		private System.Windows.Forms.ColumnHeader destination;
-		private GreenshotCheckBox checkbox_recopy_on_save;
 		private GreenshotCheckBox checkbox_picker;
 		private System.Windows.Forms.ListView listview_destinations;
 		private GreenshotGroupBox groupbox_editor;
@@ -1360,7 +1357,8 @@ namespace Greenshot.Forms {
 		private GreenshotGroupBox groupbox_plugins;
 		private GreenshotTabPage tab_plugins;
 		private System.Windows.Forms.Button btnPatternHelp;
-		private GreenshotCheckBox checkbox_copypathtoclipboard;
+		private GreenshotLabel label_postsavebehavior;
+		private GreenshotComboBox combobox_postsavebehavior;
 		private GreenshotTabPage tab_output;
 		private GreenshotTabPage tab_general;
 		private System.Windows.Forms.TabControl tabcontrol;

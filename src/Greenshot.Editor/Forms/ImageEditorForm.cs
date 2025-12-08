@@ -37,6 +37,7 @@ using Dapplo.Windows.User32.Structs;
 using Greenshot.Base;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Effects;
 using Greenshot.Base.Help;
 using Greenshot.Base.IniFile;
@@ -655,7 +656,7 @@ namespace Greenshot.Editor.Forms
 
             DestinationHelper.ExportCapture(true, destinationDesignation, _surface, _surface.CaptureDetails);
 
-            if (CoreConfiguration.EditorRecopyToClipboardOnSave)
+            if (CoreConfiguration.OutputFilePostSaveBehavior == PostSaveBehavior.CopyImageToClipboard)
             {
                 DestinationHelper.ExportCapture(true, WellKnownDestinations.Clipboard, _surface, _surface.CaptureDetails);
             }

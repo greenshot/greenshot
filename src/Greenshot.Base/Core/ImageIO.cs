@@ -377,7 +377,7 @@ namespace Greenshot.Base.Core
                     }
 
                     // TODO: For now we always overwrite, should be changed
-                    Save(surface, fileNameWithExtension, true, outputSettings, CoreConfig.OutputFileCopyPathToClipboard);
+                    Save(surface, fileNameWithExtension, true, outputSettings, CoreConfig.OutputFilePostSaveBehavior == PostSaveBehavior.CopyFilePathToClipboard);
                     returnValue = fileNameWithExtension;
                     IniConfig.Save();
                 }
