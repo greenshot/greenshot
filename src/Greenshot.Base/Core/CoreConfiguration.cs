@@ -135,9 +135,6 @@ namespace Greenshot.Base.Core
         [IniProperty("OutputFilePostSaveBehavior", Description = "Behavior after saving a screenshot", DefaultValue = "CopyFilePathToClipboard")]
         public PostSaveBehavior OutputFilePostSaveBehavior { get; set; }
 
-        [IniProperty("OutputFilePostSaveBehaviorMigrated", Description = "Internal flag to track if migration from old setting completed", DefaultValue = "false", ExcludeIfNull = true)]
-        public bool? OutputFilePostSaveBehaviorMigrated { get; set; }
-
         [IniProperty("OutputFileAsFullpath", Description = "SaveAs Full path?")]
         public string OutputFileAsFullpath { get; set; }
 
@@ -503,19 +500,14 @@ namespace Greenshot.Base.Core
         public override void AfterLoad()
         {
             // Migrate old OutputFileCopyPathToClipboard boolean to new PostSaveBehavior enum
-            // Only run migration once - check if we've already migrated
-            if (!OutputFilePostSaveBehaviorMigrated.HasValue || !OutputFilePostSaveBehaviorMigrated.Value)
+            // Once migrated, the old property is set to null and won't exist in the INI file anymore
+            if (OutputFileCopyPathToClipboard.HasValue)
             {
-                if (OutputFileCopyPathToClipboard.HasValue)
-                {
-                    OutputFilePostSaveBehavior = OutputFileCopyPathToClipboard.Value
-                        ? PostSaveBehavior.CopyFilePathToClipboard
-                        : PostSaveBehavior.None;
-                    // Set to null so it won't be written back to the INI file (ExcludeIfNull)
-                    OutputFileCopyPathToClipboard = null;
-                }
-                // Mark migration as complete
-                OutputFilePostSaveBehaviorMigrated = true;
+                OutputFilePostSaveBehavior = OutputFileCopyPathToClipboard.Value
+                    ? PostSaveBehavior.CopyFilePathToClipboard
+                    : PostSaveBehavior.None;
+                // Set to null so it won't be written back to the INI file (ExcludeIfNull)
+                OutputFileCopyPathToClipboard = null;
             }
 
             // Comment with releases
