@@ -226,7 +226,7 @@
 		<resource name="settings_destination_email">Αποστολή στιγμιότυπου με e-mail</resource>
 		<resource name="settings_destination_file">Άμεση αποθήκευση (με τις παρακάτω ρυθμίσεις)</resource>
 		<resource name="settings_destination_fileas">Αποθήκευση ως (εμφάνιση διαλόγου)</resource>
-		<resource name="settings_destination_picker">Δυναμική επιλογή προορισμού</resource>
+		<resource name="settings_destination_picker">Επιλογή προορισμού κάθε φορά</resource>
 		<resource name="settings_destination_printer">Αποστολή για Εκτύπωση</resource>
 		<resource name="settings_editor">Παράθυρο επεξεργασίας</resource>
 		<resource name="settings_filenamepattern">Πρότυπο όνομα αρχείου</resource>

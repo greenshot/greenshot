@@ -223,7 +223,7 @@ Please check write accessibility of the selected storage location.</resource>
 		<resource name="settings_destination_email">E-Mail</resource>
 		<resource name="settings_destination_file">Save directly (using settings below)</resource>
 		<resource name="settings_destination_fileas">Save as (displaying dialog)</resource>
-		<resource name="settings_destination_picker">Select destination dynamically</resource>
+		<resource name="settings_destination_picker">Select destination every time</resource>
 		<resource name="settings_destination_printer">Send to printer</resource>
 		<resource name="settings_editor">Editor</resource>
 		<resource name="settings_filenamepattern">Filename pattern</resource>
