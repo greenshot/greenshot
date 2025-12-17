@@ -25,7 +25,7 @@ Markgrafenstr. 4<br><br />
 <p>
 <strong>Support</strong><br><br />
 If you need help with Greenshot, please have a look at our <a href="/faq/">FAQ</a> and <a href="/help">help</a> pages first.<br><br />
-If you still need to get in touch, you can <a href="https://greenshot.atlassian.net/browse/BUG" target="_blank" rel="nofollow">report a bug</a>, <a href="https://greenshot.atlassian.net/browse/FEATURE" target="_blank" rel="nofollow">suggest a feature</a> or <a href="https://greenshot.atlassian.net/browse/SUPPORT" rel="nofollow">ask for assistance</a>. (Try the search - maybe your issue has already been adressed in there.)</p>
+If you still need to get in touch, you can <a href="https://github.com/greenshot/greenshot/issues/new/?template=bug_report.md" target="_blank" rel="nofollow">report a bug</a> or <a href="https://github.com/greenshot/greenshot/issues/new/?template=feature_request.md" target="_blank" rel="nofollow">suggest a feature</a>. (Try the search - maybe your issue has already been adressed in there.)</p>
 <p>
 <strong>Contact:</strong> <br><br />
 E-Mail: <a href='mailto:getgreenshot@gmail.com'>getgreenshot@gmail.com</a> (Note: if you are looking for support, you should rather use the links above.)</p>
