@@ -499,6 +499,7 @@ namespace Greenshot.Base.Core
         /// </summary>
         public override void AfterLoad()
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             // Migrate old OutputFileCopyPathToClipboard boolean to new PostSaveBehavior enum
             // Once migrated, the old property is set to null and won't exist in the INI file anymore
             if (OutputFileCopyPathToClipboard.HasValue)
