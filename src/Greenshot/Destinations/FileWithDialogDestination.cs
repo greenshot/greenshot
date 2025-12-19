@@ -70,7 +70,7 @@ namespace Greenshot.Destinations
                 switch (conf.OutputFilePostSaveBehavior)
                 {
                     case PostSaveBehavior.CopyImageToClipboard:
-                        ClipboardHelper.SetClipboardData(surface.GetBitmapForExport());
+                        ClipboardHelper.SetClipboardData(surface);
                         break;
                     case PostSaveBehavior.CopyFilePathToClipboard:
                         ClipboardHelper.SetClipboardData(savedTo);
