@@ -508,6 +508,7 @@ namespace Greenshot.Base.Core
                     : PostSaveBehavior.None;
                 // Set to null so it won't be written back to the INI file (ExcludeIfNull)
                 OutputFileCopyPathToClipboard = null;
+                IsDirty = true;
             }
 #pragma warning restore CS0618 // Type or member is obsolete
 
