@@ -23,6 +23,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using Greenshot.Base;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.Enums;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 using Greenshot.Configuration;
@@ -64,6 +65,20 @@ namespace Greenshot.Destinations
                 exportInformation.Filepath = savedTo;
                 captureDetails.Filename = savedTo;
                 conf.OutputFileAsFullpath = savedTo;
+
+                // Handle post-save behavior (copy to clipboard based on user setting)
+                switch (conf.OutputFilePostSaveBehavior)
+                {
+                    case PostSaveBehavior.CopyImageToClipboard:
+                        ClipboardHelper.SetClipboardData(surface.GetBitmapForExport());
+                        break;
+                    case PostSaveBehavior.CopyFilePathToClipboard:
+                        ClipboardHelper.SetClipboardData(savedTo);
+                        break;
+                    case PostSaveBehavior.None:
+                        // Do nothing
+                        break;
+                }
             }
 
             ProcessExport(exportInformation, surface);

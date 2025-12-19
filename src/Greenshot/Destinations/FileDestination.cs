@@ -88,7 +88,7 @@ namespace Greenshot.Destinations
             // This is done for e.g. bugs #2974608, #2963943, #2816163, #2795317, #2789218, #3004642
             try
             {
-                ImageIO.Save(surface, fullPath, overwrite, outputSettings, CoreConfig.OutputFilePostSaveBehavior == PostSaveBehavior.CopyFilePathToClipboard);
+                ImageIO.Save(surface, fullPath, overwrite, outputSettings);
                 outputMade = true;
             }
             catch (ArgumentException ex1)
@@ -120,6 +120,20 @@ namespace Greenshot.Destinations
                 }
 
                 CoreConfig.OutputFileAsFullpath = fullPath;
+
+                // Handle post-save behavior (copy to clipboard based on user setting)
+                switch (CoreConfig.OutputFilePostSaveBehavior)
+                {
+                    case PostSaveBehavior.CopyImageToClipboard:
+                        ClipboardHelper.SetClipboardData(surface.GetBitmapForExport());
+                        break;
+                    case PostSaveBehavior.CopyFilePathToClipboard:
+                        ClipboardHelper.SetClipboardData(fullPath);
+                        break;
+                    case PostSaveBehavior.None:
+                        // Do nothing
+                        break;
+                }
             }
 
             ProcessExport(exportInformation, surface);

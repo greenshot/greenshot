@@ -655,11 +655,6 @@ namespace Greenshot.Editor.Forms
             }
 
             DestinationHelper.ExportCapture(true, destinationDesignation, _surface, _surface.CaptureDetails);
-
-            if (CoreConfiguration.OutputFilePostSaveBehavior == PostSaveBehavior.CopyImageToClipboard)
-            {
-                DestinationHelper.ExportCapture(true, WellKnownDestinations.Clipboard, _surface, _surface.CaptureDetails);
-            }
         }
 
         private void BtnClipboardClick(object sender, EventArgs e)
