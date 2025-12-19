@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Portuguese (Brazil)" ietf="pt-BR" version="1.0.0">
+	<resources>
+		<resource name="upload_menu_item">Fazer upload pro Jira</resource>
+		<resource name="column_assignee">Responsável</resource>
+		<resource name="column_created">Criado</resource>
+		<resource name="column_id">ID</resource>
+		<resource name="column_reporter">Relator</resource>
+		<resource name="column_summary">Sumário</resource>
+		<resource name="label_comment">Comentário</resource>
+		<resource name="label_filename">Nome do arquivo</resource>
+		<resource name="label_jira">JIRA</resource>
+		<resource name="label_jirafilter">Filtro do JIRA</resource>
+		<resource name="login_error">Houve um problema durante o login: {0}</resource>
+		<resource name="label_url">Url</resource>
+		<resource name="login_title">Por favor insira seus dados do login do Jira</resource>
+		<resource name="settings_title">Configurações do Jira</resource>
+		<resource name="OK">OK</resource>
+		<resource name="CANCEL">Cancelar</resource>
+		<resource name="upload_success">Fez upload da imagem com sucesso pro Jira!</resource>
+		<resource name="upload_failure">Ocorreu um erro enquanto fazia o upload pro Jira:</resource>
+		<resource name="label_upload_format">Formato da imagem</resource>
+		<resource name="communication_wait">Transferindo dados pro JIRA, por favor aguarde...</resource>
+	</resources>
+</language>
