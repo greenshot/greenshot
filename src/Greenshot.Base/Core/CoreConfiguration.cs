@@ -509,6 +509,7 @@ namespace Greenshot.Base.Core
                 // Set to null so it won't be written back to the INI file (ExcludeIfNull)
                 OutputFileCopyPathToClipboard = null;
             }
+#pragma warning restore CS0618 // Type or member is obsolete
 
             // Comment with releases
             // CheckForUnstable = true;
