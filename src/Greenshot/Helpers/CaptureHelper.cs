@@ -614,16 +614,9 @@ namespace Greenshot.Helpers
         /// <summary>
         /// If a balloon tip is show for a taken capture, this handles the click on it
         /// </summary>
-        /// <param name="e">SurfaceMessageEventArgs</param>
-        private void OpenCaptureOnClick(SurfaceMessageEventArgs e)
+        /// <param name="eventArgs">SurfaceMessageEventArgs</param>
+        private void OpenCaptureOnClick(SurfaceMessageEventArgs eventArgs)
         {
-            var notifyIcon = SimpleServiceProvider.Current.GetInstance<NotifyIcon>();
-            if (notifyIcon.Tag is not SurfaceMessageEventArgs eventArgs)
-            {
-                Log.Warn("OpenCaptureOnClick called without SurfaceMessageEventArgs");
-                return;
-            }
-
             ISurface surface = eventArgs.Surface;
             if (surface != null)
             {
