@@ -129,6 +129,7 @@ namespace Greenshot.Base.Core
         [IniProperty("OutputFileReduceColorsTo", Description = "Amount of colors to reduce to, when reducing", DefaultValue = "256")]
         public int OutputFileReduceColorsTo { get; set; }
 
+        [Obsolete("Exists only for backward compatibility")]
         [IniProperty("OutputFileCopyPathToClipboard", Description = "When saving a screenshot, copy the path to the clipboard?", ExcludeIfNull = true)]
         public bool? OutputFileCopyPathToClipboard { get; set; }
 
