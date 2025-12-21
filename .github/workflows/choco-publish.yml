@@ -18,7 +18,7 @@ jobs:
     steps:
       - name: Determine tag, for when it's triggered manually
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
             echo "TAG=${{ github.event.inputs.tag_name }}" >> $GITHUB_ENV
           else
             echo "TAG=${{ github.event.release.tag_name }}" >> $GITHUB_ENV
