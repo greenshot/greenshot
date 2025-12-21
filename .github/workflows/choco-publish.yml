@@ -17,12 +17,13 @@ jobs:
 
     steps:
       - name: Determine tag, for when it's triggered manually
+        shell: pwsh
         run: |
-          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
-            echo "TAG=${{ github.event.inputs.tag_name }}" >> $GITHUB_ENV
-          else
-            echo "TAG=${{ github.event.release.tag_name }}" >> $GITHUB_ENV
-          fi
+          if ("${{ github.event_name }}" -eq "workflow_dispatch") {
+            echo "TAG=${{ github.event.inputs.tag_name }}" >> $env:GITHUB_ENV
+          } else {
+            echo "TAG=${{ github.event.release.tag_name }}" >> $env:GITHUB_ENV
+          }
 
       # 1. Checkout repository. needed for nuspec etc
       - name: Checkout code
