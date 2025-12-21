@@ -62,9 +62,10 @@ jobs:
       - name: Pack with cpack
         run: |
           cd chocolatey
-          cpack greenshot.nuspec
+          choco pack greenshot.nuspec
 
       # 5. Push package to Chocolatey
       - name: Push package to Chocolatey
         run: |
           choco push *.nupkg --source https://push.chocolatey.org/ --api-key ${{ secrets.CHOCO_API_KEY }}
+
