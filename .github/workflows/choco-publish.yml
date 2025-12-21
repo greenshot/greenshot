@@ -32,6 +32,7 @@ jobs:
       # 2. Update nuspec and chocolateyInstall.ps1
       - name: Get asset digest from GitHub API
         run: |
+          $TAG = $env:TAG
           echo "Running for $TAG"
           $url = "https://api.github.com/repos/greenshot/greenshot/releases/tags/$TAG"
           $release = Invoke-RestMethod -Uri $url
