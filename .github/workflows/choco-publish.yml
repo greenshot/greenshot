@@ -67,5 +67,7 @@ jobs:
       # 5. Push package to Chocolatey
       - name: Push package to Chocolatey
         run: |
+          cd chocolatey
           choco push *.nupkg --source https://push.chocolatey.org/ --api-key ${{ secrets.CHOCO_API_KEY }}
+
 
