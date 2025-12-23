@@ -75,7 +75,15 @@ namespace Greenshot.Editor.Drawing
 
         private void ConfigurePreparedFilters()
         {
-            PreparedFilter preset = (PreparedFilter) GetFieldValue(FieldType.PREPARED_FILTER_HIGHLIGHT);
+            object fieldValue = GetFieldValue(FieldType.PREPARED_FILTER_HIGHLIGHT);
+
+            // Guard against null value which can occur after undo operations
+            if (fieldValue == null)
+            {
+                return;
+            }
+
+            PreparedFilter preset = (PreparedFilter)fieldValue;
             while (Filters.Count > 0)
             {
                 Remove(Filters[0]);
