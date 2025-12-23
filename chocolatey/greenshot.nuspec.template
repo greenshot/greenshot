@@ -5,7 +5,7 @@
     <version>version</version>
     <packageSourceUrl>https://github.com/greenshot/greenshot</packageSourceUrl>
     <owners>Greenshot</owners>
-    <title>Greenshot (Install)</title>
+    <title>Greenshot</title>
     <authors>Greenshot</authors>
     <projectUrl>https://getgreenshot.org/</projectUrl>
     <iconUrl>https://upload.wikimedia.org/wikipedia/commons/9/95/GreenshotLogo.png</iconUrl>
@@ -29,4 +29,5 @@ Being easy to understand and configurable, Greenshot is an efficient tool for pr
   <files>
     <file src="tools\**" target="tools" />
   </files>
+
 </package>
