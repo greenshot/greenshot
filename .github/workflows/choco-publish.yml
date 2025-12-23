@@ -68,6 +68,8 @@ jobs:
       - name: Push package to Chocolatey
         run: |
           cd chocolatey
-          choco push *.nupkg --source https://push.chocolatey.org/ --api-key ${{ secrets.CHOCO_API_KEY }}
+          $version = "$TAG".TrimStart('v')
+          choco push greenshot.$version.nupkg --source https://push.chocolatey.org/ --api-key ${{ secrets.CHOCO_API_KEY }}
+
 
 
