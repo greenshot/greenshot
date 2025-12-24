@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<language description="Türkçe" ietf="tr-TR" version="1.0.0">
+	<resources>
+		<resource name="label_AfterUploadLinkToClipBoard">
+		 Bağlantıyı panoya kopyala
+		</resource>
+		<resource name="label_AfterUpload">
+		Yükledikden sonra
+		</resource>
+		<resource name="Configure">
+			Box'ı yapılandır
+		</resource>
+		<resource name="upload_menu_item">
+		Box'a yükle
+	</resource>
+	<resource name="settings_title">
+		Box ayarları
+	</resource>
+		<resource name="upload_success">
+		Görüntü Box'a başarıyla yüklendi!
+	</resource>
+		<resource name="upload_failure">
+		Box'a yükleme sırasında bir hata oluştu:
+	</resource>
+		<resource name="label_upload_format">
+			Görüntü biçimi
+	</resource>
+		<resource name="communication_wait">
+			Box ile iletişim kuruluyor. Lütfen bekleyin...
+	</resource>
+	</resources>
+</language>

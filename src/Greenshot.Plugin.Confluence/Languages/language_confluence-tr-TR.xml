@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<language description="Türkçe" ietf="tr-TR" version="0.8.0">
+ <resources>
+	<resource name="plugin_settings">
+		Confluence ayarları
+	</resource>
+	<resource name="login_error">
+		Oturum açma sırasında bir sorun oluştu: {0}
+	</resource>
+	<resource name="label_url">
+		Url
+	</resource>
+	<resource name="label_timeout">
+		Zaman aşımı
+	</resource>
+	<resource name="label_user">
+		Kullanıcı
+	</resource>
+	<resource name="label_password">
+		Parola
+	</resource>
+	<resource name="login_title">
+		Lütfen Confluence giriş bilgilerinizi girin
+	</resource>
+	<resource name="OK">
+		Tamam
+	</resource>
+	<resource name="CANCEL">
+		İptal et
+	</resource>
+	<resource name="upload_menu_item">
+		Confluence'a yükle
+	</resource>
+	<resource name="upload_success">
+		Görüntü Confluence'a başarıyla yüklendi!
+	</resource>
+	<resource name="upload_failure">
+		Confluence'a yükleme sırasında bir hata oluştu:
+	</resource>
+	<resource name="open_page_after_upload">
+		Yüklemeden sonra sayfayı aç
+	</resource>
+	<resource name="upload_format">
+		Yükleme biçimi
+	</resource>
+	<resource name="copy_wikimarkup">
+		Wikimarkup'ı panoya kopyala
+	</resource>
+	<resource name="filename">
+		Dosya adı
+	</resource>
+  <resource name="upload">
+		Yükle
+	</resource>
+  <resource name="open_pages">
+		Sayfaları aç
+	</resource>
+  <resource name="search_pages">
+		Sayfalarda ara
+	</resource>
+  <resource name="browse_pages">
+		Sayfalara göz at
+	</resource>
+  <resource name="search_text">
+		Metin ara
+	</resource>
+  <resource name="search">
+		Ara
+	</resource>
+  <resource name="loading">
+		Confluence verileri yükleniyor, lütfen bekleyin...
+	</resource>
+  <resource name="include_person_spaces">
+    Aramaya ve gezinmeye kişisel alanları dahil et
+  </resource>
+   <resource name="communication_wait">
+     Veriler Confluence'a aktarılıyor, lütfen bekleyin...
+   </resource>
+ </resources>
+</language>

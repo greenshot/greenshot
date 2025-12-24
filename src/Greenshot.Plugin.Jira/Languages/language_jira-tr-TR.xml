@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<language description="Türkçe" ietf="tr-TR" version="1.0.0">
+  <resources>
+	<resource name="upload_menu_item">
+		Jira'ya yükle
+	</resource>
+	<resource name="column_assignee">
+		Atanan
+	</resource>
+	<resource name="column_created">
+		Oluşturma tarihi
+	</resource>
+	<resource name="column_id">
+		ID
+	</resource>
+	<resource name="column_reporter">
+		Raporlayan
+	</resource>
+	<resource name="column_summary">
+		Özet
+	</resource>
+	<resource name="label_comment">
+		Açıklama
+	</resource>
+	<resource name="label_filename">
+		Dosya adı
+	</resource>
+	<resource name="label_jira">
+		JIRA
+	</resource>
+	<resource name="label_jirafilter">
+		JIRA Filtresi
+	</resource>
+	<resource name="login_error">
+		Oturum açma sırasında bir sorun oluştu: {0}
+	</resource>
+	<resource name="label_url">
+		Url
+	</resource>
+  	<resource name="login_title">
+		Lütfen Jira oturum açma bilgilerinizi girin
+	</resource>
+	<resource name="settings_title">
+		Jira ayarları
+	</resource>
+  	<resource name="OK">
+		Tamam
+	</resource>
+  	<resource name="CANCEL">
+		İptal et
+	</resource>
+  	<resource name="upload_success">
+		Görüntü Jira'ya başarıyla yüklendi!
+	</resource>
+  	<resource name="upload_failure">
+		Jira'ya yükleme sırasında bir hata oluştu:
+	</resource>
+  	<resource name="label_upload_format">
+  		Görüntü biçimi
+	</resource>
+  	<resource name="communication_wait">
+  		Veriler JIRA'ya aktarılıyor, lütfen bekleyin...
+	</resource>
+  </resources>
+</language>
