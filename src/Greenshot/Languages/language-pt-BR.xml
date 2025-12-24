@@ -200,7 +200,7 @@
 		<resource name="settings_destination_email">Enviar por e-mail</resource>
 		<resource name="settings_destination_file">Salvar em um arquivo</resource>
 		<resource name="settings_destination_fileas">Salvar como... (mostrar caixa de diálogo)</resource>
-		<resource name="settings_destination_picker">Selecione o destino dinamicamente</resource>
+		<resource name="settings_destination_picker">Selecione o destino sempre</resource>
 		<resource name="settings_destination_printer">Enviar para impressora</resource>
 		<resource name="settings_editor">Editor</resource>
 		<resource name="settings_filenamepattern">Formato do nome</resource>

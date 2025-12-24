@@ -229,7 +229,7 @@ Correggi la maschera noem file e riprova.</resource>
         <resource name="settings_destination_email">Email</resource>
         <resource name="settings_destination_file">Salva direttamente (usando impostazioni indicate qui sotto)</resource>
         <resource name="settings_destination_fileas">Salva come (visualizzando le scelte)</resource>
-        <resource name="settings_destination_picker">Scegli dinamicamente la destinazione</resource>
+        <resource name="settings_destination_picker">Seleziona destinazione ogni volta</resource>
         <resource name="settings_destination_printer">Invia alla stampante</resource>
         <resource name="settings_editor">Gestione immagini</resource>
         <resource name="settings_filenamepattern">Modello nome file</resource>

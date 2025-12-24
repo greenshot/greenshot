@@ -239,7 +239,7 @@ Veuillez vérifier l'accessibilité du répertoire de stockage.</resource>
 		<resource name="settings_destination_email">Courriel</resource>
 		<resource name="settings_destination_file">Enregistrez directement (en utilisant les paramètres ci-dessous)</resource>
 		<resource name="settings_destination_fileas">Enregistrer sous (afficher la boîte de dialogue)</resource>
-		<resource name="settings_destination_picker">Sélectionner la destination dynamiquement</resource>
+		<resource name="settings_destination_picker">Sélectionner la destination à chaque fois</resource>
 		<resource name="settings_destination_printer">Vers l'imprimante</resource>
 		<resource name="settings_editor">Éditeur</resource>
 		<resource name="settings_filenamepattern">Modèle du nom de fichier</resource>
