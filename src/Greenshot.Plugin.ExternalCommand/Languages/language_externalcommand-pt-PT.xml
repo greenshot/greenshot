@@ -31,5 +31,6 @@
     <resource name="label_information">
       {0} é o nome do ficheiro da sua captura
     </resource>
+    <resource name="label_outputimageformat">Formato de Imagem</resource>
   </resources>
 </language>
