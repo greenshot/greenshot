@@ -37,8 +37,9 @@ namespace Greenshot.Forms {
 				if (components != null) {
 					components.Dispose();
 				}
-				if (_copyData != null) {
-					_copyData.Dispose();
+                if (_ipcListener != null) 
+                {
+					_ipcListener.Stop();
 				}
 			}
 			base.Dispose(disposing);

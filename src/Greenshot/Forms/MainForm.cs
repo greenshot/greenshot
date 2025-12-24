@@ -53,6 +53,7 @@ using Greenshot.Editor.Destinations;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Forms;
 using Greenshot.Helpers;
+using Greenshot.Ipc;
 using Greenshot.Processors;
 using log4net;
 using Timer = System.Timers.Timer;
@@ -173,7 +174,7 @@ namespace Greenshot.Forms
                         {
                             LOG.Info("Sending all instances the exit command.");
                             // Pass Exit to running instance, if any
-                            SendData(new CopyDataTransport(CommandEnum.Exit));
+                            IpcSender.Send(new AppCommands(CommandEnum.Exit));
                         }
                         catch (Exception e)
                         {
@@ -190,7 +191,7 @@ namespace Greenshot.Forms
                         // Modify configuration
                         LOG.Info("Reloading configuration!");
                         // Update running instances
-                        SendData(new CopyDataTransport(CommandEnum.ReloadConfig));
+                        IpcSender.Send(new AppCommands(CommandEnum.ReloadConfig));
                         FreeMutex();
                         return;
                     }
@@ -223,12 +224,12 @@ namespace Greenshot.Forms
                 }
 
                 // Finished parsing the command line arguments, see if we need to do anything
-                CopyDataTransport transport = new CopyDataTransport();
+                AppCommands appCommands = new AppCommands();
                 if (filesToOpen.Count > 0)
                 {
                     foreach (string fileToOpen in filesToOpen)
                     {
-                        transport.AddCommand(CommandEnum.OpenFile, fileToOpen);
+                        appCommands.AddCommand(CommandEnum.OpenFile, fileToOpen);
                     }
                 }
 
@@ -237,7 +238,7 @@ namespace Greenshot.Forms
                     // We didn't initialize the language yet, do it here just for the message box
                     if (filesToOpen.Count > 0)
                     {
-                        SendData(transport);
+                        IpcSender.Send(appCommands);
                     }
                     else
                     {
@@ -317,12 +318,12 @@ namespace Greenshot.Forms
                 {
                     _conf.IsFirstLaunch = false;
                     IniConfig.Save();
-                    transport.AddCommand(CommandEnum.FirstLaunch);
+                    appCommands.AddCommand(CommandEnum.FirstLaunch);
                 }
 
                 // Should fix BUG-1633
                 Application.DoEvents();
-                _instance = new MainForm(transport);
+                _instance = new MainForm(appCommands);
                 Application.Run();
             }
             catch (Exception ex)
@@ -330,18 +331,6 @@ namespace Greenshot.Forms
                 LOG.Error("Exception in startup.", ex);
                 Application_ThreadException(ActiveForm, new ThreadExceptionEventArgs(ex));
             }
-        }
-
-        /// <summary>
-        /// Send DataTransport Object via Window-messages
-        /// </summary>
-        /// <param name="dataTransport">DataTransport with data for a running instance</param>
-        private static void SendData(CopyDataTransport dataTransport)
-        {
-            string appName = Application.ProductName;
-            CopyData copyData = new CopyData();
-            copyData.Channels.Add(appName);
-            copyData.Channels[appName].Send(dataTransport);
         }
 
         private static void FreeMutex()
@@ -364,7 +353,7 @@ namespace Greenshot.Forms
 
         private static MainForm _instance;
 
-        private readonly CopyData _copyData;
+        private readonly IpcListener _ipcListener;
 
         // Thumbnail preview
         private ThumbnailForm _thumbnailForm;
@@ -378,7 +367,7 @@ namespace Greenshot.Forms
         // Timer for the double click test
         private readonly Timer _doubleClickTimer = new Timer();
 
-        public MainForm(CopyDataTransport dataTransport)
+        public MainForm(AppCommands appCommands)
         {
             var uiContext = TaskScheduler.FromCurrentSynchronizationContext();
             SimpleServiceProvider.Current.AddService(uiContext);
@@ -483,20 +472,15 @@ namespace Greenshot.Forms
             // Make sure we never capture the mainform
             WindowDetails.RegisterIgnoreHandle(Handle);
 
-            // Create a new instance of the class: copyData = new CopyData();
-            _copyData = new CopyData();
-
-            // Assign the handle:
-            _copyData.AssignHandle(Handle);
-            // Create the channel to send on:
-            _copyData.Channels.Add("Greenshot");
-            // Hook up received event:
-            _copyData.CopyDataReceived += CopyDataDataReceived;
-
-            if (dataTransport != null)
+            if (appCommands?.Commands?.Any() is true)
             {
-                HandleDataTransport(dataTransport);
+                // Handle commands from current process
+                HandleAppCommands(appCommands);
             }
+
+            // Start IpcListener in the background
+            // Handle commands from other processes
+            _ipcListener = new IpcListener().Start(HandleAppCommands); 
 
             // Start the update check in the background
             var updateService = new UpdateService();
@@ -579,21 +563,9 @@ namespace Greenshot.Forms
             }
         }
 
-        /// <summary>
-        /// DataReceivedEventHandler
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="copyDataReceivedEventArgs"></param>
-        private void CopyDataDataReceived(object sender, CopyDataReceivedEventArgs copyDataReceivedEventArgs)
+        private void HandleAppCommands(AppCommands appCommands)
         {
-            // Cast the data to the type of object we sent:
-            var dataTransport = (CopyDataTransport) copyDataReceivedEventArgs.Data;
-            HandleDataTransport(dataTransport);
-        }
-
-        private void HandleDataTransport(CopyDataTransport dataTransport)
-        {
-            foreach (KeyValuePair<CommandEnum, string> command in dataTransport.Commands)
+            foreach (KeyValuePair<CommandEnum, string> command in appCommands.Commands)
             {
                 LOG.Debug("Data received, Command = " + command.Key + ", Data: " + command.Value);
                 switch (command.Key)
