@@ -86,6 +86,7 @@ Greenshot поставляется БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ.�
 		<resource name="editor_cancel">Отмена</resource>
 		<resource name="editor_clipboardfailed">Ошибка при попытке доступа в буфер обмена. Пожалуйста, попробуйте снова.</resource>
 		<resource name="editor_close">Закрыть</resource>
+		<resource name="editor_close_all">Закрыть все</resource>
 		<resource name="editor_close_on_save">Сохранить снимок экрана?</resource>
 		<resource name="editor_close_on_save_title">Сохранить изображение?</resource>
 		<resource name="editor_confirm">Подтвердить</resource>

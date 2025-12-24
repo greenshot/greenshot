@@ -86,6 +86,7 @@ Controleer ook even of dit probleem mogelijk al gemeld is! Gebruik de zoekfuncti
 		<resource name="editor_cancel">Afbreken</resource>
 		<resource name="editor_clipboardfailed">Fout bij de toegang tot het klembord. Probeer het opnieuw.</resource>
 		<resource name="editor_close">Sluiten</resource>
+		<resource name="editor_close_all">Alles sluiten</resource>
 		<resource name="editor_close_on_save">Wilt u de schermopname opslaan?</resource>
 		<resource name="editor_close_on_save_title">Afbeelding opslaan?</resource>
 		<resource name="editor_confirm">Bevestigen</resource>

@@ -73,6 +73,7 @@ Antes de crear un nuevo informe de error, te agradeceríamos que comprobaras que
 		<resource name="editor_cancel">Cancelar</resource>
 		<resource name="editor_clipboardfailed">Error accdeiendo al portapapeles. Por favor, inténtalo otra vez.</resource>
 		<resource name="editor_close">Cerrar</resource>
+		<resource name="editor_close_all">Cerrar todo</resource>
 		<resource name="editor_close_on_save">¿Guardar la captura?</resource>
 		<resource name="editor_close_on_save_title">¿Guardar imagen?</resource>
 		<resource name="editor_confirm">Confirmar</resource>

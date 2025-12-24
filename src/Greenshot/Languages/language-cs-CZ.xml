@@ -86,6 +86,7 @@ Také bychom velmi ocenili, kdybyste zkontrolovali, zda tato chyba již není ev
 		<resource name="editor_cancel">Zrušit</resource>
 		<resource name="editor_clipboardfailed">Chyba při přístupu do schránky. Zkuste to prosím znovu.</resource>
 		<resource name="editor_close">Zavřít</resource>
+		<resource name="editor_close_all">Zavřít vše</resource>
 		<resource name="editor_close_on_save">Chcete uložit snímek?</resource>
 		<resource name="editor_close_on_save_title">Uložit snímek?</resource>
 		<resource name="editor_confirm">Potvrdit</resource>

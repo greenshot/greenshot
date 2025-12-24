@@ -82,6 +82,7 @@
 		<resource name="editor_cancel">Cancelar</resource>
 		<resource name="editor_clipboardfailed">Erro ao accesar a área de transferência. Por favor tente novamente.</resource>
 		<resource name="editor_close">Fechar</resource>
+		<resource name="editor_close_all">Fechar tudo</resource>
 		<resource name="editor_close_on_save">Deseja salvar a imagem capturada?</resource>
 		<resource name="editor_close_on_save_title">Salvar imagem?</resource>
 		<resource name="editor_confirm">Confirmar</resource>

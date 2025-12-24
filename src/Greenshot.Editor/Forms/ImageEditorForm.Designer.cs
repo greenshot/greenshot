@@ -190,8 +190,9 @@ namespace Greenshot.Editor.Forms {
 			this.btnConfirm = new BindableToolStripButton();
 			this.btnCancel = new BindableToolStripButton();
 			this.toolStripSeparator9 = new System.Windows.Forms.ToolStripSeparator();
-			this.closeToolStripMenuItem = new GreenshotToolStripMenuItem();
-			this.fileSavedStatusContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.closeToolStripMenuItem = new GreenshotToolStripMenuItem();
+            this.closeAllToolStripMenuItem = new GreenshotToolStripMenuItem();
+            this.fileSavedStatusContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.copyPathMenuItem = new GreenshotToolStripMenuItem();
 			this.openDirectoryMenuItem = new GreenshotToolStripMenuItem();
 			this.textHorizontalAlignmentButton = new BindableToolStripDropDownButton();
@@ -1625,18 +1626,25 @@ namespace Greenshot.Editor.Forms {
 			// toolStripSeparator9
 			// 
 			this.toolStripSeparator9.Name = "toolStripSeparator9";
-			// 
-			// closeToolStripMenuItem
-			// 
-			this.closeToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("closeToolStripMenuItem.Image")));
-			this.closeToolStripMenuItem.LanguageKey = "editor_close";
-			this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
-			this.closeToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.F4)));
-			this.closeToolStripMenuItem.Click += new System.EventHandler(this.CloseToolStripMenuItemClick);
-			// 
-			// fileSavedStatusContextMenu
-			// 
-			this.fileSavedStatusContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            // 
+            // closeAllToolStripMenuItem
+            // 
+            this.closeAllToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("closeToolStripMenuItem.Image")));
+			this.closeAllToolStripMenuItem.LanguageKey = "editor_close_all";
+			this.closeAllToolStripMenuItem.Name = "closeAllToolStripMenuItem";
+			this.closeAllToolStripMenuItem.Click += new System.EventHandler(this.CloseAllToolStripMenuItemClick);
+            // 
+            // closeToolStripMenuItem
+            // 
+            this.closeToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("closeToolStripMenuItem.Image")));
+            this.closeToolStripMenuItem.LanguageKey = "editor_close";
+            this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
+            this.closeToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.F4)));
+            this.closeToolStripMenuItem.Click += new System.EventHandler(this.CloseToolStripMenuItemClick);
+            // 
+            // fileSavedStatusContextMenu
+            // 
+            this.fileSavedStatusContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
 									this.copyPathMenuItem,
 									this.openDirectoryMenuItem});
 			this.fileSavedStatusContextMenu.Name = "contextMenuStrip1";
@@ -1986,8 +1994,9 @@ namespace Greenshot.Editor.Forms {
 		private GreenshotToolStripMenuItem helpToolStripMenuItem;
 		private GreenshotToolStripMenuItem preferencesToolStripMenuItem;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator12;
-		private GreenshotToolStripMenuItem closeToolStripMenuItem;
-		private System.Windows.Forms.ToolStripSeparator toolStripSeparator9;
+        private GreenshotToolStripMenuItem closeToolStripMenuItem;
+        private GreenshotToolStripMenuItem closeAllToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator9;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator7;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator8;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator6;

@@ -85,6 +85,7 @@ De plus, nous apprécierions beaucoup que vous preniez la peine de vérifier si 
 		<resource name="editor_cancel">Annuler</resource>
 		<resource name="editor_clipboardfailed">Une erreur s'est produite lors de l'accès au presse-papier. Veuillez réessayer.</resource>
 		<resource name="editor_close">Fermer</resource>
+		<resource name="editor_close_all">Fermer tout</resource>
 		<resource name="editor_close_on_save">Voulez-vous enregistrer la capture d'écran ?</resource>
 		<resource name="editor_close_on_save_title">Enregistrer l'image ?</resource>
 		<resource name="editor_confirm">Confirmer</resource>
