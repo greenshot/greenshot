@@ -1,0 +1,19 @@
+[Languages]
+Name: "tr"; MessagesFile: "compiler:Default.isl"
+
+[CustomMessages]
+;http://www.microsoft.com/globaldev/reference/lcid-all.mspx
+tr.lcid=1055
+tr.depdownload_msg=Kurulum devam etmeden önce aşağıdaki uygulamalar gereklidir:%n%n%1%nŞimdi indirip yüklemek ister misiniz?
+tr.depdownload_memo_title=Bağımlılıkları indir
+tr.depinstall_memo_title=Bağımlılıkları yükle
+tr.depinstall_title=Bağımlılıklar yükleniyor
+tr.depinstall_description=Lütfen Kurulumun bilgisayarınıza bağımlılıkları kurmasını bekleyin.
+tr.depinstall_status=%1 yükleniyor...
+tr.depinstall_missing=Kurulum devam etmeden önce %1 yüklenmelidir. Lütfen %1 yükleyin ve kurulumu tekrar çalıştırın.
+tr.depinstall_error=Bağımlılıklar yüklenirken bir hata oluştu. Lütfen bilgisayarı yeniden başlatın ve kurulumu tekrar çalıştırın veya aşağıdaki bağımlılıkları manuel olarak yükleyin:%n
+
+tr.isxdl_langfile=
+
+
+[Files]
