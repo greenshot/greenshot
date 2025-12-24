@@ -23,6 +23,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
+using System.IO;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
@@ -32,17 +33,44 @@ namespace Greenshot.Editor.Drawing
     /// <summary>
     /// This provides a resizable SVG container, redrawing the SVG in the size the container takes.
     /// </summary>
-    [Serializable]
     public class MetafileContainer : VectorGraphicsContainer
     {
-        private readonly Metafile _metafile;
-
-        public MetafileContainer(Metafile metafile, ISurface parent) : base(parent)
+        private Metafile _metafile;
+        public Metafile Metafile
         {
-            _metafile = metafile;
-            Size = new NativeSize(metafile.Width/4, metafile.Height/4);
+            get => _metafile;
         }
-        
+
+        /// <summary>
+        /// Original file content. Is used for serialization.
+        /// More Information: GDI+ does not support saving .wmf or .emf files, because there is no encoder.
+        /// So we need to save the original file content for deserialization.
+        /// </summary>
+        public MemoryStream MetafileContent = new MemoryStream();
+
+        public MetafileContainer(Stream stream, ISurface parent) : base(parent)
+        {
+
+            stream.CopyTo(MetafileContent);
+            stream.Seek(0, SeekOrigin.Begin);
+            var image = Image.FromStream(stream, true, true);
+            if (image is Metafile metaFile)
+            {
+                _metafile = metaFile;
+                Size = new NativeSize(_metafile.Width / 4, _metafile.Height / 4);
+            } else  if (image is Bitmap imageFile)
+            {
+                // Fallback to support old files version 1.03
+                // if the stream is not a Metafile, we create a Metafile from the Bitmap.
+                _metafile = CreateMetafileFromImage(imageFile);
+                Size = new NativeSize(imageFile.Width, imageFile.Height);
+            }
+            else
+            {
+                throw new ArgumentException("Stream is not a valid Metafile");
+            }
+        }
+
         protected override Image ComputeBitmap()
         {
             var image = ImageHelper.CreateEmpty(Width, Height, PixelFormat.Format32bppArgb, Color.Transparent);
@@ -74,6 +102,37 @@ namespace Greenshot.Editor.Drawing
             base.Dispose(disposing);
         }
 
+        /// <summary>
+        /// Creates a new <see cref="Metafile"/> from the specified <see cref="Image"/>.
+        /// </summary>
+        /// <param name="image">The source <see cref="Image"/> to be converted into a <see cref="Metafile"/>. Cannot be <see
+        /// langword="null"/>.</param>
+        /// <returns>A <see cref="Metafile"/> object that contains the graphical content of the specified <see cref="Image"/>.</returns>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="image"/> is <see langword="null"/>.</exception>
+        private static Metafile CreateMetafileFromImage(Image image)
+        {
+            if (image == null) throw new ArgumentNullException(nameof(image));
+
+            using (Bitmap tempBitmap = new Bitmap(1, 1))
+            using (Graphics referenceGraphics = Graphics.FromImage(tempBitmap))
+            {
+                IntPtr hdc = referenceGraphics.GetHdc();
+                try
+                {
+                    // Create a new Metafile with the size of the image
+                    Metafile metafile = new Metafile(hdc, new Rectangle(0, 0, image.Width, image.Height), MetafileFrameUnit.Pixel, EmfType.EmfOnly);
+                    using (Graphics gMetafile = Graphics.FromImage(metafile))
+                    {
+                        gMetafile.DrawImage(image, 0, 0, image.Width, image.Height);
+                    }
+                    return metafile;
+                }
+                finally
+                {
+                    referenceGraphics.ReleaseHdc(hdc);
+                }
+            }
+        }
         public override bool HasDefaultSize => true;
 
         public override NativeSize DefaultSize => new NativeSize(_metafile.Width, _metafile.Height);

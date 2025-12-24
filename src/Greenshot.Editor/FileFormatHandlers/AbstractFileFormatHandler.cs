@@ -40,17 +40,20 @@ namespace Greenshot.Editor.FileFormatHandlers
             return 0;
         }
 
+        /// <inheritdoc />
         public abstract bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension, ISurface surface = null, SurfaceOutputSettings surfaceOutputSettings = null);
 
+        /// <inheritdoc />
         public abstract bool TryLoadFromStream(Stream stream, string extension, out Bitmap bitmap);
 
         /// <summary>
-        /// Default implementation taking the TryLoadFromStream image and placing it in an ImageContainer 
+        /// <inheritdoc />
         /// </summary>
+        /// <remarks>Default implementation taking the TryLoadFromStream image and placing it in an <see cref="ImageContainer"/> </remarks>
         /// <param name="stream">Stream</param>
         /// <param name="extension">string</param>
         /// <param name="parent">ISurface</param>
-        /// <returns>IEnumerable{IDrawableContainer}</returns>
+        /// <returns>One <see cref="ImageContainer"/> if it was possible to load an image from the stream</returns>
         public virtual IEnumerable<IDrawableContainer> LoadDrawablesFromStream(Stream stream, string extension, ISurface parent = null)
         {
             if (TryLoadFromStream(stream, extension, out var bitmap))

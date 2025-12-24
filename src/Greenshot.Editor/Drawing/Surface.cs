@@ -25,10 +25,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
-using System.IO;
 using System.Linq;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.ServiceModel.Security;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
@@ -41,7 +38,8 @@ using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Drawing.Adorners;
 using Greenshot.Editor.Configuration;
 using Greenshot.Editor.Drawing.Fields;
-using Greenshot.Editor.Helpers;
+using Greenshot.Editor.FileFormat.Dto;
+using Greenshot.Editor.FileFormat.Dto.Container;
 using Greenshot.Editor.Memento;
 using log4net;
 
@@ -691,57 +689,16 @@ namespace Greenshot.Editor.Drawing
             }
         }
 
-        /// <summary>
-        /// This saves the elements of this surface to a stream.
-        /// Is used to save a template of the complete surface
-        /// </summary>
-        /// <param name="streamWrite"></param>
-        /// <returns></returns>
-        public long SaveElementsToStream(Stream streamWrite)
+        /// <inheritdoc />
+        public void LoadElements(IDrawableContainerList containerList)
         {
-            long bytesWritten = 0;
-            try
-            {
-                long lengtBefore = streamWrite.Length;
-                BinaryFormatter binaryWrite = new BinaryFormatter();
-                binaryWrite.Serialize(streamWrite, _elements);
-                bytesWritten = streamWrite.Length - lengtBefore;
-            }
-            catch (Exception e)
-            {
-                LOG.Error("Error serializing elements to stream.", e);
-            }
-
-            return bytesWritten;
-        }
-
-        /// <summary>
-        /// This loads elements from a stream, among others this is used to load a surface.
-        /// </summary>
-        /// <param name="streamRead"></param>
-        public void LoadElementsFromStream(Stream streamRead)
-        {
-            try
-            {
-                BinaryFormatter binaryRead = new BinaryFormatter();
-                binaryRead.Binder = new BinaryFormatterHelper();
-                IDrawableContainerList loadedElements = (IDrawableContainerList) binaryRead.Deserialize(streamRead);
-                loadedElements.Parent = this;
-                // Make sure the steplabels are sorted according to their number
-                _stepLabels.Sort((p1, p2) => p1.Number.CompareTo(p2.Number));
-                DeselectAllElements();
-                AddElements(loadedElements);
-                SelectElements(loadedElements);
-                FieldAggregator.BindElements(loadedElements);
-            }
-            catch (SecurityAccessDeniedException)
-            {
-                throw;
-            }
-            catch (Exception e)
-            {
-                LOG.Error("Error serializing elements from stream.", e);
-            }
+            containerList.Parent = this;
+            // Make sure the steplabels are sorted according to their number
+            _stepLabels.Sort((p1, p2) => p1.Number.CompareTo(p2.Number));
+            DeselectAllElements();
+            AddElements(containerList);
+            SelectElements(containerList);
+            FieldAggregator.BindElements(containerList);
         }
 
         /// <summary>
@@ -2087,7 +2044,10 @@ namespace Greenshot.Editor.Drawing
         public void CutSelectedElements()
         {
             if (!HasSelectedElements) return;
-            ClipboardHelper.SetClipboardData(typeof(IDrawableContainerList), selectedElements);
+
+            var serializedData = DtoHelper.SerializeDrawableContainerList((DrawableContainerList)selectedElements);
+            ClipboardHelper.SetClipboardData(typeof(DrawableContainerListDto), serializedData);
+
             RemoveSelectedElements();
         }
 
@@ -2097,7 +2057,9 @@ namespace Greenshot.Editor.Drawing
         public void CopySelectedElements()
         {
             if (!HasSelectedElements) return;
-            ClipboardHelper.SetClipboardData(typeof(IDrawableContainerList), selectedElements);
+
+            var serializedData = DtoHelper.SerializeDrawableContainerList((DrawableContainerList)selectedElements);
+            ClipboardHelper.SetClipboardData(typeof(DrawableContainerListDto), serializedData);
         }
 
         /// <summary>
@@ -2204,9 +2166,12 @@ namespace Greenshot.Editor.Drawing
                 }
             }
 
-            if (formats.Contains(typeof(IDrawableContainerList).FullName))
+            if (formats.Contains(typeof(DrawableContainerListDto).FullName))
             {
-                IDrawableContainerList dcs = (IDrawableContainerList) ClipboardHelper.GetFromDataObject(clipboard, typeof(IDrawableContainerList));
+                var serializedData = ClipboardHelper.GetFromDataObject(clipboard, typeof(DrawableContainerListDto)) as byte[];
+
+                IDrawableContainerList dcs = DtoHelper.DeserializeDrawableContainerList(serializedData);
+
                 if (dcs != null)
                 {
                     // Make element(s) only move 10,10 if the surface is the same

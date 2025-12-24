@@ -19,11 +19,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
-using System.Runtime.Serialization;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Interfaces;
@@ -34,33 +32,27 @@ namespace Greenshot.Editor.Drawing
 {
     /// <summary>
     /// Description of CursorContainer.
+    /// This Container is not in use. For a capture with mouse cursor the IconContainer is used cctor Surface(ICapture capture) in <see cref="Surface"/>. 
     /// </summary>
-    [Serializable]
     public class CursorContainer : DrawableContainer, ICursorContainer
     {
         private static readonly ILog LOG = LogManager.GetLogger(typeof(CursorContainer));
 
         protected Cursor cursor;
 
-        public CursorContainer(ISurface parent) : base(parent)
+        public CursorContainer(ISurface parent, string filename) : this(parent)
         {
-            Init();
+            Load(filename);
         }
 
-        protected override void OnDeserialized(StreamingContext streamingContext)
+        public CursorContainer(ISurface parent) : base(parent)
         {
-            base.OnDeserialized(streamingContext);
             Init();
         }
 
         private void Init()
         {
             CreateDefaultAdorners();
-        }
-
-        public CursorContainer(ISurface parent, string filename) : this(parent)
-        {
-            Load(filename);
         }
 
         public Cursor Cursor

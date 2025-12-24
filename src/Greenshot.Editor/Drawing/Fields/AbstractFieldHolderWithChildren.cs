@@ -21,7 +21,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
 using Greenshot.Base.Interfaces.Drawing;
 
 namespace Greenshot.Editor.Drawing.Fields
@@ -31,12 +30,11 @@ namespace Greenshot.Editor.Drawing.Fields
     /// but has a List of IFieldHolder for children.
     /// Field values are passed to and from children as well.
     /// </summary>
-    [Serializable]
     public abstract class AbstractFieldHolderWithChildren : AbstractFieldHolder
     {
-        [NonSerialized] private readonly FieldChangedEventHandler _fieldChangedEventHandler;
+        private readonly FieldChangedEventHandler _fieldChangedEventHandler;
 
-        [NonSerialized] private EventHandler childrenChanged;
+        private EventHandler childrenChanged;
 
         public event EventHandler ChildrenChanged
         {
@@ -46,21 +44,9 @@ namespace Greenshot.Editor.Drawing.Fields
 
         public IList<IFieldHolder> Children = new List<IFieldHolder>();
 
-        public AbstractFieldHolderWithChildren()
+        protected AbstractFieldHolderWithChildren()
         {
             _fieldChangedEventHandler = OnFieldChanged;
-        }
-
-        [OnDeserialized()]
-        private void OnDeserialized(StreamingContext context)
-        {
-            // listen to changing properties
-            foreach (IFieldHolder fieldHolder in Children)
-            {
-                fieldHolder.FieldChanged += _fieldChangedEventHandler;
-            }
-
-            childrenChanged?.Invoke(this, EventArgs.Empty);
         }
 
         public void AddChild(IFieldHolder fieldHolder)

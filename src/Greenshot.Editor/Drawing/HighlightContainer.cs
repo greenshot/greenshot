@@ -19,8 +19,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Runtime.Serialization;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing.Fields;
@@ -31,7 +29,6 @@ namespace Greenshot.Editor.Drawing
     /// <summary>
     /// Description of ObfuscateContainer.
     /// </summary>
-    [Serializable]
     public class HighlightContainer : FilterContainer
     {
         public HighlightContainer(ISurface parent) : base(parent)
@@ -46,11 +43,6 @@ namespace Greenshot.Editor.Drawing
         {
             base.InitializeFields();
             AddField(GetType(), FieldType.PREPARED_FILTER_HIGHLIGHT, PreparedFilter.TEXT_HIGHTLIGHT);
-        }
-
-        protected override void OnDeserialized(StreamingContext context)
-        {
-            Init();
         }
 
         private void Init()

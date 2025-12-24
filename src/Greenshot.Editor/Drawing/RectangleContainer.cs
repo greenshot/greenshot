@@ -35,21 +35,10 @@ namespace Greenshot.Editor.Drawing
     /// <summary>
     /// Represents a rectangular shape on the Surface
     /// </summary>
-    [Serializable]
     public class RectangleContainer : DrawableContainer
     {
         public RectangleContainer(ISurface parent) : base(parent)
         {
-            Init();
-        }
-
-        /// <summary>
-        /// Do some logic to make sure all field are initiated correctly
-        /// </summary>
-        /// <param name="streamingContext">StreamingContext</param>
-        protected override void OnDeserialized(StreamingContext streamingContext)
-        {
-            base.OnDeserialized(streamingContext);
             Init();
         }
 

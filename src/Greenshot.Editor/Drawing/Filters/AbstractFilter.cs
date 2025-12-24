@@ -33,10 +33,9 @@ namespace Greenshot.Editor.Drawing.Filters
     /// Subclasses should fulfill INotifyPropertyChanged contract, i.e. call
     /// OnPropertyChanged whenever a public property has been changed.
     /// </summary>
-    [Serializable]
     public abstract class AbstractFilter : AbstractFieldHolder, IFilter
     {
-        [NonSerialized] private PropertyChangedEventHandler propertyChanged;
+        private PropertyChangedEventHandler propertyChanged;
 
         public event PropertyChangedEventHandler PropertyChanged
         {

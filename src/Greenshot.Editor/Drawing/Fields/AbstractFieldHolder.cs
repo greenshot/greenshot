@@ -23,7 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.Runtime.Serialization;
+using System.Linq;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Configuration;
@@ -34,40 +34,28 @@ namespace Greenshot.Editor.Drawing.Fields
     /// <summary>
     /// Basic IFieldHolder implementation, providing access to a set of fields
     /// </summary>
-    [Serializable]
     public abstract class AbstractFieldHolder : IFieldHolder
     {
         private static readonly ILog LOG = LogManager.GetLogger(typeof(AbstractFieldHolder));
         private static readonly EditorConfiguration EditorConfig = IniConfig.GetIniSection<EditorConfiguration>();
-        [NonSerialized] private readonly IDictionary<IField, PropertyChangedEventHandler> _handlers = new Dictionary<IField, PropertyChangedEventHandler>();
+        private readonly IDictionary<IField, PropertyChangedEventHandler> _handlers = new Dictionary<IField, PropertyChangedEventHandler>();
 
         /// <summary>
         /// called when a field's value has changed
         /// </summary>
-        [NonSerialized] private FieldChangedEventHandler _fieldChanged;
+        private FieldChangedEventHandler _fieldChanged;
 
+        /// <inheritdoc cref="_fieldChanged"/>
         public event FieldChangedEventHandler FieldChanged
         {
             add { _fieldChanged += value; }
             remove { _fieldChanged -= value; }
         }
 
-        // we keep two Collections of our fields, dictionary for quick access, list for serialization
-        // this allows us to use default serialization
-        [NonSerialized] private IDictionary<IFieldType, IField> _fieldsByType = new Dictionary<IFieldType, IField>();
-        private readonly IList<IField> fields = new List<IField>();
-
-        [OnDeserialized]
-        private void OnDeserialized(StreamingContext context)
-        {
-            _fieldsByType = new Dictionary<IFieldType, IField>();
-            // listen to changing properties
-            foreach (var field in fields)
-            {
-                field.PropertyChanged += delegate { _fieldChanged?.Invoke(this, new FieldChangedEventArgs(field)); };
-                _fieldsByType[field.FieldType] = field;
-            }
-        }
+        /// <summary>
+        /// The dictionary represents the base collection of fields. It allows quick access by <see cref="IFieldType"/>.
+        /// </summary>
+        private readonly IDictionary<IFieldType, IField> _fieldsByType = new Dictionary<IFieldType, IField>();
 
         public void AddField(Type requestingType, IFieldType fieldType, object fieldValue)
         {
@@ -76,7 +64,6 @@ namespace Greenshot.Editor.Drawing.Fields
 
         public virtual void AddField(IField field)
         {
-            fields.Add(field);
             if (_fieldsByType == null)
             {
                 return;
@@ -98,17 +85,18 @@ namespace Greenshot.Editor.Drawing.Fields
 
         public void RemoveField(IField field)
         {
-            fields.Remove(field);
             _fieldsByType.Remove(field.FieldType);
             field.PropertyChanged -= _handlers[field];
             _handlers.Remove(field);
         }
 
+        /// <summary>
+        /// Retrieves a list of all fields currently stored in the internal dictionary.
+        /// </summary>
         public IList<IField> GetFields()
         {
-            return fields;
+            return _fieldsByType.Select(x => x.Value).ToList();
         }
-
 
         public IField GetField(IFieldType fieldType)
         {

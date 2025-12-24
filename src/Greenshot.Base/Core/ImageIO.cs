@@ -265,35 +265,6 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// Load a Greenshot surface
-        /// </summary>
-        /// <param name="fullPath"></param>
-        /// <param name="returnSurface"></param>
-        /// <returns></returns>
-        public static ISurface LoadGreenshotSurface(string fullPath, ISurface returnSurface)
-        {
-            if (string.IsNullOrEmpty(fullPath))
-            {
-                return null;
-            }
-
-            Log.InfoFormat("Loading image from file {0}", fullPath);
-            // Fixed lock problem Bug #3431881
-            using (Stream surfaceFileStream = File.OpenRead(fullPath))
-            {
-                returnSurface = LoadGreenshotSurface(surfaceFileStream, returnSurface);
-            }
-
-            if (returnSurface != null)
-            {
-                Log.InfoFormat("Information about file {0}: {1}x{2}-{3} Resolution {4}x{5}", fullPath, returnSurface.Image.Width, returnSurface.Image.Height,
-                    returnSurface.Image.PixelFormat, returnSurface.Image.HorizontalResolution, returnSurface.Image.VerticalResolution);
-            }
-
-            return returnSurface;
-        }
-
-        /// <summary>
         /// Saves image to specific path with specified quality
         /// </summary>
         public static void Save(ISurface surface, string fullPath, bool allowOverwrite, SurfaceOutputSettings outputSettings, bool copyPathToClipboard)
@@ -602,54 +573,5 @@ namespace Greenshot.Base.Core
             return null;
         }
 
-        /// <summary>
-        /// Load a Greenshot surface from a stream
-        /// </summary>
-        /// <param name="surfaceFileStream">Stream</param>
-        /// <param name="returnSurface"></param>
-        /// <returns>ISurface</returns>
-        public static ISurface LoadGreenshotSurface(Stream surfaceFileStream, ISurface returnSurface)
-        {
-            Image fileImage;
-            // Fixed problem that the bitmap stream is disposed... by Cloning the image
-            // This also ensures the bitmap is correctly created
-
-            // We create a copy of the bitmap, so everything else can be disposed
-            surfaceFileStream.Position = 0;
-            using (Image tmpImage = Image.FromStream(surfaceFileStream, true, true))
-            {
-                Log.DebugFormat("Loaded .greenshot file with Size {0}x{1} and PixelFormat {2}", tmpImage.Width, tmpImage.Height, tmpImage.PixelFormat);
-                fileImage = ImageHelper.Clone(tmpImage);
-            }
-
-            // Start at -14 read "GreenshotXX.YY" (XX=Major, YY=Minor)
-            const int markerSize = 14;
-            surfaceFileStream.Seek(-markerSize, SeekOrigin.End);
-            using (StreamReader streamReader = new StreamReader(surfaceFileStream))
-            {
-                var greenshotMarker = streamReader.ReadToEnd();
-                if (!greenshotMarker.StartsWith("Greenshot"))
-                {
-                    throw new ArgumentException("Stream is not a Greenshot file!");
-                }
-
-                Log.InfoFormat("Greenshot file format: {0}", greenshotMarker);
-                const int filesizeLocation = 8 + markerSize;
-                surfaceFileStream.Seek(-filesizeLocation, SeekOrigin.End);
-                using BinaryReader reader = new BinaryReader(surfaceFileStream);
-                long bytesWritten = reader.ReadInt64();
-                surfaceFileStream.Seek(-(bytesWritten + filesizeLocation), SeekOrigin.End);
-                returnSurface.LoadElementsFromStream(surfaceFileStream);
-            }
-
-            if (fileImage != null)
-            {
-                returnSurface.Image = fileImage;
-                Log.InfoFormat("Information about .greenshot file: {0}x{1}-{2} Resolution {3}x{4}", fileImage.Width, fileImage.Height, fileImage.PixelFormat,
-                    fileImage.HorizontalResolution, fileImage.VerticalResolution);
-            }
-
-            return returnSurface;
-        }
     }
 }
