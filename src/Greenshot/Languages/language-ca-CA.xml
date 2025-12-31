@@ -218,7 +218,7 @@ Si us plau, verifiqueu el camí d'accés seleccionat.</resource>
 		<resource name="settings_destination_email">Correu electrònic</resource>
 		<resource name="settings_destination_file">Desa directament (utilitzant la configuració indicada a sota)</resource>
 		<resource name="settings_destination_fileas">Anomena i desa (es mostra el quadre de diàleg)</resource>
-		<resource name="settings_destination_picker">Selecciona el destí dinàmicament</resource>
+		<resource name="settings_destination_picker">Selecciona el destí cada vegada</resource>
 		<resource name="settings_destination_printer">Envia a la impressora</resource>
 		<resource name="settings_editor">Editor</resource>
 		<resource name="settings_filenamepattern">Format del nom de fitxer</resource>

@@ -197,7 +197,7 @@ Har du skrivetilgang til det valde området?</resource>
 		<resource name="settings_destination_email">Send med e-post</resource>
 		<resource name="settings_destination_file">Lagre (med instillingane under)</resource>
 		<resource name="settings_destination_fileas">Lagre som (med dialogboks)</resource>
-		<resource name="settings_destination_picker">Bruk dynamisk målveljar</resource>
+		<resource name="settings_destination_picker">Vel mål kvar gong</resource>
 		<resource name="settings_destination_printer">Send til utskrift</resource>
 		<resource name="settings_editor">Knipsfiksar</resource>
 		<resource name="settings_filenamepattern">Regel for filnamn</resource>

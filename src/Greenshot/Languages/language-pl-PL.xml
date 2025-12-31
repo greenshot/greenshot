@@ -226,7 +226,7 @@ Sprawdź możliwość zapisu w wybranej lokalizacji.</resource>
 		<resource name="settings_destination_email">Wyślij e-mailem</resource>
 		<resource name="settings_destination_file">Zapisz bezpośrednio (wg ustawień poniżej)</resource>
 		<resource name="settings_destination_fileas">Zapisz jako (z oknem dialogowym)</resource>
-		<resource name="settings_destination_picker">Wybieraj miejsce dynamicznie</resource>
+		<resource name="settings_destination_picker">Wybieraj miejsce docelowe za każdym razem</resource>
 		<resource name="settings_destination_printer">Wyślij do drukarki</resource>
 		<resource name="settings_editor">Edytor</resource>
 		<resource name="settings_filenamepattern">Szablon nazwy pliku</resource>
