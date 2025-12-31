@@ -111,9 +111,14 @@ namespace Greenshot.Helpers
                 {
                     var interval = intervalFactory();
                     var task = reoccurringTask;
+
                     // If the check is disabled, handle that here
-                    if (TimeSpan.Zero == interval)
+                    var checkIsDisabled = TimeSpan.Zero == interval;
+                    var nextCheckIsInTheFuture = CoreConfig.LastUpdateCheck.Add(interval) > DateTime.Now;
+
+                    if (checkIsDisabled || nextCheckIsInTheFuture)
                     {
+                        // Just wait for 10 minutes, maybe the configuration will change
                         interval = TimeSpan.FromMinutes(10);
                         task = c => Task.FromResult(true);
                     }
@@ -158,6 +163,7 @@ namespace Greenshot.Helpers
             }
 
             CoreConfig.LastUpdateCheck = DateTime.Now;
+            IniConfig.Save();
 
             ProcessFeed(updateFeed);
 
