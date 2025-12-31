@@ -495,6 +495,10 @@ namespace Greenshot.Forms
             combobox_window_capture_mode.Enabled = !coreConfiguration.CaptureWindowsInteractive && !coreConfiguration.Values["WindowCaptureMode"].IsFixed;
             radiobuttonWindowCapture.Checked = !coreConfiguration.CaptureWindowsInteractive;
 
+            // Populate post-save behavior combobox
+            PostSaveBehavior[] postSaveBehaviors = new[] { PostSaveBehavior.None, PostSaveBehavior.CopyImageToClipboard, PostSaveBehavior.CopyFilePathToClipboard };
+            PopulateComboBox(combobox_postsavebehavior, postSaveBehaviors, coreConfiguration.OutputFilePostSaveBehavior);
+
             trackBarJpegQuality.Value = coreConfiguration.OutputFileJpegQuality;
             trackBarJpegQuality.Enabled = !coreConfiguration.Values["OutputFileJpegQuality"].IsFixed;
             textBoxJpegQuality.Text = coreConfiguration.OutputFileJpegQuality + "%";
@@ -562,6 +566,7 @@ namespace Greenshot.Forms
             coreConfiguration.ClipboardFormats = clipboardFormats;
 
             coreConfiguration.WindowCaptureMode = GetSelected<WindowCaptureMode>(combobox_window_capture_mode);
+            coreConfiguration.OutputFilePostSaveBehavior = GetSelected<PostSaveBehavior>(combobox_postsavebehavior);
             if (!FilenameHelper.FillVariables(coreConfiguration.OutputFilePath, false).Equals(textbox_storagelocation.Text))
             {
                 coreConfiguration.OutputFilePath = textbox_storagelocation.Text;
@@ -730,7 +735,6 @@ namespace Greenshot.Forms
         /// </summary>
         private void CheckDestinationSettings()
         {
-            bool clipboardDestinationChecked = false;
             bool pickerSelected = checkbox_picker.Checked;
             bool destinationsEnabled = true;
             if (coreConfiguration.Values.ContainsKey("Destinations"))
@@ -739,16 +743,6 @@ namespace Greenshot.Forms
             }
 
             listview_destinations.Enabled = destinationsEnabled;
-
-            foreach (int index in listview_destinations.CheckedIndices)
-            {
-                ListViewItem item = listview_destinations.Items[index];
-                if (item.Tag is IDestination destinationFromTag && destinationFromTag.Designation.Equals(nameof(WellKnownDestinations.Clipboard)))
-                {
-                    clipboardDestinationChecked = true;
-                    break;
-                }
-            }
 
             if (pickerSelected)
             {
@@ -761,16 +755,7 @@ namespace Greenshot.Forms
             }
             else
             {
-                // Prevent multiple clipboard settings at once, see bug #3435056
-                if (clipboardDestinationChecked)
-                {
-                    checkbox_copypathtoclipboard.Checked = false;
-                    checkbox_copypathtoclipboard.Enabled = false;
-                }
-                else
-                {
-                    checkbox_copypathtoclipboard.Enabled = true;
-                }
+                combobox_postsavebehavior.Enabled = true;
             }
         }
 
