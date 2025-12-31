@@ -95,6 +95,12 @@ namespace Greenshot.Base.Core
         public bool IsWin10App => AppFrameWindowClass.Equals(ClassName);
 
         /// <summary>
+        /// Check if this is a Chromium-based browser window (Chrome, Edge, Brave, etc.)
+        /// These use the Chrome_WidgetWin_1 window class
+        /// </summary>
+        public bool IsChromiumWindow => "Chrome_WidgetWin_1".Equals(ClassName);
+
+        /// <summary>
         /// Check if this window belongs to a background app
         /// </summary>
         public bool IsBackgroundWin10App => WindowsVersion.IsWindows10OrLater && AppFrameWindowClass.Equals(ClassName) &&
@@ -407,21 +413,34 @@ namespace Greenshot.Base.Core
         public IntPtr Handle { get; }
 
         private string _text;
+        private bool _textRetrieved;
 
         /// <summary>
         /// Gets the window's title (caption)
         /// </summary>
         public string Text
         {
-            set => _text = value;
+            set
+            {
+                _text = value;
+                _textRetrieved = true;
+            }
             get
             {
-                if (_text == null)
+                if (!_textRetrieved)
                 {
+                    _textRetrieved = true;
                     _text = User32Api.GetText(Handle);
+
+                    // Fallback for Chromium-based browsers (Chrome, Edge, Brave) where GetWindowText fails
+                    // due to sandboxing preventing cross-process window text retrieval
+                    if (string.IsNullOrEmpty(_text))
+                    {
+                        _text = WindowTitleHelper.GetWindowTitle(Handle);
+                    }
                 }
 
-                return _text;
+                return _text ?? string.Empty;
             }
         }
 
@@ -1482,8 +1501,9 @@ namespace Greenshot.Base.Core
             }
 
             // Skip everything which is not rendered "normally", trying to fix BUG-2017
+            // But allow Win10 apps and Chromium-based browsers (Chrome, Edge, Brave) which use this flag legitimately
             var exWindowStyle = window.ExtendedWindowStyle;
-            if (!window.IsWin10App && (exWindowStyle & ExtendedWindowStyleFlags.WS_EX_NOREDIRECTIONBITMAP) != 0)
+            if (!window.IsWin10App && !window.IsChromiumWindow && (exWindowStyle & ExtendedWindowStyleFlags.WS_EX_NOREDIRECTIONBITMAP) != 0)
             {
                 return false;
             }
@@ -1538,7 +1558,8 @@ namespace Greenshot.Base.Core
             }
 
             // Skip everything which is not rendered "normally", trying to fix BUG-2017
-            if (!window.IsWin10App && (exWindowStyle & ExtendedWindowStyleFlags.WS_EX_NOREDIRECTIONBITMAP) != 0)
+            // But allow Win10 apps and Chromium-based browsers (Chrome, Edge, Brave) which use this flag legitimately
+            if (!window.IsWin10App && !window.IsChromiumWindow && (exWindowStyle & ExtendedWindowStyleFlags.WS_EX_NOREDIRECTIONBITMAP) != 0)
             {
                 return false;
             }
