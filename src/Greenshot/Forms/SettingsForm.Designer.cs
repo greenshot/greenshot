@@ -1123,42 +1123,42 @@ namespace Greenshot.Forms {
 			// checkbox_reuseeditor
 			// 
 			this.checkbox_reuseeditor.LanguageKey = "expertsettings_reuseeditorifpossible";
-			this.checkbox_reuseeditor.Location = new System.Drawing.Point(10, 225);
+			this.checkbox_reuseeditor.Location = new System.Drawing.Point(10, 236);
 			this.checkbox_reuseeditor.Name = "checkbox_reuseeditor";
 			this.checkbox_reuseeditor.PropertyName = nameof(EditorConfiguration.ReuseEditor);
 			this.checkbox_reuseeditor.SectionName = "Editor";
-			this.checkbox_reuseeditor.Size = new System.Drawing.Size(394, 24);
+			this.checkbox_reuseeditor.Size = new System.Drawing.Size(394, 18);
 			this.checkbox_reuseeditor.TabIndex = 9;
 			this.checkbox_reuseeditor.UseVisualStyleBackColor = true;
 			// 
 			// checkbox_minimizememoryfootprint
 			// 
 			this.checkbox_minimizememoryfootprint.LanguageKey = "expertsettings_minimizememoryfootprint";
-			this.checkbox_minimizememoryfootprint.Location = new System.Drawing.Point(10, 206);
+			this.checkbox_minimizememoryfootprint.Location = new System.Drawing.Point(10, 216);
 			this.checkbox_minimizememoryfootprint.Name = "checkbox_minimizememoryfootprint";
 			this.checkbox_minimizememoryfootprint.PropertyName = nameof(coreConfiguration.MinimizeWorkingSetSize);
-			this.checkbox_minimizememoryfootprint.Size = new System.Drawing.Size(394, 24);
+			this.checkbox_minimizememoryfootprint.Size = new System.Drawing.Size(394, 18);
 			this.checkbox_minimizememoryfootprint.TabIndex = 8;
 			this.checkbox_minimizememoryfootprint.UseVisualStyleBackColor = true;
 			// 
 			// checkbox_checkunstableupdates
 			// 
 			this.checkbox_checkunstableupdates.LanguageKey = "expertsettings_checkunstableupdates";
-			this.checkbox_checkunstableupdates.Location = new System.Drawing.Point(10, 187);
+			this.checkbox_checkunstableupdates.Location = new System.Drawing.Point(10, 196);
 			this.checkbox_checkunstableupdates.Name = "checkbox_checkunstableupdates";
 			this.checkbox_checkunstableupdates.PropertyName = nameof(coreConfiguration.CheckForUnstable);
-			this.checkbox_checkunstableupdates.Size = new System.Drawing.Size(394, 24);
+			this.checkbox_checkunstableupdates.Size = new System.Drawing.Size(394, 18);
 			this.checkbox_checkunstableupdates.TabIndex = 7;
 			this.checkbox_checkunstableupdates.UseVisualStyleBackColor = true;
 			// 
 			// checkbox_suppresssavedialogatclose
 			// 
 			this.checkbox_suppresssavedialogatclose.LanguageKey = "expertsettings_suppresssavedialogatclose";
-			this.checkbox_suppresssavedialogatclose.Location = new System.Drawing.Point(10, 168);
+			this.checkbox_suppresssavedialogatclose.Location = new System.Drawing.Point(10, 176);
 			this.checkbox_suppresssavedialogatclose.Name = "checkbox_suppresssavedialogatclose";
 			this.checkbox_suppresssavedialogatclose.PropertyName = nameof(EditorConfiguration.SuppressSaveDialogAtClose);
 			this.checkbox_suppresssavedialogatclose.SectionName = "Editor";
-			this.checkbox_suppresssavedialogatclose.Size = new System.Drawing.Size(394, 24);
+			this.checkbox_suppresssavedialogatclose.Size = new System.Drawing.Size(394, 18);
 			this.checkbox_suppresssavedialogatclose.TabIndex = 6;
 			this.checkbox_suppresssavedialogatclose.UseVisualStyleBackColor = true;
 			// 
@@ -1198,30 +1198,30 @@ namespace Greenshot.Forms {
 			// checkbox_thumbnailpreview
 			// 
 			this.checkbox_thumbnailpreview.LanguageKey = "expertsettings_thumbnailpreview";
-			this.checkbox_thumbnailpreview.Location = new System.Drawing.Point(10, 149);
+			this.checkbox_thumbnailpreview.Location = new System.Drawing.Point(10, 156);
 			this.checkbox_thumbnailpreview.Name = "checkbox_thumbnailpreview";
 			this.checkbox_thumbnailpreview.PropertyName = nameof(coreConfiguration.ThumnailPreview);
-			this.checkbox_thumbnailpreview.Size = new System.Drawing.Size(394, 24);
+			this.checkbox_thumbnailpreview.Size = new System.Drawing.Size(394, 18);
 			this.checkbox_thumbnailpreview.TabIndex = 5;
 			this.checkbox_thumbnailpreview.UseVisualStyleBackColor = true;
 			// 
 			// checkbox_optimizeforrdp
 			// 
 			this.checkbox_optimizeforrdp.LanguageKey = "expertsettings_optimizeforrdp";
-			this.checkbox_optimizeforrdp.Location = new System.Drawing.Point(10, 130);
+			this.checkbox_optimizeforrdp.Location = new System.Drawing.Point(10, 136);
 			this.checkbox_optimizeforrdp.Name = "checkbox_optimizeforrdp";
 			this.checkbox_optimizeforrdp.PropertyName = nameof(coreConfiguration.OptimizeForRDP);
-			this.checkbox_optimizeforrdp.Size = new System.Drawing.Size(394, 24);
+			this.checkbox_optimizeforrdp.Size = new System.Drawing.Size(394, 18);
 			this.checkbox_optimizeforrdp.TabIndex = 4;
 			this.checkbox_optimizeforrdp.UseVisualStyleBackColor = true;
 			// 
 			// checkbox_autoreducecolors
 			// 
 			this.checkbox_autoreducecolors.LanguageKey = "expertsettings_autoreducecolors";
-			this.checkbox_autoreducecolors.Location = new System.Drawing.Point(10, 111);
+			this.checkbox_autoreducecolors.Location = new System.Drawing.Point(10, 116);
 			this.checkbox_autoreducecolors.Name = "checkbox_autoreducecolors";
 			this.checkbox_autoreducecolors.PropertyName = nameof(coreConfiguration.OutputFileAutoReduceColors);
-			this.checkbox_autoreducecolors.Size = new System.Drawing.Size(408, 24);
+			this.checkbox_autoreducecolors.Size = new System.Drawing.Size(394, 18);
 			this.checkbox_autoreducecolors.TabIndex = 3;
 			this.checkbox_autoreducecolors.UseVisualStyleBackColor = true;
 			// 
