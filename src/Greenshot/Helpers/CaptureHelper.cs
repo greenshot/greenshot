@@ -962,33 +962,27 @@ namespace Greenshot.Helpers
                     windowCaptureMode = WindowCaptureMode.Screen;
 
                     // In https://github.com/greenshot/greenshot/issues/373 it was shown that PrintWindow (GDI) works great with Windows 11
-                    if (WindowsVersion.IsWindows11OrLater)
+                    // In https://github.com/greenshot/greenshot/issues/658 is was made clear it DOESN'T!
+                    // Change to GDI, if allowed
+                    if (WindowCapture.IsGdiAllowed(process))
                     {
-                        windowCaptureMode = WindowCaptureMode.GDI;
-                    }
-                    else
-                    {
-                        // Change to GDI, if allowed
-                        if (WindowCapture.IsGdiAllowed(process))
+                        if (!dwmEnabled && IsWpf(process))
                         {
-                            if (!dwmEnabled && IsWpf(process))
-                            {
-                                // do not use GDI, as DWM is not enabled and the application uses PresentationFramework.dll -> isWPF
-                                Log.InfoFormat("Not using GDI for windows of process {0}, as the process uses WPF", process.ProcessName);
-                            }
-                            else
-                            {
-                                windowCaptureMode = WindowCaptureMode.GDI;
-                            }
+                            // do not use GDI, as DWM is not enabled and the application uses PresentationFramework.dll -> isWPF
+                            Log.InfoFormat("Not using GDI for windows of process {0}, as the process uses WPF", process.ProcessName);
                         }
-
-                        // Change to DWM, if enabled and allowed
-                        if (dwmEnabled)
+                        else
                         {
-                            if (WindowCapture.IsDwmAllowed(process))
-                            {
-                                windowCaptureMode = WindowCaptureMode.Aero;
-                            }
+                            windowCaptureMode = WindowCaptureMode.GDI;
+                        }
+                    }
+
+                    // Change to DWM, if enabled and allowed
+                    if (dwmEnabled)
+                    {
+                        if (WindowCapture.IsDwmAllowed(process))
+                        {
+                            windowCaptureMode = WindowCaptureMode.Aero;
                         }
                     }
                 }
@@ -1034,7 +1028,7 @@ namespace Greenshot.Helpers
                                 }
 
                                 tmpCapture = windowToCapture.CaptureGdiWindow(captureForWindow);
-                                if (tmpCapture != null && !WindowsVersion.IsWindows11OrLater)
+                                if (tmpCapture != null)
                                 {
                                     // check if GDI capture any good, by comparing it with the screen content
                                     int blackCountGdi = ImageHelper.CountColor(tmpCapture.Image, Color.Black, false);
