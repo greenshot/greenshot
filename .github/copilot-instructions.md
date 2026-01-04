@@ -5,7 +5,7 @@
 **Greenshot** is a free, open-source screenshot tool for Windows optimized for productivity. It allows users to capture screenshots, annotate them, and export to various destinations (file, printer, clipboard, email, cloud services).
 
 - **Repository Size**: ~13MB, ~1,100 files
-- **Primary Language**: C# (.NET Framework 4.7.2)
+- **Primary Language**: C# (.NET Framework 4.8.1)
 - **Project Type**: Windows Desktop Application (WinForms/WPF)
 - **Build System**: MSBuild (requires Visual Studio or MSBuild Tools for Windows)
 - **Versioning**: Nerdbank.GitVersioning (version base: 1.4.x)
@@ -16,7 +16,7 @@
 - **Operating System**: Windows (Linux/Mac not supported for building)
 - **Build Tools**: MSBuild (from Visual Studio 2019+ or MSBuild Tools for Windows)
 - **.NET SDK**: .NET 7.x SDK (for NuGet restore, see release.yml line 38-39)
-- **Target Framework**: .NET Framework 4.7.2
+- **Target Framework**: .NET Framework 4.8.1
 - **Git Clone**: MUST use full clone with history (NOT shallow clone) due to Nerdbank.GitVersioning requirements
 
 ### Critical Build Notes
@@ -38,7 +38,7 @@ msbuild src/Greenshot.sln /p:Configuration=Release /restore /t:PrepareForBuild
 msbuild src/Greenshot.sln /p:Configuration=Release /t:Rebuild /v:normal
 ```
 **Time**: ~1-3 minutes  
-**Output**: `src/Greenshot/bin/Release/net472/` (main executable and plugins)
+**Output**: `src/Greenshot/bin/Release/net481/` (main executable and plugins)
 
 ### Build for Debug
 ```powershell
@@ -88,7 +88,7 @@ src/
 Each plugin follows a consistent structure:
 - Located in `src/Greenshot.Plugin.{Name}/`
 - Has language files in `Languages/language_{plugin}*.xml`
-- Build output goes to `src/Greenshot/bin/{Configuration}/net472/Plugins/{PluginName}/`
+- Build output goes to `src/Greenshot/bin/{Configuration}/net481/Plugins/{PluginName}/`
 - Post-build events (in Directory.Build.props) copy plugins to main app output
 
 ### Key Configuration Files
@@ -172,7 +172,7 @@ $env:Box13_ClientSecret = "your_secret"
 2. **Build**: `msbuild src/Greenshot.sln /p:Configuration=Debug /t:Build /v:minimal`
 3. **Make Changes**: Edit C# files following conventions
 4. **Rebuild**: `msbuild src/Greenshot.sln /p:Configuration=Debug /t:Rebuild /v:minimal` (incremental)
-5. **Test Manually**: Run `src/Greenshot/bin/Debug/net472/Greenshot.exe`
+5. **Test Manually**: Run `src/Greenshot/bin/Debug/net481/Greenshot.exe`
 
 ### Adding New Features
 - Core functionality: `src/Greenshot.Base/` or `src/Greenshot/`

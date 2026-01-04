@@ -86,7 +86,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: artifacts-greenshot-build
-        path: src/Greenshot/bin/Release/net472/**
+        path: src/Greenshot/bin/Release/net481/**
         if-no-files-found: error
 
   pre_deploy:
