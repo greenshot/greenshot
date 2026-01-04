@@ -1,6 +1,6 @@
 /*
  * A GooglePhotos Plugin for Greenshot
- * Copyright (C) 2011  Francis Noel
+ * Copyright (c) 2011  Francis Noel
  * 
  * For more information see: https://getgreenshot.org/
  * 
