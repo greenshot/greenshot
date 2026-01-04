@@ -6,9 +6,9 @@
 #define BaseDir "..\..\src"
 #define GreenshotProjectDir "..\..\src\Greenshot"
 #define LanguagesDir "..\..\src\Greenshot\Languages"
-#define BinDir "bin\Release\net472"
-#define ReleaseDir "..\..\src\Greenshot\bin\Release\net472"
-#define PluginDir "..\..\src\Greenshot\bin\Release\net472\Plugins"
+#define BinDir "bin\Release\net481"
+#define ReleaseDir "..\..\src\Greenshot\bin\Release\net481"
+#define PluginDir "..\..\src\Greenshot\bin\Release\net481\Plugins"
 #define CertumThumbprint GetEnv('CertumThumbprint')
 
 ; Include the scripts to install .NET Framework
@@ -20,7 +20,7 @@
 #include "scripts\products\msi20.iss"
 #include "scripts\products\msi31.iss"
 #include "scripts\products\dotnetfxversion.iss"
-#include "scripts\products\dotnetfx47.iss"
+#include "scripts\products\dotnetfx481.iss"
 
 [Files]
 Source: {#ReleaseDir}\Greenshot.exe; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
@@ -703,21 +703,21 @@ end;
 
 function hasDotNet() : boolean;
 begin
-	Result := netfxspversion(NetFx4x, '') >= 71;
+	Result := netfxspversion(NetFx4x, '') >= 81;
 end;
 
 // Initialize the setup
 function InitializeSetup(): Boolean;
 begin
-	// Check for .NET and install 4.7.1 if we don't have it
+	// Check for .NET and install 4.8.1 if we don't have it
 	if not hasDotNet() then
 	begin
 		// Enhance installer, if needed, otherwise .NET installations won't work
 		msi20('2.0');
 		msi31('3.0');
 
-		//install .net 4.7.1
-		dotnetfx47(71);
+		//install .net 4.8.1
+		dotnetfx481(81);
 	end;
 	Result := true;
 end;
