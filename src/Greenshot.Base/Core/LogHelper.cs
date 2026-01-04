@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright © 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -115,7 +115,7 @@ namespace Greenshot.Base.Core
     /// </summary>
     public class SpecialFolderPatternConverter : PatternConverter
     {
-        protected override void Convert(TextWriter writer, object state)
+        public override void Convert(TextWriter writer, object state)
         {
             Environment.SpecialFolder specialFolder = (Environment.SpecialFolder) Enum.Parse(typeof(Environment.SpecialFolder), Option, true);
             writer.Write(Environment.GetFolderPath(specialFolder));

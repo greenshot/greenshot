@@ -6,7 +6,7 @@
 		<resource name="about_host">O Greenshot está armazenado no GitHub em</resource>
 		<resource name="about_icons">Ícones de Yusuke Kamiyamane (Biblioteca Fugue, licença "Creative Commons Attribution 3.0")</resource>
 		<resource name="about_license">
-			Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+			Copyright © 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
 			O Greenshot não tem NENHUMA GARANTIA. Este software gratuito pode ser redistribuído sob algumas condições.
 			Detalhes sobre a licença GNU:
 		</resource>
@@ -53,8 +53,6 @@
 		<resource name="contextmenu_capturefullscreen_left">esquerda</resource>
 		<resource name="contextmenu_capturefullscreen_right">direita</resource>
 		<resource name="contextmenu_capturefullscreen_top">superior</resource>
-		<resource name="contextmenu_captureie">Capturar Internet Explorer</resource>
-		<resource name="contextmenu_captureiefromlist">Capturar Internet Explorer da lista</resource>
 		<resource name="contextmenu_capturelastregion">Capturar a última região</resource>
 		<resource name="contextmenu_capturewindow">Capturar tela</resource>
 		<resource name="contextmenu_capturewindowfromlist">Capturar janela da lista</resource>
@@ -259,7 +257,6 @@
 		<resource name="settings_windowscapture">Captura de janela</resource>
 		<resource name="tooltip_firststart">Botão direito aqui ou pressionar a tecla Print.</resource>
 		<resource name="update_found">A versão mais recente do Greenshot está disponível! Você quer baixar o Greenshot {0}?</resource>
-		<resource name="wait_ie_capture">Por favor aguarde enquanto a página no Internet Explorer é capturado ...</resource>
 		<resource name="warning">Atenção</resource>
 		<resource name="warning_hotkeys">
 			Uma ou mais teclas de atalho não puderam ser configuradas. Por isso pode não ser possível usar as teclas de atalho do Greenshot.

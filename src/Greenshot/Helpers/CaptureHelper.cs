@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright © 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -138,15 +138,6 @@ namespace Greenshot.Helpers
         public static void CaptureLastRegion(bool captureMouse)
         {
             using CaptureHelper captureHelper = new CaptureHelper(CaptureMode.LastRegion, captureMouse);
-            captureHelper.MakeCapture();
-        }
-
-        public static void CaptureIe(bool captureMouse, WindowDetails windowToCapture)
-        {
-            using CaptureHelper captureHelper = new CaptureHelper(CaptureMode.IE, captureMouse)
-            {
-                SelectedCaptureWindow = windowToCapture
-            };
             captureHelper.MakeCapture();
         }
 
@@ -339,15 +330,6 @@ namespace Greenshot.Helpers
 
                     SetDpi();
                     HandleCapture();
-                    break;
-                case CaptureMode.IE:
-                    if (IeCaptureHelper.CaptureIe(_capture, SelectedCaptureWindow) != null)
-                    {
-                        _capture.CaptureDetails.AddMetaData("source", "Internet Explorer");
-                        SetDpi();
-                        HandleCapture();
-                    }
-
                     break;
                 case CaptureMode.FullScreen:
                     // Check how we need to capture the screen
@@ -942,22 +924,6 @@ namespace Greenshot.Helpers
                 // 3) Otherwise use GDI (Screen might be also okay but might lose content)
                 if (isAutoMode)
                 {
-                    if (CoreConfig.IECapture && IeCaptureHelper.IsIeWindow(windowToCapture))
-                    {
-                        try
-                        {
-                            ICapture ieCapture = IeCaptureHelper.CaptureIe(captureForWindow, windowToCapture);
-                            if (ieCapture != null)
-                            {
-                                return ieCapture;
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            Log.WarnFormat("Problem capturing IE, skipping to normal capture. Exception message was: {0}", ex.Message);
-                        }
-                    }
-
                     // Take default screen
                     windowCaptureMode = WindowCaptureMode.Screen;
 

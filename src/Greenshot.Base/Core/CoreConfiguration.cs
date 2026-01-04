@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright © 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -55,9 +55,6 @@ namespace Greenshot.Base.Core
 
         [IniProperty("LastregionHotkey", Description = "Hotkey for starting the last region capture", DefaultValue = "Shift + PrintScreen")]
         public string LastregionHotkey { get; set; }
-
-        [IniProperty("IEHotkey", Description = "Hotkey for starting the IE capture", DefaultValue = "Shift + Ctrl + PrintScreen")]
-        public string IEHotkey { get; set; }
 
         [IniProperty("ClipboardHotkey", Description = "Hotkey for opening the clipboard contents into the editor", ExcludeIfNull = true)]
         public string ClipboardHotkey { get; set; }
@@ -184,17 +181,6 @@ namespace Greenshot.Base.Core
 
         [IniProperty("UseProxy", Description = "Use your global proxy?", DefaultValue = "True")]
         public bool UseProxy { get; set; }
-
-        [IniProperty("IECapture", Description = "Enable/disable IE capture", DefaultValue = "True")]
-        public bool IECapture { get; set; }
-
-        [IniProperty("IEFieldCapture", Description = "Enable/disable IE field capture, very slow but will make it possible to annotate the fields of a capture in the editor.",
-            DefaultValue = "False")]
-        public bool IEFieldCapture { get; set; }
-
-        [IniProperty("WindowClassesToCheckForIE", Description = "Comma separated list of Window-Classes which need to be checked for a IE instance!",
-            DefaultValue = "AfxFrameOrView70,IMWindowClass")]
-        public List<string> WindowClassesToCheckForIE { get; set; }
 
         [IniProperty("AutoCropDifference",
             Description =
@@ -430,17 +416,14 @@ namespace Greenshot.Base.Core
                 nameof(DWMBackgroundColor) => Color.Transparent,
                 nameof(ActiveTitleFixes) => new List<string> {
                     "Firefox",
-                    "IE",
                     "Chrome"
                 },
                 nameof(TitleFixMatcher) => new Dictionary<string, string> {
                     { "Firefox", " - Mozilla Firefox.*" },
-                    { "IE", " - (Microsoft|Windows) Internet Explorer.*" },
                     { "Chrome", " - Google Chrome.*" }
                 },
                 nameof(TitleFixReplacer) => new Dictionary<string, string> {
                     { "Firefox", string.Empty },
-                    { "IE", string.Empty },
                     { "Chrome", string.Empty }
                 },
                 _ => null

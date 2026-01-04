@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021  Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright © 2004-2026  Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -87,8 +87,6 @@ namespace Greenshot.Forms
             window_hotkeyControl.Leave += LeaveHotkeyControl;
             region_hotkeyControl.Enter += EnterHotkeyControl;
             region_hotkeyControl.Leave += LeaveHotkeyControl;
-            ie_hotkeyControl.Enter += EnterHotkeyControl;
-            ie_hotkeyControl.Leave += LeaveHotkeyControl;
             lastregion_hotkeyControl.Enter += EnterHotkeyControl;
             lastregion_hotkeyControl.Leave += LeaveHotkeyControl;
             // Changes for BUG-2077
