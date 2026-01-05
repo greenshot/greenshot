@@ -21,6 +21,8 @@
     <PackageReference Include="Svg" Version="3.4.3" />
     <Reference Include="Accessibility" />
     <Reference Include="CustomMarshalers" />
+    <Reference Include="UIAutomationClient" />
+    <Reference Include="UIAutomationTypes" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="log4net-embedded.xml" />
