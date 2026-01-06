@@ -86,6 +86,7 @@ Będziemy wdzięczni, jeśli najpierw sprawdzisz, czy takie zdarzenie nie zosta�
 		<resource name="editor_cancel">Anuluj</resource>
 		<resource name="editor_clipboardfailed">Błąd przy próbie dostępu do schowka. Spróbuj ponownie.</resource>
 		<resource name="editor_close">Zamknij</resource>
+		<resource name="editor_close_all">Zamknij wszystkie</resource>
 		<resource name="editor_close_on_save">Czy chcesz zapisać zrzut ekranu?</resource>
 		<resource name="editor_close_on_save_title">Zapisać obraz?</resource>
 		<resource name="editor_confirm">Zatwierdź</resource>
