@@ -87,6 +87,7 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="editor_cancel">Cancel</resource>
 		<resource name="editor_clipboardfailed">Error while accessing the clipboard. Please try again.</resource>
 		<resource name="editor_close">Close</resource>
+		<resource name="editor_close_all">Close all</resource>
 		<resource name="editor_close_on_save">Do you want to save the screenshot?</resource>
 		<resource name="editor_close_on_save_title">Save image?</resource>
 		<resource name="editor_confirm">Confirm</resource>

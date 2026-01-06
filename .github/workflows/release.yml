@@ -1,5 +1,5 @@
 env:
-  IS_RELEASE_BRANCH: ${{ startsWith(github.ref, 'refs/heads/release/') }}
+  IS_MAIN_OR_RELEASE_BRANCH: ${{ startsWith(github.ref, 'refs/heads/release/') || github.ref_name == 'main' }}
   BRANCH_NAME: ${{ github.ref_name }}
 
 name: Build and Deploy
@@ -8,6 +8,7 @@ on:
   workflow_dispatch:
   push:
     branches:
+      - 'main'
       - 'release/1.*'
     paths-ignore:
       - '.github/**'
@@ -17,12 +18,15 @@ on:
       - 'build-and-deploy.ps1'
 
 jobs:
+  # Build Greenshot with MSBuild
+  # Upload installer to artifacts-installer
+  # Upload build output to artifacts-greenshot-build
   build:
+    name: Build Greenshot
     runs-on: windows-latest
-
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v5
       with:
         fetch-depth: 0
 
@@ -71,38 +75,46 @@ jobs:
         mkdir -p ${{ github.workspace }}/artifacts
         cp installer/Greenshot-INSTALLER-*.exe ${{ github.workspace }}/artifacts/
     
-    - name: Upload Artifact
+    - name: Upload Installer Artifact
       uses: actions/upload-artifact@v4
       with:
-       name: drop
+       name: artifacts-installer
        path: ${{ github.workspace }}/artifacts
+       if-no-files-found: error
 
-  deploy:
-    runs-on: windows-latest
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: artifacts-greenshot-build
+        path: src/Greenshot/bin/Release/net472/**
+        if-no-files-found: error
+
+  pre_deploy:
+    # Prepare for deployment
+    # Determine version and release tag name
+    name: Prepare for Deployment
+    runs-on: ubuntu-latest
     needs: build
-
-    steps:
-    
-      - name: Checkout repository
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
+    outputs:
+      version: ${{ steps.version_info.outputs.version }}
+      tag_name: ${{ env.IS_MAIN_OR_RELEASE_BRANCH == 'true' && format('v{0}', steps.version_info.outputs.version) || env.BRANCH_NAME }}
+    steps: 
 
       - name: Download build artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
-          name: drop # Name of the artifact uploaded in previous steps
-          path: drop # Local folder where artifacts are downloaded
+          name: artifacts-installer # Name of the artifact uploaded in previous steps
+          path: artifacts-installer # Local folder where artifacts are downloaded
 
       - name: Extract version from file name
-        if: env.IS_RELEASE_BRANCH == 'true'
+        if: env.IS_MAIN_OR_RELEASE_BRANCH == 'true'
         id: version_from_filename
         run: |
-          $file = Get-ChildItem drop -Filter "Greenshot-INSTALLER-*.exe" | Select-Object -First 1
+          $file = Get-ChildItem artifacts-installer -Filter "Greenshot-INSTALLER-*.exe" | Select-Object -First 1
           if (-not $file) {
-            throw "No matching file found in 'drop' directory."
+            throw "No matching file found in 'artifacts-installer' directory."
           }
-          if ($file.Name -match "Greenshot-INSTALLER-([\d\.]+)(.*)\.exe") {
+          if ($file.Name -match "Greenshot-INSTALLER-([\d\.]+(-g[\da-f]+)?)(.*)\.exe") {
             echo "version=$($matches[1])" >> $Env:GITHUB_OUTPUT
           } else {
             throw "Version number could not be extracted from file name: $($file.Name)"
@@ -110,7 +122,7 @@ jobs:
         shell: pwsh
 
       - name: Set version from sanitized branch name
-        if: env.IS_RELEASE_BRANCH != 'true'
+        if: env.IS_MAIN_OR_RELEASE_BRANCH != 'true'
         id: version_from_branchname
         run: |
           $branch = "${{ github.ref }}" -replace '^refs/heads/', ''
@@ -123,32 +135,98 @@ jobs:
         run: |
           echo "version=${{ steps.version_from_filename.outputs.version || steps.version_from_branchname.outputs.version }}" >> $GITHUB_OUTPUT
         shell: bash
-        
-   
+
+  portable:
+    # Creates a portable app from the build output
+    # Creates a ZIP archive and uploads it to artifacts-greenshot-portable
+    name: Build Portable ZIP
+    runs-on: ubuntu-latest
+    needs: pre_deploy
+    steps:
+
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v5
+        with:
+          name: artifacts-greenshot-build
+          path: artifacts-greenshot-build
+
+      - name: Prepare portable folder
+        run: |
+          $buildArtifacts = "${{ github.workspace }}/artifacts-greenshot-build"
+          $portableDir = "${{ github.workspace }}/portable"
+          pwsh -File "${{ github.workspace }}/prepare-portable.ps1" -RepositoryRootPath ${{ github.workspace }} -BuildArtifactsPath $buildArtifacts -OutputPath $portableDir
+        shell: pwsh
+
+      - name: Create ZIP archive
+        run: |
+          $zipName = "Greenshot-PORTABLE-${{ needs.pre_deploy.outputs.version }}-UNSTABLE-UNSIGNED.zip"
+          Compress-Archive -Path "${{ github.workspace }}/portable/*" -DestinationPath $zipName -Force
+        shell: pwsh
+      
+      - name: Upload portable build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifacts-greenshot-portable
+          path: Greenshot-PORTABLE-*.zip
+          if-no-files-found: error
+
+  deploy:
+    # Deploy the release
+    # Creates a GitHub Release
+    # Creates a version tag if release branch
+    # Trigger GitHub Pages rebuild
+    name: Deploy (continuous build)
+    runs-on: ubuntu-latest
+    needs: 
+      - pre_deploy
+      - portable      
+    steps:
+    
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v5
+        with:
+          name: artifacts-installer
+          path: artifacts-installer
+
+      - name: Download portable artifacts
+        uses: actions/download-artifact@v5
+        with:
+          name: artifacts-greenshot-portable
+          path: artifacts-greenshot-portable
+
       - name: Create tag
-        if: env.IS_RELEASE_BRANCH == 'true'
+        if: env.IS_MAIN_OR_RELEASE_BRANCH == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag -a "v${{ steps.version_info.outputs.version }}" -m "v${{ steps.version_info.outputs.version }}"
-          git push origin "v${{ steps.version_info.outputs.version }}"
+          git tag -a "v${{ needs.pre_deploy.outputs.version }}" -m "v${{ needs.pre_deploy.outputs.version }}"
+          git push origin "v${{ needs.pre_deploy.outputs.version }}"
 
       - name: Rename installer for non-release branch
-        if: env.IS_RELEASE_BRANCH != 'true'
+        if: env.IS_MAIN_OR_RELEASE_BRANCH != 'true'
         run: |
           branch="${BRANCH_NAME:-${GITHUB_REF#refs/heads/}}"
           sanitized=$(echo "$branch" | sed 's/[^a-zA-Z0-9._-]/_/g')
-          mv drop/Greenshot-INSTALLER-*.exe "drop/Greenshot-INSTALLER-${sanitized}.exe"
+          mv artifacts-installer/Greenshot-INSTALLER-*.exe "artifacts-installer/Greenshot-INSTALLER-${sanitized}.exe"
         shell: bash
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          name: "Greenshot ${{ steps.version_info.outputs.version }} (continuous build)"
-          tag_name: ${{ env.IS_RELEASE_BRANCH == 'true' && format('v{0}', steps.version_info.outputs.version) || env.BRANCH_NAME }}
-          files: drop/*.exe
+          name: "Greenshot ${{ needs.pre_deploy.outputs.version }} (continuous build)"
+          tag_name: ${{ needs.pre_deploy.outputs.tag_name }}
+          files: artifacts-installer/*.exe, artifacts-greenshot-portable/*.zip
           generate_release_notes: true
-          draft: ${{ env.IS_RELEASE_BRANCH != 'true'  }}
+          draft: ${{ env.IS_MAIN_OR_RELEASE_BRANCH != 'true'  }}
           prerelease: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -160,4 +238,3 @@ jobs:
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             -H "Accept: application/vnd.github+json" \
             https://api.github.com/repos/${{ github.repository }}/pages/builds
-

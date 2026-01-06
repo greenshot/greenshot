@@ -86,6 +86,7 @@ schnell zu finden. Vielen Dank :)</resource>
 		<resource name="editor_cancel">Abbrechen</resource>
 		<resource name="editor_clipboardfailed">Fehler beim Zugriff auf die Zwischenablage. Bitte wiederholen Sie den Vorgang.</resource>
 		<resource name="editor_close">Schließen</resource>
+		<resource name="editor_close_all">Alles schließen</resource>
 		<resource name="editor_close_on_save">Möchten Sie den Screenshot speichern?</resource>
 		<resource name="editor_close_on_save_title">Bild speichern?</resource>
 		<resource name="editor_confirm">Bestätigen</resource>

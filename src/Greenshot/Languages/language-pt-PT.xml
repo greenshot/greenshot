@@ -85,6 +85,7 @@ Também apreciaremos muito se puder verificar se não existe já um relatório d
 		<resource name="editor_cancel">Cancelar</resource>
 		<resource name="editor_clipboardfailed">Erro ao aceder à área de transferência. Por favor tente novamente.</resource>
 		<resource name="editor_close">Fechar</resource>
+		<resource name="editor_close_all">Fechar tudo</resource>
 		<resource name="editor_close_on_save">Deseja guardar a imagem capturada?</resource>
 		<resource name="editor_close_on_save_title">Guardar imagem?</resource>
 		<resource name="editor_confirm">Confirmar</resource>

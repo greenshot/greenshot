@@ -728,22 +728,10 @@ namespace Greenshot.Editor.Drawing
             if (!hasMenu) return;
 
             ContextMenuStrip menu = new ContextMenuStrip();
+            menu.SetupAutoDispose();
             AddContextMenuItems(menu, surface, mouseEventArgs);
             if (menu.Items.Count <= 0) return;
             menu.Show(surface, surface.ToSurfaceCoordinates(mouseEventArgs.Location));
-            while (true)
-            {
-                if (menu.Visible)
-                {
-                    Application.DoEvents();
-                    Thread.Sleep(100);
-                }
-                else
-                {
-                    menu.Dispose();
-                    break;
-                }
-            }
         }
 
         private bool _disposedValue; // To detect redundant calls

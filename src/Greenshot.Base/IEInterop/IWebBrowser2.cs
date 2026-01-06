@@ -24,16 +24,16 @@ using System.Runtime.InteropServices;
 namespace Greenshot.Base.IEInterop
 {
     // IWebBrowser: EAB22AC1-30C1-11CF-A7EB-0000C05BAE0B
-//	[ComVisible(true), ComImport(), Guid("D30C1661-CDAF-11D0-8A3E-00C04FC9E26E"),
-//	 TypeLibType(TypeLibTypeFlags.FDual),
-//	 InterfaceTypeAttribute(ComInterfaceType.InterfaceIsIDispatch)]
-//	public interface IWebBrowser2  {
-//		[DispId(203)]
-//		object Document {
-//			[return: MarshalAs(UnmanagedType.IDispatch)]
-//			get;
-//		}
-//	}
+//    [ComVisible(true), ComImport(), Guid("D30C1661-CDAF-11D0-8A3E-00C04FC9E26E"),
+//     TypeLibType(TypeLibTypeFlags.FDual),
+//     InterfaceTypeAttribute(ComInterfaceType.InterfaceIsIDispatch)]
+//    public interface IWebBrowser2  {
+//        [DispId(203)]
+//        object Document {
+//            [return: MarshalAs(UnmanagedType.IDispatch)]
+//            get;
+//        }
+//    }
     [ComImport, /*SuppressUnmanagedCodeSecurity,*/
      TypeLibType(TypeLibTypeFlags.FOleAutomation |
                  TypeLibTypeFlags.FDual |
