@@ -19,9 +19,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows;
+using System.Windows.Forms;
+using Greenshot.Base.Core;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Wpf;
+using Greenshot.Destinations;
+using MessageBox = System.Windows.MessageBox;
 
 namespace Greenshot.Forms.Wpf
 {
@@ -66,8 +73,45 @@ namespace Greenshot.Forms.Wpf
             Close();
         }
 
+        private void BrowseStorageLocation_Click(object sender, RoutedEventArgs e)
+        {
+            using (var dialog = new FolderBrowserDialog())
+            {
+                dialog.SelectedPath = _viewModel.CoreConfiguration.OutputFilePath;
+                if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    _viewModel.CoreConfiguration.OutputFilePath = dialog.SelectedPath;
+                }
+            }
+        }
+
+        private void ShowPatternHelp_Click(object sender, RoutedEventArgs e)
+        {
+            string filenamepatternText = Language.GetString(LangKey.settings_message_filenamepattern);
+            // Convert %NUM% to ${NUM} for old language files!
+            filenamepatternText = Regex.Replace(filenamepatternText, "%([a-zA-Z_0-9]+)%", @"${$1}");
+            MessageBox.Show(filenamepatternText, Language.GetString(LangKey.settings_filenamepattern));
+        }
+
         private void SaveSettings()
         {
+            // Save destinations
+            var destinations = new List<string>();
+            
+            if (_viewModel.PickerSelected)
+            {
+                destinations.Add(nameof(WellKnownDestinations.Picker));
+            }
+            else
+            {
+                foreach (var destItem in _viewModel.Destinations.Where(d => d.IsSelected))
+                {
+                    destinations.Add(destItem.Destination.Designation);
+                }
+            }
+            
+            _viewModel.CoreConfiguration.OutputDestinations = destinations;
+            
             // Force save of all configuration sections
             IniConfig.Save();
         }

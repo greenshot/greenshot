@@ -58,6 +58,8 @@ namespace Greenshot.Base.Wpf
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ForegroundBrush)));
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(BorderBrush)));
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(GroupBoxBrush)));
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TextBoxBackgroundBrush)));
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ButtonBackgroundBrush)));
                 }
             }
         }
@@ -77,6 +79,14 @@ namespace Greenshot.Base.Wpf
         public Brush GroupBoxBrush => _isDarkTheme 
             ? new SolidColorBrush(Color.FromRgb(45, 45, 48)) 
             : new SolidColorBrush(Color.FromRgb(240, 240, 240));
+
+        public Brush TextBoxBackgroundBrush => _isDarkTheme
+            ? new SolidColorBrush(Color.FromRgb(45, 45, 48))
+            : new SolidColorBrush(Colors.White);
+
+        public Brush ButtonBackgroundBrush => _isDarkTheme
+            ? new SolidColorBrush(Color.FromRgb(60, 60, 60))
+            : new SolidColorBrush(Color.FromRgb(225, 225, 225));
 
         private void DetectSystemTheme()
         {

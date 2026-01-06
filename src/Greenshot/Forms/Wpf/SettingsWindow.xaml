@@ -18,6 +18,7 @@
             <Setter Property="Padding" Value="10"/>
             <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
             <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+            <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BackgroundBrush}"/>
         </Style>
         
         <Style TargetType="TabControl">
@@ -39,6 +40,35 @@
         
         <Style TargetType="TextBox">
             <Setter Property="Margin" Value="5,2"/>
+            <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TextBoxBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
+        </Style>
+        
+        <Style TargetType="ComboBox">
+            <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TextBoxBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
+        </Style>
+        
+        <Style TargetType="Button">
+            <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
+        </Style>
+        
+        <Style TargetType="RadioButton">
+            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+        </Style>
+        
+        <Style TargetType="ListView">
+            <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
+        </Style>
+        
+        <Style TargetType="ScrollViewer">
+            <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BackgroundBrush}"/>
         </Style>
     </Window.Resources>
     
@@ -64,8 +94,10 @@
                                     </Grid.ColumnDefinitions>
                                     <Label Content="{wpf:Translate settings_language}"/>
                                     <ComboBox Grid.Column="1" 
-                                              ItemsSource="{Binding CoreConfiguration.Language}"
-                                              SelectedValue="{Binding CoreConfiguration.Language, Mode=TwoWay}"/>
+                                              ItemsSource="{Binding SupportedLanguages}"
+                                              DisplayMemberPath="Description"
+                                              SelectedValuePath="Ietf"
+                                              SelectedValue="{Binding SelectedLanguage, Mode=TwoWay}"/>
                                 </Grid>
                                 
                                 <CheckBox Content="{wpf:Translate settings_autostartshortcut}"
@@ -185,15 +217,18 @@
                                     
                                     <Label Grid.Row="0" Grid.Column="0" Content="{wpf:Translate settings_storagelocation}"/>
                                     <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding CoreConfiguration.OutputFilePath}"/>
-                                    <Button Grid.Row="0" Grid.Column="2" Content="..." Width="30" Margin="5,0,0,0"/>
+                                    <Button Grid.Row="0" Grid.Column="2" Content="..." Width="30" Margin="5,0,0,0" Click="BrowseStorageLocation_Click"/>
                                     
                                     <Label Grid.Row="1" Grid.Column="0" Content="{wpf:Translate settings_filenamepattern}"/>
                                     <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding CoreConfiguration.OutputFileFilenamePattern}"/>
-                                    <Button Grid.Row="1" Grid.Column="2" Content="?" Width="30" Margin="5,0,0,0"/>
+                                    <Button Grid.Row="1" Grid.Column="2" Content="?" Width="30" Margin="5,0,0,0" Click="ShowPatternHelp_Click"/>
                                     
                                     <Label Grid.Row="2" Grid.Column="0" Content="{wpf:Translate settings_primaryimageformat}"/>
                                     <ComboBox Grid.Row="2" Grid.Column="1" 
-                                              SelectedValue="{Binding CoreConfiguration.OutputFileFormat}"/>
+                                              ItemsSource="{Binding ImageFormats}"
+                                              DisplayMemberPath="Description"
+                                              SelectedValuePath="Value"
+                                              SelectedValue="{Binding CoreConfiguration.OutputFileFormat, Mode=TwoWay}"/>
                                 </Grid>
                                 
                                 <CheckBox Content="{wpf:Translate settings_copypathtoclipboard}"
@@ -214,9 +249,9 @@
                                             Minimum="0" Maximum="100" 
                                             TickFrequency="10" 
                                             IsSnapToTickEnabled="True"
-                                            Value="{Binding CoreConfiguration.OutputFileJpegQuality}"/>
+                                            Value="{Binding CoreConfiguration.OutputFileJpegQuality, Mode=TwoWay}"/>
                                     <TextBox Grid.Column="2" 
-                                             Text="{Binding CoreConfiguration.OutputFileJpegQuality}" 
+                                             Text="{Binding CoreConfiguration.OutputFileJpegQuality, StringFormat={}{0}%}" 
                                              IsReadOnly="True"/>
                                 </Grid>
                                 
@@ -236,9 +271,25 @@
                     <GroupBox Header="{wpf:Translate settings_destination}">
                         <StackPanel>
                             <CheckBox Content="{wpf:Translate settings_destination_picker}"
+                                      IsChecked="{Binding PickerSelected, Mode=TwoWay}"
                                       Margin="5"/>
-                            <Label Content="Note: Destination list will be implemented with ListView binding" 
-                                   FontStyle="Italic"/>
+                            <ListView ItemsSource="{Binding Destinations}"
+                                      Height="250"
+                                      Margin="5">
+                                <ListView.View>
+                                    <GridView>
+                                        <GridViewColumn Width="30">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                                              IsEnabled="{Binding DataContext.PickerSelected, RelativeSource={RelativeSource AncestorType=ListView}, Converter={StaticResource InverseBooleanConverter}}"/>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="{wpf:Translate settings_destination}" Width="350" DisplayMemberBinding="{Binding Description}"/>
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
                         </StackPanel>
                     </GroupBox>
                 </ScrollViewer>
