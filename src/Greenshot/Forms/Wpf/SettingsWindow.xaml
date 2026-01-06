@@ -1,0 +1,302 @@
+<Window x:Class="Greenshot.Forms.Wpf.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
+        Title="{wpf:Translate settings_title}"
+        Width="600" Height="550"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BackgroundBrush}">
+    
+    <Window.Resources>
+        <wpf:ExpertVisibilityConverter x:Key="ExpertVisibilityConverter"/>
+        <wpf:FixedToEnabledConverter x:Key="FixedToEnabledConverter"/>
+        <wpf:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
+        
+        <Style TargetType="GroupBox">
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
+            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+        </Style>
+        
+        <Style TargetType="TabControl">
+            <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BackgroundBrush}"/>
+        </Style>
+        
+        <Style TargetType="TabItem">
+            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+        </Style>
+        
+        <Style TargetType="Label">
+            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+        </Style>
+        
+        <Style TargetType="CheckBox">
+            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+            <Setter Property="Margin" Value="5,2"/>
+        </Style>
+        
+        <Style TargetType="TextBox">
+            <Setter Property="Margin" Value="5,2"/>
+        </Style>
+    </Window.Resources>
+    
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Tab Control -->
+        <TabControl Grid.Row="0">
+            <!-- General Tab -->
+            <TabItem Header="{wpf:Translate settings_general}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <!-- Application Settings -->
+                        <GroupBox Header="{wpf:Translate settings_applicationsettings}">
+                            <StackPanel>
+                                <Grid Margin="0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="150"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Label Content="{wpf:Translate settings_language}"/>
+                                    <ComboBox Grid.Column="1" 
+                                              ItemsSource="{Binding CoreConfiguration.Language}"
+                                              SelectedValue="{Binding CoreConfiguration.Language, Mode=TwoWay}"/>
+                                </Grid>
+                                
+                                <CheckBox Content="{wpf:Translate settings_autostartshortcut}"
+                                          IsChecked="{Binding AutoStartEnabled, Mode=TwoWay}"/>
+                            </StackPanel>
+                        </GroupBox>
+                        
+                        <!-- Hotkeys -->
+                        <GroupBox Header="{wpf:Translate hotkeys}">
+                            <StackPanel>
+                                <Grid Margin="0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="200"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    
+                                    <Label Grid.Row="0" Grid.Column="0" Content="{wpf:Translate contextmenu_capturefullscreen}"/>
+                                    <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding CoreConfiguration.FullscreenHotkey}"/>
+                                    
+                                    <Label Grid.Row="1" Grid.Column="0" Content="{wpf:Translate contextmenu_capturewindow}"/>
+                                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding CoreConfiguration.WindowHotkey}"/>
+                                    
+                                    <Label Grid.Row="2" Grid.Column="0" Content="{wpf:Translate contextmenu_capturearea}"/>
+                                    <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding CoreConfiguration.RegionHotkey}"/>
+                                    
+                                    <Label Grid.Row="3" Grid.Column="0" Content="{wpf:Translate contextmenu_capturelastregion}"/>
+                                    <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding CoreConfiguration.LastregionHotkey}"/>
+                                    
+                                    <Label Grid.Row="4" Grid.Column="0" Content="{wpf:Translate contextmenu_captureie}"/>
+                                    <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding CoreConfiguration.IEHotkey}"/>
+                                </Grid>
+                            </StackPanel>
+                        </GroupBox>
+                        
+                        <!-- Network Settings -->
+                        <GroupBox Header="{wpf:Translate settings_network}">
+                            <StackPanel>
+                                <CheckBox Content="{wpf:Translate settings_usedefaultproxy}"
+                                          IsChecked="{Binding CoreConfiguration.UseProxy, Mode=TwoWay}"/>
+                                
+                                <Grid Margin="0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="250"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Label Content="{wpf:Translate settings_checkperiod}"/>
+                                    <TextBox Grid.Column="1" Text="{Binding CoreConfiguration.UpdateCheckInterval}"/>
+                                </Grid>
+                            </StackPanel>
+                        </GroupBox>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            
+            <!-- Capture Tab -->
+            <TabItem Header="{wpf:Translate settings_capture}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <GroupBox Header="{wpf:Translate settings_capture}">
+                            <StackPanel>
+                                <CheckBox Content="{wpf:Translate settings_capture_mousepointer}"
+                                          IsChecked="{Binding CoreConfiguration.CaptureMousepointer, Mode=TwoWay}"/>
+                                <CheckBox Content="{wpf:Translate settings_playsound}"
+                                          IsChecked="{Binding CoreConfiguration.PlayCameraSound, Mode=TwoWay}"/>
+                                <CheckBox Content="{wpf:Translate settings_shownotify}"
+                                          IsChecked="{Binding CoreConfiguration.ShowTrayNotification, Mode=TwoWay}"/>
+                                <CheckBox Content="{wpf:Translate settings_zoom}"
+                                          IsChecked="{Binding CoreConfiguration.ZoomerEnabled, Mode=TwoWay}"/>
+                                
+                                <Grid Margin="0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="150"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Label Content="{wpf:Translate settings_waittime}"/>
+                                    <TextBox Grid.Column="1" Text="{Binding CoreConfiguration.CaptureDelay}"/>
+                                </Grid>
+                            </StackPanel>
+                        </GroupBox>
+                        
+                        <GroupBox Header="{wpf:Translate settings_windowscapture}">
+                            <StackPanel>
+                                <RadioButton Content="{wpf:Translate settings_capture_windows_interactive}"
+                                             IsChecked="{Binding CoreConfiguration.CaptureWindowsInteractive, Mode=TwoWay}"/>
+                                <RadioButton Content="{wpf:Translate settings_window_capture_mode}"
+                                             IsChecked="{Binding CoreConfiguration.CaptureWindowsInteractive, Mode=TwoWay, Converter={StaticResource InverseBooleanConverter}}"/>
+                            </StackPanel>
+                        </GroupBox>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            
+            <!-- Output Tab -->
+            <TabItem Header="{wpf:Translate settings_output}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <GroupBox Header="{wpf:Translate settings_preferredfilesettings}">
+                            <StackPanel>
+                                <Grid Margin="0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="150"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    
+                                    <Label Grid.Row="0" Grid.Column="0" Content="{wpf:Translate settings_storagelocation}"/>
+                                    <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding CoreConfiguration.OutputFilePath}"/>
+                                    <Button Grid.Row="0" Grid.Column="2" Content="..." Width="30" Margin="5,0,0,0"/>
+                                    
+                                    <Label Grid.Row="1" Grid.Column="0" Content="{wpf:Translate settings_filenamepattern}"/>
+                                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding CoreConfiguration.OutputFileFilenamePattern}"/>
+                                    <Button Grid.Row="1" Grid.Column="2" Content="?" Width="30" Margin="5,0,0,0"/>
+                                    
+                                    <Label Grid.Row="2" Grid.Column="0" Content="{wpf:Translate settings_primaryimageformat}"/>
+                                    <ComboBox Grid.Row="2" Grid.Column="1" 
+                                              SelectedValue="{Binding CoreConfiguration.OutputFileFormat}"/>
+                                </Grid>
+                                
+                                <CheckBox Content="{wpf:Translate settings_copypathtoclipboard}"
+                                          IsChecked="{Binding CoreConfiguration.OutputFileCopyPathToClipboard, Mode=TwoWay}"/>
+                            </StackPanel>
+                        </GroupBox>
+                        
+                        <GroupBox Header="{wpf:Translate settings_qualitysettings}">
+                            <StackPanel>
+                                <Grid Margin="0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="150"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="50"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Label Content="{wpf:Translate settings_jpegquality}"/>
+                                    <Slider Grid.Column="1" 
+                                            Minimum="0" Maximum="100" 
+                                            TickFrequency="10" 
+                                            IsSnapToTickEnabled="True"
+                                            Value="{Binding CoreConfiguration.OutputFileJpegQuality}"/>
+                                    <TextBox Grid.Column="2" 
+                                             Text="{Binding CoreConfiguration.OutputFileJpegQuality}" 
+                                             IsReadOnly="True"/>
+                                </Grid>
+                                
+                                <CheckBox Content="{wpf:Translate settings_alwaysshowqualitydialog}"
+                                          IsChecked="{Binding CoreConfiguration.OutputFilePromptQuality, Mode=TwoWay}"/>
+                                <CheckBox Content="{wpf:Translate settings_reducecolors}"
+                                          IsChecked="{Binding CoreConfiguration.OutputFileReduceColors, Mode=TwoWay}"/>
+                            </StackPanel>
+                        </GroupBox>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            
+            <!-- Destinations Tab -->
+            <TabItem Header="{wpf:Translate settings_destination}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <GroupBox Header="{wpf:Translate settings_destination}">
+                        <StackPanel>
+                            <CheckBox Content="{wpf:Translate settings_destination_picker}"
+                                      Margin="5"/>
+                            <Label Content="Note: Destination list will be implemented with ListView binding" 
+                                   FontStyle="Italic"/>
+                        </StackPanel>
+                    </GroupBox>
+                </ScrollViewer>
+            </TabItem>
+            
+            <!-- Expert Tab -->
+            <TabItem Header="{wpf:Translate expertsettings}"
+                     Visibility="{Binding ExpertModeEnabled, Converter={StaticResource ExpertVisibilityConverter}}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <GroupBox Header="{wpf:Translate expertsettings}">
+                            <StackPanel>
+                                <CheckBox Content="{wpf:Translate expertsettings_enableexpert}"
+                                          IsChecked="{Binding ExpertModeEnabled, Mode=TwoWay}"/>
+                                
+                                <CheckBox Content="{wpf:Translate expertsettings_autoreducecolors}"
+                                          IsChecked="{Binding CoreConfiguration.OutputFileAutoReduceColors, Mode=TwoWay}"
+                                          IsEnabled="{Binding ExpertModeEnabled}"/>
+                                
+                                <CheckBox Content="{wpf:Translate expertsettings_optimizeforrdp}"
+                                          IsChecked="{Binding CoreConfiguration.OptimizeForRDP, Mode=TwoWay}"
+                                          IsEnabled="{Binding ExpertModeEnabled}"/>
+                                
+                                <CheckBox Content="{wpf:Translate expertsettings_thumbnailpreview}"
+                                          IsChecked="{Binding CoreConfiguration.ThumnailPreview, Mode=TwoWay}"
+                                          IsEnabled="{Binding ExpertModeEnabled}"/>
+                                
+                                <CheckBox Content="{wpf:Translate expertsettings_suppresssavedialogatclose}"
+                                          IsEnabled="{Binding ExpertModeEnabled}"/>
+                                
+                                <CheckBox Content="{wpf:Translate expertsettings_checkunstableupdates}"
+                                          IsChecked="{Binding CoreConfiguration.CheckForUnstable, Mode=TwoWay}"
+                                          IsEnabled="{Binding ExpertModeEnabled}"/>
+                                
+                                <CheckBox Content="{wpf:Translate expertsettings_minimizememoryfootprint}"
+                                          IsChecked="{Binding CoreConfiguration.MinimizeWorkingSetSize, Mode=TwoWay}"
+                                          IsEnabled="{Binding ExpertModeEnabled}"/>
+                            </StackPanel>
+                        </GroupBox>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
+        
+        <!-- Buttons -->
+        <StackPanel Grid.Row="1" 
+                    Orientation="Horizontal" 
+                    HorizontalAlignment="Right" 
+                    Margin="0,10,0,0">
+            <Button Content="{wpf:Translate OK}" 
+                    Width="75" 
+                    Margin="5,0"
+                    IsDefault="True"
+                    Click="OkButton_Click"/>
+            <Button Content="{wpf:Translate CANCEL}" 
+                    Width="75"
+                    IsCancel="True"
+                    Click="CancelButton_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>
