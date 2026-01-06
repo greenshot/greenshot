@@ -249,9 +249,9 @@
                                             Minimum="0" Maximum="100" 
                                             TickFrequency="10" 
                                             IsSnapToTickEnabled="True"
-                                            Value="{Binding CoreConfiguration.OutputFileJpegQuality, Mode=TwoWay}"/>
+                                            Value="{Binding CoreConfiguration.OutputFileJpegQuality, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                                     <TextBox Grid.Column="2" 
-                                             Text="{Binding CoreConfiguration.OutputFileJpegQuality, StringFormat={}{0}%}" 
+                                             Text="{Binding CoreConfiguration.OutputFileJpegQuality, Mode=OneWay, StringFormat={}{0}%}" 
                                              IsReadOnly="True"/>
                                 </Grid>
                                 
@@ -278,7 +278,7 @@
                                       Margin="5">
                                 <ListView.View>
                                     <GridView>
-                                        <GridViewColumn Width="30">
+                                        <GridViewColumn Width="50">
                                             <GridViewColumn.CellTemplate>
                                                 <DataTemplate>
                                                     <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}"
@@ -286,7 +286,7 @@
                                                 </DataTemplate>
                                             </GridViewColumn.CellTemplate>
                                         </GridViewColumn>
-                                        <GridViewColumn Header="{wpf:Translate settings_destination}" Width="350" DisplayMemberBinding="{Binding Description}"/>
+                                        <GridViewColumn Header="{wpf:Translate settings_destination}" Width="330" DisplayMemberBinding="{Binding Description}"/>
                                     </GridView>
                                 </ListView.View>
                             </ListView>

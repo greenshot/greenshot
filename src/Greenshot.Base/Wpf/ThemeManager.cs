@@ -81,11 +81,11 @@ namespace Greenshot.Base.Wpf
             : new SolidColorBrush(Color.FromRgb(240, 240, 240));
 
         public Brush TextBoxBackgroundBrush => _isDarkTheme
-            ? new SolidColorBrush(Color.FromRgb(45, 45, 48))
+            ? new SolidColorBrush(Color.FromRgb(30, 30, 30))
             : new SolidColorBrush(Colors.White);
 
         public Brush ButtonBackgroundBrush => _isDarkTheme
-            ? new SolidColorBrush(Color.FromRgb(60, 60, 60))
+            ? new SolidColorBrush(Color.FromRgb(50, 50, 50))
             : new SolidColorBrush(Color.FromRgb(225, 225, 225));
 
         private void DetectSystemTheme()
