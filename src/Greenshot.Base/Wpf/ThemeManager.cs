@@ -60,33 +60,53 @@ namespace Greenshot.Base.Wpf
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(GroupBoxBrush)));
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TextBoxBackgroundBrush)));
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ButtonBackgroundBrush)));
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ButtonHoverBrush)));
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ButtonPressedBrush)));
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TabItemBackgroundBrush)));
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TabItemSelectedBrush)));
                 }
             }
         }
 
         public Brush BackgroundBrush => _isDarkTheme 
             ? new SolidColorBrush(Color.FromRgb(32, 32, 32)) 
-            : new SolidColorBrush(Colors.White);
+            : new SolidColorBrush(Color.FromRgb(245, 245, 245));
 
         public Brush ForegroundBrush => _isDarkTheme 
-            ? new SolidColorBrush(Colors.White) 
-            : new SolidColorBrush(Colors.Black);
+            ? new SolidColorBrush(Color.FromRgb(240, 240, 240)) 
+            : new SolidColorBrush(Color.FromRgb(30, 30, 30));
 
         public Brush BorderBrush => _isDarkTheme 
-            ? new SolidColorBrush(Color.FromRgb(80, 80, 80)) 
-            : new SolidColorBrush(Color.FromRgb(204, 204, 204));
+            ? new SolidColorBrush(Color.FromRgb(70, 70, 70)) 
+            : new SolidColorBrush(Color.FromRgb(200, 200, 200));
 
         public Brush GroupBoxBrush => _isDarkTheme 
-            ? new SolidColorBrush(Color.FromRgb(45, 45, 48)) 
-            : new SolidColorBrush(Color.FromRgb(240, 240, 240));
+            ? new SolidColorBrush(Color.FromRgb(42, 42, 42)) 
+            : new SolidColorBrush(Colors.White);
 
         public Brush TextBoxBackgroundBrush => _isDarkTheme
-            ? new SolidColorBrush(Color.FromRgb(30, 30, 30))
+            ? new SolidColorBrush(Color.FromRgb(24, 24, 24))
             : new SolidColorBrush(Colors.White);
 
         public Brush ButtonBackgroundBrush => _isDarkTheme
+            ? new SolidColorBrush(Color.FromRgb(55, 55, 55))
+            : new SolidColorBrush(Color.FromRgb(230, 230, 230));
+
+        public Brush ButtonHoverBrush => _isDarkTheme
+            ? new SolidColorBrush(Color.FromRgb(70, 70, 70))
+            : new SolidColorBrush(Color.FromRgb(210, 210, 210));
+
+        public Brush ButtonPressedBrush => _isDarkTheme
+            ? new SolidColorBrush(Color.FromRgb(45, 45, 45))
+            : new SolidColorBrush(Color.FromRgb(190, 190, 190));
+
+        public Brush TabItemBackgroundBrush => _isDarkTheme
             ? new SolidColorBrush(Color.FromRgb(50, 50, 50))
-            : new SolidColorBrush(Color.FromRgb(225, 225, 225));
+            : new SolidColorBrush(Color.FromRgb(220, 220, 220));
+
+        public Brush TabItemSelectedBrush => _isDarkTheme
+            ? new SolidColorBrush(Color.FromRgb(42, 42, 42))
+            : new SolidColorBrush(Colors.White);
 
         private void DetectSystemTheme()
         {
