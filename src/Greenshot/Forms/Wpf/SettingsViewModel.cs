@@ -32,11 +32,14 @@ namespace Greenshot.Forms.Wpf
     public class SettingsViewModel : INotifyPropertyChanged
     {
         private bool _expertModeEnabled;
+        private bool _autoStartEnabled;
 
         public SettingsViewModel()
         {
             CoreConfiguration = IniConfig.GetIniSection<CoreConfiguration>();
             _expertModeEnabled = !CoreConfiguration.HideExpertSettings;
+            // AutoStart is handled separately from INI config
+            _autoStartEnabled = false;
         }
 
         public CoreConfiguration CoreConfiguration { get; }
@@ -49,6 +52,19 @@ namespace Greenshot.Forms.Wpf
                 if (_expertModeEnabled != value)
                 {
                     _expertModeEnabled = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public bool AutoStartEnabled
+        {
+            get => _autoStartEnabled;
+            set
+            {
+                if (_autoStartEnabled != value)
+                {
+                    _autoStartEnabled = value;
                     OnPropertyChanged();
                 }
             }

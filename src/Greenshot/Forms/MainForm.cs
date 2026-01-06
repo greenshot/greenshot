@@ -32,6 +32,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.Integration;
+using System.Windows.Interop;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.DesktopWindowsManager;
 using Dapplo.Windows.Dpi;
@@ -52,6 +53,7 @@ using Greenshot.Editor;
 using Greenshot.Editor.Destinations;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Forms;
+using Greenshot.Forms.Wpf;
 using Greenshot.Helpers;
 using Greenshot.Processors;
 using log4net;
@@ -371,6 +373,7 @@ namespace Greenshot.Forms
 
         // Make sure we have only one settings form
         private SettingsForm _settingsForm;
+        private SettingsWindow _settingsWindow;
 
         // Make sure we have only one about form
         private AboutForm _aboutForm;
@@ -1387,25 +1390,26 @@ namespace Greenshot.Forms
         /// </summary>
         public void ShowSetting()
         {
-            if (_settingsForm != null)
+            // Use WPF Settings Window
+            if (_settingsWindow != null && _settingsWindow.IsVisible)
             {
-                WindowDetails.ToForeground(_settingsForm.Handle);
+                _settingsWindow.Activate();
             }
             else
             {
                 try
                 {
-                    using (_settingsForm = new SettingsForm())
+                    _settingsWindow = new SettingsWindow();
+                    
+                    // Show the WPF window as a dialog
+                    if (_settingsWindow.ShowDialog() == true)
                     {
-                        if (_settingsForm.ShowDialog() == DialogResult.OK)
-                        {
-                            InitializeQuickSettingsMenu();
-                        }
+                        InitializeQuickSettingsMenu();
                     }
                 }
                 finally
                 {
-                    _settingsForm = null;
+                    _settingsWindow = null;
                 }
             }
         }
