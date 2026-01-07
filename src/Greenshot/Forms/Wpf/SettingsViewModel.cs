@@ -40,6 +40,7 @@ namespace Greenshot.Forms.Wpf
         private bool _autoStartEnabled;
         private bool _pickerSelected;
         private string _selectedLanguage;
+        private int _iconSize;
 
         public SettingsViewModel()
         {
@@ -51,8 +52,14 @@ namespace Greenshot.Forms.Wpf
             // Initialize language
             _selectedLanguage = Language.CurrentLanguage;
             
+            // Initialize icon size
+            _iconSize = CoreConfiguration.IconSize.Width;
+            
             // Initialize image formats
             InitializeImageFormats();
+            
+            // Initialize window capture modes
+            InitializeWindowCaptureModes();
             
             // Initialize destinations
             InitializeDestinations();
@@ -105,6 +112,22 @@ namespace Greenshot.Forms.Wpf
 
         public List<ImageFormatItem> ImageFormats { get; private set; }
 
+        public List<WindowCaptureModeItem> WindowCaptureModes { get; private set; }
+
+        public int IconSize
+        {
+            get => _iconSize;
+            set
+            {
+                if (_iconSize != value && value >= 16 && value <= 256)
+                {
+                    _iconSize = value;
+                    CoreConfiguration.IconSize = new System.Drawing.Size(value, value);
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         public ObservableCollection<DestinationItem> Destinations { get; private set; }
 
         public bool PickerSelected
@@ -137,6 +160,19 @@ namespace Greenshot.Forms.Wpf
                 {
                     Value = format,
                     Description = Language.Translate(format)
+                });
+            }
+        }
+
+        private void InitializeWindowCaptureModes()
+        {
+            WindowCaptureModes = new List<WindowCaptureModeItem>();
+            foreach (WindowCaptureMode mode in System.Enum.GetValues(typeof(WindowCaptureMode)))
+            {
+                WindowCaptureModes.Add(new WindowCaptureModeItem
+                {
+                    Value = mode,
+                    Description = Language.Translate(mode)
                 });
             }
         }
@@ -176,6 +212,12 @@ namespace Greenshot.Forms.Wpf
     public class ImageFormatItem
     {
         public OutputFormat Value { get; set; }
+        public string Description { get; set; }
+    }
+
+    public class WindowCaptureModeItem
+    {
+        public WindowCaptureMode Value { get; set; }
         public string Description { get; set; }
     }
 

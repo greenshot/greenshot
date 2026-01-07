@@ -140,6 +140,92 @@
             <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
             <Setter Property="Padding" Value="8,6"/>
             <Setter Property="Margin" Value="6,3"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <ToggleButton Name="ToggleButton"
+                                          Background="{TemplateBinding Background}"
+                                          BorderBrush="{TemplateBinding BorderBrush}"
+                                          BorderThickness="1"
+                                          Focusable="False"
+                                          IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                          ClickMode="Press">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border Name="Border"
+                                                Background="{TemplateBinding Background}"
+                                                BorderBrush="{TemplateBinding BorderBrush}"
+                                                BorderThickness="{TemplateBinding BorderThickness}"
+                                                CornerRadius="4">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition/>
+                                                    <ColumnDefinition Width="20"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Path Grid.Column="1"
+                                                      HorizontalAlignment="Center"
+                                                      VerticalAlignment="Center"
+                                                      Data="M 0 0 L 4 4 L 8 0 Z"
+                                                      Fill="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                                            </Grid>
+                                        </Border>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+                            <ContentPresenter Name="ContentSite"
+                                              IsHitTestVisible="False"
+                                              Content="{TemplateBinding SelectionBoxItem}"
+                                              ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                              ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                                              Margin="8,6,28,6"
+                                              VerticalAlignment="Center"
+                                              HorizontalAlignment="Left">
+                                <ContentPresenter.Resources>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                                    </Style>
+                                </ContentPresenter.Resources>
+                            </ContentPresenter>
+                            <Popup Name="Popup"
+                                   Placement="Bottom"
+                                   IsOpen="{TemplateBinding IsDropDownOpen}"
+                                   AllowsTransparency="True"
+                                   Focusable="False"
+                                   PopupAnimation="Slide">
+                                <Grid Name="DropDown"
+                                      SnapsToDevicePixels="True"
+                                      MinWidth="{TemplateBinding ActualWidth}"
+                                      MaxHeight="{TemplateBinding MaxDropDownHeight}">
+                                    <Border Name="DropDownBorder"
+                                            Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TextBoxBackgroundBrush}"
+                                            BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
+                                            BorderThickness="1"
+                                            CornerRadius="4"
+                                            Margin="0,2,0,0">
+                                        <ScrollViewer Margin="4,6,4,6" SnapsToDevicePixels="True">
+                                            <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained">
+                                                <StackPanel.Resources>
+                                                    <Style TargetType="ComboBoxItem">
+                                                        <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                                                        <Setter Property="Background" Value="Transparent"/>
+                                                        <Setter Property="Padding" Value="8,4"/>
+                                                        <Style.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonHoverBrush}"/>
+                                                            </Trigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </StackPanel.Resources>
+                                            </StackPanel>
+                                        </ScrollViewer>
+                                    </Border>
+                                </Grid>
+                            </Popup>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
         
         <!-- Modern Button Style -->
@@ -227,6 +313,27 @@
                                               DisplayMemberPath="Description"
                                               SelectedValuePath="Ietf"
                                               SelectedValue="{Binding SelectedLanguage, Mode=TwoWay}"/>
+                                </Grid>
+                                
+                                <Grid Margin="0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="150"/>
+                                        <ColumnDefinition Width="100"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Label Content="{wpf:Translate settings_iconsize}"/>
+                                    <Grid Grid.Column="1">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox Text="{Binding IconSize, Mode=TwoWay}" 
+                                                 TextAlignment="Right"
+                                                 IsReadOnly="True"/>
+                                        <StackPanel Grid.Column="1" Orientation="Vertical" Margin="2,0,0,0">
+                                            <Button Content="▲" Click="IconSizeUp_Click" Padding="4,0" FontSize="8" MinWidth="20" Height="15"/>
+                                            <Button Content="▼" Click="IconSizeDown_Click" Padding="4,0" FontSize="8" MinWidth="20" Height="15" Margin="0,1,0,0"/>
+                                        </StackPanel>
+                                    </Grid>
                                 </Grid>
                                 
                                 <CheckBox Content="{wpf:Translate settings_autostartshortcut}"
@@ -318,8 +425,21 @@
                             <StackPanel>
                                 <RadioButton Content="{wpf:Translate settings_capture_windows_interactive}"
                                              IsChecked="{Binding CoreConfiguration.CaptureWindowsInteractive, Mode=TwoWay}"/>
-                                <RadioButton Content="{wpf:Translate settings_window_capture_mode}"
-                                             IsChecked="{Binding CoreConfiguration.CaptureWindowsInteractive, Mode=TwoWay, Converter={StaticResource InverseBooleanConverter}}"/>
+                                <Grid Margin="0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <RadioButton Content="{wpf:Translate settings_window_capture_mode}"
+                                                 IsChecked="{Binding CoreConfiguration.CaptureWindowsInteractive, Mode=TwoWay, Converter={StaticResource InverseBooleanConverter}}"/>
+                                    <ComboBox Grid.Column="1" 
+                                              ItemsSource="{Binding WindowCaptureModes}"
+                                              DisplayMemberPath="Description"
+                                              SelectedValuePath="Value"
+                                              SelectedValue="{Binding CoreConfiguration.WindowCaptureMode, Mode=TwoWay}"
+                                              IsEnabled="{Binding CoreConfiguration.CaptureWindowsInteractive, Converter={StaticResource InverseBooleanConverter}}"
+                                              Margin="10,0,0,0"/>
+                                </Grid>
                             </StackPanel>
                         </GroupBox>
                     </StackPanel>
@@ -371,7 +491,7 @@
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="150"/>
                                         <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="50"/>
+                                        <ColumnDefinition Width="70"/>
                                     </Grid.ColumnDefinitions>
                                     <Label Content="{wpf:Translate settings_jpegquality}"/>
                                     <Slider Grid.Column="1" 
@@ -381,7 +501,8 @@
                                             Value="{Binding CoreConfiguration.OutputFileJpegQuality, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                                     <TextBox Grid.Column="2" 
                                              Text="{Binding CoreConfiguration.OutputFileJpegQuality, Mode=OneWay, StringFormat={}{0}%}" 
-                                             IsReadOnly="True"/>
+                                             IsReadOnly="True"
+                                             TextAlignment="Center"/>
                                 </Grid>
                                 
                                 <CheckBox Content="{wpf:Translate settings_alwaysshowqualitydialog}"
@@ -421,6 +542,20 @@
                             </ListView>
                         </StackPanel>
                     </GroupBox>
+                </ScrollViewer>
+            </TabItem>
+            
+            <!-- Printer Tab -->
+            <TabItem Header="{wpf:Translate settings_printer}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <GroupBox Header="{wpf:Translate settings_printoptions}">
+                            <StackPanel>
+                                <CheckBox Content="{wpf:Translate settings_alwaysshowprintoptionsdialog}"
+                                          IsChecked="{Binding CoreConfiguration.OutputPrintPromptOptions, Mode=TwoWay}"/>
+                            </StackPanel>
+                        </GroupBox>
+                    </StackPanel>
                 </ScrollViewer>
             </TabItem>
             

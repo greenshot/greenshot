@@ -93,6 +93,22 @@ namespace Greenshot.Forms.Wpf
             MessageBox.Show(filenamepatternText, Greenshot.Base.Core.Language.GetString(LangKey.settings_filenamepattern));
         }
 
+        private void IconSizeUp_Click(object sender, RoutedEventArgs e)
+        {
+            if (_viewModel.IconSize + 16 <= 256)
+            {
+                _viewModel.IconSize += 16;
+            }
+        }
+
+        private void IconSizeDown_Click(object sender, RoutedEventArgs e)
+        {
+            if (_viewModel.IconSize - 16 >= 16)
+            {
+                _viewModel.IconSize -= 16;
+            }
+        }
+
         private void SaveSettings()
         {
             // Save destinations
