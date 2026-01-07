@@ -23,7 +23,6 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
-using System.Runtime.Serialization;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Interfaces;
@@ -36,39 +35,34 @@ namespace Greenshot.Editor.Drawing
     /// <summary>
     /// Description of SpeechbubbleContainer.
     /// </summary>
-    [Serializable]
     public class SpeechbubbleContainer : TextContainer
     {
         private Point _initialGripperPoint;
 
-        // Only used for serializing the TargetGripper location
+        /// <summary>
+        /// Location of target gripper, used to draw the tail of the speech bubble.
+        /// </summary>
         private Point _storedTargetGripperLocation;
 
-        /// <summary>
-        /// Store the current location of the target gripper
-        /// </summary>
-        /// <param name="context"></param>
-        [OnSerializing]
-        private void SetValuesOnSerializing(StreamingContext context)
+        /// <inheritdoc cref="_storedTargetGripperLocation"/>
+        public Point StoredTargetGripperLocation
         {
-            if (TargetAdorner != null)
-            {
-                _storedTargetGripperLocation = TargetAdorner.Location;
-            }
-        }
-
-        /// <summary>
-        /// Restore the target gripper
-        /// </summary>
-        /// <param name="streamingContext">StreamingContext</param>
-        protected override void OnDeserialized(StreamingContext streamingContext)
-        {
-            base.OnDeserialized(streamingContext);
-            InitTargetAdorner(_storedTargetGripperLocation);
+            get => _storedTargetGripperLocation;
+            set => _storedTargetGripperLocation = value;
         }
 
         public SpeechbubbleContainer(ISurface parent) : base(parent)
         {
+        }
+
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
+        /// <remarks>And initialize target adorner using the stored gripper location.</remarks>
+        public override void OnDeserialized()
+        {
+            base.OnDeserialized();
+            InitTargetAdorner(_storedTargetGripperLocation);
         }
 
         /// <summary>

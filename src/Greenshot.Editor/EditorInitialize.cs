@@ -32,8 +32,10 @@ namespace Greenshot.Editor
             SimpleServiceProvider.Current.AddService<IFileFormatHandler>(
                     // All generic things, like gif, png, jpg etc.
                     new DefaultFileFormatHandler(),
-                    // Greenshot format
+                    // Greenshot file format
                     new GreenshotFileFormatHandler(),
+                    // Greenshot template format
+                    new GreenshotTemplateFormatHandler(),
                     // For .svg support
                     new SvgFileFormatHandler(),
                     // For clipboard support

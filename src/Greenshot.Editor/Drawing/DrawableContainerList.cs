@@ -34,6 +34,7 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Configuration;
 using Greenshot.Editor.Drawing.Fields;
+using Greenshot.Editor.FileFormat.Dto;
 using Greenshot.Editor.Forms;
 using Greenshot.Editor.Memento;
 
@@ -42,7 +43,6 @@ namespace Greenshot.Editor.Drawing
     /// <summary>
     /// Dispatches most of a DrawableContainer's public properties and methods to a list of DrawableContainers.
     /// </summary>
-    [Serializable]
     public class DrawableContainerList : List<IDrawableContainer>, IDrawableContainerList
     {
         private static readonly ComponentResourceManager EditorFormResources = new(typeof(ImageEditorForm));
@@ -131,7 +131,7 @@ namespace Greenshot.Editor.Drawing
                 ParentID = value?.ID ?? Guid.NewGuid();
                 foreach (var drawableContainer in this)
                 {
-                    var dc = (DrawableContainer) drawableContainer;
+                    var dc = (DrawableContainer)drawableContainer;
                     dc.Parent = value;
                 }
             }
@@ -250,7 +250,7 @@ namespace Greenshot.Editor.Drawing
         {
             foreach (var drawableContainer in this)
             {
-                var dc = (DrawableContainer) drawableContainer;
+                var dc = (DrawableContainer)drawableContainer;
                 dc.OnDoubleClick();
             }
         }
@@ -330,7 +330,7 @@ namespace Greenshot.Editor.Drawing
 
             foreach (var drawableContainer in this)
             {
-                var dc = (DrawableContainer) drawableContainer;
+                var dc = (DrawableContainer)drawableContainer;
                 if (dc.Parent == null)
                 {
                     continue;
@@ -352,7 +352,7 @@ namespace Greenshot.Editor.Drawing
         {
             foreach (var drawableContainer in this)
             {
-                var dc = (DrawableContainer) drawableContainer;
+                var dc = (DrawableContainer)drawableContainer;
                 dc.HandleFieldChanged(sender, e);
             }
         }
@@ -449,7 +449,7 @@ namespace Greenshot.Editor.Drawing
             {
                 if (dc is not AbstractFieldHolderWithChildren fh) continue;
                 if (!fh.HasField(field)) continue;
-                
+
                 fh.SetFieldValue(field, color);
             }
         }
@@ -655,7 +655,7 @@ namespace Greenshot.Editor.Drawing
             // Copy
             item = new ToolStripMenuItem(Language.GetString(LangKey.editor_copytoclipboard))
             {
-                Image = (Image) EditorFormResources.GetObject("copyToolStripMenuItem.Image")
+                Image = (Image)EditorFormResources.GetObject("copyToolStripMenuItem.Image")
             };
             item.Click += delegate { ClipboardHelper.SetClipboardData(typeof(IDrawableContainerList), this); };
             menu.Items.Add(item);
@@ -663,7 +663,7 @@ namespace Greenshot.Editor.Drawing
             // Cut
             item = new ToolStripMenuItem(Language.GetString(LangKey.editor_cuttoclipboard))
             {
-                Image = (Image) EditorFormResources.GetObject("btnCut.Image")
+                Image = (Image)EditorFormResources.GetObject("btnCut.Image")
             };
             item.Click += delegate
             {
@@ -675,7 +675,7 @@ namespace Greenshot.Editor.Drawing
             // Delete
             item = new ToolStripMenuItem(Language.GetString(LangKey.editor_deleteelement))
             {
-                Image = (Image) EditorFormResources.GetObject("removeObjectToolStripMenuItem.Image")
+                Image = (Image)EditorFormResources.GetObject("removeObjectToolStripMenuItem.Image")
             };
             item.Click += delegate { surface.RemoveElements(this); };
             menu.Items.Add(item);
@@ -692,7 +692,7 @@ namespace Greenshot.Editor.Drawing
                     MakeBoundsChangeUndoable(false);
                     foreach (var drawableContainer in this)
                     {
-                        var container = (DrawableContainer) drawableContainer;
+                        var container = (DrawableContainer)drawableContainer;
                         if (!container.HasDefaultSize)
                         {
                             continue;
@@ -726,7 +726,7 @@ namespace Greenshot.Editor.Drawing
             bool hasMenu = this.Cast<DrawableContainer>().Any(container => container.HasContextMenu);
 
             if (!hasMenu) return;
-            
+
             ContextMenuStrip menu = new ContextMenuStrip();
             menu.SetupAutoDispose();
             AddContextMenuItems(menu, surface, mouseEventArgs);
@@ -767,6 +767,15 @@ namespace Greenshot.Editor.Drawing
             {
                 drawableContainer.AdjustToDpi(dpi);
             }
+        }
+
+        /// <summary>
+        /// Creates a clone by using our own DTO/domain conversion logic.
+        /// </summary>
+        /// <returns></returns>
+        public IDrawableContainerList Clone()
+        {
+            return ConvertDtoToDomain.ToDomain(ConvertDomainToDto.ToDto(this));
         }
     }
 }

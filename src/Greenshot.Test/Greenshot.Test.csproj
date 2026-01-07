@@ -1,0 +1,316 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="xunit" Version="2.4.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Greenshot.Editor\Greenshot.Editor.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="TestData\Greenshotfile\File_Version_1.02\ArrowContainer_lt_100_200_wh_400_100.greenshot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Greenshotfile\File_Version_1.02\EllipseContainer_lt_200_200_wh_400_100.greenshot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Greenshotfile\File_Version_1.02\FreehandContainer_lt_240_170_wh_12_1.greenshot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Greenshotfile\File_Version_1.02\FreehandContainer_with_4 Points.greenshot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Greenshotfile\File_Version_1.02\FreehandContainer_with_4_points.greenshot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Greenshotfile\File_Version_1.02\HighlightContainer_TextFilter_lt_310_70_wh_195_60.greenshot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Greenshotfile\File_Version_1.02\IconContainer_lt_300_200_wh_100_100.greenshot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Greenshotfile\File_Version_1.02\IconContainer_lt_400_200_wh_32_32.greenshot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Greenshotfile\File_Version_1.02\ImageContainer_lt_300_200_wh_100_100.greenshot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Greenshotfile\File_Version_1.02\LineContainer_lt_200_200_w_400.greenshot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Greenshotfile\File_Version_1.02\ObfuscateContainer_BlurFilter_lt_130_70_wh_180_70.greenshot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Greenshotfile\File_Version_1.02\RectangleContainer_lt_100_200_wh_150_80.greenshot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Greenshotfile\File_Version_1.02\SpeechbubbleContainer_lt_200_200_wh_150_80.greenshot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Greenshotfile\File_Version_1.02\StepLabelContainer_lt_200_200_lt_500_300.greenshot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Greenshotfile\File_Version_1.02\Surface_with_11_different_DrawableContainer.greenshot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Greenshotfile\File_Version_1.02\Surface_with_Image_800x400.greenshot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Greenshotfile\File_Version_1.02\TextContainer_lt_300_200_wh_300_100.greenshot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Greenshotfile\File_Version_1.03\ArrowContainer_lt_100_200_wh_400_100.greenshot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Greenshotfile\File_Version_1.03\EllipseContainer_lt_200_200_wh_400_100.greenshot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Greenshotfile\File_Version_1.03\FreehandContainer_with_4_points.greenshot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Greenshotfile\File_Version_1.03\HighlightContainer_TextFilter_lt_310_70_wh_195_60.greenshot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Greenshotfile\File_Version_1.03\IconContainer_lt_400_200_wh_32_32.greenshot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Greenshotfile\File_Version_1.03\ImageContainer_lt_300_200_wh_100_100.greenshot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Greenshotfile\File_Version_1.03\LineContainer_lt_200_200_w_400.greenshot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Greenshotfile\File_Version_1.03\MetafileContainer_lt_300_200_wh_120_100.greenshot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Greenshotfile\File_Version_1.03\ObfuscateContainer_BlurFilter_lt_130_70_wh_180_70.greenshot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Greenshotfile\File_Version_1.03\RectangleContainer_lt_100_200_wh_150_80.greenshot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Greenshotfile\File_Version_1.03\SpeechbubbleContainer_lt_200_200_wh_150_80.greenshot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Greenshotfile\File_Version_1.03\StepLabelContainer_lt_200_200_lt_500_300.greenshot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Greenshotfile\File_Version_1.03\Surface_with_14_different_DrawableContainer.greenshot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Greenshotfile\File_Version_1.03\Surface_with_Image_800x400.greenshot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Greenshotfile\File_Version_1.03\SvgContainer_lt_300_200_wh_120_100.greenshot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Greenshotfile\File_Version_1.03\TextContainer_lt_300_200_wh_300_100.greenshot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Greenshotfile\File_Version_2.01\ArrowContainer_lt_100_200_wh_400_100.greenshot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Greenshotfile\File_Version_2.01\EllipseContainer_lt_200_200_wh_400_100.greenshot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Greenshotfile\File_Version_2.01\FreehandContainer_with_4_points.greenshot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Greenshotfile\File_Version_2.01\HighlightContainer_TextFilter_lt_310_70_wh_195_60.greenshot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Greenshotfile\File_Version_2.01\IconContainer_lt_400_200_wh_32_32.greenshot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Greenshotfile\File_Version_2.01\ImageContainer_lt_300_200_wh_100_100.greenshot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Greenshotfile\File_Version_2.01\LineContainer_lt_200_200_w_400.greenshot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Greenshotfile\File_Version_2.01\MetafileContainer_lt_300_200_wh_120_100.greenshot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Greenshotfile\File_Version_2.01\ObfuscateContainer_BlurFilter_lt_130_70_wh_180_70.greenshot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Greenshotfile\File_Version_2.01\RectangleContainer_lt_100_200_wh_150_80.greenshot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Greenshotfile\File_Version_2.01\SpeechbubbleContainer_lt_200_200_wh_150_80.greenshot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Greenshotfile\File_Version_2.01\StepLabelContainer_lt_200_200_lt_500_300.greenshot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Greenshotfile\File_Version_2.01\Surface_with_14_different_DrawableContainer.greenshot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Greenshotfile\File_Version_2.01\Surface_with_Image_800x400.greenshot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Greenshotfile\File_Version_2.01\SvgContainer_lt_300_200_wh_120_100.greenshot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Greenshotfile\File_Version_2.01\TextContainer_lt_300_200_wh_300_100.greenshot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\GreenshotTemplate\File_Version_1.02\ArrowContainer_lt_100_200_wh_400_100.gst">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\GreenshotTemplate\File_Version_1.02\EllipseContainer_lt_200_200_wh_400_100.gst">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\GreenshotTemplate\File_Version_1.02\FreehandContainer_with_4_points.gst">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\GreenshotTemplate\File_Version_1.02\HighlightContainer_TextFilter_lt_310_70_wh_195_60.gst">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\GreenshotTemplate\File_Version_1.02\IconContainer_lt_400_200_wh_32_32.gst">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\GreenshotTemplate\File_Version_1.02\ImageContainer_lt_300_200_wh_100_100.gst">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\GreenshotTemplate\File_Version_1.02\LineContainer_lt_200_200_w_400.gst">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\GreenshotTemplate\File_Version_1.02\ObfuscateContainer_BlurFilter_lt_130_70_wh_180_70.gst">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\GreenshotTemplate\File_Version_1.02\RectangleContainer_lt_100_200_wh_150_80.gst">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\GreenshotTemplate\File_Version_1.02\SpeechbubbleContainer_lt_200_200_wh_150_80.gst">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\GreenshotTemplate\File_Version_1.02\StepLabelContainer_lt_200_200_lt_500_300.gst">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\GreenshotTemplate\File_Version_1.02\Surface_with_11_different_DrawableContainer.gst">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\GreenshotTemplate\File_Version_1.02\TextContainer_lt_300_200_wh_300_100.gst">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\GreenshotTemplate\File_Version_1.03\ArrowContainer_lt_100_200_wh_400_100.gst">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\GreenshotTemplate\File_Version_1.03\EllipseContainer_lt_200_200_wh_400_100.gst">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\GreenshotTemplate\File_Version_1.03\FreehandContainer_with_4_points.gst">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\GreenshotTemplate\File_Version_1.03\HighlightContainer_TextFilter_lt_310_70_wh_195_60.gst">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\GreenshotTemplate\File_Version_1.03\IconContainer_lt_400_200_wh_32_32.gst">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\GreenshotTemplate\File_Version_1.03\ImageContainer_lt_300_200_wh_100_100.gst">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\GreenshotTemplate\File_Version_1.03\LineContainer_lt_200_200_w_400.gst">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\GreenshotTemplate\File_Version_1.03\MetafileContainer_lt_300_200_wh_120_100.gst">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\GreenshotTemplate\File_Version_1.03\ObfuscateContainer_BlurFilter_lt_130_70_wh_180_70.gst">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\GreenshotTemplate\File_Version_1.03\RectangleContainer_lt_100_200_wh_150_80.gst">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\GreenshotTemplate\File_Version_1.03\SpeechbubbleContainer_lt_200_200_wh_150_80.gst">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\GreenshotTemplate\File_Version_1.03\StepLabelContainer_lt_200_200_lt_500_300.gst">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\GreenshotTemplate\File_Version_1.03\Surface_with_14_different_DrawableContainer.gst">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\GreenshotTemplate\File_Version_1.03\SvgContainer_lt_300_200_wh_120_100.gst">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\GreenshotTemplate\File_Version_1.03\TextContainer_lt_300_200_wh_300_100.gst">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\GreenshotTemplate\File_Version_2.01\ArrowContainer_lt_100_200_wh_400_100.gst">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\GreenshotTemplate\File_Version_2.01\EllipseContainer_lt_200_200_wh_400_100.gst">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\GreenshotTemplate\File_Version_2.01\FreehandContainer_with_4_points.gst">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\GreenshotTemplate\File_Version_2.01\HighlightContainer_TextFilter_lt_310_70_wh_195_60.gst">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\GreenshotTemplate\File_Version_2.01\IconContainer_lt_400_200_wh_32_32.gst">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\GreenshotTemplate\File_Version_2.01\ImageContainer_lt_300_200_wh_100_100.gst">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\GreenshotTemplate\File_Version_2.01\LineContainer_lt_200_200_w_400.gst">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\GreenshotTemplate\File_Version_2.01\MetafileContainer_lt_300_200_wh_120_100.gst">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\GreenshotTemplate\File_Version_2.01\ObfuscateContainer_BlurFilter_lt_130_70_wh_180_70.gst">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\GreenshotTemplate\File_Version_2.01\RectangleContainer_lt_100_200_wh_150_80.gst">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\GreenshotTemplate\File_Version_2.01\SpeechbubbleContainer_lt_200_200_wh_150_80.gst">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\GreenshotTemplate\File_Version_2.01\StepLabelContainer_lt_200_200_lt_500_300.gst">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\GreenshotTemplate\File_Version_2.01\Surface_with_14_different_DrawableContainer.gst">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\GreenshotTemplate\File_Version_2.01\Surface_with_Image_800x400.greenshot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\GreenshotTemplate\File_Version_2.01\SvgContainer_lt_300_200_wh_120_100.gst">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\GreenshotTemplate\File_Version_2.01\TextContainer_lt_300_200_wh_300_100.gst">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Images\Greenshot.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Images\Logo_G_with_Border.emf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Images\Logo_G_with_Border.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Images\Logo_G_with_Border.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Images\Logo_G_with_Border.svg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Images\Logo_G_with_Border.wmf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

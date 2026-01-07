@@ -120,7 +120,11 @@ namespace Greenshot.Editor.FileFormatHandlers
             return true;
         }
 
+        /// <summary>
         /// <inheritdoc />
+        /// </summary>
+        /// <remarks>This default implementation uses <see cref="Image.FromStream(System.IO.Stream)"/></remarks>
+        /// <returns><see langword="true"/> if the image was successfully loaded into a <see cref="Bitmap"/>; otherwise, <see langword="false"/>.</returns>
         public override bool TryLoadFromStream(Stream stream, string extension, out Bitmap bitmap)
         {
             try

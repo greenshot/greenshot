@@ -25,7 +25,6 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
-using System.Runtime.Serialization;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
@@ -49,7 +48,6 @@ namespace Greenshot.Editor.Drawing
     /// Subclasses should fulfill INotifyPropertyChanged contract, i.e. call
     /// OnPropertyChanged whenever a public property has been changed.
     /// </summary>
-    [Serializable]
     public abstract class DrawableContainer : AbstractFieldHolderWithChildren, IDrawableContainer
     {
         private static readonly ILog LOG = LogManager.GetLogger(typeof(DrawableContainer));
@@ -57,18 +55,18 @@ namespace Greenshot.Editor.Drawing
         private const int M11 = 0;
         private const int M22 = 3;
 
-        [OnDeserialized]
-        private void OnDeserializedInit(StreamingContext context)
+        public DrawableContainer(ISurface parent)
         {
-            _adorners = new List<IAdorner>();
-            OnDeserialized(context);
+            InitializeFields();
+            _parent = parent;
         }
 
         /// <summary>
-        /// Override to implement your own deserialization logic, like initializing properties which are not serialized
+        /// Performs post-deserialization initialization for the object.
+        /// This method is called after the object has been deserialized to restore or initialize
+        /// state that depends on deserialization. 
         /// </summary>
-        /// <param name="streamingContext"></param>
-        protected virtual void OnDeserialized(StreamingContext streamingContext)
+        public virtual void OnDeserialized()
         {
         }
 
@@ -104,7 +102,7 @@ namespace Greenshot.Editor.Drawing
             Dispose(false);
         }
 
-        [NonSerialized] private PropertyChangedEventHandler _propertyChanged;
+        private PropertyChangedEventHandler _propertyChanged;
 
         public event PropertyChangedEventHandler PropertyChanged
         {
@@ -129,7 +127,7 @@ namespace Greenshot.Editor.Drawing
             }
         }
 
-        [NonSerialized] internal ISurface _parent;
+        internal ISurface _parent;
 
         public ISurface Parent
         {
@@ -142,10 +140,10 @@ namespace Greenshot.Editor.Drawing
             get => (Surface)_parent;
         }
 
-        [NonSerialized] private TargetAdorner _targetAdorner;
+        private TargetAdorner _targetAdorner;
         public TargetAdorner TargetAdorner => _targetAdorner;
 
-        [NonSerialized] private bool _selected;
+        private bool _selected;
 
         public bool Selected
         {
@@ -157,7 +155,7 @@ namespace Greenshot.Editor.Drawing
             }
         }
 
-        [NonSerialized] private EditStatus _status = EditStatus.UNDRAWN;
+        private EditStatus _status = EditStatus.UNDRAWN;
 
         public EditStatus Status
         {
@@ -253,15 +251,13 @@ namespace Greenshot.Editor.Drawing
         /// <summary>
         /// List of available Adorners
         /// </summary>
-        [NonSerialized] private IList<IAdorner> _adorners = new List<IAdorner>();
+        private IList<IAdorner> _adorners = new List<IAdorner>();
 
         public IList<IAdorner> Adorners => _adorners;
 
-        [NonSerialized]
         // will store current bounds of this DrawableContainer before starting a resize
         protected NativeRect _boundsBeforeResize = NativeRect.Empty;
 
-        [NonSerialized]
         // "workbench" rectangle - used for calculating bounds during resizing (to be applied to this DrawableContainer afterwards)
         protected NativeRectFloat _boundsAfterResize = NativeRectFloat.Empty;
 
@@ -283,12 +279,6 @@ namespace Greenshot.Editor.Drawing
             Top = Round(newBounds.Top);
             Width = Round(newBounds.Width);
             Height = Round(newBounds.Height);
-        }
-
-        public DrawableContainer(ISurface parent)
-        {
-            InitializeFields();
-            _parent = parent;
         }
 
         public void Add(IFilter filter)
