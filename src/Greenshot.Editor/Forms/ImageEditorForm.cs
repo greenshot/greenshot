@@ -193,7 +193,7 @@ namespace Greenshot.Editor.Forms
                 _ => false
             };
 
-            if (useBestFit)
+            if (useBestFit && EditorConfiguration.UseBestFit)
             {
                 ZoomBestFitMenuItemClick(this, EventArgs.Empty);
             }
@@ -1675,7 +1675,7 @@ namespace Greenshot.Editor.Forms
 
         private void AddBorderToolStripMenuItemClick(object sender, EventArgs e)
         {
-            _surface.ApplyBitmapEffect(new BorderEffect());
+            _surface.ApplyBitmapEffect(EditorConfiguration.BorderEffectSettings);
             UpdateUndoRedoSurfaceDependencies();
         }
 
