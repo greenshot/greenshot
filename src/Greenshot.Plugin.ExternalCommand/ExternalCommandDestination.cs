@@ -267,7 +267,7 @@ namespace Greenshot.Plugin.ExternalCommand
         public static string FormatArguments(string arguments, string fullpath)
         {
             // Validate filename doesn't contain shell metacharacters
-            char[] dangerousChars = { '&', '|', ';', '$', '`', '(', ')', '<', '>', '\n', '\r', '"', '\'', '\\' };
+            char[] dangerousChars = { '&', '|', ';', '$', '`', '(', ')', '<', '>', '\n', '\r', '"', '\'' };
 
             if (fullpath.IndexOfAny(dangerousChars) >= 0)
             {
