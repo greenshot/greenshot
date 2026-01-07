@@ -621,7 +621,7 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        ///	Finds the optimal (maximal) position for the cut.
+        /// Finds the optimal (maximal) position for the cut.
         /// </summary>
         private float Maximize(WuColorCube cube, int direction, int first, int last, int[] cut, long wholeRed, long wholeGreen, long wholeBlue, long wholeWeight)
         {

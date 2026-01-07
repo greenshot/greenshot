@@ -274,7 +274,7 @@ namespace Greenshot.Base.Core
             // See https://connect.microsoft.com/VisualStudio/feedback/details/344752/gdi-object-leak-when-calling-graphics-copyfromscreen
             // Bitmap capturedBitmap = new Bitmap(captureBounds.Width, captureBounds.Height);
             // using (Graphics graphics = Graphics.FromImage(capturedBitmap)) {
-            //	graphics.CopyFromScreen(captureBounds.Location, Point.Empty, captureBounds.Size, CopyPixelOperation.CaptureBlt);
+            //    graphics.CopyFromScreen(captureBounds.Location, Point.Empty, captureBounds.Size, CopyPixelOperation.CaptureBlt);
             // }
             // capture.Image = capturedBitmap;
             // capture.Location = captureBounds.Location;
