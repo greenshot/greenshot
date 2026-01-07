@@ -35,28 +35,28 @@ namespace Greenshot.Base.Core
     /// doesn't show all credentials use the tool here: https://www.microsoft.com/indonesia/msdn/credmgmt.aspx
     /// The following code is an example for a login, it will call the Authenticate with user/password
     /// which should return true if the login worked, false if not.
-    ///		private static bool Login(string system, string name) {
-    ///			try {
-    ///				CredentialsDialog dialog = new CredentialsDialog(system);
-    ///				dialog.Name = name;
-    ///				while (dialog.Show(dialog.Name) == DialogResult.OK) {
-    ///					if (Authenticate(dialog.Name, dialog.Password)) {
-    ///						if (dialog.SaveChecked) dialog.Confirm(true);
-    ///						return true;
-    ///					} else {
-    ///						try {
-    ///							dialog.Confirm(false);
-    ///						} catch (ApplicationException) {
-    ///							// exception handling ...
-    ///						}
-    ///						dialog.IncorrectPassword = true;
-    ///					}
-    ///				}
-    ///			} catch (ApplicationException) {
-    ///				// exception handling ...
-    ///			}
-    ///			return false;
-    ///		}
+    ///        private static bool Login(string system, string name) {
+    ///            try {
+    ///                CredentialsDialog dialog = new CredentialsDialog(system);
+    ///                dialog.Name = name;
+    ///                while (dialog.Show(dialog.Name) == DialogResult.OK) {
+    ///                    if (Authenticate(dialog.Name, dialog.Password)) {
+    ///                        if (dialog.SaveChecked) dialog.Confirm(true);
+    ///                        return true;
+    ///                    } else {
+    ///                        try {
+    ///                            dialog.Confirm(false);
+    ///                        } catch (ApplicationException) {
+    ///                            // exception handling ...
+    ///                        }
+    ///                        dialog.IncorrectPassword = true;
+    ///                    }
+    ///                }
+    ///            } catch (ApplicationException) {
+    ///                // exception handling ...
+    ///            }
+    ///            return false;
+    ///        }
     /// </summary>
     /// <summary>Encapsulates dialog functionality from the Credential Management API.</summary>
     public sealed class CredentialsDialog

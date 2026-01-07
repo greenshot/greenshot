@@ -67,12 +67,12 @@ namespace Greenshot.Plugin.Confluence
                 }
 
                 var fields = _type.GetFields(BindingFlags.Public | BindingFlags.Static);
-                foreach (var field in fields)
+                foreach (var fieldInfo in fields)
                 {
-                    DisplayKeyAttribute[] a = (DisplayKeyAttribute[]) field.GetCustomAttributes(typeof(DisplayKeyAttribute), false);
+                    DisplayKeyAttribute[] a = (DisplayKeyAttribute[])fieldInfo.GetCustomAttributes(typeof(DisplayKeyAttribute), false);
 
                     string displayKey = GetDisplayKeyValue(a);
-                    object enumValue = field.GetValue(null);
+                    object enumValue = fieldInfo.GetValue(null);
 
                     string displayString;
                     if (displayKey != null && Language.HasKey(displayKey))

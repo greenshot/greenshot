@@ -1019,7 +1019,7 @@ namespace Greenshot.Forms
 
                 // TODO: enable when the screen capture code works reliable
                 //if (capture.CaptureDetails.CaptureMode == CaptureMode.Video) {
-                //	graphics.FillRectangle(RedOverlayBrush, fixedRect);
+                //    graphics.FillRectangle(RedOverlayBrush, fixedRect);
                 //} else {
                 graphics.FillRectangle(GreenOverlayBrush, fixedRect);
                 //}
