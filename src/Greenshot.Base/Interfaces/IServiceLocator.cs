@@ -54,5 +54,19 @@ namespace Greenshot.Base.Interfaces
         /// <typeparam name="TService">Type of the service</typeparam>
         /// <param name="services">IEnumerable{TService} with services to add</param>
         void AddService<TService>(IEnumerable<TService> services);
+
+        /// <summary>
+        /// Remove one or more services from the registry
+        /// </summary>
+        /// <typeparam name="TService">Type of the service</typeparam>
+        /// <param name="services">One or more services which need to be removed</param>
+        void RemoveService<TService>(params TService[] services);
+
+        /// <summary>
+        /// Remove multiple services from the registry
+        /// </summary>
+        /// <typeparam name="TService">Type of the service</typeparam>
+        /// <param name="services">IEnumerable{TService} with services to remove</param>
+        void RemoveService<TService>(IEnumerable<TService> services);
     }
 }
