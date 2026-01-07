@@ -24,10 +24,10 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Forms;
-using Greenshot.Base.Core;
+using Greenshot.Base;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Wpf;
-using Greenshot.Destinations;
+using Greenshot.Configuration;
 using MessageBox = System.Windows.MessageBox;
 
 namespace Greenshot.Forms.Wpf
@@ -87,10 +87,10 @@ namespace Greenshot.Forms.Wpf
 
         private void ShowPatternHelp_Click(object sender, RoutedEventArgs e)
         {
-            string filenamepatternText = Language.GetString(LangKey.settings_message_filenamepattern);
+            string filenamepatternText = Greenshot.Base.Core.Language.GetString(LangKey.settings_message_filenamepattern);
             // Convert %NUM% to ${NUM} for old language files!
             filenamepatternText = Regex.Replace(filenamepatternText, "%([a-zA-Z_0-9]+)%", @"${$1}");
-            MessageBox.Show(filenamepatternText, Language.GetString(LangKey.settings_filenamepattern));
+            MessageBox.Show(filenamepatternText, Greenshot.Base.Core.Language.GetString(LangKey.settings_filenamepattern));
         }
 
         private void SaveSettings()

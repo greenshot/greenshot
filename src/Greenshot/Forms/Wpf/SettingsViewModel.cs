@@ -22,14 +22,12 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
+using Greenshot.Base;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
-using Greenshot.Configuration;
-using Greenshot.Destinations;
 
 namespace Greenshot.Forms.Wpf
 {
