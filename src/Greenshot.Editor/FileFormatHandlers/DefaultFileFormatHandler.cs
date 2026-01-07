@@ -71,13 +71,18 @@ namespace Greenshot.Editor.FileFormatHandlers
             {
                 return false;
             }
-            EncoderParameters parameters = new EncoderParameters(1)
+            // Don't use quality parameter for PNG (it doesn't support it and can cause corruption)
+            EncoderParameters parameters = null;
+            if (imageFormat.Guid != ImageFormat.Png.Guid)
             {
-                Param =
+                parameters = new EncoderParameters(1)
                 {
-                    [0] = new EncoderParameter(Encoder.Quality, surfaceOutputSettings.JPGQuality)
-                }
-            };
+                    Param =
+                    {
+                        [0] = new EncoderParameter(Encoder.Quality, surfaceOutputSettings.JPGQuality)
+                    }
+                };
+            }
             // For those images which are with Alpha, but the format doesn't support this, change it to 24bpp
             if (imageFormat.Guid == ImageFormat.Jpeg.Guid && Image.IsAlphaPixelFormat(bitmap.PixelFormat))
             {
