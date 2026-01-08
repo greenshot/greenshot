@@ -7,7 +7,18 @@
         WindowStartupLocation="CenterScreen"
         ResizeMode="CanResize"
         MinWidth="600" MinHeight="500"
-        Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BackgroundBrush}">
+        Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BackgroundBrush}"
+        WindowStyle="None"
+        AllowsTransparency="False">
+    
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="36"
+                      CornerRadius="0"
+                      GlassFrameThickness="0"
+                      NonClientFrameEdges="None"
+                      ResizeBorderThickness="5"
+                      UseAeroCaptionButtons="False"/>
+    </WindowChrome.WindowChrome>
     
     <Window.Resources>
         <wpf:ExpertVisibilityConverter x:Key="ExpertVisibilityConverter"/>
@@ -285,9 +296,104 @@
         <Style TargetType="Slider">
             <Setter Property="Margin" Value="6,3"/>
         </Style>
+        
+        <!-- Title Bar Button Style -->
+        <Style x:Key="TitleBarButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Width" Value="46"/>
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" BorderThickness="0">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonHoverBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        <!-- Title Bar Close Button Style -->
+        <Style x:Key="TitleBarCloseButtonStyle" TargetType="Button" BasedOn="{StaticResource TitleBarButtonStyle}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" BorderThickness="0">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#E81123"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
     
-    <Grid Margin="12">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="36"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Custom Title Bar -->
+        <Grid Grid.Row="0" 
+              Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TitleBarBrush}"
+              MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="36"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            
+            <!-- Window Icon -->
+            <Image Grid.Column="0" 
+                   Source="/Greenshot;component/Greenshot.ico"
+                   Width="16" Height="16"
+                   Margin="10,0,0,0"
+                   VerticalAlignment="Center"
+                   WindowChrome.IsHitTestVisibleInChrome="False"/>
+            
+            <!-- Window Title -->
+            <TextBlock Grid.Column="1"
+                       Text="{wpf:Translate settings_title}"
+                       Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
+                       VerticalAlignment="Center"
+                       Margin="8,0,0,0"
+                       FontSize="13"
+                       WindowChrome.IsHitTestVisibleInChrome="False"/>
+            
+            <!-- Window Controls -->
+            <StackPanel Grid.Column="2" 
+                        Orientation="Horizontal"
+                        WindowChrome.IsHitTestVisibleInChrome="True">
+                <Button Content="🗕" 
+                        Click="MinimizeButton_Click"
+                        Style="{StaticResource TitleBarButtonStyle}"
+                        ToolTip="Minimize"/>
+                <Button Content="🗖" 
+                        Click="MaximizeButton_Click"
+                        Style="{StaticResource TitleBarButtonStyle}"
+                        ToolTip="Maximize"/>
+                <Button Content="✕" 
+                        Click="CloseButton_Click"
+                        Style="{StaticResource TitleBarCloseButtonStyle}"
+                        ToolTip="Close"/>
+            </StackPanel>
+        </Grid>
+        
+    <Grid Grid.Row="1" Margin="12">
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
@@ -545,6 +651,20 @@
                 </ScrollViewer>
             </TabItem>
             
+            <!-- Editor Tab -->
+            <TabItem Header="{wpf:Translate settings_editor}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <GroupBox Header="{wpf:Translate settings_editor}">
+                            <StackPanel>
+                                <CheckBox Content="{wpf:Translate editor_match_capture_size}"
+                                          IsChecked="{Binding EditorConfiguration.MatchSizeToCapture, Mode=TwoWay}"/>
+                            </StackPanel>
+                        </GroupBox>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            
             <!-- Printer Tab -->
             <TabItem Header="{wpf:Translate settings_printer}">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -554,6 +674,23 @@
                                 <CheckBox Content="{wpf:Translate settings_alwaysshowprintoptionsdialog}"
                                           IsChecked="{Binding CoreConfiguration.OutputPrintPromptOptions, Mode=TwoWay}"/>
                             </StackPanel>
+                        </GroupBox>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            
+            <!-- Plugin Tab -->
+            <TabItem Header="{wpf:Translate settings_plugins}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <GroupBox Header="{wpf:Translate settings_plugins}">
+                            <ItemsControl ItemsSource="{Binding PluginControls}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <ContentControl Content="{Binding}"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
                         </GroupBox>
                     </StackPanel>
                 </ScrollViewer>
@@ -612,6 +749,7 @@
                     Width="75"
                     IsCancel="True"
                     Click="CancelButton_Click"/>
-        </StackPanel>
+            </StackPanel>
+        </Grid>
     </Grid>
 </Window>

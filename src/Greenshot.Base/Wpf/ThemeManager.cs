@@ -64,6 +64,7 @@ namespace Greenshot.Base.Wpf
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ButtonPressedBrush)));
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TabItemBackgroundBrush)));
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TabItemSelectedBrush)));
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TitleBarBrush)));
                 }
             }
         }
@@ -107,6 +108,10 @@ namespace Greenshot.Base.Wpf
         public Brush TabItemSelectedBrush => _isDarkTheme
             ? new SolidColorBrush(Color.FromRgb(42, 42, 42))
             : new SolidColorBrush(Colors.White);
+
+        public Brush TitleBarBrush => _isDarkTheme
+            ? new SolidColorBrush(Color.FromRgb(24, 24, 24))
+            : new SolidColorBrush(Color.FromRgb(240, 240, 240));
 
         private void DetectSystemTheme()
         {

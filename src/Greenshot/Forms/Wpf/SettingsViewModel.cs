@@ -23,11 +23,13 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Windows;
 using Greenshot.Base;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
+using Greenshot.Editor.Configuration;
 
 namespace Greenshot.Forms.Wpf
 {
@@ -45,6 +47,7 @@ namespace Greenshot.Forms.Wpf
         public SettingsViewModel()
         {
             CoreConfiguration = IniConfig.GetIniSection<CoreConfiguration>();
+            EditorConfiguration = IniConfig.GetIniSection<EditorConfiguration>();
             _expertModeEnabled = !CoreConfiguration.HideExpertSettings;
             // AutoStart is handled separately from INI config
             _autoStartEnabled = false;
@@ -63,9 +66,16 @@ namespace Greenshot.Forms.Wpf
             
             // Initialize destinations
             InitializeDestinations();
+            
+            // Initialize plugin controls collection
+            PluginControls = new ObservableCollection<UIElement>();
         }
 
         public CoreConfiguration CoreConfiguration { get; }
+        
+        public EditorConfiguration EditorConfiguration { get; }
+        
+        public ObservableCollection<UIElement> PluginControls { get; }
 
         public bool ExpertModeEnabled
         {
