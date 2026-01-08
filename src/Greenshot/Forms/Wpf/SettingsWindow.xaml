@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
         Title="{wpf:Translate settings_title}"
-        Width="700" Height="600"
+        Width="700" Height="810"
         WindowStartupLocation="CenterScreen"
         ResizeMode="CanResize"
         MinWidth="600" MinHeight="500"
@@ -623,15 +623,11 @@
             
             <!-- Destinations Tab -->
             <TabItem Header="{wpf:Translate settings_destination}">
-                <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <GroupBox Header="{wpf:Translate settings_destination}">
-                        <StackPanel>
-                            <CheckBox Content="{wpf:Translate settings_destination_picker}"
-                                      IsChecked="{Binding PickerSelected, Mode=TwoWay}"
-                                      Margin="5"/>
-                            <ListView ItemsSource="{Binding Destinations}"
-                                      Height="250"
-                                      Margin="5">
+                        <DockPanel LastChildFill="True">
+                            <CheckBox Content="{wpf:Translate settings_destination_picker}" IsChecked="{Binding PickerSelected, Mode=TwoWay}" Margin="5" DockPanel.Dock="Top"/>
+                                <ListView ItemsSource="{Binding Destinations}" Margin="5" ScrollViewer.VerticalScrollBarVisibility="Visible"
+          ScrollViewer.CanContentScroll="False">
                                 <ListView.View>
                                     <GridView>
                                         <GridViewColumn Width="50">
@@ -646,9 +642,8 @@
                                     </GridView>
                                 </ListView.View>
                             </ListView>
-                        </StackPanel>
+                        </DockPanel>
                     </GroupBox>
-                </ScrollViewer>
             </TabItem>
             
             <!-- Editor Tab -->
@@ -747,6 +742,7 @@
                     Click="OkButton_Click"/>
             <Button Content="{wpf:Translate CANCEL}" 
                     Width="75"
+                    Margin="5,0"
                     IsCancel="True"
                     Click="CancelButton_Click"/>
             </StackPanel>
