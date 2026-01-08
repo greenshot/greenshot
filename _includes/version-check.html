@@ -69,7 +69,7 @@ function compareVersion(a, b) {
 
 function checkVersion(installedVersion) {
     var greenshotTag = {% if latest_release.tag_name %}"{{ latest_release.tag_name }}"{% else %}"Greenshot-Test-1.2.9.129"{% endif %};
-    var releaseVersion = /.*(\d+\.\d+\.\d+\.\d+)/.exec(greenshotTag)[1];
+    var releaseVersion = /.*(\d+\.\d+\.\d+)/.exec(greenshotTag)[1];
     var compare=compareVersion(releaseVersion, installedVersion);
     var matchingBlogPost = release_blog_posts[installedVersion];
     if (matchingBlogPost) {
@@ -93,5 +93,6 @@ $(document).ready(function () {
         checkVersion(versionMatch[1]);
     }
 });
+
 
 </script>
