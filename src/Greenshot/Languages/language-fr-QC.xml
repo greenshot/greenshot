@@ -202,7 +202,7 @@ Veuillez vérifier que vous avez l'autorisation d'écrire dans le répertoire de
 		<resource name="settings_destination_email">Courriel</resource>
 		<resource name="settings_destination_file">Sauv. directe (paramètres ci-dessous)</resource>
 		<resource name="settings_destination_fileas">Sauvegarder sous...</resource>
-		<resource name="settings_destination_picker">Choisir la destination dynamiquement</resource>
+		<resource name="settings_destination_picker">Choisir la destination à chaque fois</resource>
 		<resource name="settings_destination_printer">Envoyer à l'imprimante</resource>
 		<resource name="settings_editor">Editeur</resource>
 		<resource name="settings_filenamepattern">Motif du nom de fichier</resource>

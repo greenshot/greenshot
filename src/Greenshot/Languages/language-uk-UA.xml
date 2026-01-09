@@ -218,7 +218,7 @@ Greenshot постачається АБСОЛЮТНО БЕЗ ГАРАНТІЇ. �
 		<resource name="settings_destination_email">Ел. пошта</resource>
 		<resource name="settings_destination_file">Безпосереднє збереження (використовуючи параметри нижче)</resource>
 		<resource name="settings_destination_fileas">Зберегти як (відображення діалогу)</resource>
-		<resource name="settings_destination_picker">Динамічний вибір призначення</resource>
+		<resource name="settings_destination_picker">Вибирати місце призначення щоразу</resource>
 		<resource name="settings_destination_printer">Роздрукувати</resource>
 		<resource name="settings_editor">Редактор</resource>
 		<resource name="settings_filenamepattern">Шаблон назви файла</resource>

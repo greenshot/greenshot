@@ -217,7 +217,7 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="settings_destination_email">이메일</resource>
 		<resource name="settings_destination_file">직접 저장 (아래 설정 사용)</resource>
 		<resource name="settings_destination_fileas">다른 이름으로 저장</resource>
-		<resource name="settings_destination_picker">동적으로 저장할 방법 선택</resource>
+		<resource name="settings_destination_picker">매번 대상 선택</resource>
 		<resource name="settings_destination_printer">인쇄기로 보내기</resource>
 		<resource name="settings_editor">편집기</resource>
 		<resource name="settings_filenamepattern">파일명 유형</resource>

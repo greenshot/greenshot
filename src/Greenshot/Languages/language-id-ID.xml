@@ -238,7 +238,7 @@ Harap cek aksesibilitas menuis pada lokasi penyimpanan yang dipilih.</resource>
 		<resource name="settings_destination_email">E-Mail</resource>
 		<resource name="settings_destination_file">Simpan cepat (menggunakan pengaturan berikut)</resource>
 		<resource name="settings_destination_fileas">Simpan sebagai (tampilkan dialog)</resource>
-		<resource name="settings_destination_picker">Pilih destinasi secara dinamis</resource>
+		<resource name="settings_destination_picker">Pilih destinasi setiap kali</resource>
 		<resource name="settings_destination_printer">Kirim ke printer</resource>
 		<resource name="settings_editor">Editor</resource>
 		<resource name="settings_filenamepattern">Pola nama berkas</resource>
