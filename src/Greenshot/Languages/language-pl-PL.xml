@@ -293,6 +293,6 @@ Proszę wyłączyć oprogramowanie korzystające z klawisza Print. Możliwe jest
 		<resource name="WindowCaptureMode.Auto">Automatycznie</resource>
 		<resource name="WindowCaptureMode.GDI">Używaj domyślnego koloru</resource>
 		<resource name="WindowCaptureMode.Screen">Tak jak wyświetlane</resource>
-                <resource name="editor_resize">Zmień rozmiar (Z)</resource>
+		<resource name="editor_resize">Zmień rozmiar (Z)</resource>
 	</resources>
 </language>
