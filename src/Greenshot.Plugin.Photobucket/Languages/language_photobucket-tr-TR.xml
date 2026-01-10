@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<language description="Türkçe" ietf="tr-TR" version="1.0.0">
+  <resources>
+	<resource name="upload_menu_item">
+		Photobucket’a yükle
+	</resource>
+	<resource name="settings_title">
+		Photobucket ayarları
+	</resource>
+	<resource name="OK">
+		Tamam
+	</resource>
+	<resource name="CANCEL">
+		İptal et
+	</resource>
+	<resource name="upload_success">
+		Görüntü Photobucket'a başarıyla yüklendi!
+	</resource>
+	<resource name="upload_failure">
+		Photobucket'a yükleme sırasında bir hata oluştu:
+	</resource>
+	<resource name="label_upload_format">
+		Görüntü biçimi
+	</resource>
+	<resource name="communication_wait">
+		Photobucket ile iletişim kuruluyor. Lütfen bekleyin...
+	</resource>
+	<resource name="use_page_link">
+		Panodaki görüntü linki yerine web sayfası linki kullan
+	</resource>
+	<resource name="configure">
+    Photobucket'ı yapılandır
+  </resource>
+  </resources>
+</language>

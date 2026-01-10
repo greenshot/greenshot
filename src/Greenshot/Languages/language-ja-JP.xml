@@ -1,250 +1,256 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="日本語" ietf="ja-JP" version="1.0.1" languagegroup="7">
+<language description="日本語" ietf="ja-JP" version="1.3.290" languagegroup="7">
 	<resources>
-		<resource name="about_bugs">バグ等の報告先 :</resource>
-		<resource name="about_donations">Greenshot がお気に召したなら、是非支援をお願いします :</resource>
-		<resource name="about_host">Greenshot は GitHub によって運営されています :</resource>
-		<resource name="about_icons">上山根 祐輔氏の Fugue Icons を使用しています (Creative Commons Attribution 3.0 license) :</resource>
-		<resource name="about_license">Copyright © 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
-Greenshot には一切の保障がありません。GNU General Public License に定められた条件下で再配布をおこなうことができます。:</resource>
+		<resource name="about_bugs">バグ等の報告先:</resource>
+		<resource name="about_donations">Greenshot が気に入ったら、是非支援をお願いします:</resource>
+		<resource name="about_host">Greenshot は、GitHub でホストされています:</resource>
+		<resource name="about_icons">上山根 祐輔氏の Fugue Icons を使用しています (Creative Commons Attribution 3.0 license):</resource>
+		<resource name="about_license">Copyright (C) 2007-2025 Thomas Braun、Jens Klingen、Robin Krom
+Greenshot には一切の保障がありません。
+これはフリー ソフトウェアであり、特定の条件下で再配布することができます。
+GNU General Public License の詳細:</resource>
 		<resource name="about_title">Greenshot について</resource>
-		<resource name="application_title">Greenshot - the revolutionary screenshot utility</resource>
+		<resource name="about_translation">Japanese translation by Rukoto Luther</resource>
+		<resource name="application_title">Greenshot - 革新的なスクリーンショット ユーティリティ</resource>
 		<resource name="bugreport_cancel">閉じる</resource>
 		<resource name="bugreport_info">予期しないエラーが発生しました。
 
-我々にバグの報告をおこなってバグ修正に貢献していただけませんか。
+われわれにバグの報告をおこなってバグ修正に貢献していただけませんか。
 次の URL にアクセスし、そこでバグ レポートを作成して、テキスト エリアの内容を説明として貼り付けてください。
 
 どのような状況で発生したのか、またバグを修正するのに役立つと思われる情報を、できる限りつけ加えてください。
-すでに同じようなバグが報告されているかどうか、確認した上で報告してくださると、我々はさらに助かります(検索機能を使用すれば簡単におこなえます)。 ありがとうございました :)</resource>
+既に同じようなバグが報告されていないかを、検索機能を使って確認したうえで報告してくださると、われわれはさらに助かります。ありがとうございました :)</resource>
 		<resource name="bugreport_title">エラー</resource>
 		<resource name="CANCEL">キャンセル</resource>
 		<resource name="clipboard_error">クリップボードへの書き込み中に予期しないエラーが発生しました。</resource>
-		<resource name="clipboard_inuse">クリップボードへの書き込みに失敗しました。プロセス {0} によってアクセスがブロックされています。</resource>
+		<resource name="clipboard_inuse">プロセス {0} がアクセスをブロックしたため、Greenshot はクリップボードに書き込むことができません。</resource>
 		<resource name="clipboard_noimage">クリップボードに保存されたイメージはありません。</resource>
 		<resource name="ClipboardFormat.BITMAP">Windows ビットマップ</resource>
 		<resource name="ClipboardFormat.DIB">デバイス非依存ビットマップ (DIB)</resource>
 		<resource name="ClipboardFormat.HTML">HTML</resource>
-		<resource name="ClipboardFormat.HTMLDATAURL">インラインイメージを含むHTML</resource>
+		<resource name="ClipboardFormat.HTMLDATAURL">インライン イメージを含む HTML</resource>
 		<resource name="ClipboardFormat.PNG">PNG</resource>
-		<resource name="colorpicker_alpha">不透明度</resource>
+		<resource name="colorpicker_alpha">不透明</resource>
 		<resource name="colorpicker_apply">適用</resource>
 		<resource name="colorpicker_blue">青</resource>
 		<resource name="colorpicker_green">緑</resource>
 		<resource name="colorpicker_htmlcolor">HTML カラー</resource>
-		<resource name="colorpicker_recentcolors">選択カラーの履歴</resource>
+		<resource name="colorpicker_recentcolors">最近使用した色</resource>
 		<resource name="colorpicker_red">赤</resource>
-		<resource name="colorpicker_title">カラーピッカー</resource>
-		<resource name="colorpicker_transparent">透過</resource>
-		<resource name="com_rejected">対象 '{0}' にアクセスできません。ダイアログが開いている可能性があります。ダイアログを閉じて再度試行してください。</resource>
-		<resource name="com_rejected_title">アクセスが拒絶されました</resource>
-		<resource name="config_unauthorizedaccess_write">Greenshot の設定ファイルが保存できません。 '{0}' へのアクセス権限をチェックしてください。</resource>
+		<resource name="colorpicker_title">カラー ピッカー</resource>
+		<resource name="colorpicker_transparent">透明</resource>
+		<resource name="com_rejected">出力先 {0} への Greenshot のアクセスが拒否されました。ダイアログが開いている可能性があります。ダイアログを閉じて、もう一度やり直してください。</resource>
+		<resource name="com_rejected_title">Greenshot のアクセスが拒絶されました</resource>
+		<resource name="config_unauthorizedaccess_write">Greenshot の設定ファイルを保存できません。"{0}" へのアクセス権限を確認してください。</resource>
 		<resource name="contextmenu_about">Greenshot について</resource>
-		<resource name="contextmenu_capturearea">選択範囲をキャプチャー</resource>
-		<resource name="contextmenu_captureclipboard">クリップボードの画像を開く</resource>
-		<resource name="contextmenu_capturefullscreen">スクリーン全体をキャプチャー</resource>
+		<resource name="contextmenu_capturearea">選択範囲キャプチャ</resource>
+		<resource name="contextmenu_captureclipboard">クリップボードのイメージを開く</resource>
+		<resource name="contextmenu_capturefullscreen">フルスクリーン キャプチャ</resource>
 		<resource name="contextmenu_capturefullscreen_all">すべて</resource>
 		<resource name="contextmenu_capturefullscreen_bottom">下部</resource>
 		<resource name="contextmenu_capturefullscreen_left">左部</resource>
 		<resource name="contextmenu_capturefullscreen_right">右部</resource>
 		<resource name="contextmenu_capturefullscreen_top">上部</resource>
-		<resource name="contextmenu_capturelastregion">前回の範囲をキャプチャー</resource>
-		<resource name="contextmenu_capturewindow">ウィンドウをキャプチャー</resource>
-		<resource name="contextmenu_capturewindowfromlist">リストから選択してウィンドウをキャプチャー</resource>
-		<resource name="contextmenu_donate">Greenshot を支援する</resource>
+		<resource name="contextmenu_captureie">Internet Explorer キャプチャ</resource>
+		<resource name="contextmenu_captureiefromlist">リストから選択して "Internet Explorer キャプチャ"</resource>
+		<resource name="contextmenu_capturelastregion">前回範囲キャプチャ</resource>
+		<resource name="contextmenu_capturewindow">ウィンドウ キャプチャ</resource>
+		<resource name="contextmenu_capturewindowfromlist">リストから選択して "ウィンドウ キャプチャ"</resource>
+		<resource name="contextmenu_donate">Greenshot を支援</resource>
 		<resource name="contextmenu_exit">終了</resource>
 		<resource name="contextmenu_help">ヘルプ</resource>
-		<resource name="contextmenu_openfile">画像ファイルを開く</resource>
-		<resource name="contextmenu_openrecentcapture">最後にキャプチャーを保存した場所を開く</resource>
+		<resource name="contextmenu_openfile">ファイルからイメージを開く...</resource>
+		<resource name="contextmenu_openrecentcapture">最後に保存した場所を開く</resource>
 		<resource name="contextmenu_quicksettings">クィック設定</resource>
 		<resource name="contextmenu_settings">設定...</resource>
 		<resource name="destination_exportfailed">{0} へ書き出し中にエラーが発生しました。再度試行してください。</resource>
-		<resource name="editor_align_bottom">下端</resource>
-		<resource name="editor_align_center">中心</resource>
-		<resource name="editor_align_horizontal">水平方向の整列</resource>
-		<resource name="editor_align_left">左端</resource>
-		<resource name="editor_align_middle">中央</resource>
-		<resource name="editor_align_right">右端</resource>
-		<resource name="editor_align_top">上端</resource>
-		<resource name="editor_align_vertical">垂直方向の整列</resource>
+		<resource name="editor_align_bottom">下詰め</resource>
+		<resource name="editor_align_center">中央揃え</resource>
+		<resource name="editor_align_horizontal">横位置</resource>
+		<resource name="editor_align_left">左詰め</resource>
+		<resource name="editor_align_middle">中央揃え</resource>
+		<resource name="editor_align_right">右詰め</resource>
+		<resource name="editor_align_top">上詰め</resource>
+		<resource name="editor_align_vertical">縦位置</resource>
 		<resource name="editor_arrange">配置</resource>
 		<resource name="editor_arrowheads">矢尻</resource>
-		<resource name="editor_arrowheads_both">両端</resource>
-		<resource name="editor_arrowheads_end">終点</resource>
+		<resource name="editor_arrowheads_both">双方向</resource>
+		<resource name="editor_arrowheads_end">終点のみ</resource>
 		<resource name="editor_arrowheads_none">なし</resource>
-		<resource name="editor_arrowheads_start">始点</resource>
-		<resource name="editor_autocrop">自動切り抜き</resource>
+		<resource name="editor_arrowheads_start">始点のみ</resource>
+		<resource name="editor_autocrop">自動トリミング</resource>
 		<resource name="editor_backcolor">塗りつぶし</resource>
-		<resource name="editor_blur_radius">ブラー半径</resource>
+		<resource name="editor_blur_radius">ぼかしの半径</resource>
 		<resource name="editor_bold">太字</resource>
-		<resource name="editor_border">ボーダーライン</resource>
+		<resource name="editor_border">枠線</resource>
 		<resource name="editor_brightness">明度</resource>
 		<resource name="editor_cancel">キャンセル</resource>
-		<resource name="editor_clipboardfailed">クリップボードへのアクセスに失敗しました。再度試行してください。</resource>
+		<resource name="editor_clipboardfailed">クリップボードへのアクセス中にエラーが発生しました。もう一度やり直してください。</resource>
 		<resource name="editor_close">閉じる</resource>
-		<resource name="editor_close_on_save">スクリーンショットを保存しますか？</resource>
-		<resource name="editor_close_on_save_title">画像保存の確認</resource>
-		<resource name="editor_confirm">チェック</resource>
-		<resource name="editor_copyimagetoclipboard">画像をクリップボードにコピー</resource>
+		<resource name="editor_close_on_save">スクリーンショットを保存しますか?</resource>
+		<resource name="editor_close_on_save_title">イメージ保存の確認</resource>
+		<resource name="editor_confirm">確定</resource>
+		<resource name="editor_copyimagetoclipboard">イメージをクリップボードにコピー</resource>
 		<resource name="editor_copypathtoclipboard">パスをクリップボードにコピー</resource>
 		<resource name="editor_copytoclipboard">コピー</resource>
-		<resource name="editor_counter">カウンターを挿入する (I)</resource>
-		<resource name="editor_crop">切り抜き (C)</resource>
-		<resource name="editor_cropmode_default">切り抜き</resource>
-		<resource name="editor_cropmode_auto">自動切り抜き</resource>
+		<resource name="editor_counter">カウンターを挿入</resource>
+		<resource name="editor_crop">トリミング (C)</resource>
+		<resource name="editor_cropmode_default">トリミング</resource>
+		<resource name="editor_cropmode_auto">自動トリミング</resource>
 		<resource name="editor_cursortool">選択ツール (ESC)</resource>
 		<resource name="editor_cuttoclipboard">切り取り</resource>
 		<resource name="editor_deleteelement">削除</resource>
-		<resource name="editor_downonelevel">一階層奥へ</resource>
-		<resource name="editor_downtobottom">最後面へ</resource>
+		<resource name="editor_downonelevel">背面へ移動</resource>
+		<resource name="editor_downtobottom">最背面へ移動</resource>
 		<resource name="editor_drawarrow">矢印を描画 (A)</resource>
-		<resource name="editor_drawellipse">楕円を描画 (E)</resource>
-		<resource name="editor_drawfreehand">フリーハンドで描く (F)</resource>
+		<resource name="editor_drawellipse">楕円形を描画 (E)</resource>
+		<resource name="editor_drawfreehand">フリーハンドの線を描画 (F)</resource>
 		<resource name="editor_drawhighlighter">ハイライト (H)</resource>
-		<resource name="editor_drawline">ラインを描画 (L)</resource>
-		<resource name="editor_drawrectangle">矩形を描画 (R)</resource>
-		<resource name="editor_drawtextbox">テキスト ボックスを挿入 (T)</resource>
-		<resource name="editor_dropshadow_darkness">シャドウの暗さ</resource>
-		<resource name="editor_dropshadow_offset">シャドウのオフセット</resource>
-		<resource name="editor_dropshadow_settings">ドロップシャドウの設定</resource>
-		<resource name="editor_dropshadow_thickness">シャドウの厚さ</resource>
-		<resource name="editor_duplicate">選択エレメントを複製</resource>
+		<resource name="editor_drawline">直線を描画 (L)</resource>
+		<resource name="editor_drawrectangle">四角形を描画 (R)</resource>
+		<resource name="editor_drawtextbox">テキストボックスを挿入 (T)</resource>
+		<resource name="editor_dropshadow_darkness">影の暗さ</resource>
+		<resource name="editor_dropshadow_offset">影のオフセット</resource>
+		<resource name="editor_dropshadow_settings">影の設定</resource>
+		<resource name="editor_dropshadow_thickness">影の厚さ</resource>
+		<resource name="editor_duplicate">選択した要素を複製</resource>
 		<resource name="editor_edit">編集</resource>
 		<resource name="editor_effects">エフェクト</resource>
-		<resource name="editor_email">Eメール</resource>
+		<resource name="editor_email">メール</resource>
 		<resource name="editor_file">ファイル</resource>
 		<resource name="editor_fontsize">サイズ</resource>
-		<resource name="editor_forecolor">ライン カラー</resource>
+		<resource name="editor_forecolor">線の色</resource>
 		<resource name="editor_grayscale">グレースケール</resource>
-		<resource name="editor_highlight_area">エリア ハイライト</resource>
+		<resource name="editor_highlight_area">範囲ハイライト</resource>
 		<resource name="editor_highlight_grayscale">グレースケール</resource>
 		<resource name="editor_highlight_magnify">拡大</resource>
-		<resource name="editor_highlight_mode">ハイライトのモード</resource>
+		<resource name="editor_highlight_mode">ハイライトモード</resource>
 		<resource name="editor_highlight_text">テキスト ハイライト</resource>
-		<resource name="editor_image_shadow">シャドウ</resource>
-		<resource name="editor_imagesaved">画像を {0} に保存しました。</resource>
-		<resource name="editor_insertwindow">ウィンドウのキャプチャーを貼り付ける</resource>
+		<resource name="editor_image_shadow">影付き</resource>
+		<resource name="editor_imagesaved">イメージを {0} に保存しました。</resource>
+		<resource name="editor_insertwindow">ウィンドウ キャプチャを貼り付け</resource>
 		<resource name="editor_invert">色の反転</resource>
 		<resource name="editor_italic">斜体</resource>
-		<resource name="editor_load_objects">ファイルからオブジェをロード</resource>
-		<resource name="editor_magnification_factor">拡大倍率</resource>
-		<resource name="editor_match_capture_size">キャプチャーサイズに合わせる</resource>
-		<resource name="editor_obfuscate">ぼかし効果 (O)</resource>
-		<resource name="editor_obfuscate_blur">ブラー</resource>
-		<resource name="editor_obfuscate_mode">ぼかし効果のモード</resource>
+		<resource name="editor_load_objects">ファイルからオブジェクトを読み込み...</resource>
+		<resource name="editor_magnification_factor">倍率</resource>
+		<resource name="editor_match_capture_size">ウィンドウをキャプチャ サイズに合わせる</resource>
+		<resource name="editor_obfuscate">ぼかし (O)</resource>
+		<resource name="editor_obfuscate_blur">ぼかし</resource>
+		<resource name="editor_obfuscate_mode">ぼかしモード</resource>
 		<resource name="editor_obfuscate_pixelize">モザイク</resource>
-		<resource name="editor_object">オブジェ</resource>
-		<resource name="editor_opendirinexplorer">ディレクトリをエクスプローラで開く</resource>
+		<resource name="editor_object">オブジェクト</resource>
+		<resource name="editor_opendirinexplorer">ディレクトリをエクスプローラーで開く</resource>
 		<resource name="editor_pastefromclipboard">貼り付け</resource>
 		<resource name="editor_pixel_size">ピクセル サイズ</resource>
 		<resource name="editor_preview_quality">プレビュー品質</resource>
 		<resource name="editor_print">印刷</resource>
 		<resource name="editor_redo">やり直し{0}</resource>
 		<resource name="editor_resetsize">サイズをリセット</resource>
-		<resource name="editor_resize">リサイズ (Z)</resource>
+		<resource name="editor_resize">サイズ変更</resource>
 		<resource name="editor_resize_aspectratio">縦横比を維持する</resource>
 		<resource name="editor_resize_height">高さ</resource>
 		<resource name="editor_resize_percent">パーセント</resource>
 		<resource name="editor_resize_pixel">ピクセル</resource>
-		<resource name="editor_resize_settings">リサイズ設定</resource>
-		<resource name="editor_resize_width">横幅</resource>
-		<resource name="editor_rotateccw">反時計回りに回転 (Control + ,)</resource>
-		<resource name="editor_rotatecw">時計回りに回転 (Control + .)</resource>
+		<resource name="editor_resize_settings">サイズ変更の設定</resource>
+		<resource name="editor_resize_width">幅</resource>
+		<resource name="editor_rotateccw">左へ 90 度回転 (Ctrl + ,)</resource>
+		<resource name="editor_rotatecw">右へ 90 度回転 (Ctrl + .)</resource>
 		<resource name="editor_save">保存</resource>
-		<resource name="editor_save_objects">オブジェをファイルに保存</resource>
-		<resource name="editor_saveas">名付けて保存...</resource>
+		<resource name="editor_save_objects">オブジェクトをファイルに保存...</resource>
+		<resource name="editor_saveas">名前を付けて保存...</resource>
 		<resource name="editor_selectall">すべて選択</resource>
-		<resource name="editor_senttoprinter">'{0}' に印刷ジョブを送りました。</resource>
-		<resource name="editor_shadow">シャドウ</resource>
-		<resource name="editor_speechbubble">吹き出しを挿入する (S)</resource>
-		<resource name="editor_storedtoclipboard">画像をクリップボードに送りました。</resource>
-		<resource name="editor_thickness">線の太さ</resource>
+		<resource name="editor_senttoprinter">印刷ジョブは "{0}" に送信されました。</resource>
+		<resource name="editor_shadow">影付き</resource>
+		<resource name="editor_speechbubble">吹き出しを挿入</resource>
+		<resource name="editor_storedtoclipboard">イメージはクリップボードに保存されました。</resource>
+		<resource name="editor_thickness">線の幅</resource>
 		<resource name="editor_title">Greenshot イメージ エディター</resource>
-		<resource name="editor_torn_edge">破れたエッジ</resource>
-		<resource name="editor_tornedge_all">すべて破る</resource>
+		<resource name="editor_torn_edge">引き裂き</resource>
+		<resource name="editor_tornedge_all">すべて選択</resource>
 		<resource name="editor_tornedge_bottom">下端を破る</resource>
 		<resource name="editor_tornedge_horizontaltoothrange">水平方向のギザギザの範囲</resource>
 		<resource name="editor_tornedge_left">左端を破る</resource>
 		<resource name="editor_tornedge_right">右端を破る</resource>
-		<resource name="editor_tornedge_settings">破れたようなエッジの設定</resource>
-		<resource name="editor_tornedge_shadow">影をつける</resource>
+		<resource name="editor_tornedge_settings">引き裂きの設定</resource>
+		<resource name="editor_tornedge_shadow">影の生成</resource>
 		<resource name="editor_tornedge_toothsize">ギザギザの大きさ</resource>
 		<resource name="editor_tornedge_top">上端を破る</resource>
 		<resource name="editor_tornedge_verticaltoothrange">垂直方向のギザギザの範囲</resource>
 		<resource name="editor_undo">元に戻す{0}</resource>
-		<resource name="editor_uponelevel">一階層手前へ</resource>
-		<resource name="editor_uptotop">最前面へ</resource>
+		<resource name="editor_uponelevel">前面へ移動</resource>
+		<resource name="editor_uptotop">最前面へ移動</resource>
 		<resource name="EmailFormat.MAPI">MAPI クライアント</resource>
-		<resource name="EmailFormat.OUTLOOK_HTML">HTML形式でOutlook</resource>
-		<resource name="EmailFormat.OUTLOOK_TXT">text形式でOutlook</resource>
+		<resource name="EmailFormat.OUTLOOK_HTML">HTML 形式で Outlook</resource>
+		<resource name="EmailFormat.OUTLOOK_TXT">テキスト形式で Outlook</resource>
 		<resource name="error">エラー</resource>
-		<resource name="error_multipleinstances">Greenshot の他のインスタンスがすでに実行されています。</resource>
-		<resource name="error_nowriteaccess">ファイルを "{0}" に保存できません。
-選択した保存場所への書き込みアクセス権限をチェックしてください。</resource>
-		<resource name="error_openfile">ファイル "{0}" が開けません。</resource>
-		<resource name="error_openlink">リンク '{0}' が開けません。</resource>
+		<resource name="error_multipleinstances">Greenshot の他のインスタンスが既に実行されています。</resource>
+		<resource name="error_nowriteaccess">ファイルを {0} に保存できません。
+選択した保存場所への書き込み権限を確認してください。</resource>
+		<resource name="error_openfile">ファイル "{0}" を開くことができません。</resource>
+		<resource name="error_openlink">リンク "{0}" を開くことができません。</resource>
 		<resource name="error_save">スクリーンショットを保存できません。適切な場所を指定し直してください。</resource>
 		<resource name="error_save_invalid_chars">生成されたファイル名またはディレクトリ名が無効です。ファイル名のパターンを修正してから、もう一度やり直してください。</resource>
 		<resource name="expertsettings">高度な設定</resource>
-		<resource name="expertsettings_autoreducecolors">256色以下の画像の場合は8ビットの画像を生成する</resource>
-		<resource name="expertsettings_checkunstableupdates">安定版以外のアップデートを確認する</resource>
-		<resource name="expertsettings_clipboardformats">クリップボードの形式</resource>
-		<resource name="expertsettings_counter">ファイル名パターン ${NUM} を置き換える数字</resource>
-		<resource name="expertsettings_enableexpert">高度な設定をする</resource>
-		<resource name="expertsettings_footerpattern">プリント時のフッター</resource>
-		<resource name="expertsettings_minimizememoryfootprint">使用するメモリーを最小化する (パフォーマンス上不利になるため非推奨)</resource>
-		<resource name="expertsettings_optimizeforrdp">リモートデスクトップの使用に最適化</resource>
-		<resource name="expertsettings_reuseeditorifpossible">可能であればエディターを再び使用する</resource>
+		<resource name="expertsettings_autoreducecolors">256 色以下のイメージの場合は 8 ビットのイメージを生成</resource>
+		<resource name="expertsettings_checkunstableupdates">安定版以外のアップデートも確認</resource>
+		<resource name="expertsettings_clipboardformats">クリップボードのイメージ形式</resource>
+		<resource name="expertsettings_counter">ファイル名パターン ${NUM} で置き換える開始数字</resource>
+		<resource name="expertsettings_enableexpert">高度な設定を有効化</resource>
+		<resource name="expertsettings_footerpattern">印刷のフッター パターン</resource>
+		<resource name="expertsettings_minimizememoryfootprint">使用するメモリを最小化 (パフォーマンスが低下するため非推奨)</resource>
+		<resource name="expertsettings_optimizeforrdp">リモート デスクトップ用に最適化</resource>
+		<resource name="expertsettings_reuseeditorifpossible">可能であればエディターを再使用</resource>
 		<resource name="expertsettings_suppresssavedialogatclose">エディターを閉じる際に保存ダイアログを表示しない</resource>
-		<resource name="expertsettings_thumbnailpreview">コンテキストメニューにウィンドウのサムネイルを表示する (Vista, 7, 8 ,10対象)</resource>
+		<resource name="expertsettings_thumbnailpreview">コンテキストメニューにウィンドウのサムネイルを表示 (Vista, 7, 8 ,10 対象)</resource>
 		<resource name="exported_to">出力先: {0}</resource>
-		<resource name="exported_to_error">{0}への出力中にエラーが発生しました:</resource>
+		<resource name="exported_to_error">{0} への出力中にエラーが発生:</resource>
 		<resource name="help_title">Greenshot - ヘルプ</resource>
-		<resource name="hotkeys">ホットキー</resource>
-		<resource name="jpegqualitydialog_choosejpegquality">JPEG 画像の品質を指定してください。</resource>
+		<resource name="hotkeys">ホット キー</resource>
+		<resource name="jpegqualitydialog_choosejpegquality">JPEG イメージの場合は品質を指定してください。</resource>
 		<resource name="OK">OK</resource>
 		<resource name="print_error">印刷の実行中にエラーが発生しました。</resource>
 		<resource name="printoptions_allowcenter">ページの中央に配置</resource>
-		<resource name="printoptions_allowenlarge">用紙に合わせて画像を拡大</resource>
-		<resource name="printoptions_allowrotate">ページの方向に合わせて画像を回転</resource>
-		<resource name="printoptions_allowshrink">用紙に合わせて画像を縮小</resource>
+		<resource name="printoptions_allowenlarge">用紙に合わせてイメージを拡大</resource>
+		<resource name="printoptions_allowrotate">ページの向きに合わせてイメージを回転</resource>
+		<resource name="printoptions_allowshrink">用紙に合わせてイメージを縮小</resource>
 		<resource name="printoptions_colors">カラー設定</resource>
-		<resource name="printoptions_dontaskagain">デフォルトの設定で保存して、以降は確認しない</resource>
-		<resource name="printoptions_inverted">色を反転させて印刷する</resource>
-		<resource name="printoptions_layout">ページレイアウト設定</resource>
-		<resource name="printoptions_printcolor">フルカラーで印刷する</resource>
-		<resource name="printoptions_printgrayscale">強制的にグレースケールで印刷する</resource>
-		<resource name="printoptions_printmonochrome">強制的に白黒二値で印刷する</resource>
-		<resource name="printoptions_timestamp">日付 / 時刻をページの下方に印刷</resource>
+		<resource name="printoptions_dontaskagain">設定をデフォルトとして保存し、今後確認しない</resource>
+		<resource name="printoptions_inverted">色を反転させて印刷</resource>
+		<resource name="printoptions_layout">ページ レイアウト設定</resource>
+		<resource name="printoptions_printcolor">フルカラーで印刷</resource>
+		<resource name="printoptions_printgrayscale">強制的にグレースケールで印刷</resource>
+		<resource name="printoptions_printmonochrome">強制的に白黒二値で印刷</resource>
+		<resource name="printoptions_timestamp">日付/時刻をページのフッターに印刷</resource>
 		<resource name="printoptions_title">Greenshot - 印刷オプション</resource>
-		<resource name="qualitydialog_dontaskagain">デフォルトの品質で保存し、以降は確認しない</resource>
-		<resource name="qualitydialog_title">Greenshot - 保存する画像の品質</resource>
-		<resource name="quicksettings_destination_file">ディレクトリに保存 (デフォルトの保存先を使用)</resource>
-		<resource name="settings_alwaysshowprintoptionsdialog">画像を印刷する際に毎回「印刷オプション」ダイアログを表示する</resource>
-		<resource name="settings_alwaysshowqualitydialog">画像を保存する際に毎回「保存する画像の品質」ダイアログを表示する</resource>
-		<resource name="settings_applicationsettings">アプリケーションの設定</resource>
+		<resource name="qualitydialog_dontaskagain">デフォルトの品質で保存し、今後確認しない</resource>
+		<resource name="qualitydialog_title">Greenshot - 品質オプション</resource>
+		<resource name="quicksettings_destination_file">直接保存 (デフォルトの保存先を使用)</resource>
+		<resource name="settings_alwaysshowprintoptionsdialog">イメージを印刷する際に毎回 [印刷オプション] ダイアログを表示</resource>
+		<resource name="settings_alwaysshowqualitydialog">イメージを保存する際に毎回 [品質オプション] ダイアログを表示</resource>
+		<resource name="settings_applicationsettings">アプリケーション設定</resource>
 		<resource name="settings_autostartshortcut">Greenshot を Windows のスタートアップに登録</resource>
-		<resource name="settings_capture">キャプチャー</resource>
-		<resource name="settings_capture_mousepointer">マウス ポインターもキャプチャー</resource>
-		<resource name="settings_capture_windows_interactive">インタラクティブ モードで "ウィンドウをキャプチャー"</resource>
-		<resource name="settings_checkperiod">アップデートの確認間隔日数 (0＝確認しない)</resource>
-		<resource name="settings_configureplugin">環境設定</resource>
-		<resource name="settings_copypathtoclipboard">画像の保存時は、つねにファイル パスをクリップボードへコピー</resource>
-		<resource name="settings_destination">撮影後の操作</resource>
+		<resource name="settings_capture">キャプチャ</resource>
+		<resource name="settings_capture_mousepointer">マウス ポインターもキャプチャ</resource>
+		<resource name="settings_capture_windows_interactive">対話型モードを使用</resource>
+		<resource name="settings_checkperiod">アップデート確認の間隔日数 (0: 確認しない)</resource>
+		<resource name="settings_configureplugin">設定</resource>
+		<resource name="settings_copypathtoclipboard">イメージの保存時は、常にファイル パスをクリップボードへコピー</resource>
+		<resource name="settings_destination">出力先</resource>
 		<resource name="settings_destination_clipboard">クリップボードにコピー</resource>
 		<resource name="settings_destination_editor">イメージ エディターで開く</resource>
-		<resource name="settings_destination_email">Eメール</resource>
+		<resource name="settings_destination_email">メール</resource>
 		<resource name="settings_destination_file">保存 (下欄の設定を使用)</resource>
 		<resource name="settings_destination_fileas">名前を付けて保存 (ダイアログを表示)</resource>
-		<resource name="settings_destination_picker">撮影後の操作を毎回選択する</resource>
+		<resource name="settings_destination_picker">出力先を毎回選択</resource>
 		<resource name="settings_destination_printer">プリンターに送る</resource>
 		<resource name="settings_editor">エディター</resource>
 		<resource name="settings_filenamepattern">ファイル名パターン</resource>
 		<resource name="settings_general">一般</resource>
-		<resource name="settings_iconsize">アイコンサイズ</resource>
+		<resource name="settings_iconsize">アイコン サイズ</resource>
+		<resource name="settings_iecapture">Internet Explorer キャプチャ</resource>
 		<resource name="settings_jpegquality">JPEG の品質</resource>
 		<resource name="settings_language">表示言語</resource>
-		<resource name="settings_message_filenamepattern">ファイルの名称に次のパターンを用いると、自動的に置き換えられます。
+		<resource name="settings_message_filenamepattern">ファイルの名前に次のパターンを用いると、自動的に置き換えられます:
 
 ${YYYY} 年, 4 桁表示
 ${MM} 月, 2 桁表示
@@ -253,58 +259,61 @@ ${hh} 時, 2 桁表示
 ${mm} 分, 2 桁表示
 ${ss} 秒, 2 桁表示
 ${NUM} 連番, 6 桁表示
+${RRR...} 「R」と同じ長さのランダムな英数字
 ${title} ウィンドウ タイトル
 ${user} Windows ユーザー名
 ${domain} Windows ドメイン
-${hostname} PC の名称
+${hostname} コンピューター名
 
 このパターンを使用してファイルの保存時に動的なディレクトリを作成することもできます。
-フォルダとファイル名の区切りにはバックスラッシュ (\) を使用します。
+フォルダーとファイル名の区切りにはバックスラッシュ (\) を使用します。
 
-例 :  ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
-保存先フォルダへ、現在の日付  [例: 2008-06-29] を名称とするサブフォルダを作成し、
-その中へ現在の時刻 [例: 11-58-32] を名称とする画像ファイルを保存することができます。
-ファイル名には定義済みの画像フォーマットの拡張子が付加されます。</resource>
+例: ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
+保存先フォルダーに現在の日付 (例: 2008-06-29) の名前でサブフォルダーを作成し、
+その中へ現在の時刻 (例: 11-58-32) の名前でイメージ ファイルを保存します。
+ファイル名には定義済みのイメージ形式の拡張子が付加されます。</resource>
 		<resource name="settings_network">ネットワークとアップデート</resource>
 		<resource name="settings_output">出力</resource>
 		<resource name="settings_playsound">シャッター音を再生</resource>
 		<resource name="settings_plugins">プラグイン</resource>
 		<resource name="settings_plugins_createdby">作成者</resource>
-		<resource name="settings_plugins_dllpath">DLLのパス</resource>
+		<resource name="settings_plugins_dllpath">DLL のパス</resource>
 		<resource name="settings_plugins_name">プラグイン名</resource>
 		<resource name="settings_plugins_version">バージョン</resource>
 		<resource name="settings_preferredfilesettings">出力ファイルのデフォルト設定</resource>
-		<resource name="settings_primaryimageformat">画像フォーマット</resource>
+		<resource name="settings_primaryimageformat">イメージ形式</resource>
 		<resource name="settings_printer">プリンター</resource>
 		<resource name="settings_printoptions">印刷オプション</resource>
-		<resource name="settings_qualitysettings">品質の設定</resource>
-		<resource name="settings_reducecolors">使用する色数を最大256色に減らす</resource>
-		<resource name="settings_registerhotkeys">ホットキーを登録</resource>
+		<resource name="settings_qualitysettings">品質設定</resource>
+		<resource name="settings_reducecolors">使用する色数を最大 256 色に減らす</resource>
+		<resource name="settings_registerhotkeys">ホット キーを登録</resource>
 		<resource name="settings_showflashlight">フラッシュ光効果を使用</resource>
-		<resource name="settings_shownotify">通知を表示する</resource>
+		<resource name="settings_shownotify">通知を表示</resource>
 		<resource name="settings_storagelocation">保存場所</resource>
 		<resource name="settings_title">設定</resource>
 		<resource name="settings_tooltip_filenamepattern">スクリーンショット保存時に使用するファイル名のパターン</resource>
-		<resource name="settings_tooltip_language">Greenshot のユーザー インターフェースに使用する言語 (変更後は Greenshot の再起動が必要です)</resource>
-		<resource name="settings_tooltip_primaryimageformat">デフォルトで使用する画像フォーマット</resource>
+		<resource name="settings_tooltip_language">Greenshot のユーザー インターフェイスに使用する言語 (変更後は Greenshot の再起動が必要です)</resource>
+		<resource name="settings_tooltip_primaryimageformat">デフォルトで使用するイメージ形式</resource>
 		<resource name="settings_tooltip_registerhotkeys">Greenshot の起動時から終了までは、Prnt, Ctrl + Print, Alt + Prnt の各キーはグローバルなショートカットとして確保、使用されます。</resource>
-		<resource name="settings_tooltip_storagelocation">スクリーンショットのデフォルト保存先 (空欄はユーザーのデスクトップ フォルダ)</resource>
-		<resource name="settings_usedefaultproxy">デフォルトのシステムプロクシーを利用する</resource>
+		<resource name="settings_tooltip_storagelocation">スクリーンショットのデフォルト保存先 (空欄はユーザーのデスクトップ フォルダー)</resource>
+		<resource name="settings_usedefaultproxy">デフォルトのシステム プロキシを使用</resource>
 		<resource name="settings_visualization">エフェクト</resource>
-		<resource name="settings_waittime">ミリ秒 (キャプチャー時の遅延時間)</resource>
-		<resource name="settings_window_capture_mode">ウィンドウキャプチャーモード</resource>
-		<resource name="settings_windowscapture">ウィンドウキャプチャー</resource>
-		<resource name="settings_zoom">拡大鏡を表示する</resource>
-		<resource name="tooltip_firststart">ここを右クリック、または Print Screen キーを押してください</resource>
-		<resource name="update_found">最新のバージョンのGreenshotがご利用になれます。Greenshot {0} をダウンロードしますか?</resource>
+		<resource name="settings_waittime">ミリ秒待機してからキャプチャ</resource>
+		<resource name="settings_window_capture_mode">ウィンドウ キャプチャのモード</resource>
+		<resource name="settings_windowscapture">ウィンドウ キャプチャ</resource>
+		<resource name="settings_zoom">拡大鏡を表示</resource>
+		<resource name="tooltip_firststart">ここを右クリック、または {0} キーを押してください</resource>
+		<resource name="update_found">最新のバージョンの Greenshot がご利用になれます。Greenshot {0} をダウンロードしますか?</resource>
+		<resource name="wait_ie_capture">Internet Explorer 内のページがキャプチャされるまでお待ちください...</resource>
 		<resource name="warning">警告</resource>
-		<resource name="warning_hotkeys">ホットキー"{0}"が登録できませんでした。他のソフトウェアが同じホットキーをすでに使用している可能性があります。
-別のホットキーを設定するか、現在このホットキーを使用しているソフトウェアを無効化/変更してください。
-なお、タスクトレイにあるGreenshot アイコンを右クリックすることで、すべての操作を行うことができます。</resource>
-		<resource name="WindowCaptureMode.Aero">カスタムカラーを使用する</resource>
-		<resource name="WindowCaptureMode.AeroTransparent">透明度を保存する</resource>
+		<resource name="warning_hotkeys">ホット キー "{0}" が登録できません。他のソフトウェアが同じホット キーを既に使用している可能性があります。
+別のホット キーを設定するか、現在このホット キーを使用しているソフトウェアを無効化/変更してください。
+
+なお、タスクトレイにある Greenshot のアイコンを右クリックすることで、すべての操作を行うことができます。</resource>
+		<resource name="WindowCaptureMode.Aero">カスタム カラーを使用</resource>
+		<resource name="WindowCaptureMode.AeroTransparent">透明度を保持</resource>
 		<resource name="WindowCaptureMode.Auto">自動</resource>
-		<resource name="WindowCaptureMode.GDI">デフォルトのカラーを使用する</resource>
-		<resource name="WindowCaptureMode.Screen">表示通りにキャプチャーする</resource>
+		<resource name="WindowCaptureMode.GDI">デフォルト カラーを使用</resource>
+		<resource name="WindowCaptureMode.Screen">表示通り</resource>
 	</resources>
 </language>
