@@ -211,6 +211,7 @@ Name: nn; MessagesFile: Languages\NorwegianNynorsk.isl
 Name: ru; MessagesFile: compiler:Languages\Russian.isl
 Name: sr; MessagesFile: Languages\SerbianCyrillic.isl
 Name: sv; MessagesFile: Languages\Swedish.isl
+Name: tr; MessagesFile: compiler:Languages\Turkish.isl
 Name: uk; MessagesFile: compiler:Languages\Ukrainian.isl
 
 [Tasks]
@@ -249,7 +250,7 @@ skSK=Slovenčina
 slSI=Slovenščina
 srRS=Српски
 svSE=Svenska
-trTR=Türk
+trTR=Türkçe
 ukUA=Українська
 viVN=Việt
 zhCN=简体中文
@@ -458,6 +459,26 @@ sv.optimize=Optimerar prestanda, detta kan ta en stund.
 sv.startgreenshot=Starta {#ExeName}
 sv.startup=Starta {#ExeName} med Windows
 sv.win10=Windows 10-insticksprogram
+
+tr.box=Box eklentisi
+tr.confluence=Confluence eklentisi
+tr.default=Varsayılan kurulum
+tr.dropbox=Dropbox eklentisi
+tr.externalcommand=Harici komut eklentisiyle aç
+tr.flickr=Flickr eklentisi
+tr.imgur=Imgur eklentisi (Bkz: https://imgur.com)
+tr.jira=Jira eklentisi
+tr.language=Ek diller
+tr.office=Microsoft Office eklentisi
+tr.optimize=Performans ayarları yapılıyor, bu biraz zaman alabilir.
+tr.photobucket=Photobucket eklentisi
+tr.startgreenshot={#ExeName} uygulamasını başlat
+tr.startup={#ExeName} Windows açıldığında başlasın
+tr.win10=Windows 10 eklentisi
+tr.UninstallIconDescription=Kaldır
+tr.ShowLicense=Show license
+tr.ShowReadme=Show Readme
+tr.disablewin11snippingtool=Win11 varsayılan ekran alıntısı aracını devre dışı bırakın
 
 uk.confluence=Плагін Confluence
 uk.default=${default}
