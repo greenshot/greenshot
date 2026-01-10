@@ -38,7 +38,7 @@ Source: {#GreenshotProjectDir}\log4net.xml; DestDir: {app}; Components: greensho
 Source: {#ReleaseDir}\checksum.SHA256; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
 ;Source: ..\greenshot-defaults.ini; DestDir: {app}; Flags: overwritereadonly ignoreversion replacesameversion
 Source: ..\additional_files\installer.txt; DestDir: {app}; Components: greenshot; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion
-Source: ..\additional_files\license.txt; DestDir: {app}; Components: greenshot; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion
+Source: ..\additional_files\license.rtf; DestDir: {app}; Components: greenshot; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion
 Source: ..\additional_files\readme.txt; DestDir: {app}; Components: greenshot; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion
 
 ; Core language files
@@ -132,7 +132,7 @@ SolidCompression=yes
 DefaultDirName={autopf}\{#ExeName}
 DefaultGroupName={#ExeName}
 InfoBeforeFile=..\additional_files\readme.txt
-LicenseFile=..\additional_files\license.txt
+LicenseFile=..\additional_files\license.rtf
 LanguageDetectionMethod=uilanguage
 MinVersion=6.1sp1
 OutputDir=..\
@@ -161,6 +161,7 @@ VersionInfoVersion={#Version}
 WizardImageFile=installer-large.bmp
 ; Reference a bitmap, max size 55x58
 WizardSmallImageFile=installer-small.bmp
+WizardStyle=modern
 
 [Registry]
 ; Delete all startup entries, so we don't have leftover values
@@ -195,7 +196,7 @@ Root: HKCU; Subkey: Control Panel\Keyboard; ValueType: dword; ValueName: "PrintS
 Name: {group}\{#ExeName}; Filename: {app}\{#ExeName}.exe; WorkingDir: {app}; AppUserModelID: "{#ExeName}"
 Name: {group}\{cm:UninstallIconDescription} {#ExeName}; Filename: {uninstallexe}; WorkingDir: {app};
 Name: {group}\{cm:ShowReadme}; Filename: {app}\readme.txt; WorkingDir: {app}
-Name: {group}\{cm:ShowLicense}; Filename: {app}\license.txt; WorkingDir: {app}
+Name: {group}\{cm:ShowLicense}; Filename: {app}\license.rtf; WorkingDir: {app}
 
 [Languages]
 Name: en; MessagesFile: compiler:Default.isl
@@ -323,24 +324,6 @@ fr.startgreenshot=Démarrer {#ExeName}
 fr.startup=Lancer {#ExeName} au démarrage de Windows
 fr.win10=Greffon Windows 10
 
-it.box=Plugin Box
-it.confluence=Plugin Confluence
-it.default=Installazione predefinita
-it.dropbox=Plugin Dropbox
-it.externalcommand=Apri con comando esterno plugin
-it.flickr=Plugin Flickr
-it.imgur=Plugin Imgur (vedi: https://imgur.com)
-it.jira=Plugin Jira
-it.language=Lingue aggiuntive
-it.office=Plugin Microsoft Office
-it.optimize=Ottimizzazione prestazioni (può richiedere tempo).
-it.photobucket=Plugin Photobucket
-it.startgreenshot=Esegui {#ExeName}
-it.startup=Esegui {#ExeName} all''avvio di Windows
-it.win10=Plugin Windows 10
-it.UninstallIconDescription=Disinstalla
-it.ShowLicense=Visualizza licenza (in inglese)
-it.ShowReadme=Visualizza Readme (in inglese)
 it.dexfranconia=Fräncofono (Tedesco)
 it.arSY=Arabo (Siria)
 it.caCA=Catalano
@@ -377,6 +360,26 @@ it.ukUA=Ucraino
 it.viVN=Vietnamita
 it.zhCN=Cinese (Semplificato)
 it.zhTW=Cinese (Taiwan)
+
+it.box=Plugin Box
+it.confluence=Plugin Confluence
+it.default=Installazione predefinita
+it.dropbox=Plugin Dropbox
+it.externalcommand=Apri con comando esterno plugin
+it.flickr=Plugin Flickr
+it.imgur=Plugin Imgur (vedi: https://imgur.com)
+it.jira=Plugin Jira
+it.language=Lingue aggiuntive
+it.office=Plugin Microsoft Office
+it.optimize=Ottimizzazione prestazioni (può richiedere tempo).
+it.photobucket=Plugin Photobucket
+it.startgreenshot=Esegui {#ExeName}
+it.startup=Esegui {#ExeName} all''avvio di Windows
+it.win10=Plugin Windows 10
+it.UninstallIconDescription=Disinstalla
+it.ShowLicense=Visualizza licenza (in inglese)
+it.ShowReadme=Visualizza Readme (in inglese)
+it.disablewin11snippingtool=Disabilita strumento cattura predefinito Win11
 
 lt.confluence=Confluence spraudnis
 lt.default=${default}
