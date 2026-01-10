@@ -78,6 +78,7 @@ Innan du skickar uppskattar vi verkligen om du kontrollerar om felet redan blivi
 		<resource name="editor_arrowheads_none">Inget</resource>
 		<resource name="editor_arrowheads_start">Startpunkt</resource>
 		<resource name="editor_autocrop">Autobeskärning</resource>
+                <resource name="editor_autocrop_not_possible">Autobeskärning ej möjlig</resource>
 		<resource name="editor_backcolor">Fyllnadsfärg</resource>
 		<resource name="editor_blur_radius">Oskärpans styrka</resource>
 		<resource name="editor_bold">Fetstil</resource>
@@ -94,7 +95,10 @@ Innan du skickar uppskattar vi verkligen om du kontrollerar om felet redan blivi
 		<resource name="editor_copypathtoclipboard">Kopiera sökväg till urklipp</resource>
 		<resource name="editor_copytoclipboard">Kopiera</resource>
 		<resource name="editor_crop">Beskär (C)</resource>
+		<resource name="editor_crop_mode">Beskäringsläge</resource>
 		<resource name="editor_cropmode_default">Beskär</resource>
+		<resource name="editor_cropmode_vertical">Beskär vertikalt</resource>
+		<resource name="editor_cropmode_horizontal">Beskär horisontellt</resource>
 		<resource name="editor_cropmode_auto">Autobeskärning</resource>
 		<resource name="editor_cursortool">Markeringsverktyg (ESC)</resource>
 		<resource name="editor_cuttoclipboard">Klipp ut</resource>
@@ -168,6 +172,7 @@ Kontrollera skrivrättigheterna för den valda mappen.</resource>
 		<resource name="error_openfile">Filen "{0}" kunde inte öppnas.</resource>
 		<resource name="error_openlink">Kunde inte öppna länken '{0}'.</resource>
 		<resource name="error_save">Kunde inte spara skärmdumpen. Välj en lämplig mapp att spara i.</resource>
+                <resource name="error_save_invalid_chars">Det genererade filnamnet eller katalognamnet är inte giltigt. Vänligen fixa filnamnsmönstret och försök sedan igen.</resource>
 		<resource name="expertsettings">Expert</resource>
 		<resource name="expertsettings_autoreducecolors">Skapa en 8-bitars bild om det är färre än 256 men bilden är &gt; 8 bitar</resource>
 		<resource name="expertsettings_checkunstableupdates">Leta efter instabila uppdateringar</resource>
@@ -235,6 +240,7 @@ ${hh} timmar, 2 siffror
 ${mm} minut, 2 siffror
 ${ss} sekunder, 2 siffror
 ${NUM} ökande nummer, 6 siffror
+${RRR...} slumpmässiga alfanumeriska tecken, samma längd som antal 'R'
 ${title} Fönstrets titel
 ${user} Användarnamn
 ${domain} Windows domän
@@ -288,29 +294,31 @@ Alla Greenshots funktioner fungerar fortfarande från snabbmenyn i aktivitetsfä
 		<resource name="WindowCaptureMode.Screen">Som visat</resource>
 
     <!-- 1.2 -->
-	<resource name="editor_dropshadow_darkness">Skuggmörkhet</resource>
-	<resource name="editor_dropshadow_offset">Skuggoffset</resource>
-	<resource name="editor_dropshadow_settings">Skugginställningar</resource>
-	<resource name="editor_dropshadow_thickness">Skuggtjocklek</resource>
+  	<resource name="editor_dropshadow_darkness">Skuggmörkhet</resource>
+  	<resource name="editor_dropshadow_offset">Skuggoffset</resource>
+  	<resource name="editor_dropshadow_settings">Skugginställningar</resource>
+  	<resource name="editor_dropshadow_thickness">Skuggtjocklek</resource>
 
-	<resource name="editor_tornedge_horizontaltoothrange">Horisontell tandspann</resource>
-	<resource name="editor_tornedge_settings">Riven kantinställningar</resource>
-	<resource name="editor_tornedge_toothsize">Tandstorlek</resource>
-	<resource name="editor_tornedge_verticaltoothrange">Vertikalt tandspann</resource>
-	<resource name="editor_tornedge_left">Riv vänster sida</resource>
-	<resource name="editor_tornedge_right">Riv höger sida</resource>
-	<resource name="editor_tornedge_top">Riv övre sida</resource>
-	<resource name="editor_tornedge_bottom">Riv nedre sida</resource>
-	<resource name="editor_tornedge_shadow">Generera skugga</resource>
+  	<resource name="editor_tornedge_horizontaltoothrange">Horisontell tandspann</resource>
+  	<resource name="editor_tornedge_settings">Riven kantinställningar</resource>
+  	<resource name="editor_tornedge_toothsize">Tandstorlek</resource>
+  	<resource name="editor_tornedge_verticaltoothrange">Vertikalt tandspann</resource>
+    <resource name="editor_tornedge_all">Riv alla sidor</resource>
+    <resource name="editor_tornedge_left">Riv vänster sida</resource>
+	  <resource name="editor_tornedge_right">Riv höger sida</resource>
+	  <resource name="editor_tornedge_top">Riv övre sida</resource>
+	  <resource name="editor_tornedge_bottom">Riv nedre sida</resource>
+	  <resource name="editor_tornedge_shadow">Generera skugga</resource>
 
-	<resource name="editor_counter">Lägg till räknare</resource>
-	<resource name="editor_speechbubble">Lägg till pratbubbla</resource>
+	  <resource name="editor_counter">Lägg till räknare</resource>
+	  <resource name="editor_speechbubble">Lägg till pratbubbla</resource>
 
     <resource name="editor_resize">Anpassa storlek (Z)</resource>
     <resource name="editor_resize_settings">Storleksinställningar</resource>
     <resource name="editor_resize_aspectratio">Behåll bildförhållande</resource>
     <resource name="editor_resize_width">Bredd</resource>
     <resource name="editor_resize_height">Höjd</resource>
+    <resource name="settings_iconsize">Ikonstorlek</resource>
 	
 	</resources>
 </language>
