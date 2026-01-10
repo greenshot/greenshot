@@ -22,6 +22,7 @@
 using System;
 using System.Collections.Generic;
 using Dapplo.Windows.User32;
+using Greenshot.Base.Interop;
 
 namespace Greenshot.Base.Core
 {
@@ -50,6 +51,11 @@ namespace Greenshot.Base.Core
             if (hasParent)
             {
                 parentText = User32Api.GetText(hWndParent);
+                // Fallback for Chromium-based browsers where GetWindowText fails
+                if (string.IsNullOrEmpty(parentText))
+                {
+                    parentText = WindowTitleHelper.GetWindowTitle(hWndParent);
+                }
             }
 
             var windows = new List<WindowDetails>();
