@@ -159,7 +159,7 @@ VersionInfoVersion={#Version}
 WizardImageFile=installer-large.bmp
 ; Reference a bitmap, max size 55x58
 WizardSmallImageFile=installer-small.bmp
-WizardStyle=modern dynamic
+WizardStyle=modern
 
 [Registry]
 ; Delete all startup entries, so we don't have leftover values
