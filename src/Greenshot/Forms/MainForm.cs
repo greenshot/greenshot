@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021  Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026  Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -751,11 +751,6 @@ namespace Greenshot.Forms
             }
 
             DpiChangedHandler(96, DeviceDpi);
-            string ieExePath = PluginUtils.GetExePath("iexplore.exe");
-            if (!string.IsNullOrEmpty(ieExePath))
-            {
-                contextmenu_captureie.Image = PluginUtils.GetCachedExeIcon(ieExePath, 0);
-            }
         }
 
         /// <summary>
@@ -814,14 +809,6 @@ namespace Greenshot.Forms
             if (!RegisterWrapper(failedKeys, "CaptureClipboard", "ClipboardHotkey", _instance.CaptureClipboard, true))
             {
                 success = false;
-            }
-
-            if (_conf.IECapture)
-            {
-                if (!RegisterWrapper(failedKeys, "CaptureIE", "IEHotkey", _instance.CaptureIE, ignoreFailedRegistration))
-                {
-                    success = false;
-                }
             }
 
             if (!success)
@@ -912,7 +899,6 @@ namespace Greenshot.Forms
             contextmenu_capturelastregion.ShortcutKeyDisplayString = HotkeyControl.GetLocalizedHotkeyStringFromString(_conf.LastregionHotkey);
             contextmenu_capturewindow.ShortcutKeyDisplayString = HotkeyControl.GetLocalizedHotkeyStringFromString(_conf.WindowHotkey);
             contextmenu_capturefullscreen.ShortcutKeyDisplayString = HotkeyControl.GetLocalizedHotkeyStringFromString(_conf.FullscreenHotkey);
-            contextmenu_captureie.ShortcutKeyDisplayString = HotkeyControl.GetLocalizedHotkeyStringFromString(_conf.IEHotkey);
             var clipboardHotkey = HotkeyControl.GetLocalizedHotkeyStringFromString(_conf.ClipboardHotkey);
             if (!string.IsNullOrEmpty(clipboardHotkey) && !"None".Equals(clipboardHotkey))
             {
@@ -982,14 +968,6 @@ namespace Greenshot.Forms
             CaptureHelper.CaptureClipboard(DestinationHelper.GetDestination(EditorDestination.DESIGNATION));
         }
 
-        private void CaptureIE()
-        {
-            if (_conf.IECapture)
-            {
-                CaptureHelper.CaptureIe(true, null);
-            }
-        }
-
         private void CaptureWindow()
         {
             if (_conf.CaptureWindowsInteractive)
@@ -1009,25 +987,6 @@ namespace Greenshot.Forms
             contextMenu.Scale(new SizeF(factor, factor));
             contextmenu_captureclipboard.Enabled = ClipboardHelper.ContainsImage();
             contextmenu_capturelastregion.Enabled = coreConfiguration.LastCapturedRegion != NativeRect.Empty;
-
-            // IE context menu code
-            try
-            {
-                if (_conf.IECapture && IeCaptureHelper.IsIeRunning())
-                {
-                    contextmenu_captureie.Enabled = true;
-                    contextmenu_captureiefromlist.Enabled = true;
-                }
-                else
-                {
-                    contextmenu_captureie.Enabled = false;
-                    contextmenu_captureiefromlist.Enabled = false;
-                }
-            }
-            catch (Exception ex)
-            {
-                LOG.WarnFormat("Problem accessing IE information: {0}", ex.Message);
-            }
 
             // Multi-Screen captures
             contextmenu_capturefullscreen.Click -= CaptureFullScreenToolStripMenuItemClick;
@@ -1055,72 +1014,11 @@ namespace Greenshot.Forms
 
         private void ContextMenuClosing(object sender, EventArgs e)
         {
-            contextmenu_captureiefromlist.DropDownItems.Clear();
             contextmenu_capturewindowfromlist.DropDownItems.Clear();
             CleanupThumbnail();
         }
 
-        /// <summary>
-        /// Build a selectable list of IE tabs when we enter the menu item
-        /// </summary>
-        private void CaptureIeMenuDropDownOpening(object sender, EventArgs e)
-        {
-            if (!_conf.IECapture)
-            {
-                return;
-            }
-
-            try
-            {
-                List<KeyValuePair<WindowDetails, string>> tabs = IeCaptureHelper.GetBrowserTabs();
-                contextmenu_captureiefromlist.DropDownItems.Clear();
-                if (tabs.Count > 0)
-                {
-                    contextmenu_captureie.Enabled = true;
-                    contextmenu_captureiefromlist.Enabled = true;
-                    Dictionary<WindowDetails, int> counter = new Dictionary<WindowDetails, int>();
-
-                    foreach (KeyValuePair<WindowDetails, string> tabData in tabs)
-                    {
-                        string title = tabData.Value;
-                        if (title == null)
-                        {
-                            continue;
-                        }
-
-                        if (title.Length > _conf.MaxMenuItemLength)
-                        {
-                            title = title.Substring(0, Math.Min(title.Length, _conf.MaxMenuItemLength));
-                        }
-
-                        var captureIeTabItem = contextmenu_captureiefromlist.DropDownItems.Add(title);
-                        int index = counter.ContainsKey(tabData.Key) ? counter[tabData.Key] : 0;
-                        captureIeTabItem.Image = tabData.Key.DisplayIcon;
-                        captureIeTabItem.Tag = new KeyValuePair<WindowDetails, int>(tabData.Key, index++);
-                        captureIeTabItem.Click += Contextmenu_CaptureIeFromList_Click;
-                        contextmenu_captureiefromlist.DropDownItems.Add(captureIeTabItem);
-                        if (counter.ContainsKey(tabData.Key))
-                        {
-                            counter[tabData.Key] = index;
-                        }
-                        else
-                        {
-                            counter.Add(tabData.Key, index);
-                        }
-                    }
-                }
-                else
-                {
-                    contextmenu_captureie.Enabled = false;
-                    contextmenu_captureiefromlist.Enabled = false;
-                }
-            }
-            catch (Exception ex)
-            {
-                LOG.WarnFormat("Problem accessing IE information: {0}", ex.Message);
-            }
-        }
-
+        
         /// <summary>
         /// MultiScreenDropDownOpening is called when mouse hovers over the Capture-Screen context menu
         /// </summary>
@@ -1314,49 +1212,6 @@ namespace Greenshot.Forms
                 {
                     WindowDetails windowToCapture = (WindowDetails) clickedItem.Tag;
                     CaptureHelper.CaptureWindow(windowToCapture);
-                }
-                catch (Exception exception)
-                {
-                    LOG.Error(exception);
-                }
-            });
-        }
-
-        private void Contextmenu_CaptureIe_Click(object sender, EventArgs e)
-        {
-            CaptureIE();
-        }
-
-        private void Contextmenu_CaptureIeFromList_Click(object sender, EventArgs e)
-        {
-            if (!_conf.IECapture)
-            {
-                LOG.InfoFormat("IE Capture is disabled.");
-                return;
-            }
-
-            ToolStripMenuItem clickedItem = (ToolStripMenuItem) sender;
-            KeyValuePair<WindowDetails, int> tabData = (KeyValuePair<WindowDetails, int>) clickedItem.Tag;
-            BeginInvoke((MethodInvoker) delegate
-            {
-                WindowDetails ieWindowToCapture = tabData.Key;
-                if (ieWindowToCapture != null && (!ieWindowToCapture.Visible || ieWindowToCapture.Iconic))
-                {
-                    ieWindowToCapture.Restore();
-                }
-
-                try
-                {
-                    IeCaptureHelper.ActivateIeTab(ieWindowToCapture, tabData.Value);
-                }
-                catch (Exception exception)
-                {
-                    LOG.Error(exception);
-                }
-
-                try
-                {
-                    CaptureHelper.CaptureIe(false, ieWindowToCapture);
                 }
                 catch (Exception exception)
                 {

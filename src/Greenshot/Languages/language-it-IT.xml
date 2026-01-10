@@ -5,7 +5,7 @@
         <resource name="about_donations">Se ti piace Greenshot, supportaci su:</resource>
         <resource name="about_host">Greenshot è disponibile nel repository GitHub</resource>
         <resource name="about_icons">Libreria icone del set icone Fugue di Yusuke Kamiyamane (Creative Commons Attribution 3.0 license)</resource>
-        <resource name="about_license">Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+        <resource name="about_license">Copyright © 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
 Greenshot viene fornito SENZA ALCUNA GARANZIA. 
 Questo software è gratuito", e potete ri-distribuirlo secondo certe condizioni.
 Dettagli della General Public License GNU:</resource>
@@ -54,8 +54,6 @@ Controlla i permessi di accesso per '{0}'.</resource>
         <resource name="contextmenu_capturefullscreen_left">Sinistra</resource>
         <resource name="contextmenu_capturefullscreen_right">Destra</resource>
         <resource name="contextmenu_capturefullscreen_top">Alto</resource>
-        <resource name="contextmenu_captureie">Cattura Internet Explorer</resource>
-        <resource name="contextmenu_captureiefromlist">Cattura Internet Explorer da elenco</resource>
         <resource name="contextmenu_capturelastregion">Cattura ultima regione</resource>
         <resource name="contextmenu_capturewindow">Cattura finestra</resource>
         <resource name="contextmenu_capturewindowfromlist">Cattura finestra da elenco</resource>
@@ -235,7 +233,6 @@ Correggi la maschera noem file e riprova.</resource>
         <resource name="settings_editor">Gestione immagini</resource>
         <resource name="settings_filenamepattern">Modello nome file</resource>
         <resource name="settings_general">Generali</resource>
-        <resource name="settings_iecapture">Cattura Internet Explorer</resource>
         <resource name="settings_jpegquality">Qualità JPEG</resource>
         <resource name="settings_language">Lingua</resource>
         <resource name="settings_message_filenamepattern">I parametri racchiusi tra % verranno automaticamente sostituiti:
@@ -289,7 +286,6 @@ impostazioni)</resource>
         <resource name="settings_windowscapture">Cattura finestra</resource>
         <resource name="tooltip_firststart">Cic tasto destro mouse qui, o premi il tasto 'Stamp'.</resource>
         <resource name="update_found">È disponibile una nuova versione {0} di Greenshot! Vuoi scaricare ora la nuova versione di Greenshot?</resource>
-        <resource name="wait_ie_capture">Attendi finchè viene completata la cattura della pagina di Internet Explorer...</resource>
         <resource name="warning">Attenzione</resource>
         <resource name="warning_hotkeys">La registrazione della/e scorciatoie di tastiera "{0}" non è andata a buon fine.
 Questo problema è causato probabilmente da un altro software che richiede l'uso delle stesse scorciatoie di tastiera.
