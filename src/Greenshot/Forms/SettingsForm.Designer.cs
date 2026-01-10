@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -90,8 +90,6 @@ namespace Greenshot.Forms {
 			this.groupbox_hotkeys = new GreenshotGroupBox();
 			this.label_lastregion_hotkey = new GreenshotLabel();
 			this.lastregion_hotkeyControl = new HotkeyControl();
-			this.label_ie_hotkey = new GreenshotLabel();
-			this.ie_hotkeyControl = new HotkeyControl();
 			this.label_region_hotkey = new GreenshotLabel();
 			this.label_window_hotkey = new GreenshotLabel();
 			this.label_fullscreen_hotkey = new GreenshotLabel();
@@ -103,8 +101,6 @@ namespace Greenshot.Forms {
 			this.numericUpdownIconSize = new System.Windows.Forms.NumericUpDown();
 			this.label_icon_size = new GreenshotLabel();
 			this.checkbox_editor_match_capture_size = new GreenshotCheckBox();
-			this.groupbox_iecapture = new GreenshotGroupBox();
-			this.checkbox_ie_capture = new GreenshotCheckBox();
 			this.groupbox_windowscapture = new GreenshotGroupBox();
 			this.colorButton_window_background = new ColorButton();
 			this.radiobuttonWindowCapture = new GreenshotRadioButton();
@@ -164,7 +160,6 @@ namespace Greenshot.Forms {
 			this.groupbox_hotkeys.SuspendLayout();
 			this.tab_capture.SuspendLayout();
 			this.groupbox_editor.SuspendLayout();
-			this.groupbox_iecapture.SuspendLayout();
 			this.groupbox_windowscapture.SuspendLayout();
 			this.groupbox_capture.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.numericUpDownWaitTime)).BeginInit();
@@ -537,8 +532,6 @@ namespace Greenshot.Forms {
 			// 
 			this.groupbox_hotkeys.Controls.Add(this.label_lastregion_hotkey);
 			this.groupbox_hotkeys.Controls.Add(this.lastregion_hotkeyControl);
-			this.groupbox_hotkeys.Controls.Add(this.label_ie_hotkey);
-			this.groupbox_hotkeys.Controls.Add(this.ie_hotkeyControl);
 			this.groupbox_hotkeys.Controls.Add(this.label_region_hotkey);
 			this.groupbox_hotkeys.Controls.Add(this.label_window_hotkey);
 			this.groupbox_hotkeys.Controls.Add(this.label_fullscreen_hotkey);
@@ -569,24 +562,6 @@ namespace Greenshot.Forms {
 			this.lastregion_hotkeyControl.PropertyName = nameof(CoreConfiguration.LastregionHotkey);
 			this.lastregion_hotkeyControl.Size = new System.Drawing.Size(179, 20);
 			this.lastregion_hotkeyControl.TabIndex = 5;
-			// 
-			// label_ie_hotkey
-			// 
-			this.label_ie_hotkey.LanguageKey = "contextmenu_captureie";
-			this.label_ie_hotkey.Location = new System.Drawing.Point(6, 120);
-			this.label_ie_hotkey.Name = "label_ie_hotkey";
-			this.label_ie_hotkey.Size = new System.Drawing.Size(212, 20);
-			this.label_ie_hotkey.TabIndex = 51;
-			// 
-			// ie_hotkeyControl
-			// 
-			this.ie_hotkeyControl.Hotkey = System.Windows.Forms.Keys.None;
-			this.ie_hotkeyControl.HotkeyModifiers = System.Windows.Forms.Keys.None;
-			this.ie_hotkeyControl.Location = new System.Drawing.Point(224, 120);
-			this.ie_hotkeyControl.Name = "ie_hotkeyControl";
-			this.ie_hotkeyControl.PropertyName = nameof(CoreConfiguration.IEHotkey);
-			this.ie_hotkeyControl.Size = new System.Drawing.Size(179, 20);
-			this.ie_hotkeyControl.TabIndex = 6;
 			// 
 			// label_region_hotkey
 			// 
@@ -645,7 +620,6 @@ namespace Greenshot.Forms {
 			// tab_capture
 			// 
 			this.tab_capture.Controls.Add(this.groupbox_editor);
-			this.tab_capture.Controls.Add(this.groupbox_iecapture);
 			this.tab_capture.Controls.Add(this.groupbox_windowscapture);
 			this.tab_capture.Controls.Add(this.groupbox_capture);
 			this.tab_capture.LanguageKey = "settings_capture";
@@ -675,26 +649,6 @@ namespace Greenshot.Forms {
 			this.checkbox_editor_match_capture_size.Size = new System.Drawing.Size(397, 24);
 			this.checkbox_editor_match_capture_size.TabIndex = 11;
 			this.checkbox_editor_match_capture_size.UseVisualStyleBackColor = true;
-			// 
-			// groupbox_iecapture
-			// 
-			this.groupbox_iecapture.Controls.Add(this.checkbox_ie_capture);
-			this.groupbox_iecapture.LanguageKey = "settings_iecapture";
-			this.groupbox_iecapture.Location = new System.Drawing.Point(4, 224);
-			this.groupbox_iecapture.Name = "groupbox_iecapture";
-			this.groupbox_iecapture.Size = new System.Drawing.Size(416, 50);
-			this.groupbox_iecapture.TabIndex = 2;
-			this.groupbox_iecapture.TabStop = false;
-			// 
-			// checkbox_ie_capture
-			// 
-			this.checkbox_ie_capture.LanguageKey = "settings_iecapture";
-			this.checkbox_ie_capture.Location = new System.Drawing.Point(6, 19);
-			this.checkbox_ie_capture.Name = "checkbox_ie_capture";
-			this.checkbox_ie_capture.PropertyName = nameof(CoreConfiguration.IECapture);
-			this.checkbox_ie_capture.Size = new System.Drawing.Size(404, 24);
-			this.checkbox_ie_capture.TabIndex = 10;
-			this.checkbox_ie_capture.UseVisualStyleBackColor = true;
 			// 
 			// groupbox_windowscapture
 			// 
@@ -1285,7 +1239,6 @@ namespace Greenshot.Forms {
 			this.groupbox_hotkeys.PerformLayout();
 			this.tab_capture.ResumeLayout(false);
 			this.groupbox_editor.ResumeLayout(false);
-			this.groupbox_iecapture.ResumeLayout(false);
 			this.groupbox_windowscapture.ResumeLayout(false);
 			this.groupbox_windowscapture.PerformLayout();
 			this.groupbox_capture.ResumeLayout(false);
@@ -1324,17 +1277,13 @@ namespace Greenshot.Forms {
 		private GreenshotLabel label_fullscreen_hotkey;
 		private GreenshotLabel label_window_hotkey;
 		private GreenshotLabel label_region_hotkey;
-		private HotkeyControl ie_hotkeyControl;
-		private GreenshotLabel label_ie_hotkey;
 		private HotkeyControl lastregion_hotkeyControl;
 		private GreenshotLabel label_lastregion_hotkey;
 		private GreenshotGroupBox groupbox_hotkeys;
 		private ColorButton colorButton_window_background;
 		private GreenshotRadioButton radiobuttonWindowCapture;
-		private GreenshotCheckBox checkbox_ie_capture;
 		private GreenshotGroupBox groupbox_capture;
 		private GreenshotGroupBox groupbox_windowscapture;
-		private GreenshotGroupBox groupbox_iecapture;
 		private GreenshotTabPage tab_capture;
 		private System.Windows.Forms.ComboBox combobox_window_capture_mode;
 		private System.Windows.Forms.NumericUpDown numericUpDownWaitTime;

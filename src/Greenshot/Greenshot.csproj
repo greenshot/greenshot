@@ -21,8 +21,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.13.9" />
-    <PackageReference Include="Tools.InnoSetup" version="6.2.1" GeneratePathProperty="true" />
+    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="18.0.2" />
+    <PackageReference Include="Tools.InnoSetup" version="6.7.0" GeneratePathProperty="true" />
   </ItemGroup>
 
   <ItemGroup>
@@ -85,7 +85,7 @@
   </Target>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <PostBuildEvent>
-      copy "$(SolutionDir)Greenshot\log4net-debug.xml" "$(SolutionDir)Greenshot\bin\$(Configuration)\net472\log4net.xml"
+      copy "$(SolutionDir)Greenshot\log4net-debug.xml" "$(SolutionDir)Greenshot\bin\$(Configuration)\net481\log4net.xml"
     </PostBuildEvent>
   </PropertyGroup>
 </Project>

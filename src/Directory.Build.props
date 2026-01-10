@@ -1,6 +1,6 @@
 ﻿<Project>
   <PropertyGroup>
-    <Copyright>Copyright © Greenshot 2004-2022</Copyright>
+    <Copyright>Copyright © Greenshot 2004-2026</Copyright>
     <Authors>Greenshot</Authors>
     <PackageIconUrl>https://getgreenshot.org/favicon.ico</PackageIconUrl>
     <RepositoryUrl>https://github.com/greenshot/greenshot</RepositoryUrl>
@@ -10,12 +10,12 @@
     <LangVersion>latest</LangVersion>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
-    <RuntimeIdentifiers>win10-x64;win10-x86;win-x64;win-x86</RuntimeIdentifiers>
+    <RuntimeIdentifiers>win10-x64;win10-x86</RuntimeIdentifiers>
     <!-- Optional: Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <!-- Optional: Embed source files that are not tracked by the source control manager in the PDB -->
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFramework>net481</TargetFramework>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
     <Deterministic>true</Deterministic>
   </PropertyGroup>
@@ -46,11 +46,11 @@
   </PropertyGroup>
 
   <ItemGroup Condition="!$(MSBuildProjectName.Contains('Tests')) And $(MSBuildProjectName.StartsWith('Greenshot'))">
-    <PackageReference Include="Nerdbank.GitVersioning" Version="3.5.113">
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.9.50">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All"/>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
   </ItemGroup>
 
   <ItemGroup>

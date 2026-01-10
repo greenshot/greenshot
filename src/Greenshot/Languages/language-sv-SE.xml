@@ -5,7 +5,7 @@
 		<resource name="about_donations">Om du gillar Greenshot, så är du välkommen att stödja oss:</resource>
 		<resource name="about_host">Greenshots hemsida tillhandahålls av GitHub på</resource>
 		<resource name="about_icons">Ikoner från "Yusuke Kamiyamane's Fugue icon set" (Creative Commons Attribution 3.0 license)</resource>
-		<resource name="about_license">Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+		<resource name="about_license">Copyright © 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
 Greenshot lämnar ABSOLUT INGA GARANTIER. Detta är ett gratisprogram, och du får vidaredistribuera programmet under vissa villkor.
 Detaljer om "GNU General Public License":</resource>
 		<resource name="about_title">Om Greenshot</resource>
@@ -50,8 +50,6 @@ Innan du skickar uppskattar vi verkligen om du kontrollerar om felet redan blivi
 		<resource name="contextmenu_capturefullscreen_left">vänster</resource>
 		<resource name="contextmenu_capturefullscreen_right">höger</resource>
 		<resource name="contextmenu_capturefullscreen_top">toppen</resource>
-		<resource name="contextmenu_captureie">Skärmdump av Internet Explorer</resource>
-		<resource name="contextmenu_captureiefromlist">Skärmdump av Internet Exporer från lista</resource>
 		<resource name="contextmenu_capturelastregion">Skärmdump av senaste ytan</resource>
 		<resource name="contextmenu_capturewindow">Skärmdump av fönster</resource>
 		<resource name="contextmenu_capturewindowfromlist">Skärmdump av fönster från lista</resource>
@@ -229,7 +227,6 @@ Kontrollera skrivrättigheterna för den valda mappen.</resource>
 		<resource name="settings_editor">Redigerare</resource>
 		<resource name="settings_filenamepattern">Filnamnsmönster</resource>
 		<resource name="settings_general">Allmänt</resource>
-		<resource name="settings_iecapture">Skärmdump av Internet Explorer</resource>
 		<resource name="settings_jpegquality">JPEG-kvalitet</resource>
 		<resource name="settings_language">Språk</resource>
 		<resource name="settings_message_filenamepattern">Följande platshållare byts ut automatiskt enligt det definierade mönstret:
@@ -282,7 +279,6 @@ där "xxx" är det filformat du angett.</resource>
 		<resource name="settings_windowscapture">Skärmdump av fönster</resource>
 		<resource name="tooltip_firststart">Högerklicka här eller tryck på tangenten {0}</resource>
 		<resource name="update_found">En nyare version av Greenshot finns tillgänglig! Vill du ladda ner Greenshot {0}?</resource>
-		<resource name="wait_ie_capture">Vänta medan skärmdump av Internet Exporer skapas...</resource>
 		<resource name="warning">Varning</resource>
 		<resource name="warning_hotkeys">Kortkommandot "{0}" kunde inte registrerar. Problemet är troligen orsakat av att ett annat program/verktyg har lagt beslag på samma kortkommando(n)! Du kan antingen ändra dina inställningar för kortkommandon eller avaktivera/ändra programvaran som använder samma kortkommando(n).
 

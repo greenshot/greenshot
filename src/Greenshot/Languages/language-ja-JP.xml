@@ -51,8 +51,6 @@ GNU General Public License の詳細:</resource>
 		<resource name="contextmenu_capturefullscreen_left">左部</resource>
 		<resource name="contextmenu_capturefullscreen_right">右部</resource>
 		<resource name="contextmenu_capturefullscreen_top">上部</resource>
-		<resource name="contextmenu_captureie">Internet Explorer キャプチャ</resource>
-		<resource name="contextmenu_captureiefromlist">リストから選択して "Internet Explorer キャプチャ"</resource>
 		<resource name="contextmenu_capturelastregion">前回範囲キャプチャ</resource>
 		<resource name="contextmenu_capturewindow">ウィンドウ キャプチャ</resource>
 		<resource name="contextmenu_capturewindowfromlist">リストから選択して "ウィンドウ キャプチャ"</resource>
@@ -247,7 +245,6 @@ GNU General Public License の詳細:</resource>
 		<resource name="settings_filenamepattern">ファイル名パターン</resource>
 		<resource name="settings_general">一般</resource>
 		<resource name="settings_iconsize">アイコン サイズ</resource>
-		<resource name="settings_iecapture">Internet Explorer キャプチャ</resource>
 		<resource name="settings_jpegquality">JPEG の品質</resource>
 		<resource name="settings_language">表示言語</resource>
 		<resource name="settings_message_filenamepattern">ファイルの名前に次のパターンを用いると、自動的に置き換えられます:
@@ -304,7 +301,6 @@ ${hostname} コンピューター名
 		<resource name="settings_zoom">拡大鏡を表示</resource>
 		<resource name="tooltip_firststart">ここを右クリック、または {0} キーを押してください</resource>
 		<resource name="update_found">最新のバージョンの Greenshot がご利用になれます。Greenshot {0} をダウンロードしますか?</resource>
-		<resource name="wait_ie_capture">Internet Explorer 内のページがキャプチャされるまでお待ちください...</resource>
 		<resource name="warning">警告</resource>
 		<resource name="warning_hotkeys">ホット キー "{0}" が登録できません。他のソフトウェアが同じホット キーを既に使用している可能性があります。
 別のホット キーを設定するか、現在このホット キーを使用しているソフトウェアを無効化/変更してください。

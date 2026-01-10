@@ -5,7 +5,7 @@
 		<resource name="about_donations">Si vous aimez Greenshot, vous pouvez nous soutenir :</resource>
 		<resource name="about_host">Greenshot est hébergé par GitHub à</resource>
 		<resource name="about_icons">Icônes provenant du lot d'icônes Fugue de Kamiyamane Yuusuke (Creative Commons Attribution 3.0 license)</resource>
-		<resource name="about_license">Copyright © 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+		<resource name="about_license">Copyright © 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
 Greenshot vous est fourni SANS AUCUNE GARANTIE. C'est un logiciel gratuit que vous êtes libres de redistribuer sous certaines conditions.
 Détails de la GNU General Public License :</resource>
 		<resource name="about_title">À propos de Greenshot</resource>
@@ -49,8 +49,6 @@ De plus, nous apprécierions beaucoup que vous preniez la peine de vérifier si 
 		<resource name="contextmenu_capturefullscreen_left">gauche</resource>
 		<resource name="contextmenu_capturefullscreen_right">droite</resource>
 		<resource name="contextmenu_capturefullscreen_top">haut</resource>
-		<resource name="contextmenu_captureie">Capturer Internet Explorer</resource>
-		<resource name="contextmenu_captureiefromlist">Capturer Internet Explorer à partir de la liste suivante</resource>
 		<resource name="contextmenu_capturelastregion">Capturer la dernière région</resource>
 		<resource name="contextmenu_capturewindow">Capturer la fenêtre active</resource>
 		<resource name="contextmenu_capturewindowfromlist">Capturer une fenêtre à partir la liste suivante</resource>
@@ -246,7 +244,6 @@ Veuillez vérifier l'accessibilité du répertoire de stockage.</resource>
 		<resource name="settings_filenamepattern">Modèle du nom de fichier</resource>
 		<resource name="settings_general">Général</resource>
 		<resource name="settings_iconsize">Taille des icônes</resource>
-		<resource name="settings_iecapture">Capture d'Internet Explorer</resource>
 		<resource name="settings_jpegquality">Qualité JPEG</resource>
 		<resource name="settings_language">Langue</resource>
 		<resource name="settings_message_filenamepattern">Les variables suivantes seront automatiquement remplacées dans votre modèle :
@@ -298,7 +295,6 @@ en cours, par exemple 11_58_32 (plus l'extension définie dans les paramètres)<
 		<resource name="settings_zoom">Afficher la loupe</resource>
 		<resource name="tooltip_firststart">Cliquez droit ici ou appuyez sur la touche {0}.</resource>
 		<resource name="update_found">Une nouvelle version de Greenshot est disponible ! Voulez-vous télécharger Greenshot {0} ?</resource>
-		<resource name="wait_ie_capture">Veuillez patienter pendant la capture de la page Internet Explorer...</resource>
 		<resource name="warning">Avertissement</resource>
 		<resource name="warning_hotkeys">Le(s) raccourci(s) clavier "{0}" n'a pu être enregistré. Ce problème est probablement dû à un autre outil{1} qui utilise le(s) même(s) raccourci(s) clavier. Vous pouvez soit modifier vos raccourcis clavier soit désactiver/modifier le logiciel utilisant le(s) raccourci(s).
 
