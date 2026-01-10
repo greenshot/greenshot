@@ -376,7 +376,7 @@ it.win10=Plugin Windows 10
 it.UninstallIconDescription=Disinstalla
 it.ShowLicense=Visualizza licenza (in inglese)
 it.ShowReadme=Visualizza Readme (in inglese)
-en.disablewin11snippingtool=Disabilita strumento cattura predefinito Win11
+it.disablewin11snippingtool=Disabilita strumento cattura predefinito Win11
 
 lt.confluence=Confluence spraudnis
 lt.default=${default}
