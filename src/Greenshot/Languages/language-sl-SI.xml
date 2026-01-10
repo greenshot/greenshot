@@ -5,7 +5,7 @@
 		<resource name="about_donations">Če vam je Greenshot všeč nas prosim podprite:</resource>
 		<resource name="about_host">Greenshot gostuje pri GitHub</resource>
 		<resource name="about_icons">Ikone: Yusuke Kamiyamane's Fugue icon set (Creative Commons Attribution 3.0 license)</resource>
-		<resource name="about_license">Avtorske pravice (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+		<resource name="about_license">Avtorske pravice © 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
 Greenshot absolutno ne ponuja NOBENE GARANCIJE. Program je brezplačen in ga lahko distribuirate pod določenimi pogoji.
 Licenčne podrobnosti GNU General Public License:</resource>
 		<resource name="about_title">O Greenshot-u</resource>
@@ -43,8 +43,6 @@ Pred objavo preverite tudi ali je napaka že prijavlja s strani kakšnega drugeg
 		<resource name="contextmenu_capturefullscreen_left">levo</resource>
 		<resource name="contextmenu_capturefullscreen_right">desno</resource>
 		<resource name="contextmenu_capturefullscreen_top">vrh</resource>
-		<resource name="contextmenu_captureie">Zajemi Internet Explorer</resource>
-		<resource name="contextmenu_captureiefromlist">Zajemi Internet Explorer iz seznama</resource>
 		<resource name="contextmenu_capturelastregion">Zajemi zadnjo regijo</resource>
 		<resource name="contextmenu_capturewindow">Zajemi okno</resource>
 		<resource name="contextmenu_capturewindowfromlist">Zajemi okno iz seznama</resource>
@@ -200,7 +198,6 @@ Prosim preverite pravice pisanja v ta direktorij.</resource>
 		<resource name="settings_editor">Urejevalnik</resource>
 		<resource name="settings_filenamepattern">Vzorec imena datoteke</resource>
 		<resource name="settings_general">Splošno</resource>
-		<resource name="settings_iecapture">Zajem iz Internet Explorerja</resource>
 		<resource name="settings_jpegquality">JPEG kakovost</resource>
 		<resource name="settings_language">Jezik</resource>
 		<resource name="settings_network">Mreža in posodobitve</resource>
@@ -235,7 +232,6 @@ Prosim preverite pravice pisanja v ta direktorij.</resource>
 		<resource name="settings_windowscapture">Zajem okna</resource>
 		<resource name="tooltip_firststart">Desno klikni tukaj ali pritisni {0} .</resource>
 		<resource name="update_found">Na voljo je nova verzija Greenshot-a! Ali želite prenesti Greenshot {0}?</resource>
-		<resource name="wait_ie_capture">Prosimo počakajte - zajema se Internet Explorer...</resource>
 		<resource name="warning">Opozorilo</resource>
 		<resource name="warning_hotkeys">Bližnjica "{0}" ne more biti registrirana. Težava je verjetno v tem, da nek drug program uporablja isto bližnjico ! Nastavite si drugo bližnjično tipko ali deaktivirajte bližnjice za ta program.
 

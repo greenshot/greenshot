@@ -5,7 +5,7 @@
 		<resource name="about_donations">Wenn Sie Greenshot mögen, können Sie uns gerne unterstützen:</resource>
 		<resource name="about_host">Greenshot wird von GitHub gehostet unter</resource>
 		<resource name="about_icons">Icons aus Yusuke Kamiyamane's Fugue icon set (Creative Commons Attribution 3.0 license)</resource>
-		<resource name="about_license">Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+		<resource name="about_license">Copyright © 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
 Für Greenshot besteht KEINERLEI GARANTIE. Greenshot ist freie Software, die Sie unter bestimmten Bedingungen weitergeben dürfen.
 Detaillierte Informationen zur GNU General Public License:</resource>
 		<resource name="about_title">Über Greenshot</resource>
@@ -49,8 +49,6 @@ schnell zu finden. Vielen Dank :)</resource>
 		<resource name="contextmenu_capturefullscreen_left">links</resource>
 		<resource name="contextmenu_capturefullscreen_right">rechts</resource>
 		<resource name="contextmenu_capturefullscreen_top">oben</resource>
-		<resource name="contextmenu_captureie">Internet Explorer abfotografieren</resource>
-		<resource name="contextmenu_captureiefromlist">Internet Explorer abfotografieren</resource>
 		<resource name="contextmenu_capturelastregion">Zuletzt gewählten Bereich abfotografieren</resource>
 		<resource name="contextmenu_capturewindow">Fenster abfotografieren</resource>
 		<resource name="contextmenu_capturewindowfromlist">Fenster aus Liste abfotografieren</resource>
@@ -86,6 +84,7 @@ schnell zu finden. Vielen Dank :)</resource>
 		<resource name="editor_cancel">Abbrechen</resource>
 		<resource name="editor_clipboardfailed">Fehler beim Zugriff auf die Zwischenablage. Bitte wiederholen Sie den Vorgang.</resource>
 		<resource name="editor_close">Schließen</resource>
+		<resource name="editor_close_all">Alles schließen</resource>
 		<resource name="editor_close_on_save">Möchten Sie den Screenshot speichern?</resource>
 		<resource name="editor_close_on_save_title">Bild speichern?</resource>
 		<resource name="editor_confirm">Bestätigen</resource>
@@ -227,7 +226,6 @@ Bitte überprüfen Sie die Schreibrechte oder wählen Sie einen anderen Speicher
 		<resource name="settings_editor">Editor</resource>
 		<resource name="settings_filenamepattern">Dateinamensmuster</resource>
 		<resource name="settings_general">Allgemein</resource>
-		<resource name="settings_iecapture">Internet Explorer abfotografieren</resource>
 		<resource name="settings_jpegquality">JPEG-Qualität</resource>
 		<resource name="settings_language">Sprache</resource>
 		<resource name="settings_message_filenamepattern">Die folgenden Platzhalter werden im festgelegten Muster automatisch ersetzt:
@@ -280,7 +278,6 @@ Beispiel: C:\Users\MaxMustermann\Desktop\2012-08-13\12-58-32.png</resource>
 		<resource name="settings_zoom">Lupe anzeigen</resource>
 		<resource name="tooltip_firststart">Klicken Sie hier mit der rechten Maustaste oder drücken Sie die Taste {0}.</resource>
 		<resource name="update_found">Eine neuere Greenshot-Version steht zur Verfügung. Wollen Sie Greenshot {0} herunterladen?</resource>
-		<resource name="wait_ie_capture">Bitte warten Sie, während die Seite im Internet Explorer abfotografiert wird...</resource>
 		<resource name="warning">Hinweis</resource>
 		<resource name="warning_hotkeys">Die globale Tastenkombination {0} konnte nicht aktiviert werden.
 Vermutlich wurde dieselbe Tastenkombination bereits von einem anderen Programm {1} reserviert.
