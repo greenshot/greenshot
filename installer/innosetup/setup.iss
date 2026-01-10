@@ -36,7 +36,7 @@ Source: {#GreenshotProjectDir}\log4net.xml; DestDir: {app}; Components: greensho
 Source: {#ReleaseDir}\checksum.SHA256; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
 ;Source: ..\greenshot-defaults.ini; DestDir: {app}; Flags: overwritereadonly ignoreversion replacesameversion
 Source: ..\additional_files\installer.txt; DestDir: {app}; Components: greenshot; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion
-Source: ..\additional_files\license.txt; DestDir: {app}; Components: greenshot; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion
+Source: ..\additional_files\license.rtf; DestDir: {app}; Components: greenshot; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion
 Source: ..\additional_files\readme.txt; DestDir: {app}; Components: greenshot; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion
 
 ; Core language files
@@ -130,7 +130,7 @@ SolidCompression=yes
 DefaultDirName={autopf}\{#ExeName}
 DefaultGroupName={#ExeName}
 InfoBeforeFile=..\additional_files\readme.txt
-LicenseFile=..\additional_files\license.txt
+LicenseFile=..\additional_files\license.rtf
 LanguageDetectionMethod=uilanguage
 MinVersion=6.1sp1
 OutputDir=..\
@@ -193,7 +193,7 @@ Root: HKCU; Subkey: Control Panel\Keyboard; ValueType: dword; ValueName: "PrintS
 Name: {group}\{#ExeName}; Filename: {app}\{#ExeName}.exe; WorkingDir: {app}; AppUserModelID: "{#ExeName}"
 Name: {group}\{cm:UninstallIconDescription} {#ExeName}; Filename: {uninstallexe}; WorkingDir: {app};
 Name: {group}\{cm:ShowReadme}; Filename: {app}\readme.txt; WorkingDir: {app}
-Name: {group}\{cm:ShowLicense}; Filename: {app}\license.txt; WorkingDir: {app}
+Name: {group}\{cm:ShowLicense}; Filename: {app}\license.rtf; WorkingDir: {app}
 
 [Languages]
 Name: en; MessagesFile: compiler:Default.isl
