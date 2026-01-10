@@ -49,8 +49,6 @@ Benzer bir hatanın daha önce bildirilip bildirilmediğini kontrol ederseniz ç
 		<resource name="contextmenu_capturefullscreen_left">sol</resource>
 		<resource name="contextmenu_capturefullscreen_right">sağ</resource>
 		<resource name="contextmenu_capturefullscreen_top">üst</resource>
-		<resource name="contextmenu_captureie">Internet Explorer'ı yakala</resource>
-        <resource name="contextmenu_captureiefromlist">Listeden Internet Explorer'ı yakala</resource>
 		<resource name="contextmenu_capturelastregion">Son bölgeyi yakala</resource>
 		<resource name="contextmenu_capturewindow">Pencere yakala</resource>
         <resource name="contextmenu_capturewindowfromlist">Açık pencereleri yakala</resource>
@@ -228,7 +226,6 @@ Seçili kayıt yolunun yazılabilir olduğundan emin olun.</resource>
 		<resource name="settings_editor">Editör</resource>
 		<resource name="settings_filenamepattern">Dosya adı biçimi</resource>
 		<resource name="settings_general">Genel</resource>
-		<resource name="settings_iecapture">Internet Explorer'ı yakala</resource>
 		<resource name="settings_jpegquality">JPEG kalitesi</resource>
 		<resource name="settings_language">Dil</resource>
 		<resource name="settings_message_filenamepattern">Kaydedilen görüntülerin dosya adlarını, aşağıdaki yer tutucuları kullanarak istediğiniz gibi özelleştirebilirsiniz:
@@ -279,7 +276,6 @@ Greenshot ile dinamik klasör oluşturabilirsiniz. Klasör ve dosya adını ayı
 		<resource name="settings_windowscapture">Pencere yakalama</resource>
 		<resource name="tooltip_firststart">Buraya sağ tıklayın veya {0} tuşuna basın.</resource>
 		<resource name="update_found">Greenshot'ın daha yeni bir versiyonu mevcut! Greenshot {0} sürümünü indirmek ister misiniz?</resource>
-		<resource name="wait_ie_capture">Internet Explorer'daki sayfa yakalanırken lütfen bekleyin...</resource>
 		<resource name="warning">Dikkat</resource>
 		<resource name="warning_hotkeys">"{0}" kısayolu kaydedilemedi. Bu sorunun nedeni muhtemelen başka bir aracın{1} aynı kısayolları kullanıyor olması. Kısayol ayarlarınızı değiştirebilir veya ilgili kısayolları kullanan yazılımı devre dışı bırakabilir/değiştirebilirsiniz.
 

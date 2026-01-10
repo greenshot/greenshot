@@ -22,7 +22,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Build.Utilities.Core" Version="18.0.2" />
-    <PackageReference Include="Tools.InnoSetup" version="6.6.1" GeneratePathProperty="true" />
+    <PackageReference Include="Tools.InnoSetup" version="6.7.0" GeneratePathProperty="true" />
   </ItemGroup>
 
   <ItemGroup>
