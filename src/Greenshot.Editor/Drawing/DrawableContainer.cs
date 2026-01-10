@@ -533,7 +533,8 @@ namespace Greenshot.Editor.Drawing
             // reset "workbench" rectangle to current bounds
             _boundsAfterResize = new NativeRectFloat(_boundsBeforeResize.Left, _boundsBeforeResize.Top, x - _boundsAfterResize.Left, y - _boundsAfterResize.Top);
 
-            _boundsAfterResize = ScaleHelper.Scale(_boundsAfterResize, Positions.TopLeft, x, y, GetAngleRoundProcessor());
+            var scaleOptions = (this as IHaveScaleOptions)?.GetScaleOptions();
+            _boundsAfterResize = ScaleHelper.Scale(_boundsAfterResize, x, y, GetAngleRoundProcessor(), scaleOptions);
 
             // apply scaled bounds to this DrawableContainer
             ApplyBounds(_boundsAfterResize);
@@ -666,9 +667,9 @@ namespace Greenshot.Editor.Drawing
             Height = points[1].Y - points[0].Y;
         }
 
-        protected virtual ScaleHelper.IDoubleProcessor GetAngleRoundProcessor()
+        protected virtual IDoubleProcessor GetAngleRoundProcessor()
         {
-            return ScaleHelper.ShapeAngleRoundBehavior.INSTANCE;
+            return ShapeAngleRoundBehavior.INSTANCE;
         }
 
         public virtual bool HasContextMenu => true;

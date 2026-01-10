@@ -91,6 +91,7 @@ Controlla i permessi di accesso per '{0}'.</resource>
         <resource name="editor_cancel">Annulla</resource>
         <resource name="editor_clipboardfailed">Errore durante l'accesso agli Appunti. Ritenta nuovamente.</resource>
         <resource name="editor_close">Chiudi</resource>
+        <resource name="editor_close_all">Chiudi tutto</resource>
         <resource name="editor_close_on_save">Vuoi salvare l'immagine?</resource>
         <resource name="editor_close_on_save_title">Vuoi salvare l'immagine?</resource>
         <resource name="editor_confirm">Conferma</resource>
@@ -322,7 +323,7 @@ In alternativa alle scorciatoie di tastiera, tutte le funzioni di Greenshot sono
     <resource name="editor_counter">Aggiungi conteggio</resource>
     <resource name="editor_speechbubble">Aggiungi nuvoletta</resource>
 
-    <resource name="editor_resize">Ridimensiona</resource>
+    <resource name="editor_resize">Ridimensiona (Z)</resource>
     <resource name="editor_resize_settings">Impostazioni ridimensionamento</resource>
     <resource name="editor_resize_aspectratio">Mantieni rapporto dimensioni</resource>
     <resource name="editor_resize_width">Larghezza</resource>

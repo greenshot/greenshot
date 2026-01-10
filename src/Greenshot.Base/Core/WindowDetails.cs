@@ -42,8 +42,6 @@ namespace Greenshot.Base.Core
     {
         private const string AppWindowClass = "Windows.UI.Core.CoreWindow"; //Used for Windows 8(.1)
         private const string AppFrameWindowClass = "ApplicationFrameWindow"; // Windows 10 uses ApplicationFrameWindow
-        private const string ApplauncherClass = "ImmersiveLauncher";
-        private const string GutterClass = "ImmersiveGutter";
 
         private static readonly IList<string> IgnoreClasses = new List<string>(new[]
         {
@@ -89,13 +87,7 @@ namespace Greenshot.Base.Core
         private IntPtr _parentHandle = IntPtr.Zero;
         private WindowDetails _parent;
         private bool _frozen;
-
-        /// <summary>
-        /// This checks if the window is a Windows 8 App
-        /// For Windows 10 most normal code works, as it's hosted inside "ApplicationFrameWindow"
-        /// </summary>
-        public bool IsApp => AppWindowClass.Equals(ClassName);
-
+        
         /// <summary>
         /// This checks if the window is a Windows 10 App
         /// For Windows 10 apps are hosted inside "ApplicationFrameWindow"
@@ -108,20 +100,6 @@ namespace Greenshot.Base.Core
         public bool IsBackgroundWin10App => WindowsVersion.IsWindows10OrLater && AppFrameWindowClass.Equals(ClassName) &&
                                             !Children.Any(window => string.Equals(window.ClassName, AppWindowClass));
 
-        /// <summary>
-        /// Check if the window is the metro gutter (sizeable separator)
-        /// </summary>
-        public bool IsGutter => GutterClass.Equals(ClassName);
-
-        /// <summary>
-        /// Test if this window is for the App-Launcher
-        /// </summary>
-        public bool IsAppLauncher => ApplauncherClass.Equals(ClassName);
-
-        /// <summary>
-        /// Check if this window is the window of a metro app
-        /// </summary>
-        public bool IsMetroApp => IsAppLauncher || IsApp;
 
         /// <summary>
         /// To allow items to be compared, the hash code
@@ -224,12 +202,6 @@ namespace Greenshot.Base.Core
                 {
                     Log.WarnFormat("Couldn't get icon for window {0} due to: {1}", Text, ex.Message);
                     Log.Warn(ex);
-                }
-
-                if (IsMetroApp)
-                {
-                    // No method yet to get the metro icon
-                    return null;
                 }
 
                 try
@@ -467,11 +439,6 @@ namespace Greenshot.Base.Core
         {
             get
             {
-                if (IsMetroApp)
-                {
-                    return !Visible;
-                }
-
                 return User32Api.IsIconic(Handle) || Location.X <= -32000;
             }
             set
@@ -494,22 +461,6 @@ namespace Greenshot.Base.Core
         {
             get
             {
-                if (IsApp)
-                {
-                    if (Visible)
-                    {
-                        foreach (var displayInfo in DisplayInfo.AllDisplayInfos)
-                        {
-                            if (WindowRectangle.Equals(displayInfo.Bounds))
-                            {
-                                return true;
-                            }
-                        }
-                    }
-
-                    return false;
-                }
-
                 return User32Api.IsZoomed(Handle);
             }
             set
@@ -544,50 +495,6 @@ namespace Greenshot.Base.Core
                 if (IsCloaked)
                 {
                     return false;
-                }
-
-                if (IsApp)
-                {
-                    var windowRectangle = WindowRectangle;
-
-                    foreach (var displayInfo in DisplayInfo.AllDisplayInfos)
-                    {
-                        if (!displayInfo.Bounds.Contains(windowRectangle)) continue;
-                        if (windowRectangle.Equals(displayInfo.Bounds))
-                        {
-                            // Fullscreen, it's "visible" when AppVisibilityOnMonitor says yes
-                            // Although it might be the other App, this is not "very" important
-                            NativeRect rect = displayInfo.Bounds;
-                            IntPtr monitor = User32Api.MonitorFromRect(ref rect, MonitorFrom.DefaultToNull);
-                            if (monitor != IntPtr.Zero)
-                            {
-                                MONITOR_APP_VISIBILITY? monitorAppVisibility = AppVisibility?.GetAppVisibilityOnMonitor(monitor);
-                                //LOG.DebugFormat("App {0} visible: {1} on {2}", Text, monitorAppVisibility, screen.Bounds);
-                                if (monitorAppVisibility == MONITOR_APP_VISIBILITY.MAV_APP_VISIBLE)
-                                {
-                                    return true;
-                                }
-                            }
-                        }
-                        else
-                        {
-                            // Is only partly on the screen, when this happens the app is always visible!
-                            return true;
-                        }
-                    }
-
-                    return false;
-                }
-
-                if (IsGutter)
-                {
-                    // gutter is only made available when it's visible
-                    return true;
-                }
-
-                if (IsAppLauncher)
-                {
-                    return IsAppLauncherVisible;
                 }
 
                 return User32Api.IsWindowVisible(Handle);
@@ -643,69 +550,56 @@ namespace Greenshot.Base.Core
             {
                 // Try to return a cached value
                 long now = DateTime.Now.Ticks;
-                if (_previousWindowRectangle.IsEmpty || !_frozen)
-                {
-                    if (!_previousWindowRectangle.IsEmpty && now - _lastWindowRectangleRetrieveTime <= CacheTime)
-                    {
-                        return _previousWindowRectangle;
-                    }
-                    NativeRect windowRect = new();
-                    if (DwmApi.IsDwmEnabled)
-                    {
-                        bool gotFrameBounds = GetExtendedFrameBounds(out windowRect);
-                        if (IsApp)
-                        {
-                            // Pre-Cache for maximized call, this is only on Windows 8 apps (full screen)
-                            if (gotFrameBounds)
-                            {
-                                _previousWindowRectangle = windowRect;
-                                _lastWindowRectangleRetrieveTime = now;
-                            }
-                        }
+                if (!_previousWindowRectangle.IsEmpty && _frozen) return _previousWindowRectangle;
 
-                        if (gotFrameBounds && WindowsVersion.IsWindows10OrLater && !Maximised)
+                if (!_previousWindowRectangle.IsEmpty && now - _lastWindowRectangleRetrieveTime <= CacheTime)
+                {
+                    return _previousWindowRectangle;
+                }
+                NativeRect windowRect = new();
+                if (DwmApi.IsDwmEnabled)
+                {
+                    bool gotFrameBounds = GetExtendedFrameBounds(out windowRect);
+                    if (IsWin10App)
+                    {
+                        // Pre-Cache for maximized call, this is only on Windows 8 apps (full screen)
+                        if (gotFrameBounds)
                         {
-                            // Somehow DWM doesn't calculate it correctly, there is a 1 pixel border around the capture
-                            // Remove this border, currently it's fixed but TODO: Make it depend on the OS?
-                            windowRect = windowRect.Inflate(Conf.Win10BorderCrop);
                             _previousWindowRectangle = windowRect;
                             _lastWindowRectangleRetrieveTime = now;
-                            return windowRect;
                         }
                     }
 
-                    if (windowRect.IsEmpty)
+                    if (gotFrameBounds && WindowsVersion.IsWindows10OrLater && !Maximised)
                     {
-                        if (!GetWindowRect(out windowRect))
-                        {
-                            Win32Error error = Win32.GetLastErrorCode();
-                            Log.WarnFormat("Couldn't retrieve the windows rectangle: {0}", Win32.GetMessage(error));
-                        }
+                        // Somehow DWM doesn't calculate it correctly, there is a 1 pixel border around the capture
+                        // Remove this border, currently it's fixed but TODO: Make it depend on the OS?
+                        windowRect = windowRect.Inflate(Conf.Win10BorderCrop);
+                        _previousWindowRectangle = windowRect;
+                        _lastWindowRectangleRetrieveTime = now;
+                        return windowRect;
                     }
-
-                    // Correction for maximized windows, only if it's not an app
-                    if (!HasParent && !IsApp && Maximised)
-                    {
-                        // Only if the border size can be retrieved
-                        if (GetBorderSize(out var size))
-                        {
-                            windowRect = new NativeRect(windowRect.X + size.Width, windowRect.Y + size.Height, windowRect.Width - (2 * size.Width),
-                                windowRect.Height - (2 * size.Height));
-                        }
-                    }
-
-                    _lastWindowRectangleRetrieveTime = now;
-                    // Try to return something valid, by getting returning the previous size if the window doesn't have a NativeRect anymore
-                    if (windowRect.IsEmpty)
-                    {
-                        return _previousWindowRectangle;
-                    }
-
-                    _previousWindowRectangle = windowRect;
-                    return windowRect;
                 }
 
-                return _previousWindowRectangle;
+                if (windowRect.IsEmpty)
+                {
+                    if (!GetWindowRect(out windowRect))
+                    {
+                        Win32Error error = Win32.GetLastErrorCode();
+                        Log.WarnFormat("Couldn't retrieve the windows rectangle: {0}", Win32.GetMessage(error));
+                    }
+                }
+
+                _lastWindowRectangleRetrieveTime = now;
+                // Try to return something valid, by getting returning the previous size if the window doesn't have a NativeRect anymore
+                if (windowRect.IsEmpty)
+                {
+                    return _previousWindowRectangle;
+                }
+
+                _previousWindowRectangle = windowRect;
+                return windowRect;
+
             }
         }
 
@@ -928,7 +822,7 @@ namespace Greenshot.Base.Core
                         {
                             // if GDI is allowed.. (a screenshot won't be better than we comes if we continue)
                             using Process thisWindowProcess = Process;
-                            if (!IsMetroApp && WindowCapture.IsGdiAllowed(thisWindowProcess))
+                            if (WindowCapture.IsGdiAllowed(thisWindowProcess))
                             {
                                 // we return null which causes the capturing code to try another method.
                                 return null;
@@ -973,11 +867,8 @@ namespace Greenshot.Base.Core
                             tempForm.BackColor = Color.Black;
                             // Make sure everything is visible
                             tempForm.Refresh();
-                            if (!IsMetroApp)
-                            {
-                                // Make sure the application window is active, so the colors & buttons are right
-                                ToForeground();
-                            }
+                            // Make sure the application window is active, so the colors & buttons are right
+                            ToForeground();
 
                             // Make sure all changes are processed and visible
                             Application.DoEvents();
@@ -1013,11 +904,8 @@ namespace Greenshot.Base.Core
 
                         // Make sure everything is visible
                         tempForm.Refresh();
-                        if (!IsMetroApp)
-                        {
-                            // Make sure the application window is active, so the colors & buttons are right
-                            ToForeground();
-                        }
+                        // Make sure the application window is active, so the colors & buttons are right
+                        ToForeground();
 
                         // Make sure all changes are processed and visible
                         Application.DoEvents();
@@ -1155,6 +1043,13 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
+        /// If a window is hidden (Iconic), it also has the specified dimensions.
+        /// </summary>
+        /// <param name="rect">NativeRect</param>
+        /// <returns>bool true if hidden</returns>
+        private bool IsHidden(NativeRect rect) => rect.Width == 65535 && rect.Height == 65535 && rect.Left == 32767 && rect.Top == 32767;
+
+        /// <summary>
         /// Helper method to get the window size for DWM Windows
         /// </summary>
         /// <param name="rectangle">out NativeRect</param>
@@ -1164,6 +1059,10 @@ namespace Greenshot.Base.Core
             var result = DwmApi.DwmGetWindowAttribute(Handle, DwmWindowAttributes.ExtendedFrameBounds, out NativeRect rect, Marshal.SizeOf(typeof(NativeRect)));
             if (result.Succeeded())
             {
+                if (IsHidden(rect))
+                {
+                    rect = NativeRect.Empty;
+                }
                 rectangle = rect;
                 return true;
             }
@@ -1196,7 +1095,14 @@ namespace Greenshot.Base.Core
             var windowInfo = new WindowInfo();
             // Get the Window Info for this window
             bool result = User32Api.GetWindowInfo(Handle, ref windowInfo);
-            rectangle = result ? windowInfo.Bounds : NativeRect.Empty;
+            if (IsHidden(windowInfo.Bounds))
+            {
+                rectangle = NativeRect.Empty;
+            }
+            else
+            {
+                rectangle = result ? windowInfo.Bounds : NativeRect.Empty;
+            }
             return result;
         }
 
@@ -1577,7 +1483,7 @@ namespace Greenshot.Base.Core
 
             // Skip everything which is not rendered "normally", trying to fix BUG-2017
             var exWindowStyle = window.ExtendedWindowStyle;
-            if (!window.IsApp && !window.IsWin10App && (exWindowStyle & ExtendedWindowStyleFlags.WS_EX_NOREDIRECTIONBITMAP) != 0)
+            if (!window.IsWin10App && (exWindowStyle & ExtendedWindowStyleFlags.WS_EX_NOREDIRECTIONBITMAP) != 0)
             {
                 return false;
             }
@@ -1592,13 +1498,6 @@ namespace Greenshot.Base.Core
         public static IEnumerable<WindowDetails> GetVisibleWindows()
         {
             var screenBounds = DisplayInfo.ScreenBounds;
-            foreach (var window in GetAppWindows())
-            {
-                if (IsVisible(window, screenBounds))
-                {
-                    yield return window;
-                }
-            }
 
             foreach (var window in GetAllWindows())
             {
@@ -1606,38 +1505,6 @@ namespace Greenshot.Base.Core
                 {
                     yield return window;
                 }
-            }
-        }
-
-        /// <summary>
-        /// Get the WindowDetails for all Metro Apps
-        /// These are all Windows with Classname "Windows.UI.Core.CoreWindow"
-        /// </summary>
-        /// <returns>List WindowDetails with visible metro apps</returns>
-        public static IEnumerable<WindowDetails> GetAppWindows()
-        {
-            // if the appVisibility != null we have Windows 8.
-            if (AppVisibility == null)
-            {
-                yield break;
-            }
-
-            var nextHandle = User32Api.FindWindow(AppWindowClass, null);
-            while (nextHandle != IntPtr.Zero)
-            {
-                var metroApp = new WindowDetails(nextHandle);
-                yield return metroApp;
-                // Check if we have a gutter!
-                if (metroApp.Visible && !metroApp.Maximised)
-                {
-                    var gutterHandle = User32Api.FindWindow(GutterClass, null);
-                    if (gutterHandle != IntPtr.Zero)
-                    {
-                        yield return new WindowDetails(gutterHandle);
-                    }
-                }
-
-                nextHandle = User32Api.FindWindowEx(IntPtr.Zero, nextHandle, AppWindowClass, null);
             }
         }
 
@@ -1671,7 +1538,7 @@ namespace Greenshot.Base.Core
             }
 
             // Skip everything which is not rendered "normally", trying to fix BUG-2017
-            if (!window.IsApp && !window.IsWin10App && (exWindowStyle & ExtendedWindowStyleFlags.WS_EX_NOREDIRECTIONBITMAP) != 0)
+            if (!window.IsWin10App && (exWindowStyle & ExtendedWindowStyleFlags.WS_EX_NOREDIRECTIONBITMAP) != 0)
             {
                 return false;
             }
@@ -1707,14 +1574,6 @@ namespace Greenshot.Base.Core
         /// <returns>List WindowDetails with all the top level windows</returns>
         public static IEnumerable<WindowDetails> GetTopLevelWindows()
         {
-            foreach (var possibleTopLevel in GetAppWindows())
-            {
-                if (IsTopLevel(possibleTopLevel))
-                {
-                    yield return possibleTopLevel;
-                }
-            }
-
             foreach (var possibleTopLevel in GetAllWindows())
             {
                 if (IsTopLevel(possibleTopLevel))
@@ -1791,27 +1650,6 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// Get the AppLauncher
-        /// </summary>
-        /// <returns></returns>
-        public static WindowDetails GetAppLauncher()
-        {
-            // Only if Windows 8 (or higher)
-            if (AppVisibility == null)
-            {
-                return null;
-            }
-
-            IntPtr appLauncher = User32Api.FindWindow(ApplauncherClass, null);
-            if (appLauncher != IntPtr.Zero)
-            {
-                return new WindowDetails(appLauncher);
-            }
-
-            return null;
-        }
-
-        /// <summary>
         /// Return true if the metro-app-launcher is visible
         /// </summary>
         /// <returns></returns>
@@ -1842,7 +1680,6 @@ namespace Greenshot.Base.Core
             result.AppendLine($"Size: {WindowRectangle.Size}");
             result.AppendLine($"HasParent: {HasParent}");
             result.AppendLine($"IsWin10App: {IsWin10App}");
-            result.AppendLine($"IsApp: {IsApp}");
             result.AppendLine($"Visible: {Visible}");
             result.AppendLine($"IsWindowVisible: {User32Api.IsWindowVisible(Handle)}");
             result.AppendLine($"IsCloaked: {IsCloaked}");

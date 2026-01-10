@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 using Dapplo.Windows.Icons;
 using Greenshot.Base.IniFile;
@@ -39,9 +40,9 @@ namespace Greenshot.Base.Core
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(PluginUtils));
         private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
-        private const string PathKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\";
         private static readonly IDictionary<string, Image> ExeIconCache = new Dictionary<string, Image>();
-
+        private const string PathKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\";
+        
         static PluginUtils()
         {
             CoreConfig.PropertyChanged += OnIconSizeChanged;
@@ -84,7 +85,7 @@ namespace Greenshot.Base.Core
                 if (key != null)
                 {
                     // "" is the default key, which should point to the requested location
-                    return (string) key.GetValue(string.Empty);
+                    return (string)key.GetValue(string.Empty);
                 }
             }
 

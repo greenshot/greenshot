@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<language description="Türkçe" ietf="tr-TR" version="1.0.0">
+  <resources>
+	<resource name="label_AfterUploadLinkToClipBoard">
+	  Bağlantıyı panoya kopyala
+	</resource>
+	<resource name="label_AfterUpload">
+	  Yükledikten sonra
+	</resource>
+	<resource name="Configure">
+	  Google Fotoğraflar'ı yapılandır
+	</resource>
+	<resource name="upload_menu_item">
+	  Google Fotoğraflar'a yükle
+	</resource>
+	<resource name="settings_title">
+	  Google Fotoğraflar ayarları
+	</resource>
+	<resource name="upload_success">
+	  Görüntü Google Fotoğraflar'a başarıyla yüklendi!
+	</resource>
+	<resource name="upload_failure">
+	  Google Fotoğraflar'a yükleme sırasında bir hata oluştu:
+	</resource>
+	<resource name="label_upload_format">
+	  Görüntü biçimi
+	</resource>
+	<resource name="communication_wait">
+	  Google Fotoğraflar ile iletişim kuruluyor. Lütfen bekleyin...
+	</resource>
+  </resources>
+</language>

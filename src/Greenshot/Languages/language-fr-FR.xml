@@ -85,6 +85,7 @@ De plus, nous apprécierions beaucoup que vous preniez la peine de vérifier si 
 		<resource name="editor_cancel">Annuler</resource>
 		<resource name="editor_clipboardfailed">Une erreur s'est produite lors de l'accès au presse-papier. Veuillez réessayer.</resource>
 		<resource name="editor_close">Fermer</resource>
+		<resource name="editor_close_all">Fermer tout</resource>
 		<resource name="editor_close_on_save">Voulez-vous enregistrer la capture d'écran ?</resource>
 		<resource name="editor_close_on_save_title">Enregistrer l'image ?</resource>
 		<resource name="editor_confirm">Confirmer</resource>
@@ -144,7 +145,7 @@ De plus, nous apprécierions beaucoup que vous preniez la peine de vérifier si 
 		<resource name="editor_print">Imprimer</resource>
 		<resource name="editor_redo">Rétablir {0}</resource>
 		<resource name="editor_resetsize">Réinitialiser la taille</resource>
-		<resource name="editor_resize">Redimensionner</resource>
+		<resource name="editor_resize">Redimensionner (Z)</resource>
 		<resource name="editor_resize_aspectratio">Maintenir le rapport L / H</resource>
 		<resource name="editor_resize_height">Hauteur</resource>
 		<resource name="editor_resize_percent">Pourcentage</resource>

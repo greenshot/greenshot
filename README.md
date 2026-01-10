@@ -1,7 +1,7 @@
 Greenshot - a free screenshot tool optimized for productivity
 =============================================================
 
-Welcome to the source repository for Greenshot
+Welcome to the source repository for Greenshot.
 
 What is Greenshot?
 ------------------
@@ -21,4 +21,25 @@ Being easy to understand and configurable, Greenshot is an efficient tool for pr
 
 About this repository
 ---------------------
-This repository is for Greenshot 1.3, currently in development, but is the next planned release
+This is the ongoing development branch for future Greenshot releases. 
+
+Releases
+--------
+
+You can find a list of all releases (stable and unstable) in the [Github releases](https://github.com/greenshot/greenshot/releases) or in the [version history on our website](https://getgreenshot.org/version-history/).
+The [downloads page on our website](https://getgreenshot.org/downloads/) always links to the latest stable release.
+
+Trademark and Logo Usage Policy
+-------------------------------
+
+The Greenshot logo and trademark are the property of the Greenshot development team. Unauthorized use of the logo and trademark is generally prohibited. However, we allow the use of the Greenshot name and logo in the following contexts:
+
+* In blog posts, articles, or reviews that discuss or promote the Greenshot, provided that the usage is fair and does not imply endorsement by Greenshot.
+* In educational materials or presentations that accurately represent the project.
+
+Please refrain from using the Greenshot logo and trademark in any promotional materials, products, or in a manner that may cause confusion or imply endorsement without prior written permission.
+
+If you have any questions or wish to seek permission for other uses, please contact us.
+
+Thank you for your understanding and cooperation.
+

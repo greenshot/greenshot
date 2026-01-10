@@ -59,7 +59,7 @@ namespace Greenshot.Base.Core
         [IniProperty("IEHotkey", Description = "Hotkey for starting the IE capture", DefaultValue = "Shift + Ctrl + PrintScreen")]
         public string IEHotkey { get; set; }
 
-        [IniProperty("ClipboardHotkey", Description = "Hotkey for opening the clipboard contents into the editor")]
+        [IniProperty("ClipboardHotkey", Description = "Hotkey for opening the clipboard contents into the editor", ExcludeIfNull = true)]
         public string ClipboardHotkey { get; set; }
 
         [IniProperty("IsFirstLaunch", Description = "Is this the first time launch?", DefaultValue = "true")]
@@ -388,89 +388,64 @@ namespace Greenshot.Base.Core
             return ExperimentalFeatures != null && ExperimentalFeatures.Contains(experimentalFeature);
         }
 
+        private string CreateOutputFilePath()
+        {
+            if (IniConfig.IsPortable)
+            {
+                string pafOutputFilePath = Path.Combine(Application.StartupPath, @"..\..\Documents\Pictures\Greenshots");
+                if (!Directory.Exists(pafOutputFilePath))
+                {
+                    try
+                    {
+                        Directory.CreateDirectory(pafOutputFilePath);
+                        return pafOutputFilePath;
+                    }
+                    catch (Exception ex)
+                    {
+                        // Problem creating directory, fallback to Desktop
+                        LOG.Warn(ex);
+                    }
+                }
+                else
+                {
+                    return pafOutputFilePath;
+                }
+            }
+
+            return Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+        }
+        
         /// <summary>
         /// Supply values we can't put as defaults
         /// </summary>
         /// <param name="property">The property to return a default for</param>
         /// <returns>object with the default value for the supplied property</returns>
-        public override object GetDefault(string property)
-        {
-            switch (property)
+        public override object GetDefault(string property) =>
+            property switch
             {
-                case nameof(ExcludePlugins):
-                case nameof(IncludePlugins):
-                    return new List<string>();
-                case nameof(OutputFileAsFullpath):
-                    if (IniConfig.IsPortable)
-                    {
-                        return Path.Combine(Application.StartupPath, @"..\..\Documents\Pictures\Greenshots\dummy.png");
-                    }
-
-                    return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "dummy.png");
-                case nameof(OutputFilePath):
-                    if (IniConfig.IsPortable)
-                    {
-                        string pafOutputFilePath = Path.Combine(Application.StartupPath, @"..\..\Documents\Pictures\Greenshots");
-                        if (!Directory.Exists(pafOutputFilePath))
-                        {
-                            try
-                            {
-                                Directory.CreateDirectory(pafOutputFilePath);
-                                return pafOutputFilePath;
-                            }
-                            catch (Exception ex)
-                            {
-                                LOG.Warn(ex);
-                                // Problem creating directory, fallback to Desktop
-                            }
-                        }
-                        else
-                        {
-                            return pafOutputFilePath;
-                        }
-                    }
-
-                    return Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-                case nameof(DWMBackgroundColor):
-                    return Color.Transparent;
-                case nameof(ActiveTitleFixes):
-                    return new List<string>
-                    {
-                        "Firefox",
-                        "IE",
-                        "Chrome"
-                    };
-                case nameof(TitleFixMatcher):
-                    return new Dictionary<string, string>
-                    {
-                        {
-                            "Firefox", " - Mozilla Firefox.*"
-                        },
-                        {
-                            "IE", " - (Microsoft|Windows) Internet Explorer.*"
-                        },
-                        {
-                            "Chrome", " - Google Chrome.*"
-                        }
-                    };
-                case nameof(TitleFixReplacer):
-                    return new Dictionary<string, string>
-                    {
-                        {
-                            "Firefox", string.Empty
-                        },
-                        {
-                            "IE", string.Empty
-                        },
-                        {
-                            "Chrome", string.Empty
-                        }
-                    };
-            }
-
-            return null;
-        }
-
+                nameof(ExcludePlugins) => new List<string>(),
+                nameof(IncludePlugins) => new List<string>(),
+                nameof(OutputFileAsFullpath) => IniConfig.IsPortable ? Path.Combine(Application.StartupPath, @"..\..\Documents\Pictures\Greenshots\dummy.png") : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "dummy.png"),
+                nameof(OutputFilePath) => CreateOutputFilePath(),
+                nameof(DWMBackgroundColor) => Color.Transparent,
+                nameof(ActiveTitleFixes) => new List<string> {
+                    "Firefox",
+                    "IE",
+                    "Chrome"
+                },
+                nameof(TitleFixMatcher) => new Dictionary<string, string> {
+                    { "Firefox", " - Mozilla Firefox.*" },
+                    { "IE", " - (Microsoft|Windows) Internet Explorer.*" },
+                    { "Chrome", " - Google Chrome.*" }
+                },
+                nameof(TitleFixReplacer) => new Dictionary<string, string> {
+                    { "Firefox", string.Empty },
+                    { "IE", string.Empty },
+                    { "Chrome", string.Empty }
+                },
+                _ => null
+            };
+        
         /// <summary>
         /// This method will be called before converting the property, making to possible to correct a certain value
         /// Can be used when migration is needed
@@ -540,8 +515,9 @@ namespace Greenshot.Base.Core
                 OutputFileAutoReduceColors = false;
             }
 
+            bool isUpgradeFrom12 = LastSaveWithVersion?.StartsWith("1.2") ?? false;
             // Fix for excessive feed checking
-            if (UpdateCheckInterval != 0 && UpdateCheckInterval <= 7 && LastSaveWithVersion.StartsWith("1.2"))
+            if (UpdateCheckInterval != 0 && UpdateCheckInterval <= 7 && isUpgradeFrom12)
             {
                 UpdateCheckInterval = 14;
             }

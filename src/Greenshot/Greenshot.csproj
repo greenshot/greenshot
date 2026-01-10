@@ -9,6 +9,10 @@
 	<EmbeddedResourceUseDependentUponConvention>false</EmbeddedResourceUseDependentUponConvention>
 	<EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+  </PropertyGroup>
 
   <ItemGroup>
     <None Include="Languages\language*.xml">
@@ -17,7 +21,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Tools.InnoSetup" version="6.2.0" GeneratePathProperty="true" />
+    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.13.9" />
+    <PackageReference Include="Tools.InnoSetup" version="6.2.1" GeneratePathProperty="true" />
   </ItemGroup>
 
   <ItemGroup>
@@ -74,7 +79,8 @@
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(Configuration)' == 'Release'">
     <SetEnvironmentVariableTask Name="BuildVersionSimple" Value="$(BuildVersionSimple)" />
-    <SetEnvironmentVariableTask Name="AssemblyInformationalVersion" Value="$(AssemblyInformationalVersion)" />
+    <SetEnvironmentVariableTask Name="BuildVersionEnhanced" Value="$(NuGetPackageVersion)" />
+    <Exec Command="if not &quot;$(CertumThumbprint)&quot; == &quot;&quot; signtool.exe sign /sha1 &quot;$(CertumThumbprint)&quot; /tr http://time.certum.pl /td sha256 /fd sha256 /v &quot;$(OutDir)Greenshot.exe&quot;" />
     <Exec Command="$(PkgTools_InnoSetup)\tools\ISCC.exe $(SolutionDir)\..\installer\innosetup\setup.iss" />
   </Target>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">

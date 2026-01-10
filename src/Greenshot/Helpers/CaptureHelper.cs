@@ -501,7 +501,7 @@ namespace Greenshot.Helpers
                         _capture = WindowCapture.CaptureRectangle(_capture, CoreConfig.LastCapturedRegion);
                         // TODO: Reactive / check if the elements code is activated
                         //if (windowDetailsThread != null) {
-                        //	windowDetailsThread.Join();
+                        //    windowDetailsThread.Join();
                         //}
 
                         // Set capture title, fixing bug #3569703
@@ -564,14 +564,6 @@ namespace Greenshot.Helpers
         {
             _windows = new List<WindowDetails>();
 
-            // If the App Launcher is visible, no other windows are active
-            WindowDetails appLauncherWindow = WindowDetails.GetAppLauncher();
-            if (appLauncherWindow != null && appLauncherWindow.Visible)
-            {
-                _windows.Add(appLauncherWindow);
-                return null;
-            }
-
             Thread getWindowDetailsThread = new Thread(RetrieveWindowDetails)
             {
                 Name = "Retrieve window details",
@@ -622,16 +614,9 @@ namespace Greenshot.Helpers
         /// <summary>
         /// If a balloon tip is show for a taken capture, this handles the click on it
         /// </summary>
-        /// <param name="e">SurfaceMessageEventArgs</param>
-        private void OpenCaptureOnClick(SurfaceMessageEventArgs e)
+        /// <param name="eventArgs">SurfaceMessageEventArgs</param>
+        private void OpenCaptureOnClick(SurfaceMessageEventArgs eventArgs)
         {
-            var notifyIcon = SimpleServiceProvider.Current.GetInstance<NotifyIcon>();
-            if (notifyIcon.Tag is not SurfaceMessageEventArgs eventArgs)
-            {
-                Log.Warn("OpenCaptureOnClick called without SurfaceMessageEventArgs");
-                return;
-            }
-
             ISurface surface = eventArgs.Surface;
             if (surface != null)
             {
@@ -977,39 +962,33 @@ namespace Greenshot.Helpers
                     windowCaptureMode = WindowCaptureMode.Screen;
 
                     // In https://github.com/greenshot/greenshot/issues/373 it was shown that PrintWindow (GDI) works great with Windows 11
-                    if (WindowsVersion.IsWindows11OrLater)
+                    // In https://github.com/greenshot/greenshot/issues/658 is was made clear it DOESN'T!
+                    // Change to GDI, if allowed
+                    if (WindowCapture.IsGdiAllowed(process))
                     {
-                        windowCaptureMode = WindowCaptureMode.GDI;
-                    }
-                    else
-                    {
-                        // Change to GDI, if allowed
-                        if (!windowToCapture.IsMetroApp && WindowCapture.IsGdiAllowed(process))
+                        if (!dwmEnabled && IsWpf(process))
                         {
-                            if (!dwmEnabled && IsWpf(process))
-                            {
-                                // do not use GDI, as DWM is not enabled and the application uses PresentationFramework.dll -> isWPF
-                                Log.InfoFormat("Not using GDI for windows of process {0}, as the process uses WPF", process.ProcessName);
-                            }
-                            else
-                            {
-                                windowCaptureMode = WindowCaptureMode.GDI;
-                            }
+                            // do not use GDI, as DWM is not enabled and the application uses PresentationFramework.dll -> isWPF
+                            Log.InfoFormat("Not using GDI for windows of process {0}, as the process uses WPF", process.ProcessName);
                         }
-
-                        // Change to DWM, if enabled and allowed
-                        if (dwmEnabled)
+                        else
                         {
-                            if (windowToCapture.IsMetroApp || WindowCapture.IsDwmAllowed(process))
-                            {
-                                windowCaptureMode = WindowCaptureMode.Aero;
-                            }
+                            windowCaptureMode = WindowCaptureMode.GDI;
+                        }
+                    }
+
+                    // Change to DWM, if enabled and allowed
+                    if (dwmEnabled)
+                    {
+                        if (WindowCapture.IsDwmAllowed(process))
+                        {
+                            windowCaptureMode = WindowCaptureMode.Aero;
                         }
                     }
                 }
                 else if (windowCaptureMode == WindowCaptureMode.Aero || windowCaptureMode == WindowCaptureMode.AeroTransparent)
                 {
-                    if (!dwmEnabled || (!windowToCapture.IsMetroApp && !WindowCapture.IsDwmAllowed(process)))
+                    if (!dwmEnabled || !WindowCapture.IsDwmAllowed(process))
                     {
                         // Take default screen
                         windowCaptureMode = WindowCaptureMode.Screen;
@@ -1049,7 +1028,7 @@ namespace Greenshot.Helpers
                                 }
 
                                 tmpCapture = windowToCapture.CaptureGdiWindow(captureForWindow);
-                                if (tmpCapture != null && !WindowsVersion.IsWindows11OrLater)
+                                if (tmpCapture != null)
                                 {
                                     // check if GDI capture any good, by comparing it with the screen content
                                     int blackCountGdi = ImageHelper.CountColor(tmpCapture.Image, Color.Black, false);
@@ -1115,7 +1094,7 @@ namespace Greenshot.Helpers
                             break;
                         case WindowCaptureMode.Aero:
                         case WindowCaptureMode.AeroTransparent:
-                            if (windowToCapture.IsMetroApp || WindowCapture.IsDwmAllowed(process))
+                            if (WindowCapture.IsDwmAllowed(process))
                             {
                                 tmpCapture = windowToCapture.CaptureDwmWindow(captureForWindow, windowCaptureMode, isAutoMode);
                             }

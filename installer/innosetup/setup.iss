@@ -1,12 +1,15 @@
 ﻿#define ExeName "Greenshot"
+; Basic build version determined by nerdbank gitversioning, e.g. 1.2.345
 #define Version GetEnv('BuildVersionSimple')
-#define FileVersion GetEnv('AssemblyInformationalVersion')
+; Build version with optional suffix depending on branch, e.g. 1.2.345-g1tc033174ef
+#define VersionEnhanced GetEnv('BuildVersionEnhanced')
 #define BaseDir "..\..\src"
 #define GreenshotProjectDir "..\..\src\Greenshot"
 #define LanguagesDir "..\..\src\Greenshot\Languages"
 #define BinDir "bin\Release\net472"
 #define ReleaseDir "..\..\src\Greenshot\bin\Release\net472"
 #define PluginDir "..\..\src\Greenshot\bin\Release\net472\Plugins"
+#define CertumThumbprint GetEnv('CertumThumbprint')
 
 ; Include the scripts to install .NET Framework
 ; See https://www.codeproject.com/KB/install/dotnetfx_innosetup_instal.aspx
@@ -82,33 +85,34 @@ Source: {#LanguagesDir}\*zh-CN*; Excludes: "*installer*,*website*"; DestDir: {ap
 Source: {#LanguagesDir}\*zh-TW*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\zhTW; Flags: overwritereadonly ignoreversion replacesameversion;
 
 ;Office Plugin
-Source: {#PluginDir}\Greenshot.Plugin.Office\*.dll; DestDir: {app}\Plugins\Office; Components: plugins\office; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
+Source: {#PluginDir}\Greenshot.Plugin.Office\Greenshot.Plugin.Office.dll; DestDir: {app}\Plugins\Office; Components: plugins\office; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
 ;JIRA Plugin
-Source: {#PluginDir}\Greenshot.Plugin.Jira\*.dll; DestDir: {app}\Plugins\Jira; Components: plugins\jira; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
+Source: {#PluginDir}\Greenshot.Plugin.Jira\*Jira*.dll; DestDir: {app}\Plugins\Jira; Components: plugins\jira; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
 Source: {#BaseDir}\Greenshot.Plugin.Jira\Languages\language_jira*.xml; DestDir: {app}\Languages\Plugins\Jira; Components: plugins\jira; Flags: overwritereadonly ignoreversion replacesameversion;
 ;Imgur Plugin
-Source: {#PluginDir}\Greenshot.Plugin.Imgur\*.dll; DestDir: {app}\Plugins\Imgur; Components: plugins\imgur; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
+Source: {#PluginDir}\Greenshot.Plugin.Imgur\Greenshot.Plugin.Imgur.dll; DestDir: {app}\Plugins\Imgur; Components: plugins\imgur; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
 Source: {#BaseDir}\Greenshot.Plugin.Imgur\Languages\language_imgur*.xml; DestDir: {app}\Languages\Plugins\Imgur; Components: plugins\imgur; Flags: overwritereadonly ignoreversion replacesameversion;
 ;Box Plugin
-Source: {#PluginDir}\Greenshot.Plugin.Box\*.dll; DestDir: {app}\Plugins\Box; Components: plugins\box; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
+Source: {#PluginDir}\Greenshot.Plugin.Box\Greenshot.Plugin.Box.dll; DestDir: {app}\Plugins\Box; Components: plugins\box; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
 Source: {#BaseDir}\Greenshot.Plugin.Box\Languages\language_box*.xml; DestDir: {app}\Languages\Plugins\Box; Components: plugins\box; Flags: overwritereadonly ignoreversion replacesameversion;
 ;DropBox Plugin
-Source: {#PluginDir}\Greenshot.Plugin.DropBox\*.dll; DestDir: {app}\Plugins\DropBox; Components: plugins\dropbox; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
+Source: {#PluginDir}\Greenshot.Plugin.DropBox\Greenshot.Plugin.DropBox.dll; DestDir: {app}\Plugins\DropBox; Components: plugins\dropbox; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
 Source: {#BaseDir}\Greenshot.Plugin.DropBox\Languages\language_dropbox*.xml; DestDir: {app}\Languages\Plugins\DropBox; Components: plugins\dropbox; Flags: overwritereadonly ignoreversion replacesameversion;
 ;Flickr Plugin
-Source: {#PluginDir}\Greenshot.Plugin.Flickr\*.dll; DestDir: {app}\Plugins\Flickr; Components: plugins\flickr; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
+Source: {#PluginDir}\Greenshot.Plugin.Flickr\Greenshot.Plugin.Flickr.dll; DestDir: {app}\Plugins\Flickr; Components: plugins\flickr; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
 Source: {#BaseDir}\Greenshot.Plugin.Flickr\Languages\language_flickr*.xml; DestDir: {app}\Languages\Plugins\Flickr; Components: plugins\flickr; Flags: overwritereadonly ignoreversion replacesameversion;
 ;Photobucket Plugin
-Source: {#PluginDir}\Greenshot.Plugin.Photobucket\*.dll; DestDir: {app}\Plugins\Photobucket; Components: plugins\photobucket; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
+Source: {#PluginDir}\Greenshot.Plugin.Photobucket\Greenshot.Plugin.Photobucket.dll; DestDir: {app}\Plugins\Photobucket; Components: plugins\photobucket; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
 Source: {#BaseDir}\Greenshot.Plugin.Photobucket\Languages\language_photo*.xml; DestDir: {app}\Languages\Plugins\Photobucket; Components: plugins\photobucket; Flags: overwritereadonly ignoreversion replacesameversion;
 ;Confluence Plugin
-Source: {#PluginDir}\Greenshot.Plugin.Confluence\*.dll; DestDir: {app}\Plugins\Confluence; Components: plugins\confluence; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
+Source: {#PluginDir}\Greenshot.Plugin.Confluence\Greenshot.Plugin.Confluence.dll; DestDir: {app}\Plugins\Confluence; Components: plugins\confluence; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
 Source: {#BaseDir}\Greenshot.Plugin.Confluence\Languages\language_confluence*.xml; DestDir: {app}\Languages\Plugins\Confluence; Components: plugins\confluence; Flags: overwritereadonly ignoreversion replacesameversion;
 ;ExternalCommand Plugin
-Source: {#PluginDir}\Greenshot.Plugin.ExternalCommand\*.dll; DestDir: {app}\Plugins\ExternalCommand; Components: plugins\externalcommand; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
+Source: {#PluginDir}\Greenshot.Plugin.ExternalCommand\Greenshot.Plugin.ExternalCommand.dll; DestDir: {app}\Plugins\ExternalCommand; Components: plugins\externalcommand; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
 Source: {#BaseDir}\Greenshot.Plugin.ExternalCommand\Languages\language_externalcommand*.xml; DestDir: {app}\Languages\Plugins\ExternalCommand; Components: plugins\externalcommand; Flags: overwritereadonly ignoreversion replacesameversion;
 ;Win 10 Plugin
-Source: {#PluginDir}\Greenshot.Plugin.Win10\*.dll; DestDir: {app}\Plugins\Win10; Components: plugins\win10; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
+Source: {#PluginDir}\Greenshot.Plugin.Win10\Greenshot.Plugin.Win10.dll; DestDir: {app}\Plugins\Win10; Components: plugins\win10; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
+Source: {#PluginDir}\Greenshot.Plugin.Win10\Microsoft.Toolkit.Uwp.Notifications.dll; DestDir: {app}\Plugins\Win10; Components: plugins\win10; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
 
 [Setup]
 ; changes associations is used when the installer installs new extensions, it clears the explorer icon cache
@@ -125,32 +129,39 @@ AppVersion={#Version}
 ArchitecturesInstallIn64BitMode=x64
 Compression=lzma2/ultra64
 SolidCompression=yes
-DefaultDirName={code:DefDirRoot}\{#ExeName}
+DefaultDirName={autopf}\{#ExeName}
 DefaultGroupName={#ExeName}
 InfoBeforeFile=..\additional_files\readme.txt
 LicenseFile=..\additional_files\license.txt
 LanguageDetectionMethod=uilanguage
 MinVersion=6.1sp1
-OutputBaseFilename={#ExeName}-INSTALLER-{#Version}-UNSTABLE
 OutputDir=..\
+; user may choose between all-users vs. current-user installation in a dialog or by using the /ALLUSERS flag (on the command line)
+; in registry section, HKA will take care of the appropriate root key (HKLM vs. HKCU), see https://jrsoftware.org/ishelp/index.php?topic=admininstallmode
+PrivilegesRequiredOverridesAllowed=dialog
+; admin privileges not required, unless user chooses all-users installation
+; the installer will ask for elevation if needed
 PrivilegesRequired=lowest
 SetupIconFile=..\..\src\Greenshot\icons\applicationIcon\icon.ico
-; Create a SHA1 signature
-; SignTool=SignTool sign /debug /fd sha1 /tr https://time.certum.pl /td sha1 $f
-; Append a SHA256 to the previous SHA1 signature (this is what as does)
-; SignTool=SignTool sign /debug /as /fd sha256 /tr https://time.certum.pl /td sha256 $f
-; SignedUninstaller=yes
+#if CertumThumbprint  != ""
+ OutputBaseFilename={#ExeName}-INSTALLER-{#VersionEnhanced}-UNSTABLE
+  SignTool=SignTool sign /sha1 "{#CertumThumbprint}" /tr http://time.certum.pl /td sha256 /fd sha256 /v $f
+  SignedUninstaller=yes
+#else
+  OutputBaseFilename={#ExeName}-INSTALLER-{#VersionEnhanced}-UNSTABLE-UNSIGNED
+#endif
 UninstallDisplayIcon={app}\{#ExeName}.exe
 Uninstallable=true
 VersionInfoCompany={#ExeName}
 VersionInfoProductName={#ExeName}
-VersionInfoProductTextVersion={#FileVersion}
-VersionInfoTextVersion={#FileVersion}
+VersionInfoProductTextVersion={#VersionEnhanced}
+VersionInfoTextVersion={#VersionEnhanced}
 VersionInfoVersion={#Version}
 ; Reference a bitmap, max size 164x314
 WizardImageFile=installer-large.bmp
 ; Reference a bitmap, max size 55x58
 WizardSmallImageFile=installer-small.bmp
+
 [Registry]
 ; Delete all startup entries, so we don't have leftover values
 Root: HKCU; Subkey: Software\Microsoft\Windows\CurrentVersion\Run; ValueType: none; ValueName: {#ExeName}; Flags: deletevalue noerror;
@@ -169,22 +180,16 @@ Root: HKLM; Subkey: Software\Classes\.greenshot; ValueType: none; ValueName: {#E
 Root: HKLM; Subkey: Software\Classes\Greenshot; ValueType: none; ValueName: {#ExeName}; Flags: deletevalue noerror;
 
 ; Create the startup entries if requested to do so
-; HKEY_LOCAL_USER - for current user only
-Root: HKCU; Subkey: Software\Microsoft\Windows\CurrentVersion\Run; ValueType: string; ValueName: {#ExeName}; ValueData: """{app}\{#ExeName}.exe"""; Permissions: users-modify; Flags: uninsdeletevalue noerror; Tasks: startup; Check: IsRegularUser
-; HKEY_LOCAL_MACHINE - for all users when admin
-Root: HKLM; Subkey: Software\Microsoft\Windows\CurrentVersion\Run; ValueType: string; ValueName: {#ExeName}; ValueData: """{app}\{#ExeName}.exe"""; Permissions: admins-modify; Flags: uninsdeletevalue noerror; Tasks: startup; Check: not IsRegularUser
+Root: HKA; Subkey: Software\Microsoft\Windows\CurrentVersion\Run; ValueType: string; ValueName: {#ExeName}; ValueData: """{app}\{#ExeName}.exe"""; Flags: uninsdeletevalue noerror; Tasks: startup
 
 ; Register our own filetype for all users
-; HKEY_LOCAL_USER - for current user only
-Root: HKCU; Subkey: Software\Classes\.greenshot; ValueType: string; ValueName: ""; ValueData: "Greenshot"; Permissions: users-modify; Flags: uninsdeletevalue noerror; Check: IsRegularUser
-Root: HKCU; Subkey: Software\Classes\Greenshot; ValueType: string; ValueName: ""; ValueData: "Greenshot File"; Permissions: users-modify; Flags: uninsdeletevalue noerror; Check: IsRegularUser
-Root: HKCU; Subkey: Software\Classes\Greenshot\DefaultIcon; ValueType: string; ValueName: ""; ValueData: """{app}\Greenshot.EXE,0"""; Permissions: users-modify; Flags: uninsdeletevalue noerror; Check: IsRegularUser
-Root: HKCU; Subkey: Software\Classes\Greenshot\shell\open\command; ValueType: string; ValueName: ""; ValueData: """{app}\Greenshot.EXE"" --openfile ""%1"""; Permissions: users-modify; Flags: uninsdeletevalue noerror; Check: IsRegularUser
-; HKEY_LOCAL_MACHINE - for all users when admin
-Root: HKLM; Subkey: Software\Classes\.greenshot; ValueType: string; ValueName: ""; ValueData: "Greenshot"; Permissions: admins-modify; Flags: uninsdeletevalue noerror; Check: not IsRegularUser
-Root: HKLM; Subkey: Software\Classes\Greenshot; ValueType: string; ValueName: ""; ValueData: "Greenshot File"; Permissions: admins-modify; Flags: uninsdeletevalue noerror; Check: not IsRegularUser
-Root: HKLM; Subkey: Software\Classes\Greenshot\DefaultIcon; ValueType: string; ValueName: ""; ValueData: """{app}\Greenshot.EXE,0"""; Permissions: admins-modify; Flags: uninsdeletevalue noerror; Check: not IsRegularUser
-Root: HKLM; Subkey: Software\Classes\Greenshot\shell\open\command; ValueType: string; ValueName: ""; ValueData: """{app}\Greenshot.EXE"" --openfile ""%1"""; Permissions: admins-modify; Flags: uninsdeletevalue noerror; Check: not IsRegularUser
+Root: HKA; Subkey: Software\Classes\.greenshot; ValueType: string; ValueName: ""; ValueData: "Greenshot"; Flags: uninsdeletevalue noerror
+Root: HKA; Subkey: Software\Classes\Greenshot; ValueType: string; ValueName: ""; ValueData: "Greenshot File"; Flags: uninsdeletevalue noerror
+Root: HKA; Subkey: Software\Classes\Greenshot\DefaultIcon; ValueType: string; ValueName: ""; ValueData: """{app}\Greenshot.EXE,0"""; Flags: uninsdeletevalue noerror
+Root: HKA; Subkey: Software\Classes\Greenshot\shell\open\command; ValueType: string; ValueName: ""; ValueData: """{app}\Greenshot.EXE"" --openfile ""%1"""; Flags: uninsdeletevalue noerror
+
+; Disable the default PRTSCR Snipping Tool in Windows 11
+Root: HKCU; Subkey: Control Panel\Keyboard; ValueType: dword; ValueName: "PrintScreenKeyForSnippingEnabled"; ValueData: "0"; Flags: uninsdeletevalue; Check: ShouldDisableSnippingTool
 
 [Icons]
 Name: {group}\{#ExeName}; Filename: {app}\{#ExeName}.exe; WorkingDir: {app}; AppUserModelID: "{#ExeName}"
@@ -206,6 +211,7 @@ Name: nn; MessagesFile: Languages\NorwegianNynorsk.isl
 Name: ru; MessagesFile: compiler:Languages\Russian.isl
 Name: sr; MessagesFile: Languages\SerbianCyrillic.isl
 Name: sv; MessagesFile: Languages\Swedish.isl
+Name: tr; MessagesFile: compiler:Languages\Turkish.isl
 Name: uk; MessagesFile: compiler:Languages\Ukrainian.isl
 
 [Tasks]
@@ -244,7 +250,7 @@ skSK=Slovenčina
 slSI=Slovenščina
 srRS=Српски
 svSE=Svenska
-trTR=Türk
+trTR=Türkçe
 ukUA=Українська
 viVN=Việt
 zhCN=简体中文
@@ -268,6 +274,7 @@ en.win10=Windows 10 plug-in
 en.UninstallIconDescription=Uninstall
 en.ShowLicense=Show license
 en.ShowReadme=Show Readme
+en.disablewin11snippingtool=Disable Win11 default PrtScr snipping tool
 
 de.confluence=Confluence Plug-in
 de.default=Standard installation
@@ -280,6 +287,7 @@ de.optimize=Optimierung der Leistung, kann etwas dauern.
 de.startgreenshot={#ExeName} starten
 de.startup={#ExeName} starten wenn Windows hochfährt
 de.win10=Windows 10 Plug-in
+de.disablewin11snippingtool=Deaktiviere das Standard Windows 11 Snipping Tool auf "Druck"
 
 es.confluence=Extensión para Confluence
 es.default=${default}
@@ -452,6 +460,26 @@ sv.startgreenshot=Starta {#ExeName}
 sv.startup=Starta {#ExeName} med Windows
 sv.win10=Windows 10-insticksprogram
 
+tr.box=Box eklentisi
+tr.confluence=Confluence eklentisi
+tr.default=Varsayılan kurulum
+tr.dropbox=Dropbox eklentisi
+tr.externalcommand=Harici komut eklentisiyle aç
+tr.flickr=Flickr eklentisi
+tr.imgur=Imgur eklentisi (Bkz: https://imgur.com)
+tr.jira=Jira eklentisi
+tr.language=Ek diller
+tr.office=Microsoft Office eklentisi
+tr.optimize=Performans ayarları yapılıyor, bu biraz zaman alabilir.
+tr.photobucket=Photobucket eklentisi
+tr.startgreenshot={#ExeName} uygulamasını başlat
+tr.startup={#ExeName} Windows açıldığında başlasın
+tr.win10=Windows 10 eklentisi
+tr.UninstallIconDescription=Kaldır
+tr.ShowLicense=Show license
+tr.ShowReadme=Show Readme
+tr.disablewin11snippingtool=Win11 varsayılan ekran alıntısı aracını devre dışı bırakın
+
 uk.confluence=Плагін Confluence
 uk.default=${default}
 uk.externalcommand=Плагін запуску зовнішньої команди
@@ -481,6 +509,7 @@ Name: "compact"; Description: "{code:CompactInstall}"
 Name: "custom"; Description: "{code:CustomInstall}"; Flags: iscustom
 
 [Components]
+Name: "disablesnippingtool"; Description: {cm:disablewin11snippingtool}; Flags: disablenouninstallwarning; Types: default full custom; Check: IsWindows11OrNewer()
 Name: "greenshot"; Description: "Greenshot"; Types: default full compact custom; Flags: fixed
 ;Name: "plugins\networkimport"; Description: "Network Import Plugin"; Types: full
 Name: "plugins\box"; Description: {cm:box}; Types: full custom; Flags: disablenouninstallwarning
@@ -530,23 +559,8 @@ Name: "languages\ukUA"; Description: {cm:ukUA}; Types: full custom; Flags: disab
 Name: "languages\viVN"; Description: {cm:viVN}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('e')
 Name: "languages\zhCN"; Description: {cm:zhCN}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('a')
 Name: "languages\zhTW"; Description: {cm:zhTW}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('9')
+
 [Code]
-// Do we have a regular user trying to install this?
-function IsRegularUser(): Boolean;
-begin
-	Result := not (IsAdmin or IsAdminInstallMode);
-end;
-
-// The following code is used to select the installation path, this is localappdata if non poweruser
-function DefDirRoot(Param: String): String;
-begin
-	if IsRegularUser then
-		Result := ExpandConstant('{localappdata}')
-	else
-		Result := ExpandConstant('{pf}')
-end;
-
-
 function FullInstall(Param : String) : String;
 begin
 	result := SetupMessage(msgFullInstallation);
@@ -742,6 +756,19 @@ end;
 function IsWindows10OrNewer: Boolean;
 begin
   Result := IsWindowsVersionOrNewer(10, 0);
+end;
+
+function IsWindows11OrNewer: Boolean;
+var
+  WindowsVersion: TWindowsVersion;
+begin
+  GetWindowsVersionEx(WindowsVersion);
+  Result := (WindowsVersion.Major >= 10) and (WindowsVersion.Build >= 22000);
+end;
+
+function ShouldDisableSnippingTool: Boolean;
+begin
+  Result := IsComponentSelected('disablesnippingtool');
 end;
 
 [Run]
