@@ -396,12 +396,6 @@ namespace Greenshot.Forms
             SimpleServiceProvider.Current.AddService<INotificationService>(ToastNotificationService.Create());
             // Set this as IOcrProvider
             SimpleServiceProvider.Current.AddService<IOcrProvider>(new Win10OcrProvider());
-            // Add the processor
-            SimpleServiceProvider.Current.AddService<IProcessor>(new Win10OcrProcessor());
-
-            // Add the destinations
-            SimpleServiceProvider.Current.AddService<IDestination>(new Win10OcrDestination());
-            SimpleServiceProvider.Current.AddService<IDestination>(new Win10ShareDestination());
 
             _instance = this;
 
@@ -535,7 +529,9 @@ namespace Greenshot.Forms
                 new ClipboardDestination(),
                 new PrinterDestination(),
                 new EmailDestination(),
-                new PickerDestination()
+                new PickerDestination(),
+                new Win10ShareDestination(),
+                new Win10OcrDestination()
             };
             
             bool useEditor = false;
@@ -576,7 +572,8 @@ namespace Greenshot.Forms
         {
             var internalProcessors = new List<IProcessor>
             {
-                new TitleFixProcessor()
+                new TitleFixProcessor(),
+                new Win10OcrProcessor()
             };
 
             foreach (var internalProcessor in internalProcessors)

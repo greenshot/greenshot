@@ -39,6 +39,8 @@ namespace Greenshot.Destinations
         public override string Designation { get; } = "Windows10OCR";
         public override string Description { get; } = "Windows 10 OCR";
 
+        public override int Priority => 3;
+
         /// <summary>
         /// Icon for the OCR function, the icon was found via: https://help4windows.com/windows_8_imageres_dll.shtml
         /// </summary>

@@ -227,7 +227,6 @@ namespace Greenshot.Forms
                     // Reset state
                     _isShareOpen = false;
 
-
                     if (!_targetPicked)
                     {
                         // If we are here, the window is active, share was open, but no target selected.

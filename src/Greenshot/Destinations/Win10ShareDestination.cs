@@ -38,6 +38,8 @@ namespace Greenshot.Destinations
         public override string Designation { get; } = "Windows10Share";
         public override string Description { get; } = "Windows 10 share";
 
+        public override int Priority => 3;
+
         /// <summary>
         /// Icon for the App-share, the icon was found via: https://help4windows.com/windows_8_shell32_dll.shtml
         /// </summary>
