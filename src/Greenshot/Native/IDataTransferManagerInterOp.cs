@@ -19,7 +19,6 @@
 
 using System;
 using System.Runtime.InteropServices;
-using Windows.ApplicationModel.DataTransfer;
 
 namespace Greenshot.Native
 {
@@ -30,7 +29,7 @@ namespace Greenshot.Native
     /// </summary>
     [ComImport, Guid("3A3DCD6C-3EAB-43DC-BCDE-45671CE800C8")]
     [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-    public interface IDataTransferManagerInterOp
+    public interface IDataTransferManagerInterop
     {
         /// <summary>
         /// Get an instance of Windows.ApplicationModel.DataTransfer.DataTransferManager
@@ -38,14 +37,12 @@ namespace Greenshot.Native
         /// </summary>
         /// <param name="appWindow">The window handle</param>
         /// <param name="riid">ID of the DataTransferManager interface</param>
-        /// <returns>IntPtr</returns>
-        IntPtr GetForWindow([In] IntPtr appWindow, [In] ref Guid riid);
-
+        /// <param name="dataTransferManager">IntPtr dataTransferManager</param>
+        void GetForWindow([In] IntPtr appWindow, [In] ref Guid riid, out IntPtr dataTransferManager);
         /// <summary>
         /// Show the share flyout for the window identified by a window handle
         /// </summary>
         /// <param name="appWindow">The window handle</param>
-        /// <param name="shareUIOptions">ShareUIOptions</param>
-        void ShowShareUIForWindow(IntPtr appWindow, ShareUIOptions shareUIOptions);
+        void ShowShareUIForWindow([In] IntPtr appWindow);
     }
 }

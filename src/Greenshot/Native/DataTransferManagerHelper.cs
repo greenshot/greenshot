@@ -21,10 +21,6 @@
 
 using System;
 using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Dapplo.Windows.Common;
-using Dapplo.Windows.Common.Enums;
-using Windows.ApplicationModel.DataTransfer;
 
 namespace Greenshot.Native
 {
@@ -35,46 +31,33 @@ namespace Greenshot.Native
     {
         private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(DataTransferManagerHelper));
 
-        private const string DataTransferManagerId = "a5caee9b-8708-49d1-8d36-67d25a8da00c";
-        private readonly IDataTransferManagerInterOp _dataTransferManagerInterOp;
-        private readonly IntPtr _windowHandle;
+        [DllImport("api-ms-win-core-winrt-l1-1-0.dll")]
+        private static extern int RoGetActivationFactory(
+            [MarshalAs(UnmanagedType.HString)] string activatableClassId,
+            [In] ref Guid iid,
+            out IntPtr factory);
 
-        /// <summary>
-        /// The DataTransferManager
-        /// </summary>
-        public DataTransferManager DataTransferManager { get; private set; }
-
-        /// <summary>
-        /// Constructor which takes a handle to initialize
-        /// </summary>
-        /// <param name="handle"></param>
-        public DataTransferManagerHelper(IntPtr handle)
+        public static IDataTransferManagerInterop GetInteropFactory(string className)
         {
-            //TODO: Add a check for failure here. This will fail for versions of Windows below Windows 10
-            IActivationFactory activationFactory = WindowsRuntimeMarshal.GetActivationFactory(typeof(DataTransferManager));
+            // Interface for the Activation Factory: IActivationFactory
+            Guid iidFactory = new Guid("00000035-0000-0000-C000-000000000046"); ;
+            int hr = RoGetActivationFactory(className, ref iidFactory, out IntPtr pFactory);
+            if (hr < 0) throw Marshal.GetExceptionForHR(hr);
 
-            // ReSharper disable once SuspiciousTypeConversion.Global
-            _dataTransferManagerInterOp = (IDataTransferManagerInterOp) activationFactory;
-
-            _windowHandle = handle;
-            var riid = new Guid(DataTransferManagerId);
-            var dataTransferManagerPtr = _dataTransferManagerInterOp.GetForWindow(_windowHandle, ref riid);
-            var dataTransferManager = Marshal.GetObjectForIUnknown(dataTransferManagerPtr) as DataTransferManager;
-            if (dataTransferManagerPtr == IntPtr.Zero)
+            try
             {
-                Win32Error error = Win32.GetLastErrorCode();
-                Log.WarnFormat("Couldn't get a DataTransferManager: {0}", Win32.GetMessage(error));
+                // Interface for the Factory: IDataTransferManagerInterop
+                Guid iidInterop = new Guid("3A3DCD6C-3EAB-43DC-BCDE-45671CE800C8");
+                IntPtr pInterop;
+                int qiHr = Marshal.QueryInterface(pFactory, ref iidInterop, out pInterop);
+                if (qiHr < 0) throw new InvalidCastException("Failed to QI factory for Interop interface.");
+
+                return (IDataTransferManagerInterop)Marshal.GetTypedObjectForIUnknown(pInterop, typeof(IDataTransferManagerInterop));
             }
-
-            DataTransferManager = dataTransferManager;
-        }
-
-        /// <summary>
-        /// Show the share UI
-        /// </summary>
-        public void ShowShareUi()
-        {
-            _dataTransferManagerInterOp.ShowShareUIForWindow(_windowHandle, null);
+            finally
+            {
+                if (pFactory != IntPtr.Zero) Marshal.Release(pFactory);
+            }
         }
     }
 }
