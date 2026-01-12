@@ -24,8 +24,9 @@ using Greenshot.Base.Core;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Ocr;
+using Greenshot.Configuration;
 
-namespace Greenshot.Plugin.Win10.Processors
+namespace Greenshot.Processors
 {
     /// <summary>
     /// This processor processes a capture to see if there is text on it

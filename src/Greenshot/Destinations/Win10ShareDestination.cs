@@ -36,11 +36,11 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
-using Greenshot.Plugin.Win10.Internal;
-using Greenshot.Plugin.Win10.Native;
 using Color = Windows.UI.Color;
+using Greenshot.Native.Internal;
+using Greenshot.Native;
 
-namespace Greenshot.Plugin.Win10.Destinations
+namespace Greenshot.Destinations
 {
     /// <summary>
     /// This uses the Share from Windows 10 to make the capture available to apps.
@@ -77,8 +77,8 @@ namespace Greenshot.Plugin.Win10.Destinations
                     // TODO: Define right size
                     Width = 400,
                     Height = 400,
-                    AllowsTransparency = true,
-                    Background = new SolidColorBrush(Colors.Transparent)
+                    AllowsTransparency = false,
+                    Background = new SolidColorBrush(Colors.Blue)
                 };
                 var shareInfo = new ShareInfo();
 
@@ -242,7 +242,7 @@ namespace Greenshot.Plugin.Win10.Destinations
                         Log.Debug("ShareCompleted");
                         shareInfo.ShareTask.TrySetResult(true);
                     };
-                    dataPackage.Properties.Title = captureDetails.Title;
+                    dataPackage.Properties.Title = captureDetails.Title ?? "Screen";
                     dataPackage.Properties.ApplicationName = "Greenshot";
                     dataPackage.Properties.Description = "Share a screenshot";
                     dataPackage.Properties.Thumbnail = thumbnailRandomAccessStreamReference;
@@ -260,9 +260,11 @@ namespace Greenshot.Plugin.Win10.Destinations
                     Log.Debug("Called deferral.Complete()");
                 }
             };
+
             dataTransferManagerHelper.ShowShareUi();
-            Log.Debug("ShowShareUi finished.");
+
             await shareInfo.ShareTask.Task.ConfigureAwait(false);
+            Log.Debug("ShowShareUi finished.");
         }
     }
 }

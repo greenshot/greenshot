@@ -20,11 +20,13 @@
  */
 
 using System;
+using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.WindowsRuntime;
+using Dapplo.Windows.Common;
+using Dapplo.Windows.Common.Enums;
 using Windows.ApplicationModel.DataTransfer;
-using Dapplo.Windows.Common.Extensions;
 
-namespace Greenshot.Plugin.Win10.Native
+namespace Greenshot.Native
 {
     /// <summary>
     /// Wraps the interop for calling the ShareUI
@@ -56,10 +58,12 @@ namespace Greenshot.Plugin.Win10.Native
 
             _windowHandle = handle;
             var riid = new Guid(DataTransferManagerId);
-            var hresult = _dataTransferManagerInterOp.GetForWindow(_windowHandle, riid, out var dataTransferManager);
-            if (hresult.Failed())
+            var dataTransferManagerPtr = _dataTransferManagerInterOp.GetForWindow(_windowHandle, ref riid);
+            var dataTransferManager = Marshal.GetObjectForIUnknown(dataTransferManagerPtr) as DataTransferManager;
+            if (dataTransferManagerPtr == IntPtr.Zero)
             {
-                Log.WarnFormat("HResult for GetForWindow: {0}", hresult);
+                Win32Error error = Win32.GetLastErrorCode();
+                Log.WarnFormat("Couldn't get a DataTransferManager: {0}", Win32.GetMessage(error));
             }
 
             DataTransferManager = dataTransferManager;
@@ -70,15 +74,7 @@ namespace Greenshot.Plugin.Win10.Native
         /// </summary>
         public void ShowShareUi()
         {
-            var hresult = _dataTransferManagerInterOp.ShowShareUIForWindow(_windowHandle);
-            if (hresult.Failed())
-            {
-                Log.WarnFormat("HResult for ShowShareUIForWindow: {0}", hresult);
-            }
-            else
-            {
-                Log.Debug("ShowShareUIForWindow called");
-            }
+            _dataTransferManagerInterOp.ShowShareUIForWindow(_windowHandle, null);
         }
     }
 }
