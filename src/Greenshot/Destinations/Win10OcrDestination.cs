@@ -27,7 +27,7 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Ocr;
 
-namespace Greenshot.Plugin.Win10.Destinations
+namespace Greenshot.Destinations
 {
     /// <summary>
     /// This uses the OcrEngine from Windows 10 to perform OCR on the captured image.
@@ -38,6 +38,8 @@ namespace Greenshot.Plugin.Win10.Destinations
 
         public override string Designation { get; } = "Windows10OCR";
         public override string Description { get; } = "Windows 10 OCR";
+
+        public override int Priority => 3;
 
         /// <summary>
         /// Icon for the OCR function, the icon was found via: https://help4windows.com/windows_8_imageres_dll.shtml

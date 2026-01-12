@@ -22,7 +22,7 @@
 using System.IO;
 using Windows.Storage.Streams;
 
-namespace Greenshot.Plugin.Win10.Internal
+namespace Greenshot.Native.Internal
 {
     /// <summary>
     /// This is an IRandomAccessStream implementation which uses a MemoryStream

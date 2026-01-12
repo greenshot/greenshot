@@ -6,8 +6,8 @@
     <ApplicationIcon>icons\applicationIcon\icon.ico</ApplicationIcon>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <ApplicationManifest>greenshot.manifest</ApplicationManifest>
-	<EmbeddedResourceUseDependentUponConvention>false</EmbeddedResourceUseDependentUponConvention>
-	<EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
+	  <EmbeddedResourceUseDependentUponConvention>false</EmbeddedResourceUseDependentUponConvention>
+	  <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <DebugType>none</DebugType>
@@ -23,6 +23,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Build.Utilities.Core" Version="18.0.2" />
     <PackageReference Include="Tools.InnoSetup" version="6.7.0" GeneratePathProperty="true" />
+    <PackageReference Include="Microsoft.Toolkit.Uwp.Notifications" version="7.1.3" />
   </ItemGroup>
 
   <ItemGroup>
@@ -42,8 +43,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="log4net.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    <Compile Update="Forms\SharingForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="log4net-release.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
@@ -86,6 +93,11 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <PostBuildEvent>
       copy "$(SolutionDir)Greenshot\log4net-debug.xml" "$(SolutionDir)Greenshot\bin\$(Configuration)\net481\log4net.xml"
+    </PostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <PostBuildEvent>
+      copy "$(SolutionDir)Greenshot\log4net-release.xml" "$(SolutionDir)Greenshot\bin\$(Configuration)\net481\log4net.xml"
     </PostBuildEvent>
   </PropertyGroup>
 </Project>

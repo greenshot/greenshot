@@ -45,6 +45,7 @@ using Greenshot.Base.Core.FileFormatHandlers;
 using Greenshot.Base.Help;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
+using Greenshot.Base.Interfaces.Ocr;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Configuration;
 using Greenshot.Destinations;
@@ -53,6 +54,7 @@ using Greenshot.Editor.Destinations;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Forms;
 using Greenshot.Helpers;
+using Greenshot.Plugin.Win10;
 using Greenshot.Processors;
 using log4net;
 using Timer = System.Timers.Timer;
@@ -390,6 +392,11 @@ namespace Greenshot.Forms
             SimpleServiceProvider.Current.AddService<IGreenshotMainForm>(this);
             SimpleServiceProvider.Current.AddService<ICaptureHelper>(this);
 
+            // Windows specific services
+            SimpleServiceProvider.Current.AddService<INotificationService>(ToastNotificationService.Create());
+            // Set this as IOcrProvider
+            SimpleServiceProvider.Current.AddService<IOcrProvider>(new Win10OcrProvider());
+
             _instance = this;
 
             EditorInitialize.Initialize();
@@ -522,7 +529,9 @@ namespace Greenshot.Forms
                 new ClipboardDestination(),
                 new PrinterDestination(),
                 new EmailDestination(),
-                new PickerDestination()
+                new PickerDestination(),
+                new Win10ShareDestination(),
+                new Win10OcrDestination()
             };
             
             bool useEditor = false;
@@ -563,7 +572,8 @@ namespace Greenshot.Forms
         {
             var internalProcessors = new List<IProcessor>
             {
-                new TitleFixProcessor()
+                new TitleFixProcessor(),
+                new Win10OcrProcessor()
             };
 
             foreach (var internalProcessor in internalProcessors)
