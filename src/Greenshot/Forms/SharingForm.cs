@@ -46,7 +46,7 @@ namespace Greenshot.Forms
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(SharingForm));
 
-        private IDataTransferManagerInterop _dtmInterop;
+        private IDataTransferManagerInterOp _dtmInterop;
         private DataTransferManager _dataTransferManager;
 
         // State tracking

@@ -37,7 +37,7 @@ namespace Greenshot.Native
             [In] ref Guid iid,
             out IntPtr factory);
 
-        public static IDataTransferManagerInterop GetInteropFactory(string className)
+        public static IDataTransferManagerInterOp GetInteropFactory(string className)
         {
             // Interface for the Activation Factory: IActivationFactory
             Guid iidFactory = new Guid("00000035-0000-0000-C000-000000000046"); ;
@@ -52,7 +52,7 @@ namespace Greenshot.Native
                 int qiHr = Marshal.QueryInterface(pFactory, ref iidInterop, out pInterop);
                 if (qiHr < 0) throw new InvalidCastException("Failed to QI factory for Interop interface.");
 
-                return (IDataTransferManagerInterop)Marshal.GetTypedObjectForIUnknown(pInterop, typeof(IDataTransferManagerInterop));
+                return (IDataTransferManagerInterOp)Marshal.GetTypedObjectForIUnknown(pInterop, typeof(IDataTransferManagerInterOp));
             }
             finally
             {
