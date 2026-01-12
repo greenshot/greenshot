@@ -99,9 +99,6 @@ Source: {#BaseDir}\Greenshot.Plugin.Confluence\Languages\language_confluence*.xm
 ;ExternalCommand Plugin
 Source: {#PluginDir}\Greenshot.Plugin.ExternalCommand\Greenshot.Plugin.ExternalCommand.dll; DestDir: {app}\Plugins\ExternalCommand; Components: plugins\externalcommand; Flags: overwritereadonly recursesubdirs replacesameversion;
 Source: {#BaseDir}\Greenshot.Plugin.ExternalCommand\Languages\language_externalcommand*.xml; DestDir: {app}\Languages\Plugins\ExternalCommand; Components: plugins\externalcommand; Flags: overwritereadonly replacesameversion;
-;Win 10 Plugin
-Source: {#PluginDir}\Greenshot.Plugin.Win10\Greenshot.Plugin.Win10.dll; DestDir: {app}\Plugins\Win10; Components: plugins\win10; Flags: overwritereadonly recursesubdirs replacesameversion;
-Source: {#PluginDir}\Greenshot.Plugin.Win10\Microsoft.Toolkit.Uwp.Notifications.dll; DestDir: {app}\Plugins\Win10; Components: plugins\win10; Flags: overwritereadonly recursesubdirs replacesameversion;
 
 [Setup]
 ; changes associations is used when the installer installs new extensions, it clears the explorer icon cache
@@ -262,7 +259,6 @@ en.optimize=Optimizing performance, this may take a while.
 en.photobucket=Photobucket plug-in
 en.startgreenshot=Start {#ExeName}
 en.startup=Start {#ExeName} with Windows start
-en.win10=Windows 10 plug-in
 en.UninstallIconDescription=Uninstall
 en.ShowLicense=Show license
 en.ShowReadme=Show Readme
@@ -278,7 +274,6 @@ de.office=Microsoft Office Plug-in
 de.optimize=Optimierung der Leistung, kann etwas dauern.
 de.startgreenshot={#ExeName} starten
 de.startup={#ExeName} starten wenn Windows hochfährt
-de.win10=Windows 10 Plug-in
 de.disablewin11snippingtool=Deaktiviere das Standard Windows 11 Snipping Tool auf "Druck"
 
 es.confluence=Extensión para Confluence
@@ -290,7 +285,6 @@ es.language=Idiomas adicionales
 es.optimize=Optimizando rendimiento; por favor, espera.
 es.startgreenshot=Lanzar {#ExeName}
 es.startup=Lanzar {#ExeName} al iniciarse Windows
-es.win10=Extensión para Windows 10
 
 fi.confluence=Confluence-liitännäinen
 fi.default=${default}
@@ -302,7 +296,6 @@ fi.office=Microsoft-Office-liitännäinen
 fi.optimize=Optimoidaan suorituskykyä, tämä voi kestää hetken.
 fi.startgreenshot=Käynnistä {#ExeName}
 fi.startup=Käynnistä {#ExeName} Windowsin käynnistyessä
-fi.win10=Windows 10-liitännäinen
 
 fr.confluence=Greffon Confluence
 fr.default=${default}
@@ -314,7 +307,6 @@ fr.office=Greffon Microsoft Office
 fr.optimize=Optimisation des performances, Ceci peut prendre un certain temps.
 fr.startgreenshot=Démarrer {#ExeName}
 fr.startup=Lancer {#ExeName} au démarrage de Windows
-fr.win10=Greffon Windows 10
 
 it.box=Plugin Box
 it.confluence=Plugin Confluence
@@ -330,7 +322,6 @@ it.optimize=Ottimizzazione prestazioni (può richiedere tempo).
 it.photobucket=Plugin Photobucket
 it.startgreenshot=Esegui {#ExeName}
 it.startup=Esegui {#ExeName} all''avvio di Windows
-it.win10=Plugin Windows 10
 it.UninstallIconDescription=Disinstalla
 it.ShowLicense=Visualizza licenza (in inglese)
 it.ShowReadme=Visualizza Readme (in inglese)
@@ -381,7 +372,6 @@ lt.office=Microsoft Office spraudnis
 lt.optimize=Uzlaboju veikstpēju, tas prasīs kādu laiciņu.
 lt.startgreenshot=Palaist {#ExeName}
 lt.startup=Palaist {#ExeName} uzsākot darbus
-lt.win10=Windows 10 spraudnis
 
 lt.confluence=Confluence spraudnis
 lt.default=${default}
@@ -393,7 +383,6 @@ lt.office=Microsoft Office spraudnis
 lt.optimize=Uzlaboju veikstpēju, tas prasīs kādu laiciņu.
 lt.startgreenshot=Palaist {#ExeName}
 lt.startup=Palaist {#ExeName} uzsākot darbus
-lt.win10=Windows 10 spraudnis
 
 nl.confluence=Confluence plug-in
 nl.default=Standaardinstallatie
@@ -405,7 +394,6 @@ nl.office=Microsoft Office plug-in
 nl.optimize=Prestaties verbeteren, even geduld.
 nl.startgreenshot={#ExeName} starten
 nl.startup={#ExeName} automatisch starten met Windows
-nl.win10=Windows 10 plug-in
 
 nn.confluence=Confluence-tillegg
 nn.default=Default installation
@@ -417,7 +405,6 @@ nn.office=Microsoft Office Tillegg
 nn.optimize=Optimaliserar ytelse, dette kan ta litt tid...
 nn.startgreenshot=Start {#ExeName}
 nn.startup=Start {#ExeName} når Windows startar
-nn.win10=Windows 10 Tillegg
 
 ru.confluence=Плагин Confluence
 ru.default=${default}
@@ -429,7 +416,6 @@ ru.office=Плагин Microsoft Office
 ru.optimize=Идет оптимизация производительности, это может занять некоторое время.
 ru.startgreenshot=Запустить {#ExeName}
 ru.startup=Запускать {#ExeName} при старте Windows
-ru.win10=Плагин Windows 10
 
 sr.confluence=Прикључак за Конфлуенс
 sr.default=${default}
@@ -440,7 +426,6 @@ sr.language=Додатни језици
 sr.optimize=Оптимизујем перформансе…
 sr.startgreenshot=Покрени Гриншот
 sr.startup=Покрени програм са системом
-sr.win10=Прикључак за Windows 10
 
 sv.confluence=Confluence-insticksprogram
 sv.externalcommand=Öppna med externt kommando-insticksprogram
@@ -450,7 +435,6 @@ sv.language=Ytterligare språk
 sv.optimize=Optimerar prestanda, detta kan ta en stund.
 sv.startgreenshot=Starta {#ExeName}
 sv.startup=Starta {#ExeName} med Windows
-sv.win10=Windows 10-insticksprogram
 
 tr.box=Box eklentisi
 tr.confluence=Confluence eklentisi
@@ -466,7 +450,6 @@ tr.optimize=Performans ayarları yapılıyor, bu biraz zaman alabilir.
 tr.photobucket=Photobucket eklentisi
 tr.startgreenshot={#ExeName} uygulamasını başlat
 tr.startup={#ExeName} Windows açıldığında başlasın
-tr.win10=Windows 10 eklentisi
 tr.UninstallIconDescription=Kaldır
 tr.ShowLicense=Show license
 tr.ShowReadme=Show Readme
@@ -481,7 +464,6 @@ uk.language=Додаткові мови
 uk.optimize=Оптимізація продуктивності, це може забрати час.
 uk.startgreenshot=Запустити {#ExeName}
 uk.startup=Запускати {#ExeName} під час запуску Windows
-uk.win10=Плагін Windows 10
 
 cn.confluence=Confluence插件
 cn.default=${default}
@@ -492,7 +474,6 @@ cn.language=其它语言
 cn.optimize=正在优化性能，这可能需要一点时间。
 cn.startgreenshot=启动{#ExeName}
 cn.startup=让{#ExeName}随Windows一起启动
-cn.win10=Windows 10插件
 
 [Types]
 Name: "default"; Description: "{cm:default}"
@@ -513,7 +494,6 @@ Name: "plugins\imgur"; Description: {cm:imgur}; Types: full custom; Flags: disab
 Name: "plugins\jira"; Description: {cm:jira}; Types: full custom; Flags: disablenouninstallwarning
 Name: "plugins\office"; Description: {cm:office}; Types: default full custom; Flags: disablenouninstallwarning
 Name: "plugins\photobucket"; Description: {cm:photobucket}; Types: full custom; Flags: disablenouninstallwarning
-Name: "plugins\win10"; Description: {cm:win10}; Types: default full custom; Flags: disablenouninstallwarning
 Name: "languages"; Description: {cm:language}; Types: full custom; Flags: disablenouninstallwarning
 Name: "languages\arSY"; Description: {cm:arSY}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('d')
 Name: "languages\caCA"; Description: {cm:caCA}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
@@ -718,7 +698,7 @@ end;
 function InitializeSetup(): Boolean;
 begin
 	// Check for .NET and install 4.8.1 if we don't have it
-	Result := IsDotNetInstalled(net462, 0); //Returns True if .NET Framework version 4.6.2 is installed, or a compatible version such as 4.8.1
+	Result := IsDotNetInstalled(net481, 0); //Returns True if .NET Framework version 4.6.2 is installed, or a compatible version such as 4.8.1
 	if not Result then
 		SuppressibleMsgBox(FmtMessage(SetupMessage(msgWinVersionTooLowError), ['.NET Framework', '4.8.1']), mbCriticalError, MB_OK, IDOK);
 end;
