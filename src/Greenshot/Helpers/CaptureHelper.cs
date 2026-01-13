@@ -40,7 +40,7 @@ using Greenshot.Configuration;
 using Greenshot.Editor.Destinations;
 using Greenshot.Editor.Drawing;
 using Greenshot.Forms;
-using Greenshot.Helpers.WindowsRT;
+using Greenshot.Native;
 using log4net;
 
 namespace Greenshot.Helpers
