@@ -18,80 +18,131 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.WindowsRuntime;
-using log4net;
-using SharpDX;
-using SharpDX.Direct3D;
-using SharpDX.Direct3D11;
-using SharpDX.DXGI;
 using Windows.Graphics.Capture;
 using Windows.Graphics.DirectX;
 using Windows.Graphics.DirectX.Direct3D11;
-using D3D11Device = SharpDX.Direct3D11.Device;
-using D3D11MapFlags = SharpDX.Direct3D11.MapFlags;
-using DXGIDevice = SharpDX.DXGI.Device3;
 
 namespace Greenshot.Native
 {
     internal class WindowsGraphicsCaptureInterop
     {
-        private static readonly ILog Log = LogManager.GetLogger(typeof(WindowsGraphicsCaptureInterop));
+        // Constants
+        private const int D3D11_SDK_VERSION = 7;
+        private const int D3D_DRIVER_TYPE_HARDWARE = 1;
+        private const int D3D11_CREATE_DEVICE_BGRA_SUPPORT = 0x20;
 
-        public static Bitmap CaptureWindowToBitmap(IntPtr window) {
-            using var device = new D3D11Device(DriverType.Hardware, DeviceCreationFlags.BgraSupport);
-            using var texture = CaptureWindowToTexture2D(window, device);
-            return TransformTextureToBitmap(texture, device.ImmediateContext);
+        public static Bitmap CaptureWindowToBitmap(IntPtr window)
+        {
+            CreateD3D11Device(out var device, out var context);
+
+            try
+            {
+                var texture = CaptureWindowToTexture2D(window, device);
+
+                try
+                {
+                    return TransformTextureToBitmap(texture, device, context);
+                }
+                finally
+                {
+                    if (texture != null) Marshal.ReleaseComObject(texture);
+                }
+            }
+            finally
+            {
+                if (context != null) Marshal.ReleaseComObject(context);
+                if (device != null) Marshal.ReleaseComObject(device);
+            }
         }
 
         public static Bitmap CaptureMonitorToBitmap(IntPtr hMonitor)
         {
-            using var device = new D3D11Device(DriverType.Hardware, DeviceCreationFlags.BgraSupport);
-            using var texture = CaptureMonitorToTexture2D(hMonitor, device);
-            return TransformTextureToBitmap(texture, device.ImmediateContext);
-        }
+            CreateD3D11Device(out var device, out var context);
 
-        private static Texture2D CaptureWindowToTexture2D(IntPtr window, D3D11Device d3D11Device) {
-            var captureItem = CreateCaptureItemForWindow(window);
-            using var device = CreateID3DDeviceFromD3D11Device(d3D11Device);
-            using var framePool = Direct3D11CaptureFramePool.Create(device,DirectXPixelFormat.B8G8R8A8UIntNormalized,1,captureItem.Size);
-            var session = framePool.CreateCaptureSession(captureItem);
-            //session.IsBorderRequired = false;
-            session.IsCursorCaptureEnabled = false;
-            //session.IncludeSecondaryWindows = false;
-            session.StartCapture();
-            Direct3D11CaptureFrame frameTemp = null;
-            while (frameTemp == null)
+            try
             {
-                Log.Debug("Waiting for next frame...");
-                frameTemp = framePool.TryGetNextFrame();
+                var texture = CaptureMonitorToTexture2D(hMonitor, device);
+                try
+                {
+                    return TransformTextureToBitmap(texture, device, context);
+                }
+                finally
+                {
+                    if (texture != null) Marshal.ReleaseComObject(texture);
+                }
             }
-            using var frame = frameTemp;
-            return CreateTexture2DFromID3DSurface(frame.Surface);
+            finally
+            {
+                if (context != null) Marshal.ReleaseComObject(context);
+                if (device != null) Marshal.ReleaseComObject(device);
+            }
         }
 
-        private static Texture2D CaptureMonitorToTexture2D(IntPtr hMonitor, D3D11Device d3D11Device)
+        private static ID3D11Texture2D CaptureWindowToTexture2D(IntPtr window, ID3D11Device d3d11Device)
         {
-            var captureItem = CreateCaptureItemForMonitor(hMonitor);
-            using var device = CreateID3DDeviceFromD3D11Device(d3D11Device);
+            var captureItem = CreateCaptureItemForWindow(window);
+            var device = CreateID3DDeviceFromD3D11Device(d3d11Device);
+
             using var framePool = Direct3D11CaptureFramePool.Create(device, DirectXPixelFormat.B8G8R8A8UIntNormalized, 1, captureItem.Size);
             var session = framePool.CreateCaptureSession(captureItem);
             //session.IsBorderRequired = false;
             session.IsCursorCaptureEnabled = false;
-            //session.IncludeSecondaryWindows = false;
             session.StartCapture();
+
             Direct3D11CaptureFrame frameTemp = null;
             while (frameTemp == null)
             {
                 frameTemp = framePool.TryGetNextFrame();
             }
+
             using var frame = frameTemp;
             return CreateTexture2DFromID3DSurface(frame.Surface);
         }
+
+        private static ID3D11Texture2D CaptureMonitorToTexture2D(IntPtr hMonitor, ID3D11Device d3d11Device)
+        {
+            var captureItem = CreateCaptureItemForMonitor(hMonitor);
+            var device = CreateID3DDeviceFromD3D11Device(d3d11Device);
+
+            using var framePool = Direct3D11CaptureFramePool.Create(device, DirectXPixelFormat.B8G8R8A8UIntNormalized, 1, captureItem.Size);
+            var session = framePool.CreateCaptureSession(captureItem);
+            //session.IsBorderRequired = false;
+            session.IsCursorCaptureEnabled = false;
+            session.StartCapture();
+
+            Direct3D11CaptureFrame frameTemp = null;
+            while (frameTemp == null)
+            {
+                frameTemp = framePool.TryGetNextFrame();
+            }
+
+            using var frame = frameTemp;
+            return CreateTexture2DFromID3DSurface(frame.Surface);
+        }
+
+        private static void CreateD3D11Device(out ID3D11Device device, out ID3D11DeviceContext context)
+        {
+            int hr = D3D11CreateDevice(
+                IntPtr.Zero,
+                D3D_DRIVER_TYPE_HARDWARE,
+                IntPtr.Zero,
+                D3D11_CREATE_DEVICE_BGRA_SUPPORT,
+                null,
+                0,
+                D3D11_SDK_VERSION,
+                out device,
+                out _,
+                out context);
+
+            if (hr != 0) Marshal.ThrowExceptionForHR(hr);
+        }
+
+        // --- WinRT Interop Helpers ---
 
         [ComImport]
         [ComVisible(true)]
@@ -128,21 +179,43 @@ namespace Greenshot.Native
         [DllImport("d3d11.dll", EntryPoint = "CreateDirect3D11DeviceFromDXGIDevice", CharSet = CharSet.Unicode, SetLastError = true, ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
         private static extern UInt32 CreateDirect3D11DeviceFromDXGIDevice(IntPtr dxgiDevice, out IntPtr graphicsDevice);
 
-        private static IDirect3DDevice CreateID3DDeviceFromD3D11Device(D3D11Device d3dDevice)
+        [DllImport("d3d11.dll", CallingConvention = CallingConvention.StdCall)]
+        private static extern int D3D11CreateDevice(
+            IntPtr pAdapter,
+            int driverType,
+            IntPtr software,
+            int flags,
+            IntPtr[] pFeatureLevels,
+            int featureLevels,
+            int sdkVersion,
+            out ID3D11Device ppDevice,
+            out int pFeatureLevel,
+            out ID3D11DeviceContext ppImmediateContext);
+
+        private static IDirect3DDevice CreateID3DDeviceFromD3D11Device(ID3D11Device d3dDevice)
         {
             IDirect3DDevice device = null;
-            using var dxgiDevice = d3dDevice.QueryInterface<DXGIDevice>();
-            var hr = CreateDirect3D11DeviceFromDXGIDevice(dxgiDevice.NativePointer, out IntPtr pUnknown);
-            if (hr == 0)
+            var dxgiDevice = (IDXGIDevice)d3dDevice;
+            IntPtr pDxgiDevice = Marshal.GetComInterfaceForObject(dxgiDevice, typeof(IDXGIDevice));
+
+            try
             {
-                device = Marshal.GetObjectForIUnknown(pUnknown) as IDirect3DDevice;
-                Marshal.Release(pUnknown);
+                var hr = CreateDirect3D11DeviceFromDXGIDevice(pDxgiDevice, out IntPtr pUnknown);
+                if (hr == 0)
+                {
+                    device = Marshal.GetObjectForIUnknown(pUnknown) as IDirect3DDevice;
+                    Marshal.Release(pUnknown);
+                }
+                else
+                {
+                    Marshal.ThrowExceptionForHR((int)hr);
+                }
+                return device;
             }
-            else
+            finally
             {
-                Marshal.ThrowExceptionForHR((int)hr);
+                Marshal.Release(pDxgiDevice);
             }
-            return device;
         }
 
         [ComImport]
@@ -154,76 +227,240 @@ namespace Greenshot.Native
             IntPtr GetInterface([In] ref Guid iid);
         };
 
-        private static readonly Guid ID3D11Texture2D = new Guid("6f15aaf2-d208-4e89-9ab4-489535d34f9c");
+        private static readonly Guid IID_ID3D11Texture2D = new Guid("6f15aaf2-d208-4e89-9ab4-489535d34f9c");
 
-        private static Texture2D CreateTexture2DFromID3DSurface(IDirect3DSurface surface)
+        private static ID3D11Texture2D CreateTexture2DFromID3DSurface(IDirect3DSurface surface)
         {
             var access = (IDirect3DDxgiInterfaceAccess)surface;
-            var d3dPointer = access.GetInterface(ID3D11Texture2D);
-            var d3dSurface = new Texture2D(d3dPointer);
+            var d3dPointer = access.GetInterface(IID_ID3D11Texture2D);
+            var d3dSurface = (ID3D11Texture2D)Marshal.GetObjectForIUnknown(d3dPointer);
+            Marshal.Release(d3dPointer);
             return d3dSurface;
         }
 
-        private static Bitmap TransformTextureToBitmap(Texture2D texture, DeviceContext d3dContext)
+        private static unsafe Bitmap TransformTextureToBitmap(ID3D11Texture2D texture, ID3D11Device device, ID3D11DeviceContext context)
         {
-            var width = texture.Description.Width;
-            var height = texture.Description.Height;
+            D3D11_TEXTURE2D_DESC desc;
+            texture.GetDesc(out desc);
 
-            using var textureCopy = new Texture2D( d3dContext.Device, new Texture2DDescription {
-                    Width = width,
-                    Height = height,
-                    Format = texture.Description.Format,
-                    Usage = ResourceUsage.Staging,
-                    MipLevels = 1,
-                    ArraySize = 1,
-                    SampleDescription = new SampleDescription(1, 0),
-                    CpuAccessFlags = CpuAccessFlags.Read,
-                    OptionFlags = ResourceOptionFlags.None,
-                    BindFlags = BindFlags.None,
-                });
-            d3dContext.CopyResource(texture, textureCopy);
+            var width = desc.Width;
+            var height = desc.Height;
+            long bytesPerRow = (long)width * 4;
 
-            var dataBox = d3dContext.MapSubresource(
-                textureCopy,
-                0,
-                0,
-                MapMode.Read,
-                D3D11MapFlags.None,
-                out var dataStream);
+            var stagingDesc = new D3D11_TEXTURE2D_DESC
+            {
+                Width = width,
+                Height = height,
+                MipLevels = 1,
+                ArraySize = 1,
+                Format = desc.Format,
+                SampleDesc = new DXGI_SAMPLE_DESC { Count = 1, Quality = 0 },
+                Usage = D3D11_USAGE.D3D11_USAGE_STAGING,
+                BindFlags = 0,
+                CPUAccessFlags = D3D11_CPU_ACCESS_FLAG.D3D11_CPU_ACCESS_READ,
+                MiscFlags = 0
+            };
+
+            device.CreateTexture2D(ref stagingDesc, IntPtr.Zero, out var textureCopy);
 
             try
             {
-                // 3. Create the destination Bitmap
-                // Note: This assumes the Texture2D is in B8G8R8A8_UNorm format (standard for GDI+)
-                Bitmap bitmap = new Bitmap(width, height, PixelFormat.Format32bppArgb);
+                context.CopyResource(textureCopy, texture);
 
-                // Lock the bitmap bits so we can write to them directly
-                BitmapData bmpData = bitmap.LockBits(new Rectangle(0, 0, width, height),ImageLockMode.WriteOnly, bitmap.PixelFormat);
+                // Check HRESULT of Map
+                int hr = context.Map(textureCopy, 0, D3D11_MAP.D3D11_MAP_READ, 0, out var mappedResource);
+                if (hr != 0) Marshal.ThrowExceptionForHR(hr);
 
-                // 4. Copy line by line
-                // We cannot do a single block copy because the GPU 'RowPitch' 
-                // is often wider than the Bitmap 'Stride' due to memory alignment.
-                IntPtr sourcePtr = dataStream.DataPointer;
-                IntPtr destPtr = bmpData.Scan0;
-
-                for (int y = 0; y < height; y++)
+                try
                 {
-                    // Copy one row of pixels
-                    Utilities.CopyMemory(destPtr, sourcePtr, width * 4);
+                    Bitmap bitmap = new Bitmap(width, height, PixelFormat.Format32bppArgb);
+                    BitmapData bmpData = bitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.WriteOnly, bitmap.PixelFormat);
 
-                    // Advance pointers based on their respective strides/pitches
-                    sourcePtr = IntPtr.Add(sourcePtr, dataBox.RowPitch);
-                    destPtr = IntPtr.Add(destPtr, bmpData.Stride);
+                    byte* sourcePtr = (byte*)mappedResource.pData;
+                    byte* destPtr = (byte*)bmpData.Scan0;
+
+                    for (int y = 0; y < height; y++)
+                    {
+                        // Use Buffer.MemoryCopy for fast, safe unmanaged copy
+                        Buffer.MemoryCopy(sourcePtr, destPtr, bytesPerRow, bytesPerRow);
+
+                        sourcePtr += mappedResource.RowPitch;
+                        destPtr += bmpData.Stride;
+                    }
+
+                    bitmap.UnlockBits(bmpData);
+                    return bitmap;
                 }
-
-                bitmap.UnlockBits(bmpData);
-                return bitmap;
+                finally
+                {
+                    context.Unmap(textureCopy, 0);
+                }
             }
             finally
             {
-                // 5. Always unmap the resource to release the CPU lock
-                d3dContext.UnmapSubresource(texture, 0);
+                if (textureCopy != null) Marshal.ReleaseComObject(textureCopy);
             }
+        }
+
+        // --- Native Direct3D 11 Definitions ---
+
+        [ComImport]
+        [Guid("db6f6ddb-ac77-4e88-8253-819df9bbf140")]
+        [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+        internal interface ID3D11Device
+        {
+            void CreateBuffer();
+            void CreateTexture1D();
+            void CreateTexture2D([In] ref D3D11_TEXTURE2D_DESC pDesc, [In] IntPtr pInitialData, [MarshalAs(UnmanagedType.Interface)] out ID3D11Texture2D ppTexture2D);
+        }
+
+        [ComImport]
+        [Guid("c0bfa96c-e089-44fb-8eaf-26f8796190da")]
+        [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+        internal interface ID3D11DeviceContext
+        {
+            // --- ID3D11DeviceChild Methods (Inherited) ---
+            // These placeholders ensure the VTable offsets are correct (Slots 3, 4, 5, 6)
+            void GetDevice();
+            void GetPrivateData();
+            void SetPrivateData();
+            void SetPrivateDataInterface();
+
+            // --- ID3D11DeviceContext Methods (Starts at Slot 7) ---
+            void VSSetConstantBuffers();
+            void PSSetShaderResources();
+            void PSSetShader();
+            void PSSetSamplers();
+            void VSSetShader();
+            void DrawIndexed();
+            void Draw();
+
+            // Map is Slot 14 (relative to DeviceContext start at 7? No, standard indexes map sequentially)
+            // IUnknown (3) + DeviceChild (4) + DeviceContext methods...
+            // Map is the 8th method defined in ID3D11DeviceContext itself.
+            // 7 + 7 = 14. This is correct.
+
+            [PreserveSig]
+            int Map([MarshalAs(UnmanagedType.Interface)] ID3D11Resource pResource, int Subresource, D3D11_MAP MapType, int MapFlags, out D3D11_MAPPED_SUBRESOURCE pMappedResource);
+
+            void Unmap([MarshalAs(UnmanagedType.Interface)] ID3D11Resource pResource, int Subresource);
+
+            void PSSetConstantBuffers();
+            void IASetInputLayout();
+            void IASetVertexBuffers();
+            void IASetIndexBuffer();
+            void DrawIndexedInstanced();
+            void DrawInstanced();
+            void GSSetConstantBuffers();
+            void GSSetShader();
+            void IASetPrimitiveTopology();
+            void VSSetShaderResources();
+            void VSSetSamplers();
+            void Begin();
+            void End();
+            void GetData();
+            void SetPredication();
+            void GSSetShaderResources();
+            void GSSetSamplers();
+            void OMSetRenderTargets();
+            void OMSetRenderTargetsAndUnorderedAccessViews();
+            void OMSetBlendState();
+            void OMSetDepthStencilState();
+            void SOSetTargets();
+            void DrawAuto();
+            void DrawIndexedInstancedIndirect();
+            void DrawInstancedIndirect();
+            void Dispatch();
+            void DispatchIndirect();
+            void RSSetState();
+            void RSSetViewports();
+            void RSSetScissorRects();
+            void CopySubresourceRegion();
+
+            void CopyResource([MarshalAs(UnmanagedType.Interface)] ID3D11Resource pDstResource, [MarshalAs(UnmanagedType.Interface)] ID3D11Resource pSrcResource);
+        }
+
+        [ComImport]
+        [Guid("dc8e63f3-d12b-4952-b47b-5e45026a862d")]
+        [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+        internal interface ID3D11Resource { }
+
+        [ComImport]
+        [Guid("6f15aaf2-d208-4e89-9ab4-489535d34f9c")]
+        [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+        internal interface ID3D11Texture2D : ID3D11Resource
+        {
+            // ID3D11DeviceChild methods (inherited)
+            void GetDevice();
+            void GetPrivateData();
+            void SetPrivateData();
+            void SetPrivateDataInterface();
+
+            // ID3D11Resource methods (inherited)
+            void GetType();
+            void SetEvictionPriority();
+            void GetEvictionPriority();
+
+            // ID3D11Texture2D methods
+            void GetDesc(out D3D11_TEXTURE2D_DESC pDesc);
+        }
+
+        [ComImport]
+        [Guid("54ec77fa-1377-44e6-8c32-88fd5f44c84c")]
+        [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+        internal interface IDXGIDevice { }
+
+        [StructLayout(LayoutKind.Sequential)]
+        internal struct D3D11_TEXTURE2D_DESC
+        {
+            public int Width;
+            public int Height;
+            public int MipLevels;
+            public int ArraySize;
+            public int Format;
+            public DXGI_SAMPLE_DESC SampleDesc;
+            public D3D11_USAGE Usage;
+            public int BindFlags;
+            public D3D11_CPU_ACCESS_FLAG CPUAccessFlags;
+            public int MiscFlags;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        internal struct DXGI_SAMPLE_DESC
+        {
+            public int Count;
+            public int Quality;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        internal struct D3D11_MAPPED_SUBRESOURCE
+        {
+            public IntPtr pData;
+            public int RowPitch;
+            public int DepthPitch;
+        }
+
+        internal enum D3D11_USAGE
+        {
+            D3D11_USAGE_DEFAULT = 0,
+            D3D11_USAGE_IMMUTABLE = 1,
+            D3D11_USAGE_DYNAMIC = 2,
+            D3D11_USAGE_STAGING = 3
+        }
+
+        internal enum D3D11_CPU_ACCESS_FLAG
+        {
+            D3D11_CPU_ACCESS_WRITE = 0x10000,
+            D3D11_CPU_ACCESS_READ = 0x20000
+        }
+
+        internal enum D3D11_MAP
+        {
+            D3D11_MAP_READ = 1,
+            D3D11_MAP_WRITE = 2,
+            D3D11_MAP_READ_WRITE = 3,
+            D3D11_MAP_WRITE_DISCARD = 4,
+            D3D11_MAP_WRITE_NO_OVERWRITE = 5
         }
     }
 }
