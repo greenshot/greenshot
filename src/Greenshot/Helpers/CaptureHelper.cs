@@ -19,7 +19,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using log4net;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -30,7 +29,6 @@ using System.Threading;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
-using Dapplo.Windows.DesktopWindowsManager;
 using Dapplo.Windows.Kernel32;
 using Dapplo.Windows.User32;
 using Greenshot.Base;
@@ -42,6 +40,8 @@ using Greenshot.Configuration;
 using Greenshot.Editor.Destinations;
 using Greenshot.Editor.Drawing;
 using Greenshot.Forms;
+using Greenshot.Helpers.WindowsRT;
+using log4net;
 
 namespace Greenshot.Helpers
 {
@@ -864,39 +864,6 @@ namespace Greenshot.Helpers
         }
 
         /// <summary>
-        /// Check if Process uses PresentationFramework.dll -> meaning it uses WPF
-        /// </summary>
-        /// <param name="process">Process to check for the presentation framework</param>
-        /// <returns>true if the process uses WPF</returns>
-        private static bool IsWpf(Process process)
-        {
-            if (process == null)
-            {
-                return false;
-            }
-            try
-            {
-                foreach (ProcessModule module in process.Modules)
-                {
-                    if (!module.ModuleName.StartsWith("PresentationFramework"))
-                    {
-                        continue;
-                    }
-                    Log.InfoFormat("Found that Process {0} uses {1}, assuming it's using WPF", process.ProcessName, module.FileName);
-                    return true;
-                }
-            }
-            catch (Exception)
-            {
-                // Access denied on the modules
-                Log.WarnFormat("No access on the modules from process {0}, assuming WPF is used.", process.ProcessName);
-                return true;
-            }
-
-            return false;
-        }
-
-        /// <summary>
         /// Capture the supplied Window
         /// </summary>
         /// <param name="windowToCapture">Window to capture</param>
@@ -909,201 +876,7 @@ namespace Greenshot.Helpers
             {
                 captureForWindow = new Capture();
             }
-
-            NativeRect windowRectangle = windowToCapture.WindowRectangle;
-
-            // When Vista & DWM (Aero) enabled
-            bool dwmEnabled = DwmApi.IsDwmEnabled;
-            // get process name to be able to exclude certain processes from certain capture modes
-            using (Process process = windowToCapture.Process)
-            {
-                bool isAutoMode = windowCaptureMode == WindowCaptureMode.Auto;
-                // For WindowCaptureMode.Auto we check:
-                // 1) Is window IE, use IE Capture
-                // 2) Is Windows >= Vista & DWM enabled: use DWM
-                // 3) Otherwise use GDI (Screen might be also okay but might lose content)
-                if (isAutoMode)
-                {
-                    // Take default screen
-                    windowCaptureMode = WindowCaptureMode.Screen;
-
-                    // In https://github.com/greenshot/greenshot/issues/373 it was shown that PrintWindow (GDI) works great with Windows 11
-                    // In https://github.com/greenshot/greenshot/issues/658 is was made clear it DOESN'T!
-                    // Change to GDI, if allowed
-                    if (WindowCapture.IsGdiAllowed(process))
-                    {
-                        if (!dwmEnabled && IsWpf(process))
-                        {
-                            // do not use GDI, as DWM is not enabled and the application uses PresentationFramework.dll -> isWPF
-                            Log.InfoFormat("Not using GDI for windows of process {0}, as the process uses WPF", process.ProcessName);
-                        }
-                        else
-                        {
-                            windowCaptureMode = WindowCaptureMode.GDI;
-                        }
-                    }
-
-                    // Change to DWM, if enabled and allowed
-                    if (dwmEnabled)
-                    {
-                        if (WindowCapture.IsDwmAllowed(process))
-                        {
-                            windowCaptureMode = WindowCaptureMode.Aero;
-                        }
-                    }
-                }
-                else if (windowCaptureMode == WindowCaptureMode.Aero || windowCaptureMode == WindowCaptureMode.AeroTransparent)
-                {
-                    if (!dwmEnabled || !WindowCapture.IsDwmAllowed(process))
-                    {
-                        // Take default screen
-                        windowCaptureMode = WindowCaptureMode.Screen;
-                        // Change to GDI, if allowed
-                        if (WindowCapture.IsGdiAllowed(process))
-                        {
-                            windowCaptureMode = WindowCaptureMode.GDI;
-                        }
-                    }
-                }
-                else if (windowCaptureMode == WindowCaptureMode.GDI && !WindowCapture.IsGdiAllowed(process))
-                {
-                    // GDI not allowed, take screen
-                    windowCaptureMode = WindowCaptureMode.Screen;
-                }
-
-                Log.InfoFormat("Capturing window with mode {0}", windowCaptureMode);
-                bool captureTaken = false;
-                windowRectangle = windowRectangle.Intersect(captureForWindow.ScreenBounds);
-                // Try to capture
-                while (!captureTaken)
-                {
-                    ICapture tmpCapture = null;
-                    switch (windowCaptureMode)
-                    {
-                        case WindowCaptureMode.GDI:
-                            if (WindowCapture.IsGdiAllowed(process))
-                            {
-                                if (windowToCapture.Iconic)
-                                {
-                                    // Restore the window making sure it's visible!
-                                    windowToCapture.Restore();
-                                }
-                                else
-                                {
-                                    windowToCapture.ToForeground();
-                                }
-
-                                tmpCapture = windowToCapture.CaptureGdiWindow(captureForWindow);
-                                if (tmpCapture != null)
-                                {
-                                    // check if GDI capture any good, by comparing it with the screen content
-                                    int blackCountGdi = ImageHelper.CountColor(tmpCapture.Image, Color.Black, false);
-                                    int gdiPixels = tmpCapture.Image.Width * tmpCapture.Image.Height;
-                                    int blackPercentageGdi = blackCountGdi * 100 / gdiPixels;
-                                    if (blackPercentageGdi >= 1)
-                                    {
-                                        int screenPixels = windowRectangle.Width * windowRectangle.Height;
-                                        using ICapture screenCapture = new Capture
-                                        {
-                                            CaptureDetails = captureForWindow.CaptureDetails
-                                        };
-                                        if (WindowCapture.CaptureRectangleFromDesktopScreen(screenCapture, windowRectangle) != null)
-                                        {
-                                            int blackCountScreen = ImageHelper.CountColor(screenCapture.Image, Color.Black, false);
-                                            int blackPercentageScreen = blackCountScreen * 100 / screenPixels;
-                                            if (screenPixels == gdiPixels)
-                                            {
-                                                // "easy compare", both have the same size
-                                                // If GDI has more black, use the screen capture.
-                                                if (blackPercentageGdi > blackPercentageScreen)
-                                                {
-                                                    Log.Debug("Using screen capture, as GDI had additional black.");
-                                                    // changeing the image will automatically dispose the previous
-                                                    tmpCapture.Image = screenCapture.Image;
-                                                    // Make sure it's not disposed, else the picture is gone!
-                                                    screenCapture.NullImage();
-                                                }
-                                            }
-                                            else if (screenPixels < gdiPixels)
-                                            {
-                                                // Screen capture is cropped, window is outside of screen
-                                                if (blackPercentageGdi > 50 && blackPercentageGdi > blackPercentageScreen)
-                                                {
-                                                    Log.Debug("Using screen capture, as GDI had additional black.");
-                                                    // changeing the image will automatically dispose the previous
-                                                    tmpCapture.Image = screenCapture.Image;
-                                                    // Make sure it's not disposed, else the picture is gone!
-                                                    screenCapture.NullImage();
-                                                }
-                                            }
-                                            else
-                                            {
-                                                // Use the GDI capture by doing nothing
-                                                Log.Debug("This should not happen, how can there be more screen as GDI pixels?");
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
-                            if (tmpCapture != null)
-                            {
-                                captureForWindow = tmpCapture;
-                                captureTaken = true;
-                            }
-                            else
-                            {
-                                // A problem, try Screen
-                                windowCaptureMode = WindowCaptureMode.Screen;
-                            }
-
-                            break;
-                        case WindowCaptureMode.Aero:
-                        case WindowCaptureMode.AeroTransparent:
-                            if (WindowCapture.IsDwmAllowed(process))
-                            {
-                                tmpCapture = windowToCapture.CaptureDwmWindow(captureForWindow, windowCaptureMode, isAutoMode);
-                            }
-
-                            if (tmpCapture != null)
-                            {
-                                captureForWindow = tmpCapture;
-                                captureTaken = true;
-                            }
-                            else
-                            {
-                                // A problem, try GDI
-                                windowCaptureMode = WindowCaptureMode.GDI;
-                            }
-
-                            break;
-                        default:
-                            // Screen capture
-                            if (windowToCapture.Iconic)
-                            {
-                                // Restore the window making sure it's visible!
-                                windowToCapture.Restore();
-                            }
-                            else
-                            {
-                                windowToCapture.ToForeground();
-                            }
-
-                            try
-                            {
-                                captureForWindow = WindowCapture.CaptureRectangleFromDesktopScreen(captureForWindow, windowRectangle);
-                                captureTaken = true;
-                            }
-                            catch (Exception e)
-                            {
-                                Log.Error("Problem capturing", e);
-                                return null;
-                            }
-
-                            break;
-                    }
-                }
-            }
+            captureForWindow.Image = WindowsGraphicsCaptureInterop.CaptureWindowToBitmap(windowToCapture.Handle);
 
             if (captureForWindow != null)
             {

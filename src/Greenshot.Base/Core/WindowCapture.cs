@@ -21,7 +21,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
@@ -38,7 +37,6 @@ using Dapplo.Windows.Kernel32;
 using Dapplo.Windows.User32;
 using Dapplo.Windows.User32.Enums;
 using Dapplo.Windows.User32.Structs;
-using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 using log4net;
 
@@ -50,7 +48,6 @@ namespace Greenshot.Base.Core
     public static class WindowCapture
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(WindowCapture));
-        private static readonly CoreConfiguration Configuration = IniConfig.GetIniSection<CoreConfiguration>();
 
         /// <summary>
         /// Retrieves the cursor location safely, accounting for DPI settings in Vista/Windows 7. This implementation
@@ -145,60 +142,6 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// Helper method to check if it is allowed to capture the process using DWM
-        /// </summary>
-        /// <param name="process">Process owning the window</param>
-        /// <returns>true if it's allowed</returns>
-        public static bool IsDwmAllowed(Process process)
-        {
-            if (process == null) return true;
-            if (Configuration.NoDWMCaptureForProduct == null ||
-                Configuration.NoDWMCaptureForProduct.Count <= 0) return true;
-
-            try
-            {
-                string productName = process.MainModule?.FileVersionInfo.ProductName;
-                if (productName != null && Configuration.NoDWMCaptureForProduct.Contains(productName.ToLower()))
-                {
-                    return false;
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Warn(ex.Message);
-            }
-
-            return true;
-        }
-
-        /// <summary>
-        /// Helper method to check if it is allowed to capture the process using GDI
-        /// </summary>
-        /// <param name="process">Process owning the window</param>
-        /// <returns>true if it's allowed</returns>
-        public static bool IsGdiAllowed(Process process)
-        {
-            if (process == null) return true;
-            if (Configuration.NoGDICaptureForProduct == null ||
-                Configuration.NoGDICaptureForProduct.Count <= 0) return true;
-
-            try
-            {
-                string productName = process.MainModule?.FileVersionInfo.ProductName;
-                if (productName != null && Configuration.NoGDICaptureForProduct.Contains(productName.ToLower()))
-                {
-                    return false;
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Warn(ex.Message);
-            }
-
-            return true;
-        }
-
-        /// <summary>
         /// This method will use User32 code to capture the specified captureBounds from the screen
         /// </summary>
         /// <param name="capture">ICapture where the captured Bitmap will be stored</param>
@@ -232,24 +175,6 @@ namespace Greenshot.Base.Core
             }
 
             capture.Image = capturedImage;
-            capture.Location = captureBounds.Location;
-            return capture.Image == null ? null : capture;
-        }
-
-        /// <summary>
-        /// This method will use User32 code to capture the specified captureBounds from the screen
-        /// </summary>
-        /// <param name="capture">ICapture where the captured Bitmap will be stored</param>
-        /// <param name="captureBounds">NativeRect with the bounds to capture</param>
-        /// <returns>A Capture Object with a part of the Screen as an Image</returns>
-        public static ICapture CaptureRectangleFromDesktopScreen(ICapture capture, NativeRect captureBounds)
-        {
-            if (capture == null)
-            {
-                capture = new Capture();
-            }
-
-            capture.Image = CaptureRectangle(captureBounds);
             capture.Location = captureBounds.Location;
             return capture.Image == null ? null : capture;
         }

@@ -1,8 +1,27 @@
-﻿using System;
+﻿/*
+ * Greenshot - a free and open source screenshot tool
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * 
+ * For more information see: https://getgreenshot.org/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 1 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -13,7 +32,6 @@ using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.DesktopWindowsManager;
 using Dapplo.Windows.DesktopWindowsManager.Enums;
-using Dapplo.Windows.DesktopWindowsManager.Structs;
 using Dapplo.Windows.Gdi32;
 using Dapplo.Windows.Gdi32.SafeHandles;
 using Dapplo.Windows.Kernel32;
@@ -22,9 +40,7 @@ using Dapplo.Windows.Messages.Enumerations;
 using Dapplo.Windows.User32;
 using Dapplo.Windows.User32.Enums;
 using Dapplo.Windows.User32.Structs;
-using Greenshot.Base.Core.Enums;
 using Greenshot.Base.IniFile;
-using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interop;
 using log4net;
 
@@ -702,347 +718,6 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// Capture Window with GDI+
-        /// </summary>
-        /// <param name="capture">The capture to fill</param>
-        /// <returns>ICapture</returns>
-        public ICapture CaptureGdiWindow(ICapture capture)
-        {
-            Image capturedImage = PrintWindow();
-            if (capturedImage == null) return null;
-            capture.Image = capturedImage;
-            capture.Location = Location;
-            return capture;
-
-        }
-
-        /// <summary>
-        /// Capture DWM Window
-        /// </summary>
-        /// <param name="capture">Capture to fill</param>
-        /// <param name="windowCaptureMode">Wanted WindowCaptureMode</param>
-        /// <param name="autoMode">True if auto mode is used</param>
-        /// <returns>ICapture with the capture</returns>
-        public ICapture CaptureDwmWindow(ICapture capture, WindowCaptureMode windowCaptureMode, bool autoMode)
-        {
-            IntPtr thumbnailHandle = IntPtr.Zero;
-            Form tempForm = null;
-            bool tempFormShown = false;
-            try
-            {
-                tempForm = new Form
-                {
-                    ShowInTaskbar = false,
-                    FormBorderStyle = FormBorderStyle.None,
-                    TopMost = true
-                };
-
-                // Register the Thumbnail
-                DwmApi.DwmRegisterThumbnail(tempForm.Handle, Handle, out thumbnailHandle);
-
-                // Get the original size
-                DwmApi.DwmQueryThumbnailSourceSize(thumbnailHandle, out var sourceSize);
-
-                if (sourceSize.Width <= 0 || sourceSize.Height <= 0)
-                {
-                    return null;
-                }
-
-                // Calculate the location of the temp form
-                NativeRect windowRectangle = WindowRectangle;
-                NativePoint formLocation = windowRectangle.Location;
-                NativeSize borderSize = new NativeSize();
-                bool doesCaptureFit = false;
-                if (!Maximised)
-                {
-                    // Assume using it's own location
-                    formLocation = windowRectangle.Location;
-                    // TODO: Use Rectangle.Union!
-                    using Region workingArea = new Region(Screen.PrimaryScreen.Bounds);
-                    // Find the screen where the window is and check if it fits
-                    foreach (Screen screen in Screen.AllScreens)
-                    {
-                        if (!Equals(screen, Screen.PrimaryScreen))
-                        {
-                            workingArea.Union(screen.Bounds);
-                        }
-                    }
-
-                    // If the formLocation is not inside the visible area
-                    if (!workingArea.AreRectangleCornersVisisble(windowRectangle))
-                    {
-                        // If none found we find the biggest screen
-
-                        foreach (var displayInfo in DisplayInfo.AllDisplayInfos)
-                        {
-                            var newWindowRectangle = new NativeRect(displayInfo.WorkingArea.Location, windowRectangle.Size);
-                            if (workingArea.AreRectangleCornersVisisble(newWindowRectangle))
-                            {
-                                formLocation = displayInfo.Bounds.Location;
-                                doesCaptureFit = true;
-                                break;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        doesCaptureFit = true;
-                    }
-                }
-                else if (!WindowsVersion.IsWindows8OrLater)
-                {
-                    //GetClientRect(out windowRectangle);
-                    GetBorderSize(out borderSize);
-                    formLocation = new NativePoint(windowRectangle.X - borderSize.Width, windowRectangle.Y - borderSize.Height);
-                }
-
-                tempForm.Location = formLocation;
-                tempForm.Size = sourceSize;
-
-                // Prepare rectangle to capture from the screen.
-                var captureRectangle = new NativeRect(formLocation.X, formLocation.Y, sourceSize.Width, sourceSize.Height);
-                if (Maximised)
-                {
-                    // Correct capture size for maximized window by offsetting the X,Y with the border size
-                    // and subtracting the border from the size (2 times, as we move right/down for the capture without resizing)
-                    captureRectangle = captureRectangle.Inflate(borderSize.Width, borderSize.Height);
-                }
-                else
-                {
-                    // TODO: Also 8.x?
-                    if (WindowsVersion.IsWindows10OrLater)
-                    {
-                        captureRectangle = captureRectangle.Inflate(Conf.Win10BorderCrop);
-                    }
-
-                    if (autoMode)
-                    {
-                        // check if the capture fits
-                        if (!doesCaptureFit)
-                        {
-                            // if GDI is allowed.. (a screenshot won't be better than we comes if we continue)
-                            using Process thisWindowProcess = Process;
-                            if (WindowCapture.IsGdiAllowed(thisWindowProcess))
-                            {
-                                // we return null which causes the capturing code to try another method.
-                                return null;
-                            }
-                        }
-                    }
-                }
-
-                // Prepare the displaying of the Thumbnail
-                var props = new DwmThumbnailProperties()
-                {
-                    Opacity = 255,
-                    Visible = true,
-                    Destination = new NativeRect(0, 0, sourceSize.Width, sourceSize.Height)
-                };
-                DwmApi.DwmUpdateThumbnailProperties(thumbnailHandle, ref props);
-                tempForm.Show();
-                tempFormShown = true;
-
-                // Intersect with screen
-                captureRectangle = captureRectangle.Intersect(capture.ScreenBounds);
-
-                // Destination bitmap for the capture
-                Bitmap capturedBitmap = null;
-                bool frozen = false;
-                try
-                {
-                    // Check if we make a transparent capture
-                    if (windowCaptureMode == WindowCaptureMode.AeroTransparent)
-                    {
-                        frozen = FreezeWindow();
-                        // Use white, later black to capture transparent
-                        tempForm.BackColor = Color.White;
-                        // Make sure everything is visible
-                        tempForm.Refresh();
-                        Application.DoEvents();
-
-                        try
-                        {
-                            using Bitmap whiteBitmap = WindowCapture.CaptureRectangle(captureRectangle);
-                            // Apply a white color
-                            tempForm.BackColor = Color.Black;
-                            // Make sure everything is visible
-                            tempForm.Refresh();
-                            // Make sure the application window is active, so the colors & buttons are right
-                            ToForeground();
-
-                            // Make sure all changes are processed and visible
-                            Application.DoEvents();
-                            using Bitmap blackBitmap = WindowCapture.CaptureRectangle(captureRectangle);
-                            capturedBitmap = ApplyTransparency(blackBitmap, whiteBitmap);
-                        }
-                        catch (Exception e)
-                        {
-                            Log.Debug("Exception: ", e);
-                            // Some problem occurred, cleanup and make a normal capture
-                            if (capturedBitmap != null)
-                            {
-                                capturedBitmap.Dispose();
-                                capturedBitmap = null;
-                            }
-                        }
-                    }
-
-                    // If no capture up till now, create a normal capture.
-                    if (capturedBitmap == null)
-                    {
-                        // Remove transparency, this will break the capturing
-                        if (!autoMode)
-                        {
-                            tempForm.BackColor = Color.FromArgb(255, Conf.DWMBackgroundColor.R, Conf.DWMBackgroundColor.G, Conf.DWMBackgroundColor.B);
-                        }
-                        else
-                        {
-                            var colorizationColor = DwmApi.ColorizationColor;
-                            // Modify by losing the transparency and increasing the intensity (as if the background color is white)
-                            tempForm.BackColor = Color.FromArgb(255, (colorizationColor.R + 255) >> 1, (colorizationColor.G + 255) >> 1, (colorizationColor.B + 255) >> 1);
-                        }
-
-                        // Make sure everything is visible
-                        tempForm.Refresh();
-                        // Make sure the application window is active, so the colors & buttons are right
-                        ToForeground();
-
-                        // Make sure all changes are processed and visible
-                        Application.DoEvents();
-                        // Capture from the screen
-                        capturedBitmap = WindowCapture.CaptureRectangle(captureRectangle);
-                    }
-
-                    if (capturedBitmap != null)
-                    {
-                        // Not needed for Windows 8
-                        if (!WindowsVersion.IsWindows8OrLater)
-                        {
-                            // Only if the Inivalue is set, not maximized and it's not a tool window.
-                            if (Conf.WindowCaptureRemoveCorners && !Maximised && (ExtendedWindowStyle & ExtendedWindowStyleFlags.WS_EX_TOOLWINDOW) == 0)
-                            {
-                                // Remove corners
-                                if (!Image.IsAlphaPixelFormat(capturedBitmap.PixelFormat))
-                                {
-                                    Log.Debug("Changing pixelformat to Alpha for the RemoveCorners");
-                                    Bitmap tmpBitmap = ImageHelper.Clone(capturedBitmap, PixelFormat.Format32bppArgb);
-                                    capturedBitmap.Dispose();
-                                    capturedBitmap = tmpBitmap;
-                                }
-
-                                RemoveCorners(capturedBitmap);
-                            }
-                        }
-                    }
-                }
-                finally
-                {
-                    // Make sure to ALWAYS unfreeze!!
-                    if (frozen)
-                    {
-                        UnfreezeWindow();
-                    }
-                }
-
-                capture.Image = capturedBitmap;
-                // Make sure the capture location is the location of the window, not the copy
-                capture.Location = Location;
-            }
-            finally
-            {
-                if (thumbnailHandle != IntPtr.Zero)
-                {
-                    // Un-register (cleanup), as we are finished we don't need the form or the thumbnail anymore
-                    DwmApi.DwmUnregisterThumbnail(thumbnailHandle);
-                }
-
-                if (tempForm != null)
-                {
-                    if (tempFormShown)
-                    {
-                        tempForm.Close();
-                    }
-
-                    tempForm.Dispose();
-                }
-            }
-
-            return capture;
-        }
-
-        /// <summary>
-        /// Helper method to remove the corners from a DMW capture
-        /// </summary>
-        /// <param name="image">The bitmap to remove the corners from.</param>
-        private void RemoveCorners(Bitmap image)
-        {
-            using IFastBitmap fastBitmap = FastBitmap.Create(image);
-            for (int y = 0; y < Conf.WindowCornerCutShape.Count; y++)
-            {
-                for (int x = 0; x < Conf.WindowCornerCutShape[y]; x++)
-                {
-                    fastBitmap.SetColorAt(x, y, Color.Transparent);
-                    fastBitmap.SetColorAt(image.Width - 1 - x, y, Color.Transparent);
-                    fastBitmap.SetColorAt(image.Width - 1 - x, image.Height - 1 - y, Color.Transparent);
-                    fastBitmap.SetColorAt(x, image.Height - 1 - y, Color.Transparent);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Apply transparency by comparing a transparent capture with a black and white background
-        /// A "Math.min" makes sure there is no overflow, but this could cause the picture to have shifted colors.
-        /// The pictures should have been taken without difference, except for the colors.
-        /// </summary>
-        /// <param name="blackBitmap">Bitmap with the black image</param>
-        /// <param name="whiteBitmap">Bitmap with the black image</param>
-        /// <returns>Bitmap with transparency</returns>
-        private Bitmap ApplyTransparency(Bitmap blackBitmap, Bitmap whiteBitmap)
-        {
-            using IFastBitmap targetBuffer = FastBitmap.CreateEmpty(blackBitmap.Size, PixelFormat.Format32bppArgb, Color.Transparent);
-            targetBuffer.SetResolution(blackBitmap.HorizontalResolution, blackBitmap.VerticalResolution);
-            using (IFastBitmap blackBuffer = FastBitmap.Create(blackBitmap))
-            {
-                using IFastBitmap whiteBuffer = FastBitmap.Create(whiteBitmap);
-                for (int y = 0; y < blackBuffer.Height; y++)
-                {
-                    for (int x = 0; x < blackBuffer.Width; x++)
-                    {
-                        Color c0 = blackBuffer.GetColorAt(x, y);
-                        Color c1 = whiteBuffer.GetColorAt(x, y);
-                        // Calculate alpha as double in range 0-1
-                        int alpha = c0.R - c1.R + 255;
-                        if (alpha == 255)
-                        {
-                            // Alpha == 255 means no change!
-                            targetBuffer.SetColorAt(x, y, c0);
-                        }
-                        else if (alpha == 0)
-                        {
-                            // Complete transparency, use transparent pixel
-                            targetBuffer.SetColorAt(x, y, Color.Transparent);
-                        }
-                        else
-                        {
-                            // Calculate original color
-                            byte originalAlpha = (byte) Math.Min(255, alpha);
-                            var alphaFactor = alpha / 255d;
-                            //LOG.DebugFormat("Alpha {0} & c0 {1} & c1 {2}", alpha, c0, c1);
-                            byte originalRed = (byte) Math.Min(255, c0.R / alphaFactor);
-                            byte originalGreen = (byte) Math.Min(255, c0.G / alphaFactor);
-                            byte originalBlue = (byte) Math.Min(255, c0.B / alphaFactor);
-                            Color originalColor = Color.FromArgb(originalAlpha, originalRed, originalGreen, originalBlue);
-                            //Color originalColor = Color.FromArgb(originalAlpha, originalRed, c0.G, c0.B);
-                            targetBuffer.SetColorAt(x, y, originalColor);
-                        }
-                    }
-                }
-            }
-
-            return targetBuffer.UnlockAndReturnBitmap();
-        }
-
-        /// <summary>
         /// If a window is hidden (Iconic), it also has the specified dimensions.
         /// </summary>
         /// <param name="rect">NativeRect</param>
@@ -1288,70 +963,6 @@ namespace Greenshot.Base.Core
 
                 Kernel32Api.ResumeThread(pOpenThread);
             }
-        }
-
-        /// <summary>
-        /// Return an Image representing the Window!
-        /// For Windows 7, as GDI+ draws it, it will be without Aero borders!
-        /// For Windows 10+, there is an option PW_RENDERFULLCONTENT, which makes sure the capture is "as is".
-        /// </summary>
-        public Image PrintWindow()
-        {
-            NativeRect windowRect = WindowRectangle;
-            // Start the capture
-            Exception exceptionOccurred = null;
-            Image returnImage;
-            using (Region region = GetRegion())
-            {
-                var backgroundColor = Color.Black;
-                PixelFormat pixelFormat = PixelFormat.Format24bppRgb;
-                // Only use 32 bpp ARGB when the window has a region
-                if (region != null)
-                {
-                    pixelFormat = PixelFormat.Format32bppArgb;
-                    backgroundColor = Color.Transparent;
-                }
-                
-                returnImage = ImageHelper.CreateEmpty(windowRect.Width, windowRect.Height, pixelFormat, backgroundColor, 96,96);
-                using Graphics graphics = Graphics.FromImage(returnImage);
-                using (SafeGraphicsDcHandle graphicsDc = graphics.GetSafeDeviceContext())
-                {
-                    var pwFlags = WindowsVersion.IsWindows10OrLater ? PrintWindowFlags.PW_RENDERFULLCONTENT : PrintWindowFlags.PW_COMPLETE;
-                    bool printSucceeded = User32Api.PrintWindow(Handle, graphicsDc.DangerousGetHandle(), pwFlags);
-                    if (!printSucceeded)
-                    {
-                        // something went wrong, most likely a "0x80004005" (Access Denied) when using UAC
-                        exceptionOccurred = User32Api.CreateWin32Exception("PrintWindow");
-                    }
-                }
-
-                // Apply the region "transparency"
-                if (region != null && !region.IsEmpty(graphics))
-                {
-                    graphics.ExcludeClip(region);
-                    graphics.Clear(Color.Transparent);
-                }
-
-                graphics.Flush();
-            }
-
-            // Return null if error
-            if (exceptionOccurred != null)
-            {
-                Log.ErrorFormat("Error calling print window: {0}", exceptionOccurred.Message);
-                returnImage.Dispose();
-                return null;
-            }
-
-            if (!HasParent && Maximised)
-            {
-                Log.Debug("Correcting for maximized window");
-                GetBorderSize(out var borderSize);
-                NativeRect borderRectangle = new NativeRect(borderSize.Width, borderSize.Height, windowRect.Width - (2 * borderSize.Width), windowRect.Height - (2 * borderSize.Height));
-                ImageHelper.Crop(ref returnImage, ref borderRectangle);
-            }
-
-            return returnImage;
         }
 
         /// <summary>
