@@ -5,7 +5,7 @@
 	xmlns:support="clr-namespace:Greenshot.Plugin.Confluence.Support"
 	xmlns:confluence="clr-namespace:Greenshot.Plugin.Confluence"
 	xmlns:enums="clr-namespace:Greenshot.Base.Core.Enums;assembly=Greenshot.Base"
-	Title="{support:Translate plugin_settings}" SizeToContent="WidthAndHeight" ResizeMode="NoResize" Icon="/GreenshotConfluencePlugin;component/Images/Confluence.ico">
+	Title="{support:Translate plugin_settings}" SizeToContent="WidthAndHeight" ResizeMode="NoResize" Icon="/Greenshot.Plugin.Confluence;component/Images/Confluence.ico">
 	<Window.Resources>
         <confluence:EnumDisplayer Type="{x:Type enums:OutputFormat}" x:Key="outputFormats"/>
 	</Window.Resources>
