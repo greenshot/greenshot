@@ -58,7 +58,8 @@ namespace Greenshot.Base.Core.OAuth
         protected const string HMACSHA1SignatureType = "HMAC-SHA1";
         protected const string PlainTextSignatureType = "PLAINTEXT";
 
-        protected static Random random = new Random();
+        // Cryptographically secure RNG for OAuth nonces (avoiding System.Random)
+        private static readonly RandomNumberGenerator _secureRandom = RandomNumberGenerator.Create();
 
         protected const string UnreservedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_.~";
 
@@ -222,13 +223,16 @@ namespace Greenshot.Base.Core.OAuth
         }
 
         /// <summary>
-        /// Generate a nonce
+        /// Generate a cryptographically secure nonce for OAuth requests (RFC 5849)
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A cryptographically random nonce string</returns>
         public static string GenerateNonce()
         {
-            // Just a simple implementation of a random number between 123400 and 9999999
-            return random.Next(123400, 9999999).ToString();
+            // 64 bits of entropy using OS-level CSPRNG, converted to URL-safe base64
+            // Replaces + with - and / with _ to make it safe for URLs (RFC 4648)
+            byte[] nonceBytes = new byte[8];
+            _secureRandom.GetBytes(nonceBytes);
+            return Convert.ToBase64String(nonceBytes).Replace('+', '-').Replace('/', '_').TrimEnd('=');
         }
 
         /// <summary>
