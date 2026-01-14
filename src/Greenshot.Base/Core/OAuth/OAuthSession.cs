@@ -223,17 +223,20 @@ namespace Greenshot.Base.Core.OAuth
         }
 
         /// <summary>
-        /// Generate a cryptographically secure nonce for OAuth requests (RFC 5849)
+        /// Generate a cryptographically secure nonce for OAuth requests
         /// </summary>
         /// <returns>A cryptographically random nonce string</returns>
         public static string GenerateNonce()
         {
-            // 64 bits of entropy using OS-level CSPRNG, converted to URL-safe base64
-            // Replaces + with - and / with _ to make it safe for URLs (RFC 4648)
-            byte[] nonceBytes = new byte[8];
+            // 4 random bytes (0 to 4294967295) modulo 10000000 -> 7-digit string (zero padded)
+            byte[] nonceBytes = new byte[4];
             _secureRandom.GetBytes(nonceBytes);
-            return Convert.ToBase64String(nonceBytes).Replace('+', '-').Replace('/', '_').TrimEnd('=');
+            uint randomValue = BitConverter.ToUInt32(nonceBytes, 0);
+            return (randomValue % 10000000).ToString("D7");
         }
+
+
+        
 
         /// <summary>
         /// Get the request token using the consumer key and secret.  Also initializes tokensecret
