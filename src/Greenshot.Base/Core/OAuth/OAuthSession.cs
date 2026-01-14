@@ -235,9 +235,6 @@ namespace Greenshot.Base.Core.OAuth
             return (randomValue % 10000000).ToString("D7");
         }
 
-
-        
-
         /// <summary>
         /// Get the request token using the consumer key and secret.  Also initializes tokensecret
         /// </summary>
