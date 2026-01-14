@@ -517,8 +517,12 @@ namespace Greenshot.Base.Core
 
                                     break;
                                 case 10:
-                                    string releaseId = Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion", "ReleaseId", "").ToString();
-                                    name = $"Windows 10 {releaseId}";
+                                    if (osVersion.Version.Build < 22000)
+                                    {
+                                        name = "Windows 10";
+                                    } else {
+                                        name = "Windows 11";
+                                    }
                                     break;
                             }
 
