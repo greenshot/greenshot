@@ -1,13 +1,12 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29728.190
+# Visual Studio Version 18
+VisualStudioVersion = 18.3.11312.210
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Greenshot", "Greenshot\Greenshot.csproj", "{CD642BF4-D815-4D67-A0B5-C69F0B8231AF}"
 	ProjectSection(ProjectDependencies) = postProject
 		{92599C09-FF29-4ABD-B6E6-C48ECD781BAB} = {92599C09-FF29-4ABD-B6E6-C48ECD781BAB}
 		{19FEEF09-313F-43C7-819D-F1BCA782B08B} = {19FEEF09-313F-43C7-819D-F1BCA782B08B}
-		{9801F62C-540F-4BFE-9211-6405DEDE563B} = {9801F62C-540F-4BFE-9211-6405DEDE563B}
 		{9C0ECC4C-7807-4111-916A-4F57BB29788A} = {9C0ECC4C-7807-4111-916A-4F57BB29788A}
 		{C3052651-598A-44E2-AAB3-2E41311D50F9} = {C3052651-598A-44E2-AAB3-2E41311D50F9}
 		{7EC72A5A-D73A-4B4B-9CA1-2216C7D92D5E} = {7EC72A5A-D73A-4B4B-9CA1-2216C7D92D5E}
@@ -40,14 +39,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Greenshot.Plugin.Office", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Greenshot.Plugin.Photobucket", "Greenshot.Plugin.Photobucket\Greenshot.Plugin.Photobucket.csproj", "{9C0ECC4C-7807-4111-916A-4F57BB29788A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Greenshot.Plugin.Win10", "Greenshot.Plugin.Win10\Greenshot.Plugin.Win10.csproj", "{9801F62C-540F-4BFE-9211-6405DEDE563B}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{82987F1E-D7E6-4C44-B934-981D366E4672}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
-		..\azure-pipelines.yml = ..\azure-pipelines.yml
 		Directory.Build.props = Directory.Build.props
 		Directory.Build.targets = Directory.Build.targets
+		..\.github\workflows\release.yml = ..\.github\workflows\release.yml
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Greenshot.Editor", "Greenshot.Editor\Greenshot.Editor.csproj", "{148D3C8B-D6EC-4A7D-80E9-243A81F19DD2}"
@@ -156,14 +153,6 @@ Global
 		{9C0ECC4C-7807-4111-916A-4F57BB29788A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9C0ECC4C-7807-4111-916A-4F57BB29788A}.Release|x86.ActiveCfg = Release|Any CPU
 		{9C0ECC4C-7807-4111-916A-4F57BB29788A}.Release|x86.Build.0 = Release|Any CPU
-		{9801F62C-540F-4BFE-9211-6405DEDE563B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9801F62C-540F-4BFE-9211-6405DEDE563B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9801F62C-540F-4BFE-9211-6405DEDE563B}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{9801F62C-540F-4BFE-9211-6405DEDE563B}.Debug|x86.Build.0 = Debug|Any CPU
-		{9801F62C-540F-4BFE-9211-6405DEDE563B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9801F62C-540F-4BFE-9211-6405DEDE563B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9801F62C-540F-4BFE-9211-6405DEDE563B}.Release|x86.ActiveCfg = Release|Any CPU
-		{9801F62C-540F-4BFE-9211-6405DEDE563B}.Release|x86.Build.0 = Release|Any CPU
 		{148D3C8B-D6EC-4A7D-80E9-243A81F19DD2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{148D3C8B-D6EC-4A7D-80E9-243A81F19DD2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{148D3C8B-D6EC-4A7D-80E9-243A81F19DD2}.Debug|x86.ActiveCfg = Debug|Any CPU

@@ -1,28 +1,30 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <language description="Turkish" ietf="tr-TR" version="1.0.2" languagegroup="6">
 	<resources>
 		<resource name="about_bugs">Hataları şu adrese bildirebilirsiniz:</resource>
 		<resource name="about_donations">Greenshot'ı sevdiyseniz, bizi destekleyin:</resource>
 		<resource name="about_host">Greenshot GitHub üzerinde şu adreste barındırılmaktadır:</resource>
 		<resource name="about_icons">Simgeler Yusuke Kamiyamane'nin Fugue simge setidir (Creative Commons Attribution 3.0 lisansı)</resource>
-		<resource name="about_license">Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
-Greenshot HİÇ BİR GARANTİ vermez. Serbest bir yazılımdır ve belirli koşullar altında dağıtmakta serbestsiniz. GNU 
-Genel Kamu Lisanslı hakkında daha fazla bilgi için:</resource>
+		<resource name="about_license">Telif Hakkı (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+Greenshot HİÇBİR GARANTİ olmaksızın sunulmaktadır. Bu ücretsiz bir yazılımdır ve belirli koşullar altında dağıtmakta serbestsiniz. 
+GNU Genel Kamu Lisansı hakkında ayrıntılar:</resource>
 		<resource name="about_title">Greenshot Hakkında</resource>
 		<resource name="application_title">Greenshot - devrimsel ekran yakalama aracı</resource>
 		<resource name="bugreport_cancel">Kapat</resource>
-		<resource name="bugreport_info">Beklenmeyen bir hata oldu.
+		<resource name="bugreport_info">Beklenmeyen bir hata oluştu.
 
-İyi haber: bu hatayı bize bildirerek düzeltmemizi sağlayabilirsiniz..
-Lütfen aşağıdaki web adresine gidin, yeni bir hata bildirimi oluşturup içeriğini açıklama bölümündeki yazı alanına yapıştırın.
+Bu hatayı düzeltmemize yardımcı olabilirsiniz. 
+Lütfen aşağıdaki bağlantıdan hata raporu oluşturun ve metin kutusundaki içeriği açıklamaya yapıştırın.
 
-Anlamlı bir açıklama ve sorunun yeniden oluşması için işe yarayacağını düşündüğünüz bilgileri de ekleyin.
-Ayrıca bu hata için bir izleyici kaydının açılmış olup olmadığını da deneteleyebilirseniz minnettar kalırız. bunu hızlıca yapabilmek için aramayı kullanabilirsiniz. Teşekkürler :)</resource>
+Anlamlı bir özet ekleyin ve sorunu tekrar oluşturmak için faydalı bilgileri paylaşın.
+Benzer bir hatanın daha önce bildirilip bildirilmediğini kontrol ederseniz çok seviniriz. (Arama özelliğini kullanarak bunu hızlıca yapabilirsiniz.) Teşekkürler!</resource>
 		<resource name="bugreport_title">Hata</resource>
 		<resource name="CANCEL">İptal</resource>
 		<resource name="clipboard_error">Panoya yazılırken beklenmedik bir hata oluştu.</resource>
 		<resource name="clipboard_inuse">{0} işlemi erişimi engellediğinden Greenshot panoya yazamadı.</resource>
-		<resource name="ClipboardFormat.DIB">Cihazdan Bağımsız Bit Eşlem (DIB)</resource>
+        <resource name="clipboard_noimage">Pano görüntüsü bulunamadı.</resource>
+		<resource name="ClipboardFormat.BITMAP">Windows Bitmap</resource>
+        <resource name="ClipboardFormat.DIB">Cihazdan Bağımsız Bit Eşlem (DIB)</resource>
 		<resource name="ClipboardFormat.HTML">HTML</resource>
 		<resource name="ClipboardFormat.HTMLDATAURL">Satıriçi görüntülerle HTML</resource>
 		<resource name="ClipboardFormat.PNG">PNG</resource>
@@ -35,6 +37,8 @@ Ayrıca bu hata için bir izleyici kaydının açılmış olup olmadığını da
 		<resource name="colorpicker_red">Kırmızı</resource>
 		<resource name="colorpicker_title">Renk seçici</resource>
 		<resource name="colorpicker_transparent">Saydam</resource>
+        <resource name="com_rejected">{0} hedefi Greenshot erişimini reddetti, muhtemelen bir iletişim kutusu açık. İletişim kutusunu kapatıp tekrar deneyin.</resource>
+        <resource name="com_rejected_title">Greenshot erişimi reddedildi</resource>
 		<resource name="config_unauthorizedaccess_write">Greenshot yapılandırma dosyası kaydedilemedi. '{0}' için erişim izinlerini denetleyin.</resource>
 		<resource name="contextmenu_about">Greenshot Hakkında</resource>
 		<resource name="contextmenu_capturearea">Bölge yakala</resource>
@@ -45,41 +49,54 @@ Ayrıca bu hata için bir izleyici kaydının açılmış olup olmadığını da
 		<resource name="contextmenu_capturefullscreen_left">sol</resource>
 		<resource name="contextmenu_capturefullscreen_right">sağ</resource>
 		<resource name="contextmenu_capturefullscreen_top">üst</resource>
-		<resource name="contextmenu_captureie">Internet Explorer'ı yakala</resource>
 		<resource name="contextmenu_capturelastregion">Son bölgeyi yakala</resource>
 		<resource name="contextmenu_capturewindow">Pencere yakala</resource>
+        <resource name="contextmenu_capturewindowfromlist">Açık pencereleri yakala</resource>
 		<resource name="contextmenu_donate">Greenshot'ı Destekleyin</resource>
 		<resource name="contextmenu_exit">Çıkış</resource>
 		<resource name="contextmenu_help">Yardım</resource>
-		<resource name="contextmenu_openfile">Dosyadaki görüntüyü aç</resource>
-		<resource name="contextmenu_openrecentcapture">Son yakalamayı klasörde göster</resource>
-		<resource name="contextmenu_quicksettings">Çabuk ayar</resource>
+		<resource name="contextmenu_openfile">Masaüstünden görüntü aç</resource>
+		<resource name="contextmenu_openrecentcapture">Son kaydedilenin konumunu aç</resource>
+		<resource name="contextmenu_quicksettings">Hızlı ayarlar</resource>
 		<resource name="contextmenu_settings">Ayarlar...</resource>
-		<resource name="destination_exportfailed">{0}'a ihraç ederken hata. Lütfen tekrar deneyin.</resource>
+		<resource name="destination_exportfailed">{0} konumuna aktarılırken bir hata oluştu. Lütfen tekrar deneyin.</resource>
+        <resource name="editor_align_bottom">Alta</resource>
+		<resource name="editor_align_center">Merkeze</resource>
+		<resource name="editor_align_horizontal">Yatay hizala</resource>
+		<resource name="editor_align_left">Sola</resource>
+		<resource name="editor_align_middle">Ortaya</resource>
+		<resource name="editor_align_right">Sağa</resource>
+		<resource name="editor_align_top">Üste</resource>
+		<resource name="editor_align_vertical">Dikey hizala</resource>
 		<resource name="editor_arrange">Düzenle</resource>
-		<resource name="editor_arrowheads">Ok başları</resource>
+		<resource name="editor_arrowheads">Ok uçları</resource>
 		<resource name="editor_arrowheads_both">İki uçta da</resource>
 		<resource name="editor_arrowheads_end">Bitişte</resource>
-		<resource name="editor_arrowheads_none">Ok ucu olmasın</resource>
+		<resource name="editor_arrowheads_none">Ok ucu yok</resource>
 		<resource name="editor_arrowheads_start">Başlangıçta</resource>
-		<resource name="editor_autocrop">Otomatik kırpma</resource>
-		<resource name="editor_backcolor">Art alan rengi</resource>
+		<resource name="editor_autocrop">Otomatik kırp</resource>
+        <resource name="editor_autocrop_not_possible">Otomatik kırpma yapılamıyor</resource>
+		<resource name="editor_backcolor">Dolgu rengi (0-9)</resource>
 		<resource name="editor_blur_radius">Bulanıklaştırma çapı</resource>
 		<resource name="editor_bold">Koyu</resource>
-		<resource name="editor_border">Kenarlar</resource>
+		<resource name="editor_border">Kenarlık</resource>
 		<resource name="editor_brightness">Parlaklık</resource>
-		<resource name="editor_cancel">Vazgeç</resource>
+		<resource name="editor_cancel">İptal</resource>
 		<resource name="editor_clipboardfailed">Panoya erişirken bir hata oldu. Yeniden deneyin.</resource>
 		<resource name="editor_close">Kapat</resource>
+        <resource name="editor_close_all">Hepsini kapat</resource>
 		<resource name="editor_close_on_save">Ekran görüntüsünü kaydetmek istiyor musunuz?</resource>
 		<resource name="editor_close_on_save_title">Görüntü kaydedilsin mi?</resource>
-		<resource name="editor_confirm">Tamam</resource>
+		<resource name="editor_confirm">Onayla</resource>
 		<resource name="editor_copyimagetoclipboard">Görüntüyü panoya kopyala</resource>
 		<resource name="editor_copypathtoclipboard">Yolu panoya kopyala</resource>
 		<resource name="editor_copytoclipboard">Kopyala</resource>
 		<resource name="editor_crop">Kırp (C)</resource>
+        <resource name="editor_crop_mode">Kırpma modu</resource>
 		<resource name="editor_cropmode_default">Kırp</resource>
-		<resource name="editor_cropmode_auto">Otomatik kırpma</resource>
+        <resource name="editor_cropmode_vertical">Dikey olarak kırp</resource>
+        <resource name="editor_cropmode_horizontal">Yatay olarak kırp</resource>
+		<resource name="editor_cropmode_auto">Otomatik kırp</resource>
 		<resource name="editor_cursortool">Seçim Aracı (ESC)</resource>
 		<resource name="editor_cuttoclipboard">Kes</resource>
 		<resource name="editor_deleteelement">Sil</resource>
@@ -91,123 +108,127 @@ Ayrıca bu hata için bir izleyici kaydının açılmış olup olmadığını da
 		<resource name="editor_drawhighlighter">Vurgula (H)</resource>
 		<resource name="editor_drawline">Çizgi çiz (L)</resource>
 		<resource name="editor_drawrectangle">Dikdörtgen çiz (R)</resource>
-		<resource name="editor_drawtextbox">Yazı ekle (T)</resource>
-		<resource name="editor_duplicate">Seçili ögenin kopyasını oluştur</resource>
-		<resource name="editor_edit">Düzen</resource>
+		<resource name="editor_drawtextbox">Metin ekle (T)</resource>
+		<resource name="editor_duplicate">Seçili ögeyi çoğalt</resource>
+		<resource name="editor_edit">Düzenle</resource>
 		<resource name="editor_effects">Efektler</resource>
-		<resource name="editor_email">E-Posta Gönder</resource>
+		<resource name="editor_email">E-Posta</resource>
 		<resource name="editor_file">Dosya</resource>
 		<resource name="editor_fontsize">Boyut</resource>
-		<resource name="editor_forecolor">Çizgi rengi</resource>
-		<resource name="editor_grayscale">Gri Tonlamalı</resource>
+		<resource name="editor_forecolor">Çizgi rengi (NumPad0-9, Shift+0-9)</resource>
+		<resource name="editor_grayscale">Gri tonlamalı</resource>
 		<resource name="editor_highlight_area">Bölgeyi vurgula</resource>
 		<resource name="editor_highlight_grayscale">Gri tonlama</resource>
 		<resource name="editor_highlight_magnify">Büyüt</resource>
-		<resource name="editor_highlight_mode">Vurgulama kipi</resource>
-		<resource name="editor_highlight_text">Yazıyı vurgula</resource>
-		<resource name="editor_imagesaved">Görüntü şuraya kaydedildi {0}.</resource>
+		<resource name="editor_highlight_mode">Vurgulama modu</resource>
+		<resource name="editor_highlight_text">Metni vurgula</resource>
+        <resource name="editor_image_shadow">Gölge</resource>
+		<resource name="editor_imagesaved">Görüntü {0} konumuna kaydedildi.</resource>
 		<resource name="editor_insertwindow">Pencere ekle</resource>
-		<resource name="editor_invert">Çevir</resource>
+		<resource name="editor_invert">Renkleri ters çevir</resource>
 		<resource name="editor_italic">Yatık</resource>
 		<resource name="editor_load_objects">Dosyadan nesneleri yükle</resource>
-		<resource name="editor_magnification_factor">Büyütme çarpanı</resource>
-		<resource name="editor_match_capture_size">Yakalama boyuyla örtüş</resource>
-		<resource name="editor_obfuscate">Karart (O)</resource>
+		<resource name="editor_magnification_factor">Büyütme katsayısı</resource>
+		<resource name="editor_match_capture_size">Yakalama boyutuyla eşleştir</resource>
+		<resource name="editor_obfuscate">Bulanıklaştır (O)</resource>
 		<resource name="editor_obfuscate_blur">Bulanıklaştır</resource>
-		<resource name="editor_obfuscate_mode">Karanlık kipi</resource>
+		<resource name="editor_obfuscate_mode">Bulanıklaştırma modu</resource>
 		<resource name="editor_obfuscate_pixelize">Pikselleştir</resource>
 		<resource name="editor_object">Nesne</resource>
-		<resource name="editor_opendirinexplorer">Klasörü Windows Gezgini ile aç</resource>
+		<resource name="editor_opendirinexplorer">Klasörü Dosya Gezgini ile aç</resource>
 		<resource name="editor_pastefromclipboard">Yapıştır</resource>
 		<resource name="editor_pixel_size">Piksel boyutu</resource>
-		<resource name="editor_preview_quality">Özizleme kalitesi</resource>
+		<resource name="editor_preview_quality">Ön izleme kalitesi</resource>
 		<resource name="editor_print">Yazdır</resource>
-		<resource name="editor_redo">Yeniden yap (0)</resource>
-		<resource name="editor_resetsize">Reset boyutu</resource>
-		<resource name="editor_rotateccw">Saat yönünün tersine döndür</resource>
-		<resource name="editor_rotatecw">Saat yönüne döndür</resource>
+		<resource name="editor_redo">Yeniden yap {0}</resource>
+		<resource name="editor_resetsize">Boyutu sıfırla</resource>
+        <resource name="editor_resize_percent">Yüzde</resource>
+        <resource name="editor_resize_pixel">Piksel</resource>
+		<resource name="editor_rotateccw">Saat yönünün tersine döndür (Control + ,)</resource>
+		<resource name="editor_rotatecw">Saat yönüne döndür (Control + .)</resource>
 		<resource name="editor_save">Kaydet</resource>
 		<resource name="editor_save_objects">Nesneleri dosyaya kaydet</resource>
 		<resource name="editor_saveas">Farklı kaydet...</resource>
 		<resource name="editor_selectall">Tümünü seç</resource>
-		<resource name="editor_senttoprinter">Yazdırma işi şuraya iletildi '{0}'.</resource>
-		<resource name="editor_shadow">Gölge</resource>
-		<resource name="editor_image_shadow">Gölge</resource>
-		<resource name="editor_storedtoclipboard">Görüntü panoya kopyalandı.</resource>
+		<resource name="editor_senttoprinter">'{0}' yazıcısına gönderildi</resource>
+		<resource name="editor_shadow">Gölge ekle (/)</resource>
+		<resource name="editor_storedtoclipboard">Görüntü panoya kaydedildi.</resource>
 		<resource name="editor_thickness">Çizgi kalınlığı</resource>
-		<resource name="editor_title">Greenshot görüntü düzenleyici</resource>
-		<resource name="editor_torn_edge">Yırtık Kenar</resource>
-		<resource name="editor_undo">Geri al (0)</resource>
+		<resource name="editor_title">Greenshot editörü</resource>
+		<resource name="editor_torn_edge">Kenarı yırt</resource>
+		<resource name="editor_undo">Geri al {0}</resource>
 		<resource name="editor_uponelevel">Bir üste</resource>
 		<resource name="editor_uptotop">En üste</resource>
-		<resource name="EmailFormat.MAPI">Mapi istemcisi</resource>
-		<resource name="EmailFormat.OUTLOOK_HTML">HTML ile Outlook</resource>
-		<resource name="EmailFormat.OUTLOOK_TXT">Yazı ile Outlook</resource>
+		<resource name="EmailFormat.MAPI">MAPI istemcisi</resource>
+		<resource name="EmailFormat.OUTLOOK_HTML">Outlook HTML biçimi</resource>
+		<resource name="EmailFormat.OUTLOOK_TXT">Outlook metin biçimi</resource>
 		<resource name="error">Hata</resource>
 		<resource name="error_multipleinstances">Greenshot zaten çalışıyor.</resource>
-		<resource name="error_nowriteaccess">Dosya şuraya kaydedilemiyor {0}.
+		<resource name="error_nowriteaccess">Dosya {0} konumuna kaydedilemiyor.
 Seçili kayıt yolunun yazılabilir olduğundan emin olun.</resource>
 		<resource name="error_openfile">"{0}" dosyası açılamadı.</resource>
-		<resource name="error_openlink">Bağlantı açılamadı.</resource>
+		<resource name="error_openlink">'{0}' bağlantısı açılamadı.</resource>
 		<resource name="error_save">Ekran görüntüsü kaydedilemedi, lütfen uygun bir yer seçin.</resource>
-		<resource name="expertsettings">Uzman</resource>
-		<resource name="expertsettings_autoreducecolors">Görüntü 8 bitten küçükken renkler 256'nın altına düşerse 8 bitlik bir görüntü oluştur</resource>
-		<resource name="expertsettings_checkunstableupdates">İstikrarsız güncelleştirmeleri kontrol et</resource>
+    <resource name="error_save_invalid_chars">Oluşturulan dosya veya klasör adı geçersiz. Lütfen dosya adı modelini düzeltin ve ardından tekrar deneyin.</resource>
+		<resource name="expertsettings">Gelişmiş Ayarlar</resource>
+		<resource name="expertsettings_autoreducecolors">Renkler 256'dan az ise ve görüntü 8 bitten büyükse 8 bitlik bir görüntü oluştur.</resource>
+		<resource name="expertsettings_checkunstableupdates">Kararsız güncelleştirmeleri kontrol et</resource>
 		<resource name="expertsettings_clipboardformats">Pano biçimleri</resource>
 		<resource name="expertsettings_counter">Dosya adı şablonundaki ${NUM} numarası</resource>
 		<resource name="expertsettings_enableexpert">Ne yaptığımı biliyorum!</resource>
 		<resource name="expertsettings_footerpattern">Yazıcı altbilgi şablonu</resource>
-		<resource name="expertsettings_minimizememoryfootprint">Bellek izini performans düşüşüyle en aza indirge (önerilmez).</resource>
+		<resource name="expertsettings_minimizememoryfootprint">Bellek kullanımını azaltın, fakat performansı düşürür (önerilmez).</resource>
 		<resource name="expertsettings_optimizeforrdp">Uzak masaüstü ile kullanım için bazı iyileştirmeler yap</resource>
+        <resource name="expertsettings_reuseeditorifpossible">Mümkünse editörü yeniden kullan</resource>
 		<resource name="expertsettings_suppresssavedialogatclose">Editörü kapatırken kaydetmeyi sorma</resource>
 		<resource name="expertsettings_thumbnailpreview">İçerik menüsünde küçük resimleri göster (Vista ve windows 7 için)</resource>
-		<resource name="exported_to">{0}'a ihraç edildi</resource>
+		<resource name="exported_to">{0} konumuna aktarıldı</resource>
+        <resource name="exported_to_error">{0} konumuna aktarırken bir hata oluştu:</resource>
 		<resource name="help_title">Greenshot Yardımı</resource>
-		<resource name="hotkeys">Klavye Kısayolları</resource>
-		<resource name="jpegqualitydialog_choosejpegquality">JPRG görüntüsünün kalitesini seçin.</resource>
-		<resource name="jpegqualitydialog_dontaskagain">Varsayılan JPEG kalitesini kaydet ve bir daha sorma</resource>
-		<resource name="jpegqualitydialog_title">Greenshot JPEG kalitesi</resource>
+		<resource name="hotkeys">Klavye kısayolları</resource>
+		<resource name="jpegqualitydialog_choosejpegquality">Lütfen görüntünüz için JPEG kalitesini seçin.</resource>
 		<resource name="OK">Tamam</resource>
 		<resource name="print_error">Yazdırmaya çalışırken bir hata oldu.</resource>
-		<resource name="printoptions_allowcenter">Sayfayı ortala</resource>
-		<resource name="printoptions_allowenlarge">Sayfaya sığacak şekilde genişlet</resource>
-		<resource name="printoptions_allowrotate">Görüntüyü sayfa duruşuna göre döndür</resource>
-		<resource name="printoptions_allowshrink">Sayfaya sığacak şekilde daralt</resource>
-		<resource name="printoptions_dontaskagain">Bu ayarları varsayılan olarak kaydet ve bir daha sorma</resource>
-		<resource name="printoptions_inverted">Ter çevrilmiş renklerle yazdır</resource>
-		<resource name="printoptions_printgrayscale">Gri tonlamalı yazdırmaya zorla</resource>
-		<resource name="printoptions_timestamp">Sayfanın altına yazdırma tarihi ve zamanını ekle</resource>
+		<resource name="printoptions_allowcenter">Sayfada ortala</resource>
+		<resource name="printoptions_allowenlarge">Kağıt boyutuna göre büyüt</resource>
+		<resource name="printoptions_allowrotate">Sayfa yönüne göre döndür</resource>
+		<resource name="printoptions_allowshrink">Kağıt boyutuna göre küçült</resource>
+    <resource name="printoptions_colors">Renk ayarları</resource>
+	<resource name="printoptions_dontaskagain">Bu ayarları varsayılan olarak kaydet ve bir daha sorma</resource>
+		<resource name="printoptions_inverted">Ters çevrilmiş renklerle yazdır</resource>
+    <resource name="printoptions_layout">Sayfa düzeni ayarları</resource>
+    <resource name="printoptions_printcolor">Tam renkli baskı</resource>
+    <resource name="printoptions_printgrayscale">Gri tonlamalı yazdırmaya zorla</resource>
+    <resource name="printoptions_printmonochrome">Siyah/beyaz yazdırmaya zorla</resource>
+	<resource name="printoptions_timestamp">Sayfa altına tarih/saat yazdır</resource>
 		<resource name="printoptions_title">Greenshot yazdırma ayarları</resource>
-		<resource name="qualitydialog_dontaskagain">Standart kalite olarak kaydet ve bir daha sorma</resource>
+		<resource name="qualitydialog_dontaskagain">Varsayılan kalite olarak kaydet ve bir daha sorma</resource>
 		<resource name="qualitydialog_title">Greenshot kalitesi</resource>
 		<resource name="quicksettings_destination_file">Doğrudan kaydet (varsayılan dosya ayarlarıyla)</resource>
-		<resource name="settings_alwaysshowjpegqualitydialog">Her JPEG görüntüsü kaydedildiğinde JPEG kalitesi penceresini göster</resource>
 		<resource name="settings_alwaysshowprintoptionsdialog">Her görüntü yazdırıldığında ayarlar penceresini göster</resource>
-		<resource name="settings_alwaysshowqualitydialog">Kaydedilen her resim için ne yapılacağını sor</resource>
-		<resource name="settings_applicationsettings">Uygulama Ayarları</resource>
+		<resource name="settings_alwaysshowqualitydialog">Her görüntü kaydedildiğinde JPEG kalite seçim penceresini aç</resource>
+		<resource name="settings_applicationsettings">Uygulama ayarları</resource>
 		<resource name="settings_autostartshortcut">Windows başlangıcında çalıştır</resource>
 		<resource name="settings_capture">Yakala</resource>
-		<resource name="settings_capture_mousepointer">Fare imlecini de yakala</resource>
-		<resource name="settings_capture_windows_interactive">Etkileşimli pencere yakalama kipini kullan</resource>
+		<resource name="settings_capture_mousepointer">Fare imlecini yakala</resource>
+		<resource name="settings_capture_windows_interactive">Etkileşimli pencere yakalama modunu kullan</resource>
 		<resource name="settings_checkperiod">Gün bazında güncelleme kontrol sıklığı (0=kontrol yok)</resource>
 		<resource name="settings_configureplugin">Yapılandır</resource>
-		<resource name="settings_copypathtoclipboard">Her görüntü kaydedildiğinde görüntü yolunu panoya kopyala</resource>
-		<resource name="settings_destination">Yakalanan Ekran Görüntüsünün Hedefi</resource>
+		<resource name="settings_copypathtoclipboard">Her görüntü kaydedildiğinde dosya yolunu panoya kopyala</resource>
+		<resource name="settings_destination">Hedef</resource>
 		<resource name="settings_destination_clipboard">Panoya kopyala</resource>
-		<resource name="settings_destination_editor">Görüntü düzenleyicide aç</resource>
+		<resource name="settings_destination_editor">Editörde aç</resource>
 		<resource name="settings_destination_email">E-Posta gönder</resource>
-		<resource name="settings_destination_file">Aşağıdaki ayarları kullanarak kaydet</resource>
-		<resource name="settings_destination_fileas">Farklı kaydet (ayar penceresini göster)</resource>
+		<resource name="settings_destination_file">Doğrudan kaydet (aşağıdaki ayarları kullanarak)</resource>
+		<resource name="settings_destination_fileas">Farklı kaydet (iletişim kutusu gösterilir)</resource>
 		<resource name="settings_destination_picker">Hedefi dinamik olarak seç</resource>
 		<resource name="settings_destination_printer">Yazıcıya gönder</resource>
 		<resource name="settings_editor">Editör</resource>
 		<resource name="settings_filenamepattern">Dosya adı biçimi</resource>
 		<resource name="settings_general">Genel</resource>
-		<resource name="settings_iecapture">Internet Explorer'ı yakalama</resource>
 		<resource name="settings_jpegquality">JPEG kalitesi</resource>
-		<resource name="settings_jpegsettings">JPEG Ayarları</resource>
 		<resource name="settings_language">Dil</resource>
-		<resource name="settings_message_filenamepattern">Şu ifadeler kullanıldığında aşağıdaki tanımlar yazılır:
+		<resource name="settings_message_filenamepattern">Kaydedilen görüntülerin dosya adlarını, aşağıdaki yer tutucuları kullanarak istediğiniz gibi özelleştirebilirsiniz:
 ${YYYY} yıl, 4 hane
 ${MM} ay, 2 hane
 ${DD} gün, 2 hane
@@ -215,49 +236,82 @@ ${hh} saat, 2 hane
 ${mm} dakika, 2 hane
 ${ss} saniye, 2 hane
 ${NUM} artan sayı, 6 hane
+${RRR...} rastgele harf ve rakamlar, 'R'lerle aynı uzunlukta
 ${title} Pencere başlığı
 ${user} Windows kullanıcısı
-${domain} Windows etki alanı
+${domain} Windows alan adı
 ${hostname} Bilgisayar adı
 
-Klasör ve dosya adı arasında (\) karakterini kullanarak Greenshot'un istediğiniz klasörleri oluşturmasını sağlayabilirsiniz.
-Örneğin: ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss} biçimi, varsayılan kayıt klasörünüzün altına içinde bulunulan gün şeklinde bir klasör açar (2010-06-29 gibi), ekran görüntüsü dosyasının adı o anki zamana göre verilir (11-58-32 gibi) ve sonuna ayarlarda tanımlanmış uzantı varsa eklenir.</resource>
-		<resource name="settings_network">Ağ ve ayarlar</resource>
+Greenshot ile dinamik klasör oluşturabilirsiniz. Klasör ve dosya adını ayırmak için ters eğik çizgi (\) kullanın.
+Örnek: ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss} kalıbı, varsayılan kayıt konumuna o günün tarihine göre klasör oluşturur, örneğin 2008-06-29. Ekran görüntüsü dosyası, saate göre adlandırılır, örneğin 11_58_32 (dosya uzantısı ise ayarlara göre eklenir.)</resource>
+		<resource name="settings_network">Ağ ve güncellemeler</resource>
 		<resource name="settings_output">Çıkış</resource>
 		<resource name="settings_playsound">Kamera sesi</resource>
 		<resource name="settings_plugins">Eklentiler</resource>
-		<resource name="settings_preferredfilesettings">Çıkış Dosyası Ayarları</resource>
+        <resource name="settings_plugins_createdby">Oluşturan</resource>
+        <resource name="settings_plugins_dllpath">DLL Yolu</resource>
+        <resource name="settings_plugins_name">Ad</resource>
+		<resource name="settings_plugins_version">Sürüm</resource>
+		<resource name="settings_preferredfilesettings">Tercih edilen çıktı ayarları</resource>
 		<resource name="settings_primaryimageformat">Görüntü biçimi</resource>
 		<resource name="settings_printer">Yazıcı</resource>
 		<resource name="settings_printoptions">Yazdırma ayarları</resource>
-		<resource name="settings_qualitysettings">Kalite Seçenekleri</resource>
-		<resource name="settings_reducecolors">Renkleri en fazla 256'ya indirge</resource>
-		<resource name="settings_registerhotkeys">Kısayol tuşlarını devral</resource>
+		<resource name="settings_qualitysettings">Kalite seçenekleri</resource>
+		<resource name="settings_reducecolors">Renk sayısını en fazla 256'ya düşürün</resource>
+		<resource name="settings_registerhotkeys">Kısayol tuşlarını etkinleştir</resource>
 		<resource name="settings_showflashlight">Flaş etkisi</resource>
-		<resource name="settings_shownotify">Bildirileri göster</resource>
+		<resource name="settings_shownotify">Bildirimleri göster</resource>
+        <resource name="settings_zoom">Büyüteçi göster</resource>
 		<resource name="settings_storagelocation">Kayıt yeri</resource>
 		<resource name="settings_title">Ayarlar</resource>
-		<resource name="settings_tooltip_filenamepattern">Ekran görüntüleri kaydedilirken dosya adının üretileceği biçim</resource>
-		<resource name="settings_tooltip_language">Greenshot kullanıcı arayüzü dili (değiştirince yeniden başlatmalısınız)</resource>
-		<resource name="settings_tooltip_primaryimageformat">Varsayılan resim biçimi</resource>
-		<resource name="settings_tooltip_registerhotkeys">Programın başlatılmasından sonlandırılmasına kadar olan zamanda, Print, Ctrl + Print, Alt + Print kısayol tuşlarının genel kullanıma mı Greenshot kullanımına mı ayrılacağını belirler.</resource>
-		<resource name="settings_tooltip_storagelocation">Ekran görüntülerinin saklanacağı varsayılan yer. Masaüstünü kullanmak için boş bırakın</resource>
-		<resource name="settings_usedefaultproxy">Standart sistem proxy'sini kullan</resource>
+		<resource name="settings_tooltip_filenamepattern">Görüntüleri kaydederken dosya adlarını belirleyen kalıp</resource>
+		<resource name="settings_tooltip_language">Greenshot kullanıcı arayüzü dili</resource>
+		<resource name="settings_tooltip_primaryimageformat">Varsayılan görüntü biçimi</resource>
+		<resource name="settings_tooltip_registerhotkeys">Greenshot'ın başlangıçta Prnt, Ctrl + Print, Alt + Prnt kısayollarını sistem genelinde kullanıp kullanmayacağını ve program kapanana kadar aktif kalıp kalmayacağını belirler.</resource>
+		<resource name="settings_tooltip_storagelocation">Ekran görüntülerinin varsayılan olarak kaydedileceği konum. (Masaüstünü kullanmak için boş bırakın)</resource>
+		<resource name="settings_usedefaultproxy">Varsayılan sistem proxy'sini kullan</resource>
 		<resource name="settings_visualization">Efektler</resource>
-		<resource name="settings_waittime">Kaydedilmeden önce beklenecek milisaniye</resource>
+		<resource name="settings_waittime">Yakalamadan önce beklenecek milisaniye</resource>
 		<resource name="settings_window_capture_mode">Pencere yakalama modu</resource>
 		<resource name="settings_windowscapture">Pencere yakalama</resource>
-		<resource name="tooltip_firststart">Buraya sağ tıklayın veya yazdır tuşuna basın.</resource>
-		<resource name="update_found">Greenshot'ın daha yeni bir versiyonu mevcut! Greenshot {0} indirmek ister misiniz?</resource>
-		<resource name="wait_ie_capture">Internet Explorer'daki sayfa yakalanırken lütfen bekleyin...</resource>
+		<resource name="tooltip_firststart">Buraya sağ tıklayın veya {0} tuşuna basın.</resource>
+		<resource name="update_found">Greenshot'ın daha yeni bir versiyonu mevcut! Greenshot {0} sürümünü indirmek ister misiniz?</resource>
 		<resource name="warning">Dikkat</resource>
-		<resource name="warning_hotkeys">Bir veya bir kaç kısayol tuşu kaydedilemedi. Bu nedenle Greenshot kısayollarını kullanamayabilirsiniz. 
-Bu sorun muhtemelen aynı kısa yolları kullanan başka bir programın çalışmasından kaynaklanıyor
-Kısayolları kullanmak için söz konusu yazılımı kapatın. Kısayollar yerine tüm Greenshot özelliklerini sistem tepsisi simgesine sağ tıklayarak da kullanabilirsiniz.</resource>
+		<resource name="warning_hotkeys">"{0}" kısayolu kaydedilemedi. Bu sorunun nedeni muhtemelen başka bir aracın{1} aynı kısayolları kullanıyor olması. Kısayol ayarlarınızı değiştirebilir veya ilgili kısayolları kullanan yazılımı devre dışı bırakabilir/değiştirebilirsiniz.
+
+Greenshot özellikleri, kısayol tuşları olmadan sistem tepsisi menüsünden kullanılabilir.</resource>
 		<resource name="WindowCaptureMode.Aero">Özel renk kullan</resource>
 		<resource name="WindowCaptureMode.AeroTransparent">Saydamlığı koru</resource>
 		<resource name="WindowCaptureMode.Auto">Otomatik</resource>
 		<resource name="WindowCaptureMode.GDI">Standart renk kullan</resource>
 		<resource name="WindowCaptureMode.Screen">Göründüğü gibi</resource>
-	</resources>
+                
+    <!-- 1.2 -->
+    <resource name="editor_dropshadow_darkness">Koyuluk</resource>
+    <resource name="editor_dropshadow_offset">Kaydırma</resource>
+    <resource name="editor_dropshadow_settings">Gölge ayarları</resource>
+    <resource name="editor_dropshadow_thickness">Gölge kalınlığı</resource>
+
+    <resource name="editor_tornedge_horizontaltoothrange">Yatay eksende yırtık yoğunluğu</resource>
+    <resource name="editor_tornedge_settings">Yırtık kenar ayarları</resource>
+    <resource name="editor_tornedge_toothsize">Yırtıkların boyutu</resource>
+    <resource name="editor_tornedge_verticaltoothrange">Dikey eksende yırtık yoğunluğu</resource>
+    <resource name="editor_tornedge_all">Bütün kenarlara uygula</resource>
+    <resource name="editor_tornedge_left">Sol tarafa</resource>
+    <resource name="editor_tornedge_right">Sağ tarafa</resource>
+    <resource name="editor_tornedge_top">Üst tarafa</resource>
+    <resource name="editor_tornedge_bottom">Alt tarafa</resource>
+    <resource name="editor_tornedge_shadow">Gölge oluştur</resource>
+    
+    <resource name="editor_counter">Rakam ekle (I)</resource>
+    <resource name="editor_speechbubble">Konuşma balonu ekle (S)</resource>
+
+    <resource name="editor_resize">Yeniden Boyutlandır (Z)</resource>
+    <resource name="editor_resize_settings">Yeniden boyutlandırma ayarları</resource>
+    <resource name="editor_resize_aspectratio">En boy oranını koru</resource>
+    <resource name="editor_resize_width">Genişlik</resource>
+    <resource name="editor_resize_height">Yükseklik</resource>
+	<resource name="settings_iconsize">Simge boyutu</resource>
+                
+  </resources>
 </language>

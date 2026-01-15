@@ -5,7 +5,7 @@
 		<resource name="about_donations">Якщо Вам подобається Greenshot, можете підтримати нас:</resource>
 		<resource name="about_host">Greenshot розташовується на GitHub</resource>
 		<resource name="about_icons">Набір піктограм Fugue від Yusuke Kamiyamane (ліцензія Creative Commons Attribution 3.0)</resource>
-		<resource name="about_license">Авторство © 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+		<resource name="about_license">Авторство © 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
 Greenshot постачається АБСОЛЮТНО БЕЗ ГАРАНТІЇ. Це вільне програмне забезпечення, Ви можете розповсюджувати його за певних умов.
 Подробиці Загальної Публічної Ліцензії GNU:</resource>
 		<resource name="about_title">Про Greenshot</resource>
@@ -49,8 +49,6 @@ Greenshot постачається АБСОЛЮТНО БЕЗ ГАРАНТІЇ. �
 		<resource name="contextmenu_capturefullscreen_left">зліва</resource>
 		<resource name="contextmenu_capturefullscreen_right">справа</resource>
 		<resource name="contextmenu_capturefullscreen_top">згори</resource>
-		<resource name="contextmenu_captureie">Захопити Internet Explorer</resource>
-		<resource name="contextmenu_captureiefromlist">Захопити Internet Explorer зі списку</resource>
 		<resource name="contextmenu_capturelastregion">Захопити останню область</resource>
 		<resource name="contextmenu_capturewindow">Захопити вікно</resource>
 		<resource name="contextmenu_capturewindowfromlist">Захопити вікно зі списку</resource>
@@ -223,7 +221,6 @@ Greenshot постачається АБСОЛЮТНО БЕЗ ГАРАНТІЇ. �
 		<resource name="settings_editor">Редактор</resource>
 		<resource name="settings_filenamepattern">Шаблон назви файла</resource>
 		<resource name="settings_general">Загальні</resource>
-		<resource name="settings_iecapture">Захоплення Internet Explorer</resource>
 		<resource name="settings_jpegquality">Якість JPEG</resource>
 		<resource name="settings_language">Мова</resource>
 		<resource name="settings_message_filenamepattern">Наступні заповнювачі будуть автоматично замінені у визначеному шаблоні:
@@ -275,7 +272,6 @@ ${hostname} назва комп’ютера
 		<resource name="settings_windowscapture">Захоплення вікна</resource>
 		<resource name="tooltip_firststart">Притиск правою кнопкою миші або натиснути клавішу {0}.</resource>
 		<resource name="update_found">Доступна новіша версія Greenshot! Чи хочете Ви завантажити Greenshot {0}?</resource>
-		<resource name="wait_ie_capture">Будь ласка, зачекайте поки захоплюється сторінка в Internet Explorer...</resource>
 		<resource name="warning">Попередження</resource>
 		<resource name="warning_hotkeys">Неможливо зареєструвати гарячі клавіші „{0}“. Можливо, вони вже використовуються іншою програмою {1}! Ви можете змінити гарячі клавіші або вимкнути/змінити програму, що використовує такі ж комбінації клавіш.
 
@@ -306,7 +302,7 @@ ${hostname} назва комп’ютера
     <resource name="editor_counter">Додати лічильник (Ш)</resource>
     <resource name="editor_speechbubble">Додати словесну бульбашку (І)</resource>
 
-    <resource name="editor_resize">Змінити розмір</resource>
+    <resource name="editor_resize">Змінити розмір (Z)</resource>
     <resource name="editor_resize_settings">Параметри зміни розміру</resource>
     <resource name="editor_resize_aspectratio">Зберігати пропорції</resource>
     <resource name="editor_resize_width">Ширина</resource>

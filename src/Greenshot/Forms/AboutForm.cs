@@ -1,6 +1,6 @@
 /*
 * Greenshot - a free and open source screenshot tool
-* Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+* Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
 *
 * For more information see: https://getgreenshot.org/
 * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -153,7 +153,7 @@ namespace Greenshot.Forms
             _bitmap = ImageHelper.CreateEmpty(90, 90, PixelFormat.Format24bppRgb, BackColor, 96, 96);
             pictureBox1.Image = _bitmap;
 
-            lblTitle.Text = $@"Greenshot {EnvironmentInfo.GetGreenshotVersion()} {(IniConfig.IsPortable ? " Portable" : "")} ({OsInfo.Bits}) bit)";
+            lblTitle.Text = $@"Greenshot {EnvironmentInfo.GetGreenshotVersion()} {(IniConfig.IsPortable ? " Portable" : "")} ({OsInfo.Bits} bit)";
 
             // Number of frames the pixel animation takes
             int frames = FramesForMillis(2000);

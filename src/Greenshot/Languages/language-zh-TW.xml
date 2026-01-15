@@ -5,7 +5,7 @@
 		<resource name="about_donations">如果您喜歡 Greenshot，歡迎您支持我們:</resource>
 		<resource name="about_host">Greenshot 的主機在 GitHub 網址是</resource>
 		<resource name="about_icons">圖片來源: Yusuke Kamiyamane's Fugue 圖示集 (Creative Commons Attribution 3.0 授權)</resource>
-		<resource name="about_license">Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+		<resource name="about_license">Copyright © 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
 Greenshot 不對這個程式做任何擔保。這個程式是自由軟體，您可以在 GNU General Public License 下任意散佈本軟體。
 關於 GNU General Public License 詳細資料:</resource>
 		<resource name="about_title">關於 Greenshot</resource>
@@ -50,8 +50,6 @@ Greenshot 不對這個程式做任何擔保。這個程式是自由軟體，您�
 		<resource name="contextmenu_capturefullscreen_left">左</resource>
 		<resource name="contextmenu_capturefullscreen_right">右</resource>
 		<resource name="contextmenu_capturefullscreen_top">上</resource>
-		<resource name="contextmenu_captureie">擷取 Internet Explorer</resource>
-		<resource name="contextmenu_captureiefromlist">從清單擷取 Internet Explorer</resource>
 		<resource name="contextmenu_capturelastregion">擷取上次區域</resource>
 		<resource name="contextmenu_capturewindow">擷取視窗</resource>
 		<resource name="contextmenu_capturewindowfromlist">從清單擷取視窗</resource>
@@ -224,7 +222,6 @@ Greenshot 不對這個程式做任何擔保。這個程式是自由軟體，您�
 		<resource name="settings_editor">編輯器</resource>
 		<resource name="settings_filenamepattern">檔案名稱樣式</resource>
 		<resource name="settings_general">一般</resource>
-		<resource name="settings_iecapture">Internet Explorer 擷取</resource>
 		<resource name="settings_jpegquality">JPEG 品質</resource>
 		<resource name="settings_language">語言</resource>
 		<resource name="settings_message_filenamepattern">在樣式定義中以下預留位置將自動取代：
@@ -276,7 +273,6 @@ ${hostname}   電腦名稱
 		<resource name="settings_zoom">顯示放大鏡</resource>
 		<resource name="tooltip_firststart">右鍵按一下這裡或是按下 {0} 鍵。</resource>
 		<resource name="update_found">Greenshot 的新版本可以使用! 您要下載 Greenshot {0} 嗎？</resource>
-		<resource name="wait_ie_capture">擷取 Internet Explorer 中頁面時請稍候...</resource>
 		<resource name="warning">警告</resource>
 		<resource name="warning_hotkeys">無法註冊熱鍵「{0}」。 這個問題可能是另一個工具要求使用相同的熱鍵。 您可以變更熱鍵設定或停用/變更軟體使用熱鍵。
 
@@ -307,7 +303,7 @@ Greenshot 所有功能仍然可以直接從通知區圖示的內容功能表動�
         <resource name="editor_counter">加入計數器 (I)</resource>
         <resource name="editor_speechbubble">加入對話框 (S)</resource>
 
-        <resource name="editor_resize">縮放</resource>
+        <resource name="editor_resize">縮放 (Z)</resource>
         <resource name="editor_resize_settings">縮放設定</resource>
         <resource name="editor_resize_aspectratio">維持長寬比</resource>
         <resource name="editor_resize_width">長度</resource>

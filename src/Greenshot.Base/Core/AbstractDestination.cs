@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -22,7 +22,6 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Threading;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
@@ -184,6 +183,8 @@ namespace Greenshot.Base.Core
                 TopLevel = true
             };
 
+            menu.SetupAutoDispose();
+
             menu.Opening += (sender, args) =>
             {
                 // find the DPI settings for the screen where this is going to land
@@ -332,21 +333,6 @@ namespace Greenshot.Base.Core
             User32Api.SetForegroundWindow(SimpleServiceProvider.Current.GetInstance<NotifyIcon>().ContextMenuStrip.Handle);
             menu.Show(location);
             menu.Focus();
-
-            // Wait for the menu to close, so we can dispose it.
-            while (true)
-            {
-                if (menu.Visible)
-                {
-                    Application.DoEvents();
-                    Thread.Sleep(100);
-                }
-                else
-                {
-                    menu.Dispose();
-                    break;
-                }
-            }
         }
 
         /// <summary>
