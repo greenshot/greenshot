@@ -43,7 +43,6 @@ namespace Greenshot.Helpers
         private static readonly ILog Log = LogManager.GetLogger(typeof(PluginHelper));
         private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
 
-        private static readonly string PluginPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), Application.ProductName);
         private static readonly string ApplicationPath = Path.GetDirectoryName(Application.ExecutablePath);
         private static readonly string PafPath = Path.Combine(Application.StartupPath, @"App\Greenshot");
 
@@ -208,7 +207,6 @@ namespace Greenshot.Helpers
             }
             else
             {
-                pluginFiles.AddRange(FindPluginsOnPath(PluginPath));
                 pluginFiles.AddRange(FindPluginsOnPath(ApplicationPath));
             }
 
