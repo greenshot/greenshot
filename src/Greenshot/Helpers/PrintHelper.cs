@@ -198,7 +198,7 @@ namespace Greenshot.Helpers
                 string footerString = null; //DateTime.Now.ToLongDateString() + " " + DateTime.Now.ToLongTimeString();
                 if (CoreConfig.OutputPrintFooter)
                 {
-                    footerString = FilenameHelper.FillPattern(CoreConfig.OutputPrintFooterPattern, _captureDetails, false);
+                    footerString = FilenameHelper.FillPattern(CoreConfig.OutputPrintFooterPattern, _captureDetails, false, DateCultureMode.UILanguage);
                     using Font f = new Font(FontFamily.GenericSansSerif, 10, FontStyle.Regular);
                     footerStringWidth = e.Graphics.MeasureString(footerString, f).Width;
                     footerStringHeight = e.Graphics.MeasureString(footerString, f).Height;
