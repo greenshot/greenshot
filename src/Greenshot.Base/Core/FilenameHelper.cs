@@ -104,12 +104,22 @@ namespace Greenshot.Base.Core
             return path;
         }
 
-        public static string GetFilenameWithoutExtensionFromPattern(string pattern, ICaptureDetails captureDetails = null)
+        public static string GetFilenameWithoutExtensionFromPattern(string pattern)
+        {
+            return GetFilenameWithoutExtensionFromPattern(pattern, null);
+        }
+
+        public static string GetFilenameWithoutExtensionFromPattern(string pattern, ICaptureDetails captureDetails)
         {
             return FillPattern(pattern, captureDetails, true);
         }
 
-        public static string GetFilenameFromPattern(string pattern, OutputFormat imageFormat, ICaptureDetails captureDetails = null)
+        public static string GetFilenameFromPattern(string pattern, OutputFormat imageFormat)
+        {
+            return GetFilenameFromPattern(pattern, imageFormat, null);
+        }
+
+        public static string GetFilenameFromPattern(string pattern, OutputFormat imageFormat, ICaptureDetails captureDetails)
         {
             return FillPattern(pattern, captureDetails, true) + "." + imageFormat.ToString().ToLower();
         }
