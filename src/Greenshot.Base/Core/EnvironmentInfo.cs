@@ -30,6 +30,8 @@ using Dapplo.Windows.User32;
 using Dapplo.Windows.Common.Extensions;
 using Greenshot.Base.IniFile;
 using Microsoft.Win32;
+using Greenshot.Base.Interfaces.Plugin;
+using System.Linq;
 
 namespace Greenshot.Base.Core
 {
@@ -203,6 +205,18 @@ namespace Greenshot.Base.Core
             }
             // TODO: Is this needed?
             // environment.AppendFormat("Surface count: {0}", Surface.Count);
+
+            environment.Append("Plugin list: ");
+            environment.Append(string.Join(",", SimpleServiceProvider.Current.GetAllInstances<IGreenshotPlugin>().Select(plugin => plugin.Name)));
+
+            if (newline)
+            {
+                environment.AppendLine();
+            }
+            else
+            {
+                environment.Append(", ");
+            }
 
             return environment.ToString();
         }
