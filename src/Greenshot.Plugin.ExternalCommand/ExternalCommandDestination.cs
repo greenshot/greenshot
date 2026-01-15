@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -27,6 +27,7 @@ using System.Drawing;
 using System.Text.RegularExpressions;
 using System.Threading;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.Enums;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
@@ -66,41 +67,63 @@ namespace Greenshot.Plugin.ExternalCommand
         public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
         {
             ExportInformation exportInformation = new ExportInformation(Designation, Description);
-            SurfaceOutputSettings outputSettings = new SurfaceOutputSettings();
-            outputSettings.PreventGreenshotFormat();
 
-            if (_presetCommand != null)
+            if (_presetCommand is null)
             {
-                if (!config.RunInbackground.ContainsKey(_presetCommand))
-                {
-                    config.RunInbackground.Add(_presetCommand, true);
-                }
+                exportInformation.ExportMade = false;
+                exportInformation.ErrorMessage = "No external commandconfigured";
+                LOG.Warn(exportInformation.ErrorMessage);
+                return exportInformation;
+            }
 
-                bool runInBackground = config.RunInbackground[_presetCommand];
-                string fullPath = captureDetails.Filename ?? ImageIO.SaveNamedTmpFile(surface, captureDetails, outputSettings);
+            // check if the command is still configured
+            if (!config.Commands.Contains(_presetCommand))
+            {
+                exportInformation.ExportMade = false;
+                exportInformation.ErrorMessage = $"Unknown external command '{_presetCommand}'";
+                LOG.WarnFormat("Error calling external command: {0} ", exportInformation.ErrorMessage);
+                return exportInformation;
+            }
 
-                string output;
-                string error;
-                if (runInBackground)
-                {
-                    Thread commandThread = new Thread(delegate()
-                    {
-                        CallExternalCommand(exportInformation, fullPath, out output, out error);
-                        ProcessExport(exportInformation, surface);
-                    })
-                    {
-                        Name = "Running " + _presetCommand,
-                        IsBackground = true
-                    };
-                    commandThread.SetApartmentState(ApartmentState.STA);
-                    commandThread.Start();
-                    exportInformation.ExportMade = true;
-                }
-                else
+            // fallback to PNG if configuration is corrupted
+            if (!config.OutputFormat.ContainsKey(_presetCommand))
+            {
+                config.OutputFormat.Add(_presetCommand,OutputFormat.png);
+                IniConfig.Save();
+            }
+
+            if (!config.RunInbackground.ContainsKey(_presetCommand))
+            {
+                config.RunInbackground.Add(_presetCommand, true);
+                IniConfig.Save();
+            }
+
+            SurfaceOutputSettings outputSettings = new SurfaceOutputSettings();
+            outputSettings.Format = config.OutputFormat[_presetCommand];
+            bool runInBackground = config.RunInbackground[_presetCommand];
+            string fullPath = captureDetails.Filename ?? ImageIO.SaveNamedTmpFile(surface, captureDetails, outputSettings);
+
+            string output;
+            string error;
+            if (runInBackground)
+            {
+                Thread commandThread = new Thread(delegate ()
                 {
                     CallExternalCommand(exportInformation, fullPath, out output, out error);
                     ProcessExport(exportInformation, surface);
-                }
+                })
+                {
+                    Name = "Running " + _presetCommand,
+                    IsBackground = true
+                };
+                commandThread.SetApartmentState(ApartmentState.STA);
+                commandThread.Start();
+                exportInformation.ExportMade = true;
+            }
+            else
+            {
+                CallExternalCommand(exportInformation, fullPath, out output, out error);
+                ProcessExport(exportInformation, surface);
             }
 
             return exportInformation;
@@ -266,7 +289,27 @@ namespace Greenshot.Plugin.ExternalCommand
 
         public static string FormatArguments(string arguments, string fullpath)
         {
-            return string.Format(arguments, fullpath);
+            // Validate filename doesn't contain shell metacharacters
+            char[] dangerousChars = { '&', '|', ';', '$', '`', '(', ')', '<', '>', '\n', '\r', '"', '\'' };
+
+            if (fullpath.IndexOfAny(dangerousChars) >= 0)
+            {
+                throw new ArgumentException(
+                    "Filename contains potentially dangerous characters. " +
+                    "For security reasons, filenames with shell metacharacters are not allowed."
+                );
+            }
+
+            // Validate arguments template doesn't use shell interpreters
+            if (arguments.Contains("cmd.exe") || arguments.Contains("powershell"))
+            {
+                LOG.Warn("ExternalCommand configured with shell interpreter - potential security risk");
+            }
+
+            // Additional: Ensure proper quoting
+            string safePath = fullpath.Replace("\"", "\\\"");
+
+            return string.Format(arguments, safePath);
         }
     }
 }

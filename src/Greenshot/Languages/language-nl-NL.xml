@@ -5,7 +5,7 @@
 		<resource name="about_donations">Als Greenshot u bevalt, wilt u ons wellicht ondersteunen:</resource>
 		<resource name="about_host">Greenshot wordt uitgegeven door sourceforge.net op</resource>
 		<resource name="about_icons">Iconen afkomstig van Yusuke Kamiyamane's Fugue (Creative Commons Attribution 3.0 license)</resource>
-		<resource name="about_license">Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+		<resource name="about_license">Copyright © 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
 Greenshot komt zonder enige garantie! Dit is gratis software en het staat u vrij het onder bepaalde voorwaarden te verspreiden.
 Details over de GNU General Public License:</resource>
 		<resource name="about_title">Over Greenshot</resource>
@@ -50,8 +50,6 @@ Controleer ook even of dit probleem mogelijk al gemeld is! Gebruik de zoekfuncti
 		<resource name="contextmenu_capturefullscreen_left">links</resource>
 		<resource name="contextmenu_capturefullscreen_right">rechts</resource>
 		<resource name="contextmenu_capturefullscreen_top">boven</resource>
-		<resource name="contextmenu_captureie">Internet Explorer vensteropname</resource>
-		<resource name="contextmenu_captureiefromlist">Internet Explorer vensteropname uit lijst</resource>
 		<resource name="contextmenu_capturelastregion">Laatste schermopname herhalen</resource>
 		<resource name="contextmenu_capturewindow">Actief vensteropname</resource>
 		<resource name="contextmenu_capturewindowfromlist">Vensteropname uit lijst</resource>
@@ -86,6 +84,7 @@ Controleer ook even of dit probleem mogelijk al gemeld is! Gebruik de zoekfuncti
 		<resource name="editor_cancel">Afbreken</resource>
 		<resource name="editor_clipboardfailed">Fout bij de toegang tot het klembord. Probeer het opnieuw.</resource>
 		<resource name="editor_close">Sluiten</resource>
+		<resource name="editor_close_all">Alles sluiten</resource>
 		<resource name="editor_close_on_save">Wilt u de schermopname opslaan?</resource>
 		<resource name="editor_close_on_save_title">Afbeelding opslaan?</resource>
 		<resource name="editor_confirm">Bevestigen</resource>
@@ -224,7 +223,6 @@ Controleer de toegangsrechten voor de betreffende locatie.</resource>
 		<resource name="settings_editor">Beeldbewerker</resource>
 		<resource name="settings_filenamepattern">Bestandsnaam</resource>
 		<resource name="settings_general">Algemeen</resource>
-		<resource name="settings_iecapture">Internet Explorer vensteropname</resource>
 		<resource name="settings_jpegquality">JPEG-kwaliteit</resource>
 		<resource name="settings_language">Taal</resource>
 		<resource name="settings_message_filenamepattern">De volgende variabelen worden automatisch vervangen in het gedefinieerde patroon:
@@ -276,7 +274,6 @@ genereert een map voor de huidige dag in uw standaard opslaglocatie, b.v. 2008-0
 		<resource name="settings_windowscapture">Actief vensteropname</resource>
 		<resource name="tooltip_firststart">Klik hier met de rechtermuisknop of druk op de {0} knop.</resource>
 		<resource name="update_found">Een nieuwe versie van Greenshot is beschikbaar! Wilt u Greenshot {0} downloaden?</resource>
-		<resource name="wait_ie_capture">Wacht terwijl de Internet Explorer pagina wordt vastgelegd…</resource>
 		<resource name="warning">Waarschuwing</resource>
 		<resource name="warning_hotkeys">De sneltoets "{0}" kan niet worden aangemeld. Dit probleem komt waarschijnlijk omdat een ander programma {1} deze al gebruikt! U kunt de sneltoetsinstellingen van Greenshot aanpassen of het andere programma stoppen/aanpassen.
 
@@ -307,7 +304,7 @@ Alle Greenshot functies werken ook zonder sneltoetsen via het context menu.</res
 		<resource name="editor_counter">Teller toevoegen (I)</resource>
 		<resource name="editor_speechbubble">Tekstballon toevoegen (S)</resource>
 
-		<resource name="editor_resize">Grootte</resource>
+		<resource name="editor_resize">Grootte (Z)</resource>
 		<resource name="editor_resize_settings">Vergrotingsinstellingen</resource>
 		<resource name="editor_resize_aspectratio">Verhouding behouden</resource>
 		<resource name="editor_resize_width">Breedte</resource>

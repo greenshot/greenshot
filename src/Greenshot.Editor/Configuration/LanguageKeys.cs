@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -32,7 +32,6 @@ namespace Greenshot.Editor.Configuration
         contextmenu_capturefullscreen_top,
         contextmenu_capturefullscreen_right,
         contextmenu_capturefullscreen_bottom,
-        contextmenu_captureie,
         editor_align_bottom,
         editor_align_left,
         editor_align_right,
@@ -86,7 +85,6 @@ namespace Greenshot.Editor.Configuration
         tooltip_firststart,
         warning,
         warning_hotkeys,
-        wait_ie_capture,
         update_found
     }
 }

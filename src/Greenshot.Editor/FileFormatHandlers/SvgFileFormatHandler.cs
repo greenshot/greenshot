@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -71,18 +71,18 @@ namespace Greenshot.Editor.FileFormatHandlers
 
         public override IEnumerable<IDrawableContainer> LoadDrawablesFromStream(Stream stream, string extension, ISurface parent = null)
         {
-            SvgDocument svgDocument = null;
+            SvgContainer svgContainer = null;
             try
             {
-                svgDocument = SvgDocument.Open<SvgDocument>(stream);
+                svgContainer = new SvgContainer(stream, parent);
             }
             catch (Exception ex)
             {
                 Log.Error("Can't load SVG", ex);
             }
-            if (svgDocument != null)
+            if (svgContainer != null)
             {
-                yield return new SvgContainer(svgDocument, parent);
+                yield return svgContainer;
             }
         }
     }

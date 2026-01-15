@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -28,6 +28,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.ServiceModel.Security;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
@@ -40,6 +41,7 @@ using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Drawing.Adorners;
 using Greenshot.Editor.Configuration;
 using Greenshot.Editor.Drawing.Fields;
+using Greenshot.Editor.Helpers;
 using Greenshot.Editor.Memento;
 using log4net;
 
@@ -730,6 +732,7 @@ namespace Greenshot.Editor.Drawing
             try
             {
                 BinaryFormatter binaryRead = new BinaryFormatter();
+                binaryRead.Binder = new BinaryFormatterHelper();
                 IDrawableContainerList loadedElements = (IDrawableContainerList) binaryRead.Deserialize(streamRead);
                 loadedElements.Parent = this;
                 // Make sure the steplabels are sorted according to their number
@@ -738,6 +741,10 @@ namespace Greenshot.Editor.Drawing
                 AddElements(loadedElements);
                 SelectElements(loadedElements);
                 FieldAggregator.BindElements(loadedElements);
+            }
+            catch (SecurityAccessDeniedException)
+            {
+                throw;
             }
             catch (Exception e)
             {
@@ -1792,12 +1799,16 @@ namespace Greenshot.Editor.Drawing
                 int verticalCorrection = targetClipRectangle.Top % (int) _zoomFactor.Numerator;
                 if (horizontalCorrection != 0)
                 {
-                    targetClipRectangle = targetClipRectangle.ChangeX(-horizontalCorrection).ChangeWidth(horizontalCorrection);
+                    targetClipRectangle = targetClipRectangle
+                        .ChangeX(targetClipRectangle.X - horizontalCorrection)
+                        .ChangeWidth(targetClipRectangle.X + horizontalCorrection);
                 }
 
                 if (verticalCorrection != 0)
                 {
-                    targetClipRectangle = targetClipRectangle.ChangeY(-verticalCorrection).ChangeHeight(verticalCorrection);
+                    targetClipRectangle = targetClipRectangle
+                        .ChangeY(targetClipRectangle.Y - verticalCorrection)
+                        .ChangeHeight(targetClipRectangle.Y + verticalCorrection);
                 }
             }
 
@@ -2629,31 +2640,31 @@ namespace Greenshot.Editor.Drawing
         // for laptops without numPads, also allow shift modifier
         private void SetSelectedElementColor(Color color, bool numPad, bool shift)
         {
-	        if (numPad || shift)
-	        {
-		        selectedElements.SetForegroundColor(color);
-				UpdateForegroundColorEvent(this, color);
-	        }
-	        else
-	        {
-		        selectedElements.SetBackgroundColor(color);
-				UpdateBackgroundColorEvent(this, color);
-	        }
-	        selectedElements.Invalidate();
+            if (numPad || shift)
+            {
+                selectedElements.SetForegroundColor(color);
+                UpdateForegroundColorEvent(this, color);
+            }
+            else
+            {
+                selectedElements.SetBackgroundColor(color);
+                UpdateBackgroundColorEvent(this, color);
+            }
+            selectedElements.Invalidate();
         }
 
         private void ChangeLineThickness(int increaseBy)
         {
-		    var newThickness = selectedElements.IncreaseLineThickness(increaseBy);
-		    UpdateLineThicknessEvent(this, newThickness);
-	        selectedElements.Invalidate();
+            var newThickness = selectedElements.IncreaseLineThickness(increaseBy);
+            UpdateLineThicknessEvent(this, newThickness);
+            selectedElements.Invalidate();
         }
 
         private void FlipShadow()
         {
-		    var shadow = selectedElements.FlipShadow();
-		    UpdateShadowEvent(this, shadow);
-	        selectedElements.Invalidate();
+            var shadow = selectedElements.FlipShadow();
+            UpdateShadowEvent(this, shadow);
+            selectedElements.Invalidate();
         }
 
         /// <summary>
