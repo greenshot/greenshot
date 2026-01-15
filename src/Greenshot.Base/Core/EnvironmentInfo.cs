@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -517,8 +517,12 @@ namespace Greenshot.Base.Core
 
                                     break;
                                 case 10:
-                                    string releaseId = Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion", "ReleaseId", "").ToString();
-                                    name = $"Windows 10 {releaseId}";
+                                    if (osVersion.Version.Build < 22000)
+                                    {
+                                        name = "Windows 10";
+                                    } else {
+                                        name = "Windows 11";
+                                    }
                                     break;
                             }
 

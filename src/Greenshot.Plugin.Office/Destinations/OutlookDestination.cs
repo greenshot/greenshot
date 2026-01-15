@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -25,6 +25,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.Enums;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
@@ -210,7 +211,7 @@ namespace Greenshot.Plugin.Office.Destinations
                 else
                 {
                     exportInformation.ExportMade = _outlookEmailExporter.ExportToOutlook(OfficeConfig.OutlookEmailFormat, tmpFile,
-                        FilenameHelper.FillPattern(OfficeConfig.EmailSubjectPattern, captureDetails, false), attachmentName, OfficeConfig.EmailTo, OfficeConfig.EmailCC,
+                        FilenameHelper.FillPattern(OfficeConfig.EmailSubjectPattern, captureDetails, false, DateCultureMode.UILanguage), attachmentName, OfficeConfig.EmailTo, OfficeConfig.EmailCC,
                         OfficeConfig.EmailBCC, null);
                 }
             }

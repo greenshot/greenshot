@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2020 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -87,9 +87,9 @@ namespace Greenshot.Base.Core.OAuth
 
             // gives as described here: https://developers.google.com/identity/protocols/OAuth2InstalledApp
             //  "access_token":"1/fFAGRNJru1FTz70BzhT3Zg",
-            //	"expires_in":3920,
-            //	"token_type":"Bearer",
-            //	"refresh_token":"1/xEoDL4iW3cxlI7yDbSRFYNG01kVKM2C-259HOF2aQbI"
+            //  "expires_in":3920,
+            //  "token_type":"Bearer",
+            //  "refresh_token":"1/xEoDL4iW3cxlI7yDbSRFYNG01kVKM2C-259HOF2aQbI"
             if (refreshTokenResult.ContainsKey(AccessToken))
             {
                 settings.AccessToken = (string) refreshTokenResult[AccessToken];
@@ -181,8 +181,8 @@ namespace Greenshot.Base.Core.OAuth
 
             // gives as described here: https://developers.google.com/identity/protocols/OAuth2InstalledApp
             //  "access_token":"1/fFAGRNJru1FTz70BzhT3Zg",
-            //	"expires_in":3920,
-            //	"token_type":"Bearer",
+            //  "expires_in":3920,
+            //  "token_type":"Bearer",
 
             IDictionary<string, object> accessTokenResult = JSONHelper.JsonDecode(accessTokenJsonResult);
             if (accessTokenResult.ContainsKey("error"))
