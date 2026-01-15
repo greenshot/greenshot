@@ -52,8 +52,8 @@ IDE System Requirements:
 ------------------------
 
 * Windows OS environment
-* Greenshot is build using (as of this writing) .net Framework 4.7.2. This means any version between .net Framework 4.7.2-4.8.1 will suffice. 
-* Visual Studio 2017 or newer
+* Greenshot is build using (as of this writing) .net Framework 4.8.0 This means any version between .net Framework 4.8.0-4.8.1 will suffice. 
+* Visual Studio 2022 or newer
 
 Build Instructions:
 -------------------
