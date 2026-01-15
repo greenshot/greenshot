@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -54,5 +54,19 @@ namespace Greenshot.Base.Interfaces
         /// <typeparam name="TService">Type of the service</typeparam>
         /// <param name="services">IEnumerable{TService} with services to add</param>
         void AddService<TService>(IEnumerable<TService> services);
+
+        /// <summary>
+        /// Remove one or more services from the registry
+        /// </summary>
+        /// <typeparam name="TService">Type of the service</typeparam>
+        /// <param name="services">One or more services which need to be removed</param>
+        void RemoveService<TService>(params TService[] services);
+
+        /// <summary>
+        /// Remove multiple services from the registry
+        /// </summary>
+        /// <typeparam name="TService">Type of the service</typeparam>
+        /// <param name="services">IEnumerable{TService} with services to remove</param>
+        void RemoveService<TService>(IEnumerable<TService> services);
     }
 }

@@ -2,7 +2,7 @@
 <language description="English" ietf="en-US" version="1.0.0">
 	<resources>
 	 <resource name="label_HiddenFromSearch">
-			Hidden form search
+			Hidden from search
 		</resource>
 		<resource name="label_SafetyLevel">
 			Safety level
