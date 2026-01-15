@@ -31,5 +31,6 @@
     <resource name="label_information">
       {0}은 이미지 파일명입니다
     </resource>
+    <resource name="label_outputimageformat">이미지 형식</resource>
   </resources>
 </language>

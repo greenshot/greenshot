@@ -11,5 +11,6 @@
 		<resource name="label_command">コマンド:</resource>
 		<resource name="label_argument">引数:</resource>
 		<resource name="label_information">{0} はスクリーンショットのファイル パスです</resource>
+		<resource name="label_outputimageformat">画像フォーマット</resource>
 	</resources>
 </language>
