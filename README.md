@@ -18,17 +18,6 @@ Being easy to understand and configurable, Greenshot is an efficient tool for pr
 
 [If you find that Greenshot saves you a lot of time and/or money, you are very welcome to support the development of this screenshot software.](https://getgreenshot.org/support/)
 
-
-About this repository
----------------------
-This is the ongoing development branch for future Greenshot releases. 
-
-Releases
---------
-
-You can find a list of all releases (stable and unstable) in the [Github releases](https://github.com/greenshot/greenshot/releases) or in the [version history on our website](https://getgreenshot.org/version-history/).
-The [downloads page on our website](https://getgreenshot.org/downloads/) always links to the latest stable release.
-
 Trademark and Logo Usage Policy
 -------------------------------
 
@@ -43,3 +32,41 @@ If you have any questions or wish to seek permission for other uses, please cont
 
 Thank you for your understanding and cooperation.
 
+
+About this repository
+---------------------
+This is the ongoing development branch for future Greenshot releases. 
+
+Releases
+--------
+
+You can find a list of all releases (stable and unstable) in the [Github releases](https://github.com/greenshot/greenshot/releases) or in the [version history on our website](https://getgreenshot.org/version-history/).
+The [downloads page on our website](https://getgreenshot.org/downloads/) always links to the latest stable release.
+
+Getting Started for Developers:
+-------------------------------
+
+These instructions are made to assist developers in getting started with Greenshot so they can contribute to the repository. Please verify system prerequisites are met before trying to build.
+
+IDE System Requirements:
+------------------------
+
+* Windows OS environment
+* Greenshot is build using (as of this writing) .net Framework 4.7.2. This means any version between .net Framework 4.7.2-4.8.1 will suffice. 
+* Visual Studio 2017 or newer
+
+Build Instructions:
+-------------------
+
+* Open Visual Studio
+* Clone GitHub Repository using Visual Studio, using the link in the green code button above. Alternatively, you can download the repository to your machine and open the solution file located in /src/Greenshot.sln.
+* Choose Build->Build Solution in Visual Studio to build binaries.
+* Verify all components are built successfully.
+* You are ready to start contributing to Greenshot.
+
+How to contribute:
+------------------
+
+* Create your own fork of the main repository
+* Make desired changes (REMEMBER: keep commits small and concise, don't try to add multiple separate changes at once)
+* Submit a pull request for review. Your request will be reviewed and either accepted, denied, or you may be asked to make revisions before your code is accepted.
