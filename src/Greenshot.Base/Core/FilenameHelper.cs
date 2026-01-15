@@ -22,6 +22,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
@@ -404,7 +405,7 @@ namespace Greenshot.Base.Core
                         replaceValue = capturetime.Second.ToString();
                         break;
                     case "now":
-                        replaceValue = DateTime.Now.ToString(dateFormat);
+                        replaceValue = DateTime.Now.ToString(dateFormat, CultureInfo.GetCultureInfo(Language.CurrentLanguage));
                         if (filenameSafeMode)
                         {
                             replaceValue = MakeFilenameSafe(replaceValue);
@@ -412,7 +413,7 @@ namespace Greenshot.Base.Core
 
                         break;
                     case "capturetime":
-                        replaceValue = capturetime.ToString(dateFormat);
+                        replaceValue = capturetime.ToString(dateFormat, CultureInfo.GetCultureInfo(Language.CurrentLanguage));
                         if (filenameSafeMode)
                         {
                             replaceValue = MakeFilenameSafe(replaceValue);
