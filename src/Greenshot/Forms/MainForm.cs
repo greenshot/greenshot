@@ -57,6 +57,7 @@ using Greenshot.Helpers;
 using Greenshot.Plugin.Win10;
 using Greenshot.Processors;
 using log4net;
+using Newtonsoft.Json;
 using Timer = System.Timers.Timer;
 
 namespace Greenshot.Forms
@@ -447,7 +448,7 @@ namespace Greenshot.Forms
             PluginHelper.Instance.LoadPlugins();
 
             // Check to see if there is already another INotificationService
-            if (SimpleServiceProvider.Current.GetInstance<INotificationService>() == null)
+            if (!SimpleServiceProvider.Current.GetAllInstances<INotificationService>().Any())
             {
                 // If not we add the internal NotifyIcon notification service
                 SimpleServiceProvider.Current.AddService<INotificationService>(new NotifyIconNotificationService());
@@ -614,8 +615,8 @@ namespace Greenshot.Forms
                         break;
                     case CommandEnum.FirstLaunch:
                         LOG.Info("FirstLaunch: Created new configuration, showing balloon.");
-                        var notifyIconClassicMessageHandler = SimpleServiceProvider.Current.GetInstance<INotificationService>();
-                        notifyIconClassicMessageHandler.ShowInfoMessage(
+                        var notifyIconClassicMessageHandler = SimpleServiceProvider.Current.GetInstance<INotificationService>(isRequired: false);
+                        notifyIconClassicMessageHandler?.ShowInfoMessage(
                             Language.GetFormattedString(LangKey.tooltip_firststart, HotkeyControl.GetLocalizedHotkeyStringFromString(_conf.RegionHotkey)), TimeSpan.FromMinutes(10),
                             ShowSetting);
                         break;
