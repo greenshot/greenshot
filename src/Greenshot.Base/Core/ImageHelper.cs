@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -1171,9 +1171,9 @@ namespace Greenshot.Base.Core
         /// <summary>
         /// Clone an image, taking some rules into account:
         /// 1) When sourceRect is the whole bitmap there is a GDI+ bug in Clone
-        ///		Clone will than return the same PixelFormat as the source
-        ///		a quick workaround is using new Bitmap which uses a default of Format32bppArgb
-        ///	2) When going from a transparent to a non transparent bitmap, we draw the background white!
+        ///    Clone will than return the same PixelFormat as the source
+        ///    a quick workaround is using new Bitmap which uses a default of Format32bppArgb
+        /// 2) When going from a transparent to a non transparent bitmap, we draw the background white!
         /// </summary>
         /// <param name="sourceImage">Source bitmap to clone</param>
         /// <param name="sourceRect">NativeRect to copy from the source, use NativeRect.Empty for all</param>

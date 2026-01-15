@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -443,66 +443,66 @@ namespace Greenshot.Editor.Drawing
 
         public void SetForegroundColor(Color color)
         {
-	        var dcs = ToArray();
-	        var field = FieldType.LINE_COLOR;
-	        foreach (var dc in dcs)
-	        {
-		        if (dc is not AbstractFieldHolderWithChildren fh) continue;
-		        if (!fh.HasField(field)) continue;
-		        
-		        fh.SetFieldValue(field, color);
-	        }
+            var dcs = ToArray();
+            var field = FieldType.LINE_COLOR;
+            foreach (var dc in dcs)
+            {
+                if (dc is not AbstractFieldHolderWithChildren fh) continue;
+                if (!fh.HasField(field)) continue;
+                
+                fh.SetFieldValue(field, color);
+            }
         }
 
         public void SetBackgroundColor(Color color)
         {
-	        var dcs = ToArray();
-	        var field = FieldType.FILL_COLOR;
-	        foreach (var dc in dcs)
-	        {
-		        if (dc is not AbstractFieldHolderWithChildren fh) continue;
-		        if (!fh.HasField(field)) continue;
+            var dcs = ToArray();
+            var field = FieldType.FILL_COLOR;
+            foreach (var dc in dcs)
+            {
+                if (dc is not AbstractFieldHolderWithChildren fh) continue;
+                if (!fh.HasField(field)) continue;
 
-		        fh.SetFieldValue(field, color);
-	        }
+                fh.SetFieldValue(field, color);
+            }
         }
 
         public int IncreaseLineThickness(int increaseBy)
         {
-	        var dcs = ToArray();
-	        var field = FieldType.LINE_THICKNESS;
-	        var lastThickness = 0;
-	        foreach (var dc in dcs)
-	        {
-		        if (dc is not AbstractFieldHolderWithChildren fh) continue;
-		        if (!fh.HasField(field)) continue;
+            var dcs = ToArray();
+            var field = FieldType.LINE_THICKNESS;
+            var lastThickness = 0;
+            foreach (var dc in dcs)
+            {
+                if (dc is not AbstractFieldHolderWithChildren fh) continue;
+                if (!fh.HasField(field)) continue;
 
-		        var currentThickness = (int)fh.GetFieldValue(field);
-		        var thickness = Math.Max(0, currentThickness + increaseBy);
-		        fh.SetFieldValue(field, thickness);
-		        lastThickness = thickness;
-	        }
+                var currentThickness = (int)fh.GetFieldValue(field);
+                var thickness = Math.Max(0, currentThickness + increaseBy);
+                fh.SetFieldValue(field, thickness);
+                lastThickness = thickness;
+            }
 
-	        return lastThickness;
+            return lastThickness;
         }
 
         public bool FlipShadow()
         {
-	        var dcs = ToArray();
-	        var field = FieldType.SHADOW;
-	        var lastShadow = false;
-	        foreach (var dc in dcs)
-	        {
-		        if (dc is not AbstractFieldHolderWithChildren fh) continue;
-		        if (!fh.HasField(field)) continue;
+            var dcs = ToArray();
+            var field = FieldType.SHADOW;
+            var lastShadow = false;
+            foreach (var dc in dcs)
+            {
+                if (dc is not AbstractFieldHolderWithChildren fh) continue;
+                if (!fh.HasField(field)) continue;
 
-		        var currentShadow = (bool)fh.GetFieldValue(field);
-		        var shadow = !currentShadow;
-		        fh.SetFieldValue(field, shadow);
-		        lastShadow = shadow;
-	        }
+                var currentShadow = (bool)fh.GetFieldValue(field);
+                var shadow = !currentShadow;
+                fh.SetFieldValue(field, shadow);
+                lastShadow = shadow;
+            }
 
-	        return lastShadow;
+            return lastShadow;
         }
 
         /// <summary>
@@ -728,22 +728,10 @@ namespace Greenshot.Editor.Drawing
             if (!hasMenu) return;
             
             ContextMenuStrip menu = new ContextMenuStrip();
+            menu.SetupAutoDispose();
             AddContextMenuItems(menu, surface, mouseEventArgs);
             if (menu.Items.Count <= 0) return;
             menu.Show(surface, surface.ToSurfaceCoordinates(mouseEventArgs.Location));
-            while (true)
-            {
-                if (menu.Visible)
-                {
-                    Application.DoEvents();
-                    Thread.Sleep(100);
-                }
-                else
-                {
-                    menu.Dispose();
-                    break;
-                }
-            }
         }
 
         private bool _disposedValue; // To detect redundant calls

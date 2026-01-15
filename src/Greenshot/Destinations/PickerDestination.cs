@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -20,6 +20,7 @@
  */
 
 using System.Collections.Generic;
+using System.Linq;
 using Greenshot.Base;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
@@ -50,7 +51,7 @@ namespace Greenshot.Destinations
         {
             List<IDestination> destinations = new List<IDestination>();
 
-            foreach (var destination in SimpleServiceProvider.Current.GetAllInstances<IDestination>())
+            foreach (var destination in SimpleServiceProvider.Current.GetAllInstances<IDestination>().OrderBy(p => p.Priority).ThenBy(p => p.Description))
             {
                 if ("Picker".Equals(destination.Designation))
                 {

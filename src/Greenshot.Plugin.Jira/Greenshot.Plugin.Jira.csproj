@@ -1,4 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+  </PropertyGroup>
   <ItemGroup>
     <None Include="Languages\language*.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -6,7 +10,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Greenshot.Base\Greenshot.Base.csproj" />
-    <PackageReference Include="Dapplo.Jira" version="1.1.46" />
-    <PackageReference Include="Dapplo.Jira.SvgWinForms" Version="1.1.46" />
+    <PackageReference Include="Dapplo.Jira" version="1.1.47" />
+    <PackageReference Include="Dapplo.Jira.SvgWinForms" Version="1.1.47" />
   </ItemGroup>
 </Project>

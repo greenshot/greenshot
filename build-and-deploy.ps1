@@ -11,13 +11,18 @@ $ReleaseToken = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto([Syste
 
 # Variables
 $RepoPath = "."  # Replace with your local repo path
+$BuildArtifactsPath = "$RepoPath\src\Greenshot\bin\Release\net481"
 $ArtifactsPath = "$RepoPath\artifacts"
+$PortableFilesPath = "$ArtifactsPath\portable-files"
 $SolutionFile = "$RepoPath\src\Greenshot.sln"
 
-# Step 0: Update Local Repository
+# Clear Artifacts Directory
+Remove-Item -Path "$ArtifactsPath\*" -Recurse -Force
+
+# Update Local Repository
 git pull
 
-# Step 1: Restore NuGet Packages
+# Restore NuGet Packages
 Write-Host "Restoring NuGet packages..."
 msbuild "$SolutionFile" /p:Configuration=Release /restore /t:PrepareForBuild
 if ($LASTEXITCODE -ne 0) {
@@ -25,7 +30,7 @@ if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
 
-# Step 2: Build and Package
+# Build and Package
 Write-Host "Building and packaging the solution..."
 msbuild "$SolutionFile" /p:Configuration=Release /t:Rebuild /v:normal
 if ($LASTEXITCODE -ne 0) {
@@ -33,25 +38,14 @@ if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
 
-# Step 3: Copy Installer Files
-Write-Host "Copying installer files..."
-if (-not (Test-Path $ArtifactsPath)) {
-    New-Item -ItemType Directory -Force -Path $ArtifactsPath
-}
-Copy-Item "$RepoPath\installer\Greenshot-INSTALLER-*.exe" -Destination $ArtifactsPath -Force
-if ($LASTEXITCODE -ne 0) {
-    Write-Error "Failed to copy installer files."
-    exit $LASTEXITCODE
-}
 
-# Step 4: Extract Version from File Name
+# Extract Version from File Name
 Write-Host "Extracting version from installer file name..."
-$InstallerFile = Get-ChildItem $ArtifactsPath -Filter "Greenshot-INSTALLER-*.exe" | Select-Object -Last 1
+$InstallerFile = Get-ChildItem "$RepoPath\installer" -Filter "Greenshot-INSTALLER-*.exe" | Select-Object -Last 1
 if (-not $InstallerFile) {
-    Write-Error "No matching installer file found in '$ArtifactsPath'."
+    Write-Error "No matching installer file found in '$RepoPath\installer'."
     exit 1
 }
-
 if ($InstallerFile.Name -match "Greenshot-INSTALLER-([\d\.]+).*\.exe") {
     $Version = $matches[1]
     Write-Host "Extracted version: $Version"
@@ -60,11 +54,37 @@ if ($InstallerFile.Name -match "Greenshot-INSTALLER-([\d\.]+).*\.exe") {
     exit 1
 }
 
-# Step 5: Create Git Tag
+# Copy Installer Files
+Write-Host "Copying installer files..."
+$ExeArtifactPath = "$ArtifactsPath\Greenshot-INSTALLER-$Version-RELEASE.exe"
+if (-not (Test-Path $ArtifactsPath)) {
+    New-Item -ItemType Directory -Force -Path $ArtifactsPath
+}
+Copy-Item "$RepoPath\installer\Greenshot-INSTALLER-*.exe" -Destination $ExeArtifactPath -Force
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "Failed to copy installer files."
+    exit $LASTEXITCODE
+}
+
+# Prepare ZIP Archive
+Write-Host "Preparing build artifacts for ZIP archive..."
+if (-not (Test-Path $PortableFilesPath)) {
+    New-Item -ItemType Directory -Force -Path $PortableFilesPath
+}
+./prepare-portable.ps1 -RepositoryRootPath . -BuildArtifactsPath $BuildArtifactsPath -OutputPath $PortableFilesPath
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "Failed to copy installer files."
+    exit $LASTEXITCODE
+}
+
+# Create ZIP Archive
+Write-Host "Creating ZIP archive..."
+$ZipArtifactPath = "$ArtifactsPath\Greenshot-PORTABLE-$Version-RELEASE.zip"
+Compress-Archive -Path "$PortableFilesPath/*" -DestinationPath $ZipArtifactPath -Force
+
+# Create Git Tag
 Write-Host "Creating Git tag..."
 cd $RepoPath
-#git config user.name "local-script"
-#git config user.email "local-script@example.com"
 git tag -a "v$Version" -m "v$Version"
 git push origin "v$Version"
 if ($LASTEXITCODE -ne 0) {
@@ -72,7 +92,7 @@ if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
 
-# Step 6: Create GitHub Release
+# Create GitHub Release
 Write-Host "Creating GitHub release..."
 $Headers = @{
     Authorization = "Bearer $ReleaseToken"
@@ -103,47 +123,41 @@ Write-Host "Release created successfully."
 $ReleaseId = $ReleaseResponse.id
 Write-Host "Release ID: $ReleaseId"
 
-# Step 7: Upload .exe File to Release
+# Upload .exe File to Release
 Write-Host "Uploading .exe file to GitHub release..."
-$ExeFilePath = "$ArtifactsPath\$($InstallerFile.Name)"
-if (-Not (Test-Path $ExeFilePath)) {
-    Write-Error "Built .exe file not found: $ExeFilePath"
-    exit 1
+
+$FilesToUpload = @(
+    $ExeArtifactPath,
+    $ZipArtifactPath
+)
+
+foreach ($file in $FilesToUpload) {
+	if (-Not (Test-Path $file)) {
+		Write-Error "Artifact not found: $file"
+		exit 1
+	}
+
+	# GitHub API for uploading release assets
+	$UploadUrl = $ReleaseResponse.upload_url -replace "{.*}", ""
+
+	# Upload the file
+	$FileHeaders = @{
+		Authorization = "Bearer $ReleaseToken"
+		ContentType   = "application/octet-stream"
+	}
+	$FileName = [System.IO.Path]::GetFileName($file)
+
+	Invoke-RestMethod `
+		-Uri "$($UploadUrl)?name=$FileName" `
+		-Method POST `
+		-Headers $FileHeaders `
+		-InFile $file `
+		-ContentType "application/octet-stream"
+
+	if ($LASTEXITCODE -ne 0) {
+		Write-Error "Failed to upload $FileName to release."
+		exit $LASTEXITCODE
+	}
+
+	Write-Host "File uploaded successfully: $FileName"
 }
-
-# GitHub API for uploading release assets
-$UploadUrl = $ReleaseResponse.upload_url -replace "{.*}", ""
-
-# Upload the file
-$FileHeaders = @{
-    Authorization = "Bearer $ReleaseToken"
-    ContentType   = "application/octet-stream"
-}
-$FileName = [System.IO.Path]::GetFileName($ExeFilePath)
-
-Invoke-RestMethod `
-    -Uri "$($UploadUrl)?name=$FileName" `
-    -Method POST `
-    -Headers $FileHeaders `
-    -InFile $ExeFilePath `
-    -ContentType "application/octet-stream"
-
-if ($LASTEXITCODE -ne 0) {
-    Write-Error "Failed to upload .exe file to release."
-    exit $LASTEXITCODE
-}
-
-Write-Host "File uploaded successfully: $FileName"
-
-# Step 7: Trigger GitHub Pages Rebuild
-#Write-Host "Triggering GitHub Pages rebuild..."
-#Invoke-RestMethod `
-#    -Uri "https://api.github.com/repos/greenshot/greenshot/pages/builds" `
-#    -Method POST `
-#    -Headers $Headers
-#if ($LASTEXITCODE -ne 0) {
-#    Write-Error "Failed to trigger GitHub Pages rebuild."
-#    exit $LASTEXITCODE
-#}
-#
-#Write-Host "GitHub Pages rebuild triggered successfully."

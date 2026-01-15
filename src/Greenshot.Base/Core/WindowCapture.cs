@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -274,7 +274,7 @@ namespace Greenshot.Base.Core
             // See https://connect.microsoft.com/VisualStudio/feedback/details/344752/gdi-object-leak-when-calling-graphics-copyfromscreen
             // Bitmap capturedBitmap = new Bitmap(captureBounds.Width, captureBounds.Height);
             // using (Graphics graphics = Graphics.FromImage(capturedBitmap)) {
-            //	graphics.CopyFromScreen(captureBounds.Location, Point.Empty, captureBounds.Size, CopyPixelOperation.CaptureBlt);
+            //    graphics.CopyFromScreen(captureBounds.Location, Point.Empty, captureBounds.Size, CopyPixelOperation.CaptureBlt);
             // }
             // capture.Image = capturedBitmap;
             // capture.Location = captureBounds.Location;
