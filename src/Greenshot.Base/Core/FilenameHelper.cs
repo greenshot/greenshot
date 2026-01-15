@@ -525,14 +525,16 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// Retrieves environment variables from process, user, and machine scopes.
+        /// "Simply" fill the pattern with environment variables
         /// </summary>
-        private static (IDictionary processVars, IDictionary userVars, IDictionary machineVars) GetEnvironmentVariables()
+        /// <param name="pattern">String with pattern %var%</param>
+        /// <param name="filenameSafeMode">true to make sure everything is filenamesafe</param>
+        /// <returns>Filled string</returns>
+        public static string FillCmdVariables(string pattern, bool filenameSafeMode = true)
         {
             IDictionary processVars = null;
             IDictionary userVars = null;
             IDictionary machineVars = null;
-            
             try
             {
                 processVars = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.Process);
@@ -560,18 +562,6 @@ namespace Greenshot.Base.Core
                 Log.Error("Error retrieving EnvironmentVariableTarget.Machine", e);
             }
 
-            return (processVars, userVars, machineVars);
-        }
-
-        /// <summary>
-        /// "Simply" fill the pattern with environment variables
-        /// </summary>
-        /// <param name="pattern">String with pattern %var%</param>
-        /// <param name="filenameSafeMode">true to make sure everything is filenamesafe</param>
-        /// <returns>Filled string</returns>
-        public static string FillCmdVariables(string pattern, bool filenameSafeMode = true)
-        {
-            var (processVars, userVars, machineVars) = GetEnvironmentVariables();
             return CmdVarRegexp.Replace(pattern,
                 m => MatchVarEvaluator(m, null, processVars, userVars, machineVars, filenameSafeMode)
             );
@@ -585,14 +575,43 @@ namespace Greenshot.Base.Core
         /// <returns>Filled string</returns>
         public static string FillVariables(string pattern, bool filenameSafeMode)
         {
-            var (processVars, userVars, machineVars) = GetEnvironmentVariables();
+            IDictionary processVars = null;
+            IDictionary userVars = null;
+            IDictionary machineVars = null;
+            try
+            {
+                processVars = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.Process);
+            }
+            catch (Exception e)
+            {
+                Log.Error("Error retrieving EnvironmentVariableTarget.Process", e);
+            }
+
+            try
+            {
+                userVars = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.User);
+            }
+            catch (Exception e)
+            {
+                Log.Error("Error retrieving EnvironmentVariableTarget.User", e);
+            }
+
+            try
+            {
+                machineVars = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.Machine);
+            }
+            catch (Exception e)
+            {
+                Log.Error("Error retrieving EnvironmentVariableTarget.Machine", e);
+            }
+
             return VarRegexp.Replace(pattern,
                 m => MatchVarEvaluator(m, null, processVars, userVars, machineVars, filenameSafeMode)
             );
         }
 
         /// <summary>
-        /// Fill the pattern with the supplied details
+        /// Fill the pattern wit the supplied details
         /// </summary>
         /// <param name="pattern">Pattern</param>
         /// <param name="captureDetails">CaptureDetails, can be null</param>
@@ -601,7 +620,36 @@ namespace Greenshot.Base.Core
         /// <returns>Filled pattern</returns>
         public static string FillPattern(string pattern, ICaptureDetails captureDetails, bool filenameSafeMode, DateCultureMode dateCultureMode = DateCultureMode.SystemLocale)
         {
-            var (processVars, userVars, machineVars) = GetEnvironmentVariables();
+            IDictionary processVars = null;
+            IDictionary userVars = null;
+            IDictionary machineVars = null;
+            try
+            {
+                processVars = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.Process);
+            }
+            catch (Exception e)
+            {
+                Log.Error("Error retrieving EnvironmentVariableTarget.Process", e);
+            }
+
+            try
+            {
+                userVars = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.User);
+            }
+            catch (Exception e)
+            {
+                Log.Error("Error retrieving EnvironmentVariableTarget.User", e);
+            }
+
+            try
+            {
+                machineVars = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.Machine);
+            }
+            catch (Exception e)
+            {
+                Log.Error("Error retrieving EnvironmentVariableTarget.Machine", e);
+            }
+
             try
             {
                 return VarRegexp.Replace(pattern,
