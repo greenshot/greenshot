@@ -85,6 +85,17 @@
     <EmojiDataTask EmojiTestTxtFile="..\Greenshot.Editor\Controls\Emoji\emoji-test.txt" OutputFilename="$(SolutionDir)$(SolutionName)\$(OutDir)\emojis.xml" />
   </Target>
 
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <PostBuildEvent>
+      copy "$(SolutionDir)Greenshot\log4net-debug.xml" "$(SolutionDir)Greenshot\bin\$(Configuration)\net481\log4net.xml"
+    </PostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <PostBuildEvent>
+      copy "$(SolutionDir)Greenshot\log4net-release.xml" "$(SolutionDir)Greenshot\bin\$(Configuration)\net481\log4net.xml"
+    </PostBuildEvent>
+  </PropertyGroup>
+
   <Target Name="Generate hashes" BeforeTargets="PostBuildEvent">
     <GetFileHash Files="@(FilesToHash)" Algorithm="SHA256" HashEncoding="hex">
       <Output TaskParameter="Items" ItemName="FilesWithHashes" />
@@ -98,14 +109,4 @@
     <Exec Command="if not &quot;$(CertumThumbprint)&quot; == &quot;&quot; signtool.exe sign /sha1 &quot;$(CertumThumbprint)&quot; /tr http://time.certum.pl /td sha256 /fd sha256 /v &quot;$(OutDir)Greenshot.exe&quot;" />
     <Exec Command="$(PkgTools_InnoSetup)\tools\ISCC.exe $(SolutionDir)\..\installer\innosetup\setup.iss" />
   </Target>
-  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
-    <PostBuildEvent>
-      copy "$(SolutionDir)Greenshot\log4net-debug.xml" "$(SolutionDir)Greenshot\bin\$(Configuration)\net481\log4net.xml"
-    </PostBuildEvent>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
-    <PostBuildEvent>
-      copy "$(SolutionDir)Greenshot\log4net-release.xml" "$(SolutionDir)Greenshot\bin\$(Configuration)\net481\log4net.xml"
-    </PostBuildEvent>
-  </PropertyGroup>
 </Project>
