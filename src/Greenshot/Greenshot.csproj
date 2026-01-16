@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Build.Utilities.Core" Version="18.0.2" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="2.1.13" />
     <PackageReference Include="Tools.InnoSetup" version="6.7.0" GeneratePathProperty="true" />
     <PackageReference Include="Microsoft.Toolkit.Uwp.Notifications" version="7.1.3" />
   </ItemGroup>
@@ -39,6 +40,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Greenshot.Base\Greenshot.Base.csproj" />
     <ProjectReference Include="..\Greenshot.Editor\Greenshot.Editor.csproj" />
+    <ProjectReference Include="..\Greenshot.BuildTasks\Greenshot.BuildTasks.csproj" ReferenceOutputAssembly="false" />
     <FilesToHash Include="$(SolutionDir)$(SolutionName)\$(OutDir)\*" />
   </ItemGroup>
 
@@ -76,6 +78,12 @@
       </Code>
     </Task>
   </UsingTask>
+
+  <UsingTask TaskName="EmojiDataTask" TaskFactory="TaskHostFactory" AssemblyFile="..\Greenshot.BuildTasks\bin\$(Configuration)\$(TargetFramework)\Greenshot.BuildTasks.dll" />
+
+  <Target Name="GenerateEmojiTestTxtFile" BeforeTargets="BeforeBuild">
+    <EmojiDataTask EmojiTestTxtFile="..\Greenshot.Editor\Controls\Emoji\emoji-test.txt" OutputFilename="$(SolutionDir)$(SolutionName)\$(OutDir)\emojis.xml" />
+  </Target>
 
   <Target Name="Generate hashes" BeforeTargets="PostBuildEvent">
     <GetFileHash Files="@(FilesToHash)" Algorithm="SHA256" HashEncoding="hex">
