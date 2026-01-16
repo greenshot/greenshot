@@ -17,6 +17,7 @@ Source: {#ReleaseDir}\Greenshot.Base.dll; DestDir: {app}; Components: greenshot;
 Source: {#ReleaseDir}\Greenshot.Editor.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly
 Source: {#ReleaseDir}\Greenshot.exe.config; DestDir: {app}; Components: greenshot; Flags: overwritereadonly
 Source: {#ReleaseDir}\log4net.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly
+Source: {#ReleaseDir}\log4net.xml; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion
 Source: {#ReleaseDir}\Dapplo.*.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly
 Source: {#ReleaseDir}\SixLabors.ImageSharp.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion
 Source: {#ReleaseDir}\SixLabors.ImageSharp.Drawing.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion

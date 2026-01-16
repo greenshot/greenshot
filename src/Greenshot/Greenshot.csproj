@@ -52,7 +52,7 @@
 
   <ItemGroup>
     <None Update="log4net-release.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
