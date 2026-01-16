@@ -5,9 +5,47 @@ Apply text and shapes to the screenshot. Offers capture of window, region or ful
 
 CHANGE LOG:
 
-All details to our tickets can be found here: https://greenshot.atlassian.net
+All details to our tickets can be found here: https://github.com/greenshot/greenshot/issues or, for older tickets: https://greenshot.atlassian.net
 
-# Release notes for Greenshot 1.3
+# Greenshot 1.3.xxx
+
+Bugs fixed:
+* Security advisory GHSA-7hvw-q8q5-gpmj
+
+# Greenshot 1.3.304
+
+Bugs fixed:
+* File Association and Launch with File Arguments Not Working When Already Running [#685](https://github.com/greenshot/greenshot/issues/685) thanks to @Christian-Schulz
+* ZIP Releases are Missing [#609](https://github.com/greenshot/greenshot/issues/609) thanks to @Christian-Schulz
+
+# Greenshot 1.3.301
+
+Bugs fixed:
+* Security advisory GHSA-8f7f-x7ww-xx5w
+
+# Greenshot 1.3.300
+
+Bugs fixed:
+* greenshot.ini: Exclude Plugins and Include Plugins setting broken [#648](https://github.com/greenshot/greenshot/issues/648) [#642](https://github.com/greenshot/greenshot/issues/642) thanks to @Christian-Schulz for providing the fix
+
+Features added:
+
+# Greenshot 1.3.296
+
+Bugs fixed
+* Fix Administrative installation via user interface [#546](https://github.com/greenshot/greenshot/issues/546) [#611](https://github.com/greenshot/greenshot/issues/611) [#598](https://github.com/greenshot/greenshot/issues/598)
+
+Features added:
+* Installer: Allow Choice between All-Users (Administrative) and Current-User Installation [#625](https://github.com/greenshot/greenshot/pull/625)
+
+# Greenshot 1.3.292
+
+Bugs fixed:
+* Fix Administrative installation via command line using /ALLUSERS [#601](https://github.com/greenshot/greenshot/issues/601) [#619](https://github.com/greenshot/greenshot/issues/619) 
+
+# Greenshot 1.3.290
+
+Note: the version information for the first 1.3 release is outdated/incomplete. Due to the long timespan and large amount of changes between 1.2 and 1.3 we lost track. Sorry.
 
 Greenshot 1.3 is the first Greenshot which targets .NET 4.7.2 which just by doing to solves some general issues in the area of Internet Explorer capturing, TLS communication and some other minor issues.
 
@@ -646,3 +684,7 @@ Features added:
 * when clicking two overlapping elements, the one created later gets selected [ 1725175 ]
 * created textboxes can now be edited with a doubleclick [ 1704408 ]
 * selected font is now stored in the application config file [ 1704411 ]
+
+
+
+

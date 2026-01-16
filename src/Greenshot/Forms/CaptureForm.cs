@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -1019,7 +1019,7 @@ namespace Greenshot.Forms
 
                 // TODO: enable when the screen capture code works reliable
                 //if (capture.CaptureDetails.CaptureMode == CaptureMode.Video) {
-                //	graphics.FillRectangle(RedOverlayBrush, fixedRect);
+                //    graphics.FillRectangle(RedOverlayBrush, fixedRect);
                 //} else {
                 graphics.FillRectangle(GreenOverlayBrush, fixedRect);
                 //}

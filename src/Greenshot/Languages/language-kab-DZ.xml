@@ -5,7 +5,7 @@
 		<resource name="about_donations">Ma tḥemled Greenshot, Mudd-aɣ-d afus :</resource>
 		<resource name="about_host">Greenshot yezdeɣ di sourceforge.net di</resource>
 		<resource name="about_icons">Tignitin i d-yekkan seg uqettun n tignitin Fugue n Kamiyamane Yuusuke (Creative Commons Attribution 3.0 license)</resource>
-		<resource name="about_license">Copyright © 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+		<resource name="about_license">Copyright © 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
 Greenshot yettunefk-d S WAR ṬMANA. d aseɣẓan ilelli i tzemreḍ ad tezuzreḍ s kra n tewtilin.
 Talqayt ɣef GNU General Public License :</resource>
 		<resource name="about_title">Ɣef Greenshot</resource>
@@ -49,8 +49,6 @@ Rnu ɣur-s, nḥemmel aṭas ma yella tesneqdeḍ aneqqis igebren ugur-agi. (Tze
 		<resource name="contextmenu_capturefullscreen_left">azelmaḍ</resource>
 		<resource name="contextmenu_capturefullscreen_right">ayeffus</resource>
 		<resource name="contextmenu_capturefullscreen_top">awriran</resource>
-		<resource name="contextmenu_captureie">Ṭṭef Internet Explorer</resource>
-		<resource name="contextmenu_captureiefromlist">Ṭṭef Internet Explorer si tebdart agi</resource>
 		<resource name="contextmenu_capturelastregion">Ṭṭef tamnaṭ taneggarut</resource>
 		<resource name="contextmenu_capturewindow">Ṭṭef asfaylu urmid</resource>
 		<resource name="contextmenu_capturewindowfromlist">Ṭṭef asfaylu urmid si tebdart agi</resource>
@@ -144,7 +142,7 @@ Rnu ɣur-s, nḥemmel aṭas ma yella tesneqdeḍ aneqqis igebren ugur-agi. (Tze
 		<resource name="editor_print">Siggez</resource>
 		<resource name="editor_redo">Err-d {0}</resource>
 		<resource name="editor_resetsize">Wennez teɣzi</resource>
-		<resource name="editor_resize">Snifel tahri/teɣzi</resource>
+		<resource name="editor_resize">Snifel tahri/teɣzi (Z)</resource>
 		<resource name="editor_resize_aspectratio">Eǧǧ afmiḍi Teɣ / Teh</resource>
 		<resource name="editor_resize_height">Awrir</resource>
 		<resource name="editor_resize_percent">Afmiḍi</resource>
@@ -245,7 +243,6 @@ Ma ulac aɣilif senqed tuffart n ukaram n usekles.</resource>
 		<resource name="settings_filenamepattern">Taneɣruft n ufaylu</resource>
 		<resource name="settings_general">Amatu</resource>
 		<resource name="settings_iconsize">Teɣzi n tignitin</resource>
-		<resource name="settings_iecapture">Tuṭṭfa n Internet Explorer</resource>
 		<resource name="settings_jpegquality">Taɣara JPEG</resource>
 		<resource name="settings_language">Tutlayt</resource>
 		<resource name="settings_message_filenamepattern">Imuttiyen-agi ad ttwasemselsin s wudem awurman di tneqruft inek:
@@ -297,7 +294,6 @@ amiran, amedya 11_58_32 (akked usiɣzef yettwamlen deg iɣewwaṛen)</resource>
 		<resource name="settings_zoom">Sken tasemɣart</resource>
 		<resource name="tooltip_firststart">Sit s tqeffalt n uyeffus dagi sakin senned ɣef tqeffalt {0}.</resource>
 		<resource name="update_found">Yella lqem-nniḍen n Greenshot! Tebɣid ad tsidreḍ Greenshot {0} ?</resource>
-		<resource name="wait_ie_capture">Ma ulac aɣilif, rǧu arama tfuk tuṭṭfa n ugdil n usebter Internet Explorer...</resource>
 		<resource name="warning">Ɣur-k</resource>
 		<resource name="warning_hotkeys">Anegzum n unasiw "{0}" ur yettwakles ara. Ugur-agi ahat yekka-d seg ufecku-nniḍen iseqdacen yiwen n unegzum n unasiw. Tzemreḍ ahat ad tesnifleḍ inegzumen inek n unasiw neɣ ad tsenseḍ/ad tesnifleḍ aseɣẓan iseqdacen anegzum.
 

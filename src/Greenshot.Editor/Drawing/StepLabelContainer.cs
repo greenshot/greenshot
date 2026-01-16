@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2012  Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026  Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -24,6 +24,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using System.Runtime.Serialization;
+using System.Windows.Forms;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Interfaces;
@@ -187,6 +188,8 @@ namespace Greenshot.Editor.Drawing
         /// <param name="rm"></param>
         public override void Draw(Graphics graphics, RenderMode rm)
         {
+            if (Width == 0 || Height == 0) { return; }
+
             graphics.SmoothingMode = SmoothingMode.HighQuality;
             graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
             graphics.CompositingQuality = CompositingQuality.HighQuality;
@@ -205,9 +208,17 @@ namespace Greenshot.Editor.Drawing
                 EllipseContainer.DrawEllipse(rect, graphics, rm, 0, Color.Transparent, fillColor, false);
             }
 
-            float fontSize = Math.Min(Math.Abs(Width), Math.Abs(Height)) / 1.4f;
-            using FontFamily fam = new FontFamily(FontFamily.GenericSansSerif.Name);
-            using Font font = new Font(fam, fontSize, FontStyle.Bold, GraphicsUnit.Pixel);
+            using FontFamily fam = new(FontFamily.GenericSansSerif.Name);
+
+            //calculate new font size based on ratio from text height and text width
+            float initialFontSize = Math.Min(Math.Abs(Width), Math.Abs(Height));          
+            using Font Measurefont = new(fam, initialFontSize, FontStyle.Bold, GraphicsUnit.Pixel);            
+            var fontSize = initialFontSize * TextRenderer.MeasureText(text, Measurefont).Height / TextRenderer.MeasureText(text, Measurefont).Width;
+
+            //static scale for optimal fit
+            fontSize *= 0.7f;
+
+            using Font font = new(fam, fontSize, FontStyle.Bold, GraphicsUnit.Pixel);
             TextContainer.DrawText(graphics, rect, 0, lineColor, false, _stringFormat, text, font);
         }
 

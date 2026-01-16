@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<language description="Türkçe" ietf="tr-TR" version="1.0.0">
+  <resources>
+  <resource name="contextmenu_configure">
+     Harici komutları yapılandır
+  </resource>
+  <resource name="settings_title">
+  		Harici komut ayarları
+	</resource>
+	<resource name="settings_detail_title">
+  		Komutu yapılandır
+	</resource>
+	<resource name="settings_new">
+  		Yeni
+	</resource>
+	<resource name="settings_delete">
+  		Sil
+	</resource>
+	<resource name="settings_edit">
+  		Düzenle
+	</resource>
+    <resource name="label_name">
+      Ad
+    </resource>
+    <resource name="label_command">
+      Komut
+    </resource>
+    <resource name="label_argument">
+      Parametreler
+    </resource>
+    <resource name="label_information">
+      {0}, ekran görüntünüzün dosya adıdır
+    </resource>
+  </resources>
+</language>

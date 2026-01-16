@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -80,9 +80,9 @@ namespace Greenshot.Editor.Drawing
         }
 
         /**
-		 * This Dispose is called from the Dispose and the Destructor.
-		 * When disposing==true all non-managed resources should be freed too!
-		 */
+         * This Dispose is called from the Dispose and the Destructor.
+         * When disposing==true all non-managed resources should be freed too!
+         */
         protected override void Dispose(bool disposing)
         {
             if (disposing)

@@ -5,7 +5,7 @@
 		<resource name="about_donations">Greenshot이 좋다면 아래 URL로 방문하셔서 지원할 수 있습니다.</resource>
 		<resource name="about_host">Greenshot은 GitHub 관리하에 아래 링크에서 호스팅되고 있습니다</resource>
 		<resource name="about_icons">아이콘은 Yusuke Kamiyamane's Fugue icon set으로부터 제공받은 것입니다. (Creative Commons Attribution 3.0 license)</resource>
-		<resource name="about_license">Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+		<resource name="about_license">Copyright © 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
 Greenshot comes with ABSOLUTELY NO WARRANTY. This is free software, and you are welcome to redistribute it under certain conditions.
 Details about the GNU General Public License:</resource>
 		<resource name="about_title">Greenshot 프로그램 소개...</resource>
@@ -49,8 +49,6 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="contextmenu_capturefullscreen_left">왼쪽</resource>
 		<resource name="contextmenu_capturefullscreen_right">오른쪽</resource>
 		<resource name="contextmenu_capturefullscreen_top">상단</resource>
-		<resource name="contextmenu_captureie">인터넷 익스플로어 캡처</resource>
-		<resource name="contextmenu_captureiefromlist">목록에서 인터넷 익스플로어 캡처</resource>
 		<resource name="contextmenu_capturelastregion">직전 저장구역 캡처</resource>
 		<resource name="contextmenu_capturewindow">작업 화면 캡처</resource>
 		<resource name="contextmenu_capturewindowfromlist">목록에서 작업 화면 캡처</resource>
@@ -222,7 +220,6 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="settings_editor">편집기</resource>
 		<resource name="settings_filenamepattern">파일명 유형</resource>
 		<resource name="settings_general">일반</resource>
-		<resource name="settings_iecapture">인터넷 익스플로어 캡처</resource>
 		<resource name="settings_jpegquality">JPEG 품질</resource>
 		<resource name="settings_language">언어</resource>
 		<resource name="settings_message_filenamepattern">자동으로 아래 정의된 설정값으로 치환될 것입니다:
@@ -273,7 +270,6 @@ ${hostname} PC명
 		<resource name="settings_windowscapture">작업창 캡처</resource>
 		<resource name="tooltip_firststart">여기를 오른쪽 클릭 또는 {0}키를 누릅니다.</resource>
 		<resource name="update_found">Greenshot 새 버전을 이용할 수 있습니다. Greenshot {0}를 다운로드하겠습니까?</resource>
-		<resource name="wait_ie_capture">익스플로어 페이지를 캡처하는 동안 기다리세요...</resource>
 		<resource name="warning">경고</resource>
 		<resource name="warning_hotkeys">단축키 "{0}를 등록할 수 없습니다. 아마 다른 어플이 동일한 단축키를 사용 중인 것 같습니다! 단축키 설정을 변경하거나 다른 어플의 단축키를 비활성화하거나 변경하세요.
 
@@ -304,7 +300,7 @@ ${hostname} PC명
     <resource name="editor_counter">카운터 더하기 (I)</resource>
     <resource name="editor_speechbubble">설명선 더하기(S)</resource>
 
-    <resource name="editor_resize">크기조정</resource>
+    <resource name="editor_resize">크기조정 (Z)</resource>
     <resource name="editor_resize_settings">크기조정 설정</resource>
     <resource name="editor_resize_aspectratio">종횡비 유지</resource>
     <resource name="editor_resize_width">너비</resource>

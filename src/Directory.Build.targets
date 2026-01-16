@@ -1,13 +1,65 @@
 <Project>
+  <UsingTask TaskName="ApplyTokenReplacements" TaskFactory="CodeTaskFactory" AssemblyName="Microsoft.Build.Tasks.Core">
+    <ParameterGroup>
+      <InputLines ParameterType="Microsoft.Build.Framework.ITaskItem[]" Required="true" />
+      <Tokens ParameterType="Microsoft.Build.Framework.ITaskItem[]" Required="true" />
+      <OutputLines ParameterType="Microsoft.Build.Framework.ITaskItem[]" Output="true" />
+    </ParameterGroup>
+    <Task>
+      <Reference Include="System.Text.RegularExpressions" />
+      <Code Type="Fragment" Language="cs">
+        <![CDATA[
+        var output = new List<ITaskItem>();
+        foreach (var line in InputLines)
+        {
+            string text = line.ItemSpec;
+            foreach (var token in Tokens)
+            {
+                string tokenName = token.ItemSpec;
+                // Skip if tokenName is null or empty
+                if (string.IsNullOrEmpty(tokenName))
+                  continue;
+                
+                string replacementValue = token.GetMetadata("ReplacementValue");
+                if (!string.IsNullOrEmpty(replacementValue))
+                {
+                    string placeholder = "$"+ "{"+tokenName+"}";  // Token-Format wie $(Box13_ClientId)
+                    text = text.Replace(placeholder, replacementValue);
+                }
+            }
+            output.Add(new Microsoft.Build.Utilities.TaskItem(text));
+        }
+        OutputLines = output.ToArray();
+      ]]>
+      </Code>
+    </Task>
+  </UsingTask>
 
   <PropertyGroup Condition="Exists('$(ProjectDir)$(ProjectName).Credentials.template')">
-      <MSBuildCommunityTasksPath>$(PkgMSBuildTasks)\tools\</MSBuildCommunityTasksPath>
+    <MSBuildCommunityTasksPath>$(NuGetPackageRoot)msbuildtasks/1.5.0.235/tools/</MSBuildCommunityTasksPath>
   </PropertyGroup>
-  
-  <Import Project="$(MSBuildCommunityTasksPath)MSBuild.Community.Tasks.Targets" Condition="Exists('$(ProjectDir)$(ProjectName).Credentials.template')"/>
+
+  <Import Project="$(MSBuildCommunityTasksPath)MSBuild.Community.Tasks.Targets" Condition="Exists('$(ProjectDir)$(ProjectName).Credentials.template')" />
 
   <Target Name="ProcessTemplates" BeforeTargets="PrepareForBuild" Condition="Exists('$(ProjectDir)$(ProjectName).Credentials.template')">
-    <Message Text="Processing: $(ProjectDir)$(ProjectName).Credentials.template" Importance="high"/> 
-    <TemplateFile Template="$(ProjectDir)$(ProjectName).Credentials.template" OutputFilename="$(ProjectDir)$(ProjectName).Credentials.cs" Tokens="@(Tokens)" />
+    <Message Text="Processing: $(ProjectDir)$(ProjectName).Credentials.template" Importance="high"/>
+
+
+    <ReadLinesFromFile File="$(ProjectDir)$(ProjectName).Credentials.template">
+      <Output TaskParameter="Lines" ItemName="TemplateLines" />
+    </ReadLinesFromFile>
+
+    <ApplyTokenReplacements InputLines="@(TemplateLines)" Tokens="@(Tokens)">
+      <Output TaskParameter="OutputLines" ItemName="ProcessedLines" />
+    </ApplyTokenReplacements>
+
+    <WriteLinesToFile
+      File="$(ProjectDir)$(ProjectName).Credentials.cs"
+      Lines="@(ProcessedLines)"
+      Overwrite="true" />
   </Target>
 </Project>
+
+
+
+
