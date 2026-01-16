@@ -27,7 +27,7 @@ using System.Runtime.InteropServices;
 namespace Greenshot.Base.Interop
 {
     /// <summary>
-    /// Helper for retrieving window titles from sandboxed applications (Chrome, Edge, Brave)
+    /// Helper for retrieving window titles from sandboxed applications
     /// where GetWindowText fails due to cross-process security restrictions.
     /// </summary>
     public static class WindowTitleHelper
@@ -36,7 +36,7 @@ namespace Greenshot.Base.Interop
         private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out int processId);
 
         /// <summary>
-        /// Gets the window title via Process.MainWindowTitle as a fallback for sandboxed browsers.
+        /// Gets the window title via Process.MainWindowTitle as a fallback for sandboxed applications.
         /// </summary>
         /// <param name="hWnd">The window handle</param>
         /// <returns>The window title, or null if retrieval fails</returns>

@@ -95,12 +95,6 @@ namespace Greenshot.Base.Core
         public bool IsWin10App => AppFrameWindowClass.Equals(ClassName);
 
         /// <summary>
-        /// Check if this is a Chromium-based browser window (Chrome, Edge, Brave, etc.)
-        /// These use the Chrome_WidgetWin_1 window class
-        /// </summary>
-        public bool IsChromiumWindow => "Chrome_WidgetWin_1".Equals(ClassName);
-
-        /// <summary>
         /// Check if this window belongs to a background app
         /// </summary>
         public bool IsBackgroundWin10App => WindowsVersion.IsWindows10OrLater && AppFrameWindowClass.Equals(ClassName) &&
@@ -432,8 +426,8 @@ namespace Greenshot.Base.Core
                     _textRetrieved = true;
                     _text = User32Api.GetText(Handle);
 
-                    // Fallback for Chromium-based browsers (Chrome, Edge, Brave) where GetWindowText fails
-                    // due to sandboxing preventing cross-process window text retrieval
+                    // Fallback for sandboxed applications where GetWindowText fails
+                    // due to cross-process security restrictions
                     if (string.IsNullOrEmpty(_text))
                     {
                         _text = WindowTitleHelper.GetWindowTitle(Handle);
@@ -1500,14 +1494,6 @@ namespace Greenshot.Base.Core
                 return false;
             }
 
-            // Skip everything which is not rendered "normally", trying to fix BUG-2017
-            // But allow Win10 apps and Chromium-based browsers (Chrome, Edge, Brave) which use this flag legitimately
-            var exWindowStyle = window.ExtendedWindowStyle;
-            if (!window.IsWin10App && !window.IsChromiumWindow && (exWindowStyle & ExtendedWindowStyleFlags.WS_EX_NOREDIRECTIONBITMAP) != 0)
-            {
-                return false;
-            }
-
             return true;
         }
 
@@ -1535,7 +1521,9 @@ namespace Greenshot.Base.Core
         /// <returns>bool</returns>
         private static bool IsTopLevel(WindowDetails window)
         {
-            if (window.IsCloaked)
+            // Visible already checks IsCloaked, so this serves as a fail-fast for cloaked windows
+            // and also verifies the window is actually visible (or iconic/minimized)
+            if (!(window.Visible || window.Iconic))
             {
                 return false;
             }
@@ -1546,42 +1534,25 @@ namespace Greenshot.Base.Core
                 return false;
             }
 
+            // Child windows cannot be top level
             if (window.HasParent)
             {
                 return false;
             }
 
-            var exWindowStyle = window.ExtendedWindowStyle;
-            if ((exWindowStyle & ExtendedWindowStyleFlags.WS_EX_TOOLWINDOW) != 0)
+            // Tool windows are mostly overlays
+            if ((window.ExtendedWindowStyle & ExtendedWindowStyleFlags.WS_EX_TOOLWINDOW) != 0)
             {
                 return false;
             }
 
-            // Skip everything which is not rendered "normally", trying to fix BUG-2017
-            // But allow Win10 apps and Chromium-based browsers (Chrome, Edge, Brave) which use this flag legitimately
-            if (!window.IsWin10App && !window.IsChromiumWindow && (exWindowStyle & ExtendedWindowStyleFlags.WS_EX_NOREDIRECTIONBITMAP) != 0)
-            {
-                return false;
-            }
-
-            // Skip preview windows, like the one from Firefox
-            if ((window.WindowStyle & WindowStyleFlags.WS_VISIBLE) == 0)
-            {
-                return false;
-            }
-
-            // Ignore windows without title
+            // If the title is empty, it's rarely a window the user interacts with
             if (window.Text.Length == 0)
             {
                 return false;
             }
 
             if (IgnoreClasses.Contains(window.ClassName))
-            {
-                return false;
-            }
-
-            if (!(window.Visible || window.Iconic))
             {
                 return false;
             }
