@@ -18,6 +18,9 @@ Source: {#ReleaseDir}\Greenshot.Editor.dll; DestDir: {app}; Components: greensho
 Source: {#ReleaseDir}\Greenshot.exe.config; DestDir: {app}; Components: greenshot; Flags: overwritereadonly
 Source: {#ReleaseDir}\log4net.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly
 Source: {#ReleaseDir}\Dapplo.*.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly
+Source: {#ReleaseDir}\SixLabors.ImageSharp.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion
+Source: {#ReleaseDir}\SixLabors.ImageSharp.Drawing.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion
+Source: {#ReleaseDir}\SixLabors.Fonts.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion
 Source: {#ReleaseDir}\System.*.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly
 Source: {#ReleaseDir}\Svg.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly
 Source: {#ReleaseDir}\ExCSS.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly
@@ -25,6 +28,8 @@ Source: {#ReleaseDir}\HtmlAgilityPack.dll; DestDir: {app}; Components: greenshot
 Source: {#ReleaseDir}\Newtonsoft.Json.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly
 Source: {#ReleaseDir}\Microsoft.Toolkit.*.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly
 Source: {#ReleaseDir}\checksum.SHA256; DestDir: {app}; Components: greenshot; Flags: overwritereadonly
+Source: {#ReleaseDir}\Twemoji.Mozilla.ttf; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion
+Source: {#ReleaseDir}\emojis.xml; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion
 ;Source: ..\greenshot-defaults.ini; DestDir: {app}; Flags: overwritereadonly
 Source: ..\additional_files\installer.txt; DestDir: {app}; Components: greenshot; Flags: overwritereadonly recursesubdirs
 Source: ..\additional_files\license.txt; DestDir: {app}; Components: greenshot; Flags: overwritereadonly recursesubdirs

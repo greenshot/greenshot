@@ -39,6 +39,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Greenshot.Base\Greenshot.Base.csproj" />
     <ProjectReference Include="..\Greenshot.Editor\Greenshot.Editor.csproj" />
+    <ProjectReference Include="..\Greenshot.BuildTasks\Greenshot.BuildTasks.csproj" ReferenceOutputAssembly="false" />
     <FilesToHash Include="$(SolutionDir)$(SolutionName)\$(OutDir)\*" />
   </ItemGroup>
 
@@ -76,6 +77,12 @@
       </Code>
     </Task>
   </UsingTask>
+
+  <UsingTask TaskName="EmojiDataTask" TaskFactory="TaskHostFactory" AssemblyFile="..\Greenshot.BuildTasks\bin\$(Configuration)\$(TargetFramework)\Greenshot.BuildTasks.dll" />
+
+  <Target Name="GenerateEmojiTestTxtFile" BeforeTargets="BeforeBuild">
+    <EmojiDataTask EmojiTestTxtFile="..\Greenshot.Editor\Controls\Emoji\emoji-test.txt" OutputFilename="$(SolutionDir)$(SolutionName)\$(OutDir)\emojis.xml" />
+  </Target>
 
   <Target Name="Generate hashes" BeforeTargets="PostBuildEvent">
     <GetFileHash Files="@(FilesToHash)" Algorithm="SHA256" HashEncoding="hex">
