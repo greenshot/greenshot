@@ -1064,6 +1064,7 @@ namespace Greenshot.Editor.Forms
                         break;
                     case Keys.M:
                         BtnEmojiClick(sender, e);
+                        break;
                     case Keys.Z:
                         BtnResizeClick(sender, e);
                         break;

@@ -6,7 +6,8 @@
     <PackageReference Include="Microsoft.Build.Utilities.Core" version="17.3.2">
       <PrivateAssets>all</PrivateAssets>
       <ExcludeAssets>runtime</ExcludeAssets>
-    </PackageReference>   
+    </PackageReference>
+    <PackageReference Include="SixLabors.ImageSharp" Version="2.1.13" />   
     <PackageReference Include="SixLabors.ImageSharp.Drawing" version="1.0.0" />
   </ItemGroup>
   <ItemGroup>
