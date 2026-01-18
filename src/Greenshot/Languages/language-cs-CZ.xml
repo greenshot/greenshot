@@ -218,7 +218,7 @@ Zkontrolujte prosím dostupnost vybraného cíle.</resource>
 		<resource name="settings_destination_email">E-mail</resource>
 		<resource name="settings_destination_file">Uložit přímo (pomocí nastavení níže)</resource>
 		<resource name="settings_destination_fileas">Uložit jako (zobrazit dialog)</resource>
-		<resource name="settings_destination_picker">Vybrat cíl dynamicky</resource>
+		<resource name="settings_destination_picker">Zeptat se na cíl pokaždé</resource>
 		<resource name="settings_destination_printer">Odeslat na tiskárnu</resource>
 		<resource name="settings_editor">Editor</resource>
 		<resource name="settings_filenamepattern">Vzor pro název souboru</resource>

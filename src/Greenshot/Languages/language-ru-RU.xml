@@ -225,7 +225,7 @@ Greenshot поставляется БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ.�
 		<resource name="settings_destination_email">E-Mail</resource>
 		<resource name="settings_destination_file">Сохранить непосредственно (с помощью параметров ниже)</resource>
 		<resource name="settings_destination_fileas">Сохранить как (отображать диалоговое окно)</resource>
-		<resource name="settings_destination_picker">Выберите пункт назначения</resource>
+		<resource name="settings_destination_picker">Спрашивать о назначении каждый раз</resource>
 		<resource name="settings_destination_printer">Отправить на печать</resource>
 		<resource name="settings_editor">Редактор</resource>
 		<resource name="settings_filenamepattern">Шаблон имени файла</resource>

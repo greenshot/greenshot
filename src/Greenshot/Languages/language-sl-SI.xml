@@ -193,7 +193,7 @@ Prosim preverite pravice pisanja v ta direktorij.</resource>
 		<resource name="settings_destination_editor">Odpri v urejevalniku</resource>
 		<resource name="settings_destination_file">Shrani neposredno (z uporabo spodnjih nastavitev)</resource>
 		<resource name="settings_destination_fileas">Shrani kot (odpre pogovorno okno)</resource>
-		<resource name="settings_destination_picker">Dinamično izberi cilj</resource>
+		<resource name="settings_destination_picker">Vprašaj za cilj vsakič</resource>
 		<resource name="settings_destination_printer">Tiskaj</resource>
 		<resource name="settings_editor">Urejevalnik</resource>
 		<resource name="settings_filenamepattern">Vzorec imena datoteke</resource>
