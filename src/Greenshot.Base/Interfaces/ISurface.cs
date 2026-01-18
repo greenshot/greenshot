@@ -267,5 +267,10 @@ namespace Greenshot.Base.Interfaces
         {
             get;
         }
+
+        /// <summary>
+        /// Provide access to the controls, this is for the EmojiContainer and needs to go.
+        /// </summary>
+        public Control.ControlCollection Controls { get; }
     }
 }

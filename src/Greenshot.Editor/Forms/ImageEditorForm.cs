@@ -27,6 +27,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
@@ -44,6 +45,7 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Forms;
 using Greenshot.Editor.Configuration;
+using Greenshot.Editor.Controls.Emoji;
 using Greenshot.Editor.Destinations;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Drawing.Fields;
@@ -142,6 +144,9 @@ namespace Greenshot.Editor.Forms
 
         private void Initialize(ISurface surface, bool outputMade)
         {
+            // Compute emojis in background
+            EmojiData.Load();
+
             EditorList.Add(this);
 
             //
@@ -285,7 +290,7 @@ namespace Greenshot.Editor.Forms
 
             _toolbarButtons = new[]
             {
-                btnCursor, btnRect, btnEllipse, btnText, btnLine, btnArrow, btnFreehand, btnHighlight, btnObfuscate, btnCrop, btnStepLabel, btnSpeechBubble
+                btnCursor, btnRect, btnEllipse, btnText, btnLine, btnArrow, btnFreehand, btnHighlight, btnObfuscate, btnCrop, btnStepLabel, btnSpeechBubble, btnEmoji
             };
             //toolbarDropDownButtons = new ToolStripDropDownButton[]{btnBlur, btnPixeliate, btnTextHighlighter, btnAreaHighlighter, btnMagnifier};
 
@@ -644,6 +649,9 @@ namespace Greenshot.Editor.Forms
                 case DrawingModes.Path:
                     SetButtonChecked(btnFreehand);
                     break;
+                case DrawingModes.Emoji:
+                    SetButtonChecked(btnEmoji);
+                    break;
             }
         }
 
@@ -740,6 +748,12 @@ namespace Greenshot.Editor.Forms
         private void BtnStepLabelClick(object sender, EventArgs e)
         {
             _surface.DrawingMode = DrawingModes.StepLabel;
+            RefreshFieldControls();
+        }
+
+        private void BtnEmojiClick(object sender, EventArgs e)
+        {
+            _surface.DrawingMode = DrawingModes.Emoji;
             RefreshFieldControls();
         }
 
@@ -1058,6 +1072,9 @@ namespace Greenshot.Editor.Forms
                         break;
                     case Keys.C:
                         BtnCropClick(sender, e);
+                        break;
+                    case Keys.M:
+                        BtnEmojiClick(sender, e);
                         break;
                     case Keys.Z:
                         BtnResizeClick(sender, e);

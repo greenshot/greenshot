@@ -17,7 +17,11 @@ Source: {#ReleaseDir}\Greenshot.Base.dll; DestDir: {app}; Components: greenshot;
 Source: {#ReleaseDir}\Greenshot.Editor.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly
 Source: {#ReleaseDir}\Greenshot.exe.config; DestDir: {app}; Components: greenshot; Flags: overwritereadonly
 Source: {#ReleaseDir}\log4net.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly
+Source: {#ReleaseDir}\log4net.xml; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion
 Source: {#ReleaseDir}\Dapplo.*.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly
+Source: {#ReleaseDir}\SixLabors.ImageSharp.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion
+Source: {#ReleaseDir}\SixLabors.ImageSharp.Drawing.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion
+Source: {#ReleaseDir}\SixLabors.Fonts.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion
 Source: {#ReleaseDir}\System.*.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly
 Source: {#ReleaseDir}\Svg.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly
 Source: {#ReleaseDir}\ExCSS.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly
@@ -25,6 +29,8 @@ Source: {#ReleaseDir}\HtmlAgilityPack.dll; DestDir: {app}; Components: greenshot
 Source: {#ReleaseDir}\Newtonsoft.Json.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly
 Source: {#ReleaseDir}\Microsoft.Toolkit.*.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly
 Source: {#ReleaseDir}\checksum.SHA256; DestDir: {app}; Components: greenshot; Flags: overwritereadonly
+Source: {#ReleaseDir}\Twemoji.Mozilla.ttf; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion
+Source: {#ReleaseDir}\emojis.xml; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion
 ;Source: ..\greenshot-defaults.ini; DestDir: {app}; Flags: overwritereadonly
 Source: ..\additional_files\installer.txt; DestDir: {app}; Components: greenshot; Flags: overwritereadonly recursesubdirs
 Source: ..\additional_files\license.txt; DestDir: {app}; Components: greenshot; Flags: overwritereadonly recursesubdirs
@@ -150,6 +156,7 @@ WizardImageFile=installer-large.bmp
 ; Reference a bitmap, max size 55x58
 WizardSmallImageFile=installer-small.bmp
 WizardStyle=modern
+UninstallDisplayName={#ExeName} {#Version}
 
 [Registry]
 ; Delete all startup entries, so we don't have leftover values
@@ -450,7 +457,7 @@ tr.optimize=Performans ayarları yapılıyor, bu biraz zaman alabilir.
 tr.photobucket=Photobucket eklentisi
 tr.startgreenshot={#ExeName} uygulamasını başlat
 tr.startup={#ExeName} Windows açıldığında başlasın
-tr.UninstallIconDescription=Kaldır
+tr.UninstallIconDescription=Greenshot uygulamasını kaldır
 tr.ShowLicense=Show license
 tr.ShowReadme=Show Readme
 tr.disablewin11snippingtool=Win11 varsayılan ekran alıntısı aracını devre dışı bırakın
