@@ -221,7 +221,7 @@ Seçili kayıt yolunun yazılabilir olduğundan emin olun.</resource>
 		<resource name="settings_destination_email">E-Posta gönder</resource>
 		<resource name="settings_destination_file">Doğrudan kaydet (aşağıdaki ayarları kullanarak)</resource>
 		<resource name="settings_destination_fileas">Farklı kaydet (iletişim kutusu gösterilir)</resource>
-		<resource name="settings_destination_picker">Hedefi dinamik olarak seç</resource>
+		<resource name="settings_destination_picker">Her seferinde hedef sor</resource>
 		<resource name="settings_destination_printer">Yazıcıya gönder</resource>
 		<resource name="settings_editor">Editör</resource>
 		<resource name="settings_filenamepattern">Dosya adı biçimi</resource>
