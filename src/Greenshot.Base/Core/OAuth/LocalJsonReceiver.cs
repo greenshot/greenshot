@@ -73,7 +73,7 @@ namespace Greenshot.Base.Core.OAuth
         public Action<string> OpenUriAction { set; get; } = authorizationUrl =>
         {
             Log.DebugFormat("Open a browser with: {0}", authorizationUrl);
-            using var process = Process.Start(authorizationUrl);
+            using var process = Process.Start(new ProcessStartInfo(authorizationUrl) { UseShellExecute = true });
         };
 
         /// <summary>

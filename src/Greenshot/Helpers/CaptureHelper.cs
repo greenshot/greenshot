@@ -608,7 +608,7 @@ namespace Greenshot.Helpers
                         ExplorerHelper.OpenInExplorer(surface.LastSaveFullPath);
                         break;
                     case SurfaceMessageTyp.UploadedUri:
-                        Process.Start(surface.UploadUrl);
+                        Process.Start(new ProcessStartInfo(surface.UploadUrl) { UseShellExecute = true });
                         break;
                 }
             }

@@ -260,7 +260,7 @@ namespace Greenshot.Plugin.ExternalCommand
                 }
 
                 LOG.InfoFormat("Starting : {0} {1}", process.StartInfo.FileName, process.StartInfo.Arguments);
-                process.Start();
+                Process.Start(new ProcessStartInfo() { UseShellExecute = true });
                 process.WaitForExit();
                 if (config.RedirectStandardOutput)
                 {

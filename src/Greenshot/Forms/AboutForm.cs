@@ -224,7 +224,7 @@ namespace Greenshot.Forms
             try
             {
                 linkLabel.LinkVisited = true;
-                Process.Start(link);
+                Process.Start(new ProcessStartInfo(link) { UseShellExecute = true });
             }
             catch (Exception)
             {
@@ -343,7 +343,7 @@ namespace Greenshot.Forms
                         {
                             if (File.Exists(MainForm.LogFileLocation))
                             {
-                                using (Process.Start("\"" + MainForm.LogFileLocation + "\""))
+                                using (Process.Start(new ProcessStartInfo("\"" + MainForm.LogFileLocation + "\"") { UseShellExecute = true }))
                                 {
                                     // nothing to do, just using dispose to cleanup
                                 }
@@ -363,7 +363,7 @@ namespace Greenshot.Forms
                     case Keys.I:
                         try
                         {
-                            using (Process.Start("\"" + IniConfig.ConfigLocation + "\""))
+                            using (Process.Start(new ProcessStartInfo("\"" + IniConfig.ConfigLocation + "\"") { UseShellExecute = true }))
                             {
                             }
                         }

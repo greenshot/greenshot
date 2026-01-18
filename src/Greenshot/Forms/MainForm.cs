@@ -1235,7 +1235,7 @@ namespace Greenshot.Forms
         /// <param name="e">EventArgs</param>
         private void Contextmenu_DonateClick(object sender, EventArgs e)
         {
-            BeginInvoke((MethodInvoker) delegate { Process.Start("https://getgreenshot.org/support/?version=" + EnvironmentInfo.GetGreenshotVersion(true)); });
+            BeginInvoke((MethodInvoker) delegate { Process.Start(new ProcessStartInfo("https://getgreenshot.org/support/?version=" + EnvironmentInfo.GetGreenshotVersion(true)) { UseShellExecute = true }); });
         }
 
         /// <summary>
