@@ -61,7 +61,9 @@ namespace Greenshot.Base.Core
                 // Only try to instantiate when Windows 8 or later.
                 if (WindowsVersion.IsWindows8OrLater)
                 {
+#if NETFRAMEWORK
                     AppVisibility = COMWrapper.CreateInstance<IAppVisibility>();
+#endif
                 }
             }
             catch (Exception ex)

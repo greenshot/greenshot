@@ -42,6 +42,7 @@ using Greenshot.Configuration;
 using Greenshot.Editor.Destinations;
 using Greenshot.Editor.Drawing;
 using Greenshot.Forms;
+using ScreenCaptureMode = Greenshot.Base.Interfaces.ScreenCaptureMode;
 
 namespace Greenshot.Helpers
 {

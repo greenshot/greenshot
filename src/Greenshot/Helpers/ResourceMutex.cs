@@ -88,7 +88,11 @@ namespace Greenshot.Helpers
                 mutexSecurity.AddAccessRule(new MutexAccessRule(sid, MutexRights.Delete, AccessControlType.Deny));
 
                 // 1) Create Mutex
+#if NETFRAMEWORK
                 _applicationMutex = new Mutex(true, _mutexId, out var createdNew, mutexSecurity);
+#else
+                _applicationMutex = MutexAcl.Create(true, _mutexId, out var createdNew, mutexSecurity);
+#endif
                 // 2) if the mutex wasn't created new get the right to it, this returns false if it's already locked
                 if (!createdNew && !_applicationMutex.WaitOne(100, false))
                 {

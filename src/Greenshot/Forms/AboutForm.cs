@@ -325,7 +325,9 @@ namespace Greenshot.Forms
         /// <param name="msg"></param>
         /// <param name="keyData"></param>
         /// <returns></returns>
+#if NETFRAMEWORK
         [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.UnmanagedCode)]
+#endif
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
             try

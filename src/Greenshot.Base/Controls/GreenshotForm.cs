@@ -21,18 +21,17 @@
 
 
 #if DEBUG
-using System.ComponentModel;
 using System.ComponentModel.Design;
 using System.IO;
 #endif
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Reflection;
 using System.Windows.Forms;
 using Greenshot.Base.Core;
 using Greenshot.Base.IniFile;
 using log4net;
-using System.ComponentModel;
 
 namespace Greenshot.Base.Controls
 {

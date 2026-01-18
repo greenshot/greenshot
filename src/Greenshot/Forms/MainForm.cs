@@ -57,6 +57,8 @@ using Greenshot.Helpers;
 using Greenshot.Plugin.Win10;
 using Greenshot.Processors;
 using log4net;
+using MethodInvoker = System.Windows.Forms.MethodInvoker;
+using ScreenCaptureMode = Greenshot.Base.Interfaces.ScreenCaptureMode;
 using Timer = System.Timers.Timer;
 
 namespace Greenshot.Forms
