@@ -5,7 +5,7 @@
 		<resource name="about_donations">Jika anda menyukai Greenshot, anda dipersilahkan untuk mendukung kami:</resource>
 		<resource name="about_host">Greenshot dikelola oleh GitHub di</resource>
 		<resource name="about_icons">Ikon dari Yusuke Kamiyamane Fugue ikon set (lisensi Creative Commons Attribution 3.0)</resource>
-		<resource name="about_license">Hak Cipta milik Thomas Braun, Jens Klingen, Robin Krom 2007-2021
+		<resource name="about_license">Hak Cipta milik Thomas Braun, Jens Klingen, Robin Krom 2004-2026
 Greenshot comes with ABSOLUTELY NO WARRANTY. This is free software, and you are welcome to redistribute it under certain conditions.
 Details about the GNU General Public License:</resource>
 		<resource name="about_title">Tentang Greenshot</resource>
@@ -49,8 +49,6 @@ Juga, kami sangat terbantu apabila anda mengecek laporan lain yang sama dengan k
 		<resource name="contextmenu_capturefullscreen_left">kiri</resource>
 		<resource name="contextmenu_capturefullscreen_right">kanan</resource>
 		<resource name="contextmenu_capturefullscreen_top">atas</resource>
-		<resource name="contextmenu_captureie">Tangkap Internet Explorer</resource>
-		<resource name="contextmenu_captureiefromlist">Tangkap Internet Explorer dari daftar</resource>
 		<resource name="contextmenu_capturelastregion">Tangkap daerah terakhir</resource>
 		<resource name="contextmenu_capturewindow">Tangkap jendela</resource>
 		<resource name="contextmenu_capturewindowfromlist">Tangkap jendela dari daftar</resource>
@@ -144,7 +142,7 @@ Juga, kami sangat terbantu apabila anda mengecek laporan lain yang sama dengan k
 		<resource name="editor_print">Cetak</resource>
 		<resource name="editor_redo">Ulang {0}</resource>
 		<resource name="editor_resetsize">Reset ukuran</resource>
-		<resource name="editor_resize">Ubah ukuran</resource>
+		<resource name="editor_resize">Ubah ukuran (Z)</resource>
 		<resource name="editor_resize_aspectratio">Pertahankan aspek rasio</resource>
 		<resource name="editor_resize_height">Tinggi</resource>
 		<resource name="editor_resize_percent">Persen</resource>
@@ -244,7 +242,6 @@ Harap cek aksesibilitas menuis pada lokasi penyimpanan yang dipilih.</resource>
 		<resource name="settings_filenamepattern">Pola nama berkas</resource>
 		<resource name="settings_general">Umum</resource>
 		<resource name="settings_iconsize">Ukuran ikon</resource>
-		<resource name="settings_iecapture">Tangkap Internet Explorer</resource>
 		<resource name="settings_jpegquality">Kualitas JPEG</resource>
 		<resource name="settings_language">Bahasa</resource>
 		<resource name="settings_message_filenamepattern">Pedoman berikut akan ditimpa otomatis dalam pola yang ditetapkan:
@@ -296,7 +293,6 @@ cont, 11_58_32 (ditambah ekstensi yang ditetapkan pada pengaturan)</resource>
 		<resource name="settings_zoom">Tampilkan Pembesar</resource>
 		<resource name="tooltip_firststart">Klik kanan disini atau tekan tombol {0}.</resource>
 		<resource name="update_found">Versi baru Greenshot telah tersedia! Apakah anda ingin mengunduh Greenshot {0}?</resource>
-		<resource name="wait_ie_capture">Harap tunggu ketika halaman Internet Explorer sedang ditangkap</resource>
 		<resource name="warning">Peringatan</resource>
 		<resource name="warning_hotkeys">hotkey {0} tak dapat terdaftar, kemungkinan akibat alat lain telah mengklaim penggunaan hotkey, anda dapat mengganti hotkey yang lain atau menonaktifkannya.
 

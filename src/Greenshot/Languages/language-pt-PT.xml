@@ -5,7 +5,7 @@
 		<resource name="about_donations">Se gostou do Greenshot, por favor contribua:</resource>
 		<resource name="about_host">O Greenshot está armazenado no GitHub em</resource>
 		<resource name="about_icons">Ícones da colecção Fugue de Yusuke Kamiyamane (Licença "Creative Commons Attribution 3.0")</resource>
-		<resource name="about_license">Direitos de Autor (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+		<resource name="about_license">Direitos de Autor © 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
 O Greenshot não tem NENHUMA GARANTIA. Este software gratuito pode ser redistribuído sob algumas condições.
 Detalhes sobre a licença GNU:</resource>
 		<resource name="about_title">Acerca do Greenshot</resource>
@@ -49,8 +49,6 @@ Também apreciaremos muito se puder verificar se não existe já um relatório d
 		<resource name="contextmenu_capturefullscreen_left">esquerda</resource>
 		<resource name="contextmenu_capturefullscreen_right">direita</resource>
 		<resource name="contextmenu_capturefullscreen_top">superior</resource>
-		<resource name="contextmenu_captureie">Capturar Internet Explorer</resource>
-		<resource name="contextmenu_captureiefromlist">Capturar Internet Explorer da lista</resource>
 		<resource name="contextmenu_capturelastregion">Capturar a última região</resource>
 		<resource name="contextmenu_capturewindow">Capturar janela</resource>
 		<resource name="contextmenu_capturewindowfromlist">Capturar janela da lista</resource>
@@ -85,6 +83,7 @@ Também apreciaremos muito se puder verificar se não existe já um relatório d
 		<resource name="editor_cancel">Cancelar</resource>
 		<resource name="editor_clipboardfailed">Erro ao aceder à área de transferência. Por favor tente novamente.</resource>
 		<resource name="editor_close">Fechar</resource>
+		<resource name="editor_close_all">Fechar tudo</resource>
 		<resource name="editor_close_on_save">Deseja guardar a imagem capturada?</resource>
 		<resource name="editor_close_on_save_title">Guardar imagem?</resource>
 		<resource name="editor_confirm">Confirmar</resource>
@@ -222,7 +221,6 @@ Por favor verifique as permissões de escrita do local seleccionado.</resource>
 		<resource name="settings_editor">Editor</resource>
 		<resource name="settings_filenamepattern">Nome Ficheiro Padrão</resource>
 		<resource name="settings_general">Geral</resource>
-		<resource name="settings_iecapture">Captura do Internet Explorer</resource>
 		<resource name="settings_jpegquality">Qualidade JPEG</resource>
 		<resource name="settings_language">Idioma</resource>
 		<resource name="settings_message_filenamepattern">Os seguientes marcadores de posição serão substituídos automaticamente no padrão definido:
@@ -274,7 +272,6 @@ hora actual, exemplo: 11_58_32 (mais a extensão definida nas definições)</res
 		<resource name="settings_windowscapture">Capturar Janela</resource>
 		<resource name="tooltip_firststart">Clique com o botão direito aqui ou prima a tecla {0}.</resource>
 		<resource name="update_found">Está disponível uma nova versão do Greenshot! Deseja transferir o Greenshot {0}?</resource>
-		<resource name="wait_ie_capture">Por favor aguarde enquanto a página do Internet Explorer é capturada...</resource>
 		<resource name="warning">Alerta</resource>
 		<resource name="warning_hotkeys">A(s) tecla(s) de Atalho "{0}" não pode(m) ser registada(s). Este problema é provavelmente provocado por outra ferramenta que que utiliza a(s) mesma(s) tecla(s) de atalho! Pode alterar as suas definições de teclas de atalho ou desactivar/alterar o programa que está a usar a(s) mesma(s) tecla(s) de atalho.
 		
@@ -305,7 +302,7 @@ Todas as funcionalidades do Greenshot funcionam directamente através do menu de
     <resource name="editor_counter">Adicionar contador (I)</resource>
     <resource name="editor_speechbubble">Adicionar balão de texto (S)</resource>
 
-    <resource name="editor_resize">Redimensionar</resource>
+    <resource name="editor_resize">Redimensionar (Z)</resource>
     <resource name="editor_resize_settings">Definições de Redimensionamento</resource>
     <resource name="editor_resize_aspectratio">Manter proporções</resource>
     <resource name="editor_resize_width">Largura</resource>

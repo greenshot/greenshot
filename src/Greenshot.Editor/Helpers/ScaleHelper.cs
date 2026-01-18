@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -202,7 +202,7 @@ namespace Greenshot.Editor.Helpers
             {
                 // scaled rectangle (ratio) would be taller than original
                 // keep width and tweak height to maintain aspect ratio
-                newSize = newSize.ChangeWidth(selectedSize.Width / originalRatio * flippedRatioSign);
+                newSize = newSize.ChangeHeight(selectedSize.Width / originalRatio * flippedRatioSign);
             }
 
             return newSize;

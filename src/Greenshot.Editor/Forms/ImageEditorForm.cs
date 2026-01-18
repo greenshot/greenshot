@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -27,6 +27,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
@@ -44,6 +45,7 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Forms;
 using Greenshot.Editor.Configuration;
+using Greenshot.Editor.Controls.Emoji;
 using Greenshot.Editor.Destinations;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Drawing.Fields;
@@ -142,6 +144,9 @@ namespace Greenshot.Editor.Forms
 
         private void Initialize(ISurface surface, bool outputMade)
         {
+            // Compute emojis in background
+            EmojiData.Load();
+
             EditorList.Add(this);
 
             //
@@ -189,7 +194,6 @@ namespace Greenshot.Editor.Forms
             {
                 CaptureMode.File => true,
                 CaptureMode.Clipboard => true,
-                CaptureMode.IE => true,
                 _ => false
             };
 
@@ -285,7 +289,7 @@ namespace Greenshot.Editor.Forms
 
             _toolbarButtons = new[]
             {
-                btnCursor, btnRect, btnEllipse, btnText, btnLine, btnArrow, btnFreehand, btnHighlight, btnObfuscate, btnCrop, btnStepLabel, btnSpeechBubble
+                btnCursor, btnRect, btnEllipse, btnText, btnLine, btnArrow, btnFreehand, btnHighlight, btnObfuscate, btnCrop, btnStepLabel, btnSpeechBubble, btnEmoji
             };
             //toolbarDropDownButtons = new ToolStripDropDownButton[]{btnBlur, btnPixeliate, btnTextHighlighter, btnAreaHighlighter, btnMagnifier};
 
@@ -473,7 +477,10 @@ namespace Greenshot.Editor.Forms
 
             // add the elements after the destinations
             fileStripMenuItem.DropDownItems.Add(toolStripSeparator9);
+            fileStripMenuItem.DropDownItems.Add(closeAllToolStripMenuItem);
             fileStripMenuItem.DropDownItems.Add(closeToolStripMenuItem);
+            // reassign the close shortcuts besause ClearItems above removes them
+            closeToolStripMenuItem.ShortcutKeys = Keys.Alt | Keys.F4;
         }
 
         private delegate void SurfaceMessageReceivedThreadSafeDelegate(object sender, SurfaceMessageEventArgs eventArgs);
@@ -631,12 +638,15 @@ namespace Greenshot.Editor.Forms
                 case DrawingModes.Path:
                     SetButtonChecked(btnFreehand);
                     break;
+                case DrawingModes.Emoji:
+                    SetButtonChecked(btnEmoji);
+                    break;
             }
         }
 
         /**
-		 * Interfaces for plugins, see GreenshotInterface for more details!
-		 */
+         * Interfaces for plugins, see GreenshotInterface for more details!
+         */
         public Image GetImageForExport()
         {
             return _surface.GetImageForExport();
@@ -668,7 +678,30 @@ namespace Greenshot.Editor.Forms
 
         private void CloseToolStripMenuItemClick(object sender, EventArgs e)
         {
-            Close();
+            CloseEditor(closeAllOpenEditors: false);
+        }
+
+        private void CloseAllToolStripMenuItemClick(object sender, EventArgs e)
+        {
+            CloseEditor(closeAllOpenEditors: true);
+        }
+
+        /// <summary>
+        /// Closes the current editor or all open editors in <see cref="Editors"/>.
+        /// </summary>
+        /// <param name="closeAllOpenEditors"></param>
+        private void CloseEditor(bool closeAllOpenEditors)
+        {
+            if (closeAllOpenEditors)
+            {
+                // we have to copy the list because closing the editor will remove it from the list
+                List<ImageEditorForm> closinglist = Editors.OfType<ImageEditorForm>().ToList();
+                closinglist.ForEach(e => e.Close());
+            }
+            else
+            {
+                Close();
+            }
         }
 
         private void BtnEllipseClick(object sender, EventArgs e)
@@ -704,6 +737,12 @@ namespace Greenshot.Editor.Forms
         private void BtnStepLabelClick(object sender, EventArgs e)
         {
             _surface.DrawingMode = DrawingModes.StepLabel;
+            RefreshFieldControls();
+        }
+
+        private void BtnEmojiClick(object sender, EventArgs e)
+        {
+            _surface.DrawingMode = DrawingModes.Emoji;
             RefreshFieldControls();
         }
 
@@ -1022,6 +1061,12 @@ namespace Greenshot.Editor.Forms
                         break;
                     case Keys.C:
                         BtnCropClick(sender, e);
+                        break;
+                    case Keys.M:
+                        BtnEmojiClick(sender, e);
+                        break;
+                    case Keys.Z:
+                        BtnResizeClick(sender, e);
                         break;
                 }
             }
@@ -1370,6 +1415,7 @@ namespace Greenshot.Editor.Forms
                     ToolStripItemEndisabler.Disable(destinationsToolStrip);
                     ToolStripItemEndisabler.Disable(toolsToolStrip);
                     ToolStripItemEndisabler.Enable(closeToolStripMenuItem);
+                    ToolStripItemEndisabler.Enable(closeAllToolStripMenuItem);
                     ToolStripItemEndisabler.Enable(helpToolStripMenuItem);
                     ToolStripItemEndisabler.Enable(aboutToolStripMenuItem);
                     ToolStripItemEndisabler.Enable(preferencesToolStripMenuItem);
