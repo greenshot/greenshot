@@ -21,6 +21,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Globalization;
 using System.Threading;
@@ -59,6 +60,7 @@ namespace Greenshot.Editor.Forms
         private readonly ToolTip _toolTip = new ToolTip();
         private bool _updateInProgress;
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public Color Color
         {
             get { return colorPanel.BackColor; }

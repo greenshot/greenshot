@@ -37,6 +37,7 @@ namespace Greenshot.Editor.Controls
         [Category("Greenshot"), DefaultValue(null), Description("Specifies key of the language file to use when displaying the text.")]
         public string LanguageKey { get; set; }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public object SelectedTag
         {
             get

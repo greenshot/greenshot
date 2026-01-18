@@ -32,6 +32,7 @@ using System.Windows.Forms;
 using Greenshot.Base.Core;
 using Greenshot.Base.IniFile;
 using log4net;
+using System.ComponentModel;
 
 namespace Greenshot.Base.Controls
 {
@@ -67,6 +68,7 @@ namespace Greenshot.Base.Controls
 #if DEBUG
         [Category("Greenshot"), DefaultValue(null), Description("Specifies key of the language file to use when displaying the text.")]
 #endif
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string LanguageKey { get; set; }
 
 #if DEBUG

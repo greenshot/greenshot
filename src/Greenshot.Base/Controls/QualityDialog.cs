@@ -24,6 +24,7 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces.Plugin;
+using System.ComponentModel;
 
 namespace Greenshot.Base.Controls
 {
@@ -33,6 +34,7 @@ namespace Greenshot.Base.Controls
     public partial class QualityDialog : GreenshotForm
     {
         private static readonly CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public SurfaceOutputSettings Settings { get; set; }
 
         public QualityDialog(SurfaceOutputSettings outputSettings)
