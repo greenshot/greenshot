@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Greenshot.Base.Interfaces;
+using log4net;
 
 namespace Greenshot.Base.Core
 {
@@ -10,6 +11,7 @@ namespace Greenshot.Base.Core
     /// </summary>
     public class SimpleServiceProvider : IServiceLocator
     {
+        private static readonly ILog Log = LogManager.GetLogger(typeof(SimpleServiceProvider));
         private readonly Dictionary<Type, IList<object>> _services = new();
 
         /// <summary>
@@ -30,9 +32,35 @@ namespace Greenshot.Base.Core
         }
 
         /// <inheritdoc/>
-        public TService GetInstance<TService>()
+        public TService GetInstance<TService>(bool isRequired = false)
         {
-            return GetAllInstances<TService>().SingleOrDefault();
+            try
+            {
+                var instances = GetAllInstances<TService>();
+
+                if (instances.Count > 1)
+                {
+                    throw new InvalidOperationException(
+                        $"Found {instances.Count} instances of {typeof(TService).FullName}, but expected only one."
+                    );
+                }
+
+                var instance = instances.FirstOrDefault();
+
+                if (isRequired && instance is null)
+                {
+                    throw new InvalidOperationException(
+                        $"No instance of {typeof(TService).FullName} found, but it is required."
+                    );
+                }
+
+                return instance;
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"GetInstance failed for {typeof(TService)}", ex);
+                throw;
+            }
         }
 
         /// <inheritdoc/>
