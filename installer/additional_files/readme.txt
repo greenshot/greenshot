@@ -5,9 +5,14 @@ Apply text and shapes to the screenshot. Offers capture of window, region or ful
 
 CHANGE LOG:
 
-All details to our tickets can be found here: https://greenshot.atlassian.net
+All details to our tickets can be found here: https://github.com/greenshot/greenshot/issues or, for older tickets: https://greenshot.atlassian.net
 
 # Greenshot 1.3.xxx
+
+Bugs fixed:
+* Security advisory GHSA-7hvw-q8q5-gpmj
+
+# Greenshot 1.3.304
 
 Bugs fixed:
 * File Association and Launch with File Arguments Not Working When Already Running [#685](https://github.com/greenshot/greenshot/issues/685) thanks to @Christian-Schulz

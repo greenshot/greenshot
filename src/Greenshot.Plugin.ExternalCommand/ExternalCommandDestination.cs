@@ -266,7 +266,27 @@ namespace Greenshot.Plugin.ExternalCommand
 
         public static string FormatArguments(string arguments, string fullpath)
         {
-            return string.Format(arguments, fullpath);
+            // Validate filename doesn't contain shell metacharacters
+            char[] dangerousChars = { '&', '|', ';', '$', '`', '(', ')', '<', '>', '\n', '\r', '"', '\'' };
+
+            if (fullpath.IndexOfAny(dangerousChars) >= 0)
+            {
+                throw new ArgumentException(
+                    "Filename contains potentially dangerous characters. " +
+                    "For security reasons, filenames with shell metacharacters are not allowed."
+                );
+            }
+
+            // Validate arguments template doesn't use shell interpreters
+            if (arguments.Contains("cmd.exe") || arguments.Contains("powershell"))
+            {
+                LOG.Warn("ExternalCommand configured with shell interpreter - potential security risk");
+            }
+
+            // Additional: Ensure proper quoting
+            string safePath = fullpath.Replace("\"", "\\\"");
+
+            return string.Format(arguments, safePath);
         }
     }
 }

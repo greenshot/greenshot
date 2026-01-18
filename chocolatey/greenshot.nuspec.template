@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>greenshot</id>
+    <version>version</version>
+    <packageSourceUrl>https://github.com/greenshot/greenshot</packageSourceUrl>
+    <owners>Greenshot</owners>
+    <title>Greenshot</title>
+    <authors>Greenshot</authors>
+    <projectUrl>https://getgreenshot.org/</projectUrl>
+    <iconUrl>https://upload.wikimedia.org/wikipedia/commons/9/95/GreenshotLogo.png</iconUrl>
+    <licenseUrl>https://www.gnu.org/licenses/gpl.html</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <projectSourceUrl>https://github.com/greenshot/greenshot</projectSourceUrl>
+    <docsUrl>https://getgreenshot.org/help/</docsUrl>
+    <bugTrackerUrl>https://github.com/greenshot/greenshot/issues</bugTrackerUrl>
+    <tags>greenshot screenshot screen capture notsilent</tags>
+    <summary>Greenshot is a light-weight screenshot software tool for Windows.</summary>
+    <description>Greenshot is a light-weight screenshot software tool for Windows with the following key features:
+Quickly create screenshots of a selected region, window or fullscreen; you can even capture complete (scrolling) web pages from Internet Explorer.
+Easily annotate, highlight or obfuscate parts of the screenshot.
+Export the screenshot in various ways: save to file, send to printer, copy to clipboard, attach to e-mail, send Office programs or upload to photo sites like Flickr or Picasa, and others.
+...and a lot more options simplyfying creation of and work with screenshots every day.
+
+Being easy to understand and configurable, Greenshot is an efficient tool for project managers, software developers, technical writers, testers and anyone else creating screenshots.</description>
+    
+    <releaseNotes>RELEASE_NOTES</releaseNotes>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+
+</package>
