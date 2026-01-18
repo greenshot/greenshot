@@ -6,6 +6,7 @@
 		<resource name="label_command">Наредба:</resource>
 		<resource name="label_information">{0} је назив снимка екрана.</resource>
 		<resource name="label_name">Назив:</resource>
+		<resource name="label_outputimageformat">Формат слике</resource>
 		<resource name="settings_delete">Обриши</resource>
 		<resource name="settings_detail_title">Подешавање наредби</resource>
 		<resource name="settings_edit">Уреди</resource>

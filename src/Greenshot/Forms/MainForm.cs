@@ -311,20 +311,21 @@ namespace Greenshot.Forms
                     LanguageDialog languageDialog = LanguageDialog.GetInstance();
                     languageDialog.ShowDialog();
                     _conf.Language = languageDialog.SelectedLanguage;
-                    IniConfig.Save();
                 }
 
                 // Check if it's the first time launch?
                 if (_conf.IsFirstLaunch)
                 {
                     _conf.IsFirstLaunch = false;
-                    IniConfig.Save();
                     transport.AddCommand(CommandEnum.FirstLaunch);
                 }
 
                 // Should fix BUG-1633
                 Application.DoEvents();
                 _instance = new MainForm(transport);
+
+                // force saving ini on every start because some init functions could change/fix the configuration. i.e. loading plugins
+                IniConfig.Save();
                 Application.Run();
             }
             catch (Exception ex)
