@@ -5,7 +5,7 @@
 		<resource name="about_donations">Αν σας αρέσει το Greenshot, είστε ευπρόσδεκτοι να μας υποστηρίξετε:</resource>
 		<resource name="about_host">Το Greenshot φιλοξενείται από τη GitHub:</resource>
 		<resource name="about_icons">Εικονίδια από Yusuke Kamiyamane's Fugue icon set (Creative Commons Attribution 3.0 license)</resource>
-		<resource name="about_license">Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+		<resource name="about_license">Copyright © 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
 Δεν παρέχεται ΚΑΜΙΑ ΕΓΓΥΗΣΗ για το Greenshot. Είναι ελεύθερο λογισμικό. Είστε ελεύθεροι να το αναδιανείμετε κάτω από ορισμένες συνθήκες.
 Λεπτομέρειες σχετικά με την GNU General Public License:</resource>
 		<resource name="about_title">Πληροφορίες για το Greenshot</resource>
@@ -50,8 +50,6 @@
 		<resource name="contextmenu_capturefullscreen_left">Αριστερά</resource>
 		<resource name="contextmenu_capturefullscreen_right">Δεξιά</resource>
 		<resource name="contextmenu_capturefullscreen_top">Πάνω Μέρος</resource>
-		<resource name="contextmenu_captureie">Καταγραφή καρτέλας Internet Explorer</resource>
-		<resource name="contextmenu_captureiefromlist">Καταγραφή καρτέλας Internet Explorer από λίστα</resource>
 		<resource name="contextmenu_capturelastregion">Καταγραφή τελευταίας περιοχής</resource>
 		<resource name="contextmenu_capturewindow">Καταγραφή ενεργού παραθύρου</resource>
 		<resource name="contextmenu_capturewindowfromlist">Καταγραφή ενεργού παραθύρου από λίστα</resource>
@@ -231,7 +229,6 @@
 		<resource name="settings_editor">Παράθυρο επεξεργασίας</resource>
 		<resource name="settings_filenamepattern">Πρότυπο όνομα αρχείου</resource>
 		<resource name="settings_general">Γενικά</resource>
-		<resource name="settings_iecapture">Καταγραφή καρτέλας Internet Explorer</resource>
 		<resource name="settings_jpegquality">Ποιότητα JPEG</resource>
 		<resource name="settings_language">Γλώσσα</resource>
 		<resource name="settings_message_filenamepattern">Τα ακόλουθα σύμβολα κράτησης θέσης θα αντικατασταθούν αυτόματα στο προκαθορισμένο πρότυπο:
@@ -281,7 +278,6 @@ ${hostname} Όνομα Υπολογιστή
 		<resource name="settings_windowscapture">Καταγραφή παραθύρου</resource>
 		<resource name="tooltip_firststart">Δεξί κλικ εδώ ή πιέστε το {0} πλήκτρο.</resource>
 		<resource name="update_found">Μια νεώτερη έκδοση του Greenshot είναι διαθέσιμη! Θέλετε να τη μεταφορτώσετε {0}?</resource>
-		<resource name="wait_ie_capture">Παρακαλώ περιμένετε μέχρι να καταγραφεί η σελίδα του Internet Explorer...</resource>
 		<resource name="warning">Προειδοποίηση</resource>
 		<resource name="warning_hotkeys">Το/τα πλήκτρο/α ταχείας πρόσβασης "{0}" δεν μπορεί/ούν να καταχωριστεί/ούν. Αυτό το πρόβλημα πιθανόν να προκλήθηκε επειδή ένα άλλο πρόγραμμα χρησιμοποιεί τον ίδιο συνδυασμό πλήκτρων. Θα μπορούσατε να αλλάξετε τις ρυθμίσεις των πλήκτρων ταχείας πρόσβασης ή να απενεργοποιήσετε/αλλάξετε τις ρυθμίσεις του προγράμματος που κάνει χρήση του/των πλήκτρου/ων.
 

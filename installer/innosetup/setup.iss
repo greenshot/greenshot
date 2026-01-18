@@ -6,113 +6,105 @@
 #define BaseDir "..\..\src"
 #define GreenshotProjectDir "..\..\src\Greenshot"
 #define LanguagesDir "..\..\src\Greenshot\Languages"
-#define BinDir "bin\Release\net472"
-#define ReleaseDir "..\..\src\Greenshot\bin\Release\net472"
-#define PluginDir "..\..\src\Greenshot\bin\Release\net472\Plugins"
+#define BinDir "bin\Release\net481"
+#define ReleaseDir "..\..\src\Greenshot\bin\Release\net481"
+#define PluginDir "..\..\src\Greenshot\bin\Release\net481\Plugins"
 #define CertumThumbprint GetEnv('CertumThumbprint')
 
-; Include the scripts to install .NET Framework
-; See https://www.codeproject.com/KB/install/dotnetfx_innosetup_instal.aspx
-#include "scripts\products.iss"
-#include "scripts\products\stringversion.iss"
-#include "scripts\products\winversion.iss"
-#include "scripts\products\fileversion.iss"
-#include "scripts\products\msi20.iss"
-#include "scripts\products\msi31.iss"
-#include "scripts\products\dotnetfxversion.iss"
-#include "scripts\products\dotnetfx47.iss"
-
 [Files]
-Source: {#ReleaseDir}\Greenshot.exe; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
-Source: {#ReleaseDir}\Greenshot.Base.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
-Source: {#ReleaseDir}\Greenshot.Editor.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
-Source: {#ReleaseDir}\Greenshot.exe.config; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
-Source: {#ReleaseDir}\log4net.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
-Source: {#ReleaseDir}\Dapplo.*.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
-Source: {#ReleaseDir}\System.*.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
-Source: {#ReleaseDir}\Svg.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
-Source: {#ReleaseDir}\Fizzler.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
-Source: {#ReleaseDir}\HtmlAgilityPack.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
-Source: {#ReleaseDir}\Newtonsoft.Json.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
-Source: {#GreenshotProjectDir}\log4net.xml; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion
-Source: {#ReleaseDir}\checksum.SHA256; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion
-;Source: ..\greenshot-defaults.ini; DestDir: {app}; Flags: overwritereadonly ignoreversion replacesameversion
-Source: ..\additional_files\installer.txt; DestDir: {app}; Components: greenshot; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion
-Source: ..\additional_files\license.txt; DestDir: {app}; Components: greenshot; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion
-Source: ..\additional_files\readme.txt; DestDir: {app}; Components: greenshot; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion
+Source: {#ReleaseDir}\Greenshot.exe; DestDir: {app}; Components: greenshot; Flags: overwritereadonly
+Source: {#ReleaseDir}\Greenshot.Base.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly
+Source: {#ReleaseDir}\Greenshot.Editor.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly
+Source: {#ReleaseDir}\Greenshot.exe.config; DestDir: {app}; Components: greenshot; Flags: overwritereadonly
+Source: {#ReleaseDir}\log4net.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly
+Source: {#ReleaseDir}\log4net.xml; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion
+Source: {#ReleaseDir}\Dapplo.*.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly
+Source: {#ReleaseDir}\SixLabors.ImageSharp.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion
+Source: {#ReleaseDir}\SixLabors.ImageSharp.Drawing.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion
+Source: {#ReleaseDir}\SixLabors.Fonts.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion
+Source: {#ReleaseDir}\System.*.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly
+Source: {#ReleaseDir}\Svg.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly
+Source: {#ReleaseDir}\ExCSS.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly
+Source: {#ReleaseDir}\HtmlAgilityPack.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly
+Source: {#ReleaseDir}\Newtonsoft.Json.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly
+Source: {#ReleaseDir}\Microsoft.Toolkit.*.dll; DestDir: {app}; Components: greenshot; Flags: overwritereadonly
+Source: {#ReleaseDir}\checksum.SHA256; DestDir: {app}; Components: greenshot; Flags: overwritereadonly
+Source: {#ReleaseDir}\Twemoji.Mozilla.ttf; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion
+Source: {#ReleaseDir}\emojis.xml; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion
+;Source: ..\greenshot-defaults.ini; DestDir: {app}; Flags: overwritereadonly
+Source: ..\additional_files\installer.txt; DestDir: {app}; Components: greenshot; Flags: overwritereadonly recursesubdirs
+Source: ..\additional_files\license.txt; DestDir: {app}; Components: greenshot; Flags: overwritereadonly recursesubdirs
+Source: ..\additional_files\readme.txt; DestDir: {app}; Components: greenshot; Flags: overwritereadonly recursesubdirs
 
 ; Core language files
-Source: {#LanguagesDir}\*nl-NL*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: {#LanguagesDir}\*en-US*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: {#LanguagesDir}\*de-DE*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: greenshot; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: {#LanguagesDir}\*nl-NL*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: greenshot; Flags: overwritereadonly replacesameversion;
+Source: {#LanguagesDir}\*en-US*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: greenshot; Flags: overwritereadonly replacesameversion;
+Source: {#LanguagesDir}\*de-DE*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: greenshot; Flags: overwritereadonly replacesameversion;
 
 ; Additional language files
-Source: {#LanguagesDir}\*ar-SY*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\arSY; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: {#LanguagesDir}\*ca-CA*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\caCA; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: {#LanguagesDir}\*cs-CZ*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\csCZ; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: {#LanguagesDir}\*da-DK*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\daDK; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: {#LanguagesDir}\*de-x-franconia*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\dexfranconia; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: {#LanguagesDir}\*el-GR*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\elGR; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: {#LanguagesDir}\*es-ES*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\esES; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: {#LanguagesDir}\*et-EE*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\etEE; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: {#LanguagesDir}\*fa-IR*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\faIR; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: {#LanguagesDir}\*fi-FI*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\fiFI; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: {#LanguagesDir}\*fr-FR*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\frFR; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: {#LanguagesDir}\*fr-QC*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\frQC; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: {#LanguagesDir}\*he-IL*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\heIL; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: {#LanguagesDir}\*hu-HU*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\huHU; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: {#LanguagesDir}\*id-ID*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\idID; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: {#LanguagesDir}\*it-IT*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\itIT; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: {#LanguagesDir}\*ja-JP*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\jaJP; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: {#LanguagesDir}\*ko-KR*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\koKR; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: {#LanguagesDir}\*kab-DZ*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\kabDZ; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: {#LanguagesDir}\*lt-LT*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\ltLT; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: {#LanguagesDir}\*lv-LV*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\lvLV; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: {#LanguagesDir}\*nn-NO*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\nnNO; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: {#LanguagesDir}\*pl-PL*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\plPL; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: {#LanguagesDir}\*pt-BR*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\ptBR; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: {#LanguagesDir}\*pt-PT*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\ptPT; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: {#LanguagesDir}\*ro-RO*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\roRO; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: {#LanguagesDir}\*ru-RU*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\ruRU; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: {#LanguagesDir}\*sk-SK*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\skSK; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: {#LanguagesDir}\*sl-SI*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\slSI; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: {#LanguagesDir}\*sr-RS*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\srRS; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: {#LanguagesDir}\*sv-SE*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\svSE; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: {#LanguagesDir}\*tr-TR*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\trTR; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: {#LanguagesDir}\*uk-UA*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\ukUA; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: {#LanguagesDir}\*vi-VN*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\viVN; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: {#LanguagesDir}\*zh-CN*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\zhCN; Flags: overwritereadonly ignoreversion replacesameversion;
-Source: {#LanguagesDir}\*zh-TW*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\zhTW; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: {#LanguagesDir}\*ar-SY*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\arSY; Flags: overwritereadonly replacesameversion;
+Source: {#LanguagesDir}\*ca-CA*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\caCA; Flags: overwritereadonly replacesameversion;
+Source: {#LanguagesDir}\*cs-CZ*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\csCZ; Flags: overwritereadonly replacesameversion;
+Source: {#LanguagesDir}\*da-DK*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\daDK; Flags: overwritereadonly replacesameversion;
+Source: {#LanguagesDir}\*de-x-franconia*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\dexfranconia; Flags: overwritereadonly replacesameversion;
+Source: {#LanguagesDir}\*el-GR*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\elGR; Flags: overwritereadonly replacesameversion;
+Source: {#LanguagesDir}\*es-ES*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\esES; Flags: overwritereadonly replacesameversion;
+Source: {#LanguagesDir}\*et-EE*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\etEE; Flags: overwritereadonly replacesameversion;
+Source: {#LanguagesDir}\*fa-IR*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\faIR; Flags: overwritereadonly replacesameversion;
+Source: {#LanguagesDir}\*fi-FI*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\fiFI; Flags: overwritereadonly replacesameversion;
+Source: {#LanguagesDir}\*fr-FR*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\frFR; Flags: overwritereadonly replacesameversion;
+Source: {#LanguagesDir}\*fr-QC*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\frQC; Flags: overwritereadonly replacesameversion;
+Source: {#LanguagesDir}\*he-IL*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\heIL; Flags: overwritereadonly replacesameversion;
+Source: {#LanguagesDir}\*hu-HU*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\huHU; Flags: overwritereadonly replacesameversion;
+Source: {#LanguagesDir}\*id-ID*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\idID; Flags: overwritereadonly replacesameversion;
+Source: {#LanguagesDir}\*it-IT*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\itIT; Flags: overwritereadonly replacesameversion;
+Source: {#LanguagesDir}\*ja-JP*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\jaJP; Flags: overwritereadonly replacesameversion;
+Source: {#LanguagesDir}\*ko-KR*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\koKR; Flags: overwritereadonly replacesameversion;
+Source: {#LanguagesDir}\*kab-DZ*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\kabDZ; Flags: overwritereadonly replacesameversion;
+Source: {#LanguagesDir}\*lt-LT*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\ltLT; Flags: overwritereadonly replacesameversion;
+Source: {#LanguagesDir}\*lv-LV*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\lvLV; Flags: overwritereadonly replacesameversion;
+Source: {#LanguagesDir}\*nn-NO*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\nnNO; Flags: overwritereadonly replacesameversion;
+Source: {#LanguagesDir}\*pl-PL*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\plPL; Flags: overwritereadonly replacesameversion;
+Source: {#LanguagesDir}\*pt-BR*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\ptBR; Flags: overwritereadonly replacesameversion;
+Source: {#LanguagesDir}\*pt-PT*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\ptPT; Flags: overwritereadonly replacesameversion;
+Source: {#LanguagesDir}\*ro-RO*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\roRO; Flags: overwritereadonly replacesameversion;
+Source: {#LanguagesDir}\*ru-RU*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\ruRU; Flags: overwritereadonly replacesameversion;
+Source: {#LanguagesDir}\*sk-SK*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\skSK; Flags: overwritereadonly replacesameversion;
+Source: {#LanguagesDir}\*sl-SI*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\slSI; Flags: overwritereadonly replacesameversion;
+Source: {#LanguagesDir}\*sr-RS*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\srRS; Flags: overwritereadonly replacesameversion;
+Source: {#LanguagesDir}\*sv-SE*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\svSE; Flags: overwritereadonly replacesameversion;
+Source: {#LanguagesDir}\*tr-TR*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\trTR; Flags: overwritereadonly replacesameversion;
+Source: {#LanguagesDir}\*uk-UA*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\ukUA; Flags: overwritereadonly replacesameversion;
+Source: {#LanguagesDir}\*vi-VN*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\viVN; Flags: overwritereadonly replacesameversion;
+Source: {#LanguagesDir}\*zh-CN*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\zhCN; Flags: overwritereadonly replacesameversion;
+Source: {#LanguagesDir}\*zh-TW*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\zhTW; Flags: overwritereadonly replacesameversion;
 
 ;Office Plugin
-Source: {#PluginDir}\Greenshot.Plugin.Office\Greenshot.Plugin.Office.dll; DestDir: {app}\Plugins\Office; Components: plugins\office; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
+Source: {#PluginDir}\Greenshot.Plugin.Office\Greenshot.Plugin.Office.dll; DestDir: {app}\Plugins\Office; Components: plugins\office; Flags: overwritereadonly recursesubdirs;
 ;JIRA Plugin
-Source: {#PluginDir}\Greenshot.Plugin.Jira\*Jira*.dll; DestDir: {app}\Plugins\Jira; Components: plugins\jira; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
-Source: {#BaseDir}\Greenshot.Plugin.Jira\Languages\language_jira*.xml; DestDir: {app}\Languages\Plugins\Jira; Components: plugins\jira; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: {#PluginDir}\Greenshot.Plugin.Jira\*Jira*.dll; DestDir: {app}\Plugins\Jira; Components: plugins\jira; Flags: overwritereadonly recursesubdirs;
+Source: {#BaseDir}\Greenshot.Plugin.Jira\Languages\language_jira*.xml; DestDir: {app}\Languages\Plugins\Jira; Components: plugins\jira; Flags: overwritereadonly replacesameversion;
 ;Imgur Plugin
-Source: {#PluginDir}\Greenshot.Plugin.Imgur\Greenshot.Plugin.Imgur.dll; DestDir: {app}\Plugins\Imgur; Components: plugins\imgur; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
-Source: {#BaseDir}\Greenshot.Plugin.Imgur\Languages\language_imgur*.xml; DestDir: {app}\Languages\Plugins\Imgur; Components: plugins\imgur; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: {#PluginDir}\Greenshot.Plugin.Imgur\Greenshot.Plugin.Imgur.dll; DestDir: {app}\Plugins\Imgur; Components: plugins\imgur; Flags: overwritereadonly recursesubdirs replacesameversion;
+Source: {#BaseDir}\Greenshot.Plugin.Imgur\Languages\language_imgur*.xml; DestDir: {app}\Languages\Plugins\Imgur; Components: plugins\imgur; Flags: overwritereadonly replacesameversion;
 ;Box Plugin
-Source: {#PluginDir}\Greenshot.Plugin.Box\Greenshot.Plugin.Box.dll; DestDir: {app}\Plugins\Box; Components: plugins\box; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
-Source: {#BaseDir}\Greenshot.Plugin.Box\Languages\language_box*.xml; DestDir: {app}\Languages\Plugins\Box; Components: plugins\box; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: {#PluginDir}\Greenshot.Plugin.Box\Greenshot.Plugin.Box.dll; DestDir: {app}\Plugins\Box; Components: plugins\box; Flags: overwritereadonly recursesubdirs replacesameversion;
+Source: {#BaseDir}\Greenshot.Plugin.Box\Languages\language_box*.xml; DestDir: {app}\Languages\Plugins\Box; Components: plugins\box; Flags: overwritereadonly replacesameversion;
 ;DropBox Plugin
-Source: {#PluginDir}\Greenshot.Plugin.DropBox\Greenshot.Plugin.DropBox.dll; DestDir: {app}\Plugins\DropBox; Components: plugins\dropbox; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
-Source: {#BaseDir}\Greenshot.Plugin.DropBox\Languages\language_dropbox*.xml; DestDir: {app}\Languages\Plugins\DropBox; Components: plugins\dropbox; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: {#PluginDir}\Greenshot.Plugin.DropBox\Greenshot.Plugin.DropBox.dll; DestDir: {app}\Plugins\DropBox; Components: plugins\dropbox; Flags: overwritereadonly recursesubdirs replacesameversion;
+Source: {#BaseDir}\Greenshot.Plugin.DropBox\Languages\language_dropbox*.xml; DestDir: {app}\Languages\Plugins\DropBox; Components: plugins\dropbox; Flags: overwritereadonly replacesameversion;
 ;Flickr Plugin
-Source: {#PluginDir}\Greenshot.Plugin.Flickr\Greenshot.Plugin.Flickr.dll; DestDir: {app}\Plugins\Flickr; Components: plugins\flickr; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
-Source: {#BaseDir}\Greenshot.Plugin.Flickr\Languages\language_flickr*.xml; DestDir: {app}\Languages\Plugins\Flickr; Components: plugins\flickr; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: {#PluginDir}\Greenshot.Plugin.Flickr\Greenshot.Plugin.Flickr.dll; DestDir: {app}\Plugins\Flickr; Components: plugins\flickr; Flags: overwritereadonly recursesubdirs replacesameversion;
+Source: {#BaseDir}\Greenshot.Plugin.Flickr\Languages\language_flickr*.xml; DestDir: {app}\Languages\Plugins\Flickr; Components: plugins\flickr; Flags: overwritereadonly replacesameversion;
 ;Photobucket Plugin
-Source: {#PluginDir}\Greenshot.Plugin.Photobucket\Greenshot.Plugin.Photobucket.dll; DestDir: {app}\Plugins\Photobucket; Components: plugins\photobucket; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
-Source: {#BaseDir}\Greenshot.Plugin.Photobucket\Languages\language_photo*.xml; DestDir: {app}\Languages\Plugins\Photobucket; Components: plugins\photobucket; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: {#PluginDir}\Greenshot.Plugin.Photobucket\Greenshot.Plugin.Photobucket.dll; DestDir: {app}\Plugins\Photobucket; Components: plugins\photobucket; Flags: overwritereadonly recursesubdirs replacesameversion;
+Source: {#BaseDir}\Greenshot.Plugin.Photobucket\Languages\language_photo*.xml; DestDir: {app}\Languages\Plugins\Photobucket; Components: plugins\photobucket; Flags: overwritereadonly replacesameversion;
 ;Confluence Plugin
-Source: {#PluginDir}\Greenshot.Plugin.Confluence\Greenshot.Plugin.Confluence.dll; DestDir: {app}\Plugins\Confluence; Components: plugins\confluence; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
-Source: {#BaseDir}\Greenshot.Plugin.Confluence\Languages\language_confluence*.xml; DestDir: {app}\Languages\Plugins\Confluence; Components: plugins\confluence; Flags: overwritereadonly ignoreversion replacesameversion;
+Source: {#PluginDir}\Greenshot.Plugin.Confluence\Greenshot.Plugin.Confluence.dll; DestDir: {app}\Plugins\Confluence; Components: plugins\confluence; Flags: overwritereadonly recursesubdirs replacesameversion;
+Source: {#BaseDir}\Greenshot.Plugin.Confluence\Languages\language_confluence*.xml; DestDir: {app}\Languages\Plugins\Confluence; Components: plugins\confluence; Flags: overwritereadonly replacesameversion;
 ;ExternalCommand Plugin
-Source: {#PluginDir}\Greenshot.Plugin.ExternalCommand\Greenshot.Plugin.ExternalCommand.dll; DestDir: {app}\Plugins\ExternalCommand; Components: plugins\externalcommand; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
-Source: {#BaseDir}\Greenshot.Plugin.ExternalCommand\Languages\language_externalcommand*.xml; DestDir: {app}\Languages\Plugins\ExternalCommand; Components: plugins\externalcommand; Flags: overwritereadonly ignoreversion replacesameversion;
-;Win 10 Plugin
-Source: {#PluginDir}\Greenshot.Plugin.Win10\Greenshot.Plugin.Win10.dll; DestDir: {app}\Plugins\Win10; Components: plugins\win10; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
-Source: {#PluginDir}\Greenshot.Plugin.Win10\Microsoft.Toolkit.Uwp.Notifications.dll; DestDir: {app}\Plugins\Win10; Components: plugins\win10; Flags: overwritereadonly recursesubdirs ignoreversion replacesameversion;
+Source: {#PluginDir}\Greenshot.Plugin.ExternalCommand\Greenshot.Plugin.ExternalCommand.dll; DestDir: {app}\Plugins\ExternalCommand; Components: plugins\externalcommand; Flags: overwritereadonly recursesubdirs replacesameversion;
+Source: {#BaseDir}\Greenshot.Plugin.ExternalCommand\Languages\language_externalcommand*.xml; DestDir: {app}\Languages\Plugins\ExternalCommand; Components: plugins\externalcommand; Flags: overwritereadonly replacesameversion;
 
 [Setup]
 ; changes associations is used when the installer installs new extensions, it clears the explorer icon cache
@@ -132,16 +124,18 @@ SolidCompression=yes
 DefaultDirName={autopf}\{#ExeName}
 DefaultGroupName={#ExeName}
 InfoBeforeFile=..\additional_files\readme.txt
-LicenseFile=..\additional_files\license.txt
+LicenseFile=..\additional_files\gpl-3.0.rtf
 LanguageDetectionMethod=uilanguage
-MinVersion=6.1sp1
+MinVersion=10.0.10240
 OutputDir=..\
 ; user may choose between all-users vs. current-user installation in a dialog or by using the /ALLUSERS flag (on the command line)
 ; in registry section, HKA will take care of the appropriate root key (HKLM vs. HKCU), see https://jrsoftware.org/ishelp/index.php?topic=admininstallmode
 PrivilegesRequiredOverridesAllowed=dialog
 ; admin privileges not required, unless user chooses all-users installation
 ; the installer will ask for elevation if needed
-PrivilegesRequired=lowest
+PrivilegesRequired=admin
+UsePreviousPrivileges=no
+
 SetupIconFile=..\..\src\Greenshot\icons\applicationIcon\icon.ico
 #if CertumThumbprint  != ""
  OutputBaseFilename={#ExeName}-INSTALLER-{#VersionEnhanced}-UNSTABLE
@@ -161,6 +155,8 @@ VersionInfoVersion={#Version}
 WizardImageFile=installer-large.bmp
 ; Reference a bitmap, max size 55x58
 WizardSmallImageFile=installer-small.bmp
+WizardStyle=modern
+UninstallDisplayName={#ExeName} {#Version}
 
 [Registry]
 ; Delete all startup entries, so we don't have leftover values
@@ -211,6 +207,7 @@ Name: nn; MessagesFile: Languages\NorwegianNynorsk.isl
 Name: ru; MessagesFile: compiler:Languages\Russian.isl
 Name: sr; MessagesFile: Languages\SerbianCyrillic.isl
 Name: sv; MessagesFile: Languages\Swedish.isl
+Name: tr; MessagesFile: compiler:Languages\Turkish.isl
 Name: uk; MessagesFile: compiler:Languages\Ukrainian.isl
 
 [Tasks]
@@ -249,7 +246,7 @@ skSK=Slovenčina
 slSI=Slovenščina
 srRS=Српски
 svSE=Svenska
-trTR=Türk
+trTR=Türkçe
 ukUA=Українська
 viVN=Việt
 zhCN=简体中文
@@ -269,7 +266,6 @@ en.optimize=Optimizing performance, this may take a while.
 en.photobucket=Photobucket plug-in
 en.startgreenshot=Start {#ExeName}
 en.startup=Start {#ExeName} with Windows start
-en.win10=Windows 10 plug-in
 en.UninstallIconDescription=Uninstall
 en.ShowLicense=Show license
 en.ShowReadme=Show Readme
@@ -285,7 +281,6 @@ de.office=Microsoft Office Plug-in
 de.optimize=Optimierung der Leistung, kann etwas dauern.
 de.startgreenshot={#ExeName} starten
 de.startup={#ExeName} starten wenn Windows hochfährt
-de.win10=Windows 10 Plug-in
 de.disablewin11snippingtool=Deaktiviere das Standard Windows 11 Snipping Tool auf "Druck"
 
 es.confluence=Extensión para Confluence
@@ -297,7 +292,6 @@ es.language=Idiomas adicionales
 es.optimize=Optimizando rendimiento; por favor, espera.
 es.startgreenshot=Lanzar {#ExeName}
 es.startup=Lanzar {#ExeName} al iniciarse Windows
-es.win10=Extensión para Windows 10
 
 fi.confluence=Confluence-liitännäinen
 fi.default=${default}
@@ -309,7 +303,6 @@ fi.office=Microsoft-Office-liitännäinen
 fi.optimize=Optimoidaan suorituskykyä, tämä voi kestää hetken.
 fi.startgreenshot=Käynnistä {#ExeName}
 fi.startup=Käynnistä {#ExeName} Windowsin käynnistyessä
-fi.win10=Windows 10-liitännäinen
 
 fr.confluence=Greffon Confluence
 fr.default=${default}
@@ -321,7 +314,6 @@ fr.office=Greffon Microsoft Office
 fr.optimize=Optimisation des performances, Ceci peut prendre un certain temps.
 fr.startgreenshot=Démarrer {#ExeName}
 fr.startup=Lancer {#ExeName} au démarrage de Windows
-fr.win10=Greffon Windows 10
 
 it.box=Plugin Box
 it.confluence=Plugin Confluence
@@ -337,7 +329,6 @@ it.optimize=Ottimizzazione prestazioni (può richiedere tempo).
 it.photobucket=Plugin Photobucket
 it.startgreenshot=Esegui {#ExeName}
 it.startup=Esegui {#ExeName} all''avvio di Windows
-it.win10=Plugin Windows 10
 it.UninstallIconDescription=Disinstalla
 it.ShowLicense=Visualizza licenza (in inglese)
 it.ShowReadme=Visualizza Readme (in inglese)
@@ -388,7 +379,6 @@ lt.office=Microsoft Office spraudnis
 lt.optimize=Uzlaboju veikstpēju, tas prasīs kādu laiciņu.
 lt.startgreenshot=Palaist {#ExeName}
 lt.startup=Palaist {#ExeName} uzsākot darbus
-lt.win10=Windows 10 spraudnis
 
 lt.confluence=Confluence spraudnis
 lt.default=${default}
@@ -400,7 +390,6 @@ lt.office=Microsoft Office spraudnis
 lt.optimize=Uzlaboju veikstpēju, tas prasīs kādu laiciņu.
 lt.startgreenshot=Palaist {#ExeName}
 lt.startup=Palaist {#ExeName} uzsākot darbus
-lt.win10=Windows 10 spraudnis
 
 nl.confluence=Confluence plug-in
 nl.default=Standaardinstallatie
@@ -412,7 +401,6 @@ nl.office=Microsoft Office plug-in
 nl.optimize=Prestaties verbeteren, even geduld.
 nl.startgreenshot={#ExeName} starten
 nl.startup={#ExeName} automatisch starten met Windows
-nl.win10=Windows 10 plug-in
 
 nn.confluence=Confluence-tillegg
 nn.default=Default installation
@@ -424,7 +412,6 @@ nn.office=Microsoft Office Tillegg
 nn.optimize=Optimaliserar ytelse, dette kan ta litt tid...
 nn.startgreenshot=Start {#ExeName}
 nn.startup=Start {#ExeName} når Windows startar
-nn.win10=Windows 10 Tillegg
 
 ru.confluence=Плагин Confluence
 ru.default=${default}
@@ -436,7 +423,6 @@ ru.office=Плагин Microsoft Office
 ru.optimize=Идет оптимизация производительности, это может занять некоторое время.
 ru.startgreenshot=Запустить {#ExeName}
 ru.startup=Запускать {#ExeName} при старте Windows
-ru.win10=Плагин Windows 10
 
 sr.confluence=Прикључак за Конфлуенс
 sr.default=${default}
@@ -447,7 +433,6 @@ sr.language=Додатни језици
 sr.optimize=Оптимизујем перформансе…
 sr.startgreenshot=Покрени Гриншот
 sr.startup=Покрени програм са системом
-sr.win10=Прикључак за Windows 10
 
 sv.confluence=Confluence-insticksprogram
 sv.externalcommand=Öppna med externt kommando-insticksprogram
@@ -457,7 +442,25 @@ sv.language=Ytterligare språk
 sv.optimize=Optimerar prestanda, detta kan ta en stund.
 sv.startgreenshot=Starta {#ExeName}
 sv.startup=Starta {#ExeName} med Windows
-sv.win10=Windows 10-insticksprogram
+
+tr.box=Box eklentisi
+tr.confluence=Confluence eklentisi
+tr.default=Varsayılan kurulum
+tr.dropbox=Dropbox eklentisi
+tr.externalcommand=Harici komut eklentisiyle aç
+tr.flickr=Flickr eklentisi
+tr.imgur=Imgur eklentisi (Bkz: https://imgur.com)
+tr.jira=Jira eklentisi
+tr.language=Ek diller
+tr.office=Microsoft Office eklentisi
+tr.optimize=Performans ayarları yapılıyor, bu biraz zaman alabilir.
+tr.photobucket=Photobucket eklentisi
+tr.startgreenshot={#ExeName} uygulamasını başlat
+tr.startup={#ExeName} Windows açıldığında başlasın
+tr.UninstallIconDescription=Greenshot uygulamasını kaldır
+tr.ShowLicense=Show license
+tr.ShowReadme=Show Readme
+tr.disablewin11snippingtool=Win11 varsayılan ekran alıntısı aracını devre dışı bırakın
 
 uk.confluence=Плагін Confluence
 uk.default=${default}
@@ -468,7 +471,6 @@ uk.language=Додаткові мови
 uk.optimize=Оптимізація продуктивності, це може забрати час.
 uk.startgreenshot=Запустити {#ExeName}
 uk.startup=Запускати {#ExeName} під час запуску Windows
-uk.win10=Плагін Windows 10
 
 cn.confluence=Confluence插件
 cn.default=${default}
@@ -479,7 +481,6 @@ cn.language=其它语言
 cn.optimize=正在优化性能，这可能需要一点时间。
 cn.startgreenshot=启动{#ExeName}
 cn.startup=让{#ExeName}随Windows一起启动
-cn.win10=Windows 10插件
 
 [Types]
 Name: "default"; Description: "{cm:default}"
@@ -488,19 +489,18 @@ Name: "compact"; Description: "{code:CompactInstall}"
 Name: "custom"; Description: "{code:CustomInstall}"; Flags: iscustom
 
 [Components]
-Name: "disablesnippingtool"; Description: {cm:disablewin11snippingtool}; Flags: disablenouninstallwarning; Types: default full custom; Check: IsWindows11OrNewer()
+Name: "disablesnippingtool"; Description: {cm:disablewin11snippingtool}; Flags: disablenouninstallwarning; Types: default full custom
 Name: "greenshot"; Description: "Greenshot"; Types: default full compact custom; Flags: fixed
 ;Name: "plugins\networkimport"; Description: "Network Import Plugin"; Types: full
 Name: "plugins\box"; Description: {cm:box}; Types: full custom; Flags: disablenouninstallwarning
 Name: "plugins\confluence"; Description: {cm:confluence}; Types: full custom; Flags: disablenouninstallwarning
 Name: "plugins\dropbox"; Description: {cm:dropbox}; Types: full custom; Flags: disablenouninstallwarning
-Name: "plugins\externalcommand"; Description: {cm:externalcommand}; Types: default full custom; Flags: disablenouninstallwarning
+Name: "plugins\externalcommand"; Description: {cm:externalcommand}; Types: full custom; Flags: disablenouninstallwarning
 Name: "plugins\flickr"; Description: {cm:flickr}; Types: full custom; Flags: disablenouninstallwarning
-Name: "plugins\imgur"; Description: {cm:imgur}; Types: default full custom; Flags: disablenouninstallwarning
+Name: "plugins\imgur"; Description: {cm:imgur}; Types: full custom; Flags: disablenouninstallwarning
 Name: "plugins\jira"; Description: {cm:jira}; Types: full custom; Flags: disablenouninstallwarning
 Name: "plugins\office"; Description: {cm:office}; Types: default full custom; Flags: disablenouninstallwarning
 Name: "plugins\photobucket"; Description: {cm:photobucket}; Types: full custom; Flags: disablenouninstallwarning
-Name: "plugins\win10"; Description: {cm:win10}; Types: default full custom; Flags: disablenouninstallwarning; Check: IsWindows10OrNewer()
 Name: "languages"; Description: {cm:language}; Types: full custom; Flags: disablenouninstallwarning
 Name: "languages\arSY"; Description: {cm:arSY}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('d')
 Name: "languages\caCA"; Description: {cm:caCA}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
@@ -701,53 +701,18 @@ begin
 	Result := returnValue;
 end;
 
-function hasDotNet() : boolean;
-begin
-	Result := netfxspversion(NetFx4x, '') >= 71;
-end;
-
 // Initialize the setup
 function InitializeSetup(): Boolean;
 begin
-	// Check for .NET and install 4.7.1 if we don't have it
-	if not hasDotNet() then
-	begin
-		// Enhance installer, if needed, otherwise .NET installations won't work
-		msi20('2.0');
-		msi31('3.0');
-
-		//install .net 4.7.1
-		dotnetfx47(71);
-	end;
-	Result := true;
-end;
-
-function IsWindowsVersionOrNewer(Major, Minor: Integer): Boolean;
-var
-  Version: TWindowsVersion;
-begin
-  GetWindowsVersionEx(Version);
-  Result :=
-    (Version.Major > Major) or
-    ((Version.Major = Major) and (Version.Minor >= Minor));
-end;
-
-function IsWindows10OrNewer: Boolean;
-begin
-  Result := IsWindowsVersionOrNewer(10, 0);
-end;
-
-function IsWindows11OrNewer: Boolean;
-var
-  WindowsVersion: TWindowsVersion;
-begin
-  GetWindowsVersionEx(WindowsVersion);
-  Result := (WindowsVersion.Major >= 10) and (WindowsVersion.Build >= 22000);
+	// Check for .NET and install 4.8.1 if we don't have it
+	Result := IsDotNetInstalled(net481, 0); //Returns True if .NET Framework version 4.6.2 is installed, or a compatible version such as 4.8.1
+	if not Result then
+		SuppressibleMsgBox(FmtMessage(SetupMessage(msgWinVersionTooLowError), ['.NET Framework', '4.8.1']), mbCriticalError, MB_OK, IDOK);
 end;
 
 function ShouldDisableSnippingTool: Boolean;
 begin
-  Result := IsComponentSelected('disablesnippingtool');
+  Result := WizardIsComponentSelected('disablesnippingtool');
 end;
 
 [Run]

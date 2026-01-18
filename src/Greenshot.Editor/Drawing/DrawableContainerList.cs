@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -208,7 +208,7 @@ namespace Greenshot.Editor.Drawing
         }
 
         /// <summary>
-        /// Indicates whether on of the elements is clickable at the given location
+        /// Indicates whether one of the elements is clickable at the given location
         /// </summary>
         /// <param name="x">x coordinate to be checked</param>
         /// <param name="y">y coordinate to be checked</param>
@@ -315,7 +315,7 @@ namespace Greenshot.Editor.Drawing
         }
 
         /// <summary>
-        /// Triggers all elements in the list ot be redrawn.
+        /// Triggers all elements in the list to be redrawn.
         /// </summary>
         /// <param name="g">the to the bitmap related Graphics object</param>
         /// <param name="bitmap">Bitmap to draw</param>
@@ -750,7 +750,7 @@ namespace Greenshot.Editor.Drawing
             _disposedValue = true;
         }
 
-        // This code added to correctly implement the disposable pattern.
+        // This code was added to correctly implement the disposable pattern.
         public void Dispose()
         {
             // Do not change this code. Put cleanup code in Dispose(bool disposing) above.

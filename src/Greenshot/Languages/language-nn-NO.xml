@@ -5,7 +5,7 @@
 		<resource name="about_donations">Om du likar Greenshot er du velkomen til å støtte oss:</resource>
 		<resource name="about_host">Greenshot held virtuelt hus hjå GitHub:</resource>
 		<resource name="about_icons">Ikon frå Yusuke Kamiyamane sit "Fugue" ikonsett (Creative Commons Attribution 3.0-lisens)</resource>
-		<resource name="about_license">Med kopirett (C) 2007-2021 Thomas Braun, Jens Klingen og Robin Krom. Norsk omsetjing av Ivar Barstad.
+		<resource name="about_license">Med kopirett © 2004-2026 Thomas Braun, Jens Klingen og Robin Krom. Norsk omsetjing av Ivar Barstad.
 Greenshot har ABSOLUTT INGEN GARANTI. Dette er gratis programvare, og du står fritt til å distribuere det under visse vilkår.
 Detaljar om GNU General Public-lisens:</resource>
 		<resource name="about_title">Om Greenshot</resource>
@@ -45,8 +45,6 @@ Me sett òg pris på om du ved hjelp av søkefunksjonen på sida kan sjekke om d
 		<resource name="contextmenu_capturefullscreen_left">venstre</resource>
 		<resource name="contextmenu_capturefullscreen_right">høgre</resource>
 		<resource name="contextmenu_capturefullscreen_top">topp</resource>
-		<resource name="contextmenu_captureie">Knips Internet Explorer</resource>
-		<resource name="contextmenu_captureiefromlist">Knips Internet Explorer frå liste</resource>
 		<resource name="contextmenu_capturelastregion">Knips sist område</resource>
 		<resource name="contextmenu_capturewindow">Knips vindauge</resource>
 		<resource name="contextmenu_capturewindowfromlist">Knips vindauge frå liste</resource>
@@ -73,6 +71,7 @@ Me sett òg pris på om du ved hjelp av søkefunksjonen på sida kan sjekke om d
 		<resource name="editor_cancel">Avbryt</resource>
 		<resource name="editor_clipboardfailed">Kunne ikkje bruke utklyppstavla! Ver venleg og prøv att.</resource>
 		<resource name="editor_close">Lukk</resource>
+		<resource name="editor_close_all">Lukk alle</resource>
 		<resource name="editor_close_on_save">Vil du lagre skjermbildet?</resource>
 		<resource name="editor_close_on_save_title">Vil du lagre bildet?</resource>
 		<resource name="editor_confirm">Stadfest</resource>
@@ -202,7 +201,6 @@ Har du skrivetilgang til det valde området?</resource>
 		<resource name="settings_editor">Knipsfiksar</resource>
 		<resource name="settings_filenamepattern">Regel for filnamn</resource>
 		<resource name="settings_general">Generell</resource>
-		<resource name="settings_iecapture">Internet Explorer-knipsing</resource>
 		<resource name="settings_jpegquality">JPEG-kvalitet</resource>
 		<resource name="settings_language">Språk</resource>
 		<resource name="settings_message_filenamepattern">Dei fylgjande felta vil bli fylt ut automatisk etter definert regel:
@@ -248,7 +246,6 @@ vil lage ei mappe med dagens dato (f.eks. 2012-09-11) der fila blir lagra med ti
 		<resource name="settings_windowscapture">Knips vindauge</resource>
 		<resource name="tooltip_firststart">Høgreklikk her eller trykk {0}-tasten.</resource>
 		<resource name="update_found">Ein nyare versjon av skjermknipsaren er tilgjengeleg! Vil du laste ned Greenshot {0}?</resource>
-		<resource name="wait_ie_capture">Ver venleg og vent medan Internet Explorer-sida blir knipsa...</resource>
 		<resource name="warning">Åtvaring!</resource>
 		<resource name="warning_hotkeys">Snøggtasten/-ane "{0}" kunne ikkje brukast. Sannsynlegvis er den/dei alt i bruk av eit anna program{1}. Du kan anten endre snøggtasten/-ane eller deaktivere/endre dei i det andre verktøyet.
 

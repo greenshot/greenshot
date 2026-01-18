@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -57,9 +57,7 @@ namespace Greenshot.Forms {
 			this.contextmenu_capturelastregion = new GreenshotToolStripMenuItem();
 			this.contextmenu_capturewindow = new GreenshotToolStripMenuItem();
 			this.contextmenu_capturefullscreen = new GreenshotToolStripMenuItem();
-			this.contextmenu_captureie = new GreenshotToolStripMenuItem();
 			this.contextmenu_capturewindowfromlist = new GreenshotToolStripMenuItem();
-			this.contextmenu_captureiefromlist = new GreenshotToolStripMenuItem();
 			this.contextmenu_captureclipboard = new GreenshotToolStripMenuItem();
 			this.contextmenu_openfile = new GreenshotToolStripMenuItem();
 			this.contextmenu_openrecentcapture = new GreenshotToolStripMenuItem();
@@ -85,10 +83,8 @@ namespace Greenshot.Forms {
 									this.contextmenu_capturelastregion,
 									this.contextmenu_capturewindow,
 									this.contextmenu_capturefullscreen,
-									this.contextmenu_captureie,
 									this.toolStripListCaptureSeparator,
 									this.contextmenu_capturewindowfromlist,
-									this.contextmenu_captureiefromlist,
 									this.toolStripOtherSourcesSeparator,
 									this.contextmenu_captureclipboard,
 									this.contextmenu_openfile,
@@ -140,13 +136,6 @@ namespace Greenshot.Forms {
 			this.contextmenu_capturefullscreen.ShortcutKeyDisplayString = "Ctrl + Print";
 			this.contextmenu_capturefullscreen.Size = new System.Drawing.Size(170, 22);
 			// 
-			// contextmenu_captureie
-			// 
-			this.contextmenu_captureie.Name = "contextmenu_captureie";
-			this.contextmenu_captureie.ShortcutKeyDisplayString = "Ctrl + Shift + Print";
-			this.contextmenu_captureie.Size = new System.Drawing.Size(170, 22);
-			this.contextmenu_captureie.Click += new System.EventHandler(this.Contextmenu_CaptureIe_Click);
-			// 
 			// toolStripListCaptureSeparator
 			// 
 			this.toolStripListCaptureSeparator.Name = "toolStripListCaptureSeparator";
@@ -158,12 +147,6 @@ namespace Greenshot.Forms {
 			this.contextmenu_capturewindowfromlist.Size = new System.Drawing.Size(170, 22);
 			this.contextmenu_capturewindowfromlist.DropDownClosed += new System.EventHandler(this.CaptureWindowFromListMenuDropDownClosed);
 			this.contextmenu_capturewindowfromlist.DropDownOpening += new System.EventHandler(this.CaptureWindowFromListMenuDropDownOpening);
-			// 
-			// contextmenu_captureiefromlist
-			// 
-			this.contextmenu_captureiefromlist.Name = "contextmenu_captureiefromlist";
-			this.contextmenu_captureiefromlist.Size = new System.Drawing.Size(170, 22);
-			this.contextmenu_captureiefromlist.DropDownOpening += new System.EventHandler(this.CaptureIeMenuDropDownOpening);
 			// 
 			// toolStripOtherSourcesSeparator
 			// 
@@ -273,12 +256,10 @@ namespace Greenshot.Forms {
 			this.contextMenu.ResumeLayout(false);
 			this.ResumeLayout(false);
 		}
-		private GreenshotToolStripMenuItem contextmenu_captureiefromlist;
 		private System.Windows.Forms.ToolStripSeparator toolStripOtherSourcesSeparator;
 		private GreenshotToolStripMenuItem contextmenu_capturewindowfromlist;
 		private System.Windows.Forms.ToolStripSeparator toolStripListCaptureSeparator;
 		private GreenshotToolStripMenuItem contextmenu_openrecentcapture;
-        private GreenshotToolStripMenuItem contextmenu_captureie;
 		private GreenshotToolStripMenuItem contextmenu_donate;
 		private GreenshotToolStripMenuItem contextmenu_openfile;
 		private System.Windows.Forms.ToolStripSeparator toolStripPluginSeparator;

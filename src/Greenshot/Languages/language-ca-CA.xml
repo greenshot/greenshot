@@ -5,7 +5,7 @@
 		<resource name="about_donations">Si Greenshot us agrada , us agrairem que ens ajudeu:</resource>
 		<resource name="about_host">Greenshot s'allotja a sourceforge.net</resource>
 		<resource name="about_icons">Icones del conjunt d'icones Fugue de Yusuke Kamiyamane(Creative Commons Attribution 3.0 license)</resource>
-		<resource name="about_license">Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+		<resource name="about_license">Copyright © 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
 Greenshot s'ofereix SENSE CAP GARANTIA. Aquest és un programari gratuït, i podeu redistribuir-lo amb algunes condicions.
 Detalls sobre la Llicència General Publica GNU:</resource>
 		<resource name="about_title">Quant a Greenshot</resource>
@@ -49,8 +49,6 @@ Abans de crear un nou informe d'error, us agrairem que comproveu que l'error no 
 		<resource name="contextmenu_capturefullscreen_left">esquerra</resource>
 		<resource name="contextmenu_capturefullscreen_right">dreta</resource>
 		<resource name="contextmenu_capturefullscreen_top">amunt</resource>
-		<resource name="contextmenu_captureie">Captura Internet Explorer</resource>
-		<resource name="contextmenu_captureiefromlist">Captura Internet Explorer de la llista</resource>
 		<resource name="contextmenu_capturelastregion">Captura l'última regió</resource>
 		<resource name="contextmenu_capturewindow">Captura la finestra</resource>
 		<resource name="contextmenu_capturewindowfromlist">Captura la finestra de la llista</resource>
@@ -223,7 +221,6 @@ Si us plau, verifiqueu el camí d'accés seleccionat.</resource>
 		<resource name="settings_editor">Editor</resource>
 		<resource name="settings_filenamepattern">Format del nom de fitxer</resource>
 		<resource name="settings_general">General</resource>
-		<resource name="settings_iecapture">Captura Internet Explorer</resource>
 		<resource name="settings_jpegquality">Qualitat de JPEG</resource>
 		<resource name="settings_language">Idioma</resource>
 		<resource name="settings_message_filenamepattern"> Els següents marcadors de posició serán substituïts automáticament pel format definit:
@@ -275,7 +272,6 @@ actual, per exemple: 11_58_32 (més l'extensió definida a la configuració)</re
 		<resource name="settings_windowscapture">Captura finestra</resource>
 		<resource name="tooltip_firststart">Feu clic amb el botó dret aquí o premeu la tecla {0}.</resource>
 		<resource name="update_found">Hi ha una nova versió de Greenshot, us la voleu descarregar {0}?</resource>
-		<resource name="wait_ie_capture">Si us plau, espereu que s'acabi de capturar la página a Internet Explorer...</resource>
 		<resource name="warning">Atenció</resource>
 		<resource name="warning_hotkeys">No s'ha pogut registrar la drecera "{0}". Probablement el problema és que alguna altra aplicació també vol fer-se amb aquesta combinació de tecles. Hi ha dues possibles solucions: canviar la drecera a Greenshot, o desactivar/canviar la configuració de l'altre programa que fa servir aquesta drecera.
 
