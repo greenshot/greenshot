@@ -649,24 +649,16 @@ namespace Greenshot.Editor.Drawing
             // draw shadow before anything else
             if (drawShadow)
             {
-                int basealpha = 100;
-                int alpha = basealpha;
-                int steps = 5;
-                int currentStep = 1;
-                while (currentStep <= steps)
+                DrawShadow(lineThickness, (alpha, currentStep, nil, fontBrush) =>
                 {
                     int offset = currentStep;
-                    NativeRect shadowRect = new NativeRect(drawingRectange.Left + offset, drawingRectange.Top + offset, drawingRectange.Width, drawingRectange.Height).Normalize();
+                    Rectangle shadowRect = new NativeRect(drawingRectange.Left + offset, drawingRectange.Top + offset, drawingRectange.Width, drawingRectange.Height);
                     if (lineThickness > 0)
                     {
-                        shadowRect = shadowRect.Inflate(-textOffset, -textOffset);
+                        shadowRect.Inflate(-textOffset, -textOffset);
                     }
-                    using Brush fontBrush = new SolidBrush(Color.FromArgb(alpha, 100, 100, 100));
                     graphics.DrawString(text, font, fontBrush, shadowRect, stringFormat);
-
-                    currentStep++;
-                    alpha -= basealpha / steps;
-                }
+                });
             }
 
             if (lineThickness > 0)
