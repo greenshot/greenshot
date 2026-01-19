@@ -21,12 +21,14 @@
 
 using System;
 using System.ComponentModel;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using System.Windows.Forms.Design;
 
 namespace Greenshot.Editor.Controls
 {
     [ToolStripItemDesignerAvailability(ToolStripItemDesignerAvailability.ToolStrip | ToolStripItemDesignerAvailability.StatusStrip)]
+    [ClassInterface(ClassInterfaceType.None)]
     public class ToolStripNumericUpDown : ToolStripControlHost, INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
