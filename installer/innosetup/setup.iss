@@ -111,7 +111,8 @@ Source: {#BaseDir}\Greenshot.Plugin.ExternalCommand\Languages\language_externalc
 ChangesAssociations=yes
 AppId={#ExeName}
 AppName={#ExeName}
-AppMutex=F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08
+; Removed AppMutex to allow custom handling of running process - we handle this in InitializeSetup
+;AppMutex=F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08
 AppPublisher={#ExeName}
 AppPublisherURL=https://getgreenshot.org
 AppSupportURL=https://getgreenshot.org
@@ -253,6 +254,7 @@ zhCN=简体中文
 zhTW=繁體中文
 
 en.box=Box plug-in
+en.closegreenshotwarning=Greenshot is currently running and will be closed to continue with the installation.
 en.confluence=Confluence plug-in
 en.default=Default installation
 en.dropbox=Dropbox plug-in
@@ -271,6 +273,7 @@ en.ShowLicense=Show license
 en.ShowReadme=Show Readme
 en.disablewin11snippingtool=Disable Win11 default PrtScr snipping tool
 
+de.closegreenshotwarning=Greenshot läuft gerade und wird geschlossen, um mit der Installation fortzufahren.
 de.confluence=Confluence Plug-in
 de.default=Standard installation
 de.externalcommand=Externes Kommando Plug-in
@@ -283,6 +286,7 @@ de.startgreenshot={#ExeName} starten
 de.startup={#ExeName} starten wenn Windows hochfährt
 de.disablewin11snippingtool=Deaktiviere das Standard Windows 11 Snipping Tool auf "Druck"
 
+es.closegreenshotwarning=Greenshot se está ejecutando actualmente y se cerrará para continuar con la instalación.
 es.confluence=Extensión para Confluence
 es.default=${default}
 es.externalcommand=Extensión para abrir con programas externos
@@ -304,6 +308,7 @@ fi.optimize=Optimoidaan suorituskykyä, tämä voi kestää hetken.
 fi.startgreenshot=Käynnistä {#ExeName}
 fi.startup=Käynnistä {#ExeName} Windowsin käynnistyessä
 
+fr.closegreenshotwarning=Greenshot est en cours d'exécution et sera fermé pour continuer l'installation.
 fr.confluence=Greffon Confluence
 fr.default=${default}
 fr.externalcommand=Ouvrir avec le greffon de commande externe
@@ -316,6 +321,7 @@ fr.startgreenshot=Démarrer {#ExeName}
 fr.startup=Lancer {#ExeName} au démarrage de Windows
 
 it.box=Plugin Box
+it.closegreenshotwarning=Greenshot è attualmente in esecuzione e verrà chiuso per continuare l'installazione.
 it.confluence=Plugin Confluence
 it.default=Installazione predefinita
 it.dropbox=Plugin Dropbox
@@ -391,6 +397,7 @@ lt.optimize=Uzlaboju veikstpēju, tas prasīs kādu laiciņu.
 lt.startgreenshot=Palaist {#ExeName}
 lt.startup=Palaist {#ExeName} uzsākot darbus
 
+nl.closegreenshotwarning=Greenshot is momenteel actief en wordt gesloten om door te gaan met de installatie.
 nl.confluence=Confluence plug-in
 nl.default=Standaardinstallatie
 nl.externalcommand=Openen met extern commando plug-in
@@ -413,6 +420,7 @@ nn.optimize=Optimaliserar ytelse, dette kan ta litt tid...
 nn.startgreenshot=Start {#ExeName}
 nn.startup=Start {#ExeName} når Windows startar
 
+ru.closegreenshotwarning=Greenshot в данный момент запущен и будет закрыт для продолжения установки.
 ru.confluence=Плагин Confluence
 ru.default=${default}
 ru.externalcommand=Открыть с плагином с помощью внешней команды
@@ -444,6 +452,7 @@ sv.startgreenshot=Starta {#ExeName}
 sv.startup=Starta {#ExeName} med Windows
 
 tr.box=Box eklentisi
+tr.closegreenshotwarning=Greenshot şu anda çalışıyor ve kuruluma devam etmek için kapatılacak.
 tr.confluence=Confluence eklentisi
 tr.default=Varsayılan kurulum
 tr.dropbox=Dropbox eklentisi
@@ -462,6 +471,7 @@ tr.ShowLicense=Show license
 tr.ShowReadme=Show Readme
 tr.disablewin11snippingtool=Win11 varsayılan ekran alıntısı aracını devre dışı bırakın
 
+uk.closegreenshotwarning=Greenshot наразі запущено і буде закрито для продовження встановлення.
 uk.confluence=Плагін Confluence
 uk.default=${default}
 uk.externalcommand=Плагін запуску зовнішньої команди
@@ -472,6 +482,7 @@ uk.optimize=Оптимізація продуктивності, це може �
 uk.startgreenshot=Запустити {#ExeName}
 uk.startup=Запускати {#ExeName} під час запуску Windows
 
+cn.closegreenshotwarning=Greenshot 正在运行，将被关闭以继续安装。
 cn.confluence=Confluence插件
 cn.default=${default}
 cn.externalcommand=使用外部命令打开插件
@@ -554,6 +565,73 @@ function CompactInstall(Param : String) : String;
 begin
 	result := SetupMessage(msgCompactInstallation);
 end;
+
+/////////////////////////////////////////////////////////////////////
+// Functions to handle closing Greenshot before installation
+/////////////////////////////////////////////////////////////////////
+
+// Check if running as SYSTEM user (common for RMM/deployment tools)
+function IsSystemUser(): Boolean;
+var
+	Username: String;
+begin
+	Username := GetUserNameString();
+	// SYSTEM account is typically named 'SYSTEM' or localized equivalent
+	// We also check for empty username which can occur in certain SYSTEM contexts
+	result := (Uppercase(Username) = 'SYSTEM') or (Username = '');
+end;
+
+// Close Greenshot process using taskkill
+procedure CloseGreenshot();
+var
+	ResultCode: Integer;
+begin
+	// Use taskkill to terminate Greenshot process
+	// /F = Force terminate, /IM = Image name, /T = Terminate child processes
+	Exec('taskkill.exe', '/F /IM {#ExeName}.exe /T', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+	// Give the process time to fully terminate
+	Sleep(1000);
+end;
+
+// Check if Greenshot is currently running
+function IsGreenshotRunning(): Boolean;
+var
+	ResultCode: Integer;
+begin
+	// Use tasklist with find to check if process is running
+	// The find command returns 0 if the process name is found in the output
+	Exec('cmd.exe', '/C tasklist /FI "IMAGENAME eq {#ExeName}.exe" 2>NUL | find /I "{#ExeName}.exe" >NUL', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+	result := (ResultCode = 0);
+end;
+
+// Handle closing Greenshot with appropriate user notification
+function HandleGreenshotClose(): Boolean;
+begin
+	result := True;
+
+	if IsGreenshotRunning() then
+	begin
+		if IsSystemUser() then
+		begin
+			// Running as SYSTEM (e.g., RMM deployment) - close silently
+			CloseGreenshot();
+		end
+		else
+		begin
+			// Running as normal user - show warning before closing
+			if MsgBox(CustomMessage('closegreenshotwarning'), mbInformation, MB_OKCANCEL) = IDOK then
+			begin
+				CloseGreenshot();
+			end
+			else
+			begin
+				// User cancelled - abort installation
+				result := False;
+			end;
+		end;
+	end;
+end;
+
 /////////////////////////////////////////////////////////////////////
 // The following uninstall code was found at:
 // https://stackoverflow.com/questions/2000296/innosetup-how-to-automatically-uninstall-previous-installed-version
@@ -705,9 +783,17 @@ end;
 function InitializeSetup(): Boolean;
 begin
 	// Check for .NET and install 4.8.1 if we don't have it
-	Result := IsDotNetInstalled(net481, 0); //Returns True if .NET Framework version 4.6.2 is installed, or a compatible version such as 4.8.1
-	if not Result then
+	result := IsDotNetInstalled(net481, 0); //Returns True if .NET Framework version 4.6.2 is installed, or a compatible version such as 4.8.1
+	if not result then
+	begin
 		SuppressibleMsgBox(FmtMessage(SetupMessage(msgWinVersionTooLowError), ['.NET Framework', '4.8.1']), mbCriticalError, MB_OK, IDOK);
+		Exit;
+	end;
+
+	// Handle closing Greenshot if it's running
+	// For SYSTEM user (RMM deployments): closes silently
+	// For normal user: shows warning dialog with option to cancel
+	result := HandleGreenshotClose();
 end;
 
 function ShouldDisableSnippingTool: Boolean;
