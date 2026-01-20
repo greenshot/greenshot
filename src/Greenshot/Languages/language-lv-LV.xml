@@ -215,7 +215,7 @@ Pārbaudi dotajā vietā savas piekļuves tiesības.</resource>
 		<resource name="settings_destination_email">E-pasts</resource>
 		<resource name="settings_destination_file">Saglabāt nejautājot (izmantojot zemākesošos iestatījumus)</resource>
 		<resource name="settings_destination_fileas">Saglabāt kā (tiks vaicāts)</resource>
-		<resource name="settings_destination_picker">Jautāt par galamērķi katru reizi</resource>
+		<resource name="settings_destination_picker">Piedāvāt izvēli katru reizi</resource>
 		<resource name="settings_destination_printer">Drukāt</resource>
 		<resource name="settings_editor">Redaktors</resource>
 		<resource name="settings_filenamepattern">Faila vārda paraugs</resource>
