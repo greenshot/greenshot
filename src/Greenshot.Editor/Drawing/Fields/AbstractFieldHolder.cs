@@ -39,7 +39,7 @@ namespace Greenshot.Editor.Drawing.Fields
     {
         private static readonly ILog LOG = LogManager.GetLogger(typeof(AbstractFieldHolder));
         private static readonly EditorConfiguration EditorConfig = IniConfig.GetIniSection<EditorConfiguration>();
-        [NonSerialized] private readonly IDictionary<IField, PropertyChangedEventHandler> _handlers = new Dictionary<IField, PropertyChangedEventHandler>();
+        [NonSerialized] private IDictionary<IField, PropertyChangedEventHandler> _handlers = new Dictionary<IField, PropertyChangedEventHandler>();
 
         /// <summary>
         /// called when a field's value has changed
@@ -60,6 +60,8 @@ namespace Greenshot.Editor.Drawing.Fields
         [OnDeserialized]
         private void OnDeserialized(StreamingContext context)
         {
+            _handlers = new Dictionary<IField, PropertyChangedEventHandler>();
+
             _fieldsByType = new Dictionary<IFieldType, IField>();
             // listen to changing properties
             foreach (var field in fields)
