@@ -28,6 +28,7 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing;
+using Greenshot.Editor.Drawing.Emoji;
 using Greenshot.Editor.Drawing.Fields;
 using Greenshot.Editor.FileFormat.Dto.Container;
 using Greenshot.Editor.FileFormat.Dto.Fields;
@@ -113,6 +114,7 @@ public static class ConvertDtoToDomain
             SpeechbubbleContainerDto speechbubbleContainerDto => ToDomain(speechbubbleContainerDto, parentSurface),
             MetafileContainerDto metafileContainerDto => ToDomain(metafileContainerDto, parentSurface),
             SvgContainerDto svgContainerDto => ToDomain(svgContainerDto, parentSurface),
+            EmojiContainerDto emojiContainerDto => ToDomain(emojiContainerDto, parentSurface),
             _ => throw new ArgumentException($"Unsupported IDrawableContainerDto type: {dto.GetType()}")
         };
     }
@@ -158,6 +160,18 @@ public static class ConvertDtoToDomain
         parentSurface = CheckOrCreateParentSurface(parentSurface);
         
         var domain = new SvgContainer(new MemoryStream(dto.SvgData), parentSurface);
+        domain.RotationAngle = dto.RotationAngle;
+
+        return InitDrawableContainer(domain, dto);
+    }
+
+    public static EmojiContainer ToDomain(EmojiContainerDto dto, ISurface parentSurface)
+    {
+        if (dto == null) return null;
+
+        parentSurface = CheckOrCreateParentSurface(parentSurface);
+
+        var domain = new EmojiContainer((Surface)parentSurface, dto.Emoji);
         domain.RotationAngle = dto.RotationAngle;
 
         return InitDrawableContainer(domain, dto);

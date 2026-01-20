@@ -46,6 +46,7 @@ namespace Greenshot.Editor.FileFormat.Dto.Container;
 [Union(12, typeof(ObfuscateContainerDto))]
 [Union(13, typeof(StepLabelContainerDto))]
 [Union(14, typeof(SvgContainerDto))]
+[Union(15, typeof(EmojiContainerDto))]
 [MessagePackObject]
 public abstract class DrawableContainerDto 
 {

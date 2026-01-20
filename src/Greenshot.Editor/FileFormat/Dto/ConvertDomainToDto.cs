@@ -25,6 +25,7 @@ using System.IO;
 using System.Linq;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing;
+using Greenshot.Editor.Drawing.Emoji;
 using Greenshot.Editor.FileFormat.Dto.Container;
 using Greenshot.Editor.FileFormat.Dto.Fields;
 using static Greenshot.Editor.Drawing.ArrowContainer;
@@ -96,6 +97,7 @@ public static class ConvertDomainToDto
             FreehandContainer freehandContainer => ToDto(freehandContainer),
             MetafileContainer metafileContainer => ToDto(metafileContainer),
             SvgContainer svgContainer => ToDto(svgContainer),
+            EmojiContainer emojiContainer => ToDto(emojiContainer),
             _ => throw new ArgumentException($"Unsupported IDrawableContainer type: {domain.GetType()}"),
         };
 
@@ -144,6 +146,22 @@ public static class ConvertDomainToDto
             Height = domain.Height,
             Fields = domain.GetFields() == null ? [] : domain.GetFields().Select(ToDto).ToList(),
             SvgData = domain.SvgContent.ToArray(),
+            RotationAngle = domain.RotationAngle
+        };
+        return dto;
+    }
+    public static EmojiContainerDto ToDto(EmojiContainer domain)
+    {
+        if (domain == null) return null;
+
+        var dto = new EmojiContainerDto
+        {
+            Left = domain.Left,
+            Top = domain.Top,
+            Width = domain.Width,
+            Height = domain.Height,
+            Fields = domain.GetFields() == null ? [] : domain.GetFields().Select(ToDto).ToList(),
+            Emoji = domain.Emoji,
             RotationAngle = domain.RotationAngle
         };
         return dto;
