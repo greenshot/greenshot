@@ -93,6 +93,20 @@ namespace Greenshot.Editor.Drawing
                 Alignment = StringAlignment.Center,
                 LineAlignment = StringAlignment.Center
             };
+
+            // Fix old data where thickness and shadow were not set (backwards compatibility)
+            if (!HasField(FieldType.LINE_THICKNESS))
+            {
+                AddField(GetType(), FieldType.LINE_THICKNESS, 0);
+                // aktively set because AddField above uses 0 as default but overrides it with current value from config file
+                SetFieldValue(FieldType.LINE_THICKNESS, 0);
+            }
+            if (!HasField(FieldType.SHADOW))
+            {
+                AddField(GetType(), FieldType.SHADOW, false);
+                // aktively set because AddField above uses false as default but overrides it with current value from config file
+                SetFieldValue(FieldType.SHADOW, false);
+            }
         }
 
         /// <summary>
