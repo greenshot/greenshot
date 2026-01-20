@@ -97,6 +97,13 @@ Each plugin follows a consistent structure:
 - **src/Directory.Build.targets** - Token replacement for API credentials
 - **src/version.json** - Version base (1.4), release branch config
 
+### Translations
+- All UI messages for the main application are in **src/Greenshot/Languages/language-*.xml** files, for plugins in the plugin's own `Languages` subdirectory (see above).
+- English is the leading language and used during development (by most users, too).
+- Changes to one of the languages should be applied to all other translations.
+- Messages from the same context have a shared prefix.
+- To avoid inaccurate translations, check against other messages from the same context and make sure that terms are used consistently. In case of doubt, do a reverse check (translate back to English and see whether the original meaning has been preserved).
+
 ## Continuous Integration
 
 ### GitHub Actions Workflow (`.github/workflows/release.yml`)
