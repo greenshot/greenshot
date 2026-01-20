@@ -29,7 +29,7 @@ namespace Greenshot.Editor.FileFormat.V1;
 /// <summary>
 /// Provides methods for loading Greenshot template in file format version V1.
 /// </summary>
-/// <remarks>Greenshot template file format version V1 supports Greenshot template files from app version 1.2 and 1.3.
+/// <remarks>Greenshot template file format version V1 supports Greenshot template files from app version 1.2, 1.3 and 1.4.
 /// Saving to this format is not supported anymore.</remarks>
 internal static class GreenshotTemplateV1
 {
@@ -54,9 +54,9 @@ internal static class GreenshotTemplateV1
     }
 
     /// <summary>
-    /// This load function support Greenshot template from app version 1.2 and 1.3.
+    /// This load function support Greenshot template from app version 1.2 , 1.3 and 1.4.
     /// </summary>
-    /// <remarks>In this file format is no specific version information, so schema version is always 3.
+    /// <remarks>In this file format is no specific version information, so schema version is always 4.
     /// The stream's position will be modified during the operation but will remain open after the method completes.</remarks>
     /// <param name="greenshotTemplateFileStream">A <see cref="Stream"/> containing the Greenshot template data.</param>
     /// <returns>The loaded Greenshot template.</returns>
@@ -85,7 +85,7 @@ internal static class GreenshotTemplateV1
             Log.Error("Error serializing elements from stream.", e);
         }
 
-        greenshotTemplate.SchemaVersion = 3; // The schema version for V1 is always 3, as this is the last version that was used in the old Greenshot file format.
+        greenshotTemplate.SchemaVersion = 4; // The schema version for V1 is always 4, as this is the last version that was used in the old Greenshot file format.
 
         return greenshotTemplate;
     }

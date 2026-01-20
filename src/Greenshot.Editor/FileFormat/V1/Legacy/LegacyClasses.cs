@@ -24,7 +24,10 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 using System.Runtime.Serialization;
+using System.Threading.Tasks.Sources;
+using Greenshot.Editor.Drawing.Fields;
 
 namespace Greenshot.Editor.FileFormat.V1.Legacy;
 
@@ -47,6 +50,14 @@ internal class LegacyField
     public string Scope { get; set; }
 
     public object Value => _myValue;
+
+    /// <summary>
+    /// For backward compatibility, to set the value during deserialization manually
+    /// </summary>
+    internal void ResetValue(object newValue)
+    {
+        _myValue = newValue;
+    }
 }
 
 [Serializable]
@@ -302,6 +313,19 @@ internal class LegacySvgContainer : LegacyDrawableContainer
 }
 
 [Serializable]
+internal class LegacyEmojiContainer : LegacyDrawableContainer
+{
+    public int RotationAngle;
+    public string Emoji;
+
+    protected LegacyEmojiContainer(SerializationInfo info, StreamingContext context) : base(info, context)
+    {
+        RotationAngle = info.GetInt32("VectorGraphicsContainer+_rotationAngle");
+        Emoji = info.GetString("_emoji");
+    }
+}
+
+[Serializable]
 internal class LegacyStepLabelContainer : LegacyDrawableContainer
 {
     public int Number;
@@ -311,6 +335,29 @@ internal class LegacyStepLabelContainer : LegacyDrawableContainer
     {
         Number = info.GetInt32("_number");
         CounterStart = info.GetInt32("_counterStart");
+
+        // Backward compatibility: Ensure SHADOW and LINE_THICKNESS fields exist
+        if (!Fields.Any(x => x.Scope == "StepLabelContainer" && x.FieldType.Name == "LINE_THICKNESS" ))
+        {
+            var lineThicknessField = new LegacyField
+            {
+                Scope = "StepLabelContainer",
+                FieldType = new LegacyFieldType { Name = "LINE_THICKNESS" }
+            };
+            lineThicknessField.ResetValue(0);
+            Fields.Add(lineThicknessField);
+        }
+
+        if (!Fields.Any(x => x.Scope == "StepLabelContainer" && x.FieldType.Name == "SHADOW"))
+        {
+            var shadowField = new LegacyField
+            {
+                Scope = "StepLabelContainer",
+                FieldType = new LegacyFieldType { Name = "SHADOW" }
+            };
+            shadowField.ResetValue(false);
+            Fields.Add(shadowField);
+        }
     }
 }
 

@@ -54,6 +54,7 @@ internal static class ConvertLegacyToDto
             LegacyFreehandContainer freehand => ToDto(freehand),
             LegacyMetafileContainer meta => ToDto(meta),
             LegacySvgContainer svg => ToDto(svg),
+            LegacyEmojiContainer emoji => ToDto(emoji),
             LegacyStepLabelContainer step => ToDto(step),
             _ => throw new NotSupportedException($"Cannot convert unknown container type {container.GetType()} to a concrete ContainerDto."),
         };
@@ -248,6 +249,20 @@ internal static class ConvertLegacyToDto
             Fields = ToFieldDtos(container.Fields),
             RotationAngle = container.RotationAngle,
             SvgData = container.SvgContent?.ToArray()
+        };
+    }
+
+    public static EmojiContainerDto ToDto(LegacyEmojiContainer container)
+    {
+        return new EmojiContainerDto
+        {
+            Left = container.Left,
+            Top = container.Top,
+            Width = container.Width,
+            Height = container.Height,
+            Fields = ToFieldDtos(container.Fields),
+            RotationAngle = container.RotationAngle,
+            Emoji = container.Emoji
         };
     }
 

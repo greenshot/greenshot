@@ -32,7 +32,7 @@ namespace Greenshot.Editor.FileFormat.V1;
 /// <summary>
 /// Provides methods for loading Greenshot file format version V1.
 /// </summary>
-/// <remarks>Greenshot file format version V1 supports Greenshot file versions 01.02 and 01.03.
+/// <remarks>Greenshot file format version V1 supports Greenshot file versions 01.02, 01.03 and 01.04.
 /// Saving to this format is not supported anymore.</remarks>
 internal static class GreenshotFileV1
 {
@@ -41,8 +41,8 @@ internal static class GreenshotFileV1
     /// <summary>
     /// Determines whether the stream matches the Greenshot file format version V1.
     /// </summary>
-    /// <remarks>It checks for specific markers ("Greenshot01.02" or
-    /// "Greenshot01.03") and validates the size of surface / container list data. The stream's position will be
+    /// <remarks>It checks for specific markers ("Greenshot01.02", "Greenshot01.03" or
+    /// "Greenshot01.04") and validates the size of surface / container list data. The stream's position will be
     /// modified during the operation but will remain open after the method completes.</remarks>
     /// <param name="greenshotFileStream">The stream containing the file to check. The stream must support seeking.</param>
     /// <returns><see langword="true"/> if the file format matches the Greenshot version V1 and the file contains surface
@@ -59,6 +59,7 @@ internal static class GreenshotFileV1
         // only these two known marker are allowed 
         var foundMarkerV0102 = greenshotMarker.Equals("Greenshot01.02");
         var foundMarkerV0103 = greenshotMarker.Equals("Greenshot01.03");
+        var foundMarkerV0104 = greenshotMarker.Equals("Greenshot01.04");
 
         // Load 8 byte in front of marker for file size 
         const int fileSizeLocation = 8 + markerSize;
@@ -79,11 +80,17 @@ internal static class GreenshotFileV1
             return true;
         }
 
+        if (foundMarkerV0104 && bytesWritten > 0)
+        {
+            Log.InfoFormat("Greenshot file format: {0}", greenshotMarker);
+            return true;
+        }
+
         return false;
     }
 
     /// <summary>
-    /// This load function support Greenshot file version 01.02 and 01.03.
+    /// This load function support Greenshot file version 01.02, 01.03 and 01.04.
     /// </summary>
     /// <param name="greenshotFileStream">A <see cref="Stream"/> containing the Greenshot file data.</param>
     /// <returns>The loaded Greenshot file.</returns>
@@ -105,6 +112,7 @@ internal static class GreenshotFileV1
         // only these two known marker are allowed 
         var foundMarkerV0102 = greenshotMarker.Equals("Greenshot01.02");
         var foundMarkerV0103 = greenshotMarker.Equals("Greenshot01.03");
+        var foundMarkerV0104 = greenshotMarker.Equals("Greenshot01.04");
 
         if (foundMarkerV0102)
         {
@@ -113,7 +121,11 @@ internal static class GreenshotFileV1
         else if (foundMarkerV0103)
         {
             returnGreenshotFile.SchemaVersion = 3;
-        }else
+        }else if (foundMarkerV0104)
+        {
+            returnGreenshotFile.SchemaVersion = 4;
+        }
+        else
         {
             throw new ArgumentException("No schema version found in Greenshot file stream!");
         }

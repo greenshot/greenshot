@@ -22,7 +22,9 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Web;
 using Greenshot.Editor.Drawing;
+using Greenshot.Editor.Drawing.Emoji;
 using Greenshot.Editor.Drawing.Fields;
 using Greenshot.Editor.Drawing.Filters;
 using Greenshot.Editor.FileFormat.Dto;
@@ -811,6 +813,7 @@ public class LoadGreenshotSurfaceTests
     {
         yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.02", "StepLabelContainer_lt_200_200_lt_500_300.greenshot")];
         yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.03", "StepLabelContainer_lt_200_200_lt_500_300.greenshot")];
+        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.04", "StepLabelContainer_lt_200_200_lt_500_300.greenshot")];
         yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_2.01", "StepLabelContainer_lt_200_200_lt_500_300.greenshot")];
     }
 
@@ -825,6 +828,8 @@ public class LoadGreenshotSurfaceTests
         var stepLabelSize = new Size(30, 30);
         var expectedFillColor = Color.Blue;
         var expectedLineColor = Color.White;
+        var expectedShadow = false;
+        var expectedLineThickness = 0;
 
         // Act
         var resultSurface = _greenshotFileFormatHandler.LoadGreenshotSurface(filePath);
@@ -863,6 +868,15 @@ public class LoadGreenshotSurfaceTests
         Assert.True(DtoHelper.CompareColorValue(expectedLineColor, (Color)resultLineColor1),
             $"The line color values for StepLabelContainer 1 are different. expected:{DtoHelper.ArgbString(expectedLineColor)} result:{DtoHelper.ArgbString((Color)resultLineColor1)}");
 
+        var resultShadow1 = stepLabelContainer1.GetFieldValue(FieldType.SHADOW);
+        Assert.NotNull(resultShadow1);
+        Assert.IsType<bool>(resultShadow1);
+        Assert.Equal(expectedShadow, resultShadow1);
+
+        var resultLineThickness1 = stepLabelContainer1.GetFieldValue(FieldType.LINE_THICKNESS);
+        Assert.NotNull(resultLineThickness1);
+        Assert.IsType<int>(resultLineThickness1);
+        Assert.Equal(expectedLineThickness, resultLineThickness1);
 
         // Assertions for the second StepLabelContainer
         var resultSecondElement = resultElementList[1];
@@ -888,6 +902,16 @@ public class LoadGreenshotSurfaceTests
         Assert.IsType<Color>(resultLineColor2);
         Assert.True(DtoHelper.CompareColorValue(expectedLineColor, (Color)resultLineColor2),
             $"The line color values for StepLabelContainer 2 are different. expected:{DtoHelper.ArgbString(expectedLineColor)} result:{DtoHelper.ArgbString((Color)resultLineColor2)}");
+
+        var resultShadow2 = stepLabelContainer2.GetFieldValue(FieldType.SHADOW);
+        Assert.NotNull(resultShadow2);
+        Assert.IsType<bool>(resultShadow2);
+        Assert.Equal(expectedShadow, resultShadow2);
+
+        var resultLineThickness2 = stepLabelContainer2.GetFieldValue(FieldType.LINE_THICKNESS);
+        Assert.NotNull(resultLineThickness2);
+        Assert.IsType<int>(resultLineThickness2);
+        Assert.Equal(expectedLineThickness, resultLineThickness2);
     }
 
     public static IEnumerable<object[]> ImageContainerTestData()
@@ -981,6 +1005,45 @@ public class LoadGreenshotSurfaceTests
 
         Assert.NotNull(svgContainer.SvgContent);
         Assert.True( svgContainer.SvgContent.Length > 0);
+    }
+
+    public static IEnumerable<object[]> EmojiContainerTestData()
+    {
+        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.04", "EmojiContainer_lt_100_200_wh_64_64.greenshot")];
+        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_2.01", "EmojiContainer_lt_100_200_wh_64_64.greenshot")];
+    }
+
+    [Theory]
+    [MemberData(nameof(EmojiContainerTestData))]
+    public void LoadEmojiContainerFromGreenshotFile(string filePath )
+    {
+        // Arrange
+        var imageSizeInTestfile = new Size(800, 400);
+
+        var EmojiPos = new Point(100, 200);
+        var EmojiSize = new Size(64, 64);
+        // Act
+        var resultSurface = _greenshotFileFormatHandler.LoadGreenshotSurface(filePath);
+
+        // Assert
+        Assert.NotNull(resultSurface);
+        var resultElementList = resultSurface.Elements;
+
+        Assert.Equal(imageSizeInTestfile, resultSurface.Image.Size);
+
+        Assert.NotNull(resultElementList);
+        Assert.Equal(1, resultElementList.Count);
+
+        var resultFirstElement = resultElementList[0];
+        Assert.NotNull(resultFirstElement);
+        Assert.IsType<EmojiContainer>(resultFirstElement);
+
+        Assert.Equal(EmojiPos.X, ((EmojiContainer)resultFirstElement).Left);
+        Assert.Equal(EmojiPos.Y, ((EmojiContainer)resultFirstElement).Top);
+
+        Assert.Equal(EmojiSize.Width, ((EmojiContainer)resultFirstElement).Width);
+        Assert.Equal(EmojiSize.Height, ((EmojiContainer)resultFirstElement).Height);
+
     }
 
     public static IEnumerable<object[]> MetafileContainerTestData()
@@ -1100,6 +1163,42 @@ public class LoadGreenshotSurfaceTests
         Assert.IsType<MetafileContainer>(resultElementList[12]);
         Assert.IsType<IconContainer>(resultElementList[13]); 
     }
+
+    /// <summary>
+    /// Tests to load a Greenshot surface from a file created with version 01.04, ensuring that the surface
+    /// contains the expected number and types of drawable containers.
+    /// </summary>
+    /// <remarks>The test file contains all possible container types for version 01.04 </remarks>
+    [Fact]
+    public void LoadFromV0104GreenshotFileWithDifferentContainer()
+    {
+        // Arrange
+        string filePath = Path.Combine("TestData", "Greenshotfile", "File_Version_1.04", "Surface_with_11_different_DrawableContainer.greenshot");
+
+        // Act
+        var resultSurface = _greenshotFileFormatHandler.LoadGreenshotSurface(filePath);
+
+        // Assert
+        Assert.NotNull(resultSurface);
+
+        var resultElementList = resultSurface.Elements;
+
+        Assert.NotNull(resultElementList);
+        Assert.Equal(11, resultElementList.Count);
+
+        Assert.IsType<ArrowContainer>(resultElementList[0]);
+        Assert.IsType<EllipseContainer>(resultElementList[1]);
+        Assert.IsType<FreehandContainer>(resultElementList[2]);
+        Assert.IsType<HighlightContainer>(resultElementList[3]);
+        Assert.IsType<IconContainer>(resultElementList[4]);
+        Assert.IsType<LineContainer>(resultElementList[5]);
+        Assert.IsType<ObfuscateContainer>(resultElementList[6]);
+        Assert.IsType<RectangleContainer>(resultElementList[7]);
+        Assert.IsType<SpeechbubbleContainer>(resultElementList[8]);
+        Assert.IsType<SvgContainer>(resultElementList[9]);
+        Assert.IsType<TextContainer>(resultElementList[10]);
+    }
+
     /// <summary>
     /// Tests to load a Greenshot surface from a file created with version 02.01, ensuring that the surface
     /// contains the expected number and types of drawable containers.

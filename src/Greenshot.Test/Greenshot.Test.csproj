@@ -113,10 +113,22 @@
     <None Update="TestData\Greenshotfile\File_Version_1.03\TextContainer_lt_300_200_wh_300_100.greenshot">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="TestData\Greenshotfile\File_Version_1.04\EmojiContainer_lt_100_200_wh_64_64.greenshot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Greenshotfile\File_Version_1.04\StepLabelContainer_lt_200_200_lt_500_300.greenshot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Greenshotfile\File_Version_1.04\Surface_with_11_different_DrawableContainer.greenshot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="TestData\Greenshotfile\File_Version_2.01\ArrowContainer_lt_100_200_wh_400_100.greenshot">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="TestData\Greenshotfile\File_Version_2.01\EllipseContainer_lt_200_200_wh_400_100.greenshot">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Greenshotfile\File_Version_2.01\EmojiContainer_lt_100_200_wh_64_64.greenshot">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="TestData\Greenshotfile\File_Version_2.01\FreehandContainer_with_4_points.greenshot">

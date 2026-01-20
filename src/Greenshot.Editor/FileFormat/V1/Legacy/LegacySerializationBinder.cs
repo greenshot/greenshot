@@ -65,6 +65,7 @@ internal sealed class LegacySerializationBinder : SerializationBinder
             {"Greenshot.Editor.Drawing.ObfuscateContainer", typeof(LegacyObfuscateContainer) },
             {"Greenshot.Editor.Drawing.StepLabelContainer", typeof(LegacyStepLabelContainer) },
             {"Greenshot.Editor.Drawing.SvgContainer", typeof(LegacySvgContainer) },
+            {"Greenshot.Editor.Drawing.Emoji.EmojiContainer", typeof(LegacyEmojiContainer) },
             {"Greenshot.Editor.Drawing.MetafileContainer", typeof(LegacyMetafileContainer) },
             {"Greenshot.Editor.Drawing.ImageContainer", typeof(LegacyImageContainer) },
             {"Greenshot.Editor.Drawing.DrawableContainer", typeof(LegacyDrawableContainer) },

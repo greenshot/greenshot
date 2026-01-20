@@ -45,5 +45,6 @@ namespace Greenshot.Test.Fixtures.Collections;
 /// or creating new collection definitions as needed.
 /// </para>
 /// </remarks>
+/// TODO: Add possibility to define a dedicated greenshot.ini for all/ special tests.( e.g. fields in container classes read config)
 [CollectionDefinition("DefaultCollection")]
 public class DefaultCollection : ICollectionFixture<SimpleServiceProviderFixture> { }
