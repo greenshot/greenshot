@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -110,7 +110,7 @@ namespace Greenshot.Editor.FileFormatHandlers
             }
             finally
             {
-                if (gcHandle == IntPtr.Zero)
+                if (gcHandle != IntPtr.Zero)
                 {
                     GCHandle.FromIntPtr(gcHandle).Free();
                 }

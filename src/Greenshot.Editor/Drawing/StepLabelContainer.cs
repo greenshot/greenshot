@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2012  Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026  Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -126,6 +126,8 @@ namespace Greenshot.Editor.Drawing
         {
             AddField(GetType(), FieldType.FILL_COLOR, Color.DarkRed);
             AddField(GetType(), FieldType.LINE_COLOR, Color.White);
+            AddField(GetType(), FieldType.LINE_THICKNESS, 0);
+            AddField(GetType(), FieldType.SHADOW, false);
             AddField(GetType(), FieldType.FLAGS, FieldFlag.COUNTER);
         }
 
@@ -177,13 +179,16 @@ namespace Greenshot.Editor.Drawing
             var rect = new NativeRect(Left, Top, Width, Height).Normalize();
             Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
             Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
+            int lineThickness = GetFieldValueAsInt(FieldType.LINE_THICKNESS);
+            bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
+
             if (_drawAsRectangle)
             {
-                RectangleContainer.DrawRectangle(rect, graphics, rm, 0, Color.Transparent, fillColor, false);
+                RectangleContainer.DrawRectangle(rect, graphics, rm, lineThickness, lineColor, fillColor, shadow);
             }
             else
             {
-                EllipseContainer.DrawEllipse(rect, graphics, rm, 0, Color.Transparent, fillColor, false);
+                EllipseContainer.DrawEllipse(rect, graphics, rm, lineThickness, lineColor, fillColor, shadow);
             }
 
             using FontFamily fam = new(FontFamily.GenericSansSerif.Name);

@@ -6,6 +6,7 @@
 		<resource name="label_command">命令</resource>
 		<resource name="label_information">{0}为您的截图文件的名称</resource>
 		<resource name="label_name">名称</resource>
+		<resource name="label_outputimageformat">图像格式</resource>
 		<resource name="settings_delete">删除</resource>
 		<resource name="settings_detail_title">配置命令</resource>
 		<resource name="settings_edit">编辑</resource>
