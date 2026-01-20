@@ -1,201 +1,319 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="Hebrew - עִבְרִית" ietf="he-IL" version="1.0.0" languagegroup="c">
+<?xml version="1.0" encoding="utf-8"?>
+<language description="Hebrew - עִבְרִית" ietf="he-IL" version="1.1.0" languagegroup="c">
 	<resources>
-		<resource name="about_bugs">:אנא דווח באגים בכתובת</resource>
-		<resource name="about_donations">:אם את\ה נהנה\ית משימוש בתוכנה, את\ה מוזמן לתרום לנו</resource>
-		<resource name="about_host">Greenshot is hosted by GitHub at</resource>
-		<resource name="about_icons">Icons from Yusuke Kamiyamane's Fugue icon set (Creative Commons Attribution 3.0 license)</resource>
+		<resource name="about_bugs">אנא דווח על באגים בכתובת</resource>
+		<resource name="about_donations">אם את/ה נהנה/ית משימוש בתוכנה, את/ה מוזמן לתרום לנו:</resource>
+		<resource name="about_host">Greenshot מתארחת ב-GitHub בכתובת</resource>
+		<resource name="about_icons">אייקונים מסט האייקונים Fugue של Yusuke Kamiyamane (רישיון Creative Commons Attribution 3.0)</resource>
 		<resource name="about_license">Copyright © 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
-Greenshot comes with ABSOLUTELY NO WARRANTY. This is free software, and you are welcome to redistribute it under certain conditions.
-Details about the GNU General Public License:</resource>
-		<resource name="about_title">Greenshot אודות התוכנה</resource>
+Greenshot מגיעה ללא כל אחריות. זוהי תוכנה חופשית, ואת/ה מוזמן/ת להפיץ אותה תחת תנאים מסוימים.
+פרטים נוספים על רישיון GNU General Public License:</resource>
+		<resource name="about_title">אודות Greenshot</resource>
+		<resource name="about_translation">תרגום לעברית עודכן על ידי Gemini AI</resource>
 		<resource name="application_title">Greenshot - התוכנה המהפכנית ללכידת מסך</resource>
 		<resource name="bugreport_cancel">סגור</resource>
-		<resource name="bugreport_info">סליחה, שגיאה בלתי צפויה אירעה
+		<resource name="bugreport_info">סליחה, אירעה שגיאה בלתי צפויה.
 
-.החדשות הטובות הן: את\ה יכול\ה לעזור לנו לפתור אותה באמצעות דיווח באגים
-.אנא בקר\י בכתובת שמלטמה, צור\י דוח באגים והדבק אותו בעמוד שנפתח
+החדשות הטובות הן: את/ה יכול/ה לעזור לנו להיפטר ממנה על ידי שליחת דוח באג.
+אנא בקר/י בכתובת למטה, צור/י דוח באג חדש והדבק/י את התוכן מתיבת הטקסט לתוך התיאור.
 
-.נא להוסיף תקציר של התקלה וכל מידע שנראה חיוני לזיהוי התקלה
- תודה רבה :)</resource>
+אנא הוסף סיכום משמעותי וכלול כל מידע שנראה לך חיוני לשחזור התקלה.
+כמו כן, נעריך מאוד אם תבדוק/י אם כבר קיים דיווח על באג זה. (ניתן להשתמש בחיפוש לשם כך). תודה רבה :)</resource>
 		<resource name="bugreport_title">שגיאה</resource>
-		<resource name="clipboard_error">שגיאה לא-צפויה קרתה בכתיבה אל לוח העריכה</resource>
-		<resource name="clipboard_inuse">התוכנה לא יכלה לכתוב אל הלוח מאחר והתוכנה {0} חסמה את הגישה</resource>
-		<resource name="colorpicker_alpha">אלפא</resource>
+		<resource name="CANCEL">ביטול</resource>
+		<resource name="clipboard_error">שגיאה בלתי צפויה אירעה בעת הכתיבה ללוח (Clipboard).</resource>
+		<resource name="clipboard_inuse">Greenshot לא הצליחה לכתוב ללוח מכיוון שהתהליך {0} חסם את הגישה.</resource>
+		<resource name="clipboard_noimage">לא נמצאה תמונה בלוח.</resource>
+		<resource name="ClipboardFormat.BITMAP">Windows Bitmap</resource>
+		<resource name="ClipboardFormat.DIB">Device Independent Bitmap (DIB)</resource>
+		<resource name="ClipboardFormat.HTML">HTML</resource>
+		<resource name="ClipboardFormat.HTMLDATAURL">HTML עם תמונות מוטמעות</resource>
+		<resource name="ClipboardFormat.PNG">PNG</resource>
+		<resource name="colorpicker_alpha">אלפא (שקיפות)</resource>
 		<resource name="colorpicker_apply">החל</resource>
 		<resource name="colorpicker_blue">כחול</resource>
 		<resource name="colorpicker_green">ירוק</resource>
-		<resource name="colorpicker_htmlcolor">HTML צבע</resource>
+		<resource name="colorpicker_htmlcolor">צבע HTML</resource>
 		<resource name="colorpicker_recentcolors">צבעים בשימוש אחרון</resource>
 		<resource name="colorpicker_red">אדום</resource>
 		<resource name="colorpicker_title">בוחר צבע</resource>
-		<resource name="colorpicker_transparent">שקיפות</resource>
-		<resource name="config_unauthorizedaccess_write">לא ניתן לשמור את הגדרות התוכנה. אנא בדוק את הרשאות הכתיבה עבור '{0}'.</resource>
-		<resource name="contextmenu_about">Greenshot אודות</resource>
+		<resource name="colorpicker_transparent">שקוף</resource>
+		<resource name="com_rejected">היעד {0} דחה את הגישה של Greenshot, ככל הנראה ישנה תיבת דו-שיח פתוחה. סגור את התיבה ונסה שוב.</resource>
+		<resource name="com_rejected_title">הגישה של Greenshot נדחתה</resource>
+		<resource name="config_unauthorizedaccess_write">לא ניתן לשמור את קובץ ההגדרות של Greenshot. אנא בדוק את הרשאות הגישה עבור '{0}'.</resource>
+		<resource name="contextmenu_about">אודות Greenshot</resource>
 		<resource name="contextmenu_capturearea">לכידת אזור</resource>
-		<resource name="contextmenu_captureclipboard">פתח תמונה מלוח העריכה</resource>
+		<resource name="contextmenu_captureclipboard">פתח תמונה מהלוח</resource>
 		<resource name="contextmenu_capturefullscreen">לכידת מסך מלא</resource>
+		<resource name="contextmenu_capturefullscreen_all">הכל</resource>
+		<resource name="contextmenu_capturefullscreen_bottom">למטה</resource>
+		<resource name="contextmenu_capturefullscreen_left">שמאל</resource>
+		<resource name="contextmenu_capturefullscreen_right">ימין</resource>
+		<resource name="contextmenu_capturefullscreen_top">למעלה</resource>
 		<resource name="contextmenu_capturelastregion">לכידת האזור האחרון</resource>
 		<resource name="contextmenu_capturewindow">לכידת חלון</resource>
-		<resource name="contextmenu_donate">Greenshot תמוך ב</resource>
+		<resource name="contextmenu_capturewindowfromlist">לכידת חלון מתוך רשימה</resource>
+		<resource name="contextmenu_donate">תמוך ב-Greenshot</resource>
 		<resource name="contextmenu_exit">יציאה</resource>
 		<resource name="contextmenu_help">עזרה</resource>
 		<resource name="contextmenu_openfile">פתח תמונה מקובץ</resource>
+		<resource name="contextmenu_openrecentcapture">פתח מיקום לכידה אחרון</resource>
 		<resource name="contextmenu_quicksettings">הגדרות מהירות</resource>
-		<resource name="contextmenu_settings">...הגדרות</resource>
+		<resource name="contextmenu_settings">הגדרות...</resource>
+		<resource name="destination_exportfailed">שגיאה בעת ייצוא אל {0}. אנא נסה שוב.</resource>
+		<resource name="editor_align_bottom">תחתית</resource>
+		<resource name="editor_align_center">מרכז</resource>
+		<resource name="editor_align_horizontal">יישור אופקי</resource>
+		<resource name="editor_align_left">שמאל</resource>
+		<resource name="editor_align_middle">אמצע</resource>
+		<resource name="editor_align_right">ימין</resource>
+		<resource name="editor_align_top">עליון</resource>
+		<resource name="editor_align_vertical">יישור אנכי</resource>
 		<resource name="editor_arrange">סדר</resource>
 		<resource name="editor_arrowheads">ראשי חץ</resource>
 		<resource name="editor_arrowheads_both">שניהם</resource>
 		<resource name="editor_arrowheads_end">נקודת סיום</resource>
-		<resource name="editor_arrowheads_none">אף-אחד</resource>
+		<resource name="editor_arrowheads_none">ללא</resource>
 		<resource name="editor_arrowheads_start">נקודת התחלה</resource>
-		<resource name="editor_backcolor">צבע תוכן</resource>
-		<resource name="editor_blur_radius">טשטש רדיוס</resource>
+		<resource name="editor_autocrop">חיתוך אוטומטי</resource>
+		<resource name="editor_autocrop_not_possible">חיתוך אוטומטי לא אפשרי</resource>
+		<resource name="editor_backcolor">צבע מילוי (0-9)</resource>
+		<resource name="editor_blur_radius">רדיוס טשטוש</resource>
 		<resource name="editor_bold">מודגש</resource>
+		<resource name="editor_border">גבול</resource>
 		<resource name="editor_brightness">בהירות</resource>
 		<resource name="editor_cancel">ביטול</resource>
-		<resource name="editor_clipboardfailed">שגיאה בעת גישה ללוח, אנא נסה שוב</resource>
+		<resource name="editor_clipboardfailed">שגיאה בעת גישה ללוח. אנא נסה שוב.</resource>
 		<resource name="editor_close">סגור</resource>
-		<resource name="editor_close_on_save">? האם ברצונך לשמור את תמונת הלכידה</resource>
-		<resource name="editor_close_on_save_title">? שמור תמונה</resource>
+		<resource name="editor_close_all">סגור הכל</resource>
+		<resource name="editor_close_on_save">האם ברצונך לשמור את צילום המסך?</resource>
+		<resource name="editor_close_on_save_title">לשמור תמונה?</resource>
 		<resource name="editor_confirm">אישור</resource>
-		<resource name="editor_copyimagetoclipboard">העתקת תמונה אל הלוח</resource>
-		<resource name="editor_copypathtoclipboard">העתק נתיב אל הלוח</resource>
-		<resource name="editor_copytoclipboard">העתקה</resource>
+		<resource name="editor_copyimagetoclipboard">העתק תמונה ללוח</resource>
+		<resource name="editor_copypathtoclipboard">העתק נתיב ללוח</resource>
+		<resource name="editor_copytoclipboard">העתק</resource>
 		<resource name="editor_crop">חתוך (C)</resource>
-		<resource name="editor_cropmode_default">חתוך</resource>
-		<resource name="editor_cursortool">כלי בחירה (ESC)</resource>
-		<resource name="editor_cuttoclipboard">חיתוך</resource>
-		<resource name="editor_deleteelement">מחיקה</resource>
+		<resource name="editor_crop_mode">מצב חיתוך</resource>
+		<resource name="editor_cropmode_default">חיתוך רגיל</resource>
+		<resource name="editor_cropmode_vertical">גזירה אנכית (הוצאת חלק)</resource>
+		<resource name="editor_cropmode_horizontal">גזירה אופקית (הוצאת חלק)</resource>
+		<resource name="editor_cropmode_auto">חיתוך אוטומטי</resource>
+		<resource name="editor_cursortool">כלי הבחירה (ESC)</resource>
+		<resource name="editor_cuttoclipboard">גזור</resource>
+		<resource name="editor_deleteelement">מחק</resource>
 		<resource name="editor_downonelevel">רמה אחת למטה</resource>
-		<resource name="editor_downtobottom">עד לתחתית</resource>
+		<resource name="editor_downtobottom">העבר לרקע</resource>
 		<resource name="editor_drawarrow">צייר חץ (A)</resource>
-		<resource name="editor_drawellipse">ציור אליפסה (E)</resource>
-		<resource name="editor_drawhighlighter">הדגשה (H)</resource>
+		<resource name="editor_drawellipse">צייר אליפסה (E)</resource>
+		<resource name="editor_drawfreehand">צייר ביד חופשית (F)</resource>
+		<resource name="editor_drawhighlighter">הדגשה/מרקר (H)</resource>
 		<resource name="editor_drawline">צייר קו (L)</resource>
 		<resource name="editor_drawrectangle">צייר מלבן (R)</resource>
-		<resource name="editor_drawtextbox">הוספת תיבת טקסט (T)</resource>
-		<resource name="editor_duplicate">הכפל את האובייקט הנבחר</resource>
+		<resource name="editor_drawtextbox">הוסף תיבת טקסט (T)</resource>
+		<resource name="editor_duplicate">שכפל אלמנט נבחר</resource>
 		<resource name="editor_edit">עריכה</resource>
+		<resource name="editor_effects">אפקטים</resource>
 		<resource name="editor_email">דואר אלקטרוני</resource>
 		<resource name="editor_file">קובץ</resource>
 		<resource name="editor_fontsize">גודל</resource>
-		<resource name="editor_forecolor">צבע קו</resource>
-		<resource name="editor_highlight_area">אזור מודגש</resource>
+		<resource name="editor_forecolor">צבע קו (NumPad0-9, Shift+0-9)</resource>
+		<resource name="editor_grayscale">גווני אפור</resource>
+		<resource name="editor_highlight_area">הדגשת אזור</resource>
 		<resource name="editor_highlight_grayscale">גווני אפור</resource>
 		<resource name="editor_highlight_magnify">הגדלה</resource>
 		<resource name="editor_highlight_mode">מצב הדגשה</resource>
-		<resource name="editor_highlight_text">טקסט מודגש</resource>
-		<resource name="editor_imagesaved">תמונה נשמרה ב {0}.</resource>
-		<resource name="editor_italic">אלכסוני</resource>
-		<resource name="editor_load_objects">פתח אובייקט מקובץ</resource>
-		<resource name="editor_magnification_factor">מכפיל הגדלה</resource>
-		<resource name="editor_obfuscate">לערפל (O)</resource>
-		<resource name="editor_obfuscate_blur">טישטוש</resource>
-		<resource name="editor_obfuscate_mode">מצב האפלה</resource>
+		<resource name="editor_highlight_text">הדגשת טקסט</resource>
+		<resource name="editor_image_shadow">הצללה (Drop shadow)</resource>
+		<resource name="editor_imagesaved">תמונה נשמרה ב- {0}.</resource>
+		<resource name="editor_insertwindow">הוסף צילום חלון</resource>
+		<resource name="editor_invert">הפוך צבעים (Invert)</resource>
+		<resource name="editor_italic">נטוי</resource>
+		<resource name="editor_load_objects">טען אובייקטים מקובץ</resource>
+		<resource name="editor_magnification_factor">פקטור הגדלה</resource>
+		<resource name="editor_match_capture_size">התאם לגודל הלכידה</resource>
+		<resource name="editor_obfuscate">טשטוש/צנזור (O)</resource>
+		<resource name="editor_obfuscate_blur">טשטוש (Blur)</resource>
+		<resource name="editor_obfuscate_mode">מצב טשטוש</resource>
 		<resource name="editor_obfuscate_pixelize">פיקסליזציה</resource>
 		<resource name="editor_object">אובייקט</resource>
-		<resource name="editor_opendirinexplorer">פתח תיקייה בסייר חלונות</resource>
-		<resource name="editor_pastefromclipboard">הדבקה</resource>
+		<resource name="editor_opendirinexplorer">פתח תיקייה בסייר</resource>
+		<resource name="editor_pastefromclipboard">הדבק</resource>
 		<resource name="editor_pixel_size">גודל פיקסל</resource>
 		<resource name="editor_preview_quality">איכות תצוגה מקדימה</resource>
 		<resource name="editor_print">הדפסה</resource>
+		<resource name="editor_redo">בצע שוב {0}</resource>
+		<resource name="editor_resetsize">אפס גודל</resource>
+		<resource name="editor_resize_percent">אחוזים</resource>
+		<resource name="editor_resize_pixel">פיקסלים</resource>
+		<resource name="editor_rotateccw">סובב נגד כיוון השעון (Control + ,)</resource>
+		<resource name="editor_rotatecw">סובב עם כיוון השעון (Control + .)</resource>
 		<resource name="editor_save">שמור</resource>
-		<resource name="editor_save_objects">שמור אובייקט לקובץ</resource>
-		<resource name="editor_saveas">...שמירה בשם</resource>
+		<resource name="editor_save_objects">שמור אובייקטים לקובץ</resource>
+		<resource name="editor_saveas">שמירה בשם...</resource>
 		<resource name="editor_selectall">בחר הכל</resource>
-		<resource name="editor_senttoprinter">ההדפסה נשלחה אל  '{0}'.</resource>
-		<resource name="editor_shadow">הצללה</resource>
-		<resource name="editor_image_shadow">הצללה</resource>
-		<resource name="editor_storedtoclipboard">תמונה הועברה אל הלוח</resource>
+		<resource name="editor_senttoprinter">ההדפסה נשלחה אל '{0}'.</resource>
+		<resource name="editor_shadow">הצללה (/)</resource>
+		<resource name="editor_storedtoclipboard">התמונה הועתקה ללוח.</resource>
 		<resource name="editor_thickness">עובי קו</resource>
-		<resource name="editor_title">עורך התמונה של התוכנה</resource>
+		<resource name="editor_title">עורך התמונות של Greenshot</resource>
+		<resource name="editor_torn_edge">אפקט קריעה (Torn edge)</resource>
+		<resource name="editor_undo">בטל {0}</resource>
 		<resource name="editor_uponelevel">רמה אחת למעלה</resource>
-		<resource name="editor_uptotop">עד למעלה</resource>
+		<resource name="editor_uptotop">העבר לחזית</resource>
+		<resource name="EmailFormat.MAPI">לקוח MAPI</resource>
+		<resource name="EmailFormat.OUTLOOK_HTML">Outlook (HTML)</resource>
+		<resource name="EmailFormat.OUTLOOK_TXT">Outlook (טקסט)</resource>
 		<resource name="error">שגיאה</resource>
-		<resource name="error_multipleinstances">עותק אחד של התוכנה כבר פתוח</resource>
+		<resource name="error_multipleinstances">עותק נוסף של Greenshot כבר רץ ברקע.</resource>
 		<resource name="error_nowriteaccess">לא ניתן לשמור קובץ אל {0}.
-. נא לבדוק את הרשאות הכתיבה אל הנתיב שצוין</resource>
-		<resource name="error_openfile">הקובץ "{0}" לא ניתן לפתיחה.</resource>
-		<resource name="error_openlink">לא ניתן לפתוח קישור</resource>
-		<resource name="error_save">לא ניתן לשמור לכידה, אנא בחר מיקום מתאים</resource>
-		<resource name="help_title">Greenshot עזרה</resource>
-		<resource name="jpegqualitydialog_choosejpegquality">JPEG אנא בחר את איכות תמונת</resource>
-		<resource name="jpegqualitydialog_dontaskagain">ואל תשאל שוב JPEG שמור כאיכות</resource>
-		<resource name="jpegqualitydialog_title">Greenshot JPEG איכות</resource>
-		<resource name="print_error">חלה שגיאה בהדפסה</resource>
-		<resource name="printoptions_allowcenter">מירכוז הדפסה בעמוד</resource>
-		<resource name="printoptions_allowenlarge">הגדל פלט לגודל העמוד</resource>
-		<resource name="printoptions_allowrotate">סובב פלט לכיוון הדף</resource>
-		<resource name="printoptions_allowshrink">הקטן פלט לגודל העמוד</resource>
-		<resource name="printoptions_dontaskagain">שמור הגדרות כברירת מחדל ואל תשאל שוב</resource>
-		<resource name="printoptions_timestamp">הדפס תאריך\שעה בתחתית העמוד</resource>
-		<resource name="printoptions_title">Greenshot אפשרויות הדפסה</resource>
-		<resource name="quicksettings_destination_file">שמור ישירות: תוך שימוש בהעדפות שמירת קובץ</resource>
-		<resource name="settings_alwaysshowjpegqualitydialog">בכל פעם שתמונה כזו נשמרת JPEG הצג דיאלוג לאיכות</resource>
-		<resource name="settings_alwaysshowprintoptionsdialog">הצג חלון אפשרויות הדפסה בכל פעם שתמונה מודפסת</resource>
-		<resource name="settings_applicationsettings">הגדרות התוכנה</resource>
-		<resource name="settings_autostartshortcut">הפעל את התוכנה עם הפעלת המחשב</resource>
+אנא בדוק את הרשאות הכתיבה למיקום האחסון שנבחר.</resource>
+		<resource name="error_openfile">לא ניתן לפתוח את הקובץ "{0}".</resource>
+		<resource name="error_openlink">לא ניתן לפתוח את הקישור '{0}'.</resource>
+		<resource name="error_save">לא ניתן לשמור את צילום המסך, אנא בחר מיקום מתאים.</resource>
+		<resource name="error_save_invalid_chars">שם הקובץ או הספרייה שנוצר אינו חוקי. אנא תקן את תבנית שם הקובץ ונסה שוב.</resource>
+		<resource name="expertsettings">מומחה</resource>
+		<resource name="expertsettings_autoreducecolors">צור תמונה של 8-bit אם יש פחות מ-256 צבעים והתמונה המקורית היא מעל 8 bits</resource>
+		<resource name="expertsettings_checkunstableupdates">בדוק עדכונים לא יציבים (Unstable/Beta)</resource>
+		<resource name="expertsettings_clipboardformats">פורמטים של הלוח (Clipboard)</resource>
+		<resource name="expertsettings_counter">המספר עבור ${NUM} בתבנית שם הקובץ</resource>
+		<resource name="expertsettings_enableexpert">אני יודע מה אני עושה!</resource>
+		<resource name="expertsettings_footerpattern">תבנית כותרת תחתונה למדפסת</resource>
+		<resource name="expertsettings_minimizememoryfootprint">מזער צריכת זיכרון (עלול לפגוע בביצועים, לא מומלץ).</resource>
+		<resource name="expertsettings_optimizeforrdp">בצע אופטימיזציות לשימוש עם שולחן עבודה מרוחק (RDP)</resource>
+		<resource name="expertsettings_reuseeditorifpossible">השתמש מחדש באותו עורך אם ניתן</resource>
+		<resource name="expertsettings_suppresssavedialogatclose">אל תציג את דיאלוג השמירה בעת סגירת העורך</resource>
+		<resource name="expertsettings_thumbnailpreview">הצג תצוגה מקדימה של חלונות בתפריט ההקשר (עבור Vista ו-Windows 7)</resource>
+		<resource name="exported_to">יוצא אל: {0}</resource>
+		<resource name="exported_to_error">אירעה שגיאה בעת ייצוא אל {0}:</resource>
+		<resource name="help_title">עזרה עבור Greenshot</resource>
+		<resource name="hotkeys">מקשים חמים</resource>
+		<resource name="jpegqualitydialog_choosejpegquality">אנא בחר את איכות ה-JPEG עבור התמונה שלך.</resource>
+		<resource name="OK">אישור</resource>
+		<resource name="print_error">אירעה שגיאה בעת הניסיון להדפיס.</resource>
+		<resource name="printoptions_allowcenter">מרכז הדפסה בדף</resource>
+		<resource name="printoptions_allowenlarge">הגדל את הפלט כדי להתאים לגודל הנייר</resource>
+		<resource name="printoptions_allowrotate">סובב את הפלט כדי להתאים לכיוון הדף</resource>
+		<resource name="printoptions_allowshrink">כווץ את הפלט כדי להתאים לגודל הנייר</resource>
+		<resource name="printoptions_colors">הגדרות צבע</resource>
+		<resource name="printoptions_dontaskagain">שמור אפשרויות כברירת מחדל ואל תשאל שוב</resource>
+		<resource name="printoptions_inverted">הדפס עם צבעים הפוכים</resource>
+		<resource name="printoptions_layout">הגדרות פריסת עמוד</resource>
+		<resource name="printoptions_printcolor">הדפסה בצבע מלא</resource>
+		<resource name="printoptions_printgrayscale">כפה הדפסה בגווני אפור</resource>
+		<resource name="printoptions_printmonochrome">כפה הדפסה בשחור/לבן</resource>
+		<resource name="printoptions_timestamp">הדפס תאריך / שעה בתחתית העמוד</resource>
+		<resource name="printoptions_title">אפשרויות הדפסה של Greenshot</resource>
+		<resource name="qualitydialog_dontaskagain">שמור כאיכות ברירת מחדל ואל תשאל שוב</resource>
+		<resource name="qualitydialog_title">איכות Greenshot</resource>
+		<resource name="quicksettings_destination_file">שמור ישירות (באמצעות הגדרות פלט קובץ מועדפות)</resource>
+		<resource name="settings_alwaysshowprintoptionsdialog">הצג את דיאלוג אפשרויות ההדפסה בכל פעם שתמונה מודפסת</resource>
+		<resource name="settings_alwaysshowqualitydialog">הצג דיאלוג איכות בכל פעם שתמונה נשמרת</resource>
+		<resource name="settings_applicationsettings">הגדרות יישום</resource>
+		<resource name="settings_autostartshortcut">הפעל את Greenshot בעת הפעלת המחשב</resource>
 		<resource name="settings_capture">לכידה</resource>
-		<resource name="settings_capture_mousepointer">לכידת סמן העכבר</resource>
-		<resource name="settings_capture_windows_interactive">השתמש במצב לכידת חלון אינטראקטיבית</resource>
-		<resource name="settings_copypathtoclipboard">העתק נתיב אל הלוח בכל פעם שתמונה נשמרת</resource>
-		<resource name="settings_destination">יעד הלכידה</resource>
-		<resource name="settings_destination_clipboard">העתק אל הלוח</resource>
-		<resource name="settings_destination_editor">פתח בעורך התמונות של התוכנה</resource>
+		<resource name="settings_capture_mousepointer">לכוד את סמן העכבר</resource>
+		<resource name="settings_capture_windows_interactive">השתמש במצב לכידת חלון אינטראקטיבי</resource>
+		<resource name="settings_checkperiod">מרווח בדיקת עדכונים בימים (0 = ללא בדיקה)</resource>
+		<resource name="settings_configureplugin">הגדר</resource>
+		<resource name="settings_copypathtoclipboard">העתק את נתיב הקובץ ללוח בכל פעם שתמונה נשמרת</resource>
+		<resource name="settings_destination">יעד</resource>
+		<resource name="settings_destination_clipboard">העתק ללוח</resource>
+		<resource name="settings_destination_editor">פתח בעורך התמונות</resource>
 		<resource name="settings_destination_email">דואר אלקטרוני</resource>
-		<resource name="settings_destination_file">שמור ישירות: תוך שימוש בהגדרות שלמטה</resource>
-		<resource name="settings_destination_fileas">שמירה בשם: פתח תיבת דו-שיח</resource>
+		<resource name="settings_destination_file">שמור ישירות (באמצעות ההגדרות למטה)</resource>
+		<resource name="settings_destination_fileas">שמור בשם (הצג דיאלוג)</resource>
+		<resource name="settings_destination_picker">בחר יעד באופן דינמי</resource>
 		<resource name="settings_destination_printer">שלח למדפסת</resource>
-		<resource name="settings_filenamepattern">תבנית שם-קובץ</resource>
+		<resource name="settings_editor">עורך</resource>
+		<resource name="settings_filenamepattern">תבנית שם קובץ</resource>
 		<resource name="settings_general">כללי</resource>
-		<resource name="settings_jpegquality">JPEG איכות</resource>
-		<resource name="settings_jpegsettings">JPEG הגדרות</resource>
+		<resource name="settings_jpegquality">איכות JPEG</resource>
 		<resource name="settings_language">שפה</resource>
-		<resource name="settings_message_filenamepattern">:המשתנים הבאים יוחלפו אוטומטית בתבנית שתוגדר להלן
-${YYYY}  ספרות 4 ,שנה
-${MM}  ספרות 2 , חודש
-${DD}  ספרות 2 ,יום
-${hh}  ספרות 2 ,שעה
-${mm}  ספרות 2 ,דקות
-${ss}  ספרות 2 ,שניות
-${NUM}  ספרות 6 , מספר עולה
-${title}  כותרת החלון
-${user}  שם המשתמש במחשב
-${domain}  שם הדומיין של המחשב 
-${hostname}  שם המחשב
+		<resource name="settings_message_filenamepattern">מצייני המיקום הבאים יוחלפו אוטומטית בתבנית המוגדרת:
+${YYYY} שנה, 4 ספרות
+${MM} חודש, 2 ספרות
+${DD} יום, 2 ספרות
+${hh} שעה, 2 ספרות
+${mm} דקה, 2 ספרות
+${ss} שניה, 2 ספרות
+${NUM} מספר עולה, 6 ספרות
+${RRR...} תווים אלפאנומריים אקראיים, באורך זהה למספר ה-'R'ים
+${title} כותרת החלון
+${user} משתמש Windows
+${domain} דומיין Windows
+${hostname} שם המחשב
 
-.ניתן לאפשר לתוכנה ליצור תיקיות באופן דינמי
-.יש להוסיף סמל אלכסון אחורי (\) כדי להפריד בין תיקיות לשם-קובץ 
- 
- ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}  :לדוגמה 
- 
-,התבנית תייצר תיקייה עם תאריך היום בתיקיית השמירה שהוגדרה
-,למשל 2008-06-29
-,ושם הקובץ של לכידת המסך יהיה לפי השעה של השמירה
-,למשל 11-58-32
-.ובסוף סיומת הקובץ לפי הפורמט שהוגדר</resource>
+ניתן גם לגרום ל-Greenshot ליצור תיקיות באופן דינמי, פשוט השתמש בסימן הלוכסן ההפוך (\) כדי להפריד בין תיקיות לשם הקובץ.
+דוגמה: התבנית ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
+תייצר תיקייה עבור היום הנוכחי במיקום האחסון המוגדר כברירת מחדל, למשל 2008-06-29, ושם קובץ צילום המסך יהיה מבוסס על השעה הנוכחית, למשל 11_58_32 (בתוספת הסיומת המוגדרת בהגדרות)</resource>
+		<resource name="settings_network">רשת ועדכונים</resource>
 		<resource name="settings_output">פלט</resource>
-		<resource name="settings_playsound">השמעת צליל של מצלמה</resource>
-		<resource name="settings_preferredfilesettings">הגדרות מועדפות לפלט קובץ</resource>
+		<resource name="settings_playsound">השמע צליל מצלמה</resource>
+		<resource name="settings_plugins">תוספים</resource>
+		<resource name="settings_plugins_createdby">נוצר ע"י</resource>
+		<resource name="settings_plugins_dllpath">נתיב DLL</resource>
+		<resource name="settings_plugins_name">שם</resource>
+		<resource name="settings_plugins_version">גרסה</resource>
+		<resource name="settings_preferredfilesettings">הגדרות קובץ פלט מועדפות</resource>
 		<resource name="settings_primaryimageformat">פורמט תמונה</resource>
 		<resource name="settings_printer">מדפסת</resource>
 		<resource name="settings_printoptions">אפשרויות הדפסה</resource>
-		<resource name="settings_registerhotkeys">הפעל מקשים חמים</resource>
-		<resource name="settings_showflashlight">הצגת תאורת פלאש</resource>
-		<resource name="settings_storagelocation">מיקום איחסון</resource>
+		<resource name="settings_qualitysettings">הגדרות איכות</resource>
+		<resource name="settings_reducecolors">הפחת את כמות הצבעים למקסימום של 256</resource>
+		<resource name="settings_registerhotkeys">רשום מקשים חמים</resource>
+		<resource name="settings_showflashlight">הצג מבזק (פלאש)</resource>
+		<resource name="settings_shownotify">הצג התראות</resource>
+		<resource name="settings_zoom">הצג זכוכית מגדלת</resource>
+		<resource name="settings_storagelocation">מיקום אחסון</resource>
 		<resource name="settings_title">הגדרות</resource>
-		<resource name="settings_tooltip_filenamepattern">תבנית ליצירת שם-קובץ בשמירת לכידות מסך</resource>
-		<resource name="settings_tooltip_language">שפת ממשק התוכנה: דורש איתחול מחדש של התוכנה</resource>
-		<resource name="settings_tooltip_primaryimageformat">פורמט תמונה בברירת-מחדל</resource>
-		<resource name="settings_tooltip_registerhotkeys">.מוצמדים בלעדית לתוכנה עד לסגירתה Prnt, Ctrl + Print, Alt + Prnt :קובע באם קיצורי המקשים</resource>
-		<resource name="settings_tooltip_storagelocation">מיקום שמירת הלכידות כברירת-מחדל: השאר ריק לשמירה על שולחן העבודה</resource>
+		<resource name="settings_tooltip_filenamepattern">תבנית המשמשת ליצירת שמות קבצים בעת שמירת צילומי מסך</resource>
+		<resource name="settings_tooltip_language">שפת ממשק המשתמש של Greenshot</resource>
+		<resource name="settings_tooltip_primaryimageformat">פורמט התמונה המשמש כברירת מחדל</resource>
+		<resource name="settings_tooltip_registerhotkeys">מגדיר האם הקיצורים Prnt, Ctrl + Print, Alt + Prnt שמורים לשימוש גלובלי ע"י Greenshot בעת הפעלת התוכנית, עד לסגירתה.</resource>
+		<resource name="settings_tooltip_storagelocation">מיקום בו מאוחסנים צילומי מסך כברירת מחדל (השאר ריק לשמירה בשולחן העבודה)</resource>
+		<resource name="settings_usedefaultproxy">השתמש בפרוקסי ברירת המחדל של המערכת</resource>
 		<resource name="settings_visualization">אפקטים</resource>
-		<resource name="settings_waittime">מספר מילי-שניות לפני לכידה</resource>
-		<resource name="tooltip_firststart">קליק ימני כאן או לחץ על כפתור הדפסה במקלדת</resource>
+		<resource name="settings_waittime">אלפיות שנייה להמתנה לפני לכידה</resource>
+		<resource name="settings_window_capture_mode">מצב לכידת חלון</resource>
+		<resource name="settings_windowscapture">לכידת חלון</resource>
+		<resource name="tooltip_firststart">לחץ לחיצה ימנית כאן או לחץ על המקש {0}.</resource>
+		<resource name="update_found">גרסה חדשה של Greenshot זמינה! האם ברצונך להוריד את Greenshot {0}?</resource>
 		<resource name="warning">אזהרה</resource>
-		<resource name="warning_hotkeys">.אחד או מספר מקשים חמים לא הופעלו. לכן, ייתכן שחלקם לא יפעלו עם התוכנה 
-.כנראה שתוכנה אחרת משתמשת במקשים הללו. אנאסגור תוכנות אחרות המשתמשות במקשי ההדפסה
-.ניתן להשתמש בתפריט התוכנה שבצלמית בפינת הסמלים כדי לבצע פעולות</resource>
-	</resources>
+		<resource name="warning_hotkeys">לא ניתן היה לרשום את המקש(ים) החמים "{0}". בעיה זו נגרמת ככל הנראה על ידי כלי אחר {1} הטוען לשימוש באותם מקשים! תוכל לשנות את הגדרות המקשים החמים שלך או להשבית/לשנות את התוכנה המשתמשת במקשים אלו.
+
+כל תכונות Greenshot עדיין עובדות ישירות מתפריט ההקשר של סמל המגש ללא מקשים חמים.</resource>
+		<resource name="WindowCaptureMode.Aero">השתמש בצבע מותאם אישית</resource>
+		<resource name="WindowCaptureMode.AeroTransparent">שמר שקיפות</resource>
+		<resource name="WindowCaptureMode.Auto">אוטומטי</resource>
+		<resource name="WindowCaptureMode.GDI">השתמש בצבע ברירת מחדל</resource>
+		<resource name="WindowCaptureMode.Screen">כפי שמוצג</resource>
+
+    <!-- 1.2 -->
+    <resource name="editor_dropshadow_darkness">כהות צל</resource>
+    <resource name="editor_dropshadow_offset">היסט צל</resource>
+    <resource name="editor_dropshadow_settings">הגדרות הצללה</resource>
+    <resource name="editor_dropshadow_thickness">עובי צל</resource>
+
+    <resource name="editor_tornedge_horizontaltoothrange">טווח שיניים אופקי</resource>
+    <resource name="editor_tornedge_settings">הגדרות קריעה (Torn edge)</resource>
+    <resource name="editor_tornedge_toothsize">גודל שן</resource>
+    <resource name="editor_tornedge_verticaltoothrange">טווח שיניים אנכי</resource>
+    <resource name="editor_tornedge_all">קרע את כל הצדדים</resource>
+    <resource name="editor_tornedge_left">צד שמאל</resource>
+    <resource name="editor_tornedge_right">צד ימין</resource>
+    <resource name="editor_tornedge_top">צד עליון</resource>
+    <resource name="editor_tornedge_bottom">צד תחתון</resource>
+    <resource name="editor_tornedge_shadow">צור צל</resource>
+    
+    <resource name="editor_counter">הוסף מספור (I)</resource>
+    <resource name="editor_speechbubble">הוסף בועת דיבור (S)</resource>
+
+    <resource name="editor_resize">שנה גודל (Z)</resource>
+    <resource name="editor_resize_settings">הגדרות שינוי גודל</resource>
+    <resource name="editor_resize_aspectratio">שמור על יחס רוחב-גובה</resource>
+    <resource name="editor_resize_width">רוחב</resource>
+    <resource name="editor_resize_height">גובה</resource>
+	<resource name="settings_iconsize">גודל אייקונים</resource>
+    
+  </resources>
 </language>
