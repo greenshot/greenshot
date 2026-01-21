@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Drawing.Fields;
 using Greenshot.Editor.FileFormat.Dto.Fields;
@@ -48,6 +49,23 @@ namespace Greenshot.Editor.FileFormat.Dto.Container;
 [Union(14, typeof(SvgContainerDto))]
 [Union(15, typeof(EmojiContainerDto))]
 [MessagePackObject]
+[JsonPolymorphic(TypeDiscriminatorPropertyName = "$type")]
+[JsonDerivedType(typeof(ImageContainerDto), nameof(ImageContainerDto))]
+[JsonDerivedType(typeof(LineContainerDto), nameof(LineContainerDto))]
+[JsonDerivedType(typeof(RectangleContainerDto), nameof(RectangleContainerDto))]
+[JsonDerivedType(typeof(IconContainerDto), nameof(IconContainerDto))]
+[JsonDerivedType(typeof(TextContainerDto), nameof(TextContainerDto))]
+[JsonDerivedType(typeof(SpeechbubbleContainerDto), nameof(SpeechbubbleContainerDto))]
+[JsonDerivedType(typeof(ArrowContainerDto), nameof(ArrowContainerDto))]
+[JsonDerivedType(typeof(CursorContainerDto), nameof(CursorContainerDto))]
+[JsonDerivedType(typeof(EllipseContainerDto), nameof(EllipseContainerDto))]
+[JsonDerivedType(typeof(FreehandContainerDto), nameof(FreehandContainerDto))]
+[JsonDerivedType(typeof(HighlightContainerDto), nameof(HighlightContainerDto))]
+[JsonDerivedType(typeof(MetafileContainerDto), nameof(MetafileContainerDto))]
+[JsonDerivedType(typeof(ObfuscateContainerDto), nameof(ObfuscateContainerDto))]
+[JsonDerivedType(typeof(StepLabelContainerDto), nameof(StepLabelContainerDto))]
+[JsonDerivedType(typeof(SvgContainerDto), nameof(SvgContainerDto))]
+[JsonDerivedType(typeof(EmojiContainerDto), nameof(EmojiContainerDto))]
 public abstract class DrawableContainerDto 
 {
   

@@ -27,6 +27,7 @@ using Greenshot.Editor.Drawing;
 using Greenshot.Editor.FileFormat.Dto;
 using Greenshot.Editor.FileFormat.V1;
 using Greenshot.Editor.FileFormat.V2;
+using Greenshot.Editor.FileFormat.V3;
 using log4net;
 
 namespace Greenshot.Editor.FileFormat;
@@ -61,7 +62,11 @@ public sealed class GreenshotFileVersionHandler
         /// <summary>
         /// This format uses MessagePack serialization
         /// </summary>
-        V2 = 2 
+        V2 = 2,
+        /// <summary>
+        /// This format uses System.Text.Json serialization and stores only the domain data (no image payload)
+        /// </summary>
+        V3 = 3
     }
 
     /// <summary>
@@ -90,6 +95,7 @@ public sealed class GreenshotFileVersionHandler
         {
             GreenshotFileFormatVersion.V1 => GreenshotFileV1.LoadFromStream(greenshotFileStream),
             GreenshotFileFormatVersion.V2 => GreenshotFileV2.LoadFromStream(greenshotFileStream),
+            GreenshotFileFormatVersion.V3 => GreenshotFileV3.LoadFromStream(greenshotFileStream),
             _ => throw new ArgumentException("Stream is not a Greenshot file!")
         };
 
@@ -105,7 +111,7 @@ public sealed class GreenshotFileVersionHandler
     /// <summary>
     /// <inheritdoc cref="GreenshotFileV2.SaveToStream"/>
     /// </summary>
-    private static bool SaveToStream(GreenshotFile greenshotFile, Stream stream) => GreenshotFileV2.SaveToStream(greenshotFile, stream);
+    private static bool SaveToStream(GreenshotFile greenshotFile, Stream stream) => GreenshotFileV3.SaveToStream(greenshotFile, stream);
 
     /// <summary>
     /// Detects the Greenshot file version from the provided stream.
@@ -116,6 +122,11 @@ public sealed class GreenshotFileVersionHandler
     private static GreenshotFileFormatVersion DetectFileFormatVersion(Stream greenshotFileStream)
     {
         // check for newest version first
+
+        if (GreenshotFileV3.DoesFileFormatMatch(greenshotFileStream))
+        {
+            return GreenshotFileFormatVersion.V3;
+        }
 
         if (GreenshotFileV2.DoesFileFormatMatch(greenshotFileStream))
         {
@@ -173,7 +184,7 @@ public sealed class GreenshotFileVersionHandler
             Image = image,
             RenderedImage = renderedImage,
             ContainerList = elements,
-            FormatVersion = GreenshotFileFormatVersion.V2,
+            FormatVersion = GreenshotFileFormatVersion.V3,
             SchemaVersion = CurrentSchemaVersion,
         };
     }

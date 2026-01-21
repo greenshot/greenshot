@@ -20,6 +20,7 @@
  */
 using System.Drawing;
 using MessagePack;
+using System.Text.Json.Serialization;
 
 namespace Greenshot.Editor.FileFormat.Dto.Fields;
 
@@ -30,10 +31,12 @@ namespace Greenshot.Editor.FileFormat.Dto.Fields;
 // This needs to be a partial class to support private properties with MessagePack serialization
 public sealed partial class ColorFieldValueDto : FieldValueDto
 {
+    //TODO maybe store in 4 separate fields for better readability in JSON
     [Key(100)]
-    private int Argb { get; set; } // Store Color as an ARGB integer
+    public int Argb { get; set; } // Store Color as an ARGB integer
 
     [IgnoreMember]
+    [JsonIgnore]
     public Color Value
     {
         get

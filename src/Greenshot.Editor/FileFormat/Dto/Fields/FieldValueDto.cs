@@ -20,6 +20,7 @@
  */
 using Greenshot.Editor.Drawing.Fields;
 using MessagePack;
+using System.Text.Json.Serialization;
 
 namespace Greenshot.Editor.FileFormat.Dto.Fields;
 
@@ -27,6 +28,19 @@ namespace Greenshot.Editor.FileFormat.Dto.Fields;
 /// This is a specific Dto to support serialization for the possible types in <see cref="Field.Value"/>
 /// </summary>
 [MessagePackObject]
+[JsonPolymorphic(TypeDiscriminatorPropertyName = "$type")]
+[JsonDerivedType(typeof(NullFieldValueDto), nameof(NullFieldValueDto))]
+[JsonDerivedType(typeof(IntFieldValueDto), nameof(IntFieldValueDto))]
+[JsonDerivedType(typeof(StringFieldValueDto), nameof(StringFieldValueDto))]
+[JsonDerivedType(typeof(BoolFieldValueDto), nameof(BoolFieldValueDto))]
+[JsonDerivedType(typeof(SingleFieldValueDto), nameof(SingleFieldValueDto))]
+[JsonDerivedType(typeof(DoubleFieldValueDto), nameof(DoubleFieldValueDto))]
+[JsonDerivedType(typeof(DecimalFieldValueDto), nameof(DecimalFieldValueDto))]
+[JsonDerivedType(typeof(ColorFieldValueDto), nameof(ColorFieldValueDto))]
+[JsonDerivedType(typeof(ArrowHeadCombinationFieldValueDto), nameof(ArrowHeadCombinationFieldValueDto))]
+[JsonDerivedType(typeof(FieldFlagFieldValueDto), nameof(FieldFlagFieldValueDto))]
+[JsonDerivedType(typeof(PreparedFilterFieldValueDto), nameof(PreparedFilterFieldValueDto))]
+[JsonDerivedType(typeof(StringAlignmentFieldValueDto), nameof(StringAlignmentFieldValueDto))]
 [Union(0, typeof(NullFieldValueDto))]
 [Union(1, typeof(IntFieldValueDto))]
 [Union(2, typeof(StringFieldValueDto))]
