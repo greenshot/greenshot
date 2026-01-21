@@ -25,6 +25,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Windows.Forms;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.Enums;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
@@ -93,6 +94,11 @@ namespace Greenshot.Plugin.ExternalCommand
                 Log.WarnFormat("Found missing argument for {0}", command);
                 // Fix it
                 ExternalCommandConfig.Argument.Add(command, "{0}");
+            }
+
+            if (!ExternalCommandConfig.OutputFormat.ContainsKey(command))
+            {
+                ExternalCommandConfig.OutputFormat.Add(command, OutputFormat.png);
             }
 
             if (!ExternalCommandConfig.Commandline.ContainsKey(command))
