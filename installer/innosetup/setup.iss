@@ -332,6 +332,8 @@ it.startup=Esegui {#ExeName} all''avvio di Windows
 it.UninstallIconDescription=Disinstalla
 it.ShowLicense=Visualizza licenza (in inglese)
 it.ShowReadme=Visualizza Readme (in inglese)
+it.disablewin11snippingtool=Disabilita strumento cattura PrtScr predefinito Win11
+
 it.dexfranconia=Fräncofono (Tedesco)
 it.arSY=Arabo (Siria)
 it.caCA=Catalano
