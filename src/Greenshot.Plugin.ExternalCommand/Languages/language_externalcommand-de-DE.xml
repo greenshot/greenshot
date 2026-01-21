@@ -11,5 +11,6 @@
 		<resource name="label_command">Befehl</resource>
 		<resource name="label_argument">Argumente</resource>
 		<resource name="label_information">{0} ist der Dateiname des Screenshots.</resource>
-	</resources>
+        <resource name="label_outputimageformat">Bildformat</resource>
+    </resources>
 </language>
