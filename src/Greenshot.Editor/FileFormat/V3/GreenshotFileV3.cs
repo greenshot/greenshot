@@ -37,6 +37,7 @@ internal static class GreenshotFileV3
     private static readonly ILog Log = LogManager.GetLogger(typeof(GreenshotFileV3));
 
     private const string ContentJsonName = "content.json";
+    private const string ImageFolder = "Images";
 
     public static JsonSerializerOptions GetJsonSerializerOptions()
     {
@@ -44,10 +45,12 @@ internal static class GreenshotFileV3
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             WriteIndented = true,
-            PropertyNameCaseInsensitive = true
+            PropertyNameCaseInsensitive = true,
+            Converters =
+            {
+                new JsonStringEnumConverter() 
+            }
         };
-
-        options.Converters.Add(new JsonStringEnumConverter());
 
         return options;
     }
@@ -121,24 +124,44 @@ internal static class GreenshotFileV3
 
         var dto = ConvertDomainToDto.ToDto(greenshotFile);
 
-        //dto.Image = null;
-        //dto.RenderedImage = null;
-
         dto.FormatVersion = GreenshotFileVersionHandler.GreenshotFileFormatVersion.V3;
         dto.SchemaVersion = GreenshotFileVersionHandler.CurrentSchemaVersion;
 
-        var options = GetJsonSerializerOptions();
-
-        var jsonBytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(dto, options));
-
         using (var zipArchive = new ZipArchive(stream, ZipArchiveMode.Create, true))
         {
-            var entry = zipArchive.CreateEntry(ContentJsonName, CompressionLevel.Optimal);
-            using var entryStream = entry.Open();
-            entryStream.Write(jsonBytes, 0, jsonBytes.Length);
+            SaveImages(dto, zipArchive);
+
+            var options = GetJsonSerializerOptions();
+            var jsonBytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(dto, options));
+
+            var contentEntry = zipArchive.CreateEntry(ContentJsonName, CompressionLevel.Optimal);
+            using var contentStream = contentEntry.Open();
+            contentStream.Write(jsonBytes, 0, jsonBytes.Length);
         }
 
         return true;
+    }
+
+    //TODO: handle image formats properly
+    //TODO: handle all Images from all dto classes , maby use dictionary 
+    //TODO: offtopic here but: support a base64 variant as well, for using it in clipboard or other non-file usages
+    private static void SaveImages(GreenshotFileDto dto, ZipArchive zipArchive)
+    {
+        if (dto.Image != null)
+        {
+            dto.ImagePath = $"{ImageFolder}/image_1.png";
+            var entry = zipArchive.CreateEntry(dto.ImagePath, CompressionLevel.Optimal);
+            using var entryStream = entry.Open();
+            entryStream.Write(dto.Image, 0, dto.Image.Length);
+        }
+
+        if (dto.RenderedImage != null)
+        {
+            dto.RenderedImagePath = $"{ImageFolder}/image_2.png";
+            var entry = zipArchive.CreateEntry(dto.RenderedImagePath, CompressionLevel.Optimal);
+            using var entryStream = entry.Open();
+            entryStream.Write(dto.RenderedImage, 0, dto.RenderedImage.Length);
+        }
     }
 
     /// <summary>
@@ -156,19 +179,17 @@ internal static class GreenshotFileV3
                 throw new InvalidDataException($"Missing '{ContentJsonName}' in Greenshot V3 zip.");
             }
 
-            using var entryStream = entry.Open();
-            using var memoryStream = new MemoryStream();
-            entryStream.CopyTo(memoryStream);
-            var allBytes = memoryStream.ToArray();
+            GreenshotFileDto dto;
+            using (var entryStream = entry.Open())
+            dto = JsonSerializer.Deserialize<GreenshotFileDto>(entryStream, GetJsonSerializerOptions());
+            
 
-            var options = GetJsonSerializerOptions();
-
-            var json = Encoding.UTF8.GetString(allBytes);
-            var dto = JsonSerializer.Deserialize<GreenshotFileDto>(json, options);
             if (dto == null)
             {
                 throw new InvalidDataException("Failed to deserialize Greenshot V3 file.");
             }
+
+            LoadImages(dto, zipArchive);
 
             return ConvertDtoToDomain.ToDomain(dto);
         }
@@ -177,5 +198,32 @@ internal static class GreenshotFileV3
             Log.Error("Error deserializing Greenshot file (V3) from stream.", e);
             throw;
         }
+    }
+
+    private static void LoadImages(GreenshotFileDto dto, ZipArchive zipArchive)
+    {
+        if (!string.IsNullOrEmpty(dto.ImagePath))
+        {
+            dto.Image = ReadEntryBytes(zipArchive, dto.ImagePath);
+        }
+
+        if (!string.IsNullOrEmpty(dto.RenderedImagePath))
+        {
+            dto.RenderedImage = ReadEntryBytes(zipArchive, dto.RenderedImagePath);
+        }
+    }
+
+    private static byte[] ReadEntryBytes(ZipArchive zipArchive, string entryPath)
+    {
+        var entry = zipArchive.GetEntry(entryPath);
+        if (entry == null)
+        {
+            return null;
+        }
+
+        using var entryStream = entry.Open();
+        using var ms = new MemoryStream();
+        entryStream.CopyTo(ms);
+        return ms.ToArray();
     }
 }

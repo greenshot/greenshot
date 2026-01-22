@@ -30,10 +30,9 @@ namespace Greenshot.Editor.FileFormat.Dto.Container;
 [MessagePackObject]
 public sealed class EmojiContainerDto : DrawableContainerDto
 {
-    [Key(100)]
-    public int RotationAngle { get; set; }
-
     [Key(101)]
     public string Emoji { get; set; }
 
+    [Key(100)]
+    public int RotationAngle { get; set; }
 }

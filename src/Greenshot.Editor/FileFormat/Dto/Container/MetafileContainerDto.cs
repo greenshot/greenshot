@@ -30,10 +30,10 @@ namespace Greenshot.Editor.FileFormat.Dto.Container;
 [MessagePackObject]
 public sealed class MetafileContainerDto : DrawableContainerDto
 {
-    [Key(100)]
-    public int RotationAngle { get; set; }
-
     [Key(101)]
     public byte[] MetafileData { get; set; } // Store metafile as byte array
+
+    [Key(100)]
+    public int RotationAngle { get; set; }
 }
 

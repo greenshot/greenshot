@@ -18,6 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+using System.Text.Json.Serialization;
 using Greenshot.Editor.FileFormat.Dto.Container;
 using MessagePack;
 
@@ -31,22 +32,42 @@ namespace Greenshot.Editor.FileFormat.Dto;
 public sealed class GreenshotFileDto
 {
     /// <summary>
-    /// <inheritdoc cref="GreenshotFile.SchemaVersion"/>
-    /// </summary>
-    [Key(0)]
-    public int SchemaVersion { get; set; } = GreenshotFileVersionHandler.CurrentSchemaVersion;
-
-    /// <summary>
     /// <inheritdoc cref="GreenshotFile.FormatVersion"/>
     /// </summary>
     [Key(1)]
     public GreenshotFileVersionHandler.GreenshotFileFormatVersion FormatVersion { get; set; } = GreenshotFileVersionHandler.GreenshotFileFormatVersion.Unknown;
 
     /// <summary>
+    /// <inheritdoc cref="GreenshotFile.SchemaVersion"/>
+    /// </summary>
+    [Key(0)]
+    public int SchemaVersion { get; set; } = GreenshotFileVersionHandler.CurrentSchemaVersion;
+
+    /// <summary>
     /// <inheritdoc cref="GreenshotFile.Image"/>
     /// </summary>
+    [JsonIgnore]
     [Key(11)]
     public byte[] Image { get; set; }
+
+    /// <summary>
+    /// <inheritdoc cref="GreenshotFile.RenderedImage"/>
+    /// </summary>
+    [JsonIgnore]
+    [Key(13)]
+    public byte[] RenderedImage { get; set; }
+
+    /// <summary>
+    /// Relative path to the image file within the archive.
+    /// </summary>
+    [Key(14)]
+    public string ImagePath { get; set; }
+
+    /// <summary>
+    /// Relative path to the rendered image file within the archive.
+    /// </summary>
+    [Key(15)]
+    public string RenderedImagePath { get; set; }
 
     /// <summary>
     /// <inheritdoc cref="GreenshotFile.ContainerList"/>
@@ -54,9 +75,4 @@ public sealed class GreenshotFileDto
     [Key(12)]
     public DrawableContainerListDto ContainerList { get; set; } = new();
 
-    /// <summary>
-    /// <inheritdoc cref="GreenshotFile.RenderedImage"/>
-    /// </summary>
-    [Key(13)]
-    public byte[] RenderedImage { get; set; }
 }

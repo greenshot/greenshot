@@ -31,9 +31,12 @@ namespace Greenshot.Editor.FileFormat.Dto.Fields;
 // This needs to be a partial class to support private properties with MessagePack serialization
 public sealed partial class ColorFieldValueDto : FieldValueDto
 {
-    //TODO maybe store in 4 separate fields for better readability in JSON
-    [Key(100)]
-    public int Argb { get; set; } // Store Color as an ARGB integer
+    /// <summary>
+    /// Color stored as a string in HTML format (e.g., "#AARRGGBB").
+    /// </summary>
+    [Key(105)]
+    [JsonInclude]
+    private string Color { get; set; }
 
     [IgnoreMember]
     [JsonIgnore]
@@ -41,11 +44,35 @@ public sealed partial class ColorFieldValueDto : FieldValueDto
     {
         get
         {
-            return Color.FromArgb(Argb);
+            var fallbackColor = System.Drawing.Color.Transparent;
+
+            if (string.IsNullOrEmpty(Color)) return fallbackColor;
+            // Support #AARRGGBB format
+            if (Color.StartsWith("#") && Color.Length == 9)
+            {
+                try
+                {
+                    uint argb = uint.Parse(Color.Substring(1), System.Globalization.NumberStyles.HexNumber);
+                    return System.Drawing.Color.FromArgb(unchecked((int)argb));
+                }
+                catch
+                {
+                    return fallbackColor;
+                }
+            }
+            // Fallback to ColorTranslator for other formats like #RGB or named colors
+            try
+            {
+                return ColorTranslator.FromHtml(Color);
+            }
+            catch
+            {
+                return fallbackColor;
+            }
         }
         set
         {
-            Argb = value.ToArgb();
+            Color = $"#{value.A:X2}{value.R:X2}{value.G:X2}{value.B:X2}";
         }
     }
 

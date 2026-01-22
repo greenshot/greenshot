@@ -24,13 +24,13 @@ using MessagePack;
 namespace Greenshot.Editor.FileFormat.Dto.Fields;
 
 [MessagePackObject]
-[DebuggerDisplay("Scope = {Scope}, FieldTypeName = {FieldTypeName}, Value = {Value.GetValue()}")]
+[DebuggerDisplay("FieldTypeName = {FieldTypeName}, Value = {Value.GetValue()}, Scope = {Scope}")]
 public sealed class FieldDto
 {
-    [Key(10)]
-    public FieldValueDto Value { get; set; }
     [Key(11)]
     public string FieldTypeName { get; set; } = string.Empty;
+    [Key(10)]
+    public FieldValueDto Value { get; set; }
     [Key(12)]
     public string Scope { get; set; } = string.Empty;
 }

@@ -30,9 +30,9 @@ namespace Greenshot.Editor.FileFormat.Dto.Container;
 [MessagePackObject]
 public sealed class SvgContainerDto : DrawableContainerDto
 {
-    [Key(100)]
-    public int RotationAngle { get; set; }
-
     [Key(101)]
     public byte[] SvgData { get; set; } // Store SVG as byte array
+
+    [Key(100)]
+    public int RotationAngle { get; set; }
 }
