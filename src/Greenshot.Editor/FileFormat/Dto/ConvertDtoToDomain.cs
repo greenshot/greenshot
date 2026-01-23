@@ -59,8 +59,7 @@ public static class ConvertDtoToDomain
             ContainerList = ToDomain(dto.ContainerList),
             Image = ByteArrayToImage(dto.Image),
             RenderedImage = ByteArrayToImage(dto.RenderedImage),
-            SchemaVersion = dto.SchemaVersion,
-            FormatVersion = dto.FormatVersion
+            MetaInformation = ToDomain(dto.MetaInformation)
         };
     }
 
@@ -73,6 +72,20 @@ public static class ConvertDtoToDomain
             ContainerList = ToDomain(dto.ContainerList),
             SchemaVersion = dto.SchemaVersion,
             FormatVersion = dto.FormatVersion
+        };
+    }
+
+    public static GreenshotFileMetaInformation ToDomain(GreenshotFileMetaInformationDto dto)
+    {
+        if (dto == null) return null;
+
+        return new GreenshotFileMetaInformation
+        {
+            FormatVersion = dto.FormatVersion,
+            SchemaVersion = dto.SchemaVersion,
+            SavedByGreenshotVersion = dto.SavedByGreenshotVersion,
+            CaptureDate = dto.CaptureDate,
+            CaptureSize = dto.CaptureSize
         };
     }
 
@@ -408,6 +421,5 @@ public static class ConvertDtoToDomain
         using var ms = new MemoryStream(byteArrayIn);
         return new Icon(ms);
     }
-
 }
 

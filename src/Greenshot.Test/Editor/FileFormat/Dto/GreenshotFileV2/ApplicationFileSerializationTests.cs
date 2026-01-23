@@ -62,7 +62,10 @@ public class ApplicationFileSerializationTests
         {
             ContainerList = domainList,
             Image = image,
-            SchemaVersion = GreenshotFileVersionHandler.CurrentSchemaVersion
+            MetaInformation = new GreenshotFileMetaInformation
+            {
+                SchemaVersion = GreenshotFileVersionHandler.CurrentSchemaVersion
+            }
         };
 
         // Act
@@ -73,7 +76,7 @@ public class ApplicationFileSerializationTests
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(domain.SchemaVersion, result.SchemaVersion);
+        Assert.Equal(domain.MetaInformation.SchemaVersion, result.MetaInformation.SchemaVersion);
         Assert.NotNull(result.Image);
         Assert.NotNull(result.ContainerList);
         Assert.Equal(2, result.ContainerList.Count);

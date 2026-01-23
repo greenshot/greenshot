@@ -32,28 +32,23 @@ namespace Greenshot.Editor.FileFormat.Dto;
 public sealed class GreenshotFileDto
 {
     /// <summary>
-    /// <inheritdoc cref="GreenshotFile.FormatVersion"/>
-    /// </summary>
-    [Key(1)]
-    public GreenshotFileVersionHandler.GreenshotFileFormatVersion FormatVersion { get; set; } = GreenshotFileVersionHandler.GreenshotFileFormatVersion.Unknown;
-
-    /// <summary>
-    /// <inheritdoc cref="GreenshotFile.SchemaVersion"/>
+    /// <inheritdoc cref="GreenshotFile.MetaInformation"/>
     /// </summary>
     [Key(0)]
-    public int SchemaVersion { get; set; } = GreenshotFileVersionHandler.CurrentSchemaVersion;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public GreenshotFileMetaInformationDto MetaInformation { get; set; } = new();
 
     /// <summary>
     /// <inheritdoc cref="GreenshotFile.Image"/>
     /// </summary>
-    [JsonIgnore]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [Key(11)]
     public byte[] Image { get; set; }
 
     /// <summary>
     /// <inheritdoc cref="GreenshotFile.RenderedImage"/>
     /// </summary>
-    [JsonIgnore]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [Key(13)]
     public byte[] RenderedImage { get; set; }
 
@@ -61,12 +56,14 @@ public sealed class GreenshotFileDto
     /// Relative path to the image file within the archive.
     /// </summary>
     [Key(14)]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string ImagePath { get; set; }
 
     /// <summary>
     /// Relative path to the rendered image file within the archive.
     /// </summary>
     [Key(15)]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string RenderedImagePath { get; set; }
 
     /// <summary>

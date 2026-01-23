@@ -26,6 +26,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Greenshot.Editor.FileFormat.Dto;
 using log4net;
+using Greenshot.Base.Core;
 
 namespace Greenshot.Editor.FileFormat.V3;
 
@@ -37,8 +38,12 @@ internal static class GreenshotFileV3
     private static readonly ILog Log = LogManager.GetLogger(typeof(GreenshotFileV3));
 
     private const string ContentJsonName = "content.json";
+    private const string MetadataJsonName = "meta.json";
     private const string ImageFolder = "Images";
 
+    /// <summary>
+    /// Creates a new instance of JsonSerializerOptions with settings for Greenshot file serialization.
+    /// </summary>
     public static JsonSerializerOptions GetJsonSerializerOptions()
     {
         var options = new JsonSerializerOptions
@@ -62,7 +67,7 @@ internal static class GreenshotFileV3
             greenshotFileStream.Seek(0, SeekOrigin.Begin);
 
             using var zipArchive = new ZipArchive(greenshotFileStream, ZipArchiveMode.Read, true);
-            var entry = zipArchive.GetEntry(ContentJsonName);
+            var entry = zipArchive.GetEntry(MetadataJsonName);
             if (entry == null)
             {
                 return false;
@@ -72,35 +77,7 @@ internal static class GreenshotFileV3
             using var document = JsonDocument.Parse(entryStream);
 
             // We only check the format version, do not deserialize the full DTO.
-            if (!document.RootElement.TryGetProperty("formatVersion", out var formatVersionElement))
-            {
-                return false;
-            }
-
-            GreenshotFileVersionHandler.GreenshotFileFormatVersion formatVersion;
-            if (formatVersionElement.ValueKind == JsonValueKind.Number)
-            {
-                formatVersion = (GreenshotFileVersionHandler.GreenshotFileFormatVersion)formatVersionElement.GetInt32();
-            }
-            else if (formatVersionElement.ValueKind == JsonValueKind.String)
-            {
-                var text = formatVersionElement.GetString();
-                if (string.IsNullOrEmpty(text))
-                {
-                    return false;
-                }
-
-                if (!Enum.TryParse(text, true, out formatVersion))
-                {
-                    return false;
-                }
-            }
-            else
-            {
-                return false;
-            }
-
-            return formatVersion == GreenshotFileVersionHandler.GreenshotFileFormatVersion.V3;
+            return GetFormatVersion(document.RootElement, "formatVersion") == GreenshotFileVersionHandler.GreenshotFileFormatVersion.V3;
         }
         catch
         {
@@ -109,11 +86,47 @@ internal static class GreenshotFileV3
     }
 
     /// <summary>
+    /// Determines the Greenshot file format version from the specified JSON element and property name.
+    /// </summary>
+    /// <remarks>The method supports both numeric and string representations of the file format version in the
+    /// JSON property. If the property is not present or cannot be parsed as a valid version, the method returns <see
+    /// cref="GreenshotFileVersionHandler.GreenshotFileFormatVersion.Unknown"/>.</remarks>
+    /// <param name="jsonElement">The <see cref="System.Text.Json.JsonElement"/> containing the property to inspect.</param>
+    /// <param name="propertyName">The name of the property within <paramref name="jsonElement"/> that specifies the file format version.</param>
+    /// <returns>A <see cref="GreenshotFileVersionHandler.GreenshotFileFormatVersion"/> value representing the detected file
+    /// format version. Returns <see cref="GreenshotFileVersionHandler.GreenshotFileFormatVersion.Unknown"/> if the
+    /// property is missing or cannot be parsed.</returns>
+    private static GreenshotFileVersionHandler.GreenshotFileFormatVersion GetFormatVersion(JsonElement jsonElement, string propertyName)
+    {
+        if (jsonElement.TryGetProperty(propertyName, out var formatVersionElement))
+        {
+            if (formatVersionElement.ValueKind == JsonValueKind.Number)
+            {
+                return (GreenshotFileVersionHandler.GreenshotFileFormatVersion)formatVersionElement.GetInt32();
+            }
+
+            if (formatVersionElement.ValueKind == JsonValueKind.String)
+            {
+                var text = formatVersionElement.GetString();
+                if (!string.IsNullOrEmpty(text) && Enum.TryParse<GreenshotFileVersionHandler.GreenshotFileFormatVersion>(text, true, out var formatVersion))
+                {
+                    return formatVersion;
+                }
+            }
+        }
+
+        return GreenshotFileVersionHandler.GreenshotFileFormatVersion.Unknown;
+    }
+
+    /// <summary>
     /// Saves the specified <see cref="GreenshotFile"/> to the provided stream in the Greenshot file format version V3.
     /// </summary>
     /// <remarks>
-    /// V3 stores only the domain model as JSON and intentionally does not store the image payload.
-    /// The stream contains a ZIP archive with a single entry <c>content.json</c>.
+    /// V3 stores the domain model as JSON and intentionally does not store the image payload.
+    /// The stream contains a ZIP archive with entries:
+    /// - meta.json: Contains file metadata (format version, schema version, capture date, etc.)
+    /// - content.json: Contains the main content (containers and other data)
+    /// - Images/: Contains image files (if any)
     /// </remarks>
     internal static bool SaveToStream(GreenshotFile greenshotFile, Stream stream)
     {
@@ -124,12 +137,20 @@ internal static class GreenshotFileV3
 
         var dto = ConvertDomainToDto.ToDto(greenshotFile);
 
-        dto.FormatVersion = GreenshotFileVersionHandler.GreenshotFileFormatVersion.V3;
-        dto.SchemaVersion = GreenshotFileVersionHandler.CurrentSchemaVersion;
+        var metaInfoDto = dto.MetaInformation ??= new GreenshotFileMetaInformationDto();
+
+        metaInfoDto.FormatVersion = GreenshotFileVersionHandler.GreenshotFileFormatVersion.V3;
+        metaInfoDto.SchemaVersion = GreenshotFileVersionHandler.CurrentSchemaVersion;
+        metaInfoDto.SavedByGreenshotVersion = EnvironmentInfo.GetGreenshotVersion();
+        metaInfoDto.CaptureSize = greenshotFile.Image != null ? $"{greenshotFile.Image.Width}x{greenshotFile.Image.Height}px" : string.Empty;
 
         using (var zipArchive = new ZipArchive(stream, ZipArchiveMode.Create, true))
         {
             SaveImages(dto, zipArchive);
+            SaveMetadata(metaInfoDto, zipArchive);
+
+            // Remove metadata from DTO before serializing content to avoid duplication
+            dto.MetaInformation = null;
 
             var options = GetJsonSerializerOptions();
             var jsonBytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(dto, options));
@@ -140,6 +161,16 @@ internal static class GreenshotFileV3
         }
 
         return true;
+    }
+
+    private static void SaveMetadata(GreenshotFileMetaInformationDto metaInfoDto, ZipArchive zipArchive)
+    {
+        var options = GetJsonSerializerOptions();
+        var jsonBytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(metaInfoDto, options));
+
+        var metadataEntry = zipArchive.CreateEntry(MetadataJsonName, CompressionLevel.Optimal);
+        using var metadataStream = metadataEntry.Open();
+        metadataStream.Write(jsonBytes, 0, jsonBytes.Length);
     }
 
     //TODO: handle image formats properly
@@ -153,6 +184,8 @@ internal static class GreenshotFileV3
             var entry = zipArchive.CreateEntry(dto.ImagePath, CompressionLevel.Optimal);
             using var entryStream = entry.Open();
             entryStream.Write(dto.Image, 0, dto.Image.Length);
+
+            dto.Image = null;
         }
 
         if (dto.RenderedImage != null)
@@ -161,6 +194,8 @@ internal static class GreenshotFileV3
             var entry = zipArchive.CreateEntry(dto.RenderedImagePath, CompressionLevel.Optimal);
             using var entryStream = entry.Open();
             entryStream.Write(dto.RenderedImage, 0, dto.RenderedImage.Length);
+
+            dto.RenderedImage = null;
         }
     }
 
@@ -190,6 +225,7 @@ internal static class GreenshotFileV3
             }
 
             LoadImages(dto, zipArchive);
+            LoadMetadata(dto, zipArchive);
 
             return ConvertDtoToDomain.ToDomain(dto);
         }
@@ -197,6 +233,39 @@ internal static class GreenshotFileV3
         {
             Log.Error("Error deserializing Greenshot file (V3) from stream.", e);
             throw;
+        }
+    }
+
+    private static void LoadMetadata(GreenshotFileDto dto, ZipArchive zipArchive)
+    {
+        var metadataEntry = zipArchive.GetEntry(MetadataJsonName);
+        if (metadataEntry != null)
+        {
+            try
+            {
+                using var metadataStream = metadataEntry.Open();
+                var metaInfoDto = JsonSerializer.Deserialize<GreenshotFileMetaInformationDto>(metadataStream, GetJsonSerializerOptions());
+                if (metaInfoDto != null)
+                {
+                    dto.MetaInformation = metaInfoDto;
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Warn("Failed to load metadata from meta.json, using default metadata.", e);
+                if (dto.MetaInformation == null)
+                {
+                    dto.MetaInformation = new GreenshotFileMetaInformationDto();
+                }
+            }
+        }
+        else
+        {
+            Log.Warn("Metadata file 'meta.json' not found, using default metadata.");
+            if (dto.MetaInformation == null)
+            {
+                dto.MetaInformation = new GreenshotFileMetaInformationDto();
+            }
         }
     }
 

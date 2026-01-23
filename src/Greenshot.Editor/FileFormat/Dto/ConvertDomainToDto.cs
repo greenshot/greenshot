@@ -49,8 +49,21 @@ public static class ConvertDomainToDto
             ContainerList = ToDto(domain.ContainerList),
             Image = ImageToByteArray(domain.Image),
             RenderedImage = ImageToByteArray(domain.RenderedImage),
+            MetaInformation = ToDto(domain.MetaInformation)
+        };
+    }
+
+    public static GreenshotFileMetaInformationDto ToDto(GreenshotFileMetaInformation domain)
+    {
+        if (domain == null) return null;
+
+        return new GreenshotFileMetaInformationDto
+        {
             FormatVersion = domain.FormatVersion,
-            SchemaVersion = domain.SchemaVersion
+            SchemaVersion = domain.SchemaVersion,
+            SavedByGreenshotVersion = domain.SavedByGreenshotVersion,
+            CaptureDate = domain.CaptureDate,
+            CaptureSize = domain.CaptureSize
         };
     }
 

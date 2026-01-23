@@ -32,7 +32,7 @@ public sealed class GreenshotFile
     /// <summary>
     /// List of drawable containers that are positioned on the surface. These are graphical elements like text, shapes, and images that can be drawn on the surface.
     /// </summary>
-    public DrawableContainerList ContainerList { get; set; }
+    public DrawableContainerList ContainerList { get; set; } = new();
 
     /// <summary>
     /// The main image of the surface. It is captured from the screen or opend from a file.
@@ -45,15 +45,7 @@ public sealed class GreenshotFile
     public Image RenderedImage { get; set; }
 
     /// <summary>
-    /// Indicates the version of the file format, which is used to determine the serializer and deserializer for the file.
-    /// For now this is not really needed within the Dto, because you need to know the serializer before deserialzing the Dto.
-    /// The format version is part of the complete file version, so we include it here for completeness.
-    /// May be in the future used to handle backward compatibility issues.
+    /// Metadata information about the file, including format version, schema version, and capture details.
     /// </summary>
-    public GreenshotFileVersionHandler.GreenshotFileFormatVersion FormatVersion { get; set; } = GreenshotFileVersionHandler.GreenshotFileFormatVersion.Unknown;
-
-    /// <summary>
-    /// Version of the file schema
-    /// </summary>
-    public int SchemaVersion { get; set; }
+    public GreenshotFileMetaInformation MetaInformation { get; set; } = new();
 }

@@ -184,8 +184,11 @@ public sealed class GreenshotFileVersionHandler
             Image = image,
             RenderedImage = renderedImage,
             ContainerList = elements,
-            FormatVersion = GreenshotFileFormatVersion.V3,
-            SchemaVersion = CurrentSchemaVersion,
+            MetaInformation = new GreenshotFileMetaInformation
+            {
+                FormatVersion = GreenshotFileFormatVersion.V3,
+                SchemaVersion = CurrentSchemaVersion,
+            },
         };
     }
 

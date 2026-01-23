@@ -58,7 +58,10 @@ public class ConvertApplicationToDtoTests
         {
             ContainerList = domainList,
             Image = image,
-            SchemaVersion = GreenshotFileVersionHandler.CurrentSchemaVersion
+            MetaInformation = new GreenshotFileMetaInformation
+            {
+                SchemaVersion = GreenshotFileVersionHandler.CurrentSchemaVersion
+            }
         };
 
         // Act
@@ -66,7 +69,7 @@ public class ConvertApplicationToDtoTests
 
         // Assert
         Assert.NotNull(dto);
-        Assert.Equal(domain.SchemaVersion, dto.SchemaVersion);
+        Assert.Equal(domain.MetaInformation.SchemaVersion, dto.MetaInformation.SchemaVersion);
         Assert.NotNull(dto.Image);
         Assert.NotNull(dto.ContainerList);
         Assert.Equal(2, dto.ContainerList.ContainerList.Count);

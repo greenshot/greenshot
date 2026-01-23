@@ -236,12 +236,14 @@ internal static class GreenshotFileV2
     /// <param name="dto"></param>
     private static GreenshotFileDto MigrateToCurrentVersion(GreenshotFileDto dto)
     {
-        switch (dto.SchemaVersion)
+        var schemaVersion = dto.MetaInformation?.SchemaVersion ?? GreenshotFileVersionHandler.CurrentSchemaVersion;
+
+        switch (schemaVersion)
         {
             case GreenshotFileVersionHandler.CurrentSchemaVersion:
                 return dto; // is already at the current version
             case > GreenshotFileVersionHandler.CurrentSchemaVersion:
-                Log.Warn($"Greenshot file schema version {dto.SchemaVersion} is newer than the current version {GreenshotFileVersionHandler.CurrentSchemaVersion}. No migration will be performed.");
+                Log.Warn($"Greenshot file schema version {schemaVersion} is newer than the current version {GreenshotFileVersionHandler.CurrentSchemaVersion}. No migration will be performed.");
                 return dto; // no migration possible, just return the dto as is
             //case 1:
             // Uncomment the next line if the first migration is needed

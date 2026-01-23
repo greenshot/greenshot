@@ -100,7 +100,10 @@ internal static class GreenshotFileV1
     {
         GreenshotFile returnGreenshotFile = new GreenshotFile
         {
-            FormatVersion = GreenshotFileVersionHandler.GreenshotFileFormatVersion.V1,
+            MetaInformation = new GreenshotFileMetaInformation
+            {
+                FormatVersion = GreenshotFileVersionHandler.GreenshotFileFormatVersion.V1,
+            }
         };
 
         const int markerSize = 14;
@@ -116,14 +119,14 @@ internal static class GreenshotFileV1
 
         if (foundMarkerV0102)
         {
-            returnGreenshotFile.SchemaVersion = 2;
+            returnGreenshotFile.MetaInformation.SchemaVersion = 2;
         }
         else if (foundMarkerV0103)
         {
-            returnGreenshotFile.SchemaVersion = 3;
+            returnGreenshotFile.MetaInformation.SchemaVersion = 3;
         }else if (foundMarkerV0104)
         {
-            returnGreenshotFile.SchemaVersion = 4;
+            returnGreenshotFile.MetaInformation.SchemaVersion = 4;
         }
         else
         {
