@@ -3,7 +3,7 @@
   <PropertyGroup>
     <RootNamespace>Greenshot.Addon.Imgur</RootNamespace>
     <AssemblyName>Greenshot.Addon.Imgur</AssemblyName>
-    <TargetFramework>net5.0-windows</TargetFramework>
+    <TargetFramework>net10.0-windows</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>

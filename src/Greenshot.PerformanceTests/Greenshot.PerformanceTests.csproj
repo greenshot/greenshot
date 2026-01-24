@@ -4,7 +4,7 @@
     <RootNamespace>Greenshot.PerformanceTests</RootNamespace>
     <AssemblyName>Greenshot.PerformanceTests</AssemblyName>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net5.0-windows</TargetFramework>
+    <TargetFramework>net10.0-windows</TargetFramework>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 

@@ -3,7 +3,7 @@
   <PropertyGroup>
     <RootNamespace>Greenshot.Addon.Lutim</RootNamespace>
     <AssemblyName>Greenshot.Addon.Lutim</AssemblyName>
-    <TargetFramework>net5.0-windows</TargetFramework>
+    <TargetFramework>net10.0-windows</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>

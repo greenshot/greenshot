@@ -1,17 +1,17 @@
 ﻿<Project>
   <PropertyGroup>
-    <Copyright>Copyright © Greenshot 2004-2020</Copyright>
+    <Copyright>Copyright © Greenshot 2004-2026</Copyright>
     <Authors>Greenshot</Authors>
     <PackageIconUrl>https://getgreenshot.org/favicon.ico</PackageIconUrl>
     <RepositoryUrl>https://github.com/greenshot/greenshot</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageProjectUrl>https://github.com/greenshot/greenshot</PackageProjectUrl>
     <PackageLicenseUrl>https://www.gnu.org/licenses/gpl.html</PackageLicenseUrl>
-    <LangVersion>9</LangVersion>
+    <LangVersion>latest</LangVersion>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
-    <RuntimeIdentifiers>win10-x64;win10-x86;win-x64;win-x86</RuntimeIdentifiers>
+    <RuntimeIdentifiers>win-x64;win-x86</RuntimeIdentifiers>
     <!-- Optional: Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <!-- Optional: Embed source files that are not tracked by the source control manager in the PDB -->
