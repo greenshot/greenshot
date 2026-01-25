@@ -18,6 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+using System.Text.Json.Serialization;
 using Greenshot.Editor.Drawing;
 using MessagePack;
 
@@ -31,7 +32,22 @@ namespace Greenshot.Editor.FileFormat.Dto.Container;
 public sealed class MetafileContainerDto : DrawableContainerDto
 {
     [Key(101)]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [GreenshotImageData(nameof(MetafilePath), extensionPropertyName: nameof(MetafileDataExtension))]
     public byte[] MetafileData { get; set; } // Store metafile as byte array
+
+
+    [Key(102)]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string MetafileDataExtension { get; set; }
+
+    /// <summary>
+    /// Relative path to the image file within the archive.
+    /// </summary>
+    [GreenshotImagePath(nameof(MetafileData))]
+    [Key(14)]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string MetafilePath { get; set; }
 
     [Key(100)]
     public int RotationAngle { get; set; }

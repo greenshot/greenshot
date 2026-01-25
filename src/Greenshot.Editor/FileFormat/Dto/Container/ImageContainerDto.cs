@@ -18,6 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+using System.Text.Json.Serialization;
 using Greenshot.Editor.Drawing;
 using MessagePack;
 
@@ -30,5 +31,22 @@ namespace Greenshot.Editor.FileFormat.Dto.Container;
 public sealed class ImageContainerDto : DrawableContainerDto
 {
     [Key(100)]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [GreenshotImageData(nameof(ImagePath), extensionPropertyName: nameof(ImageExtension))]
     public byte[] Image { get; set; } // Store image as byte array
+
+    /// <summary>
+    /// Extension of the main image payload (e.g., png, jpg).
+    /// </summary>
+    [Key(16)]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string ImageExtension { get; set; }
+
+    /// <summary>
+    /// Relative path to the image file within the archive.
+    /// </summary>
+    [GreenshotImagePath(nameof(Image))]
+    [Key(14)]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string ImagePath { get; set; }
 }

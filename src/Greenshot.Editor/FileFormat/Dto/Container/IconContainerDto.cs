@@ -18,6 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+using System.Text.Json.Serialization;
 using MessagePack;
 
 namespace Greenshot.Editor.FileFormat.Dto.Container;
@@ -29,5 +30,12 @@ namespace Greenshot.Editor.FileFormat.Dto.Container;
 public sealed class IconContainerDto : DrawableContainerDto
 {
     [Key(100)]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [GreenshotImageData(pathPropertyName: nameof(Iconpath) , staticExtension:"ico") ]
     public byte[] Icon { get; set; }
+
+    [Key(200)]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [GreenshotImagePath(nameof(Icon))]
+    public string Iconpath { get; set; }
 }

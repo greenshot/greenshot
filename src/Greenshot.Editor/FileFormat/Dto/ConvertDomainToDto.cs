@@ -125,7 +125,8 @@ public static class ConvertDomainToDto
             Width = domain.Width,
             Height = domain.Height,
             Fields = domain.GetFields() == null ? [] : domain.GetFields().Select(ToDto).ToList(),
-            Image = ImageToByteArray(domain.Image)
+            Image = ImageToByteArray(domain.Image),
+            ImageExtension ="png", // because ImageToByteArray() convert it to PNG
         };
         return dto;
     }
@@ -142,6 +143,7 @@ public static class ConvertDomainToDto
             Height = domain.Height,
             Fields = domain.GetFields() == null ? [] : domain.GetFields().Select(ToDto).ToList(),
             MetafileData = domain.MetafileContent.ToArray(),
+            MetafileDataExtension = null, //TODO CHR: How to ensure the correct extension here?
             RotationAngle = domain.RotationAngle
         };
         return dto;

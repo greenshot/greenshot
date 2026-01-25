@@ -41,27 +41,31 @@ public sealed class GreenshotFileDto
     /// <summary>
     /// <inheritdoc cref="GreenshotFile.Image"/>
     /// </summary>
+    [GreenshotImageData(nameof(ImagePath), targetZipFolder: "screenshot", staticFilename: "capture", staticExtension: "png")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [Key(11)]
     public byte[] Image { get; set; }
 
     /// <summary>
-    /// <inheritdoc cref="GreenshotFile.RenderedImage"/>
-    /// </summary>
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    [Key(13)]
-    public byte[] RenderedImage { get; set; }
-
-    /// <summary>
     /// Relative path to the image file within the archive.
     /// </summary>
+    [GreenshotImagePath(nameof(Image))]
     [Key(14)]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string ImagePath { get; set; }
 
     /// <summary>
+    /// <inheritdoc cref="GreenshotFile.RenderedImage"/>
+    /// </summary>
+    [GreenshotImageData(nameof(RenderedImagePath), targetZipFolder: "preview" , staticFilename: "preview", staticExtension: "png")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [Key(13)]
+    public byte[] RenderedImage { get; set; }
+
+    /// <summary>
     /// Relative path to the rendered image file within the archive.
     /// </summary>
+    [GreenshotImagePath(nameof(RenderedImage))]
     [Key(15)]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string RenderedImagePath { get; set; }

@@ -19,14 +19,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 using System;
-using System.IO.Compression;
+using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
+using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Greenshot.Editor.FileFormat.Dto;
-using log4net;
 using Greenshot.Base.Core;
+using Greenshot.Editor.FileFormat.Dto;
+using Greenshot.Editor.FileFormat.Dto.Container;
+using log4net;
 
 namespace Greenshot.Editor.FileFormat.V3;
 
@@ -39,7 +42,7 @@ internal static class GreenshotFileV3
 
     private const string ContentJsonName = "content.json";
     private const string MetadataJsonName = "meta.json";
-    private const string ImageFolder = "Images";
+    private const string ImageFolder = "images";
 
     /// <summary>
     /// Creates a new instance of JsonSerializerOptions with settings for Greenshot file serialization.
@@ -53,7 +56,7 @@ internal static class GreenshotFileV3
             PropertyNameCaseInsensitive = true,
             Converters =
             {
-                new JsonStringEnumConverter() 
+                new JsonStringEnumConverter()
             }
         };
 
@@ -173,30 +176,149 @@ internal static class GreenshotFileV3
         metadataStream.Write(jsonBytes, 0, jsonBytes.Length);
     }
 
-    //TODO: handle image formats properly
-    //TODO: handle all Images from all dto classes , maby use dictionary 
-    //TODO: offtopic here but: support a base64 variant as well, for using it in clipboard or other non-file usages
     private static void SaveImages(GreenshotFileDto dto, ZipArchive zipArchive)
     {
-        if (dto.Image != null)
-        {
-            dto.ImagePath = $"{ImageFolder}/image_1.png";
-            var entry = zipArchive.CreateEntry(dto.ImagePath, CompressionLevel.Optimal);
-            using var entryStream = entry.Open();
-            entryStream.Write(dto.Image, 0, dto.Image.Length);
+        var imagesToSave = ExtractAllImages(dto);
 
-            dto.Image = null;
+        foreach (var kvp in imagesToSave)
+        {
+            var entry = zipArchive.CreateEntry(kvp.Key, CompressionLevel.Optimal);
+            using var entryStream = entry.Open();
+            entryStream.Write(kvp.Value, 0, kvp.Value.Length);
+        }
+    }
+
+    private static Dictionary<string, byte[]> ExtractAllImages(GreenshotFileDto dto)
+    {
+        var imageIndex = 1;
+        var imagesToSave = new Dictionary<string, byte[]>();
+
+        foreach (var kvp in ExtractImages(dto, ref imageIndex))
+        {
+            imagesToSave[kvp.Key] = kvp.Value;
         }
 
-        if (dto.RenderedImage != null)
-        {
-            dto.RenderedImagePath = $"{ImageFolder}/image_2.png";
-            var entry = zipArchive.CreateEntry(dto.RenderedImagePath, CompressionLevel.Optimal);
-            using var entryStream = entry.Open();
-            entryStream.Write(dto.RenderedImage, 0, dto.RenderedImage.Length);
+        var containerList = dto.ContainerList?.ContainerList;
 
-            dto.RenderedImage = null;
+        if (containerList is null)
+        {
+            return imagesToSave;
         }
+
+        foreach (var container in containerList)
+        {
+            foreach (var kvp in ExtractImages(container, ref imageIndex))
+            {
+                imagesToSave[kvp.Key] = kvp.Value;
+            }
+        }
+
+        return imagesToSave;
+    }
+
+    private static Dictionary<string, byte[]> ExtractImages(object dto, ref int imageIndex)
+    {
+        if (dto is not (GreenshotFileDto or DrawableContainerDto))
+        {
+            Log.Error($"DTO must be of type {nameof(GreenshotFileDto)} or {nameof(DrawableContainerDto)}.");
+            throw new ArgumentException($"DTO must be of type {nameof(GreenshotFileDto)} or {nameof(DrawableContainerDto)}.", nameof(dto));
+        }
+
+        var imagesToSave = new Dictionary<string, byte[]>();
+        var dtoType = dto.GetType();
+        var allDtoProperties = dtoType.GetProperties(BindingFlags.Instance | BindingFlags.Public);
+
+        foreach (var property in allDtoProperties)
+        {
+            var imageAttribute = property.GetCustomAttribute<GreenshotImageDataAttribute>();
+            if (imageAttribute == null || property.PropertyType != typeof(byte[]))
+            {
+                // ignore alle properties without the attribute GreenshotImageDataAttribute or not of type byte[]
+                continue;
+            }
+
+            var pathProperty = dtoType.GetProperty(imageAttribute.PathPropertyName, BindingFlags.Instance | BindingFlags.Public);
+            if (pathProperty == null || pathProperty.PropertyType != typeof(string))
+            {
+                Log.Warn($"Path property '{imageAttribute.PathPropertyName}' for image property '{property.Name}' not found or not string.");
+                continue;
+            }
+
+            var imageBytes = property.GetValue(dto) as byte[];
+            if (imageBytes == null)
+            {
+                continue;
+            }
+
+            var extension = ResolveExtension(dto, dtoType, imageAttribute);
+            var folder = ResolveTargetFolder(imageAttribute);
+            var fileName = string.IsNullOrWhiteSpace(imageAttribute.StaticFilename) ? $"image_{imageIndex}" : imageAttribute.StaticFilename;
+            var imagePath = $"{folder}/{fileName}.{extension}";
+            imageIndex++;
+
+            imagesToSave[imagePath] = imageBytes;
+
+            pathProperty.SetValue(dto, imagePath);
+            property.SetValue(dto, null);
+        }
+
+        return imagesToSave;
+    }
+
+    private static string ResolveTargetFolder(GreenshotImageDataAttribute imageAttribute)
+    {
+        var folder = imageAttribute.TargetZipFolder;
+        if (string.IsNullOrWhiteSpace(folder))
+        {
+            return ImageFolder;
+        }
+
+        folder = folder.Trim();
+        folder = folder.Trim('/').Trim('\\');
+
+        return string.IsNullOrWhiteSpace(folder) ? ImageFolder : folder;
+    }
+
+    private static string ResolveExtension(object dto, Type dtoType, GreenshotImageDataAttribute imageAttribute)
+    {
+        PropertyInfo extensionProperty = null;
+        string extension = imageAttribute.StaticExtension;
+
+        if (!string.IsNullOrEmpty(imageAttribute.ExtensionPropertyName))
+        {
+            extensionProperty = dtoType.GetProperty(imageAttribute.ExtensionPropertyName, BindingFlags.Instance | BindingFlags.Public);
+            if (extensionProperty == null || extensionProperty.PropertyType != typeof(string))
+            {
+                Log.Warn($"Extension property '{imageAttribute.ExtensionPropertyName}' for image property '{imageAttribute.PathPropertyName}' not found or not string.");
+            }
+            else
+            {
+                var propertyValue = extensionProperty.GetValue(dto) as string;
+                if (!string.IsNullOrWhiteSpace(propertyValue))
+                {
+                    extension = propertyValue;
+                }
+            }
+        }
+
+        extension = NormalizeExtension(extension);
+
+        extensionProperty?.SetValue(dto, null);
+
+        return extension;
+    }
+
+    private static string NormalizeExtension(string extension)
+    {
+        if (string.IsNullOrWhiteSpace(extension))
+        {
+            return "png";
+        }
+
+        extension = extension.Trim();
+        extension = extension.TrimStart('.');
+
+        return string.IsNullOrWhiteSpace(extension) ? "png" : extension;
     }
 
     /// <summary>
@@ -216,8 +338,8 @@ internal static class GreenshotFileV3
 
             GreenshotFileDto dto;
             using (var entryStream = entry.Open())
-            dto = JsonSerializer.Deserialize<GreenshotFileDto>(entryStream, GetJsonSerializerOptions());
-            
+                dto = JsonSerializer.Deserialize<GreenshotFileDto>(entryStream, GetJsonSerializerOptions());
+
 
             if (dto == null)
             {
@@ -271,14 +393,56 @@ internal static class GreenshotFileV3
 
     private static void LoadImages(GreenshotFileDto dto, ZipArchive zipArchive)
     {
-        if (!string.IsNullOrEmpty(dto.ImagePath))
+        var containerList = dto.ContainerList?.ContainerList;
+  
+        LoadImagesForDto(dto, zipArchive);
+
+        if (containerList is null)
         {
-            dto.Image = ReadEntryBytes(zipArchive, dto.ImagePath);
+            return;
         }
 
-        if (!string.IsNullOrEmpty(dto.RenderedImagePath))
+        foreach (var container in containerList)
         {
-            dto.RenderedImage = ReadEntryBytes(zipArchive, dto.RenderedImagePath);
+            LoadImagesForDto(container, zipArchive);
+        }
+    }
+
+    private static void LoadImagesForDto(object dto, ZipArchive zipArchive)
+    {
+        if (dto is not (GreenshotFileDto or DrawableContainerDto))
+        {
+            Log.Error($"DTO must be of type {nameof(GreenshotFileDto)} or {nameof(DrawableContainerDto)}.");
+            throw new ArgumentException($"DTO must be of type {nameof(GreenshotFileDto)} or {nameof(DrawableContainerDto)}.", nameof(dto));
+        }
+
+        var dtoType = dto.GetType();
+        var allDtoProperties = dtoType.GetProperties(BindingFlags.Instance | BindingFlags.Public);
+
+        foreach (var property in allDtoProperties)
+        {
+            var pathAttribute = property.GetCustomAttribute<GreenshotImagePathAttribute>();
+            if (pathAttribute == null || property.PropertyType != typeof(string))
+            {
+                continue;
+            }
+
+            var entryPath = property.GetValue(dto) as string;
+            if (string.IsNullOrEmpty(entryPath))
+            {
+                continue;
+            }
+
+            var imageProperty = dtoType.GetProperty(pathAttribute.ImagePropertyName, BindingFlags.Instance | BindingFlags.Public);
+            if (imageProperty == null || imageProperty.PropertyType != typeof(byte[]))
+            {
+                Log.Warn($"Image property '{pathAttribute.ImagePropertyName}' for path property '{property.Name}' not found or not byte array.");
+                continue;
+            }
+
+            var imageBytes = ReadEntryBytes(zipArchive, entryPath);
+            imageProperty.SetValue(dto, imageBytes);
+            property.SetValue(dto, null);
         }
     }
 
