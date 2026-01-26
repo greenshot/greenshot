@@ -209,7 +209,8 @@ namespace Greenshot.Plugin.Confluence
             
             var attachTask = Task.Run(async () =>
             {
-                await _confluence.Attachment.AttachAsync(pageId, image.ToByteArray(), filename, mime, comment);
+                using var stream = new System.IO.MemoryStream(image.ToByteArray());
+                await _confluence.Attachment.AttachAsync(pageId, stream, filename, comment, mime);
             });
             
             attachTask.Wait();
