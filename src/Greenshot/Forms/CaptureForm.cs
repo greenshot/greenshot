@@ -852,22 +852,10 @@ namespace Greenshot.Forms
                 return;
             }
 
-            ImageAttributes attributes;
-
-            if (_isZoomerTransparent)
-            {
-                //create a color matrix object to change the opacy
-                ColorMatrix opacyMatrix = new ColorMatrix
-                {
-                    Matrix33 = Conf.ZoomerOpacity
-                };
-                attributes = new ImageAttributes();
-                attributes.SetColorMatrix(opacyMatrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
-            }
-            else
-            {
-                attributes = null;
-            }
+            // Create ImageAttributes for transparent zoomer (using declaration ensures disposal even if exception occurs)
+            using ImageAttributes attributes = _isZoomerTransparent
+                ? CreateZoomerImageAttributes()
+                : null;
 
             graphics.SmoothingMode = SmoothingMode.HighQuality;
             graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
@@ -946,8 +934,21 @@ namespace Greenshot.Forms
                 // Horizontal middle + 1 to right
                 graphics.DrawRectangle(pen, destinationRectangle.X + halfWidthEnd + 2 * padding, drawAtHeight, halfWidthEnd - 2 * padding - 1, pixelThickness);
             }
+        }
 
-            attributes?.Dispose();
+        /// <summary>
+        /// Create ImageAttributes for the zoomer with opacity settings
+        /// </summary>
+        /// <returns>ImageAttributes configured for zoomer opacity</returns>
+        private static ImageAttributes CreateZoomerImageAttributes()
+        {
+            ColorMatrix opacyMatrix = new ColorMatrix
+            {
+                Matrix33 = Conf.ZoomerOpacity
+            };
+            var attributes = new ImageAttributes();
+            attributes.SetColorMatrix(opacyMatrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
+            return attributes;
         }
 
         /// <summary>
