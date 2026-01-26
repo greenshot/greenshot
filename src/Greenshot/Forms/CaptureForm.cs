@@ -57,18 +57,31 @@ namespace Greenshot.Forms
 
         private static readonly ILog Log = LogManager.GetLogger(typeof(CaptureForm));
         private static readonly CoreConfiguration Conf = IniConfig.GetIniSection<CoreConfiguration>();
-        private static readonly Brush GreenOverlayBrush = new SolidBrush(Color.FromArgb(50, Color.MediumSeaGreen));
-        private static readonly Pen OverlayPen = new Pen(Color.FromArgb(50, Color.Black));
+        private static readonly Brush GreenOverlayBrush;
+        private static readonly Pen OverlayPen;
         private static CaptureForm _currentForm;
         private static readonly Brush BackgroundBrush;
 
         /// <summary>
-        /// Initialize the background brush
+        /// Initialize the static brushes and pens, and register cleanup on application exit
         /// </summary>
         static CaptureForm()
         {
-            Image backgroundForTransparency = GreenshotResources.GetImage("Checkerboard.Image");
-            BackgroundBrush = new TextureBrush(backgroundForTransparency, WrapMode.Tile);
+            GreenOverlayBrush = new SolidBrush(Color.FromArgb(50, Color.MediumSeaGreen));
+            OverlayPen = new Pen(Color.FromArgb(50, Color.Black));
+
+            using (Image backgroundForTransparency = GreenshotResources.GetImage("Checkerboard.Image"))
+            {
+                BackgroundBrush = new TextureBrush(backgroundForTransparency, WrapMode.Tile);
+            }
+
+            // Register cleanup for static GDI resources on application exit
+            AppDomain.CurrentDomain.ProcessExit += (sender, args) =>
+            {
+                GreenOverlayBrush?.Dispose();
+                OverlayPen?.Dispose();
+                BackgroundBrush?.Dispose();
+            };
         }
 
         private int _mX;
