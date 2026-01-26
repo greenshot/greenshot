@@ -33,11 +33,8 @@ using Dapplo.Windows.Gdi32.Enums;
 using Dapplo.Windows.Gdi32.SafeHandles;
 using Dapplo.Windows.Gdi32.Structs;
 using Dapplo.Windows.Icons;
-using Dapplo.Windows.Icons.SafeHandles;
 using Dapplo.Windows.Kernel32;
 using Dapplo.Windows.User32;
-using Dapplo.Windows.User32.Enums;
-using Dapplo.Windows.User32.Structs;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 using log4net;
@@ -89,26 +86,18 @@ namespace Greenshot.Base.Core
                 capture = new Capture();
             }
 
-            var cursorInfo = CursorInfo.Create();
-            if (!NativeCursorMethods.GetCursorInfo(ref cursorInfo)) return capture;
-            if (cursorInfo.Flags != CursorInfoFlags.Showing) return capture;
-
-            using SafeIconHandle safeIcon = NativeIconMethods.CopyIcon(cursorInfo.CursorHandle);
-            if (!NativeIconMethods.GetIconInfo(safeIcon, out var iconInfo)) return capture;
-
-            NativePoint cursorLocation = User32Api.GetCursorLocation();
-            // Align cursor location to Bitmap coordinates (instead of Screen coordinates)
-            var x = cursorLocation.X - iconInfo.Hotspot.X - capture.ScreenBounds.X;
-            var y = cursorLocation.Y - iconInfo.Hotspot.Y - capture.ScreenBounds.Y;
-            // Set the location
-            capture.CursorLocation = new NativePoint(x, y);
-
-            using (Icon icon = Icon.FromHandle(safeIcon.DangerousGetHandle()))
+            Bitmap cursorBitmap;
+            NativePoint cursorHotSpot;
+            if (CursorHelper.TryGetCurrentCursor(out cursorBitmap, out cursorHotSpot))
             {
-                capture.Cursor = icon;
+                NativePoint cursorLocation = User32Api.GetCursorLocation();
+                // Align cursor location to Bitmap coordinates (instead of Screen coordinates)
+                var x = cursorLocation.X - cursorHotSpot.X - capture.ScreenBounds.X;
+                var y = cursorLocation.Y - cursorHotSpot.Y - capture.ScreenBounds.Y;
+                // Set the location
+                capture.CursorLocation = new NativePoint(x, y);
+                capture.Cursor = cursorBitmap;
             }
-            iconInfo.BitmaskBitmapHandle.Dispose();
-            iconInfo.ColorBitmapHandle.Dispose();
             return capture;
         }
 

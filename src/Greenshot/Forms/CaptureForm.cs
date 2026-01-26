@@ -1008,7 +1008,7 @@ namespace Greenshot.Forms
             // Only draw Cursor if it's (partly) visible
             if (_capture.Cursor != null && _capture.CursorVisible && clipRectangle.IntersectsWith(new NativeRect(_capture.CursorLocation, _capture.Cursor.Size)))
             {
-                graphics.DrawIcon(_capture.Cursor, _capture.CursorLocation.X, _capture.CursorLocation.Y);
+                graphics.DrawImageUnscaled(_capture.Cursor, _capture.CursorLocation.X, _capture.CursorLocation.Y);
             }
 
             if (_mouseDown || _captureMode == CaptureMode.Window || IsAnimating(_windowAnimator))
