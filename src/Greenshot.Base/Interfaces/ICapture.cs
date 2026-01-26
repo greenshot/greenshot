@@ -51,9 +51,9 @@ namespace Greenshot.Base.Interfaces
         NativeRect ScreenBounds { get; set; }
 
         /// <summary>
-        /// The cursor
+        /// The cursor bitmap
         /// </summary>
-        Icon Cursor { get; set; }
+        Bitmap Cursor { get; set; }
 
         /// <summary>
         /// Boolean to specify if the cursor is available
