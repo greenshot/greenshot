@@ -398,6 +398,32 @@ namespace Greenshot.Editor.Drawing
 
         public abstract void Draw(Graphics graphics, RenderMode renderMode);
 
+        /// <summary>
+		/// A loop method (for now loop method) which calls the specified action, to draw a shadow
+		/// </summary>
+		/// <param name="lineThickness">int</param>
+		/// <param name="drawShadowStepAction">Action which acceps the alpha value, current step and a brush</param>
+		protected static void DrawShadow(int lineThickness, Action<int, int, Pen, Brush> drawShadowStepAction)
+        {
+            double alpha = 240.0 - lineThickness * 1.5; // soften larger shadows
+            double stepsCount = 3.0 + lineThickness / 11.0; // increase shadow width according to thickness 
+            double alphaStep = alpha / stepsCount;
+            int currentStep = 0;
+            using (var brush = new SolidBrush(Color.Black))
+            using (var pen = new Pen(Color.Black, lineThickness))
+            {
+                while (alpha >= 1.0)
+                {
+                    var alphaInt = (int)Math.Round(alpha);
+                    pen.Color = Color.FromArgb(alphaInt, Color.Black);
+                    brush.Color = pen.Color;
+                    drawShadowStepAction(alphaInt, currentStep, pen, brush);
+                    alpha -= alphaStep;
+                    currentStep++;
+                }
+            }
+        }
+
         public virtual void DrawContent(Graphics graphics, Bitmap bmp, RenderMode renderMode, NativeRect clipRectangle)
         {
             if (Children.Count > 0)
