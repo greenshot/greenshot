@@ -37,7 +37,7 @@ namespace Greenshot.Plugin.Jira.Forms
     {
         private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(JiraForm));
         private readonly JiraConnector _jiraConnector;
-        private Issue _selectedIssue;
+        private IssueV2 _selectedIssue;
         private readonly GreenshotColumnSorter _columnSorter;
         private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
 
@@ -118,7 +118,7 @@ namespace Greenshot.Plugin.Jira.Forms
             jiraFilenameBox.Text = filename;
         }
 
-        public Issue GetJiraIssue()
+        public IssueV2 GetJiraIssue()
         {
             return _selectedIssue;
         }
@@ -145,10 +145,10 @@ namespace Greenshot.Plugin.Jira.Forms
                     return;
                 }
 
-                IList<Issue> issues = null;
+                IList<IssueV2> issues = null;
                 try
                 {
-                    issues = await _jiraConnector.SearchAsync(filter);
+                    issues = (await _jiraConnector.SearchAsync(filter)).Cast<IssueV2>().ToList();
                 }
                 catch (Exception ex)
                 {
@@ -225,7 +225,7 @@ namespace Greenshot.Plugin.Jira.Forms
         {
             if (jiraListView.SelectedItems.Count > 0)
             {
-                _selectedIssue = (Issue) jiraListView.SelectedItems[0].Tag;
+                _selectedIssue = (IssueV2) jiraListView.SelectedItems[0].Tag;
                 jiraKey.Text = _selectedIssue.Key;
                 uploadButton.Enabled = true;
             }
