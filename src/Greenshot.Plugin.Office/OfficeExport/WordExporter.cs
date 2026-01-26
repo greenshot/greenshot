@@ -145,9 +145,22 @@ namespace Greenshot.Plugin.Office.OfficeExport
                 return;
             }
 
-            if (!Version.TryParse(wordApplication.ComObject.Version, out _wordVersion))
+            try
             {
-                LOG.Warn("Assuming Word version 1997.");
+                if (!Version.TryParse(wordApplication.ComObject.Version, out _wordVersion))
+                {
+                    LOG.Warn("Assuming Word version 1997.");
+                    _wordVersion = new Version((int) OfficeVersions.Office97, 0, 0, 0);
+                }
+            }
+            catch (InvalidCastException ex)
+            {
+                LOG.Warn("Unable to retrieve Word version due to COM interface casting issue. Assuming Word version 1997.", ex);
+                _wordVersion = new Version((int) OfficeVersions.Office97, 0, 0, 0);
+            }
+            catch (Exception ex)
+            {
+                LOG.Warn("Unable to retrieve Word version. Assuming Word version 1997.", ex);
                 _wordVersion = new Version((int) OfficeVersions.Office97, 0, 0, 0);
             }
         }
