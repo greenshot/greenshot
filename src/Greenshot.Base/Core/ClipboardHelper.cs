@@ -1141,7 +1141,7 @@ EndSelection:<<<<<<<4
 
             int absStride = Math.Abs(bmpData.Stride);
             int bytes = absStride * bitmap.Height;
-            long ptr = bmpData.Scan0.ToInt32();
+            long ptr = bmpData.Scan0.ToInt64();
             // Declare an array to hold the bytes of the bitmap.
             byte[] rgbValues = new byte[bytes];
 
