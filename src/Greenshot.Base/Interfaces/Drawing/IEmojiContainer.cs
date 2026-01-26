@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -19,25 +19,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Threading.Tasks;
-using Windows.ApplicationModel.DataTransfer;
-
-namespace Greenshot.Plugin.Win10.Internal
+namespace Greenshot.Base.Interfaces.Drawing
 {
-    internal class ShareInfo
+    public interface IEmojiContainer : IDrawableContainer
     {
-        public string ApplicationName { get; set; }
-        public bool AreShareProvidersRequested { get; set; }
-        public bool IsDeferredFileCreated { get; set; }
-        public DataPackageOperation CompletedWithOperation { get; set; }
-        public string AcceptedFormat { get; set; }
-        public bool IsDestroyed { get; set; }
-        public bool IsShareCompleted { get; set; }
-
-        public TaskCompletionSource<bool> ShareTask { get; } = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
-        public bool IsDataRequested { get; set; }
-
-        public IntPtr SharingHwnd { get; set; }
+        string Emoji { get; set; }
     }
 }

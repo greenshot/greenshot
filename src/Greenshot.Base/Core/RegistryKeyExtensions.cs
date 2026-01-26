@@ -30,7 +30,7 @@ namespace Greenshot.Base.Core
     public static class RegistryKeyExtensions
     {
         /// <summary>
-        /// Retrieve a registry value
+        /// Retrieve a registry value with automatic logic for WOW6432Node
         /// </summary>
         /// <param name="registryHive">RegistryHive like RegistryHive.LocalMachine</param>
         /// <param name="keyName">string with the name of the key</param>
@@ -80,6 +80,35 @@ namespace Greenshot.Base.Core
                 {
                     result = (string) key.GetValue(value);
                 }
+            }
+
+            if (string.IsNullOrEmpty(result))
+            {
+                result = defaultValue;
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Retrieve a registry value using default RegistryView
+        /// </summary>
+        /// <param name="registryHive">RegistryHive like RegistryHive.LocalMachine</param>
+        /// <param name="keyName">string with the name of the key</param>
+        /// <param name="value">string with the name of the value below the key, null will retrieve the default</param>
+        /// <param name="defaultValue">string with the default value to return</param>
+        /// <returns>string with the value</returns>
+        public static string ReadKey(this RegistryHive registryHive, string keyName, string value = null, string defaultValue = null)
+        {
+            string result = null;
+            value ??= string.Empty;
+
+            using var registryKey = RegistryKey.OpenBaseKey(registryHive, RegistryView.Default);
+            using var key = registryKey.OpenSubKey($@"SOFTWARE\{keyName}", false);
+
+            if (key != null)
+            {
+                result = (string)key.GetValue(value);
             }
 
             if (string.IsNullOrEmpty(result))

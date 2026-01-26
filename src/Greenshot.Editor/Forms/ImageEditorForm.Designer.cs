@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -22,9 +22,11 @@
 using Greenshot.Base.Controls;
 using Greenshot.Editor.Controls;
 using Greenshot.Editor.Drawing;
+using Greenshot.Editor.Drawing.Emoji;
 
-namespace Greenshot.Editor.Forms {
-	partial class ImageEditorForm {
+namespace Greenshot.Editor.Forms
+{
+    partial class ImageEditorForm {
 		/// <summary>
 		/// Designer variable used to keep track of non-visual components.
 		/// </summary>
@@ -69,6 +71,7 @@ namespace Greenshot.Editor.Forms {
 			this.btnText = new GreenshotToolStripButton();
 			this.btnSpeechBubble = new GreenshotToolStripButton();
 			this.btnStepLabel = new GreenshotToolStripButton();
+			this.btnEmoji = new GreenshotToolStripButton();
 			this.toolStripSeparator14 = new System.Windows.Forms.ToolStripSeparator();
 			this.btnHighlight = new GreenshotToolStripButton();
 			this.btnObfuscate = new GreenshotToolStripButton();
@@ -236,8 +239,8 @@ namespace Greenshot.Editor.Forms {
 			// 
 			// topToolStripContainer
 			// 
-            this.topToolStripContainer.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            this.topToolStripContainer.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.topToolStripContainer.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+			this.topToolStripContainer.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			// 
 			// topToolStripContainer.BottomToolStripPanel
 			// 
@@ -337,6 +340,7 @@ namespace Greenshot.Editor.Forms {
 									this.btnText,
 									this.btnSpeechBubble,
 									this.btnStepLabel,
+									this.btnEmoji,
 									this.toolStripSeparator14,
 									this.btnHighlight,
 									this.btnObfuscate,
@@ -446,6 +450,16 @@ namespace Greenshot.Editor.Forms {
 			this.btnStepLabel.LanguageKey = "editor_counter";
 			this.btnStepLabel.Name = "btnStepLabel";
 			this.btnStepLabel.Click += new System.EventHandler(this.BtnStepLabelClick);
+			// 
+			// btnStepEmoji
+			// 
+			this.btnEmoji.CheckOnClick = true;
+			this.btnEmoji.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.btnEmoji.Image = EmojiRenderer.GetBitmap("🙂", 32);
+			this.btnEmoji.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.btnEmoji.Text = "Emoji (M)";
+			this.btnEmoji.Name = "btnEmoji";
+			this.btnEmoji.Click += new System.EventHandler(this.BtnEmojiClick);
 			// 
 			// toolStripSeparator14
 			// 
@@ -749,20 +763,20 @@ namespace Greenshot.Editor.Forms {
 			this.addTextBoxToolStripMenuItem.LanguageKey = "editor_drawtextbox";
 			this.addTextBoxToolStripMenuItem.Name = "addTextBoxToolStripMenuItem";
 			this.addTextBoxToolStripMenuItem.Click += new System.EventHandler(this.AddTextBoxToolStripMenuItemClick);
-            // 
-            // addSpeechBubbleToolStripMenuItem
-            // 
-            this.addSpeechBubbleToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("btnSpeechBubble.Image")));
-            this.addSpeechBubbleToolStripMenuItem.LanguageKey = "editor_speechbubble";
-            this.addSpeechBubbleToolStripMenuItem.Name = "addSpeechBubbleToolStripMenuItem";
-            this.addSpeechBubbleToolStripMenuItem.Click += new System.EventHandler(this.AddSpeechBubbleToolStripMenuItemClick);
-            // 
-            // addCounterToolStripMenuItem
-            // 
-            this.addCounterToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("btnStepLabel01.Image")));
-            this.addCounterToolStripMenuItem.LanguageKey = "editor_counter";
-            this.addCounterToolStripMenuItem.Name = "addCounterToolStripMenuItem";
-            this.addCounterToolStripMenuItem.Click += new System.EventHandler(this.AddCounterToolStripMenuItemClick);
+			// 
+			// addSpeechBubbleToolStripMenuItem
+			// 
+			this.addSpeechBubbleToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("btnSpeechBubble.Image")));
+			this.addSpeechBubbleToolStripMenuItem.LanguageKey = "editor_speechbubble";
+			this.addSpeechBubbleToolStripMenuItem.Name = "addSpeechBubbleToolStripMenuItem";
+			this.addSpeechBubbleToolStripMenuItem.Click += new System.EventHandler(this.AddSpeechBubbleToolStripMenuItemClick);
+			// 
+			// addCounterToolStripMenuItem
+			// 
+			this.addCounterToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("btnStepLabel01.Image")));
+			this.addCounterToolStripMenuItem.LanguageKey = "editor_counter";
+			this.addCounterToolStripMenuItem.Name = "addCounterToolStripMenuItem";
+			this.addCounterToolStripMenuItem.Click += new System.EventHandler(this.AddCounterToolStripMenuItemClick);
 			// 
 			// toolStripSeparator8
 			// 
@@ -1866,8 +1880,8 @@ namespace Greenshot.Editor.Forms {
 			// 
 			// ImageEditorForm
 			// 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
 			this.ClientSize = new System.Drawing.Size(785, 485);
 			this.Controls.Add(this.topToolStripContainer);
 			this.KeyPreview = true;
@@ -1984,6 +1998,7 @@ namespace Greenshot.Editor.Forms {
 		private GreenshotToolStripButton btnText;
 		private GreenshotToolStripButton btnSpeechBubble;
 		private GreenshotToolStripButton btnStepLabel;
+		private GreenshotToolStripButton btnEmoji;
 		private GreenshotToolStripMenuItem drawLineToolStripMenuItem;
 		private GreenshotToolStripButton btnLine;
 		private GreenshotToolStripButton btnSettings;

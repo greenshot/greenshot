@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -265,6 +266,12 @@ namespace Greenshot.Base.Core
 
             return exceptionText.ToString();
         }
+
+        /// <summary>
+        /// Returns the directory where the application is located
+        /// </summary>
+        public static string GetApplicationFolder()
+            => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
     }
 
     /// <summary>
@@ -517,8 +524,12 @@ namespace Greenshot.Base.Core
 
                                     break;
                                 case 10:
-                                    string releaseId = Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion", "ReleaseId", "").ToString();
-                                    name = $"Windows 10 {releaseId}";
+                                    if (osVersion.Version.Build < 22000)
+                                    {
+                                        name = "Windows 10";
+                                    } else {
+                                        name = "Windows 11";
+                                    }
                                     break;
                             }
 

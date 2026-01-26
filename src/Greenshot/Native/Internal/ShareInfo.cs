@@ -19,17 +19,25 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using Greenshot.Base.IniFile;
+using System;
+using System.Threading.Tasks;
+using Windows.ApplicationModel.DataTransfer;
 
-namespace Greenshot.Plugin.Win10
+namespace Greenshot.Native.Internal
 {
-    /// <summary>
-    /// Description of Win10Configuration.
-    /// </summary>
-    [IniSection("Win10", Description = "Greenshot Win10 Plugin configuration")]
-    public class Win10Configuration : IniSection
+    internal class ShareInfo
     {
-        [IniProperty("AlwaysRunOCROnCapture", Description = "Determines if OCR is run automatically on every capture", DefaultValue = "False")]
-        public bool AlwaysRunOCROnCapture { get; set; }
+        public string ApplicationName { get; set; }
+        public bool AreShareProvidersRequested { get; set; }
+        public bool IsDeferredFileCreated { get; set; }
+        public DataPackageOperation CompletedWithOperation { get; set; }
+        public string AcceptedFormat { get; set; }
+        public bool IsDestroyed { get; set; }
+        public bool IsShareCompleted { get; set; }
+
+        public TaskCompletionSource<bool> ShareTask { get; } = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        public bool IsDataRequested { get; set; }
+
+        public IntPtr SharingHwnd { get; set; }
     }
 }

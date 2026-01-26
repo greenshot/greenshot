@@ -19,10 +19,8 @@
 
 using System;
 using System.Runtime.InteropServices;
-using Windows.ApplicationModel.DataTransfer;
-using Dapplo.Windows.Common.Enums;
 
-namespace Greenshot.Plugin.Win10.Native
+namespace Greenshot.Native
 {
     /// <summary>
     /// The IDataTransferManagerInterOp is documented here: https://msdn.microsoft.com/en-us/library/windows/desktop/jj542488(v=vs.85).aspx.
@@ -39,17 +37,12 @@ namespace Greenshot.Plugin.Win10.Native
         /// </summary>
         /// <param name="appWindow">The window handle</param>
         /// <param name="riid">ID of the DataTransferManager interface</param>
-        /// <param name="pDataTransferManager">The DataTransferManager instance for this window handle</param>
-        /// <returns>HRESULT</returns>
-        [PreserveSig]
-        HResult GetForWindow([In] IntPtr appWindow, [In] ref Guid riid, [Out] out DataTransferManager pDataTransferManager);
-
+        /// <param name="dataTransferManager">IntPtr dataTransferManager</param>
+        void GetForWindow([In] IntPtr appWindow, [In] ref Guid riid, out IntPtr dataTransferManager);
         /// <summary>
         /// Show the share flyout for the window identified by a window handle
         /// </summary>
         /// <param name="appWindow">The window handle</param>
-        /// <returns>HRESULT</returns>
-        [PreserveSig]
-        HResult ShowShareUIForWindow(IntPtr appWindow);
+        void ShowShareUIForWindow([In] IntPtr appWindow);
     }
 }

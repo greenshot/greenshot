@@ -110,7 +110,7 @@ namespace Greenshot.Editor.FileFormatHandlers
             }
             finally
             {
-                if (gcHandle == IntPtr.Zero)
+                if (gcHandle != IntPtr.Zero)
                 {
                     GCHandle.FromIntPtr(gcHandle).Free();
                 }
