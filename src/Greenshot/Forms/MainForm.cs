@@ -57,7 +57,6 @@ using Greenshot.Helpers;
 using Greenshot.Plugin.Win10;
 using Greenshot.Processors;
 using log4net;
-using Newtonsoft.Json;
 using Timer = System.Timers.Timer;
 
 namespace Greenshot.Forms
