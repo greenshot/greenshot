@@ -208,8 +208,8 @@ EndSelection:<<<<<<<4
         {
             lock (ClipboardLockObject)
             {
-                int retryCount = 2;
-                while (retryCount >= 0)
+                const int maxRetries = 3;
+                for (int attempt = 0; attempt < maxRetries; attempt++)
                 {
                     try
                     {
@@ -217,7 +217,8 @@ EndSelection:<<<<<<<4
                     }
                     catch (Exception ee)
                     {
-                        if (retryCount == 0)
+                        bool isLastAttempt = attempt == maxRetries - 1;
+                        if (isLastAttempt)
                         {
                             string messageText;
                             string clipboardOwner = GetClipboardOwner();
@@ -236,10 +237,6 @@ EndSelection:<<<<<<<4
                         {
                             Thread.Sleep(100);
                         }
-                    }
-                    finally
-                    {
-                        --retryCount;
                     }
                 }
             }
