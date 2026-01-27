@@ -29,7 +29,6 @@ using Dapplo.Confluence.Entities;
 using Dapplo.Confluence.Query;
 using Greenshot.Base.Core;
 using Greenshot.Base.IniFile;
-using Greenshot.Plugin.Confluence.Entities;
 
 namespace Greenshot.Plugin.Confluence
 {
@@ -77,14 +76,8 @@ namespace Greenshot.Plugin.Confluence
         {
             _url = url;
             var baseUri = new Uri(url);
-            _confluence = ConfluenceClient.Create(baseUri);
-            
             // Set up proxy if needed
-            var proxy = NetworkHelper.CreateProxy(baseUri);
-            if (proxy != null)
-            {
-                _confluence.Behaviour.HttpSettings.RequestConfiguration.Proxy = proxy;
-            }
+            _confluence = ConfluenceClient.Create(baseUri);
         }
 
         ~ConfluenceConnector()
@@ -232,7 +225,10 @@ namespace Greenshot.Plugin.Confluence
                 var pageTask = Task.Run(async () =>
                 {
                     var query = Where.And(Where.Type.IsPage, Where.Title.Is(pageTitle), Where.Space.Is(spaceKey));
-                    var searchResult = await _confluence.Content.SearchAsync(query, limit: 1);
+                    var searchResult = await _confluence.Content.SearchAsync(query, pagingInformation: new PagingInformation
+                    {
+                        Limit = 1
+                    });
                     return searchResult.Results.FirstOrDefault();
                 });
                 
@@ -282,9 +278,9 @@ namespace Greenshot.Plugin.Confluence
             var homePageTask = Task.Run(async () =>
             {
                 var space = await _confluence.Space.GetAsync(spaceSummary.Key);
-                if (space.Homepage != null)
+                if (space.HomepageId != 0)
                 {
-                    return await _confluence.Content.GetAsync(space.Homepage, ConfluenceClientConfig.ExpandGetContentWithStorage);
+                    return await _confluence.Content.GetAsync(space.HomepageId, ConfluenceClientConfig.ExpandGetContentWithStorage);
                 }
                 return null;
             });
@@ -302,7 +298,7 @@ namespace Greenshot.Plugin.Confluence
                 var allSpaces = new List<Dapplo.Confluence.Entities.Space>();
                 var spacesResult = await _confluence.Space.GetAllAsync();
                 
-                foreach (var space in spacesResult.Results)
+                foreach (var space in spacesResult)
                 {
                     allSpaces.Add(space);
                 }
@@ -327,9 +323,9 @@ namespace Greenshot.Plugin.Confluence
                 var children = new List<Content>();
                 var childrenResult = await _confluence.Content.GetChildrenAsync(parentPage.Id);
                 
-                if (childrenResult?.Page?.Results != null)
+                if (childrenResult?.Results != null)
                 {
-                    children.AddRange(childrenResult.Page.Results);
+                    children.AddRange(childrenResult.Results);
                 }
                 
                 return children;
@@ -376,7 +372,7 @@ namespace Greenshot.Plugin.Confluence
             var searchTask = Task.Run(async () =>
             {
                 var allPages = new List<Content>();
-                IClause whereClause;
+                IFinalClause whereClause;
                 
                 if (!string.IsNullOrEmpty(space))
                 {
@@ -387,12 +383,12 @@ namespace Greenshot.Plugin.Confluence
                     whereClause = Where.And(Where.Type.IsPage, Where.Text.Contains(query));
                 }
                 
-                var searchResult = await _confluence.Content.SearchAsync(whereClause, limit: 20);
+                var searchResult = await _confluence.Content.SearchAsync(whereClause, pagingInformation: new PagingInformation { Limit = 20 });
                 
                 foreach (var page in searchResult.Results)
                 {
                     Log.DebugFormat("Got result of type {0}", page.Type);
-                    if ("page".Equals(page.Type))
+                    if (page.Type == ContentTypes.Page)
                     {
                         allPages.Add(page);
                     }

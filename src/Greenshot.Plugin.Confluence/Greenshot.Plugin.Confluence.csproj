@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dapplo.Confluence" Version="1.0.17" />
+    <PackageReference Include="Dapplo.Confluence" Version="1.0.41" />
   </ItemGroup>
 
   <ItemGroup>
