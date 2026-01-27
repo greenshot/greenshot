@@ -37,10 +37,11 @@ namespace Greenshot.Base.Interfaces
         /// <summary>
         /// Get the only instance of the specified service
         /// </summary>
+        /// <remarks>It will throw an exception when more than one instance is found</remarks>
         /// <typeparam name="TService">Service to find</typeparam>
-        /// <param name="isRequired">If true, an exception is thrown if the service is not found.</param>
+        /// <param name="isOptional">If true, it won't throw an exception when the service is not found</param>
         /// <returns>TService</returns>
-        TService GetInstance<TService>(bool isRequired = false);
+        TService GetInstance<TService>(bool isOptional = false);
 
         /// <summary>
         /// Add one of more services to the registry

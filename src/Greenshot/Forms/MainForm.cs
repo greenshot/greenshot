@@ -616,8 +616,8 @@ namespace Greenshot.Forms
                         break;
                     case CommandEnum.FirstLaunch:
                         LOG.Info("FirstLaunch: Created new configuration, showing balloon.");
-                        var notifyIconClassicMessageHandler = SimpleServiceProvider.Current.GetInstance<INotificationService>(isRequired: false);
-                        notifyIconClassicMessageHandler?.ShowInfoMessage(
+                        var notifyIconClassicMessageHandler = SimpleServiceProvider.Current.GetInstance<INotificationService>();
+                        notifyIconClassicMessageHandler.ShowInfoMessage(
                             Language.GetFormattedString(LangKey.tooltip_firststart, HotkeyControl.GetLocalizedHotkeyStringFromString(_conf.RegionHotkey)), TimeSpan.FromMinutes(10),
                             ShowSetting);
                         break;

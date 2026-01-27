@@ -637,7 +637,7 @@ namespace Greenshot.Forms
 
                 // Make sure the current language & settings are reflected in the Main-context menu
                 var mainForm = SimpleServiceProvider.Current.GetInstance<MainForm>();
-                mainForm?.UpdateUi();
+                mainForm.UpdateUi();
                 DialogResult = DialogResult.OK;
             }
             else

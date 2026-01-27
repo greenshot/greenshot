@@ -32,7 +32,7 @@ namespace Greenshot.Base.Core
         }
 
         /// <inheritdoc/>
-        public TService GetInstance<TService>(bool isRequired = false)
+        public TService GetInstance<TService>(bool isOptional = false)
         {
             try
             {
@@ -47,7 +47,7 @@ namespace Greenshot.Base.Core
 
                 var instance = instances.FirstOrDefault();
 
-                if (isRequired && instance is null)
+                if (!isOptional && instance is null)
                 {
                     throw new InvalidOperationException(
                         $"No instance of {typeof(TService).FullName} found, but it is required."
