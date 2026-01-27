@@ -31,5 +31,6 @@
     <resource name="label_information">
       {0} är din skärmdumps filnamn
     </resource>
+    <resource name="label_outputimageformat">Bildformat</resource>
   </resources>
 </language>

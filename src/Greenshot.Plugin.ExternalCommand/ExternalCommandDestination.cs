@@ -27,6 +27,7 @@ using System.Drawing;
 using System.Text.RegularExpressions;
 using System.Threading;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.Enums;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
@@ -66,41 +67,63 @@ namespace Greenshot.Plugin.ExternalCommand
         public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
         {
             ExportInformation exportInformation = new ExportInformation(Designation, Description);
-            SurfaceOutputSettings outputSettings = new SurfaceOutputSettings();
-            outputSettings.PreventGreenshotFormat();
 
-            if (_presetCommand != null)
+            if (_presetCommand is null)
             {
-                if (!config.RunInbackground.ContainsKey(_presetCommand))
-                {
-                    config.RunInbackground.Add(_presetCommand, true);
-                }
+                exportInformation.ExportMade = false;
+                exportInformation.ErrorMessage = "No external commandconfigured";
+                LOG.Warn(exportInformation.ErrorMessage);
+                return exportInformation;
+            }
 
-                bool runInBackground = config.RunInbackground[_presetCommand];
-                string fullPath = captureDetails.Filename ?? ImageIO.SaveNamedTmpFile(surface, captureDetails, outputSettings);
+            // check if the command is still configured
+            if (!config.Commands.Contains(_presetCommand))
+            {
+                exportInformation.ExportMade = false;
+                exportInformation.ErrorMessage = $"Unknown external command '{_presetCommand}'";
+                LOG.WarnFormat("Error calling external command: {0} ", exportInformation.ErrorMessage);
+                return exportInformation;
+            }
 
-                string output;
-                string error;
-                if (runInBackground)
-                {
-                    Thread commandThread = new Thread(delegate()
-                    {
-                        CallExternalCommand(exportInformation, fullPath, out output, out error);
-                        ProcessExport(exportInformation, surface);
-                    })
-                    {
-                        Name = "Running " + _presetCommand,
-                        IsBackground = true
-                    };
-                    commandThread.SetApartmentState(ApartmentState.STA);
-                    commandThread.Start();
-                    exportInformation.ExportMade = true;
-                }
-                else
+            // fallback to PNG if configuration is corrupted
+            if (!config.OutputFormat.ContainsKey(_presetCommand))
+            {
+                config.OutputFormat.Add(_presetCommand,OutputFormat.png);
+                IniConfig.Save();
+            }
+
+            if (!config.RunInbackground.ContainsKey(_presetCommand))
+            {
+                config.RunInbackground.Add(_presetCommand, true);
+                IniConfig.Save();
+            }
+
+            SurfaceOutputSettings outputSettings = new SurfaceOutputSettings();
+            outputSettings.Format = config.OutputFormat[_presetCommand];
+            bool runInBackground = config.RunInbackground[_presetCommand];
+            string fullPath = captureDetails.Filename ?? ImageIO.SaveNamedTmpFile(surface, captureDetails, outputSettings);
+
+            string output;
+            string error;
+            if (runInBackground)
+            {
+                Thread commandThread = new Thread(delegate ()
                 {
                     CallExternalCommand(exportInformation, fullPath, out output, out error);
                     ProcessExport(exportInformation, surface);
-                }
+                })
+                {
+                    Name = "Running " + _presetCommand,
+                    IsBackground = true
+                };
+                commandThread.SetApartmentState(ApartmentState.STA);
+                commandThread.Start();
+                exportInformation.ExportMade = true;
+            }
+            else
+            {
+                CallExternalCommand(exportInformation, fullPath, out output, out error);
+                ProcessExport(exportInformation, surface);
             }
 
             return exportInformation;

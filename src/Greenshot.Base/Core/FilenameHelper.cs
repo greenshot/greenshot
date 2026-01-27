@@ -22,6 +22,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
@@ -152,13 +153,14 @@ namespace Greenshot.Base.Core
         /// <param name="userVars">Variables from the user</param>
         /// <param name="machineVars">Variables from the machine</param>
         /// <param name="filenameSafeMode"></param>
+        /// <param name="dateCultureMode">Which culture to use for date/time formatting</param>
         /// <returns>string with the match replacement</returns>
         private static string MatchVarEvaluator(Match match, ICaptureDetails captureDetails, IDictionary processVars, IDictionary userVars, IDictionary machineVars,
-            bool filenameSafeMode)
+            bool filenameSafeMode, DateCultureMode dateCultureMode = DateCultureMode.SystemLocale)
         {
             try
             {
-                return MatchVarEvaluatorInternal(match, captureDetails, processVars, userVars, machineVars, filenameSafeMode);
+                return MatchVarEvaluatorInternal(match, captureDetails, processVars, userVars, machineVars, filenameSafeMode, dateCultureMode);
             }
             catch (Exception e)
             {
@@ -177,9 +179,10 @@ namespace Greenshot.Base.Core
         /// <param name="userVars"></param>
         /// <param name="machineVars"></param>
         /// <param name="filenameSafeMode"></param>
+        /// <param name="dateCultureMode">Which culture to use for date/time formatting</param>
         /// <returns></returns>
         private static string MatchVarEvaluatorInternal(Match match, ICaptureDetails captureDetails, IDictionary processVars, IDictionary userVars, IDictionary machineVars,
-            bool filenameSafeMode)
+            bool filenameSafeMode, DateCultureMode dateCultureMode = DateCultureMode.SystemLocale)
         {
             // some defaults
             int padWidth = 0;
@@ -404,7 +407,7 @@ namespace Greenshot.Base.Core
                         replaceValue = capturetime.Second.ToString();
                         break;
                     case "now":
-                        replaceValue = DateTime.Now.ToString(dateFormat);
+                        replaceValue = DateTime.Now.ToString(dateFormat, GetDateFormatCulture(dateCultureMode));
                         if (filenameSafeMode)
                         {
                             replaceValue = MakeFilenameSafe(replaceValue);
@@ -412,7 +415,7 @@ namespace Greenshot.Base.Core
 
                         break;
                     case "capturetime":
-                        replaceValue = capturetime.ToString(dateFormat);
+                        replaceValue = capturetime.ToString(dateFormat, GetDateFormatCulture(dateCultureMode));
                         if (filenameSafeMode)
                         {
                             replaceValue = MakeFilenameSafe(replaceValue);
@@ -613,8 +616,9 @@ namespace Greenshot.Base.Core
         /// <param name="pattern">Pattern</param>
         /// <param name="captureDetails">CaptureDetails, can be null</param>
         /// <param name="filenameSafeMode">Should the result be made "filename" safe?</param>
+        /// <param name="dateCultureMode">Which culture to use for date/time formatting. Defaults to SystemLocale for backward compatibility.</param>
         /// <returns>Filled pattern</returns>
-        public static string FillPattern(string pattern, ICaptureDetails captureDetails, bool filenameSafeMode)
+        public static string FillPattern(string pattern, ICaptureDetails captureDetails, bool filenameSafeMode, DateCultureMode dateCultureMode = DateCultureMode.SystemLocale)
         {
             IDictionary processVars = null;
             IDictionary userVars = null;
@@ -649,7 +653,7 @@ namespace Greenshot.Base.Core
             try
             {
                 return VarRegexp.Replace(pattern,
-                    m => MatchVarEvaluator(m, captureDetails, processVars, userVars, machineVars, filenameSafeMode)
+                    m => MatchVarEvaluator(m, captureDetails, processVars, userVars, machineVars, filenameSafeMode, dateCultureMode)
                 );
             }
             catch (Exception e)
@@ -663,6 +667,20 @@ namespace Greenshot.Base.Core
                 e.Data.Add("pattern", pattern);
                 throw;
             }
+        }
+
+        /// <summary>
+        /// Gets the appropriate CultureInfo based on the DateCultureMode setting.
+        /// </summary>
+        /// <param name="mode">The date culture mode to use</param>
+        /// <returns>The CultureInfo to use for date formatting</returns>
+        private static CultureInfo GetDateFormatCulture(DateCultureMode mode)
+        {
+            return mode switch
+            {
+                DateCultureMode.UILanguage => CultureInfo.GetCultureInfo(Language.CurrentLanguage),
+                _ => CultureInfo.CurrentCulture
+            };
         }
 
         /// <summary>

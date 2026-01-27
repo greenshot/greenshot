@@ -25,6 +25,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.Enums;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
@@ -210,7 +211,7 @@ namespace Greenshot.Plugin.Office.Destinations
                 else
                 {
                     exportInformation.ExportMade = _outlookEmailExporter.ExportToOutlook(OfficeConfig.OutlookEmailFormat, tmpFile,
-                        FilenameHelper.FillPattern(OfficeConfig.EmailSubjectPattern, captureDetails, false), attachmentName, OfficeConfig.EmailTo, OfficeConfig.EmailCC,
+                        FilenameHelper.FillPattern(OfficeConfig.EmailSubjectPattern, captureDetails, false, DateCultureMode.UILanguage), attachmentName, OfficeConfig.EmailTo, OfficeConfig.EmailCC,
                         OfficeConfig.EmailBCC, null);
                 }
             }

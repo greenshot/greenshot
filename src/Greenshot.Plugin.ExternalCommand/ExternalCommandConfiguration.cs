@@ -23,6 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.Enums;
 using Greenshot.Base.IniFile;
 
 namespace Greenshot.Plugin.ExternalCommand
@@ -68,6 +69,9 @@ namespace Greenshot.Plugin.ExternalCommand
 
         [IniProperty("Argument", Description = "The arguments for the output command.")]
         public Dictionary<string, string> Argument { get; set; }
+
+        [IniProperty("OutputFormat", Description = "The output file format for the output command.")]
+        public Dictionary<string, OutputFormat> OutputFormat { get; set; }
 
         [IniProperty("RunInbackground", Description = "Should the command be started in the background.")]
         public Dictionary<string, bool> RunInbackground { get; set; }
@@ -166,6 +170,7 @@ namespace Greenshot.Plugin.ExternalCommand
                 nameof(Commandline) => new Dictionary<string, string>(),
                 nameof(Argument) => new Dictionary<string, string>(),
                 nameof(RunInbackground) => new Dictionary<string, bool>(),
+                nameof(OutputFormat) => new Dictionary<string, OutputFormat>(),
                 _ => null
             };
     }
