@@ -256,11 +256,10 @@ namespace Greenshot.Base.Core
                         menu.Tag = clickedDestination.Designation;
                         // Export
                         exportInformation = clickedDestination.ExportCapture(true, surface, captureDetails);
+                        menu.Close();
                         if (exportInformation != null && exportInformation.ExportMade)
                         {
                             Log.InfoFormat("Export to {0} success, closing menu", exportInformation.DestinationDescription);
-                            // close menu if the destination wasn't the editor
-                            menu.Close();
 
                             // Cleanup surface, only if there is no editor in the destinations and we didn't export to the editor
                             if (!captureDetails.HasDestination("Editor") && !"Editor".Equals(clickedDestination.Designation))
@@ -276,8 +275,7 @@ namespace Greenshot.Base.Core
                             // Make sure a click besides the menu don't close it.
                             menu.Tag = null;
 
-                            // This prevents the problem that the context menu shows in the task-bar
-                            ShowMenuAtCursor(menu);
+                            ShowPickerMenu(addDynamics, surface, captureDetails, destinations);
                         }
                     }
                 );
