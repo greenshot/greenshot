@@ -131,14 +131,16 @@ namespace Greenshot.Plugin.Confluence.Forms
                         try
                         {
                             Page page = _confluenceConnector.GetSpaceHomepage(space);
-                            TreeViewItem pageTreeViewItem = new TreeViewItem
-                            {
-                                Header = page.Title,
-                                Tag = page
-                            };
-                            pageTreeViewItem.PreviewMouseDoubleClick += PageTreeViewItem_DoubleClick;
-                            pageTreeViewItem.PreviewMouseLeftButtonDown += PageTreeViewItem_Click;
-                            spaceTreeViewItem.Items.Add(pageTreeViewItem);
+                            if (page != null) {
+                                TreeViewItem pageTreeViewItem = new TreeViewItem
+                                {
+                                    Header = page.Title,
+                                    Tag = page
+                                };
+                                pageTreeViewItem.PreviewMouseDoubleClick += PageTreeViewItem_DoubleClick;
+                                pageTreeViewItem.PreviewMouseLeftButtonDown += PageTreeViewItem_Click;
+                                spaceTreeViewItem.Items.Add(pageTreeViewItem);
+                            }
                             ConfluenceTreeView.Items.Add(spaceTreeViewItem);
                         }
                         catch (Exception ex)
