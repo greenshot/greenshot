@@ -566,6 +566,12 @@ namespace Greenshot.Editor.Drawing
             if (disposing)
             {
                 LOG.Debug("Disposing surface!");
+                if (_image != null)
+                {
+                    _image.Dispose();
+                    _image = null;
+                }
+
                 if (_buffer != null)
                 {
                     _buffer.Dispose();
