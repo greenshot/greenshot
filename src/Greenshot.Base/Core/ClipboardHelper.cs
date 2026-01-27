@@ -447,16 +447,21 @@ EndSelection:<<<<<<<4
                 try
                 {
                     fileData = FileDescriptorReader.GetFileContents(dataObject, fileIndex);
-                    //Do something with the fileContent Stream
                 }
                 catch (Exception ex)
                 {
                     Log.Error($"Couldn't read file contents for {fileDescriptor.FileName}.", ex);
                 }
+
                 if (fileData?.Length > 0)
                 {
                     fileData.Position = 0;
                     yield return (fileData, fileDescriptor.FileName);
+                }
+                else
+                {
+                    // Dispose the stream if it won't be yielded (empty or null length)
+                    fileData?.Dispose();
                 }
 
                 fileIndex++;
