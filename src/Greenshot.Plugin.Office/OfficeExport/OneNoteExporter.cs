@@ -144,7 +144,31 @@ namespace Greenshot.Plugin.Office.OfficeExport
             var oneNoteApplication = GetOneNoteApplication();
             if (oneNoteApplication == null)
             {
-                oneNoteApplication = DisposableCom.Create(new Application());
+                try
+                {
+                    // Try to get the type from ProgID for more reliable COM instantiation
+                    var oneNoteType = Type.GetTypeFromProgID("OneNote.Application");
+                    if (oneNoteType != null)
+                    {
+                        var oneNoteObject = Activator.CreateInstance(oneNoteType);
+                        oneNoteApplication = DisposableCom.Create((Application)oneNoteObject);
+                        LOG.Debug("Created new OneNote.Application instance using Type.GetTypeFromProgID");
+                    }
+                    else
+                    {
+                        LOG.Warn("Could not get type for OneNote.Application from ProgID");
+                    }
+                }
+                catch (COMException comEx)
+                {
+                    LOG.Error($"Failed to create OneNote.Application instance. Error code: 0x{comEx.ErrorCode:X}", comEx);
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    LOG.Error("Failed to create OneNote.Application instance", ex);
+                    throw;
+                }
             }
 
             return oneNoteApplication;
