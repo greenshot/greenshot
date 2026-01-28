@@ -27,6 +27,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.ServiceModel.Security;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Greenshot.Base.Core;
 using Greenshot.Helpers;
@@ -616,15 +617,22 @@ internal class SafeSerializationBinder : SerializationBinder
 
     public override Type BindToType(string assemblyName, string typeName)
     {
+        // Remove Version information for supplied assembly / type
+        var assemblyNameWithoutVersion = Regex.Replace(assemblyName, @"Version=\d+\.\d+\.\d+\.\d+", "", RegexOptions.Multiline);
+        var typeNameWithoutVersion = Regex.Replace(typeName, @"Version=\d+\.\d+\.\d+\.\d+", "", RegexOptions.Multiline);
+
         foreach (var type in AllowedTypes)
         {
-            if (type.FullName == typeName && type.Assembly.FullName == assemblyName)
+            // Remove Version information for allowed assembly / type
+            var currentTypeAssemblyNameWithoutVersion = Regex.Replace(type.Assembly.FullName, @"Version=\d+\.\d+\.\d+\.\d+", "");
+            var currentTypeNameWithoutVersion = Regex.Replace(type.FullName, @"Version=\d+\.\d+\.\d+\.\d+", "");
+            if (currentTypeNameWithoutVersion == typeNameWithoutVersion && currentTypeAssemblyNameWithoutVersion == assemblyNameWithoutVersion)
             {
                 return type;
             }
         }
 
-        LOG.Warn($"Unexpected type received via WM_COPYDATA, a malicious process might be trying to attack. Cancelling deserialization. Suspicious type: {assemblyName} - {typeName}");
+        LOG.Error($"Unexpected type received via WM_COPYDATA, a malicious process might be trying to attack. Cancelling deserialization. Suspicious type: {assemblyName} - {typeName}");
         throw new SecurityAccessDeniedException($"Suspicious type received via WM_COPYDATA: {assemblyName} - {typeName}");
     }
 }
