@@ -170,18 +170,16 @@ namespace Greenshot.Plugin.Office.OfficeExport
                     }
                     else
                     {
-                        LOG.Warn("Could not get type for OneNote.Application from ProgID");
+                        LOG.Warn("Could not get type for OneNote.Application from ProgID. OneNote may not be installed or registered for COM automation.");
                     }
                 }
                 catch (COMException comEx)
                 {
-                    LOG.Error($"Failed to create OneNote.Application instance. Error code: 0x{comEx.ErrorCode:X}", comEx);
-                    throw;
+                    LOG.Error($"Failed to create OneNote.Application instance. Error code: 0x{comEx.ErrorCode:X}. OneNote may not be installed or available.", comEx);
                 }
                 catch (Exception ex)
                 {
-                    LOG.Error("Failed to create OneNote.Application instance", ex);
-                    throw;
+                    LOG.Error("Failed to create OneNote.Application instance. OneNote may not be installed or available.", ex);
                 }
             }
 
