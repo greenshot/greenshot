@@ -86,17 +86,24 @@ namespace Greenshot.Base.Core
                 capture = new Capture();
             }
 
-            Bitmap cursorBitmap;
-            NativePoint cursorHotSpot;
-            if (CursorHelper.TryGetCurrentCursor(out cursorBitmap, out cursorHotSpot))
+            try
             {
-                NativePoint cursorLocation = User32Api.GetCursorLocation();
-                // Align cursor location to Bitmap coordinates (instead of Screen coordinates)
-                var x = cursorLocation.X - cursorHotSpot.X - capture.ScreenBounds.X;
-                var y = cursorLocation.Y - cursorHotSpot.Y - capture.ScreenBounds.Y;
-                // Set the location
-                capture.CursorLocation = new NativePoint(x, y);
-                capture.Cursor = cursorBitmap;
+                Bitmap cursorBitmap;
+                NativePoint cursorHotSpot;
+                if (CursorHelper.TryGetCurrentCursor(out cursorBitmap, out cursorHotSpot))
+                {
+                    NativePoint cursorLocation = User32Api.GetCursorLocation();
+                    // Align cursor location to Bitmap coordinates (instead of Screen coordinates)
+                    var x = cursorLocation.X - cursorHotSpot.X - capture.ScreenBounds.X;
+                    var y = cursorLocation.Y - cursorHotSpot.Y - capture.ScreenBounds.Y;
+                    // Set the location
+                    capture.CursorLocation = new NativePoint(x, y);
+                    capture.Cursor = cursorBitmap;
+                }
+            }
+            catch (System.ComponentModel.Win32Exception ex)
+            {
+                Log.Warn("Failed to capture cursor, proceeding without cursor.", ex);
             }
             return capture;
         }
