@@ -448,7 +448,7 @@ namespace Greenshot.Forms
             PluginHelper.Instance.LoadPlugins();
 
             // Check to see if there is already another INotificationService
-            if (SimpleServiceProvider.Current.GetInstance<INotificationService>() == null)
+            if (!SimpleServiceProvider.Current.GetAllInstances<INotificationService>().Any())
             {
                 // If not we add the internal NotifyIcon notification service
                 SimpleServiceProvider.Current.AddService<INotificationService>(new NotifyIconNotificationService());

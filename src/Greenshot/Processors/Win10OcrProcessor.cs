@@ -55,7 +55,7 @@ namespace Greenshot.Processors
                 return false;
             }
 
-            var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>();
+            var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>(isOptional: true);
 
             if (ocrProvider == null)
             {
