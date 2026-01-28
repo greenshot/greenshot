@@ -54,10 +54,17 @@ namespace Greenshot.Plugin.Office.OfficeExport
         public bool ExportToNewPage(ISurface surfaceToUpload)
         {
             using var oneNoteApplication = GetOrCreateOneNoteApplication();
+            if (oneNoteApplication == null)
+            {
+                LOG.Error("Failed to get or create OneNote application instance");
+                return false;
+            }
+
             var newPage = new OneNotePage();
             string unfiledNotesSectionId = GetSectionId(oneNoteApplication, SpecialLocation.slUnfiledNotesSection);
             if (unfiledNotesSectionId == null)
             {
+                LOG.Error("Failed to get unfiled notes section ID");
                 return false;
             }
 
@@ -78,6 +85,12 @@ namespace Greenshot.Plugin.Office.OfficeExport
         public bool ExportToPage(ISurface surfaceToUpload, OneNotePage page)
         {
             using var oneNoteApplication = GetOrCreateOneNoteApplication();
+            if (oneNoteApplication == null)
+            {
+                LOG.Error("Failed to get or create OneNote application instance");
+                return false;
+            }
+
             return ExportToPage(oneNoteApplication, surfaceToUpload, page);
         }
 
@@ -92,6 +105,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
         {
             if (oneNoteApplication == null)
             {
+                LOG.Error("OneNote application instance is null");
                 return false;
             }
 
