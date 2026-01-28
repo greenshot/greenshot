@@ -174,7 +174,7 @@ namespace Greenshot.Plugin.Confluence
                     {
                         try
                         {
-                            Process.Start(selectedPage.Url);
+                            Process.Start(new ProcessStartInfo(selectedPage.Url) { UseShellExecute = true });
                         }
                         catch
                         {

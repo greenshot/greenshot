@@ -38,7 +38,7 @@ namespace Greenshot.Base.Help
         public static void LoadHelp()
         {
             string uri = FindOnlineHelpUrl(Language.CurrentLanguage) ?? Language.HelpFilePath;
-            Process.Start(uri);
+            Process.Start(new ProcessStartInfo(uri) { UseShellExecute = true });
         }
 
         /// <returns>URL of help file in selected ietf, or (if not present) default ietf, or null (if not present, too. probably indicating that there is no internet connection)</returns>

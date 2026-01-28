@@ -126,7 +126,9 @@ namespace Greenshot.Helpers
                     byte[] data = new byte[cds.cbData];
                     Marshal.Copy(cds.lpData, data, 0, cds.cbData);
                     MemoryStream stream = new MemoryStream(data);
+#pragma warning disable SYSLIB0011
                     BinaryFormatter b = new BinaryFormatter();
+#pragma warning restore SYSLIB0011
                     b.Binder = new SafeSerializationBinder();
                     CopyDataObjectData cdo = (CopyDataObjectData) b.Deserialize(stream);
 
@@ -443,7 +445,9 @@ namespace Greenshot.Helpers
             // Try to do a binary serialization on obj.
             // This will throw and exception if the object to
             // be passed isn't serializable.
+#pragma warning disable SYSLIB0011
             BinaryFormatter b = new BinaryFormatter();
+#pragma warning restore SYSLIB0011
             MemoryStream stream = new MemoryStream();
             b.Serialize(stream, cdo);
             stream.Flush();

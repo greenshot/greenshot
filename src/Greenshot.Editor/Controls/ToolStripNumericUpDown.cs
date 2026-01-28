@@ -37,30 +37,35 @@ namespace Greenshot.Editor.Controls
 
         public NumericUpDown NumericUpDown => Control as NumericUpDown;
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public decimal Value
         {
             get { return NumericUpDown.Value; }
             set { NumericUpDown.Value = value; }
         }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public decimal Minimum
         {
             get { return NumericUpDown.Minimum; }
             set { NumericUpDown.Minimum = value; }
         }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public decimal Maximum
         {
             get { return NumericUpDown.Maximum; }
             set { NumericUpDown.Maximum = value; }
         }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public decimal Increment
         {
             get { return NumericUpDown.Increment; }
             set { NumericUpDown.Increment = value; }
         }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int DecimalPlaces
         {
             get { return NumericUpDown.DecimalPlaces; }

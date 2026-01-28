@@ -25,6 +25,7 @@ using System.Drawing.Imaging;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
+using System.ComponentModel;
 
 namespace Greenshot.Editor.Forms
 {
@@ -44,6 +45,7 @@ namespace Greenshot.Editor.Forms
             Click += ToolStripButton1Click;
         }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public Color Color
         {
             set

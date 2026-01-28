@@ -53,7 +53,9 @@ namespace Greenshot.Base.Core
                 return default;
             }
 
+#pragma warning disable SYSLIB0011
             IFormatter formatter = new BinaryFormatter();
+#pragma warning restore SYSLIB0011
             using var stream = new MemoryStream();
             formatter.Serialize(stream, source);
             stream.Seek(0, SeekOrigin.Begin);

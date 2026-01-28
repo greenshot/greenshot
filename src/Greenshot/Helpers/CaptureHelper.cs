@@ -42,6 +42,7 @@ using Greenshot.Configuration;
 using Greenshot.Editor.Destinations;
 using Greenshot.Editor.Drawing;
 using Greenshot.Forms;
+using ScreenCaptureMode = Greenshot.Base.Interfaces.ScreenCaptureMode;
 
 namespace Greenshot.Helpers
 {
@@ -608,7 +609,7 @@ namespace Greenshot.Helpers
                         ExplorerHelper.OpenInExplorer(surface.LastSaveFullPath);
                         break;
                     case SurfaceMessageTyp.UploadedUri:
-                        Process.Start(surface.UploadUrl);
+                        Process.Start(new ProcessStartInfo(surface.UploadUrl) { UseShellExecute = true });
                         break;
                 }
             }

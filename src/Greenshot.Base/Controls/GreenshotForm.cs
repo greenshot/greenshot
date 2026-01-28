@@ -21,12 +21,12 @@
 
 
 #if DEBUG
-using System.ComponentModel;
 using System.ComponentModel.Design;
 using System.IO;
 #endif
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Reflection;
 using System.Windows.Forms;
 using Greenshot.Base.Core;
@@ -67,6 +67,7 @@ namespace Greenshot.Base.Controls
 #if DEBUG
         [Category("Greenshot"), DefaultValue(null), Description("Specifies key of the language file to use when displaying the text.")]
 #endif
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string LanguageKey { get; set; }
 
 #if DEBUG

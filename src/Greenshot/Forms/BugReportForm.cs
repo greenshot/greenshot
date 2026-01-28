@@ -53,7 +53,7 @@ namespace Greenshot.Forms
             try
             {
                 link.LinkVisited = true;
-                Process.Start(link.Text);
+                Process.Start(new ProcessStartInfo(link.Text) { UseShellExecute = true });
             }
             catch (Exception)
             {

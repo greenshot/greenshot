@@ -27,7 +27,7 @@ namespace Greenshot.Base.Core
                 // Check if path is a directory
                 if (Directory.Exists(path))
                 {
-                    using (Process.Start(path))
+                    using (Process.Start(new ProcessStartInfo(path) { UseShellExecute = true }))
                     {
                         return true;
                     }
@@ -37,7 +37,7 @@ namespace Greenshot.Base.Core
                 if (File.Exists(path))
                 {
                     // Start the explorer process and select the file
-                    using var explorer = Process.Start("explorer.exe", $"/select,\"{path}\"");
+                    using var explorer = Process.Start(new ProcessStartInfo("explorer.exe", $"/select,\"{path}\"") { UseShellExecute = true });
                     explorer?.WaitForInputIdle(500);
                     return true;
                 }
