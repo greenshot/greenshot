@@ -218,7 +218,7 @@ Controleer de toegangsrechten voor de betreffende locatie.</resource>
 		<resource name="settings_destination_email">E-mail</resource>
 		<resource name="settings_destination_file">Direct opslaan (Onderstaande instellingen gebruiken)</resource>
 		<resource name="settings_destination_fileas">Opslaan als… (via dialoog)</resource>
-		<resource name="settings_destination_picker">Bestemming interactief selecteren</resource>
+		<resource name="settings_destination_picker">Vraag elke keer om bestemming</resource>
 		<resource name="settings_destination_printer">Naar printer</resource>
 		<resource name="settings_editor">Beeldbewerker</resource>
 		<resource name="settings_filenamepattern">Bestandsnaam</resource>

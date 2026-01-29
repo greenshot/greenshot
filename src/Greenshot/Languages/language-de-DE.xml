@@ -221,7 +221,7 @@ Bitte überprüfen Sie die Schreibrechte oder wählen Sie einen anderen Speicher
 		<resource name="settings_destination_email">E-Mail</resource>
 		<resource name="settings_destination_file">Sofort speichern</resource>
 		<resource name="settings_destination_fileas">Speichern unter... (mit Dialog)</resource>
-		<resource name="settings_destination_picker">Ziel dynamisch auswählen</resource>
+		<resource name="settings_destination_picker">Jedes Mal nach Ziel fragen</resource>
 		<resource name="settings_destination_printer">An Drucker senden</resource>
 		<resource name="settings_editor">Editor</resource>
 		<resource name="settings_filenamepattern">Dateinamensmuster</resource>
