@@ -83,10 +83,10 @@ namespace Greenshot.Helpers
         {
             if (disposing)
             {
-                // Cleanup
+                // Dispose the capture if it hasn't been disposed in another code path
+                _capture?.Dispose();
             }
 
-            // Unfortunately we can't dispose the capture, this might still be used somewhere else.
             _windows = null;
             _selectedCaptureWindow = null;
             _capture = null;
