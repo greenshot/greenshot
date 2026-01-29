@@ -1062,8 +1062,8 @@ namespace Greenshot.Forms
                     Size measureHeight = TextRenderer.MeasureText(captureHeight, rulerFont);
                     int hSpace = measureWidth.Width + 3;
                     int vSpace = measureHeight.Height + 3;
-                    Brush bgBrush = new SolidBrush(Color.FromArgb(200, 217, 240, 227));
-                    Pen rulerPen = new Pen(Color.SeaGreen);
+                    using Brush bgBrush = new SolidBrush(Color.FromArgb(200, 217, 240, 227));
+                    using Pen rulerPen = new Pen(Color.SeaGreen);
 
                     // horizontal ruler
                     if (fixedRect.Width > hSpace + 3)
@@ -1100,9 +1100,6 @@ namespace Greenshot.Forms
                         graphics.DrawLine(rulerPen, fixedRect.X - dist - 3, fixedRect.Y, fixedRect.X - dist + 3, fixedRect.Y);
                         graphics.DrawLine(rulerPen, fixedRect.X - dist - 3, fixedRect.Y + fixedRect.Height, fixedRect.X - dist + 3, fixedRect.Y + fixedRect.Height);
                     }
-
-                    rulerPen.Dispose();
-                    bgBrush.Dispose();
                 }
 
                 // Display size of selected rectangle
