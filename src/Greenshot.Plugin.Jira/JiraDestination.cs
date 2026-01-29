@@ -43,9 +43,9 @@ namespace Greenshot.Plugin.Jira
     {
         private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(JiraDestination));
         private static readonly JiraConfiguration Config = IniConfig.GetIniSection<JiraConfiguration>();
-        private readonly Issue _jiraIssue;
+        private readonly IssueV2 _jiraIssue;
 
-        public JiraDestination(Issue jiraIssue = null)
+        public JiraDestination(IssueV2 jiraIssue = null)
         {
             _jiraIssue = jiraIssue;
         }

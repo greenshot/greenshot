@@ -450,7 +450,7 @@ namespace Greenshot.Base.Core
         public const int MAX_CAPTION_LENGTH = 100;
         public const int MAX_GENERIC_TARGET_LENGTH = 100;
         public const int MAX_USERNAME_LENGTH = 100;
-        public const int MAX_PASSWORD_LENGTH = 100;
+        public const int MAX_PASSWORD_LENGTH = 300;
 
         /// <summary>
         /// https://www.pinvoke.net/default.aspx/Enums.CREDUI_FLAGS

@@ -20,8 +20,12 @@
  */
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Dapplo.HttpExtensions;
+using Dapplo.HttpExtensions.WinForms.ContentConverter;
+using Dapplo.Jira.SvgWinForms.Converters;
 using Dapplo.Log;
 using Greenshot.Base.Core;
 using Greenshot.Base.IniFile;
@@ -76,6 +80,12 @@ namespace Greenshot.Plugin.Jira
             SimpleServiceProvider.Current.AddService(new JiraConnector());
             // Provide the IDestination
             SimpleServiceProvider.Current.AddService<IDestination>(new JiraDestination());
+
+            if (HttpExtensionsGlobals.HttpContentConverters.All(x => x.GetType() != typeof(SvgBitmapHttpContentConverter)))
+            {
+                HttpExtensionsGlobals.HttpContentConverters.Add(SvgBitmapHttpContentConverter.Instance.Value);
+            }
+            BitmapHttpContentConverter.RegisterGlobally();
 
             // Make sure the log is enabled for the correct level.
             if (Log.IsDebugEnabled)

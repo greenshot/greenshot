@@ -235,7 +235,7 @@ namespace Greenshot.Plugin.Jira
         /// <param name="issueKey">Jira issue key</param>
         /// <param name="cancellationToken">CancellationToken</param>
         /// <returns>Issue</returns>
-        public async Task<Issue> GetIssueAsync(string issueKey, CancellationToken cancellationToken = default)
+        public async Task<IssueV2> GetIssueAsync(string issueKey, CancellationToken cancellationToken = default)
         {
             await CheckCredentialsAsync(cancellationToken);
             try
@@ -299,7 +299,7 @@ namespace Greenshot.Plugin.Jira
         /// <param name="issue">Issue</param>
         /// <param name="cancellationToken">CancellationToken</param>
         /// <returns>Bitmap</returns>
-        public async Task<Bitmap> GetIssueTypeBitmapAsync(Issue issue, CancellationToken cancellationToken = default)
+        public async Task<Bitmap> GetIssueTypeBitmapAsync(IssueV2 issue, CancellationToken cancellationToken = default)
         {
             return await _issueTypeBitmapCache.GetOrCreateAsync(issue.Fields.IssueType, cancellationToken).ConfigureAwait(false);
         }
