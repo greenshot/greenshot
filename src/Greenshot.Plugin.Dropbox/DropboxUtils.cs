@@ -47,7 +47,7 @@ namespace Greenshot.Plugin.Dropbox
         {
             var oauth2Settings = new OAuth2Settings
             {
-                AuthUrlPattern = "https://api.dropbox.com/oauth2/authorize?response_type=token&client_id={ClientId}&state={State}&redirect_uri={RedirectUrl}",
+                AuthUrlPattern = "https://www.dropbox.com/oauth2/authorize?client_id={ClientId}&response_type=code&state={State}&redirect_uri={RedirectUrl}&token_access_type=offline",
                 TokenUrl = "https://api.dropbox.com/oauth2/token",
                 RedirectUrl = "https://getgreenshot.org/authorize/dropbox",
                 CloudServiceName = "Dropbox",

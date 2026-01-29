@@ -62,6 +62,9 @@ namespace Greenshot.Base.Core.OAuth
                     ClientSecret, settings.ClientSecret
                 },
                 {
+                    RedirectUri, settings.RedirectUrl
+                },
+                {
                     GrantType, AuthorizationCode
                 }
             };
