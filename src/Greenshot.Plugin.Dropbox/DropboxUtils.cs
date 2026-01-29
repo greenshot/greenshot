@@ -75,10 +75,16 @@ namespace Greenshot.Plugin.Dropbox
                         "path", "/" + filename.Replace(Path.DirectorySeparatorChar, '\\')
                     }
                 };
+
+                var serializerSettings = new JsonSerializerSettings();
+                serializerSettings.StringEscapeHandling = StringEscapeHandling.EscapeNonAscii;
+
+                var encodedArgs = JsonConvert.SerializeObject(arguments, serializerSettings);
+                encodedArgs = encodedArgs.Replace("\x7F", "\\u007f");
                 IDictionary<string, object> headers = new Dictionary<string, object>
                 {
                     {
-                        "Dropbox-API-Arg", JsonConvert.SerializeObject(arguments)
+                        "Dropbox-API-Arg", encodedArgs
                     }
                 };
                 var webRequest = OAuth2Helper.CreateOAuth2WebRequest(HTTPMethod.POST, "https://content.dropboxapi.com/2/files/upload", oauth2Settings);
