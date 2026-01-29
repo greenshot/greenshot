@@ -19,7 +19,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 using Greenshot.Editor.Drawing.Fields;
-using MessagePack;
 using System.Text.Json.Serialization;
 
 namespace Greenshot.Editor.FileFormat.Dto.Fields;
@@ -27,7 +26,6 @@ namespace Greenshot.Editor.FileFormat.Dto.Fields;
 /// <summary>
 /// This is a specific Dto to support serialization for the possible types in <see cref="Field.Value"/>
 /// </summary>
-[MessagePackObject]
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "$type")]
 [JsonDerivedType(typeof(NullFieldValueDto),"Null")]
 [JsonDerivedType(typeof(IntFieldValueDto), "Int")]
@@ -41,18 +39,6 @@ namespace Greenshot.Editor.FileFormat.Dto.Fields;
 [JsonDerivedType(typeof(FieldFlagFieldValueDto), "FieldFlag")]
 [JsonDerivedType(typeof(PreparedFilterFieldValueDto), "PreparedFilter")]
 [JsonDerivedType(typeof(StringAlignmentFieldValueDto), "StringAlignment")]
-[Union(0, typeof(NullFieldValueDto))]
-[Union(1, typeof(IntFieldValueDto))]
-[Union(2, typeof(StringFieldValueDto))]
-[Union(3, typeof(BoolFieldValueDto))]
-[Union(4, typeof(SingleFieldValueDto))]
-[Union(5, typeof(DoubleFieldValueDto))]
-[Union(6, typeof(DecimalFieldValueDto))]
-[Union(7, typeof(ColorFieldValueDto))]
-[Union(8, typeof(ArrowHeadCombinationFieldValueDto))]
-[Union(9, typeof(FieldFlagFieldValueDto))]
-[Union(10, typeof(PreparedFilterFieldValueDto))]
-[Union(11, typeof(StringAlignmentFieldValueDto))]
 public abstract class FieldValueDto
 {
     public abstract object GetValue();

@@ -19,7 +19,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 using System.Drawing;
-using MessagePack;
 using System.Text.Json.Serialization;
 
 namespace Greenshot.Editor.FileFormat.Dto.Fields;
@@ -27,18 +26,14 @@ namespace Greenshot.Editor.FileFormat.Dto.Fields;
 /// <summary>
 /// Represents a field value that stores color information.
 /// </summary>
-[MessagePackObject(AllowPrivate = true)]
-// This needs to be a partial class to support private properties with MessagePack serialization
-public sealed partial class ColorFieldValueDto : FieldValueDto
+public sealed class ColorFieldValueDto : FieldValueDto
 {
     /// <summary>
     /// Color stored as a string in HTML format (e.g., "#AARRGGBB").
     /// </summary>
-    [Key(105)]
     [JsonInclude]
     private string Color { get; set; }
 
-    [IgnoreMember]
     [JsonIgnore]
     public Color Value
     {

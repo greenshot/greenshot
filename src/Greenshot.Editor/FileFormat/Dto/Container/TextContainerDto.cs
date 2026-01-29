@@ -18,13 +18,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-using MessagePack;
 
 namespace Greenshot.Editor.FileFormat.Dto.Container;
 
-[MessagePackObject]
 public sealed class TextContainerDto : DrawableContainerDto
 {
-    [Key(100)]
     public string Text { get; set; } = string.Empty;
 }

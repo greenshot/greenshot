@@ -19,14 +19,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 using Greenshot.Editor.Drawing;
-using MessagePack;
 
 namespace Greenshot.Editor.FileFormat.Dto.Container;
 
 /// <summary>
 /// Data transfer object to serialize <see cref="LineContainer"/> objects.
 /// </summary>
-[MessagePackObject]
 public sealed class LineContainerDto : DrawableContainerDto
 {
 }

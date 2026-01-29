@@ -24,7 +24,6 @@ using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.FileFormat.Dto.Container;
 using Greenshot.Editor.Forms;
-using MessagePack;
 
 namespace Greenshot.Editor.FileFormat.Dto;
 
@@ -77,7 +76,8 @@ public static class DtoHelper
     public static byte[] SerializeDrawableContainerList(DrawableContainerList drawableContainerList)
     {
         var dto = ConvertDomainToDto.ToDto(drawableContainerList);
-        return MessagePackSerializer.Serialize(dto);
+        throw new System.Exception("DTO serialization is disabled temporarily - to be fixed later ");
+        return null;  //MessagePackSerializer.Serialize(dto);
     }
 
     /// <summary>
@@ -90,7 +90,8 @@ public static class DtoHelper
     /// <param name="data">A byte array containing the serialized representation of the <see cref="DrawableContainerListDto"/>.</param>
     public static DrawableContainerList DeserializeDrawableContainerList(byte[] data)
     {
-        var dto = MessagePackSerializer.Deserialize<DrawableContainerListDto>(data);
+        var dto = new DrawableContainerListDto();// MessagePackSerializer.Deserialize<DrawableContainerListDto>(data);
+        throw new System.Exception("DTO serialization is disabled temporarily - to be fixed later ");
         return ConvertDtoToDomain.ToDomain(dto);
     }
 }

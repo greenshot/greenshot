@@ -25,7 +25,6 @@ using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing.Fields;
 using Greenshot.Editor.FileFormat.Dto;
 using Greenshot.Editor.FileFormat.Dto.Fields;
-using MessagePack;
 using Xunit;
 using static Greenshot.Editor.Drawing.ArrowContainer;
 using static Greenshot.Editor.Drawing.FilterContainer;
@@ -64,8 +63,9 @@ public class FieldValueSerializationTests
     {
         // Act
         var dto = ConvertDomainToDto.ConvertValueToDto(value);
-        var serialized = MessagePackSerializer.Serialize(dto);
-        var deserializedDto = MessagePackSerializer.Deserialize<FieldValueDto>(serialized);
+        //var serialized = MessagePackSerializer.Serialize(dto);
+        var deserializedDto = dto;// MessagePackSerializer.Deserialize<FieldValueDto>(serialized);
+        Assert.Fail("Temporarily disabled serialization test - to be fixed later");
         var result = ConvertDtoToDomain.ConvertDtoToValue(deserializedDto);
 
         // Assert
@@ -85,8 +85,9 @@ public class FieldValueSerializationTests
 
         // Act
         var dto = ConvertDomainToDto.ConvertValueToDto(redColor);
-        var serialized = MessagePackSerializer.Serialize(dto);
-        var deserializedDto = MessagePackSerializer.Deserialize<FieldValueDto>(serialized);
+        //var serialized = MessagePackSerializer.Serialize(dto);
+        var deserializedDto = dto;// MessagePackSerializer.Deserialize<FieldValueDto>(serialized);
+        Assert.Fail("Temporarily disabled serialization test - to be fixed later");
         var result = ConvertDtoToDomain.ConvertDtoToValue(deserializedDto);
 
         // Assert
@@ -101,8 +102,9 @@ public class FieldValueSerializationTests
     {
         // Act
         var dto = ConvertDomainToDto.ConvertValueToDto(null);
-        var serialized = MessagePackSerializer.Serialize(dto);
-        var deserializedDto = MessagePackSerializer.Deserialize<FieldValueDto>(serialized);
+        //var serialized = MessagePackSerializer.Serialize(dto);
+        var deserializedDto = dto;// MessagePackSerializer.Deserialize<FieldValueDto>(serialized);
+        Assert.Fail("Temporarily disabled serialization test - to be fixed later");
         var result = ConvertDtoToDomain.ConvertDtoToValue(deserializedDto);
 
         // Assert

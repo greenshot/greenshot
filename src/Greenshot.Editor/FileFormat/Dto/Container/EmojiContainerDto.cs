@@ -19,7 +19,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 using Greenshot.Editor.Drawing.Emoji;
-using MessagePack;
 
 namespace Greenshot.Editor.FileFormat.Dto.Container;
 
@@ -27,12 +26,9 @@ namespace Greenshot.Editor.FileFormat.Dto.Container;
 /// Data transfer object to serialize <see cref="EmojiContainer"/> objects.
 /// Simplified version that supports properties from <see cref="VectorGraphicsContainer"/> as well.
 /// </summary>
-[MessagePackObject]
 public sealed class EmojiContainerDto : DrawableContainerDto
 {
-    [Key(101)]
     public string Emoji { get; set; }
 
-    [Key(100)]
     public int RotationAngle { get; set; }
 }

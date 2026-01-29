@@ -18,15 +18,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-using MessagePack;
 using static Greenshot.Editor.Drawing.ArrowContainer;
 
 namespace Greenshot.Editor.FileFormat.Dto.Fields;
 
-[MessagePackObject]
 public sealed class ArrowHeadCombinationFieldValueDto : FieldValueDto
 {
-    [Key(100)]
     public ArrowHeadCombination Value { get; set; } = ArrowHeadCombination.NONE;
 
     public override object GetValue()

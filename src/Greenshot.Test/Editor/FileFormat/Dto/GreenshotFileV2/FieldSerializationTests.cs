@@ -25,7 +25,6 @@ using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing.Fields;
 using Greenshot.Editor.FileFormat.Dto;
 using Greenshot.Editor.FileFormat.Dto.Fields;
-using MessagePack;
 using Xunit;
 using static Greenshot.Editor.Drawing.ArrowContainer;
 using static Greenshot.Editor.Drawing.FilterContainer;
@@ -68,8 +67,9 @@ public class FieldSerializationTests
 
         // Act
         var dto = ConvertDomainToDto.ToDto(original);
-        var serialized = MessagePackSerializer.Serialize(dto);
-        var deserializedDto = MessagePackSerializer.Deserialize<FieldDto>(serialized);
+        //var serialized = MessagePackSerializer.Serialize(dto);
+        var deserializedDto = dto; // MessagePackSerializer.Deserialize<FieldDto>(serialized);
+        Assert.Fail("Temporarily disabled serialization test - to be fixed later");
         var result = ConvertDtoToDomain.ToDomain(deserializedDto);
 
         // Assert
@@ -91,8 +91,9 @@ public class FieldSerializationTests
 
         // Act
         var dto = ConvertDomainToDto.ToDto(original);
-        var serialized = MessagePackSerializer.Serialize(dto);
-        var deserializedDto = MessagePackSerializer.Deserialize<FieldDto>(serialized);
+        //var serialized = MessagePackSerializer.Serialize(dto);
+        var deserializedDto = dto;// MessagePackSerializer.Deserialize<FieldDto>(serialized);
+        Assert.Fail("Temporarily disabled serialization test - to be fixed later");
         var result = ConvertDtoToDomain.ToDomain(deserializedDto);
 
         // Assert
@@ -116,8 +117,9 @@ public class FieldSerializationTests
 
         // Act
         var dto = ConvertDomainToDto.ToDto(original);
-        var serialized = MessagePackSerializer.Serialize(dto);
-        var deserializedDto = MessagePackSerializer.Deserialize<FieldDto>(serialized);
+        //var serialized = MessagePackSerializer.Serialize(dto);
+        var deserializedDto = dto;// MessagePackSerializer.Deserialize<FieldDto>(serialized);
+        Assert.Fail("Temporarily disabled serialization test - to be fixed later");
         var result = ConvertDtoToDomain.ToDomain(deserializedDto);
 
         // Assert

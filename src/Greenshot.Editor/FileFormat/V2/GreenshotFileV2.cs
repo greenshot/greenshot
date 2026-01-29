@@ -23,8 +23,8 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Text;
 using Greenshot.Editor.FileFormat.Dto;
+using Greenshot.Editor.FileFormat.Dto.Container;
 using log4net;
-using MessagePack;
 
 namespace Greenshot.Editor.FileFormat.V2;
 
@@ -212,7 +212,9 @@ internal static class GreenshotFileV2
         }
 
         var dto = ConvertDomainToDto.ToDto(data);
-        return MessagePackSerializer.Serialize(dto);
+        //return MessagePackSerializer.Serialize(dto);
+
+        throw new System.Exception("DTO serialization is disabled temporarily - to be fixed later ");
     }
 
     /// <summary>
@@ -224,7 +226,8 @@ internal static class GreenshotFileV2
     /// <returns>An <see cref="GreenshotFile"/> object deserialized from the provided byte array.</returns>
     private static GreenshotFile Deserialize(byte[] bytes)
     {
-        var dto = MessagePackSerializer.Deserialize<GreenshotFileDto>(bytes);
+        var dto = new GreenshotFileDto(); // MessagePackSerializer.Deserialize<GreenshotFileDto>(bytes); 
+        throw new System.Exception("DTO serialization is disabled temporarily - to be fixed later ");
         var currentVersionDto = MigrateToCurrentVersion(dto);
         return ConvertDtoToDomain.ToDomain(currentVersionDto);
     }

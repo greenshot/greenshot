@@ -18,15 +18,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-using MessagePack;
 using static Greenshot.Editor.Drawing.FilterContainer;
 
 namespace Greenshot.Editor.FileFormat.Dto.Fields;
 
-[MessagePackObject]
 public sealed class PreparedFilterFieldValueDto : FieldValueDto
 {
-    [Key(100)] 
     public PreparedFilter Value { get; set; } = PreparedFilter.BLUR;
 
     public override object GetValue()

@@ -21,46 +21,38 @@
 
 using System;
 using System.Text.Json.Serialization;
-using MessagePack;
 
 namespace Greenshot.Editor.FileFormat.Dto;
 
 /// <summary>
 /// Data transfer object for <see cref="GreenshotFileMetaInformation"/>.
 /// </summary>
-[MessagePackObject]
 public sealed class GreenshotFileMetaInformationDto
 {
     /// <summary>
     /// <inheritdoc cref="GreenshotFileMetaInformation.FormatVersion"/>
     /// </summary>
-    [Key(0)]
     public GreenshotFileVersionHandler.GreenshotFileFormatVersion FormatVersion { get; set; } = GreenshotFileVersionHandler.GreenshotFileFormatVersion.Unknown;
 
     /// <summary>
     /// <inheritdoc cref="GreenshotFileMetaInformation.SchemaVersion"/>
     /// </summary>
-    [Key(1)]
     public int SchemaVersion { get; set; } = GreenshotFileVersionHandler.CurrentSchemaVersion;
 
     /// <summary>
     /// <inheritdoc cref="GreenshotFileMetaInformation.SavedByGreenshotVersion"/>
     /// </summary>
-    [Key(2)]
     public string SavedByGreenshotVersion { get; set; }
 
     /// <summary>
     /// <inheritdoc cref="GreenshotFileMetaInformation.CaptureDate"/>
     /// </summary>
-    [Key(3)]
-
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public DateTime CaptureDate { get; set; }
 
     /// <summary>
     /// <inheritdoc cref="GreenshotFileMetaInformation.CaptureSize"/>
     /// </summary>
-    [Key(4)]
     //TODO: ignore for deserialization, because this should be calculated on load
     public string CaptureSize { get; set; }
 }

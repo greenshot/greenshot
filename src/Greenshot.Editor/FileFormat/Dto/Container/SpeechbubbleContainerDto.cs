@@ -19,19 +19,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 using Greenshot.Editor.Drawing;
-using MessagePack;
 
 namespace Greenshot.Editor.FileFormat.Dto.Container;
 
 /// <summary>
 /// Data transfer object to serialize <see cref="SpeechbubbleContainer"/> objects.
 /// </summary>
-[MessagePackObject]
 public sealed class SpeechbubbleContainerDto : DrawableContainerDto
 {
-    [Key(100)]
     public string Text { get; set; } = string.Empty;
 
-    [Key(101)]
     public PointDto StoredTargetGripperLocation { get; set; } = new() { X = 0, Y = 0 };
 }

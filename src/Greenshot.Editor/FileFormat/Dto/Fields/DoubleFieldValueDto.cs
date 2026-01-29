@@ -18,14 +18,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-using MessagePack;
 
 namespace Greenshot.Editor.FileFormat.Dto.Fields;
 
-[MessagePackObject]
 public sealed class DoubleFieldValueDto : FieldValueDto
 {
-    [Key(100)]
     public double Value { get; set; }
 
     public override object GetValue()

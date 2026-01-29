@@ -19,14 +19,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 using Greenshot.Base.Interfaces.Drawing;
-using MessagePack;
 
 namespace Greenshot.Editor.FileFormat.Dto.Fields;
 
-[MessagePackObject]
 public sealed class FieldFlagFieldValueDto : FieldValueDto
 {
-    [Key(100)] 
     public FieldFlag Value { get; set; } = FieldFlag.NONE;
 
     public override object GetValue()

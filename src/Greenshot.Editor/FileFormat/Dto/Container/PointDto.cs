@@ -18,16 +18,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-using MessagePack;
 
 namespace Greenshot.Editor.FileFormat.Dto.Container;
 
-[MessagePackObject]
 public sealed class PointDto
 {
-    [Key(10)]
     public int X { get; set; }
 
-    [Key(11)]
     public int Y { get; set; }
 }

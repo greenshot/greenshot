@@ -20,7 +20,6 @@
  */
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Drawing.Fields;
-using MessagePack;
 
 namespace Greenshot.Editor.FileFormat.Dto.Container;
 
@@ -28,7 +27,6 @@ namespace Greenshot.Editor.FileFormat.Dto.Container;
 /// Data transfer object to serialize <see cref="ObfuscateContainer"/> objects.
 /// Ignore <see cref="DrawableContainer.Filters"/> because they would be recreated on deserialization based on field values of <see cref="FieldType.PREPARED_FILTER_OBFUSCATE"/>.
 /// </summary>
-[MessagePackObject]
 public sealed class ObfuscateContainerDto : DrawableContainerDto
 {
 }

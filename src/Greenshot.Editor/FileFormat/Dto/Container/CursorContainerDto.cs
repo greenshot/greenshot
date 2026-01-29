@@ -19,7 +19,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 using Greenshot.Editor.Drawing;
-using MessagePack;
 
 namespace Greenshot.Editor.FileFormat.Dto.Container;
 
@@ -27,7 +26,6 @@ namespace Greenshot.Editor.FileFormat.Dto.Container;
 /// Data transfer object to serialize <see cref="CursorContainer"/> objects.
 /// The <see cref="CursorContainer"/>  is not really in use. For a capture with mouse cursor the IconContainer is used. See: cctor Surface(ICapture capture) in <see cref="Surface"/>. 
 /// </summary>
-[MessagePackObject]
 public sealed class CursorContainerDto : DrawableContainerDto
 {
     // Because the CursorContainer is not used, the effort to serialize deserialize the System.Drawing.Cursor object is not justified - YAGNI

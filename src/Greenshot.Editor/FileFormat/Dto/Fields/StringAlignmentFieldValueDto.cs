@@ -19,14 +19,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 using System.Drawing;
-using MessagePack;
 
 namespace Greenshot.Editor.FileFormat.Dto.Fields;
 
-[MessagePackObject]
 public sealed class StringAlignmentFieldValueDto : FieldValueDto
 {
-    [Key(100)] 
     public StringAlignment Value { get; set; } = StringAlignment.Near;
 
     public override object GetValue()

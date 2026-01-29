@@ -20,7 +20,6 @@
  */
 using System.Text.Json.Serialization;
 using Greenshot.Editor.FileFormat.Dto.Container;
-using MessagePack;
 
 namespace Greenshot.Editor.FileFormat.Dto;
 
@@ -28,13 +27,11 @@ namespace Greenshot.Editor.FileFormat.Dto;
 /// Is Data Transfer Object (DTO) for <see cref="GreenshotFile"/>
 /// This represents the main class for a .greenshot file.
 /// </summary>
-[MessagePackObject]
 public sealed class GreenshotFileDto
 {
     /// <summary>
     /// <inheritdoc cref="GreenshotFile.MetaInformation"/>
     /// </summary>
-    [Key(0)]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public GreenshotFileMetaInformationDto MetaInformation { get; set; } = new();
 
@@ -43,14 +40,12 @@ public sealed class GreenshotFileDto
     /// </summary>
     [GreenshotImageData(nameof(ImagePath), targetZipFolder: "screenshot", staticFilename: "capture", staticExtension: "png")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    [Key(11)]
     public byte[] Image { get; set; }
 
     /// <summary>
     /// Relative path to the image file within the archive.
     /// </summary>
     [GreenshotImagePath(nameof(Image))]
-    [Key(14)]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string ImagePath { get; set; }
 
@@ -59,21 +54,18 @@ public sealed class GreenshotFileDto
     /// </summary>
     [GreenshotImageData(nameof(RenderedImagePath), targetZipFolder: "preview" , staticFilename: "preview", staticExtension: "png")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    [Key(13)]
     public byte[] RenderedImage { get; set; }
 
     /// <summary>
     /// Relative path to the rendered image file within the archive.
     /// </summary>
     [GreenshotImagePath(nameof(RenderedImage))]
-    [Key(15)]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string RenderedImagePath { get; set; }
 
     /// <summary>
     /// <inheritdoc cref="GreenshotFile.ContainerList"/>
     /// </summary>
-    [Key(12)]
     public DrawableContainerListDto ContainerList { get; set; } = new();
 
 }

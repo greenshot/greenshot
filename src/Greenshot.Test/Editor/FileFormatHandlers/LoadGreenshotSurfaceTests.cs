@@ -928,6 +928,11 @@ public class LoadGreenshotSurfaceTests
         // Arrange
         var imageSizeInTestfile = new Size(800, 400);
         // The ImageContainer has been scaled down from (256, 256) to (100, 100)
+        // TODO CHR: there is a Bug, if I open this file File_Version_1.03 manually, the size of the container is (256,256) instead of (100,100),
+        // it happens in BitmapContainer_OnFieldChanged() when the shadow field is changed during TranferFieldValues() in ConvertDtoToDomain()
+        // i guess its a side effect with some newly merged changes from main branch, because i dont saw this last week, or it has to do sth. with changed
+        // local default values of my shadow field 
+        // The strange thing is, this test here dont fail. I investigate later
         var containerImageSize = new Size(256, 256);
         var imageRectInTestfile = new Rectangle(300, 200, 100, 100);
 

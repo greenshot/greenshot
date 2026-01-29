@@ -18,14 +18,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-using MessagePack;
 
 namespace Greenshot.Editor.FileFormat.Dto.Fields;
 
-[MessagePackObject]
 public sealed class NullFieldValueDto : FieldValueDto
 {
-    [Key(100)]
     public bool IsNull { get; set; } = true; // Use a boolean to represent null
 
     public override object GetValue()

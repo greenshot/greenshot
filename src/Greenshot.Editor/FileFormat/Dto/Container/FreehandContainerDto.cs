@@ -20,16 +20,13 @@
  */
 using System.Collections.Generic;
 using Greenshot.Editor.Drawing;
-using MessagePack;
 
 namespace Greenshot.Editor.FileFormat.Dto.Container;
 
 /// <summary>
 /// Data transfer object to serialize <see cref="FreehandContainer"/> objects.
 /// </summary>
-[MessagePackObject]
 public sealed class FreehandContainerDto : DrawableContainerDto
 {
-    [Key(100)]
     public List<PointDto> CapturePoints { get; set; } = [];
 }

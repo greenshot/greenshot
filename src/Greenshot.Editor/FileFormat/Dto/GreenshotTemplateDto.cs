@@ -19,7 +19,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 using Greenshot.Editor.FileFormat.Dto.Container;
-using MessagePack;
 
 namespace Greenshot.Editor.FileFormat.Dto;
 
@@ -27,24 +26,20 @@ namespace Greenshot.Editor.FileFormat.Dto;
 /// Is Data Transfer Object (DTO) for <see cref="GreenshotTemplate"/>
 /// This represents the main class for a .gst file.
 /// </summary>
-[MessagePackObject]
 public sealed class GreenshotTemplateDto
 {
     /// <summary>
     /// <inheritdoc cref="GreenshotTemplate.SchemaVersion"/>
     /// </summary>
-    [Key(0)]
     public int SchemaVersion { get; set; } = GreenshotFileVersionHandler.CurrentSchemaVersion;
 
     /// <summary>
     /// <inheritdoc cref="GreenshotTemplate.FormatVersion"/>
     /// </summary>
-    [Key(1)]
     public GreenshotFileVersionHandler.GreenshotFileFormatVersion FormatVersion { get; set; } = GreenshotFileVersionHandler.GreenshotFileFormatVersion.Unknown;
 
     /// <summary>
     /// <inheritdoc cref="GreenshotTemplate.ContainerList"/>
     /// </summary>
-    [Key(11)]
     public DrawableContainerListDto ContainerList { get; set; } = new();
 }

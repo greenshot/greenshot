@@ -20,7 +20,6 @@
  */
 using System.Text.Json.Serialization;
 using Greenshot.Editor.Drawing;
-using MessagePack;
 
 namespace Greenshot.Editor.FileFormat.Dto.Container;
 
@@ -28,19 +27,15 @@ namespace Greenshot.Editor.FileFormat.Dto.Container;
 /// Data transfer object to serialize <see cref="SvgContainer"/> objects.
 /// Simplified version that supports properties from <see cref="VectorGraphicsContainer"/> as well.
 /// </summary>
-[MessagePackObject]
 public sealed class SvgContainerDto : DrawableContainerDto
 {
-    [Key(101)]
     [GreenshotImageData(pathPropertyName: nameof(SvgPath), staticExtension: "svg")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public byte[] SvgData { get; set; } // Store SVG as byte array
 
-    [Key(200)]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [GreenshotImagePath(nameof(SvgData))]
     public string SvgPath { get; set; }
 
-    [Key(100)]
     public int RotationAngle { get; set; }
 }

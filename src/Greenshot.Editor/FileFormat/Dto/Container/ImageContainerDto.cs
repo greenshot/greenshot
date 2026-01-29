@@ -20,17 +20,14 @@
  */
 using System.Text.Json.Serialization;
 using Greenshot.Editor.Drawing;
-using MessagePack;
 
 namespace Greenshot.Editor.FileFormat.Dto.Container;
 
 /// <summary>
 /// Data transfer object to serialize <see cref="ImageContainer"/> objects.
 /// </summary>
-[MessagePackObject]
 public sealed class ImageContainerDto : DrawableContainerDto
 {
-    [Key(100)]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [GreenshotImageData(nameof(ImagePath), extensionPropertyName: nameof(ImageExtension))]
     public byte[] Image { get; set; } // Store image as byte array
@@ -38,7 +35,6 @@ public sealed class ImageContainerDto : DrawableContainerDto
     /// <summary>
     /// Extension of the main image payload (e.g., png, jpg).
     /// </summary>
-    [Key(16)]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string ImageExtension { get; set; }
 
@@ -46,7 +42,6 @@ public sealed class ImageContainerDto : DrawableContainerDto
     /// Relative path to the image file within the archive.
     /// </summary>
     [GreenshotImagePath(nameof(Image))]
-    [Key(14)]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string ImagePath { get; set; }
 }

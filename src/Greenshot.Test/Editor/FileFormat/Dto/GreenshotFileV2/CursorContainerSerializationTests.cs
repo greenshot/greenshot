@@ -24,7 +24,6 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.FileFormat.Dto;
 using Greenshot.Editor.FileFormat.Dto.Container;
-using MessagePack;
 using Xunit;
 
 namespace Greenshot.Test.Editor.FileFormat.Dto.GreenshotFileV2;
@@ -46,8 +45,9 @@ public class CursorContainerSerializationTests
 
         // Act
         var dto = ConvertDomainToDto.ToDto(cursorContainer);
-        var serialized = MessagePackSerializer.Serialize(dto);
-        var deserializedDto = MessagePackSerializer.Deserialize<CursorContainerDto>(serialized);
+        //var serialized = MessagePackSerializer.Serialize(dto);
+        var deserializedDto = dto; // MessagePackSerializer.Deserialize<CursorContainerDto>(serialized);
+        Assert.Fail("Temporarily disabled serialization test - to be fixed later");
         var result = ConvertDtoToDomain.ToDomain(deserializedDto, null) as CursorContainer;
 
         // Assert

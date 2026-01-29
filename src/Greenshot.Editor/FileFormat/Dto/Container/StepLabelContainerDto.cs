@@ -18,19 +18,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-using MessagePack;
 
 namespace Greenshot.Editor.FileFormat.Dto.Container;
 
 /// <summary>
 /// Data transfer object to serialize <see cref="Drawing.StepLabelContainer"/> objects.
 /// </summary>
-[MessagePackObject]
 public sealed class StepLabelContainerDto : DrawableContainerDto
 {
-    [Key(100)] 
     public int Number { get; set; } = 1;
 
-    [Key(101)] 
     public int CounterStart { get; set; } = 1;
 }

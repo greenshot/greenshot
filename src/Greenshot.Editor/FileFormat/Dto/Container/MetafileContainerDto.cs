@@ -20,7 +20,6 @@
  */
 using System.Text.Json.Serialization;
 using Greenshot.Editor.Drawing;
-using MessagePack;
 
 namespace Greenshot.Editor.FileFormat.Dto.Container;
 
@@ -28,16 +27,13 @@ namespace Greenshot.Editor.FileFormat.Dto.Container;
 /// Data transfer object to serialize <see cref="MetafileContainer"/> objects.
 /// Simplified version that supports properties from <see cref="VectorGraphicsContainer"/> as well.
 /// </summary>
-[MessagePackObject]
 public sealed class MetafileContainerDto : DrawableContainerDto
 {
-    [Key(101)]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [GreenshotImageData(nameof(MetafilePath), extensionPropertyName: nameof(MetafileDataExtension))]
     public byte[] MetafileData { get; set; } // Store metafile as byte array
 
 
-    [Key(102)]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string MetafileDataExtension { get; set; }
 
@@ -45,11 +41,9 @@ public sealed class MetafileContainerDto : DrawableContainerDto
     /// Relative path to the image file within the archive.
     /// </summary>
     [GreenshotImagePath(nameof(MetafileData))]
-    [Key(14)]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string MetafilePath { get; set; }
 
-    [Key(100)]
     public int RotationAngle { get; set; }
 }
 

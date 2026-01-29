@@ -25,7 +25,6 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.FileFormat;
 using Greenshot.Editor.FileFormat.Dto;
-using MessagePack;
 using Xunit;
 
 namespace Greenshot.Test.Editor.FileFormat.Dto.GreenshotFileV2;
@@ -70,8 +69,9 @@ public class ApplicationFileSerializationTests
 
         // Act
         var dto = ConvertDomainToDto.ToDto(domain);
-        var serialized = MessagePackSerializer.Serialize(dto);
-        var deserializedDto = MessagePackSerializer.Deserialize<GreenshotFileDto>(serialized);
+        //var serialized = MessagePackSerializer.Serialize(dto);
+        var deserializedDto = dto;// MessagePackSerializer.Deserialize<GreenshotFileDto>(serialized);
+        Assert.Fail("Temporarily disabled serialization test - to be fixed later");
         var result = ConvertDtoToDomain.ToDomain(deserializedDto);
 
         // Assert

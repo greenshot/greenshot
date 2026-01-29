@@ -26,7 +26,6 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.FileFormat.Dto;
 using Greenshot.Editor.FileFormat.Dto.Container;
-using MessagePack;
 using Xunit;
 
 namespace Greenshot.Test.Editor.FileFormat.Dto.GreenshotFileV2;
@@ -56,8 +55,10 @@ public class IconContainerSerializationTests
 
         // Act
         var dto = ConvertDomainToDto.ToDto(iconContainer);
-        var serialized = MessagePackSerializer.Serialize(dto);
-        var deserializedDto = MessagePackSerializer.Deserialize<IconContainerDto>(serialized);
+        // var serialized = MessagePackSerializer.Serialize(dto);
+        // var deserializedDto = MessagePackSerializer.Deserialize<IconContainerDto>(serialized);
+        var deserializedDto = dto;
+        Assert.Fail("Temporarily disabled serialization test - to be fixed later");
         var result = ConvertDtoToDomain.ToDomain(deserializedDto, null) as IconContainer;
 
         // Assert
