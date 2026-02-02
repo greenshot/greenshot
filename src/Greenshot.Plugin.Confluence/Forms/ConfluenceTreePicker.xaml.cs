@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -131,14 +131,16 @@ namespace Greenshot.Plugin.Confluence.Forms
                         try
                         {
                             Page page = _confluenceConnector.GetSpaceHomepage(space);
-                            TreeViewItem pageTreeViewItem = new TreeViewItem
-                            {
-                                Header = page.Title,
-                                Tag = page
-                            };
-                            pageTreeViewItem.PreviewMouseDoubleClick += PageTreeViewItem_DoubleClick;
-                            pageTreeViewItem.PreviewMouseLeftButtonDown += PageTreeViewItem_Click;
-                            spaceTreeViewItem.Items.Add(pageTreeViewItem);
+                            if (page != null) {
+                                TreeViewItem pageTreeViewItem = new TreeViewItem
+                                {
+                                    Header = page.Title,
+                                    Tag = page
+                                };
+                                pageTreeViewItem.PreviewMouseDoubleClick += PageTreeViewItem_DoubleClick;
+                                pageTreeViewItem.PreviewMouseLeftButtonDown += PageTreeViewItem_Click;
+                                spaceTreeViewItem.Items.Add(pageTreeViewItem);
+                            }
                             ConfluenceTreeView.Items.Add(spaceTreeViewItem);
                         }
                         catch (Exception ex)

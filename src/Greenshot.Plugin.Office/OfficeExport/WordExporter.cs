@@ -1,5 +1,5 @@
 ﻿//  Greenshot - a free and open source screenshot tool
-//  Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+//  Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
 // 
 //  For more information see: https://getgreenshot.org/
 //  The Greenshot project is hosted on GitHub: https://github.com/greenshot
@@ -145,7 +145,23 @@ namespace Greenshot.Plugin.Office.OfficeExport
                 return;
             }
 
-            if (!Version.TryParse(wordApplication.ComObject.Version, out _wordVersion))
+            try
+            {
+                if (!Version.TryParse(wordApplication.ComObject.Version, out _wordVersion))
+                {
+                    _wordVersion = null;
+                }
+            }
+            catch (InvalidCastException ex)
+            {
+                LOG.Warn("Unable to retrieve Word version due to COM interface casting issue. Assuming Word version 1997.", ex);
+            }
+            catch (Exception ex)
+            {
+                LOG.Warn("Unable to retrieve Word version. Assuming Word version 1997.", ex);
+            }
+
+            if (_wordVersion == null)
             {
                 LOG.Warn("Assuming Word version 1997.");
                 _wordVersion = new Version((int) OfficeVersions.Office97, 0, 0, 0);

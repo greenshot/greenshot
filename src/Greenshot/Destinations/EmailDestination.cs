@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -43,11 +43,21 @@ namespace Greenshot.Destinations
         static EmailDestination()
         {
             // Logic to decide what email implementation we use
-            _mapiClient = RegistryHive.LocalMachine.ReadKey64Or32(@"Clients\Mail");
-            if (!string.IsNullOrEmpty(_mapiClient))
+            // Windows prioritizes HKCU over HKLM
+            string mapiClientHKCU = RegistryHive.CurrentUser.ReadKey(@"Clients\Mail");
+            string mapiClientHKLM = RegistryHive.LocalMachine.ReadKey64Or32(@"Clients\Mail");
+
+            if (!string.IsNullOrEmpty(mapiClientHKCU))
             {
-                // Active as we have a MAPI client, can be disabled later
+                // Active as we have a MAPI client in HKCU, can be disabled later
                 _isActiveFlag = true;
+                _mapiClient = mapiClientHKCU;
+            }
+            else if (!string.IsNullOrEmpty(mapiClientHKLM))
+            {
+                // Active as we have a MAPI client in HKLM, can be disabled later
+                _isActiveFlag = true;
+                _mapiClient = mapiClientHKLM;
             }
         }
 

@@ -1,5 +1,5 @@
 ﻿// Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: https://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -54,10 +54,17 @@ namespace Greenshot.Plugin.Office.OfficeExport
         public bool ExportToNewPage(ISurface surfaceToUpload)
         {
             using var oneNoteApplication = GetOrCreateOneNoteApplication();
+            if (oneNoteApplication == null)
+            {
+                LOG.Error("Failed to get or create OneNote application instance");
+                return false;
+            }
+
             var newPage = new OneNotePage();
             string unfiledNotesSectionId = GetSectionId(oneNoteApplication, SpecialLocation.slUnfiledNotesSection);
             if (unfiledNotesSectionId == null)
             {
+                LOG.Error("Failed to get unfiled notes section ID");
                 return false;
             }
 
@@ -78,6 +85,12 @@ namespace Greenshot.Plugin.Office.OfficeExport
         public bool ExportToPage(ISurface surfaceToUpload, OneNotePage page)
         {
             using var oneNoteApplication = GetOrCreateOneNoteApplication();
+            if (oneNoteApplication == null)
+            {
+                LOG.Error("Failed to get or create OneNote application instance");
+                return false;
+            }
+
             return ExportToPage(oneNoteApplication, surfaceToUpload, page);
         }
 
@@ -92,6 +105,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
         {
             if (oneNoteApplication == null)
             {
+                LOG.Error("OneNote application instance is null");
                 return false;
             }
 
@@ -144,7 +158,29 @@ namespace Greenshot.Plugin.Office.OfficeExport
             var oneNoteApplication = GetOneNoteApplication();
             if (oneNoteApplication == null)
             {
-                oneNoteApplication = DisposableCom.Create(new Application());
+                try
+                {
+                    // Try to get the type from ProgID for more reliable COM instantiation
+                    var oneNoteType = Type.GetTypeFromProgID("OneNote.Application");
+                    if (oneNoteType != null)
+                    {
+                        var oneNoteObject = Activator.CreateInstance(oneNoteType);
+                        oneNoteApplication = DisposableCom.Create((Application)oneNoteObject);
+                        LOG.Debug("Created new OneNote.Application instance using Type.GetTypeFromProgID");
+                    }
+                    else
+                    {
+                        LOG.Warn("Could not get type for OneNote.Application from ProgID. OneNote may not be installed or registered for COM automation.");
+                    }
+                }
+                catch (COMException comEx)
+                {
+                    LOG.Error($"Failed to create OneNote.Application instance. Error code: 0x{comEx.ErrorCode:X}. OneNote may not be installed or available.", comEx);
+                }
+                catch (Exception ex)
+                {
+                    LOG.Error("Failed to create OneNote.Application instance. OneNote may not be installed or available.", ex);
+                }
             }
 
             return oneNoteApplication;

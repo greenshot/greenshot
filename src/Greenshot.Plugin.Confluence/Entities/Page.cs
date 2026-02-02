@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -19,36 +19,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using GreenshotConfluencePlugin.confluence;
+using Dapplo.Confluence.Entities;
 
 namespace Greenshot.Plugin.Confluence.Entities
 {
     public class Page
     {
-        public Page(RemotePage page)
+        public Page(Content content)
         {
-            Id = page.id;
-            Title = page.title;
-            SpaceKey = page.space;
-            Url = page.url;
-            Content = page.content;
-        }
-
-        public Page(RemoteSearchResult searchResult, string space)
-        {
-            Id = searchResult.id;
-            Title = searchResult.title;
-            SpaceKey = space;
-            Url = searchResult.url;
-            Content = searchResult.excerpt;
-        }
-
-        public Page(RemotePageSummary pageSummary)
-        {
-            Id = pageSummary.id;
-            Title = pageSummary.title;
-            SpaceKey = pageSummary.space;
-            Url = pageSummary.url;
+            Id = content.Id;
+            Title = content.Title;
+            SpaceKey = content.Space?.Key;
+            Url = content.Links?.WebUi;
+            Content = content.Body?.Storage?.Value;
         }
 
         public long Id { get; set; }

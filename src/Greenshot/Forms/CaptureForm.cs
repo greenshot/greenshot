@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -57,18 +57,31 @@ namespace Greenshot.Forms
 
         private static readonly ILog Log = LogManager.GetLogger(typeof(CaptureForm));
         private static readonly CoreConfiguration Conf = IniConfig.GetIniSection<CoreConfiguration>();
-        private static readonly Brush GreenOverlayBrush = new SolidBrush(Color.FromArgb(50, Color.MediumSeaGreen));
-        private static readonly Pen OverlayPen = new Pen(Color.FromArgb(50, Color.Black));
+        private static readonly Brush GreenOverlayBrush;
+        private static readonly Pen OverlayPen;
         private static CaptureForm _currentForm;
         private static readonly Brush BackgroundBrush;
 
         /// <summary>
-        /// Initialize the background brush
+        /// Initialize the static brushes and pens, and register cleanup on application exit
         /// </summary>
         static CaptureForm()
         {
-            Image backgroundForTransparency = GreenshotResources.GetImage("Checkerboard.Image");
-            BackgroundBrush = new TextureBrush(backgroundForTransparency, WrapMode.Tile);
+            GreenOverlayBrush = new SolidBrush(Color.FromArgb(50, Color.MediumSeaGreen));
+            OverlayPen = new Pen(Color.FromArgb(50, Color.Black));
+
+            using (Image backgroundForTransparency = GreenshotResources.GetImage("Checkerboard.Image"))
+            {
+                BackgroundBrush = new TextureBrush(backgroundForTransparency, WrapMode.Tile);
+            }
+
+            // Register cleanup for static GDI resources on application exit
+            AppDomain.CurrentDomain.ProcessExit += (sender, args) =>
+            {
+                GreenOverlayBrush?.Dispose();
+                OverlayPen?.Dispose();
+                BackgroundBrush?.Dispose();
+            };
         }
 
         private int _mX;
@@ -852,22 +865,10 @@ namespace Greenshot.Forms
                 return;
             }
 
-            ImageAttributes attributes;
-
-            if (_isZoomerTransparent)
-            {
-                //create a color matrix object to change the opacy
-                ColorMatrix opacyMatrix = new ColorMatrix
-                {
-                    Matrix33 = Conf.ZoomerOpacity
-                };
-                attributes = new ImageAttributes();
-                attributes.SetColorMatrix(opacyMatrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
-            }
-            else
-            {
-                attributes = null;
-            }
+            // Create ImageAttributes for transparent zoomer (using declaration ensures disposal even if exception occurs)
+            using ImageAttributes attributes = _isZoomerTransparent
+                ? CreateZoomerImageAttributes()
+                : null;
 
             graphics.SmoothingMode = SmoothingMode.HighQuality;
             graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
@@ -946,8 +947,21 @@ namespace Greenshot.Forms
                 // Horizontal middle + 1 to right
                 graphics.DrawRectangle(pen, destinationRectangle.X + halfWidthEnd + 2 * padding, drawAtHeight, halfWidthEnd - 2 * padding - 1, pixelThickness);
             }
+        }
 
-            attributes?.Dispose();
+        /// <summary>
+        /// Create ImageAttributes for the zoomer with opacity settings
+        /// </summary>
+        /// <returns>ImageAttributes configured for zoomer opacity</returns>
+        private static ImageAttributes CreateZoomerImageAttributes()
+        {
+            ColorMatrix opacyMatrix = new ColorMatrix
+            {
+                Matrix33 = Conf.ZoomerOpacity
+            };
+            var attributes = new ImageAttributes();
+            attributes.SetColorMatrix(opacyMatrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
+            return attributes;
         }
 
         /// <summary>
@@ -1008,7 +1022,7 @@ namespace Greenshot.Forms
             // Only draw Cursor if it's (partly) visible
             if (_capture.Cursor != null && _capture.CursorVisible && clipRectangle.IntersectsWith(new NativeRect(_capture.CursorLocation, _capture.Cursor.Size)))
             {
-                graphics.DrawIcon(_capture.Cursor, _capture.CursorLocation.X, _capture.CursorLocation.Y);
+                graphics.DrawImageUnscaled(_capture.Cursor, _capture.CursorLocation.X, _capture.CursorLocation.Y);
             }
 
             if (_mouseDown || _captureMode == CaptureMode.Window || IsAnimating(_windowAnimator))
@@ -1048,8 +1062,8 @@ namespace Greenshot.Forms
                     Size measureHeight = TextRenderer.MeasureText(captureHeight, rulerFont);
                     int hSpace = measureWidth.Width + 3;
                     int vSpace = measureHeight.Height + 3;
-                    Brush bgBrush = new SolidBrush(Color.FromArgb(200, 217, 240, 227));
-                    Pen rulerPen = new Pen(Color.SeaGreen);
+                    using Brush bgBrush = new SolidBrush(Color.FromArgb(200, 217, 240, 227));
+                    using Pen rulerPen = new Pen(Color.SeaGreen);
 
                     // horizontal ruler
                     if (fixedRect.Width > hSpace + 3)
@@ -1086,9 +1100,6 @@ namespace Greenshot.Forms
                         graphics.DrawLine(rulerPen, fixedRect.X - dist - 3, fixedRect.Y, fixedRect.X - dist + 3, fixedRect.Y);
                         graphics.DrawLine(rulerPen, fixedRect.X - dist - 3, fixedRect.Y + fixedRect.Height, fixedRect.X - dist + 3, fixedRect.Y + fixedRect.Height);
                     }
-
-                    rulerPen.Dispose();
-                    bgBrush.Dispose();
                 }
 
                 // Display size of selected rectangle

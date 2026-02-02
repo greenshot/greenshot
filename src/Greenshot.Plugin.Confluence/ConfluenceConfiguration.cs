@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -32,12 +32,10 @@ namespace Greenshot.Plugin.Confluence
     [IniSection("Confluence", Description = "Greenshot Confluence Plugin configuration")]
     public class ConfluenceConfiguration : IniSection
     {
-        public const string DEFAULT_POSTFIX1 = "/rpc/soap-axis/confluenceservice-v1?wsdl";
-        public const string DEFAULT_POSTFIX2 = "/rpc/soap-axis/confluenceservice-v2?wsdl";
         public const string DEFAULT_PREFIX = "https://";
         private const string DEFAULT_URL = DEFAULT_PREFIX + "confluence";
 
-        [IniProperty("Url", Description = "Url to Confluence system, including wsdl.", DefaultValue = DEFAULT_URL)]
+        [IniProperty("Url", Description = "Url to Confluence system (e.g., https://confluence.example.com or https://domain.atlassian.net/wiki for Cloud).", DefaultValue = DEFAULT_URL)]
         public string Url { get; set; }
 
         [IniProperty("Timeout", Description = "Session timeout in minutes", DefaultValue = "30")]

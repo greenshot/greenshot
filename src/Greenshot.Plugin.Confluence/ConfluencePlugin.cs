@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -64,14 +64,7 @@ namespace Greenshot.Plugin.Confluence
         {
             if (_confluenceConnector == null)
             {
-                if (_config.Url.Contains("soap-axis"))
-                {
-                    _confluenceConnector = new ConfluenceConnector(_config.Url, _config.Timeout);
-                }
-                else
-                {
-                    _confluenceConnector = new ConfluenceConnector(_config.Url + ConfluenceConfiguration.DEFAULT_POSTFIX2, _config.Timeout);
-                }
+                _confluenceConnector = new ConfluenceConnector(_config.Url, _config.Timeout);
             }
         }
 
