@@ -23,6 +23,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using Greenshot.Editor.Drawing.Emoji;
+using PresentationSource = System.Windows.PresentationSource;
 
 namespace Greenshot.Editor.Controls.Emoji
 {
@@ -45,7 +46,14 @@ namespace Greenshot.Editor.Controls.Emoji
         {
             if (Source == null && !string.IsNullOrEmpty(Emoji))
             {
-                Source = EmojiRenderer.GetBitmapSource(Emoji, iconSize: 48);
+                // Get DPI from the visual tree for proper scaling
+                double dpi = 96;
+                var presentationSource = PresentationSource.FromVisual(this);
+                if (presentationSource?.CompositionTarget != null)
+                {
+                    dpi = 96 * presentationSource.CompositionTarget.TransformToDevice.M11;
+                }
+                Source = EmojiRenderer.GetBitmapSource(Emoji, iconSize: 48, dpi: dpi);
             }
 
             base.OnRender(dc);

@@ -65,7 +65,9 @@ namespace Greenshot.Editor.Drawing.Adorners
         /// <returns>bool</returns>
         public virtual bool HitTest(NativePoint point)
         {
-            NativeRect hitBounds = Bounds.Inflate(3, 3);
+            // Scale hit-test inflation to match DPI-scaled adorner size
+            int hitInflation = DpiCalculator.ScaleWithDpi(3, Owner?.Parent?.CurrentDpi ?? 96);
+            NativeRect hitBounds = Bounds.Inflate(hitInflation, hitInflation);
             return hitBounds.Contains(point);
         }
 

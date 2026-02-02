@@ -239,8 +239,8 @@ namespace Greenshot.Editor.Forms
 			// 
 			// topToolStripContainer
 			// 
-			this.topToolStripContainer.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-			this.topToolStripContainer.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.topToolStripContainer.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+			this.topToolStripContainer.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
 			// 
 			// topToolStripContainer.BottomToolStripPanel
 			// 

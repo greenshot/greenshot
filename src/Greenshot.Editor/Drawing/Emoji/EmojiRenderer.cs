@@ -102,7 +102,7 @@ namespace Greenshot.Editor.Drawing.Emoji
             return bitmap;
         }
 
-        public static System.Windows.Media.Imaging.BitmapSource GetBitmapSource(string emoji, int iconSize)
+        public static System.Windows.Media.Imaging.BitmapSource GetBitmapSource(string emoji, int iconSize, double dpi = 96)
         {
             var pixelFormat = System.Windows.Media.PixelFormats.Bgra32;
             int width = iconSize;
@@ -114,7 +114,7 @@ namespace Greenshot.Editor.Drawing.Emoji
 
             RenderEmoji(emoji, iconSize, image);
 
-            var source = System.Windows.Media.Imaging.BitmapSource.Create(pixelWidth: width, pixelHeight: height, dpiX: 96, dpiY: 96, pixelFormat: pixelFormat, palette: null, pixels: pixels, stride: stride);
+            var source = System.Windows.Media.Imaging.BitmapSource.Create(pixelWidth: width, pixelHeight: height, dpiX: dpi, dpiY: dpi, pixelFormat: pixelFormat, palette: null, pixels: pixels, stride: stride);
             source.Freeze();
 
             return source;

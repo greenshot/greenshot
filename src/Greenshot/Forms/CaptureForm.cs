@@ -32,6 +32,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Dpi;
 using Dapplo.Windows.User32;
 using Dapplo.Windows.User32.Enums;
 using Greenshot.Base.Controls;
@@ -695,8 +696,8 @@ namespace Greenshot.Forms
             }
 
             // always animate the Window area through to the last frame, so we see the fade-in/out until the end
-            // Using a safety "offset" to make sure the text is invalidated too
-            const int safetySize = 30;
+            // Using a safety "offset" to make sure the text is invalidated too (scaled for DPI)
+            int safetySize = DpiCalculator.ScaleWithDpi(30, DeviceDpi);
             // Check if the animation needs to be drawn
             if (IsAnimating(_windowAnimator))
             {
@@ -1176,11 +1177,11 @@ namespace Greenshot.Forms
                 }
             }
 
-            // Zoom
+            // Zoom (source size scaled for DPI to maintain consistent physical capture area)
             if (_zoomAnimator != null && (IsAnimating(_zoomAnimator) || _captureMode != CaptureMode.Window))
             {
-                const int zoomSourceWidth = 25;
-                const int zoomSourceHeight = 25;
+                int zoomSourceWidth = DpiCalculator.ScaleWithDpi(25, DeviceDpi);
+                int zoomSourceHeight = DpiCalculator.ScaleWithDpi(25, DeviceDpi);
 
                 var sourceRectangle = new NativeRect(_cursorPos.X - zoomSourceWidth / 2, _cursorPos.Y - zoomSourceHeight / 2, zoomSourceWidth, zoomSourceHeight);
 

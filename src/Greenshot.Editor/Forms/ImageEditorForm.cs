@@ -1916,9 +1916,9 @@ namespace Greenshot.Editor.Forms
             newWidth = Math.Min(newWidth, maxWindowSize.Width);
             newHeight = Math.Min(newHeight, maxWindowSize.Height);
 
-            // Lower bound. Don't make it smaller than a fixed value.
-            int minimumFormWidth = 650;
-            int minimumFormHeight = 530;
+            // Lower bound. Don't make it smaller than a fixed value (scaled for DPI).
+            int minimumFormWidth = DpiCalculator.ScaleWithDpi(650, DeviceDpi);
+            int minimumFormHeight = DpiCalculator.ScaleWithDpi(530, DeviceDpi);
             newWidth = Math.Max(minimumFormWidth, newWidth);
             newHeight = Math.Max(minimumFormHeight, newHeight);
 

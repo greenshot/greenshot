@@ -32,6 +32,7 @@ using System.ServiceModel.Security;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Dpi;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
 using Greenshot.Base.Effects;
@@ -1015,13 +1016,15 @@ namespace Greenshot.Editor.Drawing
                 }
             }
 
+            // Offset for multiple pasted elements (scaled for DPI)
+            int pasteOffset = DpiCalculator.ScaleWithDpi(10, CurrentDpi);
             foreach (var drawableContainer in ClipboardHelper.GetDrawables(e.Data))
             {
                 drawableContainer.Left = mouse.X;
                 drawableContainer.Top = mouse.Y;
                 FitContainer(drawableContainer);
                 AddElement(drawableContainer);
-                mouse = mouse.Offset(10, 10);
+                mouse = mouse.Offset(pasteOffset, pasteOffset);
             }
         }
 
@@ -2330,10 +2333,12 @@ namespace Greenshot.Editor.Drawing
                     if (drawableContainer == null) continue;
                     DeselectAllElements();
                     drawableContainer.Left = pasteLocation.X;
-                    drawableContainer.Top = pasteLocation.Y; 
+                    drawableContainer.Top = pasteLocation.Y;
                     AddElement(drawableContainer);
                     SelectElement(drawableContainer);
-                    pasteLocation = pasteLocation.Offset(10, 10);
+                    // Offset for multiple pasted elements (scaled for DPI)
+                    int pasteOffset = DpiCalculator.ScaleWithDpi(10, CurrentDpi);
+                    pasteLocation = pasteLocation.Offset(pasteOffset, pasteOffset);
                 }
             }
             else if (ClipboardHelper.ContainsText(clipboard))
