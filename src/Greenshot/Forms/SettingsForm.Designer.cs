@@ -830,9 +830,9 @@ namespace Greenshot.Forms {
 			this.groupBoxColors.Controls.Add(this.radioBtnGrayScale);
 			this.groupBoxColors.Controls.Add(this.radioBtnMonochrome);
 			this.groupBoxColors.LanguageKey = "printoptions_colors";
-			this.groupBoxColors.Location = new System.Drawing.Point(6, 163);
+			this.groupBoxColors.Location = new System.Drawing.Point(2, 163);
 			this.groupBoxColors.Name = "groupBoxColors";
-			this.groupBoxColors.Size = new System.Drawing.Size(331, 124);
+			this.groupBoxColors.Size = new System.Drawing.Size(412, 124);
 			this.groupBoxColors.TabIndex = 10;
 			this.groupBoxColors.TabStop = false;
 			// 
@@ -844,7 +844,7 @@ namespace Greenshot.Forms {
 			this.checkboxPrintInverted.Location = new System.Drawing.Point(13, 88);
 			this.checkboxPrintInverted.Name = "checkboxPrintInverted";
 			this.checkboxPrintInverted.PropertyName = nameof(CoreConfiguration.OutputPrintInverted);
-			this.checkboxPrintInverted.Size = new System.Drawing.Size(141, 17);
+			this.checkboxPrintInverted.Size = new System.Drawing.Size(393, 17);
 			this.checkboxPrintInverted.TabIndex = 14;
 			this.checkboxPrintInverted.TextAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkboxPrintInverted.UseVisualStyleBackColor = true;
@@ -856,7 +856,7 @@ namespace Greenshot.Forms {
 			this.radioBtnColorPrint.LanguageKey = "printoptions_printcolor";
 			this.radioBtnColorPrint.Location = new System.Drawing.Point(13, 19);
 			this.radioBtnColorPrint.Name = "radioBtnColorPrint";
-			this.radioBtnColorPrint.Size = new System.Drawing.Size(90, 17);
+			this.radioBtnColorPrint.Size = new System.Drawing.Size(393, 17);
 			this.radioBtnColorPrint.TabIndex = 11;
 			this.radioBtnColorPrint.TextAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.radioBtnColorPrint.UseVisualStyleBackColor = true;
@@ -869,7 +869,7 @@ namespace Greenshot.Forms {
 			this.radioBtnGrayScale.Location = new System.Drawing.Point(13, 42);
 			this.radioBtnGrayScale.Name = "radioBtnGrayScale";
 			this.radioBtnGrayScale.PropertyName = nameof(coreConfiguration.OutputPrintGrayscale);
-			this.radioBtnGrayScale.Size = new System.Drawing.Size(137, 17);
+			this.radioBtnGrayScale.Size = new System.Drawing.Size(393, 17);
 			this.radioBtnGrayScale.TabIndex = 12;
 			this.radioBtnGrayScale.Text = "Force grayscale printing";
 			this.radioBtnGrayScale.TextAlign = System.Drawing.ContentAlignment.TopLeft;
@@ -883,7 +883,7 @@ namespace Greenshot.Forms {
 			this.radioBtnMonochrome.Location = new System.Drawing.Point(13, 65);
 			this.radioBtnMonochrome.Name = "radioBtnMonochrome";
 			this.radioBtnMonochrome.PropertyName = nameof(coreConfiguration.OutputPrintMonochrome);
-			this.radioBtnMonochrome.Size = new System.Drawing.Size(148, 17);
+			this.radioBtnMonochrome.Size = new System.Drawing.Size(393, 17);
 			this.radioBtnMonochrome.TabIndex = 13;
 			this.radioBtnMonochrome.TextAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.radioBtnMonochrome.UseVisualStyleBackColor = true;
@@ -896,9 +896,9 @@ namespace Greenshot.Forms {
 			this.groupBoxPrintLayout.Controls.Add(this.checkboxAllowRotate);
 			this.groupBoxPrintLayout.Controls.Add(this.checkboxAllowCenter);
 			this.groupBoxPrintLayout.LanguageKey = "printoptions_layout";
-			this.groupBoxPrintLayout.Location = new System.Drawing.Point(6, 6);
+			this.groupBoxPrintLayout.Location = new System.Drawing.Point(2, 6);
 			this.groupBoxPrintLayout.Name = "groupBoxPrintLayout";
-			this.groupBoxPrintLayout.Size = new System.Drawing.Size(331, 151);
+			this.groupBoxPrintLayout.Size = new System.Drawing.Size(412, 151);
 			this.groupBoxPrintLayout.TabIndex = 1;
 			this.groupBoxPrintLayout.TabStop = false;
 			// 
@@ -910,7 +910,7 @@ namespace Greenshot.Forms {
 			this.checkboxDateTime.Location = new System.Drawing.Point(13, 115);
 			this.checkboxDateTime.Name = "checkboxDateTime";
 			this.checkboxDateTime.PropertyName = nameof(coreConfiguration.OutputPrintFooter);
-			this.checkboxDateTime.Size = new System.Drawing.Size(187, 17);
+			this.checkboxDateTime.Size = new System.Drawing.Size(393, 17);
 			this.checkboxDateTime.TabIndex = 6;
 			this.checkboxDateTime.TextAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkboxDateTime.UseVisualStyleBackColor = true;
@@ -923,7 +923,7 @@ namespace Greenshot.Forms {
 			this.checkboxAllowShrink.Location = new System.Drawing.Point(13, 23);
 			this.checkboxAllowShrink.Name = "checkboxAllowShrink";
 			this.checkboxAllowShrink.PropertyName = nameof(coreConfiguration.OutputPrintAllowShrink);
-			this.checkboxAllowShrink.Size = new System.Drawing.Size(168, 17);
+			this.checkboxAllowShrink.Size = new System.Drawing.Size(393, 17);
 			this.checkboxAllowShrink.TabIndex = 2;
 			this.checkboxAllowShrink.TextAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkboxAllowShrink.UseVisualStyleBackColor = true;
@@ -936,7 +936,7 @@ namespace Greenshot.Forms {
 			this.checkboxAllowEnlarge.Location = new System.Drawing.Point(13, 46);
 			this.checkboxAllowEnlarge.Name = "checkboxAllowEnlarge";
 			this.checkboxAllowEnlarge.PropertyName = nameof(coreConfiguration.OutputPrintAllowEnlarge);
-			this.checkboxAllowEnlarge.Size = new System.Drawing.Size(174, 17);
+			this.checkboxAllowEnlarge.Size = new System.Drawing.Size(393, 17);
 			this.checkboxAllowEnlarge.TabIndex = 3;
 			this.checkboxAllowEnlarge.TextAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkboxAllowEnlarge.UseVisualStyleBackColor = true;
@@ -949,7 +949,7 @@ namespace Greenshot.Forms {
 			this.checkboxAllowRotate.Location = new System.Drawing.Point(13, 69);
 			this.checkboxAllowRotate.Name = "checkboxAllowRotate";
 			this.checkboxAllowRotate.PropertyName = nameof(coreConfiguration.OutputPrintAllowRotate);
-			this.checkboxAllowRotate.Size = new System.Drawing.Size(187, 17);
+			this.checkboxAllowRotate.Size = new System.Drawing.Size(393, 17);
 			this.checkboxAllowRotate.TabIndex = 4;
 			this.checkboxAllowRotate.TextAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkboxAllowRotate.UseVisualStyleBackColor = true;
@@ -962,7 +962,7 @@ namespace Greenshot.Forms {
 			this.checkboxAllowCenter.Location = new System.Drawing.Point(13, 92);
 			this.checkboxAllowCenter.Name = "checkboxAllowCenter";
 			this.checkboxAllowCenter.PropertyName = nameof(coreConfiguration.OutputPrintCenter);
-			this.checkboxAllowCenter.Size = new System.Drawing.Size(137, 17);
+			this.checkboxAllowCenter.Size = new System.Drawing.Size(393, 17);
 			this.checkboxAllowCenter.TabIndex = 5;
 			this.checkboxAllowCenter.TextAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkboxAllowCenter.UseVisualStyleBackColor = true;
@@ -970,10 +970,10 @@ namespace Greenshot.Forms {
 			// checkbox_alwaysshowprintoptionsdialog
 			// 
 			this.checkbox_alwaysshowprintoptionsdialog.LanguageKey = "settings_alwaysshowprintoptionsdialog";
-			this.checkbox_alwaysshowprintoptionsdialog.Location = new System.Drawing.Point(19, 293);
+			this.checkbox_alwaysshowprintoptionsdialog.Location = new System.Drawing.Point(2, 293);
 			this.checkbox_alwaysshowprintoptionsdialog.Name = "checkbox_alwaysshowprintoptionsdialog";
 			this.checkbox_alwaysshowprintoptionsdialog.PropertyName = nameof(coreConfiguration.OutputPrintPromptOptions);
-			this.checkbox_alwaysshowprintoptionsdialog.Size = new System.Drawing.Size(394, 20);
+			this.checkbox_alwaysshowprintoptionsdialog.Size = new System.Drawing.Size(412, 20);
 			this.checkbox_alwaysshowprintoptionsdialog.TabIndex = 15;
 			this.checkbox_alwaysshowprintoptionsdialog.Text = "Show print options dialog every time an image is printed";
 			this.checkbox_alwaysshowprintoptionsdialog.UseVisualStyleBackColor = true;
