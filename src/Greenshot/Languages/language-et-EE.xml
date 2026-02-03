@@ -223,7 +223,7 @@ Palun kontrollige valitud hoiuala kirjutamisõigust.</resource>
 		<resource name="settings_destination_email">E-post</resource>
 		<resource name="settings_destination_file">Salvestage otse (kasutades kõrvalolevaid seadeid)</resource>
 		<resource name="settings_destination_fileas">Salvestega nimega (dialoogi kuvamin)</resource>
-		<resource name="settings_destination_picker">Valige asukoht dünaamiliselt</resource>
+		<resource name="settings_destination_picker">Küsi sihtkohta iga kord</resource>
 		<resource name="settings_destination_printer">Saatke printerisse</resource>
 		<resource name="settings_editor">Kohandaja</resource>
 		<resource name="settings_filenamepattern">Faili nime atribuudid</resource>

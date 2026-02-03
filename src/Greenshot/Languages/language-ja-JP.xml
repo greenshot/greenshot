@@ -239,7 +239,7 @@ GNU General Public License の詳細:</resource>
 		<resource name="settings_destination_email">メール</resource>
 		<resource name="settings_destination_file">保存 (下欄の設定を使用)</resource>
 		<resource name="settings_destination_fileas">名前を付けて保存 (ダイアログを表示)</resource>
-		<resource name="settings_destination_picker">出力先を毎回選択</resource>
+		<resource name="settings_destination_picker">毎回出力先を尋ねる</resource>
 		<resource name="settings_destination_printer">プリンターに送る</resource>
 		<resource name="settings_editor">エディター</resource>
 		<resource name="settings_filenamepattern">ファイル名パターン</resource>

@@ -237,7 +237,7 @@ Ma ulac aɣilif senqed tuffart n ukaram n usekles.</resource>
 		<resource name="settings_destination_email">Imayl</resource>
 		<resource name="settings_destination_file">Sekles s srid (s useqdec n iɣewwaṛen daw-a)</resource>
 		<resource name="settings_destination_fileas">Sekles s yisem (sken asfaylu n udiwenni)</resource>
-		<resource name="settings_destination_picker">Fren taniɣert tamussant</resource>
+		<resource name="settings_destination_picker">Steqsi ɣef wadeg deg yal tikelt</resource>
 		<resource name="settings_destination_printer">Ar tsaggazt</resource>
 		<resource name="settings_editor">Amaẓrag</resource>
 		<resource name="settings_filenamepattern">Taneɣruft n ufaylu</resource>
