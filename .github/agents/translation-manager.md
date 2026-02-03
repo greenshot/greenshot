@@ -62,6 +62,7 @@ Make sure to deliver high-quality translation by:
    - Checking the glossary (`TRANSLATION_GLOSSARY.md`) for standard terms
    - Reviewing how other languages (especially German) handled similar phrases
    - Examining resource name prefixes to identify related UI elements
+   - Checking if a term to translate appears elsewhere in the file (e.g., for 'destination', check settings_destination and related resources) and use the established term.
 
 2. **Reverse Translation Check**:
    - After translating, translate the message back to the primary language
