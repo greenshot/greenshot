@@ -126,11 +126,13 @@ src/Greenshot.Plugin.*/Languages/
 
 ### Documentation
 ```
-docs/
+docs/translation/
+├── README.md                     ← This file (documentation index)
 ├── TRANSLATION_GUIDE.md          ← Comprehensive guide
 ├── TRANSLATION_GLOSSARY.md       ← Standard terms
 ├── TRANSLATION_WORKFLOW.md       ← Checklists
-└── TRANSLATION_TOOLS.md          ← Validation tools
+├── TRANSLATION_TOOLS.md          ← Validation tools
+└── TRANSLATION_ANALYSIS.md       ← Analysis and statistics
 ```
 
 ## Statistics

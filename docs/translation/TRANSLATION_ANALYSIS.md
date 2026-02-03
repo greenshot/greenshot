@@ -135,7 +135,7 @@ Plus:
 
 **Impact**: Enables automated quality checks and reduces manual validation effort
 
-### 5. Translation Documentation Index (README_TRANSLATIONS.md) ✅
+### 5. Translation Documentation Index (README.md) ✅
 
 **Purpose**: Navigation and quick reference
 
@@ -346,7 +346,7 @@ To fully leverage this preparation:
 | TRANSLATION_GLOSSARY.md | 9 KB | 8 | High - Consistency |
 | TRANSLATION_WORKFLOW.md | 13 KB | 9 checklists | Very High - Procedural |
 | TRANSLATION_TOOLS.md | 16 KB | Multiple scripts | High - Automation |
-| README_TRANSLATIONS.md | 7 KB | Navigation | High - Discovery |
+| README.md | 7 KB | Navigation | High - Discovery |
 | translation-manager.md | 3 KB | Updated | High - Agent guidance |
 
 **Total**: ~58 KB of documentation covering all aspects of translation work
