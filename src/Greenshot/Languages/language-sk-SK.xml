@@ -201,7 +201,7 @@ Skontrolujte prosím možnosť zapisovať do vybraného umiestnenia.</resource>
 		<resource name="settings_destination_email">E-Mail</resource>
 		<resource name="settings_destination_file">Uložiť priamo (pomocou nastavení nižšie)</resource>
 		<resource name="settings_destination_fileas">Uložiť ako (zobraz dialóg)</resource>
-		<resource name="settings_destination_picker">Vyberte cieľ dynamicky</resource>		
+		<resource name="settings_destination_picker">Opýtať sa na cieľ zakaždým</resource>		
 		<resource name="settings_destination_printer">Poslať do tlačiarne</resource>
 		<resource name="settings_editor">Editor</resource>
 		<resource name="settings_filenamepattern">Meno súboru - šablona</resource>
