@@ -110,7 +110,7 @@ namespace Greenshot.Editor.Forms {
 			// 
 			this.label3.Location = new System.Drawing.Point(153, 35);
 			this.label3.Name = "label3";
-			this.label3.Size = new System.Drawing.Size(14, 13);
+			this.label3.Size = new System.Drawing.Size(14, 20);
 			this.label3.TabIndex = 5;
 			this.label3.Text = "X";
 			// 
@@ -171,7 +171,7 @@ namespace Greenshot.Editor.Forms {
 			this.labelDarkness.LanguageKey = "editor_dropshadow_darkness";
 			this.labelDarkness.Location = new System.Drawing.Point(12, 73);
 			this.labelDarkness.Name = "labelDarkness";
-			this.labelDarkness.Size = new System.Drawing.Size(92, 13);
+			this.labelDarkness.Size = new System.Drawing.Size(92, 20);
 			this.labelDarkness.TabIndex = 13;
 			// 
 			// labelOffset
@@ -179,7 +179,7 @@ namespace Greenshot.Editor.Forms {
 			this.labelOffset.LanguageKey = "editor_dropshadow_offset";
 			this.labelOffset.Location = new System.Drawing.Point(12, 35);
 			this.labelOffset.Name = "labelOffset";
-			this.labelOffset.Size = new System.Drawing.Size(75, 13);
+			this.labelOffset.Size = new System.Drawing.Size(85, 20);
 			this.labelOffset.TabIndex = 14;
 			// 
 			// labelThickness
@@ -187,7 +187,7 @@ namespace Greenshot.Editor.Forms {
 			this.labelThickness.LanguageKey = "editor_dropshadow_thickness";
 			this.labelThickness.Location = new System.Drawing.Point(12, 9);
 			this.labelThickness.Name = "labelThickness";
-			this.labelThickness.Size = new System.Drawing.Size(94, 13);
+			this.labelThickness.Size = new System.Drawing.Size(155, 20);
 			this.labelThickness.TabIndex = 15;
 			// 
 			// DropShadowSettingsForm

@@ -133,7 +133,7 @@ namespace Greenshot.Plugin.ExternalCommand {
 			this.label3.LanguageKey = "externalcommand.label_name";
 			this.label3.Location = new System.Drawing.Point(6, 26);
 			this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(83, 17);
+            this.label3.Size = new System.Drawing.Size(83, 20);
 			this.label3.TabIndex = 17;
             this.label3.Text = "Name";
 			// 
@@ -150,7 +150,7 @@ namespace Greenshot.Plugin.ExternalCommand {
 			this.label2.LanguageKey = "externalcommand.label_argument";
 			this.label2.Location = new System.Drawing.Point(6, 78);
 			this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(83, 17);
+            this.label2.Size = new System.Drawing.Size(83, 20);
 			this.label2.TabIndex = 16;
             this.label2.Text = "Arguments";
 			// 
@@ -167,7 +167,7 @@ namespace Greenshot.Plugin.ExternalCommand {
 			this.label1.LanguageKey = "externalcommand.label_command";
 			this.label1.Location = new System.Drawing.Point(6, 52);
 			this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(83, 17);
+            this.label1.Size = new System.Drawing.Size(83, 20);
 			this.label1.TabIndex = 15;
             this.label1.Text = "Command";
 			// 
@@ -184,7 +184,7 @@ namespace Greenshot.Plugin.ExternalCommand {
             this.label5.LanguageKey = "externalcommand.label_outputimageformat";
             this.label5.Location = new System.Drawing.Point(6, 126);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(83, 17);
+            this.label5.Size = new System.Drawing.Size(83, 20);
             this.label5.TabIndex = 18;
             this.label5.Text = "Image format";
             // 

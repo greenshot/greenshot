@@ -113,7 +113,7 @@ namespace Greenshot.Plugin.Flickr.Forms {
 			this.checkBoxPublic.Name = "checkBoxPublic";
 			this.checkBoxPublic.PropertyName = nameof(FlickrConfiguration.IsPublic);
 			this.checkBoxPublic.SectionName = "Flickr";
-			this.checkBoxPublic.Size = new System.Drawing.Size(55, 17);
+			this.checkBoxPublic.Size = new System.Drawing.Size(85, 20);
 			this.checkBoxPublic.TabIndex = 4;
 			this.checkBoxPublic.UseVisualStyleBackColor = true;
 			// 
@@ -124,7 +124,7 @@ namespace Greenshot.Plugin.Flickr.Forms {
 			this.checkBoxFamily.Name = "checkBoxFamily";
 			this.checkBoxFamily.PropertyName = nameof(FlickrConfiguration.IsFamily);
 			this.checkBoxFamily.SectionName = "Flickr";
-			this.checkBoxFamily.Size = new System.Drawing.Size(55, 17);
+			this.checkBoxFamily.Size = new System.Drawing.Size(80, 20);
 			this.checkBoxFamily.TabIndex = 5;
 			this.checkBoxFamily.UseVisualStyleBackColor = true;
 			// 
@@ -135,7 +135,7 @@ namespace Greenshot.Plugin.Flickr.Forms {
 			this.checkBoxFriend.Name = "checkBoxFriend";
 			this.checkBoxFriend.PropertyName = nameof(FlickrConfiguration.IsFriend);
 			this.checkBoxFriend.SectionName = "Flickr";
-			this.checkBoxFriend.Size = new System.Drawing.Size(55, 17);
+			this.checkBoxFriend.Size = new System.Drawing.Size(80, 20);
 			this.checkBoxFriend.TabIndex = 6;
 			this.checkBoxFriend.UseVisualStyleBackColor = true;
 			// 
@@ -175,7 +175,7 @@ namespace Greenshot.Plugin.Flickr.Forms {
 			this.checkboxAfterUploadLinkToClipBoard.Name = "checkboxAfterUploadLinkToClipBoard";
 			this.checkboxAfterUploadLinkToClipBoard.PropertyName = nameof(FlickrConfiguration.AfterUploadLinkToClipBoard);
 			this.checkboxAfterUploadLinkToClipBoard.SectionName = "Flickr";
-			this.checkboxAfterUploadLinkToClipBoard.Size = new System.Drawing.Size(104, 17);
+			this.checkboxAfterUploadLinkToClipBoard.Size = new System.Drawing.Size(250, 20);
 			this.checkboxAfterUploadLinkToClipBoard.TabIndex = 7;
 			this.checkboxAfterUploadLinkToClipBoard.UseVisualStyleBackColor = true;
 			// 
@@ -186,7 +186,7 @@ namespace Greenshot.Plugin.Flickr.Forms {
 			this.checkBox_hiddenfromsearch.Name = "checkBox_hiddenfromsearch";
 			this.checkBox_hiddenfromsearch.PropertyName = nameof(FlickrConfiguration.HiddenFromSearch);
 			this.checkBox_hiddenfromsearch.SectionName = "Flickr";
-			this.checkBox_hiddenfromsearch.Size = new System.Drawing.Size(118, 17);
+			this.checkBox_hiddenfromsearch.Size = new System.Drawing.Size(250, 20);
 			this.checkBox_hiddenfromsearch.TabIndex = 3;
 			this.checkBox_hiddenfromsearch.UseVisualStyleBackColor = true;
 			// 
