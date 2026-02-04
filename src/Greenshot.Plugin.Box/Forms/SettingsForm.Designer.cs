@@ -106,7 +106,7 @@ namespace Greenshot.Plugin.Box.Forms {
 			this.label_AfterUpload.LanguageKey = "box.label_AfterUpload";
 			this.label_AfterUpload.Location = new System.Drawing.Point(10, 46);
 			this.label_AfterUpload.Name = "label_AfterUpload";
-			this.label_AfterUpload.Size = new System.Drawing.Size(84, 21);
+			this.label_AfterUpload.Size = new System.Drawing.Size(192, 21);
 			this.label_AfterUpload.TabIndex = 8;
 			// 
 			// checkboxAfterUploadLinkToClipBoard
@@ -117,7 +117,7 @@ namespace Greenshot.Plugin.Box.Forms {
 			this.checkboxAfterUploadLinkToClipBoard.Name = "checkboxAfterUploadLinkToClipBoard";
 			this.checkboxAfterUploadLinkToClipBoard.PropertyName = nameof(BoxConfiguration.AfterUploadLinkToClipBoard);
 			this.checkboxAfterUploadLinkToClipBoard.SectionName = "Box";
-			this.checkboxAfterUploadLinkToClipBoard.Size = new System.Drawing.Size(104, 17);
+			this.checkboxAfterUploadLinkToClipBoard.Size = new System.Drawing.Size(210, 20);
 			this.checkboxAfterUploadLinkToClipBoard.TabIndex = 10;
 			this.checkboxAfterUploadLinkToClipBoard.UseVisualStyleBackColor = true;
 			// 
