@@ -21,7 +21,6 @@
 
 using System;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Windows;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
@@ -40,7 +39,7 @@ using Color = Windows.UI.Color;
 namespace Greenshot.Forms
 {
     /// <summary>
-    /// The sharing form
+    /// Form that displays the Windows Share UI for sharing captures to other apps
     /// </summary>
     public sealed partial class SharingForm : BaseForm
     {
@@ -91,15 +90,12 @@ namespace Greenshot.Forms
             _dtmInterop = DataTransferManagerHelper.GetInteropFactory("Windows.ApplicationModel.DataTransfer.DataTransferManager");
 
             IntPtr hwnd = this.Handle;
-            IntPtr pDtm = IntPtr.Zero;
-            // Interface for IUnknown
-            Guid iidUnknown = new Guid("00000000-0000-0000-C000-000000000046");
+            // IID of DataTransferManager - required for correct COM projection on both Windows 10 and 11
+            Guid dtmIid = new Guid("a5caee9b-8708-49d1-8d36-67d25a8da00c");
 
-            _dtmInterop.GetForWindow(hwnd, ref iidUnknown, out pDtm);
+            _dataTransferManager = _dtmInterop.GetForWindow(hwnd, ref dtmIid);
 
-            if (pDtm == IntPtr.Zero) throw new Exception("GetForWindow returned a null pointer.");
-
-            _dataTransferManager = (DataTransferManager)Marshal.GetObjectForIUnknown(pDtm);
+            if (_dataTransferManager == null) throw new Exception("GetForWindow returned null.");
 
             // 1. Hook the Data Request (Setup content)
             _dataTransferManager.DataRequested += OnDataRequested;
