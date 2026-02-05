@@ -5,7 +5,7 @@
 		<resource name="about_donations">Greenshot'ı sevdiyseniz, bizi destekleyin:</resource>
 		<resource name="about_host">Greenshot GitHub üzerinde şu adreste barındırılmaktadır:</resource>
 		<resource name="about_icons">Simgeler Yusuke Kamiyamane'nin Fugue simge setidir (Creative Commons Attribution 3.0 lisansı)</resource>
-		<resource name="about_license">Telif Hakkı (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+		<resource name="about_license">Telif Hakkı (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
 Greenshot HİÇBİR GARANTİ olmaksızın sunulmaktadır. Bu ücretsiz bir yazılımdır ve belirli koşullar altında dağıtmakta serbestsiniz. 
 GNU Genel Kamu Lisansı hakkında ayrıntılar:</resource>
 		<resource name="about_title">Greenshot Hakkında</resource>
@@ -221,7 +221,7 @@ Seçili kayıt yolunun yazılabilir olduğundan emin olun.</resource>
 		<resource name="settings_destination_email">E-Posta gönder</resource>
 		<resource name="settings_destination_file">Doğrudan kaydet (aşağıdaki ayarları kullanarak)</resource>
 		<resource name="settings_destination_fileas">Farklı kaydet (iletişim kutusu gösterilir)</resource>
-		<resource name="settings_destination_picker">Hedefi dinamik olarak seç</resource>
+		<resource name="settings_destination_picker">Her seferinde hedef sor</resource>
 		<resource name="settings_destination_printer">Yazıcıya gönder</resource>
 		<resource name="settings_editor">Editör</resource>
 		<resource name="settings_filenamepattern">Dosya adı biçimi</resource>

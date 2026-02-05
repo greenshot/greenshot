@@ -29,14 +29,14 @@ using System.Windows.Forms;
 namespace Greenshot.Destinations
 {
     /// <summary>
-    /// This uses the Share from Windows 10 to make the capture available to apps.
+    /// This uses the Windows Share dialog to make the capture available to apps.
     /// </summary>
     public class Win10ShareDestination : AbstractDestination
     {
         private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(Win10ShareDestination));
 
         public override string Designation { get; } = "Windows10Share";
-        public override string Description { get; } = "Windows 10 share";
+        public override string Description { get; } = "Windows share";
 
         public override int Priority => 3;
 

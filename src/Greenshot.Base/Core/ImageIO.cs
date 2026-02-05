@@ -571,13 +571,10 @@ namespace Greenshot.Base.Core
                 return null;
             }
 
-            if (!string.IsNullOrEmpty(extension))
-            {
-                extension = extension.Replace(".", string.Empty);
-            }
+            var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
+            var supportedExtensions = fileFormatHandlers.ExtensionsFor(FileFormatHandlerActions.SaveToStream).ToList();
 
             var startingPosition = stream.Position;
-
             // Make sure we can try multiple times
             if (!stream.CanSeek)
             {
@@ -587,16 +584,21 @@ namespace Greenshot.Base.Core
                 // As we are if a different stream, which starts at 0, change the starting position
                 startingPosition = 0;
             }
-            var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
-            foreach (var fileFormatHandler in fileFormatHandlers
-                         .Where(ffh => ffh.Supports(FileFormatHandlerActions.LoadFromStream, extension))
-                         .OrderBy(ffh => ffh.PriorityFor(FileFormatHandlerActions.LoadFromStream, extension)))
+
+            try
             {
-                stream.Seek(startingPosition, SeekOrigin.Begin);
-                if (fileFormatHandler.TryLoadFromStream(stream, extension, out var bitmap))
+                if (fileFormatHandlers.TryLoadFromStream(stream, extension, out var bitmap))
                 {
                     return bitmap;
                 }
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Couldn't read file contents", ex);
+            }
+            finally
+            {
+                stream?.Dispose();
             }
 
             return null;

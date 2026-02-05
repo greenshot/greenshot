@@ -217,7 +217,7 @@ Greenshot 不對這個程式做任何擔保。這個程式是自由軟體，您�
 		<resource name="settings_destination_email">電子郵件</resource>
 		<resource name="settings_destination_file">直接儲存 (使用以下設定)</resource>
 		<resource name="settings_destination_fileas">另存新檔 (顯示對話方塊)</resource>
-		<resource name="settings_destination_picker">動態選取目的地</resource>
+		<resource name="settings_destination_picker">每次詢問目的地</resource>
 		<resource name="settings_destination_printer">傳送到印表機</resource>
 		<resource name="settings_editor">編輯器</resource>
 		<resource name="settings_filenamepattern">檔案名稱樣式</resource>

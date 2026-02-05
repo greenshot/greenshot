@@ -183,6 +183,27 @@ $env:Box13_ClientSecret = "your_secret"
 ### Modifying Plugins
 Each plugin in `src/Greenshot.Plugin.*/` is self-contained. Changes are automatically copied to main output via post-build events.
 
+## Translation Tasks
+
+**For ALL translation-related tasks, delegate to the translation-manager custom agent.**
+
+The translation-manager agent is a specialized expert with comprehensive knowledge of:
+- Translation file structure and format (XML with UTF-8 BOM encoding)
+- All 39 supported languages and their language files
+- Translation glossary, workflow checklists, and validation tools
+- Best practices for high-quality translations
+
+**Translation tasks include:**
+- Adding, updating, or removing translation strings
+- Translating content to different languages
+- Adding support for new languages
+- Validating translation file completeness and correctness
+- Reviewing translation quality
+
+**Documentation**: See `docs/translation/README.md` for comprehensive translation documentation.
+
+**Do not** attempt translation tasks yourself. Always use the translation-manager agent for any work involving language files or translation documentation.
+
 ## Validation Checklist
 
 Before submitting changes:
