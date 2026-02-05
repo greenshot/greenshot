@@ -74,8 +74,19 @@ public static class ConvertDomainToDto
         return new GreenshotTemplateDto
         {
             ContainerList = ToDto(domain.ContainerList),
+            MetaInformation = ToDto(domain.MetaInformation)
+        };
+    }
+
+    public static GreenshotTemplateMetaInformationDto ToDto(GreenshotTemplateMetaInformation domain)
+    {
+        if (domain == null) return null;
+
+        return new GreenshotTemplateMetaInformationDto
+        {
             FormatVersion = domain.FormatVersion,
-            SchemaVersion = domain.SchemaVersion
+            SchemaVersion = domain.SchemaVersion,
+            SavedByGreenshotVersion = domain.SavedByGreenshotVersion
         };
     }
 

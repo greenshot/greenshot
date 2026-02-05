@@ -70,8 +70,7 @@ public static class ConvertDtoToDomain
         return new GreenshotTemplate
         {
             ContainerList = ToDomain(dto.ContainerList),
-            SchemaVersion = dto.SchemaVersion,
-            FormatVersion = dto.FormatVersion
+            MetaInformation = ToDomain(dto.MetaInformation)
         };
     }
 
@@ -86,6 +85,18 @@ public static class ConvertDtoToDomain
             SavedByGreenshotVersion = dto.SavedByGreenshotVersion,
             CaptureDate = dto.CaptureDate,
             CaptureSize = dto.CaptureSize
+        };
+    }
+
+    public static GreenshotTemplateMetaInformation ToDomain(GreenshotTemplateMetaInformationDto dto)
+    {
+        if (dto == null) return null;
+
+        return new GreenshotTemplateMetaInformation
+        {
+            FormatVersion = dto.FormatVersion,
+            SchemaVersion = dto.SchemaVersion,
+            SavedByGreenshotVersion = dto.SavedByGreenshotVersion
         };
     }
 

@@ -29,43 +29,35 @@ namespace Greenshot.Editor.FileFormat.Dto;
 /// </summary>
 public sealed class GreenshotFileDto
 {
-    /// <summary>
     /// <inheritdoc cref="GreenshotFile.MetaInformation"/>
-    /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public GreenshotFileMetaInformationDto MetaInformation { get; set; } = new();
 
-    /// <summary>
     /// <inheritdoc cref="GreenshotFile.Image"/>
-    /// </summary>
     [GreenshotImageData(nameof(ImagePath), targetZipFolder: "screenshot", staticFilename: "capture", staticExtension: "png")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public byte[] Image { get; set; }
 
     /// <summary>
-    /// Relative path to the image file within the archive.
+    /// Relative path to the image file within the archive to store <see cref="Image"/>.
     /// </summary>
     [GreenshotImagePath(nameof(Image))]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string ImagePath { get; set; }
 
-    /// <summary>
     /// <inheritdoc cref="GreenshotFile.RenderedImage"/>
-    /// </summary>
     [GreenshotImageData(nameof(RenderedImagePath), targetZipFolder: "preview" , staticFilename: "preview", staticExtension: "png")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public byte[] RenderedImage { get; set; }
 
     /// <summary>
-    /// Relative path to the rendered image file within the archive.
+    /// Relative path to the file within the archive to store <see cref="RenderedImage"/>.
     /// </summary>
     [GreenshotImagePath(nameof(RenderedImage))]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string RenderedImagePath { get; set; }
 
-    /// <summary>
     /// <inheritdoc cref="GreenshotFile.ContainerList"/>
-    /// </summary>
     public DrawableContainerListDto ContainerList { get; set; } = new();
 
 }

@@ -96,8 +96,11 @@ public class GreenshotTemplateVersionHandler
         return new GreenshotTemplate
         {
             ContainerList = elements,
-            FormatVersion = GreenshotFileFormatVersion.V2,
-            SchemaVersion = CurrentSchemaVersion,
+            MetaInformation = new GreenshotTemplateMetaInformation
+            {
+                FormatVersion = GreenshotFileFormatVersion.V2,
+                SchemaVersion = CurrentSchemaVersion,
+            }
         };
     }
 

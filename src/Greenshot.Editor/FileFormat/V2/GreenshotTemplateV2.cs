@@ -19,163 +19,251 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Text;
+using System.Text.Json;
+using Greenshot.Base.Core;
 using Greenshot.Editor.FileFormat.Dto;
 using log4net;
-using static Greenshot.Editor.FileFormat.GreenshotFileVersionHandler;
 
 namespace Greenshot.Editor.FileFormat.V2;
 
 /// <summary>
-/// Provides methods for loading and saving Greenshot template file format version V2.
+/// Provides methods for loading and saving Greenshot file format version V2.
 /// </summary>
 internal static class GreenshotTemplateV2
 {
     private static readonly ILog Log = LogManager.GetLogger(typeof(GreenshotTemplateV2));
 
-    /// <summary>
-    /// Represents the marker string used to identify the file format as specific to Greenshot templates.
-    /// </summary>
-    private const string FileFormatMarker = "GreenshotTemplate";
+    private const string ContentJsonName = "content.json";
+    private const string MetadataJsonName = "meta.json";
 
-    /// <summary>
-    /// Represents the file format version used for Greenshot files, formatted as a two-digit string.
-    /// </summary>
-    /// <remarks> Thie ist fixed to <see cref="GreenshotFileFormatVersion.V2"/> ("02") .</remarks>
-    private static readonly string FileFormatVersion = ((int)GreenshotFileFormatVersion.V2).ToString("D2");
-
-    /// <summary>
-    /// Represents the current schema version of the Greenshot file in a two-digit string format.
-    /// </summary>
-    /// <remarks> It is derived from the <see cref="GreenshotFileVersionHandler.CurrentSchemaVersion"/> property.</remarks>
-    private static readonly string SchemaVersion = CurrentSchemaVersion.ToString("D2");
-
-    /// <summary>
-    /// Represents the complete version string, combining the file format version and schema version.
-    /// </summary>
-    /// <remarks>This value is a concatenation of <see cref="FileFormatVersion"/> and <see
-    /// cref="SchemaVersion"/>,  separated by a period ("."), e.g. "02.01" for version 2.1.</remarks>
-    private static readonly string CompleteVersion = FileFormatVersion + "." + SchemaVersion;
-
-    /// <summary>
-    /// Determines whether the stream matches the Greenshot file format version V2.
-    /// </summary>
-    /// <remarks>The stream's position will be modified during the operation but will remain open after the method completes.</remarks>
-    /// <param name="greenshotTemplateFileStream">The stream containing the file to check. The stream must support seeking.</param>
-    /// <returns><see langword="true"/> if the file format matches the Greenshot version V2; otherwise, <see langword="false"/>.</returns>
-    internal static bool DoesFileFormatMatch(Stream greenshotTemplateFileStream)
+    internal static bool DoesFileFormatMatch(Stream greenshotFileStream)
     {
-        //reset position
-        greenshotTemplateFileStream.Seek(0, SeekOrigin.Begin);
-
-        // set leaveOpen to prevent the automatic closing of the file stream
-        using var streamReader = new StreamReader(greenshotTemplateFileStream, Encoding.ASCII, false, 1024, true);
-
-        // file should start with the marker text and format version. Schema version is not relevant for the file format check.
-        string expectedfileFormatMarker = FileFormatMarker + FileFormatVersion;
-
-        var markerInFile = new char[expectedfileFormatMarker.Length];
-        streamReader.Read(markerInFile, 0, expectedfileFormatMarker.Length);
-        var markerText = new string(markerInFile);
-
-        var foundMarkerV02 = expectedfileFormatMarker.Equals(markerText);
-
-        if (foundMarkerV02)
-        {
-            Log.InfoFormat("Greenshot file format: {0}", markerText);
-            return true;
-        }
-
-        return false;
-    }
-
-    /// <summary>
-    /// This load function supports file format version V2.
-    /// </summary>
-    /// <param name="greenshotTemplateFileStream">A <see cref="Stream"/> containing the Greenshot template data.</param>
-    /// <returns>The loaded Greenshot template.</returns>
-    internal static GreenshotTemplate LoadFromStream(Stream greenshotTemplateFileStream)
-    {
-        GreenshotTemplate returnGreenshotTemplate;
         try
         {
-            // ignore marker and use offset 
-            var completeMarker = FileFormatMarker + CompleteVersion;
+            greenshotFileStream.Seek(0, SeekOrigin.Begin);
 
-            greenshotTemplateFileStream.Seek(completeMarker.Length, SeekOrigin.Begin);
-            using var ms = new MemoryStream();
-            greenshotTemplateFileStream.CopyTo(ms);
-            var allBytes = ms.ToArray();
+            using var zipArchive = new ZipArchive(greenshotFileStream, ZipArchiveMode.Read, true);
+            var entry = zipArchive.GetEntry(MetadataJsonName);
+            if (entry == null)
+            {
+                return false;
+            }
 
-            returnGreenshotTemplate = Deserialize(allBytes);
+            using var entryStream = entry.Open();
+            using var document = JsonDocument.Parse(entryStream);
+
+            // We only check the format version, do not deserialize the full DTO.
+            return V2Helper.GetFormatVersion(document.RootElement, "formatVersion") == GreenshotFileVersionHandler.GreenshotFileFormatVersion.V2;
         }
-        catch (Exception e)
+        catch
         {
-            Log.Error("Error deserializing Greenshot template from stream.", e);
-            throw;
+            return false;
         }
-
-        return returnGreenshotTemplate;
     }
 
     /// <summary>
-    /// Saves the <see cref="GreenshotTemplate"/> to the provided stream in the Greenshot template format.
+    /// Saves the specified <see cref="GreenshotTemplate"/> to the provided stream in the Greenshot file format version V2.
     /// </summary>
-    /// <remarks>This ignores the file format version and schema version in the GreenshotTemplate instance.
-    /// File format version is always V2, schema version is always the current schema version.<br/>
-    ///  The file parts are:<br/>
-    ///  1. 19 bytes for the Greenshot marker string <see cref="FileFormatMarker"/> + <see cref="FileFormatVersion"/> (i.e. `"GreenshotTemplate02"`).<br/>
-    ///  2. 3 bytes for the Greenshot file schema version <see cref="GreenshotFileVersionHandler.CurrentSchemaVersion"/> (i.e. `".01"`).<br/>
-    ///  3. The binary data of the <see cref="GreenshotTemplateDto"/>. (serialized with MessagePack).<br/>
+    /// <remarks>
+    /// V2 stores the domain model as JSON and intentionally does not store the image payload.
+    /// The stream contains a ZIP archive with entries:
+    /// - meta.json: Contains file metadata (format version, schema version, capture date, etc.)
+    /// - content.json: Contains the main content (containers and other data)
+    /// - Images/: Contains image files (if any)
     /// </remarks>
     internal static bool SaveToStream(GreenshotTemplate greenshotTemplate, Stream stream)
     {
-        // 1./2. file part - Greenshot template Marker and version information
-        // writes constant marker and complete version information to the stream
-        var headerBytes = Encoding.ASCII.GetBytes(FileFormatMarker);
-        stream.Write(headerBytes, 0, headerBytes.Length);
+        if (greenshotTemplate == null)
+        {
+            throw new ArgumentNullException(nameof(greenshotTemplate));
+        }
 
-        var versionBytes = Encoding.ASCII.GetBytes(CompleteVersion);
-        stream.Write(versionBytes, 0, versionBytes.Length);
+        var dto = ConvertDomainToDto.ToDto(greenshotTemplate);
 
-        //3. file part - Greenshot template data
-        // writes the serialized GreenshotTemplate to the stream
-        byte[] templateFileBytes = Serialize(greenshotTemplate);
-        stream.Write(templateFileBytes, 0, templateFileBytes.Length);
+        var metaInfoDto = dto.MetaInformation ??= new GreenshotTemplateMetaInformationDto();
+
+        metaInfoDto.FormatVersion = GreenshotFileVersionHandler.GreenshotFileFormatVersion.V2;
+        metaInfoDto.SchemaVersion = GreenshotFileVersionHandler.CurrentSchemaVersion;
+        metaInfoDto.SavedByGreenshotVersion = EnvironmentInfo.GetGreenshotVersion();
+
+        using (var zipArchive = new ZipArchive(stream, ZipArchiveMode.Create, true))
+        {
+            SaveImages(dto, zipArchive);
+            SaveMetadata(metaInfoDto, zipArchive);
+
+            // Remove metadata from DTO before serializing content to avoid duplication
+            dto.MetaInformation = null;
+
+            var jsonBytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(dto, V2Helper.GetJsonSerializerOptions()));
+
+            var contentEntry = zipArchive.CreateEntry(ContentJsonName, CompressionLevel.Optimal);
+            using var contentStream = contentEntry.Open();
+            contentStream.Write(jsonBytes, 0, jsonBytes.Length);
+        }
 
         return true;
     }
 
-    /// <summary>
-    /// Serializes the specified <see cref="GreenshotTemplate"/> instance into a byte array by using MessagePackSerializer.
-    /// </summary>
-    /// <param name="data">The <see cref="GreenshotTemplate"/> instance to serialize. Cannot be <see langword="null"/>.</param>
-    /// <returns>A byte array representing the serialized form of the <see cref="GreenshotTemplate"/> instance.</returns>
-    private static byte[] Serialize(GreenshotTemplate data)
+    private static void SaveMetadata(GreenshotTemplateMetaInformationDto metaInfoDto, ZipArchive zipArchive)
     {
-        if (data == null)
+        var options = V2Helper.GetJsonSerializerOptions();
+        var jsonBytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(metaInfoDto, options));
+
+        var metadataEntry = zipArchive.CreateEntry(MetadataJsonName, CompressionLevel.Optimal);
+        using var metadataStream = metadataEntry.Open();
+        metadataStream.Write(jsonBytes, 0, jsonBytes.Length);
+    }
+
+    private static void SaveImages(GreenshotTemplateDto dto, ZipArchive zipArchive)
+    {
+        var imagesToSave = ExtractAllImages(dto);
+
+        foreach (var kvp in imagesToSave)
         {
-            throw new ArgumentNullException(nameof(data), "Cannot serialize a null GreenshotTemplate.");
+            var entry = zipArchive.CreateEntry(kvp.Key, CompressionLevel.Optimal);
+            using var entryStream = entry.Open();
+            entryStream.Write(kvp.Value, 0, kvp.Value.Length);
+        }
+    }
+
+    private static Dictionary<string, byte[]> ExtractAllImages(GreenshotTemplateDto dto)
+    {
+        var imageIndex = 1;
+        var imagesToSave = new Dictionary<string, byte[]>();
+
+        foreach (var kvp in V2Helper.ExtractImages(dto, ref imageIndex))
+        {
+            imagesToSave[kvp.Key] = kvp.Value;
         }
 
-        var dto = ConvertDomainToDto.ToDto(data);
-        //return MessagePackSerializer.Serialize(dto);
-        throw new System.Exception("DTO serialization is disabled temporarily - to be fixed later ");
+        var containerList = dto.ContainerList?.ContainerList;
+
+        if (containerList is null)
+        {
+            return imagesToSave;
+        }
+
+        foreach (var container in containerList)
+        {
+            foreach (var kvp in V2Helper.ExtractImages(container, ref imageIndex))
+            {
+                imagesToSave[kvp.Key] = kvp.Value;
+            }
+        }
+
+        return imagesToSave;
     }
 
     /// <summary>
-    /// Deserializes a byte array into an <see cref="GreenshotTemplate"/> object by using MessagePackSerializer.
+    /// Loads a Greenshot V2 file from stream.
     /// </summary>
-    /// <param name="bytes">The byte array containing the serialized data of an <see cref="GreenshotTemplate"/>.</param>
-    /// <returns>An <see cref="GreenshotTemplate"/> object deserialized from the provided byte array.</returns>
-    private static GreenshotTemplate Deserialize(byte[] bytes)
+    internal static GreenshotTemplate LoadFromStream(Stream greenshotFileStream)
     {
-        var dto = new GreenshotTemplateDto() ;// MessagePackSerializer.Deserialize<GreenshotTemplateDto>(bytes);
-        throw new System.Exception("DTO serialization is disabled temporarily - to be fixed later ");
-        var currentVersionDto = MigrateToCurrentVersion(dto);
-        return ConvertDtoToDomain.ToDomain(currentVersionDto);
+        try
+        {
+            greenshotFileStream.Seek(0, SeekOrigin.Begin);
+            using var zipArchive = new ZipArchive(greenshotFileStream, ZipArchiveMode.Read, true);
+
+            var dto = LoadContent(zipArchive);
+
+            LoadImages(dto, zipArchive);
+            LoadMetadata(dto, zipArchive);
+
+            var currentVersionDto = MigrateToCurrentVersion(dto);
+            return ConvertDtoToDomain.ToDomain(currentVersionDto);
+        }
+        catch (Exception e)
+        {
+            Log.Error("Error deserializing Greenshot file (V2) from stream.", e);
+            throw;
+        }
     }
+
+    private static GreenshotTemplateDto LoadContent(ZipArchive zipArchive)
+    {
+        var contentEntry = zipArchive.GetEntry(ContentJsonName);
+        if (contentEntry == null)
+        {
+            throw new FileFormatException($"Content file '{ContentJsonName}' not found in the Greenshot file.");
+        }
+        using var contentStream = contentEntry.Open();
+
+        GreenshotTemplateDto dto;
+        try
+        {
+            dto = JsonSerializer.Deserialize<GreenshotTemplateDto>(contentStream, V2Helper.GetJsonSerializerOptions());
+        }
+        catch (JsonException e)
+        {
+            throw new FileFormatException("Failed to deserialize content.json into GreenshotFileDto.", e);
+        }
+
+        if (dto == null)
+        {
+            throw new FileFormatException("Failed to deserialize content.json into GreenshotFileDto. GreenshotFileDto is null.");
+        }
+        return dto;
+
+    }
+
+    private static void LoadMetadata(GreenshotTemplateDto dto, ZipArchive zipArchive)
+    {
+        if (dto is null)
+        {
+            throw new ArgumentNullException(nameof(dto));
+        }
+
+        var metadataEntry = zipArchive.GetEntry(MetadataJsonName);
+
+        if (metadataEntry == null)
+        {
+            Log.Warn("Metadata file 'meta.json' not found, using default metadata.");
+            if (dto.MetaInformation == null)
+            {
+                dto.MetaInformation = new GreenshotTemplateMetaInformationDto();
+            }
+            return;
+        }
+
+        try
+        {
+            using var metadataStream = metadataEntry.Open();
+            var metaInfoDto = JsonSerializer.Deserialize<GreenshotTemplateMetaInformationDto>(metadataStream, V2Helper.GetJsonSerializerOptions());
+            if (metaInfoDto != null)
+            {
+                dto.MetaInformation = metaInfoDto;
+            }
+        }
+        catch (Exception e)
+        {
+            Log.Warn("Failed to load metadata from meta.json, using default metadata.", e);
+            if (dto.MetaInformation == null)
+            {
+                dto.MetaInformation = new GreenshotTemplateMetaInformationDto();
+            }
+        }
+
+    }
+
+    private static void LoadImages(GreenshotTemplateDto dto, ZipArchive zipArchive)
+    {
+        var containerList = dto.ContainerList?.ContainerList;
+
+        if (containerList is null)
+        {
+            return;
+        }
+
+        foreach (var container in containerList)
+        {
+            V2Helper.LoadImagesForDto(container, zipArchive);
+        }
+    }
+
 
     /// <summary>
     /// Main method for migrating an <see cref="GreenshotTemplateDto"/> to the current version.
@@ -184,12 +272,14 @@ internal static class GreenshotTemplateV2
     /// <param name="dto"></param>
     private static GreenshotTemplateDto MigrateToCurrentVersion(GreenshotTemplateDto dto)
     {
-        switch (dto.SchemaVersion)
+        var schemaVersion = dto.MetaInformation?.SchemaVersion ?? GreenshotFileVersionHandler.CurrentSchemaVersion;
+
+        switch (schemaVersion)
         {
-            case CurrentSchemaVersion:
+            case GreenshotFileVersionHandler.CurrentSchemaVersion:
                 return dto; // is already at the current version
-            case > CurrentSchemaVersion:
-                Log.Warn($"Greenshot template schema version {dto.SchemaVersion} is newer than the current version {CurrentSchemaVersion}. No migration will be performed.");
+            case > GreenshotFileVersionHandler.CurrentSchemaVersion:
+                Log.Warn($"Greenshot file schema version {schemaVersion} is newer than the current version {GreenshotFileVersionHandler.CurrentSchemaVersion}. No migration will be performed.");
                 return dto; // no migration possible, just return the dto as is
             //case 1:
             // Uncomment the next line if the first migration is needed
@@ -202,7 +292,7 @@ internal static class GreenshotTemplateV2
     /*
     // uncomment and implement if the first migration is needed
 
-     private GreenshotTemplateDto MigrateFromV1ToV2(GreenshotTemplateDto dto)
+     private GreenshotFileDto MigrateFromV1ToV2(GreenshotFileDto dto)
      {
          // Chenge properties as needed for migration
 

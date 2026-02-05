@@ -68,8 +68,11 @@ internal static class GreenshotTemplateV1
 
         GreenshotTemplate greenshotTemplate = new GreenshotTemplate
         {
-            FormatVersion = GreenshotFileVersionHandler.GreenshotFileFormatVersion.V1,
-            SchemaVersion = -1
+            MetaInformation = new GreenshotTemplateMetaInformation
+            {
+                FormatVersion = GreenshotFileVersionHandler.GreenshotFileFormatVersion.V1,
+                SchemaVersion = -1
+            }
         };
 
         try
@@ -85,7 +88,7 @@ internal static class GreenshotTemplateV1
             Log.Error("Error serializing elements from stream.", e);
         }
 
-        greenshotTemplate.SchemaVersion = 4; // The schema version for V1 is always 4, as this is the last version that was used in the old Greenshot file format.
+        greenshotTemplate.MetaInformation.SchemaVersion = 4; // The schema version for V1 is always 4, as this is the last version that was used in the old Greenshot file format.
 
         return greenshotTemplate;
     }

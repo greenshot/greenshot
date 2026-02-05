@@ -19,30 +19,29 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Text.Json.Serialization;
-
-namespace Greenshot.Editor.FileFormat.Dto;
+namespace Greenshot.Editor.FileFormat;
 
 /// <summary>
-/// Data transfer object for <see cref="GreenshotFileMetaInformation"/>.
+/// Contains metadata information about a .greenshot file.
 /// </summary>
-public sealed class GreenshotFileMetaInformationDto
+public sealed class GreenshotTemplateMetaInformation
 {
-    /// <inheritdoc cref="GreenshotFileMetaInformation.FormatVersion"/>
+    /// <summary>
+    /// Indicates the version of the file format, which is used to determine the serializer and deserializer for the file.
+    /// For now this is not really needed within the domain object, because you need to know the serializer before deserializing the file.
+    /// The format version is part of the complete file version, so we include it here for completeness.
+    /// May be in the future used to handle backward compatibility issues.
+    /// </summary>
     public GreenshotFileVersionHandler.GreenshotFileFormatVersion FormatVersion { get; set; } = GreenshotFileVersionHandler.GreenshotFileFormatVersion.Unknown;
 
-    /// <inheritdoc cref="GreenshotFileMetaInformation.SchemaVersion"/>
-    public int SchemaVersion { get; set; } = GreenshotFileVersionHandler.CurrentSchemaVersion;
+    /// <summary>
+    /// Version of the file schema
+    /// </summary>
+    public int SchemaVersion { get; set; }
 
-    /// <inheritdoc cref="GreenshotFileMetaInformation.SavedByGreenshotVersion"/>
+    /// <summary>
+    /// The version of Greenshot that was used to save this file.
+    /// </summary>
     public string SavedByGreenshotVersion { get; set; }
 
-    /// <inheritdoc cref="GreenshotFileMetaInformation.CaptureDate"/>
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public DateTime CaptureDate { get; set; }
-
-    /// <inheritdoc cref="GreenshotFileMetaInformation.CaptureSize"/>
-    //TODO: ignore for deserialization, because this should be calculated on load
-    public string CaptureSize { get; set; }
 }

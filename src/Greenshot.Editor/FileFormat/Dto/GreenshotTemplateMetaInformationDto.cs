@@ -18,21 +18,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-using System.Text.Json.Serialization;
-using Greenshot.Editor.FileFormat.Dto.Container;
 
 namespace Greenshot.Editor.FileFormat.Dto;
 
 /// <summary>
-/// Is Data Transfer Object (DTO) for <see cref="GreenshotTemplate"/>
-/// This represents the main class for a .gst file.
+/// Data transfer object for <see cref="GreenshotTemplateMetaInformationDto"/>.
 /// </summary>
-public sealed class GreenshotTemplateDto
+public sealed class GreenshotTemplateMetaInformationDto
 {
-    /// <inheritdoc cref="GreenshotTemplate.MetaInformation"/>
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public GreenshotTemplateMetaInformationDto MetaInformation { get; set; } = new();
+    /// <inheritdoc cref="GreenshotTemplateMetaInformation.FormatVersion"/>
+    public GreenshotFileVersionHandler.GreenshotFileFormatVersion FormatVersion { get; set; } = GreenshotFileVersionHandler.GreenshotFileFormatVersion.Unknown;
 
-    /// <inheritdoc cref="GreenshotTemplate.ContainerList"/>
-    public DrawableContainerListDto ContainerList { get; set; } = new();
+    /// <inheritdoc cref="GreenshotTemplateMetaInformation.SchemaVersion"/>
+    public int SchemaVersion { get; set; } = GreenshotFileVersionHandler.CurrentSchemaVersion;
+
+    /// <inheritdoc cref="GreenshotTemplateMetaInformation.SavedByGreenshotVersion"/>
+    public string SavedByGreenshotVersion { get; set; }
 }

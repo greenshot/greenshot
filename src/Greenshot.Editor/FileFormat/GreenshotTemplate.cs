@@ -33,15 +33,7 @@ public sealed class GreenshotTemplate
     public DrawableContainerList ContainerList { get; set; }
 
     /// <summary>
-    /// Indicates the version of the file format, which is used to determine the serializer and deserializer for the file.
-    /// For now this is not really needed within the Dto, because you need to know the serializer before deserialzing the Dto.
-    /// The format version is part of the complete file version, so we include it here for completeness.
-    /// May be in the future used to handle backward compatibility issues.
+    /// Metadata information about the file, including format version, schema version, and capture details.
     /// </summary>
-    public GreenshotFileVersionHandler.GreenshotFileFormatVersion FormatVersion { get; set; } = GreenshotFileVersionHandler.GreenshotFileFormatVersion.Unknown;
-
-    /// <summary>
-    /// Version of the file schema
-    /// </summary>
-    public int SchemaVersion { get; set; }
+    public GreenshotTemplateMetaInformation MetaInformation { get; set; } = new();
 }
