@@ -36,7 +36,7 @@ namespace Greenshot.Processors
         private static readonly Win10Configuration Win10Configuration = IniConfig.GetIniSection<Win10Configuration>();
         public override string Designation => "Windows10OcrProcessor";
 
-        public override string Description => Designation;
+        public override string Description => "Windows OCR";
 
         public override bool ProcessCapture(ISurface surface, ICaptureDetails captureDetails)
         {
