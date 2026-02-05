@@ -116,7 +116,7 @@ namespace Greenshot.Plugin.GooglePhotos.Forms {
 			this.checkboxAfterUploadLinkToClipBoard.Name = "checkboxAfterUploadLinkToClipBoard";
 			this.checkboxAfterUploadLinkToClipBoard.PropertyName = nameof(GooglePhotosConfiguration.AfterUploadLinkToClipBoard);
 			this.checkboxAfterUploadLinkToClipBoard.SectionName = "GooglePhotos";
-			this.checkboxAfterUploadLinkToClipBoard.Size = new System.Drawing.Size(104, 17);
+			this.checkboxAfterUploadLinkToClipBoard.Size = new System.Drawing.Size(225, 20);
 			this.checkboxAfterUploadLinkToClipBoard.TabIndex = 2;
 			this.checkboxAfterUploadLinkToClipBoard.UseVisualStyleBackColor = true;
 			// 

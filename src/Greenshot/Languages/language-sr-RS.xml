@@ -195,7 +195,7 @@
 		<resource name="settings_destination_email">Е-пошта</resource>
 		<resource name="settings_destination_file">Сачувај директно (уз коришћење доњих поставки)</resource>
 		<resource name="settings_destination_fileas">Сачувај као (уз приказивање прозорчета)</resource>
-		<resource name="settings_destination_picker">Динамички изабери одредиште</resource>
+		<resource name="settings_destination_picker">Питај за одредиште сваки път</resource>
 		<resource name="settings_destination_printer">Пошаљи штампачу</resource>
 		<resource name="settings_editor">Уређивач</resource>
 		<resource name="settings_filenamepattern">Образац за називе:</resource>

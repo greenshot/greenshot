@@ -102,18 +102,18 @@ namespace Greenshot.Base.Core
             _image = null;
         }
 
-        private Icon _cursor;
+        private Bitmap _cursor;
 
         /// <summary>
         /// Get/Set the image for the Cursor
         /// </summary>
-        public Icon Cursor
+        public Bitmap Cursor
         {
             get => _cursor;
             set
             {
                 _cursor?.Dispose();
-                _cursor = (Icon) value.Clone();
+                _cursor = (Bitmap) value?.Clone();
             }
         }
 

@@ -47,7 +47,7 @@ namespace Greenshot.Plugin.Dropbox
         {
             var oauth2Settings = new OAuth2Settings
             {
-                AuthUrlPattern = "https://api.dropbox.com/oauth2/authorize?response_type=token&client_id={ClientId}&state={State}&redirect_uri={RedirectUrl}",
+                AuthUrlPattern = "https://www.dropbox.com/oauth2/authorize?client_id={ClientId}&response_type=code&state={State}&redirect_uri={RedirectUrl}&token_access_type=offline",
                 TokenUrl = "https://api.dropbox.com/oauth2/token",
                 RedirectUrl = "https://getgreenshot.org/authorize/dropbox",
                 CloudServiceName = "Dropbox",
@@ -75,10 +75,16 @@ namespace Greenshot.Plugin.Dropbox
                         "path", "/" + filename.Replace(Path.DirectorySeparatorChar, '\\')
                     }
                 };
+
+                var serializerSettings = new JsonSerializerSettings();
+                serializerSettings.StringEscapeHandling = StringEscapeHandling.EscapeNonAscii;
+
+                var encodedArgs = JsonConvert.SerializeObject(arguments, serializerSettings);
+                encodedArgs = encodedArgs.Replace("\x7F", "\\u007f");
                 IDictionary<string, object> headers = new Dictionary<string, object>
                 {
                     {
-                        "Dropbox-API-Arg", JsonConvert.SerializeObject(arguments)
+                        "Dropbox-API-Arg", encodedArgs
                     }
                 };
                 var webRequest = OAuth2Helper.CreateOAuth2WebRequest(HTTPMethod.POST, "https://content.dropboxapi.com/2/files/upload", oauth2Settings);

@@ -198,7 +198,7 @@ Por favor verifique la ruta de almacenamiento seleccionada.</resource>
 		<resource name="settings_destination_email">Correo electrónico</resource>
 		<resource name="settings_destination_file">Guardar directamente (usando la configuración indicada abajo)</resource>
 		<resource name="settings_destination_fileas">Guardar como (mostrando cuadro)</resource>
-		<resource name="settings_destination_picker">Seleccionar destino dinámicamente</resource>
+		<resource name="settings_destination_picker">Preguntar el destino cada vez</resource>
 		<resource name="settings_destination_printer">Enviar a imprimir</resource>
 		<resource name="settings_editor">Editor</resource>
 		<resource name="settings_filenamepattern">Formato para nombre del archivo</resource>

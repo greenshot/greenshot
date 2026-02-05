@@ -117,7 +117,7 @@ namespace Greenshot.Plugin.Imgur.Forms {
 			this.checkbox_anonymous_access.Name = "checkbox_anonymous_access";
 			this.checkbox_anonymous_access.PropertyName = nameof(ImgurConfiguration.AnonymousAccess);
 			this.checkbox_anonymous_access.SectionName = "Imgur";
-			this.checkbox_anonymous_access.Size = new System.Drawing.Size(139, 17);
+			this.checkbox_anonymous_access.Size = new System.Drawing.Size(360, 20);
 			this.checkbox_anonymous_access.TabIndex = 2;
 			this.checkbox_anonymous_access.UseVisualStyleBackColor = true;
 			// 
@@ -128,7 +128,7 @@ namespace Greenshot.Plugin.Imgur.Forms {
 			this.checkbox_usepagelink.Name = "checkbox_usepagelink";
 			this.checkbox_usepagelink.PropertyName = nameof(ImgurConfiguration.UsePageLink);
 			this.checkbox_usepagelink.SectionName = "Imgur";
-			this.checkbox_usepagelink.Size = new System.Drawing.Size(251, 17);
+			this.checkbox_usepagelink.Size = new System.Drawing.Size(360, 20);
 			this.checkbox_usepagelink.TabIndex = 3;
 			this.checkbox_usepagelink.UseVisualStyleBackColor = true;
 			// 

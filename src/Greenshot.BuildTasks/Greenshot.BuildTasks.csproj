@@ -3,9 +3,10 @@
     <DefineConstants>$(DefineConstants);GREENSHOT_BUILDTASKS</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Build.Utilities.Core" version="17.3.2">
+    <PackageReference Include="Microsoft.Build.Utilities.Core" version="18.0.2">
       <PrivateAssets>all</PrivateAssets>
       <ExcludeAssets>runtime</ExcludeAssets>
+      <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="SixLabors.ImageSharp" Version="2.1.13" />   
     <PackageReference Include="SixLabors.ImageSharp.Drawing" version="1.0.0" />

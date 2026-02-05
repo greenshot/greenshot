@@ -208,8 +208,8 @@ EndSelection:<<<<<<<4
         {
             lock (ClipboardLockObject)
             {
-                int retryCount = 2;
-                while (retryCount >= 0)
+                const int maxRetries = 3;
+                for (int attempt = 0; attempt < maxRetries; attempt++)
                 {
                     try
                     {
@@ -217,7 +217,8 @@ EndSelection:<<<<<<<4
                     }
                     catch (Exception ee)
                     {
-                        if (retryCount == 0)
+                        bool isLastAttempt = attempt == maxRetries - 1;
+                        if (isLastAttempt)
                         {
                             string messageText;
                             string clipboardOwner = GetClipboardOwner();
@@ -236,10 +237,6 @@ EndSelection:<<<<<<<4
                         {
                             Thread.Sleep(100);
                         }
-                    }
-                    finally
-                    {
-                        --retryCount;
                     }
                 }
             }
@@ -447,16 +444,21 @@ EndSelection:<<<<<<<4
                 try
                 {
                     fileData = FileDescriptorReader.GetFileContents(dataObject, fileIndex);
-                    //Do something with the fileContent Stream
                 }
                 catch (Exception ex)
                 {
                     Log.Error($"Couldn't read file contents for {fileDescriptor.FileName}.", ex);
                 }
+
                 if (fileData?.Length > 0)
                 {
                     fileData.Position = 0;
                     yield return (fileData, fileDescriptor.FileName);
+                }
+                else
+                {
+                    // Dispose the stream if it won't be yielded (empty or null length)
+                    fileData?.Dispose();
                 }
 
                 fileIndex++;
@@ -1141,7 +1143,7 @@ EndSelection:<<<<<<<4
 
             int absStride = Math.Abs(bmpData.Stride);
             int bytes = absStride * bitmap.Height;
-            long ptr = bmpData.Scan0.ToInt32();
+            long ptr = bmpData.Scan0.ToInt64();
             // Declare an array to hold the bytes of the bitmap.
             byte[] rgbValues = new byte[bytes];
 

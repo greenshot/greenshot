@@ -21,9 +21,11 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
+using Greenshot.Base.Core.FileFormatHandlers;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 using log4net;
@@ -120,13 +122,13 @@ namespace Greenshot.Base.Controls
 
         private void PrepareFilterOptions()
         {
-            // TODO: Change to the FileFormatHandlerRegistry to look for all the supported extensions
-            OutputFormat[] supportedImageFormats = (OutputFormat[]) Enum.GetValues(typeof(OutputFormat));
-            _filterOptions = new FilterOption[supportedImageFormats.Length];
+            var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
+            var supportedExtensions = fileFormatHandlers.ExtensionsFor(FileFormatHandlerActions.SaveToFile).Select(s => s.Substring(1)).ToList();
+
+            _filterOptions = new FilterOption[supportedExtensions.Count];
             for (int i = 0; i < _filterOptions.Length; i++)
             {
-                string ifo = supportedImageFormats[i].ToString();
-                if (ifo.ToLower().Equals("jpeg")) ifo = "Jpg"; // we dont want no jpeg files, so let the dialog check for jpg
+                string ifo = supportedExtensions[i];
                 FilterOption fo = new FilterOption
                 {
                     Label = ifo.ToUpper(),

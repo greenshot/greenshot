@@ -94,7 +94,7 @@ namespace Greenshot.Plugin.Photobucket.Forms {
 			this.label_upload_format.LanguageKey = "photobucket.label_upload_format";
 			this.label_upload_format.Location = new System.Drawing.Point(12, 14);
 			this.label_upload_format.Name = "label_upload_format";
-			this.label_upload_format.Size = new System.Drawing.Size(84, 20);
+			this.label_upload_format.Size = new System.Drawing.Size(88, 20);
 			this.label_upload_format.TabIndex = 9;
 			// 
 			// checkbox_usepagelink
@@ -104,7 +104,7 @@ namespace Greenshot.Plugin.Photobucket.Forms {
 			this.checkbox_usepagelink.Name = "checkbox_usepagelink";
 			this.checkbox_usepagelink.PropertyName = nameof(PhotobucketConfiguration.UsePageLink);
 			this.checkbox_usepagelink.SectionName = "Photobucket";
-			this.checkbox_usepagelink.Size = new System.Drawing.Size(251, 17);
+			this.checkbox_usepagelink.Size = new System.Drawing.Size(360, 20);
 			this.checkbox_usepagelink.TabIndex = 2;
 			this.checkbox_usepagelink.UseVisualStyleBackColor = true;
 			// 
