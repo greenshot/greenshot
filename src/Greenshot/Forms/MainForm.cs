@@ -941,7 +941,7 @@ namespace Greenshot.Forms
         private void CaptureFile(IDestination destination = null)
         {
             var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
-            var extensions = fileFormatHandlers.ExtensionsFor(FileFormatHandlerActions.LoadFromStream).Select(e => $"*{e}").ToList();
+            var extensions = fileFormatHandlers.ExtensionsFor(FileFormatHandlerActions.LoadFromFile).Select(e => $"*{e}").ToList();
 
             var openFileDialog = new OpenFileDialog
             {

@@ -32,9 +32,27 @@ namespace Greenshot.Base.Interfaces
     /// </summary>
     public enum FileFormatHandlerActions
     {
+        /// <summary>
+        /// The FileFormatHandler supports the following extentions to save to stream
+        /// </summary>
         SaveToStream,
+        /// <summary>
+        /// The FileFormatHandler supports the following extentions to load from stream
+        /// </summary>
         LoadFromStream,
-        LoadDrawableFromStream
+        /// <summary>
+        /// The FileFormatHandler supports the following extentions to load from stream
+        /// </summary>
+        LoadDrawableFromStream,
+        /// <summary>
+        /// Specifies which file extentions are supported for loading from file, this is used for the open file dialog
+        /// </summary>
+        LoadFromFile,
+        /// <summary>
+        /// Specifies which file extentions are supported for saving to file, this is used for the save file dialog
+        /// </summary>
+        SaveToFile
+
     }
 
     /// <summary>
