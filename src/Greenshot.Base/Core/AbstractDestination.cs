@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -255,7 +255,6 @@ namespace Greenshot.Base.Core
                         menu.Tag = clickedDestination.Designation;
                         // Export
                         exportInformation = clickedDestination.ExportCapture(true, surface, captureDetails);
-                        menu.Close();
                         if (exportInformation != null && exportInformation.ExportMade)
                         {
                             Log.InfoFormat("Export to {0} success, closing menu", exportInformation.DestinationDescription);
@@ -276,7 +275,8 @@ namespace Greenshot.Base.Core
                             // Make sure a click besides the menu don't close it.
                             menu.Tag = null;
 
-                            ShowPickerMenu(addDynamics, surface, captureDetails, destinations);
+                            // This prevents the problem that the context menu shows in the task-bar
+                            ShowMenuAtCursor(menu);
                         }
                     }
                 );
