@@ -209,7 +209,7 @@ namespace Greenshot.Base.Core
                         else
                         {
                             Log.DebugFormat("Letting the menu 'close' as the tag is set to '{0}'", menu.Tag);
-                            menu.Dispose();
+                            menu.Close();
                         }
 
                         break;
