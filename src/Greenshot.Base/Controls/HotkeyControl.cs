@@ -28,6 +28,7 @@ using System.Windows.Forms;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces.Plugin;
 using log4net;
+using System.ComponentModel;
 
 namespace Greenshot.Base.Controls
 {
@@ -282,6 +283,7 @@ namespace Greenshot.Base.Controls
         /// <summary>
         /// Used to get/set the hotkey (e.g. Keys.A)
         /// </summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public Keys Hotkey
         {
             get { return _hotkey; }
@@ -305,6 +307,7 @@ namespace Greenshot.Base.Controls
         /// <summary>
         /// Used to get/set the modifier keys (e.g. Keys.Alt | Keys.Control)
         /// </summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public Keys HotkeyModifiers
         {
             get { return _modifiers; }

@@ -21,6 +21,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -573,6 +574,7 @@ namespace Greenshot.Editor.Forms
             AlignCanvasPositionAfterResize();
         }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public ISurface Surface
         {
             get { return _surface; }

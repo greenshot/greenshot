@@ -22,6 +22,7 @@
 using System;
 using System.Windows.Forms;
 using Dapplo.Windows.Messages.Enumerations;
+using System.ComponentModel;
 
 namespace Greenshot.Editor.Controls
 {
@@ -45,6 +46,7 @@ namespace Greenshot.Editor.Controls
         /// <remarks>
         /// Default value is false, which is the same behavior provided by the base ToolStrip class.
         /// </remarks>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool ClickThrough
         {
             get { return _clickThrough; }

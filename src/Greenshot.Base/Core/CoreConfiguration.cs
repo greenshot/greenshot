@@ -30,6 +30,7 @@ using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
+using ScreenCaptureMode = Greenshot.Base.Interfaces.ScreenCaptureMode;
 
 namespace Greenshot.Base.Core
 {

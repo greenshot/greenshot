@@ -35,6 +35,7 @@ namespace Greenshot.Editor.Controls
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public FontFamily FontFamily
         {
             get { return (FontFamily) SelectedItem; }

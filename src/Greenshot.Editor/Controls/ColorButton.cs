@@ -46,6 +46,7 @@ namespace Greenshot.Editor.Controls
             Click += ColorButtonClick;
         }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public Color SelectedColor
         {
             get { return _selectedColor; }

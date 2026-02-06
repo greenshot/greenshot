@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.Text;
 using System.Windows.Forms;
@@ -230,7 +231,7 @@ namespace Greenshot.Plugin.Imgur.Forms
                 for (int i = 0; i < listview_imgur_uploads.SelectedItems.Count; i++)
                 {
                     ImgurInfo imgurInfo = (ImgurInfo) listview_imgur_uploads.SelectedItems[i].Tag;
-                    System.Diagnostics.Process.Start(imgurInfo.Page);
+                    System.Diagnostics.Process.Start(new ProcessStartInfo(imgurInfo.Page) { UseShellExecute = true });
                 }
             }
         }

@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <DebugType>none</DebugType>
     <DebugSymbols>false</DebugSymbols>
@@ -12,5 +12,6 @@
     <ProjectReference Include="..\Greenshot.Base\Greenshot.Base.csproj" />
     <PackageReference Include="Dapplo.Jira" version="1.1.47" />
     <PackageReference Include="Dapplo.Jira.SvgWinForms" Version="1.1.47" />
+    <PackageReference Condition="$(TargetFramework) != 'net481'" Include="System.Runtime.Caching" Version="10.0.2" />
   </ItemGroup>
 </Project>

@@ -109,7 +109,7 @@ Greenshot received information from CloudServiceName. You can close this browser
                     // Get the formatted FormattedAuthUrl
                     string authorizationUrl = oauth2Settings.FormattedAuthUrl;
                     Log.DebugFormat("Open a browser with: {0}", authorizationUrl);
-                    Process.Start(authorizationUrl);
+                    Process.Start(new ProcessStartInfo(authorizationUrl) { UseShellExecute = true });
 
                     // Wait to get the authorization code response.
                     var context = listener.BeginGetContext(ListenerCallback, listener);
