@@ -740,6 +740,17 @@ namespace Greenshot.Editor.Forms
             RefreshFieldControls();
         }
 
+        private void BtnCounterLetterToggleClick(object sender, EventArgs e)
+        {
+            _surface.UseLetterCounter = !_surface.UseLetterCounter;
+            btnCounterLetterToggle.Text = _surface.UseLetterCounter ? "123" : "Abc";
+        }
+
+        private void BtnCounterResetClick(object sender, EventArgs e)
+        {
+            _surface.ResetCounter();
+        }
+
         private void BtnEmojiClick(object sender, EventArgs e)
         {
             _surface.DrawingMode = DrawingModes.Emoji;
@@ -1359,7 +1370,14 @@ namespace Greenshot.Editor.Forms
                 textHorizontalAlignmentButton.Visible = props.HasFieldValue(FieldType.TEXT_HORIZONTAL_ALIGNMENT);
                 textVerticalAlignmentButton.Visible = props.HasFieldValue(FieldType.TEXT_VERTICAL_ALIGNMENT);
                 shadowButton.Visible = props.HasFieldValue(FieldType.SHADOW);
-                counterLabel.Visible = counterUpDown.Visible = props.HasFieldValue(FieldType.FLAGS) && ((FieldFlag)props.GetFieldValue(FieldType.FLAGS)).HasFlag(FieldFlag.COUNTER);
+                bool isCounter = props.HasFieldValue(FieldType.FLAGS) && ((FieldFlag)props.GetFieldValue(FieldType.FLAGS)).HasFlag(FieldFlag.COUNTER);
+                counterLabel.Visible = counterUpDown.Visible = isCounter;
+                btnCounterLetterToggle.Visible = isCounter;
+                btnCounterReset.Visible = isCounter;
+                if (isCounter)
+                {
+                    btnCounterLetterToggle.Text = _surface.UseLetterCounter ? "123" : "Abc";
+                }
 
                 btnConfirm.Visible = btnCancel.Visible = props.HasFieldValue(FieldType.FLAGS) && ((FieldFlag) props.GetFieldValue(FieldType.FLAGS)).HasFlag(FieldFlag.CONFIRMABLE);
                 btnConfirm.Enabled = _surface.HasSelectedElements;

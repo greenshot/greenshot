@@ -65,6 +65,16 @@ namespace Greenshot.Editor.Drawing
         private int _counterStart = 1;
 
         /// <summary>
+        ///     Whether to use letters (A, B, C...) instead of numbers
+        /// </summary>
+        private bool _useLetterCounter;
+
+        /// <summary>
+        ///     Current counter group, incremented on reset
+        /// </summary>
+        private int _counterGroup;
+
+        /// <summary>
         /// The GUID of the surface
         /// </summary>
         public Guid ID
@@ -278,6 +288,39 @@ namespace Greenshot.Editor.Drawing
         }
 
         /// <summary>
+        ///     Use letters (A, B, C...) instead of numbers for step-labels
+        /// </summary>
+        public bool UseLetterCounter
+        {
+            get => _useLetterCounter;
+            set
+            {
+                if (_useLetterCounter == value)
+                {
+                    return;
+                }
+
+                _useLetterCounter = value;
+                Invalidate();
+                _propertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(UseLetterCounter)));
+            }
+        }
+
+        /// <summary>
+        ///     Current counter group, incremented on reset so new labels start a fresh sequence
+        /// </summary>
+        public int CounterGroup => _counterGroup;
+
+        /// <summary>
+        ///     Reset the counter by starting a new counter group
+        /// </summary>
+        public void ResetCounter()
+        {
+            _counterGroup++;
+            Invalidate();
+        }
+
+        /// <summary>
         /// Count all the VISIBLE steplabels in the surface, up to the supplied one
         /// </summary>
         /// <param name="stopAtContainer">can be null, if not the counting stops here</param>
@@ -293,6 +336,32 @@ namespace Greenshot.Editor.Drawing
                 }
 
                 if (IsOnSurface(possibleThis))
+                {
+                    number++;
+                }
+            }
+
+            return number;
+        }
+
+        /// <summary>
+        /// Count all the VISIBLE steplabels of the specified mode and group, up to the supplied one
+        /// </summary>
+        /// <param name="stopAtContainer">can be null, if not the counting stops here</param>
+        /// <param name="letterMode">true to count only letter labels, false to count only number labels</param>
+        /// <param name="counterGroup">only count labels in this counter group</param>
+        /// <returns>number of matching steplabels before the supplied container</returns>
+        public int CountStepLabels(IDrawableContainer stopAtContainer, bool letterMode, int counterGroup)
+        {
+            int number = CounterStart;
+            foreach (var possibleThis in _stepLabels)
+            {
+                if (possibleThis.Equals(stopAtContainer))
+                {
+                    break;
+                }
+
+                if (IsOnSurface(possibleThis) && possibleThis.IsLetterMode == letterMode && possibleThis.CounterGroup == counterGroup)
                 {
                     number++;
                 }

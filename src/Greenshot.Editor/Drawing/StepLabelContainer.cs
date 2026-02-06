@@ -46,6 +46,8 @@ namespace Greenshot.Editor.Drawing
 
         public StepLabelContainer(ISurface parent) : base(parent)
         {
+            _isLetterMode = parent.UseLetterCounter;
+            _counterGroup = parent.CounterGroup;
             InternalParent?.AddStepLabel(this);
             InitContent();
             Init();
@@ -62,6 +64,16 @@ namespace Greenshot.Editor.Drawing
         // Used to store the counter start of the Surface, as the surface is NOT stored.
         private int _counterStart = 1;
 
+        // Whether this individual label displays as a letter (A, B, C) instead of a number
+        private bool _isLetterMode;
+
+        // The counter group this label belongs to (reset increments the group)
+        private int _counterGroup;
+
+        public bool IsLetterMode => _isLetterMode;
+
+        public int CounterGroup => _counterGroup;
+
         public int Number
         {
             get { return _number; }
@@ -77,7 +89,7 @@ namespace Greenshot.Editor.Drawing
         {
             if (InternalParent == null) return;
 
-            Number = InternalParent.CountStepLabels(this);
+            Number = ((Surface)InternalParent).CountStepLabels(this, _isLetterMode, _counterGroup);
             _counterStart = InternalParent.CounterStart;
         }
 
@@ -202,6 +214,18 @@ namespace Greenshot.Editor.Drawing
         /// </summary>
         /// <param name="graphics"></param>
         /// <param name="rm"></param>
+        private static string NumberToLetter(int number)
+        {
+            string result = "";
+            while (number > 0)
+            {
+                number--;
+                result = (char)('A' + (number % 26)) + result;
+                number /= 26;
+            }
+            return result;
+        }
+
         public override void Draw(Graphics graphics, RenderMode rm)
         {
             if (Width == 0 || Height == 0) { return; }
@@ -211,7 +235,9 @@ namespace Greenshot.Editor.Drawing
             graphics.CompositingQuality = CompositingQuality.HighQuality;
             graphics.PixelOffsetMode = PixelOffsetMode.None;
             graphics.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
-            string text = ((Surface) Parent).CountStepLabels(this).ToString();
+            var surface = (Surface)Parent;
+            int number = surface.CountStepLabels(this, _isLetterMode, _counterGroup);
+            string text = _isLetterMode ? NumberToLetter(number) : number.ToString();
             var rect = new NativeRect(Left, Top, Width, Height).Normalize();
             Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
             Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);

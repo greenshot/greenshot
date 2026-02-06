@@ -51,6 +51,16 @@ namespace Greenshot.Base.Interfaces
         int CounterStart { get; set; }
 
         /// <summary>
+        /// Use letters (A, B, C...) instead of numbers for step-labels
+        /// </summary>
+        bool UseLetterCounter { get; set; }
+
+        /// <summary>
+        /// Current counter group, incremented when the counter is reset
+        /// </summary>
+        int CounterGroup { get; }
+
+        /// <summary>
         /// Unique ID of the Surface
         /// </summary>
         Guid ID { get; set; }
