@@ -46,7 +46,9 @@ namespace Greenshot.Editor.Drawing
 
         public StepLabelContainer(ISurface parent) : base(parent)
         {
-            InternalParent?.AddStepLabel(this);
+            _isLetterMode = parent.StepLabelService.UseLetterCounter;
+            _counterGroup = parent.StepLabelService.CounterGroup;
+            parent.StepLabelService.AddStepLabel(this);
             InitContent();
             Init();
         }
@@ -62,10 +64,34 @@ namespace Greenshot.Editor.Drawing
         // Used to store the counter start of the Surface, as the surface is NOT stored.
         private int _counterStart = 1;
 
+        // Whether this individual label displays as a letter (A, B, C) instead of a number
+        private bool _isLetterMode;
+
+        // The counter group this label belongs to (reset increments the group)
+        private int _counterGroup;
+
+        // When true, use _number directly instead of dynamic counting (for cross-surface paste)
+        private bool _useFixedNumber;
+
+        /// <summary>
+        /// The step label mode for this label (derived from _isLetterMode for backward compat)
+        /// </summary>
+        public StepLabelMode LabelMode => _isLetterMode ? StepLabelMode.Letter : StepLabelMode.Number;
+
+        public int CounterGroup => _counterGroup;
+
         public int Number
         {
             get { return _number; }
             set { _number = value; }
+        }
+
+        /// <summary>
+        /// Clear the fixed number flag so dynamic counting resumes (called after file load sort)
+        /// </summary>
+        internal void ClearFixedNumber()
+        {
+            _useFixedNumber = false;
         }
 
         /// <summary>
@@ -75,10 +101,10 @@ namespace Greenshot.Editor.Drawing
         [OnSerializing]
         private void SetValuesOnSerializing(StreamingContext context)
         {
-            if (InternalParent == null) return;
+            if (Parent?.StepLabelService == null) return;
 
-            Number = InternalParent.CountStepLabels(this);
-            _counterStart = InternalParent.CounterStart;
+            Number = _useFixedNumber ? _number : Parent.StepLabelService.CountStepLabels(this, LabelMode, _counterGroup);
+            _counterStart = Parent.StepLabelService.CounterStart;
         }
 
         /// <summary>
@@ -120,16 +146,22 @@ namespace Greenshot.Editor.Drawing
                 return;
             }
 
-            if (newParent is not Surface newParentSurface)
+            if (newParent?.StepLabelService == null)
             {
                 return;
             }
-            InternalParent?.RemoveStepLabel(this);
+
+            bool wasDeserialized = Parent == null;
+            Parent?.StepLabelService?.RemoveStepLabel(this);
             base.SwitchParent(newParent);
 
-            // Make sure the counter start is restored (this unfortunately happens multiple times... -> hack)
-            newParentSurface.CounterStart = _counterStart;
-            newParentSurface.AddStepLabel(this);
+            if (wasDeserialized && _number > 0)
+            {
+                // Label was deserialized (paste or file load) - use its stored number directly
+                _useFixedNumber = true;
+            }
+
+            newParent.StepLabelService.AddStepLabel(this);
         }
 
         public override NativeSize DefaultSize => new NativeSize(30, 30);
@@ -178,7 +210,7 @@ namespace Greenshot.Editor.Drawing
                 return;
             }
 
-            ((Surface) Parent)?.RemoveStepLabel(this);
+            Parent?.StepLabelService?.RemoveStepLabel(this);
             if (_stringFormat == null)
             {
                 return;
@@ -197,6 +229,18 @@ namespace Greenshot.Editor.Drawing
             return true;
         }
 
+        private static string NumberToLetter(int number)
+        {
+            string result = "";
+            while (number > 0)
+            {
+                number--;
+                result = (char)('A' + (number % 26)) + result;
+                number /= 26;
+            }
+            return result;
+        }
+
         /// <summary>
         /// Override the parent, calculate the label number, than draw
         /// </summary>
@@ -211,7 +255,8 @@ namespace Greenshot.Editor.Drawing
             graphics.CompositingQuality = CompositingQuality.HighQuality;
             graphics.PixelOffsetMode = PixelOffsetMode.None;
             graphics.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
-            string text = ((Surface) Parent).CountStepLabels(this).ToString();
+            int number = _useFixedNumber ? _number : Parent.StepLabelService.CountStepLabels(this, LabelMode, _counterGroup);
+            string text = _isLetterMode ? NumberToLetter(number) : number.ToString();
             var rect = new NativeRect(Left, Top, Width, Height).Normalize();
             Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
             Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
@@ -230,8 +275,8 @@ namespace Greenshot.Editor.Drawing
             using FontFamily fam = new(FontFamily.GenericSansSerif.Name);
 
             //calculate new font size based on ratio from text height and text width
-            float initialFontSize = Math.Min(Math.Abs(Width), Math.Abs(Height));          
-            using Font Measurefont = new(fam, initialFontSize, FontStyle.Bold, GraphicsUnit.Pixel);            
+            float initialFontSize = Math.Min(Math.Abs(Width), Math.Abs(Height));
+            using Font Measurefont = new(fam, initialFontSize, FontStyle.Bold, GraphicsUnit.Pixel);
             var fontSize = initialFontSize * TextRenderer.MeasureText(text, Measurefont).Height / TextRenderer.MeasureText(text, Measurefont).Width;
 
             //static scale for optimal fit
