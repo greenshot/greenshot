@@ -22,27 +22,26 @@
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.IniFile;
 
-namespace Greenshot.Plugin.Jira
+namespace Greenshot.Plugin.Jira;
+
+/// <summary>
+/// Description of JiraConfiguration.
+/// </summary>
+[IniSection("Jira", Description = "Greenshot Jira Plugin configuration")]
+public class JiraConfiguration : IniSection
 {
-    /// <summary>
-    /// Description of JiraConfiguration.
-    /// </summary>
-    [IniSection("Jira", Description = "Greenshot Jira Plugin configuration")]
-    public class JiraConfiguration : IniSection
-    {
-        public const string DefaultPrefix = "https://";
-        private const string DefaultUrl = DefaultPrefix + "jira";
+    public const string DefaultPrefix = "https://";
+    private const string DefaultUrl = DefaultPrefix + "jira";
 
-        [IniProperty("Url", Description = "Base url to Jira system, without anything else", DefaultValue = DefaultUrl)]
-        public string Url { get; set; }
+    [IniProperty("Url", Description = "Base url to Jira system, without anything else", DefaultValue = DefaultUrl)]
+    public string Url { get; set; }
 
-        [IniProperty("UploadFormat", Description = "What file type to use for uploading", DefaultValue = "png")]
-        public OutputFormat UploadFormat { get; set; }
+    [IniProperty("UploadFormat", Description = "What file type to use for uploading", DefaultValue = "png")]
+    public OutputFormat UploadFormat { get; set; }
 
-        [IniProperty("UploadJpegQuality", Description = "JPEG file save quality in %.", DefaultValue = "80")]
-        public int UploadJpegQuality { get; set; }
+    [IniProperty("UploadJpegQuality", Description = "JPEG file save quality in %.", DefaultValue = "80")]
+    public int UploadJpegQuality { get; set; }
 
-        [IniProperty("UploadReduceColors", Description = "Reduce color amount of the uploaded image to 256", DefaultValue = "False")]
-        public bool UploadReduceColors { get; set; }
-    }
+    [IniProperty("UploadReduceColors", Description = "Reduce color amount of the uploaded image to 256", DefaultValue = "False")]
+    public bool UploadReduceColors { get; set; }
 }

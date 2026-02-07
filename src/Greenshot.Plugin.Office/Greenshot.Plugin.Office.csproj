@@ -4,11 +4,6 @@
     <DebugSymbols>false</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="Languages\language*.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\Greenshot.Base\Greenshot.Base.csproj" />
   </ItemGroup>
   <Target Name="EmbeddingOutlook" AfterTargets="ResolveReferences" BeforeTargets="FindReferenceAssembliesForReferences">

@@ -23,7 +23,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Xml;
 using Greenshot.Base.IniFile;

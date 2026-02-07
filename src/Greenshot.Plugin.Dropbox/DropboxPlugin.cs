@@ -29,110 +29,109 @@ using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 
-namespace Greenshot.Plugin.Dropbox
+namespace Greenshot.Plugin.Dropbox;
+
+/// <summary>
+/// This is the Dropbox base code
+/// </summary>
+public class DropboxPlugin : IGreenshotPlugin
 {
-    /// <summary>
-    /// This is the Dropbox base code
-    /// </summary>
-    public class DropboxPlugin : IGreenshotPlugin
+    private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(DropboxPlugin));
+    private static DropboxConfiguration _config;
+    private ComponentResourceManager _resources;
+    private ToolStripMenuItem _itemPlugInConfig;
+
+    public void Dispose()
     {
-        private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(DropboxPlugin));
-        private static DropboxConfiguration _config;
-        private ComponentResourceManager _resources;
-        private ToolStripMenuItem _itemPlugInConfig;
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
 
-        public void Dispose()
+    private void Dispose(bool disposing)
+    {
+        if (!disposing) return;
+        if (_itemPlugInConfig == null) return;
+        _itemPlugInConfig.Dispose();
+        _itemPlugInConfig = null;
+    }
+
+    /// <summary>
+    /// Name of the plugin
+    /// </summary>
+    public string Name => "Dropbox";
+
+    /// <summary>
+    /// Specifies if the plugin can be configured
+    /// </summary>
+    public bool IsConfigurable => true;
+
+    /// <summary>
+    /// Implementation of the IGreenshotPlugin.Initialize
+    /// </summary>
+    public bool Initialize()
+    {
+        // Register configuration (don't need the configuration itself)
+        _config = IniConfig.GetIniSection<DropboxConfiguration>();
+        _resources = new ComponentResourceManager(typeof(DropboxPlugin));
+        SimpleServiceProvider.Current.AddService<IDestination>(new DropboxDestination(this));
+        _itemPlugInConfig = new ToolStripMenuItem
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            Text = Language.GetString("dropbox", LangKey.Configure),
+            Image = (Image) _resources.GetObject("Dropbox")
+        };
+        _itemPlugInConfig.Click += ConfigMenuClick;
+
+        PluginUtils.AddToContextMenu(_itemPlugInConfig);
+        Language.LanguageChanged += OnLanguageChanged;
+        return true;
+    }
+
+    public void OnLanguageChanged(object sender, EventArgs e)
+    {
+        if (_itemPlugInConfig != null)
+        {
+            _itemPlugInConfig.Text = Language.GetString("dropbox", LangKey.Configure);
         }
+    }
 
-        private void Dispose(bool disposing)
+    public void Shutdown()
+    {
+        Log.Debug("Dropbox Plugin shutdown.");
+    }
+
+    /// <summary>
+    /// Implementation of the IPlugin.Configure
+    /// </summary>
+    public void Configure()
+    {
+        _config.ShowConfigDialog();
+    }
+
+    public void ConfigMenuClick(object sender, EventArgs eventArgs)
+    {
+        _config.ShowConfigDialog();
+    }
+
+    /// <summary>
+    /// This will be called when the menu item in the Editor is clicked
+    /// </summary>
+    public bool Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload, out string uploadUrl)
+    {
+        uploadUrl = null;
+        SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, false);
+        try
         {
-            if (!disposing) return;
-            if (_itemPlugInConfig == null) return;
-            _itemPlugInConfig.Dispose();
-            _itemPlugInConfig = null;
+            bool result = false;
+            new PleaseWaitForm().ShowAndWait("Dropbox", Language.GetString("dropbox", LangKey.communication_wait),
+                delegate { result = DropboxUtils.UploadToDropbox(surfaceToUpload, outputSettings, captureDetails); }
+            );
+            return result;
         }
-
-        /// <summary>
-        /// Name of the plugin
-        /// </summary>
-        public string Name => "Dropbox";
-
-        /// <summary>
-        /// Specifies if the plugin can be configured
-        /// </summary>
-        public bool IsConfigurable => true;
-
-        /// <summary>
-        /// Implementation of the IGreenshotPlugin.Initialize
-        /// </summary>
-        public bool Initialize()
+        catch (Exception e)
         {
-            // Register configuration (don't need the configuration itself)
-            _config = IniConfig.GetIniSection<DropboxConfiguration>();
-            _resources = new ComponentResourceManager(typeof(DropboxPlugin));
-            SimpleServiceProvider.Current.AddService<IDestination>(new DropboxDestination(this));
-            _itemPlugInConfig = new ToolStripMenuItem
-            {
-                Text = Language.GetString("dropbox", LangKey.Configure),
-                Image = (Image) _resources.GetObject("Dropbox")
-            };
-            _itemPlugInConfig.Click += ConfigMenuClick;
-
-            PluginUtils.AddToContextMenu(_itemPlugInConfig);
-            Language.LanguageChanged += OnLanguageChanged;
-            return true;
-        }
-
-        public void OnLanguageChanged(object sender, EventArgs e)
-        {
-            if (_itemPlugInConfig != null)
-            {
-                _itemPlugInConfig.Text = Language.GetString("dropbox", LangKey.Configure);
-            }
-        }
-
-        public void Shutdown()
-        {
-            Log.Debug("Dropbox Plugin shutdown.");
-        }
-
-        /// <summary>
-        /// Implementation of the IPlugin.Configure
-        /// </summary>
-        public void Configure()
-        {
-            _config.ShowConfigDialog();
-        }
-
-        public void ConfigMenuClick(object sender, EventArgs eventArgs)
-        {
-            _config.ShowConfigDialog();
-        }
-
-        /// <summary>
-        /// This will be called when the menu item in the Editor is clicked
-        /// </summary>
-        public bool Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload, out string uploadUrl)
-        {
-            uploadUrl = null;
-            SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, false);
-            try
-            {
-                bool result = false;
-                new PleaseWaitForm().ShowAndWait("Dropbox", Language.GetString("dropbox", LangKey.communication_wait),
-                    delegate { result = DropboxUtils.UploadToDropbox(surfaceToUpload, outputSettings, captureDetails); }
-                );
-                return result;
-            }
-            catch (Exception e)
-            {
-                Log.Error(e);
-                MessageBox.Show(Language.GetString("dropbox", LangKey.upload_failure) + " " + e.Message);
-                return false;
-            }
+            Log.Error(e);
+            MessageBox.Show(Language.GetString("dropbox", LangKey.upload_failure) + " " + e.Message);
+            return false;
         }
     }
 }
