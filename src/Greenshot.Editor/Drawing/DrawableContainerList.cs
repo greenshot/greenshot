@@ -327,6 +327,9 @@ namespace Greenshot.Editor.Drawing
                 return;
             }
 
+            DrawableContainer.IsBlurFilterApplied = false;
+            DrawableContainer.IsBrightnessFilterApplied = false;
+
             foreach (var drawableContainer in this)
             {
                 var dc = (DrawableContainer) drawableContainer;
@@ -337,7 +340,8 @@ namespace Greenshot.Editor.Drawing
 
                 if (dc.DrawingBounds.IntersectsWith(clipRectangle))
                 {
-                    dc.DrawContent(g, bitmap, renderMode, clipRectangle);
+                    IEnumerable<NativeRect> areaHighlightContainers = this.Where(c => c.IsAreaHighlightContainer).Select(c => c.Bounds);
+                    dc.DrawContent(g, bitmap, renderMode, clipRectangle, areaHighlightContainers);
                 }
             }
         }
