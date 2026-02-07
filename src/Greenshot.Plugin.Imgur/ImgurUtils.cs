@@ -20,15 +20,12 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
 using Greenshot.Base.Core;
-using Greenshot.Base.Core.OAuth;
 using Greenshot.Base.IniFile;
-using Greenshot.Base.Interfaces;
-using Greenshot.Base.Interfaces.Plugin;
+
 
 namespace Greenshot.Plugin.Imgur
 {
@@ -47,8 +44,7 @@ namespace Greenshot.Plugin.Imgur
         /// <returns></returns>
         public static bool IsHistoryLoadingNeeded()
         {
-            Log.InfoFormat("Checking if imgur cache loading needed, configuration has {0} imgur hashes, loaded are {1} hashes.", Config.ImgurUploadHistory.Count,
-                Config.runtimeImgurHistory.Count);
+            Log.InfoFormat("Checking if imgur cache loading needed, configuration has {0} imgur hashes, loaded are {1} hashes.", Config.ImgurUploadHistory.Count, Config.runtimeImgurHistory.Count);
             return Config.runtimeImgurHistory.Count != Config.ImgurUploadHistory.Count;
         }
 
@@ -141,109 +137,6 @@ namespace Greenshot.Plugin.Imgur
         }
 
         /// <summary>
-        /// Do the actual upload to Imgur
-        /// For more details on the available parameters, see: https://api.imgur.com/resources_anon
-        /// </summary>
-        /// <param name="surfaceToUpload">ISurface to upload</param>
-        /// <param name="outputSettings">OutputSettings for the image file format</param>
-        /// <param name="title">Title</param>
-        /// <param name="filename">Filename</param>
-        /// <returns>ImgurInfo with details</returns>
-        public static ImgurInfo UploadToImgur(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, string title, string filename)
-        {
-            IDictionary<string, object> otherParameters = new Dictionary<string, object>();
-            // add title
-            if (title != null && Config.AddTitle)
-            {
-                otherParameters["title"] = title;
-            }
-
-            // add filename
-            if (filename != null && Config.AddFilename)
-            {
-                otherParameters["name"] = filename;
-            }
-
-            string responseString = null;
-            if (Config.AnonymousAccess)
-            {
-                // add key, we only use the other parameters for the AnonymousAccess
-                //otherParameters.Add("key", IMGUR_ANONYMOUS_API_KEY);
-                HttpWebRequest webRequest =
-                    NetworkHelper.CreateWebRequest(Config.ImgurApi3Url + "/upload.xml?" + NetworkHelper.GenerateQueryParameters(otherParameters), HTTPMethod.POST);
-                webRequest.ContentType = "image/" + outputSettings.Format;
-                webRequest.ServicePoint.Expect100Continue = false;
-
-                SetClientId(webRequest);
-                try
-                {
-                    using (var requestStream = webRequest.GetRequestStream())
-                    {
-                        ImageIO.SaveToStream(surfaceToUpload, requestStream, outputSettings);
-                    }
-
-                    using WebResponse response = webRequest.GetResponse();
-                    LogRateLimitInfo(response);
-                    var responseStream = response.GetResponseStream();
-                    if (responseStream != null)
-                    {
-                        using StreamReader reader = new StreamReader(responseStream, true);
-                        responseString = reader.ReadToEnd();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Log.Error("Upload to imgur gave an exception: ", ex);
-                    throw;
-                }
-            }
-            else
-            {
-                var oauth2Settings = new OAuth2Settings
-                {
-                    AuthUrlPattern = "https://api.imgur.com/oauth2/authorize?response_type=token&client_id={ClientId}&state={State}",
-                    TokenUrl = "https://api.imgur.com/oauth2/token",
-                    RedirectUrl = "https://getgreenshot.org/authorize/imgur",
-                    CloudServiceName = "Imgur",
-                    ClientId = ImgurCredentials.CONSUMER_KEY,
-                    ClientSecret = ImgurCredentials.CONSUMER_SECRET,
-                    AuthorizeMode = OAuth2AuthorizeMode.JsonReceiver,
-                    RefreshToken = Config.RefreshToken,
-                    AccessToken = Config.AccessToken,
-                    AccessTokenExpires = Config.AccessTokenExpires
-                };
-
-                // Copy the settings from the config, which is kept in memory and on the disk
-
-                try
-                {
-                    var webRequest = OAuth2Helper.CreateOAuth2WebRequest(HTTPMethod.POST, Config.ImgurApi3Url + "/upload.xml", oauth2Settings);
-                    otherParameters["image"] = new SurfaceContainer(surfaceToUpload, outputSettings, filename);
-
-                    NetworkHelper.WriteMultipartFormData(webRequest, otherParameters);
-
-                    responseString = NetworkHelper.GetResponseAsString(webRequest);
-                }
-                finally
-                {
-                    // Copy the settings back to the config, so they are stored.
-                    Config.RefreshToken = oauth2Settings.RefreshToken;
-                    Config.AccessToken = oauth2Settings.AccessToken;
-                    Config.AccessTokenExpires = oauth2Settings.AccessTokenExpires;
-                    Config.IsDirty = true;
-                    IniConfig.Save();
-                }
-            }
-
-            if (string.IsNullOrEmpty(responseString))
-            {
-                return null;
-            }
-
-            return ImgurInfo.ParseResponse(responseString);
-        }
-
-        /// <summary>
         /// Retrieve the thumbnail of an imgur image
         /// </summary>
         /// <param name="imgurInfo"></param>
@@ -261,7 +154,6 @@ namespace Greenshot.Plugin.Imgur
             // Not for getting the thumbnail, in anonymous mode
             //SetClientId(webRequest);
             using WebResponse response = webRequest.GetResponse();
-            LogRateLimitInfo(response);
             Stream responseStream = response.GetResponseStream();
             if (responseStream != null)
             {
@@ -287,7 +179,6 @@ namespace Greenshot.Plugin.Imgur
             try
             {
                 using WebResponse response = webRequest.GetResponse();
-                LogRateLimitInfo(response);
                 var responseStream = response.GetResponseStream();
                 if (responseStream != null)
                 {
@@ -336,7 +227,6 @@ namespace Greenshot.Plugin.Imgur
                 string responseString = null;
                 using (WebResponse response = webRequest.GetResponse())
                 {
-                    LogRateLimitInfo(response);
                     var responseStream = response.GetResponseStream();
                     if (responseStream != null)
                     {
@@ -363,49 +253,6 @@ namespace Greenshot.Plugin.Imgur
             Config.runtimeImgurHistory.Remove(imgurInfo.Hash);
             Config.ImgurUploadHistory.Remove(imgurInfo.Hash);
             imgurInfo.Image = null;
-        }
-
-        /// <summary>
-        /// Helper for logging
-        /// </summary>
-        /// <param name="nameValues"></param>
-        /// <param name="key"></param>
-        private static void LogHeader(IDictionary<string, string> nameValues, string key)
-        {
-            if (nameValues.ContainsKey(key))
-            {
-                Log.InfoFormat("{0}={1}", key, nameValues[key]);
-            }
-        }
-
-        /// <summary>
-        /// Log the current rate-limit information
-        /// </summary>
-        /// <param name="response"></param>
-        private static void LogRateLimitInfo(WebResponse response)
-        {
-            IDictionary<string, string> nameValues = new Dictionary<string, string>();
-            foreach (string key in response.Headers.AllKeys)
-            {
-                if (!nameValues.ContainsKey(key))
-                {
-                    nameValues.Add(key, response.Headers[key]);
-                }
-            }
-
-            LogHeader(nameValues, "X-RateLimit-Limit");
-            LogHeader(nameValues, "X-RateLimit-Remaining");
-            LogHeader(nameValues, "X-RateLimit-UserLimit");
-            LogHeader(nameValues, "X-RateLimit-UserRemaining");
-            LogHeader(nameValues, "X-RateLimit-UserReset");
-            LogHeader(nameValues, "X-RateLimit-ClientLimit");
-            LogHeader(nameValues, "X-RateLimit-ClientRemaining");
-
-            // Update the credits in the config, this is shown in a form
-            if (nameValues.ContainsKey("X-RateLimit-Remaining") && int.TryParse(nameValues["X-RateLimit-Remaining"], out var credits))
-            {
-                Config.Credits = credits;
-            }
         }
     }
 }

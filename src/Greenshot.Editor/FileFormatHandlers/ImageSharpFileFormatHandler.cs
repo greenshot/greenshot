@@ -22,7 +22,6 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Text;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;

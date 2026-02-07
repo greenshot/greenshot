@@ -20,7 +20,6 @@
  */
 
 using System;
-using System.Drawing;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Effects;

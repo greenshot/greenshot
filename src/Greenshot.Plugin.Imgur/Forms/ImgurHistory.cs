@@ -88,10 +88,6 @@ namespace Greenshot.Plugin.Imgur.Forms
             }
 
             ApplyLanguage();
-            if (Config.Credits > 0)
-            {
-                Text = Text + " (" + Config.Credits + " credits)";
-            }
         }
 
         private void Redraw()
