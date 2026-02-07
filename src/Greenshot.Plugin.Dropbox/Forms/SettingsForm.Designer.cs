@@ -21,7 +21,7 @@
 
 using Greenshot.Base.Controls;
 
-namespace Greenshot.Plugin.Dropbox.Forms {
+namespace Greenshot.Plugin.Dropbox.Forms; 
 	partial class SettingsForm {
 		/// <summary>
 		/// Designer variable used to keep track of non-visual components.
@@ -81,7 +81,7 @@ namespace Greenshot.Plugin.Dropbox.Forms {
 			// combobox_uploadimageformat
 			// 
 			this.combobox_uploadimageformat.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+        | System.Windows.Forms.AnchorStyles.Right)));
 			this.combobox_uploadimageformat.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.combobox_uploadimageformat.FormattingEnabled = true;
 			this.combobox_uploadimageformat.Location = new System.Drawing.Point(116, 9);
@@ -145,4 +145,3 @@ namespace Greenshot.Plugin.Dropbox.Forms {
 		private GreenshotLabel label_AfterUpload;
 		private GreenshotCheckBox checkboxAfterUploadLinkToClipBoard;
 	}
-}

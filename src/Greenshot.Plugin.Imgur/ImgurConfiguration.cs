@@ -24,51 +24,50 @@ using System.Windows.Forms;
 using Greenshot.Base.IniFile;
 using Greenshot.Plugin.Imgur.Forms;
 
-namespace Greenshot.Plugin.Imgur
+namespace Greenshot.Plugin.Imgur;
+
+/// <summary>
+/// Description of ImgurConfiguration.
+/// </summary>
+[IniSection("Imgur", Description = "Greenshot Imgur Plugin configuration")]
+public class ImgurConfiguration : IniSection
 {
+    [IniProperty("ImgurApi3Url", Description = "Url to Imgur system.", DefaultValue = "https://api.imgur.com/3")]
+    public string ImgurApi3Url { get; set; }
+
+    [IniProperty("UsePageLink", Description = "Use pagelink instead of direct link on the clipboard", DefaultValue = "False")]
+    public bool UsePageLink { get; set; }
+
+
+    [IniProperty("AnonymousAccess", Description = "Use anonymous access to Imgur", DefaultValue = "true")]
+    public bool AnonymousAccess { get; set; }
+    [IniProperty("ImgurUploadHistory", Description = "Imgur upload history (ImgurUploadHistory.hash=deleteHash)")]
+    public Dictionary<string, string> ImgurUploadHistory { get; set; }
+
+    // Not stored, only run-time!
+    public Dictionary<string, ImgurInfo> runtimeImgurHistory = new Dictionary<string, ImgurInfo>();
+
+
     /// <summary>
-    /// Description of ImgurConfiguration.
+    /// Supply values we can't put as defaults
     /// </summary>
-    [IniSection("Imgur", Description = "Greenshot Imgur Plugin configuration")]
-    public class ImgurConfiguration : IniSection
-    {
-        [IniProperty("ImgurApi3Url", Description = "Url to Imgur system.", DefaultValue = "https://api.imgur.com/3")]
-        public string ImgurApi3Url { get; set; }
-
-        [IniProperty("UsePageLink", Description = "Use pagelink instead of direct link on the clipboard", DefaultValue = "False")]
-        public bool UsePageLink { get; set; }
-
-
-        [IniProperty("AnonymousAccess", Description = "Use anonymous access to Imgur", DefaultValue = "true")]
-        public bool AnonymousAccess { get; set; }
-        [IniProperty("ImgurUploadHistory", Description = "Imgur upload history (ImgurUploadHistory.hash=deleteHash)")]
-        public Dictionary<string, string> ImgurUploadHistory { get; set; }
-
-        // Not stored, only run-time!
-        public Dictionary<string, ImgurInfo> runtimeImgurHistory = new Dictionary<string, ImgurInfo>();
-
-
-        /// <summary>
-        /// Supply values we can't put as defaults
-        /// </summary>
-        /// <param name="property">The property to return a default for</param>
-        /// <returns>object with the default value for the supplied property</returns>
-        public override object GetDefault(string property) =>
-            property switch
-            {
-                nameof(ImgurUploadHistory) => new Dictionary<string, string>(),
-                _ => null
-            };
-
-        /// <summary>
-        /// A form for username/password
-        /// </summary>
-        /// <returns>bool true if OK was pressed, false if cancel</returns>
-        public bool ShowConfigDialog()
+    /// <param name="property">The property to return a default for</param>
+    /// <returns>object with the default value for the supplied property</returns>
+    public override object GetDefault(string property) =>
+        property switch
         {
-            SettingsForm settingsForm = new SettingsForm();
-            DialogResult result = settingsForm.ShowDialog();
-            return result == DialogResult.OK;
-        }
+            nameof(ImgurUploadHistory) => new Dictionary<string, string>(),
+            _ => null
+        };
+
+    /// <summary>
+    /// A form for username/password
+    /// </summary>
+    /// <returns>bool true if OK was pressed, false if cancel</returns>
+    public bool ShowConfigDialog()
+    {
+        SettingsForm settingsForm = new SettingsForm();
+        DialogResult result = settingsForm.ShowDialog();
+        return result == DialogResult.OK;
     }
 }

@@ -21,7 +21,7 @@
 
 using Greenshot.Base.Controls;
 
-namespace Greenshot.Plugin.Imgur.Forms {
+namespace Greenshot.Plugin.Imgur.Forms; 
 	partial class SettingsForm {
 		/// <summary>
 		/// Designer variable used to keep track of non-visual components.
@@ -136,4 +136,3 @@ namespace Greenshot.Plugin.Imgur.Forms {
 		private GreenshotCheckBox checkbox_anonymous_access;
 		private GreenshotCheckBox checkbox_usepagelink;
 	}
-}

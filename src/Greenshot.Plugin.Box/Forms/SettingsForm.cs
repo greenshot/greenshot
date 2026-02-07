@@ -19,21 +19,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace Greenshot.Plugin.Box.Forms
+namespace Greenshot.Plugin.Box.Forms;
+
+/// <summary>
+/// Description of PasswordRequestForm.
+/// </summary>
+public partial class SettingsForm : BoxForm
 {
-    /// <summary>
-    /// Description of PasswordRequestForm.
-    /// </summary>
-    public partial class SettingsForm : BoxForm
+    public SettingsForm()
     {
-        public SettingsForm()
-        {
-            //
-            // The InitializeComponent() call is required for Windows Forms designer support.
-            //
-            InitializeComponent();
-            AcceptButton = buttonOK;
-            CancelButton = buttonCancel;
-        }
+        //
+        // The InitializeComponent() call is required for Windows Forms designer support.
+        //
+        InitializeComponent();
+        AcceptButton = buttonOK;
+        CancelButton = buttonCancel;
     }
 }

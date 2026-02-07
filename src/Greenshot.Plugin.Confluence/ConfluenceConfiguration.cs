@@ -23,43 +23,42 @@ using System;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.IniFile;
 
-namespace Greenshot.Plugin.Confluence
+namespace Greenshot.Plugin.Confluence;
+
+/// <summary>
+/// Description of ConfluenceConfiguration.
+/// </summary>
+[Serializable]
+[IniSection("Confluence", Description = "Greenshot Confluence Plugin configuration")]
+public class ConfluenceConfiguration : IniSection
 {
-    /// <summary>
-    /// Description of ConfluenceConfiguration.
-    /// </summary>
-    [Serializable]
-    [IniSection("Confluence", Description = "Greenshot Confluence Plugin configuration")]
-    public class ConfluenceConfiguration : IniSection
-    {
-        public const string DEFAULT_PREFIX = "https://";
-        private const string DEFAULT_URL = DEFAULT_PREFIX + "confluence";
+    public const string DEFAULT_PREFIX = "https://";
+    private const string DEFAULT_URL = DEFAULT_PREFIX + "confluence";
 
-        [IniProperty("Url", Description = "Url to Confluence system (e.g., https://confluence.example.com or https://domain.atlassian.net/wiki for Cloud).", DefaultValue = DEFAULT_URL)]
-        public string Url { get; set; }
+    [IniProperty("Url", Description = "Url to Confluence system (e.g., https://confluence.example.com or https://domain.atlassian.net/wiki for Cloud).", DefaultValue = DEFAULT_URL)]
+    public string Url { get; set; }
 
-        [IniProperty("Timeout", Description = "Session timeout in minutes", DefaultValue = "30")]
-        public int Timeout { get; set; }
+    [IniProperty("Timeout", Description = "Session timeout in minutes", DefaultValue = "30")]
+    public int Timeout { get; set; }
 
-        [IniProperty("UploadFormat", Description = "What file type to use for uploading", DefaultValue = "png")]
-        public OutputFormat UploadFormat { get; set; }
+    [IniProperty("UploadFormat", Description = "What file type to use for uploading", DefaultValue = "png")]
+    public OutputFormat UploadFormat { get; set; }
 
-        [IniProperty("UploadJpegQuality", Description = "JPEG file save quality in %.", DefaultValue = "80")]
-        public int UploadJpegQuality { get; set; }
+    [IniProperty("UploadJpegQuality", Description = "JPEG file save quality in %.", DefaultValue = "80")]
+    public int UploadJpegQuality { get; set; }
 
-        [IniProperty("UploadReduceColors", Description = "Reduce color amount of the uploaded image to 256", DefaultValue = "False")]
-        public bool UploadReduceColors { get; set; }
+    [IniProperty("UploadReduceColors", Description = "Reduce color amount of the uploaded image to 256", DefaultValue = "False")]
+    public bool UploadReduceColors { get; set; }
 
-        [IniProperty("OpenPageAfterUpload", Description = "Open the page where the picture is uploaded after upload", DefaultValue = "True")]
-        public bool OpenPageAfterUpload { get; set; }
+    [IniProperty("OpenPageAfterUpload", Description = "Open the page where the picture is uploaded after upload", DefaultValue = "True")]
+    public bool OpenPageAfterUpload { get; set; }
 
-        [IniProperty("CopyWikiMarkupForImageToClipboard", Description = "Copy the Wikimarkup for the recently uploaded image to the Clipboard", DefaultValue = "True")]
-        public bool CopyWikiMarkupForImageToClipboard { get; set; }
+    [IniProperty("CopyWikiMarkupForImageToClipboard", Description = "Copy the Wikimarkup for the recently uploaded image to the Clipboard", DefaultValue = "True")]
+    public bool CopyWikiMarkupForImageToClipboard { get; set; }
 
-        [IniProperty("SearchSpaceKey", Description = "Key of last space that was searched for")]
-        public string SearchSpaceKey { get; set; }
+    [IniProperty("SearchSpaceKey", Description = "Key of last space that was searched for")]
+    public string SearchSpaceKey { get; set; }
 
-        [IniProperty("IncludePersonSpaces", Description = "Include personal spaces in the search & browse spaces list", DefaultValue = "False")]
-        public bool IncludePersonSpaces { get; set; }
-    }
+    [IniProperty("IncludePersonSpaces", Description = "Include personal spaces in the search & browse spaces list", DefaultValue = "False")]
+    public bool IncludePersonSpaces { get; set; }
 }
