@@ -37,7 +37,7 @@ namespace Greenshot.Plugin.Jira
 
         public string JiraKey => ProjectKey + "-" + Id;
 
-        public Issue JiraIssue { get; set; }
+        public IssueV2 JiraIssue { get; set; }
 
         public DateTimeOffset FirstSeenAt { get; private set; }
 

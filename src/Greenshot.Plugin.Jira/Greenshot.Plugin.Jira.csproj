@@ -10,7 +10,8 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Greenshot.Base\Greenshot.Base.csproj" />
-    <PackageReference Include="Dapplo.Jira" version="1.1.47" />
-    <PackageReference Include="Dapplo.Jira.SvgWinForms" Version="1.1.47" />
+    <PackageReference Include="Dapplo.Jira" version="2.0.7" />
+    <PackageReference Include="Dapplo.Jira.SvgWinForms" Version="2.0.7" />
+    <PackageReference Include="Dapplo.HttpExtensions.WinForms" Version="2.0.11" />
   </ItemGroup>
 </Project>
