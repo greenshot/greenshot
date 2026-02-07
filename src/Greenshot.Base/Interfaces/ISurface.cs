@@ -46,17 +46,22 @@ namespace Greenshot.Base.Interfaces
         event SurfaceShadowEventHandler ShadowChanged;
 
         /// <summary>
-        /// Start value of the step-labels (counts)
+        /// Service that manages step label registration, counting, mode and groups
+        /// </summary>
+        IStepLabelService StepLabelService { get; }
+
+        /// <summary>
+        /// Start value of the step-labels (counts), delegates to StepLabelService
         /// </summary>
         int CounterStart { get; set; }
 
         /// <summary>
-        /// Use letters (A, B, C...) instead of numbers for step-labels
+        /// Use letters (A, B, C...) instead of numbers for step-labels, delegates to StepLabelService
         /// </summary>
         bool UseLetterCounter { get; set; }
 
         /// <summary>
-        /// Current counter group, incremented when the counter is reset
+        /// Current counter group, incremented when the counter is reset, delegates to StepLabelService
         /// </summary>
         int CounterGroup { get; }
 
