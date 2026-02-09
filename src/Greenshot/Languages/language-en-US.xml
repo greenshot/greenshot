@@ -224,6 +224,7 @@ Please check write accessibility of the selected storage location.</resource>
 		<resource name="settings_destination_fileas">Save as (displaying dialog)</resource>
 		<resource name="settings_destination_picker">Ask for destination every time</resource>
 		<resource name="settings_destination_printer">Send to printer</resource>
+		<resource name="settings_destination_viewer">Open in image viewer</resource>
 		<resource name="settings_editor">Editor</resource>
 		<resource name="settings_filenamepattern">Filename pattern</resource>
 		<resource name="settings_general">General</resource>
@@ -315,6 +316,19 @@ All Greenshot features still work directly from the tray icon context menu witho
     <resource name="editor_resize_width">Width</resource>
     <resource name="editor_resize_height">Height</resource>
 	<resource name="settings_iconsize">Icon size</resource>
+    
+	<resource name="viewer_alwaysontop">Always on top</resource>
+	<resource name="viewer_close_all">Close all viewers</resource>
+	<resource name="viewer_first_usage_message">The image is not stored and will be lost when the window is closed without saving.</resource>
+	<resource name="viewer_first_usage_title">Image Viewer - First Use</resource>
+	<resource name="viewer_hide_cursor">Hide captured cursor</resource>
+	<resource name="viewer_hide_title">Hide title bar</resource>
+	<resource name="viewer_process_again">Process image again...</resource>
+	<resource name="viewer_reset_zoom">Reset zoom/pan</resource>
+	<resource name="viewer_save">Save</resource>
+	<resource name="viewer_saveas">Save as...</resource>
+	<resource name="viewer_show_cursor">Show captured cursor</resource>
+	<resource name="viewer_show_title">Show title bar</resource>
     
   </resources>
 </language>
