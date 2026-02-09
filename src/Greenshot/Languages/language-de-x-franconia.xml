@@ -207,6 +207,7 @@ Schau hald amal, obsd da übbahabds hi schreim däffsd oder duhs woannersch hi.<
 		<resource name="settings_destination_fileas">Schbeichern under (mit Dialooch)</resource>
 		<resource name="settings_destination_picker">Jeds Mol noch Ziel frong</resource>
 		<resource name="settings_destination_printer">An Drugger schiggn</resource>
+		<resource name="settings_destination_viewer">Im Bildbedrochder äffnen</resource>
 		<resource name="settings_editor">Edidor</resource>
 		<resource name="settings_filenamepattern">Dadeinamen-Musder</resource>
 		<resource name="settings_general">Allgemein</resource>
@@ -272,5 +273,18 @@ Wennsd mogsd, kannsd nadürlich a einfach es Gondexdmenü nehmen (des grüne G r
 		<resource name="WindowCaptureMode.Auto">Audomadisch</resource>
 		<resource name="WindowCaptureMode.GDI">Schdandardfarm benudzn</resource>
 		<resource name="WindowCaptureMode.Screen">Wäisd es siggsd</resource>
+		
+		<resource name="viewer_alwaysontop">Immer im Vordergrund</resource>
+		<resource name="viewer_close_all">Alle Bildbedrochder zumachn</resource>
+		<resource name="viewer_first_usage_message">Des Bild isd ned gschaicherd und geehd verloorn, wenn's Fensderd zugmachd wird ohne zuschaichern.</resource>
+		<resource name="viewer_first_usage_title">Bildbedrochder - Ersdmols benudzd</resource>
+		<resource name="viewer_hide_cursor">Oufgenummenen Mauscursor ausblenden</resource>
+		<resource name="viewer_hide_title">Didellaisde ausblenden</resource>
+		<resource name="viewer_process_again">Bild nochomol verorbaiden...</resource>
+		<resource name="viewer_reset_zoom">Zoom/Verschiebung zrüggsedsn</resource>
+		<resource name="viewer_save">Schaichern</resource>
+		<resource name="viewer_saveas">Schaichern unner...</resource>
+		<resource name="viewer_show_cursor">Oufgenummenen Mauscursor oazeichn</resource>
+		<resource name="viewer_show_title">Didellaisde oazeichn</resource>
 	</resources>
 </language>

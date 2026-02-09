@@ -257,6 +257,9 @@ Deaktiver venligt software som gør brug af Print-knappen. Du kan også blot til
 	<resource name="settings_destination_printer">
 		Send til printer
 	</resource>
+	<resource name="settings_destination_viewer">
+		Åbn i billedfremviser
+	</resource>
 	<resource name="settings_destination_file">
 		Gem direkte (ud fra nedenstående)
 	</resource>
@@ -535,5 +538,18 @@ tidspunktet, fx 11_58_32 (plus filendelsen angivet i indstillingerne).
 	<resource name="contextmenu_donate">
 		Støt Greenshot
 	</resource>
+	
+	<resource name="viewer_alwaysontop">Altid øverst</resource>
+	<resource name="viewer_close_all">Luk alle fremvisere</resource>
+	<resource name="viewer_first_usage_message">Billedet er ikke gemt og vil gå tabt når vinduet lukkes uden at gemme.</resource>
+	<resource name="viewer_first_usage_title">Billedfremviser - Første brug</resource>
+	<resource name="viewer_hide_cursor">Skjul fanget markør</resource>
+	<resource name="viewer_hide_title">Skjul titellinje</resource>
+	<resource name="viewer_process_again">Behandl billede igen...</resource>
+	<resource name="viewer_reset_zoom">Nulstil zoom/panorering</resource>
+	<resource name="viewer_save">Gem</resource>
+	<resource name="viewer_saveas">Gem som...</resource>
+	<resource name="viewer_show_cursor">Vis fanget markør</resource>
+	<resource name="viewer_show_title">Vis titellinje</resource>
   </resources>
 </language>

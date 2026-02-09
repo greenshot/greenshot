@@ -195,6 +195,7 @@ Prosim preverite pravice pisanja v ta direktorij.</resource>
 		<resource name="settings_destination_fileas">Shrani kot (odpre pogovorno okno)</resource>
 		<resource name="settings_destination_picker">Vprašaj za cilj vsakič</resource>
 		<resource name="settings_destination_printer">Tiskaj</resource>
+		<resource name="settings_destination_viewer">Odpri v pregledovalniku slik</resource>
 		<resource name="settings_editor">Urejevalnik</resource>
 		<resource name="settings_filenamepattern">Vzorec imena datoteke</resource>
 		<resource name="settings_general">Splošno</resource>
@@ -241,5 +242,18 @@ Vse funkcije Greenshota še vedno delujejo preko ikone za hitri zagon.</resource
 		<resource name="WindowCaptureMode.Auto">Samodejno</resource>
 		<resource name="WindowCaptureMode.GDI">Uporabi privzete barve</resource>
 		<resource name="WindowCaptureMode.Screen">Kot prikazano</resource>
+		
+		<resource name="viewer_alwaysontop">Vedno na vrhu</resource>
+		<resource name="viewer_close_all">Zapri vse pregledovalnike</resource>
+		<resource name="viewer_first_usage_message">Slika ni shranjena in bo izgubljena, ko se okno zapre brez shranjevanja.</resource>
+		<resource name="viewer_first_usage_title">Pregledovalnik slik - Prva uporaba</resource>
+		<resource name="viewer_hide_cursor">Skrij zajeti kazalec</resource>
+		<resource name="viewer_hide_title">Skrij naslovno vrstico</resource>
+		<resource name="viewer_process_again">Znova obdelaj sliko...</resource>
+		<resource name="viewer_reset_zoom">Ponastavi povečavo/premik</resource>
+		<resource name="viewer_save">Shrani</resource>
+		<resource name="viewer_saveas">Shrani kot...</resource>
+		<resource name="viewer_show_cursor">Prikaži zajeti kazalec</resource>
+		<resource name="viewer_show_title">Prikaži naslovno vrstico</resource>
 	</resources>
 </language>

@@ -147,6 +147,7 @@ Kérjük ellenőrizze a mentési hely hozzáférhetőségét.</resource>
 		<resource name="settings_destination_file">Mentés közvetlenül (lentebb)</resource>
 		<resource name="settings_destination_fileas">Mentés másként(párbeszédablak)</resource>
 		<resource name="settings_destination_printer">Nyomtatás</resource>
+		<resource name="settings_destination_viewer">Megnyitás képnézegetővel</resource>
 		<resource name="settings_filenamepattern">Fájlnév formátum</resource>
 		<resource name="settings_general">Általános</resource>
 		<resource name="settings_jpegquality">JPEG minőség</resource>
@@ -190,5 +191,18 @@ fájl mentése az aktuális dátummal és időponttal, a megadott tárolási hel
 		<resource name="warning_hotkeys">Egy vagy több gyors billentyű nincs regisztrálva. Ezért lehet az, hogy nem lehet használni.
 Ez a hiba akkor fordulhat elő, ha egy másik program{1} használja.
 Kapcsolja ki a szotvert és használja PrintScrn billentyűt. Egyszerűen használhatja a Greenshot -ot a tálca ikon helyi menüjéből.</resource>
+		
+		<resource name="viewer_alwaysontop">Mindig felül</resource>
+		<resource name="viewer_close_all">Összes nézegető bezárása</resource>
+		<resource name="viewer_first_usage_message">A kép nincs mentve és el fog veszni, ha az ablakot bezárja mentés nélkül.</resource>
+		<resource name="viewer_first_usage_title">Képnézegető - Első használat</resource>
+		<resource name="viewer_hide_cursor">Rögzített kurzor elrejtése</resource>
+		<resource name="viewer_hide_title">Címsor elrejtése</resource>
+		<resource name="viewer_process_again">Kép újrafeldolgozása...</resource>
+		<resource name="viewer_reset_zoom">Nagyítás/eltolás visszaállítása</resource>
+		<resource name="viewer_save">Mentés</resource>
+		<resource name="viewer_saveas">Mentés másként...</resource>
+		<resource name="viewer_show_cursor">Rögzített kurzor megjelenítése</resource>
+		<resource name="viewer_show_title">Címsor megjelenítése</resource>
 	</resources>
 </language>

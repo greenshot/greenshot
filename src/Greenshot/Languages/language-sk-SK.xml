@@ -203,6 +203,7 @@ Skontrolujte prosím možnosť zapisovať do vybraného umiestnenia.</resource>
 		<resource name="settings_destination_fileas">Uložiť ako (zobraz dialóg)</resource>
 		<resource name="settings_destination_picker">Opýtať sa na cieľ zakaždým</resource>		
 		<resource name="settings_destination_printer">Poslať do tlačiarne</resource>
+		<resource name="settings_destination_viewer">Otvoriť v prehliadači obrázkov</resource>
 		<resource name="settings_editor">Editor</resource>
 		<resource name="settings_filenamepattern">Meno súboru - šablona</resource>
 		<resource name="settings_general">Hlavné</resource>
@@ -271,5 +272,18 @@ Prosím deaktivujte iný software využívajúci PrintScreen tlačidlo. Môžete
 		<resource name="WindowCaptureMode.Auto">Automaticky</resource>
 		<resource name="WindowCaptureMode.GDI">Použiť predvolenú farbu</resource>
 		<resource name="WindowCaptureMode.Screen">Ako je zobrazené</resource>
+		
+		<resource name="viewer_alwaysontop">Vždy navrchu</resource>
+		<resource name="viewer_close_all">Zavrieť všetky prehliadače</resource>
+		<resource name="viewer_first_usage_message">Obrázok nie je uložený a bude stratený pri zatvorení okna bez uloženia.</resource>
+		<resource name="viewer_first_usage_title">Prehliadač obrázkov - Prvé použitie</resource>
+		<resource name="viewer_hide_cursor">Skryť zachytený kurzor</resource>
+		<resource name="viewer_hide_title">Skryť záhlavie</resource>
+		<resource name="viewer_process_again">Spracovať obrázok znova...</resource>
+		<resource name="viewer_reset_zoom">Obnoviť priblíženie/posun</resource>
+		<resource name="viewer_save">Uložiť</resource>
+		<resource name="viewer_saveas">Uložiť ako...</resource>
+		<resource name="viewer_show_cursor">Zobraziť zachytený kurzor</resource>
+		<resource name="viewer_show_title">Zobraziť záhlavie</resource>
 	</resources>
 </language>

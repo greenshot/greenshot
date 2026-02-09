@@ -145,6 +145,7 @@ Patikrinkite ar turite tam teises.</resource>
 		<resource name="settings_destination_file">Išsaugoti į failą</resource>
 		<resource name="settings_destination_fileas">Išsaugoti pagal numatytus nustatymus</resource>
 		<resource name="settings_destination_printer">Atspausdinti</resource>
+		<resource name="settings_destination_viewer">Atidaryti peržiūros lange</resource>
 		<resource name="settings_filenamepattern">Failo pavadinimo šablonas</resource>
 		<resource name="settings_general">Bendri</resource>
 		<resource name="settings_jpegquality">Кokybė</resource>
@@ -187,5 +188,18 @@ bus perimti Greenshot programos, kai ji yra paleista.</resource>
 		<resource name="warning_hotkeys">Ne visi numatyti mygtukai priskirti. Tikėtina, kad jie priskirti kitai programai{1}.
 Kad mygtuką Print (PrintScreen) ir jo derinius naudotų Greenshot, reikia uždaryti kitas programas,
 kurios naudoja šiuos mygtukus. Arba galima naudoti komandas iš Greenshot programos kontekstinio meniu.</resource>
+		
+		<resource name="viewer_alwaysontop">Visada viršuje</resource>
+		<resource name="viewer_close_all">Uždaryti visas peržiūros programas</resource>
+		<resource name="viewer_first_usage_message">Paveikslas neįrašytas ir bus prarastas uždarant langą be įrašymo.</resource>
+		<resource name="viewer_first_usage_title">Peržiūros programa - Pirmas naudojimas</resource>
+		<resource name="viewer_hide_cursor">Slėpti užfiksuotą žymeklį</resource>
+		<resource name="viewer_hide_title">Slėpti pavadinimo juostą</resource>
+		<resource name="viewer_process_again">Apdoroti paveikslą iš naujo...</resource>
+		<resource name="viewer_reset_zoom">Atstatyti mastelį/slinkimą</resource>
+		<resource name="viewer_save">Įrašyti</resource>
+		<resource name="viewer_saveas">Įrašyti kaip...</resource>
+		<resource name="viewer_show_cursor">Rodyti užfiksuotą žymeklį</resource>
+		<resource name="viewer_show_title">Rodyti pavadinimo juostą</resource>
 	</resources>
 </language>

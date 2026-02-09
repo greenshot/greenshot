@@ -217,6 +217,7 @@ Pārbaudi dotajā vietā savas piekļuves tiesības.</resource>
 		<resource name="settings_destination_fileas">Saglabāt kā (tiks vaicāts)</resource>
 		<resource name="settings_destination_picker">Jautāt, ko darīt, katru reizi</resource>
 		<resource name="settings_destination_printer">Drukāt</resource>
+		<resource name="settings_destination_viewer">Atvērt attēlu skatītājā</resource>
 		<resource name="settings_editor">Redaktors</resource>
 		<resource name="settings_filenamepattern">Faila vārda paraugs</resource>
 		<resource name="settings_general">Vispārīgi</resource>
@@ -308,6 +309,19 @@ Arī bez karstiem taustiņiem visas darbības iespējams veikt izmantojot „Gre
     <resource name="editor_resize_width">Platums</resource>
     <resource name="editor_resize_height">Augstums</resource>
 	<resource name="settings_iconsize">Ikonas izmērs</resource>
+	
+	<resource name="viewer_alwaysontop">Vienmēr virspusē</resource>
+	<resource name="viewer_close_all">Aizvērt visus skatītājus</resource>
+	<resource name="viewer_first_usage_message">Attēls nav saglabāts un tiks zaudēts, ja logs tiks aizvērts bez saglabāšanas.</resource>
+	<resource name="viewer_first_usage_title">Attēlu skatītājs - Pirmā lietošana</resource>
+	<resource name="viewer_hide_cursor">Paslēpt uztverto kursoru</resource>
+	<resource name="viewer_hide_title">Paslēpt virsraksta joslu</resource>
+	<resource name="viewer_process_again">Apstrādāt attēlu vēlreiz...</resource>
+	<resource name="viewer_reset_zoom">Atiestatīt tālummaiņu/pārvietošanu</resource>
+	<resource name="viewer_save">Saglabāt</resource>
+	<resource name="viewer_saveas">Saglabāt kā...</resource>
+	<resource name="viewer_show_cursor">Rādīt uztverto kursoru</resource>
+	<resource name="viewer_show_title">Rādīt virsraksta joslu</resource>
 
   </resources>
 </language>

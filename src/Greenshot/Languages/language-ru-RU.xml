@@ -227,6 +227,7 @@ Greenshot поставляется БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ.�
 		<resource name="settings_destination_fileas">Сохранить как (отображать диалоговое окно)</resource>
 		<resource name="settings_destination_picker">Спрашивать место назначения каждый раз</resource>
 		<resource name="settings_destination_printer">Отправить на печать</resource>
+		<resource name="settings_destination_viewer">Открыть в просмотрщике изображений</resource>
 		<resource name="settings_editor">Редактор</resource>
 		<resource name="settings_filenamepattern">Шаблон имени файла</resource>
 		<resource name="settings_general">Общие</resource>
@@ -291,5 +292,18 @@ ${hostname} Имя ПК
 		<resource name="WindowCaptureMode.Auto">Автоматически</resource>
 		<resource name="WindowCaptureMode.GDI">Использ. цвет по умолчанию</resource>
 		<resource name="WindowCaptureMode.Screen">Как отображается</resource>
+		
+		<resource name="viewer_alwaysontop">Поверх всех окон</resource>
+		<resource name="viewer_close_all">Закрыть все просмотрщики</resource>
+		<resource name="viewer_first_usage_message">Изображение не сохранено и будет потеряно при закрытии окна без сохранения.</resource>
+		<resource name="viewer_first_usage_title">Просмотрщик изображений - Первый запуск</resource>
+		<resource name="viewer_hide_cursor">Скрыть захваченный курсор</resource>
+		<resource name="viewer_hide_title">Скрыть строку заголовка</resource>
+		<resource name="viewer_process_again">Обработать изображение снова...</resource>
+		<resource name="viewer_reset_zoom">Сбросить масштаб/сдвиг</resource>
+		<resource name="viewer_save">Сохранить</resource>
+		<resource name="viewer_saveas">Сохранить как...</resource>
+		<resource name="viewer_show_cursor">Показать захваченный курсор</resource>
+		<resource name="viewer_show_title">Показать строку заголовка</resource>
 	</resources>
 </language>

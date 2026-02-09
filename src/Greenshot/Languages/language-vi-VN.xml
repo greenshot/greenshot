@@ -142,6 +142,7 @@
 		<resource name="settings_destination_file">Lưu mặc định (Sử dụng thiết lập ở dưới)</resource>
 		<resource name="settings_destination_fileas">Lưu dưới dạng (hiện hộp thoại)</resource>
 		<resource name="settings_destination_printer">In</resource>
+		<resource name="settings_destination_viewer">Mở trình xem ảnh</resource>
 		<resource name="settings_filenamepattern">Dạng tên tệp</resource>
 		<resource name="settings_general">Thông thường</resource>
 		<resource name="settings_jpegquality">Chất lượng JPEG</resource>
@@ -189,5 +190,18 @@
 		<resource name="warning_hotkeys">Có phím tắt đã được đăng ký trùng. Kiểm tra (ví dụ phím Print Screen)
 		xem các phần mềm khác có sử dụng các phím tắt của Greenshot hay không.
 		Ngoài ra, có thể điều khiển Greenshot bằng cách nhấp chuột phải và biểu tưởng ở phía phải dưới màn hình.</resource>
+		
+		<resource name="viewer_alwaysontop">Luôn ở trên cùng</resource>
+		<resource name="viewer_close_all">Đóng tất cả trình xem</resource>
+		<resource name="viewer_first_usage_message">Hình ảnh chưa được lưu và sẽ bị mất khi đóng cửa sổ mà không lưu.</resource>
+		<resource name="viewer_first_usage_title">Trình xem ảnh - Lần sử dụng đầu tiên</resource>
+		<resource name="viewer_hide_cursor">Ẩn con trỏ đã chụp</resource>
+		<resource name="viewer_hide_title">Ẩn thanh tiêu đề</resource>
+		<resource name="viewer_process_again">Xử lý ảnh lại...</resource>
+		<resource name="viewer_reset_zoom">Đặt lại thu phóng/di chuyển</resource>
+		<resource name="viewer_save">Lưu</resource>
+		<resource name="viewer_saveas">Lưu dưới dạng...</resource>
+		<resource name="viewer_show_cursor">Hiển thị con trỏ đã chụp</resource>
+		<resource name="viewer_show_title">Hiển thị thanh tiêu đề</resource>
 	</resources>
 </language>

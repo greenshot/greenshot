@@ -220,6 +220,7 @@ Zkontrolujte prosím dostupnost vybraného cíle.</resource>
 		<resource name="settings_destination_fileas">Uložit jako (zobrazit dialog)</resource>
 		<resource name="settings_destination_picker">Zeptej se na cíl pokaždé</resource>
 		<resource name="settings_destination_printer">Odeslat na tiskárnu</resource>
+		<resource name="settings_destination_viewer">Otevřít v prohlížeči obrázků</resource>
 		<resource name="settings_editor">Editor</resource>
 		<resource name="settings_filenamepattern">Vzor pro název souboru</resource>
 		<resource name="settings_general">Obecné</resource>
@@ -311,5 +312,18 @@ Všechny funkce Greenshotu jsou stále dostupné přímo z místní nabídky bez
 		<resource name="editor_resize_width">Šířka</resource>
 		<resource name="editor_resize_height">Výška</resource>
 		<resource name="settings_iconsize">Velikost ikon</resource>
+		
+		<resource name="viewer_alwaysontop">Vždy navrchu</resource>
+		<resource name="viewer_close_all">Zavřít všechny prohlížeče</resource>
+		<resource name="viewer_first_usage_message">Obrázek není uložen a bude ztracen při zavření okna bez uložení.</resource>
+		<resource name="viewer_first_usage_title">Prohlížeč obrázků - První použití</resource>
+		<resource name="viewer_hide_cursor">Skrýt zachycený kurzor</resource>
+		<resource name="viewer_hide_title">Skrýt záhlaví</resource>
+		<resource name="viewer_process_again">Zpracovat obrázek znovu...</resource>
+		<resource name="viewer_reset_zoom">Obnovit přiblížení/posun</resource>
+		<resource name="viewer_save">Uložit</resource>
+		<resource name="viewer_saveas">Uložit jako...</resource>
+		<resource name="viewer_show_cursor">Zobrazit zachycený kurzor</resource>
+		<resource name="viewer_show_title">Zobrazit záhlaví</resource>
 	</resources>
 </language>

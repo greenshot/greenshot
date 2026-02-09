@@ -225,6 +225,7 @@ Palun kontrollige valitud hoiuala kirjutamisõigust.</resource>
 		<resource name="settings_destination_fileas">Salvestega nimega (dialoogi kuvamin)</resource>
 		<resource name="settings_destination_picker">Küsi asukohta iga kord</resource>
 		<resource name="settings_destination_printer">Saatke printerisse</resource>
+		<resource name="settings_destination_viewer">Ava pildivaaturis</resource>
 		<resource name="settings_editor">Kohandaja</resource>
 		<resource name="settings_filenamepattern">Faili nime atribuudid</resource>
 		<resource name="settings_general">Põhiline</resource>
@@ -288,5 +289,18 @@ Kõik Greenshoti lisad töötavad süsteemisalvest ilma kiirklahvide olemasoluta
 		<resource name="WindowCaptureMode.Auto">Automaatselt</resource>
 		<resource name="WindowCaptureMode.GDI">Kasutage tavalist värvi</resource>
 		<resource name="WindowCaptureMode.Screen">Nagu kuvatud</resource>
+		
+		<resource name="viewer_alwaysontop">Alati pealmine</resource>
+		<resource name="viewer_close_all">Sule kõik vaaturid</resource>
+		<resource name="viewer_first_usage_message">Pilt ei ole salvestatud ja läheb kaotsi, kui aken suletakse salvestamata.</resource>
+		<resource name="viewer_first_usage_title">Pildivaatur - Esimene kasutamine</resource>
+		<resource name="viewer_hide_cursor">Peida jäädvustatud kursor</resource>
+		<resource name="viewer_hide_title">Peida tiitliriba</resource>
+		<resource name="viewer_process_again">Töötle pilti uuesti...</resource>
+		<resource name="viewer_reset_zoom">Lähtesta suum/nihutamine</resource>
+		<resource name="viewer_save">Salvesta</resource>
+		<resource name="viewer_saveas">Salvesta nimega...</resource>
+		<resource name="viewer_show_cursor">Näita jäädvustatud kursorit</resource>
+		<resource name="viewer_show_title">Näita tiitliriba</resource>
 	</resources>
 </language>

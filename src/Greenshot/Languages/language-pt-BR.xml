@@ -201,6 +201,7 @@
 		<resource name="settings_destination_fileas">Salvar como... (mostrar caixa de diálogo)</resource>
 		<resource name="settings_destination_picker">Perguntar o destino toda vez</resource>
 		<resource name="settings_destination_printer">Enviar para impressora</resource>
+		<resource name="settings_destination_viewer">Abrir no visualizador de imagens</resource>
 		<resource name="settings_editor">Editor</resource>
 		<resource name="settings_filenamepattern">Formato do nome</resource>
 		<resource name="settings_general">Geral</resource>
@@ -270,5 +271,18 @@
 		<resource name="WindowCaptureModes.GDI">Usar cores padrão</resource>
 		<resource name="WindowCaptureModes.Screen">Como exibido</resource>
 		<resource name="settings_iconsize">Tamanho do ícone</resource>
+		
+		<resource name="viewer_alwaysontop">Sempre no topo</resource>
+		<resource name="viewer_close_all">Fechar todos os visualizadores</resource>
+		<resource name="viewer_first_usage_message">A imagem não está salva e será perdida quando a janela for fechada sem salvar.</resource>
+		<resource name="viewer_first_usage_title">Visualizador de imagens - Primeiro uso</resource>
+		<resource name="viewer_hide_cursor">Ocultar cursor capturado</resource>
+		<resource name="viewer_hide_title">Ocultar barra de título</resource>
+		<resource name="viewer_process_again">Processar imagem novamente...</resource>
+		<resource name="viewer_reset_zoom">Redefinir zoom/deslocamento</resource>
+		<resource name="viewer_save">Salvar</resource>
+		<resource name="viewer_saveas">Salvar como...</resource>
+		<resource name="viewer_show_cursor">Mostrar cursor capturado</resource>
+		<resource name="viewer_show_title">Mostrar barra de título</resource>
 	</resources>
 </language>

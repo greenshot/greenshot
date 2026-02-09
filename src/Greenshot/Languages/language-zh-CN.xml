@@ -217,6 +217,7 @@
 		<resource name="settings_destination_fileas">另存到（显示对话框）</resource>
 		<resource name="settings_destination_picker">每次询问保存位置</resource>
 		<resource name="settings_destination_printer">打印图片</resource>
+		<resource name="settings_destination_viewer">在图片查看器中打开</resource>
 		<resource name="settings_editor">编辑器</resource>
 		<resource name="settings_filenamepattern">文件名格式</resource>
 		<resource name="settings_general">常规</resource>
@@ -293,5 +294,18 @@ Alt+Print	抓取程序窗口（如果没有选择交互式抓取方式，将会�
 		<resource name="hotkey_lastregion">抓取上次选择的区域</resource>
 		<resource name="hotkey_region">抓取屏幕的一部分</resource>
 		<resource name="hotkey_window">抓取窗口</resource>
+		
+		<resource name="viewer_alwaysontop">始终位于顶层</resource>
+		<resource name="viewer_close_all">关闭所有查看器</resource>
+		<resource name="viewer_first_usage_message">图片未保存，关闭窗口时若不保存将会丢失。</resource>
+		<resource name="viewer_first_usage_title">图片查看器 - 首次使用</resource>
+		<resource name="viewer_hide_cursor">隐藏捕获的光标</resource>
+		<resource name="viewer_hide_title">隐藏标题栏</resource>
+		<resource name="viewer_process_again">再次处理图片...</resource>
+		<resource name="viewer_reset_zoom">重置缩放/平移</resource>
+		<resource name="viewer_save">保存</resource>
+		<resource name="viewer_saveas">另存为...</resource>
+		<resource name="viewer_show_cursor">显示捕获的光标</resource>
+		<resource name="viewer_show_title">显示标题栏</resource>
 	</resources>
 </language>

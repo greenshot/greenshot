@@ -254,6 +254,9 @@ Vă rugăm să dezactivați aplicația ce folosește tasta Print. Puteți de ase
 	<resource name="settings_destination_printer">
 		Trimite la imprimantă
 	</resource>
+	<resource name="settings_destination_viewer">
+		Deschide în vizualizator imagini
+	</resource>
 	<resource name="settings_destination_file">
 		Salvează direct (folosind setările de mai jos)
 	</resource>
@@ -534,5 +537,18 @@ timpul curent, ex. 11_58_32 (plus extensia fișierului definită în setări)
 	<resource name="contextmenu_donate">
 		Ajutați Greenshot
 	</resource>
+	
+	<resource name="viewer_alwaysontop">Întotdeauna deasupra</resource>
+	<resource name="viewer_close_all">Închide toate vizualizatoarele</resource>
+	<resource name="viewer_first_usage_message">Imaginea nu este salvată și se va pierde când fereastra este închisă fără salvare.</resource>
+	<resource name="viewer_first_usage_title">Vizualizator imagini - Prima utilizare</resource>
+	<resource name="viewer_hide_cursor">Ascunde cursorul capturat</resource>
+	<resource name="viewer_hide_title">Ascunde bara de titlu</resource>
+	<resource name="viewer_process_again">Procesează imaginea din nou...</resource>
+	<resource name="viewer_reset_zoom">Resetează zoom/deplasare</resource>
+	<resource name="viewer_save">Salvează</resource>
+	<resource name="viewer_saveas">Salvează ca...</resource>
+	<resource name="viewer_show_cursor">Arată cursorul capturat</resource>
+	<resource name="viewer_show_title">Arată bara de titlu</resource>
   </resources>
 </language>

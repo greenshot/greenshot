@@ -168,6 +168,7 @@ Could not save Greenshot's configuration file. Please check access permissions f
 		<resource name="settings_destination_file">بی‌درنگ با تنظیمات پایین ذخیره کن</resource>
 		<resource name="settings_destination_fileas">ذخیره‌سازی با</resource>
 		<resource name="settings_destination_printer">فرستادن به چاپگر</resource>
+		<resource name="settings_destination_viewer">باز کردن در نمایشگر تصویر</resource>
 		<resource name="settings_filenamepattern">شیوه نامگذاری</resource>
 		<resource name="settings_general">همگانی</resource>
 		<resource name="settings_jpegquality">JPEG کیفیت</resource>
@@ -210,5 +211,18 @@ Right-click here or press the Print-key.</resource>
 		<resource name="warning">هشدار</resource>
 		<resource name="warning_hotkeys">.ثبت و استفاده از یک یا چند تا از میانبرها امکان پذیر  نمی‌باشد. ممکن است نرم‌افزار دیگری از میانبرها استفاده می‌کند</resource>
 		<resource name="settings_iconsize">اندازه آیکن</resource>
+		
+		<resource name="viewer_alwaysontop">همیشه در بالا</resource>
+		<resource name="viewer_close_all">بستن همه نمایشگرها</resource>
+		<resource name="viewer_first_usage_message">تصویر ذخیره نشده است و هنگام بستن پنجره بدون ذخیره از بین خواهد رفت.</resource>
+		<resource name="viewer_first_usage_title">نمایشگر تصویر - اولین استفاده</resource>
+		<resource name="viewer_hide_cursor">مخفی کردن نشانگر ضبط شده</resource>
+		<resource name="viewer_hide_title">مخفی کردن نوار عنوان</resource>
+		<resource name="viewer_process_again">پردازش مجدد تصویر...</resource>
+		<resource name="viewer_reset_zoom">بازنشانی بزرگنمایی/جابجایی</resource>
+		<resource name="viewer_save">ذخیره</resource>
+		<resource name="viewer_saveas">ذخیره به عنوان...</resource>
+		<resource name="viewer_show_cursor">نمایش نشانگر ضبط شده</resource>
+		<resource name="viewer_show_title">نمایش نوار عنوان</resource>
 	</resources>
 </language>

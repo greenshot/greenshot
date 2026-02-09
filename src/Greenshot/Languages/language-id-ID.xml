@@ -238,6 +238,7 @@ Harap cek aksesibilitas menuis pada lokasi penyimpanan yang dipilih.</resource>
 		<resource name="settings_destination_fileas">Simpan sebagai (tampilkan dialog)</resource>
 		<resource name="settings_destination_picker">Tanya destinasi setiap kali</resource>
 		<resource name="settings_destination_printer">Kirim ke printer</resource>
+		<resource name="settings_destination_viewer">Buka di penampil gambar</resource>
 		<resource name="settings_editor">Editor</resource>
 		<resource name="settings_filenamepattern">Pola nama berkas</resource>
 		<resource name="settings_general">Umum</resource>
@@ -302,5 +303,18 @@ cont, 11_58_32 (ditambah ekstensi yang ditetapkan pada pengaturan)</resource>
 		<resource name="WindowCaptureMode.Auto">Otomatis</resource>
 		<resource name="WindowCaptureMode.GDI">Gunakan warna kesukaan</resource>
 		<resource name="WindowCaptureMode.Screen">Tampakkan</resource>
+		
+		<resource name="viewer_alwaysontop">Selalu di atas</resource>
+		<resource name="viewer_close_all">Tutup semua penampil</resource>
+		<resource name="viewer_first_usage_message">Gambar belum disimpan dan akan hilang saat jendela ditutup tanpa menyimpan.</resource>
+		<resource name="viewer_first_usage_title">Penampil Gambar - Penggunaan Pertama</resource>
+		<resource name="viewer_hide_cursor">Sembunyikan kursor yang ditangkap</resource>
+		<resource name="viewer_hide_title">Sembunyikan bilah judul</resource>
+		<resource name="viewer_process_again">Proses gambar lagi...</resource>
+		<resource name="viewer_reset_zoom">Setel ulang zoom/geser</resource>
+		<resource name="viewer_save">Simpan</resource>
+		<resource name="viewer_saveas">Simpan sebagai...</resource>
+		<resource name="viewer_show_cursor">Tampilkan kursor yang ditangkap</resource>
+		<resource name="viewer_show_title">Tampilkan bilah judul</resource>
 	</resources>
 </language>
