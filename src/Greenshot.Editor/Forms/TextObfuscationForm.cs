@@ -48,8 +48,9 @@ namespace Greenshot.Editor.Forms
         private readonly ISurface _surface;
         private readonly OcrInformation _ocrInfo;
         private readonly List<NativeRect> _matchedBounds = new List<NativeRect>();
-        private readonly List<RectangleContainer> _previewContainers = new List<RectangleContainer>();
+        private readonly List<FilterContainer> _previewContainers = new List<FilterContainer>();
         private IDisposable _searchSubscription;
+        private bool _isInitializing = true;
 
         public TextObfuscationForm(ISurface surface, OcrInformation ocrInfo)
         {
@@ -61,6 +62,15 @@ namespace Greenshot.Editor.Forms
             InitializeSearchScopeDropdown();
             LoadSettings();
             SetupDebouncedSearch();
+            SetupColorPicker();
+            
+            _isInitializing = false;
+            
+            // Trigger initial search if text is pre-filled
+            if (!string.IsNullOrEmpty(searchTextBox.Text) && searchTextBox.Text.Length >= 3)
+            {
+                UpdatePreview();
+            }
         }
 
         private void InitializeEffectDropdown()
@@ -135,6 +145,32 @@ namespace Greenshot.Editor.Forms
             searchScopeComboBox.SelectedIndexChanged += (s, e) => UpdatePreview();
         }
 
+        private void SetupColorPicker()
+        {
+            highlightColorButton.Click += (s, e) =>
+            {
+                using (var colorDialog = new ColorDialog())
+                {
+                    colorDialog.Color = highlightColorButton.BackColor;
+                    colorDialog.FullOpen = true;
+                    if (colorDialog.ShowDialog(this) == DialogResult.OK)
+                    {
+                        highlightColorButton.BackColor = colorDialog.Color;
+                        // Update preview if we're showing highlight effect
+                        if (effectComboBox.SelectedItem is EffectItem item && item.Effect == PreparedFilter.TEXT_HIGHTLIGHT)
+                        {
+                            UpdatePreview();
+                        }
+                    }
+                }
+            };
+            
+            // Update preview when any setting changes
+            pixelSizeUpDown.ValueChanged += (s, e) => { if (!_isInitializing) UpdatePreview(); };
+            blurRadiusUpDown.ValueChanged += (s, e) => { if (!_isInitializing) UpdatePreview(); };
+            magnificationUpDown.ValueChanged += (s, e) => { if (!_isInitializing) UpdatePreview(); };
+        }
+
         private void SearchButton_Click(object sender, EventArgs e)
         {
             UpdatePreview();
@@ -204,7 +240,7 @@ namespace Greenshot.Editor.Forms
                 {
                     if (IsMatch(word.Text, searchText, useRegex))
                     {
-                        _matchedBounds.Add(word.Bounds);
+                        _matchedBounds.Add(ApplyPadding(word.Bounds));
                     }
                 }
             }
@@ -216,9 +252,25 @@ namespace Greenshot.Editor.Forms
             {
                 if (IsMatch(line.Text, searchText, useRegex))
                 {
-                    _matchedBounds.Add(line.CalculatedBounds);
+                    _matchedBounds.Add(ApplyPadding(line.CalculatedBounds));
                 }
             }
+        }
+
+        private NativeRect ApplyPadding(NativeRect bounds)
+        {
+            int paddingPercent = EditorConfig.TextObfuscationPaddingPercentage;
+            if (paddingPercent <= 0) return bounds;
+            
+            int widthPadding = (int)(bounds.Width * paddingPercent / 100.0 / 2);
+            int heightPadding = (int)(bounds.Height * paddingPercent / 100.0 / 2);
+            
+            return new NativeRect(
+                bounds.Left - widthPadding,
+                bounds.Top - heightPadding,
+                bounds.Width + (widthPadding * 2),
+                bounds.Height + (heightPadding * 2)
+            );
         }
 
         private bool IsMatch(string text, string searchText, bool useRegex)
@@ -247,20 +299,20 @@ namespace Greenshot.Editor.Forms
 
         private void ShowPreview()
         {
+            if (!(effectComboBox.SelectedItem is EffectItem item))
+            {
+                return;
+            }
+
             foreach (var bounds in _matchedBounds)
             {
-                var container = new RectangleContainer(_surface)
+                // Create preview using actual effect instead of yellow boxes
+                FilterContainer container = CreateFilterContainer(item.Effect, bounds);
+                if (container != null)
                 {
-                    Left = bounds.Left,
-                    Top = bounds.Top,
-                    Width = bounds.Width,
-                    Height = bounds.Height
-                };
-                container.SetFieldValue(FieldType.LINE_COLOR, Color.Yellow);
-                container.SetFieldValue(FieldType.LINE_THICKNESS, 3);
-                container.SetFieldValue(FieldType.FILL_COLOR, Color.FromArgb(50, Color.Yellow));
-                _surface.AddElement(container, false);
-                _previewContainers.Add(container);
+                    _surface.AddElement(container, false);
+                    _previewContainers.Add(container);
+                }
             }
             _surface.Invalidate();
         }
@@ -278,6 +330,11 @@ namespace Greenshot.Editor.Forms
         private void EffectComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             UpdateEffectSettings();
+            // Update preview to show new effect
+            if (!_isInitializing)
+            {
+                UpdatePreview();
+            }
         }
 
         private void UpdateEffectSettings()
