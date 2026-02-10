@@ -1680,7 +1680,7 @@ namespace Greenshot.Editor.Forms
             mainForm.AddCaptureWindowMenuItems(captureWindowMenuItem, Contextmenu_window_Click);
         }
 
-        private void ObfuscateTextToolStripMenuItemClick(object sender, EventArgs e)
+        private async void ObfuscateTextToolStripMenuItemClick(object sender, EventArgs e)
         {
             if (_surface?.CaptureDetails == null)
             {
@@ -1700,8 +1700,7 @@ namespace Greenshot.Editor.Forms
                 Cursor = Cursors.WaitCursor;
                 try
                 {
-                    var ocrTask = System.Threading.Tasks.Task.Run(async () => await ocrProvider.DoOcrAsync(_surface));
-                    _surface.CaptureDetails.OcrInformation = ocrTask.Result;
+                    _surface.CaptureDetails.OcrInformation = await ocrProvider.DoOcrAsync(_surface);
                 }
                 catch (Exception ex)
                 {
