@@ -30,6 +30,7 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Ocr;
 using Greenshot.Editor.Drawing;
+using Greenshot.Editor.Drawing.Fields;
 
 namespace Greenshot.Editor.Forms
 {
@@ -77,7 +78,7 @@ namespace Greenshot.Editor.Forms
             string searchText = searchTextBox.Text;
             if (string.IsNullOrEmpty(searchText))
             {
-                matchCountLabel.Text = Language.GetString("editor_obfuscate_text_matches", "0");
+                matchCountLabel.Text = string.Format(Language.GetString("editor_obfuscate_text_matches"), "0");
                 return;
             }
 
@@ -96,7 +97,7 @@ namespace Greenshot.Editor.Forms
                 }
 
                 ShowPreview();
-                matchCountLabel.Text = Language.GetString("editor_obfuscate_text_matches", _matchedBounds.Count.ToString());
+                matchCountLabel.Text = string.Format(Language.GetString("editor_obfuscate_text_matches"), _matchedBounds.Count.ToString());
             }
             catch (Exception ex)
             {
@@ -164,7 +165,9 @@ namespace Greenshot.Editor.Forms
                     Width = bounds.Width,
                     Height = bounds.Height
                 };
-                container.MakeUndoable(new object[] { container }, false);
+                container.SetFieldValue(FieldType.LINE_COLOR, Color.Yellow);
+                container.SetFieldValue(FieldType.LINE_THICKNESS, 3);
+                container.SetFieldValue(FieldType.FILL_COLOR, Color.FromArgb(50, Color.Yellow));
                 _surface.AddElement(container, false);
                 _previewContainers.Add(container);
             }
