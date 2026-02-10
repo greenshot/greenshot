@@ -430,6 +430,57 @@ tidspunktet, fx 11_58_32 (plus filendelsen angivet i indstillingerne).
 	<resource name="editor_obfuscate_pixelize">
 		Pixeler
 	</resource>
+	<resource name="editor_obfuscate_text">
+		Skjul tekst...
+	</resource>
+	<resource name="editor_obfuscate_text_title">
+		Skjul tekst
+	</resource>
+	<resource name="editor_obfuscate_text_search">
+		Søg efter:
+	</resource>
+	<resource name="editor_obfuscate_text_search_button">
+		Søg
+	</resource>
+	<resource name="editor_obfuscate_text_regex">
+		Brug regulært udtryk
+	</resource>
+	<resource name="editor_obfuscate_text_case_sensitive">
+		Forskel på store og små bogstaver
+	</resource>
+	<resource name="editor_obfuscate_text_auto_search">
+		Automatisk søgning
+	</resource>
+	<resource name="editor_obfuscate_text_search_scope">
+		Søg i:
+	</resource>
+	<resource name="editor_obfuscate_text_scope_words">
+		Ord
+	</resource>
+	<resource name="editor_obfuscate_text_scope_lines">
+		Linjer
+	</resource>
+	<resource name="editor_obfuscate_text_matches">
+		Fundne matches: {0}
+	</resource>
+	<resource name="editor_obfuscate_text_apply">
+		Anvend
+	</resource>
+	<resource name="editor_obfuscate_text_error">
+		Fejl
+	</resource>
+	<resource name="editor_obfuscate_text_no_capture">
+		Ingen tilgængelig optagelse
+	</resource>
+	<resource name="editor_obfuscate_text_no_ocr_provider">
+		OCR-udbyder ikke tilgængelig
+	</resource>
+	<resource name="editor_obfuscate_text_ocr_failed">
+		OCR mislykkedes
+	</resource>
+	<resource name="editor_obfuscate_text_no_text">
+		Ingen tekst fundet i billedet
+	</resource>
 	<resource name="editor_highlight_area">
 		Fremhæv område
 	</resource>
