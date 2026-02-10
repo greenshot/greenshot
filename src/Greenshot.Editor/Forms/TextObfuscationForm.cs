@@ -23,26 +23,33 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
+using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Ocr;
+using Greenshot.Editor.Configuration;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Drawing.Fields;
+using static Greenshot.Editor.Drawing.FilterContainer;
 
 namespace Greenshot.Editor.Forms
 {
     /// <summary>
-    /// Form for searching and obfuscating text in OCR results
+    /// Enhanced form for searching and obfuscating text in OCR results
     /// </summary>
     public partial class TextObfuscationForm : EditorForm
     {
+        private static readonly EditorConfiguration EditorConfig = IniConfig.GetIniSection<EditorConfiguration>();
+        
         private readonly ISurface _surface;
         private readonly OcrInformation _ocrInfo;
         private readonly List<NativeRect> _matchedBounds = new List<NativeRect>();
         private readonly List<RectangleContainer> _previewContainers = new List<RectangleContainer>();
+        private IDisposable _searchSubscription;
 
         public TextObfuscationForm(ISurface surface, OcrInformation ocrInfo)
         {
@@ -50,24 +57,87 @@ namespace Greenshot.Editor.Forms
             _ocrInfo = ocrInfo ?? throw new ArgumentNullException(nameof(ocrInfo));
             InitializeComponent();
             
+            InitializeEffectDropdown();
+            InitializeSearchScopeDropdown();
+            LoadSettings();
+            SetupDebouncedSearch();
+        }
+
+        private void InitializeEffectDropdown()
+        {
+            effectComboBox.Items.Clear();
+            effectComboBox.Items.Add(new EffectItem(PreparedFilter.PIXELIZE, Language.GetString("editor_obfuscate_pixelize")));
+            effectComboBox.Items.Add(new EffectItem(PreparedFilter.BLUR, Language.GetString("editor_obfuscate_blur")));
+            effectComboBox.Items.Add(new EffectItem(PreparedFilter.TEXT_HIGHTLIGHT, "Highlight Text"));
+            effectComboBox.Items.Add(new EffectItem(PreparedFilter.MAGNIFICATION, "Magnify"));
+            // Exclude AREA_HIGHLIGHT and GRAYSCALE as requested
+            
+            effectComboBox.SelectedIndex = 0;
+            effectComboBox.SelectedIndexChanged += EffectComboBox_SelectedIndexChanged;
+        }
+
+        private void InitializeSearchScopeDropdown()
+        {
             searchScopeComboBox.Items.Add(Language.GetString("editor_obfuscate_text_scope_words"));
             searchScopeComboBox.Items.Add(Language.GetString("editor_obfuscate_text_scope_lines"));
             searchScopeComboBox.SelectedIndex = 0;
+        }
+
+        private void LoadSettings()
+        {
+            searchTextBox.Text = EditorConfig.TextObfuscationSearchPattern ?? "";
+            regexCheckBox.Checked = EditorConfig.TextObfuscationUseRegex;
+            caseSensitiveCheckBox.Checked = EditorConfig.TextObfuscationCaseSensitive;
+            searchScopeComboBox.SelectedIndex = EditorConfig.TextObfuscationSearchScope;
             
-            UpdatePreview();
+            // Set effect from config
+            if (!string.IsNullOrEmpty(EditorConfig.TextObfuscationEffect))
+            {
+                for (int i = 0; i < effectComboBox.Items.Count; i++)
+                {
+                    if (effectComboBox.Items[i] is EffectItem item && item.Effect.ToString() == EditorConfig.TextObfuscationEffect)
+                    {
+                        effectComboBox.SelectedIndex = i;
+                        break;
+                    }
+                }
+            }
+        }
+
+        private void SaveSettings()
+        {
+            EditorConfig.TextObfuscationSearchPattern = searchTextBox.Text;
+            EditorConfig.TextObfuscationUseRegex = regexCheckBox.Checked;
+            EditorConfig.TextObfuscationCaseSensitive = caseSensitiveCheckBox.Checked;
+            EditorConfig.TextObfuscationSearchScope = searchScopeComboBox.SelectedIndex;
+            
+            if (effectComboBox.SelectedItem is EffectItem item)
+            {
+                EditorConfig.TextObfuscationEffect = item.Effect.ToString();
+            }
+        }
+
+        private void SetupDebouncedSearch()
+        {
+            // Create observable from TextChanged event with debounce
+            var textChanged = Observable.FromEventPattern<EventArgs>(searchTextBox, "TextChanged")
+                .Select(_ => searchTextBox.Text)
+                .DistinctUntilChanged()
+                .Where(text => text.Length == 0 || text.Length >= 3) // Minimum 3 characters
+                .Throttle(TimeSpan.FromMilliseconds(300)) // Debounce 300ms
+                .ObserveOn(this);
+
+            _searchSubscription = textChanged.Subscribe(_ => UpdatePreview());
+
+            // Also trigger search when checkboxes change
+            regexCheckBox.CheckedChanged += (s, e) => UpdatePreview();
+            caseSensitiveCheckBox.CheckedChanged += (s, e) => UpdatePreview();
+            searchScopeComboBox.SelectedIndexChanged += (s, e) => UpdatePreview();
         }
 
         private void SearchButton_Click(object sender, EventArgs e)
         {
             UpdatePreview();
-        }
-
-        private void SearchTextBox_TextChanged(object sender, EventArgs e)
-        {
-            if (autoSearchCheckBox.Checked)
-            {
-                UpdatePreview();
-            }
         }
 
         private void UpdatePreview()
@@ -76,7 +146,7 @@ namespace Greenshot.Editor.Forms
             _matchedBounds.Clear();
 
             string searchText = searchTextBox.Text;
-            if (string.IsNullOrEmpty(searchText))
+            if (string.IsNullOrEmpty(searchText) || searchText.Length < 3)
             {
                 matchCountLabel.Text = string.Format(Language.GetString("editor_obfuscate_text_matches"), "0");
                 return;
@@ -84,6 +154,13 @@ namespace Greenshot.Editor.Forms
 
             bool useRegex = regexCheckBox.Checked;
             bool searchWords = searchScopeComboBox.SelectedIndex == 0;
+
+            // Validate regex if using regex mode
+            if (useRegex && !IsValidRegex(searchText))
+            {
+                matchCountLabel.Text = Language.GetString("editor_obfuscate_text_error") + ": Invalid regex pattern";
+                return;
+            }
 
             try
             {
@@ -102,6 +179,20 @@ namespace Greenshot.Editor.Forms
             catch (Exception ex)
             {
                 matchCountLabel.Text = Language.GetString("editor_obfuscate_text_error") + ": " + ex.Message;
+            }
+        }
+
+        private bool IsValidRegex(string pattern)
+        {
+            try
+            {
+                var options = caseSensitiveCheckBox.Checked ? RegexOptions.None : RegexOptions.IgnoreCase;
+                Regex.IsMatch("", pattern, options);
+                return true;
+            }
+            catch
+            {
+                return false;
             }
         }
 
@@ -184,30 +275,116 @@ namespace Greenshot.Editor.Forms
             _surface.Invalidate();
         }
 
+        private void EffectComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            UpdateEffectSettings();
+        }
+
+        private void UpdateEffectSettings()
+        {
+            if (!(effectComboBox.SelectedItem is EffectItem item))
+            {
+                return;
+            }
+
+            // Hide all settings first
+            pixelSizeLabel.Visible = pixelSizeUpDown.Visible = false;
+            blurRadiusLabel.Visible = blurRadiusUpDown.Visible = false;
+            highlightColorLabel.Visible = highlightColorButton.Visible = false;
+            magnificationLabel.Visible = magnificationUpDown.Visible = false;
+
+            // Show relevant settings based on effect
+            switch (item.Effect)
+            {
+                case PreparedFilter.PIXELIZE:
+                    pixelSizeLabel.Visible = pixelSizeUpDown.Visible = true;
+                    break;
+                case PreparedFilter.BLUR:
+                    blurRadiusLabel.Visible = blurRadiusUpDown.Visible = true;
+                    break;
+                case PreparedFilter.TEXT_HIGHTLIGHT:
+                    highlightColorLabel.Visible = highlightColorButton.Visible = true;
+                    break;
+                case PreparedFilter.MAGNIFICATION:
+                    magnificationLabel.Visible = magnificationUpDown.Visible = true;
+                    break;
+            }
+        }
+
         private void ApplyButton_Click(object sender, EventArgs e)
         {
             ClearPreview();
+            SaveSettings();
 
-            var obfuscateContainers = new DrawableContainerList();
-            foreach (var bounds in _matchedBounds)
+            if (!(effectComboBox.SelectedItem is EffectItem item))
             {
-                var obfuscate = new ObfuscateContainer(_surface)
-                {
-                    Left = bounds.Left,
-                    Top = bounds.Top,
-                    Width = bounds.Width,
-                    Height = bounds.Height
-                };
-                obfuscateContainers.Add(obfuscate);
+                return;
             }
 
-            if (obfuscateContainers.Count > 0)
+            var containers = new DrawableContainerList();
+            
+            foreach (var bounds in _matchedBounds)
             {
-                _surface.AddElements(obfuscateContainers, true);
+                FilterContainer container = CreateFilterContainer(item.Effect, bounds);
+                if (container != null)
+                {
+                    containers.Add(container);
+                }
+            }
+
+            if (containers.Count > 0)
+            {
+                _surface.AddElements(containers, true);
             }
 
             DialogResult = DialogResult.OK;
             Close();
+        }
+
+        private FilterContainer CreateFilterContainer(PreparedFilter effect, NativeRect bounds)
+        {
+            FilterContainer container = null;
+            
+            switch (effect)
+            {
+                case PreparedFilter.PIXELIZE:
+                case PreparedFilter.BLUR:
+                    container = new ObfuscateContainer(_surface);
+                    container.SetFieldValue(FieldType.PREPARED_FILTER_OBFUSCATE, effect);
+                    if (effect == PreparedFilter.PIXELIZE)
+                    {
+                        container.SetFieldValue(FieldType.PIXEL_SIZE, (int)pixelSizeUpDown.Value);
+                    }
+                    else
+                    {
+                        container.SetFieldValue(FieldType.BLUR_RADIUS, (int)blurRadiusUpDown.Value);
+                    }
+                    break;
+                    
+                case PreparedFilter.TEXT_HIGHTLIGHT:
+                case PreparedFilter.MAGNIFICATION:
+                    container = new HighlightContainer(_surface);
+                    container.SetFieldValue(FieldType.PREPARED_FILTER_HIGHLIGHT, effect);
+                    if (effect == PreparedFilter.TEXT_HIGHTLIGHT)
+                    {
+                        container.SetFieldValue(FieldType.HIGHLIGHT_COLOR, highlightColorButton.BackColor);
+                    }
+                    else
+                    {
+                        container.SetFieldValue(FieldType.MAGNIFICATION_FACTOR, (int)magnificationUpDown.Value);
+                    }
+                    break;
+            }
+
+            if (container != null)
+            {
+                container.Left = bounds.Left;
+                container.Top = bounds.Top;
+                container.Width = bounds.Width;
+                container.Height = bounds.Height;
+            }
+
+            return container;
         }
 
         private void CancelButton_Click(object sender, EventArgs e)
@@ -220,7 +397,22 @@ namespace Greenshot.Editor.Forms
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
             ClearPreview();
+            _searchSubscription?.Dispose();
             base.OnFormClosing(e);
+        }
+
+        private class EffectItem
+        {
+            public PreparedFilter Effect { get; }
+            public string DisplayName { get; }
+
+            public EffectItem(PreparedFilter effect, string displayName)
+            {
+                Effect = effect;
+                DisplayName = displayName;
+            }
+
+            public override string ToString() => DisplayName;
         }
     }
 }
