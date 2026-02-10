@@ -280,6 +280,9 @@ namespace Greenshot.Editor.Forms
             toolStripSeparator11.Visible = !coreConfiguration.DisableSettings;
             btnSettings.Visible = !coreConfiguration.DisableSettings;
 
+            // Text obfuscation is only available for beta testers
+            obfuscateTextToolStripMenuItem.Visible = CoreConfiguration.IsBetaTester;
+
             // Make sure Double-buffer is enabled
             SetStyle(ControlStyles.DoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint, true);
 
@@ -1683,12 +1686,6 @@ namespace Greenshot.Editor.Forms
 
         private async void ObfuscateTextToolStripMenuItemClick(object sender, EventArgs e)
         {
-            // Check if feature is enabled for beta testers only
-            if (!CoreConfiguration.IsBetaTester)
-            {
-                return;
-            }
-
             if (_surface?.CaptureDetails == null)
             {
                 MessageBox.Show(Language.GetString("editor_obfuscate_text_no_capture"), Language.GetString("editor_obfuscate_text_title"), MessageBoxButtons.OK, MessageBoxIcon.Information);
