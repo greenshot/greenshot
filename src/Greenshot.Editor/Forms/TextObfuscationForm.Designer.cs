@@ -81,7 +81,7 @@ namespace Greenshot.Editor.Forms
             this.searchLabel.LanguageKey = "editor_obfuscate_text_search";
             this.searchLabel.Location = new System.Drawing.Point(12, 15);
             this.searchLabel.Name = "searchLabel";
-            this.searchLabel.Size = new System.Drawing.Point(100, 20);
+            this.searchLabel.Size = new System.Drawing.Size(100, 20);
             this.searchLabel.TabIndex = 0;
             // 
             // searchTextBox
