@@ -188,6 +188,7 @@ namespace Greenshot.Editor.Forms
         {
             ClearPreview();
 
+            var obfuscateContainers = new DrawableContainerList();
             foreach (var bounds in _matchedBounds)
             {
                 var obfuscate = new ObfuscateContainer(_surface)
@@ -197,7 +198,12 @@ namespace Greenshot.Editor.Forms
                     Width = bounds.Width,
                     Height = bounds.Height
                 };
-                _surface.AddElement(obfuscate, true);
+                obfuscateContainers.Add(obfuscate);
+            }
+
+            if (obfuscateContainers.Count > 0)
+            {
+                _surface.AddElements(obfuscateContainers, true);
             }
 
             DialogResult = DialogResult.OK;
