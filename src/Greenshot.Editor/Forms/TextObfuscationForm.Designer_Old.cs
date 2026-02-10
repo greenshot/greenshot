@@ -56,24 +56,12 @@ namespace Greenshot.Editor.Forms
             this.searchButton = new GreenshotButton();
             this.regexCheckBox = new GreenshotCheckBox();
             this.caseSensitiveCheckBox = new GreenshotCheckBox();
+            this.autoSearchCheckBox = new GreenshotCheckBox();
             this.searchScopeLabel = new GreenshotLabel();
             this.searchScopeComboBox = new System.Windows.Forms.ComboBox();
             this.matchCountLabel = new GreenshotLabel();
-            this.effectLabel = new GreenshotLabel();
-            this.effectComboBox = new System.Windows.Forms.ComboBox();
-            this.pixelSizeLabel = new GreenshotLabel();
-            this.pixelSizeUpDown = new System.Windows.Forms.NumericUpDown();
-            this.blurRadiusLabel = new GreenshotLabel();
-            this.blurRadiusUpDown = new System.Windows.Forms.NumericUpDown();
-            this.highlightColorLabel = new GreenshotLabel();
-            this.highlightColorButton = new System.Windows.Forms.Button();
-            this.magnificationLabel = new GreenshotLabel();
-            this.magnificationUpDown = new System.Windows.Forms.NumericUpDown();
             this.applyButton = new GreenshotButton();
             this.cancelButton = new GreenshotButton();
-            ((System.ComponentModel.ISupportInitialize)(this.pixelSizeUpDown)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.blurRadiusUpDown)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.magnificationUpDown)).BeginInit();
             this.SuspendLayout();
             // 
             // searchLabel
@@ -81,7 +69,7 @@ namespace Greenshot.Editor.Forms
             this.searchLabel.LanguageKey = "editor_obfuscate_text_search";
             this.searchLabel.Location = new System.Drawing.Point(12, 15);
             this.searchLabel.Name = "searchLabel";
-            this.searchLabel.Size = new System.Drawing.Point(100, 20);
+            this.searchLabel.Size = new System.Drawing.Size(100, 20);
             this.searchLabel.TabIndex = 0;
             // 
             // searchTextBox
@@ -90,6 +78,7 @@ namespace Greenshot.Editor.Forms
             this.searchTextBox.Name = "searchTextBox";
             this.searchTextBox.Size = new System.Drawing.Size(300, 20);
             this.searchTextBox.TabIndex = 1;
+            this.searchTextBox.TextChanged += new System.EventHandler(this.SearchTextBox_TextChanged);
             // 
             // searchButton
             // 
@@ -119,134 +108,49 @@ namespace Greenshot.Editor.Forms
             this.caseSensitiveCheckBox.TabIndex = 4;
             this.caseSensitiveCheckBox.UseVisualStyleBackColor = true;
             // 
+            // autoSearchCheckBox
+            // 
+            this.autoSearchCheckBox.Checked = true;
+            this.autoSearchCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.autoSearchCheckBox.LanguageKey = "editor_obfuscate_text_auto_search";
+            this.autoSearchCheckBox.Location = new System.Drawing.Point(118, 68);
+            this.autoSearchCheckBox.Name = "autoSearchCheckBox";
+            this.autoSearchCheckBox.Size = new System.Drawing.Size(150, 24);
+            this.autoSearchCheckBox.TabIndex = 5;
+            this.autoSearchCheckBox.UseVisualStyleBackColor = true;
+            // 
             // searchScopeLabel
             // 
             this.searchScopeLabel.LanguageKey = "editor_obfuscate_text_search_scope";
-            this.searchScopeLabel.Location = new System.Drawing.Point(12, 70);
+            this.searchScopeLabel.Location = new System.Drawing.Point(12, 100);
             this.searchScopeLabel.Name = "searchScopeLabel";
             this.searchScopeLabel.Size = new System.Drawing.Size(100, 20);
-            this.searchScopeLabel.TabIndex = 5;
+            this.searchScopeLabel.TabIndex = 6;
             // 
             // searchScopeComboBox
             // 
             this.searchScopeComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.searchScopeComboBox.FormattingEnabled = true;
-            this.searchScopeComboBox.Location = new System.Drawing.Point(118, 67);
+            this.searchScopeComboBox.Location = new System.Drawing.Point(118, 97);
             this.searchScopeComboBox.Name = "searchScopeComboBox";
             this.searchScopeComboBox.Size = new System.Drawing.Size(150, 21);
-            this.searchScopeComboBox.TabIndex = 6;
+            this.searchScopeComboBox.TabIndex = 7;
             // 
             // matchCountLabel
             // 
             this.matchCountLabel.LanguageKey = "editor_obfuscate_text_matches";
-            this.matchCountLabel.Location = new System.Drawing.Point(12, 100);
+            this.matchCountLabel.Location = new System.Drawing.Point(12, 130);
             this.matchCountLabel.Name = "matchCountLabel";
             this.matchCountLabel.Size = new System.Drawing.Size(487, 20);
-            this.matchCountLabel.TabIndex = 7;
-            // 
-            // effectLabel
-            // 
-            this.effectLabel.Text = "Effect:";
-            this.effectLabel.Location = new System.Drawing.Point(12, 130);
-            this.effectLabel.Name = "effectLabel";
-            this.effectLabel.Size = new System.Drawing.Size(100, 20);
-            this.effectLabel.TabIndex = 8;
-            // 
-            // effectComboBox
-            // 
-            this.effectComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.effectComboBox.FormattingEnabled = true;
-            this.effectComboBox.Location = new System.Drawing.Point(118, 127);
-            this.effectComboBox.Name = "effectComboBox";
-            this.effectComboBox.Size = new System.Drawing.Size(150, 21);
-            this.effectComboBox.TabIndex = 9;
-            // 
-            // pixelSizeLabel
-            // 
-            this.pixelSizeLabel.Text = "Pixel Size:";
-            this.pixelSizeLabel.Location = new System.Drawing.Point(12, 160);
-            this.pixelSizeLabel.Name = "pixelSizeLabel";
-            this.pixelSizeLabel.Size = new System.Drawing.Size(100, 20);
-            this.pixelSizeLabel.TabIndex = 10;
-            this.pixelSizeLabel.Visible = false;
-            // 
-            // pixelSizeUpDown
-            // 
-            this.pixelSizeUpDown.Location = new System.Drawing.Point(118, 158);
-            this.pixelSizeUpDown.Minimum = new decimal(new int[] { 2, 0, 0, 0 });
-            this.pixelSizeUpDown.Maximum = new decimal(new int[] { 100, 0, 0, 0 });
-            this.pixelSizeUpDown.Name = "pixelSizeUpDown";
-            this.pixelSizeUpDown.Size = new System.Drawing.Size(80, 20);
-            this.pixelSizeUpDown.TabIndex = 11;
-            this.pixelSizeUpDown.Value = new decimal(new int[] { 5, 0, 0, 0 });
-            this.pixelSizeUpDown.Visible = false;
-            // 
-            // blurRadiusLabel
-            // 
-            this.blurRadiusLabel.Text = "Blur Radius:";
-            this.blurRadiusLabel.Location = new System.Drawing.Point(12, 160);
-            this.blurRadiusLabel.Name = "blurRadiusLabel";
-            this.blurRadiusLabel.Size = new System.Drawing.Size(100, 20);
-            this.blurRadiusLabel.TabIndex = 12;
-            this.blurRadiusLabel.Visible = false;
-            // 
-            // blurRadiusUpDown
-            // 
-            this.blurRadiusUpDown.Location = new System.Drawing.Point(118, 158);
-            this.blurRadiusUpDown.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
-            this.blurRadiusUpDown.Maximum = new decimal(new int[] { 30, 0, 0, 0 });
-            this.blurRadiusUpDown.Name = "blurRadiusUpDown";
-            this.blurRadiusUpDown.Size = new System.Drawing.Size(80, 20);
-            this.blurRadiusUpDown.TabIndex = 13;
-            this.blurRadiusUpDown.Value = new decimal(new int[] { 5, 0, 0, 0 });
-            this.blurRadiusUpDown.Visible = false;
-            // 
-            // highlightColorLabel
-            // 
-            this.highlightColorLabel.Text = "Highlight Color:";
-            this.highlightColorLabel.Location = new System.Drawing.Point(12, 160);
-            this.highlightColorLabel.Name = "highlightColorLabel";
-            this.highlightColorLabel.Size = new System.Drawing.Size(100, 20);
-            this.highlightColorLabel.TabIndex = 14;
-            this.highlightColorLabel.Visible = false;
-            // 
-            // highlightColorButton
-            // 
-            this.highlightColorButton.BackColor = System.Drawing.Color.Yellow;
-            this.highlightColorButton.Location = new System.Drawing.Point(118, 158);
-            this.highlightColorButton.Name = "highlightColorButton";
-            this.highlightColorButton.Size = new System.Drawing.Size(80, 23);
-            this.highlightColorButton.TabIndex = 15;
-            this.highlightColorButton.UseVisualStyleBackColor = false;
-            this.highlightColorButton.Visible = false;
-            // 
-            // magnificationLabel
-            // 
-            this.magnificationLabel.Text = "Magnification:";
-            this.magnificationLabel.Location = new System.Drawing.Point(12, 160);
-            this.magnificationLabel.Name = "magnificationLabel";
-            this.magnificationLabel.Size = new System.Drawing.Size(100, 20);
-            this.magnificationLabel.TabIndex = 16;
-            this.magnificationLabel.Visible = false;
-            // 
-            // magnificationUpDown
-            // 
-            this.magnificationUpDown.Location = new System.Drawing.Point(118, 158);
-            this.magnificationUpDown.Minimum = new decimal(new int[] { 2, 0, 0, 0 });
-            this.magnificationUpDown.Maximum = new decimal(new int[] { 8, 0, 0, 0 });
-            this.magnificationUpDown.Name = "magnificationUpDown";
-            this.magnificationUpDown.Size = new System.Drawing.Size(80, 20);
-            this.magnificationUpDown.TabIndex = 17;
-            this.magnificationUpDown.Value = new decimal(new int[] { 2, 0, 0, 0 });
-            this.magnificationUpDown.Visible = false;
+            this.matchCountLabel.TabIndex = 8;
             // 
             // applyButton
             // 
             this.applyButton.LanguageKey = "editor_obfuscate_text_apply";
-            this.applyButton.Location = new System.Drawing.Point(343, 190);
+            this.applyButton.Location = new System.Drawing.Point(343, 160);
             this.applyButton.Name = "applyButton";
             this.applyButton.Size = new System.Drawing.Size(75, 23);
-            this.applyButton.TabIndex = 18;
+            this.applyButton.TabIndex = 9;
             this.applyButton.UseVisualStyleBackColor = true;
             this.applyButton.Click += new System.EventHandler(this.ApplyButton_Click);
             // 
@@ -254,35 +158,26 @@ namespace Greenshot.Editor.Forms
             // 
             this.cancelButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.cancelButton.LanguageKey = "CANCEL";
-            this.cancelButton.Location = new System.Drawing.Point(424, 190);
+            this.cancelButton.Location = new System.Drawing.Point(424, 160);
             this.cancelButton.Name = "cancelButton";
             this.cancelButton.Size = new System.Drawing.Size(75, 23);
-            this.cancelButton.TabIndex = 19;
+            this.cancelButton.TabIndex = 10;
             this.cancelButton.UseVisualStyleBackColor = true;
             this.cancelButton.Click += new System.EventHandler(this.CancelButton_Click);
             // 
             // TextObfuscationForm
             // 
-            this.AcceptButton = this.applyButton;
+            this.AcceptButton = this.searchButton;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.cancelButton;
-            this.ClientSize = new System.Drawing.Size(511, 225);
+            this.ClientSize = new System.Drawing.Size(511, 195);
             this.Controls.Add(this.cancelButton);
             this.Controls.Add(this.applyButton);
-            this.Controls.Add(this.magnificationUpDown);
-            this.Controls.Add(this.magnificationLabel);
-            this.Controls.Add(this.highlightColorButton);
-            this.Controls.Add(this.highlightColorLabel);
-            this.Controls.Add(this.blurRadiusUpDown);
-            this.Controls.Add(this.blurRadiusLabel);
-            this.Controls.Add(this.pixelSizeUpDown);
-            this.Controls.Add(this.pixelSizeLabel);
-            this.Controls.Add(this.effectComboBox);
-            this.Controls.Add(this.effectLabel);
             this.Controls.Add(this.matchCountLabel);
             this.Controls.Add(this.searchScopeComboBox);
             this.Controls.Add(this.searchScopeLabel);
+            this.Controls.Add(this.autoSearchCheckBox);
             this.Controls.Add(this.caseSensitiveCheckBox);
             this.Controls.Add(this.regexCheckBox);
             this.Controls.Add(this.searchButton);
@@ -295,11 +190,9 @@ namespace Greenshot.Editor.Forms
             this.Name = "TextObfuscationForm";
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            ((System.ComponentModel.ISupportInitialize)(this.pixelSizeUpDown)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.blurRadiusUpDown)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.magnificationUpDown)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
+
         }
 
         #endregion
@@ -309,19 +202,10 @@ namespace Greenshot.Editor.Forms
         private GreenshotButton searchButton;
         private GreenshotCheckBox regexCheckBox;
         private GreenshotCheckBox caseSensitiveCheckBox;
+        private GreenshotCheckBox autoSearchCheckBox;
         private GreenshotLabel searchScopeLabel;
         private System.Windows.Forms.ComboBox searchScopeComboBox;
         private GreenshotLabel matchCountLabel;
-        private GreenshotLabel effectLabel;
-        private System.Windows.Forms.ComboBox effectComboBox;
-        private GreenshotLabel pixelSizeLabel;
-        private System.Windows.Forms.NumericUpDown pixelSizeUpDown;
-        private GreenshotLabel blurRadiusLabel;
-        private System.Windows.Forms.NumericUpDown blurRadiusUpDown;
-        private GreenshotLabel highlightColorLabel;
-        private System.Windows.Forms.Button highlightColorButton;
-        private GreenshotLabel magnificationLabel;
-        private System.Windows.Forms.NumericUpDown magnificationUpDown;
         private GreenshotButton applyButton;
         private GreenshotButton cancelButton;
     }
