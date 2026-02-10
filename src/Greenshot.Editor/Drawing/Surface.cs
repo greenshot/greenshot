@@ -1906,7 +1906,7 @@ namespace Greenshot.Editor.Drawing
             targetGraphics.SmoothingMode = SmoothingMode.HighQuality;
             targetGraphics.InterpolationMode = InterpolationMode.HighQualityBilinear;
             targetGraphics.CompositingQuality = CompositingQuality.HighQuality;
-            targetGraphics.PixelOffsetMode = PixelOffsetMode.None;
+            targetGraphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
 
             targetGraphics.DrawImage(image, imageClipRectangle, imageClipRectangle, GraphicsUnit.Pixel);
 
