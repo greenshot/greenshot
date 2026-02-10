@@ -95,8 +95,11 @@ namespace Greenshot.Editor.Configuration
         [IniProperty("TextObfuscationEffect", Description = "Effect to apply for text obfuscation: BLUR, PIXELIZE, TEXT_HIGHTLIGHT, MAGNIFICATION", DefaultValue = "PIXELIZE")]
         public string TextObfuscationEffect { get; set; }
 
-        [IniProperty("TextObfuscationPaddingPercentage", Description = "Percentage to grow matched rectangles for text obfuscation", DefaultValue = "10")]
-        public int TextObfuscationPaddingPercentage { get; set; }
+        [IniProperty("TextObfuscationPaddingHorizontal", Description = "Horizontal percentage to grow matched rectangles for text obfuscation", DefaultValue = "20")]
+        public int TextObfuscationPaddingHorizontal { get; set; }
+
+        [IniProperty("TextObfuscationPaddingVertical", Description = "Vertical percentage to grow matched rectangles for text obfuscation", DefaultValue = "20")]
+        public int TextObfuscationPaddingVertical { get; set; }
 
 
         public override void AfterLoad()

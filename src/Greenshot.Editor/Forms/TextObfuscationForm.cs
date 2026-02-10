@@ -99,7 +99,8 @@ namespace Greenshot.Editor.Forms
             regexCheckBox.Checked = EditorConfig.TextObfuscationUseRegex;
             caseSensitiveCheckBox.Checked = EditorConfig.TextObfuscationCaseSensitive;
             searchScopeComboBox.SelectedIndex = EditorConfig.TextObfuscationSearchScope;
-            paddingUpDown.Value = EditorConfig.TextObfuscationPaddingPercentage;
+            paddingHorizontalUpDown.Value = EditorConfig.TextObfuscationPaddingHorizontal;
+            paddingVerticalUpDown.Value = EditorConfig.TextObfuscationPaddingVertical;
             
             // Set effect from config
             if (!string.IsNullOrEmpty(EditorConfig.TextObfuscationEffect))
@@ -124,7 +125,8 @@ namespace Greenshot.Editor.Forms
             EditorConfig.TextObfuscationUseRegex = regexCheckBox.Checked;
             EditorConfig.TextObfuscationCaseSensitive = caseSensitiveCheckBox.Checked;
             EditorConfig.TextObfuscationSearchScope = searchScopeComboBox.SelectedIndex;
-            EditorConfig.TextObfuscationPaddingPercentage = (int)paddingUpDown.Value;
+            EditorConfig.TextObfuscationPaddingHorizontal = (int)paddingHorizontalUpDown.Value;
+            EditorConfig.TextObfuscationPaddingVertical = (int)paddingVerticalUpDown.Value;
             
             if (effectComboBox.SelectedItem is EffectItem item)
             {
@@ -157,7 +159,6 @@ namespace Greenshot.Editor.Forms
                 using (var colorDialog = new ColorDialog())
                 {
                     colorDialog.Color = highlightColorButton.BackColor;
-                    colorDialog.FullOpen = true;
                     if (colorDialog.ShowDialog(this) == DialogResult.OK)
                     {
                         highlightColorButton.BackColor = colorDialog.Color;
@@ -174,7 +175,8 @@ namespace Greenshot.Editor.Forms
             pixelSizeUpDown.ValueChanged += (s, e) => { if (!_isInitializing) UpdatePreview(); };
             blurRadiusUpDown.ValueChanged += (s, e) => { if (!_isInitializing) UpdatePreview(); };
             magnificationUpDown.ValueChanged += (s, e) => { if (!_isInitializing) UpdatePreview(); };
-            paddingUpDown.ValueChanged += (s, e) => { if (!_isInitializing) UpdatePreview(); };
+            paddingHorizontalUpDown.ValueChanged += (s, e) => { if (!_isInitializing) UpdatePreview(); };
+            paddingVerticalUpDown.ValueChanged += (s, e) => { if (!_isInitializing) UpdatePreview(); };
         }
 
         private void SearchButton_Click(object sender, EventArgs e)
@@ -265,11 +267,13 @@ namespace Greenshot.Editor.Forms
 
         private NativeRect ApplyPadding(NativeRect bounds)
         {
-            int paddingPercent = (int)paddingUpDown.Value;
-            if (paddingPercent <= 0) return bounds;
+            int horizontalPadding = (int)paddingHorizontalUpDown.Value;
+            int verticalPadding = (int)paddingVerticalUpDown.Value;
             
-            int widthPadding = (int)(bounds.Width * paddingPercent / 100.0 / 2);
-            int heightPadding = (int)(bounds.Height * paddingPercent / 100.0 / 2);
+            if (horizontalPadding <= 0 && verticalPadding <= 0) return bounds;
+            
+            int widthPadding = (int)(bounds.Width * horizontalPadding / 100.0 / 2);
+            int heightPadding = (int)(bounds.Height * verticalPadding / 100.0 / 2);
             
             return new NativeRect(
                 bounds.Left - widthPadding,

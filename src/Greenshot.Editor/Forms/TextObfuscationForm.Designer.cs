@@ -69,14 +69,17 @@ namespace Greenshot.Editor.Forms
             this.highlightColorButton = new System.Windows.Forms.Button();
             this.magnificationLabel = new GreenshotLabel();
             this.magnificationUpDown = new System.Windows.Forms.NumericUpDown();
-            this.paddingLabel = new GreenshotLabel();
-            this.paddingUpDown = new System.Windows.Forms.NumericUpDown();
+            this.paddingHorizontalLabel = new GreenshotLabel();
+            this.paddingHorizontalUpDown = new System.Windows.Forms.NumericUpDown();
+            this.paddingVerticalLabel = new GreenshotLabel();
+            this.paddingVerticalUpDown = new System.Windows.Forms.NumericUpDown();
             this.applyButton = new GreenshotButton();
             this.cancelButton = new GreenshotButton();
             ((System.ComponentModel.ISupportInitialize)(this.pixelSizeUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.blurRadiusUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.magnificationUpDown)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.paddingUpDown)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.paddingHorizontalUpDown)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.paddingVerticalUpDown)).BeginInit();
             this.SuspendLayout();
             // 
             // searchLabel
@@ -243,23 +246,43 @@ namespace Greenshot.Editor.Forms
             this.magnificationUpDown.Value = new decimal(new int[] { 2, 0, 0, 0 });
             this.magnificationUpDown.Visible = false;
             // 
-            // paddingLabel
+            // paddingHorizontalLabel
             // 
-            this.paddingLabel.Text = "Padding %:";
-            this.paddingLabel.Location = new System.Drawing.Point(280, 130);
-            this.paddingLabel.Name = "paddingLabel";
-            this.paddingLabel.Size = new System.Drawing.Size(70, 20);
-            this.paddingLabel.TabIndex = 20;
+            this.paddingHorizontalLabel.Text = "H-Padding %:";
+            this.paddingHorizontalLabel.Location = new System.Drawing.Point(280, 130);
+            this.paddingHorizontalLabel.Name = "paddingHorizontalLabel";
+            this.paddingHorizontalLabel.Size = new System.Drawing.Size(80, 20);
+            this.paddingHorizontalLabel.TabIndex = 20;
             // 
-            // paddingUpDown
+            // paddingHorizontalUpDown
             // 
-            this.paddingUpDown.Location = new System.Drawing.Point(356, 128);
-            this.paddingUpDown.Minimum = new decimal(new int[] { 0, 0, 0, 0 });
-            this.paddingUpDown.Maximum = new decimal(new int[] { 50, 0, 0, 0 });
-            this.paddingUpDown.Name = "paddingUpDown";
-            this.paddingUpDown.Size = new System.Drawing.Size(60, 20);
-            this.paddingUpDown.TabIndex = 21;
-            this.paddingUpDown.Value = new decimal(new int[] { 10, 0, 0, 0 });
+            this.paddingHorizontalUpDown.Location = new System.Drawing.Point(366, 128);
+            this.paddingHorizontalUpDown.Minimum = new decimal(new int[] { 0, 0, 0, 0 });
+            this.paddingHorizontalUpDown.Maximum = new decimal(new int[] { 100, 0, 0, 0 });
+            this.paddingHorizontalUpDown.Increment = new decimal(new int[] { 5, 0, 0, 0 });
+            this.paddingHorizontalUpDown.Name = "paddingHorizontalUpDown";
+            this.paddingHorizontalUpDown.Size = new System.Drawing.Size(60, 20);
+            this.paddingHorizontalUpDown.TabIndex = 21;
+            this.paddingHorizontalUpDown.Value = new decimal(new int[] { 20, 0, 0, 0 });
+            // 
+            // paddingVerticalLabel
+            // 
+            this.paddingVerticalLabel.Text = "V-Padding %:";
+            this.paddingVerticalLabel.Location = new System.Drawing.Point(280, 156);
+            this.paddingVerticalLabel.Name = "paddingVerticalLabel";
+            this.paddingVerticalLabel.Size = new System.Drawing.Size(80, 20);
+            this.paddingVerticalLabel.TabIndex = 22;
+            // 
+            // paddingVerticalUpDown
+            // 
+            this.paddingVerticalUpDown.Location = new System.Drawing.Point(366, 154);
+            this.paddingVerticalUpDown.Minimum = new decimal(new int[] { 0, 0, 0, 0 });
+            this.paddingVerticalUpDown.Maximum = new decimal(new int[] { 100, 0, 0, 0 });
+            this.paddingVerticalUpDown.Increment = new decimal(new int[] { 5, 0, 0, 0 });
+            this.paddingVerticalUpDown.Name = "paddingVerticalUpDown";
+            this.paddingVerticalUpDown.Size = new System.Drawing.Size(60, 20);
+            this.paddingVerticalUpDown.TabIndex = 23;
+            this.paddingVerticalUpDown.Value = new decimal(new int[] { 20, 0, 0, 0 });
             // 
             // applyButton
             // 
@@ -291,8 +314,10 @@ namespace Greenshot.Editor.Forms
             this.ClientSize = new System.Drawing.Size(511, 225);
             this.Controls.Add(this.cancelButton);
             this.Controls.Add(this.applyButton);
-            this.Controls.Add(this.paddingUpDown);
-            this.Controls.Add(this.paddingLabel);
+            this.Controls.Add(this.paddingVerticalUpDown);
+            this.Controls.Add(this.paddingVerticalLabel);
+            this.Controls.Add(this.paddingHorizontalUpDown);
+            this.Controls.Add(this.paddingHorizontalLabel);
             this.Controls.Add(this.magnificationUpDown);
             this.Controls.Add(this.magnificationLabel);
             this.Controls.Add(this.highlightColorButton);
@@ -321,7 +346,8 @@ namespace Greenshot.Editor.Forms
             ((System.ComponentModel.ISupportInitialize)(this.pixelSizeUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.blurRadiusUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.magnificationUpDown)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.paddingUpDown)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.paddingHorizontalUpDown)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.paddingVerticalUpDown)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
         }
@@ -346,8 +372,10 @@ namespace Greenshot.Editor.Forms
         private System.Windows.Forms.Button highlightColorButton;
         private GreenshotLabel magnificationLabel;
         private System.Windows.Forms.NumericUpDown magnificationUpDown;
-        private GreenshotLabel paddingLabel;
-        private System.Windows.Forms.NumericUpDown paddingUpDown;
+        private GreenshotLabel paddingHorizontalLabel;
+        private System.Windows.Forms.NumericUpDown paddingHorizontalUpDown;
+        private GreenshotLabel paddingVerticalLabel;
+        private System.Windows.Forms.NumericUpDown paddingVerticalUpDown;
         private GreenshotButton applyButton;
         private GreenshotButton cancelButton;
     }
