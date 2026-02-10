@@ -99,6 +99,7 @@ namespace Greenshot.Editor.Forms
             regexCheckBox.Checked = EditorConfig.TextObfuscationUseRegex;
             caseSensitiveCheckBox.Checked = EditorConfig.TextObfuscationCaseSensitive;
             searchScopeComboBox.SelectedIndex = EditorConfig.TextObfuscationSearchScope;
+            paddingUpDown.Value = EditorConfig.TextObfuscationPaddingPercentage;
             
             // Set effect from config
             if (!string.IsNullOrEmpty(EditorConfig.TextObfuscationEffect))
@@ -112,6 +113,9 @@ namespace Greenshot.Editor.Forms
                     }
                 }
             }
+            
+            // Update effect settings visibility after loading
+            UpdateEffectSettings();
         }
 
         private void SaveSettings()
@@ -120,6 +124,7 @@ namespace Greenshot.Editor.Forms
             EditorConfig.TextObfuscationUseRegex = regexCheckBox.Checked;
             EditorConfig.TextObfuscationCaseSensitive = caseSensitiveCheckBox.Checked;
             EditorConfig.TextObfuscationSearchScope = searchScopeComboBox.SelectedIndex;
+            EditorConfig.TextObfuscationPaddingPercentage = (int)paddingUpDown.Value;
             
             if (effectComboBox.SelectedItem is EffectItem item)
             {
@@ -169,6 +174,7 @@ namespace Greenshot.Editor.Forms
             pixelSizeUpDown.ValueChanged += (s, e) => { if (!_isInitializing) UpdatePreview(); };
             blurRadiusUpDown.ValueChanged += (s, e) => { if (!_isInitializing) UpdatePreview(); };
             magnificationUpDown.ValueChanged += (s, e) => { if (!_isInitializing) UpdatePreview(); };
+            paddingUpDown.ValueChanged += (s, e) => { if (!_isInitializing) UpdatePreview(); };
         }
 
         private void SearchButton_Click(object sender, EventArgs e)
@@ -259,7 +265,7 @@ namespace Greenshot.Editor.Forms
 
         private NativeRect ApplyPadding(NativeRect bounds)
         {
-            int paddingPercent = EditorConfig.TextObfuscationPaddingPercentage;
+            int paddingPercent = (int)paddingUpDown.Value;
             if (paddingPercent <= 0) return bounds;
             
             int widthPadding = (int)(bounds.Width * paddingPercent / 100.0 / 2);
@@ -424,7 +430,8 @@ namespace Greenshot.Editor.Forms
                     container.SetFieldValue(FieldType.PREPARED_FILTER_HIGHLIGHT, effect);
                     if (effect == PreparedFilter.TEXT_HIGHTLIGHT)
                     {
-                        container.SetFieldValue(FieldType.HIGHLIGHT_COLOR, highlightColorButton.BackColor);
+                        // HighlightFilter uses FILL_COLOR, not HIGHLIGHT_COLOR
+                        container.SetFieldValue(FieldType.FILL_COLOR, highlightColorButton.BackColor);
                     }
                     else
                     {
