@@ -185,7 +185,7 @@ Each plugin in `src/Greenshot.Plugin.*/` is self-contained. Changes are automati
 
 ## Translation Tasks
 
-**For ALL translation-related tasks, delegate to the translation-manager custom agent.**
+**Whenever UI messages are added, changed or removed, all translations should be updated accordingly. For ALL translation-related tasks, delegate to the translation-manager custom agent.**
 
 The translation-manager agent is a specialized expert with comprehensive knowledge of:
 - Translation file structure and format (XML with UTF-8 BOM encoding)
