@@ -62,6 +62,7 @@ namespace Greenshot.Editor.Forms
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(ImageEditorForm));
         private static readonly EditorConfiguration EditorConfiguration = IniConfig.GetIniSection<EditorConfiguration>();
+        private static readonly CoreConfiguration CoreConfiguration = IniConfig.GetIniSection<CoreConfiguration>();
 
         private static readonly List<string> IgnoreDestinations = new()
         {
@@ -1682,6 +1683,12 @@ namespace Greenshot.Editor.Forms
 
         private async void ObfuscateTextToolStripMenuItemClick(object sender, EventArgs e)
         {
+            // Check if feature is enabled for beta testers only
+            if (!CoreConfiguration.IsBetaTester)
+            {
+                return;
+            }
+
             if (_surface?.CaptureDetails == null)
             {
                 MessageBox.Show(Language.GetString("editor_obfuscate_text_no_capture"), Language.GetString("editor_obfuscate_text_title"), MessageBoxButtons.OK, MessageBoxIcon.Information);
