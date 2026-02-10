@@ -43,6 +43,7 @@ using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Forms;
+using Greenshot.Base.Interfaces.Ocr;
 using Greenshot.Editor.Configuration;
 using Greenshot.Editor.Controls.Emoji;
 using Greenshot.Editor.Destinations;
@@ -1677,6 +1678,53 @@ namespace Greenshot.Editor.Forms
             ToolStripMenuItem captureWindowMenuItem = (ToolStripMenuItem) sender;
             var mainForm = SimpleServiceProvider.Current.GetInstance<IGreenshotMainForm>();
             mainForm.AddCaptureWindowMenuItems(captureWindowMenuItem, Contextmenu_window_Click);
+        }
+
+        private void ObfuscateTextToolStripMenuItemClick(object sender, EventArgs e)
+        {
+            if (_surface?.CaptureDetails == null)
+            {
+                MessageBox.Show(Language.GetString("editor_obfuscate_text_no_capture"), Language.GetString("editor_obfuscate_text_title"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            if (_surface.CaptureDetails.OcrInformation == null)
+            {
+                var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>();
+                if (ocrProvider == null)
+                {
+                    MessageBox.Show(Language.GetString("editor_obfuscate_text_no_ocr_provider"), Language.GetString("editor_obfuscate_text_title"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                Cursor = Cursors.WaitCursor;
+                try
+                {
+                    var ocrTask = System.Threading.Tasks.Task.Run(async () => await ocrProvider.DoOcrAsync(_surface));
+                    _surface.CaptureDetails.OcrInformation = ocrTask.Result;
+                }
+                catch (Exception ex)
+                {
+                    Log.Error("Error performing OCR", ex);
+                    MessageBox.Show(Language.GetString("editor_obfuscate_text_ocr_failed") + ": " + ex.Message, Language.GetString("editor_obfuscate_text_title"), MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                finally
+                {
+                    Cursor = Cursors.Default;
+                }
+            }
+
+            if (_surface.CaptureDetails.OcrInformation == null || !_surface.CaptureDetails.OcrInformation.HasContent)
+            {
+                MessageBox.Show(Language.GetString("editor_obfuscate_text_no_text"), Language.GetString("editor_obfuscate_text_title"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            using (var dialog = new TextObfuscationForm(_surface, _surface.CaptureDetails.OcrInformation))
+            {
+                dialog.ShowDialog(this);
+            }
         }
 
         private void Contextmenu_window_Click(object sender, EventArgs e)

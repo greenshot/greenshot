@@ -101,6 +101,7 @@ namespace Greenshot.Editor.Forms
 			this.preferencesToolStripMenuItem = new GreenshotToolStripMenuItem();
 			this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
 			this.insert_window_toolstripmenuitem = new GreenshotToolStripMenuItem();
+			this.obfuscateTextToolStripMenuItem = new GreenshotToolStripMenuItem();
 			this.objectToolStripMenuItem = new GreenshotToolStripMenuItem();
 			this.addRectangleToolStripMenuItem = new GreenshotToolStripMenuItem();
 			this.addEllipseToolStripMenuItem = new GreenshotToolStripMenuItem();
@@ -610,7 +611,8 @@ namespace Greenshot.Editor.Forms
 									this.toolStripSeparator12,
 									this.preferencesToolStripMenuItem,
 									this.toolStripSeparator5,
-									this.insert_window_toolstripmenuitem});
+									this.insert_window_toolstripmenuitem,
+									this.obfuscateTextToolStripMenuItem});
 			this.editToolStripMenuItem.LanguageKey = "editor_edit";
 			this.editToolStripMenuItem.Name = "editToolStripMenuItem";
 			this.editToolStripMenuItem.Size = new System.Drawing.Size(39, 20);
@@ -698,6 +700,12 @@ namespace Greenshot.Editor.Forms
 			this.insert_window_toolstripmenuitem.LanguageKey = "editor_insertwindow";
 			this.insert_window_toolstripmenuitem.Name = "insert_window_toolstripmenuitem";
 			this.insert_window_toolstripmenuitem.MouseEnter += new System.EventHandler(this.Insert_window_toolstripmenuitemMouseEnter);
+			// 
+			// obfuscateTextToolStripMenuItem
+			// 
+			this.obfuscateTextToolStripMenuItem.LanguageKey = "editor_obfuscate_text";
+			this.obfuscateTextToolStripMenuItem.Name = "obfuscateTextToolStripMenuItem";
+			this.obfuscateTextToolStripMenuItem.Click += new System.EventHandler(this.ObfuscateTextToolStripMenuItemClick);
 			// 
 			// objectToolStripMenuItem
 			// 
@@ -2026,6 +2034,7 @@ namespace Greenshot.Editor.Forms
 		private GreenshotToolStripMenuItem addEllipseToolStripMenuItem;
 		private GreenshotToolStripMenuItem addRectangleToolStripMenuItem;
 		private GreenshotToolStripMenuItem objectToolStripMenuItem;
+		private GreenshotToolStripMenuItem obfuscateTextToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem undoToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem redoToolStripMenuItem;
 		private GreenshotToolStripMenuItem pasteToolStripMenuItem;
