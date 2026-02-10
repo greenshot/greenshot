@@ -99,6 +99,7 @@ Olisi myös hyvä jos voisit tarkistaa onko virhe jo raportoitu aikaisemmin (voi
 		<resource name="editor_pixel_size">Pixel size</resource>
 		<resource name="editor_preview_quality">Esikatselun laatu</resource>
 		<resource name="editor_print">Tulosta</resource>
+		<resource name="editor_remove_transparency">Poista läpinäkyvyys</resource>
 		<resource name="editor_save">Tallenna</resource>
 		<resource name="editor_save_objects">Tallenna objektit tiedostoon</resource>
 		<resource name="editor_saveas">Tallenna nimellä...</resource>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <language description="Turkish" ietf="tr-TR" version="1.0.2" languagegroup="6">
 	<resources>
 		<resource name="about_bugs">Hataları şu adrese bildirebilirsiniz:</resource>
@@ -140,6 +140,7 @@ Benzer bir hatanın daha önce bildirilip bildirilmediğini kontrol ederseniz ç
 		<resource name="editor_pixel_size">Piksel boyutu</resource>
 		<resource name="editor_preview_quality">Ön izleme kalitesi</resource>
 		<resource name="editor_print">Yazdır</resource>
+		<resource name="editor_remove_transparency">Saydamlığı kaldır</resource>
 		<resource name="editor_redo">Yeniden yap {0}</resource>
 		<resource name="editor_resetsize">Boyutu sıfırla</resource>
         <resource name="editor_resize_percent">Yüzde</resource>

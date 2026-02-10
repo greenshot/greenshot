@@ -100,6 +100,7 @@ Details about the GNU General Public License:</resource>
 		<resource name="editor_pixel_size">גודל פיקסל</resource>
 		<resource name="editor_preview_quality">איכות תצוגה מקדימה</resource>
 		<resource name="editor_print">הדפסה</resource>
+		<resource name="editor_remove_transparency">הסר שקיפות</resource>
 		<resource name="editor_save">שמור</resource>
 		<resource name="editor_save_objects">שמור אובייקט לקובץ</resource>
 		<resource name="editor_saveas">...שמירה בשם</resource>

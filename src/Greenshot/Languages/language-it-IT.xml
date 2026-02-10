@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <language description="Italiano" ietf="it-IT" version="1.3.0" languagegroup="1">
     <resources>
         <resource name="about_bugs">Segnala eventuali bug a questo indirizzo</resource>
@@ -144,6 +144,7 @@ Controlla i permessi di accesso per '{0}'.</resource>
         <resource name="editor_pixel_size">Dimensioni pixel</resource>
         <resource name="editor_preview_quality">Qualità anteprima</resource>
         <resource name="editor_print">Stampa</resource>
+		<resource name="editor_remove_transparency">Rimuovi trasparenza</resource>
         <resource name="editor_redo">Ripeti azione {0}</resource>
         <resource name="editor_resetsize">Azzera dimensione</resource>
         <resource name="editor_resize_percent">Percentuale</resource>

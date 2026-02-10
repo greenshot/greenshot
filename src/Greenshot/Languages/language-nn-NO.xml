@@ -123,6 +123,7 @@ Me sett òg pris på om du ved hjelp av søkefunksjonen på sida kan sjekke om d
 		<resource name="editor_pixel_size">Pikselstorleik</resource>
 		<resource name="editor_preview_quality">Kvalitet på førehandssyning</resource>
 		<resource name="editor_print">Skriv ut</resource>
+		<resource name="editor_remove_transparency">Fjern gjennomsiktigheit</resource>
 		<resource name="editor_redo">Gjer om {0}</resource>
 		<resource name="editor_resetsize">Nullstill storleik</resource>
 		<resource name="editor_rotateccw">Roter mot klokka</resource>

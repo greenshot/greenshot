@@ -98,6 +98,7 @@ Dėkojame už pagalbą :)</resource>
 		<resource name="editor_pixel_size">Kvadratėlių dydis</resource>
 		<resource name="editor_preview_quality">Peržiūros kokybė</resource>
 		<resource name="editor_print">Spausdinti</resource>
+		<resource name="editor_remove_transparency">Pašalinti permatomumą</resource>
 		<resource name="editor_save">Išsaugoti</resource>
 		<resource name="editor_save_objects">Išsaugoti objektus į failą</resource>
 		<resource name="editor_saveas">Išsaugoti kaip...</resource>

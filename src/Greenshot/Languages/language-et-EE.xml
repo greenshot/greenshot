@@ -139,6 +139,7 @@ Me oleksime väga tänulik, kui te enne kontrolliksite, ega sellest veast pole j
 		<resource name="editor_pixel_size">Piksli suurus</resource>
 		<resource name="editor_preview_quality">Eelvaate kvaliteet</resource>
 		<resource name="editor_print">Printige</resource>
+		<resource name="editor_remove_transparency">Eemalda läbipaistvus</resource>
 		<resource name="editor_redo">Tehke uuesti {0}</resource>
 		<resource name="editor_resetsize">Taastage normaalne suurus</resource>
 		<resource name="editor_resize_percent">Protsent</resource>

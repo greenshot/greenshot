@@ -142,6 +142,7 @@ GNU General Public License の詳細:</resource>
 		<resource name="editor_pixel_size">ピクセル サイズ</resource>
 		<resource name="editor_preview_quality">プレビュー品質</resource>
 		<resource name="editor_print">印刷</resource>
+		<resource name="editor_remove_transparency">透明度を削除</resource>
 		<resource name="editor_redo">やり直し{0}</resource>
 		<resource name="editor_resetsize">サイズをリセット</resource>
 		<resource name="editor_resize">サイズ変更</resource>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <language description="Nederlands" ietf="nl-NL" version="1.0.4" languagegroup="1">
 	<resources>
 		<resource name="about_bugs">Meld problemen bij</resource>
@@ -137,6 +137,7 @@ Controleer ook even of dit probleem mogelijk al gemeld is! Gebruik de zoekfuncti
 		<resource name="editor_pixel_size">Pixelgrootte</resource>
 		<resource name="editor_preview_quality">Kwaliteit voorbeeld</resource>
 		<resource name="editor_print">Afdrukken</resource>
+		<resource name="editor_remove_transparency">Transparantie verwijderen</resource>
 		<resource name="editor_redo">Opnieuw {0}</resource>
 		<resource name="editor_resetsize">Afmetingen herstellen</resource>
 		<resource name="editor_resize_percent">Procent</resource>

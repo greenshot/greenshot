@@ -121,6 +121,7 @@
 		<resource name="editor_pixel_size">Величина пиксела</resource>
 		<resource name="editor_preview_quality">Преглед квалитета</resource>
 		<resource name="editor_print">Одштампај</resource>
+		<resource name="editor_remove_transparency">Уклони провидност</resource>
 		<resource name="editor_redo">Понови {0}</resource>
 		<resource name="editor_resetsize">Поништи величину</resource>
 		<resource name="editor_rotateccw">Окрени улево</resource>
