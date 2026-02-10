@@ -92,14 +92,20 @@ namespace Greenshot.Editor.Configuration
         [IniProperty("TextObfuscationSearchScope", Description = "Search scope for text obfuscation: 0=Words, 1=Lines", DefaultValue = "0")]
         public int TextObfuscationSearchScope { get; set; }
 
-        [IniProperty("TextObfuscationEffect", Description = "Effect to apply for text obfuscation: BLUR, PIXELIZE, TEXT_HIGHTLIGHT, MAGNIFICATION", DefaultValue = "PIXELIZE")]
+        [IniProperty("TextObfuscationEffect", Description = "Effect to apply for text redaction: BLUR, PIXELIZE, TEXT_HIGHTLIGHT, MAGNIFICATION", DefaultValue = "PIXELIZE")]
         public string TextObfuscationEffect { get; set; }
 
-        [IniProperty("TextObfuscationPaddingHorizontal", Description = "Horizontal percentage to grow matched rectangles for text obfuscation", DefaultValue = "20")]
+        [IniProperty("TextObfuscationPaddingHorizontal", Description = "Horizontal percentage to grow matched rectangles for text redaction", DefaultValue = "10")]
         public int TextObfuscationPaddingHorizontal { get; set; }
 
-        [IniProperty("TextObfuscationPaddingVertical", Description = "Vertical percentage to grow matched rectangles for text obfuscation", DefaultValue = "20")]
+        [IniProperty("TextObfuscationPaddingVertical", Description = "Vertical percentage to grow matched rectangles for text redaction", DefaultValue = "20")]
         public int TextObfuscationPaddingVertical { get; set; }
+
+        [IniProperty("TextObfuscationOffsetHorizontal", Description = "Horizontal offset in pixels for matched rectangles", DefaultValue = "0")]
+        public int TextObfuscationOffsetHorizontal { get; set; }
+
+        [IniProperty("TextObfuscationOffsetVertical", Description = "Vertical offset in pixels for matched rectangles", DefaultValue = "-5")]
+        public int TextObfuscationOffsetVertical { get; set; }
 
 
         public override void AfterLoad()

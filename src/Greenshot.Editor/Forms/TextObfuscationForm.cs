@@ -101,6 +101,8 @@ namespace Greenshot.Editor.Forms
             searchScopeComboBox.SelectedIndex = EditorConfig.TextObfuscationSearchScope;
             paddingHorizontalUpDown.Value = EditorConfig.TextObfuscationPaddingHorizontal;
             paddingVerticalUpDown.Value = EditorConfig.TextObfuscationPaddingVertical;
+            offsetHorizontalUpDown.Value = EditorConfig.TextObfuscationOffsetHorizontal;
+            offsetVerticalUpDown.Value = EditorConfig.TextObfuscationOffsetVertical;
             
             // Set effect from config
             if (!string.IsNullOrEmpty(EditorConfig.TextObfuscationEffect))
@@ -127,6 +129,8 @@ namespace Greenshot.Editor.Forms
             EditorConfig.TextObfuscationSearchScope = searchScopeComboBox.SelectedIndex;
             EditorConfig.TextObfuscationPaddingHorizontal = (int)paddingHorizontalUpDown.Value;
             EditorConfig.TextObfuscationPaddingVertical = (int)paddingVerticalUpDown.Value;
+            EditorConfig.TextObfuscationOffsetHorizontal = (int)offsetHorizontalUpDown.Value;
+            EditorConfig.TextObfuscationOffsetVertical = (int)offsetVerticalUpDown.Value;
             
             if (effectComboBox.SelectedItem is EffectItem item)
             {
@@ -177,6 +181,8 @@ namespace Greenshot.Editor.Forms
             magnificationUpDown.ValueChanged += (s, e) => { if (!_isInitializing) UpdatePreview(); };
             paddingHorizontalUpDown.ValueChanged += (s, e) => { if (!_isInitializing) UpdatePreview(); };
             paddingVerticalUpDown.ValueChanged += (s, e) => { if (!_isInitializing) UpdatePreview(); };
+            offsetHorizontalUpDown.ValueChanged += (s, e) => { if (!_isInitializing) UpdatePreview(); };
+            offsetVerticalUpDown.ValueChanged += (s, e) => { if (!_isInitializing) UpdatePreview(); };
         }
 
         private void SearchButton_Click(object sender, EventArgs e)
@@ -269,15 +275,15 @@ namespace Greenshot.Editor.Forms
         {
             int horizontalPadding = (int)paddingHorizontalUpDown.Value;
             int verticalPadding = (int)paddingVerticalUpDown.Value;
-            
-            if (horizontalPadding <= 0 && verticalPadding <= 0) return bounds;
+            int horizontalOffset = (int)offsetHorizontalUpDown.Value;
+            int verticalOffset = (int)offsetVerticalUpDown.Value;
             
             int widthPadding = (int)(bounds.Width * horizontalPadding / 100.0 / 2);
             int heightPadding = (int)(bounds.Height * verticalPadding / 100.0 / 2);
             
             return new NativeRect(
-                bounds.Left - widthPadding,
-                bounds.Top - heightPadding,
+                bounds.Left - widthPadding + horizontalOffset,
+                bounds.Top - heightPadding + verticalOffset,
                 bounds.Width + (widthPadding * 2),
                 bounds.Height + (heightPadding * 2)
             );
