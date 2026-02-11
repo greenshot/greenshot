@@ -427,6 +427,57 @@ timpul curent, ex. 11_58_32 (plus extensia fișierului definită în setări)
 	<resource name="editor_obfuscate_pixelize">
 		Pixelat
 	</resource>
+	<resource name="editor_obfuscate_text">
+		Ascunde text...
+	</resource>
+	<resource name="editor_obfuscate_text_title">
+		Ascunde text
+	</resource>
+	<resource name="editor_obfuscate_text_search">
+		Caută:
+	</resource>
+	<resource name="editor_obfuscate_text_search_button">
+		Caută
+	</resource>
+	<resource name="editor_obfuscate_text_regex">
+		Folosește expresie regulată
+	</resource>
+	<resource name="editor_obfuscate_text_case_sensitive">
+		Sensibil la majuscule/minuscule
+	</resource>
+	<resource name="editor_obfuscate_text_auto_search">
+		Căutare automată
+	</resource>
+	<resource name="editor_obfuscate_text_search_scope">
+		Caută în:
+	</resource>
+	<resource name="editor_obfuscate_text_scope_words">
+		Cuvinte
+	</resource>
+	<resource name="editor_obfuscate_text_scope_lines">
+		Linii
+	</resource>
+	<resource name="editor_obfuscate_text_matches">
+		Potriviri găsite: {0}
+	</resource>
+	<resource name="editor_obfuscate_text_apply">
+		Aplică
+	</resource>
+	<resource name="editor_obfuscate_text_error">
+		Eroare
+	</resource>
+	<resource name="editor_obfuscate_text_no_capture">
+		Nicio captură disponibilă
+	</resource>
+	<resource name="editor_obfuscate_text_no_ocr_provider">
+		Furnizor OCR indisponibil
+	</resource>
+	<resource name="editor_obfuscate_text_ocr_failed">
+		OCR a eșuat
+	</resource>
+	<resource name="editor_obfuscate_text_no_text">
+		Nu s-a găsit text în imagine
+	</resource>
 	<resource name="editor_highlight_area">
 		Evidențiază zona
 	</resource>
