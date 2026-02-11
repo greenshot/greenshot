@@ -152,6 +152,7 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="editor_obfuscate_text_no_ocr_provider">OCR provider not available</resource>
 		<resource name="editor_obfuscate_text_ocr_failed">OCR failed</resource>
 		<resource name="editor_obfuscate_text_no_text">No text found in image</resource>
+		<resource name="editor_obfuscate_text_advanced">Advanced Settings</resource>
 		<resource name="editor_object">Object</resource>
 		<resource name="editor_opendirinexplorer">Open directory in Windows Explorer</resource>
 		<resource name="editor_pastefromclipboard">Paste</resource>

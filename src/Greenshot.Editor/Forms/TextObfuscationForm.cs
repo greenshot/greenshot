@@ -475,6 +475,21 @@ namespace Greenshot.Editor.Forms
             base.OnFormClosing(e);
         }
 
+        private void AdvancedSettingsCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            advancedSettingsGroupBox.Visible = advancedSettingsCheckBox.Checked;
+            
+            // Resize form based on whether advanced settings are shown
+            if (advancedSettingsCheckBox.Checked)
+            {
+                ClientSize = new System.Drawing.Size(511, 285);
+            }
+            else
+            {
+                ClientSize = new System.Drawing.Size(511, 225);
+            }
+        }
+
         private class EffectItem
         {
             public PreparedFilter Effect { get; }
