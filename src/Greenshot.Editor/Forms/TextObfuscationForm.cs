@@ -81,8 +81,8 @@ namespace Greenshot.Editor.Forms
             effectComboBox.Items.Clear();
             effectComboBox.Items.Add(new EffectItem(PreparedFilter.PIXELIZE, Language.GetString("editor_obfuscate_pixelize")));
             effectComboBox.Items.Add(new EffectItem(PreparedFilter.BLUR, Language.GetString("editor_obfuscate_blur")));
-            effectComboBox.Items.Add(new EffectItem(PreparedFilter.TEXT_HIGHTLIGHT, "Highlight Text"));
-            effectComboBox.Items.Add(new EffectItem(PreparedFilter.MAGNIFICATION, "Magnify"));
+            effectComboBox.Items.Add(new EffectItem(PreparedFilter.TEXT_HIGHTLIGHT, Language.GetString("editor_highlight_text")));
+            effectComboBox.Items.Add(new EffectItem(PreparedFilter.MAGNIFICATION, Language.GetString("editor_highlight_magnify")));
             // Exclude AREA_HIGHLIGHT and GRAYSCALE as requested
             
             effectComboBox.SelectedIndex = 0;
