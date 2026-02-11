@@ -494,12 +494,14 @@ namespace Greenshot.Editor.Forms
 									this.tornEdgesToolStripMenuItem,
 									this.grayscaleToolStripMenuItem,
 									this.invertToolStripMenuItem,
-									this.removeTransparencyToolStripMenuItem});
+									this.removeTransparencyToolStripMenuItem,
+									this.obfuscateTextToolStripMenuItem
+									});
 			this.toolStripSplitButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripSplitButton1.Image")));
 			this.toolStripSplitButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.toolStripSplitButton1.LanguageKey = "editor_effects";
 			this.toolStripSplitButton1.Name = "toolStripSplitButton1";
-			this.toolStripSplitButton1.ShowDropDownArrow = false;
+			this.toolStripSplitButton1.ShowDropDownArrow = true;
 			this.toolStripSplitButton1.Text = "toolStripSplitButton1";
 			// 
 			// addBorderToolStripMenuItem
@@ -619,8 +621,7 @@ namespace Greenshot.Editor.Forms
 									this.toolStripSeparator12,
 									this.preferencesToolStripMenuItem,
 									this.toolStripSeparator5,
-									this.insert_window_toolstripmenuitem,
-									this.obfuscateTextToolStripMenuItem});
+									this.insert_window_toolstripmenuitem});
 			this.editToolStripMenuItem.LanguageKey = "editor_edit";
 			this.editToolStripMenuItem.Name = "editToolStripMenuItem";
 			this.editToolStripMenuItem.Size = new System.Drawing.Size(39, 20);
@@ -1922,7 +1923,8 @@ namespace Greenshot.Editor.Forms
 			this.fileSavedStatusContextMenu.ResumeLayout(true);
 			this.ResumeLayout(false);
 		}
-		private GreenshotToolStripMenuItem alignRightToolStripMenuItem;
+
+        private GreenshotToolStripMenuItem alignRightToolStripMenuItem;
 		private GreenshotToolStripMenuItem alignCenterToolStripMenuItem;
 		private GreenshotToolStripMenuItem alignLeftToolStripMenuItem;
 		private BindableToolStripDropDownButton textHorizontalAlignmentButton;

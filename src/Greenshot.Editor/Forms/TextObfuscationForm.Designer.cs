@@ -253,7 +253,7 @@ namespace Greenshot.Editor.Forms
             this.effectLabel.Text = "Effect:";
             this.effectLabel.Location = new System.Drawing.Point(0, 2);
             this.effectLabel.Name = "effectLabel";
-            this.effectLabel.Size = new System.Drawing.Point(100, 20);
+            this.effectLabel.Size = new System.Drawing.Size(100, 20);
             this.effectLabel.TabIndex = 0;
             // 
             // effectComboBox
