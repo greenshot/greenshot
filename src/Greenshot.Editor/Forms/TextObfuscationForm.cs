@@ -58,6 +58,9 @@ namespace Greenshot.Editor.Forms
             _ocrInfo = ocrInfo ?? throw new ArgumentNullException(nameof(ocrInfo));
             InitializeComponent();
             
+            // Initialize match count label with formatted text
+            matchCountLabel.Text = string.Format(Language.GetString("editor_obfuscate_text_matches"), "0");
+            
             InitializeEffectDropdown();
             InitializeSearchScopeDropdown();
             LoadSettings();
@@ -482,11 +485,11 @@ namespace Greenshot.Editor.Forms
             // Resize form based on whether advanced settings are shown
             if (advancedSettingsCheckBox.Checked)
             {
-                ClientSize = new System.Drawing.Size(511, 285);
+                ClientSize = new System.Drawing.Size(511, 340);  // 215 + 80 (groupbox) + 45 (buttons)
             }
             else
             {
-                ClientSize = new System.Drawing.Size(511, 225);
+                ClientSize = new System.Drawing.Size(511, 250);  // 190 + 30 (checkbox) + 30 (buttons)
             }
         }
 

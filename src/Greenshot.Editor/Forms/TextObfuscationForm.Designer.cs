@@ -154,11 +154,11 @@ namespace Greenshot.Editor.Forms
             // 
             // matchCountLabel
             // 
-            this.matchCountLabel.LanguageKey = "editor_obfuscate_text_matches";
             this.matchCountLabel.Location = new System.Drawing.Point(12, 100);
             this.matchCountLabel.Name = "matchCountLabel";
             this.matchCountLabel.Size = new System.Drawing.Size(487, 20);
             this.matchCountLabel.TabIndex = 7;
+            this.matchCountLabel.Text = "";
             // 
             // effectLabel
             // 
@@ -260,9 +260,9 @@ namespace Greenshot.Editor.Forms
             // advancedSettingsCheckBox
             // 
             this.advancedSettingsCheckBox.LanguageKey = "editor_obfuscate_text_advanced";
-            this.advancedSettingsCheckBox.Location = new System.Drawing.Point(220, 130);
+            this.advancedSettingsCheckBox.Location = new System.Drawing.Point(12, 190);
             this.advancedSettingsCheckBox.Name = "advancedSettingsCheckBox";
-            this.advancedSettingsCheckBox.Size = new System.Drawing.Size(150, 24);
+            this.advancedSettingsCheckBox.Size = new System.Drawing.Size(200, 24);
             this.advancedSettingsCheckBox.TabIndex = 18;
             this.advancedSettingsCheckBox.Text = "Advanced Settings";
             this.advancedSettingsCheckBox.UseVisualStyleBackColor = true;
@@ -278,7 +278,7 @@ namespace Greenshot.Editor.Forms
             this.advancedSettingsGroupBox.Controls.Add(this.offsetHorizontalUpDown);
             this.advancedSettingsGroupBox.Controls.Add(this.offsetVerticalLabel);
             this.advancedSettingsGroupBox.Controls.Add(this.offsetVerticalUpDown);
-            this.advancedSettingsGroupBox.Location = new System.Drawing.Point(12, 160);
+            this.advancedSettingsGroupBox.Location = new System.Drawing.Point(12, 215);
             this.advancedSettingsGroupBox.Name = "advancedSettingsGroupBox";
             this.advancedSettingsGroupBox.Size = new System.Drawing.Size(487, 80);
             this.advancedSettingsGroupBox.TabIndex = 19;
@@ -363,7 +363,7 @@ namespace Greenshot.Editor.Forms
             // applyButton
             // 
             this.applyButton.LanguageKey = "editor_obfuscate_text_apply";
-            this.applyButton.Location = new System.Drawing.Point(343, 250);
+            this.applyButton.Location = new System.Drawing.Point(343, 305);
             this.applyButton.Name = "applyButton";
             this.applyButton.Size = new System.Drawing.Size(75, 23);
             this.applyButton.TabIndex = 20;
@@ -374,7 +374,7 @@ namespace Greenshot.Editor.Forms
             // 
             this.cancelButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.cancelButton.LanguageKey = "CANCEL";
-            this.cancelButton.Location = new System.Drawing.Point(424, 250);
+            this.cancelButton.Location = new System.Drawing.Point(424, 305);
             this.cancelButton.Name = "cancelButton";
             this.cancelButton.Size = new System.Drawing.Size(75, 23);
             this.cancelButton.TabIndex = 21;
@@ -387,7 +387,7 @@ namespace Greenshot.Editor.Forms
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.cancelButton;
-            this.ClientSize = new System.Drawing.Size(511, 285);
+            this.ClientSize = new System.Drawing.Size(511, 340);
             this.Controls.Add(this.cancelButton);
             this.Controls.Add(this.applyButton);
             this.Controls.Add(this.advancedSettingsGroupBox);
