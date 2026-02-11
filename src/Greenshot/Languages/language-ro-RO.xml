@@ -180,6 +180,7 @@ Detalii despre licența GNU General Public License:
 	<resource name="editor_print">
 		Imprimă
 	</resource>
+		<resource name="editor_remove_transparency">Elimină transparența</resource>
 	<resource name="help_title">
 		Ajutor Greenshot
 	</resource>

@@ -121,6 +121,7 @@ Pred objavo preverite tudi ali je napaka že prijavlja s strani kakšnega drugeg
 		<resource name="editor_pixel_size">Velikost pixla</resource>
 		<resource name="editor_preview_quality">Kakovost predogleda</resource>
 		<resource name="editor_print">Tiskaj</resource>
+		<resource name="editor_remove_transparency">Odstrani prosojnost</resource>
 		<resource name="editor_redo">Ponovno uveljavi {0}</resource>
 		<resource name="editor_resetsize">Ponastavi velikost</resource>
 		<resource name="editor_rotateccw">Zavrti v nasprotni smeri ure</resource>

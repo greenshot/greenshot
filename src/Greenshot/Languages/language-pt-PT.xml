@@ -136,6 +136,7 @@ Também apreciaremos muito se puder verificar se não existe já um relatório d
 		<resource name="editor_pixel_size">Tamanho de Pixel</resource>
 		<resource name="editor_preview_quality">Qualidade da pré-visualização</resource>
 		<resource name="editor_print">Imprimir</resource>
+		<resource name="editor_remove_transparency">Remover transparência</resource>
 		<resource name="editor_redo">Refazer {0}</resource>
 		<resource name="editor_resetsize">Repor tamanho</resource>
 		<resource name="editor_resize_percent">Percentagem</resource>

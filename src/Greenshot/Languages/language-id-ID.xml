@@ -140,6 +140,7 @@ Juga, kami sangat terbantu apabila anda mengecek laporan lain yang sama dengan k
 		<resource name="editor_pixel_size">Ukuran piksel</resource>
 		<resource name="editor_preview_quality">Kualitas pratayang</resource>
 		<resource name="editor_print">Cetak</resource>
+		<resource name="editor_remove_transparency">Hapus transparansi</resource>
 		<resource name="editor_redo">Ulang {0}</resource>
 		<resource name="editor_resetsize">Reset ukuran</resource>
 		<resource name="editor_resize">Ubah ukuran (Z)</resource>

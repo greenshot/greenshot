@@ -141,6 +141,7 @@ Greenshot поставляется БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ.�
 		<resource name="editor_pixel_size">Размер пикселя</resource>
 		<resource name="editor_preview_quality">Качество предосмотра</resource>
 		<resource name="editor_print">Печать</resource>
+		<resource name="editor_remove_transparency">Удалить прозрачность</resource>
 		<resource name="editor_redo">Повторить {0}</resource>
 		<resource name="editor_resetsize">Сброс размера</resource>
 		<resource name="editor_resize_percent">Процент</resource>
