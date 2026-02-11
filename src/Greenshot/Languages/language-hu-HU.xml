@@ -100,6 +100,7 @@ Kérjük adjon összefoglaló leírást és csatoljon minden olyan információt
 		<resource name="editor_pixel_size">Pixel méret</resource>
 		<resource name="editor_preview_quality">Előnézet minősége</resource>
 		<resource name="editor_print">Nyomtatás</resource>
+		<resource name="editor_remove_transparency">Átlátszóság eltávolítása</resource>
 		<resource name="editor_save">Mentés</resource>
 		<resource name="editor_save_objects">Kijelölés mentése fájlba</resource>
 		<resource name="editor_saveas">Mentés másként</resource>

@@ -141,6 +141,7 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="editor_pixel_size">Pixel size</resource>
 		<resource name="editor_preview_quality">Preview quality</resource>
 		<resource name="editor_print">Print</resource>
+		<resource name="editor_remove_transparency">Remove transparency</resource>
 		<resource name="editor_redo">Redo {0}</resource>
 		<resource name="editor_resetsize">Reset size</resource>
 		<resource name="editor_resize_percent">Percent</resource>

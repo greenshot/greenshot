@@ -124,6 +124,7 @@ Antes de crear un nuevo informe de error, te agradeceríamos que comprobaras que
 		<resource name="editor_pixel_size">Tamaño de pixel</resource>
 		<resource name="editor_preview_quality">Calidad de previsualización</resource>
 		<resource name="editor_print">Imprimir</resource>
+		<resource name="editor_remove_transparency">Eliminar transparencia</resource>
 		<resource name="editor_redo">Rehacer {0}</resource>
 		<resource name="editor_resetsize">Reiniciar tamaño</resource>
 		<resource name="editor_rotateccw">Rotar en sentido antihorario</resource>
