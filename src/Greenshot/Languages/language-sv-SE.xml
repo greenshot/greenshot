@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <language description="Svenska" ietf="sv-SE" version="1.0.4" languagegroup="1">
 	<resources>
 		<resource name="about_bugs">Var vänlig att rapportera in fel till</resource>
@@ -158,6 +158,7 @@ Innan du skickar uppskattar vi verkligen om du kontrollerar om felet redan blivi
 		<resource name="editor_pixel_size">Pixelstorlek</resource>
 		<resource name="editor_preview_quality">Förhandskvalitet</resource>
 		<resource name="editor_print">Skriv ut</resource>
+		<resource name="editor_remove_transparency">Ta bort genomskinlighet</resource>
 		<resource name="editor_redo">Upprepa {0}</resource>
 		<resource name="editor_resetsize">Återställ storlek</resource>
 		<resource name="editor_resize_percent">Procent</resource>

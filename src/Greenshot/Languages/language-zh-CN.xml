@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <language description="简体中文" ietf="zh-CN" version="1.1.2.2572" languagegroup="1">
 	<resources>
 		<resource name="about_bugs">如果发现任何错误，请到以下网址报告</resource>
@@ -148,6 +148,7 @@
 		<resource name="editor_pixel_size">像素大小</resource>
 		<resource name="editor_preview_quality">预览质量</resource>
 		<resource name="editor_print">打印</resource>
+		<resource name="editor_remove_transparency">移除透明度</resource>
 		<resource name="editor_redo">重作{0}</resource>
 		<resource name="editor_resetsize">重置尺寸</resource>
 		<resource name="editor_rotateccw">逆时针旋转（Ctrl + ,）</resource>

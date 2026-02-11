@@ -152,6 +152,7 @@ Abans de crear un nou informe d'error, us agrairem que comproveu que l'error no 
 		<resource name="editor_pixel_size">Mida del pixel</resource>
 		<resource name="editor_preview_quality">Qualitat de previsualització</resource>
 		<resource name="editor_print">Imprimeix</resource>
+		<resource name="editor_remove_transparency">Eliminar transparència</resource>
 		<resource name="editor_redo">Refés {0}</resource>
 		<resource name="editor_resetsize">Reinicia la mida</resource>
 		<resource name="editor_resize_percent">Percentatge</resource>

@@ -116,6 +116,7 @@
 		<resource name="editor_pixel_size">حجم البيكسل</resource>
 		<resource name="editor_preview_quality">معاينة الجودة</resource>
 		<resource name="editor_print">اطبع</resource>
+		<resource name="editor_remove_transparency">إزالة الشفافية</resource>
 		<resource name="editor_save">احفظ</resource>
 		<resource name="editor_save_objects">حفظ العنصر في ملف</resource>
 		<resource name="editor_saveas">احفظ باسم...</resource>

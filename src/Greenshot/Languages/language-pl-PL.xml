@@ -158,6 +158,7 @@ Będziemy wdzięczni, jeśli najpierw sprawdzisz, czy takie zdarzenie nie zosta�
 		<resource name="editor_pixel_size">Rozmiar piksela</resource>
 		<resource name="editor_preview_quality">Jakość podglądu</resource>
 		<resource name="editor_print">Drukuj</resource>
+		<resource name="editor_remove_transparency">Usuń przezroczystość</resource>
 		<resource name="editor_redo">Cofnij {0}</resource>
 		<resource name="editor_resetsize">Domyślny rozmiar</resource>
 		<resource name="editor_resize_percent">Procent</resource>

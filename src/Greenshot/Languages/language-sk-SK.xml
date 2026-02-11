@@ -140,6 +140,7 @@ Tiež by sme velmi ocenili, keby ste najskôr skontrolovali, či už neexistuje 
 		<resource name="editor_pixel_size">Veľkosť pixelu</resource>
 		<resource name="editor_preview_quality">Ukážka kvality</resource>
 		<resource name="editor_print">Tlač</resource>
+		<resource name="editor_remove_transparency">Odstrániť priehľadnosť</resource>
 		<resource name="editor_redo">Znova {0}</resource>
 		<resource name="editor_resetsize">Obnovit veľkosť</resource>
 		<resource name="editor_rotateccw">Otočiť proti smeru hodinových ručičiek</resource>

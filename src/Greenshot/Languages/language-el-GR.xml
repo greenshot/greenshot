@@ -157,6 +157,7 @@
 		<resource name="editor_pixel_size">Μέγεθος εικονοστοιχείων</resource>
 		<resource name="editor_preview_quality">Ποιότητα προεπισκόπησης</resource>
 		<resource name="editor_print">Εκτύπωση</resource>
+		<resource name="editor_remove_transparency">Κατάργηση διαφάνειας</resource>
 		<resource name="editor_redo">Ακύρωση Αναίρεσης {0}</resource>
 		<resource name="editor_resetsize">Επαναφορά μεγέθους</resource>
 		<resource name="editor_resize_percent">Επί τοις εκατό</resource>

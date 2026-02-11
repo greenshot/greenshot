@@ -157,6 +157,7 @@ schnell zu finden. Vielen Dank :)</resource>
 		<resource name="editor_pixel_size">Pixelgröße</resource>
 		<resource name="editor_preview_quality">Vorschauqualität</resource>
 		<resource name="editor_print">Drucken</resource>
+		<resource name="editor_remove_transparency">Transparenz entfernen</resource>
 		<resource name="editor_redo">Wiederherstellen {0}</resource>
 		<resource name="editor_resetsize">Größe zurücksetzen</resource>
 		<resource name="editor_resize_percent">Prozent</resource>

@@ -142,6 +142,7 @@
 		<resource name="editor_pixel_size">Tamanho de Pixel</resource>
 		<resource name="editor_preview_quality">Qualidade do preview</resource>
 		<resource name="editor_print">Imprimir</resource>
+		<resource name="editor_remove_transparency">Remover transparência</resource>
 		<resource name="editor_save">Salvar</resource>
 		<resource name="editor_save_objects">Salvar objetos em arquivo...</resource>
 		<resource name="editor_saveas">Salvar como...</resource>

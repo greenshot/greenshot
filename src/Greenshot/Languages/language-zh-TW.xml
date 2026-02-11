@@ -153,6 +153,7 @@ Greenshot 不對這個程式做任何擔保。這個程式是自由軟體，您�
 		<resource name="editor_pixel_size">像素大小</resource>
 		<resource name="editor_preview_quality">預覽品質</resource>
 		<resource name="editor_print">列印</resource>
+		<resource name="editor_remove_transparency">移除透明度</resource>
 		<resource name="editor_redo">重做 {0}</resource>
 		<resource name="editor_resetsize">重設大小</resource>
 		<resource name="editor_resize_percent">百分比</resource>

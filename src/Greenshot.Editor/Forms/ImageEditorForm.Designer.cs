@@ -81,6 +81,7 @@ namespace Greenshot.Editor.Forms
 			this.tornEdgesToolStripMenuItem = new GreenshotToolStripMenuItem();
 			this.grayscaleToolStripMenuItem = new GreenshotToolStripMenuItem();
 			this.invertToolStripMenuItem = new GreenshotToolStripMenuItem();
+			this.removeTransparencyToolStripMenuItem = new GreenshotToolStripMenuItem();
 			this.btnResize = new GreenshotToolStripButton();
 			this.toolStripSeparator13 = new System.Windows.Forms.ToolStripSeparator();
 			this.btnCrop = new GreenshotToolStripButton();
@@ -492,7 +493,8 @@ namespace Greenshot.Editor.Forms
 									this.addDropshadowToolStripMenuItem,
 									this.tornEdgesToolStripMenuItem,
 									this.grayscaleToolStripMenuItem,
-									this.invertToolStripMenuItem});
+									this.invertToolStripMenuItem,
+									this.removeTransparencyToolStripMenuItem});
 			this.toolStripSplitButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripSplitButton1.Image")));
 			this.toolStripSplitButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.toolStripSplitButton1.LanguageKey = "editor_effects";
@@ -529,6 +531,12 @@ namespace Greenshot.Editor.Forms
 			this.invertToolStripMenuItem.LanguageKey = "editor_invert";
 			this.invertToolStripMenuItem.Name = "invertToolStripMenuItem";
 			this.invertToolStripMenuItem.Click += new System.EventHandler(this.InvertToolStripMenuItemClick);
+			// 
+			// removeTransparencyToolStripMenuItem
+			// 
+			this.removeTransparencyToolStripMenuItem.LanguageKey = "editor_remove_transparency";
+			this.removeTransparencyToolStripMenuItem.Name = "removeTransparencyToolStripMenuItem";
+			this.removeTransparencyToolStripMenuItem.Click += new System.EventHandler(this.RemoveTransparencyToolStripMenuItemClick);
 			// 
 			// btnResize
 			// 
@@ -1923,6 +1931,7 @@ namespace Greenshot.Editor.Forms
 		private GreenshotToolStripMenuItem alignTopToolStripMenuItem;
 		private BindableToolStripDropDownButton textVerticalAlignmentButton;
 		private GreenshotToolStripMenuItem invertToolStripMenuItem;
+		private GreenshotToolStripMenuItem removeTransparencyToolStripMenuItem;
 		private GreenshotToolStripButton btnResize;
 		private GreenshotToolStripMenuItem grayscaleToolStripMenuItem;
 		private GreenshotToolStripButton rotateCcwToolstripButton;

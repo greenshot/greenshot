@@ -154,6 +154,7 @@ Také bychom velmi ocenili, kdybyste zkontrolovali, zda tato chyba již není ev
 		<resource name="editor_pixel_size">Velikost pixelu</resource>
 		<resource name="editor_preview_quality">Kvalita náhledu</resource>
 		<resource name="editor_print">Tisk</resource>
+		<resource name="editor_remove_transparency">Odstranit průhlednost</resource>
 		<resource name="editor_redo">Znovu {0}</resource>
 		<resource name="editor_resetsize">Obnovit velikost</resource>
 		<resource name="editor_resize_percent">Procent</resource>

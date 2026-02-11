@@ -1439,6 +1439,12 @@ namespace Greenshot.Editor.Forms
             UpdateClipboardSurfaceDependencies();
             UpdateUndoRedoSurfaceDependencies();
 
+            // Show/hide remove transparency menu item based on whether image has transparency
+            if (_surface?.Image != null)
+            {
+                removeTransparencyToolStripMenuItem.Visible = Image.IsAlphaPixelFormat(_surface.Image.PixelFormat);
+            }
+
             // en/disablearrage controls depending on hierarchy of selected elements
             bool actionAllowedForSelection = _surface.HasSelectedElements && !_controlsDisabledDueToConfirmable;
             bool push = actionAllowedForSelection && _surface.CanPushSelectionDown();
@@ -1906,6 +1912,24 @@ namespace Greenshot.Editor.Forms
         {
             _surface.ApplyBitmapEffect(new InvertEffect());
             UpdateUndoRedoSurfaceDependencies();
+        }
+
+        private void RemoveTransparencyToolStripMenuItemClick(object sender, EventArgs e)
+        {
+            var colorDialog = new ColorDialog
+            {
+                Color = Color.White
+            };
+            
+            if (colorDialog.ShowDialog(this) == DialogResult.OK)
+            {
+                var removeTransparencyEffect = new RemoveTransparencyEffect
+                {
+                    Color = colorDialog.Color
+                };
+                _surface.ApplyBitmapEffect(removeTransparencyEffect);
+                UpdateUndoRedoSurfaceDependencies();
+            }
         }
 
         private void ImageEditorFormResize(object sender, EventArgs e)

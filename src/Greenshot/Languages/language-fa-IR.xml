@@ -129,6 +129,7 @@ Could not save Greenshot's configuration file. Please check access permissions f
 		<resource name="editor_pixel_size">اندازه پیکسل</resource>
 		<resource name="editor_preview_quality">کیفیت پیشنمایش</resource>
 		<resource name="editor_print">چاپ</resource>
+		<resource name="editor_remove_transparency">حذف شفافیت</resource>
 		<resource name="editor_save">ذخیره</resource>
 		<resource name="editor_save_objects">ذخیره شیی در فایل</resource>
 		<resource name="editor_saveas">...ذخیره با نام</resource>

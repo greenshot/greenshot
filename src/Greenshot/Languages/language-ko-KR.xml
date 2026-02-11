@@ -152,6 +152,7 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="editor_pixel_size">화소 크기</resource>
 		<resource name="editor_preview_quality">미리보기 품질</resource>
 		<resource name="editor_print">인쇄</resource>
+		<resource name="editor_remove_transparency">투명도 제거</resource>
 		<resource name="editor_redo">재실행 {0}</resource>
 		<resource name="editor_resetsize">초기화 크기</resource>
 		<resource name="editor_resize_percent">백분율</resource>

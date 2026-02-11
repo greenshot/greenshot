@@ -152,6 +152,7 @@ Mēs būtu Tev pateicīgi, ja Tu vispirms pārbaudītu, vai kāds cits jau nav z
 		<resource name="editor_pixel_size">Pikseļa izmērs</resource>
 		<resource name="editor_preview_quality">Priekšapskates kvalitāte</resource>
 		<resource name="editor_print">Drukāt</resource>
+		<resource name="editor_remove_transparency">Noņemt caurspīdīgumu</resource>
 		<resource name="editor_redo">Atcelt atsaukšanu {0}</resource>
 		<resource name="editor_resetsize">Atjaunot izmēru</resource>
 		<resource name="editor_resize_percent">Procenti</resource>

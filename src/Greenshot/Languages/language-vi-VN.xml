@@ -112,6 +112,7 @@
 		<resource name="editor_pixel_size">Cỡ điểm ảnh</resource>
 		<resource name="editor_preview_quality">Chất lượng ảnh xem trước</resource>
 		<resource name="editor_print">In</resource>
+		<resource name="editor_remove_transparency">Xóa độ trong suốt</resource>
 		<resource name="editor_save">Lưu</resource>
 		<resource name="editor_save_objects">Lưu đối tượng vào tệp</resource>
 		<resource name="editor_saveas">Lưu thành tệp...</resource>
