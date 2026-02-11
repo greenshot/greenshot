@@ -115,16 +115,12 @@ namespace Greenshot.Forms
         {
             _displayImage?.Dispose();
             
-            if (ViewerConfig.ShowCursor && _captureDetails.CursorVisible)
-            {
+            // if (ViewerConfig.ShowCursor && _captureDetails.CursorVisible) <- There is no such thing
                 // Create image with cursor
                 _displayImage = _surface.GetImageForExport();
-            }
-            else
-            {
+            // else
                 // Create image without cursor
-                _displayImage = ImageHelper.Clone(_surface.Image);
-            }
+                //_displayImage = ImageHelper.Clone(_surface.Image);
         }
 
         private void CalculateAndSetSize()
