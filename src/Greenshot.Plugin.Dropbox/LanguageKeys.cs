@@ -19,13 +19,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace Greenshot.Plugin.Dropbox
+namespace Greenshot.Plugin.Dropbox;
+
+public enum LangKey
 {
-    public enum LangKey
-    {
-        upload_menu_item,
-        upload_failure,
-        communication_wait,
-        Configure
-    }
+    upload_menu_item,
+    upload_failure,
+    communication_wait,
+    Configure
 }

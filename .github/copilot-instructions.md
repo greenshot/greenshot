@@ -5,7 +5,7 @@
 **Greenshot** is a free, open-source screenshot tool for Windows optimized for productivity. It allows users to capture screenshots, annotate them, and export to various destinations (file, printer, clipboard, email, cloud services).
 
 - **Repository Size**: ~13MB, ~1,100 files
-- **Primary Language**: C# (.NET Framework 4.8.1)
+- **Primary Language**: C# (.NET Framework 4.8.0)
 - **Project Type**: Windows Desktop Application (WinForms/WPF)
 - **Build System**: MSBuild (requires Visual Studio or MSBuild Tools for Windows)
 - **Versioning**: Nerdbank.GitVersioning (version base: 1.4.x)
@@ -16,7 +16,7 @@
 - **Operating System**: Windows (Linux/Mac not supported for building)
 - **Build Tools**: MSBuild (from Visual Studio 2019+ or MSBuild Tools for Windows)
 - **.NET SDK**: .NET 7.x SDK (for NuGet restore, see release.yml line 38-39)
-- **Target Framework**: .NET Framework 4.8.1
+- **Target Framework**: .NET Framework 4.8.0
 - **Git Clone**: MUST use full clone with history (NOT shallow clone) due to Nerdbank.GitVersioning requirements
 
 ### Critical Build Notes
@@ -185,7 +185,7 @@ Each plugin in `src/Greenshot.Plugin.*/` is self-contained. Changes are automati
 
 ## Translation Tasks
 
-**For ALL translation-related tasks, delegate to the translation-manager custom agent.**
+**Whenever UI messages are added, changed or removed, all translations should be updated accordingly. For ALL translation-related tasks, delegate to the translation-manager custom agent.**
 
 The translation-manager agent is a specialized expert with comprehensive knowledge of:
 - Translation file structure and format (XML with UTF-8 BOM encoding)

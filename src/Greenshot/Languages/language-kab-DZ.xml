@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <language description="Taqbaylit" ietf="kab-DZ" version="1.2.0.58" languagegroup="1">
 	<resources>
 		<resource name="about_bugs">Azen ibugen ar</resource>
@@ -134,12 +134,30 @@ Rnu ɣur-s, nḥemmel aṭas ma yella tesneqdeḍ aneqqis igebren ugur-agi. (Tze
 		<resource name="editor_obfuscate_blur">Sdeɛmumec</resource>
 		<resource name="editor_obfuscate_mode">Askar n usdaɛmumec</resource>
 		<resource name="editor_obfuscate_pixelize">Piksilizi</resource>
+		<resource name="editor_obfuscate_text">Ffer aḍris...</resource>
+		<resource name="editor_obfuscate_text_title">Ffer aḍris</resource>
+		<resource name="editor_obfuscate_text_search">Nadi:</resource>
+		<resource name="editor_obfuscate_text_search_button">Nadi</resource>
+		<resource name="editor_obfuscate_text_regex">Seqdec tanfalit tuzligt</resource>
+		<resource name="editor_obfuscate_text_case_sensitive">Ɣur-s azal n tsefsit</resource>
+		<resource name="editor_obfuscate_text_auto_search">Anadi awurman</resource>
+		<resource name="editor_obfuscate_text_search_scope">Nadi deg:</resource>
+		<resource name="editor_obfuscate_text_scope_words">Awalen</resource>
+		<resource name="editor_obfuscate_text_scope_lines">Izirigen</resource>
+		<resource name="editor_obfuscate_text_matches">Timsal yettwafen: {0}</resource>
+		<resource name="editor_obfuscate_text_apply">Snes</resource>
+		<resource name="editor_obfuscate_text_error">Tuccḍa</resource>
+		<resource name="editor_obfuscate_text_no_capture">Ulac tuṭṭfa yellan</resource>
+		<resource name="editor_obfuscate_text_no_ocr_provider">Asaǧǧaw OCR ulac-it</resource>
+		<resource name="editor_obfuscate_text_ocr_failed">OCR ur yeddi ara</resource>
+		<resource name="editor_obfuscate_text_no_text">Ulac aḍris yettwafen deg tugna</resource>
 		<resource name="editor_object">Taɣawsa</resource>
 		<resource name="editor_opendirinexplorer">Ldi akaram n unaram Windows</resource>
 		<resource name="editor_pastefromclipboard">Sented</resource>
 		<resource name="editor_pixel_size">Teɣzu n upiksil</resource>
 		<resource name="editor_preview_quality">Taɣara n teskant</resource>
 		<resource name="editor_print">Siggez</resource>
+		<resource name="editor_remove_transparency">Kkes tanmislit</resource>
 		<resource name="editor_redo">Err-d {0}</resource>
 		<resource name="editor_resetsize">Wennez teɣzi</resource>
 		<resource name="editor_resize">Snifel tahri/teɣzi (Z)</resource>

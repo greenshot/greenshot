@@ -30,7 +30,6 @@ using Dapplo.Windows.Kernel32.Structs;
 using Dapplo.Windows.User32;
 using Dapplo.Windows.Common.Extensions;
 using Greenshot.Base.IniFile;
-using Microsoft.Win32;
 
 namespace Greenshot.Base.Core
 {
