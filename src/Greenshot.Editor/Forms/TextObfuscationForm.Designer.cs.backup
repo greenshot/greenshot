@@ -107,52 +107,17 @@ namespace Greenshot.Editor.Forms
             ((System.ComponentModel.ISupportInitialize)(this.offsetVerticalUpDown)).BeginInit();
             this.SuspendLayout();
             // 
-            // mainFlowPanel
-            // 
-            this.mainFlowPanel.AutoSize = true;
-            this.mainFlowPanel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.mainFlowPanel.Controls.Add(this.searchPanel);
-            this.mainFlowPanel.Controls.Add(this.checkboxPanel);
-            this.mainFlowPanel.Controls.Add(this.scopePanel);
-            this.mainFlowPanel.Controls.Add(this.matchCountLabel);
-            this.mainFlowPanel.Controls.Add(this.effectPanel);
-            this.mainFlowPanel.Controls.Add(this.effectSettingsPanel);
-            this.mainFlowPanel.Controls.Add(this.advancedSettingsCheckBox);
-            this.mainFlowPanel.Controls.Add(this.advancedSettingsGroupBox);
-            this.mainFlowPanel.Controls.Add(this.buttonPanel);
-            this.mainFlowPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.mainFlowPanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.mainFlowPanel.Location = new System.Drawing.Point(0, 0);
-            this.mainFlowPanel.Name = "mainFlowPanel";
-            this.mainFlowPanel.Padding = new System.Windows.Forms.Padding(5);
-            this.mainFlowPanel.Size = new System.Drawing.Size(511, 300);
-            this.mainFlowPanel.TabIndex = 0;
-            this.mainFlowPanel.WrapContents = false;
-            // 
-            // searchPanel
-            // 
-            this.searchPanel.AutoSize = true;
-            this.searchPanel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.searchPanel.Controls.Add(this.searchLabel);
-            this.searchPanel.Controls.Add(this.searchTextBox);
-            this.searchPanel.Controls.Add(this.searchButton);
-            this.searchPanel.Location = new System.Drawing.Point(8, 8);
-            this.searchPanel.Margin = new System.Windows.Forms.Padding(3, 3, 3, 3);
-            this.searchPanel.Name = "searchPanel";
-            this.searchPanel.Size = new System.Drawing.Size(495, 26);
-            this.searchPanel.TabIndex = 0;
-            // 
             // searchLabel
             // 
             this.searchLabel.LanguageKey = "editor_obfuscate_text_search";
-            this.searchLabel.Location = new System.Drawing.Point(0, 3);
+            this.searchLabel.Location = new System.Drawing.Point(12, 15);
             this.searchLabel.Name = "searchLabel";
             this.searchLabel.Size = new System.Drawing.Size(100, 20);
             this.searchLabel.TabIndex = 0;
             // 
             // searchTextBox
             // 
-            this.searchTextBox.Location = new System.Drawing.Point(106, 0);
+            this.searchTextBox.Location = new System.Drawing.Point(118, 12);
             this.searchTextBox.Name = "searchTextBox";
             this.searchTextBox.Size = new System.Drawing.Size(300, 20);
             this.searchTextBox.TabIndex = 1;
@@ -160,266 +125,193 @@ namespace Greenshot.Editor.Forms
             // searchButton
             // 
             this.searchButton.LanguageKey = "editor_obfuscate_text_search_button";
-            this.searchButton.Location = new System.Drawing.Point(412, 0);
+            this.searchButton.Location = new System.Drawing.Point(424, 10);
             this.searchButton.Name = "searchButton";
             this.searchButton.Size = new System.Drawing.Size(75, 23);
             this.searchButton.TabIndex = 2;
             this.searchButton.UseVisualStyleBackColor = true;
             this.searchButton.Click += new System.EventHandler(this.SearchButton_Click);
             // 
-            // checkboxPanel
-            // 
-            this.checkboxPanel.AutoSize = true;
-            this.checkboxPanel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.checkboxPanel.Controls.Add(this.regexCheckBox);
-            this.checkboxPanel.Controls.Add(this.caseSensitiveCheckBox);
-            this.checkboxPanel.Location = new System.Drawing.Point(8, 40);
-            this.checkboxPanel.Margin = new System.Windows.Forms.Padding(3, 3, 3, 3);
-            this.checkboxPanel.Name = "checkboxPanel";
-            this.checkboxPanel.Size = new System.Drawing.Size(495, 24);
-            this.checkboxPanel.TabIndex = 1;
-            // 
             // regexCheckBox
             // 
             this.regexCheckBox.LanguageKey = "editor_obfuscate_text_regex";
-            this.regexCheckBox.Location = new System.Drawing.Point(106, 0);
+            this.regexCheckBox.Location = new System.Drawing.Point(118, 38);
             this.regexCheckBox.Name = "regexCheckBox";
             this.regexCheckBox.Size = new System.Drawing.Size(150, 24);
-            this.regexCheckBox.TabIndex = 0;
+            this.regexCheckBox.TabIndex = 3;
             this.regexCheckBox.UseVisualStyleBackColor = true;
             // 
             // caseSensitiveCheckBox
             // 
             this.caseSensitiveCheckBox.LanguageKey = "editor_obfuscate_text_case_sensitive";
-            this.caseSensitiveCheckBox.Location = new System.Drawing.Point(262, 0);
+            this.caseSensitiveCheckBox.Location = new System.Drawing.Point(274, 38);
             this.caseSensitiveCheckBox.Name = "caseSensitiveCheckBox";
             this.caseSensitiveCheckBox.Size = new System.Drawing.Size(150, 24);
-            this.caseSensitiveCheckBox.TabIndex = 1;
+            this.caseSensitiveCheckBox.TabIndex = 4;
             this.caseSensitiveCheckBox.UseVisualStyleBackColor = true;
-            // 
-            // scopePanel
-            // 
-            this.scopePanel.AutoSize = true;
-            this.scopePanel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.scopePanel.Controls.Add(this.searchScopeLabel);
-            this.scopePanel.Controls.Add(this.searchScopeComboBox);
-            this.scopePanel.Location = new System.Drawing.Point(8, 70);
-            this.scopePanel.Margin = new System.Windows.Forms.Padding(3, 3, 3, 3);
-            this.scopePanel.Name = "scopePanel";
-            this.scopePanel.Size = new System.Drawing.Size(495, 24);
-            this.scopePanel.TabIndex = 2;
             // 
             // searchScopeLabel
             // 
             this.searchScopeLabel.LanguageKey = "editor_obfuscate_text_search_scope";
-            this.searchScopeLabel.Location = new System.Drawing.Point(0, 2);
+            this.searchScopeLabel.Location = new System.Drawing.Point(12, 70);
             this.searchScopeLabel.Name = "searchScopeLabel";
             this.searchScopeLabel.Size = new System.Drawing.Size(100, 20);
-            this.searchScopeLabel.TabIndex = 0;
+            this.searchScopeLabel.TabIndex = 5;
             // 
             // searchScopeComboBox
             // 
             this.searchScopeComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.searchScopeComboBox.FormattingEnabled = true;
-            this.searchScopeComboBox.Location = new System.Drawing.Point(106, 0);
+            this.searchScopeComboBox.Location = new System.Drawing.Point(118, 67);
             this.searchScopeComboBox.Name = "searchScopeComboBox";
             this.searchScopeComboBox.Size = new System.Drawing.Size(150, 21);
-            this.searchScopeComboBox.TabIndex = 1;
+            this.searchScopeComboBox.TabIndex = 6;
             // 
             // matchCountLabel
             // 
-            this.matchCountLabel.AutoSize = true;
-            this.matchCountLabel.Location = new System.Drawing.Point(8, 100);
-            this.matchCountLabel.Margin = new System.Windows.Forms.Padding(3, 3, 3, 3);
+            this.matchCountLabel.Location = new System.Drawing.Point(12, 100);
             this.matchCountLabel.Name = "matchCountLabel";
-            this.matchCountLabel.Size = new System.Drawing.Size(100, 13);
-            this.matchCountLabel.TabIndex = 3;
+            this.matchCountLabel.Size = new System.Drawing.Size(487, 20);
+            this.matchCountLabel.TabIndex = 7;
             this.matchCountLabel.Text = "";
-            // 
-            // effectPanel
-            // 
-            this.effectPanel.AutoSize = true;
-            this.effectPanel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.effectPanel.Controls.Add(this.effectLabel);
-            this.effectPanel.Controls.Add(this.effectComboBox);
-            this.effectPanel.Location = new System.Drawing.Point(8, 119);
-            this.effectPanel.Margin = new System.Windows.Forms.Padding(3, 3, 3, 3);
-            this.effectPanel.Name = "effectPanel";
-            this.effectPanel.Size = new System.Drawing.Size(495, 24);
-            this.effectPanel.TabIndex = 4;
             // 
             // effectLabel
             // 
             this.effectLabel.Text = "Effect:";
-            this.effectLabel.Location = new System.Drawing.Point(0, 2);
+            this.effectLabel.Location = new System.Drawing.Point(12, 130);
             this.effectLabel.Name = "effectLabel";
-            this.effectLabel.Size = new System.Drawing.Point(100, 20);
-            this.effectLabel.TabIndex = 0;
+            this.effectLabel.Size = new System.Drawing.Size(100, 20);
+            this.effectLabel.TabIndex = 8;
             // 
             // effectComboBox
             // 
             this.effectComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.effectComboBox.FormattingEnabled = true;
-            this.effectComboBox.Location = new System.Drawing.Point(106, 0);
+            this.effectComboBox.Location = new System.Drawing.Point(118, 127);
             this.effectComboBox.Name = "effectComboBox";
             this.effectComboBox.Size = new System.Drawing.Size(150, 21);
-            this.effectComboBox.TabIndex = 1;
-            // 
-            // effectSettingsPanel
-            // 
-            this.effectSettingsPanel.AutoSize = true;
-            this.effectSettingsPanel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.effectSettingsPanel.Controls.Add(this.pixelSizeLabel);
-            this.effectSettingsPanel.Controls.Add(this.pixelSizeUpDown);
-            this.effectSettingsPanel.Controls.Add(this.blurRadiusLabel);
-            this.effectSettingsPanel.Controls.Add(this.blurRadiusUpDown);
-            this.effectSettingsPanel.Controls.Add(this.highlightColorLabel);
-            this.effectSettingsPanel.Controls.Add(this.highlightColorButton);
-            this.effectSettingsPanel.Controls.Add(this.magnificationLabel);
-            this.effectSettingsPanel.Controls.Add(this.magnificationUpDown);
-            this.effectSettingsPanel.Location = new System.Drawing.Point(8, 149);
-            this.effectSettingsPanel.Margin = new System.Windows.Forms.Padding(3, 3, 3, 3);
-            this.effectSettingsPanel.MinimumSize = new System.Drawing.Size(495, 30);
-            this.effectSettingsPanel.Name = "effectSettingsPanel";
-            this.effectSettingsPanel.Size = new System.Drawing.Size(495, 30);
-            this.effectSettingsPanel.TabIndex = 5;
+            this.effectComboBox.TabIndex = 9;
             // 
             // pixelSizeLabel
             // 
             this.pixelSizeLabel.Text = "Pixel Size:";
-            this.pixelSizeLabel.Location = new System.Drawing.Point(0, 5);
+            this.pixelSizeLabel.Location = new System.Drawing.Point(12, 160);
             this.pixelSizeLabel.Name = "pixelSizeLabel";
             this.pixelSizeLabel.Size = new System.Drawing.Size(100, 20);
-            this.pixelSizeLabel.TabIndex = 0;
+            this.pixelSizeLabel.TabIndex = 10;
             this.pixelSizeLabel.Visible = false;
             // 
             // pixelSizeUpDown
             // 
-            this.pixelSizeUpDown.Location = new System.Drawing.Point(106, 3);
+            this.pixelSizeUpDown.Location = new System.Drawing.Point(118, 158);
             this.pixelSizeUpDown.Minimum = new decimal(new int[] { 2, 0, 0, 0 });
             this.pixelSizeUpDown.Maximum = new decimal(new int[] { 100, 0, 0, 0 });
             this.pixelSizeUpDown.Name = "pixelSizeUpDown";
             this.pixelSizeUpDown.Size = new System.Drawing.Size(80, 20);
-            this.pixelSizeUpDown.TabIndex = 1;
+            this.pixelSizeUpDown.TabIndex = 11;
             this.pixelSizeUpDown.Value = new decimal(new int[] { 5, 0, 0, 0 });
             this.pixelSizeUpDown.Visible = false;
             // 
             // blurRadiusLabel
             // 
             this.blurRadiusLabel.Text = "Blur Radius:";
-            this.blurRadiusLabel.Location = new System.Drawing.Point(0, 5);
+            this.blurRadiusLabel.Location = new System.Drawing.Point(12, 160);
             this.blurRadiusLabel.Name = "blurRadiusLabel";
             this.blurRadiusLabel.Size = new System.Drawing.Size(100, 20);
-            this.blurRadiusLabel.TabIndex = 2;
+            this.blurRadiusLabel.TabIndex = 12;
             this.blurRadiusLabel.Visible = false;
             // 
             // blurRadiusUpDown
             // 
-            this.blurRadiusUpDown.Location = new System.Drawing.Point(106, 3);
+            this.blurRadiusUpDown.Location = new System.Drawing.Point(118, 158);
             this.blurRadiusUpDown.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
             this.blurRadiusUpDown.Maximum = new decimal(new int[] { 30, 0, 0, 0 });
             this.blurRadiusUpDown.Name = "blurRadiusUpDown";
             this.blurRadiusUpDown.Size = new System.Drawing.Size(80, 20);
-            this.blurRadiusUpDown.TabIndex = 3;
+            this.blurRadiusUpDown.TabIndex = 13;
             this.blurRadiusUpDown.Value = new decimal(new int[] { 5, 0, 0, 0 });
             this.blurRadiusUpDown.Visible = false;
             // 
             // highlightColorLabel
             // 
             this.highlightColorLabel.Text = "Highlight Color:";
-            this.highlightColorLabel.Location = new System.Drawing.Point(0, 5);
+            this.highlightColorLabel.Location = new System.Drawing.Point(12, 160);
             this.highlightColorLabel.Name = "highlightColorLabel";
             this.highlightColorLabel.Size = new System.Drawing.Size(100, 20);
-            this.highlightColorLabel.TabIndex = 4;
+            this.highlightColorLabel.TabIndex = 14;
             this.highlightColorLabel.Visible = false;
             // 
             // highlightColorButton
             // 
             this.highlightColorButton.BackColor = System.Drawing.Color.Yellow;
-            this.highlightColorButton.Location = new System.Drawing.Point(106, 3);
+            this.highlightColorButton.Location = new System.Drawing.Point(118, 158);
             this.highlightColorButton.Name = "highlightColorButton";
             this.highlightColorButton.Size = new System.Drawing.Size(80, 23);
-            this.highlightColorButton.TabIndex = 5;
+            this.highlightColorButton.TabIndex = 15;
             this.highlightColorButton.UseVisualStyleBackColor = false;
             this.highlightColorButton.Visible = false;
             // 
             // magnificationLabel
             // 
             this.magnificationLabel.Text = "Magnification:";
-            this.magnificationLabel.Location = new System.Drawing.Point(0, 5);
+            this.magnificationLabel.Location = new System.Drawing.Point(12, 160);
             this.magnificationLabel.Name = "magnificationLabel";
             this.magnificationLabel.Size = new System.Drawing.Size(100, 20);
-            this.magnificationLabel.TabIndex = 6;
+            this.magnificationLabel.TabIndex = 16;
             this.magnificationLabel.Visible = false;
             // 
             // magnificationUpDown
             // 
-            this.magnificationUpDown.Location = new System.Drawing.Point(106, 3);
+            this.magnificationUpDown.Location = new System.Drawing.Point(118, 158);
             this.magnificationUpDown.Minimum = new decimal(new int[] { 2, 0, 0, 0 });
             this.magnificationUpDown.Maximum = new decimal(new int[] { 8, 0, 0, 0 });
             this.magnificationUpDown.Name = "magnificationUpDown";
             this.magnificationUpDown.Size = new System.Drawing.Size(80, 20);
-            this.magnificationUpDown.TabIndex = 7;
+            this.magnificationUpDown.TabIndex = 17;
             this.magnificationUpDown.Value = new decimal(new int[] { 2, 0, 0, 0 });
             this.magnificationUpDown.Visible = false;
             // 
+            // 
             // advancedSettingsCheckBox
             // 
-            this.advancedSettingsCheckBox.AutoSize = true;
             this.advancedSettingsCheckBox.LanguageKey = "editor_obfuscate_text_advanced";
-            this.advancedSettingsCheckBox.Location = new System.Drawing.Point(8, 185);
-            this.advancedSettingsCheckBox.Margin = new System.Windows.Forms.Padding(3, 3, 3, 3);
+            this.advancedSettingsCheckBox.Location = new System.Drawing.Point(12, 190);
             this.advancedSettingsCheckBox.Name = "advancedSettingsCheckBox";
-            this.advancedSettingsCheckBox.Size = new System.Drawing.Size(115, 17);
-            this.advancedSettingsCheckBox.TabIndex = 6;
+            this.advancedSettingsCheckBox.Size = new System.Drawing.Size(200, 24);
+            this.advancedSettingsCheckBox.TabIndex = 18;
             this.advancedSettingsCheckBox.Text = "Advanced Settings";
             this.advancedSettingsCheckBox.UseVisualStyleBackColor = true;
             this.advancedSettingsCheckBox.CheckedChanged += new System.EventHandler(this.AdvancedSettingsCheckBox_CheckedChanged);
             // 
             // advancedSettingsGroupBox
             // 
-            this.advancedSettingsGroupBox.AutoSize = true;
-            this.advancedSettingsGroupBox.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.advancedSettingsGroupBox.Controls.Add(this.advancedPanel);
-            this.advancedSettingsGroupBox.Location = new System.Drawing.Point(8, 208);
-            this.advancedSettingsGroupBox.Margin = new System.Windows.Forms.Padding(3, 0, 3, 3);
+            this.advancedSettingsGroupBox.Controls.Add(this.paddingHorizontalLabel);
+            this.advancedSettingsGroupBox.Controls.Add(this.paddingHorizontalUpDown);
+            this.advancedSettingsGroupBox.Controls.Add(this.paddingVerticalLabel);
+            this.advancedSettingsGroupBox.Controls.Add(this.paddingVerticalUpDown);
+            this.advancedSettingsGroupBox.Controls.Add(this.offsetHorizontalLabel);
+            this.advancedSettingsGroupBox.Controls.Add(this.offsetHorizontalUpDown);
+            this.advancedSettingsGroupBox.Controls.Add(this.offsetVerticalLabel);
+            this.advancedSettingsGroupBox.Controls.Add(this.offsetVerticalUpDown);
+            this.advancedSettingsGroupBox.Location = new System.Drawing.Point(12, 215);
             this.advancedSettingsGroupBox.Name = "advancedSettingsGroupBox";
-            this.advancedSettingsGroupBox.Padding = new System.Windows.Forms.Padding(3, 3, 3, 6);
-            this.advancedSettingsGroupBox.Size = new System.Drawing.Size(495, 85);
-            this.advancedSettingsGroupBox.TabIndex = 7;
+            this.advancedSettingsGroupBox.Size = new System.Drawing.Size(487, 80);
+            this.advancedSettingsGroupBox.TabIndex = 19;
             this.advancedSettingsGroupBox.TabStop = false;
             this.advancedSettingsGroupBox.Text = "Positioning";
             this.advancedSettingsGroupBox.Visible = false;
             // 
-            // advancedPanel
-            // 
-            this.advancedPanel.AutoSize = true;
-            this.advancedPanel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.advancedPanel.Controls.Add(this.paddingHorizontalLabel);
-            this.advancedPanel.Controls.Add(this.paddingHorizontalUpDown);
-            this.advancedPanel.Controls.Add(this.paddingVerticalLabel);
-            this.advancedPanel.Controls.Add(this.paddingVerticalUpDown);
-            this.advancedPanel.Controls.Add(this.offsetHorizontalLabel);
-            this.advancedPanel.Controls.Add(this.offsetHorizontalUpDown);
-            this.advancedPanel.Controls.Add(this.offsetVerticalLabel);
-            this.advancedPanel.Controls.Add(this.offsetVerticalUpDown);
-            this.advancedPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.advancedPanel.Location = new System.Drawing.Point(3, 16);
-            this.advancedPanel.Name = "advancedPanel";
-            this.advancedPanel.Size = new System.Drawing.Size(489, 63);
-            this.advancedPanel.TabIndex = 0;
-            // 
             // paddingHorizontalLabel
             // 
             this.paddingHorizontalLabel.Text = "H-Padding %:";
-            this.paddingHorizontalLabel.Location = new System.Drawing.Point(0, 5);
+            this.paddingHorizontalLabel.Location = new System.Drawing.Point(10, 22);
             this.paddingHorizontalLabel.Name = "paddingHorizontalLabel";
             this.paddingHorizontalLabel.Size = new System.Drawing.Size(80, 20);
             this.paddingHorizontalLabel.TabIndex = 0;
             // 
             // paddingHorizontalUpDown
             // 
-            this.paddingHorizontalUpDown.Location = new System.Drawing.Point(86, 3);
+            this.paddingHorizontalUpDown.Location = new System.Drawing.Point(96, 20);
             this.paddingHorizontalUpDown.Minimum = new decimal(new int[] { 0, 0, 0, 0 });
             this.paddingHorizontalUpDown.Maximum = new decimal(new int[] { 200, 0, 0, 0 });
             this.paddingHorizontalUpDown.Increment = new decimal(new int[] { 5, 0, 0, 0 });
@@ -431,14 +323,14 @@ namespace Greenshot.Editor.Forms
             // paddingVerticalLabel
             // 
             this.paddingVerticalLabel.Text = "V-Padding %:";
-            this.paddingVerticalLabel.Location = new System.Drawing.Point(0, 31);
+            this.paddingVerticalLabel.Location = new System.Drawing.Point(10, 48);
             this.paddingVerticalLabel.Name = "paddingVerticalLabel";
             this.paddingVerticalLabel.Size = new System.Drawing.Size(80, 20);
             this.paddingVerticalLabel.TabIndex = 2;
             // 
             // paddingVerticalUpDown
             // 
-            this.paddingVerticalUpDown.Location = new System.Drawing.Point(86, 29);
+            this.paddingVerticalUpDown.Location = new System.Drawing.Point(96, 46);
             this.paddingVerticalUpDown.Minimum = new decimal(new int[] { 0, 0, 0, 0 });
             this.paddingVerticalUpDown.Maximum = new decimal(new int[] { 200, 0, 0, 0 });
             this.paddingVerticalUpDown.Increment = new decimal(new int[] { 5, 0, 0, 0 });
@@ -450,14 +342,14 @@ namespace Greenshot.Editor.Forms
             // offsetHorizontalLabel
             // 
             this.offsetHorizontalLabel.Text = "H-Offset px:";
-            this.offsetHorizontalLabel.Location = new System.Drawing.Point(240, 5);
+            this.offsetHorizontalLabel.Location = new System.Drawing.Point(250, 22);
             this.offsetHorizontalLabel.Name = "offsetHorizontalLabel";
             this.offsetHorizontalLabel.Size = new System.Drawing.Size(80, 20);
             this.offsetHorizontalLabel.TabIndex = 4;
             // 
             // offsetHorizontalUpDown
             // 
-            this.offsetHorizontalUpDown.Location = new System.Drawing.Point(326, 3);
+            this.offsetHorizontalUpDown.Location = new System.Drawing.Point(336, 20);
             this.offsetHorizontalUpDown.Minimum = new decimal(new int[] { 100, 0, 0, -2147483648 });
             this.offsetHorizontalUpDown.Maximum = new decimal(new int[] { 100, 0, 0, 0 });
             this.offsetHorizontalUpDown.Name = "offsetHorizontalUpDown";
@@ -468,14 +360,14 @@ namespace Greenshot.Editor.Forms
             // offsetVerticalLabel
             // 
             this.offsetVerticalLabel.Text = "V-Offset px:";
-            this.offsetVerticalLabel.Location = new System.Drawing.Point(240, 31);
+            this.offsetVerticalLabel.Location = new System.Drawing.Point(250, 48);
             this.offsetVerticalLabel.Name = "offsetVerticalLabel";
             this.offsetVerticalLabel.Size = new System.Drawing.Size(80, 20);
             this.offsetVerticalLabel.TabIndex = 6;
             // 
             // offsetVerticalUpDown
             // 
-            this.offsetVerticalUpDown.Location = new System.Drawing.Point(326, 29);
+            this.offsetVerticalUpDown.Location = new System.Drawing.Point(336, 46);
             this.offsetVerticalUpDown.Minimum = new decimal(new int[] { 100, 0, 0, -2147483648 });
             this.offsetVerticalUpDown.Maximum = new decimal(new int[] { 100, 0, 0, 0 });
             this.offsetVerticalUpDown.Name = "offsetVerticalUpDown";
@@ -483,25 +375,13 @@ namespace Greenshot.Editor.Forms
             this.offsetVerticalUpDown.TabIndex = 7;
             this.offsetVerticalUpDown.Value = new decimal(new int[] { 5, 0, 0, -2147483648 });
             // 
-            // buttonPanel
-            // 
-            this.buttonPanel.AutoSize = true;
-            this.buttonPanel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.buttonPanel.Controls.Add(this.applyButton);
-            this.buttonPanel.Controls.Add(this.cancelButton);
-            this.buttonPanel.Location = new System.Drawing.Point(8, 299);
-            this.buttonPanel.Margin = new System.Windows.Forms.Padding(3, 3, 3, 3);
-            this.buttonPanel.Name = "buttonPanel";
-            this.buttonPanel.Size = new System.Drawing.Size(495, 29);
-            this.buttonPanel.TabIndex = 8;
-            // 
             // applyButton
             // 
             this.applyButton.LanguageKey = "editor_obfuscate_text_apply";
-            this.applyButton.Location = new System.Drawing.Point(330, 0);
+            this.applyButton.Location = new System.Drawing.Point(343, 305);
             this.applyButton.Name = "applyButton";
             this.applyButton.Size = new System.Drawing.Size(75, 23);
-            this.applyButton.TabIndex = 0;
+            this.applyButton.TabIndex = 20;
             this.applyButton.UseVisualStyleBackColor = true;
             this.applyButton.Click += new System.EventHandler(this.ApplyButton_Click);
             // 
@@ -509,10 +389,10 @@ namespace Greenshot.Editor.Forms
             // 
             this.cancelButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.cancelButton.LanguageKey = "CANCEL";
-            this.cancelButton.Location = new System.Drawing.Point(411, 0);
+            this.cancelButton.Location = new System.Drawing.Point(424, 305);
             this.cancelButton.Name = "cancelButton";
             this.cancelButton.Size = new System.Drawing.Size(75, 23);
-            this.cancelButton.TabIndex = 1;
+            this.cancelButton.TabIndex = 21;
             this.cancelButton.UseVisualStyleBackColor = true;
             this.cancelButton.Click += new System.EventHandler(this.CancelButton_Click);
             // 
@@ -521,11 +401,30 @@ namespace Greenshot.Editor.Forms
             this.AcceptButton = this.applyButton;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.AutoSize = true;
-            this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.CancelButton = this.cancelButton;
-            this.ClientSize = new System.Drawing.Size(511, 300);
-            this.Controls.Add(this.mainFlowPanel);
+            this.ClientSize = new System.Drawing.Size(511, 250);
+            this.Controls.Add(this.cancelButton);
+            this.Controls.Add(this.applyButton);
+            this.Controls.Add(this.advancedSettingsGroupBox);
+            this.Controls.Add(this.advancedSettingsCheckBox);
+            this.Controls.Add(this.magnificationUpDown);
+            this.Controls.Add(this.magnificationLabel);
+            this.Controls.Add(this.highlightColorButton);
+            this.Controls.Add(this.highlightColorLabel);
+            this.Controls.Add(this.blurRadiusUpDown);
+            this.Controls.Add(this.blurRadiusLabel);
+            this.Controls.Add(this.pixelSizeUpDown);
+            this.Controls.Add(this.pixelSizeLabel);
+            this.Controls.Add(this.effectComboBox);
+            this.Controls.Add(this.effectLabel);
+            this.Controls.Add(this.matchCountLabel);
+            this.Controls.Add(this.searchScopeComboBox);
+            this.Controls.Add(this.searchScopeLabel);
+            this.Controls.Add(this.caseSensitiveCheckBox);
+            this.Controls.Add(this.regexCheckBox);
+            this.Controls.Add(this.searchButton);
+            this.Controls.Add(this.searchTextBox);
+            this.Controls.Add(this.searchLabel);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.LanguageKey = "editor_obfuscate_text_title";
             this.MaximizeBox = false;
@@ -533,18 +432,6 @@ namespace Greenshot.Editor.Forms
             this.Name = "TextObfuscationForm";
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.mainFlowPanel.ResumeLayout(false);
-            this.mainFlowPanel.PerformLayout();
-            this.searchPanel.ResumeLayout(false);
-            this.searchPanel.PerformLayout();
-            this.checkboxPanel.ResumeLayout(false);
-            this.scopePanel.ResumeLayout(false);
-            this.effectPanel.ResumeLayout(false);
-            this.effectSettingsPanel.ResumeLayout(false);
-            this.advancedSettingsGroupBox.ResumeLayout(false);
-            this.advancedSettingsGroupBox.PerformLayout();
-            this.advancedPanel.ResumeLayout(false);
-            this.buttonPanel.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pixelSizeUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.blurRadiusUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.magnificationUpDown)).EndInit();
@@ -552,28 +439,23 @@ namespace Greenshot.Editor.Forms
             ((System.ComponentModel.ISupportInitialize)(this.paddingVerticalUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.offsetHorizontalUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.offsetVerticalUpDown)).EndInit();
+            this.advancedSettingsGroupBox.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
         }
 
         #endregion
 
-        private System.Windows.Forms.FlowLayoutPanel mainFlowPanel;
-        private System.Windows.Forms.Panel searchPanel;
         private GreenshotLabel searchLabel;
         private System.Windows.Forms.TextBox searchTextBox;
         private GreenshotButton searchButton;
-        private System.Windows.Forms.Panel checkboxPanel;
         private GreenshotCheckBox regexCheckBox;
         private GreenshotCheckBox caseSensitiveCheckBox;
-        private System.Windows.Forms.Panel scopePanel;
         private GreenshotLabel searchScopeLabel;
         private System.Windows.Forms.ComboBox searchScopeComboBox;
         private GreenshotLabel matchCountLabel;
-        private System.Windows.Forms.Panel effectPanel;
         private GreenshotLabel effectLabel;
         private System.Windows.Forms.ComboBox effectComboBox;
-        private System.Windows.Forms.Panel effectSettingsPanel;
         private GreenshotLabel pixelSizeLabel;
         private System.Windows.Forms.NumericUpDown pixelSizeUpDown;
         private GreenshotLabel blurRadiusLabel;
@@ -584,7 +466,6 @@ namespace Greenshot.Editor.Forms
         private System.Windows.Forms.NumericUpDown magnificationUpDown;
         private GreenshotCheckBox advancedSettingsCheckBox;
         private System.Windows.Forms.GroupBox advancedSettingsGroupBox;
-        private System.Windows.Forms.Panel advancedPanel;
         private GreenshotLabel paddingHorizontalLabel;
         private System.Windows.Forms.NumericUpDown paddingHorizontalUpDown;
         private GreenshotLabel paddingVerticalLabel;
@@ -593,7 +474,6 @@ namespace Greenshot.Editor.Forms
         private System.Windows.Forms.NumericUpDown offsetHorizontalUpDown;
         private GreenshotLabel offsetVerticalLabel;
         private System.Windows.Forms.NumericUpDown offsetVerticalUpDown;
-        private System.Windows.Forms.Panel buttonPanel;
         private GreenshotButton applyButton;
         private GreenshotButton cancelButton;
     }

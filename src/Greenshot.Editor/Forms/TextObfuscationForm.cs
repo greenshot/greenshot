@@ -481,16 +481,7 @@ namespace Greenshot.Editor.Forms
         private void AdvancedSettingsCheckBox_CheckedChanged(object sender, EventArgs e)
         {
             advancedSettingsGroupBox.Visible = advancedSettingsCheckBox.Checked;
-            
-            // Resize form based on whether advanced settings are shown
-            if (advancedSettingsCheckBox.Checked)
-            {
-                ClientSize = new System.Drawing.Size(511, 340);  // 215 + 80 (groupbox) + 45 (buttons)
-            }
-            else
-            {
-                ClientSize = new System.Drawing.Size(511, 250);  // 190 + 30 (checkbox) + 30 (buttons)
-            }
+            // Form will auto-resize due to FlowLayoutPanel's AutoSize
         }
 
         private class EffectItem
