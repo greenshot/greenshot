@@ -28,25 +28,20 @@ using Greenshot.Base.Interfaces.Drawing;
 namespace Greenshot.Editor.Drawing
 {
     /// <summary>
-    /// Encapsulates all step label management: registration, counting, mode and group tracking.
+    /// Global singleton service that manages all step label registration, counting, mode and group tracking.
+    /// Registered via SimpleServiceProvider. Each label stores its own assigned value; this service
+    /// handles assignment and renumbering.
     /// </summary>
     public class StepLabelService : IStepLabelService
     {
         private readonly List<StepLabelContainer> _stepLabels = new List<StepLabelContainer>();
-        private readonly Action _invalidate;
-        private readonly Func<IDrawableContainer, bool> _isOnSurface;
 
         private int _counterStart = 1;
         private StepLabelMode _mode = StepLabelMode.Number;
         private int _counterGroup;
 
         public event PropertyChangedEventHandler PropertyChanged;
-
-        public StepLabelService(Action invalidate, Func<IDrawableContainer, bool> isOnSurface)
-        {
-            _invalidate = invalidate ?? throw new ArgumentNullException(nameof(invalidate));
-            _isOnSurface = isOnSurface ?? throw new ArgumentNullException(nameof(isOnSurface));
-        }
+        public event EventHandler LabelsChanged;
 
         public int CounterStart
         {
@@ -55,7 +50,7 @@ namespace Greenshot.Editor.Drawing
             {
                 if (_counterStart == value) return;
                 _counterStart = value;
-                _invalidate();
+                Renumber();
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CounterStart)));
             }
         }
@@ -67,7 +62,7 @@ namespace Greenshot.Editor.Drawing
             {
                 if (_mode == value) return;
                 _mode = value;
-                _invalidate();
+                Renumber();
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Mode)));
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(UseLetterCounter)));
             }
@@ -84,7 +79,7 @@ namespace Greenshot.Editor.Drawing
         public void ResetCounter()
         {
             _counterGroup++;
-            _invalidate();
+            Renumber();
         }
 
         public void AddStepLabel(IDrawableContainer label)
@@ -92,19 +87,21 @@ namespace Greenshot.Editor.Drawing
             if (label is StepLabelContainer sl && !_stepLabels.Contains(sl))
             {
                 _stepLabels.Add(sl);
+                Renumber();
             }
         }
 
         public void RemoveStepLabel(IDrawableContainer label)
         {
-            if (label is StepLabelContainer sl)
+            if (label is StepLabelContainer sl && _stepLabels.Remove(sl))
             {
-                _stepLabels.Remove(sl);
+                Renumber();
             }
         }
 
         /// <summary>
-        /// Count all visible step labels up to the supplied one (regardless of mode/group)
+        /// Count all registered step labels up to the supplied one (regardless of mode/group).
+        /// Used by toolbar icon count display.
         /// </summary>
         public int CountStepLabels(IDrawableContainer stopAt)
         {
@@ -112,28 +109,54 @@ namespace Greenshot.Editor.Drawing
             foreach (var sl in _stepLabels)
             {
                 if (sl.Equals(stopAt)) break;
-                if (_isOnSurface(sl)) number++;
+                number++;
             }
             return number;
         }
 
         /// <summary>
-        /// Count visible step labels of the specified mode and group, up to the supplied one
+        /// Reassign values to all registered labels based on current settings.
+        /// Groups labels by (LabelMode, CounterGroup) and assigns sequential values starting from CounterStart.
         /// </summary>
-        public int CountStepLabels(IDrawableContainer stopAt, StepLabelMode mode, int counterGroup)
+        public void Renumber()
         {
-            int number = _counterStart;
+            var counters = new Dictionary<(StepLabelMode mode, int group), int>();
+
             foreach (var sl in _stepLabels)
             {
-                if (sl.Equals(stopAt)) break;
-                if (_isOnSurface(sl) && sl.LabelMode == mode && sl.CounterGroup == counterGroup)
+                if (sl.HasFixedValue)
                 {
-                    number++;
+                    // Pasted or loaded label - keep its preserved value
+                    continue;
                 }
+
+                var key = (sl.LabelMode, sl.CounterGroup);
+                if (!counters.TryGetValue(key, out int current))
+                {
+                    current = _counterStart;
+                }
+
+                sl.AssignedValue = current;
+                counters[key] = current + 1;
             }
-            return number;
+
+            LabelsChanged?.Invoke(this, EventArgs.Empty);
         }
 
+        /// <summary>
+        /// Clear fixed-value flags on all labels so they participate in renumbering
+        /// </summary>
+        public void ClearFixedValues()
+        {
+            foreach (var sl in _stepLabels)
+            {
+                sl.HasFixedValue = false;
+            }
+        }
+
+        /// <summary>
+        /// Sort step labels by their stored number (used after deserialization to restore order)
+        /// </summary>
         public void SortByNumber()
         {
             _stepLabels.Sort((a, b) => a.Number.CompareTo(b.Number));

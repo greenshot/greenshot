@@ -27,6 +27,7 @@ using System.Runtime.Serialization;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
+using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing.Fields;
@@ -46,9 +47,11 @@ namespace Greenshot.Editor.Drawing
 
         public StepLabelContainer(ISurface parent) : base(parent)
         {
-            _isLetterMode = parent.StepLabelService.UseLetterCounter;
-            _counterGroup = parent.StepLabelService.CounterGroup;
-            parent.StepLabelService.AddStepLabel(this);
+            // Capture current mode/group but don't register yet.
+            // Registration happens when the label is placed on the surface (via AddElement → SwitchParent).
+            var service = SimpleServiceProvider.Current.GetInstance<IStepLabelService>();
+            _isLetterMode = service.UseLetterCounter;
+            _counterGroup = service.CounterGroup;
             InitContent();
             Init();
         }
@@ -61,17 +64,17 @@ namespace Greenshot.Editor.Drawing
         // Used to store the number of this label, so when deserializing it can be placed back to the StepLabels list in the right location
         private int _number;
 
-        // Used to store the counter start of the Surface, as the surface is NOT stored.
-        private int _counterStart = 1;
-
         // Whether this individual label displays as a letter (A, B, C) instead of a number
         private bool _isLetterMode;
 
         // The counter group this label belongs to (reset increments the group)
         private int _counterGroup;
 
-        // When true, use _number directly instead of dynamic counting (for cross-surface paste)
-        private bool _useFixedNumber;
+        // The current display value, assigned by StepLabelService.Renumber()
+        private int _assignedValue;
+
+        // When true, Renumber() preserves this label's value (cross-surface paste)
+        private bool _hasFixedValue;
 
         /// <summary>
         /// The step label mode for this label (derived from _isLetterMode for backward compat)
@@ -87,11 +90,22 @@ namespace Greenshot.Editor.Drawing
         }
 
         /// <summary>
-        /// Clear the fixed number flag so dynamic counting resumes (called after file load sort)
+        /// The current display value, written by StepLabelService during Renumber()
         /// </summary>
-        internal void ClearFixedNumber()
+        internal int AssignedValue
         {
-            _useFixedNumber = false;
+            get => _assignedValue;
+            set => _assignedValue = value;
+        }
+
+        /// <summary>
+        /// When true, Renumber() will skip this label and preserve its current AssignedValue.
+        /// Set during cross-surface paste or file load to keep the original number/letter.
+        /// </summary>
+        internal bool HasFixedValue
+        {
+            get => _hasFixedValue;
+            set => _hasFixedValue = value;
         }
 
         /// <summary>
@@ -101,10 +115,7 @@ namespace Greenshot.Editor.Drawing
         [OnSerializing]
         private void SetValuesOnSerializing(StreamingContext context)
         {
-            if (Parent?.StepLabelService == null) return;
-
-            Number = _useFixedNumber ? _number : Parent.StepLabelService.CountStepLabels(this, LabelMode, _counterGroup);
-            _counterStart = Parent.StepLabelService.CounterStart;
+            _number = _assignedValue;
         }
 
         /// <summary>
@@ -141,27 +152,37 @@ namespace Greenshot.Editor.Drawing
         /// <param name="newParent"></param>
         protected override void SwitchParent(ISurface newParent)
         {
+            var service = SimpleServiceProvider.Current.GetInstance<IStepLabelService>();
+            if (service == null)
+            {
+                return;
+            }
+
             if (newParent == Parent)
             {
+                // Same parent (e.g. AddElement after constructor) - ensure we're registered.
+                // Only refresh mode/group for brand new labels (not deserialized ones that have stored values)
+                if (_number == 0 && !_hasFixedValue)
+                {
+                    _isLetterMode = service.UseLetterCounter;
+                    _counterGroup = service.CounterGroup;
+                }
+                service.AddStepLabel(this);
                 return;
             }
 
-            if (newParent?.StepLabelService == null)
-            {
-                return;
-            }
-
-            bool wasDeserialized = Parent == null;
-            Parent?.StepLabelService?.RemoveStepLabel(this);
+            bool isFirstParent = Parent == null;
+            service.RemoveStepLabel(this);
             base.SwitchParent(newParent);
 
-            if (wasDeserialized && _number > 0)
+            if (isFirstParent && _number > 0)
             {
-                // Label was deserialized (paste or file load) - use its stored number directly
-                _useFixedNumber = true;
+                // Label came from clipboard or file - preserve its stored number
+                _assignedValue = _number;
+                _hasFixedValue = true;
             }
 
-            newParent.StepLabelService.AddStepLabel(this);
+            service.AddStepLabel(this);
         }
 
         public override NativeSize DefaultSize => new NativeSize(30, 30);
@@ -210,7 +231,7 @@ namespace Greenshot.Editor.Drawing
                 return;
             }
 
-            Parent?.StepLabelService?.RemoveStepLabel(this);
+            SimpleServiceProvider.Current.GetInstance<IStepLabelService>()?.RemoveStepLabel(this);
             if (_stringFormat == null)
             {
                 return;
@@ -255,8 +276,7 @@ namespace Greenshot.Editor.Drawing
             graphics.CompositingQuality = CompositingQuality.HighQuality;
             graphics.PixelOffsetMode = PixelOffsetMode.None;
             graphics.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
-            int number = _useFixedNumber ? _number : Parent.StepLabelService.CountStepLabels(this, LabelMode, _counterGroup);
-            string text = _isLetterMode ? NumberToLetter(number) : number.ToString();
+            string text = _isLetterMode ? NumberToLetter(_assignedValue) : _assignedValue.ToString();
             var rect = new NativeRect(Left, Top, Width, Height).Normalize();
             Color fillColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
             Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);

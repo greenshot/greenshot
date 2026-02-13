@@ -298,7 +298,7 @@ namespace Greenshot.Editor.Forms
             // Make sure the value is set correctly when starting
             if (Surface != null)
             {
-                counterUpDown.Value = Surface.CounterStart;
+                counterUpDown.Value = SimpleServiceProvider.Current.GetInstance<IStepLabelService>().CounterStart;
             }
 
             ApplyLanguage();
@@ -742,13 +742,14 @@ namespace Greenshot.Editor.Forms
 
         private void BtnCounterLetterToggleClick(object sender, EventArgs e)
         {
-            _surface.UseLetterCounter = !_surface.UseLetterCounter;
-            btnCounterLetterToggle.Text = _surface.UseLetterCounter ? "123" : "Abc";
+            var service = SimpleServiceProvider.Current.GetInstance<IStepLabelService>();
+            service.UseLetterCounter = !service.UseLetterCounter;
+            btnCounterLetterToggle.Text = service.UseLetterCounter ? "123" : "Abc";
         }
 
         private void BtnCounterResetClick(object sender, EventArgs e)
         {
-            _surface.ResetCounter();
+            SimpleServiceProvider.Current.GetInstance<IStepLabelService>().ResetCounter();
         }
 
         private void BtnEmojiClick(object sender, EventArgs e)
@@ -1342,7 +1343,7 @@ namespace Greenshot.Editor.Forms
             new BidirectionalBinding(obfuscateModeButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldType.PREPARED_FILTER_OBFUSCATE), "Value");
             new BidirectionalBinding(cropModeButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldType.CROPMODE), "Value");
             new BidirectionalBinding(highlightModeButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldType.PREPARED_FILTER_HIGHLIGHT), "Value");
-            new BidirectionalBinding(counterUpDown, "Value", _surface, "CounterStart", DecimalIntConverter.GetInstance(), NotNullValidator.GetInstance());
+            new BidirectionalBinding(counterUpDown, "Value", SimpleServiceProvider.Current.GetInstance<IStepLabelService>(), "CounterStart", DecimalIntConverter.GetInstance(), NotNullValidator.GetInstance());
         }
 
         /// <summary>
@@ -1376,7 +1377,7 @@ namespace Greenshot.Editor.Forms
                 btnCounterReset.Visible = isCounter;
                 if (isCounter)
                 {
-                    btnCounterLetterToggle.Text = _surface.UseLetterCounter ? "123" : "Abc";
+                    btnCounterLetterToggle.Text = SimpleServiceProvider.Current.GetInstance<IStepLabelService>().UseLetterCounter ? "123" : "Abc";
                 }
 
                 btnConfirm.Visible = btnCancel.Visible = props.HasFieldValue(FieldType.FLAGS) && ((FieldFlag) props.GetFieldValue(FieldType.FLAGS)).HasFlag(FieldFlag.CONFIRMABLE);
@@ -1407,7 +1408,7 @@ namespace Greenshot.Editor.Forms
         /// </summary>
         private void RefreshEditorControls()
         {
-            int stepLabels = _surface.CountStepLabels(null);
+            int stepLabels = SimpleServiceProvider.Current.GetInstance<IStepLabelService>().CountStepLabels(null);
             Image icon;
             if (stepLabels <= 20)
             {

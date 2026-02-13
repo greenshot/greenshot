@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System;
 using System.ComponentModel;
 using Greenshot.Base.Interfaces.Drawing;
 
@@ -32,6 +33,11 @@ namespace Greenshot.Base.Interfaces
 
     public interface IStepLabelService : INotifyPropertyChanged
     {
+        /// <summary>
+        /// Fired when label values have been reassigned (surfaces should repaint)
+        /// </summary>
+        event EventHandler LabelsChanged;
+
         /// <summary>
         /// Start value of the counter
         /// </summary>
@@ -68,14 +74,19 @@ namespace Greenshot.Base.Interfaces
         void RemoveStepLabel(IDrawableContainer label);
 
         /// <summary>
-        /// Count all visible step labels up to the supplied one
+        /// Count all registered step labels up to the supplied one
         /// </summary>
         int CountStepLabels(IDrawableContainer stopAt);
 
         /// <summary>
-        /// Count visible step labels of the specified mode and group, up to the supplied one
+        /// Reassign values to all registered labels based on current settings
         /// </summary>
-        int CountStepLabels(IDrawableContainer stopAt, StepLabelMode mode, int counterGroup);
+        void Renumber();
+
+        /// <summary>
+        /// Clear fixed-value flags on all labels so they participate in renumbering
+        /// </summary>
+        void ClearFixedValues();
 
         /// <summary>
         /// Sort step labels by their stored number (used after deserialization)
