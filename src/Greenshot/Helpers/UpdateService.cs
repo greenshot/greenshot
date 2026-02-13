@@ -156,14 +156,15 @@ namespace Greenshot.Helpers
         private async Task UpdateCheck(CancellationToken cancellationToken = default)
         {
             Log.InfoFormat("Checking for updates from {0}", UpdateFeed);
+
+            CoreConfig.LastUpdateCheck = DateTime.Now;
+            IniConfig.Save();
+
             var updateFeed = await UpdateFeed.GetAsAsync<UpdateFeed>(cancellationToken);
             if (updateFeed == null)
             {
                 return;
             }
-
-            CoreConfig.LastUpdateCheck = DateTime.Now;
-            IniConfig.Save();
 
             ProcessFeed(updateFeed);
 
