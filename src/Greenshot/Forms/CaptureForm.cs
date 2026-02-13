@@ -381,7 +381,7 @@ namespace Greenshot.Forms
                     _captureMode = CaptureMode.Text;
                     if (_capture.CaptureDetails.OcrInformation is null)
                     {
-                        var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>(isOptional: true);
+                        var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>();
                         if (ocrProvider != null)
                         {
                             var uiTaskScheduler = SimpleServiceProvider.Current.GetInstance<TaskScheduler>();
