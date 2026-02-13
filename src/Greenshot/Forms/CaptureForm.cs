@@ -167,14 +167,18 @@ namespace Greenshot.Forms
 
             _currentForm = this;
 
-            // Enable the AnimatingForm
-            EnableAnimation = true;
-
             // clean up
             FormClosed += ClosedHandler;
             _capture = capture;
             _windows = windows;
             _captureMode = capture.CaptureDetails.CaptureMode;
+
+            // Set cursor location before enabling animations to avoid race condition
+            _cursorPos = WindowCapture.GetCursorLocationRelativeToScreenBounds();
+            _mouseMovePos = _cursorPos;
+
+            // Enable the AnimatingForm
+            EnableAnimation = true;
 
             //
             // The InitializeComponent() call is required for Windows Forms designer support.
@@ -1062,8 +1066,8 @@ namespace Greenshot.Forms
                     Size measureHeight = TextRenderer.MeasureText(captureHeight, rulerFont);
                     int hSpace = measureWidth.Width + 3;
                     int vSpace = measureHeight.Height + 3;
-                    Brush bgBrush = new SolidBrush(Color.FromArgb(200, 217, 240, 227));
-                    Pen rulerPen = new Pen(Color.SeaGreen);
+                    using Brush bgBrush = new SolidBrush(Color.FromArgb(200, 217, 240, 227));
+                    using Pen rulerPen = new Pen(Color.SeaGreen);
 
                     // horizontal ruler
                     if (fixedRect.Width > hSpace + 3)
@@ -1100,9 +1104,6 @@ namespace Greenshot.Forms
                         graphics.DrawLine(rulerPen, fixedRect.X - dist - 3, fixedRect.Y, fixedRect.X - dist + 3, fixedRect.Y);
                         graphics.DrawLine(rulerPen, fixedRect.X - dist - 3, fixedRect.Y + fixedRect.Height, fixedRect.X - dist + 3, fixedRect.Y + fixedRect.Height);
                     }
-
-                    rulerPen.Dispose();
-                    bgBrush.Dispose();
                 }
 
                 // Display size of selected rectangle
