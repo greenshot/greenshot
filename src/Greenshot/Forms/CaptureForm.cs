@@ -167,14 +167,18 @@ namespace Greenshot.Forms
 
             _currentForm = this;
 
-            // Enable the AnimatingForm
-            EnableAnimation = true;
-
             // clean up
             FormClosed += ClosedHandler;
             _capture = capture;
             _windows = windows;
             _captureMode = capture.CaptureDetails.CaptureMode;
+
+            // Set cursor location before enabling animations to avoid race condition
+            _cursorPos = WindowCapture.GetCursorLocationRelativeToScreenBounds();
+            _mouseMovePos = _cursorPos;
+
+            // Enable the AnimatingForm
+            EnableAnimation = true;
 
             //
             // The InitializeComponent() call is required for Windows Forms designer support.

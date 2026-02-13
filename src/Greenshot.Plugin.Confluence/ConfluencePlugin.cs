@@ -28,142 +28,141 @@ using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Plugin.Confluence.Forms;
 using Greenshot.Plugin.Confluence.Support;
 
-namespace Greenshot.Plugin.Confluence
+namespace Greenshot.Plugin.Confluence;
+
+/// <summary>
+/// This is the ConfluencePlugin base code
+/// </summary>
+public class ConfluencePlugin : IGreenshotPlugin
 {
-    /// <summary>
-    /// This is the ConfluencePlugin base code
-    /// </summary>
-    public class ConfluencePlugin : IGreenshotPlugin
+    private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluencePlugin));
+    private static ConfluenceConnector _confluenceConnector;
+    private static ConfluenceConfiguration _config;
+
+    public void Dispose()
     {
-        private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluencePlugin));
-        private static ConfluenceConnector _confluenceConnector;
-        private static ConfluenceConfiguration _config;
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
 
-        public void Dispose()
+    private void Dispose(bool disposing)
+    {
+        //if (disposing) {}
+    }
+
+    /// <summary>
+    /// Name of the plugin
+    /// </summary>
+    public string Name => "Confluence";
+
+    /// <summary>
+    /// Specifies if the plugin can be configured
+    /// </summary>
+    public bool IsConfigurable => true;
+
+    private static void CreateConfluenceConnector()
+    {
+        if (_confluenceConnector == null)
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            _confluenceConnector = new ConfluenceConnector(_config.Url, _config.Timeout);
         }
+    }
 
-        private void Dispose(bool disposing)
-        {
-            //if (disposing) {}
-        }
+    public static ConfluenceConnector ConfluenceConnectorNoLogin
+    {
+        get { return _confluenceConnector; }
+    }
 
-        /// <summary>
-        /// Name of the plugin
-        /// </summary>
-        public string Name => "Confluence";
-
-        /// <summary>
-        /// Specifies if the plugin can be configured
-        /// </summary>
-        public bool IsConfigurable => true;
-
-        private static void CreateConfluenceConnector()
+    public static ConfluenceConnector ConfluenceConnector
+    {
+        get
         {
             if (_confluenceConnector == null)
             {
-                _confluenceConnector = new ConfluenceConnector(_config.Url, _config.Timeout);
-            }
-        }
-
-        public static ConfluenceConnector ConfluenceConnectorNoLogin
-        {
-            get { return _confluenceConnector; }
-        }
-
-        public static ConfluenceConnector ConfluenceConnector
-        {
-            get
-            {
-                if (_confluenceConnector == null)
-                {
-                    CreateConfluenceConnector();
-                }
-
-                try
-                {
-                    if (_confluenceConnector != null && !_confluenceConnector.IsLoggedIn)
-                    {
-                        _confluenceConnector.Login();
-                    }
-                }
-                catch (Exception e)
-                {
-                    MessageBox.Show(Language.GetFormattedString("confluence", LangKey.login_error, e.Message));
-                }
-
-                return _confluenceConnector;
-            }
-        }
-
-        /// <summary>
-        /// Implementation of the IGreenshotPlugin.Initialize
-        /// </summary>
-        public bool Initialize()
-        {
-            // Register configuration (don't need the configuration itself)
-            _config = IniConfig.GetIniSection<ConfluenceConfiguration>();
-            if (_config.IsDirty)
-            {
-                IniConfig.Save();
+                CreateConfluenceConnector();
             }
 
             try
             {
-                TranslationManager.Instance.TranslationProvider = new LanguageXMLTranslationProvider();
-                //resources = new ComponentResourceManager(typeof(ConfluencePlugin));
+                if (_confluenceConnector != null && !_confluenceConnector.IsLoggedIn)
+                {
+                    _confluenceConnector.Login();
+                }
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                LOG.ErrorFormat("Problem in ConfluencePlugin.Initialize: {0}", ex.Message);
-                return false;
+                MessageBox.Show(Language.GetFormattedString("confluence", LangKey.login_error, e.Message));
             }
 
-            if (ConfluenceDestination.IsInitialized)
-            {
-                SimpleServiceProvider.Current.AddService<IDestination>(new ConfluenceDestination());
-            }
+            return _confluenceConnector;
+        }
+    }
 
-            return true;
+    /// <summary>
+    /// Implementation of the IGreenshotPlugin.Initialize
+    /// </summary>
+    public bool Initialize()
+    {
+        // Register configuration (don't need the configuration itself)
+        _config = IniConfig.GetIniSection<ConfluenceConfiguration>();
+        if (_config.IsDirty)
+        {
+            IniConfig.Save();
         }
 
-        public void Shutdown()
+        try
         {
-            LOG.Debug("Confluence Plugin shutdown.");
+            TranslationManager.Instance.TranslationProvider = new LanguageXMLTranslationProvider();
+            //resources = new ComponentResourceManager(typeof(ConfluencePlugin));
+        }
+        catch (Exception ex)
+        {
+            LOG.ErrorFormat("Problem in ConfluencePlugin.Initialize: {0}", ex.Message);
+            return false;
+        }
+
+        if (ConfluenceDestination.IsInitialized)
+        {
+            SimpleServiceProvider.Current.AddService<IDestination>(new ConfluenceDestination());
+        }
+
+        return true;
+    }
+
+    public void Shutdown()
+    {
+        LOG.Debug("Confluence Plugin shutdown.");
+        if (_confluenceConnector != null)
+        {
+            _confluenceConnector.Logout();
+            _confluenceConnector = null;
+        }
+    }
+
+    /// <summary>
+    /// Implementation of the IPlugin.Configure
+    /// </summary>
+    public void Configure()
+    {
+        ConfluenceConfiguration clonedConfig = _config.Clone();
+        ConfluenceConfigurationForm configForm = new ConfluenceConfigurationForm(clonedConfig);
+        string url = _config.Url;
+        bool? dialogResult = configForm.ShowDialog();
+        if (dialogResult.HasValue && dialogResult.Value)
+        {
+            // copy the new object to the old...
+            clonedConfig.CloneTo(_config);
+            IniConfig.Save();
             if (_confluenceConnector != null)
             {
-                _confluenceConnector.Logout();
-                _confluenceConnector = null;
-            }
-        }
-
-        /// <summary>
-        /// Implementation of the IPlugin.Configure
-        /// </summary>
-        public void Configure()
-        {
-            ConfluenceConfiguration clonedConfig = _config.Clone();
-            ConfluenceConfigurationForm configForm = new ConfluenceConfigurationForm(clonedConfig);
-            string url = _config.Url;
-            bool? dialogResult = configForm.ShowDialog();
-            if (dialogResult.HasValue && dialogResult.Value)
-            {
-                // copy the new object to the old...
-                clonedConfig.CloneTo(_config);
-                IniConfig.Save();
-                if (_confluenceConnector != null)
+                if (!url.Equals(_config.Url))
                 {
-                    if (!url.Equals(_config.Url))
+                    if (_confluenceConnector.IsLoggedIn)
                     {
-                        if (_confluenceConnector.IsLoggedIn)
-                        {
-                            _confluenceConnector.Logout();
-                        }
-
-                        _confluenceConnector = null;
+                        _confluenceConnector.Logout();
                     }
+
+                    _confluenceConnector = null;
                 }
             }
         }

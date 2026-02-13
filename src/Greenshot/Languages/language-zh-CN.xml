@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <language description="简体中文" ietf="zh-CN" version="1.1.2.2572" languagegroup="1">
 	<resources>
 		<resource name="about_bugs">如果发现任何错误，请到以下网址报告</resource>
@@ -125,12 +125,30 @@
 		<resource name="editor_obfuscate_blur">模糊效果</resource>
 		<resource name="editor_obfuscate_mode">模糊模式</resource>
 		<resource name="editor_obfuscate_pixelize">马赛克效果</resource>
+		<resource name="editor_obfuscate_text">隐藏文本...</resource>
+		<resource name="editor_obfuscate_text_title">隐藏文本</resource>
+		<resource name="editor_obfuscate_text_search">搜索:</resource>
+		<resource name="editor_obfuscate_text_search_button">搜索</resource>
+		<resource name="editor_obfuscate_text_regex">使用正则表达式</resource>
+		<resource name="editor_obfuscate_text_case_sensitive">区分大小写</resource>
+		<resource name="editor_obfuscate_text_auto_search">自动搜索</resource>
+		<resource name="editor_obfuscate_text_search_scope">搜索范围:</resource>
+		<resource name="editor_obfuscate_text_scope_words">单词</resource>
+		<resource name="editor_obfuscate_text_scope_lines">行</resource>
+		<resource name="editor_obfuscate_text_matches">找到匹配项: {0}</resource>
+		<resource name="editor_obfuscate_text_apply">应用</resource>
+		<resource name="editor_obfuscate_text_error">错误</resource>
+		<resource name="editor_obfuscate_text_no_capture">没有可用的捕获</resource>
+		<resource name="editor_obfuscate_text_no_ocr_provider">OCR提供程序不可用</resource>
+		<resource name="editor_obfuscate_text_ocr_failed">OCR失败</resource>
+		<resource name="editor_obfuscate_text_no_text">图像中未找到文本</resource>
 		<resource name="editor_object">物件</resource>
 		<resource name="editor_opendirinexplorer">在Windows资源管理器中打开路径</resource>
 		<resource name="editor_pastefromclipboard">粘贴</resource>
 		<resource name="editor_pixel_size">像素大小</resource>
 		<resource name="editor_preview_quality">预览质量</resource>
 		<resource name="editor_print">打印</resource>
+		<resource name="editor_remove_transparency">移除透明度</resource>
 		<resource name="editor_redo">重作{0}</resource>
 		<resource name="editor_resetsize">重置尺寸</resource>
 		<resource name="editor_rotateccw">逆时针旋转（Ctrl + ,）</resource>
@@ -215,7 +233,7 @@
 		<resource name="settings_destination_email">使用E-Mail发送</resource>
 		<resource name="settings_destination_file">直接保存而不询问 （使用以下设置）</resource>
 		<resource name="settings_destination_fileas">另存到（显示对话框）</resource>
-		<resource name="settings_destination_picker">动态选择保存位置</resource>
+		<resource name="settings_destination_picker">每次询问保存位置</resource>
 		<resource name="settings_destination_printer">打印图片</resource>
 		<resource name="settings_editor">编辑器</resource>
 		<resource name="settings_filenamepattern">文件名格式</resource>

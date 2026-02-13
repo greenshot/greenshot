@@ -21,7 +21,7 @@
 
 using Greenshot.Base.Controls;
 
-namespace Greenshot.Plugin.Jira.Forms {
+namespace Greenshot.Plugin.Jira.Forms; 
 	partial class SettingsForm {
 		/// <summary>
 		/// Designer variable used to keep track of non-visual components.
@@ -146,4 +146,3 @@ namespace Greenshot.Plugin.Jira.Forms {
 		private GreenshotButton buttonCancel;
 		private GreenshotButton buttonOK;
 	}
-}
