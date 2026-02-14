@@ -21,23 +21,22 @@
 
 using Dapplo.Confluence.Entities;
 
-namespace Greenshot.Plugin.Confluence.Entities
-{
-    public class Page
-    {
-        public Page(Content content)
-        {
-            Id = content.Id;
-            Title = content.Title;
-            SpaceKey = content.Space?.Key;
-            Url = content.Links?.WebUi;
-            Content = content.Body?.Storage?.Value;
-        }
+namespace Greenshot.Plugin.Confluence.Entities;
 
-        public long Id { get; set; }
-        public string Title { get; set; }
-        public string Url { get; set; }
-        public string Content { get; set; }
-        public string SpaceKey { get; set; }
+public class Page
+{
+    public Page(Content content)
+    {
+        Id = content.Id;
+        Title = content.Title;
+        SpaceKey = content.Space?.Key;
+        Url = content.Links?.WebUi;
+        Content = content.Body?.Storage?.Value;
     }
+
+    public long Id { get; set; }
+    public string Title { get; set; }
+    public string Url { get; set; }
+    public string Content { get; set; }
+    public string SpaceKey { get; set; }
 }

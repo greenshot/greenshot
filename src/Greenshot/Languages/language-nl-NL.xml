@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <language description="Nederlands" ietf="nl-NL" version="1.0.4" languagegroup="1">
 	<resources>
 		<resource name="about_bugs">Meld problemen bij</resource>
@@ -131,12 +131,30 @@ Controleer ook even of dit probleem mogelijk al gemeld is! Gebruik de zoekfuncti
 		<resource name="editor_obfuscate_blur">Vervagen</resource>
 		<resource name="editor_obfuscate_mode">Maskeringswijze</resource>
 		<resource name="editor_obfuscate_pixelize">Pixeleren</resource>
+		<resource name="editor_obfuscate_text">Tekst verbergen...</resource>
+		<resource name="editor_obfuscate_text_title">Tekst verbergen</resource>
+		<resource name="editor_obfuscate_text_search">Zoeken naar:</resource>
+		<resource name="editor_obfuscate_text_search_button">Zoeken</resource>
+		<resource name="editor_obfuscate_text_regex">Reguliere expressie gebruiken</resource>
+		<resource name="editor_obfuscate_text_case_sensitive">Hoofdlettergevoelig</resource>
+		<resource name="editor_obfuscate_text_auto_search">Automatisch zoeken</resource>
+		<resource name="editor_obfuscate_text_search_scope">Zoeken in:</resource>
+		<resource name="editor_obfuscate_text_scope_words">Woorden</resource>
+		<resource name="editor_obfuscate_text_scope_lines">Regels</resource>
+		<resource name="editor_obfuscate_text_matches">Overeenkomsten gevonden: {0}</resource>
+		<resource name="editor_obfuscate_text_apply">Toepassen</resource>
+		<resource name="editor_obfuscate_text_error">Fout</resource>
+		<resource name="editor_obfuscate_text_no_capture">Geen opname beschikbaar</resource>
+		<resource name="editor_obfuscate_text_no_ocr_provider">OCR-provider niet beschikbaar</resource>
+		<resource name="editor_obfuscate_text_ocr_failed">OCR mislukt</resource>
+		<resource name="editor_obfuscate_text_no_text">Geen tekst gevonden in afbeelding</resource>
 		<resource name="editor_object">Object</resource>
 		<resource name="editor_opendirinexplorer">Map met Windows Verkenner openen</resource>
 		<resource name="editor_pastefromclipboard">Plakken</resource>
 		<resource name="editor_pixel_size">Pixelgrootte</resource>
 		<resource name="editor_preview_quality">Kwaliteit voorbeeld</resource>
 		<resource name="editor_print">Afdrukken</resource>
+		<resource name="editor_remove_transparency">Transparantie verwijderen</resource>
 		<resource name="editor_redo">Opnieuw {0}</resource>
 		<resource name="editor_resetsize">Afmetingen herstellen</resource>
 		<resource name="editor_resize_percent">Procent</resource>
@@ -218,7 +236,7 @@ Controleer de toegangsrechten voor de betreffende locatie.</resource>
 		<resource name="settings_destination_email">E-mail</resource>
 		<resource name="settings_destination_file">Direct opslaan (Onderstaande instellingen gebruiken)</resource>
 		<resource name="settings_destination_fileas">Opslaan als… (via dialoog)</resource>
-		<resource name="settings_destination_picker">Bestemming interactief selecteren</resource>
+		<resource name="settings_destination_picker">Elke keer om bestemming vragen</resource>
 		<resource name="settings_destination_printer">Naar printer</resource>
 		<resource name="settings_editor">Beeldbewerker</resource>
 		<resource name="settings_filenamepattern">Bestandsnaam</resource>

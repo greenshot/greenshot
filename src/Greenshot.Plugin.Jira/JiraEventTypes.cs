@@ -19,11 +19,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace Greenshot.Plugin.Jira
+namespace Greenshot.Plugin.Jira;
+
+public enum JiraEventTypes
 {
-    public enum JiraEventTypes
-    {
-        OrderChanged,
-        DetectedNewJiraIssue
-    }
+    OrderChanged,
+    DetectedNewJiraIssue
 }

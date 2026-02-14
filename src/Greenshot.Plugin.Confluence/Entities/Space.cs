@@ -21,17 +21,16 @@
 
 using DapploSpace = Dapplo.Confluence.Entities.Space;
 
-namespace Greenshot.Plugin.Confluence.Entities
-{
-    public class Space
-    {
-        public Space(DapploSpace space)
-        {
-            Key = space.Key;
-            Name = space.Name;
-        }
+namespace Greenshot.Plugin.Confluence.Entities;
 
-        public string Key { get; set; }
-        public string Name { get; set; }
+public class Space
+{
+    public Space(DapploSpace space)
+    {
+        Key = space.Key;
+        Name = space.Name;
     }
+
+    public string Key { get; set; }
+    public string Name { get; set; }
 }

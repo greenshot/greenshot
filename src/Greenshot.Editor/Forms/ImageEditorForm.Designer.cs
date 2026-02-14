@@ -81,6 +81,7 @@ namespace Greenshot.Editor.Forms
 			this.tornEdgesToolStripMenuItem = new GreenshotToolStripMenuItem();
 			this.grayscaleToolStripMenuItem = new GreenshotToolStripMenuItem();
 			this.invertToolStripMenuItem = new GreenshotToolStripMenuItem();
+			this.removeTransparencyToolStripMenuItem = new GreenshotToolStripMenuItem();
 			this.btnResize = new GreenshotToolStripButton();
 			this.toolStripSeparator13 = new System.Windows.Forms.ToolStripSeparator();
 			this.btnCrop = new GreenshotToolStripButton();
@@ -101,6 +102,7 @@ namespace Greenshot.Editor.Forms
 			this.preferencesToolStripMenuItem = new GreenshotToolStripMenuItem();
 			this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
 			this.insert_window_toolstripmenuitem = new GreenshotToolStripMenuItem();
+			this.obfuscateTextToolStripMenuItem = new GreenshotToolStripMenuItem();
 			this.objectToolStripMenuItem = new GreenshotToolStripMenuItem();
 			this.addRectangleToolStripMenuItem = new GreenshotToolStripMenuItem();
 			this.addEllipseToolStripMenuItem = new GreenshotToolStripMenuItem();
@@ -493,12 +495,15 @@ namespace Greenshot.Editor.Forms
 									this.addDropshadowToolStripMenuItem,
 									this.tornEdgesToolStripMenuItem,
 									this.grayscaleToolStripMenuItem,
-									this.invertToolStripMenuItem});
+									this.invertToolStripMenuItem,
+									this.removeTransparencyToolStripMenuItem,
+									this.obfuscateTextToolStripMenuItem
+									});
 			this.toolStripSplitButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripSplitButton1.Image")));
 			this.toolStripSplitButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.toolStripSplitButton1.LanguageKey = "editor_effects";
 			this.toolStripSplitButton1.Name = "toolStripSplitButton1";
-			this.toolStripSplitButton1.ShowDropDownArrow = false;
+			this.toolStripSplitButton1.ShowDropDownArrow = true;
 			this.toolStripSplitButton1.Text = "toolStripSplitButton1";
 			// 
 			// addBorderToolStripMenuItem
@@ -530,6 +535,12 @@ namespace Greenshot.Editor.Forms
 			this.invertToolStripMenuItem.LanguageKey = "editor_invert";
 			this.invertToolStripMenuItem.Name = "invertToolStripMenuItem";
 			this.invertToolStripMenuItem.Click += new System.EventHandler(this.InvertToolStripMenuItemClick);
+			// 
+			// removeTransparencyToolStripMenuItem
+			// 
+			this.removeTransparencyToolStripMenuItem.LanguageKey = "editor_remove_transparency";
+			this.removeTransparencyToolStripMenuItem.Name = "removeTransparencyToolStripMenuItem";
+			this.removeTransparencyToolStripMenuItem.Click += new System.EventHandler(this.RemoveTransparencyToolStripMenuItemClick);
 			// 
 			// btnResize
 			// 
@@ -700,6 +711,12 @@ namespace Greenshot.Editor.Forms
 			this.insert_window_toolstripmenuitem.LanguageKey = "editor_insertwindow";
 			this.insert_window_toolstripmenuitem.Name = "insert_window_toolstripmenuitem";
 			this.insert_window_toolstripmenuitem.MouseEnter += new System.EventHandler(this.Insert_window_toolstripmenuitemMouseEnter);
+			// 
+			// obfuscateTextToolStripMenuItem
+			// 
+			this.obfuscateTextToolStripMenuItem.LanguageKey = "editor_obfuscate_text";
+			this.obfuscateTextToolStripMenuItem.Name = "obfuscateTextToolStripMenuItem";
+			this.obfuscateTextToolStripMenuItem.Click += new System.EventHandler(this.ObfuscateTextToolStripMenuItemClick);
 			// 
 			// objectToolStripMenuItem
 			// 
@@ -1928,7 +1945,8 @@ namespace Greenshot.Editor.Forms
 			this.fileSavedStatusContextMenu.ResumeLayout(true);
 			this.ResumeLayout(false);
 		}
-		private GreenshotToolStripMenuItem alignRightToolStripMenuItem;
+
+        private GreenshotToolStripMenuItem alignRightToolStripMenuItem;
 		private GreenshotToolStripMenuItem alignCenterToolStripMenuItem;
 		private GreenshotToolStripMenuItem alignLeftToolStripMenuItem;
 		private BindableToolStripDropDownButton textHorizontalAlignmentButton;
@@ -1937,6 +1955,7 @@ namespace Greenshot.Editor.Forms
 		private GreenshotToolStripMenuItem alignTopToolStripMenuItem;
 		private BindableToolStripDropDownButton textVerticalAlignmentButton;
 		private GreenshotToolStripMenuItem invertToolStripMenuItem;
+		private GreenshotToolStripMenuItem removeTransparencyToolStripMenuItem;
 		private GreenshotToolStripButton btnResize;
 		private GreenshotToolStripMenuItem grayscaleToolStripMenuItem;
 		private GreenshotToolStripButton rotateCcwToolstripButton;
@@ -2050,6 +2069,7 @@ namespace Greenshot.Editor.Forms
 		private GreenshotToolStripMenuItem addEllipseToolStripMenuItem;
 		private GreenshotToolStripMenuItem addRectangleToolStripMenuItem;
 		private GreenshotToolStripMenuItem objectToolStripMenuItem;
+		private GreenshotToolStripMenuItem obfuscateTextToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem undoToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem redoToolStripMenuItem;
 		private GreenshotToolStripMenuItem pasteToolStripMenuItem;

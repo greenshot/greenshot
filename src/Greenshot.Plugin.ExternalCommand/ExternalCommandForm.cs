@@ -21,12 +21,11 @@
 
 using Greenshot.Base.Controls;
 
-namespace Greenshot.Plugin.ExternalCommand
+namespace Greenshot.Plugin.ExternalCommand;
+
+/// <summary>
+/// This class is needed for design-time resolving of the language files
+/// </summary>
+public class ExternalCommandForm : GreenshotForm
 {
-    /// <summary>
-    /// This class is needed for design-time resolving of the language files
-    /// </summary>
-    public class ExternalCommandForm : GreenshotForm
-    {
-    }
 }
