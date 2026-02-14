@@ -111,10 +111,21 @@ namespace Greenshot.Helpers
                 {
                     var interval = intervalFactory();
                     var task = reoccurringTask;
-                    // If the check is disabled, handle that here
-                    if (TimeSpan.Zero == interval)
+
+                    // If we have an invalid interval
+                    if (interval.TotalSeconds < 0)
                     {
-                        interval = TimeSpan.FromMinutes(10);
+                        // Just wait for 10 minutes, maybe the configuration will change
+                        interval = TimeSpan.FromDays(1);
+                    }
+
+                    // If the check is disabled, handle that here
+                    var checkIsDisabled = TimeSpan.Zero == interval;
+                    var nextCheckIsInTheFuture = CoreConfig.LastUpdateCheck.Add(interval) > DateTime.Now;
+                    if (checkIsDisabled || nextCheckIsInTheFuture)
+                    {
+                        // Just wait for one day, maybe the configuration will change
+                        interval = TimeSpan.FromDays(1);
                         task = c => Task.FromResult(true);
                     }
 
@@ -129,7 +140,8 @@ namespace Greenshot.Helpers
 
                     try
                     {
-                        await Task.Delay(interval, cancellationToken).ConfigureAwait(false);
+                        // Use duration to get an absolute time and can't be negative.
+                        await Task.Delay(interval.Duration(), cancellationToken).ConfigureAwait(false);
                     }
                     catch (TaskCanceledException)
                     {
@@ -137,7 +149,9 @@ namespace Greenshot.Helpers
                     }
                     catch (Exception ex)
                     {
-                        Log.Error("Error occurred await for the next update check.", ex);
+                        Log.Error("Error occurred await for the background task delay.", ex);
+                        // Safety pause, to avoid a potential tight loop if something is really wrong with the configuration or the update feed.
+                        await Task.Delay(TimeSpan.FromDays(1), cancellationToken).ConfigureAwait(false);
                     }
                 }
             }, cancellationToken).ConfigureAwait(false);
