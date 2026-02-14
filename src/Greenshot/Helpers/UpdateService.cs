@@ -116,16 +116,10 @@ namespace Greenshot.Helpers
                     var checkIsDisabled = TimeSpan.Zero == interval;
                     var nextCheckIsInTheFuture = CoreConfig.LastUpdateCheck.Add(interval) > DateTime.Now;
 
-                    if (interval.TotalSeconds < 0)
-                    {
-                        // Just to be sure, if the interval is set to something really low, we will just check every 10 minutes
-                        interval = TimeSpan.FromMinutes(10);
-                    }
-
-                    if (checkIsDisabled || nextCheckIsInTheFuture)
+                    if (interval.TotalSeconds < 0 || checkIsDisabled || nextCheckIsInTheFuture)
                     {
                         // Just wait for 10 minutes, maybe the configuration will change
-                        interval = TimeSpan.FromMinutes(10);
+                        interval = TimeSpan.FromDays(1);
                         task = c => Task.FromResult(true);
                     }
 
@@ -151,7 +145,7 @@ namespace Greenshot.Helpers
                     {
                         Log.Error("Error occurred await for the next background interval check.", ex);
                         // Safety pause, to avoid a potential tight loop if something is really wrong with the configuration or the update feed.
-                        await Task.Delay(TimeSpan.FromMinutes(10), cancellationToken).ConfigureAwait(false);
+                        await Task.Delay(TimeSpan.FromDays(1), cancellationToken).ConfigureAwait(false);
                     }
                 }
             }, cancellationToken).ConfigureAwait(false);
