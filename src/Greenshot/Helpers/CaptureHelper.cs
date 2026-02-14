@@ -983,9 +983,12 @@ namespace Greenshot.Helpers
                 Log.InfoFormat("Capturing window with mode {0}", windowCaptureMode);
                 bool captureTaken = false;
                 windowRectangle = windowRectangle.Intersect(captureForWindow.ScreenBounds);
-                // Try to capture
-                while (!captureTaken)
+                // Try to capture, with a safety limit to prevent infinite mode-switching loops
+                int captureAttempts = 0;
+                const int maxCaptureAttempts = 5;
+                while (!captureTaken && captureAttempts < maxCaptureAttempts)
                 {
+                    captureAttempts++;
                     ICapture tmpCapture = null;
                     switch (windowCaptureMode)
                     {
@@ -1111,6 +1114,11 @@ namespace Greenshot.Helpers
 
                             break;
                     }
+                }
+
+                if (!captureTaken)
+                {
+                    Log.Warn("Failed to capture window after maximum attempts, all capture modes exhausted.");
                 }
             }
 
