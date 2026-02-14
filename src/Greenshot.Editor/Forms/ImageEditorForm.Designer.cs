@@ -1256,7 +1256,7 @@ namespace Greenshot.Editor.Forms
 			this.btnCounterLetterToggle.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
 			this.btnCounterLetterToggle.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
 			this.btnCounterLetterToggle.Name = "btnCounterLetterToggle";
-			this.btnCounterLetterToggle.Text = "Abc";
+			this.btnCounterLetterToggle.Text = "123";
 			this.btnCounterLetterToggle.ToolTipText = "Toggle between numbers and letters";
 			this.btnCounterLetterToggle.Click += new System.EventHandler(this.BtnCounterLetterToggleClick);
 			//

@@ -744,7 +744,9 @@ namespace Greenshot.Editor.Forms
         {
             var service = SimpleServiceProvider.Current.GetInstance<IStepLabelService>();
             service.UseLetterCounter = !service.UseLetterCounter;
-            btnCounterLetterToggle.Text = service.UseLetterCounter ? "123" : "Abc";
+            btnCounterLetterToggle.Text = service.UseLetterCounter ? "Abc" : "123";
+            // Letter mode requires minimum 1 (A); number mode allows 0
+            counterUpDown.Minimum = service.UseLetterCounter ? 1 : 0;
         }
 
         private void BtnCounterResetClick(object sender, EventArgs e)
@@ -1377,7 +1379,9 @@ namespace Greenshot.Editor.Forms
                 btnCounterReset.Visible = isCounter;
                 if (isCounter)
                 {
-                    btnCounterLetterToggle.Text = SimpleServiceProvider.Current.GetInstance<IStepLabelService>().UseLetterCounter ? "123" : "Abc";
+                    var svc = SimpleServiceProvider.Current.GetInstance<IStepLabelService>();
+                    btnCounterLetterToggle.Text = svc.UseLetterCounter ? "Abc" : "123";
+                    counterUpDown.Minimum = svc.UseLetterCounter ? 1 : 0;
                 }
 
                 btnConfirm.Visible = btnCancel.Visible = props.HasFieldValue(FieldType.FLAGS) && ((FieldFlag) props.GetFieldValue(FieldType.FLAGS)).HasFlag(FieldFlag.CONFIRMABLE);

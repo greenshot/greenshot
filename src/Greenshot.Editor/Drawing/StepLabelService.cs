@@ -36,23 +36,39 @@ namespace Greenshot.Editor.Drawing
     {
         private readonly List<StepLabelContainer> _stepLabels = new List<StepLabelContainer>();
 
-        private int _counterStart = 1;
+        // Per-(mode, group) counter start values
+        private readonly Dictionary<(StepLabelMode mode, int group), int> _counterStarts = new Dictionary<(StepLabelMode mode, int group), int>();
+
         private StepLabelMode _mode = StepLabelMode.Number;
         private int _counterGroup;
 
         public event PropertyChangedEventHandler PropertyChanged;
         public event EventHandler LabelsChanged;
 
+        /// <summary>
+        /// Get/set the counter start for the currently active (mode, group).
+        /// </summary>
         public int CounterStart
         {
-            get => _counterStart;
+            get => GetCounterStart(_mode, _counterGroup);
             set
             {
-                if (_counterStart == value) return;
-                _counterStart = value;
+                // Letter mode requires minimum 1 (NumberToLetter is 1-based: 1=A, 2=B, ...)
+                if (_mode == StepLabelMode.Letter && value < 1) value = 1;
+                if (CounterStart == value) return;
+                _counterStarts[(_mode, _counterGroup)] = value;
                 Renumber();
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CounterStart)));
             }
+        }
+
+        /// <summary>
+        /// Get the counter start for a specific (mode, group) combination.
+        /// Defaults to 1 if not explicitly set.
+        /// </summary>
+        private int GetCounterStart(StepLabelMode mode, int group)
+        {
+            return _counterStarts.TryGetValue((mode, group), out int start) ? start : 1;
         }
 
         public StepLabelMode Mode
@@ -65,6 +81,8 @@ namespace Greenshot.Editor.Drawing
                 Renumber();
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Mode)));
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(UseLetterCounter)));
+                // Toolbar binding needs to update to show the new group's counter start
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CounterStart)));
             }
         }
 
@@ -80,6 +98,8 @@ namespace Greenshot.Editor.Drawing
         {
             _counterGroup++;
             Renumber();
+            // New group defaults to start=1, update toolbar binding
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CounterStart)));
         }
 
         public void AddStepLabel(IDrawableContainer label)
@@ -133,7 +153,7 @@ namespace Greenshot.Editor.Drawing
                 var key = (sl.LabelMode, sl.CounterGroup);
                 if (!counters.TryGetValue(key, out int current))
                 {
-                    current = _counterStart;
+                    current = GetCounterStart(key.mode, key.group);
                 }
 
                 sl.AssignedValue = current;
