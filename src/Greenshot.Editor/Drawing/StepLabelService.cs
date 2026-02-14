@@ -125,7 +125,7 @@ namespace Greenshot.Editor.Drawing
         /// </summary>
         public int CountStepLabels(IDrawableContainer stopAt)
         {
-            int number = _counterStart;
+            int number = CounterStart;
             foreach (var sl in _stepLabels)
             {
                 if (sl.Equals(stopAt)) break;
@@ -153,7 +153,7 @@ namespace Greenshot.Editor.Drawing
                 var key = (sl.LabelMode, sl.CounterGroup);
                 if (!counters.TryGetValue(key, out int current))
                 {
-                    current = GetCounterStart(key.mode, key.group);
+                    current = GetCounterStart(key.LabelMode, key.CounterGroup);
                 }
 
                 sl.AssignedValue = current;
