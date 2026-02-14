@@ -223,8 +223,12 @@ namespace Greenshot.Base.Core
                         {
                             surface.Dispose();
                             surface = null;
-                        }
-                        menu.Dispose();
+                        } 
+                        // We might already be in the disposing process, so queue the disposal to avoid re-entrancy
+                        menu.BeginInvoke(new Action(() =>
+                        {
+                            menu.Dispose();
+                        }));
                         break;
                     default:
                         eventArgs.Cancel = true;
