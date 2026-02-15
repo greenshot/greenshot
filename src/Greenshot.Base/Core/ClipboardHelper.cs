@@ -458,6 +458,11 @@ EndSelection:<<<<<<<4
                     fileData.Position = 0;
                     yield return (fileData, fileDescriptor.FileName);
                 }
+                else
+                {
+                    // Dispose the stream if it won't be yielded (empty or null length)
+                    fileData?.Dispose();
+                }
 
                 fileIndex++;
             }
