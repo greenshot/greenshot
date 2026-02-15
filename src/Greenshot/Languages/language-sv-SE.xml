@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <language description="Svenska" ietf="sv-SE" version="1.0.4" languagegroup="1">
 	<resources>
 		<resource name="about_bugs">Var vänlig att rapportera in fel till</resource>
@@ -135,12 +135,30 @@ Innan du skickar uppskattar vi verkligen om du kontrollerar om felet redan blivi
 		<resource name="editor_obfuscate_blur">Oskärpa</resource>
 		<resource name="editor_obfuscate_mode">Censurläge</resource>
 		<resource name="editor_obfuscate_pixelize">Pixelering</resource>
+		<resource name="editor_obfuscate_text">Dölj text...</resource>
+		<resource name="editor_obfuscate_text_title">Dölj text</resource>
+		<resource name="editor_obfuscate_text_search">Sök:</resource>
+		<resource name="editor_obfuscate_text_search_button">Sök</resource>
+		<resource name="editor_obfuscate_text_regex">Använd reguljärt uttryck</resource>
+		<resource name="editor_obfuscate_text_case_sensitive">Skiftlägeskänslig</resource>
+		<resource name="editor_obfuscate_text_auto_search">Automatisk sökning</resource>
+		<resource name="editor_obfuscate_text_search_scope">Sök i:</resource>
+		<resource name="editor_obfuscate_text_scope_words">Ord</resource>
+		<resource name="editor_obfuscate_text_scope_lines">Rader</resource>
+		<resource name="editor_obfuscate_text_matches">Träffar hittade: {0}</resource>
+		<resource name="editor_obfuscate_text_apply">Tillämpa</resource>
+		<resource name="editor_obfuscate_text_error">Fel</resource>
+		<resource name="editor_obfuscate_text_no_capture">Ingen tillgänglig fångst</resource>
+		<resource name="editor_obfuscate_text_no_ocr_provider">OCR-leverantör inte tillgänglig</resource>
+		<resource name="editor_obfuscate_text_ocr_failed">OCR misslyckades</resource>
+		<resource name="editor_obfuscate_text_no_text">Ingen text hittades i bilden</resource>
 		<resource name="editor_object">Objekt</resource>
 		<resource name="editor_opendirinexplorer">Öppna mappen i Utforskaren</resource>
 		<resource name="editor_pastefromclipboard">Klistra in</resource>
 		<resource name="editor_pixel_size">Pixelstorlek</resource>
 		<resource name="editor_preview_quality">Förhandskvalitet</resource>
 		<resource name="editor_print">Skriv ut</resource>
+		<resource name="editor_remove_transparency">Ta bort genomskinlighet</resource>
 		<resource name="editor_redo">Upprepa {0}</resource>
 		<resource name="editor_resetsize">Återställ storlek</resource>
 		<resource name="editor_resize_percent">Procent</resource>

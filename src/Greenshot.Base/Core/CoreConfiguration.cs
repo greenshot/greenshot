@@ -512,6 +512,10 @@ namespace Greenshot.Base.Core
             {
                 UpdateCheckInterval = 365;
             }
+            if (UpdateCheckInterval < 0)
+            {
+                UpdateCheckInterval = 0;
+            }
 
             // Enable OneNote if upgrading from 1.1
             if (ExcludeDestinations != null && ExcludeDestinations.Contains("OneNote"))

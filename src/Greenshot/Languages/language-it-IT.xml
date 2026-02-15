@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <language description="Italiano" ietf="it-IT" version="1.3.0" languagegroup="1">
     <resources>
         <resource name="about_bugs">Segnala eventuali bug a questo indirizzo</resource>
@@ -138,12 +138,30 @@ Controlla i permessi di accesso per '{0}'.</resource>
         <resource name="editor_obfuscate_blur">Sfuma</resource>
         <resource name="editor_obfuscate_mode">Modalità offuscamento</resource>
         <resource name="editor_obfuscate_pixelize">Offusca/pixelizza</resource>
+        <resource name="editor_obfuscate_text">Oscura testo...</resource>
+        <resource name="editor_obfuscate_text_title">Oscura testo</resource>
+        <resource name="editor_obfuscate_text_search">Cerca:</resource>
+        <resource name="editor_obfuscate_text_search_button">Cerca</resource>
+        <resource name="editor_obfuscate_text_regex">Usa espressione regolare</resource>
+        <resource name="editor_obfuscate_text_case_sensitive">Maiuscole/minuscole</resource>
+        <resource name="editor_obfuscate_text_auto_search">Ricerca automatica</resource>
+        <resource name="editor_obfuscate_text_search_scope">Cerca in:</resource>
+        <resource name="editor_obfuscate_text_scope_words">Parole</resource>
+        <resource name="editor_obfuscate_text_scope_lines">Righe</resource>
+        <resource name="editor_obfuscate_text_matches">Corrispondenze trovate: {0}</resource>
+        <resource name="editor_obfuscate_text_apply">Applica</resource>
+        <resource name="editor_obfuscate_text_error">Errore</resource>
+        <resource name="editor_obfuscate_text_no_capture">Nessuna cattura disponibile</resource>
+        <resource name="editor_obfuscate_text_no_ocr_provider">Provider OCR non disponibile</resource>
+        <resource name="editor_obfuscate_text_ocr_failed">OCR fallito</resource>
+        <resource name="editor_obfuscate_text_no_text">Nessun testo trovato nell'immagine</resource>
         <resource name="editor_object">Oggetti</resource>
         <resource name="editor_opendirinexplorer">Apri cartella su Windows Explorer</resource>
         <resource name="editor_pastefromclipboard">Incolla</resource>
         <resource name="editor_pixel_size">Dimensioni pixel</resource>
         <resource name="editor_preview_quality">Qualità anteprima</resource>
         <resource name="editor_print">Stampa</resource>
+		<resource name="editor_remove_transparency">Rimuovi trasparenza</resource>
         <resource name="editor_redo">Ripeti azione {0}</resource>
         <resource name="editor_resetsize">Azzera dimensione</resource>
         <resource name="editor_resize_percent">Percentuale</resource>
