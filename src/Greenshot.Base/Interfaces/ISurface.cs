@@ -46,11 +46,6 @@ namespace Greenshot.Base.Interfaces
         event SurfaceShadowEventHandler ShadowChanged;
 
         /// <summary>
-        /// Start value of the step-labels (counts)
-        /// </summary>
-        int CounterStart { get; set; }
-
-        /// <summary>
         /// Unique ID of the Surface
         /// </summary>
         Guid ID { get; set; }

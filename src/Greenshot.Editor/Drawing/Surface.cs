@@ -60,11 +60,6 @@ namespace Greenshot.Editor.Drawing
         private Guid _uniqueId = Guid.NewGuid();
 
         /// <summary>
-        ///     This value is used to start counting the step labels
-        /// </summary>
-        private int _counterStart = 1;
-
-        /// <summary>
         /// The GUID of the surface
         /// </summary>
         public Guid ID
@@ -239,67 +234,6 @@ namespace Greenshot.Editor.Drawing
         /// TODO: Check if this buffer is still needed!
         /// </summary>
         [NonSerialized] private Bitmap _buffer;
-
-        /// <summary>
-        /// all stepLabels for the surface, needed with serialization
-        /// </summary>
-        private readonly List<StepLabelContainer> _stepLabels = new List<StepLabelContainer>();
-
-        public void AddStepLabel(StepLabelContainer stepLabel)
-        {
-            if (!_stepLabels.Contains(stepLabel))
-            {
-                _stepLabels.Add(stepLabel);
-            }
-        }
-
-        public void RemoveStepLabel(StepLabelContainer stepLabel)
-        {
-            _stepLabels.Remove(stepLabel);
-        }
-
-        /// <summary>
-        ///     The start value of the counter objects
-        /// </summary>
-        public int CounterStart
-        {
-            get => _counterStart;
-            set
-            {
-                if (_counterStart == value)
-                {
-                    return;
-                }
-
-                _counterStart = value;
-                Invalidate();
-                _propertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CounterStart)));
-            }
-        }
-
-        /// <summary>
-        /// Count all the VISIBLE steplabels in the surface, up to the supplied one
-        /// </summary>
-        /// <param name="stopAtContainer">can be null, if not the counting stops here</param>
-        /// <returns>number of steplabels before the supplied container</returns>
-        public int CountStepLabels(IDrawableContainer stopAtContainer)
-        {
-            int number = CounterStart;
-            foreach (var possibleThis in _stepLabels)
-            {
-                if (possibleThis.Equals(stopAtContainer))
-                {
-                    break;
-                }
-
-                if (IsOnSurface(possibleThis))
-                {
-                    number++;
-                }
-            }
-
-            return number;
-        }
 
         /// <summary>
         /// all elements on the surface, needed with serialization
@@ -487,6 +421,8 @@ namespace Greenshot.Editor.Drawing
         /// </summary>
         public Surface()
         {
+            var stepLabelService = SimpleServiceProvider.Current.GetInstance<IStepLabelService>();
+            stepLabelService.LabelsChanged += (s, e) => Invalidate();
             _fieldAggregator = new FieldAggregator(this);
             _elements = new DrawableContainerList(_uniqueId);
             selectedElements = new DrawableContainerList(_uniqueId);
@@ -752,8 +688,10 @@ namespace Greenshot.Editor.Drawing
                 binaryRead.Binder = new BinaryFormatterHelper();
                 IDrawableContainerList loadedElements = (IDrawableContainerList) binaryRead.Deserialize(streamRead);
                 loadedElements.Parent = this;
-                // Make sure the steplabels are sorted according to their number
-                _stepLabels.Sort((p1, p2) => p1.Number.CompareTo(p2.Number));
+                // Labels restore their values from serialized _number via SwitchParent.
+                // Sort ensures the internal list order matches the original creation order.
+                var stepLabelService = SimpleServiceProvider.Current.GetInstance<IStepLabelService>();
+                stepLabelService.SortByNumber();
                 DeselectAllElements();
                 AddElements(loadedElements);
                 SelectElements(loadedElements);
@@ -2249,6 +2187,18 @@ namespace Greenshot.Editor.Drawing
                     // Make element(s) only move 10,10 if the surface is the same
                     bool isSameSurface = (dcs.ParentID == _uniqueId);
                     dcs.Parent = this;
+                    if (isSameSurface)
+                    {
+                        // Same-surface paste: clear fixed values so labels get renumbered
+                        foreach (var element in dcs)
+                        {
+                            if (element is StepLabelContainer sl)
+                            {
+                                sl.HasFixedValue = false;
+                            }
+                        }
+                        SimpleServiceProvider.Current.GetInstance<IStepLabelService>().Renumber();
+                    }
                     var moveOffset = isSameSurface ? new NativePoint(10, 10) : NativePoint.Empty;
                     // Here a fix for bug #1475, first calculate the bounds of the complete IDrawableContainerList
                     NativeRect drawableContainerListBounds = NativeRect.Empty;
