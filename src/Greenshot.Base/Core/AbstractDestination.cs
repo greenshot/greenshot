@@ -344,12 +344,19 @@ namespace Greenshot.Base.Core
         /// <returns>ToolStripMenuItem</returns>
         public virtual ToolStripMenuItem GetMenuItem(bool addDynamics, ContextMenuStrip menu, EventHandler destinationClickHandler)
         {
+            // Clone the icon to prevent issues when cached icons are disposed on icon size change
+            var iconClone = DisplayIcon != null ? ImageHelper.Clone(DisplayIcon) : null;
             var basisMenuItem = new ToolStripMenuItem(Description)
             {
-                Image = DisplayIcon,
+                Image = iconClone,
                 Tag = this,
                 Text = Description
             };
+            // Dispose the cloned icon when the menu item is disposed to prevent memory leaks
+            if (iconClone != null)
+            {
+                basisMenuItem.Disposed += (sender, e) => iconClone.Dispose();
+            }
             AddTagEvents(basisMenuItem, menu, Description);
             basisMenuItem.Click -= destinationClickHandler;
             basisMenuItem.Click += destinationClickHandler;
@@ -384,11 +391,18 @@ namespace Greenshot.Base.Core
                             {
                                 foreach (IDestination subDestination in subDestinations)
                                 {
+                                    // Clone the icon to prevent issues when cached icons are disposed on icon size change
+                                    var subIconClone = subDestination.DisplayIcon != null ? ImageHelper.Clone(subDestination.DisplayIcon) : null;
                                     var destinationMenuItem = new ToolStripMenuItem(subDestination.Description)
                                     {
                                         Tag = subDestination,
-                                        Image = subDestination.DisplayIcon
+                                        Image = subIconClone
                                     };
+                                    // Dispose the cloned icon when the menu item is disposed to prevent memory leaks
+                                    if (subIconClone != null)
+                                    {
+                                        destinationMenuItem.Disposed += (sender, e) => subIconClone.Dispose();
+                                    }
                                     destinationMenuItem.Click += destinationClickHandler;
                                     AddTagEvents(destinationMenuItem, menu, subDestination.Description);
                                     basisMenuItem.DropDownItems.Add(destinationMenuItem);
