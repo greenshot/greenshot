@@ -1014,9 +1014,9 @@ namespace Greenshot.Editor.Forms
 
             _surface.Dispose();
 
-            GC.Collect();
             if (coreConfiguration.MinimizeWorkingSetSize)
             {
+                GC.Collect();
                 PsApi.EmptyWorkingSet();
             }
         }

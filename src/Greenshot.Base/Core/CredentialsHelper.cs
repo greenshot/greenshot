@@ -371,7 +371,8 @@ namespace Greenshot.Base.Core
             info.pszMessageText = Message;
             if (Banner != null)
             {
-                info.hbmBanner = new Bitmap(Banner, ValidBannerWidth, ValidBannerHeight).GetHbitmap();
+                using var bannerBitmap = new Bitmap(Banner, ValidBannerWidth, ValidBannerHeight);
+                info.hbmBanner = bannerBitmap.GetHbitmap();
             }
 
             info.cbSize = Marshal.SizeOf(info);

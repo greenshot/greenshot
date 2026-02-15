@@ -92,7 +92,16 @@ namespace Greenshot.Base.Controls
             };
 
             // Un-register at close
-            FormClosing += delegate { _timer?.Stop(); };
+            FormClosing += delegate
+            {
+                if (_timer != null)
+                {
+                    _timer.Stop();
+                    _timer.Tick -= Timer_Tick;
+                    _timer.Dispose();
+                    _timer = null;
+                }
+            };
         }
 
         /// <summary>

@@ -96,7 +96,7 @@ public class ConfluenceConnector : IDisposable
             _confluence.SetBasicAuthentication(user, password);
             
             // Test the credentials by getting current user info
-            var testTask = Task.Run(async () => await _confluence.User.GetCurrentUserAsync());
+            var testTask = Task.Run(async () => await _confluence.User.GetCurrentUserAsync().ConfigureAwait(false));
             testTask.Wait();
             
             _loggedInTime = DateTime.Now;
@@ -203,7 +203,7 @@ public class ConfluenceConnector : IDisposable
         var attachTask = Task.Run(async () =>
         {
             using var stream = new System.IO.MemoryStream(image.ToByteArray());
-            await _confluence.Attachment.AttachAsync(pageId, stream, filename, comment, mime);
+            await _confluence.Attachment.AttachAsync(pageId, stream, filename, comment, mime).ConfigureAwait(false);
         });
         
         attachTask.Wait();
@@ -228,7 +228,7 @@ public class ConfluenceConnector : IDisposable
                 var searchResult = await _confluence.Content.SearchAsync(query, pagingInformation: new PagingInformation
                 {
                     Limit = 1
-                });
+                }).ConfigureAwait(false);
                 return searchResult.Results.FirstOrDefault();
             });
             
@@ -238,7 +238,7 @@ public class ConfluenceConnector : IDisposable
             {
                 // Get full page details with body
                 var detailTask = Task.Run(async () => 
-                    await _confluence.Content.GetAsync(page, ConfluenceClientConfig.ExpandGetContentWithStorage));
+                    await _confluence.Content.GetAsync(page, ConfluenceClientConfig.ExpandGetContentWithStorage).ConfigureAwait(false));
                 page = detailTask.Result;
                 _pageCache.Add(cacheKey, page);
             }
@@ -262,7 +262,7 @@ public class ConfluenceConnector : IDisposable
             CheckCredentials();
             
             var pageTask = Task.Run(async () =>
-                await _confluence.Content.GetAsync(pageId, ConfluenceClientConfig.ExpandGetContentWithStorage));
+                await _confluence.Content.GetAsync(pageId, ConfluenceClientConfig.ExpandGetContentWithStorage).ConfigureAwait(false));
                 
             page = pageTask.Result;
             _pageCache.Add(cacheKey, page);
@@ -277,10 +277,10 @@ public class ConfluenceConnector : IDisposable
         
         var homePageTask = Task.Run(async () =>
         {
-            var space = await _confluence.Space.GetAsync(spaceSummary.Key);
+            var space = await _confluence.Space.GetAsync(spaceSummary.Key).ConfigureAwait(false);
             if (space.HomepageId != 0)
             {
-                return await _confluence.Content.GetAsync(space.HomepageId, ConfluenceClientConfig.ExpandGetContentWithStorage);
+                return await _confluence.Content.GetAsync(space.HomepageId, ConfluenceClientConfig.ExpandGetContentWithStorage).ConfigureAwait(false);
             }
             return null;
         });
@@ -296,7 +296,7 @@ public class ConfluenceConnector : IDisposable
         var spacesTask = Task.Run(async () =>
         {
             var allSpaces = new List<Dapplo.Confluence.Entities.Space>();
-            var spacesResult = await _confluence.Space.GetAllAsync();
+            var spacesResult = await _confluence.Space.GetAllAsync().ConfigureAwait(false);
             
             foreach (var space in spacesResult)
             {
@@ -321,7 +321,7 @@ public class ConfluenceConnector : IDisposable
         var childrenTask = Task.Run(async () =>
         {
             var children = new List<Content>();
-            var childrenResult = await _confluence.Content.GetChildrenAsync(parentPage.Id);
+            var childrenResult = await _confluence.Content.GetChildrenAsync(parentPage.Id).ConfigureAwait(false);
             
             if (childrenResult?.Results != null)
             {
@@ -347,7 +347,7 @@ public class ConfluenceConnector : IDisposable
         {
             var allPages = new List<Content>();
             var query = Where.And(Where.Type.IsPage, Where.Space.Is(space.Key));
-            var searchResult = await _confluence.Content.SearchAsync(query);
+            var searchResult = await _confluence.Content.SearchAsync(query).ConfigureAwait(false);
             
             foreach (var page in searchResult.Results)
             {
@@ -383,7 +383,7 @@ public class ConfluenceConnector : IDisposable
                 whereClause = Where.And(Where.Type.IsPage, Where.Text.Contains(query));
             }
             
-            var searchResult = await _confluence.Content.SearchAsync(whereClause, pagingInformation: new PagingInformation { Limit = 20 });
+            var searchResult = await _confluence.Content.SearchAsync(whereClause, pagingInformation: new PagingInformation { Limit = 20 }).ConfigureAwait(false);
             
             foreach (var page in searchResult.Results)
             {

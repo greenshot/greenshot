@@ -180,7 +180,8 @@ namespace Greenshot.Helpers
             thread.Start();
 
             // only return when the new thread has built it's interop representation
-            _manualResetEvent.WaitOne();
+            // Use a timeout to prevent indefinite hang if the thread throws an exception
+            _manualResetEvent.WaitOne(TimeSpan.FromSeconds(60));
             _manualResetEvent.Reset();
         }
 

@@ -35,6 +35,7 @@ namespace Greenshot.Base.Core
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(Cache<TK, TV>));
         private readonly IDictionary<TK, TV> _internalCache = new Dictionary<TK, TV>();
+        private readonly IDictionary<TK, CachedItem> _cachedItems = new Dictionary<TK, CachedItem>();
         private readonly object _lockObject = new object();
         private readonly int _secondsToExpire = 10;
         private readonly CacheObjectExpired _expiredCallback;
@@ -172,12 +173,19 @@ namespace Greenshot.Base.Core
 
                 if (_internalCache.ContainsKey(key))
                 {
+                    // Dispose the old CachedItem's timer before replacing
+                    if (_cachedItems.TryGetValue(key, out var oldCachedItem))
+                    {
+                        oldCachedItem.Dispose();
+                    }
                     _internalCache[key] = value;
+                    _cachedItems[key] = cachedItem;
                     Log.DebugFormat("Updated item with Key: {0}", key);
                 }
                 else
                 {
                     _internalCache.Add(key, cachedItem);
+                    _cachedItems.Add(key, cachedItem);
                     Log.DebugFormat("Added item with Key: {0}", key);
                 }
             }
@@ -193,7 +201,13 @@ namespace Greenshot.Base.Core
             {
                 if (!_internalCache.ContainsKey(key))
                 {
-                    throw new ApplicationException($"An object with key ‘{key}’ does not exists in cache");
+                    throw new ApplicationException($"An object with key '{key}' does not exists in cache");
+                }
+
+                if (_cachedItems.TryGetValue(key, out var cachedItem))
+                {
+                    cachedItem.Dispose();
+                    _cachedItems.Remove(key);
                 }
 
                 _internalCache.Remove(key);
@@ -204,7 +218,7 @@ namespace Greenshot.Base.Core
         /// <summary>
         /// A cache item
         /// </summary>
-        private class CachedItem
+        private class CachedItem : IDisposable
         {
             public event CacheObjectExpired Expired;
             private readonly int _secondsToExpire;
@@ -253,6 +267,16 @@ namespace Greenshot.Base.Core
             public static implicit operator TV(CachedItem a)
             {
                 return a.Item;
+            }
+
+            public void Dispose()
+            {
+                if (_timerEvent != null)
+                {
+                    _timerEvent.Elapsed -= timerEvent_Elapsed;
+                    _timerEvent.Stop();
+                    _timerEvent.Dispose();
+                }
             }
         }
     }

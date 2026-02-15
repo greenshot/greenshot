@@ -97,6 +97,7 @@ public class DropboxPlugin : IGreenshotPlugin
     public void Shutdown()
     {
         Log.Debug("Dropbox Plugin shutdown.");
+        Language.LanguageChanged -= OnLanguageChanged;
     }
 
     /// <summary>

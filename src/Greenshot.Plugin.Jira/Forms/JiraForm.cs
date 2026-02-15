@@ -40,6 +40,7 @@ public partial class JiraForm : Form
     private readonly JiraConnector _jiraConnector;
     private IssueV2 _selectedIssue;
     private readonly GreenshotColumnSorter _columnSorter;
+    private System.Threading.CancellationTokenSource _jiraKeyCts;
 
     public JiraForm(JiraConnector jiraConnector)
     {
@@ -273,13 +274,34 @@ public partial class JiraForm : Form
     {
         string jiranumber = jiraKey.Text;
         uploadButton.Enabled = false;
+
         int dashIndex = jiranumber.IndexOf('-');
         if (dashIndex > 0 && jiranumber.Length > dashIndex + 1)
         {
-            _selectedIssue = await _jiraConnector.GetIssueAsync(jiraKey.Text);
-            if (_selectedIssue != null)
+            // Cancel any previous in-flight request to debounce rapid typing
+            _jiraKeyCts?.Cancel();
+            _jiraKeyCts = new System.Threading.CancellationTokenSource();
+            var token = _jiraKeyCts.Token;
+
+            try
             {
-                uploadButton.Enabled = true;
+                // Wait briefly to debounce keystrokes
+                await Task.Delay(300, token);
+                if (token.IsCancellationRequested) return;
+
+                _selectedIssue = await _jiraConnector.GetIssueAsync(jiraKey.Text);
+                if (_selectedIssue != null && !token.IsCancellationRequested)
+                {
+                    uploadButton.Enabled = true;
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                // Expected when a new keystroke cancels the previous request
+            }
+            catch (Exception ex)
+            {
+                Log.Warn("Error looking up Jira issue", ex);
             }
         }
     }

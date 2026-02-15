@@ -90,9 +90,12 @@ public partial class ConfluenceUpload
         get
         {
             UpdateSpaces();
-            while (_spaces == null)
+            int waitAttempts = 0;
+            const int maxWaitAttempts = 100; // ~30 seconds max
+            while (_spaces == null && waitAttempts < maxWaitAttempts)
             {
                 Thread.Sleep(300);
+                waitAttempts++;
             }
 
             return _spaces;
