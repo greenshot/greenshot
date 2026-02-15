@@ -30,14 +30,14 @@ using Greenshot.Base.Interfaces.Ocr;
 namespace Greenshot.Destinations
 {
     /// <summary>
-    /// This uses the OcrEngine from Windows 10 to perform OCR on the captured image.
+    /// This uses the Windows OcrEngine to perform OCR on the captured image.
     /// </summary>
     public class Win10OcrDestination : AbstractDestination
     {
         private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(Win10OcrDestination));
 
         public override string Designation { get; } = "Windows10OCR";
-        public override string Description { get; } = "Windows 10 OCR";
+        public override string Description { get; } = "Windows OCR";
 
         public override int Priority => 3;
 
@@ -59,7 +59,7 @@ namespace Greenshot.Destinations
         }
 
         /// <summary>
-        /// Run the Windows 10 OCR engine to process the text on the captured image
+        /// Run the Windows OCR engine to process the text on the captured image
         /// </summary>
         /// <param name="manuallyInitiated"></param>
         /// <param name="surface"></param>

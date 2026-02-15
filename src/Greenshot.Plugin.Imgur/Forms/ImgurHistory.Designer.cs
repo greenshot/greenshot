@@ -18,8 +18,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-namespace Greenshot.Plugin.Imgur.Forms
-{
+namespace Greenshot.Plugin.Imgur.Forms;
+
 	partial class ImgurHistory
 	{
 		/// <summary>
@@ -61,8 +61,8 @@ namespace Greenshot.Plugin.Imgur.Forms
 			// listview_imgur_uploads
 			// 
 			this.listview_imgur_uploads.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+        | System.Windows.Forms.AnchorStyles.Left) 
+        | System.Windows.Forms.AnchorStyles.Right)));
 			this.listview_imgur_uploads.FullRowSelect = true;
 			this.listview_imgur_uploads.Location = new System.Drawing.Point(12, 12);
 			this.listview_imgur_uploads.Name = "listview_imgur_uploads";
@@ -141,8 +141,8 @@ namespace Greenshot.Plugin.Imgur.Forms
 			// 
 			// ImgurHistory
 			// 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+        this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+        this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
 			this.ClientSize = new System.Drawing.Size(534, 372);
 			this.Controls.Add(this.clearHistoryButton);
 			this.Controls.Add(this.clipboardButton);
@@ -166,4 +166,3 @@ namespace Greenshot.Plugin.Imgur.Forms
 		private System.Windows.Forms.PictureBox pictureBox1;
 		private System.Windows.Forms.ListView listview_imgur_uploads;
 	}
-}
