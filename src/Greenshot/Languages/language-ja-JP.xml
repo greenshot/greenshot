@@ -259,6 +259,7 @@ GNU General Public License の詳細:</resource>
 		<resource name="settings_destination_fileas">名前を付けて保存 (ダイアログを表示)</resource>
 		<resource name="settings_destination_picker">毎回出力先を尋ねる</resource>
 		<resource name="settings_destination_printer">プリンターに送る</resource>
+		<resource name="settings_destination_viewer">イメージ ビューアーで開く</resource>
 		<resource name="settings_editor">エディター</resource>
 		<resource name="settings_filenamepattern">ファイル名パターン</resource>
 		<resource name="settings_general">一般</resource>
@@ -329,5 +330,18 @@ ${hostname} コンピューター名
 		<resource name="WindowCaptureMode.Auto">自動</resource>
 		<resource name="WindowCaptureMode.GDI">デフォルト カラーを使用</resource>
 		<resource name="WindowCaptureMode.Screen">表示通り</resource>
+		
+		<resource name="viewer_alwaysontop">常に手前に表示</resource>
+		<resource name="viewer_close_all">すべてのビューアーを閉じる</resource>
+		<resource name="viewer_first_usage_message">イメージは保存されておらず、保存せずにウィンドウを閉じると失われます。</resource>
+		<resource name="viewer_first_usage_title">イメージ ビューアー - 初回使用</resource>
+		<resource name="viewer_hide_cursor">キャプチャしたカーソルを非表示</resource>
+		<resource name="viewer_hide_title">タイトル バーを非表示</resource>
+		<resource name="viewer_process_again">イメージを再処理...</resource>
+		<resource name="viewer_reset_zoom">ズーム/パンをリセット</resource>
+		<resource name="viewer_save">保存</resource>
+		<resource name="viewer_saveas">名前を付けて保存...</resource>
+		<resource name="viewer_show_cursor">キャプチャしたカーソルを表示</resource>
+		<resource name="viewer_show_title">タイトル バーを表示</resource>
 	</resources>
 </language>

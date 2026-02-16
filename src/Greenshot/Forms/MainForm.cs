@@ -531,6 +531,7 @@ namespace Greenshot.Forms
                 new PrinterDestination(),
                 new EmailDestination(),
                 new PickerDestination(),
+                new ViewerDestination(),
                 new Win10ShareDestination(),
                 new Win10OcrDestination()
             };

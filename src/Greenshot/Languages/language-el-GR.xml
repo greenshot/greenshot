@@ -244,6 +244,7 @@
 		<resource name="settings_destination_fileas">Αποθήκευση ως (εμφάνιση διαλόγου)</resource>
 		<resource name="settings_destination_picker">Ζητήστε προορισμό κάθε φορά</resource>
 		<resource name="settings_destination_printer">Αποστολή για Εκτύπωση</resource>
+		<resource name="settings_destination_viewer">Άνοιγμα σε προβολέα εικόνων</resource>
 		<resource name="settings_editor">Παράθυρο επεξεργασίας</resource>
 		<resource name="settings_filenamepattern">Πρότυπο όνομα αρχείου</resource>
 		<resource name="settings_general">Γενικά</resource>
@@ -305,5 +306,18 @@ ${hostname} Όνομα Υπολογιστή
 		<resource name="WindowCaptureMode.Auto">Αυτόματα</resource>
 		<resource name="WindowCaptureMode.GDI">Χρήση προκαθορισμένου χρώματος</resource>
 		<resource name="WindowCaptureMode.Screen">Όπως εμφανίζεται</resource>
+		
+		<resource name="viewer_alwaysontop">Πάντα στην κορυφή</resource>
+		<resource name="viewer_close_all">Κλείσιμο όλων των προβολέων</resource>
+		<resource name="viewer_first_usage_message">Η εικόνα δεν έχει αποθηκευτεί και θα χαθεί όταν το παράθυρο κλείσει χωρίς αποθήκευση.</resource>
+		<resource name="viewer_first_usage_title">Προβολέας Εικόνων - Πρώτη Χρήση</resource>
+		<resource name="viewer_hide_cursor">Απόκρυψη δρομέα που καταγράφηκε</resource>
+		<resource name="viewer_hide_title">Απόκρυψη γραμμής τίτλου</resource>
+		<resource name="viewer_process_again">Επεξεργασία εικόνας ξανά...</resource>
+		<resource name="viewer_reset_zoom">Επαναφορά μεγέθυνσης/μετακίνησης</resource>
+		<resource name="viewer_save">Αποθήκευση</resource>
+		<resource name="viewer_saveas">Αποθήκευση ως...</resource>
+		<resource name="viewer_show_cursor">Εμφάνιση δρομέα που καταγράφηκε</resource>
+		<resource name="viewer_show_title">Εμφάνιση γραμμής τίτλου</resource>
 	</resources>
 </language>

@@ -248,6 +248,7 @@ Correggi la maschera noem file e riprova.</resource>
         <resource name="settings_destination_fileas">Salva come (visualizzando le scelte)</resource>
         <resource name="settings_destination_picker">Chiedi la destinazione ogni volta</resource>
         <resource name="settings_destination_printer">Invia alla stampante</resource>
+        <resource name="settings_destination_viewer">Apri nel visualizzatore immagini</resource>
         <resource name="settings_editor">Gestione immagini</resource>
         <resource name="settings_filenamepattern">Modello nome file</resource>
         <resource name="settings_general">Generali</resource>
@@ -343,6 +344,19 @@ In alternativa alle scorciatoie di tastiera, tutte le funzioni di Greenshot sono
     <resource name="editor_resize_width">Larghezza</resource>
     <resource name="editor_resize_height">Altezza</resource>
     <resource name="settings_iconsize">Dimensione icona (pixel)</resource>
+    
+    <resource name="viewer_alwaysontop">Sempre in primo piano</resource>
+    <resource name="viewer_close_all">Chiudi tutti i visualizzatori</resource>
+    <resource name="viewer_first_usage_message">L'immagine non è salvata e andrà persa quando la finestra verrà chiusa senza salvare.</resource>
+    <resource name="viewer_first_usage_title">Visualizzatore immagini - Primo utilizzo</resource>
+    <resource name="viewer_hide_cursor">Nascondi cursore acquisito</resource>
+    <resource name="viewer_hide_title">Nascondi barra del titolo</resource>
+    <resource name="viewer_process_again">Elabora immagine di nuovo...</resource>
+    <resource name="viewer_reset_zoom">Ripristina zoom/spostamento</resource>
+    <resource name="viewer_save">Salva</resource>
+    <resource name="viewer_saveas">Salva come...</resource>
+    <resource name="viewer_show_cursor">Mostra cursore acquisito</resource>
+    <resource name="viewer_show_title">Mostra barra del titolo</resource>
 
     </resources>
 </language>

@@ -236,6 +236,7 @@ Si us plau, verifiqueu el camí d'accés seleccionat.</resource>
 		<resource name="settings_destination_fileas">Anomena i desa (es mostra el quadre de diàleg)</resource>
 		<resource name="settings_destination_picker">Pregunta el destí cada vegada</resource>
 		<resource name="settings_destination_printer">Envia a la impressora</resource>
+		<resource name="settings_destination_viewer">Obre al visualitzador d'imatges</resource>
 		<resource name="settings_editor">Editor</resource>
 		<resource name="settings_filenamepattern">Format del nom de fitxer</resource>
 		<resource name="settings_general">General</resource>
@@ -325,5 +326,18 @@ Malgrat això, encara es poden utilitzar totes les característiques de Greensho
 		<resource name="editor_resize_width">Amplada</resource>
 		<resource name="editor_resize_height">Alçada</resource>
 		<resource name="settings_iconsize">Mida de la icona</resource>
+		
+		<resource name="viewer_alwaysontop">Sempre al capdavant</resource>
+		<resource name="viewer_close_all">Tanca tots els visualitzadors</resource>
+		<resource name="viewer_first_usage_message">La imatge no està desada i es perdrà quan es tanqui la finestra sense desar.</resource>
+		<resource name="viewer_first_usage_title">Visualitzador d'imatges - Primer ús</resource>
+		<resource name="viewer_hide_cursor">Amaga el cursor capturat</resource>
+		<resource name="viewer_hide_title">Amaga la barra de títol</resource>
+		<resource name="viewer_process_again">Processa la imatge de nou...</resource>
+		<resource name="viewer_reset_zoom">Restableix zoom/desplaçament</resource>
+		<resource name="viewer_save">Desa</resource>
+		<resource name="viewer_saveas">Desa com a...</resource>
+		<resource name="viewer_show_cursor">Mostra el cursor capturat</resource>
+		<resource name="viewer_show_title">Mostra la barra de títol</resource>
 	</resources>
 </language>

@@ -238,6 +238,7 @@ Controleer de toegangsrechten voor de betreffende locatie.</resource>
 		<resource name="settings_destination_fileas">Opslaan als… (via dialoog)</resource>
 		<resource name="settings_destination_picker">Elke keer om bestemming vragen</resource>
 		<resource name="settings_destination_printer">Naar printer</resource>
+		<resource name="settings_destination_viewer">Openen in afbeeldingsviewer</resource>
 		<resource name="settings_editor">Beeldbewerker</resource>
 		<resource name="settings_filenamepattern">Bestandsnaam</resource>
 		<resource name="settings_general">Algemeen</resource>
@@ -328,6 +329,19 @@ Alle Greenshot functies werken ook zonder sneltoetsen via het context menu.</res
 		<resource name="editor_resize_width">Breedte</resource>
 		<resource name="editor_resize_height">Hoogte</resource>
 		<resource name="settings_iconsize">Pictogramgrootte</resource>
+		
+		<resource name="viewer_alwaysontop">Altijd op de voorgrond</resource>
+		<resource name="viewer_close_all">Alle viewers sluiten</resource>
+		<resource name="viewer_first_usage_message">De afbeelding is niet opgeslagen en gaat verloren wanneer het venster wordt gesloten zonder op te slaan.</resource>
+		<resource name="viewer_first_usage_title">Afbeeldingsviewer - Eerste gebruik</resource>
+		<resource name="viewer_hide_cursor">Vastgelegde cursor verbergen</resource>
+		<resource name="viewer_hide_title">Titelbalk verbergen</resource>
+		<resource name="viewer_process_again">Afbeelding opnieuw verwerken...</resource>
+		<resource name="viewer_reset_zoom">Zoom/verschuiving resetten</resource>
+		<resource name="viewer_save">Opslaan</resource>
+		<resource name="viewer_saveas">Opslaan als...</resource>
+		<resource name="viewer_show_cursor">Vastgelegde cursor tonen</resource>
+		<resource name="viewer_show_title">Titelbalk tonen</resource>
 
 	</resources>
 </language>
