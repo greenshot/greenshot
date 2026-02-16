@@ -26,6 +26,7 @@ using System.IO;
 using System.Runtime.Serialization;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Icons;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using log4net;
@@ -40,7 +41,7 @@ namespace Greenshot.Editor.Drawing
     {
         private static readonly ILog LOG = LogManager.GetLogger(typeof(CursorContainer));
 
-        protected Cursor cursor;
+        protected CapturedCursor cursor;
 
         public CursorContainer(ISurface parent) : base(parent)
         {
@@ -63,7 +64,7 @@ namespace Greenshot.Editor.Drawing
             Load(filename);
         }
 
-        public Cursor Cursor
+        public CapturedCursor Cursor
         {
             set
             {
@@ -73,9 +74,9 @@ namespace Greenshot.Editor.Drawing
                 }
 
                 // Clone cursor (is this correct??)
-                cursor = new Cursor(value.CopyHandle());
                 Width = value.Size.Width;
                 Height = value.Size.Height;
+                cursor = value;
             }
             get { return cursor; }
         }
@@ -106,8 +107,6 @@ namespace Greenshot.Editor.Drawing
                 return;
             }
 
-            using Cursor fileCursor = new Cursor(filename);
-            Cursor = fileCursor;
             LOG.Debug("Loaded file: " + filename + " with resolution: " + Height + "," + Width);
         }
 
@@ -118,11 +117,7 @@ namespace Greenshot.Editor.Drawing
                 return;
             }
 
-            graphics.SmoothingMode = SmoothingMode.HighQuality;
-            graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
-            graphics.CompositingQuality = CompositingQuality.Default;
-            graphics.PixelOffsetMode = PixelOffsetMode.None;
-            cursor.DrawStretched(graphics, Bounds);
+            CursorHelper.DrawCursorOnGraphics(graphics, cursor, Bounds.Location, Bounds.Size);
         }
 
         public override NativeSize DefaultSize => cursor?.Size ?? new NativeSize(16, 16);

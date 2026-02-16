@@ -39,6 +39,7 @@ using Greenshot.Base.Core;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Ocr;
+using Dapplo.Windows.Icons;
 
 namespace Greenshot.Forms
 {
@@ -1026,7 +1027,7 @@ namespace Greenshot.Forms
             // Only draw Cursor if it's (partly) visible
             if (_capture.Cursor != null && _capture.CursorVisible && clipRectangle.IntersectsWith(new NativeRect(_capture.CursorLocation, _capture.Cursor.Size)))
             {
-                graphics.DrawImageUnscaled(_capture.Cursor, _capture.CursorLocation.X, _capture.CursorLocation.Y);
+                CursorHelper.DrawCursorOnGraphics(graphics,_capture.Cursor, _capture.CursorLocation);
             }
 
             if (_mouseDown || _captureMode == CaptureMode.Window || IsAnimating(_windowAnimator))
