@@ -116,10 +116,17 @@ namespace Greenshot.Helpers
                     var checkIsDisabled = TimeSpan.Zero == interval;
                     var nextCheckIsInTheFuture = CoreConfig.LastUpdateCheck.Add(interval) > DateTime.Now;
 
-                    if (interval.TotalSeconds < 0 || checkIsDisabled || nextCheckIsInTheFuture)
+                    // If we have an invalid interval
+                    if (interval.TotalSeconds < 0)
                     {
                         // Just wait for 10 minutes, maybe the configuration will change
                         interval = TimeSpan.FromDays(1);
+                    }
+
+                    if (checkIsDisabled || nextCheckIsInTheFuture)
+                    {
+                        // Just wait for 30 minutes, maybe the configuration will change
+                        interval = TimeSpan.FromMinutes(30);
                         task = c => Task.FromResult(true);
                     }
 
