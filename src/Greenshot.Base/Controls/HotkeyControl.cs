@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -404,6 +404,11 @@ namespace Greenshot.Base.Controls
         public static string HotkeyModifiersToString(Keys modifierKeyCode)
         {
             StringBuilder hotkeyString = new StringBuilder();
+            if ((modifierKeyCode & Keys.LWin) > 0 || (modifierKeyCode & Keys.RWin) > 0)
+            {
+                hotkeyString.Append("Win").Append(" + ");
+            }
+
             if ((modifierKeyCode & Keys.Alt) > 0)
             {
                 hotkeyString.Append("Alt").Append(" + ");
@@ -419,11 +424,6 @@ namespace Greenshot.Base.Controls
                 hotkeyString.Append("Shift").Append(" + ");
             }
 
-            if (modifierKeyCode == Keys.LWin || modifierKeyCode == Keys.RWin)
-            {
-                hotkeyString.Append("Win").Append(" + ");
-            }
-
             return hotkeyString.ToString();
         }
 
@@ -436,6 +436,11 @@ namespace Greenshot.Base.Controls
         public static string HotkeyModifiersToLocalizedString(Keys modifierKeyCode)
         {
             StringBuilder hotkeyString = new StringBuilder();
+            if ((modifierKeyCode & Keys.LWin) > 0 || (modifierKeyCode & Keys.RWin) > 0)
+            {
+                hotkeyString.Append("Win").Append(" + ");
+            }
+
             if ((modifierKeyCode & Keys.Alt) > 0)
             {
                 hotkeyString.Append(GetKeyName(Keys.Alt)).Append(" + ");
@@ -449,11 +454,6 @@ namespace Greenshot.Base.Controls
             if ((modifierKeyCode & Keys.Shift) > 0)
             {
                 hotkeyString.Append(GetKeyName(Keys.Shift)).Append(" + ");
-            }
-
-            if (modifierKeyCode == Keys.LWin || modifierKeyCode == Keys.RWin)
-            {
-                hotkeyString.Append("Win").Append(" + ");
             }
 
             return hotkeyString.ToString();
@@ -542,7 +542,7 @@ namespace Greenshot.Base.Controls
                 modifiers |= (uint) Modifiers.SHIFT;
             }
 
-            if (modifierKeyCode == Keys.LWin || modifierKeyCode == Keys.RWin)
+            if ((modifierKeyCode & Keys.LWin) > 0 || (modifierKeyCode & Keys.RWin) > 0)
             {
                 modifiers |= (uint) Modifiers.WIN;
             }
