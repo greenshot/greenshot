@@ -10,6 +10,11 @@
 - **Build System**: MSBuild (requires Visual Studio or MSBuild Tools for Windows)
 - **Versioning**: Nerdbank.GitVersioning (version base: 1.4.x)
 
+## Specialised Agents
+
+-translation-manager: always consult them about UI messages, esp. after addition/change/removal of UI messages
+- release-documentation-specialist: always ask them to update release notes after applying changes to the code base or when there is demand to update release notes or write a release blog post
+
 ## Build Requirements & Environment
 
 ### Prerequisites
