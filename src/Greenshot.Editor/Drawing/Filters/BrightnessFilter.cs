@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -45,7 +46,7 @@ namespace Greenshot.Editor.Drawing.Filters
         /// <param name="applyBitmap"></param>
         /// <param name="rect">NativeRect</param>
         /// <param name="renderMode"></param>
-        public override void Apply(Graphics graphics, Bitmap applyBitmap, NativeRect rect, RenderMode renderMode)
+        public override void Apply(Graphics graphics, Bitmap applyBitmap, NativeRect rect, RenderMode renderMode, IEnumerable<NativeRect> areasToExcludeFromFilters = null)
         {
             var applyRect = ImageHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
 
@@ -60,6 +61,10 @@ namespace Greenshot.Editor.Drawing.Filters
             {
                 graphics.SetClip(applyRect);
                 graphics.ExcludeClip(rect);
+                foreach (NativeRect area in areasToExcludeFromFilters)
+                {
+                    graphics.ExcludeClip(area);
+                }
             }
 
             float brightness = GetFieldValueAsFloat(FieldType.BRIGHTNESS);

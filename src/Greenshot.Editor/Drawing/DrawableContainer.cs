@@ -57,6 +57,9 @@ namespace Greenshot.Editor.Drawing
         private const int M11 = 0;
         private const int M22 = 3;
 
+        public static bool IsBlurFilterApplied = false;
+        public static bool IsBrightnessFilterApplied = false;
+
         [OnDeserialized]
         private void OnDeserializedInit(StreamingContext context)
         {
@@ -396,9 +399,11 @@ namespace Greenshot.Editor.Drawing
 
         public bool HasFilters => Filters.Count > 0;
 
+        public bool IsAreaHighlightContainer => Filters.Any(f => f.Invert && (f is BrightnessFilter || f is BlurFilter || f is GrayscaleFilter));
+
         public abstract void Draw(Graphics graphics, RenderMode renderMode);
 
-        public virtual void DrawContent(Graphics graphics, Bitmap bmp, RenderMode renderMode, NativeRect clipRectangle)
+        public virtual void DrawContent(Graphics graphics, Bitmap bmp, RenderMode renderMode, NativeRect clipRectangle, IEnumerable<NativeRect> areasToExcludeFromFilters)
         {
             if (Children.Count > 0)
             {
@@ -414,7 +419,26 @@ namespace Greenshot.Editor.Drawing
                         {
                             if (filter.Invert)
                             {
-                                filter.Apply(graphics, bmp, Bounds, renderMode);
+                                if (filter is BlurFilter)
+                                {
+                                    if (!IsBlurFilterApplied)
+                                    {
+                                        filter.Apply(graphics, bmp, Bounds, renderMode, areasToExcludeFromFilters);
+                                        IsBlurFilterApplied = true;
+                                    }
+                                }
+                                else if (filter is BrightnessFilter)
+                                {
+                                    if (!IsBrightnessFilterApplied)
+                                    {
+                                        filter.Apply(graphics, bmp, Bounds, renderMode, areasToExcludeFromFilters);
+                                        IsBrightnessFilterApplied = true;
+                                    }
+                                }
+                                else
+                                {
+                                    filter.Apply(graphics, bmp, Bounds, renderMode, areasToExcludeFromFilters);
+                                }
                             }
                             else
                             {
@@ -423,11 +447,11 @@ namespace Greenshot.Editor.Drawing
                                 {
                                     // quick&dirty bugfix, because MagnifierFilter behaves differently when drawn only partially
                                     // what we should actually do to resolve this is add a better magnifier which is not that special
-                                    filter.Apply(graphics, bmp, Bounds, renderMode);
+                                    filter.Apply(graphics, bmp, Bounds, renderMode, areasToExcludeFromFilters);
                                 }
                                 else
                                 {
-                                    filter.Apply(graphics, bmp, drawingRect, renderMode);
+                                    filter.Apply(graphics, bmp, drawingRect, renderMode, areasToExcludeFromFilters);
                                 }
                             }
                         }
