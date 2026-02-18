@@ -157,14 +157,14 @@ namespace Greenshot.Editor.Forms {
 			this.shadowDarkness.Maximum = 40;
 			this.shadowDarkness.Minimum = 1;
 			this.shadowDarkness.Name = "shadowDarkness";
-			this.shadowDarkness.Size = new System.Drawing.Size(116, 45);
+			this.shadowDarkness.Size = new System.Drawing.Size(116, 56);
 			this.shadowDarkness.TabIndex = 5;
 			this.shadowDarkness.Value = 40;
 			// 
 			// buttonOK
 			// 
 			this.buttonOK.LanguageKey = "OK";
-			this.buttonOK.Location = new System.Drawing.Point(334, 192);
+			this.buttonOK.Location = new System.Drawing.Point(334, 203);
 			this.buttonOK.Name = "buttonOK";
 			this.buttonOK.Size = new System.Drawing.Size(75, 23);
 			this.buttonOK.TabIndex = 20;
@@ -175,7 +175,7 @@ namespace Greenshot.Editor.Forms {
 			// 
 			this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
 			this.buttonCancel.LanguageKey = "CANCEL";
-			this.buttonCancel.Location = new System.Drawing.Point(415, 192);
+			this.buttonCancel.Location = new System.Drawing.Point(415, 203);
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.Size = new System.Drawing.Size(75, 23);
 			this.buttonCancel.TabIndex = 21;
@@ -208,7 +208,7 @@ namespace Greenshot.Editor.Forms {
 			// 
 			// toothsize
 			// 
-			this.toothsize.Location = new System.Drawing.Point(173, 138);
+			this.toothsize.Location = new System.Drawing.Point(173, 149);
 			this.toothsize.Maximum = new decimal(new int[] {
 			40,
 			0,
@@ -231,7 +231,7 @@ namespace Greenshot.Editor.Forms {
 			// label_toothsize
 			// 
 			this.label_toothsize.LanguageKey = "editor_tornedge_toothsize";
-			this.label_toothsize.Location = new System.Drawing.Point(12, 140);
+			this.label_toothsize.Location = new System.Drawing.Point(12, 151);
 			this.label_toothsize.Name = "label_toothsize";
 			this.label_toothsize.Size = new System.Drawing.Size(155, 20);
 			this.label_toothsize.TabIndex = 17;
@@ -239,13 +239,13 @@ namespace Greenshot.Editor.Forms {
 			// label_horizontaltoothrange
 			// 
 			this.label_horizontaltoothrange.LanguageKey = "editor_tornedge_horizontaltoothrange";
-			this.label_horizontaltoothrange.Location = new System.Drawing.Point(12, 166);
+			this.label_horizontaltoothrange.Location = new System.Drawing.Point(12, 177);
 			this.label_horizontaltoothrange.Name = "label_horizontaltoothrange";
 			this.label_horizontaltoothrange.Size = new System.Drawing.Size(155, 20);
 			this.label_horizontaltoothrange.TabIndex = 19;			// 
 			// horizontaltoothrange
 			// 
-			this.horizontaltoothrange.Location = new System.Drawing.Point(173, 164);
+			this.horizontaltoothrange.Location = new System.Drawing.Point(173, 175);
 			this.horizontaltoothrange.Maximum = new decimal(new int[] {
 			40,
 			0,
@@ -268,14 +268,14 @@ namespace Greenshot.Editor.Forms {
 			// labelVerticaltoothrange
 			// 
 			this.labelVerticaltoothrange.LanguageKey = "editor_tornedge_verticaltoothrange";
-			this.labelVerticaltoothrange.Location = new System.Drawing.Point(12, 192);
+			this.labelVerticaltoothrange.Location = new System.Drawing.Point(12, 203);
 			this.labelVerticaltoothrange.Name = "labelVerticaltoothrange";
 			this.labelVerticaltoothrange.Size = new System.Drawing.Size(155, 20);
 			this.labelVerticaltoothrange.TabIndex = 21;
 			// 
 			// verticaltoothrange
 			// 
-			this.verticaltoothrange.Location = new System.Drawing.Point(173, 190);
+			this.verticaltoothrange.Location = new System.Drawing.Point(173, 201);
 			this.verticaltoothrange.Maximum = new decimal(new int[] {
 			40,
 			0,
@@ -368,7 +368,7 @@ namespace Greenshot.Editor.Forms {
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
 			this.CancelButton = this.buttonCancel;
-			this.ClientSize = new System.Drawing.Size(502, 223);
+			this.ClientSize = new System.Drawing.Size(502, 234);
 			this.ControlBox = false;
 			this.Controls.Add(this.all);
 			this.Controls.Add(this.shadowCheckbox);
