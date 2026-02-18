@@ -616,6 +616,12 @@ namespace Greenshot.Base.Core
             }
 
             graphics.DrawImage(Bitmap, destinationRect, Area, GraphicsUnit.Pixel);
+
+            // Re-lock if it was locked before
+            if (isLocked)
+            {
+                Lock();
+            }
         }
 
         /// <summary>

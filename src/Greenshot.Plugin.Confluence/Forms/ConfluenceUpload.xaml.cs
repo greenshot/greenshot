@@ -26,118 +26,120 @@ using System.Threading;
 using System.Windows;
 using Greenshot.Plugin.Confluence.Entities;
 
-namespace Greenshot.Plugin.Confluence.Forms
+namespace Greenshot.Plugin.Confluence.Forms;
+
+/// <summary>
+/// Interaction logic for ConfluenceUpload.xaml
+/// </summary>
+public partial class ConfluenceUpload
 {
-    /// <summary>
-    /// Interaction logic for ConfluenceUpload.xaml
-    /// </summary>
-    public partial class ConfluenceUpload
+    private ConfluencePagePicker _pickerPage;
+
+    public ConfluencePagePicker PickerPage
     {
-        private ConfluencePagePicker _pickerPage;
-
-        public ConfluencePagePicker PickerPage
+        get
         {
-            get
+            if (_pickerPage == null)
             {
-                if (_pickerPage == null)
+                List<Page> pages = ConfluenceUtils.GetCurrentPages();
+                if (pages != null && pages.Count > 0)
                 {
-                    List<Page> pages = ConfluenceUtils.GetCurrentPages();
-                    if (pages != null && pages.Count > 0)
-                    {
-                        _pickerPage = new ConfluencePagePicker(this, pages);
-                    }
+                    _pickerPage = new ConfluencePagePicker(this, pages);
                 }
-
-                return _pickerPage;
             }
+
+            return _pickerPage;
         }
+    }
 
-        private System.Windows.Controls.Page _searchPage;
+    private System.Windows.Controls.Page _searchPage;
 
-        public System.Windows.Controls.Page SearchPage
+    public System.Windows.Controls.Page SearchPage
+    {
+        get { return _searchPage ??= new ConfluenceSearch(this); }
+    }
+
+    private System.Windows.Controls.Page _browsePage;
+
+    public System.Windows.Controls.Page BrowsePage
+    {
+        get { return _browsePage ??= new ConfluenceTreePicker(this); }
+    }
+
+    private Page _selectedPage;
+
+    public Page SelectedPage
+    {
+        get => _selectedPage;
+        set
         {
-            get { return _searchPage ??= new ConfluenceSearch(this); }
+            _selectedPage = value;
+            Upload.IsEnabled = _selectedPage != null;
+            IsOpenPageSelected = false;
         }
+    }
 
-        private System.Windows.Controls.Page _browsePage;
+    public bool IsOpenPageSelected { get; set; }
+    public string Filename { get; set; }
 
-        public System.Windows.Controls.Page BrowsePage
+    private static DateTime _lastLoad = DateTime.Now;
+    private static IList<Space> _spaces;
+
+    public IList<Space> Spaces
+    {
+        get
         {
-            get { return _browsePage ??= new ConfluenceTreePicker(this); }
-        }
-
-        private Page _selectedPage;
-
-        public Page SelectedPage
-        {
-            get => _selectedPage;
-            set
-            {
-                _selectedPage = value;
-                Upload.IsEnabled = _selectedPage != null;
-                IsOpenPageSelected = false;
-            }
-        }
-
-        public bool IsOpenPageSelected { get; set; }
-        public string Filename { get; set; }
-
-        private static DateTime _lastLoad = DateTime.Now;
-        private static IList<Space> _spaces;
-
-        public IList<Space> Spaces
-        {
-            get
-            {
-                UpdateSpaces();
-                while (_spaces == null)
-                {
-                    Thread.Sleep(300);
-                }
-
-                return _spaces;
-            }
-        }
-
-        public ConfluenceUpload(string filename)
-        {
-            Filename = filename;
-            InitializeComponent();
-            DataContext = this;
             UpdateSpaces();
-            if (PickerPage != null)
+            int waitAttempts = 0;
+            const int maxWaitAttempts = 100; // ~30 seconds max
+            while (_spaces == null && waitAttempts < maxWaitAttempts)
             {
-                return;
+                Thread.Sleep(300);
+                waitAttempts++;
             }
-            PickerTab.Visibility = Visibility.Collapsed;
-            SearchTab.IsSelected = true;
-        }
 
-        private void UpdateSpaces()
+            return _spaces;
+        }
+    }
+
+    public ConfluenceUpload(string filename)
+    {
+        Filename = filename;
+        InitializeComponent();
+        DataContext = this;
+        UpdateSpaces();
+        if (PickerPage != null)
         {
-            if (_spaces != null && DateTime.Now.AddMinutes(-60).CompareTo(_lastLoad) > 0)
-            {
-                // Reset
-                _spaces = null;
-            }
-
-            // Check if load is needed
-            if (_spaces == null)
-            {
-                (new Thread(() =>
-                {
-                    _spaces = ConfluencePlugin.ConfluenceConnector.GetSpaceSummaries().OrderBy(s => s.Name).ToList();
-                    _lastLoad = DateTime.Now;
-                })
-                {
-                    Name = "Loading spaces for confluence"
-                }).Start();
-            }
+            return;
         }
+        PickerTab.Visibility = Visibility.Collapsed;
+        SearchTab.IsSelected = true;
+    }
 
-        private void Upload_Click(object sender, RoutedEventArgs e)
+    private void UpdateSpaces()
+    {
+        if (_spaces != null && DateTime.Now.AddMinutes(-60).CompareTo(_lastLoad) > 0)
         {
-            DialogResult = true;
+            // Reset
+            _spaces = null;
         }
+
+        // Check if load is needed
+        if (_spaces == null)
+        {
+            (new Thread(() =>
+            {
+                _spaces = ConfluencePlugin.ConfluenceConnector.GetSpaceSummaries().OrderBy(s => s.Name).ToList();
+                _lastLoad = DateTime.Now;
+            })
+            {
+                Name = "Loading spaces for confluence"
+            }).Start();
+        }
+    }
+
+    private void Upload_Click(object sender, RoutedEventArgs e)
+    {
+        DialogResult = true;
     }
 }

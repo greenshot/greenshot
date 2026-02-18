@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <language description="Deutsch" ietf="de-DE" version="1.1.1.2550" languagegroup="1">
 	<resources>
 		<resource name="about_bugs">Bitte melden Sie Fehler unter</resource>
@@ -55,7 +55,7 @@ schnell zu finden. Vielen Dank :)</resource>
 		<resource name="contextmenu_donate">Greenshot unterstützen</resource>
 		<resource name="contextmenu_exit">Schließen</resource>
 		<resource name="contextmenu_help">Hilfe</resource>
-		<resource name="contextmenu_openfile">Datei öffnen...</resource>
+		<resource name="contextmenu_openfile">Bild aus einer Datei öffnen...</resource>
 		<resource name="contextmenu_openrecentcapture">Letzten Speicherort im Explorer öffnen</resource>
 		<resource name="contextmenu_quicksettings">Schnelleinstellungen</resource>
 		<resource name="contextmenu_settings">Einstellungen...</resource>
@@ -92,7 +92,7 @@ schnell zu finden. Vielen Dank :)</resource>
 		<resource name="editor_copypathtoclipboard">Pfad in Zwischenablage kopieren</resource>
 		<resource name="editor_copytoclipboard">Kopieren</resource>
 		<resource name="editor_crop">Zuschneiden (C)</resource>
-		<resource name="editor_crop_mode">Zuschneiden - Modus</resource>
+		<resource name="editor_crop_mode">Zuschneiden-Modus</resource>
 		<resource name="editor_cropmode_default">Zuschneiden</resource>
 		<resource name="editor_cropmode_vertical">Vertikal ausschneiden</resource>
 		<resource name="editor_cropmode_horizontal">Horizontal ausschneiden</resource>
@@ -120,26 +120,44 @@ schnell zu finden. Vielen Dank :)</resource>
 		<resource name="editor_highlight_area">Bereich hervorheben</resource>
 		<resource name="editor_highlight_grayscale">Graustufen</resource>
 		<resource name="editor_highlight_magnify">Vergrößern</resource>
-		<resource name="editor_highlight_mode">Hervorheben - Modus</resource>
+		<resource name="editor_highlight_mode">Hervorheben-Modus</resource>
 		<resource name="editor_highlight_text">Textmarker</resource>
 		<resource name="editor_image_shadow">Schatten</resource>
 		<resource name="editor_imagesaved">Bild wurde gespeichert unter {0}.</resource>
 		<resource name="editor_insertwindow">Fenster einfügen</resource>
 		<resource name="editor_invert">Invertieren</resource>
 		<resource name="editor_italic">Kursiv</resource>
-		<resource name="editor_load_objects">Objekte aus Datei laden</resource>
+		<resource name="editor_load_objects">Objekte aus Datei laden...</resource>
 		<resource name="editor_magnification_factor">Vergrößerungsfaktor</resource>
 		<resource name="editor_match_capture_size">Anpassen an Aufnahmebereich</resource>
 		<resource name="editor_obfuscate">Unkenntlich machen (O)</resource>
 		<resource name="editor_obfuscate_blur">Weichzeichner</resource>
-		<resource name="editor_obfuscate_mode">Unkenntlich machen - Modus</resource>
+		<resource name="editor_obfuscate_mode">Unkenntlich-machen-Modus</resource>
 		<resource name="editor_obfuscate_pixelize">Verpixeln</resource>
+		<resource name="editor_obfuscate_text">Text unkenntlich machen...</resource>
+		<resource name="editor_obfuscate_text_title">Text unkenntlich machen</resource>
+		<resource name="editor_obfuscate_text_search">Suchen nach:</resource>
+		<resource name="editor_obfuscate_text_search_button">Suchen</resource>
+		<resource name="editor_obfuscate_text_regex">Regulären Ausdruck verwenden</resource>
+		<resource name="editor_obfuscate_text_case_sensitive">Groß-/Kleinschreibung beachten</resource>
+		<resource name="editor_obfuscate_text_auto_search">Automatische Suche</resource>
+		<resource name="editor_obfuscate_text_search_scope">Suchen in:</resource>
+		<resource name="editor_obfuscate_text_scope_words">Wörter</resource>
+		<resource name="editor_obfuscate_text_scope_lines">Zeilen</resource>
+		<resource name="editor_obfuscate_text_matches">Treffer gefunden: {0}</resource>
+		<resource name="editor_obfuscate_text_apply">Übernehmen</resource>
+		<resource name="editor_obfuscate_text_error">Fehler</resource>
+		<resource name="editor_obfuscate_text_no_capture">Keine Aufnahme verfügbar</resource>
+		<resource name="editor_obfuscate_text_no_ocr_provider">OCR-Anbieter nicht verfügbar</resource>
+		<resource name="editor_obfuscate_text_ocr_failed">OCR fehlgeschlagen</resource>
+		<resource name="editor_obfuscate_text_no_text">Kein Text im Bild gefunden</resource>
 		<resource name="editor_object">Objekt</resource>
 		<resource name="editor_opendirinexplorer">Verzeichnis im Windows Explorer öffnen</resource>
 		<resource name="editor_pastefromclipboard">Einfügen</resource>
 		<resource name="editor_pixel_size">Pixelgröße</resource>
 		<resource name="editor_preview_quality">Vorschauqualität</resource>
 		<resource name="editor_print">Drucken</resource>
+		<resource name="editor_remove_transparency">Transparenz entfernen</resource>
 		<resource name="editor_redo">Wiederherstellen {0}</resource>
 		<resource name="editor_resetsize">Größe zurücksetzen</resource>
 		<resource name="editor_resize_percent">Prozent</resource>
@@ -147,11 +165,11 @@ schnell zu finden. Vielen Dank :)</resource>
 		<resource name="editor_rotateccw">Gegen den Uhrzeigersinn drehen</resource>
 		<resource name="editor_rotatecw">Im Uhrzeigersinn drehen</resource>
 		<resource name="editor_save">Speichern</resource>
-		<resource name="editor_save_objects">Objekte in Datei speichern</resource>
+		<resource name="editor_save_objects">Objekte in Datei speichern...</resource>
 		<resource name="editor_saveas">Speichern unter...</resource>
 		<resource name="editor_selectall">Alle Objekte auswählen</resource>
 		<resource name="editor_senttoprinter">Druckauftrag wurde an '{0}' gesendet.</resource>
-		<resource name="editor_shadow">Schatten an/aus (/)</resource>
+		<resource name="editor_shadow">Schatten an/aus (Num+/)</resource>
 		<resource name="editor_storedtoclipboard">Bild wurde in Zwischenablage kopiert.</resource>
 		<resource name="editor_thickness">Linienstärke</resource>
 		<resource name="editor_title">Greenshot - Editor</resource>
@@ -171,7 +189,7 @@ Bitte überprüfen Sie die Schreibrechte oder wählen Sie einen anderen Speicher
 		<resource name="error_save">Screenshot konnte nicht gespeichert werden, bitte wählen Sie einen anderen Speicherort.</resource>
 		<resource name="error_save_invalid_chars">Der generierte Datei- oder Verzeichnisname ist nicht gültig. Bitte korrigieren Sie das Dateinamensmuster und versuchen Sie es erneut.</resource>
 		<resource name="expertsettings">Experten</resource>
-		<resource name="expertsettings_autoreducecolors">8-Bit-Bilder bei weniger als 256 Farben erstellen</resource>
+		<resource name="expertsettings_autoreducecolors">8-Bit-Bild bei weniger als 256 Farben erstellen</resource>
 		<resource name="expertsettings_checkunstableupdates">Auch instabile Updates anbieten</resource>
 		<resource name="expertsettings_clipboardformats">Zwischenablage-Formate</resource>
 		<resource name="expertsettings_counter">Wert für ${NUM} im Dateinamensmuster</resource>
@@ -193,7 +211,7 @@ Bitte überprüfen Sie die Schreibrechte oder wählen Sie einen anderen Speicher
 		<resource name="printoptions_allowenlarge">Auf Seitengröße vergrößern</resource>
 		<resource name="printoptions_allowrotate">In die Seitenausrichtung drehen</resource>
 		<resource name="printoptions_allowshrink">Auf Seitengröße verkleinern</resource>
-		<resource name="printoptions_colors">Farb-Einstellungen</resource>
+		<resource name="printoptions_colors">Farbeinstellungen</resource>
 		<resource name="printoptions_dontaskagain">Als Standard speichern und nicht wieder fragen</resource>
 		<resource name="printoptions_inverted">Farben umkehren</resource>
 		<resource name="printoptions_layout">Layout-Einstellungen</resource>
@@ -221,7 +239,7 @@ Bitte überprüfen Sie die Schreibrechte oder wählen Sie einen anderen Speicher
 		<resource name="settings_destination_email">E-Mail</resource>
 		<resource name="settings_destination_file">Sofort speichern</resource>
 		<resource name="settings_destination_fileas">Speichern unter... (mit Dialog)</resource>
-		<resource name="settings_destination_picker">Ziel dynamisch auswählen</resource>
+		<resource name="settings_destination_picker">Jedes Mal nach Ziel fragen</resource>
 		<resource name="settings_destination_printer">An Drucker senden</resource>
 		<resource name="settings_editor">Editor</resource>
 		<resource name="settings_filenamepattern">Dateinamensmuster</resource>

@@ -19,7 +19,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using log4net;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -42,6 +41,8 @@ using Greenshot.Configuration;
 using Greenshot.Editor.Destinations;
 using Greenshot.Editor.Drawing;
 using Greenshot.Forms;
+using Greenshot.Native;
+using log4net;
 
 namespace Greenshot.Helpers
 {
@@ -910,6 +911,14 @@ namespace Greenshot.Helpers
                 captureForWindow = new Capture();
             }
 
+            // New simplified logic with 1.4, using WindowsGraphicsCapture
+            if (CoreConfig.IsBetaTester)
+            {
+                captureForWindow.Image = WindowsGraphicsCaptureInterop.CaptureWindowToBitmap(windowToCapture.Handle);
+                captureForWindow.CaptureDetails.Title = windowToCapture.Text;
+                return captureForWindow;
+            }
+
             NativeRect windowRectangle = windowToCapture.WindowRectangle;
 
             // When Vista & DWM (Aero) enabled
@@ -974,9 +983,12 @@ namespace Greenshot.Helpers
                 Log.InfoFormat("Capturing window with mode {0}", windowCaptureMode);
                 bool captureTaken = false;
                 windowRectangle = windowRectangle.Intersect(captureForWindow.ScreenBounds);
-                // Try to capture
-                while (!captureTaken)
+                // Try to capture, with a safety limit to prevent infinite mode-switching loops
+                int captureAttempts = 0;
+                const int maxCaptureAttempts = 5;
+                while (!captureTaken && captureAttempts < maxCaptureAttempts)
                 {
+                    captureAttempts++;
                     ICapture tmpCapture = null;
                     switch (windowCaptureMode)
                     {
@@ -1102,6 +1114,11 @@ namespace Greenshot.Helpers
 
                             break;
                     }
+                }
+
+                if (!captureTaken)
+                {
+                    Log.Warn("Failed to capture window after maximum attempts, all capture modes exhausted.");
                 }
             }
 

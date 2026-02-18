@@ -5,10 +5,15 @@
 **Greenshot** is a free, open-source screenshot tool for Windows optimized for productivity. It allows users to capture screenshots, annotate them, and export to various destinations (file, printer, clipboard, email, cloud services).
 
 - **Repository Size**: ~13MB, ~1,100 files
-- **Primary Language**: C# (.NET Framework 4.8.1)
+- **Primary Language**: C# (.NET Framework 4.8.0)
 - **Project Type**: Windows Desktop Application (WinForms/WPF)
 - **Build System**: MSBuild (requires Visual Studio or MSBuild Tools for Windows)
 - **Versioning**: Nerdbank.GitVersioning (version base: 1.4.x)
+
+## Specialised Agents
+
+-translation-manager: always consult them about UI messages, esp. after addition/change/removal of UI messages
+- release-documentation-specialist: always ask them to update release notes after applying changes to the code base or when there is demand to update release notes or write a release blog post
 
 ## Build Requirements & Environment
 
@@ -16,7 +21,7 @@
 - **Operating System**: Windows (Linux/Mac not supported for building)
 - **Build Tools**: MSBuild (from Visual Studio 2019+ or MSBuild Tools for Windows)
 - **.NET SDK**: .NET 7.x SDK (for NuGet restore, see release.yml line 38-39)
-- **Target Framework**: .NET Framework 4.8.1
+- **Target Framework**: .NET Framework 4.8.0
 - **Git Clone**: MUST use full clone with history (NOT shallow clone) due to Nerdbank.GitVersioning requirements
 
 ### Critical Build Notes
@@ -182,6 +187,27 @@ $env:Box13_ClientSecret = "your_secret"
 
 ### Modifying Plugins
 Each plugin in `src/Greenshot.Plugin.*/` is self-contained. Changes are automatically copied to main output via post-build events.
+
+## Translation Tasks
+
+**Whenever UI messages are added, changed or removed, all translations should be updated accordingly. For ALL translation-related tasks, delegate to the translation-manager custom agent.**
+
+The translation-manager agent is a specialized expert with comprehensive knowledge of:
+- Translation file structure and format (XML with UTF-8 BOM encoding)
+- All 39 supported languages and their language files
+- Translation glossary, workflow checklists, and validation tools
+- Best practices for high-quality translations
+
+**Translation tasks include:**
+- Adding, updating, or removing translation strings
+- Translating content to different languages
+- Adding support for new languages
+- Validating translation file completeness and correctness
+- Reviewing translation quality
+
+**Documentation**: See `docs/translation/README.md` for comprehensive translation documentation.
+
+**Do not** attempt translation tasks yourself. Always use the translation-manager agent for any work involving language files or translation documentation.
 
 ## Validation Checklist
 

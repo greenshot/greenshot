@@ -44,6 +44,9 @@ namespace Greenshot.Base.Core
         [IniProperty("Language", Description = "The language in IETF format (e.g. en-US)")]
         public string Language { get; set; }
 
+        [IniProperty("BetaTester", Description = "The user wants to be beta-tester, this enables some features not available otherwise.")]
+        public bool IsBetaTester { get; set; }
+
         [IniProperty("RegionHotkey", Description = "Hotkey for starting the region capture", DefaultValue = "PrintScreen")]
         public string RegionHotkey { get; set; }
 
@@ -508,6 +511,10 @@ namespace Greenshot.Base.Core
             if (UpdateCheckInterval > 365)
             {
                 UpdateCheckInterval = 365;
+            }
+            if (UpdateCheckInterval < 0)
+            {
+                UpdateCheckInterval = 0;
             }
 
             // Enable OneNote if upgrading from 1.1

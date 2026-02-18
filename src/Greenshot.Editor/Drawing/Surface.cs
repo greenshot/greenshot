@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -40,6 +40,7 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Drawing.Adorners;
 using Greenshot.Editor.Configuration;
+using Greenshot.Editor.Drawing.Emoji;
 using Greenshot.Editor.Drawing.Fields;
 using Greenshot.Editor.Helpers;
 using Greenshot.Editor.Memento;
@@ -349,6 +350,11 @@ namespace Greenshot.Editor.Drawing
             {
                 _zoomFactor = value;
                 var inverse = _zoomFactor.Inverse();
+
+                // Dispose old matrices before creating new ones to prevent GDI handle leaks
+                _zoomMatrix?.Dispose();
+                _inverseZoomMatrix?.Dispose();
+
                 _zoomMatrix = new Matrix(_zoomFactor, 0, 0, _zoomFactor, 0, 0);
                 _inverseZoomMatrix = new Matrix(inverse, 0, 0, inverse, 0, 0);
                 UpdateSize();
@@ -549,7 +555,7 @@ namespace Greenshot.Editor.Drawing
                 // check if cursor is on the capture, otherwise we leave it out.
                 if (cursorRect.IntersectsWith(captureRect))
                 {
-                    _cursorContainer = AddIconContainer(capture.Cursor, capture.CursorLocation.X, capture.CursorLocation.Y);
+                    _cursorContainer = AddImageContainer(capture.Cursor, capture.CursorLocation.X, capture.CursorLocation.Y);
                     SelectElement(_cursorContainer);
                 }
             }
@@ -565,6 +571,12 @@ namespace Greenshot.Editor.Drawing
             if (disposing)
             {
                 LOG.Debug("Disposing surface!");
+                if (_image != null)
+                {
+                    _image.Dispose();
+                    _image = null;
+                }
+
                 if (_buffer != null)
                 {
                     _buffer.Dispose();
@@ -575,6 +587,19 @@ namespace Greenshot.Editor.Drawing
                 {
                     _transparencyBackgroundBrush.Dispose();
                     _transparencyBackgroundBrush = null;
+                }
+
+                // Dispose zoom matrices to release GDI handles
+                if (_zoomMatrix != null)
+                {
+                    _zoomMatrix.Dispose();
+                    _zoomMatrix = null;
+                }
+
+                if (_inverseZoomMatrix != null)
+                {
+                    _inverseZoomMatrix.Dispose();
+                    _inverseZoomMatrix = null;
                 }
 
                 // Cleanup undo/redo stacks
@@ -798,6 +823,9 @@ namespace Greenshot.Editor.Drawing
                 case DrawingModes.None:
                     _undrawnElement = null;
                     break;
+                case DrawingModes.Emoji:
+                    _undrawnElement = new EmojiContainer(this, "🙂");
+                    break;
             }
 
             if (_undrawnElement != null)
@@ -846,6 +874,15 @@ namespace Greenshot.Editor.Drawing
         {
             IconContainer iconContainer = new IconContainer(this);
             iconContainer.Load(filename);
+            iconContainer.Left = x;
+            iconContainer.Top = y;
+            AddElement(iconContainer);
+            return iconContainer;
+        }
+
+        public IEmojiContainer AddEmojiContainer(string emoji, int x, int y, int size)
+        {
+            var iconContainer = new EmojiContainer(this, emoji, size);
             iconContainer.Left = x;
             iconContainer.Top = y;
             AddElement(iconContainer);
@@ -1771,14 +1808,14 @@ namespace Greenshot.Editor.Drawing
                 {
                     targetClipRectangle = targetClipRectangle
                         .ChangeX(targetClipRectangle.X - horizontalCorrection)
-                        .ChangeWidth(targetClipRectangle.X + horizontalCorrection);
+                        .ChangeWidth(targetClipRectangle.Width + horizontalCorrection);
                 }
 
                 if (verticalCorrection != 0)
                 {
                     targetClipRectangle = targetClipRectangle
                         .ChangeY(targetClipRectangle.Y - verticalCorrection)
-                        .ChangeHeight(targetClipRectangle.Y + verticalCorrection);
+                        .ChangeHeight(targetClipRectangle.Height + verticalCorrection);
                 }
             }
 

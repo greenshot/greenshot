@@ -23,7 +23,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Xml;
 using Greenshot.Base.IniFile;
@@ -73,7 +72,7 @@ namespace Greenshot.Base.Core
 
             try
             {
-                string applicationFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                string applicationFolder = EnvironmentInfo.GetApplicationFolder();
 
                 // PAF Path
                 if (applicationFolder != null)

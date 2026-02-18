@@ -47,7 +47,6 @@ namespace Greenshot.Editor.FileFormatHandlers
 
         public DibFileFormatHandler()
         {
-            SupportedExtensions[FileFormatHandlerActions.LoadDrawableFromStream] = _ourExtensions;
             SupportedExtensions[FileFormatHandlerActions.LoadFromStream] = _ourExtensions;
             SupportedExtensions[FileFormatHandlerActions.SaveToStream] = _ourExtensions;
         }
@@ -110,7 +109,7 @@ namespace Greenshot.Editor.FileFormatHandlers
             }
             finally
             {
-                if (gcHandle == IntPtr.Zero)
+                if (gcHandle != IntPtr.Zero)
                 {
                     GCHandle.FromIntPtr(gcHandle).Free();
                 }

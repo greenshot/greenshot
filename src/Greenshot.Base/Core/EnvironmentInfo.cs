@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -29,7 +30,8 @@ using Dapplo.Windows.Kernel32.Structs;
 using Dapplo.Windows.User32;
 using Dapplo.Windows.Common.Extensions;
 using Greenshot.Base.IniFile;
-using Microsoft.Win32;
+using Greenshot.Base.Interfaces.Plugin;
+using System.Linq;
 
 namespace Greenshot.Base.Core
 {
@@ -204,6 +206,18 @@ namespace Greenshot.Base.Core
             // TODO: Is this needed?
             // environment.AppendFormat("Surface count: {0}", Surface.Count);
 
+            environment.Append("Plugin list: ");
+            environment.Append(string.Join(",", SimpleServiceProvider.Current.GetAllInstances<IGreenshotPlugin>().Select(plugin => plugin.Name)));
+
+            if (newline)
+            {
+                environment.AppendLine();
+            }
+            else
+            {
+                environment.Append(", ");
+            }
+
             return environment.ToString();
         }
 
@@ -265,6 +279,12 @@ namespace Greenshot.Base.Core
 
             return exceptionText.ToString();
         }
+
+        /// <summary>
+        /// Returns the directory where the application is located
+        /// </summary>
+        public static string GetApplicationFolder()
+            => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
     }
 
     /// <summary>
@@ -517,8 +537,12 @@ namespace Greenshot.Base.Core
 
                                     break;
                                 case 10:
-                                    string releaseId = Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion", "ReleaseId", "").ToString();
-                                    name = $"Windows 10 {releaseId}";
+                                    if (osVersion.Version.Build < 22000)
+                                    {
+                                        name = "Windows 10";
+                                    } else {
+                                        name = "Windows 11";
+                                    }
                                     break;
                             }
 

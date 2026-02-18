@@ -30,120 +30,120 @@ using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 
-namespace Greenshot.Plugin.Box
+namespace Greenshot.Plugin.Box;
+
+/// <summary>
+/// This is the Box base code
+/// </summary>
+public class BoxPlugin : IGreenshotPlugin
 {
-    /// <summary>
-    /// This is the Box base code
-    /// </summary>
-    public class BoxPlugin : IGreenshotPlugin
+    private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(BoxPlugin));
+    private static BoxConfiguration _config;
+    private ComponentResourceManager _resources;
+    private ToolStripMenuItem _itemPlugInConfig;
+
+    public void Dispose()
     {
-        private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(BoxPlugin));
-        private static BoxConfiguration _config;
-        private ComponentResourceManager _resources;
-        private ToolStripMenuItem _itemPlugInConfig;
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
 
-        public void Dispose()
+    /// <summary>
+    /// Name of the plugin
+    /// </summary>
+    public string Name => "Box";
+
+    /// <summary>
+    /// Specifies if the plugin can be configured
+    /// </summary>
+    public bool IsConfigurable => true;
+
+    private void Dispose(bool disposing)
+    {
+        if (!disposing) return;
+
+        if (_itemPlugInConfig == null) return;
+
+        _itemPlugInConfig.Dispose();
+        _itemPlugInConfig = null;
+    }
+
+    /// <summary>
+    /// Implementation of the IGreenshotPlugin.Initialize
+    /// </summary>
+    public bool Initialize()
+    {
+        // Register configuration (don't need the configuration itself)
+        _config = IniConfig.GetIniSection<BoxConfiguration>();
+        _resources = new ComponentResourceManager(typeof(BoxPlugin));
+        SimpleServiceProvider.Current.AddService<IDestination>(new BoxDestination(this));
+        _itemPlugInConfig = new ToolStripMenuItem
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            Image = (Image) _resources.GetObject("Box"),
+            Text = Language.GetString("box", LangKey.Configure)
+        };
+        _itemPlugInConfig.Click += ConfigMenuClick;
+
+        PluginUtils.AddToContextMenu(_itemPlugInConfig);
+        Language.LanguageChanged += OnLanguageChanged;
+        return true;
+    }
+
+    public void OnLanguageChanged(object sender, EventArgs e)
+    {
+        if (_itemPlugInConfig != null)
+        {
+            _itemPlugInConfig.Text = Language.GetString("box", LangKey.Configure);
         }
+    }
 
-        /// <summary>
-        /// Name of the plugin
-        /// </summary>
-        public string Name => "Box";
+    public void Shutdown()
+    {
+        LOG.Debug("Box Plugin shutdown.");
+        Language.LanguageChanged -= OnLanguageChanged;
+    }
 
-        /// <summary>
-        /// Specifies if the plugin can be configured
-        /// </summary>
-        public bool IsConfigurable => true;
+    /// <summary>
+    /// Implementation of the IPlugin.Configure
+    /// </summary>
+    public void Configure()
+    {
+        _config.ShowConfigDialog();
+    }
 
-        private void Dispose(bool disposing)
+    public void ConfigMenuClick(object sender, EventArgs eventArgs)
+    {
+        _config.ShowConfigDialog();
+    }
+
+    /// <summary>
+    /// This will be called when the menu item in the Editor is clicked
+    /// </summary>
+    public string Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload)
+    {
+        SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, false);
+        try
         {
-            if (!disposing) return;
+            string url = null;
+            string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
+            SurfaceContainer imageToUpload = new SurfaceContainer(surfaceToUpload, outputSettings, filename);
 
-            if (_itemPlugInConfig == null) return;
+            new PleaseWaitForm().ShowAndWait("Box", Language.GetString("box", LangKey.communication_wait),
+                delegate { url = BoxUtils.UploadToBox(imageToUpload, captureDetails.Title, filename); }
+            );
 
-            _itemPlugInConfig.Dispose();
-            _itemPlugInConfig = null;
-        }
-
-        /// <summary>
-        /// Implementation of the IGreenshotPlugin.Initialize
-        /// </summary>
-        public bool Initialize()
-        {
-            // Register configuration (don't need the configuration itself)
-            _config = IniConfig.GetIniSection<BoxConfiguration>();
-            _resources = new ComponentResourceManager(typeof(BoxPlugin));
-            SimpleServiceProvider.Current.AddService<IDestination>(new BoxDestination(this));
-            _itemPlugInConfig = new ToolStripMenuItem
+            if (url != null && _config.AfterUploadLinkToClipBoard)
             {
-                Image = (Image) _resources.GetObject("Box"),
-                Text = Language.GetString("box", LangKey.Configure)
-            };
-            _itemPlugInConfig.Click += ConfigMenuClick;
-
-            PluginUtils.AddToContextMenu(_itemPlugInConfig);
-            Language.LanguageChanged += OnLanguageChanged;
-            return true;
-        }
-
-        public void OnLanguageChanged(object sender, EventArgs e)
-        {
-            if (_itemPlugInConfig != null)
-            {
-                _itemPlugInConfig.Text = Language.GetString("box", LangKey.Configure);
+                ClipboardHelper.SetClipboardData(url);
             }
+
+            return url;
         }
-
-        public void Shutdown()
+        catch (Exception ex)
         {
-            LOG.Debug("Box Plugin shutdown.");
-        }
-
-        /// <summary>
-        /// Implementation of the IPlugin.Configure
-        /// </summary>
-        public void Configure()
-        {
-            _config.ShowConfigDialog();
-        }
-
-        public void ConfigMenuClick(object sender, EventArgs eventArgs)
-        {
-            _config.ShowConfigDialog();
-        }
-
-        /// <summary>
-        /// This will be called when the menu item in the Editor is clicked
-        /// </summary>
-        public string Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload)
-        {
-            SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, false);
-            try
-            {
-                string url = null;
-                string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
-                SurfaceContainer imageToUpload = new SurfaceContainer(surfaceToUpload, outputSettings, filename);
-
-                new PleaseWaitForm().ShowAndWait("Box", Language.GetString("box", LangKey.communication_wait),
-                    delegate { url = BoxUtils.UploadToBox(imageToUpload, captureDetails.Title, filename); }
-                );
-
-                if (url != null && _config.AfterUploadLinkToClipBoard)
-                {
-                    ClipboardHelper.SetClipboardData(url);
-                }
-
-                return url;
-            }
-            catch (Exception ex)
-            {
-                LOG.Error("Error uploading.", ex);
-                MessageBox.Show(Language.GetString("box", LangKey.upload_failure) + " " + ex.Message);
-                return null;
-            }
+            LOG.Error("Error uploading.", ex);
+            MessageBox.Show(Language.GetString("box", LangKey.upload_failure) + " " + ex.Message);
+            return null;
         }
     }
 }

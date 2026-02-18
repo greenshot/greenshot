@@ -21,292 +21,387 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
+using Dapplo.Confluence;
+using Dapplo.Confluence.Entities;
+using Dapplo.Confluence.Query;
 using Greenshot.Base.Core;
 using Greenshot.Base.IniFile;
-using Greenshot.Plugin.Confluence.Entities;
-using GreenshotConfluencePlugin.confluence;
 
-namespace Greenshot.Plugin.Confluence
+namespace Greenshot.Plugin.Confluence;
+
+/// <summary>
+/// Confluence connector using REST API via Dapplo.Confluence
+/// See: https://docs.atlassian.com/ConfluenceServer/rest/
+/// </summary>
+public class ConfluenceConnector : IDisposable
 {
-    /// <summary>
-    /// For details see the Confluence API site
-    /// See: https://confluence.atlassian.com/display/CONFDEV/Remote+API+Specification
-    /// </summary>
-    public class ConfluenceConnector : IDisposable
+    private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ConfluenceConnector));
+    private static readonly ConfluenceConfiguration Config = IniConfig.GetIniSection<ConfluenceConfiguration>();
+    private DateTime _loggedInTime = DateTime.Now;
+    private bool _loggedIn;
+    private IConfluenceClient _confluence;
+    private readonly int _timeout;
+    private string _url;
+    private readonly Cache<string, Content> _pageCache = new Cache<string, Content>(60 * Config.Timeout);
+
+    public void Dispose()
     {
-        private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ConfluenceConnector));
-        private const string AuthFailedExceptionName = "com.atlassian.confluence.rpc.AuthenticationFailedException";
-        private const string V2Failed = "AXIS";
-        private static readonly ConfluenceConfiguration Config = IniConfig.GetIniSection<ConfluenceConfiguration>();
-        private string _credentials;
-        private DateTime _loggedInTime = DateTime.Now;
-        private bool _loggedIn;
-        private ConfluenceSoapServiceService _confluence;
-        private readonly int _timeout;
-        private string _url;
-        private readonly Cache<string, RemotePage> _pageCache = new Cache<string, RemotePage>(60 * Config.Timeout);
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
 
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        private void Dispose(bool disposing)
-        {
-            if (_confluence != null)
-            {
-                Logout();
-            }
-
-            if (disposing)
-            {
-                if (_confluence != null)
-                {
-                    _confluence.Dispose();
-                    _confluence = null;
-                }
-            }
-        }
-
-        public ConfluenceConnector(string url, int timeout)
-        {
-            _timeout = timeout;
-            Init(url);
-        }
-
-        private void Init(string url)
-        {
-            _url = url;
-            _confluence = new ConfluenceSoapServiceService
-            {
-                Url = url,
-                Proxy = NetworkHelper.CreateProxy(new Uri(url))
-            };
-        }
-
-        ~ConfluenceConnector()
-        {
-            Dispose(false);
-        }
-
-        /// <summary>
-        /// Internal login which catches the exceptions
-        /// </summary>
-        /// <returns>true if login was done sucessfully</returns>
-        private bool DoLogin(string user, string password)
-        {
-            try
-            {
-                _credentials = _confluence.login(user, password);
-                _loggedInTime = DateTime.Now;
-                _loggedIn = true;
-            }
-            catch (Exception e)
-            {
-                // Check if confluence-v2 caused an error, use v1 instead
-                if (e.Message.Contains(V2Failed) && _url.Contains("v2"))
-                {
-                    Init(_url.Replace("v2", "v1"));
-                    return DoLogin(user, password);
-                }
-
-                // check if auth failed
-                if (e.Message.Contains(AuthFailedExceptionName))
-                {
-                    return false;
-                }
-
-                // Not an authentication issue
-                _loggedIn = false;
-                _credentials = null;
-                e.Data.Add("user", user);
-                e.Data.Add("url", _url);
-                throw;
-            }
-
-            return true;
-        }
-
-        public void Login()
+    private void Dispose(bool disposing)
+    {
+        if (_confluence != null)
         {
             Logout();
-            try
-            {
-                // Get the system name, so the user knows where to login to
-                string systemName = _url.Replace(ConfluenceConfiguration.DEFAULT_POSTFIX1, "");
-                systemName = systemName.Replace(ConfluenceConfiguration.DEFAULT_POSTFIX2, "");
-                var dialog = new CredentialsDialog(systemName)
-                {
-                    Name = null
-                };
-                while (dialog.Show(dialog.Name) == DialogResult.OK)
-                {
-                    if (DoLogin(dialog.Name, dialog.Password))
-                    {
-                        if (dialog.SaveChecked)
-                        {
-                            dialog.Confirm(true);
-                        }
-
-                        return;
-                    }
-                    else
-                    {
-                        try
-                        {
-                            dialog.Confirm(false);
-                        }
-                        catch (ApplicationException e)
-                        {
-                            // exception handling ...
-                            Log.Error("Problem using the credentials dialog", e);
-                        }
-
-                        // For every windows version after XP show an incorrect password baloon
-                        dialog.IncorrectPassword = true;
-                        // Make sure the dialog is display, the password was false!
-                        dialog.AlwaysDisplay = true;
-                    }
-                }
-            }
-            catch (ApplicationException e)
-            {
-                // exception handling ...
-                Log.Error("Problem using the credentials dialog", e);
-            }
         }
 
-        public void Logout()
+        if (disposing)
         {
-            if (_credentials != null)
+            _confluence = null;
+        }
+    }
+
+    public ConfluenceConnector(string url, int timeout)
+    {
+        _timeout = timeout;
+        Init(url);
+    }
+
+    private void Init(string url)
+    {
+        _url = url;
+        var baseUri = new Uri(url);
+        // Set up proxy if needed
+        _confluence = ConfluenceClient.Create(baseUri);
+    }
+
+    ~ConfluenceConnector()
+    {
+        Dispose(false);
+    }
+
+    /// <summary>
+    /// Internal login which catches the exceptions
+    /// </summary>
+    /// <returns>true if login was done sucessfully</returns>
+    private bool DoLogin(string user, string password)
+    {
+        try
+        {
+            _confluence.SetBasicAuthentication(user, password);
+            
+            // Test the credentials by getting current user info
+            var testTask = Task.Run(async () => await _confluence.User.GetCurrentUserAsync().ConfigureAwait(false));
+            testTask.Wait();
+            
+            _loggedInTime = DateTime.Now;
+            _loggedIn = true;
+        }
+        catch (Exception e)
+        {
+            // Check if auth failed
+            if (e.InnerException != null && (e.InnerException.Message.Contains("401") || e.InnerException.Message.Contains("Unauthorized")))
             {
-                _confluence.logout(_credentials);
-                _credentials = null;
-                _loggedIn = false;
+                return false;
             }
+
+            // Not an authentication issue
+            _loggedIn = false;
+            e.Data.Add("user", user);
+            e.Data.Add("url", _url);
+            throw;
         }
 
-        private void CheckCredentials()
+        return true;
+    }
+
+    public void Login()
+    {
+        Logout();
+        try
         {
-            if (_loggedIn)
+            // Get the system name, so the user knows where to login to
+            string systemName = _url;
+            var dialog = new CredentialsDialog(systemName)
             {
-                if (_loggedInTime.AddMinutes(_timeout - 1).CompareTo(DateTime.Now) < 0)
+                Name = null
+            };
+            while (dialog.Show(dialog.Name) == DialogResult.OK)
+            {
+                if (DoLogin(dialog.Name, dialog.Password))
                 {
-                    Logout();
-                    Login();
+                    if (dialog.SaveChecked)
+                    {
+                        dialog.Confirm(true);
+                    }
+
+                    return;
+                }
+                else
+                {
+                    try
+                    {
+                        dialog.Confirm(false);
+                    }
+                    catch (ApplicationException e)
+                    {
+                        // exception handling ...
+                        Log.Error("Problem using the credentials dialog", e);
+                    }
+
+                    // For every windows version after XP show an incorrect password baloon
+                    dialog.IncorrectPassword = true;
+                    // Make sure the dialog is display, the password was false!
+                    dialog.AlwaysDisplay = true;
                 }
             }
-            else
+        }
+        catch (ApplicationException e)
+        {
+            // exception handling ...
+            Log.Error("Problem using the credentials dialog", e);
+        }
+    }
+
+    public void Logout()
+    {
+        if (_loggedIn)
+        {
+            _confluence = null;
+            Init(_url);
+            _loggedIn = false;
+        }
+    }
+
+    private void CheckCredentials()
+    {
+        if (_loggedIn)
+        {
+            if (_loggedInTime.AddMinutes(_timeout - 1).CompareTo(DateTime.Now) < 0)
             {
+                Logout();
                 Login();
             }
         }
+        else
+        {
+            Login();
+        }
+    }
 
-        public bool IsLoggedIn => _loggedIn;
+    public bool IsLoggedIn => _loggedIn;
 
-        public void AddAttachment(long pageId, string mime, string comment, string filename, IBinaryContainer image)
+    public void AddAttachment(long pageId, string mime, string comment, string filename, IBinaryContainer image)
+    {
+        CheckCredentials();
+        
+        var attachTask = Task.Run(async () =>
+        {
+            using var stream = new System.IO.MemoryStream(image.ToByteArray());
+            await _confluence.Attachment.AttachAsync(pageId, stream, filename, comment, mime).ConfigureAwait(false);
+        });
+        
+        attachTask.Wait();
+    }
+
+    public Entities.Page GetPage(string spaceKey, string pageTitle)
+    {
+        Content page = null;
+        string cacheKey = spaceKey + pageTitle;
+        if (_pageCache.Contains(cacheKey))
+        {
+            page = _pageCache[cacheKey];
+        }
+
+        if (page == null)
         {
             CheckCredentials();
-            // Comment is ignored, see: https://jira.atlassian.com/browse/CONF-9395
-            var attachment = new RemoteAttachment
+            
+            var pageTask = Task.Run(async () =>
             {
-                comment = comment,
-                fileName = filename,
-                contentType = mime
-            };
-            _confluence.addAttachment(_credentials, pageId, attachment, image.ToByteArray());
-        }
-
-        public Page GetPage(string spaceKey, string pageTitle)
-        {
-            RemotePage page = null;
-            string cacheKey = spaceKey + pageTitle;
-            if (_pageCache.Contains(cacheKey))
-            {
-                page = _pageCache[cacheKey];
-            }
-
-            if (page == null)
-            {
-                CheckCredentials();
-                page = _confluence.getPage(_credentials, spaceKey, pageTitle);
-                _pageCache.Add(cacheKey, page);
-            }
-
-            return new Page(page);
-        }
-
-        public Page GetPage(long pageId)
-        {
-            RemotePage page = null;
-            string cacheKey = pageId.ToString();
-
-            if (_pageCache.Contains(cacheKey))
-            {
-                page = _pageCache[cacheKey];
-            }
-
-            if (page == null)
-            {
-                CheckCredentials();
-                page = _confluence.getPage(_credentials, pageId);
-                _pageCache.Add(cacheKey, page);
-            }
-
-            return new Page(page);
-        }
-
-        public Page GetSpaceHomepage(Space spaceSummary)
-        {
-            CheckCredentials();
-            RemoteSpace spaceDetail = _confluence.getSpace(_credentials, spaceSummary.Key);
-            RemotePage page = _confluence.getPage(_credentials, spaceDetail.homePage);
-            return new Page(page);
-        }
-
-        public IEnumerable<Space> GetSpaceSummaries()
-        {
-            CheckCredentials();
-            RemoteSpaceSummary[] spaces = _confluence.getSpaces(_credentials);
-            foreach (RemoteSpaceSummary space in spaces)
-            {
-                yield return new Space(space);
-            }
-        }
-
-        public IEnumerable<Page> GetPageChildren(Page parentPage)
-        {
-            CheckCredentials();
-            RemotePageSummary[] pages = _confluence.getChildren(_credentials, parentPage.Id);
-            foreach (RemotePageSummary page in pages)
-            {
-                yield return new Page(page);
-            }
-        }
-
-        public IEnumerable<Page> GetPageSummaries(Space space)
-        {
-            CheckCredentials();
-            RemotePageSummary[] pages = _confluence.getPages(_credentials, space.Key);
-            foreach (RemotePageSummary page in pages)
-            {
-                yield return new Page(page);
-            }
-        }
-
-        public IEnumerable<Page> SearchPages(string query, string space)
-        {
-            CheckCredentials();
-            foreach (var searchResult in _confluence.search(_credentials, query, 20))
-            {
-                Log.DebugFormat("Got result of type {0}", searchResult.type);
-                if ("page".Equals(searchResult.type))
+                var query = Where.And(Where.Type.IsPage, Where.Title.Is(pageTitle), Where.Space.Is(spaceKey));
+                var searchResult = await _confluence.Content.SearchAsync(query, pagingInformation: new PagingInformation
                 {
-                    yield return new Page(searchResult, space);
+                    Limit = 1
+                }).ConfigureAwait(false);
+                return searchResult.Results.FirstOrDefault();
+            });
+            
+            page = pageTask.Result;
+            
+            if (page != null)
+            {
+                // Get full page details with body
+                var detailTask = Task.Run(async () => 
+                    await _confluence.Content.GetAsync(page, ConfluenceClientConfig.ExpandGetContentWithStorage).ConfigureAwait(false));
+                page = detailTask.Result;
+                _pageCache.Add(cacheKey, page);
+            }
+        }
+
+        return page != null ? new Entities.Page(page) : null;
+    }
+
+    public Entities.Page GetPage(long pageId)
+    {
+        Content page = null;
+        string cacheKey = pageId.ToString();
+
+        if (_pageCache.Contains(cacheKey))
+        {
+            page = _pageCache[cacheKey];
+        }
+
+        if (page == null)
+        {
+            CheckCredentials();
+            
+            var pageTask = Task.Run(async () =>
+                await _confluence.Content.GetAsync(pageId, ConfluenceClientConfig.ExpandGetContentWithStorage).ConfigureAwait(false));
+                
+            page = pageTask.Result;
+            _pageCache.Add(cacheKey, page);
+        }
+
+        return new Entities.Page(page);
+    }
+
+    public Entities.Page GetSpaceHomepage(Entities.Space spaceSummary)
+    {
+        CheckCredentials();
+        
+        var homePageTask = Task.Run(async () =>
+        {
+            var space = await _confluence.Space.GetAsync(spaceSummary.Key).ConfigureAwait(false);
+            if (space.HomepageId != 0)
+            {
+                return await _confluence.Content.GetAsync(space.HomepageId, ConfluenceClientConfig.ExpandGetContentWithStorage).ConfigureAwait(false);
+            }
+            return null;
+        });
+        
+        var page = homePageTask.Result;
+        return page != null ? new Entities.Page(page) : null;
+    }
+
+    public IEnumerable<Entities.Space> GetSpaceSummaries()
+    {
+        CheckCredentials();
+        
+        var spacesTask = Task.Run(async () =>
+        {
+            var allSpaces = new List<Dapplo.Confluence.Entities.Space>();
+            var spacesResult = await _confluence.Space.GetAllAsync().ConfigureAwait(false);
+            
+            foreach (var space in spacesResult)
+            {
+                allSpaces.Add(space);
+            }
+            
+            return allSpaces;
+        });
+        
+        var spaces = spacesTask.Result;
+        
+        foreach (var space in spaces)
+        {
+            yield return new Entities.Space(space);
+        }
+    }
+
+    public IEnumerable<Entities.Page> GetPageChildren(Entities.Page parentPage)
+    {
+        CheckCredentials();
+        
+        var childrenTask = Task.Run(async () =>
+        {
+            var children = new List<Content>();
+            var childrenResult = await _confluence.Content.GetChildrenAsync(parentPage.Id).ConfigureAwait(false);
+            
+            if (childrenResult?.Results != null)
+            {
+                children.AddRange(childrenResult.Results);
+            }
+            
+            return children;
+        });
+        
+        var pages = childrenTask.Result;
+        
+        foreach (var page in pages)
+        {
+            yield return new Entities.Page(page);
+        }
+    }
+
+    public IEnumerable<Entities.Page> GetPageSummaries(Entities.Space space)
+    {
+        CheckCredentials();
+        
+        var pagesTask = Task.Run(async () =>
+        {
+            var allPages = new List<Content>();
+            var query = Where.And(Where.Type.IsPage, Where.Space.Is(space.Key));
+            var searchResult = await _confluence.Content.SearchAsync(query).ConfigureAwait(false);
+            
+            foreach (var page in searchResult.Results)
+            {
+                allPages.Add(page);
+            }
+            
+            return allPages;
+        });
+        
+        var pages = pagesTask.Result;
+        
+        foreach (var page in pages)
+        {
+            yield return new Entities.Page(page);
+        }
+    }
+
+    public IEnumerable<Entities.Page> SearchPages(string query, string space)
+    {
+        CheckCredentials();
+        
+        var searchTask = Task.Run(async () =>
+        {
+            var allPages = new List<Content>();
+            IFinalClause whereClause;
+            
+            if (!string.IsNullOrEmpty(space))
+            {
+                whereClause = Where.And(Where.Type.IsPage, Where.Text.Contains(query), Where.Space.Is(space));
+            }
+            else
+            {
+                whereClause = Where.And(Where.Type.IsPage, Where.Text.Contains(query));
+            }
+            
+            var searchResult = await _confluence.Content.SearchAsync(whereClause, pagingInformation: new PagingInformation { Limit = 20 }).ConfigureAwait(false);
+            
+            foreach (var page in searchResult.Results)
+            {
+                Log.DebugFormat("Got result of type {0}", page.Type);
+                if (page.Type == ContentTypes.Page)
+                {
+                    allPages.Add(page);
                 }
             }
+            
+            return allPages;
+        });
+        
+        var pages = searchTask.Result;
+        
+        foreach (var page in pages)
+        {
+            yield return new Entities.Page(page);
         }
     }
 }

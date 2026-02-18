@@ -28,6 +28,7 @@
     <resource name="label_argument">
       Arguments
     </resource>
+    <resource name="label_outputimageformat">Image format</resource>
     <resource name="label_information">
       {0} is the filename of your screenshot
     </resource>

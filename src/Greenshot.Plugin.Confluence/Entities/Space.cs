@@ -19,19 +19,18 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using GreenshotConfluencePlugin.confluence;
+using DapploSpace = Dapplo.Confluence.Entities.Space;
 
-namespace Greenshot.Plugin.Confluence.Entities
+namespace Greenshot.Plugin.Confluence.Entities;
+
+public class Space
 {
-    public class Space
+    public Space(DapploSpace space)
     {
-        public Space(RemoteSpaceSummary space)
-        {
-            Key = space.key;
-            Name = space.name;
-        }
-
-        public string Key { get; set; }
-        public string Name { get; set; }
+        Key = space.Key;
+        Name = space.Name;
     }
+
+    public string Key { get; set; }
+    public string Name { get; set; }
 }

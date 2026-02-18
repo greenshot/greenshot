@@ -216,4 +216,6 @@ ModelManifest.xml
 # Rider files
 .idea
 
+# Files compressed during the build
+*.gz
 /installer/Greenshot-INSTALLER-*.exe

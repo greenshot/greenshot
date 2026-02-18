@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -183,8 +183,6 @@ namespace Greenshot.Base.Core
                 TopLevel = true
             };
 
-            menu.SetupAutoDispose();
-
             menu.Opening += (sender, args) =>
             {
                 // find the DPI settings for the screen where this is going to land
@@ -192,7 +190,9 @@ namespace Greenshot.Base.Core
                 var scaledIconSize = DpiCalculator.ScaleWithDpi(CoreConfig.IconSize, screenDpi);
                 menu.SuspendLayout();
                 var fontSize = DpiCalculator.ScaleWithDpi(12f, screenDpi);
+                var previousFont = menu.Font;
                 menu.Font = new Font(FontFamily.GenericSansSerif, fontSize, FontStyle.Regular, GraphicsUnit.Pixel);
+                previousFont?.Dispose();
                 menu.ImageScalingSize = scaledIconSize;
                 menu.ResumeLayout();
             };
@@ -211,6 +211,7 @@ namespace Greenshot.Base.Core
                         else
                         {
                             Log.DebugFormat("Letting the menu 'close' as the tag is set to '{0}'", menu.Tag);
+                            menu.Close();
                         }
 
                         break;
@@ -219,13 +220,17 @@ namespace Greenshot.Base.Core
                         // The ContextMenuStrip can be "closed" for these reasons.
                         break;
                     case ToolStripDropDownCloseReason.Keyboard:
-                        // Dispose as the close is clicked
+                        // Menu closed via keyboard (e.g., ESC key)
                         if (!captureDetails.HasDestination("Editor"))
                         {
                             surface.Dispose();
                             surface = null;
-                        }
-
+                        } 
+                        // We might already be in the disposing process, so queue the disposal to avoid re-entrancy
+                        menu.BeginInvoke(new Action(() =>
+                        {
+                            menu.Dispose();
+                        }));
                         break;
                     default:
                         eventArgs.Cancel = true;
@@ -261,7 +266,7 @@ namespace Greenshot.Base.Core
                             Log.InfoFormat("Export to {0} success, closing menu", exportInformation.DestinationDescription);
                             // close menu if the destination wasn't the editor
                             menu.Close();
-
+                            menu.Dispose();
                             // Cleanup surface, only if there is no editor in the destinations and we didn't export to the editor
                             if (!captureDetails.HasDestination("Editor") && !"Editor".Equals(clickedDestination.Designation))
                             {
@@ -297,6 +302,7 @@ namespace Greenshot.Base.Core
             {
                 // This menu entry is the close itself, we can dispose the surface
                 menu.Close();
+                menu.Dispose();
                 if (!captureDetails.HasDestination("Editor"))
                 {
                     surface.Dispose();

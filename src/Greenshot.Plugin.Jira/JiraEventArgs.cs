@@ -21,12 +21,11 @@
 
 using System;
 
-namespace Greenshot.Plugin.Jira
-{
-    public class JiraEventArgs : EventArgs
-    {
-        public JiraEventTypes EventType { get; set; }
+namespace Greenshot.Plugin.Jira;
 
-        public JiraDetails Details { get; set; }
-    }
+public class JiraEventArgs : EventArgs
+{
+    public JiraEventTypes EventType { get; set; }
+
+    public JiraDetails Details { get; set; }
 }

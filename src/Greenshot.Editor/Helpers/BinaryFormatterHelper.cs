@@ -25,6 +25,7 @@ using System.Runtime.Serialization;
 using System.ServiceModel.Security;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing;
+using Greenshot.Editor.Drawing.Emoji;
 using Greenshot.Editor.Drawing.Fields;
 using Greenshot.Editor.Drawing.Filters;
 using log4net;
@@ -66,6 +67,7 @@ namespace Greenshot.Editor.Helpers
             {"Greenshot.Editor.Drawing.ObfuscateContainer", typeof(ObfuscateContainer) },
             {"Greenshot.Editor.Drawing.StepLabelContainer", typeof(StepLabelContainer) },
             {"Greenshot.Editor.Drawing.SvgContainer", typeof(SvgContainer) },
+            {"Greenshot.Editor.Drawing.Emoji.EmojiContainer", typeof(EmojiContainer) },
             {"Greenshot.Editor.Drawing.VectorGraphicsContainer", typeof(VectorGraphicsContainer) },
             {"Greenshot.Editor.Drawing.MetafileContainer", typeof(MetafileContainer) },
             {"Greenshot.Editor.Drawing.ImageContainer", typeof(ImageContainer) },

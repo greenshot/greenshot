@@ -43,7 +43,9 @@ using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Forms;
+using Greenshot.Base.Interfaces.Ocr;
 using Greenshot.Editor.Configuration;
+using Greenshot.Editor.Controls.Emoji;
 using Greenshot.Editor.Destinations;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Drawing.Fields;
@@ -60,6 +62,7 @@ namespace Greenshot.Editor.Forms
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(ImageEditorForm));
         private static readonly EditorConfiguration EditorConfiguration = IniConfig.GetIniSection<EditorConfiguration>();
+        private static readonly CoreConfiguration CoreConfiguration = IniConfig.GetIniSection<CoreConfiguration>();
 
         private static readonly List<string> IgnoreDestinations = new()
         {
@@ -142,6 +145,9 @@ namespace Greenshot.Editor.Forms
 
         private void Initialize(ISurface surface, bool outputMade)
         {
+            // Compute emojis in background
+            EmojiData.Load();
+
             EditorList.Add(this);
 
             //
@@ -274,6 +280,9 @@ namespace Greenshot.Editor.Forms
             toolStripSeparator11.Visible = !coreConfiguration.DisableSettings;
             btnSettings.Visible = !coreConfiguration.DisableSettings;
 
+            // Text obfuscation is only available for beta testers
+            obfuscateTextToolStripMenuItem.Visible = CoreConfiguration.IsBetaTester;
+
             // Make sure Double-buffer is enabled
             SetStyle(ControlStyles.DoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint, true);
 
@@ -284,7 +293,7 @@ namespace Greenshot.Editor.Forms
 
             _toolbarButtons = new[]
             {
-                btnCursor, btnRect, btnEllipse, btnText, btnLine, btnArrow, btnFreehand, btnHighlight, btnObfuscate, btnCrop, btnStepLabel, btnSpeechBubble
+                btnCursor, btnRect, btnEllipse, btnText, btnLine, btnArrow, btnFreehand, btnHighlight, btnObfuscate, btnCrop, btnStepLabel, btnSpeechBubble, btnEmoji
             };
             //toolbarDropDownButtons = new ToolStripDropDownButton[]{btnBlur, btnPixeliate, btnTextHighlighter, btnAreaHighlighter, btnMagnifier};
 
@@ -633,6 +642,9 @@ namespace Greenshot.Editor.Forms
                 case DrawingModes.Path:
                     SetButtonChecked(btnFreehand);
                     break;
+                case DrawingModes.Emoji:
+                    SetButtonChecked(btnEmoji);
+                    break;
             }
         }
 
@@ -729,6 +741,12 @@ namespace Greenshot.Editor.Forms
         private void BtnStepLabelClick(object sender, EventArgs e)
         {
             _surface.DrawingMode = DrawingModes.StepLabel;
+            RefreshFieldControls();
+        }
+
+        private void BtnEmojiClick(object sender, EventArgs e)
+        {
+            _surface.DrawingMode = DrawingModes.Emoji;
             RefreshFieldControls();
         }
 
@@ -996,9 +1014,9 @@ namespace Greenshot.Editor.Forms
 
             _surface.Dispose();
 
-            GC.Collect();
             if (coreConfiguration.MinimizeWorkingSetSize)
             {
+                GC.Collect();
                 PsApi.EmptyWorkingSet();
             }
         }
@@ -1047,6 +1065,9 @@ namespace Greenshot.Editor.Forms
                         break;
                     case Keys.C:
                         BtnCropClick(sender, e);
+                        break;
+                    case Keys.M:
+                        BtnEmojiClick(sender, e);
                         break;
                     case Keys.Z:
                         BtnResizeClick(sender, e);
@@ -1418,6 +1439,12 @@ namespace Greenshot.Editor.Forms
             UpdateClipboardSurfaceDependencies();
             UpdateUndoRedoSurfaceDependencies();
 
+            // Show/hide remove transparency menu item based on whether image has transparency
+            if (_surface?.Image != null)
+            {
+                removeTransparencyToolStripMenuItem.Visible = Image.IsAlphaPixelFormat(_surface.Image.PixelFormat);
+            }
+
             // en/disablearrage controls depending on hierarchy of selected elements
             bool actionAllowedForSelection = _surface.HasSelectedElements && !_controlsDisabledDueToConfirmable;
             bool push = actionAllowedForSelection && _surface.CanPushSelectionDown();
@@ -1663,6 +1690,52 @@ namespace Greenshot.Editor.Forms
             mainForm.AddCaptureWindowMenuItems(captureWindowMenuItem, Contextmenu_window_Click);
         }
 
+        private async void ObfuscateTextToolStripMenuItemClick(object sender, EventArgs e)
+        {
+            if (_surface?.CaptureDetails == null)
+            {
+                MessageBox.Show(Language.GetString("editor_obfuscate_text_no_capture"), Language.GetString("editor_obfuscate_text_title"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            if (_surface.CaptureDetails.OcrInformation == null)
+            {
+                var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>();
+                if (ocrProvider == null)
+                {
+                    MessageBox.Show(Language.GetString("editor_obfuscate_text_no_ocr_provider"), Language.GetString("editor_obfuscate_text_title"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                Cursor = Cursors.WaitCursor;
+                try
+                {
+                    _surface.CaptureDetails.OcrInformation = await ocrProvider.DoOcrAsync(_surface);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error("Error performing OCR", ex);
+                    MessageBox.Show(Language.GetString("editor_obfuscate_text_ocr_failed") + ": " + ex.Message, Language.GetString("editor_obfuscate_text_title"), MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                finally
+                {
+                    Cursor = Cursors.Default;
+                }
+            }
+
+            if (_surface.CaptureDetails.OcrInformation == null || !_surface.CaptureDetails.OcrInformation.HasContent)
+            {
+                MessageBox.Show(Language.GetString("editor_obfuscate_text_no_text"), Language.GetString("editor_obfuscate_text_title"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            using (var dialog = new TextObfuscationForm(_surface, _surface.CaptureDetails.OcrInformation))
+            {
+                dialog.ShowDialog(this);
+            }
+        }
+
         private void Contextmenu_window_Click(object sender, EventArgs e)
         {
             ToolStripMenuItem clickedItem = (ToolStripMenuItem) sender;
@@ -1839,6 +1912,24 @@ namespace Greenshot.Editor.Forms
         {
             _surface.ApplyBitmapEffect(new InvertEffect());
             UpdateUndoRedoSurfaceDependencies();
+        }
+
+        private void RemoveTransparencyToolStripMenuItemClick(object sender, EventArgs e)
+        {
+            var colorDialog = new ColorDialog
+            {
+                Color = Color.White
+            };
+            
+            if (colorDialog.ShowDialog(this) == DialogResult.OK)
+            {
+                var removeTransparencyEffect = new RemoveTransparencyEffect
+                {
+                    Color = colorDialog.Color
+                };
+                _surface.ApplyBitmapEffect(removeTransparencyEffect);
+                UpdateUndoRedoSurfaceDependencies();
+            }
         }
 
         private void ImageEditorFormResize(object sender, EventArgs e)
