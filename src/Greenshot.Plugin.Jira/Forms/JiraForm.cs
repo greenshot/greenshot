@@ -23,6 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Jira.Entities;
@@ -40,6 +41,7 @@ public partial class JiraForm : Form
     private readonly JiraConnector _jiraConnector;
     private IssueV2 _selectedIssue;
     private readonly GreenshotColumnSorter _columnSorter;
+    private IDisposable _jiraKeySubscription;
 
     public JiraForm(JiraConnector jiraConnector)
     {
@@ -59,6 +61,13 @@ public partial class JiraForm : Form
 
         uploadButton.Enabled = false;
         Load += OnLoad;
+        FormClosed += (_, __) => _jiraKeySubscription?.Dispose();
+
+        _jiraKeySubscription = Observable
+            .FromEventPattern(jiraKey, nameof(jiraKey.TextChanged))
+            .Throttle(TimeSpan.FromMilliseconds(300))
+            .ObserveOn(this)
+            .Subscribe(async _ => await JiraKeyTextChanged());
     }
 
     private async void OnLoad(object sender, EventArgs eventArgs)
@@ -269,17 +278,25 @@ public partial class JiraForm : Form
         jiraListView.Sort();
     }
 
-    private async void JiraKeyTextChanged(object sender, EventArgs e)
+    private async Task JiraKeyTextChanged()
     {
         string jiranumber = jiraKey.Text;
         uploadButton.Enabled = false;
+
         int dashIndex = jiranumber.IndexOf('-');
         if (dashIndex > 0 && jiranumber.Length > dashIndex + 1)
         {
-            _selectedIssue = await _jiraConnector.GetIssueAsync(jiraKey.Text);
-            if (_selectedIssue != null)
+            try
             {
-                uploadButton.Enabled = true;
+                _selectedIssue = await _jiraConnector.GetIssueAsync(jiraKey.Text);
+                if (_selectedIssue != null)
+                {
+                    uploadButton.Enabled = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Warn("Error looking up Jira issue", ex);
             }
         }
     }
