@@ -120,6 +120,22 @@ namespace Greenshot.Editor.Drawing
             CursorHelper.DrawCursorOnGraphics(graphics, cursor, Bounds.Location, Bounds.Size);
         }
 
+        public override void DrawContent(Graphics graphics, Bitmap bmp, RenderMode renderMode, NativeRect clipRectangle)
+        {
+            if (bmp  == null)
+            {
+                base.DrawContent(graphics, bmp, renderMode, clipRectangle);
+                return;
+            }
+
+            if (cursor == null)
+            {
+                return;
+            }
+
+            CursorHelper.DrawCursorOnBitmap(bmp, cursor, Bounds.Location, Bounds.Size);
+        }
+
         public override NativeSize DefaultSize => cursor?.Size ?? new NativeSize(16, 16);
     }
 }

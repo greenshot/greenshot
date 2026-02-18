@@ -244,7 +244,7 @@ namespace Greenshot.Forms
             if (isOn)
             {
                 // Initialize the zoom with a invalid position
-                _zoomAnimator = new RectangleAnimator(NativeRect.Empty, new NativeRect(int.MaxValue, int.MaxValue, 0, 0), FramesForMillis(1000), EasingType.Quintic, EasingMode.EaseOut);
+                _zoomAnimator = new RectangleAnimator(NativeRect.Empty, new NativeRect(int.MaxValue/2, int.MaxValue/2, 0, 0), FramesForMillis(1000), EasingType.Quintic, EasingMode.EaseOut);
                 VerifyZoomAnimation(_cursorPos, false);
             }
             else
