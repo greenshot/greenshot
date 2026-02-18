@@ -196,6 +196,8 @@ public class ExternalCommandPlugin : IGreenshotPlugin
     public virtual void Shutdown()
     {
         Log.Debug("Shutdown");
+        Language.LanguageChanged -= OnLanguageChanged;
+        CoreConfig.PropertyChanged -= OnIconSizeChanged;
     }
 
     private void ConfigMenuClick(object sender, EventArgs eventArgs)
