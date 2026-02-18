@@ -218,6 +218,7 @@ Por favor verifique la ruta de almacenamiento seleccionada.</resource>
 		<resource name="settings_destination_fileas">Guardar como (mostrando cuadro)</resource>
 		<resource name="settings_destination_picker">Preguntar el destino cada vez</resource>
 		<resource name="settings_destination_printer">Enviar a imprimir</resource>
+		<resource name="settings_destination_viewer">Abrir en visor de imágenes</resource>
 		<resource name="settings_editor">Editor</resource>
 		<resource name="settings_filenamepattern">Formato para nombre del archivo</resource>
 		<resource name="settings_general">General</resource>
@@ -280,5 +281,18 @@ A pesar de esto, se sigue pudiendo utilizar todas las características de Greens
 		<resource name="WindowCaptureMode.Auto">Automáticamente</resource>
 		<resource name="WindowCaptureMode.GDI">Usar color por defecto</resource>
 		<resource name="WindowCaptureMode.Screen">Como se muestra</resource>
+		
+		<resource name="viewer_alwaysontop">Siempre visible</resource>
+		<resource name="viewer_close_all">Cerrar todos los visores</resource>
+		<resource name="viewer_first_usage_message">La imagen no está guardada y se perderá al cerrar la ventana sin guardar.</resource>
+		<resource name="viewer_first_usage_title">Visor de imágenes - Primer uso</resource>
+		<resource name="viewer_hide_cursor">Ocultar cursor capturado</resource>
+		<resource name="viewer_hide_title">Ocultar barra de título</resource>
+		<resource name="viewer_process_again">Procesar imagen de nuevo...</resource>
+		<resource name="viewer_reset_zoom">Restablecer zoom/desplazamiento</resource>
+		<resource name="viewer_save">Guardar</resource>
+		<resource name="viewer_saveas">Guardar como...</resource>
+		<resource name="viewer_show_cursor">Mostrar cursor capturado</resource>
+		<resource name="viewer_show_title">Mostrar barra de título</resource>
 	</resources>
 </language>

@@ -235,6 +235,7 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="settings_destination_fileas">다른 이름으로 저장</resource>
 		<resource name="settings_destination_picker">매번 저장 방법 묻기</resource>
 		<resource name="settings_destination_printer">인쇄기로 보내기</resource>
+		<resource name="settings_destination_viewer">이미지 뷰어에서 열기</resource>
 		<resource name="settings_editor">편집기</resource>
 		<resource name="settings_filenamepattern">파일명 유형</resource>
 		<resource name="settings_general">일반</resource>
@@ -324,6 +325,19 @@ ${hostname} PC명
     <resource name="editor_resize_width">너비</resource>
     <resource name="editor_resize_height">높이</resource>
 	<resource name="settings_iconsize">아이콘 크기</resource>
+	
+	<resource name="viewer_alwaysontop">항상 위에 표시</resource>
+	<resource name="viewer_close_all">모든 뷰어 닫기</resource>
+	<resource name="viewer_first_usage_message">이미지가 저장되지 않았으며 저장하지 않고 창을 닫으면 손실됩니다.</resource>
+	<resource name="viewer_first_usage_title">이미지 뷰어 - 처음 사용</resource>
+	<resource name="viewer_hide_cursor">캡처된 커서 숨기기</resource>
+	<resource name="viewer_hide_title">제목 표시줄 숨기기</resource>
+	<resource name="viewer_process_again">이미지 다시 처리...</resource>
+	<resource name="viewer_reset_zoom">확대/이동 초기화</resource>
+	<resource name="viewer_save">저장</resource>
+	<resource name="viewer_saveas">다른 이름으로 저장...</resource>
+	<resource name="viewer_show_cursor">캡처된 커서 표시</resource>
+	<resource name="viewer_show_title">제목 표시줄 표시</resource>
 
   </resources>
 </language>

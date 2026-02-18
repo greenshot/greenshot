@@ -220,6 +220,7 @@ Veuillez vérifier que vous avez l'autorisation d'écrire dans le répertoire de
 		<resource name="settings_destination_fileas">Sauvegarder sous...</resource>
 		<resource name="settings_destination_picker">Demander la destination à chaque fois</resource>
 		<resource name="settings_destination_printer">Envoyer à l'imprimante</resource>
+		<resource name="settings_destination_viewer">Ouvrir dans la visionneuse d'image</resource>
 		<resource name="settings_editor">Editeur</resource>
 		<resource name="settings_filenamepattern">Motif du nom de fichier</resource>
 		<resource name="settings_general">Général</resource>
@@ -274,5 +275,18 @@ Veuillez désactiver ce(s) logiciel(s) utilisant le bouton Impr.écran. Vous pou
 		<resource name="WindowCaptureMode.Auto">Automatiquement</resource>
 		<resource name="WindowCaptureMode.GDI">Utiliser les couleurs par défaut</resource>
 		<resource name="WindowCaptureMode.Screen">Tel qu'affiché</resource>
+		
+		<resource name="viewer_alwaysontop">Toujours au premier plan</resource>
+		<resource name="viewer_close_all">Fermer toutes les visionneuses</resource>
+		<resource name="viewer_first_usage_message">L'image n'est pas enregistrée et sera perdue si la fenêtre est fermée sans enregistrer.</resource>
+		<resource name="viewer_first_usage_title">Visionneuse d'image - Première utilisation</resource>
+		<resource name="viewer_hide_cursor">Masquer le curseur capturé</resource>
+		<resource name="viewer_hide_title">Masquer la barre de titre</resource>
+		<resource name="viewer_process_again">Traiter l'image à nouveau...</resource>
+		<resource name="viewer_reset_zoom">Réinitialiser le zoom/déplacement</resource>
+		<resource name="viewer_save">Enregistrer</resource>
+		<resource name="viewer_saveas">Enregistrer sous...</resource>
+		<resource name="viewer_show_cursor">Afficher le curseur capturé</resource>
+		<resource name="viewer_show_title">Afficher la barre de titre</resource>
 	</resources>
 </language>

@@ -63,6 +63,7 @@ namespace Greenshot.Configuration
         settings_destination_fileas,
         settings_destination_printer,
         settings_destination_picker,
+        settings_destination_viewer,
         settings_filenamepattern,
         settings_message_filenamepattern,
         settings_printoptions,
@@ -75,6 +76,18 @@ namespace Greenshot.Configuration
         tooltip_firststart,
         warning,
         warning_hotkeys,
-        update_found
+        update_found,
+        viewer_alwaysontop,
+        viewer_close_all,
+        viewer_first_usage_message,
+        viewer_first_usage_title,
+        viewer_hide_cursor,
+        viewer_hide_title,
+        viewer_process_again,
+        viewer_reset_zoom,
+        viewer_save,
+        viewer_saveas,
+        viewer_show_cursor,
+        viewer_show_title
     }
 }

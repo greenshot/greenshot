@@ -215,6 +215,7 @@
 		<resource name="settings_destination_fileas">Сачувај као (уз приказивање прозорчета)</resource>
 		<resource name="settings_destination_picker">Питај за одредиште сваки път</resource>
 		<resource name="settings_destination_printer">Пошаљи штампачу</resource>
+		<resource name="settings_destination_viewer">Отвори у прегледачу слика</resource>
 		<resource name="settings_editor">Уређивач</resource>
 		<resource name="settings_filenamepattern">Образац за називе:</resource>
 		<resource name="settings_general">Опште</resource>
@@ -277,5 +278,18 @@ ${hostname} назив рачунара
 		<resource name="WindowCaptureMode.Auto">аутоматски</resource>
 		<resource name="WindowCaptureMode.GDI">подразумевана боја</resource>
 		<resource name="WindowCaptureMode.Screen">као што је приказано</resource>
+		
+		<resource name="viewer_alwaysontop">Увек на врху</resource>
+		<resource name="viewer_close_all">Затвори све прегледаче</resource>
+		<resource name="viewer_first_usage_message">Слика није сачувана и биће изгубљена када се прозор затвори без чувања.</resource>
+		<resource name="viewer_first_usage_title">Прегледач слика - Прва употреба</resource>
+		<resource name="viewer_hide_cursor">Сакриј ухваћени курсор</resource>
+		<resource name="viewer_hide_title">Сакриј насловну траку</resource>
+		<resource name="viewer_process_again">Обради слику поново...</resource>
+		<resource name="viewer_reset_zoom">Ресетуј зумирање/померање</resource>
+		<resource name="viewer_save">Сачувај</resource>
+		<resource name="viewer_saveas">Сачувај као...</resource>
+		<resource name="viewer_show_cursor">Прикажи ухваћени курсор</resource>
+		<resource name="viewer_show_title">Прикажи насловну траку</resource>
 	</resources>
 </language>

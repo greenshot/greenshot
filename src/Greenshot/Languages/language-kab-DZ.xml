@@ -257,6 +257,7 @@ Ma ulac aɣilif senqed tuffart n ukaram n usekles.</resource>
 		<resource name="settings_destination_fileas">Sekles s yisem (sken asfaylu n udiwenni)</resource>
 		<resource name="settings_destination_picker">Steqsi ɣef taniɣert deg yal tikelt</resource>
 		<resource name="settings_destination_printer">Ar tsaggazt</resource>
+		<resource name="settings_destination_viewer">Ldi deg umaskan n tugniwin</resource>
 		<resource name="settings_editor">Amaẓrag</resource>
 		<resource name="settings_filenamepattern">Taneɣruft n ufaylu</resource>
 		<resource name="settings_general">Amatu</resource>
@@ -321,5 +322,18 @@ Akk timahilin n Greenshot sttenkarent daɣen s srid seg umuɣ umniḍ n tignit n
 		<resource name="WindowCaptureMode.Auto">Awurman</resource>
 		<resource name="WindowCaptureMode.GDI">Seqdec ini amezwer</resource>
 		<resource name="WindowCaptureMode.Screen">Akken i d-yettban</resource>
+		
+		<resource name="viewer_alwaysontop">Yal tikkelt fell-asen</resource>
+		<resource name="viewer_close_all">Mdel akk imaskawen</resource>
+		<resource name="viewer_first_usage_message">Tugna ur tettwasekles ara, ad truḥ ticki yeddemmed usfaylu war asekles.</resource>
+		<resource name="viewer_first_usage_title">Amaskan n tugniwin - Aseqdec amezwaru</resource>
+		<resource name="viewer_hide_cursor">Ffer aḍebsi yettwaṭṭfen</resource>
+		<resource name="viewer_hide_title">Ffer afeggag n uzwel</resource>
+		<resource name="viewer_process_again">Sileɣ tugna tikkelt-nniḍen...</resource>
+		<resource name="viewer_reset_zoom">Ales awennez n usemẓi/asiweḍ</resource>
+		<resource name="viewer_save">Sekles</resource>
+		<resource name="viewer_saveas">Sekles s...</resource>
+		<resource name="viewer_show_cursor">Sken aḍebsi yettwaṭṭfen</resource>
+		<resource name="viewer_show_title">Sken afeggag n uzwel</resource>
 	</resources>
 </language>

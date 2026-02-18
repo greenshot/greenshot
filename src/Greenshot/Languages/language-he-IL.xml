@@ -165,6 +165,7 @@ Details about the GNU General Public License:</resource>
 		<resource name="settings_destination_file">שמור ישירות: תוך שימוש בהגדרות שלמטה</resource>
 		<resource name="settings_destination_fileas">שמירה בשם: פתח תיבת דו-שיח</resource>
 		<resource name="settings_destination_printer">שלח למדפסת</resource>
+		<resource name="settings_destination_viewer">פתח במציג תמונות</resource>
 		<resource name="settings_filenamepattern">תבנית שם-קובץ</resource>
 		<resource name="settings_general">כללי</resource>
 		<resource name="settings_jpegquality">JPEG איכות</resource>
@@ -215,5 +216,18 @@ ${hostname}  שם המחשב
 		<resource name="warning_hotkeys">.אחד או מספר מקשים חמים לא הופעלו. לכן, ייתכן שחלקם לא יפעלו עם התוכנה 
 .כנראה שתוכנה אחרת משתמשת במקשים הללו. אנאסגור תוכנות אחרות המשתמשות במקשי ההדפסה
 .ניתן להשתמש בתפריט התוכנה שבצלמית בפינת הסמלים כדי לבצע פעולות</resource>
+		
+		<resource name="viewer_alwaysontop">תמיד למעלה</resource>
+		<resource name="viewer_close_all">סגור את כל המציגים</resource>
+		<resource name="viewer_first_usage_message">התמונה לא נשמרה ותאבד כאשר החלון ייסגר בלי שמירה.</resource>
+		<resource name="viewer_first_usage_title">מציג תמונות - שימוש ראשון</resource>
+		<resource name="viewer_hide_cursor">הסתר את הסמן שנלכד</resource>
+		<resource name="viewer_hide_title">הסתר את שורת הכותרת</resource>
+		<resource name="viewer_process_again">עבד תמונה שוב...</resource>
+		<resource name="viewer_reset_zoom">אפס זום/הזזה</resource>
+		<resource name="viewer_save">שמור</resource>
+		<resource name="viewer_saveas">שמור בשם...</resource>
+		<resource name="viewer_show_cursor">הצג את הסמן שנלכד</resource>
+		<resource name="viewer_show_title">הצג את שורת הכותרת</resource>
 	</resources>
 </language>
