@@ -38,6 +38,8 @@ namespace Greenshot.Configuration
         editor_copytoclipboard,
         editor_cuttoclipboard,
         editor_deleteelement,
+        editor_discard,
+        editor_discard_title,
         editor_downonelevel,
         editor_downtobottom,
         editor_duplicate,

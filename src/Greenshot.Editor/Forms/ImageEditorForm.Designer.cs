@@ -143,8 +143,9 @@ namespace Greenshot.Editor.Forms
 			this.btnSettings = new GreenshotToolStripButton();
 			this.toolStripSeparator11 = new System.Windows.Forms.ToolStripSeparator();
 			this.toolStripSeparator16 = new System.Windows.Forms.ToolStripSeparator();
+            this.btnDiscard = new GreenshotToolStripButton();
 			this.btnHelp = new GreenshotToolStripButton();
-			this.propertiesToolStrip = new ToolStripEx();
+            this.propertiesToolStrip = new ToolStripEx();
 			this.obfuscateModeButton = new BindableToolStripDropDownButton();
 			this.cropModeButton = new BindableToolStripDropDownButton();
 			this.pixelizeToolStripMenuItem = new GreenshotToolStripMenuItem();
@@ -932,6 +933,7 @@ namespace Greenshot.Editor.Forms
 									this.btnSettings,
 									this.toolStripSeparator11,
 									this.toolStripSeparator16,
+                                    this.btnDiscard,
 									this.btnHelp});
 			// 
 			// btnSave
@@ -1058,6 +1060,16 @@ namespace Greenshot.Editor.Forms
 			this.btnHelp.Name = "btnHelp";
 			this.btnHelp.Text = "Help";
 			this.btnHelp.Click += new System.EventHandler(this.BtnHelpClick);
+            // 
+            // btnDiscard
+            // 
+            this.btnDiscard.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.btnDiscard.Image = ((System.Drawing.Image)(resources.GetObject("btnDiscard.Image")));
+            this.btnDiscard.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.btnDiscard.LanguageKey = "contextmenu_discard";
+            this.btnDiscard.Name = "btnDiscard";
+            this.btnDiscard.Text = "Discard";
+            this.btnDiscard.Click += new System.EventHandler(this.BtnDiscardClick);            
 			// 
 			// propertiesToolStrip
 			// 
@@ -2021,6 +2033,7 @@ namespace Greenshot.Editor.Forms
 		private GreenshotToolStripMenuItem drawLineToolStripMenuItem;
 		private GreenshotToolStripButton btnLine;
 		private GreenshotToolStripButton btnSettings;
+        private GreenshotToolStripButton btnDiscard;
 		private GreenshotToolStripButton btnHelp;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator11;
 		private GreenshotToolStripMenuItem aboutToolStripMenuItem;
