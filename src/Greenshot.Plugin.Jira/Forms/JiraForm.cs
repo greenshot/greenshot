@@ -23,6 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Jira.Entities;
@@ -40,7 +41,7 @@ public partial class JiraForm : Form
     private readonly JiraConnector _jiraConnector;
     private IssueV2 _selectedIssue;
     private readonly GreenshotColumnSorter _columnSorter;
-    private System.Threading.CancellationTokenSource _jiraKeyCts;
+    private IDisposable _jiraKeySubscription;
 
     public JiraForm(JiraConnector jiraConnector)
     {
@@ -60,6 +61,13 @@ public partial class JiraForm : Form
 
         uploadButton.Enabled = false;
         Load += OnLoad;
+        FormClosed += (_, __) => _jiraKeySubscription?.Dispose();
+
+        _jiraKeySubscription = Observable
+            .FromEventPattern(jiraKey, nameof(jiraKey.TextChanged))
+            .Throttle(TimeSpan.FromMilliseconds(300))
+            .ObserveOn(this)
+            .Subscribe(async _ => await JiraKeyTextChanged());
     }
 
     private async void OnLoad(object sender, EventArgs eventArgs)
@@ -270,7 +278,7 @@ public partial class JiraForm : Form
         jiraListView.Sort();
     }
 
-    private async void JiraKeyTextChanged(object sender, EventArgs e)
+    private async Task JiraKeyTextChanged()
     {
         string jiranumber = jiraKey.Text;
         uploadButton.Enabled = false;
@@ -278,26 +286,13 @@ public partial class JiraForm : Form
         int dashIndex = jiranumber.IndexOf('-');
         if (dashIndex > 0 && jiranumber.Length > dashIndex + 1)
         {
-            // Cancel any previous in-flight request to debounce rapid typing
-            _jiraKeyCts?.Cancel();
-            _jiraKeyCts = new System.Threading.CancellationTokenSource();
-            var token = _jiraKeyCts.Token;
-
             try
             {
-                // Wait briefly to debounce keystrokes
-                await Task.Delay(300, token);
-                if (token.IsCancellationRequested) return;
-
                 _selectedIssue = await _jiraConnector.GetIssueAsync(jiraKey.Text);
-                if (_selectedIssue != null && !token.IsCancellationRequested)
+                if (_selectedIssue != null)
                 {
                     uploadButton.Enabled = true;
                 }
-            }
-            catch (OperationCanceledException)
-            {
-                // Expected when a new keystroke cancels the previous request
             }
             catch (Exception ex)
             {
