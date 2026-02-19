@@ -302,7 +302,7 @@ namespace Greenshot.Editor.Forms
             // Make sure the value is set correctly when starting
             if (Surface != null)
             {
-                counterUpDown.Value = Surface.CounterStart;
+                counterUpDown.Value = SimpleServiceProvider.Current.GetInstance<IStepLabelService>().CounterStart;
             }
 
             ApplyLanguage();
@@ -742,6 +742,20 @@ namespace Greenshot.Editor.Forms
         {
             _surface.DrawingMode = DrawingModes.StepLabel;
             RefreshFieldControls();
+        }
+
+        private void BtnCounterLetterToggleClick(object sender, EventArgs e)
+        {
+            var service = SimpleServiceProvider.Current.GetInstance<IStepLabelService>();
+            service.UseLetterCounter = !service.UseLetterCounter;
+            btnCounterLetterToggle.Text = service.UseLetterCounter ? "Abc" : "123";
+            // Letter mode requires minimum 1 (A); number mode allows 0
+            counterUpDown.Minimum = service.UseLetterCounter ? 1 : 0;
+        }
+
+        private void BtnCounterResetClick(object sender, EventArgs e)
+        {
+            SimpleServiceProvider.Current.GetInstance<IStepLabelService>().ResetCounter();
         }
 
         private void BtnEmojiClick(object sender, EventArgs e)
@@ -1335,7 +1349,7 @@ namespace Greenshot.Editor.Forms
             new BidirectionalBinding(obfuscateModeButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldType.PREPARED_FILTER_OBFUSCATE), "Value");
             new BidirectionalBinding(cropModeButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldType.CROPMODE), "Value");
             new BidirectionalBinding(highlightModeButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldType.PREPARED_FILTER_HIGHLIGHT), "Value");
-            new BidirectionalBinding(counterUpDown, "Value", _surface, "CounterStart", DecimalIntConverter.GetInstance(), NotNullValidator.GetInstance());
+            new BidirectionalBinding(counterUpDown, "Value", SimpleServiceProvider.Current.GetInstance<IStepLabelService>(), "CounterStart", DecimalIntConverter.GetInstance(), NotNullValidator.GetInstance());
         }
 
         /// <summary>
@@ -1363,7 +1377,16 @@ namespace Greenshot.Editor.Forms
                 textHorizontalAlignmentButton.Visible = props.HasFieldValue(FieldType.TEXT_HORIZONTAL_ALIGNMENT);
                 textVerticalAlignmentButton.Visible = props.HasFieldValue(FieldType.TEXT_VERTICAL_ALIGNMENT);
                 shadowButton.Visible = props.HasFieldValue(FieldType.SHADOW);
-                counterLabel.Visible = counterUpDown.Visible = props.HasFieldValue(FieldType.FLAGS) && ((FieldFlag)props.GetFieldValue(FieldType.FLAGS)).HasFlag(FieldFlag.COUNTER);
+                bool isCounter = props.HasFieldValue(FieldType.FLAGS) && ((FieldFlag)props.GetFieldValue(FieldType.FLAGS)).HasFlag(FieldFlag.COUNTER);
+                counterLabel.Visible = counterUpDown.Visible = isCounter;
+                btnCounterLetterToggle.Visible = isCounter;
+                btnCounterReset.Visible = isCounter;
+                if (isCounter)
+                {
+                    var svc = SimpleServiceProvider.Current.GetInstance<IStepLabelService>();
+                    btnCounterLetterToggle.Text = svc.UseLetterCounter ? "Abc" : "123";
+                    counterUpDown.Minimum = svc.UseLetterCounter ? 1 : 0;
+                }
 
                 btnConfirm.Visible = btnCancel.Visible = props.HasFieldValue(FieldType.FLAGS) && ((FieldFlag) props.GetFieldValue(FieldType.FLAGS)).HasFlag(FieldFlag.CONFIRMABLE);
                 btnConfirm.Enabled = _surface.HasSelectedElements;
@@ -1393,7 +1416,7 @@ namespace Greenshot.Editor.Forms
         /// </summary>
         private void RefreshEditorControls()
         {
-            int stepLabels = _surface.CountStepLabels(null);
+            int stepLabels = SimpleServiceProvider.Current.GetInstance<IStepLabelService>().CountStepLabels(null);
             Image icon;
             if (stepLabels <= 20)
             {
