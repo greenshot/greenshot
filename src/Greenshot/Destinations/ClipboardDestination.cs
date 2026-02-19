@@ -43,7 +43,7 @@ namespace Greenshot.Destinations
 
         public override int Priority
         {
-            get { return 2; }
+            get { return -1; }
         }
 
         public override Keys EditorShortcutKeys
@@ -67,6 +67,27 @@ namespace Greenshot.Destinations
             catch (Exception)
             {
                 // TODO: Change to general logic in ProcessExport
+                surface.SendMessageEvent(this, SurfaceMessageTyp.Error, Language.GetString(LangKey.editor_clipboardfailed));
+            }
+
+            ProcessExport(exportInformation, surface);
+            return exportInformation;
+        }
+
+        /// <summary>
+        /// Exports to clipboard using a pre-rendered bitmap, avoiding a redundant surface render pass.
+        /// Called by CaptureHelper when a shared rendered bitmap is already available.
+        /// </summary>
+        internal ExportInformation ExportCaptureWithRenderedImage(Image preRenderedImage, ISurface surface, ICaptureDetails captureDetails)
+        {
+            ExportInformation exportInformation = new ExportInformation(Designation, Description);
+            try
+            {
+                ClipboardHelper.SetClipboardData(surface, preRenderedImage);
+                exportInformation.ExportMade = true;
+            }
+            catch (Exception)
+            {
                 surface.SendMessageEvent(this, SurfaceMessageTyp.Error, Language.GetString(LangKey.editor_clipboardfailed));
             }
 

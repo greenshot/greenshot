@@ -28,6 +28,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Windows.Forms;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core.Enums;
@@ -331,6 +332,55 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
+        /// Saves a pre-rendered bitmap to disk. Unlike <see cref="Save"/>, this method does not call
+        /// <see cref="CreateImageFromSurface"/> — the caller is responsible for rendering the bitmap on the
+        /// UI thread before calling this method, allowing the encode+write work to run on a background thread.
+        /// If <paramref name="copyPathToClipboard"/> is true and a <paramref name="uiContext"/> is provided,
+        /// the clipboard call is marshalled back to the UI thread automatically.
+        /// </summary>
+        public static void SaveRenderedImage(Image renderedBitmap, string fullPath, bool allowOverwrite,
+            SurfaceOutputSettings outputSettings, bool copyPathToClipboard, SynchronizationContext uiContext = null)
+        {
+            fullPath = FilenameHelper.MakeFqFilenameSafe(fullPath);
+            string path = Path.GetDirectoryName(fullPath);
+
+            if (path != null)
+            {
+                DirectoryInfo di = new DirectoryInfo(path);
+                if (!di.Exists)
+                {
+                    Directory.CreateDirectory(di.FullName);
+                }
+            }
+
+            if (!allowOverwrite && File.Exists(fullPath))
+            {
+                ArgumentException throwingException = new ArgumentException("File '" + fullPath + "' already exists.");
+                throwingException.Data.Add("fullPath", fullPath);
+                throw throwingException;
+            }
+
+            Log.DebugFormat("Saving pre-rendered bitmap to {0}", fullPath);
+            using (FileStream stream = new FileStream(fullPath, FileMode.Create, FileAccess.Write))
+            {
+                SaveToStream(renderedBitmap, null, stream, outputSettings);
+            }
+
+            if (copyPathToClipboard)
+            {
+                if (uiContext != null)
+                {
+                    // ClipboardHelper requires the STA/UI thread — marshal back.
+                    uiContext.Post(_ => ClipboardHelper.SetClipboardData(fullPath), null);
+                }
+                else
+                {
+                    ClipboardHelper.SetClipboardData(fullPath);
+                }
+            }
+        }
+
+        /// <summary>
         /// Get the OutputFormat for a filename
         /// </summary>
         /// <param name="fullPath">filename (can be a complete path)</param>
@@ -482,6 +532,38 @@ namespace Greenshot.Base.Core
             try
             {
                 Save(surface, tmpPath, true, outputSettings, false);
+                TmpFileCache.Add(tmpPath, tmpPath);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+
+            return tmpPath;
+        }
+
+        /// <summary>
+        /// Saves a pre-rendered image to a temp file, skipping the surface render step.
+        /// Use this overload when the surface has already been rendered to avoid a redundant render pass.
+        /// </summary>
+        public static string SaveToTmpFile(Image renderedImage, SurfaceOutputSettings outputSettings, string destinationPath)
+        {
+            string tmpFile = Path.GetRandomFileName() + "." + outputSettings.Format;
+            tmpFile = Regex.Replace(tmpFile, @"[^\d\w\.]", string.Empty);
+            if (destinationPath == null)
+            {
+                destinationPath = Path.GetTempPath();
+            }
+
+            string tmpPath = Path.Combine(destinationPath, tmpFile);
+            Log.Debug("Creating TMP File from pre-rendered image: " + tmpPath);
+
+            try
+            {
+                using (FileStream stream = new FileStream(tmpPath, FileMode.Create, FileAccess.Write))
+                {
+                    SaveToStream(renderedImage, null, stream, outputSettings);
+                }
                 TmpFileCache.Add(tmpPath, tmpPath);
             }
             catch (Exception)
