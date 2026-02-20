@@ -116,6 +116,7 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="editor_email">E-Mail</resource>
 		<resource name="editor_file">File</resource>
 		<resource name="editor_fontsize">Size</resource>
+		<resource name="editor_fit">Fit</resource>
 		<resource name="editor_forecolor">Line color (NumPad0-9, Shift+0-9)</resource>
 		<resource name="editor_grayscale">Grayscale</resource>
 		<resource name="editor_highlight_area">Highlight area</resource>
@@ -157,6 +158,7 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="editor_opendirinexplorer">Open directory in Windows Explorer</resource>
 		<resource name="editor_pastefromclipboard">Paste</resource>
 		<resource name="editor_pixel_size">Pixel size</resource>
+		<resource name="editor_pushout">Stitch</resource>
 		<resource name="editor_preview_quality">Preview quality</resource>
 		<resource name="editor_print">Print</resource>
 		<resource name="editor_remove_transparency">Remove transparency</resource>
@@ -173,6 +175,7 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="editor_senttoprinter">Print job was sent to '{0}'.</resource>
 		<resource name="editor_shadow">Drop shadow (/)</resource>
 		<resource name="editor_storedtoclipboard">Image stored to clipboard.</resource>
+		<resource name="editor_snap">Snap to</resource>
 		<resource name="editor_thickness">Line thickness</resource>
 		<resource name="editor_title">Greenshot image editor</resource>
 		<resource name="editor_torn_edge">Torn edge</resource>
