@@ -170,6 +170,16 @@ EndSelection:<<<<<<<4
             {
                 try
                 {
+                    // Try to clear the clipboard first to avoid issues with complex existing formats.
+                    try
+                    {
+                        Clipboard.Clear();
+                    }
+                    catch (Exception clearException)
+                    {
+                        // Non-critical: if clearing fails, we still attempt to set the new data.
+                        Log.Warn("Couldn't clear clipboard before setting new data, continuing anyway.", clearException);
+                    }
                     // For BUG-1935 this was changed from looping ourselves, or letting MS retry...
                     Clipboard.SetDataObject(ido, copy, 15, 200);
                 }
