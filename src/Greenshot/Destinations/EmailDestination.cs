@@ -96,6 +96,9 @@ namespace Greenshot.Destinations
 
         public override Image DisplayIcon => MailIcon;
 
+        // TODO: Implement IAcceptsPreRenderedImage to avoid a redundant surface render pass
+        // when a shared rendered bitmap is already available from the capture pipeline.
+        // SendImage would need an overload accepting a pre-rendered Image instead of ISurface.
         public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
         {
             ExportInformation exportInformation = new ExportInformation(Designation, Description);

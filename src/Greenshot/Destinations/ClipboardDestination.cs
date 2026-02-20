@@ -32,7 +32,7 @@ namespace Greenshot.Destinations
     /// <summary>
     /// Description of ClipboardDestination.
     /// </summary>
-    public class ClipboardDestination : AbstractDestination
+    public class ClipboardDestination : AbstractDestination, IAcceptsPreRenderedImage
     {
         public override string Designation => nameof(WellKnownDestinations.Clipboard);
 
@@ -78,7 +78,7 @@ namespace Greenshot.Destinations
         /// Exports to clipboard using a pre-rendered bitmap, avoiding a redundant surface render pass.
         /// Called by CaptureHelper when a shared rendered bitmap is already available.
         /// </summary>
-        internal ExportInformation ExportCaptureWithRenderedImage(Image preRenderedImage, ISurface surface, ICaptureDetails captureDetails)
+        public ExportInformation ExportCaptureWithRenderedImage(Image preRenderedImage, ISurface surface, ICaptureDetails captureDetails)
         {
             ExportInformation exportInformation = new ExportInformation(Designation, Description);
             try

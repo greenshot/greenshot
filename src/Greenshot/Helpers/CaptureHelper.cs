@@ -22,6 +22,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Drawing;
 using System.IO;
 using System.Text;
@@ -780,19 +781,28 @@ namespace Greenshot.Helpers
                 bool hasClipboardDestination = captureDetails.CaptureDestinations.Exists(d =>
                     d.Designation == nameof(WellKnownDestinations.Clipboard));
 
+                // If quality prompt is enabled, show it once here for all file destinations rather
+                // than once per destination, so the user is only asked once and all file saves
+                // use the same quality settings.
+                var sharedFileOutputSettings = new SurfaceOutputSettings();
+                if (hasFileDestination && CoreConfig.OutputFilePromptQuality)
+                {
+                    var qualityDialog = new QualityDialog(sharedFileOutputSettings);
+                    qualityDialog.ShowDialog();
+                }
+
                 Image sharedRenderedBitmap = null;
                 bool disposeSharedBitmap = false;
                 if (hasFileDestination || hasClipboardDestination)
                 {
-                    var sharedOutputSettings = new SurfaceOutputSettings();
-                    disposeSharedBitmap = ImageIO.CreateImageFromSurface(surface, sharedOutputSettings, out sharedRenderedBitmap);
+                    disposeSharedBitmap = ImageIO.CreateImageFromSurface(surface, sharedFileOutputSettings, out sharedRenderedBitmap);
                 }
 
                 var backgroundTasks = new List<Task>();
 
                 try
                 {
-                foreach (IDestination destination in captureDetails.CaptureDestinations)
+                foreach (IDestination destination in captureDetails.CaptureDestinations.OrderBy(d => d.Priority).ThenBy(d => d.Description))
                 {
                     if (nameof(WellKnownDestinations.Picker).Equals(destination.Designation))
                     {
@@ -807,14 +817,13 @@ namespace Greenshot.Helpers
                         destination.Designation == nameof(WellKnownDestinations.FileDialog))
                     {
                         // Resolve the output path on the UI thread (may show dialogs).
-                        var outputSettings = new SurfaceOutputSettings();
                         string fullPath;
                         bool overwrite;
                         if (captureDetails.Filename != null)
                         {
                             fullPath = captureDetails.Filename;
                             overwrite = true;
-                            outputSettings.Format = ImageIO.FormatForFilename(fullPath);
+                            sharedFileOutputSettings.Format = ImageIO.FormatForFilename(fullPath);
                         }
                         else
                         {
@@ -828,19 +837,13 @@ namespace Greenshot.Helpers
                             continue;
                         }
 
-                        if (CoreConfig.OutputFilePromptQuality)
-                        {
-                            var qualityDialog = new QualityDialog(outputSettings);
-                            qualityDialog.ShowDialog();
-                        }
-
                         // Set the filename immediately so dependent destinations (e.g. Editor)
                         // see the correct path even before the background write completes.
                         captureDetails.Filename = fullPath;
 
                         var bgFullPath = fullPath;
                         var bgOverwrite = overwrite;
-                        var bgOutputSettings = outputSettings;
+                        var bgOutputSettings = sharedFileOutputSettings;
 
                         // Clone the shared pre-rendered bitmap so each background task
                         // works with its own Image instance (Image is not thread-safe).
@@ -885,12 +888,11 @@ namespace Greenshot.Helpers
 
                         backgroundTasks.Add(task);
                     }
-                    else if (destination.Designation == nameof(WellKnownDestinations.Clipboard) &&
-                             sharedRenderedBitmap != null &&
-                             destination is ClipboardDestination clipboardDest)
+                    else if (sharedRenderedBitmap != null &&
+                             destination is IAcceptsPreRenderedImage preRenderDest)
                     {
-                        // Pass the shared pre-rendered bitmap — avoids a second render pass.
-                        clipboardDest.ExportCaptureWithRenderedImage(sharedRenderedBitmap, surface, captureDetails);
+                        // Destination supports receiving a pre-rendered bitmap — avoids a redundant render pass.
+                        preRenderDest.ExportCaptureWithRenderedImage(sharedRenderedBitmap, surface, captureDetails);
                     }
                     else
                     {
@@ -902,35 +904,36 @@ namespace Greenshot.Helpers
                     }
                 }
 
-                // Schedule disposal of the shared rendered bitmap once all background file saves complete,
-                // without blocking the UI thread. If there are no background tasks, disposal is handled
-                // synchronously in the finally block below.
-                if (backgroundTasks.Count > 0 && disposeSharedBitmap && sharedRenderedBitmap != null)
-                {
-                    var bitmapToDispose = sharedRenderedBitmap;
-                    disposeSharedBitmap = false;
-                    sharedRenderedBitmap = null;
-
-                    Task.WhenAll(backgroundTasks.ToArray())
-                        .ContinueWith(
-                            t =>
-                            {
-                                try
-                                {
-                                    bitmapToDispose.Dispose();
-                                }
-                                catch
-                                {
-                                    // Ignore exceptions during bitmap disposal in background continuation.
-                                }
-                            },
-                            CancellationToken.None,
-                            TaskContinuationOptions.None,
-                            TaskScheduler.Default);
-                }
                 }
                 finally
                 {
+                    // Schedule disposal of the shared rendered bitmap once all background file
+                    // saves complete, without blocking the UI thread. If there are no background
+                    // tasks, disposal is handled synchronously in the finally block below.
+                    if (backgroundTasks.Count > 0 && disposeSharedBitmap && sharedRenderedBitmap != null)
+                    {
+                        var bitmapToDispose = sharedRenderedBitmap;
+                        disposeSharedBitmap = false;
+                        sharedRenderedBitmap = null;
+
+                        Task.WhenAll(backgroundTasks.ToArray())
+                            .ContinueWith(
+                                t =>
+                                {
+                                    try
+                                    {
+                                        bitmapToDispose.Dispose();
+                                    }
+                                    catch
+                                    {
+                                        // Ignore exceptions during bitmap disposal in background continuation.
+                                    }
+                                },
+                                CancellationToken.None,
+                                TaskContinuationOptions.None,
+                                TaskScheduler.Default);
+                    }
+
                     // If no asynchronous disposal was scheduled, dispose the shared rendered bitmap now.
                     if (disposeSharedBitmap)
                     {
