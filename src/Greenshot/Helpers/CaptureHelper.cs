@@ -841,15 +841,29 @@ namespace Greenshot.Helpers
                         var bgFullPath = fullPath;
                         var bgOverwrite = overwrite;
                         var bgOutputSettings = outputSettings;
-                        // Use the shared pre-rendered bitmap — no second render needed.
-                        var bgRenderedBitmap = sharedRenderedBitmap;
+
+                        // Clone the shared pre-rendered bitmap so each background task
+                        // works with its own Image instance (Image is not thread-safe).
+                        Image bgRenderedBitmap = null;
+                        if (sharedRenderedBitmap != null)
+                        {
+                            bgRenderedBitmap = (Image)sharedRenderedBitmap.Clone();
+                        }
 
                         var task = Task.Run(() =>
                         {
                             try
                             {
-                                ImageIO.SaveRenderedImage(bgRenderedBitmap, bgFullPath, bgOverwrite, bgOutputSettings,
-                                    CoreConfig.OutputFileCopyPathToClipboard, uiContext);
+                                using (bgRenderedBitmap)
+                                {
+                                    ImageIO.SaveRenderedImage(
+                                        bgRenderedBitmap,
+                                        bgFullPath,
+                                        bgOverwrite,
+                                        bgOutputSettings,
+                                        CoreConfig.OutputFileCopyPathToClipboard,
+                                        uiContext);
+                                }
 
                                 // Update the config path on completion — marshal to UI thread for thread-safety.
                                 uiContext?.Post(_ => CoreConfig.OutputFileAsFullpath = bgFullPath, null);
