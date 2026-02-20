@@ -902,15 +902,36 @@ namespace Greenshot.Helpers
                     }
                 }
 
-                // Wait for all background file saves to complete before allowing surface disposal.
-                if (backgroundTasks.Count > 0)
+                // Schedule disposal of the shared rendered bitmap once all background file saves complete,
+                // without blocking the UI thread. If there are no background tasks, disposal is handled
+                // synchronously in the finally block below.
+                if (backgroundTasks.Count > 0 && disposeSharedBitmap && sharedRenderedBitmap != null)
                 {
-                    Task.WaitAll(backgroundTasks.ToArray());
+                    var bitmapToDispose = sharedRenderedBitmap;
+                    disposeSharedBitmap = false;
+                    sharedRenderedBitmap = null;
+
+                    Task.WhenAll(backgroundTasks.ToArray())
+                        .ContinueWith(
+                            t =>
+                            {
+                                try
+                                {
+                                    bitmapToDispose.Dispose();
+                                }
+                                catch
+                                {
+                                    // Ignore exceptions during bitmap disposal in background continuation.
+                                }
+                            },
+                            CancellationToken.None,
+                            TaskContinuationOptions.None,
+                            TaskScheduler.Default);
                 }
                 }
                 finally
                 {
-                    // Dispose the shared rendered bitmap now that all destinations (including background tasks) are done.
+                    // If no asynchronous disposal was scheduled, dispose the shared rendered bitmap now.
                     if (disposeSharedBitmap)
                     {
                         sharedRenderedBitmap?.Dispose();
