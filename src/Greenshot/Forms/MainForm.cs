@@ -1168,13 +1168,11 @@ namespace Greenshot.Forms
                     title = title.Substring(0, Math.Min(title.Length, _conf.MaxMenuItemLength));
                 }
 
-                var windowIcon = window.DisplayIcon;
                 ToolStripItem captureWindowItem = menuItem.DropDownItems.Add(title);
                 captureWindowItem.Tag = window;
-                captureWindowItem.Image = windowIcon;
                 captureWindowItem.Click += eventHandler;
-                captureWindowItem.Disposed += (sender, e) => windowIcon.Dispose();
-
+                // Dispose the icon when the menu item is disposed to prevent memory leaks
+                captureWindowItem.AssignAutoDisposingImage(window?.DisplayIcon, needsClone: false);
                 // Only show preview when enabled
                 if (thumbnailPreview)
                 {

@@ -41,7 +41,7 @@
     <ProjectReference Include="..\Greenshot.Base\Greenshot.Base.csproj" />
     <ProjectReference Include="..\Greenshot.Editor\Greenshot.Editor.csproj" />
     <ProjectReference Include="..\Greenshot.BuildTasks\Greenshot.BuildTasks.csproj" ReferenceOutputAssembly="false" />
-    <FilesToHash Include="$(SolutionDir)$(SolutionName)\$(OutDir)\*" />
+    <FilesToHash Include="$(SolutionDir)$(SolutionName)\$(OutDir)\*" Exclude="*Bcl*"/>
   </ItemGroup>
 
   <ItemGroup>

@@ -378,33 +378,22 @@ namespace Greenshot.Editor.Forms
         {
             if (toolstripDestination.IsDynamic)
             {
-                // Clone the icon to prevent issues when cached icons are disposed on icon size change
-                var iconClone = toolstripDestination.DisplayIcon != null ? ImageHelper.Clone(toolstripDestination.DisplayIcon) : null;
                 ToolStripSplitButton destinationButton = new()
                 {
                     DisplayStyle = ToolStripItemDisplayStyle.Image,
                     Size = new Size(23, 22),
                     Text = toolstripDestination.Description,
-                    Image = iconClone
                 };
-                // Dispose the cloned icon when the button is disposed to prevent memory leaks
-                if (iconClone != null)
-                {
-                    destinationButton.Disposed += (sender, e) => iconClone.Dispose();
-                }
+                // Dispose the icon when the toolstrip item is disposed to prevent memory leaks
+                destinationButton.AssignAutoDisposingImage(toolstripDestination?.DisplayIcon);
 
                 // Clone the icon for the menu item
-                var menuIconClone = toolstripDestination.DisplayIcon != null ? ImageHelper.Clone(toolstripDestination.DisplayIcon) : null;
                 ToolStripMenuItem defaultItem = new ToolStripMenuItem(toolstripDestination.Description)
                 {
                     Tag = toolstripDestination,
-                    Image = menuIconClone
                 };
-                // Dispose the cloned icon when the menu item is disposed
-                if (menuIconClone != null)
-                {
-                    defaultItem.Disposed += (sender, e) => menuIconClone.Dispose();
-                }
+                // Dispose the icon when the toolstrip item is disposed to prevent memory leaks
+                defaultItem.AssignAutoDisposingImage(toolstripDestination?.DisplayIcon);
                 defaultItem.Click += delegate { toolstripDestination.ExportCapture(true, _surface, _surface.CaptureDetails); };
 
                 // The ButtonClick, this is for the icon, gets the current default item
@@ -424,18 +413,12 @@ namespace Greenshot.Editor.Forms
                         foreach (IDestination subDestination in subDestinations)
                         {
                             IDestination closureFixedDestination = subDestination;
-                            // Clone the icon to prevent issues when cached icons are disposed on icon size change
-                            var subIconClone = closureFixedDestination.DisplayIcon != null ? ImageHelper.Clone(closureFixedDestination.DisplayIcon) : null;
                             ToolStripMenuItem destinationMenuItem = new ToolStripMenuItem(closureFixedDestination.Description)
                             {
                                 Tag = closureFixedDestination,
-                                Image = subIconClone
                             };
-                            // Dispose the cloned icon when the menu item is disposed
-                            if (subIconClone != null)
-                            {
-                                destinationMenuItem.Disposed += (sender, e) => subIconClone.Dispose();
-                            }
+                            // Dispose the icon when the toolstrip item is disposed to prevent memory leaks
+                            destinationMenuItem.AssignAutoDisposingImage(closureFixedDestination.DisplayIcon);
                             destinationMenuItem.Click += delegate { closureFixedDestination.ExportCapture(true, _surface, _surface.CaptureDetails); };
                             destinationButton.DropDownItems.Add(destinationMenuItem);
                         }
@@ -446,20 +429,15 @@ namespace Greenshot.Editor.Forms
             }
             else
             {
-                // Clone the icon to prevent issues when cached icons are disposed on icon size change
-                var buttonIconClone = toolstripDestination.DisplayIcon != null ? ImageHelper.Clone(toolstripDestination.DisplayIcon) : null;
                 ToolStripButton destinationButton = new ToolStripButton();
                 destinationsToolStrip.Items.Insert(destinationsToolStrip.Items.IndexOf(toolStripSeparator16), destinationButton);
                 destinationButton.DisplayStyle = ToolStripItemDisplayStyle.Image;
                 destinationButton.Size = new Size(23, 22);
                 destinationButton.Text = toolstripDestination.Description;
-                destinationButton.Image = buttonIconClone;
                 destinationButton.Click += delegate { toolstripDestination.ExportCapture(true, _surface, _surface.CaptureDetails); };
-                // Dispose the cloned icon when the button is disposed
-                if (buttonIconClone != null)
-                {
-                    destinationButton.Disposed += (sender, e) => buttonIconClone.Dispose();
-                }
+
+                // Dispose the icon when the toolstrip item is disposed to prevent memory leaks
+                destinationButton.AssignAutoDisposingImage(toolstripDestination.DisplayIcon);
             }
         }
 
