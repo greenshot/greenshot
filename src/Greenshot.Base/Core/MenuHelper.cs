@@ -76,7 +76,7 @@ public static class MenuHelper
             return;
         }
         var iconClone = needsClone ? ImageHelper.Clone(icon) : icon;
-        if (iconClone != null)
+        if (iconClone == null)
         {
             toolstripItem.Image = null;
             return;
@@ -84,7 +84,7 @@ public static class MenuHelper
 
         toolstripItem.Image = iconClone;
         // Dispose the cloned icon when the menu item is disposed to prevent memory leaks
-        toolstripItem.Disposed += (sender, e) => iconClone.Dispose();
+        toolstripItem.Disposed += (sender, e) => iconClone?.Dispose();
     }
 
 }
