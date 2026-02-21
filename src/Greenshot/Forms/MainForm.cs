@@ -943,18 +943,18 @@ namespace Greenshot.Forms
             var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
             var extensions = fileFormatHandlers.ExtensionsFor(FileFormatHandlerActions.LoadFromFile).Select(e => $"*{e}").ToList();
 
-            var openFileDialog = new OpenFileDialog
-            {
-                Filter = @$"Image files ({string.Join(", ", extensions)})|{string.Join("; ", extensions)}"
-            };
-            if (openFileDialog.ShowDialog() != DialogResult.OK)
+            var result = new Dapplo.Windows.Dialogs.FileOpenDialogBuilder()
+                .AddFilter("Image files", string.Join(";", extensions))
+                .ShowDialog();
+
+            if (result.WasCancelled)
             {
                 return;
             }
 
-            if (File.Exists(openFileDialog.FileName))
+            if (File.Exists(result.SelectedPath))
             {
-                CaptureHelper.CaptureFile(openFileDialog.FileName, destination);
+                CaptureHelper.CaptureFile(result.SelectedPath, destination);
             }
         }
 

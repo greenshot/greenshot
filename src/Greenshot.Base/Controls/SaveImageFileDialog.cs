@@ -23,6 +23,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using Dapplo.Windows.Dialogs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Core.FileFormatHandlers;
@@ -33,34 +34,22 @@ using log4net;
 namespace Greenshot.Base.Controls
 {
     /// <summary>
-    /// Custom dialog for saving images, wraps SaveFileDialog.
-    /// For some reason SFD is sealed :(
+    /// Custom dialog for saving images, using the modern FileSaveDialogBuilder.
     /// </summary>
     public class SaveImageFileDialog : IDisposable
     {
         private static readonly ILog LOG = LogManager.GetLogger(typeof(SaveImageFileDialog));
         private static readonly CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
-        protected SaveFileDialog SaveFileDialog;
-        private FilterOption[] _filterOptions;
-        private DirectoryInfo _eagerlyCreatedDirectory;
         private readonly ICaptureDetails _captureDetails;
+        private string _selectedPath;
+        private string _suggestedFileName;
+        private string _initialDirectory;
+        private string _defaultExtension;
+        private FilterOption[] _filterOptions;
 
         public void Dispose()
         {
-            Dispose(true);
             GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                if (SaveFileDialog != null)
-                {
-                    SaveFileDialog.Dispose();
-                    SaveFileDialog = null;
-                }
-            }
         }
 
         public SaveImageFileDialog(ICaptureDetails captureDetails)
@@ -71,53 +60,34 @@ namespace Greenshot.Base.Controls
 
         private void Init()
         {
-            SaveFileDialog = new SaveFileDialog();
-            ApplyFilterOptions();
-            string initialDirectory = null;
+            PrepareFilterOptions();
+
+            // Determine initial directory from the last used full path, then fall back to the configured output folder
+            _initialDirectory = null;
             try
             {
                 conf.ValidateAndCorrectOutputFileAsFullpath();
-                initialDirectory = Path.GetDirectoryName(conf.OutputFileAsFullpath);
+                string dir = Path.GetDirectoryName(conf.OutputFileAsFullpath);
+                if (!string.IsNullOrEmpty(dir) && Directory.Exists(dir))
+                {
+                    _initialDirectory = dir;
+                }
             }
             catch
             {
                 LOG.WarnFormat("OutputFileAsFullpath was set to {0}, ignoring due to problem in path.", conf.OutputFileAsFullpath);
             }
 
-            if (!string.IsNullOrEmpty(initialDirectory) && Directory.Exists(initialDirectory))
+            if (_initialDirectory == null && Directory.Exists(conf.OutputFilePath))
             {
-                SaveFileDialog.InitialDirectory = initialDirectory;
-            }
-            else if (Directory.Exists(conf.OutputFilePath))
-            {
-                SaveFileDialog.InitialDirectory = conf.OutputFilePath;
+                _initialDirectory = conf.OutputFilePath;
             }
 
-            // The following property fixes a problem that the directory where we save is locked (bug #2899790)
-            SaveFileDialog.RestoreDirectory = true;
-            SaveFileDialog.OverwritePrompt = true;
-            SaveFileDialog.CheckPathExists = false;
-            SaveFileDialog.AddExtension = true;
-            ApplySuggestedValues();
-        }
+            // Determine default extension from the configured output format
+            _defaultExtension = Enum.GetName(typeof(OutputFormat), conf.OutputFileFormat)?.ToLower();
 
-        private void ApplyFilterOptions()
-        {
-            PrepareFilterOptions();
-            string fdf = string.Empty;
-            int preselect = 0;
-            var outputFileFormatAsString = Enum.GetName(typeof(OutputFormat), conf.OutputFileFormat);
-            for (int i = 0; i < _filterOptions.Length; i++)
-            {
-                FilterOption fo = _filterOptions[i];
-                fdf += fo.Label + "|*." + fo.Extension + "|";
-                if (outputFileFormatAsString == fo.Extension)
-                    preselect = i;
-            }
-
-            fdf = fdf.Substring(0, fdf.Length - 1);
-            SaveFileDialog.Filter = fdf;
-            SaveFileDialog.FilterIndex = preselect + 1;
+            // Build suggested filename from the configured pattern
+            _suggestedFileName = FilenameHelper.GetFilenameWithoutExtensionFromPattern(conf.OutputFileFilenamePattern, _captureDetails);
         }
 
         private void PrepareFilterOptions()
@@ -128,112 +98,108 @@ namespace Greenshot.Base.Controls
             _filterOptions = new FilterOption[supportedExtensions.Count];
             for (int i = 0; i < _filterOptions.Length; i++)
             {
-                string ifo = supportedExtensions[i];
-                FilterOption fo = new FilterOption
+                string ext = supportedExtensions[i];
+                _filterOptions[i] = new FilterOption
                 {
-                    Label = ifo.ToUpper(),
-                    Extension = ifo.ToLower()
+                    Label = ext.ToUpper(),
+                    Extension = ext.ToLower()
                 };
-                _filterOptions.SetValue(fo, i);
             }
         }
 
         /// <summary>
-        /// filename exactly as typed in the filename field
+        /// The full selected path. Before <see cref="ShowDialog"/> is called, returns the
+        /// suggested full path built from the initial directory and suggested filename.
         /// </summary>
         public string FileName
         {
-            get { return SaveFileDialog.FileName; }
-            set { SaveFileDialog.FileName = value; }
+            get
+            {
+                if (_selectedPath != null)
+                    return _selectedPath;
+                string dir = _initialDirectory ?? conf.OutputFilePath ?? string.Empty;
+                string name = !string.IsNullOrEmpty(_defaultExtension)
+                    ? _suggestedFileName + "." + _defaultExtension
+                    : _suggestedFileName;
+                return string.IsNullOrEmpty(dir) ? name : Path.Combine(dir, name);
+            }
+            set => _suggestedFileName = value;
         }
 
         /// <summary>
-        /// initial directory of the dialog
+        /// Initial directory shown when the dialog opens.
         /// </summary>
         public string InitialDirectory
         {
-            get { return SaveFileDialog.InitialDirectory; }
-            set { SaveFileDialog.InitialDirectory = value; }
+            get => _initialDirectory;
+            set => _initialDirectory = value;
         }
 
         /// <summary>
-        /// returns filename as typed in the filename field with extension.
-        /// if filename field value ends with selected extension, the value is just returned.
-        /// otherwise, the selected extension is appended to the filename.
+        /// Returns the selected path with the correct extension. Before <see cref="ShowDialog"/> is
+        /// called, returns the same value as <see cref="FileName"/>.
         /// </summary>
         public string FileNameWithExtension
         {
-            get
-            {
-                string fn = SaveFileDialog.FileName;
-                // if the filename contains a valid extension, which is the same like the selected filter item's extension, the filename is okay
-                if (fn.EndsWith(Extension, StringComparison.CurrentCultureIgnoreCase)) return fn;
-                // otherwise we just add the selected filter item's extension
-                return fn + "." + Extension;
-            }
+            get => _selectedPath ?? FileName;
             set
             {
-                FileName = Path.GetFileNameWithoutExtension(value);
-                Extension = Path.GetExtension(value);
+                _suggestedFileName = Path.GetFileNameWithoutExtension(value);
+                _defaultExtension = Path.GetExtension(value)?.TrimStart('.');
             }
         }
 
         /// <summary>
-        /// gets or sets selected extension
+        /// Gets or sets the selected/default file extension (without leading dot).
         /// </summary>
         public string Extension
         {
-            get { return _filterOptions[SaveFileDialog.FilterIndex - 1].Extension; }
-            set
-            {
-                for (int i = 0; i < _filterOptions.Length; i++)
-                {
-                    if (value.Equals(_filterOptions[i].Extension, StringComparison.CurrentCultureIgnoreCase))
-                    {
-                        SaveFileDialog.FilterIndex = i + 1;
-                    }
-                }
-            }
+            get => _selectedPath != null
+                ? Path.GetExtension(_selectedPath)?.TrimStart('.')
+                : _defaultExtension;
+            set => _defaultExtension = value?.TrimStart('.');
         }
 
         public DialogResult ShowDialog()
         {
-            DialogResult ret = SaveFileDialog.ShowDialog();
-            CleanUp();
-            return ret;
-        }
+            string suggestedName = !string.IsNullOrEmpty(_defaultExtension)
+                ? _suggestedFileName + "." + _defaultExtension
+                : _suggestedFileName;
 
-        /// <summary>
-        /// sets InitialDirectory and FileName property of a SaveFileDialog smartly, considering default pattern and last used path
-        /// </summary>
-        private void ApplySuggestedValues()
-        {
-            // build the full path and set dialog properties
-            FileName = FilenameHelper.GetFilenameWithoutExtensionFromPattern(conf.OutputFileFilenamePattern, _captureDetails);
+            var builder = new FileSaveDialogBuilder()
+                .WithSuggestedFileName(suggestedName)
+                .WithDefaultExtension(_defaultExtension);
+
+            if (!string.IsNullOrEmpty(_initialDirectory))
+            {
+                builder = builder.WithInitialDirectory(_initialDirectory);
+            }
+
+            string sidebarPath = _initialDirectory ?? conf.OutputFilePath;
+            if (!string.IsNullOrEmpty(sidebarPath) && Directory.Exists(sidebarPath))
+            {
+                builder = builder.AddPlace(sidebarPath, atTop: true);
+            }
+
+            foreach (var fo in _filterOptions)
+            {
+                builder = builder.AddFilter(fo.Label, "*." + fo.Extension);
+            }
+
+            var result = builder.ShowDialog();
+            if (result.WasCancelled)
+            {
+                return DialogResult.Cancel;
+            }
+
+            _selectedPath = result.SelectedPath;
+            return DialogResult.OK;
         }
 
         private class FilterOption
         {
             public string Label;
             public string Extension;
-        }
-
-        private void CleanUp()
-        {
-            // fix for bug #3379053
-            try
-            {
-                if (_eagerlyCreatedDirectory != null && _eagerlyCreatedDirectory.GetFiles().Length == 0 && _eagerlyCreatedDirectory.GetDirectories().Length == 0)
-                {
-                    _eagerlyCreatedDirectory.Delete();
-                    _eagerlyCreatedDirectory = null;
-                }
-            }
-            catch (Exception e)
-            {
-                LOG.WarnFormat("Couldn't cleanup directory due to: {0}", e.Message);
-                _eagerlyCreatedDirectory = null;
-            }
         }
     }
 }
