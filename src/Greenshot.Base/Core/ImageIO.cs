@@ -380,7 +380,7 @@ namespace Greenshot.Base.Core
                     returnValue = fileNameWithExtension;
                     IniConfig.Save();
                 }
-                catch (ExternalException)
+                catch (Exception e) when (e is ExternalException || e is IOException)
                 {
                     MessageBox.Show(Language.GetFormattedString("error_nowriteaccess", saveImageFileDialog.FileName).Replace(@"\\", @"\"), Language.GetString("error"));
                 }
