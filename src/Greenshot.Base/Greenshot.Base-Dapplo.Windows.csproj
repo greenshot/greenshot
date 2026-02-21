@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dapplo.HttpExtensions.JsonNet" Version="2.0.11" />
+    <ProjectReference Include="..\..\..\Dapplo.Windows\src\Dapplo.Windows.Common\Dapplo.Windows.Common.csproj" />
+    <ProjectReference Include="..\..\..\Dapplo.Windows\src\Dapplo.Windows.Gdi32\Dapplo.Windows.Gdi32.csproj" />
+    <ProjectReference Include="..\..\..\Dapplo.Windows\src\Dapplo.Windows.Dpi\Dapplo.Windows.Dpi.csproj" />
+    <ProjectReference Include="..\..\..\Dapplo.Windows\src\Dapplo.Windows.Clipboard\Dapplo.Windows.Clipboard.csproj" />
+    <ProjectReference Include="..\..\..\Dapplo.Windows\src\Dapplo.Windows.Kernel32\Dapplo.Windows.Kernel32.csproj" />
+    <ProjectReference Include="..\..\..\Dapplo.Windows\src\Dapplo.Windows.Icons\Dapplo.Windows.Icons.csproj" />
+    <ProjectReference Include="..\..\..\Dapplo.Windows\src\Dapplo.Windows.Multimedia\Dapplo.Windows.Multimedia.csproj" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="2.1.13" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.12.4" />
+    <PackageReference Include="log4net" version="3.2.0" />
+    <PackageReference Include="Svg" Version="3.4.7" />
+    <Reference Include="Accessibility" />
+    <Reference Include="CustomMarshalers" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="log4net-embedded.xml" />
+  </ItemGroup>
+</Project>
