@@ -177,6 +177,12 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Updated label in settings for improved clarity (#909)
 - By @Christian-Schulz and @jklingen
 
+**Settings Dialog Folder Browser**
+- Fixed crash when clicking Browse button in Settings dialog with inaccessible or invalid storage path
+- Folder browser now gracefully falls back to My Documents when the configured path is unavailable, too long, or doesn't exist
+- Prevents `System.InvalidOperationException: Unable to retrieve the root folder` error
+- By @Copilot
+
 **Plugin Configuration** (#733)
 - Improved plugin configuration handling
 - By @xqtp

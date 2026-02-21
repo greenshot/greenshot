@@ -207,7 +207,9 @@ namespace Greenshot.Base.Core
 
                 try
                 {
-                    return PluginUtils.GetCachedExeIcon(ProcessPath, 0);
+                    var cachedIcon = PluginUtils.GetCachedExeIcon(ProcessPath, 0);
+                    // Clone the cached icon to prevent issues when the cache is cleared on icon size change
+                    return cachedIcon != null ? ImageHelper.Clone(cachedIcon) : null;
                 }
                 catch (Exception ex)
                 {

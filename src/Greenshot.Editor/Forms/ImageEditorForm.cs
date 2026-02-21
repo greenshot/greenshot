@@ -383,15 +383,17 @@ namespace Greenshot.Editor.Forms
                     DisplayStyle = ToolStripItemDisplayStyle.Image,
                     Size = new Size(23, 22),
                     Text = toolstripDestination.Description,
-                    Image = toolstripDestination.DisplayIcon
                 };
-                //ToolStripDropDownButton destinationButton = new ToolStripDropDownButton();
+                // Dispose the icon when the toolstrip item is disposed to prevent memory leaks
+                destinationButton.AssignAutoDisposingImage(toolstripDestination?.DisplayIcon);
 
+                // Clone the icon for the menu item
                 ToolStripMenuItem defaultItem = new ToolStripMenuItem(toolstripDestination.Description)
                 {
                     Tag = toolstripDestination,
-                    Image = toolstripDestination.DisplayIcon
                 };
+                // Dispose the icon when the toolstrip item is disposed to prevent memory leaks
+                defaultItem.AssignAutoDisposingImage(toolstripDestination?.DisplayIcon);
                 defaultItem.Click += delegate { toolstripDestination.ExportCapture(true, _surface, _surface.CaptureDetails); };
 
                 // The ButtonClick, this is for the icon, gets the current default item
@@ -414,8 +416,9 @@ namespace Greenshot.Editor.Forms
                             ToolStripMenuItem destinationMenuItem = new ToolStripMenuItem(closureFixedDestination.Description)
                             {
                                 Tag = closureFixedDestination,
-                                Image = closureFixedDestination.DisplayIcon
                             };
+                            // Dispose the icon when the toolstrip item is disposed to prevent memory leaks
+                            destinationMenuItem.AssignAutoDisposingImage(closureFixedDestination.DisplayIcon);
                             destinationMenuItem.Click += delegate { closureFixedDestination.ExportCapture(true, _surface, _surface.CaptureDetails); };
                             destinationButton.DropDownItems.Add(destinationMenuItem);
                         }
@@ -431,8 +434,10 @@ namespace Greenshot.Editor.Forms
                 destinationButton.DisplayStyle = ToolStripItemDisplayStyle.Image;
                 destinationButton.Size = new Size(23, 22);
                 destinationButton.Text = toolstripDestination.Description;
-                destinationButton.Image = toolstripDestination.DisplayIcon;
                 destinationButton.Click += delegate { toolstripDestination.ExportCapture(true, _surface, _surface.CaptureDetails); };
+
+                // Dispose the icon when the toolstrip item is disposed to prevent memory leaks
+                destinationButton.AssignAutoDisposingImage(toolstripDestination.DisplayIcon);
             }
         }
 
