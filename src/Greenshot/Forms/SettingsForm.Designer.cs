@@ -502,20 +502,20 @@ namespace Greenshot.Forms {
 			// 
 			// numericUpDown_daysbetweencheck
 			// 
-			this.numericUpDown_daysbetweencheck.Location = new System.Drawing.Point(345, 37);
+			this.numericUpDown_daysbetweencheck.Location = new System.Drawing.Point(359, 37);
 			this.numericUpDown_daysbetweencheck.Name = "numericUpDown_daysbetweencheck";
-			this.numericUpDown_daysbetweencheck.Size = new System.Drawing.Size(57, 20);
+			this.numericUpDown_daysbetweencheck.Size = new System.Drawing.Size(44, 20);
 			this.numericUpDown_daysbetweencheck.TabIndex = 8;
 			this.numericUpDown_daysbetweencheck.ThousandsSeparator = true;
 			this.numericUpDown_daysbetweencheck.Minimum = 0;
 			this.numericUpDown_daysbetweencheck.Maximum = 365;
-			// 
+			//
 			// label_checkperiod
-			// 
+			//
 			this.label_checkperiod.LanguageKey = "settings_checkperiod";
 			this.label_checkperiod.Location = new System.Drawing.Point(5, 39);
 			this.label_checkperiod.Name = "label_checkperiod";
-			this.label_checkperiod.Size = new System.Drawing.Size(334, 23);
+			this.label_checkperiod.Size = new System.Drawing.Size(350, 23);
 			this.label_checkperiod.TabIndex = 19;
 			// 
 			// checkbox_usedefaultproxy
