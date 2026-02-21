@@ -129,8 +129,12 @@ namespace Greenshot.Base.Core
         [IniProperty("OutputFileReduceColorsTo", Description = "Amount of colors to reduce to, when reducing", DefaultValue = "256")]
         public int OutputFileReduceColorsTo { get; set; }
 
-        [IniProperty("OutputFileCopyPathToClipboard", Description = "When saving a screenshot, copy the path to the clipboard?", DefaultValue = "true")]
-        public bool OutputFileCopyPathToClipboard { get; set; }
+        [Obsolete("Exists only for backward compatibility")]
+        [IniProperty("OutputFileCopyPathToClipboard", Description = "When saving a screenshot, copy the path to the clipboard?", ExcludeIfNull = true)]
+        public bool? OutputFileCopyPathToClipboard { get; set; }
+
+        [IniProperty("OutputFilePostSaveBehavior", Description = "Behavior after saving a screenshot", DefaultValue = "CopyFilePathToClipboard")]
+        public PostSaveBehavior OutputFilePostSaveBehavior { get; set; }
 
         [IniProperty("OutputFileAsFullpath", Description = "SaveAs Full path?")]
         public string OutputFileAsFullpath { get; set; }
@@ -482,6 +486,20 @@ namespace Greenshot.Base.Core
         /// </summary>
         public override void AfterLoad()
         {
+#pragma warning disable CS0618 // Type or member is obsolete
+            // Migrate old OutputFileCopyPathToClipboard boolean to new PostSaveBehavior enum
+            // Once migrated, the old property is set to null and won't exist in the INI file anymore
+            if (OutputFileCopyPathToClipboard.HasValue)
+            {
+                OutputFilePostSaveBehavior = OutputFileCopyPathToClipboard.Value
+                    ? PostSaveBehavior.CopyFilePathToClipboard
+                    : PostSaveBehavior.None;
+                // Set to null so it won't be written back to the INI file (ExcludeIfNull)
+                OutputFileCopyPathToClipboard = null;
+                IsDirty = true;
+            }
+#pragma warning restore CS0618 // Type or member is obsolete
+
             // Comment with releases
             // CheckForUnstable = true;
 
@@ -535,12 +553,6 @@ namespace Greenshot.Base.Core
             if (OutputDestinations.Count == 0)
             {
                 OutputDestinations.Add("Editor");
-            }
-
-            // Prevent both settings at once, bug #3435056
-            if (OutputDestinations.Contains("Clipboard") && OutputFileCopyPathToClipboard)
-            {
-                OutputFileCopyPathToClipboard = false;
             }
 
             // Make sure we have clipboard formats, otherwise a paste doesn't make sense!
