@@ -14,13 +14,13 @@ namespace Greenshot.Editor.FileFormat.V2;
 /// <summary>
 /// Contains shared helper methods for Greenshot file and Greenshot template.
 /// </summary>
-static class V2Helper
+public static class V2Helper
 {
     private static readonly ILog Log = LogManager.GetLogger(typeof(V2Helper));
     private const string ImageFolder = "images";
 
     /// <summary>
-    /// Creates a new instance of JsonSerializerOptions with settings for Greenshot file serialization.
+    /// JsonSerializerOptions with settings for Greenshot file serialization.
     /// </summary>
     public static JsonSerializerOptions GetJsonSerializerOptions()
     {
@@ -228,6 +228,26 @@ static class V2Helper
         using var ms = new MemoryStream();
         entryStream.CopyTo(ms);
         return ms.ToArray();
+    }
+
+    public static string SerializeDto<TDto>(TDto dto) where TDto : class
+    {
+        if (dto == null)
+        {
+            throw new ArgumentNullException(nameof(dto));
+        }
+        var options = GetJsonSerializerOptions();
+        return JsonSerializer.Serialize(dto, options);
+    }
+
+    public static TDto DeserializeDto<TDto>(string json) where TDto : class
+    {
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            throw new ArgumentException("JSON string cannot be null or whitespace.", nameof(json));
+        }
+        var options = GetJsonSerializerOptions();
+        return JsonSerializer.Deserialize<TDto>(json, options);
     }
 }
 

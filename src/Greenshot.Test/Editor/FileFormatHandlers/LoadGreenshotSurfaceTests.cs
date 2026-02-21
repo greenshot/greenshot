@@ -49,7 +49,7 @@ public class LoadGreenshotSurfaceTests
     {
         yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.02", "Surface_with_Image_800x400.greenshot")];
         yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.03", "Surface_with_Image_800x400.greenshot")];
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_2.01", "Surface_with_Image_800x400.greenshot")];
+        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_2.01", "Surface_with_Image_800x400.gsa")];
     }
 
     [Theory]
@@ -76,7 +76,7 @@ public class LoadGreenshotSurfaceTests
     {
         yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.02", "RectangleContainer_lt_100_200_wh_150_80.greenshot")];
         yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.03", "RectangleContainer_lt_100_200_wh_150_80.greenshot")];
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_2.01", "RectangleContainer_lt_100_200_wh_150_80.greenshot")];
+        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_2.01", "RectangleContainer_lt_100_200_wh_150_80.gsa")];
     }
 
     [Theory]
@@ -146,7 +146,7 @@ public class LoadGreenshotSurfaceTests
     {
         yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.02", "LineContainer_lt_200_200_w_400.greenshot")];
         yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.03", "LineContainer_lt_200_200_w_400.greenshot")];
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_2.01", "LineContainer_lt_200_200_w_400.greenshot")];
+        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_2.01", "LineContainer_lt_200_200_w_400.gsa")];
     }
 
     [Theory]
@@ -212,7 +212,7 @@ public class LoadGreenshotSurfaceTests
     {
         yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.02", "ArrowContainer_lt_100_200_wh_400_100.greenshot")];
         yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.03", "ArrowContainer_lt_100_200_wh_400_100.greenshot")];
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_2.01", "ArrowContainer_lt_100_200_wh_400_100.greenshot")];
+        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_2.01", "ArrowContainer_lt_100_200_wh_400_100.gsa")];
     }
 
     [Theory]
@@ -282,7 +282,7 @@ public class LoadGreenshotSurfaceTests
     {
         yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.02", "EllipseContainer_lt_200_200_wh_400_100.greenshot")];
         yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.03", "EllipseContainer_lt_200_200_wh_400_100.greenshot")];
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_2.01", "EllipseContainer_lt_200_200_wh_400_100.greenshot")];
+        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_2.01", "EllipseContainer_lt_200_200_wh_400_100.gsa")];
     }
 
     [Theory]
@@ -352,7 +352,7 @@ public class LoadGreenshotSurfaceTests
     {
         yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.02", "FreehandContainer_with_4_points.greenshot")];
         yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.03", "FreehandContainer_with_4_points.greenshot")];
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_2.01", "FreehandContainer_with_4_points.greenshot")];
+        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_2.01", "FreehandContainer_with_4_points.gsa")];
     }
 
     [Theory]
@@ -420,7 +420,7 @@ public class LoadGreenshotSurfaceTests
     {
         yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.02", "TextContainer_lt_300_200_wh_300_100.greenshot")];
         yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.03", "TextContainer_lt_300_200_wh_300_100.greenshot")];
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_2.01", "TextContainer_lt_300_200_wh_300_100.greenshot")];
+        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_2.01", "TextContainer_lt_300_200_wh_300_100.gsa")];
     }
 
     [Theory]
@@ -529,7 +529,7 @@ public class LoadGreenshotSurfaceTests
     {
         yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.02", "SpeechbubbleContainer_lt_200_200_wh_150_80.greenshot")];
         yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.03", "SpeechbubbleContainer_lt_200_200_wh_150_80.greenshot")];
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_2.01", "SpeechbubbleContainer_lt_200_200_wh_150_80.greenshot")];
+        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_2.01", "SpeechbubbleContainer_lt_200_200_wh_150_80.gsa")];
     }
 
     [Theory]
@@ -643,7 +643,7 @@ public class LoadGreenshotSurfaceTests
     {
         yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.02", "HighlightContainer_TextFilter_lt_310_70_wh_195_60.greenshot")];
         yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.03", "HighlightContainer_TextFilter_lt_310_70_wh_195_60.greenshot")];
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_2.01", "HighlightContainer_TextFilter_lt_310_70_wh_195_60.greenshot")];
+        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_2.01", "HighlightContainer_TextFilter_lt_310_70_wh_195_60.gsa")];
     }
 
     [Theory]
@@ -698,7 +698,7 @@ public class LoadGreenshotSurfaceTests
     {
         yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.02", "ObfuscateContainer_BlurFilter_lt_130_70_wh_180_70.greenshot")];
         yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.03", "ObfuscateContainer_BlurFilter_lt_130_70_wh_180_70.greenshot")];
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_2.01", "ObfuscateContainer_BlurFilter_lt_130_70_wh_180_70.greenshot")];
+        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_2.01", "ObfuscateContainer_BlurFilter_lt_130_70_wh_180_70.gsa")];
     }
 
     [Theory]
@@ -767,7 +767,7 @@ public class LoadGreenshotSurfaceTests
     {
         yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.02", "IconContainer_lt_400_200_wh_32_32.greenshot")];
         yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.03", "IconContainer_lt_400_200_wh_32_32.greenshot")];
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_2.01", "IconContainer_lt_400_200_wh_32_32.greenshot")];
+        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_2.01", "IconContainer_lt_400_200_wh_32_32.gsa")];
     }
 
     [Theory]
@@ -814,7 +814,7 @@ public class LoadGreenshotSurfaceTests
         yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.02", "StepLabelContainer_lt_200_200_lt_500_300.greenshot")];
         yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.03", "StepLabelContainer_lt_200_200_lt_500_300.greenshot")];
         yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.04", "StepLabelContainer_lt_200_200_lt_500_300.greenshot")];
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_2.01", "StepLabelContainer_lt_200_200_lt_500_300.greenshot")];
+        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_2.01", "StepLabelContainer_lt_200_200_lt_500_300.gsa")];
     }
 
     [Theory]
@@ -918,7 +918,7 @@ public class LoadGreenshotSurfaceTests
     {
         yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.02", "ImageContainer_lt_300_200_wh_100_100.greenshot")];
         yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.03", "ImageContainer_lt_300_200_wh_100_100.greenshot")];
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_2.01", "ImageContainer_lt_300_200_wh_100_100.greenshot")];
+        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_2.01", "ImageContainer_lt_300_200_wh_100_100.gsa")];
     }
 
     [Theory]
@@ -970,7 +970,7 @@ public class LoadGreenshotSurfaceTests
     public static IEnumerable<object[]> SvgContainerTestData()
     {
         yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.03", "SvgContainer_lt_300_200_wh_120_100.greenshot")];
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_2.01", "SvgContainer_lt_300_200_wh_120_100.greenshot")];
+        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_2.01", "SvgContainer_lt_300_200_wh_120_100.gsa")];
     }
 
     [Theory]
@@ -1015,7 +1015,7 @@ public class LoadGreenshotSurfaceTests
     public static IEnumerable<object[]> EmojiContainerTestData()
     {
         yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.04", "EmojiContainer_lt_100_200_wh_64_64.greenshot")];
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_2.01", "EmojiContainer_lt_100_200_wh_64_64.greenshot")];
+        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_2.01", "EmojiContainer_lt_100_200_wh_64_64.gsa")];
     }
 
     [Theory]
@@ -1054,7 +1054,7 @@ public class LoadGreenshotSurfaceTests
     public static IEnumerable<object[]> MetafileContainerTestData()
     {
         yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_1.03", "MetafileContainer_lt_300_200_wh_120_100.greenshot")];
-        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_2.01", "MetafileContainer_lt_300_200_wh_120_100.greenshot")];
+        yield return [Path.Combine("TestData", "Greenshotfile", "File_Version_2.01", "MetafileContainer_lt_300_200_wh_120_100.gsa")];
     }
 
     [Theory]
@@ -1213,7 +1213,7 @@ public class LoadGreenshotSurfaceTests
     public void LoadFromV0201GreenshotFileWithDifferentContainer()
     {
         // Arrange
-        string filePath = Path.Combine("TestData", "Greenshotfile", "File_Version_2.01", "Surface_with_14_different_DrawableContainer.greenshot");
+        string filePath = Path.Combine("TestData", "Greenshotfile", "File_Version_2.01", "Surface_with_14_different_DrawableContainer.gsa");
 
         // Act
         var resultSurface = _greenshotFileFormatHandler.LoadGreenshotSurface(filePath);

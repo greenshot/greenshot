@@ -28,10 +28,12 @@ using Greenshot.Editor.Drawing.Fields;
 using Greenshot.Editor.Drawing.Filters;
 using Greenshot.Editor.FileFormat.Dto;
 using Greenshot.Editor.FileFormat.Dto.Container;
+using Greenshot.Editor.FileFormat.V2;
 using Xunit;
 
 namespace Greenshot.Test.Editor.FileFormat.Dto.GreenshotFileV2;
 
+[Collection("DefaultCollection")]
 public class DrawableContainerListSerializationTests
 {
     /// <summary>
@@ -62,9 +64,8 @@ public class DrawableContainerListSerializationTests
 
         // Act
         var dto = ConvertDomainToDto.ToDto(domainList);
-        //var serialized = MessagePackSerializer.Serialize(dto);
-        var deserializedDto = dto;// MessagePackSerializer.Deserialize<DrawableContainerListDto>(serialized);
-        Assert.Fail("Temporarily disabled serialization test - to be fixed later");
+        var serialized = V2Helper.SerializeDto(dto);
+        var deserializedDto = V2Helper.DeserializeDto<DrawableContainerListDto>(serialized);
         var result = ConvertDtoToDomain.ToDomain(deserializedDto) as DrawableContainerList;
 
         // Assert
@@ -121,9 +122,8 @@ public class DrawableContainerListSerializationTests
 
         // Act
         var dto = ConvertDomainToDto.ToDto(domainList);
-        //var serialized = MessagePackSerializer.Serialize(dto);
-        var deserializedDto = dto;// MessagePackSerializer.Deserialize<DrawableContainerListDto>(serialized);
-        Assert.Fail("Temporarily disabled serialization test - to be fixed later");
+        var serialized = V2Helper.SerializeDto(dto);
+        var deserializedDto = V2Helper.DeserializeDto<DrawableContainerListDto>(serialized);
         var result = ConvertDtoToDomain.ToDomain(deserializedDto) as DrawableContainerList;
 
         // Assert
@@ -179,9 +179,8 @@ public class DrawableContainerListSerializationTests
 
         // Act
         var dto = ConvertDomainToDto.ToDto(domainList);
-        //var serialized = MessagePackSerializer.Serialize(dto);
-        var deserializedDto = dto;// MessagePackSerializer.Deserialize<DrawableContainerListDto>(serialized);
-        Assert.Fail("Temporarily disabled serialization test - to be fixed later");
+        var serialized = V2Helper.SerializeDto(dto);
+        var deserializedDto = V2Helper.DeserializeDto<DrawableContainerListDto>(serialized);
         var result = ConvertDtoToDomain.ToDomain(deserializedDto) as DrawableContainerList;
 
         // Assert

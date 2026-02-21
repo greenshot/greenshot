@@ -25,11 +25,12 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.FileFormat.Dto;
 using Greenshot.Editor.FileFormat.Dto.Container;
+using Greenshot.Editor.FileFormat.V2;
 using Xunit;
 
 namespace Greenshot.Test.Editor.FileFormat.Dto.GreenshotFileV2;
 
-
+[Collection("DefaultCollection")]
 public class MetafileContainerSerializationTests
 {
     /// <summary>
@@ -56,8 +57,8 @@ public class MetafileContainerSerializationTests
 
         // Act
         var dto = ConvertDomainToDto.ToDto(metafileContainer);
-        var deserializedDto = dto;
-        Assert.Fail("Temporarily disabled serialization test - to be fixed later");
+        var serialized = V2Helper.SerializeDto(dto);
+        var deserializedDto = V2Helper.DeserializeDto<MetafileContainerDto>(serialized);
         var result = ConvertDtoToDomain.ToDomain(deserializedDto, null) as MetafileContainer;
 
         // Assert

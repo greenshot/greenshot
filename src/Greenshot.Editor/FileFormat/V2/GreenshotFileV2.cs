@@ -36,7 +36,7 @@ namespace Greenshot.Editor.FileFormat.V2;
 /// <summary>
 /// Provides methods for loading and saving Greenshot file format version V2.
 /// </summary>
-internal static class GreenshotFileV2
+public static class GreenshotFileV2
 {
     private static readonly ILog Log = LogManager.GetLogger(typeof(GreenshotFileV2));
 
@@ -113,6 +113,18 @@ internal static class GreenshotFileV2
         return true;
     }
 
+    /// <summary>
+    /// Serializes the specified <see cref="GreenshotFile"/> to a byte array in the Greenshot file format version V2.
+    /// </summary>
+    /// <param name="greenshotFile"></param>
+    /// <returns></returns>
+    public static byte[] Serialize(GreenshotFile greenshotFile) 
+    {
+        using var memoryStream = new MemoryStream();
+        SaveToStream(greenshotFile, memoryStream);
+        return memoryStream.ToArray();
+    }
+
     private static void SaveMetadata(GreenshotFileMetaInformationDto metaInfoDto, ZipArchive zipArchive)
     {
         var jsonBytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(metaInfoDto, V2Helper.GetJsonSerializerOptions()));
@@ -186,6 +198,17 @@ internal static class GreenshotFileV2
             Log.Error("Error deserializing Greenshot file (V2) from stream.", e);
             throw;
         }
+    }
+
+    /// <summary>
+    /// Deserializes the specified byte array into a GreenshotFile instance.
+    /// </summary>
+    /// <param name="fileContent"></param>
+    /// <returns></returns>
+    public static GreenshotFile Deserialize(byte[] fileContent)
+    {
+        using var memoryStream = new MemoryStream(fileContent);
+        return LoadFromStream(memoryStream);
     }
 
     private static GreenshotFileDto LoadContent(ZipArchive zipArchive)

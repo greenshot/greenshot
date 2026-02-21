@@ -28,6 +28,7 @@ using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Drawing.Emoji;
 using Greenshot.Editor.FileFormat.Dto;
 using Greenshot.Editor.FileFormat.Dto.Container;
+using Greenshot.Editor.FileFormat.V2;
 using Xunit;
 
 namespace Greenshot.Test.Editor.FileFormat.Dto.GreenshotFileV2;
@@ -54,10 +55,8 @@ public class EmojiContainerSerializationTests
 
         // Act
         var dto = ConvertDomainToDto.ToDto(emojiContainer);
-        // var serialized = MessagePackSerializer.Serialize(dto);
-        // var deserializedDto = MessagePackSerializer.Deserialize<EmojiContainerDto>(serialized);
-        var deserializedDto = dto;
-        Assert.Fail("Temporarily disabled serialization test - to be fixed later");
+        var serialized = V2Helper.SerializeDto(dto);
+        var deserializedDto = V2Helper.DeserializeDto<EmojiContainerDto>(serialized);
         var result = ConvertDtoToDomain.ToDomain(deserializedDto, null) as EmojiContainer;
 
         // Assert
@@ -95,10 +94,8 @@ public class EmojiContainerSerializationTests
 
         // Act
         var dto = ConvertDomainToDto.ToDto(emojiContainer);
-        // var serialized = MessagePackSerializer.Serialize(dto);
-        // var deserializedDto = MessagePackSerializer.Deserialize<EmojiContainerDto>(serialized);
-        var deserializedDto = dto;
-        Assert.Fail("Temporarily disabled serialization test - to be fixed later");
+        var serialized = V2Helper.SerializeDto(dto);
+        var deserializedDto = V2Helper.DeserializeDto<EmojiContainerDto>(serialized);
         var result = ConvertDtoToDomain.ToDomain(deserializedDto, null) as EmojiContainer;
 
         // Assert

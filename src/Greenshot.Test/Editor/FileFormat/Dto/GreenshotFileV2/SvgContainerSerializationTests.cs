@@ -30,6 +30,7 @@ using Greenshot.Editor.Drawing;
 using Greenshot.Editor.FileFormat;
 using Greenshot.Editor.FileFormat.Dto;
 using Greenshot.Editor.FileFormat.Dto.Container;
+using Greenshot.Editor.FileFormat.V2;
 using Xunit;
 
 namespace Greenshot.Test.Editor.FileFormat.Dto.GreenshotFileV2;
@@ -60,9 +61,8 @@ public class SvgContainerSerializationTests
 
         // Act
         var dto = ConvertDomainToDto.ToDto(svgContainer);
-        //var serialized = MessagePackSerializer.Serialize(dto);
-        var deserializedDto = dto;// MessagePackSerializer.Deserialize<SvgContainerDto>(serialized);
-        Assert.Fail("Temporarily disabled serialization test - to be fixed later");
+        var serialized = V2Helper.SerializeDto(dto);
+        var deserializedDto = V2Helper.DeserializeDto<SvgContainerDto>(serialized);
         var result = ConvertDtoToDomain.ToDomain(deserializedDto, null) as SvgContainer;
 
         // Assert
@@ -103,9 +103,8 @@ public class SvgContainerSerializationTests
 
         // Act
         var dto = ConvertDomainToDto.ToDto(svgContainer);
-        //var serialized = MessagePackSerializer.Serialize(dto);
-        var deserializedDto = dto;// MessagePackSerializer.Deserialize<SvgContainerDto>(serialized);
-        Assert.Fail("Temporarily disabled serialization test - to be fixed later");
+        var serialized = V2Helper.SerializeDto(dto);
+        var deserializedDto = V2Helper.DeserializeDto<SvgContainerDto>(serialized);
         var result = ConvertDtoToDomain.ToDomain(deserializedDto, null) as SvgContainer;
 
         // Assert

@@ -23,10 +23,13 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.FileFormat.Dto;
+using Greenshot.Editor.FileFormat.Dto.Container;
+using Greenshot.Editor.FileFormat.V2;
 using Xunit;
 
 namespace Greenshot.Test.Editor.FileFormat.Dto.GreenshotFileV2;
 
+[Collection("DefaultCollection")]
 public class StepLabelContainerSerializationTests
 {
     /// <summary>
@@ -51,9 +54,8 @@ public class StepLabelContainerSerializationTests
 
         // Act
         var dto = ConvertDomainToDto.ToDto(stepLabelContainer);
-        //var serialized = MessagePackSerializer.Serialize(dto);
-        var deserializedDto = dto;//  MessagePackSerializer.Deserialize<StepLabelContainerDto>(serialized);
-        Assert.Fail("Temporarily disabled serialization test - to be fixed later");
+        var serialized = V2Helper.SerializeDto(dto);
+        var deserializedDto = V2Helper.DeserializeDto<StepLabelContainerDto>(serialized);
         var result = ConvertDtoToDomain.ToDomain(deserializedDto, null) as StepLabelContainer;
 
         // Assert

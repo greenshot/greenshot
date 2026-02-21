@@ -34,12 +34,13 @@ namespace Greenshot.Editor.FileFormatHandlers;
 public sealed class GreenshotFileFormatHandler : AbstractFileFormatHandler, IFileFormatHandler
 {
     private static readonly ILog Log = LogManager.GetLogger(typeof(GreenshotFileFormatHandler));
-    private readonly IReadOnlyCollection<string> _ourExtensions = new[] { ".greenshot" };
+    private readonly IReadOnlyCollection<string> _saveExtensions = new[] { ".gsa" };
+    private readonly IReadOnlyCollection<string> _loadExtensions = new[] { ".greenshot",".gsa" };
     public GreenshotFileFormatHandler()
     {
-        SupportedExtensions[FileFormatHandlerActions.LoadDrawableFromStream] = _ourExtensions;
-        SupportedExtensions[FileFormatHandlerActions.LoadFromStream] = _ourExtensions;
-        SupportedExtensions[FileFormatHandlerActions.SaveToStream] = _ourExtensions;
+        SupportedExtensions[FileFormatHandlerActions.LoadDrawableFromStream] = _loadExtensions;
+        SupportedExtensions[FileFormatHandlerActions.LoadFromStream] = _loadExtensions;
+        SupportedExtensions[FileFormatHandlerActions.SaveToStream] = _saveExtensions;
     }
 
     /// <summary>

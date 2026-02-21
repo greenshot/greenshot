@@ -25,12 +25,14 @@ using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing.Fields;
 using Greenshot.Editor.FileFormat.Dto;
 using Greenshot.Editor.FileFormat.Dto.Fields;
+using Greenshot.Editor.FileFormat.V2;
 using Xunit;
 using static Greenshot.Editor.Drawing.ArrowContainer;
 using static Greenshot.Editor.Drawing.FilterContainer;
 
 namespace Greenshot.Test.Editor.FileFormat.Dto.GreenshotFileV2;
 
+[Collection("DefaultCollection")]
 public class FieldSerializationTests
 {
     /// <summary>
@@ -67,9 +69,8 @@ public class FieldSerializationTests
 
         // Act
         var dto = ConvertDomainToDto.ToDto(original);
-        //var serialized = MessagePackSerializer.Serialize(dto);
-        var deserializedDto = dto; // MessagePackSerializer.Deserialize<FieldDto>(serialized);
-        Assert.Fail("Temporarily disabled serialization test - to be fixed later");
+        var serialized = V2Helper.SerializeDto(dto);
+        var deserializedDto = V2Helper.DeserializeDto<FieldDto>(serialized);
         var result = ConvertDtoToDomain.ToDomain(deserializedDto);
 
         // Assert
@@ -91,9 +92,8 @@ public class FieldSerializationTests
 
         // Act
         var dto = ConvertDomainToDto.ToDto(original);
-        //var serialized = MessagePackSerializer.Serialize(dto);
-        var deserializedDto = dto;// MessagePackSerializer.Deserialize<FieldDto>(serialized);
-        Assert.Fail("Temporarily disabled serialization test - to be fixed later");
+        var serialized = V2Helper.SerializeDto(dto);
+        var deserializedDto = V2Helper.DeserializeDto<FieldDto>(serialized);
         var result = ConvertDtoToDomain.ToDomain(deserializedDto);
 
         // Assert
@@ -117,9 +117,8 @@ public class FieldSerializationTests
 
         // Act
         var dto = ConvertDomainToDto.ToDto(original);
-        //var serialized = MessagePackSerializer.Serialize(dto);
-        var deserializedDto = dto;// MessagePackSerializer.Deserialize<FieldDto>(serialized);
-        Assert.Fail("Temporarily disabled serialization test - to be fixed later");
+        var serialized = V2Helper.SerializeDto(dto);
+        var deserializedDto = V2Helper.DeserializeDto<FieldDto>(serialized);
         var result = ConvertDtoToDomain.ToDomain(deserializedDto);
 
         // Assert

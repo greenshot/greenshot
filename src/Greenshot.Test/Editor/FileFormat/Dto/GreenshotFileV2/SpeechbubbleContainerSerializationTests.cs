@@ -25,10 +25,12 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.FileFormat.Dto;
 using Greenshot.Editor.FileFormat.Dto.Container;
+using Greenshot.Editor.FileFormat.V2;
 using Xunit;
 
 namespace Greenshot.Test.Editor.FileFormat.Dto.GreenshotFileV2;
 
+[Collection("DefaultCollection")]
 public class SpeechbubbleContainerSerializationTests
 {
     /// <summary>
@@ -53,9 +55,8 @@ public class SpeechbubbleContainerSerializationTests
 
         // Act
         var dto = ConvertDomainToDto.ToDto(speechbubbleContainer);
-        //var serialized = MessagePackSerializer.Serialize(dto);
-        var deserializedDto = dto;// MessagePackSerializer.Deserialize<SpeechbubbleContainerDto>(serialized);
-        Assert.Fail("Temporarily disabled serialization test - to be fixed later");
+        var serialized = V2Helper.SerializeDto(dto);
+        var deserializedDto = V2Helper.DeserializeDto<SpeechbubbleContainerDto>(serialized);
         var result = ConvertDtoToDomain.ToDomain(deserializedDto, null) as SpeechbubbleContainer;
 
         // Assert

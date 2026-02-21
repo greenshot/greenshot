@@ -22,6 +22,7 @@ using System.Drawing;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.FileFormat;
 using Greenshot.Editor.FileFormat.Dto;
+using Greenshot.Editor.FileFormat.V2;
 using Xunit;
 
 namespace Greenshot.Test.Editor.FileFormat.Dto.GreenshotFileV2;
@@ -42,9 +43,8 @@ public class SurfaceSerializationTests
         // Act
         var greenshotFile = GreenshotFileVersionHandler.CreateGreenshotFile(surface);
         var dto = ConvertDomainToDto.ToDto(greenshotFile);
-        // var serialized = MessagePackSerializer.Serialize(dto);
-        var deserializedDto = dto; // MessagePackSerializer.Deserialize<GreenshotFileDto>(serialized);
-        Assert.Fail("Temporarily disabled serialization test - to be fixed later");
+        var serialized = V2Helper.SerializeDto(dto);
+        var deserializedDto = V2Helper.DeserializeDto<GreenshotFileDto>(serialized);
         var deserializedGreenshotFile = ConvertDtoToDomain.ToDomain(deserializedDto) as GreenshotFile;
         var resultSurface = GreenshotFileVersionHandler.CreateSurface(deserializedGreenshotFile);
 
@@ -86,9 +86,8 @@ public class SurfaceSerializationTests
         // Act
         var greenshotfile = GreenshotFileVersionHandler.CreateGreenshotFile(surface);
         var dto= ConvertDomainToDto.ToDto(greenshotfile);
-        //var serialized = MessagePackSerializer.Serialize(dto);
-        var deserializedDto = dto; // MessagePackSerializer.Deserialize<GreenshotFileDto>(serialized);
-        Assert.Fail("Temporarily disabled serialization test - to be fixed later");
+        var serialized = V2Helper.SerializeDto(dto);
+        var deserializedDto = V2Helper.DeserializeDto<GreenshotFileDto>(serialized);
         var deserializedGreenshotFile = ConvertDtoToDomain.ToDomain(deserializedDto) as GreenshotFile;
 
         var resultSurface = GreenshotFileVersionHandler.CreateSurface(deserializedGreenshotFile);

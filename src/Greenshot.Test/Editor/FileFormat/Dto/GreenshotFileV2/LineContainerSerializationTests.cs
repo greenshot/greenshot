@@ -24,10 +24,12 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.FileFormat.Dto;
 using Greenshot.Editor.FileFormat.Dto.Container;
+using Greenshot.Editor.FileFormat.V2;
 using Xunit;
 
 namespace Greenshot.Test.Editor.FileFormat.Dto.GreenshotFileV2;
 
+[Collection("DefaultCollection")]
 public class LineContainerSerializationTests
 {
     /// <summary>
@@ -50,9 +52,8 @@ public class LineContainerSerializationTests
 
         // Act
         var dto = ConvertDomainToDto.ToDto(lineContainer);
-        //var serialized = MessagePackSerializer.Serialize(dto);
-        var deserializedDto = dto;// MessagePackSerializer.Deserialize<LineContainerDto>(serialized);
-        Assert.Fail("Temporarily disabled serialization test - to be fixed later");
+        var serialized = V2Helper.SerializeDto(dto);
+        var deserializedDto = V2Helper.DeserializeDto<LineContainerDto>(serialized);
         var result = ConvertDtoToDomain.ToDomain(deserializedDto, null) as LineContainer;
 
         // Assert

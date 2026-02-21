@@ -33,6 +33,7 @@ namespace Greenshot.Base.Core.Enums
         tiff,
         jxr,
         greenshot,
+        gsa,
         ico
     }
 }
