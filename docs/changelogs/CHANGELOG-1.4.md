@@ -9,7 +9,7 @@ This document contains the changelog for Greenshot 1.4, which is currently in ac
 Greenshot 1.4 represents the next major version currently under active development. Development began in November 2025 after the final 1.3 stable release (1.3.312 in January 2026).
 
 **Current Status**: Continuous Development Builds (Prereleases)
-**Latest Build**: v1.4.107 (February 14, 2026)
+**Latest Build**: v1.4.108 (February 21, 2026)
 **Release Branch**: `main`
 
 ### How to Get 1.4 Builds
@@ -43,6 +43,13 @@ Continuous builds are automatically created for every commit to the `main` branc
 - New option to remove transparency from images in the editor
 - Helpful for certain export formats and use cases
 - Added by @Lakritzator
+
+**Modern File Dialogs**
+- Replaced all legacy WinForms file and folder dialogs with modern Windows Vista+ dialogs
+- Support for long file paths (over 260 characters)
+- Modern dialog experience with improved usability
+- Affects image saving, file capture, editor file operations, and settings
+- By @Copilot
 
 #### 📸 Capture Improvements
 
@@ -177,6 +184,14 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Updated label in settings for improved clarity (#909)
 - By @Christian-Schulz and @jklingen
 
+**Modern File and Folder Dialogs**
+- Replaced all legacy WinForms file/folder dialogs with modern Windows Common Item Dialog (Vista+)
+- Uses Dapplo.Windows.Dialogs package (v2.0.63) via COM/P-Invoke
+- Fixes issues with long file paths (over 260 characters)
+- Modernized file saving, file opening, and folder browsing across the application
+- Affects image editor, capture module, settings dialog, and ExternalCommand plugin
+- By @Copilot
+
 **Settings Dialog Folder Browser**
 - Fixed crash when clicking Browse button in Settings dialog with inaccessible or invalid storage path
 - Folder browser now gracefully falls back to My Documents when the configured path is unavailable, too long, or doesn't exist
@@ -278,7 +293,8 @@ The following contributors made their first contributions to Greenshot during th
 ## Release Timeline
 
 ### February 2026
-- **v1.4.107** (Feb 14) - Latest build
+- **v1.4.108** (Feb 21) - **Modern file/folder dialogs with long path support**
+- **v1.4.107** (Feb 14)
 - **v1.4.106** (Feb 13)
 - **v1.4.105** (Feb 13) - Show beta tester info in about dialog
 - **v1.4.104** (Feb 13) - Extend ServiceProvider
@@ -323,6 +339,7 @@ Greenshot 1.4 builds upon the stable 1.3 release with these key additions:
 ✨ OCR-based text redaction (Beta)  
 ✨ Remove transparency feature  
 ✨ New capture technology  
+✨ Modern file/folder dialogs with long path support  
 ✨ ImageSharp format support  
 ✨ Modernized plugin APIs (Confluence, Dropbox)  
 ✨ Better Windows 10/11 integration  
@@ -389,5 +406,5 @@ Report any issues you encounter to help improve Greenshot!
 
 ---
 
-*Last updated: February 14, 2026*  
-*Latest continuous build: v1.4.107-gce9bdd971b*
+*Last updated: February 21, 2026*  
+*Latest continuous build: v1.4.108-g1f6f93d8ea*
