@@ -353,10 +353,11 @@ namespace Greenshot.Base.Core
         {
             var basisMenuItem = new ToolStripMenuItem(Description)
             {
-                Image = DisplayIcon,
                 Tag = this,
                 Text = Description
             };
+            // Dispose the icon when the menu item is disposed to prevent memory leaks
+            basisMenuItem.AssignAutoDisposingImage(DisplayIcon);
             AddTagEvents(basisMenuItem, menu, Description);
             basisMenuItem.Click -= destinationClickHandler;
             basisMenuItem.Click += destinationClickHandler;
@@ -391,11 +392,16 @@ namespace Greenshot.Base.Core
                             {
                                 foreach (IDestination subDestination in subDestinations)
                                 {
+                                    if (subDestination == null)
+                                    {
+                                        continue;
+                                    }
                                     var destinationMenuItem = new ToolStripMenuItem(subDestination.Description)
                                     {
-                                        Tag = subDestination,
-                                        Image = subDestination.DisplayIcon
+                                        Tag = subDestination
                                     };
+                                    // Dispose the icon when the menu item is disposed to prevent memory leaks
+                                    destinationMenuItem.AssignAutoDisposingImage(subDestination.DisplayIcon);
                                     destinationMenuItem.Click += destinationClickHandler;
                                     AddTagEvents(destinationMenuItem, menu, subDestination.Description);
                                     basisMenuItem.DropDownItems.Add(destinationMenuItem);
