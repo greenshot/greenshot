@@ -180,7 +180,8 @@ namespace Greenshot.Base.Core
             {
                 ImageScalingSize = CoreConfig.IconSize,
                 Tag = null,
-                TopLevel = true
+                TopLevel = true,
+                Font = new Font(FontFamily.GenericSansSerif, 9) // set new default font, so we are allowed to dispose it later, we will scale it later on the Opening event
             };
 
             menu.Opening += (sender, args) =>
