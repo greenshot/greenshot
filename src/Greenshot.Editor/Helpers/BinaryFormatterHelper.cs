@@ -75,6 +75,7 @@ namespace Greenshot.Editor.Helpers
             {"Greenshot.Editor.Drawing.DrawableContainer", typeof(DrawableContainer) },
             {"Greenshot.Editor.Drawing.DrawableContainerList", typeof(DrawableContainerList) },
             {"Greenshot.Editor.Drawing.CursorContainer", typeof(CursorContainer) },
+            {"Greenshot.Editor.Drawing.CursorContainer+CaptureCursorSerializationWrapper", typeof(CursorContainer.CaptureCursorSerializationWrapper) },
             {"Greenshot.Editor.Drawing.Filters.HighlightFilter", typeof(HighlightFilter) },
             {"Greenshot.Editor.Drawing.Filters.GrayscaleFilter", typeof(GrayscaleFilter) },
             {"Greenshot.Editor.Drawing.Filters.MagnifierFilter", typeof(MagnifierFilter) },

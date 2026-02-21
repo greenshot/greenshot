@@ -32,6 +32,9 @@ using System.ServiceModel.Security;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Gdi32;
+using Dapplo.Windows.Icons;
+using Dapplo.Windows.User32;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
 using Greenshot.Base.Effects;
@@ -555,7 +558,7 @@ namespace Greenshot.Editor.Drawing
                 // check if cursor is on the capture, otherwise we leave it out.
                 if (cursorRect.IntersectsWith(captureRect))
                 {
-                    _cursorContainer = AddImageContainer(capture.Cursor, capture.CursorLocation.X, capture.CursorLocation.Y);
+                    _cursorContainer = AddCursorContainer(capture.Cursor.Clone(), capture.CursorLocation.X, capture.CursorLocation.Y);
                     SelectElement(_cursorContainer);
                 }
             }
@@ -889,7 +892,7 @@ namespace Greenshot.Editor.Drawing
             return iconContainer;
         }
 
-        public ICursorContainer AddCursorContainer(Cursor cursor, int x, int y)
+        public ICursorContainer AddCursorContainer(CapturedCursor cursor, int x, int y)
         {
             CursorContainer cursorContainer = new CursorContainer(this)
             {
