@@ -212,7 +212,10 @@ namespace Greenshot.Base.Core
                         else
                         {
                             Log.DebugFormat("Letting the menu 'close' as the tag is set to '{0}'", menu.Tag);
-                            menu.Close();
+                            if (!menu.IsDisposed)
+                            {
+                                menu.Close();
+                            }
                         }
 
                         break;
@@ -230,7 +233,10 @@ namespace Greenshot.Base.Core
                         // We might already be in the disposing process, so queue the disposal to avoid re-entrancy
                         menu.BeginInvoke(new Action(() =>
                         {
-                            menu.Dispose();
+                            if (!menu.IsDisposed)
+                            {
+                                menu.Dispose();
+                            }
                         }));
                         break;
                     default:
@@ -267,7 +273,13 @@ namespace Greenshot.Base.Core
                             Log.InfoFormat("Export to {0} success, closing menu", exportInformation.DestinationDescription);
                             // close menu if the destination wasn't the editor
                             menu.Close();
-                            menu.Dispose();
+                            menu.BeginInvoke(new Action(() =>
+                            {
+                                if (!menu.IsDisposed)
+                                {
+                                    menu.Dispose();
+                                }
+                            }));
                             // Cleanup surface, only if there is no editor in the destinations and we didn't export to the editor
                             if (!captureDetails.HasDestination("Editor") && !"Editor".Equals(clickedDestination.Designation))
                             {
@@ -303,7 +315,13 @@ namespace Greenshot.Base.Core
             {
                 // This menu entry is the close itself, we can dispose the surface
                 menu.Close();
-                menu.Dispose();
+                menu.BeginInvoke(new Action(() =>
+                {
+                    if (!menu.IsDisposed)
+                    {
+                        menu.Dispose();
+                    }
+                }));
                 if (!captureDetails.HasDestination("Editor"))
                 {
                     surface.Dispose();
