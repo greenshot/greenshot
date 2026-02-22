@@ -9,7 +9,7 @@ This document contains the changelog for Greenshot 1.4, which is currently in ac
 Greenshot 1.4 represents the next major version currently under active development. Development began in November 2025 after the final 1.3 stable release (1.3.312 in January 2026).
 
 **Current Status**: Continuous Development Builds (Prereleases)
-**Latest Build**: v1.4.107 (February 14, 2026)
+**Latest Build**: v1.4.120 (February 22, 2026)
 **Release Branch**: `main`
 
 ### How to Get 1.4 Builds
@@ -157,7 +157,8 @@ Continuous builds are automatically created for every commit to the `main` branc
 **File Handling**
 - Fixed opening .greenshot files with emojis (#843)
 - Fixed opening older .greenshot files with StepLabels (#844)
-- By @Christian-Schulz
+- Fixed error when editing text in saved .greenshot files - prevented `System.ArgumentException` from invalid font parameters after scaling or when using incompatible fonts
+- By @Christian-Schulz and @Copilot
 
 **COM & Windows Integration**
 - Handle unsupported COM event subscription gracefully (#867)
@@ -278,7 +279,9 @@ The following contributors made their first contributions to Greenshot during th
 ## Release Timeline
 
 ### February 2026
-- **v1.4.107** (Feb 14) - Latest build
+- **v1.4.120** (Feb 22) - Latest build - Fixed text editing error in saved .greenshot files
+- **v1.4.119** (Feb 21) - Improved cursor capturing
+- **v1.4.107** (Feb 14)
 - **v1.4.106** (Feb 13)
 - **v1.4.105** (Feb 13) - Show beta tester info in about dialog
 - **v1.4.104** (Feb 13) - Extend ServiceProvider
@@ -389,5 +392,5 @@ Report any issues you encounter to help improve Greenshot!
 
 ---
 
-*Last updated: February 14, 2026*  
-*Latest continuous build: v1.4.107-gce9bdd971b*
+*Last updated: February 22, 2026*  
+*Latest continuous build: v1.4.120*

@@ -28,7 +28,7 @@ This directory contains comprehensive changelogs for all Greenshot releases.
 - [Download Portable](https://github.com/greenshot/greenshot/releases/download/v1.3.312/Greenshot-PORTABLE-1.3.312-RELEASE.zip)
 
 ### Latest Development Build
-**[Greenshot 1.4.107](CHANGELOG-1.4.md)** (February 14, 2026)
+**[Greenshot 1.4.120](CHANGELOG-1.4.md)** (February 22, 2026)
 - Continuous build from main branch
 - ⚠️ Unstable/unsigned - for testing only
 - [View all 1.4 builds](https://github.com/greenshot/greenshot/releases)
