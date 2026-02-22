@@ -28,7 +28,6 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading;
 using System.Windows.Forms;
 using Dapplo.Windows.Clipboard;
 using Dapplo.Windows.Common.Structs;
@@ -159,89 +158,74 @@ EndSelection:<<<<<<<4
         }
 
         /// <summary>
-        /// The SetDataObject will lock/try/catch clipboard operations making it save and not show exceptions.
-        /// The bool "copy" is used to decided if the information stays on the clipboard after exit.
+        /// Log a clipboard error using the owner information if available.
         /// </summary>
-        /// <param name="ido"></param>
-        /// <param name="copy"></param>
+        /// <param name="ex">optional Exception to include in the log entry</param>
+        private static void LogClipboardError(Exception ex = null)
+        {
+            string clipboardOwner = GetClipboardOwner();
+            string messageText = clipboardOwner != null
+                ? Language.GetFormattedString("clipboard_inuse", clipboardOwner)
+                : Language.GetString("clipboard_error");
+            if (ex != null)
+            {
+                Log.Error(messageText, ex);
+            }
+            else
+            {
+                Log.Error(messageText);
+            }
+        }
+
+        /// <summary>
+        /// Legacy helper to set an IDataObject on the clipboard for custom serialized types.
+        /// Used only for SetClipboardData(Type, object) which relies on WinForms OLE serialization.
+        /// </summary>
         private static void SetDataObject(IDataObject ido, bool copy)
         {
             lock (ClipboardLockObject)
             {
-                // Clear first, this seems to solve some issues
                 try
                 {
-                    Clipboard.Clear();
-                }
-                catch (Exception clearException)
-                {
-                    Log.Warn(clearException.Message);
-                }
-
-                try
-                {
-                    // For BUG-1935 this was changed from looping ourselves, or letting MS retry...
                     Clipboard.SetDataObject(ido, copy, 15, 200);
                 }
                 catch (Exception clipboardSetException)
                 {
-                    string messageText;
-                    string clipboardOwner = GetClipboardOwner();
-                    if (clipboardOwner != null)
-                    {
-                        messageText = Language.GetFormattedString("clipboard_inuse", clipboardOwner);
-                    }
-                    else
-                    {
-                        messageText = Language.GetString("clipboard_error");
-                    }
-
-                    Log.Error(messageText, clipboardSetException);
+                    LogClipboardError(clipboardSetException);
                 }
             }
         }
 
         /// <summary>
-        /// The GetDataObject will lock/try/catch clipboard operations making it save and not show exceptions.
+        /// The GetDataObject will try to retrieve the clipboard data object,
+        /// using Dapplo.Windows.Clipboard to verify accessibility (with built-in retry)
+        /// before calling the WinForms OLE clipboard for full IDataObject compatibility
+        /// (needed for custom serialised types such as IDrawableContainerList).
         /// </summary>
         public static IDataObject GetDataObject()
         {
-            lock (ClipboardLockObject)
+            // Use Dapplo to verify clipboard accessibility with built-in retry logic
+            bool isAccessible;
+            using (var probe = ClipboardNative.Access())
             {
-                const int maxRetries = 3;
-                for (int attempt = 0; attempt < maxRetries; attempt++)
+                isAccessible = probe.CanAccess;
+                if (!isAccessible)
                 {
-                    try
-                    {
-                        return Clipboard.GetDataObject();
-                    }
-                    catch (Exception ee)
-                    {
-                        bool isLastAttempt = attempt == maxRetries - 1;
-                        if (isLastAttempt)
-                        {
-                            string messageText;
-                            string clipboardOwner = GetClipboardOwner();
-                            if (clipboardOwner != null)
-                            {
-                                messageText = Language.GetFormattedString("clipboard_inuse", clipboardOwner);
-                            }
-                            else
-                            {
-                                messageText = Language.GetString("clipboard_error");
-                            }
-
-                            Log.Error(messageText, ee);
-                        }
-                        else
-                        {
-                            Thread.Sleep(100);
-                        }
-                    }
+                    LogClipboardError();
+                    return null;
                 }
             }
 
-            return null;
+            // Clipboard is accessible; use WinForms OLE API for full IDataObject compatibility
+            try
+            {
+                return Clipboard.GetDataObject();
+            }
+            catch (Exception ex)
+            {
+                LogClipboardError(ex);
+                return null;
+            }
         }
 
         /// <summary>
@@ -917,14 +901,28 @@ EndSelection:<<<<<<<4
         }
 
         /// <summary>
-        /// Set text to the clipboard
+        /// Set text to the clipboard using Dapplo.Windows.Clipboard
         /// </summary>
         /// <param name="text"></param>
         public static void SetClipboardData(string text)
         {
-            IDataObject ido = new DataObject();
-            ido.SetData(DataFormats.Text, true, text);
-            SetDataObject(ido, true);
+            try
+            {
+                using var clipboard = ClipboardNative.Access();
+                if (clipboard.CanAccess)
+                {
+                    clipboard.ClearContents();
+                    clipboard.SetAsUnicodeString(text);
+                }
+                else
+                {
+                    LogClipboardError();
+                }
+            }
+            catch (Exception ex)
+            {
+                LogClipboardError(ex);
+            }
         }
 
         private static string GetHtmlString(ISurface surface, string filename)
@@ -969,11 +967,6 @@ EndSelection:<<<<<<<4
         /// </summary>
         public static void SetClipboardData(ISurface surface)
         {
-            DataObject dataObject = new DataObject();
-
-            // This will work for Office and most other applications
-            //ido.SetData(DataFormats.Bitmap, true, image);
-
             MemoryStream dibStream = null;
             MemoryStream dibV5Stream = null;
             MemoryStream pngStream = null;
@@ -994,8 +987,6 @@ EndSelection:<<<<<<<4
                         SurfaceOutputSettings pngOutputSettings = new SurfaceOutputSettings(OutputFormat.png, 100, false);
                         ImageIO.SaveToStream(imageToSave, null, pngStream, pngOutputSettings);
                         pngStream.Seek(0, SeekOrigin.Begin);
-                        // Set the PNG stream
-                        dataObject.SetData(FORMAT_PNG, false, pngStream);
                     }
                 }
                 catch (Exception pngEx)
@@ -1018,8 +1009,7 @@ EndSelection:<<<<<<<4
                         }
                         else
                         {
-                            // Set the DIB to the clipboard DataObject
-                            dataObject.SetData(DataFormats.Dib, false, dibStream);
+                            dibStream.Seek(0, SeekOrigin.Begin);
                         }
                     }
                 }
@@ -1059,65 +1049,89 @@ EndSelection:<<<<<<<4
                         // Write to the stream
                         dibV5Stream.Write(bitmapBytes, 0, bitmapBytes.Length);
 
-                        // Set the DIBv5 to the clipboard DataObject
-                        dataObject.SetData(FORMAT_17, true, dibV5Stream);
+                        dibV5Stream.Seek(0, SeekOrigin.Begin);
                     }
                 }
                 catch (Exception dibEx)
                 {
-                    Log.Error("Error creating DIB for the Clipboard.", dibEx);
+                    Log.Error("Error creating DIBv5 for the Clipboard.", dibEx);
                 }
 
-                // Set the HTML
+                // Build the HTML text (if needed)
+                string htmlText = null;
                 if (CoreConfig.ClipboardFormats.Contains(ClipboardFormat.HTML))
                 {
                     string tmpFile = ImageIO.SaveToTmpFile(surface, new SurfaceOutputSettings(OutputFormat.png, 100, false), null);
-                    string html = GetHtmlString(surface, tmpFile);
-                    dataObject.SetText(html, TextDataFormat.Html);
+                    htmlText = GetHtmlString(surface, tmpFile);
                 }
                 else if (CoreConfig.ClipboardFormats.Contains(ClipboardFormat.HTMLDATAURL))
                 {
-                    string html;
-                    using (MemoryStream tmpPngStream = new MemoryStream())
+                    using MemoryStream tmpPngStream = new MemoryStream();
+                    SurfaceOutputSettings pngOutputSettings = new SurfaceOutputSettings(OutputFormat.png, 100, false)
                     {
-                        SurfaceOutputSettings pngOutputSettings = new SurfaceOutputSettings(OutputFormat.png, 100, false)
-                        {
-                            // Do not allow to reduce the colors, some applications dislike 256 color images
-                            // reported with bug #3594681
-                            DisableReduceColors = true
-                        };
-                        // Check if we can use the previously used image
-                        if (imageToSave.PixelFormat != PixelFormat.Format8bppIndexed)
-                        {
-                            ImageIO.SaveToStream(imageToSave, surface, tmpPngStream, pngOutputSettings);
-                        }
-                        else
-                        {
-                            ImageIO.SaveToStream(surface, tmpPngStream, pngOutputSettings);
-                        }
-
-                        html = GetHtmlDataUrlString(surface, tmpPngStream);
+                        // Do not allow to reduce the colors, some applications dislike 256 color images
+                        // reported with bug #3594681
+                        DisableReduceColors = true
+                    };
+                    // Check if we can use the previously used image
+                    if (imageToSave.PixelFormat != PixelFormat.Format8bppIndexed)
+                    {
+                        ImageIO.SaveToStream(imageToSave, surface, tmpPngStream, pngOutputSettings);
+                    }
+                    else
+                    {
+                        ImageIO.SaveToStream(surface, tmpPngStream, pngOutputSettings);
                     }
 
-                    dataObject.SetText(html, TextDataFormat.Html);
+                    htmlText = GetHtmlDataUrlString(surface, tmpPngStream);
+                }
+
+                // Write all formats to the clipboard using Dapplo.Windows.Clipboard
+                try
+                {
+                    using var clipboard = ClipboardNative.Access();
+                    if (clipboard.CanAccess)
+                    {
+                        clipboard.ClearContents();
+
+                        if (pngStream != null)
+                        {
+                            clipboard.SetAsStream(FORMAT_PNG, pngStream);
+                        }
+
+                        if (dibStream != null)
+                        {
+                            // CF_DIB (format 8): Windows will synthesize CF_BITMAP from this automatically
+                            clipboard.SetAsStream(StandardClipboardFormats.DeviceIndependentBitmap, dibStream);
+                        }
+
+                        if (dibV5Stream != null)
+                        {
+                            // CF_DIBV5 (format 17)
+                            clipboard.SetAsStream(StandardClipboardFormats.DeviceIndependentBitmapV5, dibV5Stream);
+                        }
+
+                        if (htmlText != null)
+                        {
+                            // The HTML clipboard format is stored as UTF-8 encoded bytes
+                            clipboard.SetAsBytes(Encoding.UTF8.GetBytes(htmlText), "HTML Format");
+                        }
+
+                        // Note: BITMAP (CF_BITMAP/HBITMAP) is not set explicitly because Windows
+                        // automatically synthesizes CF_BITMAP from CF_DIB when other applications request it.
+                    }
+                    else
+                    {
+                        LogClipboardError();
+                    }
+                }
+                catch (Exception clipboardEx)
+                {
+                    LogClipboardError(clipboardEx);
                 }
             }
             finally
             {
-                // we need to use the SetDataOject before the streams are closed otherwise the buffer will be gone!
-                // Check if Bitmap is wanted
-                if (CoreConfig.ClipboardFormats.Contains(ClipboardFormat.BITMAP))
-                {
-                    dataObject.SetImage(imageToSave);
-                    // Place the DataObject to the clipboard
-                    SetDataObject(dataObject, true);
-                }
-                else
-                {
-                    // Place the DataObject to the clipboard
-                    SetDataObject(dataObject, true);
-                }
-
                 pngStream?.Dispose();
                 dibStream?.Dispose();
                 dibV5Stream?.Dispose();
