@@ -100,6 +100,7 @@ public class BoxPlugin : IGreenshotPlugin
     public void Shutdown()
     {
         LOG.Debug("Box Plugin shutdown.");
+        Language.LanguageChanged -= OnLanguageChanged;
     }
 
     /// <summary>

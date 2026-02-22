@@ -337,20 +337,26 @@ namespace Greenshot.Base.Core
             CredUi.CredFlags credFlags = GetFlags();
 
             // make the api call
-            CredUi.ReturnCodes code = CredUi.CredUIPromptForCredentials(
-                ref info,
-                Target,
-                IntPtr.Zero, 0,
-                name, CredUi.MAX_USERNAME_LENGTH,
-                password, CredUi.MAX_PASSWORD_LENGTH,
-                ref saveChecked,
-                credFlags
-            );
-
-            // clean up resources
-            if (Banner != null)
+            CredUi.ReturnCodes code;
+            try
             {
-                DeleteObject(info.hbmBanner);
+                code = CredUi.CredUIPromptForCredentials(
+                    ref info,
+                    Target,
+                    IntPtr.Zero, 0,
+                    name, CredUi.MAX_USERNAME_LENGTH,
+                    password, CredUi.MAX_PASSWORD_LENGTH,
+                    ref saveChecked,
+                    credFlags
+                );
+            }
+            finally
+            {
+                // Always free the unmanaged HBITMAP, even if an exception is thrown
+                if (Banner != null)
+                {
+                    DeleteObject(info.hbmBanner);
+                }
             }
 
             // set the accessors from the api call parameters
@@ -371,7 +377,8 @@ namespace Greenshot.Base.Core
             info.pszMessageText = Message;
             if (Banner != null)
             {
-                info.hbmBanner = new Bitmap(Banner, ValidBannerWidth, ValidBannerHeight).GetHbitmap();
+                using var bannerBitmap = new Bitmap(Banner, ValidBannerWidth, ValidBannerHeight);
+                info.hbmBanner = bannerBitmap.GetHbitmap();
             }
 
             info.cbSize = Marshal.SizeOf(info);

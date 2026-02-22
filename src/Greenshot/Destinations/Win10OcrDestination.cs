@@ -75,7 +75,7 @@ namespace Greenshot.Destinations
                 if (captureDetails.OcrInformation == null)
                 {
                     var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>();
-                    ocrInformation = Task.Run(async () => await ocrProvider.DoOcrAsync(surface)).Result;
+                    ocrInformation = Task.Run(async () => await ocrProvider.DoOcrAsync(surface).ConfigureAwait(false)).Result;
                 }
 
                 // Check if we found text

@@ -6,6 +6,7 @@ using System.Drawing.Imaging;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Windows.Forms;
 using Dapplo.Windows.Common;
 using Dapplo.Windows.Common.Enums;
@@ -206,7 +207,9 @@ namespace Greenshot.Base.Core
 
                 try
                 {
-                    return PluginUtils.GetCachedExeIcon(ProcessPath, 0);
+                    var cachedIcon = PluginUtils.GetCachedExeIcon(ProcessPath, 0);
+                    // Clone the cached icon to prevent issues when the cache is cleared on icon size change
+                    return cachedIcon != null ? ImageHelper.Clone(cachedIcon) : null;
                 }
                 catch (Exception ex)
                 {
@@ -672,11 +675,14 @@ namespace Greenshot.Base.Core
 
             User32Api.BringWindowToTop(Handle);
             User32Api.SetForegroundWindow(Handle);
-            // Make sure windows has time to perform the action
-            // TODO: this is BAD practice!
-            while (Iconic)
+            // Wait for the window to restore, with a timeout to prevent CPU spin
+            int waitAttempts = 0;
+            const int maxWaitAttempts = 100; // ~2 seconds max (100 * 20ms)
+            while (Iconic && waitAttempts < maxWaitAttempts)
             {
                 Application.DoEvents();
+                Thread.Sleep(20);
+                waitAttempts++;
             }
         }
 

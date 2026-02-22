@@ -62,7 +62,7 @@ namespace Greenshot.Processors
                 return false;
             }
 
-            var ocrResult = Task.Run(async () => await ocrProvider.DoOcrAsync(surface)).Result;
+            var ocrResult = Task.Run(async () => await ocrProvider.DoOcrAsync(surface).ConfigureAwait(false)).Result;
 
             if (!ocrResult.HasContent)
             {

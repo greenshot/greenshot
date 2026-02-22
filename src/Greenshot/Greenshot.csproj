@@ -21,9 +21,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="18.0.2" />
+    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="18.3.3" />
     <PackageReference Include="SixLabors.ImageSharp" Version="2.1.13" />
-    <PackageReference Include="Tools.InnoSetup" version="6.7.0" GeneratePathProperty="true" />
+    <PackageReference Include="System.CommandLine" Version="3.0.0-preview.1.26104.118" />
+    <PackageReference Include="Tools.InnoSetup" version="6.7.1" GeneratePathProperty="true" />
     <PackageReference Include="Microsoft.Toolkit.Uwp.Notifications" version="7.1.3" />
   </ItemGroup>
 
@@ -41,7 +42,7 @@
     <ProjectReference Include="..\Greenshot.Base\Greenshot.Base.csproj" />
     <ProjectReference Include="..\Greenshot.Editor\Greenshot.Editor.csproj" />
     <ProjectReference Include="..\Greenshot.BuildTasks\Greenshot.BuildTasks.csproj" ReferenceOutputAssembly="false" />
-    <FilesToHash Include="$(SolutionDir)$(SolutionName)\$(OutDir)\*" />
+    <FilesToHash Include="$(SolutionDir)$(SolutionName)\$(OutDir)\*" Exclude="*Bcl*" />
   </ItemGroup>
 
   <ItemGroup>
