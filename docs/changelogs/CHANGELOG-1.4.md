@@ -251,6 +251,12 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Housekeeping changes (#773, #928)
 - By @Christian-Schulz, @Kissaki, @leewilmott, @ruyut, @Mr-Update, and @Lakritzator
 
+**Code Modernization**
+- Migrated WindowDetails.RemoveCorners() from FastBitmap to BitmapAccessor<Bgra32>
+- First step in migrating from custom FastBitmap pixel accessor to modern BitmapAccessor API
+- BitmapAccessor uses typed, Span-based row access similar to ImageSharp's API
+- Internal refactoring with no user-visible changes
+
 **Documentation**
 - Added copilot-instructions.md for repository onboarding (#749)
 - Updated README.md (#556)
