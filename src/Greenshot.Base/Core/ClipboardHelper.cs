@@ -168,18 +168,18 @@ EndSelection:<<<<<<<4
         {
             lock (ClipboardLockObject)
             {
-                // Clear first, this seems to solve some issues
                 try
                 {
-                    Clipboard.Clear();
-                }
-                catch (Exception clearException)
-                {
-                    Log.Warn(clearException.Message);
-                }
-
-                try
-                {
+                    // Try to clear the clipboard first to avoid issues with complex existing formats.
+                    try
+                    {
+                        Clipboard.Clear();
+                    }
+                    catch (Exception clearException)
+                    {
+                        // Non-critical: if clearing fails, we still attempt to set the new data.
+                        Log.Warn("Couldn't clear clipboard before setting new data, continuing anyway.", clearException);
+                    }
                     // For BUG-1935 this was changed from looping ourselves, or letting MS retry...
                     Clipboard.SetDataObject(ido, copy, 15, 200);
                 }
@@ -967,7 +967,24 @@ EndSelection:<<<<<<<4
         /// When pasting a Dib in PP 2003 the Bitmap is somehow shifted left!
         /// For this problem the user should not use the direct paste (=Dib), but select Bitmap
         /// </summary>
+        /// <summary>
+        /// Sets clipboard data using a pre-rendered bitmap, avoiding a redundant surface render.
+        /// Use this overload when the surface has already been rendered elsewhere (e.g. for file save)
+        /// to avoid rendering the surface twice on the UI thread.
+        /// </summary>
+        public static void SetClipboardData(ISurface surface, Image preRenderedImage)
+        {
+            SetClipboardDataInternal(surface, preRenderedImage, disposeImage: false);
+        }
+
         public static void SetClipboardData(ISurface surface)
+        {
+            SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(OutputFormat.png, 100, false);
+            bool disposeImage = ImageIO.CreateImageFromSurface(surface, outputSettings, out Image rendered);
+            SetClipboardDataInternal(surface, rendered, disposeImage);
+        }
+
+        private static void SetClipboardDataInternal(ISurface surface, Image imageToSave, bool disposeImage)
         {
             DataObject dataObject = new DataObject();
 
@@ -977,13 +994,8 @@ EndSelection:<<<<<<<4
             MemoryStream dibStream = null;
             MemoryStream dibV5Stream = null;
             MemoryStream pngStream = null;
-            Image imageToSave = null;
-            bool disposeImage = false;
             try
             {
-                SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(OutputFormat.png, 100, false);
-                // Create the image which is going to be saved so we don't create it multiple times
-                disposeImage = ImageIO.CreateImageFromSurface(surface, outputSettings, out imageToSave);
                 try
                 {
                     // Create PNG stream
@@ -1071,7 +1083,8 @@ EndSelection:<<<<<<<4
                 // Set the HTML
                 if (CoreConfig.ClipboardFormats.Contains(ClipboardFormat.HTML))
                 {
-                    string tmpFile = ImageIO.SaveToTmpFile(surface, new SurfaceOutputSettings(OutputFormat.png, 100, false), null);
+                    // Use the already-rendered imageToSave to avoid a redundant surface render pass.
+                    string tmpFile = ImageIO.SaveToTmpFile(imageToSave, new SurfaceOutputSettings(OutputFormat.png, 100, false), null);
                     string html = GetHtmlString(surface, tmpFile);
                     dataObject.SetText(html, TextDataFormat.Html);
                 }
