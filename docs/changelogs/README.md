@@ -77,6 +77,7 @@ Our changelogs follow these principles:
   - Plugin modernization (Confluence REST API, Dropbox OAuth2)
   - Memory leak fixes
   - Better Windows 10/11 integration
+  - Modern command line interface with System.CommandLine
 
 ## Release Types
 
