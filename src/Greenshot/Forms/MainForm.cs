@@ -26,16 +26,20 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.Integration;
+using Dapplo.Windows.AppRestartManager;
+using Dapplo.Windows.AppRestartManager.Enums;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.DesktopWindowsManager;
 using Dapplo.Windows.Dpi;
 using Dapplo.Windows.Kernel32;
+using Dapplo.Windows.Kernel32.Enums;
 using Dapplo.Windows.User32;
 using Greenshot.Base;
 using Greenshot.Base.Controls;
@@ -57,6 +61,7 @@ using Greenshot.Helpers;
 using Greenshot.Plugin.Win10;
 using Greenshot.Processors;
 using log4net;
+using RestartManager = Dapplo.Windows.AppRestartManager.RestartManager;
 using Timer = System.Timers.Timer;
 
 namespace Greenshot.Forms
@@ -626,41 +631,6 @@ namespace Greenshot.Forms
             // BUG-1809 prevention, filter the InputLangChange messages
             if (WmInputLangChangeRequestFilter.PreFilterMessageExternal(ref m))
             {
-                return;
-            }
-
-            // Windows Restart Manager: save editor state when the system is about to shut down or
-            // when the Restart Manager is closing Greenshot to apply an update.
-            // WM_QUERYENDSESSION (0x0011) – system/RM asks if we are ready to close.
-            // WM_ENDSESSION     (0x0016) – system/RM confirms the session is ending.
-            // ENDSESSION_CLOSEAPP (0x1) in lParam means the Restart Manager requested the close.
-            const int WmQueryEndSession = 0x0011;
-            const int WmEndSession = 0x0016;
-            const int EndSessionCloseApp = 0x00000001;
-
-            if (m.Msg == WmQueryEndSession)
-            {
-                if ((m.LParam.ToInt32() & EndSessionCloseApp) != 0)
-                {
-                    // Restart Manager is requesting shutdown – persist all open editor state
-                    RestartManagerHelper.SaveEditorState();
-                }
-
-                // Return non-zero to allow the session to end
-                m.Result = new IntPtr(1);
-                return;
-            }
-
-            if (m.Msg == WmEndSession)
-            {
-                if (m.WParam != IntPtr.Zero && (m.LParam.ToInt32() & EndSessionCloseApp) != 0)
-                {
-                    // WParam non-zero means the session is ending; ENDSESSION_CLOSEAPP means the
-                    // Restart Manager requested the close (rather than a user logoff/system shutdown).
-                    // State has already been saved during WM_QUERYENDSESSION; exit without prompts.
-                    Application.Exit();
-                }
-
                 return;
             }
 

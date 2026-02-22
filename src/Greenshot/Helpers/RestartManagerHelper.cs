@@ -21,9 +21,12 @@
 
 using System;
 using System.IO;
-using System.Runtime.InteropServices;
+using System.Windows.Forms;
+using Dapplo.Windows.AppRestartManager;
+using Dapplo.Windows.AppRestartManager.Enums;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
+using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Editor.Forms;
 using log4net;
 
@@ -38,12 +41,6 @@ namespace Greenshot.Helpers
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(RestartManagerHelper));
 
-        [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
-        private static extern int RegisterApplicationRestart(string commandLine, int flags);
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        private static extern int UnregisterApplicationRestart();
-
         /// <summary>
         /// Directory where editor state is stored for restore after a system restart.
         /// </summary>
@@ -56,22 +53,29 @@ namespace Greenshot.Helpers
         /// </summary>
         public static void RegisterForRestart()
         {
-            try
-            {
-                int result = RegisterApplicationRestart("--restore", 0);
-                if (result != 0)
+
+            // Register with the Windows Restart Manager so it can restart us after updates
+            // Don't restart if the application crashes
+            RestartManager.RegisterForRestart(commandLineArgs: "/restore");
+
+            var subscription = RestartManager.ListenForEndSession().Subscribe(reason => {
+                if (reason.HasFlag(EndSessionReasons.ENDSESSION_CLOSEAPP))
                 {
-                    Log.WarnFormat("RegisterApplicationRestart failed with HRESULT: 0x{0:X8}", result);
+                    // Application is being closed for an update
+                    SaveEditorState();
                 }
-                else
+                else if (reason.HasFlag(EndSessionReasons.ENDSESSION_LOGOFF))
                 {
-                    Log.Info("Registered Greenshot for automatic restart with the Windows Restart Manager.");
+                    // User is logging off
+                    SaveEditorState();
                 }
-            }
-            catch (Exception ex)
-            {
-                Log.Warn("Failed to register for automatic restart.", ex);
-            }
+                else if (reason.HasFlag(EndSessionReasons.ENDSESSION_CRITICAL))
+                {
+                    // Critical shutdown
+                    // ?? Not sure if we can do anything here, but let's try to save state just in case
+                }
+                Application.Exit();
+            });
         }
 
         /// <summary>
@@ -81,7 +85,7 @@ namespace Greenshot.Helpers
         {
             try
             {
-                UnregisterApplicationRestart();
+                RestartManager.UnregisterForRestart();
             }
             catch (Exception ex)
             {
