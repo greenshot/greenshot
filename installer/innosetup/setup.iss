@@ -103,6 +103,11 @@ Source: {#BaseDir}\Greenshot.Plugin.ExternalCommand\Languages\language_externalc
 [Setup]
 ; changes associations is used when the installer installs new extensions, it clears the explorer icon cache
 ChangesAssociations=yes
+; Use the Windows Restart Manager to close Greenshot gracefully before installation (triggering
+; WM_QUERYENDSESSION so it can save open editor state) and to restart it afterwards using the
+; command line arguments registered via RegisterApplicationRestart (i.e. --restore).
+CloseApplications=yes
+RestartApplications=yes
 AppId={#ExeName}
 AppName={#ExeName}
 AppMutex=F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08
