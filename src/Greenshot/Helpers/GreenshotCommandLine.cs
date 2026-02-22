@@ -21,8 +21,8 @@
 
 using System;
 using System.CommandLine;
-using System.CommandLine.Invocation;
 using System.Linq;
+
 // Kernel32Api is required to attach to (or allocate) a Windows console window before
 // printing help text, because Greenshot is built as a WinExe and has no console by default.
 using Dapplo.Windows.Kernel32;
@@ -82,30 +82,31 @@ namespace Greenshot.Helpers
     /// </summary>
     internal static class GreenshotCommandLine
     {
-        private static readonly Option<bool> ExitOption = new Option<bool>(
-            name: "--exit",
-            description: "Send an exit command to all running Greenshot instances.");
-
-        private static readonly Option<bool> ReloadOption = new Option<bool>(
-            name: "--reload",
-            description: "Send a reload-configuration command to all running Greenshot instances.");
-
-        private static readonly Option<bool> NoRunOption = new Option<bool>(
-            name: "--no-run",
-            description: "Exit immediately without starting or showing Greenshot.");
-
-        private static readonly Option<string> LanguageOption = new Option<string>(
-            name: "--language",
-            description: "Set the UI language for Greenshot (e.g. en-US, de-DE) and save the configuration.")
+        private static readonly Option<bool> ExitOption = new Option<bool>("--exit")
         {
-            ArgumentHelpName = "language-code"
+            Description = "Send an exit command to all running Greenshot instances."
         };
 
-        private static readonly Option<string> IniDirectoryOption = new Option<string>(
-            name: "--ini-directory",
-            description: "Set the directory where greenshot.ini is stored and read.")
+        private static readonly Option<bool> ReloadOption = new Option<bool>("--reload")
         {
-            ArgumentHelpName = "directory"
+            Description = "Send a reload-configuration command to all running Greenshot instances."
+        };
+
+        private static readonly Option<bool> NoRunOption = new Option<bool>("--no-run")
+        {
+            Description = "Exit immediately without starting or showing Greenshot."
+        };
+
+        private static readonly Option<string> LanguageOption = new Option<string>("--language")
+        {
+            HelpName = "language-code",
+            Description = "Set the UI language for Greenshot (e.g. en-US, de-DE) and save the configuration."
+        };
+
+        private static readonly Option<string> IniDirectoryOption = new Option<string>("--ini-directory")
+        {
+            HelpName = "directory",
+            Description = "Set the directory where greenshot.ini is stored and read."
         };
 
         /// <summary>
@@ -114,18 +115,16 @@ namespace Greenshot.Helpers
         /// Windows Update). This option is the designated placeholder for that behaviour and is NOT
         /// intended to be used manually by end users.
         /// </summary>
-        private static readonly Option<bool> RestoreOption = new Option<bool>(
-            name: "--restore",
-            description: "[Reserved] Called by the Windows Restart Manager to restore the application after a system restart. Not intended for manual use.")
+        private static readonly Option<bool> RestoreOption = new Option<bool>("--restore")
         {
-            IsHidden = true
+            Hidden = true,
+            Description = "[Reserved] Called by the Windows Restart Manager to restore the application after a system restart. Not intended for manual use."
         };
 
-        private static readonly Argument<string[]> FilesArgument = new Argument<string[]>(
-            name: "files",
-            description: "One or more image files to open. If Greenshot is already running, the files are opened in the existing instance.")
+        private static readonly Argument<string[]> FilesArgument = new Argument<string[]>("files")
         {
-            Arity = ArgumentArity.ZeroOrMore
+            Arity = ArgumentArity.ZeroOrMore,
+            Description = "One or more image files to open. If Greenshot is already running, the files are opened in the existing instance."
         };
 
         /// <summary>
@@ -156,23 +155,23 @@ namespace Greenshot.Helpers
             }
 
             CommandLineOptions result = null;
-            rootCommand.SetHandler(ctx =>
-            {
+            rootCommand.SetAction(parseResult => {
                 result = new CommandLineOptions
                 {
-                    Exit = ctx.ParseResult.GetValueForOption(ExitOption),
-                    Reload = ctx.ParseResult.GetValueForOption(ReloadOption),
-                    NoRun = ctx.ParseResult.GetValueForOption(NoRunOption),
-                    Language = ctx.ParseResult.GetValueForOption(LanguageOption),
-                    IniDirectory = ctx.ParseResult.GetValueForOption(IniDirectoryOption),
-                    Restore = ctx.ParseResult.GetValueForOption(RestoreOption),
-                    Files = ctx.ParseResult.GetValueForArgument(FilesArgument) ?? Array.Empty<string>()
+                    Exit = parseResult.GetValue(ExitOption),
+                    Reload = parseResult.GetValue(ReloadOption),
+                    NoRun = parseResult.GetValue(NoRunOption),
+                    Language = parseResult.GetValue(LanguageOption),
+                    IniDirectory = parseResult.GetValue(IniDirectoryOption),
+                    Restore = parseResult.GetValue(RestoreOption),
+                    Files = parseResult.GetValue(FilesArgument) ?? Array.Empty<string>()
                 };
             });
 
+            ParseResult parseResult = rootCommand.Parse(args);
             // Invoke the command. Returns 0 when the handler ran successfully,
             // or non-zero when help was displayed or a parse error occurred (handler is not invoked).
-            _ = rootCommand.Invoke(args);
+            _ = parseResult.Invoke();
 
             // If a new console was allocated, wait for a key press before closing it
             // so the user has time to read the output.
@@ -186,21 +185,20 @@ namespace Greenshot.Helpers
 
         private static RootCommand BuildRootCommand()
         {
-            var rootCommand = new RootCommand(
-                description: "Greenshot is a free and open source screenshot tool for Windows.\n\n" +
+            var rootCommand = new RootCommand("Greenshot");
+
+            rootCommand.Description = "Greenshot is a free and open source screenshot tool for Windows.\n\n" +
                              "Note: When another Greenshot instance is already running, commands such as\n" +
                              "--exit and --reload are forwarded to that running instance via IPC, and the\n" +
                              "new instance then exits. File arguments are similarly forwarded to the running\n" +
-                             "instance. If no other instance is running, Greenshot starts normally.");
-
-            rootCommand.Name = "Greenshot";
-            rootCommand.AddOption(ExitOption);
-            rootCommand.AddOption(ReloadOption);
-            rootCommand.AddOption(NoRunOption);
-            rootCommand.AddOption(LanguageOption);
-            rootCommand.AddOption(IniDirectoryOption);
-            rootCommand.AddOption(RestoreOption);
-            rootCommand.AddArgument(FilesArgument);
+                             "instance. If no other instance is running, Greenshot starts normally.";
+            rootCommand.Options.Add(ExitOption);
+            rootCommand.Options.Add(ReloadOption);
+            rootCommand.Options.Add(NoRunOption);
+            rootCommand.Options.Add(LanguageOption);
+            rootCommand.Options.Add(IniDirectoryOption);
+            rootCommand.Options.Add(RestoreOption);
+            rootCommand.Arguments.Add(FilesArgument);
 
             return rootCommand;
         }
