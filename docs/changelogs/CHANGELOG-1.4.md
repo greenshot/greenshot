@@ -207,7 +207,11 @@ Continuous builds are automatically created for every commit to the `main` branc
 
 **Clipboard Handling** (#877)
 - Refactored clipboard retry logic in ClipboardHelper
-- By @danrhodes
+- Replaced legacy `System.Windows.Forms.Clipboard` API with modern `Dapplo.Windows.Clipboard` API
+- Improved clipboard access with built-in retry/timeout logic
+- Removed manual retry loops and `Thread.Sleep` calls in favor of Dapplo's robust retry mechanism
+- Added `LogClipboardError()` helper to eliminate code duplication
+- By @danrhodes and @Copilot
 
 **Expert Tab** (#782)
 - Amended spacing on Expert Tab
@@ -250,6 +254,11 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Fixed various typos (#895, #904)
 - Housekeeping changes (#773, #928)
 - By @Christian-Schulz, @Kissaki, @leewilmott, @ruyut, @Mr-Update, and @Lakritzator
+
+**API Modernization**
+- Migrated from legacy `System.Windows.Forms.Clipboard` to modern `Dapplo.Windows.Clipboard` API in ClipboardHelper
+- Improved code maintainability and reliability with built-in retry/timeout mechanisms
+- By @Copilot
 
 **Documentation**
 - Added copilot-instructions.md for repository onboarding (#749)
