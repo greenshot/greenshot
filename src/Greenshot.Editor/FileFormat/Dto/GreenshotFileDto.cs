@@ -25,7 +25,7 @@ namespace Greenshot.Editor.FileFormat.Dto;
 
 /// <summary>
 /// Is Data Transfer Object (DTO) for <see cref="GreenshotFile"/>
-/// This represents the main class for a .greenshot file.
+/// This represents the main class for a .gsa file.
 /// </summary>
 public sealed class GreenshotFileDto
 {

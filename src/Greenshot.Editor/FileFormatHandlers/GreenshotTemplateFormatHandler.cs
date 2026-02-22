@@ -84,7 +84,7 @@ public sealed class GreenshotTemplateFormatHandler : AbstractFileFormatHandler, 
         }
         Log.InfoFormat("Saving template surface data to file {0}", fullPath);
 
-        using Stream fileStreamWrite = File.OpenWrite(fullPath);
+        using Stream fileStreamWrite = File.Create(fullPath);
 
         if (!TrySaveToStream(null, fileStreamWrite, ".gst", surface, null))
         {

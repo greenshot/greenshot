@@ -28,10 +28,10 @@ using Greenshot.Editor.Drawing;
 using Greenshot.Editor.FileFormat;
 using Xunit;
 
-namespace Greenshot.Test.Editor.FileFormat.V3;
+namespace Greenshot.Test.Editor.FileFormat.V2;
 
 [Collection("DefaultCollection")]
-public class GreenshotFileV3SaveToStreamTests
+public class GreenshotFileV2SaveToStreamTests
 {
     [Fact]
     public void SaveToStream_WritesZipWithContentJson_AndRectangleContainer()
@@ -51,6 +51,7 @@ public class GreenshotFileV3SaveToStreamTests
         using var stream = new MemoryStream();
 
         // Act
+        // TODO : Call V2 - version directly
         GreenshotFileVersionHandler.SaveToStreamInCurrentVersion(surface, stream);
 
         // Assert

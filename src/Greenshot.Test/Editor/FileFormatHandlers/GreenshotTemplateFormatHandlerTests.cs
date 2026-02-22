@@ -88,7 +88,7 @@ public class GreenshotTemplateFormatHandlerTests
     /// The test checks if the loaded surface contains the same elements as the original surface.
     /// </summary>
     [Fact]
-    public void LoadTemplateFromFile_FromSavedTemplate_ShouldLoadSurfaceWithElements()
+    public void LoadTemplateFromFile_after_SaveTemplateToFile_ShouldLoadSurfaceWithElements()
     {
         // Arrange
         var originalSurface = SimpleServiceProvider.Current.GetInstance<Func<ISurface>>().Invoke();

@@ -22,7 +22,7 @@
 namespace Greenshot.Editor.FileFormat;
 
 /// <summary>
-/// Contains metadata information about a .greenshot file.
+/// Contains metadata information about a .gst file.
 /// </summary>
 public sealed class GreenshotTemplateMetaInformation
 {

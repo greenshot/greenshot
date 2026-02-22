@@ -22,10 +22,15 @@
 namespace Greenshot.Editor.FileFormat.Dto;
 
 /// <summary>
-/// Data transfer object for <see cref="GreenshotTemplateMetaInformationDto"/>.
+/// Data transfer object for <see cref="GreenshotTemplateMetaInformation"/>.
 /// </summary>
 public sealed class GreenshotTemplateMetaInformationDto
 {
+    /// <summary>
+    /// Static file type for .gst files. Only for serialization, so users who opens the JSON file directly can see the file type in the JSON content.
+    /// </summary>
+    public GreenshotFileVersionHandler.GreenshotFileType FileType { get; } = GreenshotFileVersionHandler.GreenshotFileType.GreenshotTemplate;
+
     /// <inheritdoc cref="GreenshotTemplateMetaInformation.FormatVersion"/>
     public GreenshotFileVersionHandler.GreenshotFileFormatVersion FormatVersion { get; set; } = GreenshotFileVersionHandler.GreenshotFileFormatVersion.Unknown;
 

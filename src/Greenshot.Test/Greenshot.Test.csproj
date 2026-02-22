@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net481</TargetFramework>
@@ -264,6 +264,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="TestData\GreenshotTemplate\File_Version_2.01\EllipseContainer_lt_200_200_wh_400_100.gst">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\GreenshotTemplate\File_Version_2.01\EmojiContainer_lt_100_200_wh_64_64.gst">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="TestData\GreenshotTemplate\File_Version_2.01\FreehandContainer_with_4_points.gst">

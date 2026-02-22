@@ -40,6 +40,15 @@ public sealed class GreenshotFileVersionHandler
     private static readonly ILog Log = LogManager.GetLogger(typeof(GreenshotFileVersionHandler));
 
     /// <summary>
+    /// Specifies the internal file types supported by Greenshot
+    /// </summary>
+    public enum GreenshotFileType
+    {
+        GreenshotFile = 0,
+        GreenshotTemplate = 1
+    }
+
+    /// <summary>
     /// Represents the file format version for greenshot files. This includes greenshot templates as well.
     /// </summary>
     /// <remarks> The file versions are now independent of the app version.<br/>

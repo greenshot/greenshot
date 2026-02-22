@@ -22,10 +22,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-using System.Text;
 using System.Text.Json;
 using Greenshot.Base.Core;
 using Greenshot.Editor.FileFormat.Dto;
+using Greenshot.Editor.FileFormat.Dto.Container;
 using log4net;
 
 namespace Greenshot.Editor.FileFormat.V2;
@@ -40,6 +40,14 @@ internal static class GreenshotTemplateV2
     private const string ContentJsonName = "content.json";
     private const string MetadataJsonName = "meta.json";
 
+    /// <summary>
+    /// Checks if the provided stream matches the Greenshot template file format version V2.
+    /// </summary>
+    /// <remarks>
+    /// This method only checks the format version in the metadata file within the ZIP archive and does not deserialize the full DTO.
+    /// </remarks>
+    /// <param name="greenshotFileStream">The stream containing the Greenshot template file.</param>
+    /// <returns>True if the stream matches the V2 format; otherwise, false.</returns>
     internal static bool DoesFileFormatMatch(Stream greenshotFileStream)
     {
         try
@@ -56,8 +64,10 @@ internal static class GreenshotTemplateV2
             using var entryStream = entry.Open();
             using var document = JsonDocument.Parse(entryStream);
 
+            var formatVersionPropertyName = nameof(GreenshotTemplateMetaInformationDto.FormatVersion);
+
             // We only check the format version, do not deserialize the full DTO.
-            return V2Helper.GetFormatVersion(document.RootElement, "formatVersion") == GreenshotFileVersionHandler.GreenshotFileFormatVersion.V2;
+            return V2Helper.GetFormatVersion(document.RootElement, formatVersionPropertyName) == GreenshotFileVersionHandler.GreenshotFileFormatVersion.V2;
         }
         catch
         {
@@ -69,11 +79,13 @@ internal static class GreenshotTemplateV2
     /// Saves the specified <see cref="GreenshotTemplate"/> to the provided stream in the Greenshot file format version V2.
     /// </summary>
     /// <remarks>
-    /// V2 stores the domain model as JSON and intentionally does not store the image payload.
-    /// The stream contains a ZIP archive with entries:
-    /// - meta.json: Contains file metadata (format version, schema version, capture date, etc.)
-    /// - content.json: Contains the main content (containers and other data)
-    /// - Images/: Contains image files (if any)
+    /// V2 stores the domain model as JSON and intentionally does not store the image payload in JSON.<br/>
+    /// The stream contains a ZIP archive with entries:<br/>
+    /// - meta.json: Contains file metadata (format version, schema version, capture date, etc.) <see cref="GreenshotTemplate.MetaInformation"/><br/>
+    /// - content.json: containers <br/>
+    /// - different subfolder: Contains image files<br/>
+    /// ../../FileFormat/readme.md for more information<br/>
+    /// The corresponding loading method is <see cref="LoadFromStream"/>
     /// </remarks>
     internal static bool SaveToStream(GreenshotTemplate greenshotTemplate, Stream stream)
     {
@@ -82,42 +94,88 @@ internal static class GreenshotTemplateV2
             throw new ArgumentNullException(nameof(greenshotTemplate));
         }
 
+        if (!(greenshotTemplate?.ContainerList?.Count > 0))
+        {
+            throw new ArgumentException("GreenshotTemplate must contain at least one container to be saved.", nameof(greenshotTemplate));
+        }
+
+        if (stream.CanSeek)
+        {
+            // Clear the stream before writing to ensure no leftover data (e.g overwriting a larger file with a smaller one)
+            // only a safeguard, File.Create() should already handle this by truncating the old file
+            stream.SetLength(0);
+        }
+
         var dto = ConvertDomainToDto.ToDto(greenshotTemplate);
 
+        // maybe the DTO already contains some meta information, if not create a new one
         var metaInfoDto = dto.MetaInformation ??= new GreenshotTemplateMetaInformationDto();
 
+        // Remove metadata from DTO before serializing content to avoid duplication, because meta information is stored in a separate file in V2
+        dto.MetaInformation = null;
+
+        // ensure meta information is set correctly for the current version
         metaInfoDto.FormatVersion = GreenshotFileVersionHandler.GreenshotFileFormatVersion.V2;
         metaInfoDto.SchemaVersion = GreenshotFileVersionHandler.CurrentSchemaVersion;
         metaInfoDto.SavedByGreenshotVersion = EnvironmentInfo.GetGreenshotVersion();
 
-        using (var zipArchive = new ZipArchive(stream, ZipArchiveMode.Create, true))
-        {
-            SaveImages(dto, zipArchive);
-            SaveMetadata(metaInfoDto, zipArchive);
+        using var zipArchive = new ZipArchive(stream, ZipArchiveMode.Create, true);
 
-            // Remove metadata from DTO before serializing content to avoid duplication
-            dto.MetaInformation = null;
+        // extract images from the DTO and save them to the zip archive
+        // update the DTO by removing the image data and setting the image paths to the corresponding entry paths in the zip archive
+        SaveImages(dto, zipArchive);
 
-            var jsonBytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(dto, V2Helper.GetJsonSerializerOptions()));
+        // serialize the meta information in "meta.json" in the zip archive
+        SaveMetadata(metaInfoDto, zipArchive);
 
-            var contentEntry = zipArchive.CreateEntry(ContentJsonName, CompressionLevel.Optimal);
-            using var contentStream = contentEntry.Open();
-            contentStream.Write(jsonBytes, 0, jsonBytes.Length);
-        }
+        // serialize the content in "content.json" in the zip archive
+        SaveContent(dto, zipArchive);
 
         return true;
     }
 
-    private static void SaveMetadata(GreenshotTemplateMetaInformationDto metaInfoDto, ZipArchive zipArchive)
+    /// <summary>
+    /// Serialize the <see cref="GreenshotTemplateDto"/> to JSON and saves it as "content.json" <see cref="ContentJsonName"/> in the provided <see cref="ZipArchive"/>"
+    /// </summary>
+    /// <param name="dto"></param>
+    /// <param name="zipArchive"></param>
+    private static void SaveContent(GreenshotTemplateDto dto, ZipArchive zipArchive)
     {
-        var options = V2Helper.GetJsonSerializerOptions();
-        var jsonBytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(metaInfoDto, options));
+        var contentEntry = zipArchive.CreateEntry(ContentJsonName, CompressionLevel.Optimal);
+        using var entryStream = contentEntry.Open();
 
-        var metadataEntry = zipArchive.CreateEntry(MetadataJsonName, CompressionLevel.Optimal);
-        using var metadataStream = metadataEntry.Open();
-        metadataStream.Write(jsonBytes, 0, jsonBytes.Length);
+        JsonSerializer.Serialize(
+            entryStream,
+            dto,
+            V2Helper.DefaultJsonSerializerOptions
+        );
     }
 
+    /// <summary>
+    /// Serializes the <see cref="GreenshotTemplateMetaInformationDto"/> to JSON and saves it as "meta.json"  <see cref="MetadataJsonName"/> in the provided <see cref="ZipArchive"/>"
+    /// </summary>
+    /// <param name="metaInfoDto"></param>
+    /// <param name="zipArchive"></param>
+    private static void SaveMetadata(GreenshotTemplateMetaInformationDto metaInfoDto, ZipArchive zipArchive)
+    {
+        var metadataEntry = zipArchive.CreateEntry(MetadataJsonName, CompressionLevel.Optimal);
+        using var metadataStream = metadataEntry.Open();
+
+        JsonSerializer.Serialize(
+            metadataStream,
+            metaInfoDto,
+            V2Helper.DefaultJsonSerializerOptions
+        );
+    }
+
+    /// <summary>
+    /// Saves all images extracted from the specified Greenshot file Dto to the provided zip archive as individual entries.
+    /// </summary>
+    /// <remarks>
+    /// For each image wich is extracted, the DTO is changed by removing the image data and setting the image path to the path of the corresponding entry in the zip archive <see cref="V2Helper.ExtractImages"/>.
+    /// </remarks>
+    /// <param name="dto">The GreenshotFileDto instance containing the images to be saved.</param>
+    /// <param name="zipArchive">The ZipArchive to which the extracted images will be added as entries. The archive must be open and writable.</param>
     private static void SaveImages(GreenshotTemplateDto dto, ZipArchive zipArchive)
     {
         var imagesToSave = ExtractAllImages(dto);
@@ -130,15 +188,15 @@ internal static class GreenshotTemplateV2
         }
     }
 
+    /// <summary>
+    /// Calls <see cref="V2Helper.ExtractImages"/> for all <see cref="DrawableContainerDto"/>.
+    /// </summary>
+    /// <param name="dto">The GreenshotTemplateDto instance containing the images to be extracted.</param>
+    /// <returns>A dictionary containing the extracted images, where the key is the image path and the value is the image data.</returns>
     private static Dictionary<string, byte[]> ExtractAllImages(GreenshotTemplateDto dto)
     {
         var imageIndex = 1;
         var imagesToSave = new Dictionary<string, byte[]>();
-
-        foreach (var kvp in V2Helper.ExtractImages(dto, ref imageIndex))
-        {
-            imagesToSave[kvp.Key] = kvp.Value;
-        }
 
         var containerList = dto.ContainerList?.ContainerList;
 
@@ -159,8 +217,13 @@ internal static class GreenshotTemplateV2
     }
 
     /// <summary>
-    /// Loads a Greenshot V2 file from stream.
+    /// Loads a Greenshot template file (Zip) in the Greenshot file format version V2 from the provided stream and deserializes it into a <see cref="GreenshotTemplate"/> domain model instance.
     /// </summary>
+    /// <remarks>
+    /// The corresponding saving method is <see cref="SaveToStream"/>.
+    /// </remarks>
+    /// <param name="greenshotFileStream">The stream containing the Greenshot template data.</param>
+    /// <returns>A <see cref="GreenshotTemplate"/> instance representing the deserialized Greenshot template.</returns>
     internal static GreenshotTemplate LoadFromStream(Stream greenshotFileStream)
     {
         try
@@ -174,7 +237,8 @@ internal static class GreenshotTemplateV2
             LoadMetadata(dto, zipArchive);
 
             var currentVersionDto = MigrateToCurrentVersion(dto);
-            return ConvertDtoToDomain.ToDomain(currentVersionDto);
+            var greenshotTemplate = ConvertDtoToDomain.ToDomain(currentVersionDto);
+            return greenshotTemplate;
         }
         catch (Exception e)
         {
@@ -183,6 +247,12 @@ internal static class GreenshotTemplateV2
         }
     }
 
+    /// <summary>
+    /// Deserializes the content "content.json" <see cref="ContentJsonName"/> of a Greenshot template file (Zip) into a <see cref="GreenshotTemplateDto"/> instance.
+    /// </summary>
+    /// <param name="zipArchive">The <see cref="ZipArchive"/> containing the Greenshot template data.</param>
+    /// <returns>A <see cref="GreenshotTemplateDto"/> instance representing the deserialized content.</returns>
+    /// <exception cref="FileFormatException"></exception>
     private static GreenshotTemplateDto LoadContent(ZipArchive zipArchive)
     {
         var contentEntry = zipArchive.GetEntry(ContentJsonName);
@@ -195,7 +265,7 @@ internal static class GreenshotTemplateV2
         GreenshotTemplateDto dto;
         try
         {
-            dto = JsonSerializer.Deserialize<GreenshotTemplateDto>(contentStream, V2Helper.GetJsonSerializerOptions());
+            dto = JsonSerializer.Deserialize<GreenshotTemplateDto>(contentStream, V2Helper.DefaultJsonSerializerOptions);
         }
         catch (JsonException e)
         {
@@ -210,6 +280,14 @@ internal static class GreenshotTemplateV2
 
     }
 
+    /// <summary>
+    /// Deserializes the metadata "meta.json" <see cref="MetadataJsonName"/> of a Greenshot template file (Zip) and assigns it to the provided <see cref="GreenshotTemplateDto"/> instance.
+    /// </summary>
+    /// <remarks>If the metadata file 'meta.json' is not found or an error occurs during loading, default
+    /// metadata will be assigned to the GreenshotTemplateDto object.</remarks>
+    /// <param name="dto">The GreenshotTemplateDto instance that will receive the loaded metadata. Cannot be null.</param>
+    /// <param name="zipArchive">The ZipArchive containing the metadata file named 'meta.json'.</param>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="dto"/> is null.</exception>
     private static void LoadMetadata(GreenshotTemplateDto dto, ZipArchive zipArchive)
     {
         if (dto is null)
@@ -232,7 +310,7 @@ internal static class GreenshotTemplateV2
         try
         {
             using var metadataStream = metadataEntry.Open();
-            var metaInfoDto = JsonSerializer.Deserialize<GreenshotTemplateMetaInformationDto>(metadataStream, V2Helper.GetJsonSerializerOptions());
+            var metaInfoDto = JsonSerializer.Deserialize<GreenshotTemplateMetaInformationDto>(metadataStream, V2Helper.DefaultJsonSerializerOptions);
             if (metaInfoDto != null)
             {
                 dto.MetaInformation = metaInfoDto;
@@ -249,6 +327,12 @@ internal static class GreenshotTemplateV2
 
     }
 
+
+    /// <summary>
+    /// Calls <see cref="V2Helper.LoadImagesForDto"/> for the <see cref="GreenshotTemplateDto"/> and for all <see cref="DrawableContainerDto"/> to load the images from the provided <see cref="ZipArchive"/> and assign the image data to the corresponding properties in the DTOs.
+    /// </summary>
+    /// <param name="dto">The GreenshotTemplateDto instance containing the images to be loaded.</param>
+    /// <param name="zipArchive">The ZipArchive containing the image files.</param>
     private static void LoadImages(GreenshotTemplateDto dto, ZipArchive zipArchive)
     {
         var containerList = dto.ContainerList?.ContainerList;

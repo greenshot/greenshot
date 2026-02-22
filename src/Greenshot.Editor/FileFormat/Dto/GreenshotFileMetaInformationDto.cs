@@ -29,6 +29,11 @@ namespace Greenshot.Editor.FileFormat.Dto;
 /// </summary>
 public sealed class GreenshotFileMetaInformationDto
 {
+    /// <summary>
+    /// Static file type for .greenshot files. Only for serialization, so users who opens the JSON file directly can see the file type in the JSON content.
+    /// </summary>
+    public GreenshotFileVersionHandler.GreenshotFileType FileType { get; } = GreenshotFileVersionHandler.GreenshotFileType.GreenshotFile;
+
     /// <inheritdoc cref="GreenshotFileMetaInformation.FormatVersion"/>
     public GreenshotFileVersionHandler.GreenshotFileFormatVersion FormatVersion { get; set; } = GreenshotFileVersionHandler.GreenshotFileFormatVersion.Unknown;
 

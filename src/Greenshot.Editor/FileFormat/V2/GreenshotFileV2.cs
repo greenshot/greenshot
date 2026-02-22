@@ -22,10 +22,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-using System.Reflection;
-using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using Greenshot.Base.Core;
 using Greenshot.Editor.FileFormat.Dto;
 using Greenshot.Editor.FileFormat.Dto.Container;
@@ -43,6 +40,14 @@ public static class GreenshotFileV2
     private const string ContentJsonName = "content.json";
     private const string MetadataJsonName = "meta.json";
 
+    /// <summary>
+    /// Checks if the provided stream matches the Greenshot file format version V2.
+    /// </summary>
+    /// <remarks>
+    /// This method only checks the format version in the metadata file within the ZIP archive and does not deserialize the full DTO.
+    /// </remarks>
+    /// <param name="greenshotFileStream">The stream containing the Greenshot file.</param>
+    /// <returns>True if the stream matches the V2 format; otherwise, false.</returns>
     internal static bool DoesFileFormatMatch(Stream greenshotFileStream)
     {
         try
@@ -59,8 +64,10 @@ public static class GreenshotFileV2
             using var entryStream = entry.Open();
             using var document = JsonDocument.Parse(entryStream);
 
+            var formatVersionPropertyName = nameof(GreenshotTemplateMetaInformationDto.FormatVersion);
+
             // We only check the format version and do not deserialize the full DTO.
-            return V2Helper.GetFormatVersion(document.RootElement, "formatVersion") == GreenshotFileVersionHandler.GreenshotFileFormatVersion.V2;
+            return V2Helper.GetFormatVersion(document.RootElement, formatVersionPropertyName) == GreenshotFileVersionHandler.GreenshotFileFormatVersion.V2;
         }
         catch
         {
@@ -73,11 +80,13 @@ public static class GreenshotFileV2
     /// Saves the specified <see cref="GreenshotFile"/> to the provided stream in the Greenshot file format version V2.
     /// </summary>
     /// <remarks>
-    /// V2 stores the domain model as JSON and intentionally does not store the image payload.
-    /// The stream contains a ZIP archive with entries:
-    /// - meta.json: Contains file metadata (format version, schema version, capture date, etc.)
-    /// - content.json: Contains the main content (containers and other data)
-    /// - Images/: Contains image files (if any)
+    /// V2 stores the domain model as JSON and intentionally does not store the image payload in JSON.<br/>
+    /// The stream contains a ZIP archive with entries:<br/>
+    /// - meta.json: Contains file metadata (format version, schema version, capture date, etc.) <see cref="GreenshotFile.MetaInformation"/><br/>
+    /// - content.json: Contains the main content (containers and other data)<br/>
+    /// - different subfolder: Contains image files<br/>
+    /// ../../FileFormat/readme.md for more information<br/>
+    /// The corresponding loading method is <see cref="LoadFromStream"/>
     /// </remarks>
     internal static bool SaveToStream(GreenshotFile greenshotFile, Stream stream)
     {
@@ -86,54 +95,100 @@ public static class GreenshotFileV2
             throw new ArgumentNullException(nameof(greenshotFile));
         }
 
+        if (stream.CanSeek)
+        {
+            // Clear the stream before writing to ensure no leftover data (e.g overwriting a larger file with a smaller one)
+            // only a safeguard, File.Create() should already handle this by truncating the old file
+            stream.SetLength(0);
+        }
+
         var dto = ConvertDomainToDto.ToDto(greenshotFile);
 
+        // maybe the DTO already contains some meta information, if not create a new one
         var metaInfoDto = dto.MetaInformation ??= new GreenshotFileMetaInformationDto();
 
+        // Remove metadata from DTO before serializing content to avoid duplication, because meta information is stored in a separate file in V2
+        dto.MetaInformation = null;
+
+        // ensure meta information is set correctly for the current version
         metaInfoDto.FormatVersion = GreenshotFileVersionHandler.GreenshotFileFormatVersion.V2;
         metaInfoDto.SchemaVersion = GreenshotFileVersionHandler.CurrentSchemaVersion;
         metaInfoDto.SavedByGreenshotVersion = EnvironmentInfo.GetGreenshotVersion();
+
+        // extract the size of the capture and store it in the meta information
         metaInfoDto.CaptureSize = greenshotFile.Image != null ? $"{greenshotFile.Image.Width}x{greenshotFile.Image.Height}px" : string.Empty;
 
-        using (var zipArchive = new ZipArchive(stream, ZipArchiveMode.Create, true))
-        {
-            SaveImages(dto, zipArchive);
-            SaveMetadata(metaInfoDto, zipArchive);
+        using var zipArchive = new ZipArchive(stream, ZipArchiveMode.Create, true);
 
-            // Remove metadata from DTO before serializing content to avoid duplication
-            dto.MetaInformation = null;
+        // extract images from the DTO and save them to the zip archive
+        // update the DTO by removing the image data and setting the image paths to the corresponding entry paths in the zip archive
+        SaveImages(dto, zipArchive);
 
-            var jsonBytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(dto, V2Helper.GetJsonSerializerOptions()));
+        // serialize the meta information in "meta.json" in the zip archive
+        SaveMetadata(metaInfoDto, zipArchive);
 
-            var contentEntry = zipArchive.CreateEntry(ContentJsonName, CompressionLevel.Optimal);
-            using var contentStream = contentEntry.Open();
-            contentStream.Write(jsonBytes, 0, jsonBytes.Length);
-        }
+        // serialize the content in "content.json" in the zip archive
+        SaveContent(dto, zipArchive);
 
         return true;
     }
 
     /// <summary>
-    /// Serializes the specified <see cref="GreenshotFile"/> to a byte array in the Greenshot file format version V2.
+    /// Serializes the specified <see cref="GreenshotFile"/> to a byte array (Zip file) in the Greenshot file format version V2.
     /// </summary>
+    /// <remarks> Use <see cref="SaveToStream"/> to save to a stream, this method is just a convenience wrapper around it to get the byte array directly.
+    /// </remarks>
     /// <param name="greenshotFile"></param>
     /// <returns></returns>
-    public static byte[] Serialize(GreenshotFile greenshotFile) 
+    public static byte[] GetFileAsByte(GreenshotFile greenshotFile)
     {
         using var memoryStream = new MemoryStream();
         SaveToStream(greenshotFile, memoryStream);
         return memoryStream.ToArray();
     }
 
-    private static void SaveMetadata(GreenshotFileMetaInformationDto metaInfoDto, ZipArchive zipArchive)
+    /// <summary>
+    /// Serialize the <see cref="GreenshotFileDto"/> to JSON and saves it as "content.json" <see cref="ContentJsonName"/> in the provided <see cref="ZipArchive"/>"
+    /// </summary>
+    /// <param name="dto"></param>
+    /// <param name="zipArchive"></param>
+    private static void SaveContent(GreenshotFileDto dto, ZipArchive zipArchive)
     {
-        var jsonBytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(metaInfoDto, V2Helper.GetJsonSerializerOptions()));
+        var contentEntry = zipArchive.CreateEntry(ContentJsonName, CompressionLevel.Optimal);
+        using var entryStream = contentEntry.Open();
 
-        var metadataEntry = zipArchive.CreateEntry(MetadataJsonName, CompressionLevel.Optimal);
-        using var metadataStream = metadataEntry.Open();
-        metadataStream.Write(jsonBytes, 0, jsonBytes.Length);
+        JsonSerializer.Serialize(
+            entryStream,
+            dto,
+            V2Helper.DefaultJsonSerializerOptions
+        );
     }
 
+    /// <summary>
+    /// Serializes the <see cref="GreenshotFileMetaInformationDto"/> to JSON and saves it as "meta.json"  <see cref="MetadataJsonName"/> in the provided <see cref="ZipArchive"/>"
+    /// </summary>
+    /// <param name="metaInfoDto"></param>
+    /// <param name="zipArchive"></param>
+    private static void SaveMetadata(GreenshotFileMetaInformationDto metaInfoDto, ZipArchive zipArchive)
+    {
+        var metadataEntry = zipArchive.CreateEntry(MetadataJsonName, CompressionLevel.Optimal);
+        using var metadataStream = metadataEntry.Open();
+
+        JsonSerializer.Serialize(
+            metadataStream,
+            metaInfoDto,
+            V2Helper.DefaultJsonSerializerOptions
+        );
+    }
+
+    /// <summary>
+    /// Saves all images extracted from the specified Greenshot file Dto to the provided zip archive as individual entries.
+    /// </summary>
+    /// <remarks>
+    /// For each image wich is extracted, the DTO is changed by removing the image data and setting the image path to the path of the corresponding entry in the zip archive <see cref="V2Helper.ExtractImages"/>.
+    /// </remarks>
+    /// <param name="dto">The GreenshotFileDto instance containing the images to be saved.</param>
+    /// <param name="zipArchive">The ZipArchive to which the extracted images will be added as entries. The archive must be open and writable.</param>
     private static void SaveImages(GreenshotFileDto dto, ZipArchive zipArchive)
     {
         var imagesToSave = ExtractAllImages(dto);
@@ -146,6 +201,11 @@ public static class GreenshotFileV2
         }
     }
 
+    /// <summary>
+    /// Calls <see cref="V2Helper.ExtractImages"/> for the <see cref="GreenshotFileDto"/> and for all <see cref="DrawableContainerDto"/>.
+    /// </summary>
+    /// <param name="dto">The GreenshotFileDto instance containing the images to be extracted.</param>
+    /// <returns>A dictionary containing the extracted images, where the key is the image path and the value is the image data.</returns>
     private static Dictionary<string, byte[]> ExtractAllImages(GreenshotFileDto dto)
     {
         var imageIndex = 1;
@@ -174,10 +234,14 @@ public static class GreenshotFileV2
         return imagesToSave;
     }
 
-
     /// <summary>
-    /// Loads a Greenshot V2 file from stream.
+    /// Loads a Greenshot file (Zip) in the Greenshot file format version V2 from the provided stream and deserializes it into a <see cref="GreenshotFile"/> domain model instance.
     /// </summary>
+    /// <remarks>
+    /// The corresponding saving method is <see cref="SaveToStream"/>.
+    /// </remarks>
+    /// <param name="greenshotFileStream">The stream containing the Greenshot file data.</param>
+    /// <returns>A <see cref="GreenshotFile"/> instance representing the deserialized Greenshot file.</returns>
     internal static GreenshotFile LoadFromStream(Stream greenshotFileStream)
     {
         try
@@ -191,7 +255,8 @@ public static class GreenshotFileV2
             LoadMetadata(dto, zipArchive);
 
             var currentVersionDto = MigrateToCurrentVersion(dto);
-            return ConvertDtoToDomain.ToDomain(currentVersionDto);
+            var greenshotFile = ConvertDtoToDomain.ToDomain(currentVersionDto);
+            return greenshotFile;
         }
         catch (Exception e)
         {
@@ -201,16 +266,23 @@ public static class GreenshotFileV2
     }
 
     /// <summary>
-    /// Deserializes the specified byte array into a GreenshotFile instance.
+    /// Deserializes a Greenshot file (Zip) in the Greenshot file format version V2 from the provided byte array.
     /// </summary>
     /// <param name="fileContent"></param>
     /// <returns></returns>
-    public static GreenshotFile Deserialize(byte[] fileContent)
+    public static GreenshotFile DeserializeFromZipFile(byte[] fileContent)
     {
         using var memoryStream = new MemoryStream(fileContent);
-        return LoadFromStream(memoryStream);
+        var greenshotFile = LoadFromStream(memoryStream);
+        return greenshotFile;
     }
 
+    /// <summary>
+    /// Deserializes the content "content.json" <see cref="ContentJsonName"/> of a Greenshot file (Zip) into a <see cref="GreenshotFileDto"/> instance.
+    /// </summary>
+    /// <param name="zipArchive">The <see cref="ZipArchive"/> containing the Greenshot file data.</param>
+    /// <returns>A <see cref="GreenshotFileDto"/> instance representing the deserialized content.</returns>
+    /// <exception cref="FileFormatException"></exception>
     private static GreenshotFileDto LoadContent(ZipArchive zipArchive)
     {
         var contentEntry = zipArchive.GetEntry(ContentJsonName);
@@ -223,7 +295,7 @@ public static class GreenshotFileV2
         GreenshotFileDto dto;
         try
         {
-            dto = JsonSerializer.Deserialize<GreenshotFileDto>(contentStream, V2Helper.GetJsonSerializerOptions());
+            dto = JsonSerializer.Deserialize<GreenshotFileDto>(contentStream, V2Helper.DefaultJsonSerializerOptions);
         }
         catch (JsonException e)
         {
@@ -238,6 +310,14 @@ public static class GreenshotFileV2
 
     }
 
+    /// <summary>
+    /// Deserializes the metadata "meta.json" <see cref="MetadataJsonName"/> of a Greenshot file (Zip) and assigns it to the provided <see cref="GreenshotFileDto"/> instance.
+    /// </summary>
+    /// <remarks>If the metadata file 'meta.json' is not found or an error occurs during loading, default
+    /// metadata will be assigned to the GreenshotFileDto object.</remarks>
+    /// <param name="dto">The GreenshotFileDto instance that will receive the loaded metadata. Cannot be null.</param>
+    /// <param name="zipArchive">The ZipArchive containing the metadata file named 'meta.json'.</param>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="dto"/> is null.</exception>
     private static void LoadMetadata(GreenshotFileDto dto, ZipArchive zipArchive)
     {
         if (dto is null)
@@ -260,7 +340,7 @@ public static class GreenshotFileV2
         try
         {
             using var metadataStream = metadataEntry.Open();
-            var metaInfoDto = JsonSerializer.Deserialize<GreenshotFileMetaInformationDto>(metadataStream, V2Helper.GetJsonSerializerOptions());
+            var metaInfoDto = JsonSerializer.Deserialize<GreenshotFileMetaInformationDto>(metadataStream, V2Helper.DefaultJsonSerializerOptions);
             if (metaInfoDto != null)
             {
                 dto.MetaInformation = metaInfoDto;
@@ -277,6 +357,11 @@ public static class GreenshotFileV2
 
     }
 
+    /// <summary>
+    /// Calls <see cref="V2Helper.LoadImagesForDto"/> for the <see cref="GreenshotFileDto"/> and for all <see cref="DrawableContainerDto"/> to load the images from the provided <see cref="ZipArchive"/> and assign the image data to the corresponding properties in the DTOs.
+    /// </summary>
+    /// <param name="dto">The GreenshotFileDto instance containing the images to be loaded.</param>
+    /// <param name="zipArchive">The ZipArchive containing the image files.</param>
     private static void LoadImages(GreenshotFileDto dto, ZipArchive zipArchive)
     {
         V2Helper.LoadImagesForDto(dto, zipArchive);

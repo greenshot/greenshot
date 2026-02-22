@@ -24,9 +24,8 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.FileFormat;
-using Greenshot.Editor.FileFormat.Dto;
-using V2 = Greenshot.Editor.FileFormat.V2;
 using Xunit;
+using EditorV2 = Greenshot.Editor.FileFormat.V2;
 
 namespace Greenshot.Test.Editor.FileFormat.Dto.GreenshotFileV2;
 
@@ -70,9 +69,8 @@ public class ApplicationFileSerializationTests
         };
 
         // Act
-        var serialized = V2.GreenshotFileV2.Serialize(domain);
-        var result = V2.GreenshotFileV2.Deserialize(serialized);
-
+        var serialized = EditorV2.GreenshotFileV2.GetFileAsByte(domain);
+        var result = EditorV2.GreenshotFileV2.DeserializeFromZipFile(serialized);
         // Assert
         Assert.NotNull(result);
         Assert.Equal(domain.MetaInformation.SchemaVersion, result.MetaInformation.SchemaVersion);
