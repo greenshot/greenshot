@@ -26,6 +26,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
@@ -57,6 +58,7 @@ using Greenshot.Helpers;
 using Greenshot.Plugin.Win10;
 using Greenshot.Processors;
 using log4net;
+
 using Timer = System.Timers.Timer;
 
 namespace Greenshot.Forms
@@ -265,6 +267,15 @@ namespace Greenshot.Forms
                     _conf.IsFirstLaunch = false;
                     transport.AddCommand(CommandEnum.FirstLaunch);
                 }
+
+                // When started by the Windows Restart Manager, re-open the editors that were open before shutdown
+                if (options.Restore)
+                {
+                    RestartManagerHelper.AddRestoreFilesToTransport(transport);
+                }
+
+                // Register with the Windows Restart Manager so it can restart us after updates
+                RestartManagerHelper.RegisterForRestart();
 
                 // Should fix BUG-1633
                 Application.DoEvents();
