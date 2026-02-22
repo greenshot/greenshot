@@ -24,11 +24,13 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using Dapplo.Windows.Dialogs;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Core.FileFormatHandlers;
@@ -360,33 +362,80 @@ namespace Greenshot.Base.Core
         /// <returns>Path to filename</returns>
         public static string SaveWithDialog(ISurface surface, ICaptureDetails captureDetails)
         {
-            string returnValue = null;
-            using (SaveImageFileDialog saveImageFileDialog = new SaveImageFileDialog(captureDetails))
+            // Determine initial directory from the last used full path, then fall back to the configured output folder
+            string initialDirectory = null;
+            try
             {
-                DialogResult dialogResult = saveImageFileDialog.ShowDialog();
-                if (!dialogResult.Equals(DialogResult.OK)) return returnValue;
-                try
+                CoreConfig.ValidateAndCorrectOutputFileAsFullpath();
+                string dir = Path.GetDirectoryName(CoreConfig.OutputFileAsFullpath);
+                if (!string.IsNullOrEmpty(dir) && Directory.Exists(dir))
                 {
-                    string fileNameWithExtension = saveImageFileDialog.FileNameWithExtension;
-                    SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(FormatForFilename(fileNameWithExtension));
-                    if (CoreConfig.OutputFilePromptQuality)
-                    {
-                        QualityDialog qualityDialog = new QualityDialog(outputSettings);
-                        qualityDialog.ShowDialog();
-                    }
-
-                    // TODO: For now we always overwrite, should be changed
-                    Save(surface, fileNameWithExtension, true, outputSettings, CoreConfig.OutputFileCopyPathToClipboard);
-                    returnValue = fileNameWithExtension;
-                    IniConfig.Save();
-                }
-                catch (Exception e) when (e is ExternalException || e is IOException)
-                {
-                    MessageBox.Show(Language.GetFormattedString("error_nowriteaccess", saveImageFileDialog.FileName).Replace(@"\\", @"\"), Language.GetString("error"));
+                    initialDirectory = dir;
                 }
             }
+            catch
+            {
+                Log.WarnFormat("OutputFileAsFullpath was set to {0}, ignoring due to problem in path.", CoreConfig.OutputFileAsFullpath);
+            }
 
-            return returnValue;
+            if (initialDirectory == null && Directory.Exists(CoreConfig.OutputFilePath))
+            {
+                initialDirectory = CoreConfig.OutputFilePath;
+            }
+
+            string defaultExtension = Enum.GetName(typeof(OutputFormat), CoreConfig.OutputFileFormat)?.ToLower();
+            string suggestedFileName = FilenameHelper.GetFilenameWithoutExtensionFromPattern(CoreConfig.OutputFileFilenamePattern, captureDetails);
+            string suggestedName = !string.IsNullOrEmpty(defaultExtension)
+                ? suggestedFileName + "." + defaultExtension
+                : suggestedFileName;
+
+            var builder = new FileSaveDialogBuilder()
+                .WithSuggestedFileName(suggestedName)
+                .WithDefaultExtension(defaultExtension);
+
+            if (!string.IsNullOrEmpty(initialDirectory))
+            {
+                builder = builder.WithInitialDirectory(initialDirectory);
+            }
+
+            string sidebarPath = initialDirectory ?? CoreConfig.OutputFilePath;
+            if (!string.IsNullOrEmpty(sidebarPath) && Directory.Exists(sidebarPath))
+            {
+                builder = builder.AddPlace(sidebarPath, atTop: true);
+            }
+
+            var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
+            foreach (string ext in fileFormatHandlers.ExtensionsFor(FileFormatHandlerActions.SaveToFile).Select(s => s.TrimStart('.')))
+            {
+                builder = builder.AddFilter(ext.ToUpper(), "*." + ext.ToLower());
+            }
+
+            var dialogResult = builder.ShowDialog();
+            if (dialogResult.WasCancelled)
+            {
+                return null;
+            }
+
+            string fileNameWithExtension = dialogResult.SelectedPath;
+            try
+            {
+                SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(FormatForFilename(fileNameWithExtension));
+                if (CoreConfig.OutputFilePromptQuality)
+                {
+                    QualityDialog qualityDialog = new QualityDialog(outputSettings);
+                    qualityDialog.ShowDialog();
+                }
+
+                // TODO: For now we always overwrite, should be changed
+                Save(surface, fileNameWithExtension, true, outputSettings, CoreConfig.OutputFileCopyPathToClipboard);
+                IniConfig.Save();
+                return fileNameWithExtension;
+            }
+            catch (Exception e) when (e is ExternalException || e is IOException)
+            {
+                MessageBox.Show(Language.GetFormattedString("error_nowriteaccess", fileNameWithExtension).Replace(@"\\", @"\"), Language.GetString("error"));
+                return null;
+            }
         }
 
         /// <summary>

@@ -30,6 +30,7 @@ using System.Threading;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Dialogs;
 using Dapplo.Windows.Dpi;
 using Dapplo.Windows.Kernel32;
 using Dapplo.Windows.User32;
@@ -1571,28 +1572,26 @@ namespace Greenshot.Editor.Forms
 
         private void SaveElementsToolStripMenuItemClick(object sender, EventArgs e)
         {
-            SaveFileDialog saveFileDialog = new SaveFileDialog
+            var result = new FileSaveDialogBuilder()
+                .WithSuggestedFileName(FilenameHelper.GetFilenameWithoutExtensionFromPattern(coreConfiguration.OutputFileFilenamePattern, _surface.CaptureDetails) + ".gst")
+                .WithDefaultExtension("gst")
+                .AddFilter("Greenshot templates", "*.gst")
+                .ShowDialog();
+            if (!result.WasCancelled)
             {
-                Filter = "Greenshot templates (*.gst)|*.gst",
-                FileName = FilenameHelper.GetFilenameWithoutExtensionFromPattern(coreConfiguration.OutputFileFilenamePattern, _surface.CaptureDetails)
-            };
-            DialogResult dialogResult = saveFileDialog.ShowDialog();
-            if (dialogResult.Equals(DialogResult.OK))
-            {
-                using Stream streamWrite = File.OpenWrite(saveFileDialog.FileName);
+                using Stream streamWrite = File.OpenWrite(result.SelectedPath);
                 _surface.SaveElementsToStream(streamWrite);
             }
         }
 
         private void LoadElementsToolStripMenuItemClick(object sender, EventArgs e)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog
+            var result = new FileOpenDialogBuilder()
+                .AddFilter("Greenshot templates", "*.gst")
+                .ShowDialog();
+            if (!result.WasCancelled)
             {
-                Filter = "Greenshot templates (*.gst)|*.gst"
-            };
-            if (openFileDialog.ShowDialog() == DialogResult.OK)
-            {
-                using (Stream streamRead = File.OpenRead(openFileDialog.FileName))
+                using (Stream streamRead = File.OpenRead(result.SelectedPath))
                 {
                     _surface.LoadElementsFromStream(streamRead);
                 }

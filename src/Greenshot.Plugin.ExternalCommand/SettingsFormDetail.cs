@@ -23,6 +23,7 @@ using System;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
+using Dapplo.Windows.Dialogs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.IniFile;
@@ -95,14 +96,7 @@ public partial class SettingsFormDetail : ExternalCommandForm
 
     private void Button3Click(object sender, EventArgs e)
     {
-        var openFileDialog = new OpenFileDialog
-        {
-            Filter = "Executables (*.exe, *.bat, *.com)|*.exe; *.bat; *.com|All files (*)|*",
-            FilterIndex = 1,
-            CheckFileExists = true,
-            Multiselect = false
-        };
-        string initialPath = null;
+        string initialPath;
         try
         {
             initialPath = Path.GetDirectoryName(textBox_commandline.Text);
@@ -111,22 +105,25 @@ public partial class SettingsFormDetail : ExternalCommandForm
         {
             Log.WarnFormat("Can't get the initial path via {0}", textBox_commandline.Text);
             Log.Warn("Exception: ", ex);
+            initialPath = null;
         }
 
-        if (initialPath != null && Directory.Exists(initialPath))
-        {
-            openFileDialog.InitialDirectory = initialPath;
-        }
-        else
+        if (initialPath == null || !Directory.Exists(initialPath))
         {
             initialPath = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
-            openFileDialog.InitialDirectory = initialPath;
         }
 
-        Log.DebugFormat("Starting OpenFileDialog at {0}", initialPath);
-        if (openFileDialog.ShowDialog() == DialogResult.OK)
+        Log.DebugFormat("Starting file open dialog at {0}", initialPath);
+
+        var result = new FileOpenDialogBuilder()
+            .WithInitialDirectory(initialPath)
+            .AddFilter("Executables", "*.exe;*.bat;*.com")
+            .AddFilter("All files", "*.*")
+            .ShowDialog();
+
+        if (!result.WasCancelled)
         {
-            textBox_commandline.Text = openFileDialog.FileName;
+            textBox_commandline.Text = result.SelectedPath;
         }
     }
 

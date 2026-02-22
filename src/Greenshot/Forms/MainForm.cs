@@ -34,6 +34,7 @@ using System.Windows.Forms;
 using System.Windows.Forms.Integration;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.DesktopWindowsManager;
+using Dapplo.Windows.Dialogs;
 using Dapplo.Windows.Dpi;
 using Dapplo.Windows.Kernel32;
 using Dapplo.Windows.User32;
@@ -889,18 +890,26 @@ namespace Greenshot.Forms
             var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
             var extensions = fileFormatHandlers.ExtensionsFor(FileFormatHandlerActions.LoadFromFile).Select(e => $"*{e}").ToList();
 
-            var openFileDialog = new OpenFileDialog
+            var builder = new FileOpenDialogBuilder()
+               .AddFilter("Image files", string.Join(";", extensions))
+               .WithDefaultExtension(".png");
+
+            string sidebarPath = _conf.OutputFilePath;
+            if (!string.IsNullOrEmpty(sidebarPath) && Directory.Exists(sidebarPath))
             {
-                Filter = @$"Image files ({string.Join(", ", extensions)})|{string.Join("; ", extensions)}"
-            };
-            if (openFileDialog.ShowDialog() != DialogResult.OK)
+                builder = builder.AddPlace(sidebarPath, atTop: true);
+            }
+
+            var result = builder.ShowDialog();
+
+            if (result.WasCancelled)
             {
                 return;
             }
 
-            if (File.Exists(openFileDialog.FileName))
+            if (File.Exists(result.SelectedPath))
             {
-                CaptureHelper.CaptureFile(openFileDialog.FileName, destination);
+                CaptureHelper.CaptureFile(result.SelectedPath, destination);
             }
         }
 
