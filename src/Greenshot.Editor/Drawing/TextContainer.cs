@@ -25,6 +25,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
+using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Extensions;
@@ -361,12 +362,17 @@ namespace Greenshot.Editor.Drawing
             base.Transform(matrix);
             rect = new NativeRect(Left, Top, Width, Height).Normalize();
 
-            int pixelsAfter = rect.Width * rect.Height;
-            float factor = pixelsAfter / (float) pixelsBefore;
+            // Only scale font size when the container has non-zero area; otherwise the
+            // factor would be Infinity or NaN, producing an invalid stored font size.
+            if (pixelsBefore > 0)
+            {
+                int pixelsAfter = rect.Width * rect.Height;
+                float factor = pixelsAfter / (float) pixelsBefore;
+                float fontSize = GetFieldValueAsFloat(FieldType.FONT_SIZE);
+                fontSize = Math.Max(1f, fontSize * factor);
+                SetFieldValue(FieldType.FONT_SIZE, fontSize);
+            }
 
-            float fontSize = GetFieldValueAsFloat(FieldType.FONT_SIZE);
-            fontSize *= factor;
-            SetFieldValue(FieldType.FONT_SIZE, fontSize);
             UpdateFormat();
         }
 
@@ -478,14 +484,59 @@ namespace Greenshot.Editor.Drawing
 
             var textBoxFontScale = _parent?.ZoomFactor ?? Fraction.Identity;
 
-            var newFont = new Font(
-                _font.FontFamily,
-                _font.Size * textBoxFontScale,
-                _font.Style,
-                GraphicsUnit.Pixel
-            );
+            // Clamp to at least 1 pixel so the GDI LOGFONT height is never 0,
+            // which would cause Font.ToLogFont / Font.ToHfont to throw ArgumentException.
+            float scaledFontSize = Math.Max(1f, _font.Size * textBoxFontScale);
+
+            Font newFont = null;
+            try
+            {
+                newFont = new Font(
+                    _font.FontFamily,
+                    scaledFontSize,
+                    _font.Style,
+                    GraphicsUnit.Pixel
+                );
+                // Verify the font can be represented as a GDI LOGFONT, which WinForms
+                // requires when creating the TextBox window handle (SetWindowFont).
+                // Some GDI+-only fonts (e.g. certain OpenType CFF fonts) cannot be
+                // converted and would throw ArgumentException inside OnHandleCreated.
+                newFont.ToLogFont(new NativeLogFont());
+            }
+            catch (ArgumentException)
+            {
+                newFont?.Dispose();
+                // Fall back to a GDI-compatible font, preserving the user's intended style.
+                newFont = new Font(FontFamily.GenericSansSerif, scaledFontSize, _font.Style, GraphicsUnit.Pixel);
+            }
+
             _textBox.Font.Dispose();
             _textBox.Font = newFont;
+        }
+
+        /// <summary>
+        /// Minimal LOGFONT structure used only to probe whether a Font can be
+        /// converted to a GDI logical font via <see cref="Font.ToLogFont(object)"/>.
+        /// The layout must match the native LOGFONTW structure exactly.
+        /// </summary>
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
+        private class NativeLogFont
+        {
+            public int lfHeight;
+            public int lfWidth;
+            public int lfEscapement;
+            public int lfOrientation;
+            public int lfWeight;
+            public byte lfItalic;
+            public byte lfUnderline;
+            public byte lfStrikeOut;
+            public byte lfCharSet;
+            public byte lfOutPrecision;
+            public byte lfClipPrecision;
+            public byte lfQuality;
+            public byte lfPitchAndFamily;
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
+            public string lfFaceName = string.Empty;
         }
 
         /// <summary>
