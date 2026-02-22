@@ -33,13 +33,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.Integration;
-using Dapplo.Windows.AppRestartManager;
-using Dapplo.Windows.AppRestartManager.Enums;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.DesktopWindowsManager;
 using Dapplo.Windows.Dpi;
 using Dapplo.Windows.Kernel32;
-using Dapplo.Windows.Kernel32.Enums;
 using Dapplo.Windows.User32;
 using Greenshot.Base;
 using Greenshot.Base.Controls;
@@ -61,7 +58,7 @@ using Greenshot.Helpers;
 using Greenshot.Plugin.Win10;
 using Greenshot.Processors;
 using log4net;
-using RestartManager = Dapplo.Windows.AppRestartManager.RestartManager;
+
 using Timer = System.Timers.Timer;
 
 namespace Greenshot.Forms

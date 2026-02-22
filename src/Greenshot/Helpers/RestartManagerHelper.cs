@@ -56,9 +56,12 @@ namespace Greenshot.Helpers
 
             // Register with the Windows Restart Manager so it can restart us after updates
             // Don't restart if the application crashes
-            RestartManager.RegisterForRestart(commandLineArgs: "/restore");
+            ApplicationRestartManager.RegisterForRestart(commandLineArgs: "/restore");
 
-            var subscription = RestartManager.ListenForEndSession().Subscribe(reason => {
+            // Pre-load the assembly, otherwise the line afterwards breaks
+            Type.GetType("Dapplo.Windows.Messages.WindowsMessages, Dapplo.Windows.Messages", throwOnError: false);
+
+            var subscription = ApplicationRestartManager.ListenForEndSession().Subscribe(reason => {
                 if (reason.HasFlag(EndSessionReasons.ENDSESSION_CLOSEAPP))
                 {
                     // Application is being closed for an update
@@ -85,7 +88,7 @@ namespace Greenshot.Helpers
         {
             try
             {
-                RestartManager.UnregisterForRestart();
+                ApplicationRestartManager.UnregisterForRestart();
             }
             catch (Exception ex)
             {
