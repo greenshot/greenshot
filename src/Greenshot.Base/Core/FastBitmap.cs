@@ -31,6 +31,28 @@ namespace Greenshot.Base.Core
     /// <summary>
     /// The interface for the FastBitmap
     /// </summary>
+    /// <remarks>
+    /// Migration note: The preferred replacement for IFastBitmap/FastBitmap is
+    /// <see cref="Dapplo.Windows.Common.BitmapAccessor{TPixel}"/> from Dapplo.Windows.Common, which
+    /// offers typed, Span-based row access (GetRowSpan) similar to the ImageSharp API. However, a
+    /// direct 1:1 replacement is not always possible because BitmapAccessor has a different API:
+    /// <list type="bullet">
+    ///   <item>BitmapAccessor requires the pixel type to be known at compile time (generic TPixel),
+    ///   whereas IFastBitmap supports runtime format dispatch via its factory methods.</item>
+    ///   <item>BitmapAccessor does not support partial-area access; IFastBitmap.CreateCloneOf(bitmap, area)
+    ///   is needed for area-limited pixel operations (e.g. blur/pixelization filters).</item>
+    ///   <item>BitmapAccessor has no DrawTo(Graphics, ...) method; use Graphics.DrawImage after disposal.</item>
+    ///   <item>BitmapAccessor has no HasAlphaChannel property; check PixelFormat directly instead.</item>
+    ///   <item>BitmapAccessor has no UnlockAndReturnBitmap(); create the Bitmap separately and let
+    ///   BitmapAccessor.Dispose() unlock it.</item>
+    ///   <item>BitmapAccessor has no Left/Top offset properties (IFastBitmapWithOffset); coordinate
+    ///   translation must be done by the caller.</item>
+    ///   <item>BitmapAccessor has no clipping support (IFastBitmapWithClip).</item>
+    /// </list>
+    /// For methods that can be migrated (full-bitmap access with a known pixel format at compile time),
+    /// prefer BitmapAccessor. This class is retained for the remaining usages where BitmapAccessor
+    /// cannot be used without significant refactoring.
+    /// </remarks>
     public interface IFastBitmap : IDisposable
     {
         /// <summary>

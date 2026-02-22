@@ -12,6 +12,7 @@ using Dapplo.Windows.Common;
 using Dapplo.Windows.Common.Enums;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Common.Structs.PixelFormats;
 using Dapplo.Windows.DesktopWindowsManager;
 using Dapplo.Windows.DesktopWindowsManager.Enums;
 using Dapplo.Windows.DesktopWindowsManager.Structs;
@@ -995,15 +996,17 @@ namespace Greenshot.Base.Core
         /// <param name="image">The bitmap to remove the corners from.</param>
         private void RemoveCorners(Bitmap image)
         {
-            using IFastBitmap fastBitmap = FastBitmap.Create(image);
+            using var accessor = new BitmapAccessor<Bgra32>(image);
             for (int y = 0; y < Conf.WindowCornerCutShape.Count; y++)
             {
+                var rowTop = accessor.GetRowSpan(y);
+                var rowBottom = accessor.GetRowSpan(image.Height - 1 - y);
                 for (int x = 0; x < Conf.WindowCornerCutShape[y]; x++)
                 {
-                    fastBitmap.SetColorAt(x, y, Color.Transparent);
-                    fastBitmap.SetColorAt(image.Width - 1 - x, y, Color.Transparent);
-                    fastBitmap.SetColorAt(image.Width - 1 - x, image.Height - 1 - y, Color.Transparent);
-                    fastBitmap.SetColorAt(x, image.Height - 1 - y, Color.Transparent);
+                    rowTop[x] = default;
+                    rowTop[image.Width - 1 - x] = default;
+                    rowBottom[x] = default;
+                    rowBottom[image.Width - 1 - x] = default;
                 }
             }
         }
@@ -1016,6 +1019,14 @@ namespace Greenshot.Base.Core
         /// <param name="blackBitmap">Bitmap with the black image</param>
         /// <param name="whiteBitmap">Bitmap with the black image</param>
         /// <returns>Bitmap with transparency</returns>
+        /// <remarks>
+        /// BitmapAccessor migration note: IFastBitmap is still used here because the pixel format of
+        /// the source bitmaps is determined at runtime by WindowCapture.CaptureRectangle (either
+        /// Format24bppRgb for normal captures or Format32bppArgb for offscreen content). BitmapAccessor
+        /// requires the pixel format to be known at compile time via its generic type parameter.
+        /// To migrate, add a runtime dispatch on the source PixelFormat, or pre-convert sources to a
+        /// known format (e.g. Format32bppArgb) before wrapping with BitmapAccessor.
+        /// </remarks>
         private Bitmap ApplyTransparency(Bitmap blackBitmap, Bitmap whiteBitmap)
         {
             using IFastBitmap targetBuffer = FastBitmap.CreateEmpty(blackBitmap.Size, PixelFormat.Format32bppArgb, Color.Transparent);
