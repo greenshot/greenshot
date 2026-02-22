@@ -76,26 +76,19 @@ namespace Greenshot.Editor.Drawing
             graphics.PixelOffsetMode = PixelOffsetMode.None;
             Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);
             ArrowHeadCombination heads = (ArrowHeadCombination) GetFieldValue(FieldType.ARROWHEADS);
-            if (shadow)
+            if (lineThickness > 0)
             {
-                //draw shadow first
-                int basealpha = 100;
-                int alpha = basealpha;
-                int steps = 5;
-                int currentStep = 1;
-                while (currentStep <= steps)
+                if (shadow)
                 {
-                    using Pen shadowCapPen = new Pen(Color.FromArgb(alpha, 100, 100, 100), lineThickness);
-                    SetArrowHeads(heads, shadowCapPen);
-
-                    graphics.DrawLine(shadowCapPen,
-                        Left + currentStep,
-                        Top + currentStep,
-                        Left + currentStep + Width,
-                        Top + currentStep + Height);
-
-                    currentStep++;
-                    alpha -= basealpha / steps;
+                    DrawShadow(lineThickness, (alpha, currentStep, shadowPen, nil) =>
+                    {
+                        SetArrowHeads(heads, shadowPen);
+                        graphics.DrawLine(shadowPen,
+                            Left + currentStep,
+                            Top + currentStep,
+                            Left + currentStep + Width,
+                            Top + currentStep + Height);
+                    });
                 }
             }
 
