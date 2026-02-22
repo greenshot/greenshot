@@ -54,6 +54,16 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Added hidden `--restore` option for Windows Restart Manager integration
 - Run `Greenshot --help` to see all available options
 
+#### 🔄 Windows Restart Manager Integration
+
+**Automatic State Recovery During Updates**
+- Greenshot now integrates with Windows Restart Manager to seamlessly handle system updates and maintenance
+- Automatically registers for restart with Windows, allowing it to participate in graceful shutdown scenarios
+- When Windows Update or other installers request a shutdown, Greenshot saves all open image editors to temporary `.greenshot` files
+- Upon restart by the Windows Restart Manager, Greenshot automatically reopens all previously open editors
+- Enhances reliability during Windows Updates, preventing loss of unsaved work
+- Uses the `--restore` command line argument internally to detect restart scenarios
+
 #### 📸 Capture Improvements
 
 **New Capture Technology** (#932)
@@ -345,6 +355,7 @@ Greenshot 1.4 builds upon the stable 1.3 release with these key additions:
 ✨ ImageSharp format support  
 ✨ Modernized plugin APIs (Confluence, Dropbox)  
 ✨ Better Windows 10/11 integration  
+✨ Windows Restart Manager integration for seamless updates  
 ✨ Improved cursor capture  
 ✨ Enhanced memory management  
 ✨ Modern command line interface with System.CommandLine  
