@@ -11,13 +11,6 @@
     <PackageReference Include="SixLabors.ImageSharp" Version="2.1.13" />   
     <PackageReference Include="SixLabors.ImageSharp.Drawing" version="1.0.0" />
   </ItemGroup>
-  <Target Name="Generate hashes" BeforeTargets="PostBuildEvent">
-    <Exec Command="ECHO Generating hashes!" />
-    <GetFileHash Files="@(FilesToHash)" Algorithm="SHA256" HashEncoding="hex">
-      <Output TaskParameter="Items" ItemName="FilesWithHashes" />
-    </GetFileHash>
-    <WriteLinesToFile File="$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\checksum.SHA256" Lines="@(FilesWithHashes->'%(Filename)%(Extension): %(FileHash)')" Overwrite="true" WriteOnlyWhenDifferent="true" />
-  </Target>
   <ItemGroup>
     <Compile Include="..\Greenshot.Editor\Controls\Emoji\Emojis.cs">
       <Link>Emojis.cs</Link>

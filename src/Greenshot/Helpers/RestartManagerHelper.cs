@@ -25,8 +25,6 @@ using System.Windows.Forms;
 using System.Windows.Threading;
 using Dapplo.Windows.AppRestartManager;
 using Dapplo.Windows.AppRestartManager.Enums;
-using Dapplo.Windows.Messages;
-using Dapplo.Windows.Messages.Enumerations;
 using Greenshot.Editor.Forms;
 using log4net;
 
@@ -54,6 +52,7 @@ namespace Greenshot.Helpers
         /// </summary>
         public static void RegisterForRestart()
         {
+            // Capture the current dispatcher for use in saving editor state during shutdown
             _dispatcher = Dispatcher.CurrentDispatcher;
 
             // Register with the Windows Restart Manager so it can restart us after updates

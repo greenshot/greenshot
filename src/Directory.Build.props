@@ -77,7 +77,6 @@
   <!-- Add MSBuild.Community.Tasks to use the TemplateFile Task-->
   <ItemGroup>
     <PackageReference Include="MSBuildTasks" Version="1.5.0.235" GeneratePathProperty="true" DevelopmentDependency="true" />
-    <FilesToHash Include="$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\**\*.dll" Exclude="$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\Microsoft.Bcl.*.dll;$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\Microsoft.Build.*.dll;$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\Microsoft.IO.Redist.dll;$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\Microsoft.NET.StringTools.dll" />
   </ItemGroup>
 
   <Target Name="PostBuild" BeforeTargets="PostBuildEvent" Condition="$(MSBuildProjectName.StartsWith('Greenshot.Plugin.'))">
