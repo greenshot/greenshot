@@ -35,6 +35,10 @@
     </Task>
   </UsingTask>
 
+  <PropertyGroup>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+  </PropertyGroup>
+
   <PropertyGroup Condition="Exists('$(ProjectDir)$(ProjectName).Credentials.template')">
     <MSBuildCommunityTasksPath>$(NuGetPackageRoot)msbuildtasks/1.5.0.235/tools/</MSBuildCommunityTasksPath>
   </PropertyGroup>

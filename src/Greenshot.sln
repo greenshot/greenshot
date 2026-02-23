@@ -39,6 +39,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Directory.Build.props = Directory.Build.props
 		Directory.Build.targets = Directory.Build.targets
 		..\.github\workflows\release.yml = ..\.github\workflows\release.yml
+		..\installer\innosetup\setup.iss = ..\installer\innosetup\setup.iss
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Greenshot.Editor", "Greenshot.Editor\Greenshot.Editor.csproj", "{148D3C8B-D6EC-4A7D-80E9-243A81F19DD2}"

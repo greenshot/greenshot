@@ -182,10 +182,16 @@ namespace Greenshot.Forms
                     }
                 }
 
+                // When started by the Windows Restart Manager, re-open the editors that were open before shutdown
+                if (options.Restore)
+                {
+                    RestartManagerHelper.AddRestoreFilesToTransport(transport);
+                }
+
                 if (isAlreadyRunning)
                 {
                     // We didn't initialize the language yet, do it here just for the message box
-                    if (filesToOpen.Count > 0)
+                    if (transport.Commands.Count > 0)
                     {
                         SendData(transport);
                     }
@@ -266,12 +272,6 @@ namespace Greenshot.Forms
                 {
                     _conf.IsFirstLaunch = false;
                     transport.AddCommand(CommandEnum.FirstLaunch);
-                }
-
-                // When started by the Windows Restart Manager, re-open the editors that were open before shutdown
-                if (options.Restore)
-                {
-                    RestartManagerHelper.AddRestoreFilesToTransport(transport);
                 }
 
                 // Register with the Windows Restart Manager so it can restart us after updates

@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dapplo.HttpExtensions.JsonNet" Version="2.0.11" />
+    <PackageReference Include="Dapplo.HttpExtensions.JsonNet" Version="2.0.12" />
     <PackageReference Include="Dapplo.Windows.Clipboard" Version="2.0.68" />
     <PackageReference Include="Dapplo.Windows.Dpi" Version="2.0.68" />
     <PackageReference Include="Dapplo.Windows.Gdi32" Version="2.0.68" />

@@ -66,35 +66,18 @@
     <Tokens Include="DropBox13_ClientSecret">
       <ReplacementValue>$(DropBox13_ClientSecret)</ReplacementValue>
     </Tokens>
-    <Tokens Include="Flickr_ClientId">
-      <ReplacementValue>$(Flickr_ClientId)</ReplacementValue>
-    </Tokens>
-    <Tokens Include="Flickr_ClientSecret">
-      <ReplacementValue>$(Flickr_ClientSecret)</ReplacementValue>
-    </Tokens>
     <Tokens Include="Imgur13_ClientId">
       <ReplacementValue>$(Imgur13_ClientId)</ReplacementValue>
     </Tokens>
     <Tokens Include="Imgur13_ClientSecret">
       <ReplacementValue>$(Imgur13_ClientSecret)</ReplacementValue>
     </Tokens>
-    <Tokens Include="Photobucket_ClientId">
-      <ReplacementValue>$(Photobucket_ClientId)</ReplacementValue>
-    </Tokens>
-    <Tokens Include="Photobucket_ClientSecret">
-      <ReplacementValue>$(Photobucket_ClientSecret)</ReplacementValue>
-    </Tokens>
-    <Tokens Include="Picasa_ClientId">
-      <ReplacementValue>$(Picasa_ClientId)</ReplacementValue>
-    </Tokens>
-    <Tokens Include="Picasa_ClientSecret">
-      <ReplacementValue>$(Picasa_ClientSecret)</ReplacementValue>
-    </Tokens>
   </ItemGroup>
 
   <!-- Add MSBuild.Community.Tasks to use the TemplateFile Task-->
   <ItemGroup>
     <PackageReference Include="MSBuildTasks" Version="1.5.0.235" GeneratePathProperty="true" DevelopmentDependency="true" />
+    <FilesToHash Include="$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\**\*.dll" Exclude="$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\Microsoft.Bcl.*.dll;$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\Microsoft.Build.*.dll;$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\Microsoft.IO.Redist.dll;$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\Microsoft.NET.StringTools.dll" />
   </ItemGroup>
 
   <Target Name="PostBuild" BeforeTargets="PostBuildEvent" Condition="$(MSBuildProjectName.StartsWith('Greenshot.Plugin.'))">

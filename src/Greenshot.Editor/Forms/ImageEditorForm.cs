@@ -37,6 +37,7 @@ using Dapplo.Windows.User32.Structs;
 using Greenshot.Base;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Effects;
 using Greenshot.Base.Help;
 using Greenshot.Base.IniFile;
@@ -44,6 +45,7 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Forms;
 using Greenshot.Base.Interfaces.Ocr;
+using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Editor.Configuration;
 using Greenshot.Editor.Controls.Emoji;
 using Greenshot.Editor.Destinations;
@@ -990,8 +992,7 @@ namespace Greenshot.Editor.Forms
                     buttons = MessageBoxButtons.YesNo;
                 }
 
-                DialogResult result = MessageBox.Show(Language.GetString(LangKey.editor_close_on_save), Language.GetString(LangKey.editor_close_on_save_title), buttons,
-                    MessageBoxIcon.Question);
+                DialogResult result = MessageBox.Show(Language.GetString(LangKey.editor_close_on_save), Language.GetString(LangKey.editor_close_on_save_title), buttons, MessageBoxIcon.Question);
                 if (result.Equals(DialogResult.Cancel))
                 {
                     e.Cancel = true;
@@ -2136,6 +2137,34 @@ namespace Greenshot.Editor.Forms
                 (int) (horizontalCenter * size.Width) - rc.Width / 2,
                 (int) (verticalCenter * size.Height) - rc.Height / 2
             );
+        }
+
+        /// <summary>
+        ///   Attempts to save the current surface state to the specified file path.
+        /// </summary>
+        /// <param name="filePath">The path to the file where the surface state will be saved. Must be a valid file path.</param>
+        /// <returns>true if the surface state was saved successfully; otherwise, false.</returns>
+        public bool TrySaveState(string filePath)
+        {
+            // Check if we even have a state
+            if (!_surface.Modified)
+            {
+                Close();
+                return false;
+            }
+            try
+            {
+                ImageIO.Save(_surface, filePath, true, new SurfaceOutputSettings(OutputFormat.greenshot), false);
+                // Make sure the user isn't asked to save
+                _surface.Modified = false;
+                Close();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error saving surface state to {filePath}", ex);
+            }
+            return false;
         }
     }
 }

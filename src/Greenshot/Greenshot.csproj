@@ -22,7 +22,6 @@
 
   <ItemGroup>
     <PackageReference Include="Dapplo.Windows.AppRestartManager" Version="2.0.68" />
-    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="18.3.3" />
     <PackageReference Include="SixLabors.ImageSharp" Version="2.1.13" />
     <PackageReference Include="System.CommandLine" Version="3.0.0-preview.1.26104.118" />
     <PackageReference Include="Tools.InnoSetup" version="6.7.1" GeneratePathProperty="true" />
@@ -42,8 +41,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Greenshot.Base\Greenshot.Base.csproj" />
     <ProjectReference Include="..\Greenshot.Editor\Greenshot.Editor.csproj" />
-    <ProjectReference Include="..\Greenshot.BuildTasks\Greenshot.BuildTasks.csproj" ReferenceOutputAssembly="false" />
-    <FilesToHash Include="$(SolutionDir)$(SolutionName)\$(OutDir)\*" Exclude="*Bcl*" />
+    <ProjectReference Include="..\Greenshot.BuildTasks\Greenshot.BuildTasks.csproj" ReferenceOutputAssembly="false" ExcludeAssets="all"/>
   </ItemGroup>
 
   <ItemGroup>
@@ -98,14 +96,7 @@
     </PostBuildEvent>
   </PropertyGroup>
 
-  <Target Name="Generate hashes" BeforeTargets="PostBuildEvent">
-    <GetFileHash Files="@(FilesToHash)" Algorithm="SHA256" HashEncoding="hex">
-      <Output TaskParameter="Items" ItemName="FilesWithHashes" />
-    </GetFileHash>
-    <WriteLinesToFile File="$(SolutionDir)$(SolutionName)\$(OutDir)\checksum.SHA256" Lines="@(FilesWithHashes->'%(Filename)%(Extension): %(FileHash)')" Overwrite="true" WriteOnlyWhenDifferent="true" />
-  </Target>
-
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(Configuration)' == 'Release'">
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent"><!--Condition="'$(Configuration)' == 'Release'">-->
     <SetEnvironmentVariableTask Name="BuildVersionSimple" Value="$(BuildVersionSimple)" />
     <SetEnvironmentVariableTask Name="BuildVersionEnhanced" Value="$(NuGetPackageVersion)" />
     <Exec Command="if not &quot;$(CertumThumbprint)&quot; == &quot;&quot; signtool.exe sign /sha1 &quot;$(CertumThumbprint)&quot; /tr http://time.certum.pl /td sha256 /fd sha256 /v &quot;$(OutDir)Greenshot.exe&quot;" />

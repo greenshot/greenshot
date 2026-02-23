@@ -83,6 +83,7 @@ Source: {#LanguagesDir}\*zh-TW*; Excludes: "*installer*,*website*"; DestDir: {ap
 Source: {#PluginDir}\Greenshot.Plugin.Office\Greenshot.Plugin.Office.dll; DestDir: {app}\Plugins\Office; Components: plugins\office; Flags: overwritereadonly recursesubdirs;
 ;JIRA Plugin
 Source: {#PluginDir}\Greenshot.Plugin.Jira\*Jira*.dll; DestDir: {app}\Plugins\Jira; Components: plugins\jira; Flags: overwritereadonly recursesubdirs;
+Source: {#PluginDir}\Greenshot.Plugin.Jira\Dapplo.HttpExtensions.WinForms.dll; DestDir: {app}\Plugins\Jira; Components: plugins\jira; Flags: overwritereadonly recursesubdirs;
 Source: {#BaseDir}\Greenshot.Plugin.Jira\Languages\language_jira*.xml; DestDir: {app}\Languages\Plugins\Jira; Components: plugins\jira; Flags: overwritereadonly replacesameversion;
 ;Imgur Plugin
 Source: {#PluginDir}\Greenshot.Plugin.Imgur\Greenshot.Plugin.Imgur.dll; DestDir: {app}\Plugins\Imgur; Components: plugins\imgur; Flags: overwritereadonly recursesubdirs replacesameversion;
@@ -110,7 +111,6 @@ CloseApplications=yes
 RestartApplications=yes
 AppId={#ExeName}
 AppName={#ExeName}
-AppMutex=F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08
 AppPublisher={#ExeName}
 AppPublisherURL=https://getgreenshot.org
 AppSupportURL=https://getgreenshot.org
@@ -596,37 +596,7 @@ begin
 	Result := asUninstallStrings;
 end;
 
-/////////////////////////////////////////////////////////////////////
-procedure UnInstallOldVersions();
-var
-	sUnInstallString: String;
-	index: Integer;
-	isUninstallMade: Boolean;
-	iResultCode : Integer;
-	asUninstallStrings : array of String;
-begin
-	isUninstallMade := false;
-	asUninstallStrings := GetUninstallStrings();
-	for index := 0 to (GetArrayLength(asUninstallStrings) -1) do
-	begin
-		sUnInstallString := RemoveQuotes(asUninstallStrings[index]);
-		if Exec(sUnInstallString, '/SILENT /NORESTART /SUPPRESSMSGBOXES','', SW_HIDE, ewWaitUntilTerminated, iResultCode) then
-			isUninstallMade := true;
-	end;
 
-	// Wait a few seconds to prevent installation issues, otherwise files are removed in one process while the other tries to link to them
-	if (isUninstallMade) then
-		Sleep(2000);
-end;
-
-/////////////////////////////////////////////////////////////////////
-procedure CurStepChanged(CurStep: TSetupStep);
-begin
-	if (CurStep=ssInstall) then
-	begin
-		UnInstallOldVersions();
-	end;
-end;
 /////////////////////////////////////////////////////////////////////
 // End of unstall code
 /////////////////////////////////////////////////////////////////////
@@ -648,7 +618,7 @@ begin
 		currentParameter := ParamStr(i);
 
 		// check if norun is supplied
-		if Lowercase(currentParameter) = '/norun' then begin
+		if Lowercase(currentParameter) = '--no-run' then begin
 			foundNoRun := true;
 			continue;
 		end;
@@ -658,7 +628,7 @@ begin
 			foundStart := false;
 		end
 		else begin
-			if Lowercase(currentParameter) = '/language' then begin
+			if Lowercase(currentParameter) = '--language' then begin
 				foundStart := true;
 				foundLanguage := true;
 				parametersString := parametersString + ' ' + currentParameter;
@@ -666,10 +636,10 @@ begin
 		end;
 	end;
 	if not foundLanguage then begin
-		parametersString := parametersString + ' /language ' + ExpandConstant('{language}');
+		parametersString := parametersString + ' --language ' + ExpandConstant('{language}');
 	end;
 	if foundNoRun then begin
-		parametersString := parametersString + ' /norun';
+		parametersString := parametersString + ' --no-run';
 	end;
 	// For debugging comment out the following
 	//MsgBox(parametersString, mbInformation, MB_OK);

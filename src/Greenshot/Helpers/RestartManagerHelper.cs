@@ -22,11 +22,11 @@
 using System;
 using System.IO;
 using System.Windows.Forms;
+using System.Windows.Threading;
 using Dapplo.Windows.AppRestartManager;
 using Dapplo.Windows.AppRestartManager.Enums;
-using Greenshot.Base.Core;
-using Greenshot.Base.Core.Enums;
-using Greenshot.Base.Interfaces.Plugin;
+using Dapplo.Windows.Messages;
+using Dapplo.Windows.Messages.Enumerations;
 using Greenshot.Editor.Forms;
 using log4net;
 
@@ -40,6 +40,7 @@ namespace Greenshot.Helpers
     internal static class RestartManagerHelper
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(RestartManagerHelper));
+        private static Dispatcher _dispatcher;
 
         /// <summary>
         /// Directory where editor state is stored for restore after a system restart.
@@ -53,15 +54,17 @@ namespace Greenshot.Helpers
         /// </summary>
         public static void RegisterForRestart()
         {
+            _dispatcher = Dispatcher.CurrentDispatcher;
 
             // Register with the Windows Restart Manager so it can restart us after updates
             // Don't restart if the application crashes
-            ApplicationRestartManager.RegisterForRestart(commandLineArgs: "/restore");
+            ApplicationRestartManager.RegisterForRestart(commandLineArgs: "--restore");
 
             // Pre-load the assembly, otherwise the line afterwards breaks
             Type.GetType("Dapplo.Windows.Messages.WindowsMessages, Dapplo.Windows.Messages", throwOnError: false);
 
             var subscription = ApplicationRestartManager.ListenForEndSession().Subscribe(reason => {
+                Log.Info("Session ends with reason: " + reason);
                 if (reason.HasFlag(EndSessionReasons.ENDSESSION_CLOSEAPP))
                 {
                     // Application is being closed for an update
@@ -121,14 +124,19 @@ namespace Greenshot.Helpers
                     }
                 }
 
-                var editors = ImageEditorForm.Editors;
+                var editors = ImageEditorForm.Editors.ToArray();
                 foreach (var editor in editors)
                 {
                     try
                     {
                         string filename = Path.Combine(stateDir, editor.Surface.ID + ".greenshot");
-                        ImageIO.Save(editor.Surface, filename, true, new SurfaceOutputSettings(OutputFormat.greenshot), false);
-                        Log.InfoFormat("Saved editor state to: {0}", filename);
+                        _dispatcher.Invoke(() => 
+                        {
+                            if (editor.TrySaveState(filename))
+                            {
+                                Log.InfoFormat("Saved editor state to: {0}", filename);
+                            }
+                        });
                     }
                     catch (Exception ex)
                     {
