@@ -44,7 +44,7 @@ namespace Greenshot.Base.Controls
         private static readonly bool IsWindows7OrOlder = Environment.OSVersion.Version.Major >= 6 && Environment.OSVersion.Version.Minor >= 1;
 
         // Holds the list of hotkeys
-        private static readonly IDictionary<int, HotKeyHandler> KeyHandlers = new Dictionary<int, HotKeyHandler>();
+        private static readonly IDictionary<int, Action> KeyHandlers = new Dictionary<int, Action>();
         private static int _hotKeyCounter = 1;
         private const uint WM_HOTKEY = 0x312;
         private static IntPtr _hotkeyHwnd;
@@ -515,9 +515,9 @@ namespace Greenshot.Base.Controls
         /// </summary>
         /// <param name="modifierKeyCode">The modifier, e.g.: Modifiers.CTRL, Modifiers.NONE or Modifiers.ALT</param>
         /// <param name="virtualKeyCode">The virtual key code</param>
-        /// <param name="handler">A HotKeyHandler, this will be called to handle the hotkey press</param>
+        /// <param name="handler">A Action, this will be called to handle the hotkey press</param>
         /// <returns>the hotkey number, -1 if failed</returns>
-        public static int RegisterHotKey(Keys modifierKeyCode, Keys virtualKeyCode, HotKeyHandler handler)
+        public static int RegisterHotKey(Keys modifierKeyCode, Keys virtualKeyCode, Action handler)
         {
             if (virtualKeyCode == Keys.None)
             {

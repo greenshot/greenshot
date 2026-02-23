@@ -202,5 +202,7 @@ namespace Greenshot.Helpers
 
             return rootCommand;
         }
+
+        
     }
 }

@@ -151,7 +151,7 @@ namespace Greenshot.Forms
 
         private void LeaveHotkeyControl(object sender, EventArgs e)
         {
-            MainForm.RegisterHotkeys();
+            HotkeyHelper.RegisterHotkeys();
             _inHotkey = false;
         }
 
@@ -633,7 +633,7 @@ namespace Greenshot.Forms
                 HotkeyControl.UnregisterHotkeys();
                 SaveSettings();
                 StoreFields();
-                MainForm.RegisterHotkeys();
+                HotkeyHelper.RegisterHotkeys();
 
                 // Make sure the current language & settings are reflected in the Main-context menu
                 var mainForm = SimpleServiceProvider.Current.GetInstance<MainForm>();

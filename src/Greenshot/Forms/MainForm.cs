@@ -170,26 +170,18 @@ namespace Greenshot.Forms
                     IniConfig.IniDirectory = options.IniDirectory;
                 }
 
-                var filesToOpen = new List<string>(options.Files);
-
-                // Finished parsing the command line arguments, see if we need to do anything
-                CopyDataTransport transport = new CopyDataTransport();
-                if (filesToOpen.Count > 0)
-                {
-                    foreach (string fileToOpen in filesToOpen)
-                    {
-                        transport.AddCommand(CommandEnum.OpenFile, fileToOpen);
-                    }
-                }
-
-                // When started by the Windows Restart Manager, re-open the editors that were open before shutdown
-                if (options.Restore)
-                {
-                    RestartManagerHelper.AddRestoreFilesToTransport(transport);
-                }
-
                 if (isAlreadyRunning)
                 {
+                    var filesToOpen = new List<string>(options.Files);
+                    // Finished parsing the command line arguments, see if we need to do anything
+                    CopyDataTransport transport = new CopyDataTransport();
+                    if (filesToOpen.Count > 0)
+                    {
+                        foreach (string fileToOpen in filesToOpen)
+                        {
+                            transport.AddCommand(CommandEnum.OpenFile, fileToOpen);
+                        }
+                    }
                     // We didn't initialize the language yet, do it here just for the message box
                     if (transport.Commands.Count > 0)
                     {
@@ -267,19 +259,12 @@ namespace Greenshot.Forms
                     _conf.Language = languageDialog.SelectedLanguage;
                 }
 
-                // Check if it's the first time launch?
-                if (_conf.IsFirstLaunch)
-                {
-                    _conf.IsFirstLaunch = false;
-                    transport.AddCommand(CommandEnum.FirstLaunch);
-                }
-
                 // Register with the Windows Restart Manager so it can restart us after updates
                 RestartManagerHelper.RegisterForRestart();
 
                 // Should fix BUG-1633
                 Application.DoEvents();
-                _instance = new MainForm(transport);
+                _instance = new MainForm(options);
 
                 // force saving ini on every start because some init functions could change/fix the configuration. i.e. loading plugins
                 IniConfig.Save();
@@ -338,7 +323,7 @@ namespace Greenshot.Forms
         // Timer for the double click test
         private readonly Timer _doubleClickTimer = new Timer();
 
-        public MainForm(CopyDataTransport dataTransport)
+        public MainForm(CommandLineOptions options)
         {
             var uiContext = TaskScheduler.FromCurrentSynchronizationContext();
             SimpleServiceProvider.Current.AddService(uiContext);
@@ -388,9 +373,7 @@ namespace Greenshot.Forms
             // Disable access to the settings, for feature #3521446
             contextmenu_settings.Visible = !_conf.DisableSettings;
 
-            // Make sure all hot-keys pass this window!
-            HotkeyControl.RegisterHotkeyHwnd(Handle);
-            RegisterHotkeys();
+            HotkeyHelper.RegisterHotkeys();
 
             new ToolTip();
 
@@ -458,9 +441,20 @@ namespace Greenshot.Forms
             // Hook up received event:
             _copyData.CopyDataReceived += CopyDataDataReceived;
 
-            if (dataTransport != null)
+            if (options.Restore)
             {
-                HandleDataTransport(dataTransport);
+                RestartManagerHelper.RestoreState();
+            }
+            // Check if it's the first time launch?
+            if (_conf.IsFirstLaunch)
+            {
+                ApplicationStartupHelper.FirstLaunch();
+            }
+
+            if (options.Files.Length > 0)
+            {
+                // Default behavior was to open only one file (which is not correct)
+                ApplicationStartupHelper.OpenFile(options.Files.First());
             }
 
             // Start the update check in the background
@@ -571,45 +565,13 @@ namespace Greenshot.Forms
                         Exit();
                         break;
                     case CommandEnum.FirstLaunch:
-                        LOG.Info("FirstLaunch: Created new configuration, showing balloon.");
-                        var notifyIconClassicMessageHandler = SimpleServiceProvider.Current.GetInstance<INotificationService>();
-                        notifyIconClassicMessageHandler.ShowInfoMessage(
-                            Language.GetFormattedString(LangKey.tooltip_firststart, HotkeyControl.GetLocalizedHotkeyStringFromString(_conf.RegionHotkey)), TimeSpan.FromMinutes(10),
-                            ShowSetting);
+                        ApplicationStartupHelper.FirstLaunch();
                         break;
                     case CommandEnum.ReloadConfig:
-                        LOG.Info("Reload requested");
-                        try
-                        {
-                            IniConfig.Reload();
-                            Invoke((MethodInvoker) delegate
-                            {
-                                // Even update language when needed
-                                UpdateUi();
-                                // Update the hotkey
-                                // Make sure the current hotkeys are disabled
-                                HotkeyControl.UnregisterHotkeys();
-                                RegisterHotkeys();
-                            });
-                        }
-                        catch (Exception ex)
-                        {
-                            LOG.Warn("Exception while reloading configuration: ", ex);
-                        }
-
+                        ApplicationStartupHelper.ReloadConfig();
                         break;
                     case CommandEnum.OpenFile:
-                        string filename = command.Value;
-                        LOG.InfoFormat("Open file requested: {0}", filename);
-                        if (File.Exists(filename))
-                        {
-                            BeginInvoke((MethodInvoker) delegate { CaptureHelper.CaptureFile(filename); });
-                        }
-                        else
-                        {
-                            LOG.Warn("No such file: " + filename);
-                        }
-
+                        ApplicationStartupHelper.OpenFile(command.Value);
                         break;
                     default:
                         LOG.Error("Unknown command!");
@@ -635,75 +597,6 @@ namespace Greenshot.Forms
         }
 
         /// <summary>
-        /// Helper method to cleanly register a hotkey
-        /// </summary>
-        /// <param name="failedKeys">StringBuilder</param>
-        /// <param name="functionName">string</param>
-        /// <param name="hotkeyString">string</param>
-        /// <param name="handler">HotKeyHandler</param>
-        /// <returns>bool</returns>
-        private static bool RegisterHotkey(StringBuilder failedKeys, string functionName, string hotkeyString, HotKeyHandler handler)
-        {
-            Keys modifierKeyCode = HotkeyControl.HotkeyModifiersFromString(hotkeyString);
-            Keys virtualKeyCode = HotkeyControl.HotkeyFromString(hotkeyString);
-            if (!Keys.None.Equals(virtualKeyCode))
-            {
-                if (HotkeyControl.RegisterHotKey(modifierKeyCode, virtualKeyCode, handler) < 0)
-                {
-                    LOG.DebugFormat("Failed to register {0} to hotkey: {1}", functionName, hotkeyString);
-                    if (failedKeys.Length > 0)
-                    {
-                        failedKeys.Append(", ");
-                    }
-
-                    failedKeys.Append(hotkeyString);
-                    return false;
-                }
-
-                LOG.DebugFormat("Registered {0} to hotkey: {1}", functionName, hotkeyString);
-            }
-            else
-            {
-                LOG.InfoFormat("Skipping hotkey registration for {0}, no hotkey set!", functionName);
-            }
-
-            return true;
-        }
-
-        private static bool RegisterWrapper(StringBuilder failedKeys, string functionName, string configurationKey, HotKeyHandler handler, bool ignoreFailedRegistration)
-        {
-            IniValue hotkeyValue = _conf.Values[configurationKey];
-            var hotkeyStringValue = hotkeyValue.Value?.ToString();
-            if (string.IsNullOrEmpty(hotkeyStringValue))
-            {
-                return true;
-            }
-
-            try
-            {
-                bool success = RegisterHotkey(failedKeys, functionName, hotkeyStringValue, handler);
-                if (!success && ignoreFailedRegistration)
-                {
-                    LOG.DebugFormat("Ignoring failed hotkey registration for {0}, with value '{1}', resetting to 'None'.", functionName, hotkeyStringValue);
-                    _conf.Values[configurationKey].Value = Keys.None.ToString();
-                    _conf.IsDirty = true;
-                }
-
-                return success;
-            }
-            catch (Exception ex)
-            {
-                LOG.Warn(ex);
-                LOG.WarnFormat("Restoring default hotkey for {0}, stored under {1} from '{2}' to '{3}'", functionName, configurationKey, hotkeyStringValue,
-                    hotkeyValue.Attributes.DefaultValue);
-                // when getting an exception the key wasn't found: reset the hotkey value
-                hotkeyValue.UseValueOrDefault(null);
-                hotkeyValue.ContainingIniSection.IsDirty = true;
-                return RegisterHotkey(failedKeys, functionName, hotkeyStringValue, handler);
-            }
-        }
-
-        /// <summary>
         /// Fix icon reference
         /// </summary>
         /// <param name="sender">object</param>
@@ -725,133 +618,6 @@ namespace Greenshot.Forms
         {
             var newSize = DpiCalculator.ScaleWithDpi(coreConfiguration.IconSize, newDpi);
             contextMenu.ImageScalingSize = newSize;
-        }
-
-        /// <summary>
-        /// Registers all hotkeys as configured, displaying a dialog in case of hotkey conflicts with other tools.
-        /// </summary>
-        /// <returns>Whether the hotkeys could be registered to the users content. This also applies if conflicts arise and the user decides to ignore these (i.e. not to register the conflicting hotkey).</returns>
-        public static bool RegisterHotkeys()
-        {
-            return RegisterHotkeys(false);
-        }
-
-        /// <summary>
-        /// Registers all hotkeys as configured, displaying a dialog in case of hotkey conflicts with other tools.
-        /// </summary>
-        /// <param name="ignoreFailedRegistration">if true, a failed hotkey registration will not be reported to the user - the hotkey will simply not be registered</param>
-        /// <returns>Whether the hotkeys could be registered to the users content. This also applies if conflicts arise and the user decides to ignore these (i.e. not to register the conflicting hotkey).</returns>
-        private static bool RegisterHotkeys(bool ignoreFailedRegistration)
-        {
-            if (_instance == null)
-            {
-                return false;
-            }
-
-            bool success = true;
-            StringBuilder failedKeys = new StringBuilder();
-
-            if (!RegisterWrapper(failedKeys, "CaptureRegion", "RegionHotkey", _instance.CaptureRegion, ignoreFailedRegistration))
-            {
-                success = false;
-            }
-
-            if (!RegisterWrapper(failedKeys, "CaptureWindow", "WindowHotkey", _instance.CaptureWindow, ignoreFailedRegistration))
-            {
-                success = false;
-            }
-
-            if (!RegisterWrapper(failedKeys, "CaptureFullScreen", "FullscreenHotkey", _instance.CaptureFullScreen, ignoreFailedRegistration))
-            {
-                success = false;
-            }
-
-            if (!RegisterWrapper(failedKeys, "CaptureLastRegion", "LastregionHotkey", _instance.CaptureLastRegion, ignoreFailedRegistration))
-            {
-                success = false;
-            }
-
-            if (!RegisterWrapper(failedKeys, "CaptureClipboard", "ClipboardHotkey", _instance.CaptureClipboard, true))
-            {
-                success = false;
-            }
-
-            if (!success)
-            {
-                if (!ignoreFailedRegistration)
-                {
-                    success = HandleFailedHotkeyRegistration(failedKeys.ToString());
-                }
-                else
-                {
-                    // if failures have been ignored, the config has probably been updated
-                    if (_conf.IsDirty)
-                    {
-                        IniConfig.Save();
-                    }
-                }
-            }
-
-            return success || ignoreFailedRegistration;
-        }
-
-        /// <summary>
-        /// Check if OneDrive is blocking hotkeys
-        /// </summary>
-        /// <returns>true if one-drive has hotkeys turned on</returns>
-        private static bool IsOneDriveBlockingHotkey()
-        {
-            if (!WindowsVersion.IsWindows10OrLater)
-            {
-                return false;
-            }
-
-            var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            var oneDriveSettingsPath = Path.Combine(localAppData, @"Microsoft\OneDrive\settings\Personal");
-            if (!Directory.Exists(oneDriveSettingsPath))
-            {
-                return false;
-            }
-
-            var oneDriveSettingsFile = Directory.GetFiles(oneDriveSettingsPath, "*_screenshot.dat").FirstOrDefault();
-            if (!File.Exists(oneDriveSettingsFile))
-            {
-                return false;
-            }
-
-            var screenshotSetting = File.ReadAllLines(oneDriveSettingsFile).Skip(1).Take(1).First();
-            return "2".Equals(screenshotSetting);
-        }
-
-        /// <summary>
-        /// Displays a dialog for the user to choose how to handle hotkey registration failures:
-        /// retry (allowing to shut down the conflicting application before),
-        /// ignore (not registering the conflicting hotkey and resetting the respective config to "None", i.e. not trying to register it again on next startup)
-        /// abort (do nothing about it)
-        /// </summary>
-        /// <param name="failedKeys">comma separated list of the hotkeys that could not be registered, for display in dialog text</param>
-        /// <returns></returns>
-        private static bool HandleFailedHotkeyRegistration(string failedKeys)
-        {
-            bool success = false;
-            var warningTitle = Language.GetString(LangKey.warning);
-            var message = string.Format(Language.GetString(LangKey.warning_hotkeys), failedKeys, IsOneDriveBlockingHotkey() ? " (OneDrive)" : "");
-            var mainForm = SimpleServiceProvider.Current.GetInstance<MainForm>();
-            DialogResult dr = MessageBox.Show(mainForm, message, warningTitle, MessageBoxButtons.AbortRetryIgnore, MessageBoxIcon.Exclamation);
-            if (dr == DialogResult.Retry)
-            {
-                LOG.DebugFormat("Re-trying to register hotkeys");
-                HotkeyControl.UnregisterHotkeys();
-                success = RegisterHotkeys(false);
-            }
-            else if (dr == DialogResult.Ignore)
-            {
-                LOG.DebugFormat("Ignoring failed hotkey registration");
-                HotkeyControl.UnregisterHotkeys();
-                success = RegisterHotkeys(true);
-            }
-
-            return success;
         }
 
         public void UpdateUi()
@@ -890,11 +656,6 @@ namespace Greenshot.Forms
             //loProcess.MinWorkingSet = (IntPtr)300000;
         }
 
-        private void CaptureRegion()
-        {
-            CaptureHelper.CaptureRegion(true);
-        }
-
         private void CaptureFile(IDestination destination = null)
         {
             var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
@@ -912,36 +673,6 @@ namespace Greenshot.Forms
             if (File.Exists(openFileDialog.FileName))
             {
                 CaptureHelper.CaptureFile(openFileDialog.FileName, destination);
-            }
-        }
-
-        private void CaptureFullScreen()
-        {
-            CaptureHelper.CaptureFullscreen(true, _conf.ScreenCaptureMode);
-        }
-
-        private void CaptureLastRegion()
-        {
-            CaptureHelper.CaptureLastRegion(true);
-        }
-
-        /// <summary>
-        /// This is used by the hotkey trigger
-        /// </summary>
-        private void CaptureClipboard()
-        {
-            CaptureHelper.CaptureClipboard(DestinationHelper.GetDestination(EditorDestination.DESIGNATION));
-        }
-
-        private void CaptureWindow()
-        {
-            if (_conf.CaptureWindowsInteractive)
-            {
-                CaptureHelper.CaptureWindowInteractive(true);
-            }
-            else
-            {
-                CaptureHelper.CaptureWindow(true);
             }
         }
 

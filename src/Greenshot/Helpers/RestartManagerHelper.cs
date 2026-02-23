@@ -21,10 +21,15 @@
 
 using System;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using System.Windows.Threading;
 using Dapplo.Windows.AppRestartManager;
 using Dapplo.Windows.AppRestartManager.Enums;
+using Greenshot.Base.Core;
+using Greenshot.Base.Interfaces;
+using Greenshot.Editor.Destinations;
+using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Forms;
 using log4net;
 
@@ -155,7 +160,7 @@ namespace Greenshot.Helpers
         /// that the editors will be restored when Greenshot starts with the <c>--restore</c> argument.
         /// </summary>
         /// <param name="transport">Transport object to which restore commands are added.</param>
-        public static void AddRestoreFilesToTransport(CopyDataTransport transport)
+        public static void RestoreState()
         {
             try
             {
@@ -165,10 +170,18 @@ namespace Greenshot.Helpers
                     return;
                 }
 
-                foreach (string file in Directory.GetFiles(stateDir, "*.greenshot"))
+                foreach (string filePath in Directory.GetFiles(stateDir, "*.greenshot"))
                 {
-                    transport.AddCommand(CommandEnum.OpenFile, file);
-                    Log.InfoFormat("Queued restore of editor state from: {0}", file);
+                    _dispatcher.Invoke(() => {
+                        ISurface surface = new Surface();
+                        surface = ImageIO.LoadGreenshotSurface(filePath, surface);
+                        surface.CaptureDetails = new CaptureDetails()
+                        {
+                        };
+                        DestinationHelper.GetDestination(EditorDestination.DESIGNATION).ExportCapture(true, surface, surface.CaptureDetails);
+                        File.Delete(filePath);
+                    });
+                    Log.InfoFormat("Queued restore of editor state from: {0}", filePath);
                 }
             }
             catch (Exception ex)
