@@ -20,12 +20,14 @@
  */
 
 using System;
+using System.Drawing;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using System.Windows.Threading;
 using Dapplo.Windows.AppRestartManager;
 using Dapplo.Windows.AppRestartManager.Enums;
+using Dapplo.Windows.Messages.Enumerations;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Editor.Destinations;
@@ -67,24 +69,38 @@ namespace Greenshot.Helpers
             // Pre-load the assembly, otherwise the line afterwards breaks
             Type.GetType("Dapplo.Windows.Messages.WindowsMessages, Dapplo.Windows.Messages", throwOnError: false);
 
-            var subscription = ApplicationRestartManager.ListenForEndSession().Subscribe(reason => {
-                Log.Info("Session ends with reason: " + reason);
-                if (reason.HasFlag(EndSessionReasons.ENDSESSION_CLOSEAPP))
+            var subscription = ApplicationRestartManager.ListenForEndSession().Subscribe(endSessionMessage => {
+                switch(endSessionMessage.Msg)
                 {
-                    // Application is being closed for an update
-                    SaveEditorState();
+                    case WindowsMessages.WM_QUERYENDSESSION:
+                        Log.Info("Received WM_QUERYENDSESSION, allowing session to end.");
+                        // Allow the session to end
+                        endSessionMessage.Handled = true;
+                        return;
+                    case WindowsMessages.WM_ENDSESSION:
+                        Log.Info("Session ends with reason: " + endSessionMessage.EndSessionReason);
+                        endSessionMessage.Handled = true;
+                        switch (endSessionMessage.EndSessionReason)
+                        {
+                            case EndSessionReasons.ENDSESSION_CLOSEAPP:
+                                // Application is being closed for an update
+                                SaveEditorState();
+                                break;
+                            case EndSessionReasons.ENDSESSION_LOGOFF:
+                                // Application is being closed for an update
+                                SaveEditorState();
+                                break;
+                            case EndSessionReasons.ENDSESSION_CRITICAL:
+                                // Application is being closed for an update
+                                SaveEditorState();
+                                break;
+                        }
+                        _dispatcher.Invoke(() =>
+                        {
+                            Application.Exit();
+                        });
+                        return;
                 }
-                else if (reason.HasFlag(EndSessionReasons.ENDSESSION_LOGOFF))
-                {
-                    // User is logging off
-                    SaveEditorState();
-                }
-                else if (reason.HasFlag(EndSessionReasons.ENDSESSION_CRITICAL))
-                {
-                    // Critical shutdown
-                    // ?? Not sure if we can do anything here, but let's try to save state just in case
-                }
-                Application.Exit();
             });
         }
 
@@ -178,8 +194,15 @@ namespace Greenshot.Helpers
                         surface.CaptureDetails = new CaptureDetails()
                         {
                         };
-                        DestinationHelper.GetDestination(EditorDestination.DESIGNATION).ExportCapture(true, surface, surface.CaptureDetails);
-                        File.Delete(filePath);
+                        try
+                        {
+                            DestinationHelper.GetDestination(EditorDestination.DESIGNATION).ExportCapture(true, surface, surface.CaptureDetails);
+                            File.Delete(filePath);
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.Error("Couldn't open an editor with state file: " + filePath, ex);
+                        }
                     });
                     Log.InfoFormat("Queued restore of editor state from: {0}", filePath);
                 }
