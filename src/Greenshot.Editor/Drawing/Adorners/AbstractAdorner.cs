@@ -154,13 +154,13 @@ namespace Greenshot.Editor.Drawing.Adorners
         {
             Graphics targetGraphics = paintEventArgs.Graphics;
 
-            var bounds = BoundsOnSurface;
             GraphicsState state = targetGraphics.Save();
 
             targetGraphics.CompositingMode = CompositingMode.SourceCopy;
 
             try
             {
+                var bounds = BoundsOnSurface;
                 using var fillBrush = new SolidBrush(FillColor);
                 targetGraphics.FillRectangle(fillBrush, bounds);
                 using var lineBrush = new SolidBrush(OutlineColor);
