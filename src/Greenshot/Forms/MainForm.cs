@@ -275,7 +275,7 @@ namespace Greenshot.Forms
                 {
                     // The WM_INPUTLANGCHANGEREQUEST & WM_INPUTLANGCHANGE
                     m.Handled = true;
-                    m.Result = (IntPtr)HResult.S_OK;
+                    m.Result = (nuint)HResult.S_OK;
                 });
 
                 // force saving ini on every start because some init functions could change/fix the configuration. i.e. loading plugins

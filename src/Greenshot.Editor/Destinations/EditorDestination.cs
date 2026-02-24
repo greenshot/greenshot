@@ -22,6 +22,8 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Windows.Forms;
+using Dapplo.Windows.Messages;
 using Greenshot.Base.Core;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
@@ -111,8 +113,8 @@ namespace Greenshot.Editor.Destinations
                         {
                             editorForm.SetImagePath(captureDetails.Filename);
                         }
-
-                        editorForm.Show();
+                        var sharedMessageWindow = new Win32Shim(SharedMessageWindow.Handle);
+                        editorForm.Show(sharedMessageWindow);
                         editorForm.Activate();
                         LOG.Debug("Finished opening Editor");
                         exportInformation.ExportMade = true;
