@@ -18,6 +18,7 @@
     <TargetFramework>net480</TargetFramework>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
     <Deterministic>true</Deterministic>
+    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(Configuration)' != 'Debug' And !$(MSBuildProjectName.Contains('Test')) And !$(MSBuildProjectName.Contains('Demo'))">

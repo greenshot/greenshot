@@ -20,7 +20,7 @@
     <WriteLinesToFile File="$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\checksum.SHA256" Lines="@(FilesWithHashes->'%(Filename)%(Extension): %(FileHash)')" Overwrite="true" WriteOnlyWhenDifferent="true" />
   </Target>
 
-  <UsingTask TaskName="SetEnvironmentVariableTask" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+  <UsingTask TaskName="SetEnvironmentVariableTask" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
     <ParameterGroup>
       <Name ParameterType="System.String" Required="true" />
       <Value ParameterType="System.String" Required="true" />

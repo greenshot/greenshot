@@ -50,7 +50,7 @@ namespace Greenshot.Helpers
             var notifyIconClassicMessageHandler = SimpleServiceProvider.Current.GetInstance<INotificationService>();
 
             notifyIconClassicMessageHandler.ShowInfoMessage(
-                Language.GetFormattedString(LangKey.tooltip_firststart, HotkeyControl.GetLocalizedHotkeyStringFromString(config.RegionHotkey)),
+                Language.GetFormattedString(LangKey.tooltip_firststart, HotkeyManager.GetLocalizedHotkeyStringFromString(config.RegionHotkey)),
                 TimeSpan.FromMinutes(10),
                 () =>
                 {
@@ -69,15 +69,15 @@ namespace Greenshot.Helpers
         {
             try
             {
-                IniConfig.Reload();
                 Dispatcher.CurrentDispatcher.Invoke(() =>
                 {
+                    // Make sure the current hotkeys are disabled
+                    HotkeyManager.UnregisterHotkeys();
+                    IniConfig.Reload();
                     var mainForm = SimpleServiceProvider.Current.GetInstance<IGreenshotMainForm>();
                     // Even update language when needed
                     mainForm.UpdateUi();
                     // Update the hotkey
-                    // Make sure the current hotkeys are disabled
-                    HotkeyControl.UnregisterHotkeys();
                     HotkeyHelper.RegisterHotkeys();
                 });
             }

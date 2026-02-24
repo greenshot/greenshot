@@ -145,7 +145,7 @@ namespace Greenshot.Forms
 
         private void EnterHotkeyControl(object sender, EventArgs e)
         {
-            HotkeyControl.UnregisterHotkeys();
+            HotkeyManager.UnregisterHotkeys();
             _inHotkey = true;
         }
 
@@ -630,7 +630,7 @@ namespace Greenshot.Forms
         {
             if (CheckSettings())
             {
-                HotkeyControl.UnregisterHotkeys();
+                HotkeyManager.UnregisterHotkeys();
                 SaveSettings();
                 StoreFields();
                 HotkeyHelper.RegisterHotkeys();

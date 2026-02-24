@@ -20,16 +20,12 @@
  */
 
 using System;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
 using Greenshot.Base.IniFile;
-using Greenshot.Base.Interfaces;
-using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Configuration;
 using Greenshot.Editor.Destinations;
 using Greenshot.Forms;
@@ -37,29 +33,20 @@ using log4net;
 
 namespace Greenshot.Helpers;
 
+/// <summary>
+/// Very specific code mapping the configuration and the capturehelper for hotkeys
+/// </summary>
 internal static class HotkeyHelper
 {
     private static readonly ILog LOG = LogManager.GetLogger(typeof(ApplicationStartupHelper));
     private static readonly CoreConfiguration config = IniConfig.GetIniSection<CoreConfiguration>();
-
-    /// <summary>
-    /// Registers all hotkeys as configured, displaying a dialog in case of hotkey conflicts with other tools.
-    /// </summary>
-    /// <returns>Whether the hotkeys could be registered to the users content. This also applies if conflicts arise and the user decides to ignore these (i.e. not to register the conflicting hotkey).</returns>
-    public static bool RegisterHotkeys()
-    {
-        // Make sure all hot-keys pass to the MainForm!
-        var mainForm = SimpleServiceProvider.Current.GetInstance<IGreenshotMainForm>();
-        HotkeyControl.RegisterHotkeyHwnd(mainForm.Handle);
-        return RegisterHotkeys(false);
-    }
-
+    
     /// <summary>
     /// Registers all hotkeys as configured, displaying a dialog in case of hotkey conflicts with other tools.
     /// </summary>
     /// <param name="ignoreFailedRegistration">if true, a failed hotkey registration will not be reported to the user - the hotkey will simply not be registered</param>
     /// <returns>Whether the hotkeys could be registered to the users content. This also applies if conflicts arise and the user decides to ignore these (i.e. not to register the conflicting hotkey).</returns>
-    private static bool RegisterHotkeys(bool ignoreFailedRegistration)
+    public static bool RegisterHotkeys(bool ignoreFailedRegistration = false)
     {
         bool success = true;
         StringBuilder failedKeys = new StringBuilder();
@@ -142,8 +129,7 @@ internal static class HotkeyHelper
         catch (Exception ex)
         {
             LOG.Warn(ex);
-            LOG.WarnFormat("Restoring default hotkey for {0}, stored under {1} from '{2}' to '{3}'", functionName, configurationKey, hotkeyStringValue,
-                hotkeyValue.Attributes.DefaultValue);
+            LOG.WarnFormat("Restoring default hotkey for {0}, stored under {1} from '{2}' to '{3}'", functionName, configurationKey, hotkeyStringValue, hotkeyValue.Attributes.DefaultValue);
             // when getting an exception the key wasn't found: reset the hotkey value
             hotkeyValue.UseValueOrDefault(null);
             hotkeyValue.ContainingIniSection.IsDirty = true;
@@ -165,17 +151,17 @@ internal static class HotkeyHelper
         var warningTitle = Language.GetString(LangKey.warning);
         var message = string.Format(Language.GetString(LangKey.warning_hotkeys), failedKeys, IsOneDriveBlockingHotkey() ? " (OneDrive)" : "");
         var mainForm = SimpleServiceProvider.Current.GetInstance<MainForm>();
-        DialogResult dr = MessageBox.Show(mainForm, message, warningTitle, MessageBoxButtons.AbortRetryIgnore, MessageBoxIcon.Exclamation);
+        DialogResult dr = MessageBox.Show(message, warningTitle, MessageBoxButtons.AbortRetryIgnore, MessageBoxIcon.Exclamation);
         if (dr == DialogResult.Retry)
         {
             LOG.DebugFormat("Re-trying to register hotkeys");
-            HotkeyControl.UnregisterHotkeys();
+            HotkeyManager.UnregisterHotkeys();
             success = RegisterHotkeys(false);
         }
         else if (dr == DialogResult.Ignore)
         {
             LOG.DebugFormat("Ignoring failed hotkey registration");
-            HotkeyControl.UnregisterHotkeys();
+            HotkeyManager.UnregisterHotkeys();
             success = RegisterHotkeys(true);
         }
 
@@ -220,11 +206,11 @@ internal static class HotkeyHelper
     /// <returns>bool</returns>
     private static bool RegisterHotkey(StringBuilder failedKeys, string functionName, string hotkeyString, Action handler)
     {
-        Keys modifierKeyCode = HotkeyControl.HotkeyModifiersFromString(hotkeyString);
-        Keys virtualKeyCode = HotkeyControl.HotkeyFromString(hotkeyString);
+        Keys modifierKeyCode = HotkeyManager.HotkeyModifiersFromString(hotkeyString);
+        Keys virtualKeyCode = HotkeyManager.HotkeyFromString(hotkeyString);
         if (!Keys.None.Equals(virtualKeyCode))
         {
-            if (HotkeyControl.RegisterHotKey(modifierKeyCode, virtualKeyCode, handler) < 0)
+            if (HotkeyManager.RegisterHotKey(modifierKeyCode, virtualKeyCode, handler) < 0)
             {
                 LOG.DebugFormat("Failed to register {0} to hotkey: {1}", functionName, hotkeyString);
                 if (failedKeys.Length > 0)

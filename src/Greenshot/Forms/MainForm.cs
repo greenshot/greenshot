@@ -33,10 +33,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.Integration;
+using System.Windows.Threading;
+using Dapplo.Windows.Common.Enums;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.DesktopWindowsManager;
 using Dapplo.Windows.Dpi;
 using Dapplo.Windows.Kernel32;
+using Dapplo.Windows.Messages;
+using Dapplo.Windows.Messages.Enumerations;
 using Dapplo.Windows.User32;
 using Greenshot.Base;
 using Greenshot.Base.Controls;
@@ -266,6 +270,14 @@ namespace Greenshot.Forms
                 Application.DoEvents();
                 _instance = new MainForm(options);
 
+                // Handle language change events
+                SharedMessageWindow.Listen().Where(m => m.Msg.IsIn(WindowsMessages.WM_INPUTLANGCHANGEREQUEST, WindowsMessages.WM_INPUTLANGCHANGE)).Subscribe(m =>
+                {
+                    // The WM_INPUTLANGCHANGEREQUEST & WM_INPUTLANGCHANGE
+                    m.Handled = true;
+                    m.Result = (IntPtr)HResult.S_OK;
+                });
+
                 // force saving ini on every start because some init functions could change/fix the configuration. i.e. loading plugins
                 IniConfig.Save();
                 Application.Run();
@@ -339,8 +351,6 @@ namespace Greenshot.Forms
             SimpleServiceProvider.Current.AddService<INotificationService>(ToastNotificationService.Create());
             // Set this as IOcrProvider
             SimpleServiceProvider.Current.AddService<IOcrProvider>(new Win10OcrProvider());
-
-            _instance = this;
 
             EditorInitialize.Initialize();
 
@@ -429,13 +439,13 @@ namespace Greenshot.Forms
             notifyIcon.Visible = !_conf.HideTrayicon;
 
             // Make sure we never capture the mainform
-            WindowDetails.RegisterIgnoreHandle(Handle);
+            WindowDetails.RegisterIgnoreHandle(SharedMessageWindow.Handle);
 
             // Create a new instance of the class: copyData = new CopyData();
             _copyData = new CopyData();
 
             // Assign the handle:
-            _copyData.AssignHandle(Handle);
+            _copyData.AssignHandle(SharedMessageWindow.Handle);
             // Create the channel to send on:
             _copyData.Channels.Add("Greenshot");
             // Hook up received event:
@@ -582,17 +592,6 @@ namespace Greenshot.Forms
 
         protected override void WndProc(ref Message m)
         {
-            if (HotkeyControl.HandleMessages(ref m))
-            {
-                return;
-            }
-
-            // BUG-1809 prevention, filter the InputLangChange messages
-            if (WmInputLangChangeRequestFilter.PreFilterMessageExternal(ref m))
-            {
-                return;
-            }
-
             base.WndProc(ref m);
         }
 
@@ -626,11 +625,11 @@ namespace Greenshot.Forms
             ApplyLanguage();
 
             // Show hotkeys in Contextmenu
-            contextmenu_capturearea.ShortcutKeyDisplayString = HotkeyControl.GetLocalizedHotkeyStringFromString(_conf.RegionHotkey);
-            contextmenu_capturelastregion.ShortcutKeyDisplayString = HotkeyControl.GetLocalizedHotkeyStringFromString(_conf.LastregionHotkey);
-            contextmenu_capturewindow.ShortcutKeyDisplayString = HotkeyControl.GetLocalizedHotkeyStringFromString(_conf.WindowHotkey);
-            contextmenu_capturefullscreen.ShortcutKeyDisplayString = HotkeyControl.GetLocalizedHotkeyStringFromString(_conf.FullscreenHotkey);
-            var clipboardHotkey = HotkeyControl.GetLocalizedHotkeyStringFromString(_conf.ClipboardHotkey);
+            contextmenu_capturearea.ShortcutKeyDisplayString = HotkeyManager.GetLocalizedHotkeyStringFromString(_conf.RegionHotkey);
+            contextmenu_capturelastregion.ShortcutKeyDisplayString = HotkeyManager.GetLocalizedHotkeyStringFromString(_conf.LastregionHotkey);
+            contextmenu_capturewindow.ShortcutKeyDisplayString = HotkeyManager.GetLocalizedHotkeyStringFromString(_conf.WindowHotkey);
+            contextmenu_capturefullscreen.ShortcutKeyDisplayString = HotkeyManager.GetLocalizedHotkeyStringFromString(_conf.FullscreenHotkey);
+            var clipboardHotkey = HotkeyManager.GetLocalizedHotkeyStringFromString(_conf.ClipboardHotkey);
             if (!string.IsNullOrEmpty(clipboardHotkey) && !"None".Equals(clipboardHotkey))
             {
                 contextmenu_captureclipboard.ShortcutKeyDisplayString = clipboardHotkey;
@@ -641,7 +640,6 @@ namespace Greenshot.Forms
         private void MainFormFormClosing(object sender, FormClosingEventArgs e)
         {
             LOG.DebugFormat("Mainform closing, reason: {0}", e.CloseReason);
-            _instance = null;
             Exit();
         }
 
@@ -649,11 +647,6 @@ namespace Greenshot.Forms
         {
             Hide();
             ShowInTaskbar = false;
-            
-            // TODO: Do we really need this?
-            //using var loProcess = Process.GetCurrentProcess();
-            //loProcess.MaxWorkingSet = (IntPtr)750000;
-            //loProcess.MinWorkingSet = (IntPtr)300000;
         }
 
         private void CaptureFile(IDestination destination = null)
@@ -730,7 +723,8 @@ namespace Greenshot.Forms
 
             var captureScreenItem = new ToolStripMenuItem(Language.GetString(LangKey.contextmenu_capturefullscreen_all));
             captureScreenItem.Click += delegate {
-                BeginInvoke((MethodInvoker) delegate {
+                Dispatcher.CurrentDispatcher.BeginInvoke(() =>
+                {
                     CaptureHelper.CaptureFullscreen(false, ScreenCaptureMode.FullScreen);
                 });
             };
@@ -762,7 +756,7 @@ namespace Greenshot.Forms
                 captureScreenItem = new ToolStripMenuItem(deviceAlignment);
                 captureScreenItem.Click += delegate
                 {
-                    BeginInvoke((MethodInvoker) delegate
+                    Dispatcher.CurrentDispatcher.BeginInvoke(()=>
                     {
                         CaptureHelper.CaptureRegion(false, displayToCapture.Bounds);
                     });
@@ -872,42 +866,60 @@ namespace Greenshot.Forms
 
         private void CaptureAreaToolStripMenuItemClick(object sender, EventArgs e)
         {
-            BeginInvoke((MethodInvoker) delegate { CaptureHelper.CaptureRegion(false); });
+            Dispatcher.CurrentDispatcher.BeginInvoke(() =>
+            {
+                CaptureHelper.CaptureRegion(false);
+            });
         }
 
         private void CaptureClipboardToolStripMenuItemClick(object sender, EventArgs e)
         {
-            BeginInvoke((MethodInvoker) delegate { CaptureHelper.CaptureClipboard(); });
+            Dispatcher.CurrentDispatcher.BeginInvoke(() =>
+            {
+                CaptureHelper.CaptureClipboard();
+            });
         }
 
         private void OpenFileToolStripMenuItemClick(object sender, EventArgs e)
         {
-            BeginInvoke((MethodInvoker) delegate { CaptureFile(); });
+            Dispatcher.CurrentDispatcher.BeginInvoke(() =>
+            {
+                CaptureFile();
+            });
         }
 
         private void CaptureFullScreenToolStripMenuItemClick(object sender, EventArgs e)
         {
-            BeginInvoke((MethodInvoker) delegate { CaptureHelper.CaptureFullscreen(false, _conf.ScreenCaptureMode); });
+            Dispatcher.CurrentDispatcher.BeginInvoke(() =>
+            {
+                CaptureHelper.CaptureFullscreen(false, _conf.ScreenCaptureMode);
+            });
         }
 
         private void Contextmenu_CaptureLastRegionClick(object sender, EventArgs e)
         {
-            BeginInvoke((MethodInvoker) delegate { CaptureHelper.CaptureLastRegion(false); });
+            Dispatcher.CurrentDispatcher.BeginInvoke(() =>
+            {
+                CaptureHelper.CaptureLastRegion(false);
+            });
         }
 
         private void Contextmenu_CaptureWindow_Click(object sender, EventArgs e)
         {
-            BeginInvoke((MethodInvoker) delegate { CaptureHelper.CaptureWindowInteractive(false); });
+            Dispatcher.CurrentDispatcher.BeginInvoke(() =>
+            {
+                CaptureHelper.CaptureWindowInteractive(false);
+            });
         }
 
         private void Contextmenu_CaptureWindowFromList_Click(object sender, EventArgs e)
         {
             ToolStripMenuItem clickedItem = (ToolStripMenuItem) sender;
-            BeginInvoke((MethodInvoker) delegate
+            Dispatcher.CurrentDispatcher.BeginInvoke(() =>
             {
                 try
                 {
-                    WindowDetails windowToCapture = (WindowDetails) clickedItem.Tag;
+                    WindowDetails windowToCapture = (WindowDetails)clickedItem.Tag;
                     CaptureHelper.CaptureWindow(windowToCapture);
                 }
                 catch (Exception exception)
@@ -924,7 +936,10 @@ namespace Greenshot.Forms
         /// <param name="e">EventArgs</param>
         private void Contextmenu_DonateClick(object sender, EventArgs e)
         {
-            BeginInvoke((MethodInvoker) delegate { Process.Start("https://getgreenshot.org/support/?version=" + EnvironmentInfo.GetGreenshotVersion(true)); });
+            Dispatcher.CurrentDispatcher.BeginInvoke(() =>
+            {
+                Process.Start("https://getgreenshot.org/support/?version=" + EnvironmentInfo.GetGreenshotVersion(true));
+            });
         }
 
         /// <summary>
@@ -934,7 +949,10 @@ namespace Greenshot.Forms
         /// <param name="e"></param>
         private void Contextmenu_SettingsClick(object sender, EventArgs e)
         {
-            BeginInvoke((MethodInvoker) ShowSetting);
+            Dispatcher.CurrentDispatcher.BeginInvoke(() =>
+            {
+                ShowSetting();
+            });
         }
 
         /// <summary>
@@ -1295,7 +1313,10 @@ namespace Greenshot.Forms
         {
             _doubleClickTimer.Elapsed -= NotifyIconSingleClickTest;
             _doubleClickTimer.Stop();
-            BeginInvoke((MethodInvoker) delegate { NotifyIconClick(_conf.LeftClickAction); });
+            Dispatcher.CurrentDispatcher.BeginInvoke(() =>
+            {
+                NotifyIconClick(_conf.LeftClickAction);
+            });
         }
 
         /// <summary>
@@ -1430,7 +1451,7 @@ namespace Greenshot.Forms
             // Make sure hotkeys are disabled
             try
             {
-                HotkeyControl.UnregisterHotkeys();
+                HotkeyManager.UnregisterHotkeys();
             }
             catch (Exception e)
             {
