@@ -3,12 +3,12 @@
 #define Version GetEnv('BuildVersionSimple')
 ; Build version with optional suffix depending on branch, e.g. 1.2.345-g1tc033174ef
 #define VersionEnhanced GetEnv('BuildVersionEnhanced')
-#define BaseDir "..\..\src"
-#define GreenshotProjectDir "..\..\src\Greenshot"
-#define LanguagesDir "..\..\src\Greenshot\Languages"
+#define SolutionDir ".."
+#define GreenshotProjectDir "..\Greenshot"
+#define LanguagesDir "..\Greenshot\Languages"
 #define BinDir "bin\Release\net480"
-#define ReleaseDir "..\..\src\Greenshot\bin\Release\net480"
-#define PluginDir "..\..\src\Greenshot\bin\Release\net480\Plugins"
+#define ReleaseDir "..\Greenshot\bin\Release\net480"
+#define PluginDir "..\Greenshot\bin\Release\net480\Plugins"
 #define CertumThumbprint GetEnv('CertumThumbprint')
 
 [Files]
@@ -32,9 +32,9 @@ Source: {#ReleaseDir}\checksum.SHA256; DestDir: {app}; Components: greenshot; Fl
 Source: {#ReleaseDir}\Twemoji.Mozilla.ttf; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion
 Source: {#ReleaseDir}\emojis.xml; DestDir: {app}; Components: greenshot; Flags: overwritereadonly ignoreversion
 ;Source: ..\greenshot-defaults.ini; DestDir: {app}; Flags: overwritereadonly
-Source: ..\additional_files\installer.txt; DestDir: {app}; Components: greenshot; Flags: overwritereadonly recursesubdirs
-Source: ..\additional_files\license.txt; DestDir: {app}; Components: greenshot; Flags: overwritereadonly recursesubdirs
-Source: ..\additional_files\readme.txt; DestDir: {app}; Components: greenshot; Flags: overwritereadonly recursesubdirs
+Source: additional_files\installer.txt; DestDir: {app}; Components: greenshot; Flags: overwritereadonly recursesubdirs
+Source: additional_files\license.txt; DestDir: {app}; Components: greenshot; Flags: overwritereadonly recursesubdirs
+Source: additional_files\readme.txt; DestDir: {app}; Components: greenshot; Flags: overwritereadonly recursesubdirs
 
 ; Core language files
 Source: {#LanguagesDir}\*nl-NL*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: greenshot; Flags: overwritereadonly replacesameversion;
@@ -84,22 +84,22 @@ Source: {#PluginDir}\Greenshot.Plugin.Office\Greenshot.Plugin.Office.dll; DestDi
 ;JIRA Plugin
 Source: {#PluginDir}\Greenshot.Plugin.Jira\*Jira*.dll; DestDir: {app}\Plugins\Jira; Components: plugins\jira; Flags: overwritereadonly recursesubdirs;
 Source: {#PluginDir}\Greenshot.Plugin.Jira\Dapplo.HttpExtensions.WinForms.dll; DestDir: {app}\Plugins\Jira; Components: plugins\jira; Flags: overwritereadonly recursesubdirs;
-Source: {#BaseDir}\Greenshot.Plugin.Jira\Languages\language_jira*.xml; DestDir: {app}\Languages\Plugins\Jira; Components: plugins\jira; Flags: overwritereadonly replacesameversion;
+Source: {#SolutionDir}\Greenshot.Plugin.Jira\Languages\language_jira*.xml; DestDir: {app}\Languages\Plugins\Jira; Components: plugins\jira; Flags: overwritereadonly replacesameversion;
 ;Imgur Plugin
 Source: {#PluginDir}\Greenshot.Plugin.Imgur\Greenshot.Plugin.Imgur.dll; DestDir: {app}\Plugins\Imgur; Components: plugins\imgur; Flags: overwritereadonly recursesubdirs replacesameversion;
-Source: {#BaseDir}\Greenshot.Plugin.Imgur\Languages\language_imgur*.xml; DestDir: {app}\Languages\Plugins\Imgur; Components: plugins\imgur; Flags: overwritereadonly replacesameversion;
+Source: {#SolutionDir}\Greenshot.Plugin.Imgur\Languages\language_imgur*.xml; DestDir: {app}\Languages\Plugins\Imgur; Components: plugins\imgur; Flags: overwritereadonly replacesameversion;
 ;Box Plugin
 Source: {#PluginDir}\Greenshot.Plugin.Box\Greenshot.Plugin.Box.dll; DestDir: {app}\Plugins\Box; Components: plugins\box; Flags: overwritereadonly recursesubdirs replacesameversion;
-Source: {#BaseDir}\Greenshot.Plugin.Box\Languages\language_box*.xml; DestDir: {app}\Languages\Plugins\Box; Components: plugins\box; Flags: overwritereadonly replacesameversion;
+Source: {#SolutionDir}\Greenshot.Plugin.Box\Languages\language_box*.xml; DestDir: {app}\Languages\Plugins\Box; Components: plugins\box; Flags: overwritereadonly replacesameversion;
 ;DropBox Plugin
 Source: {#PluginDir}\Greenshot.Plugin.DropBox\Greenshot.Plugin.DropBox.dll; DestDir: {app}\Plugins\DropBox; Components: plugins\dropbox; Flags: overwritereadonly recursesubdirs replacesameversion;
-Source: {#BaseDir}\Greenshot.Plugin.DropBox\Languages\language_dropbox*.xml; DestDir: {app}\Languages\Plugins\DropBox; Components: plugins\dropbox; Flags: overwritereadonly replacesameversion;
+Source: {#SolutionDir}\Greenshot.Plugin.DropBox\Languages\language_dropbox*.xml; DestDir: {app}\Languages\Plugins\DropBox; Components: plugins\dropbox; Flags: overwritereadonly replacesameversion;
 ;Confluence Plugin
 Source: {#PluginDir}\Greenshot.Plugin.Confluence\Greenshot.Plugin.Confluence.dll; DestDir: {app}\Plugins\Confluence; Components: plugins\confluence; Flags: overwritereadonly recursesubdirs replacesameversion;
-Source: {#BaseDir}\Greenshot.Plugin.Confluence\Languages\language_confluence*.xml; DestDir: {app}\Languages\Plugins\Confluence; Components: plugins\confluence; Flags: overwritereadonly replacesameversion;
+Source: {#SolutionDir}\Greenshot.Plugin.Confluence\Languages\language_confluence*.xml; DestDir: {app}\Languages\Plugins\Confluence; Components: plugins\confluence; Flags: overwritereadonly replacesameversion;
 ;ExternalCommand Plugin
 Source: {#PluginDir}\Greenshot.Plugin.ExternalCommand\Greenshot.Plugin.ExternalCommand.dll; DestDir: {app}\Plugins\ExternalCommand; Components: plugins\externalcommand; Flags: overwritereadonly recursesubdirs replacesameversion;
-Source: {#BaseDir}\Greenshot.Plugin.ExternalCommand\Languages\language_externalcommand*.xml; DestDir: {app}\Languages\Plugins\ExternalCommand; Components: plugins\externalcommand; Flags: overwritereadonly replacesameversion;
+Source: {#SolutionDir}\Greenshot.Plugin.ExternalCommand\Languages\language_externalcommand*.xml; DestDir: {app}\Languages\Plugins\ExternalCommand; Components: plugins\externalcommand; Flags: overwritereadonly replacesameversion;
 
 [Setup]
 ; changes associations is used when the installer installs new extensions, it clears the explorer icon cache
@@ -122,11 +122,11 @@ Compression=lzma2/ultra64
 SolidCompression=yes
 DefaultDirName={autopf}\{#ExeName}
 DefaultGroupName={#ExeName}
-InfoBeforeFile=..\additional_files\readme.txt
-LicenseFile=..\additional_files\gpl-3.0.rtf
+InfoBeforeFile=additional_files\readme.txt
+LicenseFile=additional_files\gpl-3.0.rtf
 LanguageDetectionMethod=uilanguage
 MinVersion=10.0.10240
-OutputDir=..\
+OutputDir=..\..\installer
 ; user may choose between all-users vs. current-user installation in a dialog or by using the /ALLUSERS flag (on the command line)
 ; in registry section, HKA will take care of the appropriate root key (HKLM vs. HKCU), see https://jrsoftware.org/ishelp/index.php?topic=admininstallmode
 PrivilegesRequiredOverridesAllowed=dialog
@@ -135,7 +135,7 @@ PrivilegesRequiredOverridesAllowed=dialog
 PrivilegesRequired=admin
 UsePreviousPrivileges=no
 
-SetupIconFile=..\..\src\Greenshot\icons\applicationIcon\icon.ico
+SetupIconFile=..\Greenshot\icons\applicationIcon\icon.ico
 #if CertumThumbprint  != ""
  OutputBaseFilename={#ExeName}-INSTALLER-{#VersionEnhanced}-UNSTABLE
   SignTool=SignTool sign /sha1 "{#CertumThumbprint}" /tr http://time.certum.pl /td sha256 /fd sha256 /v $f
