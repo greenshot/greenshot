@@ -39,7 +39,7 @@ namespace Greenshot.Forms
         private readonly bool _multiCheckAllowed;
         private readonly IProvideDeviceDpi _provideDeviceDpi;
         private bool _updateInProgress;
-        private static Image _defaultImage;
+        private Image _defaultImage;
 
         /// <summary>
         /// Occurs when one of the list's child element's Checked state changes.
@@ -138,6 +138,16 @@ namespace Greenshot.Forms
         public void AddItem(string label, object data, bool isChecked)
         {
             AddItem(label, null, data, isChecked);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _defaultImage?.Dispose();
+                _defaultImage = null;
+            }
+            base.Dispose(disposing);
         }
 
         /// <summary>
