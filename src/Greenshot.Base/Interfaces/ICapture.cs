@@ -22,6 +22,7 @@
 using System;
 using System.Drawing;
 using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Icons;
 
 namespace Greenshot.Base.Interfaces
 {
@@ -53,7 +54,7 @@ namespace Greenshot.Base.Interfaces
         /// <summary>
         /// The cursor bitmap
         /// </summary>
-        Bitmap Cursor { get; set; }
+        CapturedCursor Cursor { get; set; }
 
         /// <summary>
         /// Boolean to specify if the cursor is available

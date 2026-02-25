@@ -73,8 +73,6 @@ namespace Greenshot.Forms
 
         public static void Start(string[] arguments)
         {
-            var filesToOpen = new List<string>();
-
             // Set the Thread name, is better than "1"
             Thread.CurrentThread.Name = Application.ProductName;
 
@@ -106,7 +104,7 @@ namespace Greenshot.Forms
 
                 if (arguments.Length > 0 && LOG.IsDebugEnabled)
                 {
-                    StringBuilder argumentString = new StringBuilder();
+                    var argumentString = new StringBuilder();
                     foreach (string argument in arguments)
                     {
                         argumentString.Append("[").Append(argument).Append("] ");
@@ -115,114 +113,62 @@ namespace Greenshot.Forms
                     LOG.Debug("Greenshot arguments: " + argumentString);
                 }
 
-                for (int argumentNr = 0; argumentNr < arguments.Length; argumentNr++)
+                // Parse command line arguments using System.CommandLine.
+                // Returns null when --help was shown or a parse error occurred (application should exit).
+                var options = GreenshotCommandLine.Parse(arguments);
+                if (options == null)
                 {
-                    string argument = arguments[argumentNr];
-                    // Help
-                    if (argument.ToLower().Equals("/help") || argument.ToLower().Equals("/h") || argument.ToLower().Equals("/?"))
-                    {
-                        // Try to attach to the console
-                        bool attachedToConsole = Kernel32Api.AttachConsole();
-                        // If attach didn't work, open a console
-                        if (!attachedToConsole)
-                        {
-                            Kernel32Api.AllocConsole();
-                        }
-
-                        var helpOutput = new StringBuilder();
-                        helpOutput.AppendLine();
-                        helpOutput.AppendLine("Greenshot commandline options:");
-                        helpOutput.AppendLine();
-                        helpOutput.AppendLine();
-                        helpOutput.AppendLine("\t/help");
-                        helpOutput.AppendLine("\t\tThis help.");
-                        helpOutput.AppendLine();
-                        helpOutput.AppendLine();
-                        helpOutput.AppendLine("\t/exit");
-                        helpOutput.AppendLine("\t\tTries to close all running instances.");
-                        helpOutput.AppendLine();
-                        helpOutput.AppendLine();
-                        helpOutput.AppendLine("\t/reload");
-                        helpOutput.AppendLine("\t\tReload the configuration of Greenshot.");
-                        helpOutput.AppendLine();
-                        helpOutput.AppendLine();
-                        helpOutput.AppendLine("\t/language [language code]");
-                        helpOutput.AppendLine("\t\tSet the language of Greenshot, e.g. greenshot /language en-US.");
-                        helpOutput.AppendLine();
-                        helpOutput.AppendLine();
-                        helpOutput.AppendLine("\t/inidirectory [directory]");
-                        helpOutput.AppendLine("\t\tSet the directory where the greenshot.ini should be stored & read.");
-                        helpOutput.AppendLine();
-                        helpOutput.AppendLine();
-                        helpOutput.AppendLine("\t[filename]");
-                        helpOutput.AppendLine("\t\tOpen the bitmap files in the running Greenshot instance or start a new instance");
-                        Console.WriteLine(helpOutput.ToString());
-
-                        // If attach didn't work, wait for key otherwise the console will close to quickly
-                        if (!attachedToConsole)
-                        {
-                            Console.ReadKey();
-                        }
-
-                        FreeMutex();
-                        return;
-                    }
-
-                    if (argument.ToLower().Equals("/exit"))
-                    {
-                        // un-register application on uninstall (allow uninstall)
-                        try
-                        {
-                            LOG.Info("Sending all instances the exit command.");
-                            // Pass Exit to running instance, if any
-                            SendData(new CopyDataTransport(CommandEnum.Exit));
-                        }
-                        catch (Exception e)
-                        {
-                            LOG.Warn("Exception by exit.", e);
-                        }
-
-                        FreeMutex();
-                        return;
-                    }
-
-                    // Reload the configuration
-                    if (argument.ToLower().Equals("/reload"))
-                    {
-                        // Modify configuration
-                        LOG.Info("Reloading configuration!");
-                        // Update running instances
-                        SendData(new CopyDataTransport(CommandEnum.ReloadConfig));
-                        FreeMutex();
-                        return;
-                    }
-
-                    // Stop running
-                    if (argument.ToLower().Equals("/norun"))
-                    {
-                        // Make an exit possible
-                        FreeMutex();
-                        return;
-                    }
-
-                    // Language
-                    if (argument.ToLower().Equals("/language"))
-                    {
-                        _conf.Language = arguments[++argumentNr];
-                        IniConfig.Save();
-                        continue;
-                    }
-
-                    // Setting the INI-directory
-                    if (argument.ToLower().Equals("/inidirectory"))
-                    {
-                        IniConfig.IniDirectory = arguments[++argumentNr];
-                        continue;
-                    }
-
-                    // Files to open
-                    filesToOpen.Add(argument);
+                    FreeMutex();
+                    return;
                 }
+
+                if (options.Exit)
+                {
+                    // un-register application on uninstall (allow uninstall)
+                    try
+                    {
+                        LOG.Info("Sending all instances the exit command.");
+                        // Pass Exit to running instance, if any
+                        SendData(new CopyDataTransport(CommandEnum.Exit));
+                    }
+                    catch (Exception e)
+                    {
+                        LOG.Warn("Exception by exit.", e);
+                    }
+
+                    FreeMutex();
+                    return;
+                }
+
+                if (options.Reload)
+                {
+                    // Modify configuration
+                    LOG.Info("Reloading configuration!");
+                    // Update running instances
+                    SendData(new CopyDataTransport(CommandEnum.ReloadConfig));
+                    FreeMutex();
+                    return;
+                }
+
+                if (options.NoRun)
+                {
+                    // Make an exit possible
+                    FreeMutex();
+                    return;
+                }
+
+                if (options.Language != null)
+                {
+                    _conf.Language = options.Language;
+                    IniConfig.Save();
+                }
+
+                if (options.IniDirectory != null)
+                {
+                    IniConfig.IniDirectory = options.IniDirectory;
+                }
+
+                var filesToOpen = new List<string>(options.Files);
 
                 // Finished parsing the command line arguments, see if we need to do anything
                 CopyDataTransport transport = new CopyDataTransport();
@@ -1170,8 +1116,9 @@ namespace Greenshot.Forms
 
                 ToolStripItem captureWindowItem = menuItem.DropDownItems.Add(title);
                 captureWindowItem.Tag = window;
-                captureWindowItem.Image = window.DisplayIcon;
                 captureWindowItem.Click += eventHandler;
+                // Dispose the icon when the menu item is disposed to prevent memory leaks
+                captureWindowItem.AssignAutoDisposingImage(window?.DisplayIcon, needsClone: false);
                 // Only show preview when enabled
                 if (thumbnailPreview)
                 {
