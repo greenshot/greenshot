@@ -22,8 +22,17 @@
 using System;
 using System.Globalization;
 using System.Net;
+using System.Reactive.Linq;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using Dapplo.Windows.Messages;
+using Greenshot.Base.Core;
+using Greenshot.Base.IniFile;
 using Greenshot.Forms;
+using Greenshot.Helpers;
+using log4net;
 
 namespace Greenshot
 {
@@ -32,6 +41,8 @@ namespace Greenshot
     /// </summary>
     public class GreenshotMain
     {
+        private static ILog LOG;
+        public static string LogFileLocation;
         static GreenshotMain()
         {
             AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
@@ -65,7 +76,80 @@ namespace Greenshot
             CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
             CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
 
+            // Set the Thread name, is better than "1"
+            Thread.CurrentThread.Name = Application.ProductName;
+
+            // Init Log4NET
+            LogFileLocation = LogHelper.InitializeLog4Net();
+            // Get logger
+            LOG = LogManager.GetLogger(typeof(MainForm));
+
+#if DEBUG
+            SharedMessageWindow.Listen().Subscribe(m =>
+            {
+                LOG.Debug($"Got message: {m.Msg}");
+            });
+#endif
+            RestartManagerHelper.RegisterForRestart();
+
+            Application.ThreadException += Application_ThreadException;
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+
+            TaskScheduler.UnobservedTaskException += Task_UnhandledException;
+
+            // Initialize the IniConfig
+            IniConfig.Init();
+
+            // Log the startup
+            LOG.Info("Starting: " + EnvironmentInfo.EnvironmentToString(false));
+
             MainForm.Start(args);
+        }
+
+        internal static void Application_ThreadException(object sender, ThreadExceptionEventArgs e)
+        {
+            Exception exceptionToLog = e.Exception;
+            string exceptionText = EnvironmentInfo.BuildReport(exceptionToLog);
+            LOG.Error("Exception caught in the ThreadException handler.");
+            LOG.Error(exceptionText);
+            if (exceptionText != null && exceptionText.Contains("InputLanguageChangedEventArgs"))
+            {
+                // Ignore for BUG-1809
+                return;
+            }
+
+            new BugReportForm(exceptionText).ShowDialog();
+        }
+
+        internal static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            Exception exceptionToLog = e.ExceptionObject as Exception;
+            string exceptionText = EnvironmentInfo.BuildReport(exceptionToLog);
+            LOG.Error("Exception caught in the UnhandledException handler.");
+            LOG.Error(exceptionText);
+            if (exceptionText != null && exceptionText.Contains("InputLanguageChangedEventArgs"))
+            {
+                // Ignore for BUG-1809
+                return;
+            }
+
+            new BugReportForm(exceptionText).ShowDialog();
+        }
+
+        internal static void Task_UnhandledException(object sender, UnobservedTaskExceptionEventArgs args)
+        {
+            try
+            {
+                Exception exceptionToLog = args.Exception;
+                string exceptionText = EnvironmentInfo.BuildReport(exceptionToLog);
+                LOG.Error("Exception caught in the UnobservedTaskException handler.");
+                LOG.Error(exceptionText);
+                new BugReportForm(exceptionText).ShowDialog();
+            }
+            finally
+            {
+                args.SetObserved();
+            }
         }
     }
 }

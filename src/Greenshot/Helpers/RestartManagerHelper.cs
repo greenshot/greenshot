@@ -20,14 +20,12 @@
  */
 
 using System;
-using System.Drawing;
+using System.Diagnostics;
 using System.IO;
-using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Threading;
 using Dapplo.Windows.AppRestartManager;
-using Dapplo.Windows.AppRestartManager.Enums;
-using Dapplo.Windows.Messages.Enumerations;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Editor.Destinations;
@@ -66,42 +64,22 @@ namespace Greenshot.Helpers
             // Don't restart if the application crashes
             ApplicationRestartManager.RegisterForRestart(commandLineArgs: "--restore");
 
-            // Pre-load the assembly, otherwise the line afterwards breaks
-            Type.GetType("Dapplo.Windows.Messages.WindowsMessages, Dapplo.Windows.Messages", throwOnError: false);
-
-            var subscription = ApplicationRestartManager.ListenForEndSession().Subscribe(endSessionMessage => {
-                switch(endSessionMessage.Msg)
+            ApplicationRestartManager.ListenForEndSession(
+                onQuerySession: (endSessionReason) => {
+                    // Accept that an update will take place and allow the session to end
+                    return true;
+                },
+                onEndSession: (endSessionReason) =>
                 {
-                    case WindowsMessages.WM_QUERYENDSESSION:
-                        Log.Info("Received WM_QUERYENDSESSION, allowing session to end.");
-                        // Allow the session to end
-                        endSessionMessage.Handled = true;
-                        return;
-                    case WindowsMessages.WM_ENDSESSION:
-                        Log.Info("Session ends with reason: " + endSessionMessage.EndSessionReason);
-                        endSessionMessage.Handled = true;
-                        switch (endSessionMessage.EndSessionReason)
-                        {
-                            case EndSessionReasons.ENDSESSION_CLOSEAPP:
-                                // Application is being closed for an update
-                                SaveEditorState();
-                                break;
-                            case EndSessionReasons.ENDSESSION_LOGOFF:
-                                // Application is being closed for an update
-                                SaveEditorState();
-                                break;
-                            case EndSessionReasons.ENDSESSION_CRITICAL:
-                                // Application is being closed for an update
-                                SaveEditorState();
-                                break;
-                        }
-                        _dispatcher.Invoke(() =>
-                        {
-                            Application.Exit();
-                        });
-                        return;
+                    // Do the work, save state and exit Greenshot
+                    Debug.WriteLine($"Shutting down application due to {endSessionReason}");
+                    SaveEditorState();
+                    return true;
                 }
-            });
+                ).Subscribe(endSessionMessage =>
+                {
+                    Debug.WriteLine($"{endSessionMessage.Msg} with session reason: {endSessionMessage.EndSessionReason}");
+                });
         }
 
         /// <summary>
@@ -168,6 +146,12 @@ namespace Greenshot.Helpers
             {
                 Log.Warn("Failed to save editor states for restart.", ex);
             }
+            // Make sure the application exits after saving state
+            _dispatcher.Invoke(() =>
+            {
+                Application.Exit();
+                Task.Delay(1000).ContinueWith(_ => Environment.Exit(0));
+            });
         }
 
         /// <summary>

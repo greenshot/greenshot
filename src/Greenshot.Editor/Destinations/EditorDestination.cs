@@ -113,8 +113,7 @@ namespace Greenshot.Editor.Destinations
                         {
                             editorForm.SetImagePath(captureDetails.Filename);
                         }
-                        var sharedMessageWindow = new Win32Shim(SharedMessageWindow.Handle);
-                        editorForm.Show(sharedMessageWindow);
+                        editorForm.Show();
                         editorForm.Activate();
                         LOG.Debug("Finished opening Editor");
                         exportInformation.ExportMade = true;

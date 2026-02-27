@@ -34,6 +34,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.Integration;
 using System.Windows.Threading;
+using Dapplo.Windows.AppRestartManager;
 using Dapplo.Windows.Common.Enums;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.DesktopWindowsManager;
@@ -51,7 +52,6 @@ using Greenshot.Base.Help;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Ocr;
-using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Configuration;
 using Greenshot.Destinations;
 using Greenshot.Editor;
@@ -72,34 +72,12 @@ namespace Greenshot.Forms
     /// </summary>
     public partial class MainForm : BaseForm, IGreenshotMainForm, ICaptureHelper, IProvideDeviceDpi
     {
-        private static ILog LOG;
+        private static readonly ILog Log = LogManager.GetLogger(typeof(MainForm));
         private static ResourceMutex _applicationMutex;
-        private static CoreConfiguration _conf;
-        public static string LogFileLocation;
+        private static CoreConfiguration _conf = IniConfig.GetIniSection<CoreConfiguration>();
 
         public static void Start(string[] arguments)
         {
-            // Set the Thread name, is better than "1"
-            Thread.CurrentThread.Name = Application.ProductName;
-
-            // Init Log4NET
-            LogFileLocation = LogHelper.InitializeLog4Net();
-            // Get logger
-            LOG = LogManager.GetLogger(typeof(MainForm));
-
-            Application.ThreadException += Application_ThreadException;
-            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
-
-            TaskScheduler.UnobservedTaskException += Task_UnhandledException;
-
-            // Initialize the IniConfig
-            IniConfig.Init();
-
-            // Log the startup
-            LOG.Info("Starting: " + EnvironmentInfo.EnvironmentToString(false));
-
-            // Read configuration
-            _conf = IniConfig.GetIniSection<CoreConfiguration>();
             try
             {
                 // Fix for Bug 2495900, Multi-user Environment
@@ -108,7 +86,7 @@ namespace Greenshot.Forms
 
                 var isAlreadyRunning = !_applicationMutex.IsLocked;
 
-                if (arguments.Length > 0 && LOG.IsDebugEnabled)
+                if (arguments.Length > 0 && Log.IsDebugEnabled)
                 {
                     var argumentString = new StringBuilder();
                     foreach (string argument in arguments)
@@ -116,7 +94,7 @@ namespace Greenshot.Forms
                         argumentString.Append("[").Append(argument).Append("] ");
                     }
 
-                    LOG.Debug("Greenshot arguments: " + argumentString);
+                    Log.Debug("Greenshot arguments: " + argumentString);
                 }
 
                 // Parse command line arguments using System.CommandLine.
@@ -133,13 +111,13 @@ namespace Greenshot.Forms
                     // un-register application on uninstall (allow uninstall)
                     try
                     {
-                        LOG.Info("Sending all instances the exit command.");
+                        Log.Info("Sending all instances the exit command.");
                         // Pass Exit to running instance, if any
                         SendData(new CopyDataTransport(CommandEnum.Exit));
                     }
                     catch (Exception e)
                     {
-                        LOG.Warn("Exception by exit.", e);
+                        Log.Warn("Exception by exit.", e);
                     }
 
                     FreeMutex();
@@ -149,7 +127,7 @@ namespace Greenshot.Forms
                 if (options.Reload)
                 {
                     // Modify configuration
-                    LOG.Info("Reloading configuration!");
+                    Log.Info("Reloading configuration!");
                     // Update running instances
                     SendData(new CopyDataTransport(CommandEnum.ReloadConfig));
                     FreeMutex();
@@ -214,7 +192,7 @@ namespace Greenshot.Forms
                             }
                             catch (Exception ex)
                             {
-                                LOG.Debug(ex);
+                                Log.Debug(ex);
                             }
 
                             greenshotProcess.Dispose();
@@ -263,13 +241,6 @@ namespace Greenshot.Forms
                     _conf.Language = languageDialog.SelectedLanguage;
                 }
 
-                // Register with the Windows Restart Manager so it can restart us after updates
-                RestartManagerHelper.RegisterForRestart();
-
-                // Should fix BUG-1633
-                Application.DoEvents();
-                _instance = new MainForm(options);
-
                 // Handle language change events
                 SharedMessageWindow.Listen().Where(m => m.Msg.IsIn(WindowsMessages.WM_INPUTLANGCHANGEREQUEST, WindowsMessages.WM_INPUTLANGCHANGE)).Subscribe(m =>
                 {
@@ -280,12 +251,12 @@ namespace Greenshot.Forms
 
                 // force saving ini on every start because some init functions could change/fix the configuration. i.e. loading plugins
                 IniConfig.Save();
-                Application.Run();
+                Application.Run(new MainForm(options));
             }
             catch (Exception ex)
             {
-                LOG.Error("Exception in startup.", ex);
-                Application_ThreadException(ActiveForm, new ThreadExceptionEventArgs(ex));
+                Log.Error("Exception in startup.", ex);
+                GreenshotMain.Application_ThreadException(ActiveForm, new ThreadExceptionEventArgs(ex));
             }
         }
 
@@ -315,7 +286,7 @@ namespace Greenshot.Forms
             }
             catch (Exception ex)
             {
-                LOG.Error("Error releasing Mutex!", ex);
+                Log.Error("Error releasing Mutex!", ex);
             }
         }
 
@@ -567,11 +538,11 @@ namespace Greenshot.Forms
         {
             foreach (KeyValuePair<CommandEnum, string> command in dataTransport.Commands)
             {
-                LOG.Debug("Data received, Command = " + command.Key + ", Data: " + command.Value);
+                Log.Debug("Data received, Command = " + command.Key + ", Data: " + command.Value);
                 switch (command.Key)
                 {
                     case CommandEnum.Exit:
-                        LOG.Info("Exit requested");
+                        Log.Info("Exit requested");
                         Exit();
                         break;
                     case CommandEnum.FirstLaunch:
@@ -584,15 +555,10 @@ namespace Greenshot.Forms
                         ApplicationStartupHelper.OpenFile(command.Value);
                         break;
                     default:
-                        LOG.Error("Unknown command!");
+                        Log.Error("Unknown command!");
                         break;
                 }
             }
-        }
-
-        protected override void WndProc(ref Message m)
-        {
-            base.WndProc(ref m);
         }
 
         /// <summary>
@@ -639,7 +605,7 @@ namespace Greenshot.Forms
 
         private void MainFormFormClosing(object sender, FormClosingEventArgs e)
         {
-            LOG.DebugFormat("Mainform closing, reason: {0}", e.CloseReason);
+            Log.DebugFormat("Mainform closing, reason: {0}", e.CloseReason);
             Exit();
         }
 
@@ -834,9 +800,9 @@ namespace Greenshot.Forms
 
             foreach (var window in WindowDetails.GetTopLevelWindows())
             {
-                if (LOG.IsDebugEnabled)
+                if (Log.IsDebugEnabled)
                 {
-                    LOG.Debug(window.ToString());
+                    Log.Debug(window.ToString());
                 }
 
                 string title = window.Text;
@@ -924,7 +890,7 @@ namespace Greenshot.Forms
                 }
                 catch (Exception exception)
                 {
-                    LOG.Error(exception);
+                    Log.Error(exception);
                 }
             });
         }
@@ -1219,52 +1185,6 @@ namespace Greenshot.Forms
             InitializeQuickSettingsMenu();
         }
 
-        private static void Task_UnhandledException(object sender, UnobservedTaskExceptionEventArgs args)
-        {
-            try
-            {
-                Exception exceptionToLog = args.Exception;
-                string exceptionText = EnvironmentInfo.BuildReport(exceptionToLog);
-                LOG.Error("Exception caught in the UnobservedTaskException handler.");
-                LOG.Error(exceptionText);
-                new BugReportForm(exceptionText).ShowDialog();
-            }
-            finally
-            {
-                args.SetObserved();
-            }
-        }
-
-        private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
-        {
-            Exception exceptionToLog = e.ExceptionObject as Exception;
-            string exceptionText = EnvironmentInfo.BuildReport(exceptionToLog);
-            LOG.Error("Exception caught in the UnhandledException handler.");
-            LOG.Error(exceptionText);
-            if (exceptionText != null && exceptionText.Contains("InputLanguageChangedEventArgs"))
-            {
-                // Ignore for BUG-1809
-                return;
-            }
-
-            new BugReportForm(exceptionText).ShowDialog();
-        }
-
-        private static void Application_ThreadException(object sender, ThreadExceptionEventArgs e)
-        {
-            Exception exceptionToLog = e.Exception;
-            string exceptionText = EnvironmentInfo.BuildReport(exceptionToLog);
-            LOG.Error("Exception caught in the ThreadException handler.");
-            LOG.Error(exceptionText);
-            if (exceptionText != null && exceptionText.Contains("InputLanguageChangedEventArgs"))
-            {
-                // Ignore for BUG-1809
-                return;
-            }
-
-            new BugReportForm(exceptionText).ShowDialog();
-        }
-
         /// <summary>
         /// Handle the notify icon click
         /// </summary>
@@ -1399,7 +1319,7 @@ namespace Greenshot.Forms
                 }
                 catch (Exception ex)
                 {
-                    LOG.Warn("Couldn't open the path to the last exported file, taking default.", ex);
+                    Log.Warn("Couldn't open the path to the last exported file, taking default.", ex);
                 }
             }
 
@@ -1411,7 +1331,7 @@ namespace Greenshot.Forms
             {
                 // Make sure we show what we tried to open in the exception
                 ex.Data["path"] = path;
-                LOG.Warn("Couldn't open the path to the last exported file", ex);
+                Log.Warn("Couldn't open the path to the last exported file", ex);
                 // No reason to create a bug-form, we just display the error.
                 MessageBox.Show(this, ex.Message, "Opening " + path, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
@@ -1422,7 +1342,7 @@ namespace Greenshot.Forms
         /// </summary>
         public void Exit()
         {
-            LOG.Info("Exit: " + EnvironmentInfo.EnvironmentToString(false));
+            Log.Info("Exit: " + EnvironmentInfo.EnvironmentToString(false));
 
             // Close all open forms (except this), use a separate List to make sure we don't get a "InvalidOperationException: Collection was modified"
             List<Form> formsToClose = new List<Form>();
@@ -1438,13 +1358,13 @@ namespace Greenshot.Forms
             {
                 try
                 {
-                    LOG.InfoFormat("Closing form: {0}", form.Name);
+                    Log.InfoFormat("Closing form: {0}", form.Name);
                     Form formCapturedVariable = form;
                     Invoke((MethodInvoker) delegate { formCapturedVariable.Close(); });
                 }
                 catch (Exception e)
                 {
-                    LOG.Error("Error closing form!", e);
+                    Log.Error("Error closing form!", e);
                 }
             }
 
@@ -1455,7 +1375,7 @@ namespace Greenshot.Forms
             }
             catch (Exception e)
             {
-                LOG.Error("Error unregistering hotkeys!", e);
+                Log.Error("Error unregistering hotkeys!", e);
             }
 
             // Now the sound isn't needed anymore
@@ -1465,7 +1385,7 @@ namespace Greenshot.Forms
             }
             catch (Exception e)
             {
-                LOG.Error("Error deinitializing sound!", e);
+                Log.Error("Error deinitializing sound!", e);
             }
 
             // Inform all registed plugins
@@ -1475,7 +1395,7 @@ namespace Greenshot.Forms
             }
             catch (Exception e)
             {
-                LOG.Error("Error shutting down plugins!", e);
+                Log.Error("Error shutting down plugins!", e);
             }
 
             // Gracefull shutdown
@@ -1486,7 +1406,7 @@ namespace Greenshot.Forms
             }
             catch (Exception e)
             {
-                LOG.Error("Error closing application!", e);
+                Log.Error("Error closing application!", e);
             }
 
             ImageIO.RemoveTmpFiles();
@@ -1498,7 +1418,7 @@ namespace Greenshot.Forms
             }
             catch (Exception e)
             {
-                LOG.Error("Error storing configuration!", e);
+                Log.Error("Error storing configuration!", e);
             }
 
             // Remove the application mutex
