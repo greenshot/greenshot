@@ -164,6 +164,8 @@ namespace Greenshot.Editor.Forms
 			this.lineThicknessUpDown = new ToolStripNumericUpDown();
 			this.counterLabel = new GreenshotToolStripLabel();
 			this.counterUpDown = new ToolStripNumericUpDown();
+			this.btnCounterLetterToggle = new System.Windows.Forms.ToolStripButton();
+			this.btnCounterReset = new System.Windows.Forms.ToolStripButton();
 			this.fontFamilyComboBox = new FontFamilyComboBox();
 			this.fontSizeLabel = new GreenshotToolStripLabel();
 			this.fontSizeUpDown = new ToolStripNumericUpDown();
@@ -1078,6 +1080,8 @@ namespace Greenshot.Editor.Forms
 									this.highlightModeButton,
 									this.btnFillColor,
 									this.btnLineColor,
+									this.btnCounterLetterToggle,
+									this.btnCounterReset,
 									this.lineThicknessLabel,
 									this.lineThicknessUpDown,
 									this.fontFamilyComboBox,
@@ -1263,7 +1267,25 @@ namespace Greenshot.Editor.Forms
 			this.counterUpDown.Value = 1;
 			this.counterUpDown.GotFocus += new System.EventHandler(this.ToolBarFocusableElementGotFocus);
 			this.counterUpDown.LostFocus += new System.EventHandler(this.ToolBarFocusableElementLostFocus);
-			// 
+			//
+			// btnCounterLetterToggle
+			//
+			this.btnCounterLetterToggle.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.btnCounterLetterToggle.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+			this.btnCounterLetterToggle.Name = "btnCounterLetterToggle";
+			this.btnCounterLetterToggle.Text = "123";
+			this.btnCounterLetterToggle.ToolTipText = "Toggle between numbers and letters";
+			this.btnCounterLetterToggle.Click += new System.EventHandler(this.BtnCounterLetterToggleClick);
+			//
+			// btnCounterReset
+			//
+			this.btnCounterReset.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.btnCounterReset.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+			this.btnCounterReset.Name = "btnCounterReset";
+			this.btnCounterReset.Text = "\u21BA1";
+			this.btnCounterReset.ToolTipText = "Reset counter back to 1";
+			this.btnCounterReset.Click += new System.EventHandler(this.BtnCounterResetClick);
+			//
 			// lineThicknessLabel
 			// 
 			this.lineThicknessLabel.LanguageKey = "editor_thickness";
@@ -1994,6 +2016,8 @@ namespace Greenshot.Editor.Forms
 		private ToolStripNumericUpDown lineThicknessUpDown;
 		private GreenshotToolStripLabel counterLabel;
 		private ToolStripNumericUpDown counterUpDown;
+		private System.Windows.Forms.ToolStripButton btnCounterLetterToggle;
+		private System.Windows.Forms.ToolStripButton btnCounterReset;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator14;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator15;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator16;

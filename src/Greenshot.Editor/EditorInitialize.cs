@@ -22,6 +22,7 @@
 using Greenshot.Base.Core;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
+using Greenshot.Editor.Drawing;
 using Greenshot.Editor.FileFormatHandlers;
 
 namespace Greenshot.Editor
@@ -32,6 +33,8 @@ namespace Greenshot.Editor
 
         public static void Initialize()
         {
+            SimpleServiceProvider.Current.AddService<IStepLabelService>(new StepLabelService());
+
             SimpleServiceProvider.Current.AddService<IFileFormatHandler>(
                     // All generic things, like gif, png, jpg etc.
                     CoreConfig.IsBetaTester? new ImageSharpFileFormatHandler() : new DefaultFileFormatHandler(),
