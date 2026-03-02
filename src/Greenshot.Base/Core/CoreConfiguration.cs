@@ -343,7 +343,7 @@ namespace Greenshot.Base.Core
                     {
                         newSize.Height = 16;
                     }
-                    else if (IconSize.Height > 256)
+                    else if (newSize.Height > 256)
                     {
                         newSize.Height = 256;
                     }
@@ -353,7 +353,7 @@ namespace Greenshot.Base.Core
 
                 if (_iconSize != newSize)
                 {
-                    _iconSize = value;
+                    _iconSize = newSize;
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("IconSize"));
                 }
             }
