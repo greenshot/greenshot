@@ -20,7 +20,6 @@
  */
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
@@ -38,6 +37,7 @@ using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Configuration;
+using Greenshot.Controls;
 using Greenshot.Helpers;
 using log4net;
 
@@ -844,40 +844,13 @@ namespace Greenshot.Forms
         {
             combobox_window_capture_mode.Enabled = radiobuttonWindowCapture.Checked;
         }
-    }
 
-    public class ListviewWithDestinationComparer : IComparer
-    {
-        public int Compare(object x, object y)
+        protected override void WndProc(ref Message m)
         {
-            if (x is not ListViewItem listViewItemX)
+            if (!WndProcDefaults.TryHandleMessage(ref m))
             {
-                return 0;
+                base.WndProc(ref m);
             }
-
-            if (y is not ListViewItem listViewItemY)
-            {
-                return 0;
-            }
-
-            IDestination firstDestination = listViewItemX.Tag as IDestination;
-
-            if (listViewItemY.Tag is not IDestination secondDestination)
-            {
-                return 1;
-            }
-
-            if (firstDestination != null && firstDestination.Priority == secondDestination.Priority)
-            {
-                return string.Compare(firstDestination.Description, secondDestination.Description, StringComparison.Ordinal);
-            }
-
-            if (firstDestination != null)
-            {
-                return firstDestination.Priority - secondDestination.Priority;
-            }
-
-            return 0;
         }
     }
 }

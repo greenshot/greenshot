@@ -28,11 +28,13 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
+using Dapplo.Windows.Common.Enums;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Dpi;
 using Dapplo.Windows.Kernel32;
 using Dapplo.Windows.Messages;
+using Dapplo.Windows.Messages.Enumerations;
 using Dapplo.Windows.User32;
 using Dapplo.Windows.User32.Structs;
 using Greenshot.Base;
@@ -2166,6 +2168,14 @@ namespace Greenshot.Editor.Forms
                 Log.Error($"Error saving surface state to {filePath}", ex);
             }
             return false;
+        }
+
+        protected override void WndProc(ref Message m)
+        {
+            if (!WndProcDefaults.TryHandleMessage(ref m))
+            {
+                base.WndProc(ref m);
+            }
         }
     }
 }

@@ -385,5 +385,13 @@ namespace Greenshot.Forms
 
             return true;
         }
+
+        protected override void WndProc(ref Message m)
+        {
+            if (!WndProcDefaults.TryHandleMessage(ref m))
+            {
+                base.WndProc(ref m);
+            }
+        }
     }
 }

@@ -676,8 +676,27 @@ begin
   Result := WizardIsComponentSelected('disablesnippingtool');
 end;
 
+/////////////////////////////////////////////////////////////////////
+// Restart manager support. This is needed to restart Greenshot after installation, if it was running when the installer was launched.
+/////////////////////////////////////////////////////////////////////
+var
+  AppWasRestarted: Boolean;
+
+procedure UR_RestartManagerRestarted;
+begin
+  // This is a special internal callback. 
+  // It fires if the Restart Manager actually restarts the app.
+  AppWasRestarted := True;
+end;
+
+function NotAlreadyRestarted: Boolean;
+begin
+  // If AppWasRestarted is True, we return False to skip the [Run] entry.
+  Result := not AppWasRestarted;
+end;
+
 [Run]
-Filename: "{app}\{#ExeName}.exe"; Description: "{cm:startgreenshot}"; Parameters: "{code:GetParamsForGS}"; WorkingDir: "{app}"; Flags: nowait postinstall runasoriginaluser
+Filename: "{app}\{#ExeName}.exe"; Description: "{cm:startgreenshot}"; Parameters: "{code:GetParamsForGS}"; WorkingDir: "{app}"; Flags: nowait postinstall runasoriginaluser; Check: NotAlreadyRestarted
 Filename: "https://getgreenshot.org/thank-you/?language={language}&version={#Version}"; Flags: shellexec runasoriginaluser
 
 [InstallDelete]

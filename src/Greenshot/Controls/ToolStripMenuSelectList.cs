@@ -28,7 +28,7 @@ using Greenshot.Base.Core;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 
-namespace Greenshot.Forms
+namespace Greenshot.Controls
 {
     /// <summary>
     /// the ToolStripMenuSelectList makes it possible to have a single or multi-check menu

@@ -34,14 +34,11 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.Integration;
 using System.Windows.Threading;
-using Dapplo.Windows.AppRestartManager;
-using Dapplo.Windows.Common.Enums;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.DesktopWindowsManager;
 using Dapplo.Windows.Dpi;
 using Dapplo.Windows.Kernel32;
 using Dapplo.Windows.Messages;
-using Dapplo.Windows.Messages.Enumerations;
 using Dapplo.Windows.User32;
 using Greenshot.Base;
 using Greenshot.Base.Controls;
@@ -53,6 +50,7 @@ using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Ocr;
 using Greenshot.Configuration;
+using Greenshot.Controls;
 using Greenshot.Destinations;
 using Greenshot.Editor;
 using Greenshot.Editor.Destinations;
@@ -223,6 +221,9 @@ namespace Greenshot.Forms
                     return;
                 }
 
+                // Make sure we handle END Session correctly
+                RestartManagerHelper.RegisterForRestart();
+
                 // Make sure we can use forms
                 WindowsFormsHost.EnableWindowsFormsInterop();
 
@@ -241,13 +242,7 @@ namespace Greenshot.Forms
                     _conf.Language = languageDialog.SelectedLanguage;
                 }
 
-                // Handle language change events
-                SharedMessageWindow.Listen().Where(m => m.Msg.IsIn(WindowsMessages.WM_INPUTLANGCHANGEREQUEST, WindowsMessages.WM_INPUTLANGCHANGE)).Subscribe(m =>
-                {
-                    // The WM_INPUTLANGCHANGEREQUEST & WM_INPUTLANGCHANGE
-                    m.Handled = true;
-                    m.Result = (nuint)HResult.S_OK;
-                });
+                Application.ApplicationExit += Application_ApplicationExit;
 
                 // force saving ini on every start because some init functions could change/fix the configuration. i.e. loading plugins
                 IniConfig.Save();
@@ -259,6 +254,12 @@ namespace Greenshot.Forms
                 GreenshotMain.Application_ThreadException(ActiveForm, new ThreadExceptionEventArgs(ex));
             }
         }
+
+        private static void Application_ApplicationExit(object sender, EventArgs e)
+        {
+            FreeMutex();
+        }
+
 
         /// <summary>
         /// Send DataTransport Object via Window-messages
@@ -308,6 +309,7 @@ namespace Greenshot.Forms
 
         public MainForm(CommandLineOptions options)
         {
+
             var uiContext = TaskScheduler.FromCurrentSynchronizationContext();
             SimpleServiceProvider.Current.AddService(uiContext);
  
@@ -1453,6 +1455,14 @@ namespace Greenshot.Forms
         public ICapture CaptureWindow(WindowDetails windowToCapture, ICapture capture, WindowCaptureMode coreConfigurationWindowCaptureMode)
         {
             return CaptureHelper.CaptureWindow(windowToCapture, capture, coreConfigurationWindowCaptureMode);
+        }
+
+        protected override void WndProc(ref Message m)
+        {
+            if (!WndProcDefaults.TryHandleMessage(ref m))
+            {
+                base.WndProc(ref m);
+            }
         }
     }
 }

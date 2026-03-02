@@ -22,10 +22,10 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Threading;
 using Dapplo.Windows.AppRestartManager;
+using Dapplo.Windows.Messages.Enumerations;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Editor.Destinations;
@@ -123,35 +123,32 @@ namespace Greenshot.Helpers
                 }
 
                 var editors = ImageEditorForm.Editors.ToArray();
-                foreach (var editor in editors)
+                _dispatcher.Invoke(() =>
                 {
-                    try
+                    foreach (var editor in editors)
                     {
-                        string filename = Path.Combine(stateDir, editor.Surface.ID + ".greenshot");
-                        _dispatcher.Invoke(() => 
+                        try
                         {
+                            string filename = Path.Combine(stateDir, editor.Surface.ID + ".greenshot");
                             if (editor.TrySaveState(filename))
                             {
                                 Log.InfoFormat("Saved editor state to: {0}", filename);
                             }
-                        });
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.Warn("Failed to save state for one editor.", ex);
+                        }
                     }
-                    catch (Exception ex)
-                    {
-                        Log.Warn("Failed to save state for one editor.", ex);
-                    }
-                }
+                    // Make sure the application exits after saving state
+                    Application.Exit();
+                    Environment.Exit(0);
+                });
             }
             catch (Exception ex)
             {
                 Log.Warn("Failed to save editor states for restart.", ex);
             }
-            // Make sure the application exits after saving state
-            _dispatcher.Invoke(() =>
-            {
-                Application.Exit();
-                Task.Delay(1000).ContinueWith(_ => Environment.Exit(0));
-            });
         }
 
         /// <summary>
@@ -162,6 +159,7 @@ namespace Greenshot.Helpers
         /// <param name="transport">Transport object to which restore commands are added.</param>
         public static void RestoreState()
         {
+            Log.InfoFormat("Greenshot started with a request to restore state.");
             try
             {
                 string stateDir = StateDirectory;
@@ -175,9 +173,7 @@ namespace Greenshot.Helpers
                     _dispatcher.Invoke(() => {
                         ISurface surface = new Surface();
                         surface = ImageIO.LoadGreenshotSurface(filePath, surface);
-                        surface.CaptureDetails = new CaptureDetails()
-                        {
-                        };
+                        surface.CaptureDetails = new CaptureDetails();
                         try
                         {
                             DestinationHelper.GetDestination(EditorDestination.DESIGNATION).ExportCapture(true, surface, surface.CaptureDetails);
