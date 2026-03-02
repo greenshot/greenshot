@@ -490,6 +490,7 @@ namespace Greenshot.Editor.Drawing
         /// </summary>
         public Surface()
         {
+            CaptureDetails = new CaptureDetails();
             _fieldAggregator = new FieldAggregator(this);
             _elements = new DrawableContainerList(_uniqueId);
             selectedElements = new DrawableContainerList(_uniqueId);
