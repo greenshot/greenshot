@@ -28,7 +28,7 @@ This directory contains comprehensive changelogs for all Greenshot releases.
 - [Download Portable](https://github.com/greenshot/greenshot/releases/download/v1.3.312/Greenshot-PORTABLE-1.3.312-RELEASE.zip)
 
 ### Latest Development Build
-**[Greenshot 1.4.107](CHANGELOG-1.4.md)** (February 14, 2026)
+**[Greenshot 1.4.108](CHANGELOG-1.4.md)** (February 21, 2026)
 - Continuous build from main branch
 - ⚠️ Unstable/unsigned - for testing only
 - [View all 1.4 builds](https://github.com/greenshot/greenshot/releases)
@@ -67,12 +67,13 @@ Our changelogs follow these principles:
 
 ### 1.4 Series (Development)
 - **First Build**: 1.4.1 (November 18, 2025)
-- **Latest Build**: 1.4.107 (February 14, 2026)
+- **Latest Build**: 1.4.108 (February 21, 2026)
 - **Status**: Active Development
 - **Key Features**:
   - Emoji support in editor
   - OCR-based text redaction (Beta)
   - New capture technology
+  - Modern file/folder dialogs with long path support
   - ImageSharp format support
   - Plugin modernization (Confluence REST API, Dropbox OAuth2)
   - Memory leak fixes

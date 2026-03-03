@@ -57,7 +57,6 @@ namespace Greenshot.Forms {
 			this.label_storagelocation = new GreenshotLabel();
 			this.settings_cancel = new GreenshotButton();
 			this.settings_confirm = new GreenshotButton();
-			this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
 			this.browse = new System.Windows.Forms.Button();
 			this.label_screenshotname = new GreenshotLabel();
 			this.textbox_screenshotname = new GreenshotTextBox();
@@ -1317,7 +1316,6 @@ namespace Greenshot.Forms {
 		private GreenshotTextBox textbox_screenshotname;
 		private GreenshotLabel label_screenshotname;
 		private System.Windows.Forms.Button browse;
-		private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
 		private GreenshotButton settings_cancel;
 		private GreenshotButton settings_confirm;
 		private GreenshotTextBox textbox_storagelocation;
