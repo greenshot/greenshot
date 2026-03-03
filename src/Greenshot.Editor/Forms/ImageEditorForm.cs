@@ -984,7 +984,7 @@ namespace Greenshot.Editor.Forms
                 WindowDetails.ToForeground(Handle);
 
                 MessageBoxButtons buttons = MessageBoxButtons.YesNoCancel;
-                // Dissallow "CANCEL" if the application needs to shutdown
+                // Disallow "CANCEL" if the application needs to shutdown
                 if (e.CloseReason == CloseReason.ApplicationExitCall || e.CloseReason == CloseReason.WindowsShutDown || e.CloseReason == CloseReason.TaskManagerClosing)
                 {
                     buttons = MessageBoxButtons.YesNo;

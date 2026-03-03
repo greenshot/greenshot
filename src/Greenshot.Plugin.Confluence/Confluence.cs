@@ -88,7 +88,7 @@ public class ConfluenceConnector : IDisposable
     /// <summary>
     /// Internal login which catches the exceptions
     /// </summary>
-    /// <returns>true if login was done sucessfully</returns>
+    /// <returns>true if login was done successfully</returns>
     private bool DoLogin(string user, string password)
     {
         try
@@ -154,7 +154,7 @@ public class ConfluenceConnector : IDisposable
                         Log.Error("Problem using the credentials dialog", e);
                     }
 
-                    // For every windows version after XP show an incorrect password baloon
+                    // For every windows version after XP show an incorrect password balloon
                     dialog.IncorrectPassword = true;
                     // Make sure the dialog is display, the password was false!
                     dialog.AlwaysDisplay = true;

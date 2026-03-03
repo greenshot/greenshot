@@ -461,7 +461,7 @@ namespace Greenshot.Helpers
                             _capture = new Capture(fileImage);
                         }
 
-                        // Force Editor, keep picker, this is currently the only usefull destination
+                        // Force Editor, keep picker, this is currently the only useful destination
                         if (_capture.CaptureDetails.HasDestination(nameof(WellKnownDestinations.Picker)))
                         {
                             _capture.CaptureDetails.ClearDestinations();
@@ -1030,7 +1030,7 @@ namespace Greenshot.Helpers
                                                 if (blackPercentageGdi > blackPercentageScreen)
                                                 {
                                                     Log.Debug("Using screen capture, as GDI had additional black.");
-                                                    // changeing the image will automatically dispose the previous
+                                                    // changing the image will automatically dispose the previous
                                                     tmpCapture.Image = screenCapture.Image;
                                                     // Make sure it's not disposed, else the picture is gone!
                                                     screenCapture.NullImage();
@@ -1042,7 +1042,7 @@ namespace Greenshot.Helpers
                                                 if (blackPercentageGdi > 50 && blackPercentageGdi > blackPercentageScreen)
                                                 {
                                                     Log.Debug("Using screen capture, as GDI had additional black.");
-                                                    // changeing the image will automatically dispose the previous
+                                                    // changing the image will automatically dispose the previous
                                                     tmpCapture.Image = screenCapture.Image;
                                                     // Make sure it's not disposed, else the picture is gone!
                                                     screenCapture.NullImage();

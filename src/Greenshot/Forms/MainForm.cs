@@ -1705,7 +1705,7 @@ namespace Greenshot.Forms
                 LOG.Error("Error deinitializing sound!", e);
             }
 
-            // Inform all registed plugins
+            // Inform all registered plugins
             try
             {
                 PluginHelper.Instance.Shutdown();
@@ -1715,7 +1715,7 @@ namespace Greenshot.Forms
                 LOG.Error("Error shutting down plugins!", e);
             }
 
-            // Gracefull shutdown
+            // Graceful shutdown
             try
             {
                 Application.DoEvents();

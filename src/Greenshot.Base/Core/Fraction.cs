@@ -145,8 +145,8 @@ namespace Greenshot.Base.Core
         public static implicit operator Fraction(uint number)
             => new Fraction(number, 1u);
 
-        public static implicit operator Fraction((uint numerator, uint demoninator) tuple)
-            => new Fraction(tuple.numerator, tuple.demoninator);
+        public static implicit operator Fraction((uint numerator, uint denominator) tuple)
+            => new Fraction(tuple.numerator, tuple.denominator);
 
         #endregion
 
