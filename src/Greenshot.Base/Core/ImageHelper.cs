@@ -74,6 +74,10 @@ namespace Greenshot.Base.Core
                 }
 
                 PropertyItem item = image.GetPropertyItem(ExifOrientationId);
+                if (item.Value == null || item.Value.Length == 0)
+                {
+                    return;
+                }
 
                 ExifOrientations orientation = (ExifOrientations) item.Value[0];
                 // Orient the image.
@@ -1249,7 +1253,12 @@ namespace Greenshot.Base.Core
             else
             {
                 // Let GDI+ decide how to convert, need to test what is quicker...
-                newImage = (sourceImage as Bitmap).Clone(sourceRect, targetFormat);
+                var sourceBitmap = sourceImage as Bitmap;
+                if (sourceBitmap == null)
+                {
+                    throw new InvalidOperationException($"Expected Bitmap but got {sourceImage?.GetType().Name}");
+                }
+                newImage = sourceBitmap.Clone(sourceRect, targetFormat);
                 // Make sure both images have the same resolution
                 newImage.SetResolution(sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
             }
