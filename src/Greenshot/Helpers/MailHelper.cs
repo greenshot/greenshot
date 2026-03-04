@@ -402,7 +402,7 @@ namespace Greenshot.Helpers
             /// </summary>
             private MapiHelperInterop()
             {
-                // Internationally blank
+                // Intentionally blank
             }
 
 
