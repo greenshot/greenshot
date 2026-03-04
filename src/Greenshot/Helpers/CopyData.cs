@@ -346,7 +346,7 @@ namespace Greenshot.Helpers
         }
 
         /// <summary>
-        /// Ensures any resoures associated with the CopyDataChannel object
+        /// Ensures any resources associated with the CopyDataChannel object
         /// which has been removed are cleared up.
         /// </summary>
         /// <param name="key">The channelName</param>

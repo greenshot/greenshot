@@ -76,6 +76,7 @@ namespace Greenshot.Editor.Forms
         };
 
         private static readonly List<IImageEditor> EditorList = new();
+        private static readonly object _editorListLock = new();
 
         private Surface _surface;
         private GreenshotToolStripButton[] _toolbarButtons;
@@ -106,16 +107,19 @@ namespace Greenshot.Editor.Forms
         {
             get
             {
-                try
+                lock (_editorListLock)
                 {
-                    EditorList.Sort((e1, e2) => string.Compare(e1.Surface.CaptureDetails.Title, e2.Surface.CaptureDetails.Title, StringComparison.Ordinal));
-                }
-                catch (Exception ex)
-                {
-                    Log.Warn("Sorting of editors failed.", ex);
-                }
+                    try
+                    {
+                        EditorList.Sort((e1, e2) => string.Compare(e1.Surface.CaptureDetails.Title, e2.Surface.CaptureDetails.Title, StringComparison.Ordinal));
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Warn("Sorting of editors failed.", ex);
+                    }
 
-                return EditorList;
+                    return EditorList;
+                }
             }
         }
 
@@ -153,7 +157,10 @@ namespace Greenshot.Editor.Forms
             // Compute emojis in background
             EmojiData.Load();
 
-            EditorList.Add(this);
+            lock (_editorListLock)
+            {
+                EditorList.Add(this);
+            }
 
             //
             // The InitializeComponent() call is required for Windows Forms designer support.
@@ -989,7 +996,7 @@ namespace Greenshot.Editor.Forms
                 WindowDetails.ToForeground(Handle);
 
                 MessageBoxButtons buttons = MessageBoxButtons.YesNoCancel;
-                // Dissallow "CANCEL" if the application needs to shutdown
+                // Disallow "CANCEL" if the application needs to shutdown
                 if (e.CloseReason == CloseReason.ApplicationExitCall || e.CloseReason == CloseReason.WindowsShutDown || e.CloseReason == CloseReason.TaskManagerClosing)
                 {
                     buttons = MessageBoxButtons.YesNo;
@@ -1019,7 +1026,10 @@ namespace Greenshot.Editor.Forms
             IniConfig.Save();
 
             // remove from the editor list
-            EditorList.Remove(this);
+            lock (_editorListLock)
+            {
+                EditorList.Remove(this);
+            }
 
             _surface.Dispose();
 
