@@ -11,7 +11,7 @@ $ReleaseToken = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto([Syste
 
 # Variables
 $RepoPath = "."  # Replace with your local repo path
-$BuildArtifactsPath = "$RepoPath\src\Greenshot\bin\Release\net472"
+$BuildArtifactsPath = "$RepoPath\src\Greenshot\bin\Release\net481"
 $ArtifactsPath = "$RepoPath\artifacts"
 $PortableFilesPath = "$ArtifactsPath\portable-files"
 $SolutionFile = "$RepoPath\src\Greenshot.sln"

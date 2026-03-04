@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -21,7 +21,7 @@
 
 using Greenshot.Base.Controls;
 
-namespace Greenshot.Plugin.Jira.Forms {
+namespace Greenshot.Plugin.Jira.Forms; 
 	partial class SettingsForm {
 		/// <summary>
 		/// Designer variable used to keep track of non-visual components.
@@ -146,4 +146,3 @@ namespace Greenshot.Plugin.Jira.Forms {
 		private GreenshotButton buttonCancel;
 		private GreenshotButton buttonOK;
 	}
-}

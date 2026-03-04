@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -32,9 +32,27 @@ namespace Greenshot.Base.Interfaces
     /// </summary>
     public enum FileFormatHandlerActions
     {
+        /// <summary>
+        /// The FileFormatHandler supports the following extensions to save to stream
+        /// </summary>
         SaveToStream,
+        /// <summary>
+        /// The FileFormatHandler supports the following extensions to load from stream
+        /// </summary>
         LoadFromStream,
-        LoadDrawableFromStream
+        /// <summary>
+        /// The FileFormatHandler supports the following extensions to load from stream
+        /// </summary>
+        LoadDrawableFromStream,
+        /// <summary>
+        /// Specifies which file extensions are supported for loading from file, this is used for the open file dialog
+        /// </summary>
+        LoadFromFile,
+        /// <summary>
+        /// Specifies which file extensions are supported for saving to file, this is used for the save file dialog
+        /// </summary>
+        SaveToFile
+
     }
 
     /// <summary>

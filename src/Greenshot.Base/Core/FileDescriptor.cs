@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -52,11 +52,11 @@ namespace Greenshot.Base.Core
             //FileAttributes
             FileAttributes = (FileAttributes)reader.ReadUInt32();
             //CreationTime
-            CreationTime = new DateTime(1601, 1, 1).AddTicks(reader.ReadInt64());
+            CreationTime = ToRealDate(reader.ReadInt64());
             //LastAccessTime
-            LastAccessTime = new DateTime(1601, 1, 1).AddTicks(reader.ReadInt64());
+            LastAccessTime = ToRealDate(reader.ReadInt64());
             //LastWriteTime
-            LastWriteTime = new DateTime(1601, 1, 1).AddTicks(reader.ReadInt64());
+            LastWriteTime = ToRealDate(reader.ReadInt64());
             //FileSize
             FileSize = reader.ReadInt64();
             //FileName
@@ -71,6 +71,19 @@ namespace Greenshot.Base.Core
             }
 
             FileName = Encoding.Unicode.GetString(nameBytes, 0, i);
+        }
+
+        private DateTime ToRealDate(long ticks)
+        {
+            var result = new DateTime(1601, 1, 1);
+            try
+            {
+                result.AddTicks(ticks);
+            }
+            catch (Exception) {
+                // Ignore
+            }
+            return result;
         }
     }
 }

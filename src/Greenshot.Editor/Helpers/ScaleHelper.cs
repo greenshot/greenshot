@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -243,8 +243,8 @@ namespace Greenshot.Editor.Helpers
 
             if (centeredScale)
             {
-                float wdiff = result.Width - result.Width;
-                float hdiff = result.Height - result.Height;
+                float wdiff = (result.Width - boundsBeforeResize.Width) / 2;
+                float hdiff = (result.Height - boundsBeforeResize.Height) / 2;
                 result = result.Inflate(wdiff, hdiff);
             }
 

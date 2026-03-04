@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -44,6 +44,9 @@ namespace Greenshot.Base.Core
         [IniProperty("Language", Description = "The language in IETF format (e.g. en-US)")]
         public string Language { get; set; }
 
+        [IniProperty("BetaTester", Description = "The user wants to be beta-tester, this enables some features not available otherwise.")]
+        public bool IsBetaTester { get; set; }
+
         [IniProperty("RegionHotkey", Description = "Hotkey for starting the region capture", DefaultValue = "PrintScreen")]
         public string RegionHotkey { get; set; }
 
@@ -55,9 +58,6 @@ namespace Greenshot.Base.Core
 
         [IniProperty("LastregionHotkey", Description = "Hotkey for starting the last region capture", DefaultValue = "Shift + PrintScreen")]
         public string LastregionHotkey { get; set; }
-
-        [IniProperty("IEHotkey", Description = "Hotkey for starting the IE capture", DefaultValue = "Shift + Ctrl + PrintScreen")]
-        public string IEHotkey { get; set; }
 
         [IniProperty("ClipboardHotkey", Description = "Hotkey for opening the clipboard contents into the editor", ExcludeIfNull = true)]
         public string ClipboardHotkey { get; set; }
@@ -80,7 +80,7 @@ namespace Greenshot.Base.Core
         [IniProperty("CaptureWindowsInteractive", Description = "Use interactive window selection to capture? (false=Capture active window)", DefaultValue = "false")]
         public bool CaptureWindowsInteractive { get; set; }
 
-        [IniProperty("CaptureDelay", Description = "Capture delay in millseconds.", DefaultValue = "100")]
+        [IniProperty("CaptureDelay", Description = "Capture delay in milliseconds.", DefaultValue = "100")]
         public int CaptureDelay { get; set; }
 
         [IniProperty("ScreenCaptureMode", Description = "The capture mode used to capture a screen. (Auto, FullScreen, Fixed)", DefaultValue = "Auto")]
@@ -185,17 +185,6 @@ namespace Greenshot.Base.Core
         [IniProperty("UseProxy", Description = "Use your global proxy?", DefaultValue = "True")]
         public bool UseProxy { get; set; }
 
-        [IniProperty("IECapture", Description = "Enable/disable IE capture", DefaultValue = "True")]
-        public bool IECapture { get; set; }
-
-        [IniProperty("IEFieldCapture", Description = "Enable/disable IE field capture, very slow but will make it possible to annotate the fields of a capture in the editor.",
-            DefaultValue = "False")]
-        public bool IEFieldCapture { get; set; }
-
-        [IniProperty("WindowClassesToCheckForIE", Description = "Comma separated list of Window-Classes which need to be checked for a IE instance!",
-            DefaultValue = "AfxFrameOrView70,IMWindowClass")]
-        public List<string> WindowClassesToCheckForIE { get; set; }
-
         [IniProperty("AutoCropDifference",
             Description =
                 "Sets how to compare the colors for the autocrop detection, the higher the more is 'selected'. Possible values are from 0 to 255, where everything above ~150 doesn't make much sense!",
@@ -269,7 +258,7 @@ namespace Greenshot.Base.Core
         [IniProperty("EnableSpecialDIBClipboardReader", Description = "Enable a special DIB clipboard reader", DefaultValue = "True")]
         public bool EnableSpecialDIBClipboardReader { get; set; }
 
-        [IniProperty("WindowCornerCutShape", Description = "The cutshape which is used to remove the window corners, is mirrorred for all corners", DefaultValue = "5,3,2,1,1")]
+        [IniProperty("WindowCornerCutShape", Description = "The cutshape which is used to remove the window corners, is mirrored for all corners", DefaultValue = "5,3,2,1,1")]
         public List<int> WindowCornerCutShape { get; set; }
 
         [IniProperty("LeftClickAction",
@@ -285,7 +274,7 @@ namespace Greenshot.Base.Core
         public bool ZoomerEnabled { get; set; }
 
         [IniProperty("ZoomerOpacity",
-            Description = "Specify the transparency for the zoomer, from 0-1 (where 1 is no transparency and 0 is complete transparent. An usefull setting would be 0.7)",
+            Description = "Specify the transparency for the zoomer, from 0-1 (where 1 is no transparency and 0 is complete transparent. An useful setting would be 0.7)",
             DefaultValue = "1")]
         public float ZoomerOpacity { get; set; }
 
@@ -354,7 +343,7 @@ namespace Greenshot.Base.Core
                     {
                         newSize.Height = 16;
                     }
-                    else if (IconSize.Height > 256)
+                    else if (newSize.Height > 256)
                     {
                         newSize.Height = 256;
                     }
@@ -364,7 +353,7 @@ namespace Greenshot.Base.Core
 
                 if (_iconSize != newSize)
                 {
-                    _iconSize = value;
+                    _iconSize = newSize;
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("IconSize"));
                 }
             }
@@ -430,17 +419,14 @@ namespace Greenshot.Base.Core
                 nameof(DWMBackgroundColor) => Color.Transparent,
                 nameof(ActiveTitleFixes) => new List<string> {
                     "Firefox",
-                    "IE",
                     "Chrome"
                 },
                 nameof(TitleFixMatcher) => new Dictionary<string, string> {
                     { "Firefox", " - Mozilla Firefox.*" },
-                    { "IE", " - (Microsoft|Windows) Internet Explorer.*" },
                     { "Chrome", " - Google Chrome.*" }
                 },
                 nameof(TitleFixReplacer) => new Dictionary<string, string> {
                     { "Firefox", string.Empty },
-                    { "IE", string.Empty },
                     { "Chrome", string.Empty }
                 },
                 _ => null
@@ -525,6 +511,10 @@ namespace Greenshot.Base.Core
             if (UpdateCheckInterval > 365)
             {
                 UpdateCheckInterval = 365;
+            }
+            if (UpdateCheckInterval < 0)
+            {
+                UpdateCheckInterval = 0;
             }
 
             // Enable OneNote if upgrading from 1.1

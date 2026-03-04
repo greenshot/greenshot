@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -23,7 +23,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Xml;
 using Greenshot.Base.IniFile;
@@ -73,7 +72,7 @@ namespace Greenshot.Base.Core
 
             try
             {
-                string applicationFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                string applicationFolder = EnvironmentInfo.GetApplicationFolder();
 
                 // PAF Path
                 if (applicationFolder != null)
@@ -453,7 +452,7 @@ namespace Greenshot.Base.Core
                         // Check if we can display the file
                         if (!string.IsNullOrEmpty(languageFile.LanguageGroup) && UnsupportedLanguageGroups.Contains(languageFile.LanguageGroup))
                         {
-                            Log.InfoFormat("Skipping unsuported (not able to display) language {0} from file {1}", languageFile.Description, languageFilepath);
+                            Log.InfoFormat("Skipping unsupported (not able to display) language {0} from file {1}", languageFile.Description, languageFilepath);
                             continue;
                         }
 

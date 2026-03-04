@@ -1,0 +1,76 @@
+name: Pack and Publish Greenshot to Chocolatey
+
+on:
+  release:
+    types: [published] # Only runs on full releases
+
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: "Simulated release tag"
+        required: true
+        default: "v1.3.304"
+
+jobs:
+  pack-and-publish:
+    runs-on: windows-latest
+
+    steps:
+      - name: Determine tag, for when it's triggered manually
+        shell: pwsh
+        run: |
+          if ("${{ github.event_name }}" -eq "workflow_dispatch") {
+            echo "TAG=${{ github.event.inputs.tag_name }}" >> $env:GITHUB_ENV
+          } else {
+            echo "TAG=${{ github.event.release.tag_name }}" >> $env:GITHUB_ENV
+          }
+
+      # 1. Checkout repository. needed for nuspec etc
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Update nuspec and chocolateyInstall.ps1
+      - name: Get asset digest from GitHub API
+        run: |
+          $TAG = $env:TAG
+          echo "Running for $TAG"
+          $url = "https://api.github.com/repos/greenshot/greenshot/releases/tags/$TAG"
+          $release = Invoke-RestMethod -Uri $url
+          $asset = $release.assets | Where-Object { $_.name -like 'Greenshot-INSTALLER-*.exe' }
+          if (-not $asset) { throw "No matching asset found!" }
+          $checksumType, $checksum = $asset.digest -split ":"
+
+          # Escape release notes for XML
+          $escapedReleaseNotes = [System.Security.SecurityElement]::Escape($release.body)
+          # Set the version without v
+          $version = "$TAG".TrimStart('v')
+
+          # Inject version and release notes into greenshot.nuspec
+          (Get-Content chocolatey/greenshot.nuspec.template) -replace '<version>.*</version>', "<version>$version</version>" -replace 'RELEASE_NOTES', $escapedReleaseNotes | Set-Content chocolatey/greenshot.nuspec
+
+          # Inject checksum type into chocolateyInstall.ps1
+          (Get-Content chocolatey/tools/chocolateyInstall.ps1.template) -replace 'CHECKSUM_TYPE', $checksumType -replace 'CHECKSUM_PLACEHOLDER', $checksum -replace 'DOWNLOAD_URL', $asset.browser_download_url | Set-Content chocolatey/tools/chocolateyInstall.ps1
+
+      # 3. Install Chocolatey
+      - name: Install Chocolatey
+        run: |
+          Set-ExecutionPolicy Bypass -Scope Process -Force
+          [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+          iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+
+      # 4. Pack Chocolatey package using .nuspec
+      - name: Pack with cpack
+        run: |
+          cd chocolatey
+          choco pack greenshot.nuspec
+
+      # 5. Push package to Chocolatey
+      - name: Push package to Chocolatey
+        run: |
+          cd chocolatey
+          $version = "$env:TAG".TrimStart('v')
+          choco push greenshot.$version.nupkg --source https://push.chocolatey.org/ --api-key ${{ secrets.CHOCO_API_KEY }}
+
+
+
+

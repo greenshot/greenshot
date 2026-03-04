@@ -31,5 +31,6 @@
     <resource name="label_information">
       {0} je název vašeho snímku
     </resource>
+    <resource name="label_outputimageformat">Formát obrázku</resource>
   </resources>
 </language>

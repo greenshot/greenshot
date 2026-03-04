@@ -1,0 +1,1 @@
+﻿Get-Process Greenshot* | Stop-Process -Force -ErrorAction SilentlyContinue

@@ -31,5 +31,6 @@
     <resource name="label_information">
       {0} est le nom du fichier de votre capture d'écran
     </resource>
+    <resource name="label_outputimageformat">Format d'image</resource>
   </resources>
 </language>

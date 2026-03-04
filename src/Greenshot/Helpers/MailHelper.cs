@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -180,7 +180,8 @@ namespace Greenshot.Helpers
             thread.Start();
 
             // only return when the new thread has built it's interop representation
-            _manualResetEvent.WaitOne();
+            // Use a timeout to prevent indefinite hang if the thread throws an exception
+            _manualResetEvent.WaitOne(TimeSpan.FromSeconds(60));
             _manualResetEvent.Reset();
         }
 
@@ -401,7 +402,7 @@ namespace Greenshot.Helpers
             /// </summary>
             private MapiHelperInterop()
             {
-                // Intenationally blank
+                // Intentionally blank
             }
 
 
@@ -468,7 +469,7 @@ namespace Greenshot.Helpers
         }
 
         /// <summary>
-        /// Returns an interop representation of a recepient.
+        /// Returns an interop representation of a recipient.
         /// </summary>
         /// <returns></returns>
         internal MapiMailMessage.MapiHelperInterop.MapiRecipDesc GetInteropRepresentation()
@@ -510,7 +511,7 @@ namespace Greenshot.Helpers
         }
 
         /// <summary>
-        /// Struct which contains an interop representation of a colleciton of recipients.
+        /// Struct which contains an interop representation of a collection of recipients.
         /// </summary>
         internal struct InteropRecipientCollection : IDisposable
         {

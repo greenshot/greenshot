@@ -5,7 +5,7 @@
 		<resource name="about_donations">If you like Greenshot, you are welcome to support us:</resource>
 		<resource name="about_host">Greenshot is hosted by GitHub at</resource>
 		<resource name="about_icons">Icons from Yusuke Kamiyamane's Fugue icon set (Creative Commons Attribution 3.0 license)</resource>
-		<resource name="about_license">Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+		<resource name="about_license">Copyright © 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
 Greenshot comes with ABSOLUTELY NO WARRANTY. This is free software, and you are welcome to redistribute it under certain conditions.
 Details about the GNU General Public License:</resource>
 		<resource name="about_title">About Greenshot</resource>
@@ -50,8 +50,6 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="contextmenu_capturefullscreen_left">left</resource>
 		<resource name="contextmenu_capturefullscreen_right">right</resource>
 		<resource name="contextmenu_capturefullscreen_top">top</resource>
-		<resource name="contextmenu_captureie">Capture Internet Explorer</resource>
-		<resource name="contextmenu_captureiefromlist">Capture Internet Explorer from list</resource>
 		<resource name="contextmenu_capturelastregion">Capture last region</resource>
 		<resource name="contextmenu_capturewindow">Capture window</resource>
 		<resource name="contextmenu_capturewindowfromlist">Capture window from list</resource>
@@ -87,6 +85,7 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="editor_cancel">Cancel</resource>
 		<resource name="editor_clipboardfailed">Error while accessing the clipboard. Please try again.</resource>
 		<resource name="editor_close">Close</resource>
+		<resource name="editor_close_all">Close all</resource>
 		<resource name="editor_close_on_save">Do you want to save the screenshot?</resource>
 		<resource name="editor_close_on_save_title">Save image?</resource>
 		<resource name="editor_confirm">Confirm</resource>
@@ -136,12 +135,31 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="editor_obfuscate_blur">Blur</resource>
 		<resource name="editor_obfuscate_mode">Obfuscation mode</resource>
 		<resource name="editor_obfuscate_pixelize">Pixelize</resource>
+		<resource name="editor_obfuscate_text">Redact Text...</resource>
+		<resource name="editor_obfuscate_text_title">Redact Text</resource>
+		<resource name="editor_obfuscate_text_search">Search for:</resource>
+		<resource name="editor_obfuscate_text_search_button">Search</resource>
+		<resource name="editor_obfuscate_text_regex">Use Regular Expression</resource>
+		<resource name="editor_obfuscate_text_case_sensitive">Case Sensitive</resource>
+		<resource name="editor_obfuscate_text_auto_search">Auto Search</resource>
+		<resource name="editor_obfuscate_text_search_scope">Search in:</resource>
+		<resource name="editor_obfuscate_text_scope_words">Words</resource>
+		<resource name="editor_obfuscate_text_scope_lines">Lines</resource>
+		<resource name="editor_obfuscate_text_matches">Matches found: {0}</resource>
+		<resource name="editor_obfuscate_text_apply">Apply</resource>
+		<resource name="editor_obfuscate_text_error">Error</resource>
+		<resource name="editor_obfuscate_text_no_capture">No capture available</resource>
+		<resource name="editor_obfuscate_text_no_ocr_provider">OCR provider not available</resource>
+		<resource name="editor_obfuscate_text_ocr_failed">OCR failed</resource>
+		<resource name="editor_obfuscate_text_no_text">No text found in image</resource>
+		<resource name="editor_obfuscate_text_advanced">Advanced Settings</resource>
 		<resource name="editor_object">Object</resource>
 		<resource name="editor_opendirinexplorer">Open directory in Windows Explorer</resource>
 		<resource name="editor_pastefromclipboard">Paste</resource>
 		<resource name="editor_pixel_size">Pixel size</resource>
 		<resource name="editor_preview_quality">Preview quality</resource>
 		<resource name="editor_print">Print</resource>
+		<resource name="editor_remove_transparency">Remove transparency</resource>
 		<resource name="editor_redo">Redo {0}</resource>
 		<resource name="editor_resetsize">Reset size</resource>
 		<resource name="editor_resize_percent">Percent</resource>
@@ -223,12 +241,11 @@ Please check write accessibility of the selected storage location.</resource>
 		<resource name="settings_destination_email">E-Mail</resource>
 		<resource name="settings_destination_file">Save directly (using settings below)</resource>
 		<resource name="settings_destination_fileas">Save as (displaying dialog)</resource>
-		<resource name="settings_destination_picker">Select destination dynamically</resource>
+		<resource name="settings_destination_picker">Ask for destination every time</resource>
 		<resource name="settings_destination_printer">Send to printer</resource>
 		<resource name="settings_editor">Editor</resource>
 		<resource name="settings_filenamepattern">Filename pattern</resource>
 		<resource name="settings_general">General</resource>
-		<resource name="settings_iecapture">Internet Explorer capture</resource>
 		<resource name="settings_jpegquality">JPEG quality</resource>
 		<resource name="settings_language">Language</resource>
 		<resource name="settings_message_filenamepattern">The following placeholders will be replaced automatically in the pattern defined:
@@ -281,7 +298,6 @@ time, e.g. 11_58_32 (plus extension defined in the settings)</resource>
 		<resource name="settings_windowscapture">Window capture</resource>
 		<resource name="tooltip_firststart">Right-click here or press the {0} key.</resource>
 		<resource name="update_found">A newer version of Greenshot is available! Do you want to download Greenshot {0}?</resource>
-		<resource name="wait_ie_capture">Please wait while the page in Internet Explorer is captured...</resource>
 		<resource name="warning">Warning</resource>
 		<resource name="warning_hotkeys">The hotkey(s) "{0}" could not be registered. This problem is probably caused by another tool{1} claiming usage of the same hotkey(s)! You could either change your hotkey settings or deactivate/change the software making use of the hotkey(s).
 

@@ -31,5 +31,6 @@
     <resource name="label_information">
       {0} è il noem file della schermata
     </resource>
+    <resource name="label_outputimageformat">Formato immagine</resource>
   </resources>
 </language>

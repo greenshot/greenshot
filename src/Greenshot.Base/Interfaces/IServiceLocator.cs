@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -37,9 +37,11 @@ namespace Greenshot.Base.Interfaces
         /// <summary>
         /// Get the only instance of the specified service
         /// </summary>
+        /// <remarks>It will throw an exception when more than one instance is found</remarks>
         /// <typeparam name="TService">Service to find</typeparam>
+        /// <param name="isOptional">If true, it won't throw an exception when the service is not found</param>
         /// <returns>TService</returns>
-        TService GetInstance<TService>();
+        TService GetInstance<TService>(bool isOptional = false);
 
         /// <summary>
         /// Add one of more services to the registry
@@ -54,5 +56,19 @@ namespace Greenshot.Base.Interfaces
         /// <typeparam name="TService">Type of the service</typeparam>
         /// <param name="services">IEnumerable{TService} with services to add</param>
         void AddService<TService>(IEnumerable<TService> services);
+
+        /// <summary>
+        /// Remove one or more services from the registry
+        /// </summary>
+        /// <typeparam name="TService">Type of the service</typeparam>
+        /// <param name="services">One or more services which need to be removed</param>
+        void RemoveService<TService>(params TService[] services);
+
+        /// <summary>
+        /// Remove multiple services from the registry
+        /// </summary>
+        /// <typeparam name="TService">Type of the service</typeparam>
+        /// <param name="services">IEnumerable{TService} with services to remove</param>
+        void RemoveService<TService>(IEnumerable<TService> services);
     }
 }

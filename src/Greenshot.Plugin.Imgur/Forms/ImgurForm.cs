@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -21,12 +21,11 @@
 
 using Greenshot.Base.Controls;
 
-namespace Greenshot.Plugin.Imgur.Forms
+namespace Greenshot.Plugin.Imgur.Forms;
+
+/// <summary>
+/// This class is needed for design-time resolving of the language files
+/// </summary>
+public class ImgurForm : GreenshotForm
 {
-    /// <summary>
-    /// This class is needed for design-time resolving of the language files
-    /// </summary>
-    public class ImgurForm : GreenshotForm
-    {
-    }
 }

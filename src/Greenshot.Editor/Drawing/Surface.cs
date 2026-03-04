@@ -1,6 +1,6 @@
-/*
+﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -32,6 +32,9 @@ using System.ServiceModel.Security;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Gdi32;
+using Dapplo.Windows.Icons;
+using Dapplo.Windows.User32;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
 using Greenshot.Base.Effects;
@@ -40,6 +43,7 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Drawing.Adorners;
 using Greenshot.Editor.Configuration;
+using Greenshot.Editor.Drawing.Emoji;
 using Greenshot.Editor.Drawing.Fields;
 using Greenshot.Editor.Helpers;
 using Greenshot.Editor.Memento;
@@ -311,7 +315,7 @@ namespace Greenshot.Editor.Drawing
         private IFieldAggregator _fieldAggregator;
 
         /// <summary>
-        /// the cursor container, needed with serialization as we need a direct acces to it.
+        /// the cursor container, needed with serialization as we need a direct access to it.
         /// </summary>
         private IDrawableContainer _cursorContainer;
 
@@ -349,6 +353,11 @@ namespace Greenshot.Editor.Drawing
             {
                 _zoomFactor = value;
                 var inverse = _zoomFactor.Inverse();
+
+                // Dispose old matrices before creating new ones to prevent GDI handle leaks
+                _zoomMatrix?.Dispose();
+                _inverseZoomMatrix?.Dispose();
+
                 _zoomMatrix = new Matrix(_zoomFactor, 0, 0, _zoomFactor, 0, 0);
                 _inverseZoomMatrix = new Matrix(inverse, 0, 0, inverse, 0, 0);
                 UpdateSize();
@@ -481,6 +490,7 @@ namespace Greenshot.Editor.Drawing
         /// </summary>
         public Surface()
         {
+            CaptureDetails = new CaptureDetails();
             _fieldAggregator = new FieldAggregator(this);
             _elements = new DrawableContainerList(_uniqueId);
             selectedElements = new DrawableContainerList(_uniqueId);
@@ -536,7 +546,7 @@ namespace Greenshot.Editor.Drawing
         }
 
         /// <summary>
-        /// Surface contructor with a capture
+        /// Surface constructor with a capture
         /// </summary>
         /// <param name="capture"></param>
         public Surface(ICapture capture) : this(capture.Image)
@@ -549,7 +559,7 @@ namespace Greenshot.Editor.Drawing
                 // check if cursor is on the capture, otherwise we leave it out.
                 if (cursorRect.IntersectsWith(captureRect))
                 {
-                    _cursorContainer = AddIconContainer(capture.Cursor, capture.CursorLocation.X, capture.CursorLocation.Y);
+                    _cursorContainer = AddCursorContainer(capture.Cursor.Clone(), capture.CursorLocation.X, capture.CursorLocation.Y);
                     SelectElement(_cursorContainer);
                 }
             }
@@ -565,6 +575,12 @@ namespace Greenshot.Editor.Drawing
             if (disposing)
             {
                 LOG.Debug("Disposing surface!");
+                if (_image != null)
+                {
+                    _image.Dispose();
+                    _image = null;
+                }
+
                 if (_buffer != null)
                 {
                     _buffer.Dispose();
@@ -575,6 +591,19 @@ namespace Greenshot.Editor.Drawing
                 {
                     _transparencyBackgroundBrush.Dispose();
                     _transparencyBackgroundBrush = null;
+                }
+
+                // Dispose zoom matrices to release GDI handles
+                if (_zoomMatrix != null)
+                {
+                    _zoomMatrix.Dispose();
+                    _zoomMatrix = null;
+                }
+
+                if (_inverseZoomMatrix != null)
+                {
+                    _inverseZoomMatrix.Dispose();
+                    _inverseZoomMatrix = null;
                 }
 
                 // Cleanup undo/redo stacks
@@ -798,6 +827,9 @@ namespace Greenshot.Editor.Drawing
                 case DrawingModes.None:
                     _undrawnElement = null;
                     break;
+                case DrawingModes.Emoji:
+                    _undrawnElement = new EmojiContainer(this, "🙂");
+                    break;
             }
 
             if (_undrawnElement != null)
@@ -852,7 +884,16 @@ namespace Greenshot.Editor.Drawing
             return iconContainer;
         }
 
-        public ICursorContainer AddCursorContainer(Cursor cursor, int x, int y)
+        public IEmojiContainer AddEmojiContainer(string emoji, int x, int y, int size)
+        {
+            var iconContainer = new EmojiContainer(this, emoji, size);
+            iconContainer.Left = x;
+            iconContainer.Top = y;
+            AddElement(iconContainer);
+            return iconContainer;
+        }
+
+        public ICursorContainer AddCursorContainer(CapturedCursor cursor, int x, int y)
         {
             CursorContainer cursorContainer = new CursorContainer(this)
             {
@@ -1769,12 +1810,16 @@ namespace Greenshot.Editor.Drawing
                 int verticalCorrection = targetClipRectangle.Top % (int) _zoomFactor.Numerator;
                 if (horizontalCorrection != 0)
                 {
-                    targetClipRectangle = targetClipRectangle.ChangeX(-horizontalCorrection).ChangeWidth(horizontalCorrection);
+                    targetClipRectangle = targetClipRectangle
+                        .ChangeX(targetClipRectangle.X - horizontalCorrection)
+                        .ChangeWidth(targetClipRectangle.Width + horizontalCorrection);
                 }
 
                 if (verticalCorrection != 0)
                 {
-                    targetClipRectangle = targetClipRectangle.ChangeY(-verticalCorrection).ChangeHeight(verticalCorrection);
+                    targetClipRectangle = targetClipRectangle
+                        .ChangeY(targetClipRectangle.Y - verticalCorrection)
+                        .ChangeHeight(targetClipRectangle.Height + verticalCorrection);
                 }
             }
 
@@ -2606,31 +2651,31 @@ namespace Greenshot.Editor.Drawing
         // for laptops without numPads, also allow shift modifier
         private void SetSelectedElementColor(Color color, bool numPad, bool shift)
         {
-	        if (numPad || shift)
-	        {
-		        selectedElements.SetForegroundColor(color);
-				UpdateForegroundColorEvent(this, color);
-	        }
-	        else
-	        {
-		        selectedElements.SetBackgroundColor(color);
-				UpdateBackgroundColorEvent(this, color);
-	        }
-	        selectedElements.Invalidate();
+            if (numPad || shift)
+            {
+                selectedElements.SetForegroundColor(color);
+                UpdateForegroundColorEvent(this, color);
+            }
+            else
+            {
+                selectedElements.SetBackgroundColor(color);
+                UpdateBackgroundColorEvent(this, color);
+            }
+            selectedElements.Invalidate();
         }
 
         private void ChangeLineThickness(int increaseBy)
         {
-		    var newThickness = selectedElements.IncreaseLineThickness(increaseBy);
-		    UpdateLineThicknessEvent(this, newThickness);
-	        selectedElements.Invalidate();
+            var newThickness = selectedElements.IncreaseLineThickness(increaseBy);
+            UpdateLineThicknessEvent(this, newThickness);
+            selectedElements.Invalidate();
         }
 
         private void FlipShadow()
         {
-		    var shadow = selectedElements.FlipShadow();
-		    UpdateShadowEvent(this, shadow);
-	        selectedElements.Invalidate();
+            var shadow = selectedElements.FlipShadow();
+            UpdateShadowEvent(this, shadow);
+            selectedElements.Invalidate();
         }
 
         /// <summary>

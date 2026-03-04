@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -19,21 +19,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace Greenshot.Plugin.Jira.Forms
+namespace Greenshot.Plugin.Jira.Forms;
+
+/// <summary>
+/// Description of PasswordRequestForm.
+/// </summary>
+public partial class SettingsForm : JiraFormBase
 {
-    /// <summary>
-    /// Description of PasswordRequestForm.
-    /// </summary>
-    public partial class SettingsForm : JiraFormBase
+    public SettingsForm()
     {
-        public SettingsForm()
-        {
-            //
-            // The InitializeComponent() call is required for Windows Forms designer support.
-            //
-            InitializeComponent();
-            AcceptButton = buttonOK;
-            CancelButton = buttonCancel;
-        }
+        //
+        // The InitializeComponent() call is required for Windows Forms designer support.
+        //
+        InitializeComponent();
+        AcceptButton = buttonOK;
+        CancelButton = buttonCancel;
     }
 }

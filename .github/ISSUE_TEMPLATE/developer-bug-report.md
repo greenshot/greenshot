@@ -7,8 +7,6 @@ assignees: ''
 
 ---
 
-This GitHub repository is for developers, if you want to report a bug for Greenshot as a user please do so in our JIRA issue system here: https://greenshot.atlassian.net/projects/BUGS/issues/filter=allopenissues
-
 **Describe the bug**
 A clear and concise description of what the bug is.
 

@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -21,25 +21,24 @@
 
 using System.Windows;
 
-namespace Greenshot.Plugin.Confluence.Forms
+namespace Greenshot.Plugin.Confluence.Forms;
+
+/// <summary>
+/// Interaction logic for ConfluenceConfigurationForm.xaml
+/// </summary>
+public partial class ConfluenceConfigurationForm
 {
-    /// <summary>
-    /// Interaction logic for ConfluenceConfigurationForm.xaml
-    /// </summary>
-    public partial class ConfluenceConfigurationForm
+    public ConfluenceConfiguration Config { get; }
+
+    public ConfluenceConfigurationForm(ConfluenceConfiguration config)
     {
-        public ConfluenceConfiguration Config { get; }
+        DataContext = config;
+        Config = config;
+        InitializeComponent();
+    }
 
-        public ConfluenceConfigurationForm(ConfluenceConfiguration config)
-        {
-            DataContext = config;
-            Config = config;
-            InitializeComponent();
-        }
-
-        private void Button_OK_Click(object sender, RoutedEventArgs e)
-        {
-            DialogResult = true;
-        }
+    private void Button_OK_Click(object sender, RoutedEventArgs e)
+    {
+        DialogResult = true;
     }
 }

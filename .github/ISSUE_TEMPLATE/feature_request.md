@@ -7,8 +7,6 @@ assignees: ''
 
 ---
 
-This GitHub repository is for developers, if you want to request a feature for Greenshot as a user please do so in our JIRA issue system here: https://greenshot.atlassian.net/projects/FEATURE/issues/filter=allopenissues
-
 **Is your feature request related to a problem? Please describe.**
 A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
 

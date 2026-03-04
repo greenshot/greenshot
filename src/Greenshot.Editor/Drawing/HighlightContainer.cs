@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -75,7 +75,15 @@ namespace Greenshot.Editor.Drawing
 
         private void ConfigurePreparedFilters()
         {
-            PreparedFilter preset = (PreparedFilter) GetFieldValue(FieldType.PREPARED_FILTER_HIGHLIGHT);
+            object fieldValue = GetFieldValue(FieldType.PREPARED_FILTER_HIGHLIGHT);
+
+            // Guard against null value which can occur after undo operations
+            if (fieldValue == null)
+            {
+                return;
+            }
+
+            PreparedFilter preset = (PreparedFilter)fieldValue;
             while (Filters.Count > 0)
             {
                 Remove(Filters[0]);

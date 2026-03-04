@@ -5,7 +5,7 @@
 		<resource name="about_donations">Greenshot이 좋다면 아래 URL로 방문하셔서 지원할 수 있습니다.</resource>
 		<resource name="about_host">Greenshot은 GitHub 관리하에 아래 링크에서 호스팅되고 있습니다</resource>
 		<resource name="about_icons">아이콘은 Yusuke Kamiyamane's Fugue icon set으로부터 제공받은 것입니다. (Creative Commons Attribution 3.0 license)</resource>
-		<resource name="about_license">Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+		<resource name="about_license">Copyright © 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
 Greenshot comes with ABSOLUTELY NO WARRANTY. This is free software, and you are welcome to redistribute it under certain conditions.
 Details about the GNU General Public License:</resource>
 		<resource name="about_title">Greenshot 프로그램 소개...</resource>
@@ -49,8 +49,6 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="contextmenu_capturefullscreen_left">왼쪽</resource>
 		<resource name="contextmenu_capturefullscreen_right">오른쪽</resource>
 		<resource name="contextmenu_capturefullscreen_top">상단</resource>
-		<resource name="contextmenu_captureie">인터넷 익스플로어 캡처</resource>
-		<resource name="contextmenu_captureiefromlist">목록에서 인터넷 익스플로어 캡처</resource>
 		<resource name="contextmenu_capturelastregion">직전 저장구역 캡처</resource>
 		<resource name="contextmenu_capturewindow">작업 화면 캡처</resource>
 		<resource name="contextmenu_capturewindowfromlist">목록에서 작업 화면 캡처</resource>
@@ -131,12 +129,30 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="editor_obfuscate_blur">흐림</resource>
 		<resource name="editor_obfuscate_mode">모자이크 처리</resource>
 		<resource name="editor_obfuscate_pixelize">픽셀라이즈</resource>
+		<resource name="editor_obfuscate_text">텍스트 가리기...</resource>
+		<resource name="editor_obfuscate_text_title">텍스트 가리기</resource>
+		<resource name="editor_obfuscate_text_search">검색:</resource>
+		<resource name="editor_obfuscate_text_search_button">검색</resource>
+		<resource name="editor_obfuscate_text_regex">정규식 사용</resource>
+		<resource name="editor_obfuscate_text_case_sensitive">대소문자 구분</resource>
+		<resource name="editor_obfuscate_text_auto_search">자동 검색</resource>
+		<resource name="editor_obfuscate_text_search_scope">검색 범위:</resource>
+		<resource name="editor_obfuscate_text_scope_words">단어</resource>
+		<resource name="editor_obfuscate_text_scope_lines">줄</resource>
+		<resource name="editor_obfuscate_text_matches">일치 항목 발견: {0}</resource>
+		<resource name="editor_obfuscate_text_apply">적용</resource>
+		<resource name="editor_obfuscate_text_error">오류</resource>
+		<resource name="editor_obfuscate_text_no_capture">사용 가능한 캡처 없음</resource>
+		<resource name="editor_obfuscate_text_no_ocr_provider">OCR 공급자를 사용할 수 없음</resource>
+		<resource name="editor_obfuscate_text_ocr_failed">OCR 실패</resource>
+		<resource name="editor_obfuscate_text_no_text">이미지에서 텍스트를 찾을 수 없음</resource>
 		<resource name="editor_object">객체</resource>
 		<resource name="editor_opendirinexplorer">윈도우 탐색기에서 폴더 열기</resource>
 		<resource name="editor_pastefromclipboard">붙여넣기</resource>
 		<resource name="editor_pixel_size">화소 크기</resource>
 		<resource name="editor_preview_quality">미리보기 품질</resource>
 		<resource name="editor_print">인쇄</resource>
+		<resource name="editor_remove_transparency">투명도 제거</resource>
 		<resource name="editor_redo">재실행 {0}</resource>
 		<resource name="editor_resetsize">초기화 크기</resource>
 		<resource name="editor_resize_percent">백분율</resource>
@@ -217,12 +233,11 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="settings_destination_email">이메일</resource>
 		<resource name="settings_destination_file">직접 저장 (아래 설정 사용)</resource>
 		<resource name="settings_destination_fileas">다른 이름으로 저장</resource>
-		<resource name="settings_destination_picker">동적으로 저장할 방법 선택</resource>
+		<resource name="settings_destination_picker">매번 저장 방법 묻기</resource>
 		<resource name="settings_destination_printer">인쇄기로 보내기</resource>
 		<resource name="settings_editor">편집기</resource>
 		<resource name="settings_filenamepattern">파일명 유형</resource>
 		<resource name="settings_general">일반</resource>
-		<resource name="settings_iecapture">인터넷 익스플로어 캡처</resource>
 		<resource name="settings_jpegquality">JPEG 품질</resource>
 		<resource name="settings_language">언어</resource>
 		<resource name="settings_message_filenamepattern">자동으로 아래 정의된 설정값으로 치환될 것입니다:
@@ -273,7 +288,6 @@ ${hostname} PC명
 		<resource name="settings_windowscapture">작업창 캡처</resource>
 		<resource name="tooltip_firststart">여기를 오른쪽 클릭 또는 {0}키를 누릅니다.</resource>
 		<resource name="update_found">Greenshot 새 버전을 이용할 수 있습니다. Greenshot {0}를 다운로드하겠습니까?</resource>
-		<resource name="wait_ie_capture">익스플로어 페이지를 캡처하는 동안 기다리세요...</resource>
 		<resource name="warning">경고</resource>
 		<resource name="warning_hotkeys">단축키 "{0}를 등록할 수 없습니다. 아마 다른 어플이 동일한 단축키를 사용 중인 것 같습니다! 단축키 설정을 변경하거나 다른 어플의 단축키를 비활성화하거나 변경하세요.
 

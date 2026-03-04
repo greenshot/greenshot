@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom, Francis Noel
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom, Francis Noel
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -154,13 +154,13 @@ namespace Greenshot.Editor.Drawing.Adorners
         {
             Graphics targetGraphics = paintEventArgs.Graphics;
 
-            var bounds = BoundsOnSurface;
             GraphicsState state = targetGraphics.Save();
 
             targetGraphics.CompositingMode = CompositingMode.SourceCopy;
 
             try
             {
+                var bounds = BoundsOnSurface;
                 using var fillBrush = new SolidBrush(FillColor);
                 targetGraphics.FillRectangle(fillBrush, bounds);
                 using var lineBrush = new SolidBrush(OutlineColor);

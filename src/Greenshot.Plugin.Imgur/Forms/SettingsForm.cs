@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -21,28 +21,27 @@
 
 using System;
 
-namespace Greenshot.Plugin.Imgur.Forms
+namespace Greenshot.Plugin.Imgur.Forms;
+
+/// <summary>
+/// Description of PasswordRequestForm.
+/// </summary>
+public partial class SettingsForm : ImgurForm
 {
-    /// <summary>
-    /// Description of PasswordRequestForm.
-    /// </summary>
-    public partial class SettingsForm : ImgurForm
+    public SettingsForm()
     {
-        public SettingsForm()
-        {
-            //
-            // The InitializeComponent() call is required for Windows Forms designer support.
-            //
-            InitializeComponent();
-            CancelButton = buttonCancel;
-            AcceptButton = buttonOK;
+        //
+        // The InitializeComponent() call is required for Windows Forms designer support.
+        //
+        InitializeComponent();
+        CancelButton = buttonCancel;
+        AcceptButton = buttonOK;
 
-            historyButton.Enabled = ImgurUtils.IsHistoryLoadingNeeded();
-        }
+        historyButton.Enabled = ImgurUtils.IsHistoryLoadingNeeded();
+    }
 
-        private void ButtonHistoryClick(object sender, EventArgs e)
-        {
-            ImgurHistory.ShowHistory();
-        }
+    private void ButtonHistoryClick(object sender, EventArgs e)
+    {
+        ImgurHistory.ShowHistory();
     }
 }

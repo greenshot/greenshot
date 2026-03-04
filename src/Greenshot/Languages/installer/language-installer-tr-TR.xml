@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<language description="Türkçe" ietf="tr-TR" version="1.0.0" languagegroup="1">
+	<resources>
+		<resource name="startup">{#ExeName} Windows açıldığında başlasın</resource>
+		<resource name="startgreenshot">{#ExeName} uygulamasını başlat</resource>
+		<resource name="jira">Jira eklentisi</resource>
+		<resource name="confluence">Confluence eklentisi</resource>
+		<resource name="externalcommand">Harici komut eklentisiyle aç</resource>
+		<resource name="ocr">OCR eklentisi (Microsoft Office Document Imaging (MODI) gerektirir)</resource>
+		<resource name="imgur">Imgur eklentisi (Bkz: https://imgur.com)</resource>
+		<resource name="language">Ek diller</resource>
+		<resource name="optimize">Performans ayarları yapılıyor, bu biraz zaman alabilir.</resource>
+	</resources>
+</language>

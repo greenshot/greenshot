@@ -5,7 +5,7 @@
 		<resource name="about_donations">:אם את\ה נהנה\ית משימוש בתוכנה, את\ה מוזמן לתרום לנו</resource>
 		<resource name="about_host">Greenshot is hosted by GitHub at</resource>
 		<resource name="about_icons">Icons from Yusuke Kamiyamane's Fugue icon set (Creative Commons Attribution 3.0 license)</resource>
-		<resource name="about_license">Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+		<resource name="about_license">Copyright © 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
 Greenshot comes with ABSOLUTELY NO WARRANTY. This is free software, and you are welcome to redistribute it under certain conditions.
 Details about the GNU General Public License:</resource>
 		<resource name="about_title">Greenshot אודות התוכנה</resource>
@@ -94,12 +94,30 @@ Details about the GNU General Public License:</resource>
 		<resource name="editor_obfuscate_blur">טישטוש</resource>
 		<resource name="editor_obfuscate_mode">מצב האפלה</resource>
 		<resource name="editor_obfuscate_pixelize">פיקסליזציה</resource>
+		<resource name="editor_obfuscate_text">הסתרת טקסט...</resource>
+		<resource name="editor_obfuscate_text_title">הסתרת טקסט</resource>
+		<resource name="editor_obfuscate_text_search">חפש:</resource>
+		<resource name="editor_obfuscate_text_search_button">חפש</resource>
+		<resource name="editor_obfuscate_text_regex">השתמש בביטוי רגולרי</resource>
+		<resource name="editor_obfuscate_text_case_sensitive">הבחן בין אותיות גדולות/קטנות</resource>
+		<resource name="editor_obfuscate_text_auto_search">חיפוש אוטומטי</resource>
+		<resource name="editor_obfuscate_text_search_scope">חפש ב:</resource>
+		<resource name="editor_obfuscate_text_scope_words">מילים</resource>
+		<resource name="editor_obfuscate_text_scope_lines">שורות</resource>
+		<resource name="editor_obfuscate_text_matches">נמצאו התאמות: {0}</resource>
+		<resource name="editor_obfuscate_text_apply">החל</resource>
+		<resource name="editor_obfuscate_text_error">שגיאה</resource>
+		<resource name="editor_obfuscate_text_no_capture">אין צילום זמין</resource>
+		<resource name="editor_obfuscate_text_no_ocr_provider">ספק OCR לא זמין</resource>
+		<resource name="editor_obfuscate_text_ocr_failed">OCR נכשל</resource>
+		<resource name="editor_obfuscate_text_no_text">לא נמצא טקסט בתמונה</resource>
 		<resource name="editor_object">אובייקט</resource>
 		<resource name="editor_opendirinexplorer">פתח תיקייה בסייר חלונות</resource>
 		<resource name="editor_pastefromclipboard">הדבקה</resource>
 		<resource name="editor_pixel_size">גודל פיקסל</resource>
 		<resource name="editor_preview_quality">איכות תצוגה מקדימה</resource>
 		<resource name="editor_print">הדפסה</resource>
+		<resource name="editor_remove_transparency">הסר שקיפות</resource>
 		<resource name="editor_save">שמור</resource>
 		<resource name="editor_save_objects">שמור אובייקט לקובץ</resource>
 		<resource name="editor_saveas">...שמירה בשם</resource>

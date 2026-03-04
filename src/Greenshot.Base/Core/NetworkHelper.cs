@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -116,6 +116,7 @@ namespace Greenshot.Base.Core
                 catch (Exception)
                 {
                     // If we arrive here, the image loading didn't work, try to see if the response has a http(s) URL to an image and just take this instead.
+                    memoryStream.Seek(0, SeekOrigin.Begin);
                     string content;
                     using (var streamReader = new StreamReader(memoryStream, Encoding.UTF8, true))
                     {
@@ -177,6 +178,7 @@ namespace Greenshot.Base.Core
                 catch (Exception)
                 {
                     // If we arrive here, the image loading didn't work, try to see if the response has a http(s) URL to an image and just take this instead.
+                    memoryStream.Seek(0, SeekOrigin.Begin);
                     string content;
                     using (var streamReader = new StreamReader(memoryStream, Encoding.UTF8, true))
                     {

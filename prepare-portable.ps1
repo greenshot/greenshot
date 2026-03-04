@@ -19,6 +19,10 @@ Copy-Item "$BuildArtifactsPath\Greenshot.exe.config" "$OutputPath" -Force
 # Copy all dlls
 Copy-Item "$BuildArtifactsPath\*.dll" "$OutputPath" -Force
 
+# Copy emoji resources
+Copy-Item "$BuildArtifactsPath\emojis.xml" "$OutputPath" -Force
+Copy-Item "$BuildArtifactsPath\Twemoji.Mozilla.ttf" "$OutputPath" -Force
+
 # Copy help files
 New-Item -ItemType Directory -Path "$OutputPath\Help" -Force | Out-Null
 Copy-Item "$RepositoryRootPath\src\Greenshot\Languages\*.html" "$OutputPath\Help" -Force
@@ -104,9 +108,3 @@ New-Item -ItemType Directory -Path "$OutputPath\Languages\Greenshot.Plugin.Photo
 New-Item -ItemType Directory -Path "$OutputPath\Plugins\Greenshot.Plugin.Photobucket" -Force | Out-Null
 Copy-Item "$RepositoryRootPath\src\Greenshot.Plugin.Photobucket\Languages\language_photobucket*.xml" "$OutputPath\Languages\Greenshot.Plugin.Photobucket" -Force
 Copy-Item "$BuildArtifactsPath\Plugins\Greenshot.Plugin.Photobucket\Greenshot.Plugin.Photobucket.dll" "$OutputPath\Plugins\Greenshot.Plugin.Photobucket" -Force
-
-# Copy Win10 Plugin
-New-Item -ItemType Directory -Path "$OutputPath\Languages\Greenshot.Plugin.Win10" -Force | Out-Null
-New-Item -ItemType Directory -Path "$OutputPath\Plugins\Greenshot.Plugin.Win10" -Force | Out-Null
-Copy-Item "$BuildArtifactsPath\Plugins\Greenshot.Plugin.Win10\Greenshot.Plugin.Win10.dll" "$OutputPath\Plugins\Greenshot.Plugin.Win10" -Force
-Copy-Item "$BuildArtifactsPath\Plugins\Greenshot.Plugin.Win10\Microsoft.Toolkit.Uwp.Notifications.dll" "$OutputPath\Plugins\Greenshot.Plugin.Win10" -Force

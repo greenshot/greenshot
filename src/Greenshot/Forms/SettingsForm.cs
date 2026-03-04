@@ -1,6 +1,6 @@
-/*
+﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021  Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright � 2004-2026  Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -87,8 +87,6 @@ namespace Greenshot.Forms
             window_hotkeyControl.Leave += LeaveHotkeyControl;
             region_hotkeyControl.Enter += EnterHotkeyControl;
             region_hotkeyControl.Leave += LeaveHotkeyControl;
-            ie_hotkeyControl.Enter += EnterHotkeyControl;
-            ie_hotkeyControl.Leave += LeaveHotkeyControl;
             lastregion_hotkeyControl.Enter += EnterHotkeyControl;
             lastregion_hotkeyControl.Leave += LeaveHotkeyControl;
             // Changes for BUG-2077
@@ -639,7 +637,7 @@ namespace Greenshot.Forms
 
                 // Make sure the current language & settings are reflected in the Main-context menu
                 var mainForm = SimpleServiceProvider.Current.GetInstance<MainForm>();
-                mainForm?.UpdateUi();
+                mainForm.UpdateUi();
                 DialogResult = DialogResult.OK;
             }
             else
@@ -651,13 +649,36 @@ namespace Greenshot.Forms
         private void BrowseClick(object sender, EventArgs e)
         {
             // Get the storage location and replace the environment variables
-            folderBrowserDialog1.SelectedPath = FilenameHelper.FillVariables(textbox_storagelocation.Text, false);
-            if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
+            string currentPath = FilenameHelper.FillVariables(textbox_storagelocation.Text, false);
+            // Only use the path as the starting folder if it actually exists and is reachable;
+            // otherwise leave SelectedPath empty so the dialog falls back to the default (My Documents).
+            folderBrowserDialog1.SelectedPath = Directory.Exists(currentPath) ? currentPath : string.Empty;
+            try
             {
-                // Only change if there is a change, otherwise we might overwrite the environment variables
-                if (folderBrowserDialog1.SelectedPath != null && !folderBrowserDialog1.SelectedPath.Equals(FilenameHelper.FillVariables(textbox_storagelocation.Text, false)))
+                if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
                 {
-                    textbox_storagelocation.Text = folderBrowserDialog1.SelectedPath;
+                    // Only change if there is a change, otherwise we might overwrite the environment variables
+                    if (folderBrowserDialog1.SelectedPath != null && !folderBrowserDialog1.SelectedPath.Equals(currentPath))
+                    {
+                        textbox_storagelocation.Text = folderBrowserDialog1.SelectedPath;
+                    }
+                }
+            }
+            catch (InvalidOperationException ex)
+            {
+                Log.Warn("Problem opening folder browser dialog, retrying with empty path: ", ex);
+                // Retry with an empty SelectedPath so the user can still browse and correct the path
+                folderBrowserDialog1.SelectedPath = string.Empty;
+                try
+                {
+                    if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
+                    {
+                        textbox_storagelocation.Text = folderBrowserDialog1.SelectedPath;
+                    }
+                }
+                catch (InvalidOperationException retryEx)
+                {
+                    Log.Error("Failed to open folder browser dialog even with empty path: ", retryEx);
                 }
             }
         }

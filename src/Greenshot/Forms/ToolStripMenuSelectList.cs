@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -39,7 +39,7 @@ namespace Greenshot.Forms
         private readonly bool _multiCheckAllowed;
         private readonly IProvideDeviceDpi _provideDeviceDpi;
         private bool _updateInProgress;
-        private static Image _defaultImage;
+        private Image _defaultImage;
 
         /// <summary>
         /// Occurs when one of the list's child element's Checked state changes.
@@ -138,6 +138,16 @@ namespace Greenshot.Forms
         public void AddItem(string label, object data, bool isChecked)
         {
             AddItem(label, null, data, isChecked);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _defaultImage?.Dispose();
+                _defaultImage = null;
+            }
+            base.Dispose(disposing);
         }
 
         /// <summary>

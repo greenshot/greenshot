@@ -9,7 +9,7 @@
 		<resource name="home_seemore">Want to see more?</resource>
 		<resource name="home_seemore_screenshots">Of course there is more that Greenshot can do for you. Have a look at some &lt;a title="Screenshots of Greenshot in action" href="/screenshots/"&gt;screenshots&lt;/a&gt; of Greenshot in action or try the &lt;a title="Download the latest stable version of Greenshot" href="/downloads/"&gt;latest release&lt;/a&gt;.</resource>
 		<resource name="home_whatis">What is Greenshot????</resource>
-		<resource name="home_whatis_create">Quickly create screenshots of a selected region, window or fullscreen; you can even capture complete (scrolling) web pages from Internet Explorer.</resource>
+		<resource name="home_whatis_create">Quickly create screenshots of a selected region, window or fullscreen.</resource>
 		<resource name="home_whatis_edit">Easily annotate, highlight or obfuscate parts of the screenshot.</resource>
 		<resource name="home_whatis_intro">Greenshot is a light-weight screenshot software tool for Windows with the following key features:</resource>
 		<resource name="home_whatis_more">...and a lot more options simplifying creation of and work with screenshots every day.</resource>

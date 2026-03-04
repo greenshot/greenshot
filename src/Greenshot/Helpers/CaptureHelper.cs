@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -19,7 +19,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using log4net;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -42,6 +41,8 @@ using Greenshot.Configuration;
 using Greenshot.Editor.Destinations;
 using Greenshot.Editor.Drawing;
 using Greenshot.Forms;
+using Greenshot.Native;
+using log4net;
 
 namespace Greenshot.Helpers
 {
@@ -138,15 +139,6 @@ namespace Greenshot.Helpers
         public static void CaptureLastRegion(bool captureMouse)
         {
             using CaptureHelper captureHelper = new CaptureHelper(CaptureMode.LastRegion, captureMouse);
-            captureHelper.MakeCapture();
-        }
-
-        public static void CaptureIe(bool captureMouse, WindowDetails windowToCapture)
-        {
-            using CaptureHelper captureHelper = new CaptureHelper(CaptureMode.IE, captureMouse)
-            {
-                SelectedCaptureWindow = windowToCapture
-            };
             captureHelper.MakeCapture();
         }
 
@@ -340,15 +332,6 @@ namespace Greenshot.Helpers
                     SetDpi();
                     HandleCapture();
                     break;
-                case CaptureMode.IE:
-                    if (IeCaptureHelper.CaptureIe(_capture, SelectedCaptureWindow) != null)
-                    {
-                        _capture.CaptureDetails.AddMetaData("source", "Internet Explorer");
-                        SetDpi();
-                        HandleCapture();
-                    }
-
-                    break;
                 case CaptureMode.FullScreen:
                     // Check how we need to capture the screen
                     bool captureTaken = false;
@@ -478,7 +461,7 @@ namespace Greenshot.Helpers
                             _capture = new Capture(fileImage);
                         }
 
-                        // Force Editor, keep picker, this is currently the only usefull destination
+                        // Force Editor, keep picker, this is currently the only useful destination
                         if (_capture.CaptureDetails.HasDestination(nameof(WellKnownDestinations.Picker)))
                         {
                             _capture.CaptureDetails.ClearDestinations();
@@ -501,7 +484,7 @@ namespace Greenshot.Helpers
                         _capture = WindowCapture.CaptureRectangle(_capture, CoreConfig.LastCapturedRegion);
                         // TODO: Reactive / check if the elements code is activated
                         //if (windowDetailsThread != null) {
-                        //	windowDetailsThread.Join();
+                        //    windowDetailsThread.Join();
                         //}
 
                         // Set capture title, fixing bug #3569703
@@ -614,16 +597,9 @@ namespace Greenshot.Helpers
         /// <summary>
         /// If a balloon tip is show for a taken capture, this handles the click on it
         /// </summary>
-        /// <param name="e">SurfaceMessageEventArgs</param>
-        private void OpenCaptureOnClick(SurfaceMessageEventArgs e)
+        /// <param name="eventArgs">SurfaceMessageEventArgs</param>
+        private void OpenCaptureOnClick(SurfaceMessageEventArgs eventArgs)
         {
-            var notifyIcon = SimpleServiceProvider.Current.GetInstance<NotifyIcon>();
-            if (notifyIcon.Tag is not SurfaceMessageEventArgs eventArgs)
-            {
-                Log.Warn("OpenCaptureOnClick called without SurfaceMessageEventArgs");
-                return;
-            }
-
             ISurface surface = eventArgs.Surface;
             if (surface != null)
             {
@@ -935,6 +911,14 @@ namespace Greenshot.Helpers
                 captureForWindow = new Capture();
             }
 
+            // New simplified logic with 1.4, using WindowsGraphicsCapture
+            if (CoreConfig.IsBetaTester)
+            {
+                captureForWindow.Image = WindowsGraphicsCaptureInterop.CaptureWindowToBitmap(windowToCapture.Handle);
+                captureForWindow.CaptureDetails.Title = windowToCapture.Text;
+                return captureForWindow;
+            }
+
             NativeRect windowRectangle = windowToCapture.WindowRectangle;
 
             // When Vista & DWM (Aero) enabled
@@ -949,53 +933,31 @@ namespace Greenshot.Helpers
                 // 3) Otherwise use GDI (Screen might be also okay but might lose content)
                 if (isAutoMode)
                 {
-                    if (CoreConfig.IECapture && IeCaptureHelper.IsIeWindow(windowToCapture))
-                    {
-                        try
-                        {
-                            ICapture ieCapture = IeCaptureHelper.CaptureIe(captureForWindow, windowToCapture);
-                            if (ieCapture != null)
-                            {
-                                return ieCapture;
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            Log.WarnFormat("Problem capturing IE, skipping to normal capture. Exception message was: {0}", ex.Message);
-                        }
-                    }
-
                     // Take default screen
                     windowCaptureMode = WindowCaptureMode.Screen;
 
                     // In https://github.com/greenshot/greenshot/issues/373 it was shown that PrintWindow (GDI) works great with Windows 11
-                    if (WindowsVersion.IsWindows11OrLater)
+                    // In https://github.com/greenshot/greenshot/issues/658 is was made clear it DOESN'T!
+                    // Change to GDI, if allowed
+                    if (WindowCapture.IsGdiAllowed(process))
                     {
-                        windowCaptureMode = WindowCaptureMode.GDI;
-                    }
-                    else
-                    {
-                        // Change to GDI, if allowed
-                        if (WindowCapture.IsGdiAllowed(process))
+                        if (!dwmEnabled && IsWpf(process))
                         {
-                            if (!dwmEnabled && IsWpf(process))
-                            {
-                                // do not use GDI, as DWM is not enabled and the application uses PresentationFramework.dll -> isWPF
-                                Log.InfoFormat("Not using GDI for windows of process {0}, as the process uses WPF", process.ProcessName);
-                            }
-                            else
-                            {
-                                windowCaptureMode = WindowCaptureMode.GDI;
-                            }
+                            // do not use GDI, as DWM is not enabled and the application uses PresentationFramework.dll -> isWPF
+                            Log.InfoFormat("Not using GDI for windows of process {0}, as the process uses WPF", process.ProcessName);
                         }
-
-                        // Change to DWM, if enabled and allowed
-                        if (dwmEnabled)
+                        else
                         {
-                            if (WindowCapture.IsDwmAllowed(process))
-                            {
-                                windowCaptureMode = WindowCaptureMode.Aero;
-                            }
+                            windowCaptureMode = WindowCaptureMode.GDI;
+                        }
+                    }
+
+                    // Change to DWM, if enabled and allowed
+                    if (dwmEnabled)
+                    {
+                        if (WindowCapture.IsDwmAllowed(process))
+                        {
+                            windowCaptureMode = WindowCaptureMode.Aero;
                         }
                     }
                 }
@@ -1021,9 +983,12 @@ namespace Greenshot.Helpers
                 Log.InfoFormat("Capturing window with mode {0}", windowCaptureMode);
                 bool captureTaken = false;
                 windowRectangle = windowRectangle.Intersect(captureForWindow.ScreenBounds);
-                // Try to capture
-                while (!captureTaken)
+                // Try to capture, with a safety limit to prevent infinite mode-switching loops
+                int captureAttempts = 0;
+                const int maxCaptureAttempts = 5;
+                while (!captureTaken && captureAttempts < maxCaptureAttempts)
                 {
+                    captureAttempts++;
                     ICapture tmpCapture = null;
                     switch (windowCaptureMode)
                     {
@@ -1041,7 +1006,7 @@ namespace Greenshot.Helpers
                                 }
 
                                 tmpCapture = windowToCapture.CaptureGdiWindow(captureForWindow);
-                                if (tmpCapture != null && !WindowsVersion.IsWindows11OrLater)
+                                if (tmpCapture != null)
                                 {
                                     // check if GDI capture any good, by comparing it with the screen content
                                     int blackCountGdi = ImageHelper.CountColor(tmpCapture.Image, Color.Black, false);
@@ -1065,7 +1030,7 @@ namespace Greenshot.Helpers
                                                 if (blackPercentageGdi > blackPercentageScreen)
                                                 {
                                                     Log.Debug("Using screen capture, as GDI had additional black.");
-                                                    // changeing the image will automatically dispose the previous
+                                                    // changing the image will automatically dispose the previous
                                                     tmpCapture.Image = screenCapture.Image;
                                                     // Make sure it's not disposed, else the picture is gone!
                                                     screenCapture.NullImage();
@@ -1077,7 +1042,7 @@ namespace Greenshot.Helpers
                                                 if (blackPercentageGdi > 50 && blackPercentageGdi > blackPercentageScreen)
                                                 {
                                                     Log.Debug("Using screen capture, as GDI had additional black.");
-                                                    // changeing the image will automatically dispose the previous
+                                                    // changing the image will automatically dispose the previous
                                                     tmpCapture.Image = screenCapture.Image;
                                                     // Make sure it's not disposed, else the picture is gone!
                                                     screenCapture.NullImage();
@@ -1149,6 +1114,11 @@ namespace Greenshot.Helpers
 
                             break;
                     }
+                }
+
+                if (!captureTaken)
+                {
+                    Log.Warn("Failed to capture window after maximum attempts, all capture modes exhausted.");
                 }
             }
 

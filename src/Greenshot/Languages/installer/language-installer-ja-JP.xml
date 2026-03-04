@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Japanese" ietf="ja-JP" version="1.3.290" languagegroup="7">
+	<resources>
+		<resource name="startup">{#ExeName} を Windows のスタートアップに登録</resource>
+		<resource name="startgreenshot">{#ExeName} を起動</resource>
+		<resource name="jira">Jira プラグイン</resource>
+		<resource name="confluence">Confluence プラグイン</resource>
+		<resource name="externalcommand">Open with external command プラグイン</resource>
+		<resource name="ocr">OCR プラグイン (Microsoft Office Document Imaging (MODI) が必要)</resource>
+		<resource name="imgur">Imgur プラグイン (参照: https://imgur.com)</resource>
+		<resource name="language">追加の言語</resource>
+		<resource name="optimize">パフォーマンスを最適化しています。これにはしばらく時間がかかる場合があります。</resource>
+	</resources>
+</language>

@@ -5,7 +5,7 @@
 		<resource name="about_donations">Wenn der Greenshot gfälld, kannsd uns gern a weng helfn:</resource>
 		<resource name="about_host">Greenshot is a bei GitHub, und zwa dordn:</resource>
 		<resource name="about_icons">Dei Fuztl-Bildla sin vom Yusuke Kamiyamane's Fugue icon set (Griäidif Gommens Äddribuschn 3.0 Laisns)</resource>
-		<resource name="about_license">Kobbireid (C) 2007-2021 Domas Braun, Jens Glingen, Robin Grohm
+		<resource name="about_license">Kobbireid © 2004-2026 Domas Braun, Jens Glingen, Robin Grohm
 A Garandie gibds für Greenshot ned, des kannst vergessn. Greenshot is umsonsd und wennsd mogst, kannsd es a rumreichn.
 Mehr Infos zur GNU Dschännerel Bablig Laisns:</resource>
 		<resource name="about_title">Was issn Greenshot???</resource>
@@ -45,8 +45,6 @@ Dangschee, wassd scho :)</resource>
 		<resource name="contextmenu_capturefullscreen_left">lings</resource>
 		<resource name="contextmenu_capturefullscreen_right">rechds</resource>
 		<resource name="contextmenu_capturefullscreen_top">ohm</resource>
-		<resource name="contextmenu_captureie">Inderned Eggsblohrer abmoln</resource>
-		<resource name="contextmenu_captureiefromlist">Inderned Eggsblohrer abmoln</resource>
 		<resource name="contextmenu_capturelastregion">En ledzdn Breich nochamal abmoln</resource>
 		<resource name="contextmenu_capturewindow">Fensder abmoln</resource>
 		<resource name="contextmenu_capturewindowfromlist">Fensder aus Lisde abmoln</resource>
@@ -127,12 +125,30 @@ Dangschee, wassd scho :)</resource>
 		<resource name="editor_obfuscate_blur">Absofdn</resource>
 		<resource name="editor_obfuscate_mode">Zensier - Modus</resource>
 		<resource name="editor_obfuscate_pixelize">Verbixln</resource>
+		<resource name="editor_obfuscate_text">Text unkennlich machn...</resource>
+		<resource name="editor_obfuscate_text_title">Text unkennlich machn</resource>
+		<resource name="editor_obfuscate_text_search">Suchna nach:</resource>
+		<resource name="editor_obfuscate_text_search_button">Suchna</resource>
+		<resource name="editor_obfuscate_text_regex">Regulärn Ausdruck verwenda</resource>
+		<resource name="editor_obfuscate_text_case_sensitive">Groß-/Kloanschreiwung beachtn</resource>
+		<resource name="editor_obfuscate_text_auto_search">Automatische Suche</resource>
+		<resource name="editor_obfuscate_text_search_scope">Suchna in:</resource>
+		<resource name="editor_obfuscate_text_scope_words">Wörtä</resource>
+		<resource name="editor_obfuscate_text_scope_lines">Zeiln</resource>
+		<resource name="editor_obfuscate_text_matches">Treffer gfunna: {0}</resource>
+		<resource name="editor_obfuscate_text_apply">Üwänehma</resource>
+		<resource name="editor_obfuscate_text_error">Fehlä</resource>
+		<resource name="editor_obfuscate_text_no_capture">Koa Aufnahme vafügbor</resource>
+		<resource name="editor_obfuscate_text_no_ocr_provider">OCR-Anbieter ned vafügbor</resource>
+		<resource name="editor_obfuscate_text_ocr_failed">OCR fehlgschlong</resource>
+		<resource name="editor_obfuscate_text_no_text">Koan Text im Bild gfunna</resource>
 		<resource name="editor_object">Objegd</resource>
 		<resource name="editor_opendirinexplorer">Verzeichnis im Windous Eggsblorer öffnen</resource>
 		<resource name="editor_pastefromclipboard">Eifüchn</resource>
 		<resource name="editor_pixel_size">Bixlgröß</resource>
 		<resource name="editor_preview_quality">Vorschaugwalidäd</resource>
 		<resource name="editor_print">Druggn</resource>
+		<resource name="editor_remove_transparency">Dransbarenz wech machn</resource>
 		<resource name="editor_redo">Widderherschdelln {0}</resource>
 		<resource name="editor_resetsize">Größe zrüggsedzn</resource>
 		<resource name="editor_rotateccw">Gechern Uhrzeichersinn drehn</resource>
@@ -207,12 +223,11 @@ Schau hald amal, obsd da übbahabds hi schreim däffsd oder duhs woannersch hi.<
 		<resource name="settings_destination_email">I-Mehl</resource>
 		<resource name="settings_destination_file">Sofodd schbeichern</resource>
 		<resource name="settings_destination_fileas">Schbeichern under (mit Dialooch)</resource>
-		<resource name="settings_destination_picker">Schdändich froong</resource>
+		<resource name="settings_destination_picker">Jeds Mol noch Ziel frong</resource>
 		<resource name="settings_destination_printer">An Drugger schiggn</resource>
 		<resource name="settings_editor">Edidor</resource>
 		<resource name="settings_filenamepattern">Dadeinamen-Musder</resource>
 		<resource name="settings_general">Allgemein</resource>
-		<resource name="settings_iecapture">Inderned Eggsblorer abmoln</resource>
 		<resource name="settings_jpegquality">JPEG-Gwalidäd</resource>
 		<resource name="settings_language">Schbrache</resource>
 		<resource name="settings_message_filenamepattern">Däi Bladzhalder gibds:
@@ -264,7 +279,6 @@ z.B. C:\Users\MaxMusdermann\Desgdob\2012-08-13\12-58-32.png</resource>
 		<resource name="settings_windowscapture">Fensder abmoln</resource>
 		<resource name="tooltip_firststart">Hier rechds gliggn oder die {0} Dasde drüggn.</resource>
 		<resource name="update_found">Was hasdn du für an aldn Scheiß?! Magsd des neue Greenshot {0} ham?</resource>
-		<resource name="wait_ie_capture">Etz watzd an Momend! Des dauerd a weng...</resource>
 		<resource name="warning">Hinweis</resource>
 		<resource name="warning_hotkeys">Die globale Dasdnkombi "{0}" konnd ned agdivierd wern.
 Warscheinli hoggd irgend so a andrer Debb draff.

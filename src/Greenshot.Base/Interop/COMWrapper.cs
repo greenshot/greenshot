@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -364,12 +364,20 @@ namespace Greenshot.Base.Interop
             else if (1 == argCount && typeof(void) == returnType && (methodName.StartsWith("add_") || methodName.StartsWith("remove_")))
             {
                 bool removeHandler = methodName.StartsWith("remove_");
-                methodName = methodName.Substring(removeHandler ? 7 : 4);
-                // TODO: Something is missing here
+                string eventName = methodName.Substring(removeHandler ? 7 : 4);
+
                 if (!(callMessage.InArgs[0] is Delegate handler))
                 {
                     return new ReturnMessage(new ArgumentNullException(nameof(handler)), callMessage);
                 }
+
+                // COM event subscription/unsubscription is not implemented.
+                // This would require IConnectionPoint/IConnectionPointContainer infrastructure.
+                // Log warning and return without error to avoid breaking callers that attempt event subscription.
+                Log.WarnFormat("COM event '{0}' {1} is not supported on {2}. Event handlers on COM objects are not implemented.",
+                    eventName, removeHandler ? "unsubscription" : "subscription", _targetName);
+
+                return new ReturnMessage(null, null, 0, callMessage.LogicalCallContext, callMessage);
             }
             else
             {

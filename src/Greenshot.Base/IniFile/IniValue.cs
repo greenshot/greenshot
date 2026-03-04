@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -523,7 +523,7 @@ namespace Greenshot.Base.IniFile
                 return list;
             }
 
-            //LOG.Debug("No convertor for " + fieldType.ToString());
+            //LOG.Debug("No converter for " + fieldType.ToString());
             if (valueType == typeof(object) && valueString.Length > 0)
             {
                 //LOG.Debug("Parsing: " + valueString);

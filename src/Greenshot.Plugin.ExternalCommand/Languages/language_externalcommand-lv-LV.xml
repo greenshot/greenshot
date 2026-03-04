@@ -32,5 +32,6 @@
     <resource name="label_information">
       {0} – ekrānattēla vārds
     </resource>
+    <resource name="label_outputimageformat">Attēla veids</resource>
   </resources>
 </language>

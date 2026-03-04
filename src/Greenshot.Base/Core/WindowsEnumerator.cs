@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -45,19 +45,11 @@ namespace Greenshot.Base.Core
             Items = new List<WindowDetails>();
             User32Api.EnumChildWindows(hWndParent, OnWindowEnum, IntPtr.Zero);
 
-            bool hasParent = !IntPtr.Zero.Equals(hWndParent);
-            string parentText = null;
-            if (hasParent)
-            {
-                parentText = User32Api.GetText(hWndParent);
-            }
-
             var windows = new List<WindowDetails>();
             foreach (var window in Items)
             {
-                if (hasParent)
+                if (hWndParent != IntPtr.Zero)
                 {
-                    window.Text = parentText;
                     window.ParentHandle = hWndParent;
                 }
 

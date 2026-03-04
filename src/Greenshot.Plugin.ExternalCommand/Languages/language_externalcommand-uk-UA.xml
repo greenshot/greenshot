@@ -11,5 +11,6 @@
     <resource name="label_command">Команда</resource>
     <resource name="label_argument">Аргументи</resource>
     <resource name="label_information">{0} — назва файла Вашого знімку</resource>
+    <resource name="label_outputimageformat">Формат зображення</resource>
   </resources>
 </language>
