@@ -187,13 +187,18 @@ internal static class HotkeyHelper
         }
 
         var oneDriveSettingsFile = Directory.GetFiles(oneDriveSettingsPath, "*_screenshot.dat").FirstOrDefault();
-        if (!File.Exists(oneDriveSettingsFile))
+        if (oneDriveSettingsFile == null || !File.Exists(oneDriveSettingsFile))
         {
             return false;
         }
 
-        var screenshotSetting = File.ReadAllLines(oneDriveSettingsFile).Skip(1).Take(1).First();
-        return "2".Equals(screenshotSetting);
+        var lines = File.ReadAllLines(oneDriveSettingsFile);
+        if (lines.Length < 2)
+        {
+            return false;
+        }
+
+        return "2".Equals(lines[1]);
     }
 
     /// <summary>
