@@ -82,7 +82,7 @@ namespace Greenshot.Base.Core
         }
 
         public int CompareTo(Fraction other)
-            => (int) (Numerator * other.Denominator) - (int) (other.Numerator * Denominator);
+            => ((long) Numerator * other.Denominator).CompareTo((long) other.Numerator * Denominator);
 
         #endregion
 
