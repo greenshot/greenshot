@@ -116,7 +116,7 @@ namespace Greenshot.Base.Core.OAuth
         /// Create an OAuthSession with the consumerKey / consumerSecret
         /// </summary>
         /// <param name="consumerKey">"Public" key for the encoding. When using RSASHA1 this is the path to the private key file</param>
-        /// <param name="consumerSecret">"Private" key for the encoding. when usin RSASHA1 this is the password for the private key file</param>
+        /// <param name="consumerSecret">"Private" key for the encoding. when using RSASHA1 this is the password for the private key file</param>
         public OAuthSession(string consumerKey, string consumerSecret)
         {
             _consumerKey = consumerKey;
@@ -153,7 +153,7 @@ namespace Greenshot.Base.Core.OAuth
         }
 
         /// <summary>
-        /// Generate the normalized paramter string
+        /// Generate the normalized parameter string
         /// </summary>
         /// <param name="queryParameters">the list of query parameters</param>
         /// <returns>a string with the normalized query parameters</returns>

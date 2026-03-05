@@ -86,7 +86,7 @@ public partial class JiraForm : Form
         }
         catch (Exception e)
         {
-            Log.Error("Error with loging.", e);
+            Log.Error("Error with login.", e);
             MessageBox.Show(Language.GetFormattedString("jira", LangKey.login_error, e.Message));
         }
 

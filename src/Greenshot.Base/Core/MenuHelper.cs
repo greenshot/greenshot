@@ -44,7 +44,7 @@ public static class MenuHelper
         {
             Log.Debug("ContextMenuStrip closed, scheduling delayed disposal");
 
-            // delayed disposal -- waiting for ClickHandler beeing finished
+            // delayed disposal -- waiting for ClickHandler being finished
             menu.BeginInvoke(new System.Action(() =>
             {
                 if (!menu.IsDisposed)

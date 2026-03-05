@@ -90,7 +90,7 @@ We have many request, mainly from companies in form of "we use an eMail client f
 ### Bug fixes
 
 #### Functionality fixes:
-* [BUG-2693](https://greenshot.atlassian.net/browse/BUG-2693), [BUG-2693](https://greenshot.atlassian.net/browse/BUG-2693), [BUG-2743](https://greenshot.atlassian.net/browse/BUG-2743): Greenshot doesn't recoginize a MAPI client
+* [BUG-2693](https://greenshot.atlassian.net/browse/BUG-2693), [BUG-2693](https://greenshot.atlassian.net/browse/BUG-2693), [BUG-2743](https://greenshot.atlassian.net/browse/BUG-2743): Greenshot doesn't recognize a MAPI client
 * [BUG-2535](https://greenshot.atlassian.net/browse/BUG-2535): Greenshot selects invisible windows fix was suggested by Raymond Chen [here](https://devblogs.microsoft.com/oldnewthing/20200302-00/?p=103507)
 * [BUG-2544](https://greenshot.atlassian.net/browse/BUG-2544): Enabled TLS1.1 & 1.2 to fix jira connectivity and do not use the JIRA session support as this was deprecated.
 * [BUG-2529](https://greenshot.atlassian.net/browse/BUG-2529): This should most likely fix the excessive update checks.
@@ -230,7 +230,7 @@ Fixed bugs:
 * BUG-1991 Greenshot portable (PAF) uses wrong log configuration
 * BUG-1992 OutputFilePath setting is wrong config used on a different system
 * BUG-2011 Editor issues when the font is gone or broken
-* BUG-2043 Fixed an issue which occured after wakeup from sleep
+* BUG-2043 Fixed an issue which occurred after wakeup from sleep
 * BUG-2059 The default frequency of update checks is now reduced from every day to every 14 days
 * BUG-2070 Installing Greenshot deletes everything in the target directory
 * BUG-2071 Authentication not completing with Box.com
@@ -417,7 +417,7 @@ Bugs resolved (for bug details go to http://sourceforge.net/p/greenshot/bugs and
 * BUG-1517: export to Microsoft Word always goes to the last active Word instance.
 * BUG-1525, BUG-1486: Greenshot looses configuration settings. (At least we hope this is resolved)
 * BUG-1528: export to Microsoft Excel isn't stored in file, which results in a "red cross" when opening on a different or MUCH later on the same computer.
-* BUG-1544: EntryPointNotFoundException when using higlight area or blur
+* BUG-1544: EntryPointNotFoundException when using highlight area or blur
 * BUG-1546: Exception in the editor when using multiple destination, among which the editor, and a picker (e.g. Word) is shown.
 * Not reported: Canceling Imgur authorization or upload caused an NullPointerReference
 
@@ -468,14 +468,14 @@ Bugs resolved (for bug details go to http://sourceforge.net/p/greenshot/bugs and
 * BUG-1390: Elements in 1.0 are drawn differently as in pre 1.0
 * BUG-1391: Fixed missing filename in the Editor title
 * BUG-1414: Pasting captures as HTML-inline in Thunderbird doesn't work when using 256-colors.
-* BUG-1418: Fixed a problem with the editor initialization, in some small cases this gave an error as something happend at the same time.
+* BUG-1418: Fixed a problem with the editor initialization, in some small cases this gave an error as something happened at the same time.
 * BUG-1426: Added some checks for some configuration values, if they were not set this caused an error
 * BUG-1442: If copying an image from Outlook via the clipboard the image was cropped
 * BUG-1443: Image exports to Microsoft Word didn't have the "Lock aspect ratio" set
 * BUG-1444: Colors were disappearing when "Create an 8-bit image if colors are less than 256 while having a > 8 bits image" was turned on
 * BUG-1462: Auto-filename generation cropping title text after period 
 * BUG-1481: when pasting elements from one editor into another the element could end up outside the visible area 
-* BUG-1484, BUG-1494: External Command plug-in issues. e.g. when clicking edit in the External Command plug-in settings, than cancel, and than edit again an error occured.
+* BUG-1484, BUG-1494: External Command plug-in issues. e.g. when clicking edit in the External Command plug-in settings, than cancel, and than edit again an error occurred.
 * BUG-1499: Stability improvements for when Greenshot tries to open the explorer.exe
 * BUG-1500: Error while dragging an obfuscation
 * BUG-1504: InvalidCastException when using the brightness-filter
@@ -537,7 +537,7 @@ Some features we added since 0.8:
 * Plug-in: Added Box.com plug-in uploads your captures to your account
 * Plug-in: Added Dropbox plug-in uploads your captures to your account
 * Plug-in: Added Flickr plug-in uploads your captures to your account
-* Plug-in: Added Imgur plug-in uploads your captures annonymously or to your account
+* Plug-in: Added Imgur plug-in uploads your captures anonymously or to your account
 * Plug-in: Added Picasa-Web plug-in uploads your captures to your account
 * Plug-in: Added Office plug-in with destinations for Excel, Outlook, Word and Powerpoint
 
@@ -682,7 +682,7 @@ Features added:
 * implemented option to skip image editor both in context menu and settings dialog [ 1724171 ]
 * shift duplicated elements 10px left- and downwards [ 1723447 ]
 * when clicking two overlapping elements, the one created later gets selected [ 1725175 ]
-* created textboxes can now be edited with a doubleclick [ 1704408 ]
+* created textboxes can now be edited with a double-click [ 1704408 ]
 * selected font is now stored in the application config file [ 1704411 ]
 
 

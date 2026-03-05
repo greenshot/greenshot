@@ -101,7 +101,7 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// This method will call the CaptureRectangle with the screenbounds, therefor Capturing the whole screen.
+        /// This method will call the CaptureRectangle with the screenbounds, therefore Capturing the whole screen.
         /// </summary>
         /// <returns>A Capture Object with the Screen as an Image</returns>
         public static ICapture CaptureScreen(ICapture capture)

@@ -86,9 +86,14 @@ namespace Greenshot.Plugin.Office.OfficeExport
             {
                 wordApplication = OleAut32Api.GetActiveObject<Application>("Word.Application");
             }
-            catch (Exception)
+            catch (System.Runtime.InteropServices.COMException)
             {
-                // Ignore, probably no word running
+                // Word is not running, this is expected
+                return null;
+            }
+            catch (Exception ex)
+            {
+                LOG.Warn("Unexpected error while getting Word application instance.", ex);
                 return null;
             }
 

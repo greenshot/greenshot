@@ -36,7 +36,7 @@ namespace Greenshot.Plugin.Jira;
 /// <summary>
 /// This class will monitor all _jira activity by registering for title changes
 /// It keeps a list of the last "accessed" jiras, and makes it easy to upload to one.
-/// Make sure this is instanciated on the UI thread!
+/// Make sure this is instantiated on the UI thread!
 /// </summary>
 public class JiraMonitor : IDisposable
 {
@@ -132,7 +132,7 @@ public class JiraMonitor : IDisposable
     }
 
     /// <summary>
-    /// This method will update details, like the title, and send an event to registed listeners of the JiraEvent
+    /// This method will update details, like the title, and send an event to registered listeners of the JiraEvent
     /// </summary>
     /// <param name="jiraDetails">Contains the jira key to retrieve the title (XYZ-1234)</param>
     /// <returns>Task</returns>

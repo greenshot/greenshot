@@ -471,7 +471,7 @@ EndSelection:<<<<<<<4
         /// <param name="dataObject">IDataObject</param>
         /// <param name="format">string</param>
         /// <param name="encoding">Encoding</param>
-        /// <returns>sting</returns>
+        /// <returns>string</returns>
         private static string ContentAsString(IDataObject dataObject, string format, Encoding encoding = null)
         {
             encoding ??= Encoding.Unicode;

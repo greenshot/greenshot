@@ -452,7 +452,7 @@ namespace Greenshot.Base.Core
                         // Check if we can display the file
                         if (!string.IsNullOrEmpty(languageFile.LanguageGroup) && UnsupportedLanguageGroups.Contains(languageFile.LanguageGroup))
                         {
-                            Log.InfoFormat("Skipping unsuported (not able to display) language {0} from file {1}", languageFile.Description, languageFilepath);
+                            Log.InfoFormat("Skipping unsupported (not able to display) language {0} from file {1}", languageFile.Description, languageFilepath);
                             continue;
                         }
 
