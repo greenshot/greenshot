@@ -92,6 +92,23 @@ namespace Greenshot.Helpers
             WindowDetails.ActiveNewerWindows(windowsBefore);
         }
 
+        /// <summary>
+        /// Helper Method for creating an Email with a pre-rendered Image Attachment,
+        /// avoiding a redundant surface render pass.
+        /// </summary>
+        /// <param name="preRenderedImage">Pre-rendered bitmap; not disposed by this method.</param>
+        /// <param name="captureDetails">ICaptureDetails</param>
+        public static void SendImage(System.Drawing.Image preRenderedImage, ICaptureDetails captureDetails)
+        {
+            string tmpFile = ImageIO.SaveNamedTmpFile(preRenderedImage, captureDetails, new SurfaceOutputSettings());
+
+            if (tmpFile == null) return;
+
+            var windowsBefore = WindowDetails.GetVisibleWindows();
+            SendImage(tmpFile, captureDetails.Title);
+            WindowDetails.ActiveNewerWindows(windowsBefore);
+        }
+
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
         private class MapiFileDescriptor
         {

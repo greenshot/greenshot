@@ -440,6 +440,43 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
+        /// Create a tmpfile from a pre-rendered bitmap using the name from the configured pattern.
+        /// Used e.g. by the email export when a shared rendered bitmap is already available.
+        /// </summary>
+        /// <param name="renderedImage">Pre-rendered bitmap; not disposed by this method.</param>
+        /// <param name="captureDetails"></param>
+        /// <param name="outputSettings"></param>
+        /// <returns>Path to image file</returns>
+        public static string SaveNamedTmpFile(Image renderedImage, ICaptureDetails captureDetails, SurfaceOutputSettings outputSettings)
+        {
+            string pattern = CoreConfig.OutputFileFilenamePattern;
+            if (string.IsNullOrEmpty(pattern?.Trim()))
+            {
+                pattern = "greenshot ${capturetime}";
+            }
+
+            string filename = FilenameHelper.GetFilenameFromPattern(pattern, outputSettings.Format, captureDetails);
+            filename = Regex.Replace(filename, @"[^\d\w\.]", "_");
+            filename = Regex.Replace(filename, @"_+", "_");
+            string tmpFile = Path.Combine(Path.GetTempPath(), filename);
+
+            Log.Debug("Creating TMP File: " + tmpFile);
+
+            try
+            {
+                SaveRenderedImage(renderedImage, tmpFile, true, outputSettings, false);
+                TmpFileCache.Add(tmpFile, tmpFile);
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message, "Error");
+                tmpFile = null;
+            }
+
+            return tmpFile;
+        }
+
+        /// <summary>
         /// Create a tmpfile which has the name like in the configured pattern.
         /// Used e.g. by the email export
         /// </summary>

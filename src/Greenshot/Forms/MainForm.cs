@@ -329,6 +329,7 @@ namespace Greenshot.Forms
 
         public MainForm(CopyDataTransport dataTransport)
         {
+            SimpleServiceProvider.Current.AddService(SynchronizationContext.Current);
             var uiContext = TaskScheduler.FromCurrentSynchronizationContext();
             SimpleServiceProvider.Current.AddService(uiContext);
  

@@ -43,7 +43,7 @@ namespace Greenshot.Destinations
 
         public override int Priority
         {
-            get { return -1; }
+            get { return 2; }
         }
 
         public override Keys EditorShortcutKeys

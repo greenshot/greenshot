@@ -33,7 +33,7 @@ namespace Greenshot.Base.Interfaces
     /// <see cref="IDestination.ExportCapture"/> when a shared bitmap is available,
     /// avoiding redundant GDI+ composite passes per destination.
     ///
-    /// Future candidates: EmailDestination, PrinterDestination.
+    /// Future candidates: PrinterDestination.
     /// </summary>
     public interface IAcceptsPreRenderedImage
     {
