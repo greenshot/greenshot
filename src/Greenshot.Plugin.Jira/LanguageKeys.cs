@@ -19,22 +19,21 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace Greenshot.Plugin.Jira
+namespace Greenshot.Plugin.Jira;
+
+public enum LangKey
 {
-    public enum LangKey
-    {
-        upload_menu_item,
-        column_assignee,
-        column_created,
-        column_issueType,
-        column_id,
-        column_reporter,
-        column_summary,
-        label_comment,
-        label_filename,
-        label_jirafilter,
-        login_error,
-        upload_failure,
-        communication_wait,
-    }
+    upload_menu_item,
+    column_assignee,
+    column_created,
+    column_issueType,
+    column_id,
+    column_reporter,
+    column_summary,
+    label_comment,
+    label_filename,
+    label_jirafilter,
+    login_error,
+    upload_failure,
+    communication_wait,
 }

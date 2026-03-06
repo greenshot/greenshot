@@ -21,7 +21,7 @@
 
 using Greenshot.Base.Controls;
 
-namespace Greenshot.Plugin.ExternalCommand {
+namespace Greenshot.Plugin.ExternalCommand; 
 	partial class SettingsForm {
 		/// <summary>
 		/// Designer variable used to keep track of non-visual components.
@@ -81,7 +81,7 @@ namespace Greenshot.Plugin.ExternalCommand {
 			// listView1
 			// 
 			this.listView1.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.columnHeader1});
+        this.columnHeader1});
 			this.listView1.FullRowSelect = true;
 			this.listView1.Location = new System.Drawing.Point(13, 13);
 			this.listView1.MultiSelect = false;
@@ -133,8 +133,8 @@ namespace Greenshot.Plugin.ExternalCommand {
 			// SettingsForm
 			// 
 			this.AcceptButton = this.buttonOk;
-            this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+        this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+        this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
 			this.CancelButton = this.buttonCancel;
 			this.ClientSize = new System.Drawing.Size(365, 208);
 			this.Controls.Add(this.button_edit);
@@ -158,4 +158,3 @@ namespace Greenshot.Plugin.ExternalCommand {
 		private GreenshotButton buttonCancel;
 		
 	}
-}

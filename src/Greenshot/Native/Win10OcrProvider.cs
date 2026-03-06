@@ -37,7 +37,7 @@ using Greenshot.Base.Interfaces.Plugin;
 namespace Greenshot.Plugin.Win10
 {
     /// <summary>
-    /// This uses the OcrEngine from Windows 10 to perform OCR on the captured image.
+    /// This uses the Windows OcrEngine to perform OCR on the captured image.
     /// </summary>
     public class Win10OcrProvider : IOcrProvider
     {

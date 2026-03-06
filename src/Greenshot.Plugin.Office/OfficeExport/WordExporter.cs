@@ -86,9 +86,14 @@ namespace Greenshot.Plugin.Office.OfficeExport
             {
                 wordApplication = OleAut32Api.GetActiveObject<Application>("Word.Application");
             }
-            catch (Exception)
+            catch (System.Runtime.InteropServices.COMException)
             {
-                // Ignore, probably no word running
+                // Word is not running, this is expected
+                return null;
+            }
+            catch (Exception ex)
+            {
+                LOG.Warn("Unexpected error while getting Word application instance.", ex);
                 return null;
             }
 
@@ -145,7 +150,23 @@ namespace Greenshot.Plugin.Office.OfficeExport
                 return;
             }
 
-            if (!Version.TryParse(wordApplication.ComObject.Version, out _wordVersion))
+            try
+            {
+                if (!Version.TryParse(wordApplication.ComObject.Version, out _wordVersion))
+                {
+                    _wordVersion = null;
+                }
+            }
+            catch (InvalidCastException ex)
+            {
+                LOG.Warn("Unable to retrieve Word version due to COM interface casting issue. Assuming Word version 1997.", ex);
+            }
+            catch (Exception ex)
+            {
+                LOG.Warn("Unable to retrieve Word version. Assuming Word version 1997.", ex);
+            }
+
+            if (_wordVersion == null)
             {
                 LOG.Warn("Assuming Word version 1997.");
                 _wordVersion = new Version((int) OfficeVersions.Office97, 0, 0, 0);

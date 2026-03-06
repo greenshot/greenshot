@@ -22,30 +22,29 @@
 using System;
 using Dapplo.Jira.Entities;
 
-namespace Greenshot.Plugin.Jira
+namespace Greenshot.Plugin.Jira;
+
+public class JiraDetails : IComparable<JiraDetails>
 {
-    public class JiraDetails : IComparable<JiraDetails>
+    public JiraDetails()
     {
-        public JiraDetails()
-        {
-            FirstSeenAt = SeenAt = DateTimeOffset.Now;
-        }
+        FirstSeenAt = SeenAt = DateTimeOffset.Now;
+    }
 
-        public string ProjectKey { get; set; }
+    public string ProjectKey { get; set; }
 
-        public string Id { get; set; }
+    public string Id { get; set; }
 
-        public string JiraKey => ProjectKey + "-" + Id;
+    public string JiraKey => ProjectKey + "-" + Id;
 
-        public Issue JiraIssue { get; set; }
+    public IssueV2 JiraIssue { get; set; }
 
-        public DateTimeOffset FirstSeenAt { get; private set; }
+    public DateTimeOffset FirstSeenAt { get; private set; }
 
-        public DateTimeOffset SeenAt { get; set; }
+    public DateTimeOffset SeenAt { get; set; }
 
-        public int CompareTo(JiraDetails other)
-        {
-            return SeenAt.CompareTo(other.SeenAt);
-        }
+    public int CompareTo(JiraDetails other)
+    {
+        return SeenAt.CompareTo(other.SeenAt);
     }
 }

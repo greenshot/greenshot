@@ -767,7 +767,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
                     {
                         using var inspector = DisposableCom.Create(inspectors.ComObject[i]);
                         string caption = inspector.ComObject.Caption;
-                        // Fix double entries in the directory, TODO: store on something uniq
+                        // Fix double entries in the directory, TODO: store on something unique
                         if (inspectorCaptions.ContainsKey(caption))
                         {
                             continue;

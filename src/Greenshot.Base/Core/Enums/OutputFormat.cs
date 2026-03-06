@@ -19,20 +19,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace Greenshot.Base.Core.Enums
+namespace Greenshot.Base.Core.Enums;
+
+/// <summary>
+/// These are the supported output formats
+/// </summary>
+public enum OutputFormat
 {
-    /// <summary>
-    /// These are the supported output formats
-    /// </summary>
-    public enum OutputFormat
-    {
-        bmp,
-        gif,
-        jpg,
-        png,
-        tiff,
-        jxr,
-        greenshot,
-        ico
-    }
+    bmp,
+    gif,
+    jpg,
+    png,
+    tiff,
+    jxr,
+    greenshot,
+    ico
+    // , webp, tga, pbm - Awaiting approval to make ImageSharp implementation final
 }

@@ -41,7 +41,7 @@ namespace Greenshot.Editor.Configuration
         [IniProperty("RecentColors", Separator = "|", Description = "Last used colors")]
         public List<Color> RecentColors { get; set; }
 
-        [IniProperty("LastFieldValue", Separator = "|", Description = "Field values, make sure the last used settings are re-used")]
+        [IniProperty("LastFieldValue", Separator = "|", Description = "Field values, make sure the last used settings are reused")]
         public Dictionary<string, object> LastUsedFieldValues { get; set; }
 
         [IniProperty("MatchSizeToCapture", Description = "Match the editor window size to the capture", DefaultValue = "True")]
@@ -79,6 +79,33 @@ namespace Greenshot.Editor.Configuration
 
         [IniProperty("DefaultEditorSize", Description = "The size for the editor when it's opened without a capture", DefaultValue = "500,500")]
         public NativeSize DefaultEditorSize { get; set; }
+
+        [IniProperty("TextObfuscationSearchPattern", Description = "Last used search pattern for text obfuscation", DefaultValue = "")]
+        public string TextObfuscationSearchPattern { get; set; }
+
+        [IniProperty("TextObfuscationUseRegex", Description = "Use regular expression for text obfuscation search", DefaultValue = "false")]
+        public bool TextObfuscationUseRegex { get; set; }
+
+        [IniProperty("TextObfuscationCaseSensitive", Description = "Case sensitive search for text obfuscation", DefaultValue = "false")]
+        public bool TextObfuscationCaseSensitive { get; set; }
+
+        [IniProperty("TextObfuscationSearchScope", Description = "Search scope for text obfuscation: 0=Words, 1=Lines", DefaultValue = "0")]
+        public int TextObfuscationSearchScope { get; set; }
+
+        [IniProperty("TextObfuscationEffect", Description = "Effect to apply for text redaction: BLUR, PIXELIZE, TEXT_HIGHTLIGHT, MAGNIFICATION", DefaultValue = "PIXELIZE")]
+        public string TextObfuscationEffect { get; set; }
+
+        [IniProperty("TextObfuscationPaddingHorizontal", Description = "Horizontal percentage to grow matched rectangles for text redaction", DefaultValue = "10")]
+        public int TextObfuscationPaddingHorizontal { get; set; }
+
+        [IniProperty("TextObfuscationPaddingVertical", Description = "Vertical percentage to grow matched rectangles for text redaction", DefaultValue = "20")]
+        public int TextObfuscationPaddingVertical { get; set; }
+
+        [IniProperty("TextObfuscationOffsetHorizontal", Description = "Horizontal offset in pixels for matched rectangles", DefaultValue = "0")]
+        public int TextObfuscationOffsetHorizontal { get; set; }
+
+        [IniProperty("TextObfuscationOffsetVertical", Description = "Vertical offset in pixels for matched rectangles", DefaultValue = "-5")]
+        public int TextObfuscationOffsetVertical { get; set; }
 
 
         public override void AfterLoad()

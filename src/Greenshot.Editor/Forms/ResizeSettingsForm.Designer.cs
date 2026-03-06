@@ -82,7 +82,7 @@ namespace Greenshot.Editor.Forms {
 			this.checkbox_aspectratio.LanguageKey = "editor_resize_aspectratio";
 			this.checkbox_aspectratio.Location = new System.Drawing.Point(22, 64);
 			this.checkbox_aspectratio.Name = "checkbox_aspectratio";
-			this.checkbox_aspectratio.Size = new System.Drawing.Size(124, 17);
+			this.checkbox_aspectratio.Size = new System.Drawing.Size(210, 20);
 			this.checkbox_aspectratio.TabIndex = 5;
 			this.checkbox_aspectratio.UseVisualStyleBackColor = true;
 			// 
@@ -91,7 +91,7 @@ namespace Greenshot.Editor.Forms {
 			this.label_width.LanguageKey = "editor_resize_width";
 			this.label_width.Location = new System.Drawing.Point(19, 15);
 			this.label_width.Name = "label_width";
-			this.label_width.Size = new System.Drawing.Size(35, 13);
+			this.label_width.Size = new System.Drawing.Size(65, 20);
 			this.label_width.TabIndex = 14;
 			// 
 			// label_height
@@ -99,7 +99,7 @@ namespace Greenshot.Editor.Forms {
 			this.label_height.LanguageKey = "editor_resize_height";
 			this.label_height.Location = new System.Drawing.Point(19, 38);
 			this.label_height.Name = "label_height";
-			this.label_height.Size = new System.Drawing.Size(38, 13);
+			this.label_height.Size = new System.Drawing.Size(65, 20);
 			this.label_height.TabIndex = 15;
 			// 
 			// textbox_height

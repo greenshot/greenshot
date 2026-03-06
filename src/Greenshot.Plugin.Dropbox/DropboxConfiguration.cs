@@ -26,64 +26,63 @@ using Greenshot.Base.Core.Enums;
 using Greenshot.Base.IniFile;
 using Greenshot.Plugin.Dropbox.Forms;
 
-namespace Greenshot.Plugin.Dropbox
+namespace Greenshot.Plugin.Dropbox;
+
+/// <summary>
+/// The configuration for Dropbox
+/// </summary>
+[IniSection("Dropbox", Description = "Greenshot Dropbox Plugin configuration")]
+public class DropboxConfiguration : IniSection
 {
+    [IniProperty("UploadFormat", Description = "What file type to use for uploading", DefaultValue = "png")]
+    public OutputFormat UploadFormat { get; set; }
+
+    [IniProperty("UploadJpegQuality", Description = "JPEG file save quality in %.", DefaultValue = "80")]
+    public int UploadJpegQuality { get; set; }
+
+    [IniProperty("AfterUploadLinkToClipBoard", Description = "After upload send Dropbox link to clipboard.", DefaultValue = "true")]
+    public bool AfterUploadLinkToClipBoard { get; set; }
+
+    [IniProperty("RefreshToken", Description = "Dropbox refresh Token", Encrypted = true, ExcludeIfNull = true)]
+    public string RefreshToken { get; set; }
+
     /// <summary>
-    /// The configuration for Dropbox
+    /// AccessToken, not stored
     /// </summary>
-    [IniSection("Dropbox", Description = "Greenshot Dropbox Plugin configuration")]
-    public class DropboxConfiguration : IniSection
+    public string AccessToken { get; set; }
+
+    /// <summary>
+    /// AccessTokenExpires, not stored
+    /// </summary>
+    public DateTimeOffset AccessTokenExpires { get; set; }
+
+    /// <summary>
+    /// A form for token
+    /// </summary>
+    /// <returns>bool true if OK was pressed, false if cancel</returns>
+    public bool ShowConfigDialog()
     {
-        [IniProperty("UploadFormat", Description = "What file type to use for uploading", DefaultValue = "png")]
-        public OutputFormat UploadFormat { get; set; }
-
-        [IniProperty("UploadJpegQuality", Description = "JPEG file save quality in %.", DefaultValue = "80")]
-        public int UploadJpegQuality { get; set; }
-
-        [IniProperty("AfterUploadLinkToClipBoard", Description = "After upload send Dropbox link to clipboard.", DefaultValue = "true")]
-        public bool AfterUploadLinkToClipBoard { get; set; }
-
-        [IniProperty("RefreshToken", Description = "Dropbox refresh Token", Encrypted = true, ExcludeIfNull = true)]
-        public string RefreshToken { get; set; }
-
-        /// <summary>
-        /// AccessToken, not stored
-        /// </summary>
-        public string AccessToken { get; set; }
-
-        /// <summary>
-        /// AccessTokenExpires, not stored
-        /// </summary>
-        public DateTimeOffset AccessTokenExpires { get; set; }
-
-        /// <summary>
-        /// A form for token
-        /// </summary>
-        /// <returns>bool true if OK was pressed, false if cancel</returns>
-        public bool ShowConfigDialog()
+        DialogResult result = new SettingsForm().ShowDialog();
+        if (result == DialogResult.OK)
         {
-            DialogResult result = new SettingsForm().ShowDialog();
-            if (result == DialogResult.OK)
-            {
-                return true;
-            }
-
-            return false;
+            return true;
         }
 
-        /// <summary>
-        /// Upgrade certain values
-        /// </summary>
-        public override void AfterLoad()
-        {
-            var coreConfiguration = IniConfig.GetIniSection<CoreConfiguration>();
-            bool isUpgradeFrom12 = coreConfiguration.LastSaveWithVersion?.StartsWith("1.2") ?? false;
-            // Clear token when we upgrade from 1.2 to 1.3 as it is no longer valid, discussed in #421
-            if (!isUpgradeFrom12) return;
+        return false;
+    }
 
-            // We have an upgrade, remove all previous credentials.
-            RefreshToken = null;
-            AccessToken = null;
-        }
+    /// <summary>
+    /// Upgrade certain values
+    /// </summary>
+    public override void AfterLoad()
+    {
+        var coreConfiguration = IniConfig.GetIniSection<CoreConfiguration>();
+        bool isUpgradeFrom12 = coreConfiguration.LastSaveWithVersion?.StartsWith("1.2") ?? false;
+        // Clear token when we upgrade from 1.2 to 1.3 as it is no longer valid, discussed in #421
+        if (!isUpgradeFrom12) return;
+
+        // We have an upgrade, remove all previous credentials.
+        RefreshToken = null;
+        AccessToken = null;
     }
 }

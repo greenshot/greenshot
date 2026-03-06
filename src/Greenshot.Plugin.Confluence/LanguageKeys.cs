@@ -19,12 +19,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace Greenshot.Plugin.Confluence
+namespace Greenshot.Plugin.Confluence;
+
+public enum LangKey
 {
-    public enum LangKey
-    {
-        login_error,
-        upload_menu_item,
-        communication_wait
-    }
+    login_error,
+    upload_menu_item,
+    communication_wait
 }

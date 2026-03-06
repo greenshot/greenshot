@@ -19,6 +19,10 @@ Copy-Item "$BuildArtifactsPath\Greenshot.exe.config" "$OutputPath" -Force
 # Copy all dlls
 Copy-Item "$BuildArtifactsPath\*.dll" "$OutputPath" -Force
 
+# Copy emoji resources
+Copy-Item "$BuildArtifactsPath\emojis.xml" "$OutputPath" -Force
+Copy-Item "$BuildArtifactsPath\Twemoji.Mozilla.ttf" "$OutputPath" -Force
+
 # Copy help files
 New-Item -ItemType Directory -Path "$OutputPath\Help" -Force | Out-Null
 Copy-Item "$RepositoryRootPath\src\Greenshot\Languages\*.html" "$OutputPath\Help" -Force

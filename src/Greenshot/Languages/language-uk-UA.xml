@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <language description="Українська" ietf="uk-UA" version="1.0.4" languagegroup="5">
 	<resources>
 		<resource name="about_bugs">Про помилки повідомляйте на</resource>
@@ -129,12 +129,30 @@ Greenshot постачається АБСОЛЮТНО БЕЗ ГАРАНТІЇ. �
 		<resource name="editor_obfuscate_blur">Розмиття</resource>
 		<resource name="editor_obfuscate_mode">Режим затемнення</resource>
 		<resource name="editor_obfuscate_pixelize">Пікселізація</resource>
+		<resource name="editor_obfuscate_text">Приховати текст...</resource>
+		<resource name="editor_obfuscate_text_title">Приховати текст</resource>
+		<resource name="editor_obfuscate_text_search">Пошук:</resource>
+		<resource name="editor_obfuscate_text_search_button">Пошук</resource>
+		<resource name="editor_obfuscate_text_regex">Використати регулярний вираз</resource>
+		<resource name="editor_obfuscate_text_case_sensitive">Враховувати регістр</resource>
+		<resource name="editor_obfuscate_text_auto_search">Автоматичний пошук</resource>
+		<resource name="editor_obfuscate_text_search_scope">Шукати в:</resource>
+		<resource name="editor_obfuscate_text_scope_words">Словах</resource>
+		<resource name="editor_obfuscate_text_scope_lines">Рядках</resource>
+		<resource name="editor_obfuscate_text_matches">Знайдено збігів: {0}</resource>
+		<resource name="editor_obfuscate_text_apply">Застосувати</resource>
+		<resource name="editor_obfuscate_text_error">Помилка</resource>
+		<resource name="editor_obfuscate_text_no_capture">Немає доступних знімків</resource>
+		<resource name="editor_obfuscate_text_no_ocr_provider">Провайдер OCR недоступний</resource>
+		<resource name="editor_obfuscate_text_ocr_failed">Помилка OCR</resource>
+		<resource name="editor_obfuscate_text_no_text">Текст на зображенні не знайдено</resource>
 		<resource name="editor_object">Об’єкт</resource>
 		<resource name="editor_opendirinexplorer">Відкрити каталог у Провіднику Windows</resource>
 		<resource name="editor_pastefromclipboard">Вставити</resource>
 		<resource name="editor_pixel_size">Розмір пікселя</resource>
 		<resource name="editor_preview_quality">Якість перегляду</resource>
 		<resource name="editor_print">Друк</resource>
+		<resource name="editor_remove_transparency">Видалити прозорість</resource>
 		<resource name="editor_redo">Повторити {0}</resource>
 		<resource name="editor_resetsize">Скинути розмір</resource>
 		<resource name="editor_resize_percent">відсотків</resource>
@@ -216,7 +234,7 @@ Greenshot постачається АБСОЛЮТНО БЕЗ ГАРАНТІЇ. �
 		<resource name="settings_destination_email">Ел. пошта</resource>
 		<resource name="settings_destination_file">Безпосереднє збереження (використовуючи параметри нижче)</resource>
 		<resource name="settings_destination_fileas">Зберегти як (відображення діалогу)</resource>
-		<resource name="settings_destination_picker">Динамічний вибір призначення</resource>
+		<resource name="settings_destination_picker">Запитувати про призначення щоразу</resource>
 		<resource name="settings_destination_printer">Роздрукувати</resource>
 		<resource name="settings_editor">Редактор</resource>
 		<resource name="settings_filenamepattern">Шаблон назви файла</resource>

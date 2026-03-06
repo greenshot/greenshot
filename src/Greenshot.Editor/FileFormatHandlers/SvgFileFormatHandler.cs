@@ -44,6 +44,8 @@ namespace Greenshot.Editor.FileFormatHandlers
         {
             SupportedExtensions[FileFormatHandlerActions.LoadDrawableFromStream] = _ourExtensions;
             SupportedExtensions[FileFormatHandlerActions.LoadFromStream] = _ourExtensions;
+            SupportedExtensions[FileFormatHandlerActions.SaveToFile] = _ourExtensions;
+            SupportedExtensions[FileFormatHandlerActions.LoadFromFile] = _ourExtensions;
         }
 
         public override bool TryLoadFromStream(Stream stream, string extension, out Bitmap bitmap)
