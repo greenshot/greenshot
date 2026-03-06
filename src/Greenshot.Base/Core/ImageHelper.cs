@@ -74,6 +74,10 @@ namespace Greenshot.Base.Core
                 }
 
                 PropertyItem item = image.GetPropertyItem(ExifOrientationId);
+                if (item.Value == null || item.Value.Length == 0)
+                {
+                    return;
+                }
 
                 ExifOrientations orientation = (ExifOrientations) item.Value[0];
                 // Orient the image.
@@ -512,7 +516,7 @@ namespace Greenshot.Base.Core
 
             // Box blurs are frequently used to approximate a Gaussian blur.
             // By the central limit theorem, if applied 3 times on the same image, a box blur approximates the Gaussian kernel to within about 3%, yielding the same result as a quadratic convolution kernel.
-            // This might be true, but the GDI+ BlurEffect doesn't look the same, a 2x blur is more simular and we only make 2x Box-Blur.
+            // This might be true, but the GDI+ BlurEffect doesn't look the same, a 2x blur is more similar and we only make 2x Box-Blur.
             // (Might also be a mistake in our blur, but for now it looks great)
             if (fastBitmap.HasAlphaChannel)
             {
@@ -763,7 +767,7 @@ namespace Greenshot.Base.Core
 
         /// <summary>
         /// This method fixes the problem that we can't apply a filter outside the target bitmap,
-        /// therefor the filtered-bitmap will be shifted if we try to draw it outside the target bitmap.
+        /// therefore the filtered-bitmap will be shifted if we try to draw it outside the target bitmap.
         /// It will also account for the Invert flag.
         /// </summary>
         /// <param name="applySize"></param>
@@ -1249,7 +1253,12 @@ namespace Greenshot.Base.Core
             else
             {
                 // Let GDI+ decide how to convert, need to test what is quicker...
-                newImage = (sourceImage as Bitmap).Clone(sourceRect, targetFormat);
+                var sourceBitmap = sourceImage as Bitmap;
+                if (sourceBitmap == null)
+                {
+                    throw new InvalidOperationException($"Expected Bitmap but got {sourceImage?.GetType().Name}");
+                }
+                newImage = sourceBitmap.Clone(sourceRect, targetFormat);
                 // Make sure both images have the same resolution
                 newImage.SetResolution(sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
             }
@@ -1425,7 +1434,7 @@ namespace Greenshot.Base.Core
         /// </summary>
         /// <param name="sourceImage">Image to scale</param>
         /// <param name="maintainAspectRatio">true to maintain the aspect ratio</param>
-        /// <param name="canvasUseNewSize">Makes the image maintain aspect ratio, but the canvas get's the specified size</param>
+        /// <param name="canvasUseNewSize">Makes the image maintain aspect ratio, but the canvas gets the specified size</param>
         /// <param name="backgroundColor">The color to fill with, or Color.Empty to take the default depending on the pixel format</param>
         /// <param name="newWidth">new width</param>
         /// <param name="newHeight">new height</param>

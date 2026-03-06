@@ -41,7 +41,7 @@ namespace Greenshot.Editor.Configuration
         [IniProperty("RecentColors", Separator = "|", Description = "Last used colors")]
         public List<Color> RecentColors { get; set; }
 
-        [IniProperty("LastFieldValue", Separator = "|", Description = "Field values, make sure the last used settings are re-used")]
+        [IniProperty("LastFieldValue", Separator = "|", Description = "Field values, make sure the last used settings are reused")]
         public Dictionary<string, object> LastUsedFieldValues { get; set; }
 
         [IniProperty("MatchSizeToCapture", Description = "Match the editor window size to the capture", DefaultValue = "True")]

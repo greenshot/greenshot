@@ -80,7 +80,7 @@ namespace Greenshot.Base.Core
         [IniProperty("CaptureWindowsInteractive", Description = "Use interactive window selection to capture? (false=Capture active window)", DefaultValue = "false")]
         public bool CaptureWindowsInteractive { get; set; }
 
-        [IniProperty("CaptureDelay", Description = "Capture delay in millseconds.", DefaultValue = "100")]
+        [IniProperty("CaptureDelay", Description = "Capture delay in milliseconds.", DefaultValue = "100")]
         public int CaptureDelay { get; set; }
 
         [IniProperty("ScreenCaptureMode", Description = "The capture mode used to capture a screen. (Auto, FullScreen, Fixed)", DefaultValue = "Auto")]
@@ -258,7 +258,7 @@ namespace Greenshot.Base.Core
         [IniProperty("EnableSpecialDIBClipboardReader", Description = "Enable a special DIB clipboard reader", DefaultValue = "True")]
         public bool EnableSpecialDIBClipboardReader { get; set; }
 
-        [IniProperty("WindowCornerCutShape", Description = "The cutshape which is used to remove the window corners, is mirrorred for all corners", DefaultValue = "5,3,2,1,1")]
+        [IniProperty("WindowCornerCutShape", Description = "The cutshape which is used to remove the window corners, is mirrored for all corners", DefaultValue = "5,3,2,1,1")]
         public List<int> WindowCornerCutShape { get; set; }
 
         [IniProperty("LeftClickAction",
@@ -274,7 +274,7 @@ namespace Greenshot.Base.Core
         public bool ZoomerEnabled { get; set; }
 
         [IniProperty("ZoomerOpacity",
-            Description = "Specify the transparency for the zoomer, from 0-1 (where 1 is no transparency and 0 is complete transparent. An usefull setting would be 0.7)",
+            Description = "Specify the transparency for the zoomer, from 0-1 (where 1 is no transparency and 0 is complete transparent. An useful setting would be 0.7)",
             DefaultValue = "1")]
         public float ZoomerOpacity { get; set; }
 
@@ -343,7 +343,7 @@ namespace Greenshot.Base.Core
                     {
                         newSize.Height = 16;
                     }
-                    else if (IconSize.Height > 256)
+                    else if (newSize.Height > 256)
                     {
                         newSize.Height = 256;
                     }
@@ -353,7 +353,7 @@ namespace Greenshot.Base.Core
 
                 if (_iconSize != newSize)
                 {
-                    _iconSize = value;
+                    _iconSize = newSize;
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("IconSize"));
                 }
             }

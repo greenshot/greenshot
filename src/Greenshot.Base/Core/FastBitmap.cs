@@ -398,7 +398,7 @@ namespace Greenshot.Base.Core
             // As the lock takes care that only the specified area is made available we need to calculate the offset
             Left = area.Left;
             Top = area.Top;
-            // Default cliping is done to the area without invert
+            // Default clipping is done to the area without invert
             Clip = Area;
             InvertClip = false;
             // Always lock, so we don't need to do this ourselves

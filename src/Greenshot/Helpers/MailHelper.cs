@@ -402,7 +402,7 @@ namespace Greenshot.Helpers
             /// </summary>
             private MapiHelperInterop()
             {
-                // Intenationally blank
+                // Intentionally blank
             }
 
 
@@ -469,7 +469,7 @@ namespace Greenshot.Helpers
         }
 
         /// <summary>
-        /// Returns an interop representation of a recepient.
+        /// Returns an interop representation of a recipient.
         /// </summary>
         /// <returns></returns>
         internal MapiMailMessage.MapiHelperInterop.MapiRecipDesc GetInteropRepresentation()
@@ -511,7 +511,7 @@ namespace Greenshot.Helpers
         }
 
         /// <summary>
-        /// Struct which contains an interop representation of a colleciton of recipients.
+        /// Struct which contains an interop representation of a collection of recipients.
         /// </summary>
         internal struct InteropRecipientCollection : IDisposable
         {

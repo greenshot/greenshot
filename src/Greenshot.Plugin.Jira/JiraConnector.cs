@@ -183,7 +183,7 @@ public sealed class JiraConnector : IDisposable
                     Log.Error("Problem using the credentials dialog", e);
                 }
 
-                // For every windows version after XP show an incorrect password baloon
+                // For every windows version after XP show an incorrect password balloon
                 credentialsDialog.IncorrectPassword = true;
                 // Make sure the dialog is display, the password was false!
                 credentialsDialog.AlwaysDisplay = true;

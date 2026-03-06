@@ -315,7 +315,7 @@ namespace Greenshot.Editor.Drawing
         private IFieldAggregator _fieldAggregator;
 
         /// <summary>
-        /// the cursor container, needed with serialization as we need a direct acces to it.
+        /// the cursor container, needed with serialization as we need a direct access to it.
         /// </summary>
         private IDrawableContainer _cursorContainer;
 
@@ -490,6 +490,7 @@ namespace Greenshot.Editor.Drawing
         /// </summary>
         public Surface()
         {
+            CaptureDetails = new CaptureDetails();
             _fieldAggregator = new FieldAggregator(this);
             _elements = new DrawableContainerList(_uniqueId);
             selectedElements = new DrawableContainerList(_uniqueId);
@@ -545,7 +546,7 @@ namespace Greenshot.Editor.Drawing
         }
 
         /// <summary>
-        /// Surface contructor with a capture
+        /// Surface constructor with a capture
         /// </summary>
         /// <param name="capture"></param>
         public Surface(ICapture capture) : this(capture.Image)
