@@ -98,13 +98,13 @@ namespace Greenshot.Editor.Drawing
             if (!HasField(FieldType.LINE_THICKNESS))
             {
                 AddField(GetType(), FieldType.LINE_THICKNESS, 0);
-                // aktively set because AddField above uses 0 as default but overrides it with current value from config file
+                // actively set because AddField above uses 0 as default but overrides it with current value from config file
                 SetFieldValue(FieldType.LINE_THICKNESS, 0);
             }
             if (!HasField(FieldType.SHADOW))
             {
                 AddField(GetType(), FieldType.SHADOW, false);
-                // aktively set because AddField above uses false as default but overrides it with current value from config file
+                // actively set because AddField above uses false as default but overrides it with current value from config file
                 SetFieldValue(FieldType.SHADOW, false);
             }
         }

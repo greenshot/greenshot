@@ -43,11 +43,21 @@ namespace Greenshot.Destinations
         static EmailDestination()
         {
             // Logic to decide what email implementation we use
-            _mapiClient = RegistryHive.LocalMachine.ReadKey64Or32(@"Clients\Mail");
-            if (!string.IsNullOrEmpty(_mapiClient))
+            // Windows prioritizes HKCU over HKLM
+            string mapiClientHKCU = RegistryHive.CurrentUser.ReadKey(@"Clients\Mail");
+            string mapiClientHKLM = RegistryHive.LocalMachine.ReadKey64Or32(@"Clients\Mail");
+
+            if (!string.IsNullOrEmpty(mapiClientHKCU))
             {
-                // Active as we have a MAPI client, can be disabled later
+                // Active as we have a MAPI client in HKCU, can be disabled later
                 _isActiveFlag = true;
+                _mapiClient = mapiClientHKCU;
+            }
+            else if (!string.IsNullOrEmpty(mapiClientHKLM))
+            {
+                // Active as we have a MAPI client in HKLM, can be disabled later
+                _isActiveFlag = true;
+                _mapiClient = mapiClientHKLM;
             }
         }
 
@@ -71,9 +81,8 @@ namespace Greenshot.Destinations
                 if (_isActiveFlag)
                 {
                     // Disable if the office plugin is installed and the client is outlook
-                    // TODO: Change this! It always creates an exception, as the plugin has not been loaded the type is not there :(
-                    var outlookDestination = Type.GetType("GreenshotOfficePlugin.OutlookDestination,GreenshotOfficePlugin", false);
-                    if (outlookDestination != null && _mapiClient.ToLower().Contains("microsoft outlook"))
+                    var outlookDestination = Type.GetType("Greenshot.Plugin.Office.Destinations.OutlookDestination,Greenshot.Plugin.Office", false);
+                    if (outlookDestination != null && _mapiClient.ToLower().Contains("outlook"))
                     {
                         _isActiveFlag = false;
                     }

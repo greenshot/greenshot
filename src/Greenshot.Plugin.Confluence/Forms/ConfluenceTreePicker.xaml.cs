@@ -29,108 +29,109 @@ using System.Windows.Threading;
 using Greenshot.Plugin.Confluence.Entities;
 using Page = Greenshot.Plugin.Confluence.Entities.Page;
 
-namespace Greenshot.Plugin.Confluence.Forms
+namespace Greenshot.Plugin.Confluence.Forms;
+
+/// <summary>
+/// Interaction logic for ConfluenceTreePicker.xaml
+/// </summary>
+public partial class ConfluenceTreePicker
 {
-    /// <summary>
-    /// Interaction logic for ConfluenceTreePicker.xaml
-    /// </summary>
-    public partial class ConfluenceTreePicker
+    private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ConfluenceTreePicker));
+    private readonly ConfluenceConnector _confluenceConnector;
+    private readonly ConfluenceUpload _confluenceUpload;
+    private bool _isInitDone;
+
+    public ConfluenceTreePicker(ConfluenceUpload confluenceUpload)
     {
-        private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ConfluenceTreePicker));
-        private readonly ConfluenceConnector _confluenceConnector;
-        private readonly ConfluenceUpload _confluenceUpload;
-        private bool _isInitDone;
+        _confluenceConnector = ConfluencePlugin.ConfluenceConnector;
+        _confluenceUpload = confluenceUpload;
+        InitializeComponent();
+    }
 
-        public ConfluenceTreePicker(ConfluenceUpload confluenceUpload)
+    private void PageTreeViewItem_DoubleClick(object sender, MouseButtonEventArgs eventArgs)
+    {
+        Log.Debug("spaceTreeViewItem_MouseLeftButtonDown is called!");
+        TreeViewItem clickedItem = eventArgs.Source as TreeViewItem;
+        if (clickedItem?.Tag is not Page page)
         {
-            _confluenceConnector = ConfluencePlugin.ConfluenceConnector;
-            _confluenceUpload = confluenceUpload;
-            InitializeComponent();
+            return;
         }
 
-        private void PageTreeViewItem_DoubleClick(object sender, MouseButtonEventArgs eventArgs)
+        if (clickedItem.HasItems)
         {
-            Log.Debug("spaceTreeViewItem_MouseLeftButtonDown is called!");
-            TreeViewItem clickedItem = eventArgs.Source as TreeViewItem;
-            if (clickedItem?.Tag is not Page page)
-            {
-                return;
-            }
+            return;
+        }
 
-            if (clickedItem.HasItems)
+        Log.Debug("Loading pages for page: " + page.Title);
+        new Thread(() =>
+        {
+            Dispatcher.BeginInvoke(DispatcherPriority.Normal, (ThreadStart) (() => { ShowBusy.Visibility = Visibility.Visible; }));
+            var pages = _confluenceConnector.GetPageChildren(page).OrderBy(p => p.Title);
+            Dispatcher.BeginInvoke(DispatcherPriority.Normal, (ThreadStart) (() =>
             {
-                return;
-            }
-
-            Log.Debug("Loading pages for page: " + page.Title);
-            new Thread(() =>
-            {
-                Dispatcher.BeginInvoke(DispatcherPriority.Normal, (ThreadStart) (() => { ShowBusy.Visibility = Visibility.Visible; }));
-                var pages = _confluenceConnector.GetPageChildren(page).OrderBy(p => p.Title);
-                Dispatcher.BeginInvoke(DispatcherPriority.Normal, (ThreadStart) (() =>
+                foreach (var childPage in pages)
                 {
-                    foreach (var childPage in pages)
+                    Log.Debug("Adding page: " + childPage.Title);
+                    var pageTreeViewItem = new TreeViewItem
                     {
-                        Log.Debug("Adding page: " + childPage.Title);
-                        var pageTreeViewItem = new TreeViewItem
-                        {
-                            Header = childPage.Title,
-                            Tag = childPage
-                        };
-                        clickedItem.Items.Add(pageTreeViewItem);
-                        pageTreeViewItem.PreviewMouseDoubleClick += PageTreeViewItem_DoubleClick;
-                        pageTreeViewItem.PreviewMouseLeftButtonDown += PageTreeViewItem_Click;
-                    }
+                        Header = childPage.Title,
+                        Tag = childPage
+                    };
+                    clickedItem.Items.Add(pageTreeViewItem);
+                    pageTreeViewItem.PreviewMouseDoubleClick += PageTreeViewItem_DoubleClick;
+                    pageTreeViewItem.PreviewMouseLeftButtonDown += PageTreeViewItem_Click;
+                }
 
-                    ShowBusy.Visibility = Visibility.Collapsed;
-                }));
-            })
-            {
-                Name = "Loading childpages for confluence page " + page.Title
-            }.Start();
+                ShowBusy.Visibility = Visibility.Collapsed;
+            }));
+        })
+        {
+            Name = "Loading childpages for confluence page " + page.Title
+        }.Start();
+    }
+
+    private void PageTreeViewItem_Click(object sender, MouseButtonEventArgs eventArgs)
+    {
+        Log.Debug("pageTreeViewItem_PreviewMouseDoubleClick is called!");
+        if (eventArgs.Source is not TreeViewItem clickedItem)
+        {
+            return;
         }
 
-        private void PageTreeViewItem_Click(object sender, MouseButtonEventArgs eventArgs)
+        Page page = clickedItem.Tag as Page;
+        _confluenceUpload.SelectedPage = page;
+        if (page != null)
         {
-            Log.Debug("pageTreeViewItem_PreviewMouseDoubleClick is called!");
-            if (eventArgs.Source is not TreeViewItem clickedItem)
-            {
-                return;
-            }
+            Log.Debug("Page selected: " + page.Title);
+        }
+    }
 
-            Page page = clickedItem.Tag as Page;
-            _confluenceUpload.SelectedPage = page;
-            if (page != null)
-            {
-                Log.Debug("Page selected: " + page.Title);
-            }
+    private void Page_Loaded(object sender, RoutedEventArgs e)
+    {
+        _confluenceUpload.SelectedPage = null;
+        if (_isInitDone)
+        {
+            return;
         }
 
-        private void Page_Loaded(object sender, RoutedEventArgs e)
+        ShowBusy.Visibility = Visibility.Visible;
+        new Thread(() =>
         {
-            _confluenceUpload.SelectedPage = null;
-            if (_isInitDone)
+            Dispatcher.BeginInvoke(DispatcherPriority.Normal, (ThreadStart) (() =>
             {
-                return;
-            }
-
-            ShowBusy.Visibility = Visibility.Visible;
-            new Thread(() =>
-            {
-                Dispatcher.BeginInvoke(DispatcherPriority.Normal, (ThreadStart) (() =>
+                foreach (Space space in _confluenceUpload.Spaces)
                 {
-                    foreach (Space space in _confluenceUpload.Spaces)
+                    TreeViewItem spaceTreeViewItem = new TreeViewItem
                     {
-                        TreeViewItem spaceTreeViewItem = new TreeViewItem
-                        {
-                            Header = space.Name,
-                            Tag = space
-                        };
+                        Header = space.Name,
+                        Tag = space
+                    };
 
-                        // Get homepage
-                        try
-                        {
-                            Page page = _confluenceConnector.GetSpaceHomepage(space);
+                    // Get homepage
+                    try
+                    {
+                        Page page = _confluenceConnector.GetSpaceHomepage(space);
+                        if (page != null) {
                             TreeViewItem pageTreeViewItem = new TreeViewItem
                             {
                                 Header = page.Title,
@@ -139,21 +140,21 @@ namespace Greenshot.Plugin.Confluence.Forms
                             pageTreeViewItem.PreviewMouseDoubleClick += PageTreeViewItem_DoubleClick;
                             pageTreeViewItem.PreviewMouseLeftButtonDown += PageTreeViewItem_Click;
                             spaceTreeViewItem.Items.Add(pageTreeViewItem);
-                            ConfluenceTreeView.Items.Add(spaceTreeViewItem);
                         }
-                        catch (Exception ex)
-                        {
-                            Log.Error("Can't get homepage for space : " + space.Name + " (" + ex.Message + ")");
-                        }
+                        ConfluenceTreeView.Items.Add(spaceTreeViewItem);
                     }
+                    catch (Exception ex)
+                    {
+                        Log.Error("Can't get homepage for space : " + space.Name + " (" + ex.Message + ")");
+                    }
+                }
 
-                    ShowBusy.Visibility = Visibility.Collapsed;
-                    _isInitDone = true;
-                }));
-            })
-            {
-                Name = "Loading spaces for confluence"
-            }.Start();
-        }
+                ShowBusy.Visibility = Visibility.Collapsed;
+                _isInitDone = true;
+            }));
+        })
+        {
+            Name = "Loading spaces for confluence"
+        }.Start();
     }
 }

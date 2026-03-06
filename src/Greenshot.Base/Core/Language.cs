@@ -23,7 +23,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Xml;
 using Greenshot.Base.IniFile;
@@ -453,7 +452,7 @@ namespace Greenshot.Base.Core
                         // Check if we can display the file
                         if (!string.IsNullOrEmpty(languageFile.LanguageGroup) && UnsupportedLanguageGroups.Contains(languageFile.LanguageGroup))
                         {
-                            Log.InfoFormat("Skipping unsuported (not able to display) language {0} from file {1}", languageFile.Description, languageFilepath);
+                            Log.InfoFormat("Skipping unsupported (not able to display) language {0} from file {1}", languageFile.Description, languageFilepath);
                             continue;
                         }
 

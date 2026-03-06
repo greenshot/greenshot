@@ -27,7 +27,6 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
@@ -44,6 +43,7 @@ using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Forms;
+using Greenshot.Base.Interfaces.Ocr;
 using Greenshot.Editor.Configuration;
 using Greenshot.Editor.Controls.Emoji;
 using Greenshot.Editor.Destinations;
@@ -62,6 +62,7 @@ namespace Greenshot.Editor.Forms
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(ImageEditorForm));
         private static readonly EditorConfiguration EditorConfiguration = IniConfig.GetIniSection<EditorConfiguration>();
+        private static readonly CoreConfiguration CoreConfiguration = IniConfig.GetIniSection<CoreConfiguration>();
 
         private static readonly List<string> IgnoreDestinations = new()
         {
@@ -70,6 +71,7 @@ namespace Greenshot.Editor.Forms
         };
 
         private static readonly List<IImageEditor> EditorList = new();
+        private static readonly object _editorListLock = new();
 
         private Surface _surface;
         private GreenshotToolStripButton[] _toolbarButtons;
@@ -100,16 +102,19 @@ namespace Greenshot.Editor.Forms
         {
             get
             {
-                try
+                lock (_editorListLock)
                 {
-                    EditorList.Sort((e1, e2) => string.Compare(e1.Surface.CaptureDetails.Title, e2.Surface.CaptureDetails.Title, StringComparison.Ordinal));
-                }
-                catch (Exception ex)
-                {
-                    Log.Warn("Sorting of editors failed.", ex);
-                }
+                    try
+                    {
+                        EditorList.Sort((e1, e2) => string.Compare(e1.Surface.CaptureDetails.Title, e2.Surface.CaptureDetails.Title, StringComparison.Ordinal));
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Warn("Sorting of editors failed.", ex);
+                    }
 
-                return EditorList;
+                    return EditorList;
+                }
             }
         }
 
@@ -147,7 +152,10 @@ namespace Greenshot.Editor.Forms
             // Compute emojis in background
             EmojiData.Load();
 
-            EditorList.Add(this);
+            lock (_editorListLock)
+            {
+                EditorList.Add(this);
+            }
 
             //
             // The InitializeComponent() call is required for Windows Forms designer support.
@@ -279,6 +287,9 @@ namespace Greenshot.Editor.Forms
             toolStripSeparator11.Visible = !coreConfiguration.DisableSettings;
             btnSettings.Visible = !coreConfiguration.DisableSettings;
 
+            // Text obfuscation is only available for beta testers
+            obfuscateTextToolStripMenuItem.Visible = CoreConfiguration.IsBetaTester;
+
             // Make sure Double-buffer is enabled
             SetStyle(ControlStyles.DoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint, true);
 
@@ -379,15 +390,17 @@ namespace Greenshot.Editor.Forms
                     DisplayStyle = ToolStripItemDisplayStyle.Image,
                     Size = new Size(23, 22),
                     Text = toolstripDestination.Description,
-                    Image = toolstripDestination.DisplayIcon
                 };
-                //ToolStripDropDownButton destinationButton = new ToolStripDropDownButton();
+                // Dispose the icon when the toolstrip item is disposed to prevent memory leaks
+                destinationButton.AssignAutoDisposingImage(toolstripDestination?.DisplayIcon);
 
+                // Clone the icon for the menu item
                 ToolStripMenuItem defaultItem = new ToolStripMenuItem(toolstripDestination.Description)
                 {
                     Tag = toolstripDestination,
-                    Image = toolstripDestination.DisplayIcon
                 };
+                // Dispose the icon when the toolstrip item is disposed to prevent memory leaks
+                defaultItem.AssignAutoDisposingImage(toolstripDestination?.DisplayIcon);
                 defaultItem.Click += delegate { toolstripDestination.ExportCapture(true, _surface, _surface.CaptureDetails); };
 
                 // The ButtonClick, this is for the icon, gets the current default item
@@ -410,8 +423,9 @@ namespace Greenshot.Editor.Forms
                             ToolStripMenuItem destinationMenuItem = new ToolStripMenuItem(closureFixedDestination.Description)
                             {
                                 Tag = closureFixedDestination,
-                                Image = closureFixedDestination.DisplayIcon
                             };
+                            // Dispose the icon when the toolstrip item is disposed to prevent memory leaks
+                            destinationMenuItem.AssignAutoDisposingImage(closureFixedDestination.DisplayIcon);
                             destinationMenuItem.Click += delegate { closureFixedDestination.ExportCapture(true, _surface, _surface.CaptureDetails); };
                             destinationButton.DropDownItems.Add(destinationMenuItem);
                         }
@@ -427,8 +441,10 @@ namespace Greenshot.Editor.Forms
                 destinationButton.DisplayStyle = ToolStripItemDisplayStyle.Image;
                 destinationButton.Size = new Size(23, 22);
                 destinationButton.Text = toolstripDestination.Description;
-                destinationButton.Image = toolstripDestination.DisplayIcon;
                 destinationButton.Click += delegate { toolstripDestination.ExportCapture(true, _surface, _surface.CaptureDetails); };
+
+                // Dispose the icon when the toolstrip item is disposed to prevent memory leaks
+                destinationButton.AssignAutoDisposingImage(toolstripDestination.DisplayIcon);
             }
         }
 
@@ -975,7 +991,7 @@ namespace Greenshot.Editor.Forms
                 WindowDetails.ToForeground(Handle);
 
                 MessageBoxButtons buttons = MessageBoxButtons.YesNoCancel;
-                // Dissallow "CANCEL" if the application needs to shutdown
+                // Disallow "CANCEL" if the application needs to shutdown
                 if (e.CloseReason == CloseReason.ApplicationExitCall || e.CloseReason == CloseReason.WindowsShutDown || e.CloseReason == CloseReason.TaskManagerClosing)
                 {
                     buttons = MessageBoxButtons.YesNo;
@@ -1006,13 +1022,16 @@ namespace Greenshot.Editor.Forms
             IniConfig.Save();
 
             // remove from the editor list
-            EditorList.Remove(this);
+            lock (_editorListLock)
+            {
+                EditorList.Remove(this);
+            }
 
             _surface.Dispose();
 
-            GC.Collect();
             if (coreConfiguration.MinimizeWorkingSetSize)
             {
+                GC.Collect();
                 PsApi.EmptyWorkingSet();
             }
         }
@@ -1435,6 +1454,12 @@ namespace Greenshot.Editor.Forms
             UpdateClipboardSurfaceDependencies();
             UpdateUndoRedoSurfaceDependencies();
 
+            // Show/hide remove transparency menu item based on whether image has transparency
+            if (_surface?.Image != null)
+            {
+                removeTransparencyToolStripMenuItem.Visible = Image.IsAlphaPixelFormat(_surface.Image.PixelFormat);
+            }
+
             // en/disablearrage controls depending on hierarchy of selected elements
             bool actionAllowedForSelection = _surface.HasSelectedElements && !_controlsDisabledDueToConfirmable;
             bool push = actionAllowedForSelection && _surface.CanPushSelectionDown();
@@ -1680,6 +1705,52 @@ namespace Greenshot.Editor.Forms
             mainForm.AddCaptureWindowMenuItems(captureWindowMenuItem, Contextmenu_window_Click);
         }
 
+        private async void ObfuscateTextToolStripMenuItemClick(object sender, EventArgs e)
+        {
+            if (_surface?.CaptureDetails == null)
+            {
+                MessageBox.Show(Language.GetString("editor_obfuscate_text_no_capture"), Language.GetString("editor_obfuscate_text_title"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            if (_surface.CaptureDetails.OcrInformation == null)
+            {
+                var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>();
+                if (ocrProvider == null)
+                {
+                    MessageBox.Show(Language.GetString("editor_obfuscate_text_no_ocr_provider"), Language.GetString("editor_obfuscate_text_title"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                Cursor = Cursors.WaitCursor;
+                try
+                {
+                    _surface.CaptureDetails.OcrInformation = await ocrProvider.DoOcrAsync(_surface);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error("Error performing OCR", ex);
+                    MessageBox.Show(Language.GetString("editor_obfuscate_text_ocr_failed") + ": " + ex.Message, Language.GetString("editor_obfuscate_text_title"), MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                finally
+                {
+                    Cursor = Cursors.Default;
+                }
+            }
+
+            if (_surface.CaptureDetails.OcrInformation == null || !_surface.CaptureDetails.OcrInformation.HasContent)
+            {
+                MessageBox.Show(Language.GetString("editor_obfuscate_text_no_text"), Language.GetString("editor_obfuscate_text_title"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            using (var dialog = new TextObfuscationForm(_surface, _surface.CaptureDetails.OcrInformation))
+            {
+                dialog.ShowDialog(this);
+            }
+        }
+
         private void Contextmenu_window_Click(object sender, EventArgs e)
         {
             ToolStripMenuItem clickedItem = (ToolStripMenuItem) sender;
@@ -1856,6 +1927,24 @@ namespace Greenshot.Editor.Forms
         {
             _surface.ApplyBitmapEffect(new InvertEffect());
             UpdateUndoRedoSurfaceDependencies();
+        }
+
+        private void RemoveTransparencyToolStripMenuItemClick(object sender, EventArgs e)
+        {
+            var colorDialog = new ColorDialog
+            {
+                Color = Color.White
+            };
+            
+            if (colorDialog.ShowDialog(this) == DialogResult.OK)
+            {
+                var removeTransparencyEffect = new RemoveTransparencyEffect
+                {
+                    Color = colorDialog.Color
+                };
+                _surface.ApplyBitmapEffect(removeTransparencyEffect);
+                UpdateUndoRedoSurfaceDependencies();
+            }
         }
 
         private void ImageEditorFormResize(object sender, EventArgs e)

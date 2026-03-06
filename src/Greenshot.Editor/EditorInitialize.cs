@@ -20,6 +20,7 @@
  */
 
 using Greenshot.Base.Core;
+using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 using Greenshot.Editor.FileFormatHandlers;
 
@@ -27,11 +28,13 @@ namespace Greenshot.Editor
 {
     public static class EditorInitialize
     {
+        private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
+
         public static void Initialize()
         {
             SimpleServiceProvider.Current.AddService<IFileFormatHandler>(
                     // All generic things, like gif, png, jpg etc.
-                    new DefaultFileFormatHandler(),
+                    CoreConfig.IsBetaTester? new ImageSharpFileFormatHandler() : new DefaultFileFormatHandler(),
                     // Greenshot format
                     new GreenshotFileFormatHandler(),
                     // For .svg support

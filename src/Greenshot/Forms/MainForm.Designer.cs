@@ -40,6 +40,8 @@ namespace Greenshot.Forms {
 				if (_copyData != null) {
 					_copyData.Dispose();
 				}
+				_doubleClickTimer?.Stop();
+				_doubleClickTimer?.Dispose();
 			}
 			base.Dispose(disposing);
 		}

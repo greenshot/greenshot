@@ -6,9 +6,9 @@
 #define BaseDir "..\..\src"
 #define GreenshotProjectDir "..\..\src\Greenshot"
 #define LanguagesDir "..\..\src\Greenshot\Languages"
-#define BinDir "bin\Release\net481"
-#define ReleaseDir "..\..\src\Greenshot\bin\Release\net481"
-#define PluginDir "..\..\src\Greenshot\bin\Release\net481\Plugins"
+#define BinDir "bin\Release\net480"
+#define ReleaseDir "..\..\src\Greenshot\bin\Release\net480"
+#define PluginDir "..\..\src\Greenshot\bin\Release\net480\Plugins"
 #define CertumThumbprint GetEnv('CertumThumbprint')
 
 [Files]
@@ -93,12 +93,6 @@ Source: {#BaseDir}\Greenshot.Plugin.Box\Languages\language_box*.xml; DestDir: {a
 ;DropBox Plugin
 Source: {#PluginDir}\Greenshot.Plugin.DropBox\Greenshot.Plugin.DropBox.dll; DestDir: {app}\Plugins\DropBox; Components: plugins\dropbox; Flags: overwritereadonly recursesubdirs replacesameversion;
 Source: {#BaseDir}\Greenshot.Plugin.DropBox\Languages\language_dropbox*.xml; DestDir: {app}\Languages\Plugins\DropBox; Components: plugins\dropbox; Flags: overwritereadonly replacesameversion;
-;Flickr Plugin
-Source: {#PluginDir}\Greenshot.Plugin.Flickr\Greenshot.Plugin.Flickr.dll; DestDir: {app}\Plugins\Flickr; Components: plugins\flickr; Flags: overwritereadonly recursesubdirs replacesameversion;
-Source: {#BaseDir}\Greenshot.Plugin.Flickr\Languages\language_flickr*.xml; DestDir: {app}\Languages\Plugins\Flickr; Components: plugins\flickr; Flags: overwritereadonly replacesameversion;
-;Photobucket Plugin
-Source: {#PluginDir}\Greenshot.Plugin.Photobucket\Greenshot.Plugin.Photobucket.dll; DestDir: {app}\Plugins\Photobucket; Components: plugins\photobucket; Flags: overwritereadonly recursesubdirs replacesameversion;
-Source: {#BaseDir}\Greenshot.Plugin.Photobucket\Languages\language_photo*.xml; DestDir: {app}\Languages\Plugins\Photobucket; Components: plugins\photobucket; Flags: overwritereadonly replacesameversion;
 ;Confluence Plugin
 Source: {#PluginDir}\Greenshot.Plugin.Confluence\Greenshot.Plugin.Confluence.dll; DestDir: {app}\Plugins\Confluence; Components: plugins\confluence; Flags: overwritereadonly recursesubdirs replacesameversion;
 Source: {#BaseDir}\Greenshot.Plugin.Confluence\Languages\language_confluence*.xml; DestDir: {app}\Languages\Plugins\Confluence; Components: plugins\confluence; Flags: overwritereadonly replacesameversion;
@@ -257,13 +251,11 @@ en.confluence=Confluence plug-in
 en.default=Default installation
 en.dropbox=Dropbox plug-in
 en.externalcommand=Open with external command plug-in
-en.flickr=Flickr plug-in
 en.imgur=Imgur plug-in (See: https://imgur.com)
 en.jira=Jira plug-in
 en.language=Additional languages
 en.office=Microsoft Office plug-in
 en.optimize=Optimizing performance, this may take a while.
-en.photobucket=Photobucket plug-in
 en.startgreenshot=Start {#ExeName}
 en.startup=Start {#ExeName} with Windows start
 en.UninstallIconDescription=Uninstall
@@ -320,13 +312,11 @@ it.confluence=Plugin Confluence
 it.default=Installazione predefinita
 it.dropbox=Plugin Dropbox
 it.externalcommand=Apri con comando esterno plugin
-it.flickr=Plugin Flickr
 it.imgur=Plugin Imgur (vedi: https://imgur.com)
 it.jira=Plugin Jira
 it.language=Lingue aggiuntive
 it.office=Plugin Microsoft Office
 it.optimize=Ottimizzazione prestazioni (può richiedere tempo).
-it.photobucket=Plugin Photobucket
 it.startgreenshot=Esegui {#ExeName}
 it.startup=Esegui {#ExeName} all''avvio di Windows
 it.UninstallIconDescription=Disinstalla
@@ -448,16 +438,14 @@ tr.confluence=Confluence eklentisi
 tr.default=Varsayılan kurulum
 tr.dropbox=Dropbox eklentisi
 tr.externalcommand=Harici komut eklentisiyle aç
-tr.flickr=Flickr eklentisi
 tr.imgur=Imgur eklentisi (Bkz: https://imgur.com)
 tr.jira=Jira eklentisi
 tr.language=Ek diller
 tr.office=Microsoft Office eklentisi
 tr.optimize=Performans ayarları yapılıyor, bu biraz zaman alabilir.
-tr.photobucket=Photobucket eklentisi
 tr.startgreenshot={#ExeName} uygulamasını başlat
 tr.startup={#ExeName} Windows açıldığında başlasın
-tr.UninstallIconDescription=Greenshot uygulamasını kaldır
+tr.UninstallIconDescription=Uninstall
 tr.ShowLicense=Show license
 tr.ShowReadme=Show Readme
 tr.disablewin11snippingtool=Win11 varsayılan ekran alıntısı aracını devre dışı bırakın
@@ -496,11 +484,9 @@ Name: "plugins\box"; Description: {cm:box}; Types: full custom; Flags: disableno
 Name: "plugins\confluence"; Description: {cm:confluence}; Types: full custom; Flags: disablenouninstallwarning
 Name: "plugins\dropbox"; Description: {cm:dropbox}; Types: full custom; Flags: disablenouninstallwarning
 Name: "plugins\externalcommand"; Description: {cm:externalcommand}; Types: full custom; Flags: disablenouninstallwarning
-Name: "plugins\flickr"; Description: {cm:flickr}; Types: full custom; Flags: disablenouninstallwarning
 Name: "plugins\imgur"; Description: {cm:imgur}; Types: full custom; Flags: disablenouninstallwarning
 Name: "plugins\jira"; Description: {cm:jira}; Types: full custom; Flags: disablenouninstallwarning
 Name: "plugins\office"; Description: {cm:office}; Types: default full custom; Flags: disablenouninstallwarning
-Name: "plugins\photobucket"; Description: {cm:photobucket}; Types: full custom; Flags: disablenouninstallwarning
 Name: "languages"; Description: {cm:language}; Types: full custom; Flags: disablenouninstallwarning
 Name: "languages\arSY"; Description: {cm:arSY}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('d')
 Name: "languages\caCA"; Description: {cm:caCA}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
@@ -704,10 +690,10 @@ end;
 // Initialize the setup
 function InitializeSetup(): Boolean;
 begin
-	// Check for .NET and install 4.8.1 if we don't have it
-	Result := IsDotNetInstalled(net481, 0); //Returns True if .NET Framework version 4.6.2 is installed, or a compatible version such as 4.8.1
+	// Check for .NET and install 4.8.0 if we don't have it
+	Result := IsDotNetInstalled(net48, 0); //Returns True if .NET Framework version 4.6.2 is installed, or a compatible version such as 4.8.0
 	if not Result then
-		SuppressibleMsgBox(FmtMessage(SetupMessage(msgWinVersionTooLowError), ['.NET Framework', '4.8.1']), mbCriticalError, MB_OK, IDOK);
+		SuppressibleMsgBox(FmtMessage(SetupMessage(msgWinVersionTooLowError), ['.NET Framework', '4.8.0']), mbCriticalError, MB_OK, IDOK);
 end;
 
 function ShouldDisableSnippingTool: Boolean;

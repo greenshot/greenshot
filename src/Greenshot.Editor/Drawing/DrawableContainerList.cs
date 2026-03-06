@@ -25,7 +25,6 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
-using System.Threading;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
@@ -730,7 +729,11 @@ namespace Greenshot.Editor.Drawing
             ContextMenuStrip menu = new ContextMenuStrip();
             menu.SetupAutoDispose();
             AddContextMenuItems(menu, surface, mouseEventArgs);
-            if (menu.Items.Count <= 0) return;
+            if (menu.Items.Count <= 0)
+            {
+                menu.Dispose();
+                return;
+            }
             menu.Show(surface, surface.ToSurfaceCoordinates(mouseEventArgs.Location));
         }
 

@@ -19,10 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System;
 using System.ComponentModel;
-using System.Windows.Forms;
-using Greenshot.Base.Core;
 
 namespace Greenshot.Base.Controls
 {

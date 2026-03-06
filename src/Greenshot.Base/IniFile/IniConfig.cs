@@ -568,7 +568,7 @@ namespace Greenshot.Base.IniFile
                     continue;
                 }
 
-                writer.WriteLine("; The section {0} hasn't been 'claimed' since the last start of Greenshot, therefor it doesn't have additional information here!", sectionName);
+                writer.WriteLine("; The section {0} hasn't been 'claimed' since the last start of Greenshot, therefore it doesn't have additional information here!", sectionName);
                 writer.WriteLine(
                     "; The reason could be that the section {0} just hasn't been used, a plugin has an error and can't claim it or maybe the whole section {0} is obsolete.",
                     sectionName);
