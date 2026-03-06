@@ -310,6 +310,7 @@ namespace Greenshot.Forms
         public MainForm(CommandLineOptions options)
         {
 
+            SimpleServiceProvider.Current.AddService(SynchronizationContext.Current);
             var uiContext = TaskScheduler.FromCurrentSynchronizationContext();
             SimpleServiceProvider.Current.AddService(uiContext);
  

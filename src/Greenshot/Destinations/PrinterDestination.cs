@@ -106,6 +106,10 @@ namespace Greenshot.Destinations
             }
         }
 
+        // TODO: Implement IAcceptsPreRenderedImage to avoid a redundant surface render pass
+        // when a shared rendered bitmap is already available from the capture pipeline.
+        // PrintHelper would need an overload accepting a pre-rendered Image instead of ISurface.
+
         /// <summary>
         /// Export the capture to the printer
         /// </summary>
