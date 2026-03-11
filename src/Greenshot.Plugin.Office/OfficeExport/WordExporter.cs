@@ -71,7 +71,16 @@ namespace Greenshot.Plugin.Office.OfficeExport
                 wordApplication = DisposableCom.Create(new Application());
             }
 
-            InitializeVariables(wordApplication);
+            try
+            {
+                InitializeVariables(wordApplication);
+            }
+            catch (Exception ex)
+            {
+                LOG.Warn("Unable to initialize Word variables, assuming Word version 1997.", ex);
+                _wordVersion ??= new Version((int) OfficeVersions.Office97, 0, 0, 0);
+            }
+
             return wordApplication;
         }
 
@@ -99,7 +108,15 @@ namespace Greenshot.Plugin.Office.OfficeExport
 
             if ((wordApplication != null) && (wordApplication.ComObject != null))
             {
-                InitializeVariables(wordApplication);
+                try
+                {
+                    InitializeVariables(wordApplication);
+                }
+                catch (Exception ex)
+                {
+                    LOG.Warn("Unable to initialize Word variables, assuming Word version 1997.", ex);
+                    _wordVersion ??= new Version((int) OfficeVersions.Office97, 0, 0, 0);
+                }
             }
 
             return wordApplication;
