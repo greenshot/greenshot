@@ -539,7 +539,7 @@ namespace Greenshot.Base.Core
         /// </summary>
         /// <param name="targetFastBitmap">Target BitmapBuffer</param>
         /// <param name="range">Range must be odd!</param>
-        private static void BoxBlurHorizontal(IFastBitmap targetFastBitmap, int range)
+        private static unsafe void BoxBlurHorizontal(IFastBitmap targetFastBitmap, int range)
         {
             if (targetFastBitmap.HasAlphaChannel)
             {
@@ -547,10 +547,14 @@ namespace Greenshot.Base.Core
             }
 
             int halfRange = range / 2;
-            Color[] newColors = new Color[targetFastBitmap.Width];
-            byte[] tmpColor = new byte[3];
+            int width = targetFastBitmap.Width;
+            int bytesPerPixel = targetFastBitmap.BytesPerPixel;
+            byte[] newR = new byte[width];
+            byte[] newG = new byte[width];
+            byte[] newB = new byte[width];
             for (int y = targetFastBitmap.Top; y < targetFastBitmap.Bottom; y++)
             {
+                byte* rowPtr = (byte*)targetFastBitmap.GetRowPointer(y);
                 int hits = 0;
                 int r = 0;
                 int g = 0;
@@ -560,32 +564,39 @@ namespace Greenshot.Base.Core
                     int oldPixel = x - halfRange - 1;
                     if (oldPixel >= targetFastBitmap.Left)
                     {
-                        targetFastBitmap.GetColorAt(oldPixel, y, tmpColor);
-                        r -= tmpColor[FastBitmap.ColorIndexR];
-                        g -= tmpColor[FastBitmap.ColorIndexG];
-                        b -= tmpColor[FastBitmap.ColorIndexB];
+                        byte* pixel = rowPtr + oldPixel * bytesPerPixel;
+                        r -= pixel[FastBitmap.PixelformatIndexR];
+                        g -= pixel[FastBitmap.PixelformatIndexG];
+                        b -= pixel[FastBitmap.PixelformatIndexB];
                         hits--;
                     }
 
                     int newPixel = x + halfRange;
                     if (newPixel < targetFastBitmap.Right)
                     {
-                        targetFastBitmap.GetColorAt(newPixel, y, tmpColor);
-                        r += tmpColor[FastBitmap.ColorIndexR];
-                        g += tmpColor[FastBitmap.ColorIndexG];
-                        b += tmpColor[FastBitmap.ColorIndexB];
+                        byte* pixel = rowPtr + newPixel * bytesPerPixel;
+                        r += pixel[FastBitmap.PixelformatIndexR];
+                        g += pixel[FastBitmap.PixelformatIndexG];
+                        b += pixel[FastBitmap.PixelformatIndexB];
                         hits++;
                     }
 
                     if (x >= targetFastBitmap.Left)
                     {
-                        newColors[x - targetFastBitmap.Left] = Color.FromArgb(255, (byte) (r / hits), (byte) (g / hits), (byte) (b / hits));
+                        int idx = x - targetFastBitmap.Left;
+                        newR[idx] = (byte)(r / hits);
+                        newG[idx] = (byte)(g / hits);
+                        newB[idx] = (byte)(b / hits);
                     }
                 }
 
                 for (int x = targetFastBitmap.Left; x < targetFastBitmap.Right; x++)
                 {
-                    targetFastBitmap.SetColorAt(x, y, newColors[x - targetFastBitmap.Left]);
+                    byte* pixel = rowPtr + x * bytesPerPixel;
+                    int idx = x - targetFastBitmap.Left;
+                    pixel[FastBitmap.PixelformatIndexR] = newR[idx];
+                    pixel[FastBitmap.PixelformatIndexG] = newG[idx];
+                    pixel[FastBitmap.PixelformatIndexB] = newB[idx];
                 }
             }
         }
@@ -595,7 +606,7 @@ namespace Greenshot.Base.Core
         /// </summary>
         /// <param name="targetFastBitmap">Target BitmapBuffer</param>
         /// <param name="range">Range must be odd!</param>
-        private static void BoxBlurHorizontalAlpha(IFastBitmap targetFastBitmap, int range)
+        private static unsafe void BoxBlurHorizontalAlpha(IFastBitmap targetFastBitmap, int range)
         {
             if (!targetFastBitmap.HasAlphaChannel)
             {
@@ -603,10 +614,15 @@ namespace Greenshot.Base.Core
             }
 
             int halfRange = range / 2;
-            Color[] newColors = new Color[targetFastBitmap.Width];
-            byte[] tmpColor = new byte[4];
+            int width = targetFastBitmap.Width;
+            int bytesPerPixel = targetFastBitmap.BytesPerPixel;
+            byte[] newA = new byte[width];
+            byte[] newR = new byte[width];
+            byte[] newG = new byte[width];
+            byte[] newB = new byte[width];
             for (int y = targetFastBitmap.Top; y < targetFastBitmap.Bottom; y++)
             {
+                byte* rowPtr = (byte*)targetFastBitmap.GetRowPointer(y);
                 int hits = 0;
                 int a = 0;
                 int r = 0;
@@ -617,34 +633,43 @@ namespace Greenshot.Base.Core
                     int oldPixel = x - halfRange - 1;
                     if (oldPixel >= targetFastBitmap.Left)
                     {
-                        targetFastBitmap.GetColorAt(oldPixel, y, tmpColor);
-                        a -= tmpColor[FastBitmap.ColorIndexA];
-                        r -= tmpColor[FastBitmap.ColorIndexR];
-                        g -= tmpColor[FastBitmap.ColorIndexG];
-                        b -= tmpColor[FastBitmap.ColorIndexB];
+                        byte* pixel = rowPtr + oldPixel * bytesPerPixel;
+                        a -= pixel[FastBitmap.PixelformatIndexA];
+                        r -= pixel[FastBitmap.PixelformatIndexR];
+                        g -= pixel[FastBitmap.PixelformatIndexG];
+                        b -= pixel[FastBitmap.PixelformatIndexB];
                         hits--;
                     }
 
                     int newPixel = x + halfRange;
                     if (newPixel < targetFastBitmap.Right)
                     {
-                        targetFastBitmap.GetColorAt(newPixel, y, tmpColor);
-                        a += tmpColor[FastBitmap.ColorIndexA];
-                        r += tmpColor[FastBitmap.ColorIndexR];
-                        g += tmpColor[FastBitmap.ColorIndexG];
-                        b += tmpColor[FastBitmap.ColorIndexB];
+                        byte* pixel = rowPtr + newPixel * bytesPerPixel;
+                        a += pixel[FastBitmap.PixelformatIndexA];
+                        r += pixel[FastBitmap.PixelformatIndexR];
+                        g += pixel[FastBitmap.PixelformatIndexG];
+                        b += pixel[FastBitmap.PixelformatIndexB];
                         hits++;
                     }
 
                     if (x >= targetFastBitmap.Left)
                     {
-                        newColors[x - targetFastBitmap.Left] = Color.FromArgb((byte) (a / hits), (byte) (r / hits), (byte) (g / hits), (byte) (b / hits));
+                        int idx = x - targetFastBitmap.Left;
+                        newA[idx] = (byte)(a / hits);
+                        newR[idx] = (byte)(r / hits);
+                        newG[idx] = (byte)(g / hits);
+                        newB[idx] = (byte)(b / hits);
                     }
                 }
 
                 for (int x = targetFastBitmap.Left; x < targetFastBitmap.Right; x++)
                 {
-                    targetFastBitmap.SetColorAt(x, y, newColors[x - targetFastBitmap.Left]);
+                    byte* pixel = rowPtr + x * bytesPerPixel;
+                    int idx = x - targetFastBitmap.Left;
+                    pixel[FastBitmap.PixelformatIndexA] = newA[idx];
+                    pixel[FastBitmap.PixelformatIndexR] = newR[idx];
+                    pixel[FastBitmap.PixelformatIndexG] = newG[idx];
+                    pixel[FastBitmap.PixelformatIndexB] = newB[idx];
                 }
             }
         }
@@ -654,7 +679,7 @@ namespace Greenshot.Base.Core
         /// </summary>
         /// <param name="targetFastBitmap">BitmapBuffer which previously was created with BoxBlurHorizontal</param>
         /// <param name="range">Range must be odd!</param>
-        private static void BoxBlurVertical(IFastBitmap targetFastBitmap, int range)
+        private static unsafe void BoxBlurVertical(IFastBitmap targetFastBitmap, int range)
         {
             if (targetFastBitmap.HasAlphaChannel)
             {
@@ -662,10 +687,14 @@ namespace Greenshot.Base.Core
             }
 
             int halfRange = range / 2;
-            Color[] newColors = new Color[targetFastBitmap.Height];
-            byte[] tmpColor = new byte[4];
+            int height = targetFastBitmap.Height;
+            int bytesPerPixel = targetFastBitmap.BytesPerPixel;
+            byte[] newR = new byte[height];
+            byte[] newG = new byte[height];
+            byte[] newB = new byte[height];
             for (int x = targetFastBitmap.Left; x < targetFastBitmap.Right; x++)
             {
+                int xOffset = x * bytesPerPixel;
                 int hits = 0;
                 int r = 0;
                 int g = 0;
@@ -675,32 +704,39 @@ namespace Greenshot.Base.Core
                     int oldPixel = y - halfRange - 1;
                     if (oldPixel >= targetFastBitmap.Top)
                     {
-                        targetFastBitmap.GetColorAt(x, oldPixel, tmpColor);
-                        r -= tmpColor[FastBitmap.ColorIndexR];
-                        g -= tmpColor[FastBitmap.ColorIndexG];
-                        b -= tmpColor[FastBitmap.ColorIndexB];
+                        byte* pixel = (byte*)targetFastBitmap.GetRowPointer(oldPixel) + xOffset;
+                        r -= pixel[FastBitmap.PixelformatIndexR];
+                        g -= pixel[FastBitmap.PixelformatIndexG];
+                        b -= pixel[FastBitmap.PixelformatIndexB];
                         hits--;
                     }
 
                     int newPixel = y + halfRange;
                     if (newPixel < targetFastBitmap.Bottom)
                     {
-                        targetFastBitmap.GetColorAt(x, newPixel, tmpColor);
-                        r += tmpColor[FastBitmap.ColorIndexR];
-                        g += tmpColor[FastBitmap.ColorIndexG];
-                        b += tmpColor[FastBitmap.ColorIndexB];
+                        byte* pixel = (byte*)targetFastBitmap.GetRowPointer(newPixel) + xOffset;
+                        r += pixel[FastBitmap.PixelformatIndexR];
+                        g += pixel[FastBitmap.PixelformatIndexG];
+                        b += pixel[FastBitmap.PixelformatIndexB];
                         hits++;
                     }
 
                     if (y >= targetFastBitmap.Top)
                     {
-                        newColors[y - targetFastBitmap.Top] = Color.FromArgb(255, (byte) (r / hits), (byte) (g / hits), (byte) (b / hits));
+                        int idx = y - targetFastBitmap.Top;
+                        newR[idx] = (byte)(r / hits);
+                        newG[idx] = (byte)(g / hits);
+                        newB[idx] = (byte)(b / hits);
                     }
                 }
 
                 for (int y = targetFastBitmap.Top; y < targetFastBitmap.Bottom; y++)
                 {
-                    targetFastBitmap.SetColorAt(x, y, newColors[y - targetFastBitmap.Top]);
+                    byte* pixel = (byte*)targetFastBitmap.GetRowPointer(y) + xOffset;
+                    int idx = y - targetFastBitmap.Top;
+                    pixel[FastBitmap.PixelformatIndexR] = newR[idx];
+                    pixel[FastBitmap.PixelformatIndexG] = newG[idx];
+                    pixel[FastBitmap.PixelformatIndexB] = newB[idx];
                 }
             }
         }
@@ -710,7 +746,7 @@ namespace Greenshot.Base.Core
         /// </summary>
         /// <param name="targetFastBitmap">BitmapBuffer which previously was created with BoxBlurHorizontal</param>
         /// <param name="range">Range must be odd!</param>
-        private static void BoxBlurVerticalAlpha(IFastBitmap targetFastBitmap, int range)
+        private static unsafe void BoxBlurVerticalAlpha(IFastBitmap targetFastBitmap, int range)
         {
             if (!targetFastBitmap.HasAlphaChannel)
             {
@@ -718,10 +754,15 @@ namespace Greenshot.Base.Core
             }
 
             int halfRange = range / 2;
-            Color[] newColors = new Color[targetFastBitmap.Height];
-            byte[] tmpColor = new byte[4];
+            int height = targetFastBitmap.Height;
+            int bytesPerPixel = targetFastBitmap.BytesPerPixel;
+            byte[] newA = new byte[height];
+            byte[] newR = new byte[height];
+            byte[] newG = new byte[height];
+            byte[] newB = new byte[height];
             for (int x = targetFastBitmap.Left; x < targetFastBitmap.Right; x++)
             {
+                int xOffset = x * bytesPerPixel;
                 int hits = 0;
                 int a = 0;
                 int r = 0;
@@ -732,35 +773,43 @@ namespace Greenshot.Base.Core
                     int oldPixel = y - halfRange - 1;
                     if (oldPixel >= targetFastBitmap.Top)
                     {
-                        targetFastBitmap.GetColorAt(x, oldPixel, tmpColor);
-                        a -= tmpColor[FastBitmap.ColorIndexA];
-                        r -= tmpColor[FastBitmap.ColorIndexR];
-                        g -= tmpColor[FastBitmap.ColorIndexG];
-                        b -= tmpColor[FastBitmap.ColorIndexB];
+                        byte* pixel = (byte*)targetFastBitmap.GetRowPointer(oldPixel) + xOffset;
+                        a -= pixel[FastBitmap.PixelformatIndexA];
+                        r -= pixel[FastBitmap.PixelformatIndexR];
+                        g -= pixel[FastBitmap.PixelformatIndexG];
+                        b -= pixel[FastBitmap.PixelformatIndexB];
                         hits--;
                     }
 
                     int newPixel = y + halfRange;
                     if (newPixel < targetFastBitmap.Bottom)
                     {
-                        //int colorg = pixels[index + newPixelOffset];
-                        targetFastBitmap.GetColorAt(x, newPixel, tmpColor);
-                        a += tmpColor[FastBitmap.ColorIndexA];
-                        r += tmpColor[FastBitmap.ColorIndexR];
-                        g += tmpColor[FastBitmap.ColorIndexG];
-                        b += tmpColor[FastBitmap.ColorIndexB];
+                        byte* pixel = (byte*)targetFastBitmap.GetRowPointer(newPixel) + xOffset;
+                        a += pixel[FastBitmap.PixelformatIndexA];
+                        r += pixel[FastBitmap.PixelformatIndexR];
+                        g += pixel[FastBitmap.PixelformatIndexG];
+                        b += pixel[FastBitmap.PixelformatIndexB];
                         hits++;
                     }
 
                     if (y >= targetFastBitmap.Top)
                     {
-                        newColors[y - targetFastBitmap.Top] = Color.FromArgb((byte) (a / hits), (byte) (r / hits), (byte) (g / hits), (byte) (b / hits));
+                        int idx = y - targetFastBitmap.Top;
+                        newA[idx] = (byte)(a / hits);
+                        newR[idx] = (byte)(r / hits);
+                        newG[idx] = (byte)(g / hits);
+                        newB[idx] = (byte)(b / hits);
                     }
                 }
 
                 for (int y = targetFastBitmap.Top; y < targetFastBitmap.Bottom; y++)
                 {
-                    targetFastBitmap.SetColorAt(x, y, newColors[y - targetFastBitmap.Top]);
+                    byte* pixel = (byte*)targetFastBitmap.GetRowPointer(y) + xOffset;
+                    int idx = y - targetFastBitmap.Top;
+                    pixel[FastBitmap.PixelformatIndexA] = newA[idx];
+                    pixel[FastBitmap.PixelformatIndexR] = newR[idx];
+                    pixel[FastBitmap.PixelformatIndexG] = newG[idx];
+                    pixel[FastBitmap.PixelformatIndexB] = newB[idx];
                 }
             }
         }

@@ -157,6 +157,19 @@ namespace Greenshot.Base.Core
         /// <param name="horizontal"></param>
         /// <param name="vertical"></param>
         void SetResolution(float horizontal, float vertical);
+
+        /// <summary>
+        /// Get a pointer to the start of the specified row.
+        /// The bitmap must be locked before calling this method.
+        /// </summary>
+        /// <param name="y">Row index, 0-based relative to the top of the locked area (i.e., y=0 is the first row of the locked bitmap area)</param>
+        /// <returns>IntPtr pointing to the first byte of row y</returns>
+        IntPtr GetRowPointer(int y);
+
+        /// <summary>
+        /// Number of bytes per pixel for this bitmap format
+        /// </summary>
+        int BytesPerPixel { get; }
     }
 
     /// <summary>
@@ -259,10 +272,10 @@ namespace Greenshot.Base.Core
     /// </summary>
     public abstract unsafe class FastBitmap : IFastBitmapWithClip, IFastBitmapWithOffset
     {
-        protected const int PixelformatIndexA = 3;
-        protected const int PixelformatIndexR = 2;
-        protected const int PixelformatIndexG = 1;
-        protected const int PixelformatIndexB = 0;
+        public const int PixelformatIndexA = 3;
+        public const int PixelformatIndexR = 2;
+        public const int PixelformatIndexG = 1;
+        public const int PixelformatIndexB = 0;
 
         public const int ColorIndexR = 0;
         public const int ColorIndexG = 1;
@@ -640,6 +653,22 @@ namespace Greenshot.Base.Core
         public abstract void GetColorAt(int x, int y, byte[] color);
         public abstract void SetColorAt(int x, int y, byte[] color);
 
+        /// <summary>
+        /// Get a pointer to the start of the specified row.
+        /// The bitmap must be locked before calling this method.
+        /// </summary>
+        /// <param name="y">Row index, 0-based relative to the top of the locked area (i.e., y=0 is the first row of the locked bitmap area)</param>
+        /// <returns>IntPtr pointing to the first byte of row y</returns>
+        public IntPtr GetRowPointer(int y)
+        {
+            return (IntPtr)(Pointer + y * Stride);
+        }
+
+        /// <summary>
+        /// Number of bytes per pixel for this bitmap format
+        /// </summary>
+        public abstract int BytesPerPixel { get; }
+
         bool IFastBitmapWithClip.Contains(int x, int y)
         {
             bool contains = Clip.Contains(x, y);
@@ -728,6 +757,9 @@ namespace Greenshot.Base.Core
         {
             _colorEntries = Bitmap.Palette.Entries;
         }
+
+        /// <inheritdoc />
+        public override int BytesPerPixel => 1;
 
         /// <summary>
         /// Get the color from the specified location
@@ -830,6 +862,9 @@ namespace Greenshot.Base.Core
         {
         }
 
+        /// <inheritdoc />
+        public override int BytesPerPixel => 3;
+
         /// <summary>
         /// Retrieve the color at location x,y
         /// Before the first time this is called the Lock() should be called once!
@@ -895,6 +930,9 @@ namespace Greenshot.Base.Core
         public Fast32RgbBitmap(Bitmap source, NativeRect area) : base(source, area)
         {
         }
+
+        /// <inheritdoc />
+        public override int BytesPerPixel => 4;
 
         /// <summary>
         /// Retrieve the color at location x,y
@@ -966,6 +1004,9 @@ namespace Greenshot.Base.Core
         {
             BackgroundBlendColor = Color.White;
         }
+
+        /// <inheritdoc />
+        public override int BytesPerPixel => 4;
 
         /// <summary>
         /// Retrieve the color at location x,y
