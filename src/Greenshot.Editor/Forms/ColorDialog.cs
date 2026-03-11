@@ -290,5 +290,41 @@ namespace Greenshot.Editor.Forms
         {
             Color = e.Color;
         }
+
+        public new DialogResult ShowDialog(IWin32Window owner)
+        {
+            PositionNearOwner(owner);
+            return base.ShowDialog(owner);
+        }
+
+        private void PositionNearOwner(IWin32Window owner)
+        {
+            if (owner is not Control ownerControl) return;
+
+            // Find the top-level form
+            var ownerForm = ownerControl as Form ?? ownerControl.FindForm();
+            if (ownerForm == null) return;
+
+            // Place the dialog just below the top-left of the owner window (below the toolbar area)
+            var ownerBounds = ownerForm.Bounds;
+            int x = ownerBounds.Left + 8;
+            int y = ownerBounds.Top + ownerForm.RectangleToScreen(ownerForm.ClientRectangle).Top - ownerForm.Top + 8;
+
+            // Keep within the screen that contains the owner
+            var screen = Screen.FromControl(ownerForm);
+            var workingArea = screen.WorkingArea;
+
+            if (x + Width > workingArea.Right)
+                x = workingArea.Right - Width;
+            if (x < workingArea.Left)
+                x = workingArea.Left;
+            if (y + Height > workingArea.Bottom)
+                y = ownerBounds.Top - Height - 8;
+            if (y < workingArea.Top)
+                y = workingArea.Top;
+
+            StartPosition = FormStartPosition.Manual;
+            Location = new Point(x, y);
+        }
     }
 }
