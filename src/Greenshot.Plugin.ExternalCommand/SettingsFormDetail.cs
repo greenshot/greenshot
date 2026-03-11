@@ -152,7 +152,7 @@ public partial class SettingsFormDetail : ExternalCommandForm
         {
             buttonOk.Enabled = false;
             textBox_name.BackColor = Color.LightCoral;
-            _nameToolTip.SetToolTip(textBox_name, "A command with this name already exists. Please choose a different name.");
+            _nameToolTip.SetToolTip(textBox_name, Language.GetString("externalcommand", "tooltip_duplicate_name"));
         }
         else
         {
