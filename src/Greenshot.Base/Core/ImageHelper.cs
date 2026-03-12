@@ -530,6 +530,8 @@ namespace Greenshot.Base.Core
         /// BoxBlurHorizontalCore is the shared horizontal-pass implementation for BoxBlur.
         /// It processes <paramref name="channelCount"/> consecutive bytes per pixel (e.g. 3 for RGB, 4 for ARGB)
         /// using ArrayPool buffers to minimise GC pressure.
+        /// The channelCount branch is hoisted outside all loops; pixel access uses pointer advancement
+        /// (no per-pixel multiplications, no per-pixel branches).
         /// </summary>
         /// <param name="targetFastBitmap">Target BitmapBuffer</param>
         /// <param name="range">Range must be odd!</param>
@@ -539,62 +541,107 @@ namespace Greenshot.Base.Core
             int halfRange = range / 2;
             int width = targetFastBitmap.Width;
             int bytesPerPixel = targetFastBitmap.BytesPerPixel;
+            int left = targetFastBitmap.Left;
+            int right = targetFastBitmap.Right;
+            int top = targetFastBitmap.Top;
+            int bottom = targetFastBitmap.Bottom;
 
-            // Rent one output buffer per channel; these are returned even if an exception is thrown.
             // Channels are laid out sequentially in memory: [0]=B, [1]=G, [2]=R, [3]=A (BGRA order).
+            // Rent one output buffer per channel; these are returned even if an exception is thrown.
             byte[] buf0 = ArrayPool<byte>.Shared.Rent(width);
             byte[] buf1 = ArrayPool<byte>.Shared.Rent(width);
             byte[] buf2 = ArrayPool<byte>.Shared.Rent(width);
             byte[] buf3 = channelCount == 4 ? ArrayPool<byte>.Shared.Rent(width) : null;
             try
             {
-                for (int y = targetFastBitmap.Top; y < targetFastBitmap.Bottom; y++)
+                // The channelCount check is hoisted here so the inner loops contain no conditional branching.
+                // oldPtr / newPtr advance by bytesPerPixel on every access, avoiding any per-pixel multiplication.
+                if (channelCount == 4)
                 {
-                    byte* rowPtr = (byte*)targetFastBitmap.GetRowPointer(y);
-                    int hits = 0;
-                    int ch0 = 0, ch1 = 0, ch2 = 0, ch3 = 0;
-                    for (int x = targetFastBitmap.Left - halfRange; x < targetFastBitmap.Right; x++)
+                    for (int y = top; y < bottom; y++)
                     {
-                        int oldPixel = x - halfRange - 1;
-                        if (oldPixel >= targetFastBitmap.Left)
+                        byte* rowPtr = (byte*)targetFastBitmap.GetRowPointer(y);
+                        // Both pointers start at the first pixel of the clipped area.
+                        // They advance by bytesPerPixel each time the sliding window adds/removes a pixel.
+                        byte* oldPtr = rowPtr + left * bytesPerPixel;
+                        byte* newPtr = rowPtr + left * bytesPerPixel;
+                        int hits = 0;
+                        int ch0 = 0, ch1 = 0, ch2 = 0, ch3 = 0;
+                        for (int x = left - halfRange; x < right; x++)
                         {
-                            byte* p = rowPtr + oldPixel * bytesPerPixel;
-                            ch0 -= p[0];
-                            ch1 -= p[1];
-                            ch2 -= p[2];
-                            if (channelCount == 4) ch3 -= p[3];
-                            hits--;
+                            if (x - halfRange - 1 >= left)
+                            {
+                                ch0 -= oldPtr[0]; ch1 -= oldPtr[1]; ch2 -= oldPtr[2]; ch3 -= oldPtr[3];
+                                oldPtr += bytesPerPixel;
+                                hits--;
+                            }
+
+                            if (x + halfRange < right)
+                            {
+                                ch0 += newPtr[0]; ch1 += newPtr[1]; ch2 += newPtr[2]; ch3 += newPtr[3];
+                                newPtr += bytesPerPixel;
+                                hits++;
+                            }
+
+                            if (x >= left)
+                            {
+                                int idx = x - left;
+                                buf0[idx] = (byte)(ch0 / hits);
+                                buf1[idx] = (byte)(ch1 / hits);
+                                buf2[idx] = (byte)(ch2 / hits);
+                                buf3[idx] = (byte)(ch3 / hits);
+                            }
                         }
 
-                        int newPixel = x + halfRange;
-                        if (newPixel < targetFastBitmap.Right)
+                        byte* writePtr = rowPtr + left * bytesPerPixel;
+                        for (int i = 0; i < width; i++)
                         {
-                            byte* p = rowPtr + newPixel * bytesPerPixel;
-                            ch0 += p[0];
-                            ch1 += p[1];
-                            ch2 += p[2];
-                            if (channelCount == 4) ch3 += p[3];
-                            hits++;
-                        }
-
-                        if (x >= targetFastBitmap.Left)
-                        {
-                            int idx = x - targetFastBitmap.Left;
-                            buf0[idx] = (byte)(ch0 / hits);
-                            buf1[idx] = (byte)(ch1 / hits);
-                            buf2[idx] = (byte)(ch2 / hits);
-                            if (channelCount == 4) buf3[idx] = (byte)(ch3 / hits);
+                            writePtr[0] = buf0[i]; writePtr[1] = buf1[i];
+                            writePtr[2] = buf2[i]; writePtr[3] = buf3[i];
+                            writePtr += bytesPerPixel;
                         }
                     }
-
-                    for (int x = targetFastBitmap.Left; x < targetFastBitmap.Right; x++)
+                }
+                else // channelCount == 3
+                {
+                    for (int y = top; y < bottom; y++)
                     {
-                        byte* p = rowPtr + x * bytesPerPixel;
-                        int idx = x - targetFastBitmap.Left;
-                        p[0] = buf0[idx];
-                        p[1] = buf1[idx];
-                        p[2] = buf2[idx];
-                        if (channelCount == 4) p[3] = buf3[idx];
+                        byte* rowPtr = (byte*)targetFastBitmap.GetRowPointer(y);
+                        byte* oldPtr = rowPtr + left * bytesPerPixel;
+                        byte* newPtr = rowPtr + left * bytesPerPixel;
+                        int hits = 0;
+                        int ch0 = 0, ch1 = 0, ch2 = 0;
+                        for (int x = left - halfRange; x < right; x++)
+                        {
+                            if (x - halfRange - 1 >= left)
+                            {
+                                ch0 -= oldPtr[0]; ch1 -= oldPtr[1]; ch2 -= oldPtr[2];
+                                oldPtr += bytesPerPixel;
+                                hits--;
+                            }
+
+                            if (x + halfRange < right)
+                            {
+                                ch0 += newPtr[0]; ch1 += newPtr[1]; ch2 += newPtr[2];
+                                newPtr += bytesPerPixel;
+                                hits++;
+                            }
+
+                            if (x >= left)
+                            {
+                                int idx = x - left;
+                                buf0[idx] = (byte)(ch0 / hits);
+                                buf1[idx] = (byte)(ch1 / hits);
+                                buf2[idx] = (byte)(ch2 / hits);
+                            }
+                        }
+
+                        byte* writePtr = rowPtr + left * bytesPerPixel;
+                        for (int i = 0; i < width; i++)
+                        {
+                            writePtr[0] = buf0[i]; writePtr[1] = buf1[i]; writePtr[2] = buf2[i];
+                            writePtr += bytesPerPixel;
+                        }
                     }
                 }
             }
@@ -611,6 +658,8 @@ namespace Greenshot.Base.Core
         /// BoxBlurVerticalCore is the shared vertical-pass implementation for BoxBlur.
         /// It processes <paramref name="channelCount"/> consecutive bytes per pixel (e.g. 3 for RGB, 4 for ARGB)
         /// using ArrayPool buffers to minimise GC pressure.
+        /// The channelCount branch is hoisted outside all loops; column access uses stride-based pointer
+        /// advancement rather than per-row GetRowPointer calls.
         /// </summary>
         /// <param name="targetFastBitmap">BitmapBuffer which previously was created with BoxBlurHorizontalCore</param>
         /// <param name="range">Range must be odd!</param>
@@ -620,61 +669,109 @@ namespace Greenshot.Base.Core
             int halfRange = range / 2;
             int height = targetFastBitmap.Height;
             int bytesPerPixel = targetFastBitmap.BytesPerPixel;
+            int stride = targetFastBitmap.Stride;
+            int left = targetFastBitmap.Left;
+            int right = targetFastBitmap.Right;
+            int top = targetFastBitmap.Top;
+            int bottom = targetFastBitmap.Bottom;
 
             // Channels are laid out sequentially in memory: [0]=B, [1]=G, [2]=R, [3]=A (BGRA order).
             byte[] buf0 = ArrayPool<byte>.Shared.Rent(height);
             byte[] buf1 = ArrayPool<byte>.Shared.Rent(height);
             byte[] buf2 = ArrayPool<byte>.Shared.Rent(height);
             byte[] buf3 = channelCount == 4 ? ArrayPool<byte>.Shared.Rent(height) : null;
+
+            // Base pointer to row `top`; xOffset added per column so each column walk uses stride advancement.
+            byte* topRowPtr = (byte*)targetFastBitmap.GetRowPointer(top);
             try
             {
-                for (int x = targetFastBitmap.Left; x < targetFastBitmap.Right; x++)
+                // The channelCount check is hoisted here so the inner loops contain no conditional branching.
+                // oldColPtr / newColPtr advance by `stride` on every access, replacing per-row GetRowPointer calls.
+                if (channelCount == 4)
                 {
-                    int xOffset = x * bytesPerPixel;
-                    int hits = 0;
-                    int ch0 = 0, ch1 = 0, ch2 = 0, ch3 = 0;
-                    for (int y = targetFastBitmap.Top - halfRange; y < targetFastBitmap.Bottom; y++)
+                    for (int x = left; x < right; x++)
                     {
-                        int oldPixel = y - halfRange - 1;
-                        if (oldPixel >= targetFastBitmap.Top)
+                        int xOffset = x * bytesPerPixel;
+                        // Column pointers start at the first valid row (top) and advance by stride each step.
+                        byte* oldColPtr = topRowPtr + xOffset;
+                        byte* newColPtr = topRowPtr + xOffset;
+                        int hits = 0;
+                        int ch0 = 0, ch1 = 0, ch2 = 0, ch3 = 0;
+                        for (int y = top - halfRange; y < bottom; y++)
                         {
-                            byte* p = (byte*)targetFastBitmap.GetRowPointer(oldPixel) + xOffset;
-                            ch0 -= p[0];
-                            ch1 -= p[1];
-                            ch2 -= p[2];
-                            if (channelCount == 4) ch3 -= p[3];
-                            hits--;
+                            if (y - halfRange - 1 >= top)
+                            {
+                                ch0 -= oldColPtr[0]; ch1 -= oldColPtr[1]; ch2 -= oldColPtr[2]; ch3 -= oldColPtr[3];
+                                oldColPtr += stride;
+                                hits--;
+                            }
+
+                            if (y + halfRange < bottom)
+                            {
+                                ch0 += newColPtr[0]; ch1 += newColPtr[1]; ch2 += newColPtr[2]; ch3 += newColPtr[3];
+                                newColPtr += stride;
+                                hits++;
+                            }
+
+                            if (y >= top)
+                            {
+                                int idx = y - top;
+                                buf0[idx] = (byte)(ch0 / hits);
+                                buf1[idx] = (byte)(ch1 / hits);
+                                buf2[idx] = (byte)(ch2 / hits);
+                                buf3[idx] = (byte)(ch3 / hits);
+                            }
                         }
 
-                        int newPixel = y + halfRange;
-                        if (newPixel < targetFastBitmap.Bottom)
+                        byte* writeColPtr = topRowPtr + xOffset;
+                        for (int i = 0; i < height; i++)
                         {
-                            byte* p = (byte*)targetFastBitmap.GetRowPointer(newPixel) + xOffset;
-                            ch0 += p[0];
-                            ch1 += p[1];
-                            ch2 += p[2];
-                            if (channelCount == 4) ch3 += p[3];
-                            hits++;
-                        }
-
-                        if (y >= targetFastBitmap.Top)
-                        {
-                            int idx = y - targetFastBitmap.Top;
-                            buf0[idx] = (byte)(ch0 / hits);
-                            buf1[idx] = (byte)(ch1 / hits);
-                            buf2[idx] = (byte)(ch2 / hits);
-                            if (channelCount == 4) buf3[idx] = (byte)(ch3 / hits);
+                            writeColPtr[0] = buf0[i]; writeColPtr[1] = buf1[i];
+                            writeColPtr[2] = buf2[i]; writeColPtr[3] = buf3[i];
+                            writeColPtr += stride;
                         }
                     }
-
-                    for (int y = targetFastBitmap.Top; y < targetFastBitmap.Bottom; y++)
+                }
+                else // channelCount == 3
+                {
+                    for (int x = left; x < right; x++)
                     {
-                        byte* p = (byte*)targetFastBitmap.GetRowPointer(y) + xOffset;
-                        int idx = y - targetFastBitmap.Top;
-                        p[0] = buf0[idx];
-                        p[1] = buf1[idx];
-                        p[2] = buf2[idx];
-                        if (channelCount == 4) p[3] = buf3[idx];
+                        int xOffset = x * bytesPerPixel;
+                        byte* oldColPtr = topRowPtr + xOffset;
+                        byte* newColPtr = topRowPtr + xOffset;
+                        int hits = 0;
+                        int ch0 = 0, ch1 = 0, ch2 = 0;
+                        for (int y = top - halfRange; y < bottom; y++)
+                        {
+                            if (y - halfRange - 1 >= top)
+                            {
+                                ch0 -= oldColPtr[0]; ch1 -= oldColPtr[1]; ch2 -= oldColPtr[2];
+                                oldColPtr += stride;
+                                hits--;
+                            }
+
+                            if (y + halfRange < bottom)
+                            {
+                                ch0 += newColPtr[0]; ch1 += newColPtr[1]; ch2 += newColPtr[2];
+                                newColPtr += stride;
+                                hits++;
+                            }
+
+                            if (y >= top)
+                            {
+                                int idx = y - top;
+                                buf0[idx] = (byte)(ch0 / hits);
+                                buf1[idx] = (byte)(ch1 / hits);
+                                buf2[idx] = (byte)(ch2 / hits);
+                            }
+                        }
+
+                        byte* writeColPtr = topRowPtr + xOffset;
+                        for (int i = 0; i < height; i++)
+                        {
+                            writeColPtr[0] = buf0[i]; writeColPtr[1] = buf1[i]; writeColPtr[2] = buf2[i];
+                            writeColPtr += stride;
+                        }
                     }
                 }
             }

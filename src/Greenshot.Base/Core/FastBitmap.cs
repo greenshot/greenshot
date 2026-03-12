@@ -170,6 +170,11 @@ namespace Greenshot.Base.Core
         /// Number of bytes per pixel for this bitmap format
         /// </summary>
         int BytesPerPixel { get; }
+
+        /// <summary>
+        /// Number of bytes between the start of one row and the start of the next row (row stride).
+        /// </summary>
+        int Stride { get; }
     }
 
     /// <summary>
@@ -668,6 +673,11 @@ namespace Greenshot.Base.Core
         /// Number of bytes per pixel for this bitmap format
         /// </summary>
         public abstract int BytesPerPixel { get; }
+
+        /// <summary>
+        /// Number of bytes between the start of one row and the start of the next row (row stride).
+        /// </summary>
+        int IFastBitmap.Stride => Stride;
 
         bool IFastBitmapWithClip.Contains(int x, int y)
         {
