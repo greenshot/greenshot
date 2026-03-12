@@ -569,14 +569,16 @@ namespace Greenshot.Base.Core
                         int ch0 = 0, ch1 = 0, ch2 = 0, ch3 = 0;
                         for (int x = left - halfRange; x < right; x++)
                         {
-                            if (x - halfRange - 1 >= left)
+                            int oldPixel = x - halfRange - 1;
+                            if (oldPixel >= left)
                             {
                                 ch0 -= oldPtr[0]; ch1 -= oldPtr[1]; ch2 -= oldPtr[2]; ch3 -= oldPtr[3];
                                 oldPtr += bytesPerPixel;
                                 hits--;
                             }
 
-                            if (x + halfRange < right)
+                            int newPixel = x + halfRange;
+                            if (newPixel < right)
                             {
                                 ch0 += newPtr[0]; ch1 += newPtr[1]; ch2 += newPtr[2]; ch3 += newPtr[3];
                                 newPtr += bytesPerPixel;
@@ -613,14 +615,16 @@ namespace Greenshot.Base.Core
                         int ch0 = 0, ch1 = 0, ch2 = 0;
                         for (int x = left - halfRange; x < right; x++)
                         {
-                            if (x - halfRange - 1 >= left)
+                            int oldPixel = x - halfRange - 1;
+                            if (oldPixel >= left)
                             {
                                 ch0 -= oldPtr[0]; ch1 -= oldPtr[1]; ch2 -= oldPtr[2];
                                 oldPtr += bytesPerPixel;
                                 hits--;
                             }
 
-                            if (x + halfRange < right)
+                            int newPixel = x + halfRange;
+                            if (newPixel < right)
                             {
                                 ch0 += newPtr[0]; ch1 += newPtr[1]; ch2 += newPtr[2];
                                 newPtr += bytesPerPixel;
@@ -699,14 +703,16 @@ namespace Greenshot.Base.Core
                         int ch0 = 0, ch1 = 0, ch2 = 0, ch3 = 0;
                         for (int y = top - halfRange; y < bottom; y++)
                         {
-                            if (y - halfRange - 1 >= top)
+                            int oldPixel = y - halfRange - 1;
+                            if (oldPixel >= top)
                             {
                                 ch0 -= oldColPtr[0]; ch1 -= oldColPtr[1]; ch2 -= oldColPtr[2]; ch3 -= oldColPtr[3];
                                 oldColPtr += stride;
                                 hits--;
                             }
 
-                            if (y + halfRange < bottom)
+                            int newPixel = y + halfRange;
+                            if (newPixel < bottom)
                             {
                                 ch0 += newColPtr[0]; ch1 += newColPtr[1]; ch2 += newColPtr[2]; ch3 += newColPtr[3];
                                 newColPtr += stride;
@@ -743,14 +749,16 @@ namespace Greenshot.Base.Core
                         int ch0 = 0, ch1 = 0, ch2 = 0;
                         for (int y = top - halfRange; y < bottom; y++)
                         {
-                            if (y - halfRange - 1 >= top)
+                            int oldPixel = y - halfRange - 1;
+                            if (oldPixel >= top)
                             {
                                 ch0 -= oldColPtr[0]; ch1 -= oldColPtr[1]; ch2 -= oldColPtr[2];
                                 oldColPtr += stride;
                                 hits--;
                             }
 
-                            if (y + halfRange < bottom)
+                            int newPixel = y + halfRange;
+                            if (newPixel < bottom)
                             {
                                 ch0 += newColPtr[0]; ch1 += newColPtr[1]; ch2 += newColPtr[2];
                                 newColPtr += stride;
