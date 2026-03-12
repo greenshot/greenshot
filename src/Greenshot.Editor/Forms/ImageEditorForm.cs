@@ -157,11 +157,6 @@ namespace Greenshot.Editor.Forms
             // Compute emojis in background
             EmojiData.Load();
 
-            lock (_editorListLock)
-            {
-                EditorList.Add(this);
-            }
-
             //
             // The InitializeComponent() call is required for Windows Forms designer support.
             //
@@ -196,6 +191,13 @@ namespace Greenshot.Editor.Forms
             Surface = surface;
             // Initial "saved" flag for asking if the image needs to be save
             _surface.Modified = !outputMade;
+
+            // Only register in the global editor list after the surface is fully assigned,
+            // so background threads iterating Editors never see a partially-initialized editor.
+            lock (_editorListLock)
+            {
+                EditorList.Add(this);
+            }
 
             UpdateUi();
 
@@ -245,6 +247,13 @@ namespace Greenshot.Editor.Forms
                 throw new ApplicationException("Surface modified");
             }
 
+            // Remove from the global list while _surface is being swapped, so background threads
+            // iterating Editors never observe this editor in a null-surface state.
+            lock (_editorListLock)
+            {
+                EditorList.Remove(this);
+            }
+
             RemoveSurface();
 
             panel1.Height = 10;
@@ -278,6 +287,12 @@ namespace Greenshot.Editor.Forms
                 {
                     Text = _surface.CaptureDetails.Title + " - " + Language.GetString(LangKey.editor_title);
                 }
+            }
+
+            // Re-register in the global list now that the new surface is fully assigned.
+            lock (_editorListLock)
+            {
+                EditorList.Add(this);
             }
 
             Activate();
