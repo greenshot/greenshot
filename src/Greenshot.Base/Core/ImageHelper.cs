@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -518,299 +519,171 @@ namespace Greenshot.Base.Core
             // By the central limit theorem, if applied 3 times on the same image, a box blur approximates the Gaussian kernel to within about 3%, yielding the same result as a quadratic convolution kernel.
             // This might be true, but the GDI+ BlurEffect doesn't look the same, a 2x blur is more similar and we only make 2x Box-Blur.
             // (Might also be a mistake in our blur, but for now it looks great)
-            if (fastBitmap.HasAlphaChannel)
-            {
-                BoxBlurHorizontalAlpha(fastBitmap, range);
-                BoxBlurVerticalAlpha(fastBitmap, range);
-                BoxBlurHorizontalAlpha(fastBitmap, range);
-                BoxBlurVerticalAlpha(fastBitmap, range);
-            }
-            else
-            {
-                BoxBlurHorizontal(fastBitmap, range);
-                BoxBlurVertical(fastBitmap, range);
-                BoxBlurHorizontal(fastBitmap, range);
-                BoxBlurVertical(fastBitmap, range);
-            }
+            int channelCount = fastBitmap.HasAlphaChannel ? 4 : 3;
+            BoxBlurHorizontalCore(fastBitmap, range, channelCount);
+            BoxBlurVerticalCore(fastBitmap, range, channelCount);
+            BoxBlurHorizontalCore(fastBitmap, range, channelCount);
+            BoxBlurVerticalCore(fastBitmap, range, channelCount);
         }
 
         /// <summary>
-        /// BoxBlurHorizontal is a private helper method for the BoxBlur
+        /// BoxBlurHorizontalCore is the shared horizontal-pass implementation for BoxBlur.
+        /// It processes <paramref name="channelCount"/> consecutive bytes per pixel (e.g. 3 for RGB, 4 for ARGB)
+        /// using ArrayPool buffers to minimise GC pressure.
         /// </summary>
         /// <param name="targetFastBitmap">Target BitmapBuffer</param>
         /// <param name="range">Range must be odd!</param>
-        private static unsafe void BoxBlurHorizontal(IFastBitmap targetFastBitmap, int range)
+        /// <param name="channelCount">Number of byte channels to blur (3 for RGB, 4 for ARGB)</param>
+        private static unsafe void BoxBlurHorizontalCore(IFastBitmap targetFastBitmap, int range, int channelCount)
         {
-            if (targetFastBitmap.HasAlphaChannel)
-            {
-                throw new NotSupportedException("BoxBlurHorizontal should NOT be called for bitmaps with alpha channel");
-            }
-
             int halfRange = range / 2;
             int width = targetFastBitmap.Width;
             int bytesPerPixel = targetFastBitmap.BytesPerPixel;
-            byte[] newR = new byte[width];
-            byte[] newG = new byte[width];
-            byte[] newB = new byte[width];
-            for (int y = targetFastBitmap.Top; y < targetFastBitmap.Bottom; y++)
+
+            // Rent one output buffer per channel; these are returned even if an exception is thrown.
+            // Channels are laid out sequentially in memory: [0]=B, [1]=G, [2]=R, [3]=A (BGRA order).
+            byte[] buf0 = ArrayPool<byte>.Shared.Rent(width);
+            byte[] buf1 = ArrayPool<byte>.Shared.Rent(width);
+            byte[] buf2 = ArrayPool<byte>.Shared.Rent(width);
+            byte[] buf3 = channelCount == 4 ? ArrayPool<byte>.Shared.Rent(width) : null;
+            try
             {
-                byte* rowPtr = (byte*)targetFastBitmap.GetRowPointer(y);
-                int hits = 0;
-                int r = 0;
-                int g = 0;
-                int b = 0;
-                for (int x = targetFastBitmap.Left - halfRange; x < targetFastBitmap.Right; x++)
+                for (int y = targetFastBitmap.Top; y < targetFastBitmap.Bottom; y++)
                 {
-                    int oldPixel = x - halfRange - 1;
-                    if (oldPixel >= targetFastBitmap.Left)
+                    byte* rowPtr = (byte*)targetFastBitmap.GetRowPointer(y);
+                    int hits = 0;
+                    int ch0 = 0, ch1 = 0, ch2 = 0, ch3 = 0;
+                    for (int x = targetFastBitmap.Left - halfRange; x < targetFastBitmap.Right; x++)
                     {
-                        byte* pixel = rowPtr + oldPixel * bytesPerPixel;
-                        r -= pixel[FastBitmap.PixelformatIndexR];
-                        g -= pixel[FastBitmap.PixelformatIndexG];
-                        b -= pixel[FastBitmap.PixelformatIndexB];
-                        hits--;
+                        int oldPixel = x - halfRange - 1;
+                        if (oldPixel >= targetFastBitmap.Left)
+                        {
+                            byte* p = rowPtr + oldPixel * bytesPerPixel;
+                            ch0 -= p[0];
+                            ch1 -= p[1];
+                            ch2 -= p[2];
+                            if (channelCount == 4) ch3 -= p[3];
+                            hits--;
+                        }
+
+                        int newPixel = x + halfRange;
+                        if (newPixel < targetFastBitmap.Right)
+                        {
+                            byte* p = rowPtr + newPixel * bytesPerPixel;
+                            ch0 += p[0];
+                            ch1 += p[1];
+                            ch2 += p[2];
+                            if (channelCount == 4) ch3 += p[3];
+                            hits++;
+                        }
+
+                        if (x >= targetFastBitmap.Left)
+                        {
+                            int idx = x - targetFastBitmap.Left;
+                            buf0[idx] = (byte)(ch0 / hits);
+                            buf1[idx] = (byte)(ch1 / hits);
+                            buf2[idx] = (byte)(ch2 / hits);
+                            if (channelCount == 4) buf3[idx] = (byte)(ch3 / hits);
+                        }
                     }
 
-                    int newPixel = x + halfRange;
-                    if (newPixel < targetFastBitmap.Right)
+                    for (int x = targetFastBitmap.Left; x < targetFastBitmap.Right; x++)
                     {
-                        byte* pixel = rowPtr + newPixel * bytesPerPixel;
-                        r += pixel[FastBitmap.PixelformatIndexR];
-                        g += pixel[FastBitmap.PixelformatIndexG];
-                        b += pixel[FastBitmap.PixelformatIndexB];
-                        hits++;
-                    }
-
-                    if (x >= targetFastBitmap.Left)
-                    {
+                        byte* p = rowPtr + x * bytesPerPixel;
                         int idx = x - targetFastBitmap.Left;
-                        newR[idx] = (byte)(r / hits);
-                        newG[idx] = (byte)(g / hits);
-                        newB[idx] = (byte)(b / hits);
+                        p[0] = buf0[idx];
+                        p[1] = buf1[idx];
+                        p[2] = buf2[idx];
+                        if (channelCount == 4) p[3] = buf3[idx];
                     }
                 }
-
-                for (int x = targetFastBitmap.Left; x < targetFastBitmap.Right; x++)
-                {
-                    byte* pixel = rowPtr + x * bytesPerPixel;
-                    int idx = x - targetFastBitmap.Left;
-                    pixel[FastBitmap.PixelformatIndexR] = newR[idx];
-                    pixel[FastBitmap.PixelformatIndexG] = newG[idx];
-                    pixel[FastBitmap.PixelformatIndexB] = newB[idx];
-                }
+            }
+            finally
+            {
+                ArrayPool<byte>.Shared.Return(buf0);
+                ArrayPool<byte>.Shared.Return(buf1);
+                ArrayPool<byte>.Shared.Return(buf2);
+                if (buf3 != null) ArrayPool<byte>.Shared.Return(buf3);
             }
         }
 
         /// <summary>
-        /// BoxBlurHorizontal is a private helper method for the BoxBlur, only for IFastBitmaps with alpha channel
+        /// BoxBlurVerticalCore is the shared vertical-pass implementation for BoxBlur.
+        /// It processes <paramref name="channelCount"/> consecutive bytes per pixel (e.g. 3 for RGB, 4 for ARGB)
+        /// using ArrayPool buffers to minimise GC pressure.
         /// </summary>
-        /// <param name="targetFastBitmap">Target BitmapBuffer</param>
+        /// <param name="targetFastBitmap">BitmapBuffer which previously was created with BoxBlurHorizontalCore</param>
         /// <param name="range">Range must be odd!</param>
-        private static unsafe void BoxBlurHorizontalAlpha(IFastBitmap targetFastBitmap, int range)
+        /// <param name="channelCount">Number of byte channels to blur (3 for RGB, 4 for ARGB)</param>
+        private static unsafe void BoxBlurVerticalCore(IFastBitmap targetFastBitmap, int range, int channelCount)
         {
-            if (!targetFastBitmap.HasAlphaChannel)
-            {
-                throw new NotSupportedException("BoxBlurHorizontalAlpha should be called for bitmaps with alpha channel");
-            }
-
-            int halfRange = range / 2;
-            int width = targetFastBitmap.Width;
-            int bytesPerPixel = targetFastBitmap.BytesPerPixel;
-            byte[] newA = new byte[width];
-            byte[] newR = new byte[width];
-            byte[] newG = new byte[width];
-            byte[] newB = new byte[width];
-            for (int y = targetFastBitmap.Top; y < targetFastBitmap.Bottom; y++)
-            {
-                byte* rowPtr = (byte*)targetFastBitmap.GetRowPointer(y);
-                int hits = 0;
-                int a = 0;
-                int r = 0;
-                int g = 0;
-                int b = 0;
-                for (int x = targetFastBitmap.Left - halfRange; x < targetFastBitmap.Right; x++)
-                {
-                    int oldPixel = x - halfRange - 1;
-                    if (oldPixel >= targetFastBitmap.Left)
-                    {
-                        byte* pixel = rowPtr + oldPixel * bytesPerPixel;
-                        a -= pixel[FastBitmap.PixelformatIndexA];
-                        r -= pixel[FastBitmap.PixelformatIndexR];
-                        g -= pixel[FastBitmap.PixelformatIndexG];
-                        b -= pixel[FastBitmap.PixelformatIndexB];
-                        hits--;
-                    }
-
-                    int newPixel = x + halfRange;
-                    if (newPixel < targetFastBitmap.Right)
-                    {
-                        byte* pixel = rowPtr + newPixel * bytesPerPixel;
-                        a += pixel[FastBitmap.PixelformatIndexA];
-                        r += pixel[FastBitmap.PixelformatIndexR];
-                        g += pixel[FastBitmap.PixelformatIndexG];
-                        b += pixel[FastBitmap.PixelformatIndexB];
-                        hits++;
-                    }
-
-                    if (x >= targetFastBitmap.Left)
-                    {
-                        int idx = x - targetFastBitmap.Left;
-                        newA[idx] = (byte)(a / hits);
-                        newR[idx] = (byte)(r / hits);
-                        newG[idx] = (byte)(g / hits);
-                        newB[idx] = (byte)(b / hits);
-                    }
-                }
-
-                for (int x = targetFastBitmap.Left; x < targetFastBitmap.Right; x++)
-                {
-                    byte* pixel = rowPtr + x * bytesPerPixel;
-                    int idx = x - targetFastBitmap.Left;
-                    pixel[FastBitmap.PixelformatIndexA] = newA[idx];
-                    pixel[FastBitmap.PixelformatIndexR] = newR[idx];
-                    pixel[FastBitmap.PixelformatIndexG] = newG[idx];
-                    pixel[FastBitmap.PixelformatIndexB] = newB[idx];
-                }
-            }
-        }
-
-        /// <summary>
-        /// BoxBlurVertical is a private helper method for the BoxBlur
-        /// </summary>
-        /// <param name="targetFastBitmap">BitmapBuffer which previously was created with BoxBlurHorizontal</param>
-        /// <param name="range">Range must be odd!</param>
-        private static unsafe void BoxBlurVertical(IFastBitmap targetFastBitmap, int range)
-        {
-            if (targetFastBitmap.HasAlphaChannel)
-            {
-                throw new NotSupportedException("BoxBlurVertical should NOT be called for bitmaps with alpha channel");
-            }
-
             int halfRange = range / 2;
             int height = targetFastBitmap.Height;
             int bytesPerPixel = targetFastBitmap.BytesPerPixel;
-            byte[] newR = new byte[height];
-            byte[] newG = new byte[height];
-            byte[] newB = new byte[height];
-            for (int x = targetFastBitmap.Left; x < targetFastBitmap.Right; x++)
+
+            // Channels are laid out sequentially in memory: [0]=B, [1]=G, [2]=R, [3]=A (BGRA order).
+            byte[] buf0 = ArrayPool<byte>.Shared.Rent(height);
+            byte[] buf1 = ArrayPool<byte>.Shared.Rent(height);
+            byte[] buf2 = ArrayPool<byte>.Shared.Rent(height);
+            byte[] buf3 = channelCount == 4 ? ArrayPool<byte>.Shared.Rent(height) : null;
+            try
             {
-                int xOffset = x * bytesPerPixel;
-                int hits = 0;
-                int r = 0;
-                int g = 0;
-                int b = 0;
-                for (int y = targetFastBitmap.Top - halfRange; y < targetFastBitmap.Bottom; y++)
+                for (int x = targetFastBitmap.Left; x < targetFastBitmap.Right; x++)
                 {
-                    int oldPixel = y - halfRange - 1;
-                    if (oldPixel >= targetFastBitmap.Top)
+                    int xOffset = x * bytesPerPixel;
+                    int hits = 0;
+                    int ch0 = 0, ch1 = 0, ch2 = 0, ch3 = 0;
+                    for (int y = targetFastBitmap.Top - halfRange; y < targetFastBitmap.Bottom; y++)
                     {
-                        byte* pixel = (byte*)targetFastBitmap.GetRowPointer(oldPixel) + xOffset;
-                        r -= pixel[FastBitmap.PixelformatIndexR];
-                        g -= pixel[FastBitmap.PixelformatIndexG];
-                        b -= pixel[FastBitmap.PixelformatIndexB];
-                        hits--;
+                        int oldPixel = y - halfRange - 1;
+                        if (oldPixel >= targetFastBitmap.Top)
+                        {
+                            byte* p = (byte*)targetFastBitmap.GetRowPointer(oldPixel) + xOffset;
+                            ch0 -= p[0];
+                            ch1 -= p[1];
+                            ch2 -= p[2];
+                            if (channelCount == 4) ch3 -= p[3];
+                            hits--;
+                        }
+
+                        int newPixel = y + halfRange;
+                        if (newPixel < targetFastBitmap.Bottom)
+                        {
+                            byte* p = (byte*)targetFastBitmap.GetRowPointer(newPixel) + xOffset;
+                            ch0 += p[0];
+                            ch1 += p[1];
+                            ch2 += p[2];
+                            if (channelCount == 4) ch3 += p[3];
+                            hits++;
+                        }
+
+                        if (y >= targetFastBitmap.Top)
+                        {
+                            int idx = y - targetFastBitmap.Top;
+                            buf0[idx] = (byte)(ch0 / hits);
+                            buf1[idx] = (byte)(ch1 / hits);
+                            buf2[idx] = (byte)(ch2 / hits);
+                            if (channelCount == 4) buf3[idx] = (byte)(ch3 / hits);
+                        }
                     }
 
-                    int newPixel = y + halfRange;
-                    if (newPixel < targetFastBitmap.Bottom)
+                    for (int y = targetFastBitmap.Top; y < targetFastBitmap.Bottom; y++)
                     {
-                        byte* pixel = (byte*)targetFastBitmap.GetRowPointer(newPixel) + xOffset;
-                        r += pixel[FastBitmap.PixelformatIndexR];
-                        g += pixel[FastBitmap.PixelformatIndexG];
-                        b += pixel[FastBitmap.PixelformatIndexB];
-                        hits++;
-                    }
-
-                    if (y >= targetFastBitmap.Top)
-                    {
+                        byte* p = (byte*)targetFastBitmap.GetRowPointer(y) + xOffset;
                         int idx = y - targetFastBitmap.Top;
-                        newR[idx] = (byte)(r / hits);
-                        newG[idx] = (byte)(g / hits);
-                        newB[idx] = (byte)(b / hits);
+                        p[0] = buf0[idx];
+                        p[1] = buf1[idx];
+                        p[2] = buf2[idx];
+                        if (channelCount == 4) p[3] = buf3[idx];
                     }
-                }
-
-                for (int y = targetFastBitmap.Top; y < targetFastBitmap.Bottom; y++)
-                {
-                    byte* pixel = (byte*)targetFastBitmap.GetRowPointer(y) + xOffset;
-                    int idx = y - targetFastBitmap.Top;
-                    pixel[FastBitmap.PixelformatIndexR] = newR[idx];
-                    pixel[FastBitmap.PixelformatIndexG] = newG[idx];
-                    pixel[FastBitmap.PixelformatIndexB] = newB[idx];
                 }
             }
-        }
-
-        /// <summary>
-        /// BoxBlurVertical is a private helper method for the BoxBlur
-        /// </summary>
-        /// <param name="targetFastBitmap">BitmapBuffer which previously was created with BoxBlurHorizontal</param>
-        /// <param name="range">Range must be odd!</param>
-        private static unsafe void BoxBlurVerticalAlpha(IFastBitmap targetFastBitmap, int range)
-        {
-            if (!targetFastBitmap.HasAlphaChannel)
+            finally
             {
-                throw new NotSupportedException("BoxBlurVerticalAlpha should be called for bitmaps with alpha channel");
-            }
-
-            int halfRange = range / 2;
-            int height = targetFastBitmap.Height;
-            int bytesPerPixel = targetFastBitmap.BytesPerPixel;
-            byte[] newA = new byte[height];
-            byte[] newR = new byte[height];
-            byte[] newG = new byte[height];
-            byte[] newB = new byte[height];
-            for (int x = targetFastBitmap.Left; x < targetFastBitmap.Right; x++)
-            {
-                int xOffset = x * bytesPerPixel;
-                int hits = 0;
-                int a = 0;
-                int r = 0;
-                int g = 0;
-                int b = 0;
-                for (int y = targetFastBitmap.Top - halfRange; y < targetFastBitmap.Bottom; y++)
-                {
-                    int oldPixel = y - halfRange - 1;
-                    if (oldPixel >= targetFastBitmap.Top)
-                    {
-                        byte* pixel = (byte*)targetFastBitmap.GetRowPointer(oldPixel) + xOffset;
-                        a -= pixel[FastBitmap.PixelformatIndexA];
-                        r -= pixel[FastBitmap.PixelformatIndexR];
-                        g -= pixel[FastBitmap.PixelformatIndexG];
-                        b -= pixel[FastBitmap.PixelformatIndexB];
-                        hits--;
-                    }
-
-                    int newPixel = y + halfRange;
-                    if (newPixel < targetFastBitmap.Bottom)
-                    {
-                        byte* pixel = (byte*)targetFastBitmap.GetRowPointer(newPixel) + xOffset;
-                        a += pixel[FastBitmap.PixelformatIndexA];
-                        r += pixel[FastBitmap.PixelformatIndexR];
-                        g += pixel[FastBitmap.PixelformatIndexG];
-                        b += pixel[FastBitmap.PixelformatIndexB];
-                        hits++;
-                    }
-
-                    if (y >= targetFastBitmap.Top)
-                    {
-                        int idx = y - targetFastBitmap.Top;
-                        newA[idx] = (byte)(a / hits);
-                        newR[idx] = (byte)(r / hits);
-                        newG[idx] = (byte)(g / hits);
-                        newB[idx] = (byte)(b / hits);
-                    }
-                }
-
-                for (int y = targetFastBitmap.Top; y < targetFastBitmap.Bottom; y++)
-                {
-                    byte* pixel = (byte*)targetFastBitmap.GetRowPointer(y) + xOffset;
-                    int idx = y - targetFastBitmap.Top;
-                    pixel[FastBitmap.PixelformatIndexA] = newA[idx];
-                    pixel[FastBitmap.PixelformatIndexR] = newR[idx];
-                    pixel[FastBitmap.PixelformatIndexG] = newG[idx];
-                    pixel[FastBitmap.PixelformatIndexB] = newB[idx];
-                }
+                ArrayPool<byte>.Shared.Return(buf0);
+                ArrayPool<byte>.Shared.Return(buf1);
+                ArrayPool<byte>.Shared.Return(buf2);
+                if (buf3 != null) ArrayPool<byte>.Shared.Return(buf3);
             }
         }
 
