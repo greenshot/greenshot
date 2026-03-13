@@ -65,8 +65,8 @@ namespace Greenshot.Editor.Destinations
                 }
 
                 var title = editor.CaptureDetails?.Title;
-                if (title == null) return Language.GetString(LangKey.settings_destination_editor);
-                return Language.GetString(LangKey.settings_destination_editor) + " - " + title.Substring(0, Math.Min(20, title.Length));
+                if (title == null) return Language.GetString(LangKey.settings_destination_editor_add);
+                return Language.GetString(LangKey.settings_destination_editor_add) + " - " + title.Substring(0, Math.Min(20, title.Length));
             }
         }
 

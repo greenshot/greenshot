@@ -187,14 +187,18 @@ namespace Greenshot.Editor.Forms
             // Initial "saved" flag for asking if the image needs to be save
             _surface.Modified = !outputMade;
 
-            // Only register in the global editor list after the surface is fully assigned,
-            // so background threads iterating Editors never see a partially-initialized editor.
-            lock (_editorListLock)
-            {
-                EditorList.Add(this);
-            }
+            // Note: SetSurface (called via Surface = surface above) already registered this
+            // editor in EditorList. Do NOT add again here — double-registration causes
+            // closed editors to linger in the list because Remove() only removes one entry.
 
             UpdateUi();
+
+            // Re-apply the capture title after UpdateUi()/ApplyLanguage() which resets Text
+            // to just the bare form language key ("Greenshot editor").
+            if (_surface?.CaptureDetails?.Title != null)
+            {
+                Text = _surface.CaptureDetails.Title + " - " + Language.GetString(LangKey.editor_title);
+            }
 
             // Workaround: for the MouseWheel event which doesn't get to the panel
             MouseWheel += PanelMouseWheel;
