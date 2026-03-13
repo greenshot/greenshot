@@ -56,7 +56,7 @@ namespace Greenshot.Editor.FileFormatHandlers
             try
             {
                 bitmap.Save(stream, ImageFormat.Png);
-                using MemoryStream tmpStream = new MemoryStream();
+                using MemoryStream tmpStream = RecyclableMemoryStreamFactory.GetStream("GreenshotFileFormatHandler.SaveToStream");
                 long bytesWritten = surface.SaveElementsToStream(tmpStream);
                 using BinaryWriter writer = new BinaryWriter(tmpStream);
                 writer.Write(bytesWritten);

@@ -78,7 +78,7 @@ namespace Greenshot.Base.Core
         {
             var request = CreateWebRequest(url);
             using var response = (HttpWebResponse) request.GetResponse();
-            var memoryStream = new MemoryStream();
+            var memoryStream = RecyclableMemoryStreamFactory.GetStream("NetworkHelper.GetAsMemoryStream");
             using (var responseStream = response.GetResponseStream())
             {
                 responseStream?.CopyTo(memoryStream);

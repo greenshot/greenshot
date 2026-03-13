@@ -130,7 +130,7 @@ namespace Greenshot.Base.Core
                 {
                     useMemoryStream = true;
                     Log.Warn("Using a memory stream prevent an issue with saving to a non seekable stream.");
-                    memoryStream = new MemoryStream();
+                    memoryStream = RecyclableMemoryStreamFactory.GetStream("ImageIO.SaveToStream");
                     targetStream = memoryStream;
                 }
 
@@ -694,7 +694,7 @@ namespace Greenshot.Base.Core
             // Make sure we can try multiple times
             if (!stream.CanSeek)
             {
-                var memoryStream = new MemoryStream();
+                var memoryStream = RecyclableMemoryStreamFactory.GetStream("ImageIO.LoadImageFromStream");
                 stream.CopyTo(memoryStream);
                 stream = memoryStream;
                 // As we are if a different stream, which starts at 0, change the starting position
