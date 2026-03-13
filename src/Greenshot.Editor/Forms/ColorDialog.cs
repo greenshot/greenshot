@@ -290,5 +290,20 @@ namespace Greenshot.Editor.Forms
         {
             Color = e.Color;
         }
+
+        public new DialogResult ShowDialog(IWin32Window owner)
+        {
+            var mouse = Cursor.Position;
+            var screen = Screen.FromPoint(mouse);
+            var workingArea = screen.WorkingArea;
+
+            int x = Math.Max(workingArea.Left, Math.Min(mouse.X - Width / 2, workingArea.Right - Width));
+            int y = Math.Max(workingArea.Top, Math.Min(mouse.Y - Height / 2, workingArea.Bottom - Height));
+
+            StartPosition = FormStartPosition.Manual;
+            Location = new Point(x, y);
+
+            return base.ShowDialog(owner);
+        }
     }
 }

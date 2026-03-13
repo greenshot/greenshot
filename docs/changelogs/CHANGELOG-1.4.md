@@ -44,6 +44,16 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Helpful for certain export formats and use cases
 - Added by @Lakritzator
 
+#### ⚙️ Command Line Interface
+
+**Redesigned CLI with System.CommandLine**
+- Migrated from hand-written parser to the industry-standard System.CommandLine library
+- Changed argument style from Windows-style `/` to standard `--` prefixes
+- Command line help is now automatically generated with comprehensive option descriptions
+- Old format (`/help`, `/exit`, `/reload`, `/norun`, `/language`, `/inidirectory`) replaced with modern alternatives (`--help`, `--exit`, `--reload`, `--no-run`, `--language <code>`, `--ini-directory <path>`)
+- Added hidden `--restore` option for Windows Restart Manager integration
+- Run `Greenshot --help` to see all available options
+
 #### 📸 Capture Improvements
 
 **New Capture Technology** (#932)
@@ -177,6 +187,12 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Updated label in settings for improved clarity (#909)
 - By @Christian-Schulz and @jklingen
 
+**Settings Dialog Folder Browser**
+- Fixed crash when clicking Browse button in Settings dialog with inaccessible or invalid storage path
+- Folder browser now gracefully falls back to My Documents when the configured path is unavailable, too long, or doesn't exist
+- Prevents `System.InvalidOperationException: Unable to retrieve the root folder` error
+- By @Copilot
+
 **Plugin Configuration** (#733)
 - Improved plugin configuration handling
 - By @xqtp
@@ -227,6 +243,15 @@ Continuous builds are automatically created for every commit to the `main` branc
 - By @tsiakoulias
 
 #### 🏗️ Development & Infrastructure
+
+**Command Line Parsing**
+- Migrated to System.CommandLine 2.0.3 for robust CLI argument parsing
+- Replaced hand-written parser with industry-standard library
+- Arguments now use `--` prefix (e.g., `--help`, `--exit`, `--reload`, `--no-run`)
+- Language selection: `--language <language-code>` (was `/language [code]`)
+- INI directory: `--ini-directory <directory>` (was `/inidirectory [path]`)
+- Auto-generated help output with full option descriptions
+- Added hidden `--restore` option for Windows Restart Manager support
 
 **Build & Release**
 - Added Chocolatey push support for releases (#742)
@@ -322,6 +347,7 @@ Greenshot 1.4 builds upon the stable 1.3 release with these key additions:
 ✨ Better Windows 10/11 integration  
 ✨ Improved cursor capture  
 ✨ Enhanced memory management  
+✨ Modern command line interface with System.CommandLine  
 
 ### Inherited from 1.3
 ✅ All security fixes from 1.3.290-1.3.312  
@@ -367,6 +393,23 @@ If you're upgrading from 1.3 to a 1.4 continuous build:
 2. **Uninstall 1.3**: Completely uninstall the stable 1.3 release first
 3. **Install 1.4 build**: Install the latest 1.4 continuous build
 4. **Test thoroughly**: As these are development builds, test your usual workflows
+5. **Update command line scripts**: If you use Greenshot with command line arguments, update from `/` style (e.g., `/exit`, `/reload`) to `--` style (e.g., `--exit`, `--reload`)
+
+### Command Line Argument Changes
+
+If you have scripts or shortcuts that use Greenshot's command line arguments, you'll need to update them:
+
+| Old Argument | New Argument | Description |
+|--------------|--------------|-------------|
+| `/help`, `/h`, `/?` | `--help`, `-h` | Show help information |
+| `/exit` | `--exit` | Close running Greenshot instance |
+| `/reload` | `--reload` | Reload configuration |
+| `/norun` | `--no-run` | Start in configuration mode |
+| `/language [code]` | `--language <language-code>` | Set interface language |
+| `/inidirectory [path]` | `--ini-directory <directory>` | Set configuration directory |
+| `[filename...]` | `[files...]` | Capture files (unchanged) |
+
+Run `Greenshot --help` to see the complete list of available options with descriptions.
 
 ⚠️ **Important**: Since 1.4 builds are unsigned, you may see Windows SmartScreen warnings. This is expected for continuous builds.
 

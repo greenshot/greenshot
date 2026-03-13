@@ -40,6 +40,7 @@ public partial class SettingsFormDetail : ExternalCommandForm
 
     private readonly string _commando;
     private readonly int _commandIndex;
+    private readonly ToolTip _nameToolTip = new ToolTip();
 
     public SettingsFormDetail(string commando)
     {
@@ -144,10 +145,18 @@ public partial class SettingsFormDetail : ExternalCommandForm
         }
 
         // Check if commandname is unique
-        if (_commando == null && !string.IsNullOrEmpty(textBox_name.Text) && ExternalCommandConfig.Commands.Contains(textBox_name.Text))
+        bool isDuplicate = !string.IsNullOrEmpty(textBox_name.Text) &&
+            ExternalCommandConfig.Commands.Contains(textBox_name.Text) &&
+            textBox_name.Text != _commando;
+        if (isDuplicate)
         {
             buttonOk.Enabled = false;
-            textBox_name.BackColor = Color.Red;
+            textBox_name.BackColor = Color.LightCoral;
+            _nameToolTip.SetToolTip(textBox_name, Language.GetString("externalcommand", "tooltip_duplicate_name"));
+        }
+        else
+        {
+            _nameToolTip.SetToolTip(textBox_name, null);
         }
 
         // Is there a text in the commandline field

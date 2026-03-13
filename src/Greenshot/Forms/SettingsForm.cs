@@ -649,13 +649,36 @@ namespace Greenshot.Forms
         private void BrowseClick(object sender, EventArgs e)
         {
             // Get the storage location and replace the environment variables
-            folderBrowserDialog1.SelectedPath = FilenameHelper.FillVariables(textbox_storagelocation.Text, false);
-            if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
+            string currentPath = FilenameHelper.FillVariables(textbox_storagelocation.Text, false);
+            // Only use the path as the starting folder if it actually exists and is reachable;
+            // otherwise leave SelectedPath empty so the dialog falls back to the default (My Documents).
+            folderBrowserDialog1.SelectedPath = Directory.Exists(currentPath) ? currentPath : string.Empty;
+            try
             {
-                // Only change if there is a change, otherwise we might overwrite the environment variables
-                if (folderBrowserDialog1.SelectedPath != null && !folderBrowserDialog1.SelectedPath.Equals(FilenameHelper.FillVariables(textbox_storagelocation.Text, false)))
+                if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
                 {
-                    textbox_storagelocation.Text = folderBrowserDialog1.SelectedPath;
+                    // Only change if there is a change, otherwise we might overwrite the environment variables
+                    if (folderBrowserDialog1.SelectedPath != null && !folderBrowserDialog1.SelectedPath.Equals(currentPath))
+                    {
+                        textbox_storagelocation.Text = folderBrowserDialog1.SelectedPath;
+                    }
+                }
+            }
+            catch (InvalidOperationException ex)
+            {
+                Log.Warn("Problem opening folder browser dialog, retrying with empty path: ", ex);
+                // Retry with an empty SelectedPath so the user can still browse and correct the path
+                folderBrowserDialog1.SelectedPath = string.Empty;
+                try
+                {
+                    if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
+                    {
+                        textbox_storagelocation.Text = folderBrowserDialog1.SelectedPath;
+                    }
+                }
+                catch (InvalidOperationException retryEx)
+                {
+                    Log.Error("Failed to open folder browser dialog even with empty path: ", retryEx);
                 }
             }
         }

@@ -39,6 +39,7 @@ using Greenshot.Base.Core;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Ocr;
+using Dapplo.Windows.Icons;
 
 namespace Greenshot.Forms
 {
@@ -243,7 +244,7 @@ namespace Greenshot.Forms
             if (isOn)
             {
                 // Initialize the zoom with a invalid position
-                _zoomAnimator = new RectangleAnimator(NativeRect.Empty, new NativeRect(int.MaxValue, int.MaxValue, 0, 0), FramesForMillis(1000), EasingType.Quintic, EasingMode.EaseOut);
+                _zoomAnimator = new RectangleAnimator(NativeRect.Empty, new NativeRect(int.MaxValue/2, int.MaxValue/2, 0, 0), FramesForMillis(1000), EasingType.Quintic, EasingMode.EaseOut);
                 VerifyZoomAnimation(_cursorPos, false);
             }
             else
@@ -1026,7 +1027,7 @@ namespace Greenshot.Forms
             // Only draw Cursor if it's (partly) visible
             if (_capture.Cursor != null && _capture.CursorVisible && clipRectangle.IntersectsWith(new NativeRect(_capture.CursorLocation, _capture.Cursor.Size)))
             {
-                graphics.DrawImageUnscaled(_capture.Cursor, _capture.CursorLocation.X, _capture.CursorLocation.Y);
+                CursorHelper.DrawCursorOnGraphics(graphics,_capture.Cursor, _capture.CursorLocation);
             }
 
             if (_mouseDown || _captureMode == CaptureMode.Window || IsAnimating(_windowAnimator))

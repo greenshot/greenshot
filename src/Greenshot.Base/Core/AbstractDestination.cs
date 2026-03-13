@@ -180,7 +180,8 @@ namespace Greenshot.Base.Core
             {
                 ImageScalingSize = CoreConfig.IconSize,
                 Tag = null,
-                TopLevel = true
+                TopLevel = true,
+                Font = new Font(FontFamily.GenericSansSerif, 9) // set new default font, so we are allowed to dispose it later, we will scale it later on the Opening event
             };
 
             menu.Opening += (sender, args) =>
@@ -211,7 +212,10 @@ namespace Greenshot.Base.Core
                         else
                         {
                             Log.DebugFormat("Letting the menu 'close' as the tag is set to '{0}'", menu.Tag);
-                            menu.Close();
+                            if (!menu.IsDisposed)
+                            {
+                                menu.Close();
+                            }
                         }
 
                         break;
@@ -229,7 +233,10 @@ namespace Greenshot.Base.Core
                         // We might already be in the disposing process, so queue the disposal to avoid re-entrancy
                         menu.BeginInvoke(new Action(() =>
                         {
-                            menu.Dispose();
+                            if (!menu.IsDisposed)
+                            {
+                                menu.Dispose();
+                            }
                         }));
                         break;
                     default:
@@ -266,7 +273,13 @@ namespace Greenshot.Base.Core
                             Log.InfoFormat("Export to {0} success, closing menu", exportInformation.DestinationDescription);
                             // close menu if the destination wasn't the editor
                             menu.Close();
-                            menu.Dispose();
+                            menu.BeginInvoke(new Action(() =>
+                            {
+                                if (!menu.IsDisposed)
+                                {
+                                    menu.Dispose();
+                                }
+                            }));
                             // Cleanup surface, only if there is no editor in the destinations and we didn't export to the editor
                             if (!captureDetails.HasDestination("Editor") && !"Editor".Equals(clickedDestination.Designation))
                             {
@@ -302,7 +315,13 @@ namespace Greenshot.Base.Core
             {
                 // This menu entry is the close itself, we can dispose the surface
                 menu.Close();
-                menu.Dispose();
+                menu.BeginInvoke(new Action(() =>
+                {
+                    if (!menu.IsDisposed)
+                    {
+                        menu.Dispose();
+                    }
+                }));
                 if (!captureDetails.HasDestination("Editor"))
                 {
                     surface.Dispose();
@@ -352,10 +371,11 @@ namespace Greenshot.Base.Core
         {
             var basisMenuItem = new ToolStripMenuItem(Description)
             {
-                Image = DisplayIcon,
                 Tag = this,
                 Text = Description
             };
+            // Dispose the icon when the menu item is disposed to prevent memory leaks
+            basisMenuItem.AssignAutoDisposingImage(DisplayIcon);
             AddTagEvents(basisMenuItem, menu, Description);
             basisMenuItem.Click -= destinationClickHandler;
             basisMenuItem.Click += destinationClickHandler;
@@ -390,11 +410,16 @@ namespace Greenshot.Base.Core
                             {
                                 foreach (IDestination subDestination in subDestinations)
                                 {
+                                    if (subDestination == null)
+                                    {
+                                        continue;
+                                    }
                                     var destinationMenuItem = new ToolStripMenuItem(subDestination.Description)
                                     {
-                                        Tag = subDestination,
-                                        Image = subDestination.DisplayIcon
+                                        Tag = subDestination
                                     };
+                                    // Dispose the icon when the menu item is disposed to prevent memory leaks
+                                    destinationMenuItem.AssignAutoDisposingImage(subDestination.DisplayIcon);
                                     destinationMenuItem.Click += destinationClickHandler;
                                     AddTagEvents(destinationMenuItem, menu, subDestination.Description);
                                     basisMenuItem.DropDownItems.Add(destinationMenuItem);

@@ -92,6 +92,23 @@ namespace Greenshot.Helpers
             WindowDetails.ActiveNewerWindows(windowsBefore);
         }
 
+        /// <summary>
+        /// Helper Method for creating an Email with a pre-rendered Image Attachment,
+        /// avoiding a redundant surface render pass.
+        /// </summary>
+        /// <param name="preRenderedImage">Pre-rendered bitmap; not disposed by this method.</param>
+        /// <param name="captureDetails">ICaptureDetails</param>
+        public static void SendImage(System.Drawing.Image preRenderedImage, ICaptureDetails captureDetails)
+        {
+            string tmpFile = ImageIO.SaveNamedTmpFile(preRenderedImage, captureDetails, new SurfaceOutputSettings());
+
+            if (tmpFile == null) return;
+
+            var windowsBefore = WindowDetails.GetVisibleWindows();
+            SendImage(tmpFile, captureDetails.Title);
+            WindowDetails.ActiveNewerWindows(windowsBefore);
+        }
+
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
         private class MapiFileDescriptor
         {
@@ -402,7 +419,7 @@ namespace Greenshot.Helpers
             /// </summary>
             private MapiHelperInterop()
             {
-                // Intenationally blank
+                // Intentionally blank
             }
 
 
@@ -469,7 +486,7 @@ namespace Greenshot.Helpers
         }
 
         /// <summary>
-        /// Returns an interop representation of a recepient.
+        /// Returns an interop representation of a recipient.
         /// </summary>
         /// <returns></returns>
         internal MapiMailMessage.MapiHelperInterop.MapiRecipDesc GetInteropRepresentation()
@@ -511,7 +528,7 @@ namespace Greenshot.Helpers
         }
 
         /// <summary>
-        /// Struct which contains an interop representation of a colleciton of recipients.
+        /// Struct which contains an interop representation of a collection of recipients.
         /// </summary>
         internal struct InteropRecipientCollection : IDisposable
         {

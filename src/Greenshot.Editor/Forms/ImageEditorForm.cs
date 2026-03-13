@@ -71,6 +71,7 @@ namespace Greenshot.Editor.Forms
         };
 
         private static readonly List<IImageEditor> EditorList = new();
+        private static readonly object _editorListLock = new();
 
         private Surface _surface;
         private GreenshotToolStripButton[] _toolbarButtons;
@@ -101,16 +102,19 @@ namespace Greenshot.Editor.Forms
         {
             get
             {
-                try
+                lock (_editorListLock)
                 {
-                    EditorList.Sort((e1, e2) => string.Compare(e1.Surface.CaptureDetails.Title, e2.Surface.CaptureDetails.Title, StringComparison.Ordinal));
-                }
-                catch (Exception ex)
-                {
-                    Log.Warn("Sorting of editors failed.", ex);
-                }
+                    try
+                    {
+                        EditorList.Sort((e1, e2) => string.Compare(e1.Surface.CaptureDetails.Title, e2.Surface.CaptureDetails.Title, StringComparison.Ordinal));
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Warn("Sorting of editors failed.", ex);
+                    }
 
-                return EditorList;
+                    return EditorList;
+                }
             }
         }
 
@@ -148,8 +152,6 @@ namespace Greenshot.Editor.Forms
             // Compute emojis in background
             EmojiData.Load();
 
-            EditorList.Add(this);
-
             //
             // The InitializeComponent() call is required for Windows Forms designer support.
             //
@@ -184,6 +186,13 @@ namespace Greenshot.Editor.Forms
             Surface = surface;
             // Initial "saved" flag for asking if the image needs to be save
             _surface.Modified = !outputMade;
+
+            // Only register in the global editor list after the surface is fully assigned,
+            // so background threads iterating Editors never see a partially-initialized editor.
+            lock (_editorListLock)
+            {
+                EditorList.Add(this);
+            }
 
             UpdateUi();
 
@@ -233,6 +242,13 @@ namespace Greenshot.Editor.Forms
                 throw new ApplicationException("Surface modified");
             }
 
+            // Remove from the global list while _surface is being swapped, so background threads
+            // iterating Editors never observe this editor in a null-surface state.
+            lock (_editorListLock)
+            {
+                EditorList.Remove(this);
+            }
+
             RemoveSurface();
 
             panel1.Height = 10;
@@ -266,6 +282,12 @@ namespace Greenshot.Editor.Forms
                 {
                     Text = _surface.CaptureDetails.Title + " - " + Language.GetString(LangKey.editor_title);
                 }
+            }
+
+            // Re-register in the global list now that the new surface is fully assigned.
+            lock (_editorListLock)
+            {
+                EditorList.Add(this);
             }
 
             Activate();
@@ -383,15 +405,17 @@ namespace Greenshot.Editor.Forms
                     DisplayStyle = ToolStripItemDisplayStyle.Image,
                     Size = new Size(23, 22),
                     Text = toolstripDestination.Description,
-                    Image = toolstripDestination.DisplayIcon
                 };
-                //ToolStripDropDownButton destinationButton = new ToolStripDropDownButton();
+                // Dispose the icon when the toolstrip item is disposed to prevent memory leaks
+                destinationButton.AssignAutoDisposingImage(toolstripDestination?.DisplayIcon);
 
+                // Clone the icon for the menu item
                 ToolStripMenuItem defaultItem = new ToolStripMenuItem(toolstripDestination.Description)
                 {
                     Tag = toolstripDestination,
-                    Image = toolstripDestination.DisplayIcon
                 };
+                // Dispose the icon when the toolstrip item is disposed to prevent memory leaks
+                defaultItem.AssignAutoDisposingImage(toolstripDestination?.DisplayIcon);
                 defaultItem.Click += delegate { toolstripDestination.ExportCapture(true, _surface, _surface.CaptureDetails); };
 
                 // The ButtonClick, this is for the icon, gets the current default item
@@ -414,8 +438,9 @@ namespace Greenshot.Editor.Forms
                             ToolStripMenuItem destinationMenuItem = new ToolStripMenuItem(closureFixedDestination.Description)
                             {
                                 Tag = closureFixedDestination,
-                                Image = closureFixedDestination.DisplayIcon
                             };
+                            // Dispose the icon when the toolstrip item is disposed to prevent memory leaks
+                            destinationMenuItem.AssignAutoDisposingImage(closureFixedDestination.DisplayIcon);
                             destinationMenuItem.Click += delegate { closureFixedDestination.ExportCapture(true, _surface, _surface.CaptureDetails); };
                             destinationButton.DropDownItems.Add(destinationMenuItem);
                         }
@@ -431,8 +456,10 @@ namespace Greenshot.Editor.Forms
                 destinationButton.DisplayStyle = ToolStripItemDisplayStyle.Image;
                 destinationButton.Size = new Size(23, 22);
                 destinationButton.Text = toolstripDestination.Description;
-                destinationButton.Image = toolstripDestination.DisplayIcon;
                 destinationButton.Click += delegate { toolstripDestination.ExportCapture(true, _surface, _surface.CaptureDetails); };
+
+                // Dispose the icon when the toolstrip item is disposed to prevent memory leaks
+                destinationButton.AssignAutoDisposingImage(toolstripDestination.DisplayIcon);
             }
         }
 
@@ -979,7 +1006,7 @@ namespace Greenshot.Editor.Forms
                 WindowDetails.ToForeground(Handle);
 
                 MessageBoxButtons buttons = MessageBoxButtons.YesNoCancel;
-                // Dissallow "CANCEL" if the application needs to shutdown
+                // Disallow "CANCEL" if the application needs to shutdown
                 if (e.CloseReason == CloseReason.ApplicationExitCall || e.CloseReason == CloseReason.WindowsShutDown || e.CloseReason == CloseReason.TaskManagerClosing)
                 {
                     buttons = MessageBoxButtons.YesNo;
@@ -1010,7 +1037,10 @@ namespace Greenshot.Editor.Forms
             IniConfig.Save();
 
             // remove from the editor list
-            EditorList.Remove(this);
+            lock (_editorListLock)
+            {
+                EditorList.Remove(this);
+            }
 
             _surface.Dispose();
 
