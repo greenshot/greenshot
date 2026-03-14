@@ -46,7 +46,7 @@ public class ExternalCommandConfiguration : IniSection
     public bool RedirectStandardOutput { get; set; }
 
     [IniProperty("ShowStandardOutputInLog",
-        Description = "Depends on 'RedirectStandardOutput': Show standard output of all external commands to the Greenshot log, this can be usefull for debugging.",
+        Description = "Depends on 'RedirectStandardOutput': Show standard output of all external commands to the Greenshot log, this can be useful for debugging.",
         DefaultValue = "false")]
     public bool ShowStandardOutputInLog { get; set; }
 

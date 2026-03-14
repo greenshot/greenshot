@@ -22,6 +22,8 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Windows.Forms;
+using Dapplo.Windows.Messages;
 using Greenshot.Base.Core;
 using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
@@ -64,7 +66,9 @@ namespace Greenshot.Editor.Destinations
                     return Language.GetString(LangKey.settings_destination_editor);
                 }
 
-                return Language.GetString(LangKey.settings_destination_editor) + " - " + editor.CaptureDetails.Title?.Substring(0, Math.Min(20, editor.CaptureDetails.Title.Length));
+                var title = editor.CaptureDetails?.Title;
+                if (title == null) return Language.GetString(LangKey.settings_destination_editor_add);
+                return Language.GetString(LangKey.settings_destination_editor_add) + " - " + title.Substring(0, Math.Min(20, title.Length));
             }
         }
 
@@ -111,7 +115,6 @@ namespace Greenshot.Editor.Destinations
                         {
                             editorForm.SetImagePath(captureDetails.Filename);
                         }
-
                         editorForm.Show();
                         editorForm.Activate();
                         LOG.Debug("Finished opening Editor");

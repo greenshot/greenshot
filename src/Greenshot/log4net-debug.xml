@@ -32,7 +32,8 @@
 		</appender>
 		<root>
 			<level value="DEBUG" />
-			<appender-ref ref="TraceAppender" />
-		</root>
+			<appender-ref ref="FileAppender" />
+            <appender-ref ref="TraceAppender" />
+        </root>
 	</log4net>
 </configuration>

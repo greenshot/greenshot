@@ -24,6 +24,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Icons;
 using Dapplo.Windows.User32;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Ocr;
@@ -102,18 +103,18 @@ namespace Greenshot.Base.Core
             _image = null;
         }
 
-        private Bitmap _cursor;
+        private CapturedCursor _cursor;
 
         /// <summary>
         /// Get/Set the image for the Cursor
         /// </summary>
-        public Bitmap Cursor
+        public CapturedCursor Cursor
         {
             get => _cursor;
             set
             {
                 _cursor?.Dispose();
-                _cursor = (Bitmap) value?.Clone();
+                _cursor = value;
             }
         }
 

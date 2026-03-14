@@ -72,7 +72,7 @@ namespace Greenshot.Editor.FileFormatHandlers
 
                 byte[] fileHeaderBytes = BinaryStructHelper.ToByteArray(fileHeader);
 
-                using var bitmapStream = new MemoryStream();
+                using var bitmapStream = RecyclableMemoryStreamFactory.GetStream("DibFileFormatHandler.LoadFromStream");
                 bitmapStream.Write(fileHeaderBytes, 0, fileHeaderBytes.Length);
                 bitmapStream.Write(dibBuffer, 0, dibBuffer.Length);
                 bitmapStream.Seek(0, SeekOrigin.Begin);

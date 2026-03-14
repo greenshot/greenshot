@@ -611,7 +611,7 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// Fill the pattern wit the supplied details
+        /// Fill the pattern with the supplied details
         /// </summary>
         /// <param name="pattern">Pattern</param>
         /// <param name="captureDetails">CaptureDetails, can be null</param>

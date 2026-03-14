@@ -116,7 +116,7 @@ namespace Greenshot.Editor.FileFormatHandlers
                 // Write the width / height, 0 means 256
                 binaryWriter.Write(imageSize.Width == 256 ? (byte)0 : (byte)imageSize.Width);
                 binaryWriter.Write(imageSize.Height == 256 ? (byte)0 : (byte)imageSize.Height);
-                binaryWriter.Write((byte)0); // no pallete
+                binaryWriter.Write((byte)0); // no palette
                 binaryWriter.Write((byte)0); // reserved
                 binaryWriter.Write((short)0); // no color planes
                 binaryWriter.Write((short)32); // 32 bpp

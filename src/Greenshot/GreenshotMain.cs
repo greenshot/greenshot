@@ -23,49 +23,121 @@ using System;
 using System.Globalization;
 using System.Net;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using Greenshot.Base.Core;
+using Greenshot.Base.IniFile;
 using Greenshot.Forms;
+using log4net;
 
-namespace Greenshot
+namespace Greenshot;
+
+/// <summary>
+/// Description of Main.
+/// </summary>
+public class GreenshotMain
 {
-    /// <summary>
-    /// Description of Main.
-    /// </summary>
-    public class GreenshotMain
+    private static ILog LOG;
+    public static string LogFileLocation;
+    static GreenshotMain()
     {
-        static GreenshotMain()
-        {
-            AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
-        }
+        AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
+    }
 
-        private static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
+    private static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
+    {
+        Assembly ayResult = null;
+        string sShortAssemblyName = args.Name.Split(',')[0];
+        Assembly[] ayAssemblies = AppDomain.CurrentDomain.GetAssemblies();
+        foreach (Assembly ayAssembly in ayAssemblies)
         {
-            Assembly ayResult = null;
-            string sShortAssemblyName = args.Name.Split(',')[0];
-            Assembly[] ayAssemblies = AppDomain.CurrentDomain.GetAssemblies();
-            foreach (Assembly ayAssembly in ayAssemblies)
+            if (sShortAssemblyName != ayAssembly.FullName.Split(',')[0])
             {
-                if (sShortAssemblyName != ayAssembly.FullName.Split(',')[0])
-                {
-                    continue;
-                }
-
-                ayResult = ayAssembly;
-                break;
+                continue;
             }
 
-            return ayResult;
+            ayResult = ayAssembly;
+            break;
         }
 
-        [STAThread]
-        public static void Main(string[] args)
+        return ayResult;
+    }
+
+    [STAThread]
+    public static void Main(string[] args)
+    {
+        // Enable TLS 1.2 and 1.3 support only (TLS 1.0/1.1 deprecated per RFC 8996)
+        ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls13;
+
+        CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
+        CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
+
+        // Set the Thread name, is better than "1"
+        Thread.CurrentThread.Name = Application.ProductName;
+
+        // Init Log4NET
+        LogFileLocation = LogHelper.InitializeLog4Net();
+        // Get logger
+        LOG = LogManager.GetLogger(typeof(MainForm));
+
+        Application.ThreadException += Application_ThreadException;
+        AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+
+        TaskScheduler.UnobservedTaskException += Task_UnhandledException;
+
+        // Initialize the IniConfig
+        IniConfig.Init();
+
+        // Log the startup
+        LOG.Info("Starting: " + EnvironmentInfo.EnvironmentToString(false));
+
+        MainForm.Start(args);
+    }
+
+    internal static void Application_ThreadException(object sender, ThreadExceptionEventArgs e)
+    {
+        Exception exceptionToLog = e.Exception;
+        string exceptionText = EnvironmentInfo.BuildReport(exceptionToLog);
+        LOG.Error("Exception caught in the ThreadException handler.");
+        LOG.Error(exceptionText);
+        if (exceptionText != null && exceptionText.Contains("InputLanguageChangedEventArgs"))
         {
-            // Enable TLS 1.2 and 1.3 support only (TLS 1.0/1.1 deprecated per RFC 8996)
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls13;
+            // Ignore for BUG-1809
+            return;
+        }
 
-            CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
-            CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
+        new BugReportForm(exceptionText).ShowDialog();
+    }
 
-            MainForm.Start(args);
+    internal static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+    {
+        Exception exceptionToLog = e.ExceptionObject as Exception;
+        string exceptionText = EnvironmentInfo.BuildReport(exceptionToLog);
+        LOG.Error("Exception caught in the UnhandledException handler.");
+        LOG.Error(exceptionText);
+        if (exceptionText != null && exceptionText.Contains("InputLanguageChangedEventArgs"))
+        {
+            // Ignore for BUG-1809
+            return;
+        }
+
+        new BugReportForm(exceptionText).ShowDialog();
+    }
+
+    internal static void Task_UnhandledException(object sender, UnobservedTaskExceptionEventArgs args)
+    {
+        try
+        {
+            Exception exceptionToLog = args.Exception;
+            string exceptionText = EnvironmentInfo.BuildReport(exceptionToLog);
+            LOG.Error("Exception caught in the UnobservedTaskException handler.");
+            LOG.Error(exceptionText);
+            new BugReportForm(exceptionText).ShowDialog();
+        }
+        finally
+        {
+            args.SetObserved();
         }
     }
 }

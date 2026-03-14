@@ -109,10 +109,12 @@ namespace Greenshot.Plugin.Office.OfficeExport
                 return false;
             }
 
-            using var pngStream = new MemoryStream();
+            using var pngStream = RecyclableMemoryStreamFactory.GetStream("OneNoteExporter.ExportToPage");
             var pngOutputSettings = new SurfaceOutputSettings(OutputFormat.png, 100, false);
             ImageIO.SaveToStream(surfaceToUpload, pngStream, pngOutputSettings);
-            var base64String = Convert.ToBase64String(pngStream.GetBuffer());
+            var base64String = pngStream.TryGetBuffer(out var buffer) && buffer.Array != null
+                ? Convert.ToBase64String(buffer.Array, buffer.Offset, buffer.Count)
+                : Convert.ToBase64String(pngStream.ToArray());
             var imageXmlStr = string.Format(XmlImageContent, base64String, surfaceToUpload.Image.Width, surfaceToUpload.Image.Height);
             var pageChangesXml = string.Format(XmlOutline, imageXmlStr, page.Id, OnenoteNamespace2010, page.Name);
             LOG.InfoFormat("Sending XML: {0}", pageChangesXml);

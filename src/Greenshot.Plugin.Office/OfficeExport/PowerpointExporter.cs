@@ -315,9 +315,17 @@ namespace Greenshot.Plugin.Office.OfficeExport
                 return;
             }
 
-            if (!Version.TryParse(powerpointApplication.ComObject.Version, out _powerpointVersion))
+            try
             {
-                LOG.Warn("Assuming Powerpoint version 1997.");
+                if (!Version.TryParse(powerpointApplication.ComObject.Version, out _powerpointVersion))
+                {
+                    LOG.Warn("Could not determine PowerPoint version, assuming minimum.");
+                    _powerpointVersion = new Version((int) OfficeVersions.Office97, 0, 0, 0);
+                }
+            }
+            catch (InvalidCastException ex)
+            {
+                LOG.Warn("Failed to get PowerPoint version via COM (possible type library mismatch), assuming minimum.", ex);
                 _powerpointVersion = new Version((int) OfficeVersions.Office97, 0, 0, 0);
             }
         }

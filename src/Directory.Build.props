@@ -18,6 +18,7 @@
     <TargetFramework>net480</TargetFramework>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
     <Deterministic>true</Deterministic>
+    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(Configuration)' != 'Debug' And !$(MSBuildProjectName.Contains('Test')) And !$(MSBuildProjectName.Contains('Demo'))">
@@ -50,7 +51,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.102" PrivateAssets="All"/>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.103" PrivateAssets="All"/>
   </ItemGroup>
 
   <ItemGroup>
@@ -66,29 +67,11 @@
     <Tokens Include="DropBox13_ClientSecret">
       <ReplacementValue>$(DropBox13_ClientSecret)</ReplacementValue>
     </Tokens>
-    <Tokens Include="Flickr_ClientId">
-      <ReplacementValue>$(Flickr_ClientId)</ReplacementValue>
-    </Tokens>
-    <Tokens Include="Flickr_ClientSecret">
-      <ReplacementValue>$(Flickr_ClientSecret)</ReplacementValue>
-    </Tokens>
     <Tokens Include="Imgur13_ClientId">
       <ReplacementValue>$(Imgur13_ClientId)</ReplacementValue>
     </Tokens>
     <Tokens Include="Imgur13_ClientSecret">
       <ReplacementValue>$(Imgur13_ClientSecret)</ReplacementValue>
-    </Tokens>
-    <Tokens Include="Photobucket_ClientId">
-      <ReplacementValue>$(Photobucket_ClientId)</ReplacementValue>
-    </Tokens>
-    <Tokens Include="Photobucket_ClientSecret">
-      <ReplacementValue>$(Photobucket_ClientSecret)</ReplacementValue>
-    </Tokens>
-    <Tokens Include="Picasa_ClientId">
-      <ReplacementValue>$(Picasa_ClientId)</ReplacementValue>
-    </Tokens>
-    <Tokens Include="Picasa_ClientSecret">
-      <ReplacementValue>$(Picasa_ClientSecret)</ReplacementValue>
     </Tokens>
   </ItemGroup>
 

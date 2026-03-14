@@ -484,8 +484,24 @@ namespace Greenshot.Editor.Drawing
                 _font.Style,
                 GraphicsUnit.Pixel
             );
-            _textBox.Font.Dispose();
+
+            // Assign new font before disposing old: Control.Font setter is a no-op when
+            // the fonts compare equal by value (same family/size/style/unit). Disposing
+            // first then hitting the no-op would leave _textBox.Font pointing to a freed
+            // Font object, causing ArgumentException in Font.ToHfont on handle creation.
+            var oldFont = _textBox.Font;
             _textBox.Font = newFont;
+
+            if (ReferenceEquals(_textBox.Font, oldFont))
+            {
+                // Setter was a no-op; oldFont is still in use. Dispose the unused newFont.
+                newFont.Dispose();
+            }
+            else
+            {
+                // Setter ran and newFont is now stored. Dispose the replaced oldFont.
+                oldFont.Dispose();
+            }
         }
 
         /// <summary>

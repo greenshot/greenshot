@@ -112,9 +112,17 @@ namespace Greenshot.Plugin.Office.OfficeExport
                 return;
             }
 
-            if (!Version.TryParse(excelApplication.ComObject.Version, out _excelVersion))
+            try
             {
-                LOG.Warn("Assuming Excel version 1997.");
+                if (!Version.TryParse(excelApplication.ComObject.Version, out _excelVersion))
+                {
+                    LOG.Warn("Could not determine Excel version, assuming minimum.");
+                    _excelVersion = new Version((int) OfficeVersions.Office97, 0, 0, 0);
+                }
+            }
+            catch (InvalidCastException ex)
+            {
+                LOG.Warn("Failed to get Excel version via COM (possible type library mismatch), assuming minimum.", ex);
                 _excelVersion = new Version((int) OfficeVersions.Office97, 0, 0, 0);
             }
         }

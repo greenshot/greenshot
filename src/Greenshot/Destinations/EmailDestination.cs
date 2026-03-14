@@ -34,7 +34,7 @@ namespace Greenshot.Destinations
     /// <summary>
     /// This is the EmailDestination, used for MAPI clients.
     /// </summary>
-    public class EmailDestination : AbstractDestination
+    public class EmailDestination : AbstractDestination, IAcceptsPreRenderedImage
     {
         private static readonly Image MailIcon = GreenshotResources.GetImage("Email.Image");
         private static bool _isActiveFlag;
@@ -100,6 +100,15 @@ namespace Greenshot.Destinations
         {
             ExportInformation exportInformation = new ExportInformation(Designation, Description);
             MapiMailMessage.SendImage(surface, captureDetails);
+            exportInformation.ExportMade = true;
+            ProcessExport(exportInformation, surface);
+            return exportInformation;
+        }
+
+        public ExportInformation ExportCaptureWithRenderedImage(Image preRenderedImage, ISurface surface, ICaptureDetails captureDetails)
+        {
+            ExportInformation exportInformation = new ExportInformation(Designation, Description);
+            MapiMailMessage.SendImage(preRenderedImage, captureDetails);
             exportInformation.ExportMade = true;
             ProcessExport(exportInformation, surface);
             return exportInformation;

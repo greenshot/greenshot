@@ -208,8 +208,41 @@ namespace Greenshot.Base.Controls
         /// </summary>
         private void ApplySuggestedValues()
         {
-            // build the full path and set dialog properties
-            FileName = FilenameHelper.GetFilenameWithoutExtensionFromPattern(conf.OutputFileFilenamePattern, _captureDetails);
+            string expanded = FilenameHelper.GetFilenameWithoutExtensionFromPattern(conf.OutputFileFilenamePattern, _captureDetails);
+
+            // Pattern may expand to a relative subpath (e.g. "2026-03-02\000002 - title").
+            // Split into directory and filename parts so the dialog navigates to the right folder.
+            string subDir = Path.GetDirectoryName(expanded);
+            string fileName = Path.GetFileName(expanded);
+
+            if (!string.IsNullOrEmpty(subDir))
+            {
+                string baseDir = !string.IsNullOrEmpty(conf.OutputFilePath)
+                    ? conf.OutputFilePath
+                    : SaveFileDialog.InitialDirectory;
+                string fullDir = Path.Combine(baseDir, subDir);
+
+                if (!Directory.Exists(fullDir))
+                {
+                    try
+                    {
+                        Directory.CreateDirectory(fullDir);
+                        _eagerlyCreatedDirectory = new DirectoryInfo(fullDir);
+                    }
+                    catch (Exception e)
+                    {
+                        LOG.WarnFormat("Couldn't create directory {0} due to: {1}", fullDir, e.Message);
+                        fullDir = null;
+                    }
+                }
+
+                if (fullDir != null)
+                {
+                    SaveFileDialog.InitialDirectory = fullDir;
+                }
+            }
+
+            FileName = fileName;
         }
 
         private class FilterOption
