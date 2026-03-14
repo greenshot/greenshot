@@ -125,7 +125,7 @@ namespace Greenshot.Destinations
             return exportInformation;
         }
 
-        private static string CreateNewFilename(ICaptureDetails captureDetails)
+        internal static string CreateNewFilename(ICaptureDetails captureDetails)
         {
             string fullPath;
             Log.InfoFormat("Creating new filename");

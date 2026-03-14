@@ -71,7 +71,16 @@ namespace Greenshot.Plugin.Office.OfficeExport
                 wordApplication = DisposableCom.Create(new Application());
             }
 
-            InitializeVariables(wordApplication);
+            try
+            {
+                InitializeVariables(wordApplication);
+            }
+            catch (Exception ex)
+            {
+                LOG.Warn("Unable to initialize Word variables, assuming Word version 1997.", ex);
+                _wordVersion ??= new Version((int) OfficeVersions.Office97, 0, 0, 0);
+            }
+
             return wordApplication;
         }
 
@@ -86,15 +95,28 @@ namespace Greenshot.Plugin.Office.OfficeExport
             {
                 wordApplication = OleAut32Api.GetActiveObject<Application>("Word.Application");
             }
-            catch (Exception)
+            catch (System.Runtime.InteropServices.COMException)
             {
-                // Ignore, probably no word running
+                // Word is not running, this is expected
+                return null;
+            }
+            catch (Exception ex)
+            {
+                LOG.Warn("Unexpected error while getting Word application instance.", ex);
                 return null;
             }
 
             if ((wordApplication != null) && (wordApplication.ComObject != null))
             {
-                InitializeVariables(wordApplication);
+                try
+                {
+                    InitializeVariables(wordApplication);
+                }
+                catch (Exception ex)
+                {
+                    LOG.Warn("Unable to initialize Word variables, assuming Word version 1997.", ex);
+                    _wordVersion ??= new Version((int) OfficeVersions.Office97, 0, 0, 0);
+                }
             }
 
             return wordApplication;
@@ -154,16 +176,16 @@ namespace Greenshot.Plugin.Office.OfficeExport
             }
             catch (InvalidCastException ex)
             {
-                LOG.Warn("Unable to retrieve Word version due to COM interface casting issue. Assuming Word version 1997.", ex);
+                LOG.Warn("Failed to get Word version via COM (possible type library mismatch), assuming minimum.", ex);
             }
             catch (Exception ex)
             {
-                LOG.Warn("Unable to retrieve Word version. Assuming Word version 1997.", ex);
+                LOG.Warn("Could not determine Word version, assuming minimum.", ex);
             }
 
             if (_wordVersion == null)
             {
-                LOG.Warn("Assuming Word version 1997.");
+                LOG.Warn("Could not determine Word version, assuming minimum.");
                 _wordVersion = new Version((int) OfficeVersions.Office97, 0, 0, 0);
             }
         }

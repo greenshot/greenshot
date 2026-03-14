@@ -63,7 +63,7 @@ namespace Greenshot.Helpers
         /// One or more image files to open in the running Greenshot instance,
         /// or in a new instance if none is running.
         /// </summary>
-        public string[] Files { get; set; } = Array.Empty<string>();
+        public string[] Files { get; set; } = [];
 
         /// <summary>
         /// When true, the application was started by the Windows Restart Manager
@@ -164,7 +164,7 @@ namespace Greenshot.Helpers
                     Language = parseResult.GetValue(LanguageOption),
                     IniDirectory = parseResult.GetValue(IniDirectoryOption),
                     Restore = parseResult.GetValue(RestoreOption),
-                    Files = parseResult.GetValue(FilesArgument) ?? Array.Empty<string>()
+                    Files = parseResult.GetValue(FilesArgument) ?? []
                 };
             });
 
@@ -185,13 +185,14 @@ namespace Greenshot.Helpers
 
         private static RootCommand BuildRootCommand()
         {
-            var rootCommand = new RootCommand("Greenshot");
-
-            rootCommand.Description = "Greenshot is a free and open source screenshot tool for Windows.\n\n" +
-                             "Note: When another Greenshot instance is already running, commands such as\n" +
-                             "--exit and --reload are forwarded to that running instance via IPC, and the\n" +
-                             "new instance then exits. File arguments are similarly forwarded to the running\n" +
-                             "instance. If no other instance is running, Greenshot starts normally.";
+            var rootCommand = new RootCommand("Greenshot")
+            {
+                Description = "Greenshot is a free and open source screenshot tool for Windows.\n\n" +
+                                 "Note: When another Greenshot instance is already running, commands such as\n" +
+                                 "--exit and --reload are forwarded to that running instance via IPC, and the\n" +
+                                 "new instance then exits. File arguments are similarly forwarded to the running\n" +
+                                 "instance. If no other instance is running, Greenshot starts normally."
+            };
             rootCommand.Options.Add(ExitOption);
             rootCommand.Options.Add(ReloadOption);
             rootCommand.Options.Add(NoRunOption);
@@ -202,5 +203,7 @@ namespace Greenshot.Helpers
 
             return rootCommand;
         }
+
+        
     }
 }

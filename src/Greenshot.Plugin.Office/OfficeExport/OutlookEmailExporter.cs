@@ -681,9 +681,17 @@ namespace Greenshot.Plugin.Office.OfficeExport
                 return;
             }
 
-            if (!Version.TryParse(outlookApplication.ComObject.Version, out _outlookVersion))
+            try
             {
-                LOG.Warn("Assuming outlook version 1997.");
+                if (!Version.TryParse(outlookApplication.ComObject.Version, out _outlookVersion))
+                {
+                    LOG.Warn("Could not determine Outlook version, assuming minimum.");
+                    _outlookVersion = new Version((int) OfficeVersions.Office97, 0, 0, 0);
+                }
+            }
+            catch (InvalidCastException ex)
+            {
+                LOG.Warn("Failed to get Outlook version via COM (possible type library mismatch), assuming minimum.", ex);
                 _outlookVersion = new Version((int) OfficeVersions.Office97, 0, 0, 0);
             }
 

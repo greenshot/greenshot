@@ -32,5 +32,8 @@
     <resource name="label_information">
       {0} is the filename of your screenshot
     </resource>
+    <resource name="tooltip_duplicate_name">
+      A command with this name already exists. Please choose a different name.
+    </resource>
   </resources>
 </language>
