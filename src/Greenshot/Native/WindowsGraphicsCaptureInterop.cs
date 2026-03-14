@@ -22,8 +22,12 @@
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.WindowsRuntime;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.User32;
 using Greenshot.Native.DirectX;
 using Windows.Graphics.Capture;
 using Windows.Graphics.DirectX;
@@ -319,6 +323,74 @@ namespace Greenshot.Native
                 if (context != null) Marshal.ReleaseComObject(context);
                 if (device != null) Marshal.ReleaseComObject(device);
             }
+        }
+
+        /// <summary>
+        /// Captures all monitors within the specified bounds using Windows Graphics Capture API
+        /// and stitches them into a single bitmap.
+        /// </summary>
+        /// <remarks>Each monitor that intersects with <paramref name="captureBounds"/> is individually captured
+        /// and composited into a result bitmap at the correct position. Monitors that do not intersect the bounds are
+        /// skipped. The result bitmap uses 32bpp ARGB format with a transparent background. If one or more monitors
+        /// fail to capture, the corresponding region in the result bitmap will remain transparent.
+        /// The caller is responsible for disposing the returned Bitmap when it is no longer needed.</remarks>
+        /// <param name="captureBounds">The screen-coordinate rectangle to capture. Only monitors that intersect this rectangle are included.</param>
+        /// <returns>A Bitmap containing the stitched capture of all intersecting monitors, or null if no monitors
+        /// intersect the specified bounds or the bounds are empty.</returns>
+        public static Bitmap CaptureRectangle(NativeRect captureBounds)
+        {
+            if (captureBounds.Height <= 0 || captureBounds.Width <= 0)
+            {
+                return null;
+            }
+
+            // Compute the intersection for each display once, and keep only the displays that actually overlap
+            var displaysInCapture = DisplayInfo.AllDisplayInfos
+                .Select(d => new { Display = d, Intersection = d.Bounds.Intersect(captureBounds) })
+                .Where(x => !x.Intersection.IsEmpty)
+                .ToArray();
+
+            if (displaysInCapture.Length == 0)
+            {
+                return null;
+            }
+
+            var resultBitmap = new Bitmap(captureBounds.Width, captureBounds.Height, PixelFormat.Format32bppArgb);
+            try
+            {
+                using var graphics = Graphics.FromImage(resultBitmap);
+
+                foreach (var item in displaysInCapture)
+                {
+                    using var monitorBitmap = CaptureMonitorToBitmap(item.Display.MonitorHandle);
+                    if (monitorBitmap == null) continue;
+
+                    var intersection = item.Intersection;
+
+                    // Source rectangle within the monitor bitmap
+                    var srcRect = new Rectangle(
+                        intersection.X - item.Display.Bounds.X,
+                        intersection.Y - item.Display.Bounds.Y,
+                        intersection.Width,
+                        intersection.Height);
+
+                    // Destination rectangle within the result bitmap
+                    var destRect = new Rectangle(
+                        intersection.X - captureBounds.X,
+                        intersection.Y - captureBounds.Y,
+                        intersection.Width,
+                        intersection.Height);
+
+                    graphics.DrawImage(monitorBitmap, destRect, srcRect, GraphicsUnit.Pixel);
+                }
+            }
+            catch
+            {
+                resultBitmap.Dispose();
+                throw;
+            }
+
+            return resultBitmap;
         }
 
         /// <summary>

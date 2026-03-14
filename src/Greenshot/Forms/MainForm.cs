@@ -57,6 +57,7 @@ using Greenshot.Editor.Destinations;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Forms;
 using Greenshot.Helpers;
+using Greenshot.Native;
 using Greenshot.Plugin.Win10;
 using Greenshot.Processors;
 using log4net;
@@ -410,6 +411,12 @@ namespace Greenshot.Forms
 
             coreConfiguration.PropertyChanged += OnIconSizeChanged;
             OnIconSizeChanged(this, new PropertyChangedEventArgs("IconSize"));
+
+            // When beta tester mode is enabled, use Windows Graphics Capture for screen capture
+            if (_conf.IsBetaTester)
+            {
+                CaptureHandler.CaptureScreenRectangle = WindowsGraphicsCaptureInterop.CaptureRectangle;
+            }
 
             // Set the Greenshot icon visibility depending on the configuration. (Added for feature #3521446)
             // Setting it to true this late prevents Problems with the context menu
