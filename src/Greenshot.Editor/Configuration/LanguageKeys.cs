@@ -61,6 +61,7 @@ namespace Greenshot.Editor.Configuration
         settings_destination,
         settings_destination_clipboard,
         settings_destination_editor,
+        settings_destination_editor_add,
         settings_destination_fileas,
         settings_destination_printer,
         settings_destination_picker,
