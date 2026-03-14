@@ -28,15 +28,19 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
+using Dapplo.Windows.Common.Enums;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Dpi;
 using Dapplo.Windows.Kernel32;
+using Dapplo.Windows.Messages;
+using Dapplo.Windows.Messages.Enumerations;
 using Dapplo.Windows.User32;
 using Dapplo.Windows.User32.Structs;
 using Greenshot.Base;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Effects;
 using Greenshot.Base.Help;
 using Greenshot.Base.IniFile;
@@ -44,6 +48,7 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Forms;
 using Greenshot.Base.Interfaces.Ocr;
+using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Editor.Configuration;
 using Greenshot.Editor.Controls.Emoji;
 using Greenshot.Editor.Destinations;
@@ -187,14 +192,18 @@ namespace Greenshot.Editor.Forms
             // Initial "saved" flag for asking if the image needs to be save
             _surface.Modified = !outputMade;
 
-            // Only register in the global editor list after the surface is fully assigned,
-            // so background threads iterating Editors never see a partially-initialized editor.
-            lock (_editorListLock)
-            {
-                EditorList.Add(this);
-            }
+            // Note: SetSurface (called via Surface = surface above) already registered this
+            // editor in EditorList. Do NOT add again here — double-registration causes
+            // closed editors to linger in the list because Remove() only removes one entry.
 
             UpdateUi();
+
+            // Re-apply the capture title after UpdateUi()/ApplyLanguage() which resets Text
+            // to just the bare form language key ("Greenshot editor").
+            if (_surface?.CaptureDetails?.Title != null)
+            {
+                Text = _surface.CaptureDetails.Title + " - " + Language.GetString(LangKey.editor_title);
+            }
 
             // Workaround: for the MouseWheel event which doesn't get to the panel
             MouseWheel += PanelMouseWheel;
@@ -1012,8 +1021,7 @@ namespace Greenshot.Editor.Forms
                     buttons = MessageBoxButtons.YesNo;
                 }
 
-                DialogResult result = MessageBox.Show(Language.GetString(LangKey.editor_close_on_save), Language.GetString(LangKey.editor_close_on_save_title), buttons,
-                    MessageBoxIcon.Question);
+                DialogResult result = MessageBox.Show(Language.GetString(LangKey.editor_close_on_save), Language.GetString(LangKey.editor_close_on_save_title), buttons, MessageBoxIcon.Question);
                 if (result.Equals(DialogResult.Cancel))
                 {
                     e.Cancel = true;
@@ -2161,6 +2169,42 @@ namespace Greenshot.Editor.Forms
                 (int) (horizontalCenter * size.Width) - rc.Width / 2,
                 (int) (verticalCenter * size.Height) - rc.Height / 2
             );
+        }
+
+        /// <summary>
+        ///   Attempts to save the current surface state to the specified file path.
+        /// </summary>
+        /// <param name="filePath">The path to the file where the surface state will be saved. Must be a valid file path.</param>
+        /// <returns>true if the surface state was saved successfully; otherwise, false.</returns>
+        public bool TrySaveState(string filePath)
+        {
+            // Check if we even have a state
+            if (!_surface.Modified)
+            {
+                Close();
+                return false;
+            }
+            try
+            {
+                ImageIO.Save(_surface, filePath, true, new SurfaceOutputSettings(OutputFormat.greenshot), false);
+                // Make sure the user isn't asked to save
+                _surface.Modified = false;
+                Close();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error saving surface state to {filePath}", ex);
+            }
+            return false;
+        }
+
+        protected override void WndProc(ref Message m)
+        {
+            if (!WndProcDefaults.TryHandleMessage(ref m))
+            {
+                base.WndProc(ref m);
+            }
         }
     }
 }

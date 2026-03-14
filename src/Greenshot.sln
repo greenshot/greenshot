@@ -45,6 +45,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Greenshot.Editor", "Greensh
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greenshot.BuildTasks", "Greenshot.BuildTasks\Greenshot.BuildTasks.csproj", "{25C870BE-22BB-4CB8-B274-95DC481F53A7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Greenshot-Installer", "Greenshot-Installer\Greenshot-Installer.csproj", "{F079C027-0871-4B1B-A902-0312941C3834}"
+	ProjectSection(ProjectDependencies) = postProject
+		{CD642BF4-D815-4D67-A0B5-C69F0B8231AF} = {CD642BF4-D815-4D67-A0B5-C69F0B8231AF}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -141,6 +146,14 @@ Global
 		{25C870BE-22BB-4CB8-B274-95DC481F53A7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{25C870BE-22BB-4CB8-B274-95DC481F53A7}.Release|x86.ActiveCfg = Release|Any CPU
 		{25C870BE-22BB-4CB8-B274-95DC481F53A7}.Release|x86.Build.0 = Release|Any CPU
+		{F079C027-0871-4B1B-A902-0312941C3834}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F079C027-0871-4B1B-A902-0312941C3834}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F079C027-0871-4B1B-A902-0312941C3834}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F079C027-0871-4B1B-A902-0312941C3834}.Debug|x86.Build.0 = Debug|Any CPU
+		{F079C027-0871-4B1B-A902-0312941C3834}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F079C027-0871-4B1B-A902-0312941C3834}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F079C027-0871-4B1B-A902-0312941C3834}.Release|x86.ActiveCfg = Release|Any CPU
+		{F079C027-0871-4B1B-A902-0312941C3834}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

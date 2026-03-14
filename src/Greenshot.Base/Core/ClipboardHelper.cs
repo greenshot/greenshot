@@ -948,7 +948,7 @@ EndSelection:<<<<<<<4
             utf8EncodedHtmlString = utf8EncodedHtmlString.Replace("${width}", surface.Image.Width.ToString());
             utf8EncodedHtmlString = utf8EncodedHtmlString.Replace("${height}", surface.Image.Height.ToString());
             utf8EncodedHtmlString = utf8EncodedHtmlString.Replace("${format}", "png");
-            utf8EncodedHtmlString = utf8EncodedHtmlString.Replace("${data}", Convert.ToBase64String(pngStream.GetBuffer(), 0, (int) pngStream.Length));
+            utf8EncodedHtmlString = utf8EncodedHtmlString.Replace("${data}", Convert.ToBase64String(pngStream.ToArray()));
             StringBuilder sb = new StringBuilder();
             sb.Append(utf8EncodedHtmlString);
             sb.Replace("<<<<<<<1", (utf8EncodedHtmlString.IndexOf("<HTML>", StringComparison.Ordinal) + "<HTML>".Length).ToString("D8"));
@@ -1001,7 +1001,7 @@ EndSelection:<<<<<<<4
                     // Create PNG stream
                     if (CoreConfig.ClipboardFormats.Contains(ClipboardFormat.PNG))
                     {
-                        pngStream = new MemoryStream();
+                        pngStream = RecyclableMemoryStreamFactory.GetStream("ClipboardHelper.PNG");
                         // PNG works for e.g. Powerpoint
                         SurfaceOutputSettings pngOutputSettings = new SurfaceOutputSettings(OutputFormat.png, 100, false);
                         ImageIO.SaveToStream(imageToSave, null, pngStream, pngOutputSettings);
@@ -1020,7 +1020,7 @@ EndSelection:<<<<<<<4
                     if (CoreConfig.ClipboardFormats.Contains(ClipboardFormat.DIB))
                     {
                         // Create the stream for the clipboard
-                        dibStream = new MemoryStream();
+                        dibStream = RecyclableMemoryStreamFactory.GetStream("ClipboardHelper.DIB");
                         var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
 
                         if (!fileFormatHandlers.TrySaveToStream((Bitmap)imageToSave, dibStream, DataFormats.Dib))
@@ -1046,7 +1046,7 @@ EndSelection:<<<<<<<4
                     if (CoreConfig.ClipboardFormats.Contains(ClipboardFormat.DIBV5))
                     {
                         // Create the stream for the clipboard
-                        dibV5Stream = new MemoryStream();
+                        dibV5Stream = RecyclableMemoryStreamFactory.GetStream("ClipboardHelper.DIBV5");
 
                         // Create the BITMAPINFOHEADER
                         var header = BitmapV5Header.Create(imageToSave.Width, imageToSave.Height, 32);
@@ -1091,7 +1091,7 @@ EndSelection:<<<<<<<4
                 else if (CoreConfig.ClipboardFormats.Contains(ClipboardFormat.HTMLDATAURL))
                 {
                     string html;
-                    using (MemoryStream tmpPngStream = new MemoryStream())
+                    using (MemoryStream tmpPngStream = RecyclableMemoryStreamFactory.GetStream("ClipboardHelper.HTMLDATAURL"))
                     {
                         SurfaceOutputSettings pngOutputSettings = new SurfaceOutputSettings(OutputFormat.png, 100, false)
                         {
