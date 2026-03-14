@@ -28,8 +28,8 @@ This directory contains comprehensive changelogs for all Greenshot releases.
 - [Download Portable](https://github.com/greenshot/greenshot/releases/download/v1.3.312/Greenshot-PORTABLE-1.3.312-RELEASE.zip)
 
 ### Latest Development Build
-**[Greenshot 1.4.107](CHANGELOG-1.4.md)** (February 14, 2026)
-- Continuous build from main branch
+**[Greenshot 1.4.108](CHANGELOG-1.4.md)** (March 14, 2026)
+- Windows Graphics Capture API (Beta) for higher-quality captures
 - ⚠️ Unstable/unsigned - for testing only
 - [View all 1.4 builds](https://github.com/greenshot/greenshot/releases)
 
@@ -67,7 +67,7 @@ Our changelogs follow these principles:
 
 ### 1.4 Series (Development)
 - **First Build**: 1.4.1 (November 18, 2025)
-- **Latest Build**: 1.4.107 (February 14, 2026)
+- **Latest Build**: 1.4.108 (March 14, 2026)
 - **Status**: Active Development
 - **Key Features**:
   - Emoji support in editor
@@ -145,3 +145,5 @@ When creating new releases:
 ---
 
 *For questions about changelogs or releases, please open an issue on [GitHub](https://github.com/greenshot/greenshot/issues).*
+
+*Last updated: March 14, 2026*
