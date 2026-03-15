@@ -216,6 +216,7 @@ namespace Greenshot.Base.Core
             // If no capture, use the normal screen capture
             if (capturedImage == null)
             {
+                Log.Debug("No capture yet, taking it via legacy.");
                 capturedImage = CaptureRectangle(captureBounds);
             }
 

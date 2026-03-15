@@ -25,10 +25,13 @@ using System.Drawing.Imaging;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading;
+using System.Threading.Tasks;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.User32;
 using Greenshot.Native.DirectX;
+using log4net;
 using Windows.Graphics.Capture;
 using Windows.Graphics.DirectX;
 using Windows.Graphics.DirectX.Direct3D11;
@@ -41,6 +44,7 @@ namespace Greenshot.Native
     /// </summary>
     internal partial class WindowsGraphicsCaptureInterop
     {
+        private static readonly ILog Log = LogManager.GetLogger(typeof(WindowsGraphicsCaptureInterop));
         // Constants
         private const int D3D11_SDK_VERSION = 7;
         private const int D3D_DRIVER_TYPE_HARDWARE = 1;
@@ -272,27 +276,59 @@ namespace Greenshot.Native
         /// <returns>A Bitmap object containing the captured image of the specified window. Returns null if the capture operation fails.</returns>
         public static Bitmap CaptureWindowToBitmap(IntPtr window)
         {
-            CreateD3D11Device(out var device, out var context);
-
-            try
+            return Task.Run(() =>
             {
-                var texture = CaptureWindowToTexture2D(window, device);
+                CreateD3D11Device(out var d3d11Device, out var context);
 
                 try
                 {
-                    return TransformTextureToBitmap(texture, device, context);
+                    var captureItem = CreateCaptureItemForWindow(window);
+                    var device = CreateID3DDeviceFromD3D11Device(d3d11Device);
+
+                    using var framePool = Direct3D11CaptureFramePool.CreateFreeThreaded(device, DirectXPixelFormat.B8G8R8A8UIntNormalized, 1, captureItem.Size);
+                    using var session = framePool.CreateCaptureSession(captureItem);
+
+                    // We do not want to have the cursor in the capture, as we do this separately.
+                    session.IsCursorCaptureEnabled = false;
+
+                    using var frameArrivedEvent = new ManualResetEvent(false);
+                    framePool.FrameArrived += (s, e) => frameArrivedEvent.Set();
+
+                    session.StartCapture();
+
+                    if (!frameArrivedEvent.WaitOne(1000))
+                    {
+                        Log.Debug($"Timeout waiting for FrameArrived on window {window}.");
+                        return null;
+                    }
+                    using var frame = framePool.TryGetNextFrame();
+                    if (frame == null)
+                    {
+                        Log.Debug($"TryGetNextFrame returned null after FrameArrived on window {window}.");
+                        return null;
+                    }
+                    var texture = CreateTexture2DFromID3DSurface(frame.Surface);
+                    try
+                    {
+                        if (texture == null)
+                        {
+                            return null;
+                        }
+                        return TransformTextureToBitmap(texture, d3d11Device, context);
+                    }
+                    finally
+                    {
+                        if (texture != null) Marshal.ReleaseComObject(texture);
+                    }
                 }
                 finally
                 {
-                    if (texture != null) Marshal.ReleaseComObject(texture);
+                    if (context != null) Marshal.ReleaseComObject(context);
+                    if (d3d11Device != null) Marshal.ReleaseComObject(d3d11Device);
                 }
-            }
-            finally
-            {
-                if (context != null) Marshal.ReleaseComObject(context);
-                if (device != null) Marshal.ReleaseComObject(device);
-            }
+            }).GetAwaiter().GetResult();
         }
+
 
         /// <summary>
         /// Captures the image of the specified monitor and returns it as a Bitmap object.
@@ -304,30 +340,62 @@ namespace Greenshot.Native
         /// <returns>A Bitmap containing the captured image of the monitor. Returns null if the capture operation fails.</returns>
         public static Bitmap CaptureMonitorToBitmap(IntPtr hMonitor)
         {
-            CreateD3D11Device(out var device, out var context);
-
-            try
+            return Task.Run(() =>
             {
-                var texture = CaptureMonitorToTexture2D(hMonitor, device);
+                CreateD3D11Device(out var d3d11Device, out var context);
                 try
                 {
-                    return TransformTextureToBitmap(texture, device, context);
+                    var captureItem = CreateCaptureItemForMonitor(hMonitor);
+                    var device = CreateID3DDeviceFromD3D11Device(d3d11Device);
+
+                    using var framePool = Direct3D11CaptureFramePool.CreateFreeThreaded(device, DirectXPixelFormat.B8G8R8A8UIntNormalized, 1, captureItem.Size);
+                    using var session = framePool.CreateCaptureSession(captureItem);
+
+                    // We do not want to have the cursor in the capture, as we do this separately.
+                    session.IsCursorCaptureEnabled = false;
+
+                    using var frameArrivedEvent = new ManualResetEvent(false);
+                    framePool.FrameArrived += (s, e) => frameArrivedEvent.Set();
+
+                    session.StartCapture();
+
+                    if (!frameArrivedEvent.WaitOne(1000))
+                    {
+                        Log.Debug($"Timeout waiting for FrameArrived on monitor {hMonitor}.");
+                        return null;
+                    }
+
+                    using var frame = framePool.TryGetNextFrame();
+                    if (frame == null)
+                    {
+                        Log.Debug($"TryGetNextFrame returned null after FrameArrived on monitor {hMonitor}.");
+                        return null;
+                    }
+
+                    var texture = CreateTexture2DFromID3DSurface(frame.Surface);
+                    try
+                    {
+                        if (texture == null)
+                        {
+                            return null;
+                        }
+                        return TransformTextureToBitmap(texture, d3d11Device, context);
+                    }
+                    finally
+                    {
+                        if (texture != null) Marshal.ReleaseComObject(texture);
+                    }
                 }
                 finally
                 {
-                    if (texture != null) Marshal.ReleaseComObject(texture);
+                    if (context != null) Marshal.ReleaseComObject(context);
+                    if (d3d11Device != null) Marshal.ReleaseComObject(d3d11Device);
                 }
-            }
-            finally
-            {
-                if (context != null) Marshal.ReleaseComObject(context);
-                if (device != null) Marshal.ReleaseComObject(device);
-            }
+            }).GetAwaiter().GetResult();
         }
 
         /// <summary>
-        /// Captures all monitors within the specified bounds using Windows Graphics Capture API
-        /// and stitches them into a single bitmap.
+        /// Captures all monitors within the specified bounds using Windows Graphics Capture API and stitches them into a single bitmap.
         /// </summary>
         /// <remarks>Each monitor that intersects with <paramref name="captureBounds"/> is individually captured
         /// and composited into a result bitmap at the correct position. Monitors that do not intersect the bounds are
@@ -355,15 +423,16 @@ namespace Greenshot.Native
                 return null;
             }
 
-            var resultBitmap = new Bitmap(captureBounds.Width, captureBounds.Height, PixelFormat.Format32bppArgb);
+            Bitmap resultBitmap = null;
+            Graphics graphics = null;
             try
             {
-                using var graphics = Graphics.FromImage(resultBitmap);
 
                 foreach (var item in displaysInCapture)
                 {
                     using var monitorBitmap = CaptureMonitorToBitmap(item.Display.MonitorHandle);
                     if (monitorBitmap == null) continue;
+                    resultBitmap ??= new Bitmap(captureBounds.Width, captureBounds.Height, PixelFormat.Format32bppArgb);
 
                     var intersection = item.Intersection;
 
@@ -380,87 +449,21 @@ namespace Greenshot.Native
                         intersection.Y - captureBounds.Y,
                         intersection.Width,
                         intersection.Height);
-
+                    graphics ??= Graphics.FromImage(resultBitmap);
                     graphics.DrawImage(monitorBitmap, destRect, srcRect, GraphicsUnit.Pixel);
                 }
             }
             catch
             {
-                resultBitmap.Dispose();
+                resultBitmap?.Dispose();
                 throw;
+            }
+            finally
+            {
+                graphics?.Dispose();
             }
 
             return resultBitmap;
-        }
-
-        /// <summary>
-        /// Captures the visual content of the specified window and returns it as a Direct3D 11 texture.
-        /// </summary>
-        /// <remarks>The capture excludes the cursor from the resulting texture. The method creates a
-        /// frame pool and capture session to obtain the window's content. Ensure that the provided window handle and
-        /// device are valid to avoid errors during capture.</remarks>
-        /// <param name="window">The handle of the window to capture. Must be a valid window handle.</param>
-        /// <param name="d3d11Device">The Direct3D 11 device used to create the resulting texture. Must be a valid ID3D11Device instance.</param>
-        /// <returns>An ID3D11Texture2D containing the captured content of the specified window.</returns>
-        private static ID3D11Texture2D CaptureWindowToTexture2D(IntPtr window, ID3D11Device d3d11Device)
-        {
-            var captureItem = CreateCaptureItemForWindow(window);
-            var device = CreateID3DDeviceFromD3D11Device(d3d11Device);
-
-            using var framePool = Direct3D11CaptureFramePool.Create(device, DirectXPixelFormat.B8G8R8A8UIntNormalized, 1, captureItem.Size);
-            var session = framePool.CreateCaptureSession(captureItem);
-
-            // The following should be false, but depends on the Windows SDK Contract version if it's available or not
-            //session.IsBorderRequired = false;
-
-            // We do not want to have the cursor in the capture, as we do this separately.
-            session.IsCursorCaptureEnabled = false;
-
-            session.StartCapture();
-
-            Direct3D11CaptureFrame frameTemp = null;
-            while (frameTemp == null)
-            {
-                frameTemp = framePool.TryGetNextFrame();
-            }
-
-            using var frame = frameTemp;
-            return CreateTexture2DFromID3DSurface(frame.Surface);
-        }
-
-        /// <summary>
-        /// Captures the visual content of the specified monitor and returns it as a Direct3D 11 2D texture.
-        /// </summary>
-        /// <remarks>The capture excludes the mouse cursor. Ensure that the monitor handle and Direct3D
-        /// device are valid before calling this method. The method blocks until a frame is available.</remarks>
-        /// <param name="hMonitor">The handle to the monitor to capture. Must be a valid monitor handle obtained from the operating system.</param>
-        /// <param name="d3d11Device">The Direct3D 11 device used to create the resulting texture. Must be initialized and valid.</param>
-        /// <returns>An ID3D11Texture2D containing the captured image of the monitor. The texture can be used for rendering or
-        /// further processing.</returns>
-        private static ID3D11Texture2D CaptureMonitorToTexture2D(IntPtr hMonitor, ID3D11Device d3d11Device)
-        {
-            var captureItem = CreateCaptureItemForMonitor(hMonitor);
-            var device = CreateID3DDeviceFromD3D11Device(d3d11Device);
-
-            using var framePool = Direct3D11CaptureFramePool.Create(device, DirectXPixelFormat.B8G8R8A8UIntNormalized, 1, captureItem.Size);
-            var session = framePool.CreateCaptureSession(captureItem);
-
-            // The following should be false, but depends on the Windows SDK Contract version if it's available or not
-            //session.IsBorderRequired = false;
-
-            // We do not want to have the cursor in the capture, as we do this separately.
-            session.IsCursorCaptureEnabled = false;
-
-            session.StartCapture();
-
-            Direct3D11CaptureFrame frameTemp = null;
-            while (frameTemp == null)
-            {
-                frameTemp = framePool.TryGetNextFrame();
-            }
-
-            using var frame = frameTemp;
-            return CreateTexture2DFromID3DSurface(frame.Surface);
         }
     }
 }

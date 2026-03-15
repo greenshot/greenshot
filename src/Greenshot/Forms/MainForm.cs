@@ -412,12 +412,6 @@ namespace Greenshot.Forms
             coreConfiguration.PropertyChanged += OnIconSizeChanged;
             OnIconSizeChanged(this, new PropertyChangedEventArgs("IconSize"));
 
-            // When beta tester mode is enabled, use Windows Graphics Capture for screen capture
-            if (_conf.IsBetaTester)
-            {
-                CaptureHandler.CaptureScreenRectangle = WindowsGraphicsCaptureInterop.CaptureRectangle;
-            }
-
             // Set the Greenshot icon visibility depending on the configuration. (Added for feature #3521446)
             // Setting it to true this late prevents Problems with the context menu
             notifyIcon.Visible = !_conf.HideTrayicon;
