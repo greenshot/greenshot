@@ -41,7 +41,7 @@ namespace Greenshot.Editor.Drawing.Filters
             AddField(GetType(), FieldType.PIXEL_SIZE, 5);
         }
 
-        public override void Apply(Graphics graphics, Bitmap applyBitmap, NativeRect rect, RenderMode renderMode)
+        public override void Apply(Graphics graphics, Bitmap applyBitmap, NativeRect rect, RenderMode renderMode, IEnumerable<NativeRect> areasToExcludeFromFilters = null)
         {
             int pixelSize = GetFieldValueAsInt(FieldType.PIXEL_SIZE);
             ImageHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
