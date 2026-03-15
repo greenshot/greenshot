@@ -46,9 +46,9 @@ namespace Greenshot.Base.Core
             uint dwFlags);
 
         /// <summary>
-        /// Opens Windows Explorer and selects the specified file.
+        /// Opens Windows Explorer to the containing folder and selects the specified file or folder.
         /// </summary>
-        /// <param name="filePath">The full path to the file or folder to select.</param>
+        /// <param name="filePath">The path to the file or folder to select.</param>
         public static bool OpenInExplorer(string filePath)
         {
             if (string.IsNullOrWhiteSpace(filePath))
@@ -57,6 +57,11 @@ namespace Greenshot.Base.Core
             }
 
             filePath = Path.GetFullPath(filePath);
+
+            if (!File.Exists(filePath) && !Directory.Exists(filePath))
+            {
+                return false;
+            }
 
             IntPtr pidl = IntPtr.Zero;
             try
