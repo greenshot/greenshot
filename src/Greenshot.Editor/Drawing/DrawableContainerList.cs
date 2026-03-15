@@ -671,6 +671,20 @@ namespace Greenshot.Editor.Drawing
             };
             menu.Items.Add(item);
 
+            #region Push Out, Fit, Snap
+            var availableTranslations = new List<string>()
+            {
+                "en-US",
+            };
+            if (availableTranslations.Contains(Language.CurrentLanguage))
+            {
+                menu.Items.Add(GetPushOutSubMenu());
+                menu.Items.Add(GetFitSubMenu(surface));
+                menu.Items.Add(GetSnapSubMenu());
+            }
+
+            #endregion Push Out, Fit, Snap
+
             // Delete
             item = new ToolStripMenuItem(Language.GetString(LangKey.editor_deleteelement))
             {
@@ -685,7 +699,6 @@ namespace Greenshot.Editor.Drawing
             if (canReset)
             {
                 item = new ToolStripMenuItem(Language.GetString(LangKey.editor_resetsize));
-                //item.Image = ((System.Drawing.Image)(editorFormResources.GetObject("removeObjectToolStripMenuItem.Image")));
                 item.Click += delegate
                 {
                     MakeBoundsChangeUndoable(false);
@@ -770,6 +783,232 @@ namespace Greenshot.Editor.Drawing
             {
                 drawableContainer.AdjustToDpi(dpi);
             }
+        }
+
+        /// <summary>
+        /// Moves all selected elements to one edge of the surface.
+        /// </summary>
+        /// <param name="direction">The direction in which to move the container.</param>
+        public void SnapAllToEdge(Direction direction)
+        {
+            foreach (IDrawableContainer container in this)
+            {
+                SnapContainerToEdge(direction, container);
+            }
+            Parent.DeselectAllElements();
+        }
+
+        /// <summary>
+        /// Push an element entirely outside the current bounds of the surface, expanding the surface to accomodate it.
+        /// </summary>
+        /// <param name="direction">Direction in which to move element.</param>
+        /// <param name="targetElement">The element to move.</param>
+        public void PushOut(Direction direction, IDrawableContainer targetElement)
+        {
+            Expansion expansion = GetExpansionFromSize(direction, targetElement.Size);
+            
+            Parent.ResizeCanvas(expansion);
+
+            SnapContainerToEdge(direction, targetElement);
+
+            Parent.DeselectAllElements();
+        }
+
+        private void SnapContainerToEdge(Direction direction, IDrawableContainer targetElement)
+        {
+            Size surfaceBounds = GetParentSurfaceSize();
+            targetElement.SnapToEdge(direction, surfaceBounds);
+        }
+
+        private Size GetParentSurfaceSize()
+        {
+            return new Size(Parent.Image.Width, Parent.Image.Height);
+        }
+
+        /// <summary>
+        /// Calculate the directional expansion needed to accommodate an element of the given size.
+        /// </summary>
+        /// <param name="direction">The direction in which to expand.</param>
+        /// <param name="elementSize">The size of the element to accommodate.</param>
+        /// <returns>The new expansion object, or null if an invalid Direction was given.</returns>
+        private static Expansion GetExpansionFromSize(Direction direction, Size elementSize)
+        {
+            var expansion = new Expansion();
+
+            switch (direction)
+            {
+                case Direction.LEFT:
+                    expansion.Left = elementSize.Width;
+                    break;
+                case Direction.RIGHT:
+                    expansion.Right = elementSize.Width;
+                    break;
+                case Direction.TOP:
+                    expansion.Top = elementSize.Height;
+                    break;
+                case Direction.BOTTOM:
+                    expansion.Bottom = elementSize.Height;
+                    break;
+                default:
+                    break;
+            }
+
+            return expansion;
+        }
+
+        private ToolStripMenuItem GetPushOutSubMenu()
+        {
+            var pushOutSubmenu = new ToolStripMenuItem(Language.GetString(LangKey.editor_pushout));
+
+            // Top
+            var item = new ToolStripMenuItem(Language.GetString(LangKey.editor_align_top))
+            {
+                Image = (Image)EditorFormResources.GetObject("PushOut-Top.Image")
+            };
+            item.Click += delegate
+            {
+                if (this.Count > 0)
+                {
+                    PushOut(Direction.TOP, this[0]);
+                }
+            };
+            pushOutSubmenu.DropDownItems.Add(item);
+
+            // Right
+            item = new ToolStripMenuItem(Language.GetString(LangKey.editor_align_right))
+            {
+                Image = (Image)EditorFormResources.GetObject("PushOut-Right.Image")
+            };
+            item.Click += delegate
+            {
+                if (this.Count > 0)
+                {
+                    PushOut(Direction.RIGHT, this[0]);
+                }
+            };
+            pushOutSubmenu.DropDownItems.Add(item);
+
+            // Bottom
+            item = new ToolStripMenuItem(Language.GetString(LangKey.editor_align_bottom))
+            {
+                Image = (Image)EditorFormResources.GetObject("PushOut-Bottom.Image")
+            };
+            item.Click += delegate
+            {
+                if (this.Count > 0)
+                {
+                    PushOut(Direction.BOTTOM, this[0]);
+                }
+            };
+            pushOutSubmenu.DropDownItems.Add(item);
+
+            // Left
+            item = new ToolStripMenuItem(Language.GetString(LangKey.editor_align_left))
+            {
+                Image = (Image)EditorFormResources.GetObject("PushOut-Left.Image")
+            };
+            item.Click += delegate
+            {
+                if (this.Count > 0)
+                {
+                    PushOut(Direction.LEFT, this[0]);
+                }
+            };
+            pushOutSubmenu.DropDownItems.Add(item);
+
+            return pushOutSubmenu;
+        }
+
+        private ToolStripMenuItem GetFitSubMenu(ISurface surface)
+        {
+            var fitSubmenu = new ToolStripMenuItem(Language.GetString(LangKey.editor_fit));
+
+            // Fit width
+            var item = new ToolStripMenuItem(Language.GetString(LangKey.editor_resize_width))
+            {
+                Image = (Image)EditorFormResources.GetObject("Fit-width.Image")
+            };
+            item.Click += delegate
+            {
+                foreach (IDrawableContainer item in this)
+                {
+                    MakeBoundsChangeUndoable(false);
+                    item.Width = surface.Image.Width;
+                }
+                SnapAllToEdge(Direction.LEFT);
+                surface.Invalidate();
+            };
+            fitSubmenu.DropDownItems.Add(item);
+
+            // Fit height
+            item = new ToolStripMenuItem(Language.GetString(LangKey.editor_resize_height))
+            {
+                Image = (Image)EditorFormResources.GetObject("Fit-height.Image")
+            };
+            item.Click += delegate
+            {
+                foreach (IDrawableContainer item in this)
+                {
+                    MakeBoundsChangeUndoable(false);
+                    item.Height = surface.Image.Height;
+                }
+                SnapAllToEdge(Direction.TOP);
+                surface.Invalidate();
+            };
+            fitSubmenu.DropDownItems.Add(item);
+
+            return fitSubmenu;
+        }
+
+        private ToolStripMenuItem GetSnapSubMenu()
+        {
+            var snapSubmenu = new ToolStripMenuItem(Language.GetString(LangKey.editor_snap));
+
+            // Snap to top
+            var item = new ToolStripMenuItem(Language.GetString(LangKey.editor_align_top))
+            {
+                Image = (Image)EditorFormResources.GetObject("Snap-top.Image")
+            };
+            item.Click += delegate
+            {
+                SnapAllToEdge(Direction.TOP);
+            };
+            snapSubmenu.DropDownItems.Add(item);
+
+            // Snap right
+            item = new ToolStripMenuItem(Language.GetString(LangKey.editor_align_right))
+            {
+                Image = (Image)EditorFormResources.GetObject("Snap-right.Image")
+            };
+            item.Click += delegate
+            {
+                SnapAllToEdge(Direction.RIGHT);
+            };
+            snapSubmenu.DropDownItems.Add(item);
+
+            // Snap to bottom
+            item = new ToolStripMenuItem(Language.GetString(LangKey.editor_align_bottom))
+            {
+                Image = (Image)EditorFormResources.GetObject("Snap-bottom.Image")
+            };
+            item.Click += delegate
+            {
+                SnapAllToEdge(Direction.BOTTOM);
+            };
+            snapSubmenu.DropDownItems.Add(item);
+
+            // Snap left
+            item = new ToolStripMenuItem(Language.GetString(LangKey.editor_align_left))
+            {
+                Image = (Image)EditorFormResources.GetObject("Snap-left.Image")
+            };
+            item.Click += delegate
+            {
+                SnapAllToEdge(Direction.LEFT);
+            };
+            snapSubmenu.DropDownItems.Add(item);
+
+            return snapSubmenu;
         }
     }
 }
