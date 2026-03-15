@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="日本語" ietf="ja-JP" version="1.0.0">
+	<resources>
+		<resource name="label_AfterUploadLinkToClipBoard">リンクをクリップボードへコピー</resource>
+		<resource name="label_AfterUploadOpenHistory">履歴を開く</resource>
+		<resource name="label_AfterUpload">アップロード後</resource>
+		<resource name="Configure">Dropbox の設定</resource>
+		<resource name="upload_menu_item">Dropbox にアップロード</resource>
+		<resource name="settings_title">Dropbox の設定</resource>
+		<resource name="upload_success">Dropbox へのアップロードに成功しました！</resource>
+		<resource name="upload_failure">Dropbox へのアップロード中にエラーが発生しました:</resource>
+		<resource name="label_upload_format">画像フォーマット</resource>
+		<resource name="communication_wait">Dropbox に接続中です。しばらくお待ち下さい...</resource>
+	</resources>
+</language>

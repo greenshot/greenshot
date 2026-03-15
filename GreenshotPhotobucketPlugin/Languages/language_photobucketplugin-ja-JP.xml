@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="日本語" ietf="ja-JP" version="1.0.0">
+	<resources>
+		<resource name="upload_menu_item">Photobucket にアップロード</resource>
+		<resource name="settings_title">Photobucket の設定</resource>
+		<resource name="OK">OK</resource>
+		<resource name="CANCEL">キャンセル</resource>
+		<resource name="upload_success">Photobucket へのアップロードに成功しました！</resource>
+		<resource name="upload_failure">Photobucket へのアップロード中にエラーが発生しました:</resource>
+		<resource name="label_upload_format">画像フォーマット</resource>
+		<resource name="communication_wait">Photobucket に接続中です。しばらくお待ち下さい...</resource>
+		<resource name="use_page_link">画像リンクの代わりにページリンクをクリップボードへコピー</resource>
+		<resource name="configure">Photobucket の設定</resource>
+	</resources>
+</language>

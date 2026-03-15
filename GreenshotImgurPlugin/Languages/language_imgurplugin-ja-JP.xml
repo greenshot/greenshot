@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="日本語" ietf="ja-JP" version="1.0.0">
+	<resources>
+		<resource name="upload_menu_item">Imgur にアップロード</resource>
+		<resource name="settings_title">Imgur の設定</resource>
+		<resource name="label_url">URL</resource>
+		<resource name="OK">OK</resource>
+		<resource name="CANCEL">キャンセル</resource>
+		<resource name="upload_success">Imgur へのアップロードに成功しました！</resource>
+		<resource name="upload_failure">Imgur へのアップロード中にエラーが発生しました:</resource>
+		<resource name="label_upload_format">画像フォーマット</resource>
+		<resource name="communication_wait">Imgur に接続中です。しばらくお待ち下さい...</resource>
+		<resource name="delete_question">Imgur から画像 {0} を削除しますか？</resource>
+		<resource name="clear_question">ローカルのImgur 履歴を削除しますか？</resource>
+		<resource name="delete_title">画像 {0} を削除</resource>
+		<resource name="anonymous_access">anonymous access を使用する</resource>
+		<resource name="use_page_link">画像リンクの代わりにページリンクをクリップボードへコピー</resource>
+		<resource name="history">履歴</resource>
+		<resource name="configure">設定</resource>
+	</resources>
+</language>

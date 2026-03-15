@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="日本語" ietf="ja-JP" version="1.0.0">
+	<resources>
+		<resource name="label_AfterUploadLinkToClipBoard">リンクをクリップボードへコピー</resource>
+		<resource name="label_AfterUpload">アップロード後</resource>
+		<resource name="Configure">Box の設定</resource>
+		<resource name="upload_menu_item">Box にアップロード</resource>
+		<resource name="settings_title">Box の設定</resource>
+		<resource name="upload_success">Box へのアップロードに成功しました！</resource>
+		<resource name="upload_failure">Box へのアップロード中にエラーが発生しました:</resource>
+		<resource name="label_upload_format">画像フォーマット</resource>
+		<resource name="communication_wait">Box に接続中です。しばらくお待ち下さい...</resource>
+	</resources>
+</language>

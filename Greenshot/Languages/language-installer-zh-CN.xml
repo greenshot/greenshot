@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="" ietf="" version="" languagegroup="">
+<language description="简体中文" ietf="zh-CN" version="" languagegroup="">
 	<resources>
 		<resource name="confluence">Confluence插件</resource>
 		<resource name="externalcommand">使用外部命令打开插件</resource>

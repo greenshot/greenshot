@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="日本語" ietf="ja-JP" version="1.0.0">
+	<resources>
+		<resource name="plugin_settings">Confluence の設定</resource>
+		<resource name="login_error">ログイン中に問題が発生しました: {0}</resource>
+		<resource name="label_url">UrRL</resource>
+		<resource name="label_timeout">タイムアウト</resource>
+		<resource name="label_user">ユーザー名</resource>
+		<resource name="label_password">パスワード</resource>
+		<resource name="login_title">Confluence のログイン情報を入力してください</resource>
+		<resource name="OK">OK</resource>
+		<resource name="CANCEL">キャンセル</resource>
+		<resource name="upload_menu_item">Confluence にアップロード</resource>
+		<resource name="upload_success">Confluence へのアップロードに成功しました！</resource>
+		<resource name="upload_failure">Confluence へのアップロード中にエラーが発生しました:</resource>
+		<resource name="open_page_after_upload">アップロード後にページを開く</resource>
+		<resource name="upload_format">画像フォーマット</resource>
+		<resource name="copy_wikimarkup">ウィキマークアップをクリップボードへコピー</resource>
+		<resource name="filename">ファイル名</resource>
+		<resource name="upload">アップロード</resource>
+		<resource name="open_pages">ページを開く</resource>
+		<resource name="search_pages">ページを検索</resource>
+		<resource name="browse_pages">ページをブラウザ表示</resource>
+		<resource name="search_text">テキスト検索</resource>
+		<resource name="search">検索</resource>
+		<resource name="loading">Confluence のデータが読み込んでいます。しばらくお待ちください...</resource>
+		<resource name="include_person_spaces">検索とブラウザ表示にパーソナルスペースを含める</resource>
+		<resource name="communication_wait">Confluence にデータを転送中です。しばらくお待ち下さい...</resource>
+	</resources>
+</language>

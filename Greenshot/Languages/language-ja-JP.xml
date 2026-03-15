@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="日本語" ietf="ja-JP" version="1.0.0" languagegroup="7">
+<language description="日本語" ietf="ja-JP" version="1.0.1" languagegroup="7">
 	<resources>
 		<resource name="about_bugs">バグ等の報告先 :</resource>
 		<resource name="about_donations">Greenshot がお気に召したなら、是非支援をお願いします :</resource>
@@ -16,7 +16,7 @@ Greenshot には一切の保障がありません。GNU General Public License �
 次の URL にアクセスし、そこでバグ レポートを作成して、テキスト エリアの内容を説明として貼り付けてください。
 
 どのような状況で発生したのか、またバグを修正するのに役立つと思われる情報を、できる限りつけ加えてください。
-すでに同じようなバグが報告されているかどうか、確認した上で報告してくださると、我々はさらに助かります（検索機能を使用すれば簡単におこなえます）。 ありがとうございました :)</resource>
+すでに同じようなバグが報告されているかどうか、確認した上で報告してくださると、我々はさらに助かります(検索機能を使用すれば簡単におこなえます)。 ありがとうございました :)</resource>
 		<resource name="bugreport_title">エラー</resource>
 		<resource name="CANCEL">キャンセル</resource>
 		<resource name="clipboard_error">クリップボードへの書き込み中に予期しないエラーが発生しました。</resource>
@@ -90,7 +90,7 @@ Greenshot には一切の保障がありません。GNU General Public License �
 		<resource name="editor_copyimagetoclipboard">画像をクリップボードにコピー</resource>
 		<resource name="editor_copypathtoclipboard">パスをクリップボードにコピー</resource>
 		<resource name="editor_copytoclipboard">コピー</resource>
-		<resource name="editor_counter">カウンターを挿入する</resource>
+		<resource name="editor_counter">カウンターを挿入する (I)</resource>
 		<resource name="editor_crop">切り抜き (C)</resource>
 		<resource name="editor_cursortool">選択ツール (ESC)</resource>
 		<resource name="editor_cuttoclipboard">切り取り</resource>
@@ -156,19 +156,20 @@ Greenshot には一切の保障がありません。GNU General Public License �
 		<resource name="editor_selectall">すべて選択</resource>
 		<resource name="editor_senttoprinter">'{0}' に印刷ジョブを送りました。</resource>
 		<resource name="editor_shadow">シャドウ</resource>
-		<resource name="editor_speechbubble">吹き出しを挿入する</resource>
+		<resource name="editor_speechbubble">吹き出しを挿入する (S)</resource>
 		<resource name="editor_storedtoclipboard">画像をクリップボードに送りました。</resource>
 		<resource name="editor_thickness">線の太さ</resource>
 		<resource name="editor_title">Greenshot イメージ エディター</resource>
 		<resource name="editor_torn_edge">破れたエッジ</resource>
-		<resource name="editor_tornedge_bottom">下側のエッジを破る</resource>
+		<resource name="editor_tornedge_all">すべて破る</resource>
+		<resource name="editor_tornedge_bottom">下端を破る</resource>
 		<resource name="editor_tornedge_horizontaltoothrange">水平方向のギザギザの範囲</resource>
-		<resource name="editor_tornedge_left">左側のエッジを破る</resource>
-		<resource name="editor_tornedge_right">右側のエッジを破る</resource>
+		<resource name="editor_tornedge_left">左端を破る</resource>
+		<resource name="editor_tornedge_right">右端を破る</resource>
 		<resource name="editor_tornedge_settings">破れたようなエッジの設定</resource>
 		<resource name="editor_tornedge_shadow">影をつける</resource>
 		<resource name="editor_tornedge_toothsize">ギザギザの大きさ</resource>
-		<resource name="editor_tornedge_top">上側のエッジを破る</resource>
+		<resource name="editor_tornedge_top">上端を破る</resource>
 		<resource name="editor_tornedge_verticaltoothrange">垂直方向のギザギザの範囲</resource>
 		<resource name="editor_undo">元に戻す{0}</resource>
 		<resource name="editor_uponelevel">一階層手前へ</resource>
@@ -183,6 +184,7 @@ Greenshot には一切の保障がありません。GNU General Public License �
 		<resource name="error_openfile">ファイル "{0}" が開けません。</resource>
 		<resource name="error_openlink">リンク '{0}' が開けません。</resource>
 		<resource name="error_save">スクリーンショットを保存できません。適切な場所を指定し直してください。</resource>
+		<resource name="error_save_invalid_chars">生成されたファイル名またはディレクトリ名が無効です。ファイル名のパターンを修正してから、もう一度やり直してください。</resource>
 		<resource name="expertsettings">高度な設定</resource>
 		<resource name="expertsettings_autoreducecolors">256色以下の画像の場合は8ビットの画像を生成する</resource>
 		<resource name="expertsettings_checkunstableupdates">安定版以外のアップデートを確認する</resource>
@@ -194,14 +196,12 @@ Greenshot には一切の保障がありません。GNU General Public License �
 		<resource name="expertsettings_optimizeforrdp">リモートデスクトップの使用に最適化</resource>
 		<resource name="expertsettings_reuseeditorifpossible">可能であればエディターを再び使用する</resource>
 		<resource name="expertsettings_suppresssavedialogatclose">エディターを閉じる際に保存ダイアログを表示しない</resource>
-		<resource name="expertsettings_thumbnailpreview">コンテキストメニューにウィンドウのサムネイルを表示する (Vista, 7, 8 対象)</resource>
+		<resource name="expertsettings_thumbnailpreview">コンテキストメニューにウィンドウのサムネイルを表示する (Vista, 7, 8 ,10対象)</resource>
 		<resource name="exported_to">出力先: {0}</resource>
 		<resource name="exported_to_error">{0}への出力中にエラーが発生しました:</resource>
 		<resource name="help_title">Greenshot - ヘルプ</resource>
 		<resource name="hotkeys">ホットキー</resource>
 		<resource name="jpegqualitydialog_choosejpegquality">JPEG 画像の品質を指定してください。</resource>
-		<resource name="jpegqualitydialog_dontaskagain">デフォルトの JPEG 品質設定として保存して、以降は確認しない</resource>
-		<resource name="jpegqualitydialog_title">Greenshot - JPEG 品質の設定</resource>
 		<resource name="OK">OK</resource>
 		<resource name="print_error">印刷の実行中にエラーが発生しました。</resource>
 		<resource name="printoptions_allowcenter">ページの中央に配置</resource>
@@ -219,8 +219,7 @@ Greenshot には一切の保障がありません。GNU General Public License �
 		<resource name="printoptions_title">Greenshot - 印刷オプション</resource>
 		<resource name="qualitydialog_dontaskagain">デフォルトの品質で保存し、以降は確認しない</resource>
 		<resource name="qualitydialog_title">Greenshot - 保存する画像の品質</resource>
-		<resource name="quicksettings_destination_file">ディレクトリに保存 （デフォルトの保存先を使用）</resource>
-		<resource name="settings_alwaysshowjpegqualitydialog">JPEG 画像の保存時は、つねに JPEG 品質の設定ダイアログを表示する</resource>
+		<resource name="quicksettings_destination_file">ディレクトリに保存 (デフォルトの保存先を使用)</resource>
 		<resource name="settings_alwaysshowprintoptionsdialog">画像を印刷する際に毎回「印刷オプション」ダイアログを表示する</resource>
 		<resource name="settings_alwaysshowqualitydialog">画像を保存する際に毎回「保存する画像の品質」ダイアログを表示する</resource>
 		<resource name="settings_applicationsettings">アプリケーションの設定</resource>
@@ -235,19 +234,19 @@ Greenshot には一切の保障がありません。GNU General Public License �
 		<resource name="settings_destination_clipboard">クリップボードにコピー</resource>
 		<resource name="settings_destination_editor">イメージ エディターで開く</resource>
 		<resource name="settings_destination_email">Eメール</resource>
-		<resource name="settings_destination_file">保存 （下欄の設定を使用）</resource>
-		<resource name="settings_destination_fileas">名前を付けて保存 （ダイアログを表示）</resource>
+		<resource name="settings_destination_file">保存 (下欄の設定を使用)</resource>
+		<resource name="settings_destination_fileas">名前を付けて保存 (ダイアログを表示)</resource>
 		<resource name="settings_destination_picker">撮影後の操作を毎回選択する</resource>
 		<resource name="settings_destination_printer">プリンターに送る</resource>
 		<resource name="settings_editor">エディター</resource>
 		<resource name="settings_filenamepattern">ファイル名パターン</resource>
 		<resource name="settings_general">一般</resource>
+		<resource name="settings_iconsize">アイコンサイズ</resource>
 		<resource name="settings_iecapture">Internet Explorerのキャプチャー</resource>
 		<resource name="settings_jpegquality">JPEG の品質</resource>
-		<resource name="settings_jpegsettings">JPEG の設定</resource>
 		<resource name="settings_language">表示言語</resource>
 		<resource name="settings_message_filenamepattern">ファイルの名称に次のパターンを用いると、自動的に置き換えられます。
-		
+
 ${YYYY} 年, 4 桁表示
 ${MM} 月, 2 桁表示
 ${DD} 日, 2 桁表示
@@ -287,13 +286,13 @@ ${hostname} PC の名称
 		<resource name="settings_storagelocation">保存場所</resource>
 		<resource name="settings_title">設定</resource>
 		<resource name="settings_tooltip_filenamepattern">スクリーンショット保存時に使用するファイル名のパターン</resource>
-		<resource name="settings_tooltip_language">Greenshot のユーザー インターフェースに使用する言語 （変更後は Greenshot の再起動が必要です）</resource>
+		<resource name="settings_tooltip_language">Greenshot のユーザー インターフェースに使用する言語 (変更後は Greenshot の再起動が必要です)</resource>
 		<resource name="settings_tooltip_primaryimageformat">デフォルトで使用する画像フォーマット</resource>
 		<resource name="settings_tooltip_registerhotkeys">Greenshot の起動時から終了までは、Prnt, Ctrl + Print, Alt + Prnt の各キーはグローバルなショートカットとして確保、使用されます。</resource>
-		<resource name="settings_tooltip_storagelocation">スクリーンショットのデフォルト保存先 （空欄はユーザーのデスクトップ フォルダ）</resource>
+		<resource name="settings_tooltip_storagelocation">スクリーンショットのデフォルト保存先 (空欄はユーザーのデスクトップ フォルダ)</resource>
 		<resource name="settings_usedefaultproxy">デフォルトのシステムプロクシーを利用する</resource>
 		<resource name="settings_visualization">エフェクト</resource>
-		<resource name="settings_waittime">ミリ秒 （キャプチャー時の遅延時間）</resource>
+		<resource name="settings_waittime">ミリ秒 (キャプチャー時の遅延時間)</resource>
 		<resource name="settings_window_capture_mode">ウィンドウキャプチャーモード</resource>
 		<resource name="settings_windowscapture">ウィンドウキャプチャー</resource>
 		<resource name="settings_zoom">拡大鏡を表示する</resource>
