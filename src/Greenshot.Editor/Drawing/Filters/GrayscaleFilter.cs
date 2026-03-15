@@ -56,6 +56,13 @@ namespace Greenshot.Editor.Drawing.Filters
                 graphics.ExcludeClip(rect);
             }
 
+            DrawGray(graphics, applyBitmap, applyRect);
+
+            graphics.Restore(state);
+        }
+
+        public static void DrawGray(Graphics graphics, Bitmap applyBitmap, NativeRect applyRect)
+        {
             ColorMatrix grayscaleMatrix = new ColorMatrix(new[]
             {
                 new[]
@@ -84,8 +91,6 @@ namespace Greenshot.Editor.Drawing.Filters
                 ia.SetColorMatrix(grayscaleMatrix);
                 graphics.DrawImage(applyBitmap, applyRect, applyRect.X, applyRect.Y, applyRect.Width, applyRect.Height, GraphicsUnit.Pixel, ia);
             }
-
-            graphics.Restore(state);
         }
     }
 }

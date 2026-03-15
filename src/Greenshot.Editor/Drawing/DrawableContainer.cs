@@ -410,7 +410,9 @@ namespace Greenshot.Editor.Drawing
                 {
                     if (clipRectangle.Width != 0 && clipRectangle.Height != 0)
                     {
-                        foreach (IFilter filter in Filters)
+                        // GrayscaleFilter is an inverted filter. Combining two makes the entire image greyscale.
+                        // Skip any GrayscaleFilter here so outer drawing logic can handle them to combine multiple
+                        foreach (IFilter filter in Filters.Where(x => x is not GrayscaleFilter))
                         {
                             if (filter.Invert)
                             {
