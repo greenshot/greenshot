@@ -170,6 +170,21 @@ namespace Greenshot.Base.Core
                 Log.Error("error retrieving icon: ", exIcon);
             }
 
+            // Fallback: use the Windows shell-associated icon (handles exes with no embedded icon, e.g. Windows curl.exe)
+            try
+            {
+                var shellIcon = Icon.ExtractAssociatedIcon(path);
+                if (shellIcon != null)
+                {
+                    Log.DebugFormat("Loaded shell icon for {0}", path);
+                    return shellIcon.ToBitmap();
+                }
+            }
+            catch (Exception exShell)
+            {
+                Log.Warn("error retrieving shell icon: ", exShell);
+            }
+
             return null;
         }
 

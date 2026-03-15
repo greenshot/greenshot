@@ -9,7 +9,7 @@ This document contains the changelog for Greenshot 1.4, which is currently in ac
 Greenshot 1.4 represents the next major version currently under active development. Development began in November 2025 after the final 1.3 stable release (1.3.312 in January 2026).
 
 **Current Status**: Continuous Development Builds (Prereleases)
-**Latest Build**: v1.4.107 (February 14, 2026)
+**Latest Build**: v1.4.108 (March 14, 2026)
 **Release Branch**: `main`
 
 ### How to Get 1.4 Builds
@@ -44,11 +44,38 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Helpful for certain export formats and use cases
 - Added by @Lakritzator
 
+#### ⚙️ Command Line Interface
+
+**Redesigned CLI with System.CommandLine**
+- Migrated from hand-written parser to the industry-standard System.CommandLine library
+- Changed argument style from Windows-style `/` to standard `--` prefixes
+- Command line help is now automatically generated with comprehensive option descriptions
+- Old format (`/help`, `/exit`, `/reload`, `/norun`, `/language`, `/inidirectory`) replaced with modern alternatives (`--help`, `--exit`, `--reload`, `--no-run`, `--language <code>`, `--ini-directory <path>`)
+- Added hidden `--restore` option for Windows Restart Manager integration
+- Run `Greenshot --help` to see all available options
+
+#### 🔄 Windows Restart Manager Integration
+
+**Automatic State Recovery During Updates**
+- Greenshot now integrates with Windows Restart Manager to seamlessly handle system updates and maintenance
+- Automatically registers for restart with Windows, allowing it to participate in graceful shutdown scenarios
+- When Windows Update or other installers request a shutdown, Greenshot saves all open image editors to temporary `.greenshot` files
+- Upon restart by the Windows Restart Manager, Greenshot automatically reopens all previously open editors
+- Enhances reliability during Windows Updates, preventing loss of unsaved work
+- Uses the `--restore` command line argument internally to detect restart scenarios
+
 #### 📸 Capture Improvements
 
 **New Capture Technology** (#932)
 - Implemented new capture technology for better screenshot quality
 - Improved compatibility with modern Windows applications
+- By @Lakritzator
+
+**Windows Graphics Capture API** (Beta)
+- Greenshot can now use the modern Windows Graphics Capture (WGC) API for full-screen and region captures
+- Produces higher-quality screenshots by capturing each monitor individually and stitching them together
+- More compatible with modern Windows applications compared to the legacy GDI-based capture method
+- Enable this by turning on the `IsBetaTester` flag in Greenshot's configuration
 - By @Lakritzator
 
 **Improved Cursor Capture** (#863)
@@ -234,6 +261,15 @@ Continuous builds are automatically created for every commit to the `main` branc
 
 #### 🏗️ Development & Infrastructure
 
+**Command Line Parsing**
+- Migrated to System.CommandLine 2.0.3 for robust CLI argument parsing
+- Replaced hand-written parser with industry-standard library
+- Arguments now use `--` prefix (e.g., `--help`, `--exit`, `--reload`, `--no-run`)
+- Language selection: `--language <language-code>` (was `/language [code]`)
+- INI directory: `--ini-directory <directory>` (was `/inidirectory [path]`)
+- Auto-generated help output with full option descriptions
+- Added hidden `--restore` option for Windows Restart Manager support
+
 **Build & Release**
 - Added Chocolatey push support for releases (#742)
 - Updated release scripts and versioning configuration (#717)
@@ -277,8 +313,11 @@ The following contributors made their first contributions to Greenshot during th
 
 ## Release Timeline
 
+### March 2026
+- **v1.4.108** (Mar 14) - **Windows Graphics Capture API (Beta)**
+
 ### February 2026
-- **v1.4.107** (Feb 14) - Latest build
+- **v1.4.107** (Feb 14) - Windows Share & OCR fixes
 - **v1.4.106** (Feb 13)
 - **v1.4.105** (Feb 13) - Show beta tester info in about dialog
 - **v1.4.104** (Feb 13) - Extend ServiceProvider
@@ -323,11 +362,14 @@ Greenshot 1.4 builds upon the stable 1.3 release with these key additions:
 ✨ OCR-based text redaction (Beta)  
 ✨ Remove transparency feature  
 ✨ New capture technology  
+✨ Windows Graphics Capture (WGC) API for higher-quality captures (Beta)  
 ✨ ImageSharp format support  
 ✨ Modernized plugin APIs (Confluence, Dropbox)  
 ✨ Better Windows 10/11 integration  
+✨ Windows Restart Manager integration for seamless updates  
 ✨ Improved cursor capture  
 ✨ Enhanced memory management  
+✨ Modern command line interface with System.CommandLine  
 
 ### Inherited from 1.3
 ✅ All security fixes from 1.3.290-1.3.312  
@@ -373,6 +415,23 @@ If you're upgrading from 1.3 to a 1.4 continuous build:
 2. **Uninstall 1.3**: Completely uninstall the stable 1.3 release first
 3. **Install 1.4 build**: Install the latest 1.4 continuous build
 4. **Test thoroughly**: As these are development builds, test your usual workflows
+5. **Update command line scripts**: If you use Greenshot with command line arguments, update from `/` style (e.g., `/exit`, `/reload`) to `--` style (e.g., `--exit`, `--reload`)
+
+### Command Line Argument Changes
+
+If you have scripts or shortcuts that use Greenshot's command line arguments, you'll need to update them:
+
+| Old Argument | New Argument | Description |
+|--------------|--------------|-------------|
+| `/help`, `/h`, `/?` | `--help`, `-h` | Show help information |
+| `/exit` | `--exit` | Close running Greenshot instance |
+| `/reload` | `--reload` | Reload configuration |
+| `/norun` | `--no-run` | Start in configuration mode |
+| `/language [code]` | `--language <language-code>` | Set interface language |
+| `/inidirectory [path]` | `--ini-directory <directory>` | Set configuration directory |
+| `[filename...]` | `[files...]` | Capture files (unchanged) |
+
+Run `Greenshot --help` to see the complete list of available options with descriptions.
 
 ⚠️ **Important**: Since 1.4 builds are unsigned, you may see Windows SmartScreen warnings. This is expected for continuous builds.
 
@@ -389,5 +448,5 @@ Report any issues you encounter to help improve Greenshot!
 
 ---
 
-*Last updated: February 14, 2026*  
-*Latest continuous build: v1.4.107-gce9bdd971b*
+*Last updated: March 14, 2026*  
+*Latest continuous build: v1.4.108-g2fddb97*

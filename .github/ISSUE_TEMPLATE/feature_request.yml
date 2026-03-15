@@ -1,0 +1,52 @@
+name: Feature Request
+description: Suggest an idea for this project
+labels: ["enhancement"]
+# type: feature         # only supported if types are define on organization level
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please search existing issues first, including closed ones, to avoid creating duplicates.
+        [Search existing issues here: https://github.com/greenshot/greenshot/issues](https://github.com/greenshot/greenshot/issues?q=is%3Aissue)
+
+  - type: checkboxes
+    id: duplicate-check
+    attributes:
+      label: Please confirm the following before submitting a Feature Request
+      description:
+      options:
+        - label: I have searched existing open and closed issues and did not find a duplicate
+          required: true
+
+  - type: textarea
+    id: describe-the-problem
+    attributes:
+      label: Is your feature request related to a problem? Please describe.
+      placeholder: A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+    validations:
+      required: true
+
+  - type: textarea
+    id: describe-the-feature
+    attributes:
+      label: Describe the solution you'd like
+      placeholder: A clear and concise description of what you want to happen. Ex. I would like to be able to [...]
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        ### Additional context
+        Please provide any additional information that may help us understand and implement the feature.
+        Maybe you know of a similar feature in another project, or have an idea of how to implement it in Greenshot.
+        _(You can drag and drop files into the issue body to upload them)_
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context
+      placeholder: |
+        Here are some suggestions for additional context you can provide
+    validations:
+      required: false

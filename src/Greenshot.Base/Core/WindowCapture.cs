@@ -86,23 +86,22 @@ namespace Greenshot.Base.Core
                 capture = new Capture();
             }
 
-            Bitmap cursorBitmap;
-            NativePoint cursorHotSpot;
-            if (CursorHelper.TryGetCurrentCursor(out cursorBitmap, out cursorHotSpot))
+            CapturedCursor capturedCursor;
+            if (CursorHelper.TryGetCurrentCursor(out capturedCursor))
             {
                 NativePoint cursorLocation = User32Api.GetCursorLocation();
                 // Align cursor location to Bitmap coordinates (instead of Screen coordinates)
-                var x = cursorLocation.X - cursorHotSpot.X - capture.ScreenBounds.X;
-                var y = cursorLocation.Y - cursorHotSpot.Y - capture.ScreenBounds.Y;
+                var x = cursorLocation.X - capturedCursor.HotSpot.X - capture.ScreenBounds.X;
+                var y = cursorLocation.Y - capturedCursor.HotSpot.Y - capture.ScreenBounds.Y;
                 // Set the location
                 capture.CursorLocation = new NativePoint(x, y);
-                capture.Cursor = cursorBitmap;
+                capture.Cursor = capturedCursor;
             }
             return capture;
         }
 
         /// <summary>
-        /// This method will call the CaptureRectangle with the screenbounds, therefor Capturing the whole screen.
+        /// This method will call the CaptureRectangle with the screenbounds, therefore Capturing the whole screen.
         /// </summary>
         /// <returns>A Capture Object with the Screen as an Image</returns>
         public static ICapture CaptureScreen(ICapture capture)
@@ -217,6 +216,7 @@ namespace Greenshot.Base.Core
             // If no capture, use the normal screen capture
             if (capturedImage == null)
             {
+                Log.Debug("No capture yet, taking it via legacy.");
                 capturedImage = CaptureRectangle(captureBounds);
             }
 

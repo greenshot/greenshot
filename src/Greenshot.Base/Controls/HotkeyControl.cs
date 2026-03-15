@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -21,13 +21,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
 using Greenshot.Base.Core;
-using Greenshot.Base.Interfaces.Plugin;
-using log4net;
 
 namespace Greenshot.Base.Controls
 {
@@ -38,61 +34,6 @@ namespace Greenshot.Base.Controls
     /// </summary>
     public sealed class HotkeyControl : GreenshotTextBox
     {
-        private static readonly ILog Log = LogManager.GetLogger(typeof(HotkeyControl));
-
-        private static readonly EventDelay EventDelay = new EventDelay(TimeSpan.FromMilliseconds(600).Ticks);
-        private static readonly bool IsWindows7OrOlder = Environment.OSVersion.Version.Major >= 6 && Environment.OSVersion.Version.Minor >= 1;
-
-        // Holds the list of hotkeys
-        private static readonly IDictionary<int, HotKeyHandler> KeyHandlers = new Dictionary<int, HotKeyHandler>();
-        private static int _hotKeyCounter = 1;
-        private const uint WM_HOTKEY = 0x312;
-        private static IntPtr _hotkeyHwnd;
-
-        [SuppressMessage("ReSharper", "InconsistentNaming")]
-        public enum Modifiers : uint
-        {
-            NONE = 0,
-            ALT = 1,
-            CTRL = 2,
-            SHIFT = 4,
-            WIN = 8,
-            NO_REPEAT = 0x4000
-        }
-
-        [SuppressMessage("ReSharper", "InconsistentNaming")]
-        private enum MapType : uint
-        {
-            MAPVK_VK_TO_VSC =
-                0, //The uCode parameter is a virtual-key code and is translated into a scan code. If it is a virtual-key code that does not distinguish between left- and right-hand keys, the left-hand scan code is returned. If there is no translation, the function returns 0.
-
-            MAPVK_VSC_TO_VK =
-                1, //The uCode parameter is a scan code and is translated into a virtual-key code that does not distinguish between left- and right-hand keys. If there is no translation, the function returns 0.
-
-            MAPVK_VK_TO_CHAR =
-                2, //The uCode parameter is a virtual-key code and is translated into an unshifted character value in the low order word of the return value. Dead keys (diacritics) are indicated by setting the top bit of the return value. If there is no translation, the function returns 0.
-
-            MAPVK_VSC_TO_VK_EX =
-                3, //The uCode parameter is a scan code and is translated into a virtual-key code that distinguishes between left- and right-hand keys. If there is no translation, the function returns 0.
-
-            MAPVK_VK_TO_VSC_EX =
-                4 //The uCode parameter is a virtual-key code and is translated into a scan code. If it is a virtual-key code that does not distinguish between left- and right-hand keys, the left-hand scan code is returned. If the scan code is an extended scan code, the high byte of the uCode value can contain either 0xe0 or 0xe1 to specify the extended scan code. If there is no translation, the function returns 0.
-        }
-
-        [DllImport("user32.dll", SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool RegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, uint virtualKeyCode);
-
-        [DllImport("user32.dll", SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool UnregisterHotKey(IntPtr hWnd, int id);
-
-        [DllImport("user32.dll", SetLastError = true)]
-        private static extern uint MapVirtualKey(uint uCode, uint uMapType);
-
-        [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
-        private static extern int GetKeyNameText(uint lParam, [Out] StringBuilder lpString, int nSize);
-
         // These variables store the current hotkey and modifier(s)
         private Keys _hotkey = Keys.None;
         private Keys _modifiers = Keys.None;
@@ -297,8 +238,8 @@ namespace Greenshot.Base.Controls
         /// </summary>
         public void SetHotkey(string hotkey)
         {
-            _hotkey = HotkeyFromString(hotkey);
-            _modifiers = HotkeyModifiersFromString(hotkey);
+            _hotkey = HotkeyManager.HotkeyFromString(hotkey);
+            _modifiers = HotkeyManager.HotkeyModifiersFromString(hotkey);
             Redraw(true);
         }
 
@@ -381,306 +322,12 @@ namespace Greenshot.Base.Controls
                 _hotkey = Keys.None;
             }
 
-            Text = HotkeyToLocalizedString(_modifiers, _hotkey);
+            Text = HotkeyManager.HotkeyToLocalizedString(_modifiers, _hotkey);
         }
 
         public override string ToString()
         {
-            return HotkeyToString(HotkeyModifiers, Hotkey);
-        }
-
-        public static string GetLocalizedHotkeyStringFromString(string hotkeyString)
-        {
-            Keys virtualKeyCode = HotkeyFromString(hotkeyString);
-            Keys modifiers = HotkeyModifiersFromString(hotkeyString);
-            return HotkeyToLocalizedString(modifiers, virtualKeyCode);
-        }
-
-        public static string HotkeyToString(Keys modifierKeyCode, Keys virtualKeyCode)
-        {
-            return HotkeyModifiersToString(modifierKeyCode) + virtualKeyCode;
-        }
-
-        public static string HotkeyModifiersToString(Keys modifierKeyCode)
-        {
-            StringBuilder hotkeyString = new StringBuilder();
-            if ((modifierKeyCode & Keys.Alt) > 0)
-            {
-                hotkeyString.Append("Alt").Append(" + ");
-            }
-
-            if ((modifierKeyCode & Keys.Control) > 0)
-            {
-                hotkeyString.Append("Ctrl").Append(" + ");
-            }
-
-            if ((modifierKeyCode & Keys.Shift) > 0)
-            {
-                hotkeyString.Append("Shift").Append(" + ");
-            }
-
-            if (modifierKeyCode == Keys.LWin || modifierKeyCode == Keys.RWin)
-            {
-                hotkeyString.Append("Win").Append(" + ");
-            }
-
-            return hotkeyString.ToString();
-        }
-
-
-        public static string HotkeyToLocalizedString(Keys modifierKeyCode, Keys virtualKeyCode)
-        {
-            return HotkeyModifiersToLocalizedString(modifierKeyCode) + GetKeyName(virtualKeyCode);
-        }
-
-        public static string HotkeyModifiersToLocalizedString(Keys modifierKeyCode)
-        {
-            StringBuilder hotkeyString = new StringBuilder();
-            if ((modifierKeyCode & Keys.Alt) > 0)
-            {
-                hotkeyString.Append(GetKeyName(Keys.Alt)).Append(" + ");
-            }
-
-            if ((modifierKeyCode & Keys.Control) > 0)
-            {
-                hotkeyString.Append(GetKeyName(Keys.Control)).Append(" + ");
-            }
-
-            if ((modifierKeyCode & Keys.Shift) > 0)
-            {
-                hotkeyString.Append(GetKeyName(Keys.Shift)).Append(" + ");
-            }
-
-            if (modifierKeyCode == Keys.LWin || modifierKeyCode == Keys.RWin)
-            {
-                hotkeyString.Append("Win").Append(" + ");
-            }
-
-            return hotkeyString.ToString();
-        }
-
-
-        public static Keys HotkeyModifiersFromString(string modifiersString)
-        {
-            Keys modifiers = Keys.None;
-            if (!string.IsNullOrEmpty(modifiersString))
-            {
-                if (modifiersString.ToLower().Contains("alt"))
-                {
-                    modifiers |= Keys.Alt;
-                }
-
-                if (modifiersString.ToLower().Contains("ctrl"))
-                {
-                    modifiers |= Keys.Control;
-                }
-
-                if (modifiersString.ToLower().Contains("shift"))
-                {
-                    modifiers |= Keys.Shift;
-                }
-
-                if (modifiersString.ToLower().Contains("win"))
-                {
-                    modifiers |= Keys.LWin;
-                }
-            }
-
-            return modifiers;
-        }
-
-        public static Keys HotkeyFromString(string hotkey)
-        {
-            Keys key = Keys.None;
-            if (!string.IsNullOrEmpty(hotkey))
-            {
-                if (hotkey.LastIndexOf('+') > 0)
-                {
-                    hotkey = hotkey.Remove(0, hotkey.LastIndexOf('+') + 1).Trim();
-                }
-
-                key = (Keys) Enum.Parse(typeof(Keys), hotkey);
-            }
-
-            return key;
-        }
-
-        public static void RegisterHotkeyHwnd(IntPtr hWnd)
-        {
-            _hotkeyHwnd = hWnd;
-        }
-
-        /// <summary>
-        /// Register a hotkey
-        /// </summary>
-        /// <param name="modifierKeyCode">The modifier, e.g.: Modifiers.CTRL, Modifiers.NONE or Modifiers.ALT</param>
-        /// <param name="virtualKeyCode">The virtual key code</param>
-        /// <param name="handler">A HotKeyHandler, this will be called to handle the hotkey press</param>
-        /// <returns>the hotkey number, -1 if failed</returns>
-        public static int RegisterHotKey(Keys modifierKeyCode, Keys virtualKeyCode, HotKeyHandler handler)
-        {
-            if (virtualKeyCode == Keys.None)
-            {
-                Log.Warn("Trying to register a Keys.none hotkey, ignoring");
-                return 0;
-            }
-
-            // Convert Modifiers to fit HKM_SETHOTKEY
-            uint modifiers = 0;
-            if ((modifierKeyCode & Keys.Alt) > 0)
-            {
-                modifiers |= (uint) Modifiers.ALT;
-            }
-
-            if ((modifierKeyCode & Keys.Control) > 0)
-            {
-                modifiers |= (uint) Modifiers.CTRL;
-            }
-
-            if ((modifierKeyCode & Keys.Shift) > 0)
-            {
-                modifiers |= (uint) Modifiers.SHIFT;
-            }
-
-            if (modifierKeyCode == Keys.LWin || modifierKeyCode == Keys.RWin)
-            {
-                modifiers |= (uint) Modifiers.WIN;
-            }
-
-            // Disable repeating hotkey for Windows 7 and beyond, as described in #1559
-            if (IsWindows7OrOlder)
-            {
-                modifiers |= (uint) Modifiers.NO_REPEAT;
-            }
-
-            if (RegisterHotKey(_hotkeyHwnd, _hotKeyCounter, modifiers, (uint) virtualKeyCode))
-            {
-                KeyHandlers.Add(_hotKeyCounter, handler);
-                return _hotKeyCounter++;
-            }
-
-            Log.Warn($"Couldn't register hotkey modifier {modifierKeyCode} virtualKeyCode {virtualKeyCode}");
-            return -1;
-        }
-
-        public static void UnregisterHotkeys()
-        {
-            foreach (int hotkey in KeyHandlers.Keys)
-            {
-                UnregisterHotKey(_hotkeyHwnd, hotkey);
-            }
-
-            // Remove all key handlers
-            KeyHandlers.Clear();
-        }
-
-        /// <summary>
-        /// Handle WndProc messages for the hotkey
-        /// </summary>
-        /// <param name="m"></param>
-        /// <returns>true if the message was handled</returns>
-        public static bool HandleMessages(ref Message m)
-        {
-            if (m.Msg != WM_HOTKEY)
-            {
-                return false;
-            }
-
-            // Call handler
-            if (!IsWindows7OrOlder && !EventDelay.Check())
-            {
-                return true;
-            }
-
-            if (KeyHandlers.TryGetValue((int) m.WParam, out var handler))
-            {
-                handler();
-            }
-
-            return true;
-        }
-
-        public static string GetKeyName(Keys givenKey)
-        {
-            StringBuilder keyName = new StringBuilder();
-            const uint numpad = 55;
-
-            Keys virtualKey = givenKey;
-            string keyString;
-            // Make VC's to real keys
-            switch (virtualKey)
-            {
-                case Keys.Alt:
-                    virtualKey = Keys.LMenu;
-                    break;
-                case Keys.Control:
-                    virtualKey = Keys.ControlKey;
-                    break;
-                case Keys.Shift:
-                    virtualKey = Keys.LShiftKey;
-                    break;
-                case Keys.Multiply:
-                    GetKeyNameText(numpad << 16, keyName, 100);
-                    keyString = keyName.ToString().Replace("*", string.Empty).Trim().ToLower();
-                    if (keyString.IndexOf("(", StringComparison.Ordinal) >= 0)
-                    {
-                        return "* " + keyString;
-                    }
-
-                    keyString = keyString.Substring(0, 1).ToUpper() + keyString.Substring(1).ToLower();
-                    return keyString + " *";
-                case Keys.Divide:
-                    GetKeyNameText(numpad << 16, keyName, 100);
-                    keyString = keyName.ToString().Replace("*", string.Empty).Trim().ToLower();
-                    if (keyString.IndexOf("(", StringComparison.Ordinal) >= 0)
-                    {
-                        return "/ " + keyString;
-                    }
-
-                    keyString = keyString.Substring(0, 1).ToUpper() + keyString.Substring(1).ToLower();
-                    return keyString + " /";
-            }
-
-            uint scanCode = MapVirtualKey((uint) virtualKey, (uint) MapType.MAPVK_VK_TO_VSC);
-
-            // because MapVirtualKey strips the extended bit for some keys
-            switch (virtualKey)
-            {
-                case Keys.Left:
-                case Keys.Up:
-                case Keys.Right:
-                case Keys.Down: // arrow keys
-                case Keys.Prior:
-                case Keys.Next: // page up and page down
-                case Keys.End:
-                case Keys.Home:
-                case Keys.Insert:
-                case Keys.Delete:
-                case Keys.NumLock:
-                    Log.Debug("Modifying Extended bit");
-                    scanCode |= 0x100; // set extended bit
-                    break;
-                case Keys.PrintScreen: // PrintScreen
-                    scanCode = 311;
-                    break;
-                case Keys.Pause: // PrintScreen
-                    scanCode = 69;
-                    break;
-            }
-
-            scanCode |= 0x200;
-            if (GetKeyNameText(scanCode << 16, keyName, 100) != 0)
-            {
-                string visibleName = keyName.ToString();
-                if (visibleName.Length > 1)
-                {
-                    visibleName = visibleName.Substring(0, 1) + visibleName.Substring(1).ToLower();
-                }
-
-                return visibleName;
-            }
-
-            return givenKey.ToString();
+            return HotkeyManager.HotkeyToString(HotkeyModifiers, Hotkey);
         }
     }
 }
