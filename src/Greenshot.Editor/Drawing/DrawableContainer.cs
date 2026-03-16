@@ -406,7 +406,7 @@ namespace Greenshot.Editor.Drawing
 		protected static void DrawShadow(int lineThickness, Action<int, int, Pen, Brush> drawShadowStepAction)
         {
             double alpha = 100;
-            double stepsCount = 5; // increase shadow width according to thickness 
+            double stepsCount = 5;
             double alphaStep = alpha / stepsCount;
             int currentStep = 0;
             using (var brush = new SolidBrush(Color.Black))
