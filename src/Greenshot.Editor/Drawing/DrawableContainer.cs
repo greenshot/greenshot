@@ -405,8 +405,8 @@ namespace Greenshot.Editor.Drawing
 		/// <param name="drawShadowStepAction">Action which acceps the alpha value, current step and a brush</param>
 		protected static void DrawShadow(int lineThickness, Action<int, int, Pen, Brush> drawShadowStepAction)
         {
-            double alpha = 240.0 - lineThickness * 1.5; // soften larger shadows
-            double stepsCount = 3.0 + lineThickness / 11.0; // increase shadow width according to thickness 
+            double alpha = 100;
+            double stepsCount = 5; // increase shadow width according to thickness 
             double alphaStep = alpha / stepsCount;
             int currentStep = 0;
             using (var brush = new SolidBrush(Color.Black))
