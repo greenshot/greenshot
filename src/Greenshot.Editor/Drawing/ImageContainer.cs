@@ -211,9 +211,9 @@ namespace Greenshot.Editor.Drawing
                 // add an offset so it looks more like the other container.
                 var shadowOffset = 1;
                 // we use only the alpha value of the shadowPen, but we have to define line thickness 
-                var unusedShadowLinethickness = 1;           
+                var unusedShadowLinethickness = 1;
 
-                DrawShadow(unusedShadowLinethickness, (alpha, currentStep, shadowPen, nil) =>
+                DrawShadow(unusedShadowLinethickness, (alpha, currentStep, shadowPen, _) =>
                 {
                     var rect = new NativeRect(
                         Left + currentStep + shadowOffset,
@@ -226,8 +226,8 @@ namespace Greenshot.Editor.Drawing
 
                 });
             }
-                
-            graphics.DrawImage(_image, Bounds);            
+
+            graphics.DrawImage(_image, Bounds);
         }
 
         /// <summary>
@@ -241,7 +241,7 @@ namespace Greenshot.Editor.Drawing
         /// (fully opaque).</param>
         private void DrawImageWithAlpha(Graphics graphics, Image image, Rectangle bounds, byte alpha)
         {
-            // nomalize alpha from (0-255) to (0.0 - 1.0)
+            // normalize alpha from (0-255) to (0.0 - 1.0)
             float normalizedAlpha = alpha / 255f;
 
             var matrix = new ColorMatrix
