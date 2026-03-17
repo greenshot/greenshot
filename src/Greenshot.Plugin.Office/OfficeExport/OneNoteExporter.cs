@@ -257,7 +257,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
                                         Name = xmlReader.GetAttribute("name"),
                                         Id = xmlReader.GetAttribute("ID")
                                     };
-                                    if ((page.Id == null) || (page.Name == null))
+                                    if ((page.Id == null) || (page.Name == null) || (page.Parent == null) || (page.Parent.Parent == null))
                                     {
                                         continue;
                                     }
