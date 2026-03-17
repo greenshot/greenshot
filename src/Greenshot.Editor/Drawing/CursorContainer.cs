@@ -115,8 +115,6 @@ namespace Greenshot.Editor.Drawing
                 }
 
                 // Clone cursor (is this correct??)
-                Width = value.Size.Width;
-                Height = value.Size.Height;
                 cursor = value;
                 savedCursor = new CaptureCursorSerializationWrapper(value);
             }
@@ -144,6 +142,8 @@ namespace Greenshot.Editor.Drawing
 
         public void Load(string filename)
         {
+            throw new NotImplementedException("Loading cursor from file is not implemented yet.");
+
             if (!File.Exists(filename))
             {
                 return;
@@ -177,6 +177,8 @@ namespace Greenshot.Editor.Drawing
 
             CursorHelper.DrawCursorOnBitmap(bmp, cursor, Bounds.Location, Bounds.Size);
         }
+
+        public override bool HasDefaultSize => true;
 
         public override NativeSize DefaultSize => cursor?.Size ?? new NativeSize(16, 16);
     }

@@ -166,7 +166,7 @@ namespace Greenshot.Editor.Drawing
             {
                 Image = tmpImage;
             }
-
+            ResetToDefaultSize();
             Log.Debug("Loaded file: " + filename + " with resolution: " + Height + "," + Width);
         }
 

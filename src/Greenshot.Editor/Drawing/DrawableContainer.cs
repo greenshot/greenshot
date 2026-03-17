@@ -704,6 +704,15 @@ namespace Greenshot.Editor.Drawing
 
         public virtual NativeSize DefaultSize => throw new NotSupportedException("Object doesn't have a default size");
 
+        public virtual void ResetToDefaultSize()
+        {
+            if (!HasDefaultSize)
+            {
+                throw new NotSupportedException("Object doesn't have a default size");
+            }
+            Size = DefaultSize;
+        }
+
         /// <summary>
         /// Allows to override the initializing of the fields, so we can actually have our own defaults
         /// </summary>
