@@ -93,21 +93,11 @@ namespace Greenshot.Editor.Drawing
             // draw shadow before anything else
             if (shadow && (lineVisible || Colors.IsVisible(fillColor)))
             {
-                int basealpha = 100;
-                int alpha = basealpha;
-                int steps = 5;
-                int currentStep = lineVisible ? 1 : 0;
-                while (currentStep <= steps)
+                DrawShadow(lineThickness, (alpha, currentStep, shadowPen, nil) =>
                 {
-                    using Pen shadowPen = new Pen(Color.FromArgb(alpha, 100, 100, 100))
-                    {
-                        Width = lineVisible ? lineThickness : 1
-                    };
-                    var shadowRect = new NativeRect(rect.Left + currentStep, rect.Top + currentStep, rect.Width, rect.Height).Normalize();
+                    var shadowRect = new NativeRect(rect.Left + currentStep, rect.Top + currentStep, rect.Width, rect.Height);
                     graphics.DrawEllipse(shadowPen, shadowRect);
-                    currentStep++;
-                    alpha -= basealpha / steps;
-                }
+                });
             }
 
             //draw the original shape
