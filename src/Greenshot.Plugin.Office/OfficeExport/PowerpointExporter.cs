@@ -236,7 +236,17 @@ namespace Greenshot.Plugin.Office.OfficeExport
                 powerPointApplication = DisposableCom.Create(new Application());
             }
 
-            InitializeVariables(powerPointApplication);
+            try
+            {
+                InitializeVariables(powerPointApplication);
+            }
+            catch (InvalidCastException ex)
+            {
+                LOG.Warn("PowerPoint COM object is unusable due to a type library error — treating PowerPoint as unavailable.", ex);
+                powerPointApplication.Dispose();
+                return null;
+            }
+
             return powerPointApplication;
         }
 
@@ -259,7 +269,16 @@ namespace Greenshot.Plugin.Office.OfficeExport
 
             if (powerPointApplication?.ComObject != null)
             {
-                InitializeVariables(powerPointApplication);
+                try
+                {
+                    InitializeVariables(powerPointApplication);
+                }
+                catch (InvalidCastException ex)
+                {
+                    LOG.Warn("PowerPoint COM object is unusable due to a type library error — treating PowerPoint as unavailable.", ex);
+                    powerPointApplication.Dispose();
+                    return null;
+                }
             }
 
             return powerPointApplication;
@@ -323,10 +342,11 @@ namespace Greenshot.Plugin.Office.OfficeExport
                     _powerpointVersion = new Version((int) OfficeVersions.Office97, 0, 0, 0);
                 }
             }
-            catch (InvalidCastException ex)
+            catch (InvalidCastException)
             {
-                LOG.Warn("Failed to get PowerPoint version via COM (possible type library mismatch), assuming minimum.", ex);
-                _powerpointVersion = new Version((int) OfficeVersions.Office97, 0, 0, 0);
+                // TYPE_E_CANTLOADLIBRARY: the COM object is entirely unusable. Re-throw so callers
+                // can treat PowerPoint as unavailable rather than returning a broken COM object.
+                throw;
             }
         }
 
