@@ -780,7 +780,7 @@ Type: filesandordirs; Name: "{app}\Plugins\Greenshot.Plugin.Office"
 Type: filesandordirs; Name: "{app}\Plugins\Greenshot.Plugin.Photobucket"
 Type: filesandordirs; Name: "{app}\Plugins\Greenshot.Plugin.Win10"
 
-// Cleanup directory if there are no plugins left, this can happen if user had 1.2 with plugins and then uninstalls 1.3
+// Cleanup directory if there are no plugins left
 Name: {app}\Plugins; Type: dirifempty;
 
 // Cleanup the main directory if there are no files left
