@@ -597,6 +597,37 @@ begin
 	Result := asUninstallStrings;
 end;
 
+/////////////////////////////////////////////////////////////////////
+procedure UnInstallOldVersions();
+var
+	sUnInstallString: String;
+	index: Integer;
+	isUninstallMade: Boolean;
+	iResultCode : Integer;
+	asUninstallStrings : array of String;
+begin
+	isUninstallMade := false;
+	asUninstallStrings := GetUninstallStrings();
+	for index := 0 to (GetArrayLength(asUninstallStrings) -1) do
+	begin
+		sUnInstallString := RemoveQuotes(asUninstallStrings[index]);
+		if Exec(sUnInstallString, '/SILENT /NORESTART /SUPPRESSMSGBOXES','', SW_HIDE, ewWaitUntilTerminated, iResultCode) then
+			isUninstallMade := true;
+	end;
+
+	// Wait a few seconds to prevent installation issues, otherwise files are removed in one process while the other tries to link to them
+	if (isUninstallMade) then
+		Sleep(2000);
+end;
+
+/////////////////////////////////////////////////////////////////////
+procedure CurStepChanged(CurStep: TSetupStep);
+begin
+	if (CurStep=ssInstall) then
+	begin
+		UnInstallOldVersions();
+	end;
+end;
 
 /////////////////////////////////////////////////////////////////////
 // End of unstall code
