@@ -1016,6 +1016,16 @@ namespace Greenshot.Forms
             }
         }
 
+        private void QuickSettingCaptureDelayChanged(object sender, EventArgs e)
+        {
+            ToolStripMenuSelectListItem item = ((ItemCheckedChangedEventArgs) e).Item;
+            if (item.Checked && item.Data is int delayMs)
+            {
+                _conf.CaptureDelay = delayMs;
+                IniConfig.Save();
+            }
+        }
+
         /// <summary>
         /// This needs to be called to initialize the quick settings menu entries
         /// </summary>
@@ -1044,6 +1054,23 @@ namespace Greenshot.Forms
             }
 
             ToolStripMenuSelectList selectList;
+            if (!_conf.Values["CaptureDelay"].IsFixed)
+            {
+                // Capture delay / postpone before capture
+                selectList = new ToolStripMenuSelectList("capturedelay", false, this)
+                {
+                    Text = Language.GetString(LangKey.quicksettings_capturedelay)
+                };
+                var captureDelayValues = new[] { 0, 100, 250, 500, 1000 };
+                var captureDelayLabels = new[] { "0 ms", "100 ms", "250 ms", "500 ms", "1000 ms" };
+                for (int i = 0; i < captureDelayValues.Length; i++)
+                {
+                    selectList.AddItem(captureDelayLabels[i], captureDelayValues[i], _conf.CaptureDelay == captureDelayValues[i]);
+                }
+                selectList.CheckedChanged += QuickSettingCaptureDelayChanged;
+                contextmenu_quicksettings.DropDownItems.Add(selectList);
+            }
+
             if (!_conf.Values["Destinations"].IsFixed)
             {
                 // screenshot destination
