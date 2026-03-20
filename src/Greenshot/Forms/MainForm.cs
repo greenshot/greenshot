@@ -267,6 +267,7 @@ namespace Greenshot.Forms
 
         // Timer for the double click test
         private readonly Timer _doubleClickTimer = new Timer();
+        private UpdateService _updateService;
 
         public MainForm(CommandLineOptions options)
         {
@@ -436,9 +437,9 @@ namespace Greenshot.Forms
             }
 
             // Start the update check in the background
-            var updateService = new UpdateService();
-            updateService.Startup();
-            SimpleServiceProvider.Current.AddService(updateService);
+            _updateService = new UpdateService();
+            _updateService.Startup();
+            SimpleServiceProvider.Current.AddService(_updateService);
 
             // Make Greenshot use less memory after startup
             if (_conf.MinimizeWorkingSetSize)

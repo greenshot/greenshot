@@ -36,13 +36,15 @@ namespace Greenshot.Helpers
     /// <summary>
     ///     This processes the information, if there are updates available.
     /// </summary>
-    public class UpdateService
+    public class UpdateService : IDisposable
     {
+        private bool _disposed;
+        private readonly object _lifecycleLock = new object();
         private static readonly ILog Log = LogManager.GetLogger(typeof(UpdateService));
         private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
         private static readonly Uri UpdateFeed = new Uri("https://getgreenshot.org/update-feed.json");
         private static readonly Uri Downloads = new Uri("https://getgreenshot.org/downloads");
-        private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+        private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
         /// <summary>
         /// URI pointing to the Greenshot downloads webpage
@@ -78,6 +80,11 @@ namespace Greenshot.Helpers
         /// Checks if there is an beta update available
         /// </summary>
         public bool IsBetaUpdateAvailable => LatestBetaVersion != null && LatestBetaVersion > CurrentVersion;
+
+        /// <summary>
+        /// Indicates whether the background update check task is currently running.
+        /// </summary>
+        public bool IsRunning { get; private set; }
 
         /// <summary>
         /// Keep track of when the update was shown, so it won't be every few minutes
@@ -132,8 +139,41 @@ namespace Greenshot.Helpers
         /// </summary>
         public void Startup()
         {
-            var interval = CoreConfig?.UpdateCheckInterval ?? 14;
-            _ = BackgroundTask(() => TimeSpan.FromDays(interval), ct => CheckForUpdatesAsync(true, ct), _cancellationTokenSource.Token);
+            lock (_lifecycleLock)
+            {
+                if (IsRunning)
+                {
+                    return;
+                }
+
+                if (_disposed)
+                {
+                    _cancellationTokenSource = new CancellationTokenSource();
+                    _disposed = false;
+                }
+
+                IsRunning = true;
+                var interval = CoreConfig?.UpdateCheckInterval ?? 14;
+                _ = BackgroundTask(() => TimeSpan.FromDays(interval), ct => CheckForUpdatesAsync(true, ct), _cancellationTokenSource.Token);
+            }
+        }
+
+        /// <summary>
+        /// Cancels the background task and releases resources.
+        /// </summary>
+        public void Dispose()
+        {
+            lock (_lifecycleLock)
+            {
+                if (_disposed)
+                {
+                    return;
+                }
+
+                _disposed = true;
+                _cancellationTokenSource.Cancel();
+                _cancellationTokenSource.Dispose();
+            }
         }
 
         /// <summary>
@@ -145,60 +185,80 @@ namespace Greenshot.Helpers
         /// <returns>Task</returns>
         private async Task BackgroundTask(Func<TimeSpan> intervalFactory, Func<CancellationToken, Task> reoccurringTask, CancellationToken cancellationToken = default)
         {
-            // Initial delay, to make sure this doesn't happen at the startup
-            await Task.Delay(20000, cancellationToken);
-            Log.Info("Starting background task to check for updates");
-            await Task.Run(async () =>
+            try
             {
-                while (!cancellationToken.IsCancellationRequested)
+                // Initial delay, to make sure this doesn't happen at the startup
+                await Task.Delay(20000, cancellationToken).ConfigureAwait(false);
+                Log.Info("Starting background task to check for updates");
+                await Task.Run(async () =>
                 {
-                    var interval = intervalFactory();
-                    var task = reoccurringTask;
-
-                    // If the check is disabled, handle that here
-                    var checkIsDisabled = TimeSpan.Zero == interval;
-                    var nextCheckIsInTheFuture = CoreConfig != null && CoreConfig.LastUpdateCheck.Add(interval) > DateTime.Now;
-
-                    // If we have an invalid interval
-                    if (interval.TotalSeconds < 0)
-                    {
-                        // Just wait for 10 minutes, maybe the configuration will change
-                        interval = TimeSpan.FromDays(1);
-                    }
-
-                    if (checkIsDisabled || nextCheckIsInTheFuture)
-                    {
-                        // Just wait for 30 minutes, maybe the configuration will change
-                        interval = TimeSpan.FromMinutes(30);
-                        task = c => Task.FromResult(true);
-                    }
-
                     try
                     {
-                        await task(cancellationToken).ConfigureAwait(false);
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Error("Error occurred when trying to check for updates.", ex);
-                    }
+                        while (!cancellationToken.IsCancellationRequested)
+                        {
+                            var interval = intervalFactory();
+                            var task = reoccurringTask;
 
-                    try
-                    {
-                        // Use duration to get an absolute time and can't be negative.
-                        await Task.Delay(interval.Duration(), cancellationToken).ConfigureAwait(false);
+                            // If the check is disabled, handle that here
+                            var checkIsDisabled = TimeSpan.Zero == interval;
+                            var nextCheckIsInTheFuture = CoreConfig != null && CoreConfig.LastUpdateCheck.Add(interval) > DateTime.Now;
+
+                            // If we have an invalid interval
+                            if (interval.TotalSeconds < 0)
+                            {
+                                // Just wait for longer time, maybe the configuration will change
+                                interval = TimeSpan.FromDays(1);
+                            }
+
+                            if (checkIsDisabled || nextCheckIsInTheFuture)
+                            {
+                                // Just wait for 30 minutes, maybe the configuration will change
+                                interval = TimeSpan.FromMinutes(30);
+                                task = c => Task.FromResult(true);
+                            }
+
+                            try
+                            {
+                                await task(cancellationToken).ConfigureAwait(false);
+                            }
+                            catch (Exception ex)
+                            {
+                                Log.Error("Error occurred when trying to check for updates.", ex);
+                            }
+
+                            try
+                            {
+                                // Use duration to get an absolute time and can't be negative.
+                                await Task.Delay(interval.Duration(), cancellationToken).ConfigureAwait(false);
+                            }
+                            catch (TaskCanceledException)
+                            {
+                                // Ignore, this always happens
+                            }
+                            catch (Exception ex)
+                            {
+                                Log.Error("Error occurred await for the next background interval check.", ex);
+                                // Safety pause, to avoid a potential tight loop if something is really wrong with the configuration or the update feed.
+                                await Task.Delay(TimeSpan.FromDays(1), cancellationToken).ConfigureAwait(false);
+                            }
+                        }
                     }
-                    catch (TaskCanceledException)
+                    finally
                     {
-                        // Ignore, this always happens
+                        Log.Info("Stopping background task to check for updates");
                     }
-                    catch (Exception ex)
-                    {
-                        Log.Error("Error occurred await for the next background interval check.", ex);
-                        // Safety pause, to avoid a potential tight loop if something is really wrong with the configuration or the update feed.
-                        await Task.Delay(TimeSpan.FromDays(1), cancellationToken).ConfigureAwait(false);
-                    }
+                }, cancellationToken).ConfigureAwait(false);
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+            }
+            finally
+            {
+                lock (_lifecycleLock)
+                {
+                    IsRunning = false;
                 }
-            }, cancellationToken).ConfigureAwait(false);
+            }
         }
 
         /// <summary>
