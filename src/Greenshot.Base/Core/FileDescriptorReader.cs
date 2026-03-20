@@ -63,9 +63,10 @@ namespace Greenshot.Base.Core
                 {
                     descriptor = new FileDescriptor(reader);
                 }
-                catch
+                catch (IOException)
                 {
-                    // Ignoring issues with reading the file.
+                    // Ignoring issues with reading the count, assuming a malformed stream.
+                    break;
                 }
                 if (descriptor != null)
                 {
@@ -100,9 +101,10 @@ namespace Greenshot.Base.Core
                 {
                     descriptor = new FileDescriptor(reader);
                 }
-                catch
+                catch (IOException)
                 {
-                    // Ignoring issues with reading the file.
+                    // Ignoring issues with reading the count, assuming a malformed stream.
+                    break;
                 }
                 if (descriptor != null)
                 {
