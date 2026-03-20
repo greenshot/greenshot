@@ -23,7 +23,8 @@ blog posts
 
 * should have similar content as user change log
 * use full sentences
-* highlight mist important changes.
+* highlight most important changes
+*  should include a link to Greenshot's official download page within the first paragraph: https://getgreenshot.org/downloads/
 * link to user change log at the end
 
 intermediate builds / continuous builds
