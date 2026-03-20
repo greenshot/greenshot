@@ -4,6 +4,40 @@ This document contains changelogs for all stable releases in the Greenshot 1.3 s
 
 ---
 
+## Version 1.3.315 (March 20, 2026)
+
+Released: March 20, 2026
+
+### Security
+
+**Security Fix**: Fixed a security advisory ([GHSA-f8v9-7fph-fr2j](https://github.com/greenshot/greenshot/security/advisories/GHSA-f8v9-7fph-fr2j)). Thanks to @MarioRL0 for responsibly disclosing the issue with a very detailed and well-analyzed report.
+
+### Bug Fixes
+
+- Fixed a crash that could occur when unexpected data was present on the clipboard
+- Fixed high CPU usage caused by a bug in the background task scheduler
+- Fixed weird black areas appearing in the editor when using 75% zoom
+- Fixed Windows 11 being incorrectly reported as Windows 10 in the error window
+- Fixed line and arrow drawing briefly showing the endpoint in the wrong position before the destination was chosen
+- Fixed a visual glitch in region capture where the zoom/crosshair started on the wrong position
+
+### Installation Improvements
+
+- Reduces issues caused by leftover files from previous installations
+- Old 1.2 and 1.3 plugin files are now removed before new files are installed (only Greenshot-provided plugins are affected)
+
+### Downloads
+- [Installer](https://github.com/greenshot/greenshot/releases/download/v1.3.315/Greenshot-INSTALLER-1.3.315-RELEASE.exe)
+- [Portable ZIP](https://github.com/greenshot/greenshot/releases/download/v1.3.315/Greenshot-PORTABLE-1.3.315-RELEASE.zip)
+
+### Technical Details
+- **Security Advisory**: GHSA-f8v9-7fph-fr2j
+- **PR #956** (by @Lakritzator): Stability fixes backported from 1.4 — issues #822, #952, #788, #944
+- **PR #1084** (by @Lakritzator): Remove old plugin files before installation
+- **Full Changelog**: https://github.com/greenshot/greenshot/compare/v1.3.312...v1.3.315
+
+---
+
 ## Version 1.3.312 (January 7, 2026)
 
 Released: January 7, 2026
@@ -228,11 +262,12 @@ Released: May 23, 2025
 
 ## About Greenshot 1.3
 
-Greenshot 1.3 was built on the `release/1.3` branch and received multiple stable releases from May 2025 through January 2026. The series introduced significant improvements in:
+Greenshot 1.3 was built on the `release/1.3` branch and received multiple stable releases from May 2025 through March 2026. **Version 1.3.315 (March 20, 2026) is the final stable release of the 1.3 series.** The series introduced significant improvements in:
 
-- **Security**: Multiple critical security fixes
-- **Editor functionality**: Zoom, keyboard shortcuts, and better DPI support
-- **Installation flexibility**: Choice between per-user and all-users installation
+- **Security**: Multiple critical security fixes (CVE-2023-34634, GHSA-8f7f-x7ww-xx5w, GHSA-7hvw-q8q5-gpmj, GHSA-f8v9-7fph-fr2j)
+- **Editor functionality**: Zoom, keyboard shortcuts, better DPI support, and rendering fixes
+- **Stability**: Fixes for crashes, high CPU usage, and visual glitches backported from 1.4
+- **Installation flexibility**: Choice between per-user and all-users installation; cleanup of leftover files from previous versions
 - **Distribution**: Introduction of portable ZIP releases
 - **Windows 11 compatibility**: Better integration with modern Windows versions
 

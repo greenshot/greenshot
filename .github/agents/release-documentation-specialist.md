@@ -26,3 +26,8 @@ blog posts
 * highlight mist important changes.
 * link to user change log at the end
 
+intermediate builds / continuous builds
+
+* do NOT create separate changelog entries for intermediate or continuous builds (e.g. builds tagged as "continuous build" on GitHub)
+* changes from intermediate builds are rolled up into the next official/stable release's changelog entry
+* only official stable releases get their own changelog entry
