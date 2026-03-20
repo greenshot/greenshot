@@ -21,6 +21,7 @@ technical change logs
 
 blog posts
 
+* should be drafted in a branch derived from and targeting the `gh-pages` branch
 * should have similar content as user change log
 * use full sentences
 * highlight most important changes
