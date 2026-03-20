@@ -666,9 +666,14 @@ namespace Greenshot.Forms
             }
             catch (InvalidOperationException ex)
             {
-                Log.Warn("Problem opening folder browser dialog, retrying with empty path: ", ex);
-                // Retry with an empty SelectedPath so the user can still browse and correct the path
-                folderBrowserDialog1.SelectedPath = string.Empty;
+                // This can happen when Greenshot was launched under a system/service account (e.g. after an
+                // IT-managed silent install) and the shell cannot resolve the default root folder for the
+                // current user context. Retry rooted at MyComputer with a known-good user folder so the
+                // user can still pick a destination.
+                Log.Warn("Problem opening folder browser dialog, retrying with user profile fallback: ", ex);
+                string fallbackPath = GetAccessibleFallbackPath();
+                folderBrowserDialog1.SelectedPath = fallbackPath;
+                folderBrowserDialog1.RootFolder = Environment.SpecialFolder.MyComputer;
                 try
                 {
                     if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
@@ -678,9 +683,45 @@ namespace Greenshot.Forms
                 }
                 catch (InvalidOperationException retryEx)
                 {
-                    Log.Error("Failed to open folder browser dialog even with empty path: ", retryEx);
+                    Log.Error("Failed to open folder browser dialog even with fallback path: ", retryEx);
+                    // Last resort: populate the textbox with the fallback path so the user at least
+                    // has a valid, writable destination rather than a red invalid-path indicator.
+                    if (!string.IsNullOrEmpty(fallbackPath))
+                    {
+                        textbox_storagelocation.Text = fallbackPath;
+                        MessageBox.Show(
+                            Language.GetString(LangKey.settings_storagelocation_folder_error),
+                            Language.GetString(LangKey.settings_storagelocation_folder_error_title),
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Information);
+                    }
+                }
+                finally
+                {
+                    folderBrowserDialog1.RootFolder = Environment.SpecialFolder.Desktop;
                 }
             }
+        }
+
+        /// <summary>
+        /// Returns the first accessible path suitable as a fallback storage location when the folder
+        /// browser dialog cannot resolve the shell root (e.g. process started under a system account).
+        /// Tries MyDocuments, Desktop, and TEMP in order.
+        /// </summary>
+        private static string GetAccessibleFallbackPath()
+        {
+            var candidates = new[]
+            {
+                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+                Path.GetTempPath()
+            };
+            foreach (string candidate in candidates)
+            {
+                if (!string.IsNullOrEmpty(candidate) && Directory.Exists(candidate))
+                    return candidate;
+            }
+            return string.Empty;
         }
 
         private void TrackBarJpegQualityScroll(object sender, EventArgs e)
