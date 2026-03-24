@@ -292,6 +292,10 @@ time, e.g. 11_58_32 (plus extension defined in the settings)</resource>
 		<resource name="settings_tooltip_primaryimageformat">Image format used by default</resource>
 		<resource name="settings_tooltip_registerhotkeys">Defines whether the shortcuts Prnt, Ctrl + Print, Alt + Prnt are reserved for global use by Greenshot at program startup, until the program is shut down.</resource>
 		<resource name="settings_tooltip_storagelocation">Location where screenshots are stored by default (leave empty for saving to your desktop)</resource>
+		<resource name="settings_storagelocation_folder_error">The folder browser could not be opened.
+
+The storage location has been set to your Documents folder. You can type a different path directly into the box if needed.</resource>
+		<resource name="settings_storagelocation_folder_error_title">Storage Location</resource>
 		<resource name="settings_usedefaultproxy">Use default system proxy</resource>
 		<resource name="settings_visualization">Effects</resource>
 		<resource name="settings_waittime">Milliseconds to wait before capture</resource>
