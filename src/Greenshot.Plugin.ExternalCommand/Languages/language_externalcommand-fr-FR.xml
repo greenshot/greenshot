@@ -32,5 +32,8 @@
       {0} est le nom du fichier de votre capture d'écran
     </resource>
     <resource name="label_outputimageformat">Format d'image</resource>
+    <resource name="tooltip_duplicate_name">
+      Une commande avec ce nom existe déjà. Veuillez choisir un nom différent.
+    </resource>
   </resources>
 </language>

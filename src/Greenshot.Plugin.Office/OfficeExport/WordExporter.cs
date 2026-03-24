@@ -75,6 +75,12 @@ namespace Greenshot.Plugin.Office.OfficeExport
             {
                 InitializeVariables(wordApplication);
             }
+            catch (InvalidCastException ex)
+            {
+                LOG.Warn("Word COM object is unusable due to a type library error — treating Word as unavailable.", ex);
+                wordApplication.Dispose();
+                return null;
+            }
             catch (Exception ex)
             {
                 LOG.Warn("Unable to initialize Word variables, assuming Word version 1997.", ex);
@@ -111,6 +117,12 @@ namespace Greenshot.Plugin.Office.OfficeExport
                 try
                 {
                     InitializeVariables(wordApplication);
+                }
+                catch (InvalidCastException ex)
+                {
+                    LOG.Warn("Word COM object is unusable due to a type library error — treating Word as unavailable.", ex);
+                    wordApplication.Dispose();
+                    return null;
                 }
                 catch (Exception ex)
                 {
@@ -174,9 +186,12 @@ namespace Greenshot.Plugin.Office.OfficeExport
                     _wordVersion = null;
                 }
             }
-            catch (InvalidCastException ex)
+            catch (InvalidCastException)
             {
-                LOG.Warn("Failed to get Word version via COM (possible type library mismatch), assuming minimum.", ex);
+                // TYPE_E_CANTLOADLIBRARY: the Office type library cannot be loaded, meaning this COM object is
+                // entirely unusable (every call will fail the same way). Re-throw so callers can treat the
+                // application as unavailable rather than returning a broken COM object.
+                throw;
             }
             catch (Exception ex)
             {

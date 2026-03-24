@@ -848,6 +848,7 @@ namespace Greenshot.Editor.Drawing
                 Left = x,
                 Top = y
             };
+            bitmapContainer.ResetToDefaultSize();
             AddElement(bitmapContainer);
             return bitmapContainer;
         }
@@ -858,6 +859,7 @@ namespace Greenshot.Editor.Drawing
             bitmapContainer.Load(filename);
             bitmapContainer.Left = x;
             bitmapContainer.Top = y;
+            bitmapContainer.ResetToDefaultSize();
             AddElement(bitmapContainer);
             return bitmapContainer;
         }
@@ -870,6 +872,7 @@ namespace Greenshot.Editor.Drawing
                 Left = x,
                 Top = y
             };
+            iconContainer.ResetToDefaultSize();
             AddElement(iconContainer);
             return iconContainer;
         }
@@ -880,6 +883,7 @@ namespace Greenshot.Editor.Drawing
             iconContainer.Load(filename);
             iconContainer.Left = x;
             iconContainer.Top = y;
+            iconContainer.ResetToDefaultSize();
             AddElement(iconContainer);
             return iconContainer;
         }
@@ -901,6 +905,7 @@ namespace Greenshot.Editor.Drawing
                 Left = x,
                 Top = y
             };
+            cursorContainer.ResetToDefaultSize();
             AddElement(cursorContainer);
             return cursorContainer;
         }
@@ -911,6 +916,7 @@ namespace Greenshot.Editor.Drawing
             cursorContainer.Load(filename);
             cursorContainer.Left = x;
             cursorContainer.Top = y;
+            cursorContainer.ResetToDefaultSize();
             AddElement(cursorContainer);
             return cursorContainer;
         }

@@ -59,6 +59,7 @@ using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Forms;
 using Greenshot.Forms.Wpf;
 using Greenshot.Helpers;
+using Greenshot.Native;
 using Greenshot.Plugin.Win10;
 using Greenshot.Processors;
 using log4net;

@@ -580,7 +580,17 @@ namespace Greenshot.Plugin.Office.OfficeExport
                 outlookApplication = DisposableCom.Create(new Application());
             }
 
-            InitializeVariables(outlookApplication);
+            try
+            {
+                InitializeVariables(outlookApplication);
+            }
+            catch (InvalidCastException ex)
+            {
+                LOG.Warn("Outlook COM object is unusable due to a type library error — treating Outlook as unavailable.", ex);
+                outlookApplication.Dispose();
+                return null;
+            }
+
             return outlookApplication;
         }
 
@@ -603,7 +613,16 @@ namespace Greenshot.Plugin.Office.OfficeExport
 
             if ((outlookApplication != null) && (outlookApplication.ComObject != null))
             {
-                InitializeVariables(outlookApplication);
+                try
+                {
+                    InitializeVariables(outlookApplication);
+                }
+                catch (InvalidCastException ex)
+                {
+                    LOG.Warn("Outlook COM object is unusable due to a type library error — treating Outlook as unavailable.", ex);
+                    outlookApplication.Dispose();
+                    return null;
+                }
             }
 
             return outlookApplication;
@@ -689,10 +708,11 @@ namespace Greenshot.Plugin.Office.OfficeExport
                     _outlookVersion = new Version((int) OfficeVersions.Office97, 0, 0, 0);
                 }
             }
-            catch (InvalidCastException ex)
+            catch (InvalidCastException)
             {
-                LOG.Warn("Failed to get Outlook version via COM (possible type library mismatch), assuming minimum.", ex);
-                _outlookVersion = new Version((int) OfficeVersions.Office97, 0, 0, 0);
+                // TYPE_E_CANTLOADLIBRARY: the COM object is entirely unusable. Re-throw so callers
+                // can treat Outlook as unavailable rather than returning a broken COM object.
+                throw;
             }
 
             // Preventing retrieval of currentUser if Outlook is older than 2007

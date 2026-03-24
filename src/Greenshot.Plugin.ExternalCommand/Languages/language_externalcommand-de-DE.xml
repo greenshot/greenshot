@@ -32,5 +32,8 @@
       {0} ist der Dateiname des Screenshots
     </resource>
     <resource name="label_outputimageformat">Bildformat</resource>
+    <resource name="tooltip_duplicate_name">
+      Ein Befehl mit diesem Namen existiert bereits. Bitte wählen Sie einen anderen Namen.
+    </resource>
   </resources>
 </language>

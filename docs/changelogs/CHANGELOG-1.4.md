@@ -9,7 +9,7 @@ This document contains the changelog for Greenshot 1.4, which is currently in ac
 Greenshot 1.4 represents the next major version currently under active development. Development began in November 2025 after the final 1.3 stable release (1.3.312 in January 2026).
 
 **Current Status**: Continuous Development Builds (Prereleases)
-**Latest Build**: v1.4.107 (February 14, 2026)
+**Latest Build**: v1.4.108 (March 14, 2026)
 **Release Branch**: `main`
 
 ### How to Get 1.4 Builds
@@ -69,6 +69,13 @@ Continuous builds are automatically created for every commit to the `main` branc
 **New Capture Technology** (#932)
 - Implemented new capture technology for better screenshot quality
 - Improved compatibility with modern Windows applications
+- By @Lakritzator
+
+**Windows Graphics Capture API** (Beta)
+- Greenshot can now use the modern Windows Graphics Capture (WGC) API for full-screen and region captures
+- Produces higher-quality screenshots by capturing each monitor individually and stitching them together
+- More compatible with modern Windows applications compared to the legacy GDI-based capture method
+- Enable this by turning on the `IsBetaTester` flag in Greenshot's configuration
 - By @Lakritzator
 
 **Improved Cursor Capture** (#863)
@@ -306,8 +313,11 @@ The following contributors made their first contributions to Greenshot during th
 
 ## Release Timeline
 
+### March 2026
+- **v1.4.108** (Mar 14) - **Windows Graphics Capture API (Beta)**
+
 ### February 2026
-- **v1.4.107** (Feb 14) - Latest build
+- **v1.4.107** (Feb 14) - Windows Share & OCR fixes
 - **v1.4.106** (Feb 13)
 - **v1.4.105** (Feb 13) - Show beta tester info in about dialog
 - **v1.4.104** (Feb 13) - Extend ServiceProvider
@@ -352,6 +362,7 @@ Greenshot 1.4 builds upon the stable 1.3 release with these key additions:
 ✨ OCR-based text redaction (Beta)  
 ✨ Remove transparency feature  
 ✨ New capture technology  
+✨ Windows Graphics Capture (WGC) API for higher-quality captures (Beta)  
 ✨ ImageSharp format support  
 ✨ Modernized plugin APIs (Confluence, Dropbox)  
 ✨ Better Windows 10/11 integration  
@@ -437,5 +448,5 @@ Report any issues you encounter to help improve Greenshot!
 
 ---
 
-*Last updated: February 14, 2026*  
-*Latest continuous build: v1.4.107-gce9bdd971b*
+*Last updated: March 14, 2026*  
+*Latest continuous build: v1.4.108-g2fddb97*

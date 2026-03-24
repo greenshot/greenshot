@@ -268,6 +268,12 @@ namespace Greenshot.Helpers
                 notifyIcon.Visible = true;
             }
 
+            // When beta tester mode is enabled, use Windows Graphics Capture for screen capture
+            if (CoreConfig.IsBetaTester)
+            {
+                CaptureHandler.CaptureScreenRectangle = WindowsGraphicsCaptureInterop.CaptureRectangle;
+            }
+
             Log.Debug($"Capturing with mode {_captureMode} and using Cursor {_captureMouseCursor}");
             _capture.CaptureDetails.CaptureMode = _captureMode;
 
