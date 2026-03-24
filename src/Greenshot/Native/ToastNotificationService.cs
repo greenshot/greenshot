@@ -22,6 +22,7 @@
 using System;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Threading.Tasks;
 using Windows.Foundation.Collections;
 using Windows.Foundation.Metadata;
 using Windows.UI.Notifications;
@@ -107,18 +108,25 @@ namespace Greenshot.Plugin.Win10
                 return;
             }
 
-            // Here is an interesting article on reading the settings: https://www.rudyhuyn.com/blog/2018/02/10/toastnotifier-and-settings-careful-with-non-uwp-applications/
             try
             {
-                if (toastNotifier.Setting != NotificationSetting.Enabled)
+                var settingTask = Task.Run(() => toastNotifier.Setting);
+                if (settingTask.Wait(TimeSpan.FromMilliseconds(500)))
                 {
-                    Log.DebugFormat("Ignored toast due to {0}", toastNotifier.Setting);
-                    return;
+                    if (settingTask.Result != NotificationSetting.Enabled)
+                    {
+                        Log.DebugFormat("Ignored toast due to {0}", settingTask.Result);
+                        return;
+                    }
+                }
+                else
+                {
+                    Log.Warn("Timed out reading toast notification setting; skipping setting check.");
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                Log.Info("Ignoring exception as this means that there was no stored settings.");
+                Log.WarnFormat("Exception reading toast notification setting, skipping check: {0}", ex.Message);
             }
 
             try
