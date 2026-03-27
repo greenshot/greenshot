@@ -41,6 +41,9 @@ namespace Greenshot.Editor.Configuration
         [IniProperty("RecentColors", Separator = "|", Description = "Last used colors")]
         public List<Color> RecentColors { get; set; }
 
+        [IniProperty("RecentEmoji", Description = "Last used emoji", DefaultValue = "🙂")]
+        public string RecentEmoji { get; set; }
+
         [IniProperty("LastFieldValue", Separator = "|", Description = "Field values, make sure the last used settings are reused")]
         public Dictionary<string, object> LastUsedFieldValues { get; set; }
 
@@ -119,6 +122,7 @@ namespace Greenshot.Editor.Configuration
             }
         }
 
+        /// <summary> Creates a new Field of the given fieldType </summary>
         /// <param name="requestingType">Type of the class for which to create the field</param>
         /// <param name="fieldType">FieldType of the field to construct</param>
         /// <param name="preferredDefaultValue"></param>
