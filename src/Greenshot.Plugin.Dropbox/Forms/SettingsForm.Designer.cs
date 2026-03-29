@@ -60,7 +60,6 @@ namespace Greenshot.Plugin.Dropbox.Forms;
 			// 
 			this.buttonOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.buttonOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-			this.buttonOK.LanguageKey = "OK";
 			this.buttonOK.Location = new System.Drawing.Point(267, 64);
 			this.buttonOK.Name = "buttonOK";
 			this.buttonOK.Size = new System.Drawing.Size(75, 23);
@@ -71,7 +70,6 @@ namespace Greenshot.Plugin.Dropbox.Forms;
 			// 
 			this.buttonCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-			this.buttonCancel.LanguageKey = "CANCEL";
 			this.buttonCancel.Location = new System.Drawing.Point(348, 64);
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.Size = new System.Drawing.Size(75, 23);
@@ -86,14 +84,11 @@ namespace Greenshot.Plugin.Dropbox.Forms;
 			this.combobox_uploadimageformat.FormattingEnabled = true;
 			this.combobox_uploadimageformat.Location = new System.Drawing.Point(116, 9);
 			this.combobox_uploadimageformat.Name = "combobox_uploadimageformat";
-			this.combobox_uploadimageformat.PropertyName = nameof(DropboxConfiguration.UploadFormat);
-			this.combobox_uploadimageformat.SectionName = "Dropbox";
 			this.combobox_uploadimageformat.Size = new System.Drawing.Size(309, 21);
 			this.combobox_uploadimageformat.TabIndex = 1;
 			// 
 			// label_upload_format
 			// 
-			this.label_upload_format.LanguageKey = "dropbox.label_upload_format";
 			this.label_upload_format.Location = new System.Drawing.Point(11, 12);
 			this.label_upload_format.Name = "label_upload_format";
 			this.label_upload_format.Size = new System.Drawing.Size(100, 20);
@@ -101,7 +96,6 @@ namespace Greenshot.Plugin.Dropbox.Forms;
 			// 
 			// label_AfterUpload
 			// 
-			this.label_AfterUpload.LanguageKey = "dropbox.label_AfterUpload";
 			this.label_AfterUpload.Location = new System.Drawing.Point(10, 37);
 			this.label_AfterUpload.Name = "label_AfterUpload";
 			this.label_AfterUpload.Size = new System.Drawing.Size(100, 21);
@@ -109,11 +103,8 @@ namespace Greenshot.Plugin.Dropbox.Forms;
 			// 
 			// checkboxAfterUploadLinkToClipBoard
 			// 
-			this.checkboxAfterUploadLinkToClipBoard.LanguageKey = "dropbox.label_AfterUploadLinkToClipBoard";
 			this.checkboxAfterUploadLinkToClipBoard.Location = new System.Drawing.Point(116, 37);
 			this.checkboxAfterUploadLinkToClipBoard.Name = "checkboxAfterUploadLinkToClipBoard";
-			this.checkboxAfterUploadLinkToClipBoard.PropertyName = nameof(DropboxConfiguration.AfterUploadLinkToClipBoard);
-			this.checkboxAfterUploadLinkToClipBoard.SectionName = "Dropbox";
 			this.checkboxAfterUploadLinkToClipBoard.Size = new System.Drawing.Size(305, 20);
 			this.checkboxAfterUploadLinkToClipBoard.TabIndex = 2;
 			this.checkboxAfterUploadLinkToClipBoard.UseVisualStyleBackColor = true;
@@ -130,7 +121,6 @@ namespace Greenshot.Plugin.Dropbox.Forms;
 			this.Controls.Add(this.buttonCancel);
 			this.Controls.Add(this.buttonOK);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-			this.LanguageKey = "dropbox.settings_title";
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "SettingsForm";

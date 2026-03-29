@@ -343,6 +343,7 @@ namespace Greenshot.Forms
             try
             {
                 InitializeComponent();
+                InitializeLanguageBindings();
             }
             catch (ArgumentException ex)
             {
@@ -455,6 +456,11 @@ namespace Greenshot.Forms
             {
                 PsApi.EmptyWorkingSet();
             }
+        }
+
+        protected override void InitializeLanguageBindings()
+        {
+            LanguageKey = "application_title";
         }
 
         /// <summary>

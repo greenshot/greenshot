@@ -144,7 +144,6 @@ namespace Greenshot.Editor.Forms
             // 
             // searchLabel
             // 
-            this.searchLabel.LanguageKey = "editor_obfuscate_text_search";
             this.searchLabel.Location = new System.Drawing.Point(0, 3);
             this.searchLabel.Name = "searchLabel";
             this.searchLabel.Size = new System.Drawing.Size(100, 20);
@@ -159,7 +158,6 @@ namespace Greenshot.Editor.Forms
             // 
             // searchButton
             // 
-            this.searchButton.LanguageKey = "editor_obfuscate_text_search_button";
             this.searchButton.Location = new System.Drawing.Point(412, 0);
             this.searchButton.Name = "searchButton";
             this.searchButton.Size = new System.Drawing.Size(75, 23);
@@ -181,7 +179,6 @@ namespace Greenshot.Editor.Forms
             // 
             // regexCheckBox
             // 
-            this.regexCheckBox.LanguageKey = "editor_obfuscate_text_regex";
             this.regexCheckBox.Location = new System.Drawing.Point(106, 0);
             this.regexCheckBox.Name = "regexCheckBox";
             this.regexCheckBox.Size = new System.Drawing.Size(150, 24);
@@ -190,7 +187,6 @@ namespace Greenshot.Editor.Forms
             // 
             // caseSensitiveCheckBox
             // 
-            this.caseSensitiveCheckBox.LanguageKey = "editor_obfuscate_text_case_sensitive";
             this.caseSensitiveCheckBox.Location = new System.Drawing.Point(262, 0);
             this.caseSensitiveCheckBox.Name = "caseSensitiveCheckBox";
             this.caseSensitiveCheckBox.Size = new System.Drawing.Size(150, 24);
@@ -211,7 +207,6 @@ namespace Greenshot.Editor.Forms
             // 
             // searchScopeLabel
             // 
-            this.searchScopeLabel.LanguageKey = "editor_obfuscate_text_search_scope";
             this.searchScopeLabel.Location = new System.Drawing.Point(0, 2);
             this.searchScopeLabel.Name = "searchScopeLabel";
             this.searchScopeLabel.Size = new System.Drawing.Size(100, 20);
@@ -366,7 +361,6 @@ namespace Greenshot.Editor.Forms
             // advancedSettingsCheckBox
             // 
             this.advancedSettingsCheckBox.AutoSize = true;
-            this.advancedSettingsCheckBox.LanguageKey = "editor_obfuscate_text_advanced";
             this.advancedSettingsCheckBox.Location = new System.Drawing.Point(8, 185);
             this.advancedSettingsCheckBox.Margin = new System.Windows.Forms.Padding(3, 3, 3, 3);
             this.advancedSettingsCheckBox.Name = "advancedSettingsCheckBox";
@@ -497,7 +491,6 @@ namespace Greenshot.Editor.Forms
             // 
             // applyButton
             // 
-            this.applyButton.LanguageKey = "editor_obfuscate_text_apply";
             this.applyButton.Location = new System.Drawing.Point(330, 0);
             this.applyButton.Name = "applyButton";
             this.applyButton.Size = new System.Drawing.Size(75, 23);
@@ -508,7 +501,6 @@ namespace Greenshot.Editor.Forms
             // cancelButton
             // 
             this.cancelButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.cancelButton.LanguageKey = "CANCEL";
             this.cancelButton.Location = new System.Drawing.Point(411, 0);
             this.cancelButton.Name = "cancelButton";
             this.cancelButton.Size = new System.Drawing.Size(75, 23);
@@ -527,7 +519,6 @@ namespace Greenshot.Editor.Forms
             this.ClientSize = new System.Drawing.Size(511, 300);
             this.Controls.Add(this.mainFlowPanel);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-            this.LanguageKey = "editor_obfuscate_text_title";
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "TextObfuscationForm";

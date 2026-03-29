@@ -32,7 +32,22 @@ public partial class SettingsForm : BoxForm
         // The InitializeComponent() call is required for Windows Forms designer support.
         //
         InitializeComponent();
+        InitializeLanguageBindings();
         AcceptButton = buttonOK;
         CancelButton = buttonCancel;
+    }
+
+    protected override void InitializeLanguageBindings()
+    {
+        buttonOK.LanguageKey = "OK";
+        buttonCancel.LanguageKey = "CANCEL";
+        combobox_uploadimageformat.PropertyName = nameof(BoxConfiguration.UploadFormat);
+        combobox_uploadimageformat.SectionName = "Box";
+        label_upload_format.LanguageKey = "box.label_upload_format";
+        label_AfterUpload.LanguageKey = "box.label_AfterUpload";
+        checkboxAfterUploadLinkToClipBoard.LanguageKey = "box.label_AfterUploadLinkToClipBoard";
+        checkboxAfterUploadLinkToClipBoard.PropertyName = nameof(BoxConfiguration.AfterUploadLinkToClipBoard);
+        checkboxAfterUploadLinkToClipBoard.SectionName = "Box";
+        LanguageKey = "box.settings_title";
     }
 }

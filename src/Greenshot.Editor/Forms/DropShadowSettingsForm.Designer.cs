@@ -148,7 +148,6 @@ namespace Greenshot.Editor.Forms {
 			// 
 			// buttonOK
 			// 
-			this.buttonOK.LanguageKey = "OK";
 			this.buttonOK.Location = new System.Drawing.Point(62, 110);
 			this.buttonOK.Name = "buttonOK";
 			this.buttonOK.Size = new System.Drawing.Size(75, 23);
@@ -159,7 +158,6 @@ namespace Greenshot.Editor.Forms {
 			// buttonCancel
 			// 
 			this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-			this.buttonCancel.LanguageKey = "CANCEL";
 			this.buttonCancel.Location = new System.Drawing.Point(143, 110);
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.Size = new System.Drawing.Size(75, 23);
@@ -168,7 +166,6 @@ namespace Greenshot.Editor.Forms {
 			// 
 			// labelDarkness
 			// 
-			this.labelDarkness.LanguageKey = "editor_dropshadow_darkness";
 			this.labelDarkness.Location = new System.Drawing.Point(12, 73);
 			this.labelDarkness.Name = "labelDarkness";
 			this.labelDarkness.Size = new System.Drawing.Size(92, 20);
@@ -176,7 +173,6 @@ namespace Greenshot.Editor.Forms {
 			// 
 			// labelOffset
 			// 
-			this.labelOffset.LanguageKey = "editor_dropshadow_offset";
 			this.labelOffset.Location = new System.Drawing.Point(12, 35);
 			this.labelOffset.Name = "labelOffset";
 			this.labelOffset.Size = new System.Drawing.Size(85, 20);
@@ -184,7 +180,6 @@ namespace Greenshot.Editor.Forms {
 			// 
 			// labelThickness
 			// 
-			this.labelThickness.LanguageKey = "editor_dropshadow_thickness";
 			this.labelThickness.Location = new System.Drawing.Point(12, 9);
 			this.labelThickness.Name = "labelThickness";
 			this.labelThickness.Size = new System.Drawing.Size(155, 20);
@@ -209,7 +204,6 @@ namespace Greenshot.Editor.Forms {
 			this.Controls.Add(this.offsetX);
 			this.Controls.Add(this.thickness);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
-			this.LanguageKey = "editor_dropshadow_settings";
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "DropShadowSettingsForm";

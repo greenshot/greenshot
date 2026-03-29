@@ -57,7 +57,6 @@ namespace Greenshot.Forms {
 			// 
 			// labelBugReportInfo
 			// 
-			this.labelBugReportInfo.LanguageKey = "bugreport_info";
 			this.labelBugReportInfo.Location = new System.Drawing.Point(12, 9);
 			this.labelBugReportInfo.Name = "labelBugReportInfo";
 			this.labelBugReportInfo.Size = new System.Drawing.Size(481, 141);
@@ -79,7 +78,6 @@ namespace Greenshot.Forms {
 			// 
 			this.btnClose.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.btnClose.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-			this.btnClose.LanguageKey = "bugreport_cancel";
 			this.btnClose.Location = new System.Drawing.Point(377, 417);
 			this.btnClose.Name = "btnClose";
 			this.btnClose.Size = new System.Drawing.Size(139, 23);
@@ -107,7 +105,6 @@ namespace Greenshot.Forms {
 			this.Controls.Add(this.btnClose);
 			this.Controls.Add(this.textBoxDescription);
 			this.Controls.Add(this.labelBugReportInfo);
-			this.LanguageKey = "bugreport_title";
 			this.Name = "BugReportForm";
 			this.Text = "Error";
 			this.ResumeLayout(false);

@@ -71,7 +71,6 @@ namespace Greenshot.Editor.Forms {
 			// btnTransparent
 			// 
 			this.btnTransparent.BackColor = System.Drawing.Color.Transparent;
-			this.btnTransparent.LanguageKey = "colorpicker_transparent";
 			this.btnTransparent.Location = new System.Drawing.Point(210, 4);
 			this.btnTransparent.Name = "btnTransparent";
 			this.btnTransparent.Size = new System.Drawing.Size(78, 23);
@@ -92,7 +91,6 @@ namespace Greenshot.Editor.Forms {
 			// labelHtmlColor
 			// 
 			this.labelHtmlColor.Font = new System.Drawing.Font("Tahoma", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.World);
-			this.labelHtmlColor.LanguageKey = "colorpicker_htmlcolor";
 			this.labelHtmlColor.Location = new System.Drawing.Point(210, 57);
 			this.labelHtmlColor.Name = "labelHtmlColor";
 			this.labelHtmlColor.Size = new System.Drawing.Size(78, 17);
@@ -113,7 +111,6 @@ namespace Greenshot.Editor.Forms {
 			// labelRed
 			// 
 			this.labelRed.Font = new System.Drawing.Font("Tahoma", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.World);
-			this.labelRed.LanguageKey = "colorpicker_red";
 			this.labelRed.Location = new System.Drawing.Point(210, 98);
 			this.labelRed.Name = "labelRed";
 			this.labelRed.Size = new System.Drawing.Size(78, 18);
@@ -123,7 +120,6 @@ namespace Greenshot.Editor.Forms {
 			// labelGreen
 			// 
 			this.labelGreen.Font = new System.Drawing.Font("Tahoma", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.World);
-			this.labelGreen.LanguageKey = "colorpicker_green";
 			this.labelGreen.Location = new System.Drawing.Point(210, 122);
 			this.labelGreen.Name = "labelGreen";
 			this.labelGreen.Size = new System.Drawing.Size(78, 18);
@@ -133,7 +129,6 @@ namespace Greenshot.Editor.Forms {
 			// labelBlue
 			// 
 			this.labelBlue.Font = new System.Drawing.Font("Tahoma", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.World);
-			this.labelBlue.LanguageKey = "colorpicker_blue";
 			this.labelBlue.Location = new System.Drawing.Point(210, 146);
 			this.labelBlue.Name = "labelBlue";
 			this.labelBlue.Size = new System.Drawing.Size(78, 18);
@@ -178,7 +173,6 @@ namespace Greenshot.Editor.Forms {
 			// 
 			// labelRecentColors
 			// 
-			this.labelRecentColors.LanguageKey = "colorpicker_recentcolors";
 			this.labelRecentColors.Location = new System.Drawing.Point(3, 175);
 			this.labelRecentColors.Name = "labelRecentColors";
 			this.labelRecentColors.Size = new System.Drawing.Size(148, 13);
@@ -200,7 +194,6 @@ namespace Greenshot.Editor.Forms {
 			// labelAlpha
 			// 
 			this.labelAlpha.Font = new System.Drawing.Font("Tahoma", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.World);
-			this.labelAlpha.LanguageKey = "colorpicker_alpha";
 			this.labelAlpha.Location = new System.Drawing.Point(210, 170);
 			this.labelAlpha.Name = "labelAlpha";
 			this.labelAlpha.Size = new System.Drawing.Size(78, 18);
@@ -210,7 +203,6 @@ namespace Greenshot.Editor.Forms {
 			// btnApply
 			// 
 			this.btnApply.BackColor = System.Drawing.Color.Transparent;
-			this.btnApply.LanguageKey = "colorpicker_apply";
 			this.btnApply.Location = new System.Drawing.Point(210, 191);
 			this.btnApply.Name = "btnApply";
 			this.btnApply.Size = new System.Drawing.Size(78, 23);
@@ -252,7 +244,6 @@ namespace Greenshot.Editor.Forms {
 			this.Controls.Add(this.colorPanel);
 			this.Controls.Add(this.btnTransparent);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-			this.LanguageKey = "colorpicker_title";
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "ColorDialog";

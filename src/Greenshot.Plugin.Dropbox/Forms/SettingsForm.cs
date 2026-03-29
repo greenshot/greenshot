@@ -32,7 +32,22 @@ public partial class SettingsForm : DropboxForm
         // The InitializeComponent() call is required for Windows Forms designer support.
         //
         InitializeComponent();
+        InitializeLanguageBindings();
         AcceptButton = buttonOK;
         CancelButton = buttonCancel;
+    }
+
+    protected override void InitializeLanguageBindings()
+    {
+        buttonOK.LanguageKey = "OK";
+        buttonCancel.LanguageKey = "CANCEL";
+        combobox_uploadimageformat.PropertyName = nameof(DropboxConfiguration.UploadFormat);
+        combobox_uploadimageformat.SectionName = "Dropbox";
+        label_upload_format.LanguageKey = "dropbox.label_upload_format";
+        label_AfterUpload.LanguageKey = "dropbox.label_AfterUpload";
+        checkboxAfterUploadLinkToClipBoard.LanguageKey = "dropbox.label_AfterUploadLinkToClipBoard";
+        checkboxAfterUploadLinkToClipBoard.PropertyName = nameof(DropboxConfiguration.AfterUploadLinkToClipBoard);
+        checkboxAfterUploadLinkToClipBoard.SectionName = "Dropbox";
+        LanguageKey = "dropbox.settings_title";
     }
 }

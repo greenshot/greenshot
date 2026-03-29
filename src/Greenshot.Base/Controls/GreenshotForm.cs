@@ -102,6 +102,15 @@ namespace Greenshot.Base.Controls
         /// </summary>
         protected bool ToFront { get; set; }
 
+        /// <summary>
+        /// This method can be used to initialize Greenshot specific properties, like LanguageKey or Config bindings.
+        /// It should be called from the constructor of the derived form, after InitializeComponent.
+        /// By having this in a separate method, the WinForms designer will not strip these properties.
+        /// </summary>
+        protected virtual void InitializeLanguageBindings()
+        {
+        }
+
         protected GreenshotForm()
         {
             DpiChanged += (sender, dpiChangedEventArgs) => DpiChangedHandler(dpiChangedEventArgs.DeviceDpiOld, dpiChangedEventArgs.DeviceDpiNew);

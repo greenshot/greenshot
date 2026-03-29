@@ -45,6 +45,7 @@ public partial class SettingsFormDetail : ExternalCommandForm
     public SettingsFormDetail(string commando)
     {
         InitializeComponent();
+        InitializeLanguageBindings();
         AcceptButton = buttonOk;
         CancelButton = buttonCancel;
         _commando = commando;
@@ -65,6 +66,20 @@ public partial class SettingsFormDetail : ExternalCommandForm
         }
 
         OkButtonState();
+    }
+
+    /// <inheritdoc />
+    protected override void InitializeLanguageBindings()
+    {
+        buttonOk.LanguageKey = "OK";
+        buttonCancel.LanguageKey = "CANCEL";
+        groupBox1.LanguageKey = "settings_title";
+        label4.LanguageKey = "externalcommand.label_information";
+        label3.LanguageKey = "externalcommand.label_name";
+        label2.LanguageKey = "externalcommand.label_argument";
+        label1.LanguageKey = "externalcommand.label_command";
+        label5.LanguageKey = "externalcommand.label_outputimageformat";
+        LanguageKey = "externalcommand.settings_detail_title";
     }
 
     private void ButtonOkClick(object sender, EventArgs e)

@@ -39,9 +39,21 @@ public partial class SettingsForm : ExternalCommandForm
         // The InitializeComponent() call is required for Windows Forms designer support.
         //
         InitializeComponent();
+        InitializeLanguageBindings();
         AcceptButton = buttonOk;
         CancelButton = buttonCancel;
         UpdateView();
+    }
+
+    /// <inheritdoc />
+    protected override void InitializeLanguageBindings()
+    {
+        buttonCancel.LanguageKey = "CANCEL";
+        buttonOk.LanguageKey = "OK";
+        button_new.LanguageKey = "externalcommand.settings_new";
+        button_delete.LanguageKey = "externalcommand.settings_delete";
+        button_edit.LanguageKey = "externalcommand.settings_edit";
+        LanguageKey = "externalcommand.settings_title";
     }
 
     private void ButtonOkClick(object sender, EventArgs e)

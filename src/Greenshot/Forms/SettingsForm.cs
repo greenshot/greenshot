@@ -56,11 +56,124 @@ namespace Greenshot.Forms
         public SettingsForm()
         {
             InitializeComponent();
+            InitializeLanguageBindings();
             // Make sure we change the icon size depending on the scaling
             DpiChanged += AdjustToDpi;
 
             // Make sure the store isn't called to early, that's why we do it manually
             ManualStoreFields = true;
+        }
+
+        /// <inheritdoc />
+        protected override void InitializeLanguageBindings()
+        {
+            label_storagelocation.LanguageKey = "settings_storagelocation";
+            settings_cancel.LanguageKey = "CANCEL";
+            settings_confirm.LanguageKey = "OK";
+            label_screenshotname.LanguageKey = "settings_filenamepattern";
+            textbox_screenshotname.PropertyName = nameof(CoreConfiguration.OutputFileFilenamePattern);
+            label_language.LanguageKey = "settings_language";
+            combobox_primaryimageformat.PropertyName = nameof(CoreConfiguration.OutputFileFormat);
+            label_primaryimageformat.LanguageKey = "settings_primaryimageformat";
+            groupbox_preferredfilesettings.LanguageKey = "settings_preferredfilesettings";
+            checkbox_copypathtoclipboard.LanguageKey = "settings_copypathtoclipboard";
+            checkbox_copypathtoclipboard.PropertyName = nameof(CoreConfiguration.OutputFileCopyPathToClipboard);
+            groupbox_applicationsettings.LanguageKey = "settings_applicationsettings";
+            label_icon_size.LanguageKey = "settings_iconsize";
+            checkbox_autostartshortcut.LanguageKey = "settings_autostartshortcut";
+            groupbox_qualitysettings.LanguageKey = "settings_qualitysettings";
+            checkbox_reducecolors.LanguageKey = "settings_reducecolors";
+            checkbox_reducecolors.PropertyName = nameof(CoreConfiguration.OutputFileReduceColors);
+            checkbox_alwaysshowqualitydialog.LanguageKey = "settings_alwaysshowqualitydialog";
+            checkbox_alwaysshowqualitydialog.PropertyName = nameof(CoreConfiguration.OutputFilePromptQuality);
+            label_jpegquality.LanguageKey = "settings_jpegquality";
+            groupbox_destination.LanguageKey = "settings_destination";
+            checkbox_picker.LanguageKey = "settings_destination_picker";
+            tab_general.LanguageKey = "settings_general";
+            groupbox_network.LanguageKey = "settings_network";
+            label_checkperiod.LanguageKey = "settings_checkperiod";
+            checkbox_usedefaultproxy.LanguageKey = "settings_usedefaultproxy";
+            checkbox_usedefaultproxy.PropertyName = nameof(CoreConfiguration.UseProxy);
+            groupbox_hotkeys.LanguageKey = "hotkeys";
+            label_lastregion_hotkey.LanguageKey = "contextmenu_capturelastregion";
+            lastregion_hotkeyControl.PropertyName = nameof(CoreConfiguration.LastregionHotkey);
+            label_region_hotkey.LanguageKey = "contextmenu_capturearea";
+            label_window_hotkey.LanguageKey = "contextmenu_capturewindow";
+            label_fullscreen_hotkey.LanguageKey = "contextmenu_capturefullscreen";
+            region_hotkeyControl.PropertyName = nameof(CoreConfiguration.RegionHotkey);
+            window_hotkeyControl.PropertyName = nameof(CoreConfiguration.WindowHotkey);
+            fullscreen_hotkeyControl.PropertyName = nameof(CoreConfiguration.FullscreenHotkey);
+            tab_capture.LanguageKey = "settings_capture";
+            groupbox_editor.LanguageKey = "settings_editor";
+            checkbox_editor_match_capture_size.LanguageKey = "editor_match_capture_size";
+            checkbox_editor_match_capture_size.PropertyName = nameof(Editor.Configuration.EditorConfiguration.MatchSizeToCapture);
+            checkbox_editor_match_capture_size.SectionName = "Editor";
+            groupbox_windowscapture.LanguageKey = "settings_windowscapture";
+            radiobuttonWindowCapture.LanguageKey = "settings_window_capture_mode";
+            radiobuttonInteractiveCapture.LanguageKey = "settings_capture_windows_interactive";
+            radiobuttonInteractiveCapture.PropertyName = nameof(CoreConfiguration.CaptureWindowsInteractive);
+            groupbox_capture.LanguageKey = "settings_capture";
+            checkbox_zoomer.LanguageKey = "settings_zoom";
+            checkbox_zoomer.PropertyName = nameof(CoreConfiguration.ZoomerEnabled);
+            checkbox_notifications.LanguageKey = "settings_shownotify";
+            checkbox_notifications.PropertyName = nameof(CoreConfiguration.ShowTrayNotification);
+            checkbox_playsound.LanguageKey = "settings_playsound";
+            checkbox_playsound.PropertyName = nameof(CoreConfiguration.PlayCameraSound);
+            checkbox_capture_mousepointer.LanguageKey = "settings_capture_mousepointer";
+            checkbox_capture_mousepointer.PropertyName = nameof(CoreConfiguration.CaptureMousepointer);
+            label_waittime.LanguageKey = "settings_waittime";
+            tab_output.LanguageKey = "settings_output";
+            tab_destinations.LanguageKey = "settings_destination";
+            tab_printer.LanguageKey = "settings_printer";
+            groupBoxColors.LanguageKey = "printoptions_colors";
+            checkboxPrintInverted.LanguageKey = "printoptions_inverted";
+            checkboxPrintInverted.PropertyName = nameof(CoreConfiguration.OutputPrintInverted);
+            radioBtnColorPrint.LanguageKey = "printoptions_printcolor";
+            radioBtnGrayScale.LanguageKey = "printoptions_printgrayscale";
+            radioBtnGrayScale.PropertyName = nameof(coreConfiguration.OutputPrintGrayscale);
+            radioBtnMonochrome.LanguageKey = "printoptions_printmonochrome";
+            radioBtnMonochrome.PropertyName = nameof(coreConfiguration.OutputPrintMonochrome);
+            groupBoxPrintLayout.LanguageKey = "printoptions_layout";
+            checkboxDateTime.LanguageKey = "printoptions_timestamp";
+            checkboxDateTime.PropertyName = nameof(coreConfiguration.OutputPrintFooter);
+            checkboxAllowShrink.LanguageKey = "printoptions_allowshrink";
+            checkboxAllowShrink.PropertyName = nameof(coreConfiguration.OutputPrintAllowShrink);
+            checkboxAllowEnlarge.LanguageKey = "printoptions_allowenlarge";
+            checkboxAllowEnlarge.PropertyName = nameof(coreConfiguration.OutputPrintAllowEnlarge);
+            checkboxAllowRotate.LanguageKey = "printoptions_allowrotate";
+            checkboxAllowRotate.PropertyName = nameof(coreConfiguration.OutputPrintAllowRotate);
+            checkboxAllowCenter.LanguageKey = "printoptions_allowcenter";
+            checkboxAllowCenter.PropertyName = nameof(coreConfiguration.OutputPrintCenter);
+            checkbox_alwaysshowprintoptionsdialog.LanguageKey = "settings_alwaysshowprintoptionsdialog";
+            checkbox_alwaysshowprintoptionsdialog.PropertyName = nameof(coreConfiguration.OutputPrintPromptOptions);
+            tab_plugins.LanguageKey = "settings_plugins";
+            groupbox_plugins.LanguageKey = "settings_plugins";
+            button_pluginconfigure.LanguageKey = "settings_configureplugin";
+            tab_expert.LanguageKey = "expertsettings";
+            groupbox_expert.LanguageKey = "expertsettings";
+            checkbox_reuseeditor.LanguageKey = "expertsettings_reuseeditorifpossible";
+            checkbox_reuseeditor.PropertyName = nameof(Editor.Configuration.EditorConfiguration.ReuseEditor);
+            checkbox_reuseeditor.SectionName = "Editor";
+            checkbox_minimizememoryfootprint.LanguageKey = "expertsettings_minimizememoryfootprint";
+            checkbox_minimizememoryfootprint.PropertyName = nameof(coreConfiguration.MinimizeWorkingSetSize);
+            checkbox_checkunstableupdates.LanguageKey = "expertsettings_checkunstableupdates";
+            checkbox_checkunstableupdates.PropertyName = nameof(coreConfiguration.CheckForUnstable);
+            checkbox_suppresssavedialogatclose.LanguageKey = "expertsettings_suppresssavedialogatclose";
+            checkbox_suppresssavedialogatclose.PropertyName = nameof(Editor.Configuration.EditorConfiguration.SuppressSaveDialogAtClose);
+            checkbox_suppresssavedialogatclose.SectionName = "Editor";
+            label_counter.LanguageKey = "expertsettings_counter";
+            textbox_counter.PropertyName = nameof(coreConfiguration.OutputFileIncrementingNumber);
+            label_footerpattern.LanguageKey = "expertsettings_footerpattern";
+            textbox_footerpattern.PropertyName = nameof(coreConfiguration.OutputPrintFooterPattern);
+            checkbox_thumbnailpreview.LanguageKey = "expertsettings_thumbnailpreview";
+            checkbox_thumbnailpreview.PropertyName = nameof(coreConfiguration.ThumnailPreview);
+            checkbox_optimizeforrdp.LanguageKey = "expertsettings_optimizeforrdp";
+            checkbox_optimizeforrdp.PropertyName = nameof(coreConfiguration.OptimizeForRDP);
+            checkbox_autoreducecolors.LanguageKey = "expertsettings_autoreducecolors";
+            checkbox_autoreducecolors.PropertyName = nameof(coreConfiguration.OutputFileAutoReduceColors);
+            label_clipboardformats.LanguageKey = "expertsettings_clipboardformats";
+            checkbox_enableexpert.LanguageKey = "expertsettings_enableexpert";
+            LanguageKey = "settings_title";
         }
 
         /// <summary>

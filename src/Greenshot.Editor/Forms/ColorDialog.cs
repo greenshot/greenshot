@@ -44,12 +44,26 @@ namespace Greenshot.Editor.Forms
         {
             SuspendLayout();
             InitializeComponent();
+            InitializeLanguageBindings();
             SuspendLayout();
             CreateColorPalette(5, 5, 15, 15);
             CreateLastUsedColorButtonRow(5, 190, 15, 15);
             ResumeLayout();
             UpdateRecentColorsButtonRow();
             _instance = this;
+        }
+
+        protected override void InitializeLanguageBindings()
+        {
+            btnTransparent.LanguageKey = "colorpicker_transparent";
+            labelHtmlColor.LanguageKey = "colorpicker_htmlcolor";
+            labelRed.LanguageKey = "colorpicker_red";
+            labelGreen.LanguageKey = "colorpicker_green";
+            labelBlue.LanguageKey = "colorpicker_blue";
+            labelRecentColors.LanguageKey = "colorpicker_recentcolors";
+            labelAlpha.LanguageKey = "colorpicker_alpha";
+            btnApply.LanguageKey = "colorpicker_apply";
+            LanguageKey = "colorpicker_title";
         }
 
         public static ColorDialog GetInstance() => _instance;

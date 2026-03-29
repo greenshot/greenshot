@@ -242,21 +242,20 @@ namespace Greenshot.Forms {
 			this.notifyIcon.Text = "Greenshot";
 			this.notifyIcon.MouseUp += new System.Windows.Forms.MouseEventHandler(this.NotifyIconClickTest);
             // 
-			// MainForm
-			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-			this.ClientSize = new System.Drawing.Size(0, 0);
-			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
-			this.LanguageKey = "application_title";
-			this.Name = "MainForm";
-			this.ShowIcon = false;
-			this.ShowInTaskbar = false;
-			this.WindowState = System.Windows.Forms.FormWindowState.Minimized;
-			this.Activated += new System.EventHandler(this.MainFormActivated);
-			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainFormFormClosing);
-			this.contextMenu.ResumeLayout(false);
-			this.ResumeLayout(false);
+            // MainForm
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+            this.ClientSize = new System.Drawing.Size(0, 0);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+            this.Name = "MainForm";
+            this.ShowIcon = false;
+            this.ShowInTaskbar = false;
+            this.WindowState = System.Windows.Forms.FormWindowState.Minimized;
+            this.Activated += new System.EventHandler(this.MainFormActivated);
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainFormFormClosing);
+            this.contextMenu.ResumeLayout(false);
+            this.ResumeLayout(false);
 		}
 		private System.Windows.Forms.ToolStripSeparator toolStripOtherSourcesSeparator;
 		private GreenshotToolStripMenuItem contextmenu_capturewindowfromlist;

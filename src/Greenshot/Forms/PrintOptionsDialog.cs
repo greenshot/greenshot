@@ -36,7 +36,35 @@ namespace Greenshot.Forms
             // The InitializeComponent() call is required for Windows Forms designer support.
             //
             InitializeComponent();
+            InitializeLanguageBindings();
             checkbox_dontaskagain.Checked = false;
+        }
+
+        protected override void InitializeLanguageBindings()
+        {
+            checkbox_dontaskagain.LanguageKey = "printoptions_dontaskagain";
+            checkboxAllowShrink.LanguageKey = "printoptions_allowshrink";
+            checkboxAllowShrink.PropertyName = nameof(coreConfiguration.OutputPrintAllowShrink);
+            checkboxAllowEnlarge.LanguageKey = "printoptions_allowenlarge";
+            checkboxAllowEnlarge.PropertyName = nameof(coreConfiguration.OutputPrintAllowEnlarge);
+            checkboxAllowCenter.LanguageKey = "printoptions_allowcenter";
+            checkboxAllowCenter.PropertyName = nameof(coreConfiguration.OutputPrintCenter);
+            checkboxAllowRotate.LanguageKey = "printoptions_allowrotate";
+            checkboxAllowRotate.PropertyName = nameof(coreConfiguration.OutputPrintAllowRotate);
+            button_ok.LanguageKey = "OK";
+            checkboxDateTime.LanguageKey = "printoptions_timestamp";
+            checkboxDateTime.PropertyName = nameof(coreConfiguration.OutputPrintFooter);
+            button_cancel.LanguageKey = "CANCEL";
+            checkboxPrintInverted.LanguageKey = "printoptions_inverted";
+            checkboxPrintInverted.PropertyName = nameof(coreConfiguration.OutputPrintInverted);
+            radioBtnGrayScale.LanguageKey = "printoptions_printgrayscale";
+            radioBtnGrayScale.PropertyName = nameof(coreConfiguration.OutputPrintGrayscale);
+            radioBtnMonochrome.LanguageKey = "printoptions_printmonochrome";
+            radioBtnMonochrome.PropertyName = nameof(coreConfiguration.OutputPrintMonochrome);
+            groupBoxPrintLayout.LanguageKey = "printoptions_layout";
+            groupBoxColors.LanguageKey = "printoptions_colors";
+            radioBtnColorPrint.LanguageKey = "printoptions_printcolor";
+            LanguageKey = "printoptions_title";
         }
 
 

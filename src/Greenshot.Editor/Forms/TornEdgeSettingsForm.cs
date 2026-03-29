@@ -34,7 +34,27 @@ namespace Greenshot.Editor.Forms
         {
             _effect = effect;
             InitializeComponent();
+            InitializeLanguageBindings();
             ShowSettings();
+        }
+
+        protected override void InitializeLanguageBindings()
+        {
+            buttonOK.LanguageKey = "OK";
+            buttonCancel.LanguageKey = "CANCEL";
+            labelDarkness.LanguageKey = "editor_dropshadow_darkness";
+            labelOffset.LanguageKey = "editor_dropshadow_offset";
+            labelThickness.LanguageKey = "editor_dropshadow_thickness";
+            label_toothsize.LanguageKey = "editor_tornedge_toothsize";
+            label_horizontaltoothrange.LanguageKey = "editor_tornedge_horizontaltoothrange";
+            labelVerticaltoothrange.LanguageKey = "editor_tornedge_verticaltoothrange";
+            top.LanguageKey = "editor_tornedge_top";
+            right.LanguageKey = "editor_tornedge_right";
+            bottom.LanguageKey = "editor_tornedge_bottom";
+            left.LanguageKey = "editor_tornedge_left";
+            shadowCheckbox.LanguageKey = "editor_tornedge_shadow";
+            all.LanguageKey = "editor_tornedge_all";
+            LanguageKey = "editor_tornedge_settings";
         }
 
         private void ShowSettings()

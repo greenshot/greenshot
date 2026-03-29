@@ -57,9 +57,7 @@ namespace Greenshot.Editor.Forms
             _surface = surface ?? throw new ArgumentNullException(nameof(surface));
             _ocrInfo = ocrInfo ?? throw new ArgumentNullException(nameof(ocrInfo));
             InitializeComponent();
-            
-            // Initialize match count label with formatted text
-            matchCountLabel.Text = string.Format(Language.GetString("editor_obfuscate_text_matches"), "0");
+            InitializeLanguageBindings();
             
             InitializeEffectDropdown();
             InitializeSearchScopeDropdown();
@@ -74,6 +72,22 @@ namespace Greenshot.Editor.Forms
             {
                 UpdatePreview();
             }
+        }
+
+        protected override void InitializeLanguageBindings()
+        {
+            searchLabel.LanguageKey = "editor_obfuscate_text_search";
+            searchButton.LanguageKey = "editor_obfuscate_text_search_button";
+            regexCheckBox.LanguageKey = "editor_obfuscate_text_regex";
+            caseSensitiveCheckBox.LanguageKey = "editor_obfuscate_text_case_sensitive";
+            searchScopeLabel.LanguageKey = "editor_obfuscate_text_search_scope";
+            advancedSettingsCheckBox.LanguageKey = "editor_obfuscate_text_advanced";
+            applyButton.LanguageKey = "editor_obfuscate_text_apply";
+            cancelButton.LanguageKey = "CANCEL";
+            LanguageKey = "editor_obfuscate_text_title";
+
+            // Initialize match count label with formatted text
+            matchCountLabel.Text = string.Format(Language.GetString("editor_obfuscate_text_matches"), "0");
         }
 
         private void InitializeEffectDropdown()

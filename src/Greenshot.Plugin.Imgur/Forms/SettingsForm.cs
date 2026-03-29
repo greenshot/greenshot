@@ -34,10 +34,26 @@ public partial class SettingsForm : ImgurForm
         // The InitializeComponent() call is required for Windows Forms designer support.
         //
         InitializeComponent();
+        InitializeLanguageBindings();
         CancelButton = buttonCancel;
         AcceptButton = buttonOK;
 
         historyButton.Enabled = ImgurUtils.IsHistoryLoadingNeeded();
+    }
+
+    /// <inheritdoc />
+    protected override void InitializeLanguageBindings()
+    {
+        buttonOK.LanguageKey = "imgur.OK";
+        buttonCancel.LanguageKey = "imgur.CANCEL";
+        historyButton.LanguageKey = "imgur.history";
+        checkbox_anonymous_access.LanguageKey = "imgur.anonymous_access";
+        checkbox_anonymous_access.PropertyName = nameof(ImgurConfiguration.AnonymousAccess);
+        checkbox_anonymous_access.SectionName = "Imgur";
+        checkbox_usepagelink.LanguageKey = "imgur.use_page_link";
+        checkbox_usepagelink.PropertyName = nameof(ImgurConfiguration.UsePageLink);
+        checkbox_usepagelink.SectionName = "Imgur";
+        LanguageKey = "imgur.settings_title";
     }
 
     private void ButtonHistoryClick(object sender, EventArgs e)

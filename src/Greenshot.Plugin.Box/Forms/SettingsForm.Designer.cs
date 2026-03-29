@@ -61,7 +61,6 @@ namespace Greenshot.Plugin.Box.Forms;
 			// 
 			this.buttonOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.buttonOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-			this.buttonOK.LanguageKey = "OK";
 			this.buttonOK.Location = new System.Drawing.Point(267, 72);
 			this.buttonOK.Name = "buttonOK";
 			this.buttonOK.Size = new System.Drawing.Size(75, 23);
@@ -72,7 +71,6 @@ namespace Greenshot.Plugin.Box.Forms;
 			// 
 			this.buttonCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-			this.buttonCancel.LanguageKey = "CANCEL";
 			this.buttonCancel.Location = new System.Drawing.Point(348, 72);
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.Size = new System.Drawing.Size(75, 23);
@@ -87,14 +85,11 @@ namespace Greenshot.Plugin.Box.Forms;
 			this.combobox_uploadimageformat.FormattingEnabled = true;
 			this.combobox_uploadimageformat.Location = new System.Drawing.Point(208, 12);
 			this.combobox_uploadimageformat.Name = "combobox_uploadimageformat";
-			this.combobox_uploadimageformat.PropertyName = nameof(BoxConfiguration.UploadFormat);
-			this.combobox_uploadimageformat.SectionName = "Box";
 			this.combobox_uploadimageformat.Size = new System.Drawing.Size(215, 21);
 			this.combobox_uploadimageformat.TabIndex = 5;
 			// 
 			// label_upload_format
 			// 
-			this.label_upload_format.LanguageKey = "box.label_upload_format";
 			this.label_upload_format.Location = new System.Drawing.Point(10, 12);
 			this.label_upload_format.Name = "label_upload_format";
 			this.label_upload_format.Size = new System.Drawing.Size(192, 20);
@@ -103,7 +98,6 @@ namespace Greenshot.Plugin.Box.Forms;
 			// label_AfterUpload
 			// 
 			this.label_AfterUpload.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.label_AfterUpload.LanguageKey = "box.label_AfterUpload";
 			this.label_AfterUpload.Location = new System.Drawing.Point(10, 46);
 			this.label_AfterUpload.Name = "label_AfterUpload";
 			this.label_AfterUpload.Size = new System.Drawing.Size(192, 21);
@@ -112,11 +106,8 @@ namespace Greenshot.Plugin.Box.Forms;
 			// checkboxAfterUploadLinkToClipBoard
 			// 
 			this.checkboxAfterUploadLinkToClipBoard.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.checkboxAfterUploadLinkToClipBoard.LanguageKey = "box.label_AfterUploadLinkToClipBoard";
 			this.checkboxAfterUploadLinkToClipBoard.Location = new System.Drawing.Point(208, 45);
 			this.checkboxAfterUploadLinkToClipBoard.Name = "checkboxAfterUploadLinkToClipBoard";
-			this.checkboxAfterUploadLinkToClipBoard.PropertyName = nameof(BoxConfiguration.AfterUploadLinkToClipBoard);
-			this.checkboxAfterUploadLinkToClipBoard.SectionName = "Box";
 			this.checkboxAfterUploadLinkToClipBoard.Size = new System.Drawing.Size(210, 20);
 			this.checkboxAfterUploadLinkToClipBoard.TabIndex = 10;
 			this.checkboxAfterUploadLinkToClipBoard.UseVisualStyleBackColor = true;
@@ -133,7 +124,6 @@ namespace Greenshot.Plugin.Box.Forms;
 			this.Controls.Add(this.buttonCancel);
 			this.Controls.Add(this.buttonOK);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-			this.LanguageKey = "box.settings_title";
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "SettingsForm";

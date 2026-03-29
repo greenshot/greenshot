@@ -34,7 +34,18 @@ namespace Greenshot.Editor.Forms
         {
             _effect = effect;
             InitializeComponent();
+            InitializeLanguageBindings();
             ShowSettings();
+        }
+
+        protected override void InitializeLanguageBindings()
+        {
+            buttonOK.LanguageKey = "OK";
+            buttonCancel.LanguageKey = "CANCEL";
+            labelDarkness.LanguageKey = "editor_dropshadow_darkness";
+            labelOffset.LanguageKey = "editor_dropshadow_offset";
+            labelThickness.LanguageKey = "editor_dropshadow_thickness";
+            LanguageKey = "editor_dropshadow_settings";
         }
 
         /// <summary>

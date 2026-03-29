@@ -60,7 +60,6 @@ namespace Greenshot.Plugin.Imgur.Forms;
 			// 
 			this.buttonOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.buttonOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-			this.buttonOK.LanguageKey = "imgur.OK";
 			this.buttonOK.Location = new System.Drawing.Point(222, 88);
 			this.buttonOK.Name = "buttonOK";
 			this.buttonOK.Size = new System.Drawing.Size(75, 23);
@@ -71,7 +70,6 @@ namespace Greenshot.Plugin.Imgur.Forms;
 			// 
 			this.buttonCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-			this.buttonCancel.LanguageKey = "imgur.CANCEL";
 			this.buttonCancel.Location = new System.Drawing.Point(303, 88);
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.Size = new System.Drawing.Size(75, 23);
@@ -81,7 +79,6 @@ namespace Greenshot.Plugin.Imgur.Forms;
 			// historyButton
 			// 
 			this.historyButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.historyButton.LanguageKey = "imgur.history";
 			this.historyButton.Location = new System.Drawing.Point(13, 88);
 			this.historyButton.Name = "historyButton";
 			this.historyButton.Size = new System.Drawing.Size(75, 23);
@@ -91,22 +88,16 @@ namespace Greenshot.Plugin.Imgur.Forms;
 			// 
 			// checkbox_anonymous_access
 			// 
-			this.checkbox_anonymous_access.LanguageKey = "imgur.anonymous_access";
 			this.checkbox_anonymous_access.Location = new System.Drawing.Point(15, 38);
 			this.checkbox_anonymous_access.Name = "checkbox_anonymous_access";
-			this.checkbox_anonymous_access.PropertyName = nameof(ImgurConfiguration.AnonymousAccess);
-			this.checkbox_anonymous_access.SectionName = "Imgur";
 			this.checkbox_anonymous_access.Size = new System.Drawing.Size(360, 20);
 			this.checkbox_anonymous_access.TabIndex = 2;
 			this.checkbox_anonymous_access.UseVisualStyleBackColor = true;
 			// 
 			// checkbox_usepagelink
 			// 
-			this.checkbox_usepagelink.LanguageKey = "imgur.use_page_link";
 			this.checkbox_usepagelink.Location = new System.Drawing.Point(15, 57);
 			this.checkbox_usepagelink.Name = "checkbox_usepagelink";
-			this.checkbox_usepagelink.PropertyName = nameof(ImgurConfiguration.UsePageLink);
-			this.checkbox_usepagelink.SectionName = "Imgur";
 			this.checkbox_usepagelink.Size = new System.Drawing.Size(360, 20);
 			this.checkbox_usepagelink.TabIndex = 3;
 			this.checkbox_usepagelink.UseVisualStyleBackColor = true;
@@ -122,7 +113,6 @@ namespace Greenshot.Plugin.Imgur.Forms;
 			this.Controls.Add(this.buttonCancel);
 			this.Controls.Add(this.buttonOK);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-			this.LanguageKey = "imgur.settings_title";
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "SettingsForm";

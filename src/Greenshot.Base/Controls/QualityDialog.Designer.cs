@@ -59,9 +59,8 @@ namespace Greenshot.Base.Controls {
 			// 
             this.label_choosejpegquality.Location = new System.Drawing.Point(12, 47);
 			this.label_choosejpegquality.Name = "label_choosejpegquality";
-            this.label_choosejpegquality.Size = new System.Drawing.Size(268, 19);
+			this.label_choosejpegquality.Size = new System.Drawing.Size(268, 19);
 			this.label_choosejpegquality.TabIndex = 15;
-			this.label_choosejpegquality.LanguageKey = "jpegqualitydialog_choosejpegquality";
 			// 
 			// textBoxJpegQuality
 			// 
@@ -89,7 +88,6 @@ namespace Greenshot.Base.Controls {
 			this.checkbox_dontaskagain.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkbox_dontaskagain.Location = new System.Drawing.Point(12, 106);
 			this.checkbox_dontaskagain.Name = "checkbox_dontaskagain";
-			this.checkbox_dontaskagain.LanguageKey = "qualitydialog_dontaskagain";
 			this.checkbox_dontaskagain.Size = new System.Drawing.Size(268, 37);
 			this.checkbox_dontaskagain.TabIndex = 5;
 			this.checkbox_dontaskagain.TextAlign = System.Drawing.ContentAlignment.TopLeft;
@@ -102,7 +100,6 @@ namespace Greenshot.Base.Controls {
 			this.button_ok.Name = "button_ok";
 			this.button_ok.Size = new System.Drawing.Size(75, 23);
 			this.button_ok.TabIndex = 1;
-			this.button_ok.LanguageKey = "OK";
 			this.button_ok.UseVisualStyleBackColor = true;
 			this.button_ok.Click += new System.EventHandler(this.Button_okClick);
 			// 
@@ -131,7 +128,6 @@ namespace Greenshot.Base.Controls {
 			this.MinimizeBox = false;
 			this.Name = "QualityDialog";
 			this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
-			this.LanguageKey = "qualitydialog_title";
 			((System.ComponentModel.ISupportInitialize)(this.trackBarJpegQuality)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();

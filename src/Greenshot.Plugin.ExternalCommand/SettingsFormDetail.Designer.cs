@@ -70,7 +70,6 @@ namespace Greenshot.Plugin.ExternalCommand;
 			// 
 			this.buttonOk.DialogResult = System.Windows.Forms.DialogResult.OK;
 			this.buttonOk.Enabled = false;
-			this.buttonOk.LanguageKey = "OK";
         this.buttonOk.Location = new System.Drawing.Point(274, 169);
 			this.buttonOk.Name = "buttonOk";
 			this.buttonOk.Size = new System.Drawing.Size(75, 23);
@@ -82,7 +81,6 @@ namespace Greenshot.Plugin.ExternalCommand;
 			// buttonCancel
 			// 
 			this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-			this.buttonCancel.LanguageKey = "CANCEL";
         this.buttonCancel.Location = new System.Drawing.Point(10, 169);
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.Size = new System.Drawing.Size(75, 23);
@@ -102,7 +100,6 @@ namespace Greenshot.Plugin.ExternalCommand;
 			this.groupBox1.Controls.Add(this.textBox_commandline);
         this.groupBox1.Controls.Add(this.label5);
         this.groupBox1.Controls.Add(this.comboBox_outputFormat);
-			this.groupBox1.LanguageKey = "settings_title";
 			this.groupBox1.Location = new System.Drawing.Point(10, 12);
 			this.groupBox1.Name = "groupBox1";
         this.groupBox1.Size = new System.Drawing.Size(339, 151);
@@ -111,7 +108,6 @@ namespace Greenshot.Plugin.ExternalCommand;
 			// 
 			// label4
 			// 
-			this.label4.LanguageKey = "externalcommand.label_information";
         this.label4.Location = new System.Drawing.Point(95, 98);
 			this.label4.Name = "label4";
         this.label4.Size = new System.Drawing.Size(198, 21);
@@ -130,7 +126,6 @@ namespace Greenshot.Plugin.ExternalCommand;
 			// 
 			// label3
 			// 
-			this.label3.LanguageKey = "externalcommand.label_name";
 			this.label3.Location = new System.Drawing.Point(6, 26);
 			this.label3.Name = "label3";
         this.label3.Size = new System.Drawing.Size(83, 20);
@@ -147,7 +142,6 @@ namespace Greenshot.Plugin.ExternalCommand;
 			// 
 			// label2
 			// 
-			this.label2.LanguageKey = "externalcommand.label_argument";
 			this.label2.Location = new System.Drawing.Point(6, 78);
 			this.label2.Name = "label2";
         this.label2.Size = new System.Drawing.Size(83, 20);
@@ -164,7 +158,6 @@ namespace Greenshot.Plugin.ExternalCommand;
 			// 
 			// label1
 			// 
-			this.label1.LanguageKey = "externalcommand.label_command";
 			this.label1.Location = new System.Drawing.Point(6, 52);
 			this.label1.Name = "label1";
         this.label1.Size = new System.Drawing.Size(83, 20);
@@ -181,7 +174,6 @@ namespace Greenshot.Plugin.ExternalCommand;
 			// 
         // label5
         // 
-        this.label5.LanguageKey = "externalcommand.label_outputimageformat";
         this.label5.Location = new System.Drawing.Point(6, 126);
         this.label5.Name = "label5";
         this.label5.Size = new System.Drawing.Size(83, 20);
@@ -210,7 +202,6 @@ namespace Greenshot.Plugin.ExternalCommand;
 			this.Controls.Add(this.buttonOk);
 			this.Controls.Add(this.buttonCancel);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-			this.LanguageKey = "externalcommand.settings_detail_title";
 			this.Name = "SettingsFormDetail";
 			this.groupBox1.ResumeLayout(false);
 			this.groupBox1.PerformLayout();

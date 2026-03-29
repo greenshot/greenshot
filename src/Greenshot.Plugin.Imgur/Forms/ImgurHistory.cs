@@ -74,6 +74,7 @@ public sealed partial class ImgurHistory : ImgurForm
         // The InitializeComponent() call is required for Windows Forms designer support.
         //
         InitializeComponent();
+        InitializeLanguageBindings();
         AcceptButton = finishedButton;
         CancelButton = finishedButton;
         // Init sorting
@@ -88,6 +89,12 @@ public sealed partial class ImgurHistory : ImgurForm
         }
 
         ApplyLanguage();
+    }
+
+    /// <inheritdoc />
+    protected override void InitializeLanguageBindings()
+    {
+        LanguageKey = "imgur.history";
     }
 
     private void Redraw()

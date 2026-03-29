@@ -35,7 +35,15 @@ namespace Greenshot.Forms
             // The InitializeComponent() call is required for Windows Forms designer support.
             //
             InitializeComponent();
+            InitializeLanguageBindings();
             ToFront = true;
+        }
+
+        protected override void InitializeLanguageBindings()
+        {
+            labelBugReportInfo.LanguageKey = "bugreport_info";
+            btnClose.LanguageKey = "bugreport_cancel";
+            LanguageKey = "bugreport_title";
         }
 
         public BugReportForm(string bugText) : this()

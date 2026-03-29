@@ -60,7 +60,6 @@ namespace Greenshot.Plugin.ExternalCommand;
 			// buttonCancel
 			// 
 			this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-			this.buttonCancel.LanguageKey = "CANCEL";
 			this.buttonCancel.Location = new System.Drawing.Point(275, 144);
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.Size = new System.Drawing.Size(75, 23);
@@ -70,7 +69,6 @@ namespace Greenshot.Plugin.ExternalCommand;
 			// buttonOk
 			// 
 			this.buttonOk.DialogResult = System.Windows.Forms.DialogResult.OK;
-			this.buttonOk.LanguageKey = "OK";
 			this.buttonOk.Location = new System.Drawing.Point(275, 173);
 			this.buttonOk.Name = "buttonOk";
 			this.buttonOk.Size = new System.Drawing.Size(75, 23);
@@ -101,7 +99,6 @@ namespace Greenshot.Plugin.ExternalCommand;
 			// 
 			// button_new
 			// 
-			this.button_new.LanguageKey = "externalcommand.settings_new";
 			this.button_new.Location = new System.Drawing.Point(275, 13);
 			this.button_new.Name = "button_new";
 			this.button_new.Size = new System.Drawing.Size(75, 23);
@@ -111,7 +108,6 @@ namespace Greenshot.Plugin.ExternalCommand;
 			// 
 			// button_delete
 			// 
-			this.button_delete.LanguageKey = "externalcommand.settings_delete";
 			this.button_delete.Location = new System.Drawing.Point(274, 71);
 			this.button_delete.Name = "button_delete";
 			this.button_delete.Size = new System.Drawing.Size(75, 23);
@@ -122,7 +118,6 @@ namespace Greenshot.Plugin.ExternalCommand;
 			// button_edit
 			// 
 			this.button_edit.Enabled = false;
-			this.button_edit.LanguageKey = "externalcommand.settings_edit";
 			this.button_edit.Location = new System.Drawing.Point(275, 42);
 			this.button_edit.Name = "button_edit";
 			this.button_edit.Size = new System.Drawing.Size(75, 23);
@@ -144,7 +139,6 @@ namespace Greenshot.Plugin.ExternalCommand;
 			this.Controls.Add(this.buttonOk);
 			this.Controls.Add(this.buttonCancel);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-			this.LanguageKey = "externalcommand.settings_title";
 			this.Name = "SettingsForm";
 			this.ResumeLayout(false);
 

@@ -32,7 +32,22 @@ public partial class SettingsForm : JiraFormBase
         // The InitializeComponent() call is required for Windows Forms designer support.
         //
         InitializeComponent();
+        InitializeLanguageBindings();
         AcceptButton = buttonOK;
         CancelButton = buttonCancel;
+    }
+
+    /// <inheritdoc />
+    protected override void InitializeLanguageBindings()
+    {
+        buttonOK.LanguageKey = "OK";
+        buttonCancel.LanguageKey = "CANCEL";
+        label_url.LanguageKey = "label_url";
+        textBoxUrl.PropertyName = nameof(JiraConfiguration.Url);
+        textBoxUrl.SectionName = "Jira";
+        combobox_uploadimageformat.PropertyName = nameof(JiraConfiguration.UploadFormat);
+        combobox_uploadimageformat.SectionName = "Jira";
+        label_upload_format.LanguageKey = "label_upload_format";
+        LanguageKey = "settings_title";
     }
 }
