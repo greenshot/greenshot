@@ -31,7 +31,6 @@ namespace Greenshot.Editor.Forms
 		/// Designer variable used to keep track of non-visual components.
 		/// </summary>
 		private System.ComponentModel.IContainer components = null;
-		private System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ImageEditorForm));
 
 		/// <summary>
 		/// Disposes resources used by the form.
@@ -54,6 +53,7 @@ namespace Greenshot.Editor.Forms
 		/// </summary>
 		private void InitializeComponent() {
 			this.components = new System.ComponentModel.Container();
+			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ImageEditorForm));
 			this.topToolStripContainer = new System.Windows.Forms.ToolStripContainer();
 			this.statusStrip1 = new System.Windows.Forms.StatusStrip();
 			this.dimensionsLabel = new System.Windows.Forms.ToolStripStatusLabel();
@@ -327,7 +327,6 @@ namespace Greenshot.Editor.Forms
 			// toolsToolStrip
 			// 
 			this.toolsToolStrip.ClickThrough = true;
-			this.toolsToolStrip.ImageScalingSize = coreConfiguration.IconSize;
 			this.toolsToolStrip.Dock = System.Windows.Forms.DockStyle.None;
 			this.toolsToolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
 			this.toolsToolStrip.Renderer = new CustomToolStripProfessionalRenderer();
@@ -559,7 +558,6 @@ namespace Greenshot.Editor.Forms
 			// menuStrip1
 			// 
 			this.menuStrip1.ClickThrough = true;
-			this.menuStrip1.ImageScalingSize = coreConfiguration.IconSize;
 			this.menuStrip1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.menuStrip1.Stretch = true;
 			this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -852,7 +850,6 @@ namespace Greenshot.Editor.Forms
 			// destinationsToolStrip
 			// 
 			this.destinationsToolStrip.ClickThrough = true;
-			this.destinationsToolStrip.ImageScalingSize = coreConfiguration.IconSize;
 			this.destinationsToolStrip.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.destinationsToolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
 			this.destinationsToolStrip.Name = "toolStrip1";
@@ -998,10 +995,8 @@ namespace Greenshot.Editor.Forms
 			// propertiesToolStrip
 			// 
 			this.propertiesToolStrip.ClickThrough = true;
-			this.propertiesToolStrip.ImageScalingSize = coreConfiguration.IconSize;
 			this.propertiesToolStrip.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.propertiesToolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
-			this.propertiesToolStrip.MinimumSize = new System.Drawing.Size(150, coreConfiguration.IconSize.Height + 10);
 			this.propertiesToolStrip.Name = "propertiesToolStrip";
 			this.propertiesToolStrip.Stretch = true;
 			this.propertiesToolStrip.TabIndex = 2;

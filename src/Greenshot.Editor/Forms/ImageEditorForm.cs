@@ -2204,6 +2204,12 @@ namespace Greenshot.Editor.Forms
         }
         protected override void InitializeLanguageBindings()
         {
+            this.toolsToolStrip.ImageScalingSize = coreConfiguration.IconSize;
+            this.menuStrip1.ImageScalingSize = coreConfiguration.IconSize;
+            this.destinationsToolStrip.ImageScalingSize = coreConfiguration.IconSize;
+            this.propertiesToolStrip.ImageScalingSize = coreConfiguration.IconSize;
+            this.propertiesToolStrip.MinimumSize = new System.Drawing.Size(150, coreConfiguration.IconSize.Height + 10);
+
             this.btnCursor.LanguageKey = "editor_cursortool";
             this.btnRect.LanguageKey = "editor_drawrectangle";
             this.btnEllipse.LanguageKey = "editor_drawellipse";

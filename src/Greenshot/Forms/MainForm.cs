@@ -460,6 +460,7 @@ namespace Greenshot.Forms
 
         protected override void InitializeLanguageBindings()
         {
+            this.contextmenu_quicksettings.Size = new System.Drawing.Size(170, coreConfiguration.IconSize.Height + 8);
             LanguageKey = "application_title";
         }
 
