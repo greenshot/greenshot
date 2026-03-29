@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -20,6 +20,8 @@
  */
 
 using Greenshot.Base.Controls;
+using System.Windows.Forms;
+
 
 namespace Greenshot.Plugin.Jira.Forms; 
 	partial class SettingsForm {
@@ -49,12 +51,12 @@ namespace Greenshot.Plugin.Jira.Forms;
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.buttonOK = new GreenshotButton();
-			this.buttonCancel = new GreenshotButton();
-			this.label_url = new GreenshotLabel();
+			this.buttonOK = new Button();
+			this.buttonCancel = new Button();
+			this.label_url = new Label();
 			this.textBoxUrl = new GreenshotTextBox();
 			this.combobox_uploadimageformat = new GreenshotComboBox();
-			this.label_upload_format = new GreenshotLabel();
+			this.label_upload_format = new Label();
 			this.SuspendLayout();
 			// 
 			// buttonOK
@@ -131,9 +133,9 @@ namespace Greenshot.Plugin.Jira.Forms;
 
 		}
 		private GreenshotComboBox combobox_uploadimageformat;
-		private GreenshotLabel label_upload_format;
+		private Label label_upload_format;
 		private GreenshotTextBox textBoxUrl;
-		private GreenshotLabel label_url;
-		private GreenshotButton buttonCancel;
-		private GreenshotButton buttonOK;
+		private Label label_url;
+		private Button buttonCancel;
+		private Button buttonOK;
 	}

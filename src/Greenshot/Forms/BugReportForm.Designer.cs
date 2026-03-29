@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -19,7 +19,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using Greenshot.Base.Controls;
+using System.Windows.Forms;
+
 
 namespace Greenshot.Forms {
 	partial class BugReportForm {
@@ -49,9 +50,9 @@ namespace Greenshot.Forms {
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.labelBugReportInfo = new GreenshotLabel();
+			this.labelBugReportInfo = new Label();
 			this.textBoxDescription = new System.Windows.Forms.TextBox();
-			this.btnClose = new GreenshotButton();
+			this.btnClose = new Button();
 			this.linkLblBugs = new System.Windows.Forms.LinkLabel();
 			this.SuspendLayout();
 			// 
@@ -112,8 +113,8 @@ namespace Greenshot.Forms {
 
 		}
 		private System.Windows.Forms.LinkLabel linkLblBugs;
-		private GreenshotButton btnClose;
+		private Button btnClose;
 		private System.Windows.Forms.TextBox textBoxDescription;
-		private GreenshotLabel labelBugReportInfo;
+		private Label labelBugReportInfo;
 	}
 }

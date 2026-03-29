@@ -20,6 +20,8 @@
  */
 
 using Greenshot.Base.Controls;
+using System.Windows.Forms;
+
 
 namespace Greenshot.Editor.Forms
 {
@@ -53,42 +55,42 @@ namespace Greenshot.Editor.Forms
         {
             this.mainFlowPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.searchPanel = new System.Windows.Forms.Panel();
-            this.searchLabel = new GreenshotLabel();
+            this.searchLabel = new Label();
             this.searchTextBox = new System.Windows.Forms.TextBox();
-            this.searchButton = new GreenshotButton();
+            this.searchButton = new Button();
             this.checkboxPanel = new System.Windows.Forms.Panel();
             this.regexCheckBox = new GreenshotCheckBox();
             this.caseSensitiveCheckBox = new GreenshotCheckBox();
             this.scopePanel = new System.Windows.Forms.Panel();
-            this.searchScopeLabel = new GreenshotLabel();
+            this.searchScopeLabel = new Label();
             this.searchScopeComboBox = new System.Windows.Forms.ComboBox();
-            this.matchCountLabel = new GreenshotLabel();
+            this.matchCountLabel = new Label();
             this.effectPanel = new System.Windows.Forms.Panel();
-            this.effectLabel = new GreenshotLabel();
+            this.effectLabel = new Label();
             this.effectComboBox = new System.Windows.Forms.ComboBox();
             this.effectSettingsPanel = new System.Windows.Forms.Panel();
-            this.pixelSizeLabel = new GreenshotLabel();
+            this.pixelSizeLabel = new Label();
             this.pixelSizeUpDown = new System.Windows.Forms.NumericUpDown();
-            this.blurRadiusLabel = new GreenshotLabel();
+            this.blurRadiusLabel = new Label();
             this.blurRadiusUpDown = new System.Windows.Forms.NumericUpDown();
-            this.highlightColorLabel = new GreenshotLabel();
-            this.highlightColorButton = new System.Windows.Forms.Button();
-            this.magnificationLabel = new GreenshotLabel();
+            this.highlightColorLabel = new Label();
+            this.highlightColorButton = new Button();
+            this.magnificationLabel = new Label();
             this.magnificationUpDown = new System.Windows.Forms.NumericUpDown();
             this.advancedSettingsCheckBox = new GreenshotCheckBox();
-            this.advancedSettingsGroupBox = new System.Windows.Forms.GroupBox();
+            this.advancedSettingsGroupBox = new GroupBox();
             this.advancedPanel = new System.Windows.Forms.Panel();
-            this.paddingHorizontalLabel = new GreenshotLabel();
+            this.paddingHorizontalLabel = new Label();
             this.paddingHorizontalUpDown = new System.Windows.Forms.NumericUpDown();
-            this.paddingVerticalLabel = new GreenshotLabel();
+            this.paddingVerticalLabel = new Label();
             this.paddingVerticalUpDown = new System.Windows.Forms.NumericUpDown();
-            this.offsetHorizontalLabel = new GreenshotLabel();
+            this.offsetHorizontalLabel = new Label();
             this.offsetHorizontalUpDown = new System.Windows.Forms.NumericUpDown();
-            this.offsetVerticalLabel = new GreenshotLabel();
+            this.offsetVerticalLabel = new Label();
             this.offsetVerticalUpDown = new System.Windows.Forms.NumericUpDown();
             this.buttonPanel = new System.Windows.Forms.Panel();
-            this.applyButton = new GreenshotButton();
-            this.cancelButton = new GreenshotButton();
+            this.applyButton = new Button();
+            this.cancelButton = new Button();
             this.mainFlowPanel.SuspendLayout();
             this.searchPanel.SuspendLayout();
             this.checkboxPanel.SuspendLayout();
@@ -551,41 +553,41 @@ namespace Greenshot.Editor.Forms
 
         private System.Windows.Forms.FlowLayoutPanel mainFlowPanel;
         private System.Windows.Forms.Panel searchPanel;
-        private GreenshotLabel searchLabel;
+        private Label searchLabel;
         private System.Windows.Forms.TextBox searchTextBox;
-        private GreenshotButton searchButton;
+        private Button searchButton;
         private System.Windows.Forms.Panel checkboxPanel;
         private GreenshotCheckBox regexCheckBox;
         private GreenshotCheckBox caseSensitiveCheckBox;
         private System.Windows.Forms.Panel scopePanel;
-        private GreenshotLabel searchScopeLabel;
+        private Label searchScopeLabel;
         private System.Windows.Forms.ComboBox searchScopeComboBox;
-        private GreenshotLabel matchCountLabel;
+        private Label matchCountLabel;
         private System.Windows.Forms.Panel effectPanel;
-        private GreenshotLabel effectLabel;
+        private Label effectLabel;
         private System.Windows.Forms.ComboBox effectComboBox;
         private System.Windows.Forms.Panel effectSettingsPanel;
-        private GreenshotLabel pixelSizeLabel;
+        private Label pixelSizeLabel;
         private System.Windows.Forms.NumericUpDown pixelSizeUpDown;
-        private GreenshotLabel blurRadiusLabel;
+        private Label blurRadiusLabel;
         private System.Windows.Forms.NumericUpDown blurRadiusUpDown;
-        private GreenshotLabel highlightColorLabel;
-        private System.Windows.Forms.Button highlightColorButton;
-        private GreenshotLabel magnificationLabel;
+        private Label highlightColorLabel;
+        private Button highlightColorButton;
+        private Label magnificationLabel;
         private System.Windows.Forms.NumericUpDown magnificationUpDown;
         private GreenshotCheckBox advancedSettingsCheckBox;
-        private System.Windows.Forms.GroupBox advancedSettingsGroupBox;
+        private GroupBox advancedSettingsGroupBox;
         private System.Windows.Forms.Panel advancedPanel;
-        private GreenshotLabel paddingHorizontalLabel;
+        private Label paddingHorizontalLabel;
         private System.Windows.Forms.NumericUpDown paddingHorizontalUpDown;
-        private GreenshotLabel paddingVerticalLabel;
+        private Label paddingVerticalLabel;
         private System.Windows.Forms.NumericUpDown paddingVerticalUpDown;
-        private GreenshotLabel offsetHorizontalLabel;
+        private Label offsetHorizontalLabel;
         private System.Windows.Forms.NumericUpDown offsetHorizontalUpDown;
-        private GreenshotLabel offsetVerticalLabel;
+        private Label offsetVerticalLabel;
         private System.Windows.Forms.NumericUpDown offsetVerticalUpDown;
         private System.Windows.Forms.Panel buttonPanel;
-        private GreenshotButton applyButton;
-        private GreenshotButton cancelButton;
+        private Button applyButton;
+        private Button cancelButton;
     }
 }

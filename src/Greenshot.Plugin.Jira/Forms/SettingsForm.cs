@@ -19,6 +19,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using Greenshot.Base.Core;
+
 namespace Greenshot.Plugin.Jira.Forms;
 
 /// <summary>
@@ -32,22 +34,22 @@ public partial class SettingsForm : JiraFormBase
         // The InitializeComponent() call is required for Windows Forms designer support.
         //
         InitializeComponent();
-        InitializeLanguageBindings();
+        InitializeLanguage();
         AcceptButton = buttonOK;
         CancelButton = buttonCancel;
     }
 
     /// <inheritdoc />
-    protected override void InitializeLanguageBindings()
+    protected override void InitializeLanguage()
     {
-        buttonOK.LanguageKey = "OK";
-        buttonCancel.LanguageKey = "CANCEL";
-        label_url.LanguageKey = "label_url";
+        buttonOK.Text = Language.GetString("OK");
+        buttonCancel.Text = Language.GetString("CANCEL");
+        label_url.Text = Language.GetString("label_url");
         textBoxUrl.PropertyName = nameof(JiraConfiguration.Url);
         textBoxUrl.SectionName = "Jira";
         combobox_uploadimageformat.PropertyName = nameof(JiraConfiguration.UploadFormat);
         combobox_uploadimageformat.SectionName = "Jira";
-        label_upload_format.LanguageKey = "label_upload_format";
-        LanguageKey = "settings_title";
+        label_upload_format.Text = Language.GetString("label_upload_format");
+        Text = Language.GetString("settings_title");
     }
 }

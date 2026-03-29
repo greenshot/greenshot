@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -20,6 +20,8 @@
  */
 
 using Greenshot.Base.Controls;
+using System.Windows.Forms;
+
 
 namespace Greenshot.Editor.Forms {
 	partial class TornEdgeSettingsForm {
@@ -48,19 +50,19 @@ namespace Greenshot.Editor.Forms {
 		private void InitializeComponent() {
 			this.thickness = new System.Windows.Forms.NumericUpDown();
 			this.offsetX = new System.Windows.Forms.NumericUpDown();
-			this.label3 = new System.Windows.Forms.Label();
+			this.label3 = new Label();
 			this.offsetY = new System.Windows.Forms.NumericUpDown();
 			this.shadowDarkness = new System.Windows.Forms.TrackBar();
-			this.buttonOK = new GreenshotButton();
-			this.buttonCancel = new GreenshotButton();
-			this.labelDarkness = new GreenshotLabel();
-			this.labelOffset = new GreenshotLabel();
-			this.labelThickness = new GreenshotLabel();
+			this.buttonOK = new Button();
+			this.buttonCancel = new Button();
+			this.labelDarkness = new Label();
+			this.labelOffset = new Label();
+			this.labelThickness = new Label();
 			this.toothsize = new System.Windows.Forms.NumericUpDown();
-			this.label_toothsize = new GreenshotLabel();
-			this.label_horizontaltoothrange = new GreenshotLabel();
+			this.label_toothsize = new Label();
+			this.label_horizontaltoothrange = new Label();
 			this.horizontaltoothrange = new System.Windows.Forms.NumericUpDown();
-			this.labelVerticaltoothrange = new GreenshotLabel();
+			this.labelVerticaltoothrange = new Label();
 			this.verticaltoothrange = new System.Windows.Forms.NumericUpDown();
 			this.top = new GreenshotCheckBox();
 			this.right = new GreenshotCheckBox();
@@ -400,19 +402,19 @@ namespace Greenshot.Editor.Forms {
 
 		private System.Windows.Forms.NumericUpDown thickness;
 		private System.Windows.Forms.NumericUpDown offsetX;
-		private System.Windows.Forms.Label label3;
+		private Label label3;
 		private System.Windows.Forms.NumericUpDown offsetY;
 		private System.Windows.Forms.TrackBar shadowDarkness;
-		private GreenshotButton buttonOK;
-		private GreenshotButton buttonCancel;
-		private GreenshotLabel labelDarkness;
-		private GreenshotLabel labelOffset;
-		private GreenshotLabel labelThickness;
+		private Button buttonOK;
+		private Button buttonCancel;
+		private Label labelDarkness;
+		private Label labelOffset;
+		private Label labelThickness;
 		private System.Windows.Forms.NumericUpDown toothsize;
-		private GreenshotLabel label_toothsize;
-		private GreenshotLabel label_horizontaltoothrange;
+		private Label label_toothsize;
+		private Label label_horizontaltoothrange;
 		private System.Windows.Forms.NumericUpDown horizontaltoothrange;
-		private GreenshotLabel labelVerticaltoothrange;
+		private Label labelVerticaltoothrange;
 		private System.Windows.Forms.NumericUpDown verticaltoothrange;
 		private GreenshotCheckBox top;
 		private GreenshotCheckBox right;

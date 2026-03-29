@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2004-2026  Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -20,6 +20,8 @@
  */
 
 using Greenshot.Base.Controls;
+using System.Windows.Forms;
+
 
 namespace Greenshot.Plugin.Dropbox.Forms; 
 	partial class SettingsForm {
@@ -48,11 +50,11 @@ namespace Greenshot.Plugin.Dropbox.Forms;
 		/// not be able to load this method if it was changed manually.
 		/// </summary>
 		private void InitializeComponent() {
-			this.buttonOK = new GreenshotButton();
-			this.buttonCancel = new GreenshotButton();
+			this.buttonOK = new Button();
+			this.buttonCancel = new Button();
 			this.combobox_uploadimageformat = new GreenshotComboBox();
-			this.label_upload_format = new GreenshotLabel();
-			this.label_AfterUpload = new GreenshotLabel();
+			this.label_upload_format = new Label();
+			this.label_AfterUpload = new Label();
 			this.checkboxAfterUploadLinkToClipBoard = new GreenshotCheckBox();
 			this.SuspendLayout();
 			// 
@@ -129,9 +131,9 @@ namespace Greenshot.Plugin.Dropbox.Forms;
 
 		}
 		private GreenshotComboBox combobox_uploadimageformat;
-		private GreenshotLabel label_upload_format;
-		private GreenshotButton buttonCancel;
-		private GreenshotButton buttonOK;
-		private GreenshotLabel label_AfterUpload;
+		private Label label_upload_format;
+		private Button buttonCancel;
+		private Button buttonOK;
+		private Label label_AfterUpload;
 		private GreenshotCheckBox checkboxAfterUploadLinkToClipBoard;
 	}

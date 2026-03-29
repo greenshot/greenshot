@@ -32,205 +32,204 @@ using Greenshot.Base.Interfaces;
 using log4net;
 using Microsoft.Toolkit.Uwp.Notifications;
 
-namespace Greenshot.Plugin.Win10
+namespace Greenshot.Native;
+
+/// <summary>
+/// This service provides a way to inform (notify) the user.
+/// </summary>
+public class ToastNotificationService : INotificationService
 {
-    /// <summary>
-    /// This service provides a way to inform (notify) the user.
-    /// </summary>
-    public class ToastNotificationService : INotificationService
+    private static readonly ILog Log = LogManager.GetLogger(typeof(ToastNotificationService));
+    private static readonly CoreConfiguration CoreConfiguration = IniConfig.GetIniSection<CoreConfiguration>();
+
+    private readonly string _imageFilePath;
+
+    public ToastNotificationService()
     {
-        private static readonly ILog Log = LogManager.GetLogger(typeof(ToastNotificationService));
-        private static readonly CoreConfiguration CoreConfiguration = IniConfig.GetIniSection<CoreConfiguration>();
-
-        private readonly string _imageFilePath;
-
-        public ToastNotificationService()
+        if (ToastNotificationManagerCompat.WasCurrentProcessToastActivated())
         {
-            if (ToastNotificationManagerCompat.WasCurrentProcessToastActivated())
-            {
-                Log.Info("Greenshot was activated due to a toast.");
-            }
-
-            // Listen to notification activation
-            ToastNotificationManagerCompat.OnActivated += toastArgs =>
-            {
-                // Obtain the arguments from the notification
-                ToastArguments args = ToastArguments.Parse(toastArgs.Argument);
-
-                // Obtain any user input (text boxes, menu selections) from the notification
-                ValueSet userInput = toastArgs.UserInput;
-
-                Log.Info("Toast activated. Args: " + toastArgs.Argument);
-            };
-
-            var localAppData = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Greenshot");
-            if (!Directory.Exists(localAppData))
-            {
-                Directory.CreateDirectory(localAppData);
-            }
-
-            _imageFilePath = Path.Combine(localAppData, "greenshot.png");
-
-            if (File.Exists(_imageFilePath))
-            {
-                return;
-            }
-
-            using var greenshotImage = GreenshotResources.GetGreenshotIcon().ToBitmap();
-            greenshotImage.Save(_imageFilePath, ImageFormat.Png);
+            Log.Info("Greenshot was activated due to a toast.");
         }
 
-        /// <summary>
-        /// This creates the actual toast
-        /// </summary>
-        /// <param name="message">string</param>
-        /// <param name="timeout">TimeSpan until the toast timeouts</param>
-        /// <param name="onClickAction">Action called when clicked</param>
-        /// <param name="onClosedAction">Action called when the toast is closed</param>
-        private void ShowMessage(string message, TimeSpan? timeout = default, Action onClickAction = null, Action onClosedAction = null)
+        // Listen to notification activation
+        ToastNotificationManagerCompat.OnActivated += toastArgs =>
         {
-            // Do not inform the user if this is disabled
-            if (!CoreConfiguration.ShowTrayNotification)
-            {
-                return;
-            }
+            // Obtain the arguments from the notification
+            ToastArguments args = ToastArguments.Parse(toastArgs.Argument);
 
-            // Prepare the toast notifier. Be sure to specify the AppUserModelId on your application's shortcut!
-            Microsoft.Toolkit.Uwp.Notifications.ToastNotifierCompat toastNotifier = null;
-            try
-            {
-                toastNotifier = ToastNotificationManagerCompat.CreateToastNotifier();
-            }
-            catch (Exception ex)
-            {
-                Log.Warn("Could not create a toast notifier.", ex);
+            // Obtain any user input (text boxes, menu selections) from the notification
+            ValueSet userInput = toastArgs.UserInput;
 
-                return;
-            }
+            Log.Info("Toast activated. Args: " + toastArgs.Argument);
+        };
 
-            try
+        var localAppData = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Greenshot");
+        if (!Directory.Exists(localAppData))
+        {
+            Directory.CreateDirectory(localAppData);
+        }
+
+        _imageFilePath = Path.Combine(localAppData, "greenshot.png");
+
+        if (File.Exists(_imageFilePath))
+        {
+            return;
+        }
+
+        using var greenshotImage = GreenshotResources.GetGreenshotIcon().ToBitmap();
+        greenshotImage.Save(_imageFilePath, ImageFormat.Png);
+    }
+
+    /// <summary>
+    /// This creates the actual toast
+    /// </summary>
+    /// <param name="message">string</param>
+    /// <param name="timeout">TimeSpan until the toast timeouts</param>
+    /// <param name="onClickAction">Action called when clicked</param>
+    /// <param name="onClosedAction">Action called when the toast is closed</param>
+    private void ShowMessage(string message, TimeSpan? timeout = default, Action onClickAction = null, Action onClosedAction = null)
+    {
+        // Do not inform the user if this is disabled
+        if (!CoreConfiguration.ShowTrayNotification)
+        {
+            return;
+        }
+
+        // Prepare the toast notifier. Be sure to specify the AppUserModelId on your application's shortcut!
+        Microsoft.Toolkit.Uwp.Notifications.ToastNotifierCompat toastNotifier = null;
+        try
+        {
+            toastNotifier = ToastNotificationManagerCompat.CreateToastNotifier();
+        }
+        catch (Exception ex)
+        {
+            Log.Warn("Could not create a toast notifier.", ex);
+
+            return;
+        }
+
+        try
+        {
+            var settingTask = Task.Run(() => toastNotifier.Setting);
+            if (settingTask.Wait(TimeSpan.FromMilliseconds(500)))
             {
-                var settingTask = Task.Run(() => toastNotifier.Setting);
-                if (settingTask.Wait(TimeSpan.FromMilliseconds(500)))
+                if (settingTask.Result != NotificationSetting.Enabled)
                 {
-                    if (settingTask.Result != NotificationSetting.Enabled)
-                    {
-                        Log.DebugFormat("Ignored toast due to {0}", settingTask.Result);
-                        return;
-                    }
+                    Log.DebugFormat("Ignored toast due to {0}", settingTask.Result);
+                    return;
                 }
-                else
+            }
+            else
+            {
+                Log.Warn("Timed out reading toast notification setting; skipping setting check.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.WarnFormat("Exception reading toast notification setting, skipping check: {0}", ex.Message);
+        }
+
+        try
+        {
+            // Generate the toast and send it off
+            new ToastContentBuilder()
+                .AddArgument("ToastID", 100)
+                // Inline image
+                .AddText(message)
+                // Profile (app logo override) image
+                //.AddAppLogoOverride(new Uri($@"file://{_imageFilePath}"), ToastGenericAppLogoCrop.None)
+                .Show(toast =>
                 {
-                    Log.Warn("Timed out reading toast notification setting; skipping setting check.");
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.WarnFormat("Exception reading toast notification setting, skipping check: {0}", ex.Message);
-            }
+                // Windows 10 first with 1903: ExpiresOnReboot = true
+                toast.ExpirationTime = timeout.HasValue ? DateTimeOffset.Now.Add(timeout.Value) : (DateTimeOffset?)null;
 
-            try
-            {
-                // Generate the toast and send it off
-                new ToastContentBuilder()
-                    .AddArgument("ToastID", 100)
-                    // Inline image
-                    .AddText(message)
-                    // Profile (app logo override) image
-                    //.AddAppLogoOverride(new Uri($@"file://{_imageFilePath}"), ToastGenericAppLogoCrop.None)
-                    .Show(toast =>
+                    void ToastActivatedHandler(ToastNotification toastNotification, object sender)
                     {
-                    // Windows 10 first with 1903: ExpiresOnReboot = true
-                    toast.ExpirationTime = timeout.HasValue ? DateTimeOffset.Now.Add(timeout.Value) : (DateTimeOffset?)null;
-
-                        void ToastActivatedHandler(ToastNotification toastNotification, object sender)
+                        try
                         {
-                            try
-                            {
-                                onClickAction?.Invoke();
-                            }
-                            catch (Exception ex)
-                            {
-                                Log.Warn("Exception while handling the onclick action: ", ex);
-                            }
-
-                            toast.Activated -= ToastActivatedHandler;
+                            onClickAction?.Invoke();
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.Warn("Exception while handling the onclick action: ", ex);
                         }
 
-                        if (onClickAction != null)
-                        {
-                            toast.Activated += ToastActivatedHandler;
-                        }
-
-                        void ToastDismissedHandler(ToastNotification toastNotification, ToastDismissedEventArgs eventArgs)
-                        {
-                            Log.Debug($"Toast closed with reason {eventArgs.Reason}");
-                            if (eventArgs.Reason != ToastDismissalReason.UserCanceled)
-                            {
-                                return;
-                            }
-
-                            try
-                            {
-                                onClosedAction?.Invoke();
-                            }
-                            catch (Exception ex)
-                            {
-                                Log.Warn("Exception while handling the onClosed action: ", ex);
-                            }
-
-                            toast.Dismissed -= ToastDismissedHandler;
-                        // Remove the other handler too
                         toast.Activated -= ToastActivatedHandler;
-                            toast.Failed -= ToastOnFailed;
+                    }
+
+                    if (onClickAction != null)
+                    {
+                        toast.Activated += ToastActivatedHandler;
+                    }
+
+                    void ToastDismissedHandler(ToastNotification toastNotification, ToastDismissedEventArgs eventArgs)
+                    {
+                        Log.Debug($"Toast closed with reason {eventArgs.Reason}");
+                        if (eventArgs.Reason != ToastDismissalReason.UserCanceled)
+                        {
+                            return;
                         }
 
-                        toast.Dismissed += ToastDismissedHandler;
-                        toast.Failed += ToastOnFailed;
-                    });
+                        try
+                        {
+                            onClosedAction?.Invoke();
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.Warn("Exception while handling the onClosed action: ", ex);
+                        }
 
-            }
-            catch (Exception ex)
-            {
-                Log.Warn("Ignoring exception as this means that it was not possible to generate a toast.", ex);
-            }
+                        toast.Dismissed -= ToastDismissedHandler;
+                    // Remove the other handler too
+                    toast.Activated -= ToastActivatedHandler;
+                        toast.Failed -= ToastOnFailed;
+                    }
+
+                    toast.Dismissed += ToastDismissedHandler;
+                    toast.Failed += ToastOnFailed;
+                });
+
         }
-
-        private void ToastOnFailed(ToastNotification sender, ToastFailedEventArgs args)
+        catch (Exception ex)
         {
-            Log.WarnFormat("Failed to display a toast due to {0}", args.ErrorCode);
-            Log.Debug(sender.Content.GetXml());
+            Log.Warn("Ignoring exception as this means that it was not possible to generate a toast.", ex);
         }
+    }
 
-        public void ShowWarningMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null)
+    private void ToastOnFailed(ToastNotification sender, ToastFailedEventArgs args)
+    {
+        Log.WarnFormat("Failed to display a toast due to {0}", args.ErrorCode);
+        Log.Debug(sender.Content.GetXml());
+    }
+
+    public void ShowWarningMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null)
+    {
+        ShowMessage(message, timeout, onClickAction, onClosedAction);
+    }
+
+    public void ShowErrorMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null)
+    {
+        ShowMessage(message, timeout, onClickAction, onClosedAction);
+    }
+
+    public void ShowInfoMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null)
+    {
+        ShowMessage(message, timeout, onClickAction, onClosedAction);
+    }
+
+    /// <summary>
+    /// Factory method, helping with checking if the notification service is even available
+    /// </summary>
+    /// <returns>ToastNotificationService</returns>
+    public static ToastNotificationService Create()
+    {
+        if (ApiInformation.IsTypePresent("Windows.ApplicationModel.Background.ToastNotificationActionTrigger"))
         {
-            ShowMessage(message, timeout, onClickAction, onClosedAction);
+            return new ToastNotificationService();
         }
 
-        public void ShowErrorMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null)
-        {
-            ShowMessage(message, timeout, onClickAction, onClosedAction);
-        }
+        Log.Warn("ToastNotificationActionTrigger not available.");
 
-        public void ShowInfoMessage(string message, TimeSpan? timeout = null, Action onClickAction = null, Action onClosedAction = null)
-        {
-            ShowMessage(message, timeout, onClickAction, onClosedAction);
-        }
-
-        /// <summary>
-        /// Factory method, helping with checking if the notification service is even available
-        /// </summary>
-        /// <returns>ToastNotificationService</returns>
-        public static ToastNotificationService Create()
-        {
-            if (ApiInformation.IsTypePresent("Windows.ApplicationModel.Background.ToastNotificationActionTrigger"))
-            {
-                return new ToastNotificationService();
-            }
-
-            Log.Warn("ToastNotificationActionTrigger not available.");
-
-            return null;
-        }
+        return null;
     }
 }

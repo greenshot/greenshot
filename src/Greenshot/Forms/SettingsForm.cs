@@ -1,6 +1,6 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
- * Copyright � 2004-2026  Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright ? 2004-2026  Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -46,7 +46,7 @@ namespace Greenshot.Forms
     /// <summary>
     /// Description of SettingsForm.
     /// </summary>
-    public partial class SettingsForm : BaseForm
+    public partial class SettingsForm : GreenshotForm
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(SettingsForm));
         private readonly ToolTip _toolTip = new ToolTip();
@@ -56,7 +56,7 @@ namespace Greenshot.Forms
         public SettingsForm()
         {
             InitializeComponent();
-            InitializeLanguageBindings();
+            InitializeLanguage();
             // Make sure we change the icon size depending on the scaling
             DpiChanged += AdjustToDpi;
 
@@ -65,115 +65,115 @@ namespace Greenshot.Forms
         }
 
         /// <inheritdoc />
-        protected override void InitializeLanguageBindings()
+        protected override void InitializeLanguage()
         {
-            label_storagelocation.LanguageKey = "settings_storagelocation";
-            settings_cancel.LanguageKey = "CANCEL";
-            settings_confirm.LanguageKey = "OK";
-            label_screenshotname.LanguageKey = "settings_filenamepattern";
+            label_storagelocation.Text = Language.GetString("settings_storagelocation");
+            settings_cancel.Text = Language.GetString("CANCEL");
+            settings_confirm.Text = Language.GetString("OK");
+            label_screenshotname.Text = Language.GetString("settings_filenamepattern");
             textbox_screenshotname.PropertyName = nameof(CoreConfiguration.OutputFileFilenamePattern);
-            label_language.LanguageKey = "settings_language";
+            label_language.Text = Language.GetString("settings_language");
             combobox_primaryimageformat.PropertyName = nameof(CoreConfiguration.OutputFileFormat);
-            label_primaryimageformat.LanguageKey = "settings_primaryimageformat";
-            groupbox_preferredfilesettings.LanguageKey = "settings_preferredfilesettings";
-            checkbox_copypathtoclipboard.LanguageKey = "settings_copypathtoclipboard";
+            label_primaryimageformat.Text = Language.GetString("settings_primaryimageformat");
+            groupbox_preferredfilesettings.Text = Language.GetString("settings_preferredfilesettings");
+            checkbox_copypathtoclipboard.Text = Language.GetString("settings_copypathtoclipboard");
             checkbox_copypathtoclipboard.PropertyName = nameof(CoreConfiguration.OutputFileCopyPathToClipboard);
-            groupbox_applicationsettings.LanguageKey = "settings_applicationsettings";
-            label_icon_size.LanguageKey = "settings_iconsize";
-            checkbox_autostartshortcut.LanguageKey = "settings_autostartshortcut";
-            groupbox_qualitysettings.LanguageKey = "settings_qualitysettings";
-            checkbox_reducecolors.LanguageKey = "settings_reducecolors";
+            groupbox_applicationsettings.Text = Language.GetString("settings_applicationsettings");
+            label_icon_size.Text = Language.GetString("settings_iconsize");
+            checkbox_autostartshortcut.Text = Language.GetString("settings_autostartshortcut");
+            groupbox_qualitysettings.Text = Language.GetString("settings_qualitysettings");
+            checkbox_reducecolors.Text = Language.GetString("settings_reducecolors");
             checkbox_reducecolors.PropertyName = nameof(CoreConfiguration.OutputFileReduceColors);
-            checkbox_alwaysshowqualitydialog.LanguageKey = "settings_alwaysshowqualitydialog";
+            checkbox_alwaysshowqualitydialog.Text = Language.GetString("settings_alwaysshowqualitydialog");
             checkbox_alwaysshowqualitydialog.PropertyName = nameof(CoreConfiguration.OutputFilePromptQuality);
-            label_jpegquality.LanguageKey = "settings_jpegquality";
-            groupbox_destination.LanguageKey = "settings_destination";
-            checkbox_picker.LanguageKey = "settings_destination_picker";
-            tab_general.LanguageKey = "settings_general";
-            groupbox_network.LanguageKey = "settings_network";
-            label_checkperiod.LanguageKey = "settings_checkperiod";
-            checkbox_usedefaultproxy.LanguageKey = "settings_usedefaultproxy";
+            label_jpegquality.Text = Language.GetString("settings_jpegquality");
+            groupbox_destination.Text = Language.GetString("settings_destination");
+            checkbox_picker.Text = Language.GetString("settings_destination_picker");
+            tab_general.Text = Language.GetString("settings_general");
+            groupbox_network.Text = Language.GetString("settings_network");
+            label_checkperiod.Text = Language.GetString("settings_checkperiod");
+            checkbox_usedefaultproxy.Text = Language.GetString("settings_usedefaultproxy");
             checkbox_usedefaultproxy.PropertyName = nameof(CoreConfiguration.UseProxy);
-            groupbox_hotkeys.LanguageKey = "hotkeys";
-            label_lastregion_hotkey.LanguageKey = "contextmenu_capturelastregion";
+            groupbox_hotkeys.Text = Language.GetString("hotkeys");
+            label_lastregion_hotkey.Text = Language.GetString("contextmenu_capturelastregion");
             lastregion_hotkeyControl.PropertyName = nameof(CoreConfiguration.LastregionHotkey);
-            label_region_hotkey.LanguageKey = "contextmenu_capturearea";
-            label_window_hotkey.LanguageKey = "contextmenu_capturewindow";
-            label_fullscreen_hotkey.LanguageKey = "contextmenu_capturefullscreen";
+            label_region_hotkey.Text = Language.GetString("contextmenu_capturearea");
+            label_window_hotkey.Text = Language.GetString("contextmenu_capturewindow");
+            label_fullscreen_hotkey.Text = Language.GetString("contextmenu_capturefullscreen");
             region_hotkeyControl.PropertyName = nameof(CoreConfiguration.RegionHotkey);
             window_hotkeyControl.PropertyName = nameof(CoreConfiguration.WindowHotkey);
             fullscreen_hotkeyControl.PropertyName = nameof(CoreConfiguration.FullscreenHotkey);
-            tab_capture.LanguageKey = "settings_capture";
-            groupbox_editor.LanguageKey = "settings_editor";
-            checkbox_editor_match_capture_size.LanguageKey = "editor_match_capture_size";
+            tab_capture.Text = Language.GetString("settings_capture");
+            groupbox_editor.Text = Language.GetString("settings_editor");
+            checkbox_editor_match_capture_size.Text = Language.GetString("editor_match_capture_size");
             checkbox_editor_match_capture_size.PropertyName = nameof(Editor.Configuration.EditorConfiguration.MatchSizeToCapture);
             checkbox_editor_match_capture_size.SectionName = "Editor";
-            groupbox_windowscapture.LanguageKey = "settings_windowscapture";
-            radiobuttonWindowCapture.LanguageKey = "settings_window_capture_mode";
-            radiobuttonInteractiveCapture.LanguageKey = "settings_capture_windows_interactive";
+            groupbox_windowscapture.Text = Language.GetString("settings_windowscapture");
+            radiobuttonWindowCapture.Text = Language.GetString("settings_window_capture_mode");
+            radiobuttonInteractiveCapture.Text = Language.GetString("settings_capture_windows_interactive");
             radiobuttonInteractiveCapture.PropertyName = nameof(CoreConfiguration.CaptureWindowsInteractive);
-            groupbox_capture.LanguageKey = "settings_capture";
-            checkbox_zoomer.LanguageKey = "settings_zoom";
+            groupbox_capture.Text = Language.GetString("settings_capture");
+            checkbox_zoomer.Text = Language.GetString("settings_zoom");
             checkbox_zoomer.PropertyName = nameof(CoreConfiguration.ZoomerEnabled);
-            checkbox_notifications.LanguageKey = "settings_shownotify";
+            checkbox_notifications.Text = Language.GetString("settings_shownotify");
             checkbox_notifications.PropertyName = nameof(CoreConfiguration.ShowTrayNotification);
-            checkbox_playsound.LanguageKey = "settings_playsound";
+            checkbox_playsound.Text = Language.GetString("settings_playsound");
             checkbox_playsound.PropertyName = nameof(CoreConfiguration.PlayCameraSound);
-            checkbox_capture_mousepointer.LanguageKey = "settings_capture_mousepointer";
+            checkbox_capture_mousepointer.Text = Language.GetString("settings_capture_mousepointer");
             checkbox_capture_mousepointer.PropertyName = nameof(CoreConfiguration.CaptureMousepointer);
-            label_waittime.LanguageKey = "settings_waittime";
-            tab_output.LanguageKey = "settings_output";
-            tab_destinations.LanguageKey = "settings_destination";
-            tab_printer.LanguageKey = "settings_printer";
-            groupBoxColors.LanguageKey = "printoptions_colors";
-            checkboxPrintInverted.LanguageKey = "printoptions_inverted";
+            label_waittime.Text = Language.GetString("settings_waittime");
+            tab_output.Text = Language.GetString("settings_output");
+            tab_destinations.Text = Language.GetString("settings_destination");
+            tab_printer.Text = Language.GetString("settings_printer");
+            groupBoxColors.Text = Language.GetString("printoptions_colors");
+            checkboxPrintInverted.Text = Language.GetString("printoptions_inverted");
             checkboxPrintInverted.PropertyName = nameof(CoreConfiguration.OutputPrintInverted);
-            radioBtnColorPrint.LanguageKey = "printoptions_printcolor";
-            radioBtnGrayScale.LanguageKey = "printoptions_printgrayscale";
+            radioBtnColorPrint.Text = Language.GetString("printoptions_printcolor");
+            radioBtnGrayScale.Text = Language.GetString("printoptions_printgrayscale");
             radioBtnGrayScale.PropertyName = nameof(coreConfiguration.OutputPrintGrayscale);
-            radioBtnMonochrome.LanguageKey = "printoptions_printmonochrome";
+            radioBtnMonochrome.Text = Language.GetString("printoptions_printmonochrome");
             radioBtnMonochrome.PropertyName = nameof(coreConfiguration.OutputPrintMonochrome);
-            groupBoxPrintLayout.LanguageKey = "printoptions_layout";
-            checkboxDateTime.LanguageKey = "printoptions_timestamp";
+            groupBoxPrintLayout.Text = Language.GetString("printoptions_layout");
+            checkboxDateTime.Text = Language.GetString("printoptions_timestamp");
             checkboxDateTime.PropertyName = nameof(coreConfiguration.OutputPrintFooter);
-            checkboxAllowShrink.LanguageKey = "printoptions_allowshrink";
+            checkboxAllowShrink.Text = Language.GetString("printoptions_allowshrink");
             checkboxAllowShrink.PropertyName = nameof(coreConfiguration.OutputPrintAllowShrink);
-            checkboxAllowEnlarge.LanguageKey = "printoptions_allowenlarge";
+            checkboxAllowEnlarge.Text = Language.GetString("printoptions_allowenlarge");
             checkboxAllowEnlarge.PropertyName = nameof(coreConfiguration.OutputPrintAllowEnlarge);
-            checkboxAllowRotate.LanguageKey = "printoptions_allowrotate";
+            checkboxAllowRotate.Text = Language.GetString("printoptions_allowrotate");
             checkboxAllowRotate.PropertyName = nameof(coreConfiguration.OutputPrintAllowRotate);
-            checkboxAllowCenter.LanguageKey = "printoptions_allowcenter";
+            checkboxAllowCenter.Text = Language.GetString("printoptions_allowcenter");
             checkboxAllowCenter.PropertyName = nameof(coreConfiguration.OutputPrintCenter);
-            checkbox_alwaysshowprintoptionsdialog.LanguageKey = "settings_alwaysshowprintoptionsdialog";
+            checkbox_alwaysshowprintoptionsdialog.Text = Language.GetString("settings_alwaysshowprintoptionsdialog");
             checkbox_alwaysshowprintoptionsdialog.PropertyName = nameof(coreConfiguration.OutputPrintPromptOptions);
-            tab_plugins.LanguageKey = "settings_plugins";
-            groupbox_plugins.LanguageKey = "settings_plugins";
-            button_pluginconfigure.LanguageKey = "settings_configureplugin";
-            tab_expert.LanguageKey = "expertsettings";
-            groupbox_expert.LanguageKey = "expertsettings";
-            checkbox_reuseeditor.LanguageKey = "expertsettings_reuseeditorifpossible";
+            tab_plugins.Text = Language.GetString("settings_plugins");
+            groupbox_plugins.Text = Language.GetString("settings_plugins");
+            button_pluginconfigure.Text = Language.GetString("settings_configureplugin");
+            tab_expert.Text = Language.GetString("expertsettings");
+            groupbox_expert.Text = Language.GetString("expertsettings");
+            checkbox_reuseeditor.Text = Language.GetString("expertsettings_reuseeditorifpossible");
             checkbox_reuseeditor.PropertyName = nameof(Editor.Configuration.EditorConfiguration.ReuseEditor);
             checkbox_reuseeditor.SectionName = "Editor";
-            checkbox_minimizememoryfootprint.LanguageKey = "expertsettings_minimizememoryfootprint";
+            checkbox_minimizememoryfootprint.Text = Language.GetString("expertsettings_minimizememoryfootprint");
             checkbox_minimizememoryfootprint.PropertyName = nameof(coreConfiguration.MinimizeWorkingSetSize);
-            checkbox_checkunstableupdates.LanguageKey = "expertsettings_checkunstableupdates";
+            checkbox_checkunstableupdates.Text = Language.GetString("expertsettings_checkunstableupdates");
             checkbox_checkunstableupdates.PropertyName = nameof(coreConfiguration.CheckForUnstable);
-            checkbox_suppresssavedialogatclose.LanguageKey = "expertsettings_suppresssavedialogatclose";
+            checkbox_suppresssavedialogatclose.Text = Language.GetString("expertsettings_suppresssavedialogatclose");
             checkbox_suppresssavedialogatclose.PropertyName = nameof(Editor.Configuration.EditorConfiguration.SuppressSaveDialogAtClose);
             checkbox_suppresssavedialogatclose.SectionName = "Editor";
-            label_counter.LanguageKey = "expertsettings_counter";
+            label_counter.Text = Language.GetString("expertsettings_counter");
             textbox_counter.PropertyName = nameof(coreConfiguration.OutputFileIncrementingNumber);
-            label_footerpattern.LanguageKey = "expertsettings_footerpattern";
+            label_footerpattern.Text = Language.GetString("expertsettings_footerpattern");
             textbox_footerpattern.PropertyName = nameof(coreConfiguration.OutputPrintFooterPattern);
-            checkbox_thumbnailpreview.LanguageKey = "expertsettings_thumbnailpreview";
+            checkbox_thumbnailpreview.Text = Language.GetString("expertsettings_thumbnailpreview");
             checkbox_thumbnailpreview.PropertyName = nameof(coreConfiguration.ThumnailPreview);
-            checkbox_optimizeforrdp.LanguageKey = "expertsettings_optimizeforrdp";
+            checkbox_optimizeforrdp.Text = Language.GetString("expertsettings_optimizeforrdp");
             checkbox_optimizeforrdp.PropertyName = nameof(coreConfiguration.OptimizeForRDP);
-            checkbox_autoreducecolors.LanguageKey = "expertsettings_autoreducecolors";
+            checkbox_autoreducecolors.Text = Language.GetString("expertsettings_autoreducecolors");
             checkbox_autoreducecolors.PropertyName = nameof(coreConfiguration.OutputFileAutoReduceColors);
-            label_clipboardformats.LanguageKey = "expertsettings_clipboardformats";
-            checkbox_enableexpert.LanguageKey = "expertsettings_enableexpert";
-            LanguageKey = "settings_title";
+            label_clipboardformats.Text = Language.GetString("expertsettings_clipboardformats");
+            checkbox_enableexpert.Text = Language.GetString("expertsettings_enableexpert");
+            Text = Language.GetString("settings_title");
         }
 
         /// <summary>
@@ -876,7 +876,7 @@ namespace Greenshot.Forms
             UpdateUi();
 
             // Reflect Language changes form
-            ApplyLanguage();
+            InitializeLanguage();
 
             // Update the email & windows capture mode
             //SetEmailFormat(selectedEmailFormat);

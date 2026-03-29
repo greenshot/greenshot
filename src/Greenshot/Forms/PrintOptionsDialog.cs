@@ -19,16 +19,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+
 using System;
 using System.Windows.Forms;
 using Greenshot.Base.IniFile;
+using Greenshot.Base.Controls;
+using Greenshot.Base.Core;
 
 namespace Greenshot.Forms
 {
     /// <summary>
     /// Description of PrintOptionsDialog.
     /// </summary>
-    public partial class PrintOptionsDialog : BaseForm
+    public partial class PrintOptionsDialog : GreenshotForm
     {
         public PrintOptionsDialog()
         {
@@ -36,35 +39,35 @@ namespace Greenshot.Forms
             // The InitializeComponent() call is required for Windows Forms designer support.
             //
             InitializeComponent();
-            InitializeLanguageBindings();
+            InitializeLanguage();
             checkbox_dontaskagain.Checked = false;
         }
 
-        protected override void InitializeLanguageBindings()
+        protected override void InitializeLanguage()
         {
-            checkbox_dontaskagain.LanguageKey = "printoptions_dontaskagain";
-            checkboxAllowShrink.LanguageKey = "printoptions_allowshrink";
+            checkbox_dontaskagain.Text = Language.GetString("printoptions_dontaskagain");
+            checkboxAllowShrink.Text = Language.GetString("printoptions_allowshrink");
             checkboxAllowShrink.PropertyName = nameof(coreConfiguration.OutputPrintAllowShrink);
-            checkboxAllowEnlarge.LanguageKey = "printoptions_allowenlarge";
+            checkboxAllowEnlarge.Text = Language.GetString("printoptions_allowenlarge");
             checkboxAllowEnlarge.PropertyName = nameof(coreConfiguration.OutputPrintAllowEnlarge);
-            checkboxAllowCenter.LanguageKey = "printoptions_allowcenter";
+            checkboxAllowCenter.Text = Language.GetString("printoptions_allowcenter");
             checkboxAllowCenter.PropertyName = nameof(coreConfiguration.OutputPrintCenter);
-            checkboxAllowRotate.LanguageKey = "printoptions_allowrotate";
+            checkboxAllowRotate.Text = Language.GetString("printoptions_allowrotate");
             checkboxAllowRotate.PropertyName = nameof(coreConfiguration.OutputPrintAllowRotate);
-            button_ok.LanguageKey = "OK";
-            checkboxDateTime.LanguageKey = "printoptions_timestamp";
+            button_ok.Text = Language.GetString("OK");
+            checkboxDateTime.Text = Language.GetString("printoptions_timestamp");
             checkboxDateTime.PropertyName = nameof(coreConfiguration.OutputPrintFooter);
-            button_cancel.LanguageKey = "CANCEL";
-            checkboxPrintInverted.LanguageKey = "printoptions_inverted";
+            button_cancel.Text = Language.GetString("CANCEL");
+            checkboxPrintInverted.Text = Language.GetString("printoptions_inverted");
             checkboxPrintInverted.PropertyName = nameof(coreConfiguration.OutputPrintInverted);
-            radioBtnGrayScale.LanguageKey = "printoptions_printgrayscale";
+            radioBtnGrayScale.Text = Language.GetString("printoptions_printgrayscale");
             radioBtnGrayScale.PropertyName = nameof(coreConfiguration.OutputPrintGrayscale);
-            radioBtnMonochrome.LanguageKey = "printoptions_printmonochrome";
+            radioBtnMonochrome.Text = Language.GetString("printoptions_printmonochrome");
             radioBtnMonochrome.PropertyName = nameof(coreConfiguration.OutputPrintMonochrome);
-            groupBoxPrintLayout.LanguageKey = "printoptions_layout";
-            groupBoxColors.LanguageKey = "printoptions_colors";
-            radioBtnColorPrint.LanguageKey = "printoptions_printcolor";
-            LanguageKey = "printoptions_title";
+            groupBoxPrintLayout.Text = Language.GetString("printoptions_layout");
+            groupBoxColors.Text = Language.GetString("printoptions_colors");
+            radioBtnColorPrint.Text = Language.GetString("printoptions_printcolor");
+            Text = Language.GetString("printoptions_title");
         }
 
 

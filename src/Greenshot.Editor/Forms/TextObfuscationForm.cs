@@ -57,7 +57,7 @@ namespace Greenshot.Editor.Forms
             _surface = surface ?? throw new ArgumentNullException(nameof(surface));
             _ocrInfo = ocrInfo ?? throw new ArgumentNullException(nameof(ocrInfo));
             InitializeComponent();
-            InitializeLanguageBindings();
+            InitializeLanguage();
             
             InitializeEffectDropdown();
             InitializeSearchScopeDropdown();
@@ -74,17 +74,17 @@ namespace Greenshot.Editor.Forms
             }
         }
 
-        protected override void InitializeLanguageBindings()
+        protected override void InitializeLanguage()
         {
-            searchLabel.LanguageKey = "editor_obfuscate_text_search";
-            searchButton.LanguageKey = "editor_obfuscate_text_search_button";
-            regexCheckBox.LanguageKey = "editor_obfuscate_text_regex";
-            caseSensitiveCheckBox.LanguageKey = "editor_obfuscate_text_case_sensitive";
-            searchScopeLabel.LanguageKey = "editor_obfuscate_text_search_scope";
-            advancedSettingsCheckBox.LanguageKey = "editor_obfuscate_text_advanced";
-            applyButton.LanguageKey = "editor_obfuscate_text_apply";
-            cancelButton.LanguageKey = "CANCEL";
-            LanguageKey = "editor_obfuscate_text_title";
+            searchLabel.Text = Language.GetString("editor_obfuscate_text_search");
+            searchButton.Text = Language.GetString("editor_obfuscate_text_search_button");
+            regexCheckBox.Text = Language.GetString("editor_obfuscate_text_regex");
+            caseSensitiveCheckBox.Text = Language.GetString("editor_obfuscate_text_case_sensitive");
+            searchScopeLabel.Text = Language.GetString("editor_obfuscate_text_search_scope");
+            advancedSettingsCheckBox.Text = Language.GetString("editor_obfuscate_text_advanced");
+            applyButton.Text = Language.GetString("editor_obfuscate_text_apply");
+            cancelButton.Text = Language.GetString("CANCEL");
+            Text = Language.GetString("editor_obfuscate_text_title");
 
             // Initialize match count label with formatted text
             matchCountLabel.Text = string.Format(Language.GetString("editor_obfuscate_text_matches"), "0");

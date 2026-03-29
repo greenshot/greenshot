@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -20,6 +20,8 @@
  */
 
 using Greenshot.Base.Controls;
+using System.Windows.Forms;
+
 
 namespace Greenshot.Forms
 {
@@ -56,14 +58,14 @@ namespace Greenshot.Forms
 			this.checkboxAllowEnlarge = new GreenshotCheckBox();
 			this.checkboxAllowCenter = new GreenshotCheckBox();
 			this.checkboxAllowRotate = new GreenshotCheckBox();
-			this.button_ok = new GreenshotButton();
+			this.button_ok = new Button();
 			this.checkboxDateTime = new GreenshotCheckBox();
-			this.button_cancel = new GreenshotButton();
+			this.button_cancel = new Button();
 			this.checkboxPrintInverted = new GreenshotCheckBox();
 			this.radioBtnGrayScale = new GreenshotRadioButton();
 			this.radioBtnMonochrome = new GreenshotRadioButton();
-			this.groupBoxPrintLayout = new GreenshotGroupBox();
-			this.groupBoxColors = new GreenshotGroupBox();
+			this.groupBoxPrintLayout = new GroupBox();
+			this.groupBoxColors = new GroupBox();
 			this.radioBtnColorPrint = new GreenshotRadioButton();
 			this.groupBoxPrintLayout.SuspendLayout();
 			this.groupBoxColors.SuspendLayout();
@@ -263,17 +265,17 @@ namespace Greenshot.Forms
 		}
 		private GreenshotRadioButton radioBtnGrayScale;
 		private GreenshotCheckBox checkboxPrintInverted;
-		private GreenshotButton button_cancel;
+		private Button button_cancel;
 		private GreenshotCheckBox checkboxDateTime;
-		private GreenshotButton button_ok;
+		private Button button_ok;
 		private GreenshotCheckBox checkboxAllowRotate;
 		private GreenshotCheckBox checkboxAllowCenter;
 		private GreenshotCheckBox checkboxAllowEnlarge;
 		private GreenshotCheckBox checkboxAllowShrink;
 		private GreenshotCheckBox checkbox_dontaskagain;
         private GreenshotRadioButton radioBtnMonochrome;
-        private GreenshotGroupBox groupBoxPrintLayout;
-        private GreenshotGroupBox groupBoxColors;
+        private GroupBox groupBoxPrintLayout;
+        private GroupBox groupBoxColors;
         private GreenshotRadioButton radioBtnColorPrint;
 	}
 }

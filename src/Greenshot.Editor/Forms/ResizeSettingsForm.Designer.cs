@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -20,6 +20,8 @@
  */
 
 using Greenshot.Base.Controls;
+using System.Windows.Forms;
+
 
 namespace Greenshot.Editor.Forms {
 	partial class ResizeSettingsForm {
@@ -46,11 +48,11 @@ namespace Greenshot.Editor.Forms {
 		/// the contents of this method with the code editor.
 		/// </summary>
 		private void InitializeComponent() {
-			this.buttonOK = new GreenshotButton();
-			this.buttonCancel = new GreenshotButton();
+			this.buttonOK = new Button();
+			this.buttonCancel = new Button();
 			this.checkbox_aspectratio = new GreenshotCheckBox();
-			this.label_width = new GreenshotLabel();
-			this.label_height = new GreenshotLabel();
+			this.label_width = new Label();
+			this.label_height = new Label();
 			this.textbox_height = new System.Windows.Forms.TextBox();
 			this.textbox_width = new System.Windows.Forms.TextBox();
 			this.combobox_width = new System.Windows.Forms.ComboBox();
@@ -163,11 +165,11 @@ namespace Greenshot.Editor.Forms {
 
 		#endregion
 
-		private GreenshotButton buttonOK;
-		private GreenshotButton buttonCancel;
+		private Button buttonOK;
+		private Button buttonCancel;
 		private GreenshotCheckBox checkbox_aspectratio;
-		private GreenshotLabel label_width;
-		private GreenshotLabel label_height;
+		private Label label_width;
+		private Label label_height;
 		private System.Windows.Forms.TextBox textbox_height;
 		private System.Windows.Forms.TextBox textbox_width;
 		private System.Windows.Forms.ComboBox combobox_width;

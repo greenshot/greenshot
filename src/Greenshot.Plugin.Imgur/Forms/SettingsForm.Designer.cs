@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -20,6 +20,8 @@
  */
 
 using Greenshot.Base.Controls;
+using System.Windows.Forms;
+
 
 namespace Greenshot.Plugin.Imgur.Forms; 
 	partial class SettingsForm {
@@ -49,9 +51,9 @@ namespace Greenshot.Plugin.Imgur.Forms;
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.buttonOK = new GreenshotButton();
-			this.buttonCancel = new GreenshotButton();
-			this.historyButton = new GreenshotButton();
+			this.buttonOK = new Button();
+			this.buttonCancel = new Button();
+			this.historyButton = new Button();
 			this.checkbox_anonymous_access = new GreenshotCheckBox();
 			this.checkbox_usepagelink = new GreenshotCheckBox();
 			this.SuspendLayout();
@@ -120,9 +122,9 @@ namespace Greenshot.Plugin.Imgur.Forms;
 			this.PerformLayout();
 
 		}
-		private GreenshotButton historyButton;
-		private GreenshotButton buttonCancel;
-		private GreenshotButton buttonOK;
+		private Button historyButton;
+		private Button buttonCancel;
+		private Button buttonOK;
 		private GreenshotCheckBox checkbox_anonymous_access;
 		private GreenshotCheckBox checkbox_usepagelink;
 	}

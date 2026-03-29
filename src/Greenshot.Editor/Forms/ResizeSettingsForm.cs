@@ -40,7 +40,7 @@ namespace Greenshot.Editor.Forms
         {
             _effect = effect;
             InitializeComponent();
-            InitializeLanguageBindings();
+            InitializeLanguage();
             var valuePixel = Language.GetString("editor_resize_pixel");
             _valuePercent = Language.GetString("editor_resize_percent");
             combobox_width.Items.Add(valuePixel);
@@ -60,14 +60,14 @@ namespace Greenshot.Editor.Forms
             checkbox_aspectratio.Checked = effect.MaintainAspectRatio;
         }
 
-        protected override void InitializeLanguageBindings()
+        protected override void InitializeLanguage()
         {
-            buttonOK.LanguageKey = "OK";
-            buttonCancel.LanguageKey = "CANCEL";
-            checkbox_aspectratio.LanguageKey = "editor_resize_aspectratio";
-            label_width.LanguageKey = "editor_resize_width";
-            label_height.LanguageKey = "editor_resize_height";
-            LanguageKey = "editor_resize_settings";
+            buttonOK.Text = Language.GetString("OK");
+            buttonCancel.Text = Language.GetString("CANCEL");
+            checkbox_aspectratio.Text = Language.GetString("editor_resize_aspectratio");
+            label_width.Text = Language.GetString("editor_resize_width");
+            label_height.Text = Language.GetString("editor_resize_height");
+            Text = Language.GetString("editor_resize_settings");
         }
 
         private void ButtonOK_Click(object sender, EventArgs e)

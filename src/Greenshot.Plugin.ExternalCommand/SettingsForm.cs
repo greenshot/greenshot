@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -22,6 +22,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using Greenshot.Base.Core;
 using Greenshot.Base.IniFile;
 
 namespace Greenshot.Plugin.ExternalCommand;
@@ -39,21 +40,21 @@ public partial class SettingsForm : ExternalCommandForm
         // The InitializeComponent() call is required for Windows Forms designer support.
         //
         InitializeComponent();
-        InitializeLanguageBindings();
+        InitializeLanguage();
         AcceptButton = buttonOk;
         CancelButton = buttonCancel;
         UpdateView();
     }
 
     /// <inheritdoc />
-    protected override void InitializeLanguageBindings()
+    protected override void InitializeLanguage()
     {
-        buttonCancel.LanguageKey = "CANCEL";
-        buttonOk.LanguageKey = "OK";
-        button_new.LanguageKey = "externalcommand.settings_new";
-        button_delete.LanguageKey = "externalcommand.settings_delete";
-        button_edit.LanguageKey = "externalcommand.settings_edit";
-        LanguageKey = "externalcommand.settings_title";
+        buttonCancel.Text = Language.GetString("CANCEL");
+        buttonOk.Text = Language.GetString("OK");
+        button_new.Text = Language.GetString("externalcommand.settings_new");
+        button_delete.Text = Language.GetString("externalcommand.settings_delete");
+        button_edit.Text = Language.GetString("externalcommand.settings_edit");
+        Text = Language.GetString("externalcommand.settings_title");
     }
 
     private void ButtonOkClick(object sender, EventArgs e)

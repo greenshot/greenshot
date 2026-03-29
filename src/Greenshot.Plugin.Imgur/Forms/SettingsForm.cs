@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -20,6 +20,7 @@
  */
 
 using System;
+using Greenshot.Base.Core;
 
 namespace Greenshot.Plugin.Imgur.Forms;
 
@@ -34,7 +35,7 @@ public partial class SettingsForm : ImgurForm
         // The InitializeComponent() call is required for Windows Forms designer support.
         //
         InitializeComponent();
-        InitializeLanguageBindings();
+        InitializeLanguage();
         CancelButton = buttonCancel;
         AcceptButton = buttonOK;
 
@@ -42,18 +43,18 @@ public partial class SettingsForm : ImgurForm
     }
 
     /// <inheritdoc />
-    protected override void InitializeLanguageBindings()
+    protected override void InitializeLanguage()
     {
-        buttonOK.LanguageKey = "imgur.OK";
-        buttonCancel.LanguageKey = "imgur.CANCEL";
-        historyButton.LanguageKey = "imgur.history";
-        checkbox_anonymous_access.LanguageKey = "imgur.anonymous_access";
+        buttonOK.Text = Language.GetString("imgur.OK");
+        buttonCancel.Text = Language.GetString("imgur.CANCEL");
+        historyButton.Text = Language.GetString("imgur.history");
+        checkbox_anonymous_access.Text = Language.GetString("imgur.anonymous_access");
         checkbox_anonymous_access.PropertyName = nameof(ImgurConfiguration.AnonymousAccess);
         checkbox_anonymous_access.SectionName = "Imgur";
-        checkbox_usepagelink.LanguageKey = "imgur.use_page_link";
+        checkbox_usepagelink.Text = Language.GetString("imgur.use_page_link");
         checkbox_usepagelink.PropertyName = nameof(ImgurConfiguration.UsePageLink);
         checkbox_usepagelink.SectionName = "Imgur";
-        LanguageKey = "imgur.settings_title";
+        Text = Language.GetString("imgur.settings_title");
     }
 
     private void ButtonHistoryClick(object sender, EventArgs e)

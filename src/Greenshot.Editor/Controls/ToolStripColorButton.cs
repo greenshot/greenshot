@@ -30,12 +30,9 @@ using ColorDialog = Greenshot.Editor.Forms.ColorDialog;
 
 namespace Greenshot.Editor.Controls
 {
-    public class ToolStripColorButton : ToolStripButton, INotifyPropertyChanged, IGreenshotLanguageBindable
+    public class ToolStripColorButton : ToolStripButton, INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
-
-        [Category("Greenshot"), DefaultValue(null), Description("Specifies key of the language file to use when displaying the text.")]
-        public string LanguageKey { get; set; }
 
         private Color _selectedColor = Color.Transparent;
 

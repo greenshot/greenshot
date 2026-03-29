@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom, Francis Noel
  * 
@@ -19,6 +19,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using Greenshot.Base.Core;
+
 namespace Greenshot.Plugin.Box.Forms;
 
 /// <summary>
@@ -32,22 +34,22 @@ public partial class SettingsForm : BoxForm
         // The InitializeComponent() call is required for Windows Forms designer support.
         //
         InitializeComponent();
-        InitializeLanguageBindings();
+        InitializeLanguage();
         AcceptButton = buttonOK;
         CancelButton = buttonCancel;
     }
 
-    protected override void InitializeLanguageBindings()
+    protected override void InitializeLanguage()
     {
-        buttonOK.LanguageKey = "OK";
-        buttonCancel.LanguageKey = "CANCEL";
+        buttonOK.Text = Language.GetString("OK");
+        buttonCancel.Text = Language.GetString("CANCEL");
         combobox_uploadimageformat.PropertyName = nameof(BoxConfiguration.UploadFormat);
         combobox_uploadimageformat.SectionName = "Box";
-        label_upload_format.LanguageKey = "box.label_upload_format";
-        label_AfterUpload.LanguageKey = "box.label_AfterUpload";
-        checkboxAfterUploadLinkToClipBoard.LanguageKey = "box.label_AfterUploadLinkToClipBoard";
+        label_upload_format.Text = Language.GetString("box.label_upload_format");
+        label_AfterUpload.Text = Language.GetString("box.label_AfterUpload");
+        checkboxAfterUploadLinkToClipBoard.Text = Language.GetString("box.label_AfterUploadLinkToClipBoard");
         checkboxAfterUploadLinkToClipBoard.PropertyName = nameof(BoxConfiguration.AfterUploadLinkToClipBoard);
         checkboxAfterUploadLinkToClipBoard.SectionName = "Box";
-        LanguageKey = "box.settings_title";
+        Text = Language.GetString("box.settings_title");
     }
 }

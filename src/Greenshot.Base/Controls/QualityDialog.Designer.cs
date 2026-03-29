@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -18,6 +18,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+using Greenshot.Base.Controls;
+using System.Windows.Forms;
 namespace Greenshot.Base.Controls {
 	partial class QualityDialog {
 		/// <summary>
@@ -46,11 +48,11 @@ namespace Greenshot.Base.Controls {
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.label_choosejpegquality = new GreenshotLabel();
+			this.label_choosejpegquality = new Label();
 			this.textBoxJpegQuality = new System.Windows.Forms.TextBox();
 			this.trackBarJpegQuality = new System.Windows.Forms.TrackBar();
 			this.checkbox_dontaskagain = new GreenshotCheckBox();
-			this.button_ok = new GreenshotButton();
+			this.button_ok = new Button();
 			this.checkBox_reduceColors = new System.Windows.Forms.CheckBox();
 			((System.ComponentModel.ISupportInitialize)(this.trackBarJpegQuality)).BeginInit();
 			this.SuspendLayout();
@@ -133,11 +135,11 @@ namespace Greenshot.Base.Controls {
 			this.PerformLayout();
 
 		}
-		private GreenshotButton button_ok;
+		private Button button_ok;
 		private GreenshotCheckBox checkbox_dontaskagain;
 		private System.Windows.Forms.TrackBar trackBarJpegQuality;
 		private System.Windows.Forms.TextBox textBoxJpegQuality;
-		private GreenshotLabel label_choosejpegquality;
+		private Label label_choosejpegquality;
 		private System.Windows.Forms.CheckBox checkBox_reduceColors;
 	}
 }

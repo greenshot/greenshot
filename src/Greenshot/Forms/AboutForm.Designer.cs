@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -50,20 +50,20 @@ namespace Greenshot.Forms {
 		/// not be able to load this method if it was changed manually.
 		/// </summary>
 		private void InitializeComponent() {
-			this.lblTitle = new System.Windows.Forms.Label();
-			this.lblLicense = new GreenshotLabel();
-			this.lblHost = new GreenshotLabel();
+			this.lblTitle = new Label();
+			this.lblLicense = new Label();
+			this.lblHost = new Label();
 			this.linkLblLicense = new System.Windows.Forms.LinkLabel();
 			this.linkLblHost = new System.Windows.Forms.LinkLabel();
 			this.linkLblBugs = new System.Windows.Forms.LinkLabel();
-			this.lblBugs = new GreenshotLabel();
+			this.lblBugs = new Label();
 			this.linkLblDonations = new System.Windows.Forms.LinkLabel();
-			this.lblDonations = new GreenshotLabel();
+			this.lblDonations = new Label();
 			this.linkLblIcons = new System.Windows.Forms.LinkLabel();
-			this.lblIcons = new GreenshotLabel();
+			this.lblIcons = new Label();
 			this.linkLabel1 = new System.Windows.Forms.LinkLabel();
 			this.pictureBox1 = new System.Windows.Forms.PictureBox();
-			this.lblTranslation = new GreenshotLabel();
+			this.lblTranslation = new Label();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
 			this.SuspendLayout();
 			// 
@@ -231,13 +231,13 @@ namespace Greenshot.Forms {
 		private System.Windows.Forms.LinkLabel linkLblBugs;
 		private System.Windows.Forms.LinkLabel linkLblLicense;
 		private System.Windows.Forms.LinkLabel linkLblIcons;
-		private System.Windows.Forms.Label lblTitle;
+		private Label lblTitle;
 		private System.Windows.Forms.PictureBox pictureBox1;
-		private GreenshotLabel lblTranslation;
-		private GreenshotLabel lblHost;
-		private GreenshotLabel lblDonations;
-		private GreenshotLabel lblBugs;
-		private GreenshotLabel lblIcons;
-		private GreenshotLabel lblLicense;
+		private Label lblTranslation;
+		private Label lblHost;
+		private Label lblDonations;
+		private Label lblBugs;
+		private Label lblIcons;
+		private Label lblLicense;
 	}
 }

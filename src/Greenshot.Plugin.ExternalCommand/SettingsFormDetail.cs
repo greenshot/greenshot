@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -45,7 +45,7 @@ public partial class SettingsFormDetail : ExternalCommandForm
     public SettingsFormDetail(string commando)
     {
         InitializeComponent();
-        InitializeLanguageBindings();
+        InitializeLanguage();
         AcceptButton = buttonOk;
         CancelButton = buttonCancel;
         _commando = commando;
@@ -69,17 +69,17 @@ public partial class SettingsFormDetail : ExternalCommandForm
     }
 
     /// <inheritdoc />
-    protected override void InitializeLanguageBindings()
+    protected override void InitializeLanguage()
     {
-        buttonOk.LanguageKey = "OK";
-        buttonCancel.LanguageKey = "CANCEL";
-        groupBox1.LanguageKey = "settings_title";
-        label4.LanguageKey = "externalcommand.label_information";
-        label3.LanguageKey = "externalcommand.label_name";
-        label2.LanguageKey = "externalcommand.label_argument";
-        label1.LanguageKey = "externalcommand.label_command";
-        label5.LanguageKey = "externalcommand.label_outputimageformat";
-        LanguageKey = "externalcommand.settings_detail_title";
+        buttonOk.Text = Language.GetString("OK");
+        buttonCancel.Text = Language.GetString("CANCEL");
+        groupBox1.Text = Language.GetString("settings_title");
+        label4.Text = Language.GetString("externalcommand.label_information");
+        label3.Text = Language.GetString("externalcommand.label_name");
+        label2.Text = Language.GetString("externalcommand.label_argument");
+        label1.Text = Language.GetString("externalcommand.label_command");
+        label5.Text = Language.GetString("externalcommand.label_outputimageformat");
+        Text = Language.GetString("externalcommand.settings_detail_title");
     }
 
     private void ButtonOkClick(object sender, EventArgs e)
