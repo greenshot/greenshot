@@ -1497,9 +1497,33 @@ namespace Greenshot.Editor.Forms
 
         private void ArrowHeadsToolStripMenuItemClick(object sender, EventArgs e)
         {
-            _surface.FieldAggregator.GetField(FieldType.ARROWHEADS).Value = (ArrowContainer.ArrowHeadCombination)((ToolStripMenuItem)sender).Tag;
-        }
+            var selectedItem = (ToolStripMenuItem)sender;
+            
+            foreach (ToolStripItem item in arrowHeadsDropDownButton.DropDownItems)
+            {
+                var menuItem = item as ToolStripMenuItem;
+                menuItem?.Checked = false;
+            }
+            
+            selectedItem.Checked = true;
 
+            var value = (ArrowContainer.ArrowHeadCombination)selectedItem.Tag;
+            _surface.FieldAggregator.GetField(FieldType.ARROWHEADS).Value = value;
+             UpdateArrowHeadIcon(value);
+        }
+        
+          private void UpdateArrowHeadIcon(ArrowContainer.ArrowHeadCombination value)
+                {
+                    arrowHeadsDropDownButton.Image = value switch
+                    {
+                        ArrowContainer.ArrowHeadCombination.START_POINT =>  (Image)resources.GetObject("arrowHeadStartMenuItem.Image"),
+                        ArrowContainer.ArrowHeadCombination.END_POINT =>  (Image)resources.GetObject("arrowHeadEndMenuItem.Image"),
+                        ArrowContainer.ArrowHeadCombination.BOTH => (Image)resources.GetObject("arrowHeadBothMenuItem.Image"),
+                        ArrowContainer.ArrowHeadCombination.NONE => (Image)resources.GetObject("arrowHeadNoneMenuItem.Image"),
+                        _ => arrowHeadsDropDownButton.Image
+                    };
+                }
+          
         private void EditToolStripMenuItemClick(object sender, EventArgs e)
         {
             UpdateClipboardSurfaceDependencies();
