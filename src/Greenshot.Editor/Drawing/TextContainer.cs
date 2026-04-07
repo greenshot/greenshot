@@ -362,11 +362,18 @@ namespace Greenshot.Editor.Drawing
             rect = new NativeRect(Left, Top, Width, Height).Normalize();
 
             int pixelsAfter = rect.Width * rect.Height;
-            float factor = pixelsAfter / (float) pixelsBefore;
 
-            float fontSize = GetFieldValueAsFloat(FieldType.FONT_SIZE);
-            fontSize *= factor;
-            SetFieldValue(FieldType.FONT_SIZE, fontSize);
+            // Guard against zero-area containers (e.g. a collapsed/degenerate rectangle
+            // loaded from an old file) which would produce Infinity/NaN for the scale
+            // factor and corrupt FONT_SIZE, ultimately causing ArgumentException in GDI.
+            if (pixelsBefore > 0)
+            {
+                float factor = pixelsAfter / (float) pixelsBefore;
+                float fontSize = GetFieldValueAsFloat(FieldType.FONT_SIZE);
+                fontSize *= factor;
+                SetFieldValue(FieldType.FONT_SIZE, fontSize);
+            }
+
             UpdateFormat();
         }
 
@@ -478,12 +485,31 @@ namespace Greenshot.Editor.Drawing
 
             var textBoxFontScale = _parent?.ZoomFactor ?? Fraction.Identity;
 
-            var newFont = new Font(
-                _font.FontFamily,
-                _font.Size * textBoxFontScale,
-                _font.Style,
-                GraphicsUnit.Pixel
-            );
+            // Clamp to ≥1px: GDI rejects zero/negative/sub-pixel sizes with
+            // "Parameter is not valid" deep inside Font.ToHfont().  This can happen
+            // with fonts deserialized from old .greenshot files whose FONT_SIZE field
+            // was stored as a very small or zero value.
+            float scaledSize = Math.Max(1f, _font.Size * textBoxFontScale);
+
+            Font newFont;
+            try
+            {
+                newFont = new Font(_font.FontFamily, scaledSize, _font.Style, GraphicsUnit.Pixel);
+                // Probe GDI compatibility before handing the font to WinForms.
+                // Font.ToHfont() is exactly what WinForms calls internally when creating
+                // the control handle; calling it here lets us catch and recover from
+                // ArgumentException for fonts that cannot be represented as a GDI HFONT
+                // (e.g. faces no longer installed, or invalid metrics from old .greenshot files).
+                var hFont = newFont.ToHfont();
+                System.Runtime.InteropServices.Marshal.DeleteObject(hFont);
+            }
+            catch (ArgumentException)
+            {
+                // Fall back to a safe generic font, preserving the style so bold/italic
+                // text remains visually consistent.
+                newFont?.Dispose();
+                newFont = new Font(FontFamily.GenericSansSerif, scaledSize, _font.Style, GraphicsUnit.Pixel);
+            }
 
             // Assign new font before disposing old: Control.Font setter is a no-op when
             // the fonts compare equal by value (same family/size/style/unit). Disposing
