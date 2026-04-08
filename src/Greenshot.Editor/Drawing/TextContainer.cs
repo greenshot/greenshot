@@ -25,6 +25,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
+using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Extensions;
@@ -43,6 +44,10 @@ namespace Greenshot.Editor.Drawing
     [Serializable]
     public class TextContainer : RectangleContainer, ITextContainer
     {
+        [DllImport("gdi32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool DeleteObject(IntPtr hObject);
+
         // If makeUndoable is true the next text-change will make the change undoable.
         // This is set to true AFTER the first change is made, as there is already a "add element" on the undo stack
         // Although the name is wrong, we can't change it due to file serialization
@@ -370,7 +375,7 @@ namespace Greenshot.Editor.Drawing
             {
                 float factor = pixelsAfter / (float) pixelsBefore;
                 float fontSize = GetFieldValueAsFloat(FieldType.FONT_SIZE);
-                fontSize *= factor;
+                fontSize = Math.Max(1f, fontSize * factor);
                 SetFieldValue(FieldType.FONT_SIZE, fontSize);
             }
 
@@ -491,7 +496,7 @@ namespace Greenshot.Editor.Drawing
             // was stored as a very small or zero value.
             float scaledSize = Math.Max(1f, _font.Size * textBoxFontScale);
 
-            Font newFont;
+            Font newFont = null;
             try
             {
                 newFont = new Font(_font.FontFamily, scaledSize, _font.Style, GraphicsUnit.Pixel);
@@ -501,7 +506,7 @@ namespace Greenshot.Editor.Drawing
                 // ArgumentException for fonts that cannot be represented as a GDI HFONT
                 // (e.g. faces no longer installed, or invalid metrics from old .greenshot files).
                 var hFont = newFont.ToHfont();
-                System.Runtime.InteropServices.Marshal.DeleteObject(hFont);
+                DeleteObject(hFont);
             }
             catch (ArgumentException)
             {
