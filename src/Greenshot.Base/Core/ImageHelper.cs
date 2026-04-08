@@ -1357,6 +1357,10 @@ namespace Greenshot.Base.Core
         /// <returns>Bitmap</returns>
         public static Bitmap CreateEmpty(int width, int height, PixelFormat format, Color backgroundColor, float horizontalResolution = 96f, float verticalResolution = 96f)
         {
+            if (width <= 0 || height <= 0)
+            {
+                throw new ArgumentException($"Cannot create a bitmap with non-positive dimensions ({width}x{height}).");
+            }
             // Create a new "clean" image
             Bitmap newImage = new Bitmap(width, height, format);
             newImage.SetResolution(horizontalResolution, verticalResolution);

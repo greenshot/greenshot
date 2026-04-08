@@ -93,7 +93,9 @@ namespace Greenshot.Helpers
             }
 
             // Unfortunately we can't dispose the capture, this might still be used somewhere else.
-            _windows = null;
+            // Note: _windows is intentionally NOT nulled here. RetrieveWindowDetails runs on a background
+            // thread and uses _windows as the lock target; nulling it before the thread exits would cause
+            // Monitor.Enter(null) → ArgumentNullException. The Join() in MakeCapture handles thread lifetime.
             _selectedCaptureWindow = null;
             _capture = null;
             // Empty working set after capturing

@@ -354,6 +354,13 @@ namespace Greenshot.Base.Core
                         if (offscreenContent)
                         {
                             using Bitmap tmpBitmap = Image.FromHbitmap(safeDibSectionHandle.DangerousGetHandle());
+                            if (tmpBitmap.Width <= 0 || tmpBitmap.Height <= 0)
+                            {
+                                Log.Warn($"DIB section returned degenerate bitmap dimensions ({tmpBitmap.Width}x{tmpBitmap.Height}), skipping offscreen capture.");
+                                returnBitmap = Image.FromHbitmap(safeDibSectionHandle.DangerousGetHandle());
+                                success = true;
+                                break;
+                            }
                             // Create a new bitmap which has a transparent background
                             returnBitmap = ImageHelper.CreateEmpty(tmpBitmap.Width, tmpBitmap.Height, PixelFormat.Format32bppArgb, Color.Transparent, tmpBitmap.HorizontalResolution, tmpBitmap.VerticalResolution);
                             // Content will be copied here
@@ -382,6 +389,11 @@ namespace Greenshot.Base.Core
                     {
                         Log.Warn("Problem getting bitmap at try " + i + " : ", ee);
                         exception = ee;
+                    }
+                    catch (ArgumentException ae)
+                    {
+                        Log.Warn("Invalid bitmap dimensions at try " + i + " : ", ae);
+                        exception = new System.Runtime.InteropServices.ExternalException(ae.Message, ae);
                     }
                 }
 
