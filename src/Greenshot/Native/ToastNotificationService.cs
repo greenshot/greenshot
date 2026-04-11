@@ -96,8 +96,7 @@ namespace Greenshot.Plugin.Win10
             }
 
             // Do not inform the user if ToastNotification is not enabled
-            if (!IsToastNotificationEnabled()
-            )
+            if (!IsToastNotificationEnabled())
             {
                 return;
             }
