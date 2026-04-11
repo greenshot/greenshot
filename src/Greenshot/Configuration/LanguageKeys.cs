@@ -72,6 +72,7 @@ namespace Greenshot.Configuration
         settings_tooltip_storagelocation,
         settings_visualization,
         settings_window_capture_mode,
+        capture_countdown,
         quicksettings_capturedelay,
         tooltip_firststart,
         warning,

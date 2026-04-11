@@ -303,7 +303,22 @@ namespace Greenshot.Helpers
             // Delay for the Context menu
             if (CoreConfig.CaptureDelay > 0)
             {
-                Thread.Sleep(CoreConfig.CaptureDelay);
+                if (CoreConfig.CaptureDelay >= 1000 && !CoreConfig.HideTrayicon)
+                {
+                    var notifyIcon = SimpleServiceProvider.Current.GetInstance<NotifyIcon>();
+                    var originalText = notifyIcon.Text;
+                    int secondsRemaining = (CoreConfig.CaptureDelay + 999) / 1000;
+                    for (int s = secondsRemaining; s > 0; s--)
+                    {
+                        notifyIcon.Text = string.Format(Language.GetString(LangKey.capture_countdown), s);
+                        Thread.Sleep(Math.Min(1000, CoreConfig.CaptureDelay - (secondsRemaining - s) * 1000));
+                    }
+                    notifyIcon.Text = originalText;
+                }
+                else
+                {
+                    Thread.Sleep(CoreConfig.CaptureDelay);
+                }
             }
             else
             {

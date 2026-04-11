@@ -224,6 +224,7 @@ Please check write accessibility of the selected storage location.</resource>
 		<resource name="printoptions_title">Greenshot print options</resource>
 		<resource name="qualitydialog_dontaskagain">Save as default quality and do not ask again</resource>
 		<resource name="qualitydialog_title">Greenshot quality</resource>
+		<resource name="capture_countdown">Capturing in {0}...</resource>
 		<resource name="quicksettings_capturedelay">Wait before capture</resource>
 		<resource name="quicksettings_destination_file">Save directly (using preferred file output settings)</resource>
 		<resource name="settings_alwaysshowprintoptionsdialog">Show print options dialog every time an image is printed</resource>

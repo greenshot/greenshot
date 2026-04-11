@@ -1061,8 +1061,8 @@ namespace Greenshot.Forms
                 {
                     Text = Language.GetString(LangKey.quicksettings_capturedelay)
                 };
-                var captureDelayValues = new[] { 0, 100, 250, 500, 1000 };
-                var captureDelayLabels = new[] { "0 ms", "100 ms", "250 ms", "500 ms", "1000 ms" };
+                var captureDelayValues = new[] { 0, 100, 250, 500, 1000, 2000, 5000 };
+                var captureDelayLabels = new[] { "0 ms", "100 ms", "250 ms", "500 ms", "1 s", "2 s", "5 s" };
                 for (int i = 0; i < captureDelayValues.Length; i++)
                 {
                     selectList.AddItem(captureDelayLabels[i], captureDelayValues[i], _conf.CaptureDelay == captureDelayValues[i]);
