@@ -828,7 +828,7 @@ namespace Greenshot.Editor.Drawing
                     _undrawnElement = null;
                     break;
                 case DrawingModes.Emoji:
-                    _undrawnElement = new EmojiContainer(this, "🙂");
+                    _undrawnElement = new EmojiContainer(this);
                     break;
             }
 

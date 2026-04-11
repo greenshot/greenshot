@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dapplo.Windows.AppRestartManager" Version="2.0.83" />
+    <PackageReference Include="Dapplo.Windows.AppRestartManager" Version="2.0.89" />
     <PackageReference Include="SixLabors.ImageSharp" Version="2.1.13" />
     <PackageReference Include="System.CommandLine" Version="3.0.0-preview.1.26104.118" />
     <PackageReference Include="Microsoft.Toolkit.Uwp.Notifications" version="7.1.3" />

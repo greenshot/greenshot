@@ -23,6 +23,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Windows.Forms;
 using Greenshot.Base.Core;
 using Greenshot.Base.IniFile;
@@ -51,7 +52,11 @@ internal static class HotkeyHelper
         bool success = true;
         StringBuilder failedKeys = new StringBuilder();
 
-        if (!RegisterWrapper(failedKeys, "CaptureRegion", "RegionHotkey", () => CaptureHelper.CaptureRegion(true), ignoreFailedRegistration))
+        var uiContext = SimpleServiceProvider.Current.GetInstance<SynchronizationContext>();
+
+        if (!RegisterWrapper(failedKeys, "CaptureRegion", "RegionHotkey", () => {
+            uiContext?.Post(_ => CaptureHelper.CaptureRegion(true), null);
+        }, ignoreFailedRegistration))
         {
             success = false;
         }
@@ -60,28 +65,34 @@ internal static class HotkeyHelper
         {
             if (config.CaptureWindowsInteractive)
             {
-                CaptureHelper.CaptureWindowInteractive(true);
+                uiContext?.Post(_ => CaptureHelper.CaptureWindowInteractive(true), null);
             }
             else
             {
-                CaptureHelper.CaptureWindow(true);
+                uiContext?.Post(_ => CaptureHelper.CaptureWindow(true), null);
             }
         }, ignoreFailedRegistration))
         {
             success = false;
         }
 
-        if (!RegisterWrapper(failedKeys, "CaptureFullScreen", "FullscreenHotkey", () => CaptureHelper.CaptureFullscreen(true, config.ScreenCaptureMode), ignoreFailedRegistration))
+        if (!RegisterWrapper(failedKeys, "CaptureFullScreen", "FullscreenHotkey", () => {
+            uiContext?.Post(_ => CaptureHelper.CaptureFullscreen(true, config.ScreenCaptureMode), null);
+        }, ignoreFailedRegistration))
         {
             success = false;
         }
 
-        if (!RegisterWrapper(failedKeys, "CaptureLastRegion", "LastregionHotkey", () => CaptureHelper.CaptureLastRegion(true), ignoreFailedRegistration))
+        if (!RegisterWrapper(failedKeys, "CaptureLastRegion", "LastregionHotkey", () => {
+            uiContext?.Post(_ => CaptureHelper.CaptureLastRegion(true), null);
+        }, ignoreFailedRegistration))
         {
             success = false;
         }
 
-        if (!RegisterWrapper(failedKeys, "CaptureClipboard", "ClipboardHotkey", () => CaptureHelper.CaptureClipboard(DestinationHelper.GetDestination(EditorDestination.DESIGNATION)), true))
+        if (!RegisterWrapper(failedKeys, "CaptureClipboard", "ClipboardHotkey", () => {
+            uiContext?.Post(_ => CaptureHelper.CaptureClipboard(DestinationHelper.GetDestination(EditorDestination.DESIGNATION)), null);
+        }, true))
         {
             success = false;
         }
