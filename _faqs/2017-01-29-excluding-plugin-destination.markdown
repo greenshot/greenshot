@@ -55,30 +55,47 @@ Destination
 
 If you want to exclude destinations only, for example the office plugin has multiple and you might want only one of them, you can modify the "ExcludeDestinations" line.
 
-The names of the destinations are a bit harder to find, here is the currently known list (do not include the quotes!):
+The `ExcludeDestinations` setting uses the internal **Designation** value for each destination, not the display name shown in the menu. These values are case-sensitive. Here is the currently known list (do not include the quotes!):
 
-* "Box"
+**Built-in destinations:**
+
 * "Clipboard"
-* "Confluence"
-* "Dropbox"
 * "EMail"
 * "Editor"
-* "Excel"
-* "External MS Paint"
-* "External Paint.NET"
 * "FileDialog"
 * "FileNoDialog"
-* "Flickr"
-* "Imgur"
-* "Jira"
-* "OCR"
+* "Picker"
+* "Printer"
+
+**Win10 plugin destinations** (available on Windows 10 and later):
+
+* "Windows10Share" — the Windows 10/11 Share dialog
+* "Windows10OCR" — the Windows 10/11 OCR (text recognition) feature
+
+**Office plugin destinations:**
+
+* "Excel"
 * "OneNote"
 * "Outlook"
-* "Photobucket"
-* "Picasa"
 * "Powerpoint"
-* "Printer"
 * "Word"
+
+**Other plugin destinations:**
+
+* "Box"
+* "Confluence"
+* "Dropbox"
+* "Jira"
+
+**External command destinations:**
+
+External command destinations use the designation `External <CommandName>`, where `<CommandName>` is the name of the configured command with any commas replaced by underscores. For example, a command named "MS Paint" would have the designation `External MS Paint`.
+
+An example to exclude the Windows 10 Share destination and the Printer destination, add the following line somewhere under the `[Core]` section:
+
+```
+ExcludeDestinations=Windows10Share,Printer
+```
 
 **See also:**
 
