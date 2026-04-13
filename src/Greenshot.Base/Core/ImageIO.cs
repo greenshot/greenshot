@@ -296,7 +296,7 @@ namespace Greenshot.Base.Core
         /// <summary>
         /// Saves image to specific path with specified quality
         /// </summary>
-        public static void Save(ISurface surface, string fullPath, bool allowOverwrite, SurfaceOutputSettings outputSettings, bool copyPathToClipboard)
+        public static void Save(ISurface surface, string fullPath, bool allowOverwrite, SurfaceOutputSettings outputSettings)
         {
             fullPath = FilenameHelper.MakeFqFilenameSafe(fullPath);
             string path = Path.GetDirectoryName(fullPath);
@@ -323,11 +323,6 @@ namespace Greenshot.Base.Core
             using (FileStream stream = new FileStream(fullPath, FileMode.Create, FileAccess.Write))
             {
                 SaveToStream(surface, stream, outputSettings);
-            }
-
-            if (copyPathToClipboard)
-            {
-                ClipboardHelper.SetClipboardData(fullPath);
             }
         }
 
@@ -426,7 +421,7 @@ namespace Greenshot.Base.Core
                     }
 
                     // TODO: For now we always overwrite, should be changed
-                    Save(surface, fileNameWithExtension, true, outputSettings, CoreConfig.OutputFileCopyPathToClipboard);
+                    Save(surface, fileNameWithExtension, true, outputSettings);
                     returnValue = fileNameWithExtension;
                     IniConfig.Save();
                 }
@@ -505,7 +500,7 @@ namespace Greenshot.Base.Core
             // This is done for e.g. bugs #2974608, #2963943, #2816163, #2795317, #2789218
             try
             {
-                Save(surface, tmpFile, true, outputSettings, false);
+                Save(surface, tmpFile, true, outputSettings);
                 TmpFileCache.Add(tmpFile, tmpFile);
             }
             catch (Exception e)
@@ -568,7 +563,7 @@ namespace Greenshot.Base.Core
 
             try
             {
-                Save(surface, tmpPath, true, outputSettings, false);
+                Save(surface, tmpPath, true, outputSettings);
                 TmpFileCache.Add(tmpPath, tmpPath);
             }
             catch (Exception)
