@@ -88,6 +88,9 @@ namespace Greenshot.Editor.Forms
 
         private bool _originalBoldCheckState;
         private bool _originalItalicCheckState;
+        private readonly Dictionary<int, Font> _fontPickerFontsByDpi = new Dictionary<int, Font>();
+        private readonly Dictionary<int, Font> _numericPickerFontsByDpi = new Dictionary<int, Font>();
+        private readonly Dictionary<int, Font> _zoomMenuFontsByDpi = new Dictionary<int, Font>();
 
         // whether part of the editor controls are disabled depending on selected item(s)
         private bool _controlsDisabledDueToConfirmable;
@@ -152,10 +155,10 @@ namespace Greenshot.Editor.Forms
             fontFamilyComboBox.AutoSize = false;
             fontFamilyComboBox.Size = new Size(DpiCalculator.ScaleWithDpi(200, dpi), controlHeight);
             fontFamilyComboBox.ComboBox.ItemHeight = Math.Max(DpiCalculator.ScaleWithDpi(16, dpi), 16);
-            var fontPickerFont = new Font(Font.FontFamily, DpiCalculator.ScaleWithDpi(9.5f, dpi), FontStyle.Regular, GraphicsUnit.Pixel);
+            var fontPickerFont = GetCachedFont(_fontPickerFontsByDpi, dpi, 9.5f);
             fontFamilyComboBox.Font = fontPickerFont;
             fontFamilyComboBox.ComboBox.Font = fontPickerFont;
-            var numericPickerFont = new Font(Font.FontFamily, DpiCalculator.ScaleWithDpi(11f, dpi), FontStyle.Regular, GraphicsUnit.Pixel);
+            var numericPickerFont = GetCachedFont(_numericPickerFontsByDpi, dpi, 11f);
             fontSizeUpDown.AutoSize = false;
             fontSizeUpDown.Size = new Size(DpiCalculator.ScaleWithDpi(60, dpi), controlHeight);
             fontSizeUpDown.Font = numericPickerFont;
@@ -172,12 +175,23 @@ namespace Greenshot.Editor.Forms
                 dpi = 96;
             }
 
-            var zoomMenuFont = new Font(Font.FontFamily, DpiCalculator.ScaleWithDpi(11f, dpi), FontStyle.Regular, GraphicsUnit.Pixel);
+            var zoomMenuFont = GetCachedFont(_zoomMenuFontsByDpi, dpi, 11f);
             zoomMenuStrip.Font = zoomMenuFont;
             foreach (ToolStripItem item in zoomMenuStrip.Items)
             {
                 item.Font = zoomMenuFont;
             }
+        }
+
+        private Font GetCachedFont(Dictionary<int, Font> cache, int dpi, float baseSize)
+        {
+            if (!cache.TryGetValue(dpi, out var font))
+            {
+                font = new Font(Font.FontFamily, DpiCalculator.ScaleWithDpi(baseSize, dpi), FontStyle.Regular, GraphicsUnit.Pixel);
+                cache[dpi] = font;
+            }
+
+            return font;
         }
 
         public ImageEditorForm()
@@ -204,6 +218,24 @@ namespace Greenshot.Editor.Forms
             InitializeComponent();
             zoomMainMenuItem.DropDownOpening += (s, e) => ApplyZoomMenuDpi(NativeDpiMethods.GetDpi(Cursor.Position));
             zoomStatusDropDownBtn.DropDownOpening += (s, e) => ApplyZoomMenuDpi(NativeDpiMethods.GetDpi(Cursor.Position));
+            FormClosed += (_, _) =>
+            {
+                foreach (var font in _fontPickerFontsByDpi.Values)
+                {
+                    font.Dispose();
+                }
+                _fontPickerFontsByDpi.Clear();
+                foreach (var font in _numericPickerFontsByDpi.Values)
+                {
+                    font.Dispose();
+                }
+                _numericPickerFontsByDpi.Clear();
+                foreach (var font in _zoomMenuFontsByDpi.Values)
+                {
+                    font.Dispose();
+                }
+                _zoomMenuFontsByDpi.Clear();
+            };
             // Add the destinations after the form is loaded, this is needed for the dynamic destinations which need the handle of the form
             Load += (s, eventArgs) => AddDestinations();
 
@@ -1991,7 +2023,7 @@ namespace Greenshot.Editor.Forms
 
         private void RemoveTransparencyToolStripMenuItemClick(object sender, EventArgs e)
         {
-            var colorDialog = new ColorDialog
+            using var colorDialog = new ColorDialog
             {
                 Color = Color.White
             };

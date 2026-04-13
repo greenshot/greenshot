@@ -39,7 +39,8 @@ namespace Greenshot.Editor.Forms
     public partial class ColorDialog : EditorForm
     {
         private static readonly EditorConfiguration EditorConfig = IniConfig.GetIniSection<EditorConfiguration>();
-        private static ColorDialog _instance;
+        private readonly Dictionary<int, Font> _labelFontsByDpi = new Dictionary<int, Font>();
+        private readonly Dictionary<int, Font> _inputFontsByDpi = new Dictionary<int, Font>();
 
         public ColorDialog()
         {
@@ -49,10 +50,20 @@ namespace Greenshot.Editor.Forms
             DpiChanged += (_, args) => RebuildPaletteForDpi(args.DeviceDpiNew);
             ResumeLayout(true);
             UpdateRecentColorsButtonRow();
-            _instance = this;
+            Disposed += (_, _) =>
+            {
+                foreach (var font in _labelFontsByDpi.Values)
+                {
+                    font.Dispose();
+                }
+                _labelFontsByDpi.Clear();
+                foreach (var font in _inputFontsByDpi.Values)
+                {
+                    font.Dispose();
+                }
+                _inputFontsByDpi.Clear();
+            };
         }
-
-        public static ColorDialog GetInstance() => _instance;
 
         private readonly List<Button> _colorButtons = new List<Button>();
         private readonly List<Button> _recentColorButtons = new List<Button>();
@@ -61,8 +72,8 @@ namespace Greenshot.Editor.Forms
 
         private void ApplyTypographyForDpi(int dpi)
         {
-            var labelFont = new Font(Font.FontFamily, DpiCalculator.ScaleWithDpi(10f, dpi), FontStyle.Regular, GraphicsUnit.Pixel);
-            var inputFont = new Font(Font.FontFamily, DpiCalculator.ScaleWithDpi(11f, dpi), FontStyle.Regular, GraphicsUnit.Pixel);
+            var labelFont = GetFontForDpi(_labelFontsByDpi, dpi, 10f);
+            var inputFont = GetFontForDpi(_inputFontsByDpi, dpi, 11f);
 
             labelHtmlColor.Font = labelFont;
             labelRed.Font = labelFont;
@@ -79,6 +90,17 @@ namespace Greenshot.Editor.Forms
 
             btnTransparent.Font = inputFont;
             btnApply.Font = inputFont;
+        }
+
+        private Font GetFontForDpi(Dictionary<int, Font> cache, int dpi, float baseSize)
+        {
+            if (!cache.TryGetValue(dpi, out var font))
+            {
+                font = new Font(Font.FontFamily, DpiCalculator.ScaleWithDpi(baseSize, dpi), FontStyle.Regular, GraphicsUnit.Pixel);
+                cache[dpi] = font;
+            }
+
+            return font;
         }
 
         private void RebuildPaletteForDpi(int dpi)
