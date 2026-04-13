@@ -230,6 +230,7 @@ namespace Greenshot.Base.Core
 
             report.AppendLine("Exception: " + ex.GetType());
             report.AppendLine("Message: " + ex.Message);
+            report.AppendLine("Hash: " + ExceptionHelper.GetStacktraceHash(ex));
             if (ex.Data.Count > 0)
             {
                 report.AppendLine();
