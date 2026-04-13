@@ -58,13 +58,13 @@ public sealed class JiraConnector : IDisposable
     {
         CoreConfig.PropertyChanged += (sender, args) =>
         {
-            if (args.PropertyName == nameof(CoreConfig.IconSize))
+            if (args.PropertyName == nameof(CoreConfig.MenuIconSize) || args.PropertyName == nameof(CoreConfig.IconSize))
             {
                 var jiraConnector = SimpleServiceProvider.Current.GetInstance<JiraConnector>();
                 jiraConnector._jiraClient?.Behaviour.SetConfig(new SvgConfiguration
                 {
-                    Width = CoreConfig.IconSize.Width,
-                    Height = CoreConfig.IconSize.Height
+                    Width = CoreConfig.MenuIconSize.Width,
+                    Height = CoreConfig.MenuIconSize.Height
                 });
             }
         };
@@ -112,8 +112,8 @@ public sealed class JiraConnector : IDisposable
         _jiraClient = JiraClient.Create(new Uri(JiraConfig.Url));
         _jiraClient.Behaviour.SetConfig(new SvgConfiguration
         {
-            Width = CoreConfig.IconSize.Width,
-            Height = CoreConfig.IconSize.Height
+            Width = CoreConfig.MenuIconSize.Width,
+            Height = CoreConfig.MenuIconSize.Height
         });
         _jiraClient.SetBasicAuthentication(user, password);
 

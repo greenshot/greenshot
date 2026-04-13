@@ -154,6 +154,7 @@ namespace Greenshot.Forms
             pictureBox1.Image = _bitmap;
 
             lblTitle.Text = $@"Greenshot {EnvironmentInfo.GetGreenshotVersion()} {(IniConfig.IsPortable ? " Portable" : "")} ({OsInfo.Bits} bit) {(coreConfiguration.IsBetaTester ? "-IsBetaTester-":"")}";
+            lblTitle.Font = new Font(Font, FontStyle.Bold);
 
             // Number of frames the pixel animation takes
             int frames = FramesForMillis(2000);
@@ -210,6 +211,32 @@ namespace Greenshot.Forms
 
             // color animation for the background
             _backgroundAnimation = new ColorAnimator(BackColor, _backColor, FramesForMillis(5000), EasingType.Linear, EasingMode.EaseIn);
+        }
+
+        public void NormalizeFontsToForm()
+        {
+            SuspendLayout();
+            try
+            {
+                ApplyFontRecursive(this, Font);
+                lblTitle.Font = new Font(Font, FontStyle.Bold);
+            }
+            finally
+            {
+                ResumeLayout(true);
+            }
+        }
+
+        private static void ApplyFontRecursive(Control parent, Font font)
+        {
+            foreach (Control child in parent.Controls)
+            {
+                child.Font = font;
+                if (child.HasChildren)
+                {
+                    ApplyFontRecursive(child, font);
+                }
+            }
         }
 
         /// <summary>

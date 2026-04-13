@@ -25,6 +25,7 @@ using System.Drawing;
 using System.Globalization;
 using System.Threading;
 using System.Windows.Forms;
+using Dapplo.Windows.Dpi;
 using Greenshot.Base.Controls;
 using Greenshot.Base.IniFile;
 using Greenshot.Editor.Configuration;
@@ -44,10 +45,9 @@ namespace Greenshot.Editor.Forms
         {
             SuspendLayout();
             InitializeComponent();
-            SuspendLayout();
-            CreateColorPalette(5, 5, 15, 15);
-            CreateLastUsedColorButtonRow(5, 190, 15, 15);
-            ResumeLayout();
+            RebuildPaletteForDpi(DeviceDpi);
+            DpiChanged += (_, args) => RebuildPaletteForDpi(args.DeviceDpiNew);
+            ResumeLayout(true);
             UpdateRecentColorsButtonRow();
             _instance = this;
         }
@@ -58,6 +58,57 @@ namespace Greenshot.Editor.Forms
         private readonly List<Button> _recentColorButtons = new List<Button>();
         private readonly ToolTip _toolTip = new ToolTip();
         private bool _updateInProgress;
+
+        private void ApplyTypographyForDpi(int dpi)
+        {
+            var labelFont = new Font(Font.FontFamily, DpiCalculator.ScaleWithDpi(10f, dpi), FontStyle.Regular, GraphicsUnit.Pixel);
+            var inputFont = new Font(Font.FontFamily, DpiCalculator.ScaleWithDpi(11f, dpi), FontStyle.Regular, GraphicsUnit.Pixel);
+
+            labelHtmlColor.Font = labelFont;
+            labelRed.Font = labelFont;
+            labelGreen.Font = labelFont;
+            labelBlue.Font = labelFont;
+            labelAlpha.Font = labelFont;
+            labelRecentColors.Font = inputFont;
+
+            textBoxHtmlColor.Font = inputFont;
+            textBoxRed.Font = inputFont;
+            textBoxGreen.Font = inputFont;
+            textBoxBlue.Font = inputFont;
+            textBoxAlpha.Font = inputFont;
+
+            btnTransparent.Font = inputFont;
+            btnApply.Font = inputFont;
+        }
+
+        private void RebuildPaletteForDpi(int dpi)
+        {
+            ApplyTypographyForDpi(dpi);
+            foreach (var button in _colorButtons)
+            {
+                Controls.Remove(button);
+                button.Dispose();
+            }
+            _colorButtons.Clear();
+
+            foreach (var button in _recentColorButtons)
+            {
+                Controls.Remove(button);
+                button.Dispose();
+            }
+            _recentColorButtons.Clear();
+
+            var margin = DpiCalculator.ScaleWithDpi(5, dpi);
+            var targetButtonSize = DpiCalculator.ScaleWithDpi(15, dpi);
+            var maxButtonSizeByWidth = (btnTransparent.Left - margin - margin) / 13;
+            var maxButtonSizeByHeight = (labelRecentColors.Top - margin - margin) / 11;
+            var buttonSize = Math.Max(10, Math.Min(targetButtonSize, Math.Min(maxButtonSizeByWidth, maxButtonSizeByHeight)));
+            var paletteBottom = margin + (11 * buttonSize);
+
+            CreateColorPalette(margin, margin, buttonSize, buttonSize);
+            CreateLastUsedColorButtonRow(margin, paletteBottom + margin, buttonSize, buttonSize);
+            labelRecentColors.Location = new Point(margin - 2, paletteBottom + 2);
+        }
 
         public Color Color
         {
@@ -294,6 +345,13 @@ namespace Greenshot.Editor.Forms
         public new DialogResult ShowDialog(IWin32Window owner)
         {
             var mouse = Cursor.Position;
+            var targetDpi = NativeDpiMethods.GetDpi(mouse);
+            if (DeviceDpi > 0 && DeviceDpi != targetDpi)
+            {
+                var scaleFactor = targetDpi / (float)DeviceDpi;
+                Scale(new SizeF(scaleFactor, scaleFactor));
+            }
+            RebuildPaletteForDpi(targetDpi);
             var screen = Screen.FromPoint(mouse);
             var workingArea = screen.WorkingArea;
 

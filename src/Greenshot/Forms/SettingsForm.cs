@@ -104,6 +104,11 @@ namespace Greenshot.Forms
             DisplayPluginTab();
             UpdateUi();
             ExpertSettingsEnableState(false);
+            // Icon sizes are now DPI-driven; keep the legacy numeric settings hidden.
+            label_icon_size.Visible = false;
+            numericUpdownIconSize.Visible = false;
+            label_menu_icon_size.Visible = false;
+            numericUpdownMenuIconSize.Visible = false;
             DisplaySettings();
             CheckSettings();
         }
@@ -419,7 +424,7 @@ namespace Greenshot.Forms
             checkbox_picker.Checked = false;
 
             listview_destinations.Items.Clear();
-            var scaledIconSize = DpiCalculator.ScaleWithDpi(coreConfiguration.IconSize, NativeDpiMethods.GetDpi(Handle));
+            var scaledIconSize = DpiCalculator.ScaleWithDpi(coreConfiguration.MenuIconSize, NativeDpiMethods.GetDpi(Handle));
             listview_destinations.ListViewItemSorter = new ListviewWithDestinationComparer();
             ImageList imageList = new ImageList
             {
@@ -531,7 +536,8 @@ namespace Greenshot.Forms
 
             numericUpDown_daysbetweencheck.Value = coreConfiguration.UpdateCheckInterval;
             numericUpDown_daysbetweencheck.Enabled = !coreConfiguration.Values["UpdateCheckInterval"].IsFixed;
-            numericUpdownIconSize.Value = coreConfiguration.IconSize.Width;
+            numericUpdownIconSize.Value = coreConfiguration.EditorIconSize.Width;
+            numericUpdownMenuIconSize.Value = coreConfiguration.MenuIconSize.Width;
             CheckDestinationSettings();
         }
 
@@ -588,7 +594,8 @@ namespace Greenshot.Forms
             coreConfiguration.DWMBackgroundColor = colorButton_window_background.SelectedColor;
             coreConfiguration.UpdateCheckInterval = (int) numericUpDown_daysbetweencheck.Value;
 
-            coreConfiguration.IconSize = new Size((int) numericUpdownIconSize.Value, (int) numericUpdownIconSize.Value);
+            coreConfiguration.EditorIconSize = new Size((int) numericUpdownIconSize.Value, (int) numericUpdownIconSize.Value);
+            coreConfiguration.MenuIconSize = new Size((int) numericUpdownMenuIconSize.Value, (int) numericUpdownMenuIconSize.Value);
 
             try
             {

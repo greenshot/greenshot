@@ -316,47 +316,79 @@ namespace Greenshot.Base.Core
         [IniProperty("Win10BorderCrop", Description = "The capture is cropped with these settings, e.g. when you don't want to color around it -1,-1"), DefaultValue("0,0")]
         public NativeSize Win10BorderCrop { get; set; }
 
-        private NativeSize _iconSize;
+        private NativeSize _editorIconSize;
+        private NativeSize _menuIconSize;
+
+        private NativeSize NormalizeIconSize(Size value)
+        {
+            Size newSize = value;
+            if (newSize == Size.Empty)
+            {
+                return newSize;
+            }
+
+            if (newSize.Width < 16)
+            {
+                newSize.Width = 16;
+            }
+            else if (newSize.Width > 256)
+            {
+                newSize.Width = 256;
+            }
+
+            newSize.Width = (newSize.Width / 16) * 16;
+            if (newSize.Height < 16)
+            {
+                newSize.Height = 16;
+            }
+            else if (newSize.Height > 256)
+            {
+                newSize.Height = 256;
+            }
+
+            newSize.Height = (newSize.Height / 16) * 16;
+            return newSize;
+        }
 
         [IniProperty("BaseIconSize",
-            Description = "Defines the base size of the icons (e.g. for the buttons in the editor), default value 16,16 and it's scaled to the current DPI",
+            Description = "Defines the base size of the editor icons, default value 16,16 and it's scaled to the current DPI",
             DefaultValue = "16,16")]
         public NativeSize IconSize
         {
-            get { return _iconSize; }
+            get { return _editorIconSize; }
             set
             {
-                Size newSize = value;
-                if (newSize != Size.Empty)
+                var newSize = NormalizeIconSize(value);
+                if (_editorIconSize != newSize)
                 {
-                    if (newSize.Width < 16)
-                    {
-                        newSize.Width = 16;
-                    }
-                    else if (newSize.Width > 256)
-                    {
-                        newSize.Width = 256;
-                    }
-
-                    newSize.Width = (newSize.Width / 16) * 16;
-                    if (newSize.Height < 16)
-                    {
-                        newSize.Height = 16;
-                    }
-                    else if (newSize.Height > 256)
-                    {
-                        newSize.Height = 256;
-                    }
-
-                    newSize.Height = (newSize.Height / 16) * 16;
-                }
-
-                if (_iconSize != newSize)
-                {
-                    _iconSize = newSize;
+                    _editorIconSize = newSize;
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("IconSize"));
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(EditorIconSize)));
                 }
             }
+        }
+
+        [IniProperty("MenuBaseIconSize",
+            Description = "Defines the base size of the tray and popup menu icons, default value 16,16 and it's scaled to the current DPI",
+            DefaultValue = "16,16")]
+        public NativeSize MenuIconSize
+        {
+            get => _menuIconSize;
+            set
+            {
+                var newSize = NormalizeIconSize(value);
+                if (_menuIconSize != newSize)
+                {
+                    _menuIconSize = newSize;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(MenuIconSize)));
+                }
+            }
+        }
+
+        public NativeSize EditorIconSize
+        {
+            get => IconSize;
+            set => IconSize = value;
         }
         
         [IniProperty("WebRequestTimeout", Description = "The connect timeout value for web requests, these are seconds", DefaultValue = "100")]
@@ -365,7 +397,7 @@ namespace Greenshot.Base.Core
         [IniProperty("WebRequestReadWriteTimeout", Description = "The read/write timeout value for web requests, these are seconds", DefaultValue = "100")]
         public int WebRequestReadWriteTimeout { get; set; }
 
-        public bool UseLargeIcons => IconSize.Width >= 32 || IconSize.Height >= 32;
+        public bool UseLargeIcons => EditorIconSize.Width >= 32 || EditorIconSize.Height >= 32;
 
         /// <summary>
         /// A helper method which returns true if the supplied experimental feature is enabled

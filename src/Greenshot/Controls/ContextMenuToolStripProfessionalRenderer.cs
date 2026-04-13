@@ -44,7 +44,7 @@ namespace Greenshot.Controls
         }
         protected override void OnRenderItemCheck(ToolStripItemImageRenderEventArgs e)
         {
-            var newSize = DpiCalculator.ScaleWithDpi(CoreConfig.IconSize, _provideDeviceDpi.DeviceDpi);
+            var newSize = DpiCalculator.ScaleWithDpi(CoreConfig.MenuIconSize, _provideDeviceDpi.DeviceDpi);
             if (_scaledCheckbox == null || _scaledCheckbox.Size != newSize)
             {
                 _scaledCheckbox?.Dispose();

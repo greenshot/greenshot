@@ -130,14 +130,54 @@ namespace Greenshot.Editor.Forms
         /// <param name="newDpi"></param>
         protected override void DpiChangedHandler(int oldDpi, int newDpi)
         {
-            var newSize = DpiCalculator.ScaleWithDpi(coreConfiguration.IconSize, newDpi);
+            ApplyDpiLayout(newDpi);
+            _surface?.AdjustToDpi(newDpi);
+            UpdateUi();
+        }
+
+        private void ApplyDpiLayout(int dpi)
+        {
+            if (dpi <= 0)
+            {
+                dpi = 96;
+            }
+
+            var newSize = DpiCalculator.ScaleWithDpi(coreConfiguration.EditorIconSize, dpi);
             toolsToolStrip.ImageScalingSize = newSize;
             menuStrip1.ImageScalingSize = newSize;
             destinationsToolStrip.ImageScalingSize = newSize;
             propertiesToolStrip.ImageScalingSize = newSize;
             propertiesToolStrip.MinimumSize = new Size(150, newSize.Height + 10);
-            _surface?.AdjustToDpi(newDpi);
-            UpdateUi();
+            var controlHeight = DpiCalculator.ScaleWithDpi(22, dpi);
+            fontFamilyComboBox.AutoSize = false;
+            fontFamilyComboBox.Size = new Size(DpiCalculator.ScaleWithDpi(200, dpi), controlHeight);
+            fontFamilyComboBox.ComboBox.ItemHeight = Math.Max(DpiCalculator.ScaleWithDpi(16, dpi), 16);
+            var fontPickerFont = new Font(Font.FontFamily, DpiCalculator.ScaleWithDpi(9.5f, dpi), FontStyle.Regular, GraphicsUnit.Pixel);
+            fontFamilyComboBox.Font = fontPickerFont;
+            fontFamilyComboBox.ComboBox.Font = fontPickerFont;
+            var numericPickerFont = new Font(Font.FontFamily, DpiCalculator.ScaleWithDpi(11f, dpi), FontStyle.Regular, GraphicsUnit.Pixel);
+            fontSizeUpDown.AutoSize = false;
+            fontSizeUpDown.Size = new Size(DpiCalculator.ScaleWithDpi(60, dpi), controlHeight);
+            fontSizeUpDown.Font = numericPickerFont;
+            lineThicknessUpDown.AutoSize = false;
+            lineThicknessUpDown.Size = new Size(DpiCalculator.ScaleWithDpi(60, dpi), controlHeight);
+            lineThicknessUpDown.Font = numericPickerFont;
+            ApplyZoomMenuDpi(dpi);
+        }
+
+        private void ApplyZoomMenuDpi(int dpi)
+        {
+            if (dpi <= 0)
+            {
+                dpi = 96;
+            }
+
+            var zoomMenuFont = new Font(Font.FontFamily, DpiCalculator.ScaleWithDpi(11f, dpi), FontStyle.Regular, GraphicsUnit.Pixel);
+            zoomMenuStrip.Font = zoomMenuFont;
+            foreach (ToolStripItem item in zoomMenuStrip.Items)
+            {
+                item.Font = zoomMenuFont;
+            }
         }
 
         public ImageEditorForm()
@@ -162,6 +202,8 @@ namespace Greenshot.Editor.Forms
             //
             ManualLanguageApply = true;
             InitializeComponent();
+            zoomMainMenuItem.DropDownOpening += (s, e) => ApplyZoomMenuDpi(NativeDpiMethods.GetDpi(Cursor.Position));
+            zoomStatusDropDownBtn.DropDownOpening += (s, e) => ApplyZoomMenuDpi(NativeDpiMethods.GetDpi(Cursor.Position));
             // Add the destinations after the form is loaded, this is needed for the dynamic destinations which need the handle of the form
             Load += (s, eventArgs) => AddDestinations();
 
@@ -184,6 +226,7 @@ namespace Greenshot.Editor.Forms
             Surface = surface;
             // Initial "saved" flag for asking if the image needs to be save
             _surface.Modified = !outputMade;
+            ApplyDpiLayout(NativeDpiMethods.GetDpi(Handle));
 
             // Note: SetSurface (called via Surface = surface above) already registered this
             // editor in EditorList. Do NOT add again here — double-registration causes

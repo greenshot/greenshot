@@ -199,7 +199,7 @@ public partial class JiraForm : Form
                 jiraListView.Columns.Add(translation);
             }
 
-            var scaledIconSize = DpiCalculator.ScaleWithDpi(CoreConfig.IconSize, NativeDpiMethods.GetDpi(Handle));
+            var scaledIconSize = DpiCalculator.ScaleWithDpi(CoreConfig.MenuIconSize, NativeDpiMethods.GetDpi(Handle));
             var imageList = new ImageList
             {
                 ImageSize = scaledIconSize

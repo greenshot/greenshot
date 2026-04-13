@@ -146,7 +146,7 @@ public class ExternalCommandPlugin : IGreenshotPlugin
 
         _itemPlugInRoot = new ToolStripMenuItem();
         _itemPlugInRoot.Click += ConfigMenuClick;
-        OnIconSizeChanged(this, new PropertyChangedEventArgs("IconSize"));
+        OnIconSizeChanged(this, new PropertyChangedEventArgs(nameof(CoreConfig.MenuIconSize)));
         OnLanguageChanged(this, null);
 
         PluginUtils.AddToContextMenu(_itemPlugInRoot);
@@ -162,7 +162,7 @@ public class ExternalCommandPlugin : IGreenshotPlugin
     /// <param name="e"></param>
     private void OnIconSizeChanged(object sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == "IconSize")
+        if (e.PropertyName == nameof(CoreConfig.MenuIconSize) || e.PropertyName == nameof(CoreConfig.IconSize))
         {
             try
             {

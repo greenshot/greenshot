@@ -410,7 +410,7 @@ namespace Greenshot.Forms
             SoundHelper.Initialize();
 
             coreConfiguration.PropertyChanged += OnIconSizeChanged;
-            OnIconSizeChanged(this, new PropertyChangedEventArgs("IconSize"));
+            OnIconSizeChanged(this, new PropertyChangedEventArgs(nameof(coreConfiguration.MenuIconSize)));
 
             // Set the Greenshot icon visibility depending on the configuration. (Added for feature #3521446)
             // Setting it to true this late prevents Problems with the context menu
@@ -575,7 +575,7 @@ namespace Greenshot.Forms
         /// <param name="e">PropertyChangedEventArgs</param>
         private void OnIconSizeChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName != "IconSize")
+            if (e.PropertyName != nameof(coreConfiguration.MenuIconSize))
             {
                 return;
             }
@@ -588,7 +588,7 @@ namespace Greenshot.Forms
         /// </summary>
         protected override void DpiChangedHandler(int oldDpi, int newDpi)
         {
-            var newSize = DpiCalculator.ScaleWithDpi(coreConfiguration.IconSize, newDpi);
+            var newSize = DpiCalculator.ScaleWithDpi(coreConfiguration.MenuIconSize, newDpi);
             contextMenu.ImageScalingSize = newSize;
         }
 
@@ -645,8 +645,10 @@ namespace Greenshot.Forms
 
         private void ContextMenuOpening(object sender, CancelEventArgs e)
         {
-            var factor = DeviceDpi / 96f;
-            contextMenu.Scale(new SizeF(factor, factor));
+            var menuDpi = NativeDpiMethods.GetDpi(Cursor.Position);
+            contextMenu.ImageScalingSize = DpiCalculator.ScaleWithDpi(coreConfiguration.MenuIconSize, menuDpi);
+            var menuFontSize = DpiCalculator.ScaleWithDpi(12f, menuDpi);
+            contextMenu.Font = new Font(FontFamily.GenericSansSerif, menuFontSize, FontStyle.Regular, GraphicsUnit.Pixel);
             contextmenu_captureclipboard.Enabled = ClipboardHelper.ContainsImage();
             contextmenu_capturelastregion.Enabled = coreConfiguration.LastCapturedRegion != NativeRect.Empty;
 
@@ -943,6 +945,19 @@ namespace Greenshot.Forms
                 {
                     using (_settingsForm = new SettingsForm())
                     {
+                        _settingsForm.StartPosition = FormStartPosition.CenterScreen;
+                        var targetDpi = NativeDpiMethods.GetDpi(Cursor.Position);
+                        if (_settingsForm.DeviceDpi > 0 && targetDpi > 0 && _settingsForm.DeviceDpi != targetDpi)
+                        {
+                            var scaleFactor = targetDpi / (float)_settingsForm.DeviceDpi;
+                            _settingsForm.Font = new Font(
+                                _settingsForm.Font.FontFamily,
+                                _settingsForm.Font.SizeInPoints * scaleFactor,
+                                _settingsForm.Font.Style,
+                                GraphicsUnit.Point);
+                            _settingsForm.Scale(new SizeF(scaleFactor, scaleFactor));
+                        }
+
                         if (_settingsForm.ShowDialog() == DialogResult.OK)
                         {
                             InitializeQuickSettingsMenu();
@@ -978,7 +993,36 @@ namespace Greenshot.Forms
                 {
                     using (_aboutForm = new AboutForm())
                     {
-                        _aboutForm.ShowDialog(this);
+                        // Handle mixed-DPI transitions: keep 100% at legacy baseline,
+                        // and only apply proportional correction for higher DPI mismatches.
+                        var targetDpi = NativeDpiMethods.GetDpi(Cursor.Position);
+                        if (targetDpi <= 96)
+                        {
+                            _aboutForm.Font = new Font(_aboutForm.Font.FontFamily, 8.25f, FontStyle.Regular, GraphicsUnit.Point);
+                            _aboutForm.NormalizeFontsToForm();
+                            _aboutForm.ClientSize = new Size(530, 293);
+                        }
+                        _ = _aboutForm.Handle;
+                        if (targetDpi > 96 && _aboutForm.DeviceDpi > 0 && targetDpi > 0 && _aboutForm.DeviceDpi != targetDpi)
+                        {
+                            var scaleFactor = targetDpi / (float)_aboutForm.DeviceDpi;
+                            _aboutForm.Font = new Font(
+                                _aboutForm.Font.FontFamily,
+                                _aboutForm.Font.SizeInPoints * scaleFactor,
+                                _aboutForm.Font.Style,
+                                GraphicsUnit.Point);
+                            _aboutForm.Scale(new SizeF(scaleFactor, scaleFactor));
+                            _aboutForm.PerformLayout();
+                            _aboutForm.ClientSize = DpiCalculator.ScaleWithDpi(new Size(530, 293), targetDpi);
+                        }
+
+                        var targetScreen = Screen.FromPoint(Cursor.Position);
+                        var targetArea = targetScreen.WorkingArea;
+                        _aboutForm.StartPosition = FormStartPosition.Manual;
+                        _aboutForm.Location = new Point(
+                            targetArea.Left + (targetArea.Width - _aboutForm.Width) / 2,
+                            targetArea.Top + (targetArea.Height - _aboutForm.Height) / 2);
+                        _aboutForm.ShowDialog();
                     }
                 }
                 finally

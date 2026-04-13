@@ -35,12 +35,10 @@ namespace Greenshot.Editor.Forms
         private Color _color;
         public NativePoint Offset = new NativePoint(0, 0);
         public event ColorPickerEventHandler ColorPicked;
-        private readonly ColorDialog _cd;
 
 
         public ColorPickerToolStripButton()
         {
-            _cd = ColorDialog.GetInstance();
             Click += ToolStripButton1Click;
         }
 
@@ -79,8 +77,12 @@ namespace Greenshot.Editor.Forms
 
         void ToolStripButton1Click(object sender, EventArgs e)
         {
-            _cd.ShowDialog(Owner);
-            Color = _cd.Color;
+            using var colorDialog = new ColorDialog
+            {
+                Color = Color
+            };
+            colorDialog.ShowDialog(Owner);
+            Color = colorDialog.Color;
             ColorPicked?.Invoke(this, new ColorPickerEventArgs(Color));
         }
     }

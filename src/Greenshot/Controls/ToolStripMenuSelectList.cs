@@ -60,7 +60,7 @@ namespace Greenshot.Controls
 
         private void UpdateImage()
         {
-            var newSize = DpiCalculator.ScaleWithDpi(CoreConfig.IconSize, _provideDeviceDpi.DeviceDpi);
+            var newSize = DpiCalculator.ScaleWithDpi(CoreConfig.MenuIconSize, _provideDeviceDpi.DeviceDpi);
             if (_defaultImage == null || _defaultImage.Size != newSize)
             {
                 _defaultImage?.Dispose();
