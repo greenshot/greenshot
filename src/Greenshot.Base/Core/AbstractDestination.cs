@@ -225,11 +225,11 @@ namespace Greenshot.Base.Core
                         break;
                     case ToolStripDropDownCloseReason.Keyboard:
                         // Menu closed via keyboard (e.g., ESC key)
-                        if (!captureDetails.HasDestination("Editor"))
+                        if (!captureDetails.HasDestination("Editor") && surface != null)
                         {
                             surface.Dispose();
                             surface = null;
-                        } 
+                        }
                         // We might already be in the disposing process, so queue the disposal to avoid re-entrancy
                         menu.BeginInvoke(new Action(() =>
                         {
@@ -262,6 +262,13 @@ namespace Greenshot.Base.Core
                         IDestination clickedDestination = (IDestination) toolStripMenuItem?.Tag;
                         if (clickedDestination == null)
                         {
+                            return;
+                        }
+
+                        // Guard against re-entrant clicks after the surface has already been disposed
+                        if (surface == null)
+                        {
+                            Log.Warn("Destination click handler invoked after surface was already disposed; ignoring.");
                             return;
                         }
 
