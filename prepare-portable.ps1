@@ -10,9 +10,10 @@ param(
 # Create portable directory
 New-Item -ItemType Directory -Path "$OutputPath" -Force | Out-Null
 
+# Copy checksum.SHA256
+Copy-Item "$BuildArtifactsPath\checksum.SHA256" "$OutputPath" -Force
 # Copy greenshot.exe
 Copy-Item "$BuildArtifactsPath\Greenshot.exe" "$OutputPath" -Force
-
 # Copy greenshot.exe.config
 Copy-Item "$BuildArtifactsPath\Greenshot.exe.config" "$OutputPath" -Force
 
@@ -41,10 +42,10 @@ Copy-Item "$RepositoryRootPath\src\Greenshot\Languages\*.xml" "$OutputPath\Langu
 ";In this file you should add your fixed settings" | Set-Content "$OutputPath\greenshot-fixed.ini" -Encoding UTF8
 
 # Copy license file
-Copy-Item "$RepositoryRootPath\installer\additional_files\license.txt" "$OutputPath" -Force
+Copy-Item "$RepositoryRootPath\src\Greenshot-Installer\additional_files\license.txt" "$OutputPath" -Force
 
 # Copy readme file
-Copy-Item "$RepositoryRootPath\installer\additional_files\readme.txt" "$OutputPath" -Force
+Copy-Item "$RepositoryRootPath\src\Greenshot-Installer\additional_files\readme.txt" "$OutputPath" -Force
 
 # Copy and rename log config file
 Copy-Item "$RepositoryRootPath\src\Greenshot\log4net-zip.xml" "$OutputPath\log4net.xml" -Force
@@ -73,17 +74,6 @@ New-Item -ItemType Directory -Path "$OutputPath\Plugins\Greenshot.Plugin.Externa
 Copy-Item "$RepositoryRootPath\src\Greenshot.Plugin.ExternalCommand\Languages\language_externalcommand*.xml" "$OutputPath\Languages\Greenshot.Plugin.ExternalCommand" -Force
 Copy-Item "$BuildArtifactsPath\Plugins\Greenshot.Plugin.ExternalCommand\Greenshot.Plugin.ExternalCommand.dll" "$OutputPath\Plugins\Greenshot.Plugin.ExternalCommand" -Force
 
-# Copy Flickr Plugin
-New-Item -ItemType Directory -Path "$OutputPath\Languages\Greenshot.Plugin.Flickr" -Force | Out-Null
-New-Item -ItemType Directory -Path "$OutputPath\Plugins\Greenshot.Plugin.Flickr" -Force | Out-Null
-Copy-Item "$RepositoryRootPath\src\Greenshot.Plugin.Flickr\Languages\language_flickr*.xml" "$OutputPath\Languages\Greenshot.Plugin.Flickr" -Force
-Copy-Item "$BuildArtifactsPath\Plugins\Greenshot.Plugin.Flickr\Greenshot.Plugin.Flickr.dll" "$OutputPath\Plugins\Greenshot.Plugin.Flickr" -Force
-
-# Copy GooglePhotos Plugin
-New-Item -ItemType Directory -Path "$OutputPath\Languages\Greenshot.Plugin.GooglePhotos" -Force | Out-Null
-New-Item -ItemType Directory -Path "$OutputPath\Plugins\Greenshot.Plugin.GooglePhotos" -Force | Out-Null
-Copy-Item "$RepositoryRootPath\src\Greenshot.Plugin.GooglePhotos\Languages\language_googlephotos*.xml" "$OutputPath\Languages\Greenshot.Plugin.GooglePhotos" -Force
-Copy-Item "$BuildArtifactsPath\Plugins\Greenshot.Plugin.GooglePhotos\Greenshot.Plugin.GooglePhotos.dll" "$OutputPath\Plugins\Greenshot.Plugin.GooglePhotos" -Force
 
 # Copy Imgur Plugin
 New-Item -ItemType Directory -Path "$OutputPath\Languages\Greenshot.Plugin.Imgur" -Force | Out-Null
@@ -102,9 +92,3 @@ Copy-Item "$BuildArtifactsPath\Plugins\Greenshot.Plugin.Jira\Dapplo.Jira.SvgWinF
 # Copy Office Plugin
 New-Item -ItemType Directory -Path "$OutputPath\Plugins\Greenshot.Plugin.Office" -Force | Out-Null
 Copy-Item "$BuildArtifactsPath\Plugins\Greenshot.Plugin.Office\Greenshot.Plugin.Office.dll" "$OutputPath\Plugins\Greenshot.Plugin.Office" -Force
-
-# Copy Photobucket Plugin
-New-Item -ItemType Directory -Path "$OutputPath\Languages\Greenshot.Plugin.Photobucket" -Force | Out-Null
-New-Item -ItemType Directory -Path "$OutputPath\Plugins\Greenshot.Plugin.Photobucket" -Force | Out-Null
-Copy-Item "$RepositoryRootPath\src\Greenshot.Plugin.Photobucket\Languages\language_photobucket*.xml" "$OutputPath\Languages\Greenshot.Plugin.Photobucket" -Force
-Copy-Item "$BuildArtifactsPath\Plugins\Greenshot.Plugin.Photobucket\Greenshot.Plugin.Photobucket.dll" "$OutputPath\Plugins\Greenshot.Plugin.Photobucket" -Force
