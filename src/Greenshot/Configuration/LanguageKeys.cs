@@ -74,6 +74,8 @@ namespace Greenshot.Configuration
         settings_storagelocation_folder_error_title,
         settings_visualization,
         settings_window_capture_mode,
+        capture_countdown,
+        quicksettings_capturedelay,
         tooltip_firststart,
         warning,
         warning_hotkeys,
