@@ -945,9 +945,24 @@ namespace Greenshot.Forms
                 {
                     using (_settingsForm = new SettingsForm())
                     {
-                        _settingsForm.StartPosition = FormStartPosition.CenterScreen;
                         var targetDpi = NativeDpiMethods.GetDpi(Cursor.Position);
-                        if (_settingsForm.DeviceDpi > 0 && targetDpi > 0 && _settingsForm.DeviceDpi != targetDpi)
+                        if (targetDpi <= 0)
+                        {
+                            targetDpi = 96;
+                        }
+
+                        var targetScreen = Screen.FromPoint(Cursor.Position);
+                        var targetArea = targetScreen.WorkingArea;
+
+                        // Reset to design-time baseline before creating the handle.
+                        _settingsForm.AutoScaleMode = AutoScaleMode.Dpi;
+                        _settingsForm.Font = new Font(_settingsForm.Font.FontFamily, 8.25f, FontStyle.Regular, GraphicsUnit.Point);
+                        _settingsForm.StartPosition = FormStartPosition.Manual;
+                        _settingsForm.Location = new Point(
+                            targetArea.Left + (targetArea.Width - _settingsForm.Width) / 2,
+                            targetArea.Top + (targetArea.Height - _settingsForm.Height) / 2);
+                        _ = _settingsForm.Handle;
+                        if (_settingsForm.DeviceDpi > 0 && _settingsForm.DeviceDpi != targetDpi)
                         {
                             var scaleFactor = targetDpi / (float)_settingsForm.DeviceDpi;
                             _settingsForm.Font = new Font(
@@ -957,7 +972,13 @@ namespace Greenshot.Forms
                                 GraphicsUnit.Point);
                             _settingsForm.Scale(new SizeF(scaleFactor, scaleFactor));
                         }
+                        _settingsForm.PerformLayout();
+                        _settingsForm.Location = new Point(
+                            targetArea.Left + (targetArea.Width - _settingsForm.Width) / 2,
+                            targetArea.Top + (targetArea.Height - _settingsForm.Height) / 2);
 
+                        Log.Debug(
+                            $"ShowSetting dpi target={targetDpi}, device={_settingsForm.DeviceDpi}, size={_settingsForm.Size}, location={_settingsForm.Location}");
                         if (_settingsForm.ShowDialog() == DialogResult.OK)
                         {
                             InitializeQuickSettingsMenu();
@@ -993,17 +1014,26 @@ namespace Greenshot.Forms
                 {
                     using (_aboutForm = new AboutForm())
                     {
-                        // Handle mixed-DPI transitions: keep 100% at legacy baseline,
-                        // and only apply proportional correction for higher DPI mismatches.
                         var targetDpi = NativeDpiMethods.GetDpi(Cursor.Position);
-                        if (targetDpi <= 96)
+                        if (targetDpi <= 0)
                         {
-                            _aboutForm.Font = new Font(_aboutForm.Font.FontFamily, 8.25f, FontStyle.Regular, GraphicsUnit.Point);
-                            _aboutForm.NormalizeFontsToForm();
-                            _aboutForm.ClientSize = new Size(530, 293);
+                            targetDpi = 96;
                         }
+
+                        _aboutForm.AutoScaleMode = AutoScaleMode.Dpi;
+                        _aboutForm.Font = new Font(_aboutForm.Font.FontFamily, 8.25f, FontStyle.Regular, GraphicsUnit.Point);
+                        _aboutForm.ClientSize = new Size(530, 293);
+                        _aboutForm.NormalizeFontsToForm();
+                        _aboutForm.StartPosition = FormStartPosition.Manual;
+
+                        var targetScreen = Screen.FromPoint(Cursor.Position);
+                        var targetArea = targetScreen.WorkingArea;
+                        _aboutForm.Location = new Point(
+                            targetArea.Left + (targetArea.Width - _aboutForm.Width) / 2,
+                            targetArea.Top + (targetArea.Height - _aboutForm.Height) / 2);
+
                         _ = _aboutForm.Handle;
-                        if (targetDpi > 96 && _aboutForm.DeviceDpi > 0 && targetDpi > 0 && _aboutForm.DeviceDpi != targetDpi)
+                        if (_aboutForm.DeviceDpi > 0 && _aboutForm.DeviceDpi != targetDpi)
                         {
                             var scaleFactor = targetDpi / (float)_aboutForm.DeviceDpi;
                             _aboutForm.Font = new Font(
@@ -1012,13 +1042,11 @@ namespace Greenshot.Forms
                                 _aboutForm.Font.Style,
                                 GraphicsUnit.Point);
                             _aboutForm.Scale(new SizeF(scaleFactor, scaleFactor));
-                            _aboutForm.PerformLayout();
-                            _aboutForm.ClientSize = DpiCalculator.ScaleWithDpi(new Size(530, 293), targetDpi);
                         }
+                        _aboutForm.NormalizeFontsToForm();
+                        _aboutForm.ClientSize = DpiCalculator.ScaleWithDpi(new Size(530, 293), targetDpi);
+                        _aboutForm.PerformLayout();
 
-                        var targetScreen = Screen.FromPoint(Cursor.Position);
-                        var targetArea = targetScreen.WorkingArea;
-                        _aboutForm.StartPosition = FormStartPosition.Manual;
                         _aboutForm.Location = new Point(
                             targetArea.Left + (targetArea.Width - _aboutForm.Width) / 2,
                             targetArea.Top + (targetArea.Height - _aboutForm.Height) / 2);

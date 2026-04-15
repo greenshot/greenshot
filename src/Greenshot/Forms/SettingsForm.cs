@@ -594,8 +594,13 @@ namespace Greenshot.Forms
             coreConfiguration.DWMBackgroundColor = colorButton_window_background.SelectedColor;
             coreConfiguration.UpdateCheckInterval = (int) numericUpDown_daysbetweencheck.Value;
 
-            coreConfiguration.EditorIconSize = new Size((int) numericUpdownIconSize.Value, (int) numericUpdownIconSize.Value);
-            coreConfiguration.MenuIconSize = new Size((int) numericUpdownMenuIconSize.Value, (int) numericUpdownMenuIconSize.Value);
+            // Legacy icon-size controls are hidden when automatic DPI scaling is active.
+            // Avoid writing stale hidden control values back into configuration.
+            if (numericUpdownIconSize.Visible && numericUpdownMenuIconSize.Visible)
+            {
+                coreConfiguration.EditorIconSize = new Size((int) numericUpdownIconSize.Value, (int) numericUpdownIconSize.Value);
+                coreConfiguration.MenuIconSize = new Size((int) numericUpdownMenuIconSize.Value, (int) numericUpdownMenuIconSize.Value);
+            }
 
             try
             {

@@ -390,6 +390,11 @@ namespace Greenshot.Base.Core
             get => IconSize;
             set => IconSize = value;
         }
+
+        [IniProperty("IconSizeMigratedToAutoScaling",
+            Description = "Tracks one-time migration to automatic DPI icon scaling defaults.",
+            DefaultValue = "False")]
+        public bool IconSizeMigratedToAutoScaling { get; set; }
         
         [IniProperty("WebRequestTimeout", Description = "The connect timeout value for web requests, these are seconds", DefaultValue = "100")]
         public int WebRequestTimeout { get; set; }
@@ -653,6 +658,27 @@ namespace Greenshot.Base.Core
             if (WebRequestReadWriteTimeout < 1)
             {
                 WebRequestReadWriteTimeout = 100;
+            }
+
+            // One-time migration: manual icon base sizes break automatic DPI scaling.
+            // Force both icon bases to the default 16x16 and persist this once.
+            if (!IconSizeMigratedToAutoScaling)
+            {
+                var defaultIconSize = new Size(16, 16);
+                if (EditorIconSize != defaultIconSize)
+                {
+                    EditorIconSize = defaultIconSize;
+                    IsDirty = true;
+                }
+
+                if (MenuIconSize != defaultIconSize)
+                {
+                    MenuIconSize = defaultIconSize;
+                    IsDirty = true;
+                }
+
+                IconSizeMigratedToAutoScaling = true;
+                IsDirty = true;
             }
         }
 

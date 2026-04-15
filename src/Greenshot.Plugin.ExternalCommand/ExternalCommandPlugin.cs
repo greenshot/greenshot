@@ -162,7 +162,9 @@ public class ExternalCommandPlugin : IGreenshotPlugin
     /// <param name="e"></param>
     private void OnIconSizeChanged(object sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(CoreConfig.MenuIconSize) || e.PropertyName == nameof(CoreConfig.IconSize))
+        if (e.PropertyName == nameof(CoreConfig.MenuIconSize) ||
+            e.PropertyName == nameof(CoreConfig.IconSize) ||
+            e.PropertyName == nameof(CoreConfig.EditorIconSize))
         {
             try
             {

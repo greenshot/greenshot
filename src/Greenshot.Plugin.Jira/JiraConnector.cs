@@ -58,7 +58,9 @@ public sealed class JiraConnector : IDisposable
     {
         CoreConfig.PropertyChanged += (sender, args) =>
         {
-            if (args.PropertyName == nameof(CoreConfig.MenuIconSize) || args.PropertyName == nameof(CoreConfig.IconSize))
+            if (args.PropertyName == nameof(CoreConfig.MenuIconSize) ||
+                args.PropertyName == nameof(CoreConfig.IconSize) ||
+                args.PropertyName == nameof(CoreConfig.EditorIconSize))
             {
                 var jiraConnector = SimpleServiceProvider.Current.GetInstance<JiraConnector>();
                 jiraConnector._jiraClient?.Behaviour.SetConfig(new SvgConfiguration

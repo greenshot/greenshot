@@ -54,7 +54,9 @@ namespace Greenshot.Base.Core
         /// <param name="e"></param>
         private static void OnIconSizeChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName != nameof(CoreConfig.IconSize) && e.PropertyName != nameof(CoreConfig.MenuIconSize)) return;
+            if (e.PropertyName != nameof(CoreConfig.IconSize) &&
+                e.PropertyName != nameof(CoreConfig.EditorIconSize) &&
+                e.PropertyName != nameof(CoreConfig.MenuIconSize)) return;
             var cachedImages = new List<Image>();
             lock (ExeIconCache)
             {
