@@ -89,9 +89,9 @@ namespace Greenshot.Base.Controls {
 			this.checkbox_dontaskagain.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkbox_dontaskagain.Location = new System.Drawing.Point(12, 106);
 			this.checkbox_dontaskagain.Name = "checkbox_dontaskagain";
-			this.checkbox_dontaskagain.LanguageKey = "qualitydialog_dontaskagain";
 			this.checkbox_dontaskagain.Size = new System.Drawing.Size(268, 37);
 			this.checkbox_dontaskagain.TabIndex = 5;
+			this.checkbox_dontaskagain.LanguageKey = "qualitydialog_dontaskagain";
 			this.checkbox_dontaskagain.TextAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkbox_dontaskagain.UseVisualStyleBackColor = true;
 			// 
@@ -108,12 +108,11 @@ namespace Greenshot.Base.Controls {
 			// 
 			// checkBox_reduceColors
 			// 
-			this.checkBox_reduceColors.LanguageKey = "settings_reducecolors";
 			this.checkBox_reduceColors.Location = new System.Drawing.Point(12, 11);
 			this.checkBox_reduceColors.Name = "checkBox_reduceColors";
-			this.checkBox_reduceColors.Size = new System.Drawing.Size(268, 17);
+			this.checkBox_reduceColors.Size = new System.Drawing.Size(268, 37);
 			this.checkBox_reduceColors.TabIndex = 2;
-			this.checkBox_reduceColors.Text = "settings_reducecolors";
+            this.checkBox_reduceColors.LanguageKey = "settings_reducecolors";
 			this.checkBox_reduceColors.UseVisualStyleBackColor = true;
 			// 
 			// QualityDialog
