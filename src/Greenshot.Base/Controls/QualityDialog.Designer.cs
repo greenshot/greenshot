@@ -51,15 +51,15 @@ namespace Greenshot.Base.Controls {
 			this.trackBarJpegQuality = new System.Windows.Forms.TrackBar();
 			this.checkbox_dontaskagain = new GreenshotCheckBox();
 			this.button_ok = new GreenshotButton();
-			this.checkBox_reduceColors = new System.Windows.Forms.CheckBox();
+			this.checkBox_reduceColors = new GreenshotCheckBox();
 			((System.ComponentModel.ISupportInitialize)(this.trackBarJpegQuality)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// label_choosejpegquality
 			// 
-            this.label_choosejpegquality.Location = new System.Drawing.Point(12, 47);
+			this.label_choosejpegquality.Location = new System.Drawing.Point(12, 47);
 			this.label_choosejpegquality.Name = "label_choosejpegquality";
-            this.label_choosejpegquality.Size = new System.Drawing.Size(268, 19);
+			this.label_choosejpegquality.Size = new System.Drawing.Size(268, 19);
 			this.label_choosejpegquality.TabIndex = 15;
 			this.label_choosejpegquality.LanguageKey = "jpegqualitydialog_choosejpegquality";
 			// 
@@ -108,9 +108,10 @@ namespace Greenshot.Base.Controls {
 			// 
 			// checkBox_reduceColors
 			// 
+			this.checkBox_reduceColors.LanguageKey = "settings_reducecolors";
 			this.checkBox_reduceColors.Location = new System.Drawing.Point(12, 11);
 			this.checkBox_reduceColors.Name = "checkBox_reduceColors";
-			this.checkBox_reduceColors.Size = new System.Drawing.Size(95, 17);
+			this.checkBox_reduceColors.Size = new System.Drawing.Size(268, 17);
 			this.checkBox_reduceColors.TabIndex = 2;
 			this.checkBox_reduceColors.Text = "settings_reducecolors";
 			this.checkBox_reduceColors.UseVisualStyleBackColor = true;
@@ -142,6 +143,6 @@ namespace Greenshot.Base.Controls {
 		private System.Windows.Forms.TrackBar trackBarJpegQuality;
 		private System.Windows.Forms.TextBox textBoxJpegQuality;
 		private GreenshotLabel label_choosejpegquality;
-		private System.Windows.Forms.CheckBox checkBox_reduceColors;
+		private GreenshotCheckBox checkBox_reduceColors;
 	}
 }
