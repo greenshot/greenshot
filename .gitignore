@@ -219,3 +219,10 @@ ModelManifest.xml
 # Files compressed during the build
 *.gz
 /installer/Greenshot-INSTALLER-*.exe
+
+# Dapplo.Ini source generator output (EmitCompilerGeneratedFiles)
+# These go to obj/generated/ now, but guard against stale project-level generated/ dirs
+src/*/generated/
+src/generated/
+# Token-replacement generated credential files
+src/**/*.Credentials.cs

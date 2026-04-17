@@ -21,7 +21,7 @@
 
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Ocr;
 using Greenshot.Configuration;
@@ -33,7 +33,7 @@ namespace Greenshot.Processors
     /// </summary>
     public class Win10OcrProcessor : AbstractProcessor
     {
-        private static readonly Win10Configuration Win10Configuration = IniConfig.GetIniSection<Win10Configuration>();
+        private static readonly IWin10Configuration Win10Configuration = IniConfigRegistry.GetSection<IWin10Configuration>();
         public override string Designation => "Windows10OcrProcessor";
 
         public override string Description => "Windows OCR";

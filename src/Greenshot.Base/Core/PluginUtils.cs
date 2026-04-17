@@ -26,7 +26,7 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using Dapplo.Windows.Icons;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using log4net;
 using Microsoft.Win32;
 
@@ -38,7 +38,7 @@ namespace Greenshot.Base.Core
     public static class PluginUtils
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(PluginUtils));
-        private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
+        private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
         private static readonly IDictionary<string, Image> ExeIconCache = new Dictionary<string, Image>();
         private const string PathKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\";
         
@@ -158,7 +158,7 @@ namespace Greenshot.Base.Core
 
             try
             {
-                var appIcon = IconHelper.ExtractAssociatedIcon<Bitmap>(path, index, CoreConfig.UseLargeIcons);
+                var appIcon = IconHelper.ExtractAssociatedIcon<Bitmap>(path, index, CoreConfig.IconSize.Width >= 32 || CoreConfig.IconSize.Height >= 32);
                 if (appIcon != null)
                 {
                     Log.DebugFormat("Loaded icon for {0}, with dimensions {1}x{2}", path, appIcon.Width, appIcon.Height);

@@ -22,9 +22,9 @@
 using System;
 using System.IO;
 using System.Windows.Threading;
+using Dapplo.Ini;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
-using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 using Greenshot.Configuration;
 using log4net;
@@ -34,7 +34,7 @@ namespace Greenshot.Helpers
     internal static class ApplicationStartupHelper
     {
         private static readonly ILog LOG = LogManager.GetLogger(typeof(ApplicationStartupHelper));
-        private static readonly CoreConfiguration config = IniConfig.GetIniSection<CoreConfiguration>();
+        private static readonly ICoreConfiguration config = IniConfigRegistry.GetSection<ICoreConfiguration>();
 
         /// <summary>
         /// Performs initialization tasks for the application's first launch and displays an informational message to the user.
@@ -73,7 +73,7 @@ namespace Greenshot.Helpers
                 {
                     // Make sure the current hotkeys are disabled
                     HotkeyManager.UnregisterHotkeys();
-                    IniConfig.Reload();
+                    IniConfigRegistry.Get().Reload();
                     var mainForm = SimpleServiceProvider.Current.GetInstance<IGreenshotMainForm>();
                     // Even update language when needed
                     mainForm.UpdateUi();

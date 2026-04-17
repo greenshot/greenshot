@@ -30,7 +30,7 @@ using System.Security.Permissions;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
-using Greenshot.Base.IniFile;
+
 using Greenshot.Configuration;
 using log4net;
 
@@ -153,7 +153,7 @@ namespace Greenshot.Forms
             _bitmap = ImageHelper.CreateEmpty(90, 90, PixelFormat.Format24bppRgb, BackColor, 96, 96);
             pictureBox1.Image = _bitmap;
 
-            lblTitle.Text = $@"Greenshot {EnvironmentInfo.GetGreenshotVersion()} {(IniConfig.IsPortable ? " Portable" : "")} ({OsInfo.Bits} bit) {(coreConfiguration.IsBetaTester ? "-IsBetaTester-":"")}";
+            lblTitle.Text = $@"Greenshot {EnvironmentInfo.GetGreenshotVersion()} {(GreenshotEnvironment.IsPortable ? " Portable" : "")} ({OsInfo.Bits} bit) {(coreConfiguration.IsBetaTester ? "-IsBetaTester-":"")}";
 
             // Number of frames the pixel animation takes
             int frames = FramesForMillis(2000);
@@ -363,13 +363,13 @@ namespace Greenshot.Forms
                     case Keys.I:
                         try
                         {
-                            using (Process.Start("\"" + IniConfig.ConfigLocation + "\""))
+                            using (Process.Start("\"" + GreenshotEnvironment.ConfigLocation + "\""))
                             {
                             }
                         }
                         catch (Exception)
                         {
-                            MessageBox.Show(@"Couldn't open the greenshot.ini, it's located here: " + IniConfig.ConfigLocation, @"Error opening greenshot.ini",
+                            MessageBox.Show(@"Couldn't open the greenshot.ini, it's located here: " + GreenshotEnvironment.ConfigLocation, @"Error opening greenshot.ini",
                                 MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
                         }
 

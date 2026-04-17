@@ -34,6 +34,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.Integration;
 using System.Windows.Threading;
+using Dapplo.Ini;
+using Dapplo.Ini.Interfaces;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.DesktopWindowsManager;
 using Dapplo.Windows.Dpi;
@@ -46,7 +48,6 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Core.FileFormatHandlers;
 using Greenshot.Base.Help;
-using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Ocr;
 using Greenshot.Configuration;
@@ -57,7 +58,6 @@ using Greenshot.Editor.Destinations;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Forms;
 using Greenshot.Helpers;
-using Greenshot.Native;
 using Greenshot.Plugin.Win10;
 using Greenshot.Processors;
 using log4net;
@@ -73,9 +73,14 @@ namespace Greenshot.Forms
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(MainForm));
         private static ResourceMutex _applicationMutex;
-        private static CoreConfiguration _conf = IniConfig.GetIniSection<CoreConfiguration>();
+        private static ICoreConfiguration _conf = IniConfigRegistry.GetSection<ICoreConfiguration>();
 
-        public static void Start(string[] arguments)
+        /// <summary>
+        /// Application entry-point, called from <see cref="GreenshotMain"/> after the
+        /// <see cref="IniConfigRegistry"/> has been set up and command-line arguments
+        /// have been parsed.
+        /// </summary>
+        public static void Start(CommandLineOptions options)
         {
             try
             {
@@ -84,26 +89,6 @@ namespace Greenshot.Forms
                 _applicationMutex = ResourceMutex.Create("F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08", "Greenshot", false);
 
                 var isAlreadyRunning = !_applicationMutex.IsLocked;
-
-                if (arguments.Length > 0 && Log.IsDebugEnabled)
-                {
-                    var argumentString = new StringBuilder();
-                    foreach (string argument in arguments)
-                    {
-                        argumentString.Append("[").Append(argument).Append("] ");
-                    }
-
-                    Log.Debug("Greenshot arguments: " + argumentString);
-                }
-
-                // Parse command line arguments using System.CommandLine.
-                // Returns null when --help was shown or a parse error occurred (application should exit).
-                var options = GreenshotCommandLine.Parse(arguments);
-                if (options == null)
-                {
-                    FreeMutex();
-                    return;
-                }
 
                 if (options.Exit)
                 {
@@ -143,12 +128,6 @@ namespace Greenshot.Forms
                 if (options.Language != null)
                 {
                     _conf.Language = options.Language;
-                    IniConfig.Save();
-                }
-
-                if (options.IniDirectory != null)
-                {
-                    IniConfig.IniDirectory = options.IniDirectory;
                 }
 
                 if (isAlreadyRunning)
@@ -235,18 +214,8 @@ namespace Greenshot.Forms
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
 
-                // if language is not set, show language dialog
-                if (string.IsNullOrEmpty(_conf.Language))
-                {
-                    LanguageDialog languageDialog = LanguageDialog.GetInstance();
-                    languageDialog.ShowDialog();
-                    _conf.Language = languageDialog.SelectedLanguage;
-                }
-
                 Application.ApplicationExit += Application_ApplicationExit;
 
-                // force saving ini on every start because some init functions could change/fix the configuration. i.e. loading plugins
-                IniConfig.Save();
                 Application.Run(new MainForm(options));
             }
             catch (Exception ex)
@@ -358,6 +327,22 @@ namespace Greenshot.Forms
             // Make the notify icon available
             SimpleServiceProvider.Current.AddService(notifyIcon);
 
+            // Load all the plugins, and while doing to load the configuration
+            PluginHelper.Instance.LoadPlugins();
+
+            // This forces the registration of all destinations inside Greenshot itself.
+            RegisterInternalDestinations();
+            // This forces the registration of all processors inside Greenshot itself.
+            RegisterInternalProcessors();
+
+            // if language is not set, show language dialog
+            if (string.IsNullOrEmpty(_conf.Language))
+            {
+                LanguageDialog languageDialog = LanguageDialog.GetInstance();
+                languageDialog.ShowDialog();
+                _conf.Language = languageDialog.SelectedLanguage;
+            }
+
             // Disable access to the settings, for feature #3521446
             contextmenu_settings.Visible = !_conf.DisableSettings;
 
@@ -366,14 +351,6 @@ namespace Greenshot.Forms
             new ToolTip();
 
             UpdateUi();
-
-            // This forces the registration of all destinations inside Greenshot itself.
-            RegisterInternalDestinations();
-            // This forces the registration of all processors inside Greenshot itself.
-            RegisterInternalProcessors();
-
-            // Load all the plugins
-            PluginHelper.Instance.LoadPlugins();
 
             // Check to see if there is already another INotificationService
             if (!SimpleServiceProvider.Current.GetAllInstances<INotificationService>().Any())
@@ -1028,8 +1005,10 @@ namespace Greenshot.Forms
                 return;
             }
 
+            var coreSection = IniConfigRegistry.GetSection<ICoreConfiguration>();
+
             // Only add if the value is not fixed
-            if (!_conf.Values["CaptureMousepointer"].IsFixed)
+            if (coreSection == null || !coreSection.IsConstant("CaptureMousepointer"))
             {
                 // For the capture mouse-cursor option
                 ToolStripMenuSelectListItem captureMouseItem = new ToolStripMenuSelectListItem
@@ -1044,7 +1023,7 @@ namespace Greenshot.Forms
             }
 
             ToolStripMenuSelectList selectList;
-            if (!_conf.Values["Destinations"].IsFixed)
+            if (coreSection == null || !coreSection.IsConstant("Destinations"))
             {
                 // screenshot destination
                 selectList = new ToolStripMenuSelectList("destinations", true, this)
@@ -1061,7 +1040,7 @@ namespace Greenshot.Forms
                 contextmenu_quicksettings.DropDownItems.Add(selectList);
             }
 
-            if (!_conf.Values["WindowCaptureMode"].IsFixed)
+            if (coreSection == null || !coreSection.IsConstant("WindowCaptureMode"))
             {
                 // Capture Modes
                 selectList = new ToolStripMenuSelectList("capturemodes", false, this)
@@ -1084,18 +1063,15 @@ namespace Greenshot.Forms
                 Text = Language.GetString(LangKey.settings_printoptions)
             };
 
-            IniValue iniValue;
-            foreach (string propertyName in _conf.Values.Keys)
-            {
-                if (propertyName.StartsWith("OutputPrint"))
-                {
-                    iniValue = _conf.Values[propertyName];
-                    if (iniValue.Attributes.LanguageKey != null && !iniValue.IsFixed)
-                    {
-                        selectList.AddItem(Language.GetString(iniValue.Attributes.LanguageKey), iniValue, (bool) iniValue.Value);
-                    }
-                }
-            }
+            AddBoolMenuItem(selectList, coreSection, "OutputPrintPromptOptions", "settings_alwaysshowprintoptionsdialog", v => _conf.OutputPrintPromptOptions = v, _conf.OutputPrintPromptOptions);
+            AddBoolMenuItem(selectList, coreSection, "OutputPrintAllowRotate", "printoptions_allowrotate", v => _conf.OutputPrintAllowRotate = v, _conf.OutputPrintAllowRotate);
+            AddBoolMenuItem(selectList, coreSection, "OutputPrintAllowEnlarge", "printoptions_allowenlarge", v => _conf.OutputPrintAllowEnlarge = v, _conf.OutputPrintAllowEnlarge);
+            AddBoolMenuItem(selectList, coreSection, "OutputPrintAllowShrink", "printoptions_allowshrink", v => _conf.OutputPrintAllowShrink = v, _conf.OutputPrintAllowShrink);
+            AddBoolMenuItem(selectList, coreSection, "OutputPrintCenter", "printoptions_allowcenter", v => _conf.OutputPrintCenter = v, _conf.OutputPrintCenter);
+            AddBoolMenuItem(selectList, coreSection, "OutputPrintInverted", "printoptions_inverted", v => _conf.OutputPrintInverted = v, _conf.OutputPrintInverted);
+            AddBoolMenuItem(selectList, coreSection, "OutputPrintGrayscale", "printoptions_printgrayscale", v => _conf.OutputPrintGrayscale = v, _conf.OutputPrintGrayscale);
+            AddBoolMenuItem(selectList, coreSection, "OutputPrintMonochrome", "printoptions_printmonochrome", v => _conf.OutputPrintMonochrome = v, _conf.OutputPrintMonochrome);
+            AddBoolMenuItem(selectList, coreSection, "OutputPrintFooter", "printoptions_timestamp", v => _conf.OutputPrintFooter = v, _conf.OutputPrintFooter);
 
             if (selectList.DropDownItems.Count > 0)
             {
@@ -1109,17 +1085,8 @@ namespace Greenshot.Forms
                 Text = Language.GetString(LangKey.settings_visualization)
             };
 
-            iniValue = _conf.Values["PlayCameraSound"];
-            if (!iniValue.IsFixed)
-            {
-                selectList.AddItem(Language.GetString(iniValue.Attributes.LanguageKey), iniValue, (bool) iniValue.Value);
-            }
-
-            iniValue = _conf.Values["ShowTrayNotification"];
-            if (!iniValue.IsFixed)
-            {
-                selectList.AddItem(Language.GetString(iniValue.Attributes.LanguageKey), iniValue, (bool) iniValue.Value);
-            }
+            AddBoolMenuItem(selectList, coreSection, "PlayCameraSound", "settings_playsound", v => _conf.PlayCameraSound = v, _conf.PlayCameraSound);
+            AddBoolMenuItem(selectList, coreSection, "ShowTrayNotification", "settings_shownotify", v => _conf.ShowTrayNotification = v, _conf.ShowTrayNotification);
 
             if (selectList.DropDownItems.Count > 0)
             {
@@ -1138,13 +1105,32 @@ namespace Greenshot.Forms
             }
         }
 
+        /// <summary>
+        /// Adds a bool menu item to a <see cref="ToolStripMenuSelectList"/> for a config property,
+        /// skipping it when the property is marked as constant (admin-enforced).
+        /// </summary>
+        private static void AddBoolMenuItem(
+            ToolStripMenuSelectList list,
+            IIniSection section,
+            string propertyName,
+            string langKey,
+            Action<bool> setter,
+            bool currentValue)
+        {
+            if (section != null && section.IsConstant(propertyName))
+            {
+                return;
+            }
+
+            list.AddItem(Language.GetString(langKey), setter, currentValue);
+        }
+
         private void QuickSettingBoolItemChanged(object sender, EventArgs e)
         {
             ToolStripMenuSelectListItem item = ((ItemCheckedChangedEventArgs) e).Item;
-            if (item.Data is IniValue iniValue)
+            if (item.Data is Action<bool> setter)
             {
-                iniValue.Value = item.Checked;
-                IniConfig.Save();
+                setter(item.Checked);
             }
         }
 
@@ -1185,8 +1171,6 @@ namespace Greenshot.Forms
             {
                 _conf.OutputDestinations.Add(nameof(WellKnownDestinations.Picker));
             }
-
-            IniConfig.Save();
 
             // Rebuild the quick settings menu with the new settings.
             InitializeQuickSettingsMenu();
@@ -1417,16 +1401,6 @@ namespace Greenshot.Forms
             }
 
             ImageIO.RemoveTmpFiles();
-
-            // Store any open configuration changes
-            try
-            {
-                IniConfig.Save();
-            }
-            catch (Exception e)
-            {
-                Log.Error("Error storing configuration!", e);
-            }
 
             // Remove the application mutex
             FreeMutex();

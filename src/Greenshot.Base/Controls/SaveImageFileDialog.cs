@@ -26,7 +26,7 @@ using System.Windows.Forms;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Core.FileFormatHandlers;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using log4net;
 
@@ -39,7 +39,7 @@ namespace Greenshot.Base.Controls
     public class SaveImageFileDialog : IDisposable
     {
         private static readonly ILog LOG = LogManager.GetLogger(typeof(SaveImageFileDialog));
-        private static readonly CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+        private static readonly ICoreConfiguration conf = IniConfigRegistry.GetSection<ICoreConfiguration>();
         protected SaveFileDialog SaveFileDialog;
         private FilterOption[] _filterOptions;
         private DirectoryInfo _eagerlyCreatedDirectory;

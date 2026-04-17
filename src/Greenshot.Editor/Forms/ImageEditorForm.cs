@@ -43,7 +43,7 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Effects;
 using Greenshot.Base.Help;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Forms;
@@ -66,8 +66,8 @@ namespace Greenshot.Editor.Forms
     public partial class ImageEditorForm : EditorForm, IImageEditor
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(ImageEditorForm));
-        private static readonly EditorConfiguration EditorConfiguration = IniConfig.GetIniSection<EditorConfiguration>();
-        private static readonly CoreConfiguration CoreConfiguration = IniConfig.GetIniSection<CoreConfiguration>();
+        private static readonly IEditorConfiguration EditorConfiguration = IniConfigRegistry.GetSection<IEditorConfiguration>();
+        private static readonly ICoreConfiguration CoreConfiguration = IniConfigRegistry.GetSection<ICoreConfiguration>();
 
         private static readonly List<string> IgnoreDestinations = new()
         {
@@ -167,17 +167,17 @@ namespace Greenshot.Editor.Forms
 
             // Make sure the editor is placed on the same location as the last editor was on close
             // But only if this still exists, else it will be reset (BUG-1812)
-            WindowPlacement editorWindowPlacement = EditorConfiguration.GetEditorPlacement();
+            WindowPlacement editorWindowPlacement = EditorConfigurationHelper.GetEditorPlacement(EditorConfiguration);
             NativeRect screenBounds = DisplayInfo.ScreenBounds;
             if (!screenBounds.Contains(editorWindowPlacement.NormalPosition))
             {
-                EditorConfiguration.ResetEditorPlacement();
+                EditorConfigurationHelper.ResetEditorPlacement(EditorConfiguration);
             }
 
             // ReSharper disable once UnusedVariable
             WindowDetails thisForm = new(Handle)
             {
-                WindowPlacement = EditorConfiguration.GetEditorPlacement()
+                WindowPlacement = EditorConfigurationHelper.GetEditorPlacement(EditorConfiguration)
             };
 
             // init surface
@@ -1035,8 +1035,7 @@ namespace Greenshot.Editor.Forms
             }
 
             // persist our geometry string.
-            EditorConfiguration.SetEditorPlacement(new WindowDetails(Handle).WindowPlacement);
-            IniConfig.Save();
+            EditorConfigurationHelper.SetEditorPlacement(EditorConfiguration, new WindowDetails(Handle).WindowPlacement);
 
             // remove from the editor list
             lock (_editorListLock)

@@ -33,7 +33,7 @@ using System.Windows.Forms;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Core.FileFormatHandlers;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using log4net;
@@ -46,7 +46,7 @@ namespace Greenshot.Base.Core
     public static class ImageIO
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(ImageIO));
-        private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
+        private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
         private static readonly int PROPERTY_TAG_SOFTWARE_USED = 0x0131;
         private static readonly Cache<string, string> TmpFileCache = new Cache<string, string>(10 * 60 * 60, RemoveExpiredTmpFile);
 
@@ -428,7 +428,6 @@ namespace Greenshot.Base.Core
                     // TODO: For now we always overwrite, should be changed
                     Save(surface, fileNameWithExtension, true, outputSettings, CoreConfig.OutputFileCopyPathToClipboard);
                     returnValue = fileNameWithExtension;
-                    IniConfig.Save();
                 }
                 catch (Exception e) when (e is ExternalException || e is IOException || e is UnauthorizedAccessException)
                 {

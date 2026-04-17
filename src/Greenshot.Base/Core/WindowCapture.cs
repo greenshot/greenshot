@@ -35,7 +35,7 @@ using Dapplo.Windows.Gdi32.Structs;
 using Dapplo.Windows.Icons;
 using Dapplo.Windows.Kernel32;
 using Dapplo.Windows.User32;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using log4net;
 
@@ -47,7 +47,7 @@ namespace Greenshot.Base.Core
     public static class WindowCapture
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(WindowCapture));
-        private static readonly CoreConfiguration Configuration = IniConfig.GetIniSection<CoreConfiguration>();
+        private static readonly ICoreConfiguration Configuration = IniConfigRegistry.GetSection<ICoreConfiguration>();
 
         /// <summary>
         /// Retrieves the cursor location safely, accounting for DPI settings in Vista/Windows 7. This implementation
