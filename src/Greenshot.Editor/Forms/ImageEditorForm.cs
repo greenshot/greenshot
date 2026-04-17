@@ -2098,8 +2098,16 @@ namespace Greenshot.Editor.Forms
             newHeight = Math.Min(newHeight, maxWindowSize.Height);
 
             // Lower bound. Don't make it smaller than a fixed value.
-            int minimumFormWidth = 650;
-            int minimumFormHeight = 530;
+            // Use the window's current screen DPI (not only DeviceDpi) so runtime monitor scale
+            // transitions don't keep an outdated minimum size.
+            var windowCenter = new Point(Left + Width / 2, Top + Height / 2);
+            var dpi = NativeDpiMethods.GetDpi(windowCenter);
+            if (dpi <= 0)
+            {
+                dpi = DeviceDpi > 0 ? DeviceDpi : 96;
+            }
+            int minimumFormWidth = DpiCalculator.ScaleWithDpi(650, dpi);
+            int minimumFormHeight = DpiCalculator.ScaleWithDpi(530, dpi);
             newWidth = Math.Max(minimumFormWidth, newWidth);
             newHeight = Math.Max(minimumFormHeight, newHeight);
 
