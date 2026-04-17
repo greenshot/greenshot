@@ -20,7 +20,7 @@
  */
 
 using Greenshot.Base.Core;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Editor.FileFormatHandlers;
 
@@ -28,7 +28,7 @@ namespace Greenshot.Editor
 {
     public static class EditorInitialize
     {
-        private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
+        private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
 
         public static void Initialize()
         {

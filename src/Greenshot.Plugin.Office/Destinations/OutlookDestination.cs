@@ -26,7 +26,7 @@ using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Plugin.Office.OfficeExport;
@@ -45,7 +45,7 @@ namespace Greenshot.Plugin.Office.Destinations
         private const int IconMeeting = 2;
 
         private static readonly Image MailIcon = GreenshotResources.GetImage("Email.Image");
-        private static readonly OfficeConfiguration OfficeConfig = IniConfig.GetIniSection<OfficeConfiguration>();
+        private static readonly IOfficeConfiguration OfficeConfig = IniConfigRegistry.GetSection<IOfficeConfiguration>();
         private static readonly string ExePath;
         private static readonly bool IsActiveFlag;
         private const string MapiClient = "Microsoft Outlook";

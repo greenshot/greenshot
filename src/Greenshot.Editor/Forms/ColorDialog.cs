@@ -25,9 +25,9 @@ using System.Drawing;
 using System.Globalization;
 using System.Threading;
 using System.Windows.Forms;
+using Dapplo.Ini;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
-using Greenshot.Base.IniFile;
 using Greenshot.Editor.Configuration;
 using Greenshot.Editor.Controls;
 
@@ -38,7 +38,7 @@ namespace Greenshot.Editor.Forms
     /// </summary>
     public partial class ColorDialog : EditorForm
     {
-        private static readonly EditorConfiguration EditorConfig = IniConfig.GetIniSection<EditorConfiguration>();
+        private static readonly IEditorConfiguration EditorConfig = IniConfigRegistry.GetSection<IEditorConfiguration>();
         private static ColorDialog _instance;
 
         public ColorDialog()

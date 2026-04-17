@@ -36,7 +36,7 @@ using Dapplo.Windows.User32;
 using Dapplo.Windows.User32.Enums;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Ocr;
 using Dapplo.Windows.Icons;
@@ -57,7 +57,7 @@ namespace Greenshot.Forms
         };
 
         private static readonly ILog Log = LogManager.GetLogger(typeof(CaptureForm));
-        private static readonly CoreConfiguration Conf = IniConfig.GetIniSection<CoreConfiguration>();
+        private static readonly ICoreConfiguration Conf = IniConfigRegistry.GetSection<ICoreConfiguration>();
         private static readonly Brush GreenOverlayBrush;
         private static readonly Pen OverlayPen;
         private static CaptureForm _currentForm;

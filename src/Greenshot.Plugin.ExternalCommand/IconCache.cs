@@ -23,13 +23,13 @@ using System;
 using System.Drawing;
 using System.IO;
 using Greenshot.Base.Core;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 
 namespace Greenshot.Plugin.ExternalCommand;
 
 public static class IconCache
 {
-    private static readonly ExternalCommandConfiguration config = IniConfig.GetIniSection<ExternalCommandConfiguration>();
+    private static readonly IExternalCommandConfiguration config = IniConfigRegistry.GetSection<IExternalCommandConfiguration>();
     private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(IconCache));
 
     public static Image IconForCommand(string commandName)

@@ -44,25 +44,25 @@ namespace Greenshot.Editor.Drawing.Filters
         public override void Apply(Graphics graphics, Bitmap applyBitmap, NativeRect rect, RenderMode renderMode)
         {
             int pixelSize = GetFieldValueAsInt(FieldType.PIXEL_SIZE);
-            ImageHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
-            if (pixelSize <= 1 || rect.Width == 0 || rect.Height == 0)
+            var applyRect = ImageHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
+            if (pixelSize <= 1 || applyRect.Width == 0 || applyRect.Height == 0)
             {
                 // Nothing to do
                 return;
             }
 
-            if (rect.Width < pixelSize)
+            if (applyRect.Width < pixelSize)
             {
-                pixelSize = rect.Width;
+                pixelSize = applyRect.Width;
             }
 
-            if (rect.Height < pixelSize)
+            if (applyRect.Height < pixelSize)
             {
-                pixelSize = rect.Height;
+                pixelSize = applyRect.Height;
             }
 
-            using IFastBitmap dest = FastBitmap.CreateCloneOf(applyBitmap, rect);
-            using (IFastBitmap src = FastBitmap.Create(applyBitmap, rect))
+            using IFastBitmap dest = FastBitmap.CreateCloneOf(applyBitmap, applyRect);
+            using (IFastBitmap src = FastBitmap.Create(applyBitmap, applyRect))
             {
                 List<Color> colors = new List<Color>();
                 int halbPixelSize = pixelSize / 2;
@@ -103,7 +103,7 @@ namespace Greenshot.Editor.Drawing.Filters
                 }
             }
 
-            dest.DrawTo(graphics, rect.Location);
+            dest.DrawTo(graphics, applyRect.Location);
         }
     }
 }

@@ -21,7 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Plugin.Office.Com;
 using Greenshot.Plugin.Office.OfficeInterop;
 using Microsoft.Office.Interop.Outlook;
@@ -40,7 +40,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
     public class OutlookEmailExporter
     {
         private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(OutlookEmailExporter));
-        private static readonly OfficeConfiguration _officeConfiguration = IniConfig.GetIniSection<OfficeConfiguration>();
+        private static readonly IOfficeConfiguration _officeConfiguration = IniConfigRegistry.GetSection<IOfficeConfiguration>();
 
         // The signature key can be found at:
         // HKEY_CURRENT_USER\Software\Microsoft\Windows NT\CurrentVersion\Windows Messaging Subsystem\Profiles\<DefaultProfile>\9375CFF0413111d3B88A00104B2A6676\<xxxx> [New Signature]

@@ -22,8 +22,8 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using Dapplo.Ini;
 using Greenshot.Base.Core;
-using Greenshot.Base.IniFile;
 
 namespace Greenshot.Plugin.ExternalCommand;
 
@@ -32,7 +32,7 @@ namespace Greenshot.Plugin.ExternalCommand;
 /// </summary>
 public partial class SettingsForm : ExternalCommandForm
 {
-    private static readonly ExternalCommandConfiguration ExternalCommandConfig = IniConfig.GetIniSection<ExternalCommandConfiguration>();
+    private static readonly IExternalCommandConfiguration ExternalCommandConfig = IniConfigRegistry.GetSection<IExternalCommandConfiguration>();
 
     public SettingsForm()
     {

@@ -20,6 +20,7 @@
  */
 
 using Greenshot.Base.Controls;
+using Greenshot.Plugin.Dropbox;
 using System.Windows.Forms;
 
 
@@ -86,6 +87,8 @@ namespace Greenshot.Plugin.Dropbox.Forms;
 			this.combobox_uploadimageformat.FormattingEnabled = true;
 			this.combobox_uploadimageformat.Location = new System.Drawing.Point(116, 9);
 			this.combobox_uploadimageformat.Name = "combobox_uploadimageformat";
+			this.combobox_uploadimageformat.PropertyName = nameof(IDropboxConfiguration.UploadFormat);
+			this.combobox_uploadimageformat.SectionName = "Dropbox";
 			this.combobox_uploadimageformat.Size = new System.Drawing.Size(309, 21);
 			this.combobox_uploadimageformat.TabIndex = 1;
 			// 
@@ -107,6 +110,8 @@ namespace Greenshot.Plugin.Dropbox.Forms;
 			// 
 			this.checkboxAfterUploadLinkToClipBoard.Location = new System.Drawing.Point(116, 37);
 			this.checkboxAfterUploadLinkToClipBoard.Name = "checkboxAfterUploadLinkToClipBoard";
+			this.checkboxAfterUploadLinkToClipBoard.PropertyName = nameof(IDropboxConfiguration.AfterUploadLinkToClipBoard);
+			this.checkboxAfterUploadLinkToClipBoard.SectionName = "Dropbox";
 			this.checkboxAfterUploadLinkToClipBoard.Size = new System.Drawing.Size(305, 20);
 			this.checkboxAfterUploadLinkToClipBoard.TabIndex = 2;
 			this.checkboxAfterUploadLinkToClipBoard.UseVisualStyleBackColor = true;

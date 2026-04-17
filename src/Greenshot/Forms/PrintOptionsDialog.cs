@@ -22,7 +22,7 @@
 
 using System;
 using System.Windows.Forms;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
 

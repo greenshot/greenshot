@@ -42,7 +42,12 @@ namespace Greenshot.Editor.Controls
         public decimal Value
         {
             get { return NumericUpDown.Value; }
-            set { NumericUpDown.Value = value; }
+            set
+            {
+                var control = NumericUpDown;
+                var clampedValue = Math.Min(control.Maximum, Math.Max(control.Minimum, value));
+                control.Value = clampedValue;
+            }
         }
 
         public decimal Minimum

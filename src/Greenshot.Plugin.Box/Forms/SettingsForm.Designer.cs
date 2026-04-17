@@ -20,6 +20,7 @@
  */
 
 using Greenshot.Base.Controls;
+using Greenshot.Plugin.Box;
 using System.Windows.Forms;
 
 
@@ -87,6 +88,8 @@ namespace Greenshot.Plugin.Box.Forms;
 			this.combobox_uploadimageformat.FormattingEnabled = true;
 			this.combobox_uploadimageformat.Location = new System.Drawing.Point(208, 12);
 			this.combobox_uploadimageformat.Name = "combobox_uploadimageformat";
+			this.combobox_uploadimageformat.PropertyName = nameof(IBoxConfiguration.UploadFormat);
+			this.combobox_uploadimageformat.SectionName = "Box";
 			this.combobox_uploadimageformat.Size = new System.Drawing.Size(215, 21);
 			this.combobox_uploadimageformat.TabIndex = 5;
 			// 
@@ -110,6 +113,8 @@ namespace Greenshot.Plugin.Box.Forms;
 			this.checkboxAfterUploadLinkToClipBoard.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this.checkboxAfterUploadLinkToClipBoard.Location = new System.Drawing.Point(208, 45);
 			this.checkboxAfterUploadLinkToClipBoard.Name = "checkboxAfterUploadLinkToClipBoard";
+			this.checkboxAfterUploadLinkToClipBoard.PropertyName = nameof(IBoxConfiguration.AfterUploadLinkToClipBoard);
+			this.checkboxAfterUploadLinkToClipBoard.SectionName = "Box";
 			this.checkboxAfterUploadLinkToClipBoard.Size = new System.Drawing.Size(210, 20);
 			this.checkboxAfterUploadLinkToClipBoard.TabIndex = 10;
 			this.checkboxAfterUploadLinkToClipBoard.UseVisualStyleBackColor = true;
