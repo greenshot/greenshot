@@ -17,7 +17,8 @@
     <GetFileHash Files="@(FilesToHash)" Algorithm="SHA256" HashEncoding="hex">
       <Output TaskParameter="Items" ItemName="FilesWithHashes" />
     </GetFileHash>
-    <WriteLinesToFile File="$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\checksum.SHA256" Lines="@(FilesWithHashes->'%(Filename)%(Extension): %(FileHash)')" Overwrite="true" WriteOnlyWhenDifferent="true" />
+    <WriteLinesToFile File="$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\checksum.SHA256" Lines="@(FilesWithHashes->'%(FileHash)  %(FullPath)')" Overwrite="true" WriteOnlyWhenDifferent="true" />
+    <Exec Command="powershell -NoProfile -Command &quot;$basePath = '$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\'; $path = '$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\checksum.SHA256'; $text = [System.IO.File]::ReadAllText($path); $text = $text -replace [regex]::Escape($basePath), '' -replace '\\', '/' -replace '\r\n', [char]10; [System.IO.File]::WriteAllText($path, $text)&quot;" />
   </Target>
 
   <UsingTask TaskName="SetEnvironmentVariableTask" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">

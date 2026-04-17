@@ -28,7 +28,7 @@ using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Ocr;
 using Greenshot.Editor.Configuration;
@@ -43,7 +43,7 @@ namespace Greenshot.Editor.Forms
     /// </summary>
     public partial class TextObfuscationForm : EditorForm
     {
-        private static readonly EditorConfiguration EditorConfig = IniConfig.GetIniSection<EditorConfiguration>();
+        private static readonly IEditorConfiguration EditorConfig = IniConfigRegistry.GetSection<IEditorConfiguration>();
         
         private readonly ISurface _surface;
         private readonly OcrInformation _ocrInfo;

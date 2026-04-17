@@ -35,7 +35,7 @@ using Dapplo.Windows.Gdi32.Structs;
 using Dapplo.Windows.Icons;
 using Dapplo.Windows.Kernel32;
 using Dapplo.Windows.User32;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using log4net;
 
@@ -47,7 +47,7 @@ namespace Greenshot.Base.Core
     public static class WindowCapture
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(WindowCapture));
-        private static readonly CoreConfiguration Configuration = IniConfig.GetIniSection<CoreConfiguration>();
+        private static readonly ICoreConfiguration Configuration = IniConfigRegistry.GetSection<ICoreConfiguration>();
 
         /// <summary>
         /// Retrieves the cursor location safely, accounting for DPI settings in Vista/Windows 7. This implementation
@@ -353,18 +353,28 @@ namespace Greenshot.Base.Core
                         // Check if we need to have a transparent background, needed for offscreen content
                         if (offscreenContent)
                         {
-                            using Bitmap tmpBitmap = Image.FromHbitmap(safeDibSectionHandle.DangerousGetHandle());
-                            // Create a new bitmap which has a transparent background
-                            returnBitmap = ImageHelper.CreateEmpty(tmpBitmap.Width, tmpBitmap.Height, PixelFormat.Format32bppArgb, Color.Transparent, tmpBitmap.HorizontalResolution, tmpBitmap.VerticalResolution);
-                            // Content will be copied here
-                            using Graphics graphics = Graphics.FromImage(returnBitmap);
-                            // For all screens copy the content to the new bitmap
-
-                            foreach (var displayInfo in DisplayInfo.AllDisplayInfos)
+                            Bitmap tmpBitmap = Image.FromHbitmap(safeDibSectionHandle.DangerousGetHandle());
+                            if (tmpBitmap.Width <= 0 || tmpBitmap.Height <= 0)
                             {
-                                // Make sure the bounds are offset to the capture bounds
-                                var displayBounds = displayInfo.Bounds.Offset(-captureBounds.X, -captureBounds.Y);
-                                graphics.DrawImage(tmpBitmap, displayBounds, displayBounds.X, displayBounds.Y, displayBounds.Width, displayBounds.Height, GraphicsUnit.Pixel);
+                                Log.Warn($"DIB section returned degenerate bitmap dimensions ({tmpBitmap.Width}x{tmpBitmap.Height}), skipping offscreen capture.");
+                                returnBitmap = tmpBitmap;
+                                success = true;
+                                break;
+                            }
+                            // Create a new bitmap which has a transparent background
+                            using (tmpBitmap)
+                            {
+                                returnBitmap = ImageHelper.CreateEmpty(tmpBitmap.Width, tmpBitmap.Height, PixelFormat.Format32bppArgb, Color.Transparent, tmpBitmap.HorizontalResolution, tmpBitmap.VerticalResolution);
+                                // Content will be copied here
+                                using Graphics graphics = Graphics.FromImage(returnBitmap);
+                                // For all screens copy the content to the new bitmap
+
+                                foreach (var displayInfo in DisplayInfo.AllDisplayInfos)
+                                {
+                                    // Make sure the bounds are offset to the capture bounds
+                                    var displayBounds = displayInfo.Bounds.Offset(-captureBounds.X, -captureBounds.Y);
+                                    graphics.DrawImage(tmpBitmap, displayBounds, displayBounds.X, displayBounds.Y, displayBounds.Width, displayBounds.Height, GraphicsUnit.Pixel);
+                                }
                             }
                         }
                         else
@@ -372,6 +382,12 @@ namespace Greenshot.Base.Core
                             // All screens, which are inside the capture, are of equal size
                             // assign image to Capture, the image will be disposed there..
                             returnBitmap = Image.FromHbitmap(safeDibSectionHandle.DangerousGetHandle());
+                            if (returnBitmap.Width <= 0 || returnBitmap.Height <= 0)
+                            {
+                                Log.Warn($"DIB section returned degenerate bitmap dimensions ({returnBitmap.Width}x{returnBitmap.Height}), skipping capture.");
+                                success = true;
+                                break;
+                            }
                         }
 
                         // We got through the capture without exception
@@ -382,6 +398,11 @@ namespace Greenshot.Base.Core
                     {
                         Log.Warn("Problem getting bitmap at try " + i + " : ", ee);
                         exception = ee;
+                    }
+                    catch (ArgumentException ae)
+                    {
+                        Log.Warn("Invalid bitmap dimensions at try " + i + " : ", ae);
+                        exception = new System.Runtime.InteropServices.ExternalException(ae.Message, ae);
                     }
                 }
 

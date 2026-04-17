@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -19,17 +19,18 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using Greenshot.Base.IniFile;
+using System.ComponentModel;
+using Dapplo.Ini.Attributes;
+using Dapplo.Ini.Interfaces;
 
 namespace Greenshot.Configuration
 {
-    /// <summary>
-    /// Description of Win10Configuration.
-    /// </summary>
-    [IniSection("Win10", Description = "Greenshot Windows Plugin configuration")]
-    public class Win10Configuration : IniSection
+    [IniSection("Win10")]
+    [Description("Greenshot Windows Plugin configuration")]
+    public interface IWin10Configuration : IIniSection
     {
-        [IniProperty("AlwaysRunOCROnCapture", Description = "Determines if OCR is run automatically on every capture", DefaultValue = "False")]
-        public bool AlwaysRunOCROnCapture { get; set; }
+        [Description("Determines if OCR is run automatically on every capture")]
+        [DefaultValue(false)]
+        bool AlwaysRunOCROnCapture { get; set; }
     }
 }

@@ -22,7 +22,7 @@
 using System;
 using System.Windows;
 using Greenshot.Base.Core;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Plugin.Confluence.Forms;
@@ -37,7 +37,7 @@ public class ConfluencePlugin : IGreenshotPlugin
 {
     private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluencePlugin));
     private static ConfluenceConnector _confluenceConnector;
-    private static ConfluenceConfiguration _config;
+    private static IConfluenceConfiguration _config;
 
     public void Dispose()
     {
@@ -99,28 +99,35 @@ public class ConfluencePlugin : IGreenshotPlugin
     }
 
     /// <summary>
-    /// Implementation of the IGreenshotPlugin.Initialize
+    /// Implementation of RegisterConfiguration phase: register INI section before file is loaded.
     /// </summary>
-    public bool Initialize()
+    public void RegisterConfiguration(IniConfig iniConfig)
     {
-        // Register configuration (don't need the configuration itself)
-        _config = IniConfig.GetIniSection<ConfluenceConfiguration>();
-        if (_config.IsDirty)
-        {
-            IniConfig.Save();
-        }
+        var section = new ConfluenceConfigurationImpl();
+        iniConfig.AddSection(section);
+        _config = section;
+    }
 
+    /// <summary>
+    /// Implementation of RegisterServices phase: register DI services after config is loaded.
+    /// </summary>
+    public void RegisterServices(IServiceLocator serviceLocator)
+    {
         try
         {
             TranslationManager.Instance.TranslationProvider = new LanguageXMLTranslationProvider();
-            //resources = new ComponentResourceManager(typeof(ConfluencePlugin));
         }
         catch (Exception ex)
         {
-            LOG.ErrorFormat("Problem in ConfluencePlugin.Initialize: {0}", ex.Message);
-            return false;
+            LOG.ErrorFormat("Problem registering Confluence services: {0}", ex.Message);
         }
+    }
 
+    /// <summary>
+    /// Implementation of the IGreenshotPlugin.Start
+    /// </summary>
+    public bool Start()
+    {
         if (ConfluenceDestination.IsInitialized)
         {
             SimpleServiceProvider.Current.AddService<IDestination>(new ConfluenceDestination());
@@ -144,15 +151,11 @@ public class ConfluencePlugin : IGreenshotPlugin
     /// </summary>
     public void Configure()
     {
-        ConfluenceConfiguration clonedConfig = _config.Clone();
-        ConfluenceConfigurationForm configForm = new ConfluenceConfigurationForm(clonedConfig);
+        ConfluenceConfigurationForm configForm = new ConfluenceConfigurationForm(_config);
         string url = _config.Url;
         bool? dialogResult = configForm.ShowDialog();
         if (dialogResult.HasValue && dialogResult.Value)
         {
-            // copy the new object to the old...
-            clonedConfig.CloneTo(_config);
-            IniConfig.Save();
             if (_confluenceConnector != null)
             {
                 if (!url.Equals(_config.Url))
@@ -165,6 +168,11 @@ public class ConfluencePlugin : IGreenshotPlugin
                     _confluenceConnector = null;
                 }
             }
+        }
+        else
+        {
+            // User cancelled — reload to discard any changes made by the form binding.
+            IniConfigRegistry.Get().Reload();
         }
     }
 }

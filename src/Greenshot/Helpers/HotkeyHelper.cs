@@ -23,9 +23,10 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Windows.Forms;
 using Greenshot.Base.Core;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Configuration;
 using Greenshot.Editor.Destinations;
 using Greenshot.Forms;
@@ -39,7 +40,7 @@ namespace Greenshot.Helpers;
 internal static class HotkeyHelper
 {
     private static readonly ILog LOG = LogManager.GetLogger(typeof(ApplicationStartupHelper));
-    private static readonly CoreConfiguration config = IniConfig.GetIniSection<CoreConfiguration>();
+    private static readonly ICoreConfiguration config = IniConfigRegistry.GetSection<ICoreConfiguration>();
     
     /// <summary>
     /// Registers all hotkeys as configured, displaying a dialog in case of hotkey conflicts with other tools.
@@ -51,7 +52,11 @@ internal static class HotkeyHelper
         bool success = true;
         StringBuilder failedKeys = new StringBuilder();
 
-        if (!RegisterWrapper(failedKeys, "CaptureRegion", "RegionHotkey", () => CaptureHelper.CaptureRegion(true), ignoreFailedRegistration))
+        var uiContext = SimpleServiceProvider.Current.GetInstance<SynchronizationContext>();
+
+        if (!RegisterWrapper(failedKeys, "CaptureRegion", "RegionHotkey", () => {
+            uiContext?.Post(_ => CaptureHelper.CaptureRegion(true), null);
+        }, ignoreFailedRegistration))
         {
             success = false;
         }
@@ -60,28 +65,34 @@ internal static class HotkeyHelper
         {
             if (config.CaptureWindowsInteractive)
             {
-                CaptureHelper.CaptureWindowInteractive(true);
+                uiContext?.Post(_ => CaptureHelper.CaptureWindowInteractive(true), null);
             }
             else
             {
-                CaptureHelper.CaptureWindow(true);
+                uiContext?.Post(_ => CaptureHelper.CaptureWindow(true), null);
             }
         }, ignoreFailedRegistration))
         {
             success = false;
         }
 
-        if (!RegisterWrapper(failedKeys, "CaptureFullScreen", "FullscreenHotkey", () => CaptureHelper.CaptureFullscreen(true, config.ScreenCaptureMode), ignoreFailedRegistration))
+        if (!RegisterWrapper(failedKeys, "CaptureFullScreen", "FullscreenHotkey", () => {
+            uiContext?.Post(_ => CaptureHelper.CaptureFullscreen(true, config.ScreenCaptureMode), null);
+        }, ignoreFailedRegistration))
         {
             success = false;
         }
 
-        if (!RegisterWrapper(failedKeys, "CaptureLastRegion", "LastregionHotkey", () => CaptureHelper.CaptureLastRegion(true), ignoreFailedRegistration))
+        if (!RegisterWrapper(failedKeys, "CaptureLastRegion", "LastregionHotkey", () => {
+            uiContext?.Post(_ => CaptureHelper.CaptureLastRegion(true), null);
+        }, ignoreFailedRegistration))
         {
             success = false;
         }
 
-        if (!RegisterWrapper(failedKeys, "CaptureClipboard", "ClipboardHotkey", () => CaptureHelper.CaptureClipboard(DestinationHelper.GetDestination(EditorDestination.DESIGNATION)), true))
+        if (!RegisterWrapper(failedKeys, "CaptureClipboard", "ClipboardHotkey", () => {
+            uiContext?.Post(_ => CaptureHelper.CaptureClipboard(DestinationHelper.GetDestination(EditorDestination.DESIGNATION)), null);
+        }, true))
         {
             success = false;
         }
@@ -95,10 +106,6 @@ internal static class HotkeyHelper
             else
             {
                 // if failures have been ignored, the config has probably been updated
-                if (config.IsDirty)
-                {
-                    IniConfig.Save();
-                }
             }
         }
 
@@ -107,8 +114,7 @@ internal static class HotkeyHelper
 
     private static bool RegisterWrapper(StringBuilder failedKeys, string functionName, string configurationKey, Action handler, bool ignoreFailedRegistration)
     {
-        IniValue hotkeyValue = config.Values[configurationKey];
-        var hotkeyStringValue = hotkeyValue.Value?.ToString();
+        var hotkeyStringValue = config.GetRawValue(configurationKey);
         if (string.IsNullOrEmpty(hotkeyStringValue))
         {
             return true;
@@ -120,8 +126,7 @@ internal static class HotkeyHelper
             if (!success && ignoreFailedRegistration)
             {
                 LOG.DebugFormat("Ignoring failed hotkey registration for {0}, with value '{1}', resetting to 'None'.", functionName, hotkeyStringValue);
-                config.Values[configurationKey].Value = Keys.None.ToString();
-                config.IsDirty = true;
+                config.SetRawValue(configurationKey, Keys.None.ToString());
             }
 
             return success;
@@ -129,10 +134,9 @@ internal static class HotkeyHelper
         catch (Exception ex)
         {
             LOG.Warn(ex);
-            LOG.WarnFormat("Restoring default hotkey for {0}, stored under {1} from '{2}' to '{3}'", functionName, configurationKey, hotkeyStringValue, hotkeyValue.Attributes.DefaultValue);
-            // when getting an exception the key wasn't found: reset the hotkey value
-            hotkeyValue.UseValueOrDefault(null);
-            hotkeyValue.ContainingIniSection.IsDirty = true;
+            LOG.WarnFormat("Hotkey registration failed for {0} (key '{1}', value '{2}'); clearing the stored value so it will not be retried.", functionName, configurationKey, hotkeyStringValue);
+            // Clear the hotkey so it won't be attempted on next startup.
+            config.SetRawValue(configurationKey, null);
             return RegisterHotkey(failedKeys, functionName, hotkeyStringValue, handler);
         }
     }

@@ -28,9 +28,9 @@ namespace Greenshot.Plugin.Confluence.Forms;
 /// </summary>
 public partial class ConfluenceConfigurationForm
 {
-    public ConfluenceConfiguration Config { get; }
+    public IConfluenceConfiguration Config { get; }
 
-    public ConfluenceConfigurationForm(ConfluenceConfiguration config)
+    public ConfluenceConfigurationForm(IConfluenceConfiguration config)
     {
         DataContext = config;
         Config = config;

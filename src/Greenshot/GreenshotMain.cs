@@ -21,14 +21,19 @@
 
 using System;
 using System.Globalization;
+using System.IO;
 using System.Net;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Dapplo.Ini;
+using Dapplo.Ini.Parsing;
 using Greenshot.Base.Core;
-using Greenshot.Base.IniFile;
+using Greenshot.Configuration;
+using Greenshot.Editor.Configuration;
 using Greenshot.Forms;
+using Greenshot.Helpers;
 using log4net;
 
 namespace Greenshot;
@@ -86,13 +91,63 @@ public class GreenshotMain
 
         TaskScheduler.UnobservedTaskException += Task_UnhandledException;
 
-        // Initialize the IniConfig
-        IniConfig.Init();
+        // Parse command-line arguments early so the optional --ini-directory override
+        // can be incorporated into the IniConfigRegistry search paths before Create().
+        // Returns null when --help was shown or a parse error occurred (exit immediately).
+        var options = GreenshotCommandLine.Parse(args);
+        if (options == null)
+        {
+            return;
+        }
+
+        // Register custom value converters (NativeRect, Color, etc.) before building the registry.
+        IniValueConverters.Register();
+
+        // Detect PortableApp (PAF) mode: the App\Greenshot directory lives next to the executable.
+        var startupPath = AppContext.BaseDirectory;
+        var pafAppPath = Path.Combine(startupPath, @"App\Greenshot");
+        GreenshotEnvironment.IsPortable = Directory.Exists(pafAppPath);
+
+        // Build the IniConfigRegistry:
+        //   AddAppDataPath  → %APPDATA%\Greenshot
+        //   AddSearchPath   → installation / startup directory
+        //   --ini-directory → optional command-line override (highest priority)
+        var builder = IniConfigRegistry.ForFile("greenshot.ini")
+            .AddAppDataPath("Greenshot")
+            .AddSearchPath(startupPath);
+
+        if (!string.IsNullOrEmpty(options.IniDirectory) && Directory.Exists(options.IniDirectory))
+        {
+            builder.AddSearchPath(options.IniDirectory);
+        }
+
+        builder.AddDefaultsFile("greenshot-defaults.ini")
+               .AddConstantsFile("greenshot-fixed.ini")
+               .WithWriterOptions(new IniWriterOptions
+               {
+                   AssignmentSeparator = "=",
+                   QuoteStyle = IniValueQuoteStyle.Auto,
+                   EscapeSequences = true,
+                   WriteComments = true
+               })
+               .RegisterSection<ICoreConfiguration>(new CoreConfigurationImpl())
+               .RegisterSection<IEditorConfiguration>(new EditorConfigurationImpl())
+               .RegisterSection<IWin10Configuration>(new Win10ConfigurationImpl())
+               .AutoSaveInterval(TimeSpan.FromSeconds(2))
+               .EmptyWhenNull()
+               .LockFile()
+               .EnableMetadata(applicationName: "Greenshot");
+
+#if DEBUG
+        builder.AddListener(new Helpers.IniListener());
+#endif
+
+        var iniConfig = builder.Create();
 
         // Log the startup
         LOG.Info("Starting: " + EnvironmentInfo.EnvironmentToString(false));
 
-        MainForm.Start(args);
+        MainForm.Start(options);
     }
 
     internal static void Application_ThreadException(object sender, ThreadExceptionEventArgs e)

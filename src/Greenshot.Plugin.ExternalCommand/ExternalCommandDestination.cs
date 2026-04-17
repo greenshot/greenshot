@@ -28,7 +28,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 
@@ -45,7 +45,7 @@ public class ExternalCommandDestination : AbstractDestination
         new Regex(
             @"((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)");
 
-    private static readonly ExternalCommandConfiguration config = IniConfig.GetIniSection<ExternalCommandConfiguration>();
+    private static readonly IExternalCommandConfiguration config = IniConfigRegistry.GetSection<IExternalCommandConfiguration>();
     private readonly string _presetCommand;
 
     public ExternalCommandDestination(string commando)
@@ -89,13 +89,11 @@ public class ExternalCommandDestination : AbstractDestination
         if (!config.OutputFormat.ContainsKey(_presetCommand))
         {
             config.OutputFormat.Add(_presetCommand,OutputFormat.png);
-            IniConfig.Save();
         }
 
         if (!config.RunInbackground.ContainsKey(_presetCommand))
         {
             config.RunInbackground.Add(_presetCommand, true);
-            IniConfig.Save();
         }
 
         SurfaceOutputSettings outputSettings = new SurfaceOutputSettings();

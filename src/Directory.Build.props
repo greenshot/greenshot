@@ -19,6 +19,11 @@
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
     <Deterministic>true</Deterministic>
     <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
+    <!-- Emit Roslyn source-generator output to disk so Visual Studio IntelliSense can see
+         the Dapplo.Ini-generated property implementations in *Impl.cs partial classes.
+         The output path is inside obj/ so the auto-glob (**/*.cs) does NOT pick it up. -->
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <CompilerGeneratedFilesOutputPath>$(MSBuildProjectDirectory)/obj/generated</CompilerGeneratedFilesOutputPath>
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(Configuration)' != 'Debug' And !$(MSBuildProjectName.Contains('Test')) And !$(MSBuildProjectName.Contains('Demo'))">
@@ -52,6 +57,12 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.103" PrivateAssets="All"/>
+  </ItemGroup>
+
+  <!-- Exclude the Roslyn-generated *.g.cs files from the normal compilation glob so they are
+       not compiled twice (once from the generator output and once from the **/*.cs wildcard). -->
+  <ItemGroup Condition="!$(MSBuildProjectName.Contains('Tests')) And $(MSBuildProjectName.StartsWith('Greenshot'))">
+    <Compile Remove="$(CompilerGeneratedFilesOutputPath)/**/*.cs" />
   </ItemGroup>
 
   <ItemGroup>

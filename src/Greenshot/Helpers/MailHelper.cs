@@ -28,7 +28,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
 using Greenshot.Base.Core;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 
@@ -45,7 +45,7 @@ namespace Greenshot.Helpers
     public class MapiMailMessage : IDisposable
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(MapiMailMessage));
-        private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
+        private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
 
         /// <summary>
         /// Helper Method for creating an Email with Attachment
