@@ -327,7 +327,7 @@ namespace Greenshot.Editor.Forms
 			// toolsToolStrip
 			// 
 			this.toolsToolStrip.ClickThrough = true;
-			this.toolsToolStrip.ImageScalingSize = coreConfiguration.IconSize;
+			this.toolsToolStrip.ImageScalingSize = coreConfiguration.EditorIconSize;
 			this.toolsToolStrip.Dock = System.Windows.Forms.DockStyle.None;
 			this.toolsToolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
 			this.toolsToolStrip.Renderer = new CustomToolStripProfessionalRenderer();
@@ -583,7 +583,7 @@ namespace Greenshot.Editor.Forms
 			// menuStrip1
 			// 
 			this.menuStrip1.ClickThrough = true;
-			this.menuStrip1.ImageScalingSize = coreConfiguration.IconSize;
+			this.menuStrip1.ImageScalingSize = coreConfiguration.EditorIconSize;
 			this.menuStrip1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.menuStrip1.Stretch = true;
 			this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -907,7 +907,7 @@ namespace Greenshot.Editor.Forms
 			// destinationsToolStrip
 			// 
 			this.destinationsToolStrip.ClickThrough = true;
-			this.destinationsToolStrip.ImageScalingSize = coreConfiguration.IconSize;
+			this.destinationsToolStrip.ImageScalingSize = coreConfiguration.EditorIconSize;
 			this.destinationsToolStrip.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.destinationsToolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
 			this.destinationsToolStrip.Name = "toolStrip1";
@@ -1062,10 +1062,10 @@ namespace Greenshot.Editor.Forms
 			// propertiesToolStrip
 			// 
 			this.propertiesToolStrip.ClickThrough = true;
-			this.propertiesToolStrip.ImageScalingSize = coreConfiguration.IconSize;
+			this.propertiesToolStrip.ImageScalingSize = coreConfiguration.EditorIconSize;
 			this.propertiesToolStrip.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.propertiesToolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
-			this.propertiesToolStrip.MinimumSize = new System.Drawing.Size(150, coreConfiguration.IconSize.Height + 10);
+			this.propertiesToolStrip.MinimumSize = new System.Drawing.Size(150, coreConfiguration.EditorIconSize.Height + 10);
 			this.propertiesToolStrip.Name = "propertiesToolStrip";
 			this.propertiesToolStrip.Stretch = true;
 			this.propertiesToolStrip.TabIndex = 2;
@@ -1304,7 +1304,7 @@ namespace Greenshot.Editor.Forms
 			this.fontFamilyComboBox.Name = "fontFamilyComboBox";
 			this.fontFamilyComboBox.Size = new System.Drawing.Size(200, 20);
 			this.fontFamilyComboBox.Text = "Aharoni";
-			this.fontFamilyComboBox.Padding = new System.Windows.Forms.Padding(2,0,0,2);
+			this.fontFamilyComboBox.Padding = new System.Windows.Forms.Padding(0);
 			this.fontFamilyComboBox.GotFocus += new System.EventHandler(this.ToolBarFocusableElementGotFocus);
 			this.fontFamilyComboBox.LostFocus += new System.EventHandler(this.ToolBarFocusableElementLostFocus);
             this.fontFamilyComboBox.PropertyChanged += FontPropertyChanged;

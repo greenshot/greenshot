@@ -50,6 +50,7 @@ namespace Greenshot.Forms
         private readonly Random _rand = new();
         private readonly Color _backColor = Color.FromArgb(61, 61, 61);
         private readonly Color _pixelColor = Color.FromArgb(138, 255, 0);
+        private Font _titleFont;
 
         // Variables used for the color-cycle
         private int _waitFrames;
@@ -127,6 +128,8 @@ namespace Greenshot.Forms
             if (_bitmap == null) return;
             _bitmap.Dispose();
             _bitmap = null;
+            _titleFont?.Dispose();
+            _titleFont = null;
         }
 
         /// <summary>
@@ -154,6 +157,7 @@ namespace Greenshot.Forms
             pictureBox1.Image = _bitmap;
 
             lblTitle.Text = $@"Greenshot {EnvironmentInfo.GetGreenshotVersion()} {(IniConfig.IsPortable ? " Portable" : "")} ({OsInfo.Bits} bit) {(coreConfiguration.IsBetaTester ? "-IsBetaTester-":"")}";
+            ApplyTitleFont();
 
             // Number of frames the pixel animation takes
             int frames = FramesForMillis(2000);
@@ -210,6 +214,48 @@ namespace Greenshot.Forms
 
             // color animation for the background
             _backgroundAnimation = new ColorAnimator(BackColor, _backColor, FramesForMillis(5000), EasingType.Linear, EasingMode.EaseIn);
+        }
+
+        public void NormalizeFontsToForm()
+        {
+            SuspendLayout();
+            try
+            {
+                ApplyFontRecursive(this, Font);
+                ApplyTitleFont();
+            }
+            finally
+            {
+                ResumeLayout(true);
+            }
+        }
+
+        private void ApplyTitleFont()
+        {
+            if (_titleFont != null &&
+                _titleFont.FontFamily.Equals(Font.FontFamily) &&
+                Math.Abs(_titleFont.SizeInPoints - Font.SizeInPoints) < 0.01f &&
+                _titleFont.Style == FontStyle.Bold)
+            {
+                lblTitle.Font = _titleFont;
+                return;
+            }
+
+            _titleFont?.Dispose();
+            _titleFont = new Font(Font, FontStyle.Bold);
+            lblTitle.Font = _titleFont;
+        }
+
+        private static void ApplyFontRecursive(Control parent, Font font)
+        {
+            foreach (Control child in parent.Controls)
+            {
+                child.Font = font;
+                if (child.HasChildren)
+                {
+                    ApplyFontRecursive(child, font);
+                }
+            }
         }
 
         /// <summary>

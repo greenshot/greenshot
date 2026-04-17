@@ -24,6 +24,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Dpi;
 using Dapplo.Windows.Gdi32;
 using Dapplo.Windows.Gdi32.SafeHandles;
 using Dapplo.Windows.User32;
@@ -63,8 +64,9 @@ namespace Greenshot.Editor.Forms
             NativeSize cursorSize = Cursor.Current.Size;
             NativePoint hotspot = Cursor.Current.HotSpot;
 
+            var spacing = DpiCalculator.ScaleWithDpi(5, DeviceDpi);
             var zoomerLocation = new NativePoint(screenCoordinates.X, screenCoordinates.Y)
-                .Offset(cursorSize.Width + 5 - hotspot.X, cursorSize.Height + 5 - hotspot.Y);
+                .Offset(cursorSize.Width + spacing - hotspot.X, cursorSize.Height + spacing - hotspot.Y);
 
             foreach (var displayInfo in DisplayInfo.AllDisplayInfos)
             {
@@ -77,7 +79,7 @@ namespace Greenshot.Editor.Forms
                 }
                 else if (zoomerLocation.X + Width > screenRectangle.X + screenRectangle.Width)
                 {
-                    zoomerLocation = zoomerLocation.ChangeX(screenCoordinates.X - Width - 5 - hotspot.X);
+                    zoomerLocation = zoomerLocation.ChangeX(screenCoordinates.X - Width - spacing - hotspot.X);
                 }
 
                 if (zoomerLocation.Y < screenRectangle.Y)
@@ -86,7 +88,7 @@ namespace Greenshot.Editor.Forms
                 }
                 else if (zoomerLocation.Y + Height > screenRectangle.Y + screenRectangle.Height)
                 {
-                    zoomerLocation = zoomerLocation.ChangeY(screenCoordinates.Y - Height - 5 - hotspot.Y);
+                    zoomerLocation = zoomerLocation.ChangeY(screenCoordinates.Y - Height - spacing - hotspot.Y);
                 }
 
                 break;

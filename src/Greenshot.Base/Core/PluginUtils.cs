@@ -54,7 +54,9 @@ namespace Greenshot.Base.Core
         /// <param name="e"></param>
         private static void OnIconSizeChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName != "IconSize") return;
+            if (e.PropertyName != nameof(CoreConfig.IconSize) &&
+                e.PropertyName != nameof(CoreConfig.EditorIconSize) &&
+                e.PropertyName != nameof(CoreConfig.MenuIconSize)) return;
             var cachedImages = new List<Image>();
             lock (ExeIconCache)
             {
@@ -158,7 +160,8 @@ namespace Greenshot.Base.Core
 
             try
             {
-                var appIcon = IconHelper.ExtractAssociatedIcon<Bitmap>(path, index, CoreConfig.UseLargeIcons);
+                var useLargeIcons = CoreConfig.MenuIconSize.Width >= 32 || CoreConfig.MenuIconSize.Height >= 32;
+                var appIcon = IconHelper.ExtractAssociatedIcon<Bitmap>(path, index, useLargeIcons);
                 if (appIcon != null)
                 {
                     Log.DebugFormat("Loaded icon for {0}, with dimensions {1}x{2}", path, appIcon.Width, appIcon.Height);

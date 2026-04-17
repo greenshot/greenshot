@@ -178,7 +178,7 @@ namespace Greenshot.Base.Core
             ExportInformation exportInformation = new ExportInformation(Designation, Language.GetString("settings_destination_picker"));
             var menu = new ContextMenuStrip
             {
-                ImageScalingSize = CoreConfig.IconSize,
+                ImageScalingSize = CoreConfig.MenuIconSize,
                 Tag = null,
                 TopLevel = true,
                 Font = new Font(FontFamily.GenericSansSerif, 9) // set new default font, so we are allowed to dispose it later, we will scale it later on the Opening event
@@ -188,7 +188,7 @@ namespace Greenshot.Base.Core
             {
                 // find the DPI settings for the screen where this is going to land
                 var screenDpi = NativeDpiMethods.GetDpi(menu.Location);
-                var scaledIconSize = DpiCalculator.ScaleWithDpi(CoreConfig.IconSize, screenDpi);
+                var scaledIconSize = DpiCalculator.ScaleWithDpi(CoreConfig.MenuIconSize, screenDpi);
                 menu.SuspendLayout();
                 var fontSize = DpiCalculator.ScaleWithDpi(12f, screenDpi);
                 var previousFont = menu.Font;

@@ -98,6 +98,8 @@ namespace Greenshot.Forms {
 			this.fullscreen_hotkeyControl = new HotkeyControl();
 			this.tab_capture = new GreenshotTabPage();
 			this.groupbox_editor = new GreenshotGroupBox();
+			this.numericUpdownMenuIconSize = new System.Windows.Forms.NumericUpDown();
+			this.label_menu_icon_size = new GreenshotLabel();
 			this.numericUpdownIconSize = new System.Windows.Forms.NumericUpDown();
 			this.label_icon_size = new GreenshotLabel();
 			this.checkbox_editor_match_capture_size = new GreenshotCheckBox();
@@ -315,13 +317,15 @@ namespace Greenshot.Forms {
 			// 
 			this.groupbox_applicationsettings.Controls.Add(this.label_language);
 			this.groupbox_applicationsettings.Controls.Add(this.combobox_language);
+			this.groupbox_applicationsettings.Controls.Add(this.numericUpdownMenuIconSize);
+			this.groupbox_applicationsettings.Controls.Add(this.label_menu_icon_size);
 			this.groupbox_applicationsettings.Controls.Add(this.numericUpdownIconSize);
 			this.groupbox_applicationsettings.Controls.Add(this.label_icon_size);
 			this.groupbox_applicationsettings.Controls.Add(this.checkbox_autostartshortcut);
 			this.groupbox_applicationsettings.LanguageKey = "settings_applicationsettings";
 			this.groupbox_applicationsettings.Location = new System.Drawing.Point(2, 6);
 			this.groupbox_applicationsettings.Name = "groupbox_applicationsettings";
-			this.groupbox_applicationsettings.Size = new System.Drawing.Size(412, 89);
+			this.groupbox_applicationsettings.Size = new System.Drawing.Size(412, 112);
 			this.groupbox_applicationsettings.TabIndex = 14;
 			this.groupbox_applicationsettings.TabStop = false;
 			// 
@@ -334,6 +338,24 @@ namespace Greenshot.Forms {
 			this.numericUpdownIconSize.Maximum = 256;
 			this.numericUpdownIconSize.Minimum = 16;
 			this.numericUpdownIconSize.Increment = 16;
+			// 
+			// numericUpdownMenuIconSize
+			// 
+			this.numericUpdownMenuIconSize.Location = new System.Drawing.Point(359, 63);
+			this.numericUpdownMenuIconSize.Name = "numericUpdownMenuIconSize";
+			this.numericUpdownMenuIconSize.Size = new System.Drawing.Size(44, 20);
+			this.numericUpdownMenuIconSize.TabIndex = 2;
+			this.numericUpdownMenuIconSize.Maximum = 256;
+			this.numericUpdownMenuIconSize.Minimum = 16;
+			this.numericUpdownMenuIconSize.Increment = 16;
+			// 
+			// label_menu_icon_size
+			// 
+			this.label_menu_icon_size.Location = new System.Drawing.Point(6, 65);
+			this.label_menu_icon_size.Name = "label_menu_icon_size";
+			this.label_menu_icon_size.Size = new System.Drawing.Size(350, 20);
+			this.label_menu_icon_size.TabIndex = 7;
+			this.label_menu_icon_size.Text = "Tray/menu icon size";
 			// 
 			// label_icon_size
 			// 
@@ -1212,8 +1234,8 @@ namespace Greenshot.Forms {
 			// 
 			// SettingsForm
 			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 14F);
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
 			this.ClientSize = new System.Drawing.Size(451, 431);
 			this.Controls.Add(this.tabcontrol);
 			this.Controls.Add(this.settings_confirm);
@@ -1354,6 +1376,8 @@ namespace Greenshot.Forms {
         private GreenshotCheckBox checkboxAllowCenter;
 		private GreenshotCheckBox checkbox_zoomer;
 		private GreenshotLabel label_icon_size;
+		private GreenshotLabel label_menu_icon_size;
 		private System.Windows.Forms.NumericUpDown numericUpdownIconSize;
+		private System.Windows.Forms.NumericUpDown numericUpdownMenuIconSize;
 	}
 }

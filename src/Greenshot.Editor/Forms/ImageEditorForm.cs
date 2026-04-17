@@ -88,6 +88,9 @@ namespace Greenshot.Editor.Forms
 
         private bool _originalBoldCheckState;
         private bool _originalItalicCheckState;
+        private readonly Dictionary<int, Font> _fontPickerFontsByDpi = new Dictionary<int, Font>();
+        private readonly Dictionary<int, Font> _numericPickerFontsByDpi = new Dictionary<int, Font>();
+        private readonly Dictionary<int, Font> _zoomMenuFontsByDpi = new Dictionary<int, Font>();
 
         // whether part of the editor controls are disabled depending on selected item(s)
         private bool _controlsDisabledDueToConfirmable;
@@ -130,14 +133,65 @@ namespace Greenshot.Editor.Forms
         /// <param name="newDpi"></param>
         protected override void DpiChangedHandler(int oldDpi, int newDpi)
         {
-            var newSize = DpiCalculator.ScaleWithDpi(coreConfiguration.IconSize, newDpi);
+            ApplyDpiLayout(newDpi);
+            _surface?.AdjustToDpi(newDpi);
+            UpdateUi();
+        }
+
+        private void ApplyDpiLayout(int dpi)
+        {
+            if (dpi <= 0)
+            {
+                dpi = 96;
+            }
+
+            var newSize = DpiCalculator.ScaleWithDpi(coreConfiguration.EditorIconSize, dpi);
             toolsToolStrip.ImageScalingSize = newSize;
             menuStrip1.ImageScalingSize = newSize;
             destinationsToolStrip.ImageScalingSize = newSize;
             propertiesToolStrip.ImageScalingSize = newSize;
             propertiesToolStrip.MinimumSize = new Size(150, newSize.Height + 10);
-            _surface?.AdjustToDpi(newDpi);
-            UpdateUi();
+            var controlHeight = DpiCalculator.ScaleWithDpi(22, dpi);
+            fontFamilyComboBox.AutoSize = false;
+            fontFamilyComboBox.Size = new Size(DpiCalculator.ScaleWithDpi(200, dpi), controlHeight);
+            fontFamilyComboBox.ComboBox.ItemHeight = Math.Max(DpiCalculator.ScaleWithDpi(16, dpi), 16);
+            var fontPickerFont = GetCachedFont(_fontPickerFontsByDpi, dpi, 9.5f);
+            fontFamilyComboBox.Font = fontPickerFont;
+            fontFamilyComboBox.ComboBox.Font = fontPickerFont;
+            var numericPickerFont = GetCachedFont(_numericPickerFontsByDpi, dpi, 11f);
+            fontSizeUpDown.AutoSize = false;
+            fontSizeUpDown.Size = new Size(DpiCalculator.ScaleWithDpi(60, dpi), controlHeight);
+            fontSizeUpDown.Font = numericPickerFont;
+            lineThicknessUpDown.AutoSize = false;
+            lineThicknessUpDown.Size = new Size(DpiCalculator.ScaleWithDpi(60, dpi), controlHeight);
+            lineThicknessUpDown.Font = numericPickerFont;
+            ApplyZoomMenuDpi(dpi);
+        }
+
+        private void ApplyZoomMenuDpi(int dpi)
+        {
+            if (dpi <= 0)
+            {
+                dpi = 96;
+            }
+
+            var zoomMenuFont = GetCachedFont(_zoomMenuFontsByDpi, dpi, 11f);
+            zoomMenuStrip.Font = zoomMenuFont;
+            foreach (ToolStripItem item in zoomMenuStrip.Items)
+            {
+                item.Font = zoomMenuFont;
+            }
+        }
+
+        private Font GetCachedFont(Dictionary<int, Font> cache, int dpi, float baseSize)
+        {
+            if (!cache.TryGetValue(dpi, out var font))
+            {
+                font = new Font(Font.FontFamily, DpiCalculator.ScaleWithDpi(baseSize, dpi), FontStyle.Regular, GraphicsUnit.Pixel);
+                cache[dpi] = font;
+            }
+
+            return font;
         }
 
         public ImageEditorForm()
@@ -162,6 +216,26 @@ namespace Greenshot.Editor.Forms
             //
             ManualLanguageApply = true;
             InitializeComponent();
+            zoomMainMenuItem.DropDownOpening += (s, e) => ApplyZoomMenuDpi(NativeDpiMethods.GetDpi(Cursor.Position));
+            zoomStatusDropDownBtn.DropDownOpening += (s, e) => ApplyZoomMenuDpi(NativeDpiMethods.GetDpi(Cursor.Position));
+            FormClosed += (_, _) =>
+            {
+                foreach (var font in _fontPickerFontsByDpi.Values)
+                {
+                    font.Dispose();
+                }
+                _fontPickerFontsByDpi.Clear();
+                foreach (var font in _numericPickerFontsByDpi.Values)
+                {
+                    font.Dispose();
+                }
+                _numericPickerFontsByDpi.Clear();
+                foreach (var font in _zoomMenuFontsByDpi.Values)
+                {
+                    font.Dispose();
+                }
+                _zoomMenuFontsByDpi.Clear();
+            };
             // Add the destinations after the form is loaded, this is needed for the dynamic destinations which need the handle of the form
             Load += (s, eventArgs) => AddDestinations();
 
@@ -184,6 +258,7 @@ namespace Greenshot.Editor.Forms
             Surface = surface;
             // Initial "saved" flag for asking if the image needs to be save
             _surface.Modified = !outputMade;
+            ApplyDpiLayout(NativeDpiMethods.GetDpi(Handle));
 
             // Note: SetSurface (called via Surface = surface above) already registered this
             // editor in EditorList. Do NOT add again here — double-registration causes
@@ -1948,7 +2023,7 @@ namespace Greenshot.Editor.Forms
 
         private void RemoveTransparencyToolStripMenuItemClick(object sender, EventArgs e)
         {
-            var colorDialog = new ColorDialog
+            using var colorDialog = new ColorDialog
             {
                 Color = Color.White
             };
@@ -2023,8 +2098,16 @@ namespace Greenshot.Editor.Forms
             newHeight = Math.Min(newHeight, maxWindowSize.Height);
 
             // Lower bound. Don't make it smaller than a fixed value.
-            int minimumFormWidth = 650;
-            int minimumFormHeight = 530;
+            // Use the window's current screen DPI (not only DeviceDpi) so runtime monitor scale
+            // transitions don't keep an outdated minimum size.
+            var windowCenter = new Point(Left + Width / 2, Top + Height / 2);
+            var dpi = NativeDpiMethods.GetDpi(windowCenter);
+            if (dpi <= 0)
+            {
+                dpi = DeviceDpi > 0 ? DeviceDpi : 96;
+            }
+            int minimumFormWidth = DpiCalculator.ScaleWithDpi(650, dpi);
+            int minimumFormHeight = DpiCalculator.ScaleWithDpi(530, dpi);
             newWidth = Math.Max(minimumFormWidth, newWidth);
             newHeight = Math.Max(minimumFormHeight, newHeight);
 
