@@ -41,7 +41,7 @@ namespace Greenshot.Editor.Configuration
     /// </summary>
     internal class GreenshotEditorObjectValueConverter : ValueConverterBase<object>
     {
-        private static readonly ILog LOG = LogManager.GetLogger(typeof(GreenshotEditorObjectValueConverter  ));
+        private static readonly ILog LOG = LogManager.GetLogger(typeof(GreenshotEditorObjectValueConverter));
         public override object ConvertFromString(string raw, object defaultValue = default)
         {
             if (string.IsNullOrWhiteSpace(raw)) return defaultValue;
