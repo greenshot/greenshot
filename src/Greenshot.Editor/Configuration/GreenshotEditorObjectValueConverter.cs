@@ -59,13 +59,13 @@ namespace Greenshot.Editor.Configuration
                     var converter = TypeDescriptor.GetConverter(type);
                     return converter.ConvertFromInvariantString(valuePart);
                 }
-                LOG.Warn($"Unexpected type in .ini file detected, maybe vulnerability attack? Suspicious information: {raw}");
-                throw new SecurityAccessDeniedException($"Unexpected type in .ini file detected, maybe vulnerability attack? Suspicious information: {raw}");
             }
             catch
             {
                 return raw;
             }
+            LOG.Warn($"Unexpected type in .ini file detected, maybe vulnerability attack? Suspicious information: {raw}");
+            throw new SecurityAccessDeniedException($"Unexpected type in .ini file detected, maybe vulnerability attack? Suspicious information: {raw}");
         }
 
         public override string ConvertToString(object value)
