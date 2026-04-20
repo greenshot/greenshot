@@ -20,6 +20,7 @@
  */
 using System;
 using System.ComponentModel;
+using System.Reflection;
 using System.ServiceModel.Security;
 using Dapplo.Ini.Converters;
 using Greenshot.Editor.Helpers;
@@ -75,7 +76,15 @@ namespace Greenshot.Editor.Configuration
             var converter = TypeDescriptor.GetConverter(type);
             var valueStr = converter.ConvertToInvariantString(value);
 
-            return $"{type.FullName}:{valueStr}";
+            // Build assembly qualifier, abbreviated for Greenshot assemblies
+            var assemblyName = type.Assembly.FullName ?? string.Empty;
+            if (assemblyName.StartsWith("Greenshot", StringComparison.OrdinalIgnoreCase))
+            {
+                int commaIdx = assemblyName.IndexOf(',');
+                if (commaIdx > 0) assemblyName = assemblyName.Substring(0, commaIdx);
+            }
+
+            return $"{type.FullName},{assemblyName}:{valueStr}";
         }
     }
 }

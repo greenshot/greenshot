@@ -26,6 +26,7 @@ using System.Drawing;
 using System.Runtime.Serialization;
 using Dapplo.Ini.Attributes;
 using Dapplo.Ini.Interfaces;
+using Dapplo.Ini.Parsing;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.User32.Enums;
 using Greenshot.Base.Effects;
@@ -41,7 +42,7 @@ namespace Greenshot.Editor.Configuration
         List<Color> RecentColors { get; set; }
 
         [DataMember(Name = "LastFieldValue")]
-        [IniValue(ListDelimiter = '|')]
+        [IniValue(ListDelimiter = '|', WriteComments = IniBooleanOption.Disabled)]
         [Description("Field values, make sure the last used settings are reused")]
         Dictionary<string, object> LastUsedFieldValues { get; set; }
 
