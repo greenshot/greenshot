@@ -127,8 +127,15 @@ public class GreenshotMain
                {
                    AssignmentSeparator = "=",
                    QuoteStyle = IniValueQuoteStyle.Never,
-                   EscapeSequences = true,
+                   EscapeSequences = false,
                    WriteComments = true
+               })
+               .WithParserOptions(new IniParserOptions
+               {
+                   CaseSensitiveKeys = false,
+                   EscapeSequences = false,
+                   LineContinuation = true,
+                   QuotedValues = false
                })
                .RegisterSection<ICoreConfiguration>(new CoreConfigurationImpl())
                .RegisterSection<IEditorConfiguration>(new EditorConfigurationImpl())
