@@ -137,7 +137,7 @@ namespace Greenshot.Editor.Helpers
         /// <exception cref="SecurityAccessDeniedException">If something smells fishy</exception>
         public override Type BindToType(string assemblyName, string typeName)
         {
-            if (TypeMapper.TryGetValue(typeName, out var returnType))
+            if (TryGetType(typeName, out var returnType))
             {
                 LOG.Info($"Mapped {assemblyName} - {typeName} to {returnType.FullName}");
                 return returnType;
