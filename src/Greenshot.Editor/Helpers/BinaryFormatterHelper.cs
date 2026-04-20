@@ -116,7 +116,7 @@ namespace Greenshot.Editor.Helpers
             var typeNameCommaLocation = typeName.IndexOf(",");
             if (typeNameCommaLocation > 0)
             {
-                comparingTypeName = typeName.Substring(0, typeNameCommaLocation > 0 ? typeNameCommaLocation : typeName.Length);
+                comparingTypeName = typeName.Substring(0, typeNameCommaLocation);
             }
 
             // Correct wrong types (because of refactoring) to the correct ones, this is needed to load old .greenshot files
