@@ -126,9 +126,16 @@ public class GreenshotMain
                .WithWriterOptions(new IniWriterOptions
                {
                    AssignmentSeparator = "=",
-                   QuoteStyle = IniValueQuoteStyle.Auto,
-                   EscapeSequences = true,
+                   QuoteStyle = IniValueQuoteStyle.Never,
+                   EscapeSequences = false,
                    WriteComments = true
+               })
+               .WithParserOptions(new IniParserOptions
+               {
+                   CaseSensitiveKeys = false,
+                   EscapeSequences = false,
+                   LineContinuation = true,
+                   QuotedValues = false
                })
                .RegisterSection<ICoreConfiguration>(new CoreConfigurationImpl())
                .RegisterSection<IEditorConfiguration>(new EditorConfigurationImpl())

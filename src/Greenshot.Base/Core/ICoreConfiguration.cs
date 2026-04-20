@@ -368,13 +368,13 @@ namespace Greenshot.Base.Core
         NativeSize IconSize { get; set; }
 
         [Description("The connect timeout value for web requests, these are seconds")]
-        [DefaultValue(100)]
-        [Range(1, int.MaxValue, ErrorMessage = "WebRequestTimeout must be at least 1 second.")]
+        [DefaultValue(10)]
+        [Range(1, 100, ErrorMessage = "WebRequestTimeout must be between 1 and 100 seconds.")]
         int WebRequestTimeout { get; set; }
 
         [Description("The read/write timeout value for web requests, these are seconds")]
-        [DefaultValue(100)]
-        [Range(1, int.MaxValue, ErrorMessage = "WebRequestReadWriteTimeout must be at least 1 second.")]
+        [DefaultValue(10)]
+        [Range(1, 100, ErrorMessage = "WebRequestReadWriteTimeout must be between 1 and 100 seconds.")]
         int WebRequestReadWriteTimeout { get; set; }
 
         /// <summary>Validates <see cref="OutputFilePath"/>; resets it to the default output folder when the path no longer exists.</summary>

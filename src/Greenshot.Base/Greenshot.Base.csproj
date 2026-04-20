@@ -20,11 +20,11 @@
     <PackageReference Include="Dapplo.Windows.Multimedia" Version="2.0.89" />
     <PackageReference Include="SixLabors.ImageSharp" Version="2.1.13" />
     <PackageReference Include="HtmlAgilityPack" Version="1.12.4" />
-    <PackageReference Include="log4net" version="3.3.0" />
+    <PackageReference Include="log4net" version="3.3.1" />
     <PackageReference Include="Svg" Version="3.4.7" />
     <PackageReference Include="System.Resources.Extensions" Version="10.0.3" />
-    <PackageReference Include="Dapplo.Ini" Version="1.0.140" />
-    <PackageReference Include="Dapplo.Ini.Generator" Version="1.0.140" />
+    <PackageReference Include="Dapplo.Ini" Version="1.0.149" />
+    <PackageReference Include="Dapplo.Ini.Generator" Version="1.0.149" />
     <Reference Include="Accessibility" />
     <Reference Include="CustomMarshalers" />
   </ItemGroup>
