@@ -35,6 +35,13 @@ namespace Greenshot.Base.Core
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(CoreConfigurationImpl));
 
+        /// <summary>
+        /// This should have been Math.Clamp, but it's not available for .NET Framework 4.8
+        /// </summary>
+        /// <param name="value">The value to clamp</param>
+        /// <param name="min">The minimum value</param>
+        /// <param name="max">The maximum value</param>
+        /// <returns>The clamped value</returns>
         private static int Clamp(int value, int min, int max)
         {
             if (value < min) return min;

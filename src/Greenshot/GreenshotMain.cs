@@ -126,7 +126,7 @@ public class GreenshotMain
                .WithWriterOptions(new IniWriterOptions
                {
                    AssignmentSeparator = "=",
-                   QuoteStyle = IniValueQuoteStyle.Auto,
+                   QuoteStyle = IniValueQuoteStyle.Never,
                    EscapeSequences = true,
                    WriteComments = true
                })

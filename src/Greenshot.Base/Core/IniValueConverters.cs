@@ -39,7 +39,7 @@ namespace Greenshot.Base.Core
     /// </summary>
     public static class IniValueConverters
     {
-        private static bool s_registered;
+        private static bool _registered;
 
         /// <summary>
         /// Registers all Greenshot-specific value converters with
@@ -49,8 +49,11 @@ namespace Greenshot.Base.Core
         /// </summary>
         public static void Register()
         {
-            if (s_registered) return;
-            s_registered = true;
+            if (_registered)
+            {
+                return;
+            }
+            _registered = true;
 
             ValueConverterRegistry.Register(new ByteValueConverter());
             ValueConverterRegistry.Register(new DateTimeOffsetValueConverter());
@@ -60,7 +63,6 @@ namespace Greenshot.Base.Core
             ValueConverterRegistry.Register(new NativeSizeValueConverter());
             ValueConverterRegistry.Register(new DropShadowEffectValueConverter());
             ValueConverterRegistry.Register(new TornEdgeEffectValueConverter());
-            ValueConverterRegistry.Register(new GreenshotObjectValueConverter());
         }
     }
 
@@ -73,11 +75,9 @@ namespace Greenshot.Base.Core
     /// </summary>
     public sealed class ByteValueConverter : ValueConverterBase<byte>
     {
-        public override byte ConvertFromString(string raw, byte defaultValue = default)
-            => byte.TryParse(raw?.Trim(), out var result) ? result : defaultValue;
+        public override byte ConvertFromString(string raw, byte defaultValue = default) => byte.TryParse(raw?.Trim(), out var result) ? result : defaultValue;
 
-        public override string ConvertToString(byte value)
-            => value.ToString(CultureInfo.InvariantCulture);
+        public override string ConvertToString(byte value) => value.ToString(CultureInfo.InvariantCulture);
     }
 
     /// <summary>
@@ -95,8 +95,7 @@ namespace Greenshot.Base.Core
                 : defaultValue;
         }
 
-        public override string ConvertToString(DateTimeOffset value)
-            => value.ToString("O", CultureInfo.InvariantCulture);
+        public override string ConvertToString(DateTimeOffset value) => value.ToString("O", CultureInfo.InvariantCulture);
     }
 
     // ── System.Drawing ───────────────────────────────────────────────────────
@@ -109,14 +108,14 @@ namespace Greenshot.Base.Core
     /// </summary>
     public sealed class ColorValueConverter : ValueConverterBase<Color>
     {
-        private static readonly TypeConverter s_converter = new ColorConverter();
+        private static readonly TypeConverter _converter = new ColorConverter();
 
         public override Color ConvertFromString(string raw, Color defaultValue = default)
         {
             if (string.IsNullOrWhiteSpace(raw)) return defaultValue;
             try
             {
-                return (Color)s_converter.ConvertFromInvariantString(raw);
+                return (Color)_converter.ConvertFromInvariantString(raw);
             }
             catch
             {
@@ -124,8 +123,7 @@ namespace Greenshot.Base.Core
             }
         }
 
-        public override string ConvertToString(Color value)
-            => s_converter.ConvertToInvariantString(value);
+        public override string ConvertToString(Color value) => _converter.ConvertToInvariantString(value);
     }
 
     // ── Dapplo.Windows structs ────────────────────────────────────────────────
@@ -137,15 +135,14 @@ namespace Greenshot.Base.Core
     /// </summary>
     public sealed class NativePointValueConverter : ValueConverterBase<NativePoint>
     {
-        private static readonly TypeConverter s_converter =
-            TypeDescriptor.GetConverter(typeof(NativePoint));
+        private static readonly TypeConverter _converter = TypeDescriptor.GetConverter(typeof(NativePoint));
 
         public override NativePoint ConvertFromString(string raw, NativePoint defaultValue = default)
         {
             if (string.IsNullOrWhiteSpace(raw)) return defaultValue;
             try
             {
-                return (NativePoint)s_converter.ConvertFromInvariantString(raw);
+                return (NativePoint)_converter.ConvertFromInvariantString(raw);
             }
             catch
             {
@@ -153,8 +150,7 @@ namespace Greenshot.Base.Core
             }
         }
 
-        public override string ConvertToString(NativePoint value)
-            => s_converter.ConvertToInvariantString(value);
+        public override string ConvertToString(NativePoint value) => _converter.ConvertToInvariantString(value);
     }
 
     /// <summary>
@@ -163,15 +159,14 @@ namespace Greenshot.Base.Core
     /// </summary>
     public sealed class NativeRectValueConverter : ValueConverterBase<NativeRect>
     {
-        private static readonly TypeConverter s_converter =
-            TypeDescriptor.GetConverter(typeof(NativeRect));
+        private static readonly TypeConverter _converter = TypeDescriptor.GetConverter(typeof(NativeRect));
 
         public override NativeRect ConvertFromString(string raw, NativeRect defaultValue = default)
         {
             if (string.IsNullOrWhiteSpace(raw)) return defaultValue;
             try
             {
-                return (NativeRect)s_converter.ConvertFromInvariantString(raw);
+                return (NativeRect)_converter.ConvertFromInvariantString(raw);
             }
             catch
             {
@@ -179,8 +174,7 @@ namespace Greenshot.Base.Core
             }
         }
 
-        public override string ConvertToString(NativeRect value)
-            => s_converter.ConvertToInvariantString(value);
+        public override string ConvertToString(NativeRect value) => _converter.ConvertToInvariantString(value);
     }
 
     /// <summary>
@@ -189,15 +183,14 @@ namespace Greenshot.Base.Core
     /// </summary>
     public sealed class NativeSizeValueConverter : ValueConverterBase<NativeSize>
     {
-        private static readonly TypeConverter s_converter =
-            TypeDescriptor.GetConverter(typeof(NativeSize));
+        private static readonly TypeConverter _converter = TypeDescriptor.GetConverter(typeof(NativeSize));
 
         public override NativeSize ConvertFromString(string raw, NativeSize defaultValue = default)
         {
             if (string.IsNullOrWhiteSpace(raw)) return defaultValue;
             try
             {
-                return (NativeSize)s_converter.ConvertFromInvariantString(raw);
+                return (NativeSize)_converter.ConvertFromInvariantString(raw);
             }
             catch
             {
@@ -205,8 +198,7 @@ namespace Greenshot.Base.Core
             }
         }
 
-        public override string ConvertToString(NativeSize value)
-            => s_converter.ConvertToInvariantString(value);
+        public override string ConvertToString(NativeSize value) => _converter.ConvertToInvariantString(value);
     }
 
     // ── Effect types ─────────────────────────────────────────────────────────
@@ -217,14 +209,14 @@ namespace Greenshot.Base.Core
     /// </summary>
     public sealed class DropShadowEffectValueConverter : ValueConverterBase<DropShadowEffect>
     {
-        private static readonly EffectConverter s_converter = new EffectConverter();
+        private static readonly EffectConverter _converter = new();
 
         public override DropShadowEffect ConvertFromString(string raw, DropShadowEffect defaultValue = default)
         {
             if (string.IsNullOrWhiteSpace(raw)) return defaultValue ?? new DropShadowEffect();
             try
             {
-                return (DropShadowEffect)s_converter.ConvertFrom(null, CultureInfo.InvariantCulture, raw);
+                return (DropShadowEffect)_converter.ConvertFrom(null, CultureInfo.InvariantCulture, raw);
             }
             catch
             {
@@ -232,8 +224,7 @@ namespace Greenshot.Base.Core
             }
         }
 
-        public override string ConvertToString(DropShadowEffect value)
-            => (string)s_converter.ConvertTo(null, CultureInfo.InvariantCulture, value, typeof(string));
+        public override string ConvertToString(DropShadowEffect value) => (string)_converter.ConvertTo(null, CultureInfo.InvariantCulture, value, typeof(string));
     }
 
     /// <summary>
@@ -242,14 +233,14 @@ namespace Greenshot.Base.Core
     /// </summary>
     public sealed class TornEdgeEffectValueConverter : ValueConverterBase<TornEdgeEffect>
     {
-        private static readonly EffectConverter s_converter = new EffectConverter();
+        private static readonly EffectConverter _converter = new();
 
         public override TornEdgeEffect ConvertFromString(string raw, TornEdgeEffect defaultValue = default)
         {
             if (string.IsNullOrWhiteSpace(raw)) return defaultValue ?? new TornEdgeEffect();
             try
             {
-                return (TornEdgeEffect)s_converter.ConvertFrom(null, CultureInfo.InvariantCulture, raw);
+                return (TornEdgeEffect)_converter.ConvertFrom(null, CultureInfo.InvariantCulture, raw);
             }
             catch
             {
@@ -257,64 +248,6 @@ namespace Greenshot.Base.Core
             }
         }
 
-        public override string ConvertToString(TornEdgeEffect value)
-            => (string)s_converter.ConvertTo(null, CultureInfo.InvariantCulture, value, typeof(string));
-    }
-
-    // ── Dictionary<string, object> value type ────────────────────────────────
-
-    /// <summary>
-    /// Converter for <see cref="object"/>-typed dictionary values in
-    /// <c>IEditorConfiguration.LastUsedFieldValues</c>.
-    ///
-    /// The format is the one produced by the old Greenshot IniFile subsystem:
-    /// <c>TypeFullName,AssemblyName:InvariantStringValue</c>
-    /// (e.g. <c>System.Drawing.Color,System.Drawing:Red</c>).
-    ///
-    /// When deserialising, the type and assembly are resolved and the value is
-    /// converted using the type's own <see cref="TypeConverter"/>.
-    /// On failure the raw string is returned unchanged.
-    /// </summary>
-    public sealed class GreenshotObjectValueConverter : ValueConverterBase<object>
-    {
-        public override object ConvertFromString(string raw, object defaultValue = default)
-        {
-            if (string.IsNullOrWhiteSpace(raw)) return defaultValue;
-
-            // Expected format: "FullTypeName,AssemblyName:value"
-            int colonIdx = raw.IndexOf(':');
-            if (colonIdx <= 0) return raw;
-
-            string typePart = raw.Substring(0, colonIdx);
-            string valuePart = raw.Substring(colonIdx + 1);
-            try
-            {
-                var type = Type.GetType(typePart, throwOnError: true);
-                var converter = TypeDescriptor.GetConverter(type);
-                return converter.ConvertFromInvariantString(valuePart);
-            }
-            catch
-            {
-                return raw;
-            }
-        }
-
-        public override string ConvertToString(object value)
-        {
-            if (value is null) return string.Empty;
-            var type = value.GetType();
-            var converter = TypeDescriptor.GetConverter(type);
-            var valueStr = converter.ConvertToInvariantString(value);
-
-            // Build assembly qualifier, abbreviated for Greenshot assemblies
-            var assemblyName = type.Assembly.FullName ?? string.Empty;
-            if (assemblyName.StartsWith("Greenshot", StringComparison.OrdinalIgnoreCase))
-            {
-                int commaIdx = assemblyName.IndexOf(',');
-                if (commaIdx > 0) assemblyName = assemblyName.Substring(0, commaIdx);
-            }
-
-            return $"{type.FullName},{assemblyName}:{valueStr}";
-        }
+        public override string ConvertToString(TornEdgeEffect value) => (string)_converter.ConvertTo(null, CultureInfo.InvariantCulture, value, typeof(string));
     }
 }
