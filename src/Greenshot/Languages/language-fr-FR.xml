@@ -253,7 +253,7 @@ Veuillez vérifier l'accessibilité du répertoire de stockage.</resource>
 		<resource name="settings_capture">Capture</resource>
 		<resource name="settings_capture_mousepointer">Capturer le pointeur de la souris</resource>
 		<resource name="settings_capture_windows_interactive">Utiliser le mode interactif de capture de fenêtre</resource>
-		<resource name="settings_checkperiod">Intervalle de vérification des m.à.j. en jours (0=pas de vérification)</resource>
+		<resource name="settings_checkperiod">Intervalle de vérification des MÀJ en jours (0=pas de vérification)</resource>
 		<resource name="settings_configureplugin">Configurer</resource>
 		<resource name="settings_copypathtoclipboard">Copier le chemin vers le fichier dans le presse-papier à chaque sauvegarde</resource>
 		<resource name="settings_destination">Destination de la capture d'écran</resource>
@@ -306,7 +306,7 @@ en cours, par exemple 11_58_32 (plus l'extension définie dans les paramètres)<
 		<resource name="settings_showflashlight">Faire flasher l'écran</resource>
 		<resource name="settings_shownotify">Afficher les notifications</resource>
 		<resource name="settings_storagelocation">Rép. de sauvegarde</resource>
-		<resource name="settings_storagelocation_folder_error">L'explorateur de dossiers n'a pu être ouvert.
+		<resource name="settings_storagelocation_folder_error">Impossible d'ouvrir le sélecteur de dossiers.
 
 L'emplacement de stockage a été défini sur votre dossier Documents. Vous pouvez saisir un autre chemin directement dans le champ si nécessaire.</resource>
 		<resource name="settings_storagelocation_folder_error_title">Emplacement de stockage</resource>
