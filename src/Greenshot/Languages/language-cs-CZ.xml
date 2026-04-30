@@ -127,6 +127,7 @@ Také bychom velmi ocenili, kdybyste zkontrolovali, zda tato chyba již není ev
 		<resource name="editor_load_objects">Načíst objekty ze souboru</resource>
 		<resource name="editor_magnification_factor">Faktor zvětšení</resource>
 		<resource name="editor_match_capture_size">Přizpůsobit velikosti snímku</resource>
+		<resource name="editor_enable_auto_border">Automaticky použít efekt rámečku</resource>
 		<resource name="editor_obfuscate">Zamlžit (O)</resource>
 		<resource name="editor_obfuscate_blur">Rozmazat</resource>
 		<resource name="editor_obfuscate_mode">Ztížení rozeznání obsahu</resource>

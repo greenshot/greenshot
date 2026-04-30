@@ -288,5 +288,6 @@
 		<resource name="WindowCaptureModes.GDI">Usar cores padrão</resource>
 		<resource name="WindowCaptureModes.Screen">Como exibido</resource>
 		<resource name="settings_iconsize">Tamanho do ícone</resource>
+		<resource name="editor_enable_auto_border">Aplicar automaticamente o efeito de borda</resource>
 	</resources>
 </language>

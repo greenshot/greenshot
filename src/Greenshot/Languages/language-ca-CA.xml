@@ -125,6 +125,7 @@ Abans de crear un nou informe d'error, us agrairem que comproveu que l'error no 
 		<resource name="editor_load_objects">Carrega objectes del fitxer</resource>
 		<resource name="editor_magnification_factor">Factor d'ampliació</resource>
 		<resource name="editor_match_capture_size">Fes coincidir amb la mida de la captura</resource>
+		<resource name="editor_enable_auto_border">Aplica automàticament l'efecte de vora</resource>
 		<resource name="editor_obfuscate">Taca (O)</resource>
 		<resource name="editor_obfuscate_blur">Difumina</resource>
 		<resource name="editor_obfuscate_mode">Mode de taca</resource>
