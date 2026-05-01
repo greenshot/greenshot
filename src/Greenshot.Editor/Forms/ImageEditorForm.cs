@@ -183,7 +183,6 @@ namespace Greenshot.Editor.Forms
             // init surface
             Surface = surface;
             // Execute BorderEffect automatically
-            if (_surface?.Image != null)
             if (EditorConfiguration.EnableAutoBorder && _surface?.Image != null)
             {
                 _surface.ApplyBitmapEffect(new BorderEffect());
