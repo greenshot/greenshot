@@ -59,7 +59,11 @@ namespace Greenshot.Editor.FileFormatHandlers
         /// <inheritdoc />
         public override bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension, ISurface surface = null, SurfaceOutputSettings surfaceOutputSettings = null)
         {
-            var image = ImageSharpHelper.ConvertToImageSharp(bitmap);
+            using var image = ImageSharpHelper.ConvertToImageSharp(bitmap);
+            if (image == null)
+            {
+                return false;
+            }
 
             bool hasAlpha = bitmap.PixelFormat == System.Drawing.Imaging.PixelFormat.Format32bppArgb || bitmap.PixelFormat == System.Drawing.Imaging.PixelFormat.Format32bppPArgb;
 
@@ -102,7 +106,7 @@ namespace Greenshot.Editor.FileFormatHandlers
                 ".jpg" => new JpegEncoder() { Quality = surfaceOutputSettings.JPGQuality },
                 ".jpeg" => new JpegEncoder() { Quality = surfaceOutputSettings.JPGQuality },
                 ".tiff" => new TiffEncoder() { Quantizer = quantizer, BitsPerPixel = surfaceOutputSettings.ReduceColors ? TiffBitsPerPixel.Bit8 : TiffBitsPerPixel.Bit24 },
-                ".tif" => new TiffEncoder() { Quantizer = quantizer, BitsPerPixel = surfaceOutputSettings.ReduceColors ? TiffBitsPerPixel.Bit8 : TiffBitsPerPixel.Bit24 },
+                ".tif" => new TiffEncoder() { Quantizer = quantizer, BitsPerPixel = surfaceOutputSettings.ReduceColors ? TiffBitsPerPixel.Bit8 : hasAlpha? null :  TiffBitsPerPixel.Bit24 },
                 ".tga" => new TgaEncoder(),
                 ".pbm" => new PbmEncoder(),
                 ".webp" => new WebpEncoder() { Quality = surfaceOutputSettings.JPGQuality },
