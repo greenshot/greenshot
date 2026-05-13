@@ -18,7 +18,6 @@
     <TargetFramework>net480</TargetFramework>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
     <Deterministic>true</Deterministic>
-    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
     <!-- Emit Roslyn source-generator output to disk so Visual Studio IntelliSense can see
          the Dapplo.Ini-generated property implementations in *Impl.cs partial classes.
          The output path is inside obj/ so the auto-glob (**/*.cs) does NOT pick it up. -->

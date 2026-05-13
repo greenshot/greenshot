@@ -21,19 +21,31 @@
 
 using System.Collections.Generic;
 using System.Drawing;
+using Greenshot.Base.Core;
 
 namespace Greenshot.Editor.Configuration
 {
     public partial class EditorConfigurationImpl : IEditorConfiguration
     {
+        /// <summary>
+        /// This should have been Math.Clamp, but it's not available for .NET Framework 4.8
+        /// </summary>
+        /// <param name="value">The value to clamp</param>
+        /// <param name="min">The minimum value</param>
+        /// <param name="max">The maximum value</param>
+        /// <returns>The clamped value</returns>
+        private static int Clamp(int value, int min, int max)
+        {
+            if (value < min) return min;
+            if (value > max) return max;
+            return value;
+        }
+
+        partial void OnFreehandSensitivitySet(ref int value) => value = Clamp(value, 1, 100);
+
         public void OnAfterLoad()
         {
             RecentColors ??= new List<Color>();
-
-            if (FreehandSensitivity < 1)
-            {
-                FreehandSensitivity = 1;
-            }
         }
     }
 }

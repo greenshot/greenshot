@@ -25,6 +25,7 @@ using System.Drawing;
 using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core.Enums;
 using log4net;
 
@@ -33,6 +34,43 @@ namespace Greenshot.Base.Core
     public partial class CoreConfigurationImpl : ICoreConfiguration
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(CoreConfigurationImpl));
+
+        /// <summary>
+        /// This should have been Math.Clamp, but it's not available for .NET Framework 4.8
+        /// </summary>
+        /// <param name="value">The value to clamp</param>
+        /// <param name="min">The minimum value</param>
+        /// <param name="max">The maximum value</param>
+        /// <returns>The clamped value</returns>
+        private static int Clamp(int value, int min, int max)
+        {
+            if (value < min) return min;
+            if (value > max) return max;
+            return value;
+        }
+
+        /// <summary>
+        /// Coerce the value to stay between 16 and 256, and to be a multiple of 16, as this is required for the icons to be properly displayed in the Windows shell.
+        /// </summary>
+        /// <param name="value">NativeSize</param>
+        partial void OnIconSizeSet(ref NativeSize value)
+        {
+            int newWidth = (Clamp(value.Width, 16, 256) /16) * 16;
+            int newHeight = (Clamp(value.Height, 16, 256) / 16) * 16;
+            value = new NativeSize(newWidth, newHeight);
+        }
+
+        partial void OnAutoCropDifferenceSet(ref int value) => value = Clamp(value, 0, 255);
+        partial void OnOutputFileReduceColorsToSet(ref int value) => value = Clamp(value, 2, 256);
+        partial void OnWebRequestTimeoutSet(ref int value) => value = Clamp(value, 1, 100);
+        partial void OnWebRequestReadWriteTimeoutSet(ref int value) => value = Clamp(value, 1, 100);
+
+
+        /// <summary>
+        /// Coerce the value for the update check interval to stay between 0 and 365, where 0 means "never check for updates". This is to prevent excessive update checking that can occur when the configuration is used on a different PC or when the user accidentally enters an excessively high value. See BUG-1992 for details.
+        /// </summary>
+        /// <param name="value">Update check interval in days</param>
+        partial void OnUpdateCheckIntervalSet(ref int value) => value = Clamp(value, 0, 365);
 
         /// <summary>
         /// Returns true if the supplied experimental feature is enabled
@@ -119,16 +157,6 @@ namespace Greenshot.Base.Core
                 UpdateCheckInterval = 14;
             }
 
-            if (UpdateCheckInterval > 365)
-            {
-                UpdateCheckInterval = 365;
-            }
-
-            if (UpdateCheckInterval < 0)
-            {
-                UpdateCheckInterval = 0;
-            }
-
             // Enable OneNote if upgrading from 1.1
             if (ExcludeDestinations != null && ExcludeDestinations.Contains("OneNote"))
             {
@@ -136,11 +164,6 @@ namespace Greenshot.Base.Core
                 {
                     ExcludeDestinations.Remove("OneNote");
                 }
-            }
-
-            if (OutputDestinations == null)
-            {
-                OutputDestinations = new List<string>();
             }
 
             // Make sure there is an output!
@@ -206,36 +229,6 @@ namespace Greenshot.Base.Core
                 }
 
                 MarkAsDirty();
-            }
-
-            if (AutoCropDifference < 0)
-            {
-                AutoCropDifference = 0;
-            }
-
-            if (AutoCropDifference > 255)
-            {
-                AutoCropDifference = 255;
-            }
-
-            if (OutputFileReduceColorsTo < 2)
-            {
-                OutputFileReduceColorsTo = 2;
-            }
-
-            if (OutputFileReduceColorsTo > 256)
-            {
-                OutputFileReduceColorsTo = 256;
-            }
-
-            if (WebRequestTimeout <= 10)
-            {
-                WebRequestTimeout = 100;
-            }
-
-            if (WebRequestReadWriteTimeout < 1)
-            {
-                WebRequestReadWriteTimeout = 100;
             }
 
             // Set defaults for properties that need computed defaults
