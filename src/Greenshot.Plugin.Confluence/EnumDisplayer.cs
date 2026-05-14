@@ -28,87 +28,86 @@ using System.Reflection;
 using System.Windows.Data;
 using Greenshot.Base.Core;
 
-namespace Greenshot.Plugin.Confluence
+namespace Greenshot.Plugin.Confluence;
+
+public class EnumDisplayer : IValueConverter
 {
-    public class EnumDisplayer : IValueConverter
+    private Type _type;
+    private IDictionary _displayValues;
+    private IDictionary _reverseValues;
+
+    public Type Type
     {
-        private Type _type;
-        private IDictionary _displayValues;
-        private IDictionary _reverseValues;
-
-        public Type Type
+        get { return _type; }
+        set
         {
-            get { return _type; }
-            set
+            if (!value.IsEnum)
             {
-                if (!value.IsEnum)
-                {
-                    throw new ArgumentException("parameter is not an Enumerated type", nameof(value));
-                }
-
-                _type = value;
-            }
-        }
-
-        public ReadOnlyCollection<string> DisplayNames
-        {
-            get
-            {
-                var genericTypeDefinition = typeof(Dictionary<,>).GetGenericTypeDefinition();
-                if (genericTypeDefinition != null)
-                {
-                    _reverseValues = (IDictionary) Activator.CreateInstance(genericTypeDefinition.MakeGenericType(typeof(string), _type));
-                }
-
-                var typeDefinition = typeof(Dictionary<,>).GetGenericTypeDefinition();
-                if (typeDefinition != null)
-                {
-                    _displayValues = (IDictionary) Activator.CreateInstance(typeDefinition.MakeGenericType(_type, typeof(string)));
-                }
-
-                var fields = _type.GetFields(BindingFlags.Public | BindingFlags.Static);
-                foreach (var fieldInfo in fields)
-                {
-                    DisplayKeyAttribute[] a = (DisplayKeyAttribute[])fieldInfo.GetCustomAttributes(typeof(DisplayKeyAttribute), false);
-
-                    string displayKey = GetDisplayKeyValue(a);
-                    object enumValue = fieldInfo.GetValue(null);
-
-                    string displayString;
-                    if (displayKey != null && Language.HasKey(displayKey))
-                    {
-                        displayString = Language.GetString(displayKey);
-                    }
-
-                    displayString = displayKey ?? enumValue.ToString();
-
-                    _displayValues.Add(enumValue, displayString);
-                    _reverseValues.Add(displayString, enumValue);
-                }
-
-                return new List<string>((IEnumerable<string>) _displayValues.Values).AsReadOnly();
-            }
-        }
-
-        private static string GetDisplayKeyValue(DisplayKeyAttribute[] a)
-        {
-            if (a == null || a.Length == 0)
-            {
-                return null;
+                throw new ArgumentException("parameter is not an Enumerated type", nameof(value));
             }
 
-            DisplayKeyAttribute dka = a[0];
-            return dka.Value;
+            _type = value;
+        }
+    }
+
+    public ReadOnlyCollection<string> DisplayNames
+    {
+        get
+        {
+            var genericTypeDefinition = typeof(Dictionary<,>).GetGenericTypeDefinition();
+            if (genericTypeDefinition != null)
+            {
+                _reverseValues = (IDictionary) Activator.CreateInstance(genericTypeDefinition.MakeGenericType(typeof(string), _type));
+            }
+
+            var typeDefinition = typeof(Dictionary<,>).GetGenericTypeDefinition();
+            if (typeDefinition != null)
+            {
+                _displayValues = (IDictionary) Activator.CreateInstance(typeDefinition.MakeGenericType(_type, typeof(string)));
+            }
+
+            var fields = _type.GetFields(BindingFlags.Public | BindingFlags.Static);
+            foreach (var fieldInfo in fields)
+            {
+                DisplayKeyAttribute[] a = (DisplayKeyAttribute[])fieldInfo.GetCustomAttributes(typeof(DisplayKeyAttribute), false);
+
+                string displayKey = GetDisplayKeyValue(a);
+                object enumValue = fieldInfo.GetValue(null);
+
+                string displayString;
+                if (displayKey != null && Language.HasKey(displayKey))
+                {
+                    displayString = Language.GetString(displayKey);
+                }
+
+                displayString = displayKey ?? enumValue.ToString();
+
+                _displayValues.Add(enumValue, displayString);
+                _reverseValues.Add(displayString, enumValue);
+            }
+
+            return new List<string>((IEnumerable<string>) _displayValues.Values).AsReadOnly();
+        }
+    }
+
+    private static string GetDisplayKeyValue(DisplayKeyAttribute[] a)
+    {
+        if (a == null || a.Length == 0)
+        {
+            return null;
         }
 
-        object IValueConverter.Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            return _displayValues[value];
-        }
+        DisplayKeyAttribute dka = a[0];
+        return dka.Value;
+    }
 
-        object IValueConverter.ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            return _reverseValues[value];
-        }
+    object IValueConverter.Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        return _displayValues[value];
+    }
+
+    object IValueConverter.ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        return _reverseValues[value];
     }
 }

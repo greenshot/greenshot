@@ -21,173 +21,171 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Automation;
 using Greenshot.Base.Core;
 using Greenshot.Plugin.Confluence.Entities;
 
-namespace Greenshot.Plugin.Confluence
-{
-    /// <summary>
-    /// Description of ConfluenceUtils.
-    /// </summary>
-    public class ConfluenceUtils
-    {
-        private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluenceUtils));
+namespace Greenshot.Plugin.Confluence;
 
-        public static List<Page> GetCurrentPages()
+/// <summary>
+/// Description of ConfluenceUtils.
+/// </summary>
+public class ConfluenceUtils
+{
+    private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluenceUtils));
+
+    public static List<Page> GetCurrentPages()
+    {
+        List<Page> pages = new List<Page>();
+        Regex pageIdRegex = new Regex(@"pageId=(\d+)");
+        Regex spacePageRegex = new Regex(@"\/display\/([^\/]+)\/([^#]+)");
+        foreach (string browserurl in GetBrowserUrls())
         {
-            List<Page> pages = new List<Page>();
-            Regex pageIdRegex = new Regex(@"pageId=(\d+)");
-            Regex spacePageRegex = new Regex(@"\/display\/([^\/]+)\/([^#]+)");
-            foreach (string browserurl in GetBrowserUrls())
+            string url;
+            try
             {
-                string url;
+                url = Uri.UnescapeDataString(browserurl).Replace("+", " ");
+            }
+            catch
+            {
+                LOG.WarnFormat("Error processing URL: {0}", browserurl);
+                continue;
+            }
+
+            MatchCollection pageIdMatch = pageIdRegex.Matches(url);
+            if (pageIdMatch != null && pageIdMatch.Count > 0)
+            {
+                long pageId = long.Parse(pageIdMatch[0].Groups[1].Value);
                 try
                 {
-                    url = Uri.UnescapeDataString(browserurl).Replace("+", " ");
-                }
-                catch
-                {
-                    LOG.WarnFormat("Error processing URL: {0}", browserurl);
+                    bool pageDouble = false;
+                    foreach (Page page in pages)
+                    {
+                        if (page.Id == pageId)
+                        {
+                            pageDouble = true;
+                            LOG.DebugFormat("Skipping double page with ID {0}", pageId);
+                            break;
+                        }
+                    }
+
+                    if (!pageDouble)
+                    {
+                        Page page = ConfluencePlugin.ConfluenceConnector.GetPage(pageId);
+                        LOG.DebugFormat("Adding page {0}", page.Title);
+                        pages.Add(page);
+                    }
+
                     continue;
                 }
-
-                MatchCollection pageIdMatch = pageIdRegex.Matches(url);
-                if (pageIdMatch != null && pageIdMatch.Count > 0)
+                catch (Exception ex)
                 {
-                    long pageId = long.Parse(pageIdMatch[0].Groups[1].Value);
+                    // Preventing security problems
+                    LOG.DebugFormat("Couldn't get page details for PageID {0}", pageId);
+                    LOG.Warn(ex);
+                }
+            }
+
+            MatchCollection spacePageMatch = spacePageRegex.Matches(url);
+            if (spacePageMatch != null && spacePageMatch.Count > 0)
+            {
+                if (spacePageMatch[0].Groups.Count >= 2)
+                {
+                    string space = spacePageMatch[0].Groups[1].Value;
+                    string title = spacePageMatch[0].Groups[2].Value;
+                    if (string.IsNullOrEmpty(title) || string.IsNullOrEmpty(space))
+                    {
+                        continue;
+                    }
+
+                    if (title.EndsWith("#"))
+                    {
+                        title = title.Substring(0, title.Length - 1);
+                    }
+
                     try
                     {
                         bool pageDouble = false;
                         foreach (Page page in pages)
                         {
-                            if (page.Id == pageId)
+                            if (page.Title.Equals(title))
                             {
+                                LOG.DebugFormat("Skipping double page with title {0}", title);
                                 pageDouble = true;
-                                LOG.DebugFormat("Skipping double page with ID {0}", pageId);
                                 break;
                             }
                         }
 
                         if (!pageDouble)
                         {
-                            Page page = ConfluencePlugin.ConfluenceConnector.GetPage(pageId);
+                            Page page = ConfluencePlugin.ConfluenceConnector.GetPage(space, title);
                             LOG.DebugFormat("Adding page {0}", page.Title);
                             pages.Add(page);
                         }
-
-                        continue;
                     }
                     catch (Exception ex)
                     {
                         // Preventing security problems
-                        LOG.DebugFormat("Couldn't get page details for PageID {0}", pageId);
+                        LOG.DebugFormat("Couldn't get page details for space {0} / title {1}", space, title);
                         LOG.Warn(ex);
                     }
                 }
-
-                MatchCollection spacePageMatch = spacePageRegex.Matches(url);
-                if (spacePageMatch != null && spacePageMatch.Count > 0)
-                {
-                    if (spacePageMatch[0].Groups.Count >= 2)
-                    {
-                        string space = spacePageMatch[0].Groups[1].Value;
-                        string title = spacePageMatch[0].Groups[2].Value;
-                        if (string.IsNullOrEmpty(title) || string.IsNullOrEmpty(space))
-                        {
-                            continue;
-                        }
-
-                        if (title.EndsWith("#"))
-                        {
-                            title = title.Substring(0, title.Length - 1);
-                        }
-
-                        try
-                        {
-                            bool pageDouble = false;
-                            foreach (Page page in pages)
-                            {
-                                if (page.Title.Equals(title))
-                                {
-                                    LOG.DebugFormat("Skipping double page with title {0}", title);
-                                    pageDouble = true;
-                                    break;
-                                }
-                            }
-
-                            if (!pageDouble)
-                            {
-                                Page page = ConfluencePlugin.ConfluenceConnector.GetPage(space, title);
-                                LOG.DebugFormat("Adding page {0}", page.Title);
-                                pages.Add(page);
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            // Preventing security problems
-                            LOG.DebugFormat("Couldn't get page details for space {0} / title {1}", space, title);
-                            LOG.Warn(ex);
-                        }
-                    }
-                }
             }
-
-            return pages;
         }
 
-        private static IEnumerable<string> GetBrowserUrls()
+        return pages;
+    }
+
+    private static IEnumerable<string> GetBrowserUrls()
+    {
+        HashSet<string> urls = new HashSet<string>();
+
+        // FireFox
+        foreach (WindowDetails window in WindowDetails.GetAllWindows("MozillaWindowClass"))
         {
-            HashSet<string> urls = new HashSet<string>();
-
-            // FireFox
-            foreach (WindowDetails window in WindowDetails.GetAllWindows("MozillaWindowClass"))
+            if (window.Text.Length == 0)
             {
-                if (window.Text.Length == 0)
-                {
-                    continue;
-                }
-
-                AutomationElement currentElement = AutomationElement.FromHandle(window.Handle);
-                Condition conditionCustom = new AndCondition(new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.Custom),
-                    new PropertyCondition(AutomationElement.IsOffscreenProperty, false));
-                for (int i = 5; i > 0 && currentElement != null; i--)
-                {
-                    currentElement = currentElement.FindFirst(TreeScope.Children, conditionCustom);
-                }
-
-                if (currentElement == null)
-                {
-                    continue;
-                }
-
-                Condition conditionDocument = new AndCondition(new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.Document),
-                    new PropertyCondition(AutomationElement.IsOffscreenProperty, false));
-                AutomationElement docElement = currentElement.FindFirst(TreeScope.Children, conditionDocument);
-                if (docElement == null)
-                {
-                    continue;
-                }
-
-                foreach (AutomationPattern pattern in docElement.GetSupportedPatterns())
-                {
-                    if (pattern.ProgrammaticName != "ValuePatternIdentifiers.Pattern")
-                    {
-                        continue;
-                    }
-
-                    string url = (docElement.GetCurrentPattern(pattern) as ValuePattern).Current.Value;
-                    if (!string.IsNullOrEmpty(url))
-                    {
-                        urls.Add(url);
-                        break;
-                    }
-                }
+                continue;
             }
 
-            return urls;
+            AutomationElement currentElement = AutomationElement.FromHandle(window.Handle);
+            Condition conditionCustom = new AndCondition(new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.Custom),
+                new PropertyCondition(AutomationElement.IsOffscreenProperty, false));
+            for (int i = 5; i > 0 && currentElement != null; i--)
+            {
+                currentElement = currentElement.FindFirst(TreeScope.Children, conditionCustom);
+            }
+
+            if (currentElement == null)
+            {
+                continue;
+            }
+
+            Condition conditionDocument = new AndCondition(new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.Document),
+                new PropertyCondition(AutomationElement.IsOffscreenProperty, false));
+            AutomationElement docElement = currentElement.FindFirst(TreeScope.Children, conditionDocument);
+            if (docElement == null)
+            {
+                continue;
+            }
+
+            foreach (AutomationPattern pattern in docElement.GetSupportedPatterns())
+            {
+                if (pattern.ProgrammaticName != "ValuePatternIdentifiers.Pattern")
+                {
+                    continue;
+                }
+
+                string url = (docElement.GetCurrentPattern(pattern) as ValuePattern).Current.Value;
+                if (!string.IsNullOrEmpty(url))
+                {
+                    urls.Add(url);
+                    break;
+                }
+            }
         }
+
+        return urls;
     }
 }

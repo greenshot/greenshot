@@ -28,7 +28,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
 using Greenshot.Base.Core;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 
@@ -45,7 +45,7 @@ namespace Greenshot.Helpers
     public class MapiMailMessage : IDisposable
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(MapiMailMessage));
-        private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
+        private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
 
         /// <summary>
         /// Helper Method for creating an Email with Attachment
@@ -87,6 +87,23 @@ namespace Greenshot.Helpers
             if (tmpFile == null) return;
 
             // Store the list of currently active windows, so we can make sure we show the email window later!
+            var windowsBefore = WindowDetails.GetVisibleWindows();
+            SendImage(tmpFile, captureDetails.Title);
+            WindowDetails.ActiveNewerWindows(windowsBefore);
+        }
+
+        /// <summary>
+        /// Helper Method for creating an Email with a pre-rendered Image Attachment,
+        /// avoiding a redundant surface render pass.
+        /// </summary>
+        /// <param name="preRenderedImage">Pre-rendered bitmap; not disposed by this method.</param>
+        /// <param name="captureDetails">ICaptureDetails</param>
+        public static void SendImage(System.Drawing.Image preRenderedImage, ICaptureDetails captureDetails)
+        {
+            string tmpFile = ImageIO.SaveNamedTmpFile(preRenderedImage, captureDetails, new SurfaceOutputSettings());
+
+            if (tmpFile == null) return;
+
             var windowsBefore = WindowDetails.GetVisibleWindows();
             SendImage(tmpFile, captureDetails.Title);
             WindowDetails.ActiveNewerWindows(windowsBefore);
@@ -180,7 +197,8 @@ namespace Greenshot.Helpers
             thread.Start();
 
             // only return when the new thread has built it's interop representation
-            _manualResetEvent.WaitOne();
+            // Use a timeout to prevent indefinite hang if the thread throws an exception
+            _manualResetEvent.WaitOne(TimeSpan.FromSeconds(60));
             _manualResetEvent.Reset();
         }
 
@@ -401,7 +419,7 @@ namespace Greenshot.Helpers
             /// </summary>
             private MapiHelperInterop()
             {
-                // Intenationally blank
+                // Intentionally blank
             }
 
 
@@ -468,7 +486,7 @@ namespace Greenshot.Helpers
         }
 
         /// <summary>
-        /// Returns an interop representation of a recepient.
+        /// Returns an interop representation of a recipient.
         /// </summary>
         /// <returns></returns>
         internal MapiMailMessage.MapiHelperInterop.MapiRecipDesc GetInteropRepresentation()
@@ -510,7 +528,7 @@ namespace Greenshot.Helpers
         }
 
         /// <summary>
-        /// Struct which contains an interop representation of a colleciton of recipients.
+        /// Struct which contains an interop representation of a collection of recipients.
         /// </summary>
         internal struct InteropRecipientCollection : IDisposable
         {

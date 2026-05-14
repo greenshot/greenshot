@@ -19,42 +19,24 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using GreenshotConfluencePlugin.confluence;
+using Dapplo.Confluence.Entities;
 
-namespace Greenshot.Plugin.Confluence.Entities
+namespace Greenshot.Plugin.Confluence.Entities;
+
+public class Page
 {
-    public class Page
+    public Page(Content content)
     {
-        public Page(RemotePage page)
-        {
-            Id = page.id;
-            Title = page.title;
-            SpaceKey = page.space;
-            Url = page.url;
-            Content = page.content;
-        }
-
-        public Page(RemoteSearchResult searchResult, string space)
-        {
-            Id = searchResult.id;
-            Title = searchResult.title;
-            SpaceKey = space;
-            Url = searchResult.url;
-            Content = searchResult.excerpt;
-        }
-
-        public Page(RemotePageSummary pageSummary)
-        {
-            Id = pageSummary.id;
-            Title = pageSummary.title;
-            SpaceKey = pageSummary.space;
-            Url = pageSummary.url;
-        }
-
-        public long Id { get; set; }
-        public string Title { get; set; }
-        public string Url { get; set; }
-        public string Content { get; set; }
-        public string SpaceKey { get; set; }
+        Id = content.Id;
+        Title = content.Title;
+        SpaceKey = content.Space?.Key;
+        Url = content.Links?.WebUi;
+        Content = content.Body?.Storage?.Value;
     }
+
+    public long Id { get; set; }
+    public string Title { get; set; }
+    public string Url { get; set; }
+    public string Content { get; set; }
+    public string SpaceKey { get; set; }
 }

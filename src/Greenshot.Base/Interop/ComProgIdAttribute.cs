@@ -24,7 +24,7 @@ using System;
 namespace Greenshot.Base.Interop
 {
     /// <summary>
-    /// An attribute to specifiy the ProgID of the COM class to create. (As suggested by Kristen Wegner)
+    /// An attribute to specify the ProgID of the COM class to create. (As suggested by Kristen Wegner)
     /// </summary>
     [AttributeUsage(AttributeTargets.Interface)]
     public sealed class ComProgIdAttribute : Attribute

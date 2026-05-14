@@ -37,7 +37,7 @@ using Greenshot.Base.Interfaces.Plugin;
 namespace Greenshot.Plugin.Win10
 {
     /// <summary>
-    /// This uses the OcrEngine from Windows 10 to perform OCR on the captured image.
+    /// This uses the Windows OcrEngine to perform OCR on the captured image.
     /// </summary>
     public class Win10OcrProvider : IOcrProvider
     {
@@ -65,7 +65,7 @@ namespace Greenshot.Plugin.Win10
         public async Task<OcrInformation> DoOcrAsync(ISurface surface)
         {
             OcrInformation result;
-            using (var imageStream = new MemoryStream())
+            using (var imageStream = RecyclableMemoryStreamFactory.GetStream("Win10OcrProvider.DoOcrAsync(ISurface)"))
             {
                 // We only want the background
                 var outputSettings = new SurfaceOutputSettings(OutputFormat.png, 0, true)
@@ -116,7 +116,7 @@ namespace Greenshot.Plugin.Win10
         public async Task<OcrInformation> DoOcrAsync(Image image)
         {
             OcrInformation result;
-            using (var imageStream = new MemoryStream())
+            using (var imageStream = RecyclableMemoryStreamFactory.GetStream("Win10OcrProvider.DoOcrAsync(Image)"))
             {
                 ImageIO.SaveToStream(image, null, imageStream, new SurfaceOutputSettings());
                 imageStream.Position = 0;

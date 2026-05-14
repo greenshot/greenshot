@@ -54,10 +54,17 @@ namespace Greenshot.Plugin.Office.OfficeExport
         public bool ExportToNewPage(ISurface surfaceToUpload)
         {
             using var oneNoteApplication = GetOrCreateOneNoteApplication();
+            if (oneNoteApplication == null)
+            {
+                LOG.Error("Failed to get or create OneNote application instance");
+                return false;
+            }
+
             var newPage = new OneNotePage();
             string unfiledNotesSectionId = GetSectionId(oneNoteApplication, SpecialLocation.slUnfiledNotesSection);
             if (unfiledNotesSectionId == null)
             {
+                LOG.Error("Failed to get unfiled notes section ID");
                 return false;
             }
 
@@ -78,6 +85,12 @@ namespace Greenshot.Plugin.Office.OfficeExport
         public bool ExportToPage(ISurface surfaceToUpload, OneNotePage page)
         {
             using var oneNoteApplication = GetOrCreateOneNoteApplication();
+            if (oneNoteApplication == null)
+            {
+                LOG.Error("Failed to get or create OneNote application instance");
+                return false;
+            }
+
             return ExportToPage(oneNoteApplication, surfaceToUpload, page);
         }
 
@@ -92,13 +105,16 @@ namespace Greenshot.Plugin.Office.OfficeExport
         {
             if (oneNoteApplication == null)
             {
+                LOG.Error("OneNote application instance is null");
                 return false;
             }
 
-            using var pngStream = new MemoryStream();
+            using var pngStream = RecyclableMemoryStreamFactory.GetStream("OneNoteExporter.ExportToPage");
             var pngOutputSettings = new SurfaceOutputSettings(OutputFormat.png, 100, false);
             ImageIO.SaveToStream(surfaceToUpload, pngStream, pngOutputSettings);
-            var base64String = Convert.ToBase64String(pngStream.GetBuffer());
+            var base64String = pngStream.TryGetBuffer(out var buffer) && buffer.Array != null
+                ? Convert.ToBase64String(buffer.Array, buffer.Offset, buffer.Count)
+                : Convert.ToBase64String(pngStream.ToArray());
             var imageXmlStr = string.Format(XmlImageContent, base64String, surfaceToUpload.Image.Width, surfaceToUpload.Image.Height);
             var pageChangesXml = string.Format(XmlOutline, imageXmlStr, page.Id, OnenoteNamespace2010, page.Name);
             LOG.InfoFormat("Sending XML: {0}", pageChangesXml);
@@ -144,7 +160,29 @@ namespace Greenshot.Plugin.Office.OfficeExport
             var oneNoteApplication = GetOneNoteApplication();
             if (oneNoteApplication == null)
             {
-                oneNoteApplication = DisposableCom.Create(new Application());
+                try
+                {
+                    // Try to get the type from ProgID for more reliable COM instantiation
+                    var oneNoteType = Type.GetTypeFromProgID("OneNote.Application");
+                    if (oneNoteType != null)
+                    {
+                        var oneNoteObject = Activator.CreateInstance(oneNoteType);
+                        oneNoteApplication = DisposableCom.Create((Application)oneNoteObject);
+                        LOG.Debug("Created new OneNote.Application instance using Type.GetTypeFromProgID");
+                    }
+                    else
+                    {
+                        LOG.Warn("Could not get type for OneNote.Application from ProgID. OneNote may not be installed or registered for COM automation.");
+                    }
+                }
+                catch (COMException comEx)
+                {
+                    LOG.Error($"Failed to create OneNote.Application instance. Error code: 0x{comEx.ErrorCode:X}. OneNote may not be installed or available.", comEx);
+                }
+                catch (Exception ex)
+                {
+                    LOG.Error("Failed to create OneNote.Application instance. OneNote may not be installed or available.", ex);
+                }
             }
 
             return oneNoteApplication;
@@ -219,7 +257,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
                                         Name = xmlReader.GetAttribute("name"),
                                         Id = xmlReader.GetAttribute("ID")
                                     };
-                                    if ((page.Id == null) || (page.Name == null))
+                                    if ((page.Id == null) || (page.Name == null) || (page.Parent == null) || (page.Parent.Parent == null))
                                     {
                                         continue;
                                     }

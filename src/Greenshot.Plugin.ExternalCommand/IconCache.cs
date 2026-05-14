@@ -23,34 +23,33 @@ using System;
 using System.Drawing;
 using System.IO;
 using Greenshot.Base.Core;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 
-namespace Greenshot.Plugin.ExternalCommand
+namespace Greenshot.Plugin.ExternalCommand;
+
+public static class IconCache
 {
-    public static class IconCache
-    {
-        private static readonly ExternalCommandConfiguration config = IniConfig.GetIniSection<ExternalCommandConfiguration>();
-        private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(IconCache));
+    private static readonly IExternalCommandConfiguration config = IniConfigRegistry.GetSection<IExternalCommandConfiguration>();
+    private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(IconCache));
 
-        public static Image IconForCommand(string commandName)
+    public static Image IconForCommand(string commandName)
+    {
+        Image icon = null;
+        if (commandName != null)
         {
-            Image icon = null;
-            if (commandName != null)
+            if (config.Commandline.ContainsKey(commandName) && File.Exists(config.Commandline[commandName]))
             {
-                if (config.Commandline.ContainsKey(commandName) && File.Exists(config.Commandline[commandName]))
+                try
                 {
-                    try
-                    {
-                        icon = PluginUtils.GetCachedExeIcon(config.Commandline[commandName], 0);
-                    }
-                    catch (Exception ex)
-                    {
-                        LOG.Warn("Problem loading icon for " + config.Commandline[commandName], ex);
-                    }
+                    icon = PluginUtils.GetCachedExeIcon(config.Commandline[commandName], 0);
+                }
+                catch (Exception ex)
+                {
+                    LOG.Warn("Problem loading icon for " + config.Commandline[commandName], ex);
                 }
             }
-
-            return icon;
         }
+
+        return icon;
     }
 }

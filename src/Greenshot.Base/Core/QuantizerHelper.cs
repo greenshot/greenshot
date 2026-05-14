@@ -747,7 +747,7 @@ namespace Greenshot.Base.Core
             first.Volume = (first.RedMaximum - first.RedMinimum) * (first.GreenMaximum - first.GreenMinimum) * (first.BlueMaximum - first.BlueMinimum);
             second.Volume = (second.RedMaximum - second.RedMinimum) * (second.GreenMaximum - second.GreenMinimum) * (second.BlueMaximum - second.BlueMinimum);
 
-            // the cut was successfull
+            // the cut was successful
             return true;
         }
 

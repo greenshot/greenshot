@@ -29,7 +29,7 @@ using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using Greenshot.Base.Core.FileFormatHandlers;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Plugin;
@@ -54,7 +54,7 @@ namespace Greenshot.Base.Core
     public static class NetworkHelper
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(NetworkHelper));
-        private static readonly CoreConfiguration Config = IniConfig.GetIniSection<CoreConfiguration>();
+        private static readonly ICoreConfiguration Config = IniConfigRegistry.GetSection<ICoreConfiguration>();
 
         static NetworkHelper()
         {
@@ -78,7 +78,7 @@ namespace Greenshot.Base.Core
         {
             var request = CreateWebRequest(url);
             using var response = (HttpWebResponse) request.GetResponse();
-            var memoryStream = new MemoryStream();
+            var memoryStream = RecyclableMemoryStreamFactory.GetStream("NetworkHelper.GetAsMemoryStream");
             using (var responseStream = response.GetResponseStream())
             {
                 responseStream?.CopyTo(memoryStream);
@@ -116,6 +116,7 @@ namespace Greenshot.Base.Core
                 catch (Exception)
                 {
                     // If we arrive here, the image loading didn't work, try to see if the response has a http(s) URL to an image and just take this instead.
+                    memoryStream.Seek(0, SeekOrigin.Begin);
                     string content;
                     using (var streamReader = new StreamReader(memoryStream, Encoding.UTF8, true))
                     {
@@ -177,6 +178,7 @@ namespace Greenshot.Base.Core
                 catch (Exception)
                 {
                     // If we arrive here, the image loading didn't work, try to see if the response has a http(s) URL to an image and just take this instead.
+                    memoryStream.Seek(0, SeekOrigin.Begin);
                     string content;
                     using (var streamReader = new StreamReader(memoryStream, Encoding.UTF8, true))
                     {

@@ -23,10 +23,9 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Xml;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using log4net;
 using Microsoft.Win32;
 
@@ -59,10 +58,14 @@ namespace Greenshot.Base.Core
         /// </summary>
         static Language()
         {
-            if (!IniConfig.IsInitialized)
+            if (!IniConfigRegistry.TryGet("greenshot.ini", out _))
             {
-                Log.Warn("IniConfig hasn't been initialized yet! (Design mode?)");
-                IniConfig.Init("greenshot", "greenshot");
+                Log.Warn("IniConfigRegistry hasn't been initialized yet! (Design mode?)");
+                // Design-mode or test fallback: create a minimal registry so GetSection<ICoreConfiguration>() works.
+                IniConfigRegistry.ForFile("greenshot.ini")
+                    .AddAppDataPath("Greenshot")
+                    .RegisterSection<ICoreConfiguration>(new CoreConfigurationImpl())
+                    .Create();
             }
 
             if (!LogHelper.IsInitialized)
@@ -118,7 +121,7 @@ namespace Greenshot.Base.Core
                 Log.Warn("Couldn't read the installed language groups.", e);
             }
 
-            var coreConfig = IniConfig.GetIniSection<CoreConfiguration>();
+            var coreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
             ScanFiles();
             if (!string.IsNullOrEmpty(coreConfig.Language))
             {
@@ -453,7 +456,7 @@ namespace Greenshot.Base.Core
                         // Check if we can display the file
                         if (!string.IsNullOrEmpty(languageFile.LanguageGroup) && UnsupportedLanguageGroups.Contains(languageFile.LanguageGroup))
                         {
-                            Log.InfoFormat("Skipping unsuported (not able to display) language {0} from file {1}", languageFile.Description, languageFilepath);
+                            Log.InfoFormat("Skipping unsupported (not able to display) language {0} from file {1}", languageFile.Description, languageFilepath);
                             continue;
                         }
 

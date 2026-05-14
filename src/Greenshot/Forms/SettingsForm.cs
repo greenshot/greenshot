@@ -20,7 +20,6 @@
  */
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
@@ -34,10 +33,11 @@ using Greenshot.Base;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
-using Greenshot.Base.IniFile;
+
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Configuration;
+using Greenshot.Controls;
 using Greenshot.Helpers;
 using log4net;
 
@@ -145,13 +145,13 @@ namespace Greenshot.Forms
 
         private void EnterHotkeyControl(object sender, EventArgs e)
         {
-            HotkeyControl.UnregisterHotkeys();
+            HotkeyManager.UnregisterHotkeys();
             _inHotkey = true;
         }
 
         private void LeaveHotkeyControl(object sender, EventArgs e)
         {
-            MainForm.RegisterHotkeys();
+            HotkeyHelper.RegisterHotkeys();
             _inHotkey = false;
         }
 
@@ -410,11 +410,7 @@ namespace Greenshot.Forms
         /// </summary>
         private void DisplayDestinations()
         {
-            bool destinationsEnabled = true;
-            if (coreConfiguration.Values.ContainsKey("Destinations"))
-            {
-                destinationsEnabled = !coreConfiguration.Values["Destinations"].IsFixed;
-            }
+            bool destinationsEnabled = !coreConfiguration.IsConstant("Destinations");
 
             checkbox_picker.Checked = false;
 
@@ -482,26 +478,26 @@ namespace Greenshot.Forms
             }
 
             // Disable editing when the value is fixed
-            combobox_language.Enabled = !coreConfiguration.Values["Language"].IsFixed;
+            combobox_language.Enabled = !coreConfiguration.IsConstant("Language");
 
             textbox_storagelocation.Text = FilenameHelper.FillVariables(coreConfiguration.OutputFilePath, false);
             // Disable editing when the value is fixed
-            textbox_storagelocation.Enabled = !coreConfiguration.Values["OutputFilePath"].IsFixed;
+            textbox_storagelocation.Enabled = !coreConfiguration.IsConstant("OutputFilePath");
 
             SetWindowCaptureMode(coreConfiguration.WindowCaptureMode);
             // Disable editing when the value is fixed
-            combobox_window_capture_mode.Enabled = !coreConfiguration.CaptureWindowsInteractive && !coreConfiguration.Values["WindowCaptureMode"].IsFixed;
+            combobox_window_capture_mode.Enabled = !coreConfiguration.CaptureWindowsInteractive && !coreConfiguration.IsConstant("WindowCaptureMode");
             radiobuttonWindowCapture.Checked = !coreConfiguration.CaptureWindowsInteractive;
 
             trackBarJpegQuality.Value = coreConfiguration.OutputFileJpegQuality;
-            trackBarJpegQuality.Enabled = !coreConfiguration.Values["OutputFileJpegQuality"].IsFixed;
+            trackBarJpegQuality.Enabled = !coreConfiguration.IsConstant("OutputFileJpegQuality");
             textBoxJpegQuality.Text = coreConfiguration.OutputFileJpegQuality + "%";
 
             DisplayDestinations();
 
             numericUpDownWaitTime.Value = coreConfiguration.CaptureDelay >= 0 ? coreConfiguration.CaptureDelay : 0;
-            numericUpDownWaitTime.Enabled = !coreConfiguration.Values["CaptureDelay"].IsFixed;
-            if (IniConfig.IsPortable)
+            numericUpDownWaitTime.Enabled = !coreConfiguration.IsConstant("CaptureDelay");
+            if (GreenshotEnvironment.IsPortable)
             {
                 checkbox_autostartshortcut.Visible = false;
                 checkbox_autostartshortcut.Checked = false;
@@ -530,7 +526,7 @@ namespace Greenshot.Forms
             }
 
             numericUpDown_daysbetweencheck.Value = coreConfiguration.UpdateCheckInterval;
-            numericUpDown_daysbetweencheck.Enabled = !coreConfiguration.Values["UpdateCheckInterval"].IsFixed;
+            numericUpDown_daysbetweencheck.Enabled = !coreConfiguration.IsConstant("UpdateCheckInterval");
             numericUpdownIconSize.Value = coreConfiguration.IconSize.Width;
             CheckDestinationSettings();
         }
@@ -630,14 +626,14 @@ namespace Greenshot.Forms
         {
             if (CheckSettings())
             {
-                HotkeyControl.UnregisterHotkeys();
+                HotkeyManager.UnregisterHotkeys();
                 SaveSettings();
                 StoreFields();
-                MainForm.RegisterHotkeys();
+                HotkeyHelper.RegisterHotkeys();
 
                 // Make sure the current language & settings are reflected in the Main-context menu
                 var mainForm = SimpleServiceProvider.Current.GetInstance<MainForm>();
-                mainForm?.UpdateUi();
+                mainForm.UpdateUi();
                 DialogResult = DialogResult.OK;
             }
             else
@@ -649,15 +645,79 @@ namespace Greenshot.Forms
         private void BrowseClick(object sender, EventArgs e)
         {
             // Get the storage location and replace the environment variables
-            folderBrowserDialog1.SelectedPath = FilenameHelper.FillVariables(textbox_storagelocation.Text, false);
-            if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
+            string currentPath = FilenameHelper.FillVariables(textbox_storagelocation.Text, false);
+            // Only use the path as the starting folder if it actually exists and is reachable;
+            // otherwise leave SelectedPath empty so the dialog falls back to the default (My Documents).
+            folderBrowserDialog1.SelectedPath = Directory.Exists(currentPath) ? currentPath : string.Empty;
+            try
             {
-                // Only change if there is a change, otherwise we might overwrite the environment variables
-                if (folderBrowserDialog1.SelectedPath != null && !folderBrowserDialog1.SelectedPath.Equals(FilenameHelper.FillVariables(textbox_storagelocation.Text, false)))
+                if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
                 {
-                    textbox_storagelocation.Text = folderBrowserDialog1.SelectedPath;
+                    // Only change if there is a change, otherwise we might overwrite the environment variables
+                    if (folderBrowserDialog1.SelectedPath != null && !folderBrowserDialog1.SelectedPath.Equals(currentPath))
+                    {
+                        textbox_storagelocation.Text = folderBrowserDialog1.SelectedPath;
+                    }
                 }
             }
+            catch (InvalidOperationException ex)
+            {
+                // This can happen when Greenshot was launched under a system/service account (e.g. after an
+                // IT-managed silent install) and the shell cannot resolve the default root folder for the
+                // current user context. Retry rooted at MyComputer with a known-good user folder so the
+                // user can still pick a destination.
+                Log.Warn("Problem opening folder browser dialog, retrying with user profile fallback: ", ex);
+                string fallbackPath = GetAccessibleFallbackPath();
+                folderBrowserDialog1.SelectedPath = fallbackPath;
+                folderBrowserDialog1.RootFolder = Environment.SpecialFolder.MyComputer;
+                try
+                {
+                    if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
+                    {
+                        textbox_storagelocation.Text = folderBrowserDialog1.SelectedPath;
+                    }
+                }
+                catch (InvalidOperationException retryEx)
+                {
+                    Log.Error("Failed to open folder browser dialog even with fallback path: ", retryEx);
+                    // Last resort: populate the textbox with the fallback path so the user at least
+                    // has a valid, writable destination rather than a red invalid-path indicator.
+                    if (!string.IsNullOrEmpty(fallbackPath))
+                    {
+                        textbox_storagelocation.Text = fallbackPath;
+                        MessageBox.Show(
+                            Language.GetString(LangKey.settings_storagelocation_folder_error),
+                            Language.GetString(LangKey.settings_storagelocation_folder_error_title),
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Information);
+                    }
+                }
+                finally
+                {
+                    folderBrowserDialog1.RootFolder = Environment.SpecialFolder.Desktop;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Returns the first accessible path suitable as a fallback storage location when the folder
+        /// browser dialog cannot resolve the shell root (e.g. process started under a system account).
+        /// Tries MyDocuments, Desktop, and TEMP in order.
+        /// </summary>
+        private static string GetAccessibleFallbackPath()
+        {
+            var candidates = new[]
+            {
+                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+                Path.GetTempPath()
+            };
+            foreach (string candidate in candidates)
+            {
+                if (!string.IsNullOrEmpty(candidate) && Directory.Exists(candidate))
+                    return candidate;
+            }
+            return string.Empty;
         }
 
         private void TrackBarJpegQualityScroll(object sender, EventArgs e)
@@ -730,11 +790,7 @@ namespace Greenshot.Forms
         {
             bool clipboardDestinationChecked = false;
             bool pickerSelected = checkbox_picker.Checked;
-            bool destinationsEnabled = true;
-            if (coreConfiguration.Values.ContainsKey("Destinations"))
-            {
-                destinationsEnabled = !coreConfiguration.Values["Destinations"].IsFixed;
-            }
+            bool destinationsEnabled = !coreConfiguration.IsConstant("Destinations");
 
             listview_destinations.Enabled = destinationsEnabled;
 
@@ -821,40 +877,13 @@ namespace Greenshot.Forms
         {
             combobox_window_capture_mode.Enabled = radiobuttonWindowCapture.Checked;
         }
-    }
 
-    public class ListviewWithDestinationComparer : IComparer
-    {
-        public int Compare(object x, object y)
+        protected override void WndProc(ref Message m)
         {
-            if (x is not ListViewItem listViewItemX)
+            if (!WndProcDefaults.TryHandleMessage(ref m))
             {
-                return 0;
+                base.WndProc(ref m);
             }
-
-            if (y is not ListViewItem listViewItemY)
-            {
-                return 0;
-            }
-
-            IDestination firstDestination = listViewItemX.Tag as IDestination;
-
-            if (listViewItemY.Tag is not IDestination secondDestination)
-            {
-                return 1;
-            }
-
-            if (firstDestination != null && firstDestination.Priority == secondDestination.Priority)
-            {
-                return string.Compare(firstDestination.Description, secondDestination.Description, StringComparison.Ordinal);
-            }
-
-            if (firstDestination != null)
-            {
-                return firstDestination.Priority - secondDestination.Priority;
-            }
-
-            return 0;
         }
     }
 }

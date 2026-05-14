@@ -31,5 +31,8 @@
     <resource name="label_information">
       {0}, ekran görüntünüzün dosya adıdır
     </resource>
+    <resource name="tooltip_duplicate_name">
+      Bu adda bir komut zaten mevcut. Lütfen farklı bir ad seçin.
+    </resource>
   </resources>
 </language>

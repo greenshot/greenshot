@@ -22,7 +22,7 @@
 using System;
 using System.Windows.Forms;
 using Greenshot.Base.Core;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using log4net;
 
@@ -34,7 +34,7 @@ namespace Greenshot.Helpers
     public class NotifyIconNotificationService : INotificationService
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(NotifyIconNotificationService));
-        private static readonly CoreConfiguration CoreConfiguration = IniConfig.GetIniSection<CoreConfiguration>();
+        private static readonly ICoreConfiguration CoreConfiguration = IniConfigRegistry.GetSection<ICoreConfiguration>();
         private readonly NotifyIcon _notifyIcon;
 
         public NotifyIconNotificationService()

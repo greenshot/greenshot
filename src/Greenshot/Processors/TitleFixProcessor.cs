@@ -22,7 +22,7 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Greenshot.Base.Core;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using log4net;
 
@@ -34,7 +34,7 @@ namespace Greenshot.Processors
     public class TitleFixProcessor : AbstractProcessor
     {
         private static readonly ILog LOG = LogManager.GetLogger(typeof(TitleFixProcessor));
-        private static readonly CoreConfiguration config = IniConfig.GetIniSection<CoreConfiguration>();
+        private static readonly ICoreConfiguration config = IniConfigRegistry.GetSection<ICoreConfiguration>();
 
         public TitleFixProcessor()
         {
@@ -57,8 +57,6 @@ namespace Greenshot.Processors
                 config.TitleFixMatcher.Remove(corruptKey);
                 config.TitleFixReplacer.Remove(corruptKey);
             }
-
-            config.IsDirty = true;
         }
 
         public override string Designation => "TitleFix";

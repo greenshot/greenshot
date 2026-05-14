@@ -19,14 +19,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using log4net;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Drawing;
 using System.IO;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
@@ -34,14 +35,19 @@ using Dapplo.Windows.DesktopWindowsManager;
 using Dapplo.Windows.Kernel32;
 using Dapplo.Windows.User32;
 using Greenshot.Base;
+using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
+using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Configuration;
+using Greenshot.Destinations;
 using Greenshot.Editor.Destinations;
 using Greenshot.Editor.Drawing;
 using Greenshot.Forms;
+using Greenshot.Native;
+using log4net;
 
 namespace Greenshot.Helpers
 {
@@ -52,7 +58,7 @@ namespace Greenshot.Helpers
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(CaptureHelper));
 
-        private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
+        private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
         
         private List<WindowDetails> _windows = new();
         private WindowDetails _selectedCaptureWindow;
@@ -87,7 +93,9 @@ namespace Greenshot.Helpers
             }
 
             // Unfortunately we can't dispose the capture, this might still be used somewhere else.
-            _windows = null;
+            // Note: _windows is intentionally NOT nulled here. RetrieveWindowDetails runs on a background
+            // thread and uses _windows as the lock target; nulling it before the thread exits would cause
+            // Monitor.Enter(null) → ArgumentNullException. The Join() in MakeCapture handles thread lifetime.
             _selectedCaptureWindow = null;
             _capture = null;
             // Empty working set after capturing
@@ -260,6 +268,12 @@ namespace Greenshot.Helpers
                 var notifyIcon = SimpleServiceProvider.Current.GetInstance<NotifyIcon>();
                 notifyIcon.Visible = false;
                 notifyIcon.Visible = true;
+            }
+
+            // When beta tester mode is enabled, use Windows Graphics Capture for screen capture
+            if (CoreConfig.IsBetaTester)
+            {
+                CaptureHandler.CaptureScreenRectangle = WindowsGraphicsCaptureInterop.CaptureRectangle;
             }
 
             Log.Debug($"Capturing with mode {_captureMode} and using Cursor {_captureMouseCursor}");
@@ -460,7 +474,7 @@ namespace Greenshot.Helpers
                             _capture = new Capture(fileImage);
                         }
 
-                        // Force Editor, keep picker, this is currently the only usefull destination
+                        // Force Editor, keep picker, this is currently the only useful destination
                         if (_capture.CaptureDetails.HasDestination(nameof(WellKnownDestinations.Picker)))
                         {
                             _capture.CaptureDetails.ClearDestinations();
@@ -762,9 +776,40 @@ namespace Greenshot.Helpers
             int destinationCount = captureDetails.CaptureDestinations.Count;
             if (destinationCount > 0)
             {
-                // Flag to detect if we need to create a temp file for the email
-                // or use the file that was written
-                foreach (IDestination destination in captureDetails.CaptureDestinations)
+                var uiContext = SimpleServiceProvider.Current.GetInstance<SynchronizationContext>();
+
+                // Pre-render the surface once on the UI thread if any destination that needs a bitmap
+                // is active. This shared bitmap is passed to both clipboard and file save, avoiding
+                // a redundant full GDI+ composite pass per destination.
+                bool hasFileDestination = captureDetails.CaptureDestinations.Exists(d =>
+                    d.Designation == nameof(WellKnownDestinations.FileNoDialog) ||
+                    d.Designation == nameof(WellKnownDestinations.FileDialog));
+
+                // If quality prompt is enabled, show it once here for all file destinations rather
+                // than once per destination, so the user is only asked once and all file saves
+                // use the same quality settings.
+                var sharedFileOutputSettings = new SurfaceOutputSettings();
+                if (hasFileDestination && CoreConfig.OutputFilePromptQuality)
+                {
+                    var qualityDialog = new QualityDialog(sharedFileOutputSettings);
+                    qualityDialog.ShowDialog();
+                }
+
+                bool hasPreRenderDestination = hasFileDestination ||
+                    captureDetails.CaptureDestinations.Exists(d => d is IAcceptsPreRenderedImage);
+
+                Image sharedRenderedBitmap = null;
+                bool disposeSharedBitmap = false;
+                if (hasPreRenderDestination)
+                {
+                    disposeSharedBitmap = ImageIO.CreateImageFromSurface(surface, sharedFileOutputSettings, out sharedRenderedBitmap);
+                }
+
+                var backgroundTasks = new List<Task>();
+
+                try
+                {
+                foreach (IDestination destination in captureDetails.CaptureDestinations.OrderBy(d => d.Priority).ThenBy(d => d.Description))
                 {
                     if (nameof(WellKnownDestinations.Picker).Equals(destination.Designation))
                     {
@@ -773,10 +818,112 @@ namespace Greenshot.Helpers
 
                     Log.InfoFormat("Calling destination {0}", destination.Description);
 
-                    ExportInformation exportInformation = destination.ExportCapture(false, surface, captureDetails);
-                    if (EditorDestination.DESIGNATION.Equals(destination.Designation) && exportInformation.ExportMade)
+                    // File save destinations: hand off encoding and disk write to a background thread
+                    // so other destinations (clipboard, editor) are not blocked.
+                    if (destination.Designation == nameof(WellKnownDestinations.FileNoDialog) ||
+                        destination.Designation == nameof(WellKnownDestinations.FileDialog))
                     {
-                        canDisposeSurface = false;
+                        // Resolve the output path on the UI thread (may show dialogs).
+                        string fullPath;
+                        bool overwrite;
+                        if (captureDetails.Filename != null)
+                        {
+                            fullPath = captureDetails.Filename;
+                            overwrite = true;
+                            sharedFileOutputSettings.Format = ImageIO.FormatForFilename(fullPath);
+                        }
+                        else
+                        {
+                            fullPath = FileDestination.CreateNewFilename(captureDetails);
+                            overwrite = CoreConfig.OutputFileAllowOverwrite;
+                        }
+
+                        if (fullPath == null)
+                        {
+                            // User cancelled the filename dialog — skip this destination.
+                            continue;
+                        }
+
+                        // Set the filename immediately so dependent destinations (e.g. Editor)
+                        // see the correct path even before the background write completes.
+                        captureDetails.Filename = fullPath;
+
+                        var bgFullPath = fullPath;
+                        var bgOverwrite = overwrite;
+                        var bgOutputSettings = sharedFileOutputSettings;
+
+                        // Clone the shared pre-rendered bitmap so each background task
+                        // works with its own Image instance (Image is not thread-safe).
+                        Image bgRenderedBitmap = null;
+                        if (sharedRenderedBitmap != null)
+                        {
+                            bgRenderedBitmap = (Image)sharedRenderedBitmap.Clone();
+                        }
+
+                        var task = Task.Run(() =>
+                        {
+                            try
+                            {
+                                using (bgRenderedBitmap)
+                                {
+                                    ImageIO.SaveRenderedImage(
+                                        bgRenderedBitmap,
+                                        bgFullPath,
+                                        bgOverwrite,
+                                        bgOutputSettings,
+                                        CoreConfig.OutputFileCopyPathToClipboard,
+                                        uiContext);
+                                }
+
+                                // Update the config path on completion — marshal to UI thread for thread-safety.
+                                uiContext?.Post(_ => CoreConfig.OutputFileAsFullpath = bgFullPath, null);
+                            }
+                            catch (ArgumentException ex1)
+                            {
+                                Log.InfoFormat("Not overwriting: {0}", ex1.Message);
+                                // File already exists and overwrite is disallowed — fall back to save dialog on UI thread.
+                                // Use Send (not Post) so the background thread blocks until the dialog completes,
+                                // preventing surface disposal before SaveWithDialog has finished.
+                                uiContext?.Send(_ => ImageIO.SaveWithDialog(surface, captureDetails), null);
+                            }
+                            catch (Exception ex2)
+                            {
+                                Log.Error("Error saving screenshot in background!", ex2);
+                                uiContext?.Post(_ => MessageBox.Show(
+                                    Language.GetString(LangKey.error_save),
+                                    Language.GetString(LangKey.error)), null);
+                            }
+                        });
+
+                        backgroundTasks.Add(task);
+                    }
+                    else if (sharedRenderedBitmap != null &&
+                             destination is IAcceptsPreRenderedImage preRenderDest)
+                    {
+                        // Destination supports receiving a pre-rendered bitmap — avoids a redundant render pass.
+                        preRenderDest.ExportCaptureWithRenderedImage(sharedRenderedBitmap, surface, captureDetails);
+                    }
+                    else
+                    {
+                        ExportInformation exportInformation = destination.ExportCapture(false, surface, captureDetails);
+                        if (EditorDestination.DESIGNATION.Equals(destination.Designation) && exportInformation.ExportMade)
+                        {
+                            canDisposeSurface = false;
+                        }
+                    }
+                }
+
+                }
+                finally
+                {
+                    if (backgroundTasks.Count > 0)
+                    {
+                        Task.WaitAll(backgroundTasks.ToArray());
+                    }
+
+                    if (disposeSharedBitmap)
+                    {
+                        sharedRenderedBitmap?.Dispose();
                     }
                 }
             }
@@ -910,6 +1057,14 @@ namespace Greenshot.Helpers
                 captureForWindow = new Capture();
             }
 
+            // New simplified logic with 1.4, using WindowsGraphicsCapture
+            if (CoreConfig.IsBetaTester)
+            {
+                captureForWindow.Image = WindowsGraphicsCaptureInterop.CaptureWindowToBitmap(windowToCapture.Handle);
+                captureForWindow.CaptureDetails.Title = windowToCapture.Text;
+                return captureForWindow;
+            }
+
             NativeRect windowRectangle = windowToCapture.WindowRectangle;
 
             // When Vista & DWM (Aero) enabled
@@ -974,9 +1129,12 @@ namespace Greenshot.Helpers
                 Log.InfoFormat("Capturing window with mode {0}", windowCaptureMode);
                 bool captureTaken = false;
                 windowRectangle = windowRectangle.Intersect(captureForWindow.ScreenBounds);
-                // Try to capture
-                while (!captureTaken)
+                // Try to capture, with a safety limit to prevent infinite mode-switching loops
+                int captureAttempts = 0;
+                const int maxCaptureAttempts = 5;
+                while (!captureTaken && captureAttempts < maxCaptureAttempts)
                 {
+                    captureAttempts++;
                     ICapture tmpCapture = null;
                     switch (windowCaptureMode)
                     {
@@ -1018,7 +1176,7 @@ namespace Greenshot.Helpers
                                                 if (blackPercentageGdi > blackPercentageScreen)
                                                 {
                                                     Log.Debug("Using screen capture, as GDI had additional black.");
-                                                    // changeing the image will automatically dispose the previous
+                                                    // changing the image will automatically dispose the previous
                                                     tmpCapture.Image = screenCapture.Image;
                                                     // Make sure it's not disposed, else the picture is gone!
                                                     screenCapture.NullImage();
@@ -1030,7 +1188,7 @@ namespace Greenshot.Helpers
                                                 if (blackPercentageGdi > 50 && blackPercentageGdi > blackPercentageScreen)
                                                 {
                                                     Log.Debug("Using screen capture, as GDI had additional black.");
-                                                    // changeing the image will automatically dispose the previous
+                                                    // changing the image will automatically dispose the previous
                                                     tmpCapture.Image = screenCapture.Image;
                                                     // Make sure it's not disposed, else the picture is gone!
                                                     screenCapture.NullImage();
@@ -1102,6 +1260,11 @@ namespace Greenshot.Helpers
 
                             break;
                     }
+                }
+
+                if (!captureTaken)
+                {
+                    Log.Warn("Failed to capture window after maximum attempts, all capture modes exhausted.");
                 }
             }
 

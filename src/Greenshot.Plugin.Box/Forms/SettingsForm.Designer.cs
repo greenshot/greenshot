@@ -20,8 +20,9 @@
  */
 
 using Greenshot.Base.Controls;
+using Greenshot.Plugin.Box;
 
-namespace Greenshot.Plugin.Box.Forms {
+namespace Greenshot.Plugin.Box.Forms; 
 	partial class SettingsForm {
 		/// <summary>
 		/// Designer variable used to keep track of non-visual components.
@@ -82,12 +83,12 @@ namespace Greenshot.Plugin.Box.Forms {
 			// combobox_uploadimageformat
 			// 
 			this.combobox_uploadimageformat.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+        | System.Windows.Forms.AnchorStyles.Right)));
 			this.combobox_uploadimageformat.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.combobox_uploadimageformat.FormattingEnabled = true;
 			this.combobox_uploadimageformat.Location = new System.Drawing.Point(208, 12);
 			this.combobox_uploadimageformat.Name = "combobox_uploadimageformat";
-			this.combobox_uploadimageformat.PropertyName = nameof(BoxConfiguration.UploadFormat);
+			this.combobox_uploadimageformat.PropertyName = nameof(IBoxConfiguration.UploadFormat);
 			this.combobox_uploadimageformat.SectionName = "Box";
 			this.combobox_uploadimageformat.Size = new System.Drawing.Size(215, 21);
 			this.combobox_uploadimageformat.TabIndex = 5;
@@ -106,7 +107,7 @@ namespace Greenshot.Plugin.Box.Forms {
 			this.label_AfterUpload.LanguageKey = "box.label_AfterUpload";
 			this.label_AfterUpload.Location = new System.Drawing.Point(10, 46);
 			this.label_AfterUpload.Name = "label_AfterUpload";
-			this.label_AfterUpload.Size = new System.Drawing.Size(84, 21);
+			this.label_AfterUpload.Size = new System.Drawing.Size(192, 21);
 			this.label_AfterUpload.TabIndex = 8;
 			// 
 			// checkboxAfterUploadLinkToClipBoard
@@ -115,9 +116,9 @@ namespace Greenshot.Plugin.Box.Forms {
 			this.checkboxAfterUploadLinkToClipBoard.LanguageKey = "box.label_AfterUploadLinkToClipBoard";
 			this.checkboxAfterUploadLinkToClipBoard.Location = new System.Drawing.Point(208, 45);
 			this.checkboxAfterUploadLinkToClipBoard.Name = "checkboxAfterUploadLinkToClipBoard";
-			this.checkboxAfterUploadLinkToClipBoard.PropertyName = nameof(BoxConfiguration.AfterUploadLinkToClipBoard);
+			this.checkboxAfterUploadLinkToClipBoard.PropertyName = nameof(IBoxConfiguration.AfterUploadLinkToClipBoard);
 			this.checkboxAfterUploadLinkToClipBoard.SectionName = "Box";
-			this.checkboxAfterUploadLinkToClipBoard.Size = new System.Drawing.Size(104, 17);
+			this.checkboxAfterUploadLinkToClipBoard.Size = new System.Drawing.Size(210, 20);
 			this.checkboxAfterUploadLinkToClipBoard.TabIndex = 10;
 			this.checkboxAfterUploadLinkToClipBoard.UseVisualStyleBackColor = true;
 			// 
@@ -148,4 +149,3 @@ namespace Greenshot.Plugin.Box.Forms {
 		private GreenshotLabel label_AfterUpload;
 		private GreenshotCheckBox checkboxAfterUploadLinkToClipBoard;
 	}
-}
