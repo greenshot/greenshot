@@ -3,6 +3,7 @@
 	<resources>
 		<resource name="browse_pages">Naviguer</resource>
 		<resource name="CANCEL">Annuler</resource>
+		<resource name="communication_wait">Transfert de données vers Confluence, veuillez patienter...</resource>
 		<resource name="copy_wikimarkup">Copier Wikimarkup vers le presse-papier</resource>
 		<resource name="filename">Fichier</resource>
 		<resource name="include_person_spaces">Inclure espaces personnels dans les recherches et la navigation</resource>
@@ -22,8 +23,8 @@
 		<resource name="search_text">Rechercher texte</resource>
 		<resource name="upload">Téléverser</resource>
 		<resource name="upload_failure">Une erreur s'est produite lors du téléversement vers Confluence :</resource>
-		<resource name="upload_format">Téléverser format</resource>
+		<resource name="upload_format">Format du téléversement</resource>
 		<resource name="upload_menu_item">Téléverser vers Confluence</resource>
-		<resource name="upload_success">Image téléversée aves succès vers Confluence !</resource>
+		<resource name="upload_success">Image téléversée avec succès vers Confluence !</resource>
 	</resources>
 </language>

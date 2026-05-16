@@ -26,7 +26,7 @@ using System.Windows.Forms;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Effects;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Configuration;
@@ -42,7 +42,7 @@ namespace Greenshot.Helpers
     public class PrintHelper : IDisposable
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(PrintHelper));
-        private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
+        private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
 
         private ISurface _surface;
         private readonly ICaptureDetails _captureDetails;

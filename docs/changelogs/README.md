@@ -6,10 +6,10 @@ This directory contains comprehensive changelogs for all Greenshot releases.
 
 ### Stable Releases
 
-- **[1.3 Series](CHANGELOG-1.3.md)** - All stable releases from 1.3.290 to 1.3.312 (May 2025 - January 2026)
-  - 8 stable releases
+- **[1.3 Series](CHANGELOG-1.3.md)** - All stable releases from 1.3.290 to 1.3.315 (May 2025 - March 2026)
+  - 9 stable releases
   - Final release for the 1.3 series
-  - Includes security fixes, installer improvements, and portable releases
+  - Includes security fixes, stability improvements, installation cleanup, and portable releases
 
 ### Development Releases
 
@@ -22,14 +22,14 @@ This directory contains comprehensive changelogs for all Greenshot releases.
 ## Quick Navigation
 
 ### Latest Stable Release
-**[Greenshot 1.3.312](CHANGELOG-1.3.md#version-1312-january-7-2026)** (January 7, 2026)
-- Fixed external commands broken by security improvements
-- [Download Installer](https://github.com/greenshot/greenshot/releases/download/v1.3.312/Greenshot-INSTALLER-1.3.312-RELEASE.exe)
-- [Download Portable](https://github.com/greenshot/greenshot/releases/download/v1.3.312/Greenshot-PORTABLE-1.3.312-RELEASE.zip)
+**[Greenshot 1.3.315](CHANGELOG-1.3.md#version-1315-march-20-2026)** (March 20, 2026)
+- Critical security fix (GHSA-f8v9-7fph-fr2j), stability improvements, and installation cleanup
+- [Download Installer](https://github.com/greenshot/greenshot/releases/download/v1.3.315/Greenshot-INSTALLER-1.3.315-RELEASE.exe)
+- [Download Portable](https://github.com/greenshot/greenshot/releases/download/v1.3.315/Greenshot-PORTABLE-1.3.315-RELEASE.zip)
 
 ### Latest Development Build
-**[Greenshot 1.4.107](CHANGELOG-1.4.md)** (February 14, 2026)
-- Continuous build from main branch
+**[Greenshot 1.4.108](CHANGELOG-1.4.md)** (March 14, 2026)
+- Windows Graphics Capture API (Beta) for higher-quality captures
 - ⚠️ Unstable/unsigned - for testing only
 - [View all 1.4 builds](https://github.com/greenshot/greenshot/releases)
 
@@ -55,10 +55,10 @@ Our changelogs follow these principles:
 
 ### 1.3 Series (Stable)
 - **First Release**: 1.3.290 (May 23, 2025) - Initial stable release, final for 1.3 series
-- **Latest Release**: 1.3.312 (January 7, 2026)
-- **Total Stable Releases**: 8
+- **Latest Release**: 1.3.315 (March 20, 2026)
+- **Total Stable Releases**: 9
 - **Key Features**:
-  - Security fixes (CVE-2023-34634, GHSA-8f7f-x7ww-xx5w, GHSA-7hvw-q8q5-gpmj)
+  - Security fixes (CVE-2023-34634, GHSA-8f7f-x7ww-xx5w, GHSA-7hvw-q8q5-gpmj, GHSA-f8v9-7fph-fr2j)
   - Zoom functionality in editor
   - High-DPI support
   - Portable ZIP releases
@@ -67,7 +67,7 @@ Our changelogs follow these principles:
 
 ### 1.4 Series (Development)
 - **First Build**: 1.4.1 (November 18, 2025)
-- **Latest Build**: 1.4.107 (February 14, 2026)
+- **Latest Build**: 1.4.108 (March 14, 2026)
 - **Status**: Active Development
 - **Key Features**:
   - Emoji support in editor
@@ -77,6 +77,7 @@ Our changelogs follow these principles:
   - Plugin modernization (Confluence REST API, Dropbox OAuth2)
   - Memory leak fixes
   - Better Windows 10/11 integration
+  - Windows Restart Manager integration for seamless updates
   - Modern command line interface with System.CommandLine
 
 ## Release Types
@@ -141,6 +142,10 @@ When creating new releases:
 5. Credit all contributors
 6. Update this README with latest version information
 
+**Important**: Only document **official/stable releases** in these changelog files. Intermediate builds (continuous builds, tagged but not promoted as stable releases) should **not** get their own changelog entries. Instead, their changes are rolled up into the next official release's changelog entry.
+
 ---
 
 *For questions about changelogs or releases, please open an issue on [GitHub](https://github.com/greenshot/greenshot/issues).*
+
+*Last updated: March 20, 2026*

@@ -697,10 +697,8 @@ namespace Greenshot.Editor.Drawing
                             continue;
                         }
 
-                        Size defaultSize = container.DefaultSize;
                         container.MakeBoundsChangeUndoable(false);
-                        container.Width = defaultSize.Width;
-                        container.Height = defaultSize.Height;
+                        container.ResetToDefaultSize();
                     }
 
                     surface.Invalidate();

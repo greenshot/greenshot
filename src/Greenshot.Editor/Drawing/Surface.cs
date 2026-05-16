@@ -35,7 +35,7 @@ using Dapplo.Windows.User32;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
 using Greenshot.Base.Effects;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Drawing.Adorners;
@@ -56,7 +56,7 @@ namespace Greenshot.Editor.Drawing
     public sealed class Surface : Control, ISurface, INotifyPropertyChanged
     {
         private static readonly ILog LOG = LogManager.GetLogger(typeof(Surface));
-        private static readonly CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+        private static readonly ICoreConfiguration conf = IniConfigRegistry.GetSection<ICoreConfiguration>();
 
         // Property to identify the Surface ID
         private Guid _uniqueId = Guid.NewGuid();
@@ -786,7 +786,7 @@ namespace Greenshot.Editor.Drawing
                     _undrawnElement = null;
                     break;
                 case DrawingModes.Emoji:
-                    _undrawnElement = new EmojiContainer(this, "🙂");
+                    _undrawnElement = new EmojiContainer(this);
                     break;
             }
 
@@ -806,6 +806,7 @@ namespace Greenshot.Editor.Drawing
                 Left = x,
                 Top = y
             };
+            bitmapContainer.ResetToDefaultSize();
             AddElement(bitmapContainer);
             return bitmapContainer;
         }
@@ -816,6 +817,7 @@ namespace Greenshot.Editor.Drawing
             bitmapContainer.Load(filename);
             bitmapContainer.Left = x;
             bitmapContainer.Top = y;
+            bitmapContainer.ResetToDefaultSize();
             AddElement(bitmapContainer);
             return bitmapContainer;
         }
@@ -828,6 +830,7 @@ namespace Greenshot.Editor.Drawing
                 Left = x,
                 Top = y
             };
+            iconContainer.ResetToDefaultSize();
             AddElement(iconContainer);
             return iconContainer;
         }
@@ -838,6 +841,7 @@ namespace Greenshot.Editor.Drawing
             iconContainer.Load(filename);
             iconContainer.Left = x;
             iconContainer.Top = y;
+            iconContainer.ResetToDefaultSize();
             AddElement(iconContainer);
             return iconContainer;
         }
@@ -859,6 +863,7 @@ namespace Greenshot.Editor.Drawing
                 Left = x,
                 Top = y
             };
+            cursorContainer.ResetToDefaultSize();
             AddElement(cursorContainer);
             return cursorContainer;
         }
@@ -869,6 +874,7 @@ namespace Greenshot.Editor.Drawing
             cursorContainer.Load(filename);
             cursorContainer.Left = x;
             cursorContainer.Top = y;
+            cursorContainer.ResetToDefaultSize();
             AddElement(cursorContainer);
             return cursorContainer;
         }

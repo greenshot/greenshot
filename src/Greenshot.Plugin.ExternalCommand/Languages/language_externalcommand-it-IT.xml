@@ -32,5 +32,8 @@
       {0} è il noem file della schermata
     </resource>
     <resource name="label_outputimageformat">Formato immagine</resource>
+    <resource name="tooltip_duplicate_name">
+      Un comando con questo nome esiste già. Scegli un nome diverso.
+    </resource>
   </resources>
 </language>

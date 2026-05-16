@@ -20,7 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Plugin.Office.Com;
 using Greenshot.Plugin.Office.OfficeInterop;
 using Microsoft.Office.Core;
@@ -35,7 +35,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
     public class PowerpointExporter
     {
         private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(PowerpointExporter));
-        private static readonly OfficeConfiguration _officeConfiguration = IniConfig.GetIniSection<OfficeConfiguration>();
+        private static readonly IOfficeConfiguration _officeConfiguration = IniConfigRegistry.GetSection<IOfficeConfiguration>();
 
         private Version _powerpointVersion;
 
@@ -236,7 +236,17 @@ namespace Greenshot.Plugin.Office.OfficeExport
                 powerPointApplication = DisposableCom.Create(new Application());
             }
 
-            InitializeVariables(powerPointApplication);
+            try
+            {
+                InitializeVariables(powerPointApplication);
+            }
+            catch (InvalidCastException ex)
+            {
+                LOG.Warn("PowerPoint COM object is unusable due to a type library error — treating PowerPoint as unavailable.", ex);
+                powerPointApplication.Dispose();
+                return null;
+            }
+
             return powerPointApplication;
         }
 
@@ -259,7 +269,16 @@ namespace Greenshot.Plugin.Office.OfficeExport
 
             if (powerPointApplication?.ComObject != null)
             {
-                InitializeVariables(powerPointApplication);
+                try
+                {
+                    InitializeVariables(powerPointApplication);
+                }
+                catch (InvalidCastException ex)
+                {
+                    LOG.Warn("PowerPoint COM object is unusable due to a type library error — treating PowerPoint as unavailable.", ex);
+                    powerPointApplication.Dispose();
+                    return null;
+                }
             }
 
             return powerPointApplication;
@@ -323,10 +342,11 @@ namespace Greenshot.Plugin.Office.OfficeExport
                     _powerpointVersion = new Version((int) OfficeVersions.Office97, 0, 0, 0);
                 }
             }
-            catch (InvalidCastException ex)
+            catch (InvalidCastException)
             {
-                LOG.Warn("Failed to get PowerPoint version via COM (possible type library mismatch), assuming minimum.", ex);
-                _powerpointVersion = new Version((int) OfficeVersions.Office97, 0, 0, 0);
+                // TYPE_E_CANTLOADLIBRARY: the COM object is entirely unusable. Re-throw so callers
+                // can treat PowerPoint as unavailable rather than returning a broken COM object.
+                throw;
             }
         }
 

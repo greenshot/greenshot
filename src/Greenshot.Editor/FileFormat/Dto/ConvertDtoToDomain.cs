@@ -333,7 +333,7 @@ public static class ConvertDtoToDomain
         var domain = new CursorContainer(parentSurface);
         domain.Cursor = new CapturedCursor
         {
-            Size = new NativeSize(dto.Width, dto.Height),
+            Size = new NativeSize(dto.CursorWidth, dto.CursorHeight),
             HotSpot = new NativePoint(dto.HotspotX, dto.HotspotY),
             ColorLayer = (Bitmap) ImageIO.ByteArrayToImage(dto.ColorLayer),
             MaskLayer = (Bitmap) ImageIO.ByteArrayToImage(dto.MaskLayer)

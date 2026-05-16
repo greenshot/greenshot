@@ -19,8 +19,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 using System;
+using Dapplo.Ini;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
+using Greenshot.Editor.Configuration;
 using Greenshot.Editor.Drawing;
 using Greenshot.Test.Fixtures.Collections;
 
@@ -73,6 +75,15 @@ public class SimpleServiceProviderFixture : IDisposable
     /// </summary>
     public SimpleServiceProviderFixture()
     {
+        if (!IniConfigRegistry.TryGet("greenshot.ini", out _))
+        {
+            IniConfigRegistry.ForFile("greenshot.ini")
+                .AddAppDataPath("Greenshot")
+                .RegisterSection<ICoreConfiguration>(new CoreConfigurationImpl())
+                .RegisterSection<IEditorConfiguration>(new EditorConfigurationImpl())
+                .Create();
+        }
+
         SimpleServiceProvider.Current.AddService<Func<ISurface>>(() => new Surface());
     }
 

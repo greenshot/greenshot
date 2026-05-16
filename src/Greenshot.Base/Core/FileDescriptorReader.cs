@@ -45,13 +45,33 @@ namespace Greenshot.Base.Core
             }
 
             var reader = new BinaryReader(fileDescriptorStream);
-            var count = reader.ReadUInt32();
+            uint count = 0;
+            try
+            {
+                count = reader.ReadUInt32();
+            }
+            catch
+            {
+                // Ignoring issues with reading the count
+            }
+
             while (count > 0)
             {
-                var descriptor = new FileDescriptor(reader);
+                FileDescriptor descriptor = null;
 
-                yield return descriptor;
-
+                try
+                {
+                    descriptor = new FileDescriptor(reader);
+                }
+                catch (IOException)
+                {
+                    // Ignoring issues with reading the count, assuming a malformed stream.
+                    break;
+                }
+                if (descriptor != null)
+                {
+                    yield return descriptor;
+                }
                 count--;
             }
         }
@@ -64,13 +84,32 @@ namespace Greenshot.Base.Core
             }
 
             var reader = new BinaryReader(fileDescriptorStream);
-            var count = reader.ReadUInt32();
+            uint count = 0;
+            try
+            {
+                count = reader.ReadUInt32();
+            }
+            catch
+            {
+                // Ignoring issues with reading the count
+            }
             while (count > 0)
             {
-                FileDescriptor descriptor = new FileDescriptor(reader);
+                FileDescriptor descriptor = null;
 
-                yield return descriptor.FileName;
-
+                try
+                {
+                    descriptor = new FileDescriptor(reader);
+                }
+                catch (IOException)
+                {
+                    // Ignoring issues with reading the count, assuming a malformed stream.
+                    break;
+                }
+                if (descriptor != null)
+                {
+                    yield return descriptor.FileName;
+                }
                 count--;
             }
         }

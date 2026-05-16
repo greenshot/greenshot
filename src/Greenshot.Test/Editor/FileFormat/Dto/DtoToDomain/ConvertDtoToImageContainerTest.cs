@@ -80,20 +80,12 @@ public class ConvertDtoToImageContainerTest
     }
 
     /// <summary>
-    /// Test with shadow, the <see cref="DropShadowEffect"/> recalculates the size and position
+    /// Test with shadow, the <see cref="DropShadowEffect"/> no longer recalculates the size and position during deserialization
     /// </summary>
     [Fact]
     public void ConvertDtoToDomain_ImageContainerDto_with_shadow_Returns_ImageContainer_with_shadow()
     {
         // Arrange
-        var dropShadowImpact = new
-        {
-            AdditionalWidth = 14,
-            AdditionalHeight = 14,
-            OffsetTop = 1,
-            OffsetLeft = 1
-        };
-
         var image = new Bitmap(100, 100); // Create a sample image
         byte[] imageData;
         using (var memoryStream = new MemoryStream())
@@ -133,10 +125,10 @@ public class ConvertDtoToImageContainerTest
         Assert.IsType<bool>(shadowField.Value);
         Assert.True((bool)shadowField.Value); // Ensure the shadow flag is true
 
-        Assert.Equal(dto.Left + dropShadowImpact.OffsetLeft, result.Left); 
-        Assert.Equal(dto.Top + dropShadowImpact.OffsetTop, result.Top); 
-        Assert.Equal(100 + dropShadowImpact.AdditionalWidth, result.Width); 
-        Assert.Equal(100 + dropShadowImpact.AdditionalHeight, result.Height); 
+        Assert.Equal(dto.Left, result.Left); 
+        Assert.Equal(dto.Top, result.Top); 
+        Assert.Equal(dto.Width, result.Width); 
+        Assert.Equal(dto.Height, result.Height); 
         Assert.NotNull(result.Image);
         Assert.Equal(image.Width, result.Image.Width);
         Assert.Equal(image.Height, result.Image.Height);

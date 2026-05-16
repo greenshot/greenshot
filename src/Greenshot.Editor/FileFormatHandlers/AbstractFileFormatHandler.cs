@@ -62,6 +62,7 @@ namespace Greenshot.Editor.FileFormatHandlers
                 {
                     Image = bitmap
                 };
+                imageContainer.ResetToDefaultSize();
                 yield return imageContainer;
             }
         }

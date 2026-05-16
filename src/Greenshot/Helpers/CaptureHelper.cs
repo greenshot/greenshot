@@ -39,7 +39,7 @@ using Greenshot.Base;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Configuration;
@@ -60,7 +60,7 @@ namespace Greenshot.Helpers
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(CaptureHelper));
 
-        private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
+        private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
         
         private List<WindowDetails> _windows = new();
         private WindowDetails _selectedCaptureWindow;
@@ -95,7 +95,9 @@ namespace Greenshot.Helpers
             }
 
             // Unfortunately we can't dispose the capture, this might still be used somewhere else.
-            _windows = null;
+            // Note: _windows is intentionally NOT nulled here. RetrieveWindowDetails runs on a background
+            // thread and uses _windows as the lock target; nulling it before the thread exits would cause
+            // Monitor.Enter(null) → ArgumentNullException. The Join() in MakeCapture handles thread lifetime.
             _selectedCaptureWindow = null;
             _capture = null;
             // Empty working set after capturing
@@ -268,6 +270,12 @@ namespace Greenshot.Helpers
                 var notifyIcon = SimpleServiceProvider.Current.GetInstance<NotifyIcon>();
                 notifyIcon.Visible = false;
                 notifyIcon.Visible = true;
+            }
+
+            // When beta tester mode is enabled, use Windows Graphics Capture for screen capture
+            if (CoreConfig.IsBetaTester)
+            {
+                CaptureHandler.CaptureScreenRectangle = WindowsGraphicsCaptureInterop.CaptureRectangle;
             }
 
             Log.Debug($"Capturing with mode {_captureMode} and using Cursor {_captureMouseCursor}");

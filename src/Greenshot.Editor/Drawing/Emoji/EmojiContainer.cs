@@ -24,6 +24,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Windows.Forms;
 using System.Windows.Forms.Integration;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Controls.Emoji;
@@ -55,11 +56,13 @@ namespace Greenshot.Editor.Drawing.Emoji
             }
         }
 
-        public EmojiContainer(Surface parent, string emoji, int size = 64) : base(parent)
+        public override NativeSize DefaultSize => new(64, 64);
+
+        public EmojiContainer(Surface parent, string emoji = null, int? size = null) : base(parent)
         {
-            Emoji = emoji;
-            Width = size;
-            Height = size;
+            Emoji = emoji ?? EditorConfig.RecentEmoji;
+            Width = size ?? DefaultSize.Width;
+            Height = size ?? DefaultSize.Height;
             Init();
         }
 
@@ -98,6 +101,7 @@ namespace Greenshot.Editor.Drawing.Emoji
             _emojiPicker = new EmojiPicker();
             _emojiPicker.Picked += (_, args) =>
             {
+                EditorConfig.RecentEmoji = args.Emoji;
                 _currentContainer.Emoji = args.Emoji;
                 _currentContainer.Invalidate();
             };
@@ -135,7 +139,21 @@ namespace Greenshot.Editor.Drawing.Emoji
             base.OnDeserialized();
             _justCreated = false;
         }
+        public override bool HandleMouseDown(int mouseX, int mouseY)
+        {
+            return base.HandleMouseDown(mouseX - (Width / 2), mouseY - (Height / 2));
+        }
 
+        public override bool HandleMouseMove(int x, int y)
+        {
+            Invalidate();
+            Left = x - (Width / 2);
+            Top = y - (Height / 2);
+            Invalidate();
+            return true;
+        }
+
+        /// <summary> Handle the state of the Emoji Picker </summary>
 
         /// <summary>
         /// Handle the state of the Emoji Picker

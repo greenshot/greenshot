@@ -9,6 +9,7 @@
 Greenshot vous est fourni SANS AUCUNE GARANTIE. C'est un logiciel gratuit que vous êtes libres de redistribuer sous certaines conditions.
 Détails de la GNU General Public License :</resource>
 		<resource name="about_title">À propos de Greenshot</resource>
+		<resource name="about_translation"><!-- affiché dans la boîte de dialogue À propos, utiliser pour ajouter des crédits ou des informations liées à la traduction --></resource>
 		<resource name="application_title">Greenshot - l'utilitaire révolutionnaire de capture d'écran</resource>
 		<resource name="bugreport_cancel">Fermer</resource>
 		<resource name="bugreport_info">Désolé, une erreur inattendue s'est produite.
@@ -51,7 +52,7 @@ De plus, nous apprécierions beaucoup que vous preniez la peine de vérifier si 
 		<resource name="contextmenu_capturefullscreen_top">haut</resource>
 		<resource name="contextmenu_capturelastregion">Capturer la dernière région</resource>
 		<resource name="contextmenu_capturewindow">Capturer la fenêtre active</resource>
-		<resource name="contextmenu_capturewindowfromlist">Capturer une fenêtre à partir la liste suivante</resource>
+		<resource name="contextmenu_capturewindowfromlist">Capturer une fenêtre à partir de la liste suivante</resource>
 		<resource name="contextmenu_donate">Soutenez Greenshot</resource>
 		<resource name="contextmenu_exit">Quitter</resource>
 		<resource name="contextmenu_help">Aide</resource>
@@ -75,6 +76,7 @@ De plus, nous apprécierions beaucoup que vous preniez la peine de vérifier si 
 		<resource name="editor_arrowheads_none">Aucun</resource>
 		<resource name="editor_arrowheads_start">Point d'origine</resource>
 		<resource name="editor_autocrop">Cadrage automatique</resource>
+		<resource name="editor_autocrop_not_possible">Cadrage automatique impossible</resource>
 		<resource name="editor_backcolor">Couleur de remplissage</resource>
 		<resource name="editor_blur_radius">Rayon du floutage</resource>
 		<resource name="editor_bold">Gras</resource>
@@ -92,7 +94,10 @@ De plus, nous apprécierions beaucoup que vous preniez la peine de vérifier si 
 		<resource name="editor_copytoclipboard">Copier</resource>
 		<resource name="editor_counter">Ajouter un compteur</resource>
 		<resource name="editor_crop">Recadrer (C)</resource>
+		<resource name="editor_crop_mode">Mode de recadrage</resource>
 		<resource name="editor_cropmode_default">Recadrer</resource>
+		<resource name="editor_cropmode_vertical">Recadrer verticalement</resource>
+		<resource name="editor_cropmode_horizontal">Recadrer horizontalement</resource>
 		<resource name="editor_cropmode_auto">Cadrage automatique</resource>
 		<resource name="editor_cursortool">Outil de sélection (ESC)</resource>
 		<resource name="editor_cuttoclipboard">Couper</resource>
@@ -108,7 +113,7 @@ De plus, nous apprécierions beaucoup que vous preniez la peine de vérifier si 
 		<resource name="editor_drawtextbox">Ajouter une boîte de texte (T)</resource>
 		<resource name="editor_dropshadow_darkness">Opacité de l'ombre</resource>
 		<resource name="editor_dropshadow_offset">Décalage</resource>
-		<resource name="editor_dropshadow_settings">Paramètrage de l'ombre</resource>
+		<resource name="editor_dropshadow_settings">Paramétrage de l'ombre</resource>
 		<resource name="editor_dropshadow_thickness">Épaisseur de l'ombre</resource>
 		<resource name="editor_duplicate">Dupliquer l'élément sélectionné</resource>
 		<resource name="editor_edit">Édition</resource>
@@ -142,6 +147,7 @@ De plus, nous apprécierions beaucoup que vous preniez la peine de vérifier si 
 		<resource name="editor_obfuscate_text_regex">Utiliser l'expression régulière</resource>
 		<resource name="editor_obfuscate_text_case_sensitive">Sensible à la casse</resource>
 		<resource name="editor_obfuscate_text_auto_search">Recherche automatique</resource>
+		<resource name="editor_obfuscate_text_advanced">Paramètres avancés</resource>
 		<resource name="editor_obfuscate_text_search_scope">Rechercher dans :</resource>
 		<resource name="editor_obfuscate_text_scope_words">Mots</resource>
 		<resource name="editor_obfuscate_text_scope_lines">Lignes</resource>
@@ -179,14 +185,14 @@ De plus, nous apprécierions beaucoup que vous preniez la peine de vérifier si 
 		<resource name="editor_speechbubble">Ajouter une bulle de texte</resource>
 		<resource name="editor_storedtoclipboard">L'image a été placée dans le presse-papier.</resource>
 		<resource name="editor_thickness">Épaisseur de ligne</resource>
-		<resource name="editor_title">Greenshot Éditeur d'Image</resource>
+		<resource name="editor_title">Éditeur d'image Greenshot</resource>
 		<resource name="editor_torn_edge">Bordures déchirées</resource>
 		<resource name="editor_tornedge_all">Déchirer tous les côtés</resource>
 		<resource name="editor_tornedge_bottom">Appliquer une déchirure en bas</resource>
 		<resource name="editor_tornedge_horizontaltoothrange">Horizontal : Intervalle des dents</resource>
 		<resource name="editor_tornedge_left">Appliquer une déchirure à gauche</resource>
 		<resource name="editor_tornedge_right">Appliquer une déchirure à droite</resource>
-		<resource name="editor_tornedge_settings">Paramètrage de la bordure</resource>
+		<resource name="editor_tornedge_settings">Paramétrage de la bordure</resource>
 		<resource name="editor_tornedge_shadow">Générer une ombre</resource>
 		<resource name="editor_tornedge_toothsize">Taille des dents</resource>
 		<resource name="editor_tornedge_top">Appliquer une déchirure en haut</resource>
@@ -240,21 +246,22 @@ Veuillez vérifier l'accessibilité du répertoire de stockage.</resource>
 		<resource name="qualitydialog_dontaskagain">Enregistrer en tant que qualité par défaut et ne plus le demander</resource>
 		<resource name="qualitydialog_title">Greenshot - Qualité</resource>
 		<resource name="quicksettings_destination_file">Enregistrer directement (utilise les préférences de sortie)</resource>
-		<resource name="settings_alwaysshowprintoptionsdialog">Afficher systématiquement la boite de dialogue d'impression.</resource>
+		<resource name="settings_alwaysshowprintoptionsdialog">Afficher systématiquement la boîte de dialogue d'impression.</resource>
 		<resource name="settings_alwaysshowqualitydialog">Afficher la boîte de dialogue de qualité à chaque enregistrement</resource>
 		<resource name="settings_applicationsettings">Paramètres de l'application</resource>
 		<resource name="settings_autostartshortcut">Lancer Greenshot au démarrage de Windows</resource>
 		<resource name="settings_capture">Capture</resource>
 		<resource name="settings_capture_mousepointer">Capturer le pointeur de la souris</resource>
 		<resource name="settings_capture_windows_interactive">Utiliser le mode interactif de capture de fenêtre</resource>
-		<resource name="settings_checkperiod">Intervalle de vérification des m.à.j en jours (0=pas de vérification)</resource>
+		<resource name="settings_checkperiod">Intervalle de vérification des MÀJ en jours (0=pas de vérification)</resource>
 		<resource name="settings_configureplugin">Configurer</resource>
 		<resource name="settings_copypathtoclipboard">Copier le chemin vers le fichier dans le presse-papier à chaque sauvegarde</resource>
 		<resource name="settings_destination">Destination de la capture d'écran</resource>
 		<resource name="settings_destination_clipboard">Vers le presse-papier</resource>
 		<resource name="settings_destination_editor">Ouvrir dans l'éditeur d'image</resource>
+		<resource name="settings_destination_editor_add">Ajouter à l'éditeur</resource>
 		<resource name="settings_destination_email">Courriel</resource>
-		<resource name="settings_destination_file">Enregistrez directement (en utilisant les paramètres ci-dessous)</resource>
+		<resource name="settings_destination_file">Enregistrer directement (en utilisant les paramètres ci-dessous)</resource>
 		<resource name="settings_destination_fileas">Enregistrer sous (afficher la boîte de dialogue)</resource>
 		<resource name="settings_destination_picker">Demander la destination à chaque fois</resource>
 		<resource name="settings_destination_printer">Vers l'imprimante</resource>
@@ -299,12 +306,16 @@ en cours, par exemple 11_58_32 (plus l'extension définie dans les paramètres)<
 		<resource name="settings_showflashlight">Faire flasher l'écran</resource>
 		<resource name="settings_shownotify">Afficher les notifications</resource>
 		<resource name="settings_storagelocation">Rép. de sauvegarde</resource>
+		<resource name="settings_storagelocation_folder_error">Impossible d'ouvrir le sélecteur de dossiers.
+
+L'emplacement de stockage a été défini sur votre dossier Documents. Vous pouvez saisir un autre chemin directement dans le champ si nécessaire.</resource>
+		<resource name="settings_storagelocation_folder_error_title">Emplacement de stockage</resource>
 		<resource name="settings_title">Paramètres</resource>
 		<resource name="settings_tooltip_filenamepattern">Modèle utilisé pour générer les noms de fichier lors de la sauvegarde des captures d'écran</resource>
 		<resource name="settings_tooltip_language">Langue de l'interface utilisateur de Greenshot</resource>
 		<resource name="settings_tooltip_primaryimageformat">Format d'image par défaut</resource>
 		<resource name="settings_tooltip_registerhotkeys">Détermine si les raccourcis clavier Impr. écran, Ctrl+Impr. écran, Alt+Impr. écran sont réservés à Greenshot lorsqu'il est en cours d'exécution.</resource>
-		<resource name="settings_tooltip_storagelocation">Répertoire où sont stockés vos captures d'écran par défaut. (Laisser vide pour sauvegarder sur le bureau)</resource>
+		<resource name="settings_tooltip_storagelocation">Répertoire où sont stockées vos captures d'écran par défaut. (Laisser vide pour sauvegarder sur le bureau)</resource>
 		<resource name="settings_usedefaultproxy">Utiliser le proxy système par défaut</resource>
 		<resource name="settings_visualization">Effets</resource>
 		<resource name="settings_waittime">Millisecondes d'attente avant la capture</resource>

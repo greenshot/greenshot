@@ -28,7 +28,7 @@ using System.Linq;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Drawing.Adorners;
@@ -51,7 +51,7 @@ namespace Greenshot.Editor.Drawing
     public abstract class DrawableContainer : AbstractFieldHolderWithChildren, IDrawableContainer
     {
         private static readonly ILog LOG = LogManager.GetLogger(typeof(DrawableContainer));
-        protected static readonly EditorConfiguration EditorConfig = IniConfig.GetIniSection<EditorConfiguration>();
+        protected static readonly IEditorConfiguration EditorConfig = IniConfigRegistry.GetSection<IEditorConfiguration>();
         private const int M11 = 0;
         private const int M22 = 3;
 
@@ -388,6 +388,32 @@ namespace Greenshot.Editor.Drawing
 
         public abstract void Draw(Graphics graphics, RenderMode renderMode);
 
+        /// <summary>
+		/// A loop method (for now loop method) which calls the specified action, to draw a shadow
+		/// </summary>
+		/// <param name="lineThickness">int</param>
+		/// <param name="drawShadowStepAction">Action which acceps the alpha value, current step and a brush</param>
+		protected static void DrawShadow(int lineThickness, Action<int, int, Pen, Brush> drawShadowStepAction)
+        {
+            double alpha = 100;
+            double stepsCount = 5;
+            double alphaStep = alpha / stepsCount;
+            int currentStep = 0;
+            using (var brush = new SolidBrush(Color.Black))
+            using (var pen = new Pen(Color.Black, lineThickness))
+            {
+                while (alpha >= 1.0)
+                {
+                    var alphaInt = (int)Math.Round(alpha);
+                    pen.Color = Color.FromArgb(alphaInt, Color.Black);
+                    brush.Color = pen.Color;
+                    drawShadowStepAction(alphaInt, currentStep, pen, brush);
+                    alpha -= alphaStep;
+                    currentStep++;
+                }
+            }
+        }
+
         public virtual void DrawContent(Graphics graphics, Bitmap bmp, RenderMode renderMode, NativeRect clipRectangle)
         {
             if (Children.Count > 0)
@@ -667,6 +693,15 @@ namespace Greenshot.Editor.Drawing
         public virtual bool HasDefaultSize => false;
 
         public virtual NativeSize DefaultSize => throw new NotSupportedException("Object doesn't have a default size");
+
+        public virtual void ResetToDefaultSize()
+        {
+            if (!HasDefaultSize)
+            {
+                throw new NotSupportedException("Object doesn't have a default size");
+            }
+            Size = DefaultSize;
+        }
 
         /// <summary>
         /// Allows to override the initializing of the fields, so we can actually have our own defaults

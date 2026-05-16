@@ -24,7 +24,7 @@ using System.Collections.Generic;
 using System.IO;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.OAuth;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Newtonsoft.Json;
@@ -37,7 +37,7 @@ namespace Greenshot.Plugin.Dropbox;
 public class DropboxUtils
 {
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(DropboxUtils));
-    private static readonly DropboxConfiguration DropboxConfig = IniConfig.GetIniSection<DropboxConfiguration>();
+    private static readonly IDropboxConfiguration DropboxConfig = IniConfigRegistry.GetSection<IDropboxConfiguration>();
 
     private DropboxUtils()
     {
@@ -105,8 +105,6 @@ public class DropboxUtils
             DropboxConfig.RefreshToken = oauth2Settings.RefreshToken;
             DropboxConfig.AccessToken = oauth2Settings.AccessToken;
             DropboxConfig.AccessTokenExpires = oauth2Settings.AccessTokenExpires;
-            DropboxConfig.IsDirty = true;
-            IniConfig.Save();
         }
     }
 }
