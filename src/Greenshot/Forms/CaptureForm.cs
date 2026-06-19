@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -40,6 +40,7 @@ using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Ocr;
 using Dapplo.Windows.Icons;
+using Greenshot.Base.Interfaces.Plugin;
 
 namespace Greenshot.Forms
 {
@@ -101,6 +102,8 @@ namespace Greenshot.Forms
         private RectangleAnimator _zoomAnimator;
         private readonly bool _isZoomerTransparent = Conf.ZoomerOpacity < 1;
         private bool _isCtrlPressed;
+        public List<CaptureFormHotspot> Hotspots { get; } = new List<CaptureFormHotspot>();
+        private CaptureFormHotspot _lastHoveredHotspot;
         private bool _showDebugInfo;
 
         /// <summary>
@@ -208,6 +211,31 @@ namespace Greenshot.Forms
 
             // Make sure the size is set correctly
             SetSize();
+
+            // Transform detected features into hotspots
+            try
+            {
+                var features = _capture.CaptureDetails.Features;
+                var transformers = SimpleServiceProvider.Current.GetAllInstances<IFeatureHotspotTransformer>();
+                foreach (var feature in features)
+                {
+                    foreach (var transformer in transformers)
+                    {
+                        if (transformer.CanTransform(feature))
+                        {
+                            var hotspot = transformer.Transform(feature, this);
+                            if (hotspot != null)
+                            {
+                                Hotspots.Add(hotspot);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Error transforming capture features to hotspots", ex);
+            }
 
             Resize += CaptureForm_Resize;
         }
@@ -416,6 +444,17 @@ namespace Greenshot.Forms
         {
             if (e.Button == MouseButtons.Left)
             {
+                if (Hotspots != null && Hotspots.Count > 0)
+                {
+                    foreach (var hotspot in Hotspots)
+                    {
+                        if (hotspot.Bounds.Contains(_mouseMovePos))
+                        {
+                            hotspot.ClickAction?.Invoke(e);
+                            return;
+                        }
+                    }
+                }
                 HandleMouseDown();
             }
         }
@@ -549,6 +588,34 @@ namespace Greenshot.Forms
             // Make sure the mouse coordinates are fixed, when pressing shift
             var mouseMovePos = FixMouseCoordinates(User32Api.GetCursorLocation());
             _mouseMovePos = WindowCapture.GetLocationRelativeToScreenBounds(mouseMovePos);
+
+            CaptureFormHotspot currentHovered = null;
+            if (Hotspots != null && Hotspots.Count > 0)
+            {
+                foreach (var hotspot in Hotspots)
+                {
+                    if (hotspot.Bounds.Contains(_mouseMovePos))
+                    {
+                        currentHovered = hotspot;
+                        break;
+                    }
+                }
+            }
+
+            if (currentHovered != _lastHoveredHotspot)
+            {
+                if (_lastHoveredHotspot != null)
+                {
+                    Invalidate(_lastHoveredHotspot.Bounds);
+                }
+                if (currentHovered != null)
+                {
+                    Invalidate(currentHovered.Bounds);
+                }
+                _lastHoveredHotspot = currentHovered;
+            }
+
+            this.Cursor = (currentHovered != null) ? Cursors.Hand : Cursors.Cross;
         }
 
         /// <summary>
@@ -980,6 +1047,23 @@ namespace Greenshot.Forms
             NativeRect clipRectangle = e.ClipRectangle;
             //graphics.BitBlt((Bitmap)buffer, Point.Empty);
             graphics.DrawImageUnscaled(_capture.Image, Point.Empty);
+
+            // Draw custom hotspots from plugins (e.g. QR codes)
+            if (Hotspots != null && Hotspots.Count > 0)
+            {
+                using var pen = new Pen(Color.FromArgb(0, 120, 215), 2) { DashStyle = DashStyle.Dash };
+                var hoverColor = Color.FromArgb(40, 0, 120, 215);
+                using var hoverBrush = new SolidBrush(hoverColor);
+                
+                foreach (var hotspot in Hotspots)
+                {
+                    graphics.DrawRectangle(pen, hotspot.Bounds);
+                    if (hotspot.Bounds.Contains(_mouseMovePos))
+                    {
+                        graphics.FillRectangle(hoverBrush, hotspot.Bounds);
+                    }
+                }
+            }
 
             var ocrInfo = _capture.CaptureDetails.OcrInformation;
             if (ocrInfo != null && _captureMode == CaptureMode.Text)

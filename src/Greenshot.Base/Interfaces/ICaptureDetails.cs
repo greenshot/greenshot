@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -22,6 +22,7 @@
 using System;
 using System.Collections.Generic;
 using Greenshot.Base.Interfaces.Ocr;
+using Greenshot.Base.Interfaces.Plugin;
 
 namespace Greenshot.Base.Interfaces
 {
@@ -77,5 +78,10 @@ namespace Greenshot.Base.Interfaces
         /// Store the OCR information for this capture
         /// </summary>
         OcrInformation OcrInformation { get; set; }
+
+        /// <summary>
+        /// Store the detected features for this capture
+        /// </summary>
+        List<IDetectedFeature> Features { get; }
     }
 }

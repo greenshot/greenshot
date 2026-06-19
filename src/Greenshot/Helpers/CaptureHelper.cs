@@ -325,6 +325,7 @@ namespace Greenshot.Helpers
                     _capture = WindowCapture.CaptureScreen(_capture);
                     _capture.CaptureDetails.AddMetaData("source", "Screen");
                     SetDpi();
+                    ProcessCapture();
                     CaptureWithFeedback();
                     break;
                 case CaptureMode.ActiveWindow:
@@ -528,6 +529,7 @@ namespace Greenshot.Helpers
                         _capture = WindowCapture.CaptureScreen(_capture);
                         _capture.CaptureDetails.AddMetaData("source", "screen");
                         SetDpi();
+                        ProcessCapture();
                         CaptureWithFeedback();
                     }
                     else
@@ -659,6 +661,17 @@ namespace Greenshot.Helpers
             }
         }
 
+        private void ProcessCapture()
+        {
+            // Let the processors do their job
+            foreach (var processor in SimpleServiceProvider.Current.GetAllInstances<IProcessor>())
+            {
+                if (!processor.isActive) continue;
+                Log.InfoFormat("Calling processor {0}", processor.Description);
+                processor.ProcessCapture(_capture);
+            }
+        }
+
         private void HandleCapture()
         {
             // Flag to see if the image was "exported" so the FileEditor doesn't
@@ -745,13 +758,7 @@ namespace Greenshot.Helpers
                 surface.SurfaceMessage += SurfaceMessageReceived;
             }
 
-            // Let the processors do their job
-            foreach (var processor in SimpleServiceProvider.Current.GetAllInstances<IProcessor>())
-            {
-                if (!processor.isActive) continue;
-                Log.InfoFormat("Calling processor {0}", processor.Description);
-                processor.ProcessCapture(surface, _capture.CaptureDetails);
-            }
+            ProcessCapture();
 
             // As the surfaces copies the reference to the image, make sure the image is not being disposed (a trick to save memory)
             _capture.Image = null;

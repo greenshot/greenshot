@@ -26,15 +26,11 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Windows.Forms;
-using Dapplo.Windows.Common.Enums;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Dpi;
 using Dapplo.Windows.Kernel32;
-using Dapplo.Windows.Messages;
-using Dapplo.Windows.Messages.Enumerations;
 using Dapplo.Windows.User32;
 using Dapplo.Windows.User32.Structs;
 using Greenshot.Base;
@@ -320,6 +316,19 @@ namespace Greenshot.Editor.Forms
                 btnCursor, btnRect, btnEllipse, btnText, btnLine, btnArrow, btnFreehand, btnHighlight, btnObfuscate, btnCrop, btnStepLabel, btnSpeechBubble, btnEmoji
             };
             //toolbarDropDownButtons = new ToolStripDropDownButton[]{btnBlur, btnPixeliate, btnTextHighlighter, btnAreaHighlighter, btnMagnifier};
+
+            try
+            {
+                var editorPlugins = SimpleServiceProvider.Current.GetAllInstances<IEditorPlugin>();
+                foreach (var plugin in editorPlugins)
+                {
+                    plugin.InitializeEditor(this, pluginToolStripMenuItem, Surface);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Error initializing editor plugins", ex);
+            }
 
             pluginToolStripMenuItem.Visible = pluginToolStripMenuItem.DropDownItems.Count > 0;
 

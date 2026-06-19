@@ -23,6 +23,7 @@ using System;
 using System.Collections.Generic;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Ocr;
+using Greenshot.Base.Interfaces.Plugin;
 
 namespace Greenshot.Base.Core
 {
@@ -49,6 +50,9 @@ namespace Greenshot.Base.Core
 
         /// <inheritdoc />
         public OcrInformation OcrInformation { get; set; }
+
+        /// <inheritdoc />
+        public List<IDetectedFeature> Features { get; } = new List<IDetectedFeature>();
 
         /// <inheritdoc />
         public Dictionary<string, string> MetaData { get; } = new Dictionary<string, string>();

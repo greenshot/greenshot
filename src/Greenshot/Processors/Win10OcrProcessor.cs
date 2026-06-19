@@ -38,19 +38,19 @@ namespace Greenshot.Processors
 
         public override string Description => "Windows OCR";
 
-        public override bool ProcessCapture(ISurface surface, ICaptureDetails captureDetails)
+        public override bool ProcessCapture(ICapture capture)
         {
             if (!Win10Configuration.AlwaysRunOCROnCapture)
             {
                 return false;
             }
 
-            if (surface == null)
+            if (capture == null)
             {
                 return false;
             }
 
-            if (captureDetails == null || captureDetails.OcrInformation != null)
+            if (capture.CaptureDetails == null || capture.CaptureDetails.OcrInformation != null)
             {
                 return false;
             }
@@ -62,14 +62,14 @@ namespace Greenshot.Processors
                 return false;
             }
 
-            var ocrResult = Task.Run(async () => await ocrProvider.DoOcrAsync(surface).ConfigureAwait(false)).Result;
+            var ocrResult = Task.Run(async () => await ocrProvider.DoOcrAsync(capture.Image).ConfigureAwait(false)).Result;
 
             if (!ocrResult.HasContent)
             {
                 return false;
             }
 
-            captureDetails.OcrInformation = ocrResult;
+            capture.CaptureDetails.OcrInformation = ocrResult;
 
             return true;
         }

@@ -63,6 +63,6 @@ namespace Greenshot.Base.Core
 
         public virtual bool isActive => true;
 
-        public abstract bool ProcessCapture(ISurface surface, ICaptureDetails captureDetails);
+        public abstract bool ProcessCapture(ICapture capture);
     }
 }
