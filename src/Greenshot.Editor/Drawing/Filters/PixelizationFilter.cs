@@ -42,32 +42,56 @@ namespace Greenshot.Editor.Drawing.Filters
             AddField(GetType(), FieldType.PIXEL_SIZE, 5);
         }
 
-        private class CryptoRandomBuffer
+        private class CryptoRandomBuffer : IDisposable
         {
+            private readonly RandomNumberGenerator _rng;
             private readonly byte[] _buffer;
             private int _index;
 
             public CryptoRandomBuffer(int size)
             {
-                _buffer = new byte[size];
-                using (var rng = new RNGCryptoServiceProvider())
-                {
-                    rng.GetBytes(_buffer);
-                }
+                // Ensure size is a multiple of 4
+                int alignedSize = ((size + 3) / 4) * 4;
+                _buffer = new byte[alignedSize];
+                _rng = RandomNumberGenerator.Create();
+                Refill();
+            }
+
+            private void Refill()
+            {
+                _rng.GetBytes(_buffer);
                 _index = 0;
+            }
+
+            private uint GetNextUInt32()
+            {
+                if (_index + 4 > _buffer.Length)
+                {
+                    Refill();
+                }
+                uint val = BitConverter.ToUInt32(_buffer, _index);
+                _index += 4;
+                return val;
             }
 
             public int GetNextInt(int min, int max)
             {
-                int range = max - min + 1;
+                uint range = (uint)(max - min + 1);
                 if (range <= 1) return min;
 
-                if (_index >= _buffer.Length)
+                uint limit = uint.MaxValue - (uint.MaxValue % range);
+                uint val;
+                do
                 {
-                    _index = 0;
-                }
-                byte val = _buffer[_index++];
-                return min + (val % range);
+                    val = GetNextUInt32();
+                } while (val >= limit);
+
+                return min + (int)(val % range);
+            }
+
+            public void Dispose()
+            {
+                _rng.Dispose();
             }
         }
 
@@ -99,8 +123,8 @@ namespace Greenshot.Editor.Drawing.Filters
             }
 
             // Secure randomized pixelation
-            // Create a small 4KB cryptographically secure random buffer (reusable via wrap-around)
-            CryptoRandomBuffer cryptoRandom = new CryptoRandomBuffer(4096);
+            // Create a small 4KB cryptographically secure random buffer
+            using CryptoRandomBuffer cryptoRandom = new CryptoRandomBuffer(4096);
 
             using IFastBitmap dest = FastBitmap.CreateCloneOf(applyBitmap, applyRect);
             using (IFastBitmap src = FastBitmap.Create(applyBitmap, applyRect))
@@ -171,29 +195,23 @@ namespace Greenshot.Editor.Drawing.Filters
 
                         for (int yy = yStart; yy < yEnd; yy++)
                         {
-                            if (yy >= src.Top && yy < src.Bottom)
+                            for (int xx = xStart; xx < xEnd; xx++)
                             {
-                                for (int xx = xStart; xx < xEnd; xx++)
+                                Color c = src.GetColorAt(xx, yy);
+                                if (!c.Equals(Color.Empty))
                                 {
-                                    if (xx >= src.Left && xx < src.Right)
-                                    {
-                                        Color c = src.GetColorAt(xx, yy);
-                                        if (!c.Equals(Color.Empty))
-                                        {
-                                            sumA += c.A;
-                                            sumR += c.R;
-                                            sumG += c.G;
-                                            sumB += c.B;
-                                            count++;
+                                    sumA += c.A;
+                                    sumR += c.R;
+                                    sumG += c.G;
+                                    sumB += c.B;
+                                    count++;
 
-                                            if (c.R < minR) minR = c.R;
-                                            if (c.R > maxR) maxR = c.R;
-                                            if (c.G < minG) minG = c.G;
-                                            if (c.G > maxG) maxG = c.G;
-                                            if (c.B < minB) minB = c.B;
-                                            if (c.B > maxB) maxB = c.B;
-                                        }
-                                    }
+                                    if (c.R < minR) minR = c.R;
+                                    if (c.R > maxR) maxR = c.R;
+                                    if (c.G < minG) minG = c.G;
+                                    if (c.G > maxG) maxG = c.G;
+                                    if (c.B < minB) minB = c.B;
+                                    if (c.B > maxB) maxB = c.B;
                                 }
                             }
                         }
@@ -225,23 +243,17 @@ namespace Greenshot.Editor.Drawing.Filters
 
                         for (int yy = yStart; yy < yEnd; yy++)
                         {
-                            if (yy >= src.Top && yy < src.Bottom)
+                            for (int xx = xStart; xx < xEnd; xx++)
                             {
-                                for (int xx = xStart; xx < xEnd; xx++)
-                                {
-                                    if (xx >= src.Left && xx < src.Right)
-                                    {
-                                        int pixelR = pixelNoiseRange > 0 ? cryptoRandom.GetNextInt(-pixelNoiseRange, pixelNoiseRange) : 0;
-                                        int pixelG = pixelNoiseRange > 0 ? cryptoRandom.GetNextInt(-pixelNoiseRange, pixelNoiseRange) : 0;
-                                        int pixelB = pixelNoiseRange > 0 ? cryptoRandom.GetNextInt(-pixelNoiseRange, pixelNoiseRange) : 0;
+                                int pixelR = pixelNoiseRange > 0 ? cryptoRandom.GetNextInt(-pixelNoiseRange, pixelNoiseRange) : 0;
+                                int pixelG = pixelNoiseRange > 0 ? cryptoRandom.GetNextInt(-pixelNoiseRange, pixelNoiseRange) : 0;
+                                int pixelB = pixelNoiseRange > 0 ? cryptoRandom.GetNextInt(-pixelNoiseRange, pixelNoiseRange) : 0;
 
-                                        byte r = ClampToByte(currentAvgColor.R + blockR + pixelR);
-                                        byte g = ClampToByte(currentAvgColor.G + blockG + pixelG);
-                                        byte b = ClampToByte(currentAvgColor.B + blockB + pixelB);
+                                byte r = ClampToByte(currentAvgColor.R + blockR + pixelR);
+                                byte g = ClampToByte(currentAvgColor.G + blockG + pixelG);
+                                byte b = ClampToByte(currentAvgColor.B + blockB + pixelB);
 
-                                        dest.SetColorAt(xx, yy, Color.FromArgb(currentAvgColor.A, r, g, b));
-                                    }
-                                }
+                                dest.SetColorAt(xx, yy, Color.FromArgb(currentAvgColor.A, r, g, b));
                             }
                         }
                     }
