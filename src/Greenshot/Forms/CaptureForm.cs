@@ -497,6 +497,9 @@ namespace Greenshot.Forms
         {
             if (e.Button == MouseButtons.Left)
             {
+                var mouseMovePos = FixMouseCoordinates(User32Api.GetCursorLocation());
+                _mouseMovePos = WindowCapture.GetLocationRelativeToScreenBounds(mouseMovePos);
+
                 if (Hotspots != null && Hotspots.Count > 0)
                 {
                     foreach (var hotspot in Hotspots)
