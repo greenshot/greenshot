@@ -53,10 +53,13 @@ public class ZxingCaptureProcessor : AbstractProcessor
             return false;
         }
 
-        // Optimization: Skip scanning if we have already scanned and stored features for this capture.
-        if (capture.CaptureDetails.Features.Any())
+        lock (capture.CaptureDetails.StartedProcessors)
         {
-            return false;
+            if (capture.CaptureDetails.StartedProcessors.Contains(Designation))
+            {
+                return false;
+            }
+            capture.CaptureDetails.StartedProcessors.Add(Designation);
         }
 
         if (capture.Image == null)
@@ -64,10 +67,10 @@ public class ZxingCaptureProcessor : AbstractProcessor
             return false;
         }
 
-        Image clonedImage;
+        Bitmap clonedBitmap;
         try
         {
-            clonedImage = (Image)capture.Image.Clone();
+            clonedBitmap = (Bitmap)capture.Image.Clone();
         }
         catch (Exception ex)
         {
@@ -80,25 +83,23 @@ public class ZxingCaptureProcessor : AbstractProcessor
 
         var task = Task.Run(() =>
         {
-            using (clonedImage)
+            using (clonedBitmap)
             {
                 try
                 {
-                    using (var bitmap = new Bitmap(clonedImage))
+                    var reader = new BarcodeReader
                     {
-                        var reader = new BarcodeReader
+                        AutoRotate = true,
+                        Options = new ZXing.Common.DecodingOptions
                         {
-                            AutoRotate = true,
-                            Options = new ZXing.Common.DecodingOptions
-                            {
-                                TryHarder = true,
-                                TryInverted = true,
-                                PossibleFormats = new List<BarcodeFormat> { BarcodeFormat.QR_CODE }
-                            }
-                        };
+                            TryHarder = true,
+                            TryInverted = true,
+                            PossibleFormats = new List<BarcodeFormat> { BarcodeFormat.QR_CODE }
+                        }
+                    };
 
-                        var results = reader.DecodeMultiple(bitmap);
-                        if (results != null)
+                    var results = reader.DecodeMultiple(clonedBitmap);
+                    if (results != null)
                         {
                             var detectedFeatures = new List<IDetectedFeature>();
                             foreach (var result in results)
@@ -149,7 +150,6 @@ public class ZxingCaptureProcessor : AbstractProcessor
                             }
                         }
                     }
-                }
                 catch (Exception ex)
                 {
                     Log.Error("Error scanning for QR codes during capture processing in background task", ex);

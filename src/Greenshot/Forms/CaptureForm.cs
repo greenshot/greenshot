@@ -227,32 +227,34 @@ namespace Greenshot.Forms
 
         private void RebuildFeatureHotspots()
         {
+            List<IDetectedFeature> featuresCopy;
             lock (_capture.CaptureDetails.Features)
             {
-                Hotspots.Clear();
-                try
+                featuresCopy = new List<IDetectedFeature>(_capture.CaptureDetails.Features);
+            }
+
+            Hotspots.Clear();
+            try
+            {
+                var transformers = SimpleServiceProvider.Current.GetAllInstances<IFeatureHotspotTransformer>();
+                foreach (var feature in featuresCopy)
                 {
-                    var features = _capture.CaptureDetails.Features;
-                    var transformers = SimpleServiceProvider.Current.GetAllInstances<IFeatureHotspotTransformer>();
-                    foreach (var feature in features)
+                    foreach (var transformer in transformers)
                     {
-                        foreach (var transformer in transformers)
+                        if (transformer.CanTransform(feature))
                         {
-                            if (transformer.CanTransform(feature))
+                            var hotspot = transformer.Transform(feature, this);
+                            if (hotspot != null)
                             {
-                                var hotspot = transformer.Transform(feature, this);
-                                if (hotspot != null)
-                                {
-                                    Hotspots.Add(hotspot);
-                                }
+                                Hotspots.Add(hotspot);
                             }
                         }
                     }
                 }
-                catch (Exception ex)
-                {
-                    Log.Error("Error transforming capture features to hotspots", ex);
-                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Error transforming capture features to hotspots", ex);
             }
         }
 
@@ -439,7 +441,12 @@ namespace Greenshot.Forms
                     break;
                  case Keys.T:
                     _captureMode = CaptureMode.Text;
-                    if (!_capture.CaptureDetails.Features.OfType<IOcrLineFeature>().Any())
+                    bool hasOcrLines;
+                    lock (_capture.CaptureDetails.Features)
+                    {
+                        hasOcrLines = _capture.CaptureDetails.Features.OfType<IOcrLineFeature>().Any();
+                    }
+                    if (!hasOcrLines)
                     {
                         if (_capture.CaptureDetails.ProcessingTask != null && !_capture.CaptureDetails.ProcessingTask.IsCompleted)
                         {
@@ -556,7 +563,11 @@ namespace Greenshot.Forms
             clickedLine = null;
             if (_captureMode != CaptureMode.Text) return false;
 
-            var lines = _capture.CaptureDetails.Features.OfType<IOcrLineFeature>();
+            List<IOcrLineFeature> lines;
+            lock (_capture.CaptureDetails.Features)
+            {
+                lines = _capture.CaptureDetails.Features.OfType<IOcrLineFeature>().ToList();
+            }
             foreach (var line in lines)
             {
                 if (line.Bounds.Contains(location))
@@ -839,7 +850,11 @@ namespace Greenshot.Forms
             // OCR
             if (_captureMode == CaptureMode.Text)
             {
-                var lines = _capture.CaptureDetails.Features.OfType<IOcrLineFeature>().ToList();
+                List<IOcrLineFeature> lines;
+                lock (_capture.CaptureDetails.Features)
+                {
+                    lines = _capture.CaptureDetails.Features.OfType<IOcrLineFeature>().ToList();
+                }
                 IOcrLineFeature newHoveredLine = null;
 
                 if (_mouseDown)
@@ -1104,7 +1119,11 @@ namespace Greenshot.Forms
                 }
             }
 
-            var ocrLines = _capture.CaptureDetails.Features.OfType<IOcrLineFeature>().ToList();
+            List<IOcrLineFeature> ocrLines;
+            lock (_capture.CaptureDetails.Features)
+            {
+                ocrLines = _capture.CaptureDetails.Features.OfType<IOcrLineFeature>().ToList();
+            }
             if (ocrLines.Any() && _captureMode == CaptureMode.Text)
             {
                 using var pen = new Pen(Color.Red);

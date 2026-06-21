@@ -615,7 +615,7 @@ namespace Greenshot.Plugin.Zxing
                     string formattedAmount = string.Empty;
                     if (double.TryParse(txtEpcAmount.Text, out double amt))
                     {
-                        formattedAmount = $"EUR{amt:F2}";
+                        formattedAmount = string.Format(System.Globalization.CultureInfo.InvariantCulture, "EUR{0:F2}", amt);
                     }
                     else if (!string.IsNullOrEmpty(txtEpcAmount.Text))
                     {

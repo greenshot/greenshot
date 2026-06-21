@@ -122,6 +122,9 @@ namespace Greenshot.Base.Core
         public System.Threading.Tasks.Task ProcessingTask { get; set; }
 
         /// <inheritdoc />
+        public System.Collections.Generic.HashSet<string> StartedProcessors { get; } = new System.Collections.Generic.HashSet<string>();
+
+        /// <inheritdoc />
         public event EventHandler FeaturesChanged;
 
         /// <summary>

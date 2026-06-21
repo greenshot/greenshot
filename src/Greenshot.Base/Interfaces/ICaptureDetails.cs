@@ -89,6 +89,11 @@ namespace Greenshot.Base.Interfaces
         System.Threading.Tasks.Task ProcessingTask { get; set; }
 
         /// <summary>
+        /// Keeps track of which processors have been started for this capture session.
+        /// </summary>
+        System.Collections.Generic.HashSet<string> StartedProcessors { get; }
+
+        /// <summary>
         /// Event fired when features have been updated.
         /// </summary>
         event EventHandler FeaturesChanged;

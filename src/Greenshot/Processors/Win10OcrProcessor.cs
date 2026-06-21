@@ -57,9 +57,13 @@ namespace Greenshot.Processors
                 return false;
             }
 
-            if (capture.CaptureDetails.Features.OfType<IOcrLineFeature>().Any())
+            lock (capture.CaptureDetails.StartedProcessors)
             {
-                return false;
+                if (capture.CaptureDetails.StartedProcessors.Contains(Designation))
+                {
+                    return false;
+                }
+                capture.CaptureDetails.StartedProcessors.Add(Designation);
             }
 
             var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>();

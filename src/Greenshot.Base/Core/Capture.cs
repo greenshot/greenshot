@@ -232,7 +232,7 @@ namespace Greenshot.Base.Core
             // Offset all detected features
             lock (CaptureDetails.Features)
             {
-                CaptureDetails.CropOffset = cropRectangle.Location;
+                CaptureDetails.CropOffset = CaptureDetails.CropOffset.Offset(cropRectangle.Location.X, cropRectangle.Location.Y);
                 foreach (var feature in CaptureDetails.Features)
                 {
                     feature.Offset(-cropRectangle.Location.X, -cropRectangle.Location.Y);
