@@ -154,6 +154,10 @@ namespace Greenshot.Forms
         {
             Log.Debug("Closing capture form");
             WindowDetails.UnregisterIgnoreHandle(Handle);
+            if (_capture?.CaptureDetails != null)
+            {
+                _capture.CaptureDetails.FeaturesChanged -= OnFeaturesChanged;
+            }
         }
 
         /// <summary>
@@ -214,32 +218,53 @@ namespace Greenshot.Forms
             // Make sure the size is set correctly
             SetSize();
 
-            // Transform detected features into hotspots
-            try
+            // Subscribe to FeaturesChanged and build hotspots
+            _capture.CaptureDetails.FeaturesChanged += OnFeaturesChanged;
+            RebuildFeatureHotspots();
+
+            Resize += CaptureForm_Resize;
+        }
+
+        private void RebuildFeatureHotspots()
+        {
+            lock (_capture.CaptureDetails.Features)
             {
-                var features = _capture.CaptureDetails.Features;
-                var transformers = SimpleServiceProvider.Current.GetAllInstances<IFeatureHotspotTransformer>();
-                foreach (var feature in features)
+                Hotspots.Clear();
+                try
                 {
-                    foreach (var transformer in transformers)
+                    var features = _capture.CaptureDetails.Features;
+                    var transformers = SimpleServiceProvider.Current.GetAllInstances<IFeatureHotspotTransformer>();
+                    foreach (var feature in features)
                     {
-                        if (transformer.CanTransform(feature))
+                        foreach (var transformer in transformers)
                         {
-                            var hotspot = transformer.Transform(feature, this);
-                            if (hotspot != null)
+                            if (transformer.CanTransform(feature))
                             {
-                                Hotspots.Add(hotspot);
+                                var hotspot = transformer.Transform(feature, this);
+                                if (hotspot != null)
+                                {
+                                    Hotspots.Add(hotspot);
+                                }
                             }
                         }
                     }
                 }
+                catch (Exception ex)
+                {
+                    Log.Error("Error transforming capture features to hotspots", ex);
+                }
             }
-            catch (Exception ex)
-            {
-                Log.Error("Error transforming capture features to hotspots", ex);
-            }
+        }
 
-            Resize += CaptureForm_Resize;
+        private void OnFeaturesChanged(object sender, EventArgs e)
+        {
+            if (InvokeRequired)
+            {
+                BeginInvoke(new Action(() => OnFeaturesChanged(sender, e)));
+                return;
+            }
+            RebuildFeatureHotspots();
+            Invalidate();
         }
 
         private void CaptureForm_Resize(object sender, EventArgs e)
@@ -412,24 +437,39 @@ namespace Greenshot.Forms
                     ToFront = !ToFront;
                     TopMost = !TopMost;
                     break;
-                case Keys.T:
+                 case Keys.T:
                     _captureMode = CaptureMode.Text;
                     if (!_capture.CaptureDetails.Features.OfType<IOcrLineFeature>().Any())
                     {
-                        var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>();
-                        if (ocrProvider != null)
+                        if (_capture.CaptureDetails.ProcessingTask != null && !_capture.CaptureDetails.ProcessingTask.IsCompleted)
                         {
-                            var uiTaskScheduler = SimpleServiceProvider.Current.GetInstance<TaskScheduler>();
-
-                            Task.Factory.StartNew(async () =>
+                            // Already processing in the background, the UI will invalidate when finished
+                            Invalidate();
+                        }
+                        else
+                        {
+                            var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>();
+                            if (ocrProvider != null)
                             {
-                                var ocrLines = await ocrProvider.DoOcrAsync(_capture.Image);
-                                if (ocrLines != null && ocrLines.Any())
+                                var uiTaskScheduler = SimpleServiceProvider.Current.GetInstance<TaskScheduler>();
+
+                                Task.Factory.StartNew(async () =>
                                 {
-                                    _capture.CaptureDetails.Features.AddRange(ocrLines);
-                                }
-                                Invalidate();
-                            }, CancellationToken.None, TaskCreationOptions.None, uiTaskScheduler);
+                                    var ocrLines = await ocrProvider.DoOcrAsync(_capture.Image);
+                                    if (ocrLines != null && ocrLines.Any())
+                                    {
+                                        lock (_capture.CaptureDetails.Features)
+                                        {
+                                            _capture.CaptureDetails.Features.AddRange(ocrLines);
+                                        }
+                                        if (_capture.CaptureDetails is CaptureDetails concreteDetails)
+                                        {
+                                            concreteDetails.NotifyFeaturesChanged();
+                                        }
+                                    }
+                                    Invalidate();
+                                }, CancellationToken.None, TaskCreationOptions.None, uiTaskScheduler);
+                            }
                         }
                     }
                     else

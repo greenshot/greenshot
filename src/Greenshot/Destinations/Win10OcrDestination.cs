@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Threading.Tasks;
 using Windows.Media.Ocr;
@@ -72,14 +73,34 @@ namespace Greenshot.Destinations
             var exportInformation = new ExportInformation(Designation, Description);
             try
             {
-                var ocrFeatures = captureDetails.Features.OfType<IOcrLineFeature>().ToList();
+                if (captureDetails.ProcessingTask != null)
+                {
+                    try
+                    {
+                        captureDetails.ProcessingTask.Wait();
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error("Error waiting for background OCR processing in destination", ex);
+                    }
+                }
+
+                List<IOcrLineFeature> ocrFeatures;
+                lock (captureDetails.Features)
+                {
+                    ocrFeatures = captureDetails.Features.OfType<IOcrLineFeature>().ToList();
+                }
+
                 if (!ocrFeatures.Any())
                 {
                     var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>();
                     var ocrLines = Task.Run(async () => await ocrProvider.DoOcrAsync(surface).ConfigureAwait(false)).Result;
                     if (ocrLines != null && ocrLines.Any())
                     {
-                        captureDetails.Features.AddRange(ocrLines);
+                        lock (captureDetails.Features)
+                        {
+                            captureDetails.Features.AddRange(ocrLines);
+                        }
                         ocrFeatures = ocrLines;
                     }
                 }

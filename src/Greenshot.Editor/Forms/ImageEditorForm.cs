@@ -1738,7 +1738,29 @@ namespace Greenshot.Editor.Forms
                 return;
             }
 
-            var ocrLines = _surface.CaptureDetails.Features.OfType<IOcrLineFeature>().ToList();
+            if (_surface.CaptureDetails.ProcessingTask != null && !_surface.CaptureDetails.ProcessingTask.IsCompleted)
+            {
+                Cursor = Cursors.WaitCursor;
+                try
+                {
+                    await _surface.CaptureDetails.ProcessingTask;
+                }
+                catch (Exception ex)
+                {
+                    Log.Error("Error waiting for background OCR processing in editor", ex);
+                }
+                finally
+                {
+                    Cursor = Cursors.Default;
+                }
+            }
+
+            List<IOcrLineFeature> ocrLines;
+            lock (_surface.CaptureDetails.Features)
+            {
+                ocrLines = _surface.CaptureDetails.Features.OfType<IOcrLineFeature>().ToList();
+            }
+
             if (!ocrLines.Any())
             {
                 var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>();
@@ -1754,7 +1776,10 @@ namespace Greenshot.Editor.Forms
                     var detectedLines = await ocrProvider.DoOcrAsync(_surface);
                     if (detectedLines != null && detectedLines.Any())
                     {
-                        _surface.CaptureDetails.Features.AddRange(detectedLines);
+                        lock (_surface.CaptureDetails.Features)
+                        {
+                            _surface.CaptureDetails.Features.AddRange(detectedLines);
+                        }
                         ocrLines = detectedLines;
                     }
                 }

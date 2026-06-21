@@ -230,9 +230,13 @@ namespace Greenshot.Base.Core
             // MoveElements(-cropRectangle.Location.X, -cropRectangle.Location.Y);
 
             // Offset all detected features
-            foreach (var feature in CaptureDetails.Features)
+            lock (CaptureDetails.Features)
             {
-                feature.Offset(-cropRectangle.Location.X, -cropRectangle.Location.Y);
+                CaptureDetails.CropOffset = cropRectangle.Location;
+                foreach (var feature in CaptureDetails.Features)
+                {
+                    feature.Offset(-cropRectangle.Location.X, -cropRectangle.Location.Y);
+                }
             }
 
             return true;

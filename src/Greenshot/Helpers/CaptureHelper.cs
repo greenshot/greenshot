@@ -680,6 +680,17 @@ namespace Greenshot.Helpers
 
             if (_capture.CaptureDetails.CaptureMode == CaptureMode.Text)
             {
+                if (_capture.CaptureDetails.ProcessingTask != null)
+                {
+                    try
+                    {
+                        _capture.CaptureDetails.ProcessingTask.Wait();
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error("Error waiting for background OCR processing", ex);
+                    }
+                }
                 var selectionRectangle = new NativeRect(NativePoint.Empty, _capture.Image.Size);
                 var ocrLines = _capture.CaptureDetails.Features.OfType<IOcrLineFeature>().ToList();
                 if (ocrLines.Any())

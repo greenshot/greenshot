@@ -77,5 +77,20 @@ namespace Greenshot.Base.Interfaces
         /// Store the detected features for this capture
         /// </summary>
         List<IDetectedFeature> Features { get; }
+
+        /// <summary>
+        /// The crop offset applied to the capture, used to offset background features
+        /// </summary>
+        Dapplo.Windows.Common.Structs.NativePoint CropOffset { get; set; }
+
+        /// <summary>
+        /// A Task that completes when all background capture processors (like OCR and QR) have finished.
+        /// </summary>
+        System.Threading.Tasks.Task ProcessingTask { get; set; }
+
+        /// <summary>
+        /// Event fired when features have been updated.
+        /// </summary>
+        event EventHandler FeaturesChanged;
     }
 }

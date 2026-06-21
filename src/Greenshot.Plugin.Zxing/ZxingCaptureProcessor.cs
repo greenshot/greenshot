@@ -23,6 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Threading.Tasks;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
@@ -47,78 +48,131 @@ public class ZxingCaptureProcessor : AbstractProcessor
 
     public override bool ProcessCapture(ICapture capture)
     {
-        if (capture == null || capture.Image == null || capture.CaptureDetails == null)
+        if (capture == null || capture.CaptureDetails == null)
         {
             return false;
         }
 
+        // Optimization: Skip scanning if we have already scanned and stored features for this capture.
+        if (capture.CaptureDetails.Features.Any())
+        {
+            return false;
+        }
+
+        if (capture.Image == null)
+        {
+            return false;
+        }
+
+        Image clonedImage;
         try
         {
-            // Optimization: Skip scanning if we have already scanned and stored features for this capture.
-            if (capture.CaptureDetails.Features.Any())
-            {
-                return false;
-            }
-
-            using (var bitmap = new Bitmap(capture.Image))
-            {
-                var reader = new BarcodeReader
-                {
-                    AutoRotate = true,
-                    Options = new ZXing.Common.DecodingOptions
-                    {
-                        TryHarder = true,
-                        TryInverted = true,
-                        PossibleFormats = new List<BarcodeFormat> { BarcodeFormat.QR_CODE }
-                    }
-                };
-
-                var results = reader.DecodeMultiple(bitmap);
-                if (results != null)
-                {
-                    var detectedFeatures = new List<IDetectedFeature>();
-                    foreach (var result in results)
-                    {
-                        var points = result.ResultPoints;
-                        if (points == null || points.Length == 0)
-                        {
-                            continue;
-                        }
-
-                        // Compute bounding box
-                        float minX = float.MaxValue, minY = float.MaxValue;
-                        float maxX = float.MinValue, maxY = float.MinValue;
-                        foreach (var pt in points)
-                        {
-                            if (pt.X < minX) minX = pt.X;
-                            if (pt.X > maxX) maxX = pt.X;
-                            if (pt.Y < minY) minY = pt.Y;
-                            if (pt.Y > maxY) maxY = pt.Y;
-                        }
-
-                        var rect = new Rectangle((int)minX, (int)minY, (int)(maxX - minX), (int)(maxY - minY));
-                        rect.Inflate(5, 5); // Add a small padding
-
-                        detectedFeatures.Add(new DetectedBarcode(
-                            new NativeRect(rect.X, rect.Y, rect.Width, rect.Height),
-                            result.BarcodeFormat.ToString(),
-                            result.Text
-                        ));
-                    }
-
-                    if (detectedFeatures.Count > 0)
-                    {
-                        capture.CaptureDetails.Features.AddRange(detectedFeatures);
-                        return true;
-                    }
-                }
-            }
+            clonedImage = (Image)capture.Image.Clone();
         }
         catch (Exception ex)
         {
-            Log.Error("Error scanning for QR codes during capture processing", ex);
+            Log.Error("Failed to clone capture image for Zxing background processing", ex);
+            return false;
         }
-        
-        return false;
+
+        var captureDetails = capture.CaptureDetails;
+        var initialCropOffset = captureDetails.CropOffset;
+
+        var task = Task.Run(() =>
+        {
+            using (clonedImage)
+            {
+                try
+                {
+                    using (var bitmap = new Bitmap(clonedImage))
+                    {
+                        var reader = new BarcodeReader
+                        {
+                            AutoRotate = true,
+                            Options = new ZXing.Common.DecodingOptions
+                            {
+                                TryHarder = true,
+                                TryInverted = true,
+                                PossibleFormats = new List<BarcodeFormat> { BarcodeFormat.QR_CODE }
+                            }
+                        };
+
+                        var results = reader.DecodeMultiple(bitmap);
+                        if (results != null)
+                        {
+                            var detectedFeatures = new List<IDetectedFeature>();
+                            foreach (var result in results)
+                            {
+                                var points = result.ResultPoints;
+                                if (points == null || points.Length == 0)
+                                {
+                                    continue;
+                                }
+
+                                // Compute bounding box
+                                float minX = float.MaxValue, minY = float.MaxValue;
+                                float maxX = float.MinValue, maxY = float.MinValue;
+                                foreach (var pt in points)
+                                {
+                                    if (pt.X < minX) minX = pt.X;
+                                    if (pt.X > maxX) maxX = pt.X;
+                                    if (pt.Y < minY) minY = pt.Y;
+                                    if (pt.Y > maxY) maxY = pt.Y;
+                                }
+
+                                var rect = new Rectangle((int)minX, (int)minY, (int)(maxX - minX), (int)(maxY - minY));
+                                rect.Inflate(5, 5); // Add a small padding
+
+                                detectedFeatures.Add(new DetectedBarcode(
+                                    new NativeRect(rect.X, rect.Y, rect.Width, rect.Height),
+                                    result.BarcodeFormat.ToString(),
+                                    result.Text
+                                ));
+                            }
+
+                            if (detectedFeatures.Count > 0)
+                            {
+                                lock (captureDetails.Features)
+                                {
+                                    var currentCropOffset = captureDetails.CropOffset;
+                                    var dx = currentCropOffset.X - initialCropOffset.X;
+                                    var dy = currentCropOffset.Y - initialCropOffset.Y;
+                                    if (dx != 0 || dy != 0)
+                                    {
+                                        foreach (var feature in detectedFeatures)
+                                        {
+                                            feature.Offset(-dx, -dy);
+                                        }
+                                    }
+                                    captureDetails.Features.AddRange(detectedFeatures);
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log.Error("Error scanning for QR codes during capture processing in background task", ex);
+                }
+                finally
+                {
+                    if (captureDetails is CaptureDetails concreteDetails)
+                    {
+                        concreteDetails.NotifyFeaturesChanged();
+                    }
+                }
+            }
+        });
+
+        if (captureDetails.ProcessingTask != null)
+        {
+            captureDetails.ProcessingTask = Task.WhenAll(captureDetails.ProcessingTask, task);
+        }
+        else
+        {
+            captureDetails.ProcessingTask = task;
+        }
+
+        return true;
     }
 }

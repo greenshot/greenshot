@@ -114,5 +114,22 @@ namespace Greenshot.Base.Core
         {
             DateTime = DateTime.Now;
         }
+
+        /// <inheritdoc />
+        public Dapplo.Windows.Common.Structs.NativePoint CropOffset { get; set; } = Dapplo.Windows.Common.Structs.NativePoint.Empty;
+
+        /// <inheritdoc />
+        public System.Threading.Tasks.Task ProcessingTask { get; set; }
+
+        /// <inheritdoc />
+        public event EventHandler FeaturesChanged;
+
+        /// <summary>
+        /// Helper to raise the FeaturesChanged event.
+        /// </summary>
+        public void NotifyFeaturesChanged()
+        {
+            FeaturesChanged?.Invoke(this, EventArgs.Empty);
+        }
     }
 }
