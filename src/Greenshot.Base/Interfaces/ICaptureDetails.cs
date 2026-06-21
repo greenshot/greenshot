@@ -21,7 +21,6 @@
 
 using System;
 using System.Collections.Generic;
-using Greenshot.Base.Interfaces.Ocr;
 using Greenshot.Base.Interfaces.Plugin;
 
 namespace Greenshot.Base.Interfaces
@@ -73,11 +72,6 @@ namespace Greenshot.Base.Interfaces
         float DpiX { get; set; }
 
         float DpiY { get; set; }
-
-        /// <summary>
-        /// Store the OCR information for this capture
-        /// </summary>
-        OcrInformation OcrInformation { get; set; }
 
         /// <summary>
         /// Store the detected features for this capture

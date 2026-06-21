@@ -23,6 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
@@ -99,7 +100,7 @@ public class ZxingCaptureProcessor : AbstractProcessor
                         rect.Inflate(5, 5); // Add a small padding
 
                         detectedFeatures.Add(new DetectedBarcode(
-                            rect,
+                            new NativeRect(rect.X, rect.Y, rect.Width, rect.Height),
                             result.BarcodeFormat.ToString(),
                             result.Text
                         ));

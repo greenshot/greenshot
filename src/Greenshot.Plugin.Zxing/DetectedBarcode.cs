@@ -19,14 +19,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System.Drawing;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Interfaces.Plugin;
 
 namespace Greenshot.Plugin.Zxing;
 
 public class DetectedBarcode : IBarcodeFeature
 {
-    public Rectangle Bounds { get; }
+    public NativeRect Bounds { get; private set; }
     public string FeatureType => "Barcode";
     public string Text => RawText;
     public string ToolTipText => RawText;
@@ -34,10 +35,15 @@ public class DetectedBarcode : IBarcodeFeature
     public string Format { get; }
     public string RawText { get; }
 
-    public DetectedBarcode(Rectangle bounds, string format, string rawText)
+    public DetectedBarcode(NativeRect bounds, string format, string rawText)
     {
         Bounds = bounds;
         Format = format;
         RawText = rawText;
+    }
+
+    public void Offset(int x, int y)
+    {
+        Bounds = Bounds.Offset(x, y);
     }
 }

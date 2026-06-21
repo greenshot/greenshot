@@ -19,7 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System.Drawing;
+using Dapplo.Windows.Common.Structs;
 
 namespace Greenshot.Base.Interfaces.Plugin;
 
@@ -33,7 +33,7 @@ public interface IDetectedFeature
     /// <summary>
     /// Bounding rectangle of the detected feature in pixel coordinates relative to the captured image.
     /// </summary>
-    Rectangle Bounds { get; }
+    NativeRect Bounds { get; }
 
     /// <summary>
     /// A string identifying the type of the detected feature (e.g., "Barcode", "OcrWord").
@@ -49,4 +49,11 @@ public interface IDetectedFeature
     /// Optional tooltip descriptive text to display when hovering over the feature in the UI.
     /// </summary>
     string ToolTipText { get; }
+
+    /// <summary>
+    /// Translates the coordinates of the feature by the specified offsets.
+    /// </summary>
+    /// <param name="x">The horizontal offset.</param>
+    /// <param name="y">The vertical offset.</param>
+    void Offset(int x, int y);
 }

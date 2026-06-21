@@ -21,6 +21,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Drawing;
 using System.Windows.Forms;
 using Greenshot.Base.Interfaces.Plugin;
 
@@ -44,7 +45,7 @@ public class ZxingHotspotTransformer : IFeatureHotspotTransformer
 
         return new CaptureFormHotspot
         {
-            Bounds = barcodeFeature.Bounds,
+            Bounds = (Rectangle)barcodeFeature.Bounds,
             Text = textContent,
             ToolTipText = textContent,
             ClickAction = (e) =>

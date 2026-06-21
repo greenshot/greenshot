@@ -22,6 +22,7 @@
 using log4net;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -104,6 +105,7 @@ namespace Greenshot.Forms
         private bool _isCtrlPressed;
         public List<CaptureFormHotspot> Hotspots { get; } = new List<CaptureFormHotspot>();
         private CaptureFormHotspot _lastHoveredHotspot;
+        private IOcrLineFeature _hoveredLine;
         private bool _showDebugInfo;
 
         /// <summary>
@@ -412,7 +414,7 @@ namespace Greenshot.Forms
                     break;
                 case Keys.T:
                     _captureMode = CaptureMode.Text;
-                    if (_capture.CaptureDetails.OcrInformation is null)
+                    if (!_capture.CaptureDetails.Features.OfType<IOcrLineFeature>().Any())
                     {
                         var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>();
                         if (ocrProvider != null)
@@ -421,7 +423,11 @@ namespace Greenshot.Forms
 
                             Task.Factory.StartNew(async () =>
                             {
-                                _capture.CaptureDetails.OcrInformation = await ocrProvider.DoOcrAsync(_capture.Image);
+                                var ocrLines = await ocrProvider.DoOcrAsync(_capture.Image);
+                                if (ocrLines != null && ocrLines.Any())
+                                {
+                                    _capture.CaptureDetails.Features.AddRange(ocrLines);
+                                }
                                 Invalidate();
                             }, CancellationToken.None, TaskCreationOptions.None, uiTaskScheduler);
                         }
@@ -479,7 +485,7 @@ namespace Greenshot.Forms
                 // Go and process the capture
                 DialogResult = DialogResult.OK;
             }
-            else if (_captureRect.Height > 0 && _captureRect.Width > 0)
+            else if (_captureRect.Height > 3 && _captureRect.Width > 3)
             {
                 // correct the GUI width to real width if Region mode
                 if (_captureMode is CaptureMode.Region or CaptureMode.Text)
@@ -492,10 +498,10 @@ namespace Greenshot.Forms
                 // Go and process the capture
                 DialogResult = DialogResult.OK;
             }
-            else if (_captureMode == CaptureMode.Text && IsWordUnderCursor(_mouseMovePos))
+            else if (_captureMode == CaptureMode.Text && IsLineUnderCursor(_mouseMovePos, out var clickedLine))
             {
-                // Handle a click on a single word
-                _captureRect = new NativeRect(_mouseMovePos, new NativeSize(1, 1));
+                // Handle a click on a single line
+                _captureRect = clickedLine.Bounds;
                 // Go and process the capture
                 DialogResult = DialogResult.OK;
             }
@@ -505,29 +511,18 @@ namespace Greenshot.Forms
             }
         }
 
-        /// <summary>
-        /// Check if there is a word under the specified location
-        /// </summary>
-        /// <param name="location">NativePoint</param>
-        /// <returns>bool true if there is a word</returns>
-        private bool IsWordUnderCursor(NativePoint location)
+        private bool IsLineUnderCursor(NativePoint location, out IOcrLineFeature clickedLine)
         {
-            if (_captureMode != CaptureMode.Text || _capture.CaptureDetails.OcrInformation == null) return false;
+            clickedLine = null;
+            if (_captureMode != CaptureMode.Text) return false;
 
-            var ocrInfo = _capture.CaptureDetails.OcrInformation;
-
-            foreach (var line in ocrInfo.Lines)
+            var lines = _capture.CaptureDetails.Features.OfType<IOcrLineFeature>();
+            foreach (var line in lines)
             {
-                var lineBounds = line.CalculatedBounds;
-                if (lineBounds.IsEmpty) continue;
-                // Highlight the text which is selected
-                if (!lineBounds.Contains(location)) continue;
-                foreach (var word in line.Words)
+                if (line.Bounds.Contains(location))
                 {
-                    if (word.Bounds.Contains(location))
-                    {
-                        return true;
-                    }
+                    clickedLine = line;
+                    return true;
                 }
             }
 
@@ -802,28 +797,24 @@ namespace Greenshot.Forms
             }
 
             // OCR
-            if (_captureMode == CaptureMode.Text && _capture.CaptureDetails.OcrInformation != null)
+            if (_captureMode == CaptureMode.Text)
             {
-                var ocrInfo = _capture.CaptureDetails.OcrInformation;
+                var lines = _capture.CaptureDetails.Features.OfType<IOcrLineFeature>().ToList();
+                IOcrLineFeature newHoveredLine = null;
 
-                invalidateRectangle = NativeRect.Empty;
-                foreach (var line in ocrInfo.Lines)
+                if (_mouseDown)
                 {
-                    var lineBounds = line.CalculatedBounds;
-                    if (lineBounds.IsEmpty)
+                    invalidateRectangle = NativeRect.Empty;
+                    foreach (var line in lines)
                     {
-                        continue;
-                    }
-                    if (_mouseDown)
-                    {
-                        // Highlight the text which is selected
+                        var lineBounds = line.Bounds;
+                        if (lineBounds.IsEmpty) continue;
                         if (!lineBounds.IntersectsWith(_captureRect)) continue;
+
                         foreach (var word in line.Words)
                         {
-                            if (!word.Bounds.IntersectsWith(_captureRect))
-                            {
-                                continue;
-                            }
+                            if (!word.Bounds.IntersectsWith(_captureRect)) continue;
+
                             if (invalidateRectangle.IsEmpty)
                             {
                                 invalidateRectangle = word.Bounds;
@@ -834,28 +825,36 @@ namespace Greenshot.Forms
                             }
                         }
                     }
-                    else if (lineBounds.Contains(_mouseMovePos))
-                    {
-                        foreach (var word in line.Words)
-                        {
-                            if (!word.Bounds.Contains(_mouseMovePos)) continue;
-                            if (invalidateRectangle.IsEmpty)
-                            {
-                                invalidateRectangle = word.Bounds;
-                            }
-                            else
-                            {
-                                invalidateRectangle = invalidateRectangle.Union(word.Bounds);
-                            }
 
+                    if (!invalidateRectangle.IsEmpty)
+                    {
+                        Invalidate(invalidateRectangle);
+                    }
+                }
+                else
+                {
+                    // Hover mode
+                    foreach (var line in lines)
+                    {
+                        if (line.Bounds.Contains(_mouseMovePos))
+                        {
+                            newHoveredLine = line;
                             break;
                         }
                     }
-                }
 
-                if (!invalidateRectangle.IsEmpty)
-                {
-                    Invalidate(invalidateRectangle);
+                    if (newHoveredLine != _hoveredLine)
+                    {
+                        if (_hoveredLine != null)
+                        {
+                            Invalidate(_hoveredLine.Bounds);
+                        }
+                        if (newHoveredLine != null)
+                        {
+                            Invalidate(newHoveredLine.Bounds);
+                        }
+                        _hoveredLine = newHoveredLine;
+                    }
                 }
             }
 
@@ -1065,20 +1064,20 @@ namespace Greenshot.Forms
                 }
             }
 
-            var ocrInfo = _capture.CaptureDetails.OcrInformation;
-            if (ocrInfo != null && _captureMode == CaptureMode.Text)
+            var ocrLines = _capture.CaptureDetails.Features.OfType<IOcrLineFeature>().ToList();
+            if (ocrLines.Any() && _captureMode == CaptureMode.Text)
             {
                 using var pen = new Pen(Color.Red);
                 var highlightColor = Color.FromArgb(128, Color.Yellow);
                 using var highlightTextBrush = new SolidBrush(highlightColor);
-                foreach (var line in ocrInfo.Lines)
+                foreach (var line in ocrLines)
                 {
-                    var lineBounds = line.CalculatedBounds;
+                    var lineBounds = line.Bounds;
                     if (lineBounds.IsEmpty)
                     {
                         continue;
                     }
-                    graphics.DrawRectangle(pen, line.CalculatedBounds);
+                    graphics.DrawRectangle(pen, (Rectangle)line.Bounds);
                     if (_mouseDown)
                     {
                         // Highlight the text which is selected
@@ -1086,24 +1085,18 @@ namespace Greenshot.Forms
                         {
                             foreach (var word in line.Words)
                             {
-                                if (word.Bounds.IntersectsWith(_captureRect))
+                                var wordBounds = word.Bounds;
+                                if (wordBounds.IntersectsWith(_captureRect))
                                 {
-                                    graphics.FillRectangle(highlightTextBrush, word.Bounds);
+                                    graphics.FillRectangle(highlightTextBrush, (Rectangle)word.Bounds);
                                 }
                             }
                         }
                     }
                     else if (lineBounds.Contains(_mouseMovePos))
                     {
-                        foreach (var word in line.Words)
-                        {
-                            if (!word.Bounds.Contains(_mouseMovePos))
-                            {
-                                continue;
-                            }
-                            graphics.FillRectangle(highlightTextBrush, word.Bounds);
-                            break;
-                        }
+                        // Hover: highlight the entire line
+                        graphics.FillRectangle(highlightTextBrush, (Rectangle)line.Bounds);
                     }
                 }
             }

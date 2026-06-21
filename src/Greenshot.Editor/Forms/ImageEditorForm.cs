@@ -1738,7 +1738,8 @@ namespace Greenshot.Editor.Forms
                 return;
             }
 
-            if (_surface.CaptureDetails.OcrInformation == null)
+            var ocrLines = _surface.CaptureDetails.Features.OfType<IOcrLineFeature>().ToList();
+            if (!ocrLines.Any())
             {
                 var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>();
                 if (ocrProvider == null)
@@ -1750,7 +1751,12 @@ namespace Greenshot.Editor.Forms
                 Cursor = Cursors.WaitCursor;
                 try
                 {
-                    _surface.CaptureDetails.OcrInformation = await ocrProvider.DoOcrAsync(_surface);
+                    var detectedLines = await ocrProvider.DoOcrAsync(_surface);
+                    if (detectedLines != null && detectedLines.Any())
+                    {
+                        _surface.CaptureDetails.Features.AddRange(detectedLines);
+                        ocrLines = detectedLines;
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -1764,13 +1770,13 @@ namespace Greenshot.Editor.Forms
                 }
             }
 
-            if (_surface.CaptureDetails.OcrInformation == null || !_surface.CaptureDetails.OcrInformation.HasContent)
+            if (!ocrLines.Any())
             {
                 MessageBox.Show(Language.GetString("editor_obfuscate_text_no_text"), Language.GetString("editor_obfuscate_text_title"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
-            using (var dialog = new TextObfuscationForm(_surface, _surface.CaptureDetails.OcrInformation))
+            using (var dialog = new TextObfuscationForm(_surface, ocrLines))
             {
                 dialog.ShowDialog(this);
             }

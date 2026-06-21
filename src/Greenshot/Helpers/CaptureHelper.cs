@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -681,30 +681,47 @@ namespace Greenshot.Helpers
             if (_capture.CaptureDetails.CaptureMode == CaptureMode.Text)
             {
                 var selectionRectangle = new NativeRect(NativePoint.Empty, _capture.Image.Size);
-                var ocrInfo = _capture.CaptureDetails.OcrInformation;
-                if (ocrInfo != null)
+                var ocrLines = _capture.CaptureDetails.Features.OfType<IOcrLineFeature>().ToList();
+                if (ocrLines.Any())
                 {
                     var textResult = new StringBuilder();
-                    foreach (var line in ocrInfo.Lines)
+                    
+                    // Check if any line bounds exactly match the cropped selection area (meaning the user clicked a line)
+                    var clickedLine = ocrLines.FirstOrDefault(line =>
+                        line.Bounds.X == 0 &&
+                        line.Bounds.Y == 0 &&
+                        line.Bounds.Width == selectionRectangle.Width &&
+                        line.Bounds.Height == selectionRectangle.Height);
+
+                    if (clickedLine != null)
                     {
-                        var lineBounds = line.CalculatedBounds;
-                        if (lineBounds.IsEmpty) continue;
-                        // Highlight the text which is selected
-                        if (!lineBounds.IntersectsWith(selectionRectangle)) continue;
-
-                        for (var index = 0; index < line.Words.Length; index++)
+                        textResult.Append(clickedLine.Text);
+                    }
+                    else
+                    {
+                        // Region drag selection: copy only words within the region, in line order
+                        foreach (var line in ocrLines)
                         {
-                            var word = line.Words[index];
-                            if (!word.Bounds.IntersectsWith(selectionRectangle)) continue;
-                            textResult.Append(word.Text);
+                            var lineBounds = line.Bounds;
+                            if (lineBounds.IsEmpty) continue;
+                            // Highlight the text which is selected
+                            if (!lineBounds.IntersectsWith(selectionRectangle)) continue;
 
-                            if (index + 1 < line.Words.Length && word.Text.Length > 1)
+                            for (var index = 0; index < line.Words.Count; index++)
                             {
-                                textResult.Append(' ');
-                            }
-                        }
+                                var word = line.Words[index];
+                                var wordBounds = word.Bounds;
+                                if (!wordBounds.IntersectsWith(selectionRectangle)) continue;
+                                textResult.Append(word.Text);
 
-                        textResult.AppendLine();
+                                if (index + 1 < line.Words.Count && word.Text.Length > 1)
+                                {
+                                    textResult.Append(' ');
+                                }
+                            }
+
+                            textResult.AppendLine();
+                        }
                     }
 
                     if (textResult.Length > 0)

@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -19,11 +19,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
 using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Ocr;
+using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Configuration;
 
 namespace Greenshot.Processors
@@ -50,7 +54,7 @@ namespace Greenshot.Processors
                 return false;
             }
 
-            if (capture.CaptureDetails == null || capture.CaptureDetails.OcrInformation != null)
+            if (capture.CaptureDetails == null || capture.CaptureDetails.Features.OfType<IOcrLineFeature>().Any())
             {
                 return false;
             }
@@ -62,14 +66,14 @@ namespace Greenshot.Processors
                 return false;
             }
 
-            var ocrResult = Task.Run(async () => await ocrProvider.DoOcrAsync(capture.Image).ConfigureAwait(false)).Result;
+            var ocrLines = Task.Run(async () => await ocrProvider.DoOcrAsync(capture.Image).ConfigureAwait(false)).Result;
 
-            if (!ocrResult.HasContent)
+            if (ocrLines == null || !ocrLines.Any())
             {
                 return false;
             }
 
-            capture.CaptureDetails.OcrInformation = ocrResult;
+            capture.CaptureDetails.Features.AddRange(ocrLines);
 
             return true;
         }
