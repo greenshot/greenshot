@@ -92,8 +92,9 @@ namespace Greenshot.Forms
         private NativePoint _mouseMovePos = NativePoint.Empty;
         private NativePoint _cursorPos;
         private CaptureMode _captureMode;
-        private readonly List<WindowDetails> _windows;
         private WindowDetails _selectedCaptureWindow;
+
+        private List<WindowDetails> _windowsCached = new List<WindowDetails>();
         private bool _mouseDown;
         private NativeRect _captureRect = NativeRect.Empty;
         private readonly ICapture _capture;
@@ -164,8 +165,7 @@ namespace Greenshot.Forms
         /// This creates the capture form
         /// </summary>
         /// <param name="capture"></param>
-        /// <param name="windows"></param>
-        public CaptureForm(ICapture capture, List<WindowDetails> windows)
+        public CaptureForm(ICapture capture)
         {
             if (_currentForm != null)
             {
@@ -180,7 +180,6 @@ namespace Greenshot.Forms
             // clean up
             FormClosed += ClosedHandler;
             _capture = capture;
-            _windows = windows;
             _captureMode = capture.CaptureDetails.CaptureMode;
 
             // Set cursor location before enabling animations to avoid race condition
@@ -231,6 +230,11 @@ namespace Greenshot.Forms
             lock (_capture.CaptureDetails.Features)
             {
                 featuresCopy = new List<IDetectedFeature>(_capture.CaptureDetails.Features);
+                _windowsCached = _capture.CaptureDetails.Features
+                    .OfType<WindowFeature>()
+                    .OrderBy(f => f.ZIndex)
+                    .Select(f => f.Window)
+                    .ToList();
             }
 
             Hotspots.Clear();
@@ -561,6 +565,18 @@ namespace Greenshot.Forms
             }
         }
 
+        private NativeRect GetClippedWindowRectangle(WindowDetails window)
+        {
+            NativeRect rect = window.WindowRectangle;
+            WindowDetails parent = window.GetParent();
+            while (parent != null)
+            {
+                rect = rect.Intersect(parent.WindowRectangle);
+                parent = parent.GetParent();
+            }
+            return rect;
+        }
+
         private bool IsLineUnderCursor(NativePoint location, out IOcrLineFeature clickedLine)
         {
             clickedLine = null;
@@ -717,19 +733,16 @@ namespace Greenshot.Forms
             // Iterate over the found windows and check if the current location is inside a window
             NativePoint cursorPosition = Cursor.Position;
             _selectedCaptureWindow = null;
-            lock (_windows)
+            foreach (var window in _windowsCached)
             {
-                foreach (var window in _windows)
+                if (!window.Contains(cursorPosition))
                 {
-                    if (!window.Contains(cursorPosition))
-                    {
-                        continue;
-                    }
-
-                    // Only go over the children if we are in window mode
-                    _selectedCaptureWindow = CaptureMode.Window == _captureMode ? window.FindChildUnderPoint(cursorPosition) : window;
-                    break;
+                    continue;
                 }
+
+                // Only go over the children if we are in window mode
+                _selectedCaptureWindow = CaptureMode.Window == _captureMode ? window.FindChildUnderPoint(cursorPosition) : window;
+                break;
             }
 
             if (_selectedCaptureWindow != null && !_selectedCaptureWindow.Equals(lastWindow))
@@ -739,7 +752,7 @@ namespace Greenshot.Forms
                 if (_captureMode == CaptureMode.Window)
                 {
                     // Here we want to capture the window which is under the mouse
-                    _captureRect = _selectedCaptureWindow.WindowRectangle;
+                    _captureRect = GetClippedWindowRectangle(_selectedCaptureWindow);
                     // As the ClientRectangle is not in Bitmap coordinates, we need to correct.
                     _captureRect = _captureRect.Offset(-_capture.ScreenBounds.Location.X, -_capture.ScreenBounds.Location.Y);
                 }

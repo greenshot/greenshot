@@ -60,7 +60,6 @@ namespace Greenshot.Helpers
 
         private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
         
-        private List<WindowDetails> _windows = new();
         private WindowDetails _selectedCaptureWindow;
         private NativeRect _captureRect = NativeRect.Empty;
         private readonly bool _captureMouseCursor;
@@ -560,8 +559,6 @@ namespace Greenshot.Helpers
         /// </summary>
         private Thread PrepareForCaptureWithFeedback()
         {
-            _windows = new List<WindowDetails>();
-
             Thread getWindowDetailsThread = new Thread(RetrieveWindowDetails)
             {
                 Name = "Retrieve window details",
@@ -574,6 +571,15 @@ namespace Greenshot.Helpers
         private void RetrieveWindowDetails()
         {
             Log.Debug("start RetrieveWindowDetails");
+            var capture = _capture;
+            if (capture == null || capture.CaptureDetails == null)
+            {
+                return;
+            }
+
+            int zIndex = 0;
+            var windowFeatures = new List<WindowFeature>();
+
             // Start Enumeration of "active" windows
             foreach (var window in WindowDetails.GetVisibleWindows())
             {
@@ -588,10 +594,19 @@ namespace Greenshot.Helpers
                 }
 
                 window.GetChildren(goLevelDeep);
-                lock (_windows)
-                {
-                    _windows.Add(window);
-                }
+                
+                var feature = new WindowFeature(window, zIndex++);
+                windowFeatures.Add(feature);
+            }
+
+            lock (capture.CaptureDetails.Features)
+            {
+                capture.CaptureDetails.Features.AddRange(windowFeatures);
+            }
+
+            if (capture.CaptureDetails is CaptureDetails concreteDetails)
+            {
+                concreteDetails.NotifyFeaturesChanged();
             }
 
             Log.Debug("end RetrieveWindowDetails");
@@ -1333,7 +1348,7 @@ namespace Greenshot.Helpers
 
         private void CaptureWithFeedback()
         {
-            using CaptureForm captureForm = new CaptureForm(_capture, _windows);
+            using CaptureForm captureForm = new CaptureForm(_capture);
             // Make sure the form is hidden after showing, even if an exception occurs, so all errors will be shown
             DialogResult result;
             try
