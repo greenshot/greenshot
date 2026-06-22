@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -86,6 +86,11 @@ namespace Greenshot.Base.Interfaces
         bool IsActive { get; }
 
         /// <summary>
+        /// Returns if the destination is active for a specific capture context
+        /// </summary>
+        bool IsActiveFor(ICaptureDetails captureDetails);
+
+        /// <summary>
         /// Return a menu item
         /// </summary>
         /// <param name="addDynamics">Resolve the dynamic destinations too?</param>
@@ -93,6 +98,11 @@ namespace Greenshot.Base.Interfaces
         /// <param name="destinationClickHandler">Handler which is called when clicked</param>
         /// <returns>ToolStripMenuItem</returns>
         ToolStripMenuItem GetMenuItem(bool addDynamics, ContextMenuStrip menu, EventHandler destinationClickHandler);
+
+        /// <summary>
+        /// Return a menu item with capture details context
+        /// </summary>
+        ToolStripMenuItem GetMenuItem(bool addDynamics, ContextMenuStrip menu, EventHandler destinationClickHandler, ICaptureDetails captureDetails);
 
         /// <summary>
         /// Gets the ShortcutKeys for the Editor
@@ -103,6 +113,11 @@ namespace Greenshot.Base.Interfaces
         /// Gets the dynamic destinations
         /// </summary>
         IEnumerable<IDestination> DynamicDestinations();
+
+        /// <summary>
+        /// Gets the dynamic destinations with capture details context
+        /// </summary>
+        IEnumerable<IDestination> DynamicDestinations(ICaptureDetails captureDetails);
 
         /// <summary>
         /// Returns true if this destination can be dynamic

@@ -781,6 +781,8 @@ namespace Greenshot.Helpers
                 DoCaptureFeedback();
             }
 
+            ProcessCapture();
+
             Log.Debug("A capture of: " + _capture.CaptureDetails.Title);
 
             // check if someone has passed a destination
@@ -800,8 +802,6 @@ namespace Greenshot.Helpers
             {
                 surface.SurfaceMessage += SurfaceMessageReceived;
             }
-
-            ProcessCapture();
 
             // As the surfaces copies the reference to the image, make sure the image is not being disposed (a trick to save memory)
             _capture.Image = null;

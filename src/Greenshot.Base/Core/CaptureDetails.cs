@@ -23,6 +23,7 @@ using System;
 using System.Collections.Generic;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
+using Dapplo.Windows.Common.Structs;
 
 namespace Greenshot.Base.Core
 {
@@ -116,13 +117,13 @@ namespace Greenshot.Base.Core
         }
 
         /// <inheritdoc />
-        public Dapplo.Windows.Common.Structs.NativePoint CropOffset { get; set; } = Dapplo.Windows.Common.Structs.NativePoint.Empty;
+        public NativePoint CropOffset { get; set; } = NativePoint.Empty;
 
         /// <inheritdoc />
         public System.Threading.Tasks.Task ProcessingTask { get; set; }
 
         /// <inheritdoc />
-        public System.Collections.Generic.HashSet<string> StartedProcessors { get; } = new System.Collections.Generic.HashSet<string>();
+        public HashSet<string> StartedProcessors { get; } = new HashSet<string>();
 
         /// <inheritdoc />
         public event EventHandler FeaturesChanged;

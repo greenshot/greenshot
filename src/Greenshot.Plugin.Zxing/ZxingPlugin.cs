@@ -55,6 +55,7 @@ public class ZxingPlugin : IGreenshotPlugin
         serviceLocator.AddService<IProcessor>(_captureProcessor);
         serviceLocator.AddService<IEditorPlugin>(_editorPlugin);
         serviceLocator.AddService<IFeatureHotspotTransformer>(_hotspotTransformer);
+        serviceLocator.AddService<IDestination>(new ZxingQrDestination());
     }
 
     public bool Start()

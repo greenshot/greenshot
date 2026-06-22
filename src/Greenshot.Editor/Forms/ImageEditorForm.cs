@@ -382,7 +382,7 @@ namespace Greenshot.Editor.Forms
                     continue;
                 }
 
-                if (!destination.IsActive)
+                if (!destination.IsActiveFor(_surface.CaptureDetails))
                 {
                     continue;
                 }
@@ -501,12 +501,12 @@ namespace Greenshot.Editor.Forms
                     continue;
                 }
 
-                if (!destination.IsActive)
+                if (!destination.IsActiveFor(_surface.CaptureDetails))
                 {
                     continue;
                 }
 
-                ToolStripMenuItem item = destination.GetMenuItem(true, null, DestinationToolStripMenuItemClick);
+                ToolStripMenuItem item = destination.GetMenuItem(true, null, DestinationToolStripMenuItemClick, _surface.CaptureDetails);
                 if (item != null)
                 {
                     item.ShortcutKeys = destination.EditorShortcutKeys;
@@ -1234,7 +1234,7 @@ namespace Greenshot.Editor.Forms
                         continue;
                     }
 
-                    if (!destination.IsActive)
+                    if (!destination.IsActiveFor(_surface.CaptureDetails))
                     {
                         continue;
                     }
