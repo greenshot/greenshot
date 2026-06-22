@@ -23,7 +23,8 @@ try {
     Copy-Item $csproj $csprojSbom -Force -ErrorAction Stop
     
     Write-Host "Removing ProjectReference to Greenshot.BuildTasks from temporary project..."
-    [xml]$xml = Get-Content $csprojSbom -Raw -ErrorAction Stop
+    $xml = New-Object System.Xml.XmlDocument
+    $xml.Load($csprojSbom)
     $nodes = $xml.SelectNodes("//*[local-name()='ProjectReference'][contains(@Include, 'Greenshot.BuildTasks.csproj')]")
     foreach ($node in $nodes) {
         [void]$node.ParentNode.RemoveChild($node)
