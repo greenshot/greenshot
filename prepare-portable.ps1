@@ -12,6 +12,20 @@ New-Item -ItemType Directory -Path "$OutputPath" -Force | Out-Null
 
 # Copy checksum.SHA256
 Copy-Item "$BuildArtifactsPath\checksum.SHA256" "$OutputPath" -Force
+
+# Copy SBOM files
+if (Test-Path "$BuildArtifactsPath\bom.json") {
+    Copy-Item "$BuildArtifactsPath\bom.json" "$OutputPath" -Force
+}
+if (Test-Path "$BuildArtifactsPath\bom.xml") {
+    Copy-Item "$BuildArtifactsPath\bom.xml" "$OutputPath" -Force
+}
+if (Test-Path "$BuildArtifactsPath\manifest.spdx.json") {
+    Copy-Item "$BuildArtifactsPath\manifest.spdx.json" "$OutputPath" -Force
+}
+if (Test-Path "$BuildArtifactsPath\manifest.spdx.json.sha256") {
+    Copy-Item "$BuildArtifactsPath\manifest.spdx.json.sha256" "$OutputPath" -Force
+}
 # Copy greenshot.exe
 Copy-Item "$BuildArtifactsPath\Greenshot.exe" "$OutputPath" -Force
 # Copy greenshot.exe.config
