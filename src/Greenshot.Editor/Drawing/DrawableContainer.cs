@@ -54,6 +54,16 @@ namespace Greenshot.Editor.Drawing
     {
         private static readonly ILog LOG = LogManager.GetLogger(typeof(DrawableContainer));
         protected static readonly IEditorConfiguration EditorConfig = IniConfigRegistry.GetSection<IEditorConfiguration>();
+        
+        [NonSerialized]
+        private object _tag;
+
+        public object Tag
+        {
+            get => _tag;
+            set => _tag = value;
+        }
+
         private const int M11 = 0;
         private const int M22 = 3;
 
@@ -361,6 +371,10 @@ namespace Greenshot.Editor.Drawing
 
         public virtual void OnDoubleClick()
         {
+            if (Tag is Greenshot.Base.Interfaces.Drawing.IDoubleClickHandler handler)
+            {
+                handler.OnDoubleClick(this);
+            }
         }
 
         /// <summary>

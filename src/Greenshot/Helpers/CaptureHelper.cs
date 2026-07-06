@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -60,7 +60,6 @@ namespace Greenshot.Helpers
 
         private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
         
-        private List<WindowDetails> _windows = new();
         private WindowDetails _selectedCaptureWindow;
         private NativeRect _captureRect = NativeRect.Empty;
         private readonly bool _captureMouseCursor;
@@ -325,6 +324,7 @@ namespace Greenshot.Helpers
                     _capture = WindowCapture.CaptureScreen(_capture);
                     _capture.CaptureDetails.AddMetaData("source", "Screen");
                     SetDpi();
+                    ProcessCapture();
                     CaptureWithFeedback();
                     break;
                 case CaptureMode.ActiveWindow:
@@ -528,6 +528,7 @@ namespace Greenshot.Helpers
                         _capture = WindowCapture.CaptureScreen(_capture);
                         _capture.CaptureDetails.AddMetaData("source", "screen");
                         SetDpi();
+                        ProcessCapture();
                         CaptureWithFeedback();
                     }
                     else
@@ -558,8 +559,6 @@ namespace Greenshot.Helpers
         /// </summary>
         private Thread PrepareForCaptureWithFeedback()
         {
-            _windows = new List<WindowDetails>();
-
             Thread getWindowDetailsThread = new Thread(RetrieveWindowDetails)
             {
                 Name = "Retrieve window details",
@@ -572,6 +571,15 @@ namespace Greenshot.Helpers
         private void RetrieveWindowDetails()
         {
             Log.Debug("start RetrieveWindowDetails");
+            var capture = _capture;
+            if (capture == null || capture.CaptureDetails == null)
+            {
+                return;
+            }
+
+            int zIndex = 0;
+            var windowFeatures = new List<WindowFeature>();
+
             // Start Enumeration of "active" windows
             foreach (var window in WindowDetails.GetVisibleWindows())
             {
@@ -586,10 +594,19 @@ namespace Greenshot.Helpers
                 }
 
                 window.GetChildren(goLevelDeep);
-                lock (_windows)
-                {
-                    _windows.Add(window);
-                }
+                
+                var feature = new WindowFeature(window, zIndex++);
+                windowFeatures.Add(feature);
+            }
+
+            lock (capture.CaptureDetails.Features)
+            {
+                capture.CaptureDetails.Features.AddRange(windowFeatures);
+            }
+
+            if (capture.CaptureDetails is CaptureDetails concreteDetails)
+            {
+                concreteDetails.NotifyFeaturesChanged();
             }
 
             Log.Debug("end RetrieveWindowDetails");
@@ -659,6 +676,17 @@ namespace Greenshot.Helpers
             }
         }
 
+        private void ProcessCapture()
+        {
+            // Let the processors do their job
+            foreach (var processor in SimpleServiceProvider.Current.GetAllInstances<IProcessor>())
+            {
+                if (!processor.isActive) continue;
+                Log.InfoFormat("Calling processor {0}", processor.Description);
+                processor.ProcessCapture(_capture);
+            }
+        }
+
         private void HandleCapture()
         {
             // Flag to see if the image was "exported" so the FileEditor doesn't
@@ -667,31 +695,59 @@ namespace Greenshot.Helpers
 
             if (_capture.CaptureDetails.CaptureMode == CaptureMode.Text)
             {
+                if (_capture.CaptureDetails.ProcessingTask != null)
+                {
+                    try
+                    {
+                        _capture.CaptureDetails.ProcessingTask.Wait();
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error("Error waiting for background OCR processing", ex);
+                    }
+                }
                 var selectionRectangle = new NativeRect(NativePoint.Empty, _capture.Image.Size);
-                var ocrInfo = _capture.CaptureDetails.OcrInformation;
-                if (ocrInfo != null)
+                var ocrLines = _capture.CaptureDetails.Features.OfType<IOcrLineFeature>().ToList();
+                if (ocrLines.Any())
                 {
                     var textResult = new StringBuilder();
-                    foreach (var line in ocrInfo.Lines)
+                    
+                    // Check if any line bounds exactly match the cropped selection area (meaning the user clicked a line)
+                    var clickedLine = ocrLines.FirstOrDefault(line =>
+                        line.Bounds.X == 0 &&
+                        line.Bounds.Y == 0 &&
+                        line.Bounds.Width == selectionRectangle.Width &&
+                        line.Bounds.Height == selectionRectangle.Height);
+
+                    if (clickedLine != null)
                     {
-                        var lineBounds = line.CalculatedBounds;
-                        if (lineBounds.IsEmpty) continue;
-                        // Highlight the text which is selected
-                        if (!lineBounds.IntersectsWith(selectionRectangle)) continue;
-
-                        for (var index = 0; index < line.Words.Length; index++)
+                        textResult.Append(clickedLine.Text);
+                    }
+                    else
+                    {
+                        // Region drag selection: copy only words within the region, in line order
+                        foreach (var line in ocrLines)
                         {
-                            var word = line.Words[index];
-                            if (!word.Bounds.IntersectsWith(selectionRectangle)) continue;
-                            textResult.Append(word.Text);
+                            var lineBounds = line.Bounds;
+                            if (lineBounds.IsEmpty) continue;
+                            // Highlight the text which is selected
+                            if (!lineBounds.IntersectsWith(selectionRectangle)) continue;
 
-                            if (index + 1 < line.Words.Length && word.Text.Length > 1)
+                            for (var index = 0; index < line.Words.Count; index++)
                             {
-                                textResult.Append(' ');
-                            }
-                        }
+                                var word = line.Words[index];
+                                var wordBounds = word.Bounds;
+                                if (!wordBounds.IntersectsWith(selectionRectangle)) continue;
+                                textResult.Append(word.Text);
 
-                        textResult.AppendLine();
+                                if (index + 1 < line.Words.Count && word.Text.Length > 1)
+                                {
+                                    textResult.Append(' ');
+                                }
+                            }
+
+                            textResult.AppendLine();
+                        }
                     }
 
                     if (textResult.Length > 0)
@@ -725,6 +781,8 @@ namespace Greenshot.Helpers
                 DoCaptureFeedback();
             }
 
+            ProcessCapture();
+
             Log.Debug("A capture of: " + _capture.CaptureDetails.Title);
 
             // check if someone has passed a destination
@@ -743,14 +801,6 @@ namespace Greenshot.Helpers
             if (CoreConfig.ShowTrayNotification && !CoreConfig.HideTrayicon)
             {
                 surface.SurfaceMessage += SurfaceMessageReceived;
-            }
-
-            // Let the processors do their job
-            foreach (var processor in SimpleServiceProvider.Current.GetAllInstances<IProcessor>())
-            {
-                if (!processor.isActive) continue;
-                Log.InfoFormat("Calling processor {0}", processor.Description);
-                processor.ProcessCapture(surface, _capture.CaptureDetails);
             }
 
             // As the surfaces copies the reference to the image, make sure the image is not being disposed (a trick to save memory)
@@ -1298,7 +1348,7 @@ namespace Greenshot.Helpers
 
         private void CaptureWithFeedback()
         {
-            using CaptureForm captureForm = new CaptureForm(_capture, _windows);
+            using CaptureForm captureForm = new CaptureForm(_capture);
             // Make sure the form is hidden after showing, even if an exception occurs, so all errors will be shown
             DialogResult result;
             try

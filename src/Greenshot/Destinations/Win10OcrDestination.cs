@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -20,12 +20,15 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Threading.Tasks;
 using Windows.Media.Ocr;
+using System.Linq;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Ocr;
+using Greenshot.Base.Interfaces.Plugin;
 
 namespace Greenshot.Destinations
 {
@@ -70,19 +73,52 @@ namespace Greenshot.Destinations
             var exportInformation = new ExportInformation(Designation, Description);
             try
             {
-                // TODO: Check if the OcrInformation is for the selected surface... otherwise discard & do it again
-                var ocrInformation = captureDetails.OcrInformation;
-                if (captureDetails.OcrInformation == null)
+                if (captureDetails.ProcessingTask != null)
+                {
+                    try
+                    {
+                        captureDetails.ProcessingTask.Wait();
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error("Error waiting for background OCR processing in destination", ex);
+                    }
+                }
+
+                List<IOcrLineFeature> ocrFeatures;
+                lock (captureDetails.Features)
+                {
+                    ocrFeatures = captureDetails.Features.OfType<IOcrLineFeature>().ToList();
+                }
+
+                if (!ocrFeatures.Any())
                 {
                     var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>();
-                    ocrInformation = Task.Run(async () => await ocrProvider.DoOcrAsync(surface).ConfigureAwait(false)).Result;
+                    var ocrLines = Task.Run(async () => await ocrProvider.DoOcrAsync(surface).ConfigureAwait(false)).Result;
+                    if (ocrLines != null && ocrLines.Any())
+                    {
+                        lock (captureDetails.Features)
+                        {
+                            captureDetails.Features.AddRange(ocrLines);
+                        }
+                        ocrFeatures = ocrLines;
+                    }
                 }
 
                 // Check if we found text
-                if (!string.IsNullOrWhiteSpace(ocrInformation.Text))
+                if (ocrFeatures.Any())
                 {
-                    // Place the OCR text on the
-                    ClipboardHelper.SetClipboardData(ocrInformation.Text);
+                    var sb = new System.Text.StringBuilder();
+                    foreach (var line in ocrFeatures)
+                    {
+                        sb.AppendLine(line.Text);
+                    }
+                    var fullText = sb.ToString();
+                    if (!string.IsNullOrWhiteSpace(fullText))
+                    {
+                        // Place the OCR text on the Clipboard
+                        ClipboardHelper.SetClipboardData(fullText);
+                    }
                 }
 
                 exportInformation.ExportMade = true;

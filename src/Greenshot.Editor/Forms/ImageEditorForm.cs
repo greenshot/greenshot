@@ -26,15 +26,11 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Windows.Forms;
-using Dapplo.Windows.Common.Enums;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Dpi;
 using Dapplo.Windows.Kernel32;
-using Dapplo.Windows.Messages;
-using Dapplo.Windows.Messages.Enumerations;
 using Dapplo.Windows.User32;
 using Dapplo.Windows.User32.Structs;
 using Greenshot.Base;
@@ -321,6 +317,19 @@ namespace Greenshot.Editor.Forms
             };
             //toolbarDropDownButtons = new ToolStripDropDownButton[]{btnBlur, btnPixeliate, btnTextHighlighter, btnAreaHighlighter, btnMagnifier};
 
+            try
+            {
+                var editorPlugins = SimpleServiceProvider.Current.GetAllInstances<IEditorPlugin>();
+                foreach (var plugin in editorPlugins)
+                {
+                    plugin.InitializeEditor(this, pluginToolStripMenuItem, Surface);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Error initializing editor plugins", ex);
+            }
+
             pluginToolStripMenuItem.Visible = pluginToolStripMenuItem.DropDownItems.Count > 0;
 
             // Make sure the value is set correctly when starting
@@ -373,7 +382,7 @@ namespace Greenshot.Editor.Forms
                     continue;
                 }
 
-                if (!destination.IsActive)
+                if (!destination.IsActiveFor(_surface.CaptureDetails))
                 {
                     continue;
                 }
@@ -492,12 +501,12 @@ namespace Greenshot.Editor.Forms
                     continue;
                 }
 
-                if (!destination.IsActive)
+                if (!destination.IsActiveFor(_surface.CaptureDetails))
                 {
                     continue;
                 }
 
-                ToolStripMenuItem item = destination.GetMenuItem(true, null, DestinationToolStripMenuItemClick);
+                ToolStripMenuItem item = destination.GetMenuItem(true, null, DestinationToolStripMenuItemClick, _surface.CaptureDetails);
                 if (item != null)
                 {
                     item.ShortcutKeys = destination.EditorShortcutKeys;
@@ -1225,7 +1234,7 @@ namespace Greenshot.Editor.Forms
                         continue;
                     }
 
-                    if (!destination.IsActive)
+                    if (!destination.IsActiveFor(_surface.CaptureDetails))
                     {
                         continue;
                     }
@@ -1729,7 +1738,30 @@ namespace Greenshot.Editor.Forms
                 return;
             }
 
-            if (_surface.CaptureDetails.OcrInformation == null)
+            if (_surface.CaptureDetails.ProcessingTask != null && !_surface.CaptureDetails.ProcessingTask.IsCompleted)
+            {
+                Cursor = Cursors.WaitCursor;
+                try
+                {
+                    await _surface.CaptureDetails.ProcessingTask;
+                }
+                catch (Exception ex)
+                {
+                    Log.Error("Error waiting for background OCR processing in editor", ex);
+                }
+                finally
+                {
+                    Cursor = Cursors.Default;
+                }
+            }
+
+            List<IOcrLineFeature> ocrLines;
+            lock (_surface.CaptureDetails.Features)
+            {
+                ocrLines = _surface.CaptureDetails.Features.OfType<IOcrLineFeature>().ToList();
+            }
+
+            if (!ocrLines.Any())
             {
                 var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>();
                 if (ocrProvider == null)
@@ -1741,7 +1773,15 @@ namespace Greenshot.Editor.Forms
                 Cursor = Cursors.WaitCursor;
                 try
                 {
-                    _surface.CaptureDetails.OcrInformation = await ocrProvider.DoOcrAsync(_surface);
+                    var detectedLines = await ocrProvider.DoOcrAsync(_surface);
+                    if (detectedLines != null && detectedLines.Any())
+                    {
+                        lock (_surface.CaptureDetails.Features)
+                        {
+                            _surface.CaptureDetails.Features.AddRange(detectedLines);
+                        }
+                        ocrLines = detectedLines;
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -1755,13 +1795,13 @@ namespace Greenshot.Editor.Forms
                 }
             }
 
-            if (_surface.CaptureDetails.OcrInformation == null || !_surface.CaptureDetails.OcrInformation.HasContent)
+            if (!ocrLines.Any())
             {
                 MessageBox.Show(Language.GetString("editor_obfuscate_text_no_text"), Language.GetString("editor_obfuscate_text_title"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
-            using (var dialog = new TextObfuscationForm(_surface, _surface.CaptureDetails.OcrInformation))
+            using (var dialog = new TextObfuscationForm(_surface, ocrLines))
             {
                 dialog.ShowDialog(this);
             }

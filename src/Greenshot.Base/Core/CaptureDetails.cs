@@ -22,7 +22,8 @@
 using System;
 using System.Collections.Generic;
 using Greenshot.Base.Interfaces;
-using Greenshot.Base.Interfaces.Ocr;
+using Greenshot.Base.Interfaces.Plugin;
+using Dapplo.Windows.Common.Structs;
 
 namespace Greenshot.Base.Core
 {
@@ -48,7 +49,7 @@ namespace Greenshot.Base.Core
         public float DpiY { get; set; }
 
         /// <inheritdoc />
-        public OcrInformation OcrInformation { get; set; }
+        public List<IDetectedFeature> Features { get; } = new List<IDetectedFeature>();
 
         /// <inheritdoc />
         public Dictionary<string, string> MetaData { get; } = new Dictionary<string, string>();
@@ -113,6 +114,26 @@ namespace Greenshot.Base.Core
         public CaptureDetails()
         {
             DateTime = DateTime.Now;
+        }
+
+        /// <inheritdoc />
+        public NativePoint CropOffset { get; set; } = NativePoint.Empty;
+
+        /// <inheritdoc />
+        public System.Threading.Tasks.Task ProcessingTask { get; set; }
+
+        /// <inheritdoc />
+        public HashSet<string> StartedProcessors { get; } = new HashSet<string>();
+
+        /// <inheritdoc />
+        public event EventHandler FeaturesChanged;
+
+        /// <summary>
+        /// Helper to raise the FeaturesChanged event.
+        /// </summary>
+        public void NotifyFeaturesChanged()
+        {
+            FeaturesChanged?.Invoke(this, EventArgs.Empty);
         }
     }
 }

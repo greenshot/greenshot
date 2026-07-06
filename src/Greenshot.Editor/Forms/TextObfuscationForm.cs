@@ -30,7 +30,7 @@ using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
-using Greenshot.Base.Interfaces.Ocr;
+using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Editor.Configuration;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Drawing.Fields;
@@ -46,16 +46,16 @@ namespace Greenshot.Editor.Forms
         private static readonly IEditorConfiguration EditorConfig = IniConfigRegistry.GetSection<IEditorConfiguration>();
         
         private readonly ISurface _surface;
-        private readonly OcrInformation _ocrInfo;
+        private readonly IEnumerable<IOcrLineFeature> _ocrLines;
         private readonly List<NativeRect> _matchedBounds = new List<NativeRect>();
         private readonly List<FilterContainer> _previewContainers = new List<FilterContainer>();
         private IDisposable _searchSubscription;
         private bool _isInitializing = true;
 
-        public TextObfuscationForm(ISurface surface, OcrInformation ocrInfo)
+        public TextObfuscationForm(ISurface surface, IEnumerable<IOcrLineFeature> ocrLines)
         {
             _surface = surface ?? throw new ArgumentNullException(nameof(surface));
-            _ocrInfo = ocrInfo ?? throw new ArgumentNullException(nameof(ocrInfo));
+            _ocrLines = ocrLines ?? throw new ArgumentNullException(nameof(ocrLines));
             InitializeComponent();
             
             // Initialize match count label with formatted text
@@ -251,7 +251,7 @@ namespace Greenshot.Editor.Forms
 
         private void SearchWords(string searchText, bool useRegex)
         {
-            foreach (var line in _ocrInfo.Lines)
+            foreach (var line in _ocrLines)
             {
                 foreach (var word in line.Words)
                 {
@@ -265,11 +265,11 @@ namespace Greenshot.Editor.Forms
 
         private void SearchLines(string searchText, bool useRegex)
         {
-            foreach (var line in _ocrInfo.Lines)
+            foreach (var line in _ocrLines)
             {
                 if (IsMatch(line.Text, searchText, useRegex))
                 {
-                    _matchedBounds.Add(ApplyPadding(line.CalculatedBounds));
+                    _matchedBounds.Add(ApplyPadding(line.Bounds));
                 }
             }
         }

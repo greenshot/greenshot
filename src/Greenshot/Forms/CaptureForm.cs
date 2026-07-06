@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -22,6 +22,7 @@
 using log4net;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -40,6 +41,7 @@ using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Ocr;
 using Dapplo.Windows.Icons;
+using Greenshot.Base.Interfaces.Plugin;
 
 namespace Greenshot.Forms
 {
@@ -90,8 +92,9 @@ namespace Greenshot.Forms
         private NativePoint _mouseMovePos = NativePoint.Empty;
         private NativePoint _cursorPos;
         private CaptureMode _captureMode;
-        private readonly List<WindowDetails> _windows;
         private WindowDetails _selectedCaptureWindow;
+
+        private List<WindowDetails> _windowsCached = new List<WindowDetails>();
         private bool _mouseDown;
         private NativeRect _captureRect = NativeRect.Empty;
         private readonly ICapture _capture;
@@ -101,6 +104,9 @@ namespace Greenshot.Forms
         private RectangleAnimator _zoomAnimator;
         private readonly bool _isZoomerTransparent = Conf.ZoomerOpacity < 1;
         private bool _isCtrlPressed;
+        public List<CaptureFormHotspot> Hotspots { get; } = new List<CaptureFormHotspot>();
+        private CaptureFormHotspot _lastHoveredHotspot;
+        private IOcrLineFeature _hoveredLine;
         private bool _showDebugInfo;
 
         /// <summary>
@@ -149,14 +155,17 @@ namespace Greenshot.Forms
         {
             Log.Debug("Closing capture form");
             WindowDetails.UnregisterIgnoreHandle(Handle);
+            if (_capture?.CaptureDetails != null)
+            {
+                _capture.CaptureDetails.FeaturesChanged -= OnFeaturesChanged;
+            }
         }
 
         /// <summary>
         /// This creates the capture form
         /// </summary>
         /// <param name="capture"></param>
-        /// <param name="windows"></param>
-        public CaptureForm(ICapture capture, List<WindowDetails> windows)
+        public CaptureForm(ICapture capture)
         {
             if (_currentForm != null)
             {
@@ -171,7 +180,6 @@ namespace Greenshot.Forms
             // clean up
             FormClosed += ClosedHandler;
             _capture = capture;
-            _windows = windows;
             _captureMode = capture.CaptureDetails.CaptureMode;
 
             // Set cursor location before enabling animations to avoid race condition
@@ -209,7 +217,60 @@ namespace Greenshot.Forms
             // Make sure the size is set correctly
             SetSize();
 
+            // Subscribe to FeaturesChanged and build hotspots
+            _capture.CaptureDetails.FeaturesChanged += OnFeaturesChanged;
+            RebuildFeatureHotspots();
+
             Resize += CaptureForm_Resize;
+        }
+
+        private void RebuildFeatureHotspots()
+        {
+            List<IDetectedFeature> featuresCopy;
+            lock (_capture.CaptureDetails.Features)
+            {
+                featuresCopy = new List<IDetectedFeature>(_capture.CaptureDetails.Features);
+                _windowsCached = _capture.CaptureDetails.Features
+                    .OfType<WindowFeature>()
+                    .OrderBy(f => f.ZIndex)
+                    .Select(f => f.Window)
+                    .ToList();
+            }
+
+            Hotspots.Clear();
+            try
+            {
+                var transformers = SimpleServiceProvider.Current.GetAllInstances<IFeatureHotspotTransformer>();
+                foreach (var feature in featuresCopy)
+                {
+                    foreach (var transformer in transformers)
+                    {
+                        if (transformer.CanTransform(feature))
+                        {
+                            var hotspot = transformer.Transform(feature, this);
+                            if (hotspot != null)
+                            {
+                                Hotspots.Add(hotspot);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Error transforming capture features to hotspots", ex);
+            }
+        }
+
+        private void OnFeaturesChanged(object sender, EventArgs e)
+        {
+            if (InvokeRequired)
+            {
+                BeginInvoke(new Action(() => OnFeaturesChanged(sender, e)));
+                return;
+            }
+            RebuildFeatureHotspots();
+            Invalidate();
         }
 
         private void CaptureForm_Resize(object sender, EventArgs e)
@@ -382,20 +443,44 @@ namespace Greenshot.Forms
                     ToFront = !ToFront;
                     TopMost = !TopMost;
                     break;
-                case Keys.T:
+                 case Keys.T:
                     _captureMode = CaptureMode.Text;
-                    if (_capture.CaptureDetails.OcrInformation is null)
+                    bool hasOcrLines;
+                    lock (_capture.CaptureDetails.Features)
                     {
-                        var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>();
-                        if (ocrProvider != null)
+                        hasOcrLines = _capture.CaptureDetails.Features.OfType<IOcrLineFeature>().Any();
+                    }
+                    if (!hasOcrLines)
+                    {
+                        if (_capture.CaptureDetails.ProcessingTask != null && !_capture.CaptureDetails.ProcessingTask.IsCompleted)
                         {
-                            var uiTaskScheduler = SimpleServiceProvider.Current.GetInstance<TaskScheduler>();
-
-                            Task.Factory.StartNew(async () =>
+                            // Already processing in the background, the UI will invalidate when finished
+                            Invalidate();
+                        }
+                        else
+                        {
+                            var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>();
+                            if (ocrProvider != null)
                             {
-                                _capture.CaptureDetails.OcrInformation = await ocrProvider.DoOcrAsync(_capture.Image);
-                                Invalidate();
-                            }, CancellationToken.None, TaskCreationOptions.None, uiTaskScheduler);
+                                var uiTaskScheduler = SimpleServiceProvider.Current.GetInstance<TaskScheduler>();
+
+                                Task.Factory.StartNew(async () =>
+                                {
+                                    var ocrLines = await ocrProvider.DoOcrAsync(_capture.Image);
+                                    if (ocrLines != null && ocrLines.Any())
+                                    {
+                                        lock (_capture.CaptureDetails.Features)
+                                        {
+                                            _capture.CaptureDetails.Features.AddRange(ocrLines);
+                                        }
+                                        if (_capture.CaptureDetails is CaptureDetails concreteDetails)
+                                        {
+                                            concreteDetails.NotifyFeaturesChanged();
+                                        }
+                                    }
+                                    Invalidate();
+                                }, CancellationToken.None, TaskCreationOptions.None, uiTaskScheduler);
+                            }
                         }
                     }
                     else
@@ -416,6 +501,20 @@ namespace Greenshot.Forms
         {
             if (e.Button == MouseButtons.Left)
             {
+                var mouseMovePos = FixMouseCoordinates(User32Api.GetCursorLocation());
+                _mouseMovePos = WindowCapture.GetLocationRelativeToScreenBounds(mouseMovePos);
+
+                if (Hotspots != null && Hotspots.Count > 0)
+                {
+                    foreach (var hotspot in Hotspots)
+                    {
+                        if (hotspot.Bounds.Contains(_mouseMovePos))
+                        {
+                            hotspot.ClickAction?.Invoke(e);
+                            return;
+                        }
+                    }
+                }
                 HandleMouseDown();
             }
         }
@@ -440,7 +539,7 @@ namespace Greenshot.Forms
                 // Go and process the capture
                 DialogResult = DialogResult.OK;
             }
-            else if (_captureRect.Height > 0 && _captureRect.Width > 0)
+            else if (_captureRect.Height > 3 && _captureRect.Width > 3)
             {
                 // correct the GUI width to real width if Region mode
                 if (_captureMode is CaptureMode.Region or CaptureMode.Text)
@@ -453,10 +552,10 @@ namespace Greenshot.Forms
                 // Go and process the capture
                 DialogResult = DialogResult.OK;
             }
-            else if (_captureMode == CaptureMode.Text && IsWordUnderCursor(_mouseMovePos))
+            else if (_captureMode == CaptureMode.Text && IsLineUnderCursor(_mouseMovePos, out var clickedLine))
             {
-                // Handle a click on a single word
-                _captureRect = new NativeRect(_mouseMovePos, new NativeSize(1, 1));
+                // Handle a click on a single line
+                _captureRect = clickedLine.Bounds;
                 // Go and process the capture
                 DialogResult = DialogResult.OK;
             }
@@ -466,29 +565,34 @@ namespace Greenshot.Forms
             }
         }
 
-        /// <summary>
-        /// Check if there is a word under the specified location
-        /// </summary>
-        /// <param name="location">NativePoint</param>
-        /// <returns>bool true if there is a word</returns>
-        private bool IsWordUnderCursor(NativePoint location)
+        private NativeRect GetClippedWindowRectangle(WindowDetails window)
         {
-            if (_captureMode != CaptureMode.Text || _capture.CaptureDetails.OcrInformation == null) return false;
-
-            var ocrInfo = _capture.CaptureDetails.OcrInformation;
-
-            foreach (var line in ocrInfo.Lines)
+            NativeRect rect = window.WindowRectangle;
+            WindowDetails parent = window.GetParent();
+            while (parent != null)
             {
-                var lineBounds = line.CalculatedBounds;
-                if (lineBounds.IsEmpty) continue;
-                // Highlight the text which is selected
-                if (!lineBounds.Contains(location)) continue;
-                foreach (var word in line.Words)
+                rect = rect.Intersect(parent.WindowRectangle);
+                parent = parent.GetParent();
+            }
+            return rect;
+        }
+
+        private bool IsLineUnderCursor(NativePoint location, out IOcrLineFeature clickedLine)
+        {
+            clickedLine = null;
+            if (_captureMode != CaptureMode.Text) return false;
+
+            List<IOcrLineFeature> lines;
+            lock (_capture.CaptureDetails.Features)
+            {
+                lines = _capture.CaptureDetails.Features.OfType<IOcrLineFeature>().ToList();
+            }
+            foreach (var line in lines)
+            {
+                if (line.Bounds.Contains(location))
                 {
-                    if (word.Bounds.Contains(location))
-                    {
-                        return true;
-                    }
+                    clickedLine = line;
+                    return true;
                 }
             }
 
@@ -549,6 +653,34 @@ namespace Greenshot.Forms
             // Make sure the mouse coordinates are fixed, when pressing shift
             var mouseMovePos = FixMouseCoordinates(User32Api.GetCursorLocation());
             _mouseMovePos = WindowCapture.GetLocationRelativeToScreenBounds(mouseMovePos);
+
+            CaptureFormHotspot currentHovered = null;
+            if (Hotspots != null && Hotspots.Count > 0)
+            {
+                foreach (var hotspot in Hotspots)
+                {
+                    if (hotspot.Bounds.Contains(_mouseMovePos))
+                    {
+                        currentHovered = hotspot;
+                        break;
+                    }
+                }
+            }
+
+            if (currentHovered != _lastHoveredHotspot)
+            {
+                if (_lastHoveredHotspot != null)
+                {
+                    Invalidate(_lastHoveredHotspot.Bounds);
+                }
+                if (currentHovered != null)
+                {
+                    Invalidate(currentHovered.Bounds);
+                }
+                _lastHoveredHotspot = currentHovered;
+            }
+
+            this.Cursor = (currentHovered != null) ? Cursors.Hand : Cursors.Cross;
         }
 
         /// <summary>
@@ -601,19 +733,16 @@ namespace Greenshot.Forms
             // Iterate over the found windows and check if the current location is inside a window
             NativePoint cursorPosition = Cursor.Position;
             _selectedCaptureWindow = null;
-            lock (_windows)
+            foreach (var window in _windowsCached)
             {
-                foreach (var window in _windows)
+                if (!window.Contains(cursorPosition))
                 {
-                    if (!window.Contains(cursorPosition))
-                    {
-                        continue;
-                    }
-
-                    // Only go over the children if we are in window mode
-                    _selectedCaptureWindow = CaptureMode.Window == _captureMode ? window.FindChildUnderPoint(cursorPosition) : window;
-                    break;
+                    continue;
                 }
+
+                // Only go over the children if we are in window mode
+                _selectedCaptureWindow = CaptureMode.Window == _captureMode ? window.FindChildUnderPoint(cursorPosition) : window;
+                break;
             }
 
             if (_selectedCaptureWindow != null && !_selectedCaptureWindow.Equals(lastWindow))
@@ -623,7 +752,7 @@ namespace Greenshot.Forms
                 if (_captureMode == CaptureMode.Window)
                 {
                     // Here we want to capture the window which is under the mouse
-                    _captureRect = _selectedCaptureWindow.WindowRectangle;
+                    _captureRect = GetClippedWindowRectangle(_selectedCaptureWindow);
                     // As the ClientRectangle is not in Bitmap coordinates, we need to correct.
                     _captureRect = _captureRect.Offset(-_capture.ScreenBounds.Location.X, -_capture.ScreenBounds.Location.Y);
                 }
@@ -735,28 +864,28 @@ namespace Greenshot.Forms
             }
 
             // OCR
-            if (_captureMode == CaptureMode.Text && _capture.CaptureDetails.OcrInformation != null)
+            if (_captureMode == CaptureMode.Text)
             {
-                var ocrInfo = _capture.CaptureDetails.OcrInformation;
-
-                invalidateRectangle = NativeRect.Empty;
-                foreach (var line in ocrInfo.Lines)
+                List<IOcrLineFeature> lines;
+                lock (_capture.CaptureDetails.Features)
                 {
-                    var lineBounds = line.CalculatedBounds;
-                    if (lineBounds.IsEmpty)
+                    lines = _capture.CaptureDetails.Features.OfType<IOcrLineFeature>().ToList();
+                }
+                IOcrLineFeature newHoveredLine = null;
+
+                if (_mouseDown)
+                {
+                    invalidateRectangle = NativeRect.Empty;
+                    foreach (var line in lines)
                     {
-                        continue;
-                    }
-                    if (_mouseDown)
-                    {
-                        // Highlight the text which is selected
+                        var lineBounds = line.Bounds;
+                        if (lineBounds.IsEmpty) continue;
                         if (!lineBounds.IntersectsWith(_captureRect)) continue;
+
                         foreach (var word in line.Words)
                         {
-                            if (!word.Bounds.IntersectsWith(_captureRect))
-                            {
-                                continue;
-                            }
+                            if (!word.Bounds.IntersectsWith(_captureRect)) continue;
+
                             if (invalidateRectangle.IsEmpty)
                             {
                                 invalidateRectangle = word.Bounds;
@@ -767,28 +896,36 @@ namespace Greenshot.Forms
                             }
                         }
                     }
-                    else if (lineBounds.Contains(_mouseMovePos))
-                    {
-                        foreach (var word in line.Words)
-                        {
-                            if (!word.Bounds.Contains(_mouseMovePos)) continue;
-                            if (invalidateRectangle.IsEmpty)
-                            {
-                                invalidateRectangle = word.Bounds;
-                            }
-                            else
-                            {
-                                invalidateRectangle = invalidateRectangle.Union(word.Bounds);
-                            }
 
+                    if (!invalidateRectangle.IsEmpty)
+                    {
+                        Invalidate(invalidateRectangle);
+                    }
+                }
+                else
+                {
+                    // Hover mode
+                    foreach (var line in lines)
+                    {
+                        if (line.Bounds.Contains(_mouseMovePos))
+                        {
+                            newHoveredLine = line;
                             break;
                         }
                     }
-                }
 
-                if (!invalidateRectangle.IsEmpty)
-                {
-                    Invalidate(invalidateRectangle);
+                    if (newHoveredLine != _hoveredLine)
+                    {
+                        if (_hoveredLine != null)
+                        {
+                            Invalidate(_hoveredLine.Bounds);
+                        }
+                        if (newHoveredLine != null)
+                        {
+                            Invalidate(newHoveredLine.Bounds);
+                        }
+                        _hoveredLine = newHoveredLine;
+                    }
                 }
             }
 
@@ -981,20 +1118,41 @@ namespace Greenshot.Forms
             //graphics.BitBlt((Bitmap)buffer, Point.Empty);
             graphics.DrawImageUnscaled(_capture.Image, Point.Empty);
 
-            var ocrInfo = _capture.CaptureDetails.OcrInformation;
-            if (ocrInfo != null && _captureMode == CaptureMode.Text)
+            // Draw custom hotspots from plugins (e.g. QR codes)
+            if (Hotspots != null && Hotspots.Count > 0)
+            {
+                using var pen = new Pen(Color.FromArgb(0, 120, 215), 2) { DashStyle = DashStyle.Dash };
+                var hoverColor = Color.FromArgb(40, 0, 120, 215);
+                using var hoverBrush = new SolidBrush(hoverColor);
+                
+                foreach (var hotspot in Hotspots)
+                {
+                    graphics.DrawRectangle(pen, hotspot.Bounds);
+                    if (hotspot.Bounds.Contains(_mouseMovePos))
+                    {
+                        graphics.FillRectangle(hoverBrush, hotspot.Bounds);
+                    }
+                }
+            }
+
+            List<IOcrLineFeature> ocrLines;
+            lock (_capture.CaptureDetails.Features)
+            {
+                ocrLines = _capture.CaptureDetails.Features.OfType<IOcrLineFeature>().ToList();
+            }
+            if (ocrLines.Any() && _captureMode == CaptureMode.Text)
             {
                 using var pen = new Pen(Color.Red);
                 var highlightColor = Color.FromArgb(128, Color.Yellow);
                 using var highlightTextBrush = new SolidBrush(highlightColor);
-                foreach (var line in ocrInfo.Lines)
+                foreach (var line in ocrLines)
                 {
-                    var lineBounds = line.CalculatedBounds;
+                    var lineBounds = line.Bounds;
                     if (lineBounds.IsEmpty)
                     {
                         continue;
                     }
-                    graphics.DrawRectangle(pen, line.CalculatedBounds);
+                    graphics.DrawRectangle(pen, (Rectangle)line.Bounds);
                     if (_mouseDown)
                     {
                         // Highlight the text which is selected
@@ -1002,24 +1160,18 @@ namespace Greenshot.Forms
                         {
                             foreach (var word in line.Words)
                             {
-                                if (word.Bounds.IntersectsWith(_captureRect))
+                                var wordBounds = word.Bounds;
+                                if (wordBounds.IntersectsWith(_captureRect))
                                 {
-                                    graphics.FillRectangle(highlightTextBrush, word.Bounds);
+                                    graphics.FillRectangle(highlightTextBrush, (Rectangle)word.Bounds);
                                 }
                             }
                         }
                     }
                     else if (lineBounds.Contains(_mouseMovePos))
                     {
-                        foreach (var word in line.Words)
-                        {
-                            if (!word.Bounds.Contains(_mouseMovePos))
-                            {
-                                continue;
-                            }
-                            graphics.FillRectangle(highlightTextBrush, word.Bounds);
-                            break;
-                        }
+                        // Hover: highlight the entire line
+                        graphics.FillRectangle(highlightTextBrush, (Rectangle)line.Bounds);
                     }
                 }
             }
