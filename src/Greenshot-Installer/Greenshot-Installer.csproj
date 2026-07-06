@@ -16,10 +16,10 @@
     </PropertyGroup>
     <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -Command &quot;&amp; '$(MSBuildThisFileDirectory)scripts\generate-sboms.ps1' -SolutionDir '$(SolutionDir)' -Configuration '$(Configuration)' -TargetFramework '$(TargetFramework)' -SbomVersion '$(SbomVersion)'&quot;" />
     <ItemGroup>
-      <SpdxManifestFiles Include="..\Greenshot\bin\$(Configuration)\$(TargetFramework)\_manifest\**\manifest.spdx.json*" />
+      <SpdxManifestFiles Include="$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\_manifest\**\manifest.spdx.json*" />
     </ItemGroup>
-    <Copy SourceFiles="@(SpdxManifestFiles)" DestinationFolder="..\Greenshot\bin\$(Configuration)\$(TargetFramework)" />
-    <RemoveDir Directories="..\Greenshot\bin\$(Configuration)\$(TargetFramework)\_manifest" />
+    <Copy SourceFiles="@(SpdxManifestFiles)" DestinationFolder="$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)" />
+    <RemoveDir Directories="$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\_manifest" />
   </Target>
 
   <Target Name="Generate hashes" BeforeTargets="PostBuildEvent" Condition="'$(Configuration)' == 'Release'">
