@@ -216,6 +216,7 @@ Har du skrivetilgang til det valde området?</resource>
 		<resource name="settings_destination_fileas">Lagre som (med dialogboks)</resource>
 		<resource name="settings_destination_picker">Spør etter mål kvar gong</resource>
 		<resource name="settings_destination_printer">Send til utskrift</resource>
+		<resource name="settings_destination_viewer">Opne i bildevisar</resource>
 		<resource name="settings_editor">Knipsfiksar</resource>
 		<resource name="settings_filenamepattern">Regel for filnamn</resource>
 		<resource name="settings_general">Generell</resource>
@@ -273,5 +274,18 @@ Alle Greenshot-funksjonar er likevel tilgjengeleg via høgreklikkmenyen i varsli
 		<resource name="WindowCaptureMode.Auto">Automatisk</resource>
 		<resource name="WindowCaptureMode.GDI">Bruk standardfarge</resource>
 		<resource name="WindowCaptureMode.Screen">Som synt</resource>
+		
+		<resource name="viewer_alwaysontop">Alltid øvst</resource>
+		<resource name="viewer_close_all">Lukk alle bildevisarar</resource>
+		<resource name="viewer_first_usage_message">Bildet er ikkje lagra og vil gå tapt når vindauget blir lukka utan å lagre.</resource>
+		<resource name="viewer_first_usage_title">Bildevisar - Første bruk</resource>
+		<resource name="viewer_hide_cursor">Gøym fanga musepeikar</resource>
+		<resource name="viewer_hide_title">Gøym tittelline</resource>
+		<resource name="viewer_process_again">Handsam bilete på nytt...</resource>
+		<resource name="viewer_reset_zoom">Tilbakestill zoom/panorering</resource>
+		<resource name="viewer_save">Lagre</resource>
+		<resource name="viewer_saveas">Lagre som...</resource>
+		<resource name="viewer_show_cursor">Vis fanga musepeikar</resource>
+		<resource name="viewer_show_title">Vis tittelline</resource>
 	</resources>
 </language>

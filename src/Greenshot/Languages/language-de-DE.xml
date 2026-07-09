@@ -241,6 +241,7 @@ Bitte überprüfen Sie die Schreibrechte oder wählen Sie einen anderen Speicher
 		<resource name="settings_destination_fileas">Speichern unter... (mit Dialog)</resource>
 		<resource name="settings_destination_picker">Jedes Mal nach Ziel fragen</resource>
 		<resource name="settings_destination_printer">An Drucker senden</resource>
+		<resource name="settings_destination_viewer">Im Bildbetrachter öffnen</resource>
 		<resource name="settings_editor">Editor</resource>
 		<resource name="settings_filenamepattern">Dateinamensmuster</resource>
 		<resource name="settings_general">Allgemein</resource>
@@ -333,5 +334,18 @@ Sie können aber auch alle Greenshot-Funktionen über das Kontextmenü des Green
 		<resource name="editor_resize_width">Breite</resource>
 		<resource name="editor_resize_height">Höhe</resource>
 		<resource name="settings_iconsize">Symbolgröße</resource>
+		
+		<resource name="viewer_alwaysontop">Immer im Vordergrund</resource>
+		<resource name="viewer_close_all">Alle Bildbetrachter schließen</resource>
+		<resource name="viewer_first_usage_message">Das Bild ist nicht gespeichert und geht verloren, wenn das Fenster geschlossen wird, ohne zu speichern.</resource>
+		<resource name="viewer_first_usage_title">Bildbetrachter - Erste Verwendung</resource>
+		<resource name="viewer_hide_cursor">Aufgenommenen Cursor ausblenden</resource>
+		<resource name="viewer_hide_title">Titelleiste ausblenden</resource>
+		<resource name="viewer_process_again">Bild erneut verarbeiten...</resource>
+		<resource name="viewer_reset_zoom">Zoom/Verschiebung zurücksetzen</resource>
+		<resource name="viewer_save">Speichern</resource>
+		<resource name="viewer_saveas">Speichern unter...</resource>
+		<resource name="viewer_show_cursor">Aufgenommenen Cursor anzeigen</resource>
+		<resource name="viewer_show_title">Titelleiste anzeigen</resource>
 	</resources>
 </language>

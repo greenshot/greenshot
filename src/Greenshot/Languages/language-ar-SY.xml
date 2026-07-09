@@ -164,6 +164,7 @@
 		<resource name="settings_destination_file">احفظ مباشرة (باستخدام الاعدادات بالأسفل)</resource>
 		<resource name="settings_destination_fileas">احفظ باسم..</resource>
 		<resource name="settings_destination_printer">ارسل للطباعة</resource>
+		<resource name="settings_destination_viewer">فتح في عارض الصور</resource>
 		<resource name="settings_filenamepattern">نمط اسم الملف</resource>
 		<resource name="settings_general">عام</resource>
 		<resource name="settings_jpegquality">JPEG جودة</resource>
@@ -208,5 +209,18 @@ ${hostname} اسم الحاسوب
 		<resource name="warning_hotkeys">لا يمكن تسجيل اختصار واحد او اكثر. لذلك, قد لا يكون بالامكان استخدام اختصارات جرين شوت.
 هذه المشكلة على الاغلب سببها برنامج اخر يدعي استخدام نفس الاختصارات.
 رجاء قم بالغاء البرنامج الذي يقوم باستخدام مفتاح الطباعة. يمكنك ايضا استخدام كل ميزات جرين شوت من الايقونة على شريط المهام.</resource>
+		
+		<resource name="viewer_alwaysontop">دائماً في المقدمة</resource>
+		<resource name="viewer_close_all">أغلق جميع العارضات</resource>
+		<resource name="viewer_first_usage_message">الصورة غير محفوظة وسيتم فقدانها عند إغلاق النافذة بدون حفظ.</resource>
+		<resource name="viewer_first_usage_title">عارض الصور - الاستخدام الأول</resource>
+		<resource name="viewer_hide_cursor">إخفاء المؤشر الملتقط</resource>
+		<resource name="viewer_hide_title">إخفاء شريط العنوان</resource>
+		<resource name="viewer_process_again">معالجة الصورة مرة أخرى...</resource>
+		<resource name="viewer_reset_zoom">إعادة تعيين التكبير/التحريك</resource>
+		<resource name="viewer_save">حفظ</resource>
+		<resource name="viewer_saveas">حفظ باسم...</resource>
+		<resource name="viewer_show_cursor">إظهار المؤشر الملتقط</resource>
+		<resource name="viewer_show_title">إظهار شريط العنوان</resource>
 	</resources>
 </language>
