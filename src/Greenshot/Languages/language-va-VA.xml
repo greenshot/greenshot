@@ -1,0 +1,344 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Valencià (RACV)" ietf="va-VA" version="1.0.4" languagegroup="1">
+    <resources>
+        <resource name="about_bugs">Per favor, informeu dels erros en</resource>
+        <resource name="about_donations">Si li agrada Greenshot, és benvingut a recolzar-nos:</resource>
+        <resource name="about_host">Greenshot està allojat en GitHub en</resource>
+        <resource name="about_icons">Icons del conjunt “Fugue” de Yusuke Kamiyamane (Llicència Creative Commons Attribution 3.0)</resource>
+        <resource name="about_license">© 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+Greenshot es distribuïx SENSE CAP TIPO DE GARANTIA. És programari lliure, i és benvingut a redistribuir-lo baix certes condicions.
+Més detalls sobre la Llicència Pública General GNU:</resource>
+        <resource name="about_title">Sobre Greenshot</resource>
+        <resource name="about_translation">Traducció a la llengua valenciana (RACV) per Daniel Seguí</resource>
+        <resource name="application_title">Greenshot - l'utilitat revolucionària per a captures de pantalla</resource>
+        <resource name="bugreport_cancel">Tancar</resource>
+		<resource name="bugreport_info">Ho sentim, s'ha produït un error inesperat.
+
+La bona notícia és que pot ajudar-nos a eliminar-lo enviant un informe d'error.
+Per favor, visite l'URL de davall, cree un nou informe i apegue el contingut de l'àrea de text en la descripció.
+
+Per favor, afegixca un resum clar i aporte qualsevol informació que considere útil per a reproduir el problema.
+També li agrairíem molt que comprovara si ya existix un element en el rastrejador per a este erro. (Pot usar la busca per a trobar-los ràpidament.) Gràcies :)</resource>
+		<resource name="bugreport_title">Erro</resource>
+		<resource name="CANCEL">Cancelar</resource>
+		<resource name="clipboard_error">S'ha produït un erro inesperat mentres s'escrivia en el portapapers.</resource>
+		<resource name="clipboard_inuse">Greenshot no ha pogut escriure en el portapapers perque el procés {0} ha bloquejat l'accés.</resource>
+		<resource name="clipboard_noimage">No s'ha pogut trobar cap image en el portapapers.</resource>
+		<resource name="ClipboardFormat.BITMAP">Mapa de bits de Windows</resource>
+		<resource name="ClipboardFormat.DIB">Mapa de bits independent del dispositiu (DIB)</resource>
+		<resource name="ClipboardFormat.HTML">HTML</resource>
+		<resource name="ClipboardFormat.HTMLDATAURL">HTML en imàgens incrustades</resource>
+		<resource name="ClipboardFormat.PNG">PNG</resource>
+		<resource name="colorpicker_alpha">Alfa</resource>
+		<resource name="colorpicker_apply">Aplicar</resource>
+		<resource name="colorpicker_blue">Blau</resource>
+		<resource name="colorpicker_green">Vert</resource>
+		<resource name="colorpicker_htmlcolor">Color HTML</resource>
+		<resource name="colorpicker_recentcolors">Colors usats recentment</resource>
+		<resource name="colorpicker_red">Roig</resource>
+		<resource name="colorpicker_title">Selector de color</resource>
+		<resource name="colorpicker_transparent">Transparent</resource>
+		<resource name="com_rejected">La destinació {0} ha rebujat l'accés de Greenshot, probablement hi ha un diàlec obert. Tanque el diàlec i torne a intentar-ho.</resource>
+		<resource name="com_rejected_title">Accés de Greenshot rebujat</resource>
+		<resource name="config_unauthorizedaccess_write">No s'ha pogut guardar l'archiu de configuració de Greenshot. Per favor, verifique els permisos d'accés per a '{0}'.</resource>
+		<resource name="contextmenu_about">Sobre Greenshot</resource>
+		<resource name="contextmenu_capturearea">Capturar regió</resource>
+		<resource name="contextmenu_captureclipboard">Obrir image des del portapapers</resource>
+		<resource name="contextmenu_capturefullscreen">Capturar pantalla completa</resource>
+		<resource name="contextmenu_capturefullscreen_all">tot</resource>
+		<resource name="contextmenu_capturefullscreen_bottom">baix</resource>
+		<resource name="contextmenu_capturefullscreen_left">esquerra</resource>
+		<resource name="contextmenu_capturefullscreen_right">dreta</resource>
+		<resource name="contextmenu_capturefullscreen_top">dalt</resource>
+		<resource name="contextmenu_capturelastregion">Capturar l'última regió</resource>
+		<resource name="contextmenu_capturewindow">Capturar finestra</resource>
+		<resource name="contextmenu_capturewindowfromlist">Capturar finestra des de la llista</resource>
+		<resource name="contextmenu_donate">Recolzar Greenshot</resource>
+		<resource name="contextmenu_exit">Eixir</resource>
+		<resource name="contextmenu_help">Ajuda</resource>
+		<resource name="contextmenu_openfile">Obrir image des d'archiu</resource>
+		<resource name="contextmenu_openrecentcapture">Obrir l'última captura</resource>
+		<resource name="contextmenu_quicksettings">Preferències ràpides</resource>
+		<resource name="contextmenu_settings">Preferències...</resource>
+		<resource name="destination_exportfailed">Erro en exportar a {0}. Per favor, torne a intentar-ho.</resource>
+		<resource name="editor_align_bottom">Baix</resource>
+		<resource name="editor_align_center">Centre</resource>
+		<resource name="editor_align_horizontal">Alineació horisontal</resource>
+		<resource name="editor_align_left">Esquerra</resource>
+		<resource name="editor_align_middle">Mig</resource>
+		<resource name="editor_align_right">Dreta</resource>
+		<resource name="editor_align_top">Dalt</resource>
+		<resource name="editor_align_vertical">Alineació vertical</resource>
+		<resource name="editor_arrange">Organisar</resource>
+		<resource name="editor_arrowheads">Puntes de flecha</resource>
+		<resource name="editor_arrowheads_both">Abdós</resource>
+		<resource name="editor_arrowheads_end">Extrem</resource>
+		<resource name="editor_arrowheads_none">Cap</resource>
+		<resource name="editor_arrowheads_start">Començament</resource>
+		<resource name="editor_autocrop">Retall automàtic</resource>
+		<resource name="editor_autocrop_not_possible">Retall automàtic no possible</resource>
+		<resource name="editor_backcolor">Color de fondo (0-9)</resource>
+		<resource name="editor_blur_radius">Radi de difuminar</resource>
+		<resource name="editor_bold">Negreta</resource>
+		<resource name="editor_border">Borde</resource>
+		<resource name="editor_brightness">Brillantor</resource>
+		<resource name="editor_cancel">Cancelar</resource>
+		<resource name="editor_clipboardfailed">Erro en accedir al portapapers. Per favor, torne a intentar-ho.</resource>
+		<resource name="editor_close">Tancar</resource>
+		<resource name="editor_close_all">Tancar tot</resource>
+		<resource name="editor_close_on_save">¿Voleu guardar la captura?</resource>
+		<resource name="editor_close_on_save_title">¿Guardar la image?</resource>
+		<resource name="editor_confirm">Confirmar</resource>
+		<resource name="editor_copyimagetoclipboard">Copiar image al portapapers</resource>
+		<resource name="editor_copypathtoclipboard">Copiar ruta al portapapers</resource>
+		<resource name="editor_copytoclipboard">Copiar</resource>
+		<resource name="editor_crop">Retallar (C)</resource>
+		<resource name="editor_crop_mode">Modo de retall</resource>
+		<resource name="editor_cropmode_default">Retallar</resource>
+		<resource name="editor_cropmode_vertical">Retallar verticalment</resource>
+		<resource name="editor_cropmode_horizontal">Retallar horisontalment</resource>
+		<resource name="editor_cropmode_auto">Retall automàtic</resource>
+		<resource name="editor_cursortool">Ferramenta de selecció (ESC)</resource>
+		<resource name="editor_cuttoclipboard">Tallar</resource>
+		<resource name="editor_deleteelement">Eliminar</resource>
+		<resource name="editor_downonelevel">Baixar un nivell</resource>
+		<resource name="editor_downtobottom">Baixar fins al final</resource>
+		<resource name="editor_drawarrow">Dibuixar flecha (A)</resource>
+		<resource name="editor_drawellipse">Dibuixar elipse (E)</resource>
+		<resource name="editor_drawfreehand">Dibuixar a mà alçada (F)</resource>
+		<resource name="editor_drawhighlighter">Ressaltar (H)</resource>
+		<resource name="editor_drawline">Dibuixar llínea (L)</resource>
+		<resource name="editor_drawrectangle">Dibuixar rectàngul (R)</resource>
+		<resource name="editor_drawtextbox">Afegir quadro de text (T)</resource>
+		<resource name="editor_duplicate">Duplicar element seleccionat</resource>
+		<resource name="editor_edit">Editar</resource>
+		<resource name="editor_effects">Efectes</resource>
+		<resource name="editor_email">Correu electrònic</resource>
+		<resource name="editor_file">Archiu</resource>
+		<resource name="editor_fontsize">Tamany</resource>
+		<resource name="editor_forecolor">Color de llínea (NumPad0-9, Shift+0-9)</resource>
+		<resource name="editor_grayscale">Escala de grisos</resource>
+		<resource name="editor_highlight_area">Ressaltar àrea</resource>
+		<resource name="editor_highlight_grayscale">Escala de grisos</resource>
+		<resource name="editor_highlight_magnify">Magnificar</resource>
+		<resource name="editor_highlight_mode">Modo de ressaltat</resource>
+		<resource name="editor_highlight_text">Ressaltar text</resource>
+		<resource name="editor_image_shadow">Ombra proyectada</resource>
+		<resource name="editor_imagesaved">Image guardada en {0}.</resource>
+		<resource name="editor_insertwindow">Insertar finestra</resource>
+		<resource name="editor_invert">Invertir</resource>
+		<resource name="editor_italic">Cursiva</resource>
+		<resource name="editor_load_objects">Carregar objectes des d'un archiu</resource>
+		<resource name="editor_magnification_factor">Factor de magnificació</resource>
+		<resource name="editor_match_capture_size">Coincidir en el tamany de la captura</resource>
+		<resource name="editor_obfuscate">Enfosquir (O)</resource>
+		<resource name="editor_obfuscate_blur">Difuminar</resource>
+		<resource name="editor_obfuscate_mode">Modo d'enfosquiment</resource>
+		<resource name="editor_obfuscate_pixelize">Pixelar</resource>
+		<resource name="editor_obfuscate_text">Redacta text...</resource>
+		<resource name="editor_obfuscate_text_title">Redacta text</resource>
+		<resource name="editor_obfuscate_text_search">Buscar per:</resource>
+		<resource name="editor_obfuscate_text_search_button">Buscar</resource>
+		<resource name="editor_obfuscate_text_regex">Usa expressió regular</resource>
+		<resource name="editor_obfuscate_text_case_sensitive">Distinguir mayúscules i minúscules</resource>
+		<resource name="editor_obfuscate_text_auto_search">Búsqueda automàtica</resource>
+		<resource name="editor_obfuscate_text_search_scope">Buscar en:</resource>
+		<resource name="editor_obfuscate_text_scope_words">Paraules</resource>
+		<resource name="editor_obfuscate_text_scope_lines">Línees</resource>
+		<resource name="editor_obfuscate_text_matches">Coincidències trobades: {0}</resource>
+		<resource name="editor_obfuscate_text_apply">Aplicar</resource>
+		<resource name="editor_obfuscate_text_error">Erro</resource>
+		<resource name="editor_obfuscate_text_no_capture">No hi ha captura disponible</resource>
+		<resource name="editor_obfuscate_text_no_ocr_provider">No hi ha cap proveïdor OCR disponible</resource>
+		<resource name="editor_obfuscate_text_ocr_failed">Ha fallat l'OCR</resource>
+		<resource name="editor_obfuscate_text_no_text">No s'ha trobat text en l'image</resource>
+		<resource name="editor_obfuscate_text_advanced">Configuració alvançada</resource>
+		<resource name="editor_object">Objecte</resource>
+		<resource name="editor_opendirinexplorer">Obrir directori en l'Explorador de Windows</resource>
+		<resource name="editor_pastefromclipboard">Apegar</resource>
+		<resource name="editor_pixel_size">Tamany del píxel</resource>
+		<resource name="editor_preview_quality">Calitat de vista prèvia</resource>
+		<resource name="editor_print">Imprimir</resource>
+		<resource name="editor_remove_transparency">Elimina transparència</resource>
+		<resource name="editor_redo">Refer {0}</resource>
+		<resource name="editor_resetsize">Restablir tamany</resource>
+		<resource name="editor_resize_percent">Percentage</resource>
+		<resource name="editor_resize_pixel">Píxels</resource>
+		<resource name="editor_rotateccw">Rotar en sentit antihorari (Control + ,)</resource>
+		<resource name="editor_rotatecw">Rotar en sentit horari (Control + .)</resource>
+		<resource name="editor_save">Guardar</resource>
+		<resource name="editor_save_objects">Guardar objectes en archiu</resource>
+		<resource name="editor_saveas">Guardar com...</resource>
+		<resource name="editor_selectall">Seleccionar-ho tot</resource>
+		<resource name="editor_senttoprinter">La tasca d'impressió s'ha enviat a '{0}'.</resource>
+		<resource name="editor_shadow">Ombra proyectada (/)</resource>
+		<resource name="editor_storedtoclipboard">Image guardada en el portapapers.</resource>
+		<resource name="editor_thickness">Grossor de llínea</resource>
+		<resource name="editor_title">Editor d'images de Greenshot</resource>
+		<resource name="editor_torn_edge">Borde esgarrat</resource>
+		<resource name="editor_undo">Desfer {0}</resource>
+		<resource name="editor_uponelevel">Pujar un nivell</resource>
+		<resource name="editor_uptotop">Pujar fins a dalt</resource>
+		<resource name="EmailFormat.MAPI">Client MAPI</resource>
+		<resource name="EmailFormat.OUTLOOK_HTML">Outlook en HTML</resource>
+		<resource name="EmailFormat.OUTLOOK_TXT">Outlook en text</resource>
+		<resource name="error">Erro</resource>
+		<resource name="error_multipleinstances">Ya hi ha una instància de Greenshot eixecutant-se.</resource>
+		<resource name="error_nowriteaccess">No es pot guardar l'archiu en {0}.
+Per favor, verifique els permisos d'escritura en el directori seleccionat.</resource>
+		<resource name="error_openfile">No s'ha pogut obrir l'archiu "{0}".</resource>
+		<resource name="error_openlink">No s'ha pogut obrir l'enllaç '{0}'.</resource>
+		<resource name="error_save">No s'ha pogut guardar la captura, per favor seleccione una ubicació adequada.</resource>
+	<resource name="error_save_invalid_chars">El nom d'archiu o de directori generat no és vàlit. Per favor, corregixca el patró de nom d'archiu i torne a intentar-ho.</resource>
+		<resource name="expertsettings">Expert</resource>
+		<resource name="expertsettings_autoreducecolors">Crear una image de 8 bits si els colors són menys de 256 encara que l'image siga de més de 8 bits</resource>
+		<resource name="expertsettings_checkunstableupdates">Comprovar actualisacions inestables</resource>
+		<resource name="expertsettings_clipboardformats">Formats del portapapers</resource>
+		<resource name="expertsettings_counter">El número per a ${NUM} en el patró del nom d'archiu</resource>
+		<resource name="expertsettings_enableexpert">Sé lo que estic fent!</resource>
+		<resource name="expertsettings_footerpattern">Patró de peu de pàgina per a impressió</resource>
+		<resource name="expertsettings_minimizememoryfootprint">Minimisar l'ús de memòria, però en penalització de rendiment (no recomanat).</resource>
+		<resource name="expertsettings_optimizeforrdp">Fer algunes optimisacions per a l'ús en Escritori Remot</resource>
+		<resource name="expertsettings_reuseeditorifpossible">Reutilisar l'editor si és possible</resource>
+		<resource name="expertsettings_suppresssavedialogatclose">No mostrar el diàlec de guardar quan es tanque l'editor</resource>
+		<resource name="expertsettings_thumbnailpreview">Mostrar miniatures de finestres en el menú contextual (per a Vista i Windows 7)</resource>
+		<resource name="exported_to">Exportat a: {0}</resource>
+		<resource name="exported_to_error">S'ha produït un erro en exportar a {0}:</resource>
+		<resource name="help_title">Ajuda de Greenshot</resource>
+		<resource name="hotkeys">Tecles ràpides</resource>
+		<resource name="jpegqualitydialog_choosejpegquality">Per favor, trie la calitat JPEG per a la seua image.</resource>
+		<resource name="OK">D'acort</resource>
+		<resource name="print_error">S'ha produït un erro en intentar imprimir.</resource>
+		<resource name="printoptions_allowcenter">Centrar la impressió en la pàgina</resource>
+		<resource name="printoptions_allowenlarge">Engrandir la impressió fins ajustar-la al tamany del paper</resource>
+		<resource name="printoptions_allowrotate">Rotar la impressió segons l'orientació de la pàgina</resource>
+		<resource name="printoptions_allowshrink">Reduir la impressió fins ajustar-la al tamany del paper</resource>
+	<resource name="printoptions_colors">Configuració del color</resource>
+	<resource name="printoptions_dontaskagain">Guardar opcions com a predeterminades i no preguntar de nou</resource>
+		<resource name="printoptions_inverted">Imprimir en colors invertits</resource>
+	<resource name="printoptions_layout">Configuració del disseny de pàgina</resource>
+	<resource name="printoptions_printcolor">Impressió a tot color</resource>
+	<resource name="printoptions_printgrayscale">Forçar impressió en escala de grisos</resource>
+	<resource name="printoptions_printmonochrome">Forçar impressió en blanc i negre</resource>
+	<resource name="printoptions_timestamp">Imprimir data / hora en la part inferior de la pàgina</resource>
+		<resource name="printoptions_title">Opcions d'impressió de Greenshot</resource>
+		<resource name="qualitydialog_dontaskagain">Guardar com a calitat predeterminada i no preguntar de nou</resource>
+		<resource name="qualitydialog_title">Calitat de Greenshot</resource>
+		<resource name="quicksettings_destination_file">Guardar directament (usant la configuració d'eixida preferida)</resource>
+		<resource name="settings_alwaysshowprintoptionsdialog">Mostrar el diàlec d'impressió cada volta que s'imprimixca una image</resource>
+		<resource name="settings_alwaysshowqualitydialog">Mostrar el diàlec de calitat cada volta que es guarde una image</resource>
+		<resource name="settings_applicationsettings">Configuració de l'aplicació</resource>
+		<resource name="settings_autostartshortcut">Iniciar Greenshot en arrancar el sistema</resource>
+		<resource name="settings_capture">Captura</resource>
+		<resource name="settings_capture_mousepointer">Capturar el punter del ratolí</resource>
+		<resource name="settings_capture_windows_interactive">Usar el modo interactiu de captura de finestres</resource>
+		<resource name="settings_checkperiod">Interval de comprovació d'actualisacions en dies (0 = no comprovar)</resource>
+		<resource name="settings_configureplugin">Configurar</resource>
+		<resource name="settings_copypathtoclipboard">Copiar la ruta d'archiu al portapapers cada volta que es guarde una image</resource>
+		<resource name="settings_destination">Destí</resource>
+		<resource name="settings_destination_clipboard">Copiar al portapapers</resource>
+		<resource name="settings_destination_editor">Obrir en l'editor d'imàgens</resource>
+		<resource name="settings_destination_editor_add">Afegir a l'editor</resource>
+		<resource name="settings_destination_email">Correu electrònic</resource>
+		<resource name="settings_destination_file">Guardar directament (usant la configuració de davall)</resource>
+		<resource name="settings_destination_fileas">Guardar com (mostrant diàlec)</resource>
+		<resource name="settings_destination_picker">Seleccionar destí dinàmicament</resource>
+		<resource name="settings_destination_printer">Enviar a la impressora</resource>
+		<resource name="settings_editor">Editor</resource>
+		<resource name="settings_filenamepattern">Patró de nom d'archiu</resource>
+		<resource name="settings_general">General</resource>
+		<resource name="settings_jpegquality">Calitat JPEG</resource>
+		<resource name="settings_language">Idioma</resource>
+		<resource name="settings_message_filenamepattern">Els següents placeholders se reemplaçaran automàticament en el patró definit:
+${YYYY} any, 4 dígits
+${MM} mes, 2 dígits
+${DD} dia, 2 dígits
+${hh} hora, 2 dígits
+${mm} minut, 2 dígits
+${ss} segon, 2 dígits
+${NUM} número incrementatiu, 6 dígits
+${RRR...} caràcters alfanumèrics aleatoris, mateixa llargària que les “R”
+${title} Títul de la finestra
+${user} Usuari de Windows
+${domain} Domini de Windows
+${hostname} Nom del PC
+
+També pot fer que Greenshot cree directoris dinàmicament; simplement use la barra invertida (\) per a separar carpetes i nom d'archiu.
+Eixemple: el patró ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
+generarà una carpeta per al dia actual en la seua ubicació de guardat predeterminada, p. ex. 2008-06-29; el nom de l'archiu de la captura contenguda es basarà en l'hora actual,
+p. ex. 11_58_32 (més l'extensió definida en la configuració).</resource>
+		<resource name="settings_network">Ret i actualisacions</resource>
+		<resource name="settings_output">Eixida</resource>
+		<resource name="settings_playsound">Reproduir so de càmera</resource>
+		<resource name="settings_plugins">Plugins</resource>
+		<resource name="settings_plugins_createdby">Creat per</resource>
+		<resource name="settings_plugins_dllpath">Ruta de la DLL</resource>
+		<resource name="settings_plugins_name">Nom</resource>
+		<resource name="settings_plugins_version">Versió</resource>
+		<resource name="settings_preferredfilesettings">Configuració preferida d'archius d'eixida</resource>
+		<resource name="settings_primaryimageformat">Format d'image</resource>
+		<resource name="settings_printer">Impressora</resource>
+		<resource name="settings_printoptions">Opcions d'impressió</resource>
+		<resource name="settings_qualitysettings">Opcions de calitat</resource>
+		<resource name="settings_reducecolors">Reduir la quantitat de colors a un màxim de 256</resource>
+		<resource name="settings_registerhotkeys">Registrar tecles ràpides</resource>
+		<resource name="settings_showflashlight">Mostrar flas</resource>
+		<resource name="settings_shownotify">Mostrar notificacions</resource>
+		<resource name="settings_zoom">Mostrar magnificador</resource>
+		<resource name="settings_storagelocation">Ubicació d'almagasenament</resource>
+		<resource name="settings_title">Configuració</resource>
+		<resource name="settings_tooltip_filenamepattern">Patró usat per a generar noms d'archiu quan es guarden captures</resource>
+		<resource name="settings_tooltip_language">Idioma de l'interfaç d'usuari de Greenshot</resource>
+		<resource name="settings_tooltip_primaryimageformat">Format d'image usat per defecte</resource>
+		<resource name="settings_tooltip_registerhotkeys">Determina si les tecles Prnt, Ctrl + Print, Alt + Prnt se reserven per a ús global per Greenshot en iniciar-se, fins que el programa se tanque.</resource>
+		<resource name="settings_tooltip_storagelocation">Ubicació on se guarden les captures per defecte (deixar buit per a guardar en l'escriptori)</resource>
+		<resource name="settings_storagelocation_folder_error">No s'ha pogut obrir el navegador de carpetes.
+
+La ubicació d'almagasenament s'ha establit en la carpeta Documents. Pots escriure una atra ruta directament en la caixa si fa falta.</resource>
+		<resource name="settings_storagelocation_folder_error_title">Ubicació d'almagasenament</resource>		
+		<resource name="settings_usedefaultproxy">Usar el proxy predeterminat del sistema</resource>
+		<resource name="settings_visualization">Efectes</resource>
+		<resource name="settings_waittime">Milisegons d'espera abans de capturar</resource>
+		<resource name="settings_window_capture_mode">Modo de captura de finestres</resource>
+		<resource name="settings_windowscapture">Captura de finestra</resource>
+		<resource name="tooltip_firststart">Faça clic dret ací o polse la tecla {0}.</resource>
+		<resource name="update_found">¡Hi ha una nova versió de Greenshot disponible! ¿Vol descarregar Greenshot {0}?</resource>
+		<resource name="warning">Advertència</resource>
+		<resource name="warning_hotkeys">Les tecles ràpides "{0}" no s'han pogut registrar. Este problema probablement està causat per una atra ferramenta{1} que està usant les mateixes tecles ràpides. Pot canviar la seua configuració de tecles ràpides o desactivar/canviar el programa que fa ús d'eixes tecles.
+
+Totes les funcions de Greenshot continuen disponibles directament des del menú contextual de l'icon del sistema encara que no funcionen les tecles ràpides.</resource>
+		<resource name="WindowCaptureMode.Aero">Usar color personalisat</resource>
+		<resource name="WindowCaptureMode.AeroTransparent">Preservar transparència</resource>
+		<resource name="WindowCaptureMode.Auto">Automàticament</resource>
+		<resource name="WindowCaptureMode.GDI">Usar color predeterminat</resource>
+		<resource name="WindowCaptureMode.Screen">Tal com es mostra</resource>
+
+    <!-- 1.2 -->
+    <resource name="editor_dropshadow_darkness">Foscor de l'ombra</resource>
+	<resource name="editor_dropshadow_offset">Desplaçament de l'ombra</resource>
+	<resource name="editor_dropshadow_settings">Configuració de l'ombra proyectada</resource>
+	<resource name="editor_dropshadow_thickness">Grossor de l'ombra</resource>
+
+	<resource name="editor_tornedge_horizontaltoothrange">Rang de dents horisontal</resource>
+	<resource name="editor_tornedge_settings">Configuració de vores esgarrades</resource>
+	<resource name="editor_tornedge_toothsize">Tamany de dent</resource>
+	<resource name="editor_tornedge_verticaltoothrange">Rang de dents vertical</resource>
+	<resource name="editor_tornedge_all">Esgarrar tots els costats</resource>
+	<resource name="editor_tornedge_left">Costat esquerre</resource>
+	<resource name="editor_tornedge_right">Costat dret</resource>
+	<resource name="editor_tornedge_top">Costat superior</resource>
+	<resource name="editor_tornedge_bottom">Costat inferior</resource>
+	<resource name="editor_tornedge_shadow">Generar ombra</resource>
+    
+	<resource name="editor_counter">Afegir contador (I)</resource>
+	<resource name="editor_speechbubble">Afegir brafada (S)</resource>
+
+    <resource name="editor_resize">Redimensionar (Z)</resource>
+	<resource name="editor_resize_settings">Configuració de redimensionament</resource>
+	<resource name="editor_resize_aspectratio">Mantindre la proporció</resource>
+	<resource name="editor_resize_width">Amplària</resource>
+	<resource name="editor_resize_height">Alçària</resource>
+	<resource name="settings_iconsize">Tamany de l'icon</resource>
+    
+  </resources>
+</language>
