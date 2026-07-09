@@ -135,8 +135,8 @@ També li agrairíem molt que comprovara si ya existix un element en el rastreja
 		<resource name="editor_obfuscate_blur">Difuminar</resource>
 		<resource name="editor_obfuscate_mode">Modo d'enfosquiment</resource>
 		<resource name="editor_obfuscate_pixelize">Pixelar</resource>
-		<resource name="editor_obfuscate_text">Redacta text...</resource>
-		<resource name="editor_obfuscate_text_title">Redacta text</resource>
+		<resource name="editor_obfuscate_text">Oculta text...</resource>
+		<resource name="editor_obfuscate_text_title">Oculta text</resource>
 		<resource name="editor_obfuscate_text_search">Buscar per:</resource>
 		<resource name="editor_obfuscate_text_search_button">Buscar</resource>
 		<resource name="editor_obfuscate_text_regex">Usa expressió regular</resource>
