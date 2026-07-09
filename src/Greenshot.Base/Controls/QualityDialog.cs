@@ -35,6 +35,14 @@ namespace Greenshot.Base.Controls
         private static readonly ICoreConfiguration conf = IniConfigRegistry.GetSection<ICoreConfiguration>();
         public SurfaceOutputSettings Settings { get; set; }
 
+        protected override void InitializeLanguage()
+        {
+            this.Text = Language.GetString("qualitydialog_title");
+            label_choosejpegquality.Text = Language.GetString("jpegqualitydialog_choosejpegquality");
+            checkbox_dontaskagain.Text = Language.GetString("qualitydialog_dontaskagain");
+            button_ok.Text = Language.GetString("OK");
+        }
+
         public QualityDialog(SurfaceOutputSettings outputSettings)
         {
             Settings = outputSettings;
@@ -42,6 +50,7 @@ namespace Greenshot.Base.Controls
             // The InitializeComponent() call is required for Windows Forms designer support.
             //
             InitializeComponent();
+            InitializeLanguage();
 
             checkBox_reduceColors.Checked = Settings.ReduceColors;
             trackBarJpegQuality.Enabled = OutputFormat.jpg.Equals(outputSettings.Format);

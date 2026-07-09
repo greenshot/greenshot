@@ -29,12 +29,9 @@ namespace Greenshot.Editor.Controls
     /// <summary>
     /// Description of BindableToolStripButton.
     /// </summary>
-    public class BindableToolStripButton : ToolStripButton, INotifyPropertyChanged, IGreenshotLanguageBindable
+    public class BindableToolStripButton : ToolStripButton, INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
-
-        [Category("Greenshot"), DefaultValue(null), Description("Specifies key of the language file to use when displaying the text.")]
-        public string LanguageKey { get; set; }
 
         public BindableToolStripButton()
         {

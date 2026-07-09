@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -22,6 +22,7 @@
 using System;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Structs;
+using Greenshot.Base.Core;
 using Greenshot.Base.Effects;
 
 namespace Greenshot.Editor.Forms
@@ -34,7 +35,27 @@ namespace Greenshot.Editor.Forms
         {
             _effect = effect;
             InitializeComponent();
+            InitializeLanguage();
             ShowSettings();
+        }
+
+        protected override void InitializeLanguage()
+        {
+            buttonOK.Text = Language.GetString("OK");
+            buttonCancel.Text = Language.GetString("CANCEL");
+            labelDarkness.Text = Language.GetString("editor_dropshadow_darkness");
+            labelOffset.Text = Language.GetString("editor_dropshadow_offset");
+            labelThickness.Text = Language.GetString("editor_dropshadow_thickness");
+            label_toothsize.Text = Language.GetString("editor_tornedge_toothsize");
+            label_horizontaltoothrange.Text = Language.GetString("editor_tornedge_horizontaltoothrange");
+            labelVerticaltoothrange.Text = Language.GetString("editor_tornedge_verticaltoothrange");
+            top.Text = Language.GetString("editor_tornedge_top");
+            right.Text = Language.GetString("editor_tornedge_right");
+            bottom.Text = Language.GetString("editor_tornedge_bottom");
+            left.Text = Language.GetString("editor_tornedge_left");
+            shadowCheckbox.Text = Language.GetString("editor_tornedge_shadow");
+            all.Text = Language.GetString("editor_tornedge_all");
+            Text = Language.GetString("editor_tornedge_settings");
         }
 
         private void ShowSettings()

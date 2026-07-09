@@ -29,6 +29,7 @@ using System.IO;
 using System.Security.Permissions;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Structs;
+using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
 
 using Greenshot.Configuration;
@@ -39,7 +40,7 @@ namespace Greenshot.Forms
     /// <summary>
     /// The about form
     /// </summary>
-    public sealed partial class AboutForm : AnimatingBaseForm
+    public sealed partial class AboutForm : AnimatingForm
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(AboutForm));
         private Bitmap _bitmap;
@@ -119,6 +120,21 @@ namespace Greenshot.Forms
         // The order in which we draw the dots & flow the colors.
         private readonly List<int> _flowOrder = new() { 4, 3, 2, 1, 0, 5, 6, 7, 8, 9, 10, 14, 15, 18, 19, 20, 21, 22, 23, 16, 17, 13, 12, 11 };
 
+        protected override void InitializeLanguage()
+        {
+            this.Text = Language.GetString("about_title");
+            lblLicense.Text = Language.GetString("about_license");
+            lblHost.Text = Language.GetString("about_host");
+            lblBugs.Text = Language.GetString("about_bugs");
+            lblDonations.Text = Language.GetString("about_donations");
+            lblIcons.Text = Language.GetString("about_icons");
+            lblTranslation.Text = Language.GetString("about_translation");
+
+            var fontsize = (this.DeviceDpi / 96f) * lblTitle.Font.Size;
+            this.lblTitle.AutoSize = true;
+            this.lblTitle.Font = new System.Drawing.Font(System.Drawing.FontFamily.GenericSansSerif, fontsize, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+        }
+
         /// <summary>
         /// Cleanup all the allocated resources
         /// </summary>
@@ -144,6 +160,7 @@ namespace Greenshot.Forms
             // The InitializeComponent() call is required for Windows Forms designer support.
             //
             InitializeComponent();
+            InitializeLanguage();
 
             // Only use double-buffering when we are NOT in a Terminal Server session
             DoubleBuffered = !IsTerminalServerSession;

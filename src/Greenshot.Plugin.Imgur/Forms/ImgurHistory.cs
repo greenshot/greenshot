@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -69,11 +69,11 @@ public sealed partial class ImgurHistory : ImgurForm
 
     private ImgurHistory()
     {
-        ManualLanguageApply = true;
         //
         // The InitializeComponent() call is required for Windows Forms designer support.
         //
         InitializeComponent();
+        InitializeLanguage();
         AcceptButton = finishedButton;
         CancelButton = finishedButton;
         // Init sorting
@@ -86,8 +86,17 @@ public sealed partial class ImgurHistory : ImgurForm
         {
             listview_imgur_uploads.Items[0].Selected = true;
         }
+    }
 
-        ApplyLanguage();
+    /// <inheritdoc />
+    protected override void InitializeLanguage()
+    {
+        Text = Language.GetString("imgur.history");
+        deleteButton.Text = Language.GetString("imgur.history.delete");
+        openButton.Text = Language.GetString("imgur.history.open");
+        finishedButton.Text = Language.GetString("imgur.OK");
+        clipboardButton.Text = Language.GetString("imgur.history.copy_to_clipboard");
+        clearHistoryButton.Text = Language.GetString("imgur.history.clear");
     }
 
     private void Redraw()

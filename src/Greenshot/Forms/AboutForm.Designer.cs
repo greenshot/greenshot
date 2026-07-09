@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -50,29 +50,27 @@ namespace Greenshot.Forms {
 		/// not be able to load this method if it was changed manually.
 		/// </summary>
 		private void InitializeComponent() {
-			this.lblTitle = new System.Windows.Forms.Label();
-			this.lblLicense = new GreenshotLabel();
-			this.lblHost = new GreenshotLabel();
+			this.lblTitle = new Label();
+			this.lblLicense = new Label();
+			this.lblHost = new Label();
 			this.linkLblLicense = new System.Windows.Forms.LinkLabel();
 			this.linkLblHost = new System.Windows.Forms.LinkLabel();
 			this.linkLblBugs = new System.Windows.Forms.LinkLabel();
-			this.lblBugs = new GreenshotLabel();
+			this.lblBugs = new Label();
 			this.linkLblDonations = new System.Windows.Forms.LinkLabel();
-			this.lblDonations = new GreenshotLabel();
+			this.lblDonations = new Label();
 			this.linkLblIcons = new System.Windows.Forms.LinkLabel();
-			this.lblIcons = new GreenshotLabel();
+			this.lblIcons = new Label();
 			this.linkLabel1 = new System.Windows.Forms.LinkLabel();
 			this.pictureBox1 = new System.Windows.Forms.PictureBox();
-			this.lblTranslation = new GreenshotLabel();
+			this.lblTranslation = new Label();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// lblTitle
 			// 
-            var fontsize = (this.DeviceDpi / 96) * lblTitle.Font.Size;
-            this.lblTitle.AutoSize = true;
-            this.lblTitle.Font = new System.Drawing.Font(System.Drawing.FontFamily.GenericSansSerif, fontsize, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblTitle.Location = new System.Drawing.Point(108, 12);
+			this.lblTitle.AutoSize = true;
+			this.lblTitle.Location = new System.Drawing.Point(108, 12);
 			this.lblTitle.Name = "lblTitle";
 			this.lblTitle.Size = new System.Drawing.Size(263, 19);
 			this.lblTitle.TabIndex = 2;
@@ -80,7 +78,6 @@ namespace Greenshot.Forms {
 			// 
 			// lblLicense
 			// 
-			this.lblLicense.LanguageKey = "about_license";
 			this.lblLicense.Location = new System.Drawing.Point(109, 47);
 			this.lblLicense.Name = "lblLicense";
 			this.lblLicense.Size = new System.Drawing.Size(369, 68);
@@ -88,7 +85,6 @@ namespace Greenshot.Forms {
 			// 
 			// lblHost
 			// 
-			this.lblHost.LanguageKey = "about_host";
 			this.lblHost.Location = new System.Drawing.Point(12, 122);
 			this.lblHost.Name = "lblHost";
 			this.lblHost.Size = new System.Drawing.Size(466, 23);
@@ -127,7 +123,6 @@ namespace Greenshot.Forms {
 			// 
 			// lblBugs
 			// 
-			this.lblBugs.LanguageKey = "about_bugs";
 			this.lblBugs.Location = new System.Drawing.Point(12, 160);
 			this.lblBugs.Name = "lblBugs";
 			this.lblBugs.Size = new System.Drawing.Size(466, 23);
@@ -146,7 +141,6 @@ namespace Greenshot.Forms {
 			// 
 			// lblDonations
 			// 
-			this.lblDonations.LanguageKey = "about_donations";
 			this.lblDonations.Location = new System.Drawing.Point(12, 199);
 			this.lblDonations.Name = "lblDonations";
 			this.lblDonations.Size = new System.Drawing.Size(466, 23);
@@ -164,7 +158,6 @@ namespace Greenshot.Forms {
 			// 
 			// lblIcons
 			// 
-			this.lblIcons.LanguageKey = "about_icons";
 			this.lblIcons.Location = new System.Drawing.Point(12, 237);
 			this.lblIcons.Name = "lblIcons";
             this.lblIcons.Size = new System.Drawing.Size(530, 23);
@@ -194,7 +187,6 @@ namespace Greenshot.Forms {
 			// 
 			// lblTranslation
 			// 
-			this.lblTranslation.LanguageKey = "about_translation";
 			this.lblTranslation.Location = new System.Drawing.Point(12, 275);
 			this.lblTranslation.Name = "lblTranslation";
 			this.lblTranslation.Size = new System.Drawing.Size(466, 23);
@@ -223,7 +215,6 @@ namespace Greenshot.Forms {
 			this.Controls.Add(this.lblLicense);
 			this.Controls.Add(this.lblTitle);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
-			this.LanguageKey = "about_title";
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "AboutForm";
@@ -240,13 +231,13 @@ namespace Greenshot.Forms {
 		private System.Windows.Forms.LinkLabel linkLblBugs;
 		private System.Windows.Forms.LinkLabel linkLblLicense;
 		private System.Windows.Forms.LinkLabel linkLblIcons;
-		private System.Windows.Forms.Label lblTitle;
+		private Label lblTitle;
 		private System.Windows.Forms.PictureBox pictureBox1;
-		private GreenshotLabel lblTranslation;
-		private GreenshotLabel lblHost;
-		private GreenshotLabel lblDonations;
-		private GreenshotLabel lblBugs;
-		private GreenshotLabel lblIcons;
-		private GreenshotLabel lblLicense;
+		private Label lblTranslation;
+		private Label lblHost;
+		private Label lblDonations;
+		private Label lblBugs;
+		private Label lblIcons;
+		private Label lblLicense;
 	}
 }

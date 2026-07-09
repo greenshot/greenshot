@@ -22,6 +22,7 @@
 using System;
 using System.IO;
 using System.Windows;
+using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Interfaces;
@@ -38,7 +39,7 @@ namespace Greenshot.Forms
     /// <summary>
     /// Form that displays the Windows Share UI for sharing captures to other apps
     /// </summary>
-    public sealed partial class SharingForm : BaseForm
+    public sealed partial class SharingForm : GreenshotForm
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(SharingForm));
 

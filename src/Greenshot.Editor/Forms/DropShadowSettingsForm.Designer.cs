@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -19,7 +19,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using Greenshot.Base.Controls;
+using System.Windows.Forms;
+
 
 namespace Greenshot.Editor.Forms {
 	partial class DropShadowSettingsForm {
@@ -48,14 +49,14 @@ namespace Greenshot.Editor.Forms {
 		private void InitializeComponent() {
 			this.thickness = new System.Windows.Forms.NumericUpDown();
 			this.offsetX = new System.Windows.Forms.NumericUpDown();
-			this.label3 = new System.Windows.Forms.Label();
+			this.label3 = new Label();
 			this.offsetY = new System.Windows.Forms.NumericUpDown();
 			this.trackBar1 = new System.Windows.Forms.TrackBar();
-			this.buttonOK = new GreenshotButton();
-			this.buttonCancel = new GreenshotButton();
-			this.labelDarkness = new GreenshotLabel();
-			this.labelOffset = new GreenshotLabel();
-			this.labelThickness = new GreenshotLabel();
+			this.buttonOK = new Button();
+			this.buttonCancel = new Button();
+			this.labelDarkness = new Label();
+			this.labelOffset = new Label();
+			this.labelThickness = new Label();
 			((System.ComponentModel.ISupportInitialize)(this.thickness)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.offsetX)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.offsetY)).BeginInit();
@@ -148,7 +149,6 @@ namespace Greenshot.Editor.Forms {
 			// 
 			// buttonOK
 			// 
-			this.buttonOK.LanguageKey = "OK";
 			this.buttonOK.Location = new System.Drawing.Point(62, 110);
 			this.buttonOK.Name = "buttonOK";
 			this.buttonOK.Size = new System.Drawing.Size(75, 23);
@@ -159,7 +159,6 @@ namespace Greenshot.Editor.Forms {
 			// buttonCancel
 			// 
 			this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-			this.buttonCancel.LanguageKey = "CANCEL";
 			this.buttonCancel.Location = new System.Drawing.Point(143, 110);
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.Size = new System.Drawing.Size(75, 23);
@@ -168,7 +167,6 @@ namespace Greenshot.Editor.Forms {
 			// 
 			// labelDarkness
 			// 
-			this.labelDarkness.LanguageKey = "editor_dropshadow_darkness";
 			this.labelDarkness.Location = new System.Drawing.Point(12, 73);
 			this.labelDarkness.Name = "labelDarkness";
 			this.labelDarkness.Size = new System.Drawing.Size(92, 20);
@@ -176,7 +174,6 @@ namespace Greenshot.Editor.Forms {
 			// 
 			// labelOffset
 			// 
-			this.labelOffset.LanguageKey = "editor_dropshadow_offset";
 			this.labelOffset.Location = new System.Drawing.Point(12, 35);
 			this.labelOffset.Name = "labelOffset";
 			this.labelOffset.Size = new System.Drawing.Size(85, 20);
@@ -184,7 +181,6 @@ namespace Greenshot.Editor.Forms {
 			// 
 			// labelThickness
 			// 
-			this.labelThickness.LanguageKey = "editor_dropshadow_thickness";
 			this.labelThickness.Location = new System.Drawing.Point(12, 9);
 			this.labelThickness.Name = "labelThickness";
 			this.labelThickness.Size = new System.Drawing.Size(155, 20);
@@ -209,7 +205,6 @@ namespace Greenshot.Editor.Forms {
 			this.Controls.Add(this.offsetX);
 			this.Controls.Add(this.thickness);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
-			this.LanguageKey = "editor_dropshadow_settings";
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "DropShadowSettingsForm";
@@ -227,13 +222,13 @@ namespace Greenshot.Editor.Forms {
 
 		private System.Windows.Forms.NumericUpDown thickness;
 		private System.Windows.Forms.NumericUpDown offsetX;
-		private System.Windows.Forms.Label label3;
+		private Label label3;
 		private System.Windows.Forms.NumericUpDown offsetY;
 		private System.Windows.Forms.TrackBar trackBar1;
-		private GreenshotButton buttonOK;
-		private GreenshotButton buttonCancel;
-		private GreenshotLabel labelDarkness;
-		private GreenshotLabel labelOffset;
-		private GreenshotLabel labelThickness;
+		private Button buttonOK;
+		private Button buttonCancel;
+		private Label labelDarkness;
+		private Label labelOffset;
+		private Label labelThickness;
 	}
 }

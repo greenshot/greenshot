@@ -19,16 +19,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+
 using System;
 using System.Windows.Forms;
 using Dapplo.Ini;
+using Greenshot.Base.Controls;
+using Greenshot.Base.Core;
 
 namespace Greenshot.Forms
 {
     /// <summary>
     /// Description of PrintOptionsDialog.
     /// </summary>
-    public partial class PrintOptionsDialog : BaseForm
+    public partial class PrintOptionsDialog : GreenshotForm
     {
         public PrintOptionsDialog()
         {
@@ -36,7 +39,35 @@ namespace Greenshot.Forms
             // The InitializeComponent() call is required for Windows Forms designer support.
             //
             InitializeComponent();
+            InitializeLanguage();
             checkbox_dontaskagain.Checked = false;
+        }
+
+        protected override void InitializeLanguage()
+        {
+            checkbox_dontaskagain.Text = Language.GetString("printoptions_dontaskagain");
+            checkboxAllowShrink.Text = Language.GetString("printoptions_allowshrink");
+            checkboxAllowShrink.PropertyName = nameof(coreConfiguration.OutputPrintAllowShrink);
+            checkboxAllowEnlarge.Text = Language.GetString("printoptions_allowenlarge");
+            checkboxAllowEnlarge.PropertyName = nameof(coreConfiguration.OutputPrintAllowEnlarge);
+            checkboxAllowCenter.Text = Language.GetString("printoptions_allowcenter");
+            checkboxAllowCenter.PropertyName = nameof(coreConfiguration.OutputPrintCenter);
+            checkboxAllowRotate.Text = Language.GetString("printoptions_allowrotate");
+            checkboxAllowRotate.PropertyName = nameof(coreConfiguration.OutputPrintAllowRotate);
+            button_ok.Text = Language.GetString("OK");
+            checkboxDateTime.Text = Language.GetString("printoptions_timestamp");
+            checkboxDateTime.PropertyName = nameof(coreConfiguration.OutputPrintFooter);
+            button_cancel.Text = Language.GetString("CANCEL");
+            checkboxPrintInverted.Text = Language.GetString("printoptions_inverted");
+            checkboxPrintInverted.PropertyName = nameof(coreConfiguration.OutputPrintInverted);
+            radioBtnGrayScale.Text = Language.GetString("printoptions_printgrayscale");
+            radioBtnGrayScale.PropertyName = nameof(coreConfiguration.OutputPrintGrayscale);
+            radioBtnMonochrome.Text = Language.GetString("printoptions_printmonochrome");
+            radioBtnMonochrome.PropertyName = nameof(coreConfiguration.OutputPrintMonochrome);
+            groupBoxPrintLayout.Text = Language.GetString("printoptions_layout");
+            groupBoxColors.Text = Language.GetString("printoptions_colors");
+            radioBtnColorPrint.Text = Language.GetString("printoptions_printcolor");
+            Text = Language.GetString("printoptions_title");
         }
 
 
@@ -44,6 +75,7 @@ namespace Greenshot.Forms
         {
             // update config
             coreConfiguration.OutputPrintPromptOptions = !checkbox_dontaskagain.Checked;
+            IniConfig.Save();
             DialogResult = DialogResult.OK;
         }
 

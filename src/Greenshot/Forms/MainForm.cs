@@ -69,7 +69,7 @@ namespace Greenshot.Forms
     /// <summary>
     /// This is the MainForm, the shell of Greenshot
     /// </summary>
-    public partial class MainForm : BaseForm, IGreenshotMainForm, ICaptureHelper, IProvideDeviceDpi
+    public partial class MainForm : GreenshotForm, IGreenshotMainForm, ICaptureHelper, IProvideDeviceDpi
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(MainForm));
         private static ResourceMutex _applicationMutex;
@@ -310,6 +310,7 @@ namespace Greenshot.Forms
             try
             {
                 InitializeComponent();
+                InitializeLanguage();
             }
             catch (ArgumentException ex)
             {
@@ -432,6 +433,28 @@ namespace Greenshot.Forms
             {
                 PsApi.EmptyWorkingSet();
             }
+        }
+
+        protected override void InitializeLanguage()
+        {
+            this.contextmenu_quicksettings.Size = new System.Drawing.Size(170, coreConfiguration.IconSize.Height + 8);
+            Text = Language.GetString("application_title");
+
+            contextmenu_capturearea.Text = Language.GetString("contextmenu_capturearea");
+            contextmenu_capturelastregion.Text = Language.GetString("contextmenu_capturelastregion");
+            contextmenu_capturewindow.Text = Language.GetString("contextmenu_capturewindow");
+            contextmenu_capturefullscreen.Text = Language.GetString("contextmenu_capturefullscreen");
+            contextmenu_capturewindowfromlist.Text = Language.GetString("contextmenu_capturewindowfromlist");
+            contextmenu_captureclipboard.Text = Language.GetString("contextmenu_captureclipboard");
+            contextmenu_openfile.Text = Language.GetString("contextmenu_openfile");
+            contextmenu_openrecentcapture.Text = Language.GetString("contextmenu_openrecentcapture");
+            contextmenu_quicksettings.Text = Language.GetString("contextmenu_quicksettings");
+            contextmenu_settings.Text = Language.GetString("contextmenu_settings");
+            contextmenu_help.Text = Language.GetString("contextmenu_help");
+            contextmenu_donate.Text = Language.GetString("contextmenu_donate");
+            contextmenu_about.Text = Language.GetString("contextmenu_about");
+            contextmenu_exit.Text = Language.GetString("contextmenu_exit");
+            notifyIcon.Text = Language.GetString("application_title");
         }
 
         /// <summary>
@@ -572,7 +595,7 @@ namespace Greenshot.Forms
         public void UpdateUi()
         {
             // As the form is never loaded, call ApplyLanguage ourselves
-            ApplyLanguage();
+            InitializeLanguage();
 
             // Show hotkeys in Contextmenu
             contextmenu_capturearea.ShortcutKeyDisplayString = HotkeyManager.GetLocalizedHotkeyStringFromString(_conf.RegionHotkey);

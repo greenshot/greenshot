@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -19,7 +19,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using Greenshot.Base.Controls;
+using System.Windows.Forms;
+
 
 namespace Greenshot.Forms {
 	partial class BugReportForm {
@@ -49,15 +50,14 @@ namespace Greenshot.Forms {
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.labelBugReportInfo = new GreenshotLabel();
+			this.labelBugReportInfo = new Label();
 			this.textBoxDescription = new System.Windows.Forms.TextBox();
-			this.btnClose = new GreenshotButton();
+			this.btnClose = new Button();
 			this.linkLblBugs = new System.Windows.Forms.LinkLabel();
 			this.SuspendLayout();
 			// 
 			// labelBugReportInfo
 			// 
-			this.labelBugReportInfo.LanguageKey = "bugreport_info";
 			this.labelBugReportInfo.Location = new System.Drawing.Point(12, 9);
 			this.labelBugReportInfo.Name = "labelBugReportInfo";
 			this.labelBugReportInfo.Size = new System.Drawing.Size(481, 141);
@@ -79,7 +79,6 @@ namespace Greenshot.Forms {
 			// 
 			this.btnClose.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.btnClose.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-			this.btnClose.LanguageKey = "bugreport_cancel";
 			this.btnClose.Location = new System.Drawing.Point(377, 417);
 			this.btnClose.Name = "btnClose";
 			this.btnClose.Size = new System.Drawing.Size(139, 23);
@@ -107,7 +106,6 @@ namespace Greenshot.Forms {
 			this.Controls.Add(this.btnClose);
 			this.Controls.Add(this.textBoxDescription);
 			this.Controls.Add(this.labelBugReportInfo);
-			this.LanguageKey = "bugreport_title";
 			this.Name = "BugReportForm";
 			this.Text = "Error";
 			this.ResumeLayout(false);
@@ -115,8 +113,8 @@ namespace Greenshot.Forms {
 
 		}
 		private System.Windows.Forms.LinkLabel linkLblBugs;
-		private GreenshotButton btnClose;
+		private Button btnClose;
 		private System.Windows.Forms.TextBox textBoxDescription;
-		private GreenshotLabel labelBugReportInfo;
+		private Label labelBugReportInfo;
 	}
 }

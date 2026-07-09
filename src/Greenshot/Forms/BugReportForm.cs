@@ -22,12 +22,13 @@
 using System;
 using System.Diagnostics;
 using System.Windows.Forms;
+using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
 using Greenshot.Configuration;
 
 namespace Greenshot.Forms
 {
-    public partial class BugReportForm : BaseForm
+    public partial class BugReportForm : GreenshotForm
     {
         private BugReportForm()
         {
@@ -35,7 +36,15 @@ namespace Greenshot.Forms
             // The InitializeComponent() call is required for Windows Forms designer support.
             //
             InitializeComponent();
+            InitializeLanguage();
             ToFront = true;
+        }
+
+        protected override void InitializeLanguage()
+        {
+            labelBugReportInfo.Text = Language.GetString("bugreport_info");
+            btnClose.Text = Language.GetString("bugreport_cancel");
+            Text = Language.GetString("bugreport_title");
         }
 
         public BugReportForm(string bugText) : this()
