@@ -101,7 +101,8 @@ namespace Greenshot.Forms {
 			this.numericUpdownIconSize = new System.Windows.Forms.NumericUpDown();
 			this.label_icon_size = new GreenshotLabel();
 			this.checkbox_editor_match_capture_size = new GreenshotCheckBox();
-			this.groupbox_windowscapture = new GreenshotGroupBox();
+            this.checkbox_editor_auto_border = new GreenshotCheckBox();
+            this.groupbox_windowscapture = new GreenshotGroupBox();
 			this.colorButton_window_background = new ColorButton();
 			this.radiobuttonWindowCapture = new GreenshotRadioButton();
 			this.radiobuttonInteractiveCapture = new GreenshotRadioButton();
@@ -632,10 +633,11 @@ namespace Greenshot.Forms {
 			// groupbox_editor
 			// 
 			this.groupbox_editor.Controls.Add(this.checkbox_editor_match_capture_size);
-			this.groupbox_editor.LanguageKey = "settings_editor";
-			this.groupbox_editor.Location = new System.Drawing.Point(4, 277);
+            this.groupbox_editor.Controls.Add(this.checkbox_editor_auto_border);
+            this.groupbox_editor.LanguageKey = "settings_editor";
+			this.groupbox_editor.Location = new System.Drawing.Point(4, 268);
 			this.groupbox_editor.Name = "groupbox_editor";
-			this.groupbox_editor.Size = new System.Drawing.Size(416, 50);
+			this.groupbox_editor.Size = new System.Drawing.Size(416, 80);
 			this.groupbox_editor.TabIndex = 27;
 			this.groupbox_editor.TabStop = false;
 			// 
@@ -649,10 +651,19 @@ namespace Greenshot.Forms {
 			this.checkbox_editor_match_capture_size.Size = new System.Drawing.Size(397, 24);
 			this.checkbox_editor_match_capture_size.TabIndex = 11;
 			this.checkbox_editor_match_capture_size.UseVisualStyleBackColor = true;
-			// 
-			// groupbox_windowscapture
-			// 
-			this.groupbox_windowscapture.Controls.Add(this.colorButton_window_background);
+            // checkbox_editor_auto_border
+            this.checkbox_editor_auto_border.LanguageKey = "editor_enable_auto_border";
+            this.checkbox_editor_auto_border.Location = new System.Drawing.Point(6, 40);
+            this.checkbox_editor_auto_border.Name = "checkbox_editor_auto_border";
+            this.checkbox_editor_auto_border.PropertyName = nameof(IEditorConfiguration.EnableAutoBorder);
+            this.checkbox_editor_auto_border.SectionName = "Editor";
+            this.checkbox_editor_auto_border.Size = new System.Drawing.Size(397, 24);
+            this.checkbox_editor_auto_border.TabIndex = 12;
+            this.checkbox_editor_auto_border.UseVisualStyleBackColor = true;
+            // 
+            // groupbox_windowscapture
+            // 
+            this.groupbox_windowscapture.Controls.Add(this.colorButton_window_background);
 			this.groupbox_windowscapture.Controls.Add(this.radiobuttonWindowCapture);
 			this.groupbox_windowscapture.Controls.Add(this.radiobuttonInteractiveCapture);
 			this.groupbox_windowscapture.Controls.Add(this.combobox_window_capture_mode);
@@ -1267,7 +1278,8 @@ namespace Greenshot.Forms {
 		private System.Windows.Forms.ListView listview_destinations;
 		private GreenshotGroupBox groupbox_editor;
 		private GreenshotCheckBox checkbox_editor_match_capture_size;
-		private System.Windows.Forms.NumericUpDown numericUpDown_daysbetweencheck;
+        private GreenshotCheckBox checkbox_editor_auto_border;
+        private System.Windows.Forms.NumericUpDown numericUpDown_daysbetweencheck;
 		private GreenshotGroupBox groupbox_network;
 		private GreenshotCheckBox checkbox_usedefaultproxy;
 		private GreenshotLabel label_checkperiod;

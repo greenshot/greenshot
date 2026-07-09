@@ -125,6 +125,7 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="editor_load_objects">파일로부터 객체 읽어오기</resource>
 		<resource name="editor_magnification_factor">확대 요소</resource>
 		<resource name="editor_match_capture_size">캡처 크기 일치</resource>
+		<resource name="editor_enable_auto_border">테두리 효과 자동 적용</resource>
 		<resource name="editor_obfuscate">모자이크 (O)</resource>
 		<resource name="editor_obfuscate_blur">흐림</resource>
 		<resource name="editor_obfuscate_mode">모자이크 처리</resource>

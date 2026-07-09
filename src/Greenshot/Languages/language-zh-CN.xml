@@ -121,6 +121,7 @@
 		<resource name="editor_load_objects">从文件载入物件</resource>
 		<resource name="editor_magnification_factor">放大倍数</resource>
 		<resource name="editor_match_capture_size">匹配抓取尺寸</resource>
+		<resource name="editor_enable_auto_border">自动应用边框效果</resource>
 		<resource name="editor_obfuscate">模糊 (O)</resource>
 		<resource name="editor_obfuscate_blur">模糊效果</resource>
 		<resource name="editor_obfuscate_mode">模糊模式</resource>
