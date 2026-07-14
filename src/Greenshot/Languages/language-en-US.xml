@@ -53,6 +53,7 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="contextmenu_capturelastregion">Capture last region</resource>
 		<resource name="contextmenu_capturewindow">Capture window</resource>
 		<resource name="contextmenu_capturewindowfromlist">Capture window from list</resource>
+		<resource name="contextmenu_discard">Discard and quit</resource>
 		<resource name="contextmenu_donate">Support Greenshot</resource>
 		<resource name="contextmenu_exit">Exit</resource>
 		<resource name="contextmenu_help">Help</resource>
@@ -101,6 +102,8 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="editor_cursortool">Selection Tool (ESC)</resource>
 		<resource name="editor_cuttoclipboard">Cut</resource>
 		<resource name="editor_deleteelement">Delete</resource>
+		<resource name="editor_discard">Do you want to quit and delete the saved screenshot?</resource>
+		<resource name="editor_discard_title">Discard image?</resource>
 		<resource name="editor_downonelevel">Down one level</resource>
 		<resource name="editor_downtobottom">Down to bottom</resource>
 		<resource name="editor_drawarrow">Draw arrow (A)</resource>
