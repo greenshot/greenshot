@@ -19,10 +19,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Runtime.Serialization;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing.Adorners;
@@ -34,7 +32,6 @@ namespace Greenshot.Editor.Drawing
     /// <summary>
     /// Description of LineContainer.
     /// </summary>
-    [Serializable()]
     public class LineContainer : DrawableContainer
     {
         public LineContainer(ISurface parent) : base(parent)
@@ -47,11 +44,6 @@ namespace Greenshot.Editor.Drawing
             AddField(GetType(), FieldType.LINE_THICKNESS, 2);
             AddField(GetType(), FieldType.LINE_COLOR, Color.Red);
             AddField(GetType(), FieldType.SHADOW, true);
-        }
-
-        protected override void OnDeserialized(StreamingContext context)
-        {
-            Init();
         }
 
         protected void Init()

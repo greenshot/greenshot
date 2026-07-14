@@ -23,7 +23,6 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Runtime.Serialization;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
@@ -35,7 +34,6 @@ namespace Greenshot.Editor.Drawing
     /// <summary>
     /// Description of PathContainer.
     /// </summary>
-    [Serializable]
     public class FreehandContainer : DrawableContainer
     {
         private static readonly float[] PointOffset =
@@ -43,7 +41,6 @@ namespace Greenshot.Editor.Drawing
             0.5f, 0.25f, 0.75f
         };
 
-        [NonSerialized]
         private GraphicsPath freehandPath = new GraphicsPath();
 
         private Rectangle myBounds = NativeRect.Empty;
@@ -56,10 +53,23 @@ namespace Greenshot.Editor.Drawing
         /// </summary>
         public FreehandContainer(ISurface parent) : base(parent)
         {
-            Width = parent.Image.Width;
-            Height = parent.Image.Height;
+            if (parent?.Image is not null)
+            {
+                Width = parent.Image.Width;
+                Height = parent.Image.Height;
+            }
             Top = 0;
             Left = 0;
+        }
+
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
+        /// <remarks>And recalculates path from capturePoints</remarks>
+        public override void OnDeserialized()
+        {
+            base.OnDeserialized();
+            RecalculatePath();
         }
 
         protected override void InitializeFields()
@@ -78,11 +88,6 @@ namespace Greenshot.Editor.Drawing
             RecalculatePath();
         }
 
-        protected override void OnDeserialized(StreamingContext context)
-        {
-            RecalculatePath();
-        }
-
         /// <summary>
         /// This Dispose is called from the Dispose and the Destructor.
         /// </summary>
@@ -96,6 +101,12 @@ namespace Greenshot.Editor.Drawing
             }
 
             freehandPath = null;
+        }
+
+        public List<Point> CapturePoints
+        {
+            get => capturePoints;
+            set => capturePoints = value;
         }
 
         /// <summary>

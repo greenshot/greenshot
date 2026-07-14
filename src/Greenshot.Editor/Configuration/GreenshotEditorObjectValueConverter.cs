@@ -23,6 +23,7 @@ using System.ComponentModel;
 using System.Reflection;
 using System.ServiceModel.Security;
 using Dapplo.Ini.Converters;
+using Greenshot.Editor.FileFormat.V1.Legacy;
 using Greenshot.Editor.Helpers;
 using log4net;
 
@@ -55,7 +56,7 @@ namespace Greenshot.Editor.Configuration
             string valuePart = raw.Substring(colonIdx + 1);
             try
             {
-                if (BinaryFormatterHelper.TryGetType(typePart, out var type))
+              if (LegacySerializationBinder.TryGetType(typePart, out var type))
                 {
                     var converter = TypeDescriptor.GetConverter(type);
                     return converter.ConvertFromInvariantString(valuePart);

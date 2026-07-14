@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="1000"
+   height="800"
+   viewBox="0 0 1000 800"
+   version="1.1"
+   id="svg1"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1">
+    <rect
+       x="107"
+       y="235"
+       width="47"
+       height="36"
+       id="rect7" />
+    <rect
+       x="918"
+       y="372"
+       width="290"
+       height="133"
+       id="rect5" />
+    <rect
+       x="649"
+       y="244"
+       width="258"
+       height="99"
+       id="rect3" />
+    <rect
+       x="230"
+       y="222"
+       width="241.83182"
+       height="48.667347"
+       id="rect2" />
+    <rect
+       x="230"
+       y="222"
+       width="146.32654"
+       height="21.832643"
+       id="rect2-4" />
+    <rect
+       x="107"
+       y="235"
+       width="47"
+       height="36"
+       id="rect7-5" />
+    <rect
+       x="107"
+       y="235"
+       width="47"
+       height="36"
+       id="rect7-2" />
+    <rect
+       x="107"
+       y="235"
+       width="47"
+       height="36"
+       id="rect7-57" />
+    <rect
+       x="107"
+       y="235"
+       width="47"
+       height="36"
+       id="rect7-9" />
+    <rect
+       x="107"
+       y="235"
+       width="47"
+       height="36"
+       id="rect7-4" />
+    <rect
+       x="107"
+       y="235"
+       width="47"
+       height="36"
+       id="rect7-7" />
+    <rect
+       x="107"
+       y="235"
+       width="47"
+       height="36"
+       id="rect7-0" />
+    <rect
+       x="107"
+       y="235"
+       width="47"
+       height="36"
+       id="rect7-6" />
+    <rect
+       x="107"
+       y="235"
+       width="47"
+       height="36"
+       id="rect7-1" />
+  </defs>
+  <g
+     id="layer1">
+    <rect
+       style="fill:none;stroke:#646464;stroke-width:9.90258;stroke-dasharray:none;paint-order:normal"
+       id="rect1"
+       width="790.09698"
+       height="390.09741"
+       x="80.951294"
+       y="49.95129" />
+    <text
+       xml:space="preserve"
+       id="text1"
+       style="font-size:29.8274px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect2)"
+       transform="matrix(2.2721257,0,0,2.1986455,-300.12091,-376.09001)"><tspan
+         x="230"
+         y="249.13921"
+         id="tspan4"><tspan
+           style="font-family:Arial;-inkscape-font-specification:Arial;fill:#8aff00;stroke:#8aff64"
+           id="tspan3">Hello Greenshot!</tspan></tspan></text>
+    <text
+       xml:space="preserve"
+       id="text1-8"
+       style="font-size:14.9137px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect2-4);shape-padding:0"
+       transform="matrix(2.2721257,0,0,2.1986455,-206.89839,-305.90732)"><tspan
+         x="230"
+         y="235.56961"
+         id="tspan6"><tspan
+           style="font-style:italic;font-family:Arial;-inkscape-font-specification:'Arial Italic'"
+           id="tspan5">Testfile 800x400 px</tspan></tspan></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.953463px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 80,400.02327 h 800 m -800,0 v -14 m 50,14 v -7 m 50,7 v -14 m 50,14 v -7 m 50,7 v -14 m 50,14 v -7 m 50,7 v -14 m 50,14 v -7 m 50,7 v -14 m 50,14 v -7 m 50,7 v -14 m 50,14 v -7 m 50,7 v -14 m 50,14 v -7 m 50,7 v -14 m 50,14 v -7 m 50,7 v -14"
+       id="path5"
+       transform="matrix(0.99861707,0,0,1.3536211,-3.3361938,-103.866)" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 95.255806,44.994796 -0.0221,399.971414 m 0.0221,-399.971414 14.000004,7.74e-4 m -14.002767,49.999226 6.999997,3.87e-4 m -7.002759,49.999617 13.999999,7.7e-4 m -14.002762,49.99923 7.000002,3.8e-4 m -7.002765,49.99962 14.000005,7.7e-4 m -14.002767,49.99923 6.999997,3.8e-4 m -7.00276,49.99962 14,7.7e-4 m -14.002763,49.99923 7.000003,3.8e-4 m -7.002764,49.97103 14.000004,7.7e-4"
+       id="path6"
+       transform="matrix(1.0000701,0,0,0.99719178,-11.606858,0.87545991)" />
+    <text
+       xml:space="preserve"
+       id="text7"
+       style="font-size:21.3333px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect7)"
+       transform="translate(-7.6441656,-1)"><tspan
+         x="107"
+         y="254.41064"
+         id="tspan9"><tspan
+           style="font-family:Arial;-inkscape-font-specification:Arial"
+           id="tspan8">200</tspan></tspan></text>
+    <text
+       xml:space="preserve"
+       id="text7-7"
+       style="font-size:21.3333px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect7-5)"
+       transform="translate(152.35583,160.92267)"><tspan
+         x="107"
+         y="254.41064"
+         id="tspan11"><tspan
+           style="font-family:Arial;-inkscape-font-specification:Arial"
+           id="tspan10">200</tspan></tspan></text>
+    <text
+       xml:space="preserve"
+       id="text7-2"
+       style="font-size:21.3333px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect7-2);display:inline"
+       transform="translate(350.35583,160.92267)"><tspan
+         x="107"
+         y="254.41064"
+         id="tspan13"><tspan
+           style="font-family:Arial;-inkscape-font-specification:Arial"
+           id="tspan12">400</tspan></tspan></text>
+    <text
+       xml:space="preserve"
+       id="text7-1"
+       style="font-size:21.3333px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect7-57);display:inline"
+       transform="translate(550.35583,160.92267)"><tspan
+         x="107"
+         y="254.41064"
+         id="tspan15"><tspan
+           style="font-family:Arial;-inkscape-font-specification:Arial"
+           id="tspan14">600</tspan></tspan></text>
+    <text
+       xml:space="preserve"
+       id="text7-4"
+       style="font-size:21.3333px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect7-9);display:inline"
+       transform="translate(52.35583,160.92267)"><tspan
+         x="107"
+         y="254.41064"
+         id="tspan17"><tspan
+           style="font-family:Arial;-inkscape-font-specification:Arial"
+           id="tspan16">100</tspan></tspan></text>
+    <text
+       xml:space="preserve"
+       id="text7-13"
+       style="font-size:21.3333px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect7-4);display:inline"
+       transform="translate(-7.6441656,97.92267)"><tspan
+         x="107"
+         y="254.41064"
+         id="tspan19"><tspan
+           style="font-family:Arial;-inkscape-font-specification:Arial"
+           id="tspan18">300</tspan></tspan></text>
+    <text
+       xml:space="preserve"
+       id="text7-3"
+       style="font-size:21.3333px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect7-7);display:inline"
+       transform="translate(-7.6441656,-103.07733)"><tspan
+         x="107"
+         y="254.41064"
+         id="tspan21"><tspan
+           style="font-family:Arial;-inkscape-font-specification:Arial"
+           id="tspan20">100</tspan></tspan></text>
+    <text
+       xml:space="preserve"
+       id="text7-8"
+       style="font-size:21.3333px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect7-0);display:inline"
+       transform="translate(650.35583,160.92267)"><tspan
+         x="107"
+         y="254.41064"
+         id="tspan23"><tspan
+           style="font-family:Arial;-inkscape-font-specification:Arial"
+           id="tspan22">700</tspan></tspan></text>
+    <text
+       xml:space="preserve"
+       id="text7-0"
+       style="font-size:21.3333px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect7-6);display:inline"
+       transform="translate(251.35583,160.92267)"><tspan
+         x="107"
+         y="254.41064"
+         id="tspan25"><tspan
+           style="font-family:Arial;-inkscape-font-specification:Arial"
+           id="tspan24">300</tspan></tspan></text>
+    <text
+       xml:space="preserve"
+       id="text7-89"
+       style="font-size:21.3333px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect7-1);display:inline"
+       transform="translate(450.35583,160.92267)"><tspan
+         x="107"
+         y="254.41064"
+         id="tspan27"><tspan
+           style="font-family:Arial;-inkscape-font-specification:Arial"
+           id="tspan26">500</tspan></tspan></text>
+  </g>
+</svg>

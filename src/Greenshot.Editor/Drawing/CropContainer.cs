@@ -21,7 +21,6 @@
 
 
 using System.Drawing;
-using System.Runtime.Serialization;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Interfaces;
@@ -62,12 +61,6 @@ namespace Greenshot.Editor.Drawing
 
         public CropContainer(ISurface parent) : base(parent)
         {
-            Init();
-        }
-
-        protected override void OnDeserialized(StreamingContext streamingContext)
-        {
-            base.OnDeserialized(streamingContext);
             Init();
         }
 

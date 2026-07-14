@@ -19,7 +19,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System;
 using Greenshot.Base.Interfaces.Drawing;
 
 namespace Greenshot.Editor.Drawing.Fields
@@ -28,7 +27,6 @@ namespace Greenshot.Editor.Drawing.Fields
     /// Defines all FieldTypes + their default value.
     /// (The additional value is why this is not an enum)
     /// </summary>
-    [Serializable]
     public class FieldType : IFieldType
     {
         public static readonly IFieldType ARROWHEADS = new FieldType(nameof(ARROWHEADS));

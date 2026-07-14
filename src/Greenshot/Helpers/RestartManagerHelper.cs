@@ -22,6 +22,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 using System.Windows.Threading;
 using Dapplo.Windows.AppRestartManager;
@@ -30,6 +31,7 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Editor.Destinations;
 using Greenshot.Editor.Drawing;
+using Greenshot.Editor.FileFormatHandlers;
 using Greenshot.Editor.Forms;
 using log4net;
 
@@ -109,8 +111,8 @@ namespace Greenshot.Helpers
                 string stateDir = StateDirectory;
                 Directory.CreateDirectory(stateDir);
 
-                // Remove stale .greenshot files from any previous session
-                foreach (string oldFile in Directory.GetFiles(stateDir, "*.greenshot"))
+                // Remove stale .gsa files from any previous session
+                foreach (string oldFile in Directory.GetFiles(stateDir, "*.gsa"))
                 {
                     try
                     {
@@ -129,7 +131,7 @@ namespace Greenshot.Helpers
                     {
                         try
                         {
-                            string filename = Path.Combine(stateDir, editor.Surface.ID + ".greenshot");
+                            string filename = Path.Combine(stateDir, editor.Surface.ID + ".gsa");
                             if (editor.TrySaveState(filename))
                             {
                                 Log.InfoFormat("Saved editor state to: {0}", filename);
@@ -167,12 +169,16 @@ namespace Greenshot.Helpers
                 {
                     return;
                 }
-
-                foreach (string filePath in Directory.GetFiles(stateDir, "*.greenshot"))
+                var greenshotFileFormatHandler = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>().OfType<GreenshotFileFormatHandler>().FirstOrDefault();
+                if (greenshotFileFormatHandler is null)
                 {
-                    _dispatcher.Invoke(() => {
-                        ISurface surface = new Surface();
-                        surface = ImageIO.LoadGreenshotSurface(filePath, surface);
+                    throw new Exception($"No instance of {nameof(GreenshotFileFormatHandler)} found in service provider.");
+                }
+
+                foreach (string filePath in Directory.GetFiles(stateDir, "*.gsa"))
+                {
+                    _dispatcher.Invoke(() => {                      
+                        ISurface surface = greenshotFileFormatHandler.LoadGreenshotSurface(filePath);
                         surface.CaptureDetails = new CaptureDetails();
                         try
                         {

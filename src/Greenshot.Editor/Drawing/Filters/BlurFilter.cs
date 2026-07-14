@@ -19,7 +19,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using Dapplo.Windows.Common.Structs;
@@ -30,7 +29,6 @@ using Greenshot.Editor.Drawing.Fields;
 
 namespace Greenshot.Editor.Drawing.Filters
 {
-    [Serializable]
     public class BlurFilter : AbstractFilter
     {
         public double previewQuality;
