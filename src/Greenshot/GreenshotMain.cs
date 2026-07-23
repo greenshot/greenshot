@@ -169,7 +169,7 @@ public class GreenshotMain
             return;
         }
 
-        new BugReportForm(exceptionText).ShowDialog();
+        new ModernBugReportWindow(exceptionToLog).ShowDialog();
     }
 
     internal static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
@@ -184,7 +184,7 @@ public class GreenshotMain
             return;
         }
 
-        new BugReportForm(exceptionText).ShowDialog();
+        new ModernBugReportWindow(exceptionToLog).ShowDialog();
     }
 
     internal static void Task_UnhandledException(object sender, UnobservedTaskExceptionEventArgs args)
@@ -195,7 +195,7 @@ public class GreenshotMain
             string exceptionText = EnvironmentInfo.BuildReport(exceptionToLog);
             LOG.Error("Exception caught in the UnobservedTaskException handler.");
             LOG.Error(exceptionText);
-            new BugReportForm(exceptionText).ShowDialog();
+            new ModernBugReportWindow(exceptionToLog).ShowDialog();
         }
         finally
         {
