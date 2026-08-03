@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="پارسی" ietf="fa-IR" version="1.0.0">
+    <resources>
+        <resource name="label_AfterUploadLinkToClipBoard">لینک به کلیپ‌بورد</resource>
+        <resource name="label_AfterUpload">پس از آپلود</resource>
+        <resource name="Configure">پیکربندی Box</resource>
+        <resource name="upload_menu_item">آپلود به Box</resource>
+        <resource name="settings_title">تنظیمات Box</resource>
+        <resource name="upload_success">تصویر با موفقیت در Box آپلود شد!</resource>
+        <resource name="upload_failure">خطایی هنگام آپلود به Box رخ داد:</resource>
+        <resource name="label_upload_format">فرمت تصویر</resource>
+        <resource name="communication_wait">در حال ارتباط با Box. لطفاً صبر کنید...</resource>
+    </resources>
+</language>
