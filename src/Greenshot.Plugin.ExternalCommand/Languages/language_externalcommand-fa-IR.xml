@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="پارسی" ietf="fa-IR" version="1.0.0">
+  <resources>
+    <resource name="contextmenu_configure">پیکربندی دستورات خارجی</resource>
+    <resource name="settings_title">تنظیمات دستور خارجی</resource>
+    <resource name="settings_detail_title">پیکربندی دستور</resource>
+    <resource name="settings_new">جدید</resource>
+    <resource name="settings_delete">حذف</resource>
+    <resource name="settings_edit">ویرایش</resource>
+    <resource name="label_name">نام</resource>
+    <resource name="label_command">دستور</resource>
+    <resource name="label_argument">آرگومان‌ها</resource>
+    <resource name="label_outputimageformat">فرمت تصویر</resource>
+    <resource name="label_information">{0} نام فایل اسکرین‌شات شماست</resource>
+    <resource name="tooltip_duplicate_name">دستوری با این نام از قبل وجود دارد. لطفاً نام دیگری انتخاب کنید.</resource>
+  </resources>
+</language>
