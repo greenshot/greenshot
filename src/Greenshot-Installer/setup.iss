@@ -80,6 +80,7 @@ Source: {#LanguagesDir}\*sr-RS*; Excludes: "*installer*,*website*"; DestDir: {ap
 Source: {#LanguagesDir}\*sv-SE*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\svSE; Flags: {#DefaultInstallFlags};
 Source: {#LanguagesDir}\*tr-TR*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\trTR; Flags: {#DefaultInstallFlags};
 Source: {#LanguagesDir}\*uk-UA*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\ukUA; Flags: {#DefaultInstallFlags};
+Source: {#LanguagesDir}\*va-VA*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\vaVA; Flags: {#DefaultInstallFlags};
 Source: {#LanguagesDir}\*vi-VN*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\viVN; Flags: {#DefaultInstallFlags};
 Source: {#LanguagesDir}\*zh-CN*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\zhCN; Flags: {#DefaultInstallFlags};
 Source: {#LanguagesDir}\*zh-TW*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\zhTW; Flags: {#DefaultInstallFlags};
@@ -274,6 +275,7 @@ srRS=Српски
 svSE=Svenska
 trTR=Türkçe
 ukUA=Українська
+vaVA=Valencià
 viVN=Việt
 zhCN=简体中文
 zhTW=繁體中文
@@ -518,6 +520,7 @@ Name: "languages\srRS"; Description: {cm:srRS}; Types: full custom; Flags: disab
 Name: "languages\svSE"; Description: {cm:svSE}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
 Name: "languages\trTR"; Description: {cm:trTR}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('6')
 Name: "languages\ukUA"; Description: {cm:ukUA}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('5')
+Name: "languages\vaVA"; Description: {cm:vaVA}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
 Name: "languages\viVN"; Description: {cm:viVN}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('e')
 Name: "languages\zhCN"; Description: {cm:zhCN}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('a')
 Name: "languages\zhTW"; Description: {cm:zhTW}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('9')
