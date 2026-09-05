@@ -19,11 +19,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
-using System.Runtime.Serialization;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
@@ -34,7 +32,6 @@ namespace Greenshot.Editor.Drawing
     /// <summary>
     /// Description of IconContainer.
     /// </summary>
-    [Serializable]
     public class IconContainer : DrawableContainer, IIconContainer
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(IconContainer));
@@ -43,12 +40,6 @@ namespace Greenshot.Editor.Drawing
 
         public IconContainer(ISurface parent) : base(parent)
         {
-            Init();
-        }
-
-        protected override void OnDeserialized(StreamingContext streamingContext)
-        {
-            base.OnDeserialized(streamingContext);
             Init();
         }
 

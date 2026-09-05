@@ -66,7 +66,7 @@ namespace Greenshot.Base.Core
                 ConstructorInfo ci = typeof(PropertyItem).GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public, null, new Type[]
                 {
                 }, null);
-                propertyItem = (PropertyItem) ci.Invoke(null);
+                propertyItem = (PropertyItem)ci.Invoke(null);
                 // Make sure it's of type string
                 propertyItem.Type = 2;
                 // Set the ID
@@ -116,7 +116,7 @@ namespace Greenshot.Base.Core
         {
             bool useMemoryStream = false;
             MemoryStream memoryStream = null;
-            if (outputSettings.Format == OutputFormat.greenshot && surface == null)
+            if ((outputSettings.Format == OutputFormat.greenshot || outputSettings.Format == OutputFormat.gsa) && surface == null)
             {
                 throw new ArgumentException("Surface needs to be set when using OutputFormat.Greenshot");
             }
@@ -163,7 +163,7 @@ namespace Greenshot.Base.Core
         {
             bool disposeImage = false;
 
-            if (outputSettings.Format == OutputFormat.greenshot || outputSettings.SaveBackgroundOnly)
+            if (outputSettings.Format == OutputFormat.greenshot || outputSettings.Format == OutputFormat.gsa || outputSettings.SaveBackgroundOnly)
             {
                 // We save the image of the surface, this should not be disposed
                 imageToSave = surface.Image;
@@ -176,7 +176,7 @@ namespace Greenshot.Base.Core
             }
 
             // The following block of modifications should be skipped when saving the greenshot format, no effects or otherwise!
-            if (outputSettings.Format == OutputFormat.greenshot)
+            if (outputSettings.Format == OutputFormat.greenshot || outputSettings.Format == OutputFormat.gsa)
             {
                 return disposeImage;
             }
@@ -211,7 +211,7 @@ namespace Greenshot.Base.Core
             bool isAlpha = Image.IsAlphaPixelFormat(imageToSave.PixelFormat);
             if (outputSettings.ReduceColors || (!isAlpha && CoreConfig.OutputFileAutoReduceColors))
             {
-                using var quantizer = new WuQuantizer((Bitmap) imageToSave);
+                using var quantizer = new WuQuantizer((Bitmap)imageToSave);
                 int colorCount = quantizer.GetColorCount();
                 Log.InfoFormat("Image with format {0} has {1} colors", imageToSave.PixelFormat, colorCount);
                 if (!outputSettings.ReduceColors && colorCount >= 256)
@@ -262,35 +262,6 @@ namespace Greenshot.Base.Core
             {
                 Log.WarnFormat("Couldn't set property {0}", softwareUsedPropertyItem.Id);
             }
-        }
-
-        /// <summary>
-        /// Load a Greenshot surface
-        /// </summary>
-        /// <param name="fullPath"></param>
-        /// <param name="returnSurface"></param>
-        /// <returns></returns>
-        public static ISurface LoadGreenshotSurface(string fullPath, ISurface returnSurface)
-        {
-            if (string.IsNullOrEmpty(fullPath))
-            {
-                return null;
-            }
-
-            Log.InfoFormat("Loading image from file {0}", fullPath);
-            // Fixed lock problem Bug #3431881
-            using (Stream surfaceFileStream = File.OpenRead(fullPath))
-            {
-                returnSurface = LoadGreenshotSurface(surfaceFileStream, returnSurface);
-            }
-
-            if (returnSurface != null)
-            {
-                Log.InfoFormat("Information about file {0}: {1}x{2}-{3} Resolution {4}x{5}", fullPath, returnSurface.Image.Width, returnSurface.Image.Height,
-                    returnSurface.Image.PixelFormat, returnSurface.Image.HorizontalResolution, returnSurface.Image.VerticalResolution);
-            }
-
-            return returnSurface;
         }
 
         /// <summary>
@@ -392,7 +363,7 @@ namespace Greenshot.Base.Core
             OutputFormat format = OutputFormat.png;
             try
             {
-                format = (OutputFormat) Enum.Parse(typeof(OutputFormat), extension.ToLower());
+                format = (OutputFormat)Enum.Parse(typeof(OutputFormat), extension.ToLower());
             }
             catch (ArgumentException ae)
             {
@@ -720,53 +691,84 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// Load a Greenshot surface from a stream
+        /// Convert an image to a byte array and get the extension for the image format.
+        /// An unknown format will be converted as PNG.
         /// </summary>
-        /// <param name="surfaceFileStream">Stream</param>
-        /// <param name="returnSurface"></param>
-        /// <returns>ISurface</returns>
-        public static ISurface LoadGreenshotSurface(Stream surfaceFileStream, ISurface returnSurface)
+        /// <param name="myImage">The image to convert.</param>
+        /// <returns>A tuple containing the byte array of the image and its file extension.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when the image is null.</exception>
+        public static (byte[] Data, string Extension) GetImageDataAndExtension(Image myImage)
         {
-            Image fileImage;
-            // Fixed problem that the bitmap stream is disposed... by Cloning the image
-            // This also ensures the bitmap is correctly created
-
-            // We create a copy of the bitmap, so everything else can be disposed
-            surfaceFileStream.Position = 0;
-            using (Image tmpImage = Image.FromStream(surfaceFileStream, true, true))
+            if (myImage == null)
             {
-                Log.DebugFormat("Loaded .greenshot file with Size {0}x{1} and PixelFormat {2}", tmpImage.Width, tmpImage.Height, tmpImage.PixelFormat);
-                fileImage = ImageHelper.Clone(tmpImage);
+                throw new ArgumentNullException(nameof(myImage));
             }
 
-            // Start at -14 read "GreenshotXX.YY" (XX=Major, YY=Minor)
-            const int markerSize = 14;
-            surfaceFileStream.Seek(-markerSize, SeekOrigin.End);
-            using (StreamReader streamReader = new StreamReader(surfaceFileStream))
+            // maps known formats to their extension, if the format is not known we default to png
+            var (format, extension) = myImage.RawFormat switch
             {
-                var greenshotMarker = streamReader.ReadToEnd();
-                if (!greenshotMarker.StartsWith("Greenshot"))
-                {
-                    throw new ArgumentException("Stream is not a Greenshot file!");
-                }
+                var f when f.Equals(ImageFormat.Jpeg) => (ImageFormat.Jpeg, "jpg"),
+                var f when f.Equals(ImageFormat.Gif) => (ImageFormat.Gif, "gif"),
+                var f when f.Equals(ImageFormat.Bmp) => (ImageFormat.Bmp, "bmp"),
+                var f when f.Equals(ImageFormat.Tiff) => (ImageFormat.Tiff, "tiff"),
+                var f when f.Equals(ImageFormat.Png) => (ImageFormat.Png, "png"),
+                _ => (ImageFormat.Png, "png")
+            };
 
-                Log.InfoFormat("Greenshot file format: {0}", greenshotMarker);
-                const int filesizeLocation = 8 + markerSize;
-                surfaceFileStream.Seek(-filesizeLocation, SeekOrigin.End);
-                using BinaryReader reader = new BinaryReader(surfaceFileStream);
-                long bytesWritten = reader.ReadInt64();
-                surfaceFileStream.Seek(-(bytesWritten + filesizeLocation), SeekOrigin.End);
-                returnSurface.LoadElementsFromStream(surfaceFileStream);
-            }
-
-            if (fileImage != null)
-            {
-                returnSurface.Image = fileImage;
-                Log.InfoFormat("Information about .greenshot file: {0}x{1}-{2} Resolution {3}x{4}", fileImage.Width, fileImage.Height, fileImage.PixelFormat,
-                    fileImage.HorizontalResolution, fileImage.VerticalResolution);
-            }
-
-            return returnSurface;
+            using var ms = new MemoryStream();
+            myImage.Save(ms, format);
+            return (ms.ToArray(), extension);
         }
+
+        /// <summary>
+        /// Converts the specified <see cref="Image"/> to a byte array in PNG format.
+        /// </summary>
+        public static byte[] ImageToPngByteArray(Image image)
+        {
+            if (image == null) return null;
+
+            using var memoryStream = new MemoryStream();
+            image.Save(memoryStream, ImageFormat.Png);
+            return memoryStream.ToArray();
+        }
+
+        /// <summary>
+        /// Convert an icon to a byte array and get the extension for the icon format.
+        /// </summary>
+        /// <param name="icon">The icon to convert.</param>
+        /// <returns>A tuple containing the byte array of the icon and its file extension.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when the icon is null.</exception>
+        public static (byte[] Data, string Extension) GetIconDataAndExtension(Icon icon)
+        {
+            if (icon == null)
+            {
+                throw new ArgumentNullException(nameof(icon));
+            }
+
+            using var ms = new MemoryStream();
+            icon.Save(ms);
+            return (ms.ToArray(), "ico");
+        }
+
+        /// <summary>
+        /// Converts a byte array into an <see cref="Image"/> object.
+        /// </summary>
+        public static Image ByteArrayToImage(byte[] byteArrayIn)
+        {
+            if (byteArrayIn == null || byteArrayIn.Length == 0) return null;
+            using var ms = new MemoryStream(byteArrayIn);
+            return Image.FromStream(ms);
+        }
+
+        /// <summary>
+        /// Converts a byte array into an <see cref="Icon"/> object.
+        /// </summary>
+        public static Icon ByteArrayToIcon(byte[] byteArrayIn)
+        {
+            if (byteArrayIn == null || byteArrayIn.Length == 0) return null;
+            using var ms = new MemoryStream(byteArrayIn);
+            return new Icon(ms);
+        }
+
     }
 }

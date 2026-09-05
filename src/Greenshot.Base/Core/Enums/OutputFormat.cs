@@ -21,18 +21,19 @@
 
 namespace Greenshot.Base.Core.Enums;
 
-/// <summary>
-/// These are the supported output formats
-/// </summary>
-public enum OutputFormat
-{
-    bmp,
-    gif,
-    jpg,
-    png,
-    tiff,
-    jxr,
-    greenshot,
-    ico
+    /// <summary>
+    /// These are the supported output formats
+    /// </summary>
+    public enum OutputFormat
+    {
+        bmp,
+        gif,
+        jpg,
+        png,
+        tiff,
+        jxr,
+        greenshot,
+        gsa,
+        ico
     // , webp, tga, pbm - Awaiting approval to make ImageSharp implementation final
 }

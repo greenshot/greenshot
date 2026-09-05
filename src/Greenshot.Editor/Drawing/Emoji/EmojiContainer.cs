@@ -36,14 +36,13 @@ namespace Greenshot.Editor.Drawing.Emoji
     /// <summary>
     /// Description of EmojiContainer.
     /// </summary>
-    [Serializable]
     public sealed class EmojiContainer : VectorGraphicsContainer, IEmojiContainer, IHaveScaleOptions
     {
-        [NonSerialized] private static EmojiContainer _currentContainer;
-        [NonSerialized] private static ElementHost _emojiPickerHost;
-        [NonSerialized] private static EmojiPicker _emojiPicker;
+        private static EmojiContainer _currentContainer;
+        private static ElementHost _emojiPickerHost;
+        private static EmojiPicker _emojiPicker;
 
-        [NonSerialized] private bool _justCreated = true;
+        private bool _justCreated = true;
 
         private string _emoji;
 
@@ -125,12 +124,21 @@ namespace Greenshot.Editor.Drawing.Emoji
         /// <summary>
         /// Make sure we register the property changed, to manage the state of the picker
         /// </summary>
-        protected override void Init()
+        private void Init()
         {
-            base.Init();
             PropertyChanged += OnPropertyChanged;
         }
 
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
+        /// <remarks>Sets <see cref="_justCreated"/> to <c>false</c> to prevent the 
+        /// emoji picker from opening automatically.</remarks>
+        public override void OnDeserialized()
+        {
+            base.OnDeserialized();
+            _justCreated = false;
+        }
         public override bool HandleMouseDown(int mouseX, int mouseY)
         {
             return base.HandleMouseDown(mouseX - (Width / 2), mouseY - (Height / 2));
@@ -146,6 +154,10 @@ namespace Greenshot.Editor.Drawing.Emoji
         }
 
         /// <summary> Handle the state of the Emoji Picker </summary>
+
+        /// <summary>
+        /// Handle the state of the Emoji Picker
+        /// </summary>
         /// <param name="sender">object</param>
         /// <param name="e">PropertyChangedEventArgs</param>
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)

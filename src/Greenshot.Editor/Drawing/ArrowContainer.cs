@@ -33,7 +33,6 @@ namespace Greenshot.Editor.Drawing
     /// <summary>
     /// Description of LineContainer.
     /// </summary>
-    [Serializable()]
     public class ArrowContainer : LineContainer
     {
         public enum ArrowHeadCombination
@@ -56,7 +55,6 @@ namespace Greenshot.Editor.Drawing
         protected override void InitializeFields()
         {
             AddField(GetType(), FieldType.LINE_THICKNESS, 2);
-            AddField(GetType(), FieldType.ARROWHEADS, 2);
             AddField(GetType(), FieldType.LINE_COLOR, Color.Red);
             AddField(GetType(), FieldType.FILL_COLOR, Color.Transparent);
             AddField(GetType(), FieldType.SHADOW, true);

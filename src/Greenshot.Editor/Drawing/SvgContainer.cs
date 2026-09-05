@@ -19,7 +19,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System;
 using System.Drawing;
 using System.IO;
 using Dapplo.Windows.Common.Structs;
@@ -32,33 +31,30 @@ namespace Greenshot.Editor.Drawing
     /// <summary>
     /// This provides a resizable SVG container, redrawing the SVG in the size the container takes.
     /// </summary>
-    [Serializable]
     public class SvgContainer : VectorGraphicsContainer
     {
-        private MemoryStream _svgContent;
+        public MemoryStream SvgContent;
 
-        [NonSerialized]
         private SvgDocument _svgDocument;
 
         public SvgContainer(Stream stream, ISurface parent) : base(parent)
         {
-            _svgContent = new MemoryStream();
-            stream.CopyTo(_svgContent);
+            SvgContent = new MemoryStream();
+            stream.CopyTo(SvgContent);
             Init();
             Size = new Size((int)_svgDocument.Width, (int)_svgDocument.Height);
         }
 
-        protected override void Init()
+        private void Init()
         {
-            base.Init();
             // Do nothing when there is no content
-            if (_svgContent == null)
+            if (SvgContent == null)
             {
                 return;
             }
-            _svgContent.Position = 0;
+            SvgContent.Position = 0;
 
-            _svgDocument = SvgDocument.Open<SvgDocument>(_svgContent);
+            _svgDocument = SvgDocument.Open<SvgDocument>(SvgContent);
         }
 
         protected override Image ComputeBitmap()

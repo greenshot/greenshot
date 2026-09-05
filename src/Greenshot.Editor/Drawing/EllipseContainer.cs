@@ -22,7 +22,6 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Runtime.Serialization;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Interfaces;
@@ -35,17 +34,10 @@ namespace Greenshot.Editor.Drawing
     /// <summary>
     /// Description of EllipseContainer.
     /// </summary>
-    [Serializable()]
     public class EllipseContainer : DrawableContainer
     {
         public EllipseContainer(ISurface parent) : base(parent)
         {
-            Init();
-        }
-
-        protected override void OnDeserialized(StreamingContext streamingContext)
-        {
-            base.OnDeserialized(streamingContext);
             Init();
         }
 
