@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <Target Name="CoreCompile" />
   <PropertyGroup>
     <SkipCopyBuildProduct>true</SkipCopyBuildProduct>
@@ -8,6 +8,20 @@
     <PackageReference Include="Tools.InnoSetup" Version="6.7.1" />
   </ItemGroup>
   
+  <Target Name="GenerateSbom" BeforeTargets="Generate hashes" Condition="'$(Configuration)' == 'Release'">
+    <PropertyGroup>
+      <SbomVersion Condition="'$(NuGetPackageVersion)' != ''">$(NuGetPackageVersion)</SbomVersion>
+      <SbomVersion Condition="'$(SbomVersion)' == ''">$(BuildVersionSimple)</SbomVersion>
+      <SbomVersion Condition="'$(SbomVersion)' == ''">1.0.0</SbomVersion>
+    </PropertyGroup>
+    <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -Command &quot;&amp; '$(MSBuildThisFileDirectory)scripts\generate-sboms.ps1' -SolutionDir '$(SolutionDir)' -Configuration '$(Configuration)' -TargetFramework '$(TargetFramework)' -SbomVersion '$(SbomVersion)'&quot;" />
+    <ItemGroup>
+      <SpdxManifestFiles Include="$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\_manifest\**\manifest.spdx.json*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(SpdxManifestFiles)" DestinationFolder="$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)" />
+    <RemoveDir Directories="$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\_manifest" />
+  </Target>
+
   <Target Name="Generate hashes" BeforeTargets="PostBuildEvent" Condition="'$(Configuration)' == 'Release'">
     <ItemGroup>
       <FilesToHash Include="$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\**\*.dll" Exclude="$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\Microsoft.Bcl.*.dll;$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\Microsoft.Build.*.dll;$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\Microsoft.IO.Redist.dll;$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\Microsoft.NET.StringTools.dll" />
