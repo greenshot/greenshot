@@ -104,7 +104,7 @@ namespace Greenshot.Base.Core
         /// Protect a string for the current Windows user so it can be stored in a config file.
         /// </summary>
         /// <param name="clearText">the string to call upon</param>
-        /// <returns>an encrypted string in base64 form</returns>
+        /// <returns>Encrypted string; DPAPI values are prefixed with "dpapi:" and base64 encoded (legacy values are base64 only)</returns>
         public static string Encrypt(this string clearText)
         {
             if (clearText == null)
