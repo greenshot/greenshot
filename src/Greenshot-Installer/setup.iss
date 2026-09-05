@@ -122,7 +122,7 @@ AppSupportURL=https://getgreenshot.org
 AppUpdatesURL=https://getgreenshot.org
 AppVerName={#ExeName} {#Version}
 AppVersion={#Version}
-ArchitecturesInstallIn64BitMode=x64
+ArchitecturesInstallIn64BitMode=x64compatible
 Compression=lzma2/ultra64
 SolidCompression=yes
 DefaultDirName={autopf}\{#ExeName}
@@ -139,6 +139,9 @@ PrivilegesRequiredOverridesAllowed=dialog
 ; the installer will ask for elevation if needed
 PrivilegesRequired=admin
 UsePreviousPrivileges=no
+UsedUserAreasWarning=no
+MissingMessagesWarning=no
+NotRecognizedMessagesWarning=no
 
 SetupIconFile=..\Greenshot\icons\applicationIcon\icon.ico
 #if CertumThumbprint  != ""
@@ -210,7 +213,7 @@ Name: lv; MessagesFile: Languages\Latvian.isl
 Name: nn; MessagesFile: Languages\NorwegianNynorsk.isl
 Name: ru; MessagesFile: compiler:Languages\Russian.isl
 Name: sr; MessagesFile: Languages\SerbianCyrillic.isl
-Name: sv; MessagesFile: Languages\Swedish.isl
+Name: sv; MessagesFile: compiler:Languages\Swedish.isl
 Name: tr; MessagesFile: compiler:Languages\Turkish.isl
 Name: uk; MessagesFile: compiler:Languages\Ukrainian.isl
 
