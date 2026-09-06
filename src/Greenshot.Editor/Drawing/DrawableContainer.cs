@@ -438,7 +438,7 @@ namespace Greenshot.Editor.Drawing
             }
         }
 
-        public virtual void DrawContent(Graphics graphics, Bitmap bmp, RenderMode renderMode, NativeRect clipRectangle)
+        public virtual void DrawContent(Graphics graphics, Bitmap bmp, RenderMode renderMode, NativeRect clipRectangle, bool skipInvertedFilters = false)
         {
             if (Children.Count > 0)
             {
@@ -454,7 +454,10 @@ namespace Greenshot.Editor.Drawing
                         {
                             if (filter.Invert)
                             {
-                                filter.Apply(graphics, bmp, Bounds, renderMode);
+                                if (!skipInvertedFilters)
+                                {
+                                    filter.Apply(graphics, bmp, Bounds, renderMode);
+                                }
                             }
                             else
                             {
