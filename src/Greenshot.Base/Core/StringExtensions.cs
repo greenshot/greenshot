@@ -32,6 +32,7 @@ namespace Greenshot.Base.Core
     public static class StringExtensions
     {
         private static readonly ILog LOG = LogManager.GetLogger(typeof(StringExtensions));
+        private const string DPAPI_PREFIX = "dpapi:";
         private const string RGBIV = "dlgjowejgogkklwj";
         private const string KEY = "lsjvkwhvwujkagfauguwcsjgu2wueuff";
 
@@ -100,11 +101,62 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// A simply rijndael aes encryption, can be used to store passwords
+        /// Protect a string for the current Windows user so it can be stored in a config file.
         /// </summary>
         /// <param name="clearText">the string to call upon</param>
-        /// <returns>an encrypted string in base64 form</returns>
+        /// <returns>Encrypted string; DPAPI values are prefixed with "dpapi:" and base64 encoded (legacy values are base64 only)</returns>
         public static string Encrypt(this string clearText)
+        {
+            if (clearText == null)
+            {
+                return null;
+            }
+
+            try
+            {
+                byte[] clearTextBytes = Encoding.UTF8.GetBytes(clearText);
+                byte[] encryptedBytes = ProtectedData.Protect(clearTextBytes, null, DataProtectionScope.CurrentUser);
+                return DPAPI_PREFIX + Convert.ToBase64String(encryptedBytes);
+            }
+            catch (Exception ex)
+            {
+                LOG.ErrorFormat("Error encrypting with DPAPI, falling back to legacy encryption. Error: {0}", ex.Message);
+                return LegacyEncrypt(clearText);
+            }
+        }
+
+        /// <summary>
+        /// Unprotect a string that was stored in a config file.
+        /// </summary>
+        /// <param name="encryptedText">a base64 encoded encrypted string</param>
+        /// <returns>Decrypted text</returns>
+        public static string Decrypt(this string encryptedText)
+        {
+            if (string.IsNullOrEmpty(encryptedText))
+            {
+                return encryptedText;
+            }
+
+            if (!encryptedText.StartsWith(DPAPI_PREFIX, StringComparison.Ordinal))
+            {
+                return LegacyDecrypt(encryptedText);
+            }
+
+            try
+            {
+                string protectedText = encryptedText.Substring(DPAPI_PREFIX.Length);
+                byte[] encryptedTextBytes = Convert.FromBase64String(protectedText);
+                byte[] clearTextBytes = ProtectedData.Unprotect(encryptedTextBytes, null, DataProtectionScope.CurrentUser);
+                return Encoding.UTF8.GetString(clearTextBytes);
+            }
+            catch (Exception ex)
+            {
+                LOG.ErrorFormat("Error decrypting DPAPI-protected value, error: {0}", ex.Message);
+                return encryptedText;
+            }
+        }
+
+        private static string LegacyEncrypt(string clearText)
         {
             string returnValue = clearText;
             try
@@ -129,12 +181,7 @@ namespace Greenshot.Base.Core
             return returnValue;
         }
 
-        /// <summary>
-        /// A simply rijndael aes decryption, can be used to store passwords
-        /// </summary>
-        /// <param name="encryptedText">a base64 encoded rijndael encrypted string</param>
-        /// <returns>Decrypeted text</returns>
-        public static string Decrypt(this string encryptedText)
+        private static string LegacyDecrypt(string encryptedText)
         {
             string returnValue = encryptedText;
             try
@@ -142,7 +189,6 @@ namespace Greenshot.Base.Core
                 byte[] encryptedTextBytes = Convert.FromBase64String(encryptedText);
                 using MemoryStream ms = new MemoryStream();
                 SymmetricAlgorithm rijn = SymmetricAlgorithm.Create();
-
 
                 byte[] rgbIV = Encoding.ASCII.GetBytes(RGBIV);
                 byte[] key = Encoding.ASCII.GetBytes(KEY);
@@ -154,7 +200,7 @@ namespace Greenshot.Base.Core
             }
             catch (Exception ex)
             {
-                LOG.ErrorFormat("Error decrypting {0}, error: {1}", encryptedText, ex.Message);
+                LOG.ErrorFormat("Error decrypting legacy value, error: {0}", ex.Message);
             }
 
             return returnValue;
