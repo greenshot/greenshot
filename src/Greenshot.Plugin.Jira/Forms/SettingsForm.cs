@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -19,21 +19,37 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace Greenshot.Plugin.Jira.Forms
+using Greenshot.Base.Core;
+
+namespace Greenshot.Plugin.Jira.Forms;
+
+/// <summary>
+/// Description of PasswordRequestForm.
+/// </summary>
+public partial class SettingsForm : JiraFormBase
 {
-    /// <summary>
-    /// Description of PasswordRequestForm.
-    /// </summary>
-    public partial class SettingsForm : JiraFormBase
+    public SettingsForm()
     {
-        public SettingsForm()
-        {
-            //
-            // The InitializeComponent() call is required for Windows Forms designer support.
-            //
-            InitializeComponent();
-            AcceptButton = buttonOK;
-            CancelButton = buttonCancel;
-        }
+        //
+        // The InitializeComponent() call is required for Windows Forms designer support.
+        //
+        InitializeComponent();
+        InitializeLanguage();
+        AcceptButton = buttonOK;
+        CancelButton = buttonCancel;
+    }
+
+    /// <inheritdoc />
+    protected override void InitializeLanguage()
+    {
+        buttonOK.Text = Language.GetString("OK");
+        buttonCancel.Text = Language.GetString("CANCEL");
+        label_url.Text = Language.GetString("label_url");
+        textBoxUrl.PropertyName = nameof(IJiraConfiguration.Url);
+        textBoxUrl.SectionName = "Jira";
+        combobox_uploadimageformat.PropertyName = nameof(IJiraConfiguration.UploadFormat);
+        combobox_uploadimageformat.SectionName = "Jira";
+        label_upload_format.Text = Language.GetString("label_upload_format");
+        Text = Language.GetString("settings_title");
     }
 }

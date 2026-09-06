@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -74,23 +74,14 @@ namespace Greenshot.Editor.Drawing
             bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
             if (shadow)
             {
-                //draw shadow first
-                int basealpha = 100;
-                int alpha = basealpha;
-                int steps = 5;
-                int currentStep = 1;
-                while (currentStep <= steps)
+                DrawShadow(lineThickness, (alpha, currentStep, shadowPen, nil) =>
                 {
-                    using Pen shadowCapPen = new Pen(Color.FromArgb(alpha, 100, 100, 100), lineThickness);
-                    graphics.DrawLine(shadowCapPen,
+                    graphics.DrawLine(shadowPen,
                         Left + currentStep,
                         Top + currentStep,
                         Left + currentStep + Width,
                         Top + currentStep + Height);
-
-                    currentStep++;
-                    alpha -= basealpha / steps;
-                }
+                });
             }
 
             Color lineColor = GetFieldValueAsColor(FieldType.LINE_COLOR);

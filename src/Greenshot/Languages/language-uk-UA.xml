@@ -1,11 +1,11 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <language description="Українська" ietf="uk-UA" version="1.0.4" languagegroup="5">
 	<resources>
 		<resource name="about_bugs">Про помилки повідомляйте на</resource>
 		<resource name="about_donations">Якщо Вам подобається Greenshot, можете підтримати нас:</resource>
 		<resource name="about_host">Greenshot розташовується на GitHub</resource>
 		<resource name="about_icons">Набір піктограм Fugue від Yusuke Kamiyamane (ліцензія Creative Commons Attribution 3.0)</resource>
-		<resource name="about_license">Авторство © 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+		<resource name="about_license">Авторство © 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
 Greenshot постачається АБСОЛЮТНО БЕЗ ГАРАНТІЇ. Це вільне програмне забезпечення, Ви можете розповсюджувати його за певних умов.
 Подробиці Загальної Публічної Ліцензії GNU:</resource>
 		<resource name="about_title">Про Greenshot</resource>
@@ -49,8 +49,6 @@ Greenshot постачається АБСОЛЮТНО БЕЗ ГАРАНТІЇ. �
 		<resource name="contextmenu_capturefullscreen_left">зліва</resource>
 		<resource name="contextmenu_capturefullscreen_right">справа</resource>
 		<resource name="contextmenu_capturefullscreen_top">згори</resource>
-		<resource name="contextmenu_captureie">Захопити Internet Explorer</resource>
-		<resource name="contextmenu_captureiefromlist">Захопити Internet Explorer зі списку</resource>
 		<resource name="contextmenu_capturelastregion">Захопити останню область</resource>
 		<resource name="contextmenu_capturewindow">Захопити вікно</resource>
 		<resource name="contextmenu_capturewindowfromlist">Захопити вікно зі списку</resource>
@@ -131,12 +129,30 @@ Greenshot постачається АБСОЛЮТНО БЕЗ ГАРАНТІЇ. �
 		<resource name="editor_obfuscate_blur">Розмиття</resource>
 		<resource name="editor_obfuscate_mode">Режим затемнення</resource>
 		<resource name="editor_obfuscate_pixelize">Пікселізація</resource>
+		<resource name="editor_obfuscate_text">Приховати текст...</resource>
+		<resource name="editor_obfuscate_text_title">Приховати текст</resource>
+		<resource name="editor_obfuscate_text_search">Пошук:</resource>
+		<resource name="editor_obfuscate_text_search_button">Пошук</resource>
+		<resource name="editor_obfuscate_text_regex">Використати регулярний вираз</resource>
+		<resource name="editor_obfuscate_text_case_sensitive">Враховувати регістр</resource>
+		<resource name="editor_obfuscate_text_auto_search">Автоматичний пошук</resource>
+		<resource name="editor_obfuscate_text_search_scope">Шукати в:</resource>
+		<resource name="editor_obfuscate_text_scope_words">Словах</resource>
+		<resource name="editor_obfuscate_text_scope_lines">Рядках</resource>
+		<resource name="editor_obfuscate_text_matches">Знайдено збігів: {0}</resource>
+		<resource name="editor_obfuscate_text_apply">Застосувати</resource>
+		<resource name="editor_obfuscate_text_error">Помилка</resource>
+		<resource name="editor_obfuscate_text_no_capture">Немає доступних знімків</resource>
+		<resource name="editor_obfuscate_text_no_ocr_provider">Провайдер OCR недоступний</resource>
+		<resource name="editor_obfuscate_text_ocr_failed">Помилка OCR</resource>
+		<resource name="editor_obfuscate_text_no_text">Текст на зображенні не знайдено</resource>
 		<resource name="editor_object">Об’єкт</resource>
 		<resource name="editor_opendirinexplorer">Відкрити каталог у Провіднику Windows</resource>
 		<resource name="editor_pastefromclipboard">Вставити</resource>
 		<resource name="editor_pixel_size">Розмір пікселя</resource>
 		<resource name="editor_preview_quality">Якість перегляду</resource>
 		<resource name="editor_print">Друк</resource>
+		<resource name="editor_remove_transparency">Видалити прозорість</resource>
 		<resource name="editor_redo">Повторити {0}</resource>
 		<resource name="editor_resetsize">Скинути розмір</resource>
 		<resource name="editor_resize_percent">відсотків</resource>
@@ -218,12 +234,11 @@ Greenshot постачається АБСОЛЮТНО БЕЗ ГАРАНТІЇ. �
 		<resource name="settings_destination_email">Ел. пошта</resource>
 		<resource name="settings_destination_file">Безпосереднє збереження (використовуючи параметри нижче)</resource>
 		<resource name="settings_destination_fileas">Зберегти як (відображення діалогу)</resource>
-		<resource name="settings_destination_picker">Динамічний вибір призначення</resource>
+		<resource name="settings_destination_picker">Запитувати про призначення щоразу</resource>
 		<resource name="settings_destination_printer">Роздрукувати</resource>
 		<resource name="settings_editor">Редактор</resource>
 		<resource name="settings_filenamepattern">Шаблон назви файла</resource>
 		<resource name="settings_general">Загальні</resource>
-		<resource name="settings_iecapture">Захоплення Internet Explorer</resource>
 		<resource name="settings_jpegquality">Якість JPEG</resource>
 		<resource name="settings_language">Мова</resource>
 		<resource name="settings_message_filenamepattern">Наступні заповнювачі будуть автоматично замінені у визначеному шаблоні:
@@ -275,7 +290,6 @@ ${hostname} назва комп’ютера
 		<resource name="settings_windowscapture">Захоплення вікна</resource>
 		<resource name="tooltip_firststart">Притиск правою кнопкою миші або натиснути клавішу {0}.</resource>
 		<resource name="update_found">Доступна новіша версія Greenshot! Чи хочете Ви завантажити Greenshot {0}?</resource>
-		<resource name="wait_ie_capture">Будь ласка, зачекайте поки захоплюється сторінка в Internet Explorer...</resource>
 		<resource name="warning">Попередження</resource>
 		<resource name="warning_hotkeys">Неможливо зареєструвати гарячі клавіші „{0}“. Можливо, вони вже використовуються іншою програмою {1}! Ви можете змінити гарячі клавіші або вимкнути/змінити програму, що використовує такі ж комбінації клавіш.
 
@@ -306,7 +320,7 @@ ${hostname} назва комп’ютера
     <resource name="editor_counter">Додати лічильник (Ш)</resource>
     <resource name="editor_speechbubble">Додати словесну бульбашку (І)</resource>
 
-    <resource name="editor_resize">Змінити розмір</resource>
+    <resource name="editor_resize">Змінити розмір (Z)</resource>
     <resource name="editor_resize_settings">Параметри зміни розміру</resource>
     <resource name="editor_resize_aspectratio">Зберігати пропорції</resource>
     <resource name="editor_resize_width">Ширина</resource>

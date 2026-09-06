@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021  Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright © 2004-2026  Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -20,7 +20,6 @@
  */
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
@@ -34,10 +33,11 @@ using Greenshot.Base;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
-using Greenshot.Base.IniFile;
+
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Configuration;
+using Greenshot.Controls;
 using Greenshot.Helpers;
 using log4net;
 
@@ -46,21 +46,142 @@ namespace Greenshot.Forms
     /// <summary>
     /// Description of SettingsForm.
     /// </summary>
-    public partial class SettingsForm : BaseForm
+    public partial class SettingsForm : GreenshotForm
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(SettingsForm));
         private readonly ToolTip _toolTip = new ToolTip();
         private bool _inHotkey;
         private int _daysBetweenCheckPreviousValue;
 
+        static SettingsForm()
+        {
+            IniConfigHelper.EnsureSection<IWin10Configuration>(() => new Win10ConfigurationImpl());
+            IniConfigHelper.EnsureSection<Greenshot.Editor.Configuration.IEditorConfiguration>(() => new Greenshot.Editor.Configuration.EditorConfigurationImpl());
+        }
+
+
         public SettingsForm()
         {
             InitializeComponent();
+            InitializeLanguage();
             // Make sure we change the icon size depending on the scaling
             DpiChanged += AdjustToDpi;
 
             // Make sure the store isn't called to early, that's why we do it manually
             ManualStoreFields = true;
+        }
+
+        /// <inheritdoc />
+        protected override void InitializeLanguage()
+        {
+            label_storagelocation.Text = Language.GetString("settings_storagelocation");
+            settings_cancel.Text = Language.GetString("CANCEL");
+            settings_confirm.Text = Language.GetString("OK");
+            label_screenshotname.Text = Language.GetString("settings_filenamepattern");
+            textbox_screenshotname.PropertyName = nameof(ICoreConfiguration.OutputFileFilenamePattern);
+            label_language.Text = Language.GetString("settings_language");
+            combobox_primaryimageformat.PropertyName = nameof(ICoreConfiguration.OutputFileFormat);
+            label_primaryimageformat.Text = Language.GetString("settings_primaryimageformat");
+            groupbox_preferredfilesettings.Text = Language.GetString("settings_preferredfilesettings");
+            checkbox_copypathtoclipboard.Text = Language.GetString("settings_copypathtoclipboard");
+            checkbox_copypathtoclipboard.PropertyName = nameof(ICoreConfiguration.OutputFileCopyPathToClipboard);
+            groupbox_applicationsettings.Text = Language.GetString("settings_applicationsettings");
+            label_icon_size.Text = Language.GetString("settings_iconsize");
+            checkbox_autostartshortcut.Text = Language.GetString("settings_autostartshortcut");
+            groupbox_qualitysettings.Text = Language.GetString("settings_qualitysettings");
+            checkbox_reducecolors.Text = Language.GetString("settings_reducecolors");
+            checkbox_reducecolors.PropertyName = nameof(ICoreConfiguration.OutputFileReduceColors);
+            checkbox_alwaysshowqualitydialog.Text = Language.GetString("settings_alwaysshowqualitydialog");
+            checkbox_alwaysshowqualitydialog.PropertyName = nameof(ICoreConfiguration.OutputFilePromptQuality);
+            label_jpegquality.Text = Language.GetString("settings_jpegquality");
+            groupbox_destination.Text = Language.GetString("settings_destination");
+            checkbox_picker.Text = Language.GetString("settings_destination_picker");
+            tab_general.Text = Language.GetString("settings_general");
+            groupbox_network.Text = Language.GetString("settings_network");
+            label_checkperiod.Text = Language.GetString("settings_checkperiod");
+            checkbox_usedefaultproxy.Text = Language.GetString("settings_usedefaultproxy");
+            checkbox_usedefaultproxy.PropertyName = nameof(ICoreConfiguration.UseProxy);
+            groupbox_hotkeys.Text = Language.GetString("hotkeys");
+            label_lastregion_hotkey.Text = Language.GetString("contextmenu_capturelastregion");
+            lastregion_hotkeyControl.PropertyName = nameof(ICoreConfiguration.LastregionHotkey);
+            label_region_hotkey.Text = Language.GetString("contextmenu_capturearea");
+            label_window_hotkey.Text = Language.GetString("contextmenu_capturewindow");
+            label_fullscreen_hotkey.Text = Language.GetString("contextmenu_capturefullscreen");
+            region_hotkeyControl.PropertyName = nameof(ICoreConfiguration.RegionHotkey);
+            window_hotkeyControl.PropertyName = nameof(ICoreConfiguration.WindowHotkey);
+            fullscreen_hotkeyControl.PropertyName = nameof(ICoreConfiguration.FullscreenHotkey);
+            tab_capture.Text = Language.GetString("settings_capture");
+            groupbox_editor.Text = Language.GetString("settings_editor");
+            checkbox_editor_match_capture_size.Text = Language.GetString("editor_match_capture_size");
+            checkbox_editor_match_capture_size.PropertyName = nameof(Editor.Configuration.IEditorConfiguration.MatchSizeToCapture);
+            checkbox_editor_match_capture_size.SectionName = "Editor";
+            groupbox_windowscapture.Text = Language.GetString("settings_windowscapture");
+            radiobuttonWindowCapture.Text = Language.GetString("settings_window_capture_mode");
+            radiobuttonInteractiveCapture.Text = Language.GetString("settings_capture_windows_interactive");
+            radiobuttonInteractiveCapture.PropertyName = nameof(ICoreConfiguration.CaptureWindowsInteractive);
+            groupbox_capture.Text = Language.GetString("settings_capture");
+            checkbox_zoomer.Text = Language.GetString("settings_zoom");
+            checkbox_zoomer.PropertyName = nameof(ICoreConfiguration.ZoomerEnabled);
+            checkbox_notifications.Text = Language.GetString("settings_shownotify");
+            checkbox_notifications.PropertyName = nameof(ICoreConfiguration.ShowTrayNotification);
+            checkbox_playsound.Text = Language.GetString("settings_playsound");
+            checkbox_playsound.PropertyName = nameof(ICoreConfiguration.PlayCameraSound);
+            checkbox_capture_mousepointer.Text = Language.GetString("settings_capture_mousepointer");
+            checkbox_capture_mousepointer.PropertyName = nameof(ICoreConfiguration.CaptureMousepointer);
+            label_waittime.Text = Language.GetString("settings_waittime");
+            tab_output.Text = Language.GetString("settings_output");
+            tab_destinations.Text = Language.GetString("settings_destination");
+            tab_printer.Text = Language.GetString("settings_printer");
+            groupBoxColors.Text = Language.GetString("printoptions_colors");
+            checkboxPrintInverted.Text = Language.GetString("printoptions_inverted");
+            checkboxPrintInverted.PropertyName = nameof(ICoreConfiguration.OutputPrintInverted);
+            radioBtnColorPrint.Text = Language.GetString("printoptions_printcolor");
+            radioBtnGrayScale.Text = Language.GetString("printoptions_printgrayscale");
+            radioBtnGrayScale.PropertyName = nameof(ICoreConfiguration.OutputPrintGrayscale);
+            radioBtnMonochrome.Text = Language.GetString("printoptions_printmonochrome");
+            radioBtnMonochrome.PropertyName = nameof(ICoreConfiguration.OutputPrintMonochrome);
+            groupBoxPrintLayout.Text = Language.GetString("printoptions_layout");
+            checkboxDateTime.Text = Language.GetString("printoptions_timestamp");
+            checkboxDateTime.PropertyName = nameof(ICoreConfiguration.OutputPrintFooter);
+            checkboxAllowShrink.Text = Language.GetString("printoptions_allowshrink");
+            checkboxAllowShrink.PropertyName = nameof(ICoreConfiguration.OutputPrintAllowShrink);
+            checkboxAllowEnlarge.Text = Language.GetString("printoptions_allowenlarge");
+            checkboxAllowEnlarge.PropertyName = nameof(ICoreConfiguration.OutputPrintAllowEnlarge);
+            checkboxAllowRotate.Text = Language.GetString("printoptions_allowrotate");
+            checkboxAllowRotate.PropertyName = nameof(ICoreConfiguration.OutputPrintAllowRotate);
+            checkboxAllowCenter.Text = Language.GetString("printoptions_allowcenter");
+            checkboxAllowCenter.PropertyName = nameof(ICoreConfiguration.OutputPrintCenter);
+            checkbox_alwaysshowprintoptionsdialog.Text = Language.GetString("settings_alwaysshowprintoptionsdialog");
+            checkbox_alwaysshowprintoptionsdialog.PropertyName = nameof(ICoreConfiguration.OutputPrintPromptOptions);
+
+            tab_plugins.Text = Language.GetString("settings_plugins");
+            groupbox_plugins.Text = Language.GetString("settings_plugins");
+            button_pluginconfigure.Text = Language.GetString("settings_configureplugin");
+            tab_expert.Text = Language.GetString("expertsettings");
+            groupbox_expert.Text = Language.GetString("expertsettings");
+            checkbox_reuseeditor.Text = Language.GetString("expertsettings_reuseeditorifpossible");
+            checkbox_reuseeditor.PropertyName = nameof(Editor.Configuration.IEditorConfiguration.ReuseEditor);
+            checkbox_reuseeditor.SectionName = "Editor";
+            checkbox_minimizememoryfootprint.Text = Language.GetString("expertsettings_minimizememoryfootprint");
+            checkbox_minimizememoryfootprint.PropertyName = nameof(ICoreConfiguration.MinimizeWorkingSetSize);
+            checkbox_checkunstableupdates.Text = Language.GetString("expertsettings_checkunstableupdates");
+            checkbox_checkunstableupdates.PropertyName = nameof(ICoreConfiguration.CheckForUnstable);
+            checkbox_suppresssavedialogatclose.Text = Language.GetString("expertsettings_suppresssavedialogatclose");
+            checkbox_suppresssavedialogatclose.PropertyName = nameof(Editor.Configuration.IEditorConfiguration.SuppressSaveDialogAtClose);
+            checkbox_suppresssavedialogatclose.SectionName = "Editor";
+            label_counter.Text = Language.GetString("expertsettings_counter");
+            textbox_counter.PropertyName = nameof(ICoreConfiguration.OutputFileIncrementingNumber);
+            label_footerpattern.Text = Language.GetString("expertsettings_footerpattern");
+            textbox_footerpattern.PropertyName = nameof(ICoreConfiguration.OutputPrintFooterPattern);
+            checkbox_thumbnailpreview.Text = Language.GetString("expertsettings_thumbnailpreview");
+            checkbox_thumbnailpreview.PropertyName = nameof(ICoreConfiguration.ThumnailPreview);
+            checkbox_optimizeforrdp.Text = Language.GetString("expertsettings_optimizeforrdp");
+            checkbox_optimizeforrdp.PropertyName = nameof(ICoreConfiguration.OptimizeForRDP);
+            checkbox_autoreducecolors.Text = Language.GetString("expertsettings_autoreducecolors");
+            checkbox_autoreducecolors.PropertyName = nameof(ICoreConfiguration.OutputFileAutoReduceColors);
+            label_clipboardformats.Text = Language.GetString("expertsettings_clipboardformats");
+            checkbox_enableexpert.Text = Language.GetString("expertsettings_enableexpert");
+            Text = Language.GetString("settings_title");
         }
 
         /// <summary>
@@ -87,8 +208,6 @@ namespace Greenshot.Forms
             window_hotkeyControl.Leave += LeaveHotkeyControl;
             region_hotkeyControl.Enter += EnterHotkeyControl;
             region_hotkeyControl.Leave += LeaveHotkeyControl;
-            ie_hotkeyControl.Enter += EnterHotkeyControl;
-            ie_hotkeyControl.Leave += LeaveHotkeyControl;
             lastregion_hotkeyControl.Enter += EnterHotkeyControl;
             lastregion_hotkeyControl.Leave += LeaveHotkeyControl;
             // Changes for BUG-2077
@@ -147,13 +266,13 @@ namespace Greenshot.Forms
 
         private void EnterHotkeyControl(object sender, EventArgs e)
         {
-            HotkeyControl.UnregisterHotkeys();
+            HotkeyManager.UnregisterHotkeys();
             _inHotkey = true;
         }
 
         private void LeaveHotkeyControl(object sender, EventArgs e)
         {
-            MainForm.RegisterHotkeys();
+            HotkeyHelper.RegisterHotkeys();
             _inHotkey = false;
         }
 
@@ -412,11 +531,7 @@ namespace Greenshot.Forms
         /// </summary>
         private void DisplayDestinations()
         {
-            bool destinationsEnabled = true;
-            if (coreConfiguration.Values.ContainsKey("Destinations"))
-            {
-                destinationsEnabled = !coreConfiguration.Values["Destinations"].IsFixed;
-            }
+            bool destinationsEnabled = !coreConfiguration.IsConstant("Destinations");
 
             checkbox_picker.Checked = false;
 
@@ -484,26 +599,26 @@ namespace Greenshot.Forms
             }
 
             // Disable editing when the value is fixed
-            combobox_language.Enabled = !coreConfiguration.Values["Language"].IsFixed;
+            combobox_language.Enabled = !coreConfiguration.IsConstant("Language");
 
             textbox_storagelocation.Text = FilenameHelper.FillVariables(coreConfiguration.OutputFilePath, false);
             // Disable editing when the value is fixed
-            textbox_storagelocation.Enabled = !coreConfiguration.Values["OutputFilePath"].IsFixed;
+            textbox_storagelocation.Enabled = !coreConfiguration.IsConstant("OutputFilePath");
 
             SetWindowCaptureMode(coreConfiguration.WindowCaptureMode);
             // Disable editing when the value is fixed
-            combobox_window_capture_mode.Enabled = !coreConfiguration.CaptureWindowsInteractive && !coreConfiguration.Values["WindowCaptureMode"].IsFixed;
+            combobox_window_capture_mode.Enabled = !coreConfiguration.CaptureWindowsInteractive && !coreConfiguration.IsConstant("WindowCaptureMode");
             radiobuttonWindowCapture.Checked = !coreConfiguration.CaptureWindowsInteractive;
 
             trackBarJpegQuality.Value = coreConfiguration.OutputFileJpegQuality;
-            trackBarJpegQuality.Enabled = !coreConfiguration.Values["OutputFileJpegQuality"].IsFixed;
+            trackBarJpegQuality.Enabled = !coreConfiguration.IsConstant("OutputFileJpegQuality");
             textBoxJpegQuality.Text = coreConfiguration.OutputFileJpegQuality + "%";
 
             DisplayDestinations();
 
             numericUpDownWaitTime.Value = coreConfiguration.CaptureDelay >= 0 ? coreConfiguration.CaptureDelay : 0;
-            numericUpDownWaitTime.Enabled = !coreConfiguration.Values["CaptureDelay"].IsFixed;
-            if (IniConfig.IsPortable)
+            numericUpDownWaitTime.Enabled = !coreConfiguration.IsConstant("CaptureDelay");
+            if (GreenshotEnvironment.IsPortable)
             {
                 checkbox_autostartshortcut.Visible = false;
                 checkbox_autostartshortcut.Checked = false;
@@ -532,7 +647,7 @@ namespace Greenshot.Forms
             }
 
             numericUpDown_daysbetweencheck.Value = coreConfiguration.UpdateCheckInterval;
-            numericUpDown_daysbetweencheck.Enabled = !coreConfiguration.Values["UpdateCheckInterval"].IsFixed;
+            numericUpDown_daysbetweencheck.Enabled = !coreConfiguration.IsConstant("UpdateCheckInterval");
             numericUpdownIconSize.Value = coreConfiguration.IconSize.Width;
             CheckDestinationSettings();
         }
@@ -632,14 +747,14 @@ namespace Greenshot.Forms
         {
             if (CheckSettings())
             {
-                HotkeyControl.UnregisterHotkeys();
+                HotkeyManager.UnregisterHotkeys();
                 SaveSettings();
                 StoreFields();
-                MainForm.RegisterHotkeys();
+                HotkeyHelper.RegisterHotkeys();
 
                 // Make sure the current language & settings are reflected in the Main-context menu
                 var mainForm = SimpleServiceProvider.Current.GetInstance<MainForm>();
-                mainForm?.UpdateUi();
+                mainForm.UpdateUi();
                 DialogResult = DialogResult.OK;
             }
             else
@@ -651,15 +766,79 @@ namespace Greenshot.Forms
         private void BrowseClick(object sender, EventArgs e)
         {
             // Get the storage location and replace the environment variables
-            folderBrowserDialog1.SelectedPath = FilenameHelper.FillVariables(textbox_storagelocation.Text, false);
-            if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
+            string currentPath = FilenameHelper.FillVariables(textbox_storagelocation.Text, false);
+            // Only use the path as the starting folder if it actually exists and is reachable;
+            // otherwise leave SelectedPath empty so the dialog falls back to the default (My Documents).
+            folderBrowserDialog1.SelectedPath = Directory.Exists(currentPath) ? currentPath : string.Empty;
+            try
             {
-                // Only change if there is a change, otherwise we might overwrite the environment variables
-                if (folderBrowserDialog1.SelectedPath != null && !folderBrowserDialog1.SelectedPath.Equals(FilenameHelper.FillVariables(textbox_storagelocation.Text, false)))
+                if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
                 {
-                    textbox_storagelocation.Text = folderBrowserDialog1.SelectedPath;
+                    // Only change if there is a change, otherwise we might overwrite the environment variables
+                    if (folderBrowserDialog1.SelectedPath != null && !folderBrowserDialog1.SelectedPath.Equals(currentPath))
+                    {
+                        textbox_storagelocation.Text = folderBrowserDialog1.SelectedPath;
+                    }
                 }
             }
+            catch (InvalidOperationException ex)
+            {
+                // This can happen when Greenshot was launched under a system/service account (e.g. after an
+                // IT-managed silent install) and the shell cannot resolve the default root folder for the
+                // current user context. Retry rooted at MyComputer with a known-good user folder so the
+                // user can still pick a destination.
+                Log.Warn("Problem opening folder browser dialog, retrying with user profile fallback: ", ex);
+                string fallbackPath = GetAccessibleFallbackPath();
+                folderBrowserDialog1.SelectedPath = fallbackPath;
+                folderBrowserDialog1.RootFolder = Environment.SpecialFolder.MyComputer;
+                try
+                {
+                    if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
+                    {
+                        textbox_storagelocation.Text = folderBrowserDialog1.SelectedPath;
+                    }
+                }
+                catch (InvalidOperationException retryEx)
+                {
+                    Log.Error("Failed to open folder browser dialog even with fallback path: ", retryEx);
+                    // Last resort: populate the textbox with the fallback path so the user at least
+                    // has a valid, writable destination rather than a red invalid-path indicator.
+                    if (!string.IsNullOrEmpty(fallbackPath))
+                    {
+                        textbox_storagelocation.Text = fallbackPath;
+                        MessageBox.Show(
+                            Language.GetString(LangKey.settings_storagelocation_folder_error),
+                            Language.GetString(LangKey.settings_storagelocation_folder_error_title),
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Information);
+                    }
+                }
+                finally
+                {
+                    folderBrowserDialog1.RootFolder = Environment.SpecialFolder.Desktop;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Returns the first accessible path suitable as a fallback storage location when the folder
+        /// browser dialog cannot resolve the shell root (e.g. process started under a system account).
+        /// Tries MyDocuments, Desktop, and TEMP in order.
+        /// </summary>
+        private static string GetAccessibleFallbackPath()
+        {
+            var candidates = new[]
+            {
+                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+                Path.GetTempPath()
+            };
+            foreach (string candidate in candidates)
+            {
+                if (!string.IsNullOrEmpty(candidate) && Directory.Exists(candidate))
+                    return candidate;
+            }
+            return string.Empty;
         }
 
         private void TrackBarJpegQualityScroll(object sender, EventArgs e)
@@ -701,7 +880,7 @@ namespace Greenshot.Forms
             UpdateUi();
 
             // Reflect Language changes form
-            ApplyLanguage();
+            InitializeLanguage();
 
             // Update the email & windows capture mode
             //SetEmailFormat(selectedEmailFormat);
@@ -732,11 +911,7 @@ namespace Greenshot.Forms
         {
             bool clipboardDestinationChecked = false;
             bool pickerSelected = checkbox_picker.Checked;
-            bool destinationsEnabled = true;
-            if (coreConfiguration.Values.ContainsKey("Destinations"))
-            {
-                destinationsEnabled = !coreConfiguration.Values["Destinations"].IsFixed;
-            }
+            bool destinationsEnabled = !coreConfiguration.IsConstant("Destinations");
 
             listview_destinations.Enabled = destinationsEnabled;
 
@@ -823,40 +998,13 @@ namespace Greenshot.Forms
         {
             combobox_window_capture_mode.Enabled = radiobuttonWindowCapture.Checked;
         }
-    }
 
-    public class ListviewWithDestinationComparer : IComparer
-    {
-        public int Compare(object x, object y)
+        protected override void WndProc(ref Message m)
         {
-            if (x is not ListViewItem listViewItemX)
+            if (!WndProcDefaults.TryHandleMessage(ref m))
             {
-                return 0;
+                base.WndProc(ref m);
             }
-
-            if (y is not ListViewItem listViewItemY)
-            {
-                return 0;
-            }
-
-            IDestination firstDestination = listViewItemX.Tag as IDestination;
-
-            if (listViewItemY.Tag is not IDestination secondDestination)
-            {
-                return 1;
-            }
-
-            if (firstDestination != null && firstDestination.Priority == secondDestination.Priority)
-            {
-                return string.Compare(firstDestination.Description, secondDestination.Description, StringComparison.Ordinal);
-            }
-
-            if (firstDestination != null)
-            {
-                return firstDestination.Priority - secondDestination.Priority;
-            }
-
-            return 0;
         }
     }
 }

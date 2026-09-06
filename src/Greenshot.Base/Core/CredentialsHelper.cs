@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -35,28 +35,28 @@ namespace Greenshot.Base.Core
     /// doesn't show all credentials use the tool here: https://www.microsoft.com/indonesia/msdn/credmgmt.aspx
     /// The following code is an example for a login, it will call the Authenticate with user/password
     /// which should return true if the login worked, false if not.
-    ///		private static bool Login(string system, string name) {
-    ///			try {
-    ///				CredentialsDialog dialog = new CredentialsDialog(system);
-    ///				dialog.Name = name;
-    ///				while (dialog.Show(dialog.Name) == DialogResult.OK) {
-    ///					if (Authenticate(dialog.Name, dialog.Password)) {
-    ///						if (dialog.SaveChecked) dialog.Confirm(true);
-    ///						return true;
-    ///					} else {
-    ///						try {
-    ///							dialog.Confirm(false);
-    ///						} catch (ApplicationException) {
-    ///							// exception handling ...
-    ///						}
-    ///						dialog.IncorrectPassword = true;
-    ///					}
-    ///				}
-    ///			} catch (ApplicationException) {
-    ///				// exception handling ...
-    ///			}
-    ///			return false;
-    ///		}
+    ///        private static bool Login(string system, string name) {
+    ///            try {
+    ///                CredentialsDialog dialog = new CredentialsDialog(system);
+    ///                dialog.Name = name;
+    ///                while (dialog.Show(dialog.Name) == DialogResult.OK) {
+    ///                    if (Authenticate(dialog.Name, dialog.Password)) {
+    ///                        if (dialog.SaveChecked) dialog.Confirm(true);
+    ///                        return true;
+    ///                    } else {
+    ///                        try {
+    ///                            dialog.Confirm(false);
+    ///                        } catch (ApplicationException) {
+    ///                            // exception handling ...
+    ///                        }
+    ///                        dialog.IncorrectPassword = true;
+    ///                    }
+    ///                }
+    ///            } catch (ApplicationException) {
+    ///                // exception handling ...
+    ///            }
+    ///            return false;
+    ///        }
     /// </summary>
     /// <summary>Encapsulates dialog functionality from the Credential Management API.</summary>
     public sealed class CredentialsDialog
@@ -337,20 +337,26 @@ namespace Greenshot.Base.Core
             CredUi.CredFlags credFlags = GetFlags();
 
             // make the api call
-            CredUi.ReturnCodes code = CredUi.CredUIPromptForCredentials(
-                ref info,
-                Target,
-                IntPtr.Zero, 0,
-                name, CredUi.MAX_USERNAME_LENGTH,
-                password, CredUi.MAX_PASSWORD_LENGTH,
-                ref saveChecked,
-                credFlags
-            );
-
-            // clean up resources
-            if (Banner != null)
+            CredUi.ReturnCodes code;
+            try
             {
-                DeleteObject(info.hbmBanner);
+                code = CredUi.CredUIPromptForCredentials(
+                    ref info,
+                    Target,
+                    IntPtr.Zero, 0,
+                    name, CredUi.MAX_USERNAME_LENGTH,
+                    password, CredUi.MAX_PASSWORD_LENGTH,
+                    ref saveChecked,
+                    credFlags
+                );
+            }
+            finally
+            {
+                // Always free the unmanaged HBITMAP, even if an exception is thrown
+                if (Banner != null)
+                {
+                    DeleteObject(info.hbmBanner);
+                }
             }
 
             // set the accessors from the api call parameters
@@ -371,7 +377,8 @@ namespace Greenshot.Base.Core
             info.pszMessageText = Message;
             if (Banner != null)
             {
-                info.hbmBanner = new Bitmap(Banner, ValidBannerWidth, ValidBannerHeight).GetHbitmap();
+                using var bannerBitmap = new Bitmap(Banner, ValidBannerWidth, ValidBannerHeight);
+                info.hbmBanner = bannerBitmap.GetHbitmap();
             }
 
             info.cbSize = Marshal.SizeOf(info);
@@ -450,7 +457,7 @@ namespace Greenshot.Base.Core
         public const int MAX_CAPTION_LENGTH = 100;
         public const int MAX_GENERIC_TARGET_LENGTH = 100;
         public const int MAX_USERNAME_LENGTH = 100;
-        public const int MAX_PASSWORD_LENGTH = 100;
+        public const int MAX_PASSWORD_LENGTH = 300;
 
         /// <summary>
         /// https://www.pinvoke.net/default.aspx/Enums.CREDUI_FLAGS

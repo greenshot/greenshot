@@ -1,6 +1,6 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -20,6 +20,8 @@
  */
 
 using Greenshot.Base.Controls;
+using System.Windows.Forms;
+
 
 namespace Greenshot.Editor.Forms {
 	partial class ResizeSettingsForm {
@@ -46,11 +48,11 @@ namespace Greenshot.Editor.Forms {
 		/// the contents of this method with the code editor.
 		/// </summary>
 		private void InitializeComponent() {
-			this.buttonOK = new GreenshotButton();
-			this.buttonCancel = new GreenshotButton();
+			this.buttonOK = new Button();
+			this.buttonCancel = new Button();
 			this.checkbox_aspectratio = new GreenshotCheckBox();
-			this.label_width = new GreenshotLabel();
-			this.label_height = new GreenshotLabel();
+			this.label_width = new Label();
+			this.label_height = new Label();
 			this.textbox_height = new System.Windows.Forms.TextBox();
 			this.textbox_width = new System.Windows.Forms.TextBox();
 			this.combobox_width = new System.Windows.Forms.ComboBox();
@@ -59,48 +61,48 @@ namespace Greenshot.Editor.Forms {
 			// 
 			// buttonOK
 			// 
-			this.buttonOK.LanguageKey = "OK";
 			this.buttonOK.Location = new System.Drawing.Point(76, 87);
 			this.buttonOK.Name = "buttonOK";
 			this.buttonOK.Size = new System.Drawing.Size(75, 23);
 			this.buttonOK.TabIndex = 6;
+			this.buttonOK.Text = "OK";
 			this.buttonOK.UseVisualStyleBackColor = true;
 			this.buttonOK.Click += new System.EventHandler(this.ButtonOK_Click);
 			// 
 			// buttonCancel
 			// 
 			this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-			this.buttonCancel.LanguageKey = "CANCEL";
 			this.buttonCancel.Location = new System.Drawing.Point(157, 87);
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.Size = new System.Drawing.Size(75, 23);
 			this.buttonCancel.TabIndex = 7;
+			this.buttonCancel.Text = "Cancel";
 			this.buttonCancel.UseVisualStyleBackColor = true;
 			// 
 			// checkbox_aspectratio
 			// 
-			this.checkbox_aspectratio.LanguageKey = "editor_resize_aspectratio";
 			this.checkbox_aspectratio.Location = new System.Drawing.Point(22, 64);
 			this.checkbox_aspectratio.Name = "checkbox_aspectratio";
-			this.checkbox_aspectratio.Size = new System.Drawing.Size(124, 17);
+			this.checkbox_aspectratio.Size = new System.Drawing.Size(210, 20);
 			this.checkbox_aspectratio.TabIndex = 5;
+			this.checkbox_aspectratio.Text = "Maintain aspect ratio";
 			this.checkbox_aspectratio.UseVisualStyleBackColor = true;
 			// 
 			// label_width
 			// 
-			this.label_width.LanguageKey = "editor_resize_width";
 			this.label_width.Location = new System.Drawing.Point(19, 15);
 			this.label_width.Name = "label_width";
-			this.label_width.Size = new System.Drawing.Size(35, 13);
+			this.label_width.Size = new System.Drawing.Size(65, 20);
 			this.label_width.TabIndex = 14;
+			this.label_width.Text = "Width";
 			// 
 			// label_height
 			// 
-			this.label_height.LanguageKey = "editor_resize_height";
 			this.label_height.Location = new System.Drawing.Point(19, 38);
 			this.label_height.Name = "label_height";
-			this.label_height.Size = new System.Drawing.Size(38, 13);
+			this.label_height.Size = new System.Drawing.Size(65, 20);
 			this.label_height.TabIndex = 15;
+			this.label_height.Text = "Height";
 			// 
 			// textbox_height
 			// 
@@ -157,11 +159,11 @@ namespace Greenshot.Editor.Forms {
 			this.Controls.Add(this.buttonCancel);
 			this.Controls.Add(this.buttonOK);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
-			this.LanguageKey = "editor_resize_settings";
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "ResizeSettingsForm";
 			this.ShowIcon = false;
+			this.Text = "Resize settings";
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -169,11 +171,11 @@ namespace Greenshot.Editor.Forms {
 
 		#endregion
 
-		private GreenshotButton buttonOK;
-		private GreenshotButton buttonCancel;
+		private Button buttonOK;
+		private Button buttonCancel;
 		private GreenshotCheckBox checkbox_aspectratio;
-		private GreenshotLabel label_width;
-		private GreenshotLabel label_height;
+		private Label label_width;
+		private Label label_height;
 		private System.Windows.Forms.TextBox textbox_height;
 		private System.Windows.Forms.TextBox textbox_width;
 		private System.Windows.Forms.ComboBox combobox_width;

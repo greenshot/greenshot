@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -24,7 +24,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Runtime.Serialization;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Configuration;
 using log4net;
@@ -38,8 +38,8 @@ namespace Greenshot.Editor.Drawing.Fields
     public abstract class AbstractFieldHolder : IFieldHolder
     {
         private static readonly ILog LOG = LogManager.GetLogger(typeof(AbstractFieldHolder));
-        private static readonly EditorConfiguration EditorConfig = IniConfig.GetIniSection<EditorConfiguration>();
-        [NonSerialized] private readonly IDictionary<IField, PropertyChangedEventHandler> _handlers = new Dictionary<IField, PropertyChangedEventHandler>();
+        private static readonly IEditorConfiguration EditorConfig = IniConfigRegistry.GetSection<IEditorConfiguration>();
+        [NonSerialized] private IDictionary<IField, PropertyChangedEventHandler> _handlers = new Dictionary<IField, PropertyChangedEventHandler>();
 
         /// <summary>
         /// called when a field's value has changed
@@ -60,6 +60,8 @@ namespace Greenshot.Editor.Drawing.Fields
         [OnDeserialized]
         private void OnDeserialized(StreamingContext context)
         {
+            _handlers = new Dictionary<IField, PropertyChangedEventHandler>();
+
             _fieldsByType = new Dictionary<IFieldType, IField>();
             // listen to changing properties
             foreach (var field in fields)
@@ -71,7 +73,7 @@ namespace Greenshot.Editor.Drawing.Fields
 
         public void AddField(Type requestingType, IFieldType fieldType, object fieldValue)
         {
-            AddField(EditorConfig.CreateField(requestingType, fieldType, fieldValue));
+            AddField(EditorConfigurationHelper.CreateField(EditorConfig, requestingType, fieldType, fieldValue));
         }
 
         public virtual void AddField(IField field)

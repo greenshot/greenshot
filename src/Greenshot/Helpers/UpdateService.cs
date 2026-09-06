@@ -1,5 +1,5 @@
 ﻿// Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
 //
 // For more information see: https://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -25,7 +25,7 @@ using System.Threading.Tasks;
 using Dapplo.HttpExtensions;
 using Dapplo.HttpExtensions.JsonNet;
 using Greenshot.Base.Core;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Configuration;
 using Greenshot.Helpers.Entities;
@@ -39,7 +39,7 @@ namespace Greenshot.Helpers
     public class UpdateService
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(UpdateService));
-        private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
+        private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
         private static readonly Uri UpdateFeed = new Uri("https://getgreenshot.org/update-feed.json");
         private static readonly Uri Downloads = new Uri("https://getgreenshot.org/downloads");
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
@@ -82,7 +82,6 @@ namespace Greenshot.Helpers
             JsonNetJsonSerializer.RegisterGlobally();
             var version = FileVersionInfo.GetVersionInfo(GetType().Assembly.Location);
             LatestReleaseVersion = CurrentVersion = new Version(version.FileMajorPart, version.FileMinorPart, version.FileBuildPart);
-            CoreConfig.LastSaveWithVersion = CurrentVersion.ToString();
         }
 
         /// <summary>
@@ -111,10 +110,22 @@ namespace Greenshot.Helpers
                 {
                     var interval = intervalFactory();
                     var task = reoccurringTask;
+
                     // If the check is disabled, handle that here
-                    if (TimeSpan.Zero == interval)
+                    var checkIsDisabled = TimeSpan.Zero == interval;
+                    var nextCheckIsInTheFuture = CoreConfig.LastUpdateCheck.Add(interval) > DateTime.Now;
+
+                    // If we have an invalid interval
+                    if (interval.TotalSeconds < 0)
                     {
-                        interval = TimeSpan.FromMinutes(10);
+                        // Just wait for 10 minutes, maybe the configuration will change
+                        interval = TimeSpan.FromDays(1);
+                    }
+
+                    if (checkIsDisabled || nextCheckIsInTheFuture)
+                    {
+                        // Just wait for 30 minutes, maybe the configuration will change
+                        interval = TimeSpan.FromMinutes(30);
                         task = c => Task.FromResult(true);
                     }
 
@@ -129,7 +140,8 @@ namespace Greenshot.Helpers
 
                     try
                     {
-                        await Task.Delay(interval, cancellationToken).ConfigureAwait(false);
+                        // Use duration to get an absolute time and can't be negative.
+                        await Task.Delay(interval.Duration(), cancellationToken).ConfigureAwait(false);
                     }
                     catch (TaskCanceledException)
                     {
@@ -137,7 +149,9 @@ namespace Greenshot.Helpers
                     }
                     catch (Exception ex)
                     {
-                        Log.Error("Error occurred await for the next update check.", ex);
+                        Log.Error("Error occurred await for the next background interval check.", ex);
+                        // Safety pause, to avoid a potential tight loop if something is really wrong with the configuration or the update feed.
+                        await Task.Delay(TimeSpan.FromDays(1), cancellationToken).ConfigureAwait(false);
                     }
                 }
             }, cancellationToken).ConfigureAwait(false);
@@ -151,13 +165,14 @@ namespace Greenshot.Helpers
         private async Task UpdateCheck(CancellationToken cancellationToken = default)
         {
             Log.InfoFormat("Checking for updates from {0}", UpdateFeed);
+
+            CoreConfig.LastUpdateCheck = DateTime.Now;
+
             var updateFeed = await UpdateFeed.GetAsAsync<UpdateFeed>(cancellationToken);
             if (updateFeed == null)
             {
                 return;
             }
-
-            CoreConfig.LastUpdateCheck = DateTime.Now;
 
             ProcessFeed(updateFeed);
 

@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -19,13 +19,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System.Windows.Forms;
+using Dapplo.Windows.Icons;
 
 namespace Greenshot.Base.Interfaces.Drawing
 {
     public interface ICursorContainer : IDrawableContainer
     {
-        Cursor Cursor { get; set; }
+        CapturedCursor Cursor { get; set; }
         void Load(string filename);
     }
 }

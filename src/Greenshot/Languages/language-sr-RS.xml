@@ -5,7 +5,7 @@
 		<resource name="about_donations">Ако вам се свиђа Гриншот, помозите нам:</resource>
 		<resource name="about_host">Гриншот покреће Сорсфорџ (GitHub):</resource>
 		<resource name="about_icons">Иконе су преузете из пакета „Fugue“ Јусуке Камијамане (лиценца Кријејтив комонс Ауторство 3.0)</resource>
-		<resource name="about_license">Ауторска права © 2007–2021 Томас Браун, Џенс Клинџен, Робин Кром
+		<resource name="about_license">Ауторска права © 2004–2026 Томас Браун, Џенс Клинџен, Робин Кром
 Гриншот се издаје БЕЗ ИКАКВЕ ГАРАНЦИЈЕ. Он је бесплатан програм, који можете да делите под одређеним условима.
 Више информација о ГНУ-овој општој јавној лиценци:</resource>
 		<resource name="about_title">О програму</resource>
@@ -43,8 +43,6 @@
 		<resource name="contextmenu_capturefullscreen_left">лево</resource>
 		<resource name="contextmenu_capturefullscreen_right">десно</resource>
 		<resource name="contextmenu_capturefullscreen_top">врх</resource>
-		<resource name="contextmenu_captureie">Усликај Интернет експлорер</resource>
-		<resource name="contextmenu_captureiefromlist">Усликај Интернет експлорер са списка</resource>
 		<resource name="contextmenu_capturelastregion">Усликај последњу област</resource>
 		<resource name="contextmenu_capturewindow">Усликај прозор</resource>
 		<resource name="contextmenu_capturewindowfromlist">Усликај прозор са списка</resource>
@@ -117,12 +115,30 @@
 		<resource name="editor_obfuscate_blur">Замагли</resource>
 		<resource name="editor_obfuscate_mode">Режим затамњења</resource>
 		<resource name="editor_obfuscate_pixelize">Пикселизуј</resource>
+		<resource name="editor_obfuscate_text">Сакриј текст...</resource>
+		<resource name="editor_obfuscate_text_title">Сакриј текст</resource>
+		<resource name="editor_obfuscate_text_search">Претрага:</resource>
+		<resource name="editor_obfuscate_text_search_button">Претрага</resource>
+		<resource name="editor_obfuscate_text_regex">Користи регуларни израз</resource>
+		<resource name="editor_obfuscate_text_case_sensitive">Разликуј велика и мала слова</resource>
+		<resource name="editor_obfuscate_text_auto_search">Аутоматска претрага</resource>
+		<resource name="editor_obfuscate_text_search_scope">Претражи у:</resource>
+		<resource name="editor_obfuscate_text_scope_words">Речи</resource>
+		<resource name="editor_obfuscate_text_scope_lines">Линије</resource>
+		<resource name="editor_obfuscate_text_matches">Пронађено подударања: {0}</resource>
+		<resource name="editor_obfuscate_text_apply">Примени</resource>
+		<resource name="editor_obfuscate_text_error">Грешка</resource>
+		<resource name="editor_obfuscate_text_no_capture">Нема доступних снимака</resource>
+		<resource name="editor_obfuscate_text_no_ocr_provider">OCR провајдер није доступан</resource>
+		<resource name="editor_obfuscate_text_ocr_failed">OCR неуспешно</resource>
+		<resource name="editor_obfuscate_text_no_text">Текст није пронађен на слици</resource>
 		<resource name="editor_object">Објекат</resource>
 		<resource name="editor_opendirinexplorer">Отвори фасциклу у Виндоус експлореру</resource>
 		<resource name="editor_pastefromclipboard">Убаци</resource>
 		<resource name="editor_pixel_size">Величина пиксела</resource>
 		<resource name="editor_preview_quality">Преглед квалитета</resource>
 		<resource name="editor_print">Одштампај</resource>
+		<resource name="editor_remove_transparency">Уклони провидност</resource>
 		<resource name="editor_redo">Понови {0}</resource>
 		<resource name="editor_resetsize">Поништи величину</resource>
 		<resource name="editor_rotateccw">Окрени улево</resource>
@@ -197,12 +213,11 @@
 		<resource name="settings_destination_email">Е-пошта</resource>
 		<resource name="settings_destination_file">Сачувај директно (уз коришћење доњих поставки)</resource>
 		<resource name="settings_destination_fileas">Сачувај као (уз приказивање прозорчета)</resource>
-		<resource name="settings_destination_picker">Динамички изабери одредиште</resource>
+		<resource name="settings_destination_picker">Питај за одредиште сваки път</resource>
 		<resource name="settings_destination_printer">Пошаљи штампачу</resource>
 		<resource name="settings_editor">Уређивач</resource>
 		<resource name="settings_filenamepattern">Образац за називе:</resource>
 		<resource name="settings_general">Опште</resource>
-		<resource name="settings_iecapture">Сликање Интернет експлорера</resource>
 		<resource name="settings_jpegquality">JPEG квалитет</resource>
 		<resource name="settings_language">Језик:</resource>
 		<resource name="settings_message_filenamepattern">Следећи чувари места биће аутоматски замењени у наведеном обрасцу:
@@ -253,7 +268,6 @@ ${hostname} назив рачунара
 		<resource name="settings_windowscapture">Сликање прозора</resource>
 		<resource name="tooltip_firststart">Кликните десни клик или притисните тастер {0}.</resource>
 		<resource name="update_found">Доступна је нова верзија програма. Желите ли да преузмете Гриншот {0}?</resource>
-		<resource name="wait_ie_capture">Сачекајте док се страница у Интернет експлореру не слика…</resource>
 		<resource name="warning">Упозорење</resource>
 		<resource name="warning_hotkeys">Не могу да доделим пречицу „{0}“. Узрок томе је вероватно други програм који користи исту пречицу.
 

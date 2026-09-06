@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -24,7 +24,7 @@ using System;
 namespace Greenshot.Base.Interop
 {
     /// <summary>
-    /// An attribute to specifiy the ProgID of the COM class to create. (As suggested by Kristen Wegner)
+    /// An attribute to specify the ProgID of the COM class to create. (As suggested by Kristen Wegner)
     /// </summary>
     [AttributeUsage(AttributeTargets.Interface)]
     public sealed class ComProgIdAttribute : Attribute

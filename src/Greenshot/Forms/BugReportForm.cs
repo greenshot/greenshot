@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -22,20 +22,29 @@
 using System;
 using System.Diagnostics;
 using System.Windows.Forms;
+using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
 using Greenshot.Configuration;
 
 namespace Greenshot.Forms
 {
-    public partial class BugReportForm : BaseForm
+    public partial class BugReportForm : GreenshotForm
     {
-        private BugReportForm()
+        public BugReportForm()
         {
             //
             // The InitializeComponent() call is required for Windows Forms designer support.
             //
             InitializeComponent();
+            InitializeLanguage();
             ToFront = true;
+        }
+
+        protected override void InitializeLanguage()
+        {
+            labelBugReportInfo.Text = Language.GetString("bugreport_info");
+            btnClose.Text = Language.GetString("bugreport_cancel");
+            Text = Language.GetString("bugreport_title");
         }
 
         public BugReportForm(string bugText) : this()

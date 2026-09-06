@@ -5,7 +5,7 @@
 		<resource name="about_donations">Αν σας αρέσει το Greenshot, είστε ευπρόσδεκτοι να μας υποστηρίξετε:</resource>
 		<resource name="about_host">Το Greenshot φιλοξενείται από τη GitHub:</resource>
 		<resource name="about_icons">Εικονίδια από Yusuke Kamiyamane's Fugue icon set (Creative Commons Attribution 3.0 license)</resource>
-		<resource name="about_license">Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+		<resource name="about_license">Copyright © 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
 Δεν παρέχεται ΚΑΜΙΑ ΕΓΓΥΗΣΗ για το Greenshot. Είναι ελεύθερο λογισμικό. Είστε ελεύθεροι να το αναδιανείμετε κάτω από ορισμένες συνθήκες.
 Λεπτομέρειες σχετικά με την GNU General Public License:</resource>
 		<resource name="about_title">Πληροφορίες για το Greenshot</resource>
@@ -50,8 +50,6 @@
 		<resource name="contextmenu_capturefullscreen_left">Αριστερά</resource>
 		<resource name="contextmenu_capturefullscreen_right">Δεξιά</resource>
 		<resource name="contextmenu_capturefullscreen_top">Πάνω Μέρος</resource>
-		<resource name="contextmenu_captureie">Καταγραφή καρτέλας Internet Explorer</resource>
-		<resource name="contextmenu_captureiefromlist">Καταγραφή καρτέλας Internet Explorer από λίστα</resource>
 		<resource name="contextmenu_capturelastregion">Καταγραφή τελευταίας περιοχής</resource>
 		<resource name="contextmenu_capturewindow">Καταγραφή ενεργού παραθύρου</resource>
 		<resource name="contextmenu_capturewindowfromlist">Καταγραφή ενεργού παραθύρου από λίστα</resource>
@@ -136,12 +134,30 @@
 		<resource name="editor_obfuscate_blur">Θόλωμα</resource>
 		<resource name="editor_obfuscate_mode">Λειτουργία απόκρυψης</resource>
 		<resource name="editor_obfuscate_pixelize">Παραμόρφωση με χρήση εικονοστοιχείων</resource>
+		<resource name="editor_obfuscate_text">Απόκρυψη κειμένου...</resource>
+		<resource name="editor_obfuscate_text_title">Απόκρυψη κειμένου</resource>
+		<resource name="editor_obfuscate_text_search">Αναζήτηση:</resource>
+		<resource name="editor_obfuscate_text_search_button">Αναζήτηση</resource>
+		<resource name="editor_obfuscate_text_regex">Χρήση κανονικής έκφρασης</resource>
+		<resource name="editor_obfuscate_text_case_sensitive">Διάκριση πεζών-κεφαλαίων</resource>
+		<resource name="editor_obfuscate_text_auto_search">Αυτόματη αναζήτηση</resource>
+		<resource name="editor_obfuscate_text_search_scope">Αναζήτηση σε:</resource>
+		<resource name="editor_obfuscate_text_scope_words">Λέξεις</resource>
+		<resource name="editor_obfuscate_text_scope_lines">Γραμμές</resource>
+		<resource name="editor_obfuscate_text_matches">Αντιστοιχίες που βρέθηκαν: {0}</resource>
+		<resource name="editor_obfuscate_text_apply">Εφαρμογή</resource>
+		<resource name="editor_obfuscate_text_error">Σφάλμα</resource>
+		<resource name="editor_obfuscate_text_no_capture">Δεν υπάρχει διαθέσιμη λήψη</resource>
+		<resource name="editor_obfuscate_text_no_ocr_provider">Πάροχος OCR μη διαθέσιμος</resource>
+		<resource name="editor_obfuscate_text_ocr_failed">Αποτυχία OCR</resource>
+		<resource name="editor_obfuscate_text_no_text">Δεν βρέθηκε κείμενο στην εικόνα</resource>
 		<resource name="editor_object">Αντικείμενο</resource>
 		<resource name="editor_opendirinexplorer">Άνοιγμα καταλόγου στην Εξερεύνηση των Windows</resource>
 		<resource name="editor_pastefromclipboard">Επικόλληση</resource>
 		<resource name="editor_pixel_size">Μέγεθος εικονοστοιχείων</resource>
 		<resource name="editor_preview_quality">Ποιότητα προεπισκόπησης</resource>
 		<resource name="editor_print">Εκτύπωση</resource>
+		<resource name="editor_remove_transparency">Κατάργηση διαφάνειας</resource>
 		<resource name="editor_redo">Ακύρωση Αναίρεσης {0}</resource>
 		<resource name="editor_resetsize">Επαναφορά μεγέθους</resource>
 		<resource name="editor_resize_percent">Επί τοις εκατό</resource>
@@ -226,12 +242,11 @@
 		<resource name="settings_destination_email">Αποστολή στιγμιότυπου με e-mail</resource>
 		<resource name="settings_destination_file">Άμεση αποθήκευση (με τις παρακάτω ρυθμίσεις)</resource>
 		<resource name="settings_destination_fileas">Αποθήκευση ως (εμφάνιση διαλόγου)</resource>
-		<resource name="settings_destination_picker">Δυναμική επιλογή προορισμού</resource>
+		<resource name="settings_destination_picker">Ζητήστε προορισμό κάθε φορά</resource>
 		<resource name="settings_destination_printer">Αποστολή για Εκτύπωση</resource>
 		<resource name="settings_editor">Παράθυρο επεξεργασίας</resource>
 		<resource name="settings_filenamepattern">Πρότυπο όνομα αρχείου</resource>
 		<resource name="settings_general">Γενικά</resource>
-		<resource name="settings_iecapture">Καταγραφή καρτέλας Internet Explorer</resource>
 		<resource name="settings_jpegquality">Ποιότητα JPEG</resource>
 		<resource name="settings_language">Γλώσσα</resource>
 		<resource name="settings_message_filenamepattern">Τα ακόλουθα σύμβολα κράτησης θέσης θα αντικατασταθούν αυτόματα στο προκαθορισμένο πρότυπο:
@@ -281,7 +296,6 @@ ${hostname} Όνομα Υπολογιστή
 		<resource name="settings_windowscapture">Καταγραφή παραθύρου</resource>
 		<resource name="tooltip_firststart">Δεξί κλικ εδώ ή πιέστε το {0} πλήκτρο.</resource>
 		<resource name="update_found">Μια νεώτερη έκδοση του Greenshot είναι διαθέσιμη! Θέλετε να τη μεταφορτώσετε {0}?</resource>
-		<resource name="wait_ie_capture">Παρακαλώ περιμένετε μέχρι να καταγραφεί η σελίδα του Internet Explorer...</resource>
 		<resource name="warning">Προειδοποίηση</resource>
 		<resource name="warning_hotkeys">Το/τα πλήκτρο/α ταχείας πρόσβασης "{0}" δεν μπορεί/ούν να καταχωριστεί/ούν. Αυτό το πρόβλημα πιθανόν να προκλήθηκε επειδή ένα άλλο πρόγραμμα χρησιμοποιεί τον ίδιο συνδυασμό πλήκτρων. Θα μπορούσατε να αλλάξετε τις ρυθμίσεις των πλήκτρων ταχείας πρόσβασης ή να απενεργοποιήσετε/αλλάξετε τις ρυθμίσεις του προγράμματος που κάνει χρήση του/των πλήκτρου/ων.
 

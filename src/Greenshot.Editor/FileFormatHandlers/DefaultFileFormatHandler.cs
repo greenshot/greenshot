@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -43,7 +43,9 @@ namespace Greenshot.Editor.FileFormatHandlers
         {
             SupportedExtensions[FileFormatHandlerActions.LoadDrawableFromStream] = _ourExtensions;
             SupportedExtensions[FileFormatHandlerActions.LoadFromStream] = _ourExtensions;
+            SupportedExtensions[FileFormatHandlerActions.LoadFromFile] = _ourExtensions;
             SupportedExtensions[FileFormatHandlerActions.SaveToStream] = _ourExtensions;
+            SupportedExtensions[FileFormatHandlerActions.SaveToFile] = _ourExtensions;
         }
 
         /// <inheritdoc />
@@ -71,13 +73,18 @@ namespace Greenshot.Editor.FileFormatHandlers
             {
                 return false;
             }
-            EncoderParameters parameters = new EncoderParameters(1)
+            // Don't use quality parameter for PNG (it doesn't support it and can cause corruption)
+            EncoderParameters parameters = null;
+            if (imageFormat.Guid != ImageFormat.Png.Guid)
             {
-                Param =
+                parameters = new EncoderParameters(1)
                 {
-                    [0] = new EncoderParameter(Encoder.Quality, surfaceOutputSettings.JPGQuality)
-                }
-            };
+                    Param =
+                    {
+                        [0] = new EncoderParameter(Encoder.Quality, surfaceOutputSettings.JPGQuality)
+                    }
+                };
+            }
             // For those images which are with Alpha, but the format doesn't support this, change it to 24bpp
             if (imageFormat.Guid == ImageFormat.Jpeg.Guid && Image.IsAlphaPixelFormat(bitmap.PixelFormat))
             {

@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -105,6 +105,10 @@ namespace Greenshot.Destinations
                 yield return new PrinterDestination(printer);
             }
         }
+
+        // TODO: Implement IAcceptsPreRenderedImage to avoid a redundant surface render pass
+        // when a shared rendered bitmap is already available from the capture pipeline.
+        // PrintHelper would need an overload accepting a pre-rendered Image instead of ISurface.
 
         /// <summary>
         /// Export the capture to the printer

@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -26,8 +26,8 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
+using Dapplo.Ini;
 using Greenshot.Base.Core;
-using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using log4net;
@@ -41,9 +41,8 @@ namespace Greenshot.Helpers
     public class PluginHelper : IGreenshotHost
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(PluginHelper));
-        private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
+        private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
 
-        private static readonly string PluginPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), Application.ProductName);
         private static readonly string ApplicationPath = Path.GetDirectoryName(Application.ExecutablePath);
         private static readonly string PafPath = Path.Combine(Application.StartupPath, @"App\Greenshot");
 
@@ -196,56 +195,58 @@ namespace Greenshot.Helpers
         }
 
         /// <summary>
-        /// Load the plugins
+        /// Load the plugins using the three-phase initialisation pattern:
+        /// <list type="number">
+        ///   <item><description>Phase 1 — every plugin registers its configuration sections (no file I/O).</description></item>
+        ///   <item><description>The INI file is read once, populating all sections (core + plugin).</description></item>
+        ///   <item><description>Phase 2 — every plugin registers its services into the DI container.</description></item>
+        ///   <item><description>Phase 3 — every plugin runs its remaining start-up logic.</description></item>
+        /// </list>
         /// </summary>
         public void LoadPlugins()
         {
             var pluginFiles = new List<string>();
 
-            if (IniConfig.IsPortable)
+            if (GreenshotEnvironment.IsPortable)
             {
                 pluginFiles.AddRange(FindPluginsOnPath(PafPath));
             }
             else
             {
-                pluginFiles.AddRange(FindPluginsOnPath(PluginPath));
                 pluginFiles.AddRange(FindPluginsOnPath(ApplicationPath));
             }
 
-            // Loop over the list of available files and get the Plugin Attributes
+            // Instantiate all plugins first (needed so they can register sections before Load()).
+            var plugins = new List<IGreenshotPlugin>();
             foreach (string pluginFile in pluginFiles)
             {
                 try
                 {
                     var assembly = Assembly.LoadFrom(pluginFile);
 
-                    var assemblyName = assembly.GetName().Name;
-
-                    var pluginEntryName = $"{assemblyName}.{assemblyName.Replace("Greenshot.Plugin.", string.Empty)}Plugin";
-                    var pluginEntryType = assembly.GetType(pluginEntryName, false, true);
-
-                    if (CoreConfig.ExcludePlugins != null && CoreConfig.ExcludePlugins.Contains(pluginEntryName))
+                    if (IsPluginExcludedByConfig(assembly, pluginFile))
                     {
-                        Log.WarnFormat("Exclude list: {0}", string.Join(",", CoreConfig.ExcludePlugins));
-                        Log.WarnFormat("Skipping the excluded plugin {0} with version {1} from {2}", pluginEntryName, assembly.GetName().Version, pluginFile);
                         continue;
                     }
 
-                    var plugin = (IGreenshotPlugin) Activator.CreateInstance(pluginEntryType);
+                    var assemblyName = assembly.GetName().Name;
+                    var pluginEntryName = $"{assemblyName}.{assemblyName.Replace("Greenshot.Plugin.", string.Empty)}Plugin";
+                    var pluginEntryType = assembly.GetType(pluginEntryName, false, true);
+
+                    if (pluginEntryType == null)
+                    {
+                        Log.ErrorFormat("Can't find plugin type {0} in \"{1}\"", pluginEntryName, pluginFile);
+                        continue;
+                    }
+
+                    var plugin = (IGreenshotPlugin)Activator.CreateInstance(pluginEntryType);
                     if (plugin != null)
                     {
-                        if (plugin.Initialize())
-                        {
-                            SimpleServiceProvider.Current.AddService(plugin);
-                        }
-                        else
-                        {
-                            Log.InfoFormat("Plugin {0} not initialized!", plugin.Name);
-                        }
+                        plugins.Add(plugin);
                     }
                     else
                     {
-                        Log.ErrorFormat("Can't create an instance of {0} from \"{1}\"", assembly.GetName().Name + ".GreenshotPlugin", pluginFile);
+                        Log.ErrorFormat("Can't create an instance of {0} from \"{1}\"", pluginEntryName, pluginFile);
                     }
                 }
                 catch (Exception e)
@@ -254,6 +255,108 @@ namespace Greenshot.Helpers
                     Log.Error(e);
                 }
             }
+
+            // ── Phase 1: Register configuration sections (no file I/O) ───────────
+            var activeIniConfig = IniConfigRegistry.Get();
+            foreach (var plugin in plugins)
+            {
+                try
+                {
+                    plugin.RegisterConfiguration(activeIniConfig);
+                }
+                catch (Exception e)
+                {
+                    Log.ErrorFormat("Error during RegisterConfiguration for plugin {0}", plugin.Name);
+                    Log.Error(e);
+                }
+            }
+
+            // ── Single file read (all sections populated at once) ─────────────────
+            IniConfigRegistry.Get().Load();
+
+            // ── Phase 2: Register services ────────────────────────────────────────
+            foreach (var plugin in plugins)
+            {
+                try
+                {
+                    plugin.RegisterServices(SimpleServiceProvider.Current);
+                }
+                catch (Exception e)
+                {
+                    Log.ErrorFormat("Error during RegisterServices for plugin {0}", plugin.Name);
+                    Log.Error(e);
+                }
+            }
+
+            // ── Phase 3: Start ────────────────────────────────────────────────────
+            foreach (var plugin in plugins)
+            {
+                try
+                {
+                    if (plugin.Start())
+                    {
+                        SimpleServiceProvider.Current.AddService(plugin);
+                    }
+                    else
+                    {
+                        Log.InfoFormat("Plugin {0} did not start.", plugin.Name);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Log.ErrorFormat("Error during Start for plugin {0}", plugin.Name);
+                    Log.Error(e);
+                }
+            }
+        }
+        /// <summary>
+        /// This method checks the plugin against the configured include and exclude plugin
+        /// lists. If a plugin is excluded, a warning is logged with details about the exclusion.
+        /// </summary>
+        private bool IsPluginExcludedByConfig(Assembly assembly, string pluginFile)
+        {
+            // Get plugin identifier from assembly attributes
+            string pluginConfigIdentifier = GetPluginIdentifier(assembly, pluginFile);
+
+            if (CoreConfig.IncludePlugins is { } includePlugins
+                && includePlugins.Count(p => !string.IsNullOrWhiteSpace(p)) > 0 // ignore empty entries i.e. a whitespace
+                && !includePlugins.Contains(pluginConfigIdentifier))
+            {
+                Log.WarnFormat("Include plugin list: {0}", string.Join(",", includePlugins));
+                Log.WarnFormat("Skipping the not included plugin '{0}' with version {1} from {2}", pluginConfigIdentifier, assembly.GetName().Version, pluginFile);
+                return true;
+            }
+
+            if (CoreConfig.ExcludePlugins is { } excludePlugins
+                && excludePlugins.Contains(pluginConfigIdentifier))
+            {
+                Log.WarnFormat("Exclude plugin list: {0}", string.Join(",", excludePlugins));
+                Log.WarnFormat("Skipping the excluded plugin '{0}' with version {1} from {2}", pluginConfigIdentifier, assembly.GetName().Version, pluginFile);
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Retrieves the plugin identifier for the specified assembly.
+        /// </summary>
+        private string GetPluginIdentifier(Assembly assembly, string pluginFile)
+        {
+            // Try to find PluginIdentifierAttribute
+            var attribute = assembly
+                .GetCustomAttributes<AssemblyPluginIdentifierAttribute>()
+                .FirstOrDefault();
+
+            if (!string.IsNullOrEmpty(attribute?.Identifier))
+            {
+               return attribute.Identifier;
+            }
+
+            // If no attribute found, fall back to the sub namespace
+            var pluginSubNamespace = assembly.GetName().Name.Replace("Greenshot.Plugin.", string.Empty);
+            Log.WarnFormat("No '{0}' found in '{1}'. Use plugin namespace '{2}' as fallback.", nameof(AssemblyPluginIdentifierAttribute), pluginFile, pluginSubNamespace);
+            return pluginSubNamespace;
         }
     }
 }

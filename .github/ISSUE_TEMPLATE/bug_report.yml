@@ -1,0 +1,71 @@
+name: Bug Report
+description: Report a bug to help us improve the project
+labels: ["bug"]
+# type: bug             # only supported if types are define on organization level
+body:
+  - type: markdown 
+    attributes:
+      value: |
+        Please search existing issues first, including closed ones, to avoid creating duplicates.
+        [Search existing issues here: https://github.com/greenshot/greenshot/issues](https://github.com/greenshot/greenshot/issues?q=is%3Aissue)
+
+        We also recommend updating to the latest version of Greenshot to see if the issue has already been fixed. You can download the latest version from our website: [https://getgreenshot.org/downloads/](https://getgreenshot.org/downloads/) 
+
+  - type: checkboxes
+    id: duplicate-check
+    attributes:
+      label: Please confirm the following before submitting a Bug Report
+      description:
+      options:
+        - label: I have searched existing open and closed issues and did not find a duplicate
+          required: true
+
+  - type: input
+    id: greenshot-version
+    attributes:
+      label: Greenshot version
+      placeholder: e.g. 1.3.277 (You can find this in the about section of Greenshot)
+    validations:
+      required: true
+
+  - type: textarea
+    id: describe-the-bug
+    attributes:
+      label: Describe the bug
+      placeholder: A clear and concise description of what the bug is
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        ### Additional context
+
+        Please provide any additional information that may help us understand and reproduce the issue.
+        We recommend including:
+        - Steps to reproduce the issue
+        - Expected behavior
+        - Relevant screenshots
+        - Exception messages or logs ([Where can I find log files?](https://getgreenshot.org/faq/where-can-i-find-greenshots-log-file/)) 
+
+         _(You can drag and drop files into the issue body to upload them)_
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context
+      placeholder: |
+        # Steps to reproduce
+        1. Capture '....'
+        2. Open Editor
+        3. Add a line
+        4. Resize
+
+        # Expected behavior
+        Editor should resize to fit the content
+
+        # screenshots
+
+        # exception messages
+    validations:
+      required: false

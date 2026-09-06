@@ -1,0 +1,43 @@
+name: Developer Enhancement Report
+description: Help us improve our code
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        An Enhancement Report is used to propose improvements to the codebase, such as refactoring, adopting new technologies, or replacing libraries or suggest a technical idea that can help us improve the project.
+        This helps us maintain a high-quality codebase and ensures that we are using the best tools and practices.
+
+        Please search existing issues first, including closed ones, to avoid creating duplicates.
+        [Search existing issues here: https://github.com/greenshot/greenshot/issues](https://github.com/greenshot/greenshot/issues?q=is%3Aissue)
+
+  - type: checkboxes
+    id: duplicate-check
+    attributes:
+      label: Please confirm the following before submitting
+      description:
+      options:
+        - label: I have searched existing open and closed issues and did not find a duplicate
+          required: true
+
+  - type: textarea
+    id: describe-the-enhancement
+    attributes:
+      label: Describe the enhancement
+      placeholder: A clear and concise description of the enhancement you are proposing (e.g. "refactor A , use technology B, replace library C with D, etc.")
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context
+      description: Please provide any additional information that may help us understand and implement the enhancement.
+      placeholder: |
+        We recommend including:
+        - Motivation for the enhancement
+        - Proposed solution or approach
+        - Potential impact on existing functionality
+        - Relevant code snippets or examples
+    validations:
+      required: true

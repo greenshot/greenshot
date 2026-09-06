@@ -1,6 +1,6 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -50,29 +50,27 @@ namespace Greenshot.Forms {
 		/// not be able to load this method if it was changed manually.
 		/// </summary>
 		private void InitializeComponent() {
-			this.lblTitle = new System.Windows.Forms.Label();
-			this.lblLicense = new GreenshotLabel();
-			this.lblHost = new GreenshotLabel();
+			this.lblTitle = new Label();
+			this.lblLicense = new Label();
+			this.lblHost = new Label();
 			this.linkLblLicense = new System.Windows.Forms.LinkLabel();
 			this.linkLblHost = new System.Windows.Forms.LinkLabel();
 			this.linkLblBugs = new System.Windows.Forms.LinkLabel();
-			this.lblBugs = new GreenshotLabel();
+			this.lblBugs = new Label();
 			this.linkLblDonations = new System.Windows.Forms.LinkLabel();
-			this.lblDonations = new GreenshotLabel();
+			this.lblDonations = new Label();
 			this.linkLblIcons = new System.Windows.Forms.LinkLabel();
-			this.lblIcons = new GreenshotLabel();
+			this.lblIcons = new Label();
 			this.linkLabel1 = new System.Windows.Forms.LinkLabel();
 			this.pictureBox1 = new System.Windows.Forms.PictureBox();
-			this.lblTranslation = new GreenshotLabel();
+			this.lblTranslation = new Label();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// lblTitle
 			// 
-            var fontsize = (this.DeviceDpi / 96) * lblTitle.Font.Size;
-            this.lblTitle.AutoSize = true;
-            this.lblTitle.Font = new System.Drawing.Font(System.Drawing.FontFamily.GenericSansSerif, fontsize, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblTitle.Location = new System.Drawing.Point(108, 12);
+			this.lblTitle.AutoSize = true;
+			this.lblTitle.Location = new System.Drawing.Point(108, 12);
 			this.lblTitle.Name = "lblTitle";
 			this.lblTitle.Size = new System.Drawing.Size(263, 19);
 			this.lblTitle.TabIndex = 2;
@@ -80,23 +78,21 @@ namespace Greenshot.Forms {
 			// 
 			// lblLicense
 			// 
-			this.lblLicense.LanguageKey = "about_license";
-			this.lblLicense.Location = new System.Drawing.Point(109, 34);
+			this.lblLicense.Location = new System.Drawing.Point(109, 47);
 			this.lblLicense.Name = "lblLicense";
 			this.lblLicense.Size = new System.Drawing.Size(369, 68);
 			this.lblLicense.TabIndex = 3;
 			// 
 			// lblHost
 			// 
-			this.lblHost.LanguageKey = "about_host";
-			this.lblHost.Location = new System.Drawing.Point(12, 109);
+			this.lblHost.Location = new System.Drawing.Point(12, 122);
 			this.lblHost.Name = "lblHost";
 			this.lblHost.Size = new System.Drawing.Size(466, 23);
 			this.lblHost.TabIndex = 4;
 			// 
 			// linkLblLicense
 			// 
-			this.linkLblLicense.Location = new System.Drawing.Point(109, 85);
+			this.linkLblLicense.Location = new System.Drawing.Point(109, 98);
 			this.linkLblLicense.Name = "linkLblLicense";
 			this.linkLblLicense.Size = new System.Drawing.Size(369, 23);
 			this.linkLblLicense.TabIndex = 5;
@@ -106,7 +102,7 @@ namespace Greenshot.Forms {
 			// 
 			// linkLblHost
 			// 
-			this.linkLblHost.Location = new System.Drawing.Point(13, 124);
+			this.linkLblHost.Location = new System.Drawing.Point(13, 137);
 			this.linkLblHost.Name = "linkLblHost";
 			this.linkLblHost.Size = new System.Drawing.Size(465, 23);
 			this.linkLblHost.TabIndex = 6;
@@ -116,7 +112,7 @@ namespace Greenshot.Forms {
 			// 
 			// linkLblBugs
 			// 
-			this.linkLblBugs.Location = new System.Drawing.Point(13, 162);
+			this.linkLblBugs.Location = new System.Drawing.Point(13, 175);
 			this.linkLblBugs.Name = "linkLblBugs";
 			this.linkLblBugs.Size = new System.Drawing.Size(465, 23);
 			this.linkLblBugs.TabIndex = 8;
@@ -127,15 +123,14 @@ namespace Greenshot.Forms {
 			// 
 			// lblBugs
 			// 
-			this.lblBugs.LanguageKey = "about_bugs";
-			this.lblBugs.Location = new System.Drawing.Point(12, 147);
+			this.lblBugs.Location = new System.Drawing.Point(12, 160);
 			this.lblBugs.Name = "lblBugs";
 			this.lblBugs.Size = new System.Drawing.Size(466, 23);
 			this.lblBugs.TabIndex = 7;
 			// 
 			// linkLblDonations
 			// 
-			this.linkLblDonations.Location = new System.Drawing.Point(13, 201);
+			this.linkLblDonations.Location = new System.Drawing.Point(13, 214);
 			this.linkLblDonations.Name = "linkLblDonations";
 			this.linkLblDonations.Size = new System.Drawing.Size(465, 23);
 			this.linkLblDonations.TabIndex = 10;
@@ -146,15 +141,14 @@ namespace Greenshot.Forms {
 			// 
 			// lblDonations
 			// 
-			this.lblDonations.LanguageKey = "about_donations";
-			this.lblDonations.Location = new System.Drawing.Point(12, 186);
+			this.lblDonations.Location = new System.Drawing.Point(12, 199);
 			this.lblDonations.Name = "lblDonations";
 			this.lblDonations.Size = new System.Drawing.Size(466, 23);
 			this.lblDonations.TabIndex = 9;
 			// 
 			// linkLblIcons
 			// 
-			this.linkLblIcons.Location = new System.Drawing.Point(13, 239);
+			this.linkLblIcons.Location = new System.Drawing.Point(13, 252);
 			this.linkLblIcons.Name = "linkLblIcons";
 			this.linkLblIcons.Size = new System.Drawing.Size(279, 23);
 			this.linkLblIcons.TabIndex = 12;
@@ -164,21 +158,20 @@ namespace Greenshot.Forms {
 			// 
 			// lblIcons
 			// 
-			this.lblIcons.LanguageKey = "about_icons";
-			this.lblIcons.Location = new System.Drawing.Point(12, 224);
+			this.lblIcons.Location = new System.Drawing.Point(12, 237);
 			this.lblIcons.Name = "lblIcons";
             this.lblIcons.Size = new System.Drawing.Size(530, 23);
 			this.lblIcons.TabIndex = 11;
 			// 
 			// linkLabel1
 			// 
-			this.linkLabel1.Location = new System.Drawing.Point(377, 8);
+			this.linkLabel1.Location = new System.Drawing.Point(109, 27);
 			this.linkLabel1.Name = "linkLabel1";
-			this.linkLabel1.Size = new System.Drawing.Size(130, 23);
+			this.linkLabel1.Size = new System.Drawing.Size(130, 19);
 			this.linkLabel1.TabIndex = 13;
 			this.linkLabel1.TabStop = true;
 			this.linkLabel1.Text = "https://getgreenshot.org";
-			this.linkLabel1.TextAlign = System.Drawing.ContentAlignment.TopRight;
+			this.linkLabel1.TextAlign = System.Drawing.ContentAlignment.TopLeft;
             this.linkLabel1.Tag = "https://getgreenshot.org/?version=" + EnvironmentInfo.GetGreenshotVersion(true);
             this.linkLabel1.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.LinkLabelClicked);
 			// 
@@ -194,8 +187,7 @@ namespace Greenshot.Forms {
 			// 
 			// lblTranslation
 			// 
-			this.lblTranslation.LanguageKey = "about_translation";
-			this.lblTranslation.Location = new System.Drawing.Point(12, 262);
+			this.lblTranslation.Location = new System.Drawing.Point(12, 275);
 			this.lblTranslation.Name = "lblTranslation";
 			this.lblTranslation.Size = new System.Drawing.Size(466, 23);
 			this.lblTranslation.TabIndex = 15;
@@ -223,7 +215,6 @@ namespace Greenshot.Forms {
 			this.Controls.Add(this.lblLicense);
 			this.Controls.Add(this.lblTitle);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
-			this.LanguageKey = "about_title";
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "AboutForm";
@@ -240,13 +231,13 @@ namespace Greenshot.Forms {
 		private System.Windows.Forms.LinkLabel linkLblBugs;
 		private System.Windows.Forms.LinkLabel linkLblLicense;
 		private System.Windows.Forms.LinkLabel linkLblIcons;
-		private System.Windows.Forms.Label lblTitle;
+		private Label lblTitle;
 		private System.Windows.Forms.PictureBox pictureBox1;
-		private GreenshotLabel lblTranslation;
-		private GreenshotLabel lblHost;
-		private GreenshotLabel lblDonations;
-		private GreenshotLabel lblBugs;
-		private GreenshotLabel lblIcons;
-		private GreenshotLabel lblLicense;
+		private Label lblTranslation;
+		private Label lblHost;
+		private Label lblDonations;
+		private Label lblBugs;
+		private Label lblIcons;
+		private Label lblLicense;
 	}
 }

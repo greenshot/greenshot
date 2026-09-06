@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Greenshot.Base.Interfaces;
+using log4net;
 
 namespace Greenshot.Base.Core
 {
@@ -10,10 +11,15 @@ namespace Greenshot.Base.Core
     /// </summary>
     public class SimpleServiceProvider : IServiceLocator
     {
+        private static readonly ILog Log = LogManager.GetLogger(typeof(SimpleServiceProvider));
         private readonly Dictionary<Type, IList<object>> _services = new();
 
+        /// <summary>
+        /// Gets the current instance of the service locator.
+        /// </summary>
         public static IServiceLocator Current { get; } = new SimpleServiceProvider();
 
+        /// <inheritdoc/>
         public IReadOnlyList<TService> GetAllInstances<TService>()
         {
             var typeOfService = typeof(TService);
@@ -25,11 +31,39 @@ namespace Greenshot.Base.Core
             return results.Cast<TService>().ToArray();
         }
 
-        public TService GetInstance<TService>()
+        /// <inheritdoc/>
+        public TService GetInstance<TService>(bool isOptional = false)
         {
-            return GetAllInstances<TService>().SingleOrDefault();
+            try
+            {
+                var instances = GetAllInstances<TService>();
+
+                if (instances.Count > 1)
+                {
+                    throw new InvalidOperationException(
+                        $"Found {instances.Count} instances of {typeof(TService).FullName}, but expected only one."
+                    );
+                }
+
+                var instance = instances.FirstOrDefault();
+
+                if (!isOptional && instance is null)
+                {
+                    throw new InvalidOperationException(
+                        $"No instance of {typeof(TService).FullName} found, but it is required."
+                    );
+                }
+
+                return instance;
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"GetInstance failed for {typeof(TService)}", ex);
+                throw;
+            }
         }
 
+        /// <inheritdoc/>
         public void AddService<TService>(IEnumerable<TService> services)
         {
             var serviceType = typeof(TService);
@@ -50,9 +84,40 @@ namespace Greenshot.Base.Core
             }
         }
 
+        /// <inheritdoc/>
         public void AddService<TService>(params TService[] services)
         {
             AddService(services.AsEnumerable());
+        }
+
+        /// <inheritdoc/>
+        public void RemoveService<TService>(IEnumerable<TService> services)
+        {
+            var serviceType = typeof(TService);
+            if (!_services.TryGetValue(serviceType, out var currentServices))
+            {
+                return;
+            }
+
+            foreach (var service in services)
+            {
+                if (service == null)
+                {
+                    continue;
+                }
+                currentServices.Remove(service);
+            }
+
+            if (currentServices.Count == 0)
+            {
+                _services.Remove(serviceType);
+            }
+        }
+
+        /// <inheritdoc/>
+        public void RemoveService<TService>(params TService[] services)
+        {
+            RemoveService(services.AsEnumerable());
         }
     }
 }

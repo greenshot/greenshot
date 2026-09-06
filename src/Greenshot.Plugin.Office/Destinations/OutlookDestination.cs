@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -25,7 +25,8 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Greenshot.Base.Core;
-using Greenshot.Base.IniFile;
+using Greenshot.Base.Core.Enums;
+using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Plugin.Office.OfficeExport;
@@ -44,7 +45,7 @@ namespace Greenshot.Plugin.Office.Destinations
         private const int IconMeeting = 2;
 
         private static readonly Image MailIcon = GreenshotResources.GetImage("Email.Image");
-        private static readonly OfficeConfiguration OfficeConfig = IniConfig.GetIniSection<OfficeConfiguration>();
+        private static readonly IOfficeConfiguration OfficeConfig = IniConfigRegistry.GetSection<IOfficeConfiguration>();
         private static readonly string ExePath;
         private static readonly bool IsActiveFlag;
         private const string MapiClient = "Microsoft Outlook";
@@ -210,7 +211,7 @@ namespace Greenshot.Plugin.Office.Destinations
                 else
                 {
                     exportInformation.ExportMade = _outlookEmailExporter.ExportToOutlook(OfficeConfig.OutlookEmailFormat, tmpFile,
-                        FilenameHelper.FillPattern(OfficeConfig.EmailSubjectPattern, captureDetails, false), attachmentName, OfficeConfig.EmailTo, OfficeConfig.EmailCC,
+                        FilenameHelper.FillPattern(OfficeConfig.EmailSubjectPattern, captureDetails, false, DateCultureMode.UILanguage), attachmentName, OfficeConfig.EmailTo, OfficeConfig.EmailCC,
                         OfficeConfig.EmailBCC, null);
                 }
             }

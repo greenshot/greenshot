@@ -1,5 +1,5 @@
 ﻿// Greenshot - a free and open source screenshot tool
-// Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: https://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -56,7 +56,16 @@ namespace Greenshot.Plugin.Office.OfficeExport
 
             if (excelApplication?.ComObject != null)
             {
-                InitializeVariables(excelApplication);
+                try
+                {
+                    InitializeVariables(excelApplication);
+                }
+                catch (InvalidCastException ex)
+                {
+                    LOG.Warn("Excel COM object is unusable due to a type library error — treating Excel as unavailable.", ex);
+                    excelApplication.Dispose();
+                    return null;
+                }
             }
 
             return excelApplication;
@@ -74,7 +83,17 @@ namespace Greenshot.Plugin.Office.OfficeExport
                 excelApplication = DisposableCom.Create(new Application());
             }
 
-            InitializeVariables(excelApplication);
+            try
+            {
+                InitializeVariables(excelApplication);
+            }
+            catch (InvalidCastException ex)
+            {
+                LOG.Warn("Excel COM object is unusable due to a type library error — treating Excel as unavailable.", ex);
+                excelApplication.Dispose();
+                return null;
+            }
+
             return excelApplication;
         }
 
@@ -112,10 +131,19 @@ namespace Greenshot.Plugin.Office.OfficeExport
                 return;
             }
 
-            if (!Version.TryParse(excelApplication.ComObject.Version, out _excelVersion))
+            try
             {
-                LOG.Warn("Assuming Excel version 1997.");
-                _excelVersion = new Version((int) OfficeVersions.Office97, 0, 0, 0);
+                if (!Version.TryParse(excelApplication.ComObject.Version, out _excelVersion))
+                {
+                    LOG.Warn("Could not determine Excel version, assuming minimum.");
+                    _excelVersion = new Version((int) OfficeVersions.Office97, 0, 0, 0);
+                }
+            }
+            catch (InvalidCastException)
+            {
+                // TYPE_E_CANTLOADLIBRARY: the COM object is entirely unusable. Re-throw so callers
+                // can treat Excel as unavailable rather than returning a broken COM object.
+                throw;
             }
         }
 

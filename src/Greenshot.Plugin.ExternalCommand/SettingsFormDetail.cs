@@ -1,6 +1,6 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -24,169 +24,218 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using Greenshot.Base.Core;
-using Greenshot.Base.IniFile;
+using Greenshot.Base.Core.Enums;
+using Dapplo.Ini;
 
-namespace Greenshot.Plugin.ExternalCommand
+namespace Greenshot.Plugin.ExternalCommand;
+
+/// <summary>
+/// Description of SettingsFormDetail.
+/// </summary>
+public partial class SettingsFormDetail : ExternalCommandForm
 {
-    /// <summary>
-    /// Description of SettingsFormDetail.
-    /// </summary>
-    public partial class SettingsFormDetail : ExternalCommandForm
+    private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(SettingsFormDetail));
+    private static readonly IExternalCommandConfiguration ExternalCommandConfig = IniConfigHelper.EnsureSection<IExternalCommandConfiguration>(() => new ExternalCommandConfigurationImpl());
+    private static readonly ICoreConfiguration CoreConfig = IniConfigHelper.EnsureSection<ICoreConfiguration>(() => new CoreConfigurationImpl());
+
+    private readonly string _commando;
+    private readonly int _commandIndex;
+    private readonly ToolTip _nameToolTip = new ToolTip();
+
+    public SettingsFormDetail() : this(null)
     {
-        private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(SettingsFormDetail));
-        private static readonly ExternalCommandConfiguration ExternalCommandConfig = IniConfig.GetIniSection<ExternalCommandConfiguration>();
+    }
 
-        private readonly string _commando;
-        private readonly int _commandIndex;
+    public SettingsFormDetail(string commando)
+    {
+        InitializeComponent();
+        InitializeLanguage();
+        AcceptButton = buttonOk;
+        CancelButton = buttonCancel;
+        _commando = commando;
+        comboBox_outputFormat.Populate(typeof(OutputFormat));
 
-        public SettingsFormDetail(string commando)
+        if (commando != null)
         {
-            InitializeComponent();
-            AcceptButton = buttonOk;
-            CancelButton = buttonCancel;
-            _commando = commando;
-
-            if (commando != null)
-            {
-                textBox_name.Text = commando;
-                textBox_commandline.Text = ExternalCommandConfig.Commandline[commando];
-                textBox_arguments.Text = ExternalCommandConfig.Argument[commando];
-                _commandIndex = ExternalCommandConfig.Commands.FindIndex(s => s == commando);
-            }
-            else
-            {
-                textBox_arguments.Text = "\"{0}\"";
-            }
-
-            OkButtonState();
+            textBox_name.Text = commando;
+            textBox_commandline.Text = ExternalCommandConfig.Commandline[commando];
+            textBox_arguments.Text = ExternalCommandConfig.Argument[commando];
+            comboBox_outputFormat.SetValue(ExternalCommandConfig.OutputFormat[commando]);
+            _commandIndex = ExternalCommandConfig.Commands.FindIndex(s => s == commando);
+        }
+        else
+        {
+            textBox_arguments.Text = "\"{0}\"";
+            comboBox_outputFormat.SetValue(CoreConfig.OutputFileFormat);
         }
 
-        private void ButtonOkClick(object sender, EventArgs e)
+        OkButtonState();
+    }
+
+    /// <inheritdoc />
+    protected override void InitializeLanguage()
+    {
+        buttonOk.Text = Language.GetString("OK");
+        buttonCancel.Text = Language.GetString("CANCEL");
+        groupBox1.Text = Language.GetString("settings_title");
+        label4.Text = Language.GetString("externalcommand.label_information");
+        label3.Text = Language.GetString("externalcommand.label_name");
+        label2.Text = Language.GetString("externalcommand.label_argument");
+        label1.Text = Language.GetString("externalcommand.label_command");
+        label5.Text = Language.GetString("externalcommand.label_outputimageformat");
+        Text = Language.GetString("externalcommand.settings_detail_title");
+    }
+
+    private void ButtonOkClick(object sender, EventArgs e)
+    {
+        string commandName = textBox_name.Text;
+        string commandLine = textBox_commandline.Text;
+        string arguments = textBox_arguments.Text;          
+        OutputFormat outputFormat = Enum.TryParse(comboBox_outputFormat.SelectedItem as string, true, out OutputFormat parsedFormat)
+            ? parsedFormat
+            : OutputFormat.png;
+        if (_commando != null)
         {
-            string commandName = textBox_name.Text;
-            string commandLine = textBox_commandline.Text;
-            string arguments = textBox_arguments.Text;
-            if (_commando != null)
-            {
-                ExternalCommandConfig.Commands[_commandIndex] = commandName;
-                ExternalCommandConfig.Commandline.Remove(_commando);
-                ExternalCommandConfig.Commandline.Add(commandName, commandLine);
-                ExternalCommandConfig.Argument.Remove(_commando);
-                ExternalCommandConfig.Argument.Add(commandName, arguments);
-            }
-            else
-            {
-                ExternalCommandConfig.Commands.Add(commandName);
-                ExternalCommandConfig.Commandline.Add(commandName, commandLine);
-                ExternalCommandConfig.Argument.Add(commandName, arguments);
-            }
+            ExternalCommandConfig.Commands[_commandIndex] = commandName;
+            ExternalCommandConfig.Commandline.Remove(_commando);
+            ExternalCommandConfig.Commandline.Add(commandName, commandLine);
+            ExternalCommandConfig.Argument.Remove(_commando);
+            ExternalCommandConfig.Argument.Add(commandName, arguments);
+            ExternalCommandConfig.OutputFormat.Remove(_commando);
+            ExternalCommandConfig.OutputFormat.Add(commandName, outputFormat);
+        }
+        else
+        {
+            ExternalCommandConfig.Commands.Add(commandName);
+            ExternalCommandConfig.Commandline.Add(commandName, commandLine);
+            ExternalCommandConfig.Argument.Add(commandName, arguments);
+            ExternalCommandConfig.OutputFormat.Add(commandName, outputFormat);
+        }
+    }
+
+    private void Button3Click(object sender, EventArgs e)
+    {
+        var openFileDialog = new OpenFileDialog
+        {
+            Filter = "Executables (*.exe, *.bat, *.com)|*.exe; *.bat; *.com|All files (*)|*",
+            FilterIndex = 1,
+            CheckFileExists = true,
+            Multiselect = false
+        };
+        string initialPath = null;
+        try
+        {
+            initialPath = Path.GetDirectoryName(textBox_commandline.Text);
+        }
+        catch (Exception ex)
+        {
+            Log.WarnFormat("Can't get the initial path via {0}", textBox_commandline.Text);
+            Log.Warn("Exception: ", ex);
         }
 
-        private void Button3Click(object sender, EventArgs e)
+        if (initialPath != null && Directory.Exists(initialPath))
         {
-            var openFileDialog = new OpenFileDialog
-            {
-                Filter = "Executables (*.exe, *.bat, *.com)|*.exe; *.bat; *.com|All files (*)|*",
-                FilterIndex = 1,
-                CheckFileExists = true,
-                Multiselect = false
-            };
-            string initialPath = null;
-            try
-            {
-                initialPath = Path.GetDirectoryName(textBox_commandline.Text);
-            }
-            catch (Exception ex)
-            {
-                Log.WarnFormat("Can't get the initial path via {0}", textBox_commandline.Text);
-                Log.Warn("Exception: ", ex);
-            }
-
-            if (initialPath != null && Directory.Exists(initialPath))
-            {
-                openFileDialog.InitialDirectory = initialPath;
-            }
-            else
-            {
-                initialPath = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
-                openFileDialog.InitialDirectory = initialPath;
-            }
-
-            Log.DebugFormat("Starting OpenFileDialog at {0}", initialPath);
-            if (openFileDialog.ShowDialog() == DialogResult.OK)
-            {
-                textBox_commandline.Text = openFileDialog.FileName;
-            }
+            openFileDialog.InitialDirectory = initialPath;
+        }
+        else
+        {
+            initialPath = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
+            openFileDialog.InitialDirectory = initialPath;
         }
 
-        private void OkButtonState()
+        Log.DebugFormat("Starting OpenFileDialog at {0}", initialPath);
+        if (openFileDialog.ShowDialog() == DialogResult.OK)
         {
-            // Assume OK
-            buttonOk.Enabled = true;
-            textBox_name.BackColor = Color.White;
-            textBox_commandline.BackColor = Color.White;
-            textBox_arguments.BackColor = Color.White;
-            // Is there a text in the name field
-            if (string.IsNullOrEmpty(textBox_name.Text))
+            textBox_commandline.Text = openFileDialog.FileName;
+        }
+    }
+
+    private void OkButtonState()
+    {
+        // Assume OK
+        buttonOk.Enabled = true;
+        textBox_name.BackColor = Color.White;
+        textBox_commandline.BackColor = Color.White;
+        textBox_arguments.BackColor = Color.White;
+        // Is there a text in the name field
+        if (string.IsNullOrEmpty(textBox_name.Text))
+        {
+            buttonOk.Enabled = false;
+        }
+
+        // Check if commandname is unique
+        bool isDuplicate = !string.IsNullOrEmpty(textBox_name.Text) &&
+            ExternalCommandConfig.Commands.Contains(textBox_name.Text) &&
+            textBox_name.Text != _commando;
+        if (isDuplicate)
+        {
+            buttonOk.Enabled = false;
+            textBox_name.BackColor = Color.LightCoral;
+            _nameToolTip.SetToolTip(textBox_name, Language.GetString("externalcommand", "tooltip_duplicate_name"));
+        }
+        else
+        {
+            _nameToolTip.SetToolTip(textBox_name, null);
+        }
+
+        // Is there a text in the commandline field
+        if (string.IsNullOrEmpty(textBox_commandline.Text))
+        {
+            buttonOk.Enabled = false;
+        }
+
+        if (!string.IsNullOrEmpty(textBox_commandline.Text))
+        {
+            // Added this to be more flexible, using the Greenshot var format
+            string cmdPath = FilenameHelper.FillVariables(textBox_commandline.Text, true);
+            // And also replace the "DOS" Variables
+            cmdPath = FilenameHelper.FillCmdVariables(cmdPath, true);
+            // Is the command available?
+            if (!File.Exists(cmdPath))
             {
                 buttonOk.Enabled = false;
-            }
-
-            // Check if commandname is unique
-            if (_commando == null && !string.IsNullOrEmpty(textBox_name.Text) && ExternalCommandConfig.Commands.Contains(textBox_name.Text))
-            {
-                buttonOk.Enabled = false;
-                textBox_name.BackColor = Color.Red;
-            }
-
-            // Is there a text in the commandline field
-            if (string.IsNullOrEmpty(textBox_commandline.Text))
-            {
-                buttonOk.Enabled = false;
-            }
-
-            if (!string.IsNullOrEmpty(textBox_commandline.Text))
-            {
-                // Added this to be more flexible, using the Greenshot var format
-                string cmdPath = FilenameHelper.FillVariables(textBox_commandline.Text, true);
-                // And also replace the "DOS" Variables
-                cmdPath = FilenameHelper.FillCmdVariables(cmdPath, true);
-                // Is the command available?
-                if (!File.Exists(cmdPath))
-                {
-                    buttonOk.Enabled = false;
-                    textBox_commandline.BackColor = Color.Red;
-                }
-            }
-
-            // Are the arguments in a valid format? 
-            try
-            {
-                string arguments = FilenameHelper.FillVariables(textBox_arguments.Text, false);
-                arguments = FilenameHelper.FillCmdVariables(arguments, false);
-
-                ExternalCommandDestination.FormatArguments(arguments, string.Empty);
-            }
-            catch
-            {
-                buttonOk.Enabled = false;
-                textBox_arguments.BackColor = Color.Red;
+                textBox_commandline.BackColor = Color.Red;
             }
         }
 
-        private void textBox_name_TextChanged(object sender, EventArgs e)
+        // output file format is mandatory
+        if(comboBox_outputFormat.SelectedItem is null)
         {
-            OkButtonState();
+            buttonOk.Enabled = false;
         }
 
-        private void textBox_commandline_TextChanged(object sender, EventArgs e)
+        // Are the arguments in a valid format? 
+        try
         {
-            OkButtonState();
-        }
+            string arguments = FilenameHelper.FillVariables(textBox_arguments.Text, false);
+            arguments = FilenameHelper.FillCmdVariables(arguments, false);
 
-        private void textBox_arguments_TextChanged(object sender, EventArgs e)
-        {
-            OkButtonState();
+            ExternalCommandDestination.FormatArguments(arguments, string.Empty);
         }
+        catch
+        {
+            buttonOk.Enabled = false;
+            textBox_arguments.BackColor = Color.Red;
+        }
+    }
+
+    private void textBox_name_TextChanged(object sender, EventArgs e)
+    {
+        OkButtonState();
+    }
+
+    private void textBox_commandline_TextChanged(object sender, EventArgs e)
+    {
+        OkButtonState();
+    }
+
+    private void textBox_arguments_TextChanged(object sender, EventArgs e)
+    {
+        OkButtonState();
+    }
+
+    private void ComboBox_outputFormat_SelectedValueChanged(object sender, System.EventArgs e)
+    {
+        OkButtonState();
     }
 }

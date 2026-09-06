@@ -5,7 +5,7 @@
 		<resource name="about_donations">如果您喜歡 Greenshot，歡迎您支持我們:</resource>
 		<resource name="about_host">Greenshot 的主機在 GitHub 網址是</resource>
 		<resource name="about_icons">圖片來源: Yusuke Kamiyamane's Fugue 圖示集 (Creative Commons Attribution 3.0 授權)</resource>
-		<resource name="about_license">Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+		<resource name="about_license">Copyright © 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
 Greenshot 不對這個程式做任何擔保。這個程式是自由軟體，您可以在 GNU General Public License 下任意散佈本軟體。
 關於 GNU General Public License 詳細資料:</resource>
 		<resource name="about_title">關於 Greenshot</resource>
@@ -50,8 +50,6 @@ Greenshot 不對這個程式做任何擔保。這個程式是自由軟體，您�
 		<resource name="contextmenu_capturefullscreen_left">左</resource>
 		<resource name="contextmenu_capturefullscreen_right">右</resource>
 		<resource name="contextmenu_capturefullscreen_top">上</resource>
-		<resource name="contextmenu_captureie">擷取 Internet Explorer</resource>
-		<resource name="contextmenu_captureiefromlist">從清單擷取 Internet Explorer</resource>
 		<resource name="contextmenu_capturelastregion">擷取上次區域</resource>
 		<resource name="contextmenu_capturewindow">擷取視窗</resource>
 		<resource name="contextmenu_capturewindowfromlist">從清單擷取視窗</resource>
@@ -132,12 +130,30 @@ Greenshot 不對這個程式做任何擔保。這個程式是自由軟體，您�
 		<resource name="editor_obfuscate_blur">模糊</resource>
 		<resource name="editor_obfuscate_mode">模糊模式</resource>
 		<resource name="editor_obfuscate_pixelize">像素化</resource>
+		<resource name="editor_obfuscate_text">隱藏文字...</resource>
+		<resource name="editor_obfuscate_text_title">隱藏文字</resource>
+		<resource name="editor_obfuscate_text_search">搜尋:</resource>
+		<resource name="editor_obfuscate_text_search_button">搜尋</resource>
+		<resource name="editor_obfuscate_text_regex">使用規則運算式</resource>
+		<resource name="editor_obfuscate_text_case_sensitive">區分大小寫</resource>
+		<resource name="editor_obfuscate_text_auto_search">自動搜尋</resource>
+		<resource name="editor_obfuscate_text_search_scope">搜尋範圍:</resource>
+		<resource name="editor_obfuscate_text_scope_words">單字</resource>
+		<resource name="editor_obfuscate_text_scope_lines">行</resource>
+		<resource name="editor_obfuscate_text_matches">找到符合項目: {0}</resource>
+		<resource name="editor_obfuscate_text_apply">套用</resource>
+		<resource name="editor_obfuscate_text_error">錯誤</resource>
+		<resource name="editor_obfuscate_text_no_capture">沒有可用的擷取</resource>
+		<resource name="editor_obfuscate_text_no_ocr_provider">OCR 提供者無法使用</resource>
+		<resource name="editor_obfuscate_text_ocr_failed">OCR 失敗</resource>
+		<resource name="editor_obfuscate_text_no_text">影像中找不到文字</resource>
 		<resource name="editor_object">物件</resource>
 		<resource name="editor_opendirinexplorer">在 Windows 檔案總管開啟目錄</resource>
 		<resource name="editor_pastefromclipboard">貼上</resource>
 		<resource name="editor_pixel_size">像素大小</resource>
 		<resource name="editor_preview_quality">預覽品質</resource>
 		<resource name="editor_print">列印</resource>
+		<resource name="editor_remove_transparency">移除透明度</resource>
 		<resource name="editor_redo">重做 {0}</resource>
 		<resource name="editor_resetsize">重設大小</resource>
 		<resource name="editor_resize_percent">百分比</resource>
@@ -219,12 +235,11 @@ Greenshot 不對這個程式做任何擔保。這個程式是自由軟體，您�
 		<resource name="settings_destination_email">電子郵件</resource>
 		<resource name="settings_destination_file">直接儲存 (使用以下設定)</resource>
 		<resource name="settings_destination_fileas">另存新檔 (顯示對話方塊)</resource>
-		<resource name="settings_destination_picker">動態選取目的地</resource>
+		<resource name="settings_destination_picker">每次詢問目的地</resource>
 		<resource name="settings_destination_printer">傳送到印表機</resource>
 		<resource name="settings_editor">編輯器</resource>
 		<resource name="settings_filenamepattern">檔案名稱樣式</resource>
 		<resource name="settings_general">一般</resource>
-		<resource name="settings_iecapture">Internet Explorer 擷取</resource>
 		<resource name="settings_jpegquality">JPEG 品質</resource>
 		<resource name="settings_language">語言</resource>
 		<resource name="settings_message_filenamepattern">在樣式定義中以下預留位置將自動取代：
@@ -276,7 +291,6 @@ ${hostname}   電腦名稱
 		<resource name="settings_zoom">顯示放大鏡</resource>
 		<resource name="tooltip_firststart">右鍵按一下這裡或是按下 {0} 鍵。</resource>
 		<resource name="update_found">Greenshot 的新版本可以使用! 您要下載 Greenshot {0} 嗎？</resource>
-		<resource name="wait_ie_capture">擷取 Internet Explorer 中頁面時請稍候...</resource>
 		<resource name="warning">警告</resource>
 		<resource name="warning_hotkeys">無法註冊熱鍵「{0}」。 這個問題可能是另一個工具要求使用相同的熱鍵。 您可以變更熱鍵設定或停用/變更軟體使用熱鍵。
 
@@ -307,7 +321,7 @@ Greenshot 所有功能仍然可以直接從通知區圖示的內容功能表動�
         <resource name="editor_counter">加入計數器 (I)</resource>
         <resource name="editor_speechbubble">加入對話框 (S)</resource>
 
-        <resource name="editor_resize">縮放</resource>
+        <resource name="editor_resize">縮放 (Z)</resource>
         <resource name="editor_resize_settings">縮放設定</resource>
         <resource name="editor_resize_aspectratio">維持長寬比</resource>
         <resource name="editor_resize_width">長度</resource>

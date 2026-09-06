@@ -1,6 +1,6 @@
 /*
 * Greenshot - a free and open source screenshot tool
-* Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+* Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
 *
 * For more information see: https://getgreenshot.org/
 * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -29,8 +29,9 @@ using System.IO;
 using System.Security.Permissions;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Structs;
+using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
-using Greenshot.Base.IniFile;
+
 using Greenshot.Configuration;
 using log4net;
 
@@ -39,7 +40,7 @@ namespace Greenshot.Forms
     /// <summary>
     /// The about form
     /// </summary>
-    public sealed partial class AboutForm : AnimatingBaseForm
+    public sealed partial class AboutForm : AnimatingForm
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(AboutForm));
         private Bitmap _bitmap;
@@ -119,6 +120,21 @@ namespace Greenshot.Forms
         // The order in which we draw the dots & flow the colors.
         private readonly List<int> _flowOrder = new() { 4, 3, 2, 1, 0, 5, 6, 7, 8, 9, 10, 14, 15, 18, 19, 20, 21, 22, 23, 16, 17, 13, 12, 11 };
 
+        protected override void InitializeLanguage()
+        {
+            this.Text = Language.GetString("about_title");
+            lblLicense.Text = Language.GetString("about_license");
+            lblHost.Text = Language.GetString("about_host");
+            lblBugs.Text = Language.GetString("about_bugs");
+            lblDonations.Text = Language.GetString("about_donations");
+            lblIcons.Text = Language.GetString("about_icons");
+            lblTranslation.Text = Language.GetString("about_translation");
+
+            var fontsize = (this.DeviceDpi / 96f) * lblTitle.Font.Size;
+            this.lblTitle.AutoSize = true;
+            this.lblTitle.Font = new System.Drawing.Font(System.Drawing.FontFamily.GenericSansSerif, fontsize, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+        }
+
         /// <summary>
         /// Cleanup all the allocated resources
         /// </summary>
@@ -144,6 +160,7 @@ namespace Greenshot.Forms
             // The InitializeComponent() call is required for Windows Forms designer support.
             //
             InitializeComponent();
+            InitializeLanguage();
 
             // Only use double-buffering when we are NOT in a Terminal Server session
             DoubleBuffered = !IsTerminalServerSession;
@@ -153,7 +170,7 @@ namespace Greenshot.Forms
             _bitmap = ImageHelper.CreateEmpty(90, 90, PixelFormat.Format24bppRgb, BackColor, 96, 96);
             pictureBox1.Image = _bitmap;
 
-            lblTitle.Text = $@"Greenshot {EnvironmentInfo.GetGreenshotVersion()} {(IniConfig.IsPortable ? " Portable" : "")} ({OsInfo.Bits}) bit)";
+            lblTitle.Text = $@"Greenshot {EnvironmentInfo.GetGreenshotVersion()} {(GreenshotEnvironment.IsPortable ? " Portable" : "")} ({OsInfo.Bits} bit) {(coreConfiguration.IsBetaTester ? "-IsBetaTester-":"")}";
 
             // Number of frames the pixel animation takes
             int frames = FramesForMillis(2000);
@@ -341,21 +358,21 @@ namespace Greenshot.Forms
                     case Keys.L:
                         try
                         {
-                            if (File.Exists(MainForm.LogFileLocation))
+                            if (File.Exists(GreenshotMain.LogFileLocation))
                             {
-                                using (Process.Start("\"" + MainForm.LogFileLocation + "\""))
+                                using (Process.Start("\"" + GreenshotMain.LogFileLocation + "\""))
                                 {
                                     // nothing to do, just using dispose to cleanup
                                 }
                             }
                             else
                             {
-                                MessageBox.Show(@"Greenshot can't find the logfile, it should have been here: " + MainForm.LogFileLocation);
+                                MessageBox.Show(@"Greenshot can't find the logfile, it should have been here: " + GreenshotMain.LogFileLocation);
                             }
                         }
                         catch (Exception)
                         {
-                            MessageBox.Show(@"Couldn't open the greenshot.log, it's located here: " + MainForm.LogFileLocation, @"Error opening greenshot.log",
+                            MessageBox.Show(@"Couldn't open the greenshot.log, it's located here: " + GreenshotMain.LogFileLocation, @"Error opening greenshot.log",
                                 MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
                         }
 
@@ -363,13 +380,13 @@ namespace Greenshot.Forms
                     case Keys.I:
                         try
                         {
-                            using (Process.Start("\"" + IniConfig.ConfigLocation + "\""))
+                            using (Process.Start("\"" + GreenshotEnvironment.ConfigLocation + "\""))
                             {
                             }
                         }
                         catch (Exception)
                         {
-                            MessageBox.Show(@"Couldn't open the greenshot.ini, it's located here: " + IniConfig.ConfigLocation, @"Error opening greenshot.ini",
+                            MessageBox.Show(@"Couldn't open the greenshot.ini, it's located here: " + GreenshotEnvironment.ConfigLocation, @"Error opening greenshot.ini",
                                 MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
                         }
 
@@ -384,6 +401,14 @@ namespace Greenshot.Forms
             }
 
             return true;
+        }
+
+        protected override void WndProc(ref Message m)
+        {
+            if (!WndProcDefaults.TryHandleMessage(ref m))
+            {
+                base.WndProc(ref m);
+            }
         }
     }
 }

@@ -1,6 +1,6 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -23,7 +23,6 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
-using Greenshot.Base.IniFile;
 using log4net;
 using log4net.Appender;
 using log4net.Config;
@@ -72,10 +71,13 @@ namespace Greenshot.Base.Core
                 try
                 {
                     Assembly assembly = typeof(LogHelper).Assembly;
-                    using Stream stream = assembly.GetManifestResourceStream("GreenshotPlugin.log4net-embedded.xml");
-                    XmlConfigurator.Configure(stream);
-                    _isLog4NetConfigured = true;
-                    IniConfig.ForceIniInStartupPath();
+                    using Stream stream = assembly.GetManifestResourceStream("Greenshot.Base.log4net-embedded.xml")
+                                          ?? assembly.GetManifestResourceStream("GreenshotPlugin.log4net-embedded.xml");
+                    if (stream != null)
+                    {
+                        XmlConfigurator.Configure(stream);
+                        _isLog4NetConfigured = true;
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -115,7 +117,7 @@ namespace Greenshot.Base.Core
     /// </summary>
     public class SpecialFolderPatternConverter : PatternConverter
     {
-        protected override void Convert(TextWriter writer, object state)
+        public override void Convert(TextWriter writer, object state)
         {
             Environment.SpecialFolder specialFolder = (Environment.SpecialFolder) Enum.Parse(typeof(Environment.SpecialFolder), Option, true);
             writer.Write(Environment.GetFolderPath(specialFolder));

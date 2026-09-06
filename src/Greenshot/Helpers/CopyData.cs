@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -24,9 +24,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.ServiceModel.Security;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Greenshot.Base.Core;
+using Greenshot.Helpers;
+using log4net;
 
 namespace Greenshot.Helpers
 {
@@ -122,6 +127,7 @@ namespace Greenshot.Helpers
                     Marshal.Copy(cds.lpData, data, 0, cds.cbData);
                     MemoryStream stream = new MemoryStream(data);
                     BinaryFormatter b = new BinaryFormatter();
+                    b.Binder = new SafeSerializationBinder();
                     CopyDataObjectData cdo = (CopyDataObjectData) b.Deserialize(stream);
 
                     if (_channels != null && _channels.Contains(cdo.Channel))
@@ -340,7 +346,7 @@ namespace Greenshot.Helpers
         }
 
         /// <summary>
-        /// Ensures any resoures associated with the CopyDataChannel object
+        /// Ensures any resources associated with the CopyDataChannel object
         /// which has been removed are cleared up.
         /// </summary>
         /// <param name="key">The channelName</param>
@@ -594,5 +600,39 @@ namespace Greenshot.Helpers
             Channel = channel;
             Sent = DateTime.Now;
         }
+    }
+}
+
+internal class SafeSerializationBinder : SerializationBinder
+{
+    private static readonly ILog LOG = LogManager.GetLogger(typeof(SafeSerializationBinder));
+    private static readonly Type[] AllowedTypes = new Type[]
+    {
+        typeof(CopyDataObjectData),
+        typeof(CopyDataTransport),
+        typeof(KeyValuePair<CommandEnum, string>),
+        typeof(List<KeyValuePair<CommandEnum, string>>),
+        typeof(CommandEnum),
+    };
+
+    public override Type BindToType(string assemblyName, string typeName)
+    {
+        // Remove Version information for supplied assembly / type
+        var assemblyNameWithoutVersion = Regex.Replace(assemblyName, @"Version=\d+\.\d+\.\d+\.\d+", "", RegexOptions.Multiline);
+        var typeNameWithoutVersion = Regex.Replace(typeName, @"Version=\d+\.\d+\.\d+\.\d+", "", RegexOptions.Multiline);
+
+        foreach (var type in AllowedTypes)
+        {
+            // Remove Version information for allowed assembly / type
+            var currentTypeAssemblyNameWithoutVersion = Regex.Replace(type.Assembly.FullName, @"Version=\d+\.\d+\.\d+\.\d+", "");
+            var currentTypeNameWithoutVersion = Regex.Replace(type.FullName, @"Version=\d+\.\d+\.\d+\.\d+", "");
+            if (currentTypeNameWithoutVersion == typeNameWithoutVersion && currentTypeAssemblyNameWithoutVersion == assemblyNameWithoutVersion)
+            {
+                return type;
+            }
+        }
+
+        LOG.Error($"Unexpected type received via WM_COPYDATA, a malicious process might be trying to attack. Cancelling deserialization. Suspicious type: {assemblyName} - {typeName}");
+        throw new SecurityAccessDeniedException($"Suspicious type received via WM_COPYDATA: {assemblyName} - {typeName}");
     }
 }

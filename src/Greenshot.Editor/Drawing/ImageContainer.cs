@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -22,8 +22,10 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.Serialization;
+using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Effects;
@@ -50,12 +52,6 @@ namespace Greenshot.Editor.Drawing
         /// </summary>
         [NonSerialized] private Image _shadowBitmap;
 
-        /// <summary>
-        /// This is the offset for the shadow version of the bitmap
-        /// Do not serialize, as the offset is recreated
-        /// </summary>
-        [NonSerialized] private NativePoint _shadowOffset = new NativePoint(-1, -1);
-
         public ImageContainer(ISurface parent, string filename) : this(parent)
         {
             Load(filename);
@@ -63,7 +59,6 @@ namespace Greenshot.Editor.Drawing
 
         public ImageContainer(ISurface parent) : base(parent)
         {
-            FieldChanged += BitmapContainer_OnFieldChanged;
             Init();
         }
 
@@ -83,42 +78,6 @@ namespace Greenshot.Editor.Drawing
             AddField(GetType(), FieldType.SHADOW, false);
         }
 
-        protected void BitmapContainer_OnFieldChanged(object sender, FieldChangedEventArgs e)
-        {
-            if (!sender.Equals(this))
-            {
-                return;
-            }
-
-            if (FieldType.SHADOW.Equals(e.Field.FieldType))
-            {
-                ChangeShadowField();
-            }
-        }
-
-        public void ChangeShadowField()
-        {
-            bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
-            if (shadow)
-            {
-                CheckShadow(true);
-                Width = _shadowBitmap.Width;
-                Height = _shadowBitmap.Height;
-                Left -= _shadowOffset.X;
-                Top -= _shadowOffset.Y;
-            }
-            else
-            {
-                Width = _image.Width;
-                Height = _image.Height;
-                if (_shadowBitmap != null)
-                {
-                    Left += _shadowOffset.X;
-                    Top += _shadowOffset.Y;
-                }
-            }
-        }
-
         public Image Image
         {
             set
@@ -127,20 +86,6 @@ namespace Greenshot.Editor.Drawing
                 DisposeImage();
                 DisposeShadow();
                 _image = ImageHelper.Clone(value);
-                bool shadow = GetFieldValueAsBool(FieldType.SHADOW);
-                CheckShadow(shadow);
-                if (!shadow)
-                {
-                    Width = _image.Width;
-                    Height = _image.Height;
-                }
-                else
-                {
-                    Width = _shadowBitmap.Width;
-                    Height = _shadowBitmap.Height;
-                    Left -= _shadowOffset.X;
-                    Top -= _shadowOffset.Y;
-                }
             }
             get { return _image; }
         }
@@ -181,6 +126,12 @@ namespace Greenshot.Editor.Drawing
         /// <param name="matrix"></param>
         public override void Transform(Matrix matrix)
         {
+            if (_image == null)
+            {
+                base.Transform(matrix);
+                return;
+            }
+
             int rotateAngle = CalculateAngle(matrix);
             // we currently assume only one transformation has been made.
             if (rotateAngle != 0)
@@ -215,7 +166,7 @@ namespace Greenshot.Editor.Drawing
             {
                 Image = tmpImage;
             }
-
+            ResetToDefaultSize();
             Log.Debug("Loaded file: " + filename + " with resolution: " + Height + "," + Width);
         }
 
@@ -231,7 +182,7 @@ namespace Greenshot.Editor.Drawing
             }
 
             using var matrix = new Matrix();
-            _shadowBitmap = ImageHelper.ApplyEffect(_image, new DropShadowEffect(), matrix);
+            _shadowBitmap = ImageHelper.ApplyEffect(_image, new MonochromeEffect(255), matrix);
         }
 
         /// <summary>
@@ -254,12 +205,64 @@ namespace Greenshot.Editor.Drawing
 
             if (shadow)
             {
+                // Generate late, create _shadowBitmap only when absolutely necessary
                 CheckShadow(true);
-                graphics.DrawImage(_shadowBitmap, Bounds);
+
+                // add an offset so it looks more like the other container.
+                var shadowOffset = 1;
+                // we use only the alpha value of the shadowPen, but we have to define line thickness 
+                var unusedShadowLinethickness = 1;
+
+                DrawShadow(unusedShadowLinethickness, (alpha, currentStep, shadowPen, _) =>
+                {
+                    var rect = new NativeRect(
+                        Left + currentStep + shadowOffset,
+                        Top + currentStep + shadowOffset,
+                        Width,
+                        Height
+                        ).Normalize();
+
+                    DrawImageWithAlpha(graphics, _shadowBitmap, rect, shadowPen.Color.A);
+
+                });
             }
-            else
+
+            graphics.DrawImage(_image, Bounds);
+        }
+
+        /// <summary>
+        /// Draws the image <see cref="Graphics.DrawImage(Image, Rectangle)"/> and applying the specified
+        /// alpha transparency level.
+        /// </summary>
+        /// <param name="graphics">The graphics surface on which the image will be drawn. Cannot be null.</param>
+        /// <param name="image">The image to draw. Cannot be null.</param>
+        /// <param name="bounds">The rectangle that defines the destination area on the graphics surface where the image will be rendered.</param>
+        /// <param name="alpha">The alpha <see cref="Color.A"/> transparency value to apply to the image. Valid values are from 0 (fully transparent) to 255
+        /// (fully opaque).</param>
+        private void DrawImageWithAlpha(Graphics graphics, Image image, Rectangle bounds, byte alpha)
+        {
+            // normalize alpha from (0-255) to (0.0 - 1.0)
+            float normalizedAlpha = alpha / 255f;
+
+            var matrix = new ColorMatrix
             {
-                graphics.DrawImage(_image, Bounds);
+                Matrix33 = normalizedAlpha
+            };
+
+            using (var attributes = new ImageAttributes())
+            {
+                attributes.SetColorMatrix(matrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
+
+                graphics.DrawImage(
+                    image,
+                    bounds,
+                    0,
+                    0,
+                    image.Width,
+                    image.Height,
+                    GraphicsUnit.Pixel,
+                    attributes
+                );
             }
         }
 

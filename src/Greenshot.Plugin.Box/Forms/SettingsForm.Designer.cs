@@ -1,6 +1,6 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom, Francis Noel
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom, Francis Noel
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -20,8 +20,11 @@
  */
 
 using Greenshot.Base.Controls;
+using Greenshot.Plugin.Box;
+using System.Windows.Forms;
 
-namespace Greenshot.Plugin.Box.Forms {
+
+namespace Greenshot.Plugin.Box.Forms; 
 	partial class SettingsForm {
 		/// <summary>
 		/// Designer variable used to keep track of non-visual components.
@@ -49,11 +52,11 @@ namespace Greenshot.Plugin.Box.Forms {
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.buttonOK = new GreenshotButton();
-			this.buttonCancel = new GreenshotButton();
+			this.buttonOK = new Button();
+			this.buttonCancel = new Button();
 			this.combobox_uploadimageformat = new GreenshotComboBox();
-			this.label_upload_format = new GreenshotLabel();
-			this.label_AfterUpload = new GreenshotLabel();
+			this.label_upload_format = new Label();
+			this.label_AfterUpload = new Label();
 			this.checkboxAfterUploadLinkToClipBoard = new GreenshotCheckBox();
 			this.SuspendLayout();
 			// 
@@ -61,64 +64,64 @@ namespace Greenshot.Plugin.Box.Forms {
 			// 
 			this.buttonOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.buttonOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-			this.buttonOK.LanguageKey = "OK";
 			this.buttonOK.Location = new System.Drawing.Point(267, 72);
 			this.buttonOK.Name = "buttonOK";
 			this.buttonOK.Size = new System.Drawing.Size(75, 23);
 			this.buttonOK.TabIndex = 12;
+			this.buttonOK.Text = "OK";
 			this.buttonOK.UseVisualStyleBackColor = true;
 			// 
 			// buttonCancel
 			// 
 			this.buttonCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-			this.buttonCancel.LanguageKey = "CANCEL";
 			this.buttonCancel.Location = new System.Drawing.Point(348, 72);
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.Size = new System.Drawing.Size(75, 23);
 			this.buttonCancel.TabIndex = 13;
+			this.buttonCancel.Text = "Cancel";
 			this.buttonCancel.UseVisualStyleBackColor = true;
 			// 
 			// combobox_uploadimageformat
 			// 
 			this.combobox_uploadimageformat.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+        | System.Windows.Forms.AnchorStyles.Right)));
 			this.combobox_uploadimageformat.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.combobox_uploadimageformat.FormattingEnabled = true;
 			this.combobox_uploadimageformat.Location = new System.Drawing.Point(208, 12);
 			this.combobox_uploadimageformat.Name = "combobox_uploadimageformat";
-			this.combobox_uploadimageformat.PropertyName = nameof(BoxConfiguration.UploadFormat);
+			this.combobox_uploadimageformat.PropertyName = nameof(IBoxConfiguration.UploadFormat);
 			this.combobox_uploadimageformat.SectionName = "Box";
 			this.combobox_uploadimageformat.Size = new System.Drawing.Size(215, 21);
 			this.combobox_uploadimageformat.TabIndex = 5;
 			// 
 			// label_upload_format
 			// 
-			this.label_upload_format.LanguageKey = "box.label_upload_format";
 			this.label_upload_format.Location = new System.Drawing.Point(10, 12);
 			this.label_upload_format.Name = "label_upload_format";
 			this.label_upload_format.Size = new System.Drawing.Size(192, 20);
 			this.label_upload_format.TabIndex = 4;
+			this.label_upload_format.Text = "Image format";
 			// 
 			// label_AfterUpload
 			// 
 			this.label_AfterUpload.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.label_AfterUpload.LanguageKey = "box.label_AfterUpload";
 			this.label_AfterUpload.Location = new System.Drawing.Point(10, 46);
 			this.label_AfterUpload.Name = "label_AfterUpload";
-			this.label_AfterUpload.Size = new System.Drawing.Size(84, 21);
+			this.label_AfterUpload.Size = new System.Drawing.Size(192, 21);
 			this.label_AfterUpload.TabIndex = 8;
+			this.label_AfterUpload.Text = "After upload";
 			// 
 			// checkboxAfterUploadLinkToClipBoard
 			// 
 			this.checkboxAfterUploadLinkToClipBoard.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.checkboxAfterUploadLinkToClipBoard.LanguageKey = "box.label_AfterUploadLinkToClipBoard";
 			this.checkboxAfterUploadLinkToClipBoard.Location = new System.Drawing.Point(208, 45);
 			this.checkboxAfterUploadLinkToClipBoard.Name = "checkboxAfterUploadLinkToClipBoard";
-			this.checkboxAfterUploadLinkToClipBoard.PropertyName = nameof(BoxConfiguration.AfterUploadLinkToClipBoard);
+			this.checkboxAfterUploadLinkToClipBoard.PropertyName = nameof(IBoxConfiguration.AfterUploadLinkToClipBoard);
 			this.checkboxAfterUploadLinkToClipBoard.SectionName = "Box";
-			this.checkboxAfterUploadLinkToClipBoard.Size = new System.Drawing.Size(104, 17);
+			this.checkboxAfterUploadLinkToClipBoard.Size = new System.Drawing.Size(210, 20);
 			this.checkboxAfterUploadLinkToClipBoard.TabIndex = 10;
+			this.checkboxAfterUploadLinkToClipBoard.Text = "Link to clipboard";
 			this.checkboxAfterUploadLinkToClipBoard.UseVisualStyleBackColor = true;
 			// 
 			// SettingsForm
@@ -133,19 +136,18 @@ namespace Greenshot.Plugin.Box.Forms {
 			this.Controls.Add(this.buttonCancel);
 			this.Controls.Add(this.buttonOK);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-			this.LanguageKey = "box.settings_title";
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "SettingsForm";
+			this.Text = "Box settings";
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
 		}
 		private GreenshotComboBox combobox_uploadimageformat;
-		private GreenshotLabel label_upload_format;
-		private GreenshotButton buttonCancel;
-		private GreenshotButton buttonOK;
-		private GreenshotLabel label_AfterUpload;
+		private Label label_upload_format;
+		private Button buttonCancel;
+		private Button buttonOK;
+		private Label label_AfterUpload;
 		private GreenshotCheckBox checkboxAfterUploadLinkToClipBoard;
 	}
-}

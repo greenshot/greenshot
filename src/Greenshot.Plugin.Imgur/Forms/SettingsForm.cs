@@ -1,6 +1,6 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -20,29 +20,45 @@
  */
 
 using System;
+using Greenshot.Base.Core;
 
-namespace Greenshot.Plugin.Imgur.Forms
+namespace Greenshot.Plugin.Imgur.Forms;
+
+/// <summary>
+/// Description of PasswordRequestForm.
+/// </summary>
+public partial class SettingsForm : ImgurForm
 {
-    /// <summary>
-    /// Description of PasswordRequestForm.
-    /// </summary>
-    public partial class SettingsForm : ImgurForm
+    public SettingsForm()
     {
-        public SettingsForm()
-        {
-            //
-            // The InitializeComponent() call is required for Windows Forms designer support.
-            //
-            InitializeComponent();
-            CancelButton = buttonCancel;
-            AcceptButton = buttonOK;
+        //
+        // The InitializeComponent() call is required for Windows Forms designer support.
+        //
+        InitializeComponent();
+        InitializeLanguage();
+        CancelButton = buttonCancel;
+        AcceptButton = buttonOK;
 
-            historyButton.Enabled = ImgurUtils.IsHistoryLoadingNeeded();
-        }
+        historyButton.Enabled = ImgurUtils.IsHistoryLoadingNeeded();
+    }
 
-        private void ButtonHistoryClick(object sender, EventArgs e)
-        {
-            ImgurHistory.ShowHistory();
-        }
+    /// <inheritdoc />
+    protected override void InitializeLanguage()
+    {
+        buttonOK.Text = Language.GetString("imgur.OK");
+        buttonCancel.Text = Language.GetString("imgur.CANCEL");
+        historyButton.Text = Language.GetString("imgur.history");
+        checkbox_anonymous_access.Text = Language.GetString("imgur.anonymous_access");
+        checkbox_anonymous_access.PropertyName = nameof(IImgurConfiguration.AnonymousAccess);
+        checkbox_anonymous_access.SectionName = "Imgur";
+        checkbox_usepagelink.Text = Language.GetString("imgur.use_page_link");
+        checkbox_usepagelink.PropertyName = nameof(IImgurConfiguration.UsePageLink);
+        checkbox_usepagelink.SectionName = "Imgur";
+        Text = Language.GetString("imgur.settings_title");
+    }
+
+    private void ButtonHistoryClick(object sender, EventArgs e)
+    {
+        ImgurHistory.ShowHistory();
     }
 }

@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -42,9 +42,6 @@ namespace Greenshot.Base.Controls
 
         public OAuthLoginForm(string browserTitle, Size size, string authorizationLink, string callbackUrl)
         {
-            // Make sure Greenshot uses the correct browser version
-            IEHelper.FixBrowserVersion(false);
-
             _callbackUrl = callbackUrl;
             // Fix for BUG-2071
             if (callbackUrl.EndsWith("/"))

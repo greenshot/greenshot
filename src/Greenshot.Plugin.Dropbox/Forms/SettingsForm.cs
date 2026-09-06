@@ -1,6 +1,6 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom, Francis Noel
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom, Francis Noel
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -19,21 +19,37 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace Greenshot.Plugin.Dropbox.Forms
+using Greenshot.Base.Core;
+
+namespace Greenshot.Plugin.Dropbox.Forms;
+
+/// <summary>
+/// Description of PasswordRequestForm.
+/// </summary>
+public partial class SettingsForm : DropboxForm
 {
-    /// <summary>
-    /// Description of PasswordRequestForm.
-    /// </summary>
-    public partial class SettingsForm : DropboxForm
+    public SettingsForm()
     {
-        public SettingsForm()
-        {
-            //
-            // The InitializeComponent() call is required for Windows Forms designer support.
-            //
-            InitializeComponent();
-            AcceptButton = buttonOK;
-            CancelButton = buttonCancel;
-        }
+        //
+        // The InitializeComponent() call is required for Windows Forms designer support.
+        //
+        InitializeComponent();
+        InitializeLanguage();
+        AcceptButton = buttonOK;
+        CancelButton = buttonCancel;
+    }
+
+    protected override void InitializeLanguage()
+    {
+        buttonOK.Text = Language.GetString("OK");
+        buttonCancel.Text = Language.GetString("CANCEL");
+        combobox_uploadimageformat.PropertyName = nameof(IDropboxConfiguration.UploadFormat);
+        combobox_uploadimageformat.SectionName = "Dropbox";
+        label_upload_format.Text = Language.GetString("dropbox.label_upload_format");
+        label_AfterUpload.Text = Language.GetString("dropbox.label_AfterUpload");
+        checkboxAfterUploadLinkToClipBoard.Text = Language.GetString("dropbox.label_AfterUploadLinkToClipBoard");
+        checkboxAfterUploadLinkToClipBoard.PropertyName = nameof(IDropboxConfiguration.AfterUploadLinkToClipBoard);
+        checkboxAfterUploadLinkToClipBoard.SectionName = "Dropbox";
+        Text = Language.GetString("dropbox.settings_title");
     }
 }
