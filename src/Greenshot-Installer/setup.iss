@@ -1,4 +1,4 @@
-﻿#define ExeName "Greenshot"
+#define ExeName "Greenshot"
 ; Basic build version determined by nerdbank gitversioning, e.g. 1.2.345
 #define Version GetEnv('BuildVersionSimple')
 ; Build version with optional suffix depending on branch, e.g. 1.2.345-g1tc033174ef
@@ -31,6 +31,10 @@ Source: {#ReleaseDir}\Newtonsoft.Json.dll; DestDir: {app}; Components: greenshot
 Source: {#ReleaseDir}\Microsoft.Toolkit.*.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\Microsoft.IO.RecyclableMemoryStream.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\checksum.SHA256; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
+Source: {#ReleaseDir}\bom.json; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags} skipifsourcedoesntexist
+Source: {#ReleaseDir}\bom.xml; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags} skipifsourcedoesntexist
+Source: {#ReleaseDir}\manifest.spdx.json; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags} skipifsourcedoesntexist
+Source: {#ReleaseDir}\manifest.spdx.json.sha256; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags} skipifsourcedoesntexist
 Source: {#ReleaseDir}\Twemoji.Mozilla.ttf; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\emojis.xml; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: additional_files\installer.txt; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
@@ -76,6 +80,7 @@ Source: {#LanguagesDir}\*sr-RS*; Excludes: "*installer*,*website*"; DestDir: {ap
 Source: {#LanguagesDir}\*sv-SE*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\svSE; Flags: {#DefaultInstallFlags};
 Source: {#LanguagesDir}\*tr-TR*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\trTR; Flags: {#DefaultInstallFlags};
 Source: {#LanguagesDir}\*uk-UA*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\ukUA; Flags: {#DefaultInstallFlags};
+Source: {#LanguagesDir}\*va-VA*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\vaVA; Flags: {#DefaultInstallFlags};
 Source: {#LanguagesDir}\*vi-VN*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\viVN; Flags: {#DefaultInstallFlags};
 Source: {#LanguagesDir}\*zh-CN*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\zhCN; Flags: {#DefaultInstallFlags};
 Source: {#LanguagesDir}\*zh-TW*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: languages\zhTW; Flags: {#DefaultInstallFlags};
@@ -118,7 +123,7 @@ AppSupportURL=https://getgreenshot.org
 AppUpdatesURL=https://getgreenshot.org
 AppVerName={#ExeName} {#Version}
 AppVersion={#Version}
-ArchitecturesInstallIn64BitMode=x64
+ArchitecturesInstallIn64BitMode=x64compatible
 Compression=lzma2/ultra64
 SolidCompression=yes
 DefaultDirName={autopf}\{#ExeName}
@@ -135,6 +140,9 @@ PrivilegesRequiredOverridesAllowed=dialog
 ; the installer will ask for elevation if needed
 PrivilegesRequired=admin
 UsePreviousPrivileges=no
+UsedUserAreasWarning=no
+MissingMessagesWarning=no
+NotRecognizedMessagesWarning=no
 
 SetupIconFile=..\Greenshot\icons\applicationIcon\icon.ico
 #if CertumThumbprint  != ""
@@ -202,18 +210,37 @@ Name: fi; MessagesFile: compiler:Languages\Finnish.isl
 Name: fr; MessagesFile: compiler:Languages\French.isl
 Name: it; MessagesFile: compiler:Languages\Italian.isl
 Name: nl; MessagesFile: compiler:Languages\Dutch.isl
-Name: lt; MessagesFile: Languages\Latvian.isl
+Name: lv; MessagesFile: Languages\Latvian.isl
 Name: nn; MessagesFile: Languages\NorwegianNynorsk.isl
 Name: ru; MessagesFile: compiler:Languages\Russian.isl
 Name: sr; MessagesFile: Languages\SerbianCyrillic.isl
-Name: sv; MessagesFile: Languages\Swedish.isl
+Name: sv; MessagesFile: compiler:Languages\Swedish.isl
 Name: tr; MessagesFile: compiler:Languages\Turkish.isl
 Name: uk; MessagesFile: compiler:Languages\Ukrainian.isl
+
+#include "scripts\lcid.iss"
 
 [Tasks]
 Name: startup; Description: {cm:startup}
 
 [CustomMessages]
+; Global Fallbacks (apply to all languages unless overridden)
+default=Default installation
+box=Box plug-in
+confluence=Confluence plug-in
+dropbox=Dropbox plug-in
+externalcommand=Open with external command plug-in
+imgur=Imgur plug-in (See: https://imgur.com)
+jira=Jira plug-in
+language=Additional languages
+office=Microsoft Office plug-in
+startup=Start {#ExeName} with Windows start
+startgreenshot=Start {#ExeName}
+UninstallIconDescription=Uninstall
+ShowLicense=Show license
+ShowReadme=Show Readme
+disablewin11snippingtool=Disable Win11 default PrtScr snipping tool
+
 ;Language names in the original language
 dexfranconia=Frängisch (Deutsch)
 arSY=العربية
@@ -248,6 +275,7 @@ srRS=Српски
 svSE=Svenska
 trTR=Türkçe
 ukUA=Українська
+vaVA=Valencià
 viVN=Việt
 zhCN=简体中文
 zhTW=繁體中文
@@ -261,7 +289,6 @@ en.imgur=Imgur plug-in (See: https://imgur.com)
 en.jira=Jira plug-in
 en.language=Additional languages
 en.office=Microsoft Office plug-in
-en.optimize=Optimizing performance, this may take a while.
 en.startgreenshot=Start {#ExeName}
 en.startup=Start {#ExeName} with Windows start
 en.UninstallIconDescription=Uninstall
@@ -276,40 +303,33 @@ de.imgur=Imgur Plug-in (Siehe: https://imgur.com)
 de.jira=Jira Plug-in
 de.language=Zusätzliche Sprachen
 de.office=Microsoft Office Plug-in
-de.optimize=Optimierung der Leistung, kann etwas dauern.
 de.startgreenshot={#ExeName} starten
 de.startup={#ExeName} starten wenn Windows hochfährt
 de.disablewin11snippingtool=Deaktiviere das Standard Windows 11 Snipping Tool auf "Druck"
 
 es.confluence=Extensión para Confluence
-es.default=${default}
 es.externalcommand=Extensión para abrir con programas externos
 es.imgur=Extensión para Imgur (Ver https://imgur.com)
 es.jira=Extensión para Jira
 es.language=Idiomas adicionales
-es.optimize=Optimizando rendimiento; por favor, espera.
 es.startgreenshot=Lanzar {#ExeName}
 es.startup=Lanzar {#ExeName} al iniciarse Windows
 
 fi.confluence=Confluence-liitännäinen
-fi.default=${default}
 fi.externalcommand=Avaa Ulkoinen komento-liitännäisellä
 fi.imgur=Imgur-liitännäinen (Katso: https://imgur.com)
 fi.jira=Jira-liitännäinen
 fi.language=Lisäkielet
 fi.office=Microsoft-Office-liitännäinen
-fi.optimize=Optimoidaan suorituskykyä, tämä voi kestää hetken.
 fi.startgreenshot=Käynnistä {#ExeName}
 fi.startup=Käynnistä {#ExeName} Windowsin käynnistyessä
 
 fr.confluence=Greffon Confluence
-fr.default=${default}
 fr.externalcommand=Ouvrir avec le greffon de commande externe
 fr.imgur=Greffon Imgur (Voir: https://imgur.com)
 fr.jira=Greffon Jira
 fr.language=Langues additionnelles
 fr.office=Greffon Microsoft Office
-fr.optimize=Optimisation des performances, Ceci peut prendre un certain temps.
 fr.startgreenshot=Démarrer {#ExeName}
 fr.startup=Lancer {#ExeName} au démarrage de Windows
 
@@ -322,7 +342,6 @@ it.imgur=Plugin Imgur (vedi: https://imgur.com)
 it.jira=Plugin Jira
 it.language=Lingue aggiuntive
 it.office=Plugin Microsoft Office
-it.optimize=Ottimizzazione prestazioni (può richiedere tempo).
 it.startgreenshot=Esegui {#ExeName}
 it.startup=Esegui {#ExeName} all''avvio di Windows
 it.UninstallIconDescription=Disinstalla
@@ -365,27 +384,14 @@ it.viVN=Vietnamita
 it.zhCN=Cinese (Semplificato)
 it.zhTW=Cinese (Taiwan)
 
-lt.confluence=Confluence spraudnis
-lt.default=${default}
-lt.externalcommand=Pielāgotu darbību spraudnis
-lt.imgur=Imgur spraudnis (Vairāk šeit: https://imgur.com)
-lt.jira=Jira spraudnis
-lt.language=Papildus valodas
-lt.office=Microsoft Office spraudnis
-lt.optimize=Uzlaboju veikstpēju, tas prasīs kādu laiciņu.
-lt.startgreenshot=Palaist {#ExeName}
-lt.startup=Palaist {#ExeName} uzsākot darbus
-
-lt.confluence=Confluence spraudnis
-lt.default=${default}
-lt.externalcommand=Pielāgotu darbību spraudnis
-lt.imgur=Imgur spraudnis (Vairāk šeit: https://imgur.com)
-lt.jira=Jira spraudnis
-lt.language=Papildus valodas
-lt.office=Microsoft Office spraudnis
-lt.optimize=Uzlaboju veikstpēju, tas prasīs kādu laiciņu.
-lt.startgreenshot=Palaist {#ExeName}
-lt.startup=Palaist {#ExeName} uzsākot darbus
+lv.confluence=Confluence spraudnis
+lv.externalcommand=Pielāgotu darbību spraudnis
+lv.imgur=Imgur spraudnis (Vairāk šeit: https://imgur.com)
+lv.jira=Jira spraudnis
+lv.language=Papildus valodas
+lv.office=Microsoft Office spraudnis
+lv.startgreenshot=Palaist {#ExeName}
+lv.startup=Palaist {#ExeName} uzsākot darbus
 
 nl.confluence=Confluence plug-in
 nl.default=Standaardinstallatie
@@ -394,7 +400,6 @@ nl.imgur=Imgur plug-in (zie: https://imgur.com)
 nl.jira=Jira plug-in
 nl.language=Extra talen
 nl.office=Microsoft Office plug-in
-nl.optimize=Prestaties verbeteren, even geduld.
 nl.startgreenshot={#ExeName} starten
 nl.startup={#ExeName} automatisch starten met Windows
 
@@ -405,28 +410,23 @@ nn.imgur=Imgur-tillegg (sjå https://imgur.com)
 nn.jira=Jira-tillegg
 nn.language=Andre språk
 nn.office=Microsoft Office Tillegg
-nn.optimize=Optimaliserar ytelse, dette kan ta litt tid...
 nn.startgreenshot=Start {#ExeName}
 nn.startup=Start {#ExeName} når Windows startar
 
 ru.confluence=Плагин Confluence
-ru.default=${default}
 ru.externalcommand=Открыть с плагином с помощью внешней команды
 ru.imgur=Плагин Imgur (смотрите https://imgur.com/)
 ru.jira=Плагин Jira
 ru.language=Дополнительные языки
 ru.office=Плагин Microsoft Office
-ru.optimize=Идет оптимизация производительности, это может занять некоторое время.
 ru.startgreenshot=Запустить {#ExeName}
 ru.startup=Запускать {#ExeName} при старте Windows
 
 sr.confluence=Прикључак за Конфлуенс
-sr.default=${default}
 sr.externalcommand=Отвори са прикључком за спољне наредбе
 sr.imgur=Прикључак за Имиџер (https://imgur.com)
 sr.jira=Прикључак за Џиру
 sr.language=Додатни језици
-sr.optimize=Оптимизујем перформансе…
 sr.startgreenshot=Покрени Гриншот
 sr.startup=Покрени програм са системом
 
@@ -435,7 +435,6 @@ sv.externalcommand=Öppna med externt kommando-insticksprogram
 sv.imgur=Imgur-insticksprogram (Se: https://imgur.com)
 sv.jira=Jira-insticksprogram
 sv.language=Ytterligare språk
-sv.optimize=Optimerar prestanda, detta kan ta en stund.
 sv.startgreenshot=Starta {#ExeName}
 sv.startup=Starta {#ExeName} med Windows
 
@@ -448,7 +447,6 @@ tr.imgur=Imgur eklentisi (Bkz: https://imgur.com)
 tr.jira=Jira eklentisi
 tr.language=Ek diller
 tr.office=Microsoft Office eklentisi
-tr.optimize=Performans ayarları yapılıyor, bu biraz zaman alabilir.
 tr.startgreenshot={#ExeName} uygulamasını başlat
 tr.startup={#ExeName} Windows açıldığında başlasın
 tr.UninstallIconDescription=Uninstall
@@ -457,22 +455,18 @@ tr.ShowReadme=Show Readme
 tr.disablewin11snippingtool=Win11 varsayılan ekran alıntısı aracını devre dışı bırakın
 
 uk.confluence=Плагін Confluence
-uk.default=${default}
 uk.externalcommand=Плагін запуску зовнішньої команди
 uk.imgur=Плагін Imgur (див.: https://imgur.com)
 uk.jira=Плагін Jira
 uk.language=Додаткові мови
-uk.optimize=Оптимізація продуктивності, це може забрати час.
 uk.startgreenshot=Запустити {#ExeName}
 uk.startup=Запускати {#ExeName} під час запуску Windows
 
 cn.confluence=Confluence插件
-cn.default=${default}
 cn.externalcommand=使用外部命令打开插件
 cn.imgur=Imgur插件( (请访问： https://imgur.com))
 cn.jira=Jira插件
 cn.language=其它语言
-cn.optimize=正在优化性能，这可能需要一点时间。
 cn.startgreenshot=启动{#ExeName}
 cn.startup=让{#ExeName}随Windows一起启动
 
@@ -526,6 +520,7 @@ Name: "languages\srRS"; Description: {cm:srRS}; Types: full custom; Flags: disab
 Name: "languages\svSE"; Description: {cm:svSE}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
 Name: "languages\trTR"; Description: {cm:trTR}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('6')
 Name: "languages\ukUA"; Description: {cm:ukUA}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('5')
+Name: "languages\vaVA"; Description: {cm:vaVA}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
 Name: "languages\viVN"; Description: {cm:viVN}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('e')
 Name: "languages\zhCN"; Description: {cm:zhCN}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('a')
 Name: "languages\zhTW"; Description: {cm:zhTW}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('9')
