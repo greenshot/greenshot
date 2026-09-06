@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -19,7 +19,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using Greenshot.Base.Controls;
+using System.Windows.Forms;
+
 
 namespace Greenshot.Plugin.ExternalCommand; 
 	partial class SettingsForm {
@@ -48,33 +49,33 @@ namespace Greenshot.Plugin.ExternalCommand;
 		/// not be able to load this method if it was changed manually.
 		/// </summary>
 		private void InitializeComponent() {
-			this.buttonCancel = new GreenshotButton();
-			this.buttonOk = new GreenshotButton();
+			this.buttonCancel = new Button();
+			this.buttonOk = new Button();
 			this.listView1 = new System.Windows.Forms.ListView();
 			this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-			this.button_new = new GreenshotButton();
-			this.button_delete = new GreenshotButton();
-			this.button_edit = new GreenshotButton();
+			this.button_new = new Button();
+			this.button_delete = new Button();
+			this.button_edit = new Button();
 			this.SuspendLayout();
 			// 
 			// buttonCancel
 			// 
 			this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-			this.buttonCancel.LanguageKey = "CANCEL";
 			this.buttonCancel.Location = new System.Drawing.Point(275, 144);
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.Size = new System.Drawing.Size(75, 23);
 			this.buttonCancel.TabIndex = 11;
+			this.buttonCancel.Text = "Cancel";
 			this.buttonCancel.UseVisualStyleBackColor = true;
 			// 
 			// buttonOk
 			// 
 			this.buttonOk.DialogResult = System.Windows.Forms.DialogResult.OK;
-			this.buttonOk.LanguageKey = "OK";
 			this.buttonOk.Location = new System.Drawing.Point(275, 173);
 			this.buttonOk.Name = "buttonOk";
 			this.buttonOk.Size = new System.Drawing.Size(75, 23);
 			this.buttonOk.TabIndex = 10;
+			this.buttonOk.Text = "OK";
 			this.buttonOk.UseVisualStyleBackColor = true;
 			this.buttonOk.Click += new System.EventHandler(this.ButtonOkClick);
 			// 
@@ -101,32 +102,32 @@ namespace Greenshot.Plugin.ExternalCommand;
 			// 
 			// button_new
 			// 
-			this.button_new.LanguageKey = "externalcommand.settings_new";
 			this.button_new.Location = new System.Drawing.Point(275, 13);
 			this.button_new.Name = "button_new";
 			this.button_new.Size = new System.Drawing.Size(75, 23);
 			this.button_new.TabIndex = 1;
+			this.button_new.Text = "New";
 			this.button_new.UseVisualStyleBackColor = true;
 			this.button_new.Click += new System.EventHandler(this.ButtonAddClick);
 			// 
 			// button_delete
 			// 
-			this.button_delete.LanguageKey = "externalcommand.settings_delete";
 			this.button_delete.Location = new System.Drawing.Point(274, 71);
 			this.button_delete.Name = "button_delete";
 			this.button_delete.Size = new System.Drawing.Size(75, 23);
 			this.button_delete.TabIndex = 3;
+			this.button_delete.Text = "Delete";
 			this.button_delete.UseVisualStyleBackColor = true;
 			this.button_delete.Click += new System.EventHandler(this.ButtonDeleteClick);
 			// 
 			// button_edit
 			// 
 			this.button_edit.Enabled = false;
-			this.button_edit.LanguageKey = "externalcommand.settings_edit";
 			this.button_edit.Location = new System.Drawing.Point(275, 42);
 			this.button_edit.Name = "button_edit";
 			this.button_edit.Size = new System.Drawing.Size(75, 23);
 			this.button_edit.TabIndex = 2;
+			this.button_edit.Text = "Edit";
 			this.button_edit.UseVisualStyleBackColor = true;
 			this.button_edit.Click += new System.EventHandler(this.ButtonEditClick);
 			// 
@@ -144,17 +145,17 @@ namespace Greenshot.Plugin.ExternalCommand;
 			this.Controls.Add(this.buttonOk);
 			this.Controls.Add(this.buttonCancel);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-			this.LanguageKey = "externalcommand.settings_title";
 			this.Name = "SettingsForm";
+			this.Text = "External command settings";
 			this.ResumeLayout(false);
 
 		}
-		private GreenshotButton button_edit;
-		private GreenshotButton button_delete;
-		private GreenshotButton button_new;
+		private Button button_edit;
+		private Button button_delete;
+		private Button button_new;
 		private System.Windows.Forms.ColumnHeader columnHeader1;
 		private System.Windows.Forms.ListView listView1;
-		private GreenshotButton buttonOk;
-		private GreenshotButton buttonCancel;
+		private Button buttonOk;
+		private Button buttonCancel;
 		
 	}

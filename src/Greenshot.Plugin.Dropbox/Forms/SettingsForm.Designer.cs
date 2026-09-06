@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2004-2026  Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -21,6 +21,8 @@
 
 using Greenshot.Base.Controls;
 using Greenshot.Plugin.Dropbox;
+using System.Windows.Forms;
+
 
 namespace Greenshot.Plugin.Dropbox.Forms; 
 	partial class SettingsForm {
@@ -49,11 +51,11 @@ namespace Greenshot.Plugin.Dropbox.Forms;
 		/// not be able to load this method if it was changed manually.
 		/// </summary>
 		private void InitializeComponent() {
-			this.buttonOK = new GreenshotButton();
-			this.buttonCancel = new GreenshotButton();
+			this.buttonOK = new Button();
+			this.buttonCancel = new Button();
 			this.combobox_uploadimageformat = new GreenshotComboBox();
-			this.label_upload_format = new GreenshotLabel();
-			this.label_AfterUpload = new GreenshotLabel();
+			this.label_upload_format = new Label();
+			this.label_AfterUpload = new Label();
 			this.checkboxAfterUploadLinkToClipBoard = new GreenshotCheckBox();
 			this.SuspendLayout();
 			// 
@@ -61,22 +63,22 @@ namespace Greenshot.Plugin.Dropbox.Forms;
 			// 
 			this.buttonOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.buttonOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-			this.buttonOK.LanguageKey = "OK";
 			this.buttonOK.Location = new System.Drawing.Point(267, 64);
 			this.buttonOK.Name = "buttonOK";
 			this.buttonOK.Size = new System.Drawing.Size(75, 23);
 			this.buttonOK.TabIndex = 10;
+			this.buttonOK.Text = "OK";
 			this.buttonOK.UseVisualStyleBackColor = true;
 			// 
 			// buttonCancel
 			// 
 			this.buttonCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-			this.buttonCancel.LanguageKey = "CANCEL";
 			this.buttonCancel.Location = new System.Drawing.Point(348, 64);
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.Size = new System.Drawing.Size(75, 23);
 			this.buttonCancel.TabIndex = 11;
+			this.buttonCancel.Text = "Cancel";
 			this.buttonCancel.UseVisualStyleBackColor = true;
 			// 
 			// combobox_uploadimageformat
@@ -94,29 +96,29 @@ namespace Greenshot.Plugin.Dropbox.Forms;
 			// 
 			// label_upload_format
 			// 
-			this.label_upload_format.LanguageKey = "dropbox.label_upload_format";
 			this.label_upload_format.Location = new System.Drawing.Point(11, 12);
 			this.label_upload_format.Name = "label_upload_format";
 			this.label_upload_format.Size = new System.Drawing.Size(100, 20);
 			this.label_upload_format.TabIndex = 9;
+			this.label_upload_format.Text = "Image format";
 			// 
 			// label_AfterUpload
 			// 
-			this.label_AfterUpload.LanguageKey = "dropbox.label_AfterUpload";
 			this.label_AfterUpload.Location = new System.Drawing.Point(10, 37);
 			this.label_AfterUpload.Name = "label_AfterUpload";
 			this.label_AfterUpload.Size = new System.Drawing.Size(100, 21);
 			this.label_AfterUpload.TabIndex = 22;
+			this.label_AfterUpload.Text = "After upload";
 			// 
 			// checkboxAfterUploadLinkToClipBoard
 			// 
-			this.checkboxAfterUploadLinkToClipBoard.LanguageKey = "dropbox.label_AfterUploadLinkToClipBoard";
 			this.checkboxAfterUploadLinkToClipBoard.Location = new System.Drawing.Point(116, 37);
 			this.checkboxAfterUploadLinkToClipBoard.Name = "checkboxAfterUploadLinkToClipBoard";
 			this.checkboxAfterUploadLinkToClipBoard.PropertyName = nameof(IDropboxConfiguration.AfterUploadLinkToClipBoard);
 			this.checkboxAfterUploadLinkToClipBoard.SectionName = "Dropbox";
 			this.checkboxAfterUploadLinkToClipBoard.Size = new System.Drawing.Size(305, 20);
 			this.checkboxAfterUploadLinkToClipBoard.TabIndex = 2;
+			this.checkboxAfterUploadLinkToClipBoard.Text = "Link to clipboard";
 			this.checkboxAfterUploadLinkToClipBoard.UseVisualStyleBackColor = true;
 			// 
 			// SettingsForm
@@ -131,18 +133,18 @@ namespace Greenshot.Plugin.Dropbox.Forms;
 			this.Controls.Add(this.buttonCancel);
 			this.Controls.Add(this.buttonOK);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-			this.LanguageKey = "dropbox.settings_title";
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "SettingsForm";
+			this.Text = "Dropbox settings";
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
 		}
 		private GreenshotComboBox combobox_uploadimageformat;
-		private GreenshotLabel label_upload_format;
-		private GreenshotButton buttonCancel;
-		private GreenshotButton buttonOK;
-		private GreenshotLabel label_AfterUpload;
+		private Label label_upload_format;
+		private Button buttonCancel;
+		private Button buttonOK;
+		private Label label_AfterUpload;
 		private GreenshotCheckBox checkboxAfterUploadLinkToClipBoard;
 	}

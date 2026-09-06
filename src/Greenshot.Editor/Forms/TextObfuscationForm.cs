@@ -52,14 +52,19 @@ namespace Greenshot.Editor.Forms
         private IDisposable _searchSubscription;
         private bool _isInitializing = true;
 
+        /// <summary>
+        /// Parameterless constructor for Windows Forms designer support.
+        /// </summary>
+        public TextObfuscationForm() : this(null, null)
+        {
+        }
+
         public TextObfuscationForm(ISurface surface, IEnumerable<IOcrLineFeature> ocrLines)
         {
-            _surface = surface ?? throw new ArgumentNullException(nameof(surface));
-            _ocrLines = ocrLines ?? throw new ArgumentNullException(nameof(ocrLines));
+            _surface = surface;
+            _ocrLines = ocrLines;
             InitializeComponent();
-            
-            // Initialize match count label with formatted text
-            matchCountLabel.Text = string.Format(Language.GetString("editor_obfuscate_text_matches"), "0");
+            InitializeLanguage();
             
             InitializeEffectDropdown();
             InitializeSearchScopeDropdown();
@@ -74,6 +79,22 @@ namespace Greenshot.Editor.Forms
             {
                 UpdatePreview();
             }
+        }
+
+        protected override void InitializeLanguage()
+        {
+            searchLabel.Text = Language.GetString("editor_obfuscate_text_search");
+            searchButton.Text = Language.GetString("editor_obfuscate_text_search_button");
+            regexCheckBox.Text = Language.GetString("editor_obfuscate_text_regex");
+            caseSensitiveCheckBox.Text = Language.GetString("editor_obfuscate_text_case_sensitive");
+            searchScopeLabel.Text = Language.GetString("editor_obfuscate_text_search_scope");
+            advancedSettingsCheckBox.Text = Language.GetString("editor_obfuscate_text_advanced");
+            applyButton.Text = Language.GetString("editor_obfuscate_text_apply");
+            cancelButton.Text = Language.GetString("CANCEL");
+            Text = Language.GetString("editor_obfuscate_text_title");
+
+            // Initialize match count label with formatted text
+            matchCountLabel.Text = string.Format(Language.GetString("editor_obfuscate_text_matches"), "0");
         }
 
         private void InitializeEffectDropdown()
@@ -198,6 +219,11 @@ namespace Greenshot.Editor.Forms
             ClearPreview();
             _matchedBounds.Clear();
 
+            if (_surface == null || _ocrLines == null)
+            {
+                return;
+            }
+
             string searchText = searchTextBox.Text;
             if (string.IsNullOrEmpty(searchText) || searchText.Length < 3)
             {
@@ -318,6 +344,11 @@ namespace Greenshot.Editor.Forms
 
         private void ShowPreview()
         {
+            if (_surface == null)
+            {
+                return;
+            }
+
             if (!(effectComboBox.SelectedItem is EffectItem item))
             {
                 return;
@@ -338,6 +369,12 @@ namespace Greenshot.Editor.Forms
 
         private void ClearPreview()
         {
+            if (_surface == null)
+            {
+                _previewContainers.Clear();
+                return;
+            }
+
             foreach (var container in _previewContainers)
             {
                 _surface.RemoveElement(container, false);
@@ -408,7 +445,7 @@ namespace Greenshot.Editor.Forms
                 }
             }
 
-            if (containers.Count > 0)
+            if (_surface != null && containers.Count > 0)
             {
                 _surface.AddElements(containers, true);
             }

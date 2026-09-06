@@ -25,8 +25,9 @@ using System.Drawing;
 using System.Globalization;
 using System.Threading;
 using System.Windows.Forms;
-using Greenshot.Base.Controls;
 using Dapplo.Ini;
+using Greenshot.Base.Controls;
+using Greenshot.Base.Core;
 using Greenshot.Editor.Configuration;
 using Greenshot.Editor.Controls;
 
@@ -37,19 +38,33 @@ namespace Greenshot.Editor.Forms
     /// </summary>
     public partial class ColorDialog : EditorForm
     {
-        private static readonly IEditorConfiguration EditorConfig = IniConfigRegistry.GetSection<IEditorConfiguration>();
+        private static readonly IEditorConfiguration EditorConfig = IniConfigHelper.EnsureSection<IEditorConfiguration>(() => new EditorConfigurationImpl());
         private static ColorDialog _instance;
 
         public ColorDialog()
         {
             SuspendLayout();
             InitializeComponent();
+            InitializeLanguage();
             SuspendLayout();
             CreateColorPalette(5, 5, 15, 15);
             CreateLastUsedColorButtonRow(5, 190, 15, 15);
             ResumeLayout();
             UpdateRecentColorsButtonRow();
             _instance = this;
+        }
+
+        protected override void InitializeLanguage()
+        {
+            btnTransparent.Text = Language.GetString("colorpicker_transparent");
+            labelHtmlColor.Text = Language.GetString("colorpicker_htmlcolor");
+            labelRed.Text = Language.GetString("colorpicker_red");
+            labelGreen.Text = Language.GetString("colorpicker_green");
+            labelBlue.Text = Language.GetString("colorpicker_blue");
+            labelRecentColors.Text = Language.GetString("colorpicker_recentcolors");
+            labelAlpha.Text = Language.GetString("colorpicker_alpha");
+            btnApply.Text = Language.GetString("colorpicker_apply") ;
+            Text = Language.GetString("colorpicker_title");
         }
 
         public static ColorDialog GetInstance() => _instance;
@@ -151,6 +166,11 @@ namespace Greenshot.Editor.Forms
 
         private void UpdateRecentColorsButtonRow()
         {
+            if (EditorConfig?.RecentColors == null)
+            {
+                return;
+            }
+
             for (int i = 0; i < EditorConfig.RecentColors.Count && i < 12; i++)
             {
                 _recentColorButtons[i].BackColor = EditorConfig.RecentColors[i];
@@ -181,6 +201,11 @@ namespace Greenshot.Editor.Forms
 
         private void AddToRecentColors(Color c)
         {
+            if (EditorConfig?.RecentColors == null)
+            {
+                return;
+            }
+
             EditorConfig.RecentColors.Remove(c);
             EditorConfig.RecentColors.Insert(0, c);
             if (EditorConfig.RecentColors.Count > 12)

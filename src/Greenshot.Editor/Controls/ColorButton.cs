@@ -33,13 +33,10 @@ namespace Greenshot.Editor.Controls
     /// <summary>
     /// Description of ColorButton.
     /// </summary>
-    public class ColorButton : Button, IGreenshotLanguageBindable
+    public class ColorButton : Button
     {
         public event PropertyChangedEventHandler PropertyChanged;
         private Color _selectedColor = Color.White;
-
-        [Category("Greenshot"), DefaultValue(null), Description("Specifies key of the language file to use when displaying the text.")]
-        public string LanguageKey { get; set; }
 
         public ColorButton()
         {

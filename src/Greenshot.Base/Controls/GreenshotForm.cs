@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -23,10 +23,10 @@
 #if DEBUG
 using System.ComponentModel;
 using System.ComponentModel.Design;
-using System.IO;
 #endif
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
 using Dapplo.Ini;
@@ -37,60 +37,82 @@ using log4net;
 namespace Greenshot.Base.Controls
 {
     /// <summary>
-    /// This form is used for automatically binding the elements of the form to the language
+    /// This form is the base for all Greenshot forms, providing automatic icon assignment, 
+    /// configuration binding, and translation support.
     /// </summary>
-    public class GreenshotForm : Form, IGreenshotLanguageBindable
+    public class GreenshotForm : Form
     {
         private static readonly ILog LOG = LogManager.GetLogger(typeof(GreenshotForm));
         protected static ICoreConfiguration coreConfiguration;
         private static readonly IDictionary<Type, FieldInfo[]> reflectionCache = new Dictionary<Type, FieldInfo[]>();
-#if DEBUG
-        private IComponentChangeService m_changeService;
-        private bool _isDesignModeLanguageSet;
-        private IDictionary<string, Control> _designTimeControls;
-        private IDictionary<string, ToolStripItem> _designTimeToolStripItems;
-#endif
-        private bool _applyLanguageManually;
+
         private bool _storeFieldsManually;
+
+        [ThreadStatic]
+        private static bool _resolvingAssembly;
 
         static GreenshotForm()
         {
-#if DEBUG
-            if (!IsInDesignMode)
+            try
             {
-#endif
-                coreConfiguration = IniConfigRegistry.GetSection<ICoreConfiguration>();
-#if DEBUG
+                AppDomain.CurrentDomain.AssemblyResolve += ResolveAssembly;
+                IniConfigHelper.EnsureInitialized();
+                coreConfiguration = IniConfigHelper.EnsureSection<ICoreConfiguration>(() => new CoreConfigurationImpl());
             }
-#endif
-        }
-
-#if DEBUG
-        [Category("Greenshot"), DefaultValue(null), Description("Specifies key of the language file to use when displaying the text.")]
-#endif
-        public string LanguageKey { get; set; }
-
-#if DEBUG
-        /// <summary>
-        /// Used to check the designmode during a constructor
-        /// </summary>
-        /// <returns></returns>
-        protected static bool IsInDesignMode
-        {
-            get
+            catch (Exception ex)
             {
-                return (Application.ExecutablePath.IndexOf("devenv.exe", StringComparison.OrdinalIgnoreCase) > -1) ||
-                       (Application.ExecutablePath.IndexOf("sharpdevelop.exe", StringComparison.OrdinalIgnoreCase) > -1 ||
-                        (Application.ExecutablePath.IndexOf("wdexpress.exe", StringComparison.OrdinalIgnoreCase) > -1));
+                LOG.Warn("GreenshotForm static initialization fallback", ex);
+                coreConfiguration ??= new CoreConfigurationImpl();
             }
         }
-#endif
 
-        protected bool ManualLanguageApply
+        private static Assembly ResolveAssembly(object sender, ResolveEventArgs args)
         {
-            get { return _applyLanguageManually; }
-            set { _applyLanguageManually = value; }
+            if (_resolvingAssembly)
+            {
+                return null;
+            }
+            _resolvingAssembly = true;
+            try
+            {
+                var requestedName = new AssemblyName(args.Name);
+                if (requestedName.Name.EndsWith(".resources", StringComparison.OrdinalIgnoreCase))
+                {
+                    return null;
+                }
+
+                // 1. If an assembly with the same simple name is already loaded in the AppDomain, return it
+                foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+                {
+                    if (string.Equals(asm.GetName().Name, requestedName.Name, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return asm;
+                    }
+                }
+
+                // 2. Try to find the dll in the same directory as typeof(GreenshotForm).Assembly
+                string baseDir = Path.GetDirectoryName(typeof(GreenshotForm).Assembly.Location);
+                if (!string.IsNullOrEmpty(baseDir))
+                {
+                    string candidate = Path.Combine(baseDir, requestedName.Name + ".dll");
+                    if (File.Exists(candidate))
+                    {
+                        return Assembly.LoadFrom(candidate);
+                    }
+                }
+
+                return null;
+            }
+            catch
+            {
+                return null;
+            }
+            finally
+            {
+                _resolvingAssembly = false;
+            }
         }
+
 
         protected bool ManualStoreFields
         {
@@ -103,9 +125,30 @@ namespace Greenshot.Base.Controls
         /// </summary>
         protected bool ToFront { get; set; }
 
-        protected GreenshotForm()
+        /// <summary>
+        /// This method should be used to set all translated texts for the form and its controls.
+        /// It is called on form load (or in derived constructors) and whenever the language changes at runtime.
+        /// </summary>
+        protected virtual void InitializeLanguage()
+        {
+        }
+
+        public GreenshotForm()
         {
             DpiChanged += (sender, dpiChangedEventArgs) => DpiChangedHandler(dpiChangedEventArgs.DeviceDpiOld, dpiChangedEventArgs.DeviceDpiNew);
+            Language.LanguageChanged += OnLanguageChanged;
+        }
+
+        private void OnLanguageChanged(object sender, EventArgs e)
+        {
+            if (InvokeRequired)
+            {
+                Invoke(new MethodInvoker(InitializeLanguage));
+            }
+            else
+            {
+                InitializeLanguage();
+            }
         }
 
         /// <summary>
@@ -117,94 +160,22 @@ namespace Greenshot.Base.Controls
         {
         }
 
-#if DEBUG
-        /// <summary>
-        /// Code to initialize the language etc during design time
-        /// </summary>
-        protected void InitializeForDesigner()
-        {
-            if (!DesignMode) return;
-            _designTimeControls = new Dictionary<string, Control>();
-            _designTimeToolStripItems = new Dictionary<string, ToolStripItem>();
-            try
-            {
-                ITypeResolutionService typeResService = GetService(typeof(ITypeResolutionService)) as ITypeResolutionService;
-
-                // Add a hard-path if you are using SharpDevelop
-                // Language.AddLanguageFilePath(@"C:\Greenshot\Greenshot\Languages");
-
-                // this "type"
-                Assembly currentAssembly = GetType().Assembly;
-                if (typeResService == null) return;
-
-                string assemblyPath = typeResService.GetPathOfAssembly(currentAssembly.GetName());
-                string assemblyDirectory = Path.GetDirectoryName(assemblyPath);
-                if (assemblyDirectory != null && !Language.AddLanguageFilePath(Path.Combine(assemblyDirectory, @"..\..\Greenshot\Languages\")))
-                {
-                    Language.AddLanguageFilePath(Path.Combine(assemblyDirectory, @"..\..\..\Greenshot\Languages\"));
-                }
-
-                if (assemblyDirectory != null && !Language.AddLanguageFilePath(Path.Combine(assemblyDirectory, @"..\..\Languages\")))
-                {
-                    Language.AddLanguageFilePath(Path.Combine(assemblyDirectory, @"..\..\..\Languages\"));
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
-        }
-
-        /// <summary>
-        /// This override is only for the design-time of the form
-        /// </summary>
-        /// <param name="e"></param>
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            if (DesignMode)
-            {
-                if (!_isDesignModeLanguageSet)
-                {
-                    _isDesignModeLanguageSet = true;
-                    try
-                    {
-                        ApplyLanguage();
-                    }
-                    catch (Exception)
-                    {
-                        // ignored
-                    }
-                }
-            }
-
-            base.OnPaint(e);
-        }
-#endif
-
         protected override void OnLoad(EventArgs e)
         {
             // Every GreenshotForm should have it's default icon
-            // And it might not ne needed for a Tool Window, but still for the task manager / switcher it's important
             Icon = GreenshotResources.GetGreenshotIcon();
 #if DEBUG
             if (!DesignMode)
             {
 #endif
-                if (!_applyLanguageManually)
-                {
-                    ApplyLanguage();
-                }
-
+                InitializeLanguage();
                 FillFields();
                 base.OnLoad(e);
 #if DEBUG
             }
             else
             {
-                LOG.Info("OnLoad called from designer.");
-                InitializeForDesigner();
                 base.OnLoad(e);
-                ApplyLanguage();
             }
 #endif
         }
@@ -223,7 +194,7 @@ namespace Greenshot.Base.Controls
         }
 
         /// <summary>
-        /// check if the form was closed with an OK, if so store the values in the GreenshotControls
+        /// check if the form was closed with an OK, if so store the values in the configuration
         /// </summary>
         /// <param name="e"></param>
         protected override void OnClosed(EventArgs e)
@@ -240,193 +211,20 @@ namespace Greenshot.Base.Controls
             base.OnClosed(e);
         }
 
-#if DEBUG
-        /// <summary>
-        /// This override allows the control to register event handlers for IComponentChangeService events
-        /// at the time the control is sited, which happens only in design mode.
-        /// </summary>
-        public override ISite Site
-        {
-            get { return base.Site; }
-            set
-            {
-                // Clear any component change event handlers.
-                ClearChangeNotifications();
-
-                // Set the new Site value.
-                base.Site = value;
-
-                m_changeService = (IComponentChangeService) GetService(typeof(IComponentChangeService));
-
-                // Register event handlers for component change events.
-                RegisterChangeNotifications();
-            }
-        }
-
-        private void ClearChangeNotifications()
-        {
-            // The m_changeService value is null when not in design mode,
-            // as the IComponentChangeService is only available at design time.
-            m_changeService = (IComponentChangeService) GetService(typeof(IComponentChangeService));
-
-            // Clear our the component change events to prepare for re-siting.
-            if (m_changeService != null)
-            {
-                m_changeService.ComponentChanged -= OnComponentChanged;
-                m_changeService.ComponentAdded -= OnComponentAdded;
-            }
-        }
-
-        private void RegisterChangeNotifications()
-        {
-            // Register the event handlers for the IComponentChangeService events
-            if (m_changeService != null)
-            {
-                m_changeService.ComponentChanged += OnComponentChanged;
-                m_changeService.ComponentAdded += OnComponentAdded;
-            }
-        }
-
-        /// <summary>
-        /// This method handles the OnComponentChanged event to display a notification.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="ce"></param>
-        private void OnComponentChanged(object sender, ComponentChangedEventArgs ce)
-        {
-            if (((IComponent) ce.Component)?.Site == null || ce.Member == null) return;
-            if (!"LanguageKey".Equals(ce.Member.Name)) return;
-            if (ce.Component is Control control)
-            {
-                LOG.InfoFormat("Changing LanguageKey for {0} to {1}", control.Name, ce.NewValue);
-                ApplyLanguage(control, (string) ce.NewValue);
-            }
-            else
-            {
-                if (ce.Component is ToolStripItem item)
-                {
-                    LOG.InfoFormat("Changing LanguageKey for {0} to {1}", item.Name, ce.NewValue);
-                    ApplyLanguage(item, (string) ce.NewValue);
-                }
-                else
-                {
-                    LOG.InfoFormat("Not possible to changing LanguageKey for {0} to {1}", ce.Component.GetType(), ce.NewValue);
-                }
-            }
-        }
-
-        private void OnComponentAdded(object sender, ComponentEventArgs ce)
-        {
-            if (ce.Component?.Site == null) return;
-            if (ce.Component is Control control)
-            {
-                if (!_designTimeControls.ContainsKey(control.Name))
-                {
-                    _designTimeControls.Add(control.Name, control);
-                }
-                else
-                {
-                    _designTimeControls[control.Name] = control;
-                }
-            }
-            else
-            {
-                if (ce.Component is ToolStripItem stripItem)
-                {
-                    ToolStripItem item = stripItem;
-                    if (!_designTimeControls.ContainsKey(item.Name))
-                    {
-                        _designTimeToolStripItems.Add(item.Name, item);
-                    }
-                    else
-                    {
-                        _designTimeToolStripItems[item.Name] = item;
-                    }
-                }
-            }
-        }
-
         // Clean up any resources being used.
         protected override void Dispose(bool disposing)
         {
             if (disposing)
             {
-                ClearChangeNotifications();
+                Language.LanguageChanged -= OnLanguageChanged;
             }
 
             base.Dispose(disposing);
         }
-#endif
 
-        protected void ApplyLanguage(ToolStripItem applyTo, string languageKey)
-        {
-            string langString;
-            if (!string.IsNullOrEmpty(languageKey))
-            {
-                if (!Language.TryGetString(languageKey, out langString))
-                {
-                    LOG.DebugFormat("Unknown language key '{0}' configured for control '{1}', this might be okay.", languageKey, applyTo.Name);
-                    return;
-                }
-
-                applyTo.Text = langString;
-            }
-            else
-            {
-                // Fallback to control name!
-                if (Language.TryGetString(applyTo.Name, out langString))
-                {
-                    applyTo.Text = langString;
-                    return;
-                }
-
-                if (!DesignMode)
-                {
-                    LOG.DebugFormat("Greenshot control without language key: {0}", applyTo.Name);
-                }
-            }
-        }
-
-        protected void ApplyLanguage(ToolStripItem applyTo)
-        {
-            if (applyTo is IGreenshotLanguageBindable languageBindable)
-            {
-                ApplyLanguage(applyTo, languageBindable.LanguageKey);
-            }
-        }
-
-        protected void ApplyLanguage(Control applyTo)
-        {
-            if (applyTo is not IGreenshotLanguageBindable languageBindable)
-            {
-                // check if it's a menu!
-                if (applyTo is not ToolStrip toolStrip)
-                {
-                    return;
-                }
-
-                foreach (ToolStripItem item in toolStrip.Items)
-                {
-                    ApplyLanguage(item);
-                }
-
-                return;
-            }
-
-            // Apply language text to the control
-            ApplyLanguage(applyTo, languageBindable.LanguageKey);
-
-            // Repopulate the combox boxes
-            if (applyTo is not (IGreenshotConfigBindable configBindable and GreenshotComboBox comboxBox)) return;
-            if (string.IsNullOrEmpty(configBindable.SectionName) || string.IsNullOrEmpty(configBindable.PropertyName)) return;
-            IIniSection section = IniConfigRegistry.Get()?.GetSection(configBindable.SectionName);
-            if (section == null) return;
-            // Only update the language, so get the actual value and then repopulate
-            Enum currentValue = comboxBox.GetSelectedEnum();
-            comboxBox.Populate(section.GetPropertyType(configBindable.PropertyName));
-            comboxBox.SetValue(currentValue);
-        }
-
+        /// <summary>
+        /// Helper method to cache the fieldinfo values, so we don't need to reflect all the time!
+        /// </summary>
         /// <param name="typeToGetFieldsFor"></param>
         /// <returns></returns>
         private static FieldInfo[] GetCachedFields(Type typeToGetFieldsFor)
@@ -438,98 +236,6 @@ namespace Greenshot.Base.Controls
             }
 
             return fields;
-        }
-
-        /// <summary>
-        /// Apply all the language settings to the "Greenshot" Controls on this form
-        /// </summary>
-        protected void ApplyLanguage()
-        {
-            SuspendLayout();
-            try
-            {
-                // Set title of the form
-                if (!string.IsNullOrEmpty(LanguageKey) && Language.TryGetString(LanguageKey, out var langString))
-                {
-                    Text = langString;
-                }
-
-                // Reset the text values for all GreenshotControls
-                foreach (FieldInfo field in GetCachedFields(GetType()))
-                {
-                    object controlObject = field.GetValue(this);
-                    if (controlObject == null)
-                    {
-                        LOG.DebugFormat("No value: {0}", field.Name);
-                        continue;
-                    }
-
-                    if (controlObject is not Control applyToControl)
-                    {
-                        if (controlObject is not ToolStripItem applyToItem)
-                        {
-                            LOG.DebugFormat("No Control or ToolStripItem: {0}", field.Name);
-                            continue;
-                        }
-
-                        ApplyLanguage(applyToItem);
-                    }
-                    else
-                    {
-                        ApplyLanguage(applyToControl);
-                    }
-                }
-#if DEBUG
-                if (DesignMode)
-                {
-                    foreach (Control designControl in _designTimeControls.Values)
-                    {
-                        ApplyLanguage(designControl);
-                    }
-
-                    foreach (ToolStripItem designToolStripItem in _designTimeToolStripItems.Values)
-                    {
-                        ApplyLanguage(designToolStripItem);
-                    }
-                }
-#endif
-            }
-            finally
-            {
-                ResumeLayout();
-            }
-        }
-
-        /// <summary>
-        /// Apply the language text to supplied control
-        /// </summary>
-        protected void ApplyLanguage(Control applyTo, string languageKey)
-        {
-            string langString;
-            if (!string.IsNullOrEmpty(languageKey))
-            {
-                if (!Language.TryGetString(languageKey, out langString))
-                {
-                    LOG.WarnFormat("Wrong language key '{0}' configured for control '{1}'", languageKey, applyTo.Name);
-                    return;
-                }
-
-                applyTo.Text = langString;
-            }
-            else
-            {
-                // Fallback to control name!
-                if (Language.TryGetString(applyTo.Name, out langString))
-                {
-                    applyTo.Text = langString;
-                    return;
-                }
-
-                if (!DesignMode)
-                {
-                    LOG.DebugFormat("Greenshot control without language key: {0}", applyTo.Name);
-                }
-            }
         }
 
         /// <summary>
@@ -552,7 +258,6 @@ namespace Greenshot.Base.Controls
                     LOG.DebugFormat("Wrong property '{0}' configured for field '{1}'", configBindable.PropertyName, field.Name);
                     continue;
                 }
-
                 var propertyValue = propertyInfo.GetValue(section);
                 bool isFixed = section.IsConstant(configBindable.PropertyName);
 
@@ -645,8 +350,6 @@ namespace Greenshot.Base.Controls
                         continue;
                     }
 
-                    // Use SetRawValue so Dapplo.Ini handles type conversion from the text string.
-                    // Passing null resets to the property's DefaultValue (equivalent to old UseValueOrDefault(null)).
                     section.SetRawValue(configBindable.PropertyName, string.IsNullOrEmpty(textBox.Text) ? null : textBox.Text);
                     continue;
                 }

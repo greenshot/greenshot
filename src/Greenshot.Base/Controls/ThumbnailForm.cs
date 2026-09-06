@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -40,7 +40,7 @@ namespace Greenshot.Base.Controls
     /// </summary>
     public sealed class ThumbnailForm : FormWithoutActivation
     {
-        private static readonly ICoreConfiguration conf = IniConfigRegistry.GetSection<ICoreConfiguration>();
+        private static readonly ICoreConfiguration conf = IniConfigHelper.EnsureSection<ICoreConfiguration>(() => new CoreConfigurationImpl());
 
         private IntPtr _thumbnailHandle = IntPtr.Zero;
 

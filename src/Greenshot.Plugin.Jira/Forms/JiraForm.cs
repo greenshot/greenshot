@@ -37,11 +37,15 @@ namespace Greenshot.Plugin.Jira.Forms;
 public partial class JiraForm : Form
 {
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(JiraForm));
-    private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
+    private static readonly ICoreConfiguration CoreConfig = IniConfigHelper.EnsureSection<ICoreConfiguration>(() => new CoreConfigurationImpl());
     private readonly JiraConnector _jiraConnector;
     private IssueV2 _selectedIssue;
     private readonly GreenshotColumnSorter _columnSorter;
     private IDisposable _jiraKeySubscription;
+
+    public JiraForm() : this(null)
+    {
+    }
 
     public JiraForm(JiraConnector jiraConnector)
     {
@@ -72,6 +76,11 @@ public partial class JiraForm : Form
 
     private async void OnLoad(object sender, EventArgs eventArgs)
     {
+        if (DesignMode || _jiraConnector == null)
+        {
+            return;
+        }
+
         this.Invoke(async () => { await OnLoad(); });
     }
 

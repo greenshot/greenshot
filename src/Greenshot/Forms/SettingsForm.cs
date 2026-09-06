@@ -1,6 +1,6 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
- * Copyright � 2004-2026  Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright © 2004-2026  Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -46,21 +46,142 @@ namespace Greenshot.Forms
     /// <summary>
     /// Description of SettingsForm.
     /// </summary>
-    public partial class SettingsForm : BaseForm
+    public partial class SettingsForm : GreenshotForm
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(SettingsForm));
         private readonly ToolTip _toolTip = new ToolTip();
         private bool _inHotkey;
         private int _daysBetweenCheckPreviousValue;
 
+        static SettingsForm()
+        {
+            IniConfigHelper.EnsureSection<IWin10Configuration>(() => new Win10ConfigurationImpl());
+            IniConfigHelper.EnsureSection<Greenshot.Editor.Configuration.IEditorConfiguration>(() => new Greenshot.Editor.Configuration.EditorConfigurationImpl());
+        }
+
+
         public SettingsForm()
         {
             InitializeComponent();
+            InitializeLanguage();
             // Make sure we change the icon size depending on the scaling
             DpiChanged += AdjustToDpi;
 
             // Make sure the store isn't called to early, that's why we do it manually
             ManualStoreFields = true;
+        }
+
+        /// <inheritdoc />
+        protected override void InitializeLanguage()
+        {
+            label_storagelocation.Text = Language.GetString("settings_storagelocation");
+            settings_cancel.Text = Language.GetString("CANCEL");
+            settings_confirm.Text = Language.GetString("OK");
+            label_screenshotname.Text = Language.GetString("settings_filenamepattern");
+            textbox_screenshotname.PropertyName = nameof(ICoreConfiguration.OutputFileFilenamePattern);
+            label_language.Text = Language.GetString("settings_language");
+            combobox_primaryimageformat.PropertyName = nameof(ICoreConfiguration.OutputFileFormat);
+            label_primaryimageformat.Text = Language.GetString("settings_primaryimageformat");
+            groupbox_preferredfilesettings.Text = Language.GetString("settings_preferredfilesettings");
+            checkbox_copypathtoclipboard.Text = Language.GetString("settings_copypathtoclipboard");
+            checkbox_copypathtoclipboard.PropertyName = nameof(ICoreConfiguration.OutputFileCopyPathToClipboard);
+            groupbox_applicationsettings.Text = Language.GetString("settings_applicationsettings");
+            label_icon_size.Text = Language.GetString("settings_iconsize");
+            checkbox_autostartshortcut.Text = Language.GetString("settings_autostartshortcut");
+            groupbox_qualitysettings.Text = Language.GetString("settings_qualitysettings");
+            checkbox_reducecolors.Text = Language.GetString("settings_reducecolors");
+            checkbox_reducecolors.PropertyName = nameof(ICoreConfiguration.OutputFileReduceColors);
+            checkbox_alwaysshowqualitydialog.Text = Language.GetString("settings_alwaysshowqualitydialog");
+            checkbox_alwaysshowqualitydialog.PropertyName = nameof(ICoreConfiguration.OutputFilePromptQuality);
+            label_jpegquality.Text = Language.GetString("settings_jpegquality");
+            groupbox_destination.Text = Language.GetString("settings_destination");
+            checkbox_picker.Text = Language.GetString("settings_destination_picker");
+            tab_general.Text = Language.GetString("settings_general");
+            groupbox_network.Text = Language.GetString("settings_network");
+            label_checkperiod.Text = Language.GetString("settings_checkperiod");
+            checkbox_usedefaultproxy.Text = Language.GetString("settings_usedefaultproxy");
+            checkbox_usedefaultproxy.PropertyName = nameof(ICoreConfiguration.UseProxy);
+            groupbox_hotkeys.Text = Language.GetString("hotkeys");
+            label_lastregion_hotkey.Text = Language.GetString("contextmenu_capturelastregion");
+            lastregion_hotkeyControl.PropertyName = nameof(ICoreConfiguration.LastregionHotkey);
+            label_region_hotkey.Text = Language.GetString("contextmenu_capturearea");
+            label_window_hotkey.Text = Language.GetString("contextmenu_capturewindow");
+            label_fullscreen_hotkey.Text = Language.GetString("contextmenu_capturefullscreen");
+            region_hotkeyControl.PropertyName = nameof(ICoreConfiguration.RegionHotkey);
+            window_hotkeyControl.PropertyName = nameof(ICoreConfiguration.WindowHotkey);
+            fullscreen_hotkeyControl.PropertyName = nameof(ICoreConfiguration.FullscreenHotkey);
+            tab_capture.Text = Language.GetString("settings_capture");
+            groupbox_editor.Text = Language.GetString("settings_editor");
+            checkbox_editor_match_capture_size.Text = Language.GetString("editor_match_capture_size");
+            checkbox_editor_match_capture_size.PropertyName = nameof(Editor.Configuration.IEditorConfiguration.MatchSizeToCapture);
+            checkbox_editor_match_capture_size.SectionName = "Editor";
+            groupbox_windowscapture.Text = Language.GetString("settings_windowscapture");
+            radiobuttonWindowCapture.Text = Language.GetString("settings_window_capture_mode");
+            radiobuttonInteractiveCapture.Text = Language.GetString("settings_capture_windows_interactive");
+            radiobuttonInteractiveCapture.PropertyName = nameof(ICoreConfiguration.CaptureWindowsInteractive);
+            groupbox_capture.Text = Language.GetString("settings_capture");
+            checkbox_zoomer.Text = Language.GetString("settings_zoom");
+            checkbox_zoomer.PropertyName = nameof(ICoreConfiguration.ZoomerEnabled);
+            checkbox_notifications.Text = Language.GetString("settings_shownotify");
+            checkbox_notifications.PropertyName = nameof(ICoreConfiguration.ShowTrayNotification);
+            checkbox_playsound.Text = Language.GetString("settings_playsound");
+            checkbox_playsound.PropertyName = nameof(ICoreConfiguration.PlayCameraSound);
+            checkbox_capture_mousepointer.Text = Language.GetString("settings_capture_mousepointer");
+            checkbox_capture_mousepointer.PropertyName = nameof(ICoreConfiguration.CaptureMousepointer);
+            label_waittime.Text = Language.GetString("settings_waittime");
+            tab_output.Text = Language.GetString("settings_output");
+            tab_destinations.Text = Language.GetString("settings_destination");
+            tab_printer.Text = Language.GetString("settings_printer");
+            groupBoxColors.Text = Language.GetString("printoptions_colors");
+            checkboxPrintInverted.Text = Language.GetString("printoptions_inverted");
+            checkboxPrintInverted.PropertyName = nameof(ICoreConfiguration.OutputPrintInverted);
+            radioBtnColorPrint.Text = Language.GetString("printoptions_printcolor");
+            radioBtnGrayScale.Text = Language.GetString("printoptions_printgrayscale");
+            radioBtnGrayScale.PropertyName = nameof(ICoreConfiguration.OutputPrintGrayscale);
+            radioBtnMonochrome.Text = Language.GetString("printoptions_printmonochrome");
+            radioBtnMonochrome.PropertyName = nameof(ICoreConfiguration.OutputPrintMonochrome);
+            groupBoxPrintLayout.Text = Language.GetString("printoptions_layout");
+            checkboxDateTime.Text = Language.GetString("printoptions_timestamp");
+            checkboxDateTime.PropertyName = nameof(ICoreConfiguration.OutputPrintFooter);
+            checkboxAllowShrink.Text = Language.GetString("printoptions_allowshrink");
+            checkboxAllowShrink.PropertyName = nameof(ICoreConfiguration.OutputPrintAllowShrink);
+            checkboxAllowEnlarge.Text = Language.GetString("printoptions_allowenlarge");
+            checkboxAllowEnlarge.PropertyName = nameof(ICoreConfiguration.OutputPrintAllowEnlarge);
+            checkboxAllowRotate.Text = Language.GetString("printoptions_allowrotate");
+            checkboxAllowRotate.PropertyName = nameof(ICoreConfiguration.OutputPrintAllowRotate);
+            checkboxAllowCenter.Text = Language.GetString("printoptions_allowcenter");
+            checkboxAllowCenter.PropertyName = nameof(ICoreConfiguration.OutputPrintCenter);
+            checkbox_alwaysshowprintoptionsdialog.Text = Language.GetString("settings_alwaysshowprintoptionsdialog");
+            checkbox_alwaysshowprintoptionsdialog.PropertyName = nameof(ICoreConfiguration.OutputPrintPromptOptions);
+
+            tab_plugins.Text = Language.GetString("settings_plugins");
+            groupbox_plugins.Text = Language.GetString("settings_plugins");
+            button_pluginconfigure.Text = Language.GetString("settings_configureplugin");
+            tab_expert.Text = Language.GetString("expertsettings");
+            groupbox_expert.Text = Language.GetString("expertsettings");
+            checkbox_reuseeditor.Text = Language.GetString("expertsettings_reuseeditorifpossible");
+            checkbox_reuseeditor.PropertyName = nameof(Editor.Configuration.IEditorConfiguration.ReuseEditor);
+            checkbox_reuseeditor.SectionName = "Editor";
+            checkbox_minimizememoryfootprint.Text = Language.GetString("expertsettings_minimizememoryfootprint");
+            checkbox_minimizememoryfootprint.PropertyName = nameof(ICoreConfiguration.MinimizeWorkingSetSize);
+            checkbox_checkunstableupdates.Text = Language.GetString("expertsettings_checkunstableupdates");
+            checkbox_checkunstableupdates.PropertyName = nameof(ICoreConfiguration.CheckForUnstable);
+            checkbox_suppresssavedialogatclose.Text = Language.GetString("expertsettings_suppresssavedialogatclose");
+            checkbox_suppresssavedialogatclose.PropertyName = nameof(Editor.Configuration.IEditorConfiguration.SuppressSaveDialogAtClose);
+            checkbox_suppresssavedialogatclose.SectionName = "Editor";
+            label_counter.Text = Language.GetString("expertsettings_counter");
+            textbox_counter.PropertyName = nameof(ICoreConfiguration.OutputFileIncrementingNumber);
+            label_footerpattern.Text = Language.GetString("expertsettings_footerpattern");
+            textbox_footerpattern.PropertyName = nameof(ICoreConfiguration.OutputPrintFooterPattern);
+            checkbox_thumbnailpreview.Text = Language.GetString("expertsettings_thumbnailpreview");
+            checkbox_thumbnailpreview.PropertyName = nameof(ICoreConfiguration.ThumnailPreview);
+            checkbox_optimizeforrdp.Text = Language.GetString("expertsettings_optimizeforrdp");
+            checkbox_optimizeforrdp.PropertyName = nameof(ICoreConfiguration.OptimizeForRDP);
+            checkbox_autoreducecolors.Text = Language.GetString("expertsettings_autoreducecolors");
+            checkbox_autoreducecolors.PropertyName = nameof(ICoreConfiguration.OutputFileAutoReduceColors);
+            label_clipboardformats.Text = Language.GetString("expertsettings_clipboardformats");
+            checkbox_enableexpert.Text = Language.GetString("expertsettings_enableexpert");
+            Text = Language.GetString("settings_title");
         }
 
         /// <summary>
@@ -759,7 +880,7 @@ namespace Greenshot.Forms
             UpdateUi();
 
             // Reflect Language changes form
-            ApplyLanguage();
+            InitializeLanguage();
 
             // Update the email & windows capture mode
             //SetEmailFormat(selectedEmailFormat);

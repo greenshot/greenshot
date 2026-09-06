@@ -27,6 +27,19 @@ namespace Greenshot.Editor.Configuration
 {
     public partial class EditorConfigurationImpl : IEditorConfiguration
     {
+        public EditorConfigurationImpl()
+        {
+            RecentColors = new List<Color>();
+        }
+
+        partial void OnRecentColorsGet(ref List<Color> value)
+        {
+            if (value == null)
+            {
+                _recentColors = value = new List<Color>();
+            }
+        }
+
         /// <summary>
         /// This should have been Math.Clamp, but it's not available for .NET Framework 4.8
         /// </summary>

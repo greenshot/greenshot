@@ -262,7 +262,13 @@ namespace Greenshot.Helpers
 
             // This fixes a problem when a balloon is still visible and a capture needs to be taken
             // forcefully removes the balloon!
-            if (!CoreConfig.HideTrayicon)
+            // Note: toggling Visible actually removes and re-adds the icon in the notification area
+            // (NIM_DELETE followed by NIM_ADD). On a Remote Desktop / RemoteApp (RAIL) connection this
+            // "blink" can cause the icon to disappear permanently from the local client's taskbar, see
+            // https://github.com/greenshot/greenshot/issues/1324. Skip it when we are in such a session,
+            // unless the user explicitly disabled the RDP optimizations.
+            bool isTerminalServerSession = !CoreConfig.DisableRDPOptimizing && (CoreConfig.OptimizeForRDP || SystemInformation.TerminalServerSession);
+            if (!CoreConfig.HideTrayicon && !isTerminalServerSession)
             {
                 var notifyIcon = SimpleServiceProvider.Current.GetInstance<NotifyIcon>();
                 notifyIcon.Visible = false;
