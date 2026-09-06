@@ -27,11 +27,8 @@ namespace Greenshot.Base.Controls
     /// <summary>
     /// Description of GreenshotCheckbox.
     /// </summary>
-    public class GreenshotRadioButton : RadioButton, IGreenshotLanguageBindable, IGreenshotConfigBindable
+    public class GreenshotRadioButton : RadioButton, IGreenshotConfigBindable
     {
-        [Category("Greenshot"), DefaultValue(null), Description("Specifies key of the language file to use when displaying the text.")]
-        public string LanguageKey { get; set; }
-
         [Category("Greenshot"), DefaultValue("Core"), Description("Specifies the Ini-Section to map this control with.")]
         public string SectionName { get; set; } = "Core";
 

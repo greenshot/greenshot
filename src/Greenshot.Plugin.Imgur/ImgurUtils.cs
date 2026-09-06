@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -44,8 +45,10 @@ public static class ImgurUtils
     /// <returns></returns>
     public static bool IsHistoryLoadingNeeded()
     {
-        Log.InfoFormat("Checking if imgur cache loading needed, configuration has {0} imgur hashes, loaded are {1} hashes.", Config.ImgurUploadHistory.Count, Config.RuntimeImgurHistory.Count);
-        return Config.RuntimeImgurHistory.Count != Config.ImgurUploadHistory.Count;
+        int uploadCount = Config?.ImgurUploadHistory?.Count ?? 0;
+        int runtimeCount = Config?.RuntimeImgurHistory?.Count ?? 0;
+        Log.InfoFormat("Checking if imgur cache loading needed, configuration has {0} imgur hashes, loaded are {1} hashes.", uploadCount, runtimeCount);
+        return runtimeCount != uploadCount;
     }
 
     /// <summary>
@@ -53,10 +56,12 @@ public static class ImgurUtils
     /// </summary>
     public static void LoadHistory()
     {
-        if (!IsHistoryLoadingNeeded())
+        if (!IsHistoryLoadingNeeded() || Config?.ImgurUploadHistory == null)
         {
             return;
         }
+
+        Config.RuntimeImgurHistory ??= new Dictionary<string, ImgurInfo>();
 
         bool saveNeeded = false;
 

@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -19,7 +19,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using Greenshot.Base.Controls;
+using System.Windows.Forms;
+
 
 namespace Greenshot.Forms {
 	partial class MainForm {
@@ -55,20 +56,20 @@ namespace Greenshot.Forms {
 			this.components = new System.ComponentModel.Container();
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
 			this.contextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.contextmenu_capturearea = new GreenshotToolStripMenuItem();
-			this.contextmenu_capturelastregion = new GreenshotToolStripMenuItem();
-			this.contextmenu_capturewindow = new GreenshotToolStripMenuItem();
-			this.contextmenu_capturefullscreen = new GreenshotToolStripMenuItem();
-			this.contextmenu_capturewindowfromlist = new GreenshotToolStripMenuItem();
-			this.contextmenu_captureclipboard = new GreenshotToolStripMenuItem();
-			this.contextmenu_openfile = new GreenshotToolStripMenuItem();
-			this.contextmenu_openrecentcapture = new GreenshotToolStripMenuItem();
-			this.contextmenu_quicksettings = new GreenshotToolStripMenuItem();
-			this.contextmenu_settings = new GreenshotToolStripMenuItem();
-			this.contextmenu_help = new GreenshotToolStripMenuItem();
-			this.contextmenu_donate = new GreenshotToolStripMenuItem();
-			this.contextmenu_about = new GreenshotToolStripMenuItem();
-            this.contextmenu_exit = new GreenshotToolStripMenuItem();
+            this.contextmenu_capturearea = new ToolStripMenuItem();
+			this.contextmenu_capturelastregion = new ToolStripMenuItem();
+			this.contextmenu_capturewindow = new ToolStripMenuItem();
+			this.contextmenu_capturefullscreen = new ToolStripMenuItem();
+			this.contextmenu_capturewindowfromlist = new ToolStripMenuItem();
+			this.contextmenu_captureclipboard = new ToolStripMenuItem();
+			this.contextmenu_openfile = new ToolStripMenuItem();
+			this.contextmenu_openrecentcapture = new ToolStripMenuItem();
+			this.contextmenu_quicksettings = new ToolStripMenuItem();
+			this.contextmenu_settings = new ToolStripMenuItem();
+			this.contextmenu_help = new ToolStripMenuItem();
+			this.contextmenu_donate = new ToolStripMenuItem();
+			this.contextmenu_about = new ToolStripMenuItem();
+            this.contextmenu_exit = new ToolStripMenuItem();
             this.toolStripListCaptureSeparator = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripOtherSourcesSeparator = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripOpenFolderSeparator = new System.Windows.Forms.ToolStripSeparator();
@@ -189,7 +190,7 @@ namespace Greenshot.Forms {
 			// contextmenu_quicksettings
 			// 
 			this.contextmenu_quicksettings.Name = "contextmenu_quicksettings";
-			this.contextmenu_quicksettings.Size = new System.Drawing.Size(170, coreConfiguration.IconSize.Height + 8);
+			this.contextmenu_quicksettings.Size = new System.Drawing.Size(170, 22);
 			// 
 			// contextmenu_settings
 			// 
@@ -242,43 +243,42 @@ namespace Greenshot.Forms {
 			this.notifyIcon.Text = "Greenshot";
 			this.notifyIcon.MouseUp += new System.Windows.Forms.MouseEventHandler(this.NotifyIconClickTest);
             // 
-			// MainForm
-			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-			this.ClientSize = new System.Drawing.Size(0, 0);
-			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
-			this.LanguageKey = "application_title";
-			this.Name = "MainForm";
-			this.ShowIcon = false;
-			this.ShowInTaskbar = false;
-			this.WindowState = System.Windows.Forms.FormWindowState.Minimized;
-			this.Activated += new System.EventHandler(this.MainFormActivated);
-			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainFormFormClosing);
-			this.contextMenu.ResumeLayout(false);
-			this.ResumeLayout(false);
+            // MainForm
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+            this.ClientSize = new System.Drawing.Size(0, 0);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+            this.Name = "MainForm";
+            this.ShowIcon = false;
+            this.ShowInTaskbar = false;
+            this.WindowState = System.Windows.Forms.FormWindowState.Minimized;
+            this.Activated += new System.EventHandler(this.MainFormActivated);
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainFormFormClosing);
+            this.contextMenu.ResumeLayout(false);
+            this.ResumeLayout(false);
 		}
 		private System.Windows.Forms.ToolStripSeparator toolStripOtherSourcesSeparator;
-		private GreenshotToolStripMenuItem contextmenu_capturewindowfromlist;
+		private ToolStripMenuItem contextmenu_capturewindowfromlist;
 		private System.Windows.Forms.ToolStripSeparator toolStripListCaptureSeparator;
-		private GreenshotToolStripMenuItem contextmenu_openrecentcapture;
-		private GreenshotToolStripMenuItem contextmenu_donate;
-		private GreenshotToolStripMenuItem contextmenu_openfile;
+		private ToolStripMenuItem contextmenu_openrecentcapture;
+		private ToolStripMenuItem contextmenu_donate;
+		private ToolStripMenuItem contextmenu_openfile;
 		private System.Windows.Forms.ToolStripSeparator toolStripPluginSeparator;
-		private GreenshotToolStripMenuItem contextmenu_captureclipboard;
-		private GreenshotToolStripMenuItem contextmenu_quicksettings;
+		private ToolStripMenuItem contextmenu_captureclipboard;
+		private ToolStripMenuItem contextmenu_quicksettings;
 		private System.Windows.Forms.ToolStripSeparator toolStripMiscSeparator;
-		private GreenshotToolStripMenuItem contextmenu_help;
-		private GreenshotToolStripMenuItem contextmenu_capturewindow;
+		private ToolStripMenuItem contextmenu_help;
+		private ToolStripMenuItem contextmenu_capturewindow;
 		private System.Windows.Forms.ToolStripSeparator toolStripOpenFolderSeparator;
-		private GreenshotToolStripMenuItem contextmenu_about;
-		private GreenshotToolStripMenuItem contextmenu_capturefullscreen;
-		private GreenshotToolStripMenuItem contextmenu_capturelastregion;
-		private GreenshotToolStripMenuItem contextmenu_capturearea;
+		private ToolStripMenuItem contextmenu_about;
+		private ToolStripMenuItem contextmenu_capturefullscreen;
+		private ToolStripMenuItem contextmenu_capturelastregion;
+		private ToolStripMenuItem contextmenu_capturearea;
 		private System.Windows.Forms.NotifyIcon notifyIcon;
 		private System.Windows.Forms.ToolStripSeparator toolStripCloseSeparator;
-		private GreenshotToolStripMenuItem contextmenu_exit;
+		private ToolStripMenuItem contextmenu_exit;
 		private System.Windows.Forms.ContextMenuStrip contextMenu;
-		private GreenshotToolStripMenuItem contextmenu_settings;
+		private ToolStripMenuItem contextmenu_settings;
 	}
 }

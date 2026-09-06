@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -22,6 +22,7 @@
 using System;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Structs;
+using Greenshot.Base.Core;
 using Greenshot.Base.Effects;
 
 namespace Greenshot.Editor.Forms
@@ -30,11 +31,26 @@ namespace Greenshot.Editor.Forms
     {
         private readonly DropShadowEffect _effect;
 
+        public DropShadowSettingsForm() : this(new DropShadowEffect())
+        {
+        }
+
         public DropShadowSettingsForm(DropShadowEffect effect)
         {
             _effect = effect;
             InitializeComponent();
+            InitializeLanguage();
             ShowSettings();
+        }
+
+        protected override void InitializeLanguage()
+        {
+            buttonOK.Text = Language.GetString("OK");
+            buttonCancel.Text = Language.GetString("CANCEL");
+            labelDarkness.Text = Language.GetString("editor_dropshadow_darkness");
+            labelOffset.Text = Language.GetString("editor_dropshadow_offset");
+            labelThickness.Text = Language.GetString("editor_dropshadow_thickness");
+            Text = Language.GetString("editor_dropshadow_settings");
         }
 
         /// <summary>

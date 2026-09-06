@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -111,8 +111,11 @@ public class GreenshotMain
         // Build the IniConfigRegistry:
         //   AddAppDataPath  → %APPDATA%\Greenshot
         //   AddSearchPath   → installation / startup directory
-        //   --ini-directory → optional command-line override (highest priority)
+        // Ensure any design-time / test fallback configuration is removed before production startup
+        IniConfigHelper.UnregisterDesignTimeConfig();
+
         var builder = IniConfigRegistry.ForFile("greenshot.ini")
+
             .AddAppDataPath("Greenshot")
             .AddSearchPath(startupPath);
 

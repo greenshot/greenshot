@@ -30,12 +30,9 @@ namespace Greenshot.Editor.Controls
     /// Also, when a DropDownItem is selected, the DropDownButton adopts its Tag and Image.
     /// The selected tag can be accessed via SelectedTag property.
     /// </summary>
-    public class BindableToolStripDropDownButton : ToolStripDropDownButton, INotifyPropertyChanged, IGreenshotLanguageBindable
+    public class BindableToolStripDropDownButton : ToolStripDropDownButton, INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
-
-        [Category("Greenshot"), DefaultValue(null), Description("Specifies key of the language file to use when displaying the text.")]
-        public string LanguageKey { get; set; }
 
         public object SelectedTag
         {
