@@ -47,6 +47,11 @@ namespace Greenshot.Base.Core
                 return true;
             }
 
+            if (destinationType == typeof(BorderEffect))
+            {
+                return true;
+            }
+
             return base.CanConvertTo(context, destinationType);
         }
 
@@ -71,6 +76,13 @@ namespace Greenshot.Base.Core
                     RetrieveTornEdgeEffectValues(effect, sb);
                     return sb.ToString();
                 }
+
+                if (value.GetType() == typeof(BorderEffect))
+                {
+                    BorderEffect effect = value as BorderEffect;
+                    RetrieveBorderEffectValues(effect, sb);
+                    return sb.ToString();
+                }
             }
 
             // from string
@@ -91,6 +103,13 @@ namespace Greenshot.Base.Core
                     ApplyTornEdgeEffectValues(settings, effect);
                     return effect;
                 }
+
+                if (destinationType == typeof(BorderEffect))
+                {
+                    BorderEffect effect = new BorderEffect();
+                    ApplyBorderEffectValues(settings, effect);
+                    return effect;
+                }
             }
 
             return base.ConvertTo(context, culture, value, destinationType);
@@ -103,6 +122,11 @@ namespace Greenshot.Base.Core
                 if (settings.Contains("ToothHeight"))
                 {
                     return ConvertTo(context, culture, settings, typeof(TornEdgeEffect));
+                }
+
+                if (settings.Contains("BorderEffect"))
+                {
+                    return ConvertTo(context, culture, settings, typeof(BorderEffect));
                 }
 
                 return ConvertTo(context, culture, settings, typeof(DropShadowEffect));
@@ -219,6 +243,36 @@ namespace Greenshot.Base.Core
             }
         }
 
+        private void ApplyBorderEffectValues(string valuesString, BorderEffect effect)
+        {
+            string[] values = valuesString.Split('|');
+            foreach (string nameValuePair in values)
+            {
+                string[] pair = nameValuePair.Split(':');
+                switch (pair[0])
+                {
+                    case "Color":
+                        string[] rgb = pair[1].Split(',');
+                        if (rgb.Length == 3)
+                        {
+                            if (int.TryParse(rgb[0], out var r) && int.TryParse(rgb[1], out var g) && int.TryParse(rgb[2], out var b))
+                            {
+                                effect.Color = Color.FromArgb(r, g, b);
+                            }
+
+                        }
+                        break;
+                    case "Width":
+                        if (int.TryParse(pair[1], out var width))
+                        {
+                            effect.Width = width;
+                        }
+
+                        break;
+                }
+            }
+        }
+
         private void RetrieveDropShadowEffectValues(DropShadowEffect effect, StringBuilder sb)
         {
             // Fix to prevent BUG-1753 is to use the numberFormatInfo
@@ -230,6 +284,11 @@ namespace Greenshot.Base.Core
         {
             sb.AppendFormat("GenerateShadow:{0}|ToothHeight:{1}|HorizontalToothRange:{2}|VerticalToothRange:{3}|Edges:{4},{5},{6},{7}", effect.GenerateShadow, effect.ToothHeight,
                 effect.HorizontalToothRange, effect.VerticalToothRange, effect.Edges[0], effect.Edges[1], effect.Edges[2], effect.Edges[3]);
+        }
+
+        private void RetrieveBorderEffectValues(BorderEffect effect, StringBuilder sb)
+        {
+            sb.AppendFormat("Key:BorderEffect|Color:{0},{1},{2}|Width:{3}", effect.Color.R, effect.Color.G, effect.Color.B, effect.Width);
         }
     }
 }
