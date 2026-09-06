@@ -1,0 +1,65 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="پارسی" ietf="fa-IR" version="1.0.0">
+    <resources>
+        <resource name="upload_menu_item">
+            آپلود به جیرا
+        </resource>
+        <resource name="column_assignee">
+            مسئول
+        </resource>
+        <resource name="column_created">
+            ایجاد شده
+        </resource>
+        <resource name="column_id">
+            شناسه
+        </resource>
+        <resource name="column_reporter">
+            گزارش‌دهنده
+        </resource>
+        <resource name="column_summary">
+            خلاصه
+        </resource>
+        <resource name="label_comment">
+            نظر
+        </resource>
+        <resource name="label_filename">
+            نام فایل
+        </resource>
+        <resource name="label_jira">
+            جیرا
+        </resource>
+        <resource name="label_jirafilter">
+            فیلتر جیرا
+        </resource>
+        <resource name="login_error">
+            مشکلی در هنگام ورود رخ داد: {0}
+        </resource>
+        <resource name="label_url">
+            آدرس (Url)
+        </resource>
+        <resource name="login_title">
+            لطفاً اطلاعات ورود به جیرا را وارد کنید
+        </resource>
+        <resource name="settings_title">
+            تنظیمات جیرا
+        </resource>
+        <resource name="OK">
+            تأیید
+        </resource>
+        <resource name="CANCEL">
+            لغو
+        </resource>
+        <resource name="upload_success">
+            تصویر با موفقیت در جیرا آپلود شد!
+        </resource>
+        <resource name="upload_failure">
+            خطایی هنگام آپلود به جیرا رخ داد:
+        </resource>
+        <resource name="label_upload_format">
+            فرمت تصویر
+        </resource>
+        <resource name="communication_wait">
+            در حال انتقال داده به جیرا، لطفاً صبر کنید...
+        </resource>
+    </resources>
+</language>

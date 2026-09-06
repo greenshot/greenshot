@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="پارسی" ietf="fa-IR" version="1.0.0">
+    <resources>
+        <resource name="upload_menu_item">
+            آپلود به Imgur
+        </resource>
+        <resource name="settings_title">
+            تنظیمات Imgur
+        </resource>
+        <resource name="label_url">
+            آدرس (Url)
+        </resource>
+        <resource name="OK">
+            تأیید
+        </resource>
+        <resource name="CANCEL">
+            لغو
+        </resource>
+        <resource name="upload_success">
+            تصویر با موفقیت در Imgur آپلود شد!
+        </resource>
+        <resource name="upload_failure">
+            خطایی هنگام آپلود به Imgur رخ داد:
+        </resource>
+        <resource name="label_upload_format">
+            فرمت تصویر
+        </resource>
+        <resource name="communication_wait">
+            در حال ارتباط با Imgur. لطفاً صبر کنید...
+        </resource>
+        <resource name="delete_question">
+            آیا مطمئن هستید که می‌خواهید تصویر {0} را از Imgur حذف کنید؟
+        </resource>
+        <resource name="clear_question">
+            آیا مطمئن هستید که می‌خواهید تاریخچه محلی Imgur را حذف کنید؟
+        </resource>
+        <resource name="delete_title">
+            حذف Imgur {0}
+        </resource>
+        <resource name="anonymous_access">
+            استفاده از دسترسی ناشناس
+        </resource>
+        <resource name="use_page_link">
+            استفاده از لینک صفحه به جای لینک تصویر در کلیپ‌بورد
+        </resource>
+        <resource name="history">
+            تاریخچه
+        </resource>
+        <resource name="configure">
+            پیکربندی
+        </resource>
+    </resources>
+</language>
