@@ -62,10 +62,14 @@ public class ZxingCaptureProcessor : AbstractProcessor
             capture.CaptureDetails.StartedProcessors.Add(Designation);
         }
 
-        if (capture.Image == null)
-        {
-            return false;
-        }
+if (capture.Image == null)
+{
+    lock (capture.CaptureDetails.StartedProcessors)
+    {
+        capture.CaptureDetails.StartedProcessors.Remove(Designation);
+    }
+    return false;
+}
 
         Bitmap clonedBitmap;
         try
