@@ -26,19 +26,14 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Windows.Forms;
-using Dapplo.Windows.Common.Enums;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Dpi;
 using Dapplo.Windows.Kernel32;
-using Dapplo.Windows.Messages;
-using Dapplo.Windows.Messages.Enumerations;
 using Dapplo.Windows.User32;
 using Dapplo.Windows.User32.Structs;
 using Greenshot.Base;
-using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Effects;
@@ -169,17 +164,17 @@ namespace Greenshot.Editor.Forms
 
             // Make sure the editor is placed on the same location as the last editor was on close
             // But only if this still exists, else it will be reset (BUG-1812)
-            WindowPlacement editorWindowPlacement = EditorConfiguration.GetEditorPlacement();
+            WindowPlacement editorWindowPlacement = EditorConfigurationHelper.GetEditorPlacement(EditorConfiguration);
             NativeRect screenBounds = DisplayInfo.ScreenBounds;
             if (!screenBounds.Contains(editorWindowPlacement.NormalPosition))
             {
-                EditorConfiguration.ResetEditorPlacement();
+                EditorConfigurationHelper.ResetEditorPlacement(EditorConfiguration);
             }
 
             // ReSharper disable once UnusedVariable
             WindowDetails thisForm = new(Handle)
             {
-                WindowPlacement = EditorConfiguration.GetEditorPlacement()
+                WindowPlacement = EditorConfigurationHelper.GetEditorPlacement(EditorConfiguration)
             };
 
             // init surface
@@ -1035,8 +1030,8 @@ namespace Greenshot.Editor.Forms
             }
 
             // persist our geometry string.
-            EditorConfiguration.SetEditorPlacement(new WindowDetails(Handle).WindowPlacement);
-            IniConfig.Save();
+            EditorConfigurationHelper.SetEditorPlacement(EditorConfiguration, new WindowDetails(Handle).WindowPlacement);
+            IniConfigRegistry.Get().Save();
 
             // remove from the editor list
             lock (_editorListLock)

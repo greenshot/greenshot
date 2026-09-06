@@ -59,7 +59,7 @@ public partial class SettingsForm : ExternalCommandForm
 
     private void ButtonOkClick(object sender, EventArgs e)
     {
-        IniConfig.Save();
+        IniConfigRegistry.Get().Save();
     }
 
     private void ButtonAddClick(object sender, EventArgs e)

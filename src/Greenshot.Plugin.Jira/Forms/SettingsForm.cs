@@ -45,9 +45,9 @@ public partial class SettingsForm : JiraFormBase
         buttonOK.Text = Language.GetString("OK");
         buttonCancel.Text = Language.GetString("CANCEL");
         label_url.Text = Language.GetString("label_url");
-        textBoxUrl.PropertyName = nameof(JiraConfiguration.Url);
+        textBoxUrl.PropertyName = nameof(IJiraConfiguration.Url);
         textBoxUrl.SectionName = "Jira";
-        combobox_uploadimageformat.PropertyName = nameof(JiraConfiguration.UploadFormat);
+        combobox_uploadimageformat.PropertyName = nameof(IJiraConfiguration.UploadFormat);
         combobox_uploadimageformat.SectionName = "Jira";
         label_upload_format.Text = Language.GetString("label_upload_format");
         Text = Language.GetString("settings_title");

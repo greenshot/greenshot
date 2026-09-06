@@ -49,10 +49,10 @@ public partial class SettingsForm : ImgurForm
         buttonCancel.Text = Language.GetString("imgur.CANCEL");
         historyButton.Text = Language.GetString("imgur.history");
         checkbox_anonymous_access.Text = Language.GetString("imgur.anonymous_access");
-        checkbox_anonymous_access.PropertyName = nameof(ImgurConfiguration.AnonymousAccess);
+        checkbox_anonymous_access.PropertyName = nameof(IImgurConfiguration.AnonymousAccess);
         checkbox_anonymous_access.SectionName = "Imgur";
         checkbox_usepagelink.Text = Language.GetString("imgur.use_page_link");
-        checkbox_usepagelink.PropertyName = nameof(ImgurConfiguration.UsePageLink);
+        checkbox_usepagelink.PropertyName = nameof(IImgurConfiguration.UsePageLink);
         checkbox_usepagelink.SectionName = "Imgur";
         Text = Language.GetString("imgur.settings_title");
     }

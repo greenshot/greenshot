@@ -43,12 +43,12 @@ public partial class SettingsForm : DropboxForm
     {
         buttonOK.Text = Language.GetString("OK");
         buttonCancel.Text = Language.GetString("CANCEL");
-        combobox_uploadimageformat.PropertyName = nameof(DropboxConfiguration.UploadFormat);
+        combobox_uploadimageformat.PropertyName = nameof(IDropboxConfiguration.UploadFormat);
         combobox_uploadimageformat.SectionName = "Dropbox";
         label_upload_format.Text = Language.GetString("dropbox.label_upload_format");
         label_AfterUpload.Text = Language.GetString("dropbox.label_AfterUpload");
         checkboxAfterUploadLinkToClipBoard.Text = Language.GetString("dropbox.label_AfterUploadLinkToClipBoard");
-        checkboxAfterUploadLinkToClipBoard.PropertyName = nameof(DropboxConfiguration.AfterUploadLinkToClipBoard);
+        checkboxAfterUploadLinkToClipBoard.PropertyName = nameof(IDropboxConfiguration.AfterUploadLinkToClipBoard);
         checkboxAfterUploadLinkToClipBoard.SectionName = "Dropbox";
         Text = Language.GetString("dropbox.settings_title");
     }

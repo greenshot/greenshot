@@ -43,12 +43,12 @@ public partial class SettingsForm : BoxForm
     {
         buttonOK.Text = Language.GetString("OK");
         buttonCancel.Text = Language.GetString("CANCEL");
-        combobox_uploadimageformat.PropertyName = nameof(BoxConfiguration.UploadFormat);
+        combobox_uploadimageformat.PropertyName = nameof(IBoxConfiguration.UploadFormat);
         combobox_uploadimageformat.SectionName = "Box";
         label_upload_format.Text = Language.GetString("box.label_upload_format");
         label_AfterUpload.Text = Language.GetString("box.label_AfterUpload");
         checkboxAfterUploadLinkToClipBoard.Text = Language.GetString("box.label_AfterUploadLinkToClipBoard");
-        checkboxAfterUploadLinkToClipBoard.PropertyName = nameof(BoxConfiguration.AfterUploadLinkToClipBoard);
+        checkboxAfterUploadLinkToClipBoard.PropertyName = nameof(IBoxConfiguration.AfterUploadLinkToClipBoard);
         checkboxAfterUploadLinkToClipBoard.SectionName = "Box";
         Text = Language.GetString("box.settings_title");
     }
