@@ -182,11 +182,12 @@ namespace Greenshot.Editor.Forms
 			this.pixelSizeLabel = new ToolStripLabel();
 			this.pixelSizeUpDown = new ToolStripNumericUpDown();
 			this.arrowHeadsLabel = new ToolStripLabel();
-			this.arrowHeadsDropDownButton = new ToolStripDropDownButton();
+			this.arrowHeadsDropDownButton = new BindableToolStripDropDownButton();
 			this.arrowHeadStartMenuItem = new ToolStripMenuItem();
 			this.arrowHeadEndMenuItem = new ToolStripMenuItem();
 			this.arrowHeadBothMenuItem = new ToolStripMenuItem();
 			this.arrowHeadNoneMenuItem = new ToolStripMenuItem();
+
 			this.shadowButton = new BindableToolStripButton();
 			this.toolStripSeparator = new System.Windows.Forms.ToolStripSeparator();
 			this.toolStripSeparator10 = new System.Windows.Forms.ToolStripSeparator();
@@ -1486,30 +1487,41 @@ namespace Greenshot.Editor.Forms
 			this.arrowHeadsDropDownButton.Image = ((System.Drawing.Image)(resources.GetObject("arrowHeadsDropDownButton.Image")));
 			this.arrowHeadsDropDownButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.arrowHeadsDropDownButton.Name = "arrowHeadsDropDownButton";
+			this.arrowHeadsDropDownButton.SelectedTag = ArrowContainer.ArrowHeadCombination.END_POINT;
+			this.arrowHeadsDropDownButton.Tag = ArrowContainer.ArrowHeadCombination.END_POINT;
+			this.arrowHeadsDropDownButton.DropDownItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.ArrowHeadsDropDownButtonDropDownItemClicked);
 			// 
 			// arrowHeadStartMenuItem
 			// 
+			this.arrowHeadStartMenuItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.ImageAndText;
+			this.arrowHeadStartMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("arrowHeadStartMenuItem.Image")));
+
 			this.arrowHeadStartMenuItem.Name = "arrowHeadStartMenuItem";
 			this.arrowHeadStartMenuItem.Tag = ArrowContainer.ArrowHeadCombination.START_POINT;
-			this.arrowHeadStartMenuItem.Click += new System.EventHandler(this.ArrowHeadsToolStripMenuItemClick);
 			// 
 			// arrowHeadEndMenuItem
 			// 
+			this.arrowHeadEndMenuItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.ImageAndText;
+			this.arrowHeadEndMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("arrowHeadEndMenuItem.Image")));
+
 			this.arrowHeadEndMenuItem.Name = "arrowHeadEndMenuItem";
 			this.arrowHeadEndMenuItem.Tag = ArrowContainer.ArrowHeadCombination.END_POINT;
-			this.arrowHeadEndMenuItem.Click += new System.EventHandler(this.ArrowHeadsToolStripMenuItemClick);
 			// 
 			// arrowHeadBothMenuItem
 			// 
+			this.arrowHeadBothMenuItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.ImageAndText;
+			this.arrowHeadBothMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("arrowHeadBothMenuItem.Image")));
+
 			this.arrowHeadBothMenuItem.Name = "arrowHeadBothMenuItem";
 			this.arrowHeadBothMenuItem.Tag = ArrowContainer.ArrowHeadCombination.BOTH;
-			this.arrowHeadBothMenuItem.Click += new System.EventHandler(this.ArrowHeadsToolStripMenuItemClick);
 			// 
 			// arrowHeadNoneMenuItem
 			// 
+			this.arrowHeadNoneMenuItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.ImageAndText;
+			this.arrowHeadNoneMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("arrowHeadNoneMenuItem.Image")));
+
 			this.arrowHeadNoneMenuItem.Name = "arrowHeadNoneMenuItem";
 			this.arrowHeadNoneMenuItem.Tag = ArrowContainer.ArrowHeadCombination.NONE;
-			this.arrowHeadNoneMenuItem.Click += new System.EventHandler(this.ArrowHeadsToolStripMenuItemClick);
 			// 
 			// shadowButton
 			// 
@@ -1861,8 +1873,9 @@ namespace Greenshot.Editor.Forms
 		private ToolStripNumericUpDown brightnessUpDown;
 		private ToolStripLabel brightnessLabel;
 		private ToolStripMenuItem pluginToolStripMenuItem;
-		private ToolStripDropDownButton arrowHeadsDropDownButton;
+		private BindableToolStripDropDownButton arrowHeadsDropDownButton;
 		private ToolStripLabel arrowHeadsLabel;
+
 		private ToolStripNumericUpDown pixelSizeUpDown;
 		private ToolStripLabel pixelSizeLabel;
 		private ToolStripNumericUpDown magnificationFactorUpDown;
