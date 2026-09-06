@@ -164,6 +164,7 @@ Tarkista valitun tallennuspaikan kirjoitussuojaus.</resource>
 		<resource name="settings_destination_file">Tallenna heti (alla olevilla asetuksilla)</resource>
 		<resource name="settings_destination_fileas">Tallenna nimellä (valintaikkuna)</resource>
 		<resource name="settings_destination_printer">Tulosta</resource>
+		<resource name="settings_destination_viewer">Avaa kuvankatselijassa</resource>
 		<resource name="settings_filenamepattern">Tiedostonimen malli</resource>
 		<resource name="settings_general">Yleiset</resource>
 		<resource name="settings_jpegquality">JPEG laatu</resource>
@@ -208,5 +209,18 @@ esim 11_58_32 (ja tiedostotyypin mukainen loppuliite)</resource>
 		<resource name="warning_hotkeys">Yhtä tai useampia pikanäppäimiä ei saatu rekisteröidyksi. Voi olla etteivät pikanäppäimet toimi.
 Tämä joshtuu todennäköisesti siitä että joku muu ohjelma käyttää samoja pikanäppäimiä.
 Sammuta se ohjelma joka käyttäää print näppäintä. Vaihtoehtoisesti voit käyttää kaikkia Greenshot ominaisuuksia myös tehtäväpalkin valikosta.</resource>
+		
+		<resource name="viewer_alwaysontop">Aina päällimmäisenä</resource>
+		<resource name="viewer_close_all">Sulje kaikki katseluohjelmat</resource>
+		<resource name="viewer_first_usage_message">Kuvaa ei ole tallennettu ja se menetetään kun ikkuna suljetaan tallentamatta.</resource>
+		<resource name="viewer_first_usage_title">Kuvankatselija - Ensimmäinen käyttö</resource>
+		<resource name="viewer_hide_cursor">Piilota kaapattu osoitin</resource>
+		<resource name="viewer_hide_title">Piilota otsikkopalkki</resource>
+		<resource name="viewer_process_again">Käsittele kuva uudelleen...</resource>
+		<resource name="viewer_reset_zoom">Palauta zoomaus/panorointi</resource>
+		<resource name="viewer_save">Tallenna</resource>
+		<resource name="viewer_saveas">Tallenna nimellä...</resource>
+		<resource name="viewer_show_cursor">Näytä kaapattu osoitin</resource>
+		<resource name="viewer_show_title">Näytä otsikkopalkki</resource>
 	</resources>
 </language>

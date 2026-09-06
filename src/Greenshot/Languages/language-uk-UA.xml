@@ -236,6 +236,7 @@ Greenshot постачається АБСОЛЮТНО БЕЗ ГАРАНТІЇ. �
 		<resource name="settings_destination_fileas">Зберегти як (відображення діалогу)</resource>
 		<resource name="settings_destination_picker">Запитувати про призначення щоразу</resource>
 		<resource name="settings_destination_printer">Роздрукувати</resource>
+		<resource name="settings_destination_viewer">Відкрити у переглядачі зображень</resource>
 		<resource name="settings_editor">Редактор</resource>
 		<resource name="settings_filenamepattern">Шаблон назви файла</resource>
 		<resource name="settings_general">Загальні</resource>
@@ -326,6 +327,19 @@ ${hostname} назва комп’ютера
     <resource name="editor_resize_width">Ширина</resource>
     <resource name="editor_resize_height">Висота</resource>
 	<resource name="settings_iconsize">Розмір піктограми</resource>
+	
+	<resource name="viewer_alwaysontop">Завжди зверху</resource>
+	<resource name="viewer_close_all">Закрити всі переглядачі</resource>
+	<resource name="viewer_first_usage_message">Зображення не збережено і буде втрачено при закритті вікна без збереження.</resource>
+	<resource name="viewer_first_usage_title">Переглядач зображень - Перше використання</resource>
+	<resource name="viewer_hide_cursor">Сховати захоплений курсор</resource>
+	<resource name="viewer_hide_title">Сховати заголовок</resource>
+	<resource name="viewer_process_again">Обробити зображення знову...</resource>
+	<resource name="viewer_reset_zoom">Скинути масштаб/переміщення</resource>
+	<resource name="viewer_save">Зберегти</resource>
+	<resource name="viewer_saveas">Зберегти як...</resource>
+	<resource name="viewer_show_cursor">Показати захоплений курсор</resource>
+	<resource name="viewer_show_title">Показати заголовок</resource>
     
   </resources>
 </language>

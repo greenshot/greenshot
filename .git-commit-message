@@ -1,0 +1,37 @@
+Add Image Viewer translations to all 38 languages
+
+This commit adds complete translations for the new Image Viewer feature
+to all 38 supported languages (excluding en-US which already has them).
+
+Changes:
+- Added settings_destination_viewer to all language files
+- Added 12 viewer_* strings to all language files
+- Total: 494 new translations (13 strings × 38 languages)
+
+Languages updated:
+- Western European (10): de-DE, de-x-franconia, es-ES, fr-FR, fr-QC, 
+  it-IT, nl-NL, pt-PT, pt-BR, ca-CA
+- Nordic (4): da-DK, fi-FI, nn-NO, sv-SE
+- Eastern European (12): cs-CZ, et-EE, hu-HU, lt-LT, lv-LV, pl-PL, 
+  ro-RO, ru-RU, sk-SK, sl-SI, sr-RS, uk-UA
+- Middle East (5): ar-SY, el-GR, fa-IR, he-IL, tr-TR
+- Asian (6): id-ID, ja-JP, ko-KR, vi-VN, zh-CN, zh-TW
+- Other (1): kab-DZ
+
+Translation quality:
+✓ Used Translation Glossary for consistency
+✓ Maintained language-specific conventions
+✓ Preserved technical elements (ellipsis, loanwords)
+✓ Applied dialect variations (Franconian, Quebec French)
+✓ Proper RTL support (Arabic, Hebrew, Persian)
+✓ All 38 files validated for XML well-formedness
+✓ Code review passed with no issues
+
+Documentation:
+- TASK_COMPLETION_SUMMARY.md - Complete task summary
+- TRANSLATION_SUMMARY.md - Translation overview
+- IMAGE_VIEWER_TRANSLATIONS_COMPLETE.md - Quick reference
+- TRANSLATION_VERIFICATION.md - Validation details
+- src/Greenshot/Languages/SAMPLE_TRANSLATIONS.md - Sample translations
+
+Status: Production ready

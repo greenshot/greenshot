@@ -237,6 +237,7 @@ Greenshot 不對這個程式做任何擔保。這個程式是自由軟體，您�
 		<resource name="settings_destination_fileas">另存新檔 (顯示對話方塊)</resource>
 		<resource name="settings_destination_picker">每次詢問目的地</resource>
 		<resource name="settings_destination_printer">傳送到印表機</resource>
+		<resource name="settings_destination_viewer">在圖片檢視器中開啟</resource>
 		<resource name="settings_editor">編輯器</resource>
 		<resource name="settings_filenamepattern">檔案名稱樣式</resource>
 		<resource name="settings_general">一般</resource>
@@ -327,6 +328,19 @@ Greenshot 所有功能仍然可以直接從通知區圖示的內容功能表動�
         <resource name="editor_resize_width">長度</resource>
         <resource name="editor_resize_height">寬度</resource>
 	    <resource name="settings_iconsize">圖示大小</resource>
+	    
+	    <resource name="viewer_alwaysontop">永遠在最上層</resource>
+	    <resource name="viewer_close_all">關閉所有檢視器</resource>
+	    <resource name="viewer_first_usage_message">圖片未儲存，關閉視窗時若不儲存將會遺失。</resource>
+	    <resource name="viewer_first_usage_title">圖片檢視器 - 首次使用</resource>
+	    <resource name="viewer_hide_cursor">隱藏擷取的游標</resource>
+	    <resource name="viewer_hide_title">隱藏標題列</resource>
+	    <resource name="viewer_process_again">再次處理圖片...</resource>
+	    <resource name="viewer_reset_zoom">重設縮放/平移</resource>
+	    <resource name="viewer_save">儲存</resource>
+	    <resource name="viewer_saveas">另存新檔...</resource>
+	    <resource name="viewer_show_cursor">顯示擷取的游標</resource>
+	    <resource name="viewer_show_title">顯示標題列</resource>
 
 	</resources>
 </language>

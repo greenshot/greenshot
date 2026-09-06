@@ -245,6 +245,7 @@ Sprawdź możliwość zapisu w wybranej lokalizacji.</resource>
 		<resource name="settings_destination_fileas">Zapisz jako (z oknem dialogowym)</resource>
 		<resource name="settings_destination_picker">Pytaj o miejsce za każdym razem</resource>
 		<resource name="settings_destination_printer">Wyślij do drukarki</resource>
+		<resource name="settings_destination_viewer">Otwórz w przeglądarce obrazów</resource>
 		<resource name="settings_editor">Edytor</resource>
 		<resource name="settings_filenamepattern">Szablon nazwy pliku</resource>
 		<resource name="settings_general">Ogólne</resource>
@@ -309,5 +310,18 @@ Proszę wyłączyć oprogramowanie korzystające z klawisza Print. Możliwe jest
 		<resource name="WindowCaptureMode.GDI">Używaj domyślnego koloru</resource>
 		<resource name="WindowCaptureMode.Screen">Tak jak wyświetlane</resource>
 		<resource name="editor_resize">Zmień rozmiar (Z)</resource>
+		
+		<resource name="viewer_alwaysontop">Zawsze na wierzchu</resource>
+		<resource name="viewer_close_all">Zamknij wszystkie przeglądarki</resource>
+		<resource name="viewer_first_usage_message">Obraz nie jest zapisany i zostanie utracony po zamknięciu okna bez zapisu.</resource>
+		<resource name="viewer_first_usage_title">Przeglądarka obrazów - Pierwsze użycie</resource>
+		<resource name="viewer_hide_cursor">Ukryj przechwycony kursor</resource>
+		<resource name="viewer_hide_title">Ukryj pasek tytułu</resource>
+		<resource name="viewer_process_again">Przetwórz obraz ponownie...</resource>
+		<resource name="viewer_reset_zoom">Resetuj powiększenie/przesunięcie</resource>
+		<resource name="viewer_save">Zapisz</resource>
+		<resource name="viewer_saveas">Zapisz jako...</resource>
+		<resource name="viewer_show_cursor">Pokaż przechwycony kursor</resource>
+		<resource name="viewer_show_title">Pokaż pasek tytułu</resource>
 	</resources>
 </language>

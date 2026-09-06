@@ -236,6 +236,7 @@ Por favor verifique as permissões de escrita do local seleccionado.</resource>
 		<resource name="settings_destination_fileas">Guardar como (exibir caixa de diálogo)</resource>
 		<resource name="settings_destination_picker">Perguntar o destino sempre</resource>
 		<resource name="settings_destination_printer">Enviar para impressora</resource>
+		<resource name="settings_destination_viewer">Abrir no visualizador de imagens</resource>
 		<resource name="settings_editor">Editor</resource>
 		<resource name="settings_filenamepattern">Nome Ficheiro Padrão</resource>
 		<resource name="settings_general">Geral</resource>
@@ -326,6 +327,19 @@ Todas as funcionalidades do Greenshot funcionam directamente através do menu de
     <resource name="editor_resize_width">Largura</resource>
     <resource name="editor_resize_height">Altura</resource>
 	<resource name="settings_iconsize">Tamanho do ícone</resource>
+	
+	<resource name="viewer_alwaysontop">Sempre no topo</resource>
+	<resource name="viewer_close_all">Fechar todos os visualizadores</resource>
+	<resource name="viewer_first_usage_message">A imagem não está guardada e será perdida ao fechar a janela sem guardar.</resource>
+	<resource name="viewer_first_usage_title">Visualizador de imagens - Primeira utilização</resource>
+	<resource name="viewer_hide_cursor">Ocultar cursor capturado</resource>
+	<resource name="viewer_hide_title">Ocultar barra de título</resource>
+	<resource name="viewer_process_again">Processar imagem novamente...</resource>
+	<resource name="viewer_reset_zoom">Repor zoom/deslocamento</resource>
+	<resource name="viewer_save">Guardar</resource>
+	<resource name="viewer_saveas">Guardar como...</resource>
+	<resource name="viewer_show_cursor">Mostrar cursor capturado</resource>
+	<resource name="viewer_show_title">Mostrar barra de título</resource>
     
   </resources>
 </language>
