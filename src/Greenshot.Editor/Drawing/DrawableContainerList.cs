@@ -33,6 +33,7 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Configuration;
 using Greenshot.Editor.Drawing.Fields;
+using Greenshot.Editor.Drawing.Filters;
 using Greenshot.Editor.Forms;
 using Greenshot.Editor.Memento;
 
@@ -314,6 +315,33 @@ namespace Greenshot.Editor.Drawing
         }
 
         /// <summary>
+        /// Generates a group key based on the inverted filter types of a container,
+        /// used to combine matching inverted filters into a single draw operation.
+        /// </summary>
+        /// <param name="dc">The drawable container to inspect</param>
+        /// <returns>A comma-separated string of inverted filter type names, or null if no inverted filters exist.</returns>
+        private static string GetInvertedFilterGroupKey(DrawableContainer dc)
+        {
+            if (dc == null || !dc.HasFilters)
+            {
+                return null;
+            }
+
+            var invertedFilterTypes = dc.Filters
+                .Where(f => f.Invert)
+                .Select(f => f.GetType().FullName)
+                .OrderBy(name => name)
+                .ToList();
+
+            if (invertedFilterTypes.Count == 0)
+            {
+                return null;
+            }
+
+            return string.Join(",", invertedFilterTypes);
+        }
+
+        /// <summary>
         /// Triggers all elements in the list to be redrawn.
         /// </summary>
         /// <param name="g">the to the bitmap related Graphics object</param>
@@ -327,6 +355,30 @@ namespace Greenshot.Editor.Drawing
                 return;
             }
 
+            // Find all containers with inverted filters that should be combined
+            var invertedGroups = new Dictionary<string, List<DrawableContainer>>();
+            foreach (var drawableContainer in this)
+            {
+                var dc = (DrawableContainer) drawableContainer;
+                if (dc.Parent == null || !dc.HasFilters)
+                {
+                    continue;
+                }
+
+                string groupKey = GetInvertedFilterGroupKey(dc);
+                if (!string.IsNullOrEmpty(groupKey))
+                {
+                    if (!invertedGroups.TryGetValue(groupKey, out var list))
+                    {
+                        list = new List<DrawableContainer>();
+                        invertedGroups[groupKey] = list;
+                    }
+                    list.Add(dc);
+                }
+            }
+
+            var drawnGroups = new HashSet<string>();
+
             foreach (var drawableContainer in this)
             {
                 var dc = (DrawableContainer) drawableContainer;
@@ -337,7 +389,37 @@ namespace Greenshot.Editor.Drawing
 
                 if (dc.DrawingBounds.IntersectsWith(clipRectangle))
                 {
-                    dc.DrawContent(g, bitmap, renderMode, clipRectangle);
+                    string groupKey = GetInvertedFilterGroupKey(dc);
+                    if (!string.IsNullOrEmpty(groupKey))
+                    {
+                        if (!drawnGroups.Contains(groupKey) && bitmap != null)
+                        {
+                            drawnGroups.Add(groupKey);
+                            var groupContainers = invertedGroups[groupKey];
+                            var idleContainers = groupContainers.Where(c => c.Status == EditStatus.IDLE).ToList();
+                            if (idleContainers.Count > 0)
+                            {
+                                var allBounds = groupContainers.Select(c => c.Bounds).Where(b => b.Width > 0 && b.Height > 0).ToList();
+                                if (allBounds.Count > 0)
+                                {
+                                    var representative = groupContainers.FirstOrDefault(c => c.Selected) ?? idleContainers.First();
+                                    foreach (IFilter filter in representative.Filters)
+                                    {
+                                        if (filter.Invert)
+                                        {
+                                            filter.Apply(g, bitmap, allBounds, renderMode);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        dc.DrawContent(g, bitmap, renderMode, clipRectangle, skipInvertedFilters: true);
+                    }
+                    else
+                    {
+                        dc.DrawContent(g, bitmap, renderMode, clipRectangle, skipInvertedFilters: false);
+                    }
                 }
             }
         }

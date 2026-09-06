@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -21,7 +21,6 @@
 
 using System;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
@@ -38,37 +37,13 @@ namespace Greenshot.Editor.Drawing.Filters
             AddField(GetType(), FieldType.BRIGHTNESS, 0.9d);
         }
 
-        /// <summary>
-        /// Implements the Apply code for the Brightness Filet
-        /// </summary>
-        /// <param name="graphics"></param>
-        /// <param name="applyBitmap"></param>
-        /// <param name="rect">NativeRect</param>
-        /// <param name="renderMode"></param>
-        public override void Apply(Graphics graphics, Bitmap applyBitmap, NativeRect rect, RenderMode renderMode)
+        protected override void ApplyFilter(Graphics graphics, Bitmap applyBitmap, NativeRect applyRect, RenderMode renderMode)
         {
-            var applyRect = ImageHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
-
-            if (applyRect.Width == 0 || applyRect.Height == 0)
-            {
-                // nothing to do
-                return;
-            }
-
-            GraphicsState state = graphics.Save();
-            if (Invert)
-            {
-                graphics.SetClip(applyRect);
-                graphics.ExcludeClip(rect);
-            }
-
             float brightness = GetFieldValueAsFloat(FieldType.BRIGHTNESS);
             using (ImageAttributes ia = ImageHelper.CreateAdjustAttributes(brightness, 1f, 1f))
             {
                 graphics.DrawImage(applyBitmap, applyRect, applyRect.X, applyRect.Y, applyRect.Width, applyRect.Height, GraphicsUnit.Pixel, ia);
             }
-
-            graphics.Restore(state);
         }
     }
 }

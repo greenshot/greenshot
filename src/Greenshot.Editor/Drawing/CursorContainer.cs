@@ -1,4 +1,4 @@
-﻿/*
+/*
 * Greenshot - a free and open source screenshot tool
 * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
 * 
@@ -155,11 +155,11 @@ namespace Greenshot.Editor.Drawing
             CursorHelper.DrawCursorOnGraphics(graphics, cursor, Bounds.Location, Bounds.Size);
         }
 
-        public override void DrawContent(Graphics graphics, Bitmap bmp, RenderMode renderMode, NativeRect clipRectangle)
+        public override void DrawContent(Graphics graphics, Bitmap bmp, RenderMode renderMode, NativeRect clipRectangle, bool skipInvertedFilters = false)
         {
             if (bmp == null)
             {
-                base.DrawContent(graphics, bmp, renderMode, clipRectangle);
+                base.DrawContent(graphics, bmp, renderMode, clipRectangle, skipInvertedFilters);
                 return;
             }
 

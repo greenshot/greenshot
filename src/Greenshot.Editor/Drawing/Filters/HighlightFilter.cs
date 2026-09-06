@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -21,7 +21,6 @@
 
 using System;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces.Drawing;
@@ -40,30 +39,8 @@ namespace Greenshot.Editor.Drawing.Filters
             AddField(GetType(), FieldType.FILL_COLOR, Color.Yellow);
         }
 
-        /// <summary>
-        /// Implements the Apply code for the Brightness Filet
-        /// </summary>
-        /// <param name="graphics"></param>
-        /// <param name="applyBitmap"></param>
-        /// <param name="rect">NativeRect</param>
-        /// <param name="renderMode"></param>
-        public override void Apply(Graphics graphics, Bitmap applyBitmap, NativeRect rect, RenderMode renderMode)
+        protected override void ApplyFilter(Graphics graphics, Bitmap applyBitmap, NativeRect applyRect, RenderMode renderMode)
         {
-            var applyRect = ImageHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
-
-            if (applyRect.Width == 0 || applyRect.Height == 0)
-            {
-                // nothing to do
-                return;
-            }
-
-            GraphicsState state = graphics.Save();
-            if (Invert)
-            {
-                graphics.SetClip(applyRect);
-                graphics.ExcludeClip(rect);
-            }
-
             using (IFastBitmap fastBitmap = FastBitmap.CreateCloneOf(applyBitmap, applyRect))
             {
                 Color highlightColor = GetFieldValueAsColor(FieldType.FILL_COLOR);
@@ -79,8 +56,6 @@ namespace Greenshot.Editor.Drawing.Filters
 
                 fastBitmap.DrawTo(graphics, applyRect.Location);
             }
-
-            graphics.Restore(state);
         }
     }
 }
