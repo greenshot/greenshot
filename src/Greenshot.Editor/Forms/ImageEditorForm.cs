@@ -928,16 +928,34 @@ namespace Greenshot.Editor.Forms
             UpdateUndoRedoSurfaceDependencies();
         }
 
+        private static bool IsExternalShutdownCloseReason(CloseReason closeReason)
+        {
+            return closeReason == CloseReason.ApplicationExitCall || closeReason == CloseReason.WindowsShutDown || closeReason == CloseReason.TaskManagerClosing;
+        }
+
+        // only for workaround for the installer from 1.3 to 1.4.
+        private bool _closeWithoutSavePrompt;
+
         private void ImageEditorFormFormClosing(object sender, FormClosingEventArgs e)
         {
-            if (_surface.Modified && !EditorConfiguration.SuppressSaveDialogAtClose)
+            void ForceCloseWithoutPrompt () 
+            {
+                // only for workaround for the installer from 1.3 to 1.4.
+                // When the installer tries to close the editor and the closing takes too long, the installer cancels the outer closing process
+                // So we force the closing without prompt again and the editor will not be in a wierd state
+                e.Cancel = true;
+                _closeWithoutSavePrompt = true;
+                BeginInvoke((MethodInvoker)delegate { Close(); });
+            };
+
+            if (!_closeWithoutSavePrompt && _surface.Modified && !EditorConfiguration.SuppressSaveDialogAtClose)
             {
                 // Make sure the editor is visible
                 WindowDetails.ToForeground(Handle);
 
                 MessageBoxButtons buttons = MessageBoxButtons.YesNoCancel;
                 // Dissallow "CANCEL" if the application needs to shutdown
-                if (e.CloseReason == CloseReason.ApplicationExitCall || e.CloseReason == CloseReason.WindowsShutDown || e.CloseReason == CloseReason.TaskManagerClosing)
+                if (IsExternalShutdownCloseReason(e.CloseReason))
                 {
                     buttons = MessageBoxButtons.YesNo;
                 }
@@ -959,6 +977,17 @@ namespace Greenshot.Editor.Forms
                         e.Cancel = true;
                         return;
                     }
+
+                    if (IsExternalShutdownCloseReason(e.CloseReason))
+                    {
+                        ForceCloseWithoutPrompt();
+                        return;
+                    }
+                }
+                else if (result.Equals(DialogResult.No) && IsExternalShutdownCloseReason(e.CloseReason))
+                {
+                    ForceCloseWithoutPrompt();
+                    return;
                 }
             }
 

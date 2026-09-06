@@ -36,6 +36,7 @@ using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.DesktopWindowsManager;
 using Dapplo.Windows.Dpi;
 using Dapplo.Windows.Kernel32;
+using Dapplo.Windows.Messages.Enumerations;
 using Dapplo.Windows.User32;
 using Greenshot.Base;
 using Greenshot.Base.Controls;
@@ -661,6 +662,15 @@ namespace Greenshot.Forms
             if (WmInputLangChangeRequestFilter.PreFilterMessageExternal(ref m))
             {
                 return;
+            }
+
+            WindowsMessages message = (WindowsMessages)m.Msg;
+            if (message == WindowsMessages.WM_DESTROY)
+            {
+                LOG.InfoFormat(" Message {0} ( {1:X} - {2:X} - {3:X}) send, Exit Application.", m, m.LParam.ToInt64(), m.WParam.ToInt64(), m.HWnd.ToInt64());
+                // is send from Inno Setup, when the user chooses to exit Greenshot during installation
+                // TODO Only for Greenshot versions before integration of RestartManager
+                Exit();
             }
 
             base.WndProc(ref m);
