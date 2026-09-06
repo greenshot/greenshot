@@ -586,5 +586,6 @@ timpul curent, ex. 11_58_32 (plus extensia fișierului definită în setări)
 	<resource name="contextmenu_donate">
 		Ajutați Greenshot
 	</resource>
+	<resource name="editor_enable_auto_border">Aplică automat efectul de margine</resource>
   </resources>
 </language>

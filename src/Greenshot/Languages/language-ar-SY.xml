@@ -129,6 +129,7 @@
 		<resource name="editor_title">محرر جرين شوت للصور</resource>
 		<resource name="editor_uponelevel">مستوى واحد إلى الأعلى</resource>
 		<resource name="editor_uptotop">إلى الأعلى</resource>
+		<resource name="editor_enable_auto_border">تنفيذ تأثير الإطار تلقائيًا</resource>
 		<resource name="error">خطأ</resource>
 		<resource name="error_multipleinstances">برنامج جرين شوت يعمل حاليا</resource>
 		<resource name="error_nowriteaccess">لايمكن حفظ الصورة في {0}.

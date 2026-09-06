@@ -131,6 +131,7 @@ Będziemy wdzięczni, jeśli najpierw sprawdzisz, czy takie zdarzenie nie zosta�
 		<resource name="editor_load_objects">Załaduj obiekty z pliku</resource>
 		<resource name="editor_magnification_factor">Współczynnik powiększenia</resource>
 		<resource name="editor_match_capture_size">Dopasowuj wielkość zrzutów</resource>
+		<resource name="editor_enable_auto_border">Automatycznie zastosuj efekt obramowania</resource>
 		<resource name="editor_obfuscate">Zamglenie (O)</resource>
 		<resource name="editor_obfuscate_blur">Rozmywanie</resource>
 		<resource name="editor_obfuscate_mode">Tryb zamglenia</resource>

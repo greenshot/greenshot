@@ -132,5 +132,9 @@ namespace Greenshot.Editor.Configuration
         [DefaultValue("🙂")]
         [Description("Last used emoji")]
         string RecentEmoji { get; set; }
+
+        [Description("Automatically apply border effect when a screenshot is opened in the editor")]
+        [DefaultValue(false)]
+        bool EnableAutoBorder { get; set; }
     }
 }

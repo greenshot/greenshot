@@ -587,5 +587,6 @@ tidspunktet, fx 11_58_32 (plus filendelsen angivet i indstillingerne).
 	<resource name="contextmenu_donate">
 		Støt Greenshot
 	</resource>
+	<resource name="editor_enable_auto_border">Anvend automatisk rammeeffekt</resource>
   </resources>
 </language>

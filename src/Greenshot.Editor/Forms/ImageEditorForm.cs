@@ -182,6 +182,11 @@ namespace Greenshot.Editor.Forms
 
             // init surface
             Surface = surface;
+            // Execute BorderEffect automatically
+            if (EditorConfiguration.EnableAutoBorder && _surface?.Image != null)
+            {
+                _surface.ApplyBitmapEffect(new BorderEffect());
+            }
             // Initial "saved" flag for asking if the image needs to be save
             _surface.Modified = !outputMade;
 

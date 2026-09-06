@@ -228,5 +228,6 @@ Right-click here or press the Print-key.</resource>
 		<resource name="warning">هشدار</resource>
 		<resource name="warning_hotkeys">.ثبت و استفاده از یک یا چند تا از میانبرها امکان پذیر  نمی‌باشد. ممکن است نرم‌افزار دیگری از میانبرها استفاده می‌کند</resource>
 		<resource name="settings_iconsize">اندازه آیکن</resource>
+		<resource name="editor_enable_auto_border">اجرای خودکار افکت حاشیه</resource>
 	</resources>
 </language>

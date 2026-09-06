@@ -208,5 +208,6 @@ esim 11_58_32 (ja tiedostotyypin mukainen loppuliite)</resource>
 		<resource name="warning_hotkeys">Yhtä tai useampia pikanäppäimiä ei saatu rekisteröidyksi. Voi olla etteivät pikanäppäimet toimi.
 Tämä joshtuu todennäköisesti siitä että joku muu ohjelma käyttää samoja pikanäppäimiä.
 Sammuta se ohjelma joka käyttäää print näppäintä. Vaihtoehtoisesti voit käyttää kaikkia Greenshot ominaisuuksia myös tehtäväpalkin valikosta.</resource>
+		<resource name="editor_enable_auto_border">Käytä reunatehoste automaattisesti</resource>
 	</resources>
 </language>

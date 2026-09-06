@@ -113,6 +113,7 @@ Tiež by sme velmi ocenili, keby ste najskôr skontrolovali, či už neexistuje 
 		<resource name="editor_load_objects">Načítať objekty zo súboru</resource>
 		<resource name="editor_magnification_factor">Faktor zväčšenia</resource>
 		<resource name="editor_match_capture_size">Zmenšiť editor podľa veľkosti snímky</resource>
+		<resource name="editor_enable_auto_border">Automaticky použiť efekt rámika</resource>
 		<resource name="editor_obfuscate">Rozostrenie (O)</resource>
 		<resource name="editor_obfuscate_blur">Rozmazať</resource>
 		<resource name="editor_obfuscate_mode">Režim rozostrenia</resource>
