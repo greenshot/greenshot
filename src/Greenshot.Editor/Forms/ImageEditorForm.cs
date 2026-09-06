@@ -1378,6 +1378,7 @@ namespace Greenshot.Editor.Forms
         /// </summary>
         private void RefreshFieldControls()
         {
+            if (IsDisposed || Disposing) return;
             propertiesToolStrip.SuspendLayout();
             if (_surface.HasSelectedElements || _surface.DrawingMode != DrawingModes.None)
             {
@@ -1421,6 +1422,7 @@ namespace Greenshot.Editor.Forms
 
         private void HideToolstripItems()
         {
+            if (IsDisposed || Disposing) return;
             foreach (ToolStripItem toolStripItem in propertiesToolStrip.Items)
             {
                 toolStripItem.Visible = false;
@@ -1432,6 +1434,7 @@ namespace Greenshot.Editor.Forms
         /// </summary>
         private void RefreshEditorControls()
         {
+            if (IsDisposed || Disposing) return;
             int stepLabels = _surface.CountStepLabels(null);
             Image icon;
             if (stepLabels <= 20)
