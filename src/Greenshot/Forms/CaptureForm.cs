@@ -462,24 +462,27 @@ namespace Greenshot.Forms
                             var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>();
                             if (ocrProvider != null)
                             {
-                                var uiTaskScheduler = SimpleServiceProvider.Current.GetInstance<TaskScheduler>();
+var uiTaskScheduler = SimpleServiceProvider.Current.GetInstance<TaskScheduler>() ?? TaskScheduler.FromCurrentSynchronizationContext();
 
-                                Task.Factory.StartNew(async () =>
-                                {
-                                    var ocrLines = await ocrProvider.DoOcrAsync(_capture.Image);
-                                    if (ocrLines != null && ocrLines.Any())
-                                    {
-                                        lock (_capture.CaptureDetails.Features)
-                                        {
-                                            _capture.CaptureDetails.Features.AddRange(ocrLines);
-                                        }
-                                        if (_capture.CaptureDetails is CaptureDetails concreteDetails)
-                                        {
-                                            concreteDetails.NotifyFeaturesChanged();
-                                        }
-                                    }
-                                    Invalidate();
-                                }, CancellationToken.None, TaskCreationOptions.None, uiTaskScheduler);
+var ocrTask = Task.Factory.StartNew(async () =>
+{
+    var ocrLines = await ocrProvider.DoOcrAsync(_capture.Image).ConfigureAwait(true);
+    if (ocrLines != null && ocrLines.Any())
+    {
+        lock (_capture.CaptureDetails.Features)
+        {
+            _capture.CaptureDetails.Features.AddRange(ocrLines);
+        }
+        if (_capture.CaptureDetails is CaptureDetails concreteDetails)
+        {
+            concreteDetails.NotifyFeaturesChanged();
+        }
+    }
+    Invalidate();
+}, CancellationToken.None, TaskCreationOptions.None, uiTaskScheduler).Unwrap();
+
+var processingTask = _capture.CaptureDetails.ProcessingTask;
+_capture.CaptureDetails.ProcessingTask = processingTask != null ? Task.WhenAll(processingTask, ocrTask) : ocrTask;
                             }
                         }
                     }
