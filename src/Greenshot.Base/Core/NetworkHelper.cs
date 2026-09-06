@@ -29,7 +29,7 @@ using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using Greenshot.Base.Core.FileFormatHandlers;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Plugin;
@@ -54,7 +54,7 @@ namespace Greenshot.Base.Core
     public static class NetworkHelper
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(NetworkHelper));
-        private static readonly CoreConfiguration Config = IniConfig.GetIniSection<CoreConfiguration>();
+        private static readonly ICoreConfiguration Config = IniConfigRegistry.GetSection<ICoreConfiguration>();
 
         static NetworkHelper()
         {

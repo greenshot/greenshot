@@ -29,7 +29,7 @@ using System.Runtime.Serialization;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Drawing.Adorners;
@@ -53,7 +53,7 @@ namespace Greenshot.Editor.Drawing
     public abstract class DrawableContainer : AbstractFieldHolderWithChildren, IDrawableContainer
     {
         private static readonly ILog LOG = LogManager.GetLogger(typeof(DrawableContainer));
-        protected static readonly EditorConfiguration EditorConfig = IniConfig.GetIniSection<EditorConfiguration>();
+        protected static readonly IEditorConfiguration EditorConfig = IniConfigRegistry.GetSection<IEditorConfiguration>();
         private const int M11 = 0;
         private const int M22 = 3;
 

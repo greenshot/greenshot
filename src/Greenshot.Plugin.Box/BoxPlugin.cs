@@ -26,9 +26,10 @@ using System.IO;
 using System.Windows.Forms;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.Plugin.Box.Forms;
 
 namespace Greenshot.Plugin.Box;
 
@@ -38,7 +39,7 @@ namespace Greenshot.Plugin.Box;
 public class BoxPlugin : IGreenshotPlugin
 {
     private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(BoxPlugin));
-    private static BoxConfiguration _config;
+    private static IBoxConfiguration _config;
     private ComponentResourceManager _resources;
     private ToolStripMenuItem _itemPlugInConfig;
 
@@ -69,14 +70,29 @@ public class BoxPlugin : IGreenshotPlugin
     }
 
     /// <summary>
-    /// Implementation of the IGreenshotPlugin.Initialize
+    /// Implementation of RegisterConfiguration phase: register INI section before file is loaded.
     /// </summary>
-    public bool Initialize()
+    public void RegisterConfiguration(IniConfig iniConfig)
     {
-        // Register configuration (don't need the configuration itself)
-        _config = IniConfig.GetIniSection<BoxConfiguration>();
+        var section = new BoxConfigurationImpl();
+        iniConfig.AddSection(section);
+        _config = section;
+    }
+
+    /// <summary>
+    /// Implementation of RegisterServices phase: register DI services after config is loaded.
+    /// </summary>
+    public void RegisterServices(IServiceLocator serviceLocator)
+    {
         _resources = new ComponentResourceManager(typeof(BoxPlugin));
-        SimpleServiceProvider.Current.AddService<IDestination>(new BoxDestination(this));
+        serviceLocator.AddService<IDestination>(new BoxDestination(this));
+    }
+
+    /// <summary>
+    /// Implementation of the IGreenshotPlugin.Start
+    /// </summary>
+    public bool Start()
+    {
         _itemPlugInConfig = new ToolStripMenuItem
         {
             Image = (Image) _resources.GetObject("Box"),
@@ -108,12 +124,21 @@ public class BoxPlugin : IGreenshotPlugin
     /// </summary>
     public void Configure()
     {
-        _config.ShowConfigDialog();
+        ShowConfigDialog();
     }
 
     public void ConfigMenuClick(object sender, EventArgs eventArgs)
     {
-        _config.ShowConfigDialog();
+        ShowConfigDialog();
+    }
+
+    /// <summary>
+    /// Opens the Box settings dialog.
+    /// </summary>
+    /// <returns>true if OK was pressed; false if cancelled</returns>
+    private bool ShowConfigDialog()
+    {
+        return new SettingsForm().ShowDialog() == DialogResult.OK;
     }
 
     /// <summary>

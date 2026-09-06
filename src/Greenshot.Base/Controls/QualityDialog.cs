@@ -22,7 +22,7 @@
 using System;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Base.Interfaces.Plugin;
 
 namespace Greenshot.Base.Controls
@@ -32,7 +32,7 @@ namespace Greenshot.Base.Controls
     /// </summary>
     public partial class QualityDialog : GreenshotForm
     {
-        private static readonly CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+        private static readonly ICoreConfiguration conf = IniConfigRegistry.GetSection<ICoreConfiguration>();
         public SurfaceOutputSettings Settings { get; set; }
 
         public QualityDialog(SurfaceOutputSettings outputSettings)
@@ -60,7 +60,6 @@ namespace Greenshot.Base.Controls
                 conf.OutputFileJpegQuality = Settings.JPGQuality;
                 conf.OutputFilePromptQuality = false;
                 conf.OutputFileReduceColors = Settings.ReduceColors;
-                IniConfig.Save();
             }
         }
 

@@ -19,19 +19,24 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using Dapplo.Ini;
+using Dapplo.Ini.Converters;
 using Greenshot.Base.Core;
-using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
+using Greenshot.Editor.Configuration;
 using Greenshot.Editor.FileFormatHandlers;
 
 namespace Greenshot.Editor
 {
     public static class EditorInitialize
     {
-        private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
+        private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
 
         public static void Initialize()
         {
+            // Make sure the value converter for the editor is registered, so we can use it in the configuration
+            ValueConverterRegistry.Register(new GreenshotEditorObjectValueConverter());
+
             SimpleServiceProvider.Current.AddService<IFileFormatHandler>(
                     // All generic things, like gif, png, jpg etc.
                     CoreConfig.IsBetaTester? new ImageSharpFileFormatHandler() : new DefaultFileFormatHandler(),

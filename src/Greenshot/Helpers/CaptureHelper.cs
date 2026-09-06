@@ -38,7 +38,7 @@ using Greenshot.Base;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Configuration;
@@ -58,7 +58,7 @@ namespace Greenshot.Helpers
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(CaptureHelper));
 
-        private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
+        private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
         
         private List<WindowDetails> _windows = new();
         private WindowDetails _selectedCaptureWindow;
@@ -93,7 +93,9 @@ namespace Greenshot.Helpers
             }
 
             // Unfortunately we can't dispose the capture, this might still be used somewhere else.
-            _windows = null;
+            // Note: _windows is intentionally NOT nulled here. RetrieveWindowDetails runs on a background
+            // thread and uses _windows as the lock target; nulling it before the thread exits would cause
+            // Monitor.Enter(null) → ArgumentNullException. The Join() in MakeCapture handles thread lifetime.
             _selectedCaptureWindow = null;
             _capture = null;
             // Empty working set after capturing
@@ -261,7 +263,13 @@ namespace Greenshot.Helpers
 
             // This fixes a problem when a balloon is still visible and a capture needs to be taken
             // forcefully removes the balloon!
-            if (!CoreConfig.HideTrayicon)
+            // Note: toggling Visible actually removes and re-adds the icon in the notification area
+            // (NIM_DELETE followed by NIM_ADD). On a Remote Desktop / RemoteApp (RAIL) connection this
+            // "blink" can cause the icon to disappear permanently from the local client's taskbar, see
+            // https://github.com/greenshot/greenshot/issues/1324. Skip it when we are in such a session,
+            // unless the user explicitly disabled the RDP optimizations.
+            bool isTerminalServerSession = !CoreConfig.DisableRDPOptimizing && (CoreConfig.OptimizeForRDP || SystemInformation.TerminalServerSession);
+            if (!CoreConfig.HideTrayicon && !isTerminalServerSession)
             {
                 var notifyIcon = SimpleServiceProvider.Current.GetInstance<NotifyIcon>();
                 notifyIcon.Visible = false;

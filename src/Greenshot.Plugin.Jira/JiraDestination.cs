@@ -29,7 +29,7 @@ using Dapplo.HttpExtensions;
 using Dapplo.Jira.Entities;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Plugin.Jira.Forms;
@@ -42,7 +42,7 @@ namespace Greenshot.Plugin.Jira;
 public class JiraDestination : AbstractDestination
 {
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(JiraDestination));
-    private static readonly JiraConfiguration Config = IniConfig.GetIniSection<JiraConfiguration>();
+    private static readonly IJiraConfiguration Config = IniConfigRegistry.GetSection<IJiraConfiguration>();
     private readonly IssueV2 _jiraIssue;
 
     public JiraDestination(IssueV2 jiraIssue = null)

@@ -27,7 +27,7 @@ using System.IO;
 using Dapplo.Windows.Multimedia;
 using Dapplo.Windows.Multimedia.Enums;
 using Greenshot.Base.Core;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using log4net;
 
 namespace Greenshot.Helpers
@@ -39,7 +39,7 @@ namespace Greenshot.Helpers
     public static class SoundHelper
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(SoundHelper));
-        private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
+        private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
         private static GCHandle? _gcHandle;
         private static byte[] _soundBuffer;
 

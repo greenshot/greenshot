@@ -25,7 +25,7 @@ using System.Text;
 using System.Windows.Forms;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 
 namespace Greenshot.Plugin.Imgur.Forms;
 
@@ -37,7 +37,7 @@ public sealed partial class ImgurHistory : ImgurForm
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ImgurHistory));
     private readonly GreenshotColumnSorter _columnSorter;
     private static readonly object Lock = new object();
-    private static readonly ImgurConfiguration Config = IniConfig.GetIniSection<ImgurConfiguration>();
+    private static readonly IImgurConfiguration Config = IniConfigRegistry.GetSection<IImgurConfiguration>();
     private static ImgurHistory _instance;
 
     public static void ShowHistory()
@@ -106,7 +106,7 @@ public sealed partial class ImgurHistory : ImgurForm
             listview_imgur_uploads.Columns.Add(column);
         }
 
-        foreach (ImgurInfo imgurInfo in Config.runtimeImgurHistory.Values)
+        foreach (ImgurInfo imgurInfo in Config.RuntimeImgurHistory.Values)
         {
             var item = new ListViewItem(imgurInfo.Hash)
             {
@@ -207,9 +207,8 @@ public sealed partial class ImgurHistory : ImgurForm
         DialogResult result = MessageBox.Show(Language.GetString("imgur", LangKey.clear_question), "Imgur", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
         if (result == DialogResult.Yes)
         {
-            Config.runtimeImgurHistory.Clear();
+            Config.RuntimeImgurHistory.Clear();
             Config.ImgurUploadHistory.Clear();
-            IniConfig.Save();
             Redraw();
         }
     }

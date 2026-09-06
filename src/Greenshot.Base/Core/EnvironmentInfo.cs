@@ -29,7 +29,6 @@ using Dapplo.Windows.Kernel32.Enums;
 using Dapplo.Windows.Kernel32.Structs;
 using Dapplo.Windows.User32;
 using Dapplo.Windows.Common.Extensions;
-using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces.Plugin;
 using System.Linq;
 
@@ -102,7 +101,7 @@ namespace Greenshot.Base.Core
         {
             StringBuilder environment = new();
             environment.Append("Software version: " + GetGreenshotVersion());
-            if (IniConfig.IsPortable)
+            if (GreenshotEnvironment.IsPortable)
             {
                 environment.Append(" Portable");
             }

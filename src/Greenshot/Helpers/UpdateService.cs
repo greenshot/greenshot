@@ -25,7 +25,7 @@ using System.Threading.Tasks;
 using Dapplo.HttpExtensions;
 using Dapplo.HttpExtensions.JsonNet;
 using Greenshot.Base.Core;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Configuration;
 using Greenshot.Helpers.Entities;
@@ -39,7 +39,7 @@ namespace Greenshot.Helpers
     public class UpdateService
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(UpdateService));
-        private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
+        private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
         private static readonly Uri UpdateFeed = new Uri("https://getgreenshot.org/update-feed.json");
         private static readonly Uri Downloads = new Uri("https://getgreenshot.org/downloads");
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
@@ -82,7 +82,6 @@ namespace Greenshot.Helpers
             JsonNetJsonSerializer.RegisterGlobally();
             var version = FileVersionInfo.GetVersionInfo(GetType().Assembly.Location);
             LatestReleaseVersion = CurrentVersion = new Version(version.FileMajorPart, version.FileMinorPart, version.FileBuildPart);
-            CoreConfig.LastSaveWithVersion = CurrentVersion.ToString();
         }
 
         /// <summary>
@@ -168,7 +167,6 @@ namespace Greenshot.Helpers
             Log.InfoFormat("Checking for updates from {0}", UpdateFeed);
 
             CoreConfig.LastUpdateCheck = DateTime.Now;
-            IniConfig.Save();
 
             var updateFeed = await UpdateFeed.GetAsAsync<UpdateFeed>(cancellationToken);
             if (updateFeed == null)

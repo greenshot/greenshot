@@ -24,7 +24,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Runtime.Serialization;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Configuration;
 using log4net;
@@ -38,7 +38,7 @@ namespace Greenshot.Editor.Drawing.Fields
     public abstract class AbstractFieldHolder : IFieldHolder
     {
         private static readonly ILog LOG = LogManager.GetLogger(typeof(AbstractFieldHolder));
-        private static readonly EditorConfiguration EditorConfig = IniConfig.GetIniSection<EditorConfiguration>();
+        private static readonly IEditorConfiguration EditorConfig = IniConfigRegistry.GetSection<IEditorConfiguration>();
         [NonSerialized] private IDictionary<IField, PropertyChangedEventHandler> _handlers = new Dictionary<IField, PropertyChangedEventHandler>();
 
         /// <summary>
@@ -73,7 +73,7 @@ namespace Greenshot.Editor.Drawing.Fields
 
         public void AddField(Type requestingType, IFieldType fieldType, object fieldValue)
         {
-            AddField(EditorConfig.CreateField(requestingType, fieldType, fieldValue));
+            AddField(EditorConfigurationHelper.CreateField(EditorConfig, requestingType, fieldType, fieldValue));
         }
 
         public virtual void AddField(IField field)

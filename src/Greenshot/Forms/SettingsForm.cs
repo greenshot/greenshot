@@ -33,7 +33,7 @@ using Greenshot.Base;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
-using Greenshot.Base.IniFile;
+
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Configuration;
@@ -410,11 +410,7 @@ namespace Greenshot.Forms
         /// </summary>
         private void DisplayDestinations()
         {
-            bool destinationsEnabled = true;
-            if (coreConfiguration.Values.ContainsKey("Destinations"))
-            {
-                destinationsEnabled = !coreConfiguration.Values["Destinations"].IsFixed;
-            }
+            bool destinationsEnabled = !coreConfiguration.IsConstant("Destinations");
 
             checkbox_picker.Checked = false;
 
@@ -482,26 +478,26 @@ namespace Greenshot.Forms
             }
 
             // Disable editing when the value is fixed
-            combobox_language.Enabled = !coreConfiguration.Values["Language"].IsFixed;
+            combobox_language.Enabled = !coreConfiguration.IsConstant("Language");
 
             textbox_storagelocation.Text = FilenameHelper.FillVariables(coreConfiguration.OutputFilePath, false);
             // Disable editing when the value is fixed
-            textbox_storagelocation.Enabled = !coreConfiguration.Values["OutputFilePath"].IsFixed;
+            textbox_storagelocation.Enabled = !coreConfiguration.IsConstant("OutputFilePath");
 
             SetWindowCaptureMode(coreConfiguration.WindowCaptureMode);
             // Disable editing when the value is fixed
-            combobox_window_capture_mode.Enabled = !coreConfiguration.CaptureWindowsInteractive && !coreConfiguration.Values["WindowCaptureMode"].IsFixed;
+            combobox_window_capture_mode.Enabled = !coreConfiguration.CaptureWindowsInteractive && !coreConfiguration.IsConstant("WindowCaptureMode");
             radiobuttonWindowCapture.Checked = !coreConfiguration.CaptureWindowsInteractive;
 
             trackBarJpegQuality.Value = coreConfiguration.OutputFileJpegQuality;
-            trackBarJpegQuality.Enabled = !coreConfiguration.Values["OutputFileJpegQuality"].IsFixed;
+            trackBarJpegQuality.Enabled = !coreConfiguration.IsConstant("OutputFileJpegQuality");
             textBoxJpegQuality.Text = coreConfiguration.OutputFileJpegQuality + "%";
 
             DisplayDestinations();
 
             numericUpDownWaitTime.Value = coreConfiguration.CaptureDelay >= 0 ? coreConfiguration.CaptureDelay : 0;
-            numericUpDownWaitTime.Enabled = !coreConfiguration.Values["CaptureDelay"].IsFixed;
-            if (IniConfig.IsPortable)
+            numericUpDownWaitTime.Enabled = !coreConfiguration.IsConstant("CaptureDelay");
+            if (GreenshotEnvironment.IsPortable)
             {
                 checkbox_autostartshortcut.Visible = false;
                 checkbox_autostartshortcut.Checked = false;
@@ -530,7 +526,7 @@ namespace Greenshot.Forms
             }
 
             numericUpDown_daysbetweencheck.Value = coreConfiguration.UpdateCheckInterval;
-            numericUpDown_daysbetweencheck.Enabled = !coreConfiguration.Values["UpdateCheckInterval"].IsFixed;
+            numericUpDown_daysbetweencheck.Enabled = !coreConfiguration.IsConstant("UpdateCheckInterval");
             numericUpdownIconSize.Value = coreConfiguration.IconSize.Width;
             CheckDestinationSettings();
         }
@@ -794,11 +790,7 @@ namespace Greenshot.Forms
         {
             bool clipboardDestinationChecked = false;
             bool pickerSelected = checkbox_picker.Checked;
-            bool destinationsEnabled = true;
-            if (coreConfiguration.Values.ContainsKey("Destinations"))
-            {
-                destinationsEnabled = !coreConfiguration.Values["Destinations"].IsFixed;
-            }
+            bool destinationsEnabled = !coreConfiguration.IsConstant("Destinations");
 
             listview_destinations.Enabled = destinationsEnabled;
 

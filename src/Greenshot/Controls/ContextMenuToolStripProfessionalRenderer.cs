@@ -24,7 +24,7 @@ using System.Windows.Forms;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Dpi;
 using Greenshot.Base.Core;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 
 namespace Greenshot.Controls
@@ -35,7 +35,7 @@ namespace Greenshot.Controls
     public class ContextMenuToolStripProfessionalRenderer : ToolStripProfessionalRenderer
     {
         private readonly IProvideDeviceDpi _provideDeviceDpi;
-        private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
+        private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
         private static Image _scaledCheckbox;
 
         public ContextMenuToolStripProfessionalRenderer(IProvideDeviceDpi provideDeviceDpi)

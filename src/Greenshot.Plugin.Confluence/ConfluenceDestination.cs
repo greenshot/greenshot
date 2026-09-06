@@ -28,7 +28,7 @@ using System.Threading;
 using System.Windows;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Plugin.Confluence.Entities;
@@ -41,8 +41,8 @@ namespace Greenshot.Plugin.Confluence;
 public class ConfluenceDestination : AbstractDestination
 {
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ConfluenceDestination));
-    private static readonly ConfluenceConfiguration ConfluenceConfig = IniConfig.GetIniSection<ConfluenceConfiguration>();
-    private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
+    private static readonly IConfluenceConfiguration ConfluenceConfig = IniConfigRegistry.GetSection<IConfluenceConfiguration>();
+    private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
     private static readonly Image ConfluenceIcon;
     private readonly Page _page;
 

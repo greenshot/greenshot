@@ -33,7 +33,7 @@ using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Gdi32;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Effects;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using log4net;
 using Brush = System.Drawing.Brush;
 using Color = System.Drawing.Color;
@@ -49,7 +49,7 @@ namespace Greenshot.Base.Core
     public static class ImageHelper
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(ImageHelper));
-        private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
+        private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
         private const int ExifOrientationId = 0x0112;
 
 
@@ -1357,6 +1357,10 @@ namespace Greenshot.Base.Core
         /// <returns>Bitmap</returns>
         public static Bitmap CreateEmpty(int width, int height, PixelFormat format, Color backgroundColor, float horizontalResolution = 96f, float verticalResolution = 96f)
         {
+            if (width <= 0 || height <= 0)
+            {
+                throw new ArgumentException($"Cannot create a bitmap with non-positive dimensions ({width}x{height}).");
+            }
             // Create a new "clean" image
             Bitmap newImage = new Bitmap(width, height, format);
             newImage.SetResolution(horizontalResolution, verticalResolution);

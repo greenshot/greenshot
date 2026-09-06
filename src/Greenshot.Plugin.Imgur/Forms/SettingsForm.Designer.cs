@@ -20,6 +20,7 @@
  */
 
 using Greenshot.Base.Controls;
+using Greenshot.Plugin.Imgur;
 
 namespace Greenshot.Plugin.Imgur.Forms; 
 	partial class SettingsForm {
@@ -94,7 +95,7 @@ namespace Greenshot.Plugin.Imgur.Forms;
 			this.checkbox_anonymous_access.LanguageKey = "imgur.anonymous_access";
 			this.checkbox_anonymous_access.Location = new System.Drawing.Point(15, 38);
 			this.checkbox_anonymous_access.Name = "checkbox_anonymous_access";
-			this.checkbox_anonymous_access.PropertyName = nameof(ImgurConfiguration.AnonymousAccess);
+			this.checkbox_anonymous_access.PropertyName = nameof(IImgurConfiguration.AnonymousAccess);
 			this.checkbox_anonymous_access.SectionName = "Imgur";
 			this.checkbox_anonymous_access.Size = new System.Drawing.Size(360, 20);
 			this.checkbox_anonymous_access.TabIndex = 2;
@@ -105,7 +106,7 @@ namespace Greenshot.Plugin.Imgur.Forms;
 			this.checkbox_usepagelink.LanguageKey = "imgur.use_page_link";
 			this.checkbox_usepagelink.Location = new System.Drawing.Point(15, 57);
 			this.checkbox_usepagelink.Name = "checkbox_usepagelink";
-			this.checkbox_usepagelink.PropertyName = nameof(ImgurConfiguration.UsePageLink);
+			this.checkbox_usepagelink.PropertyName = nameof(IImgurConfiguration.UsePageLink);
 			this.checkbox_usepagelink.SectionName = "Imgur";
 			this.checkbox_usepagelink.Size = new System.Drawing.Size(360, 20);
 			this.checkbox_usepagelink.TabIndex = 3;

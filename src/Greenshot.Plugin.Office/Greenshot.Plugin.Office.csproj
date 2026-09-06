@@ -67,11 +67,11 @@
     </ItemGroup>
   </Target>
   <Target Name="EmbeddingMicrosoftOfficeCore" AfterTargets="ResolveReferences" BeforeTargets="FindReferenceAssembliesForReferences">
-    <PropertyGroup>
-      <_InteropAssemblyFileName>MicrosoftOfficeCore</_InteropAssemblyFileName>
-    </PropertyGroup>
     <ItemGroup>
-      <ReferencePath Condition=" '%(FileName)' == '$(_InteropAssemblyFileName)' AND '%(ReferencePath.NuGetPackageId)' == '$(_InteropAssemblyFileName)' ">
+      <!-- MicrosoftOfficeCore NuGet ships Office.dll (not MicrosoftOfficeCore.dll), so the filename
+           filter must be 'Office'. Without this match the type library is not embedded and Office 2007
+           users get a FileNotFoundException for 'office, Version=15.0.0.0' at runtime. -->
+      <ReferencePath Condition=" '%(FileName)' == 'Office' AND '%(ReferencePath.NuGetPackageId)' == 'MicrosoftOfficeCore' ">
         <EmbedInteropTypes>true</EmbedInteropTypes>
       </ReferencePath>
     </ItemGroup>

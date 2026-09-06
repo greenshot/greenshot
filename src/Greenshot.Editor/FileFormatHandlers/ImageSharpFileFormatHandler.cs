@@ -25,6 +25,7 @@ using System.IO;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
+using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.Formats.Bmp;
 using SixLabors.ImageSharp.Formats.Gif;
@@ -34,6 +35,8 @@ using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.Formats.Tga;
 using SixLabors.ImageSharp.Formats.Tiff;
 using SixLabors.ImageSharp.Formats.Webp;
+using SixLabors.ImageSharp.Metadata.Profiles.Exif;
+using SixLabors.ImageSharp.Processing.Processors.Quantization;
 using Image = SixLabors.ImageSharp.Image;
 
 namespace Greenshot.Editor.FileFormatHandlers
@@ -43,7 +46,7 @@ namespace Greenshot.Editor.FileFormatHandlers
     /// </summary>
     public class ImageSharpFileFormatHandler : AbstractFileFormatHandler, IFileFormatHandler
     {
-        private readonly IReadOnlyCollection<string> _ourExtensions = new[] { ".png", ".bmp", ".gif", ".jpg", ".jpeg", ".tiff", ".tif", ".tga", ".pbm", ".webp"};
+        private readonly IReadOnlyCollection<string> _ourExtensions = new[] { ".png", ".bmp", ".gif", ".jpg", ".jpeg", ".tiff", ".tif", ".tga", ".pbm", ".webp" };
         public ImageSharpFileFormatHandler()
         {
             SupportedExtensions[FileFormatHandlerActions.LoadDrawableFromStream] = _ourExtensions;
@@ -56,19 +59,57 @@ namespace Greenshot.Editor.FileFormatHandlers
         /// <inheritdoc />
         public override bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension, ISurface surface = null, SurfaceOutputSettings surfaceOutputSettings = null)
         {
-            var image = ImageSharpHelper.ConvertToImageSharp(bitmap);
+            using var image = ImageSharpHelper.ConvertToImageSharp(bitmap);
+            if (image == null)
+            {
+                return false;
+            }
+
+            bool hasAlpha = bitmap.PixelFormat == System.Drawing.Imaging.PixelFormat.Format32bppArgb || bitmap.PixelFormat == System.Drawing.Imaging.PixelFormat.Format32bppPArgb;
+
+            var versionString = "Greenshot " + EnvironmentInfo.GetGreenshotVersion(true);
+            if (extension == ".png")
+            {
+                surfaceOutputSettings ??= new SurfaceOutputSettings(Base.Core.Enums.OutputFormat.png);
+                // Access the PNG-specific metadata
+                var pngMetadata = image.Metadata.GetPngMetadata();
+                // Add or update the "Software" text chunk
+                pngMetadata.TextData.Add(new PngTextData("Software", versionString, "en", "en"));
+            }
+
+            // Ensure an EXIF profile exists
+            if (image.Metadata.ExifProfile == null)
+            {
+                image.Metadata.ExifProfile = new ExifProfile();
+            }
+            // Set the Software tag
+            image.Metadata.ExifProfile.SetValue(ExifTag.Software, versionString);
+
+            surfaceOutputSettings ??= new SurfaceOutputSettings();
+
+            // Support reducing colors for formats that support it, but only if the setting is enabled
+            IQuantizer quantizer = null;
+            if (surfaceOutputSettings.ReduceColors)
+            {
+                quantizer = new SixLabors.ImageSharp.Processing.Processors.Quantization.WuQuantizer(new QuantizerOptions
+                {
+                    MaxColors = 256,
+                    Dither = null // Disables dithering
+                });
+            }
+
             IImageEncoder encoder = extension switch
             {
-                ".png" => new PngEncoder(),
-                ".bmp" => new BmpEncoder(),
-                ".gif" => new GifEncoder(),
-                ".jpg" => new JpegEncoder() { Quality = surfaceOutputSettings.JPGQuality},
-                ".jpeg" => new JpegEncoder() {Quality = surfaceOutputSettings.JPGQuality},
-                ".tiff" => new TiffEncoder(),
-                ".tif" => new TiffEncoder(),
+                ".png" => new PngEncoder() { Quantizer = quantizer, ColorType = surfaceOutputSettings.ReduceColors ? PngColorType.Palette : hasAlpha ? PngColorType.RgbWithAlpha : PngColorType.Rgb },
+                ".bmp" => new BmpEncoder() { Quantizer = quantizer, BitsPerPixel = surfaceOutputSettings.ReduceColors ? BmpBitsPerPixel.Pixel8 : hasAlpha ? BmpBitsPerPixel.Pixel32 : BmpBitsPerPixel.Pixel24 },
+                ".gif" => new GifEncoder() { Quantizer = quantizer },
+                ".jpg" => new JpegEncoder() { Quality = surfaceOutputSettings.JPGQuality },
+                ".jpeg" => new JpegEncoder() { Quality = surfaceOutputSettings.JPGQuality },
+                ".tiff" => new TiffEncoder() { Quantizer = quantizer, BitsPerPixel = surfaceOutputSettings.ReduceColors ? TiffBitsPerPixel.Bit8 : TiffBitsPerPixel.Bit24 },
+                ".tif" => new TiffEncoder() { Quantizer = quantizer, BitsPerPixel = surfaceOutputSettings.ReduceColors ? TiffBitsPerPixel.Bit8 : hasAlpha? null :  TiffBitsPerPixel.Bit24 },
                 ".tga" => new TgaEncoder(),
                 ".pbm" => new PbmEncoder(),
-                ".webp" => new WebpEncoder(),
+                ".webp" => new WebpEncoder() { Quality = surfaceOutputSettings.JPGQuality },
                 _ => null
             };
             if (encoder == null)
@@ -107,6 +148,5 @@ namespace Greenshot.Editor.FileFormatHandlers
             }
             return true;
         }
-        
     }
 }

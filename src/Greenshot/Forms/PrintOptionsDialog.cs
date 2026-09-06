@@ -21,7 +21,7 @@
 
 using System;
 using System.Windows.Forms;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 
 namespace Greenshot.Forms
 {
@@ -44,7 +44,6 @@ namespace Greenshot.Forms
         {
             // update config
             coreConfiguration.OutputPrintPromptOptions = !checkbox_dontaskagain.Checked;
-            IniConfig.Save();
             DialogResult = DialogResult.OK;
         }
 

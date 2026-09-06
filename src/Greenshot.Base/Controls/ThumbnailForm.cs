@@ -30,7 +30,7 @@ using Dapplo.Windows.User32;
 using Dapplo.Windows.User32.Enums;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 
 namespace Greenshot.Base.Controls
 {
@@ -40,7 +40,7 @@ namespace Greenshot.Base.Controls
     /// </summary>
     public sealed class ThumbnailForm : FormWithoutActivation
     {
-        private static readonly CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+        private static readonly ICoreConfiguration conf = IniConfigRegistry.GetSection<ICoreConfiguration>();
 
         private IntPtr _thumbnailHandle = IntPtr.Zero;
 

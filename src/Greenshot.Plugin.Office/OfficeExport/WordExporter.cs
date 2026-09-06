@@ -19,7 +19,7 @@
 
 using System;
 using System.Collections.Generic;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Plugin.Office.Com;
 using Greenshot.Plugin.Office.OfficeInterop;
 using Microsoft.Office.Core;
@@ -36,7 +36,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
         private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(WordExporter));
         private static Version _wordVersion;
 
-        private static readonly OfficeConfiguration _officeConfiguration = IniConfig.GetIniSection<OfficeConfiguration>();
+        private static readonly IOfficeConfiguration _officeConfiguration = IniConfigRegistry.GetSection<IOfficeConfiguration>();
 
         /// <summary>
         ///     Helper method to add the file as image to the selection

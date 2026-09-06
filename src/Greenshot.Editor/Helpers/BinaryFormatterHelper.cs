@@ -29,6 +29,7 @@ using Greenshot.Editor.Drawing.Emoji;
 using Greenshot.Editor.Drawing.Fields;
 using Greenshot.Editor.Drawing.Filters;
 using log4net;
+using static Greenshot.Editor.Drawing.ArrowContainer;
 using static Greenshot.Editor.Drawing.FilterContainer;
 
 namespace Greenshot.Editor.Helpers
@@ -43,6 +44,12 @@ namespace Greenshot.Editor.Helpers
         private static readonly IDictionary<string, Type> TypeMapper = new Dictionary<string, Type>
         {
             {"System.Guid",typeof(Guid) },
+            // Used specifically for the .ini configuration (besides the ones already defined)
+            {"System.Int32",typeof(int) },
+            {"System.Single",typeof(float) },
+            {"System.Boolean",typeof(bool) },
+            {"System.String",typeof(string) },
+            // End ini configuration
             {"System.Drawing.Rectangle",typeof(System.Drawing.Rectangle) },
             {"System.Drawing.Point",typeof(System.Drawing.Point) },
             {"System.Drawing.Color",typeof(System.Drawing.Color) },
@@ -93,6 +100,35 @@ namespace Greenshot.Editor.Helpers
         };
 
         /// <summary>
+        /// Try to match the type for the given type name, this is used to check if the type is allowed to be deserialized, and to map old types to new ones. 
+        /// </summary>
+        /// <param name="typeName"></param>
+        /// <param name="type"></param>
+        /// <returns>bool true if the mapping was possible</returns>
+        public static bool TryGetType(string typeName, out Type type)
+        {
+            if (string.IsNullOrEmpty(typeName))
+            {
+                type = null;
+                return false;
+            }
+            string comparingTypeName = typeName;
+            var typeNameCommaLocation = typeName.IndexOf(",");
+            if (typeNameCommaLocation > 0)
+            {
+                comparingTypeName = typeName.Substring(0, typeNameCommaLocation);
+            }
+
+            // Correct wrong types (because of refactoring) to the correct ones, this is needed to load old .greenshot files
+            comparingTypeName = comparingTypeName.Replace("Greenshot.Drawing", "Greenshot.Editor.Drawing");
+            comparingTypeName = comparingTypeName.Replace("Greenshot.Plugin.Drawing", "Greenshot.Base.Interfaces.Drawing");
+            comparingTypeName = comparingTypeName.Replace("GreenshotPlugin.Interfaces.Drawing", "Greenshot.Base.Interfaces.Drawing");
+            comparingTypeName = comparingTypeName.Replace("Greenshot.Drawing.Fields", "Greenshot.Editor.Drawing.Fields");
+            comparingTypeName = comparingTypeName.Replace("Greenshot.Drawing.Filters", "Greenshot.Editor.Drawing.Filters");
+            return TypeMapper.TryGetValue(comparingTypeName, out type);
+        }
+
+        /// <summary>
         /// Do the type mapping
         /// </summary>
         /// <param name="assemblyName">Assembly for the type that was serialized</param>
@@ -101,21 +137,7 @@ namespace Greenshot.Editor.Helpers
         /// <exception cref="SecurityAccessDeniedException">If something smells fishy</exception>
         public override Type BindToType(string assemblyName, string typeName)
         {
-            if (string.IsNullOrEmpty(typeName))
-            {
-                return null;
-            }
-            var typeNameCommaLocation = typeName.IndexOf(",");
-            var comparingTypeName = typeName.Substring(0, typeNameCommaLocation > 0 ? typeNameCommaLocation : typeName.Length);
-
-            // Correct wrong types
-            comparingTypeName = comparingTypeName.Replace("Greenshot.Drawing", "Greenshot.Editor.Drawing");
-            comparingTypeName = comparingTypeName.Replace("Greenshot.Plugin.Drawing", "Greenshot.Base.Interfaces.Drawing");
-            comparingTypeName = comparingTypeName.Replace("GreenshotPlugin.Interfaces.Drawing", "Greenshot.Base.Interfaces.Drawing");
-            comparingTypeName = comparingTypeName.Replace("Greenshot.Drawing.Fields", "Greenshot.Editor.Drawing.Fields");
-            comparingTypeName = comparingTypeName.Replace("Greenshot.Drawing.Filters", "Greenshot.Editor.Drawing.Filters");
-
-            if (TypeMapper.TryGetValue(comparingTypeName, out var returnType))
+            if (TryGetType(typeName, out var returnType))
             {
                 LOG.Info($"Mapped {assemblyName} - {typeName} to {returnType.FullName}");
                 return returnType;

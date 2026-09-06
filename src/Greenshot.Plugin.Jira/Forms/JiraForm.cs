@@ -30,14 +30,14 @@ using Dapplo.Jira.Entities;
 using Dapplo.Windows.Dpi;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 
 namespace Greenshot.Plugin.Jira.Forms;
 
 public partial class JiraForm : Form
 {
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(JiraForm));
-    private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
+    private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
     private readonly JiraConnector _jiraConnector;
     private IssueV2 _selectedIssue;
     private readonly GreenshotColumnSorter _columnSorter;

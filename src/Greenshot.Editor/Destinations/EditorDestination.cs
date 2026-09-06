@@ -25,7 +25,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using Dapplo.Windows.Messages;
 using Greenshot.Base.Core;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Forms;
 using Greenshot.Editor.Configuration;
@@ -40,7 +40,7 @@ namespace Greenshot.Editor.Destinations
     public class EditorDestination : AbstractDestination
     {
         private static readonly ILog LOG = LogManager.GetLogger(typeof(EditorDestination));
-        private static readonly EditorConfiguration editorConfiguration = IniConfig.GetIniSection<EditorConfiguration>();
+        private static readonly IEditorConfiguration editorConfiguration = IniConfigRegistry.GetSection<IEditorConfiguration>();
         public const string DESIGNATION = "Editor";
         private readonly IImageEditor editor;
         private static readonly Image greenshotIcon = GreenshotResources.GetGreenshotIcon().ToBitmap();
