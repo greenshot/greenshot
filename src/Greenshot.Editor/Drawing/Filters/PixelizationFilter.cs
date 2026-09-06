@@ -262,5 +262,18 @@ namespace Greenshot.Editor.Drawing.Filters
 
             dest.DrawTo(graphics, applyRect.Location);
         }
+
+        public override void Apply(Graphics graphics, Bitmap applyBitmap, IEnumerable<NativeRect> rects, RenderMode renderMode)
+        {
+            if (rects == null)
+            {
+                return;
+            }
+
+            foreach (var r in rects)
+            {
+                Apply(graphics, applyBitmap, r, renderMode);
+            }
+        }
     }
 }
