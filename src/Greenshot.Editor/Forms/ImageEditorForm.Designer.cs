@@ -184,7 +184,7 @@ namespace Greenshot.Editor.Forms
 			this.pixelSizeLabel = new GreenshotToolStripLabel();
 			this.pixelSizeUpDown = new ToolStripNumericUpDown();
 			this.arrowHeadsLabel = new GreenshotToolStripLabel();
-			this.arrowHeadsDropDownButton = new GreenshotToolStripDropDownButton();
+			this.arrowHeadsDropDownButton = new BindableToolStripDropDownButton();
 			this.arrowHeadStartMenuItem = new GreenshotToolStripMenuItem();
 			this.arrowHeadEndMenuItem = new GreenshotToolStripMenuItem();
 			this.arrowHeadBothMenuItem = new GreenshotToolStripMenuItem();
@@ -1588,34 +1588,41 @@ namespace Greenshot.Editor.Forms
 			this.arrowHeadsDropDownButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.arrowHeadsDropDownButton.LanguageKey = "editor_arrowheads";
 			this.arrowHeadsDropDownButton.Name = "arrowHeadsDropDownButton";
+			this.arrowHeadsDropDownButton.SelectedTag = ArrowContainer.ArrowHeadCombination.END_POINT;
+			this.arrowHeadsDropDownButton.Tag = ArrowContainer.ArrowHeadCombination.END_POINT;
+			this.arrowHeadsDropDownButton.DropDownItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.ArrowHeadsDropDownButtonDropDownItemClicked);
 			// 
 			// arrowHeadStartMenuItem
 			// 
+			this.arrowHeadStartMenuItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.ImageAndText;
+			this.arrowHeadStartMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("arrowHeadStartMenuItem.Image")));
 			this.arrowHeadStartMenuItem.LanguageKey = "editor_arrowheads_start";
 			this.arrowHeadStartMenuItem.Name = "arrowHeadStartMenuItem";
 			this.arrowHeadStartMenuItem.Tag = ArrowContainer.ArrowHeadCombination.START_POINT;
-			this.arrowHeadStartMenuItem.Click += new System.EventHandler(this.ArrowHeadsToolStripMenuItemClick);
 			// 
 			// arrowHeadEndMenuItem
 			// 
+			this.arrowHeadEndMenuItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.ImageAndText;
+			this.arrowHeadEndMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("arrowHeadEndMenuItem.Image")));
 			this.arrowHeadEndMenuItem.LanguageKey = "editor_arrowheads_end";
 			this.arrowHeadEndMenuItem.Name = "arrowHeadEndMenuItem";
 			this.arrowHeadEndMenuItem.Tag = ArrowContainer.ArrowHeadCombination.END_POINT;
-			this.arrowHeadEndMenuItem.Click += new System.EventHandler(this.ArrowHeadsToolStripMenuItemClick);
 			// 
 			// arrowHeadBothMenuItem
 			// 
+			this.arrowHeadBothMenuItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.ImageAndText;
+			this.arrowHeadBothMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("arrowHeadBothMenuItem.Image")));
 			this.arrowHeadBothMenuItem.LanguageKey = "editor_arrowheads_both";
 			this.arrowHeadBothMenuItem.Name = "arrowHeadBothMenuItem";
 			this.arrowHeadBothMenuItem.Tag = ArrowContainer.ArrowHeadCombination.BOTH;
-			this.arrowHeadBothMenuItem.Click += new System.EventHandler(this.ArrowHeadsToolStripMenuItemClick);
 			// 
 			// arrowHeadNoneMenuItem
 			// 
+			this.arrowHeadNoneMenuItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.ImageAndText;
+			this.arrowHeadNoneMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("arrowHeadNoneMenuItem.Image")));
 			this.arrowHeadNoneMenuItem.LanguageKey = "editor_arrowheads_none";
 			this.arrowHeadNoneMenuItem.Name = "arrowHeadNoneMenuItem";
 			this.arrowHeadNoneMenuItem.Tag = ArrowContainer.ArrowHeadCombination.NONE;
-			this.arrowHeadNoneMenuItem.Click += new System.EventHandler(this.ArrowHeadsToolStripMenuItemClick);
 			// 
 			// shadowButton
 			// 
@@ -1979,7 +1986,7 @@ namespace Greenshot.Editor.Forms
 		private ToolStripNumericUpDown brightnessUpDown;
 		private GreenshotToolStripLabel brightnessLabel;
 		private GreenshotToolStripMenuItem pluginToolStripMenuItem;
-		private GreenshotToolStripDropDownButton arrowHeadsDropDownButton;
+		private BindableToolStripDropDownButton arrowHeadsDropDownButton;
 		private GreenshotToolStripLabel arrowHeadsLabel;
 		private ToolStripNumericUpDown pixelSizeUpDown;
 		private GreenshotToolStripLabel pixelSizeLabel;

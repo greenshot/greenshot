@@ -62,18 +62,17 @@ namespace Greenshot.Editor.Controls
 
         private void AdoptFromTag(object tag)
         {
+            foreach (ToolStripItem item in DropDownItems)
+            {
+                if (item.Tag != null && item.Tag.Equals(tag))
+                {
+                    Image = item.Image;
+                    break;
+                }
+            }
+
             if (Tag == null || !Tag.Equals(tag))
             {
-                Tag = tag;
-                foreach (ToolStripItem item in DropDownItems)
-                {
-                    if (item.Tag != null && item.Tag.Equals(tag))
-                    {
-                        Image = item.Image;
-                        break;
-                    }
-                }
-
                 Tag = tag;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SelectedTag"));
             }

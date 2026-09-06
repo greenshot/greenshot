@@ -676,6 +676,8 @@ namespace Greenshot.Editor.Forms
                     SetButtonChecked(btnEmoji);
                     break;
             }
+
+            RefreshEditorControls();
         }
 
         /**
@@ -1366,6 +1368,8 @@ namespace Greenshot.Editor.Forms
             new BidirectionalBinding(obfuscateModeButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldType.PREPARED_FILTER_OBFUSCATE), "Value");
             new BidirectionalBinding(cropModeButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldType.CROPMODE), "Value");
             new BidirectionalBinding(highlightModeButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldType.PREPARED_FILTER_HIGHLIGHT), "Value");
+            new BidirectionalBinding(arrowHeadsDropDownButton, "SelectedTag", _surface.FieldAggregator.GetField(FieldType.ARROWHEADS), "Value",
+                NotNullValidator.GetInstance());
             new BidirectionalBinding(counterUpDown, "Value", _surface, "CounterStart", DecimalIntConverter.GetInstance(), NotNullValidator.GetInstance());
         }
 
@@ -1387,6 +1391,10 @@ namespace Greenshot.Editor.Forms
                 pixelSizeLabel.Visible = pixelSizeUpDown.Visible = props.HasFieldValue(FieldType.PIXEL_SIZE);
                 brightnessLabel.Visible = brightnessUpDown.Visible = props.HasFieldValue(FieldType.BRIGHTNESS);
                 arrowHeadsLabel.Visible = arrowHeadsDropDownButton.Visible = props.HasFieldValue(FieldType.ARROWHEADS);
+                if (props.HasFieldValue(FieldType.ARROWHEADS))
+                {
+                    SyncArrowHeadControls((ArrowContainer.ArrowHeadCombination)props.GetFieldValue(FieldType.ARROWHEADS));
+                }
                 fontFamilyComboBox.Visible = props.HasFieldValue(FieldType.FONT_FAMILY);
                 fontSizeLabel.Visible = fontSizeUpDown.Visible = props.HasFieldValue(FieldType.FONT_SIZE);
                 fontBoldButton.Visible = props.HasFieldValue(FieldType.FONT_BOLD);
@@ -1494,9 +1502,26 @@ namespace Greenshot.Editor.Forms
         }
 
 
-        private void ArrowHeadsToolStripMenuItemClick(object sender, EventArgs e)
+        private void ArrowHeadsDropDownButtonDropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)
         {
-            _surface.FieldAggregator.GetField(FieldType.ARROWHEADS).Value = (ArrowContainer.ArrowHeadCombination)((ToolStripMenuItem)sender).Tag;
+            SyncArrowHeadMenuChecked((ArrowContainer.ArrowHeadCombination)e.ClickedItem.Tag);
+        }
+
+        private void SyncArrowHeadControls(ArrowContainer.ArrowHeadCombination value)
+        {
+            arrowHeadsDropDownButton.SelectedTag = value;
+            SyncArrowHeadMenuChecked(value);
+        }
+
+        private void SyncArrowHeadMenuChecked(ArrowContainer.ArrowHeadCombination value)
+        {
+            foreach (ToolStripItem item in arrowHeadsDropDownButton.DropDownItems)
+            {
+                if (item is ToolStripMenuItem menuItem)
+                {
+                    menuItem.Checked = menuItem.Tag != null && menuItem.Tag.Equals(value);
+                }
+            }
         }
 
         private void EditToolStripMenuItemClick(object sender, EventArgs e)
