@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.ComponentModel;
 using System.Threading;
 using System.Windows.Forms;
 using Greenshot.Base.Core;
@@ -36,8 +37,27 @@ namespace Greenshot.Forms
         private static LanguageDialog _uniqueInstance;
         private bool _properOkPressed;
 
+        /// <summary>
+        /// Parameterless constructor required for Windows Forms designer support.
+        /// Callers should use <see cref="GetInstance"/> to obtain the dialog instance.
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Obsolete("Use LanguageDialog.GetInstance() instead.", false)]
         public LanguageDialog()
         {
+            if (_uniqueInstance != null && !_uniqueInstance.IsDisposed && _uniqueInstance != this)
+            {
+                try
+                {
+                    _uniqueInstance.Close();
+                }
+                catch
+                {
+                    // Ignore
+                }
+            }
+            _uniqueInstance = this;
+
             //
             // The InitializeComponent() call is required for Windows Forms designer support.
             //
@@ -45,6 +65,13 @@ namespace Greenshot.Forms
             Icon = GreenshotResources.GetGreenshotIcon();
             Load += FormLoad;
             FormClosing += PreventFormClose;
+            FormClosed += (sender, args) =>
+            {
+                if (_uniqueInstance == this)
+                {
+                    _uniqueInstance = null;
+                }
+            };
         }
 
         private void PreventFormClose(object sender, FormClosingEventArgs e)
@@ -59,6 +86,8 @@ namespace Greenshot.Forms
 
         protected void FormLoad(object sender, EventArgs e)
         {
+            _properOkPressed = false;
+
             // Initialize the Language ComboBox
             comboBoxLanguage.DisplayMember = "Description";
             comboBoxLanguage.ValueMember = "Ietf";
@@ -98,7 +127,11 @@ namespace Greenshot.Forms
 
         public static LanguageDialog GetInstance()
         {
-            return _uniqueInstance ??= new LanguageDialog();
+            if (_uniqueInstance == null || _uniqueInstance.IsDisposed)
+            {
+                _uniqueInstance = new LanguageDialog();
+            }
+            return _uniqueInstance;
         }
     }
 }

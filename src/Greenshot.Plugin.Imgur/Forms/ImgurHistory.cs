@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.ComponentModel;
 using System.Globalization;
 using System.Text;
 using System.Windows.Forms;
@@ -53,7 +54,7 @@ public sealed partial class ImgurHistory : ImgurForm
             }
 
             // Make sure the history is loaded, will be done only once
-            if (_instance == null)
+            if (_instance == null || _instance.IsDisposed)
             {
                 _instance = new ImgurHistory();
             }
@@ -64,11 +65,34 @@ public sealed partial class ImgurHistory : ImgurForm
             }
 
             _instance.Redraw();
+            _instance.BringToFront();
         }
     }
 
+    /// <summary>
+    /// Parameterless constructor required for Windows Forms designer support.
+    /// Callers should use <see cref="ShowHistory"/> to display the singleton instance.
+    /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [Obsolete("Use ImgurHistory.ShowHistory() instead.", false)]
     public ImgurHistory()
     {
+        lock (Lock)
+        {
+            if (_instance != null && !_instance.IsDisposed && _instance != this)
+            {
+                try
+                {
+                    _instance.Close();
+                }
+                catch
+                {
+                    // Ignore
+                }
+            }
+            _instance = this;
+        }
+
         //
         // The InitializeComponent() call is required for Windows Forms designer support.
         //
@@ -264,6 +288,12 @@ public sealed partial class ImgurHistory : ImgurForm
 
     private void ImgurHistoryFormClosing(object sender, FormClosingEventArgs e)
     {
-        _instance = null;
+        lock (Lock)
+        {
+            if (_instance == this)
+            {
+                _instance = null;
+            }
+        }
     }
 }

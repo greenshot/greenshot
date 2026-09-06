@@ -127,7 +127,7 @@ namespace Greenshot.Base.Controls
 
         /// <summary>
         /// This method should be used to set all translated texts for the form and its controls.
-        /// It is called from the constructor and whenever the language changes at runtime.
+        /// It is called on form load (or in derived constructors) and whenever the language changes at runtime.
         /// </summary>
         protected virtual void InitializeLanguage()
         {
@@ -168,6 +168,7 @@ namespace Greenshot.Base.Controls
             if (!DesignMode)
             {
 #endif
+                InitializeLanguage();
                 FillFields();
                 base.OnLoad(e);
 #if DEBUG
