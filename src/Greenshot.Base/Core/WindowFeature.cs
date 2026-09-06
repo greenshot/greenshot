@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -19,56 +19,55 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
+using Greenshot.Base.Interfaces.Plugin;
 
-namespace Greenshot.Base.Interfaces.Ocr
+namespace Greenshot.Base.Core
 {
     /// <summary>
-    /// Contains all the information on the OCR result
+    /// Represents a window boundary metadata feature on the capture
     /// </summary>
-    public class OcrInformation
+    public class WindowFeature : IDetectedFeature
     {
-        /// <summary>
-        /// Check if there is any content
-        /// </summary>
-        public bool HasContent => Lines.Any();
+        /// <inheritdoc />
+        public NativeRect Bounds { get; private set; }
+
+        /// <inheritdoc />
+        public string FeatureType => "Window";
+
+        /// <inheritdoc />
+        public string Text => Window?.Text;
+
+        /// <inheritdoc />
+        public string ToolTipText => Window?.Text;
 
         /// <summary>
-        /// The complete text
+        /// The underlying WindowDetails object
         /// </summary>
-        public string Text
+        public WindowDetails Window { get; }
+
+        /// <summary>
+        /// Z-index of the window at the time of enumeration
+        /// </summary>
+        public int ZIndex { get; }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="window">The WindowDetails to wrap</param>
+        /// <param name="zIndex">The Z-index</param>
+        public WindowFeature(WindowDetails window, int zIndex)
         {
-            get
-            {
-                // Build the text from the lines, otherwise it's just everything concatenated together
-                var text = new StringBuilder();
-                foreach (var line in Lines)
-                {
-                    text.AppendLine(line.Text);
-                }
-
-                return text.ToString();
-            }
+            Window = window;
+            Bounds = window.WindowRectangle;
+            ZIndex = zIndex;
         }
 
-        /// <summary>
-        /// The lines of test which the OCR engine found
-        /// </summary>
-        public IList<Line> Lines { get; } = new List<Line>();
-
-        /// <summary>
-        /// Change the offset of the
-        /// </summary>
-        /// <param name="x">int</param>
-        /// <param name="y">int</param>
+        /// <inheritdoc />
         public void Offset(int x, int y)
         {
-            foreach (var line in Lines)
-            {
-                line.Offset(x, y);
-            }
+            Bounds = Bounds.Offset(x, y);
         }
     }
 }

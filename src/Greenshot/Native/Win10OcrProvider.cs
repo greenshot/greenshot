@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Threading.Tasks;
@@ -27,6 +28,7 @@ using Windows.Graphics.Imaging;
 using Windows.Media.Ocr;
 using Windows.Storage.Streams;
 using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Common.Extensions;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Effects;
@@ -62,9 +64,9 @@ namespace Greenshot.Plugin.Win10
         /// </summary>
         /// <param name="surface">ISurface</param>
         /// <returns>OcrResult sync</returns>
-        public async Task<OcrInformation> DoOcrAsync(ISurface surface)
+        public async Task<List<IOcrLineFeature>> DoOcrAsync(ISurface surface)
         {
-            OcrInformation result;
+            List<IOcrLineFeature> result;
             using (var imageStream = RecyclableMemoryStreamFactory.GetStream("Win10OcrProvider.DoOcrAsync(ISurface)"))
             {
                 // We only want the background
@@ -113,9 +115,9 @@ namespace Greenshot.Plugin.Win10
         /// </summary>
         /// <param name="image">Image</param>
         /// <returns>OcrResult sync</returns>
-        public async Task<OcrInformation> DoOcrAsync(Image image)
+        public async Task<List<IOcrLineFeature>> DoOcrAsync(Image image)
         {
-            OcrInformation result;
+            List<IOcrLineFeature> result;
             using (var imageStream = RecyclableMemoryStreamFactory.GetStream("Win10OcrProvider.DoOcrAsync(Image)"))
             {
                 ImageIO.SaveToStream(image, null, imageStream, new SurfaceOutputSettings());
@@ -133,7 +135,7 @@ namespace Greenshot.Plugin.Win10
         /// </summary>
         /// <param name="randomAccessStream">IRandomAccessStream</param>
         /// <returns>OcrResult sync</returns>
-        public async Task<OcrInformation> DoOcrAsync(IRandomAccessStream randomAccessStream)
+        public async Task<List<IOcrLineFeature>> DoOcrAsync(IRandomAccessStream randomAccessStream)
         {
             var ocrEngine = OcrEngine.TryCreateFromUserProfileLanguages();
             if (ocrEngine is null)
@@ -146,36 +148,48 @@ namespace Greenshot.Plugin.Win10
 
             var ocrResult = await ocrEngine.RecognizeAsync(softwareBitmap);
 
-            return CreateOcrInformation(ocrResult);
+            return CreateOcrLines(ocrResult);
         }
 
         /// <summary>
-        /// Create the OcrInformation
+        /// Create the list of IOcrLineFeature
         /// </summary>
         /// <param name="ocrResult">OcrResult</param>
-        /// <returns>OcrInformation</returns>
-        private static OcrInformation CreateOcrInformation(OcrResult ocrResult)
+        /// <returns>List of IOcrLineFeature</returns>
+        private static List<IOcrLineFeature> CreateOcrLines(OcrResult ocrResult)
         {
-            var result = new OcrInformation();
+            var result = new List<IOcrLineFeature>();
 
             foreach (var ocrLine in ocrResult.Lines)
             {
-                var line = new Line(ocrLine.Words.Count)
-                {
-                    Text = ocrLine.Text
-                };
-
-                result.Lines.Add(line);
+                var words = new List<OcrWordInfo>();
+                var lineBounds = NativeRect.Empty;
 
                 for (var index = 0; index < ocrLine.Words.Count; index++)
                 {
                     var ocrWord = ocrLine.Words[index];
-                    var location = new NativeRect((int) ocrWord.BoundingRect.X, (int) ocrWord.BoundingRect.Y,
+                    var wordBounds = new NativeRect((int) ocrWord.BoundingRect.X, (int) ocrWord.BoundingRect.Y,
                         (int) ocrWord.BoundingRect.Width, (int) ocrWord.BoundingRect.Height);
 
-                    var word = line.Words[index];
-                    word.Text = ocrWord.Text;
-                    word.Bounds = location;
+                    words.Add(new OcrWordInfo
+                    {
+                        Bounds = wordBounds,
+                        Text = ocrWord.Text
+                    });
+
+                    if (index == 0)
+                    {
+                        lineBounds = wordBounds;
+                    }
+                    else
+                    {
+                        lineBounds = lineBounds.Union(wordBounds);
+                    }
+                }
+
+                if (!lineBounds.IsEmpty)
+                {
+                    result.Add(new DetectedOcrLine(lineBounds, ocrLine.Text, words));
                 }
             }
 

@@ -1,48 +1,49 @@
 /*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
- *
+ * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
- *
+ * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 1 of the License, or
  * (at your option) any later version.
- *
+ * 
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System.Collections.Generic;
-using System.Drawing;
-using System.Threading.Tasks;
+using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Interfaces.Plugin;
 
-namespace Greenshot.Base.Interfaces.Ocr
-{
-    /// <summary>
-    /// This interface describes something that can do OCR of a bitmap
-    /// </summary>
-    public interface IOcrProvider
-    {
-        /// <summary>
-        /// Start the actual OCR
-        /// </summary>
-        /// <param name="image">Image</param>
-        /// <returns>List of detected OCR line features</returns>
-        Task<List<IOcrLineFeature>> DoOcrAsync(Image image);
+namespace Greenshot.Plugin.Zxing;
 
-        /// <summary>
-        /// Start the actual OCR
-        /// </summary>
-        /// <param name="surface">ISurface</param>
-        /// <returns>List of detected OCR line features</returns>
-        Task<List<IOcrLineFeature>> DoOcrAsync(ISurface surface);
+public class DetectedBarcode : IBarcodeFeature
+{
+    public NativeRect Bounds { get; private set; }
+    public string FeatureType => "Barcode";
+    public string Text => RawText;
+    public string ToolTipText => RawText;
+
+    public string Format { get; }
+    public string RawText { get; }
+
+    public DetectedBarcode(NativeRect bounds, string format, string rawText)
+    {
+        Bounds = bounds;
+        Format = format;
+        RawText = rawText;
+    }
+
+    public void Offset(int x, int y)
+    {
+        Bounds = Bounds.Offset(x, y);
     }
 }

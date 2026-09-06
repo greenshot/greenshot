@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -31,6 +31,11 @@ namespace Greenshot.Base.Interfaces.Drawing
 {
     public interface IDrawableContainer : INotifyPropertyChanged, IDisposable
     {
+        /// <summary>
+        /// User data tag associated with the container.
+        /// </summary>
+        object Tag { get; set; }
+
         /// <summary>
         /// The parent surface where this IDrawableContainer is on
         /// </summary>

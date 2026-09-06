@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -19,11 +19,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
 using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Ocr;
+using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Configuration;
 
 namespace Greenshot.Processors
@@ -34,25 +39,31 @@ namespace Greenshot.Processors
     public class Win10OcrProcessor : AbstractProcessor
     {
         private static readonly IWin10Configuration Win10Configuration = IniConfigRegistry.GetSection<IWin10Configuration>();
+        private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(Win10OcrProcessor));
+
         public override string Designation => "Windows10OcrProcessor";
 
         public override string Description => "Windows OCR";
 
-        public override bool ProcessCapture(ISurface surface, ICaptureDetails captureDetails)
+        public override bool ProcessCapture(ICapture capture)
         {
             if (!Win10Configuration.AlwaysRunOCROnCapture)
             {
                 return false;
             }
 
-            if (surface == null)
+            if (capture == null || capture.CaptureDetails == null)
             {
                 return false;
             }
 
-            if (captureDetails == null || captureDetails.OcrInformation != null)
+            lock (capture.CaptureDetails.StartedProcessors)
             {
-                return false;
+                if (capture.CaptureDetails.StartedProcessors.Contains(Designation))
+                {
+                    return false;
+                }
+                capture.CaptureDetails.StartedProcessors.Add(Designation);
             }
 
             var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>();
@@ -62,14 +73,72 @@ namespace Greenshot.Processors
                 return false;
             }
 
-            var ocrResult = Task.Run(async () => await ocrProvider.DoOcrAsync(surface).ConfigureAwait(false)).Result;
-
-            if (!ocrResult.HasContent)
+            if (capture.Image == null)
             {
                 return false;
             }
 
-            captureDetails.OcrInformation = ocrResult;
+            Image clonedImage;
+            try
+            {
+                clonedImage = (Image)capture.Image.Clone();
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Failed to clone capture image for OCR background processing", ex);
+                return false;
+            }
+
+            var captureDetails = capture.CaptureDetails;
+            var initialCropOffset = captureDetails.CropOffset;
+
+            var task = Task.Run(() =>
+            {
+                using (clonedImage)
+                {
+                    try
+                    {
+                        var ocrLines = Task.Run(async () => await ocrProvider.DoOcrAsync(clonedImage).ConfigureAwait(false)).Result;
+                        if (ocrLines != null && ocrLines.Any())
+                        {
+                            lock (captureDetails.Features)
+                            {
+                                var currentCropOffset = captureDetails.CropOffset;
+                                var dx = currentCropOffset.X - initialCropOffset.X;
+                                var dy = currentCropOffset.Y - initialCropOffset.Y;
+                                if (dx != 0 || dy != 0)
+                                {
+                                    foreach (var line in ocrLines)
+                                    {
+                                        line.Offset(-dx, -dy);
+                                    }
+                                }
+                                captureDetails.Features.AddRange(ocrLines);
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error("Error performing Windows OCR in background task", ex);
+                    }
+                    finally
+                    {
+                        if (captureDetails is CaptureDetails concreteDetails)
+                        {
+                            concreteDetails.NotifyFeaturesChanged();
+                        }
+                    }
+                }
+            });
+
+            if (captureDetails.ProcessingTask != null)
+            {
+                captureDetails.ProcessingTask = Task.WhenAll(captureDetails.ProcessingTask, task);
+            }
+            else
+            {
+                captureDetails.ProcessingTask = task;
+            }
 
             return true;
         }

@@ -30,7 +30,7 @@ using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
-using Greenshot.Base.Interfaces.Ocr;
+using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Editor.Configuration;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Drawing.Fields;
@@ -43,10 +43,10 @@ namespace Greenshot.Editor.Forms
     /// </summary>
     public partial class TextObfuscationForm : EditorForm
     {
-        private static readonly IEditorConfiguration EditorConfig = IniConfigHelper.EnsureSection<IEditorConfiguration>(() => new EditorConfigurationImpl());
+        private static readonly IEditorConfiguration EditorConfig = IniConfigRegistry.GetSection<IEditorConfiguration>();
         
         private readonly ISurface _surface;
-        private readonly OcrInformation _ocrInfo;
+        private readonly IEnumerable<IOcrLineFeature> _ocrLines;
         private readonly List<NativeRect> _matchedBounds = new List<NativeRect>();
         private readonly List<FilterContainer> _previewContainers = new List<FilterContainer>();
         private IDisposable _searchSubscription;
@@ -59,10 +59,10 @@ namespace Greenshot.Editor.Forms
         {
         }
 
-        public TextObfuscationForm(ISurface surface, OcrInformation ocrInfo)
+        public TextObfuscationForm(ISurface surface, IEnumerable<IOcrLineFeature> ocrLines)
         {
             _surface = surface;
-            _ocrInfo = ocrInfo;
+            _ocrLines = ocrLines;
             InitializeComponent();
             InitializeLanguage();
             
@@ -219,7 +219,7 @@ namespace Greenshot.Editor.Forms
             ClearPreview();
             _matchedBounds.Clear();
 
-            if (_surface == null || _ocrInfo == null)
+            if (_surface == null || _ocrLines == null)
             {
                 return;
             }
@@ -277,7 +277,7 @@ namespace Greenshot.Editor.Forms
 
         private void SearchWords(string searchText, bool useRegex)
         {
-            foreach (var line in _ocrInfo.Lines)
+            foreach (var line in _ocrLines)
             {
                 foreach (var word in line.Words)
                 {
@@ -291,11 +291,11 @@ namespace Greenshot.Editor.Forms
 
         private void SearchLines(string searchText, bool useRegex)
         {
-            foreach (var line in _ocrInfo.Lines)
+            foreach (var line in _ocrLines)
             {
                 if (IsMatch(line.Text, searchText, useRegex))
                 {
-                    _matchedBounds.Add(ApplyPadding(line.CalculatedBounds));
+                    _matchedBounds.Add(ApplyPadding(line.Bounds));
                 }
             }
         }

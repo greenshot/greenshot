@@ -23,6 +23,7 @@
     <PackageReference Include="Svg" Version="3.4.7" />
     <PackageReference Include="Dapplo.Ini" Version="1.0.153" />
     <PackageReference Include="Dapplo.Ini.Generator" Version="1.0.153" />
+    <PackageReference Include="System.Resources.Extensions" Version="10.0.9" />
     <Reference Include="Accessibility" />
     <Reference Include="CustomMarshalers" />
   </ItemGroup>

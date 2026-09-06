@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -21,7 +21,7 @@
 
 using System;
 using System.Collections.Generic;
-using Greenshot.Base.Interfaces.Ocr;
+using Greenshot.Base.Interfaces.Plugin;
 
 namespace Greenshot.Base.Interfaces
 {
@@ -74,8 +74,28 @@ namespace Greenshot.Base.Interfaces
         float DpiY { get; set; }
 
         /// <summary>
-        /// Store the OCR information for this capture
+        /// Store the detected features for this capture
         /// </summary>
-        OcrInformation OcrInformation { get; set; }
+        List<IDetectedFeature> Features { get; }
+
+        /// <summary>
+        /// The crop offset applied to the capture, used to offset background features
+        /// </summary>
+        Dapplo.Windows.Common.Structs.NativePoint CropOffset { get; set; }
+
+        /// <summary>
+        /// A Task that completes when all background capture processors (like OCR and QR) have finished.
+        /// </summary>
+        System.Threading.Tasks.Task ProcessingTask { get; set; }
+
+        /// <summary>
+        /// Keeps track of which processors have been started for this capture session.
+        /// </summary>
+        System.Collections.Generic.HashSet<string> StartedProcessors { get; }
+
+        /// <summary>
+        /// Event fired when features have been updated.
+        /// </summary>
+        event EventHandler FeaturesChanged;
     }
 }

@@ -63,10 +63,14 @@ namespace Greenshot.Processors
 
         public override string Description => Designation;
 
-        public override bool ProcessCapture(ISurface surface, ICaptureDetails captureDetails)
+        public override bool ProcessCapture(ICapture capture)
         {
             bool changed = false;
-            string title = captureDetails.Title;
+            if (capture == null || capture.CaptureDetails == null)
+            {
+                return false;
+            }
+            string title = capture?.CaptureDetails?.Title;
             if (!string.IsNullOrEmpty(title))
             {
                 title = title.Trim();
@@ -83,7 +87,7 @@ namespace Greenshot.Processors
                 }
             }
 
-            captureDetails.Title = title;
+            capture.CaptureDetails.Title = title;
             return changed;
         }
     }

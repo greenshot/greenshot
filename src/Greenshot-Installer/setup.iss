@@ -106,6 +106,8 @@ Source: {#SolutionDir}\Greenshot.Plugin.Confluence\Languages\language_confluence
 ;ExternalCommand Plugin
 Source: {#PluginDir}\Greenshot.Plugin.ExternalCommand\Greenshot.Plugin.ExternalCommand.dll; DestDir: {app}\Plugins\ExternalCommand; Components: plugins\externalcommand; Flags: {#DefaultInstallFlags};
 Source: {#SolutionDir}\Greenshot.Plugin.ExternalCommand\Languages\language_externalcommand*.xml; DestDir: {app}\Languages\Plugins\ExternalCommand; Components: plugins\externalcommand; Flags: {#DefaultInstallFlags};
+;ZXing Plugin
+Source: {#PluginDir}\Greenshot.Plugin.Zxing\*zxing*.dll; DestDir: {app}\Plugins\Zxing; Components: plugins\zxing; Flags: {#DefaultInstallFlags};
 
 [Setup]
 ; changes associations is used when the installer installs new extensions, it clears the explorer icon cache
@@ -289,6 +291,7 @@ en.imgur=Imgur plug-in (See: https://imgur.com)
 en.jira=Jira plug-in
 en.language=Additional languages
 en.office=Microsoft Office plug-in
+en.zxing=ZXing QR/Barcode plug-in
 en.startgreenshot=Start {#ExeName}
 en.startup=Start {#ExeName} with Windows start
 en.UninstallIconDescription=Uninstall
@@ -303,6 +306,7 @@ de.imgur=Imgur Plug-in (Siehe: https://imgur.com)
 de.jira=Jira Plug-in
 de.language=Zusätzliche Sprachen
 de.office=Microsoft Office Plug-in
+de.zxing=ZXing QR/Barcode-Plug-in
 de.startgreenshot={#ExeName} starten
 de.startup={#ExeName} starten wenn Windows hochfährt
 de.disablewin11snippingtool=Deaktiviere das Standard Windows 11 Snipping Tool auf "Druck"
@@ -312,6 +316,7 @@ es.externalcommand=Extensión para abrir con programas externos
 es.imgur=Extensión para Imgur (Ver https://imgur.com)
 es.jira=Extensión para Jira
 es.language=Idiomas adicionales
+es.zxing=Extensión ZXing QR/Barcode
 es.startgreenshot=Lanzar {#ExeName}
 es.startup=Lanzar {#ExeName} al iniciarse Windows
 
@@ -321,6 +326,7 @@ fi.imgur=Imgur-liitännäinen (Katso: https://imgur.com)
 fi.jira=Jira-liitännäinen
 fi.language=Lisäkielet
 fi.office=Microsoft-Office-liitännäinen
+fi.zxing=ZXing QR/Barcode-liitännäinen
 fi.startgreenshot=Käynnistä {#ExeName}
 fi.startup=Käynnistä {#ExeName} Windowsin käynnistyessä
 
@@ -330,6 +336,7 @@ fr.imgur=Greffon Imgur (Voir: https://imgur.com)
 fr.jira=Greffon Jira
 fr.language=Langues additionnelles
 fr.office=Greffon Microsoft Office
+fr.zxing=Greffon ZXing QR/Barcode
 fr.startgreenshot=Démarrer {#ExeName}
 fr.startup=Lancer {#ExeName} au démarrage de Windows
 
@@ -342,6 +349,7 @@ it.imgur=Plugin Imgur (vedi: https://imgur.com)
 it.jira=Plugin Jira
 it.language=Lingue aggiuntive
 it.office=Plugin Microsoft Office
+it.zxing=Plugin ZXing QR/Barcode
 it.startgreenshot=Esegui {#ExeName}
 it.startup=Esegui {#ExeName} all''avvio di Windows
 it.UninstallIconDescription=Disinstalla
@@ -390,6 +398,7 @@ lv.imgur=Imgur spraudnis (Vairāk šeit: https://imgur.com)
 lv.jira=Jira spraudnis
 lv.language=Papildus valodas
 lv.office=Microsoft Office spraudnis
+lv.zxing=ZXing QR/Barcode spraudnis
 lv.startgreenshot=Palaist {#ExeName}
 lv.startup=Palaist {#ExeName} uzsākot darbus
 
@@ -400,6 +409,7 @@ nl.imgur=Imgur plug-in (zie: https://imgur.com)
 nl.jira=Jira plug-in
 nl.language=Extra talen
 nl.office=Microsoft Office plug-in
+nl.zxing=ZXing QR/Barcode plug-in
 nl.startgreenshot={#ExeName} starten
 nl.startup={#ExeName} automatisch starten met Windows
 
@@ -410,6 +420,7 @@ nn.imgur=Imgur-tillegg (sjå https://imgur.com)
 nn.jira=Jira-tillegg
 nn.language=Andre språk
 nn.office=Microsoft Office Tillegg
+nn.zxing=ZXing QR/Barcode-tillegg
 nn.startgreenshot=Start {#ExeName}
 nn.startup=Start {#ExeName} når Windows startar
 
@@ -419,6 +430,7 @@ ru.imgur=Плагин Imgur (смотрите https://imgur.com/)
 ru.jira=Плагин Jira
 ru.language=Дополнительные языки
 ru.office=Плагин Microsoft Office
+ru.zxing=Плагин ZXing QR/Barcode
 ru.startgreenshot=Запустить {#ExeName}
 ru.startup=Запускать {#ExeName} при старте Windows
 
@@ -427,6 +439,7 @@ sr.externalcommand=Отвори са прикључком за спољне на
 sr.imgur=Прикључак за Имиџер (https://imgur.com)
 sr.jira=Прикључак за Џиру
 sr.language=Додатни језици
+sr.zxing=Прикључак за ZXing QR/Barcode
 sr.startgreenshot=Покрени Гриншот
 sr.startup=Покрени програм са системом
 
@@ -435,6 +448,7 @@ sv.externalcommand=Öppna med externt kommando-insticksprogram
 sv.imgur=Imgur-insticksprogram (Se: https://imgur.com)
 sv.jira=Jira-insticksprogram
 sv.language=Ytterligare språk
+sv.zxing=ZXing QR/Barcode-insticksprogram
 sv.startgreenshot=Starta {#ExeName}
 sv.startup=Starta {#ExeName} med Windows
 
@@ -447,6 +461,7 @@ tr.imgur=Imgur eklentisi (Bkz: https://imgur.com)
 tr.jira=Jira eklentisi
 tr.language=Ek diller
 tr.office=Microsoft Office eklentisi
+tr.zxing=ZXing QR/Barcode eklentisi
 tr.startgreenshot={#ExeName} uygulamasını başlat
 tr.startup={#ExeName} Windows açıldığında başlasın
 tr.UninstallIconDescription=Uninstall
@@ -459,6 +474,7 @@ uk.externalcommand=Плагін запуску зовнішньої команд
 uk.imgur=Плагін Imgur (див.: https://imgur.com)
 uk.jira=Плагін Jira
 uk.language=Додаткові мови
+uk.zxing=Плагін ZXing QR/Barcode
 uk.startgreenshot=Запустити {#ExeName}
 uk.startup=Запускати {#ExeName} під час запуску Windows
 
@@ -467,6 +483,7 @@ cn.externalcommand=使用外部命令打开插件
 cn.imgur=Imgur插件( (请访问： https://imgur.com))
 cn.jira=Jira插件
 cn.language=其它语言
+cn.zxing=ZXing二维码/条形码插件
 cn.startgreenshot=启动{#ExeName}
 cn.startup=让{#ExeName}随Windows一起启动
 
@@ -486,6 +503,7 @@ Name: "plugins\externalcommand"; Description: {cm:externalcommand}; Types: full 
 Name: "plugins\imgur"; Description: {cm:imgur}; Types: full custom; Flags: disablenouninstallwarning
 Name: "plugins\jira"; Description: {cm:jira}; Types: full custom; Flags: disablenouninstallwarning
 Name: "plugins\office"; Description: {cm:office}; Types: default full custom; Flags: disablenouninstallwarning
+Name: "plugins\zxing"; Description: {cm:zxing}; Types: default full custom; Flags: disablenouninstallwarning
 Name: "languages"; Description: {cm:language}; Types: full custom; Flags: disablenouninstallwarning
 Name: "languages\arSY"; Description: {cm:arSY}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('d')
 Name: "languages\caCA"; Description: {cm:caCA}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('1')
@@ -679,6 +697,7 @@ Type: filesandordirs; Name: "{app}\Plugins\Jira"
 Type: filesandordirs; Name: "{app}\Plugins\Office"
 Type: filesandordirs; Name: "{app}\Plugins\Photobucket"
 Type: filesandordirs; Name: "{app}\Plugins\Win10"
+Type: filesandordirs; Name: "{app}\Plugins\Zxing"
 
 // Cleanup directory if there are no plugins left
 Name: {app}\Plugins; Type: dirifempty;
