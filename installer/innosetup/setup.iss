@@ -753,4 +753,35 @@ Filename: "{app}\{#ExeName}.exe"; Description: "{cm:startgreenshot}"; Parameters
 Filename: "https://getgreenshot.org/thank-you/?language={language}&version={#Version}"; Flags: shellexec runasoriginaluser
 
 [InstallDelete]
+// processed as the first step of installation.
+// Delete plugins from Greenshot 1.2
+Type: filesandordirs; Name: "{app}\Plugins\GreenshotBoxPlugin"
+Type: filesandordirs; Name: "{app}\Plugins\GreenshotConfluencePlugin"
+Type: filesandordirs; Name: "{app}\Plugins\GreenshotDropboxPlugin"
+Type: filesandordirs; Name: "{app}\Plugins\GreenshotExternalCommandPlugin"
+Type: filesandordirs; Name: "{app}\Plugins\GreenshotFlickrPlugin"
+Type: filesandordirs; Name: "{app}\Plugins\GreenshotImgurPlugin"
+Type: filesandordirs; Name: "{app}\Plugins\GreenshotJiraPlugin"
+Type: filesandordirs; Name: "{app}\Plugins\GreenshotOCRPlugin"
+Type: filesandordirs; Name: "{app}\Plugins\GreenshotOfficePlugin"
+Type: filesandordirs; Name: "{app}\Plugins\GreenshotPhotobucketPlugin"
+Type: filesandordirs; Name: "{app}\Plugins\GreenshotPicasaPlugin"
+
+// Newer 1.3 plugins
+Type: filesandordirs; Name: "{app}\Plugins\Greenshot.Plugin.Box"
+Type: filesandordirs; Name: "{app}\Plugins\Greenshot.Plugin.Confluence"
+Type: filesandordirs; Name: "{app}\Plugins\Greenshot.Plugin.Dropbox"
+Type: filesandordirs; Name: "{app}\Plugins\Greenshot.Plugin.ExternalCommand"
+Type: filesandordirs; Name: "{app}\Plugins\Greenshot.Plugin.Flickr"
+Type: filesandordirs; Name: "{app}\Plugins\Greenshot.Plugin.GooglePhotos"
+Type: filesandordirs; Name: "{app}\Plugins\Greenshot.Plugin.Imgur"
+Type: filesandordirs; Name: "{app}\Plugins\Greenshot.Plugin.Jira"
+Type: filesandordirs; Name: "{app}\Plugins\Greenshot.Plugin.Office"
+Type: filesandordirs; Name: "{app}\Plugins\Greenshot.Plugin.Photobucket"
+Type: filesandordirs; Name: "{app}\Plugins\Greenshot.Plugin.Win10"
+
+// Cleanup directory if there are no plugins left
+Name: {app}\Plugins; Type: dirifempty;
+
+// Cleanup the main directory if there are no files left
 Name: {app}; Type: dirifempty;

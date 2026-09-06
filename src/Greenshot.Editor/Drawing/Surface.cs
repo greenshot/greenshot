@@ -565,6 +565,11 @@ namespace Greenshot.Editor.Drawing
             if (disposing)
             {
                 LOG.Debug("Disposing surface!");
+                if (_image != null)
+                {
+                    _image.Dispose();
+                    _image = null;
+                }
                 if (_buffer != null)
                 {
                     _buffer.Dispose();
@@ -1769,12 +1774,16 @@ namespace Greenshot.Editor.Drawing
                 int verticalCorrection = targetClipRectangle.Top % (int) _zoomFactor.Numerator;
                 if (horizontalCorrection != 0)
                 {
-                    targetClipRectangle = targetClipRectangle.ChangeX(-horizontalCorrection).ChangeWidth(horizontalCorrection);
+                    targetClipRectangle = targetClipRectangle
+                        .ChangeX(targetClipRectangle.X - horizontalCorrection)
+                        .ChangeWidth(targetClipRectangle.Width + horizontalCorrection);
                 }
 
                 if (verticalCorrection != 0)
                 {
-                    targetClipRectangle = targetClipRectangle.ChangeY(-verticalCorrection).ChangeHeight(verticalCorrection);
+                    targetClipRectangle = targetClipRectangle
+                        .ChangeY(targetClipRectangle.Y - verticalCorrection)
+                        .ChangeHeight(targetClipRectangle.Height + verticalCorrection);
                 }
             }
 

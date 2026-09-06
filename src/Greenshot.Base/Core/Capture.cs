@@ -113,7 +113,7 @@ namespace Greenshot.Base.Core
             set
             {
                 _cursor?.Dispose();
-                _cursor = (Icon) value.Clone();
+                _cursor = (Icon) value?.Clone();
             }
         }
 
