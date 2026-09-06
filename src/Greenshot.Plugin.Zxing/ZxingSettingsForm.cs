@@ -21,6 +21,7 @@
 
 using System;
 using System.Windows.Forms;
+using Greenshot.Base.Core;
 
 namespace Greenshot.Plugin.Zxing
 {
@@ -51,7 +52,7 @@ namespace Greenshot.Plugin.Zxing
             this._chkScanOnCapture.Name = "_chkScanOnCapture";
             this._chkScanOnCapture.Size = new System.Drawing.Size(280, 17);
             this._chkScanOnCapture.TabIndex = 0;
-            this._chkScanOnCapture.Text = "Enable QR code scanning on region capture";
+            this._chkScanOnCapture.Text = Language.GetString("zxing_scan_on_capture");
             this._chkScanOnCapture.UseVisualStyleBackColor = true;
 
             // btnOk
