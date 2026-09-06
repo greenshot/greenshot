@@ -94,14 +94,17 @@ namespace Greenshot.Destinations
                 if (!ocrFeatures.Any())
                 {
                     var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>();
-                    var ocrLines = Task.Run(async () => await ocrProvider.DoOcrAsync(surface).ConfigureAwait(false)).Result;
-                    if (ocrLines != null && ocrLines.Any())
+                    if (ocrProvider != null)
                     {
-                        lock (captureDetails.Features)
+                        var ocrLines = Task.Run(async () => await ocrProvider.DoOcrAsync(surface).ConfigureAwait(false)).Result;
+                        if (ocrLines != null && ocrLines.Any())
                         {
-                            captureDetails.Features.AddRange(ocrLines);
+                            lock (captureDetails.Features)
+                            {
+                                captureDetails.Features.AddRange(ocrLines);
+                            }
+                            ocrFeatures = ocrLines;
                         }
-                        ocrFeatures = ocrLines;
                     }
                 }
 
