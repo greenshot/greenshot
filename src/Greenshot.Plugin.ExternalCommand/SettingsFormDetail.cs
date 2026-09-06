@@ -35,12 +35,16 @@ namespace Greenshot.Plugin.ExternalCommand;
 public partial class SettingsFormDetail : ExternalCommandForm
 {
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(SettingsFormDetail));
-    private static readonly IExternalCommandConfiguration ExternalCommandConfig = IniConfigRegistry.GetSection<IExternalCommandConfiguration>();
-    private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
+    private static readonly IExternalCommandConfiguration ExternalCommandConfig = IniConfigHelper.EnsureSection<IExternalCommandConfiguration>(() => new ExternalCommandConfigurationImpl());
+    private static readonly ICoreConfiguration CoreConfig = IniConfigHelper.EnsureSection<ICoreConfiguration>(() => new CoreConfigurationImpl());
 
     private readonly string _commando;
     private readonly int _commandIndex;
     private readonly ToolTip _nameToolTip = new ToolTip();
+
+    public SettingsFormDetail() : this(null)
+    {
+    }
 
     public SettingsFormDetail(string commando)
     {

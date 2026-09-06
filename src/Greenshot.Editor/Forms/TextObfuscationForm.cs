@@ -43,7 +43,7 @@ namespace Greenshot.Editor.Forms
     /// </summary>
     public partial class TextObfuscationForm : EditorForm
     {
-        private static readonly IEditorConfiguration EditorConfig = IniConfigRegistry.GetSection<IEditorConfiguration>();
+        private static readonly IEditorConfiguration EditorConfig = IniConfigHelper.EnsureSection<IEditorConfiguration>(() => new EditorConfigurationImpl());
         
         private readonly ISurface _surface;
         private readonly OcrInformation _ocrInfo;
@@ -52,10 +52,17 @@ namespace Greenshot.Editor.Forms
         private IDisposable _searchSubscription;
         private bool _isInitializing = true;
 
+        /// <summary>
+        /// Parameterless constructor for Windows Forms designer support.
+        /// </summary>
+        public TextObfuscationForm() : this(null, null)
+        {
+        }
+
         public TextObfuscationForm(ISurface surface, OcrInformation ocrInfo)
         {
-            _surface = surface ?? throw new ArgumentNullException(nameof(surface));
-            _ocrInfo = ocrInfo ?? throw new ArgumentNullException(nameof(ocrInfo));
+            _surface = surface;
+            _ocrInfo = ocrInfo;
             InitializeComponent();
             InitializeLanguage();
             
@@ -212,6 +219,11 @@ namespace Greenshot.Editor.Forms
             ClearPreview();
             _matchedBounds.Clear();
 
+            if (_surface == null || _ocrInfo == null)
+            {
+                return;
+            }
+
             string searchText = searchTextBox.Text;
             if (string.IsNullOrEmpty(searchText) || searchText.Length < 3)
             {
@@ -332,6 +344,11 @@ namespace Greenshot.Editor.Forms
 
         private void ShowPreview()
         {
+            if (_surface == null)
+            {
+                return;
+            }
+
             if (!(effectComboBox.SelectedItem is EffectItem item))
             {
                 return;
@@ -352,6 +369,12 @@ namespace Greenshot.Editor.Forms
 
         private void ClearPreview()
         {
+            if (_surface == null)
+            {
+                _previewContainers.Clear();
+                return;
+            }
+
             foreach (var container in _previewContainers)
             {
                 _surface.RemoveElement(container, false);
@@ -422,7 +445,7 @@ namespace Greenshot.Editor.Forms
                 }
             }
 
-            if (containers.Count > 0)
+            if (_surface != null && containers.Count > 0)
             {
                 _surface.AddElements(containers, true);
             }

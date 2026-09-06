@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -35,6 +35,10 @@ namespace Greenshot.Editor.Forms
         private readonly ResizeEffect _effect;
         private readonly string _valuePercent;
         private double _newWidth, _newHeight;
+
+        public ResizeSettingsForm() : this(new ResizeEffect(100, 100, true))
+        {
+        }
 
         public ResizeSettingsForm(ResizeEffect effect)
         {

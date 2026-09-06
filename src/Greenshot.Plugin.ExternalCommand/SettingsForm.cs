@@ -32,7 +32,7 @@ namespace Greenshot.Plugin.ExternalCommand;
 /// </summary>
 public partial class SettingsForm : ExternalCommandForm
 {
-    private static readonly IExternalCommandConfiguration ExternalCommandConfig = IniConfigRegistry.GetSection<IExternalCommandConfiguration>();
+    private static readonly IExternalCommandConfiguration ExternalCommandConfig = IniConfigHelper.EnsureSection<IExternalCommandConfiguration>(() => new ExternalCommandConfigurationImpl());
 
     public SettingsForm()
     {

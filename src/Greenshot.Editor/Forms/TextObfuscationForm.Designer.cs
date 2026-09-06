@@ -150,6 +150,7 @@ namespace Greenshot.Editor.Forms
             this.searchLabel.Name = "searchLabel";
             this.searchLabel.Size = new System.Drawing.Size(100, 20);
             this.searchLabel.TabIndex = 0;
+            this.searchLabel.Text = "Search for:";
             // 
             // searchTextBox
             // 
@@ -164,6 +165,7 @@ namespace Greenshot.Editor.Forms
             this.searchButton.Name = "searchButton";
             this.searchButton.Size = new System.Drawing.Size(75, 23);
             this.searchButton.TabIndex = 2;
+            this.searchButton.Text = "Search";
             this.searchButton.UseVisualStyleBackColor = true;
             this.searchButton.Click += new System.EventHandler(this.SearchButton_Click);
             // 
@@ -185,6 +187,7 @@ namespace Greenshot.Editor.Forms
             this.regexCheckBox.Name = "regexCheckBox";
             this.regexCheckBox.Size = new System.Drawing.Size(150, 24);
             this.regexCheckBox.TabIndex = 0;
+            this.regexCheckBox.Text = "Use Regular Expression";
             this.regexCheckBox.UseVisualStyleBackColor = true;
             // 
             // caseSensitiveCheckBox
@@ -193,6 +196,7 @@ namespace Greenshot.Editor.Forms
             this.caseSensitiveCheckBox.Name = "caseSensitiveCheckBox";
             this.caseSensitiveCheckBox.Size = new System.Drawing.Size(150, 24);
             this.caseSensitiveCheckBox.TabIndex = 1;
+            this.caseSensitiveCheckBox.Text = "Case Sensitive";
             this.caseSensitiveCheckBox.UseVisualStyleBackColor = true;
             // 
             // scopePanel
@@ -213,6 +217,7 @@ namespace Greenshot.Editor.Forms
             this.searchScopeLabel.Name = "searchScopeLabel";
             this.searchScopeLabel.Size = new System.Drawing.Size(100, 20);
             this.searchScopeLabel.TabIndex = 0;
+            this.searchScopeLabel.Text = "Search in:";
             // 
             // searchScopeComboBox
             // 
@@ -497,6 +502,7 @@ namespace Greenshot.Editor.Forms
             this.applyButton.Name = "applyButton";
             this.applyButton.Size = new System.Drawing.Size(75, 23);
             this.applyButton.TabIndex = 0;
+            this.applyButton.Text = "Apply";
             this.applyButton.UseVisualStyleBackColor = true;
             this.applyButton.Click += new System.EventHandler(this.ApplyButton_Click);
             // 
@@ -507,6 +513,7 @@ namespace Greenshot.Editor.Forms
             this.cancelButton.Name = "cancelButton";
             this.cancelButton.Size = new System.Drawing.Size(75, 23);
             this.cancelButton.TabIndex = 1;
+            this.cancelButton.Text = "Cancel";
             this.cancelButton.UseVisualStyleBackColor = true;
             this.cancelButton.Click += new System.EventHandler(this.CancelButton_Click);
             // 
@@ -526,6 +533,7 @@ namespace Greenshot.Editor.Forms
             this.Name = "TextObfuscationForm";
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+            this.Text = "Redact Text";
             this.mainFlowPanel.ResumeLayout(false);
             this.mainFlowPanel.PerformLayout();
             this.searchPanel.ResumeLayout(false);

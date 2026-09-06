@@ -65,6 +65,7 @@ namespace Greenshot.Plugin.ExternalCommand;
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.Size = new System.Drawing.Size(75, 23);
 			this.buttonCancel.TabIndex = 11;
+			this.buttonCancel.Text = "Cancel";
 			this.buttonCancel.UseVisualStyleBackColor = true;
 			// 
 			// buttonOk
@@ -74,6 +75,7 @@ namespace Greenshot.Plugin.ExternalCommand;
 			this.buttonOk.Name = "buttonOk";
 			this.buttonOk.Size = new System.Drawing.Size(75, 23);
 			this.buttonOk.TabIndex = 10;
+			this.buttonOk.Text = "OK";
 			this.buttonOk.UseVisualStyleBackColor = true;
 			this.buttonOk.Click += new System.EventHandler(this.ButtonOkClick);
 			// 
@@ -104,6 +106,7 @@ namespace Greenshot.Plugin.ExternalCommand;
 			this.button_new.Name = "button_new";
 			this.button_new.Size = new System.Drawing.Size(75, 23);
 			this.button_new.TabIndex = 1;
+			this.button_new.Text = "New";
 			this.button_new.UseVisualStyleBackColor = true;
 			this.button_new.Click += new System.EventHandler(this.ButtonAddClick);
 			// 
@@ -113,6 +116,7 @@ namespace Greenshot.Plugin.ExternalCommand;
 			this.button_delete.Name = "button_delete";
 			this.button_delete.Size = new System.Drawing.Size(75, 23);
 			this.button_delete.TabIndex = 3;
+			this.button_delete.Text = "Delete";
 			this.button_delete.UseVisualStyleBackColor = true;
 			this.button_delete.Click += new System.EventHandler(this.ButtonDeleteClick);
 			// 
@@ -123,6 +127,7 @@ namespace Greenshot.Plugin.ExternalCommand;
 			this.button_edit.Name = "button_edit";
 			this.button_edit.Size = new System.Drawing.Size(75, 23);
 			this.button_edit.TabIndex = 2;
+			this.button_edit.Text = "Edit";
 			this.button_edit.UseVisualStyleBackColor = true;
 			this.button_edit.Click += new System.EventHandler(this.ButtonEditClick);
 			// 
@@ -141,6 +146,7 @@ namespace Greenshot.Plugin.ExternalCommand;
 			this.Controls.Add(this.buttonCancel);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
 			this.Name = "SettingsForm";
+			this.Text = "External command settings";
 			this.ResumeLayout(false);
 
 		}

@@ -68,6 +68,7 @@ namespace Greenshot.Plugin.Jira.Forms;
 			this.buttonOK.Name = "buttonOK";
 			this.buttonOK.Size = new System.Drawing.Size(75, 23);
 			this.buttonOK.TabIndex = 10;
+			this.buttonOK.Text = "OK";
 			this.buttonOK.UseVisualStyleBackColor = true;
 			// 
 			// buttonCancel
@@ -133,6 +134,7 @@ namespace Greenshot.Plugin.Jira.Forms;
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "SettingsForm";
+			this.Text = "Jira settings";
 			this.ResumeLayout(false);
 			this.PerformLayout();
 

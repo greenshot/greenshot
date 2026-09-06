@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -23,10 +23,10 @@ using Greenshot.Base.Controls;
 using Greenshot.Editor.Controls;
 using System.Windows.Forms;
 
-namespace Greenshot.Forms;
-
-partial class SettingsForm
+namespace Greenshot.Forms
 {
+    partial class SettingsForm
+    {
     /// <summary>
     /// Designer variable used to keep track of non-visual components.
     /// </summary>
@@ -189,6 +189,7 @@ partial class SettingsForm
         // 
         this.label_storagelocation.Location = new System.Drawing.Point(6, 21);
         this.label_storagelocation.Name = "label_storagelocation";
+        this.label_storagelocation.Text = "Storage location";
         this.label_storagelocation.Size = new System.Drawing.Size(130, 23);
         this.label_storagelocation.TabIndex = 11;
         // 
@@ -196,6 +197,7 @@ partial class SettingsForm
         // 
         this.settings_cancel.Location = new System.Drawing.Point(364, 396);
         this.settings_cancel.Name = "settings_cancel";
+        this.settings_cancel.Text = "Cancel";
         this.settings_cancel.Size = new System.Drawing.Size(75, 23);
         this.settings_cancel.TabIndex = 21;
         this.settings_cancel.UseVisualStyleBackColor = true;
@@ -205,6 +207,7 @@ partial class SettingsForm
         // 
         this.settings_confirm.Location = new System.Drawing.Point(283, 396);
         this.settings_confirm.Name = "settings_confirm";
+        this.settings_confirm.Text = "Ok";
         this.settings_confirm.Size = new System.Drawing.Size(75, 23);
         this.settings_confirm.TabIndex = 20;
         this.settings_confirm.UseVisualStyleBackColor = true;
@@ -224,6 +227,7 @@ partial class SettingsForm
         // 
         this.label_screenshotname.Location = new System.Drawing.Point(6, 44);
         this.label_screenshotname.Name = "label_screenshotname";
+        this.label_screenshotname.Text = "Filename pattern";
         this.label_screenshotname.Size = new System.Drawing.Size(130, 23);
         this.label_screenshotname.TabIndex = 9;
         // 
@@ -239,6 +243,7 @@ partial class SettingsForm
         // 
         this.label_language.Location = new System.Drawing.Point(6, 20);
         this.label_language.Name = "label_language";
+        this.label_language.Text = "Language";
         this.label_language.Size = new System.Drawing.Size(181, 23);
         this.label_language.TabIndex = 10;
         // 
@@ -265,6 +270,7 @@ partial class SettingsForm
         // 
         this.label_primaryimageformat.Location = new System.Drawing.Point(6, 67);
         this.label_primaryimageformat.Name = "label_primaryimageformat";
+        this.label_primaryimageformat.Text = "Image format";
         this.label_primaryimageformat.Size = new System.Drawing.Size(130, 20);
         this.label_primaryimageformat.TabIndex = 8;
         // 
@@ -281,6 +287,7 @@ partial class SettingsForm
         this.groupbox_preferredfilesettings.Controls.Add(this.label_screenshotname);
         this.groupbox_preferredfilesettings.Location = new System.Drawing.Point(2, 6);
         this.groupbox_preferredfilesettings.Name = "groupbox_preferredfilesettings";
+        this.groupbox_preferredfilesettings.Text = "Preferred Output File Settings";
         this.groupbox_preferredfilesettings.Size = new System.Drawing.Size(412, 122);
         this.groupbox_preferredfilesettings.TabIndex = 13;
         this.groupbox_preferredfilesettings.TabStop = false;
@@ -299,6 +306,7 @@ partial class SettingsForm
         // 
         this.checkbox_copypathtoclipboard.Location = new System.Drawing.Point(12, 89);
         this.checkbox_copypathtoclipboard.Name = "checkbox_copypathtoclipboard";
+        this.checkbox_copypathtoclipboard.Text = "Copy file path to clipboard every time an image is saved";
         this.checkbox_copypathtoclipboard.Size = new System.Drawing.Size(394, 24);
         this.checkbox_copypathtoclipboard.TabIndex = 6;
         this.checkbox_copypathtoclipboard.UseVisualStyleBackColor = true;
@@ -312,6 +320,7 @@ partial class SettingsForm
         this.groupbox_applicationsettings.Controls.Add(this.checkbox_autostartshortcut);
         this.groupbox_applicationsettings.Location = new System.Drawing.Point(2, 6);
         this.groupbox_applicationsettings.Name = "groupbox_applicationsettings";
+        this.groupbox_applicationsettings.Text = "Application Settings";
         this.groupbox_applicationsettings.Size = new System.Drawing.Size(412, 89);
         this.groupbox_applicationsettings.TabIndex = 14;
         this.groupbox_applicationsettings.TabStop = false;
@@ -330,6 +339,7 @@ partial class SettingsForm
         // 
         this.label_icon_size.Location = new System.Drawing.Point(6, 44);
         this.label_icon_size.Name = "label_icon_size";
+        this.label_icon_size.Text = "Icon size";
         this.label_icon_size.Size = new System.Drawing.Size(350, 20);
         this.label_icon_size.TabIndex = 6;
         // 
@@ -337,6 +347,7 @@ partial class SettingsForm
         // 
         this.checkbox_autostartshortcut.Location = new System.Drawing.Point(8, 60);
         this.checkbox_autostartshortcut.Name = "checkbox_autostartshortcut";
+        this.checkbox_autostartshortcut.Text = "Launch Greenshot on startup";
         this.checkbox_autostartshortcut.Size = new System.Drawing.Size(397, 25);
         this.checkbox_autostartshortcut.TabIndex = 2;
         this.checkbox_autostartshortcut.UseVisualStyleBackColor = true;
@@ -350,6 +361,7 @@ partial class SettingsForm
         this.groupbox_qualitysettings.Controls.Add(this.trackBarJpegQuality);
         this.groupbox_qualitysettings.Location = new System.Drawing.Point(2, 157);
         this.groupbox_qualitysettings.Name = "groupbox_qualitysettings";
+        this.groupbox_qualitysettings.Text = "Quality settings";
         this.groupbox_qualitysettings.Size = new System.Drawing.Size(412, 106);
         this.groupbox_qualitysettings.TabIndex = 14;
         this.groupbox_qualitysettings.TabStop = false;
@@ -358,6 +370,7 @@ partial class SettingsForm
         // 
         this.checkbox_reducecolors.Location = new System.Drawing.Point(12, 72);
         this.checkbox_reducecolors.Name = "checkbox_reducecolors";
+        this.checkbox_reducecolors.Text = "Reduce the amount of colors to a maximum of 256";
         this.checkbox_reducecolors.Size = new System.Drawing.Size(394, 25);
         this.checkbox_reducecolors.TabIndex = 10;
         this.checkbox_reducecolors.UseVisualStyleBackColor = true;
@@ -366,6 +379,7 @@ partial class SettingsForm
         // 
         this.checkbox_alwaysshowqualitydialog.Location = new System.Drawing.Point(12, 50);
         this.checkbox_alwaysshowqualitydialog.Name = "checkbox_alwaysshowqualitydialog";
+        this.checkbox_alwaysshowqualitydialog.Text = "Show quality dialog every time an image is saved";
         this.checkbox_alwaysshowqualitydialog.Size = new System.Drawing.Size(394, 25);
         this.checkbox_alwaysshowqualitydialog.TabIndex = 9;
         this.checkbox_alwaysshowqualitydialog.UseVisualStyleBackColor = true;
@@ -374,6 +388,7 @@ partial class SettingsForm
         // 
         this.label_jpegquality.Location = new System.Drawing.Point(6, 24);
         this.label_jpegquality.Name = "label_jpegquality";
+        this.label_jpegquality.Text = "JPEG quality";
         this.label_jpegquality.Size = new System.Drawing.Size(130, 23);
         this.label_jpegquality.TabIndex = 13;
         // 
@@ -404,6 +419,7 @@ partial class SettingsForm
         this.groupbox_destination.Controls.Add(this.listview_destinations);
         this.groupbox_destination.Location = new System.Drawing.Point(2, 6);
         this.groupbox_destination.Name = "groupbox_destination";
+        this.groupbox_destination.Text = "Destination";
         this.groupbox_destination.Size = new System.Drawing.Size(412, 311);
         this.groupbox_destination.TabIndex = 16;
         this.groupbox_destination.TabStop = false;
@@ -412,6 +428,7 @@ partial class SettingsForm
         // 
         this.checkbox_picker.Location = new System.Drawing.Point(6, 14);
         this.checkbox_picker.Name = "checkbox_picker";
+        this.checkbox_picker.Text = "Ask for destination every time";
         this.checkbox_picker.Size = new System.Drawing.Size(394, 24);
         this.checkbox_picker.TabIndex = 1;
         this.checkbox_picker.UseVisualStyleBackColor = true;
@@ -463,6 +480,7 @@ partial class SettingsForm
         this.tab_general.Controls.Add(this.groupbox_applicationsettings);
         this.tab_general.Location = new System.Drawing.Point(4, 22);
         this.tab_general.Name = "tab_general";
+        this.tab_general.Text = "General";
         this.tab_general.Padding = new System.Windows.Forms.Padding(3);
         this.tab_general.Size = new System.Drawing.Size(423, 351);
         this.tab_general.TabIndex = 0;
@@ -475,6 +493,7 @@ partial class SettingsForm
         this.groupbox_network.Controls.Add(this.checkbox_usedefaultproxy);
         this.groupbox_network.Location = new System.Drawing.Point(3, 253);
         this.groupbox_network.Name = "groupbox_network";
+        this.groupbox_network.Text = "Network and updates";
         this.groupbox_network.Size = new System.Drawing.Size(412, 72);
         this.groupbox_network.TabIndex = 54;
         this.groupbox_network.TabStop = false;
@@ -493,6 +512,7 @@ partial class SettingsForm
         //
         this.label_checkperiod.Location = new System.Drawing.Point(5, 39);
         this.label_checkperiod.Name = "label_checkperiod";
+        this.label_checkperiod.Text = "Update check interval in days (0=no check)";
         this.label_checkperiod.Size = new System.Drawing.Size(350, 23);
         this.label_checkperiod.TabIndex = 19;
         // 
@@ -500,6 +520,7 @@ partial class SettingsForm
         // 
         this.checkbox_usedefaultproxy.Location = new System.Drawing.Point(7, 11);
         this.checkbox_usedefaultproxy.Name = "checkbox_usedefaultproxy";
+        this.checkbox_usedefaultproxy.Text = "Use default system proxy";
         this.checkbox_usedefaultproxy.Size = new System.Drawing.Size(397, 25);
         this.checkbox_usedefaultproxy.TabIndex = 7;
         this.checkbox_usedefaultproxy.UseVisualStyleBackColor = true;
@@ -516,6 +537,7 @@ partial class SettingsForm
         this.groupbox_hotkeys.Controls.Add(this.fullscreen_hotkeyControl);
         this.groupbox_hotkeys.Location = new System.Drawing.Point(2, 98);
         this.groupbox_hotkeys.Name = "groupbox_hotkeys";
+        this.groupbox_hotkeys.Text = "Hotkeys";
         this.groupbox_hotkeys.Size = new System.Drawing.Size(412, 152);
         this.groupbox_hotkeys.TabIndex = 15;
         this.groupbox_hotkeys.TabStop = false;
@@ -524,6 +546,7 @@ partial class SettingsForm
         // 
         this.label_lastregion_hotkey.Location = new System.Drawing.Point(6, 94);
         this.label_lastregion_hotkey.Name = "label_lastregion_hotkey";
+        this.label_lastregion_hotkey.Text = "Capture last region";
         this.label_lastregion_hotkey.Size = new System.Drawing.Size(212, 20);
         this.label_lastregion_hotkey.TabIndex = 53;
         // 
@@ -540,6 +563,7 @@ partial class SettingsForm
         // 
         this.label_region_hotkey.Location = new System.Drawing.Point(6, 68);
         this.label_region_hotkey.Name = "label_region_hotkey";
+        this.label_region_hotkey.Text = "Capture region";
         this.label_region_hotkey.Size = new System.Drawing.Size(212, 20);
         this.label_region_hotkey.TabIndex = 49;
         // 
@@ -547,6 +571,7 @@ partial class SettingsForm
         // 
         this.label_window_hotkey.Location = new System.Drawing.Point(6, 42);
         this.label_window_hotkey.Name = "label_window_hotkey";
+        this.label_window_hotkey.Text = "Capture window";
         this.label_window_hotkey.Size = new System.Drawing.Size(212, 23);
         this.label_window_hotkey.TabIndex = 48;
         // 
@@ -554,6 +579,7 @@ partial class SettingsForm
         // 
         this.label_fullscreen_hotkey.Location = new System.Drawing.Point(6, 16);
         this.label_fullscreen_hotkey.Name = "label_fullscreen_hotkey";
+        this.label_fullscreen_hotkey.Text = "Capture full screen";
         this.label_fullscreen_hotkey.Size = new System.Drawing.Size(212, 23);
         this.label_fullscreen_hotkey.TabIndex = 47;
         // 
@@ -591,6 +617,7 @@ partial class SettingsForm
         this.tab_capture.Controls.Add(this.groupbox_capture);
         this.tab_capture.Location = new System.Drawing.Point(4, 22);
         this.tab_capture.Name = "tab_capture";
+        this.tab_capture.Text = "Capture";
         this.tab_capture.Size = new System.Drawing.Size(423, 351);
         this.tab_capture.TabIndex = 3;
         this.tab_capture.UseVisualStyleBackColor = true;
@@ -600,6 +627,7 @@ partial class SettingsForm
         this.groupbox_editor.Controls.Add(this.checkbox_editor_match_capture_size);
         this.groupbox_editor.Location = new System.Drawing.Point(4, 277);
         this.groupbox_editor.Name = "groupbox_editor";
+        this.groupbox_editor.Text = "Editor";
         this.groupbox_editor.Size = new System.Drawing.Size(416, 50);
         this.groupbox_editor.TabIndex = 27;
         this.groupbox_editor.TabStop = false;
@@ -608,6 +636,7 @@ partial class SettingsForm
         // 
         this.checkbox_editor_match_capture_size.Location = new System.Drawing.Point(6, 19);
         this.checkbox_editor_match_capture_size.Name = "checkbox_editor_match_capture_size";
+        this.checkbox_editor_match_capture_size.Text = "Match capture size";
         this.checkbox_editor_match_capture_size.Size = new System.Drawing.Size(397, 24);
         this.checkbox_editor_match_capture_size.TabIndex = 11;
         this.checkbox_editor_match_capture_size.UseVisualStyleBackColor = true;
@@ -620,6 +649,7 @@ partial class SettingsForm
         this.groupbox_windowscapture.Controls.Add(this.combobox_window_capture_mode);
         this.groupbox_windowscapture.Location = new System.Drawing.Point(4, 141);
         this.groupbox_windowscapture.Name = "groupbox_windowscapture";
+        this.groupbox_windowscapture.Text = "Window capture";
         this.groupbox_windowscapture.Size = new System.Drawing.Size(416, 80);
         this.groupbox_windowscapture.TabIndex = 1;
         this.groupbox_windowscapture.TabStop = false;
@@ -638,6 +668,7 @@ partial class SettingsForm
         // 
         this.radiobuttonWindowCapture.Location = new System.Drawing.Point(11, 44);
         this.radiobuttonWindowCapture.Name = "radiobuttonWindowCapture";
+        this.radiobuttonWindowCapture.Text = "Window capture mode";
         this.radiobuttonWindowCapture.Size = new System.Drawing.Size(200, 20);
         this.radiobuttonWindowCapture.TabIndex = 7;
         this.radiobuttonWindowCapture.TabStop = true;
@@ -647,6 +678,7 @@ partial class SettingsForm
         // 
         this.radiobuttonInteractiveCapture.Location = new System.Drawing.Point(11, 20);
         this.radiobuttonInteractiveCapture.Name = "radiobuttonInteractiveCapture";
+        this.radiobuttonInteractiveCapture.Text = "Use interactive window capture mode";
         this.radiobuttonInteractiveCapture.Size = new System.Drawing.Size(203, 20);
         this.radiobuttonInteractiveCapture.TabIndex = 6;
         this.radiobuttonInteractiveCapture.TabStop = true;
@@ -674,6 +706,7 @@ partial class SettingsForm
         this.groupbox_capture.Controls.Add(this.checkbox_zoomer);
         this.groupbox_capture.Location = new System.Drawing.Point(4, 4);
         this.groupbox_capture.Name = "groupbox_capture";
+        this.groupbox_capture.Text = "Capture";
         this.groupbox_capture.Size = new System.Drawing.Size(416, 134);
         this.groupbox_capture.TabIndex = 0;
         this.groupbox_capture.TabStop = false;
@@ -682,6 +715,7 @@ partial class SettingsForm
         // 
         this.checkbox_zoomer.Location = new System.Drawing.Point(11, 79);
         this.checkbox_zoomer.Name = "checkbox_zoomer";
+        this.checkbox_zoomer.Text = "Show magnifier";
         this.checkbox_zoomer.Size = new System.Drawing.Size(399, 24);
         this.checkbox_zoomer.TabIndex = 4;
         this.checkbox_zoomer.UseVisualStyleBackColor = true;
@@ -690,6 +724,7 @@ partial class SettingsForm
         // 
         this.checkbox_notifications.Location = new System.Drawing.Point(11, 59);
         this.checkbox_notifications.Name = "checkbox_notifications";
+        this.checkbox_notifications.Text = "Show notifications";
         this.checkbox_notifications.Size = new System.Drawing.Size(399, 24);
         this.checkbox_notifications.TabIndex = 3;
         this.checkbox_notifications.UseVisualStyleBackColor = true;
@@ -698,6 +733,7 @@ partial class SettingsForm
         // 
         this.checkbox_playsound.Location = new System.Drawing.Point(11, 39);
         this.checkbox_playsound.Name = "checkbox_playsound";
+        this.checkbox_playsound.Text = "Play camera sound";
         this.checkbox_playsound.Size = new System.Drawing.Size(399, 24);
         this.checkbox_playsound.TabIndex = 2;
         this.checkbox_playsound.UseVisualStyleBackColor = true;
@@ -706,6 +742,7 @@ partial class SettingsForm
         // 
         this.checkbox_capture_mousepointer.Location = new System.Drawing.Point(11, 19);
         this.checkbox_capture_mousepointer.Name = "checkbox_capture_mousepointer";
+        this.checkbox_capture_mousepointer.Text = "Capture mousepointer";
         this.checkbox_capture_mousepointer.Size = new System.Drawing.Size(394, 24);
         this.checkbox_capture_mousepointer.TabIndex = 1;
         this.checkbox_capture_mousepointer.UseVisualStyleBackColor = true;
@@ -732,6 +769,7 @@ partial class SettingsForm
         // 
         this.label_waittime.Location = new System.Drawing.Point(72, 106);
         this.label_waittime.Name = "label_waittime";
+        this.label_waittime.Text = "Milliseconds to wait before capture";
         this.label_waittime.Size = new System.Drawing.Size(331, 20);
         this.label_waittime.TabIndex = 5;
         // 
@@ -742,6 +780,7 @@ partial class SettingsForm
         this.tab_output.Controls.Add(this.groupbox_qualitysettings);
         this.tab_output.Location = new System.Drawing.Point(4, 22);
         this.tab_output.Name = "tab_output";
+        this.tab_output.Text = "Output";
         this.tab_output.Padding = new System.Windows.Forms.Padding(3);
         this.tab_output.Size = new System.Drawing.Size(423, 351);
         this.tab_output.TabIndex = 1;
@@ -752,6 +791,7 @@ partial class SettingsForm
         this.tab_destinations.Controls.Add(this.groupbox_destination);
         this.tab_destinations.Location = new System.Drawing.Point(4, 22);
         this.tab_destinations.Name = "tab_destinations";
+        this.tab_destinations.Text = "Destination";
         this.tab_destinations.Size = new System.Drawing.Size(423, 351);
         this.tab_destinations.TabIndex = 4;
         this.tab_destinations.UseVisualStyleBackColor = true;
@@ -763,6 +803,7 @@ partial class SettingsForm
         this.tab_printer.Controls.Add(this.checkbox_alwaysshowprintoptionsdialog);
         this.tab_printer.Location = new System.Drawing.Point(4, 22);
         this.tab_printer.Name = "tab_printer";
+        this.tab_printer.Text = "Printer";
         this.tab_printer.Padding = new System.Windows.Forms.Padding(3);
         this.tab_printer.Size = new System.Drawing.Size(423, 351);
         this.tab_printer.TabIndex = 2;
@@ -776,6 +817,7 @@ partial class SettingsForm
         this.groupBoxColors.Controls.Add(this.radioBtnMonochrome);
         this.groupBoxColors.Location = new System.Drawing.Point(6, 163);
         this.groupBoxColors.Name = "groupBoxColors";
+        this.groupBoxColors.Text = "Color settings";
         this.groupBoxColors.Size = new System.Drawing.Size(412, 124);
         this.groupBoxColors.TabIndex = 10;
         this.groupBoxColors.TabStop = false;
@@ -786,6 +828,7 @@ partial class SettingsForm
         this.checkboxPrintInverted.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
         this.checkboxPrintInverted.Location = new System.Drawing.Point(13, 88);
         this.checkboxPrintInverted.Name = "checkboxPrintInverted";
+        this.checkboxPrintInverted.Text = "Print with inverted colors";
         this.checkboxPrintInverted.Size = new System.Drawing.Size(390, 20);
         this.checkboxPrintInverted.TabIndex = 14;
         this.checkboxPrintInverted.TextAlign = System.Drawing.ContentAlignment.TopLeft;
@@ -797,6 +840,7 @@ partial class SettingsForm
         this.radioBtnColorPrint.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
         this.radioBtnColorPrint.Location = new System.Drawing.Point(13, 19);
         this.radioBtnColorPrint.Name = "radioBtnColorPrint";
+        this.radioBtnColorPrint.Text = "Full color print";
         this.radioBtnColorPrint.Size = new System.Drawing.Size(390, 20);
         this.radioBtnColorPrint.TabIndex = 11;
         this.radioBtnColorPrint.TextAlign = System.Drawing.ContentAlignment.TopLeft;
@@ -820,6 +864,7 @@ partial class SettingsForm
         this.radioBtnMonochrome.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
         this.radioBtnMonochrome.Location = new System.Drawing.Point(13, 65);
         this.radioBtnMonochrome.Name = "radioBtnMonochrome";
+        this.radioBtnMonochrome.Text = "Force black/white printing";
         this.radioBtnMonochrome.Size = new System.Drawing.Size(390, 20);
         this.radioBtnMonochrome.TabIndex = 13;
         this.radioBtnMonochrome.TextAlign = System.Drawing.ContentAlignment.TopLeft;
@@ -834,6 +879,7 @@ partial class SettingsForm
         this.groupBoxPrintLayout.Controls.Add(this.checkboxAllowCenter);
         this.groupBoxPrintLayout.Location = new System.Drawing.Point(6, 6);
         this.groupBoxPrintLayout.Name = "groupBoxPrintLayout";
+        this.groupBoxPrintLayout.Text = "Page layout settings";
         this.groupBoxPrintLayout.Size = new System.Drawing.Size(412, 151);
         this.groupBoxPrintLayout.TabIndex = 1;
         this.groupBoxPrintLayout.TabStop = false;
@@ -844,6 +890,7 @@ partial class SettingsForm
         this.checkboxDateTime.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
         this.checkboxDateTime.Location = new System.Drawing.Point(13, 115);
         this.checkboxDateTime.Name = "checkboxDateTime";
+        this.checkboxDateTime.Text = "Print date / time at bottom of page";
         this.checkboxDateTime.Size = new System.Drawing.Size(390, 20);
         this.checkboxDateTime.TabIndex = 6;
         this.checkboxDateTime.TextAlign = System.Drawing.ContentAlignment.TopLeft;
@@ -855,6 +902,7 @@ partial class SettingsForm
         this.checkboxAllowShrink.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
         this.checkboxAllowShrink.Location = new System.Drawing.Point(13, 23);
         this.checkboxAllowShrink.Name = "checkboxAllowShrink";
+        this.checkboxAllowShrink.Text = "Shrink printout to fit paper size";
         this.checkboxAllowShrink.Size = new System.Drawing.Size(390, 20);
         this.checkboxAllowShrink.TabIndex = 2;
         this.checkboxAllowShrink.TextAlign = System.Drawing.ContentAlignment.TopLeft;
@@ -866,6 +914,7 @@ partial class SettingsForm
         this.checkboxAllowEnlarge.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
         this.checkboxAllowEnlarge.Location = new System.Drawing.Point(13, 46);
         this.checkboxAllowEnlarge.Name = "checkboxAllowEnlarge";
+        this.checkboxAllowEnlarge.Text = "Enlarge printout to fit paper size";
         this.checkboxAllowEnlarge.Size = new System.Drawing.Size(390, 20);
         this.checkboxAllowEnlarge.TabIndex = 3;
         this.checkboxAllowEnlarge.TextAlign = System.Drawing.ContentAlignment.TopLeft;
@@ -877,6 +926,7 @@ partial class SettingsForm
         this.checkboxAllowRotate.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
         this.checkboxAllowRotate.Location = new System.Drawing.Point(13, 69);
         this.checkboxAllowRotate.Name = "checkboxAllowRotate";
+        this.checkboxAllowRotate.Text = "Rotate printout to page orientation";
         this.checkboxAllowRotate.Size = new System.Drawing.Size(390, 20);
         this.checkboxAllowRotate.TabIndex = 4;
         this.checkboxAllowRotate.TextAlign = System.Drawing.ContentAlignment.TopLeft;
@@ -888,6 +938,7 @@ partial class SettingsForm
         this.checkboxAllowCenter.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
         this.checkboxAllowCenter.Location = new System.Drawing.Point(13, 92);
         this.checkboxAllowCenter.Name = "checkboxAllowCenter";
+        this.checkboxAllowCenter.Text = "Center printout on page";
         this.checkboxAllowCenter.Size = new System.Drawing.Size(390, 20);
         this.checkboxAllowCenter.TabIndex = 5;
         this.checkboxAllowCenter.TextAlign = System.Drawing.ContentAlignment.TopLeft;
@@ -907,6 +958,7 @@ partial class SettingsForm
         this.tab_plugins.Controls.Add(this.groupbox_plugins);
         this.tab_plugins.Location = new System.Drawing.Point(4, 22);
         this.tab_plugins.Name = "tab_plugins";
+        this.tab_plugins.Text = "Plugins";
         this.tab_plugins.Size = new System.Drawing.Size(423, 351);
         this.tab_plugins.TabIndex = 2;
         this.tab_plugins.UseVisualStyleBackColor = true;
@@ -945,6 +997,7 @@ partial class SettingsForm
         this.button_pluginconfigure.Enabled = false;
         this.button_pluginconfigure.Location = new System.Drawing.Point(6, 285);
         this.button_pluginconfigure.Name = "button_pluginconfigure";
+        this.button_pluginconfigure.Text = "Configure";
         this.button_pluginconfigure.Size = new System.Drawing.Size(75, 23);
         this.button_pluginconfigure.TabIndex = 2;
         this.button_pluginconfigure.UseVisualStyleBackColor = true;
@@ -987,6 +1040,7 @@ partial class SettingsForm
         // 
         this.checkbox_reuseeditor.Location = new System.Drawing.Point(10, 220);
         this.checkbox_reuseeditor.Name = "checkbox_reuseeditor";
+        this.checkbox_reuseeditor.Text = "Reuse editor if possible";
         this.checkbox_reuseeditor.Size = new System.Drawing.Size(394, 20);
         this.checkbox_reuseeditor.TabIndex = 9;
         this.checkbox_reuseeditor.UseVisualStyleBackColor = true;
@@ -995,6 +1049,7 @@ partial class SettingsForm
         // 
         this.checkbox_minimizememoryfootprint.Location = new System.Drawing.Point(10, 202);
         this.checkbox_minimizememoryfootprint.Name = "checkbox_minimizememoryfootprint";
+        this.checkbox_minimizememoryfootprint.Text = "Minimize memory footprint, but with a performance penalty (not advised).";
         this.checkbox_minimizememoryfootprint.Size = new System.Drawing.Size(394, 20);
         this.checkbox_minimizememoryfootprint.TabIndex = 8;
         this.checkbox_minimizememoryfootprint.UseVisualStyleBackColor = true;
@@ -1003,6 +1058,7 @@ partial class SettingsForm
         // 
         this.checkbox_checkunstableupdates.Location = new System.Drawing.Point(10, 184);
         this.checkbox_checkunstableupdates.Name = "checkbox_checkunstableupdates";
+        this.checkbox_checkunstableupdates.Text = "Check for unstable updates";
         this.checkbox_checkunstableupdates.Size = new System.Drawing.Size(394, 20);
         this.checkbox_checkunstableupdates.TabIndex = 7;
         this.checkbox_checkunstableupdates.UseVisualStyleBackColor = true;
@@ -1011,6 +1067,7 @@ partial class SettingsForm
         // 
         this.checkbox_suppresssavedialogatclose.Location = new System.Drawing.Point(10, 166);
         this.checkbox_suppresssavedialogatclose.Name = "checkbox_suppresssavedialogatclose";
+        this.checkbox_suppresssavedialogatclose.Text = "Suppress the save dialog when closing the editor";
         this.checkbox_suppresssavedialogatclose.Size = new System.Drawing.Size(394, 20);
         this.checkbox_suppresssavedialogatclose.TabIndex = 6;
         this.checkbox_suppresssavedialogatclose.UseVisualStyleBackColor = true;
@@ -1019,6 +1076,7 @@ partial class SettingsForm
         // 
         this.label_counter.Location = new System.Drawing.Point(7, 270);
         this.label_counter.Name = "label_counter";
+        this.label_counter.Text = "The number for the ${NUM} in the filename pattern";
         this.label_counter.Size = new System.Drawing.Size(246, 20);
         this.label_counter.TabIndex = 27;
         //
@@ -1048,6 +1106,7 @@ partial class SettingsForm
         // 
         this.checkbox_thumbnailpreview.Location = new System.Drawing.Point(10, 148);
         this.checkbox_thumbnailpreview.Name = "checkbox_thumbnailpreview";
+        this.checkbox_thumbnailpreview.Text = "Show window thumbnails in context menu (for Vista and windows 7)";
         this.checkbox_thumbnailpreview.Size = new System.Drawing.Size(394, 20);
         this.checkbox_thumbnailpreview.TabIndex = 5;
         this.checkbox_thumbnailpreview.UseVisualStyleBackColor = true;
@@ -1056,6 +1115,7 @@ partial class SettingsForm
         // 
         this.checkbox_optimizeforrdp.Location = new System.Drawing.Point(10, 130);
         this.checkbox_optimizeforrdp.Name = "checkbox_optimizeforrdp";
+        this.checkbox_optimizeforrdp.Text = "Make some optimizations for usage with remote desktop";
         this.checkbox_optimizeforrdp.Size = new System.Drawing.Size(394, 20);
         this.checkbox_optimizeforrdp.TabIndex = 4;
         this.checkbox_optimizeforrdp.UseVisualStyleBackColor = true;
@@ -1064,6 +1124,7 @@ partial class SettingsForm
         // 
         this.checkbox_autoreducecolors.Location = new System.Drawing.Point(10, 112);
         this.checkbox_autoreducecolors.Name = "checkbox_autoreducecolors";
+        this.checkbox_autoreducecolors.Text = "Create an 8-bit image if the colors are less than 256 while having a > 8 bits image";
         this.checkbox_autoreducecolors.Size = new System.Drawing.Size(394, 20);
         this.checkbox_autoreducecolors.TabIndex = 3;
         this.checkbox_autoreducecolors.UseVisualStyleBackColor = true;
@@ -1072,6 +1133,7 @@ partial class SettingsForm
         // 
         this.label_clipboardformats.Location = new System.Drawing.Point(7, 39);
         this.label_clipboardformats.Name = "label_clipboardformats";
+        this.label_clipboardformats.Text = "Clipboard formats";
         this.label_clipboardformats.Size = new System.Drawing.Size(160, 20);
         this.label_clipboardformats.TabIndex = 20;
         // 
@@ -1079,6 +1141,7 @@ partial class SettingsForm
         // 
         this.checkbox_enableexpert.Location = new System.Drawing.Point(6, 14);
         this.checkbox_enableexpert.Name = "checkbox_enableexpert";
+        this.checkbox_enableexpert.Text = "I know what I am doing!";
         this.checkbox_enableexpert.Size = new System.Drawing.Size(394, 24);
         this.checkbox_enableexpert.TabIndex = 1;
         this.checkbox_enableexpert.UseVisualStyleBackColor = true;
@@ -1251,4 +1314,5 @@ partial class SettingsForm
     private GreenshotCheckBox checkbox_zoomer;
     private Label label_icon_size;
     private System.Windows.Forms.NumericUpDown numericUpdownIconSize;
+}
 }

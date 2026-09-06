@@ -30,7 +30,7 @@ namespace Greenshot.Forms
 {
     public partial class BugReportForm : GreenshotForm
     {
-        private BugReportForm()
+        public BugReportForm()
         {
             //
             // The InitializeComponent() call is required for Windows Forms designer support.

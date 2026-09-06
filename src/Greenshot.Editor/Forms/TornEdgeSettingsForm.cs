@@ -31,6 +31,10 @@ namespace Greenshot.Editor.Forms
     {
         private readonly TornEdgeEffect _effect;
 
+        public TornEdgeSettingsForm() : this(new TornEdgeEffect())
+        {
+        }
+
         public TornEdgeSettingsForm(TornEdgeEffect effect)
         {
             _effect = effect;

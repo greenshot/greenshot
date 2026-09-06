@@ -31,6 +31,10 @@ namespace Greenshot.Editor.Forms
     {
         private readonly DropShadowEffect _effect;
 
+        public DropShadowSettingsForm() : this(new DropShadowEffect())
+        {
+        }
+
         public DropShadowSettingsForm(DropShadowEffect effect)
         {
             _effect = effect;

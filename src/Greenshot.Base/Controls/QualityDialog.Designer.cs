@@ -61,6 +61,7 @@ namespace Greenshot.Base.Controls {
 			// 
             this.label_choosejpegquality.Location = new System.Drawing.Point(12, 47);
 			this.label_choosejpegquality.Name = "label_choosejpegquality";
+			this.label_choosejpegquality.Text = "Choose JPEG quality";
 			this.label_choosejpegquality.Size = new System.Drawing.Size(268, 19);
 			this.label_choosejpegquality.TabIndex = 15;
 			// 
@@ -90,6 +91,7 @@ namespace Greenshot.Base.Controls {
 			this.checkbox_dontaskagain.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
 			this.checkbox_dontaskagain.Location = new System.Drawing.Point(12, 106);
 			this.checkbox_dontaskagain.Name = "checkbox_dontaskagain";
+			this.checkbox_dontaskagain.Text = "Don\'t ask again";
 			this.checkbox_dontaskagain.Size = new System.Drawing.Size(268, 37);
 			this.checkbox_dontaskagain.TabIndex = 5;
 			this.checkbox_dontaskagain.TextAlign = System.Drawing.ContentAlignment.TopLeft;
@@ -100,6 +102,7 @@ namespace Greenshot.Base.Controls {
 			this.button_ok.DialogResult = System.Windows.Forms.DialogResult.Cancel;
 			this.button_ok.Location = new System.Drawing.Point(205, 149);
 			this.button_ok.Name = "button_ok";
+			this.button_ok.Text = "OK";
 			this.button_ok.Size = new System.Drawing.Size(75, 23);
 			this.button_ok.TabIndex = 1;
 			this.button_ok.UseVisualStyleBackColor = true;
@@ -111,7 +114,7 @@ namespace Greenshot.Base.Controls {
 			this.checkBox_reduceColors.Name = "checkBox_reduceColors";
 			this.checkBox_reduceColors.Size = new System.Drawing.Size(95, 17);
 			this.checkBox_reduceColors.TabIndex = 2;
-			this.checkBox_reduceColors.Text = "settings_reducecolors";
+			this.checkBox_reduceColors.Text = "Reduce amount of colors to 256";
 			this.checkBox_reduceColors.UseVisualStyleBackColor = true;
 			// 
 			// QualityDialog
@@ -129,6 +132,7 @@ namespace Greenshot.Base.Controls {
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "QualityDialog";
+			this.Text = "Greenshot quality";
 			this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
 			((System.ComponentModel.ISupportInitialize)(this.trackBarJpegQuality)).EndInit();
 			this.ResumeLayout(false);

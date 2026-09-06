@@ -109,6 +109,7 @@ partial class SettingsFormDetail
         this.groupBox1.Size = new System.Drawing.Size(339, 151);
         this.groupBox1.TabIndex = 28;
         this.groupBox1.TabStop = false;
+        this.groupBox1.Text = "Settings";
         // 
         // label4
         // 
@@ -207,6 +208,7 @@ partial class SettingsFormDetail
         this.Controls.Add(this.buttonCancel);
         this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
         this.Name = "SettingsFormDetail";
+        this.Text = "Configure command";
         this.groupBox1.ResumeLayout(false);
         this.groupBox1.PerformLayout();
         this.ResumeLayout(false);

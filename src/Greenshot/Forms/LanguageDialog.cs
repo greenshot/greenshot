@@ -36,7 +36,7 @@ namespace Greenshot.Forms
         private static LanguageDialog _uniqueInstance;
         private bool _properOkPressed;
 
-        private LanguageDialog()
+        public LanguageDialog()
         {
             //
             // The InitializeComponent() call is required for Windows Forms designer support.

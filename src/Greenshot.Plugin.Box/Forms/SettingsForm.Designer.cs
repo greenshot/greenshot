@@ -68,6 +68,7 @@ namespace Greenshot.Plugin.Box.Forms;
 			this.buttonOK.Name = "buttonOK";
 			this.buttonOK.Size = new System.Drawing.Size(75, 23);
 			this.buttonOK.TabIndex = 12;
+			this.buttonOK.Text = "OK";
 			this.buttonOK.UseVisualStyleBackColor = true;
 			// 
 			// buttonCancel
@@ -78,6 +79,7 @@ namespace Greenshot.Plugin.Box.Forms;
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.Size = new System.Drawing.Size(75, 23);
 			this.buttonCancel.TabIndex = 13;
+			this.buttonCancel.Text = "Cancel";
 			this.buttonCancel.UseVisualStyleBackColor = true;
 			// 
 			// combobox_uploadimageformat
@@ -99,6 +101,7 @@ namespace Greenshot.Plugin.Box.Forms;
 			this.label_upload_format.Name = "label_upload_format";
 			this.label_upload_format.Size = new System.Drawing.Size(192, 20);
 			this.label_upload_format.TabIndex = 4;
+			this.label_upload_format.Text = "Image format";
 			// 
 			// label_AfterUpload
 			// 
@@ -107,6 +110,7 @@ namespace Greenshot.Plugin.Box.Forms;
 			this.label_AfterUpload.Name = "label_AfterUpload";
 			this.label_AfterUpload.Size = new System.Drawing.Size(192, 21);
 			this.label_AfterUpload.TabIndex = 8;
+			this.label_AfterUpload.Text = "After upload";
 			// 
 			// checkboxAfterUploadLinkToClipBoard
 			// 
@@ -117,6 +121,7 @@ namespace Greenshot.Plugin.Box.Forms;
 			this.checkboxAfterUploadLinkToClipBoard.SectionName = "Box";
 			this.checkboxAfterUploadLinkToClipBoard.Size = new System.Drawing.Size(210, 20);
 			this.checkboxAfterUploadLinkToClipBoard.TabIndex = 10;
+			this.checkboxAfterUploadLinkToClipBoard.Text = "Link to clipboard";
 			this.checkboxAfterUploadLinkToClipBoard.UseVisualStyleBackColor = true;
 			// 
 			// SettingsForm
@@ -134,6 +139,7 @@ namespace Greenshot.Plugin.Box.Forms;
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "SettingsForm";
+			this.Text = "Box settings";
 			this.ResumeLayout(false);
 			this.PerformLayout();
 

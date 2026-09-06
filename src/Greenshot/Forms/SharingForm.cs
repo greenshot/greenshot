@@ -56,6 +56,10 @@ namespace Greenshot.Forms
         public bool TargetPicked { get => _targetPicked; }
         public string AppName { get => _appName; }
 
+        public SharingForm() : this(null, null)
+        {
+        }
+
         public SharingForm(ISurface surface, ICaptureDetails captureDetails)
         {
             _surface = surface;
@@ -71,6 +75,11 @@ namespace Greenshot.Forms
 
         private void MainForm_Load(object sender, EventArgs e)
         {
+            if (DesignMode)
+            {
+                return;
+            }
+
             try
             {
                 InitializeShareManager();

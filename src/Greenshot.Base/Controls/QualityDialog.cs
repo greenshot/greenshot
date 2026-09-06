@@ -44,8 +44,16 @@ namespace Greenshot.Base.Controls
             button_ok.Text = Language.GetString("OK");
         }
 
+        /// <summary>
+        /// Parameterless constructor required for Windows Forms designer support.
+        /// </summary>
+        public QualityDialog() : this(new SurfaceOutputSettings())
+        {
+        }
+
         public QualityDialog(SurfaceOutputSettings outputSettings)
         {
+
             Settings = outputSettings;
             //
             // The InitializeComponent() call is required for Windows Forms designer support.

@@ -53,6 +53,13 @@ namespace Greenshot.Forms
         private bool _inHotkey;
         private int _daysBetweenCheckPreviousValue;
 
+        static SettingsForm()
+        {
+            IniConfigHelper.EnsureSection<IWin10Configuration>(() => new Win10ConfigurationImpl());
+            IniConfigHelper.EnsureSection<Greenshot.Editor.Configuration.IEditorConfiguration>(() => new Greenshot.Editor.Configuration.EditorConfigurationImpl());
+        }
+
+
         public SettingsForm()
         {
             InitializeComponent();
@@ -132,20 +139,21 @@ namespace Greenshot.Forms
             radioBtnGrayScale.Text = Language.GetString("printoptions_printgrayscale");
             radioBtnGrayScale.PropertyName = nameof(ICoreConfiguration.OutputPrintGrayscale);
             radioBtnMonochrome.Text = Language.GetString("printoptions_printmonochrome");
-            radioBtnMonochrome.PropertyName = nameof(coreConfiguration.OutputPrintMonochrome);
+            radioBtnMonochrome.PropertyName = nameof(ICoreConfiguration.OutputPrintMonochrome);
             groupBoxPrintLayout.Text = Language.GetString("printoptions_layout");
             checkboxDateTime.Text = Language.GetString("printoptions_timestamp");
-            checkboxDateTime.PropertyName = nameof(coreConfiguration.OutputPrintFooter);
+            checkboxDateTime.PropertyName = nameof(ICoreConfiguration.OutputPrintFooter);
             checkboxAllowShrink.Text = Language.GetString("printoptions_allowshrink");
-            checkboxAllowShrink.PropertyName = nameof(coreConfiguration.OutputPrintAllowShrink);
+            checkboxAllowShrink.PropertyName = nameof(ICoreConfiguration.OutputPrintAllowShrink);
             checkboxAllowEnlarge.Text = Language.GetString("printoptions_allowenlarge");
-            checkboxAllowEnlarge.PropertyName = nameof(coreConfiguration.OutputPrintAllowEnlarge);
+            checkboxAllowEnlarge.PropertyName = nameof(ICoreConfiguration.OutputPrintAllowEnlarge);
             checkboxAllowRotate.Text = Language.GetString("printoptions_allowrotate");
-            checkboxAllowRotate.PropertyName = nameof(coreConfiguration.OutputPrintAllowRotate);
+            checkboxAllowRotate.PropertyName = nameof(ICoreConfiguration.OutputPrintAllowRotate);
             checkboxAllowCenter.Text = Language.GetString("printoptions_allowcenter");
-            checkboxAllowCenter.PropertyName = nameof(coreConfiguration.OutputPrintCenter);
+            checkboxAllowCenter.PropertyName = nameof(ICoreConfiguration.OutputPrintCenter);
             checkbox_alwaysshowprintoptionsdialog.Text = Language.GetString("settings_alwaysshowprintoptionsdialog");
-            checkbox_alwaysshowprintoptionsdialog.PropertyName = nameof(coreConfiguration.OutputPrintPromptOptions);
+            checkbox_alwaysshowprintoptionsdialog.PropertyName = nameof(ICoreConfiguration.OutputPrintPromptOptions);
+
             tab_plugins.Text = Language.GetString("settings_plugins");
             groupbox_plugins.Text = Language.GetString("settings_plugins");
             button_pluginconfigure.Text = Language.GetString("settings_configureplugin");

@@ -151,6 +151,7 @@ namespace Greenshot.Editor.Forms {
 			// 
 			this.buttonOK.Location = new System.Drawing.Point(62, 110);
 			this.buttonOK.Name = "buttonOK";
+			this.buttonOK.Text = "OK";
 			this.buttonOK.Size = new System.Drawing.Size(75, 23);
 			this.buttonOK.TabIndex = 11;
 			this.buttonOK.UseVisualStyleBackColor = true;
@@ -161,6 +162,7 @@ namespace Greenshot.Editor.Forms {
 			this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
 			this.buttonCancel.Location = new System.Drawing.Point(143, 110);
 			this.buttonCancel.Name = "buttonCancel";
+			this.buttonCancel.Text = "Cancel";
 			this.buttonCancel.Size = new System.Drawing.Size(75, 23);
 			this.buttonCancel.TabIndex = 12;
 			this.buttonCancel.UseVisualStyleBackColor = true;
@@ -169,6 +171,7 @@ namespace Greenshot.Editor.Forms {
 			// 
 			this.labelDarkness.Location = new System.Drawing.Point(12, 73);
 			this.labelDarkness.Name = "labelDarkness";
+			this.labelDarkness.Text = "Darkness";
 			this.labelDarkness.Size = new System.Drawing.Size(92, 20);
 			this.labelDarkness.TabIndex = 13;
 			// 
@@ -176,6 +179,7 @@ namespace Greenshot.Editor.Forms {
 			// 
 			this.labelOffset.Location = new System.Drawing.Point(12, 35);
 			this.labelOffset.Name = "labelOffset";
+			this.labelOffset.Text = "Offset";
 			this.labelOffset.Size = new System.Drawing.Size(85, 20);
 			this.labelOffset.TabIndex = 14;
 			// 
@@ -183,6 +187,7 @@ namespace Greenshot.Editor.Forms {
 			// 
 			this.labelThickness.Location = new System.Drawing.Point(12, 9);
 			this.labelThickness.Name = "labelThickness";
+			this.labelThickness.Text = "Thickness";
 			this.labelThickness.Size = new System.Drawing.Size(155, 20);
 			this.labelThickness.TabIndex = 15;
 			// 
@@ -198,6 +203,8 @@ namespace Greenshot.Editor.Forms {
 			this.Controls.Add(this.labelOffset);
 			this.Controls.Add(this.labelDarkness);
 			this.Controls.Add(this.buttonCancel);
+			this.Name = "DropShadowSettingsForm";
+			this.Text = "Drop shadow settings";
 			this.Controls.Add(this.buttonOK);
 			this.Controls.Add(this.trackBar1);
 			this.Controls.Add(this.offsetY);

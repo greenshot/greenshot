@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -20,6 +20,7 @@
  */
 
 using Greenshot.Base.Controls;
+using Greenshot.Base.Core;
 
 namespace Greenshot.Plugin.Imgur.Forms;
 
@@ -28,4 +29,8 @@ namespace Greenshot.Plugin.Imgur.Forms;
 /// </summary>
 public class ImgurForm : GreenshotForm
 {
-}
+    static ImgurForm()
+    {
+        IniConfigHelper.EnsureSection<IImgurConfiguration>(() => new ImgurConfigurationImpl());
+    }
+}

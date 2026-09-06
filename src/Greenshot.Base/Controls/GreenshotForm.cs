@@ -23,10 +23,10 @@
 #if DEBUG
 using System.ComponentModel;
 using System.ComponentModel.Design;
-using System.IO;
 #endif
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
 using Dapplo.Ini;
@@ -48,33 +48,71 @@ namespace Greenshot.Base.Controls
 
         private bool _storeFieldsManually;
 
+        [ThreadStatic]
+        private static bool _resolvingAssembly;
+
         static GreenshotForm()
         {
-#if DEBUG
-            if (!IsInDesignMode)
+            try
             {
-#endif
-                coreConfiguration = IniConfigRegistry.GetSection<ICoreConfiguration>();
-#if DEBUG
+                AppDomain.CurrentDomain.AssemblyResolve += ResolveAssembly;
+                IniConfigHelper.EnsureInitialized();
+                coreConfiguration = IniConfigHelper.EnsureSection<ICoreConfiguration>(() => new CoreConfigurationImpl());
             }
-#endif
+            catch (Exception ex)
+            {
+                LOG.Warn("GreenshotForm static initialization fallback", ex);
+                coreConfiguration ??= new CoreConfigurationImpl();
+            }
         }
 
-#if DEBUG
-        /// <summary>
-        /// Used to check the designmode during a constructor
-        /// </summary>
-        /// <returns></returns>
-        protected static bool IsInDesignMode
+        private static Assembly ResolveAssembly(object sender, ResolveEventArgs args)
         {
-            get
+            if (_resolvingAssembly)
             {
-                return (Application.ExecutablePath.IndexOf("devenv.exe", StringComparison.OrdinalIgnoreCase) > -1) ||
-                       (Application.ExecutablePath.IndexOf("sharpdevelop.exe", StringComparison.OrdinalIgnoreCase) > -1 ||
-                        (Application.ExecutablePath.IndexOf("wdexpress.exe", StringComparison.OrdinalIgnoreCase) > -1));
+                return null;
+            }
+            _resolvingAssembly = true;
+            try
+            {
+                var requestedName = new AssemblyName(args.Name);
+                if (requestedName.Name.EndsWith(".resources", StringComparison.OrdinalIgnoreCase))
+                {
+                    return null;
+                }
+
+                // 1. If an assembly with the same simple name is already loaded in the AppDomain, return it
+                foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+                {
+                    if (string.Equals(asm.GetName().Name, requestedName.Name, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return asm;
+                    }
+                }
+
+                // 2. Try to find the dll in the same directory as typeof(GreenshotForm).Assembly
+                string baseDir = Path.GetDirectoryName(typeof(GreenshotForm).Assembly.Location);
+                if (!string.IsNullOrEmpty(baseDir))
+                {
+                    string candidate = Path.Combine(baseDir, requestedName.Name + ".dll");
+                    if (File.Exists(candidate))
+                    {
+                        return Assembly.LoadFrom(candidate);
+                    }
+                }
+
+                return null;
+            }
+            catch
+            {
+                return null;
+            }
+            finally
+            {
+                _resolvingAssembly = false;
             }
         }
-#endif
+
 
         protected bool ManualStoreFields
         {
@@ -95,7 +133,7 @@ namespace Greenshot.Base.Controls
         {
         }
 
-        protected GreenshotForm()
+        public GreenshotForm()
         {
             DpiChanged += (sender, dpiChangedEventArgs) => DpiChangedHandler(dpiChangedEventArgs.DeviceDpiOld, dpiChangedEventArgs.DeviceDpiNew);
             Language.LanguageChanged += OnLanguageChanged;

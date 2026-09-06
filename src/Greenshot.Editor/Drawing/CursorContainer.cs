@@ -143,13 +143,6 @@ namespace Greenshot.Editor.Drawing
         public void Load(string filename)
         {
             throw new NotImplementedException("Loading cursor from file is not implemented yet.");
-
-            if (!File.Exists(filename))
-            {
-                return;
-            }
-
-            LOG.Debug("Loaded file: " + filename + " with resolution: " + Height + "," + Width);
         }
 
         public override void Draw(Graphics graphics, RenderMode rm)

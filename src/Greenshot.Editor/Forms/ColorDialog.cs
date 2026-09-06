@@ -38,7 +38,7 @@ namespace Greenshot.Editor.Forms
     /// </summary>
     public partial class ColorDialog : EditorForm
     {
-        private static readonly IEditorConfiguration EditorConfig = IniConfigRegistry.GetSection<IEditorConfiguration>();
+        private static readonly IEditorConfiguration EditorConfig = IniConfigHelper.EnsureSection<IEditorConfiguration>(() => new EditorConfigurationImpl());
         private static ColorDialog _instance;
 
         public ColorDialog()
@@ -166,6 +166,11 @@ namespace Greenshot.Editor.Forms
 
         private void UpdateRecentColorsButtonRow()
         {
+            if (EditorConfig?.RecentColors == null)
+            {
+                return;
+            }
+
             for (int i = 0; i < EditorConfig.RecentColors.Count && i < 12; i++)
             {
                 _recentColorButtons[i].BackColor = EditorConfig.RecentColors[i];
@@ -196,6 +201,11 @@ namespace Greenshot.Editor.Forms
 
         private void AddToRecentColors(Color c)
         {
+            if (EditorConfig?.RecentColors == null)
+            {
+                return;
+            }
+
             EditorConfig.RecentColors.Remove(c);
             EditorConfig.RecentColors.Insert(0, c);
             if (EditorConfig.RecentColors.Count > 12)

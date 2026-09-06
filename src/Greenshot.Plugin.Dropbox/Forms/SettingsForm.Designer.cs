@@ -67,6 +67,7 @@ namespace Greenshot.Plugin.Dropbox.Forms;
 			this.buttonOK.Name = "buttonOK";
 			this.buttonOK.Size = new System.Drawing.Size(75, 23);
 			this.buttonOK.TabIndex = 10;
+			this.buttonOK.Text = "OK";
 			this.buttonOK.UseVisualStyleBackColor = true;
 			// 
 			// buttonCancel
@@ -77,6 +78,7 @@ namespace Greenshot.Plugin.Dropbox.Forms;
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.Size = new System.Drawing.Size(75, 23);
 			this.buttonCancel.TabIndex = 11;
+			this.buttonCancel.Text = "Cancel";
 			this.buttonCancel.UseVisualStyleBackColor = true;
 			// 
 			// combobox_uploadimageformat
@@ -98,6 +100,7 @@ namespace Greenshot.Plugin.Dropbox.Forms;
 			this.label_upload_format.Name = "label_upload_format";
 			this.label_upload_format.Size = new System.Drawing.Size(100, 20);
 			this.label_upload_format.TabIndex = 9;
+			this.label_upload_format.Text = "Image format";
 			// 
 			// label_AfterUpload
 			// 
@@ -105,6 +108,7 @@ namespace Greenshot.Plugin.Dropbox.Forms;
 			this.label_AfterUpload.Name = "label_AfterUpload";
 			this.label_AfterUpload.Size = new System.Drawing.Size(100, 21);
 			this.label_AfterUpload.TabIndex = 22;
+			this.label_AfterUpload.Text = "After upload";
 			// 
 			// checkboxAfterUploadLinkToClipBoard
 			// 
@@ -114,6 +118,7 @@ namespace Greenshot.Plugin.Dropbox.Forms;
 			this.checkboxAfterUploadLinkToClipBoard.SectionName = "Dropbox";
 			this.checkboxAfterUploadLinkToClipBoard.Size = new System.Drawing.Size(305, 20);
 			this.checkboxAfterUploadLinkToClipBoard.TabIndex = 2;
+			this.checkboxAfterUploadLinkToClipBoard.Text = "Link to clipboard";
 			this.checkboxAfterUploadLinkToClipBoard.UseVisualStyleBackColor = true;
 			// 
 			// SettingsForm
@@ -131,6 +136,7 @@ namespace Greenshot.Plugin.Dropbox.Forms;
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "SettingsForm";
+			this.Text = "Dropbox settings";
 			this.ResumeLayout(false);
 			this.PerformLayout();
 

@@ -67,6 +67,7 @@ namespace Greenshot.Plugin.Imgur.Forms;
 			this.buttonOK.Name = "buttonOK";
 			this.buttonOK.Size = new System.Drawing.Size(75, 23);
 			this.buttonOK.TabIndex = 10;
+			this.buttonOK.Text = "OK";
 			this.buttonOK.UseVisualStyleBackColor = true;
 			// 
 			// buttonCancel
@@ -77,6 +78,7 @@ namespace Greenshot.Plugin.Imgur.Forms;
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.Size = new System.Drawing.Size(75, 23);
 			this.buttonCancel.TabIndex = 11;
+			this.buttonCancel.Text = "Cancel";
 			this.buttonCancel.UseVisualStyleBackColor = true;
 			// 
 			// historyButton
@@ -86,6 +88,7 @@ namespace Greenshot.Plugin.Imgur.Forms;
 			this.historyButton.Name = "historyButton";
 			this.historyButton.Size = new System.Drawing.Size(75, 23);
 			this.historyButton.TabIndex = 20;
+			this.historyButton.Text = "History";
 			this.historyButton.UseVisualStyleBackColor = true;
 			this.historyButton.Click += new System.EventHandler(this.ButtonHistoryClick);
 			// 
@@ -97,6 +100,7 @@ namespace Greenshot.Plugin.Imgur.Forms;
 			this.checkbox_anonymous_access.SectionName = "Imgur";
 			this.checkbox_anonymous_access.Size = new System.Drawing.Size(360, 20);
 			this.checkbox_anonymous_access.TabIndex = 2;
+			this.checkbox_anonymous_access.Text = "Use anonymous access";
 			this.checkbox_anonymous_access.UseVisualStyleBackColor = true;
 			// 
 			// checkbox_usepagelink
@@ -107,6 +111,7 @@ namespace Greenshot.Plugin.Imgur.Forms;
 			this.checkbox_usepagelink.SectionName = "Imgur";
 			this.checkbox_usepagelink.Size = new System.Drawing.Size(360, 20);
 			this.checkbox_usepagelink.TabIndex = 3;
+			this.checkbox_usepagelink.Text = "Use page link instead of image link on clipboard";
 			this.checkbox_usepagelink.UseVisualStyleBackColor = true;
 			// 
 			// SettingsForm
@@ -123,6 +128,7 @@ namespace Greenshot.Plugin.Imgur.Forms;
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "SettingsForm";
+			this.Text = "Imgur settings";
 			this.ResumeLayout(false);
 			this.PerformLayout();
 

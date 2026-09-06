@@ -37,7 +37,7 @@ public sealed partial class ImgurHistory : ImgurForm
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ImgurHistory));
     private readonly GreenshotColumnSorter _columnSorter;
     private static readonly object Lock = new object();
-    private static readonly IImgurConfiguration Config = IniConfigRegistry.GetSection<IImgurConfiguration>();
+    private static readonly IImgurConfiguration Config = IniConfigHelper.EnsureSection<IImgurConfiguration>(() => new ImgurConfigurationImpl());
     private static ImgurHistory _instance;
 
     public static void ShowHistory()
@@ -67,7 +67,7 @@ public sealed partial class ImgurHistory : ImgurForm
         }
     }
 
-    private ImgurHistory()
+    public ImgurHistory()
     {
         //
         // The InitializeComponent() call is required for Windows Forms designer support.
@@ -115,16 +115,19 @@ public sealed partial class ImgurHistory : ImgurForm
             listview_imgur_uploads.Columns.Add(column);
         }
 
-        foreach (ImgurInfo imgurInfo in Config.RuntimeImgurHistory.Values)
+        if (Config.RuntimeImgurHistory != null)
         {
-            var item = new ListViewItem(imgurInfo.Hash)
+            foreach (ImgurInfo imgurInfo in Config.RuntimeImgurHistory.Values)
             {
-                Tag = imgurInfo
-            };
-            item.SubItems.Add(imgurInfo.Title);
-            item.SubItems.Add(imgurInfo.DeleteHash);
-            item.SubItems.Add(imgurInfo.Timestamp.ToString("yyyy-MM-dd HH:mm:ss", DateTimeFormatInfo.InvariantInfo));
-            listview_imgur_uploads.Items.Add(item);
+                var item = new ListViewItem(imgurInfo.Hash)
+                {
+                    Tag = imgurInfo
+                };
+                item.SubItems.Add(imgurInfo.Title);
+                item.SubItems.Add(imgurInfo.DeleteHash);
+                item.SubItems.Add(imgurInfo.Timestamp.ToString("yyyy-MM-dd HH:mm:ss", DateTimeFormatInfo.InvariantInfo));
+                listview_imgur_uploads.Items.Add(item);
+            }
         }
 
         for (int i = 0; i < columns.Length; i++)
