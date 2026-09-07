@@ -128,7 +128,7 @@ namespace Greenshot.Base.Core
         /// <summary>
         /// Unprotect a string that was stored in a config file.
         /// </summary>
-        /// <param name="encryptedText">a base64 encoded encrypted string</param>
+        /// <param name="encryptedText">a DPAPI-prefixed encrypted string, or a legacy base64 encrypted string</param>
         /// <returns>Decrypted text</returns>
         public static string Decrypt(this string encryptedText)
         {
@@ -151,8 +151,10 @@ namespace Greenshot.Base.Core
             }
             catch (Exception ex)
             {
-                LOG.ErrorFormat("Error decrypting DPAPI-protected value, error: {0}", ex.Message);
-                return encryptedText;
+                LOG.WarnFormat(
+                    "Unable to decrypt DPAPI-protected value for this Windows user profile. The saved OAuth token is bound to another user profile or machine and must be re-authorized. Error: {0}",
+                    ex.Message);
+                return null;
             }
         }
 

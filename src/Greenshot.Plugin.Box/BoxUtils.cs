@@ -58,6 +58,10 @@ public static class BoxUtils
     /// <returns>url to uploaded image, null when the user didn't authorize</returns>
     public static async Task<string> UploadToBoxAsync(EncodedImage image, string filename, IUserInteraction userInteraction, IProgress<ProgressInfo> progress, CancellationToken cancellationToken)
     {
+        // Stored encrypted; a token stored as plain text by an old version is returned unchanged by Decrypt.
+        // A null result for a non-empty stored token means the DPAPI value belongs to another user profile/machine.
+        string refreshToken = string.IsNullOrEmpty(Config.RefreshToken) ? Config.RefreshToken : Config.RefreshToken.Decrypt();
+        bool hasUnusableStoredToken = !string.IsNullOrEmpty(Config.RefreshToken) && refreshToken == null;
         // Fill the OAuth2Settings
         var settings = new OAuth2Settings
         {
@@ -68,9 +72,8 @@ public static class BoxUtils
             ClientSecret = BoxCredentials.ClientSecret,
             RedirectUrl = "https://getgreenshot.org/authorize/box",
             AuthorizeMode = OAuth2AuthorizeMode.JsonReceiver,
-            // Stored encrypted, a token stored as plain text by an old version is returned unchanged by Decrypt
-            RefreshToken = string.IsNullOrEmpty(Config.RefreshToken) ? Config.RefreshToken : Config.RefreshToken.Decrypt(),
-            AccessToken = Config.AccessToken,
+            RefreshToken = refreshToken,
+            AccessToken = hasUnusableStoredToken ? null : Config.AccessToken,
             AccessTokenExpires = Config.AccessTokenExpires
         };
 
