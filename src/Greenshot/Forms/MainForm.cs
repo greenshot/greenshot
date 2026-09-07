@@ -57,9 +57,15 @@ using Greenshot.Editor;
 using Greenshot.Editor.Destinations;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Forms;
+using Greenshot.Base.Pipeline;
+using Greenshot.Base.Recipes;
+using Greenshot.Base.Triggers;
 using Greenshot.Helpers;
+using Greenshot.Pipeline;
 using Greenshot.Plugin.Win10;
 using Greenshot.Processors;
+using Greenshot.Recipes;
+using Greenshot.Triggers;
 using log4net;
 
 using Timer = System.Timers.Timer;
@@ -293,6 +299,9 @@ namespace Greenshot.Forms
             SimpleServiceProvider.Current.AddService(this);
             SimpleServiceProvider.Current.AddService<IGreenshotMainForm>(this);
             SimpleServiceProvider.Current.AddService<ICaptureHelper>(this);
+            SimpleServiceProvider.Current.AddService<ITriggerManager>(TriggerManager.Instance);
+            SimpleServiceProvider.Current.AddService<IRecipeManager>(RecipeManager.Instance);
+            SimpleServiceProvider.Current.AddService<ICapturePipeline>(CapturePipeline.Instance);
 
             // Windows specific services
             SimpleServiceProvider.Current.AddService<INotificationService>(ToastNotificationService.Create());
@@ -671,6 +680,120 @@ namespace Greenshot.Forms
                 // birthday
                 var resources = new ComponentResourceManager(typeof(MainForm));
                 contextmenu_donate.Image = (Image) resources.GetObject("contextmenu_present.Image");
+            }
+
+            UpdateRecipesMenu();
+        }
+
+        private ToolStripMenuItem _recipesMenuItem;
+
+        private void UpdateRecipesMenu()
+        {
+            if (!coreConfiguration.IsBetaTester)
+            {
+                if (_recipesMenuItem != null && contextMenu.Items.Contains(_recipesMenuItem))
+                {
+                    contextMenu.Items.Remove(_recipesMenuItem);
+                }
+                return;
+            }
+
+            if (_recipesMenuItem == null)
+            {
+                _recipesMenuItem = new ToolStripMenuItem("Recipes")
+                {
+                    Name = "contextmenu_recipes"
+                };
+                int insertIdx = contextMenu.Items.IndexOf(toolStripOtherSourcesSeparator);
+                if (insertIdx >= 0)
+                {
+                    contextMenu.Items.Insert(insertIdx + 1, _recipesMenuItem);
+                }
+                else
+                {
+                    contextMenu.Items.Add(_recipesMenuItem);
+                }
+            }
+
+            _recipesMenuItem.DropDownItems.Clear();
+
+            var triggerManager = SimpleServiceProvider.Current.GetInstance<Greenshot.Base.Triggers.ITriggerManager>(isOptional: true) as Triggers.TriggerManager ?? Triggers.TriggerManager.Instance;
+            var recipeManager = SimpleServiceProvider.Current.GetInstance<Greenshot.Base.Recipes.IRecipeManager>(isOptional: true) ?? Recipes.RecipeManager.Instance;
+
+            var menuTriggers = triggerManager.GetContextMenuTriggers();
+            int recipeItemCount = 0;
+
+            foreach (var trigger in menuTriggers.OrderBy(t => t.Order))
+            {
+                var recipe = recipeManager.GetRecipeById(trigger.TargetRecipeId);
+                if (recipe == null || !recipe.ShowInContextMenu) continue;
+
+                var item = new ToolStripMenuItem(trigger.MenuItemText ?? recipe.Name);
+
+                var hotkeyTrigger = triggerManager.FindHotkeyTriggerForRecipe(recipe.Id);
+                if (hotkeyTrigger != null && !string.IsNullOrWhiteSpace(hotkeyTrigger.HotkeyString))
+                {
+                    item.ShortcutKeyDisplayString = hotkeyTrigger.HotkeyString;
+                }
+
+                item.Click += (s, ev) =>
+                {
+                    Dispatcher.CurrentDispatcher.BeginInvoke(() =>
+                    {
+                        CapturePipeline.Instance.ExecuteAsync(recipe, trigger, null);
+                    });
+                };
+
+                _recipesMenuItem.DropDownItems.Add(item);
+                recipeItemCount++;
+            }
+
+            if (recipeItemCount > 0)
+            {
+                _recipesMenuItem.DropDownItems.Add(new ToolStripSeparator());
+            }
+
+            var importItem = new ToolStripMenuItem("Import Recipe...");
+            importItem.Click += (s, ev) =>
+            {
+                OnImportRecipeClicked();
+            };
+            _recipesMenuItem.DropDownItems.Add(importItem);
+
+            var reloadItem = new ToolStripMenuItem("Reload Recipes");
+            reloadItem.Click += (s, ev) =>
+            {
+                recipeManager.ReloadRecipes();
+            };
+            _recipesMenuItem.DropDownItems.Add(reloadItem);
+        }
+
+        private void OnImportRecipeClicked()
+        {
+            using (var ofd = new OpenFileDialog
+            {
+                Title = "Import Capture Recipe",
+                Filter = Greenshot.Base.Recipes.RecipeSerializer.RecipeFileFilter,
+                Multiselect = false
+            })
+            {
+                if (ofd.ShowDialog(this) == DialogResult.OK && File.Exists(ofd.FileName))
+                {
+                    var result = Recipes.RecipeManager.Instance.LoadRecipeFromFile(ofd.FileName, interactiveApproval: true, forceApprovalPrompt: true);
+                    if (!result.IsValid)
+                    {
+                        MessageBox.Show(this, $"Failed to load recipe:\n{string.Join("\n", result.Errors)}", "Recipe Import", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                    else
+                    {
+                        string existing = coreConfiguration.RecipeFiles ?? "";
+                        var currentPaths = new HashSet<string>(existing.Split(new[] { ';', ',' }, StringSplitOptions.RemoveEmptyEntries).Select(p => p.Trim()), StringComparer.OrdinalIgnoreCase);
+                        if (!currentPaths.Contains(ofd.FileName))
+                        {
+                            coreConfiguration.RecipeFiles = string.IsNullOrEmpty(existing) ? ofd.FileName : $"{existing};{ofd.FileName}";
+                        }
+                    }
+                }
             }
         }
 

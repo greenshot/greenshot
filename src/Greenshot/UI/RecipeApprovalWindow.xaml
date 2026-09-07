@@ -1,0 +1,323 @@
+<Window x:Class="Greenshot.UI.RecipeApprovalWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Greenshot - Recipe Security Approval"
+        Height="650" Width="580"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        FontFamily="Segoe UI, Segoe UI Variable Display, Tahoma, Arial"
+        FontSize="13"
+        Background="{Binding WindowBackgroundBrush}">
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="40"
+                      ResizeBorderThickness="0"
+                      CornerRadius="0"
+                      GlassFrameThickness="0"
+                      UseAeroCaptionButtons="False" />
+    </WindowChrome.WindowChrome>
+
+    <Window.Resources>
+        <!-- Modern Caption Close Button Style -->
+        <Style x:Key="CaptionCloseButtonStyle" TargetType="Button">
+            <Setter Property="WindowChrome.IsHitTestVisibleInChrome" Value="True"/>
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="Width" Value="46"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="{Binding TextSecondaryBrush}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}">
+                            <Path HorizontalAlignment="Center" VerticalAlignment="Center"
+                                  Width="10" Height="10" Stretch="Uniform"
+                                  Stroke="{TemplateBinding Foreground}" StrokeThickness="1.2"
+                                  Data="M 0,0 L 10,10 M 10,0 L 0,10"
+                                  SnapsToDevicePixels="True"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#E81123"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#C42B1C"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Modern Primary Button Style -->
+        <Style x:Key="PrimaryButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{Binding AccentBrush}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="16,6"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" 
+                                Background="{TemplateBinding Background}" 
+                                CornerRadius="4" 
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Opacity" Value="0.9"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Opacity" Value="0.8"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="border" Property="Opacity" Value="0.35"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Modern Secondary Button Style -->
+        <Style x:Key="SecondaryButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{Binding CardBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{Binding TextPrimaryBrush}"/>
+            <Setter Property="BorderBrush" Value="{Binding CardBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="14,6"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" 
+                                Background="{TemplateBinding Background}" 
+                                BorderBrush="{TemplateBinding BorderBrush}" 
+                                BorderThickness="{TemplateBinding BorderThickness}" 
+                                CornerRadius="4" 
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="{Binding BadgeBackgroundBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Opacity" Value="0.8"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Border BorderThickness="1" BorderBrush="{Binding CardBorderBrush}" Background="{Binding WindowBackgroundBrush}">
+        <Grid x:Name="RootGrid">
+            <Grid.RowDefinitions>
+                <!-- Extended Titlebar Chrome -->
+                <RowDefinition Height="40"/>
+                <!-- Main Body Content -->
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Custom Extended Chrome Title Bar -->
+            <Grid Grid.Row="0" Background="Transparent" MouseLeftButtonDown="OnTitleBarMouseDown">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Icon and App Name in Title Bar -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="14,0,0,0" VerticalAlignment="Center">
+                    <TextBlock Text="🛡️" FontSize="13" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                    <TextBlock Text="Greenshot" FontWeight="SemiBold" FontSize="12" Foreground="{Binding TextPrimaryBrush}" VerticalAlignment="Center"/>
+                    <TextBlock Text=" — Recipe Security Approval" FontSize="12" Foreground="{Binding TextSecondaryBrush}" VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <!-- Caption Close Button -->
+                <Button Grid.Column="2" 
+                        Style="{StaticResource CaptionCloseButtonStyle}" 
+                        Click="OnCloseTitleBarClicked"
+                        ToolTip="Close"/>
+            </Grid>
+
+            <!-- Main Content Area -->
+            <Grid Grid.Row="1" Margin="24,6,24,20">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Header -->
+                <StackPanel Grid.Row="0" Margin="0,0,0,14">
+                    <TextBlock Text="External Capture Recipe Detected" 
+                               FontSize="18" FontWeight="SemiBold" 
+                               Foreground="{Binding TextPrimaryBrush}" Margin="0,0,0,4"/>
+                    <TextBlock Text="A capture recipe file is requesting to be registered into Greenshot. Review its details, triggers, and execution steps before approving." 
+                               TextWrapping="Wrap" 
+                               Foreground="{Binding TextSecondaryBrush}"/>
+                </StackPanel>
+
+                <!-- Scrollable Content -->
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="0,0,0,16">
+                    <StackPanel>
+                        <!-- Recipe Overview Card -->
+                        <Border CornerRadius="8" Padding="14" Margin="0,0,0,12"
+                                Background="{Binding CardBackgroundBrush}" 
+                                BorderBrush="{Binding CardBorderBrush}" 
+                                BorderThickness="1">
+                            <StackPanel>
+                                <Grid Margin="0,0,0,6">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding RecipeName}" FontWeight="Bold" FontSize="15" Foreground="{Binding TextPrimaryBrush}"/>
+                                    <Border Grid.Column="1" CornerRadius="4" Padding="6,2" Background="{Binding BadgeBackgroundBrush}">
+                                        <TextBlock Text="{Binding RecipeVersion}" FontSize="11" FontWeight="SemiBold" Foreground="{Binding TextSecondaryBrush}"/>
+                                    </Border>
+                                </Grid>
+
+                                <TextBlock Text="{Binding RecipeDescription}" Foreground="{Binding TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,8"/>
+
+                                <Grid Margin="0,4,0,2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="75"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Recipe ID:" FontWeight="SemiBold" Foreground="{Binding TextSecondaryBrush}"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding RecipeId}" Foreground="{Binding TextPrimaryBrush}"/>
+                                </Grid>
+
+                                <Grid Margin="0,2,0,2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="75"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="File Path:" FontWeight="SemiBold" Foreground="{Binding TextSecondaryBrush}"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding FilePath}" TextTrimming="CharacterEllipsis" ToolTip="{Binding FilePath}" Foreground="{Binding TextPrimaryBrush}"/>
+                                </Grid>
+
+                                <Grid Margin="0,2,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="75"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="SHA-256:" FontWeight="SemiBold" Foreground="{Binding TextSecondaryBrush}"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding FileHash}" FontFamily="Consolas, Courier New" FontSize="11" Foreground="{Binding TextSecondaryBrush}" TextTrimming="CharacterEllipsis" ToolTip="{Binding FileHash}"/>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Triggers Card -->
+                        <Border CornerRadius="8" Padding="14" Margin="0,0,0,12"
+                                Background="{Binding CardBackgroundBrush}" 
+                                BorderBrush="{Binding CardBorderBrush}" 
+                                BorderThickness="1">
+                            <StackPanel>
+                                <TextBlock Text="Triggers" FontWeight="Bold" FontSize="13" Foreground="{Binding TextPrimaryBrush}" Margin="0,0,0,8"/>
+                                <ItemsControl ItemsSource="{Binding TriggerBadges}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel Orientation="Horizontal"/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border CornerRadius="12" Padding="8,4" Margin="0,0,6,6" Background="{Binding BackgroundBrush}" BorderBrush="{Binding BorderBrush}" BorderThickness="1">
+                                                <TextBlock Text="{Binding Text}" FontSize="12" Foreground="{Binding ForegroundBrush}"/>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Steps Card -->
+                        <Border CornerRadius="8" Padding="14" Margin="0,0,0,12"
+                                Background="{Binding CardBackgroundBrush}" 
+                                BorderBrush="{Binding CardBorderBrush}" 
+                                BorderThickness="1">
+                            <StackPanel>
+                                <TextBlock Text="Execution Pipeline Flow" FontWeight="Bold" FontSize="13" Foreground="{Binding TextPrimaryBrush}" Margin="0,0,0,8"/>
+                                <ItemsControl ItemsSource="{Binding StepDescriptions}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid Margin="0,2,0,4">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="24"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="▶" FontSize="10" Foreground="{Binding DataContext.AccentBrush, RelativeSource={RelativeSource AncestorType=Window}}" VerticalAlignment="Center"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding}" Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}" TextWrapping="Wrap"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- External Command Security Warning Panel -->
+                        <Border x:Name="ExternalCommandWarningPanel" CornerRadius="8" Padding="14" Margin="0,0,0,12"
+                                Background="{Binding WarningBackgroundBrush}" 
+                                BorderBrush="{Binding WarningBorderBrush}" 
+                                BorderThickness="1"
+                                Visibility="{Binding ExternalCommandWarningVisibility}">
+                            <StackPanel>
+                                <TextBlock Text="⚠️ Security Warning: External Commands" FontWeight="Bold" Foreground="{Binding WarningTextBrush}" Margin="0,0,0,4"/>
+                                <TextBlock Text="This recipe contains steps that launch external processes or shell commands on your computer:" 
+                                           Foreground="{Binding WarningTextBrush}" TextWrapping="Wrap" Margin="0,0,0,6"/>
+
+                                <ItemsControl ItemsSource="{Binding ExternalCommandsList}" Margin="0,0,0,8">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding}" FontFamily="Consolas, Courier New" FontSize="11" Foreground="{Binding DataContext.WarningTextBrush, RelativeSource={RelativeSource AncestorType=Window}}" Margin="10,1,0,1"/>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
+                                <CheckBox x:Name="ChkAuthorizeExternalCommands" 
+                                          Content="I understand the security risks and authorize this recipe to execute external commands" 
+                                          Foreground="{Binding WarningTextBrush}"
+                                          Checked="OnAuthorizeChecked" Unchecked="OnAuthorizeChecked"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- Footer Buttons -->
+                <Grid Grid.Row="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Button Grid.Column="1" Content="Reject / Block" 
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            IsCancel="True"
+                            Width="120" Height="34" Margin="0,0,10,0"
+                            Click="OnRejectClicked"/>
+
+                    <Button x:Name="BtnApprove" Grid.Column="2" Content="Approve &amp; Enable" 
+                            Style="{StaticResource PrimaryButtonStyle}"
+                            IsDefault="True"
+                            Width="150" Height="34"
+                            Click="OnApproveClicked"/>
+                </Grid>
+            </Grid>
+        </Grid>
+    </Border>
+</Window>
