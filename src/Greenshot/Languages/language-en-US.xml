@@ -56,9 +56,12 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="contextmenu_donate">Support Greenshot</resource>
 		<resource name="contextmenu_exit">Exit</resource>
 		<resource name="contextmenu_help">Help</resource>
+		<resource name="contextmenu_importrecipe">Import Recipe...</resource>
 		<resource name="contextmenu_openfile">Open image from file</resource>
 		<resource name="contextmenu_openrecentcapture">Open last capture location</resource>
 		<resource name="contextmenu_quicksettings">Quick preferences</resource>
+		<resource name="contextmenu_recipes">Recipes</resource>
+		<resource name="contextmenu_reloadrecipes">Reload Recipes</resource>
 		<resource name="contextmenu_settings">Preferences...</resource>
 		<resource name="destination_exportfailed">Error while exporting to {0}. Please try again.</resource>
 		<resource name="editor_align_bottom">Bottom</resource>
@@ -225,6 +228,9 @@ Please check write accessibility of the selected storage location.</resource>
 		<resource name="qualitydialog_dontaskagain">Save as default quality and do not ask again</resource>
 		<resource name="qualitydialog_title">Greenshot quality</resource>
 		<resource name="quicksettings_destination_file">Save directly (using preferred file output settings)</resource>
+		<resource name="recipe_import">Recipe Import</resource>
+		<resource name="recipe_import_failed">Failed to load recipe:</resource>
+		<resource name="recipe_import_title">Import Capture Recipe</resource>
 		<resource name="settings_alwaysshowprintoptionsdialog">Show print options dialog every time an image is printed</resource>
 		<resource name="settings_alwaysshowqualitydialog">Show quality dialog every time an image is saved</resource>
 		<resource name="settings_applicationsettings">Application Settings</resource>

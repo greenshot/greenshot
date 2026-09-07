@@ -69,6 +69,8 @@ namespace Greenshot.Base.Recipes
             WellKnownStepTypes.Destinations,
             WellKnownStepTypes.Notification,
             WellKnownStepTypes.Conditional,
+            WellKnownStepTypes.TextEffect,
+            "ObfuscateText",
             "ExternalCommand"
         };
 

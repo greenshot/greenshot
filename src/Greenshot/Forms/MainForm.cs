@@ -716,7 +716,7 @@ namespace Greenshot.Forms
 
             if (_recipesMenuItem == null)
             {
-                _recipesMenuItem = new ToolStripMenuItem("Recipes")
+                _recipesMenuItem = new ToolStripMenuItem(Language.GetString("contextmenu_recipes") ?? "Recipes")
                 {
                     Name = "contextmenu_recipes"
                 };
@@ -756,7 +756,10 @@ namespace Greenshot.Forms
                 {
                     Dispatcher.CurrentDispatcher.BeginInvoke(() =>
                     {
-                        CapturePipeline.Instance.ExecuteAsync(recipe, trigger, null);
+                        _ = CapturePipeline.Instance.ExecuteAsync(recipe, trigger, null).ContinueWith(task =>
+                        {
+                            Log.Error("Recipe capture pipeline failed.", task.Exception);
+                        }, TaskContinuationOptions.OnlyOnFaulted);
                     });
                 };
 
@@ -769,14 +772,14 @@ namespace Greenshot.Forms
                 _recipesMenuItem.DropDownItems.Add(new ToolStripSeparator());
             }
 
-            var importItem = new ToolStripMenuItem("Import Recipe...");
+            var importItem = new ToolStripMenuItem(Language.GetString("contextmenu_importrecipe") ?? "Import Recipe...");
             importItem.Click += (s, ev) =>
             {
                 OnImportRecipeClicked();
             };
             _recipesMenuItem.DropDownItems.Add(importItem);
 
-            var reloadItem = new ToolStripMenuItem("Reload Recipes");
+            var reloadItem = new ToolStripMenuItem(Language.GetString("contextmenu_reloadrecipes") ?? "Reload Recipes");
             reloadItem.Click += (s, ev) =>
             {
                 recipeManager.ReloadRecipes();
@@ -788,25 +791,45 @@ namespace Greenshot.Forms
         {
             using (var ofd = new OpenFileDialog
             {
-                Title = "Import Capture Recipe",
+                Title = Language.GetString("recipe_import_title") ?? "Import Capture Recipe",
                 Filter = Greenshot.Base.Recipes.RecipeSerializer.RecipeFileFilter,
                 Multiselect = false
             })
             {
                 if (ofd.ShowDialog(this) == DialogResult.OK && File.Exists(ofd.FileName))
                 {
-                    var result = Recipes.RecipeManager.Instance.LoadRecipeFromFile(ofd.FileName, interactiveApproval: true, forceApprovalPrompt: true);
+                    string recipePath = Path.GetFullPath(ofd.FileName);
+                    var result = Recipes.RecipeManager.Instance.LoadRecipeFromFile(recipePath, interactiveApproval: true, forceApprovalPrompt: true);
                     if (!result.IsValid)
                     {
-                        MessageBox.Show(this, $"Failed to load recipe:\n{string.Join("\n", result.Errors)}", "Recipe Import", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        MessageBox.Show(this, $"{Language.GetString("recipe_import_failed") ?? "Failed to load recipe:"}\n{string.Join("\n", result.Errors)}",
+                            Language.GetString("recipe_import") ?? "Recipe Import", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
                     else
                     {
                         string existing = coreConfiguration.RecipeFiles ?? "";
-                        var currentPaths = new HashSet<string>(existing.Split(new[] { ';', ',' }, StringSplitOptions.RemoveEmptyEntries).Select(p => p.Trim()), StringComparer.OrdinalIgnoreCase);
-                        if (!currentPaths.Contains(ofd.FileName))
+                        var configuredPaths = new List<string>();
+                        var currentPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                        foreach (string configuredPath in existing.Split(new[] { ';', ',' }, StringSplitOptions.RemoveEmptyEntries))
                         {
-                            coreConfiguration.RecipeFiles = string.IsNullOrEmpty(existing) ? ofd.FileName : $"{existing};{ofd.FileName}";
+                            try
+                            {
+                                string normalizedPath = Path.GetFullPath(configuredPath.Trim());
+                                if (currentPaths.Add(normalizedPath))
+                                {
+                                    configuredPaths.Add(normalizedPath);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                Log.Warn($"Could not normalize configured recipe path '{configuredPath}'.", ex);
+                            }
+                        }
+
+                        if (currentPaths.Add(recipePath))
+                        {
+                            configuredPaths.Add(recipePath);
+                            coreConfiguration.RecipeFiles = string.Join(";", configuredPaths);
                             IniConfigRegistry.Get()?.Save();
                         }
                     }
