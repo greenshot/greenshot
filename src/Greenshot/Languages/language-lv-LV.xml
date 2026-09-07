@@ -6,7 +6,7 @@
 		<resource name="about_donations">Ja Tev patīk „Greenshot”, Tu vari mūs atbalstīt:</resource>
 		<resource name="about_host">„Greenshot” atrodams GitHub adresē</resource>
 		<resource name="about_icons">Ikonas veidojis Yusuke Kamiyamane's Fugue (Radošās kopienas Atsaucoties 3.0 licence)</resource>
-		<resource name="about_license">Autortiesības (C): 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+		<resource name="about_license">Autortiesības (C): 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
 Ņemot vērā, ka „Greenshot” tiek licencēta bez maksas, šai programmai NAV NEKĀDU GARANTIJU. Tu vari to izplatīt un lietot ievērojot GNU Vispārīgo Publisko licenci:</resource>
 		<resource name="about_title">Par „Greenshot”</resource>
 		<resource name="application_title">„Greenshot” - mūsdienīga ekrānattēla ieguves programmatūra</resource>
@@ -55,9 +55,12 @@ Mēs būtu Tev pateicīgi, ja Tu vispirms pārbaudītu, vai kāds cits jau nav z
 		<resource name="contextmenu_donate">Atbalstīt „Greenshot”</resource>
 		<resource name="contextmenu_exit">Iziet</resource>
 		<resource name="contextmenu_help">Pamācības</resource>
+		<resource name="contextmenu_importrecipe">Importēt recepti...</resource>
 		<resource name="contextmenu_openfile">Atvērt attēlu no faila</resource>
 		<resource name="contextmenu_openrecentcapture">Atvērt pēdējo ekrānattēla vietu</resource>
 		<resource name="contextmenu_quicksettings">Ātrie iestatījumi</resource>
+		<resource name="contextmenu_recipes">Receptes</resource>
+		<resource name="contextmenu_reloadrecipes">Pārlādēt receptes</resource>
 		<resource name="contextmenu_settings">Iestatījumi...</resource>
 		<resource name="destination_exportfailed">Kļūda eksportējot {0}. Mēģini vēlreiz.</resource>
 		<resource name="editor_align_bottom">Apakšmalā</resource>
@@ -217,6 +220,9 @@ Pārbaudi dotajā vietā savas piekļuves tiesības.</resource>
 		<resource name="qualitydialog_dontaskagain">Saglabāt kā piedāvāto kvalitāti un vairāk nejautāt</resource>
 		<resource name="qualitydialog_title">„Greenshot” kvalitāte</resource>
 		<resource name="quicksettings_destination_file">Saglabā nejautājot (lietojot izvēlētos failu izveides iestatījumus)</resource>
+		<resource name="recipe_import">Receptes imports</resource>
+		<resource name="recipe_import_failed">Neizdevās ielādēt recepti:</resource>
+		<resource name="recipe_import_title">Importēt tveršanas recepti</resource>
 		<resource name="settings_alwaysshowprintoptionsdialog">Rādīt izdrukas iestatījumu logu, kad vien tiek drukāts</resource>
 		<resource name="settings_alwaysshowqualitydialog">Rādīt kvalitātes iestatījumu logu, kad vien attēls tiek saglabāts</resource>
 		<resource name="settings_applicationsettings">Programmatūras iestatījumi</resource>
@@ -327,5 +333,8 @@ Arī bez karstiem taustiņiem visas darbības iespējams veikt izmantojot „Gre
     <resource name="editor_resize_height">Augstums</resource>
 	<resource name="settings_iconsize">Ikonas izmērs</resource>
 
+  	<resource name="editor_fit">Izstiept</resource>
+  	<resource name="editor_pushout">Paplašināt tveršanu un pārvietot ārpusē</resource>
+  	<resource name="editor_snap">Piespiest pie malas</resource>
   </resources>
 </language>

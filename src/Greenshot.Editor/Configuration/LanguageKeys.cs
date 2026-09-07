@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -32,6 +32,10 @@ namespace Greenshot.Editor.Configuration
         contextmenu_capturefullscreen_top,
         contextmenu_capturefullscreen_right,
         contextmenu_capturefullscreen_bottom,
+        editor_align_bottom,
+        editor_align_left,
+        editor_align_right,
+        editor_align_top,
         editor_autocrop_not_possible,
         editor_clipboardfailed,
         editor_close_on_save,
@@ -43,13 +47,18 @@ namespace Greenshot.Editor.Configuration
         editor_downtobottom,
         editor_duplicate,
         editor_email,
+        editor_fit,
         editor_imagesaved,
+        editor_pushout,
+        editor_snap,
         editor_title,
         editor_uponelevel,
         editor_uptotop,
         editor_undo,
         editor_redo,
         editor_resetsize,
+        editor_resize_height,
+        editor_resize_width,
         error,
         error_multipleinstances,
         error_openfile,

@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -51,9 +51,8 @@ namespace Greenshot.Base.Interfaces
         /// <summary>
         /// If a capture is made, and the destination is enabled, this method is called.
         /// </summary>
-        /// <param name="surface"></param>
-        /// <param name="captureDetails"></param>
+        /// <param name="capture">ICapture</param>
         /// <returns>true if the processor has "processed" the capture</returns>
-        bool ProcessCapture(ISurface surface, ICaptureDetails captureDetails);
+        bool ProcessCapture(ICapture capture);
     }
 }

@@ -1,0 +1,62 @@
+{
+  "$schema": "../recipe.schema.json",
+  "version": "1.0",
+  "id": "recipe_region_blue_border",
+  "name": "Region with Blue Border",
+  "description": "Interactive region capture that adds a 2px blue border and opens the editor",
+  "triggers": [
+    {
+      "triggerType": "ContextMenu",
+      "name": "Region with Border Menu Item",
+      "parameters": {
+        "menuItemText": "Region with Blue Border",
+        "group": "Recipes"
+      }
+    },
+    {
+      "triggerType": "Hotkey",
+      "parameters": {
+        "hotkey": "Ctrl + Shift + B"
+      }
+    }
+  ],
+  "steps": [
+    {
+      "stepType": "Source",
+      "parameters": {
+        "sourceType": "Region"
+      }
+    },
+    {
+      "stepType": "InteractiveSelection",
+      "parameters": {
+        "selectionMode": "Region"
+      }
+    },
+    {
+      "stepType": "Effect",
+      "name": "Add Blue Border",
+      "parameters": {
+        "effect": "Border",
+        "width": 2,
+        "color": "#0000FF"
+      }
+    },
+    {
+      "stepType": "ImmediateFeedback",
+      "name": "Camera Feedback",
+      "parameters": {
+        "playSound": true
+      }
+    },
+    {
+      "stepType": "Destinations",
+      "name": "Open Editor",
+      "parameters": {
+        "destinationDesignations": [
+          "Editor"
+        ]
+      }
+    }
+  ]
+}

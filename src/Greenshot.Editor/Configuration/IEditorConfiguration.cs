@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -26,6 +26,7 @@ using System.Drawing;
 using System.Runtime.Serialization;
 using Dapplo.Ini.Attributes;
 using Dapplo.Ini.Interfaces;
+using Dapplo.Ini.Parsing;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.User32.Enums;
 using Greenshot.Base.Effects;
@@ -37,9 +38,11 @@ namespace Greenshot.Editor.Configuration
     public interface IEditorConfiguration : IIniSection, IAfterLoad
     {
         [Description("Last used colors")]
+        [IniValue(ListDelimiter = '|')]
         List<Color> RecentColors { get; set; }
 
         [DataMember(Name = "LastFieldValue")]
+        [IniValue(ListDelimiter = '|', WriteComments = IniBooleanOption.Disabled)]
         [Description("Field values, make sure the last used settings are reused")]
         Dictionary<string, object> LastUsedFieldValues { get; set; }
 
@@ -71,9 +74,9 @@ namespace Greenshot.Editor.Configuration
         [DefaultValue(false)]
         bool ReuseEditor { get; set; }
 
-        [Description("The smaller this number, the less smoothing is used. Decrease for detailed drawing, e.g. when using a pen. Increase for smoother lines. e.g. when you want to draw a smooth line. Minimal value is 1, max is 2147483647.")]
+        [Description("The smaller this number, the less smoothing is used. Decrease for detailed drawing, e.g. when using a pen. Increase for smoother lines. e.g. when you want to draw a smooth line. Minimal value is 1, max is 100.")]
         [DefaultValue(3)]
-        [Range(1, int.MaxValue, ErrorMessage = "FreehandSensitivity must be at least 1.")]
+        [Range(1, 100, ErrorMessage = "FreehandSensitivity must be at least 1.")]
         int FreehandSensitivity { get; set; }
 
         [Description("Suppressed the 'do you want to save' dialog when closing the editor.")]
@@ -123,7 +126,7 @@ namespace Greenshot.Editor.Configuration
         int TextObfuscationOffsetHorizontal { get; set; }
 
         [Description("Vertical offset in pixels for matched rectangles")]
-        [DefaultValue(-5)]
+        [DefaultValue(0)]
         int TextObfuscationOffsetVertical { get; set; }
 
         [DefaultValue("🙂")]

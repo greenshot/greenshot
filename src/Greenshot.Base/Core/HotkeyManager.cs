@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -74,7 +74,13 @@ public static class HotkeyManager
             return;
         }
 
-        foreach (var hotkey in RegisteredHotkeys.ToList())
+        List<HotkeyInfo> hotkeys;
+        lock (RegisteredHotkeys)
+        {
+            hotkeys = RegisteredHotkeys.ToList();
+        }
+
+        foreach (var hotkey in hotkeys)
         {
             if (Match(e, hotkey))
             {
@@ -119,15 +125,26 @@ public static class HotkeyManager
 
         _keyboardSubscription ??= KeyboardHook.KeyboardEvents.Subscribe(HandleKeyboardEvent);
 
-        var hotkeyInfo = new HotkeyInfo
+        lock (RegisteredHotkeys)
         {
-            Modifiers = modifierKeyCode,
-            Key = virtualKeyCode,
-            Handler = handler,
-            Id = _hotKeyCounter++
-        };
-        RegisteredHotkeys.Add(hotkeyInfo);
-        return hotkeyInfo.Id;
+            var existing = RegisteredHotkeys.FirstOrDefault(x => x.Modifiers == modifierKeyCode && x.Key == virtualKeyCode);
+            if (existing != null)
+            {
+                Log.WarnFormat("Hotkey {0}+{1} already registered (ID {2}). Replacing previous handler to prevent duplicate triggers.", modifierKeyCode, virtualKeyCode, existing.Id);
+                existing.Handler = handler;
+                return existing.Id;
+            }
+
+            var hotkeyInfo = new HotkeyInfo
+            {
+                Modifiers = modifierKeyCode,
+                Key = virtualKeyCode,
+                Handler = handler,
+                Id = _hotKeyCounter++
+            };
+            RegisteredHotkeys.Add(hotkeyInfo);
+            return hotkeyInfo.Id;
+        }
     }
 
     /// <summary>
@@ -137,9 +154,36 @@ public static class HotkeyManager
     /// After calling this method, no hotkeys will be active until they are registered again.</remarks>
     public static void UnregisterHotkeys()
     {
-        _keyboardSubscription?.Dispose();
-        _keyboardSubscription = null;
-        RegisteredHotkeys.Clear();
+        lock (RegisteredHotkeys)
+        {
+            _keyboardSubscription?.Dispose();
+            _keyboardSubscription = null;
+            RegisteredHotkeys.Clear();
+        }
+    }
+
+    /// <summary>
+    /// Unregisters a specific hotkey by its registration ID.
+    /// </summary>
+    /// <param name="id">The hotkey registration ID.</param>
+    /// <returns>True if unregistered, false if not found.</returns>
+    public static bool UnregisterHotKey(int id)
+    {
+        lock (RegisteredHotkeys)
+        {
+            int index = RegisteredHotkeys.FindIndex(h => h.Id == id);
+            if (index >= 0)
+            {
+                RegisteredHotkeys.RemoveAt(index);
+                if (RegisteredHotkeys.Count == 0)
+                {
+                    _keyboardSubscription?.Dispose();
+                    _keyboardSubscription = null;
+                }
+                return true;
+            }
+            return false;
+        }
     }
 
     /// <summary>

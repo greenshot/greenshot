@@ -1,11 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<language description="French" ietf="fr-FR" version="1.0.0">
+<language description="Français" ietf="fr-FR" version="1.0.0">
   <resources>
   <resource name="contextmenu_configure">
     Configuration de commandes externes 
   </resource>
   <resource name="settings_title">
-  		Paramètrage de la commande externe
+  		Paramétrage de la commande externe
 	</resource>
 	<resource name="settings_detail_title">
   		Configuration de la commande
@@ -17,7 +17,7 @@
   		Supprimer
 	</resource>
 	<resource name="settings_edit">
-  		Editer
+  		Éditer
 	</resource>
     <resource name="label_name">
       Nom

@@ -1,6 +1,6 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -61,8 +61,16 @@ namespace Greenshot.Base.Core
             //if (disposing) {}
         }
 
+        /// <summary>
+        /// Declares when this processor prefers to run relative to any interactive selection step.
+        /// Override to <see cref="ProcessorTiming.PreSelection"/> for processors whose results
+        /// (e.g. detected QR codes, OCR text) should be visible as hotspots in the CaptureForm.
+        /// The default is <see cref="ProcessorTiming.PostSelection"/>.
+        /// </summary>
+        public virtual ProcessorTiming PreferredTiming => ProcessorTiming.PostSelection;
+
         public virtual bool isActive => true;
 
-        public abstract bool ProcessCapture(ISurface surface, ICaptureDetails captureDetails);
+        public abstract bool ProcessCapture(ICapture capture);
     }
 }

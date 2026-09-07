@@ -5,7 +5,7 @@
 		<resource name="about_donations">Ha szereted Greenshot -ot, akkor támogass minket:</resource>
 		<resource name="about_host">Greenshot kiszolgálója a GitHub</resource>
 		<resource name="about_icons">Az ikonokat Yusuke Kamiyamane's Fugue készítette (Creative Commons Attribution 3.0 license)</resource>
-		<resource name="about_license">Szerzői jog © 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+		<resource name="about_license">Szerzői jog © 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
 SEMMIFÉLE GARANCIA sincs a Greenshot -hoz. Ez egy ingyenes program, és hálásak vagyunk, hogy terjeszted bizonyos feltételekkel.
 Részletek a GNU Fő Nyílvános Engedélyről:</resource>
 		<resource name="about_title">Greenshot névjegye</resource>
@@ -40,8 +40,11 @@ Kérjük adjon összefoglaló leírást és csatoljon minden olyan információt
 		<resource name="contextmenu_donate">Greenshot támogatás</resource>
 		<resource name="contextmenu_exit">Kilépés</resource>
 		<resource name="contextmenu_help">Súgó</resource>
+		<resource name="contextmenu_importrecipe">Recept importálása</resource>
 		<resource name="contextmenu_openfile">Kép megnyitása fájlból</resource>
 		<resource name="contextmenu_quicksettings">Gyors beállítások</resource>
+		<resource name="contextmenu_recipes">Receptek</resource>
+		<resource name="contextmenu_reloadrecipes">Receptek újratöltése</resource>
 		<resource name="contextmenu_settings">Beállítások</resource>
 		<resource name="editor_arrange">Elrendezés</resource>
 		<resource name="editor_arrowheads">Nyíl végek</resource>
@@ -150,6 +153,9 @@ Kérjük ellenőrizze a mentési hely hozzáférhetőségét.</resource>
 		<resource name="printoptions_timestamp">Dátum és idő nyomtatása a lap aljára</resource>
 		<resource name="printoptions_title">Greenshot nyomtatási beállítások</resource>
 		<resource name="quicksettings_destination_file">Mentés közvetlenül (a megadott tárolási helyre)</resource>
+		<resource name="recipe_import">Recept importálása</resource>
+		<resource name="recipe_import_failed">A recept betöltése sikertelen:</resource>
+		<resource name="recipe_import_title">Rögzítési recept importálása</resource>
 		<resource name="settings_alwaysshowjpegqualitydialog">Ha JPEG képet mentünk, kérdezzen rá a minőségre.</resource>
 		<resource name="settings_alwaysshowprintoptionsdialog">Nyomtatási beállítások párbeszéd ablak megjelenítése minden alkalommal.</resource>
 		<resource name="settings_applicationsettings">Program beállítások</resource>
@@ -208,5 +214,8 @@ fájl mentése az aktuális dátummal és időponttal, a megadott tárolási hel
 		<resource name="warning_hotkeys">Egy vagy több gyors billentyű nincs regisztrálva. Ezért lehet az, hogy nem lehet használni.
 Ez a hiba akkor fordulhat elő, ha egy másik program{1} használja.
 Kapcsolja ki a szotvert és használja PrintScrn billentyűt. Egyszerűen használhatja a Greenshot -ot a tálca ikon helyi menüjéből.</resource>
+	<resource name="editor_fit">Nyújtás</resource>
+	<resource name="editor_pushout">Rögzített kép kiterjesztése és áthelyezés kívülre</resource>
+	<resource name="editor_snap">Igazítás a szélhez</resource>
 	</resources>
 </language>

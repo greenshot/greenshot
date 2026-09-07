@@ -5,7 +5,7 @@
 		<resource name="about_donations">Als Greenshot u bevalt, wilt u ons wellicht ondersteunen:</resource>
 		<resource name="about_host">Greenshot wordt uitgegeven door sourceforge.net op</resource>
 		<resource name="about_icons">Iconen afkomstig van Yusuke Kamiyamane's Fugue (Creative Commons Attribution 3.0 license)</resource>
-		<resource name="about_license">Copyright © 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+		<resource name="about_license">Copyright © 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
 Greenshot komt zonder enige garantie! Dit is gratis software en het staat u vrij het onder bepaalde voorwaarden te verspreiden.
 Details over de GNU General Public License:</resource>
 		<resource name="about_title">Over Greenshot</resource>
@@ -56,9 +56,12 @@ Controleer ook even of dit probleem mogelijk al gemeld is! Gebruik de zoekfuncti
 		<resource name="contextmenu_donate">Greenshot ondersteunen</resource>
 		<resource name="contextmenu_exit">Afsluiten</resource>
 		<resource name="contextmenu_help">Help</resource>
+		<resource name="contextmenu_importrecipe">Recept importeren…</resource>
 		<resource name="contextmenu_openfile">Afbeeldingsbestand openen</resource>
 		<resource name="contextmenu_openrecentcapture">Locatie laatste schermopname openen</resource>
 		<resource name="contextmenu_quicksettings">Snelle instellingen</resource>
+		<resource name="contextmenu_recipes">Recepten</resource>
+		<resource name="contextmenu_reloadrecipes">Recepten opnieuw laden</resource>
 		<resource name="contextmenu_settings">Instellingen…</resource>
 		<resource name="destination_exportfailed">Fout bij het exporteren naar {0}. Probeer het opnieuw.</resource>
 		<resource name="editor_align_bottom">Onder</resource>
@@ -220,6 +223,9 @@ Controleer de toegangsrechten voor de betreffende locatie.</resource>
 		<resource name="qualitydialog_dontaskagain">Opslaan met de standaardkwaliteit en niet meer vragen</resource>
 		<resource name="qualitydialog_title">Greenshot kwaliteit</resource>
 		<resource name="quicksettings_destination_file">Direct opslaan (met standaardinstellingen)</resource>
+		<resource name="recipe_import">Receptimport</resource>
+		<resource name="recipe_import_failed">Laden van recept mislukt:</resource>
+		<resource name="recipe_import_title">Opnamerecept importeren</resource>
 		<resource name="settings_alwaysshowprintoptionsdialog">Afdrukinstellingen tonen wanneer een afbeelding wordt afgedrukt</resource>
 		<resource name="settings_alwaysshowqualitydialog">Bij het opslaan altijd de beeldkwaliteit instellen</resource>
 		<resource name="settings_applicationsettings">Programmainstellingen</resource>
@@ -329,5 +335,8 @@ Alle Greenshot functies werken ook zonder sneltoetsen via het context menu.</res
 		<resource name="editor_resize_height">Hoogte</resource>
 		<resource name="settings_iconsize">Pictogramgrootte</resource>
 
+	<resource name="editor_fit">Uitrekken</resource>
+	<resource name="editor_pushout">Opname uitbreiden en naar buiten verplaatsen</resource>
+	<resource name="editor_snap">Aan rand vastmaken</resource>
 	</resources>
 </language>

@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
 VisualStudioVersion = 18.3.11312.210
@@ -32,6 +32,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Greenshot.Plugin.Dropbox", "Greenshot.Plugin.Dropbox\Greenshot.Plugin.Dropbox.csproj", "{AD7CFFE2-40E7-46CF-A172-D48CF7AE9A12}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Greenshot.Plugin.Office", "Greenshot.Plugin.Office\Greenshot.Plugin.Office.csproj", "{92599C09-FF29-4ABD-B6E6-C48ECD781BAB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Greenshot.Plugin.Zxing", "Greenshot.Plugin.Zxing\Greenshot.Plugin.Zxing.csproj", "{E4D5477B-46BF-453D-8822-777D444DAA01}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{82987F1E-D7E6-4C44-B934-981D366E4672}"
 	ProjectSection(SolutionItems) = preProject
@@ -154,6 +156,14 @@ Global
 		{F079C027-0871-4B1B-A902-0312941C3834}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F079C027-0871-4B1B-A902-0312941C3834}.Release|x86.ActiveCfg = Release|Any CPU
 		{F079C027-0871-4B1B-A902-0312941C3834}.Release|x86.Build.0 = Release|Any CPU
+		{E4D5477B-46BF-453D-8822-777D444DAA01}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E4D5477B-46BF-453D-8822-777D444DAA01}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E4D5477B-46BF-453D-8822-777D444DAA01}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E4D5477B-46BF-453D-8822-777D444DAA01}.Debug|x86.Build.0 = Debug|Any CPU
+		{E4D5477B-46BF-453D-8822-777D444DAA01}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E4D5477B-46BF-453D-8822-777D444DAA01}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E4D5477B-46BF-453D-8822-777D444DAA01}.Release|x86.ActiveCfg = Release|Any CPU
+		{E4D5477B-46BF-453D-8822-777D444DAA01}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

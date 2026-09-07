@@ -1,6 +1,6 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -23,7 +23,6 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
-using Dapplo.Windows.Messages;
 using Greenshot.Base.Core;
 using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
@@ -100,6 +99,15 @@ namespace Greenshot.Editor.Destinations
                         if (openedEditor.Surface.Modified) continue;
 
                         openedEditor.Surface = surface;
+                        if (openedEditor is Form editorForm)
+                        {
+                            if (editorForm.WindowState == FormWindowState.Minimized)
+                            {
+                                editorForm.WindowState = FormWindowState.Normal;
+                            }
+                            editorForm.BringToFront();
+                            editorForm.Activate();
+                        }
                         exportInformation.ExportMade = true;
                         break;
                     }

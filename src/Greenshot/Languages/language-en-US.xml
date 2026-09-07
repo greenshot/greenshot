@@ -5,7 +5,7 @@
 		<resource name="about_donations">If you like Greenshot, you are welcome to support us:</resource>
 		<resource name="about_host">Greenshot is hosted by GitHub at</resource>
 		<resource name="about_icons">Icons from Yusuke Kamiyamane's Fugue icon set (Creative Commons Attribution 3.0 license)</resource>
-		<resource name="about_license">Copyright © 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+		<resource name="about_license">Copyright © 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
 Greenshot comes with ABSOLUTELY NO WARRANTY. This is free software, and you are welcome to redistribute it under certain conditions.
 Details about the GNU General Public License:</resource>
 		<resource name="about_title">About Greenshot</resource>
@@ -21,6 +21,7 @@ Please add a meaningful summary and enclose any information you consider to be h
 Also, we would highly appreciate if you checked whether a tracker item already exists for this bug. (You can use the search to find those quickly.) Thank you :)</resource>
 		<resource name="bugreport_title">Error</resource>
 		<resource name="CANCEL">Cancel</resource>
+		<resource name="zxing_scan_on_capture">Enable QR code scanning on region capture</resource>
 		<resource name="clipboard_error">An unexpected error occurred while writing to the clipboard.</resource>
 		<resource name="clipboard_inuse">Greenshot wasn't able to write to the clipboard as the process {0} blocked the access.</resource>
 		<resource name="clipboard_noimage">Couldn't find a clipboard image.</resource>
@@ -56,9 +57,12 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="contextmenu_donate">Support Greenshot</resource>
 		<resource name="contextmenu_exit">Exit</resource>
 		<resource name="contextmenu_help">Help</resource>
+		<resource name="contextmenu_importrecipe">Import Recipe...</resource>
 		<resource name="contextmenu_openfile">Open image from file</resource>
 		<resource name="contextmenu_openrecentcapture">Open last capture location</resource>
 		<resource name="contextmenu_quicksettings">Quick preferences</resource>
+		<resource name="contextmenu_recipes">Recipes</resource>
+		<resource name="contextmenu_reloadrecipes">Reload Recipes</resource>
 		<resource name="contextmenu_settings">Preferences...</resource>
 		<resource name="destination_exportfailed">Error while exporting to {0}. Please try again.</resource>
 		<resource name="editor_align_bottom">Bottom</resource>
@@ -116,6 +120,7 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="editor_email">E-Mail</resource>
 		<resource name="editor_file">File</resource>
 		<resource name="editor_fontsize">Size</resource>
+		<resource name="editor_fit">Stretch</resource>
 		<resource name="editor_forecolor">Line color (NumPad0-9, Shift+0-9)</resource>
 		<resource name="editor_grayscale">Grayscale</resource>
 		<resource name="editor_highlight_area">Highlight area</resource>
@@ -157,6 +162,7 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="editor_opendirinexplorer">Open directory in Windows Explorer</resource>
 		<resource name="editor_pastefromclipboard">Paste</resource>
 		<resource name="editor_pixel_size">Pixel size</resource>
+		<resource name="editor_pushout">Expand capture and move outside</resource>
 		<resource name="editor_preview_quality">Preview quality</resource>
 		<resource name="editor_print">Print</resource>
 		<resource name="editor_remove_transparency">Remove transparency</resource>
@@ -173,6 +179,7 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="editor_senttoprinter">Print job was sent to '{0}'.</resource>
 		<resource name="editor_shadow">Drop shadow (/)</resource>
 		<resource name="editor_storedtoclipboard">Image stored to clipboard.</resource>
+		<resource name="editor_snap">Dock to edge</resource>
 		<resource name="editor_thickness">Line thickness</resource>
 		<resource name="editor_title">Greenshot image editor</resource>
 		<resource name="editor_torn_edge">Torn edge</resource>
@@ -225,6 +232,9 @@ Please check write accessibility of the selected storage location.</resource>
 		<resource name="qualitydialog_dontaskagain">Save as default quality and do not ask again</resource>
 		<resource name="qualitydialog_title">Greenshot quality</resource>
 		<resource name="quicksettings_destination_file">Save directly (using preferred file output settings)</resource>
+		<resource name="recipe_import">Recipe Import</resource>
+		<resource name="recipe_import_failed">Failed to load recipe:</resource>
+		<resource name="recipe_import_title">Import Capture Recipe</resource>
 		<resource name="settings_alwaysshowprintoptionsdialog">Show print options dialog every time an image is printed</resource>
 		<resource name="settings_alwaysshowqualitydialog">Show quality dialog every time an image is saved</resource>
 		<resource name="settings_applicationsettings">Application Settings</resource>
@@ -256,7 +266,8 @@ ${DD} day, 2 digits
 ${hh} hour, 2 digits
 ${mm} minute, 2 digits
 ${ss} second, 2 digits
-${NUM} incrementing number, 6 digits
+${NUM} incrementing number, 6 digits by default
+${NUM:p-2,0} incrementing number, 2 digits with leading zeros (01, 02, 03)
 ${RRR...} random alphanumerics, same length as 'R's
 ${title} Window title
 ${user} Windows user
@@ -264,6 +275,7 @@ ${domain} Windows domain
 ${hostname} PC name
 
 You can also have Greenshot create directories dynamically, simply use the backslash symbol (\) to separate folders and filename.
+To reset the ${NUM} counter, change its value in Expert settings.
 Example: the pattern ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
 will generate a folder for the current day in your default storage location, e.g. 2008-06-29, the contained screenshot file's name will be based on the current
 time, e.g. 11_58_32 (plus extension defined in the settings)</resource>

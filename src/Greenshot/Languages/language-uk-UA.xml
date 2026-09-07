@@ -5,7 +5,7 @@
 		<resource name="about_donations">Якщо Вам подобається Greenshot, можете підтримати нас:</resource>
 		<resource name="about_host">Greenshot розташовується на GitHub</resource>
 		<resource name="about_icons">Набір піктограм Fugue від Yusuke Kamiyamane (ліцензія Creative Commons Attribution 3.0)</resource>
-		<resource name="about_license">Авторство © 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+		<resource name="about_license">Авторство © 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
 Greenshot постачається АБСОЛЮТНО БЕЗ ГАРАНТІЇ. Це вільне програмне забезпечення, Ви можете розповсюджувати його за певних умов.
 Подробиці Загальної Публічної Ліцензії GNU:</resource>
 		<resource name="about_title">Про Greenshot</resource>
@@ -55,9 +55,12 @@ Greenshot постачається АБСОЛЮТНО БЕЗ ГАРАНТІЇ. �
 		<resource name="contextmenu_donate">Підтримати Greenshot</resource>
 		<resource name="contextmenu_exit">Вихід</resource>
 		<resource name="contextmenu_help">Допомога</resource>
+		<resource name="contextmenu_importrecipe">Імпорт рецепта...</resource>
 		<resource name="contextmenu_openfile">Відкрити зображення з файла</resource>
 		<resource name="contextmenu_openrecentcapture">Відкрити місце збереження останнього знімку</resource>
 		<resource name="contextmenu_quicksettings">Швидкі параметри</resource>
+		<resource name="contextmenu_recipes">Рецепти</resource>
+		<resource name="contextmenu_reloadrecipes">Перезавантажити рецепти</resource>
 		<resource name="contextmenu_settings">Параметри...</resource>
 		<resource name="destination_exportfailed">Помилка експорту до {0}. Спробуйте знову.</resource>
 		<resource name="editor_align_bottom">Знизу</resource>
@@ -218,6 +221,9 @@ Greenshot постачається АБСОЛЮТНО БЕЗ ГАРАНТІЇ. �
 		<resource name="qualitydialog_dontaskagain">Зберегти як стандартну якість і не запитувати знову</resource>
 		<resource name="qualitydialog_title">Якість Greenshot</resource>
 		<resource name="quicksettings_destination_file">Безпосереднє збереження (з використанням наперед визначених параметрів)</resource>
+		<resource name="recipe_import">Імпорт рецепта</resource>
+		<resource name="recipe_import_failed">Не вдалося завантажити рецепт:</resource>
+		<resource name="recipe_import_title">Імпорт рецепта захоплення</resource>
 		<resource name="settings_alwaysshowprintoptionsdialog">Показувати вікно параметрів друку при кожному роздрукуванні</resource>
 		<resource name="settings_alwaysshowqualitydialog">Вікно вибору якості при кожному збереженні зображення</resource>
 		<resource name="settings_applicationsettings">Параметри програми</resource>
@@ -327,5 +333,8 @@ ${hostname} назва комп’ютера
     <resource name="editor_resize_height">Висота</resource>
 	<resource name="settings_iconsize">Розмір піктограми</resource>
     
+  <resource name="editor_fit">Розтягнути</resource>
+  <resource name="editor_pushout">Розширити знімок і перемістити назовні</resource>
+  <resource name="editor_snap">Прикріпити до краю</resource>
   </resources>
 </language>

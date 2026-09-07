@@ -1,6 +1,6 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -25,7 +25,6 @@ using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Xml;
-using Dapplo.Ini;
 using log4net;
 using Microsoft.Win32;
 
@@ -58,15 +57,8 @@ namespace Greenshot.Base.Core
         /// </summary>
         static Language()
         {
-            if (!IniConfigRegistry.TryGet("greenshot.ini", out _))
-            {
-                Log.Warn("IniConfigRegistry hasn't been initialized yet! (Design mode?)");
-                // Design-mode or test fallback: create a minimal registry so GetSection<ICoreConfiguration>() works.
-                IniConfigRegistry.ForFile("greenshot.ini")
-                    .AddAppDataPath("Greenshot")
-                    .RegisterSection<ICoreConfiguration>(new CoreConfigurationImpl())
-                    .Create();
-            }
+            IniConfigHelper.EnsureInitialized();
+
 
             if (!LogHelper.IsInitialized)
             {
@@ -92,6 +84,30 @@ namespace Greenshot.Base.Core
                 if (applicationFolder != null)
                 {
                     AddPath(Path.Combine(applicationFolder, @"Languages"));
+                }
+
+                // Search relative to Greenshot.Base.dll assembly location
+                string assemblyLocation = typeof(Language).Assembly.Location;
+                if (!string.IsNullOrEmpty(assemblyLocation))
+                {
+                    string assemblyFolder = Path.GetDirectoryName(assemblyLocation);
+                    if (!string.IsNullOrEmpty(assemblyFolder))
+                    {
+                        AddPath(Path.Combine(assemblyFolder, @"Languages"));
+
+                        // Search upward for solution/repo root Languages folders during development
+                        var dir = new DirectoryInfo(assemblyFolder);
+                        while (dir != null && dir.Parent != null)
+                        {
+                            string candidate = Path.Combine(dir.FullName, @"Languages");
+                            AddPath(candidate);
+                            string srcCandidate = Path.Combine(dir.FullName, @"src", @"Greenshot", @"Languages");
+                            AddPath(srcCandidate);
+                            string greenshotCandidate = Path.Combine(dir.FullName, @"Greenshot", @"Languages");
+                            AddPath(greenshotCandidate);
+                            dir = dir.Parent;
+                        }
+                    }
                 }
             }
             catch (Exception pathException)
@@ -121,7 +137,7 @@ namespace Greenshot.Base.Core
                 Log.Warn("Couldn't read the installed language groups.", e);
             }
 
-            var coreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
+            var coreConfig = IniConfigHelper.EnsureSection<ICoreConfiguration>(() => new CoreConfigurationImpl());
             ScanFiles();
             if (!string.IsNullOrEmpty(coreConfig.Language))
             {
@@ -358,7 +374,7 @@ namespace Greenshot.Base.Core
                 XmlNodeList resourceNodes = xmlDocument.GetElementsByTagName("resource");
                 foreach (XmlNode resourceNode in resourceNodes)
                 {
-                    string key = resourceNode.Attributes?["name"].Value;
+                    string key = resourceNode.Attributes?["name"]?.Value;
                     if (string.IsNullOrEmpty(key))
                     {
                         continue;

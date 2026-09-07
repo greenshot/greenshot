@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026  Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026  Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -57,9 +57,15 @@ using Greenshot.Editor;
 using Greenshot.Editor.Destinations;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Forms;
+using Greenshot.Base.Pipeline;
+using Greenshot.Base.Recipes;
+using Greenshot.Base.Triggers;
 using Greenshot.Helpers;
+using Greenshot.Pipeline;
 using Greenshot.Plugin.Win10;
 using Greenshot.Processors;
+using Greenshot.Recipes;
+using Greenshot.Triggers;
 using log4net;
 
 using Timer = System.Timers.Timer;
@@ -69,7 +75,7 @@ namespace Greenshot.Forms
     /// <summary>
     /// This is the MainForm, the shell of Greenshot
     /// </summary>
-    public partial class MainForm : BaseForm, IGreenshotMainForm, ICaptureHelper, IProvideDeviceDpi
+    public partial class MainForm : GreenshotForm, IGreenshotMainForm, ICaptureHelper, IProvideDeviceDpi
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(MainForm));
         private static ResourceMutex _applicationMutex;
@@ -293,13 +299,14 @@ namespace Greenshot.Forms
             SimpleServiceProvider.Current.AddService(this);
             SimpleServiceProvider.Current.AddService<IGreenshotMainForm>(this);
             SimpleServiceProvider.Current.AddService<ICaptureHelper>(this);
+            SimpleServiceProvider.Current.AddService<ITriggerManager>(TriggerManager.Instance);
+            SimpleServiceProvider.Current.AddService<IRecipeManager>(RecipeManager.Instance);
+            SimpleServiceProvider.Current.AddService<ICapturePipeline>(CapturePipeline.Instance);
 
             // Windows specific services
             SimpleServiceProvider.Current.AddService<INotificationService>(ToastNotificationService.Create());
             // Set this as IOcrProvider
             SimpleServiceProvider.Current.AddService<IOcrProvider>(new Win10OcrProvider());
-
-            EditorInitialize.Initialize();
 
             // Factory for surface objects
             ISurface SurfaceFactory() => new Surface();
@@ -312,6 +319,7 @@ namespace Greenshot.Forms
             try
             {
                 InitializeComponent();
+                InitializeLanguage();
             }
             catch (ArgumentException ex)
             {
@@ -330,10 +338,28 @@ namespace Greenshot.Forms
             // Load all the plugins, and while doing to load the configuration
             PluginHelper.Instance.LoadPlugins();
 
+            EditorInitialize.Initialize();
+
             // This forces the registration of all destinations inside Greenshot itself.
             RegisterInternalDestinations();
             // This forces the registration of all processors inside Greenshot itself.
             RegisterInternalProcessors();
+
+            // Synchronize triggers and recipes with the newly loaded greenshot.ini configuration
+            TriggerManager.Instance.InitializeDefaultTriggers();
+            RecipeManager.Instance.ReloadRecipes();
+
+            RecipeManager.Instance.RecipesChanged += (s, e) =>
+            {
+                if (InvokeRequired)
+                {
+                    BeginInvoke(new MethodInvoker(UpdateRecipesMenu));
+                }
+                else
+                {
+                    UpdateRecipesMenu();
+                }
+            };
 
             // if language is not set, show language dialog
             if (string.IsNullOrEmpty(_conf.Language))
@@ -346,7 +372,8 @@ namespace Greenshot.Forms
             // Disable access to the settings, for feature #3521446
             contextmenu_settings.Visible = !_conf.DisableSettings;
 
-            HotkeyHelper.RegisterHotkeys();
+            // No longer needed when the recipes are loaded from the configuration, but keep it for now to be sure
+            //HotkeyHelper.RegisterHotkeys();
 
             new ToolTip();
 
@@ -432,6 +459,28 @@ namespace Greenshot.Forms
             {
                 PsApi.EmptyWorkingSet();
             }
+        }
+
+        protected override void InitializeLanguage()
+        {
+            this.contextmenu_quicksettings.Size = new System.Drawing.Size(170, coreConfiguration.IconSize.Height + 8);
+            Text = Language.GetString("application_title");
+
+            contextmenu_capturearea.Text = Language.GetString("contextmenu_capturearea");
+            contextmenu_capturelastregion.Text = Language.GetString("contextmenu_capturelastregion");
+            contextmenu_capturewindow.Text = Language.GetString("contextmenu_capturewindow");
+            contextmenu_capturefullscreen.Text = Language.GetString("contextmenu_capturefullscreen");
+            contextmenu_capturewindowfromlist.Text = Language.GetString("contextmenu_capturewindowfromlist");
+            contextmenu_captureclipboard.Text = Language.GetString("contextmenu_captureclipboard");
+            contextmenu_openfile.Text = Language.GetString("contextmenu_openfile");
+            contextmenu_openrecentcapture.Text = Language.GetString("contextmenu_openrecentcapture");
+            contextmenu_quicksettings.Text = Language.GetString("contextmenu_quicksettings");
+            contextmenu_settings.Text = Language.GetString("contextmenu_settings");
+            contextmenu_help.Text = Language.GetString("contextmenu_help");
+            contextmenu_donate.Text = Language.GetString("contextmenu_donate");
+            contextmenu_about.Text = Language.GetString("contextmenu_about");
+            contextmenu_exit.Text = Language.GetString("contextmenu_exit");
+            notifyIcon.Text = Language.GetString("application_title");
         }
 
         /// <summary>
@@ -572,7 +621,7 @@ namespace Greenshot.Forms
         public void UpdateUi()
         {
             // As the form is never loaded, call ApplyLanguage ourselves
-            ApplyLanguage();
+            InitializeLanguage();
 
             // Show hotkeys in Contextmenu
             contextmenu_capturearea.ShortcutKeyDisplayString = HotkeyManager.GetLocalizedHotkeyStringFromString(_conf.RegionHotkey);
@@ -648,6 +697,144 @@ namespace Greenshot.Forms
                 // birthday
                 var resources = new ComponentResourceManager(typeof(MainForm));
                 contextmenu_donate.Image = (Image) resources.GetObject("contextmenu_present.Image");
+            }
+
+            UpdateRecipesMenu();
+        }
+
+        private ToolStripMenuItem _recipesMenuItem;
+
+        private void UpdateRecipesMenu()
+        {
+            if (!coreConfiguration.IsBetaTester)
+            {
+                if (_recipesMenuItem != null && contextMenu.Items.Contains(_recipesMenuItem))
+                {
+                    contextMenu.Items.Remove(_recipesMenuItem);
+                }
+                return;
+            }
+
+            if (_recipesMenuItem == null)
+            {
+                _recipesMenuItem = new ToolStripMenuItem(Language.GetString("contextmenu_recipes") ?? "Recipes")
+                {
+                    Name = "contextmenu_recipes"
+                };
+                int insertIdx = contextMenu.Items.IndexOf(toolStripOtherSourcesSeparator);
+                if (insertIdx >= 0)
+                {
+                    contextMenu.Items.Insert(insertIdx + 1, _recipesMenuItem);
+                }
+                else
+                {
+                    contextMenu.Items.Add(_recipesMenuItem);
+                }
+            }
+
+            _recipesMenuItem.DropDownItems.Clear();
+
+            var triggerManager = SimpleServiceProvider.Current.GetInstance<Greenshot.Base.Triggers.ITriggerManager>(isOptional: true) as Triggers.TriggerManager ?? Triggers.TriggerManager.Instance;
+            var recipeManager = SimpleServiceProvider.Current.GetInstance<Greenshot.Base.Recipes.IRecipeManager>(isOptional: true) ?? Recipes.RecipeManager.Instance;
+
+            var menuTriggers = triggerManager.GetContextMenuTriggers();
+            int recipeItemCount = 0;
+
+            foreach (var trigger in menuTriggers.OrderBy(t => t.Order))
+            {
+                var recipe = recipeManager.GetRecipeById(trigger.TargetRecipeId);
+                if (recipe == null || !recipe.ShowInContextMenu) continue;
+
+                var item = new ToolStripMenuItem(trigger.MenuItemText ?? recipe.Name);
+
+                var hotkeyTrigger = triggerManager.FindHotkeyTriggerForRecipe(recipe.Id);
+                if (hotkeyTrigger != null && !string.IsNullOrWhiteSpace(hotkeyTrigger.HotkeyString))
+                {
+                    item.ShortcutKeyDisplayString = hotkeyTrigger.HotkeyString;
+                }
+
+                item.Click += (s, ev) =>
+                {
+                    Dispatcher.CurrentDispatcher.BeginInvoke(() =>
+                    {
+                        _ = CapturePipeline.Instance.ExecuteAsync(recipe, trigger, null).ContinueWith(task =>
+                        {
+                            Log.Error("Recipe capture pipeline failed.", task.Exception);
+                        }, TaskContinuationOptions.OnlyOnFaulted);
+                    });
+                };
+
+                _recipesMenuItem.DropDownItems.Add(item);
+                recipeItemCount++;
+            }
+
+            if (recipeItemCount > 0)
+            {
+                _recipesMenuItem.DropDownItems.Add(new ToolStripSeparator());
+            }
+
+            var importItem = new ToolStripMenuItem(Language.GetString("contextmenu_importrecipe") ?? "Import Recipe...");
+            importItem.Click += (s, ev) =>
+            {
+                OnImportRecipeClicked();
+            };
+            _recipesMenuItem.DropDownItems.Add(importItem);
+
+            var reloadItem = new ToolStripMenuItem(Language.GetString("contextmenu_reloadrecipes") ?? "Reload Recipes");
+            reloadItem.Click += (s, ev) =>
+            {
+                recipeManager.ReloadRecipes();
+            };
+            _recipesMenuItem.DropDownItems.Add(reloadItem);
+        }
+
+        private void OnImportRecipeClicked()
+        {
+            using (var ofd = new OpenFileDialog
+            {
+                Title = Language.GetString("recipe_import_title") ?? "Import Capture Recipe",
+                Filter = Greenshot.Base.Recipes.RecipeSerializer.RecipeFileFilter,
+                Multiselect = false
+            })
+            {
+                if (ofd.ShowDialog(this) == DialogResult.OK && File.Exists(ofd.FileName))
+                {
+                    string recipePath = Path.GetFullPath(ofd.FileName);
+                    var result = Recipes.RecipeManager.Instance.LoadRecipeFromFile(recipePath, interactiveApproval: true, forceApprovalPrompt: true);
+                    if (!result.IsValid)
+                    {
+                        MessageBox.Show(this, $"{Language.GetString("recipe_import_failed") ?? "Failed to load recipe:"}\n{string.Join("\n", result.Errors)}",
+                            Language.GetString("recipe_import") ?? "Recipe Import", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                    else
+                    {
+                        string existing = coreConfiguration.RecipeFiles ?? "";
+                        var configuredPaths = new List<string>();
+                        var currentPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                        foreach (string configuredPath in existing.Split(new[] { ';', ',' }, StringSplitOptions.RemoveEmptyEntries))
+                        {
+                            try
+                            {
+                                string normalizedPath = Path.GetFullPath(configuredPath.Trim());
+                                if (currentPaths.Add(normalizedPath))
+                                {
+                                    configuredPaths.Add(normalizedPath);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                Log.Warn($"Could not normalize configured recipe path '{configuredPath}'.", ex);
+                            }
+                        }
+
+                        if (currentPaths.Add(recipePath))
+                        {
+                            configuredPaths.Add(recipePath);
+                            coreConfiguration.RecipeFiles = string.Join(";", configuredPaths);
+                            IniConfigRegistry.Get()?.Save();
+                        }
+                    }
+                }
             }
         }
 
@@ -1224,7 +1411,7 @@ namespace Greenshot.Forms
         {
             _doubleClickTimer.Elapsed -= NotifyIconSingleClickTest;
             _doubleClickTimer.Stop();
-            Dispatcher.CurrentDispatcher.BeginInvoke(() =>
+            BeginInvoke(() =>
             {
                 NotifyIconClick(_conf.LeftClickAction);
             });
@@ -1334,6 +1521,15 @@ namespace Greenshot.Forms
         public void Exit()
         {
             Log.Info("Exit: " + EnvironmentInfo.EnvironmentToString(false));
+
+            try
+            {
+                IniConfigRegistry.Get()?.Save();
+            }
+            catch (Exception ex)
+            {
+                Log.Warn("Error saving configuration on exit!", ex);
+            }
 
             // Close all open forms (except this), use a separate List to make sure we don't get a "InvalidOperationException: Collection was modified"
             List<Form> formsToClose = new List<Form>();

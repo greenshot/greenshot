@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -26,14 +26,38 @@ namespace Greenshot.Editor.Configuration
 {
     public partial class EditorConfigurationImpl : IEditorConfiguration
     {
+        public EditorConfigurationImpl()
+        {
+            RecentColors = new List<Color>();
+        }
+
+        partial void OnRecentColorsGet(ref List<Color> value)
+        {
+            if (value == null)
+            {
+                _recentColors = value = new List<Color>();
+            }
+        }
+
+        /// <summary>
+        /// This should have been Math.Clamp, but it's not available for .NET Framework 4.8
+        /// </summary>
+        /// <param name="value">The value to clamp</param>
+        /// <param name="min">The minimum value</param>
+        /// <param name="max">The maximum value</param>
+        /// <returns>The clamped value</returns>
+        private static int Clamp(int value, int min, int max)
+        {
+            if (value < min) return min;
+            if (value > max) return max;
+            return value;
+        }
+
+        partial void OnFreehandSensitivitySet(ref int value) => value = Clamp(value, 1, 100);
+
         public void OnAfterLoad()
         {
             RecentColors ??= new List<Color>();
-
-            if (FreehandSensitivity < 1)
-            {
-                FreehandSensitivity = 1;
-            }
         }
     }
 }

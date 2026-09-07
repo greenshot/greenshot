@@ -1,6 +1,6 @@
-﻿/*
+/*
 * Greenshot - a free and open source screenshot tool
-* Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+* Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
 * 
 * For more information see: https://getgreenshot.org/
 * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -21,7 +21,6 @@
 
 using System;
 using System.Drawing;
-using System.IO;
 using System.Runtime.Serialization;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Icons;
@@ -143,13 +142,6 @@ namespace Greenshot.Editor.Drawing
         public void Load(string filename)
         {
             throw new NotImplementedException("Loading cursor from file is not implemented yet.");
-
-            if (!File.Exists(filename))
-            {
-                return;
-            }
-
-            LOG.Debug("Loaded file: " + filename + " with resolution: " + Height + "," + Width);
         }
 
         public override void Draw(Graphics graphics, RenderMode rm)
@@ -162,11 +154,11 @@ namespace Greenshot.Editor.Drawing
             CursorHelper.DrawCursorOnGraphics(graphics, cursor, Bounds.Location, Bounds.Size);
         }
 
-        public override void DrawContent(Graphics graphics, Bitmap bmp, RenderMode renderMode, NativeRect clipRectangle)
+        public override void DrawContent(Graphics graphics, Bitmap bmp, RenderMode renderMode, NativeRect clipRectangle, bool skipInvertedFilters = false)
         {
             if (bmp == null)
             {
-                base.DrawContent(graphics, bmp, renderMode, clipRectangle);
+                base.DrawContent(graphics, bmp, renderMode, clipRectangle, skipInvertedFilters);
                 return;
             }
 
