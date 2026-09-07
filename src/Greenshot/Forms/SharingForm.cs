@@ -22,6 +22,7 @@
 using System;
 using System.IO;
 using System.Windows;
+using System.Windows.Forms;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
@@ -52,6 +53,7 @@ namespace Greenshot.Forms
         private bool _targetPicked = false;
         private ISurface _surface;
         private ICaptureDetails _captureDetails;
+        private System.Windows.Forms.Timer _watchdogTimer;
 
         public bool TargetPicked { get => _targetPicked; }
         public string AppName { get => _appName; }
@@ -66,30 +68,61 @@ namespace Greenshot.Forms
             _captureDetails = captureDetails;
 
             InitializeComponent();
-            this.Load += MainForm_Load;
+
+            try
+            {
+                InitializeShareManager();
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Init of DataTransferManager failed", ex);
+            }
 
             // Hook into the Form's activation events to detect "Cancellation"
             this.Activated += SharingForm_Activated;
             this.Deactivate += SharingForm_Deactivate;
         }
 
-        private void MainForm_Load(object sender, EventArgs e)
+        protected override void OnShown(EventArgs e)
         {
-            if (DesignMode)
-            {
-                return;
-            }
+            base.OnShown(e);
+            WindowDetails.ToForeground(this.Handle);
 
+            _isShareOpen = true;
+            Log.Debug("Invoking ShowShareUIForWindow");
             try
             {
-                InitializeShareManager();
-
-                
+                _dtmInterop?.ShowShareUIForWindow(this.Handle);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Init Failed: " + ex.ToString());
+                Log.Error("Failed to invoke ShowShareUIForWindow", ex);
+                DialogResult = System.Windows.Forms.DialogResult.Abort;
+                return;
             }
+
+            // Safety watchdog (10 seconds): ensures Greenshot never deadlocks if OS share flyout is dismissed or fails silently
+            _watchdogTimer = new System.Windows.Forms.Timer { Interval = 10000 };
+            _watchdogTimer.Tick += (s, args) =>
+            {
+                _watchdogTimer?.Stop();
+                _watchdogTimer?.Dispose();
+                _watchdogTimer = null;
+                if (!_targetPicked && DialogResult == System.Windows.Forms.DialogResult.None)
+                {
+                    Log.Warn("Windows Share UI did not complete or was closed; aborting wait.");
+                    DialogResult = System.Windows.Forms.DialogResult.Abort;
+                }
+            };
+            _watchdogTimer.Start();
+        }
+
+        protected override void OnFormClosed(FormClosedEventArgs e)
+        {
+            _watchdogTimer?.Stop();
+            _watchdogTimer?.Dispose();
+            _watchdogTimer = null;
+            base.OnFormClosed(e);
         }
 
         private void InitializeShareManager()
@@ -141,10 +174,53 @@ namespace Greenshot.Forms
                 var imageRandomAccessStreamReference = RandomAccessStreamReference.CreateFromFile(storageFile);
 
                 var dataPackage = request.Data;
-                dataPackage.Properties.Title = "Share a screenshot";
+                dataPackage.Properties.Title = _captureDetails?.Title ?? "Share a screenshot";
                 dataPackage.Properties.ApplicationName = "Greenshot";
                 dataPackage.Properties.Thumbnail = imageRandomAccessStreamReference;
                 dataPackage.Properties.LogoBackgroundColor = Color.FromArgb(0xff, 0x3d, 0x3d, 0x3d);
+
+                // Hook completion and cancellation lifecycle events
+                dataPackage.ShareCompleted += (dp, scArgs) =>
+                {
+                    Log.Debug("DataPackage.ShareCompleted");
+                    _targetPicked = true;
+                    _isShareOpen = false;
+                    _watchdogTimer?.Stop();
+                    if (DialogResult == System.Windows.Forms.DialogResult.None)
+                    {
+                        DialogResult = System.Windows.Forms.DialogResult.OK;
+                    }
+                };
+                dataPackage.ShareCanceled += (dp, scArgs) =>
+                {
+                    Log.Debug("DataPackage.ShareCanceled");
+                    _isShareOpen = false;
+                    _watchdogTimer?.Stop();
+                    if (DialogResult == System.Windows.Forms.DialogResult.None)
+                    {
+                        DialogResult = System.Windows.Forms.DialogResult.Abort;
+                    }
+                };
+                dataPackage.OperationCompleted += (dp, ocArgs) =>
+                {
+                    Log.DebugFormat("DataPackage.OperationCompleted: {0}", ocArgs.Operation);
+                    _targetPicked = true;
+                    _isShareOpen = false;
+                    _watchdogTimer?.Stop();
+                    if (DialogResult == System.Windows.Forms.DialogResult.None)
+                    {
+                        DialogResult = System.Windows.Forms.DialogResult.OK;
+                    }
+                };
+                dataPackage.Destroyed += (dp, dArgs) =>
+                {
+                    Log.Debug("DataPackage.Destroyed");
+                    _watchdogTimer?.Stop();
+                    if (!_targetPicked && DialogResult == System.Windows.Forms.DialogResult.None)
+                    {
+                        DialogResult = System.Windows.Forms.DialogResult.Abort;
+                    }
+                };
 
                 dataPackage.SetStorageItems([storageFile]);
                 dataPackage.SetBitmap(imageRandomAccessStreamReference);
@@ -198,6 +274,7 @@ namespace Greenshot.Forms
             // The user picked an app!
             _targetPicked = true;
             _isShareOpen = false; // The UI closes immediately after this
+            _watchdogTimer?.Stop();
 
             // 'args.ApplicationName' contains the Package Family Name (e.g., Microsoft.Windows.Mail_...)
             _appName = args.ApplicationName;
@@ -209,20 +286,19 @@ namespace Greenshot.Forms
         private void SharingForm_Deactivate(object sender, EventArgs e)
         {
             // Logic: If the form loses focus, it *might* be because the Share UI popped up.
-            // We already set _isShareOpen = true in the Button Click or DataRequested event.
+            // We already set _isShareOpen = true in OnShown or DataRequested event.
         }
 
         private void SharingForm_Activated(object sender, EventArgs e)
         {
             // Logic: The form got focus back.
             // If the Share was open, but no target was picked, it means the user clicked away (Cancelled).
-
             if (_isShareOpen)
             {
                 // Give a tiny delay because "TargetApplicationChosen" fires ALMOST at the same time as Activated.
                 // We want to make sure the other event had a chance to set _targetPicked = true.
                 var timer = new System.Windows.Forms.Timer();
-                timer.Interval = 100;
+                timer.Interval = 150;
                 timer.Tick += (s, args) =>
                 {
                     timer.Stop();
@@ -230,22 +306,18 @@ namespace Greenshot.Forms
                     // Reset state
                     _isShareOpen = false;
 
-                    if (!_targetPicked)
+                    if (!_targetPicked && DialogResult == System.Windows.Forms.DialogResult.None)
                     {
-                        // If we are here, the window is active, share was open, but no target selected.
+                        _watchdogTimer?.Stop();
                         DialogResult = System.Windows.Forms.DialogResult.Abort;
                     }
-                    else
+                    else if (_targetPicked && DialogResult == System.Windows.Forms.DialogResult.None)
                     {
+                        _watchdogTimer?.Stop();
                         DialogResult = System.Windows.Forms.DialogResult.OK;
                     }
                 };
                 timer.Start();
-            } else {
-                // Initial showing, set the flag explicitly before showing the UI
-                _isShareOpen = true;
-
-                _dtmInterop.ShowShareUIForWindow(this.Handle);
             }
         }
     }
