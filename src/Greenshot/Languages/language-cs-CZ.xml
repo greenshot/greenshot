@@ -329,5 +329,8 @@ Všechny funkce Greenshotu jsou stále dostupné přímo z místní nabídky bez
 		<resource name="editor_resize_width">Šířka</resource>
 		<resource name="editor_resize_height">Výška</resource>
 		<resource name="settings_iconsize">Velikost ikon</resource>
+		<resource name="editor_fit">Roztáhnout</resource>
+		<resource name="editor_pushout">Rozšířit snímek a přesunout ven</resource>
+		<resource name="editor_snap">Přichytit k okraji</resource>
 	</resources>
 </language>

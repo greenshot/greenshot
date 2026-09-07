@@ -340,5 +340,8 @@ Totes les funcions de Greenshot continuen disponibles directament des del menú 
 	<resource name="editor_resize_height">Alçària</resource>
 	<resource name="settings_iconsize">Tamany de l'icon</resource>
     
+  <resource name="editor_fit">Estirar</resource>
+  <resource name="editor_pushout">Amplia la captura i mou cap a fora</resource>
+  <resource name="editor_snap">Acoblar a la vora</resource>
   </resources>
 </language>

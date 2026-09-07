@@ -587,5 +587,8 @@ tidspunktet, fx 11_58_32 (plus filendelsen angivet i indstillingerne).
 	<resource name="contextmenu_donate">
 		Støt Greenshot
 	</resource>
+  <resource name="editor_fit">Stræk</resource>
+  <resource name="editor_pushout">Udvid optagelsen og flyt udenfor</resource>
+  <resource name="editor_snap">Fastgør til kanten</resource>
   </resources>
 </language>

@@ -325,5 +325,8 @@ Malgrat això, encara es poden utilitzar totes les característiques de Greensho
 		<resource name="editor_resize_width">Amplada</resource>
 		<resource name="editor_resize_height">Alçada</resource>
 		<resource name="settings_iconsize">Mida de la icona</resource>
+		<resource name="editor_fit">Estira</resource>
+		<resource name="editor_pushout">Amplia la captura i mou a fora</resource>
+		<resource name="editor_snap">Acobla a la vora</resource>
 	</resources>
 </language>

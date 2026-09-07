@@ -259,5 +259,8 @@ Vse funkcije Greenshota še vedno delujejo preko ikone za hitri zagon.</resource
 		<resource name="WindowCaptureMode.Auto">Samodejno</resource>
 		<resource name="WindowCaptureMode.GDI">Uporabi privzete barve</resource>
 		<resource name="WindowCaptureMode.Screen">Kot prikazano</resource>
+	<resource name="editor_fit">Raztegni</resource>
+	<resource name="editor_pushout">Razširi zajem in premakni navzven</resource>
+	<resource name="editor_snap">Pripni na rob</resource>
 	</resources>
 </language>

@@ -305,5 +305,8 @@ ${hostname} Όνομα Υπολογιστή
 		<resource name="WindowCaptureMode.Auto">Αυτόματα</resource>
 		<resource name="WindowCaptureMode.GDI">Χρήση προκαθορισμένου χρώματος</resource>
 		<resource name="WindowCaptureMode.Screen">Όπως εμφανίζεται</resource>
+	<resource name="editor_fit">Τέντωμα</resource>
+	<resource name="editor_pushout">Επέκταση λήψης και μετακίνηση εκτός</resource>
+	<resource name="editor_snap">Προσάρτηση στην άκρη</resource>
 	</resources>
 </language>

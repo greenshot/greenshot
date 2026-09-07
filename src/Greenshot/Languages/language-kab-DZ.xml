@@ -321,5 +321,8 @@ Akk timahilin n Greenshot sttenkarent daɣen s srid seg umuɣ umniḍ n tignit n
 		<resource name="WindowCaptureMode.Auto">Awurman</resource>
 		<resource name="WindowCaptureMode.GDI">Seqdec ini amezwer</resource>
 		<resource name="WindowCaptureMode.Screen">Akken i d-yettban</resource>
+		<resource name="editor_fit">Ẓẓi</resource>
+		<resource name="editor_pushout">Snefli tuṭṭfa u semutti ɣer berra</resource>
+		<resource name="editor_snap">Senqed ɣer yiri</resource>
 	</resources>
 </language>

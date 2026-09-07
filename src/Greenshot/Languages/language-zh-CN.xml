@@ -311,5 +311,8 @@ Alt+Print	抓取程序窗口（如果没有选择交互式抓取方式，将会�
 		<resource name="hotkey_lastregion">抓取上次选择的区域</resource>
 		<resource name="hotkey_region">抓取屏幕的一部分</resource>
 		<resource name="hotkey_window">抓取窗口</resource>
+	<resource name="editor_fit">拉伸</resource>
+	<resource name="editor_pushout">扩展截图并移至外部</resource>
+	<resource name="editor_snap">停靠至边缘</resource>
 	</resources>
 </language>

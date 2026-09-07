@@ -333,5 +333,8 @@ Toutes les fonctionnalités de Greenshot se lancent aussi directement depuis le 
 		<resource name="WindowCaptureMode.Auto">Automatique</resource>
 		<resource name="WindowCaptureMode.GDI">Utiliser la couleur par défaut</resource>
 		<resource name="WindowCaptureMode.Screen">Tel qu'il apparaît</resource>
+		<resource name="editor_fit">Étirer</resource>
+		<resource name="editor_pushout">Agrandir la capture et déplacer à l’extérieur</resource>
+		<resource name="editor_snap">Ancrer au bord</resource>
 	</resources>
 </language>

@@ -320,5 +320,8 @@ cont, 11_58_32 (ditambah ekstensi yang ditetapkan pada pengaturan)</resource>
 		<resource name="WindowCaptureMode.Auto">Otomatis</resource>
 		<resource name="WindowCaptureMode.GDI">Gunakan warna kesukaan</resource>
 		<resource name="WindowCaptureMode.Screen">Tampakkan</resource>
+	<resource name="editor_fit">Regangkan</resource>
+	<resource name="editor_pushout">Perluas tangkapan dan pindahkan ke luar</resource>
+	<resource name="editor_snap">Tempelkan ke tepi</resource>
 	</resources>
 </language>

@@ -327,5 +327,8 @@ Arī bez karstiem taustiņiem visas darbības iespējams veikt izmantojot „Gre
     <resource name="editor_resize_height">Augstums</resource>
 	<resource name="settings_iconsize">Ikonas izmērs</resource>
 
+  	<resource name="editor_fit">Izstiept</resource>
+  	<resource name="editor_pushout">Paplašināt tveršanu un pārvietot ārpusē</resource>
+  	<resource name="editor_snap">Piespiest pie malas</resource>
   </resources>
 </language>

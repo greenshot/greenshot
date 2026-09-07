@@ -205,5 +205,8 @@ bus perimti Greenshot programos, kai ji yra paleista.</resource>
 		<resource name="warning_hotkeys">Ne visi numatyti mygtukai priskirti. Tikėtina, kad jie priskirti kitai programai{1}.
 Kad mygtuką Print (PrintScreen) ir jo derinius naudotų Greenshot, reikia uždaryti kitas programas,
 kurios naudoja šiuos mygtukus. Arba galima naudoti komandas iš Greenshot programos kontekstinio meniu.</resource>
+	<resource name="editor_fit">Ištempti</resource>
+	<resource name="editor_pushout">Išplėsti fiksavimą ir perkelti už ribų</resource>
+	<resource name="editor_snap">Priglausti prie krašto</resource>
 	</resources>
 </language>

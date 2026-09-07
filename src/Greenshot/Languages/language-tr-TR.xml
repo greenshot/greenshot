@@ -331,5 +331,8 @@ Greenshot özellikleri, kısayol tuşları olmadan sistem tepsisi menüsünden k
     <resource name="editor_resize_height">Yükseklik</resource>
 	<resource name="settings_iconsize">Simge boyutu</resource>
                 
+  <resource name="editor_fit">Esnet</resource>
+  <resource name="editor_pushout">Yakalamayı genişlet ve dışarı taşı</resource>
+  <resource name="editor_snap">Kenara tuttur</resource>
   </resources>
 </language>

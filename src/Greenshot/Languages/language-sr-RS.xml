@@ -277,5 +277,8 @@ ${hostname} назив рачунара
 		<resource name="WindowCaptureMode.Auto">аутоматски</resource>
 		<resource name="WindowCaptureMode.GDI">подразумевана боја</resource>
 		<resource name="WindowCaptureMode.Screen">као што је приказано</resource>
+	<resource name="editor_fit">Развуци</resource>
+	<resource name="editor_pushout">Прошири снимак и премести ван</resource>
+	<resource name="editor_snap">Прикачи на ивицу</resource>
 	</resources>
 </language>

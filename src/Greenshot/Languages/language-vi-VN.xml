@@ -207,5 +207,8 @@
 		<resource name="warning_hotkeys">Có phím tắt đã được đăng ký trùng. Kiểm tra (ví dụ phím Print Screen)
 		xem các phần mềm khác có sử dụng các phím tắt của Greenshot hay không.
 		Ngoài ra, có thể điều khiển Greenshot bằng cách nhấp chuột phải và biểu tưởng ở phía phải dưới màn hình.</resource>
+	<resource name="editor_fit">Kéo giãn</resource>
+	<resource name="editor_pushout">Mở rộng ảnh chụp và di chuyển ra ngoài</resource>
+	<resource name="editor_snap">Neo vào cạnh</resource>
 	</resources>
 </language>
