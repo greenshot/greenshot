@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -282,7 +282,23 @@ namespace Greenshot.Native
 
                 try
                 {
-                    var captureItem = CreateCaptureItemForWindow(window);
+                    GraphicsCaptureItem captureItem;
+                    try
+                    {
+                        captureItem = CreateCaptureItemForWindow(window);
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Warn($"CreateCaptureItemForWindow failed for window {window}: {ex.Message}");
+                        return null;
+                    }
+
+                    if (captureItem == null)
+                    {
+                        Log.Debug($"CreateCaptureItemForWindow returned null for window {window}.");
+                        return null;
+                    }
+
                     var device = CreateID3DDeviceFromD3D11Device(d3d11Device);
 
                     using var framePool = Direct3D11CaptureFramePool.CreateFreeThreaded(device, DirectXPixelFormat.B8G8R8A8UIntNormalized, 1, captureItem.Size);
@@ -321,6 +337,11 @@ namespace Greenshot.Native
                         if (texture != null) Marshal.ReleaseComObject(texture);
                     }
                 }
+                catch (Exception ex)
+                {
+                    Log.Warn($"WindowsGraphicsCapture failed for window {window}: {ex.Message}", ex);
+                    return null;
+                }
                 finally
                 {
                     if (context != null) Marshal.ReleaseComObject(context);
@@ -345,7 +366,23 @@ namespace Greenshot.Native
                 CreateD3D11Device(out var d3d11Device, out var context);
                 try
                 {
-                    var captureItem = CreateCaptureItemForMonitor(hMonitor);
+                    GraphicsCaptureItem captureItem;
+                    try
+                    {
+                        captureItem = CreateCaptureItemForMonitor(hMonitor);
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Warn($"CreateCaptureItemForMonitor failed for monitor {hMonitor}: {ex.Message}");
+                        return null;
+                    }
+
+                    if (captureItem == null)
+                    {
+                        Log.Debug($"CreateCaptureItemForMonitor returned null for monitor {hMonitor}.");
+                        return null;
+                    }
+
                     var device = CreateID3DDeviceFromD3D11Device(d3d11Device);
 
                     using var framePool = Direct3D11CaptureFramePool.CreateFreeThreaded(device, DirectXPixelFormat.B8G8R8A8UIntNormalized, 1, captureItem.Size);
@@ -385,6 +422,11 @@ namespace Greenshot.Native
                     {
                         if (texture != null) Marshal.ReleaseComObject(texture);
                     }
+                }
+                catch (Exception ex)
+                {
+                    Log.Warn($"WindowsGraphicsCapture failed for monitor {hMonitor}: {ex.Message}", ex);
+                    return null;
                 }
                 finally
                 {

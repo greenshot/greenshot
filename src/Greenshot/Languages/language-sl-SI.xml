@@ -49,9 +49,12 @@ Pred objavo preverite tudi ali je napaka že prijavlja s strani kakšnega drugeg
 		<resource name="contextmenu_donate">Podprite Greenshot</resource>
 		<resource name="contextmenu_exit">Izhod</resource>
 		<resource name="contextmenu_help">Pomoč</resource>
+		<resource name="contextmenu_importrecipe">Uvozi recept...</resource>
 		<resource name="contextmenu_openfile">Odpri sliko iz datoteke</resource>
 		<resource name="contextmenu_openrecentcapture">Odpri mesto zadnjega zajema</resource>
 		<resource name="contextmenu_quicksettings">Hitre nastavitve</resource>
+		<resource name="contextmenu_recipes">Recepti</resource>
+		<resource name="contextmenu_reloadrecipes">Znova naloži recepte</resource>
 		<resource name="contextmenu_settings">Nastavitve...</resource>
 		<resource name="destination_exportfailed">Napaka pri izvozu v {0}. Prosim poizkusite ponovno.</resource>
 		<resource name="editor_arrange">Razporedi</resource>
@@ -196,6 +199,9 @@ Prosim preverite pravice pisanja v ta direktorij.</resource>
 		<resource name="qualitydialog_dontaskagain">Shrani kot privzeto in ne sprašuj več</resource>
 		<resource name="qualitydialog_title">Greenshot kakovost</resource>
 		<resource name="quicksettings_destination_file">Shrani neposredno (z uporabo privzetih nastavitev)</resource>
+		<resource name="recipe_import">Uvoz recepta</resource>
+		<resource name="recipe_import_failed">Nalaganje recepta ni uspelo:</resource>
+		<resource name="recipe_import_title">Uvozi recept zajema</resource>
 		<resource name="settings_alwaysshowprintoptionsdialog">Vedno prikaži pogovorno okno za tiskanje</resource>
 		<resource name="settings_alwaysshowqualitydialog">Vedno prikaži pogovorno okno za shranjevanje</resource>
 		<resource name="settings_applicationsettings">Nastavitve programa</resource>

@@ -49,9 +49,12 @@
 		<resource name="contextmenu_donate">Подржите нас</resource>
 		<resource name="contextmenu_exit">Изађи</resource>
 		<resource name="contextmenu_help">Помоћ</resource>
+		<resource name="contextmenu_importrecipe">Увоз рецепта…</resource>
 		<resource name="contextmenu_openfile">Отвори слику из датотеке…</resource>
 		<resource name="contextmenu_openrecentcapture">Отвори последње место сликања</resource>
 		<resource name="contextmenu_quicksettings">Брзе поставке</resource>
+		<resource name="contextmenu_recipes">Рецепти</resource>
+		<resource name="contextmenu_reloadrecipes">Поново учитај рецепте</resource>
 		<resource name="contextmenu_settings">Поставке…</resource>
 		<resource name="destination_exportfailed">Грешка при увозу „{0}“. Покушајте поново.</resource>
 		<resource name="editor_arrange">Распореди</resource>
@@ -197,6 +200,9 @@
 		<resource name="qualitydialog_dontaskagain">Сачувај као подразумевани квалитет и не питај поново</resource>
 		<resource name="qualitydialog_title">Квалитет</resource>
 		<resource name="quicksettings_destination_file">Сачувај директно (уз коришћење поставки излазних датотека)</resource>
+		<resource name="recipe_import">Увоз рецепта</resource>
+		<resource name="recipe_import_failed">Учитавање рецепта није успело:</resource>
+		<resource name="recipe_import_title">Увоз рецепта снимања</resource>
 		<resource name="settings_alwaysshowprintoptionsdialog">Прикажи поставке штампања при сваком штампању</resource>
 		<resource name="settings_alwaysshowqualitydialog">Прикажи поставке квалитета при сваком штампању</resource>
 		<resource name="settings_applicationsettings">Подешавања програма</resource>

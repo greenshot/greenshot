@@ -143,6 +143,27 @@ public static class HotkeyManager
     }
 
     /// <summary>
+    /// Unregisters a specific hotkey by its registration ID.
+    /// </summary>
+    /// <param name="id">The hotkey registration ID.</param>
+    /// <returns>True if unregistered, false if not found.</returns>
+    public static bool UnregisterHotKey(int id)
+    {
+        int index = RegisteredHotkeys.FindIndex(h => h.Id == id);
+        if (index >= 0)
+        {
+            RegisteredHotkeys.RemoveAt(index);
+            if (RegisteredHotkeys.Count == 0)
+            {
+                _keyboardSubscription?.Dispose();
+                _keyboardSubscription = null;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    /// <summary>
     /// Converts a hotkey string to its localized display representation.
     /// </summary>
     /// <remarks>Use this method to present hotkey combinations in a user-friendly, localized format suitable

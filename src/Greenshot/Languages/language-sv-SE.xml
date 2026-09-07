@@ -56,9 +56,12 @@ Innan du skickar uppskattar vi verkligen om du kontrollerar om felet redan blivi
 		<resource name="contextmenu_donate">Stöd Greenshot</resource>
 		<resource name="contextmenu_exit">Avsluta</resource>
 		<resource name="contextmenu_help">Hjälp</resource>
+		<resource name="contextmenu_importrecipe">Importera recept...</resource>
 		<resource name="contextmenu_openfile">Öppna bild från fil</resource>
 		<resource name="contextmenu_openrecentcapture">Öppna platsen för senaste skärmdumpen</resource>
 		<resource name="contextmenu_quicksettings">Snabbinställningar</resource>
+		<resource name="contextmenu_recipes">Recept</resource>
+		<resource name="contextmenu_reloadrecipes">Läs in recept igen</resource>
 		<resource name="contextmenu_settings">Inställningar...</resource>
 		<resource name="destination_exportfailed">Fel vid export till {0}. Försök igen.</resource>
 		<resource name="editor_align_bottom">Underkant</resource>
@@ -224,6 +227,9 @@ Kontrollera skrivrättigheterna för den valda mappen.</resource>
 		<resource name="qualitydialog_dontaskagain">Spara som standardkvalitet och fråga inte igen</resource>
 		<resource name="qualitydialog_title">Greenshot-kvalitet</resource>
 		<resource name="quicksettings_destination_file">Spara direkt (använd önskade filinställningar)</resource>
+		<resource name="recipe_import">Receptimport</resource>
+		<resource name="recipe_import_failed">Det gick inte att läsa in receptet:</resource>
+		<resource name="recipe_import_title">Importera fångstrecept</resource>
 		<resource name="settings_alwaysshowprintoptionsdialog">Visa dialogruta varje gång en bild skall skrivas ut</resource>
 		<resource name="settings_alwaysshowqualitydialog">Visa kvalitetsdialogen vaje gång en bild sparas</resource>
 		<resource name="settings_applicationsettings">Applikationställningar</resource>

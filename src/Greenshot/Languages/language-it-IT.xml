@@ -62,9 +62,12 @@ Controlla i permessi di accesso per '{0}'.</resource>
         <resource name="contextmenu_donate">Supporta Greenshot</resource>
         <resource name="contextmenu_exit">Esci</resource>
         <resource name="contextmenu_help">Aiuto</resource>
+        <resource name="contextmenu_importrecipe">Importa ricetta...</resource>
         <resource name="contextmenu_openfile">Apri immagine da file</resource>
         <resource name="contextmenu_openrecentcapture">Apri ultimo percorso cattura</resource>
         <resource name="contextmenu_quicksettings">Impostazioni rapide</resource>
+        <resource name="contextmenu_recipes">Ricette</resource>
+        <resource name="contextmenu_reloadrecipes">Ricarica ricette</resource>
         <resource name="contextmenu_settings">Impostazioni...</resource>
         <resource name="destination_exportfailed">Errori durante l'esportazione in {0}. Riprova.</resource>
         <resource name="editor_align_bottom">In basso</resource>
@@ -231,6 +234,9 @@ Correggi la maschera noem file e riprova.</resource>
         <resource name="qualitydialog_dontaskagain">Salva come qualità predefinita e non chiedere più</resource>
         <resource name="qualitydialog_title">Qualità Greenshot</resource>
         <resource name="quicksettings_destination_file">Salva direttamente (usa impostazioni preferite file destinazione)</resource>
+        <resource name="recipe_import">Importazione ricetta</resource>
+        <resource name="recipe_import_failed">Impossibile caricare la ricetta:</resource>
+        <resource name="recipe_import_title">Importa ricetta di cattura</resource>
         <resource name="settings_alwaysshowprintoptionsdialog">Visualizza scelta opzioni di stampa ogni volta che stampi un'immagine</resource>
         <resource name="settings_alwaysshowqualitydialog">Visualizza scelta qualità ogni volta che si salva un'immagine</resource>
         <resource name="settings_applicationsettings">Impostazioni applicazione</resource>

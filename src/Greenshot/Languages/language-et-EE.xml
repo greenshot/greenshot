@@ -55,9 +55,12 @@ Me oleksime väga tänulik, kui te enne kontrolliksite, ega sellest veast pole j
 		<resource name="contextmenu_donate">Toetage Greenshoti</resource>
 		<resource name="contextmenu_exit">Välju</resource>
 		<resource name="contextmenu_help">Abi</resource>
+		<resource name="contextmenu_importrecipe">Retsepti importimine...</resource>
 		<resource name="contextmenu_openfile">Avage pilt failist</resource>
 		<resource name="contextmenu_openrecentcapture">Avage viimane haaratud asukoht</resource>
 		<resource name="contextmenu_quicksettings">Kiirsätted</resource>
+		<resource name="contextmenu_recipes">Retseptid</resource>
+		<resource name="contextmenu_reloadrecipes">Laadi retseptid uuesti</resource>
 		<resource name="contextmenu_settings">Eelistused...</resource>
 		<resource name="destination_exportfailed">{0}-le saatmisel ilmnes viga. Palun proovige uuesti.</resource>
 		<resource name="editor_align_bottom">All</resource>
@@ -225,6 +228,9 @@ Palun kontrollige valitud hoiuala kirjutamisõigust.</resource>
 		<resource name="qualitydialog_dontaskagain">Salvestage need valikud tavaseadetena ja ärge enam küsige</resource>
 		<resource name="qualitydialog_title">Greenshoti kvaliteet</resource>
 		<resource name="quicksettings_destination_file">Salvestage otse (kasutades selleks eelistatud faili väljundi seadeid)</resource>
+		<resource name="recipe_import">Retsepti import</resource>
+		<resource name="recipe_import_failed">Retsepti laadimine ebaõnnestus:</resource>
+		<resource name="recipe_import_title">Jäädvustusretsepti importimine</resource>
 		<resource name="settings_alwaysshowprintoptionsdialog">Igal printimiskorral kuvage printimise valikute dialoog</resource>
 		<resource name="settings_alwaysshowqualitydialog">Igal pildi salvestamise korral kuvage kvaliteedi dialoog</resource>
 		<resource name="settings_applicationsettings">Rakenduse seaded</resource>

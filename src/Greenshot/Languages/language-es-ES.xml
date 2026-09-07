@@ -51,9 +51,12 @@ Antes de crear un nuevo informe de error, te agradeceríamos que comprobaras que
 		<resource name="contextmenu_donate">Ayuda a Greenshot</resource>
 		<resource name="contextmenu_exit">Salir</resource>
 		<resource name="contextmenu_help">Ayuda</resource>
+		<resource name="contextmenu_importrecipe">Importar receta...</resource>
 		<resource name="contextmenu_openfile">Abrir archivo de imagen</resource>
 		<resource name="contextmenu_openrecentcapture">Abrir carpeta de última captura</resource>
 		<resource name="contextmenu_quicksettings">Preferencias rápidas</resource>
+		<resource name="contextmenu_recipes">Recetas</resource>
+		<resource name="contextmenu_reloadrecipes">Volver a cargar las recetas</resource>
 		<resource name="contextmenu_settings">Preferencias...</resource>
 		<resource name="destination_exportfailed">Error exportando a {0}. Por favor, inténtalo otra vez.</resource>
 		<resource name="editor_arrange">Reordenar</resource>
@@ -200,6 +203,9 @@ Por favor verifique la ruta de almacenamiento seleccionada.</resource>
 		<resource name="qualitydialog_dontaskagain">Guardar con la calidad por defecto y no volver a preguntar</resource>
 		<resource name="qualitydialog_title">Calidad de Greenshot</resource>
 		<resource name="quicksettings_destination_file">Guardar directamente (usar configuración preferida)</resource>
+		<resource name="recipe_import">Importación de receta</resource>
+		<resource name="recipe_import_failed">No se pudo cargar la receta:</resource>
+		<resource name="recipe_import_title">Importar receta de captura</resource>
 		<resource name="settings_alwaysshowprintoptionsdialog">Mostrar opciones de impresión cada vez que se imprime una imagen</resource>
 		<resource name="settings_alwaysshowqualitydialog">Mostrar opciones de calidad cada vez que se guarda una imagen</resource>
 		<resource name="settings_applicationsettings">Configuración de la aplicación</resource>

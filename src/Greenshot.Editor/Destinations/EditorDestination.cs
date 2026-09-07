@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -100,6 +100,15 @@ namespace Greenshot.Editor.Destinations
                         if (openedEditor.Surface.Modified) continue;
 
                         openedEditor.Surface = surface;
+                        if (openedEditor is Form editorForm)
+                        {
+                            if (editorForm.WindowState == FormWindowState.Minimized)
+                            {
+                                editorForm.WindowState = FormWindowState.Normal;
+                            }
+                            editorForm.BringToFront();
+                            editorForm.Activate();
+                        }
                         exportInformation.ExportMade = true;
                         break;
                     }

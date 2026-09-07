@@ -89,6 +89,10 @@ namespace Greenshot.Base.Core
         [Range(0, int.MaxValue, ErrorMessage = "CaptureDelay must be non-negative.")]
         int CaptureDelay { get; set; }
 
+        [Description("Semicolon-separated list of explicit recipe file paths to load. Automatic directory scanning is disabled for security.")]
+        [DefaultValue(null)]
+        string RecipeFiles { get; set; }
+
         [Description("The capture mode used to capture a screen. (Auto, FullScreen, Fixed)")]
         [DefaultValue("Auto")]
         ScreenCaptureMode ScreenCaptureMode { get; set; }

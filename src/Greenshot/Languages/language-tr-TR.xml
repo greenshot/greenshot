@@ -55,9 +55,12 @@ Benzer bir hatanın daha önce bildirilip bildirilmediğini kontrol ederseniz ç
 		<resource name="contextmenu_donate">Greenshot'ı Destekleyin</resource>
 		<resource name="contextmenu_exit">Çıkış</resource>
 		<resource name="contextmenu_help">Yardım</resource>
+		<resource name="contextmenu_importrecipe">Tarifi içe aktar...</resource>
 		<resource name="contextmenu_openfile">Masaüstünden görüntü aç</resource>
 		<resource name="contextmenu_openrecentcapture">Son kaydedilenin konumunu aç</resource>
 		<resource name="contextmenu_quicksettings">Hızlı ayarlar</resource>
+		<resource name="contextmenu_recipes">Tarifler</resource>
+		<resource name="contextmenu_reloadrecipes">Tarifleri yeniden yükle</resource>
 		<resource name="contextmenu_settings">Ayarlar...</resource>
 		<resource name="destination_exportfailed">{0} konumuna aktarılırken bir hata oluştu. Lütfen tekrar deneyin.</resource>
         <resource name="editor_align_bottom">Alta</resource>
@@ -223,6 +226,9 @@ Seçili kayıt yolunun yazılabilir olduğundan emin olun.</resource>
 		<resource name="qualitydialog_dontaskagain">Varsayılan kalite olarak kaydet ve bir daha sorma</resource>
 		<resource name="qualitydialog_title">Greenshot kalitesi</resource>
 		<resource name="quicksettings_destination_file">Doğrudan kaydet (varsayılan dosya ayarlarıyla)</resource>
+		<resource name="recipe_import">Tarif içe aktarma</resource>
+		<resource name="recipe_import_failed">Tarif yüklenemedi:</resource>
+		<resource name="recipe_import_title">Yakalama tarifini içe aktar</resource>
 		<resource name="settings_alwaysshowprintoptionsdialog">Her görüntü yazdırıldığında ayarlar penceresini göster</resource>
 		<resource name="settings_alwaysshowqualitydialog">Her görüntü kaydedildiğinde JPEG kalite seçim penceresini aç</resource>
 		<resource name="settings_applicationsettings">Uygulama ayarları</resource>

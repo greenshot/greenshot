@@ -51,9 +51,12 @@ Me sett òg pris på om du ved hjelp av søkefunksjonen på sida kan sjekke om d
 		<resource name="contextmenu_donate">Støtt Greenshot!</resource>
 		<resource name="contextmenu_exit">Avslutt</resource>
 		<resource name="contextmenu_help">Hjelp</resource>
+		<resource name="contextmenu_importrecipe">Importer oppskrift...</resource>
 		<resource name="contextmenu_openfile">Opne bilde frå fil</resource>
 		<resource name="contextmenu_openrecentcapture">Opne sist knipsområde</resource>
 		<resource name="contextmenu_quicksettings">Hurtiginnstillingar</resource>
+		<resource name="contextmenu_recipes">Oppskrifter</resource>
+		<resource name="contextmenu_reloadrecipes">Last inn oppskrifter på nytt</resource>
 		<resource name="contextmenu_settings">Innstillingar...</resource>
 		<resource name="destination_exportfailed">Ein feil oppstod ved eksportering til {0}. Ver venleg og prøv på nytt!</resource>
 		<resource name="editor_arrange">Arranger</resource>
@@ -198,6 +201,9 @@ Har du skrivetilgang til det valde området?</resource>
 		<resource name="qualitydialog_dontaskagain">Lagre som standardkvalitet og ikkje spør att</resource>
 		<resource name="qualitydialog_title">Greenshot-kvalitet</resource>
 		<resource name="quicksettings_destination_file">Lagre (med føretrekte utfil-innstillingar)</resource>
+		<resource name="recipe_import">Oppskriftimport</resource>
+		<resource name="recipe_import_failed">Klarte ikkje å lasta oppskrifta:</resource>
+		<resource name="recipe_import_title">Importer opptaksoppskrift</resource>
 		<resource name="settings_alwaysshowprintoptionsdialog">Syn utskriftsdialog kvar gong eit bilde blir skrive ut</resource>
 		<resource name="settings_alwaysshowqualitydialog">Syn kvalitetsdialog kvar gong eit bilde blir lagra</resource>
 		<resource name="settings_applicationsettings">Programinnstillingar</resource>

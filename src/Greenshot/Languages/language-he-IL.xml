@@ -40,8 +40,11 @@ Details about the GNU General Public License:</resource>
 		<resource name="contextmenu_donate">Greenshot תמוך ב</resource>
 		<resource name="contextmenu_exit">יציאה</resource>
 		<resource name="contextmenu_help">עזרה</resource>
+		<resource name="contextmenu_importrecipe">...ייבוא מתכון</resource>
 		<resource name="contextmenu_openfile">פתח תמונה מקובץ</resource>
 		<resource name="contextmenu_quicksettings">הגדרות מהירות</resource>
+		<resource name="contextmenu_recipes">מתכונים</resource>
+		<resource name="contextmenu_reloadrecipes">טעינה מחדש של המתכונים</resource>
 		<resource name="contextmenu_settings">...הגדרות</resource>
 		<resource name="editor_arrange">סדר</resource>
 		<resource name="editor_arrowheads">ראשי חץ</resource>
@@ -150,6 +153,9 @@ Details about the GNU General Public License:</resource>
 		<resource name="printoptions_timestamp">הדפס תאריך\שעה בתחתית העמוד</resource>
 		<resource name="printoptions_title">Greenshot אפשרויות הדפסה</resource>
 		<resource name="quicksettings_destination_file">שמור ישירות: תוך שימוש בהעדפות שמירת קובץ</resource>
+		<resource name="recipe_import">ייבוא מתכון</resource>
+		<resource name="recipe_import_failed">טעינת המתכון נכשלה:</resource>
+		<resource name="recipe_import_title">ייבוא מתכון לכידה</resource>
 		<resource name="settings_alwaysshowjpegqualitydialog">בכל פעם שתמונה כזו נשמרת JPEG הצג דיאלוג לאיכות</resource>
 		<resource name="settings_alwaysshowprintoptionsdialog">הצג חלון אפשרויות הדפסה בכל פעם שתמונה מודפסת</resource>
 		<resource name="settings_applicationsettings">הגדרות התוכנה</resource>

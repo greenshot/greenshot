@@ -55,9 +55,12 @@ Greenshot постачається АБСОЛЮТНО БЕЗ ГАРАНТІЇ. �
 		<resource name="contextmenu_donate">Підтримати Greenshot</resource>
 		<resource name="contextmenu_exit">Вихід</resource>
 		<resource name="contextmenu_help">Допомога</resource>
+		<resource name="contextmenu_importrecipe">Імпорт рецепта...</resource>
 		<resource name="contextmenu_openfile">Відкрити зображення з файла</resource>
 		<resource name="contextmenu_openrecentcapture">Відкрити місце збереження останнього знімку</resource>
 		<resource name="contextmenu_quicksettings">Швидкі параметри</resource>
+		<resource name="contextmenu_recipes">Рецепти</resource>
+		<resource name="contextmenu_reloadrecipes">Перезавантажити рецепти</resource>
 		<resource name="contextmenu_settings">Параметри...</resource>
 		<resource name="destination_exportfailed">Помилка експорту до {0}. Спробуйте знову.</resource>
 		<resource name="editor_align_bottom">Знизу</resource>
@@ -218,6 +221,9 @@ Greenshot постачається АБСОЛЮТНО БЕЗ ГАРАНТІЇ. �
 		<resource name="qualitydialog_dontaskagain">Зберегти як стандартну якість і не запитувати знову</resource>
 		<resource name="qualitydialog_title">Якість Greenshot</resource>
 		<resource name="quicksettings_destination_file">Безпосереднє збереження (з використанням наперед визначених параметрів)</resource>
+		<resource name="recipe_import">Імпорт рецепта</resource>
+		<resource name="recipe_import_failed">Не вдалося завантажити рецепт:</resource>
+		<resource name="recipe_import_title">Імпорт рецепта захоплення</resource>
 		<resource name="settings_alwaysshowprintoptionsdialog">Показувати вікно параметрів друку при кожному роздрукуванні</resource>
 		<resource name="settings_alwaysshowqualitydialog">Вікно вибору якості при кожному збереженні зображення</resource>
 		<resource name="settings_applicationsettings">Параметри програми</resource>

@@ -126,7 +126,7 @@ namespace Greenshot.Editor.Configuration
         int TextObfuscationOffsetHorizontal { get; set; }
 
         [Description("Vertical offset in pixels for matched rectangles")]
-        [DefaultValue(-5)]
+        [DefaultValue(0)]
         int TextObfuscationOffsetVertical { get; set; }
 
         [DefaultValue("🙂")]

@@ -56,9 +56,12 @@ Také bychom velmi ocenili, kdybyste zkontrolovali, zda tato chyba již není ev
 		<resource name="contextmenu_donate">Podpora Greenshotu</resource>
 		<resource name="contextmenu_exit">Konec</resource>
 		<resource name="contextmenu_help">Nápověda</resource>
+		<resource name="contextmenu_importrecipe">Importovat recept...</resource>
 		<resource name="contextmenu_openfile">Otevřít obrázek ze souboru</resource>
 		<resource name="contextmenu_openrecentcapture">Otevřít poslední místo uložení</resource>
 		<resource name="contextmenu_quicksettings">Rychlé nastavení</resource>
+		<resource name="contextmenu_recipes">Recepty</resource>
+		<resource name="contextmenu_reloadrecipes">Znovu načíst recepty</resource>
 		<resource name="contextmenu_settings">Předvolby...</resource>
 		<resource name="destination_exportfailed">Při exportu {0} došlo k chybě. Opakujte akci.</resource>
 		<resource name="editor_align_bottom">Dolů</resource>
@@ -220,6 +223,9 @@ Zkontrolujte prosím dostupnost vybraného cíle.</resource>
 		<resource name="qualitydialog_dontaskagain">Uložit jako výchozí kvalitu a znovu se nedotazovat</resource>
 		<resource name="qualitydialog_title">Kvalita Greenshot</resource>
 		<resource name="quicksettings_destination_file">Uložit přímo (pomocí preferovaného nastavení pro výstup)</resource>
+		<resource name="recipe_import">Import receptu</resource>
+		<resource name="recipe_import_failed">Nepodařilo se načíst recept:</resource>
+		<resource name="recipe_import_title">Import receptu zachycení</resource>
 		<resource name="settings_alwaysshowprintoptionsdialog">Před tiskem vždy zobrazit dialog pro nastavení tisku</resource>
 		<resource name="settings_alwaysshowqualitydialog">Při ukládání obrázku vždy zobrazit dialogové okno kvality</resource>
 		<resource name="settings_applicationsettings">Nastavení aplikace</resource>

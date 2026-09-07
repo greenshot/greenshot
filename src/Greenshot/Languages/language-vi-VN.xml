@@ -35,8 +35,11 @@
 		<resource name="contextmenu_donate">Hỗ trợ Greenshot</resource>
 		<resource name="contextmenu_exit">Thoát</resource>
 		<resource name="contextmenu_help">Trợ giúp</resource>
+		<resource name="contextmenu_importrecipe">Nhập công thức...</resource>
 		<resource name="contextmenu_openfile">Mở tệp ảnh</resource>
 		<resource name="contextmenu_quicksettings">Thiết lập nhanh</resource>
+		<resource name="contextmenu_recipes">Công thức</resource>
+		<resource name="contextmenu_reloadrecipes">Tải lại công thức</resource>
 		<resource name="contextmenu_settings">Thiết lập...</resource>
 		<resource name="editor_arrange">Bố trí</resource>
 		<resource name="editor_arrowheads">Mũi tên có đuôi</resource>
@@ -145,6 +148,9 @@
 		<resource name="printoptions_timestamp">In ngày/giờ vào chân trang</resource>
 		<resource name="printoptions_title">Tùy chọn in Greenshot</resource>
 		<resource name="quicksettings_destination_file">Lưu vào thư mục (dùng đường dẫn mặc định)</resource>
+		<resource name="recipe_import">Nhập công thức</resource>
+		<resource name="recipe_import_failed">Không tải được công thức:</resource>
+		<resource name="recipe_import_title">Nhập công thức chụp</resource>
 		<resource name="settings_alwaysshowjpegqualitydialog">Hiển thị hộp thọat đặt chất lượng ảnh JPEG khi lưu.</resource>
 		<resource name="settings_alwaysshowprintoptionsdialog">Luôn hiển thị hộp thoại in khi in ảnh.</resource>
 		<resource name="settings_applicationsettings">Thiết lập chương trình</resource>

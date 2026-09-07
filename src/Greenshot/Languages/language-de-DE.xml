@@ -55,9 +55,12 @@ schnell zu finden. Vielen Dank :)</resource>
 		<resource name="contextmenu_donate">Greenshot unterstützen</resource>
 		<resource name="contextmenu_exit">Schließen</resource>
 		<resource name="contextmenu_help">Hilfe</resource>
+		<resource name="contextmenu_importrecipe">Rezept importieren...</resource>
 		<resource name="contextmenu_openfile">Bild aus einer Datei öffnen...</resource>
 		<resource name="contextmenu_openrecentcapture">Letzten Speicherort im Explorer öffnen</resource>
 		<resource name="contextmenu_quicksettings">Schnelleinstellungen</resource>
+		<resource name="contextmenu_recipes">Rezepte</resource>
+		<resource name="contextmenu_reloadrecipes">Rezepte neu laden</resource>
 		<resource name="contextmenu_settings">Einstellungen...</resource>
 		<resource name="destination_exportfailed">Fehler beim Exportieren nach '{0}'. Bitte wiederholen Sie den Vorgang.</resource>
 		<resource name="editor_align_bottom">Unten</resource>
@@ -223,6 +226,9 @@ Bitte überprüfen Sie die Schreibrechte oder wählen Sie einen anderen Speicher
 		<resource name="qualitydialog_dontaskagain">Als Standardqualität speichern und nicht wieder fragen</resource>
 		<resource name="qualitydialog_title">Greenshot - Qualität</resource>
 		<resource name="quicksettings_destination_file">Sofort speichern (mit bevorzugten Ausgabedatei-Einstellungen)</resource>
+		<resource name="recipe_import">Rezept-Import</resource>
+		<resource name="recipe_import_failed">Rezept konnte nicht geladen werden:</resource>
+		<resource name="recipe_import_title">Aufnahmerezept importieren</resource>
 		<resource name="settings_alwaysshowprintoptionsdialog">Druckeinstellungen vor jedem Ausdruck anzeigen</resource>
 		<resource name="settings_alwaysshowqualitydialog">Qualitätseinstellungen vor jedem Speichern anzeigen</resource>
 		<resource name="settings_applicationsettings">Programmeinstellungen</resource>

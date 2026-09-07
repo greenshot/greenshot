@@ -56,9 +56,12 @@ També li agrairíem molt que comprovara si ya existix un element en el rastreja
 		<resource name="contextmenu_donate">Recolzar Greenshot</resource>
 		<resource name="contextmenu_exit">Eixir</resource>
 		<resource name="contextmenu_help">Ajuda</resource>
+		<resource name="contextmenu_importrecipe">Importa una recepta...</resource>
 		<resource name="contextmenu_openfile">Obrir image des d'archiu</resource>
 		<resource name="contextmenu_openrecentcapture">Obrir l'última captura</resource>
 		<resource name="contextmenu_quicksettings">Preferències ràpides</resource>
+		<resource name="contextmenu_recipes">Receptes</resource>
+		<resource name="contextmenu_reloadrecipes">Torna a carregar les receptes</resource>
 		<resource name="contextmenu_settings">Preferències...</resource>
 		<resource name="destination_exportfailed">Erro en exportar a {0}. Per favor, torne a intentar-ho.</resource>
 		<resource name="editor_align_bottom">Baix</resource>
@@ -225,6 +228,9 @@ Per favor, verifique els permisos d'escritura en el directori seleccionat.</reso
 		<resource name="qualitydialog_dontaskagain">Guardar com a calitat predeterminada i no preguntar de nou</resource>
 		<resource name="qualitydialog_title">Calitat de Greenshot</resource>
 		<resource name="quicksettings_destination_file">Guardar directament (usant la configuració d'eixida preferida)</resource>
+		<resource name="recipe_import">Importació de la recepta</resource>
+		<resource name="recipe_import_failed">No s'ha pogut carregar la recepta:</resource>
+		<resource name="recipe_import_title">Importa una recepta de captura</resource>
 		<resource name="settings_alwaysshowprintoptionsdialog">Mostrar el diàlec d'impressió cada volta que s'imprimixca una image</resource>
 		<resource name="settings_alwaysshowqualitydialog">Mostrar el diàlec de calitat cada volta que es guarde una image</resource>
 		<resource name="settings_applicationsettings">Configuració de l'aplicació</resource>

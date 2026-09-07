@@ -153,6 +153,9 @@ Detaljer om GNU General Public License:
 	<resource name="contextmenu_help">
 		Hjælp
 	</resource>
+	<resource name="contextmenu_importrecipe">
+		Importér opskrift...
+	</resource>
 	<resource name="contextmenu_about">
 		Om Greenshot
 	</resource>
@@ -366,6 +369,12 @@ Deaktiver venligt software som gør brug af Print-knappen. Du kan også blot til
 	<resource name="contextmenu_quicksettings">
 		Hurtige præferencer
 	</resource>
+	<resource name="contextmenu_recipes">
+		Opskrifter
+	</resource>
+	<resource name="contextmenu_reloadrecipes">
+		Genindlæs opskrifter
+	</resource>
 	<resource name="bugreport_title">
 		Fejl
 	</resource>
@@ -415,6 +424,15 @@ tidspunktet, fx 11_58_32 (plus filendelsen angivet i indstillingerne).
 	</resource>
 	<resource name="quicksettings_destination_file">
 		Gem direkte (ud fra foretrukne indstillinger for output-filer)
+	</resource>
+	<resource name="recipe_import">
+		Opskriftsimport
+	</resource>
+	<resource name="recipe_import_failed">
+		Kunne ikke indlæse opskrift:
+	</resource>
+	<resource name="recipe_import_title">
+		Importér optagelsesopskrift
 	</resource>
 	<resource name="editor_opendirinexplorer">
 		Åbn mappe i Windows Stifinder
