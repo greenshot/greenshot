@@ -153,6 +153,9 @@ Detalii despre licența GNU General Public License:
 	<resource name="contextmenu_help">
 		Ajutor
 	</resource>
+	<resource name="contextmenu_importrecipe">
+		Importă rețetă...
+	</resource>
 	<resource name="contextmenu_about">
 		Despre Greenshot
 	</resource>
@@ -363,6 +366,12 @@ Vă rugăm să dezactivați aplicația ce folosește tasta Print. Puteți de ase
 	<resource name="contextmenu_quicksettings">
 		Preferințe rapide
 	</resource>
+	<resource name="contextmenu_recipes">
+		Rețete
+	</resource>
+	<resource name="contextmenu_reloadrecipes">
+		Reîncarcă rețetele
+	</resource>
 	<resource name="bugreport_title">
 		Eroare
 	</resource>
@@ -411,6 +420,15 @@ timpul curent, ex. 11_58_32 (plus extensia fișierului definită în setări)
 	</resource>
 	<resource name="quicksettings_destination_file">
 		Salvează direct (folosind setările deja definite)
+	</resource>
+	<resource name="recipe_import">
+		Import rețetă
+	</resource>
+	<resource name="recipe_import_failed">
+		Nu s-a putut încărca rețeta:
+	</resource>
+	<resource name="recipe_import_title">
+		Importă rețetă de captură
 	</resource>
 	<resource name="editor_opendirinexplorer">
 		Deschide director in Windows Explorer

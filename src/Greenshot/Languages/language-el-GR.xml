@@ -56,9 +56,12 @@
 		<resource name="contextmenu_donate">Υποστήριξη του Greenshot</resource>
 		<resource name="contextmenu_exit">Έξοδος</resource>
 		<resource name="contextmenu_help">Βοήθεια</resource>
+		<resource name="contextmenu_importrecipe">Εισαγωγή συνταγής...</resource>
 		<resource name="contextmenu_openfile">Άνοιγμα εικόνας από αρχείο</resource>
 		<resource name="contextmenu_openrecentcapture">Άνοιγμα τελευταίας καταγεγραμμένης περιοχής</resource>
 		<resource name="contextmenu_quicksettings">Γρήγορες Προτιμήσεις</resource>
+		<resource name="contextmenu_recipes">Συνταγές</resource>
+		<resource name="contextmenu_reloadrecipes">Επαναφόρτωση συνταγών</resource>
 		<resource name="contextmenu_settings">Προτιμήσεις...</resource>
 		<resource name="destination_exportfailed">Σφάλμα κατά την εξαγωγή στο {0}. Παρακαλώ προσπαθήστε και πάλι.</resource>
 		<resource name="editor_align_bottom">Στοίχιση κάτω</resource>
@@ -226,6 +229,9 @@
 		<resource name="qualitydialog_dontaskagain">Αποθήκευση των επιλογών ως προεπιλογή και να μην ξαναρωτηθώ</resource>
 		<resource name="qualitydialog_title">Παράθυρο διαλόγου επιλογής ποιότητας του Greenshot</resource>
 		<resource name="quicksettings_destination_file">Άμεση αποθήκευση (με χρήση των προτιμώμενων ρυθμίσεων)</resource>
+		<resource name="recipe_import">Εισαγωγή συνταγής</resource>
+		<resource name="recipe_import_failed">Αποτυχία φόρτωσης συνταγής:</resource>
+		<resource name="recipe_import_title">Εισαγωγή συνταγής καταγραφής</resource>
 		<resource name="settings_alwaysshowprintoptionsdialog">Εμφάνιση των επιλογών εκτύπωσης κατά την εκτύπωση</resource>
 		<resource name="settings_alwaysshowqualitydialog">Εμφάνιση των επιλογών ποιότητας κατά την αποθήκευση</resource>
 		<resource name="settings_applicationsettings">Ρυθμίσεις εφαρμογής</resource>

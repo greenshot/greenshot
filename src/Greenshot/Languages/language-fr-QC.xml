@@ -49,9 +49,12 @@ De plus, nous apprécierions beaucoup que vous preniez la peine de vérifier si 
 		<resource name="contextmenu_donate">Soutenez Greenshot</resource>
 		<resource name="contextmenu_exit">Quitter</resource>
 		<resource name="contextmenu_help">Aide</resource>
+		<resource name="contextmenu_importrecipe">Importer une recette...</resource>
 		<resource name="contextmenu_openfile">Ouvrir à partir du fichier</resource>
 		<resource name="contextmenu_openrecentcapture">Ouvrir dernier emplacement de sauvegarde</resource>
 		<resource name="contextmenu_quicksettings">Préférences rapides</resource>
+		<resource name="contextmenu_recipes">Recettes</resource>
+		<resource name="contextmenu_reloadrecipes">Recharger les recettes</resource>
 		<resource name="contextmenu_settings">Préférences...</resource>
 		<resource name="destination_exportfailed">Erreur lors de l'exportation vers {0}. Veuillez réessayer de nouveau.</resource>
 		<resource name="editor_arrange">Organiser</resource>
@@ -201,6 +204,9 @@ Veuillez vérifier que vous avez l'autorisation d'écrire dans le répertoire de
 		<resource name="qualitydialog_dontaskagain">Sauver comme qualité par défaut et ne pas redemander</resource>
 		<resource name="qualitydialog_title">Qualité Greenshot</resource>
 		<resource name="quicksettings_destination_file">Sauvegarder directement (utilise les préférences de sortie)</resource>
+		<resource name="recipe_import">Importation de recette</resource>
+		<resource name="recipe_import_failed">Échec du chargement de la recette :</resource>
+		<resource name="recipe_import_title">Importer une recette de capture</resource>
 		<resource name="settings_alwaysshowjpegqualitydialog">Montrer la boîte de dialogue de qualité JPEG à chaque enregistrement</resource>
 		<resource name="settings_alwaysshowprintoptionsdialog">Afficher systématiquement la boite de dialogue d'impression.</resource>
 		<resource name="settings_alwaysshowqualitydialog">Afficher la fenêtre à chaque sauvegarde</resource>

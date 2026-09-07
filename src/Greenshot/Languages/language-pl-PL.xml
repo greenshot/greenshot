@@ -56,9 +56,12 @@ Będziemy wdzięczni, jeśli najpierw sprawdzisz, czy takie zdarzenie nie zosta�
 		<resource name="contextmenu_donate">Wsparcie Greenshota</resource>
 		<resource name="contextmenu_exit">Wyjście</resource>
 		<resource name="contextmenu_help">Pomoc</resource>
+		<resource name="contextmenu_importrecipe">Importuj przepis...</resource>
 		<resource name="contextmenu_openfile">Otwórz obraz z pliku</resource>
 		<resource name="contextmenu_openrecentcapture">Otwórz ostatnią lokalizację zapisu</resource>
 		<resource name="contextmenu_quicksettings">Szybki dostęp do opcji</resource>
+		<resource name="contextmenu_recipes">Przepisy</resource>
+		<resource name="contextmenu_reloadrecipes">Wczytaj przepisy ponownie</resource>
 		<resource name="contextmenu_settings">Preferencje...</resource>
 		<resource name="destination_exportfailed">Błąd podczas eksportowania do {0}. Proszę spróbować później.</resource>
 		<resource name="editor_align_bottom">Do dołu</resource>
@@ -227,6 +230,9 @@ Sprawdź możliwość zapisu w wybranej lokalizacji.</resource>
 		<resource name="qualitydialog_dontaskagain">Ustaw jakość jako domyślną i nie pytaj już więcej</resource>
 		<resource name="qualitydialog_title">Jakość zrzutu</resource>
 		<resource name="quicksettings_destination_file">Zapisz bezpośrednio (używając ustawień dla pliku wyjściowego)</resource>
+		<resource name="recipe_import">Import przepisu</resource>
+		<resource name="recipe_import_failed">Nie udało się wczytać przepisu:</resource>
+		<resource name="recipe_import_title">Importuj przepis przechwytywania</resource>
 		<resource name="settings_alwaysshowprintoptionsdialog">Pokazuj okno opcji wydruku przy każdej próbie wydruku obrazu</resource>
 		<resource name="settings_alwaysshowqualitydialog">Wybieraj jakość przy każdym zapisie obrazu</resource>
 		<resource name="settings_applicationsettings">Ustawienia aplikacji</resource>

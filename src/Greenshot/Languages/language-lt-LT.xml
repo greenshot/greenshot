@@ -38,8 +38,11 @@ Dėkojame už pagalbą :)</resource>
 		<resource name="contextmenu_donate">Paremti projektą</resource>
 		<resource name="contextmenu_exit">Išeiti</resource>
 		<resource name="contextmenu_help">Pagalba</resource>
+		<resource name="contextmenu_importrecipe">Importuoti receptą...</resource>
 		<resource name="contextmenu_openfile">Atidaryti vaizdą iš failo</resource>
 		<resource name="contextmenu_quicksettings">Greiti nustatymai</resource>
+		<resource name="contextmenu_recipes">Receptai</resource>
+		<resource name="contextmenu_reloadrecipes">Iš naujo įkelti receptus</resource>
 		<resource name="contextmenu_settings">Paramentrai...</resource>
 		<resource name="editor_arrange">Išlygiuotas</resource>
 		<resource name="editor_arrowheads">Rodyklė</resource>
@@ -148,6 +151,9 @@ Patikrinkite ar turite tam teises.</resource>
 		<resource name="printoptions_timestamp">Lapo apačioje spausdinti datą ir laiką</resource>
 		<resource name="printoptions_title">Spausdinimo parametrai</resource>
 		<resource name="quicksettings_destination_file">Išsaugoti į failą, nurodyta nustatymuose</resource>
+		<resource name="recipe_import">Recepto importavimas</resource>
+		<resource name="recipe_import_failed">Nepavyko įkelti recepto:</resource>
+		<resource name="recipe_import_title">Importuoti nuotraukos receptą</resource>
 		<resource name="settings_alwaysshowjpegqualitydialog">Rodyti kokybės pasirinkimo dialogą kiekvieną kartą išsaugant į JPEG</resource>
 		<resource name="settings_alwaysshowprintoptionsdialog">Tikslinti nustatymus prieš kiekvieną spausdinimą</resource>
 		<resource name="settings_applicationsettings">Programos nustatymai</resource>

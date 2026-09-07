@@ -55,9 +55,12 @@ Rnu ɣur-s, nḥemmel aṭas ma yella tesneqdeḍ aneqqis igebren ugur-agi. (Tze
 		<resource name="contextmenu_donate">Mudd afus i Greenshot</resource>
 		<resource name="contextmenu_exit">Ffeɣ</resource>
 		<resource name="contextmenu_help">Tallelt</resource>
+		<resource name="contextmenu_importrecipe">Ketter aserwas...</resource>
 		<resource name="contextmenu_openfile">Ldi tugna seg ufaylu</resource>
 		<resource name="contextmenu_openrecentcapture">Ldi adig n usekles aneggaru</resource>
 		<resource name="contextmenu_quicksettings">Ismenyifen iruraden</resource>
+		<resource name="contextmenu_recipes">Iserwasen</resource>
+		<resource name="contextmenu_reloadrecipes">Ales asali n iserwasen</resource>
 		<resource name="contextmenu_settings">Ismenyifen...</resource>
 		<resource name="destination_exportfailed">Tuccḍa deg usnirem ɣer {0}.Ma ulac aɣilif  ɛreḍ tikelt nniḍen.</resource>
 		<resource name="editor_align_bottom">D akesser</resource>
@@ -239,6 +242,9 @@ Ma ulac aɣilif senqed tuffart n ukaram n usekles.</resource>
 		<resource name="qualitydialog_dontaskagain">Sekles am tɣara tamezwert udiɣ ur d(sutur ara tikelt-nniḍen</resource>
 		<resource name="qualitydialog_title">Greenshot - Taɣara</resource>
 		<resource name="quicksettings_destination_file">Sekles srid (seqdec iɣewwaṛen n tuffɣa)</resource>
+		<resource name="recipe_import">Aketter n userwas</resource>
+		<resource name="recipe_import_failed">Ur izmir ara ad d-yali userwas:</resource>
+		<resource name="recipe_import_title">Ketter aserwas n tuṭṭfa</resource>
 		<resource name="settings_alwaysshowprintoptionsdialog">Sken srid asfaylu n udiwenni n usiggez.</resource>
 		<resource name="settings_alwaysshowqualitydialog">Sken asfaylu n udiwenni n tɣaṛa n yal asekles</resource>
 		<resource name="settings_applicationsettings">Iɣewwaṛen n usnas</resource>

@@ -51,9 +51,12 @@ Dangschee, wassd scho :)</resource>
 		<resource name="contextmenu_donate">A weng helfn</resource>
 		<resource name="contextmenu_exit">Wech mid dem Misd</resource>
 		<resource name="contextmenu_help">Hüüülfe!</resource>
+		<resource name="contextmenu_importrecipe">Rezebt importiern...</resource>
 		<resource name="contextmenu_openfile">Dadei aufmachn</resource>
 		<resource name="contextmenu_openrecentcapture">Ledzdn Sgrienschod im Eggsblorer ozeing</resource>
 		<resource name="contextmenu_quicksettings">Zaggich rumdogdern</resource>
+		<resource name="contextmenu_recipes">Rezebde</resource>
+		<resource name="contextmenu_reloadrecipes">Rezebde nei laden</resource>
 		<resource name="contextmenu_settings">Rumdogdern...</resource>
 		<resource name="destination_exportfailed">Scheiße, des war nix '{0}'. Brobiers hald nochamal.</resource>
 		<resource name="editor_align_bottom">Undn</resource>
@@ -207,6 +210,9 @@ Schau hald amal, obsd da übbahabds hi schreim däffsd oder duhs woannersch hi.<
 		<resource name="qualitydialog_dontaskagain">Als Schdandardgwalidäd schbeichern und nimmer nervn</resource>
 		<resource name="qualitydialog_title">Greenshot Gwalidäd</resource>
 		<resource name="quicksettings_destination_file">Soford schbeichern (mit bevorzugdn Ausgabedadei-Einschdellungen)</resource>
+		<resource name="recipe_import">Rezebd-Import</resource>
+		<resource name="recipe_import_failed">Host des Rezebd ned lada kenna:</resource>
+		<resource name="recipe_import_title">Afnahmrezebd importiern</resource>
 		<resource name="settings_alwaysshowprintoptionsdialog">Druggeinschdellungen vor jeem Ausdrugg ozeing</resource>
 		<resource name="settings_alwaysshowqualitydialog">Gwalidädseinschdellungen vor jeem Schbeichern ozeing</resource>
 		<resource name="settings_applicationsettings">Brogrammeinschdellungen</resource>

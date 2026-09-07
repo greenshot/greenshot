@@ -51,9 +51,12 @@ Tiež by sme velmi ocenili, keby ste najskôr skontrolovali, či už neexistuje 
 		<resource name="contextmenu_donate">Podpora Greenshotu</resource>
 		<resource name="contextmenu_exit">Ukončiť</resource>
 		<resource name="contextmenu_help">Nápoveda</resource>
+		<resource name="contextmenu_importrecipe">Importovať recept...</resource>
 		<resource name="contextmenu_openfile">Otvoriť obrázok zo súboru</resource>
 		<resource name="contextmenu_openrecentcapture">Otvoriť posledné miesto uloženia</resource>
 		<resource name="contextmenu_quicksettings">Rýchle nastavenia</resource>
+		<resource name="contextmenu_recipes">Recepty</resource>
+		<resource name="contextmenu_reloadrecipes">Znova načítať recepty</resource>
 		<resource name="contextmenu_settings">Predvoľby...</resource>
 		<resource name="destination_exportfailed">Chyba pri exporte do {0}. Prosím skúste to znova.</resource>
 		<resource name="editor_arrange">Usporiadať</resource>
@@ -202,6 +205,9 @@ Skontrolujte prosím možnosť zapisovať do vybraného umiestnenia.</resource>
 		<resource name="qualitydialog_dontaskagain">Uložiť ako predvolenú kvalitu a viackrát sa nepýtať</resource>
 		<resource name="qualitydialog_title">Greenshot kvalita</resource>
 		<resource name="quicksettings_destination_file">Uložiť priamo (pomocou preferovaného nastavenia výstupného súboru)</resource>
+		<resource name="recipe_import">Import receptu</resource>
+		<resource name="recipe_import_failed">Nepodarilo sa načítať recept:</resource>
+		<resource name="recipe_import_title">Import receptu zachytenia</resource>
 		<resource name="settings_alwaysshowjpegqualitydialog">Zobraziť dialóg JPEG kvality vždy, keď je obrázok ukladaný vo formáte JPEG</resource>
 		<resource name="settings_alwaysshowprintoptionsdialog">Ukázať možnosti tlače vždy pred vytlačením obrázku</resource>
 		<resource name="settings_alwaysshowqualitydialog">Zobraziť dialóg kvality vždy pri ukladaní obrázku</resource>

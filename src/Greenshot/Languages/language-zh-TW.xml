@@ -56,9 +56,12 @@ Greenshot 不對這個程式做任何擔保。這個程式是自由軟體，您�
 		<resource name="contextmenu_donate">支持 Greenshot</resource>
 		<resource name="contextmenu_exit">結束</resource>
 		<resource name="contextmenu_help">說明</resource>
+		<resource name="contextmenu_importrecipe">匯入配方...</resource>
 		<resource name="contextmenu_openfile">從檔案開啟圖片</resource>
 		<resource name="contextmenu_openrecentcapture">開啟上次擷取位置</resource>
 		<resource name="contextmenu_quicksettings">快速喜好設定</resource>
+		<resource name="contextmenu_recipes">配方</resource>
+		<resource name="contextmenu_reloadrecipes">重新載入配方</resource>
 		<resource name="contextmenu_settings">喜好設定...</resource>
 		<resource name="destination_exportfailed">匯出到 {0} 時錯誤，請重試。</resource>
 		<resource name="editor_align_bottom">靠下</resource>
@@ -219,6 +222,9 @@ Greenshot 不對這個程式做任何擔保。這個程式是自由軟體，您�
 		<resource name="qualitydialog_dontaskagain">儲存為預設品質並不再詢問</resource>
 		<resource name="qualitydialog_title">Greenshot 品質</resource>
 		<resource name="quicksettings_destination_file">直接儲存 (使用慣用的輸出檔案設定)</resource>
+		<resource name="recipe_import">配方匯入</resource>
+		<resource name="recipe_import_failed">載入配方失敗:</resource>
+		<resource name="recipe_import_title">匯入擷取配方</resource>
 		<resource name="settings_alwaysshowprintoptionsdialog">每次列印圖片時顯示列印選項對話方塊</resource>
 		<resource name="settings_alwaysshowqualitydialog">每次儲存圖片時顯示品質對話方塊</resource>
 		<resource name="settings_applicationsettings">應用程式設定</resource>

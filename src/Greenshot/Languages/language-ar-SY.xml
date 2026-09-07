@@ -39,8 +39,11 @@
 		<resource name="contextmenu_donate">ادعم جرين شوت</resource>
 		<resource name="contextmenu_exit">خروج</resource>
 		<resource name="contextmenu_help">مساعدة</resource>
+		<resource name="contextmenu_importrecipe">استيراد وصفة...</resource>
 		<resource name="contextmenu_openfile">فتح صورة من ملف</resource>
 		<resource name="contextmenu_quicksettings">تفضيلات سريعة</resource>
+		<resource name="contextmenu_recipes">الوصفات</resource>
+		<resource name="contextmenu_reloadrecipes">إعادة تحميل الوصفات</resource>
 		<resource name="contextmenu_settings">التفضيلات...</resource>
 		<resource name="editor_arrange">الترتيب</resource>
 		<resource name="editor_arrowheads">رؤوس السهم</resource>
@@ -149,6 +152,9 @@
 		<resource name="printoptions_timestamp">اطبع التاريخ / الوقت اسفل الصفحة</resource>
 		<resource name="printoptions_title">خصائص جرين شوت للطباعة</resource>
 		<resource name="quicksettings_destination_file">احفظ مباشرة (باستخدام الخيارات المفضلة)</resource>
+		<resource name="recipe_import">استيراد الوصفة</resource>
+		<resource name="recipe_import_failed">فشل تحميل الوصفة:</resource>
+		<resource name="recipe_import_title">استيراد وصفة الالتقاط</resource>
 		<resource name="settings_alwaysshowjpegqualitydialog">اظهر نافذة جودة JPEG في كل مرة تحفظ فيها صورة JPEG</resource>
 		<resource name="settings_alwaysshowprintoptionsdialog">اظهر نافذة خيارات الطباعة في كل مرة تطبع صورة</resource>
 		<resource name="settings_applicationsettings">اعدادات التطبيق</resource>

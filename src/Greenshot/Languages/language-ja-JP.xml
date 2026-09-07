@@ -57,9 +57,12 @@ GNU General Public License の詳細:</resource>
 		<resource name="contextmenu_donate">Greenshot を支援</resource>
 		<resource name="contextmenu_exit">終了</resource>
 		<resource name="contextmenu_help">ヘルプ</resource>
+		<resource name="contextmenu_importrecipe">レシピのインポート...</resource>
 		<resource name="contextmenu_openfile">ファイルからイメージを開く...</resource>
 		<resource name="contextmenu_openrecentcapture">最後に保存した場所を開く</resource>
 		<resource name="contextmenu_quicksettings">クィック設定</resource>
+		<resource name="contextmenu_recipes">レシピ</resource>
+		<resource name="contextmenu_reloadrecipes">レシピの再読み込み</resource>
 		<resource name="contextmenu_settings">設定...</resource>
 		<resource name="destination_exportfailed">{0} へ書き出し中にエラーが発生しました。再度試行してください。</resource>
 		<resource name="editor_align_bottom">下詰め</resource>
@@ -241,6 +244,9 @@ GNU General Public License の詳細:</resource>
 		<resource name="qualitydialog_dontaskagain">デフォルトの品質で保存し、今後確認しない</resource>
 		<resource name="qualitydialog_title">Greenshot - 品質オプション</resource>
 		<resource name="quicksettings_destination_file">直接保存 (デフォルトの保存先を使用)</resource>
+		<resource name="recipe_import">レシピのインポート</resource>
+		<resource name="recipe_import_failed">レシピの読み込みに失敗しました:</resource>
+		<resource name="recipe_import_title">キャプチャレシピのインポート</resource>
 		<resource name="settings_alwaysshowprintoptionsdialog">イメージを印刷する際に毎回 [印刷オプション] ダイアログを表示</resource>
 		<resource name="settings_alwaysshowqualitydialog">イメージを保存する際に毎回 [品質オプション] ダイアログを表示</resource>
 		<resource name="settings_applicationsettings">アプリケーション設定</resource>

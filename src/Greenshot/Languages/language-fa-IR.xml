@@ -43,8 +43,11 @@ Could not save Greenshot's configuration file. Please check access permissions f
 		<resource name="contextmenu_donate">حمایت از گرین‌شات</resource>
 		<resource name="contextmenu_exit">بستن</resource>
 		<resource name="contextmenu_help">راهنمایی</resource>
+		<resource name="contextmenu_importrecipe">...وارد کردن دستورالعمل</resource>
 		<resource name="contextmenu_openfile">بازکردن تصویر از پوشه</resource>
 		<resource name="contextmenu_quicksettings">تنظیمات فوری</resource>
+		<resource name="contextmenu_recipes">دستورالعمل‌ها</resource>
+		<resource name="contextmenu_reloadrecipes">بارگذاری مجدد دستورالعمل‌ها</resource>
 		<resource name="contextmenu_settings">...تنظیمات</resource>
 		<resource name="editor_arrange">مرتب کردن</resource>
 		<resource name="editor_arrowheads">نوک‌های پیکان</resource>
@@ -171,6 +174,9 @@ Could not save Greenshot's configuration file. Please check access permissions f
 		<resource name="printoptions_timestamp">چاپ تاریخ و زمان در پایین صفحه</resource>
 		<resource name="printoptions_title">حالت‌های چاپ  گرین‌شات</resource>
 		<resource name="quicksettings_destination_file"> ذخیره‌سازی مستقیم با تنظیمات پیش فرض</resource>
+		<resource name="recipe_import">وارد کردن دستورالعمل</resource>
+		<resource name="recipe_import_failed">بارگذاری دستورالعمل ناموفق بود:</resource>
+		<resource name="recipe_import_title">وارد کردن دستورالعمل ضبط</resource>
 		<resource name="settings_alwaysshowjpegqualitydialog">JPEG نمایش کیفیت در هر بار  ذخیره‌سازی</resource>
 		<resource name="settings_alwaysshowprintoptionsdialog">نمایش تنظیمات چاپ برای هر چاپ</resource>
 		<resource name="settings_applicationsettings">تنظیمات نرم‌افزار</resource>

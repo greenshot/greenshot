@@ -55,9 +55,12 @@ Também apreciaremos muito se puder verificar se não existe já um relatório d
 		<resource name="contextmenu_donate">Apoie o Greenshot</resource>
 		<resource name="contextmenu_exit">Sair</resource>
 		<resource name="contextmenu_help">Ajuda</resource>
+		<resource name="contextmenu_importrecipe">Importar receita...</resource>
 		<resource name="contextmenu_openfile">Abrir imagem de ficheiro</resource>
 		<resource name="contextmenu_openrecentcapture">Abrir última localização de captura</resource>
 		<resource name="contextmenu_quicksettings">Preferências rápidas</resource>
+		<resource name="contextmenu_recipes">Receitas</resource>
+		<resource name="contextmenu_reloadrecipes">Recarregar receitas</resource>
 		<resource name="contextmenu_settings">Preferências...</resource>
 		<resource name="destination_exportfailed">Erro ao exportar para {0}. Por favor tente de novo.</resource>
 		<resource name="editor_align_bottom">Inferior</resource>
@@ -218,6 +221,9 @@ Por favor verifique as permissões de escrita do local seleccionado.</resource>
 		<resource name="qualitydialog_dontaskagain">Guardar como qualidade padrão e não perguntar de novo</resource>
 		<resource name="qualitydialog_title">Qualidade Greenshot</resource>
 		<resource name="quicksettings_destination_file">Guardar directamente (Usar a configuração padrão para ficheiros de saída)</resource>
+		<resource name="recipe_import">Importação de receita</resource>
+		<resource name="recipe_import_failed">Falha ao carregar a receita:</resource>
+		<resource name="recipe_import_title">Importar receita de captura</resource>
 		<resource name="settings_alwaysshowprintoptionsdialog">Exibir o diálogo opções de impressão sempre que uma imagem for impressa</resource>
 		<resource name="settings_alwaysshowqualitydialog">Exibir o diálogo da qualidade sempre que uma imagem for guardada</resource>
 		<resource name="settings_applicationsettings">Definições do Programa</resource>

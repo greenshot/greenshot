@@ -59,9 +59,12 @@
 		<resource name="contextmenu_donate">Suporte do Greenshot</resource>
 		<resource name="contextmenu_exit">Sair</resource>
 		<resource name="contextmenu_help">Ajuda</resource>
+		<resource name="contextmenu_importrecipe">Importar receita...</resource>
 		<resource name="contextmenu_openfile">Abrir imagem do arquivo</resource>
 		<resource name="contextmenu_openrecentcapture">Abrir último local capturado</resource>
 		<resource name="contextmenu_quicksettings">Preferências rápidas</resource>
+		<resource name="contextmenu_recipes">Receitas</resource>
+		<resource name="contextmenu_reloadrecipes">Recarregar receitas</resource>
 		<resource name="contextmenu_settings">Preferências...</resource>
 		<resource name="destination_exportfailed">Erro ao exportar para {0}. Por favor, tente novamente.</resource>
 		<resource name="EmailFormats.Html">Outlook com HTML</resource>
@@ -202,6 +205,9 @@
 		<resource name="qualitydialog_dontaskagain">Salvar com qualidade padrão e não perguntar novamente</resource>
 		<resource name="qualitydialog_title">Qualidade do Greenshot</resource>
 		<resource name="quicksettings_destination_file">Salvar diretamente (Usando configuração padrão para arquivos capturados)</resource>
+		<resource name="recipe_import">Importação de receita</resource>
+		<resource name="recipe_import_failed">Falha ao carregar a receita:</resource>
+		<resource name="recipe_import_title">Importar receita de captura</resource>
 		<resource name="settings_alwaysshowprintoptionsdialog">Mostrar as opções de impressão toda vez que uma imagem for impressa</resource>
 		<resource name="settings_alwaysshowqualitydialog">Perguntar a qualidade do JPEG toda vez que uma imagem for salva</resource>
 		<resource name="settings_applicationsettings">Configurações da Aplicação</resource>

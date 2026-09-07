@@ -55,9 +55,12 @@ Juga, kami sangat terbantu apabila anda mengecek laporan lain yang sama dengan k
 		<resource name="contextmenu_donate">Dukung Greenshot</resource>
 		<resource name="contextmenu_exit">Keluar</resource>
 		<resource name="contextmenu_help">Bantuan</resource>
+		<resource name="contextmenu_importrecipe">Impor Resep...</resource>
 		<resource name="contextmenu_openfile">Buka gambar dari berkas</resource>
 		<resource name="contextmenu_openrecentcapture">Buka lokasi terakhir tangkapan</resource>
 		<resource name="contextmenu_quicksettings">Setelan cepat</resource>
+		<resource name="contextmenu_recipes">Resep</resource>
+		<resource name="contextmenu_reloadrecipes">Muat Ulang Resep</resource>
 		<resource name="contextmenu_settings">Pengaturan...</resource>
 		<resource name="destination_exportfailed">Tidak bisa mengekspor ke {0}. Mohon ulangi lagi.</resource>
 		<resource name="editor_align_bottom">Bawah</resource>
@@ -238,6 +241,9 @@ Harap cek aksesibilitas menuis pada lokasi penyimpanan yang dipilih.</resource>
 		<resource name="qualitydialog_dontaskagain">Simpan kualitas default dan jangan tanya lagi</resource>
 		<resource name="qualitydialog_title">Kualitas Greenshot</resource>
 		<resource name="quicksettings_destination_file">Simpan cepat (menggunakan pengaturan output yang dipilih)</resource>
+		<resource name="recipe_import">Impor Resep</resource>
+		<resource name="recipe_import_failed">Gagal memuat resep:</resource>
+		<resource name="recipe_import_title">Impor Resep Penangkapan</resource>
 		<resource name="settings_alwaysshowprintoptionsdialog">Perlihatkan dialog pengaturan mencetak setiap kali gambar dicetak</resource>
 		<resource name="settings_alwaysshowqualitydialog">Tampilkan  dialog kualitas setiap kali gambar disimpan</resource>
 		<resource name="settings_applicationsettings">Setelan Aplikasi</resource>

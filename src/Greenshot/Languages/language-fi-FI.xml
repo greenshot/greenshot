@@ -39,8 +39,11 @@ Olisi myös hyvä jos voisit tarkistaa onko virhe jo raportoitu aikaisemmin (voi
 		<resource name="contextmenu_donate">Tue Greenshot kehitystyötä</resource>
 		<resource name="contextmenu_exit">Lopeta</resource>
 		<resource name="contextmenu_help">Ohje</resource>
+		<resource name="contextmenu_importrecipe">Tuo resepti...</resource>
 		<resource name="contextmenu_openfile">Avaa kuva tiedostosta</resource>
 		<resource name="contextmenu_quicksettings">Pika-asetukset</resource>
+		<resource name="contextmenu_recipes">Reseptit</resource>
+		<resource name="contextmenu_reloadrecipes">Lataa reseptit uudelleen</resource>
 		<resource name="contextmenu_settings">Asetukset...</resource>
 		<resource name="editor_arrange">Järjestä</resource>
 		<resource name="editor_arrowheads">Nuolenpäät</resource>
@@ -149,6 +152,9 @@ Tarkista valitun tallennuspaikan kirjoitussuojaus.</resource>
 		<resource name="printoptions_timestamp">Tulosta päiväys ja kellonaika sivun alalaitaan</resource>
 		<resource name="printoptions_title">Greenshot tulostusasetukset</resource>
 		<resource name="quicksettings_destination_file">Tallenna heti (oletusasetuksilla)</resource>
+		<resource name="recipe_import">Reseptin tuonti</resource>
+		<resource name="recipe_import_failed">Reseptin lataus epäonnistui:</resource>
+		<resource name="recipe_import_title">Tuo kaappausresepti</resource>
 		<resource name="settings_alwaysshowjpegqualitydialog">Näytä JPEG laatuvalinnat aina kun tallennetaan JPEG muodossa</resource>
 		<resource name="settings_alwaysshowprintoptionsdialog">Näytä tulostusasetukset aina tulostettaessa</resource>
 		<resource name="settings_applicationsettings">Ohjelman asetukset</resource>
