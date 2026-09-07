@@ -32,5 +32,8 @@
       {0} é o nome do ficheiro da sua captura
     </resource>
     <resource name="label_outputimageformat">Formato de Imagem</resource>
+    <resource name="tooltip_duplicate_name">
+      Já existe um comando com este nome. Por favor, escolha um nome diferente.
+    </resource>
   </resources>
 </language>

@@ -22,11 +22,12 @@
 using System;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Threading;
 using Windows.Foundation.Collections;
 using Windows.Foundation.Metadata;
 using Windows.UI.Notifications;
 using Greenshot.Base.Core;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using log4net;
 using Microsoft.Toolkit.Uwp.Notifications;
@@ -39,7 +40,7 @@ namespace Greenshot.Plugin.Win10
     public class ToastNotificationService : INotificationService
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(ToastNotificationService));
-        private static readonly CoreConfiguration CoreConfiguration = IniConfig.GetIniSection<CoreConfiguration>();
+        private static readonly ICoreConfiguration CoreConfiguration = IniConfigRegistry.GetSection<ICoreConfiguration>();
 
         private readonly string _imageFilePath;
 
@@ -94,31 +95,10 @@ namespace Greenshot.Plugin.Win10
                 return;
             }
 
-            // Prepare the toast notifier. Be sure to specify the AppUserModelId on your application's shortcut!
-            Microsoft.Toolkit.Uwp.Notifications.ToastNotifierCompat toastNotifier = null;
-            try
+            // Do not inform the user if ToastNotification is not enabled
+            if (!IsToastNotificationEnabled())
             {
-                toastNotifier = ToastNotificationManagerCompat.CreateToastNotifier();
-            }
-            catch (Exception ex)
-            {
-                Log.Warn("Could not create a toast notifier.", ex);
-
                 return;
-            }
-
-            // Here is an interesting article on reading the settings: https://www.rudyhuyn.com/blog/2018/02/10/toastnotifier-and-settings-careful-with-non-uwp-applications/
-            try
-            {
-                if (toastNotifier.Setting != NotificationSetting.Enabled)
-                {
-                    Log.DebugFormat("Ignored toast due to {0}", toastNotifier.Setting);
-                    return;
-                }
-            }
-            catch (Exception)
-            {
-                Log.Info("Ignoring exception as this means that there was no stored settings.");
             }
 
             try
@@ -132,8 +112,8 @@ namespace Greenshot.Plugin.Win10
                     //.AddAppLogoOverride(new Uri($@"file://{_imageFilePath}"), ToastGenericAppLogoCrop.None)
                     .Show(toast =>
                     {
-                    // Windows 10 first with 1903: ExpiresOnReboot = true
-                    toast.ExpirationTime = timeout.HasValue ? DateTimeOffset.Now.Add(timeout.Value) : (DateTimeOffset?)null;
+                        // Windows 10 first with 1903: ExpiresOnReboot = true
+                        toast.ExpirationTime = timeout.HasValue ? DateTimeOffset.Now.Add(timeout.Value) : (DateTimeOffset?)null;
 
                         void ToastActivatedHandler(ToastNotification toastNotification, object sender)
                         {
@@ -172,15 +152,14 @@ namespace Greenshot.Plugin.Win10
                             }
 
                             toast.Dismissed -= ToastDismissedHandler;
-                        // Remove the other handler too
-                        toast.Activated -= ToastActivatedHandler;
+                            // Remove the other handler too
+                            toast.Activated -= ToastActivatedHandler;
                             toast.Failed -= ToastOnFailed;
                         }
 
                         toast.Dismissed += ToastDismissedHandler;
                         toast.Failed += ToastOnFailed;
                     });
-
             }
             catch (Exception ex)
             {
@@ -223,6 +202,55 @@ namespace Greenshot.Plugin.Win10
             Log.Warn("ToastNotificationActionTrigger not available.");
 
             return null;
+        }
+
+        private bool IsToastNotificationEnabled()
+        {
+            try
+            {
+                var toastNotifierCreated = false;
+                var setting = NotificationSetting.DisabledForApplication;
+
+                var thread = new Thread(() =>
+                {
+                    // Prepare the toast notifier. Be sure to specify the AppUserModelId on your application's shortcut!
+                    ToastNotifierCompat toastNotifier = null;
+                    try
+                    {
+                        toastNotifier = ToastNotificationManagerCompat.CreateToastNotifier();
+                        toastNotifierCreated = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Warn("Could not create a toast notifier.", ex);
+                        toastNotifierCreated = false;
+                    }
+                    setting = toastNotifier.Setting;
+                });
+                thread.SetApartmentState(ApartmentState.STA);
+                thread.Start();
+
+                var completed = thread.Join(500);
+                if (!completed)
+                {
+                    Log.Warn("Timed out reading toast notification setting; skipping setting check.");
+                }
+                else if (!toastNotifierCreated)
+                {
+                    return false;
+                }
+                else if (setting != NotificationSetting.Enabled)
+                {
+                    Log.DebugFormat("Ignored toast due to {0}", setting);
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.WarnFormat("Exception reading toast notification setting, skipping check: {0}", ex.Message);
+            }
+
+            return true;
         }
     }
 }

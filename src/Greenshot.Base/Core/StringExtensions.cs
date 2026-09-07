@@ -103,7 +103,7 @@ namespace Greenshot.Base.Core
         /// A simply rijndael aes encryption, can be used to store passwords
         /// </summary>
         /// <param name="clearText">the string to call upon</param>
-        /// <returns>an encryped string in base64 form</returns>
+        /// <returns>an encrypted string in base64 form</returns>
         public static string Encrypt(this string clearText)
         {
             string returnValue = clearText;

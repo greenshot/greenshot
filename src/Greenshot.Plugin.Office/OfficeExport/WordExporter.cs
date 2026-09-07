@@ -19,7 +19,7 @@
 
 using System;
 using System.Collections.Generic;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Plugin.Office.Com;
 using Greenshot.Plugin.Office.OfficeInterop;
 using Microsoft.Office.Core;
@@ -36,7 +36,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
         private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(WordExporter));
         private static Version _wordVersion;
 
-        private static readonly OfficeConfiguration _officeConfiguration = IniConfig.GetIniSection<OfficeConfiguration>();
+        private static readonly IOfficeConfiguration _officeConfiguration = IniConfigRegistry.GetSection<IOfficeConfiguration>();
 
         /// <summary>
         ///     Helper method to add the file as image to the selection
@@ -71,7 +71,22 @@ namespace Greenshot.Plugin.Office.OfficeExport
                 wordApplication = DisposableCom.Create(new Application());
             }
 
-            InitializeVariables(wordApplication);
+            try
+            {
+                InitializeVariables(wordApplication);
+            }
+            catch (InvalidCastException ex)
+            {
+                LOG.Warn("Word COM object is unusable due to a type library error — treating Word as unavailable.", ex);
+                wordApplication.Dispose();
+                return null;
+            }
+            catch (Exception ex)
+            {
+                LOG.Warn("Unable to initialize Word variables, assuming Word version 1997.", ex);
+                _wordVersion ??= new Version((int) OfficeVersions.Office97, 0, 0, 0);
+            }
+
             return wordApplication;
         }
 
@@ -86,15 +101,34 @@ namespace Greenshot.Plugin.Office.OfficeExport
             {
                 wordApplication = OleAut32Api.GetActiveObject<Application>("Word.Application");
             }
-            catch (Exception)
+            catch (System.Runtime.InteropServices.COMException)
             {
-                // Ignore, probably no word running
+                // Word is not running, this is expected
+                return null;
+            }
+            catch (Exception ex)
+            {
+                LOG.Warn("Unexpected error while getting Word application instance.", ex);
                 return null;
             }
 
             if ((wordApplication != null) && (wordApplication.ComObject != null))
             {
-                InitializeVariables(wordApplication);
+                try
+                {
+                    InitializeVariables(wordApplication);
+                }
+                catch (InvalidCastException ex)
+                {
+                    LOG.Warn("Word COM object is unusable due to a type library error — treating Word as unavailable.", ex);
+                    wordApplication.Dispose();
+                    return null;
+                }
+                catch (Exception ex)
+                {
+                    LOG.Warn("Unable to initialize Word variables, assuming Word version 1997.", ex);
+                    _wordVersion ??= new Version((int) OfficeVersions.Office97, 0, 0, 0);
+                }
             }
 
             return wordApplication;
@@ -145,9 +179,28 @@ namespace Greenshot.Plugin.Office.OfficeExport
                 return;
             }
 
-            if (!Version.TryParse(wordApplication.ComObject.Version, out _wordVersion))
+            try
             {
-                LOG.Warn("Assuming Word version 1997.");
+                if (!Version.TryParse(wordApplication.ComObject.Version, out _wordVersion))
+                {
+                    _wordVersion = null;
+                }
+            }
+            catch (InvalidCastException)
+            {
+                // TYPE_E_CANTLOADLIBRARY: the Office type library cannot be loaded, meaning this COM object is
+                // entirely unusable (every call will fail the same way). Re-throw so callers can treat the
+                // application as unavailable rather than returning a broken COM object.
+                throw;
+            }
+            catch (Exception ex)
+            {
+                LOG.Warn("Could not determine Word version, assuming minimum.", ex);
+            }
+
+            if (_wordVersion == null)
+            {
+                LOG.Warn("Could not determine Word version, assuming minimum.");
                 _wordVersion = new Version((int) OfficeVersions.Office97, 0, 0, 0);
             }
         }

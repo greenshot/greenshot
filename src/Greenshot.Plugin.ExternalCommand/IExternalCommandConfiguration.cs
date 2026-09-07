@@ -1,0 +1,84 @@
+/*
+ * Greenshot - a free and open source screenshot tool
+ * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ *
+ * For more information see: https://getgreenshot.org/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 1 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Runtime.Serialization;
+using Dapplo.Ini.Attributes;
+using Dapplo.Ini.Interfaces;
+using Greenshot.Base.Core.Enums;
+
+namespace Greenshot.Plugin.ExternalCommand;
+
+[IniSection("ExternalCommand")]
+[Description("Greenshot ExternalCommand Plugin configuration")]
+public interface IExternalCommandConfiguration : IIniSection, IAfterLoad
+{
+    [Description("The commands that are available.")]
+    List<string> Commands { get; set; }
+
+    [Description("Redirect the standard error of all external commands, used to output as warning to the greenshot.log.")]
+    [DefaultValue(true)]
+    bool RedirectStandardError { get; set; }
+
+    [Description("Redirect the standard output of all external commands, used for different other functions (more below).")]
+    [DefaultValue(true)]
+    bool RedirectStandardOutput { get; set; }
+
+    [Description("Depends on 'RedirectStandardOutput': Show standard output of all external commands to the Greenshot log, this can be useful for debugging.")]
+    [DefaultValue(false)]
+    bool ShowStandardOutputInLog { get; set; }
+
+    [DataMember(Name = "ParseForUri")]
+    [Description("Depends on 'RedirectStandardOutput': Parse the output and take the first found URI, if a URI is found than clicking on the notify bubble goes there.")]
+    [DefaultValue(true)]
+    bool ParseOutputForUri { get; set; }
+
+    [Description("Depends on 'RedirectStandardOutput': Place the standard output on the clipboard.")]
+    [DefaultValue(false)]
+    bool OutputToClipboard { get; set; }
+
+    [Description("Depends on 'RedirectStandardOutput' & 'ParseForUri': If an URI is found in the standard input, place it on the clipboard. (This overwrites the output from OutputToClipboard setting.)")]
+    [DefaultValue(true)]
+    bool UriToClipboard { get; set; }
+
+    [Description("The commandline for the output command.")]
+    Dictionary<string, string> Commandline { get; set; }
+
+    [Description("The arguments for the output command.")]
+    Dictionary<string, string> Argument { get; set; }
+
+    [Description("The output file format for the output command.")]
+    Dictionary<string, OutputFormat> OutputFormat { get; set; }
+
+    [Description("Should the command be started in the background.")]
+    Dictionary<string, bool> RunInbackground { get; set; }
+
+    [Description("If a build in command was deleted manually, it should not be recreated.")]
+    List<string> DeletedBuildInCommands { get; set; }
+
+    /// <summary>
+    /// Deletes the configuration for the specified command.
+    /// Implemented in <see cref="ExternalCommandConfigurationImpl"/>.
+    /// </summary>
+    /// <param name="command">Name of the command to delete</param>
+    void Delete(string command);
+}

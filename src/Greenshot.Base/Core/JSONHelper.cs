@@ -53,7 +53,7 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// Parses the string json into a value; and fills 'success' with the successfullness of the parse.
+        /// Parses the string json into a value; and fills 'success' with the successfulness of the parse.
         /// </summary>
         /// <param name="json">A JSON string.</param>
         /// <param name="success">Successful parse?</param>

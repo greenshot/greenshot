@@ -19,13 +19,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System.Windows.Forms;
+using Dapplo.Windows.Icons;
 
 namespace Greenshot.Base.Interfaces.Drawing
 {
     public interface ICursorContainer : IDrawableContainer
     {
-        Cursor Cursor { get; set; }
+        CapturedCursor Cursor { get; set; }
         void Load(string filename);
     }
 }

@@ -24,42 +24,41 @@ using System.Drawing;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 
-namespace Greenshot.Plugin.Box
+namespace Greenshot.Plugin.Box;
+
+public class BoxDestination : AbstractDestination
 {
-    public class BoxDestination : AbstractDestination
+    private readonly BoxPlugin _plugin;
+
+    public BoxDestination(BoxPlugin plugin)
     {
-        private readonly BoxPlugin _plugin;
+        _plugin = plugin;
+    }
 
-        public BoxDestination(BoxPlugin plugin)
+    public override string Designation => "Box";
+
+    public override string Description => Language.GetString("box", LangKey.upload_menu_item);
+
+    public override Image DisplayIcon
+    {
+        get
         {
-            _plugin = plugin;
+            ComponentResourceManager resources = new ComponentResourceManager(typeof(BoxPlugin));
+            return (Image) resources.GetObject("Box");
+        }
+    }
+
+    public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
+    {
+        ExportInformation exportInformation = new ExportInformation(Designation, Description);
+        string uploadUrl = _plugin.Upload(captureDetails, surface);
+        if (uploadUrl != null)
+        {
+            exportInformation.ExportMade = true;
+            exportInformation.Uri = uploadUrl;
         }
 
-        public override string Designation => "Box";
-
-        public override string Description => Language.GetString("box", LangKey.upload_menu_item);
-
-        public override Image DisplayIcon
-        {
-            get
-            {
-                ComponentResourceManager resources = new ComponentResourceManager(typeof(BoxPlugin));
-                return (Image) resources.GetObject("Box");
-            }
-        }
-
-        public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
-        {
-            ExportInformation exportInformation = new ExportInformation(Designation, Description);
-            string uploadUrl = _plugin.Upload(captureDetails, surface);
-            if (uploadUrl != null)
-            {
-                exportInformation.ExportMade = true;
-                exportInformation.Uri = uploadUrl;
-            }
-
-            ProcessExport(exportInformation, surface);
-            return exportInformation;
-        }
+        ProcessExport(exportInformation, surface);
+        return exportInformation;
     }
 }

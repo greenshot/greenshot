@@ -22,6 +22,7 @@
 using System;
 using System.Drawing;
 using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Icons;
 
 namespace Greenshot.Base.Interfaces
 {
@@ -51,9 +52,9 @@ namespace Greenshot.Base.Interfaces
         NativeRect ScreenBounds { get; set; }
 
         /// <summary>
-        /// The cursor
+        /// The cursor bitmap
         /// </summary>
-        Icon Cursor { get; set; }
+        CapturedCursor Cursor { get; set; }
 
         /// <summary>
         /// Boolean to specify if the cursor is available

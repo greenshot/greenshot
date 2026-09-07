@@ -58,7 +58,8 @@ namespace Greenshot.Base.Core.OAuth
         protected const string HMACSHA1SignatureType = "HMAC-SHA1";
         protected const string PlainTextSignatureType = "PLAINTEXT";
 
-        protected static Random random = new Random();
+        // Cryptographically secure RNG for OAuth nonces (avoiding System.Random)
+        private static readonly RandomNumberGenerator _secureRandom = RandomNumberGenerator.Create();
 
         protected const string UnreservedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_.~";
 
@@ -116,7 +117,7 @@ namespace Greenshot.Base.Core.OAuth
         /// Create an OAuthSession with the consumerKey / consumerSecret
         /// </summary>
         /// <param name="consumerKey">"Public" key for the encoding. When using RSASHA1 this is the path to the private key file</param>
-        /// <param name="consumerSecret">"Private" key for the encoding. when usin RSASHA1 this is the password for the private key file</param>
+        /// <param name="consumerSecret">"Private" key for the encoding. when using RSASHA1 this is the password for the private key file</param>
         public OAuthSession(string consumerKey, string consumerSecret)
         {
             _consumerKey = consumerKey;
@@ -153,7 +154,7 @@ namespace Greenshot.Base.Core.OAuth
         }
 
         /// <summary>
-        /// Generate the normalized paramter string
+        /// Generate the normalized parameter string
         /// </summary>
         /// <param name="queryParameters">the list of query parameters</param>
         /// <returns>a string with the normalized query parameters</returns>
@@ -222,13 +223,16 @@ namespace Greenshot.Base.Core.OAuth
         }
 
         /// <summary>
-        /// Generate a nonce
+        /// Generate a cryptographically secure nonce for OAuth requests
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A cryptographically random nonce string</returns>
         public static string GenerateNonce()
         {
-            // Just a simple implementation of a random number between 123400 and 9999999
-            return random.Next(123400, 9999999).ToString();
+            // 4 random bytes (0 to 4294967295) modulo 10000000 -> 7-digit string (zero padded)
+            byte[] nonceBytes = new byte[4];
+            _secureRandom.GetBytes(nonceBytes);
+            uint randomValue = BitConverter.ToUInt32(nonceBytes, 0);
+            return (randomValue % 10000000).ToString("D7");
         }
 
         /// <summary>

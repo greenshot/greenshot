@@ -20,20 +20,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <WebReferences Include="Web References\" />
-    <WebReferenceUrl Include="http://confluence/rpc/soap-axis/confluenceservice-v1%3fwsdl">
-      <UrlBehavior>Static</UrlBehavior>
-      <UpdateFromURL>http://confluence/rpc/soap-axis/confluenceservice-v1%3fwsdl</UpdateFromURL>
-      <RelPath>Web References\confluence</RelPath>
-      <Namespace>Confluence</Namespace>
-    </WebReferenceUrl>
+    <PackageReference Include="Dapplo.Confluence" Version="1.0.41" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Greenshot.Base\Greenshot.Base.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="System.Web.Services" />
   </ItemGroup>
 </Project>

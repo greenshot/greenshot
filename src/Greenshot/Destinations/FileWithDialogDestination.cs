@@ -23,7 +23,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using Greenshot.Base;
 using Greenshot.Base.Core;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Configuration;
 
@@ -34,7 +34,7 @@ namespace Greenshot.Destinations
     /// </summary>
     public class FileWithDialogDestination : AbstractDestination
     {
-        private static readonly CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+        private static readonly ICoreConfiguration conf = IniConfigRegistry.GetSection<ICoreConfiguration>();
 
         public override string Designation => nameof(WellKnownDestinations.FileDialog);
 

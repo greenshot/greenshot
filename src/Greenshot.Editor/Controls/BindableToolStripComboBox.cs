@@ -29,12 +29,9 @@ namespace Greenshot.Editor.Controls
     /// <summary>
     /// A simple ToolStripComboBox implementing INotifyPropertyChanged for data binding
     /// </summary>
-    public class BindableToolStripComboBox : ToolStripComboBox, INotifyPropertyChanged, IGreenshotLanguageBindable
+    public class BindableToolStripComboBox : ToolStripComboBox, INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
-
-        [Category("Greenshot"), DefaultValue(null), Description("Specifies key of the language file to use when displaying the text.")]
-        public string LanguageKey { get; set; }
 
         public BindableToolStripComboBox()
         {

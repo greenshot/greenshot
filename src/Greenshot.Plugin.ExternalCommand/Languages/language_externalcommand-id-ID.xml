@@ -12,5 +12,6 @@
 		<resource name="settings_edit">Edit</resource>
 		<resource name="settings_new">Baru</resource>
 		<resource name="settings_title">Setelan perintah eksternal</resource>
+		<resource name="tooltip_duplicate_name">Perintah dengan nama ini sudah ada. Silakan pilih nama yang berbeda.</resource>
 	</resources>
 </language>

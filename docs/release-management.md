@@ -17,11 +17,11 @@ which they have been built, for example `1.2.345-g17c033174ef`.
 
 ## Build Tooling
 
-**Unstable releases** (also known as "continuos builds)" are built by 
+**Unstable releases** (also known as "continuous builds)" are built by 
 [our Github release workflow](../.github/workflows/release.yml), whenever a commit has been pushed 
 (or merged) to the `main` branch. 
 
-Continous builds are not code-signed due to restrictions of the EV code signing process by Certum.
+Continuous builds are not code-signed due to restrictions of the EV code signing process by Certum.
 
 **Stable releases** (and release candidates) always should be code-signed and therefore cannot be 
 built by the Github workflow mentioned above, due to restrictions mentioned above. Hence, we have a 

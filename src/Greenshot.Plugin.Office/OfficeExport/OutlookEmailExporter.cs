@@ -21,7 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Plugin.Office.Com;
 using Greenshot.Plugin.Office.OfficeInterop;
 using Microsoft.Office.Interop.Outlook;
@@ -40,7 +40,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
     public class OutlookEmailExporter
     {
         private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(OutlookEmailExporter));
-        private static readonly OfficeConfiguration _officeConfiguration = IniConfig.GetIniSection<OfficeConfiguration>();
+        private static readonly IOfficeConfiguration _officeConfiguration = IniConfigRegistry.GetSection<IOfficeConfiguration>();
 
         // The signature key can be found at:
         // HKEY_CURRENT_USER\Software\Microsoft\Windows NT\CurrentVersion\Windows Messaging Subsystem\Profiles\<DefaultProfile>\9375CFF0413111d3B88A00104B2A6676\<xxxx> [New Signature]
@@ -580,7 +580,17 @@ namespace Greenshot.Plugin.Office.OfficeExport
                 outlookApplication = DisposableCom.Create(new Application());
             }
 
-            InitializeVariables(outlookApplication);
+            try
+            {
+                InitializeVariables(outlookApplication);
+            }
+            catch (InvalidCastException ex)
+            {
+                LOG.Warn("Outlook COM object is unusable due to a type library error — treating Outlook as unavailable.", ex);
+                outlookApplication.Dispose();
+                return null;
+            }
+
             return outlookApplication;
         }
 
@@ -603,7 +613,16 @@ namespace Greenshot.Plugin.Office.OfficeExport
 
             if ((outlookApplication != null) && (outlookApplication.ComObject != null))
             {
-                InitializeVariables(outlookApplication);
+                try
+                {
+                    InitializeVariables(outlookApplication);
+                }
+                catch (InvalidCastException ex)
+                {
+                    LOG.Warn("Outlook COM object is unusable due to a type library error — treating Outlook as unavailable.", ex);
+                    outlookApplication.Dispose();
+                    return null;
+                }
             }
 
             return outlookApplication;
@@ -681,10 +700,19 @@ namespace Greenshot.Plugin.Office.OfficeExport
                 return;
             }
 
-            if (!Version.TryParse(outlookApplication.ComObject.Version, out _outlookVersion))
+            try
             {
-                LOG.Warn("Assuming outlook version 1997.");
-                _outlookVersion = new Version((int) OfficeVersions.Office97, 0, 0, 0);
+                if (!Version.TryParse(outlookApplication.ComObject.Version, out _outlookVersion))
+                {
+                    LOG.Warn("Could not determine Outlook version, assuming minimum.");
+                    _outlookVersion = new Version((int) OfficeVersions.Office97, 0, 0, 0);
+                }
+            }
+            catch (InvalidCastException)
+            {
+                // TYPE_E_CANTLOADLIBRARY: the COM object is entirely unusable. Re-throw so callers
+                // can treat Outlook as unavailable rather than returning a broken COM object.
+                throw;
             }
 
             // Preventing retrieval of currentUser if Outlook is older than 2007
@@ -767,7 +795,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
                     {
                         using var inspector = DisposableCom.Create(inspectors.ComObject[i]);
                         string caption = inspector.ComObject.Caption;
-                        // Fix double entries in the directory, TODO: store on something uniq
+                        // Fix double entries in the directory, TODO: store on something unique
                         if (inspectorCaptions.ContainsKey(caption))
                         {
                             continue;

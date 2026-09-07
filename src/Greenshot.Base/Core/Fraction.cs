@@ -82,7 +82,7 @@ namespace Greenshot.Base.Core
         }
 
         public int CompareTo(Fraction other)
-            => (int) (Numerator * other.Denominator) - (int) (other.Numerator * Denominator);
+            => ((long) Numerator * other.Denominator).CompareTo((long) other.Numerator * Denominator);
 
         #endregion
 
@@ -145,8 +145,8 @@ namespace Greenshot.Base.Core
         public static implicit operator Fraction(uint number)
             => new Fraction(number, 1u);
 
-        public static implicit operator Fraction((uint numerator, uint demoninator) tuple)
-            => new Fraction(tuple.numerator, tuple.demoninator);
+        public static implicit operator Fraction((uint numerator, uint denominator) tuple)
+            => new Fraction(tuple.numerator, tuple.denominator);
 
         #endregion
 

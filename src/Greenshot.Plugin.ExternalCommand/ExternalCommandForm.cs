@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -20,13 +20,17 @@
  */
 
 using Greenshot.Base.Controls;
+using Greenshot.Base.Core;
 
-namespace Greenshot.Plugin.ExternalCommand
+namespace Greenshot.Plugin.ExternalCommand;
+
+/// <summary>
+/// This class is needed for design-time resolving of the language files
+/// </summary>
+public class ExternalCommandForm : GreenshotForm
 {
-    /// <summary>
-    /// This class is needed for design-time resolving of the language files
-    /// </summary>
-    public class ExternalCommandForm : GreenshotForm
+    static ExternalCommandForm()
     {
+        IniConfigHelper.EnsureSection<IExternalCommandConfiguration>(() => new ExternalCommandConfigurationImpl());
     }
-}
+}

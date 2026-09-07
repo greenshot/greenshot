@@ -5,7 +5,7 @@
 		<resource name="about_donations">Greenshot が気に入ったら、是非支援をお願いします:</resource>
 		<resource name="about_host">Greenshot は、GitHub でホストされています:</resource>
 		<resource name="about_icons">上山根 祐輔氏の Fugue Icons を使用しています (Creative Commons Attribution 3.0 license):</resource>
-		<resource name="about_license">Copyright (C) 2007-2025 Thomas Braun、Jens Klingen、Robin Krom
+		<resource name="about_license">Copyright (C) 2007-2026 Thomas Braun、Jens Klingen、Robin Krom
 Greenshot には一切の保障がありません。
 これはフリー ソフトウェアであり、特定の条件下で再配布することができます。
 GNU General Public License の詳細:</resource>
@@ -136,12 +136,30 @@ GNU General Public License の詳細:</resource>
 		<resource name="editor_obfuscate_blur">ぼかし</resource>
 		<resource name="editor_obfuscate_mode">ぼかしモード</resource>
 		<resource name="editor_obfuscate_pixelize">モザイク</resource>
+		<resource name="editor_obfuscate_text">テキストを秘匿化...</resource>
+		<resource name="editor_obfuscate_text_title">テキストを秘匿化</resource>
+		<resource name="editor_obfuscate_text_search">検索:</resource>
+		<resource name="editor_obfuscate_text_search_button">検索</resource>
+		<resource name="editor_obfuscate_text_regex">正規表現を使用</resource>
+		<resource name="editor_obfuscate_text_case_sensitive">大文字と小文字を区別</resource>
+		<resource name="editor_obfuscate_text_auto_search">自動検索</resource>
+		<resource name="editor_obfuscate_text_search_scope">検索範囲:</resource>
+		<resource name="editor_obfuscate_text_scope_words">単語</resource>
+		<resource name="editor_obfuscate_text_scope_lines">行</resource>
+		<resource name="editor_obfuscate_text_matches">一致数: {0}</resource>
+		<resource name="editor_obfuscate_text_apply">適用</resource>
+		<resource name="editor_obfuscate_text_error">エラー</resource>
+		<resource name="editor_obfuscate_text_no_capture">利用可能なキャプチャがありません</resource>
+		<resource name="editor_obfuscate_text_no_ocr_provider">OCRプロバイダーが利用できません</resource>
+		<resource name="editor_obfuscate_text_ocr_failed">OCR失敗</resource>
+		<resource name="editor_obfuscate_text_no_text">画像内にテキストが見つかりません</resource>
 		<resource name="editor_object">オブジェクト</resource>
 		<resource name="editor_opendirinexplorer">ディレクトリをエクスプローラーで開く</resource>
 		<resource name="editor_pastefromclipboard">貼り付け</resource>
 		<resource name="editor_pixel_size">ピクセル サイズ</resource>
 		<resource name="editor_preview_quality">プレビュー品質</resource>
 		<resource name="editor_print">印刷</resource>
+		<resource name="editor_remove_transparency">透明度を削除</resource>
 		<resource name="editor_redo">やり直し{0}</resource>
 		<resource name="editor_resetsize">サイズをリセット</resource>
 		<resource name="editor_resize">サイズ変更</resource>
@@ -239,7 +257,7 @@ GNU General Public License の詳細:</resource>
 		<resource name="settings_destination_email">メール</resource>
 		<resource name="settings_destination_file">保存 (下欄の設定を使用)</resource>
 		<resource name="settings_destination_fileas">名前を付けて保存 (ダイアログを表示)</resource>
-		<resource name="settings_destination_picker">出力先を毎回選択</resource>
+		<resource name="settings_destination_picker">毎回出力先を尋ねる</resource>
 		<resource name="settings_destination_printer">プリンターに送る</resource>
 		<resource name="settings_editor">エディター</resource>
 		<resource name="settings_filenamepattern">ファイル名パターン</resource>

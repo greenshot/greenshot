@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -21,7 +21,6 @@
 
 using System;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Gdi32;
 using Greenshot.Base.Core;
@@ -51,34 +50,21 @@ namespace Greenshot.Editor.Drawing.Filters
             AddField(GetType(), FieldType.PREVIEW_QUALITY, 1.0d);
         }
 
-        public override void Apply(Graphics graphics, Bitmap applyBitmap, NativeRect rect, RenderMode renderMode)
+        protected override void ApplyFilter(Graphics graphics, Bitmap applyBitmap, NativeRect applyRect, RenderMode renderMode)
         {
             int blurRadius = GetFieldValueAsInt(FieldType.BLUR_RADIUS);
-            var applyRect = ImageHelper.CreateIntersectRectangle(applyBitmap.Size, rect, Invert);
-            if (applyRect.Width == 0 || applyRect.Height == 0)
-            {
-                return;
-            }
-
-            GraphicsState state = graphics.Save();
-            if (Invert)
-            {
-                graphics.SetClip(applyRect);
-                graphics.ExcludeClip(rect);
-            }
-
             if (GdiPlusApi.IsBlurPossible(blurRadius))
             {
                 GdiPlusApi.DrawWithBlur(graphics, applyBitmap, applyRect, null, null, blurRadius, false);
             }
             else
             {
-                using IFastBitmap fastBitmap = FastBitmap.CreateCloneOf(applyBitmap, applyRect);
-                ImageHelper.ApplyBoxBlur(fastBitmap, blurRadius);
-                fastBitmap.DrawTo(graphics, applyRect);
+                using (IFastBitmap fastBitmap = FastBitmap.CreateCloneOf(applyBitmap, applyRect))
+                {
+                    ImageHelper.ApplyBoxBlur(fastBitmap, blurRadius);
+                    fastBitmap.DrawTo(graphics, applyRect);
+                }
             }
-
-            graphics.Restore(state);
         }
     }
 }

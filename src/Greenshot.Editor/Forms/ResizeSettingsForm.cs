@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -36,10 +36,15 @@ namespace Greenshot.Editor.Forms
         private readonly string _valuePercent;
         private double _newWidth, _newHeight;
 
+        public ResizeSettingsForm() : this(new ResizeEffect(100, 100, true))
+        {
+        }
+
         public ResizeSettingsForm(ResizeEffect effect)
         {
             _effect = effect;
             InitializeComponent();
+            InitializeLanguage();
             var valuePixel = Language.GetString("editor_resize_pixel");
             _valuePercent = Language.GetString("editor_resize_percent");
             combobox_width.Items.Add(valuePixel);
@@ -57,6 +62,16 @@ namespace Greenshot.Editor.Forms
             combobox_height.SelectedIndexChanged += Combobox_SelectedIndexChanged;
 
             checkbox_aspectratio.Checked = effect.MaintainAspectRatio;
+        }
+
+        protected override void InitializeLanguage()
+        {
+            buttonOK.Text = Language.GetString("OK");
+            buttonCancel.Text = Language.GetString("CANCEL");
+            checkbox_aspectratio.Text = Language.GetString("editor_resize_aspectratio");
+            label_width.Text = Language.GetString("editor_resize_width");
+            label_height.Text = Language.GetString("editor_resize_height");
+            Text = Language.GetString("editor_resize_settings");
         }
 
         private void ButtonOK_Click(object sender, EventArgs e)

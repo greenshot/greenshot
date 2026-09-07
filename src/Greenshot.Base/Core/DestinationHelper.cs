@@ -21,7 +21,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 
 namespace Greenshot.Base.Core
@@ -31,7 +31,7 @@ namespace Greenshot.Base.Core
     /// </summary>
     public static class DestinationHelper
     {
-        private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
+        private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
 
         /// <summary>
         /// Method to get all the destinations from the plugins

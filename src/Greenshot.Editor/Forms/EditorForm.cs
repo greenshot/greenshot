@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom, Francis Noel
  * 
@@ -20,10 +20,16 @@
  */
 
 using Greenshot.Base.Controls;
+using Greenshot.Base.Core;
+using Greenshot.Editor.Configuration;
 
 namespace Greenshot.Editor.Forms
 {
     public class EditorForm : GreenshotForm
     {
+        static EditorForm()
+        {
+            IniConfigHelper.EnsureSection<IEditorConfiguration>(() => new EditorConfigurationImpl());
+        }
     }
 }

@@ -70,6 +70,8 @@ namespace Greenshot.Configuration
         settings_tooltip_language,
         settings_tooltip_primaryimageformat,
         settings_tooltip_storagelocation,
+        settings_storagelocation_folder_error,
+        settings_storagelocation_folder_error_title,
         settings_visualization,
         settings_window_capture_mode,
         tooltip_firststart,

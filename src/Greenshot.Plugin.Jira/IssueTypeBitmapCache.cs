@@ -26,30 +26,29 @@ using System.Threading.Tasks;
 using Dapplo.Jira;
 using Dapplo.Jira.Entities;
 
-namespace Greenshot.Plugin.Jira
+namespace Greenshot.Plugin.Jira;
+
+/// <summary>
+/// This is the bach for the IssueType bitmaps
+/// </summary>
+public class IssueTypeBitmapCache : AsyncMemoryCache<IssueType, Bitmap>
 {
-    /// <summary>
-    /// This is the bach for the IssueType bitmaps
-    /// </summary>
-    public class IssueTypeBitmapCache : AsyncMemoryCache<IssueType, Bitmap>
+    private readonly IJiraClient _jiraClient;
+
+    public IssueTypeBitmapCache(IJiraClient jiraClient)
     {
-        private readonly IJiraClient _jiraClient;
+        _jiraClient = jiraClient;
+        // Set the expire timeout to an hour
+        ExpireTimeSpan = TimeSpan.FromHours(4);
+    }
 
-        public IssueTypeBitmapCache(IJiraClient jiraClient)
-        {
-            _jiraClient = jiraClient;
-            // Set the expire timeout to an hour
-            ExpireTimeSpan = TimeSpan.FromHours(4);
-        }
+    protected override string CreateKey(IssueType keyObject)
+    {
+        return keyObject.Name;
+    }
 
-        protected override string CreateKey(IssueType keyObject)
-        {
-            return keyObject.Name;
-        }
-
-        protected override async Task<Bitmap> CreateAsync(IssueType issueType, CancellationToken cancellationToken = new CancellationToken())
-        {
-            return await _jiraClient.Server.GetUriContentAsync<Bitmap>(issueType.IconUri, cancellationToken).ConfigureAwait(false);
-        }
+    protected override async Task<Bitmap> CreateAsync(IssueType issueType, CancellationToken cancellationToken = new CancellationToken())
+    {
+        return await _jiraClient.Server.GetUriContentAsync<Bitmap>(issueType.IconUri, cancellationToken).ConfigureAwait(false);
     }
 }

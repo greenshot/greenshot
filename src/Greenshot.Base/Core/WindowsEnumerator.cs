@@ -45,19 +45,11 @@ namespace Greenshot.Base.Core
             Items = new List<WindowDetails>();
             User32Api.EnumChildWindows(hWndParent, OnWindowEnum, IntPtr.Zero);
 
-            bool hasParent = !IntPtr.Zero.Equals(hWndParent);
-            string parentText = null;
-            if (hasParent)
-            {
-                parentText = User32Api.GetText(hWndParent);
-            }
-
             var windows = new List<WindowDetails>();
             foreach (var window in Items)
             {
-                if (hasParent)
+                if (hWndParent != IntPtr.Zero)
                 {
-                    window.Text = parentText;
                     window.ParentHandle = hWndParent;
                 }
 

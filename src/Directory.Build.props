@@ -15,9 +15,14 @@
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <!-- Optional: Embed source files that are not tracked by the source control manager in the PDB -->
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <TargetFramework>net481</TargetFramework>
+    <TargetFramework>net480</TargetFramework>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
     <Deterministic>true</Deterministic>
+    <!-- Emit Roslyn source-generator output to disk so Visual Studio IntelliSense can see
+         the Dapplo.Ini-generated property implementations in *Impl.cs partial classes.
+         The output path is inside obj/ so the auto-glob (**/*.cs) does NOT pick it up. -->
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <CompilerGeneratedFilesOutputPath>$(MSBuildProjectDirectory)/obj/generated</CompilerGeneratedFilesOutputPath>
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(Configuration)' != 'Debug' And !$(MSBuildProjectName.Contains('Test')) And !$(MSBuildProjectName.Contains('Demo'))">
@@ -50,7 +55,13 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.103" PrivateAssets="All"/>
+  </ItemGroup>
+
+  <!-- Exclude the Roslyn-generated *.g.cs files from the normal compilation glob so they are
+       not compiled twice (once from the generator output and once from the **/*.cs wildcard). -->
+  <ItemGroup Condition="!$(MSBuildProjectName.Contains('Tests')) And $(MSBuildProjectName.StartsWith('Greenshot'))">
+    <Compile Remove="$(CompilerGeneratedFilesOutputPath)/**/*.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -66,29 +77,11 @@
     <Tokens Include="DropBox13_ClientSecret">
       <ReplacementValue>$(DropBox13_ClientSecret)</ReplacementValue>
     </Tokens>
-    <Tokens Include="Flickr_ClientId">
-      <ReplacementValue>$(Flickr_ClientId)</ReplacementValue>
-    </Tokens>
-    <Tokens Include="Flickr_ClientSecret">
-      <ReplacementValue>$(Flickr_ClientSecret)</ReplacementValue>
-    </Tokens>
     <Tokens Include="Imgur13_ClientId">
       <ReplacementValue>$(Imgur13_ClientId)</ReplacementValue>
     </Tokens>
     <Tokens Include="Imgur13_ClientSecret">
       <ReplacementValue>$(Imgur13_ClientSecret)</ReplacementValue>
-    </Tokens>
-    <Tokens Include="Photobucket_ClientId">
-      <ReplacementValue>$(Photobucket_ClientId)</ReplacementValue>
-    </Tokens>
-    <Tokens Include="Photobucket_ClientSecret">
-      <ReplacementValue>$(Photobucket_ClientSecret)</ReplacementValue>
-    </Tokens>
-    <Tokens Include="Picasa_ClientId">
-      <ReplacementValue>$(Picasa_ClientId)</ReplacementValue>
-    </Tokens>
-    <Tokens Include="Picasa_ClientSecret">
-      <ReplacementValue>$(Picasa_ClientSecret)</ReplacementValue>
     </Tokens>
   </ItemGroup>
 

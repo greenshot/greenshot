@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using Dapplo.Windows.Common.Structs;
@@ -30,6 +31,7 @@ namespace Greenshot.Editor.Drawing.Filters
     {
         DrawableContainer Parent { get; set; }
         void Apply(Graphics graphics, Bitmap bmp, NativeRect rect, RenderMode renderMode);
+        void Apply(Graphics graphics, Bitmap bmp, IEnumerable<NativeRect> rects, RenderMode renderMode);
         DrawableContainer GetParent();
         bool Invert { get; set; }
     }

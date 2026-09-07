@@ -53,7 +53,7 @@ namespace Greenshot.Editor.Controls
             }
             else
             {
-                //Vertical Scoll with SHIFT key pressed
+                //Vertical Scroll with SHIFT key pressed
                 if (VScroll && (ModifierKeys & Keys.Shift) == Keys.Shift)
                 {
                     VScroll = false;

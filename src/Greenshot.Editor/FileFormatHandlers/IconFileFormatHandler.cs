@@ -45,6 +45,8 @@ namespace Greenshot.Editor.FileFormatHandlers
             SupportedExtensions[FileFormatHandlerActions.LoadDrawableFromStream] = _ourExtensions;
             SupportedExtensions[FileFormatHandlerActions.LoadFromStream] = _ourExtensions;
             SupportedExtensions[FileFormatHandlerActions.SaveToStream] = _ourExtensions;
+            SupportedExtensions[FileFormatHandlerActions.SaveToFile] = _ourExtensions;
+            SupportedExtensions[FileFormatHandlerActions.LoadFromFile] = _ourExtensions;
         }
 
         public override bool TrySaveToStream(Bitmap bitmap, Stream stream, string extension, ISurface surface = null, SurfaceOutputSettings surfaceOutputSettings = null)
@@ -114,7 +116,7 @@ namespace Greenshot.Editor.FileFormatHandlers
                 // Write the width / height, 0 means 256
                 binaryWriter.Write(imageSize.Width == 256 ? (byte)0 : (byte)imageSize.Width);
                 binaryWriter.Write(imageSize.Height == 256 ? (byte)0 : (byte)imageSize.Height);
-                binaryWriter.Write((byte)0); // no pallete
+                binaryWriter.Write((byte)0); // no palette
                 binaryWriter.Write((byte)0); // reserved
                 binaryWriter.Write((short)0); // no color planes
                 binaryWriter.Write((short)32); // 32 bpp

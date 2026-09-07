@@ -42,16 +42,18 @@ namespace Greenshot.Editor.FileFormatHandlers
         private const string HeifDecoder = "{E9A4A80A-44FE-4DE4-8971-7150B10A5199}";
         private const string WicDecoderCategory = "{7ED96837-96F0-4812-B211-F13C24117ED3}";
 
-        private IReadOnlyCollection<string> LoadFromStreamExtensions { get; } = new []{ ".jxr", ".dds", ".hdp", ".wdp", ".wmp"};
-        private IReadOnlyCollection<string> SaveToStreamExtensions { get; } = new[] { ".jxr" };
+        private IReadOnlyCollection<string> LoadExtensions { get; } = new []{ ".jxr", ".dds", ".hdp", ".wdp", ".wmp"};
+        private IReadOnlyCollection<string> SaveExtensions { get; } = new[] { ".jxr" };
         
         public WpfFileFormatHandler()
         {
-            LoadFromStreamExtensions = LoadFromStreamExtensions.ToList().Concat(RetrieveSupportedExtensions()).OrderBy(e => e).Distinct().ToArray();
+            LoadExtensions = LoadExtensions.ToList().Concat(RetrieveSupportedExtensions()).OrderBy(e => e).Distinct().ToArray();
 
-            SupportedExtensions[FileFormatHandlerActions.LoadDrawableFromStream] = LoadFromStreamExtensions;
-            SupportedExtensions[FileFormatHandlerActions.LoadFromStream] = LoadFromStreamExtensions;
-            SupportedExtensions[FileFormatHandlerActions.SaveToStream] = SaveToStreamExtensions;
+            SupportedExtensions[FileFormatHandlerActions.LoadDrawableFromStream] = LoadExtensions;
+            SupportedExtensions[FileFormatHandlerActions.LoadFromStream] = LoadExtensions;
+            SupportedExtensions[FileFormatHandlerActions.SaveToStream] = SaveExtensions;
+            SupportedExtensions[FileFormatHandlerActions.SaveToFile] = SaveExtensions;
+            SupportedExtensions[FileFormatHandlerActions.LoadFromFile] = LoadExtensions;
         }
 
         /// <summary>

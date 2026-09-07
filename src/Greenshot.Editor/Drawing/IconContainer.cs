@@ -73,8 +73,6 @@ namespace Greenshot.Editor.Drawing
             {
                 icon?.Dispose();
                 icon = (Icon) value.Clone();
-                Width = value.Width;
-                Height = value.Height;
             }
             get => icon;
         }
@@ -103,6 +101,7 @@ namespace Greenshot.Editor.Drawing
 
             using Icon fileIcon = new Icon(filename);
             Icon = fileIcon;
+            ResetToDefaultSize();
             Log.Debug("Loaded file: " + filename + " with resolution: " + Height + "," + Width);
         }
 
@@ -115,6 +114,7 @@ namespace Greenshot.Editor.Drawing
 
             using Icon fileIcon = new Icon(iconStream);
             Icon = fileIcon;
+            ResetToDefaultSize();
             Log.Debug("Loaded stream: with resolution: " + Height + "," + Width);
         }
 

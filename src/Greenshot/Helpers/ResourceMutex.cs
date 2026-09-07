@@ -59,7 +59,7 @@ namespace Greenshot.Helpers
         ///     Create a ResourceMutex for the specified mutex id and resource-name
         /// </summary>
         /// <param name="mutexId">ID of the mutex, preferably a Guid as string</param>
-        /// <param name="resourceName">Name of the resource to lock, e.g your application name, usefull for logs</param>
+        /// <param name="resourceName">Name of the resource to lock, e.g your application name, useful for logs</param>
         /// <param name="global">true to have a global mutex see: https://msdn.microsoft.com/en-us/library/bwe34f1k.aspx </param>
         public static ResourceMutex Create(string mutexId, string resourceName = null, bool global = false)
         {
