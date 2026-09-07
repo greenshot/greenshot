@@ -345,6 +345,22 @@ namespace Greenshot.Forms
             // This forces the registration of all processors inside Greenshot itself.
             RegisterInternalProcessors();
 
+            // Synchronize triggers and recipes with the newly loaded greenshot.ini configuration
+            TriggerManager.Instance.InitializeDefaultTriggers();
+            RecipeManager.Instance.ReloadRecipes();
+
+            RecipeManager.Instance.RecipesChanged += (s, e) =>
+            {
+                if (InvokeRequired)
+                {
+                    BeginInvoke(new MethodInvoker(UpdateRecipesMenu));
+                }
+                else
+                {
+                    UpdateRecipesMenu();
+                }
+            };
+
             // if language is not set, show language dialog
             if (string.IsNullOrEmpty(_conf.Language))
             {
@@ -791,6 +807,7 @@ namespace Greenshot.Forms
                         if (!currentPaths.Contains(ofd.FileName))
                         {
                             coreConfiguration.RecipeFiles = string.IsNullOrEmpty(existing) ? ofd.FileName : $"{existing};{ofd.FileName}";
+                            IniConfigRegistry.Get()?.Save();
                         }
                     }
                 }
@@ -1480,6 +1497,15 @@ namespace Greenshot.Forms
         public void Exit()
         {
             Log.Info("Exit: " + EnvironmentInfo.EnvironmentToString(false));
+
+            try
+            {
+                IniConfigRegistry.Get()?.Save();
+            }
+            catch (Exception ex)
+            {
+                Log.Warn("Error saving configuration on exit!", ex);
+            }
 
             // Close all open forms (except this), use a separate List to make sure we don't get a "InvalidOperationException: Collection was modified"
             List<Form> formsToClose = new List<Form>();

@@ -21,6 +21,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Ini;
@@ -29,6 +30,7 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Pipeline;
 using Greenshot.Base.Recipes;
 using Greenshot.Configuration;
+using Greenshot.Editor.Destinations;
 using log4net;
 
 namespace Greenshot.Pipeline.Steps
@@ -58,16 +60,48 @@ namespace Greenshot.Pipeline.Steps
         {
             context.State = CaptureFlowState.Exporting;
 
-            var designations = ResolveDestinationDesignations(context);
+            var designations = ResolveDestinationDesignations(context).ToList();
             List<IDestination> destinations = new List<IDestination>();
 
             foreach (var designation in designations)
             {
-                var dest = DestinationHelper.GetDestination(designation);
+                if (string.IsNullOrWhiteSpace(designation)) continue;
+
+                // Case-insensitive destination matching
+                var dest = DestinationHelper.GetAllDestinations()
+                    .FirstOrDefault(d => string.Equals(d.Designation, designation, StringComparison.OrdinalIgnoreCase));
+
+                if (dest == null)
+                {
+                    dest = SimpleServiceProvider.Current.GetAllInstances<IDestination>()
+                        .FirstOrDefault(d => string.Equals(d.Designation, designation, StringComparison.OrdinalIgnoreCase));
+                }
+
+                if (dest == null && string.Equals(designation, EditorDestination.DESIGNATION, StringComparison.OrdinalIgnoreCase))
+                {
+                    dest = new EditorDestination();
+                }
+
                 if (dest != null && dest.IsActive)
                 {
                     destinations.Add(dest);
                 }
+                else if (dest != null && !dest.IsActive)
+                {
+                    Log.WarnFormat("Destination '{0}' was resolved but is marked inactive in configuration.", dest.Designation);
+                }
+            }
+
+            if (destinations.Count > 0)
+            {
+                Log.InfoFormat("DestinationExportStep: Resolved {0} destination(s): [{1}]",
+                    destinations.Count, string.Join(", ", destinations.Select(d => d.Designation)));
+                context.LogStep($"Exporting capture to {destinations.Count} destination(s): {string.Join(", ", destinations.Select(d => d.Designation))}");
+            }
+            else
+            {
+                Log.WarnFormat("DestinationExportStep: No active destinations resolved for designations: [{0}]", string.Join(", ", designations));
+                context.LogStep($"Warning: No active destinations resolved for designations: {string.Join(", ", designations)}");
             }
 
             await _dispatcher.DispatchAsync(context, destinations, cancellationToken).ConfigureAwait(false);
@@ -76,17 +110,34 @@ namespace Greenshot.Pipeline.Steps
         private IEnumerable<string> ResolveDestinationDesignations(CaptureFlowContext context)
         {
             // Priority 1: Context property override (e.g. from trigger or caller)
-            if (context.Properties.TryGetValue("OverrideDestinations", out var ctxVal) &&
-                ctxVal is IEnumerable<string> ctxDests)
+            if (context.Properties.TryGetValue("OverrideDestinations", out var ctxVal) && ctxVal != null)
             {
-                return ctxDests;
+                if (ctxVal is IEnumerable<string> ctxDests) return ctxDests;
+                if (ctxVal is string ctxStr && !string.IsNullOrWhiteSpace(ctxStr)) return new[] { ctxStr };
             }
 
-            // Priority 2: Explicit step parameter configuration
-            var stepDests = Config.GetParameter<List<string>>("DestinationDesignations");
+            // Priority 2: Explicit step parameter configuration (check list variants)
+            var stepDests = Config.GetParameter<List<string>>("DestinationDesignations")
+                ?? Config.GetParameter<List<string>>("destinationDesignations")
+                ?? Config.GetParameter<List<string>>("Destinations")
+                ?? Config.GetParameter<List<string>>("destinations");
             if (stepDests != null && stepDests.Count > 0)
             {
                 return stepDests;
+            }
+
+            // Priority 2b: Single string designation
+            string singleDest = Config.GetParameter<string>("Destination")
+                ?? Config.GetParameter<string>("destination")
+                ?? Config.GetParameter<string>("DestinationDesignation")
+                ?? Config.GetParameter<string>("destinationDesignation")
+                ?? Config.GetParameter<string>("Destinations")
+                ?? Config.GetParameter<string>("destinations")
+                ?? Config.GetParameter<string>("DestinationDesignations")
+                ?? Config.GetParameter<string>("destinationDesignations");
+            if (!string.IsNullOrWhiteSpace(singleDest))
+            {
+                return new[] { singleDest };
             }
 
             // Priority 3: Dynamic user configuration evaluation

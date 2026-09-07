@@ -75,6 +75,12 @@ namespace Greenshot.Pipeline.Steps
                 return;
             }
 
+            // Skip interaction if capture was already acquired directly from a window (e.g. targeted window capture)
+            if (payload.RawCapture.CaptureDetails?.MetaData?.TryGetValue("source", out var src) == true && src == "Window")
+            {
+                return;
+            }
+
             context.State = CaptureFlowState.Selecting;
 
             bool allowSnapping = Config.GetParameter("AllowWindowSnapping", true);

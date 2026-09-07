@@ -321,7 +321,7 @@ namespace Greenshot.Recipes
                             bool approved = RequestInteractiveApproval(recipe, filePath, valResult, out allowExternalCommands);
                             if (approved)
                             {
-                                RecipeTrustStore.RecordApproval(filePath, currentHash, allowExternalCommands);
+                                RecipeTrustStore.RecordApproval(filePath, currentHash, allowExternalCommands, recipe.Name, recipe.Version);
                                 forceApprovalPrompt = false; // Once user approves file, don't force prompt again for subsequent recipes in same file
                             }
                             else
@@ -389,9 +389,17 @@ namespace Greenshot.Recipes
 
             void Show()
             {
-                var window = new UI.RecipeApprovalWindow(recipe, filePath, valResult);
+                var window = new UI.RecipeApprovalWindow(recipe, filePath, valResult)
+                {
+                    Topmost = true,
+                    ShowActivated = true,
+                    WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen
+                };
+
+                // Only set owner if mainForm is actually visible.
+                // If mainForm is a hidden system tray form, setting it as owner causes Windows to push the dialog behind other active windows!
                 var mainForm = SimpleServiceProvider.Current.GetInstance<System.Windows.Forms.Form>(isOptional: true);
-                if (mainForm != null && mainForm.IsHandleCreated)
+                if (mainForm != null && mainForm.IsHandleCreated && mainForm.Visible)
                 {
                     new System.Windows.Interop.WindowInteropHelper(window).Owner = mainForm.Handle;
                 }

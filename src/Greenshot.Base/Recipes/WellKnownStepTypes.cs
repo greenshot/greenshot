@@ -57,18 +57,23 @@ namespace Greenshot.Base.Recipes
         public const string Notification = "Notification";
 
         /// <summary>
-        /// Applies a border with specified color and width to the captured image.
-        /// </summary>
-        public const string Border = "Border";
-
-        /// <summary>
-        /// Applies an image effect (e.g. Border, DropShadow, TornEdge, Invert, Grayscale).
+        /// Applies an image effect (e.g. Border, DropShadow, TornEdge, Invert, Grayscale, Rotate, Resize).
         /// </summary>
         public const string Effect = "Effect";
+
+        /// <summary>
+        /// Applies a border to the capture. Maintained as alias to Effect for backward compatibility.
+        /// </summary>
+        public const string Border = "Border";
 
         /// <summary>
         /// Evaluates a condition and executes child steps based on the result.
         /// </summary>
         public const string Conditional = "Conditional";
+
+        /// <summary>
+        /// Scans text via OCR, locates occurrences matching regex/text pattern, and applies effects (Blur, Pixelize, Highlight, Redact).
+        /// </summary>
+        public const string TextEffect = "TextEffect";
     }
 }

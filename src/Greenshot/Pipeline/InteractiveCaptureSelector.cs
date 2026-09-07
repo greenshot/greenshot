@@ -44,7 +44,7 @@ namespace Greenshot.Pipeline
             CancellationToken cancellationToken = default)
         {
             var tcs = new TaskCompletionSource<SelectionResult>();
-            var uiContext = SimpleServiceProvider.Current.GetInstance<SynchronizationContext>();
+            var uiContext = SimpleServiceProvider.Current.GetInstance<SynchronizationContext>(isOptional: true) ?? SynchronizationContext.Current;
 
             void ShowForm()
             {

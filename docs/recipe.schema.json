@@ -127,6 +127,8 @@
             "InteractiveSelection",
             "Border",
             "Effect",
+            "TextEffect",
+            "ObfuscateText",
             "ImmediateFeedback",
             "Processors",
             "Destinations",
@@ -161,6 +163,23 @@
                 "TextOcr"
               ],
               "description": "Used by 'Source' step: The kind of raw pixels to capture."
+            },
+            "WindowTitle": {
+              "type": "string",
+              "description": "Used by 'Source' step (Window/ActiveWindow): Substring or exact title of a specific window to target and bring to front."
+            },
+            "WindowTitlePattern": {
+              "type": "string",
+              "description": "Used by 'Source' step (Window/ActiveWindow): Regular expression pattern to match window title."
+            },
+            "ProcessName": {
+              "type": "string",
+              "description": "Used by 'Source' step (Window/ActiveWindow): Target process name (e.g. 'notepad', 'Greenshot')."
+            },
+            "MatchCase": {
+              "type": "boolean",
+              "default": false,
+              "description": "Whether title or regex pattern matching is case-sensitive (default: false)."
             },
             "CaptureMouseCursor": {
               "type": "boolean",
@@ -214,12 +233,30 @@
               "type": "integer",
               "minimum": 1,
               "default": 2,
-              "description": "Used by 'Border' step: Border thickness in pixels."
+              "description": "Used by 'Border' or 'Resize' step: Border thickness or target width in pixels."
+            },
+            "Height": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Used by 'Resize' step: Target height in pixels."
+            },
+            "Percentage": {
+              "type": "number",
+              "description": "Used by 'Resize' step: Scaling percentage (e.g. 50 for 50%)."
+            },
+            "MaintainAspectRatio": {
+              "type": "boolean",
+              "default": true,
+              "description": "Used by 'Resize' step: Whether to preserve original aspect ratio."
             },
             "Color": {
               "type": "string",
               "default": "#000000",
-              "description": "Used by 'Border' step: Border color as HTML hex (#RRGGBB, #AARRGGBB) or named color (e.g. 'Red', 'Black')."
+              "description": "Used by 'Border', 'ResizeCanvas', 'RemoveTransparency', or 'TextEffect': Color as hex (#RRGGBB, #AARRGGBB) or named color."
+            },
+            "FillColor": {
+              "type": "string",
+              "description": "Used by 'TextEffect': Fill color for Highlight or Redact/Blackout (e.g. '#FFFF00', '#000000')."
             },
             "Effect": {
               "type": "string",
@@ -228,9 +265,134 @@
                 "DropShadow",
                 "TornEdge",
                 "Invert",
-                "Grayscale"
+                "Grayscale",
+                "Monochrome",
+                "Adjust",
+                "Rotate",
+                "Resize",
+                "ResizeCanvas",
+                "ReduceColors",
+                "RemoveTransparency",
+                "Pixelize",
+                "Blur",
+                "Highlight",
+                "Redact",
+                "Blackout",
+                "Magnify"
               ],
-              "description": "Used by 'Effect' step: The effect type to apply to the capture."
+              "description": "Used by 'Effect' or 'TextEffect' step: The effect type to apply."
+            },
+            "Darkness": {
+              "type": "number",
+              "default": 0.6,
+              "description": "Used by 'DropShadow' and 'TornEdge' effects: Shadow darkness (0.0 to 1.0)."
+            },
+            "ShadowSize": {
+              "type": "integer",
+              "default": 7,
+              "description": "Used by 'DropShadow' and 'TornEdge' effects: Shadow radius/size in pixels."
+            },
+            "ToothHeight": {
+              "type": "integer",
+              "default": 12,
+              "description": "Used by 'TornEdge' effect: Height of teeth in pixels."
+            },
+            "HorizontalToothRange": {
+              "type": "integer",
+              "default": 20,
+              "description": "Used by 'TornEdge' effect: Tooth horizontal pitch/range."
+            },
+            "VerticalToothRange": {
+              "type": "integer",
+              "default": 20,
+              "description": "Used by 'TornEdge' effect: Tooth vertical pitch/range."
+            },
+            "GenerateShadow": {
+              "type": "boolean",
+              "default": true,
+              "description": "Used by 'TornEdge' effect: Whether to render drop shadow around torn edges."
+            },
+            "Threshold": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 255,
+              "default": 128,
+              "description": "Used by 'Monochrome' effect: Threshold value (0-255)."
+            },
+            "Brightness": {
+              "type": "number",
+              "default": 1.0,
+              "description": "Used by 'Adjust' effect: Brightness multiplier (1.0 = normal)."
+            },
+            "Contrast": {
+              "type": "number",
+              "default": 1.0,
+              "description": "Used by 'Adjust' effect: Contrast multiplier (1.0 = normal)."
+            },
+            "Gamma": {
+              "type": "number",
+              "default": 1.0,
+              "description": "Used by 'Adjust' effect: Gamma multiplier (1.0 = normal)."
+            },
+            "Angle": {
+              "type": "integer",
+              "enum": [90, -90, 270],
+              "default": 90,
+              "description": "Used by 'Rotate' effect: Rotation angle in degrees (90, -90, or 270)."
+            },
+            "Margin": {
+              "type": "integer",
+              "description": "Used by 'ResizeCanvas' effect: Uniform canvas border margin in pixels."
+            },
+            "Pattern": {
+              "type": "string",
+              "description": "Used by 'TextEffect' step: Single regular expression pattern to find in OCR-detected text."
+            },
+            "Patterns": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Used by 'TextEffect' step: Multiple regex patterns to match (e.g. credit cards, emails, tokens)."
+            },
+            "Scope": {
+              "type": "string",
+              "enum": ["Auto", "Word", "Line"],
+              "default": "Auto",
+              "description": "Used by 'TextEffect' step: Match scope. 'Auto' maps regex matches precisely to word bounding boxes."
+            },
+            "BlurRadius": {
+              "type": "integer",
+              "default": 10,
+              "description": "Used by 'TextEffect' step with Blur effect: Blur radius in pixels."
+            },
+            "PixelSize": {
+              "type": "integer",
+              "default": 5,
+              "description": "Used by 'TextEffect' step with Pixelize effect: Obfuscation block size in pixels."
+            },
+            "MagnificationFactor": {
+              "type": "integer",
+              "default": 2,
+              "description": "Used by 'TextEffect' step with Magnify effect: Magnification zoom factor."
+            },
+            "PaddingHorizontal": {
+              "type": "integer",
+              "default": 10,
+              "description": "Used by 'TextEffect' step: Horizontal padding percentage to grow matched bounding box."
+            },
+            "PaddingVertical": {
+              "type": "integer",
+              "default": 20,
+              "description": "Used by 'TextEffect' step: Vertical padding percentage to grow matched bounding box."
+            },
+            "OffsetHorizontal": {
+              "type": "integer",
+              "default": 0,
+              "description": "Used by 'TextEffect' step: Horizontal pixel offset for effect container."
+            },
+            "OffsetVertical": {
+              "type": "integer",
+              "default": 0,
+              "description": "Used by 'TextEffect' step: Vertical pixel offset for effect container."
             },
             "PlaySound": {
               "type": "boolean",

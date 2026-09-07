@@ -5,16 +5,22 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         Title="Greenshot - Recipe Security Approval"
-        Height="650" Width="580"
+        SizeToContent="Height"
+        Width="600"
+        MinWidth="520"
+        MinHeight="360"
+        MaxHeight="820"
         WindowStartupLocation="CenterScreen"
-        ResizeMode="NoResize"
+        Topmost="True"
+        ShowActivated="True"
+        ResizeMode="CanResizeWithGrip"
         FontFamily="Segoe UI, Segoe UI Variable Display, Tahoma, Arial"
         FontSize="13"
         Background="{Binding WindowBackgroundBrush}">
 
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="40"
-                      ResizeBorderThickness="0"
+                      ResizeBorderThickness="4"
                       CornerRadius="0"
                       GlassFrameThickness="0"
                       UseAeroCaptionButtons="False" />
@@ -140,9 +146,26 @@
 
                 <!-- Icon and App Name in Title Bar -->
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="14,0,0,0" VerticalAlignment="Center">
-                    <TextBlock Text="🛡️" FontSize="13" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                    <Grid Margin="0,0,8,0" VerticalAlignment="Center" Width="16" Height="16">
+                        <!-- Warning Triangle Icon (Visible when Modified on disk) -->
+                        <Canvas Width="16" Height="16" Visibility="{Binding WarningIconVisibility}">
+                            <Path Fill="#F59E0B"
+                                  Data="M 8.87,1.82 C 8.48,1.15 7.52,1.15 7.13,1.82 L 0.22,13.82 C -0.17,14.5 0.31,15.35 1.09,15.35 H 14.91 C 15.69,15.35 16.17,14.5 15.78,13.82 Z" />
+                            <Path Fill="#18181B"
+                                  Data="M 7.15,5.2 C 7.15,4.7 7.55,4.3 8.0,4.3 C 8.45,4.3 8.85,4.7 8.85,5.2 L 8.6,9.4 C 8.6,9.8 8.3,10.1 8.0,10.1 C 7.7,10.1 7.4,9.8 7.4,9.4 Z" />
+                            <Ellipse Fill="#18181B" Width="1.8" Height="1.8" Canvas.Left="7.1" Canvas.Top="11.4" />
+                        </Canvas>
+                        <!-- Blue Shield Icon (Visible when New Recipe or Re-verification) -->
+                        <Canvas Width="16" Height="16" Visibility="{Binding ShieldIconVisibility}">
+                            <Path Fill="#0A84FF"
+                                  Data="M 8,1.2 L 14.5,3.6 C 14.5,3.6 14.8,9.5 8,15 C 1.2,9.5 1.5,3.6 1.5,3.6 Z" />
+                            <Path Stroke="White" StrokeThickness="1.8"
+                                  StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"
+                                  Data="M 4.8,7.8 L 7.1,10.2 L 11.4,5.8" />
+                        </Canvas>
+                    </Grid>
                     <TextBlock Text="Greenshot" FontWeight="SemiBold" FontSize="12" Foreground="{Binding TextPrimaryBrush}" VerticalAlignment="Center"/>
-                    <TextBlock Text=" — Recipe Security Approval" FontSize="12" Foreground="{Binding TextSecondaryBrush}" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding WindowTitleSubtitle}" FontSize="12" Foreground="{Binding TextSecondaryBrush}" VerticalAlignment="Center"/>
                 </StackPanel>
 
                 <!-- Caption Close Button -->
@@ -162,17 +185,105 @@
 
                 <!-- Header -->
                 <StackPanel Grid.Row="0" Margin="0,0,0,14">
-                    <TextBlock Text="External Capture Recipe Detected" 
-                               FontSize="18" FontWeight="SemiBold" 
-                               Foreground="{Binding TextPrimaryBrush}" Margin="0,0,0,4"/>
-                    <TextBlock Text="A capture recipe file is requesting to be registered into Greenshot. Review its details, triggers, and execution steps before approving." 
+                    <Grid Margin="0,0,0,6">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="{Binding HeaderTitle}" 
+                                   FontSize="18" FontWeight="SemiBold" 
+                                   Foreground="{Binding TextPrimaryBrush}" VerticalAlignment="Center"/>
+                        <Border Grid.Column="1" CornerRadius="4" Padding="8,3" 
+                                Background="{Binding StatusBadgeBackgroundBrush}" 
+                                BorderBrush="{Binding StatusBadgeBorderBrush}" 
+                                BorderThickness="1"
+                                VerticalAlignment="Center">
+                            <TextBlock Text="{Binding StatusBadgeText}" 
+                                       FontSize="11" FontWeight="Bold" 
+                                       Foreground="{Binding StatusBadgeForegroundBrush}"/>
+                        </Border>
+                    </Grid>
+                    <TextBlock Text="{Binding HeaderDescription}" 
                                TextWrapping="Wrap" 
                                Foreground="{Binding TextSecondaryBrush}"/>
                 </StackPanel>
 
                 <!-- Scrollable Content -->
-                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="0,0,0,16">
+                <ScrollViewer x:Name="ContentScrollViewer" Grid.Row="1" MaxHeight="520" Padding="0,0,6,0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="0,0,0,16">
                     <StackPanel>
+                        <!-- Recipe Modification Alert Card (Visible only when file modified on disk) -->
+                        <Border x:Name="ModificationAlertPanel" CornerRadius="8" Padding="14" Margin="0,0,0,12"
+                                Background="{Binding WarningBackgroundBrush}" 
+                                BorderBrush="{Binding WarningBorderBrush}" 
+                                BorderThickness="1"
+                                Visibility="{Binding ModificationWarningVisibility}">
+                            <StackPanel>
+                                <Grid Margin="0,0,0,6">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Canvas Width="16" Height="16" Margin="0,0,8,0" VerticalAlignment="Center">
+                                        <Path Fill="#F59E0B"
+                                              Data="M 8.87,1.82 C 8.48,1.15 7.52,1.15 7.13,1.82 L 0.22,13.82 C -0.17,14.5 0.31,15.35 1.09,15.35 H 14.91 C 15.69,15.35 16.17,14.5 15.78,13.82 Z" />
+                                        <Path Fill="#18181B"
+                                              Data="M 7.15,5.2 C 7.15,4.7 7.55,4.3 8.0,4.3 C 8.45,4.3 8.85,4.7 8.85,5.2 L 8.6,9.4 C 8.6,9.8 8.3,10.1 8.0,10.1 C 7.7,10.1 7.4,9.8 7.4,9.4 Z" />
+                                        <Ellipse Fill="#18181B" Width="1.8" Height="1.8" Canvas.Left="7.1" Canvas.Top="11.4" />
+                                    </Canvas>
+                                    <TextBlock Grid.Column="1" Text="File Content Modified on Disk" FontWeight="Bold" FontSize="13" Foreground="{Binding WarningTextBrush}" VerticalAlignment="Center"/>
+                                </Grid>
+                                <TextBlock Text="This recipe was previously approved, but its file content on disk has changed since it was last approved. Verify the changes below before re-authorizing execution:" 
+                                           Foreground="{Binding WarningTextBrush}" TextWrapping="Wrap" Margin="0,0,0,8"/>
+
+                                <Grid Margin="0,2,0,2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="140"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Previously Approved:" FontWeight="SemiBold" Foreground="{Binding WarningTextBrush}"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding PreviousApprovalDate}" Foreground="{Binding WarningTextBrush}"/>
+                                </Grid>
+                                <Grid Margin="0,2,0,2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="140"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Previous SHA-256:" FontWeight="SemiBold" Foreground="{Binding WarningTextBrush}"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding PreviousFileHash}" FontFamily="Consolas, Courier New" FontSize="11" TextTrimming="CharacterEllipsis" ToolTip="{Binding PreviousFileHash}" Foreground="{Binding WarningTextBrush}"/>
+                                </Grid>
+                                <Grid Margin="0,2,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="140"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="New SHA-256:" FontWeight="SemiBold" Foreground="{Binding WarningTextBrush}"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding FileHash}" FontFamily="Consolas, Courier New" FontSize="11" TextTrimming="CharacterEllipsis" ToolTip="{Binding FileHash}" Foreground="{Binding WarningTextBrush}"/>
+                                </Grid>
+
+                                <!-- Quick Inspection Actions -->
+                                <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                                    <Button Style="{StaticResource SecondaryButtonStyle}" 
+                                            Padding="10,4" Margin="0,0,8,0"
+                                            Click="OnOpenInExplorerClicked"
+                                            ToolTip="Open recipe file location in Windows Explorer">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="📁" Margin="0,0,6,0" FontSize="11" VerticalAlignment="Center"/>
+                                            <TextBlock Text="Show in Explorer" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Style="{StaticResource SecondaryButtonStyle}" 
+                                            Padding="10,4"
+                                            Click="OnViewFileClicked"
+                                            ToolTip="Open recipe file in default editor to inspect changes">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="📝" Margin="0,0,6,0" FontSize="11" VerticalAlignment="Center"/>
+                                            <TextBlock Text="View Recipe File" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
                         <!-- Recipe Overview Card -->
                         <Border CornerRadius="8" Padding="14" Margin="0,0,0,12"
                                 Background="{Binding CardBackgroundBrush}" 
@@ -205,9 +316,20 @@
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="75"/>
                                         <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Text="File Path:" FontWeight="SemiBold" Foreground="{Binding TextSecondaryBrush}"/>
-                                    <TextBlock Grid.Column="1" Text="{Binding FilePath}" TextTrimming="CharacterEllipsis" ToolTip="{Binding FilePath}" Foreground="{Binding TextPrimaryBrush}"/>
+                                    <TextBlock Text="File Path:" FontWeight="SemiBold" Foreground="{Binding TextSecondaryBrush}" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding FilePath}" TextTrimming="CharacterEllipsis" ToolTip="{Binding FilePath}" Foreground="{Binding TextPrimaryBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                    <Button Grid.Column="2" 
+                                            Style="{StaticResource SecondaryButtonStyle}" 
+                                            Padding="8,2" FontSize="11"
+                                            Click="OnOpenInExplorerClicked"
+                                            ToolTip="Show this file in Windows Explorer">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="📁" Margin="0,0,4,0" FontSize="10" VerticalAlignment="Center"/>
+                                            <TextBlock Text="Explorer" FontSize="10" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Button>
                                 </Grid>
 
                                 <Grid Margin="0,2,0,0">
@@ -276,7 +398,16 @@
                                 BorderThickness="1"
                                 Visibility="{Binding ExternalCommandWarningVisibility}">
                             <StackPanel>
-                                <TextBlock Text="⚠️ Security Warning: External Commands" FontWeight="Bold" Foreground="{Binding WarningTextBrush}" Margin="0,0,0,4"/>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                                    <Canvas Width="16" Height="16" Margin="0,0,8,0" VerticalAlignment="Center">
+                                        <Path Fill="#F59E0B"
+                                              Data="M 8.87,1.82 C 8.48,1.15 7.52,1.15 7.13,1.82 L 0.22,13.82 C -0.17,14.5 0.31,15.35 1.09,15.35 H 14.91 C 15.69,15.35 16.17,14.5 15.78,13.82 Z" />
+                                        <Path Fill="#18181B"
+                                              Data="M 7.15,5.2 C 7.15,4.7 7.55,4.3 8.0,4.3 C 8.45,4.3 8.85,4.7 8.85,5.2 L 8.6,9.4 C 8.6,9.8 8.3,10.1 8.0,10.1 C 7.7,10.1 7.4,9.8 7.4,9.4 Z" />
+                                        <Ellipse Fill="#18181B" Width="1.8" Height="1.8" Canvas.Left="7.1" Canvas.Top="11.4" />
+                                    </Canvas>
+                                    <TextBlock Text="Security Warning: External Commands" FontWeight="Bold" FontSize="13" Foreground="{Binding WarningTextBrush}" VerticalAlignment="Center"/>
+                                </StackPanel>
                                 <TextBlock Text="This recipe contains steps that launch external processes or shell commands on your computer:" 
                                            Foreground="{Binding WarningTextBrush}" TextWrapping="Wrap" Margin="0,0,0,6"/>
 
@@ -311,10 +442,11 @@
                             Width="120" Height="34" Margin="0,0,10,0"
                             Click="OnRejectClicked"/>
 
-                    <Button x:Name="BtnApprove" Grid.Column="2" Content="Approve &amp; Enable" 
+                    <Button x:Name="BtnApprove" Grid.Column="2" Content="{Binding ApproveButtonText}" 
                             Style="{StaticResource PrimaryButtonStyle}"
                             IsDefault="True"
-                            Width="150" Height="34"
+                            MinWidth="150" Height="34"
+                            Padding="16,6"
                             Click="OnApproveClicked"/>
                 </Grid>
             </Grid>

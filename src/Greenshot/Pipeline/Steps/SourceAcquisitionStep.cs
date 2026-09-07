@@ -86,9 +86,22 @@ namespace Greenshot.Pipeline.Steps
                 return;
             }
 
+            // Check if window targeting parameters are specified in config
+            bool hasTargetWindowConfig = !string.IsNullOrEmpty(Config.GetParameter<string>("WindowTitle")) ||
+                                         !string.IsNullOrEmpty(Config.GetParameter<string>("windowTitle")) ||
+                                         !string.IsNullOrEmpty(Config.GetParameter<string>("WindowTitlePattern")) ||
+                                         !string.IsNullOrEmpty(Config.GetParameter<string>("windowTitlePattern")) ||
+                                         !string.IsNullOrEmpty(Config.GetParameter<string>("ProcessName")) ||
+                                         !string.IsNullOrEmpty(Config.GetParameter<string>("processName"));
+
             // 5. Instantiate source based on SourceType
             ICaptureSource source = sourceType switch
             {
+                CaptureSourceType.Window when hasTargetWindowConfig =>
+                    captureMouse
+                        ? new CompositeCaptureSource("TargetWindowWithCursor", new ICaptureSource[] { new ActiveWindowCaptureSource(Config), new CursorCaptureSource() })
+                        : new ActiveWindowCaptureSource(Config),
+
                 CaptureSourceType.Region or CaptureSourceType.Window or CaptureSourceType.TextOcr =>
                     CreateScreenWithCursorSource(captureMouse, "InteractiveBaseSource"),
 
@@ -97,8 +110,8 @@ namespace Greenshot.Pipeline.Steps
 
                 CaptureSourceType.ActiveWindow =>
                     captureMouse
-                        ? new CompositeCaptureSource("ActiveWindowWithCursor", new ICaptureSource[] { new ActiveWindowCaptureSource(), new CursorCaptureSource() })
-                        : new ActiveWindowCaptureSource(),
+                        ? new CompositeCaptureSource("ActiveWindowWithCursor", new ICaptureSource[] { new ActiveWindowCaptureSource(Config), new CursorCaptureSource() })
+                        : new ActiveWindowCaptureSource(Config),
 
                 CaptureSourceType.LastRegion =>
                     captureMouse
@@ -205,10 +218,10 @@ namespace Greenshot.Pipeline.Steps
             bool isTerminalServer = !CoreConfig.DisableRDPOptimizing && (CoreConfig.OptimizeForRDP || SystemInformation.TerminalServerSession);
             if (!CoreConfig.HideTrayicon && !isTerminalServer)
             {
-                var notifyIcon = SimpleServiceProvider.Current.GetInstance<NotifyIcon>();
+                var notifyIcon = SimpleServiceProvider.Current.GetInstance<NotifyIcon>(isOptional: true);
                 if (notifyIcon != null)
                 {
-                    var uiContext = SimpleServiceProvider.Current.GetInstance<SynchronizationContext>();
+                    var uiContext = SimpleServiceProvider.Current.GetInstance<SynchronizationContext>(isOptional: true) ?? SynchronizationContext.Current;
                     if (uiContext != null && SynchronizationContext.Current != uiContext)
                     {
                         uiContext.Post(_ =>

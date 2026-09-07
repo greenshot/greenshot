@@ -89,12 +89,14 @@ namespace Greenshot.Pipeline
         {
             _stepRegistry.RegisterStepFactory(WellKnownStepTypes.Source, config => new SourceAcquisitionStep(config));
             _stepRegistry.RegisterStepFactory(WellKnownStepTypes.InteractiveSelection, config => new InteractiveSelectionStep(config, _selector));
-            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.Border, config => new BorderCaptureStep(config));
-            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.Effect, config => new BorderCaptureStep(config));
+            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.Border, config => new EffectCaptureStep(config));
+            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.Effect, config => new EffectCaptureStep(config));
             _stepRegistry.RegisterStepFactory(WellKnownStepTypes.ImmediateFeedback, config => new ImmediateFeedbackStep(config));
             _stepRegistry.RegisterStepFactory(WellKnownStepTypes.Processors, config => new ProcessorExecutionStep(config));
             _stepRegistry.RegisterStepFactory(WellKnownStepTypes.Destinations, config => new DestinationExportStep(config, _dispatcher));
             _stepRegistry.RegisterStepFactory(WellKnownStepTypes.Notification, config => new NotificationStep(config));
+            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.TextEffect, config => new TextEffectStep(config));
+            _stepRegistry.RegisterStepFactory("ObfuscateText", config => new TextEffectStep(config));
             _stepRegistry.RegisterStepFactory(WellKnownStepTypes.Conditional, config =>
             {
                 var cond = config.GetParameter<IStepCondition>("Condition");
@@ -178,7 +180,9 @@ namespace Greenshot.Pipeline
                         }
 
                         context.LogStep($"Executing step: {step.Name}");
+                        Log.InfoFormat("Executing pipeline step: '{0}' [{1}]", step.Name, stepConfig.StepType);
                         await step.ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
+                        Log.InfoFormat("Finished pipeline step: '{0}' [{1}]", step.Name, stepConfig.StepType);
                     }
                 }
 
@@ -186,6 +190,7 @@ namespace Greenshot.Pipeline
                 {
                     context.State = CaptureFlowState.Completed;
                     context.LogStep("Capture flow completed successfully.");
+                    Log.InfoFormat("Capture flow completed successfully: '{0}'", recipe.Name);
                 }
             }
             catch (OperationCanceledException)

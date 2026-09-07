@@ -34,9 +34,10 @@
       }
     },
     {
-      "stepType": "Border",
+      "stepType": "Effect",
       "name": "Add Blue Border",
       "parameters": {
+        "effect": "Border",
         "width": 2,
         "color": "#0000FF"
       }

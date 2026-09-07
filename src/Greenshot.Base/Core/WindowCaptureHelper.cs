@@ -106,9 +106,21 @@ namespace Greenshot.Base.Core
 
             if (CustomWindowCaptureHandler != null && CoreConfig.IsBetaTester)
             {
-                captureForWindow.Image = CustomWindowCaptureHandler(windowToCapture.Handle);
-                captureForWindow.CaptureDetails.Title = windowToCapture.Text;
-                return captureForWindow;
+                try
+                {
+                    var customImage = CustomWindowCaptureHandler(windowToCapture.Handle);
+                    if (customImage != null)
+                    {
+                        captureForWindow.Image = customImage;
+                        captureForWindow.CaptureDetails.Title = windowToCapture.Text;
+                        return captureForWindow;
+                    }
+                    Log.DebugFormat("CustomWindowCaptureHandler returned null for window {0}, falling back to standard capture.", windowToCapture.Handle);
+                }
+                catch (Exception ex)
+                {
+                    Log.Warn($"CustomWindowCaptureHandler failed for window {windowToCapture.Handle} ('{windowToCapture.Text}'), falling back to standard capture.", ex);
+                }
             }
 
             NativeRect windowRectangle = windowToCapture.WindowRectangle;

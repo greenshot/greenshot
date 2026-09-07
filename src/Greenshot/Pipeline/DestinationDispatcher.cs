@@ -60,6 +60,7 @@ namespace Greenshot.Pipeline
             if (destinationList.Count == 0)
             {
                 context.LogStep("No destinations to dispatch to.");
+                Log.Warn("DestinationDispatcher: No destinations to dispatch to.");
                 return;
             }
 
@@ -70,6 +71,7 @@ namespace Greenshot.Pipeline
             if (surface == null || captureDetails == null)
             {
                 context.LogStep("Surface or CaptureDetails is null, cannot dispatch to destinations.");
+                Log.Warn("DestinationDispatcher: Surface or CaptureDetails is null, cannot dispatch to destinations.");
                 return;
             }
 
@@ -82,7 +84,13 @@ namespace Greenshot.Pipeline
                 surface.SurfaceMessage += SurfaceMessageReceived;
             }
 
-            var uiContext = SimpleServiceProvider.Current.GetInstance<SynchronizationContext>();
+            var uiContext = SimpleServiceProvider.Current.GetInstance<SynchronizationContext>(isOptional: true) ?? SynchronizationContext.Current;
+
+            // Retain surface if Editor is a target destination so context.Dispose() does not free bitmap
+            if (destinationList.Any(d => EditorDestination.DESIGNATION.Equals(d.Designation, StringComparison.OrdinalIgnoreCase)))
+            {
+                payload.RetainSurfaceForEditor = true;
+            }
 
             // If Destination Picker is in the list, show picker and let user pick
             if (destinationList.Any(d => nameof(WellKnownDestinations.Picker).Equals(d.Designation, StringComparison.OrdinalIgnoreCase)))
@@ -223,6 +231,11 @@ namespace Greenshot.Pipeline
                     }
                     else
                     {
+                        if (EditorDestination.DESIGNATION.Equals(destination.Designation, StringComparison.OrdinalIgnoreCase))
+                        {
+                            payload.RetainSurfaceForEditor = true;
+                        }
+
                         ExportInformation exportInformation = null;
                         if (uiContext != null && SynchronizationContext.Current != uiContext)
                         {
@@ -232,6 +245,11 @@ namespace Greenshot.Pipeline
                         {
                             exportInformation = destination.ExportCapture(false, surface, captureDetails);
                         }
+
+                        Log.InfoFormat("Destination '{0}' export completed (ExportMade: {1}{2})",
+                            destination.Designation,
+                            exportInformation?.ExportMade ?? false,
+                            !string.IsNullOrEmpty(exportInformation?.ErrorMessage) ? $", Error: {exportInformation.ErrorMessage}" : "");
 
                         if (EditorDestination.DESIGNATION.Equals(destination.Designation, StringComparison.OrdinalIgnoreCase) &&
                             exportInformation != null && exportInformation.ExportMade)
@@ -260,10 +278,10 @@ namespace Greenshot.Pipeline
         {
             if (string.IsNullOrEmpty(eventArgs?.Message)) return;
 
-            var notifyService = SimpleServiceProvider.Current.GetInstance<INotificationService>();
+            var notifyService = SimpleServiceProvider.Current.GetInstance<INotificationService>(isOptional: true);
             if (notifyService == null) return;
 
-            var uiContext = SimpleServiceProvider.Current.GetInstance<SynchronizationContext>();
+            var uiContext = SimpleServiceProvider.Current.GetInstance<SynchronizationContext>(isOptional: true) ?? SynchronizationContext.Current;
             void Notify()
             {
                 switch (eventArgs.MessageType)

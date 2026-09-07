@@ -66,7 +66,7 @@ namespace Greenshot.Triggers
             InitializeDefaultTriggers();
         }
 
-        private void InitializeDefaultTriggers()
+        public void InitializeDefaultTriggers()
         {
             if (CoreConfig == null) return;
 
@@ -146,8 +146,17 @@ namespace Greenshot.Triggers
 
                 foreach (var recipe in recipes)
                 {
-                    if (recipe.Triggers == null || recipe.Triggers.Count == 0) continue;
+                    if (recipe.Triggers == null || recipe.Triggers.Count == 0)
+                    {
+                        if (!recipe.IsBuiltIn && recipe.ShowInContextMenu)
+                        {
+                            string triggerId = $"trigger_recipe_{recipe.Id}_menu_default";
+                            RegisterTrigger(new ContextMenuTrigger(triggerId, recipe.Name, recipe.Name, recipe.Id, "Recipes", 0));
+                        }
+                        continue;
+                    }
 
+                    bool hasMenuTrigger = false;
                     for (int i = 0; i < recipe.Triggers.Count; i++)
                     {
                         var tc = recipe.Triggers[i];
@@ -165,12 +174,19 @@ namespace Greenshot.Triggers
                         else if (string.Equals(tc.TriggerType, TriggerConfig.TypeContextMenu, StringComparison.OrdinalIgnoreCase) ||
                                  string.Equals(tc.TriggerType, TriggerConfig.TypeSystray, StringComparison.OrdinalIgnoreCase))
                         {
+                            hasMenuTrigger = true;
                             string menuText = tc.GetParameter<string>("MenuItemText") ?? recipe.Name;
                             string group = tc.GetParameter<string>("Group", "Recipes");
                             int order = tc.GetParameter<int>("Order", 0);
                             string triggerId = $"trigger_recipe_{recipe.Id}_menu_{i}";
                             RegisterTrigger(new ContextMenuTrigger(triggerId, tc.Name ?? menuText, menuText, recipe.Id, group, order));
                         }
+                    }
+
+                    if (!hasMenuTrigger && !recipe.IsBuiltIn && recipe.ShowInContextMenu)
+                    {
+                        string triggerId = $"trigger_recipe_{recipe.Id}_menu_default";
+                        RegisterTrigger(new ContextMenuTrigger(triggerId, recipe.Name, recipe.Name, recipe.Id, "Recipes", 0));
                     }
                 }
             }

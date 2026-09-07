@@ -196,11 +196,15 @@ Link this schema in your `.gsrecipe.json` files for instant editor autocomplete,
 ## 6. Step Types & Parameters Reference
 
 ### Step: `Source`
-Acquires raw pixels and aligns display DPI.
+Acquires raw pixels, restores/activates target windows, and aligns display DPI.
 
 | Parameter | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
 | `SourceType` | `string` | `"Region"` | One of: `"Region"`, `"Window"`, `"ActiveWindow"`, `"FullScreen"`, `"LastRegion"`, `"Clipboard"`, `"File"`, `"TextOcr"` |
+| `WindowTitle` | `string` | `null` | Exact or substring title of a specific window to target, restore, bring to front, and capture |
+| `WindowTitlePattern` | `string` | `null` | Regular expression pattern used to match target window title |
+| `ProcessName` | `string` | `null` | Target process executable name (e.g. `"notepad"`, `"Greenshot"`) |
+| `MatchCase` | `boolean` | `false` | Whether title or regex pattern matching is case-sensitive |
 | `CaptureMouseCursor` | `boolean` | `null` | Pre-defines mouse capture. If omitted (`null`), dynamically evaluates `CoreConfig.CaptureMousepointer` |
 | `DelayMs` | `integer` | `null` | Milliseconds to wait before capture. If omitted (`null`), dynamically evaluates `CoreConfig.CaptureDelay` |
 | `AlignDpi` | `boolean` | `true` | Aligns bitmap resolution to match physical display DPI |
@@ -215,22 +219,50 @@ Presents the interactive selection rectangle or window picker overlay.
 | `SelectionMode` | `string` | `"Region"` | One of: `"Region"`, `"Window"`, `"Text"` |
 | `AllowWindowSnapping` | `boolean` | `true` | Whether the selection rectangle snaps to windows under the cursor |
 
-### Step: `Border`
-Adds a border around the captured image without opening any modal dialogs.
-
-| Parameter | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
-| `Width` | `integer` | `2` | Border thickness in pixels (must be >= 1) |
-| `Color` | `string` | `"#000000"` | HTML hex code (`"#FF0000"`, `"#336699"`) or standard named color (`"Red"`, `"Black"`, `"Navy"`) |
-
 ### Step: `Effect`
-Applies an image effect (border, shadow, torn edge, color inversion, grayscale).
+Applies an image effect directly to the capture surface. Multiple `Effect` steps can be sequenced.
 
 | Parameter | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
-| `Effect` | `string` | `"Border"` | One of: `"Border"`, `"DropShadow"`, `"TornEdge"`, `"Invert"`, `"Grayscale"` |
-| `Width` | `integer` | `2` | Used when `Effect` is `"Border"`: border thickness |
-| `Color` | `string` | `"#000000"` | Used when `Effect` is `"Border"`: border color |
+| `Effect` | `string` | `"Border"` | One of: `"Border"`, `"DropShadow"`, `"TornEdge"`, `"Invert"`, `"Grayscale"`, `"Monochrome"`, `"Adjust"`, `"Rotate"`, `"Resize"`, `"ResizeCanvas"`, `"ReduceColors"`, `"RemoveTransparency"` |
+| `Width` | `integer` | `2` | Used for `"Border"` (thickness) or `"Resize"` (width in pixels) |
+| `Height` | `integer` | `null` | Used for `"Resize"`: target height in pixels |
+| `Percentage` | `number` | `null` | Used for `"Resize"`: scaling percentage (e.g. `50` for 50%) |
+| `MaintainAspectRatio` | `boolean` | `true` | Used for `"Resize"`: preserve original aspect ratio |
+| `Color` | `string` | `"#000000"` | Used for `"Border"`, `"ResizeCanvas"`, `"RemoveTransparency"`: color hex or name |
+| `Darkness` | `number` | `0.6` | Used for `"DropShadow"` and `"TornEdge"`: shadow darkness (0.0 to 1.0) |
+| `ShadowSize` | `integer` | `7` | Used for `"DropShadow"` and `"TornEdge"`: shadow blur/size in pixels |
+| `ToothHeight` | `integer` | `12` | Used for `"TornEdge"`: height of paper teeth in pixels |
+| `HorizontalToothRange` | `integer` | `20` | Used for `"TornEdge"`: horizontal tooth interval |
+| `VerticalToothRange` | `integer` | `20` | Used for `"TornEdge"`: vertical tooth interval |
+| `GenerateShadow` | `boolean` | `true` | Used for `"TornEdge"`: whether to render drop shadow along torn edge |
+| `Edges` | `array / string` | `[true,true,true,true]` | Used for `"TornEdge"`: which edges to tear (e.g. `"top,bottom"` or `[true, false, true, false]`) |
+| `Threshold` | `integer` | `128` | Used for `"Monochrome"`: black/white luminance threshold (0 - 255) |
+| `Brightness` | `number` | `1.0` | Used for `"Adjust"`: brightness multiplier (1.0 = normal) |
+| `Contrast` | `number` | `1.0` | Used for `"Adjust"`: contrast multiplier (1.0 = normal) |
+| `Gamma` | `number` | `1.0` | Used for `"Adjust"`: gamma multiplier (1.0 = normal) |
+| `Angle` | `integer` | `90` | Used for `"Rotate"`: rotation angle in degrees (`90`, `-90`, `270`) |
+| `Margin` | `integer` | `0` | Used for `"ResizeCanvas"`: uniform border padding around image |
+| `Colors` | `integer` | `256` | Used for `"ReduceColors"`: maximum number of quantized colors |
+
+### Step: `TextEffect`
+Runs OCR text recognition, locates occurrences matching regex patterns, and places effect containers (`Blur`, `Pixelize`, `Highlight`, `Redact`, `Magnify`) directly over matched coordinates.
+
+| Parameter | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `Pattern` | `string` | `null` | Single regular expression pattern to detect (e.g. `"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}"`) |
+| `Patterns` | `array of string` | `null` | Array of regex patterns to match (e.g. credit cards, API keys, emails) |
+| `Effect` | `string` | `"Pixelize"` | One of: `"Pixelize"`, `"Blur"`, `"Highlight"`, `"Redact"`, `"Blackout"`, `"Magnify"` |
+| `Scope` | `string` | `"Auto"` | `"Auto"` (maps regex match to exact word bounds), `"Word"` (matches word tokens), or `"Line"` (covers whole line) |
+| `BlurRadius` | `integer` | `10` | Used for `"Blur"`: blur radius in pixels |
+| `PixelSize` | `integer` | `5` | Used for `"Pixelize"`: obfuscation pixel block size |
+| `FillColor` | `string` | `"#FFFF00"` / `"#000000"` | Color used for `"Highlight"` (yellow) or `"Redact"` (black) |
+| `MagnificationFactor` | `integer` | `2` | Used for `"Magnify"`: magnification scale factor |
+| `PaddingHorizontal` | `integer` | `10` | Percentage to grow matched bounding box horizontally |
+| `PaddingVertical` | `integer` | `20` | Percentage to grow matched bounding box vertically |
+| `OffsetHorizontal` | `integer` | `0` | Pixel horizontal offset for effect container |
+| `OffsetVertical` | `integer` | `0` | Pixel vertical offset for effect container |
+| `MatchCase` | `boolean` | `false` | Whether regex matching is case-sensitive |
 
 ### Step: `ImmediateFeedback`
 Dispatches immediate sensory feedback upon pixel acquisition.
@@ -424,3 +456,83 @@ A single `.json` file can also contain a JSON array of recipes:
   }
 ]
 ```
+
+### Example 5: Targeted Window Capture with DropShadow and Regex DLP Redaction
+A recipe that targets a specific window matching regex pattern `.*(Greenshot|Notepad|Browser).*`, restores/brings it to front, captures it, applies a 10px drop shadow, scans OCR text for sensitive data (credit cards, emails, API keys), applies blackout redaction, and opens the editor:
+
+```json
+{
+  "$schema": "./recipe.schema.json",
+  "version": "1.0",
+  "id": "recipe_window_regex_redact",
+  "name": "Target Window with DLP Redaction",
+  "description": "Captures a targeted window, adds drop shadow, runs OCR to find sensitive patterns, redacts them, and opens the editor",
+  "triggers": [
+    {
+      "triggerType": "ContextMenu",
+      "parameters": {
+        "menuItemText": "Target Window with DLP Redact",
+        "group": "Recipes"
+      }
+    },
+    {
+      "triggerType": "Hotkey",
+      "name": "Target Window with DLP Redaction Hotkey",
+      "parameters": {
+        "hotkey": "Ctrl + Shift + D"
+      }
+    }
+  ],
+  "steps": [
+    {
+      "stepType": "Source",
+      "name": "Capture Target Window",
+      "parameters": {
+        "sourceType": "ActiveWindow",
+        "windowTitlePattern": ".*(Notepad|Editor|Greenshot|Chrome|Edge).*",
+        "matchCase": false
+      }
+    },
+    {
+      "stepType": "Effect",
+      "name": "Apply Drop Shadow",
+      "parameters": {
+        "effect": "DropShadow",
+        "shadowSize": 10,
+        "darkness": 0.65
+      }
+    },
+    {
+      "stepType": "TextEffect",
+      "name": "Redact Sensitive Data",
+      "parameters": {
+        "effect": "Redact",
+        "fillColor": "#000000",
+        "scope": "Auto",
+        "patterns": [
+          "\\b\\d{4}[ -]?\\d{4}[ -]?\\d{4}[ -]?\\d{4}\\b",
+          "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}",
+          "\\b(AKIA|AIza|ghp_|glpat-)[A-Za-z0-9_\\-]{16,}\\b"
+        ],
+        "paddingHorizontal": 12,
+        "paddingVertical": 25
+      }
+    },
+    {
+      "stepType": "ImmediateFeedback",
+      "parameters": {
+        "playSound": true
+      }
+    },
+    {
+      "stepType": "Destinations",
+      "parameters": {
+        "destinationDesignations": [
+          "Editor"
+        ]
+      }
+    }
+  ]
+}
+```
+

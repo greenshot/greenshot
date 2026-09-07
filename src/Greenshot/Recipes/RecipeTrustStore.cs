@@ -38,6 +38,8 @@ namespace Greenshot.Recipes
         public string Sha256Hash { get; set; }
         public DateTime ApprovedAt { get; set; } = DateTime.UtcNow;
         public bool AllowExternalCommands { get; set; }
+        public string RecipeName { get; set; }
+        public string RecipeVersion { get; set; }
     }
 
     /// <summary>
@@ -173,9 +175,31 @@ namespace Greenshot.Recipes
         }
 
         /// <summary>
+        /// Retrieves the stored trust record for the specified recipe file, if any exists.
+        /// </summary>
+        public static RecipeTrustRecord GetTrustRecord(string filePath)
+        {
+            if (string.IsNullOrEmpty(filePath)) return null;
+
+            lock (LockObj)
+            {
+                var records = LoadRecords();
+                try
+                {
+                    string fullPath = Path.GetFullPath(filePath);
+                    return records.TryGetValue(fullPath, out var record) ? record : null;
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+        }
+
+        /// <summary>
         /// Records explicit user trust and approval for a recipe file.
         /// </summary>
-        public static void RecordApproval(string filePath, string sha256, bool allowExternalCommands)
+        public static void RecordApproval(string filePath, string sha256, bool allowExternalCommands, string recipeName = null, string recipeVersion = null)
         {
             if (string.IsNullOrEmpty(filePath)) return;
 
@@ -190,7 +214,9 @@ namespace Greenshot.Recipes
                     FilePath = fullPath,
                     Sha256Hash = sha256,
                     ApprovedAt = DateTime.UtcNow,
-                    AllowExternalCommands = allowExternalCommands
+                    AllowExternalCommands = allowExternalCommands,
+                    RecipeName = recipeName,
+                    RecipeVersion = recipeVersion
                 };
                 SaveRecords();
             }
