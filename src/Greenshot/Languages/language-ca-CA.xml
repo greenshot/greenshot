@@ -110,9 +110,6 @@ Abans de crear un nou informe d'error, us agrairem que comproveu que l'error no 
 		<resource name="editor_email">Correu electrònic</resource>
 		<resource name="editor_file">Fitxer</resource>
 		<resource name="editor_fontsize">Mida</resource>
-		<resource name="editor_fit">Estira</resource>
-		<resource name="editor_pushout">Amplia la captura i mou a fora</resource>
-		<resource name="editor_snap">Acobla a la vora</resource>
 		<resource name="editor_forecolor">Color de línia</resource>
 		<resource name="editor_grayscale">Escala de grisos</resource>
 		<resource name="editor_highlight_area">Destaca l'àrea</resource>
@@ -328,5 +325,8 @@ Malgrat això, encara es poden utilitzar totes les característiques de Greensho
 		<resource name="editor_resize_width">Amplada</resource>
 		<resource name="editor_resize_height">Alçada</resource>
 		<resource name="settings_iconsize">Mida de la icona</resource>
+		<resource name="editor_fit">Estira</resource>
+		<resource name="editor_pushout">Amplia la captura i mou a fora</resource>
+		<resource name="editor_snap">Acobla a la vora</resource>
 	</resources>
 </language>

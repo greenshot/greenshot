@@ -210,6 +210,6 @@ Tämä joshtuu todennäköisesti siitä että joku muu ohjelma käyttää samoja
 Sammuta se ohjelma joka käyttäää print näppäintä. Vaihtoehtoisesti voit käyttää kaikkia Greenshot ominaisuuksia myös tehtäväpalkin valikosta.</resource>
 	<resource name="editor_fit">Venytä</resource>
 	<resource name="editor_pushout">Laajenna kaappausta ja siirrä ulkopuolelle</resource>
-	<resource name="editor_snap">Telakoi reunaan</resource>
+		<resource name="editor_snap">Telakoi reunaan</resource>
 	</resources>
 </language>
