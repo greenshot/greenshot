@@ -306,5 +306,8 @@ Kõik Greenshoti lisad töötavad süsteemisalvest ilma kiirklahvide olemasoluta
 		<resource name="WindowCaptureMode.Auto">Automaatselt</resource>
 		<resource name="WindowCaptureMode.GDI">Kasutage tavalist värvi</resource>
 		<resource name="WindowCaptureMode.Screen">Nagu kuvatud</resource>
+	<resource name="editor_fit">Venita</resource>
+	<resource name="editor_pushout">Laienda jäädvustust ja liiguta väljapoole</resource>
+	<resource name="editor_snap">Dokki serva</resource>
 	</resources>
 </language>

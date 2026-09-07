@@ -289,5 +289,8 @@ Prosím deaktivujte iný software využívajúci PrintScreen tlačidlo. Môžete
 		<resource name="WindowCaptureMode.Auto">Automaticky</resource>
 		<resource name="WindowCaptureMode.GDI">Použiť predvolenú farbu</resource>
 		<resource name="WindowCaptureMode.Screen">Ako je zobrazené</resource>
+	<resource name="editor_fit">Roztiahnuť</resource>
+	<resource name="editor_pushout">Rozšíriť snímku a presunúť von</resource>
+	<resource name="editor_snap">Prichytiť k okraju</resource>
 	</resources>
 </language>

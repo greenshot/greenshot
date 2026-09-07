@@ -334,5 +334,8 @@ Alla Greenshots funktioner fungerar fortfarande från snabbmenyn i aktivitetsfä
     <resource name="editor_resize_height">Höjd</resource>
     <resource name="settings_iconsize">Ikonstorlek</resource>
 	
+	<resource name="editor_fit">Sträck ut</resource>
+	<resource name="editor_pushout">Utöka skärmdumpen och flytta utanför</resource>
+	<resource name="editor_snap">Fäst vid kanten</resource>
 	</resources>
 </language>

@@ -208,5 +208,8 @@ fájl mentése az aktuális dátummal és időponttal, a megadott tárolási hel
 		<resource name="warning_hotkeys">Egy vagy több gyors billentyű nincs regisztrálva. Ezért lehet az, hogy nem lehet használni.
 Ez a hiba akkor fordulhat elő, ha egy másik program{1} használja.
 Kapcsolja ki a szotvert és használja PrintScrn billentyűt. Egyszerűen használhatja a Greenshot -ot a tálca ikon helyi menüjéből.</resource>
+	<resource name="editor_fit">Nyújtás</resource>
+	<resource name="editor_pushout">Rögzített kép kiterjesztése és áthelyezés kívülre</resource>
+	<resource name="editor_snap">Igazítás a szélhez</resource>
 	</resources>
 </language>

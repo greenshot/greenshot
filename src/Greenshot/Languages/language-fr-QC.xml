@@ -274,5 +274,8 @@ Veuillez désactiver ce(s) logiciel(s) utilisant le bouton Impr.écran. Vous pou
 		<resource name="WindowCaptureMode.Auto">Automatiquement</resource>
 		<resource name="WindowCaptureMode.GDI">Utiliser les couleurs par défaut</resource>
 		<resource name="WindowCaptureMode.Screen">Tel qu'affiché</resource>
+	<resource name="editor_fit">Étirer</resource>
+	<resource name="editor_pushout">Agrandir la capture et déplacer à l’extérieur</resource>
+	<resource name="editor_snap">Ancrer au bord</resource>
 	</resources>
 </language>

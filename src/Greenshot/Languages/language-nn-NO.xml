@@ -273,5 +273,8 @@ Alle Greenshot-funksjonar er likevel tilgjengeleg via høgreklikkmenyen i varsli
 		<resource name="WindowCaptureMode.Auto">Automatisk</resource>
 		<resource name="WindowCaptureMode.GDI">Bruk standardfarge</resource>
 		<resource name="WindowCaptureMode.Screen">Som synt</resource>
+	<resource name="editor_fit">Strekk</resource>
+	<resource name="editor_pushout">Utvid opptaket og flytt utenfor</resource>
+	<resource name="editor_snap">Fest til kanten</resource>
 	</resources>
 </language>

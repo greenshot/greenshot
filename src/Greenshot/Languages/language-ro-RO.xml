@@ -586,5 +586,8 @@ timpul curent, ex. 11_58_32 (plus extensia fișierului definită în setări)
 	<resource name="contextmenu_donate">
 		Ajutați Greenshot
 	</resource>
+  <resource name="editor_fit">Întinde</resource>
+  <resource name="editor_pushout">Extinde captura și mută în exterior</resource>
+  <resource name="editor_snap">Fixează la margine</resource>
   </resources>
 </language>

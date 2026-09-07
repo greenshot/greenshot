@@ -325,5 +325,8 @@ ${hostname} PC명
     <resource name="editor_resize_height">높이</resource>
 	<resource name="settings_iconsize">아이콘 크기</resource>
 
+  <resource name="editor_fit">늘이기</resource>
+  <resource name="editor_pushout">캡처를 확장하고 바깥쪽으로 이동</resource>
+  <resource name="editor_snap">가장자리에 고정</resource>
   </resources>
 </language>

@@ -329,5 +329,8 @@ ${hostname} コンピューター名
 		<resource name="WindowCaptureMode.Auto">自動</resource>
 		<resource name="WindowCaptureMode.GDI">デフォルト カラーを使用</resource>
 		<resource name="WindowCaptureMode.Screen">表示通り</resource>
+	<resource name="editor_fit">引き伸ばす</resource>
+	<resource name="editor_pushout">キャプチャを拡張して外側へ移動</resource>
+	<resource name="editor_snap">端にドッキング</resource>
 	</resources>
 </language>

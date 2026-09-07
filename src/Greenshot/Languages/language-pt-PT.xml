@@ -327,6 +327,9 @@ Todas as funcionalidades do Greenshot funcionam directamente através do menu de
     <resource name="editor_resize_height">Altura</resource>
 	<resource name="settings_iconsize">Tamanho do ícone</resource>
     
+  <resource name="editor_fit">Esticar</resource>
+  <resource name="editor_pushout">Expandir a captura e mover para fora</resource>
+  <resource name="editor_snap">Encaixar à margem</resource>
   </resources>
 </language>
 	

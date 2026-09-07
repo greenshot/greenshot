@@ -329,5 +329,8 @@ Alle Greenshot functies werken ook zonder sneltoetsen via het context menu.</res
 		<resource name="editor_resize_height">Hoogte</resource>
 		<resource name="settings_iconsize">Pictogramgrootte</resource>
 
+	<resource name="editor_fit">Uitrekken</resource>
+	<resource name="editor_pushout">Opname uitbreiden en naar buiten verplaatsen</resource>
+	<resource name="editor_snap">Aan rand vastmaken</resource>
 	</resources>
 </language>

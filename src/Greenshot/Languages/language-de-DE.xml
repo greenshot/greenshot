@@ -333,5 +333,8 @@ Sie können aber auch alle Greenshot-Funktionen über das Kontextmenü des Green
 		<resource name="editor_resize_width">Breite</resource>
 		<resource name="editor_resize_height">Höhe</resource>
 		<resource name="settings_iconsize">Symbolgröße</resource>
+	<resource name="editor_fit">Strecken</resource>
+	<resource name="editor_pushout">Aufnahme vergrößern und nach außen verschieben</resource>
+	<resource name="editor_snap">Am Rand andocken</resource>
 	</resources>
 </language>

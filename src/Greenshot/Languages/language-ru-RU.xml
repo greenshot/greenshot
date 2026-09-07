@@ -309,5 +309,8 @@ ${hostname} Имя ПК
 		<resource name="WindowCaptureMode.Auto">Автоматически</resource>
 		<resource name="WindowCaptureMode.GDI">Использ. цвет по умолчанию</resource>
 		<resource name="WindowCaptureMode.Screen">Как отображается</resource>
+	<resource name="editor_fit">Растянуть</resource>
+	<resource name="editor_pushout">Расширить снимок и переместить наружу</resource>
+	<resource name="editor_snap">Прикрепить к краю</resource>
 	</resources>
 </language>

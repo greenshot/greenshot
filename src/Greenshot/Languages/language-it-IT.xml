@@ -347,5 +347,8 @@ In alternativa alle scorciatoie di tastiera, tutte le funzioni di Greenshot sono
     <resource name="editor_resize_height">Altezza</resource>
     <resource name="settings_iconsize">Dimensione icona (pixel)</resource>
 
+    <resource name="editor_fit">Allunga</resource>
+    <resource name="editor_pushout">Espandi acquisizione e sposta all'esterno</resource>
+    <resource name="editor_snap">Aggancia al bordo</resource>
     </resources>
 </language>

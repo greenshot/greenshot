@@ -290,5 +290,8 @@ Wennsd mogsd, kannsd nadürlich a einfach es Gondexdmenü nehmen (des grüne G r
 		<resource name="WindowCaptureMode.Auto">Audomadisch</resource>
 		<resource name="WindowCaptureMode.GDI">Schdandardfarm benudzn</resource>
 		<resource name="WindowCaptureMode.Screen">Wäisd es siggsd</resource>
+	<resource name="editor_fit">Streckn</resource>
+	<resource name="editor_pushout">Aufnahme vergrößern und naus schiebn</resource>
+	<resource name="editor_snap">Am Rand andockn</resource>
 	</resources>
 </language>

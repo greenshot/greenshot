@@ -79,6 +79,9 @@
 		<resource name="editor_email">البريد الالكتروني</resource>
 		<resource name="editor_file">ملف</resource>
 		<resource name="editor_fontsize">الحجم</resource>
+		<resource name="editor_fit">تمديد</resource>
+		<resource name="editor_pushout">توسيع الالتقاط ونقل العنصر إلى الخارج</resource>
+		<resource name="editor_snap">إرساء عند الحافة</resource>
 		<resource name="editor_forecolor">لون الخط</resource>
 		<resource name="editor_highlight_area">منطقة التظليل</resource>
 		<resource name="editor_highlight_grayscale">مقياس اللون الرمادي</resource>
