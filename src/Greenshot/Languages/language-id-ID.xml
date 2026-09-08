@@ -5,7 +5,7 @@
 		<resource name="about_donations">Jika anda menyukai Greenshot, anda dipersilahkan untuk mendukung kami:</resource>
 		<resource name="about_host">Greenshot dikelola oleh GitHub di</resource>
 		<resource name="about_icons">Ikon dari Yusuke Kamiyamane Fugue ikon set (lisensi Creative Commons Attribution 3.0)</resource>
-		<resource name="about_license">Hak Cipta milik Thomas Braun, Jens Klingen, Robin Krom 2004-2026
+		<resource name="about_license">Hak Cipta milik Thomas Braun, Jens Klingen, Robin Krom 2007-2026
 Greenshot comes with ABSOLUTELY NO WARRANTY. This is free software, and you are welcome to redistribute it under certain conditions.
 Details about the GNU General Public License:</resource>
 		<resource name="about_title">Tentang Greenshot</resource>
@@ -55,9 +55,12 @@ Juga, kami sangat terbantu apabila anda mengecek laporan lain yang sama dengan k
 		<resource name="contextmenu_donate">Dukung Greenshot</resource>
 		<resource name="contextmenu_exit">Keluar</resource>
 		<resource name="contextmenu_help">Bantuan</resource>
+		<resource name="contextmenu_importrecipe">Impor Resep...</resource>
 		<resource name="contextmenu_openfile">Buka gambar dari berkas</resource>
 		<resource name="contextmenu_openrecentcapture">Buka lokasi terakhir tangkapan</resource>
 		<resource name="contextmenu_quicksettings">Setelan cepat</resource>
+		<resource name="contextmenu_recipes">Resep</resource>
+		<resource name="contextmenu_reloadrecipes">Muat Ulang Resep</resource>
 		<resource name="contextmenu_settings">Pengaturan...</resource>
 		<resource name="destination_exportfailed">Tidak bisa mengekspor ke {0}. Mohon ulangi lagi.</resource>
 		<resource name="editor_align_bottom">Bawah</resource>
@@ -238,6 +241,9 @@ Harap cek aksesibilitas menuis pada lokasi penyimpanan yang dipilih.</resource>
 		<resource name="qualitydialog_dontaskagain">Simpan kualitas default dan jangan tanya lagi</resource>
 		<resource name="qualitydialog_title">Kualitas Greenshot</resource>
 		<resource name="quicksettings_destination_file">Simpan cepat (menggunakan pengaturan output yang dipilih)</resource>
+		<resource name="recipe_import">Impor Resep</resource>
+		<resource name="recipe_import_failed">Gagal memuat resep:</resource>
+		<resource name="recipe_import_title">Impor Resep Penangkapan</resource>
 		<resource name="settings_alwaysshowprintoptionsdialog">Perlihatkan dialog pengaturan mencetak setiap kali gambar dicetak</resource>
 		<resource name="settings_alwaysshowqualitydialog">Tampilkan  dialog kualitas setiap kali gambar disimpan</resource>
 		<resource name="settings_applicationsettings">Setelan Aplikasi</resource>
@@ -320,5 +326,8 @@ cont, 11_58_32 (ditambah ekstensi yang ditetapkan pada pengaturan)</resource>
 		<resource name="WindowCaptureMode.Auto">Otomatis</resource>
 		<resource name="WindowCaptureMode.GDI">Gunakan warna kesukaan</resource>
 		<resource name="WindowCaptureMode.Screen">Tampakkan</resource>
+	<resource name="editor_fit">Regangkan</resource>
+	<resource name="editor_pushout">Perluas tangkapan dan pindahkan ke luar</resource>
+	<resource name="editor_snap">Tempelkan ke tepi</resource>
 	</resources>
 </language>

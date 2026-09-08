@@ -5,7 +5,7 @@
 		<resource name="about_donations">Wenn der Greenshot gfälld, kannsd uns gern a weng helfn:</resource>
 		<resource name="about_host">Greenshot is a bei GitHub, und zwa dordn:</resource>
 		<resource name="about_icons">Dei Fuztl-Bildla sin vom Yusuke Kamiyamane's Fugue icon set (Griäidif Gommens Äddribuschn 3.0 Laisns)</resource>
-		<resource name="about_license">Kobbireid © 2004-2026 Domas Braun, Jens Glingen, Robin Grohm
+		<resource name="about_license">Kobbireid © 2007-2026 Domas Braun, Jens Glingen, Robin Grohm
 A Garandie gibds für Greenshot ned, des kannst vergessn. Greenshot is umsonsd und wennsd mogst, kannsd es a rumreichn.
 Mehr Infos zur GNU Dschännerel Bablig Laisns:</resource>
 		<resource name="about_title">Was issn Greenshot???</resource>
@@ -51,9 +51,12 @@ Dangschee, wassd scho :)</resource>
 		<resource name="contextmenu_donate">A weng helfn</resource>
 		<resource name="contextmenu_exit">Wech mid dem Misd</resource>
 		<resource name="contextmenu_help">Hüüülfe!</resource>
+		<resource name="contextmenu_importrecipe">Rezebt importiern...</resource>
 		<resource name="contextmenu_openfile">Dadei aufmachn</resource>
 		<resource name="contextmenu_openrecentcapture">Ledzdn Sgrienschod im Eggsblorer ozeing</resource>
 		<resource name="contextmenu_quicksettings">Zaggich rumdogdern</resource>
+		<resource name="contextmenu_recipes">Rezebde</resource>
+		<resource name="contextmenu_reloadrecipes">Rezebde nei laden</resource>
 		<resource name="contextmenu_settings">Rumdogdern...</resource>
 		<resource name="destination_exportfailed">Scheiße, des war nix '{0}'. Brobiers hald nochamal.</resource>
 		<resource name="editor_align_bottom">Undn</resource>
@@ -207,6 +210,9 @@ Schau hald amal, obsd da übbahabds hi schreim däffsd oder duhs woannersch hi.<
 		<resource name="qualitydialog_dontaskagain">Als Schdandardgwalidäd schbeichern und nimmer nervn</resource>
 		<resource name="qualitydialog_title">Greenshot Gwalidäd</resource>
 		<resource name="quicksettings_destination_file">Soford schbeichern (mit bevorzugdn Ausgabedadei-Einschdellungen)</resource>
+		<resource name="recipe_import">Rezebd-Import</resource>
+		<resource name="recipe_import_failed">Host des Rezebd ned lada kenna:</resource>
+		<resource name="recipe_import_title">Afnahmrezebd importiern</resource>
 		<resource name="settings_alwaysshowprintoptionsdialog">Druggeinschdellungen vor jeem Ausdrugg ozeing</resource>
 		<resource name="settings_alwaysshowqualitydialog">Gwalidädseinschdellungen vor jeem Schbeichern ozeing</resource>
 		<resource name="settings_applicationsettings">Brogrammeinschdellungen</resource>
@@ -290,5 +296,8 @@ Wennsd mogsd, kannsd nadürlich a einfach es Gondexdmenü nehmen (des grüne G r
 		<resource name="WindowCaptureMode.Auto">Audomadisch</resource>
 		<resource name="WindowCaptureMode.GDI">Schdandardfarm benudzn</resource>
 		<resource name="WindowCaptureMode.Screen">Wäisd es siggsd</resource>
+	<resource name="editor_fit">Streckn</resource>
+	<resource name="editor_pushout">Aufnahme vergrößern und naus schiebn</resource>
+	<resource name="editor_snap">Am Rand andockn</resource>
 	</resources>
 </language>

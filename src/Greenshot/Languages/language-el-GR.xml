@@ -5,7 +5,7 @@
 		<resource name="about_donations">Αν σας αρέσει το Greenshot, είστε ευπρόσδεκτοι να μας υποστηρίξετε:</resource>
 		<resource name="about_host">Το Greenshot φιλοξενείται από τη GitHub:</resource>
 		<resource name="about_icons">Εικονίδια από Yusuke Kamiyamane's Fugue icon set (Creative Commons Attribution 3.0 license)</resource>
-		<resource name="about_license">Copyright © 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+		<resource name="about_license">Copyright © 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
 Δεν παρέχεται ΚΑΜΙΑ ΕΓΓΥΗΣΗ για το Greenshot. Είναι ελεύθερο λογισμικό. Είστε ελεύθεροι να το αναδιανείμετε κάτω από ορισμένες συνθήκες.
 Λεπτομέρειες σχετικά με την GNU General Public License:</resource>
 		<resource name="about_title">Πληροφορίες για το Greenshot</resource>
@@ -56,9 +56,12 @@
 		<resource name="contextmenu_donate">Υποστήριξη του Greenshot</resource>
 		<resource name="contextmenu_exit">Έξοδος</resource>
 		<resource name="contextmenu_help">Βοήθεια</resource>
+		<resource name="contextmenu_importrecipe">Εισαγωγή συνταγής...</resource>
 		<resource name="contextmenu_openfile">Άνοιγμα εικόνας από αρχείο</resource>
 		<resource name="contextmenu_openrecentcapture">Άνοιγμα τελευταίας καταγεγραμμένης περιοχής</resource>
 		<resource name="contextmenu_quicksettings">Γρήγορες Προτιμήσεις</resource>
+		<resource name="contextmenu_recipes">Συνταγές</resource>
+		<resource name="contextmenu_reloadrecipes">Επαναφόρτωση συνταγών</resource>
 		<resource name="contextmenu_settings">Προτιμήσεις...</resource>
 		<resource name="destination_exportfailed">Σφάλμα κατά την εξαγωγή στο {0}. Παρακαλώ προσπαθήστε και πάλι.</resource>
 		<resource name="editor_align_bottom">Στοίχιση κάτω</resource>
@@ -226,6 +229,9 @@
 		<resource name="qualitydialog_dontaskagain">Αποθήκευση των επιλογών ως προεπιλογή και να μην ξαναρωτηθώ</resource>
 		<resource name="qualitydialog_title">Παράθυρο διαλόγου επιλογής ποιότητας του Greenshot</resource>
 		<resource name="quicksettings_destination_file">Άμεση αποθήκευση (με χρήση των προτιμώμενων ρυθμίσεων)</resource>
+		<resource name="recipe_import">Εισαγωγή συνταγής</resource>
+		<resource name="recipe_import_failed">Αποτυχία φόρτωσης συνταγής:</resource>
+		<resource name="recipe_import_title">Εισαγωγή συνταγής καταγραφής</resource>
 		<resource name="settings_alwaysshowprintoptionsdialog">Εμφάνιση των επιλογών εκτύπωσης κατά την εκτύπωση</resource>
 		<resource name="settings_alwaysshowqualitydialog">Εμφάνιση των επιλογών ποιότητας κατά την αποθήκευση</resource>
 		<resource name="settings_applicationsettings">Ρυθμίσεις εφαρμογής</resource>
@@ -305,5 +311,8 @@ ${hostname} Όνομα Υπολογιστή
 		<resource name="WindowCaptureMode.Auto">Αυτόματα</resource>
 		<resource name="WindowCaptureMode.GDI">Χρήση προκαθορισμένου χρώματος</resource>
 		<resource name="WindowCaptureMode.Screen">Όπως εμφανίζεται</resource>
+	<resource name="editor_fit">Τέντωμα</resource>
+	<resource name="editor_pushout">Επέκταση λήψης και μετακίνηση εκτός</resource>
+	<resource name="editor_snap">Προσάρτηση στην άκρη</resource>
 	</resources>
 </language>

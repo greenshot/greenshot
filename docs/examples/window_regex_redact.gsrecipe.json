@@ -1,0 +1,78 @@
+{
+  "$schema": "../recipe.schema.json",
+  "version": "1.0",
+  "id": "recipe_window_regex_redact",
+  "name": "Target Window with DLP Redaction",
+  "description": "Captures a specific targeted window, adds a drop shadow effect, runs OCR to find sensitive tokens and emails by regex pattern, redacts them, and opens the editor",
+  "triggers": [
+    {
+      "triggerType": "ContextMenu",
+      "name": "Target Window Redact Menu Item",
+      "parameters": {
+        "menuItemText": "Target Window with DLP Redact",
+        "group": "Recipes"
+      }
+    },
+    {
+      "triggerType": "Hotkey",
+      "name": "Target Window with DLP Redaction Hotkey",
+      "parameters": {
+        "hotkey": "Ctrl + Shift + D"
+      }
+    }
+  ],
+  "steps": [
+    {
+      "stepType": "Source",
+      "name": "Capture Target Window",
+      "parameters": {
+        "sourceType": "ActiveWindow",
+        "windowTitlePattern": ".*(Notepad|Editor|Greenshot|Chrome|Edge).*",
+        "matchCase": false
+      }
+    },
+    {
+      "stepType": "Effect",
+      "name": "Apply Drop Shadow",
+      "parameters": {
+        "effect": "DropShadow",
+        "shadowSize": 10,
+        "darkness": 0.65
+      }
+    },
+    {
+      "stepType": "TextEffect",
+      "name": "Redact Sensitive Data",
+      "parameters": {
+        "effect": "Redact",
+        "fillColor": "#000000",
+        "scope": "Auto",
+        "patterns": [
+          "\\b\\d{4}[ -]?\\d{4}[ -]?\\d{4}[ -]?\\d{4}\\b",
+          "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}",
+          "\\b(AKIA|AIza|ghp_|glpat-)[A-Za-z0-9_\\-]{16,}\\b"
+        ],
+        "paddingHorizontal": 12,
+        "paddingVertical": 25,
+        "offsetHorizontal": 0,
+        "offsetVertical": 0
+      }
+    },
+    {
+      "stepType": "ImmediateFeedback",
+      "name": "Camera Feedback",
+      "parameters": {
+        "playSound": true
+      }
+    },
+    {
+      "stepType": "Destinations",
+      "name": "Open in Editor",
+      "parameters": {
+        "destinationDesignations": [
+          "Editor"
+        ]
+      }
+    }
+  ]
+}

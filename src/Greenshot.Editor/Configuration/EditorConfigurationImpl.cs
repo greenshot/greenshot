@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -21,12 +21,24 @@
 
 using System.Collections.Generic;
 using System.Drawing;
-using Greenshot.Base.Core;
 
 namespace Greenshot.Editor.Configuration
 {
     public partial class EditorConfigurationImpl : IEditorConfiguration
     {
+        public EditorConfigurationImpl()
+        {
+            RecentColors = new List<Color>();
+        }
+
+        partial void OnRecentColorsGet(ref List<Color> value)
+        {
+            if (value == null)
+            {
+                _recentColors = value = new List<Color>();
+            }
+        }
+
         /// <summary>
         /// This should have been Math.Clamp, but it's not available for .NET Framework 4.8
         /// </summary>

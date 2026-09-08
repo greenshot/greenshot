@@ -1,6 +1,6 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -19,8 +19,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System.Collections.Generic;
 using System.Drawing;
 using System.Threading.Tasks;
+using Greenshot.Base.Interfaces.Plugin;
 
 namespace Greenshot.Base.Interfaces.Ocr
 {
@@ -33,14 +35,14 @@ namespace Greenshot.Base.Interfaces.Ocr
         /// Start the actual OCR
         /// </summary>
         /// <param name="image">Image</param>
-        /// <returns>OcrInformation</returns>
-        Task<OcrInformation> DoOcrAsync(Image image);
+        /// <returns>List of detected OCR line features</returns>
+        Task<List<IOcrLineFeature>> DoOcrAsync(Image image);
 
         /// <summary>
         /// Start the actual OCR
         /// </summary>
         /// <param name="surface">ISurface</param>
-        /// <returns>OcrInformation</returns>
-        Task<OcrInformation> DoOcrAsync(ISurface surface);
+        /// <returns>List of detected OCR line features</returns>
+        Task<List<IOcrLineFeature>> DoOcrAsync(ISurface surface);
     }
 }

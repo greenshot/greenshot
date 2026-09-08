@@ -5,7 +5,7 @@
 		<resource name="about_donations">如果您喜欢这个软件，希望您可以捐助我们：</resource>
 		<resource name="about_host">Greenshot 托管在 GitHub</resource>
 		<resource name="about_icons">图标来源：Yusuke Kamiyamane的Fugue图标基于(Creative Commons Attribution 3.0 协议)</resource>
-		<resource name="about_license">版权所有 © 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+		<resource name="about_license">版权所有 © 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
 作者不会对程序进行任何担保。
 此程序为自由软件，您可以在遵守 GNU 通用公共许可协议下任意传播本软件。
 关于 GNU 通用公共许可协议：</resource>
@@ -55,9 +55,12 @@
 		<resource name="contextmenu_donate">捐助 Greenshot</resource>
 		<resource name="contextmenu_exit">退出</resource>
 		<resource name="contextmenu_help">帮助</resource>
+		<resource name="contextmenu_importrecipe">导入配方...</resource>
 		<resource name="contextmenu_openfile">从文件载入图片</resource>
 		<resource name="contextmenu_openrecentcapture">打开上次保存位置</resource>
 		<resource name="contextmenu_quicksettings">快速设定</resource>
+		<resource name="contextmenu_recipes">配方</resource>
+		<resource name="contextmenu_reloadrecipes">重新加载配方</resource>
 		<resource name="contextmenu_settings">设置...</resource>
 		<resource name="destination_exportfailed">导出到{0}出错。请重新尝试。</resource>
 		<resource name="editor_arrange">调整物件</resource>
@@ -217,6 +220,9 @@
 		<resource name="qualitydialog_dontaskagain">使用默认质量保存并且以后不再询问</resource>
 		<resource name="qualitydialog_title">Greenshot质量</resource>
 		<resource name="quicksettings_destination_file">直接保存（使用预先设置的输出路径）</resource>
+		<resource name="recipe_import">配方导入</resource>
+		<resource name="recipe_import_failed">加载配方失败:</resource>
+		<resource name="recipe_import_title">导入抓图配方</resource>
 		<resource name="settings_alwaysshowprintoptionsdialog">每次打印时都显示打印设置窗口</resource>
 		<resource name="settings_alwaysshowqualitydialog">每次保存图片时都显示质量对话框</resource>
 		<resource name="settings_applicationsettings">程序设定</resource>
@@ -311,5 +317,8 @@ Alt+Print	抓取程序窗口（如果没有选择交互式抓取方式，将会�
 		<resource name="hotkey_lastregion">抓取上次选择的区域</resource>
 		<resource name="hotkey_region">抓取屏幕的一部分</resource>
 		<resource name="hotkey_window">抓取窗口</resource>
+	<resource name="editor_fit">拉伸</resource>
+	<resource name="editor_pushout">扩展截图并移至外部</resource>
+	<resource name="editor_snap">停靠至边缘</resource>
 	</resources>
 </language>

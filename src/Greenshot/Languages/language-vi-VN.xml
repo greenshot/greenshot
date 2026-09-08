@@ -5,7 +5,7 @@
 		<resource name="about_donations">Hãy ủng hộ nếu bạn thấy Greenshot hữu dụng:</resource>
 		<resource name="about_host">Greenshot được tài trợ bởi GitHub</resource>
 		<resource name="about_icons">Dùng biểu tượng Fugue (Giấy phép Commons Attribution 3.0 license) :</resource>
-		<resource name="about_license">Bản quyền © 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+		<resource name="about_license">Bản quyền © 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
 		Greenshot không đi kèm theo đảm bảo nào và được phân phối dưới giấy phép GNU General Public License.</resource>
 		<resource name="about_title">Giới thiệu Greenshot</resource>
 		<resource name="application_title">Greenshot - Công cụ chụp màn hình</resource>
@@ -35,8 +35,11 @@
 		<resource name="contextmenu_donate">Hỗ trợ Greenshot</resource>
 		<resource name="contextmenu_exit">Thoát</resource>
 		<resource name="contextmenu_help">Trợ giúp</resource>
+		<resource name="contextmenu_importrecipe">Nhập công thức...</resource>
 		<resource name="contextmenu_openfile">Mở tệp ảnh</resource>
 		<resource name="contextmenu_quicksettings">Thiết lập nhanh</resource>
+		<resource name="contextmenu_recipes">Công thức</resource>
+		<resource name="contextmenu_reloadrecipes">Tải lại công thức</resource>
 		<resource name="contextmenu_settings">Thiết lập...</resource>
 		<resource name="editor_arrange">Bố trí</resource>
 		<resource name="editor_arrowheads">Mũi tên có đuôi</resource>
@@ -145,6 +148,9 @@
 		<resource name="printoptions_timestamp">In ngày/giờ vào chân trang</resource>
 		<resource name="printoptions_title">Tùy chọn in Greenshot</resource>
 		<resource name="quicksettings_destination_file">Lưu vào thư mục (dùng đường dẫn mặc định)</resource>
+		<resource name="recipe_import">Nhập công thức</resource>
+		<resource name="recipe_import_failed">Không tải được công thức:</resource>
+		<resource name="recipe_import_title">Nhập công thức chụp</resource>
 		<resource name="settings_alwaysshowjpegqualitydialog">Hiển thị hộp thọat đặt chất lượng ảnh JPEG khi lưu.</resource>
 		<resource name="settings_alwaysshowprintoptionsdialog">Luôn hiển thị hộp thoại in khi in ảnh.</resource>
 		<resource name="settings_applicationsettings">Thiết lập chương trình</resource>
@@ -207,5 +213,8 @@
 		<resource name="warning_hotkeys">Có phím tắt đã được đăng ký trùng. Kiểm tra (ví dụ phím Print Screen)
 		xem các phần mềm khác có sử dụng các phím tắt của Greenshot hay không.
 		Ngoài ra, có thể điều khiển Greenshot bằng cách nhấp chuột phải và biểu tưởng ở phía phải dưới màn hình.</resource>
+	<resource name="editor_fit">Kéo giãn</resource>
+	<resource name="editor_pushout">Mở rộng ảnh chụp và di chuyển ra ngoài</resource>
+	<resource name="editor_snap">Neo vào cạnh</resource>
 	</resources>
 </language>

@@ -89,7 +89,7 @@ Tjek venligt at der er skriveadgang til den valgte lagringsplacering.
 		Om Greenshot
 	</resource>
 	<resource name="about_license">
-		Ophavsret © 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+		Ophavsret © 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
 Greenshot leveres ABSOLUT UDEN GARANTI. Dette er gratis software, og du er velkommen til at redistribuere det under visse betingelser.
 Detaljer om GNU General Public License:
 	</resource>
@@ -152,6 +152,9 @@ Detaljer om GNU General Public License:
 	</resource>
 	<resource name="contextmenu_help">
 		Hjælp
+	</resource>
+	<resource name="contextmenu_importrecipe">
+		Importér opskrift...
 	</resource>
 	<resource name="contextmenu_about">
 		Om Greenshot
@@ -366,6 +369,12 @@ Deaktiver venligt software som gør brug af Print-knappen. Du kan også blot til
 	<resource name="contextmenu_quicksettings">
 		Hurtige præferencer
 	</resource>
+	<resource name="contextmenu_recipes">
+		Opskrifter
+	</resource>
+	<resource name="contextmenu_reloadrecipes">
+		Genindlæs opskrifter
+	</resource>
 	<resource name="bugreport_title">
 		Fejl
 	</resource>
@@ -415,6 +424,15 @@ tidspunktet, fx 11_58_32 (plus filendelsen angivet i indstillingerne).
 	</resource>
 	<resource name="quicksettings_destination_file">
 		Gem direkte (ud fra foretrukne indstillinger for output-filer)
+	</resource>
+	<resource name="recipe_import">
+		Opskriftsimport
+	</resource>
+	<resource name="recipe_import_failed">
+		Kunne ikke indlæse opskrift:
+	</resource>
+	<resource name="recipe_import_title">
+		Importér optagelsesopskrift
 	</resource>
 	<resource name="editor_opendirinexplorer">
 		Åbn mappe i Windows Stifinder
@@ -587,5 +605,8 @@ tidspunktet, fx 11_58_32 (plus filendelsen angivet i indstillingerne).
 	<resource name="contextmenu_donate">
 		Støt Greenshot
 	</resource>
+  <resource name="editor_fit">Stræk</resource>
+  <resource name="editor_pushout">Udvid optagelsen og flyt udenfor</resource>
+  <resource name="editor_snap">Fastgør til kanten</resource>
   </resources>
 </language>

@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -27,7 +27,6 @@ using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing.Fields;
-using Greenshot.Editor.Helpers;
 
 namespace Greenshot.Editor.Drawing.Filters
 {
@@ -261,6 +260,19 @@ namespace Greenshot.Editor.Drawing.Filters
             }
 
             dest.DrawTo(graphics, applyRect.Location);
+        }
+
+        public override void Apply(Graphics graphics, Bitmap applyBitmap, IEnumerable<NativeRect> rects, RenderMode renderMode)
+        {
+            if (rects == null)
+            {
+                return;
+            }
+
+            foreach (var r in rects)
+            {
+                Apply(graphics, applyBitmap, r, renderMode);
+            }
         }
     }
 }

@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -250,16 +250,16 @@ namespace Greenshot.Base.Core
             }
 
             ActiveTitleFixes ??= new List<string> { "Firefox", "Chrome" };
-            TitleFixMatcher ??= new Dictionary<string, string>
+            if (TitleFixMatcher == null || TitleFixMatcher.Count == 0)
             {
-                { "Firefox", " - Mozilla Firefox.*" },
-                { "Chrome", " - Google Chrome.*" }
-            };
-            TitleFixReplacer ??= new Dictionary<string, string>
+                SetRawValue("TitleFixMatcher.Firefox", " - Mozilla Firefox.*");
+                SetRawValue("TitleFixMatcher.Chrome", " - Google Chrome.*");
+            }
+            if (TitleFixReplacer == null || TitleFixReplacer.Count == 0)
             {
-                { "Firefox", string.Empty },
-                { "Chrome", string.Empty }
-            };
+                SetRawValue("TitleFixReplacer.Firefox", string.Empty);
+                SetRawValue("TitleFixReplacer.Chrome", string.Empty);
+            }
             ExcludePlugins ??= new List<string>();
             IncludePlugins ??= new List<string>();
         }

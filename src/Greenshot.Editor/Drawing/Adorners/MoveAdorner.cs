@@ -1,6 +1,6 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom, Francis Noel
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom, Francis Noel
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -35,6 +35,8 @@ namespace Greenshot.Editor.Drawing.Adorners
         private NativeRect _boundsBeforeResize = NativeRect.Empty;
         private NativeRectFloat _boundsAfterResize = NativeRectFloat.Empty;
 
+        private bool _isMoveMadeUndoable;
+
         public Positions Position { get; private set; }
 
         public MoveAdorner(IDrawableContainer owner, Positions position) : base(owner)
@@ -55,6 +57,7 @@ namespace Greenshot.Editor.Drawing.Adorners
         public override void MouseDown(object sender, MouseEventArgs mouseEventArgs)
         {
             EditStatus = EditStatus.RESIZING;
+            _isMoveMadeUndoable = false;
             _boundsBeforeResize = new NativeRect(Owner.Left, Owner.Top, Owner.Width, Owner.Height);
             _boundsAfterResize = _boundsBeforeResize;
         }
@@ -72,7 +75,11 @@ namespace Greenshot.Editor.Drawing.Adorners
             }
 
             Owner.Invalidate();
-            Owner.MakeBoundsChangeUndoable(false);
+            if (!_isMoveMadeUndoable)
+            {
+                _isMoveMadeUndoable = true;
+                Owner.MakeBoundsChangeUndoable(true);
+            }
 
             // reset "workbench" rectangle to current bounds
             _boundsAfterResize = _boundsBeforeResize;
@@ -84,6 +91,17 @@ namespace Greenshot.Editor.Drawing.Adorners
             Owner.ApplyBounds(_boundsAfterResize);
 
             Owner.Invalidate();
+        }
+
+        /// <summary>
+        /// Handle the mouse up
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="mouseEventArgs"></param>
+        public override void MouseUp(object sender, MouseEventArgs mouseEventArgs)
+        {
+            base.MouseUp(sender, mouseEventArgs);
+            _isMoveMadeUndoable = false;
         }
 
         /// <summary>

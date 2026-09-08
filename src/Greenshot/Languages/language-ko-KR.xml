@@ -5,7 +5,7 @@
 		<resource name="about_donations">Greenshot이 좋다면 아래 URL로 방문하셔서 지원할 수 있습니다.</resource>
 		<resource name="about_host">Greenshot은 GitHub 관리하에 아래 링크에서 호스팅되고 있습니다</resource>
 		<resource name="about_icons">아이콘은 Yusuke Kamiyamane's Fugue icon set으로부터 제공받은 것입니다. (Creative Commons Attribution 3.0 license)</resource>
-		<resource name="about_license">Copyright © 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+		<resource name="about_license">Copyright © 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
 Greenshot comes with ABSOLUTELY NO WARRANTY. This is free software, and you are welcome to redistribute it under certain conditions.
 Details about the GNU General Public License:</resource>
 		<resource name="about_title">Greenshot 프로그램 소개...</resource>
@@ -55,9 +55,12 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="contextmenu_donate">Greenshot 지원</resource>
 		<resource name="contextmenu_exit">종료</resource>
 		<resource name="contextmenu_help">도움말</resource>
+		<resource name="contextmenu_importrecipe">레시피 가져오기...</resource>
 		<resource name="contextmenu_openfile">파일 이미지 열기</resource>
 		<resource name="contextmenu_openrecentcapture">저장 폴더 열기</resource>
 		<resource name="contextmenu_quicksettings">빠른 설정</resource>
+		<resource name="contextmenu_recipes">레시피</resource>
+		<resource name="contextmenu_reloadrecipes">레시피 다시 불러오기</resource>
 		<resource name="contextmenu_settings">설정...</resource>
 		<resource name="destination_exportfailed">{0}으로 내보내는 동안 오류, 다시 시도하세오.</resource>
 		<resource name="editor_align_bottom">하단</resource>
@@ -217,6 +220,9 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="qualitydialog_dontaskagain">기본설정 품질로 저장하고 다시 묻지 않음</resource>
 		<resource name="qualitydialog_title">Greenshot 품질</resource>
 		<resource name="quicksettings_destination_file">직접 저장</resource>
+		<resource name="recipe_import">레시피 가져오기</resource>
+		<resource name="recipe_import_failed">레시피를 불러오지 못했습니다:</resource>
+		<resource name="recipe_import_title">캡처 레시피 가져오기</resource>
 		<resource name="settings_alwaysshowprintoptionsdialog">이미지가 인쇄될 때마다 인쇄 설정 대화창 보이기</resource>
 		<resource name="settings_alwaysshowqualitydialog">이미지를 저장할 때마다 품질 대화창 보이기</resource>
 		<resource name="settings_applicationsettings">응용프로그램 설정</resource>
@@ -325,5 +331,8 @@ ${hostname} PC명
     <resource name="editor_resize_height">높이</resource>
 	<resource name="settings_iconsize">아이콘 크기</resource>
 
+  <resource name="editor_fit">늘이기</resource>
+  <resource name="editor_pushout">캡처를 확장하고 바깥쪽으로 이동</resource>
+  <resource name="editor_snap">가장자리에 고정</resource>
   </resources>
 </language>

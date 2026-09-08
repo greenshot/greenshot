@@ -6,7 +6,7 @@
 		<resource name="about_host">O Greenshot está armazenado no GitHub em</resource>
 		<resource name="about_icons">Ícones de Yusuke Kamiyamane (Biblioteca Fugue, licença "Creative Commons Attribution 3.0")</resource>
 		<resource name="about_license">
-			Copyright © 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+			Copyright © 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
 			O Greenshot não tem NENHUMA GARANTIA. Este software gratuito pode ser redistribuído sob algumas condições.
 			Detalhes sobre a licença GNU:
 		</resource>
@@ -59,9 +59,12 @@
 		<resource name="contextmenu_donate">Suporte do Greenshot</resource>
 		<resource name="contextmenu_exit">Sair</resource>
 		<resource name="contextmenu_help">Ajuda</resource>
+		<resource name="contextmenu_importrecipe">Importar receita...</resource>
 		<resource name="contextmenu_openfile">Abrir imagem do arquivo</resource>
 		<resource name="contextmenu_openrecentcapture">Abrir último local capturado</resource>
 		<resource name="contextmenu_quicksettings">Preferências rápidas</resource>
+		<resource name="contextmenu_recipes">Receitas</resource>
+		<resource name="contextmenu_reloadrecipes">Recarregar receitas</resource>
 		<resource name="contextmenu_settings">Preferências...</resource>
 		<resource name="destination_exportfailed">Erro ao exportar para {0}. Por favor, tente novamente.</resource>
 		<resource name="EmailFormats.Html">Outlook com HTML</resource>
@@ -202,6 +205,9 @@
 		<resource name="qualitydialog_dontaskagain">Salvar com qualidade padrão e não perguntar novamente</resource>
 		<resource name="qualitydialog_title">Qualidade do Greenshot</resource>
 		<resource name="quicksettings_destination_file">Salvar diretamente (Usando configuração padrão para arquivos capturados)</resource>
+		<resource name="recipe_import">Importação de receita</resource>
+		<resource name="recipe_import_failed">Falha ao carregar a receita:</resource>
+		<resource name="recipe_import_title">Importar receita de captura</resource>
 		<resource name="settings_alwaysshowprintoptionsdialog">Mostrar as opções de impressão toda vez que uma imagem for impressa</resource>
 		<resource name="settings_alwaysshowqualitydialog">Perguntar a qualidade do JPEG toda vez que uma imagem for salva</resource>
 		<resource name="settings_applicationsettings">Configurações da Aplicação</resource>
@@ -288,5 +294,8 @@
 		<resource name="WindowCaptureModes.GDI">Usar cores padrão</resource>
 		<resource name="WindowCaptureModes.Screen">Como exibido</resource>
 		<resource name="settings_iconsize">Tamanho do ícone</resource>
+	<resource name="editor_fit">Esticar</resource>
+	<resource name="editor_pushout">Expandir a captura e mover para fora</resource>
+	<resource name="editor_snap">Encaixar à borda</resource>
 	</resources>
 </language>
