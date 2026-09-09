@@ -25,6 +25,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Interfaces;
 using log4net;
 
@@ -69,6 +70,19 @@ namespace Greenshot.Base.Pipeline.Sources
                 capture.CaptureDetails.AddMetaData("source", "file");
 
                 var payload = new CapturePayload(capture);
+
+                // dirty hack, if we open .greenshot file we have to load the file twice 
+                // we need an instance of a Surface for loading, but only the CapturePayload can create this
+                // and the CapturePayload need a Capture with an Image
+                if (filename.ToLower().EndsWith("." + OutputFormat.greenshot))
+                {
+                    payload.EnsureSurface();
+                    if (payload.Surface is not null)
+                    {
+                        payload.Surface = ImageIO.LoadGreenshotSurface(filename, payload.Surface);
+                    }
+                }
+
                 return Task.FromResult<ICapturePayload>(payload);
             }
             catch (Exception ex)
