@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="پارسی" ietf="fa-IR" version="1.0.0" languagegroup="1">
+    <resources>
+        <resource name="home_downloads">دانلودها</resource>
+        <resource name="home_headline">Greenshot - یک ابزار رایگان اسکرین‌شات بهینه‌شده برای بهره‌وری</resource>
+        <resource name="home_opensource">Greenshot رایگان و متن‌باز است</resource>
+        <resource name="home_opensource_donate">اگر احساس می‌کنید Greenshot زمان و/یا پول زیادی برای شما صرفه‌جویی می‌کند، بسیار خوشحال می‌شویم اگر از &lt;a href="/support/"&gt;توسعه این نرم‌افزار اسکرین‌شات پشتیبانی&lt;/a&gt; کنید.</resource>
+        <resource name="home_opensource_gpl">Greenshot تحت مجوز &lt;a href="https://en.wikipedia.org/wiki/GNU_General_Public_License" target="_blank"&gt;GPL&lt;/a&gt; منتشر شده است، یعنی این نرم‌افزار را می‌توان حتی در محیط تجاری به‌صورت رایگان دانلود و استفاده کرد.</resource>
+        <resource name="home_seemore">می‌خواهید بیشتر ببینید؟</resource>
+        <resource name="home_seemore_screenshots">البته Greenshot کارهای بیشتری برای شما انجام می‌دهد. نگاهی به چند &lt;a title="اسکرین‌شات‌هایی از Greenshot در عمل" href="/screenshots/"&gt;اسکرین‌شات&lt;/a&gt; از Greenshot در عمل بیندازید یا &lt;a title="دانلود آخرین نسخه پایدار Greenshot" href="/downloads/"&gt;آخرین نسخه&lt;/a&gt; را امتحان کنید.</resource>
+        <resource name="home_whatis">Greenshot چیست؟؟؟؟</resource>
+        <resource name="home_whatis_create">به‌سرعت از ناحیه انتخاب‌شده، پنجره یا تمام صفحه اسکرین‌شات بگیرید.</resource>
+        <resource name="home_whatis_edit">به‌راحتی بخش‌هایی از اسکرین‌شات را حاشیه‌نویسی، برجسته یا مبهم کنید.</resource>
+        <resource name="home_whatis_intro">Greenshot یک ابزار سبک اسکرین‌شات برای ویندوز با ویژگی‌های کلیدی زیر است:</resource>
+        <resource name="home_whatis_more">...و گزینه‌های بسیار بیشتری که ساخت و کار با اسکرین‌شات‌ها را هر روز ساده‌تر می‌کنند.</resource>
+        <resource name="home_whatis_send">اسکرین‌شات را به روش‌های مختلف خروجی بگیرید: ذخیره در فایل، ارسال به چاپگر، کپی در کلیپ‌بورد، پیوست به ایمیل، ارسال به برنامه‌های آفیس یا آپلود در سایت‌های عکس مانند Flickr یا Picasa و دیگران.</resource>
+        <resource name="home_whatis_usage">با توجه به سادگی در درک و قابلیت پیکربندی، Greenshot ابزاری کارآمد برای مدیران پروژه، توسعه‌دهندگان نرم‌افزار، نویسندگان فنی، تسترها و هر کسی است که اسکرین‌شات می‌سازد.</resource>
+    </resources>
+</language>

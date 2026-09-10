@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="پارسی" ietf="fa-IR" version="1.0.0">
+    <resources>
+        <resource name="label_AfterUploadLinkToClipBoard">
+            لینک به کلیپ‌بورد
+        </resource>
+        <resource name="label_AfterUploadOpenHistory">
+            باز کردن تاریخچه
+        </resource>
+        <resource name="label_AfterUpload">
+            پس از آپلود
+        </resource>
+        <resource name="Configure">
+            پیکربندی Dropbox
+        </resource>
+        <resource name="upload_menu_item">
+            آپلود به Dropbox
+        </resource>
+        <resource name="settings_title">
+            تنظیمات Dropbox
+        </resource>
+        <resource name="upload_success">
+            تصویر با موفقیت در Dropbox آپلود شد!
+        </resource>
+        <resource name="upload_failure">
+            خطایی هنگام آپلود به Dropbox رخ داد:
+        </resource>
+        <resource name="label_upload_format">
+            فرمت تصویر
+        </resource>
+        <resource name="communication_wait">
+            در حال ارتباط با Dropbox. لطفاً صبر کنید...
+        </resource>
+    </resources>
+</language>

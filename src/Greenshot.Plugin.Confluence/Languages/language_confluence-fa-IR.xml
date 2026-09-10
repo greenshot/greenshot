@@ -1,0 +1,80 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="پارسی" ietf="fa-IR" version="1.0.0">
+    <resources>
+        <resource name="plugin_settings">
+            تنظیمات کانفلوئنس
+        </resource>
+        <resource name="login_error">
+            مشکلی در هنگام ورود رخ داد: {0}
+        </resource>
+        <resource name="label_url">
+            آدرس (Url)
+        </resource>
+        <resource name="label_timeout">
+            مهلت زمانی
+        </resource>
+        <resource name="label_user">
+            کاربر
+        </resource>
+        <resource name="label_password">
+            رمز عبور
+        </resource>
+        <resource name="login_title">
+            لطفاً اطلاعات ورود به کانفلوئنس را وارد کنید
+        </resource>
+        <resource name="OK">
+            تأیید
+        </resource>
+        <resource name="CANCEL">
+            لغو
+        </resource>
+        <resource name="upload_menu_item">
+            آپلود به کانفلوئنس
+        </resource>
+        <resource name="upload_success">
+            تصویر با موفقیت در کانفلوئنس آپلود شد!
+        </resource>
+        <resource name="upload_failure">
+            خطایی هنگام آپلود به کانفلوئنس رخ داد:
+        </resource>
+        <resource name="open_page_after_upload">
+            باز کردن صفحه پس از آپلود
+        </resource>
+        <resource name="upload_format">
+            فرمت آپلود
+        </resource>
+        <resource name="copy_wikimarkup">
+            کپی ویکی‌مارکاپ به کلیپ‌بورد
+        </resource>
+        <resource name="filename">
+            نام فایل
+        </resource>
+        <resource name="upload">
+            آپلود
+        </resource>
+        <resource name="open_pages">
+            باز کردن صفحات
+        </resource>
+        <resource name="search_pages">
+            جستجوی صفحات
+        </resource>
+        <resource name="browse_pages">
+            مرور صفحات
+        </resource>
+        <resource name="search_text">
+            متن جستجو
+        </resource>
+        <resource name="search">
+            جستجو
+        </resource>
+        <resource name="loading">
+            داده‌های کانفلوئنس در حال بارگذاری است، لطفاً صبر کنید...
+        </resource>
+        <resource name="include_person_spaces">
+            شامل کردن فضاهای شخصی در جستجو و مرور
+        </resource>
+        <resource name="communication_wait">
+            در حال انتقال داده به کانفلوئنس، لطفاً صبر کنید...
+        </resource>
+    </resources>
+</language>

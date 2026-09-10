@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="پارسی" ietf="fa-IR" version="1.0.0" languagegroup="1">
+    <resources>
+        <resource name="startup">شروع {#ExeName} همراه با راه‌اندازی ویندوز</resource>
+        <resource name="startgreenshot">شروع {#ExeName}</resource>
+        <resource name="jira">(Jira) افزونه جیرا</resource>
+        <resource name="confluence">(Confluence) افزونه کانفلوئنس</resource>
+        <resource name="externalcommand">(External Command) افزونه باز کردن با دستور خارجی</resource>
+        <resource name="ocr">افزونه OCR (نیازمند Microsoft Office Document Imaging (MODI))</resource>
+        <resource name="imgur">افزونه Imgur (نگاه کنید به: https://imgur.com)</resource>
+        <resource name="language">زبان‌های اضافی</resource>
+        <resource name="optimize">در حال بهینه‌سازی عملکرد، این ممکن است کمی طول بکشد.</resource>
+    </resources>
+</language>
