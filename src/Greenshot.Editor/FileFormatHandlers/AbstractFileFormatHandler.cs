@@ -63,5 +63,10 @@ namespace Greenshot.Editor.FileFormatHandlers
                 yield return imageContainer;
             }
         }
+
+        public virtual ISurface LoadSurface(Stream stream)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

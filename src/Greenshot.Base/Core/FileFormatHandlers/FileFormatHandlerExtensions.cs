@@ -39,7 +39,7 @@ namespace Greenshot.Base.Core.FileFormatHandlers
         /// </summary>
         /// <param name="extension">string</param>
         /// <returns>string</returns>
-        public static  string NormalizeExtension(string extension)
+        public static string NormalizeExtension(string extension)
         {
             if (string.IsNullOrEmpty(extension))
             {

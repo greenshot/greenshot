@@ -102,5 +102,12 @@ namespace Greenshot.Base.Interfaces
         /// <param name="parentSurface">ISurface</param>
         /// <returns>IEnumerable{IDrawableContainer}</returns>
         public IEnumerable<IDrawableContainer> LoadDrawablesFromStream(Stream stream, string extension, ISurface parentSurface = null);
+
+        /// <summary>
+        /// Allow a FileFormatHandler to load a surface from a stream, this is used for the .greenshot file format
+        /// </summary>
+        /// <param name="surfaceFileStream"></param>
+        /// <returns>ISurface</returns>
+        public ISurface LoadSurface(Stream surfaceFileStream);
     }
 }
