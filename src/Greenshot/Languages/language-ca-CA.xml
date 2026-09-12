@@ -334,5 +334,6 @@ Malgrat això, encara es poden utilitzar totes les característiques de Greensho
 		<resource name="editor_fit">Estira</resource>
 		<resource name="editor_pushout">Amplia la captura i mou a fora</resource>
 		<resource name="editor_snap">Acobla a la vora</resource>
+		<resource name="editor_counter_startvalue">Valor inicial</resource>
 	</resources>
 </language>

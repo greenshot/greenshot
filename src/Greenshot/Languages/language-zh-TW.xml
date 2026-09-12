@@ -337,5 +337,6 @@ Greenshot 所有功能仍然可以直接從通知區圖示的內容功能表動�
 	<resource name="editor_fit">拉伸</resource>
 	<resource name="editor_pushout">擴展擷取範圍並移至外側</resource>
 	<resource name="editor_snap">停駐至邊緣</resource>
+		<resource name="editor_counter_startvalue">起始值</resource>
 	</resources>
 </language>

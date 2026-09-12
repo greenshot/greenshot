@@ -329,5 +329,6 @@ cont, 11_58_32 (ditambah ekstensi yang ditetapkan pada pengaturan)</resource>
 	<resource name="editor_fit">Regangkan</resource>
 	<resource name="editor_pushout">Perluas tangkapan dan pindahkan ke luar</resource>
 	<resource name="editor_snap">Tempelkan ke tepi</resource>
+		<resource name="editor_counter_startvalue">Nilai awal</resource>
 	</resources>
 </language>

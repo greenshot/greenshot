@@ -330,5 +330,6 @@ Akk timahilin n Greenshot sttenkarent daɣen s srid seg umuɣ umniḍ n tignit n
 		<resource name="editor_fit">Ẓẓi</resource>
 		<resource name="editor_pushout">Snefli tuṭṭfa u semutti ɣer berra</resource>
 		<resource name="editor_snap">Senqed ɣer yiri</resource>
+		<resource name="editor_counter_startvalue">Azal n tazwara</resource>
 	</resources>
 </language>

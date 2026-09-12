@@ -298,5 +298,6 @@ Prosím deaktivujte iný software využívajúci PrintScreen tlačidlo. Môžete
 	<resource name="editor_fit">Roztiahnuť</resource>
 	<resource name="editor_pushout">Rozšíriť snímku a presunúť von</resource>
 	<resource name="editor_snap">Prichytiť k okraju</resource>
+		<resource name="editor_counter_startvalue">Počiatočná hodnota</resource>
 	</resources>
 </language>

@@ -334,5 +334,6 @@ ${hostname} PC명
   <resource name="editor_fit">늘이기</resource>
   <resource name="editor_pushout">캡처를 확장하고 바깥쪽으로 이동</resource>
   <resource name="editor_snap">가장자리에 고정</resource>
-  </resources>
+	<resource name="editor_counter_startvalue">시작 값</resource>
+	</resources>
 </language>

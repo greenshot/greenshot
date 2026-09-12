@@ -318,5 +318,6 @@ Proszę wyłączyć oprogramowanie korzystające z klawisza Print. Możliwe jest
 	<resource name="editor_fit">Rozciągnij</resource>
 	<resource name="editor_pushout">Rozszerz zrzut i przenieś na zewnątrz</resource>
 	<resource name="editor_snap">Przyciągnij do krawędzi</resource>
+		<resource name="editor_counter_startvalue">Wartość początkowa</resource>
 	</resources>
 </language>

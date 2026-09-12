@@ -338,5 +338,6 @@ Všechny funkce Greenshotu jsou stále dostupné přímo z místní nabídky bez
 		<resource name="editor_fit">Roztáhnout</resource>
 		<resource name="editor_pushout">Rozšířit snímek a přesunout ven</resource>
 		<resource name="editor_snap">Přichytit k okraji</resource>
+		<resource name="editor_counter_startvalue">Počáteční hodnota</resource>
 	</resources>
 </language>

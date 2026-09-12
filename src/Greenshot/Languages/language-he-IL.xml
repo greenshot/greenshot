@@ -224,5 +224,6 @@ ${hostname}  שם המחשב
 	<resource name="editor_fit">מתיחה</resource>
 	<resource name="editor_pushout">הרחב את הלכידה והזז החוצה</resource>
 	<resource name="editor_snap">הצמד לקצה</resource>
+		<resource name="editor_counter_startvalue">ערך התחלתי</resource>
 	</resources>
 </language>

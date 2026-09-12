@@ -286,5 +286,6 @@ ${hostname} назив рачунара
 	<resource name="editor_fit">Развуци</resource>
 	<resource name="editor_pushout">Прошири снимак и премести ван</resource>
 	<resource name="editor_snap">Прикачи на ивицу</resource>
+		<resource name="editor_counter_startvalue">Почетна вредност</resource>
 	</resources>
 </language>

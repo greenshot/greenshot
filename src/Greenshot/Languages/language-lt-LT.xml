@@ -214,5 +214,6 @@ kurios naudoja šiuos mygtukus. Arba galima naudoti komandas iš Greenshot progr
 	<resource name="editor_fit">Ištempti</resource>
 	<resource name="editor_pushout">Išplėsti fiksavimą ir perkelti už ribų</resource>
 	<resource name="editor_snap">Priglausti prie krašto</resource>
+		<resource name="editor_counter_startvalue">Pradinė reikšmė</resource>
 	</resources>
 </language>

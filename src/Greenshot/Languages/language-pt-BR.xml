@@ -297,5 +297,6 @@
 	<resource name="editor_fit">Esticar</resource>
 	<resource name="editor_pushout">Expandir a captura e mover para fora</resource>
 	<resource name="editor_snap">Encaixar à borda</resource>
+		<resource name="editor_counter_startvalue">Valor inicial</resource>
 	</resources>
 </language>
