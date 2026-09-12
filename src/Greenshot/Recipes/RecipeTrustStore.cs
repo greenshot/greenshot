@@ -29,18 +29,6 @@ using Newtonsoft.Json;
 
 namespace Greenshot.Recipes
 {
-    /// <summary>
-    /// Record representing an approved external capture recipe file.
-    /// </summary>
-    public class RecipeTrustRecord
-    {
-        public string FilePath { get; set; }
-        public string Sha256Hash { get; set; }
-        public DateTime ApprovedAt { get; set; } = DateTime.UtcNow;
-        public bool AllowExternalCommands { get; set; }
-        public string RecipeName { get; set; }
-        public string RecipeVersion { get; set; }
-    }
 
     /// <summary>
     /// Manages cryptographic approvals of external recipe files.

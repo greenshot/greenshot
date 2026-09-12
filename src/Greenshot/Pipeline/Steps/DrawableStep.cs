@@ -261,9 +261,77 @@ namespace Greenshot.Pipeline.Steps
             if (container != null)
             {
                 ApplyPositioning(container, surface, parameters, extraVariables);
+
+                if (container is SpeechbubbleContainer bubble)
+                {
+                    ApplySpeechbubbleTail(bubble, parameters);
+                }
             }
 
             return container;
+        }
+
+        private static void ApplySpeechbubbleTail(SpeechbubbleContainer bubble, Dictionary<string, object> p)
+        {
+            int bLeft = bubble.Left;
+            int bTop = bubble.Top;
+            int bWidth = Math.Abs(bubble.Width);
+            int bHeight = Math.Abs(bubble.Height);
+            int bRight = bLeft + bWidth;
+            int bBottom = bTop + bHeight;
+            NativePoint tailPoint;
+
+            if (p.ContainsKey("TailX") && p.ContainsKey("TailY"))
+            {
+                tailPoint = new NativePoint(GetInt(p, "TailX", bLeft - 20), GetInt(p, "TailY", bBottom + 25));
+            }
+            else
+            {
+                int tailOffsetX = GetInt(p, "TailOffsetX", int.MinValue);
+                int tailOffsetY = GetInt(p, "TailOffsetY", int.MinValue);
+
+                string tailDirection = GetString(p, "TailDirection") ?? GetString(p, "TailPosition") ?? GetString(p, "Tail") ?? "BottomLeft";
+
+                switch (tailDirection.ToLowerInvariant())
+                {
+                    case "bottomright":
+                        tailPoint = new NativePoint(bRight + 15, bBottom + 25);
+                        break;
+                    case "bottomcenter":
+                    case "bottom":
+                        tailPoint = new NativePoint(bLeft + bWidth / 2, bBottom + 25);
+                        break;
+                    case "topleft":
+                        tailPoint = new NativePoint(bLeft - 15, bTop - 25);
+                        break;
+                    case "topright":
+                        tailPoint = new NativePoint(bRight + 15, bTop - 25);
+                        break;
+                    case "topcenter":
+                    case "top":
+                        tailPoint = new NativePoint(bLeft + bWidth / 2, bTop - 25);
+                        break;
+                    case "left":
+                        tailPoint = new NativePoint(bLeft - 25, bTop + bHeight / 2);
+                        break;
+                    case "right":
+                        tailPoint = new NativePoint(bRight + 25, bTop + bHeight / 2);
+                        break;
+                    case "bottomleft":
+                    default:
+                        tailPoint = new NativePoint(bLeft - 15, bBottom + 25);
+                        break;
+                }
+
+                if (tailOffsetX != int.MinValue || tailOffsetY != int.MinValue)
+                {
+                    int offX = tailOffsetX != int.MinValue ? tailOffsetX : 0;
+                    int offY = tailOffsetY != int.MinValue ? tailOffsetY : 0;
+                    tailPoint = new NativePoint(tailPoint.X + offX, tailPoint.Y + offY);
+                }
+            }
+
+            bubble.SetTailLocation(tailPoint);
         }
 
         #region Container Creators

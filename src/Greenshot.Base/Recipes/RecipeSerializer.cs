@@ -190,5 +190,40 @@ namespace Greenshot.Base.Recipes
             }
             return recipes;
         }
+
+        /// <summary>
+        /// Saves a recipe to a file path formatted as JSON.
+        /// </summary>
+        public static void SaveToFile(CaptureRecipe recipe, string filePath, bool indented = true)
+        {
+            if (recipe == null) throw new ArgumentNullException(nameof(recipe));
+            if (string.IsNullOrWhiteSpace(filePath)) throw new ArgumentException("File path cannot be empty", nameof(filePath));
+
+            string json = Serialize(recipe, indented);
+            string dir = Path.GetDirectoryName(filePath);
+            if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
+            {
+                Directory.CreateDirectory(dir);
+            }
+            File.WriteAllText(filePath, json);
+            recipe.FilePath = filePath;
+        }
+
+        /// <summary>
+        /// Saves a list of recipes to a file path formatted as JSON array.
+        /// </summary>
+        public static void SaveListToFile(IEnumerable<CaptureRecipe> recipes, string filePath, bool indented = true)
+        {
+            if (recipes == null) throw new ArgumentNullException(nameof(recipes));
+            if (string.IsNullOrWhiteSpace(filePath)) throw new ArgumentException("File path cannot be empty", nameof(filePath));
+
+            string json = SerializeList(recipes, indented);
+            string dir = Path.GetDirectoryName(filePath);
+            if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
+            {
+                Directory.CreateDirectory(dir);
+            }
+            File.WriteAllText(filePath, json);
+        }
     }
 }

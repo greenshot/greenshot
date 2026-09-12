@@ -135,10 +135,8 @@
           "enum": [
             "Source",
             "InteractiveSelection",
-            "Border",
             "Effect",
             "TextEffect",
-            "ObfuscateText",
             "Drawable",
             "SetVariable",
             "ImmediateFeedback",
@@ -415,6 +413,36 @@
         "points": {
           "type": "string",
           "description": "Coordinates list for Freehand drawable (e.g. '10,10;20,30;50,80')."
+        },
+        "tailDirection": {
+          "type": "string",
+          "enum": [
+            "BottomLeft",
+            "BottomRight",
+            "BottomCenter",
+            "TopLeft",
+            "TopRight",
+            "TopCenter",
+            "Left",
+            "Right"
+          ],
+          "description": "Direction/placement preset of the tail for Speechbubble drawables."
+        },
+        "tailOffsetX": {
+          "type": "integer",
+          "description": "Horizontal pixel offset for Speechbubble tail."
+        },
+        "tailOffsetY": {
+          "type": "integer",
+          "description": "Vertical pixel offset for Speechbubble tail."
+        },
+        "tailX": {
+          "type": "integer",
+          "description": "Absolute X coordinate of the Speechbubble tail target."
+        },
+        "tailY": {
+          "type": "integer",
+          "description": "Absolute Y coordinate of the Speechbubble tail target."
         }
       },
       "additionalProperties": true

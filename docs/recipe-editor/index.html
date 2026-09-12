@@ -1,0 +1,2846 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Greenshot DAG Recipe Editor</title>
+  <link rel="icon" href="https://getgreenshot.org/favicon.ico" type="image/x-icon">
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" referrerpolicy="no-referrer">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" crossorigin="anonymous" referrerpolicy="no-referrer">
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin="anonymous">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" crossorigin="anonymous" referrerpolicy="no-referrer">
+
+  <style>
+    :root {
+      --gs-primary: #76b900;
+      --gs-primary-hover: #8cd400;
+      --gs-dark-bg: #121518;
+      --gs-panel-bg: #1c2025;
+      --gs-card-bg: #262b32;
+      --gs-border: #363d47;
+      --gs-text: #e1e4e8;
+      --gs-node-border: #444d5a;
+      --gs-node-selected: #76b900;
+      --gs-edge-color: #717c8a;
+      --gs-edge-active: #76b900;
+    }
+
+    [data-bs-theme="light"] {
+      --gs-dark-bg: #f4f6f9;
+      --gs-panel-bg: #ffffff;
+      --gs-card-bg: #ffffff;
+      --gs-border: #d0d7de;
+      --gs-text: #24292f;
+      --gs-node-border: #bcc5cf;
+      --gs-node-selected: #5a8f00;
+      --gs-edge-color: #8c959f;
+      --gs-edge-active: #5a8f00;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--gs-dark-bg);
+      color: var(--gs-text);
+      overflow: hidden;
+      user-select: none;
+      height: 100vh;
+      margin: 0;
+    }
+
+    code, pre, .font-mono {
+      font-family: 'JetBrains Mono', Consolas, Monaco, monospace;
+    }
+
+    /* Layout Containers */
+    #app {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    .main-workspace {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Top Navbar */
+    .editor-navbar {
+      background: var(--gs-panel-bg);
+      border-bottom: 1px solid var(--gs-border);
+      padding: 0.5rem 1rem;
+      z-index: 100;
+    }
+
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 700;
+      font-size: 1.15rem;
+      color: var(--gs-primary);
+      text-decoration: none;
+    }
+
+    .brand-logo svg {
+      width: 28px;
+      height: 28px;
+      fill: var(--gs-primary);
+    }
+
+    /* Sidebars */
+    .toolbox-sidebar, .inspector-sidebar {
+      background: var(--gs-panel-bg);
+      border-color: var(--gs-border);
+      display: flex;
+      flex-direction: column;
+      z-index: 20;
+      transition: width 0.2s ease;
+      user-select: auto;
+    }
+
+    .toolbox-sidebar {
+      width: 270px;
+      border-right: 1px solid var(--gs-border);
+    }
+
+    .inspector-sidebar {
+      width: 380px;
+      border-left: 1px solid var(--gs-border);
+    }
+
+    .sidebar-header {
+      padding: 0.75rem 1rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--gs-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .sidebar-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0.75rem;
+    }
+
+    /* Palette Step Item */
+    .step-palette-item {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.55rem 0.75rem;
+      margin-bottom: 0.45rem;
+      border-radius: 6px;
+      background: var(--gs-card-bg);
+      border: 1px solid var(--gs-border);
+      cursor: grab;
+      transition: all 0.15s ease;
+      font-size: 0.85rem;
+    }
+
+    .step-palette-item:hover {
+      border-color: var(--gs-primary);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .step-palette-item:active {
+      cursor: grabbing;
+    }
+
+    .step-category-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #8c959f;
+      margin-top: 0.85rem;
+      margin-bottom: 0.35rem;
+      padding: 0.3rem 0.45rem;
+      border-radius: 4px;
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.15s ease, color 0.15s ease;
+    }
+
+    .step-category-header:hover {
+      background-color: rgba(255, 255, 255, 0.06);
+      color: var(--gs-text);
+    }
+
+    .step-category-header .bi-chevron-down {
+      transition: transform 0.2s ease;
+    }
+
+    .step-category-header.is-collapsed .bi-chevron-down {
+      transform: rotate(-90deg);
+    }
+
+    .step-category-title {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #8c959f;
+      margin-top: 0.9rem;
+      margin-bottom: 0.35rem;
+      padding-left: 0.25rem;
+    }
+
+    /* DAG Canvas */
+    .canvas-container {
+      flex: 1;
+      position: relative;
+      background-color: var(--gs-dark-bg);
+      overflow: hidden;
+      cursor: default;
+    }
+
+    .canvas-container.panning {
+      cursor: grab;
+    }
+    .canvas-container.panning:active {
+      cursor: grabbing;
+    }
+
+    .grid-bg {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-size: 24px 24px;
+      background-image: radial-gradient(circle, var(--gs-border) 1px, transparent 1px);
+      opacity: 0.6;
+    }
+
+    .canvas-viewport {
+      position: absolute;
+      top: 0;
+      left: 0;
+      transform-origin: 0 0;
+      width: 10000px;
+      height: 10000px;
+    }
+
+    /* SVG Connections */
+    .connections-svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 10000px;
+      height: 10000px;
+      pointer-events: none;
+      z-index: 12;
+    }
+
+    .connection-line {
+      fill: none;
+      stroke: var(--gs-edge-color);
+      stroke-width: 2.5;
+      pointer-events: stroke;
+      transition: stroke 0.15s ease, stroke-width 0.15s ease;
+    }
+
+    .connection-line.active {
+      stroke: var(--gs-edge-active);
+      stroke-width: 3;
+    }
+
+    .connection-line.is-cycle {
+      stroke: #ff4757 !important;
+      stroke-dasharray: 6, 6;
+      animation: dash 1s linear infinite;
+    }
+
+    @keyframes dash {
+      to {
+        stroke-dashoffset: -12;
+      }
+    }
+
+    /* Edge delete button */
+    .edge-badge {
+      cursor: pointer;
+      pointer-events: all;
+    }
+    .edge-badge circle {
+      transition: r 0.15s ease, fill 0.15s ease;
+    }
+    .edge-badge:hover circle {
+      r: 11;
+      fill: #ff2a3a;
+    }
+
+    /* DAG Nodes */
+    .dag-node {
+      position: absolute;
+      width: 220px;
+      height: 105px;
+      box-sizing: border-box;
+      border-radius: 8px;
+      background: var(--gs-card-bg);
+      border: 1.5px solid var(--gs-node-border);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+      z-index: 10;
+      cursor: move;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      user-select: none;
+    }
+
+    .dag-node:hover {
+      border-color: #8c959f;
+    }
+
+    .dag-node.selected {
+      border-color: var(--gs-node-selected);
+      box-shadow: 0 0 0 3px rgba(118, 185, 0, 0.35), 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    .dag-node.start-node {
+      border-top: 3.5px solid var(--gs-primary);
+    }
+
+    .dag-node.has-cycle {
+      border-color: #ff4757 !important;
+      box-shadow: 0 0 0 3px rgba(255, 71, 87, 0.4) !important;
+    }
+
+    .node-header {
+      height: 34px;
+      padding: 0.35rem 0.65rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--gs-border);
+      border-top-left-radius: 7px;
+      border-top-right-radius: 7px;
+      background: rgba(255, 255, 255, 0.02);
+      box-sizing: border-box;
+    }
+
+    .node-type-badge {
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+    }
+
+    .node-body {
+      height: 68px;
+      padding: 0.4rem 0.65rem;
+      font-size: 0.8rem;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .node-title {
+      font-weight: 600;
+      font-size: 0.86rem;
+      line-height: 1.1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .node-id {
+      font-size: 0.7rem;
+      color: #8c959f;
+      font-family: 'JetBrains Mono', monospace;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .node-summary {
+      font-size: 0.72rem;
+      color: #adbac7;
+      background: rgba(0, 0, 0, 0.15);
+      border-radius: 4px;
+      padding: 0.15rem 0.4rem;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Connection Ports */
+    .node-port {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--gs-card-bg);
+      border: 2px solid var(--gs-primary);
+      z-index: 15;
+      cursor: crosshair;
+      transition: transform 0.15s ease, background 0.15s ease;
+      box-sizing: border-box;
+    }
+
+    .node-port:hover {
+      transform: scale(1.4);
+      background: var(--gs-primary);
+    }
+
+    .port-input {
+      top: -7px;
+      left: 103px; /* Center of 220px: 110 - 7 */
+    }
+
+    .port-output {
+      bottom: -7px;
+      left: 103px;
+    }
+
+    /* Floating Toolbar */
+    .canvas-overlay-toolbar {
+      position: absolute;
+      bottom: 1rem;
+      left: 1rem;
+      z-index: 30;
+      background: var(--gs-panel-bg);
+      border: 1px solid var(--gs-border);
+      border-radius: 8px;
+      padding: 0.35rem;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+      display: flex;
+      gap: 0.35rem;
+      align-items: center;
+    }
+
+    /* Alert Banner */
+    .canvas-alert {
+      position: absolute;
+      top: 1rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 30;
+      max-width: 600px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Step Type Colors */
+    .badge-source { background-color: #0984e3; color: #fff; }
+    .badge-selection { background-color: #6c5ce7; color: #fff; }
+    .badge-effect { background-color: #e84393; color: #fff; }
+    .badge-texteffect { background-color: #d63031; color: #fff; }
+    .badge-drawable { background-color: #fdcb6e; color: #2d3436; }
+    .badge-setvariable { background-color: #00cec9; color: #2d3436; }
+    .badge-feedback { background-color: #00b894; color: #fff; }
+    .badge-destination { background-color: #e17055; color: #fff; }
+    .badge-notification { background-color: #636e72; color: #fff; }
+    .badge-conditional { background-color: #b2bec3; color: #2d3436; }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--gs-border);
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #8c959f;
+    }
+
+    .drawable-item-card {
+      background: rgba(0, 0, 0, 0.12);
+      border: 1px solid var(--gs-border);
+      border-radius: 6px;
+      padding: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .expression-tag {
+      cursor: pointer;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+      background: rgba(118, 185, 0, 0.15);
+      color: var(--gs-primary);
+      border: 1px solid rgba(118, 185, 0, 0.3);
+      display: inline-block;
+      margin: 0.15rem;
+    }
+
+    .expression-tag:hover {
+      background: var(--gs-primary);
+      color: #000;
+    }
+
+    .destination-chip {
+      font-size: 0.75rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 12px;
+      background: var(--gs-card-bg);
+      border: 1px solid var(--gs-border);
+      margin: 0.15rem;
+    }
+
+    /* Modal Json Editor */
+    .json-code-view {
+      background: #0d1117;
+      color: #e6edf3;
+      border-radius: 6px;
+      padding: 1rem;
+      font-family: 'JetBrains Mono', Consolas, monospace;
+      font-size: 0.85rem;
+      height: 480px;
+      overflow: auto;
+      white-space: pre;
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+  <!-- Top Navigation Bar -->
+  <header class="editor-navbar d-flex align-items-center justify-content-between">
+    <div class="d-flex align-items-center gap-3">
+      <a href="https://getgreenshot.org" target="_blank" class="brand-logo" title="Greenshot Project">
+        <!-- Greenshot G Logo -->
+        <svg viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="46" fill="#76b900"/>
+          <path d="M 68,32 L 38,32 A 18,18 0 0,0 20,50 A 18,18 0 0,0 38,68 L 64,68 A 18,18 0 0,0 82,50 L 52,50" fill="none" stroke="#ffffff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>Greenshot <small class="text-white opacity-75 fw-normal fs-6">DAG Recipe Editor</small></span>
+      </a>
+      <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle">v1.0 DAG Engine</span>
+    </div>
+
+    <!-- Recipe File Operations Toolbar -->
+    <div class="d-flex align-items-center gap-2">
+      <!-- Templates / New Dropdown -->
+      <div class="dropdown">
+        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+          <i class="bi bi-file-earmark-plus me-1"></i> New Flow
+        </button>
+        <ul class="dropdown-menu dropdown-menu-dark shadow">
+          <li><a class="dropdown-item" href="#" @click.prevent="newRecipe('blank')"><i class="bi bi-file-earmark me-2"></i> Blank Flow</a></li>
+          <li><hr class="dropdown-divider"></li>
+          <li><h6 class="dropdown-header">Built-in Templates</h6></li>
+          <li><a class="dropdown-item" href="#" @click.prevent="newRecipe('region_border')"><i class="bi bi-bounding-box me-2"></i> Region + Blue Border + Editor</a></li>
+          <li><a class="dropdown-item" href="#" @click.prevent="newRecipe('watermark_branch')"><i class="bi bi-diagram-3 me-2"></i> Branching DAG with Dynamic Watermark</a></li>
+          <li><a class="dropdown-item" href="#" @click.prevent="newRecipe('window_dlp_redact')"><i class="bi bi-shield-lock me-2"></i> Targeted Window + OCR Regex Redaction</a></li>
+          <li><a class="dropdown-item" href="#" @click.prevent="newRecipe('multi_dest')"><i class="bi bi-share me-2"></i> Multi-Destination Pipeline</a></li>
+        </ul>
+      </div>
+
+      <!-- Open File -->
+      <button class="btn btn-sm btn-outline-secondary" @click="triggerOpenFileInput" title="Open .gsrecipe.json file">
+        <i class="bi bi-folder2-open me-1"></i> Open
+      </button>
+      <input type="file" ref="fileInput" @change="onFileSelected" accept=".json,.gsrecipe.json" style="display: none;">
+
+      <!-- Save / Export -->
+      <button class="btn btn-sm btn-primary" @click="exportRecipeFile" title="Export as .gsrecipe.json">
+        <i class="bi bi-download me-1"></i> Save Recipe
+      </button>
+
+      <div class="vr mx-1 opacity-25"></div>
+
+      <!-- JSON Inspector Modal Trigger -->
+      <button class="btn btn-sm btn-outline-secondary" @click="openJsonModal" title="View & Edit Raw JSON">
+        <i class="bi bi-code-slash me-1"></i> JSON
+      </button>
+
+      <!-- Expression Cheat Sheet -->
+      <button class="btn btn-sm btn-outline-secondary" @click="showExpressionModal = true" title="Expression Helper & System Variables">
+        <i class="bi bi-braces me-1"></i> Variables ${...}
+      </button>
+
+      <!-- Help / Guide -->
+      <button class="btn btn-sm btn-outline-secondary" @click="showHelpModal = true" title="Recipe Guide & Help">
+        <i class="bi bi-question-circle"></i>
+      </button>
+
+      <!-- Theme Switcher -->
+      <button class="btn btn-sm btn-outline-secondary" @click="toggleTheme" :title="'Switch to ' + (isDark ? 'Light' : 'Dark') + ' Mode'">
+        <i :class="isDark ? 'bi bi-sun' : 'bi bi-moon-stars'"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Workspace (Toolbox + Canvas + Inspector) -->
+  <div class="main-workspace" @dragover.prevent @drop="onDropFileOnWorkspace">
+
+    <!-- Left Sidebar: Step Palette / Toolbox -->
+    <aside class="toolbox-sidebar">
+      <div class="sidebar-header">
+        <span><i class="bi bi-tools me-1 text-primary"></i> Step Toolbox</span>
+        <span class="badge bg-secondary-subtle text-secondary fs-xs">Drag or Click</span>
+      </div>
+
+      <div class="sidebar-content">
+        <!-- Recipe Metadata Quick Card -->
+        <div class="card bg-card border-secondary-subtle mb-3 p-2">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <span class="fw-bold fs-7 text-truncate" :title="recipe.name">{{ recipe.name }}</span>
+            <span class="badge bg-success-subtle text-success" v-if="recipe.enabled">Active</span>
+            <span class="badge bg-secondary-subtle text-secondary" v-else>Disabled</span>
+          </div>
+          <div class="text-secondary font-mono fs-8 text-truncate mb-2">{{ recipe.id }}</div>
+          <div class="d-flex gap-1">
+            <button class="btn btn-xs btn-outline-secondary w-100 py-1" @click="selectRecipeTab">
+              <i class="bi bi-sliders me-1"></i> Recipe Settings
+            </button>
+          </div>
+        </div>
+
+        <!-- Palette Steps (Collapsible) -->
+        <!-- 1. Capture & Input -->
+        <div class="step-category-header" :class="{ 'is-collapsed': collapsedCategories.capture }" @click="toggleCategory('capture')">
+          <span><i class="bi bi-camera me-1 text-info"></i> Capture & Input</span>
+          <i class="bi bi-chevron-down fs-xs"></i>
+        </div>
+        <div v-show="!collapsedCategories.capture">
+          <div class="step-palette-item" draggable="true" @dragstart="onDragStartStep($event, 'Source')" @click="addNode('Source')">
+            <i class="bi bi-camera-fill text-info"></i>
+            <div>
+              <div class="fw-semibold">Source</div>
+              <div class="text-secondary fs-xs">Region, Window, Screen, Clipboard</div>
+            </div>
+          </div>
+          <div class="step-palette-item" draggable="true" @dragstart="onDragStartStep($event, 'InteractiveSelection')" @click="addNode('InteractiveSelection')">
+            <i class="bi bi-bounding-box text-primary"></i>
+            <div>
+              <div class="fw-semibold">Interactive Selection</div>
+              <div class="text-secondary fs-xs">Interactive region / window overlay</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Filters & Effects -->
+        <div class="step-category-header" :class="{ 'is-collapsed': collapsedCategories.filters }" @click="toggleCategory('filters')">
+          <span><i class="bi bi-magic me-1 text-danger"></i> Filters & Effects</span>
+          <i class="bi bi-chevron-down fs-xs"></i>
+        </div>
+        <div v-show="!collapsedCategories.filters">
+          <div class="step-palette-item" draggable="true" @dragstart="onDragStartStep($event, 'Effect')" @click="addNode('Effect')">
+            <i class="bi bi-stars text-danger"></i>
+            <div>
+              <div class="fw-semibold">Effect</div>
+              <div class="text-secondary fs-xs">Border, Shadow, Torn Edge, Invert, Resize...</div>
+            </div>
+          </div>
+          <div class="step-palette-item" draggable="true" @dragstart="onDragStartStep($event, 'TextEffect')" @click="addNode('TextEffect')">
+            <i class="bi bi-shield-x text-danger"></i>
+            <div>
+              <div class="fw-semibold">Text Effect / DLP</div>
+              <div class="text-secondary fs-xs">OCR Regex Redaction / Blackout</div>
+            </div>
+          </div>
+          <div class="step-palette-item" draggable="true" @dragstart="onDragStartStep($event, 'ObfuscateText')" @click="addNode('ObfuscateText')">
+            <i class="bi bi-eye-slash text-danger"></i>
+            <div>
+              <div class="fw-semibold">Obfuscate Text</div>
+              <div class="text-secondary fs-xs">Pattern-based Blur / Pixelize</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Annotations & Layers -->
+        <div class="step-category-header" :class="{ 'is-collapsed': collapsedCategories.annotations }" @click="toggleCategory('annotations')">
+          <span><i class="bi bi-layers me-1 text-warning"></i> Annotations & Layers</span>
+          <i class="bi bi-chevron-down fs-xs"></i>
+        </div>
+        <div v-show="!collapsedCategories.annotations">
+          <div class="step-palette-item" draggable="true" @dragstart="onDragStartStep($event, 'Drawable')" @click="addNode('Drawable')">
+            <i class="bi bi-palette text-warning"></i>
+            <div>
+              <div class="fw-semibold">Drawable Surface</div>
+              <div class="text-secondary fs-xs">Shapes, Text, Emojis, Watermarks</div>
+            </div>
+          </div>
+          <div class="step-palette-item" draggable="true" @dragstart="onDragStartStep($event, 'SetVariable')" @click="addNode('SetVariable')">
+            <i class="bi bi-code-square text-info"></i>
+            <div>
+              <div class="fw-semibold">Set Variable</div>
+              <div class="text-secondary fs-xs">Assign dynamic context variables</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. Execution & Feedback -->
+        <div class="step-category-header" :class="{ 'is-collapsed': collapsedCategories.execution }" @click="toggleCategory('execution')">
+          <span><i class="bi bi-cpu me-1 text-success"></i> Execution & Feedback</span>
+          <i class="bi bi-chevron-down fs-xs"></i>
+        </div>
+        <div v-show="!collapsedCategories.execution">
+          <div class="step-palette-item" draggable="true" @dragstart="onDragStartStep($event, 'ImmediateFeedback')" @click="addNode('ImmediateFeedback')">
+            <i class="bi bi-volume-up text-success"></i>
+            <div>
+              <div class="fw-semibold">Immediate Feedback</div>
+              <div class="text-secondary fs-xs">Shutter sound & camera feedback</div>
+            </div>
+          </div>
+          <div class="step-palette-item" draggable="true" @dragstart="onDragStartStep($event, 'Notification')" @click="addNode('Notification')">
+            <i class="bi bi-bell text-secondary"></i>
+            <div>
+              <div class="fw-semibold">Notification</div>
+              <div class="text-secondary fs-xs">Toast & balloon notifications</div>
+            </div>
+          </div>
+          <div class="step-palette-item" draggable="true" @dragstart="onDragStartStep($event, 'Processors')" @click="addNode('Processors')">
+            <i class="bi bi-gear-wide-connected text-primary"></i>
+            <div>
+              <div class="fw-semibold">Processors</div>
+              <div class="text-secondary fs-xs">OCR & Plugin transformers</div>
+            </div>
+          </div>
+          <div class="step-palette-item" draggable="true" @dragstart="onDragStartStep($event, 'Conditional')" @click="addNode('Conditional')">
+            <i class="bi bi-signpost-split text-warning"></i>
+            <div>
+              <div class="fw-semibold">Conditional</div>
+              <div class="text-secondary fs-xs">Branch on expression evaluation</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5. Output & Destinations -->
+        <div class="step-category-header" :class="{ 'is-collapsed': collapsedCategories.destinations }" @click="toggleCategory('destinations')">
+          <span><i class="bi bi-send me-1 text-warning"></i> Output & Destinations</span>
+          <i class="bi bi-chevron-down fs-xs"></i>
+        </div>
+        <div v-show="!collapsedCategories.destinations">
+          <div class="step-palette-item" draggable="true" @dragstart="onDragStartStep($event, 'Destinations')" @click="addNode('Destinations')">
+            <i class="bi bi-box-arrow-up-right text-warning"></i>
+            <div>
+              <div class="fw-semibold">Destinations</div>
+              <div class="text-secondary fs-xs">Editor, Clipboard, File, Cloud...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Center: Interactive Visual DAG Canvas -->
+    <main class="canvas-container"
+          ref="canvasContainer"
+          :class="{ panning: isPanningSpace || isMiddlePanning }"
+          @mousedown="onCanvasMouseDown"
+          @mousemove="onCanvasMouseMove"
+          @mouseup="onCanvasMouseUp"
+          @wheel="onCanvasWheel"
+          @dragover.prevent
+          @drop="onDropStepOnCanvas">
+
+      <!-- Background Grid -->
+      <div class="grid-bg"></div>
+
+      <!-- Alert / Cycle Warning Banner -->
+      <div v-if="cycleErrors.length > 0" class="canvas-alert alert alert-danger alert-dismissible fade show d-flex align-items-center gap-2 py-2" role="alert">
+        <i class="bi bi-exclamation-triangle-fill fs-5"></i>
+        <div>
+          <strong>Invalid Workflow: Cycle Detected!</strong>
+          <div class="fs-xs">Greenshot recipes must be Directed Acyclic Graphs (DAG). Loop: {{ cycleErrors.join(' &rarr; ') }}</div>
+        </div>
+      </div>
+
+      <!-- Transformable Viewport -->
+      <div class="canvas-viewport" :style="viewportTransformStyle">
+
+        <!-- SVG Connection Lines -->
+        <svg class="connections-svg">
+          <defs>
+            <marker id="arrowhead" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="var(--gs-edge-color)"/>
+            </marker>
+            <marker id="arrowhead-active" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="var(--gs-edge-active)"/>
+            </marker>
+            <marker id="arrowhead-cycle" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#ff4757"/>
+            </marker>
+          </defs>
+
+          <!-- Rendered Transitions / Edges -->
+          <g v-for="edge in computedEdges" :key="edge.id">
+            <!-- Main visible line -->
+            <path :d="edge.pathD"
+                  class="connection-line"
+                  :class="{ 'is-cycle': edge.isCycle, 'active': edge.from === selectedNodeId || edge.to === selectedNodeId }"
+                  :marker-end="edge.isCycle ? 'url(#arrowhead-cycle)' : (edge.from === selectedNodeId || edge.to === selectedNodeId ? 'url(#arrowhead-active)' : 'url(#arrowhead)')"/>
+
+            <!-- Midpoint delete badge -->
+            <g class="edge-badge" :transform="`translate(${edge.midX}, ${edge.midY})`" @click.stop="removeEdge(edge.from, edge.to)" title="Delete connection">
+              <circle r="9" fill="#ff4757" stroke="var(--gs-panel-bg)" stroke-width="1.5"/>
+              <text text-anchor="middle" dy="3.5" fill="#ffffff" font-size="11" font-weight="bold" pointer-events="none">&times;</text>
+            </g>
+          </g>
+
+          <!-- Dynamic Connecting Line during Drag -->
+          <path v-if="connectingState.active"
+                :d="connectingDraftPath"
+                class="connection-line active"
+                stroke-dasharray="4 4"
+                marker-end="url(#arrowhead-active)"/>
+        </svg>
+
+        <!-- DAG Nodes Boxes -->
+        <div v-for="node in recipe.nodes"
+             :key="node.id"
+             class="dag-node"
+             :class="{
+                'selected': selectedNodeId === node.id,
+                'start-node': recipe.flow.startNode === node.id || (recipe.flow.startNodes && recipe.flow.startNodes.includes(node.id)),
+                'has-cycle': isNodeInCycle(node.id)
+             }"
+             :style="{ left: (node.ui ? node.ui.x : 0) + 'px', top: (node.ui ? node.ui.y : 0) + 'px' }"
+             @mousedown.stop="onNodeMouseDown($event, node)"
+             @click.stop="selectNode(node)">
+
+          <!-- Input Port Handle (Top) -->
+          <div class="node-port port-input"
+               title="Input Connection (Drop edge here)"
+               @mouseup.stop="onPortInputMouseUp(node)"></div>
+
+          <!-- Node Header -->
+          <div class="node-header">
+            <span class="node-type-badge" :class="getStepBadgeClass(node.stepType)">
+              <i :class="getStepIcon(node.stepType)" class="me-1"></i>{{ node.stepType }}
+            </span>
+            <div class="d-flex align-items-center gap-1">
+              <span v-if="recipe.flow.startNode === node.id" class="badge bg-success-subtle text-success fs-xs py-0" title="Workflow Entry Point">START</span>
+              <button class="btn btn-link btn-xs text-secondary p-0 text-decoration-none" @click.stop="deleteNode(node.id)" title="Delete Node">
+                <i class="bi bi-x-lg"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Node Body -->
+          <div class="node-body">
+            <div class="node-title" :title="node.name || node.id">{{ node.name || node.stepType }}</div>
+            <div class="node-id" :title="'ID: ' + node.id">{{ node.id }}</div>
+            <div class="node-summary" :title="getNodeSummary(node)">
+              {{ getNodeSummary(node) }}
+            </div>
+          </div>
+
+          <!-- Output Port Handle (Bottom) -->
+          <div class="node-port port-output"
+               title="Output Connection (Drag to connect downstream step)"
+               @mousedown.stop="onPortOutputMouseDown($event, node)"></div>
+        </div>
+
+      </div>
+
+      <!-- Canvas Floating Overlay Controls -->
+      <div class="canvas-overlay-toolbar">
+        <button class="btn btn-sm btn-outline-secondary" @click="zoomIn" title="Zoom In"><i class="bi bi-zoom-in"></i></button>
+        <button class="btn btn-sm btn-outline-secondary" @click="zoomOut" title="Zoom Out"><i class="bi bi-zoom-out"></i></button>
+        <button class="btn btn-sm btn-outline-secondary" @click="resetZoom" title="Reset Zoom (100%)"><i class="bi bi-aspect-ratio"></i></button>
+        <button class="btn btn-sm btn-outline-secondary" @click="autoLayout" title="Auto Layout Graph"><i class="bi bi-diagram-3-fill"></i> Auto Layout</button>
+        <div class="vr my-1 opacity-25"></div>
+        <span class="fs-xs text-secondary px-1">{{ Math.round(zoomLevel * 100) }}%</span>
+      </div>
+
+    </main>
+
+    <!-- Right Sidebar: Property & Node Inspector -->
+    <aside class="inspector-sidebar">
+      <div class="sidebar-header">
+        <div class="d-flex gap-2">
+          <button class="btn btn-xs" :class="activeInspectorTab === 'node' ? 'btn-primary' : 'btn-outline-secondary'" @click="activeInspectorTab = 'node'">
+            <i class="bi bi-box me-1"></i> Node Properties
+          </button>
+          <button class="btn btn-xs" :class="activeInspectorTab === 'recipe' ? 'btn-primary' : 'btn-outline-secondary'" @click="activeInspectorTab = 'recipe'">
+            <i class="bi bi-gear me-1"></i> Recipe Flow
+          </button>
+        </div>
+      </div>
+
+      <div class="sidebar-content">
+
+        <!-- TAB 1: Selected Node Inspector -->
+        <div v-if="activeInspectorTab === 'node'">
+          <div v-if="selectedNode">
+            <!-- Node Header Info -->
+            <div class="mb-3">
+              <label class="form-label fs-xs text-secondary text-uppercase fw-bold mb-1">Step Type</label>
+              <div class="d-flex align-items-center gap-2">
+                <span class="node-type-badge fs-6 py-1 px-2" :class="getStepBadgeClass(selectedNode.stepType)">
+                  <i :class="getStepIcon(selectedNode.stepType)" class="me-1"></i> {{ selectedNode.stepType }}
+                </span>
+                <div class="form-check form-switch ms-auto">
+                  <input class="form-check-input" type="checkbox" id="nodeEnabledSwitch" v-model="selectedNode.enabled">
+                  <label class="form-check-label fs-xs" for="nodeEnabledSwitch">Enabled</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-2">
+              <label class="form-label fs-xs text-secondary fw-bold mb-1">Node ID</label>
+              <input type="text" class="form-control form-control-sm font-mono" v-model="selectedNode.id" @change="onNodeIdChanged">
+            </div>
+            <div class="mb-3">
+              <label class="form-label fs-xs text-secondary fw-bold mb-1">Display Name</label>
+              <input type="text" class="form-control form-control-sm" v-model="selectedNode.name" placeholder="Optional label">
+            </div>
+
+            <div class="form-check mb-3">
+              <input class="form-check-input" type="checkbox" id="isStartNodeCheck"
+                     :checked="recipe.flow.startNode === selectedNode.id"
+                     @change="toggleStartNode(selectedNode.id, $event.target.checked)">
+              <label class="form-check-label fs-xs" for="isStartNodeCheck">
+                Mark as Flow Entry Point (<code class="text-primary">startNode</code>)
+              </label>
+            </div>
+
+            <hr class="border-secondary-subtle my-3">
+
+            <!-- STEP TYPE SPECIFIC FORM CONTROLS -->
+            <div class="fw-bold fs-7 text-uppercase text-secondary mb-2">Step Parameters</div>
+
+            <!-- 1. Source Step -->
+            <div v-if="selectedNode.stepType === 'Source'" class="d-flex flex-column gap-2">
+              <div>
+                <label class="form-label fs-xs mb-1">Source Type</label>
+                <select class="form-select form-select-sm" :value="param(selectedNode, 'sourceType', 'Region')" @change="setParam(selectedNode, 'sourceType', $event.target.value)">
+                  <option value="Region">Region (Interactive or screen rect)</option>
+                  <option value="Window">Window (Target specific window)</option>
+                  <option value="ActiveWindow">ActiveWindow (Currently focused)</option>
+                  <option value="FullScreen">FullScreen (All displays / desktop)</option>
+                  <option value="LastRegion">LastRegion (Repeat previous region)</option>
+                  <option value="Clipboard">Clipboard (From image in clipboard)</option>
+                  <option value="File">File (Load image file)</option>
+                  <option value="TextOcr">TextOcr (Screen OCR capture)</option>
+                </select>
+              </div>
+
+              <div v-if="['Window', 'ActiveWindow'].includes(param(selectedNode, 'sourceType', 'Region'))">
+                <label class="form-label fs-xs mb-1">Window Title Pattern (Regex)</label>
+                <input type="text" class="form-control form-control-sm font-mono" :value="param(selectedNode, 'windowTitlePattern', '')" @input="setParam(selectedNode, 'windowTitlePattern', $event.target.value)" placeholder=".*(Chrome|Greenshot|Notepad).*">
+              </div>
+
+              <div v-if="['Window', 'ActiveWindow'].includes(param(selectedNode, 'sourceType', 'Region'))">
+                <label class="form-label fs-xs mb-1">Process Name</label>
+                <input type="text" class="form-control form-control-sm font-mono" :value="param(selectedNode, 'processName', '')" @input="setParam(selectedNode, 'processName', $event.target.value)" placeholder="e.g. notepad, chrome">
+              </div>
+
+              <div>
+                <label class="form-label fs-xs mb-1">Capture Mouse Cursor</label>
+                <select class="form-select form-select-sm" :value="getCaptureMouseCursor(selectedNode)" @change="setCaptureMouseCursor(selectedNode, $event.target.value)">
+                  <option value="">Dynamic (from ini)</option>
+                  <option value="true">Always True</option>
+                  <option value="false">Always False</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="form-label fs-xs mb-1">Delay (ms)</label>
+                <input type="number" class="form-control form-control-sm" :value="param(selectedNode, 'delayMs', 0)" @input="setParam(selectedNode, 'delayMs', parseInt($event.target.value) || 0)" min="0" step="100" placeholder="0">
+              </div>
+            </div>
+
+            <!-- 2. InteractiveSelection Step -->
+            <div v-if="selectedNode.stepType === 'InteractiveSelection'" class="d-flex flex-column gap-2">
+              <div>
+                <label class="form-label fs-xs mb-1">Selection Mode</label>
+                <select class="form-select form-select-sm" :value="param(selectedNode, 'selectionMode', 'Region')" @change="setParam(selectedNode, 'selectionMode', $event.target.value)">
+                  <option value="Region">Region (Rubberband rectangle)</option>
+                  <option value="Window">Window (Hover & click window)</option>
+                  <option value="Text">Text (OCR selection box)</option>
+                </select>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="snapCheck" :checked="param(selectedNode, 'allowWindowSnapping', true)" @change="setParam(selectedNode, 'allowWindowSnapping', $event.target.checked)">
+                <label class="form-check-label fs-xs" for="snapCheck">Allow Window Snapping</label>
+              </div>
+            </div>
+
+            <!-- 3. Border Step -->
+            <div v-if="selectedNode.stepType === 'Border'" class="d-flex flex-column gap-2">
+              <div>
+                <label class="form-label fs-xs mb-1">Border Width (px)</label>
+                <input type="number" class="form-control form-control-sm" :value="param(selectedNode, 'width', 2)" @input="setParam(selectedNode, 'width', parseInt($event.target.value) || 2)" min="1" max="100">
+              </div>
+              <div>
+                <label class="form-label fs-xs mb-1">Border Color</label>
+                <div class="input-group input-group-sm">
+                  <input type="color" class="form-control form-control-color" :value="sanitizeHexColor(param(selectedNode, 'color', '#0000FF'))" @input="setParam(selectedNode, 'color', $event.target.value)">
+                  <input type="text" class="form-control font-mono" :value="param(selectedNode, 'color', '#0000FF')" @input="setParam(selectedNode, 'color', $event.target.value)" placeholder="#0000FF">
+                </div>
+              </div>
+            </div>
+
+            <!-- 4. Effect Step -->
+            <div v-if="selectedNode.stepType === 'Effect'" class="d-flex flex-column gap-2">
+              <div>
+                <label class="form-label fs-xs mb-1">Effect Type</label>
+                <select class="form-select form-select-sm" :value="param(selectedNode, 'effect', 'DropShadow')" @change="setParam(selectedNode, 'effect', $event.target.value)">
+                  <option value="Border">Border</option>
+                  <option value="DropShadow">DropShadow</option>
+                  <option value="TornEdge">TornEdge</option>
+                  <option value="Invert">Invert</option>
+                  <option value="Grayscale">Grayscale</option>
+                  <option value="Monochrome">Monochrome</option>
+                  <option value="Rotate">Rotate</option>
+                  <option value="Resize">Resize</option>
+                  <option value="ResizeCanvas">ResizeCanvas</option>
+                  <option value="Blur">Blur</option>
+                  <option value="Pixelize">Pixelize</option>
+                  <option value="Highlight">Highlight</option>
+                  <option value="Redact">Redact</option>
+                  <option value="Blackout">Blackout</option>
+                  <option value="Magnify">Magnify</option>
+                </select>
+              </div>
+
+              <!-- Effect specific params -->
+              <div v-if="param(selectedNode, 'effect', 'DropShadow') === 'DropShadow'" class="d-flex flex-column gap-2">
+                <div>
+                  <label class="form-label fs-xs mb-1">Shadow Size (px)</label>
+                  <input type="number" class="form-control form-control-sm" :value="param(selectedNode, 'shadowSize', 10)" @input="setParam(selectedNode, 'shadowSize', parseInt($event.target.value) || 10)" placeholder="10">
+                </div>
+                <div>
+                  <label class="form-label fs-xs mb-1">Darkness (0.0 - 1.0)</label>
+                  <input type="number" class="form-control form-control-sm" :value="param(selectedNode, 'darkness', 0.6)" @input="setParam(selectedNode, 'darkness', parseFloat($event.target.value) || 0.6)" step="0.05" min="0" max="1" placeholder="0.6">
+                </div>
+              </div>
+
+              <div v-if="param(selectedNode, 'effect', '') === 'Border'" class="d-flex flex-column gap-2">
+                <div>
+                  <label class="form-label fs-xs mb-1">Width (px)</label>
+                  <input type="number" class="form-control form-control-sm" :value="param(selectedNode, 'width', 2)" @input="setParam(selectedNode, 'width', parseInt($event.target.value) || 2)" placeholder="2">
+                </div>
+                <div>
+                  <label class="form-label fs-xs mb-1">Color</label>
+                  <input type="text" class="form-control form-control-sm font-mono" :value="param(selectedNode, 'color', '#0078D7')" @input="setParam(selectedNode, 'color', $event.target.value)" placeholder="#0078D7">
+                </div>
+              </div>
+            </div>
+
+            <!-- 5. TextEffect / DLP Step -->
+            <div v-if="selectedNode.stepType === 'TextEffect'" class="d-flex flex-column gap-2">
+              <div>
+                <label class="form-label fs-xs mb-1">Action</label>
+                <select class="form-select form-select-sm" :value="param(selectedNode, 'effect', 'Redact')" @change="setParam(selectedNode, 'effect', $event.target.value)">
+                  <option value="Redact">Redact (Solid Fill)</option>
+                  <option value="Blur">Blur</option>
+                  <option value="Highlight">Highlight</option>
+                  <option value="Blackout">Blackout</option>
+                </select>
+              </div>
+              <div>
+                <label class="form-label fs-xs mb-1">Fill Color</label>
+                <input type="text" class="form-control form-control-sm font-mono" :value="param(selectedNode, 'fillColor', '#000000')" @input="setParam(selectedNode, 'fillColor', $event.target.value)" placeholder="#000000">
+              </div>
+
+              <div>
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <label class="form-label fs-xs mb-0">Regex Patterns</label>
+                  <div class="dropdown">
+                    <button class="btn btn-xs btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">Add Preset</button>
+                    <ul class="dropdown-menu dropdown-menu-dark fs-xs">
+                      <li><a class="dropdown-item" href="#" @click.prevent="addRegexPreset('Email')">Email Address</a></li>
+                      <li><a class="dropdown-item" href="#" @click.prevent="addRegexPreset('CreditCard')">Credit Card (16-digits)</a></li>
+                      <li><a class="dropdown-item" href="#" @click.prevent="addRegexPreset('SSN')">SSN / ID Number</a></li>
+                      <li><a class="dropdown-item" href="#" @click.prevent="addRegexPreset('ApiKey')">API Keys / Tokens (AWS, GitHub, Google)</a></li>
+                      <li><a class="dropdown-item" href="#" @click.prevent="addRegexPreset('IPv4')">IPv4 Address</a></li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div v-for="(pattern, idx) in getPatternsList(selectedNode)" :key="idx" class="input-group input-group-sm mb-1">
+                  <input type="text" class="form-control font-mono fs-xs" :value="pattern" @input="updatePattern(selectedNode, idx, $event.target.value)">
+                  <button class="btn btn-outline-danger" @click="removePattern(selectedNode, idx)"><i class="bi bi-trash"></i></button>
+                </div>
+                <button class="btn btn-xs btn-outline-secondary w-100 mt-1" @click="addEmptyRegexPattern">+ Add Custom Regex</button>
+              </div>
+            </div>
+
+            <!-- 6. ObfuscateText Step -->
+            <div v-if="selectedNode.stepType === 'ObfuscateText'" class="d-flex flex-column gap-2">
+              <div>
+                <label class="form-label fs-xs mb-1">Regex Pattern</label>
+                <input type="text" class="form-control form-control-sm font-mono" :value="param(selectedNode, 'pattern', '')" @input="setParam(selectedNode, 'pattern', $event.target.value)" placeholder="e.g. \\b\\d{4}-\\d{4}\\b">
+              </div>
+              <div>
+                <label class="form-label fs-xs mb-1">Obfuscate Mode</label>
+                <select class="form-select form-select-sm" :value="param(selectedNode, 'obfuscateMode', 'Blur')" @change="setParam(selectedNode, 'obfuscateMode', $event.target.value)">
+                  <option value="Redact">Redact</option>
+                  <option value="Blur">Blur</option>
+                  <option value="Pixelize">Pixelize</option>
+                </select>
+              </div>
+              <div>
+                <label class="form-label fs-xs mb-1">Fill Color</label>
+                <input type="text" class="form-control form-control-sm font-mono" :value="param(selectedNode, 'fillColor', '#000000')" @input="setParam(selectedNode, 'fillColor', $event.target.value)" placeholder="#000000">
+              </div>
+            </div>
+
+            <!-- 7. Drawable Step (Rich Surface Stamping) -->
+            <div v-if="selectedNode.stepType === 'Drawable'" class="d-flex flex-column gap-2">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <span class="fs-xs fw-bold text-secondary text-uppercase">Drawables List</span>
+                <div class="dropdown">
+                  <button class="btn btn-xs btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    + Add Element
+                  </button>
+                  <ul class="dropdown-menu dropdown-menu-dark fs-xs">
+                    <li><a class="dropdown-item" href="#" @click.prevent="addDrawable('Rectangle')"><i class="bi bi-square me-2"></i> Rectangle Box</a></li>
+                    <li><a class="dropdown-item" href="#" @click.prevent="addDrawable('Text')"><i class="bi bi-type me-2"></i> Text Annotation</a></li>
+                    <li><a class="dropdown-item" href="#" @click.prevent="addDrawable('StepLabel')"><i class="bi bi-1-circle me-2"></i> Step Number Label</a></li>
+                    <li><a class="dropdown-item" href="#" @click.prevent="addDrawable('Emoji')"><i class="bi bi-emoji-smile me-2"></i> Emoji Stamp</a></li>
+                    <li><a class="dropdown-item" href="#" @click.prevent="addDrawable('Arrow')"><i class="bi bi-arrow-up-right me-2"></i> Arrow</a></li>
+                    <li><a class="dropdown-item" href="#" @click.prevent="addDrawable('Ellipse')"><i class="bi bi-circle me-2"></i> Ellipse</a></li>
+                    <li><a class="dropdown-item" href="#" @click.prevent="addDrawable('Speechbubble')"><i class="bi bi-chat-dots me-2"></i> Speechbubble</a></li>
+                    <li><a class="dropdown-item" href="#" @click.prevent="addDrawable('Blur')"><i class="bi bi-droplet me-2"></i> Blur Area</a></li>
+                    <li><a class="dropdown-item" href="#" @click.prevent="addDrawable('Highlight')"><i class="bi bi-highlighter me-2"></i> Highlight Area</a></li>
+                  </ul>
+                </div>
+              </div>
+
+              <!-- Drawable Elements Accordion -->
+              <div v-for="(drw, dIdx) in getDrawablesList(selectedNode)" :key="dIdx" class="drawable-item-card">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <span class="badge bg-secondary font-mono">{{ drw.type }}</span>
+                  <button class="btn btn-link btn-xs text-danger p-0" @click="getDrawablesList(selectedNode).splice(dIdx, 1)">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+
+                <!-- Text Specific -->
+                <div v-if="['Text', 'Speechbubble', 'StepLabel'].includes(drw.type)" class="mb-2">
+                  <label class="form-label fs-xs mb-1">Text / Label (with ${...} interpolation)</label>
+                  <input type="text" class="form-control form-control-sm font-mono" v-model="drw.text" placeholder="Captured by ${user.username} on ${now:yyyy-MM-dd}">
+                </div>
+
+                <!-- Emoji Specific -->
+                <div v-if="drw.type === 'Emoji'" class="mb-2">
+                  <label class="form-label fs-xs mb-1">Emoji</label>
+                  <input type="text" class="form-control form-control-sm" v-model="drw.emoji" placeholder="🛡️, ⚠️, ✅, 🚀">
+                </div>
+
+                <!-- Alignment Anchors -->
+                <div class="mb-2">
+                  <label class="form-label fs-xs mb-1">H-Anchor</label>
+                  <select class="form-select form-select-sm" v-model="drw.horizontalAnchor">
+                    <option :value="undefined">None (Absolute)</option>
+                    <option value="Left">Left</option>
+                    <option value="Center">Center</option>
+                    <option value="Right">Right</option>
+                  </select>
+                </div>
+                <div class="mb-2">
+                  <label class="form-label fs-xs mb-1">V-Anchor</label>
+                  <select class="form-select form-select-sm" v-model="drw.verticalAnchor">
+                    <option :value="undefined">None (Absolute)</option>
+                    <option value="Top">Top</option>
+                    <option value="Center">Center</option>
+                    <option value="Bottom">Bottom</option>
+                  </select>
+                </div>
+
+                <!-- Dimensions & Offsets -->
+                <div class="mb-2">
+                  <label class="form-label fs-xs mb-1">Width</label>
+                  <input type="text" class="form-control form-control-sm font-mono" v-model="drw.width" placeholder="300">
+                </div>
+                <div class="mb-2">
+                  <label class="form-label fs-xs mb-1">Height</label>
+                  <input type="text" class="form-control form-control-sm font-mono" v-model="drw.height" placeholder="40">
+                </div>
+                <div class="mb-2">
+                  <label class="form-label fs-xs mb-1">Offset X</label>
+                  <input type="text" class="form-control form-control-sm font-mono" v-model="drw.offsetX" placeholder="-15">
+                </div>
+                <div class="mb-2">
+                  <label class="form-label fs-xs mb-1">Offset Y</label>
+                  <input type="text" class="form-control form-control-sm font-mono" v-model="drw.offsetY" placeholder="-15">
+                </div>
+
+                <!-- Colors & Styling -->
+                <div class="mb-2">
+                  <label class="form-label fs-xs mb-1">Fill Color</label>
+                  <input type="text" class="form-control form-control-sm font-mono" v-model="drw.fillColor" placeholder="rgba(0,0,0,180)">
+                </div>
+                <div class="mb-2">
+                  <label class="form-label fs-xs mb-1">Line Color</label>
+                  <input type="text" class="form-control form-control-sm font-mono" v-model="drw.lineColor" placeholder="#0078D7">
+                </div>
+              </div>
+            </div>
+
+            <!-- 8. SetVariable Step -->
+            <div v-if="selectedNode.stepType === 'SetVariable'" class="d-flex flex-column gap-2">
+              <label class="form-label fs-xs mb-1">Context Variables Dictionary</label>
+              <div v-for="(val, key) in getVariablesDict(selectedNode)" :key="key" class="input-group input-group-sm mb-1">
+                <span class="input-group-text font-mono fs-xs">{{ key }}</span>
+                <input type="text" class="form-control font-mono fs-xs" :value="val" @input="updateVariable(selectedNode, key, $event.target.value)">
+                <button class="btn btn-outline-danger" @click="deleteVariable(selectedNode, key)"><i class="bi bi-trash"></i></button>
+              </div>
+
+              <div class="input-group input-group-sm mt-1">
+                <input type="text" class="form-control font-mono fs-xs" v-model="newVarKey" placeholder="var_name">
+                <input type="text" class="form-control font-mono fs-xs" v-model="newVarVal" placeholder="${user.username}">
+                <button class="btn btn-outline-primary" @click="addVariable(selectedNode)">+ Add</button>
+              </div>
+            </div>
+
+            <!-- 9. ImmediateFeedback Step -->
+            <div v-if="selectedNode.stepType === 'ImmediateFeedback'" class="d-flex flex-column gap-2">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="playSoundCheck" :checked="param(selectedNode, 'playSound', true)" @change="setParam(selectedNode, 'playSound', $event.target.checked)">
+                <label class="form-check-label fs-xs" for="playSoundCheck">Play Shutter Camera Sound</label>
+              </div>
+            </div>
+
+            <!-- 10. Destinations Step -->
+            <div v-if="selectedNode.stepType === 'Destinations'" class="d-flex flex-column gap-2">
+              <label class="form-label fs-xs mb-1">Configured Destinations</label>
+              
+              <!-- Active Destination Badges -->
+              <div class="d-flex flex-wrap gap-1 mb-2">
+                <span v-for="dest in getDestinationsList(selectedNode)" :key="dest" class="destination-chip">
+                  <i class="bi bi-check2 text-success"></i>
+                  <strong>{{ dest }}</strong>
+                  <button type="button" class="btn-close btn-close-white" style="font-size: 0.5rem;" @click="toggleDestination(selectedNode, dest, false)"></button>
+                </span>
+                <span v-if="getDestinationsList(selectedNode).length === 0" class="text-secondary fs-xs fst-italic">No destinations chosen.</span>
+              </div>
+
+              <!-- Built-in Destination Checkboxes -->
+              <div class="card bg-card border-secondary-subtle p-2 mb-2">
+                <div class="fs-xs fw-bold text-secondary text-uppercase mb-2">Built-in Targets</div>
+                <div class="d-flex flex-column gap-1">
+                  <div v-for="dest in allKnownDestinations" :key="dest" class="form-check">
+                    <input class="form-check-input" type="checkbox" :id="'dest_' + dest"
+                           :checked="isDestinationSelected(selectedNode, dest)"
+                           @change="toggleDestination(selectedNode, dest, $event.target.checked)">
+                    <label class="form-check-label fs-xs" :for="'dest_' + dest">{{ dest }}</label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Add Custom Destination -->
+              <div>
+                <label class="form-label fs-xs mb-1">Add Custom Destination Name</label>
+                <div class="input-group input-group-sm">
+                  <input type="text" class="form-control font-mono fs-xs" v-model="customDestInput" placeholder="e.g. CustomUploader, WebhookTarget" @keyup.enter="addCustomDestination(selectedNode)">
+                  <button class="btn btn-outline-primary" @click="addCustomDestination(selectedNode)">+ Add</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 11. Notification Step -->
+            <div v-if="selectedNode.stepType === 'Notification'" class="d-flex flex-column gap-2">
+              <div>
+                <label class="form-label fs-xs mb-1">Title</label>
+                <input type="text" class="form-control form-control-sm" :value="param(selectedNode, 'title', '')" @input="setParam(selectedNode, 'title', $event.target.value)" placeholder="Capture Completed">
+              </div>
+              <div>
+                <label class="form-label fs-xs mb-1">Message</label>
+                <input type="text" class="form-control form-control-sm" :value="param(selectedNode, 'message', '')" @input="setParam(selectedNode, 'message', $event.target.value)" placeholder="Saved to ${context.saved_path}">
+              </div>
+            </div>
+
+            <!-- 12. Conditional Step -->
+            <div v-if="selectedNode.stepType === 'Conditional'" class="d-flex flex-column gap-2">
+              <div>
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <label class="form-label fs-xs mb-0">Condition Expression</label>
+                  <div class="dropdown">
+                    <button class="btn btn-xs btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                      Presets
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-dark fs-xs shadow">
+                      <li><h6 class="dropdown-header">Dimension Conditions</h6></li>
+                      <li><a class="dropdown-item" href="#" @click.prevent="setParam(selectedNode, 'condition', '${payload.width > 1920}')">Large Display / Full HD (${payload.width > 1920})</a></li>
+                      <li><a class="dropdown-item" href="#" @click.prevent="setParam(selectedNode, 'condition', '${payload.width <= 800}')">Small Area (${payload.width <= 800})</a></li>
+                      <li><a class="dropdown-item" href="#" @click.prevent="setParam(selectedNode, 'condition', '${payload.width > payload.height}')">Landscape (${payload.width > payload.height})</a></li>
+                      <li><a class="dropdown-item" href="#" @click.prevent="setParam(selectedNode, 'condition', '${payload.height > payload.width}')">Portrait (${payload.height > payload.width})</a></li>
+                      <li><hr class="dropdown-divider"></li>
+                      <li><h6 class="dropdown-header">Context & User</h6></li>
+                      <li><a class="dropdown-item" href="#" @click.prevent="setParam(selectedNode, 'condition', '${context.watermark_text != null}')">Context Var Set (${context.watermark_text != null})</a></li>
+                      <li><a class="dropdown-item" href="#" @click.prevent="setParam(selectedNode, 'condition', '${user.username == \'admin\'}')">Specific User (${user.username == 'admin'})</a></li>
+                    </ul>
+                  </div>
+                </div>
+                <input type="text" class="form-control form-control-sm font-mono" :value="param(selectedNode, 'condition', '${payload.width > 800}')" @input="setParam(selectedNode, 'condition', $event.target.value)" placeholder="${payload.width > 1200}">
+              </div>
+
+              <!-- In-form Guide Callout -->
+              <div class="card bg-card border-secondary-subtle p-2 fs-xs text-secondary">
+                <div class="d-flex align-items-center gap-1 text-light fw-semibold mb-1">
+                  <i class="bi bi-info-circle text-primary"></i>
+                  <span>How Branching Works</span>
+                </div>
+                <div>
+                  Evaluates the expression at runtime during capture:
+                  <ul class="ps-3 mb-1 mt-1">
+                    <li><strong class="text-success">True / Truthy</strong>: Execution continues to downstream step(s).</li>
+                    <li><strong class="text-danger">False / Zero</strong>: This branch is skipped.</li>
+                  </ul>
+                </div>
+                <div class="mt-1">
+                  <span class="text-light">Click variable to insert:</span><br>
+                  <span class="expression-tag" @click="appendConditionToken(selectedNode, '${payload.width}')">${payload.width}</span>
+                  <span class="expression-tag" @click="appendConditionToken(selectedNode, '${payload.height}')">${payload.height}</span>
+                  <span class="expression-tag" @click="appendConditionToken(selectedNode, '${user.username}')">${user.username}</span>
+                  <span class="expression-tag" @click="appendConditionToken(selectedNode, '${context.var}')">${context.var}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Downstream Transitions for this Node -->
+            <hr class="border-secondary-subtle my-3">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="fs-xs fw-bold text-secondary text-uppercase">Outgoing Transitions</span>
+              <span class="badge bg-secondary-subtle text-secondary fs-xs">Fork Target(s)</span>
+            </div>
+
+            <div v-if="getNodeDownstreamTargets(selectedNode.id).length === 0" class="text-secondary fs-xs fst-italic">
+              No outgoing transitions. (Terminal node or join endpoint).
+            </div>
+            <div v-else class="d-flex flex-column gap-1">
+              <div v-for="targetId in getNodeDownstreamTargets(selectedNode.id)" :key="targetId" class="d-flex justify-content-between align-items-center bg-card p-1 px-2 rounded border border-secondary-subtle fs-xs">
+                <span class="font-mono text-primary">&rarr; {{ targetId }}</span>
+                <button class="btn btn-link btn-xs text-danger p-0" @click="removeEdge(selectedNode.id, targetId)">
+                  <i class="bi bi-x"></i>
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+          <div v-else class="text-center text-secondary py-5">
+            <i class="bi bi-hand-index fs-1 d-block mb-2 opacity-50"></i>
+            <p class="fs-7">Select a node on the canvas to configure its properties, or click a step from the toolbox to add one.</p>
+          </div>
+        </div>
+
+        <!-- TAB 2: Recipe Flow & Triggers Inspector -->
+        <div v-if="activeInspectorTab === 'recipe'">
+          <div class="mb-3">
+            <label class="form-label fs-xs text-secondary fw-bold mb-1">Recipe ID</label>
+            <input type="text" class="form-control form-control-sm font-mono" v-model="recipe.id">
+            <div class="fs-xs text-secondary mt-1">Unique identifier (overrides built-in if matched).</div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fs-xs text-secondary fw-bold mb-1">Recipe Name</label>
+            <input type="text" class="form-control form-control-sm" v-model="recipe.name">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fs-xs text-secondary fw-bold mb-1">Description</label>
+            <textarea class="form-control form-control-sm" rows="2" v-model="recipe.description"></textarea>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fs-xs text-secondary fw-bold mb-1">Version</label>
+            <input type="text" class="form-control form-control-sm font-mono" v-model="recipe.version">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fs-xs text-secondary fw-bold mb-1">Status</label>
+            <div class="form-check form-switch mt-1">
+              <input class="form-check-input" type="checkbox" id="recipeEnabledSwitch" v-model="recipe.enabled">
+              <label class="form-check-label fs-xs" for="recipeEnabledSwitch">Active</label>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fs-xs text-secondary fw-bold mb-1">Start Node (Entry Point)</label>
+            <select class="form-select form-select-sm font-mono" v-model="recipe.flow.startNode">
+              <option v-for="node in recipe.nodes" :key="node.id" :value="node.id">{{ node.id }} ({{ node.name || node.stepType }})</option>
+            </select>
+          </div>
+
+          <hr class="border-secondary-subtle my-3">
+
+          <!-- Triggers Manager -->
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="fs-xs fw-bold text-secondary text-uppercase">Triggers ({{ (recipe.triggers || []).length }})</span>
+            <div class="dropdown">
+              <button class="btn btn-xs btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                + Add Trigger
+              </button>
+              <ul class="dropdown-menu dropdown-menu-dark fs-xs">
+                <li><a class="dropdown-item" href="#" @click.prevent="addTrigger('Hotkey')"><i class="bi bi-keyboard me-2"></i> Hotkey (e.g. Ctrl+Shift+B)</a></li>
+                <li><a class="dropdown-item" href="#" @click.prevent="addTrigger('ContextMenu')"><i class="bi bi-menu-button-wide me-2"></i> Systray Context Menu</a></li>
+                <li><a class="dropdown-item" href="#" @click.prevent="addTrigger('Clipboard')"><i class="bi bi-clipboard me-2"></i> On Clipboard Image</a></li>
+                <li><a class="dropdown-item" href="#" @click.prevent="addTrigger('Manual')"><i class="bi bi-play-circle me-2"></i> Manual Execution</a></li>
+              </ul>
+            </div>
+          </div>
+
+          <div v-for="(trig, tIdx) in recipe.triggers" :key="tIdx" class="card bg-card border-secondary-subtle p-2 mb-2">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span class="badge bg-secondary font-mono">{{ trig.triggerType }}</span>
+              <button class="btn btn-link btn-xs text-danger p-0" @click="recipe.triggers.splice(tIdx, 1)">
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
+
+            <!-- Hotkey Specific -->
+            <div v-if="trig.triggerType === 'Hotkey'" class="mt-1">
+              <label class="form-label fs-xs mb-1">Hotkey Combination</label>
+              <input type="text" class="form-control form-control-sm font-mono" v-model="trig.parameters.hotkey" placeholder="Ctrl + Shift + B">
+            </div>
+
+            <!-- ContextMenu Specific -->
+            <div v-if="trig.triggerType === 'ContextMenu'" class="mt-1">
+              <label class="form-label fs-xs mb-1">Menu Item Text</label>
+              <input type="text" class="form-control form-control-sm" v-model="trig.parameters.menuItemText" placeholder="Capture Region with Border">
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </aside>
+
+  </div>
+
+  <!-- Raw JSON Modal -->
+  <div class="modal fade" id="jsonModal" tabindex="-1" ref="jsonModalRef">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content bg-panel text-light border-secondary">
+        <div class="modal-header border-secondary">
+          <h5 class="modal-title font-mono fs-6"><i class="bi bi-code-slash text-primary me-2"></i> Capture Recipe JSON</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-3">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="fs-xs text-secondary">Compliant with <code class="text-primary">recipe.schema.json</code></span>
+            <div class="d-flex gap-2">
+              <button class="btn btn-xs btn-outline-secondary" @click="copyJsonToClipboard"><i class="bi bi-clipboard me-1"></i> Copy</button>
+              <button class="btn btn-xs btn-outline-primary" @click="applyJsonChanges"><i class="bi bi-check2 me-1"></i> Apply Changes</button>
+            </div>
+          </div>
+          <textarea class="form-control font-mono fs-xs json-code-view" v-model="rawJsonString" spellcheck="false"></textarea>
+          <div v-if="jsonParseError" class="alert alert-danger fs-xs mt-2 py-1 mb-0">{{ jsonParseError }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Expression Cheat Sheet Modal -->
+  <div class="modal fade" id="expressionModal" tabindex="-1" :class="{ show: showExpressionModal, 'd-block': showExpressionModal }" v-if="showExpressionModal">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content bg-panel text-light border-secondary shadow-lg">
+        <div class="modal-header border-secondary">
+          <h5 class="modal-title fs-6"><i class="bi bi-braces text-primary me-2"></i> Dynamic Scopes & Variables Cheat Sheet</h5>
+          <button type="button" class="btn-close btn-close-white" @click="showExpressionModal = false"></button>
+        </div>
+        <div class="modal-body p-3">
+          <p class="fs-xs text-secondary mb-3">Greenshot evaluates mathematical expressions, environment scopes, surface metrics, and format strings inside <code>${...}</code> expressions across all recipe parameters.</p>
+
+          <div class="table-responsive">
+            <table class="table table-dark table-sm table-bordered fs-xs mb-0">
+              <thead>
+                <tr>
+                  <th>Scope Prefix</th>
+                  <th>Description</th>
+                  <th>Examples (Click to copy)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code class="text-info">user.*</code></td>
+                  <td>Windows User Environment Variables</td>
+                  <td>
+                    <span class="expression-tag" @click="copyToClipboard('${user.username}')">${user.username}</span>
+                    <span class="expression-tag" @click="copyToClipboard('${user.temp}')">${user.temp}</span>
+                    <span class="expression-tag" @click="copyToClipboard('${user.appdata}')">${user.appdata}</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td><code class="text-info">machine.*</code></td>
+                  <td>System-wide / Machine Environment</td>
+                  <td>
+                    <span class="expression-tag" @click="copyToClipboard('${machine.computername}')">${machine.computername}</span>
+                    <span class="expression-tag" @click="copyToClipboard('${machine.os}')">${machine.os}</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td><code class="text-info">payload.*</code></td>
+                  <td>Dynamic Capture Surface Dimensions</td>
+                  <td>
+                    <span class="expression-tag" @click="copyToClipboard('${payload.width}')">${payload.width}</span>
+                    <span class="expression-tag" @click="copyToClipboard('${payload.height}')">${payload.height}</span>
+                    <span class="expression-tag" @click="copyToClipboard('${payload.width - 200}')">${payload.width - 200}</span>
+                    <span class="expression-tag" @click="copyToClipboard('${payload.height * 0.5}')">${payload.height * 0.5}</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td><code class="text-info">now:format</code></td>
+                  <td>Current Date & Time (.NET Format)</td>
+                  <td>
+                    <span class="expression-tag" @click="copyToClipboard('${now:yyyy-MM-dd HH:mm}')">${now:yyyy-MM-dd HH:mm}</span>
+                    <span class="expression-tag" @click="copyToClipboard('${now:yyyyMMdd_HHmmss}')">${now:yyyyMMdd_HHmmss}</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td><code class="text-info">context.*</code></td>
+                  <td>Context Properties / SetVariable Steps</td>
+                  <td>
+                    <span class="expression-tag" @click="copyToClipboard('${context.watermark_text}')">${context.watermark_text}</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Help & Guide Modal -->
+  <div class="modal fade" id="helpModal" tabindex="-1" :class="{ show: showHelpModal, 'd-block': showHelpModal }" v-if="showHelpModal">
+    <div class="modal-dialog modal-md">
+      <div class="modal-content bg-panel text-light border-secondary shadow-lg">
+        <div class="modal-header border-secondary">
+          <h5 class="modal-title fs-6"><i class="bi bi-info-circle text-primary me-2"></i> Greenshot DAG Recipe Guide</h5>
+          <button type="button" class="btn-close btn-close-white" @click="showHelpModal = false"></button>
+        </div>
+        <div class="modal-body p-3 fs-7">
+          <h6>DAG Workflow Concepts</h6>
+          <ul>
+            <li><strong>Nodes</strong>: Modular execution steps (e.g. Capture, Border, Watermark, Destinations).</li>
+            <li><strong>Transitions</strong>: Directed connections between steps.</li>
+            <li><strong>Forking (Parallel)</strong>: Connect 1 node to multiple targets to run branches concurrently.</li>
+            <li><strong>Joining (Merge)</strong>: Connect multiple branches to a single downstream step to barrier-synchronize.</li>
+            <li><strong>Acyclic Rule</strong>: Loops/cycles are automatically detected and forbidden.</li>
+          </ul>
+          <h6>Quick Tips</h6>
+          <ul>
+            <li>Drag from the bottom port of a box to the top port of another box to connect.</li>
+            <li>Click the red <strong>&times;</strong> button on any connection to delete it.</li>
+            <li>Hold spacebar or use middle click to pan the canvas.</li>
+            <li>Drop any <code>.gsrecipe.json</code> file straight into the browser to open it!</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Bootstrap 5 JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<!-- Vue 3 JS -->
+<script src="https://cdn.jsdelivr.net/npm/vue@3.4.21/dist/vue.global.prod.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<script>
+const { createApp, ref, reactive, computed, onMounted, nextTick } = Vue;
+
+const TEMPLATES = {
+  blank: {
+    "$schema": "./recipe.schema.json",
+    "version": "1.0",
+    "id": "recipe_custom_flow",
+    "name": "Custom Capture Flow",
+    "description": "Custom DAG capture workflow",
+    "enabled": true,
+    "triggers": [
+      { "triggerType": "Hotkey", "parameters": { "hotkey": "Ctrl + Shift + F10" } }
+    ],
+    "nodes": [
+      {
+        "id": "source",
+        "stepType": "Source",
+        "name": "Region Capture",
+        "enabled": true,
+        "parameters": { "sourceType": "Region" }
+      },
+      {
+        "id": "destination",
+        "stepType": "Destinations",
+        "name": "Open Editor",
+        "enabled": true,
+        "parameters": { "destinationDesignations": ["Editor"] }
+      }
+    ],
+    "flow": {
+      "startNode": "source",
+      "transitions": {
+        "source": "destination"
+      }
+    }
+  },
+  region_border: {
+    "$schema": "./recipe.schema.json",
+    "version": "1.0",
+    "id": "recipe_region_blue_border",
+    "name": "Region with Blue Border",
+    "description": "Interactive region capture that adds a 2px blue border and opens the editor",
+    "enabled": true,
+    "triggers": [
+      { "triggerType": "ContextMenu", "parameters": { "menuItemText": "Region with Blue Border", "group": "Recipes" } },
+      { "triggerType": "Hotkey", "parameters": { "hotkey": "Ctrl + Shift + B" } }
+    ],
+    "nodes": [
+      { "id": "source", "stepType": "Source", "name": "Capture Source", "parameters": { "sourceType": "Region" } },
+      { "id": "select", "stepType": "InteractiveSelection", "name": "Interactive Region", "parameters": { "selectionMode": "Region" } },
+      { "id": "border", "stepType": "Effect", "name": "Add Blue Border", "parameters": { "effect": "Border", "width": 2, "color": "#0000FF" } },
+      { "id": "feedback", "stepType": "ImmediateFeedback", "name": "Camera Feedback", "parameters": { "playSound": true } },
+      { "id": "destination", "stepType": "Destinations", "name": "Open Editor", "parameters": { "destinationDesignations": ["Editor"] } }
+    ],
+    "flow": {
+      "startNode": "source",
+      "transitions": {
+        "source": "select",
+        "select": "border",
+        "border": "feedback",
+        "feedback": "destination"
+      }
+    }
+  },
+  watermark_branch: {
+    "$schema": "./recipe.schema.json",
+    "version": "1.0",
+    "id": "recipe_dag_watermark_branching",
+    "name": "DAG Workflow with Dynamic Watermark & Parallel Feedback",
+    "description": "Demonstrates DAG parallel branching, variable assignment, scoped user/machine environment variables, and multi-drawable surface stamping.",
+    "enabled": true,
+    "triggers": [
+      { "triggerType": "Hotkey", "parameters": { "hotkey": "Ctrl + Shift + W" } }
+    ],
+    "nodes": [
+      { "id": "capture_node", "stepType": "Source", "name": "Capture Screen", "parameters": { "sourceType": "Region" } },
+      { "id": "select_node", "stepType": "InteractiveSelection", "name": "Select Area", "parameters": { "selectionMode": "Region", "allowWindowSnapping": true } },
+      { "id": "feedback_branch", "stepType": "ImmediateFeedback", "name": "Parallel Shutter Audio", "parameters": { "playSound": true } },
+      { "id": "set_vars_node", "stepType": "SetVariable", "name": "Format User Watermark", "parameters": { "variables": { "watermark_text": "Captured by ${user.username} on ${machine.computername} [${now:yyyy-MM-dd}]" } } },
+      { "id": "watermark_node", "stepType": "Drawable", "name": "Stamp Bottom Badge", "parameters": { "drawables": [
+        { "type": "Rectangle", "horizontalAnchor": "Right", "verticalAnchor": "Bottom", "width": 380, "height": 40, "offsetX": -15, "offsetY": -15, "fillColor": "rgba(0, 0, 0, 180)", "lineColor": "#0078D7", "lineThickness": 2, "shadow": true },
+        { "type": "Text", "horizontalAnchor": "Right", "verticalAnchor": "Bottom", "width": 370, "height": 30, "offsetX": -20, "offsetY": -20, "text": "${context.watermark_text}", "lineColor": "#FFFFFF", "fontSize": 9.5, "bold": true }
+      ]} },
+      { "id": "export_join", "stepType": "Destinations", "name": "Join Export", "parameters": { "destinationDesignations": ["Editor", "Clipboard"] } }
+    ],
+    "flow": {
+      "startNode": "capture_node",
+      "transitions": {
+        "capture_node": "select_node",
+        "select_node": ["feedback_branch", "set_vars_node"],
+        "set_vars_node": "watermark_node",
+        "feedback_branch": "export_join",
+        "watermark_node": "export_join"
+      }
+    }
+  },
+  window_dlp_redact: {
+    "$schema": "./recipe.schema.json",
+    "version": "1.0",
+    "id": "recipe_window_regex_redact",
+    "name": "Target Window with DLP Redaction",
+    "description": "Captures a targeted window, adds drop shadow, runs OCR to find sensitive patterns, redacts them, and opens the editor",
+    "enabled": true,
+    "triggers": [
+      { "triggerType": "Hotkey", "parameters": { "hotkey": "Ctrl + Shift + D" } }
+    ],
+    "nodes": [
+      { "id": "capture_window", "stepType": "Source", "name": "Target App Window", "parameters": { "sourceType": "ActiveWindow", "windowTitlePattern": ".*(Notepad|Editor|Greenshot|Chrome).*", "matchCase": false } },
+      { "id": "shadow", "stepType": "Effect", "name": "Apply Shadow", "parameters": { "effect": "DropShadow", "shadowSize": 10, "darkness": 0.65 } },
+      { "id": "redact", "stepType": "TextEffect", "name": "Auto Redact Secrets", "parameters": { "effect": "Redact", "fillColor": "#000000", "patterns": ["\\b\\d{4}[ -]?\\d{4}[ -]?\\d{4}[ -]?\\d{4}\\b", "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}", "\\b(AKIA|AIza|ghp_|glpat-)[A-Za-z0-9_\\-]{16,}\\b"] } },
+      { "id": "feedback", "stepType": "ImmediateFeedback", "name": "Camera Audio", "parameters": { "playSound": true } },
+      { "id": "destination", "stepType": "Destinations", "name": "Send to Editor", "parameters": { "destinationDesignations": ["Editor"] } }
+    ],
+    "flow": {
+      "startNode": "capture_window",
+      "transitions": {
+        "capture_window": "shadow",
+        "shadow": "redact",
+        "redact": "feedback",
+        "feedback": "destination"
+      }
+    }
+  },
+  multi_dest: {
+    "$schema": "./recipe.schema.json",
+    "version": "1.0",
+    "id": "recipe_multidest",
+    "name": "Multi-Destination Pipeline",
+    "description": "Capture region, add border and drop to clipboard, auto-save to file and upload to Imgur",
+    "enabled": true,
+    "triggers": [{ "triggerType": "Hotkey", "parameters": { "hotkey": "Ctrl + Shift + M" } }],
+    "nodes": [
+      { "id": "source", "stepType": "Source", "name": "Region Source", "parameters": { "sourceType": "Region" } },
+      { "id": "border", "stepType": "Effect", "name": "Add Frame", "parameters": { "effect": "Border", "width": 2, "color": "#2ed573" } },
+      { "id": "export", "stepType": "Destinations", "name": "Multi-Export", "parameters": { "destinationDesignations": ["Clipboard", "FileNoDialog", "Editor"] } }
+    ],
+    "flow": {
+      "startNode": "source",
+      "transitions": { "source": "border", "border": "export" }
+    }
+  }
+};
+
+const KNOWN_DESTINATIONS = [
+  "Editor", "Clipboard", "File", "FileNoDialog", "Printer", "Email",
+  "Imgur", "Dropbox", "Box", "Confluence", "Jira", "ExternalCommand",
+  "Win10Share", "Win10Ocr", "Picker"
+];
+
+createApp({
+  setup() {
+    const isDark = ref(true);
+    const collapsedCategories = reactive({
+      capture: false,
+      filters: false,
+      annotations: false,
+      execution: false,
+      destinations: false
+    });
+    const toggleCategory = (catKey) => {
+      collapsedCategories[catKey] = !collapsedCategories[catKey];
+    };
+
+    const createRecipeFromTemplate = (tmpl) => {
+      const obj = JSON.parse(JSON.stringify(tmpl));
+      if (obj.nodes) {
+        obj.nodes.forEach((n, idx) => {
+          if (!n.ui) {
+            n.ui = { x: 100 + (idx % 3) * 300, y: 60 + Math.floor(idx / 3) * 180 };
+          }
+        });
+      }
+      return obj;
+    };
+
+    const recipe = reactive(createRecipeFromTemplate(TEMPLATES.watermark_branch));
+    const selectedNodeId = ref(recipe.nodes[0]?.id || null);
+    const activeInspectorTab = ref('node');
+    const zoomLevel = ref(1.0);
+    const panOffset = reactive({ x: 40, y: 30 });
+    const isPanningSpace = ref(false);
+    const isMiddlePanning = ref(false);
+    const panStart = reactive({ x: 0, y: 0 });
+
+    const showExpressionModal = ref(false);
+    const showHelpModal = ref(false);
+    const fileInput = ref(null);
+    const canvasContainer = ref(null);
+    const jsonModalRef = ref(null);
+    let jsonModalInstance = null;
+    const rawJsonString = ref('');
+    const jsonParseError = ref('');
+
+    const newVarKey = ref('');
+    const newVarVal = ref('');
+    const customDestInput = ref('');
+
+    // Connecting State (wire dragging)
+    const connectingState = reactive({
+      active: false,
+      fromNodeId: null,
+      startX: 0,
+      startY: 0,
+      currentX: 0,
+      currentY: 0
+    });
+
+    // Dragging Node State
+    const draggingNode = reactive({
+      active: false,
+      nodeId: null,
+      offsetX: 0,
+      offsetY: 0
+    });
+
+    const selectedNode = computed(() => {
+      return recipe.nodes.find(n => n.id === selectedNodeId.value) || null;
+    });
+
+    const viewportTransformStyle = computed(() => {
+      return {
+        transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoomLevel.value})`
+      };
+    });
+
+    // Helper to calculate exact viewport-relative canvas coordinates taking into account container rect, pan, and zoom
+    const getCanvasCoords = (e) => {
+      if (!canvasContainer.value) return { x: 0, y: 0 };
+      const rect = canvasContainer.value.getBoundingClientRect();
+      return {
+        x: (e.clientX - rect.left - panOffset.x) / zoomLevel.value,
+        y: (e.clientY - rect.top - panOffset.y) / zoomLevel.value
+      };
+    };
+
+    // Parameter Accessor Helper (Case-Insensitive)
+    const param = (node, key, fallback = undefined) => {
+      if (!node || !node.parameters) return fallback;
+      const lowerKey = key.toLowerCase();
+      for (const k of Object.keys(node.parameters)) {
+        if (k.toLowerCase() === lowerKey) {
+          return node.parameters[k] !== undefined ? node.parameters[k] : fallback;
+        }
+      }
+      return fallback;
+    };
+
+    const setParam = (node, key, val) => {
+      if (!node) return;
+      if (!node.parameters) node.parameters = {};
+      const lowerKey = key.toLowerCase();
+      for (const k of Object.keys(node.parameters)) {
+        if (k.toLowerCase() === lowerKey && k !== key) {
+          delete node.parameters[k];
+        }
+      }
+      node.parameters[key] = val;
+    };
+
+    const getCaptureMouseCursor = (node) => {
+      const v = param(node, 'captureMouseCursor', undefined);
+      if (v === true || v === 'true' || v === 1 || v === '1') return 'true';
+      if (v === false || v === 'false' || v === 0 || v === '0') return 'false';
+      return '';
+    };
+
+    const setCaptureMouseCursor = (node, strVal) => {
+      if (!node) return;
+      if (!node.parameters) node.parameters = {};
+      if (strVal === 'true') {
+        setParam(node, 'captureMouseCursor', true);
+      } else if (strVal === 'false') {
+        setParam(node, 'captureMouseCursor', false);
+      } else {
+        delete node.parameters.captureMouseCursor;
+        delete node.parameters.CaptureMouseCursor;
+      }
+    };
+
+    // Helper for Hex Color validation in input type=color
+    const sanitizeHexColor = (val) => {
+      if (typeof val === 'string' && /^#[0-9A-Fa-f]{6}$/.test(val)) return val;
+      return '#0078D7';
+    };
+
+    // Detect Cycles in the DAG using Tarjan / DFS
+    const cycleErrors = computed(() => {
+      const adj = {};
+      recipe.nodes.forEach(n => adj[n.id] = []);
+      const transitions = recipe.flow.transitions || {};
+      for (const [src, targets] of Object.entries(transitions)) {
+        if (!adj[src]) adj[src] = [];
+        const tList = Array.isArray(targets) ? targets : [targets];
+        tList.forEach(t => {
+          if (adj[src]) adj[src].push(t);
+        });
+      }
+
+      const visited = {};
+      const recStack = {};
+      let cyclePath = [];
+
+      function dfs(nodeId, path) {
+        visited[nodeId] = true;
+        recStack[nodeId] = true;
+        path.push(nodeId);
+
+        const neighbors = adj[nodeId] || [];
+        for (const neighbor of neighbors) {
+          if (!visited[neighbor]) {
+            if (dfs(neighbor, path)) return true;
+          } else if (recStack[neighbor]) {
+            path.push(neighbor);
+            cyclePath = [...path];
+            return true;
+          }
+        }
+
+        recStack[nodeId] = false;
+        path.pop();
+        return false;
+      }
+
+      for (const n of recipe.nodes) {
+        if (!visited[n.id]) {
+          if (dfs(n.id, [])) {
+            return cyclePath;
+          }
+        }
+      }
+      return [];
+    });
+
+    const isNodeInCycle = (nodeId) => {
+      return cycleErrors.value.includes(nodeId);
+    };
+
+    // Computed Connection Edges with Smooth Curvature & Centered Arrowhead
+    const computedEdges = computed(() => {
+      const edges = [];
+      const transitions = recipe.flow.transitions || {};
+      const nodeMap = {};
+      recipe.nodes.forEach(n => nodeMap[n.id] = n);
+
+      for (const [srcId, targets] of Object.entries(transitions)) {
+        const srcNode = nodeMap[srcId];
+        if (!srcNode) continue;
+        const targetList = Array.isArray(targets) ? targets : [targets];
+
+        targetList.forEach(tgtId => {
+          const tgtNode = nodeMap[tgtId];
+          if (!tgtNode) return;
+
+          // Outgoing port at bottom center: x + 110, y + 105
+          const startX = (srcNode.ui?.x || 0) + 110;
+          const startY = (srcNode.ui?.y || 0) + 105;
+          // Incoming port at top center: x + 110, y
+          const endX = (tgtNode.ui?.x || 0) + 110;
+          const endY = (tgtNode.ui?.y || 0);
+
+          let pathD = '';
+          let midX = 0;
+          let midY = 0;
+
+          if (endY >= startY + 15) {
+            // Standard downward flow
+            const dy = Math.max(35, (endY - startY) * 0.55);
+            const cp1x = startX;
+            const cp1y = startY + dy;
+            const cp2x = endX;
+            const cp2y = endY - dy;
+
+            pathD = `M ${startX} ${startY} C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${endX} ${endY}`;
+            midX = 0.125 * startX + 0.375 * cp1x + 0.375 * cp2x + 0.125 * endX;
+            midY = 0.125 * startY + 0.375 * cp1y + 0.375 * cp2y + 0.125 * endY;
+          } else {
+            // Target is above or level with source (reverse loop or side-by-side)
+            const sideSign = endX >= startX ? 1 : -1;
+            const sideOffset = sideSign * Math.max(80, Math.abs(endX - startX) * 0.4 + 60);
+            const loopOutY = startY + 50;
+            const loopInY = endY - 50;
+            const midLoopX = startX + sideOffset;
+            const midLoopY = (startY + endY) / 2;
+
+            pathD = `M ${startX} ${startY} C ${startX} ${loopOutY}, ${midLoopX} ${loopOutY}, ${midLoopX} ${midLoopY} C ${midLoopX} ${loopInY}, ${endX} ${loopInY}, ${endX} ${endY}`;
+            midX = midLoopX;
+            midY = midLoopY;
+          }
+
+          const isCycleEdge = isNodeInCycle(srcId) && isNodeInCycle(tgtId);
+
+          edges.push({
+            id: `${srcId}->${tgtId}`,
+            from: srcId,
+            to: tgtId,
+            pathD,
+            midX: Math.round(midX),
+            midY: Math.round(midY),
+            isCycle: isCycleEdge
+          });
+        });
+      }
+      return edges;
+    });
+
+    // Connecting Draft Path with Cursor Precision
+    const connectingDraftPath = computed(() => {
+      if (!connectingState.active) return '';
+      const sx = connectingState.startX;
+      const sy = connectingState.startY;
+      const ex = connectingState.currentX;
+      const ey = connectingState.currentY;
+
+      if (ey >= sy + 15) {
+        const dy = Math.max(35, (ey - sy) * 0.55);
+        return `M ${sx} ${sy} C ${sx} ${sy + dy}, ${ex} ${ey - dy}, ${ex} ${ey}`;
+      } else {
+        const sideOffset = (ex >= sx ? 1 : -1) * Math.max(60, Math.abs(ex - sx) * 0.4 + 40);
+        const loopOutY = sy + 45;
+        const loopInY = ey - 45;
+        const midX = sx + sideOffset;
+        const midY = (sy + ey) / 2;
+        return `M ${sx} ${sy} C ${sx} ${loopOutY}, ${midX} ${loopOutY}, ${midX} ${midY} C ${midX} ${loopInY}, ${ex} ${loopInY}, ${ex} ${ey}`;
+      }
+    });
+
+    // Theme Toggle
+    const toggleTheme = () => {
+      isDark.value = !isDark.value;
+      document.documentElement.setAttribute('data-bs-theme', isDark.value ? 'dark' : 'light');
+    };
+
+    // Node Operations
+    const selectNode = (node) => {
+      selectedNodeId.value = node.id;
+      activeInspectorTab.value = 'node';
+    };
+
+    const selectRecipeTab = () => {
+      activeInspectorTab.value = 'recipe';
+    };
+
+    const addNode = (stepType, x = 200, y = 200) => {
+      const idPrefix = stepType.toLowerCase();
+      let counter = 1;
+      let newId = `${idPrefix}_${counter}`;
+      while (recipe.nodes.some(n => n.id === newId)) {
+        counter++;
+        newId = `${idPrefix}_${counter}`;
+      }
+
+      const defaultParams = getDefaultParametersForStep(stepType);
+
+      const newNode = {
+        id: newId,
+        stepType: stepType,
+        name: stepType,
+        enabled: true,
+        parameters: defaultParams,
+        ui: { x: Math.round(x), y: Math.round(y) }
+      };
+
+      recipe.nodes.push(newNode);
+      selectNode(newNode);
+
+      if (!recipe.flow.startNode) {
+        recipe.flow.startNode = newId;
+      }
+    };
+
+    const deleteNode = (nodeId) => {
+      recipe.nodes = recipe.nodes.filter(n => n.id !== nodeId);
+
+      if (recipe.flow.transitions) {
+        delete recipe.flow.transitions[nodeId];
+        for (const [src, targets] of Object.entries(recipe.flow.transitions)) {
+          if (Array.isArray(targets)) {
+            recipe.flow.transitions[src] = targets.filter(t => t !== nodeId);
+          } else if (targets === nodeId) {
+            delete recipe.flow.transitions[src];
+          }
+        }
+      }
+
+      if (recipe.flow.startNode === nodeId) {
+        recipe.flow.startNode = recipe.nodes[0]?.id || null;
+      }
+
+      if (selectedNodeId.value === nodeId) {
+        selectedNodeId.value = recipe.nodes[0]?.id || null;
+      }
+    };
+
+    const onNodeIdChanged = () => {
+      if (selectedNode.value) {
+        selectedNode.value.id = selectedNode.value.id.trim().replace(/[^a-zA-Z0-9_\-]/g, '_');
+      }
+    };
+
+    const toggleStartNode = (nodeId, isChecked) => {
+      if (isChecked) {
+        recipe.flow.startNode = nodeId;
+      } else if (recipe.flow.startNode === nodeId) {
+        recipe.flow.startNode = null;
+      }
+    };
+
+    const removeEdge = (fromId, toId) => {
+      if (!recipe.flow.transitions || !recipe.flow.transitions[fromId]) return;
+      const targets = recipe.flow.transitions[fromId];
+      if (Array.isArray(targets)) {
+        recipe.flow.transitions[fromId] = targets.filter(t => t !== toId);
+        if (recipe.flow.transitions[fromId].length === 0) {
+          delete recipe.flow.transitions[fromId];
+        }
+      } else if (targets === toId) {
+        delete recipe.flow.transitions[fromId];
+      }
+    };
+
+    const addEdge = (fromId, toId) => {
+      if (fromId === toId) return; // Disallow self loop
+      if (!recipe.flow.transitions) recipe.flow.transitions = {};
+
+      const current = recipe.flow.transitions[fromId];
+      if (!current) {
+        recipe.flow.transitions[fromId] = toId;
+      } else if (typeof current === 'string') {
+        if (current !== toId) {
+          recipe.flow.transitions[fromId] = [current, toId];
+        }
+      } else if (Array.isArray(current)) {
+        if (!current.includes(toId)) {
+          current.push(toId);
+        }
+      }
+    };
+
+    const getNodeDownstreamTargets = (nodeId) => {
+      if (!recipe.flow.transitions || !recipe.flow.transitions[nodeId]) return [];
+      const t = recipe.flow.transitions[nodeId];
+      return Array.isArray(t) ? t : [t];
+    };
+
+    // Port & Node Drag Handlers with Exact Coordinate Translation
+    const onPortOutputMouseDown = (e, node) => {
+      connectingState.active = true;
+      connectingState.fromNodeId = node.id;
+      const sx = (node.ui?.x || 0) + 110;
+      const sy = (node.ui?.y || 0) + 105;
+      connectingState.startX = sx;
+      connectingState.startY = sy;
+      const coords = getCanvasCoords(e);
+      connectingState.currentX = coords.x;
+      connectingState.currentY = coords.y;
+    };
+
+    const onPortInputMouseUp = (node) => {
+      if (connectingState.active && connectingState.fromNodeId) {
+        addEdge(connectingState.fromNodeId, node.id);
+        connectingState.active = false;
+        connectingState.fromNodeId = null;
+      }
+    };
+
+    const onNodeMouseDown = (e, node) => {
+      if (e.button !== 0) return;
+      selectNode(node);
+      const coords = getCanvasCoords(e);
+      draggingNode.active = true;
+      draggingNode.nodeId = node.id;
+      draggingNode.offsetX = coords.x - (node.ui?.x || 0);
+      draggingNode.offsetY = coords.y - (node.ui?.y || 0);
+    };
+
+    // Canvas Pan & Zoom
+    const onCanvasMouseDown = (e) => {
+      if (e.button === 1 || e.spaceKey || isPanningSpace.value) {
+        isMiddlePanning.value = true;
+        panStart.x = e.clientX - panOffset.x;
+        panStart.y = e.clientY - panOffset.y;
+      }
+    };
+
+    const onCanvasMouseMove = (e) => {
+      if (isMiddlePanning.value) {
+        panOffset.x = e.clientX - panStart.x;
+        panOffset.y = e.clientY - panStart.y;
+        return;
+      }
+
+      const coords = getCanvasCoords(e);
+
+      if (draggingNode.active && draggingNode.nodeId) {
+        const node = recipe.nodes.find(n => n.id === draggingNode.nodeId);
+        if (node) {
+          if (!node.ui) node.ui = { x: 0, y: 0 };
+          node.ui.x = Math.round(coords.x - draggingNode.offsetX);
+          node.ui.y = Math.round(coords.y - draggingNode.offsetY);
+        }
+        return;
+      }
+
+      if (connectingState.active) {
+        connectingState.currentX = coords.x;
+        connectingState.currentY = coords.y;
+      }
+    };
+
+    const onCanvasMouseUp = () => {
+      isMiddlePanning.value = false;
+      draggingNode.active = false;
+      draggingNode.nodeId = null;
+      if (connectingState.active) {
+        connectingState.active = false;
+        connectingState.fromNodeId = null;
+      }
+    };
+
+    const onCanvasWheel = (e) => {
+      e.preventDefault();
+      const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9;
+      const newZoom = Math.min(Math.max(0.3, zoomLevel.value * zoomFactor), 2.5);
+      zoomLevel.value = parseFloat(newZoom.toFixed(2));
+    };
+
+    const zoomIn = () => zoomLevel.value = Math.min(2.5, +(zoomLevel.value + 0.15).toFixed(2));
+    const zoomOut = () => zoomLevel.value = Math.max(0.3, +(zoomLevel.value - 0.15).toFixed(2));
+    const resetZoom = () => {
+      zoomLevel.value = 1.0;
+      panOffset.x = 40;
+      panOffset.y = 30;
+    };
+
+    // Auto Layout: Branch-Aligned Longest Path Hierarchical DAG Layout
+    const autoLayout = () => {
+      if (!recipe.nodes || recipe.nodes.length === 0) return;
+
+      const adj = {};
+      const revAdj = {};
+      const inDegree = {};
+      recipe.nodes.forEach(n => {
+        adj[n.id] = [];
+        revAdj[n.id] = [];
+        inDegree[n.id] = 0;
+      });
+
+      const transitions = recipe.flow.transitions || {};
+      for (const [src, targets] of Object.entries(transitions)) {
+        if (!adj[src]) adj[src] = [];
+        const tList = Array.isArray(targets) ? targets : [targets];
+        tList.forEach(t => {
+          if (adj[src] && !adj[src].includes(t)) {
+            adj[src].push(t);
+            if (!revAdj[t]) revAdj[t] = [];
+            revAdj[t].push(src);
+            inDegree[t] = (inDegree[t] || 0) + 1;
+          }
+        });
+      }
+
+      // Compute rank/level using longest path DAG traversal
+      const levels = {};
+      const startNodes = [];
+      if (recipe.flow.startNode && adj[recipe.flow.startNode]) {
+        startNodes.push(recipe.flow.startNode);
+      }
+      recipe.nodes.forEach(n => {
+        if (inDegree[n.id] === 0 && !startNodes.includes(n.id)) {
+          startNodes.push(n.id);
+        }
+      });
+      if (startNodes.length === 0 && recipe.nodes.length > 0) {
+        startNodes.push(recipe.nodes[0].id);
+      }
+
+      function computeLongestPath(nodeId, currentLevel, visitedSet) {
+        if (visitedSet.has(nodeId)) return;
+        levels[nodeId] = Math.max(levels[nodeId] || 0, currentLevel);
+        visitedSet.add(nodeId);
+        (adj[nodeId] || []).forEach(target => {
+          computeLongestPath(target, currentLevel + 1, new Set(visitedSet));
+        });
+      }
+
+      startNodes.forEach(sn => computeLongestPath(sn, 0, new Set()));
+
+      recipe.nodes.forEach(n => {
+        if (levels[n.id] === undefined) levels[n.id] = 0;
+      });
+
+      const levelGroups = {};
+      for (const [id, lvl] of Object.entries(levels)) {
+        if (!levelGroups[lvl]) levelGroups[lvl] = [];
+        levelGroups[lvl].push(id);
+      }
+
+      const sortedLevels = Object.keys(levelGroups).map(Number).sort((a, b) => a - b);
+      const xSpacing = 300;
+      const ySpacing = 180;
+      const startCanvasY = 50;
+      const canvasCenterX = 450;
+
+      const nodePositions = {};
+
+      // Top-Down Hierarchical Branch Placement
+      sortedLevels.forEach(lvl => {
+        const group = levelGroups[lvl];
+        if (lvl === 0) {
+          // Root level: center all root nodes
+          const groupWidth = (group.length - 1) * xSpacing;
+          const startX = canvasCenterX - (groupWidth / 2);
+          group.forEach((id, idx) => {
+            nodePositions[id] = {
+              x: Math.round(startX + (idx * xSpacing)),
+              y: Math.round(startCanvasY + (lvl * ySpacing))
+            };
+          });
+          return;
+        }
+
+        const desiredX = {};
+        const processedNodes = new Set();
+
+        // 1. If a single parent splits into multiple children on this level, fan them symmetrically around parent X
+        const parentToChildren = {};
+        group.forEach(nodeId => {
+          const parents = revAdj[nodeId] || [];
+          if (parents.length === 1) {
+            const p = parents[0];
+            if (!parentToChildren[p]) parentToChildren[p] = [];
+            parentToChildren[p].push(nodeId);
+          }
+        });
+
+        for (const [parentId, children] of Object.entries(parentToChildren)) {
+          if (children.length > 1) {
+            const pX = nodePositions[parentId]?.x ?? canvasCenterX;
+            const span = (children.length - 1) * xSpacing;
+            const startX = pX - (span / 2);
+            children.forEach((cId, idx) => {
+              desiredX[cId] = startX + (idx * xSpacing);
+              processedNodes.add(cId);
+            });
+          }
+        }
+
+        // 2. For remaining nodes on this level (single branch child or merge node)
+        group.forEach(nodeId => {
+          if (processedNodes.has(nodeId)) return;
+          const parents = revAdj[nodeId] || [];
+          if (parents.length > 0) {
+            let sumX = 0;
+            let count = 0;
+            parents.forEach(pId => {
+              if (nodePositions[pId] !== undefined) {
+                sumX += nodePositions[pId].x;
+                count++;
+              }
+            });
+            desiredX[nodeId] = count > 0 ? sumX / count : canvasCenterX;
+          } else {
+            desiredX[nodeId] = canvasCenterX;
+          }
+        });
+
+        // 3. Sort nodes by desired X to preserve left-to-right branch order
+        group.sort((a, b) => (desiredX[a] ?? 0) - (desiredX[b] ?? 0));
+
+        // 4. Resolve horizontal overlaps on this level (minimum xSpacing)
+        const placedX = {};
+        group.forEach((id, idx) => {
+          let x = desiredX[id];
+          if (idx > 0) {
+            const prevId = group[idx - 1];
+            const minAllowedX = placedX[prevId] + xSpacing;
+            if (x < minAllowedX) {
+              x = minAllowedX;
+            }
+          }
+          placedX[id] = x;
+        });
+
+        group.forEach(id => {
+          nodePositions[id] = {
+            x: Math.round(placedX[id]),
+            y: Math.round(startCanvasY + (lvl * ySpacing))
+          };
+        });
+      });
+
+      // Shift whole graph if any node is positioned offscreen (< 60px)
+      let minX = Infinity;
+      Object.values(nodePositions).forEach(pos => {
+        if (pos.x < minX) minX = pos.x;
+      });
+      const shiftX = minX < 60 ? 60 - minX : 0;
+
+      recipe.nodes.forEach(n => {
+        const pos = nodePositions[n.id];
+        if (pos) {
+          n.ui = {
+            x: pos.x + shiftX,
+            y: pos.y
+          };
+        } else {
+          if (!n.ui) n.ui = { x: 100, y: 100 };
+        }
+      });
+    };
+
+    // Drag & Drop Step from Sidebar onto Canvas
+    const onDragStartStep = (e, stepType) => {
+      e.dataTransfer.setData('text/plain', stepType);
+    };
+
+    const onDropStepOnCanvas = (e) => {
+      const stepType = e.dataTransfer.getData('text/plain');
+      if (stepType) {
+        const coords = getCanvasCoords(e);
+        addNode(stepType, coords.x - 110, coords.y - 50);
+      }
+    };
+
+    // Drag & Drop File onto Workspace
+    const onDropFileOnWorkspace = (e) => {
+      e.preventDefault();
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        loadRecipeFromFile(files[0]);
+      }
+    };
+
+    const triggerOpenFileInput = () => {
+      if (fileInput.value) fileInput.value.click();
+    };
+
+    const onFileSelected = (e) => {
+      const file = e.target.files[0];
+      if (file) loadRecipeFromFile(file);
+    };
+
+    const loadRecipeFromFile = (file) => {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        try {
+          const parsed = JSON.parse(ev.target.result);
+          loadRecipeObject(parsed);
+        } catch (err) {
+          alert('Failed to parse JSON recipe: ' + err.message);
+        }
+      };
+      reader.readAsText(file);
+    };
+
+    // Normalizing Recipe Object (converting PascalCase parameters to camelCase for full consistency)
+    const normalizeParameters = (params) => {
+      if (!params || typeof params !== 'object') return {};
+      const normalized = {};
+      for (const [k, v] of Object.entries(params)) {
+        const camelKey = k.charAt(0).toLowerCase() + k.slice(1);
+        normalized[camelKey] = v;
+      }
+      return normalized;
+    };
+
+    const loadRecipeObject = (obj) => {
+      recipe.id = obj.id || 'recipe_imported';
+      recipe.name = obj.name || 'Imported Recipe';
+      recipe.description = obj.description || '';
+      recipe.version = obj.version || '1.0';
+      recipe.enabled = obj.enabled !== false;
+      recipe.triggers = obj.triggers || [];
+      recipe.flow = obj.flow || { startNode: obj.nodes?.[0]?.id || null, transitions: {} };
+
+      recipe.nodes = (obj.nodes || []).map((n, idx) => {
+        return {
+          id: n.id,
+          stepType: n.stepType,
+          name: n.name || n.stepType,
+          enabled: n.enabled !== false,
+          parameters: normalizeParameters(n.parameters),
+          ui: n.ui || { x: 100 + (idx % 3) * 300, y: 60 + Math.floor(idx / 3) * 180 }
+        };
+      });
+
+      selectedNodeId.value = recipe.nodes[0]?.id || null;
+      nextTick(() => {
+        autoLayout();
+      });
+    };
+
+    const newRecipe = (templateKey) => {
+      const tmpl = TEMPLATES[templateKey] || TEMPLATES.blank;
+      loadRecipeObject(JSON.parse(JSON.stringify(tmpl)));
+    };
+
+    const exportRecipeFile = () => {
+      const cleanJson = generateCleanRecipeJson();
+      const blob = new Blob([JSON.stringify(cleanJson, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${recipe.id || 'recipe'}.gsrecipe.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    };
+
+    const generateCleanRecipeJson = () => {
+      return {
+        "$schema": "./recipe.schema.json",
+        "version": recipe.version || "1.0",
+        "id": recipe.id,
+        "name": recipe.name,
+        "description": recipe.description,
+        "enabled": recipe.enabled,
+        "triggers": recipe.triggers,
+        "nodes": recipe.nodes.map(n => ({
+          id: n.id,
+          stepType: n.stepType,
+          name: n.name,
+          enabled: n.enabled,
+          parameters: n.parameters
+        })),
+        "flow": {
+          startNode: recipe.flow.startNode,
+          transitions: recipe.flow.transitions || {}
+        }
+      };
+    };
+
+    const openJsonModal = () => {
+      rawJsonString.value = JSON.stringify(generateCleanRecipeJson(), null, 2);
+      jsonParseError.value = '';
+      if (!jsonModalInstance) {
+        jsonModalInstance = new bootstrap.Modal(jsonModalRef.value);
+      }
+      jsonModalInstance.show();
+    };
+
+    const applyJsonChanges = () => {
+      try {
+        const parsed = JSON.parse(rawJsonString.value);
+        loadRecipeObject(parsed);
+        jsonModalInstance.hide();
+      } catch (err) {
+        jsonParseError.value = 'Invalid JSON: ' + err.message;
+      }
+    };
+
+    const copyJsonToClipboard = () => {
+      navigator.clipboard.writeText(rawJsonString.value);
+    };
+
+    const copyToClipboard = (txt) => {
+      navigator.clipboard.writeText(txt);
+    };
+
+    // Helper functions for step defaults in canonical camelCase
+    const getDefaultParametersForStep = (stepType) => {
+      switch (stepType) {
+        case 'Source': return { sourceType: 'Region', captureMouseCursor: undefined, delayMs: 0 };
+        case 'InteractiveSelection': return { selectionMode: 'Region', allowWindowSnapping: true };
+        case 'Border': return { width: 2, color: '#0078D7' };
+        case 'Effect': return { effect: 'DropShadow', shadowSize: 10, darkness: 0.6 };
+        case 'TextEffect': return { effect: 'Redact', fillColor: '#000000', patterns: ['\\b\\d{4}-\\d{4}-\\d{4}-\\d{4}\\b'] };
+        case 'ObfuscateText': return { pattern: '\\b\\d{4}\\b', obfuscateMode: 'Blur', fillColor: '#000000' };
+        case 'Drawable': return { drawables: [{ type: 'Rectangle', horizontalAnchor: 'Right', verticalAnchor: 'Bottom', width: 250, height: 35, offsetX: -10, offsetY: -10, fillColor: 'rgba(0,0,0,180)', lineColor: '#0078D7' }] };
+        case 'SetVariable': return { variables: { captured_by: '${user.username}' } };
+        case 'ImmediateFeedback': return { playSound: true };
+        case 'Destinations': return { destinationDesignations: ['Editor'] };
+        case 'Notification': return { title: 'Greenshot Capture', message: 'Capture completed' };
+        case 'Conditional': return { condition: '${payload.width > 800}' };
+        default: return {};
+      }
+    };
+
+    const getStepBadgeClass = (type) => {
+      const map = {
+        Source: 'badge-source',
+        InteractiveSelection: 'badge-selection',
+        Border: 'badge-effect',
+        Effect: 'badge-effect',
+        TextEffect: 'badge-texteffect',
+        ObfuscateText: 'badge-texteffect',
+        Drawable: 'badge-drawable',
+        SetVariable: 'badge-setvariable',
+        ImmediateFeedback: 'badge-feedback',
+        Notification: 'badge-notification',
+        Processors: 'badge-source',
+        Destinations: 'badge-destination',
+        Conditional: 'badge-conditional'
+      };
+      return map[type] || 'bg-secondary';
+    };
+
+    const getStepIcon = (type) => {
+      const map = {
+        Source: 'bi-camera-fill',
+        InteractiveSelection: 'bi-bounding-box',
+        Border: 'bi-square',
+        Effect: 'bi-stars',
+        TextEffect: 'bi-shield-x',
+        ObfuscateText: 'bi-eye-slash',
+        Drawable: 'bi-palette',
+        SetVariable: 'bi-code-square',
+        ImmediateFeedback: 'bi-volume-up',
+        Notification: 'bi-bell',
+        Processors: 'bi-gear-wide-connected',
+        Destinations: 'bi-box-arrow-up-right',
+        Conditional: 'bi-signpost-split'
+      };
+      return map[type] || 'bi-box';
+    };
+
+    const getNodeSummary = (node) => {
+      if (!node) return '';
+      if (node.stepType === 'Source') return `Source: ${param(node, 'sourceType', 'Region')}`;
+      if (node.stepType === 'InteractiveSelection') return `Mode: ${param(node, 'selectionMode', 'Region')}`;
+      if (node.stepType === 'Border') return `Border: ${param(node, 'width', 2)}px ${param(node, 'color', '#00F')}`;
+      if (node.stepType === 'Effect') return `Effect: ${param(node, 'effect', 'Shadow')}`;
+      if (node.stepType === 'TextEffect') return `DLP: ${param(node, 'effect', 'Redact')} (${getPatternsList(node).length} rules)`;
+      if (node.stepType === 'Drawable') return `Drawables: ${getDrawablesList(node).length} element(s)`;
+      if (node.stepType === 'SetVariable') return `Variables: ${Object.keys(getVariablesDict(node)).length} item(s)`;
+      if (node.stepType === 'ImmediateFeedback') return param(node, 'playSound', true) ? 'Sound: Enabled' : 'Silent';
+      if (node.stepType === 'Destinations') return `To: ${getDestinationsList(node).join(', ') || 'None'}`;
+      if (node.stepType === 'Conditional') return `If: ${param(node, 'condition', '${payload.width > 800}')}`;
+      return `${node.stepType}`;
+    };
+
+    const appendConditionToken = (node, token) => {
+      if (!node) return;
+      const current = param(node, 'condition', '');
+      if (!current) {
+        setParam(node, 'condition', `${token} > 0`);
+      } else {
+        setParam(node, 'condition', `${current} ${token}`);
+      }
+    };
+
+    // Drawables Helper
+    const getDrawablesList = (node) => {
+      if (!node || !node.parameters) return [];
+      if (!node.parameters.drawables && !node.parameters.Drawables) {
+        node.parameters.drawables = [];
+      }
+      return node.parameters.drawables || node.parameters.Drawables;
+    };
+
+    const addDrawable = (type) => {
+      if (!selectedNode.value) return;
+      const list = getDrawablesList(selectedNode.value);
+
+      const base = { type, horizontalAnchor: 'Right', verticalAnchor: 'Bottom', width: 250, height: 35, offsetX: -10, offsetY: -10 };
+      if (type === 'Text') {
+        base.text = 'User: ${user.username} | ${now:yyyy-MM-dd}';
+        base.lineColor = '#FFFFFF';
+        base.fontSize = 10;
+        base.bold = true;
+      } else if (type === 'Emoji') {
+        base.emoji = '🛡️';
+        base.width = 32;
+        base.height = 32;
+      } else if (type === 'Rectangle') {
+        base.fillColor = 'rgba(0, 0, 0, 180)';
+        base.lineColor = '#0078D7';
+        base.shadow = true;
+      } else if (type === 'StepLabel') {
+        base.number = 1;
+        base.fillColor = '#D83B01';
+        base.lineColor = '#FFFFFF';
+      }
+
+      list.push(base);
+    };
+
+    // Patterns Helper
+    const getPatternsList = (node) => {
+      if (!node || !node.parameters) return [];
+      if (!node.parameters.patterns && !node.parameters.Patterns) {
+        node.parameters.patterns = [];
+      }
+      return node.parameters.patterns || node.parameters.Patterns;
+    };
+
+    const addRegexPreset = (presetKey) => {
+      if (!selectedNode.value) return;
+      const list = getPatternsList(selectedNode.value);
+
+      const presets = {
+        Email: '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}',
+        CreditCard: '\\b\\d{4}[ -]?\\d{4}[ -]?\\d{4}[ -]?\\d{4}\\b',
+        SSN: '\\b\\d{3}-\\d{2}-\\d{4}\\b',
+        ApiKey: '\\b(AKIA|AIza|ghp_|glpat-)[A-Za-z0-9_\\-]{16,}\\b',
+        IPv4: '\\b(?:\\d{1,3}\\.){3}\\d{1,3}\\b'
+      };
+
+      if (presets[presetKey]) {
+        list.push(presets[presetKey]);
+      }
+    };
+
+    const addEmptyRegexPattern = () => {
+      if (selectedNode.value) {
+        getPatternsList(selectedNode.value).push('.*');
+      }
+    };
+
+    const updatePattern = (node, idx, val) => {
+      getPatternsList(node)[idx] = val;
+    };
+
+    const removePattern = (node, idx) => {
+      getPatternsList(node).splice(idx, 1);
+    };
+
+    // Variables Helper
+    const getVariablesDict = (node) => {
+      if (!node || !node.parameters) return {};
+      if (!node.parameters.variables && !node.parameters.Variables) {
+        node.parameters.variables = {};
+      }
+      return node.parameters.variables || node.parameters.Variables;
+    };
+
+    const addVariable = (node) => {
+      if (!node || !newVarKey.value) return;
+      const dict = getVariablesDict(node);
+      dict[newVarKey.value.trim()] = newVarVal.value;
+      newVarKey.value = '';
+      newVarVal.value = '';
+    };
+
+    const updateVariable = (node, key, val) => {
+      const dict = getVariablesDict(node);
+      dict[key] = val;
+    };
+
+    const deleteVariable = (node, key) => {
+      const dict = getVariablesDict(node);
+      delete dict[key];
+    };
+
+    // Destinations Helper
+    const getDestinationsList = (node) => {
+      if (!node || !node.parameters) return [];
+      if (!node.parameters.destinationDesignations && !node.parameters.DestinationDesignations) {
+        node.parameters.destinationDesignations = [];
+      }
+      return node.parameters.destinationDesignations || node.parameters.DestinationDesignations;
+    };
+
+    const isDestinationSelected = (node, destName) => {
+      const list = getDestinationsList(node);
+      return list.some(d => d.toLowerCase() === destName.toLowerCase());
+    };
+
+    const toggleDestination = (node, destName, isChecked) => {
+      if (!node) return;
+      const list = getDestinationsList(node);
+      const existingIdx = list.findIndex(d => d.toLowerCase() === destName.toLowerCase());
+
+      if (isChecked && existingIdx === -1) {
+        list.push(destName);
+      } else if (!isChecked && existingIdx !== -1) {
+        list.splice(existingIdx, 1);
+      }
+    };
+
+    const addCustomDestination = (node) => {
+      if (!node || !customDestInput.value.trim()) return;
+      const val = customDestInput.value.trim();
+      const list = getDestinationsList(node);
+      if (!list.some(d => d.toLowerCase() === val.toLowerCase())) {
+        list.push(val);
+      }
+      customDestInput.value = '';
+    };
+
+    // Triggers Helper
+    const addTrigger = (triggerType) => {
+      if (!recipe.triggers) recipe.triggers = [];
+      const base = { triggerType, enabled: true, parameters: {} };
+      if (triggerType === 'Hotkey') base.parameters.hotkey = 'Ctrl + Shift + T';
+      if (triggerType === 'ContextMenu') {
+        base.parameters.menuItemText = recipe.name || 'Custom Recipe';
+        base.parameters.group = 'Recipes';
+      }
+      recipe.triggers.push(base);
+    };
+
+    onMounted(() => {
+      document.addEventListener('keydown', (e) => {
+        if (e.code === 'Space' && !['INPUT', 'TEXTAREA'].includes(e.target.tagName)) {
+          isPanningSpace.value = true;
+        }
+      });
+      document.addEventListener('keyup', (e) => {
+        if (e.code === 'Space') {
+          isPanningSpace.value = false;
+        }
+      });
+      autoLayout();
+    });
+
+    return {
+      isDark,
+      toggleTheme,
+      collapsedCategories,
+      toggleCategory,
+      recipe,
+      selectedNodeId,
+      selectedNode,
+      activeInspectorTab,
+      zoomLevel,
+      panOffset,
+      isPanningSpace,
+      isMiddlePanning,
+      showExpressionModal,
+      showHelpModal,
+      fileInput,
+      canvasContainer,
+      jsonModalRef,
+      rawJsonString,
+      jsonParseError,
+      newVarKey,
+      newVarVal,
+      customDestInput,
+      connectingState,
+      computedEdges,
+      connectingDraftPath,
+      cycleErrors,
+      isNodeInCycle,
+      viewportTransformStyle,
+      allKnownDestinations: KNOWN_DESTINATIONS,
+      param,
+      setParam,
+      getCaptureMouseCursor,
+      setCaptureMouseCursor,
+      sanitizeHexColor,
+      selectNode,
+      selectRecipeTab,
+      addNode,
+      deleteNode,
+      onNodeIdChanged,
+      toggleStartNode,
+      removeEdge,
+      addEdge,
+      getNodeDownstreamTargets,
+      onPortOutputMouseDown,
+      onPortInputMouseUp,
+      onNodeMouseDown,
+      onCanvasMouseDown,
+      onCanvasMouseMove,
+      onCanvasMouseUp,
+      onCanvasWheel,
+      zoomIn,
+      zoomOut,
+      resetZoom,
+      autoLayout,
+      onDragStartStep,
+      onDropStepOnCanvas,
+      onDropFileOnWorkspace,
+      triggerOpenFileInput,
+      onFileSelected,
+      newRecipe,
+      exportRecipeFile,
+      openJsonModal,
+      applyJsonChanges,
+      copyJsonToClipboard,
+      copyToClipboard,
+      getStepBadgeClass,
+      getStepIcon,
+      getNodeSummary,
+      getDrawablesList,
+      addDrawable,
+      getPatternsList,
+      addRegexPreset,
+      addEmptyRegexPattern,
+      updatePattern,
+      removePattern,
+      getVariablesDict,
+      addVariable,
+      updateVariable,
+      deleteVariable,
+      getDestinationsList,
+      isDestinationSelected,
+      toggleDestination,
+      addCustomDestination,
+      addTrigger,
+      appendConditionToken
+    };
+  }
+}).mount('#app');
+</script>
+</body>
+</html>

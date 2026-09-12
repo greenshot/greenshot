@@ -1,34 +1,19 @@
-/*
- * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
- *
- * For more information see: https://getgreenshot.org/
- * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 1 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Ini;
+using Greenshot.Base;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Interfaces;
+using Greenshot.Base.Interfaces.Ocr;
+using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Pipeline;
 using Greenshot.Base.Recipes;
+using Greenshot.Destinations;
 using Greenshot.Editor.Destinations;
 using log4net;
 
@@ -36,7 +21,8 @@ namespace Greenshot.Pipeline.Steps
 {
     /// <summary>
     /// Pipeline step that resolves and dispatches captures to destinations.
-    /// Evaluates target destinations dynamically from global configuration if not pre-defined.
+    /// Supports individual destination steps (File, Clipboard, Editor, Printer, Email, Custom)
+    /// as well as custom storage directories, filename patterns, and clipboard format selections.
     /// </summary>
     public class DestinationExportStep : ICaptureStep
     {
@@ -58,6 +44,16 @@ namespace Greenshot.Pipeline.Steps
         public async Task ExecuteAsync(CaptureFlowContext context, CancellationToken cancellationToken = default)
         {
             context.State = CaptureFlowState.Exporting;
+
+            // Handle dedicated Clipboard step with format and OCR text customization
+            if (string.Equals(Config.StepType, WellKnownStepTypes.Clipboard, StringComparison.OrdinalIgnoreCase))
+            {
+                await ExecuteClipboardExportAsync(context, cancellationToken).ConfigureAwait(false);
+                return;
+            }
+
+            // Handle custom SaveDirectory & Filename overrides
+            ApplyCustomFileSettings(context);
 
             var designations = ResolveDestinationDesignations(context).ToList();
             List<IDestination> destinations = new List<IDestination>();
@@ -106,16 +102,96 @@ namespace Greenshot.Pipeline.Steps
             await _dispatcher.DispatchAsync(context, destinations, cancellationToken).ConfigureAwait(false);
         }
 
+        private void ApplyCustomFileSettings(CaptureFlowContext context)
+        {
+            string customDir = Config.GetParameter<string>("SaveDirectory")
+                ?? Config.GetParameter<string>("OutputDirectory")
+                ?? Config.GetParameter<string>("Directory")
+                ?? Config.GetParameter<string>("SavePath");
+
+            if (!string.IsNullOrWhiteSpace(customDir))
+            {
+                string expandedDir = FilenameHelper.FillVariables(customDir, false);
+                if (!Directory.Exists(expandedDir))
+                {
+                    try
+                    {
+                        Directory.CreateDirectory(expandedDir);
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.WarnFormat("Could not create directory '{0}': {1}", expandedDir, ex.Message);
+                    }
+                }
+
+                string pattern = Config.GetParameter<string>("FilenamePattern")
+                    ?? CoreConfig.OutputFileFilenamePattern
+                    ?? "greenshot ${capturetime}";
+
+                OutputFormat outputFormat = CoreConfig.OutputFileFormat;
+                string formatStr = Config.GetParameter<string>("Format")
+                    ?? Config.GetParameter<string>("ImageFormat");
+                if (!string.IsNullOrWhiteSpace(formatStr) && Enum.TryParse<OutputFormat>(formatStr, true, out var parsedFmt))
+                {
+                    outputFormat = parsedFmt;
+                }
+
+                var captureDetails = context.Payload?.RawCapture?.CaptureDetails;
+                if (captureDetails != null)
+                {
+                    string filename = FilenameHelper.GetFilenameFromPattern(pattern, outputFormat, captureDetails);
+                    string fullPath = Path.Combine(expandedDir, filename);
+                    captureDetails.Filename = fullPath;
+                    context.Properties["Destination.SaveDirectory"] = expandedDir;
+                    context.Properties["Destination.Filename"] = fullPath;
+                    Log.InfoFormat("Custom save location configured: '{0}'", fullPath);
+                }
+            }
+        }
+
         private IEnumerable<string> ResolveDestinationDesignations(CaptureFlowContext context)
         {
-            // Priority 1: Context property override (e.g. from trigger or caller)
+            // Priority 1: StepType direct mapping
+            if (string.Equals(Config.StepType, WellKnownStepTypes.SaveFile, StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(Config.StepType, "SaveToFile", StringComparison.OrdinalIgnoreCase))
+            {
+                return new[] { nameof(WellKnownDestinations.FileNoDialog) };
+            }
+            if (string.Equals(Config.StepType, WellKnownStepTypes.Clipboard, StringComparison.OrdinalIgnoreCase))
+            {
+                return new[] { nameof(WellKnownDestinations.Clipboard) };
+            }
+            if (string.Equals(Config.StepType, WellKnownStepTypes.Editor, StringComparison.OrdinalIgnoreCase))
+            {
+                return new[] { EditorDestination.DESIGNATION };
+            }
+            if (string.Equals(Config.StepType, WellKnownStepTypes.Printer, StringComparison.OrdinalIgnoreCase))
+            {
+                return new[] { nameof(WellKnownDestinations.Printer) };
+            }
+            if (string.Equals(Config.StepType, WellKnownStepTypes.Email, StringComparison.OrdinalIgnoreCase))
+            {
+                return new[] { nameof(WellKnownDestinations.EMail) };
+            }
+            if (string.Equals(Config.StepType, WellKnownStepTypes.CustomDestination, StringComparison.OrdinalIgnoreCase))
+            {
+                string customDest = Config.GetParameter<string>("CustomDestinationId")
+                    ?? Config.GetParameter<string>("Destination")
+                    ?? Config.GetParameter<string>("DestinationDesignation");
+                if (!string.IsNullOrWhiteSpace(customDest))
+                {
+                    return new[] { customDest.Trim() };
+                }
+            }
+
+            // Priority 2: Context property override (e.g. from trigger or caller)
             if (context.Properties.TryGetValue("OverrideDestinations", out var ctxVal) && ctxVal != null)
             {
                 if (ctxVal is IEnumerable<string> ctxDests) return ctxDests;
                 if (ctxVal is string ctxStr && !string.IsNullOrWhiteSpace(ctxStr)) return new[] { ctxStr };
             }
 
-            // Priority 2: Explicit step parameter configuration (check list variants)
+            // Priority 3: Explicit step parameter configuration (check list variants)
             var stepDests = Config.GetParameter<List<string>>("DestinationDesignations")
                 ?? Config.GetParameter<List<string>>("destinationDesignations")
                 ?? Config.GetParameter<List<string>>("Destinations")
@@ -125,7 +201,7 @@ namespace Greenshot.Pipeline.Steps
                 return stepDests;
             }
 
-            // Priority 2b: Single string designation
+            // Priority 3b: Single string designation
             string singleDest = Config.GetParameter<string>("Destination")
                 ?? Config.GetParameter<string>("destination")
                 ?? Config.GetParameter<string>("DestinationDesignation")
@@ -136,11 +212,122 @@ namespace Greenshot.Pipeline.Steps
                 ?? Config.GetParameter<string>("destinationDesignations");
             if (!string.IsNullOrWhiteSpace(singleDest))
             {
-                return new[] { singleDest };
+                // Support comma-separated strings (e.g. "Editor, Clipboard, Imgur")
+                if (singleDest.Contains(","))
+                {
+                    return singleDest.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToList();
+                }
+                return new[] { singleDest.Trim() };
             }
 
-            // Priority 3: Dynamic user configuration evaluation
+            // Priority 4: Dynamic user configuration evaluation
             return (IEnumerable<string>)CoreConfig.OutputDestinations ?? Array.Empty<string>();
+        }
+
+        private async Task ExecuteClipboardExportAsync(CaptureFlowContext context, CancellationToken cancellationToken)
+        {
+            string mode = Config.GetParameter<string>("ClipboardMode") ?? "ImageOnly";
+            bool formatText = Config.GetParameter<bool?>("ClipboardFormatText") ?? false;
+            bool isTextOnly = string.Equals(mode, "TextOnly", StringComparison.OrdinalIgnoreCase);
+            bool isImageAndText = string.Equals(mode, "ImageAndText", StringComparison.OrdinalIgnoreCase) || formatText;
+
+            string textToCopy = null;
+            if (isTextOnly || isImageAndText)
+            {
+                textToCopy = await ExtractOrGetOcrTextAsync(context).ConfigureAwait(false);
+                string customPattern = Config.GetParameter<string>("ClipboardCustomText");
+                if (!string.IsNullOrWhiteSpace(customPattern))
+                {
+                    string expandedPattern = customPattern
+                        .Replace("${ocr_text}", textToCopy ?? "")
+                        .Replace("${payload.text}", textToCopy ?? "");
+                    textToCopy = FilenameHelper.FillVariables(expandedPattern, false);
+                }
+            }
+
+            if (isTextOnly)
+            {
+                if (!string.IsNullOrWhiteSpace(textToCopy))
+                {
+                    ClipboardHelper.SetClipboardData(textToCopy);
+                    context.LogStep($"Copied {textToCopy.Length} character(s) of OCR text to clipboard.");
+                }
+                else
+                {
+                    ClipboardHelper.SetClipboardData("");
+                    context.LogStep("Warning: No OCR text detected to place on clipboard.");
+                }
+                return;
+            }
+
+            // Image formats list
+            var formats = new List<ClipboardFormat>();
+            if (Config.GetParameter<bool?>("ClipboardFormatPNG") ?? true) formats.Add(ClipboardFormat.PNG);
+            if (Config.GetParameter<bool?>("ClipboardFormatDIB") ?? true) formats.Add(ClipboardFormat.DIB);
+            if (Config.GetParameter<bool?>("ClipboardFormatDIBV5") ?? false) formats.Add(ClipboardFormat.DIBV5);
+            if (Config.GetParameter<bool?>("ClipboardFormatBitmap") ?? false) formats.Add(ClipboardFormat.BITMAP);
+            if (Config.GetParameter<bool?>("ClipboardFormatHTML") ?? true) formats.Add(ClipboardFormat.HTML);
+            if (Config.GetParameter<bool?>("ClipboardFormatHTMLDataUrl") ?? false) formats.Add(ClipboardFormat.HTMLDATAURL);
+
+            var surface = context.Payload?.EnsureSurface();
+            if (surface != null)
+            {
+                ClipboardHelper.SetClipboardData(surface, formats, text: isImageAndText ? textToCopy : null);
+                context.LogStep($"Copied capture to clipboard with {formats.Count} format(s)" + (string.IsNullOrEmpty(textToCopy) ? "." : " (including OCR text)."));
+            }
+        }
+
+        private async Task<string> ExtractOrGetOcrTextAsync(CaptureFlowContext context)
+        {
+            if (!string.IsNullOrWhiteSpace(context.Payload?.ExtractedText))
+            {
+                return context.Payload.ExtractedText;
+            }
+
+            var captureDetails = context.Payload?.RawCapture?.CaptureDetails;
+            if (captureDetails?.ProcessingTask != null)
+            {
+                try
+                {
+                    captureDetails.ProcessingTask.Wait();
+                }
+                catch (Exception ex)
+                {
+                    Log.Warn("Error waiting for background OCR processing in DestinationExportStep", ex);
+                }
+            }
+
+            if (captureDetails != null)
+            {
+                lock (captureDetails.Features)
+                {
+                    var ocrLines = captureDetails.Features.OfType<IOcrLineFeature>().ToList();
+                    if (ocrLines.Any())
+                    {
+                        string txt = string.Join(Environment.NewLine, ocrLines.Select(l => l.Text));
+                        context.Payload.ExtractedText = txt;
+                        return txt;
+                    }
+                }
+            }
+
+            var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>();
+            if (ocrProvider != null)
+            {
+                var surf = context.Payload?.EnsureSurface();
+                if (surf != null)
+                {
+                    var ocrLines = await ocrProvider.DoOcrAsync(surf).ConfigureAwait(false);
+                    if (ocrLines != null && ocrLines.Any())
+                    {
+                        string txt = string.Join(Environment.NewLine, ocrLines.Select(l => l.Text));
+                        context.Payload.ExtractedText = txt;
+                        return txt;
+                    }
+                }
+            }
+
+            return "";
         }
     }
 }

@@ -786,6 +786,40 @@ namespace Greenshot.Forms
                 recipeManager.ReloadRecipes();
             };
             _recipesMenuItem.DropDownItems.Add(reloadItem);
+
+            var editorItem = new ToolStripMenuItem(Language.GetString("contextmenu_recipeeditor") ?? "Recipe Editor...");
+            editorItem.Click += (s, ev) =>
+            {
+                OnOpenRecipeEditorClicked();
+            };
+            _recipesMenuItem.DropDownItems.Add(editorItem);
+        }
+
+        private static UI.RecipeEditor.RecipeEditorWindow _activeRecipeEditorWindow;
+
+        private void OnOpenRecipeEditorClicked()
+        {
+            try
+            {
+                if (_activeRecipeEditorWindow != null && _activeRecipeEditorWindow.IsLoaded)
+                {
+                    if (_activeRecipeEditorWindow.WindowState == System.Windows.WindowState.Minimized)
+                    {
+                        _activeRecipeEditorWindow.WindowState = System.Windows.WindowState.Normal;
+                    }
+                    _activeRecipeEditorWindow.Activate();
+                    _activeRecipeEditorWindow.Focus();
+                    return;
+                }
+
+                _activeRecipeEditorWindow = new UI.RecipeEditor.RecipeEditorWindow(RecipeManager.Instance);
+                _activeRecipeEditorWindow.Closed += (s, e) => _activeRecipeEditorWindow = null;
+                _activeRecipeEditorWindow.Show();
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Failed to open native recipe editor window.", ex);
+            }
         }
 
         private void OnImportRecipeClicked()
