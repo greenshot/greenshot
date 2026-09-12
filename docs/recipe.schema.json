@@ -2,12 +2,13 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://getgreenshot.org/schemas/recipe.schema.json",
   "title": "CaptureRecipe",
-  "description": "Formal written contract and schema for Greenshot capture recipes.",
+  "description": "Formal written contract and schema for Greenshot DAG-based capture recipes.",
   "type": "object",
   "required": [
     "id",
     "name",
-    "steps"
+    "nodes",
+    "flow"
   ],
   "properties": {
     "$schema": {
@@ -23,7 +24,7 @@
     "id": {
       "type": "string",
       "minLength": 1,
-      "description": "Unique identifier of the recipe. Matching a built-in ID (e.g. 'recipe_region') securely overrides that built-in recipe."
+      "description": "Unique identifier of the recipe. Matching a built-in ID (e.g. 'recipe_region') overrides that built-in recipe."
     },
     "name": {
       "type": "string",
@@ -46,16 +47,378 @@
         "$ref": "#/definitions/TriggerConfig"
       }
     },
-    "steps": {
+    "nodes": {
       "type": "array",
-      "description": "Ordered sequence of modular steps that execute when this recipe is triggered.",
+      "description": "Flow-local modular execution nodes configured with unique IDs and step parameters.",
       "items": {
-        "$ref": "#/definitions/RecipeStepConfig"
+        "$ref": "#/definitions/RecipeNodeConfig"
       },
       "minItems": 1
+    },
+    "flow": {
+      "$ref": "#/definitions/RecipeFlowConfig",
+      "description": "DAG workflow definition configuring entry points, transitions/edges, branch forks, and join merges."
     }
   },
   "definitions": {
+    "RecipeFlowConfig": {
+      "type": "object",
+      "properties": {
+        "startNode": {
+          "type": "string",
+          "description": "The unique node ID of the starting node in the DAG."
+        },
+        "startNodes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Multiple starting node IDs for parallel entry points."
+        },
+        "transitions": {
+          "type": "object",
+          "description": "Adjacency mapping from source node ID to target node ID (string) or target node IDs (array of strings).",
+          "additionalProperties": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            ]
+          }
+        },
+        "edges": {
+          "type": "array",
+          "description": "Alternative edge list representation of the DAG transitions.",
+          "items": {
+            "$ref": "#/definitions/TransitionEdgeConfig"
+          }
+        }
+      }
+    },
+    "TransitionEdgeConfig": {
+      "type": "object",
+      "required": [
+        "from",
+        "to"
+      ],
+      "properties": {
+        "from": {
+          "type": "string",
+          "description": "Source node ID."
+        },
+        "to": {
+          "type": "string",
+          "description": "Target node ID."
+        }
+      }
+    },
+    "RecipeNodeConfig": {
+      "type": "object",
+      "required": [
+        "id",
+        "stepType"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Unique flow-local identifier for this node (referenced by flow transitions)."
+        },
+        "stepType": {
+          "type": "string",
+          "enum": [
+            "Source",
+            "InteractiveSelection",
+            "Border",
+            "Effect",
+            "TextEffect",
+            "ObfuscateText",
+            "Drawable",
+            "SetVariable",
+            "ImmediateFeedback",
+            "Processors",
+            "Destinations",
+            "Notification",
+            "Conditional"
+          ],
+          "description": "The modular step type identifier."
+        },
+        "name": {
+          "type": "string",
+          "description": "Optional label for this node (defaults to stepType if omitted)."
+        },
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether this individual node is enabled in the flow."
+        },
+        "parameters": {
+          "type": "object",
+          "description": "Node-specific configuration parameters and expressions.",
+          "properties": {
+            "SourceType": {
+              "type": "string",
+              "enum": [
+                "Region",
+                "Window",
+                "ActiveWindow",
+                "FullScreen",
+                "LastRegion",
+                "Clipboard",
+                "File",
+                "TextOcr"
+              ],
+              "description": "Used by 'Source' step: The kind of raw pixels to capture."
+            },
+            "WindowTitle": {
+              "type": "string",
+              "description": "Used by 'Source' step (Window/ActiveWindow): Substring or exact title of a specific window to target."
+            },
+            "WindowTitlePattern": {
+              "type": "string",
+              "description": "Used by 'Source' step (Window/ActiveWindow): Regular expression pattern to match window title."
+            },
+            "ProcessName": {
+              "type": "string",
+              "description": "Used by 'Source' step (Window/ActiveWindow): Target process name (e.g. 'notepad', 'Greenshot')."
+            },
+            "MatchCase": {
+              "type": "boolean",
+              "default": false,
+              "description": "Whether title or regex pattern matching is case-sensitive."
+            },
+            "CaptureMouseCursor": {
+              "type": "boolean",
+              "description": "Used by 'Source' step: Explicitly pre-defines mouse capture. If omitted, dynamically evaluates CoreConfig.CaptureMousepointer."
+            },
+            "DelayMs": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Used by 'Source' step: Pre-capture delay in milliseconds."
+            },
+            "SelectionMode": {
+              "type": "string",
+              "enum": [
+                "Region",
+                "Window",
+                "Text"
+              ],
+              "description": "Used by 'InteractiveSelection' step: The UI selection overlay mode."
+            },
+            "AllowWindowSnapping": {
+              "type": "boolean",
+              "default": true,
+              "description": "Used by 'InteractiveSelection' step: Whether to snap selection rect to windows under the cursor."
+            },
+            "Width": {
+              "description": "Border width or resize width (integer or expression string).",
+              "oneOf": [
+                { "type": "integer" },
+                { "type": "string" }
+              ]
+            },
+            "Height": {
+              "description": "Resize height (integer or expression string).",
+              "oneOf": [
+                { "type": "integer" },
+                { "type": "string" }
+              ]
+            },
+            "Color": {
+              "type": "string",
+              "description": "Border, canvas, or effect color (e.g. '#FF0000', 'Blue', 'rgba(255,0,0,128)')."
+            },
+            "Effect": {
+              "type": "string",
+              "enum": [
+                "Border",
+                "DropShadow",
+                "TornEdge",
+                "Invert",
+                "Grayscale",
+                "Monochrome",
+                "Adjust",
+                "Rotate",
+                "Resize",
+                "ResizeCanvas",
+                "ReduceColors",
+                "RemoveTransparency",
+                "Pixelize",
+                "Blur",
+                "Highlight",
+                "Redact",
+                "Blackout",
+                "Magnify"
+              ],
+              "description": "Used by 'Effect' step: The effect type to apply."
+            },
+            "Drawables": {
+              "type": "array",
+              "description": "Used by 'Drawable' step: List of drawable elements to place on the capture surface.",
+              "items": {
+                "$ref": "#/definitions/DrawableElementConfig"
+              }
+            },
+            "VariableName": {
+              "type": "string",
+              "description": "Used by 'SetVariable' step: Target variable name stored in context.Properties."
+            },
+            "Value": {
+              "description": "Used by 'SetVariable' step: Expression or literal value to assign.",
+              "oneOf": [
+                { "type": "string" },
+                { "type": "number" },
+                { "type": "boolean" }
+              ]
+            },
+            "Variables": {
+              "type": "object",
+              "description": "Used by 'SetVariable' step: Key-value dictionary of multiple variables and expressions to assign."
+            },
+            "DestinationDesignations": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Used by 'Destinations' step: Explicit list of destination designations (e.g. ['Clipboard', 'FileNoDialog', 'Editor'])."
+            },
+            "PlaySound": {
+              "type": "boolean",
+              "description": "Used by 'ImmediateFeedback' step: Explicitly pre-defines shutter sound."
+            }
+          },
+          "additionalProperties": true
+        }
+      }
+    },
+    "DrawableElementConfig": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "Rectangle",
+            "Ellipse",
+            "Line",
+            "Arrow",
+            "Freehand",
+            "Text",
+            "Speechbubble",
+            "StepLabel",
+            "Image",
+            "Icon",
+            "Cursor",
+            "Emoji",
+            "Svg",
+            "Obfuscate",
+            "Blur",
+            "Pixelize",
+            "Highlight",
+            "Magnify",
+            "Crop"
+          ],
+          "description": "The type of drawable element."
+        },
+        "horizontalAnchor": {
+          "type": "string",
+          "enum": [
+            "Left",
+            "Center",
+            "Middle",
+            "Right"
+          ],
+          "description": "Horizontal alignment anchor relative to the capture payload surface."
+        },
+        "verticalAnchor": {
+          "type": "string",
+          "enum": [
+            "Top",
+            "Center",
+            "Middle",
+            "Bottom"
+          ],
+          "description": "Vertical alignment anchor relative to the capture payload surface."
+        },
+        "left": {
+          "description": "X coordinate or expression (e.g. 20, '${payload.width - 200}', 'center').",
+          "oneOf": [{ "type": "integer" }, { "type": "string" }]
+        },
+        "top": {
+          "description": "Y coordinate or expression (e.g. 15, '${payload.height - 50}', 'bottom').",
+          "oneOf": [{ "type": "integer" }, { "type": "string" }]
+        },
+        "width": {
+          "description": "Width or expression (e.g. 250, '${payload.width / 2}').",
+          "oneOf": [{ "type": "integer" }, { "type": "string" }]
+        },
+        "height": {
+          "description": "Height or expression (e.g. 60, '${payload.height * 0.1}').",
+          "oneOf": [{ "type": "integer" }, { "type": "string" }]
+        },
+        "offsetX": {
+          "description": "Horizontal offset applied to anchor/coordinate (e.g. -20).",
+          "oneOf": [{ "type": "integer" }, { "type": "string" }]
+        },
+        "offsetY": {
+          "description": "Vertical offset applied to anchor/coordinate (e.g. -15).",
+          "oneOf": [{ "type": "integer" }, { "type": "string" }]
+        },
+        "text": {
+          "type": "string",
+          "description": "Text content for Text, Speechbubble, or StepLabel (supports string interpolation like 'User: ${user.username} on ${machine.computername} at ${now:yyyy-MM-dd}')."
+        },
+        "lineColor": {
+          "type": "string",
+          "description": "Stroke/border/text color."
+        },
+        "fillColor": {
+          "type": "string",
+          "description": "Fill/background color."
+        },
+        "lineThickness": {
+          "type": "integer",
+          "description": "Line thickness in pixels."
+        },
+        "fontSize": {
+          "type": "number",
+          "description": "Font size in points."
+        },
+        "fontFamily": {
+          "type": "string",
+          "description": "Font family name."
+        },
+        "bold": {
+          "type": "boolean",
+          "description": "Font bold weight."
+        },
+        "shadow": {
+          "type": "boolean",
+          "description": "Whether to render a drop shadow for the element."
+        },
+        "filePath": {
+          "type": "string",
+          "description": "File path for Image, Icon, Cursor, or Svg drawables."
+        },
+        "emoji": {
+          "type": "string",
+          "description": "Emoji character for Emoji drawables (e.g. '⚠️', '🔥', '✅')."
+        },
+        "points": {
+          "type": "string",
+          "description": "Coordinates list for Freehand drawable (e.g. '10,10;20,30;50,80')."
+        }
+      },
+      "additionalProperties": true
+    },
     "TriggerConfig": {
       "type": "object",
       "required": [
@@ -92,12 +455,12 @@
             },
             "MenuItemText": {
               "type": "string",
-              "description": "Custom label displayed in the systray context menu (defaults to recipe name if omitted)."
+              "description": "Custom label displayed in the systray context menu."
             },
             "Group": {
               "type": "string",
               "default": "Recipes",
-              "description": "Submenu group in the systray context menu (e.g. 'Recipes' or empty for top-level)."
+              "description": "Submenu group in the systray context menu."
             },
             "Order": {
               "type": "integer",
@@ -108,313 +471,6 @@
               "type": "boolean",
               "default": true,
               "description": "For clipboard trigger: whether to trigger automatically when an image is copied to clipboard."
-            }
-          },
-          "additionalProperties": true
-        }
-      }
-    },
-    "RecipeStepConfig": {
-      "type": "object",
-      "required": [
-        "stepType"
-      ],
-      "properties": {
-        "stepType": {
-          "type": "string",
-          "enum": [
-            "Source",
-            "InteractiveSelection",
-            "Border",
-            "Effect",
-            "TextEffect",
-            "ObfuscateText",
-            "ImmediateFeedback",
-            "Processors",
-            "Destinations",
-            "Notification",
-            "Conditional"
-          ],
-          "description": "The modular step type identifier."
-        },
-        "name": {
-          "type": "string",
-          "description": "Optional label for this step (defaults to stepType if omitted)."
-        },
-        "enabled": {
-          "type": "boolean",
-          "default": true,
-          "description": "Whether this individual step is enabled in the flow."
-        },
-        "parameters": {
-          "type": "object",
-          "description": "Step-specific configuration parameters. Omitted parameters fall back dynamically to live Greenshot settings in greenshot.ini.",
-          "properties": {
-            "SourceType": {
-              "type": "string",
-              "enum": [
-                "Region",
-                "Window",
-                "ActiveWindow",
-                "FullScreen",
-                "LastRegion",
-                "Clipboard",
-                "File",
-                "TextOcr"
-              ],
-              "description": "Used by 'Source' step: The kind of raw pixels to capture."
-            },
-            "WindowTitle": {
-              "type": "string",
-              "description": "Used by 'Source' step (Window/ActiveWindow): Substring or exact title of a specific window to target and bring to front."
-            },
-            "WindowTitlePattern": {
-              "type": "string",
-              "description": "Used by 'Source' step (Window/ActiveWindow): Regular expression pattern to match window title."
-            },
-            "ProcessName": {
-              "type": "string",
-              "description": "Used by 'Source' step (Window/ActiveWindow): Target process name (e.g. 'notepad', 'Greenshot')."
-            },
-            "MatchCase": {
-              "type": "boolean",
-              "default": false,
-              "description": "Whether title or regex pattern matching is case-sensitive (default: false)."
-            },
-            "CaptureMouseCursor": {
-              "type": "boolean",
-              "description": "Used by 'Source' step: Explicitly pre-defines mouse capture. If omitted (null), dynamically evaluates CoreConfig.CaptureMousepointer at runtime."
-            },
-            "DelayMs": {
-              "type": "integer",
-              "minimum": 0,
-              "description": "Used by 'Source' step: Pre-capture delay in milliseconds. If omitted, dynamically evaluates CoreConfig.CaptureDelay."
-            },
-            "ScreenCaptureMode": {
-              "type": "string",
-              "enum": [
-                "Auto",
-                "Fixed",
-                "FullScreen"
-              ],
-              "description": "Used by 'Source' step for screen captures."
-            },
-            "WindowCaptureMode": {
-              "type": "string",
-              "enum": [
-                "Auto",
-                "AsDisplayed",
-                "GDI",
-                "Aero",
-                "AeroTransparent"
-              ],
-              "description": "Used by 'Source' step for window captures."
-            },
-            "AlignDpi": {
-              "type": "boolean",
-              "default": true,
-              "description": "Used by 'Source' step: Whether to align captured pixel DPI with the desktop display resolution."
-            },
-            "SelectionMode": {
-              "type": "string",
-              "enum": [
-                "Region",
-                "Window",
-                "Text"
-              ],
-              "description": "Used by 'InteractiveSelection' step: The UI selection overlay mode."
-            },
-            "AllowWindowSnapping": {
-              "type": "boolean",
-              "default": true,
-              "description": "Used by 'InteractiveSelection' step: Whether to snap selection rect to windows under the cursor."
-            },
-            "Width": {
-              "type": "integer",
-              "minimum": 1,
-              "default": 2,
-              "description": "Used by 'Border' or 'Resize' step: Border thickness or target width in pixels."
-            },
-            "Height": {
-              "type": "integer",
-              "minimum": 1,
-              "description": "Used by 'Resize' step: Target height in pixels."
-            },
-            "Percentage": {
-              "type": "number",
-              "description": "Used by 'Resize' step: Scaling percentage (e.g. 50 for 50%)."
-            },
-            "MaintainAspectRatio": {
-              "type": "boolean",
-              "default": true,
-              "description": "Used by 'Resize' step: Whether to preserve original aspect ratio."
-            },
-            "Color": {
-              "type": "string",
-              "default": "#000000",
-              "description": "Used by 'Border', 'ResizeCanvas', 'RemoveTransparency', or 'TextEffect': Color as hex (#RRGGBB, #AARRGGBB) or named color."
-            },
-            "FillColor": {
-              "type": "string",
-              "description": "Used by 'TextEffect': Fill color for Highlight or Redact/Blackout (e.g. '#FFFF00', '#000000')."
-            },
-            "Effect": {
-              "type": "string",
-              "enum": [
-                "Border",
-                "DropShadow",
-                "TornEdge",
-                "Invert",
-                "Grayscale",
-                "Monochrome",
-                "Adjust",
-                "Rotate",
-                "Resize",
-                "ResizeCanvas",
-                "ReduceColors",
-                "RemoveTransparency",
-                "Pixelize",
-                "Blur",
-                "Highlight",
-                "Redact",
-                "Blackout",
-                "Magnify"
-              ],
-              "description": "Used by 'Effect' or 'TextEffect' step: The effect type to apply."
-            },
-            "Darkness": {
-              "type": "number",
-              "default": 0.6,
-              "description": "Used by 'DropShadow' and 'TornEdge' effects: Shadow darkness (0.0 to 1.0)."
-            },
-            "ShadowSize": {
-              "type": "integer",
-              "default": 7,
-              "description": "Used by 'DropShadow' and 'TornEdge' effects: Shadow radius/size in pixels."
-            },
-            "ToothHeight": {
-              "type": "integer",
-              "default": 12,
-              "description": "Used by 'TornEdge' effect: Height of teeth in pixels."
-            },
-            "HorizontalToothRange": {
-              "type": "integer",
-              "default": 20,
-              "description": "Used by 'TornEdge' effect: Tooth horizontal pitch/range."
-            },
-            "VerticalToothRange": {
-              "type": "integer",
-              "default": 20,
-              "description": "Used by 'TornEdge' effect: Tooth vertical pitch/range."
-            },
-            "GenerateShadow": {
-              "type": "boolean",
-              "default": true,
-              "description": "Used by 'TornEdge' effect: Whether to render drop shadow around torn edges."
-            },
-            "Threshold": {
-              "type": "integer",
-              "minimum": 0,
-              "maximum": 255,
-              "default": 128,
-              "description": "Used by 'Monochrome' effect: Threshold value (0-255)."
-            },
-            "Brightness": {
-              "type": "number",
-              "default": 1.0,
-              "description": "Used by 'Adjust' effect: Brightness multiplier (1.0 = normal)."
-            },
-            "Contrast": {
-              "type": "number",
-              "default": 1.0,
-              "description": "Used by 'Adjust' effect: Contrast multiplier (1.0 = normal)."
-            },
-            "Gamma": {
-              "type": "number",
-              "default": 1.0,
-              "description": "Used by 'Adjust' effect: Gamma multiplier (1.0 = normal)."
-            },
-            "Angle": {
-              "type": "integer",
-              "enum": [90, -90, 270],
-              "default": 90,
-              "description": "Used by 'Rotate' effect: Rotation angle in degrees (90, -90, or 270)."
-            },
-            "Margin": {
-              "type": "integer",
-              "description": "Used by 'ResizeCanvas' effect: Uniform canvas border margin in pixels."
-            },
-            "Pattern": {
-              "type": "string",
-              "description": "Used by 'TextEffect' step: Single regular expression pattern to find in OCR-detected text."
-            },
-            "Patterns": {
-              "type": "array",
-              "items": { "type": "string" },
-              "description": "Used by 'TextEffect' step: Multiple regex patterns to match (e.g. credit cards, emails, tokens)."
-            },
-            "Scope": {
-              "type": "string",
-              "enum": ["Auto", "Word", "Line"],
-              "default": "Auto",
-              "description": "Used by 'TextEffect' step: Match scope. 'Auto' maps regex matches precisely to word bounding boxes."
-            },
-            "BlurRadius": {
-              "type": "integer",
-              "default": 10,
-              "description": "Used by 'TextEffect' step with Blur effect: Blur radius in pixels."
-            },
-            "PixelSize": {
-              "type": "integer",
-              "default": 5,
-              "description": "Used by 'TextEffect' step with Pixelize effect: Obfuscation block size in pixels."
-            },
-            "MagnificationFactor": {
-              "type": "integer",
-              "default": 2,
-              "description": "Used by 'TextEffect' step with Magnify effect: Magnification zoom factor."
-            },
-            "PaddingHorizontal": {
-              "type": "integer",
-              "default": 10,
-              "description": "Used by 'TextEffect' step: Horizontal padding percentage to grow matched bounding box."
-            },
-            "PaddingVertical": {
-              "type": "integer",
-              "default": 20,
-              "description": "Used by 'TextEffect' step: Vertical padding percentage to grow matched bounding box."
-            },
-            "OffsetHorizontal": {
-              "type": "integer",
-              "default": 0,
-              "description": "Used by 'TextEffect' step: Horizontal pixel offset for effect container."
-            },
-            "OffsetVertical": {
-              "type": "integer",
-              "default": 0,
-              "description": "Used by 'TextEffect' step: Vertical pixel offset for effect container."
-            },
-            "PlaySound": {
-              "type": "boolean",
-              "description": "Used by 'ImmediateFeedback' step: Explicitly pre-defines shutter sound. If omitted, dynamically evaluates CoreConfig.PlayCameraSound."
-            },
-            "ProcessorIds": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              },
-              "description": "Used by 'Processors' step: List of processor designations to execute (e.g. ['Windows10OcrProcessor']). If omitted, executes all active registered processors."
-            },
-            "DestinationDesignations": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              },
-              "description": "Used by 'Destinations' step: Explicit list of destination designations (e.g. ['Clipboard', 'FileNoDialog', 'Editor']). If omitted, dynamically evaluates CoreConfig.OutputDestinations."
-            },
-            "ShowNotification": {
-              "type": "boolean",
-              "description": "Used by 'Notification' step: Explicitly pre-defines tray balloon/toast notification. If omitted, dynamically evaluates CoreConfig.ShowTrayNotification."
             }
           },
           "additionalProperties": true

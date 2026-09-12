@@ -43,7 +43,8 @@ namespace Greenshot.Base.Recipes
             ContractResolver = new CamelCasePropertyNamesContractResolver(),
             Converters = new List<JsonConverter>
             {
-                new StringEnumConverter()
+                new StringEnumConverter(),
+                new TransitionsDictionaryConverter()
             }
         };
 
@@ -52,7 +53,8 @@ namespace Greenshot.Base.Recipes
             NullValueHandling = NullValueHandling.Ignore,
             Converters = new List<JsonConverter>
             {
-                new StringEnumConverter()
+                new StringEnumConverter(),
+                new TransitionsDictionaryConverter()
             }
         };
 

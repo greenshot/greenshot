@@ -75,5 +75,15 @@ namespace Greenshot.Base.Recipes
         /// Scans text via OCR, locates occurrences matching regex/text pattern, and applies effects (Blur, Pixelize, Highlight, Redact).
         /// </summary>
         public const string TextEffect = "TextEffect";
+
+        /// <summary>
+        /// Adds one or more drawable elements (shapes, text, arrows, icons, images, stamps, filters) directly onto the capture surface.
+        /// </summary>
+        public const string Drawable = "Drawable";
+
+        /// <summary>
+        /// Evaluates an expression and creates or updates a variable in the flow context.
+        /// </summary>
+        public const string SetVariable = "SetVariable";
     }
 }

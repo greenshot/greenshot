@@ -20,140 +20,34 @@
  */
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Pipeline;
-using Newtonsoft.Json.Linq;
 
 namespace Greenshot.Base.Recipes
 {
     /// <summary>
-    /// Configuration for an individual modular step/block within a capture recipe.
-    /// Supports dynamic configuration evaluation at runtime when parameters are left unset (null).
+    /// Configuration helper for recipe steps / nodes.
     /// </summary>
-    public class RecipeStepConfig
+    public class RecipeStepConfig : RecipeNodeConfig
     {
-        public string StepType { get; set; }
-        public string Name { get; set; }
-        public bool Enabled { get; set; } = true;
-        public Dictionary<string, object> Parameters { get; set; } = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
-
         public RecipeStepConfig()
         {
         }
 
-        public RecipeStepConfig(string stepType, string name = null)
+        public RecipeStepConfig(string stepType, string name = null) : base(Guid.NewGuid().ToString("N").Substring(0, 8), stepType, name)
         {
-            StepType = stepType ?? throw new ArgumentNullException(nameof(stepType));
-            Name = name ?? stepType;
         }
 
-        public T GetParameter<T>(string key, T defaultValue = default)
+        public RecipeStepConfig(string id, string stepType, string name) : base(id, stepType, name)
         {
-            if (Parameters != null && Parameters.TryGetValue(key, out var val) && val != null)
-            {
-                if (val is T typed)
-                {
-                    return typed;
-                }
-
-                if (val is JToken jToken)
-                {
-                    try
-                    {
-                        return jToken.ToObject<T>();
-                    }
-                    catch
-                    {
-                        return defaultValue;
-                    }
-                }
-
-                try
-                {
-                    var targetType = Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);
-                    if (targetType.IsEnum)
-                    {
-                        if (val is string str)
-                        {
-                            return (T)Enum.Parse(targetType, str, true);
-                        }
-                        return (T)Enum.ToObject(targetType, val);
-                    }
-
-                    if (typeof(T) == typeof(List<string>) && val is IEnumerable enumerable && !(val is string))
-                    {
-                        var list = new List<string>();
-                        foreach (var item in enumerable)
-                        {
-                            if (item != null) list.Add(item.ToString());
-                        }
-                        return (T)(object)list;
-                    }
-
-                    return (T)Convert.ChangeType(val, targetType);
-                }
-                catch
-                {
-                    return defaultValue;
-                }
-            }
-            return defaultValue;
-        }
-
-        public RecipeStepConfig Set(string key, object value)
-        {
-            if (Parameters == null)
-            {
-                Parameters = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
-            }
-            Parameters[key] = value;
-            return this;
-        }
-
-        /// <summary>
-        /// Fluent helper to override the display name of this step. Useful when the same step type
-        /// appears multiple times in a recipe (e.g. two "Processors" steps at different pipeline positions).
-        /// </summary>
-        public RecipeStepConfig WithName(string name)
-        {
-            Name = name;
-            return this;
-        }
-
-        public RecipeStepConfig Clone()
-        {
-            var clone = new RecipeStepConfig
-            {
-                StepType = StepType,
-                Name = Name,
-                Enabled = Enabled,
-                Parameters = new Dictionary<string, object>(Parameters, StringComparer.OrdinalIgnoreCase)
-            };
-
-            // Deep clone nested step lists if present (e.g. for conditional blocks)
-            if (Parameters.TryGetValue("ThenSteps", out var thenObj) && thenObj is List<RecipeStepConfig> thenList)
-            {
-                var newThen = new List<RecipeStepConfig>(thenList.Count);
-                foreach (var s in thenList) newThen.Add(s.Clone());
-                clone.Parameters["ThenSteps"] = newThen;
-            }
-
-            if (Parameters.TryGetValue("ElseSteps", out var elseObj) && elseObj is List<RecipeStepConfig> elseList)
-            {
-                var newElse = new List<RecipeStepConfig>(elseList.Count);
-                foreach (var s in elseList) newElse.Add(s.Clone());
-                clone.Parameters["ElseSteps"] = newElse;
-            }
-
-            return clone;
         }
 
         #region Factory Helpers
 
-        public static RecipeStepConfig CreateSource(
+        public static RecipeNodeConfig CreateSource(
+            string id = "source",
             CaptureSourceType sourceType = CaptureSourceType.Region,
             bool? captureMouse = null,
             int? delayMs = null,
@@ -161,94 +55,104 @@ namespace Greenshot.Base.Recipes
             WindowCaptureMode? windowMode = null,
             bool? alignDpi = null)
         {
-            var step = new RecipeStepConfig(WellKnownStepTypes.Source, $"Acquire {sourceType}");
-            step.Set("SourceType", sourceType);
-            if (captureMouse.HasValue) step.Set("CaptureMouseCursor", captureMouse.Value);
-            if (delayMs.HasValue) step.Set("DelayMs", delayMs.Value);
-            if (screenMode.HasValue) step.Set("ScreenCaptureMode", screenMode.Value);
-            if (windowMode.HasValue) step.Set("WindowCaptureMode", windowMode.Value);
-            if (alignDpi.HasValue) step.Set("AlignDpi", alignDpi.Value);
-            return step;
+            var node = new RecipeNodeConfig(id, WellKnownStepTypes.Source, $"Acquire {sourceType}");
+            node.Set("SourceType", sourceType);
+            if (captureMouse.HasValue) node.Set("CaptureMouseCursor", captureMouse.Value);
+            if (delayMs.HasValue) node.Set("DelayMs", delayMs.Value);
+            if (screenMode.HasValue) node.Set("ScreenCaptureMode", screenMode.Value);
+            if (windowMode.HasValue) node.Set("WindowCaptureMode", windowMode.Value);
+            if (alignDpi.HasValue) node.Set("AlignDpi", alignDpi.Value);
+            return node;
         }
 
-        public static RecipeStepConfig CreateSelection(CaptureMode mode = CaptureMode.Region, bool allowWindowSnapping = true)
+        public static RecipeNodeConfig CreateSelection(string id = "selection", CaptureMode mode = CaptureMode.Region, bool allowWindowSnapping = true)
         {
-            var step = new RecipeStepConfig(WellKnownStepTypes.InteractiveSelection, $"Select {mode}");
-            step.Set("SelectionMode", mode);
-            step.Set("AllowWindowSnapping", allowWindowSnapping);
-            return step;
+            var node = new RecipeNodeConfig(id, WellKnownStepTypes.InteractiveSelection, $"Select {mode}");
+            node.Set("SelectionMode", mode);
+            node.Set("AllowWindowSnapping", allowWindowSnapping);
+            return node;
         }
 
-        public static RecipeStepConfig CreateBorder(int width = 2, string color = "#000000")
+        public static RecipeNodeConfig CreateBorder(string id = "border", int width = 2, string color = "#000000")
         {
-            var step = new RecipeStepConfig(WellKnownStepTypes.Border, "Add Border");
-            step.Set("Width", width);
-            step.Set("Color", color ?? "#000000");
-            return step;
+            var node = new RecipeNodeConfig(id, WellKnownStepTypes.Border, "Add Border");
+            node.Set("Width", width);
+            node.Set("Color", color ?? "#000000");
+            return node;
         }
 
-        public static RecipeStepConfig CreateEffect(string effect, Dictionary<string, object> parameters = null)
+        public static RecipeNodeConfig CreateEffect(string id = "effect", string effect = "DropShadow", Dictionary<string, object> parameters = null)
         {
-            var step = new RecipeStepConfig(WellKnownStepTypes.Effect, $"Apply {effect}");
-            step.Set("Effect", effect);
+            var node = new RecipeNodeConfig(id, WellKnownStepTypes.Effect, $"Apply {effect}");
+            node.Set("Effect", effect);
             if (parameters != null)
             {
                 foreach (var kvp in parameters)
                 {
-                    step.Set(kvp.Key, kvp.Value);
+                    node.Set(kvp.Key, kvp.Value);
                 }
             }
-            return step;
+            return node;
         }
 
-        public static RecipeStepConfig CreateFeedback(bool? playSound = null)
+        public static RecipeNodeConfig CreateDrawable(string id = "drawable", string drawableType = "Text", Dictionary<string, object> parameters = null)
         {
-            var step = new RecipeStepConfig(WellKnownStepTypes.ImmediateFeedback, "Capture Feedback");
-            if (playSound.HasValue) step.Set("PlaySound", playSound.Value);
-            return step;
+            var node = new RecipeNodeConfig(id, WellKnownStepTypes.Drawable, $"Add {drawableType}");
+            node.Set("DrawableType", drawableType);
+            if (parameters != null)
+            {
+                foreach (var kvp in parameters)
+                {
+                    node.Set(kvp.Key, kvp.Value);
+                }
+            }
+            return node;
         }
 
-        public static RecipeStepConfig CreateProcessors(IEnumerable<string> processorIds = null, ProcessorTiming? timing = null)
+        public static RecipeNodeConfig CreateSetVariable(string id = "set_var", string variable = null, object value = null)
         {
-            var step = new RecipeStepConfig(WellKnownStepTypes.Processors, "Run Processors");
+            var node = new RecipeNodeConfig(id, WellKnownStepTypes.SetVariable, "Set Variable");
+            if (variable != null) node.Set("Variable", variable);
+            if (value != null) node.Set("Value", value);
+            return node;
+        }
+
+        public static RecipeNodeConfig CreateFeedback(string id = "feedback", bool? playSound = null)
+        {
+            var node = new RecipeNodeConfig(id, WellKnownStepTypes.ImmediateFeedback, "Capture Feedback");
+            if (playSound.HasValue) node.Set("PlaySound", playSound.Value);
+            return node;
+        }
+
+        public static RecipeNodeConfig CreateProcessors(string id = "processors", IEnumerable<string> processorIds = null, ProcessorTiming? timing = null)
+        {
+            var node = new RecipeNodeConfig(id, WellKnownStepTypes.Processors, "Run Processors");
             if (processorIds != null)
             {
-                step.Set("ProcessorIds", new List<string>(processorIds));
+                node.Set("ProcessorIds", new List<string>(processorIds));
             }
             if (timing.HasValue)
             {
-                step.Set("Timing", timing.Value.ToString());
+                node.Set("Timing", timing.Value.ToString());
             }
-            return step;
+            return node;
         }
 
-        public static RecipeStepConfig CreateDestinations(IEnumerable<string> destinationDesignations = null)
+        public static RecipeNodeConfig CreateDestinations(string id = "destinations", IEnumerable<string> destinationDesignations = null)
         {
-            var step = new RecipeStepConfig(WellKnownStepTypes.Destinations, "Export Destinations");
+            var node = new RecipeNodeConfig(id, WellKnownStepTypes.Destinations, "Export Destinations");
             if (destinationDesignations != null)
             {
-                step.Set("DestinationDesignations", new List<string>(destinationDesignations));
+                node.Set("DestinationDesignations", new List<string>(destinationDesignations));
             }
-            return step;
+            return node;
         }
 
-        public static RecipeStepConfig CreateNotification(bool? showNotification = null)
+        public static RecipeNodeConfig CreateNotification(string id = "notification", bool? showNotification = null)
         {
-            var step = new RecipeStepConfig(WellKnownStepTypes.Notification, "Completion Notification");
-            if (showNotification.HasValue) step.Set("ShowNotification", showNotification.Value);
-            return step;
-        }
-
-        public static RecipeStepConfig CreateConditional(
-            IStepCondition condition,
-            IEnumerable<RecipeStepConfig> thenSteps = null,
-            IEnumerable<RecipeStepConfig> elseSteps = null)
-        {
-            var step = new RecipeStepConfig(WellKnownStepTypes.Conditional, "Conditional Block");
-            step.Set("Condition", condition);
-            step.Set("ThenSteps", thenSteps != null ? new List<RecipeStepConfig>(thenSteps) : new List<RecipeStepConfig>());
-            step.Set("ElseSteps", elseSteps != null ? new List<RecipeStepConfig>(elseSteps) : new List<RecipeStepConfig>());
-            return step;
+            var node = new RecipeNodeConfig(id, WellKnownStepTypes.Notification, "Completion Notification");
+            if (showNotification.HasValue) node.Set("ShowNotification", showNotification.Value);
+            return node;
         }
 
         #endregion

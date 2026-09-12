@@ -39,8 +39,8 @@ using log4net;
 namespace Greenshot.Pipeline
 {
     /// <summary>
-    /// Core pipeline engine orchestrating capture flows from trigger through ordered modular steps.
-    /// Eliminates rigid hardcoded stages in favor of dynamic step iteration.
+    /// Core pipeline engine orchestrating DAG capture flows from trigger through Directed Acyclic Graph execution.
+    /// Supports asynchronous execution, branch splitting (fork), join synchronization (merge), and dynamic expression resolution.
     /// </summary>
     public class CapturePipeline : ICapturePipeline
     {
@@ -50,6 +50,7 @@ namespace Greenshot.Pipeline
         private readonly IInteractiveCaptureSelector _selector;
         private readonly IDestinationDispatcher _dispatcher;
         private readonly IStepRegistry _stepRegistry;
+        private readonly DagExecutionEngine _dagEngine;
 
         private static CapturePipeline _instance;
         public static CapturePipeline Instance => _instance ??= new CapturePipeline();
@@ -81,6 +82,8 @@ namespace Greenshot.Pipeline
             _stepRegistry = stepRegistry ?? StepRegistry.Instance;
 
             RegisterBuiltInStepFactories();
+
+            _dagEngine = new DagExecutionEngine(config => _stepRegistry.CreateStep(config));
         }
 
         private void RegisterBuiltInStepFactories()
@@ -89,28 +92,14 @@ namespace Greenshot.Pipeline
             _stepRegistry.RegisterStepFactory(WellKnownStepTypes.InteractiveSelection, config => new InteractiveSelectionStep(config, _selector));
             _stepRegistry.RegisterStepFactory(WellKnownStepTypes.Border, config => new EffectCaptureStep(config));
             _stepRegistry.RegisterStepFactory(WellKnownStepTypes.Effect, config => new EffectCaptureStep(config));
+            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.Drawable, config => new DrawableStep(config));
+            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.SetVariable, config => new SetVariableStep(config));
             _stepRegistry.RegisterStepFactory(WellKnownStepTypes.ImmediateFeedback, config => new ImmediateFeedbackStep(config));
             _stepRegistry.RegisterStepFactory(WellKnownStepTypes.Processors, config => new ProcessorExecutionStep(config));
             _stepRegistry.RegisterStepFactory(WellKnownStepTypes.Destinations, config => new DestinationExportStep(config, _dispatcher));
             _stepRegistry.RegisterStepFactory(WellKnownStepTypes.Notification, config => new NotificationStep(config));
             _stepRegistry.RegisterStepFactory(WellKnownStepTypes.TextEffect, config => new TextEffectStep(config));
             _stepRegistry.RegisterStepFactory("ObfuscateText", config => new TextEffectStep(config));
-            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.Conditional, config =>
-            {
-                var cond = config.GetParameter<IStepCondition>("Condition");
-                var thenConfigs = config.GetParameter<List<RecipeStepConfig>>("ThenSteps");
-                var elseConfigs = config.GetParameter<List<RecipeStepConfig>>("ElseSteps");
-
-                var thenSteps = thenConfigs != null
-                    ? thenConfigs.Select(c => _stepRegistry.CreateStep(c)).Where(s => s != null)
-                    : Enumerable.Empty<ICaptureStep>();
-
-                var elseSteps = elseConfigs != null
-                    ? elseConfigs.Select(c => _stepRegistry.CreateStep(c)).Where(s => s != null)
-                    : Enumerable.Empty<ICaptureStep>();
-
-                return new ConditionalCaptureStep(config.Name, cond, thenSteps, elseSteps);
-            });
         }
 
         public async Task<CaptureFlowContext> ExecuteAsync(
@@ -144,9 +133,9 @@ namespace Greenshot.Pipeline
 
             try
             {
-                int stepCount = recipe.Steps?.Count ?? 0;
-                Log.InfoFormat("Starting capture flow: '{0}' ({1} step(s))", recipe.Name, stepCount);
-                context.LogStep($"Starting flow '{recipe.Name}' with {stepCount} configured step(s)");
+                int nodeCount = recipe.Nodes?.Count ?? 0;
+                Log.InfoFormat("Starting DAG capture flow: '{0}' ({1} node(s))", recipe.Name, nodeCount);
+                context.LogStep($"Starting DAG flow '{recipe.Name}' with {nodeCount} configured node(s)");
 
                 // WindowsGraphicsCapture beta tester hook
                 if (CoreConfig.IsBetaTester)
@@ -154,35 +143,7 @@ namespace Greenshot.Pipeline
                     CaptureHandler.CaptureScreenRectangle = WindowsGraphicsCaptureInterop.CaptureRectangle;
                 }
 
-                if (recipe.Steps != null)
-                {
-                    foreach (var stepConfig in recipe.Steps)
-                    {
-                        if (!stepConfig.Enabled)
-                        {
-                            context.LogStep($"Skipping disabled step: {stepConfig.Name} [{stepConfig.StepType}]");
-                            continue;
-                        }
-
-                        if (context.IsAborted || cancellationToken.IsCancellationRequested)
-                        {
-                            break;
-                        }
-
-                        var step = _stepRegistry.CreateStep(stepConfig);
-                        if (step == null)
-                        {
-                            Log.WarnFormat("Could not resolve executable step for type '{0}' ({1})", stepConfig.StepType, stepConfig.Name);
-                            context.LogStep($"Warning: unresolved step type '{stepConfig.StepType}'");
-                            continue;
-                        }
-
-                        context.LogStep($"Executing step: {step.Name}");
-                        Log.InfoFormat("Executing pipeline step: '{0}' [{1}]", step.Name, stepConfig.StepType);
-                        await step.ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
-                        Log.InfoFormat("Finished pipeline step: '{0}' [{1}]", step.Name, stepConfig.StepType);
-                    }
-                }
+                await _dagEngine.ExecuteAsync(recipe, context, cancellationToken).ConfigureAwait(false);
 
                 if (!context.IsAborted)
                 {

@@ -41,9 +41,9 @@ namespace Greenshot.Pipeline.Steps
         private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
 
         public string Name { get; }
-        public RecipeStepConfig Config { get; }
+        public RecipeNodeConfig Config { get; }
 
-        public ImmediateFeedbackStep(RecipeStepConfig config)
+        public ImmediateFeedbackStep(RecipeNodeConfig config)
         {
             Config = config ?? throw new ArgumentNullException(nameof(config));
             Name = config.Name ?? "ImmediateFeedbackStep";

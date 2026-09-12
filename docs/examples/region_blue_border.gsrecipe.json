@@ -20,20 +20,23 @@
       }
     }
   ],
-  "steps": [
+  "nodes": [
     {
+      "id": "source",
       "stepType": "Source",
       "parameters": {
         "sourceType": "Region"
       }
     },
     {
+      "id": "select",
       "stepType": "InteractiveSelection",
       "parameters": {
         "selectionMode": "Region"
       }
     },
     {
+      "id": "border",
       "stepType": "Effect",
       "name": "Add Blue Border",
       "parameters": {
@@ -43,6 +46,7 @@
       }
     },
     {
+      "id": "feedback",
       "stepType": "ImmediateFeedback",
       "name": "Camera Feedback",
       "parameters": {
@@ -50,6 +54,7 @@
       }
     },
     {
+      "id": "destination",
       "stepType": "Destinations",
       "name": "Open Editor",
       "parameters": {
@@ -58,5 +63,14 @@
         ]
       }
     }
-  ]
+  ],
+  "flow": {
+    "startNode": "source",
+    "transitions": {
+      "source": "select",
+      "select": "border",
+      "border": "feedback",
+      "feedback": "destination"
+    }
+  }
 }

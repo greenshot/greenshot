@@ -25,18 +25,18 @@ using Greenshot.Base.Recipes;
 namespace Greenshot.Base.Pipeline
 {
     /// <summary>
-    /// Registry responsible for creating executable ICaptureStep instances from RecipeStepConfig definitions.
+    /// Registry responsible for creating executable ICaptureStep instances from RecipeNodeConfig definitions.
     /// </summary>
     public interface IStepRegistry
     {
         /// <summary>
         /// Registers a factory for a given step type identifier.
         /// </summary>
-        void RegisterStepFactory(string stepType, Func<RecipeStepConfig, ICaptureStep> factory);
+        void RegisterStepFactory(string stepType, Func<RecipeNodeConfig, ICaptureStep> factory);
 
         /// <summary>
-        /// Instantiates an executable step from a step configuration.
+        /// Instantiates an executable step from a node configuration.
         /// </summary>
-        ICaptureStep CreateStep(RecipeStepConfig config);
+        ICaptureStep CreateStep(RecipeNodeConfig config);
     }
 }

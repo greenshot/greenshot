@@ -205,12 +205,12 @@ namespace Greenshot.UI
                 });
             }
 
-            // Populate Step descriptions
-            if (recipe?.Steps != null)
+            // Populate Node descriptions
+            if (recipe?.Nodes != null)
             {
-                for (int i = 0; i < recipe.Steps.Count; i++)
+                for (int i = 0; i < recipe.Nodes.Count; i++)
                 {
-                    var s = recipe.Steps[i];
+                    var s = recipe.Nodes[i];
                     string paramSummary = "";
                     if (string.Equals(s.StepType, WellKnownStepTypes.Border, StringComparison.OrdinalIgnoreCase))
                     {
@@ -220,13 +220,21 @@ namespace Greenshot.UI
                     {
                         paramSummary = $" [{s.GetParameter<string>("SourceType", "Region")}]";
                     }
+                    else if (string.Equals(s.StepType, WellKnownStepTypes.Drawable, StringComparison.OrdinalIgnoreCase))
+                    {
+                        paramSummary = $" [{s.GetParameter<string>("DrawableType", "Element")}]";
+                    }
+                    else if (string.Equals(s.StepType, WellKnownStepTypes.SetVariable, StringComparison.OrdinalIgnoreCase))
+                    {
+                        paramSummary = $" [{s.GetParameter<string>("Variable", "var")}]";
+                    }
                     else if (string.Equals(s.StepType, WellKnownStepTypes.Destinations, StringComparison.OrdinalIgnoreCase))
                     {
                         var dests = s.GetParameter<List<string>>("DestinationDesignations");
                         if (dests != null && dests.Count > 0) paramSummary = $" -> [{string.Join(", ", dests)}]";
                     }
 
-                    StepDescriptions.Add($"{i + 1}. {s.StepType}{paramSummary}");
+                    StepDescriptions.Add($"[{s.Id}] {s.StepType}{paramSummary}");
                 }
             }
 

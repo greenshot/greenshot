@@ -1,0 +1,141 @@
+{
+  "$schema": "../recipe.schema.json",
+  "version": "1.0",
+  "id": "recipe_dag_watermark_branching",
+  "name": "DAG Workflow with environment watermark and parallel feedback",
+  "description": "Demonstrates DAG branching, variable assignment, scoped user/machine environment variables, mathematical positioning expressions, and multi-drawable surface stamping.",
+  "triggers": [
+    {
+      "triggerType": "ContextMenu",
+      "name": "DAG Watermark Capture",
+      "parameters": {
+        "menuItemText": "DAG Environment Watermark Capture",
+        "group": "Recipes"
+      }
+    },
+    {
+      "triggerType": "Hotkey",
+      "parameters": {
+        "hotkey": "Ctrl + Shift + W"
+      }
+    }
+  ],
+  "nodes": [
+    {
+      "id": "capture_node",
+      "stepType": "Source",
+      "name": "Capture Screen Region",
+      "parameters": {
+        "sourceType": "Region"
+      }
+    },
+    {
+      "id": "select_node",
+      "stepType": "InteractiveSelection",
+      "name": "Select Area",
+      "parameters": {
+        "selectionMode": "Region",
+        "allowWindowSnapping": true
+      }
+    },
+    {
+      "id": "feedback_branch",
+      "stepType": "ImmediateFeedback",
+      "name": "Play Shutter Sound (Branch A)",
+      "parameters": {
+        "playSound": true
+      }
+    },
+    {
+      "id": "set_vars_node",
+      "stepType": "SetVariable",
+      "name": "Set Recipe Variables (Branch B)",
+      "parameters": {
+        "variables": {
+          "department": "Engineering QA",
+          "watermark_text": "Captured by ${user.username} on ${machine.computername} [${now:yyyy-MM-dd HH:mm}]"
+        }
+      }
+    },
+    {
+      "id": "watermark_node",
+      "stepType": "Drawable",
+      "name": "Stamp Drawables & Watermarks",
+      "parameters": {
+        "drawables": [
+          {
+            "type": "Rectangle",
+            "horizontalAnchor": "Right",
+            "verticalAnchor": "Bottom",
+            "width": 380,
+            "height": 40,
+            "offsetX": -15,
+            "offsetY": -15,
+            "fillColor": "rgba(0, 0, 0, 180)",
+            "lineColor": "#0078D7",
+            "lineThickness": 2,
+            "shadow": true
+          },
+          {
+            "type": "Text",
+            "horizontalAnchor": "Right",
+            "verticalAnchor": "Bottom",
+            "width": 370,
+            "height": 30,
+            "offsetX": -20,
+            "offsetY": -20,
+            "text": "${context.watermark_text}",
+            "textColor": "#FFFFFF",
+            "fontSize": 9.5,
+            "fontFamily": "Segoe UI",
+            "bold": true,
+            "shadow": false
+          },
+          {
+            "type": "StepLabel",
+            "horizontalAnchor": "Left",
+            "verticalAnchor": "Top",
+            "left": 20,
+            "top": 20,
+            "number": 1,
+            "fillColor": "#D83B01",
+            "lineColor": "#FFFFFF"
+          },
+          {
+            "type": "Emoji",
+            "horizontalAnchor": "Left",
+            "verticalAnchor": "Bottom",
+            "left": 20,
+            "top": "${payload.height - 50}",
+            "emoji": "🛡️",
+            "size": 32
+          }
+        ]
+      }
+    },
+    {
+      "id": "export_join",
+      "stepType": "Destinations",
+      "name": "Join Paths and Export to Editor",
+      "parameters": {
+        "destinationDesignations": [
+          "Editor",
+          "Clipboard"
+        ]
+      }
+    }
+  ],
+  "flow": {
+    "startNode": "capture_node",
+    "transitions": {
+      "capture_node": "select_node",
+      "select_node": [
+        "feedback_branch",
+        "set_vars_node"
+      ],
+      "set_vars_node": "watermark_node",
+      "feedback_branch": "export_join",
+      "watermark_node": "export_join"
+    }
+  }
+}
