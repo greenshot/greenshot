@@ -90,8 +90,8 @@ namespace Greenshot.Base.Core.FileFormatHandlers
             extension = NormalizeExtension(extension);
 
             var saveFileFormatHandlers = fileFormatHandlers
-                .Where(ffh => ffh.Supports(FileFormatHandlerActions.LoadFromStream, extension))
-                .OrderBy(ffh => ffh.PriorityFor(FileFormatHandlerActions.LoadFromStream, extension)).ToList();
+                .Where(ffh => ffh.Supports(FileFormatHandlerActions.SaveToStream, extension))
+                .OrderBy(ffh => ffh.PriorityFor(FileFormatHandlerActions.SaveToStream, extension)).ToList();
 
             if (!saveFileFormatHandlers.Any())
             {
