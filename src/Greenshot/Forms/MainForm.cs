@@ -787,7 +787,7 @@ namespace Greenshot.Forms
             };
             _recipesMenuItem.DropDownItems.Add(reloadItem);
 
-            var editorItem = new ToolStripMenuItem(Language.GetString("contextmenu_recipeeditor") ?? "Recipe Editor (Web)...");
+            var editorItem = new ToolStripMenuItem(Language.GetString("contextmenu_recipeeditor") ?? "Recipe Editor...");
             editorItem.Click += (s, ev) =>
             {
                 OnOpenRecipeEditorClicked();
@@ -795,19 +795,30 @@ namespace Greenshot.Forms
             _recipesMenuItem.DropDownItems.Add(editorItem);
         }
 
+        private static UI.RecipeEditor.RecipeEditorWindow _activeRecipeEditorWindow;
+
         private void OnOpenRecipeEditorClicked()
         {
             try
             {
-                Process.Start(new ProcessStartInfo
+                if (_activeRecipeEditorWindow != null && _activeRecipeEditorWindow.IsLoaded)
                 {
-                    FileName = "https://getgreenshot.org/recipe-editor/",
-                    UseShellExecute = true
-                });
+                    if (_activeRecipeEditorWindow.WindowState == System.Windows.WindowState.Minimized)
+                    {
+                        _activeRecipeEditorWindow.WindowState = System.Windows.WindowState.Normal;
+                    }
+                    _activeRecipeEditorWindow.Activate();
+                    _activeRecipeEditorWindow.Focus();
+                    return;
+                }
+
+                _activeRecipeEditorWindow = new UI.RecipeEditor.RecipeEditorWindow(RecipeManager.Instance);
+                _activeRecipeEditorWindow.Closed += (s, e) => _activeRecipeEditorWindow = null;
+                _activeRecipeEditorWindow.Show();
             }
             catch (Exception ex)
             {
-                Log.Error("Failed to open recipe editor in browser.", ex);
+                Log.Error("Failed to open native recipe editor window.", ex);
             }
         }
 

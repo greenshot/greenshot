@@ -64,6 +64,8 @@ namespace Greenshot.Pipeline.Steps
             // backward-compatible behaviour for recipes that have a single Processors step).
             var timingParam = Config.GetParameter<string>("Timing");
             if (!string.IsNullOrEmpty(timingParam) &&
+                !string.Equals(timingParam, "Any", StringComparison.OrdinalIgnoreCase) &&
+                !string.Equals(timingParam, "All", StringComparison.OrdinalIgnoreCase) &&
                 Enum.TryParse<ProcessorTiming>(timingParam, ignoreCase: true, out var requestedTiming))
             {
                 processors = processors
@@ -71,6 +73,33 @@ namespace Greenshot.Pipeline.Steps
                     .Where(p => p.PreferredTiming == requestedTiming)
                     .Cast<IProcessor>()
                     .ToList();
+            }
+
+            string mode = Config.GetParameter<string>("ProcessorMode");
+            if (string.Equals(mode, "OCR", StringComparison.OrdinalIgnoreCase))
+            {
+                processors = processors
+                    .Where(p => p.GetType().Name.IndexOf("Ocr", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                                p.Description.IndexOf("Ocr", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                                (p.Designation != null && p.Designation.IndexOf("Ocr", StringComparison.OrdinalIgnoreCase) >= 0))
+                    .ToList();
+            }
+            else if (string.Equals(mode, "Selected", StringComparison.OrdinalIgnoreCase))
+            {
+                bool runOcr = Config.GetParameter<bool?>("RunOcr") ?? true;
+                bool runTitleFix = Config.GetParameter<bool?>("RunTitleFix") ?? true;
+                bool runPlugins = Config.GetParameter<bool?>("RunPlugins") ?? true;
+
+                processors = processors.Where(p =>
+                {
+                    bool isOcr = p.GetType().Name.IndexOf("Ocr", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                                 p.Description.IndexOf("Ocr", StringComparison.OrdinalIgnoreCase) >= 0;
+                    bool isTitleFix = p.GetType().Name.IndexOf("Title", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                                      p.Description.IndexOf("Title", StringComparison.OrdinalIgnoreCase) >= 0;
+                    if (isOcr) return runOcr;
+                    if (isTitleFix) return runTitleFix;
+                    return runPlugins;
+                }).ToList();
             }
 
             var processorIds = Config.GetParameter<List<string>>("ProcessorIds");

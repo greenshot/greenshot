@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026  Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -229,6 +229,26 @@ namespace Greenshot.Editor.Drawing
         }
 
         /// <summary>
+        /// Explicitly set the location of the speech bubble tail gripper.
+        /// </summary>
+        public void SetTailLocation(NativePoint location)
+        {
+            if (TargetAdorner == null)
+            {
+                InitTargetAdorner(location);
+            }
+            else
+            {
+                TargetAdorner.Location = location;
+            }
+        }
+
+        public void SetTailLocation(int x, int y)
+        {
+            SetTailLocation(new NativePoint(x, y));
+        }
+
+        /// <summary>
         /// This is to draw the actual container
         /// </summary>
         /// <param name="graphics"></param>
@@ -237,7 +257,8 @@ namespace Greenshot.Editor.Drawing
         {
             if (TargetAdorner == null)
             {
-                return;
+                var rectInit = new NativeRect(Left, Top, Width, Height).Normalize();
+                InitTargetAdorner(new NativePoint(rectInit.Left - 20, rectInit.Bottom + 25));
             }
 
             graphics.SmoothingMode = SmoothingMode.HighQuality;

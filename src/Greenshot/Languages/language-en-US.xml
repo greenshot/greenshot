@@ -62,7 +62,7 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="contextmenu_openrecentcapture">Open last capture location</resource>
 		<resource name="contextmenu_quicksettings">Quick preferences</resource>
 		<resource name="contextmenu_recipes">Recipes</resource>
-		<resource name="contextmenu_recipeeditor">Recipe Editor (Web)...</resource>
+		<resource name="contextmenu_recipeeditor">Recipe Editor...</resource>
 		<resource name="contextmenu_reloadrecipes">Reload Recipes</resource>
 		<resource name="contextmenu_settings">Preferences...</resource>
 		<resource name="destination_exportfailed">Error while exporting to {0}. Please try again.</resource>

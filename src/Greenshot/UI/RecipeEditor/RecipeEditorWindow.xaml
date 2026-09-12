@@ -1,0 +1,1735 @@
+<Window x:Class="Greenshot.UI.RecipeEditor.RecipeEditorWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:nodify="clr-namespace:Nodify;assembly=Nodify"
+        xmlns:vm="clr-namespace:Greenshot.UI.RecipeEditor.ViewModels"
+        xmlns:conv="clr-namespace:Greenshot.UI.RecipeEditor.Converters"
+        mc:Ignorable="d"
+        Title="Greenshot - Recipe Visual Editor"
+        Height="800" Width="1240"
+        MinHeight="580" MinWidth="900"
+        WindowStartupLocation="CenterScreen"
+        FontFamily="Segoe UI, Segoe UI Variable Display, Tahoma, Arial"
+        Background="{Binding WindowBackgroundBrush}">
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="40"
+                      ResizeBorderThickness="5"
+                      CornerRadius="0"
+                      GlassFrameThickness="0"
+                      UseAeroCaptionButtons="False" />
+    </WindowChrome.WindowChrome>
+
+    <Window.InputBindings>
+        <KeyBinding Key="Delete" Command="{Binding DeleteSelectedCommand}"/>
+        <KeyBinding Key="Back" Command="{Binding DeleteSelectedCommand}"/>
+        <KeyBinding Key="S" Modifiers="Control" Command="{Binding SaveRecipeCommand}"/>
+        <KeyBinding Key="O" Modifiers="Control" Command="{Binding OpenRecipeCommand}"/>
+        <KeyBinding Key="N" Modifiers="Control" Command="{Binding NewRecipeCommand}"/>
+        <KeyBinding Key="L" Modifiers="Control" Command="{Binding AutoLayoutCommand}"/>
+    </Window.InputBindings>
+
+    <Window.Resources>
+        <conv:StepTypeToColorConverter x:Key="StepColorConv"/>
+        <conv:StepTypeToIconConverter x:Key="StepIconConv"/>
+        <conv:BoolToVisibilityConverter x:Key="BoolToVis"/>
+        <conv:BoolToVisibilityConverter x:Key="InvertBoolToVis" Invert="True"/>
+        <conv:StringToVisibilityConverter x:Key="StringToVis"/>
+        <conv:StringToBrushConverter x:Key="StringToBrushConv"/>
+
+        <!-- Modern Caption Button Style -->
+        <Style x:Key="CaptionBtnStyle" TargetType="Button">
+            <Setter Property="WindowChrome.IsHitTestVisibleInChrome" Value="True"/>
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="Width" Value="46"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="{Binding TextPrimaryBrush}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#26888888"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#40888888"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Modern Caption Close Button Style -->
+        <Style x:Key="CaptionCloseBtnStyle" TargetType="Button">
+            <Setter Property="WindowChrome.IsHitTestVisibleInChrome" Value="True"/>
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="Width" Value="46"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="{Binding TextPrimaryBrush}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}">
+                            <Path x:Name="crossPath" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                  Width="10" Height="10" Stretch="Uniform"
+                                  Stroke="{TemplateBinding Foreground}" StrokeThickness="1.5"
+                                  Data="M 0,0 L 10,10 M 10,0 L 0,10"
+                                  SnapsToDevicePixels="True"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#E81123"/>
+                                <Setter TargetName="crossPath" Property="Stroke" Value="White"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#C42B1C"/>
+                                <Setter TargetName="crossPath" Property="Stroke" Value="White"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Base Toolbar Button Style -->
+        <Style x:Key="ToolbarBtn" TargetType="Button">
+            <Setter Property="Background" Value="{Binding CardBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{Binding TextPrimaryBrush}"/>
+            <Setter Property="BorderBrush" Value="{Binding CardBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="10,4"/>
+            <Setter Property="Margin" Value="0,0,6,0"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="{Binding BadgeBackgroundBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Opacity" Value="0.8"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="border" Property="Opacity" Value="0.4"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Danger / Delete Button Style -->
+        <Style x:Key="DangerBtn" TargetType="Button" BasedOn="{StaticResource ToolbarBtn}">
+            <Setter Property="Background" Value="#1AEC2B2B"/>
+            <Setter Property="BorderBrush" Value="#CCEC2B2B"/>
+            <Setter Property="Foreground" Value="#FFEC2B2B"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+
+        <!-- Trigger Delete Button Style -->
+        <Style x:Key="TriggerDeleteBtn" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="#FF6B6B"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Width" Value="24"/>
+            <Setter Property="Height" Value="24"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="b" Background="{TemplateBinding Background}" CornerRadius="4">
+                            <TextBlock Text="✕" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="11" FontWeight="Bold" Foreground="{TemplateBinding Foreground}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="b" Property="Background" Value="#33FF6B6B"/>
+                                <Setter Property="Foreground" Value="#FFFF4444"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Modern Themed Context Menu -->
+        <Style TargetType="{x:Type ContextMenu}">
+            <Setter Property="Background" Value="{Binding CardBackgroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{Binding CardBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="4,4"/>
+            <Setter Property="Foreground" Value="{Binding TextPrimaryBrush}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ContextMenu}">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="6" Padding="{TemplateBinding Padding}"
+                                SnapsToDevicePixels="True">
+                            <ItemsPresenter/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Modern Themed Menu Item -->
+        <Style TargetType="{x:Type MenuItem}">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{Binding TextPrimaryBrush}"/>
+            <Setter Property="Padding" Value="8,5"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type MenuItem}">
+                        <Border x:Name="border" Background="{TemplateBinding Background}"
+                                CornerRadius="4" Padding="{TemplateBinding Padding}"
+                                SnapsToDevicePixels="True">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" SharedSizeGroup="Icon"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto" SharedSizeGroup="Shortcut"/>
+                                </Grid.ColumnDefinitions>
+                                <ContentPresenter Grid.Column="0" ContentSource="Icon" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                <ContentPresenter Grid.Column="1" ContentSource="Header" VerticalAlignment="Center" RecognizesAccessKey="True"/>
+                                <TextBlock Grid.Column="2" Text="{TemplateBinding InputGestureText}" Margin="12,0,0,0"
+                                           Foreground="{Binding TextSecondaryBrush}" VerticalAlignment="Center" FontSize="10"/>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="{Binding BadgeBackgroundBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.4"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Modern Themed Menu Separator -->
+        <Style TargetType="{x:Type Separator}">
+            <Setter Property="Background" Value="{Binding CardBorderBrush}"/>
+            <Setter Property="Margin" Value="4,3"/>
+            <Setter Property="Height" Value="1"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Separator}">
+                        <Border Background="{TemplateBinding Background}" Height="1" SnapsToDevicePixels="True"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Primary Accent Button -->
+        <Style x:Key="PrimaryBtn" TargetType="Button" BasedOn="{StaticResource ToolbarBtn}">
+            <Setter Property="Background" Value="{Binding AccentBrush}"/>
+            <Setter Property="BorderBrush" Value="{Binding AccentBrush}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+
+        <!-- Toolbox Item Button -->
+        <Style x:Key="ToolboxItemBtn" TargetType="Button">
+            <Setter Property="Background" Value="{Binding CardBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{Binding TextPrimaryBrush}"/>
+            <Setter Property="BorderBrush" Value="{Binding CardBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="Margin" Value="0,2"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="{Binding BadgeBackgroundBrush}"/>
+                                <Setter TargetName="border" Property="BorderBrush" Value="{Binding AccentBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Inspector TabItem Style -->
+        <Style x:Key="InspectorTabItem" TargetType="TabItem">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{Binding TextSecondaryBrush}"/>
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabItem">
+                        <Border x:Name="border" Background="{TemplateBinding Background}"
+                                BorderThickness="0,0,0,2" BorderBrush="Transparent"
+                                Padding="{TemplateBinding Padding}" Margin="0,0,8,0" SnapsToDevicePixels="True">
+                            <ContentPresenter ContentSource="Header"
+                                              HorizontalAlignment="Center" VerticalAlignment="Center"
+                                              RecognizesAccessKey="True"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="border" Property="BorderBrush" Value="{Binding AccentBrush}"/>
+                                <Setter Property="Foreground" Value="{Binding TextPrimaryBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="{Binding TextPrimaryBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Node Template (Top/Bottom Flow) -->
+        <DataTemplate DataType="{x:Type vm:StepNodeViewModel}">
+            <Border Background="{Binding DataContext.CardBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                    BorderBrush="{Binding DataContext.CardBorderBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    MinWidth="180" MaxWidth="250"
+                    SnapsToDevicePixels="True">
+                <Border.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="⭐ Set as Start Step" Command="{Binding SetAsStartNodeCommand}"/>
+                        <Separator/>
+                        <MenuItem Header="🗑️ Delete Step" Command="{Binding DeleteNodeCommand}"/>
+                    </ContextMenu>
+                </Border.ContextMenu>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/> <!-- Top Pin (Input) -->
+                        <RowDefinition Height="Auto"/> <!-- Header -->
+                        <RowDefinition Height="*"/>    <!-- Content / Summary -->
+                        <RowDefinition Height="Auto"/> <!-- Bottom Pin (Output) -->
+                    </Grid.RowDefinitions>
+
+                    <!-- Top Input Pin (Vertical Flow) -->
+                    <nodify:NodeInput Grid.Row="0"
+                                      DataContext="{Binding InputPort}"
+                                      Header=""
+                                      Orientation="Vertical"
+                                      HorizontalAlignment="Center"
+                                      Margin="0,-9,0,-3"
+                                      Anchor="{Binding Anchor, Mode=OneWayToSource}"
+                                      IsConnected="{Binding IsConnected}"/>
+
+                    <!-- Header -->
+                    <Border Grid.Row="1" Background="{Binding StepType, Converter={StaticResource StepColorConv}}"
+                            CornerRadius="7,7,0,0" Padding="10,5">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="{Binding StepType, Converter={StaticResource StepIconConv}}"
+                                       FontSize="13" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1" Text="{Binding DisplayName}"
+                                       FontWeight="Bold" FontSize="12" Foreground="White"
+                                       VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                            <Border Grid.Column="2" Background="#238636" CornerRadius="3"
+                                    Padding="4,1" Margin="4,0,0,0"
+                                    Visibility="{Binding IsStartNode, Converter={StaticResource BoolToVis}}">
+                                <TextBlock Text="START" FontSize="9" FontWeight="Bold" Foreground="White"/>
+                            </Border>
+                        </Grid>
+                    </Border>
+
+                    <!-- Content -->
+                    <Border Grid.Row="2" Padding="10,8">
+                        <StackPanel>
+                            <TextBlock Text="{Binding Id}" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                       FontFamily="Consolas" Margin="0,0,0,2"/>
+                            <TextBlock Text="{Binding Summary}" FontSize="11" Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                       TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Bottom Output Pin (Vertical Flow) -->
+                    <nodify:NodeOutput Grid.Row="3"
+                                       DataContext="{Binding OutputPort}"
+                                       Header=""
+                                       Orientation="Vertical"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,-3,0,-9"
+                                       Anchor="{Binding Anchor, Mode=OneWayToSource}"
+                                       IsConnected="{Binding IsConnected}"/>
+                </Grid>
+            </Border>
+        </DataTemplate>
+
+        <Style x:Key="ItemContainerStyle" TargetType="{x:Type nodify:ItemContainer}">
+            <Setter Property="Location" Value="{Binding Location, Mode=TwoWay}" />
+            <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+        </Style>
+    </Window.Resources>
+
+    <Border BorderThickness="1" BorderBrush="{Binding CardBorderBrush}" Background="{Binding WindowBackgroundBrush}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="40"/> <!-- Custom Titlebar Chrome -->
+                <RowDefinition Height="Auto"/> <!-- Main Toolbar -->
+                <RowDefinition Height="*"/>    <!-- Canvas & Sidebars -->
+                <RowDefinition Height="Auto"/> <!-- Status Bar -->
+            </Grid.RowDefinitions>
+
+            <!-- Custom Chrome Title Bar -->
+            <Grid Grid.Row="0" Background="Transparent" MouseLeftButtonDown="OnTitleBarMouseDown">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="14,0,0,0" VerticalAlignment="Center">
+                    <TextBlock Text="📷" FontSize="14" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                    <TextBlock Text="Greenshot" FontWeight="Bold" FontSize="12" Foreground="{Binding TextPrimaryBrush}" VerticalAlignment="Center"/>
+                    <TextBlock Text=" — Recipe Visual Editor" FontSize="12" Foreground="{Binding TextSecondaryBrush}" VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <!-- Window Caption Control Buttons -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                    <Button Style="{StaticResource CaptionBtnStyle}" Click="OnMinimizeClicked" ToolTip="Minimize">
+                        <Rectangle Width="10" Height="1.5" Fill="{Binding TextPrimaryBrush}" SnapsToDevicePixels="True" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    </Button>
+                    <Button Style="{StaticResource CaptionBtnStyle}" Click="OnMaximizeClicked" ToolTip="Maximize / Restore">
+                        <Rectangle Width="10" Height="10" Stroke="{Binding TextPrimaryBrush}" StrokeThickness="1.5" Fill="Transparent" SnapsToDevicePixels="True" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    </Button>
+                    <Button Style="{StaticResource CaptionCloseBtnStyle}" Click="OnCloseTitleBarClicked" ToolTip="Close"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- Main Toolbar -->
+            <Border Grid.Row="1" Background="{Binding CardBackgroundBrush}" BorderBrush="{Binding CardBorderBrush}" BorderThickness="0,1,0,1" Padding="10,6">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Recipe Selector -->
+                    <StackPanel Orientation="Horizontal" Grid.Column="0" VerticalAlignment="Center">
+                        <TextBlock Text="Recipe:" FontWeight="SemiBold" Foreground="{Binding TextSecondaryBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <ComboBox ItemsSource="{Binding AvailableRecipes}"
+                                  SelectedItem="{Binding ActiveRecipe, Mode=TwoWay}"
+                                  DisplayMemberPath="Name"
+                                  Width="220" Height="28" Margin="0,0,10,0"/>
+                    </StackPanel>
+
+                    <!-- Actions Toolbar -->
+                    <StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Left" Margin="15,0,0,0">
+                        <Button Content="New" Style="{StaticResource ToolbarBtn}" Command="{Binding NewRecipeCommand}" ToolTip="Create new recipe"/>
+                        <Button Content="Open..." Style="{StaticResource ToolbarBtn}" Command="{Binding OpenRecipeCommand}" ToolTip="Open recipe file from disk"/>
+                        <Button Content="Save" Style="{StaticResource ToolbarBtn}" Command="{Binding SaveRecipeCommand}" ToolTip="Save current recipe"/>
+                        <Button Content="Save As..." Style="{StaticResource ToolbarBtn}" Command="{Binding SaveAsCommand}" ToolTip="Save recipe to new file"/>
+                        <Separator Width="1" Background="{Binding CardBorderBrush}" Margin="6,2"/>
+                        <Button Content="Auto-Layout" Style="{StaticResource ToolbarBtn}" Command="{Binding AutoLayoutCommand}" ToolTip="Auto-organize DAG layout"/>
+                        <Button Content="{}{ } JSON" Style="{StaticResource ToolbarBtn}" Command="{Binding ToggleJsonViewCommand}" ToolTip="View / Edit Raw Recipe JSON"/>
+                    </StackPanel>
+
+                    <!-- Right Action: Test Run -->
+                    <StackPanel Orientation="Horizontal" Grid.Column="2">
+                        <Button Content="▶ Test Run Recipe" Style="{StaticResource PrimaryBtn}" Command="{Binding TestRunCommand}" ToolTip="Execute capture recipe in Greenshot"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Main Workspace -->
+            <Grid Grid.Row="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="220" MinWidth="180" MaxWidth="300"/> <!-- Left Toolbox -->
+                    <ColumnDefinition Width="*"/>                                 <!-- Nodify DAG Canvas -->
+                    <ColumnDefinition Width="320" MinWidth="260" MaxWidth="440"/> <!-- Right Properties Inspector -->
+                </Grid.ColumnDefinitions>
+
+                <!-- Left Toolbox -->
+                <Border Grid.Column="0" Background="{Binding WindowBackgroundBrush}" BorderBrush="{Binding CardBorderBrush}" BorderThickness="0,0,1,0" Padding="8">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel>
+                            <TextBlock Text="STEP TOOLBOX" FontWeight="Bold" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="4,4,0,8"/>
+
+                            <!-- 1. Acquisition -->
+                            <TextBlock Text="ACQUISITION" FontWeight="SemiBold" FontSize="10" Foreground="{Binding TextSecondaryBrush}" Margin="4,8,0,4"/>
+                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="Source">
+                                <TextBlock Text="📷 Source (Acquisition)"/>
+                            </Button>
+                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="InteractiveSelection">
+                                <TextBlock Text="🔲 Interactive Selection"/>
+                            </Button>
+
+                            <!-- 2. Filters & Effects -->
+                            <TextBlock Text="FILTERS &amp; EFFECTS" FontWeight="SemiBold" FontSize="10" Foreground="{Binding TextSecondaryBrush}" Margin="4,12,0,4"/>
+                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="Effect">
+                                <TextBlock Text="✨ Effect (Border/Shadow/Filters)"/>
+                            </Button>
+                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="TextEffect">
+                                <TextBlock Text="🛡️ Text Effect / DLP"/>
+                            </Button>
+
+                            <!-- 3. Annotations & Variables -->
+                            <TextBlock Text="ANNOTATIONS &amp; DATA" FontWeight="SemiBold" FontSize="10" Foreground="{Binding TextSecondaryBrush}" Margin="4,12,0,4"/>
+                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="Drawable">
+                                <TextBlock Text="🎨 Drawable Surface"/>
+                            </Button>
+                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="SetVariable">
+                                <TextBlock Text="💲 Set Variable"/>
+                            </Button>
+
+                            <!-- 4. Execution & Logic -->
+                            <TextBlock Text="FLOW &amp; FEEDBACK" FontWeight="SemiBold" FontSize="10" Foreground="{Binding TextSecondaryBrush}" Margin="4,12,0,4"/>
+                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="Conditional">
+                                <TextBlock Text="🔀 Conditional Branch"/>
+                            </Button>
+                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="ImmediateFeedback">
+                                <TextBlock Text="🔊 Shutter Sound"/>
+                            </Button>
+                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="Notification">
+                                <TextBlock Text="🔔 Toast Notification"/>
+                            </Button>
+                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="Processors">
+                                <TextBlock Text="⚙️ Processors / OCR"/>
+                            </Button>
+
+                            <!-- 5. Destinations & Output -->
+                            <TextBlock Text="OUTPUT &amp; DESTINATIONS" FontWeight="SemiBold" FontSize="10" Foreground="{Binding TextSecondaryBrush}" Margin="4,12,0,4"/>
+                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="SaveFile">
+                                <TextBlock Text="💾 Save to File"/>
+                            </Button>
+                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="Clipboard">
+                                <TextBlock Text="📋 System Clipboard"/>
+                            </Button>
+                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="Editor">
+                                <TextBlock Text="🎨 Image Editor"/>
+                            </Button>
+                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="Printer">
+                                <TextBlock Text="🖨️ Printer"/>
+                            </Button>
+                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="Email">
+                                <TextBlock Text="📧 E-Mail"/>
+                            </Button>
+                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="CustomDestination">
+                                <TextBlock Text="↗️ Custom Destination"/>
+                            </Button>
+                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="Destinations">
+                                <TextBlock Text="↗️ Multi-Destinations"/>
+                            </Button>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Border>
+
+                <!-- Center Nodify DAG Canvas -->
+                <Grid Grid.Column="1" Background="{Binding WindowBackgroundBrush}">
+                    <nodify:NodifyEditor x:Name="EditorCanvas"
+                                         ItemsSource="{Binding Nodes}"
+                                         SelectedItem="{Binding SelectedNode, Mode=TwoWay}"
+                                         SelectedConnection="{Binding SelectedConnection, Mode=TwoWay}"
+                                         ItemContainerStyle="{StaticResource ItemContainerStyle}"
+                                         Connections="{Binding Connections}"
+                                         PendingConnection="{Binding PendingConnection}"
+                                         DisconnectConnectorCommand="{Binding DisconnectConnectorCommand}">
+                        <nodify:NodifyEditor.PendingConnectionTemplate>
+                            <DataTemplate DataType="{x:Type vm:PendingConnectionViewModel}">
+                                <nodify:PendingConnection StartedCommand="{Binding StartedCommand}"
+                                                          CompletedCommand="{Binding CompletedCommand}"
+                                                          Source="{Binding Source, Mode=TwoWay}"
+                                                          Target="{Binding Target, Mode=TwoWay}"
+                                                          TargetAnchor="{Binding TargetLocation}"
+                                                          IsVisible="{Binding IsVisible, Mode=TwoWay}"
+                                                          Stroke="#0098FF"
+                                                          StrokeThickness="2.5" />
+                            </DataTemplate>
+                        </nodify:NodifyEditor.PendingConnectionTemplate>
+                        <nodify:NodifyEditor.ConnectionTemplate>
+                            <DataTemplate DataType="{x:Type vm:StepConnectionViewModel}">
+                                <nodify:Connection Source="{Binding Source.Anchor}"
+                                                   Target="{Binding Target.Anchor}"
+                                                   SourceOrientation="Vertical"
+                                                   TargetOrientation="Vertical"
+                                                   Spacing="0"
+                                                   ArrowEnds="End"
+                                                   Stroke="{Binding IsCycle, Converter={StaticResource StepColorConv}, ConverterParameter=cycle}"
+                                                   StrokeThickness="2.5"
+                                                   Cursor="Hand"
+                                                   DisconnectCommand="{Binding DisconnectCommand}">
+                                    <nodify:Connection.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Header="🗑️ Delete Connection" Command="{Binding DisconnectCommand}"/>
+                                        </ContextMenu>
+                                    </nodify:Connection.ContextMenu>
+                                </nodify:Connection>
+                            </DataTemplate>
+                        </nodify:NodifyEditor.ConnectionTemplate>
+                    </nodify:NodifyEditor>
+
+                    <!-- In-Canvas JSON Editor Overlay -->
+                    <Border Background="{Binding CardBackgroundBrush}" BorderBrush="{Binding CardBorderBrush}" BorderThickness="1" CornerRadius="6"
+                            Margin="30" Padding="15"
+                            Visibility="{Binding IsJsonViewVisible, Converter={StaticResource BoolToVis}}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="Recipe JSON Definition" FontWeight="Bold" FontSize="14" Foreground="{Binding TextPrimaryBrush}" Margin="0,0,0,10"/>
+                            <TextBox Grid.Row="1" Text="{Binding RawJsonText, Mode=TwoWay}"
+                                     FontFamily="Consolas" FontSize="12"
+                                     Background="{Binding WindowBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}"
+                                     AcceptsReturn="True" AcceptsTab="True"
+                                     VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"/>
+                            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+                                <Button Content="Apply Changes" Style="{StaticResource PrimaryBtn}" Command="{Binding ApplyJsonCommand}"/>
+                                <Button Content="Close" Style="{StaticResource ToolbarBtn}" Command="{Binding ToggleJsonViewCommand}"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <!-- Right Sidebar: Properties & Step Inspector / Recipe & Triggers Tabs -->
+                <Border Grid.Column="2" Background="{Binding WindowBackgroundBrush}" BorderBrush="{Binding CardBorderBrush}" BorderThickness="1,0,0,0">
+                    <TabControl SelectedIndex="{Binding SelectedInspectorTabIndex, Mode=TwoWay}"
+                                Background="Transparent" BorderThickness="0" Margin="4,4,4,4">
+                        <!-- Tab 1: Step Inspector -->
+                        <TabItem Header="⚙️ Step Inspector" Style="{StaticResource InspectorTabItem}">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="6,8,6,8">
+                                <StackPanel>
+                                    <!-- When a node is selected -->
+                                    <StackPanel Visibility="{Binding HasSelectedNode, Converter={StaticResource BoolToVis}}">
+                                        <!-- Start Step Status / Toggle -->
+                                        <Border Background="{Binding CardBackgroundBrush}" BorderBrush="{Binding CardBorderBrush}" BorderThickness="1" CornerRadius="6" Padding="10,8" Margin="0,0,0,10">
+                                            <StackPanel>
+                                                <Grid Margin="0,0,0,6">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <StackPanel VerticalAlignment="Center" Margin="0,0,6,0">
+                                                        <TextBlock Text="Flow Entry Point" FontWeight="SemiBold" FontSize="11" Foreground="{Binding TextPrimaryBrush}"/>
+                                                        <TextBlock Text="Defines which step starts the recipe" FontSize="10" Foreground="{Binding TextSecondaryBrush}" TextWrapping="Wrap"/>
+                                                    </StackPanel>
+                                                    <Border Grid.Column="1" Background="#238636" CornerRadius="4" Padding="6,2" VerticalAlignment="Center"
+                                                            Visibility="{Binding SelectedNode.IsStartNode, Converter={StaticResource BoolToVis}}">
+                                                        <TextBlock Text="⭐ START STEP" FontWeight="Bold" FontSize="10" Foreground="White"/>
+                                                    </Border>
+                                                </Grid>
+                                                <WrapPanel Orientation="Horizontal">
+                                                    <Button Content="⭐ Set as Start Step" Style="{StaticResource ToolbarBtn}" Margin="0,0,6,0"
+                                                            Command="{Binding SelectedNode.SetAsStartNodeCommand}"
+                                                            Visibility="{Binding SelectedNode.IsStartNode, Converter={StaticResource InvertBoolToVis}}"
+                                                            ToolTip="Make this step the entry point of the recipe"/>
+                                                    <Button Content="🗑️ Delete Step" Style="{StaticResource DangerBtn}"
+                                                            Command="{Binding DeleteSelectedCommand}"
+                                                            ToolTip="Delete this step from the recipe"/>
+                                                </WrapPanel>
+                                            </StackPanel>
+                                        </Border>
+
+                                        <!-- Node Metadata -->
+                                        <TextBlock Text="Node ID" FontSize="11" Foreground="{Binding TextSecondaryBrush}"/>
+                                        <TextBox Text="{Binding SelectedNode.Id, Mode=OneWay}" IsReadOnly="True"
+                                                 Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextSecondaryBrush}" FontFamily="Consolas"
+                                                 Padding="6,4" Margin="0,2,0,8"/>
+
+                                        <TextBlock Text="Step Type" FontSize="11" Foreground="{Binding TextSecondaryBrush}"/>
+                                        <TextBox Text="{Binding SelectedNode.StepType, Mode=OneWay}" IsReadOnly="True"
+                                                 Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextSecondaryBrush}"
+                                                 Padding="6,4" Margin="0,2,0,8"/>
+
+                                        <TextBlock Text="Display Name / Label" FontSize="11" Foreground="{Binding TextSecondaryBrush}"/>
+                                        <TextBox Text="{Binding SelectedNode.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                 Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}"
+                                                 Padding="6,4" Margin="0,2,0,12"/>
+
+                                        <Separator Background="{Binding CardBorderBrush}" Margin="0,4,0,12"/>
+                                        <TextBlock Text="STEP PARAMETERS" FontWeight="Bold" FontSize="10" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,8"/>
+
+                                        <!-- 1. Source Step Inspector -->
+                                        <StackPanel Visibility="{Binding SelectedNode.StepType, Converter={StaticResource StringToVis}, ConverterParameter=Source}">
+                                            <TextBlock Text="Source Type" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <ComboBox SelectedValue="{Binding SelectedNode.SourceType, Mode=TwoWay}"
+                                                      SelectedValuePath="Tag" Margin="0,0,0,8">
+                                                <ComboBoxItem Content="Region (Interactive select)" Tag="Region"/>
+                                                <ComboBoxItem Content="Window (Window picker)" Tag="Window"/>
+                                                <ComboBoxItem Content="ActiveWindow (Focused window)" Tag="ActiveWindow"/>
+                                                <ComboBoxItem Content="FullScreen (All displays)" Tag="FullScreen"/>
+                                                <ComboBoxItem Content="LastRegion (Repeat region)" Tag="LastRegion"/>
+                                                <ComboBoxItem Content="Clipboard (From clipboard image)" Tag="Clipboard"/>
+                                                <ComboBoxItem Content="File (Load from disk)" Tag="File"/>
+                                                <ComboBoxItem Content="TextOcr (Screen OCR capture)" Tag="TextOcr"/>
+                                            </ComboBox>
+
+                                            <StackPanel Visibility="{Binding SelectedNode.IsWindowSource, Converter={StaticResource BoolToVis}}">
+                                                <TextBlock Text="Window Title Pattern (Regex)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                <TextBox Text="{Binding SelectedNode.WindowTitlePattern, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                         Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                         Padding="6,4" Margin="0,0,0,8"/>
+
+                                                <TextBlock Text="Process Name" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                <TextBox Text="{Binding SelectedNode.ProcessName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                         Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                         Padding="6,4" Margin="0,0,0,8"/>
+                                            </StackPanel>
+
+                                            <TextBlock Text="Capture Mouse Cursor" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <ComboBox SelectedValue="{Binding SelectedNode.CaptureMouseCursorMode, Mode=TwoWay}"
+                                                      SelectedValuePath="Tag" Margin="0,0,0,8">
+                                                <ComboBoxItem Content="Dynamic (from ini)" Tag=""/>
+                                                <ComboBoxItem Content="Always True" Tag="true"/>
+                                                <ComboBoxItem Content="Always False" Tag="false"/>
+                                            </ComboBox>
+
+                                            <TextBlock Text="Delay (ms)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <TextBox Text="{Binding SelectedNode.DelayMs, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                     Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}"
+                                                     Padding="6,4" Margin="0,0,0,8"/>
+                                        </StackPanel>
+
+                                        <!-- 2. InteractiveSelection Step Inspector -->
+                                        <StackPanel Visibility="{Binding SelectedNode.StepType, Converter={StaticResource StringToVis}, ConverterParameter=InteractiveSelection}">
+                                            <TextBlock Text="Selection Mode" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <ComboBox SelectedValue="{Binding SelectedNode.SelectionMode, Mode=TwoWay}"
+                                                      SelectedValuePath="Tag" Margin="0,0,0,8">
+                                                <ComboBoxItem Content="Region (Rubberband rectangle)" Tag="Region"/>
+                                                <ComboBoxItem Content="Window (Hover &amp; click window)" Tag="Window"/>
+                                                <ComboBoxItem Content="Text (OCR selection box)" Tag="Text"/>
+                                            </ComboBox>
+
+                                            <CheckBox Content="Allow Window Snapping"
+                                                      IsChecked="{Binding SelectedNode.AllowWindowSnapping, Mode=TwoWay}"
+                                                      Foreground="{Binding TextPrimaryBrush}" Margin="0,4,0,8"/>
+                                        </StackPanel>
+
+                                        <!-- 3. Border Step Inspector -->
+                                        <StackPanel Visibility="{Binding SelectedNode.StepType, Converter={StaticResource StringToVis}, ConverterParameter=Border}">
+                                            <TextBlock Text="Border Width (px)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <TextBox Text="{Binding SelectedNode.BorderWidth, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                     Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}"
+                                                     Padding="6,4" Margin="0,0,0,8"/>
+
+                                            <TextBlock Text="Border Color Hex" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <Grid Margin="0,0,0,8">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="26"/>
+                                                    <ColumnDefinition Width="6"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="6"/>
+                                                    <ColumnDefinition Width="30"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Border Grid.Column="0" Width="26" Height="26" CornerRadius="4"
+                                                        BorderBrush="{Binding CardBorderBrush}" BorderThickness="1"
+                                                        Background="{Binding SelectedNode.BorderColor, Converter={StaticResource StringToBrushConv}}"/>
+                                                <TextBox Grid.Column="2" Text="{Binding SelectedNode.BorderColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                         Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                         VerticalContentAlignment="Center" Padding="6,4"/>
+                                                <Button Grid.Column="4" Content="🎨" Style="{StaticResource ToolbarBtn}" Margin="0" Height="26"
+                                                        Command="{Binding SelectedNode.PickBorderColorCommand}" ToolTip="Pick Color..."/>
+                                            </Grid>
+                                        </StackPanel>
+
+                                        <!-- 4. Effect Step Inspector -->
+                                        <StackPanel Visibility="{Binding SelectedNode.StepType, Converter={StaticResource StringToVis}, ConverterParameter=Effect}">
+                                            <TextBlock Text="Effect Type" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <ComboBox SelectedValue="{Binding SelectedNode.EffectType, Mode=TwoWay}"
+                                                      SelectedValuePath="Tag" Margin="0,0,0,8">
+                                                <ComboBoxItem Content="Border / Frame" Tag="Border"/>
+                                                <ComboBoxItem Content="Drop Shadow" Tag="DropShadow"/>
+                                                <ComboBoxItem Content="Torn Edge" Tag="TornEdge"/>
+                                                <ComboBoxItem Content="Invert Colors" Tag="Invert"/>
+                                                <ComboBoxItem Content="Grayscale" Tag="Grayscale"/>
+                                                <ComboBoxItem Content="Monochrome (B&amp;W)" Tag="Monochrome"/>
+                                                <ComboBoxItem Content="Adjust (Brightness/Contrast/Gamma)" Tag="Adjust"/>
+                                                <ComboBoxItem Content="Rotate" Tag="Rotate"/>
+                                                <ComboBoxItem Content="Resize Image" Tag="Resize"/>
+                                                <ComboBoxItem Content="Resize Canvas (Add Padding)" Tag="ResizeCanvas"/>
+                                                <ComboBoxItem Content="Reduce Colors" Tag="ReduceColors"/>
+                                                <ComboBoxItem Content="Remove Transparency" Tag="RemoveTransparency"/>
+                                            </ComboBox>
+
+                                            <!-- 4a. Border Effect -->
+                                            <StackPanel Visibility="{Binding SelectedNode.IsBorderEffect, Converter={StaticResource BoolToVis}}">
+                                                <TextBlock Text="Border Width (px)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                <TextBox Text="{Binding SelectedNode.EffectBorderWidth, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                         Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                         Padding="6,4" Margin="0,0,0,8"/>
+
+                                                <TextBlock Text="Border Color (#HEX or Named)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                <Grid Margin="0,0,0,8">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="26"/>
+                                                        <ColumnDefinition Width="6"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="6"/>
+                                                        <ColumnDefinition Width="30"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Border Grid.Column="0" Width="26" Height="26" CornerRadius="4"
+                                                            BorderBrush="{Binding CardBorderBrush}" BorderThickness="1"
+                                                            Background="{Binding SelectedNode.EffectBorderColor, Converter={StaticResource StringToBrushConv}}"/>
+                                                    <TextBox Grid.Column="2" Text="{Binding SelectedNode.EffectBorderColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                             Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                             VerticalContentAlignment="Center" Padding="6,4"/>
+                                                    <Button Grid.Column="4" Content="🎨" Style="{StaticResource ToolbarBtn}" Margin="0" Height="26"
+                                                            Command="{Binding SelectedNode.PickBorderColorCommand}" ToolTip="Pick Color..."/>
+                                                </Grid>
+                                            </StackPanel>
+
+                                            <!-- 4b. DropShadow Effect -->
+                                            <StackPanel Visibility="{Binding SelectedNode.IsDropShadowEffect, Converter={StaticResource BoolToVis}}">
+                                                <TextBlock Text="Shadow Size (px)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                <TextBox Text="{Binding SelectedNode.ShadowSize, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                         Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                         Padding="6,4" Margin="0,0,0,8"/>
+
+                                                <TextBlock Text="Shadow Darkness (0.0 - 1.0)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                <TextBox Text="{Binding SelectedNode.ShadowDarkness, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                         Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                         Padding="6,4" Margin="0,0,0,8"/>
+
+                                                <Grid Margin="0,0,0,8">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="6"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <StackPanel Grid.Column="0">
+                                                        <TextBlock Text="Offset X (px)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                        <TextBox Text="{Binding SelectedNode.ShadowOffsetX, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                 Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                                 Padding="6,4"/>
+                                                    </StackPanel>
+                                                    <StackPanel Grid.Column="2">
+                                                        <TextBlock Text="Offset Y (px)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                        <TextBox Text="{Binding SelectedNode.ShadowOffsetY, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                 Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                                 Padding="6,4"/>
+                                                    </StackPanel>
+                                                </Grid>
+                                            </StackPanel>
+
+                                            <!-- 4c. TornEdge Effect -->
+                                            <StackPanel Visibility="{Binding SelectedNode.IsTornEdgeEffect, Converter={StaticResource BoolToVis}}">
+                                                <TextBlock Text="Tooth Height (px)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                <TextBox Text="{Binding SelectedNode.ToothHeight, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                         Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                         Padding="6,4" Margin="0,0,0,8"/>
+
+                                                <Grid Margin="0,0,0,8">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="6"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <StackPanel Grid.Column="0">
+                                                        <TextBlock Text="H-Tooth Range" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                        <TextBox Text="{Binding SelectedNode.HorizontalToothRange, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                 Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                                 Padding="6,4"/>
+                                                    </StackPanel>
+                                                    <StackPanel Grid.Column="2">
+                                                        <TextBlock Text="V-Tooth Range" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                        <TextBox Text="{Binding SelectedNode.VerticalToothRange, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                 Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                                 Padding="6,4"/>
+                                                    </StackPanel>
+                                                </Grid>
+
+                                                <TextBlock Text="Active Edges (top,right,bottom,left)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                <TextBox Text="{Binding SelectedNode.TornEdges, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                         Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                         Padding="6,4" Margin="0,0,0,8"/>
+
+                                                <CheckBox Content="Generate Drop Shadow" IsChecked="{Binding SelectedNode.TornEdgeShadow, Mode=TwoWay}"
+                                                          Foreground="{Binding TextPrimaryBrush}" Margin="0,0,0,8"/>
+                                            </StackPanel>
+
+                                            <!-- 4d. Monochrome Effect -->
+                                            <StackPanel Visibility="{Binding SelectedNode.IsMonochromeEffect, Converter={StaticResource BoolToVis}}">
+                                                <TextBlock Text="B&amp;W Threshold (0 - 255)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                <TextBox Text="{Binding SelectedNode.MonochromeThreshold, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                         Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                         Padding="6,4" Margin="0,0,0,8"/>
+                                            </StackPanel>
+
+                                            <!-- 4e. Adjust Colors Effect -->
+                                            <StackPanel Visibility="{Binding SelectedNode.IsAdjustEffect, Converter={StaticResource BoolToVis}}">
+                                                <TextBlock Text="Brightness (e.g. 1.0 = normal, 1.2 = lighter, 0.8 = darker)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                <TextBox Text="{Binding SelectedNode.AdjustBrightness, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                         Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                         Padding="6,4" Margin="0,0,0,8"/>
+
+                                                <TextBlock Text="Contrast (e.g. 1.0 = normal, 1.3 = higher contrast)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                <TextBox Text="{Binding SelectedNode.AdjustContrast, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                         Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                         Padding="6,4" Margin="0,0,0,8"/>
+
+                                                <TextBlock Text="Gamma (e.g. 1.0 = normal)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                <TextBox Text="{Binding SelectedNode.AdjustGamma, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                         Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                         Padding="6,4" Margin="0,0,0,8"/>
+                                            </StackPanel>
+
+                                            <!-- 4f. Rotate Effect -->
+                                            <StackPanel Visibility="{Binding SelectedNode.IsRotateEffect, Converter={StaticResource BoolToVis}}">
+                                                <TextBlock Text="Rotation Angle (Degrees clockwise)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                <TextBox Text="{Binding SelectedNode.RotateAngle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                         Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                         Padding="6,4" Margin="0,0,0,8"/>
+                                            </StackPanel>
+
+                                            <!-- 4g. Resize Effect -->
+                                            <StackPanel Visibility="{Binding SelectedNode.IsResizeEffect, Converter={StaticResource BoolToVis}}">
+                                                <Grid Margin="0,0,0,8">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="6"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <StackPanel Grid.Column="0">
+                                                        <TextBlock Text="Target Width (px)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                        <TextBox Text="{Binding SelectedNode.ResizeWidth, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                 Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                                 Padding="6,4"/>
+                                                    </StackPanel>
+                                                    <StackPanel Grid.Column="2">
+                                                        <TextBlock Text="Target Height (px)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                        <TextBox Text="{Binding SelectedNode.ResizeHeight, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                 Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                                 Padding="6,4"/>
+                                                    </StackPanel>
+                                                </Grid>
+
+                                                <TextBlock Text="Scale Percentage (% or 0 for exact WxH)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                <TextBox Text="{Binding SelectedNode.ResizePercentage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                         Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                         Padding="6,4" Margin="0,0,0,8"/>
+
+                                                <CheckBox Content="Maintain Aspect Ratio" IsChecked="{Binding SelectedNode.ResizeMaintainAspectRatio, Mode=TwoWay}"
+                                                          Foreground="{Binding TextPrimaryBrush}" Margin="0,0,0,8"/>
+                                            </StackPanel>
+
+                                            <!-- 4h. Resize Canvas / Padding Effect -->
+                                            <StackPanel Visibility="{Binding SelectedNode.IsResizeCanvasEffect, Converter={StaticResource BoolToVis}}">
+                                                <TextBlock Text="Padding / Margin (px on all sides)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                <TextBox Text="{Binding SelectedNode.CanvasMargin, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                         Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                         Padding="6,4" Margin="0,0,0,8"/>
+
+                                                <TextBlock Text="Background Color (#HEX or Named)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                <Grid Margin="0,0,0,8">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="26"/>
+                                                        <ColumnDefinition Width="6"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="6"/>
+                                                        <ColumnDefinition Width="30"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Border Grid.Column="0" Width="26" Height="26" CornerRadius="4"
+                                                            BorderBrush="{Binding CardBorderBrush}" BorderThickness="1"
+                                                            Background="{Binding SelectedNode.CanvasBackgroundColor, Converter={StaticResource StringToBrushConv}}"/>
+                                                    <TextBox Grid.Column="2" Text="{Binding SelectedNode.CanvasBackgroundColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                             Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                             VerticalContentAlignment="Center" Padding="6,4"/>
+                                                    <Button Grid.Column="4" Content="🎨" Style="{StaticResource ToolbarBtn}" Margin="0" Height="26"
+                                                            Command="{Binding SelectedNode.PickCanvasBackgroundColorCommand}" ToolTip="Pick Color..."/>
+                                                </Grid>
+                                            </StackPanel>
+
+                                            <!-- 4i. Reduce Colors Effect -->
+                                            <StackPanel Visibility="{Binding SelectedNode.IsReduceColorsEffect, Converter={StaticResource BoolToVis}}">
+                                                <TextBlock Text="Target Colors (2 - 256)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                <TextBox Text="{Binding SelectedNode.ReduceColorsCount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                         Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                         Padding="6,4" Margin="0,0,0,8"/>
+                                            </StackPanel>
+
+                                            <!-- 4j. Remove Transparency Effect -->
+                                            <StackPanel Visibility="{Binding SelectedNode.IsRemoveTransparencyEffect, Converter={StaticResource BoolToVis}}">
+                                                <TextBlock Text="Matte Background Color" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                <Grid Margin="0,0,0,8">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="26"/>
+                                                        <ColumnDefinition Width="6"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="6"/>
+                                                        <ColumnDefinition Width="30"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Border Grid.Column="0" Width="26" Height="26" CornerRadius="4"
+                                                            BorderBrush="{Binding CardBorderBrush}" BorderThickness="1"
+                                                            Background="{Binding SelectedNode.TransparencyBackgroundColor, Converter={StaticResource StringToBrushConv}}"/>
+                                                    <TextBox Grid.Column="2" Text="{Binding SelectedNode.TransparencyBackgroundColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                             Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                             VerticalContentAlignment="Center" Padding="6,4"/>
+                                                    <Button Grid.Column="4" Content="🎨" Style="{StaticResource ToolbarBtn}" Margin="0" Height="26"
+                                                            Command="{Binding SelectedNode.PickTransparencyBackgroundColorCommand}" ToolTip="Pick Color..."/>
+                                                </Grid>
+                                            </StackPanel>
+
+                                            <!-- 4k. Invert / Grayscale Info -->
+                                            <StackPanel Visibility="{Binding SelectedNode.IsInvertEffect, Converter={StaticResource BoolToVis}}">
+                                                <TextBlock Text="Inverts all RGB pixel colors across the capture surface." FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,4,0,8"/>
+                                            </StackPanel>
+                                            <StackPanel Visibility="{Binding SelectedNode.IsGrayscaleEffect, Converter={StaticResource BoolToVis}}">
+                                                <TextBlock Text="Converts all colors on the capture surface to grayscale." FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,4,0,8"/>
+                                            </StackPanel>
+                                        </StackPanel>
+
+                                        <!-- 5. TextEffect / DLP Step Inspector -->
+                                        <StackPanel Visibility="{Binding SelectedNode.StepType, Converter={StaticResource StringToVis}, ConverterParameter=TextEffect}">
+                                            <TextBlock Text="DLP Action" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <ComboBox SelectedValue="{Binding SelectedNode.TextEffectAction, Mode=TwoWay}"
+                                                      SelectedValuePath="Tag" Margin="0,0,0,8">
+                                                <ComboBoxItem Content="Blackout (Redact box)" Tag="Blackout"/>
+                                                <ComboBoxItem Content="Pixelize (Mosaic text)" Tag="Pixelize"/>
+                                                <ComboBoxItem Content="Blur (Gaussian blur)" Tag="Blur"/>
+                                                <ComboBoxItem Content="Highlight (Yellow tint)" Tag="Highlight"/>
+                                            </ComboBox>
+
+                                            <TextBlock Text="Target Pattern / Regex" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <TextBox Text="{Binding SelectedNode.TextEffectPattern, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                     Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                     Padding="6,4" Margin="0,0,0,8"/>
+
+                                            <TextBlock Text="Fill Color (for Blackout)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <Grid Margin="0,0,0,8">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="26"/>
+                                                    <ColumnDefinition Width="6"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="6"/>
+                                                    <ColumnDefinition Width="30"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Border Grid.Column="0" Width="26" Height="26" CornerRadius="4"
+                                                        BorderBrush="{Binding CardBorderBrush}" BorderThickness="1"
+                                                        Background="{Binding SelectedNode.TextEffectFillColor, Converter={StaticResource StringToBrushConv}}"/>
+                                                <TextBox Grid.Column="2" Text="{Binding SelectedNode.TextEffectFillColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                         Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                         VerticalContentAlignment="Center" Padding="6,4"/>
+                                                <Button Grid.Column="4" Content="🎨" Style="{StaticResource ToolbarBtn}" Margin="0" Height="26"
+                                                        Command="{Binding SelectedNode.PickTextEffectColorCommand}" ToolTip="Pick Color..."/>
+                                            </Grid>
+                                        </StackPanel>
+
+                                        <!-- 6. ObfuscateText Step Inspector -->
+                                        <StackPanel Visibility="{Binding SelectedNode.StepType, Converter={StaticResource StringToVis}, ConverterParameter=ObfuscateText}">
+                                            <TextBlock Text="Preset Patterns (DLP)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <TextBox Text="{Binding SelectedNode.TextEffectPattern, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                     Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                     Padding="6,4" Margin="0,0,0,8"/>
+                                        </StackPanel>
+
+                                        <!-- 7. SetVariable Step Inspector -->
+                                        <StackPanel Visibility="{Binding SelectedNode.StepType, Converter={StaticResource StringToVis}, ConverterParameter=SetVariable}">
+                                            <Grid Margin="0,0,0,6">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="Variables (Key / Value)" FontWeight="SemiBold" FontSize="11" Foreground="{Binding TextSecondaryBrush}" VerticalAlignment="Center"/>
+                                                <Button Grid.Column="1" Content="+ Add Variable" Style="{StaticResource PrimaryBtn}" Padding="6,2" Command="{Binding SelectedNode.AddVariableCommand}"/>
+                                            </Grid>
+
+                                            <ItemsControl ItemsSource="{Binding SelectedNode.Variables}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Border Background="{Binding DataContext.CardBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                BorderBrush="{Binding DataContext.CardBorderBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                BorderThickness="1" CornerRadius="4" Padding="6" Margin="0,0,0,6">
+                                                            <Grid>
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="80"/>
+                                                                    <ColumnDefinition Width="6"/>
+                                                                    <ColumnDefinition Width="*"/>
+                                                                    <ColumnDefinition Width="Auto"/>
+                                                                </Grid.ColumnDefinitions>
+                                                                <TextBox Text="{Binding Key, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                         FontFamily="Consolas" FontSize="11"
+                                                                         Background="{Binding DataContext.WindowBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                         Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                         Padding="4,2"/>
+                                                                <TextBox Grid.Column="2" Text="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                         FontFamily="Consolas" FontSize="11"
+                                                                         Background="{Binding DataContext.WindowBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                         Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                         Padding="4,2"/>
+                                                                <Button Grid.Column="3" Content="✕" Width="20" Height="20" Margin="4,0,0,0"
+                                                                        Style="{StaticResource ToolbarBtn}" Foreground="#FF6B6B"
+                                                                        Command="{Binding RemoveCommand}" ToolTip="Delete Variable"/>
+                                                            </Grid>
+                                                        </Border>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+
+                                            <TextBlock Text="Available scopes: ${user.username}, ${machine.computername}, ${now:yyyy-MM-dd}, ${payload.width}"
+                                                       FontSize="10" Foreground="{Binding TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,4,0,8"/>
+                                        </StackPanel>
+
+                                        <!-- 8. Drawable Surface Inspector -->
+                                        <StackPanel Visibility="{Binding SelectedNode.StepType, Converter={StaticResource StringToVis}, ConverterParameter=Drawable}">
+                                            <Grid Margin="0,0,0,6">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="Drawables List" FontWeight="SemiBold" FontSize="11" Foreground="{Binding TextSecondaryBrush}" VerticalAlignment="Center"/>
+                                                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                                    <ComboBox x:Name="DrawableTypeSelector" Width="90" Height="24" Margin="0,0,4,0" SelectedIndex="0">
+                                                        <ComboBoxItem Content="Rectangle"/>
+                                                        <ComboBoxItem Content="Text"/>
+                                                        <ComboBoxItem Content="StepLabel"/>
+                                                        <ComboBoxItem Content="Emoji"/>
+                                                        <ComboBoxItem Content="Arrow"/>
+                                                        <ComboBoxItem Content="Ellipse"/>
+                                                        <ComboBoxItem Content="Speechbubble"/>
+                                                        <ComboBoxItem Content="Blur"/>
+                                                        <ComboBoxItem Content="Highlight"/>
+                                                    </ComboBox>
+                                                    <Button Content="+ Add" Style="{StaticResource PrimaryBtn}" Padding="6,2"
+                                                            Command="{Binding SelectedNode.AddDrawableCommand}"
+                                                            CommandParameter="{Binding SelectedItem.Content, ElementName=DrawableTypeSelector}"/>
+                                                </StackPanel>
+                                            </Grid>
+
+                                            <ItemsControl ItemsSource="{Binding SelectedNode.Drawables}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Border Background="{Binding DataContext.CardBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                BorderBrush="{Binding DataContext.CardBorderBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                BorderThickness="1" CornerRadius="6" Padding="8" Margin="0,0,0,8">
+                                                            <StackPanel>
+                                                                <!-- Header: Type Picker & Delete -->
+                                                                <Grid Margin="0,0,0,6">
+                                                                    <Grid.ColumnDefinitions>
+                                                                        <ColumnDefinition Width="*"/>
+                                                                        <ColumnDefinition Width="Auto"/>
+                                                                    </Grid.ColumnDefinitions>
+                                                                    <ComboBox SelectedValue="{Binding Type, Mode=TwoWay}" SelectedValuePath="Content" Width="120" HorizontalAlignment="Left">
+                                                                        <ComboBoxItem Content="Rectangle"/>
+                                                                        <ComboBoxItem Content="Text"/>
+                                                                        <ComboBoxItem Content="StepLabel"/>
+                                                                        <ComboBoxItem Content="Emoji"/>
+                                                                        <ComboBoxItem Content="Arrow"/>
+                                                                        <ComboBoxItem Content="Ellipse"/>
+                                                                        <ComboBoxItem Content="Speechbubble"/>
+                                                                        <ComboBoxItem Content="Blur"/>
+                                                                        <ComboBoxItem Content="Highlight"/>
+                                                                    </ComboBox>
+                                                                    <Button Grid.Column="1" Content="✕" Width="22" Height="22"
+                                                                            Style="{StaticResource ToolbarBtn}" Foreground="#FF6B6B"
+                                                                            Command="{Binding RemoveCommand}" ToolTip="Delete Drawable"/>
+                                                                </Grid>
+
+                                                                <!-- Text Field (for Text, StepLabel, Speechbubble) -->
+                                                                <StackPanel Visibility="{Binding IsTextType, Converter={StaticResource BoolToVis}}" Margin="0,0,0,4">
+                                                                    <TextBlock Text="Text / Label (${...} supported)" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                                    <TextBox Text="{Binding Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                             FontFamily="Consolas" FontSize="11"
+                                                                             Background="{Binding DataContext.WindowBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                             Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                             Padding="4,2"/>
+                                                                </StackPanel>
+
+                                                                <!-- Speechbubble Tail Controls -->
+                                                                <StackPanel Visibility="{Binding IsSpeechbubbleType, Converter={StaticResource BoolToVis}}" Margin="0,0,0,4">
+                                                                    <TextBlock Text="Tail Direction / Placement" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                                    <ComboBox SelectedValue="{Binding TailDirection, Mode=TwoWay}" SelectedValuePath="Tag" Margin="0,0,0,4">
+                                                                        <ComboBoxItem Content="Bottom-Left (Default)" Tag="BottomLeft"/>
+                                                                        <ComboBoxItem Content="Bottom-Right" Tag="BottomRight"/>
+                                                                        <ComboBoxItem Content="Bottom-Center" Tag="BottomCenter"/>
+                                                                        <ComboBoxItem Content="Top-Left" Tag="TopLeft"/>
+                                                                        <ComboBoxItem Content="Top-Right" Tag="TopRight"/>
+                                                                        <ComboBoxItem Content="Top-Center" Tag="TopCenter"/>
+                                                                        <ComboBoxItem Content="Left" Tag="Left"/>
+                                                                        <ComboBoxItem Content="Right" Tag="Right"/>
+                                                                    </ComboBox>
+                                                                    <Grid Margin="0,0,0,2">
+                                                                        <Grid.ColumnDefinitions>
+                                                                            <ColumnDefinition Width="*"/>
+                                                                            <ColumnDefinition Width="6"/>
+                                                                            <ColumnDefinition Width="*"/>
+                                                                        </Grid.ColumnDefinitions>
+                                                                        <StackPanel Grid.Column="0">
+                                                                            <TextBlock Text="Tail Offset X" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                                            <TextBox Text="{Binding TailOffsetX, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontFamily="Consolas" FontSize="11"
+                                                                                     Background="{Binding DataContext.WindowBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                                     Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}" Padding="4,2"/>
+                                                                        </StackPanel>
+                                                                        <StackPanel Grid.Column="2">
+                                                                            <TextBlock Text="Tail Offset Y" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                                            <TextBox Text="{Binding TailOffsetY, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontFamily="Consolas" FontSize="11"
+                                                                                     Background="{Binding DataContext.WindowBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                                     Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}" Padding="4,2"/>
+                                                                        </StackPanel>
+                                                                    </Grid>
+                                                                </StackPanel>
+
+                                                                <!-- Emoji Field -->
+                                                                <StackPanel Visibility="{Binding IsEmojiType, Converter={StaticResource BoolToVis}}" Margin="0,0,0,4">
+                                                                    <TextBlock Text="Emoji / Icon" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                                    <TextBox Text="{Binding Emoji, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                             FontSize="12"
+                                                                             Background="{Binding DataContext.WindowBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                             Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                             Padding="4,2"/>
+                                                                </StackPanel>
+
+                                                                <!-- Anchors: H-Anchor & V-Anchor -->
+                                                                <Grid Margin="0,2,0,4">
+                                                                    <Grid.ColumnDefinitions>
+                                                                        <ColumnDefinition Width="*"/>
+                                                                        <ColumnDefinition Width="6"/>
+                                                                        <ColumnDefinition Width="*"/>
+                                                                    </Grid.ColumnDefinitions>
+                                                                    <StackPanel Grid.Column="0">
+                                                                        <TextBlock Text="H-Anchor" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                                        <ComboBox SelectedValue="{Binding HorizontalAnchor, Mode=TwoWay}" SelectedValuePath="Tag">
+                                                                            <ComboBoxItem Content="None (Absolute)" Tag="None"/>
+                                                                            <ComboBoxItem Content="Left" Tag="Left"/>
+                                                                            <ComboBoxItem Content="Center" Tag="Center"/>
+                                                                            <ComboBoxItem Content="Right" Tag="Right"/>
+                                                                        </ComboBox>
+                                                                    </StackPanel>
+                                                                    <StackPanel Grid.Column="2">
+                                                                        <TextBlock Text="V-Anchor" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                                        <ComboBox SelectedValue="{Binding VerticalAnchor, Mode=TwoWay}" SelectedValuePath="Tag">
+                                                                            <ComboBoxItem Content="None (Absolute)" Tag="None"/>
+                                                                            <ComboBoxItem Content="Top" Tag="Top"/>
+                                                                            <ComboBoxItem Content="Center" Tag="Center"/>
+                                                                            <ComboBoxItem Content="Bottom" Tag="Bottom"/>
+                                                                        </ComboBox>
+                                                                    </StackPanel>
+                                                                </Grid>
+
+                                                                <!-- Width & Height -->
+                                                                <Grid Margin="0,2,0,4">
+                                                                    <Grid.ColumnDefinitions>
+                                                                        <ColumnDefinition Width="*"/>
+                                                                        <ColumnDefinition Width="6"/>
+                                                                        <ColumnDefinition Width="*"/>
+                                                                    </Grid.ColumnDefinitions>
+                                                                    <StackPanel Grid.Column="0">
+                                                                        <TextBlock Text="Width" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                                        <TextBox Text="{Binding Width, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontFamily="Consolas" FontSize="11"
+                                                                                 Background="{Binding DataContext.WindowBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                                 Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}" Padding="4,2"/>
+                                                                    </StackPanel>
+                                                                    <StackPanel Grid.Column="2">
+                                                                        <TextBlock Text="Height" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                                        <TextBox Text="{Binding Height, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontFamily="Consolas" FontSize="11"
+                                                                                 Background="{Binding DataContext.WindowBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                                 Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}" Padding="4,2"/>
+                                                                    </StackPanel>
+                                                                </Grid>
+
+                                                                <!-- Offset X & Offset Y -->
+                                                                <Grid Margin="0,2,0,4">
+                                                                    <Grid.ColumnDefinitions>
+                                                                        <ColumnDefinition Width="*"/>
+                                                                        <ColumnDefinition Width="6"/>
+                                                                        <ColumnDefinition Width="*"/>
+                                                                    </Grid.ColumnDefinitions>
+                                                                    <StackPanel Grid.Column="0">
+                                                                        <TextBlock Text="Offset X / Left" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                                        <TextBox Text="{Binding OffsetX, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontFamily="Consolas" FontSize="11"
+                                                                                 Background="{Binding DataContext.WindowBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                                 Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}" Padding="4,2"/>
+                                                                    </StackPanel>
+                                                                    <StackPanel Grid.Column="2">
+                                                                        <TextBlock Text="Offset Y / Top" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                                        <TextBox Text="{Binding OffsetY, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontFamily="Consolas" FontSize="11"
+                                                                                 Background="{Binding DataContext.WindowBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                                 Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}" Padding="4,2"/>
+                                                                    </StackPanel>
+                                                                </Grid>
+
+                                                                <!-- Fill & Line Color -->
+                                                                <Grid Margin="0,2,0,0">
+                                                                    <Grid.ColumnDefinitions>
+                                                                        <ColumnDefinition Width="*"/>
+                                                                        <ColumnDefinition Width="6"/>
+                                                                        <ColumnDefinition Width="*"/>
+                                                                    </Grid.ColumnDefinitions>
+                                                                    <StackPanel Grid.Column="0">
+                                                                        <TextBlock Text="Fill Color" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                                        <Grid Margin="0,2,0,0">
+                                                                            <Grid.ColumnDefinitions>
+                                                                                <ColumnDefinition Width="20"/>
+                                                                                <ColumnDefinition Width="4"/>
+                                                                                <ColumnDefinition Width="*"/>
+                                                                                <ColumnDefinition Width="4"/>
+                                                                                <ColumnDefinition Width="24"/>
+                                                                            </Grid.ColumnDefinitions>
+                                                                            <Border Grid.Column="0" Width="20" Height="20" CornerRadius="3"
+                                                                                    BorderBrush="{Binding DataContext.CardBorderBrush, RelativeSource={RelativeSource AncestorType=Window}}" BorderThickness="1"
+                                                                                    Background="{Binding FillColor, Converter={StaticResource StringToBrushConv}}"/>
+                                                                            <TextBox Grid.Column="2" Text="{Binding FillColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontFamily="Consolas" FontSize="11"
+                                                                                     Background="{Binding DataContext.WindowBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                                     Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                                     VerticalContentAlignment="Center" Padding="4,2"/>
+                                                                            <Button Grid.Column="4" Content="🎨" Style="{StaticResource ToolbarBtn}" Margin="0" Height="20" Padding="0"
+                                                                                    Command="{Binding PickFillColorCommand}" ToolTip="Pick Fill Color..."/>
+                                                                        </Grid>
+                                                                    </StackPanel>
+                                                                    <StackPanel Grid.Column="2">
+                                                                        <TextBlock Text="Line Color" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                                        <Grid Margin="0,2,0,0">
+                                                                            <Grid.ColumnDefinitions>
+                                                                                <ColumnDefinition Width="20"/>
+                                                                                <ColumnDefinition Width="4"/>
+                                                                                <ColumnDefinition Width="*"/>
+                                                                                <ColumnDefinition Width="4"/>
+                                                                                <ColumnDefinition Width="24"/>
+                                                                            </Grid.ColumnDefinitions>
+                                                                            <Border Grid.Column="0" Width="20" Height="20" CornerRadius="3"
+                                                                                    BorderBrush="{Binding DataContext.CardBorderBrush, RelativeSource={RelativeSource AncestorType=Window}}" BorderThickness="1"
+                                                                                    Background="{Binding LineColor, Converter={StaticResource StringToBrushConv}}"/>
+                                                                            <TextBox Grid.Column="2" Text="{Binding LineColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontFamily="Consolas" FontSize="11"
+                                                                                     Background="{Binding DataContext.WindowBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                                     Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                                     VerticalContentAlignment="Center" Padding="4,2"/>
+                                                                            <Button Grid.Column="4" Content="🎨" Style="{StaticResource ToolbarBtn}" Margin="0" Height="20" Padding="0"
+                                                                                    Command="{Binding PickLineColorCommand}" ToolTip="Pick Line Color..."/>
+                                                                        </Grid>
+                                                                    </StackPanel>
+                                                                </Grid>
+                                                            </StackPanel>
+                                                        </Border>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </StackPanel>
+
+                                        <!-- 9. Conditional Step Inspector -->
+                                        <StackPanel Visibility="{Binding SelectedNode.StepType, Converter={StaticResource StringToVis}, ConverterParameter=Conditional}">
+                                            <TextBlock Text="Condition Expression" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <TextBox Text="{Binding SelectedNode.ConditionExpression, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                     Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                     Padding="6,4" Margin="0,0,0,8"/>
+
+                                            <Border Background="{Binding CardBackgroundBrush}" BorderBrush="{Binding CardBorderBrush}" BorderThickness="1" CornerRadius="4" Padding="8" Margin="0,0,0,8">
+                                                <StackPanel>
+                                                    <TextBlock Text="Branch Execution Logic:" FontWeight="Bold" FontSize="11" Foreground="{Binding TextPrimaryBrush}" Margin="0,0,0,4"/>
+                                                    <TextBlock Text="• Evaluated at runtime during capture.&#x0a;• True / Truthy: Proceeds to next step(s).&#x0a;• False / Zero: Branch is skipped."
+                                                               FontSize="11" Foreground="{Binding TextSecondaryBrush}" TextWrapping="Wrap"/>
+                                                </StackPanel>
+                                            </Border>
+                                        </StackPanel>
+
+                                        <!-- 10. ImmediateFeedback Step Inspector -->
+                                        <StackPanel Visibility="{Binding SelectedNode.StepType, Converter={StaticResource StringToVis}, ConverterParameter=ImmediateFeedback}">
+                                            <CheckBox Content="Play Shutter Camera Sound"
+                                                      IsChecked="{Binding SelectedNode.PlaySound, Mode=TwoWay}"
+                                                      Foreground="{Binding TextPrimaryBrush}" Margin="0,4,0,8"/>
+                                        </StackPanel>
+
+                                        <!-- 11. Notification Step Inspector -->
+                                        <StackPanel Visibility="{Binding SelectedNode.StepType, Converter={StaticResource StringToVis}, ConverterParameter=Notification}">
+                                            <TextBlock Text="Notification Title" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <TextBox Text="{Binding SelectedNode.NotificationTitle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                     Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}"
+                                                     Padding="6,4" Margin="0,0,0,8"/>
+
+                                            <TextBlock Text="Message Template" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <TextBox Text="{Binding SelectedNode.NotificationMessage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                     Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}"
+                                                     Padding="6,4" Margin="0,0,0,8"/>
+                                        </StackPanel>
+
+                                        <!-- 11b. Processors / OCR Step Inspector -->
+                                        <StackPanel Visibility="{Binding SelectedNode.StepType, Converter={StaticResource StringToVis}, ConverterParameter=Processors}">
+                                            <TextBlock Text="Processor Execution Mode" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <ComboBox SelectedValue="{Binding SelectedNode.ProcessorMode, Mode=TwoWay}"
+                                                      SelectedValuePath="Tag" Margin="0,0,0,8">
+                                                <ComboBoxItem Content="⚡ All Active Processors" Tag="All"/>
+                                                <ComboBoxItem Content="🔍 OCR Only (Windows 10 OCR)" Tag="OCR"/>
+                                                <ComboBoxItem Content="🛠️ Selected Processors" Tag="Selected"/>
+                                            </ComboBox>
+
+                                            <TextBlock Text="Execution Timing Stage" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <ComboBox SelectedValue="{Binding SelectedNode.ProcessorTiming, Mode=TwoWay}"
+                                                      SelectedValuePath="Tag" Margin="0,0,0,8">
+                                                <ComboBoxItem Content="Any / All Stages" Tag="Any"/>
+                                                <ComboBoxItem Content="Before Interactive Selection" Tag="BeforeInteractiveSelection"/>
+                                                <ComboBoxItem Content="After Interactive Selection" Tag="AfterInteractiveSelection"/>
+                                                <ComboBoxItem Content="Pre-Export" Tag="PreExport"/>
+                                            </ComboBox>
+
+                                            <!-- Checkboxes for Selected Processors mode -->
+                                            <StackPanel Visibility="{Binding SelectedNode.IsCustomProcessorsEnabled, Converter={StaticResource BoolToVis}}">
+                                                <TextBlock Text="Active Processors" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                                <Border Background="{Binding CardBackgroundBrush}" BorderBrush="{Binding CardBorderBrush}" BorderThickness="1" CornerRadius="4" Padding="8" Margin="0,0,0,8">
+                                                    <StackPanel>
+                                                        <CheckBox Content="Windows OCR (Text &amp; Words Recognition)" IsChecked="{Binding SelectedNode.ProcessorRunOcr, Mode=TwoWay}"
+                                                                  Foreground="{Binding TextPrimaryBrush}" Margin="0,2,0,4"/>
+                                                        <CheckBox Content="Window Title Fixer (Auto-detect Window Titles)" IsChecked="{Binding SelectedNode.ProcessorRunTitleFix, Mode=TwoWay}"
+                                                                  Foreground="{Binding TextPrimaryBrush}" Margin="0,2,0,4"/>
+                                                        <CheckBox Content="Plugin Processors (QR / Barcode Scanner, etc.)" IsChecked="{Binding SelectedNode.ProcessorRunPlugins, Mode=TwoWay}"
+                                                                  Foreground="{Binding TextPrimaryBrush}" Margin="0,2,0,2"/>
+                                                    </StackPanel>
+                                                </Border>
+
+                                                <TextBlock Text="Specific Processor IDs (Optional)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                <TextBox Text="{Binding SelectedNode.CustomProcessorIdsText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                         Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                         Padding="6,4" Margin="0,0,0,4"/>
+                                                <TextBlock Text="Comma-separated processor class names or designations (e.g. Win10OcrProcessor, TitleFixProcessor)."
+                                                           FontSize="10" Foreground="{Binding TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                                            </StackPanel>
+                                        </StackPanel>
+
+                                        <!-- 12. Save to File Step Inspector -->
+                                        <StackPanel Visibility="{Binding SelectedNode.StepType, Converter={StaticResource StringToVis}, ConverterParameter=SaveFile}">
+                                            <TextBlock Text="Save Directory" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <Grid Margin="0,0,0,8">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBox Text="{Binding SelectedNode.SaveDirectory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                         Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                         Padding="6,4"/>
+                                                <Button Grid.Column="1" Content="📁 Browse..." Style="{StaticResource ToolbarBtn}" Margin="6,0,0,0"
+                                                        Command="{Binding SelectedNode.BrowseSaveDirectoryCommand}" ToolTip="Browse for storage folder"/>
+                                            </Grid>
+
+                                            <TextBlock Text="Filename Pattern" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <TextBox Text="{Binding SelectedNode.FilenamePattern, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                     Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                     Padding="6,4" Margin="0,0,0,8"/>
+
+                                            <TextBlock Text="Image Format" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <ComboBox SelectedValue="{Binding SelectedNode.ImageFormat, Mode=TwoWay}"
+                                                      SelectedValuePath="Tag" Margin="0,0,0,8">
+                                                <ComboBoxItem Content="PNG (Portable Network Graphics)" Tag="png"/>
+                                                <ComboBoxItem Content="Greenshot Format (.greenshot)" Tag="greenshot"/>
+                                                <ComboBoxItem Content="JPEG (Joint Photographic Experts Group)" Tag="jpg"/>
+                                                <ComboBoxItem Content="BMP (Windows Bitmap)" Tag="bmp"/>
+                                                <ComboBoxItem Content="GIF (Graphics Interchange Format)" Tag="gif"/>
+                                                <ComboBoxItem Content="TIFF (Tagged Image File Format)" Tag="tiff"/>
+                                                <ComboBoxItem Content="ICO (Windows Icon)" Tag="ico"/>
+                                            </ComboBox>
+
+                                            <CheckBox Content="Allow Overwrite" IsChecked="{Binding SelectedNode.AllowOverwrite, Mode=TwoWay}"
+                                                      Foreground="{Binding TextPrimaryBrush}" Margin="0,2,0,8"/>
+                                        </StackPanel>
+
+                                        <!-- 13. System Clipboard Inspector -->
+                                        <StackPanel Visibility="{Binding SelectedNode.StepType, Converter={StaticResource StringToVis}, ConverterParameter=Clipboard}">
+                                            <TextBlock Text="Clipboard Content" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <ComboBox SelectedValue="{Binding SelectedNode.ClipboardMode, Mode=TwoWay}"
+                                                      SelectedValuePath="Tag" Margin="0,0,0,8">
+                                                <ComboBoxItem Content="🖼️ Image only (standard)" Tag="ImageOnly"/>
+                                                <ComboBoxItem Content="📄 OCR / Plain Text only" Tag="TextOnly"/>
+                                                <ComboBoxItem Content="🖼️ + 📄 Image and OCR Text" Tag="ImageAndText"/>
+                                            </ComboBox>
+
+                                            <TextBlock Text="Clipboard Formats (Active for this step)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                            <Border Background="{Binding CardBackgroundBrush}" BorderBrush="{Binding CardBorderBrush}" BorderThickness="1" CornerRadius="4" Padding="8" Margin="0,0,0,8">
+                                                <StackPanel>
+                                                    <CheckBox Content="PNG (Lossless / Office &amp; Web)" IsChecked="{Binding SelectedNode.ClipboardFormatPNG, Mode=TwoWay}"
+                                                              Foreground="{Binding TextPrimaryBrush}" Margin="0,2,0,4"/>
+                                                    <CheckBox Content="DIB (Device Independent Bitmap)" IsChecked="{Binding SelectedNode.ClipboardFormatDIB, Mode=TwoWay}"
+                                                              Foreground="{Binding TextPrimaryBrush}" Margin="0,2,0,4"/>
+                                                    <CheckBox Content="DIBv5 (32-bit with Alpha Channel)" IsChecked="{Binding SelectedNode.ClipboardFormatDIBV5, Mode=TwoWay}"
+                                                              Foreground="{Binding TextPrimaryBrush}" Margin="0,2,0,4"/>
+                                                    <CheckBox Content="Bitmap (Windows Standard)" IsChecked="{Binding SelectedNode.ClipboardFormatBitmap, Mode=TwoWay}"
+                                                              Foreground="{Binding TextPrimaryBrush}" Margin="0,2,0,4"/>
+                                                    <CheckBox Content="HTML (Image File Reference)" IsChecked="{Binding SelectedNode.ClipboardFormatHTML, Mode=TwoWay}"
+                                                              Foreground="{Binding TextPrimaryBrush}" Margin="0,2,0,4"/>
+                                                    <CheckBox Content="HTML (Inline Base64 Data URL)" IsChecked="{Binding SelectedNode.ClipboardFormatHTMLDataUrl, Mode=TwoWay}"
+                                                              Foreground="{Binding TextPrimaryBrush}" Margin="0,2,0,4"/>
+                                                    <CheckBox Content="Plain Text / OCR Text" IsChecked="{Binding SelectedNode.ClipboardFormatText, Mode=TwoWay}"
+                                                              Foreground="{Binding TextPrimaryBrush}" Margin="0,2,0,2"/>
+                                                </StackPanel>
+                                            </Border>
+
+                                            <!-- Text / OCR settings when Text format or TextOnly is active -->
+                                            <StackPanel Visibility="{Binding SelectedNode.IsClipboardTextEnabled, Converter={StaticResource BoolToVis}}">
+                                                <TextBlock Text="Text / OCR Template" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                <TextBox Text="{Binding SelectedNode.ClipboardCustomText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                         Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                         Padding="6,4" Margin="0,0,0,4"/>
+                                                <TextBlock Text="Use ${ocr_text} for extracted OCR text, ${title}, ${now:yyyy-MM-dd}, etc."
+                                                           FontSize="10" Foreground="{Binding TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                                            </StackPanel>
+                                        </StackPanel>
+
+                                        <!-- 14. Image Editor Inspector -->
+                                        <StackPanel Visibility="{Binding SelectedNode.StepType, Converter={StaticResource StringToVis}, ConverterParameter=Editor}">
+                                            <Border Background="{Binding CardBackgroundBrush}" BorderBrush="{Binding CardBorderBrush}" BorderThickness="1" CornerRadius="4" Padding="10,8" Margin="0,0,0,8">
+                                                <TextBlock Text="🎨 Opens the captured image in the interactive Greenshot Image Editor for annotations and drawing."
+                                                           FontSize="11" Foreground="{Binding TextSecondaryBrush}" TextWrapping="Wrap"/>
+                                            </Border>
+                                        </StackPanel>
+
+                                        <!-- 15. Printer Inspector -->
+                                        <StackPanel Visibility="{Binding SelectedNode.StepType, Converter={StaticResource StringToVis}, ConverterParameter=Printer}">
+                                            <CheckBox Content="Show Print Dialog before printing" IsChecked="{Binding SelectedNode.ShowPrintDialog, Mode=TwoWay}"
+                                                      Foreground="{Binding TextPrimaryBrush}" Margin="0,2,0,8"/>
+                                        </StackPanel>
+
+                                        <!-- 16. Email Inspector -->
+                                        <StackPanel Visibility="{Binding SelectedNode.StepType, Converter={StaticResource StringToVis}, ConverterParameter=Email}">
+                                            <TextBlock Text="Email Subject" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <TextBox Text="{Binding SelectedNode.EmailSubject, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                     Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}"
+                                                     Padding="6,4" Margin="0,0,0,8"/>
+
+                                            <TextBlock Text="Default Recipient (Optional)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <TextBox Text="{Binding SelectedNode.EmailRecipient, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                     Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}"
+                                                     Padding="6,4" Margin="0,0,0,8"/>
+                                        </StackPanel>
+
+                                        <!-- 17. Custom Destination Inspector -->
+                                        <StackPanel Visibility="{Binding SelectedNode.StepType, Converter={StaticResource StringToVis}, ConverterParameter=CustomDestination}">
+                                            <TextBlock Text="Destination ID / Name" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <TextBox Text="{Binding SelectedNode.CustomDestinationId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                     Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                     Padding="6,4" Margin="0,0,0,8"/>
+                                            <TextBlock Text="Enter any built-in or plugin destination designation (e.g. Imgur, Jira, Confluence, Dropbox, Box, ZxingQr, ExternalCommand)."
+                                                       FontSize="10" Foreground="{Binding TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                                        </StackPanel>
+
+                                        <!-- 18. Generic Multi-Destinations Step Inspector -->
+                                        <StackPanel Visibility="{Binding SelectedNode.StepType, Converter={StaticResource StringToVis}, ConverterParameter=Destinations}">
+                                            <TextBlock Text="Export Destinations" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                            <Border Background="{Binding CardBackgroundBrush}" BorderBrush="{Binding CardBorderBrush}" BorderThickness="1" CornerRadius="4" Padding="8" Margin="0,0,0,8">
+                                                <StackPanel>
+                                                    <CheckBox Content="Greenshot Image Editor" IsChecked="{Binding SelectedNode.DestinationEditor, Mode=TwoWay}" Foreground="{Binding TextPrimaryBrush}" Margin="0,2"/>
+                                                    <CheckBox Content="System Clipboard" IsChecked="{Binding SelectedNode.DestinationClipboard, Mode=TwoWay}" Foreground="{Binding TextPrimaryBrush}" Margin="0,2"/>
+                                                    <CheckBox Content="Save to File" IsChecked="{Binding SelectedNode.DestinationFile, Mode=TwoWay}" Foreground="{Binding TextPrimaryBrush}" Margin="0,2"/>
+                                                    <CheckBox Content="Send to Printer" IsChecked="{Binding SelectedNode.DestinationPrinter, Mode=TwoWay}" Foreground="{Binding TextPrimaryBrush}" Margin="0,2"/>
+                                                    <CheckBox Content="Send via E-Mail" IsChecked="{Binding SelectedNode.DestinationEmail, Mode=TwoWay}" Foreground="{Binding TextPrimaryBrush}" Margin="0,2"/>
+                                                    <CheckBox Content="Optical Character Recognition (OCR)" IsChecked="{Binding SelectedNode.DestinationOcr, Mode=TwoWay}" Foreground="{Binding TextPrimaryBrush}" Margin="0,2"/>
+                                                </StackPanel>
+                                            </Border>
+
+                                            <!-- File Save Settings (Visible when Save to File is checked) -->
+                                            <StackPanel Visibility="{Binding SelectedNode.DestinationFile, Converter={StaticResource BoolToVis}}" Margin="0,4,0,8">
+                                                <TextBlock Text="Save Directory" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                <Grid Margin="0,0,0,6">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBox Text="{Binding SelectedNode.SaveDirectory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                             Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                             Padding="6,4"/>
+                                                    <Button Grid.Column="1" Content="📁 Browse..." Style="{StaticResource ToolbarBtn}" Margin="6,0,0,0"
+                                                            Command="{Binding SelectedNode.BrowseSaveDirectoryCommand}" ToolTip="Browse for storage folder"/>
+                                                </Grid>
+
+                                                <TextBlock Text="Filename Pattern" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                <TextBox Text="{Binding SelectedNode.FilenamePattern, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                         Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                         Padding="6,4" Margin="0,0,0,6"/>
+                                            </StackPanel>
+
+                                            <!-- Custom Destinations -->
+                                            <TextBlock Text="Custom Destinations (comma separated)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <TextBox Text="{Binding SelectedNode.CustomDestinationsText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                     Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                     Padding="6,4" Margin="0,0,0,4"/>
+                                            <TextBlock Text="Example: Imgur, Jira, Confluence, Dropbox, ExternalCommand" FontSize="10" Foreground="{Binding TextSecondaryBrush}"/>
+                                        </StackPanel>
+                                    </StackPanel>
+
+                                    <!-- When no node is selected -->
+                                    <StackPanel Visibility="{Binding HasSelectedNode, Converter={StaticResource InvertBoolToVis}}"
+                                                VerticalAlignment="Center" Margin="0,40,0,0">
+                                        <TextBlock Text="No Step Selected" FontWeight="SemiBold" FontSize="13" Foreground="{Binding TextSecondaryBrush}" HorizontalAlignment="Center"/>
+                                        <TextBlock Text="Click a node on the canvas to configure parameters, or select a step from the toolbox to add one."
+                                                   FontSize="11" Foreground="{Binding TextSecondaryBrush}" TextWrapping="Wrap" TextAlignment="Center" Margin="10,6,10,0"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </TabItem>
+
+                        <!-- Tab 2: Recipe & Triggers -->
+                        <TabItem Header="⚡ Recipe &amp; Triggers" Style="{StaticResource InspectorTabItem}">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="6,8,6,8">
+                                <StackPanel>
+                                    <TextBlock Text="RECIPE CONFIGURATION" FontWeight="Bold" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,10"/>
+
+                                    <TextBlock Text="Recipe Name" FontSize="11" Foreground="{Binding TextSecondaryBrush}"/>
+                                    <TextBox Text="{Binding RecipeTitle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                             Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}"
+                                             Padding="6,4" Margin="0,2,0,8"/>
+
+                                    <TextBlock Text="Description" FontSize="11" Foreground="{Binding TextSecondaryBrush}"/>
+                                    <TextBox Text="{Binding RecipeDescription, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                             Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}"
+                                             TextWrapping="Wrap" AcceptsReturn="True" Height="48"
+                                             Padding="6,4" Margin="0,2,0,8"/>
+
+                                    <Grid Margin="0,0,0,10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="8"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Text="Version" FontSize="11" Foreground="{Binding TextSecondaryBrush}"/>
+                                            <TextBox Text="{Binding RecipeVersion, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                     Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}"
+                                                     Padding="6,4" Margin="0,2,0,0"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2">
+                                            <TextBlock Text="Start Step" FontSize="11" Foreground="{Binding TextSecondaryBrush}"/>
+                                            <ComboBox ItemsSource="{Binding Nodes}"
+                                                      SelectedItem="{Binding SelectedStartNode, Mode=TwoWay}"
+                                                      DisplayMemberPath="DisplayName"
+                                                      Margin="0,2,0,0" Height="28"/>
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <Separator Background="{Binding CardBorderBrush}" Margin="0,6,0,12"/>
+
+                                    <!-- Triggers Header & Action Bar -->
+                                    <Grid Margin="0,0,0,8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="TRIGGERS" FontWeight="Bold" FontSize="11" Foreground="{Binding TextSecondaryBrush}" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding Triggers.Count, StringFormat='{}{0} configured'}" FontSize="11" Foreground="{Binding TextSecondaryBrush}" VerticalAlignment="Center"/>
+                                    </Grid>
+
+                                    <!-- Quick Add Buttons -->
+                                    <WrapPanel Margin="0,0,0,10">
+                                        <Button Content="+ Hotkey" Style="{StaticResource ToolbarBtn}" Command="{Binding AddTriggerCommand}" CommandParameter="Hotkey" Margin="0,0,4,4"/>
+                                        <Button Content="+ Context Menu" Style="{StaticResource ToolbarBtn}" Command="{Binding AddTriggerCommand}" CommandParameter="ContextMenu" Margin="0,0,4,4"/>
+                                        <Button Content="+ Clipboard" Style="{StaticResource ToolbarBtn}" Command="{Binding AddTriggerCommand}" CommandParameter="Clipboard" Margin="0,0,4,4"/>
+                                        <Button Content="+ Manual" Style="{StaticResource ToolbarBtn}" Command="{Binding AddTriggerCommand}" CommandParameter="Manual" Margin="0,0,0,4"/>
+                                    </WrapPanel>
+
+                                    <!-- Triggers List -->
+                                    <ItemsControl ItemsSource="{Binding Triggers}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Background="{Binding DataContext.CardBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                        BorderBrush="{Binding DataContext.CardBorderBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                        BorderThickness="1" CornerRadius="6" Padding="10,8" Margin="0,0,0,8">
+                                                    <StackPanel>
+                                                        <!-- Card Header -->
+                                                        <Grid Margin="0,0,0,6">
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="*"/>
+                                                                <ColumnDefinition Width="Auto"/>
+                                                                <ColumnDefinition Width="Auto"/>
+                                                            </Grid.ColumnDefinitions>
+                                                            <TextBlock Text="{Binding DisplayTitle}" FontWeight="Bold" FontSize="11"
+                                                                       Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                       VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                                            <CheckBox Grid.Column="1" Content="Enabled" IsChecked="{Binding Enabled, Mode=TwoWay}"
+                                                                      Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                      FontSize="10" VerticalAlignment="Center" Margin="6,0"/>
+                                                            <Button Grid.Column="2" Style="{StaticResource TriggerDeleteBtn}"
+                                                                    Command="{Binding DataContext.RemoveTriggerCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                    CommandParameter="{Binding}"
+                                                                    ToolTip="Delete Trigger"/>
+                                                        </Grid>
+
+                                                        <!-- Trigger specific fields -->
+                                                        <!-- 1. Hotkey -->
+                                                        <StackPanel Visibility="{Binding IsHotkey, Converter={StaticResource BoolToVis}}" Margin="0,2,0,0">
+                                                            <TextBlock Text="Hotkey Combination" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                            <TextBox Text="{Binding Hotkey, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                     FontFamily="Consolas" FontSize="11"
+                                                                     Background="{Binding DataContext.WindowBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                     Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                     Padding="4,2" Margin="0,2,0,0"/>
+                                                        </StackPanel>
+
+                                                        <!-- 2. Context Menu -->
+                                                        <StackPanel Visibility="{Binding IsContextMenu, Converter={StaticResource BoolToVis}}" Margin="0,2,0,0">
+                                                            <TextBlock Text="Menu Item Label" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                            <TextBox Text="{Binding MenuItemText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                     Background="{Binding DataContext.WindowBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                     Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                     Padding="4,2" Margin="0,2,0,4"/>
+                                                            <TextBlock Text="Menu Group" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                            <TextBox Text="{Binding Group, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                     Background="{Binding DataContext.WindowBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                     Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                     Padding="4,2" Margin="0,2,0,0"/>
+                                                        </StackPanel>
+
+                                                        <!-- 3. Clipboard -->
+                                                        <StackPanel Visibility="{Binding IsClipboard, Converter={StaticResource BoolToVis}}" Margin="0,2,0,0">
+                                                            <TextBlock Text="Pattern Filter (Optional Regex)" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                            <TextBox Text="{Binding ClipboardPattern, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                     FontFamily="Consolas" FontSize="11"
+                                                                     Background="{Binding DataContext.WindowBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                     Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                     Padding="4,2" Margin="0,2,0,0"/>
+                                                        </StackPanel>
+
+                                                        <!-- 4. Manual -->
+                                                        <StackPanel Visibility="{Binding IsManual, Converter={StaticResource BoolToVis}}" Margin="0,2,0,0">
+                                                            <TextBlock Text="Trigger Name" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                            <TextBox Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                     Background="{Binding DataContext.WindowBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                     Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                     Padding="4,2" Margin="0,2,0,0"/>
+                                                        </StackPanel>
+                                                    </StackPanel>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </TabItem>
+                    </TabControl>
+                </Border>
+            </Grid>
+
+            <!-- Status Bar -->
+            <Border Grid.Row="3" Background="{Binding CardBackgroundBrush}" BorderBrush="{Binding CardBorderBrush}" BorderThickness="0,1,0,0" Padding="10,4">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="{Binding StatusMessage}" FontSize="11" Foreground="{Binding TextSecondaryBrush}" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="1" Text="Greenshot DAG Pipeline Engine" FontSize="11" Foreground="{Binding TextSecondaryBrush}" VerticalAlignment="Center"/>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

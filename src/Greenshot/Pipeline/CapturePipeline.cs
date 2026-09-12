@@ -97,6 +97,13 @@ namespace Greenshot.Pipeline
             _stepRegistry.RegisterStepFactory(WellKnownStepTypes.ImmediateFeedback, config => new ImmediateFeedbackStep(config));
             _stepRegistry.RegisterStepFactory(WellKnownStepTypes.Processors, config => new ProcessorExecutionStep(config));
             _stepRegistry.RegisterStepFactory(WellKnownStepTypes.Destinations, config => new DestinationExportStep(config, _dispatcher));
+            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.SaveFile, config => new DestinationExportStep(config, _dispatcher));
+            _stepRegistry.RegisterStepFactory("SaveToFile", config => new DestinationExportStep(config, _dispatcher));
+            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.Clipboard, config => new DestinationExportStep(config, _dispatcher));
+            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.Editor, config => new DestinationExportStep(config, _dispatcher));
+            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.Printer, config => new DestinationExportStep(config, _dispatcher));
+            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.Email, config => new DestinationExportStep(config, _dispatcher));
+            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.CustomDestination, config => new DestinationExportStep(config, _dispatcher));
             _stepRegistry.RegisterStepFactory(WellKnownStepTypes.Notification, config => new NotificationStep(config));
             _stepRegistry.RegisterStepFactory(WellKnownStepTypes.TextEffect, config => new TextEffectStep(config));
             _stepRegistry.RegisterStepFactory("ObfuscateText", config => new TextEffectStep(config));

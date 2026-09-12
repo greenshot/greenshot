@@ -72,6 +72,13 @@ namespace Greenshot.Base.Recipes
             WellKnownStepTypes.TextEffect,
             WellKnownStepTypes.Drawable,
             WellKnownStepTypes.SetVariable,
+            WellKnownStepTypes.SaveFile,
+            WellKnownStepTypes.Clipboard,
+            WellKnownStepTypes.Editor,
+            WellKnownStepTypes.Printer,
+            WellKnownStepTypes.Email,
+            WellKnownStepTypes.CustomDestination,
+            "SaveToFile",
             "ObfuscateText",
             "ExternalCommand"
         };
