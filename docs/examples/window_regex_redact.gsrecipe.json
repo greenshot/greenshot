@@ -21,8 +21,9 @@
       }
     }
   ],
-  "steps": [
+  "nodes": [
     {
+      "id": "capture_window",
       "stepType": "Source",
       "name": "Capture Target Window",
       "parameters": {
@@ -32,6 +33,7 @@
       }
     },
     {
+      "id": "shadow",
       "stepType": "Effect",
       "name": "Apply Drop Shadow",
       "parameters": {
@@ -41,6 +43,7 @@
       }
     },
     {
+      "id": "redact",
       "stepType": "TextEffect",
       "name": "Redact Sensitive Data",
       "parameters": {
@@ -59,6 +62,7 @@
       }
     },
     {
+      "id": "feedback",
       "stepType": "ImmediateFeedback",
       "name": "Camera Feedback",
       "parameters": {
@@ -66,6 +70,7 @@
       }
     },
     {
+      "id": "destination",
       "stepType": "Destinations",
       "name": "Open in Editor",
       "parameters": {
@@ -74,5 +79,14 @@
         ]
       }
     }
-  ]
+  ],
+  "flow": {
+    "startNode": "capture_window",
+    "transitions": {
+      "capture_window": "shadow",
+      "shadow": "redact",
+      "redact": "feedback",
+      "feedback": "destination"
+    }
+  }
 }

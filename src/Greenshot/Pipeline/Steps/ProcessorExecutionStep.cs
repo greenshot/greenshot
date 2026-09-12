@@ -40,9 +40,9 @@ namespace Greenshot.Pipeline.Steps
         private static readonly ILog Log = LogManager.GetLogger(typeof(ProcessorExecutionStep));
 
         public string Name { get; }
-        public RecipeStepConfig Config { get; }
+        public RecipeNodeConfig Config { get; }
 
-        public ProcessorExecutionStep(RecipeStepConfig config)
+        public ProcessorExecutionStep(RecipeNodeConfig config)
         {
             Config = config ?? throw new ArgumentNullException(nameof(config));
             Name = config.Name ?? "ProcessorExecutionStep";

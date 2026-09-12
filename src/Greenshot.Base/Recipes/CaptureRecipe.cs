@@ -27,10 +27,9 @@ using Greenshot.Base.Triggers;
 namespace Greenshot.Base.Recipes
 {
     /// <summary>
-    /// Definition of a capture recipe / workflow.
-    /// Encapsulates an ordered sequence of modular steps (source acquisition, interactive selection,
-    /// feedback, processors, destination exports, notifications, and conditional blocks).
-    /// Decoupled from triggers (hotkeys, menus, clipboard events) so any trigger can invoke any recipe.
+    /// Definition of a DAG capture recipe / workflow.
+    /// Encapsulates a Directed Acyclic Graph composed of flow-local nodes and flow transitions.
+    /// Nodes can execute asynchronously, split to multiple concurrent branches, and merge into join nodes without loops.
     /// </summary>
     public class CaptureRecipe
     {
@@ -49,9 +48,14 @@ namespace Greenshot.Base.Recipes
         public List<TriggerConfig> Triggers { get; set; } = new List<TriggerConfig>();
 
         /// <summary>
-        /// Ordered list of modular steps/blocks defining the complete flow.
+        /// Specified flow-local nodes configured for execution.
         /// </summary>
-        public List<RecipeStepConfig> Steps { get; set; } = new List<RecipeStepConfig>();
+        public List<RecipeNodeConfig> Nodes { get; set; } = new List<RecipeNodeConfig>();
+
+        /// <summary>
+        /// Flow definition specifying entry point(s) and node transitions (edges).
+        /// </summary>
+        public RecipeFlowConfig Flow { get; set; } = new RecipeFlowConfig();
 
         /// <summary>
         /// Whether this recipe should appear as an option in the systray context menu.
@@ -84,11 +88,12 @@ namespace Greenshot.Base.Recipes
             Description = description;
         }
 
-        public CaptureRecipe AddStep(RecipeStepConfig step)
+        public CaptureRecipe AddNode(RecipeNodeConfig node)
         {
-            if (step != null)
+            if (node != null)
             {
-                Steps.Add(step);
+                if (Nodes == null) Nodes = new List<RecipeNodeConfig>();
+                Nodes.Add(node);
             }
             return this;
         }
@@ -97,14 +102,20 @@ namespace Greenshot.Base.Recipes
         {
             if (trigger != null)
             {
+                if (Triggers == null) Triggers = new List<TriggerConfig>();
                 Triggers.Add(trigger);
             }
             return this;
         }
 
-        public RecipeStepConfig FindStep(string stepType)
+        public RecipeNodeConfig FindNode(string nodeId)
         {
-            return Steps.FirstOrDefault(s => string.Equals(s.StepType, stepType, StringComparison.OrdinalIgnoreCase));
+            return Nodes?.FirstOrDefault(n => string.Equals(n.Id, nodeId, StringComparison.OrdinalIgnoreCase));
+        }
+
+        public RecipeNodeConfig FindFirstNodeByType(string stepType)
+        {
+            return Nodes?.FirstOrDefault(n => string.Equals(n.StepType, stepType, StringComparison.OrdinalIgnoreCase));
         }
 
         public CaptureRecipe Clone()
@@ -119,18 +130,25 @@ namespace Greenshot.Base.Recipes
                 IsBuiltIn = IsBuiltIn,
                 IsOverridden = IsOverridden,
                 FilePath = FilePath,
-                Triggers = new List<TriggerConfig>(Triggers.Count),
-                Steps = new List<RecipeStepConfig>(Steps.Count)
+                Triggers = new List<TriggerConfig>(Triggers?.Count ?? 0),
+                Nodes = new List<RecipeNodeConfig>(Nodes?.Count ?? 0),
+                Flow = Flow?.Clone() ?? new RecipeFlowConfig()
             };
 
-            foreach (var trigger in Triggers)
+            if (Triggers != null)
             {
-                clone.Triggers.Add(trigger.Clone());
+                foreach (var trigger in Triggers)
+                {
+                    clone.Triggers.Add(trigger.Clone());
+                }
             }
 
-            foreach (var step in Steps)
+            if (Nodes != null)
             {
-                clone.Steps.Add(step.Clone());
+                foreach (var node in Nodes)
+                {
+                    clone.Nodes.Add(node.Clone());
+                }
             }
 
             return clone;

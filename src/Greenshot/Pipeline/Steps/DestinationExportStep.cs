@@ -46,9 +46,9 @@ namespace Greenshot.Pipeline.Steps
         private readonly IDestinationDispatcher _dispatcher;
 
         public string Name { get; }
-        public RecipeStepConfig Config { get; }
+        public RecipeNodeConfig Config { get; }
 
-        public DestinationExportStep(RecipeStepConfig config, IDestinationDispatcher dispatcher = null)
+        public DestinationExportStep(RecipeNodeConfig config, IDestinationDispatcher dispatcher = null)
         {
             Config = config ?? throw new ArgumentNullException(nameof(config));
             Name = config.Name ?? "DestinationExportStep";

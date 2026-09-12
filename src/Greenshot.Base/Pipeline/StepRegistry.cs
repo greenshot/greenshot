@@ -32,13 +32,13 @@ namespace Greenshot.Base.Pipeline
     public class StepRegistry : IStepRegistry
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(StepRegistry));
-        private readonly ConcurrentDictionary<string, Func<RecipeStepConfig, ICaptureStep>> _factories =
-            new ConcurrentDictionary<string, Func<RecipeStepConfig, ICaptureStep>>(StringComparer.OrdinalIgnoreCase);
+        private readonly ConcurrentDictionary<string, Func<RecipeNodeConfig, ICaptureStep>> _factories =
+            new ConcurrentDictionary<string, Func<RecipeNodeConfig, ICaptureStep>>(StringComparer.OrdinalIgnoreCase);
 
         private static StepRegistry _instance;
         public static StepRegistry Instance => _instance ??= new StepRegistry();
 
-        public void RegisterStepFactory(string stepType, Func<RecipeStepConfig, ICaptureStep> factory)
+        public void RegisterStepFactory(string stepType, Func<RecipeNodeConfig, ICaptureStep> factory)
         {
             if (string.IsNullOrEmpty(stepType)) throw new ArgumentNullException(nameof(stepType));
             if (factory == null) throw new ArgumentNullException(nameof(factory));
@@ -47,7 +47,7 @@ namespace Greenshot.Base.Pipeline
             Log.DebugFormat("Registered step factory for step type '{0}'", stepType);
         }
 
-        public ICaptureStep CreateStep(RecipeStepConfig config)
+        public ICaptureStep CreateStep(RecipeNodeConfig config)
         {
             if (config == null || string.IsNullOrEmpty(config.StepType)) return null;
 

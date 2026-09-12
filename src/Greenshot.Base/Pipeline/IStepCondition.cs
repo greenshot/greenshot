@@ -72,7 +72,7 @@ namespace Greenshot.Base.Pipeline
 
         public bool Evaluate(CaptureFlowContext context)
         {
-            var sourceStep = context.Recipe?.FindStep(WellKnownStepTypes.Source);
+            var sourceStep = context.Recipe?.FindFirstNodeByType(WellKnownStepTypes.Source);
             if (sourceStep != null)
             {
                 var st = sourceStep.GetParameter<CaptureSourceType>("SourceType");

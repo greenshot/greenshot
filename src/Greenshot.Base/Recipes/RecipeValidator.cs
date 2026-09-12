@@ -21,6 +21,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Greenshot.Base.Interfaces;
 
 namespace Greenshot.Base.Recipes
@@ -52,8 +53,8 @@ namespace Greenshot.Base.Recipes
     }
 
     /// <summary>
-    /// Validates CaptureRecipe instances against the written JSON contract (recipe.schema.json).
-    /// Prevents malformed, incomplete, or invalid recipes from being registered into the pipeline.
+    /// Validates CaptureRecipe DAG structures against the schema contract.
+    /// Enforces unique node IDs, valid entry points, reachable targets, and strictly prevents loops/cycles.
     /// </summary>
     public static class RecipeValidator
     {
@@ -69,6 +70,8 @@ namespace Greenshot.Base.Recipes
             WellKnownStepTypes.Notification,
             WellKnownStepTypes.Conditional,
             WellKnownStepTypes.TextEffect,
+            WellKnownStepTypes.Drawable,
+            WellKnownStepTypes.SetVariable,
             "ObfuscateText",
             "ExternalCommand"
         };
@@ -84,7 +87,7 @@ namespace Greenshot.Base.Recipes
         };
 
         /// <summary>
-        /// Validates a CaptureRecipe against the formal schema contract.
+        /// Validates a CaptureRecipe DAG against the formal schema contract.
         /// </summary>
         public static RecipeValidationResult Validate(CaptureRecipe recipe)
         {
@@ -130,17 +133,22 @@ namespace Greenshot.Base.Recipes
                 }
             }
 
-            if (recipe.Steps == null || recipe.Steps.Count == 0)
+            // Validate Nodes
+            if (recipe.Nodes == null || recipe.Nodes.Count == 0)
             {
-                result.AddError("Recipe must contain at least one step in 'steps'.");
+                result.AddError("Recipe must contain at least one node in 'nodes'.");
                 return result;
             }
 
-            for (int i = 0; i < recipe.Steps.Count; i++)
+            var nodeIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            for (int i = 0; i < recipe.Nodes.Count; i++)
             {
-                var step = recipe.Steps[i];
-                ValidateStep(step, i, result);
+                var node = recipe.Nodes[i];
+                ValidateNode(node, i, nodeIds, result);
             }
+
+            // Validate Flow Definition & DAG acyclicity
+            ValidateFlowAndDetectCycles(recipe, nodeIds, result);
 
             return result;
         }
@@ -174,96 +182,207 @@ namespace Greenshot.Base.Recipes
             }
         }
 
-        private static void ValidateStep(RecipeStepConfig step, int index, RecipeValidationResult result)
+        private static void ValidateNode(RecipeNodeConfig node, int index, HashSet<string> seenIds, RecipeValidationResult result)
         {
-            if (step == null)
+            if (node == null)
             {
-                result.AddError($"Step at index {index} cannot be null.");
+                result.AddError($"Node at index {index} cannot be null.");
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(step.StepType))
+            if (string.IsNullOrWhiteSpace(node.Id))
             {
-                result.AddError($"Step at index {index} is missing required 'stepType'.");
-                return;
+                result.AddError($"Node at index {index} is missing required 'id'.");
             }
-
-            if (!KnownStepTypes.Contains(step.StepType))
+            else
             {
-                // Non-standard step types might be provided by plugins, treat as warning rather than hard rejection
-                result.AddWarning($"Step at index {index} has unrecognized stepType '{step.StepType}'. Ensure a matching plugin step factory is registered.");
-            }
-
-            // Step-specific parameter validations
-            if (string.Equals(step.StepType, WellKnownStepTypes.Border, StringComparison.OrdinalIgnoreCase))
-            {
-                if (step.Parameters.TryGetValue("Width", out var w) && w != null)
+                if (seenIds.Contains(node.Id))
                 {
-                    try
+                    result.AddError($"Duplicate node id '{node.Id}' found in recipe.");
+                }
+                else
+                {
+                    seenIds.Add(node.Id);
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(node.StepType))
+            {
+                result.AddError($"Node '{node.Id ?? index.ToString()}' is missing required 'stepType'.");
+                return;
+            }
+
+            if (!KnownStepTypes.Contains(node.StepType))
+            {
+                result.AddWarning($"Node '{node.Id}' has unrecognized stepType '{node.StepType}'. Ensure a matching plugin step factory is registered.");
+            }
+
+            // Node-specific parameter validations
+            if (string.Equals(node.StepType, WellKnownStepTypes.Border, StringComparison.OrdinalIgnoreCase))
+            {
+                if (node.Parameters != null && node.Parameters.TryGetValue("Width", out var w) && w != null)
+                {
+                    if (int.TryParse(w.ToString(), out int width) && width < 1)
                     {
-                        int width = Convert.ToInt32(w);
-                        if (width < 1)
-                        {
-                            result.AddError($"Step '{step.Name}' [Border]: 'Width' must be greater than or equal to 1 (got {width}).");
-                        }
-                    }
-                    catch
-                    {
-                        result.AddError($"Step '{step.Name}' [Border]: 'Width' must be a valid integer.");
+                        result.AddError($"Node '{node.Id}' [Border]: 'Width' must be greater than or equal to 1 (got {width}).");
                     }
                 }
             }
-            else if (string.Equals(step.StepType, WellKnownStepTypes.Source, StringComparison.OrdinalIgnoreCase))
+            else if (string.Equals(node.StepType, WellKnownStepTypes.Source, StringComparison.OrdinalIgnoreCase))
             {
-                if (step.Parameters.TryGetValue("SourceType", out var st) && st is string stStr)
+                if (node.Parameters != null && node.Parameters.TryGetValue("SourceType", out var st) && st is string stStr)
                 {
                     if (!Enum.TryParse<CaptureSourceType>(stStr, true, out _))
                     {
-                        result.AddError($"Step '{step.Name}' [Source]: Unknown SourceType '{stStr}'.");
-                    }
-                }
-
-                if (step.Parameters.TryGetValue("DelayMs", out var delay) && delay != null)
-                {
-                    try
-                    {
-                        int d = Convert.ToInt32(delay);
-                        if (d < 0)
-                        {
-                            result.AddError($"Step '{step.Name}' [Source]: 'DelayMs' cannot be negative.");
-                        }
-                    }
-                    catch
-                    {
-                        result.AddError($"Step '{step.Name}' [Source]: 'DelayMs' must be a valid integer.");
+                        result.AddError($"Node '{node.Id}' [Source]: Unknown SourceType '{stStr}'.");
                     }
                 }
             }
-            else if (string.Equals(step.StepType, WellKnownStepTypes.InteractiveSelection, StringComparison.OrdinalIgnoreCase))
+            else if (string.Equals(node.StepType, WellKnownStepTypes.InteractiveSelection, StringComparison.OrdinalIgnoreCase))
             {
-                if (step.Parameters.TryGetValue("SelectionMode", out var sm) && sm is string smStr)
+                if (node.Parameters != null && node.Parameters.TryGetValue("SelectionMode", out var sm) && sm is string smStr)
                 {
                     if (!Enum.TryParse<CaptureMode>(smStr, true, out _))
                     {
-                        result.AddError($"Step '{step.Name}' [InteractiveSelection]: Unknown SelectionMode '{smStr}'.");
+                        result.AddError($"Node '{node.Id}' [InteractiveSelection]: Unknown SelectionMode '{smStr}'.");
                     }
                 }
             }
-            else if (string.Equals(step.StepType, WellKnownStepTypes.Conditional, StringComparison.OrdinalIgnoreCase))
-            {
-                if (!step.Parameters.ContainsKey("Condition") && !step.Parameters.ContainsKey("condition"))
-                {
-                    result.AddError($"Step '{step.Name}' [Conditional]: A 'Condition' parameter must be specified.");
-                }
-            }
-            else if (string.Equals(step.StepType, "ExternalCommand", StringComparison.OrdinalIgnoreCase) ||
-                     step.Parameters.ContainsKey("Command") ||
-                     step.Parameters.ContainsKey("Executable"))
+            else if (string.Equals(node.StepType, "ExternalCommand", StringComparison.OrdinalIgnoreCase) ||
+                     (node.Parameters != null && (node.Parameters.ContainsKey("Command") || node.Parameters.ContainsKey("Executable"))))
             {
                 result.HasExternalCommands = true;
-                string cmd = step.GetParameter<string>("Command") ?? step.GetParameter<string>("Executable") ?? step.Name;
+                string cmd = node.GetParameter<string>("Command") ?? node.GetParameter<string>("Executable") ?? node.Name;
                 result.ExternalCommands.Add(cmd);
             }
+        }
+
+        private static void ValidateFlowAndDetectCycles(CaptureRecipe recipe, HashSet<string> validNodeIds, RecipeValidationResult result)
+        {
+            var flow = recipe.Flow;
+            if (flow == null)
+            {
+                result.AddError("Recipe 'flow' definition is required.");
+                return;
+            }
+
+            var startNodes = flow.GetEffectiveStartNodes();
+            if (startNodes.Count == 0)
+            {
+                // If only 1 node in recipe, default to it
+                if (recipe.Nodes.Count == 1)
+                {
+                    startNodes.Add(recipe.Nodes[0].Id);
+                    flow.StartNode = recipe.Nodes[0].Id;
+                }
+                else
+                {
+                    result.AddError("Flow definition must specify at least one entry node in 'startNode' or 'startNodes'.");
+                }
+            }
+
+            foreach (var startId in startNodes)
+            {
+                if (!validNodeIds.Contains(startId))
+                {
+                    result.AddError($"Flow start node '{startId}' does not match any defined node id.");
+                }
+            }
+
+            var transitions = flow.GetUnifiedTransitions();
+
+            // Validate that all source and target transition IDs exist in Nodes
+            foreach (var kvp in transitions)
+            {
+                string fromNode = kvp.Key;
+                if (!validNodeIds.Contains(fromNode))
+                {
+                    result.AddError($"Flow transition source node '{fromNode}' does not exist in 'nodes'.");
+                }
+
+                foreach (var toNode in kvp.Value)
+                {
+                    if (!validNodeIds.Contains(toNode))
+                    {
+                        result.AddError($"Flow transition target node '{toNode}' (from '{fromNode}') does not exist in 'nodes'.");
+                    }
+                }
+            }
+
+            // Detect cycles/loops using Depth-First Search with 3-color marking
+            // 0 = Unvisited (White), 1 = Visiting / in current stack (Gray), 2 = Visited / complete (Black)
+            var state = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            var parentPath = new List<string>();
+
+            foreach (var nodeId in validNodeIds)
+            {
+                state[nodeId] = 0;
+            }
+
+            foreach (var startNode in startNodes)
+            {
+                if (validNodeIds.Contains(startNode) && state[startNode] == 0)
+                {
+                    if (DetectCycleDfs(startNode, transitions, state, parentPath, out var cyclePath))
+                    {
+                        result.AddError($"Cycle/loop detected in recipe flow: {string.Join(" -> ", cyclePath)}. Loops are strictly disallowed in DAG flows.");
+                        return;
+                    }
+                }
+            }
+
+            // Check any disconnected components for cycles as well
+            foreach (var nodeId in validNodeIds)
+            {
+                if (state[nodeId] == 0)
+                {
+                    if (DetectCycleDfs(nodeId, transitions, state, parentPath, out var cyclePath))
+                    {
+                        result.AddError($"Cycle/loop detected in recipe flow: {string.Join(" -> ", cyclePath)}. Loops are strictly disallowed in DAG flows.");
+                        return;
+                    }
+                }
+            }
+        }
+
+        private static bool DetectCycleDfs(
+            string current,
+            Dictionary<string, List<string>> transitions,
+            Dictionary<string, int> state,
+            List<string> path,
+            out List<string> cyclePath)
+        {
+            state[current] = 1; // Visiting (Gray)
+            path.Add(current);
+
+            if (transitions.TryGetValue(current, out var nextNodes) && nextNodes != null)
+            {
+                foreach (var next in nextNodes)
+                {
+                    if (!state.TryGetValue(next, out int nextState)) continue;
+
+                    if (nextState == 1) // Cycle detected (Back edge to ancestor in current DFS stack)
+                    {
+                        int cycleStart = path.IndexOf(next);
+                        cyclePath = path.Skip(cycleStart >= 0 ? cycleStart : 0).ToList();
+                        cyclePath.Add(next);
+                        return true;
+                    }
+
+                    if (nextState == 0) // Unvisited
+                    {
+                        if (DetectCycleDfs(next, transitions, state, path, out cyclePath))
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            path.RemoveAt(path.Count - 1);
+            state[current] = 2; // Visited (Black)
+            cyclePath = null;
+            return false;
         }
     }
 }
