@@ -786,6 +786,29 @@ namespace Greenshot.Forms
                 recipeManager.ReloadRecipes();
             };
             _recipesMenuItem.DropDownItems.Add(reloadItem);
+
+            var editorItem = new ToolStripMenuItem(Language.GetString("contextmenu_recipeeditor") ?? "Recipe Editor (Web)...");
+            editorItem.Click += (s, ev) =>
+            {
+                OnOpenRecipeEditorClicked();
+            };
+            _recipesMenuItem.DropDownItems.Add(editorItem);
+        }
+
+        private void OnOpenRecipeEditorClicked()
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = "https://getgreenshot.org/recipe-editor/",
+                    UseShellExecute = true
+                });
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Failed to open recipe editor in browser.", ex);
+            }
         }
 
         private void OnImportRecipeClicked()
