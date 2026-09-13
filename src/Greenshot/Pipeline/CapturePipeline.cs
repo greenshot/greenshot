@@ -107,6 +107,8 @@ namespace Greenshot.Pipeline
             _stepRegistry.RegisterStepFactory(WellKnownStepTypes.Notification, config => new NotificationStep(config));
             _stepRegistry.RegisterStepFactory(WellKnownStepTypes.TextEffect, config => new TextEffectStep(config));
             _stepRegistry.RegisterStepFactory("ObfuscateText", config => new TextEffectStep(config));
+            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.UserPrompt, config => new UserPromptStep(config));
+            _stepRegistry.RegisterStepFactory("PromptChoice", config => new UserPromptStep(config));
         }
 
         public async Task<CaptureFlowContext> ExecuteAsync(

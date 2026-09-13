@@ -180,7 +180,7 @@ namespace Greenshot.Pipeline
                     return;
                 }
 
-                // Evaluate conditional branch selection if this is a Conditional node
+                // Evaluate conditional branch selection if this is a Conditional or UserPrompt node
                 string matchedBranchKey = null;
                 if (string.Equals(nodeConfig.StepType, WellKnownStepTypes.Conditional, StringComparison.OrdinalIgnoreCase))
                 {
@@ -228,6 +228,23 @@ namespace Greenshot.Pipeline
 
                         context.LogStep($"Conditional node [{nodeId}] evaluated branch -> '{matchedBranchKey ?? "None"}'");
                     }
+                }
+                else if (string.Equals(nodeConfig.StepType, WellKnownStepTypes.UserPrompt, StringComparison.OrdinalIgnoreCase))
+                {
+                    if (context.Properties.TryGetValue("UserPrompt.Choice." + nodeId, out var choiceObj) && choiceObj != null)
+                    {
+                        matchedBranchKey = choiceObj.ToString();
+                    }
+                    else if (context.Properties.TryGetValue("UserChoice." + nodeId, out var ucObj) && ucObj != null)
+                    {
+                        matchedBranchKey = ucObj.ToString();
+                    }
+                    else if (context.Properties.TryGetValue("LastUserChoice", out var lastChoice) && lastChoice != null)
+                    {
+                        matchedBranchKey = lastChoice.ToString();
+                    }
+
+                    context.LogStep($"UserPrompt node [{nodeId}] selected branch -> '{matchedBranchKey ?? "None"}'");
                 }
 
                 // Determine active next nodes to launch vs bypassed nodes

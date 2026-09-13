@@ -23,6 +23,14 @@ namespace Greenshot.UI.RecipeEditor.Layout
             IEnumerable<StepConnectionViewModel> connections,
             string startNodeId)
         {
+            ApplyLayout(nodes, connections, string.IsNullOrWhiteSpace(startNodeId) ? null : new[] { startNodeId });
+        }
+
+        public static void ApplyLayout(
+            IEnumerable<StepNodeViewModel> nodes,
+            IEnumerable<StepConnectionViewModel> connections,
+            IEnumerable<string> startNodeIds)
+        {
             var nodeList = nodes.ToList();
             var connList = connections.ToList();
             if (nodeList.Count == 0) return;
@@ -59,11 +67,17 @@ namespace Greenshot.UI.RecipeEditor.Layout
                 }
             }
 
-            // Find root nodes (startNode first, then 0 in-degree nodes)
+            // Find root nodes (startNodes first, then 0 in-degree nodes)
             var roots = new List<string>();
-            if (!string.IsNullOrEmpty(startNodeId) && nodeMap.ContainsKey(startNodeId))
+            if (startNodeIds != null)
             {
-                roots.Add(startNodeId);
+                foreach (var snId in startNodeIds)
+                {
+                    if (!string.IsNullOrWhiteSpace(snId) && nodeMap.ContainsKey(snId) && !roots.Contains(snId, StringComparer.OrdinalIgnoreCase))
+                    {
+                        roots.Add(snId);
+                    }
+                }
             }
             foreach (var kvp in inDegree)
             {
@@ -244,13 +258,52 @@ namespace Greenshot.UI.RecipeEditor.Layout
                 }
             }
 
+            // Compute dynamic Y offsets per level based on the tallest node in each level
+            var levelY = new Dictionary<int, double>();
+            double currentY = StartY;
+            foreach (var lvl in sortedLevels)
+            {
+                levelY[lvl] = currentY;
+                var ids = levelGroups[lvl];
+                double maxLevelHeight = ids
+                    .Select(id => nodeMap.TryGetValue(id, out var n) ? EstimateNodeHeight(n) : 95.0)
+                    .DefaultIfEmpty(95.0)
+                    .Max();
+                currentY += maxLevelHeight + 50.0; // 50px vertical margin between levels
+            }
+
             // Apply calculated positions to ViewModels
             foreach (var n in nodeList)
             {
                 double x = computedX.TryGetValue(n.Id, out var cx) ? cx : StartX;
-                double y = StartY + (nodeLevels.TryGetValue(n.Id, out var lvl) ? lvl : 0) * LevelYGap;
+                int lvl = nodeLevels.TryGetValue(n.Id, out var l) ? l : 0;
+                double y = levelY.TryGetValue(lvl, out var cy) ? cy : StartY + (lvl * 140.0);
                 n.Location = new Point(Math.Max(50, x), Math.Max(50, y));
             }
+        }
+
+        private static double EstimateNodeHeight(StepNodeViewModel node)
+        {
+            if (node == null) return 95;
+            if (node.IsUserPrompt)
+            {
+                int count = node.PromptChoices?.Count ?? 0;
+                return Math.Max(170, 115 + (count * 28));
+            }
+            if (node.IsConditional)
+            {
+                int count = node.ConditionBranches?.Count ?? 0;
+                return Math.Max(150, 105 + (count * 28));
+            }
+            if (node.Drawables != null && node.Drawables.Count > 0)
+            {
+                return Math.Max(120, 90 + (node.Drawables.Count * 24));
+            }
+            if (node.Variables != null && node.Variables.Count > 0)
+            {
+                return Math.Max(120, 90 + (node.Variables.Count * 24));
+            }
+            return 95;
         }
     }
 }

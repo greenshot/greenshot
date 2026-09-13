@@ -42,6 +42,8 @@ namespace Greenshot.Editor.Destinations
         private static readonly IEditorConfiguration editorConfiguration = IniConfigRegistry.GetSection<IEditorConfiguration>();
         public const string DESIGNATION = "Editor";
         private readonly IImageEditor editor;
+        private readonly bool? _reuseEditor;
+        private readonly bool? _matchSizeToCapture;
         private static readonly Image greenshotIcon = GreenshotResources.GetGreenshotIcon().ToBitmap();
 
         public EditorDestination()
@@ -52,6 +54,12 @@ namespace Greenshot.Editor.Destinations
         public EditorDestination(IImageEditor editor)
         {
             this.editor = editor;
+        }
+
+        public EditorDestination(bool? reuseEditor = null, bool? matchSizeToCapture = null)
+        {
+            _reuseEditor = reuseEditor;
+            _matchSizeToCapture = matchSizeToCapture;
         }
 
         public override string Designation => DESIGNATION;
@@ -92,7 +100,8 @@ namespace Greenshot.Editor.Destinations
             bool modified = surface.Modified;
             if (editor == null)
             {
-                if (editorConfiguration.ReuseEditor)
+                bool reuse = _reuseEditor ?? editorConfiguration.ReuseEditor;
+                if (reuse)
                 {
                     foreach (IImageEditor openedEditor in ImageEditorForm.Editors)
                     {
@@ -117,7 +126,7 @@ namespace Greenshot.Editor.Destinations
                 {
                     try
                     {
-                        ImageEditorForm editorForm = new ImageEditorForm(surface, !surface.Modified); // Output made??
+                        ImageEditorForm editorForm = new ImageEditorForm(surface, !surface.Modified, _matchSizeToCapture); // Output made??
 
                         if (!string.IsNullOrEmpty(captureDetails.Filename))
                         {

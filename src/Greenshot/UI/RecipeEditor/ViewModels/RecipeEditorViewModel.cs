@@ -132,6 +132,7 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
                     }
                     UpdateConnectionHighlighting();
                     OnPropertyChanged(nameof(HasSelectedNode));
+                    OnPropertyChanged(nameof(HasSelection));
                     (DeleteSelectedCommand as RelayCommand)?.RaiseCanExecuteChanged();
                 }
             }
@@ -144,19 +145,29 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
             get => _selectedConnection;
             set
             {
+                if (_selectedConnection != null)
+                {
+                    _selectedConnection.IsSelected = false;
+                }
                 if (SetField(ref _selectedConnection, value))
                 {
-                    if (value != null && _selectedNode != null)
+                    if (_selectedConnection != null)
                     {
-                        SelectedNode = null;
+                        _selectedConnection.IsSelected = true;
+                        if (_selectedNode != null)
+                        {
+                            SelectedNode = null;
+                        }
                     }
                     OnPropertyChanged(nameof(HasSelectedConnection));
+                    OnPropertyChanged(nameof(HasSelection));
                     (DeleteSelectedCommand as RelayCommand)?.RaiseCanExecuteChanged();
                 }
             }
         }
 
         public bool HasSelectedConnection => SelectedConnection != null;
+        public bool HasSelection => HasSelectedNode || HasSelectedConnection;
 
         public string StatusMessage
         {
@@ -212,6 +223,7 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
         public ICommand ToggleMermaidViewCommand { get; }
         public ICommand CopyMermaidCommand { get; }
         public ICommand SetStartNodeCommand { get; }
+        public ICommand ToggleStartNodeCommand { get; }
         public ICommand AddTriggerCommand { get; }
         public ICommand RemoveTriggerCommand { get; }
         public ICommand ToggleThemeCommand { get; }
@@ -233,6 +245,7 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
             ToggleMermaidViewCommand = new RelayCommand(ToggleMermaidView);
             CopyMermaidCommand = new RelayCommand(CopyMermaidToClipboard);
             SetStartNodeCommand = new RelayCommand(p => SetStartNode(p as StepNodeViewModel ?? SelectedNode));
+            ToggleStartNodeCommand = new RelayCommand(p => ToggleStartNode(p as StepNodeViewModel ?? SelectedNode));
             AddTriggerCommand = new RelayCommand(p => AddTrigger(p as string));
             RemoveTriggerCommand = new RelayCommand(p => RemoveTrigger(p as TriggerItemViewModel));
             ToggleThemeCommand = new RelayCommand(WpfThemeHelper.ToggleTheme);
@@ -321,7 +334,7 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
 
             foreach (var nodeConfig in recipe.Nodes)
             {
-                var vm = new StepNodeViewModel(nodeConfig, new Point(defaultX, defaultY), SetStartNode, DeleteNode, HandleNodeIdChanged);
+                var vm = new StepNodeViewModel(nodeConfig, new Point(defaultX, defaultY), SetStartNode, DeleteNode, HandleNodeIdChanged, OnNodeStartToggled);
                 vm.IsStartNode = recipe.Flow?.StartNodes != null && recipe.Flow.StartNodes.Contains(nodeConfig.Id, StringComparer.OrdinalIgnoreCase);
                 Nodes.Add(vm);
                 nodeMap[nodeConfig.Id] = vm;
@@ -360,7 +373,8 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
                     if (nodeMap.TryGetValue(ct.From, out var sourceNode) && nodeMap.TryGetValue(ct.To, out var targetNode))
                     {
                         var branch = sourceNode.ConditionBranches.FirstOrDefault(b => string.Equals(b.Key, ct.Branch, StringComparison.OrdinalIgnoreCase));
-                        StepPortViewModel outPort = branch?.Port ?? sourceNode.OutputPort;
+                        var promptChoice = sourceNode.PromptChoices.FirstOrDefault(p => string.Equals(p.Key, ct.Branch, StringComparison.OrdinalIgnoreCase));
+                        StepPortViewModel outPort = branch?.Port ?? promptChoice?.Port ?? sourceNode.OutputPort;
                         var conn = new StepConnectionViewModel(outPort, targetNode.InputPort, RemoveConnection);
                         Connections.Add(conn);
                         outPort.IsConnected = true;
@@ -377,20 +391,34 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
             StatusMessage = $"Loaded recipe '{recipe.Name}' ({recipe.Nodes.Count} steps, {Triggers.Count} triggers)";
         }
 
+        private void OnNodeStartToggled(StepNodeViewModel node)
+        {
+            if (ActiveRecipe?.Flow != null)
+            {
+                ActiveRecipe.Flow.StartNodes = Nodes.Where(n => n.IsStartNode).Select(n => n.Id).ToList();
+                IsDirty = true;
+                OnPropertyChanged(nameof(SelectedStartNode));
+                StatusMessage = node.IsStartNode ? $"Added '{node.DisplayName}' to Start Steps" : $"Removed '{node.DisplayName}' from Start Steps";
+            }
+        }
+
         public void SetStartNode(StepNodeViewModel node)
         {
             if (node == null) return;
-            foreach (var n in Nodes)
-            {
-                n.IsStartNode = (n == node);
-            }
+            node.IsStartNode = true;
             if (ActiveRecipe?.Flow != null)
             {
-                ActiveRecipe.Flow.StartNodes = new List<string> { node.Id };
+                ActiveRecipe.Flow.StartNodes = Nodes.Where(n => n.IsStartNode).Select(n => n.Id).ToList();
             }
             OnPropertyChanged(nameof(SelectedStartNode));
             IsDirty = true;
-            StatusMessage = $"'{node.DisplayName}' set as Start Step";
+            StatusMessage = $"'{node.DisplayName}' marked as Start Step";
+        }
+
+        public void ToggleStartNode(StepNodeViewModel node)
+        {
+            if (node == null) return;
+            node.IsStartNode = !node.IsStartNode;
         }
 
         public void LoadTriggersFromRecipe(CaptureRecipe recipe)
@@ -450,8 +478,12 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
 
         public void PerformAutoLayout()
         {
-            string startId = ActiveRecipe?.Flow?.StartNodes?.FirstOrDefault();
-            DagAutoLayout.ApplyLayout(Nodes, Connections, startId);
+            var startIds = Nodes.Where(n => n.IsStartNode).Select(n => n.Id).ToList();
+            if (startIds.Count == 0 && ActiveRecipe?.Flow?.StartNodes != null)
+            {
+                startIds = ActiveRecipe.Flow.StartNodes.ToList();
+            }
+            DagAutoLayout.ApplyLayout(Nodes, Connections, startIds);
         }
 
         public void Connect(StepPortViewModel source, StepPortViewModel target)
@@ -551,7 +583,7 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
             double x = 350;
             double y = Nodes.Count > 0 ? Nodes.Max(n => n.Location.Y) + 140 : 100;
 
-            var nodeVm = new StepNodeViewModel(config, new Point(x, y), SetStartNode, DeleteNode, HandleNodeIdChanged);
+            var nodeVm = new StepNodeViewModel(config, new Point(x, y), SetStartNode, DeleteNode, HandleNodeIdChanged, OnNodeStartToggled);
             if (Nodes.Count == 0)
             {
                 nodeVm.IsStartNode = true;
@@ -655,6 +687,10 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
                 {
                     b.Port.IsConnected = Connections.Any(c => c.Source == b.Port);
                 }
+                foreach (var p in n.PromptChoices)
+                {
+                    p.Port.IsConnected = Connections.Any(c => c.Source == p.Port);
+                }
             }
 
             SyncRecipeTransitions();
@@ -693,9 +729,14 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
                 if (c.SourceNode != null && c.TargetNode != null)
                 {
                     var branch = c.SourceNode.ConditionBranches.FirstOrDefault(b => b.Port == c.Source);
+                    var promptChoice = c.SourceNode.PromptChoices.FirstOrDefault(p => p.Port == c.Source);
                     if (branch != null)
                     {
                         conditionalTransitions.Add(new RecipeConditionalTransitionConfig(c.SourceNode.Id, branch.Key, c.TargetNode.Id));
+                    }
+                    else if (promptChoice != null)
+                    {
+                        conditionalTransitions.Add(new RecipeConditionalTransitionConfig(c.SourceNode.Id, promptChoice.Key, c.TargetNode.Id));
                     }
                     else
                     {
@@ -1195,6 +1236,18 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
                     {
                         new Dictionary<string, string> { { "key", "A" }, { "expression", "${payload.width > 800}" } },
                         new Dictionary<string, string> { { "key", "B" }, { "expression", "else" } }
+                    };
+                    break;
+                case WellKnownStepTypes.UserPrompt:
+                case "PromptChoice":
+                    dict["Title"] = "Greenshot decision";
+                    dict["Message"] = "Please confirm the next step for this capture:";
+                    dict["ShowPreview"] = true;
+                    dict["TimeoutSeconds"] = 0;
+                    dict["Choices"] = new List<object>
+                    {
+                        new Dictionary<string, object> { { "Key", "Yes" }, { "Label", "Yes, Proceed" }, { "Style", "Primary" }, { "IsDefault", true }, { "IsCancel", false } },
+                        new Dictionary<string, object> { { "Key", "No" }, { "Label", "No, Cancel" }, { "Style", "Secondary" }, { "IsDefault", false }, { "IsCancel", true } }
                     };
                     break;
                 case WellKnownStepTypes.Processors:

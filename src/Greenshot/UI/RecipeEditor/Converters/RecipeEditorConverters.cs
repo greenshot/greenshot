@@ -32,11 +32,21 @@ namespace Greenshot.UI.RecipeEditor.Converters
                 case "Processors":
                     return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#0969da")); // Cyan/Blue
                 case "Destinations":
+                case "SaveFile":
+                case "SaveToFile":
+                case "Clipboard":
+                case "Editor":
+                case "Printer":
+                case "Email":
+                case "CustomDestination":
                     return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#8250df")); // Purple
                 case "Notification":
                     return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#57606a")); // Gray
                 case "Conditional":
                     return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#bc4c00")); // Orange
+                case "UserPrompt":
+                case "PromptChoice":
+                    return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#1a7f37")); // Forest Green
                 default:
                     return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#57606a"));
             }
@@ -63,8 +73,17 @@ namespace Greenshot.UI.RecipeEditor.Converters
                 case "ImmediateFeedback": return "🔊";
                 case "Processors": return "⚙️";
                 case "Destinations": return "↗️";
+                case "SaveFile":
+                case "SaveToFile": return "💾";
+                case "Clipboard": return "📋";
+                case "Editor": return "✏️";
+                case "Printer": return "🖨️";
+                case "Email": return "✉️";
+                case "CustomDestination": return "🔌";
                 case "Notification": return "🔔";
                 case "Conditional": return "🔀";
+                case "UserPrompt":
+                case "PromptChoice": return "❓";
                 default: return "📦";
             }
         }

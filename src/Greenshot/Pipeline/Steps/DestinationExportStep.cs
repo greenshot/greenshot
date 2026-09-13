@@ -15,6 +15,7 @@ using Greenshot.Base.Pipeline;
 using Greenshot.Base.Recipes;
 using Greenshot.Destinations;
 using Greenshot.Editor.Destinations;
+using Greenshot.Helpers;
 using log4net;
 
 namespace Greenshot.Pipeline.Steps
@@ -62,19 +63,51 @@ namespace Greenshot.Pipeline.Steps
             {
                 if (string.IsNullOrWhiteSpace(designation)) continue;
 
-                // Case-insensitive destination matching
-                var dest = DestinationHelper.GetAllDestinations()
-                    .FirstOrDefault(d => string.Equals(d.Designation, designation, StringComparison.OrdinalIgnoreCase));
+                IDestination dest = null;
 
-                if (dest == null)
+                if (string.Equals(designation, EditorDestination.DESIGNATION, StringComparison.OrdinalIgnoreCase))
                 {
-                    dest = SimpleServiceProvider.Current.GetAllInstances<IDestination>()
-                        .FirstOrDefault(d => string.Equals(d.Designation, designation, StringComparison.OrdinalIgnoreCase));
+                    bool? reuse = Config.GetParameter<bool?>("ReuseEditor");
+                    bool? matchSize = Config.GetParameter<bool?>("MatchSizeToCapture");
+                    dest = new EditorDestination(reuse, matchSize);
                 }
-
-                if (dest == null && string.Equals(designation, EditorDestination.DESIGNATION, StringComparison.OrdinalIgnoreCase))
+                else if (string.Equals(designation, nameof(WellKnownDestinations.Printer), StringComparison.OrdinalIgnoreCase))
                 {
-                    dest = new EditorDestination();
+                    string printerName = Config.GetParameter<string>("PrinterName");
+                    bool? promptOptions = Config.GetParameter<bool?>("ShowPrintDialog") ?? Config.GetParameter<bool?>("PromptOptions");
+                    bool? allowRotate = Config.GetParameter<bool?>("AllowRotate");
+                    bool? allowEnlarge = Config.GetParameter<bool?>("AllowEnlarge");
+                    bool? allowShrink = Config.GetParameter<bool?>("AllowShrink");
+                    bool? center = Config.GetParameter<bool?>("Center");
+                    string colorMode = Config.GetParameter<string>("ColorMode");
+                    bool? printFooter = Config.GetParameter<bool?>("PrintFooter") ?? Config.GetParameter<bool?>("Footer");
+                    string footerPattern = Config.GetParameter<string>("FooterPattern");
+
+                    var printOptions = new PrintOptions
+                    {
+                        AllowRotate = allowRotate,
+                        AllowEnlarge = allowEnlarge,
+                        AllowShrink = allowShrink,
+                        Center = center,
+                        PromptOptions = promptOptions,
+                        Footer = printFooter,
+                        FooterPattern = footerPattern,
+                        Grayscale = string.Equals(colorMode, "Grayscale", StringComparison.OrdinalIgnoreCase) ? true : (string.Equals(colorMode, "Color", StringComparison.OrdinalIgnoreCase) ? false : (bool?)null),
+                        Monochrome = string.Equals(colorMode, "Monochrome", StringComparison.OrdinalIgnoreCase) ? true : (string.Equals(colorMode, "Color", StringComparison.OrdinalIgnoreCase) ? false : (bool?)null),
+                    };
+                    dest = new PrinterDestination(printerName, printOptions);
+                }
+                else
+                {
+                    // Case-insensitive destination matching
+                    dest = DestinationHelper.GetAllDestinations()
+                        .FirstOrDefault(d => string.Equals(d.Designation, designation, StringComparison.OrdinalIgnoreCase));
+
+                    if (dest == null)
+                    {
+                        dest = SimpleServiceProvider.Current.GetAllInstances<IDestination>()
+                            .FirstOrDefault(d => string.Equals(d.Designation, designation, StringComparison.OrdinalIgnoreCase));
+                    }
                 }
 
                 if (dest != null && dest.IsActive)
@@ -108,6 +141,29 @@ namespace Greenshot.Pipeline.Steps
                 ?? Config.GetParameter<string>("OutputDirectory")
                 ?? Config.GetParameter<string>("Directory")
                 ?? Config.GetParameter<string>("SavePath");
+
+            bool? promptQuality = Config.GetParameter<bool?>("PromptQuality") ?? Config.GetParameter<bool?>("PromptForQuality");
+            if (promptQuality.HasValue) context.Properties["Destination.PromptQuality"] = promptQuality.Value;
+
+            bool? allowOverwrite = Config.GetParameter<bool?>("AllowOverwrite");
+            if (allowOverwrite.HasValue) context.Properties["Destination.AllowOverwrite"] = allowOverwrite.Value;
+
+            bool? copyPath = Config.GetParameter<bool?>("CopyPathToClipboard") ?? Config.GetParameter<bool?>("CopyPath");
+            if (copyPath.HasValue) context.Properties["Destination.CopyPathToClipboard"] = copyPath.Value;
+
+            int? jpegQuality = Config.GetParameter<int?>("JpegQuality");
+            bool? reduceColors = Config.GetParameter<bool?>("ReduceColors") ?? Config.GetParameter<bool?>("OutputFileReduceColors");
+            if (jpegQuality.HasValue || reduceColors.HasValue)
+            {
+                OutputFormat fmt = CoreConfig.OutputFileFormat;
+                string fmtStr = Config.GetParameter<string>("Format") ?? Config.GetParameter<string>("ImageFormat");
+                if (!string.IsNullOrWhiteSpace(fmtStr) && Enum.TryParse<OutputFormat>(fmtStr, true, out var parsedFmt))
+                {
+                    fmt = parsedFmt;
+                }
+                var sos = new SurfaceOutputSettings(fmt, jpegQuality ?? CoreConfig.OutputFileJpegQuality, reduceColors ?? CoreConfig.OutputFileReduceColors);
+                context.Properties["Destination.SurfaceOutputSettings"] = sos;
+            }
 
             if (!string.IsNullOrWhiteSpace(customDir))
             {

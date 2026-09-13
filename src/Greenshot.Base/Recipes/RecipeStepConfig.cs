@@ -124,7 +124,7 @@ namespace Greenshot.Base.Recipes
             return node;
         }
 
-        public static RecipeNodeConfig CreateProcessors(string id = "processors", IEnumerable<string> processorIds = null, ProcessorTiming? timing = null)
+        public static RecipeNodeConfig CreateProcessors(string id = "processors", IEnumerable<string> processorIds = null, ProcessorTiming? timing = null, string ocrLanguage = null)
         {
             var node = new RecipeNodeConfig(id, WellKnownStepTypes.Processors, "Run Processors");
             if (processorIds != null)
@@ -135,6 +135,77 @@ namespace Greenshot.Base.Recipes
             {
                 node.Set("Timing", timing.Value.ToString());
             }
+            if (!string.IsNullOrEmpty(ocrLanguage))
+            {
+                node.Set("OcrLanguage", ocrLanguage);
+            }
+            return node;
+        }
+
+        public static RecipeNodeConfig CreateSaveFile(
+            string id = "save_file",
+            string saveDirectory = null,
+            string filenamePattern = null,
+            OutputFormat? format = null,
+            bool? allowOverwrite = null,
+            int? jpegQuality = null,
+            bool? reduceColors = null)
+        {
+            var node = new RecipeNodeConfig(id, WellKnownStepTypes.SaveFile, "Save to File");
+            if (!string.IsNullOrEmpty(saveDirectory)) node.Set("SaveDirectory", saveDirectory);
+            if (!string.IsNullOrEmpty(filenamePattern)) node.Set("FilenamePattern", filenamePattern);
+            if (format.HasValue) node.Set("Format", format.Value.ToString());
+            if (allowOverwrite.HasValue) node.Set("AllowOverwrite", allowOverwrite.Value);
+            if (jpegQuality.HasValue) node.Set("JpegQuality", jpegQuality.Value);
+            if (reduceColors.HasValue) node.Set("ReduceColors", reduceColors.Value);
+            return node;
+        }
+
+        public static RecipeNodeConfig CreateClipboard(string id = "clipboard", string clipboardMode = "ImageOnly", IEnumerable<ClipboardFormat> formats = null)
+        {
+            var node = new RecipeNodeConfig(id, WellKnownStepTypes.Clipboard, "Copy to Clipboard");
+            if (!string.IsNullOrEmpty(clipboardMode)) node.Set("ClipboardMode", clipboardMode);
+            if (formats != null)
+            {
+                foreach (var f in formats)
+                {
+                    node.Set($"ClipboardFormat{f}", true);
+                }
+            }
+            return node;
+        }
+
+        public static RecipeNodeConfig CreateEditor(string id = "editor", bool? matchSizeToCapture = null, bool? reuseEditor = null, bool? suppressSaveDialog = null)
+        {
+            var node = new RecipeNodeConfig(id, WellKnownStepTypes.Editor, "Open in Editor");
+            if (matchSizeToCapture.HasValue) node.Set("MatchSizeToCapture", matchSizeToCapture.Value);
+            if (reuseEditor.HasValue) node.Set("ReuseEditor", reuseEditor.Value);
+            if (suppressSaveDialog.HasValue) node.Set("SuppressSaveDialog", suppressSaveDialog.Value);
+            return node;
+        }
+
+        public static RecipeNodeConfig CreatePrinter(
+            string id = "printer",
+            string printerName = null,
+            bool? promptOptions = null,
+            bool? allowRotate = null,
+            bool? allowEnlarge = null,
+            bool? allowShrink = null,
+            bool? center = null,
+            string colorMode = null,
+            bool? printFooter = null,
+            string footerPattern = null)
+        {
+            var node = new RecipeNodeConfig(id, WellKnownStepTypes.Printer, "Send to Printer");
+            if (!string.IsNullOrEmpty(printerName)) node.Set("PrinterName", printerName);
+            if (promptOptions.HasValue) node.Set("ShowPrintDialog", promptOptions.Value);
+            if (allowRotate.HasValue) node.Set("AllowRotate", allowRotate.Value);
+            if (allowEnlarge.HasValue) node.Set("AllowEnlarge", allowEnlarge.Value);
+            if (allowShrink.HasValue) node.Set("AllowShrink", allowShrink.Value);
+            if (center.HasValue) node.Set("Center", center.Value);
+            if (!string.IsNullOrEmpty(colorMode)) node.Set("ColorMode", colorMode);
+            if (printFooter.HasValue) node.Set("PrintFooter", printFooter.Value);
+            if (!string.IsNullOrEmpty(footerPattern)) node.Set("FooterPattern", footerPattern);
             return node;
         }
 
@@ -176,6 +247,36 @@ namespace Greenshot.Base.Recipes
                 branchList.Add(new Dictionary<string, string> { ["Key"] = "B", ["Expression"] = "else" });
             }
             node.Set("Branches", branchList);
+            return node;
+        }
+
+        public static RecipeNodeConfig CreateUserPrompt(
+            string id = "user_prompt",
+            string title = "User Decision",
+            string message = "Please choose how to proceed with this capture:",
+            bool showPreview = true,
+            IEnumerable<Dictionary<string, object>> choices = null,
+            int timeoutSeconds = 0,
+            string defaultChoice = null)
+        {
+            var node = new RecipeNodeConfig(id, WellKnownStepTypes.UserPrompt, title ?? "User Decision");
+            node.Set("Title", title ?? "User Decision");
+            node.Set("Message", message ?? "Please choose how to proceed with this capture:");
+            node.Set("ShowPreview", showPreview);
+            if (timeoutSeconds > 0) node.Set("TimeoutSeconds", timeoutSeconds);
+            if (!string.IsNullOrEmpty(defaultChoice)) node.Set("DefaultChoice", defaultChoice);
+
+            var choiceList = new List<Dictionary<string, object>>();
+            if (choices != null)
+            {
+                choiceList.AddRange(choices);
+            }
+            else
+            {
+                choiceList.Add(new Dictionary<string, object> { ["Key"] = "Yes", ["Label"] = "Yes, Proceed", ["Style"] = "Primary", ["IsDefault"] = true });
+                choiceList.Add(new Dictionary<string, object> { ["Key"] = "No", ["Label"] = "No, Cancel", ["Style"] = "Secondary", ["IsCancel"] = true });
+            }
+            node.Set("Choices", choiceList);
             return node;
         }
 
