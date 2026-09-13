@@ -550,3 +550,46 @@ Evaluates captured screenshot dimensions to route large screen captures through 
   }
 }
 ```
+
+---
+
+## 7. Extension & Plugin Step Providers
+
+Greenshot plugins can dynamically register custom recipe step factories by implementing `IRecipeStepProvider`. Plugin step registration is completed before recipes are loaded, ensuring that all available steps are known when recipes are parsed and validated.
+
+### Missing Extension Validation
+If a recipe references a step type provided by a plugin that is **not installed or disabled**, the recipe fails validation during loading and is not made available in Greenshot. An informative error message indicates the exact missing step type and explains that the corresponding plugin/extension is required.
+
+### Available Plugin Step Types
+
+| Step Type | Plugin | Description | Example Parameters |
+|---|---|---|---|
+| `ExternalCommand`<br>`ExecuteCommand`<br>`RunCommand` | `Greenshot.Plugin.ExternalCommand` | Executes external command-line tools or configured external commands against the capture surface/file. | `commandLine`, `arguments`, `commandName`, `sync`, `timeoutMs`, `reloadAfterExecution` |
+| `ExternalCommand.<Name>` | `Greenshot.Plugin.ExternalCommand` | Executes a specific pre-configured external command from `greenshot.ini`. | `sync`, `timeoutMs`, `reloadAfterExecution` |
+| `Box`<br>`BoxUpload` | `Greenshot.Plugin.Box` | Uploads capture to Box cloud storage and stores the URL in context. | `format`, `jpegQuality` |
+| `Dropbox`<br>`DropboxUpload` | `Greenshot.Plugin.Dropbox` | Uploads capture to Dropbox and stores the URL in context. | `format`, `jpegQuality` |
+| `Imgur`<br>`ImgurUpload` | `Greenshot.Plugin.Imgur` | Uploads capture to Imgur (with title/description) and optionally copies the link to the clipboard. | `title`, `description`, `copyLinkToClipboard` |
+| `Jira`<br>`JiraUpload` | `Greenshot.Plugin.Jira` | Attaches capture to a Jira issue or opens Jira issue selection. | `issueKey`, `comment`, `format`, `jpegQuality` |
+| `Confluence`<br>`ConfluenceUpload` | `Greenshot.Plugin.Confluence` | Attaches capture to a Confluence page or opens page picker. | `pageId`, `format`, `jpegQuality` |
+| `Office` | `Greenshot.Plugin.Office` | Exports capture to Microsoft Office applications. | `application` (`Excel`, `PowerPoint`, `Word`, `OneNote`, `Outlook`) |
+| `Excel`, `PowerPoint`, `Word`, `OneNote`, `Outlook` | `Greenshot.Plugin.Office` | Direct application export shortcuts. | - |
+| `Zxing`<br>`ScanBarcode`<br>`ReadQrCode` | `Greenshot.Plugin.Zxing` | Scans capture surface for barcodes/QR codes and sets `payload.extractedText`. | `copyToClipboard`, `variableName` |
+
+### External Command Step In Depth
+
+The `ExternalCommand` step allows screenshot automation workflows to invoke external optimization tools (e.g., `pngquant`, `optipng`, `cwebp`), scripts (`PowerShell`, `Bash`), custom webhooks, or processing binaries.
+
+#### Configuration Parameters:
+- **`commandLine`**: Path or executable to run (e.g. `pngquant.exe`, `powershell.exe`, `curl.exe`). Supports `${...}` variable expansion.
+- **`arguments`**: Arguments string passed to the process. Supports `{0}` / `{1}` positional tokens or `${context.ExternalCommand.TargetFile}`, `${user.*}`, `${machine.*}`, etc.
+- **`commandName`**: Name of a pre-configured command in `greenshot.ini` `[ExternalCommand]` section.
+- **`sync`** *(default: `true`)*: If `true`, the workflow engine waits for the process to exit before continuing. If `false`, execution proceeds asynchronously.
+- **`timeoutMs`** *(default: `30000`)*: Maximum execution time in milliseconds when running synchronously.
+- **`format`** *(default: `png`)*: Image format saved to temporary disk before launching the command (`png`, `jpg`, `bmp`, etc.).
+- **`jpegQuality`** *(default: `90`)*: JPEG compression quality if saving as JPEG.
+- **`reloadAfterExecution`** *(default: `false`)*: When `true`, re-reads the modified image file from disk and updates the pipeline surface/payload for subsequent steps. Ideal for in-place image optimization tools.
+- **`outputToClipboard`** *(default: `false`)*: Copies the standard output of the external command to the Windows clipboard.
+- **`uriToClipboard`** *(default: `false`)*: Extracts any URI from stdout using regex and copies it to the Windows clipboard.
+- **`setOutputVariable`**: Stores the raw standard output text in `context.Properties[key]`.
+- **`setExitCodeVariable`**: Stores the process exit code integer in `context.Properties[key]`.
+

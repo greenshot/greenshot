@@ -130,20 +130,7 @@
         },
         "stepType": {
           "type": "string",
-          "enum": [
-            "Source",
-            "InteractiveSelection",
-            "Effect",
-            "TextEffect",
-            "Drawable",
-            "SetVariable",
-            "ImmediateFeedback",
-            "Processors",
-            "Destinations",
-            "Notification",
-            "Conditional"
-          ],
-          "description": "The modular step type identifier."
+          "description": "The modular step type identifier. Supports core built-in steps (Source, InteractiveSelection, Effect, TextEffect, Drawable, SetVariable, ImmediateFeedback, Processors, Destinations, Notification, Conditional) as well as extension/plugin-provided steps (e.g., ExternalCommand, ExecuteCommand, RunCommand, Box, Dropbox, Imgur, Jira, Confluence, Office, Zxing)."
         },
         "name": {
           "type": "string",

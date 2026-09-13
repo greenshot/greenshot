@@ -31,6 +31,7 @@ using Greenshot.Base.Core;
 using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.Base.Pipeline;
 using Greenshot.Plugin.Jira.Forms;
 using log4net;
 
@@ -39,7 +40,7 @@ namespace Greenshot.Plugin.Jira;
 /// <summary>
 /// This is the JiraPlugin base code
 /// </summary>
-public class JiraPlugin : IGreenshotPlugin
+public class JiraPlugin : IGreenshotPlugin, IRecipeStepProvider
 {
     private static readonly ILog Log = LogManager.GetLogger(typeof(JiraPlugin));
     private IJiraConfiguration _config;
@@ -84,6 +85,21 @@ public class JiraPlugin : IGreenshotPlugin
     {
         serviceLocator.AddService(new JiraConnector());
         serviceLocator.AddService<IDestination>(new JiraDestination());
+        serviceLocator.AddService<IRecipeStepProvider>(this);
+        StepRegistry.Instance.RegisterProvider(this);
+    }
+
+    /// <summary>
+    /// Registers recipe step factories provided by the Jira plugin.
+    /// </summary>
+    /// <param name="registry">The step registry.</param>
+    public void RegisterSteps(IStepRegistry registry)
+    {
+        if (registry == null) return;
+        registry.RegisterStepFactory("Jira", config => new JiraStep(config));
+        registry.RegisterStepFactory("JiraUpload", config => new JiraStep(config));
+        registry.RegisterStepFactory("UploadToJira", config => new JiraStep(config));
+        registry.RegisterStepFactory("AttachToJira", config => new JiraStep(config));
     }
 
     /// <summary>

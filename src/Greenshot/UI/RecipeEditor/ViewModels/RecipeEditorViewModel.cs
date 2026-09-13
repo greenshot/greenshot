@@ -332,13 +332,63 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
             double defaultX = 350;
             double defaultY = 80;
 
+            bool hasExplicitStarts = recipe.Flow?.StartNodes != null && recipe.Flow.StartNodes.Count > 0;
+
             foreach (var nodeConfig in recipe.Nodes)
             {
                 var vm = new StepNodeViewModel(nodeConfig, new Point(defaultX, defaultY), SetStartNode, DeleteNode, HandleNodeIdChanged, OnNodeStartToggled);
-                vm.IsStartNode = recipe.Flow?.StartNodes != null && recipe.Flow.StartNodes.Contains(nodeConfig.Id, StringComparer.OrdinalIgnoreCase);
+                if (hasExplicitStarts)
+                {
+                    vm.IsStartNode = recipe.Flow.StartNodes.Contains(nodeConfig.Id, StringComparer.OrdinalIgnoreCase);
+                }
                 Nodes.Add(vm);
                 nodeMap[nodeConfig.Id] = vm;
                 defaultY += 140;
+            }
+
+            // If no explicit start nodes were defined, infer start nodes from graph topology
+            if (!hasExplicitStarts && Nodes.Count > 0)
+            {
+                var targetNodeIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                if (recipe.Flow?.Transitions != null)
+                {
+                    foreach (var kvp in recipe.Flow.Transitions)
+                    {
+                        if (kvp.Value != null)
+                        {
+                            foreach (var toId in kvp.Value)
+                            {
+                                if (!string.IsNullOrWhiteSpace(toId)) targetNodeIds.Add(toId);
+                            }
+                        }
+                    }
+                }
+                if (recipe.Flow?.ConditionalTransitions != null)
+                {
+                    foreach (var ct in recipe.Flow.ConditionalTransitions)
+                    {
+                        if (!string.IsNullOrWhiteSpace(ct?.To)) targetNodeIds.Add(ct.To);
+                    }
+                }
+
+                bool foundRoot = false;
+                foreach (var node in Nodes)
+                {
+                    if (!targetNodeIds.Contains(node.Id))
+                    {
+                        node.IsStartNode = true;
+                        foundRoot = true;
+                    }
+                }
+                if (!foundRoot && Nodes.Count > 0)
+                {
+                    Nodes[0].IsStartNode = true;
+                }
+
+                if (recipe.Flow != null)
+                {
+                    recipe.Flow.StartNodes = Nodes.Where(n => n.IsStartNode).Select(n => n.Id).ToList();
+                }
             }
 
             // Map Standard Connections
@@ -753,6 +803,7 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
                 }
             }
 
+            ActiveRecipe.Flow.StartNodes = Nodes.Where(n => n.IsStartNode).Select(n => n.Id).ToList();
             ActiveRecipe.Flow.Transitions = transitions;
             ActiveRecipe.Flow.ConditionalTransitions = conditionalTransitions;
         }
@@ -1252,6 +1303,67 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
                     break;
                 case WellKnownStepTypes.Processors:
                     dict["Processors"] = new List<string>();
+                    break;
+                case "ExternalCommand":
+                case "ExecuteCommand":
+                case "RunCommand":
+                case var _ when node.StepType != null && node.StepType.StartsWith("ExternalCommand", StringComparison.OrdinalIgnoreCase):
+                    dict["CommandLine"] = "cmd.exe";
+                    dict["Arguments"] = "/c echo Processing {0}";
+                    dict["Format"] = "png";
+                    dict["RunInBackground"] = false;
+                    dict["OutputToClipboard"] = false;
+                    dict["UriToClipboard"] = false;
+                    dict["ReloadAfterExecution"] = false;
+                    break;
+                case "Imgur":
+                case "ImgurUpload":
+                case "UploadToImgur":
+                    dict["Format"] = "png";
+                    dict["CopyLinkToClipboard"] = true;
+                    dict["OpenInBrowser"] = false;
+                    break;
+                case "Jira":
+                case "JiraUpload":
+                case "UploadToJira":
+                    dict["IssueKey"] = "PROJECT-123";
+                    dict["Format"] = "png";
+                    dict["JpegQuality"] = 80;
+                    break;
+                case "Confluence":
+                case "ConfluenceUpload":
+                case "UploadToConfluence":
+                    dict["PageId"] = "123456";
+                    dict["Format"] = "png";
+                    dict["JpegQuality"] = 80;
+                    break;
+                case "Office":
+                case "Excel":
+                case "PowerPoint":
+                case "Powerpoint":
+                case "Word":
+                case "OneNote":
+                case "Outlook":
+                    dict["Application"] = string.Equals(node.StepType, "Office", StringComparison.OrdinalIgnoreCase) ? "Word" : node.StepType;
+                    break;
+                case "Zxing":
+                case "ZxingQr":
+                case "ZxingBarcode":
+                case "BarcodeScan":
+                case "DecodeBarcode":
+                case "QrCode":
+                    dict["SetVariable"] = "barcode_text";
+                    dict["CopyToClipboard"] = true;
+                    break;
+                case "Box":
+                case "BoxUpload":
+                case "UploadToBox":
+                    dict["Format"] = "png";
+                    break;
+                case "Dropbox":
+                case "DropboxUpload":
+                case "UploadToDropbox":
+                    dict["Format"] = "png";
                     break;
             }
             node.Parameters = dict;

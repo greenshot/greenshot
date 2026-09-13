@@ -23,6 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Greenshot.Base.Interfaces;
+using Greenshot.Base.Pipeline;
 
 namespace Greenshot.Base.Recipes
 {
@@ -219,9 +220,9 @@ namespace Greenshot.Base.Recipes
                 return;
             }
 
-            if (!KnownStepTypes.Contains(node.StepType))
+            if (!KnownStepTypes.Contains(node.StepType) && !StepRegistry.Instance.IsRegistered(node.StepType))
             {
-                result.AddWarning($"Node '{node.Id}' has unrecognized stepType '{node.StepType}'. Ensure a matching plugin step factory is registered.");
+                result.AddError($"Node '{node.Id}' uses stepType '{node.StepType}' which is not available because the required extension/plugin is not installed or active.");
             }
 
             // Node-specific parameter validations
@@ -264,10 +265,12 @@ namespace Greenshot.Base.Recipes
                 }
             }
             else if (string.Equals(node.StepType, "ExternalCommand", StringComparison.OrdinalIgnoreCase) ||
-                     (node.Parameters != null && (node.Parameters.ContainsKey("Command") || node.Parameters.ContainsKey("Executable"))))
+                     string.Equals(node.StepType, "ExecuteCommand", StringComparison.OrdinalIgnoreCase) ||
+                     string.Equals(node.StepType, "RunCommand", StringComparison.OrdinalIgnoreCase) ||
+                     (node.Parameters != null && (node.Parameters.ContainsKey("Command") || node.Parameters.ContainsKey("Executable") || node.Parameters.ContainsKey("CommandLine"))))
             {
                 result.HasExternalCommands = true;
-                string cmd = node.GetParameter<string>("Command") ?? node.GetParameter<string>("Executable") ?? node.Name;
+                string cmd = node.GetParameter<string>("Command") ?? node.GetParameter<string>("Executable") ?? node.GetParameter<string>("CommandLine") ?? node.Name;
                 result.ExternalCommands.Add(cmd);
             }
         }

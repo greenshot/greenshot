@@ -773,6 +773,33 @@
                             <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="Destinations">
                                 <TextBlock Text="↗️ Multi-Destinations"/>
                             </Button>
+
+                            <!-- 6. Extensions & Plugins -->
+                            <TextBlock Text="EXTENSIONS &amp; PLUGINS" FontWeight="SemiBold" FontSize="10" Foreground="{Binding TextSecondaryBrush}" Margin="4,12,0,4"/>
+                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="ExternalCommand">
+                                <TextBlock Text="⚡ External Command"/>
+                            </Button>
+                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="Imgur">
+                                <TextBlock Text="🖼️ Imgur Upload"/>
+                            </Button>
+                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="Jira">
+                                <TextBlock Text="🎯 Atlassian Jira"/>
+                            </Button>
+                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="Confluence">
+                                <TextBlock Text="📄 Confluence Page"/>
+                            </Button>
+                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="Office">
+                                <TextBlock Text="📊 Microsoft Office"/>
+                            </Button>
+                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="Zxing">
+                                <TextBlock Text="🔍 ZXing Barcode / QR"/>
+                            </Button>
+                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="Box">
+                                <TextBlock Text="📦 Box Cloud Storage"/>
+                            </Button>
+                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="Dropbox">
+                                <TextBlock Text="📦 Dropbox"/>
+                            </Button>
                         </StackPanel>
                     </ScrollViewer>
                 </Border>
@@ -822,12 +849,13 @@
                                         <Style TargetType="{x:Type nodify:Connection}">
                                             <Setter Property="Stroke" Value="{Binding IsCycle, Converter={StaticResource StepColorConv}, ConverterParameter=cycle}"/>
                                             <Setter Property="StrokeThickness" Value="2.5"/>
-                                            <Setter Property="OutlineThickness" Value="14"/>
+                                            <Setter Property="OutlineThickness" Value="5"/>
                                             <Setter Property="OutlineBrush" Value="Transparent"/>
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsSelected}" Value="True">
                                                     <Setter Property="Stroke" Value="#00D2FF"/>
-                                                    <Setter Property="StrokeThickness" Value="4"/>
+                                                    <Setter Property="StrokeThickness" Value="3"/>
+                                                    <Setter Property="OutlineThickness" Value="4"/>
                                                     <Setter Property="OutlineBrush" Value="#4400D2FF"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
@@ -2220,13 +2248,135 @@
                                                          Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
                                                          Padding="6,4" Margin="0,0,0,6"/>
                                             </StackPanel>
-
                                             <!-- Custom Destinations -->
                                             <TextBlock Text="Custom Destinations (comma separated)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
                                             <TextBox Text="{Binding SelectedNode.CustomDestinationsText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                      Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
                                                      Padding="6,4" Margin="0,0,0,4"/>
                                             <TextBlock Text="Example: Imgur, Jira, Confluence, Dropbox, ExternalCommand" FontSize="10" Foreground="{Binding TextSecondaryBrush}"/>
+                                        </StackPanel>
+
+                                        <!-- 19. External Command Inspector -->
+                                        <StackPanel Visibility="{Binding SelectedNode.IsExternalCommand, Converter={StaticResource BoolToVis}}">
+                                            <TextBlock Text="Executable / Script Path" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <Grid Margin="0,0,0,6">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBox Text="{Binding SelectedNode.ExternalCommandLine, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                         Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                         Padding="6,4"/>
+                                                <Button Grid.Column="1" Content="📁 Browse..." Style="{StaticResource ToolbarBtn}" Margin="6,0,0,0"
+                                                        Command="{Binding SelectedNode.BrowseExternalExecutableCommand}" ToolTip="Browse for executable or script"/>
+                                            </Grid>
+
+                                            <TextBlock Text="Arguments (use {0} for image file)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <TextBox Text="{Binding SelectedNode.ExternalCommandArguments, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                     Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                     Padding="6,4" Margin="0,0,0,6"/>
+
+                                            <TextBlock Text="Temporary Image Format" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <ComboBox SelectedValue="{Binding SelectedNode.ExternalCommandFormat, Mode=TwoWay}"
+                                                      SelectedValuePath="Tag" Margin="0,0,0,6">
+                                                <ComboBoxItem Content="PNG (Lossless)" Tag="png"/>
+                                                <ComboBoxItem Content="JPEG / JPG" Tag="jpg"/>
+                                                <ComboBoxItem Content="BMP (Bitmap)" Tag="bmp"/>
+                                                <ComboBoxItem Content="GIF" Tag="gif"/>
+                                            </ComboBox>
+
+                                            <TextBlock Text="Working Directory (Optional)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <TextBox Text="{Binding SelectedNode.ExternalCommandWorkingDirectory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                     Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                     Padding="6,4" Margin="0,0,0,6"/>
+
+                                            <Border Background="{Binding CardBackgroundBrush}" BorderBrush="{Binding CardBorderBrush}" BorderThickness="1" CornerRadius="4" Padding="8" Margin="0,0,0,6">
+                                                <StackPanel>
+                                                    <CheckBox Content="Run in background (asynchronously)" IsChecked="{Binding SelectedNode.ExternalCommandRunInBackground, Mode=TwoWay}" Foreground="{Binding TextPrimaryBrush}" Margin="0,2"/>
+                                                    <CheckBox Content="Copy standard output to clipboard" IsChecked="{Binding SelectedNode.ExternalCommandOutputToClipboard, Mode=TwoWay}" Foreground="{Binding TextPrimaryBrush}" Margin="0,2"/>
+                                                    <CheckBox Content="Copy detected URL from output to clipboard" IsChecked="{Binding SelectedNode.ExternalCommandUriToClipboard, Mode=TwoWay}" Foreground="{Binding TextPrimaryBrush}" Margin="0,2"/>
+                                                    <CheckBox Content="Reload image after execution" IsChecked="{Binding SelectedNode.ExternalCommandReloadAfterExecution, Mode=TwoWay}" Foreground="{Binding TextPrimaryBrush}" Margin="0,2"/>
+                                                </StackPanel>
+                                            </Border>
+
+                                            <TextBlock Text="Store Output in Variable (Optional)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <TextBox Text="{Binding SelectedNode.ExternalCommandSetOutputVariable, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                     Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                     Padding="6,4" Margin="0,0,0,4"/>
+                                        </StackPanel>
+
+                                        <!-- 20. Imgur Inspector -->
+                                        <StackPanel Visibility="{Binding SelectedNode.IsImgur, Converter={StaticResource BoolToVis}}">
+                                            <TextBlock Text="Upload Image Format" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <ComboBox SelectedValue="{Binding SelectedNode.ImgurFormat, Mode=TwoWay}"
+                                                      SelectedValuePath="Tag" Margin="0,0,0,6">
+                                                <ComboBoxItem Content="PNG (Lossless)" Tag="png"/>
+                                                <ComboBoxItem Content="JPEG / JPG" Tag="jpg"/>
+                                            </ComboBox>
+
+                                            <Border Background="{Binding CardBackgroundBrush}" BorderBrush="{Binding CardBorderBrush}" BorderThickness="1" CornerRadius="4" Padding="8" Margin="0,0,0,6">
+                                                <StackPanel>
+                                                    <CheckBox Content="Copy upload link to clipboard" IsChecked="{Binding SelectedNode.ImgurCopyLinkToClipboard, Mode=TwoWay}" Foreground="{Binding TextPrimaryBrush}" Margin="0,2"/>
+                                                    <CheckBox Content="Open image in web browser" IsChecked="{Binding SelectedNode.ImgurOpenInBrowser, Mode=TwoWay}" Foreground="{Binding TextPrimaryBrush}" Margin="0,2"/>
+                                                </StackPanel>
+                                            </Border>
+                                        </StackPanel>
+
+                                        <!-- 21. Jira Inspector -->
+                                        <StackPanel Visibility="{Binding SelectedNode.IsJira, Converter={StaticResource BoolToVis}}">
+                                            <TextBlock Text="Jira Issue Key / ID" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <TextBox Text="{Binding SelectedNode.JiraIssueKey, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                     Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                     Padding="6,4" Margin="0,0,0,6"/>
+                                            <TextBlock Text="Upload Format" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <ComboBox SelectedValue="{Binding SelectedNode.JiraFormat, Mode=TwoWay}"
+                                                      SelectedValuePath="Tag" Margin="0,0,0,6">
+                                                <ComboBoxItem Content="PNG (Lossless)" Tag="png"/>
+                                                <ComboBoxItem Content="JPEG / JPG" Tag="jpg"/>
+                                            </ComboBox>
+                                        </StackPanel>
+
+                                        <!-- 22. Confluence Inspector -->
+                                        <StackPanel Visibility="{Binding SelectedNode.IsConfluence, Converter={StaticResource BoolToVis}}">
+                                            <TextBlock Text="Confluence Page ID / Title" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <TextBox Text="{Binding SelectedNode.ConfluencePageId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                     Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                     Padding="6,4" Margin="0,0,0,6"/>
+                                            <TextBlock Text="Upload Format" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <ComboBox SelectedValue="{Binding SelectedNode.ConfluenceFormat, Mode=TwoWay}"
+                                                      SelectedValuePath="Tag" Margin="0,0,0,6">
+                                                <ComboBoxItem Content="PNG (Lossless)" Tag="png"/>
+                                                <ComboBoxItem Content="JPEG / JPG" Tag="jpg"/>
+                                            </ComboBox>
+                                        </StackPanel>
+
+                                        <!-- 23. Office Inspector -->
+                                        <StackPanel Visibility="{Binding SelectedNode.IsOffice, Converter={StaticResource BoolToVis}}">
+                                            <TextBlock Text="Target Office Application" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <ComboBox SelectedValue="{Binding SelectedNode.OfficeApplication, Mode=TwoWay}"
+                                                      SelectedValuePath="Tag" Margin="0,0,0,6">
+                                                <ComboBoxItem Content="Microsoft Word" Tag="Word"/>
+                                                <ComboBoxItem Content="Microsoft Excel" Tag="Excel"/>
+                                                <ComboBoxItem Content="Microsoft PowerPoint" Tag="PowerPoint"/>
+                                                <ComboBoxItem Content="Microsoft OneNote" Tag="OneNote"/>
+                                                <ComboBoxItem Content="Microsoft Outlook" Tag="Outlook"/>
+                                            </ComboBox>
+                                        </StackPanel>
+
+                                        <!-- 24. ZXing Barcode / QR Code Inspector -->
+                                        <StackPanel Visibility="{Binding SelectedNode.IsZxing, Converter={StaticResource BoolToVis}}">
+                                            <TextBlock Text="Extracted Text Variable Name" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <TextBox Text="{Binding SelectedNode.ZxingSetVariable, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                     Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                     Padding="6,4" Margin="0,0,0,6"/>
+                                            <CheckBox Content="Copy decoded text to clipboard" IsChecked="{Binding SelectedNode.ZxingCopyToClipboard, Mode=TwoWay}" Foreground="{Binding TextPrimaryBrush}" Margin="0,2,0,6"/>
+                                        </StackPanel>
+
+                                        <!-- 25. Cloud Storage Inspector (Box / Dropbox) -->
+                                        <StackPanel Visibility="{Binding SelectedNode.IsCloudStorage, Converter={StaticResource BoolToVis}}">
+                                            <TextBlock Text="Cloud Storage Destination" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                            <TextBlock Text="Captures will be uploaded directly to your cloud storage account and the public sharing link placed in the clipboard/properties."
+                                                       FontSize="11" Foreground="{Binding TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,6"/>
                                         </StackPanel>
                                     </StackPanel>
 
@@ -2401,3 +2551,4 @@
         </Grid>
     </Border>
 </Window>
+

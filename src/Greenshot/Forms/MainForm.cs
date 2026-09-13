@@ -302,6 +302,7 @@ namespace Greenshot.Forms
             SimpleServiceProvider.Current.AddService<ICaptureHelper>(this);
             SimpleServiceProvider.Current.AddService<ITriggerManager>(TriggerManager.Instance);
             SimpleServiceProvider.Current.AddService<IRecipeManager>(RecipeManager.Instance);
+            SimpleServiceProvider.Current.AddService<IStepRegistry>(StepRegistry.Instance);
             SimpleServiceProvider.Current.AddService<ICapturePipeline>(CapturePipeline.Instance);
 
             // Windows specific services
