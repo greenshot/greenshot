@@ -39,7 +39,7 @@ namespace Greenshot.Base.Controls
     public class SaveImageFileDialog : IDisposable
     {
         private static readonly ILog LOG = LogManager.GetLogger(typeof(SaveImageFileDialog));
-        private static readonly ICoreConfiguration conf = IniConfigRegistry.GetSection<ICoreConfiguration>();
+        private static ICoreConfiguration conf => IniConfigHelper.EnsureSection<ICoreConfiguration>(() => new CoreConfigurationImpl());
         protected SaveFileDialog SaveFileDialog;
         private FilterOption[] _filterOptions;
         private DirectoryInfo _eagerlyCreatedDirectory;
