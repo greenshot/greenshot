@@ -4,6 +4,27 @@ Greenshot features a modular, recipe-driven capture pipeline powered by a **Dire
 
 Recipes can be written in code or provided as external `.json` (`.gsrecipe.json`) files. External JSON recipes can create new custom capture workflows or securely override Greenshot's built-in recipes.
 
+> [!IMPORTANT]
+> **Experimental Feature Notice & Activation**:
+> Capture Recipes, the DAG workflow execution engine, the Visual Recipe Editor, and external recipe loading are **experimental features** primarily intended for technical, tech-affine users and power users. We do not know yet if or in what format this capability will be made available in future public releases.
+>
+> ### How to Enable Capture Recipes in Greenshot:
+> To enable external recipes, context menu triggers, the Recipe Importer, and the Visual Recipe Editor:
+> 1. Open your `greenshot.ini` configuration file (located in `%APPDATA%\Greenshot\greenshot.ini` or in the application directory if portable).
+> 2. Under the `[Core]` section, enable beta tester mode:
+>    ```ini
+>    [Core]
+>    BetaTester=True
+>    ```
+> 3. Restart Greenshot.
+> 4. Right-click the Greenshot system tray icon to reveal the new **Recipes** menu:
+>    - **Recipes $\rightarrow$ [Configured Recipe Triggers]**: Runs recipe workflows with a single click.
+>    - **Recipes $\rightarrow$ Import Recipe...**: Imports and installs `.gsrecipe.json` recipe files.
+>    - **Recipes $\rightarrow$ Reload Recipes**: Hot-reloads all recipes from disk without restarting Greenshot.
+>    - **Recipes $\rightarrow$ Recipe Editor...**: Opens the visual node-based Recipe Editor.
+>
+> Custom recipes are stored in `%APPDATA%\Greenshot\Recipes\*.gsrecipe.json`.
+
 ---
 
 ## 1. Core Architecture: Decoupling Triggers from Recipes
@@ -20,7 +41,8 @@ Triggers and recipes are decoupled. Any trigger can run any recipe, and a single
 
 Every recipe defines:
 1. **`nodes`**: A list of execution nodes, each having a unique flow-local `id`, a `stepType`, an optional `name`, and step-specific `parameters`.
-2. **`flow`**: A graph configuration defining entry point(s) (`startNode` or `startNodes`) and transitions between nodes (`transitions` or `edges`).
+2. **`flow`**: A graph configuration defining entry point(s) (`startNodes`), unconditional transitions (`transitions`), and branch-routed transitions (`conditionalTransitions`).
+
 
 ```
                     ┌─────────────────┐
@@ -48,39 +70,65 @@ Every recipe defines:
                     └─────────────────┘
 ```
 
-### Fork & Join Execution Semantics
-- **Parallel Branching (Fork)**: When a transition maps one node to multiple targets (e.g. `"select_node": ["feedback_branch", "set_vars_node"]`), both downstream branches execute concurrently as async tasks.
+### Fork, Join & Conditional Branch Execution Semantics
+- **Parallel Branching (Fork)**: When an unconditional transition maps one node to multiple targets (e.g. `"select_node": ["feedback_branch", "set_vars_node"]`), all downstream branches execute concurrently as async tasks.
 - **Barrier Synchronization (Join)**: When multiple branches converge into a single downstream node (e.g. `export_join`), the engine pauses execution of that node until **all** parent dependency branches have fully completed.
-- **Acyclic Enforcement**: The workflow engine performs depth-first cycle detection during recipe load. If any cycle/loop is detected, the recipe is rejected with a validation error.
+- **Conditional Decision Routing**: A `Conditional` node defines ordered decision `branches` (e.g. `[ { "key": "A", "expression": "${payload.width > 800}" }, { "key": "B", "expression": "else" } ]`). Downstream routing from branch pins is declared in `flow.conditionalTransitions` (e.g. `[ { "from": "decide", "branch": "A", "to": "full_editor" } ]`).
+- **Acyclic Enforcement**: The workflow engine performs cycle detection during recipe load. If any cycle/loop is detected, the recipe is rejected with a validation error.
 
 ### Flow Definition Syntax
-Transitions can be specified using either `transitions` (adjacency map) or `edges` (edge list):
+Transitions map source node IDs to arrays of downstream target node IDs:
 
 ```json
 "flow": {
-  "startNode": "source",
+  "startNodes": [ "source" ],
   "transitions": {
-    "source": "select",
-    "select": ["feedback", "watermark"],
-    "watermark": "export",
-    "feedback": "export"
+    "source": [ "select" ],
+    "select": [ "feedback", "watermark" ],
+    "watermark": [ "export" ],
+    "feedback": [ "export" ]
   }
 }
 ```
 
-Or using edge list syntax:
+When using conditional branching:
 ```json
 "flow": {
-  "startNode": "source",
-  "edges": [
-    { "from": "source", "to": "select" },
-    { "from": "select", "to": "feedback" },
-    { "from": "select", "to": "watermark" },
-    { "from": "watermark", "to": "export" },
-    { "from": "feedback", "to": "export" }
+  "startNodes": [ "source" ],
+  "transitions": {
+    "source": [ "decide_step" ]
+  },
+  "conditionalTransitions": [
+    { "from": "decide_step", "branch": "A", "to": "large_editor" },
+    { "from": "decide_step", "branch": "B", "to": "quick_clipboard" }
   ]
 }
 ```
+
+### Mermaid Workflow Diagram Export
+Both the WPF Recipe Editor and Web Recipe Editor include a **Mermaid** export button (`🧜 Mermaid` / `Mermaid`). This generates a clean, text-based [Mermaid.js](https://mermaid.js.org/) flowchart DSL representing the recipe's nodes, decision diamonds, unconditional transitions, branch conditions, and entry points:
+
+```mermaid
+flowchart TD
+    %% Node Definitions
+    source["Capture Area [source]"]
+    decide_step{"Evaluate Condition [decide_step]"}
+    large_editor["Image Editor [large_editor]"]
+    quick_clipboard["System Clipboard [quick_clipboard]"]
+
+    %% Unconditional Transitions
+    source --> decide_step
+
+    %% Conditional Branch Transitions
+    decide_step -- "A: ${payload.width > 800}" --> large_editor
+    decide_step -- "B: else" --> quick_clipboard
+
+    %% Start Nodes Styling
+    classDef startNode fill:#238636,stroke:#2ea043,stroke-width:2px,color:#ffffff;
+    class source startNode;
+```
+
+You can copy and paste this text directly into Markdown files, GitHub READMEs, or pull request descriptions.
 
 ---
 
@@ -271,12 +319,12 @@ Interactive region capture that adds a 2px blue border and opens the editor:
     }
   ],
   "flow": {
-    "startNode": "source",
+    "startNodes": [ "source" ],
     "transitions": {
-      "source": "select",
-      "select": "border",
-      "border": "feedback",
-      "feedback": "destination"
+      "source": [ "select" ],
+      "select": [ "border" ],
+      "border": [ "feedback" ],
+      "feedback": [ "destination" ]
     }
   }
 }
@@ -367,18 +415,17 @@ Demonstrating parallel fork/join execution, variable evaluation, user & machine 
     }
   ],
   "flow": {
-    "startNode": "capture_node",
+    "startNodes": [ "capture_node" ],
     "transitions": {
-      "capture_node": "select_node",
+      "capture_node": [ "select_node" ],
       "select_node": [ "feedback_branch", "set_vars_node" ],
-      "set_vars_node": "watermark_node",
-      "feedback_branch": "export_join",
-      "watermark_node": "export_join"
+      "set_vars_node": [ "watermark_node" ],
+      "feedback_branch": [ "export_join" ],
+      "watermark_node": [ "export_join" ]
     }
   }
 }
 ```
-
 
 ### Example 3: Targeted Window Capture with Regex DLP Redaction
 Captures a specific window, applies a drop shadow, scans OCR text for sensitive patterns, redacts them with black bounding boxes, and opens the editor:
@@ -438,13 +485,68 @@ Captures a specific window, applies a drop shadow, scans OCR text for sensitive 
     }
   ],
   "flow": {
-    "startNode": "capture_window",
+    "startNodes": [ "capture_window" ],
     "transitions": {
-      "capture_window": "shadow",
-      "shadow": "redact",
-      "redact": "feedback",
-      "feedback": "destination"
+      "capture_window": [ "shadow" ],
+      "shadow": [ "redact" ],
+      "redact": [ "feedback" ],
+      "feedback": [ "destination" ]
     }
+  }
+}
+```
+
+### Example 4: Conditional Decision Routing by Screen Dimensions
+Evaluates captured screenshot dimensions to route large screen captures through border decoration and image editing, while routing smaller region snips directly to the clipboard:
+
+```json
+{
+  "$schema": "./recipe.schema.json",
+  "id": "recipe_conditional_size_route",
+  "name": "Conditional Capture Routing",
+  "description": "Demonstrates Conditional decision node evaluation and branch-routed transitions",
+  "triggers": [
+    {
+      "triggerType": "Hotkey",
+      "parameters": { "hotkey": "Ctrl + Shift + C" }
+    }
+  ],
+  "nodes": [
+    {
+      "id": "source",
+      "stepType": "Source",
+      "parameters": { "sourceType": "Region" }
+    },
+    {
+      "id": "decide_size",
+      "stepType": "Conditional",
+      "parameters": {
+        "branches": [
+          { "key": "Large", "expression": "${payload.width > 800}" },
+          { "key": "Small", "expression": "else" }
+        ]
+      }
+    },
+    {
+      "id": "large_editor",
+      "stepType": "Destinations",
+      "parameters": { "destinationDesignations": [ "Editor" ] }
+    },
+    {
+      "id": "quick_clipboard",
+      "stepType": "Destinations",
+      "parameters": { "destinationDesignations": [ "Clipboard" ] }
+    }
+  ],
+  "flow": {
+    "startNodes": [ "source" ],
+    "transitions": {
+      "source": [ "decide_size" ]
+    },
+    "conditionalTransitions": [
+      { "from": "decide_size", "branch": "Large", "to": "large_editor" },
+      { "from": "decide_size", "branch": "Small", "to": "quick_clipboard" }
+    ]
   }
 }
 ```

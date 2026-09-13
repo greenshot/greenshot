@@ -30,14 +30,21 @@ namespace Greenshot.UI
     public static class WpfThemeHelper
     {
         private const string PersonalizeKey = @"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize";
+        private static bool? _themeOverride;
+
+        public static event System.Action ThemeChanged;
 
         /// <summary>
-        /// Returns true if Windows system apps are set to Dark Mode.
+        /// Returns true if Windows system apps or user override is set to Dark Mode.
         /// </summary>
         public static bool IsDarkMode
         {
             get
             {
+                if (_themeOverride.HasValue)
+                {
+                    return _themeOverride.Value;
+                }
                 try
                 {
                     using (var key = Registry.CurrentUser.OpenSubKey(PersonalizeKey))
@@ -55,6 +62,19 @@ namespace Greenshot.UI
                 }
                 return false;
             }
+            set
+            {
+                if (_themeOverride != value)
+                {
+                    _themeOverride = value;
+                    ThemeChanged?.Invoke();
+                }
+            }
+        }
+
+        public static void ToggleTheme()
+        {
+            IsDarkMode = !IsDarkMode;
         }
 
         public static SolidColorBrush WindowBackground => IsDarkMode

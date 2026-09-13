@@ -126,16 +126,26 @@
     }
   ],
   "flow": {
-    "startNode": "capture_node",
+    "startNodes": [
+      "capture_node"
+    ],
     "transitions": {
-      "capture_node": "select_node",
+      "capture_node": [
+        "select_node"
+      ],
       "select_node": [
         "feedback_branch",
         "set_vars_node"
       ],
-      "set_vars_node": "watermark_node",
-      "feedback_branch": "export_join",
-      "watermark_node": "export_join"
+      "set_vars_node": [
+        "watermark_node"
+      ],
+      "feedback_branch": [
+        "export_join"
+      ],
+      "watermark_node": [
+        "export_join"
+      ]
     }
   }
 }

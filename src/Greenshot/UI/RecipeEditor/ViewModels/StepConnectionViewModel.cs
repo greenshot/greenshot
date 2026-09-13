@@ -48,6 +48,9 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
         private StepPortViewModel _source;
         private StepPortViewModel _target;
 
+        private string _hintText = "Drag to destination step input pin";
+        private bool _isValid = true;
+
         public ICommand StartedCommand { get; set; }
         public ICommand CompletedCommand { get; set; }
 
@@ -73,6 +76,18 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
         {
             get => _isVisible;
             set => SetField(ref _isVisible, value);
+        }
+
+        public string HintText
+        {
+            get => _hintText;
+            set => SetField(ref _hintText, value);
+        }
+
+        public bool IsValid
+        {
+            get => _isValid;
+            set => SetField(ref _isValid, value);
         }
     }
 }

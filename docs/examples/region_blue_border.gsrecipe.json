@@ -65,12 +65,22 @@
     }
   ],
   "flow": {
-    "startNode": "source",
+    "startNodes": [
+      "source"
+    ],
     "transitions": {
-      "source": "select",
-      "select": "border",
-      "border": "feedback",
-      "feedback": "destination"
+      "source": [
+        "select"
+      ],
+      "select": [
+        "border"
+      ],
+      "border": [
+        "feedback"
+      ],
+      "feedback": [
+        "destination"
+      ]
     }
   }
 }

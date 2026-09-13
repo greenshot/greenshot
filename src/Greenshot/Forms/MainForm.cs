@@ -814,6 +814,7 @@ namespace Greenshot.Forms
 
                 _activeRecipeEditorWindow = new UI.RecipeEditor.RecipeEditorWindow(RecipeManager.Instance);
                 _activeRecipeEditorWindow.Closed += (s, e) => _activeRecipeEditorWindow = null;
+                System.Windows.Forms.Integration.ElementHost.EnableModelessKeyboardInterop(_activeRecipeEditorWindow);
                 _activeRecipeEditorWindow.Show();
             }
             catch (Exception ex)

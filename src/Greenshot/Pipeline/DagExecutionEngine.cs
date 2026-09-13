@@ -180,22 +180,114 @@ namespace Greenshot.Pipeline
                     return;
                 }
 
+                // Evaluate conditional branch selection if this is a Conditional node
+                string matchedBranchKey = null;
+                if (string.Equals(nodeConfig.StepType, WellKnownStepTypes.Conditional, StringComparison.OrdinalIgnoreCase))
+                {
+                    var branchesParam = nodeConfig.GetParameter<object>("Branches") ?? nodeConfig.GetParameter<object>("branches");
+                    if (branchesParam != null)
+                    {
+                        var branchList = new List<(string Key, string Expression)>();
+                        if (branchesParam is System.Collections.IEnumerable enumerable && !(branchesParam is string))
+                        {
+                            foreach (var item in enumerable)
+                            {
+                                if (item is System.Collections.IDictionary d)
+                                {
+                                    string k = d.Contains("Key") ? d["Key"]?.ToString() : (d.Contains("key") ? d["key"]?.ToString() : null);
+                                    string exp = d.Contains("Expression") ? d["Expression"]?.ToString() : (d.Contains("expression") ? d["expression"]?.ToString() : null);
+                                    if (!string.IsNullOrEmpty(k)) branchList.Add((k, exp ?? "${true}"));
+                                }
+                                else if (item is Newtonsoft.Json.Linq.JObject jobj)
+                                {
+                                    string k = jobj.Value<string>("Key") ?? jobj.Value<string>("key");
+                                    string exp = jobj.Value<string>("Expression") ?? jobj.Value<string>("expression");
+                                    if (!string.IsNullOrEmpty(k)) branchList.Add((k, exp ?? "${true}"));
+                                }
+                            }
+                        }
+
+                        foreach (var b in branchList)
+                        {
+                            string exp = b.Expression?.Trim();
+                            if (string.Equals(exp, "else", StringComparison.OrdinalIgnoreCase) ||
+                                string.Equals(exp, "default", StringComparison.OrdinalIgnoreCase) ||
+                                string.IsNullOrEmpty(exp))
+                            {
+                                matchedBranchKey = b.Key;
+                                break;
+                            }
+
+                            bool isMet = ExpressionEvaluator.Instance.Evaluate<bool>(exp, context, false);
+                            if (isMet)
+                            {
+                                matchedBranchKey = b.Key;
+                                break;
+                            }
+                        }
+
+                        context.LogStep($"Conditional node [{nodeId}] evaluated branch -> '{matchedBranchKey ?? "None"}'");
+                    }
+                }
+
+                // Determine active next nodes to launch vs bypassed nodes
+                var activeNext = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                var bypassedNext = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+                // 1. Standard transitions
+                if (flow.Transitions != null && flow.Transitions.TryGetValue(nodeId, out var stdTargets) && stdTargets != null)
+                {
+                    foreach (var t in stdTargets)
+                    {
+                        if (!string.IsNullOrWhiteSpace(t)) activeNext.Add(t);
+                    }
+                }
+
+                // 2. Conditional transitions
+                if (flow.ConditionalTransitions != null)
+                {
+                    foreach (var ct in flow.ConditionalTransitions)
+                    {
+                        if (!string.Equals(ct.From, nodeId, StringComparison.OrdinalIgnoreCase) || string.IsNullOrWhiteSpace(ct.To)) continue;
+
+                        if (matchedBranchKey != null && string.Equals(ct.Branch, matchedBranchKey, StringComparison.OrdinalIgnoreCase))
+                        {
+                            activeNext.Add(ct.To);
+                        }
+                        else
+                        {
+                            bypassedNext.Add(ct.To);
+                        }
+                    }
+                }
+
                 // Find next ready downstream nodes
                 var nextToLaunch = new List<string>();
-                if (transitions.TryGetValue(nodeId, out var nextNodes) && nextNodes != null)
+                lock (syncLock)
                 {
-                    lock (syncLock)
+                    // Decrement incoming counter for bypassed nodes so join synchronization doesn't stall
+                    foreach (var nextId in bypassedNext)
                     {
-                        foreach (var nextId in nextNodes)
+                        if (!activeNext.Contains(nextId))
                         {
                             if (pendingIncoming.TryGetValue(nextId, out int remaining))
                             {
                                 remaining--;
                                 pendingIncoming[nextId] = remaining;
-                                if (remaining <= 0 && !completedNodes.ContainsKey(nextId))
-                                {
-                                    nextToLaunch.Add(nextId);
-                                }
+                            }
+                        }
+                    }
+
+                    // Process active targets
+                    foreach (var nextId in activeNext)
+                    {
+                        if (pendingIncoming.TryGetValue(nextId, out int remaining))
+                        {
+                            remaining--;
+                            pendingIncoming[nextId] = remaining;
+                            if (remaining <= 0 && !completedNodes.ContainsKey(nextId))
+                            {
+                                nextToLaunch.Add(nextId);
                             }
                         }
                     }

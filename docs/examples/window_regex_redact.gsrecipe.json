@@ -81,12 +81,22 @@
     }
   ],
   "flow": {
-    "startNode": "capture_window",
+    "startNodes": [
+      "capture_window"
+    ],
     "transitions": {
-      "capture_window": "shadow",
-      "shadow": "redact",
-      "redact": "feedback",
-      "feedback": "destination"
+      "capture_window": [
+        "shadow"
+      ],
+      "shadow": [
+        "redact"
+      ],
+      "redact": [
+        "feedback"
+      ],
+      "feedback": [
+        "destination"
+      ]
     }
   }
 }

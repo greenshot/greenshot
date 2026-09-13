@@ -406,6 +406,84 @@
       left: 103px;
     }
 
+    /* Conditional Node Footer & Branch Ports */
+    .dag-node.conditional-node {
+      height: auto;
+      min-height: 125px;
+    }
+
+    .condition-branches-card-list {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      margin-top: 4px;
+    }
+
+    .condition-branch-row {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(0, 0, 0, 0.15);
+      border-radius: 4px;
+      padding: 2px 5px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 0.68rem;
+    }
+
+    .branch-exp-mono {
+      font-family: 'JetBrains Mono', monospace;
+      color: #adbac7;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1;
+    }
+
+    .node-branches-footer {
+      display: flex;
+      border-top: 1px solid var(--gs-border);
+      background: rgba(0, 0, 0, 0.2);
+      border-bottom-left-radius: 7px;
+      border-bottom-right-radius: 7px;
+      height: 30px;
+      box-sizing: border-box;
+    }
+
+    .node-branch-item {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      border-right: 1px solid var(--gs-border);
+      padding: 0 4px;
+    }
+
+    .node-branch-item:last-child {
+      border-right: none;
+    }
+
+    .branch-key-badge {
+      font-size: 0.65rem;
+      font-weight: 700;
+      background: rgba(9, 132, 227, 0.2);
+      color: var(--gs-primary);
+      border: 1px solid rgba(9, 132, 227, 0.4);
+      border-radius: 3px;
+      padding: 0 4px;
+      line-height: 1.2;
+    }
+
+    .port-branch {
+      bottom: -7px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .port-branch:hover {
+      transform: translateX(-50%) scale(1.4);
+    }
+
     /* Floating Toolbar */
     .canvas-overlay-toolbar {
       position: absolute;
@@ -563,6 +641,11 @@
       <!-- JSON Inspector Modal Trigger -->
       <button class="btn btn-sm btn-outline-secondary" @click="openJsonModal" title="View & Edit Raw JSON">
         <i class="bi bi-code-slash me-1"></i> JSON
+      </button>
+
+      <!-- Mermaid Flowchart DSL Modal Trigger -->
+      <button class="btn btn-sm btn-outline-secondary" @click="openMermaidModal" title="Generate Mermaid Flowchart DSL for Documentation">
+        <i class="bi bi-diagram-2 me-1"></i> Mermaid
       </button>
 
       <!-- Expression Cheat Sheet -->
@@ -783,10 +866,16 @@
                   :class="{ 'is-cycle': edge.isCycle, 'active': edge.from === selectedNodeId || edge.to === selectedNodeId }"
                   :marker-end="edge.isCycle ? 'url(#arrowhead-cycle)' : (edge.from === selectedNodeId || edge.to === selectedNodeId ? 'url(#arrowhead-active)' : 'url(#arrowhead)')"/>
 
-            <!-- Midpoint delete badge -->
-            <g class="edge-badge" :transform="`translate(${edge.midX}, ${edge.midY})`" @click.stop="removeEdge(edge.from, edge.to)" title="Delete connection">
-              <circle r="9" fill="#ff4757" stroke="var(--gs-panel-bg)" stroke-width="1.5"/>
-              <text text-anchor="middle" dy="3.5" fill="#ffffff" font-size="11" font-weight="bold" pointer-events="none">&times;</text>
+            <!-- Midpoint delete badge & branch label -->
+            <g class="edge-badge" :transform="`translate(${edge.midX}, ${edge.midY})`">
+              <g v-if="edge.isConditional" transform="translate(0, -14)">
+                <rect x="-14" y="-8" width="28" height="15" rx="3" fill="#0984e3" stroke="var(--gs-panel-bg)" stroke-width="1"/>
+                <text text-anchor="middle" dy="3.5" fill="#ffffff" font-size="9" font-weight="bold" pointer-events="none">{{ edge.branch }}</text>
+              </g>
+              <g @click.stop="edge.isConditional ? removeConditionalEdge(edge.from, edge.branch, edge.to) : removeEdge(edge.from, edge.to)" title="Delete connection">
+                <circle r="9" fill="#ff4757" stroke="var(--gs-panel-bg)" stroke-width="1.5"/>
+                <text text-anchor="middle" dy="3.5" fill="#ffffff" font-size="11" font-weight="bold" pointer-events="none">&times;</text>
+              </g>
             </g>
           </g>
 
@@ -804,7 +893,8 @@
              class="dag-node"
              :class="{
                 'selected': selectedNodeId === node.id,
-                'start-node': recipe.flow.startNode === node.id || (recipe.flow.startNodes && recipe.flow.startNodes.includes(node.id)),
+                'conditional-node': node.stepType === 'Conditional',
+                'start-node': isStartNode(node.id),
                 'has-cycle': isNodeInCycle(node.id)
              }"
              :style="{ left: (node.ui ? node.ui.x : 0) + 'px', top: (node.ui ? node.ui.y : 0) + 'px' }"
@@ -822,7 +912,7 @@
               <i :class="getStepIcon(node.stepType)" class="me-1"></i>{{ node.stepType }}
             </span>
             <div class="d-flex align-items-center gap-1">
-              <span v-if="recipe.flow.startNode === node.id" class="badge bg-success-subtle text-success fs-xs py-0" title="Workflow Entry Point">START</span>
+              <span v-if="isStartNode(node.id)" class="badge bg-success-subtle text-success fs-xs py-0" title="Workflow Entry Point">START</span>
               <button class="btn btn-link btn-xs text-secondary p-0 text-decoration-none" @click.stop="deleteNode(node.id)" title="Delete Node">
                 <i class="bi bi-x-lg"></i>
               </button>
@@ -833,15 +923,37 @@
           <div class="node-body">
             <div class="node-title" :title="node.name || node.id">{{ node.name || node.stepType }}</div>
             <div class="node-id" :title="'ID: ' + node.id">{{ node.id }}</div>
-            <div class="node-summary" :title="getNodeSummary(node)">
+            <!-- Non-Conditional Summary -->
+            <div v-if="node.stepType !== 'Conditional'" class="node-summary" :title="getNodeSummary(node)">
               {{ getNodeSummary(node) }}
+            </div>
+            <!-- Conditional Branches List inside Card Body -->
+            <div v-else class="condition-branches-card-list">
+              <div v-for="(branch, bIdx) in getConditionBranchesList(node)" :key="bIdx" class="condition-branch-row" :title="`Branch ${branch.key}: ${branch.expression}`">
+                <span class="branch-key-badge">{{ branch.key }}</span>
+                <span class="branch-exp-mono">{{ branch.expression }}</span>
+              </div>
             </div>
           </div>
 
-          <!-- Output Port Handle (Bottom) -->
-          <div class="node-port port-output"
+          <!-- Output Port Handle (Bottom - Non-Conditional) -->
+          <div v-if="node.stepType !== 'Conditional'"
+               class="node-port port-output"
                title="Output Connection (Drag to connect downstream step)"
                @mousedown.stop="onPortOutputMouseDown($event, node)"></div>
+
+          <!-- Conditional Branches Footer (Only for Conditional Steps - Clean Output Pins) -->
+          <div v-if="node.stepType === 'Conditional'" class="node-branches-footer">
+            <div v-for="(branch, bIdx) in getConditionBranchesList(node)"
+                 :key="branch.key || bIdx"
+                 class="node-branch-item"
+                 :title="`Branch ${branch.key}: ${branch.expression}`">
+              <span class="branch-key-badge">{{ branch.key }}</span>
+              <div class="node-port port-branch"
+                   :title="`Branch ${branch.key} Output (Drag to connect)`"
+                   @mousedown.stop="onPortBranchMouseDown($event, node, branch, bIdx, getConditionBranchesList(node).length)"></div>
+            </div>
+          </div>
         </div>
 
       </div>
@@ -892,7 +1004,7 @@
 
             <div class="mb-2">
               <label class="form-label fs-xs text-secondary fw-bold mb-1">Node ID</label>
-              <input type="text" class="form-control form-control-sm font-mono" v-model="selectedNode.id" @change="onNodeIdChanged">
+              <input type="text" class="form-control form-control-sm font-mono" :value="selectedNode.id" @change="onNodeIdInput(selectedNode, $event.target.value)" title="Unique identifier for this step. Editing updates all DAG transitions.">
             </div>
             <div class="mb-3">
               <label class="form-label fs-xs text-secondary fw-bold mb-1">Display Name</label>
@@ -901,10 +1013,10 @@
 
             <div class="form-check mb-3">
               <input class="form-check-input" type="checkbox" id="isStartNodeCheck"
-                     :checked="recipe.flow.startNode === selectedNode.id"
+                     :checked="isStartNode(selectedNode.id)"
                      @change="toggleStartNode(selectedNode.id, $event.target.checked)">
               <label class="form-check-label fs-xs" for="isStartNodeCheck">
-                Mark as Flow Entry Point (<code class="text-primary">startNode</code>)
+                Mark as Flow Entry Point (<code class="text-primary">startNodes</code>)
               </label>
             </div>
 
@@ -924,49 +1036,51 @@
                   <option value="FullScreen">FullScreen (All displays / desktop)</option>
                   <option value="LastRegion">LastRegion (Repeat previous region)</option>
                   <option value="Clipboard">Clipboard (From image in clipboard)</option>
-                  <option value="File">File (Load image file)</option>
-                  <option value="TextOcr">TextOcr (Screen OCR capture)</option>
                 </select>
               </div>
 
-              <div v-if="['Window', 'ActiveWindow'].includes(param(selectedNode, 'sourceType', 'Region'))">
-                <label class="form-label fs-xs mb-1">Window Title Pattern (Regex)</label>
-                <input type="text" class="form-control form-control-sm font-mono" :value="param(selectedNode, 'windowTitlePattern', '')" @input="setParam(selectedNode, 'windowTitlePattern', $event.target.value)" placeholder=".*(Chrome|Greenshot|Notepad).*">
+              <!-- Window Pattern (if Window) -->
+              <div v-if="param(selectedNode, 'sourceType', '') === 'Window'" class="d-flex flex-column gap-2">
+                <div>
+                  <label class="form-label fs-xs mb-1">Window Title Regex Pattern</label>
+                  <input type="text" class="form-control form-control-sm font-mono" :value="param(selectedNode, 'windowTitlePattern', '')" @input="setParam(selectedNode, 'windowTitlePattern', $event.target.value)" placeholder=".*(Chrome|Greenshot).*">
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="matchCaseCheck" :checked="param(selectedNode, 'matchCase', false)" @change="setParam(selectedNode, 'matchCase', $event.target.checked)">
+                  <label class="form-check-label fs-xs" for="matchCaseCheck">Match Case</label>
+                </div>
               </div>
 
-              <div v-if="['Window', 'ActiveWindow'].includes(param(selectedNode, 'sourceType', 'Region'))">
-                <label class="form-label fs-xs mb-1">Process Name</label>
-                <input type="text" class="form-control form-control-sm font-mono" :value="param(selectedNode, 'processName', '')" @input="setParam(selectedNode, 'processName', $event.target.value)" placeholder="e.g. notepad, chrome">
-              </div>
-
+              <!-- Capture Cursor -->
               <div>
                 <label class="form-label fs-xs mb-1">Capture Mouse Cursor</label>
                 <select class="form-select form-select-sm" :value="getCaptureMouseCursor(selectedNode)" @change="setCaptureMouseCursor(selectedNode, $event.target.value)">
-                  <option value="">Dynamic (from ini)</option>
-                  <option value="true">Always True</option>
-                  <option value="false">Always False</option>
+                  <option value="">Default (Follow Global Settings)</option>
+                  <option value="true">Always Capture Cursor</option>
+                  <option value="false">Never Capture Cursor</option>
                 </select>
               </div>
 
+              <!-- Delay Ms -->
               <div>
-                <label class="form-label fs-xs mb-1">Delay (ms)</label>
-                <input type="number" class="form-control form-control-sm" :value="param(selectedNode, 'delayMs', 0)" @input="setParam(selectedNode, 'delayMs', parseInt($event.target.value) || 0)" min="0" step="100" placeholder="0">
+                <label class="form-label fs-xs mb-1">Capture Delay (Milliseconds)</label>
+                <input type="number" class="form-control form-control-sm font-mono" :value="param(selectedNode, 'delayMs', 0)" @input="setParam(selectedNode, 'delayMs', parseInt($event.target.value) || 0)" min="0" step="100" placeholder="0">
               </div>
             </div>
 
-            <!-- 2. InteractiveSelection Step -->
+            <!-- 2. Interactive Selection Step -->
             <div v-if="selectedNode.stepType === 'InteractiveSelection'" class="d-flex flex-column gap-2">
               <div>
                 <label class="form-label fs-xs mb-1">Selection Mode</label>
                 <select class="form-select form-select-sm" :value="param(selectedNode, 'selectionMode', 'Region')" @change="setParam(selectedNode, 'selectionMode', $event.target.value)">
-                  <option value="Region">Region (Rubberband rectangle)</option>
-                  <option value="Window">Window (Hover & click window)</option>
-                  <option value="Text">Text (OCR selection box)</option>
+                  <option value="Region">Interactive Area Rect</option>
+                  <option value="Window">Interactive Window Selection</option>
+                  <option value="Fullscreen">Fullscreen Flash</option>
                 </select>
               </div>
               <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="snapCheck" :checked="param(selectedNode, 'allowWindowSnapping', true)" @change="setParam(selectedNode, 'allowWindowSnapping', $event.target.checked)">
-                <label class="form-check-label fs-xs" for="snapCheck">Allow Window Snapping</label>
+                <input class="form-check-input" type="checkbox" id="allowSnappingCheck" :checked="param(selectedNode, 'allowWindowSnapping', true)" @change="setParam(selectedNode, 'allowWindowSnapping', $event.target.checked)">
+                <label class="form-check-label fs-xs" for="allowSnappingCheck">Enable Window Snapping Magnet</label>
               </div>
             </div>
 
@@ -974,7 +1088,7 @@
             <div v-if="selectedNode.stepType === 'Border'" class="d-flex flex-column gap-2">
               <div>
                 <label class="form-label fs-xs mb-1">Border Width (px)</label>
-                <input type="number" class="form-control form-control-sm" :value="param(selectedNode, 'width', 2)" @input="setParam(selectedNode, 'width', parseInt($event.target.value) || 2)" min="1" max="100">
+                <input type="number" class="form-control form-control-sm" :value="param(selectedNode, 'width', 2)" @input="setParam(selectedNode, 'width', parseInt($event.target.value) || 1)" min="1" max="100" placeholder="2">
               </div>
               <div>
                 <label class="form-label fs-xs mb-1">Border Color</label>
@@ -1048,26 +1162,16 @@
                 <input type="text" class="form-control form-control-sm font-mono" :value="param(selectedNode, 'fillColor', '#000000')" @input="setParam(selectedNode, 'fillColor', $event.target.value)" placeholder="#000000">
               </div>
 
+              <!-- Pattern List -->
               <div>
                 <div class="d-flex justify-content-between align-items-center mb-1">
-                  <label class="form-label fs-xs mb-0">Regex Patterns</label>
-                  <div class="dropdown">
-                    <button class="btn btn-xs btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">Add Preset</button>
-                    <ul class="dropdown-menu dropdown-menu-dark fs-xs">
-                      <li><a class="dropdown-item" href="#" @click.prevent="addRegexPreset('Email')">Email Address</a></li>
-                      <li><a class="dropdown-item" href="#" @click.prevent="addRegexPreset('CreditCard')">Credit Card (16-digits)</a></li>
-                      <li><a class="dropdown-item" href="#" @click.prevent="addRegexPreset('SSN')">SSN / ID Number</a></li>
-                      <li><a class="dropdown-item" href="#" @click.prevent="addRegexPreset('ApiKey')">API Keys / Tokens (AWS, GitHub, Google)</a></li>
-                      <li><a class="dropdown-item" href="#" @click.prevent="addRegexPreset('IPv4')">IPv4 Address</a></li>
-                    </ul>
-                  </div>
+                  <label class="form-label fs-xs mb-0">Regex Match Patterns</label>
+                  <button class="btn btn-xs btn-outline-primary" @click="addPattern(selectedNode)">+ Add</button>
                 </div>
-
-                <div v-for="(pattern, idx) in getPatternsList(selectedNode)" :key="idx" class="input-group input-group-sm mb-1">
-                  <input type="text" class="form-control font-mono fs-xs" :value="pattern" @input="updatePattern(selectedNode, idx, $event.target.value)">
-                  <button class="btn btn-outline-danger" @click="removePattern(selectedNode, idx)"><i class="bi bi-trash"></i></button>
+                <div v-for="(p, pIdx) in getPatternsList(selectedNode)" :key="pIdx" class="input-group input-group-sm mb-1">
+                  <input type="text" class="form-control font-mono fs-xs" :value="p" @input="updatePattern(selectedNode, pIdx, $event.target.value)" placeholder="\\b[0-9]{4}\\b">
+                  <button class="btn btn-outline-danger btn-xs" @click="removePattern(selectedNode, pIdx)"><i class="bi bi-trash"></i></button>
                 </div>
-                <button class="btn btn-xs btn-outline-secondary w-100 mt-1" @click="addEmptyRegexPattern">+ Add Custom Regex</button>
               </div>
             </div>
 
@@ -1075,128 +1179,134 @@
             <div v-if="selectedNode.stepType === 'ObfuscateText'" class="d-flex flex-column gap-2">
               <div>
                 <label class="form-label fs-xs mb-1">Regex Pattern</label>
-                <input type="text" class="form-control form-control-sm font-mono" :value="param(selectedNode, 'pattern', '')" @input="setParam(selectedNode, 'pattern', $event.target.value)" placeholder="e.g. \\b\\d{4}-\\d{4}\\b">
+                <input type="text" class="form-control form-control-sm font-mono" :value="param(selectedNode, 'pattern', '')" @input="setParam(selectedNode, 'pattern', $event.target.value)" placeholder="\\b\\d{4}-\\d{4}\\b">
               </div>
               <div>
-                <label class="form-label fs-xs mb-1">Obfuscate Mode</label>
+                <label class="form-label fs-xs mb-1">Mode</label>
                 <select class="form-select form-select-sm" :value="param(selectedNode, 'obfuscateMode', 'Blur')" @change="setParam(selectedNode, 'obfuscateMode', $event.target.value)">
-                  <option value="Redact">Redact</option>
                   <option value="Blur">Blur</option>
                   <option value="Pixelize">Pixelize</option>
+                  <option value="Blackout">Blackout</option>
+                  <option value="CustomFill">CustomFill</option>
                 </select>
-              </div>
-              <div>
-                <label class="form-label fs-xs mb-1">Fill Color</label>
-                <input type="text" class="form-control form-control-sm font-mono" :value="param(selectedNode, 'fillColor', '#000000')" @input="setParam(selectedNode, 'fillColor', $event.target.value)" placeholder="#000000">
               </div>
             </div>
 
-            <!-- 7. Drawable Step (Rich Surface Stamping) -->
+            <!-- 7. Drawable Step -->
             <div v-if="selectedNode.stepType === 'Drawable'" class="d-flex flex-column gap-2">
-              <div class="d-flex justify-content-between align-items-center mb-1">
-                <span class="fs-xs fw-bold text-secondary text-uppercase">Drawables List</span>
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="fs-xs fw-bold text-secondary text-uppercase">Surface Drawables</span>
                 <div class="dropdown">
-                  <button class="btn btn-xs btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                  <button class="btn btn-xs btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
                     + Add Element
                   </button>
-                  <ul class="dropdown-menu dropdown-menu-dark fs-xs">
-                    <li><a class="dropdown-item" href="#" @click.prevent="addDrawable('Rectangle')"><i class="bi bi-square me-2"></i> Rectangle Box</a></li>
-                    <li><a class="dropdown-item" href="#" @click.prevent="addDrawable('Text')"><i class="bi bi-type me-2"></i> Text Annotation</a></li>
-                    <li><a class="dropdown-item" href="#" @click.prevent="addDrawable('StepLabel')"><i class="bi bi-1-circle me-2"></i> Step Number Label</a></li>
+                  <ul class="dropdown-menu dropdown-menu-dark fs-xs shadow">
+                    <li><a class="dropdown-item" href="#" @click.prevent="addDrawable('Rectangle')"><i class="bi bi-square me-2"></i> Rectangle Badge</a></li>
+                    <li><a class="dropdown-item" href="#" @click.prevent="addDrawable('Text')"><i class="bi bi-fonts me-2"></i> Dynamic Text / Watermark</a></li>
+                    <li><a class="dropdown-item" href="#" @click.prevent="addDrawable('SpeechBubble')"><i class="bi bi-chat-dots me-2"></i> Speech Bubble</a></li>
                     <li><a class="dropdown-item" href="#" @click.prevent="addDrawable('Emoji')"><i class="bi bi-emoji-smile me-2"></i> Emoji Stamp</a></li>
-                    <li><a class="dropdown-item" href="#" @click.prevent="addDrawable('Arrow')"><i class="bi bi-arrow-up-right me-2"></i> Arrow</a></li>
-                    <li><a class="dropdown-item" href="#" @click.prevent="addDrawable('Ellipse')"><i class="bi bi-circle me-2"></i> Ellipse</a></li>
-                    <li><a class="dropdown-item" href="#" @click.prevent="addDrawable('Speechbubble')"><i class="bi bi-chat-dots me-2"></i> Speechbubble</a></li>
-                    <li><a class="dropdown-item" href="#" @click.prevent="addDrawable('Blur')"><i class="bi bi-droplet me-2"></i> Blur Area</a></li>
-                    <li><a class="dropdown-item" href="#" @click.prevent="addDrawable('Highlight')"><i class="bi bi-highlighter me-2"></i> Highlight Area</a></li>
                   </ul>
                 </div>
               </div>
 
-              <!-- Drawable Elements Accordion -->
-              <div v-for="(drw, dIdx) in getDrawablesList(selectedNode)" :key="dIdx" class="drawable-item-card">
+              <!-- Drawables List Accordion -->
+              <div v-for="(draw, dIdx) in getDrawablesList(selectedNode)" :key="dIdx" class="card bg-card border-secondary-subtle p-2">
                 <div class="d-flex justify-content-between align-items-center mb-2">
-                  <span class="badge bg-secondary font-mono">{{ drw.type }}</span>
-                  <button class="btn btn-link btn-xs text-danger p-0" @click="getDrawablesList(selectedNode).splice(dIdx, 1)">
-                    <i class="bi bi-trash"></i>
-                  </button>
+                  <span class="badge bg-secondary font-mono">{{ draw.type }} #{{ dIdx + 1 }}</span>
+                  <button class="btn btn-link btn-xs text-danger p-0" @click="removeDrawable(selectedNode, dIdx)"><i class="bi bi-trash"></i></button>
                 </div>
 
-                <!-- Text Specific -->
-                <div v-if="['Text', 'Speechbubble', 'StepLabel'].includes(drw.type)" class="mb-2">
-                  <label class="form-label fs-xs mb-1">Text / Label (with ${...} interpolation)</label>
-                  <input type="text" class="form-control form-control-sm font-mono" v-model="drw.text" placeholder="Captured by ${user.username} on ${now:yyyy-MM-dd}">
-                </div>
+                <div class="d-flex flex-column gap-2">
+                  <!-- Text Element Content -->
+                  <div v-if="draw.type === 'Text'">
+                    <label class="form-label fs-xs mb-1">Watermark Text (Variables Supported)</label>
+                    <input type="text" class="form-control form-control-sm font-mono fs-xs" v-model="draw.text" placeholder="${user.username} - ${now:yyyy-MM-dd}">
+                  </div>
 
-                <!-- Emoji Specific -->
-                <div v-if="drw.type === 'Emoji'" class="mb-2">
-                  <label class="form-label fs-xs mb-1">Emoji</label>
-                  <input type="text" class="form-control form-control-sm" v-model="drw.emoji" placeholder="🛡️, ⚠️, ✅, 🚀">
-                </div>
+                  <!-- Emoji Element -->
+                  <div v-if="draw.type === 'Emoji'">
+                    <label class="form-label fs-xs mb-1">Emoji Character</label>
+                    <input type="text" class="form-control form-control-sm" v-model="draw.emoji" placeholder="🔒">
+                  </div>
 
-                <!-- Alignment Anchors -->
-                <div class="mb-2">
-                  <label class="form-label fs-xs mb-1">H-Anchor</label>
-                  <select class="form-select form-select-sm" v-model="drw.horizontalAnchor">
-                    <option :value="undefined">None (Absolute)</option>
-                    <option value="Left">Left</option>
-                    <option value="Center">Center</option>
-                    <option value="Right">Right</option>
-                  </select>
-                </div>
-                <div class="mb-2">
-                  <label class="form-label fs-xs mb-1">V-Anchor</label>
-                  <select class="form-select form-select-sm" v-model="drw.verticalAnchor">
-                    <option :value="undefined">None (Absolute)</option>
-                    <option value="Top">Top</option>
-                    <option value="Center">Center</option>
-                    <option value="Bottom">Bottom</option>
-                  </select>
-                </div>
+                  <!-- Speech Bubble -->
+                  <div v-if="draw.type === 'SpeechBubble'">
+                    <label class="form-label fs-xs mb-1">Bubble Text</label>
+                    <input type="text" class="form-control form-control-sm" v-model="draw.text" placeholder="Note text...">
+                  </div>
 
-                <!-- Dimensions & Offsets -->
-                <div class="mb-2">
-                  <label class="form-label fs-xs mb-1">Width</label>
-                  <input type="text" class="form-control form-control-sm font-mono" v-model="drw.width" placeholder="300">
-                </div>
-                <div class="mb-2">
-                  <label class="form-label fs-xs mb-1">Height</label>
-                  <input type="text" class="form-control form-control-sm font-mono" v-model="drw.height" placeholder="40">
-                </div>
-                <div class="mb-2">
-                  <label class="form-label fs-xs mb-1">Offset X</label>
-                  <input type="text" class="form-control form-control-sm font-mono" v-model="drw.offsetX" placeholder="-15">
-                </div>
-                <div class="mb-2">
-                  <label class="form-label fs-xs mb-1">Offset Y</label>
-                  <input type="text" class="form-control form-control-sm font-mono" v-model="drw.offsetY" placeholder="-15">
-                </div>
+                  <!-- Anchors -->
+                  <div class="row g-2">
+                    <div class="col-6">
+                      <label class="form-label fs-xs mb-1">H-Anchor</label>
+                      <select class="form-select form-select-sm" v-model="draw.horizontalAnchor">
+                        <option value="Left">Left</option>
+                        <option value="Center">Center</option>
+                        <option value="Right">Right</option>
+                      </select>
+                    </div>
+                    <div class="col-6">
+                      <label class="form-label fs-xs mb-1">V-Anchor</label>
+                      <select class="form-select form-select-sm" v-model="draw.verticalAnchor">
+                        <option value="Top">Top</option>
+                        <option value="Center">Center</option>
+                        <option value="Bottom">Bottom</option>
+                      </select>
+                    </div>
+                  </div>
 
-                <!-- Colors & Styling -->
-                <div class="mb-2">
-                  <label class="form-label fs-xs mb-1">Fill Color</label>
-                  <input type="text" class="form-control form-control-sm font-mono" v-model="drw.fillColor" placeholder="rgba(0,0,0,180)">
-                </div>
-                <div class="mb-2">
-                  <label class="form-label fs-xs mb-1">Line Color</label>
-                  <input type="text" class="form-control form-control-sm font-mono" v-model="drw.lineColor" placeholder="#0078D7">
+                  <!-- Dimensions -->
+                  <div class="row g-2">
+                    <div class="col-6">
+                      <label class="form-label fs-xs mb-1">Width (px)</label>
+                      <input type="number" class="form-control form-control-sm" v-model.number="draw.width" placeholder="250">
+                    </div>
+                    <div class="col-6">
+                      <label class="form-label fs-xs mb-1">Height (px)</label>
+                      <input type="number" class="form-control form-control-sm" v-model.number="draw.height" placeholder="40">
+                    </div>
+                  </div>
+
+                  <!-- Offsets -->
+                  <div class="row g-2">
+                    <div class="col-6">
+                      <label class="form-label fs-xs mb-1">Offset X</label>
+                      <input type="number" class="form-control form-control-sm" v-model.number="draw.offsetX" placeholder="-15">
+                    </div>
+                    <div class="col-6">
+                      <label class="form-label fs-xs mb-1">Offset Y</label>
+                      <input type="number" class="form-control form-control-sm" v-model.number="draw.offsetY" placeholder="-15">
+                    </div>
+                  </div>
+
+                  <!-- Styling -->
+                  <div class="row g-2">
+                    <div class="col-6">
+                      <label class="form-label fs-xs mb-1">Fill Color</label>
+                      <input type="text" class="form-control form-control-sm font-mono fs-xs" v-model="draw.fillColor" placeholder="rgba(0,0,0,180)">
+                    </div>
+                    <div class="col-6">
+                      <label class="form-label fs-xs mb-1">Line / Text Color</label>
+                      <input type="text" class="form-control form-control-sm font-mono fs-xs" v-model="draw.lineColor" placeholder="#FFFFFF">
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
 
             <!-- 8. SetVariable Step -->
             <div v-if="selectedNode.stepType === 'SetVariable'" class="d-flex flex-column gap-2">
-              <label class="form-label fs-xs mb-1">Context Variables Dictionary</label>
-              <div v-for="(val, key) in getVariablesDict(selectedNode)" :key="key" class="input-group input-group-sm mb-1">
-                <span class="input-group-text font-mono fs-xs">{{ key }}</span>
-                <input type="text" class="form-control font-mono fs-xs" :value="val" @input="updateVariable(selectedNode, key, $event.target.value)">
-                <button class="btn btn-outline-danger" @click="deleteVariable(selectedNode, key)"><i class="bi bi-trash"></i></button>
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <label class="form-label fs-xs mb-0">Context Variables</label>
+                <button class="btn btn-xs btn-outline-primary" @click="addVariable(selectedNode)">+ Add Variable</button>
               </div>
 
-              <div class="input-group input-group-sm mt-1">
-                <input type="text" class="form-control font-mono fs-xs" v-model="newVarKey" placeholder="var_name">
-                <input type="text" class="form-control font-mono fs-xs" v-model="newVarVal" placeholder="${user.username}">
-                <button class="btn btn-outline-primary" @click="addVariable(selectedNode)">+ Add</button>
+              <div v-for="(vVal, vKey) in getVariablesDict(selectedNode)" :key="vKey" class="card bg-card border-secondary-subtle p-2">
+                <div class="d-flex align-items-center gap-1 mb-1">
+                  <span class="fs-xs font-mono text-info fw-bold">${context.{{ vKey }}}</span>
+                  <button class="btn btn-link btn-xs text-danger ms-auto p-0" @click="removeVariable(selectedNode, vKey)"><i class="bi bi-trash"></i></button>
+                </div>
+                <input type="text" class="form-control form-control-sm font-mono fs-xs" :value="vVal" @input="updateVariableValue(selectedNode, vKey, $event.target.value)" placeholder="Value or expression ${user.username}">
               </div>
             </div>
 
@@ -1204,44 +1314,28 @@
             <div v-if="selectedNode.stepType === 'ImmediateFeedback'" class="d-flex flex-column gap-2">
               <div class="form-check">
                 <input class="form-check-input" type="checkbox" id="playSoundCheck" :checked="param(selectedNode, 'playSound', true)" @change="setParam(selectedNode, 'playSound', $event.target.checked)">
-                <label class="form-check-label fs-xs" for="playSoundCheck">Play Shutter Camera Sound</label>
+                <label class="form-check-label fs-xs" for="playSoundCheck">Play Shutter Sound</label>
               </div>
             </div>
 
             <!-- 10. Destinations Step -->
             <div v-if="selectedNode.stepType === 'Destinations'" class="d-flex flex-column gap-2">
-              <label class="form-label fs-xs mb-1">Configured Destinations</label>
-              
-              <!-- Active Destination Badges -->
-              <div class="d-flex flex-wrap gap-1 mb-2">
-                <span v-for="dest in getDestinationsList(selectedNode)" :key="dest" class="destination-chip">
-                  <i class="bi bi-check2 text-success"></i>
-                  <strong>{{ dest }}</strong>
-                  <button type="button" class="btn-close btn-close-white" style="font-size: 0.5rem;" @click="toggleDestination(selectedNode, dest, false)"></button>
-                </span>
-                <span v-if="getDestinationsList(selectedNode).length === 0" class="text-secondary fs-xs fst-italic">No destinations chosen.</span>
-              </div>
-
-              <!-- Built-in Destination Checkboxes -->
-              <div class="card bg-card border-secondary-subtle p-2 mb-2">
-                <div class="fs-xs fw-bold text-secondary text-uppercase mb-2">Built-in Targets</div>
-                <div class="d-flex flex-column gap-1">
-                  <div v-for="dest in allKnownDestinations" :key="dest" class="form-check">
-                    <input class="form-check-input" type="checkbox" :id="'dest_' + dest"
-                           :checked="isDestinationSelected(selectedNode, dest)"
-                           @change="toggleDestination(selectedNode, dest, $event.target.checked)">
-                    <label class="form-check-label fs-xs" :for="'dest_' + dest">{{ dest }}</label>
-                  </div>
+              <div>
+                <label class="form-label fs-xs mb-1">Output Target Destinations</label>
+                <div class="d-flex flex-wrap gap-1">
+                  <span v-for="dest in KNOWN_DESTINATIONS"
+                        :key="dest"
+                        class="badge cursor-pointer"
+                        :class="hasDestination(selectedNode, dest) ? 'bg-primary' : 'bg-secondary-subtle text-secondary'"
+                        @click="toggleDestination(selectedNode, dest)">
+                    <i class="bi me-1" :class="hasDestination(selectedNode, dest) ? 'bi-check-circle-fill' : 'bi-circle'"></i>
+                    {{ dest }}
+                  </span>
                 </div>
               </div>
 
               <!-- Add Custom Destination -->
               <div>
-                <label class="form-label fs-xs mb-1">Add Custom Destination Name</label>
-                <div class="input-group input-group-sm">
-                  <input type="text" class="form-control font-mono fs-xs" v-model="customDestInput" placeholder="e.g. CustomUploader, WebhookTarget" @keyup.enter="addCustomDestination(selectedNode)">
-                  <button class="btn btn-outline-primary" @click="addCustomDestination(selectedNode)">+ Add</button>
-                </div>
               </div>
             </div>
 
@@ -1259,40 +1353,38 @@
 
             <!-- 12. Conditional Step -->
             <div v-if="selectedNode.stepType === 'Conditional'" class="d-flex flex-column gap-2">
-              <div>
-                <div class="d-flex justify-content-between align-items-center mb-1">
-                  <label class="form-label fs-xs mb-0">Condition Expression</label>
-                  <div class="dropdown">
-                    <button class="btn btn-xs btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                      Presets
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <label class="form-label fs-xs mb-0 fw-bold text-secondary text-uppercase">Condition Branches</label>
+                <button class="btn btn-xs btn-outline-primary" @click="addConditionBranch(selectedNode)">+ Add Branch</button>
+              </div>
+
+              <div class="d-flex flex-column gap-2">
+                <div v-for="(branch, bIdx) in getConditionBranchesList(selectedNode)" :key="bIdx" class="card bg-card border-secondary-subtle p-2">
+                  <div class="d-flex align-items-center gap-2 mb-2">
+                    <span class="badge bg-primary-subtle text-primary font-mono fw-bold px-2 py-1 fs-xs">Pin</span>
+                    <input type="text" class="form-control form-control-sm font-mono fs-xs w-25" v-model="branch.key" placeholder="Key (e.g. A, B)">
+                    <button class="btn btn-link btn-xs text-danger ms-auto p-0" :disabled="getConditionBranchesList(selectedNode).length <= 1" @click="removeConditionBranch(selectedNode, bIdx)" title="Remove branch">
+                      <i class="bi bi-trash"></i>
                     </button>
-                    <ul class="dropdown-menu dropdown-menu-dark fs-xs shadow">
-                      <li><h6 class="dropdown-header">Dimension Conditions</h6></li>
-                      <li><a class="dropdown-item" href="#" @click.prevent="setParam(selectedNode, 'condition', '${payload.width > 1920}')">Large Display / Full HD (${payload.width > 1920})</a></li>
-                      <li><a class="dropdown-item" href="#" @click.prevent="setParam(selectedNode, 'condition', '${payload.width <= 800}')">Small Area (${payload.width <= 800})</a></li>
-                      <li><a class="dropdown-item" href="#" @click.prevent="setParam(selectedNode, 'condition', '${payload.width > payload.height}')">Landscape (${payload.width > payload.height})</a></li>
-                      <li><a class="dropdown-item" href="#" @click.prevent="setParam(selectedNode, 'condition', '${payload.height > payload.width}')">Portrait (${payload.height > payload.width})</a></li>
-                      <li><hr class="dropdown-divider"></li>
-                      <li><h6 class="dropdown-header">Context & User</h6></li>
-                      <li><a class="dropdown-item" href="#" @click.prevent="setParam(selectedNode, 'condition', '${context.watermark_text != null}')">Context Var Set (${context.watermark_text != null})</a></li>
-                      <li><a class="dropdown-item" href="#" @click.prevent="setParam(selectedNode, 'condition', '${user.username == \'admin\'}')">Specific User (${user.username == 'admin'})</a></li>
-                    </ul>
+                  </div>
+                  <div>
+                    <label class="form-label fs-xs mb-1 text-secondary">Expression</label>
+                    <input type="text" class="form-control form-control-sm font-mono fs-xs" v-model="branch.expression" placeholder="${payload.width > 800} or else">
                   </div>
                 </div>
-                <input type="text" class="form-control form-control-sm font-mono" :value="param(selectedNode, 'condition', '${payload.width > 800}')" @input="setParam(selectedNode, 'condition', $event.target.value)" placeholder="${payload.width > 1200}">
               </div>
 
               <!-- In-form Guide Callout -->
-              <div class="card bg-card border-secondary-subtle p-2 fs-xs text-secondary">
+              <div class="card bg-card border-secondary-subtle p-2 fs-xs text-secondary mt-1">
                 <div class="d-flex align-items-center gap-1 text-light fw-semibold mb-1">
                   <i class="bi bi-info-circle text-primary"></i>
                   <span>How Branching Works</span>
                 </div>
                 <div>
-                  Evaluates the expression at runtime during capture:
+                  Evaluates branches sequentially against runtime payload/context:
                   <ul class="ps-3 mb-1 mt-1">
-                    <li><strong class="text-success">True / Truthy</strong>: Execution continues to downstream step(s).</li>
-                    <li><strong class="text-danger">False / Zero</strong>: This branch is skipped.</li>
+                    <li><strong class="text-success">First true branch wins</strong>: Execution routes to connected destination(s).</li>
+                    <li><strong class="text-warning">else</strong>: Matches if all preceding branches evaluated false.</li>
                   </ul>
                 </div>
                 <div class="mt-1">
@@ -1309,18 +1401,39 @@
             <hr class="border-secondary-subtle my-3">
             <div class="d-flex justify-content-between align-items-center mb-2">
               <span class="fs-xs fw-bold text-secondary text-uppercase">Outgoing Transitions</span>
-              <span class="badge bg-secondary-subtle text-secondary fs-xs">Fork Target(s)</span>
+              <span class="badge bg-secondary-subtle text-secondary fs-xs">Connections</span>
             </div>
 
-            <div v-if="getNodeDownstreamTargets(selectedNode.id).length === 0" class="text-secondary fs-xs fst-italic">
-              No outgoing transitions. (Terminal node or join endpoint).
+            <!-- Non-Conditional Node Transitions -->
+            <div v-if="selectedNode.stepType !== 'Conditional'">
+              <div v-if="getNodeDownstreamTargets(selectedNode.id).length === 0" class="text-secondary fs-xs fst-italic">
+                No outgoing transitions. (Terminal node or join endpoint).
+              </div>
+              <div v-else class="d-flex flex-column gap-1">
+                <div v-for="targetId in getNodeDownstreamTargets(selectedNode.id)" :key="targetId" class="d-flex justify-content-between align-items-center bg-card p-1 px-2 rounded border border-secondary-subtle fs-xs">
+                  <span class="font-mono text-primary">&rarr; {{ targetId }}</span>
+                  <button class="btn btn-link btn-xs text-danger p-0" @click="removeEdge(selectedNode.id, targetId)" title="Delete connection">
+                    <i class="bi bi-x"></i>
+                  </button>
+                </div>
+              </div>
             </div>
-            <div v-else class="d-flex flex-column gap-1">
-              <div v-for="targetId in getNodeDownstreamTargets(selectedNode.id)" :key="targetId" class="d-flex justify-content-between align-items-center bg-card p-1 px-2 rounded border border-secondary-subtle fs-xs">
-                <span class="font-mono text-primary">&rarr; {{ targetId }}</span>
-                <button class="btn btn-link btn-xs text-danger p-0" @click="removeEdge(selectedNode.id, targetId)">
-                  <i class="bi bi-x"></i>
-                </button>
+
+            <!-- Conditional Node Branch Transitions -->
+            <div v-if="selectedNode.stepType === 'Conditional'">
+              <div v-if="getNodeConditionalTransitions(selectedNode.id).length === 0" class="text-secondary fs-xs fst-italic">
+                No conditional transitions configured. Drag from branch output pins to connect downstream steps.
+              </div>
+              <div v-else class="d-flex flex-column gap-1">
+                <div v-for="ct in getNodeConditionalTransitions(selectedNode.id)" :key="`${ct.branch}-${ct.to}`" class="d-flex justify-content-between align-items-center bg-card p-1 px-2 rounded border border-secondary-subtle fs-xs">
+                  <span class="d-flex align-items-center gap-1">
+                    <span class="badge bg-primary-subtle text-primary font-mono fw-bold">[{{ ct.branch }}]</span>
+                    <span class="font-mono text-primary">&rarr; {{ ct.to }}</span>
+                  </span>
+                  <button class="btn btn-link btn-xs text-danger p-0" @click="removeConditionalEdge(selectedNode.id, ct.branch, ct.to)" title="Delete connection">
+                    <i class="bi bi-x"></i>
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -1364,8 +1477,8 @@
           </div>
 
           <div class="mb-3">
-            <label class="form-label fs-xs text-secondary fw-bold mb-1">Start Node (Entry Point)</label>
-            <select class="form-select form-select-sm font-mono" v-model="recipe.flow.startNode">
+            <label class="form-label fs-xs text-secondary fw-bold mb-1">Primary Entry Point Node</label>
+            <select class="form-select form-select-sm font-mono" :value="recipe.flow.startNodes?.[0]" @change="setSingleStartNode($event.target.value)">
               <option v-for="node in recipe.nodes" :key="node.id" :value="node.id">{{ node.id }} ({{ node.name || node.stepType }})</option>
             </select>
           </div>
@@ -1434,6 +1547,25 @@
           </div>
           <textarea class="form-control font-mono fs-xs json-code-view" v-model="rawJsonString" spellcheck="false"></textarea>
           <div v-if="jsonParseError" class="alert alert-danger fs-xs mt-2 py-1 mb-0">{{ jsonParseError }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mermaid Flowchart DSL Modal -->
+  <div class="modal fade" id="mermaidModal" tabindex="-1" :class="{ show: showMermaidModal, 'd-block': showMermaidModal }" v-if="showMermaidModal">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content bg-panel text-light border-secondary shadow-lg">
+        <div class="modal-header border-secondary">
+          <h5 class="modal-title font-mono fs-6"><i class="bi bi-diagram-2 text-primary me-2"></i> Mermaid Flowchart DSL</h5>
+          <button type="button" class="btn-close btn-close-white" @click="showMermaidModal = false"></button>
+        </div>
+        <div class="modal-body p-3">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="fs-xs text-secondary">Copy this text to embed in Markdown, GitHub README, or PR diagrams (<code>```mermaid ... ```</code>).</span>
+            <button class="btn btn-xs btn-primary" @click="copyMermaidToClipboard"><i class="bi bi-clipboard me-1"></i> Copy Mermaid Code</button>
+          </div>
+          <textarea class="form-control font-mono fs-xs json-code-view" v-model="mermaidDslString" readonly spellcheck="false" style="height: 360px;"></textarea>
         </div>
       </div>
     </div>
@@ -1577,9 +1709,9 @@ const TEMPLATES = {
       }
     ],
     "flow": {
-      "startNode": "source",
+      "startNodes": ["source"],
       "transitions": {
-        "source": "destination"
+        "source": ["destination"]
       }
     }
   },
@@ -1602,12 +1734,12 @@ const TEMPLATES = {
       { "id": "destination", "stepType": "Destinations", "name": "Open Editor", "parameters": { "destinationDesignations": ["Editor"] } }
     ],
     "flow": {
-      "startNode": "source",
+      "startNodes": ["source"],
       "transitions": {
-        "source": "select",
-        "select": "border",
-        "border": "feedback",
-        "feedback": "destination"
+        "source": ["select"],
+        "select": ["border"],
+        "border": ["feedback"],
+        "feedback": ["destination"]
       }
     }
   },
@@ -1633,14 +1765,46 @@ const TEMPLATES = {
       { "id": "export_join", "stepType": "Destinations", "name": "Join Export", "parameters": { "destinationDesignations": ["Editor", "Clipboard"] } }
     ],
     "flow": {
-      "startNode": "capture_node",
+      "startNodes": ["capture_node"],
       "transitions": {
-        "capture_node": "select_node",
+        "capture_node": ["select_node"],
         "select_node": ["feedback_branch", "set_vars_node"],
-        "set_vars_node": "watermark_node",
-        "feedback_branch": "export_join",
-        "watermark_node": "export_join"
+        "set_vars_node": ["watermark_node"],
+        "feedback_branch": ["export_join"],
+        "watermark_node": ["export_join"]
       }
+    }
+  },
+  conditional_routing: {
+    "$schema": "./recipe.schema.json",
+    "version": "1.0",
+    "id": "recipe_conditional_routing",
+    "name": "Conditional Decision Routing",
+    "description": "Routes large screenshots to OCR and full editor, and smaller captures directly to clipboard",
+    "enabled": true,
+    "triggers": [
+      { "triggerType": "Hotkey", "parameters": { "hotkey": "Ctrl + Shift + C" } }
+    ],
+    "nodes": [
+      { "id": "source", "stepType": "Source", "name": "Region Source", "parameters": { "sourceType": "Region" } },
+      { "id": "decision", "stepType": "Conditional", "name": "Route by Size", "parameters": {
+        "branches": [
+          { "key": "A", "expression": "${payload.width > 800}" },
+          { "key": "B", "expression": "else" }
+        ]
+      } },
+      { "id": "large_editor", "stepType": "Destinations", "name": "Full Editor Flow", "parameters": { "destinationDesignations": ["Editor"] } },
+      { "id": "quick_clip", "stepType": "Destinations", "name": "Quick Clipboard", "parameters": { "destinationDesignations": ["Clipboard"] } }
+    ],
+    "flow": {
+      "startNodes": ["source"],
+      "transitions": {
+        "source": ["decision"]
+      },
+      "conditionalTransitions": [
+        { "from": "decision", "branch": "A", "to": "large_editor" },
+        { "from": "decision", "branch": "B", "to": "quick_clip" }
+      ]
     }
   },
   window_dlp_redact: {
@@ -1661,12 +1825,12 @@ const TEMPLATES = {
       { "id": "destination", "stepType": "Destinations", "name": "Send to Editor", "parameters": { "destinationDesignations": ["Editor"] } }
     ],
     "flow": {
-      "startNode": "capture_window",
+      "startNodes": ["capture_window"],
       "transitions": {
-        "capture_window": "shadow",
-        "shadow": "redact",
-        "redact": "feedback",
-        "feedback": "destination"
+        "capture_window": ["shadow"],
+        "shadow": ["redact"],
+        "redact": ["feedback"],
+        "feedback": ["destination"]
       }
     }
   },
@@ -1684,8 +1848,11 @@ const TEMPLATES = {
       { "id": "export", "stepType": "Destinations", "name": "Multi-Export", "parameters": { "destinationDesignations": ["Clipboard", "FileNoDialog", "Editor"] } }
     ],
     "flow": {
-      "startNode": "source",
-      "transitions": { "source": "border", "border": "export" }
+      "startNodes": ["source"],
+      "transitions": {
+        "source": ["border"],
+        "border": ["export"]
+      }
     }
   }
 };
@@ -1748,6 +1915,7 @@ createApp({
     const connectingState = reactive({
       active: false,
       fromNodeId: null,
+      branchKey: null,
       startX: 0,
       startY: 0,
       currentX: 0,
@@ -1841,9 +2009,16 @@ createApp({
         if (!adj[src]) adj[src] = [];
         const tList = Array.isArray(targets) ? targets : [targets];
         tList.forEach(t => {
-          if (adj[src]) adj[src].push(t);
+          if (adj[src] && !adj[src].includes(t)) adj[src].push(t);
         });
       }
+
+      const condTransitions = recipe.flow.conditionalTransitions || [];
+      condTransitions.forEach(ct => {
+        if (ct.from && ct.to && adj[ct.from] && !adj[ct.from].includes(ct.to)) {
+          adj[ct.from].push(ct.to);
+        }
+      });
 
       const visited = {};
       const recStack = {};
@@ -1884,13 +2059,46 @@ createApp({
       return cycleErrors.value.includes(nodeId);
     };
 
-    // Computed Connection Edges with Smooth Curvature & Centered Arrowhead
+    // Helper to calculate smooth bezier path and midpoint
+    const calculateEdgePath = (startX, startY, endX, endY) => {
+      let pathD = '';
+      let midX = 0;
+      let midY = 0;
+
+      if (endY >= startY + 15) {
+        const dy = Math.max(35, (endY - startY) * 0.55);
+        const cp1x = startX;
+        const cp1y = startY + dy;
+        const cp2x = endX;
+        const cp2y = endY - dy;
+
+        pathD = `M ${startX} ${startY} C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${endX} ${endY}`;
+        midX = 0.125 * startX + 0.375 * cp1x + 0.375 * cp2x + 0.125 * endX;
+        midY = 0.125 * startY + 0.375 * cp1y + 0.375 * cp2y + 0.125 * endY;
+      } else {
+        const sideSign = endX >= startX ? 1 : -1;
+        const sideOffset = sideSign * Math.max(80, Math.abs(endX - startX) * 0.4 + 60);
+        const loopOutY = startY + 50;
+        const loopInY = endY - 50;
+        const midLoopX = startX + sideOffset;
+        const midLoopY = (startY + endY) / 2;
+
+        pathD = `M ${startX} ${startY} C ${startX} ${loopOutY}, ${midLoopX} ${loopOutY}, ${midLoopX} ${midLoopY} C ${midLoopX} ${loopInY}, ${endX} ${loopInY}, ${endX} ${endY}`;
+        midX = midLoopX;
+        midY = midLoopY;
+      }
+
+      return { pathD, midX, midY };
+    };
+
+    // Computed Connection Edges with Smooth Curvature & Branch Badges
     const computedEdges = computed(() => {
       const edges = [];
-      const transitions = recipe.flow.transitions || {};
       const nodeMap = {};
       recipe.nodes.forEach(n => nodeMap[n.id] = n);
 
+      // 1. Standard Transitions
+      const transitions = recipe.flow.transitions || {};
       for (const [srcId, targets] of Object.entries(transitions)) {
         const srcNode = nodeMap[srcId];
         if (!srcNode) continue;
@@ -1900,48 +2108,20 @@ createApp({
           const tgtNode = nodeMap[tgtId];
           if (!tgtNode) return;
 
-          // Outgoing port at bottom center: x + 110, y + 105
           const startX = (srcNode.ui?.x || 0) + 110;
           const startY = (srcNode.ui?.y || 0) + 105;
-          // Incoming port at top center: x + 110, y
           const endX = (tgtNode.ui?.x || 0) + 110;
           const endY = (tgtNode.ui?.y || 0);
 
-          let pathD = '';
-          let midX = 0;
-          let midY = 0;
-
-          if (endY >= startY + 15) {
-            // Standard downward flow
-            const dy = Math.max(35, (endY - startY) * 0.55);
-            const cp1x = startX;
-            const cp1y = startY + dy;
-            const cp2x = endX;
-            const cp2y = endY - dy;
-
-            pathD = `M ${startX} ${startY} C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${endX} ${endY}`;
-            midX = 0.125 * startX + 0.375 * cp1x + 0.375 * cp2x + 0.125 * endX;
-            midY = 0.125 * startY + 0.375 * cp1y + 0.375 * cp2y + 0.125 * endY;
-          } else {
-            // Target is above or level with source (reverse loop or side-by-side)
-            const sideSign = endX >= startX ? 1 : -1;
-            const sideOffset = sideSign * Math.max(80, Math.abs(endX - startX) * 0.4 + 60);
-            const loopOutY = startY + 50;
-            const loopInY = endY - 50;
-            const midLoopX = startX + sideOffset;
-            const midLoopY = (startY + endY) / 2;
-
-            pathD = `M ${startX} ${startY} C ${startX} ${loopOutY}, ${midLoopX} ${loopOutY}, ${midLoopX} ${midLoopY} C ${midLoopX} ${loopInY}, ${endX} ${loopInY}, ${endX} ${endY}`;
-            midX = midLoopX;
-            midY = midLoopY;
-          }
-
+          const { pathD, midX, midY } = calculateEdgePath(startX, startY, endX, endY);
           const isCycleEdge = isNodeInCycle(srcId) && isNodeInCycle(tgtId);
 
           edges.push({
             id: `${srcId}->${tgtId}`,
             from: srcId,
             to: tgtId,
+            branch: null,
+            isConditional: false,
             pathD,
             midX: Math.round(midX),
             midY: Math.round(midY),
@@ -1949,6 +2129,40 @@ createApp({
           });
         });
       }
+
+      // 2. Conditional Transitions
+      const condTransitions = recipe.flow.conditionalTransitions || [];
+      condTransitions.forEach(ct => {
+        const srcNode = nodeMap[ct.from];
+        const tgtNode = nodeMap[ct.to];
+        if (!srcNode || !tgtNode) return;
+
+        const branches = getConditionBranchesList(srcNode);
+        const branchIndex = branches.findIndex(b => b.key === ct.branch);
+        const numBranches = Math.max(1, branches.length);
+        const idx = branchIndex >= 0 ? branchIndex : 0;
+
+        const startX = (srcNode.ui?.x || 0) + ((idx + 0.5) * 220 / numBranches);
+        const startY = (srcNode.ui?.y || 0) + 142;
+        const endX = (tgtNode.ui?.x || 0) + 110;
+        const endY = (tgtNode.ui?.y || 0);
+
+        const { pathD, midX, midY } = calculateEdgePath(startX, startY, endX, endY);
+        const isCycleEdge = isNodeInCycle(ct.from) && isNodeInCycle(ct.to);
+
+        edges.push({
+          id: `${ct.from}[${ct.branch}]->${ct.to}`,
+          from: ct.from,
+          to: ct.to,
+          branch: ct.branch,
+          isConditional: true,
+          pathD,
+          midX: Math.round(midX),
+          midY: Math.round(midY),
+          isCycle: isCycleEdge
+        });
+      });
+
       return edges;
     });
 
@@ -2012,8 +2226,8 @@ createApp({
       recipe.nodes.push(newNode);
       selectNode(newNode);
 
-      if (!recipe.flow.startNode) {
-        recipe.flow.startNode = newId;
+      if (!recipe.flow.startNodes || recipe.flow.startNodes.length === 0) {
+        recipe.flow.startNodes = [newId];
       }
     };
 
@@ -2025,14 +2239,24 @@ createApp({
         for (const [src, targets] of Object.entries(recipe.flow.transitions)) {
           if (Array.isArray(targets)) {
             recipe.flow.transitions[src] = targets.filter(t => t !== nodeId);
-          } else if (targets === nodeId) {
-            delete recipe.flow.transitions[src];
+            if (recipe.flow.transitions[src].length === 0) {
+              delete recipe.flow.transitions[src];
+            }
           }
         }
       }
 
-      if (recipe.flow.startNode === nodeId) {
-        recipe.flow.startNode = recipe.nodes[0]?.id || null;
+      if (recipe.flow.conditionalTransitions) {
+        recipe.flow.conditionalTransitions = recipe.flow.conditionalTransitions.filter(
+          ct => ct.from !== nodeId && ct.to !== nodeId
+        );
+      }
+
+      if (recipe.flow.startNodes) {
+        recipe.flow.startNodes = recipe.flow.startNodes.filter(id => id !== nodeId);
+        if (recipe.flow.startNodes.length === 0 && recipe.nodes.length > 0) {
+          recipe.flow.startNodes = [recipe.nodes[0].id];
+        }
       }
 
       if (selectedNodeId.value === nodeId) {
@@ -2040,18 +2264,68 @@ createApp({
       }
     };
 
-    const onNodeIdChanged = () => {
-      if (selectedNode.value) {
-        selectedNode.value.id = selectedNode.value.id.trim().replace(/[^a-zA-Z0-9_\-]/g, '_');
+    const onNodeIdInput = (node, newId) => {
+      if (!node || !newId) return;
+      const cleanId = newId.trim().replace(/[^a-zA-Z0-9_\-]/g, '_');
+      const oldId = node.id;
+      if (cleanId === oldId) return;
+
+      // Check duplicate
+      if (recipe.nodes.some(n => n !== node && n.id === cleanId)) {
+        alert(`Step ID "${cleanId}" is already used by another step.`);
+        return;
       }
+
+      node.id = cleanId;
+
+      // Update startNodes
+      if (recipe.flow && Array.isArray(recipe.flow.startNodes)) {
+        recipe.flow.startNodes = recipe.flow.startNodes.map(id => id === oldId ? cleanId : id);
+      }
+
+      // Update transitions
+      if (recipe.flow && recipe.flow.transitions) {
+        if (recipe.flow.transitions[oldId]) {
+          recipe.flow.transitions[cleanId] = recipe.flow.transitions[oldId];
+          delete recipe.flow.transitions[oldId];
+        }
+        for (const k in recipe.flow.transitions) {
+          if (Array.isArray(recipe.flow.transitions[k])) {
+            recipe.flow.transitions[k] = recipe.flow.transitions[k].map(id => id === oldId ? cleanId : id);
+          }
+        }
+      }
+
+      // Update conditionalTransitions
+      if (recipe.flow && Array.isArray(recipe.flow.conditionalTransitions)) {
+        recipe.flow.conditionalTransitions.forEach(ct => {
+          if (ct.from === oldId) ct.from = cleanId;
+          if (ct.to === oldId) ct.to = cleanId;
+        });
+      }
+
+      selectedNodeId.value = cleanId;
+    };
+
+    const isStartNode = (nodeId) => {
+      if (!recipe.flow || !recipe.flow.startNodes) return false;
+      return recipe.flow.startNodes.includes(nodeId);
     };
 
     const toggleStartNode = (nodeId, isChecked) => {
+      if (!recipe.flow.startNodes) recipe.flow.startNodes = [];
       if (isChecked) {
-        recipe.flow.startNode = nodeId;
-      } else if (recipe.flow.startNode === nodeId) {
-        recipe.flow.startNode = null;
+        if (!recipe.flow.startNodes.includes(nodeId)) {
+          recipe.flow.startNodes.push(nodeId);
+        }
+      } else {
+        recipe.flow.startNodes = recipe.flow.startNodes.filter(id => id !== nodeId);
       }
+    };
+
+    const setSingleStartNode = (nodeId) => {
+      if (!nodeId) return;
+      recipe.flow.startNodes = [nodeId];
     };
 
     const removeEdge = (fromId, toId) => {
@@ -2062,8 +2336,6 @@ createApp({
         if (recipe.flow.transitions[fromId].length === 0) {
           delete recipe.flow.transitions[fromId];
         }
-      } else if (targets === toId) {
-        delete recipe.flow.transitions[fromId];
       }
     };
 
@@ -2073,16 +2345,29 @@ createApp({
 
       const current = recipe.flow.transitions[fromId];
       if (!current) {
-        recipe.flow.transitions[fromId] = toId;
-      } else if (typeof current === 'string') {
-        if (current !== toId) {
-          recipe.flow.transitions[fromId] = [current, toId];
-        }
+        recipe.flow.transitions[fromId] = [toId];
       } else if (Array.isArray(current)) {
         if (!current.includes(toId)) {
           current.push(toId);
         }
+      } else {
+        recipe.flow.transitions[fromId] = [current, toId];
       }
+    };
+
+    const addConditionalEdge = (fromId, branchKey, toId) => {
+      if (fromId === toId) return;
+      if (!recipe.flow.conditionalTransitions) recipe.flow.conditionalTransitions = [];
+      if (!recipe.flow.conditionalTransitions.some(ct => ct.from === fromId && ct.branch === branchKey && ct.to === toId)) {
+        recipe.flow.conditionalTransitions.push({ from: fromId, branch: branchKey, to: toId });
+      }
+    };
+
+    const removeConditionalEdge = (fromId, branchKey, toId) => {
+      if (!recipe.flow.conditionalTransitions) return;
+      recipe.flow.conditionalTransitions = recipe.flow.conditionalTransitions.filter(
+        ct => !(ct.from === fromId && ct.branch === branchKey && ct.to === toId)
+      );
     };
 
     const getNodeDownstreamTargets = (nodeId) => {
@@ -2091,10 +2376,16 @@ createApp({
       return Array.isArray(t) ? t : [t];
     };
 
+    const getNodeConditionalTransitions = (nodeId) => {
+      if (!recipe.flow.conditionalTransitions) return [];
+      return recipe.flow.conditionalTransitions.filter(ct => ct.from === nodeId);
+    };
+
     // Port & Node Drag Handlers with Exact Coordinate Translation
     const onPortOutputMouseDown = (e, node) => {
       connectingState.active = true;
       connectingState.fromNodeId = node.id;
+      connectingState.branchKey = null;
       const sx = (node.ui?.x || 0) + 110;
       const sy = (node.ui?.y || 0) + 105;
       connectingState.startX = sx;
@@ -2104,11 +2395,30 @@ createApp({
       connectingState.currentY = coords.y;
     };
 
+    const onPortBranchMouseDown = (e, node, branch, bIdx, totalBranches) => {
+      connectingState.active = true;
+      connectingState.fromNodeId = node.id;
+      connectingState.branchKey = branch.key;
+      const numB = Math.max(1, totalBranches);
+      const sx = (node.ui?.x || 0) + ((bIdx + 0.5) * 220 / numB);
+      const sy = (node.ui?.y || 0) + 142;
+      connectingState.startX = sx;
+      connectingState.startY = sy;
+      const coords = getCanvasCoords(e);
+      connectingState.currentX = coords.x;
+      connectingState.currentY = coords.y;
+    };
+
     const onPortInputMouseUp = (node) => {
       if (connectingState.active && connectingState.fromNodeId) {
-        addEdge(connectingState.fromNodeId, node.id);
+        if (connectingState.branchKey) {
+          addConditionalEdge(connectingState.fromNodeId, connectingState.branchKey, node.id);
+        } else {
+          addEdge(connectingState.fromNodeId, node.id);
+        }
         connectingState.active = false;
         connectingState.fromNodeId = null;
+        connectingState.branchKey = null;
       }
     };
 
@@ -2163,6 +2473,7 @@ createApp({
       if (connectingState.active) {
         connectingState.active = false;
         connectingState.fromNodeId = null;
+        connectingState.branchKey = null;
       }
     };
 
@@ -2208,11 +2519,26 @@ createApp({
         });
       }
 
+      const condTransitions = recipe.flow.conditionalTransitions || [];
+      condTransitions.forEach(ct => {
+        if (ct.from && ct.to) {
+          if (!adj[ct.from]) adj[ct.from] = [];
+          if (!adj[ct.from].includes(ct.to)) {
+            adj[ct.from].push(ct.to);
+            if (!revAdj[ct.to]) revAdj[ct.to] = [];
+            revAdj[ct.to].push(ct.from);
+            inDegree[ct.to] = (inDegree[ct.to] || 0) + 1;
+          }
+        }
+      });
+
       // Compute rank/level using longest path DAG traversal
       const levels = {};
       const startNodes = [];
-      if (recipe.flow.startNode && adj[recipe.flow.startNode]) {
-        startNodes.push(recipe.flow.startNode);
+      if (recipe.flow.startNodes) {
+        recipe.flow.startNodes.forEach(sn => {
+          if (adj[sn] && !startNodes.includes(sn)) startNodes.push(sn);
+        });
       }
       recipe.nodes.forEach(n => {
         if (inDegree[n.id] === 0 && !startNodes.includes(n.id)) {
@@ -2246,7 +2572,7 @@ createApp({
 
       const sortedLevels = Object.keys(levelGroups).map(Number).sort((a, b) => a - b);
       const xSpacing = 300;
-      const ySpacing = 180;
+      const ySpacing = 190;
       const startCanvasY = 50;
       const canvasCenterX = 450;
 
@@ -2256,7 +2582,6 @@ createApp({
       sortedLevels.forEach(lvl => {
         const group = levelGroups[lvl];
         if (lvl === 0) {
-          // Root level: center all root nodes
           const groupWidth = (group.length - 1) * xSpacing;
           const startX = canvasCenterX - (groupWidth / 2);
           group.forEach((id, idx) => {
@@ -2271,7 +2596,6 @@ createApp({
         const desiredX = {};
         const processedNodes = new Set();
 
-        // 1. If a single parent splits into multiple children on this level, fan them symmetrically around parent X
         const parentToChildren = {};
         group.forEach(nodeId => {
           const parents = revAdj[nodeId] || [];
@@ -2294,7 +2618,6 @@ createApp({
           }
         }
 
-        // 2. For remaining nodes on this level (single branch child or merge node)
         group.forEach(nodeId => {
           if (processedNodes.has(nodeId)) return;
           const parents = revAdj[nodeId] || [];
@@ -2313,10 +2636,8 @@ createApp({
           }
         });
 
-        // 3. Sort nodes by desired X to preserve left-to-right branch order
         group.sort((a, b) => (desiredX[a] ?? 0) - (desiredX[b] ?? 0));
 
-        // 4. Resolve horizontal overlaps on this level (minimum xSpacing)
         const placedX = {};
         group.forEach((id, idx) => {
           let x = desiredX[id];
@@ -2338,7 +2659,6 @@ createApp({
         });
       });
 
-      // Shift whole graph if any node is positioned offscreen (< 60px)
       let minX = Infinity;
       Object.values(nodePositions).forEach(pos => {
         if (pos.x < minX) minX = pos.x;
@@ -2402,7 +2722,7 @@ createApp({
       reader.readAsText(file);
     };
 
-    // Normalizing Recipe Object (converting PascalCase parameters to camelCase for full consistency)
+    // Normalizing Recipe Object
     const normalizeParameters = (params) => {
       if (!params || typeof params !== 'object') return {};
       const normalized = {};
@@ -2420,7 +2740,33 @@ createApp({
       recipe.version = obj.version || '1.0';
       recipe.enabled = obj.enabled !== false;
       recipe.triggers = obj.triggers || [];
-      recipe.flow = obj.flow || { startNode: obj.nodes?.[0]?.id || null, transitions: {} };
+
+      const rawFlow = obj.flow || {};
+      let startNodes = [];
+      if (Array.isArray(rawFlow.startNodes)) {
+        startNodes = rawFlow.startNodes;
+      } else if (typeof rawFlow.startNode === 'string' && rawFlow.startNode) {
+        startNodes = [rawFlow.startNode];
+      } else if (obj.nodes?.[0]?.id) {
+        startNodes = [obj.nodes[0].id];
+      }
+
+      const transitions = {};
+      if (rawFlow.transitions && typeof rawFlow.transitions === 'object') {
+        for (const [k, v] of Object.entries(rawFlow.transitions)) {
+          transitions[k] = Array.isArray(v) ? v : [v];
+        }
+      }
+
+      const conditionalTransitions = Array.isArray(rawFlow.conditionalTransitions)
+        ? rawFlow.conditionalTransitions
+        : [];
+
+      recipe.flow = {
+        startNodes,
+        transitions,
+        conditionalTransitions
+      };
 
       recipe.nodes = (obj.nodes || []).map((n, idx) => {
         return {
@@ -2456,6 +2802,13 @@ createApp({
     };
 
     const generateCleanRecipeJson = () => {
+      const cleanFlow = {
+        startNodes: recipe.flow.startNodes || [],
+        transitions: recipe.flow.transitions || {}
+      };
+      if (recipe.flow.conditionalTransitions && recipe.flow.conditionalTransitions.length > 0) {
+        cleanFlow.conditionalTransitions = recipe.flow.conditionalTransitions;
+      }
       return {
         "$schema": "./recipe.schema.json",
         "version": recipe.version || "1.0",
@@ -2471,10 +2824,7 @@ createApp({
           enabled: n.enabled,
           parameters: n.parameters
         })),
-        "flow": {
-          startNode: recipe.flow.startNode,
-          transitions: recipe.flow.transitions || {}
-        }
+        "flow": cleanFlow
       };
     };
 
@@ -2505,6 +2855,132 @@ createApp({
       navigator.clipboard.writeText(txt);
     };
 
+    const showMermaidModal = ref(false);
+    const mermaidDslString = ref('');
+
+    const generateMermaidDsl = () => {
+      let sb = 'flowchart TD\n';
+      const startNodes = (recipe.flow && Array.isArray(recipe.flow.startNodes) && recipe.flow.startNodes.length > 0)
+        ? recipe.flow.startNodes.filter(Boolean)
+        : (recipe.nodes && recipe.nodes.length > 0 ? [recipe.nodes[0].id] : []);
+
+      const triggerNodeIds = [];
+
+      // Triggers Subgraph
+      if (recipe.triggers && Array.isArray(recipe.triggers) && recipe.triggers.length > 0) {
+        sb += '    %% Triggers\n';
+        sb += '    subgraph Triggers ["🚀 Triggers"]\n';
+        recipe.triggers.forEach((t, i) => {
+          const tId = `trigger_${i}`;
+          triggerNodeIds.push(tId);
+
+          let tLabel = t.triggerType || 'Trigger';
+          const p = t.parameters || {};
+          if (t.triggerType === 'Hotkey') {
+            tLabel = `⚡ Hotkey: ${p.hotkey || p.Hotkey || 'Shortcut'}`;
+          } else if (t.triggerType === 'ContextMenu' || t.triggerType === 'Systray') {
+            tLabel = `🖱️ Menu: ${p.menuItemText || p.MenuItemText || t.name || 'Context Menu'}`;
+          } else if (t.triggerType === 'Clipboard') {
+            tLabel = '📋 Clipboard Monitor';
+          } else if (t.triggerType === 'Manual') {
+            tLabel = `⚡ Manual: ${t.name || 'User Action'}`;
+          } else if (t.triggerType === 'Schedule') {
+            tLabel = `⏰ Schedule: ${p.cronExpression || p.intervalSeconds || 'Timer'}`;
+          } else {
+            tLabel = `⚡ ${t.name || t.triggerType}`;
+          }
+
+          if (t.enabled === false) {
+            tLabel += ' (Disabled)';
+          }
+
+          tLabel = tLabel.replace(/"/g, "'");
+          sb += `        ${tId}(["${tLabel}"])\n`;
+        });
+        sb += '    end\n\n';
+      }
+
+      sb += '    %% Node Definitions\n';
+      const nodeMap = {};
+      (recipe.nodes || []).forEach(n => {
+        nodeMap[n.id] = n;
+        let label = n.name ? `${n.name} (${n.stepType})` : n.stepType;
+        label = label.replace(/"/g, "'");
+        if (n.stepType === 'Conditional') {
+          sb += `    ${n.id}{"${label} [${n.id}]"}\n`;
+        } else {
+          sb += `    ${n.id}["${label} [${n.id}]"]\n`;
+        }
+      });
+
+      // Trigger Invocations to Start Nodes
+      if (triggerNodeIds.length > 0 && startNodes.length > 0) {
+        sb += '\n    %% Trigger Invocations\n';
+        triggerNodeIds.forEach(tId => {
+          startNodes.forEach(sn => {
+            sb += `    ${tId} -.-> ${sn}\n`;
+          });
+        });
+      }
+
+      sb += '\n    %% Unconditional Transitions\n';
+      if (recipe.flow && recipe.flow.transitions) {
+        for (const [fromId, targets] of Object.entries(recipe.flow.transitions)) {
+          if (Array.isArray(targets)) {
+            targets.forEach(toId => {
+              sb += `    ${fromId} --> ${toId}\n`;
+            });
+          }
+        }
+      }
+
+      if (recipe.flow && Array.isArray(recipe.flow.conditionalTransitions) && recipe.flow.conditionalTransitions.length > 0) {
+        sb += '\n    %% Conditional Branch Transitions\n';
+        recipe.flow.conditionalTransitions.forEach(ct => {
+          if (!ct.from || !ct.to) return;
+          let expr = '';
+          const srcNode = nodeMap[ct.from];
+          if (srcNode && srcNode.parameters && Array.isArray(srcNode.parameters.branches)) {
+            const b = srcNode.parameters.branches.find(x => x.key === ct.branch);
+            if (b) expr = b.expression || '';
+          }
+          let edgeLabel = expr ? `${ct.branch}: ${expr}` : ct.branch;
+          edgeLabel = edgeLabel.replace(/"/g, "'");
+          sb += `    ${ct.from} -- "${edgeLabel}" --> ${ct.to}\n`;
+        });
+      }
+
+      if (startNodes.length > 0) {
+        sb += '\n    %% Start Nodes Styling\n';
+        sb += '    classDef startNode fill:#238636,stroke:#2ea043,stroke-width:2px,color:#ffffff;\n';
+        startNodes.forEach(sn => {
+          if (sn) sb += `    class ${sn} startNode;\n`;
+        });
+      }
+
+      if (triggerNodeIds.length > 0) {
+        sb += '\n    %% Triggers Styling\n';
+        sb += '    classDef triggerNode fill:#d97706,stroke:#f59e0b,stroke-width:2px,color:#ffffff;\n';
+        sb += `    class ${triggerNodeIds.join(',')} triggerNode;\n`;
+      }
+
+      return sb;
+    };
+
+    const openMermaidModal = () => {
+      mermaidDslString.value = generateMermaidDsl();
+      showMermaidModal.value = true;
+    };
+
+    const copyMermaidToClipboard = async () => {
+      try {
+        await navigator.clipboard.writeText(mermaidDslString.value);
+        showToast('Mermaid DSL copied to clipboard!');
+      } catch (err) {
+        showToast('Failed to copy to clipboard', 'danger');
+      }
+    };
+
     // Helper functions for step defaults in canonical camelCase
     const getDefaultParametersForStep = (stepType) => {
       switch (stepType) {
@@ -2519,7 +2995,12 @@ createApp({
         case 'ImmediateFeedback': return { playSound: true };
         case 'Destinations': return { destinationDesignations: ['Editor'] };
         case 'Notification': return { title: 'Greenshot Capture', message: 'Capture completed' };
-        case 'Conditional': return { condition: '${payload.width > 800}' };
+        case 'Conditional': return {
+          branches: [
+            { key: 'A', expression: '${payload.width > 800}' },
+            { key: 'B', expression: 'else' }
+          ]
+        };
         default: return {};
       }
     };
@@ -2573,17 +3054,50 @@ createApp({
       if (node.stepType === 'SetVariable') return `Variables: ${Object.keys(getVariablesDict(node)).length} item(s)`;
       if (node.stepType === 'ImmediateFeedback') return param(node, 'playSound', true) ? 'Sound: Enabled' : 'Silent';
       if (node.stepType === 'Destinations') return `To: ${getDestinationsList(node).join(', ') || 'None'}`;
-      if (node.stepType === 'Conditional') return `If: ${param(node, 'condition', '${payload.width > 800}')}`;
+      if (node.stepType === 'Conditional') return `${getConditionBranchesList(node).length} decision branch(es)`;
       return `${node.stepType}`;
+    };
+
+    // Condition Branches Helper
+    const getConditionBranchesList = (node) => {
+      if (!node || !node.parameters) return [];
+      if (!node.parameters.branches && !node.parameters.Branches) {
+        node.parameters.branches = [
+          { key: 'A', expression: '${payload.width > 800}' },
+          { key: 'B', expression: 'else' }
+        ];
+      }
+      return node.parameters.branches || node.parameters.Branches;
+    };
+
+    const addConditionBranch = (node) => {
+      const branches = getConditionBranchesList(node);
+      const nextChar = String.fromCharCode(65 + branches.length);
+      const nextKey = branches.length < 26 ? nextChar : `C${branches.length + 1}`;
+      branches.push({ key: nextKey, expression: '${true}' });
+    };
+
+    const removeConditionBranch = (node, idx) => {
+      const branches = getConditionBranchesList(node);
+      if (branches.length <= 1) return;
+      const removed = branches.splice(idx, 1)[0];
+      if (recipe.flow.conditionalTransitions && removed) {
+        recipe.flow.conditionalTransitions = recipe.flow.conditionalTransitions.filter(
+          ct => !(ct.from === node.id && ct.branch === removed.key)
+        );
+      }
     };
 
     const appendConditionToken = (node, token) => {
       if (!node) return;
-      const current = param(node, 'condition', '');
-      if (!current) {
-        setParam(node, 'condition', `${token} > 0`);
-      } else {
-        setParam(node, 'condition', `${current} ${token}`);
+      const branches = getConditionBranchesList(node);
+      if (branches.length > 0) {
+        const first = branches[0];
+        if (!first.expression) {
+          first.expression = `${token} > 0`;
+        } else {
+          first.expression = `${first.expression} ${token}`;
+        }
       }
     };
 
@@ -2614,13 +3128,17 @@ createApp({
         base.fillColor = 'rgba(0, 0, 0, 180)';
         base.lineColor = '#0078D7';
         base.shadow = true;
-      } else if (type === 'StepLabel') {
-        base.number = 1;
-        base.fillColor = '#D83B01';
-        base.lineColor = '#FFFFFF';
+      } else if (type === 'SpeechBubble') {
+        base.text = 'Note text...';
+        base.fillColor = 'rgba(255, 255, 255, 220)';
+        base.lineColor = '#000000';
       }
 
       list.push(base);
+    };
+
+    const removeDrawable = (node, idx) => {
+      getDrawablesList(node).splice(idx, 1);
     };
 
     // Patterns Helper
@@ -2632,27 +3150,8 @@ createApp({
       return node.parameters.patterns || node.parameters.Patterns;
     };
 
-    const addRegexPreset = (presetKey) => {
-      if (!selectedNode.value) return;
-      const list = getPatternsList(selectedNode.value);
-
-      const presets = {
-        Email: '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}',
-        CreditCard: '\\b\\d{4}[ -]?\\d{4}[ -]?\\d{4}[ -]?\\d{4}\\b',
-        SSN: '\\b\\d{3}-\\d{2}-\\d{4}\\b',
-        ApiKey: '\\b(AKIA|AIza|ghp_|glpat-)[A-Za-z0-9_\\-]{16,}\\b',
-        IPv4: '\\b(?:\\d{1,3}\\.){3}\\d{1,3}\\b'
-      };
-
-      if (presets[presetKey]) {
-        list.push(presets[presetKey]);
-      }
-    };
-
-    const addEmptyRegexPattern = () => {
-      if (selectedNode.value) {
-        getPatternsList(selectedNode.value).push('.*');
-      }
+    const addPattern = (node) => {
+      getPatternsList(node).push('\\b[0-9]{4}\\b');
     };
 
     const updatePattern = (node, idx, val) => {
@@ -2673,19 +3172,17 @@ createApp({
     };
 
     const addVariable = (node) => {
-      if (!node || !newVarKey.value) return;
       const dict = getVariablesDict(node);
-      dict[newVarKey.value.trim()] = newVarVal.value;
-      newVarKey.value = '';
-      newVarVal.value = '';
+      const key = `var_${Object.keys(dict).length + 1}`;
+      dict[key] = '${user.username}';
     };
 
-    const updateVariable = (node, key, val) => {
+    const updateVariableValue = (node, key, val) => {
       const dict = getVariablesDict(node);
       dict[key] = val;
     };
 
-    const deleteVariable = (node, key) => {
+    const removeVariable = (node, key) => {
       const dict = getVariablesDict(node);
       delete dict[key];
     };
@@ -2699,19 +3196,19 @@ createApp({
       return node.parameters.destinationDesignations || node.parameters.DestinationDesignations;
     };
 
-    const isDestinationSelected = (node, destName) => {
+    const hasDestination = (node, destName) => {
       const list = getDestinationsList(node);
       return list.some(d => d.toLowerCase() === destName.toLowerCase());
     };
 
-    const toggleDestination = (node, destName, isChecked) => {
+    const toggleDestination = (node, destName) => {
       if (!node) return;
       const list = getDestinationsList(node);
       const existingIdx = list.findIndex(d => d.toLowerCase() === destName.toLowerCase());
 
-      if (isChecked && existingIdx === -1) {
+      if (existingIdx === -1) {
         list.push(destName);
-      } else if (!isChecked && existingIdx !== -1) {
+      } else {
         list.splice(existingIdx, 1);
       }
     };
@@ -2781,7 +3278,7 @@ createApp({
       cycleErrors,
       isNodeInCycle,
       viewportTransformStyle,
-      allKnownDestinations: KNOWN_DESTINATIONS,
+      KNOWN_DESTINATIONS,
       param,
       setParam,
       getCaptureMouseCursor,
@@ -2791,12 +3288,18 @@ createApp({
       selectRecipeTab,
       addNode,
       deleteNode,
-      onNodeIdChanged,
+      onNodeIdInput,
+      isStartNode,
       toggleStartNode,
+      setSingleStartNode,
       removeEdge,
       addEdge,
+      addConditionalEdge,
+      removeConditionalEdge,
       getNodeDownstreamTargets,
+      getNodeConditionalTransitions,
       onPortOutputMouseDown,
+      onPortBranchMouseDown,
       onPortInputMouseUp,
       onNodeMouseDown,
       onCanvasMouseDown,
@@ -2818,26 +3321,33 @@ createApp({
       applyJsonChanges,
       copyJsonToClipboard,
       copyToClipboard,
+      showMermaidModal,
+      mermaidDslString,
+      openMermaidModal,
+      copyMermaidToClipboard,
       getStepBadgeClass,
       getStepIcon,
       getNodeSummary,
+      getConditionBranchesList,
+      addConditionBranch,
+      removeConditionBranch,
+      appendConditionToken,
       getDrawablesList,
       addDrawable,
+      removeDrawable,
       getPatternsList,
-      addRegexPreset,
-      addEmptyRegexPattern,
+      addPattern,
       updatePattern,
       removePattern,
       getVariablesDict,
       addVariable,
-      updateVariable,
-      deleteVariable,
+      updateVariableValue,
+      removeVariable,
       getDestinationsList,
-      isDestinationSelected,
+      hasDestination,
       toggleDestination,
       addCustomDestination,
-      addTrigger,
-      appendConditionToken
+      addTrigger
     };
   }
 }).mount('#app');

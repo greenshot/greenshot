@@ -57,64 +57,62 @@
     },
     "flow": {
       "$ref": "#/definitions/RecipeFlowConfig",
-      "description": "DAG workflow definition configuring entry points, transitions/edges, branch forks, and join merges."
+      "description": "DAG workflow definition configuring entry points, transitions, conditional branches, and join merges."
     }
   },
   "definitions": {
     "RecipeFlowConfig": {
       "type": "object",
+      "required": [
+        "startNodes"
+      ],
       "properties": {
-        "startNode": {
-          "type": "string",
-          "description": "The unique node ID of the starting node in the DAG."
-        },
         "startNodes": {
           "type": "array",
           "items": {
             "type": "string"
           },
-          "description": "Multiple starting node IDs for parallel entry points."
+          "minItems": 1,
+          "description": "Starting node IDs for workflow entry points."
         },
         "transitions": {
           "type": "object",
-          "description": "Adjacency mapping from source node ID to target node ID (string) or target node IDs (array of strings).",
+          "description": "Adjacency mapping from source node ID to target node IDs (array of strings).",
           "additionalProperties": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              }
-            ]
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         },
-        "edges": {
+        "conditionalTransitions": {
           "type": "array",
-          "description": "Alternative edge list representation of the DAG transitions.",
+          "description": "Branch-specific routing for Conditional nodes, mapping source node ID and branch key to destination node ID.",
           "items": {
-            "$ref": "#/definitions/TransitionEdgeConfig"
+            "$ref": "#/definitions/ConditionalTransitionConfig"
           }
         }
       }
     },
-    "TransitionEdgeConfig": {
+    "ConditionalTransitionConfig": {
       "type": "object",
       "required": [
         "from",
+        "branch",
         "to"
       ],
       "properties": {
         "from": {
           "type": "string",
-          "description": "Source node ID."
+          "description": "Source conditional node ID."
+        },
+        "branch": {
+          "type": "string",
+          "description": "Branch key / pin on the conditional node (e.g. 'A', 'B', 'true', 'false')."
         },
         "to": {
           "type": "string",
-          "description": "Target node ID."
+          "description": "Target destination node ID."
         }
       }
     },
@@ -289,9 +287,33 @@
             "PlaySound": {
               "type": "boolean",
               "description": "Used by 'ImmediateFeedback' step: Explicitly pre-defines shutter sound."
+            },
+            "branches": {
+              "type": "array",
+              "description": "Used by 'Conditional' step: List of decision branches evaluating expressions.",
+              "items": {
+                "$ref": "#/definitions/ConditionBranchConfig"
+              }
             }
           },
           "additionalProperties": true
+        }
+      }
+    },
+    "ConditionBranchConfig": {
+      "type": "object",
+      "required": [
+        "key",
+        "expression"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "description": "Unique branch key / pin identifier (e.g. 'A', 'B', 'true', 'false')."
+        },
+        "expression": {
+          "type": "string",
+          "description": "Dynamic expression (${...}) or 'else'/'default' evaluated at runtime."
         }
       }
     },

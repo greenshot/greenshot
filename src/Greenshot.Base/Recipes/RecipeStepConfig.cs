@@ -155,6 +155,30 @@ namespace Greenshot.Base.Recipes
             return node;
         }
 
+        public static RecipeNodeConfig CreateConditional(string id = "conditional", IEnumerable<KeyValuePair<string, string>> branches = null)
+        {
+            var node = new RecipeNodeConfig(id, WellKnownStepTypes.Conditional, "Decision Branch");
+            var branchList = new List<Dictionary<string, string>>();
+            if (branches != null)
+            {
+                foreach (var b in branches)
+                {
+                    branchList.Add(new Dictionary<string, string>
+                    {
+                        ["Key"] = b.Key,
+                        ["Expression"] = b.Value
+                    });
+                }
+            }
+            else
+            {
+                branchList.Add(new Dictionary<string, string> { ["Key"] = "A", ["Expression"] = "${payload.width > 800}" });
+                branchList.Add(new Dictionary<string, string> { ["Key"] = "B", ["Expression"] = "else" });
+            }
+            node.Set("Branches", branchList);
+            return node;
+        }
+
         #endregion
     }
 }
