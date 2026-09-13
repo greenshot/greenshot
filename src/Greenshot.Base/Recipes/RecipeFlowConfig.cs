@@ -27,39 +27,36 @@ using Newtonsoft.Json;
 namespace Greenshot.Base.Recipes
 {
     /// <summary>
-    /// Represents an edge / transition connecting two nodes in a DAG.
+    /// Represents a branch-specific transition originating from a Conditional node.
     /// </summary>
-    public class RecipeEdgeConfig
+    public class RecipeConditionalTransitionConfig
     {
         public string From { get; set; }
+        public string Branch { get; set; }
         public string To { get; set; }
 
-        public RecipeEdgeConfig()
+        public RecipeConditionalTransitionConfig()
         {
         }
 
-        public RecipeEdgeConfig(string from, string to)
+        public RecipeConditionalTransitionConfig(string from, string branch, string to)
         {
             From = from;
+            Branch = branch;
             To = to;
         }
 
-        public override string ToString() => $"{From} -> {To}";
+        public override string ToString() => $"{From} [{Branch}] -> {To}";
     }
 
     /// <summary>
-    /// Flow definition for a DAG capture recipe. Defines entry nodes and transitions between nodes.
+    /// Flow definition for a DAG capture recipe. Defines entry nodes, standard transitions, and conditional transitions between nodes.
     /// Supports splitting onto multiple nodes and merging paths, while disallowing cycles/loops.
     /// </summary>
     public class RecipeFlowConfig
     {
         /// <summary>
-        /// The starting node ID of the DAG.
-        /// </summary>
-        public string StartNode { get; set; }
-
-        /// <summary>
-        /// Optional list of multiple entry nodes (if flow begins with parallel starts).
+        /// List of entry nodes where execution starts in the DAG.
         /// </summary>
         public List<string> StartNodes { get; set; } = new List<string>();
 
@@ -71,9 +68,9 @@ namespace Greenshot.Base.Recipes
         public Dictionary<string, List<string>> Transitions { get; set; } = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
-        /// Optional list of discrete edges connecting nodes (alternative to Transitions map).
+        /// Branch-specific transitions originating from Conditional decision nodes.
         /// </summary>
-        public List<RecipeEdgeConfig> Edges { get; set; } = new List<RecipeEdgeConfig>();
+        public List<RecipeConditionalTransitionConfig> ConditionalTransitions { get; set; } = new List<RecipeConditionalTransitionConfig>();
 
         public RecipeFlowConfig()
         {
@@ -81,7 +78,18 @@ namespace Greenshot.Base.Recipes
 
         public RecipeFlowConfig(string startNode)
         {
-            StartNode = startNode;
+            if (!string.IsNullOrWhiteSpace(startNode))
+            {
+                StartNodes.Add(startNode);
+            }
+        }
+
+        public RecipeFlowConfig(IEnumerable<string> startNodes)
+        {
+            if (startNodes != null)
+            {
+                StartNodes.AddRange(startNodes.Where(s => !string.IsNullOrWhiteSpace(s)));
+            }
         }
 
         /// <summary>
@@ -90,10 +98,6 @@ namespace Greenshot.Base.Recipes
         public List<string> GetEffectiveStartNodes()
         {
             var starts = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            if (!string.IsNullOrWhiteSpace(StartNode))
-            {
-                starts.Add(StartNode);
-            }
             if (StartNodes != null)
             {
                 foreach (var s in StartNodes)
@@ -108,7 +112,7 @@ namespace Greenshot.Base.Recipes
         }
 
         /// <summary>
-        /// Retrieves all unified transitions combining Transitions dictionary and Edges list.
+        /// Retrieves all unified transitions combining Transitions dictionary, ConditionalTransitions, and Edges list.
         /// </summary>
         public Dictionary<string, List<string>> GetUnifiedTransitions()
         {
@@ -137,21 +141,21 @@ namespace Greenshot.Base.Recipes
                 }
             }
 
-            if (Edges != null)
+            if (ConditionalTransitions != null)
             {
-                foreach (var edge in Edges)
+                foreach (var ct in ConditionalTransitions)
                 {
-                    if (string.IsNullOrWhiteSpace(edge?.From) || string.IsNullOrWhiteSpace(edge?.To)) continue;
+                    if (string.IsNullOrWhiteSpace(ct?.From) || string.IsNullOrWhiteSpace(ct?.To)) continue;
 
-                    if (!map.TryGetValue(edge.From, out var list))
+                    if (!map.TryGetValue(ct.From, out var list))
                     {
                         list = new List<string>();
-                        map[edge.From] = list;
+                        map[ct.From] = list;
                     }
 
-                    if (!list.Contains(edge.To, StringComparer.OrdinalIgnoreCase))
+                    if (!list.Contains(ct.To, StringComparer.OrdinalIgnoreCase))
                     {
-                        list.Add(edge.To);
+                        list.Add(ct.To);
                     }
                 }
             }
@@ -198,14 +202,38 @@ namespace Greenshot.Base.Recipes
             return this;
         }
 
+        /// <summary>
+        /// Adds a conditional branch transition.
+        /// </summary>
+        public RecipeFlowConfig AddConditionalTransition(string fromNodeId, string branchKey, string toNodeId)
+        {
+            if (string.IsNullOrWhiteSpace(fromNodeId) || string.IsNullOrWhiteSpace(branchKey) || string.IsNullOrWhiteSpace(toNodeId)) return this;
+
+            if (ConditionalTransitions == null)
+            {
+                ConditionalTransitions = new List<RecipeConditionalTransitionConfig>();
+            }
+
+            bool exists = ConditionalTransitions.Any(c =>
+                string.Equals(c.From, fromNodeId, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(c.Branch, branchKey, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(c.To, toNodeId, StringComparison.OrdinalIgnoreCase));
+
+            if (!exists)
+            {
+                ConditionalTransitions.Add(new RecipeConditionalTransitionConfig(fromNodeId, branchKey, toNodeId));
+            }
+
+            return this;
+        }
+
         public RecipeFlowConfig Clone()
         {
             var clone = new RecipeFlowConfig
             {
-                StartNode = StartNode,
                 StartNodes = new List<string>(StartNodes ?? Enumerable.Empty<string>()),
                 Transitions = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase),
-                Edges = new List<RecipeEdgeConfig>(Edges?.Count ?? 0)
+                ConditionalTransitions = new List<RecipeConditionalTransitionConfig>(ConditionalTransitions?.Count ?? 0)
             };
 
             if (Transitions != null)
@@ -216,11 +244,11 @@ namespace Greenshot.Base.Recipes
                 }
             }
 
-            if (Edges != null)
+            if (ConditionalTransitions != null)
             {
-                foreach (var edge in Edges)
+                foreach (var ct in ConditionalTransitions)
                 {
-                    clone.Edges.Add(new RecipeEdgeConfig(edge.From, edge.To));
+                    clone.ConditionalTransitions.Add(new RecipeConditionalTransitionConfig(ct.From, ct.Branch, ct.To));
                 }
             }
 

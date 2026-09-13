@@ -15,6 +15,7 @@ using Greenshot.Pipeline;
 using Greenshot.Recipes;
 using Greenshot.UI.RecipeEditor.Layout;
 using Microsoft.Win32;
+using Newtonsoft.Json.Linq;
 
 namespace Greenshot.UI.RecipeEditor.ViewModels
 {
@@ -181,7 +182,20 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
             set => SetField(ref _isJsonViewVisible, value);
         }
 
+        private string _mermaidText = "";
+        private bool _isMermaidViewVisible;
 
+        public string MermaidText
+        {
+            get => _mermaidText;
+            set => SetField(ref _mermaidText, value);
+        }
+
+        public bool IsMermaidViewVisible
+        {
+            get => _isMermaidViewVisible;
+            set => SetField(ref _isMermaidViewVisible, value);
+        }
 
         // Commands
         public ICommand NewRecipeCommand { get; }
@@ -195,9 +209,12 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
         public ICommand AddStepCommand { get; }
         public ICommand ToggleJsonViewCommand { get; }
         public ICommand ApplyJsonCommand { get; }
+        public ICommand ToggleMermaidViewCommand { get; }
+        public ICommand CopyMermaidCommand { get; }
         public ICommand SetStartNodeCommand { get; }
         public ICommand AddTriggerCommand { get; }
         public ICommand RemoveTriggerCommand { get; }
+        public ICommand ToggleThemeCommand { get; }
 
         public RecipeEditorViewModel(RecipeManager recipeManager = null)
         {
@@ -213,9 +230,12 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
             AddStepCommand = new RelayCommand(p => AddStep(p as string));
             ToggleJsonViewCommand = new RelayCommand(ToggleJsonView);
             ApplyJsonCommand = new RelayCommand(ApplyJson);
+            ToggleMermaidViewCommand = new RelayCommand(ToggleMermaidView);
+            CopyMermaidCommand = new RelayCommand(CopyMermaidToClipboard);
             SetStartNodeCommand = new RelayCommand(p => SetStartNode(p as StepNodeViewModel ?? SelectedNode));
             AddTriggerCommand = new RelayCommand(p => AddTrigger(p as string));
             RemoveTriggerCommand = new RelayCommand(p => RemoveTrigger(p as TriggerItemViewModel));
+            ToggleThemeCommand = new RelayCommand(WpfThemeHelper.ToggleTheme);
 
             DisconnectConnectorCommand = new RelayCommand(p =>
             {
@@ -232,6 +252,7 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
                 {
                     PendingConnection.Source = port;
                     PendingConnection.IsVisible = true;
+                    StatusMessage = $"Connecting from {(port.IsInput ? "Input" : "Output")} pin of '{port.Node?.DisplayName}'... Drop onto {(port.IsInput ? "an Output" : "an Input")} pin.";
                 }
             });
 
@@ -240,9 +261,20 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
                 var sourcePort = PendingConnection.Source;
                 var targetPort = p as StepPortViewModel ?? PendingConnection.Target;
 
-                if (sourcePort != null && targetPort != null && sourcePort != targetPort)
+                if (sourcePort != null)
                 {
-                    Connect(sourcePort, targetPort);
+                    if (targetPort == null)
+                    {
+                        StatusMessage = "Connection cancelled (dropped on canvas empty space).";
+                    }
+                    else if (sourcePort == targetPort)
+                    {
+                        StatusMessage = "Cannot connect a pin to itself.";
+                    }
+                    else
+                    {
+                        Connect(sourcePort, targetPort);
+                    }
                 }
 
                 PendingConnection.Source = null;
@@ -289,15 +321,14 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
 
             foreach (var nodeConfig in recipe.Nodes)
             {
-                var vm = new StepNodeViewModel(nodeConfig, new Point(defaultX, defaultY), SetStartNode, DeleteNode);
-                vm.IsStartNode = string.Equals(recipe.Flow.StartNode, nodeConfig.Id, StringComparison.OrdinalIgnoreCase) ||
-                                 (recipe.Flow.StartNodes != null && recipe.Flow.StartNodes.Contains(nodeConfig.Id, StringComparer.OrdinalIgnoreCase));
+                var vm = new StepNodeViewModel(nodeConfig, new Point(defaultX, defaultY), SetStartNode, DeleteNode, HandleNodeIdChanged);
+                vm.IsStartNode = recipe.Flow?.StartNodes != null && recipe.Flow.StartNodes.Contains(nodeConfig.Id, StringComparer.OrdinalIgnoreCase);
                 Nodes.Add(vm);
                 nodeMap[nodeConfig.Id] = vm;
                 defaultY += 140;
             }
 
-            // Map Connections
+            // Map Standard Connections
             if (recipe.Flow?.Transitions != null)
             {
                 foreach (var kvp in recipe.Flow.Transitions)
@@ -305,7 +336,8 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
                     string fromId = kvp.Key;
                     if (nodeMap.TryGetValue(fromId, out var sourceNode))
                     {
-                        foreach (var toId in kvp.Value)
+                        var targetList = kvp.Value ?? new List<string>();
+                        foreach (var toId in targetList)
                         {
                             if (nodeMap.TryGetValue(toId, out var targetNode))
                             {
@@ -315,6 +347,24 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
                                 targetNode.InputPort.IsConnected = true;
                             }
                         }
+                    }
+                }
+            }
+
+            // Map Conditional Transitions (Branch-specific connections)
+            if (recipe.Flow?.ConditionalTransitions != null)
+            {
+                foreach (var ct in recipe.Flow.ConditionalTransitions)
+                {
+                    if (string.IsNullOrWhiteSpace(ct?.From) || string.IsNullOrWhiteSpace(ct?.To)) continue;
+                    if (nodeMap.TryGetValue(ct.From, out var sourceNode) && nodeMap.TryGetValue(ct.To, out var targetNode))
+                    {
+                        var branch = sourceNode.ConditionBranches.FirstOrDefault(b => string.Equals(b.Key, ct.Branch, StringComparison.OrdinalIgnoreCase));
+                        StepPortViewModel outPort = branch?.Port ?? sourceNode.OutputPort;
+                        var conn = new StepConnectionViewModel(outPort, targetNode.InputPort, RemoveConnection);
+                        Connections.Add(conn);
+                        outPort.IsConnected = true;
+                        targetNode.InputPort.IsConnected = true;
                     }
                 }
             }
@@ -336,7 +386,7 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
             }
             if (ActiveRecipe?.Flow != null)
             {
-                ActiveRecipe.Flow.StartNode = node.Id;
+                ActiveRecipe.Flow.StartNodes = new List<string> { node.Id };
             }
             OnPropertyChanged(nameof(SelectedStartNode));
             IsDirty = true;
@@ -400,14 +450,18 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
 
         public void PerformAutoLayout()
         {
-            string startId = ActiveRecipe?.Flow?.StartNode;
+            string startId = ActiveRecipe?.Flow?.StartNodes?.FirstOrDefault();
             DagAutoLayout.ApplyLayout(Nodes, Connections, startId);
         }
 
         public void Connect(StepPortViewModel source, StepPortViewModel target)
         {
             if (source == null || target == null) return;
-            if (source.Node == target.Node) return; // Prevent self connection
+            if (source.Node == target.Node)
+            {
+                StatusMessage = "Cannot connect a step to itself.";
+                return;
+            }
 
             // Ensure source is output and target is input
             StepPortViewModel fromPort;
@@ -425,21 +479,34 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
             }
             else
             {
-                return; // Cannot connect input-to-input or output-to-output
+                StatusMessage = source.IsInput
+                    ? "Cannot connect two Input pins together. Please connect an Output pin to an Input pin."
+                    : "Cannot connect two Output pins together. Please connect an Output pin to an Input pin.";
+                return;
             }
 
-            // Prevent duplicate connection
-            bool exists = Connections.Any(c => c.SourceNode == fromPort.Node && c.TargetNode == toPort.Node);
-            if (!exists)
+            // Prevent duplicate connection from same source port to same target node
+            bool exists = Connections.Any(c => c.Source == fromPort && c.TargetNode == toPort.Node);
+            if (exists)
             {
-                var conn = new StepConnectionViewModel(fromPort, toPort, RemoveConnection);
-                Connections.Add(conn);
-                fromPort.IsConnected = true;
-                toPort.IsConnected = true;
-                SyncRecipeTransitions();
-                ValidateGraphCycles();
-                IsDirty = true;
-                StatusMessage = $"Connected {fromPort.Node.DisplayName} -> {toPort.Node.DisplayName}";
+                StatusMessage = $"Connection from '{fromPort.Node.DisplayName}' to '{toPort.Node.DisplayName}' already exists.";
+                return;
+            }
+
+            var conn = new StepConnectionViewModel(fromPort, toPort, RemoveConnection);
+            Connections.Add(conn);
+            fromPort.IsConnected = true;
+            toPort.IsConnected = true;
+            SyncRecipeTransitions();
+            ValidateGraphCycles();
+            IsDirty = true;
+            if (conn.IsCycle)
+            {
+                StatusMessage = $"Warning: Connected '{fromPort.Node.DisplayName}' -> '{toPort.Node.DisplayName}' (Creates a Cycle in the DAG!)";
+            }
+            else
+            {
+                StatusMessage = $"Connected '{fromPort.Node.DisplayName}' -> '{toPort.Node.DisplayName}'";
             }
         }
 
@@ -484,11 +551,11 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
             double x = 350;
             double y = Nodes.Count > 0 ? Nodes.Max(n => n.Location.Y) + 140 : 100;
 
-            var nodeVm = new StepNodeViewModel(config, new Point(x, y), SetStartNode, DeleteNode);
+            var nodeVm = new StepNodeViewModel(config, new Point(x, y), SetStartNode, DeleteNode, HandleNodeIdChanged);
             if (Nodes.Count == 0)
             {
                 nodeVm.IsStartNode = true;
-                if (ActiveRecipe != null) ActiveRecipe.Flow.StartNode = id;
+                if (ActiveRecipe != null) ActiveRecipe.Flow.StartNodes = new List<string> { id };
             }
 
             Nodes.Add(nodeVm);
@@ -500,6 +567,71 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
             SelectedNode = nodeVm;
             IsDirty = true;
             StatusMessage = $"Added step: {stepType}";
+        }
+
+        private void HandleNodeIdChanged(StepNodeViewModel node, string oldId, string newId)
+        {
+            if (node == null || string.IsNullOrWhiteSpace(newId) || string.Equals(oldId, newId, StringComparison.OrdinalIgnoreCase)) return;
+
+            // Check for collision with another node
+            bool duplicate = Nodes.Any(n => n != node && string.Equals(n.Id, newId, StringComparison.OrdinalIgnoreCase));
+            if (duplicate)
+            {
+                StatusMessage = $"Cannot rename to '{newId}': A step with this ID already exists.";
+                node.ResetId(oldId);
+                return;
+            }
+
+            // Update StartNodes
+            if (ActiveRecipe?.Flow?.StartNodes != null)
+            {
+                for (int i = 0; i < ActiveRecipe.Flow.StartNodes.Count; i++)
+                {
+                    if (string.Equals(ActiveRecipe.Flow.StartNodes[i], oldId, StringComparison.OrdinalIgnoreCase))
+                    {
+                        ActiveRecipe.Flow.StartNodes[i] = newId;
+                    }
+                }
+            }
+
+            // Update Transitions (as key and as targets)
+            if (ActiveRecipe?.Flow?.Transitions != null)
+            {
+                if (ActiveRecipe.Flow.Transitions.TryGetValue(oldId, out var targets))
+                {
+                    ActiveRecipe.Flow.Transitions.Remove(oldId);
+                    ActiveRecipe.Flow.Transitions[newId] = targets;
+                }
+
+                foreach (var kvp in ActiveRecipe.Flow.Transitions)
+                {
+                    var list = kvp.Value;
+                    if (list != null)
+                    {
+                        for (int i = 0; i < list.Count; i++)
+                        {
+                            if (string.Equals(list[i], oldId, StringComparison.OrdinalIgnoreCase))
+                            {
+                                list[i] = newId;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Update ConditionalTransitions
+            if (ActiveRecipe?.Flow?.ConditionalTransitions != null)
+            {
+                foreach (var ct in ActiveRecipe.Flow.ConditionalTransitions)
+                {
+                    if (string.Equals(ct.From, oldId, StringComparison.OrdinalIgnoreCase)) ct.From = newId;
+                    if (string.Equals(ct.To, oldId, StringComparison.OrdinalIgnoreCase)) ct.To = newId;
+                }
+            }
+
+            SyncRecipeTransitions();
+            IsDirty = true;
+            StatusMessage = $"Renamed step ID from '{oldId}' to '{newId}'";
         }
 
         public void DeleteNode(StepNodeViewModel nodeToDelete)
@@ -519,6 +651,10 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
             {
                 n.InputPort.IsConnected = Connections.Any(c => c.Target == n.InputPort);
                 n.OutputPort.IsConnected = Connections.Any(c => c.Source == n.OutputPort);
+                foreach (var b in n.ConditionBranches)
+                {
+                    b.Port.IsConnected = Connections.Any(c => c.Source == b.Port);
+                }
             }
 
             SyncRecipeTransitions();
@@ -548,26 +684,36 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
 
         private void SyncRecipeTransitions()
         {
-            if (ActiveRecipe == null) return;
+            if (ActiveRecipe?.Flow == null) return;
             var transitions = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+            var conditionalTransitions = new List<RecipeConditionalTransitionConfig>();
 
             foreach (var c in Connections)
             {
                 if (c.SourceNode != null && c.TargetNode != null)
                 {
-                    if (!transitions.TryGetValue(c.SourceNode.Id, out var list))
+                    var branch = c.SourceNode.ConditionBranches.FirstOrDefault(b => b.Port == c.Source);
+                    if (branch != null)
                     {
-                        list = new List<string>();
-                        transitions[c.SourceNode.Id] = list;
+                        conditionalTransitions.Add(new RecipeConditionalTransitionConfig(c.SourceNode.Id, branch.Key, c.TargetNode.Id));
                     }
-                    if (!list.Contains(c.TargetNode.Id, StringComparer.OrdinalIgnoreCase))
+                    else
                     {
-                        list.Add(c.TargetNode.Id);
+                        if (!transitions.TryGetValue(c.SourceNode.Id, out var list))
+                        {
+                            list = new List<string>();
+                            transitions[c.SourceNode.Id] = list;
+                        }
+                        if (!list.Contains(c.TargetNode.Id, StringComparer.OrdinalIgnoreCase))
+                        {
+                            list.Add(c.TargetNode.Id);
+                        }
                     }
                 }
             }
 
             ActiveRecipe.Flow.Transitions = transitions;
+            ActiveRecipe.Flow.ConditionalTransitions = conditionalTransitions;
         }
 
         private void ValidateGraphCycles()
@@ -726,6 +872,7 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
                 SyncRecipeTransitions();
                 RawJsonText = RecipeSerializer.Serialize(ActiveRecipe);
                 IsJsonViewVisible = true;
+                IsMermaidViewVisible = false;
             }
             else
             {
@@ -747,6 +894,202 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
             {
                 MessageBox.Show($"Invalid JSON syntax or schema:\n{ex.Message}", "JSON Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        public void ToggleMermaidView()
+        {
+            if (!IsMermaidViewVisible)
+            {
+                SyncRecipeTransitions();
+                MermaidText = GenerateMermaidDsl(ActiveRecipe);
+                IsMermaidViewVisible = true;
+                IsJsonViewVisible = false;
+            }
+            else
+            {
+                IsMermaidViewVisible = false;
+            }
+        }
+
+        public void CopyMermaidToClipboard()
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(MermaidText))
+                {
+                    Clipboard.SetText(MermaidText);
+                    StatusMessage = "Copied Mermaid DSL to clipboard.";
+                }
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = $"Failed to copy to clipboard: {ex.Message}";
+            }
+        }
+
+        public string GenerateMermaidDsl(CaptureRecipe recipe)
+        {
+            if (recipe == null) return "flowchart TD\n";
+
+            var sb = new System.Text.StringBuilder();
+            sb.AppendLine("flowchart TD");
+
+            var startNodes = recipe.Flow?.StartNodes?.Where(sn => !string.IsNullOrWhiteSpace(sn)).ToList() 
+                             ?? (recipe.Nodes.Count > 0 ? new List<string> { recipe.Nodes[0].Id } : new List<string>());
+
+            var triggerNodeIds = new List<string>();
+
+            // Triggers Subgraph
+            if (recipe.Triggers != null && recipe.Triggers.Count > 0)
+            {
+                sb.AppendLine("    %% Triggers");
+                sb.AppendLine("    subgraph Triggers [\"🚀 Triggers\"]");
+                for (int i = 0; i < recipe.Triggers.Count; i++)
+                {
+                    var t = recipe.Triggers[i];
+                    string tId = $"trigger_{i}";
+                    triggerNodeIds.Add(tId);
+
+                    string tLabel = t.TriggerType;
+                    if (string.Equals(t.TriggerType, TriggerConfig.TypeHotkey, StringComparison.OrdinalIgnoreCase))
+                    {
+                        string hotkey = t.GetParameter<string>("Hotkey", "Shortcut");
+                        tLabel = $"⚡ Hotkey: {hotkey}";
+                    }
+                    else if (string.Equals(t.TriggerType, TriggerConfig.TypeContextMenu, StringComparison.OrdinalIgnoreCase) ||
+                             string.Equals(t.TriggerType, TriggerConfig.TypeSystray, StringComparison.OrdinalIgnoreCase))
+                    {
+                        string menuText = t.GetParameter<string>("MenuItemText", t.Name ?? "Context Menu");
+                        tLabel = $"🖱️ Menu: {menuText}";
+                    }
+                    else if (string.Equals(t.TriggerType, TriggerConfig.TypeClipboard, StringComparison.OrdinalIgnoreCase))
+                    {
+                        tLabel = "📋 Clipboard Monitor";
+                    }
+                    else if (string.Equals(t.TriggerType, TriggerConfig.TypeManual, StringComparison.OrdinalIgnoreCase))
+                    {
+                        tLabel = $"⚡ Manual: {t.Name ?? "User Action"}";
+                    }
+                    else if (string.Equals(t.TriggerType, TriggerConfig.TypeSchedule, StringComparison.OrdinalIgnoreCase))
+                    {
+                        string cron = t.GetParameter<string>("CronExpression", t.GetParameter<string>("IntervalSeconds", "Timer"));
+                        tLabel = $"⏰ Schedule: {cron}";
+                    }
+                    else
+                    {
+                        tLabel = $"⚡ {t.Name ?? t.TriggerType}";
+                    }
+
+                    if (!t.Enabled)
+                    {
+                        tLabel += " (Disabled)";
+                    }
+
+                    tLabel = tLabel.Replace("\"", "'");
+                    sb.AppendLine($"        {tId}([\"{tLabel}\"])");
+                }
+                sb.AppendLine("    end");
+                sb.AppendLine();
+            }
+
+            sb.AppendLine("    %% Node Definitions");
+
+            var nodeMap = new Dictionary<string, RecipeNodeConfig>(StringComparer.OrdinalIgnoreCase);
+            foreach (var n in recipe.Nodes)
+            {
+                nodeMap[n.Id] = n;
+                string label = string.IsNullOrWhiteSpace(n.Name) ? n.StepType : $"{n.Name} ({n.StepType})";
+                label = label.Replace("\"", "'");
+
+                if (string.Equals(n.StepType, WellKnownStepTypes.Conditional, StringComparison.OrdinalIgnoreCase))
+                {
+                    sb.AppendLine($"    {n.Id}{{\"{label} [{n.Id}]\"}}");
+                }
+                else
+                {
+                    sb.AppendLine($"    {n.Id}[\"{label} [{n.Id}]\"]");
+                }
+            }
+
+            // Trigger Invocations to Start Nodes
+            if (triggerNodeIds.Count > 0 && startNodes.Count > 0)
+            {
+                sb.AppendLine();
+                sb.AppendLine("    %% Trigger Invocations");
+                foreach (var tId in triggerNodeIds)
+                {
+                    foreach (var sn in startNodes)
+                    {
+                        sb.AppendLine($"    {tId} -.-> {sn}");
+                    }
+                }
+            }
+
+            sb.AppendLine();
+            sb.AppendLine("    %% Unconditional Transitions");
+            if (recipe.Flow?.Transitions != null)
+            {
+                foreach (var kvp in recipe.Flow.Transitions)
+                {
+                    string fromId = kvp.Key;
+                    var targets = kvp.Value;
+                    if (targets != null)
+                    {
+                        foreach (var toId in targets)
+                        {
+                            sb.AppendLine($"    {fromId} --> {toId}");
+                        }
+                    }
+                }
+            }
+
+            if (recipe.Flow?.ConditionalTransitions != null && recipe.Flow.ConditionalTransitions.Count > 0)
+            {
+                sb.AppendLine();
+                sb.AppendLine("    %% Conditional Branch Transitions");
+                foreach (var ct in recipe.Flow.ConditionalTransitions)
+                {
+                    if (string.IsNullOrWhiteSpace(ct?.From) || string.IsNullOrWhiteSpace(ct?.To)) continue;
+
+                    string expr = "";
+                    if (nodeMap.TryGetValue(ct.From, out var srcNode) && srcNode.Parameters != null && srcNode.Parameters.TryGetValue("branches", out var bObj))
+                    {
+                        if (bObj is JArray arr)
+                        {
+                            var match = arr.FirstOrDefault(t => string.Equals((string)t["key"], ct.Branch, StringComparison.OrdinalIgnoreCase));
+                            if (match != null) expr = (string)match["expression"];
+                        }
+                    }
+
+                    string edgeLabel = string.IsNullOrEmpty(expr) ? ct.Branch : $"{ct.Branch}: {expr}";
+                    edgeLabel = edgeLabel.Replace("\"", "'");
+                    sb.AppendLine($"    {ct.From} -- \"{edgeLabel}\" --> {ct.To}");
+                }
+            }
+
+            if (startNodes.Count > 0)
+            {
+                sb.AppendLine();
+                sb.AppendLine("    %% Start Nodes Styling");
+                sb.AppendLine("    classDef startNode fill:#238636,stroke:#2ea043,stroke-width:2px,color:#ffffff;");
+                foreach (var sn in startNodes)
+                {
+                    if (!string.IsNullOrWhiteSpace(sn))
+                    {
+                        sb.AppendLine($"    class {sn} startNode;");
+                    }
+                }
+            }
+
+            if (triggerNodeIds.Count > 0)
+            {
+                sb.AppendLine();
+                sb.AppendLine("    %% Triggers Styling");
+                sb.AppendLine("    classDef triggerNode fill:#d97706,stroke:#f59e0b,stroke-width:2px,color:#ffffff;");
+                sb.AppendLine($"    class {string.Join(",", triggerNodeIds)} triggerNode;");
+            }
+
+            return sb.ToString();
         }
 
         private static void SetDefaultParametersForStep(RecipeNodeConfig node)
@@ -848,7 +1191,11 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
                     dict["Message"] = "Capture completed";
                     break;
                 case WellKnownStepTypes.Conditional:
-                    dict["Condition"] = "${payload.width > 800}";
+                    dict["Branches"] = new List<object>
+                    {
+                        new Dictionary<string, string> { { "key", "A" }, { "expression", "${payload.width > 800}" } },
+                        new Dictionary<string, string> { { "key", "B" }, { "expression", "else" } }
+                    };
                     break;
                 case WellKnownStepTypes.Processors:
                     dict["Processors"] = new List<string>();

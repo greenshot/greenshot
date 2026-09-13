@@ -16,9 +16,11 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
     {
         private Point _anchor;
         private bool _isConnected;
+        private string _title;
 
         public StepNodeViewModel Node { get; }
         public bool IsInput { get; }
+        public bool IsConditional => Node?.IsConditional ?? false;
 
         public Point Anchor
         {
@@ -32,12 +34,64 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
             set => SetField(ref _isConnected, value);
         }
 
-        public string Title => IsInput ? "In" : "Out";
+        public string Title
+        {
+            get => _title ?? (IsInput ? "In" : "Out");
+            set => SetField(ref _title, value);
+        }
 
-        public StepPortViewModel(StepNodeViewModel node, bool isInput)
+        public StepPortViewModel(StepNodeViewModel node, bool isInput, string title = null)
         {
             Node = node;
             IsInput = isInput;
+            _title = title;
+        }
+    }
+
+    public class ConditionBranchViewModel : ViewModelBase
+    {
+        private string _key;
+        private string _expression;
+        private readonly Action _onChanged;
+        private readonly Action<ConditionBranchViewModel> _onRemove;
+
+        public StepPortViewModel Port { get; }
+
+        public string Key
+        {
+            get => _key;
+            set
+            {
+                if (SetField(ref _key, value))
+                {
+                    if (Port != null) Port.Title = value;
+                    _onChanged?.Invoke();
+                }
+            }
+        }
+
+        public string Expression
+        {
+            get => _expression;
+            set
+            {
+                if (SetField(ref _expression, value))
+                {
+                    _onChanged?.Invoke();
+                }
+            }
+        }
+
+        public ICommand RemoveCommand { get; }
+
+        public ConditionBranchViewModel(string key, string expression, StepNodeViewModel node, Action onChanged = null, Action<ConditionBranchViewModel> onRemove = null)
+        {
+            _key = key ?? "A";
+            _expression = expression ?? "${true}";
+            _onChanged = onChanged;
+            _onRemove = onRemove;
+            Port = new StepPortViewModel(node, isInput: false, title: _key);
+            RemoveCommand = new RelayCommand(() => _onRemove?.Invoke(this));
         }
     }
 
@@ -342,7 +396,29 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
 
         public RecipeNodeConfig Config { get; }
 
-        public string Id => Config.Id;
+        public Action<StepNodeViewModel, string, string> OnIdChanged { get; set; }
+
+        public string Id
+        {
+            get => Config.Id;
+            set
+            {
+                if (string.IsNullOrWhiteSpace(value) || value == Config.Id) return;
+                string oldId = Config.Id;
+                Config.Id = value.Trim();
+                OnPropertyChanged(nameof(Id));
+                OnPropertyChanged(nameof(DisplayName));
+                OnIdChanged?.Invoke(this, oldId, Config.Id);
+            }
+        }
+
+        public void ResetId(string id)
+        {
+            Config.Id = id;
+            OnPropertyChanged(nameof(Id));
+            OnPropertyChanged(nameof(DisplayName));
+        }
+
         public string StepType => Config.StepType;
 
         public string Name
@@ -390,15 +466,19 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
             set => SetField(ref _isInCycle, value);
         }
 
+        public bool IsConditional => string.Equals(StepType, WellKnownStepTypes.Conditional, StringComparison.OrdinalIgnoreCase);
+
         public StepPortViewModel InputPort { get; }
         public StepPortViewModel OutputPort { get; }
 
         public ObservableCollection<StepPortViewModel> Input { get; } = new ObservableCollection<StepPortViewModel>();
         public ObservableCollection<StepPortViewModel> Output { get; } = new ObservableCollection<StepPortViewModel>();
 
+        public ObservableCollection<ConditionBranchViewModel> ConditionBranches { get; } = new ObservableCollection<ConditionBranchViewModel>();
         public ObservableCollection<VariableItemViewModel> Variables { get; } = new ObservableCollection<VariableItemViewModel>();
         public ObservableCollection<DrawableItemViewModel> Drawables { get; } = new ObservableCollection<DrawableItemViewModel>();
 
+        public ICommand AddConditionBranchCommand { get; }
         public ICommand AddVariableCommand { get; }
         public ICommand AddDrawableCommand { get; }
         public ICommand BrowseSaveDirectoryCommand { get; }
@@ -412,13 +492,14 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
         public Action<StepNodeViewModel> OnDeleteNode { get; set; }
         public ICommand DeleteNodeCommand { get; }
 
-        public StepNodeViewModel(RecipeNodeConfig config, Point initialLocation, Action<StepNodeViewModel> onSetStartNode = null, Action<StepNodeViewModel> onDeleteNode = null)
+        public StepNodeViewModel(RecipeNodeConfig config, Point initialLocation, Action<StepNodeViewModel> onSetStartNode = null, Action<StepNodeViewModel> onDeleteNode = null, Action<StepNodeViewModel, string, string> onIdChanged = null)
         {
             Config = config ?? throw new ArgumentNullException(nameof(config));
             _name = config.Name;
             _location = initialLocation;
             OnSetStartNode = onSetStartNode;
             OnDeleteNode = onDeleteNode;
+            OnIdChanged = onIdChanged;
             SetAsStartNodeCommand = new RelayCommand(() => OnSetStartNode?.Invoke(this));
             DeleteNodeCommand = new RelayCommand(() => OnDeleteNode?.Invoke(this));
 
@@ -426,6 +507,18 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
             OutputPort = new StepPortViewModel(this, isInput: false);
             Input.Add(InputPort);
             Output.Add(OutputPort);
+
+            AddConditionBranchCommand = new RelayCommand(() =>
+            {
+                char nextChar = (char)('A' + ConditionBranches.Count);
+                string nextKey = nextChar <= 'Z' ? nextChar.ToString() : $"C{ConditionBranches.Count + 1}";
+                AddConditionBranch(nextKey, "${true}");
+            });
+
+            if (IsConditional)
+            {
+                LoadConditionBranches();
+            }
 
             AddVariableCommand = new RelayCommand(() => AddVariable("new_var", "${user.username}"));
             AddDrawableCommand = new RelayCommand(p => AddDrawable((p as string) ?? "Rectangle"));
@@ -1020,10 +1113,94 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
         }
 
         // --- 6. Conditional Step ---
-        public string ConditionExpression
+        public void AddConditionBranch(string key = null, string expression = null)
         {
-            get => GetParam("Condition", "${payload.width > 800}");
-            set => SetParam("Condition", value);
+            if (string.IsNullOrEmpty(key))
+            {
+                char nextChar = (char)('A' + ConditionBranches.Count);
+                key = nextChar <= 'Z' ? nextChar.ToString() : $"C{ConditionBranches.Count + 1}";
+            }
+            if (string.IsNullOrEmpty(expression))
+            {
+                expression = "${true}";
+            }
+
+            var branch = new ConditionBranchViewModel(key, expression, this, SyncConditionBranchesToConfig, RemoveConditionBranch);
+            ConditionBranches.Add(branch);
+            Output.Add(branch.Port);
+            SyncConditionBranchesToConfig();
+            OnPropertyChanged(nameof(Summary));
+        }
+
+        public void RemoveConditionBranch(ConditionBranchViewModel branch)
+        {
+            if (branch == null) return;
+            if (ConditionBranches.Count <= 1) return; // Keep at least 1 branch
+
+            ConditionBranches.Remove(branch);
+            Output.Remove(branch.Port);
+            SyncConditionBranchesToConfig();
+            OnPropertyChanged(nameof(Summary));
+        }
+
+        private void LoadConditionBranches()
+        {
+            ConditionBranches.Clear();
+
+            var branchesParam = Config.GetParameter<object>("Branches") ?? Config.GetParameter<object>("branches");
+            if (branchesParam is IEnumerable enumerable && !(branchesParam is string))
+            {
+                foreach (var item in enumerable)
+                {
+                    if (item is IDictionary dict)
+                    {
+                        string k = dict.Contains("Key") ? dict["Key"]?.ToString() : (dict.Contains("key") ? dict["key"]?.ToString() : null);
+                        string exp = dict.Contains("Expression") ? dict["Expression"]?.ToString() : (dict.Contains("expression") ? dict["expression"]?.ToString() : null);
+                        if (!string.IsNullOrEmpty(k) || !string.IsNullOrEmpty(exp))
+                        {
+                            var b = new ConditionBranchViewModel(k ?? "A", exp ?? "${true}", this, SyncConditionBranchesToConfig, RemoveConditionBranch);
+                            ConditionBranches.Add(b);
+                            Output.Add(b.Port);
+                        }
+                    }
+                    else if (item is Newtonsoft.Json.Linq.JObject jobj)
+                    {
+                        string k = jobj.Value<string>("Key") ?? jobj.Value<string>("key");
+                        string exp = jobj.Value<string>("Expression") ?? jobj.Value<string>("expression");
+                        var b = new ConditionBranchViewModel(k ?? "A", exp ?? "${true}", this, SyncConditionBranchesToConfig, RemoveConditionBranch);
+                        ConditionBranches.Add(b);
+                        Output.Add(b.Port);
+                    }
+                }
+            }
+
+            if (ConditionBranches.Count == 0)
+            {
+                var b1 = new ConditionBranchViewModel("A", "${payload.width > 800}", this, SyncConditionBranchesToConfig, RemoveConditionBranch);
+                var b2 = new ConditionBranchViewModel("B", "else", this, SyncConditionBranchesToConfig, RemoveConditionBranch);
+                ConditionBranches.Add(b1);
+                ConditionBranches.Add(b2);
+                Output.Add(b1.Port);
+                Output.Add(b2.Port);
+                SyncConditionBranchesToConfig();
+            }
+        }
+
+        private void SyncConditionBranchesToConfig()
+        {
+            var list = new List<Dictionary<string, string>>();
+            foreach (var b in ConditionBranches)
+            {
+                list.Add(new Dictionary<string, string>
+                {
+                    ["Key"] = b.Key,
+                    ["Expression"] = b.Expression
+                });
+            }
+            Config.Set("Branches", list);
+            Config.Parameters?.Remove("Condition");
+            Config.Parameters?.Remove("condition");
+            OnPropertyChanged(nameof(Summary));
         }
 
         // --- 7. Notification Step ---
@@ -1407,7 +1584,7 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
                     case WellKnownStepTypes.Notification:
                         return $"Toast: {NotificationTitle}";
                     case WellKnownStepTypes.Conditional:
-                        return $"If: {ConditionExpression}";
+                        return $"{ConditionBranches.Count} decision branch(es)";
                     case WellKnownStepTypes.Processors:
                         if (string.Equals(ProcessorMode, "OCR", StringComparison.OrdinalIgnoreCase)) return "Processors: Windows OCR";
                         if (string.Equals(ProcessorMode, "Selected", StringComparison.OrdinalIgnoreCase))
@@ -1427,6 +1604,10 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
 
         public void NotifyConfigUpdated()
         {
+            if (IsConditional)
+            {
+                LoadConditionBranches();
+            }
             OnPropertyChanged(nameof(Summary));
             OnPropertyChanged(nameof(DisplayName));
             OnPropertyChanged(nameof(Name));
@@ -1448,7 +1629,7 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
             OnPropertyChanged(nameof(TextEffectAction));
             OnPropertyChanged(nameof(TextEffectFillColor));
             OnPropertyChanged(nameof(TextEffectPattern));
-            OnPropertyChanged(nameof(ConditionExpression));
+            OnPropertyChanged(nameof(ConditionBranches));
             OnPropertyChanged(nameof(NotificationTitle));
             OnPropertyChanged(nameof(NotificationMessage));
             OnPropertyChanged(nameof(PlaySound));

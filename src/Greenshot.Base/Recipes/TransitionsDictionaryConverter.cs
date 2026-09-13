@@ -94,24 +94,18 @@ namespace Greenshot.Base.Recipes
             foreach (var kvp in dict)
             {
                 writer.WritePropertyName(kvp.Key);
-                if (kvp.Value == null || kvp.Value.Count == 0)
+                writer.WriteStartArray();
+                if (kvp.Value != null)
                 {
-                    writer.WriteStartArray();
-                    writer.WriteEndArray();
-                }
-                else if (kvp.Value.Count == 1)
-                {
-                    writer.WriteValue(kvp.Value[0]);
-                }
-                else
-                {
-                    writer.WriteStartArray();
                     foreach (var item in kvp.Value)
                     {
-                        writer.WriteValue(item);
+                        if (!string.IsNullOrWhiteSpace(item))
+                        {
+                            writer.WriteValue(item);
+                        }
                     }
-                    writer.WriteEndArray();
                 }
+                writer.WriteEndArray();
             }
             writer.WriteEndObject();
         }

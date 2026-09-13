@@ -255,6 +255,14 @@ namespace Greenshot.Base.Recipes
                     }
                 }
             }
+            else if (string.Equals(node.StepType, WellKnownStepTypes.Conditional, StringComparison.OrdinalIgnoreCase))
+            {
+                var branches = node.GetParameter<object>("Branches") ?? node.GetParameter<object>("branches");
+                if (branches == null)
+                {
+                    result.AddError($"Node '{node.Id}' [Conditional]: Missing required 'branches' configuration list.");
+                }
+            }
             else if (string.Equals(node.StepType, "ExternalCommand", StringComparison.OrdinalIgnoreCase) ||
                      (node.Parameters != null && (node.Parameters.ContainsKey("Command") || node.Parameters.ContainsKey("Executable"))))
             {
@@ -280,11 +288,15 @@ namespace Greenshot.Base.Recipes
                 if (recipe.Nodes.Count == 1)
                 {
                     startNodes.Add(recipe.Nodes[0].Id);
-                    flow.StartNode = recipe.Nodes[0].Id;
+                    if (flow.StartNodes == null) flow.StartNodes = new List<string>();
+                    if (!flow.StartNodes.Contains(recipe.Nodes[0].Id, StringComparer.OrdinalIgnoreCase))
+                    {
+                        flow.StartNodes.Add(recipe.Nodes[0].Id);
+                    }
                 }
                 else
                 {
-                    result.AddError("Flow definition must specify at least one entry node in 'startNode' or 'startNodes'.");
+                    result.AddError("Flow definition must specify at least one entry node in 'startNodes'.");
                 }
             }
 
@@ -293,6 +305,46 @@ namespace Greenshot.Base.Recipes
                 if (!validNodeIds.Contains(startId))
                 {
                     result.AddError($"Flow start node '{startId}' does not match any defined node id.");
+                }
+            }
+
+            // Validate ConditionalTransitions
+            if (flow.ConditionalTransitions != null)
+            {
+                foreach (var ct in flow.ConditionalTransitions)
+                {
+                    if (string.IsNullOrWhiteSpace(ct?.From))
+                    {
+                        result.AddError("Conditional transition is missing source 'from' node ID.");
+                        continue;
+                    }
+                    if (string.IsNullOrWhiteSpace(ct.Branch))
+                    {
+                        result.AddError($"Conditional transition from '{ct.From}' is missing 'branch' key.");
+                    }
+                    if (string.IsNullOrWhiteSpace(ct.To))
+                    {
+                        result.AddError($"Conditional transition from '{ct.From}' is missing target 'to' node ID.");
+                        continue;
+                    }
+
+                    if (!validNodeIds.Contains(ct.From))
+                    {
+                        result.AddError($"Conditional transition source node '{ct.From}' does not exist in 'nodes'.");
+                    }
+                    else
+                    {
+                        var fromNode = recipe.FindNode(ct.From);
+                        if (fromNode != null && !string.Equals(fromNode.StepType, WellKnownStepTypes.Conditional, StringComparison.OrdinalIgnoreCase))
+                        {
+                            result.AddWarning($"Conditional transition source node '{ct.From}' has stepType '{fromNode.StepType}' rather than 'Conditional'.");
+                        }
+                    }
+
+                    if (!validNodeIds.Contains(ct.To))
+                    {
+                        result.AddError($"Conditional transition target node '{ct.To}' (from '{ct.From}', branch '{ct.Branch}') does not exist in 'nodes'.");
+                    }
                 }
             }
 

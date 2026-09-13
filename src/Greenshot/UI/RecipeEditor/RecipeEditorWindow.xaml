@@ -313,14 +313,71 @@
             </Setter>
         </Style>
 
+        <!-- Clean Pin Connector Style -->
+        <Style x:Key="PinConnectorStyle" TargetType="{x:Type nodify:Connector}">
+            <Setter Property="Width" Value="18"/>
+            <Setter Property="Height" Value="18"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type nodify:Connector}">
+                        <Grid Background="Transparent">
+                            <!-- Soft circular glow on hover / connect -->
+                            <Ellipse x:Name="OuterGlow"
+                                     Width="18" Height="18"
+                                     Fill="{Binding AccentBrush}"
+                                     Opacity="0"
+                                     HorizontalAlignment="Center"
+                                     VerticalAlignment="Center"/>
+                            <!-- Pin body -->
+                            <Ellipse x:Name="PinCircle"
+                                     Width="10" Height="10"
+                                     Fill="{Binding CardBackgroundBrush}"
+                                     Stroke="{Binding CardBorderBrush}"
+                                     StrokeThickness="1.5"
+                                     HorizontalAlignment="Center"
+                                     VerticalAlignment="Center"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsConnected" Value="True">
+                                <Setter TargetName="PinCircle" Property="Fill" Value="{Binding AccentBrush}"/>
+                                <Setter TargetName="PinCircle" Property="Stroke" Value="White"/>
+                                <Setter TargetName="PinCircle" Property="StrokeThickness" Value="1.5"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="OuterGlow" Property="Opacity" Value="0.35"/>
+                                <Setter TargetName="PinCircle" Property="Stroke" Value="{Binding AccentBrush}"/>
+                                <Setter TargetName="PinCircle" Property="StrokeThickness" Value="2"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <!-- Node Template (Top/Bottom Flow) -->
         <DataTemplate DataType="{x:Type vm:StepNodeViewModel}">
-            <Border Background="{Binding DataContext.CardBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
-                    BorderBrush="{Binding DataContext.CardBorderBrush, RelativeSource={RelativeSource AncestorType=Window}}"
-                    BorderThickness="1"
+            <Border Background="{Binding DataContext.NodeCardBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                    BorderBrush="{Binding DataContext.NodeCardBorderBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                    BorderThickness="1.5"
                     CornerRadius="8"
-                    MinWidth="180" MaxWidth="250"
+                    Width="220"
                     SnapsToDevicePixels="True">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                <Setter Property="BorderBrush" Value="{Binding DataContext.AccentBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                <Setter Property="BorderThickness" Value="2"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="12" ShadowDepth="3" Direction="270" Opacity="0.35" Color="Black"/>
+                </Border.Effect>
                 <Border.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="⭐ Set as Start Step" Command="{Binding SetAsStartNodeCommand}"/>
@@ -330,24 +387,13 @@
                 </Border.ContextMenu>
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/> <!-- Top Pin (Input) -->
                         <RowDefinition Height="Auto"/> <!-- Header -->
                         <RowDefinition Height="*"/>    <!-- Content / Summary -->
-                        <RowDefinition Height="Auto"/> <!-- Bottom Pin (Output) -->
+                        <RowDefinition Height="Auto"/> <!-- Conditional Branches Footer -->
                     </Grid.RowDefinitions>
 
-                    <!-- Top Input Pin (Vertical Flow) -->
-                    <nodify:NodeInput Grid.Row="0"
-                                      DataContext="{Binding InputPort}"
-                                      Header=""
-                                      Orientation="Vertical"
-                                      HorizontalAlignment="Center"
-                                      Margin="0,-9,0,-3"
-                                      Anchor="{Binding Anchor, Mode=OneWayToSource}"
-                                      IsConnected="{Binding IsConnected}"/>
-
                     <!-- Header -->
-                    <Border Grid.Row="1" Background="{Binding StepType, Converter={StaticResource StepColorConv}}"
+                    <Border Grid.Row="0" Background="{Binding StepType, Converter={StaticResource StepColorConv}}"
                             CornerRadius="7,7,0,0" Padding="10,5">
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -369,24 +415,112 @@
                     </Border>
 
                     <!-- Content -->
-                    <Border Grid.Row="2" Padding="10,8">
+                    <Border Grid.Row="1" Padding="10,8">
                         <StackPanel>
                             <TextBlock Text="{Binding Id}" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
-                                       FontFamily="Consolas" Margin="0,0,0,2"/>
+                                       FontFamily="Consolas" Margin="0,0,0,4"/>
+
+                            <!-- Standard Step Summary -->
                             <TextBlock Text="{Binding Summary}" FontSize="11" Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
-                                       TextWrapping="Wrap"/>
+                                       TextWrapping="Wrap"
+                                       Visibility="{Binding IsConditional, Converter={StaticResource InvertBoolToVis}}"/>
+
+                            <!-- Conditional Branches Summary inside Card Body -->
+                            <StackPanel Visibility="{Binding IsConditional, Converter={StaticResource BoolToVis}}">
+                                <TextBlock Text="Branches:" FontSize="10" FontWeight="SemiBold"
+                                           Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}" Margin="0,0,0,4"/>
+                                <ItemsControl ItemsSource="{Binding ConditionBranches}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid Margin="0,1,0,2">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Border Grid.Column="0" Margin="0,0,6,0"
+                                                        Background="{Binding DataContext.BadgeBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                        BorderBrush="{Binding DataContext.CardBorderBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                        BorderThickness="1" CornerRadius="3" Padding="4,1">
+                                                    <TextBlock Text="{Binding Key}" FontSize="9" FontWeight="Bold"
+                                                               Foreground="{Binding DataContext.AccentBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                </Border>
+                                                <TextBlock Grid.Column="1" Text="{Binding Expression}" FontSize="10"
+                                                           FontFamily="Consolas" VerticalAlignment="Center"
+                                                           Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                           TextTrimming="CharacterEllipsis" ToolTip="{Binding Expression}"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
                         </StackPanel>
                     </Border>
 
-                    <!-- Bottom Output Pin (Vertical Flow) -->
-                    <nodify:NodeOutput Grid.Row="3"
-                                       DataContext="{Binding OutputPort}"
-                                       Header=""
-                                       Orientation="Vertical"
-                                       HorizontalAlignment="Center"
-                                       Margin="0,-3,0,-9"
-                                       Anchor="{Binding Anchor, Mode=OneWayToSource}"
-                                       IsConnected="{Binding IsConnected}"/>
+                    <!-- Conditional Branches Footer (Clean Pins Aligned to Bottom) -->
+                    <Border Grid.Row="2"
+                            Background="{Binding DataContext.BadgeBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                            BorderBrush="{Binding DataContext.CardBorderBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                            BorderThickness="0,1,0,0"
+                            CornerRadius="0,0,7,7"
+                            Padding="2,3,2,0"
+                            Visibility="{Binding IsConditional, Converter={StaticResource BoolToVis}}">
+                        <ItemsControl ItemsSource="{Binding ConditionBranches}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <UniformGrid Rows="1"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Height="30" ToolTip="{Binding Expression}">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="*"/>
+                                        </Grid.RowDefinitions>
+                                        <Border Grid.Row="0" HorizontalAlignment="Center" Margin="0,1,0,0"
+                                                Background="{Binding DataContext.CardBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                BorderBrush="{Binding DataContext.CardBorderBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                BorderThickness="1" CornerRadius="3" Padding="6,1">
+                                            <TextBlock Text="{Binding Key}" FontSize="9" FontWeight="Bold"
+                                                       Foreground="{Binding DataContext.AccentBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                        </Border>
+                                        <nodify:Connector Grid.Row="1"
+                                                          DataContext="{Binding Port}"
+                                                          Style="{StaticResource PinConnectorStyle}"
+                                                          HorizontalAlignment="Center"
+                                                          VerticalAlignment="Bottom"
+                                                          Margin="0,0,0,-9"
+                                                          Panel.ZIndex="10"
+                                                          Anchor="{Binding Anchor, Mode=OneWayToSource}"
+                                                          IsConnected="{Binding IsConnected}"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Border>
+
+                    <!-- Top Input Pin (Vertical Flow - Centered on Top Edge) -->
+                    <nodify:Connector Grid.Row="0"
+                                      DataContext="{Binding InputPort}"
+                                      Style="{StaticResource PinConnectorStyle}"
+                                      HorizontalAlignment="Center"
+                                      VerticalAlignment="Top"
+                                      Margin="0,-9,0,0"
+                                      Panel.ZIndex="10"
+                                      Anchor="{Binding Anchor, Mode=OneWayToSource}"
+                                      IsConnected="{Binding IsConnected}"/>
+
+                    <!-- Bottom Output Pin (For Non-Conditional Steps) -->
+                    <nodify:Connector Grid.Row="1"
+                                      DataContext="{Binding OutputPort}"
+                                      Style="{StaticResource PinConnectorStyle}"
+                                      HorizontalAlignment="Center"
+                                      VerticalAlignment="Bottom"
+                                      Margin="0,0,0,-9"
+                                      Panel.ZIndex="10"
+                                      Visibility="{Binding IsConditional, Converter={StaticResource InvertBoolToVis}}"
+                                      Anchor="{Binding Anchor, Mode=OneWayToSource}"
+                                      IsConnected="{Binding IsConnected}"/>
                 </Grid>
             </Border>
         </DataTemplate>
@@ -394,6 +528,18 @@
         <Style x:Key="ItemContainerStyle" TargetType="{x:Type nodify:ItemContainer}">
             <Setter Property="Location" Value="{Binding Location, Mode=TwoWay}" />
             <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type nodify:ItemContainer}">
+                        <ContentPresenter />
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
     </Window.Resources>
 
@@ -422,6 +568,9 @@
 
                 <!-- Window Caption Control Buttons -->
                 <StackPanel Grid.Column="2" Orientation="Horizontal">
+                    <Button Style="{StaticResource CaptionBtnStyle}" Command="{Binding ToggleThemeCommand}" ToolTip="{Binding ThemeToggleToolTip}">
+                        <TextBlock Text="{Binding ThemeToggleIcon}" FontSize="13" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    </Button>
                     <Button Style="{StaticResource CaptionBtnStyle}" Click="OnMinimizeClicked" ToolTip="Minimize">
                         <Rectangle Width="10" Height="1.5" Fill="{Binding TextPrimaryBrush}" SnapsToDevicePixels="True" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                     </Button>
@@ -459,6 +608,7 @@
                         <Separator Width="1" Background="{Binding CardBorderBrush}" Margin="6,2"/>
                         <Button Content="Auto-Layout" Style="{StaticResource ToolbarBtn}" Command="{Binding AutoLayoutCommand}" ToolTip="Auto-organize DAG layout"/>
                         <Button Content="{}{ } JSON" Style="{StaticResource ToolbarBtn}" Command="{Binding ToggleJsonViewCommand}" ToolTip="View / Edit Raw Recipe JSON"/>
+                        <Button Content="🧜 Mermaid" Style="{StaticResource ToolbarBtn}" Command="{Binding ToggleMermaidViewCommand}" ToolTip="Generate Mermaid Diagram DSL for documentation"/>
                     </StackPanel>
 
                     <!-- Right Action: Test Run -->
@@ -560,7 +710,8 @@
                                          ItemContainerStyle="{StaticResource ItemContainerStyle}"
                                          Connections="{Binding Connections}"
                                          PendingConnection="{Binding PendingConnection}"
-                                         DisconnectConnectorCommand="{Binding DisconnectConnectorCommand}">
+                                         DisconnectConnectorCommand="{Binding DisconnectConnectorCommand}"
+                                         Background="{Binding WindowBackgroundBrush}">
                         <nodify:NodifyEditor.PendingConnectionTemplate>
                             <DataTemplate DataType="{x:Type vm:PendingConnectionViewModel}">
                                 <nodify:PendingConnection StartedCommand="{Binding StartedCommand}"
@@ -581,6 +732,7 @@
                                                    TargetOrientation="Vertical"
                                                    Spacing="0"
                                                    ArrowEnds="End"
+                                                   ArrowSize="10 10"
                                                    Stroke="{Binding IsCycle, Converter={StaticResource StepColorConv}, ConverterParameter=cycle}"
                                                    StrokeThickness="2.5"
                                                    Cursor="Hand"
@@ -594,6 +746,7 @@
                             </DataTemplate>
                         </nodify:NodifyEditor.ConnectionTemplate>
                     </nodify:NodifyEditor>
+
 
                     <!-- In-Canvas JSON Editor Overlay -->
                     <Border Background="{Binding CardBackgroundBrush}" BorderBrush="{Binding CardBorderBrush}" BorderThickness="1" CornerRadius="6"
@@ -617,12 +770,46 @@
                             </StackPanel>
                         </Grid>
                     </Border>
+
+                    <!-- In-Canvas Mermaid Editor Overlay -->
+                    <Border Background="{Binding CardBackgroundBrush}" BorderBrush="{Binding CardBorderBrush}" BorderThickness="1" CornerRadius="6"
+                            Margin="30" Padding="15"
+                            Visibility="{Binding IsMermaidViewVisible, Converter={StaticResource BoolToVis}}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid Grid.Row="0" Margin="0,0,0,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Mermaid Workflow DSL" FontWeight="Bold" FontSize="14" Foreground="{Binding TextPrimaryBrush}"/>
+                                    <TextBlock Text="Copy this Mermaid syntax to use in documentation, markdown files, or PR descriptions."
+                                               FontSize="11" Foreground="{Binding TextSecondaryBrush}"/>
+                                </StackPanel>
+                            </Grid>
+                            <TextBox Grid.Row="1" Text="{Binding MermaidText, Mode=OneWay}"
+                                     FontFamily="Consolas" FontSize="12"
+                                     Background="{Binding WindowBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}"
+                                     IsReadOnly="True"
+                                     AcceptsReturn="True" AcceptsTab="True"
+                                     VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"/>
+                            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+                                <Button Content="📋 Copy Mermaid Code" Style="{StaticResource PrimaryBtn}" Command="{Binding CopyMermaidCommand}" Margin="0,0,8,0"/>
+                                <Button Content="Close" Style="{StaticResource ToolbarBtn}" Command="{Binding ToggleMermaidViewCommand}"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
                 </Grid>
 
                 <!-- Right Sidebar: Properties & Step Inspector / Recipe & Triggers Tabs -->
                 <Border Grid.Column="2" Background="{Binding WindowBackgroundBrush}" BorderBrush="{Binding CardBorderBrush}" BorderThickness="1,0,0,0">
                     <TabControl SelectedIndex="{Binding SelectedInspectorTabIndex, Mode=TwoWay}"
-                                Background="Transparent" BorderThickness="0" Margin="4,4,4,4">
+                                 Background="Transparent" BorderThickness="0" Margin="4,4,4,4">
                         <!-- Tab 1: Step Inspector -->
                         <TabItem Header="⚙️ Step Inspector" Style="{StaticResource InspectorTabItem}">
                             <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="6,8,6,8">
@@ -660,9 +847,9 @@
 
                                         <!-- Node Metadata -->
                                         <TextBlock Text="Node ID" FontSize="11" Foreground="{Binding TextSecondaryBrush}"/>
-                                        <TextBox Text="{Binding SelectedNode.Id, Mode=OneWay}" IsReadOnly="True"
-                                                 Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextSecondaryBrush}" FontFamily="Consolas"
-                                                 Padding="6,4" Margin="0,2,0,8"/>
+                                        <TextBox Text="{Binding SelectedNode.Id, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+                                                 Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                 Padding="6,4" Margin="0,2,0,8" ToolTip="Unique identifier for this step. Editing this ID updates all DAG references."/>
 
                                         <TextBlock Text="Step Type" FontSize="11" Foreground="{Binding TextSecondaryBrush}"/>
                                         <TextBox Text="{Binding SelectedNode.StepType, Mode=OneWay}" IsReadOnly="True"
@@ -1334,15 +1521,62 @@
 
                                         <!-- 9. Conditional Step Inspector -->
                                         <StackPanel Visibility="{Binding SelectedNode.StepType, Converter={StaticResource StringToVis}, ConverterParameter=Conditional}">
-                                            <TextBlock Text="Condition Expression" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
-                                            <TextBox Text="{Binding SelectedNode.ConditionExpression, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                     Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
-                                                     Padding="6,4" Margin="0,0,0,8"/>
+                                            <Grid Margin="0,0,0,6">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="Condition Branches" FontWeight="Bold" FontSize="11" Foreground="{Binding TextPrimaryBrush}" VerticalAlignment="Center"/>
+                                                <Button Grid.Column="1" Content="+ Add Branch" Style="{StaticResource ToolbarBtn}"
+                                                        Command="{Binding SelectedNode.AddConditionBranchCommand}" Padding="8,2" FontSize="10"/>
+                                            </Grid>
 
-                                            <Border Background="{Binding CardBackgroundBrush}" BorderBrush="{Binding CardBorderBrush}" BorderThickness="1" CornerRadius="4" Padding="8" Margin="0,0,0,8">
+                                            <ItemsControl ItemsSource="{Binding SelectedNode.ConditionBranches}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Border Background="{Binding DataContext.CardBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                BorderBrush="{Binding DataContext.CardBorderBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                BorderThickness="1" CornerRadius="4" Padding="8,6" Margin="0,0,0,6">
+                                                            <Grid>
+                                                                <Grid.RowDefinitions>
+                                                                    <RowDefinition Height="Auto"/>
+                                                                    <RowDefinition Height="Auto"/>
+                                                                </Grid.RowDefinitions>
+                                                                <Grid Grid.Row="0" Margin="0,0,0,4">
+                                                                    <Grid.ColumnDefinitions>
+                                                                        <ColumnDefinition Width="Auto"/>
+                                                                        <ColumnDefinition Width="*"/>
+                                                                        <ColumnDefinition Width="Auto"/>
+                                                                    </Grid.ColumnDefinitions>
+                                                                    <Border Background="{Binding DataContext.BadgeBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                            BorderBrush="{Binding DataContext.CardBorderBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                            BorderThickness="1" CornerRadius="3" Padding="6,2" Margin="0,0,6,0">
+                                                                        <TextBlock Text="{Binding Key, StringFormat='Pin {0}'}" FontWeight="Bold" FontSize="10"
+                                                                                   Foreground="{Binding DataContext.AccentBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                                    </Border>
+                                                                    <TextBox Grid.Column="1" Text="{Binding Key, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                             Background="{Binding DataContext.WindowBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                             Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                             FontFamily="Consolas" FontSize="10" Padding="4,2" MaxLength="10"
+                                                                             ToolTip="Branch identifier (e.g. A, B, True, False)"/>
+                                                                    <Button Grid.Column="2" Style="{StaticResource TriggerDeleteBtn}" Command="{Binding RemoveCommand}"
+                                                                            ToolTip="Delete branch" Margin="4,0,0,0"/>
+                                                                </Grid>
+                                                                <TextBox Grid.Row="1" Text="{Binding Expression, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                         Background="{Binding DataContext.WindowBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                         Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                         FontFamily="Consolas" FontSize="11" Padding="6,4"
+                                                                         ToolTip="Condition expression (e.g. ${payload.width > 800} or 'else')"/>
+                                                            </Grid>
+                                                        </Border>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+
+                                            <Border Background="{Binding CardBackgroundBrush}" BorderBrush="{Binding CardBorderBrush}" BorderThickness="1" CornerRadius="4" Padding="8" Margin="0,4,0,8">
                                                 <StackPanel>
                                                     <TextBlock Text="Branch Execution Logic:" FontWeight="Bold" FontSize="11" Foreground="{Binding TextPrimaryBrush}" Margin="0,0,0,4"/>
-                                                    <TextBlock Text="• Evaluated at runtime during capture.&#x0a;• True / Truthy: Proceeds to next step(s).&#x0a;• False / Zero: Branch is skipped."
+                                                    <TextBlock Text="• Each condition gets its own output connector pin (A, B, C...).&#x0a;• Connect each pin to the destination step for that branch.&#x0a;• Use 'else' for default fallback branch."
                                                                FontSize="11" Foreground="{Binding TextSecondaryBrush}" TextWrapping="Wrap"/>
                                                 </StackPanel>
                                             </Border>

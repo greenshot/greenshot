@@ -28,6 +28,13 @@ namespace Greenshot.UI.RecipeEditor
 
             ViewModel = new RecipeEditorViewModel(recipeManager);
             DataContext = ViewModel;
+
+            WpfThemeHelper.ThemeChanged += ApplyImmersiveDarkMode;
+            Loaded += (s, e) =>
+            {
+                ApplyImmersiveDarkMode();
+                System.Windows.Forms.Integration.ElementHost.EnableModelessKeyboardInterop(this);
+            };
         }
 
         private void InitializeCanvasGestures()
@@ -128,9 +135,9 @@ namespace Greenshot.UI.RecipeEditor
             try
             {
                 var helper = new WindowInteropHelper(this);
-                if (helper.Handle != IntPtr.Zero && WpfThemeHelper.IsDarkMode)
+                if (helper.Handle != IntPtr.Zero)
                 {
-                    int useImmersiveDarkMode = 1;
+                    int useImmersiveDarkMode = WpfThemeHelper.IsDarkMode ? 1 : 0;
                     int hr = DwmSetWindowAttribute(helper.Handle, 20, ref useImmersiveDarkMode, sizeof(int));
                     if (hr != 0)
                     {

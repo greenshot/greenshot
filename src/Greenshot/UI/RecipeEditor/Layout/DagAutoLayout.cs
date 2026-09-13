@@ -15,8 +15,8 @@ namespace Greenshot.UI.RecipeEditor.Layout
     {
         private const double StartX = 400;
         private const double StartY = 80;
-        private const double LevelYGap = 210;
-        private const double SiblingXGap = 300;
+        private const double LevelYGap = 135;
+        private const double SiblingXGap = 260;
 
         public static void ApplyLayout(
             IEnumerable<StepNodeViewModel> nodes,
