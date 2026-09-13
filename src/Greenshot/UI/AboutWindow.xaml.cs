@@ -44,7 +44,7 @@ using Path = System.Windows.Shapes.Path;
 namespace Greenshot.UI
 {
     /// <summary>
-    /// Modern WPF About window with custom WindowChrome, dark/light mode support, and XAML animations matching g.svg specification.
+    /// Modern WPF About window with custom WindowChrome, dark/light mode support, runtime translation updates, and XAML animations matching g.svg specification.
     /// </summary>
     public partial class AboutWindow : Window, INotifyPropertyChanged
     {
@@ -87,13 +87,17 @@ namespace Greenshot.UI
         public string DonationsUrl { get; }
 
         // Localized strings
-        public string LicenseCopyrightText { get; }
-        public string HostLabelText { get; }
-        public string BugsLabelText { get; }
-        public string DonationsLabelText { get; }
-        public string IconsLabelText { get; }
-        public string TranslationCreditsText { get; }
+        public string WindowTitleText { get; private set; }
+        public string WindowTitleSubtitle { get; private set; }
+        public string LicenseCopyrightText { get; private set; }
+        public string HostLabelText { get; private set; }
+        public string BugsLabelText { get; private set; }
+        public string DonationsLabelText { get; private set; }
+        public string IconsLabelText { get; private set; }
+        public string TranslationCreditsText { get; private set; }
         public Visibility TranslationCreditsVisibility => string.IsNullOrWhiteSpace(TranslationCreditsText) ? Visibility.Collapsed : Visibility.Visible;
+        public string CloseButtonText { get; private set; }
+        public string CloseButtonToolTip { get; private set; }
 
         private static ICoreConfiguration CoreConfiguration => IniConfigHelper.EnsureSection<ICoreConfiguration>(() => new CoreConfigurationImpl());
 
@@ -131,12 +135,8 @@ namespace Greenshot.UI
             BugsUrl = $"https://getgreenshot.org/tickets/?version={versionWithBuild}";
             DonationsUrl = $"https://getgreenshot.org/support/?version={versionWithBuild}";
 
-            LicenseCopyrightText = Lang.GetString("about_license");
-            HostLabelText = Lang.GetString("about_host");
-            BugsLabelText = Lang.GetString("about_bugs");
-            DonationsLabelText = Lang.GetString("about_donations");
-            IconsLabelText = Lang.GetString("about_icons");
-            TranslationCreditsText = Lang.GetString("about_translation");
+            // Populate all localized strings from language files
+            InitializeLanguage();
 
             _allDots = new[]
             {
@@ -167,10 +167,58 @@ namespace Greenshot.UI
             _highlightTimer.Tick += OnHighlightTimerTick;
 
             WpfThemeHelper.ThemeChanged += OnThemeChanged;
+            Lang.LanguageChanged += OnLanguageChanged;
 
             Loaded += OnWindowLoaded;
             Unloaded += OnWindowUnloaded;
             KeyDown += OnWindowKeyDown;
+        }
+
+        /// <summary>
+        /// Populates localized resources from the active language configuration.
+        /// </summary>
+        protected virtual void InitializeLanguage()
+        {
+            string title = Lang.GetString("about_title");
+            WindowTitleText = string.IsNullOrWhiteSpace(title) || title.StartsWith("###") ? "About Greenshot" : title;
+            WindowTitleSubtitle = $" - {WindowTitleText}";
+
+            LicenseCopyrightText = Lang.GetString("about_license");
+            HostLabelText = Lang.GetString("about_host");
+            BugsLabelText = Lang.GetString("about_bugs");
+            DonationsLabelText = Lang.GetString("about_donations");
+            IconsLabelText = Lang.GetString("about_icons");
+
+            string translation = Lang.GetString("about_translation");
+            TranslationCreditsText = string.IsNullOrWhiteSpace(translation) || translation.StartsWith("###") ? null : translation;
+
+            string close = Lang.GetString("bugreport_cancel");
+            CloseButtonText = string.IsNullOrWhiteSpace(close) || close.StartsWith("###") ? "Close" : close;
+            CloseButtonToolTip = $"{CloseButtonText} (Esc)";
+
+            OnPropertyChanged(nameof(WindowTitleText));
+            OnPropertyChanged(nameof(WindowTitleSubtitle));
+            OnPropertyChanged(nameof(LicenseCopyrightText));
+            OnPropertyChanged(nameof(HostLabelText));
+            OnPropertyChanged(nameof(BugsLabelText));
+            OnPropertyChanged(nameof(DonationsLabelText));
+            OnPropertyChanged(nameof(IconsLabelText));
+            OnPropertyChanged(nameof(TranslationCreditsText));
+            OnPropertyChanged(nameof(TranslationCreditsVisibility));
+            OnPropertyChanged(nameof(CloseButtonText));
+            OnPropertyChanged(nameof(CloseButtonToolTip));
+        }
+
+        private void OnLanguageChanged(object sender, EventArgs e)
+        {
+            if (Dispatcher.CheckAccess())
+            {
+                InitializeLanguage();
+            }
+            else
+            {
+                Dispatcher.Invoke(InitializeLanguage);
+            }
         }
 
         private void OnWindowLoaded(object sender, RoutedEventArgs e)
@@ -199,6 +247,7 @@ namespace Greenshot.UI
         private void OnWindowUnloaded(object sender, RoutedEventArgs e)
         {
             WpfThemeHelper.ThemeChanged -= OnThemeChanged;
+            Lang.LanguageChanged -= OnLanguageChanged;
             _highlightTimer.Stop();
         }
 
@@ -442,3 +491,4 @@ namespace Greenshot.UI
         }
     }
 }
+
