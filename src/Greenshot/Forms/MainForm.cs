@@ -80,7 +80,7 @@ namespace Greenshot.Forms
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(MainForm));
         private static ResourceMutex _applicationMutex;
-        private static ICoreConfiguration _conf = IniConfigRegistry.GetSection<ICoreConfiguration>();
+        private static ICoreConfiguration _conf => IniConfigHelper.EnsureSection<ICoreConfiguration>(() => new CoreConfigurationImpl());
 
         /// <summary>
         /// Application entry-point, called from <see cref="GreenshotMain"/> after the
@@ -368,6 +368,11 @@ namespace Greenshot.Forms
                 LanguageDialog languageDialog = LanguageDialog.GetInstance();
                 languageDialog.ShowDialog();
                 _conf.Language = languageDialog.SelectedLanguage;
+                Language.CurrentLanguage = languageDialog.SelectedLanguage;
+            }
+            else if (Language.CurrentLanguage != _conf.Language)
+            {
+                Language.CurrentLanguage = _conf.Language;
             }
 
             // Disable access to the settings, for feature #3521446

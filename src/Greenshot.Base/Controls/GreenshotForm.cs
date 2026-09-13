@@ -41,7 +41,7 @@ namespace Greenshot.Base.Controls
     public class GreenshotForm : Form
     {
         private static readonly ILog LOG = LogManager.GetLogger(typeof(GreenshotForm));
-        protected static ICoreConfiguration coreConfiguration;
+        protected static ICoreConfiguration coreConfiguration => IniConfigHelper.EnsureSection<ICoreConfiguration>(() => new CoreConfigurationImpl());
         private static readonly IDictionary<Type, FieldInfo[]> reflectionCache = new Dictionary<Type, FieldInfo[]>();
 
         private bool _storeFieldsManually;
@@ -54,13 +54,10 @@ namespace Greenshot.Base.Controls
             try
             {
                 AppDomain.CurrentDomain.AssemblyResolve += ResolveAssembly;
-                IniConfigHelper.EnsureInitialized();
-                coreConfiguration = IniConfigHelper.EnsureSection<ICoreConfiguration>(() => new CoreConfigurationImpl());
             }
             catch (Exception ex)
             {
                 LOG.Warn("GreenshotForm static initialization fallback", ex);
-                coreConfiguration ??= new CoreConfigurationImpl();
             }
         }
 
