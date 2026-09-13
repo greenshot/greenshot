@@ -109,6 +109,20 @@ namespace Greenshot.Pipeline
             _stepRegistry.RegisterStepFactory("ObfuscateText", config => new TextEffectStep(config));
             _stepRegistry.RegisterStepFactory(WellKnownStepTypes.UserPrompt, config => new UserPromptStep(config));
             _stepRegistry.RegisterStepFactory("PromptChoice", config => new UserPromptStep(config));
+
+            // Register all plugin step providers
+            try
+            {
+                var providers = SimpleServiceProvider.Current?.GetAllInstances<IRecipeStepProvider>();
+                if (providers != null)
+                {
+                    _stepRegistry.RegisterProviders(providers);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Debug("Plugin step provider registration deferred until services are available.", ex);
+            }
         }
 
         public async Task<CaptureFlowContext> ExecuteAsync(

@@ -22,10 +22,11 @@
 using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.Base.Pipeline;
 
 namespace Greenshot.Plugin.Zxing;
 
-public class ZxingPlugin : IGreenshotPlugin
+public class ZxingPlugin : IGreenshotPlugin, IRecipeStepProvider
 {
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ZxingPlugin));
     private static IZxingConfiguration _config;
@@ -53,6 +54,23 @@ public class ZxingPlugin : IGreenshotPlugin
         serviceLocator.AddService<IEditorPlugin>(_editorPlugin);
         serviceLocator.AddService<IFeatureHotspotTransformer>(_hotspotTransformer);
         serviceLocator.AddService<IDestination>(new ZxingQrDestination());
+        serviceLocator.AddService<IRecipeStepProvider>(this);
+        StepRegistry.Instance.RegisterProvider(this);
+    }
+
+    /// <summary>
+    /// Registers recipe step factories provided by the ZXing plugin.
+    /// </summary>
+    /// <param name="registry">The step registry.</param>
+    public void RegisterSteps(IStepRegistry registry)
+    {
+        if (registry == null) return;
+        registry.RegisterStepFactory("Zxing", config => new ZxingStep(config));
+        registry.RegisterStepFactory("ZxingQr", config => new ZxingStep(config));
+        registry.RegisterStepFactory("ZxingBarcode", config => new ZxingStep(config));
+        registry.RegisterStepFactory("BarcodeScan", config => new ZxingStep(config));
+        registry.RegisterStepFactory("DecodeBarcode", config => new ZxingStep(config));
+        registry.RegisterStepFactory("QrCode", config => new ZxingStep(config));
     }
 
     public bool Start()

@@ -578,6 +578,40 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
         public bool IsUserPrompt => string.Equals(StepType, WellKnownStepTypes.UserPrompt, StringComparison.OrdinalIgnoreCase) || string.Equals(StepType, "PromptChoice", StringComparison.OrdinalIgnoreCase);
         public bool HasDynamicOutputPorts => IsConditional || IsUserPrompt;
 
+        public bool IsExternalCommand => (StepType != null && StepType.StartsWith("ExternalCommand", StringComparison.OrdinalIgnoreCase)) ||
+                                         string.Equals(StepType, "ExecuteCommand", StringComparison.OrdinalIgnoreCase) ||
+                                         string.Equals(StepType, "RunCommand", StringComparison.OrdinalIgnoreCase);
+
+        public bool IsImgur => (StepType != null && StepType.StartsWith("Imgur", StringComparison.OrdinalIgnoreCase)) ||
+                               string.Equals(StepType, "UploadToImgur", StringComparison.OrdinalIgnoreCase);
+
+        public bool IsJira => (StepType != null && StepType.StartsWith("Jira", StringComparison.OrdinalIgnoreCase)) ||
+                              string.Equals(StepType, "UploadToJira", StringComparison.OrdinalIgnoreCase);
+
+        public bool IsConfluence => (StepType != null && StepType.StartsWith("Confluence", StringComparison.OrdinalIgnoreCase)) ||
+                                    string.Equals(StepType, "UploadToConfluence", StringComparison.OrdinalIgnoreCase);
+
+        public bool IsOffice => (StepType != null && StepType.StartsWith("Office", StringComparison.OrdinalIgnoreCase)) ||
+                                string.Equals(StepType, "Excel", StringComparison.OrdinalIgnoreCase) ||
+                                string.Equals(StepType, "PowerPoint", StringComparison.OrdinalIgnoreCase) ||
+                                string.Equals(StepType, "Powerpoint", StringComparison.OrdinalIgnoreCase) ||
+                                string.Equals(StepType, "Word", StringComparison.OrdinalIgnoreCase) ||
+                                string.Equals(StepType, "OneNote", StringComparison.OrdinalIgnoreCase) ||
+                                string.Equals(StepType, "Outlook", StringComparison.OrdinalIgnoreCase);
+
+        public bool IsZxing => (StepType != null && StepType.StartsWith("Zxing", StringComparison.OrdinalIgnoreCase)) ||
+                               string.Equals(StepType, "BarcodeScan", StringComparison.OrdinalIgnoreCase) ||
+                               string.Equals(StepType, "DecodeBarcode", StringComparison.OrdinalIgnoreCase) ||
+                               string.Equals(StepType, "QrCode", StringComparison.OrdinalIgnoreCase);
+
+        public bool IsBox => (StepType != null && StepType.StartsWith("Box", StringComparison.OrdinalIgnoreCase)) ||
+                             string.Equals(StepType, "UploadToBox", StringComparison.OrdinalIgnoreCase);
+
+        public bool IsDropbox => (StepType != null && StepType.StartsWith("Dropbox", StringComparison.OrdinalIgnoreCase)) ||
+                                 string.Equals(StepType, "UploadToDropbox", StringComparison.OrdinalIgnoreCase);
+
+        public bool IsCloudStorage => IsBox || IsDropbox;
+
         public StepPortViewModel InputPort { get; }
         public StepPortViewModel OutputPort { get; }
 
@@ -594,6 +628,7 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
         public ICommand AddVariableCommand { get; }
         public ICommand AddDrawableCommand { get; }
         public ICommand BrowseSaveDirectoryCommand { get; }
+        public ICommand BrowseExternalExecutableCommand { get; }
         public ICommand BrowseSoundFileCommand { get; }
         public ICommand PlaySoundPreviewCommand { get; }
         public ICommand PickBorderColorCommand { get; }
@@ -672,6 +707,20 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
                     {
                         SaveDirectory = dlg.SelectedPath;
                     }
+                }
+            });
+
+            BrowseExternalExecutableCommand = new RelayCommand(() =>
+            {
+                var dlg = new Microsoft.Win32.OpenFileDialog
+                {
+                    Title = "Select Executable or Script for External Command",
+                    Filter = "Executable & Script Files (*.exe;*.cmd;*.bat;*.ps1;*.vbs)|*.exe;*.cmd;*.bat;*.ps1;*.vbs|All Files (*.*)|*.*",
+                    CheckFileExists = true
+                };
+                if (dlg.ShowDialog() == true)
+                {
+                    ExternalCommandLine = dlg.FileName;
                 }
             });
 
@@ -1914,6 +1963,157 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
             set { SetParamOrRemoveIfEmpty("OcrLanguage", value); OnPropertyChanged(nameof(OcrLanguage)); }
         }
 
+        // --- 13. ExternalCommand Step ---
+        public string ExternalCommandLine
+        {
+            get => GetParam("CommandLine", GetParam("Executable", GetParam("Path", "")));
+            set { SetParam("CommandLine", value); OnPropertyChanged(nameof(ExternalCommandLine)); OnPropertyChanged(nameof(Summary)); }
+        }
+
+        public string ExternalCommandArguments
+        {
+            get => GetParam("Arguments", GetParam("Argument", GetParam("Args", "{0}")));
+            set { SetParam("Arguments", value); OnPropertyChanged(nameof(ExternalCommandArguments)); OnPropertyChanged(nameof(Summary)); }
+        }
+
+        public string ExternalCommandFormat
+        {
+            get => GetParam("Format", GetParam("OutputFormat", "png"));
+            set { SetParam("Format", value); OnPropertyChanged(nameof(ExternalCommandFormat)); }
+        }
+
+        public bool ExternalCommandRunInBackground
+        {
+            get => GetParamBool("RunInBackground", GetParamBool("Async", false));
+            set { SetParam("RunInBackground", value); OnPropertyChanged(nameof(ExternalCommandRunInBackground)); }
+        }
+
+        public bool ExternalCommandOutputToClipboard
+        {
+            get => GetParamBool("OutputToClipboard", false);
+            set { SetParam("OutputToClipboard", value); OnPropertyChanged(nameof(ExternalCommandOutputToClipboard)); }
+        }
+
+        public bool ExternalCommandUriToClipboard
+        {
+            get => GetParamBool("UriToClipboard", false);
+            set { SetParam("UriToClipboard", value); OnPropertyChanged(nameof(ExternalCommandUriToClipboard)); }
+        }
+
+        public bool ExternalCommandReloadAfterExecution
+        {
+            get => GetParamBool("ReloadAfterExecution", GetParamBool("UpdatePayload", false));
+            set { SetParam("ReloadAfterExecution", value); OnPropertyChanged(nameof(ExternalCommandReloadAfterExecution)); }
+        }
+
+        public string ExternalCommandWorkingDirectory
+        {
+            get => GetParam("WorkingDirectory", GetParam("WorkingDir", ""));
+            set { SetParamOrRemoveIfEmpty("WorkingDirectory", value); OnPropertyChanged(nameof(ExternalCommandWorkingDirectory)); }
+        }
+
+        public string ExternalCommandSetOutputVariable
+        {
+            get => GetParam("SetOutputVariable", "");
+            set { SetParamOrRemoveIfEmpty("SetOutputVariable", value); OnPropertyChanged(nameof(ExternalCommandSetOutputVariable)); }
+        }
+
+        public string ExternalCommandSetExitCodeVariable
+        {
+            get => GetParam("SetExitCodeVariable", "");
+            set { SetParamOrRemoveIfEmpty("SetExitCodeVariable", value); OnPropertyChanged(nameof(ExternalCommandSetExitCodeVariable)); }
+        }
+
+        // --- 14. Imgur Step ---
+        public string ImgurFormat
+        {
+            get => GetParam("Format", GetParam("UploadFormat", "png"));
+            set { SetParam("Format", value); OnPropertyChanged(nameof(ImgurFormat)); }
+        }
+
+        public bool ImgurCopyLinkToClipboard
+        {
+            get => GetParamBool("CopyLinkToClipboard", true);
+            set { SetParam("CopyLinkToClipboard", value); OnPropertyChanged(nameof(ImgurCopyLinkToClipboard)); }
+        }
+
+        public bool ImgurOpenInBrowser
+        {
+            get => GetParamBool("OpenInBrowser", false);
+            set { SetParam("OpenInBrowser", value); OnPropertyChanged(nameof(ImgurOpenInBrowser)); }
+        }
+
+        // --- 15. Jira Step ---
+        public string JiraIssueKey
+        {
+            get => GetParam("IssueKey", GetParam("Issue", ""));
+            set { SetParam("IssueKey", value); OnPropertyChanged(nameof(JiraIssueKey)); OnPropertyChanged(nameof(Summary)); }
+        }
+
+        public string JiraFormat
+        {
+            get => GetParam("Format", GetParam("UploadFormat", "png"));
+            set { SetParam("Format", value); OnPropertyChanged(nameof(JiraFormat)); }
+        }
+
+        public int JiraJpegQuality
+        {
+            get => int.TryParse(GetParam("JpegQuality", "80"), out int q) ? q : 80;
+            set { SetParam("JpegQuality", value); OnPropertyChanged(nameof(JiraJpegQuality)); }
+        }
+
+        // --- 16. Confluence Step ---
+        public string ConfluencePageId
+        {
+            get => GetParam("PageId", GetParam("Page", ""));
+            set { SetParam("PageId", value); OnPropertyChanged(nameof(ConfluencePageId)); OnPropertyChanged(nameof(Summary)); }
+        }
+
+        public string ConfluenceFormat
+        {
+            get => GetParam("Format", GetParam("UploadFormat", "png"));
+            set { SetParam("Format", value); OnPropertyChanged(nameof(ConfluenceFormat)); }
+        }
+
+        public int ConfluenceJpegQuality
+        {
+            get => int.TryParse(GetParam("JpegQuality", "80"), out int q) ? q : 80;
+            set { SetParam("JpegQuality", value); OnPropertyChanged(nameof(ConfluenceJpegQuality)); }
+        }
+
+        // --- 17. Office Step ---
+        public string OfficeApplication
+        {
+            get
+            {
+                string app = GetParam("Application", GetParam("Target", ""));
+                if (string.IsNullOrEmpty(app))
+                {
+                    if (string.Equals(StepType, "Excel", StringComparison.OrdinalIgnoreCase)) return "Excel";
+                    if (string.Equals(StepType, "PowerPoint", StringComparison.OrdinalIgnoreCase) || string.Equals(StepType, "Powerpoint", StringComparison.OrdinalIgnoreCase)) return "PowerPoint";
+                    if (string.Equals(StepType, "Word", StringComparison.OrdinalIgnoreCase)) return "Word";
+                    if (string.Equals(StepType, "OneNote", StringComparison.OrdinalIgnoreCase)) return "OneNote";
+                    if (string.Equals(StepType, "Outlook", StringComparison.OrdinalIgnoreCase)) return "Outlook";
+                    return "Word";
+                }
+                return app;
+            }
+            set { SetParam("Application", value); OnPropertyChanged(nameof(OfficeApplication)); OnPropertyChanged(nameof(Summary)); }
+        }
+
+        // --- 18. Zxing Step ---
+        public string ZxingSetVariable
+        {
+            get => GetParam("SetVariable", GetParam("Variable", "barcode_text"));
+            set { SetParam("SetVariable", value); OnPropertyChanged(nameof(ZxingSetVariable)); OnPropertyChanged(nameof(Summary)); }
+        }
+
+        public bool ZxingCopyToClipboard
+        {
+            get => GetParamBool("CopyToClipboard", true);
+            set { SetParam("CopyToClipboard", value); OnPropertyChanged(nameof(ZxingCopyToClipboard)); }
+        }
+
         private bool HasDestination(string dest)
         {
             if (Config.Parameters == null) return false;
@@ -2033,6 +2233,22 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
                             return active.Count > 0 ? $"Processors: {string.Join(", ", active)}" : "Processors (None)";
                         }
                         return ProcessorTiming != "Any" && !string.IsNullOrEmpty(ProcessorTiming) ? $"Processors: All ({ProcessorTiming})" : "Processors: All Active";
+                    case var _ when IsExternalCommand:
+                        return !string.IsNullOrWhiteSpace(ExternalCommandLine) ? $"Run: {System.IO.Path.GetFileName(ExternalCommandLine)} {ExternalCommandArguments}".Trim() : "Execute Command";
+                    case var _ when IsImgur:
+                        return "Upload to Imgur";
+                    case var _ when IsJira:
+                        return !string.IsNullOrWhiteSpace(JiraIssueKey) ? $"Attach to Jira: {JiraIssueKey}" : "Attach to Jira Issue";
+                    case var _ when IsConfluence:
+                        return !string.IsNullOrWhiteSpace(ConfluencePageId) ? $"Upload to Confluence: {ConfluencePageId}" : "Upload to Confluence Page";
+                    case var _ when IsOffice:
+                        return $"Export to Microsoft {OfficeApplication}";
+                    case var _ when IsZxing:
+                        return "Scan Barcode / QR Code";
+                    case var _ when IsBox:
+                        return "Upload to Box";
+                    case var _ when IsDropbox:
+                        return "Upload to Dropbox";
                     default:
                         return StepType;
                 }
@@ -2052,6 +2268,15 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
             OnPropertyChanged(nameof(Summary));
             OnPropertyChanged(nameof(DisplayName));
             OnPropertyChanged(nameof(Name));
+            OnPropertyChanged(nameof(IsExternalCommand));
+            OnPropertyChanged(nameof(IsImgur));
+            OnPropertyChanged(nameof(IsJira));
+            OnPropertyChanged(nameof(IsConfluence));
+            OnPropertyChanged(nameof(IsOffice));
+            OnPropertyChanged(nameof(IsZxing));
+            OnPropertyChanged(nameof(IsBox));
+            OnPropertyChanged(nameof(IsDropbox));
+            OnPropertyChanged(nameof(IsCloudStorage));
             OnPropertyChanged(nameof(SourceType));
             OnPropertyChanged(nameof(IsWindowSource));
             OnPropertyChanged(nameof(WindowTitlePattern));
@@ -2101,6 +2326,28 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
             OnPropertyChanged(nameof(PrinterPrintFooter));
             OnPropertyChanged(nameof(PrinterFooterPattern));
             OnPropertyChanged(nameof(OcrLanguage));
+            OnPropertyChanged(nameof(ExternalCommandLine));
+            OnPropertyChanged(nameof(ExternalCommandArguments));
+            OnPropertyChanged(nameof(ExternalCommandFormat));
+            OnPropertyChanged(nameof(ExternalCommandRunInBackground));
+            OnPropertyChanged(nameof(ExternalCommandOutputToClipboard));
+            OnPropertyChanged(nameof(ExternalCommandUriToClipboard));
+            OnPropertyChanged(nameof(ExternalCommandReloadAfterExecution));
+            OnPropertyChanged(nameof(ExternalCommandWorkingDirectory));
+            OnPropertyChanged(nameof(ExternalCommandSetOutputVariable));
+            OnPropertyChanged(nameof(ExternalCommandSetExitCodeVariable));
+            OnPropertyChanged(nameof(ImgurFormat));
+            OnPropertyChanged(nameof(ImgurCopyLinkToClipboard));
+            OnPropertyChanged(nameof(ImgurOpenInBrowser));
+            OnPropertyChanged(nameof(JiraIssueKey));
+            OnPropertyChanged(nameof(JiraFormat));
+            OnPropertyChanged(nameof(JiraJpegQuality));
+            OnPropertyChanged(nameof(ConfluencePageId));
+            OnPropertyChanged(nameof(ConfluenceFormat));
+            OnPropertyChanged(nameof(ConfluenceJpegQuality));
+            OnPropertyChanged(nameof(OfficeApplication));
+            OnPropertyChanged(nameof(ZxingSetVariable));
+            OnPropertyChanged(nameof(ZxingCopyToClipboard));
             OnPropertyChanged(nameof(NotificationTitle));
             OnPropertyChanged(nameof(NotificationMessage));
             OnPropertyChanged(nameof(PlaySound));

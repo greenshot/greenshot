@@ -28,6 +28,7 @@ using Greenshot.Base.Core;
 using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.Base.Pipeline;
 using Greenshot.Plugin.Dropbox.Forms;
 
 namespace Greenshot.Plugin.Dropbox;
@@ -35,7 +36,7 @@ namespace Greenshot.Plugin.Dropbox;
 /// <summary>
 /// This is the Dropbox base code
 /// </summary>
-public class DropboxPlugin : IGreenshotPlugin
+public class DropboxPlugin : IGreenshotPlugin, IRecipeStepProvider
 {
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(DropboxPlugin));
     private static IDropboxConfiguration _config;
@@ -83,6 +84,20 @@ public class DropboxPlugin : IGreenshotPlugin
     {
         _resources = new ComponentResourceManager(typeof(DropboxPlugin));
         serviceLocator.AddService<IDestination>(new DropboxDestination(this));
+        serviceLocator.AddService<IRecipeStepProvider>(this);
+        StepRegistry.Instance.RegisterProvider(this);
+    }
+
+    /// <summary>
+    /// Registers recipe step factories provided by the Dropbox plugin.
+    /// </summary>
+    /// <param name="registry">The step registry.</param>
+    public void RegisterSteps(IStepRegistry registry)
+    {
+        if (registry == null) return;
+        registry.RegisterStepFactory("Dropbox", config => new DropboxStep(config, this));
+        registry.RegisterStepFactory("DropboxUpload", config => new DropboxStep(config, this));
+        registry.RegisterStepFactory("UploadToDropbox", config => new DropboxStep(config, this));
     }
 
     /// <summary>

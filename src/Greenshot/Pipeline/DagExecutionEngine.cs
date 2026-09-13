@@ -110,13 +110,75 @@ namespace Greenshot.Pipeline
             }
 
             var completedNodes = new ConcurrentDictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
+            var activatedNodes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var launchedNodes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var bypassedNodes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             var syncLock = new object();
-            var runningTasks = new List<Task>();
+
+            foreach (var s in startNodes)
+            {
+                activatedNodes.Add(s);
+                launchedNodes.Add(s);
+            }
 
             Log.InfoFormat("Starting DAG execution for recipe '{0}' ({1} node(s), {2} start node(s))",
                 recipe.Name, nodesById.Count, startNodes.Count);
 
             context.LogStep($"DAG Execution started with {startNodes.Count} entry node(s)");
+
+            // Dead-path elimination helper: recursively propagates bypass signals down the graph
+            void BypassNodeLocked(string bypassedId, List<string> toLaunchList)
+            {
+                if (!bypassedNodes.Add(bypassedId))
+                {
+                    return;
+                }
+
+                Log.DebugFormat("Node '{0}' bypassed via dead-path elimination", bypassedId);
+
+                // Collect all outgoing targets from bypassedId (both standard and conditional)
+                var outgoing = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                if (flow.Transitions != null && flow.Transitions.TryGetValue(bypassedId, out var stdTargets) && stdTargets != null)
+                {
+                    foreach (var t in stdTargets)
+                    {
+                        if (!string.IsNullOrWhiteSpace(t)) outgoing.Add(t);
+                    }
+                }
+                if (flow.ConditionalTransitions != null)
+                {
+                    foreach (var ct in flow.ConditionalTransitions)
+                    {
+                        if (string.Equals(ct.From, bypassedId, StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(ct.To))
+                        {
+                            outgoing.Add(ct.To);
+                        }
+                    }
+                }
+
+                foreach (var targetId in outgoing)
+                {
+                    if (pendingIncoming.TryGetValue(targetId, out int remaining))
+                    {
+                        remaining--;
+                        pendingIncoming[targetId] = remaining;
+                        if (remaining <= 0)
+                        {
+                            if (activatedNodes.Contains(targetId))
+                            {
+                                if (launchedNodes.Add(targetId))
+                                {
+                                    toLaunchList.Add(targetId);
+                                }
+                            }
+                            else
+                            {
+                                BypassNodeLocked(targetId, toLaunchList);
+                            }
+                        }
+                    }
+                }
+            }
 
             // Asynchronous recursive node runner
             async Task RunNodeAsync(string nodeId)
@@ -229,7 +291,8 @@ namespace Greenshot.Pipeline
                         context.LogStep($"Conditional node [{nodeId}] evaluated branch -> '{matchedBranchKey ?? "None"}'");
                     }
                 }
-                else if (string.Equals(nodeConfig.StepType, WellKnownStepTypes.UserPrompt, StringComparison.OrdinalIgnoreCase))
+                else if (string.Equals(nodeConfig.StepType, WellKnownStepTypes.UserPrompt, StringComparison.OrdinalIgnoreCase) ||
+                         string.Equals(nodeConfig.StepType, "PromptChoice", StringComparison.OrdinalIgnoreCase))
                 {
                     if (context.Properties.TryGetValue("UserPrompt.Choice." + nodeId, out var choiceObj) && choiceObj != null)
                     {
@@ -251,18 +314,12 @@ namespace Greenshot.Pipeline
                 var activeNext = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
                 var bypassedNext = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-                // 1. Standard transitions
-                if (flow.Transitions != null && flow.Transitions.TryGetValue(nodeId, out var stdTargets) && stdTargets != null)
-                {
-                    foreach (var t in stdTargets)
-                    {
-                        if (!string.IsNullOrWhiteSpace(t)) activeNext.Add(t);
-                    }
-                }
+                bool hasConditionalTransitions = flow.ConditionalTransitions != null &&
+                                                 flow.ConditionalTransitions.Any(ct => string.Equals(ct.From, nodeId, StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(ct.To));
 
-                // 2. Conditional transitions
-                if (flow.ConditionalTransitions != null)
+                if (hasConditionalTransitions)
                 {
+                    // For conditional nodes (Conditional or UserPrompt), transitions are driven strictly by the matched branch
                     foreach (var ct in flow.ConditionalTransitions)
                     {
                         if (!string.Equals(ct.From, nodeId, StringComparison.OrdinalIgnoreCase) || string.IsNullOrWhiteSpace(ct.To)) continue;
@@ -277,12 +334,29 @@ namespace Greenshot.Pipeline
                         }
                     }
                 }
+                else
+                {
+                    // Standard transitions (only when no conditional transitions exist from this node)
+                    if (flow.Transitions != null && flow.Transitions.TryGetValue(nodeId, out var stdTargets) && stdTargets != null)
+                    {
+                        foreach (var t in stdTargets)
+                        {
+                            if (!string.IsNullOrWhiteSpace(t)) activeNext.Add(t);
+                        }
+                    }
+                }
 
                 // Find next ready downstream nodes
                 var nextToLaunch = new List<string>();
                 lock (syncLock)
                 {
-                    // Decrement incoming counter for bypassed nodes so join synchronization doesn't stall
+                    // First, mark all active targets in activatedNodes
+                    foreach (var nextId in activeNext)
+                    {
+                        activatedNodes.Add(nextId);
+                    }
+
+                    // Decrement incoming counter for bypassed nodes and propagate dead paths
                     foreach (var nextId in bypassedNext)
                     {
                         if (!activeNext.Contains(nextId))
@@ -291,6 +365,20 @@ namespace Greenshot.Pipeline
                             {
                                 remaining--;
                                 pendingIncoming[nextId] = remaining;
+                                if (remaining <= 0)
+                                {
+                                    if (activatedNodes.Contains(nextId))
+                                    {
+                                        if (launchedNodes.Add(nextId))
+                                        {
+                                            nextToLaunch.Add(nextId);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        BypassNodeLocked(nextId, nextToLaunch);
+                                    }
+                                }
                             }
                         }
                     }
@@ -302,9 +390,19 @@ namespace Greenshot.Pipeline
                         {
                             remaining--;
                             pendingIncoming[nextId] = remaining;
-                            if (remaining <= 0 && !completedNodes.ContainsKey(nextId))
+                            if (remaining <= 0)
                             {
-                                nextToLaunch.Add(nextId);
+                                if (activatedNodes.Contains(nextId))
+                                {
+                                    if (launchedNodes.Add(nextId))
+                                    {
+                                        nextToLaunch.Add(nextId);
+                                    }
+                                }
+                                else
+                                {
+                                    BypassNodeLocked(nextId, nextToLaunch);
+                                }
                             }
                         }
                     }

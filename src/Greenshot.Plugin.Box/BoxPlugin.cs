@@ -29,6 +29,7 @@ using Greenshot.Base.Core;
 using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.Base.Pipeline;
 using Greenshot.Plugin.Box.Forms;
 
 namespace Greenshot.Plugin.Box;
@@ -36,7 +37,7 @@ namespace Greenshot.Plugin.Box;
 /// <summary>
 /// This is the Box base code
 /// </summary>
-public class BoxPlugin : IGreenshotPlugin
+public class BoxPlugin : IGreenshotPlugin, IRecipeStepProvider
 {
     private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(BoxPlugin));
     private static IBoxConfiguration _config;
@@ -79,13 +80,24 @@ public class BoxPlugin : IGreenshotPlugin
         _config = section;
     }
 
-    /// <summary>
-    /// Implementation of RegisterServices phase: register DI services after config is loaded.
-    /// </summary>
     public void RegisterServices(IServiceLocator serviceLocator)
     {
         _resources = new ComponentResourceManager(typeof(BoxPlugin));
         serviceLocator.AddService<IDestination>(new BoxDestination(this));
+        serviceLocator.AddService<IRecipeStepProvider>(this);
+        StepRegistry.Instance.RegisterProvider(this);
+    }
+
+    /// <summary>
+    /// Registers recipe step factories provided by the Box plugin.
+    /// </summary>
+    /// <param name="registry">The step registry.</param>
+    public void RegisterSteps(IStepRegistry registry)
+    {
+        if (registry == null) return;
+        registry.RegisterStepFactory("Box", config => new BoxStep(config, this));
+        registry.RegisterStepFactory("BoxUpload", config => new BoxStep(config, this));
+        registry.RegisterStepFactory("UploadToBox", config => new BoxStep(config, this));
     }
 
     /// <summary>

@@ -1,0 +1,88 @@
+{
+  "$schema": "../recipe.schema.json",
+  "version": "1.0",
+  "id": "recipe_external_command_optimize",
+  "name": "Region Snip with External Tool Optimization",
+  "description": "Interactive region snip that runs an external command to optimize the image and reloads it into the editor.",
+  "triggers": [
+    {
+      "triggerType": "Hotkey",
+      "parameters": {
+        "hotkey": "Ctrl + Shift + O"
+      }
+    },
+    {
+      "triggerType": "ContextMenu",
+      "name": "Optimize and Edit",
+      "parameters": {
+        "menuItemText": "Snip & Optimize Image",
+        "group": "Recipes"
+      }
+    }
+  ],
+  "nodes": [
+    {
+      "id": "source",
+      "stepType": "Source",
+      "parameters": {
+        "sourceType": "Region"
+      }
+    },
+    {
+      "id": "select",
+      "stepType": "InteractiveSelection",
+      "parameters": {
+        "selectionMode": "Region"
+      }
+    },
+    {
+      "id": "optimize_cmd",
+      "stepType": "ExternalCommand",
+      "name": "Run Image Optimizer",
+      "parameters": {
+        "commandLine": "cmd.exe",
+        "arguments": "/c echo Optimizing ${context.ExternalCommand.TargetFile}",
+        "sync": true,
+        "timeoutMs": 5000,
+        "reloadAfterExecution": false,
+        "setOutputVariable": "opt_output"
+      }
+    },
+    {
+      "id": "feedback",
+      "stepType": "ImmediateFeedback",
+      "parameters": {
+        "playSound": true
+      }
+    },
+    {
+      "id": "destination",
+      "stepType": "Destinations",
+      "name": "Open Editor",
+      "parameters": {
+        "destinationDesignations": [
+          "Editor"
+        ]
+      }
+    }
+  ],
+  "flow": {
+    "startNodes": [
+      "source"
+    ],
+    "transitions": {
+      "source": [
+        "select"
+      ],
+      "select": [
+        "optimize_cmd"
+      ],
+      "optimize_cmd": [
+        "feedback"
+      ],
+      "feedback": [
+        "destination"
+      ]
+    }
+  }
+}

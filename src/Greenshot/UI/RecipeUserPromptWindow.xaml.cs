@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -140,6 +141,10 @@ namespace Greenshot.UI
                     {
                         _cancelChoiceKey = choice.Key;
                     }
+                    else if (_cancelChoiceKey == null && (string.Equals(choice.Key, "No", StringComparison.OrdinalIgnoreCase) || string.Equals(choice.Key, "Cancel", StringComparison.OrdinalIgnoreCase)))
+                    {
+                        _cancelChoiceKey = choice.Key;
+                    }
 
                     ActionButtons.Add(new PromptButtonViewModel
                     {
@@ -159,6 +164,13 @@ namespace Greenshot.UI
                 _cancelChoiceKey = "No";
                 ActionButtons.Add(new PromptButtonViewModel { Key = "Yes", Label = "Yes, Proceed", ButtonStyle = primaryStyle, IsDefault = true });
                 ActionButtons.Add(new PromptButtonViewModel { Key = "No", Label = "No, Cancel", ButtonStyle = secondaryStyle, IsCancel = true });
+            }
+
+            if (_cancelChoiceKey == null)
+            {
+                _cancelChoiceKey = ActionButtons.FirstOrDefault(b => b.IsCancel)?.Key ??
+                                   ActionButtons.FirstOrDefault(b => string.Equals(b.Key, "No", StringComparison.OrdinalIgnoreCase))?.Key ??
+                                   ActionButtons.LastOrDefault()?.Key ?? "No";
             }
 
             if (!string.IsNullOrWhiteSpace(defaultChoice))
@@ -193,7 +205,7 @@ namespace Greenshot.UI
                 }
                 else if (e.Key == Key.Escape)
                 {
-                    SelectAndClose(_cancelChoiceKey ?? "Cancel");
+                    SelectAndClose(_cancelChoiceKey ?? "No");
                     e.Handled = true;
                 }
             };
@@ -217,7 +229,16 @@ namespace Greenshot.UI
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
-            SelectAndClose(_cancelChoiceKey ?? "Cancel");
+            SelectAndClose(_cancelChoiceKey ?? "No");
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            base.OnClosed(e);
+            if (string.IsNullOrEmpty(SelectedChoiceKey))
+            {
+                SelectedChoiceKey = _cancelChoiceKey ?? "No";
+            }
         }
     }
 }

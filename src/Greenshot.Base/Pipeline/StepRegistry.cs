@@ -21,6 +21,10 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using Greenshot.Base.Core;
 using Greenshot.Base.Recipes;
 using log4net;
 
@@ -47,11 +51,81 @@ namespace Greenshot.Base.Pipeline
             Log.DebugFormat("Registered step factory for step type '{0}'", stepType);
         }
 
+        public bool IsRegistered(string stepType)
+        {
+            if (string.IsNullOrEmpty(stepType)) return false;
+
+            if (_factories.ContainsKey(stepType)) return true;
+
+            // Attempt dynamic discovery from registered IRecipeStepProvider services
+            DiscoverProviders();
+
+            return _factories.ContainsKey(stepType);
+        }
+
+        public IReadOnlyCollection<string> RegisteredStepTypes
+        {
+            get
+            {
+                DiscoverProviders();
+                return new ReadOnlyCollection<string>(_factories.Keys.ToList());
+            }
+        }
+
+        public void RegisterProvider(IRecipeStepProvider provider)
+        {
+            if (provider == null) return;
+            try
+            {
+                provider.RegisterSteps(this);
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error registering steps from provider {provider.GetType().Name}", ex);
+            }
+        }
+
+        public void RegisterProviders(IEnumerable<IRecipeStepProvider> providers)
+        {
+            if (providers == null) return;
+            foreach (var provider in providers)
+            {
+                RegisterProvider(provider);
+            }
+        }
+
+        private void DiscoverProviders()
+        {
+            try
+            {
+                var providers = SimpleServiceProvider.Current?.GetAllInstances<IRecipeStepProvider>();
+                if (providers != null)
+                {
+                    foreach (var provider in providers)
+                    {
+                        RegisterProvider(provider);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Debug("Provider discovery encountered an error (can occur before DI is initialized)", ex);
+            }
+        }
+
         public ICaptureStep CreateStep(RecipeNodeConfig config)
         {
             if (config == null || string.IsNullOrEmpty(config.StepType)) return null;
 
             if (_factories.TryGetValue(config.StepType, out var factory))
+            {
+                return factory(config);
+            }
+
+            // Try dynamic discovery of newly loaded providers
+            DiscoverProviders();
+
+            if (_factories.TryGetValue(config.StepType, out factory))
             {
                 return factory(config);
             }
