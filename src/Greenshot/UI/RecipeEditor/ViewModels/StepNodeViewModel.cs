@@ -21,6 +21,7 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
         public StepNodeViewModel Node { get; }
         public bool IsInput { get; }
         public bool IsConditional => Node?.IsConditional ?? false;
+        public bool HasDynamicOutputPorts => Node?.HasDynamicOutputPorts ?? false;
 
         public Point Anchor
         {
@@ -92,6 +93,107 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
             _onRemove = onRemove;
             Port = new StepPortViewModel(node, isInput: false, title: _key);
             RemoveCommand = new RelayCommand(() => _onRemove?.Invoke(this));
+        }
+    }
+
+    public class PromptChoiceViewModel : ViewModelBase
+    {
+        private string _key;
+        private string _label;
+        private string _style = "Primary";
+        private bool _isDefault;
+        private bool _isCancel;
+        private readonly Action _onChanged;
+        private readonly Action<PromptChoiceViewModel> _onRemove;
+
+        public StepPortViewModel Port { get; }
+
+        public string Key
+        {
+            get => _key;
+            set
+            {
+                if (SetField(ref _key, value))
+                {
+                    if (Port != null) Port.Title = value;
+                    _onChanged?.Invoke();
+                }
+            }
+        }
+
+        public string Label
+        {
+            get => _label;
+            set
+            {
+                if (SetField(ref _label, value))
+                {
+                    _onChanged?.Invoke();
+                }
+            }
+        }
+
+        public string Style
+        {
+            get => _style;
+            set
+            {
+                if (SetField(ref _style, value))
+                {
+                    _onChanged?.Invoke();
+                }
+            }
+        }
+
+        public bool IsDefault
+        {
+            get => _isDefault;
+            set
+            {
+                if (SetField(ref _isDefault, value))
+                {
+                    _onChanged?.Invoke();
+                }
+            }
+        }
+
+        public bool IsCancel
+        {
+            get => _isCancel;
+            set
+            {
+                if (SetField(ref _isCancel, value))
+                {
+                    _onChanged?.Invoke();
+                }
+            }
+        }
+
+        public ICommand RemoveCommand { get; }
+
+        public PromptChoiceViewModel(string key, string label, string style, bool isDefault, bool isCancel, StepNodeViewModel node, Action onChanged = null, Action<PromptChoiceViewModel> onRemove = null)
+        {
+            _key = key ?? "Yes";
+            _label = label ?? key;
+            _style = style ?? "Primary";
+            _isDefault = isDefault;
+            _isCancel = isCancel;
+            _onChanged = onChanged;
+            _onRemove = onRemove;
+            Port = new StepPortViewModel(node, isInput: false, title: _key);
+            RemoveCommand = new RelayCommand(() => _onRemove?.Invoke(this));
+        }
+
+        public Dictionary<string, object> ToDictionary()
+        {
+            return new Dictionary<string, object>
+            {
+                ["Key"] = Key,
+                ["Label"] = Label,
+                ["Style"] = Style,
+                ["IsDefault"] = IsDefault,
+                ["IsCancel"] = IsCancel
+            };
         }
     }
 
@@ -457,7 +559,13 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
         public bool IsStartNode
         {
             get => _isStartNode;
-            set => SetField(ref _isStartNode, value);
+            set
+            {
+                if (SetField(ref _isStartNode, value))
+                {
+                    OnToggleStartNode?.Invoke(this);
+                }
+            }
         }
 
         public bool IsInCycle
@@ -467,6 +575,8 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
         }
 
         public bool IsConditional => string.Equals(StepType, WellKnownStepTypes.Conditional, StringComparison.OrdinalIgnoreCase);
+        public bool IsUserPrompt => string.Equals(StepType, WellKnownStepTypes.UserPrompt, StringComparison.OrdinalIgnoreCase) || string.Equals(StepType, "PromptChoice", StringComparison.OrdinalIgnoreCase);
+        public bool HasDynamicOutputPorts => IsConditional || IsUserPrompt;
 
         public StepPortViewModel InputPort { get; }
         public StepPortViewModel OutputPort { get; }
@@ -475,32 +585,43 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
         public ObservableCollection<StepPortViewModel> Output { get; } = new ObservableCollection<StepPortViewModel>();
 
         public ObservableCollection<ConditionBranchViewModel> ConditionBranches { get; } = new ObservableCollection<ConditionBranchViewModel>();
+        public ObservableCollection<PromptChoiceViewModel> PromptChoices { get; } = new ObservableCollection<PromptChoiceViewModel>();
         public ObservableCollection<VariableItemViewModel> Variables { get; } = new ObservableCollection<VariableItemViewModel>();
         public ObservableCollection<DrawableItemViewModel> Drawables { get; } = new ObservableCollection<DrawableItemViewModel>();
 
         public ICommand AddConditionBranchCommand { get; }
+        public ICommand AddPromptChoiceCommand { get; }
         public ICommand AddVariableCommand { get; }
         public ICommand AddDrawableCommand { get; }
         public ICommand BrowseSaveDirectoryCommand { get; }
+        public ICommand BrowseSoundFileCommand { get; }
+        public ICommand PlaySoundPreviewCommand { get; }
         public ICommand PickBorderColorCommand { get; }
         public ICommand PickTextEffectColorCommand { get; }
         public ICommand PickCanvasBackgroundColorCommand { get; }
         public ICommand PickTransparencyBackgroundColorCommand { get; }
 
         public Action<StepNodeViewModel> OnSetStartNode { get; set; }
+        public Action<StepNodeViewModel> OnToggleStartNode { get; set; }
         public ICommand SetAsStartNodeCommand { get; }
+        public ICommand ToggleStartNodeCommand { get; }
         public Action<StepNodeViewModel> OnDeleteNode { get; set; }
         public ICommand DeleteNodeCommand { get; }
 
-        public StepNodeViewModel(RecipeNodeConfig config, Point initialLocation, Action<StepNodeViewModel> onSetStartNode = null, Action<StepNodeViewModel> onDeleteNode = null, Action<StepNodeViewModel, string, string> onIdChanged = null)
+        public StepNodeViewModel(RecipeNodeConfig config, Point initialLocation, Action<StepNodeViewModel> onSetStartNode = null, Action<StepNodeViewModel> onDeleteNode = null, Action<StepNodeViewModel, string, string> onIdChanged = null, Action<StepNodeViewModel> onToggleStartNode = null)
         {
             Config = config ?? throw new ArgumentNullException(nameof(config));
             _name = config.Name;
             _location = initialLocation;
             OnSetStartNode = onSetStartNode;
+            OnToggleStartNode = onToggleStartNode;
             OnDeleteNode = onDeleteNode;
             OnIdChanged = onIdChanged;
             SetAsStartNodeCommand = new RelayCommand(() => OnSetStartNode?.Invoke(this));
+            ToggleStartNodeCommand = new RelayCommand(() =>
+            {
+                IsStartNode = !IsStartNode;
+            });
             DeleteNodeCommand = new RelayCommand(() => OnDeleteNode?.Invoke(this));
 
             InputPort = new StepPortViewModel(this, isInput: true);
@@ -515,9 +636,20 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
                 AddConditionBranch(nextKey, "${true}");
             });
 
+            AddPromptChoiceCommand = new RelayCommand(() =>
+            {
+                string nextKey = $"Choice{PromptChoices.Count + 1}";
+                string nextLabel = $"Option {PromptChoices.Count + 1}";
+                AddPromptChoice(nextKey, nextLabel, "Primary", false, false);
+            });
+
             if (IsConditional)
             {
                 LoadConditionBranches();
+            }
+            else if (IsUserPrompt)
+            {
+                LoadPromptChoices();
             }
 
             AddVariableCommand = new RelayCommand(() => AddVariable("new_var", "${user.username}"));
@@ -540,6 +672,38 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
                     {
                         SaveDirectory = dlg.SelectedPath;
                     }
+                }
+            });
+
+            BrowseSoundFileCommand = new RelayCommand(() =>
+            {
+                var dlg = new Microsoft.Win32.OpenFileDialog
+                {
+                    Title = "Select Feedback / Shutter Sound File (.wav)",
+                    Filter = "Wave Audio Files (*.wav)|*.wav|All Audio Files (*.wav;*.mp3)|*.wav;*.mp3|All Files (*.*)|*.*",
+                    CheckFileExists = true
+                };
+                if (dlg.ShowDialog() == true)
+                {
+                    SoundFilePath = dlg.FileName;
+                }
+            });
+
+            PlaySoundPreviewCommand = new RelayCommand(() =>
+            {
+                if (!string.IsNullOrEmpty(SoundFilePath))
+                {
+                    string expanded = SoundFilePath;
+                    try
+                    {
+                        expanded = Greenshot.Base.Core.FilenameHelper.FillVariables(SoundFilePath, false);
+                    }
+                    catch { }
+                    Greenshot.Helpers.SoundHelper.PlayFile(expanded);
+                }
+                else
+                {
+                    Greenshot.Helpers.SoundHelper.Play();
                 }
             });
 
@@ -1146,6 +1310,7 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
         private void LoadConditionBranches()
         {
             ConditionBranches.Clear();
+            Output.Remove(OutputPort);
 
             var branchesParam = Config.GetParameter<object>("Branches") ?? Config.GetParameter<object>("branches");
             if (branchesParam is IEnumerable enumerable && !(branchesParam is string))
@@ -1203,6 +1368,100 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
             OnPropertyChanged(nameof(Summary));
         }
 
+        public void AddPromptChoice(string key, string label, string style = "Primary", bool isDefault = false, bool isCancel = false)
+        {
+            if (string.IsNullOrEmpty(key))
+            {
+                key = $"Choice{PromptChoices.Count + 1}";
+            }
+            if (string.IsNullOrEmpty(label))
+            {
+                label = key;
+            }
+
+            var choice = new PromptChoiceViewModel(key, label, style, isDefault, isCancel, this, SyncPromptChoicesToConfig, RemovePromptChoice);
+            PromptChoices.Add(choice);
+            Output.Remove(OutputPort);
+            Output.Add(choice.Port);
+            SyncPromptChoicesToConfig();
+            OnPropertyChanged(nameof(Summary));
+        }
+
+        public void RemovePromptChoice(PromptChoiceViewModel choice)
+        {
+            if (choice == null) return;
+            if (PromptChoices.Count <= 1) return; // Keep at least 1 choice
+
+            PromptChoices.Remove(choice);
+            Output.Remove(choice.Port);
+            SyncPromptChoicesToConfig();
+            OnPropertyChanged(nameof(Summary));
+        }
+
+        private void LoadPromptChoices()
+        {
+            PromptChoices.Clear();
+            Output.Remove(OutputPort);
+
+            var choicesParam = Config.GetParameter<object>("Choices") ?? Config.GetParameter<object>("choices");
+            if (choicesParam is IEnumerable enumerable && !(choicesParam is string))
+            {
+                foreach (var item in enumerable)
+                {
+                    if (item is IDictionary dict)
+                    {
+                        string k = dict.Contains("Key") ? dict["Key"]?.ToString() : (dict.Contains("key") ? dict["key"]?.ToString() : null);
+                        string l = dict.Contains("Label") ? dict["Label"]?.ToString() : (dict.Contains("label") ? dict["label"]?.ToString() : null);
+                        string s = dict.Contains("Style") ? dict["Style"]?.ToString() : (dict.Contains("style") ? dict["style"]?.ToString() : "Primary");
+                        bool isDef = dict.Contains("IsDefault") && Convert.ToBoolean(dict["IsDefault"]);
+                        bool isCanc = dict.Contains("IsCancel") && Convert.ToBoolean(dict["IsCancel"]);
+                        if (!string.IsNullOrEmpty(k))
+                        {
+                            var c = new PromptChoiceViewModel(k, l ?? k, s, isDef, isCanc, this, SyncPromptChoicesToConfig, RemovePromptChoice);
+                            PromptChoices.Add(c);
+                            Output.Add(c.Port);
+                        }
+                    }
+                    else if (item is Newtonsoft.Json.Linq.JObject jobj)
+                    {
+                        string k = jobj.Value<string>("Key") ?? jobj.Value<string>("key");
+                        string l = jobj.Value<string>("Label") ?? jobj.Value<string>("label");
+                        string s = jobj.Value<string>("Style") ?? jobj.Value<string>("style") ?? "Primary";
+                        bool isDef = jobj.Value<bool?>("IsDefault") ?? jobj.Value<bool?>("isDefault") ?? false;
+                        bool isCanc = jobj.Value<bool?>("IsCancel") ?? jobj.Value<bool?>("isCancel") ?? false;
+                        if (!string.IsNullOrEmpty(k))
+                        {
+                            var c = new PromptChoiceViewModel(k, l ?? k, s, isDef, isCanc, this, SyncPromptChoicesToConfig, RemovePromptChoice);
+                            PromptChoices.Add(c);
+                            Output.Add(c.Port);
+                        }
+                    }
+                }
+            }
+
+            if (PromptChoices.Count == 0)
+            {
+                var c1 = new PromptChoiceViewModel("Yes", "Yes, Proceed", "Primary", true, false, this, SyncPromptChoicesToConfig, RemovePromptChoice);
+                var c2 = new PromptChoiceViewModel("No", "No, Cancel", "Secondary", false, true, this, SyncPromptChoicesToConfig, RemovePromptChoice);
+                PromptChoices.Add(c1);
+                PromptChoices.Add(c2);
+                Output.Add(c1.Port);
+                Output.Add(c2.Port);
+                SyncPromptChoicesToConfig();
+            }
+        }
+
+        private void SyncPromptChoicesToConfig()
+        {
+            var list = new List<Dictionary<string, object>>();
+            foreach (var c in PromptChoices)
+            {
+                list.Add(c.ToDictionary());
+            }
+            Config.Set("Choices", list);
+            OnPropertyChanged(nameof(Summary));
+        }
+
         // --- 7. Notification Step ---
         public string NotificationTitle
         {
@@ -1221,6 +1480,17 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
         {
             get => GetParamBool("PlaySound", true);
             set => SetParam("PlaySound", value);
+        }
+
+        public string SoundFilePath
+        {
+            get => GetParam("SoundFilePath", "");
+            set
+            {
+                SetParamOrRemoveIfEmpty("SoundFilePath", value);
+                OnPropertyChanged(nameof(SoundFilePath));
+                OnPropertyChanged(nameof(Summary));
+            }
         }
 
         // --- 9. Destinations Step ---
@@ -1480,6 +1750,170 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
             }
         }
 
+        // --- 12. UserPrompt Step ---
+        public string UserPromptTitle
+        {
+            get => GetParam("Title", "Decision Required");
+            set { SetParam("Title", value); OnPropertyChanged(nameof(UserPromptTitle)); OnPropertyChanged(nameof(Summary)); }
+        }
+
+        public string UserPromptMessage
+        {
+            get => GetParam("Message", "Please choose how to proceed:");
+            set { SetParam("Message", value); OnPropertyChanged(nameof(UserPromptMessage)); }
+        }
+
+        public bool UserPromptShowPreview
+        {
+            get => GetParamBool("ShowPreview", true);
+            set { SetParam("ShowPreview", value); OnPropertyChanged(nameof(UserPromptShowPreview)); }
+        }
+
+        public int UserPromptTimeoutSeconds
+        {
+            get => int.TryParse(GetParam("TimeoutSeconds", "0"), out int t) ? t : 0;
+            set { SetParam("TimeoutSeconds", value); OnPropertyChanged(nameof(UserPromptTimeoutSeconds)); }
+        }
+
+        public string UserPromptDefaultChoice
+        {
+            get => GetParam("DefaultChoice", "");
+            set { SetParamOrRemoveIfEmpty("DefaultChoice", value); OnPropertyChanged(nameof(UserPromptDefaultChoice)); }
+        }
+
+        // --- Configuration Fallback Properties across Steps ---
+        public string ScreenCaptureMode
+        {
+            get => GetParam("ScreenCaptureMode", "");
+            set { SetParamOrRemoveIfEmpty("ScreenCaptureMode", value); OnPropertyChanged(nameof(ScreenCaptureMode)); }
+        }
+
+        public string WindowCaptureMode
+        {
+            get => GetParam("WindowCaptureMode", "");
+            set { SetParamOrRemoveIfEmpty("WindowCaptureMode", value); OnPropertyChanged(nameof(WindowCaptureMode)); }
+        }
+
+        public string AlignDpiMode
+        {
+            get => GetTriStateParam("AlignDpi");
+            set { SetTriStateParam("AlignDpi", value); OnPropertyChanged(nameof(AlignDpiMode)); }
+        }
+
+        public string AllowWindowSnappingMode
+        {
+            get => GetTriStateParam("AllowWindowSnapping");
+            set { SetTriStateParam("AllowWindowSnapping", value); OnPropertyChanged(nameof(AllowWindowSnappingMode)); }
+        }
+
+        public string OutputFileFormat
+        {
+            get => GetParam("Format", "");
+            set { SetParamOrRemoveIfEmpty("Format", value); OnPropertyChanged(nameof(OutputFileFormat)); OnPropertyChanged(nameof(Summary)); }
+        }
+
+        public string OutputFilePromptQuality
+        {
+            get => GetTriStateParam("PromptQuality");
+            set { SetTriStateParam("PromptQuality", value); OnPropertyChanged(nameof(OutputFilePromptQuality)); }
+        }
+
+        public string OutputFileAllowOverwrite
+        {
+            get => GetTriStateParam("AllowOverwrite");
+            set { SetTriStateParam("AllowOverwrite", value); OnPropertyChanged(nameof(OutputFileAllowOverwrite)); }
+        }
+
+        public string OutputFileCopyPath
+        {
+            get => GetTriStateParam("CopyPathToClipboard");
+            set { SetTriStateParam("CopyPathToClipboard", value); OnPropertyChanged(nameof(OutputFileCopyPath)); }
+        }
+
+        public string OutputFileJpegQuality
+        {
+            get => GetParam("JpegQuality", "");
+            set { SetParamOrRemoveIfEmpty("JpegQuality", value); OnPropertyChanged(nameof(OutputFileJpegQuality)); }
+        }
+
+        public string EditorMatchSizeToCapture
+        {
+            get => GetTriStateParam("MatchSizeToCapture");
+            set { SetTriStateParam("MatchSizeToCapture", value); OnPropertyChanged(nameof(EditorMatchSizeToCapture)); }
+        }
+
+        public string EditorReuseEditor
+        {
+            get => GetTriStateParam("ReuseEditor");
+            set { SetTriStateParam("ReuseEditor", value); OnPropertyChanged(nameof(EditorReuseEditor)); }
+        }
+
+        public string EditorSuppressSaveDialog
+        {
+            get => GetTriStateParam("SuppressSaveDialog");
+            set { SetTriStateParam("SuppressSaveDialog", value); OnPropertyChanged(nameof(EditorSuppressSaveDialog)); }
+        }
+
+        public string PrinterName
+        {
+            get => GetParam("PrinterName", "");
+            set { SetParamOrRemoveIfEmpty("PrinterName", value); OnPropertyChanged(nameof(PrinterName)); }
+        }
+
+        public string PrinterShowPrintDialog
+        {
+            get => GetTriStateParam("ShowPrintDialog");
+            set { SetTriStateParam("ShowPrintDialog", value); OnPropertyChanged(nameof(PrinterShowPrintDialog)); }
+        }
+
+        public string PrinterAllowRotate
+        {
+            get => GetTriStateParam("AllowRotate");
+            set { SetTriStateParam("AllowRotate", value); OnPropertyChanged(nameof(PrinterAllowRotate)); }
+        }
+
+        public string PrinterAllowEnlarge
+        {
+            get => GetTriStateParam("AllowEnlarge");
+            set { SetTriStateParam("AllowEnlarge", value); OnPropertyChanged(nameof(PrinterAllowEnlarge)); }
+        }
+
+        public string PrinterAllowShrink
+        {
+            get => GetTriStateParam("AllowShrink");
+            set { SetTriStateParam("AllowShrink", value); OnPropertyChanged(nameof(PrinterAllowShrink)); }
+        }
+
+        public string PrinterCenter
+        {
+            get => GetTriStateParam("Center");
+            set { SetTriStateParam("Center", value); OnPropertyChanged(nameof(PrinterCenter)); }
+        }
+
+        public string PrinterColorMode
+        {
+            get => GetParam("ColorMode", "");
+            set { SetParamOrRemoveIfEmpty("ColorMode", value); OnPropertyChanged(nameof(PrinterColorMode)); }
+        }
+
+        public string PrinterPrintFooter
+        {
+            get => GetTriStateParam("PrintFooter");
+            set { SetTriStateParam("PrintFooter", value); OnPropertyChanged(nameof(PrinterPrintFooter)); }
+        }
+
+        public string PrinterFooterPattern
+        {
+            get => GetParam("FooterPattern", "");
+            set { SetParamOrRemoveIfEmpty("FooterPattern", value); OnPropertyChanged(nameof(PrinterFooterPattern)); }
+        }
+
+        public string OcrLanguage
+        {
+            get => GetParam("OcrLanguage", GetParam("Language", ""));
+            set { SetParamOrRemoveIfEmpty("OcrLanguage", value); OnPropertyChanged(nameof(OcrLanguage)); }
+        }
+
         private bool HasDestination(string dest)
         {
             if (Config.Parameters == null) return false;
@@ -1585,6 +2019,9 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
                         return $"Toast: {NotificationTitle}";
                     case WellKnownStepTypes.Conditional:
                         return $"{ConditionBranches.Count} decision branch(es)";
+                    case WellKnownStepTypes.UserPrompt:
+                    case "PromptChoice":
+                        return PromptChoices.Count > 0 ? $"Prompt: {string.Join(", ", PromptChoices.Select(c => c.Label))}" : "User Decision Prompt";
                     case WellKnownStepTypes.Processors:
                         if (string.Equals(ProcessorMode, "OCR", StringComparison.OrdinalIgnoreCase)) return "Processors: Windows OCR";
                         if (string.Equals(ProcessorMode, "Selected", StringComparison.OrdinalIgnoreCase))
@@ -1608,6 +2045,10 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
             {
                 LoadConditionBranches();
             }
+            else if (IsUserPrompt)
+            {
+                LoadPromptChoices();
+            }
             OnPropertyChanged(nameof(Summary));
             OnPropertyChanged(nameof(DisplayName));
             OnPropertyChanged(nameof(Name));
@@ -1630,6 +2071,36 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
             OnPropertyChanged(nameof(TextEffectFillColor));
             OnPropertyChanged(nameof(TextEffectPattern));
             OnPropertyChanged(nameof(ConditionBranches));
+            OnPropertyChanged(nameof(PromptChoices));
+            OnPropertyChanged(nameof(UserPromptTitle));
+            OnPropertyChanged(nameof(UserPromptMessage));
+            OnPropertyChanged(nameof(UserPromptShowPreview));
+            OnPropertyChanged(nameof(UserPromptTimeoutSeconds));
+            OnPropertyChanged(nameof(UserPromptDefaultChoice));
+            OnPropertyChanged(nameof(PlaySound));
+            OnPropertyChanged(nameof(SoundFilePath));
+            OnPropertyChanged(nameof(ScreenCaptureMode));
+            OnPropertyChanged(nameof(WindowCaptureMode));
+            OnPropertyChanged(nameof(AlignDpiMode));
+            OnPropertyChanged(nameof(AllowWindowSnappingMode));
+            OnPropertyChanged(nameof(OutputFileFormat));
+            OnPropertyChanged(nameof(OutputFilePromptQuality));
+            OnPropertyChanged(nameof(OutputFileAllowOverwrite));
+            OnPropertyChanged(nameof(OutputFileCopyPath));
+            OnPropertyChanged(nameof(OutputFileJpegQuality));
+            OnPropertyChanged(nameof(EditorMatchSizeToCapture));
+            OnPropertyChanged(nameof(EditorReuseEditor));
+            OnPropertyChanged(nameof(EditorSuppressSaveDialog));
+            OnPropertyChanged(nameof(PrinterName));
+            OnPropertyChanged(nameof(PrinterShowPrintDialog));
+            OnPropertyChanged(nameof(PrinterAllowRotate));
+            OnPropertyChanged(nameof(PrinterAllowEnlarge));
+            OnPropertyChanged(nameof(PrinterAllowShrink));
+            OnPropertyChanged(nameof(PrinterCenter));
+            OnPropertyChanged(nameof(PrinterColorMode));
+            OnPropertyChanged(nameof(PrinterPrintFooter));
+            OnPropertyChanged(nameof(PrinterFooterPattern));
+            OnPropertyChanged(nameof(OcrLanguage));
             OnPropertyChanged(nameof(NotificationTitle));
             OnPropertyChanged(nameof(NotificationMessage));
             OnPropertyChanged(nameof(PlaySound));
@@ -1705,6 +2176,42 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
                 Config.Parameters = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
             }
             Config.Parameters[key] = value;
+            NotifyConfigUpdated();
+        }
+
+        public string GetTriStateParam(string key)
+        {
+            if (Config.Parameters != null && Config.Parameters.TryGetValue(key, out var val) && val != null)
+            {
+                if (val is bool b) return b ? "true" : "false";
+                if (bool.TryParse(val.ToString(), out bool pb)) return pb ? "true" : "false";
+            }
+            return "";
+        }
+
+        public void SetTriStateParam(string key, string value)
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                Config.Parameters?.Remove(key);
+            }
+            else
+            {
+                SetParam(key, value == "true");
+            }
+            NotifyConfigUpdated();
+        }
+
+        public void SetParamOrRemoveIfEmpty(string key, string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                Config.Parameters?.Remove(key);
+            }
+            else
+            {
+                SetParam(key, value.Trim());
+            }
             NotifyConfigUpdated();
         }
     }

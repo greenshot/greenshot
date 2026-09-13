@@ -115,5 +115,15 @@ namespace Greenshot.Base.Recipes
         /// Custom destination step allowing free-string destination designations (plugins, external handlers).
         /// </summary>
         public const string CustomDestination = "CustomDestination";
+
+        /// <summary>
+        /// Prompts the user with an interactive decision dialog with choices that route to DAG branches.
+        /// </summary>
+        public const string UserPrompt = "UserPrompt";
+
+        /// <summary>
+        /// Alias for UserPrompt.
+        /// </summary>
+        public const string PromptChoice = "PromptChoice";
     }
 }

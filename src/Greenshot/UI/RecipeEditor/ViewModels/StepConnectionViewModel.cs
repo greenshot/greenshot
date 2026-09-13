@@ -8,6 +8,7 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
     {
         private bool _isCycle;
         private bool _isActive;
+        private bool _isSelected;
         private readonly Action<StepConnectionViewModel> _onDisconnect;
 
         public StepPortViewModel Source { get; }
@@ -17,6 +18,12 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
         public StepNodeViewModel TargetNode => Target?.Node;
 
         public ICommand DisconnectCommand { get; }
+
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set => SetField(ref _isSelected, value);
+        }
 
         public bool IsCycle
         {
@@ -29,6 +36,20 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
             get => _isActive;
             set => SetField(ref _isActive, value);
         }
+
+        public string Label
+        {
+            get
+            {
+                if (SourceNode != null && SourceNode.HasDynamicOutputPorts && Source != null)
+                {
+                    return Source.Title;
+                }
+                return null;
+            }
+        }
+
+        public string DisplayName => $"{SourceNode?.DisplayName ?? "Step"} ({Source?.Title}) ➔ {TargetNode?.DisplayName ?? "Step"}";
 
         public StepConnectionViewModel(StepPortViewModel source, StepPortViewModel target, Action<StepConnectionViewModel> onDisconnect = null)
         {

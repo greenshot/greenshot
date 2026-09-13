@@ -62,6 +62,31 @@ namespace Greenshot.UI.RecipeEditor
                 _isRightClickDown = true;
             };
 
+            // Clear selection when clicking directly on empty canvas background
+            EditorCanvas.PreviewMouseLeftButtonDown += (s, e) =>
+            {
+                var hit = VisualTreeHelper.HitTest(EditorCanvas, e.GetPosition(EditorCanvas));
+                if (hit?.VisualHit != null)
+                {
+                    DependencyObject elem = hit.VisualHit;
+                    bool isNodeOrConnection = false;
+                    while (elem != null && elem != EditorCanvas)
+                    {
+                        if (elem is FrameworkElement fe && (fe.DataContext is StepNodeViewModel || fe.DataContext is StepConnectionViewModel || fe.DataContext is StepPortViewModel))
+                        {
+                            isNodeOrConnection = true;
+                            break;
+                        }
+                        elem = VisualTreeHelper.GetParent(elem);
+                    }
+                    if (!isNodeOrConnection)
+                    {
+                        ViewModel.SelectedNode = null;
+                        ViewModel.SelectedConnection = null;
+                    }
+                }
+            };
+
             EditorCanvas.PreviewMouseRightButtonUp += (s, e) =>
             {
                 if (_isRightClickDown)
@@ -92,6 +117,17 @@ namespace Greenshot.UI.RecipeEditor
                     }
                 }
             };
+        }
+
+        private void OnConnectionPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is FrameworkElement fe && fe.DataContext is StepConnectionViewModel connVm)
+            {
+                ViewModel.SelectedConnection = connVm;
+                ViewModel.SelectedNode = null;
+                fe.Focus();
+                e.Handled = true;
+            }
         }
 
         protected override void OnSourceInitialized(EventArgs e)

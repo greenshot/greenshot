@@ -58,7 +58,15 @@ namespace Greenshot.Pipeline.Steps
             bool playSound = ResolvePlaySound(context);
             if (playSound)
             {
-                SoundHelper.Play();
+                string soundFilePath = ResolveSoundFilePath(context);
+                if (!string.IsNullOrWhiteSpace(soundFilePath))
+                {
+                    SoundHelper.PlayFile(soundFilePath);
+                }
+                else
+                {
+                    SoundHelper.Play();
+                }
             }
 
             return Task.CompletedTask;
@@ -81,6 +89,29 @@ namespace Greenshot.Pipeline.Steps
 
             // Priority 3: Dynamic user configuration evaluation
             return CoreConfig.PlayCameraSound;
+        }
+
+        private string ResolveSoundFilePath(CaptureFlowContext context)
+        {
+            // Priority 1: Runtime context override
+            if (context.Properties.TryGetValue("SoundFilePath", out var ctxVal) && ctxVal is string ctxStr && !string.IsNullOrWhiteSpace(ctxStr))
+            {
+                return ctxStr;
+            }
+
+            // Priority 2: Step parameter pre-definition
+            if (Config.Parameters.TryGetValue("SoundFilePath", out var stepVal) && stepVal != null)
+            {
+                string stepStr = stepVal.ToString();
+                if (!string.IsNullOrWhiteSpace(stepStr))
+                {
+                    var evaluator = Greenshot.Base.Expressions.ExpressionEvaluator.Instance;
+                    return evaluator.Evaluate<string>(stepStr, context);
+                }
+            }
+
+            // Priority 3: Dynamic user configuration evaluation
+            return CoreConfig.NotificationSound;
         }
     }
 }

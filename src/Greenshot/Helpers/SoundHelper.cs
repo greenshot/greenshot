@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -97,6 +97,26 @@ namespace Greenshot.Helpers
                 //playSoundThread.IsBackground = true;
                 //playSoundThread.Start();
             }
+        }
+
+        public static void PlayFile(string filePath)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(filePath) && File.Exists(filePath))
+                {
+                    using (var player = new System.Media.SoundPlayer(filePath))
+                    {
+                        player.Play();
+                    }
+                    return;
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.WarnFormat("Could not play sound file '{0}': {1}", filePath, ex.Message);
+            }
+            Play();
         }
 
         public static void Deinitialize()

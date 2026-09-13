@@ -138,6 +138,9 @@ namespace Greenshot.Editor.Forms
             UpdateUi();
         }
 
+        private bool? _matchSizeToCapture;
+        private bool MatchSizeToCapture => _matchSizeToCapture ?? EditorConfiguration.MatchSizeToCapture;
+
         public ImageEditorForm()
         {
             var image = ImageHelper.CreateEmpty(EditorConfiguration.DefaultEditorSize.Width, EditorConfiguration.DefaultEditorSize.Height, PixelFormat.Format32bppArgb, Color.White, 96f, 96f);
@@ -145,8 +148,9 @@ namespace Greenshot.Editor.Forms
             Initialize(surface, false);
         }
 
-        public ImageEditorForm(ISurface surface, bool outputMade)
+        public ImageEditorForm(ISurface surface, bool outputMade, bool? matchSizeToCapture = null)
         {
+            _matchSizeToCapture = matchSizeToCapture;
             Initialize(surface, outputMade);
         }
 
@@ -608,7 +612,7 @@ namespace Greenshot.Editor.Forms
         /// <param name="e"></param>
         private void SurfaceSizeChanged(object sender, EventArgs e)
         {
-            if (EditorConfiguration.MatchSizeToCapture)
+            if (MatchSizeToCapture)
             {
                 Size = GetOptimalWindowSize();
             }

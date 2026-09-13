@@ -63,8 +63,9 @@ namespace Greenshot.Plugin.Win10
         /// Scan the surface bitmap for text, and get the OcrResult
         /// </summary>
         /// <param name="surface">ISurface</param>
+        /// <param name="languageTag">Optional OCR language tag (e.g. en-US, de-DE)</param>
         /// <returns>OcrResult sync</returns>
-        public async Task<List<IOcrLineFeature>> DoOcrAsync(ISurface surface)
+        public async Task<List<IOcrLineFeature>> DoOcrAsync(ISurface surface, string languageTag = null)
         {
             List<IOcrLineFeature> result;
             using (var imageStream = RecyclableMemoryStreamFactory.GetStream("Win10OcrProvider.DoOcrAsync(ISurface)"))
@@ -104,7 +105,7 @@ namespace Greenshot.Plugin.Win10
                 imageStream.Position = 0;
                 var randomAccessStream = imageStream.AsRandomAccessStream();
 
-                result = await DoOcrAsync(randomAccessStream).ConfigureAwait(false);
+                result = await DoOcrAsync(randomAccessStream, languageTag).ConfigureAwait(false);
             }
 
             return result;
@@ -114,8 +115,9 @@ namespace Greenshot.Plugin.Win10
         /// Scan the Image for text, and get the OcrResult
         /// </summary>
         /// <param name="image">Image</param>
+        /// <param name="languageTag">Optional OCR language tag (e.g. en-US, de-DE)</param>
         /// <returns>OcrResult sync</returns>
-        public async Task<List<IOcrLineFeature>> DoOcrAsync(Image image)
+        public async Task<List<IOcrLineFeature>> DoOcrAsync(Image image, string languageTag = null)
         {
             List<IOcrLineFeature> result;
             using (var imageStream = RecyclableMemoryStreamFactory.GetStream("Win10OcrProvider.DoOcrAsync(Image)"))
@@ -124,7 +126,7 @@ namespace Greenshot.Plugin.Win10
                 imageStream.Position = 0;
                 var randomAccessStream = imageStream.AsRandomAccessStream();
 
-                result = await DoOcrAsync(randomAccessStream).ConfigureAwait(false);
+                result = await DoOcrAsync(randomAccessStream, languageTag).ConfigureAwait(false);
             }
 
             return result;
@@ -134,10 +136,43 @@ namespace Greenshot.Plugin.Win10
         /// Scan the surface bitmap for text, and get the OcrResult
         /// </summary>
         /// <param name="randomAccessStream">IRandomAccessStream</param>
+        /// <param name="languageTag">Optional OCR language tag (e.g. en-US, de-DE)</param>
         /// <returns>OcrResult sync</returns>
-        public async Task<List<IOcrLineFeature>> DoOcrAsync(IRandomAccessStream randomAccessStream)
+        public async Task<List<IOcrLineFeature>> DoOcrAsync(IRandomAccessStream randomAccessStream, string languageTag = null)
         {
-            var ocrEngine = OcrEngine.TryCreateFromUserProfileLanguages();
+            OcrEngine ocrEngine = null;
+
+            if (string.IsNullOrWhiteSpace(languageTag))
+            {
+                var win10Config = Dapplo.Ini.IniConfigRegistry.GetSection<Greenshot.Configuration.IWin10Configuration>();
+                languageTag = win10Config?.OcrLanguage;
+            }
+
+            if (!string.IsNullOrWhiteSpace(languageTag))
+            {
+                try
+                {
+                    var winLang = new Windows.Globalization.Language(languageTag.Trim());
+                    if (OcrEngine.IsLanguageSupported(winLang))
+                    {
+                        ocrEngine = OcrEngine.TryCreateFromLanguage(winLang);
+                    }
+                    else
+                    {
+                        Log.WarnFormat("Requested OCR language '{0}' is not currently installed or supported in Windows.", languageTag);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log.Warn($"Failed to create OCR engine for language '{languageTag}'", ex);
+                }
+            }
+
+            if (ocrEngine is null)
+            {
+                ocrEngine = OcrEngine.TryCreateFromUserProfileLanguages();
+            }
+
             if (ocrEngine is null)
             {
                 return null;
