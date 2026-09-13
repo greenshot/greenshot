@@ -66,6 +66,7 @@ using Greenshot.Plugin.Win10;
 using Greenshot.Processors;
 using Greenshot.Recipes;
 using Greenshot.Triggers;
+using Greenshot.UI;
 using log4net;
 
 using Timer = System.Timers.Timer;
@@ -277,8 +278,8 @@ namespace Greenshot.Forms
         // Make sure we have only one settings form
         private SettingsForm _settingsForm;
 
-        // Make sure we have only one about form
-        private AboutForm _aboutForm;
+        // Make sure we have only one about window
+        private AboutWindow _aboutWindow;
 
         // Timer for the double click test
         private readonly Timer _doubleClickTimer = new Timer();
@@ -1167,22 +1168,25 @@ namespace Greenshot.Forms
 
         public void ShowAbout()
         {
-            if (_aboutForm != null)
+            if (_aboutWindow != null && _aboutWindow.IsLoaded)
             {
-                WindowDetails.ToForeground(_aboutForm.Handle);
+                _aboutWindow.Activate();
+                WindowDetails.ToForeground(new System.Windows.Interop.WindowInteropHelper(_aboutWindow).Handle);
             }
             else
             {
                 try
                 {
-                    using (_aboutForm = new AboutForm())
+                    _aboutWindow = new AboutWindow();
+                    var helper = new System.Windows.Interop.WindowInteropHelper(_aboutWindow)
                     {
-                        _aboutForm.ShowDialog(this);
-                    }
+                        Owner = this.Handle
+                    };
+                    _aboutWindow.ShowDialog();
                 }
                 finally
                 {
-                    _aboutForm = null;
+                    _aboutWindow = null;
                 }
             }
         }

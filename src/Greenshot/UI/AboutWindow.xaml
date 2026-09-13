@@ -1,0 +1,1112 @@
+<Window x:Class="Greenshot.UI.AboutWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Greenshot - About"
+        Icon="{Binding WindowIconSource}"
+        SizeToContent="Height"
+        Width="580"
+        MinWidth="520"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        ShowInTaskbar="False"
+        FontFamily="Segoe UI, Segoe UI Variable Display, Tahoma, Arial"
+        FontSize="13"
+        Background="{Binding WindowBackgroundBrush}">
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="40"
+                      ResizeBorderThickness="0"
+                      CornerRadius="0"
+                      GlassFrameThickness="0"
+                      UseAeroCaptionButtons="False" />
+    </WindowChrome.WindowChrome>
+
+    <Window.Resources>
+        <!-- Modern Caption Button Style -->
+        <Style x:Key="CaptionBtnStyle" TargetType="Button">
+            <Setter Property="WindowChrome.IsHitTestVisibleInChrome" Value="True"/>
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="Width" Value="46"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="{Binding TextPrimaryBrush}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#26888888"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#40888888"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Modern Caption Close Button Style -->
+        <Style x:Key="CaptionCloseBtnStyle" TargetType="Button">
+            <Setter Property="WindowChrome.IsHitTestVisibleInChrome" Value="True"/>
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="Width" Value="46"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="{Binding TextPrimaryBrush}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}">
+                            <Path x:Name="crossPath" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                  Width="10" Height="10" Stretch="Uniform"
+                                  Stroke="{TemplateBinding Foreground}" StrokeThickness="1.5"
+                                  Data="M 0,0 L 10,10 M 10,0 L 0,10"
+                                  SnapsToDevicePixels="True"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#E81123"/>
+                                <Setter TargetName="crossPath" Property="Stroke" Value="White"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#C42B1C"/>
+                                <Setter TargetName="crossPath" Property="Stroke" Value="White"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Modern Primary Button Style -->
+        <Style x:Key="PrimaryButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{Binding AccentBrush}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="16,6"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" 
+                                Background="{TemplateBinding Background}" 
+                                CornerRadius="4" 
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Opacity" Value="0.9"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Opacity" Value="0.8"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Modern Secondary Button Style -->
+        <Style x:Key="SecondaryButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{Binding CardBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{Binding TextPrimaryBrush}"/>
+            <Setter Property="BorderBrush" Value="{Binding CardBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" 
+                                Background="{TemplateBinding Background}" 
+                                BorderBrush="{TemplateBinding BorderBrush}" 
+                                BorderThickness="{TemplateBinding BorderThickness}" 
+                                CornerRadius="4" 
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="{Binding BadgeBackgroundBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Opacity" Value="0.8"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Hyperlink Style -->
+        <Style TargetType="Hyperlink">
+            <Setter Property="Foreground" Value="{Binding AccentBrush}"/>
+            <Setter Property="TextDecorations" Value="None"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="TextDecorations" Value="Underline"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Startup Entrance Storyboard (Staggered Pop-in of 21 Bubbles along exact G flow order) -->
+        <Storyboard x:Key="StartupStoryboard">
+            <!-- Dot 0 (Path 13: Top Right) -->
+            <DoubleAnimation Storyboard.TargetName="Dot0Scale" Storyboard.TargetProperty="ScaleX" From="0" To="1" Duration="0:0:0.35" BeginTime="0:0:0.00">
+                <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="0.6"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="Dot0Scale" Storyboard.TargetProperty="ScaleY" From="0" To="1" Duration="0:0:0.35" BeginTime="0:0:0.00">
+                <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="0.6"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="Dot0" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.25" BeginTime="0:0:0.00"/>
+
+            <!-- Dot 1 (Path 7) -->
+            <DoubleAnimation Storyboard.TargetName="Dot1Scale" Storyboard.TargetProperty="ScaleX" From="0" To="1" Duration="0:0:0.35" BeginTime="0:0:0.05">
+                <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="0.6"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="Dot1Scale" Storyboard.TargetProperty="ScaleY" From="0" To="1" Duration="0:0:0.35" BeginTime="0:0:0.05">
+                <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="0.6"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="Dot1" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.25" BeginTime="0:0:0.05"/>
+
+            <!-- Dot 2 (Path 10) -->
+            <DoubleAnimation Storyboard.TargetName="Dot2Scale" Storyboard.TargetProperty="ScaleX" From="0" To="1" Duration="0:0:0.35" BeginTime="0:0:0.10">
+                <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="0.6"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="Dot2Scale" Storyboard.TargetProperty="ScaleY" From="0" To="1" Duration="0:0:0.35" BeginTime="0:0:0.10">
+                <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="0.6"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="Dot2" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.25" BeginTime="0:0:0.10"/>
+
+            <!-- Dot 3 (Path 15) -->
+            <DoubleAnimation Storyboard.TargetName="Dot3Scale" Storyboard.TargetProperty="ScaleX" From="0" To="1" Duration="0:0:0.35" BeginTime="0:0:0.15">
+                <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="0.6"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="Dot3Scale" Storyboard.TargetProperty="ScaleY" From="0" To="1" Duration="0:0:0.35" BeginTime="0:0:0.15">
+                <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="0.6"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="Dot3" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.25" BeginTime="0:0:0.15"/>
+
+            <!-- Dot 4 (Path 6: Top Left) -->
+            <DoubleAnimation Storyboard.TargetName="Dot4Scale" Storyboard.TargetProperty="ScaleX" From="0" To="1" Duration="0:0:0.35" BeginTime="0:0:0.20">
+                <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="0.6"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="Dot4Scale" Storyboard.TargetProperty="ScaleY" From="0" To="1" Duration="0:0:0.35" BeginTime="0:0:0.20">
+                <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="0.6"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="Dot4" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.25" BeginTime="0:0:0.20"/>
+
+            <!-- Dot 5 (Path 8) -->
+            <DoubleAnimation Storyboard.TargetName="Dot5Scale" Storyboard.TargetProperty="ScaleX" From="0" To="1" Duration="0:0:0.35" BeginTime="0:0:0.25">
+                <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="0.6"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="Dot5Scale" Storyboard.TargetProperty="ScaleY" From="0" To="1" Duration="0:0:0.35" BeginTime="0:0:0.25">
+                <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="0.6"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="Dot5" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.25" BeginTime="0:0:0.25"/>
+
+            <!-- Dot 6 (Path 9) -->
+            <DoubleAnimation Storyboard.TargetName="Dot6Scale" Storyboard.TargetProperty="ScaleX" From="0" To="1" Duration="0:0:0.35" BeginTime="0:0:0.30">
+                <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="0.6"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="Dot6Scale" Storyboard.TargetProperty="ScaleY" From="0" To="1" Duration="0:0:0.35" BeginTime="0:0:0.30">
+                <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="0.6"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="Dot6" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.25" BeginTime="0:0:0.30"/>
+
+            <!-- Dot 7 (Path 1) -->
+            <DoubleAnimation Storyboard.TargetName="Dot7Scale" Storyboard.TargetProperty="ScaleX" From="0" To="1" Duration="0:0:0.35" BeginTime="0:0:0.35">
+                <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="0.6"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="Dot7Scale" Storyboard.TargetProperty="ScaleY" From="0" To="1" Duration="0:0:0.35" BeginTime="0:0:0.35">
+                <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="0.6"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="Dot7" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.25" BeginTime="0:0:0.35"/>
+
+            <!-- Dot 8 (Path 11) -->
+            <DoubleAnimation Storyboard.TargetName="Dot8Scale" Storyboard.TargetProperty="ScaleX" From="0" To="1" Duration="0:0:0.35" BeginTime="0:0:0.40">
+                <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="0.6"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="Dot8Scale" Storyboard.TargetProperty="ScaleY" From="0" To="1" Duration="0:0:0.35" BeginTime="0:0:0.40">
+                <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="0.6"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="Dot8" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.25" BeginTime="0:0:0.40"/>
+
+            <!-- Dot 9 (Path 4) -->
+            <DoubleAnimation Storyboard.TargetName="Dot9Scale" Storyboard.TargetProperty="ScaleX" From="0" To="1" Duration="0:0:0.35" BeginTime="0:0:0.45">
+                <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="0.6"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="Dot9Scale" Storyboard.TargetProperty="ScaleY" From="0" To="1" Duration="0:0:0.35" BeginTime="0:0:0.45">
+                <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="0.6"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="Dot9" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.25" BeginTime="0:0:0.45"/>
+
+            <!-- Dot 10 (Path 5) -->
+            <DoubleAnimation Storyboard.TargetName="Dot10Scale" Storyboard.TargetProperty="ScaleX" From="0" To="1" Duration="0:0:0.35" BeginTime="0:0:0.50">
+                <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="0.6"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="Dot10Scale" Storyboard.TargetProperty="ScaleY" From="0" To="1" Duration="0:0:0.35" BeginTime="0:0:0.50">
+                <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="0.6"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="Dot10" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.25" BeginTime="0:0:0.50"/>
+
+            <!-- Dot 11 (Path 2) -->
+            <DoubleAnimation Storyboard.TargetName="Dot11Scale" Storyboard.TargetProperty="ScaleX" From="0" To="1" Duration="0:0:0.35" BeginTime="0:0:0.55">
+                <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="0.6"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="Dot11Scale" Storyboard.TargetProperty="ScaleY" From="0" To="1" Duration="0:0:0.35" BeginTime="0:0:0.55">
+                <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="0.6"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="Dot11" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.25" BeginTime="0:0:0.55"/>
+
+            <!-- Dot 12 (Path 3) -->
+            <DoubleAnimation Storyboard.TargetName="Dot12Scale" Storyboard.TargetProperty="ScaleX" From="0" To="1" Duration="0:0:0.35" BeginTime="0:0:0.60">
+                <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="0.6"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="Dot12Scale" Storyboard.TargetProperty="ScaleY" From="0" To="1" Duration="0:0:0.35" BeginTime="0:0:0.60">
+                <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="0.6"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="Dot12" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.25" BeginTime="0:0:0.60"/>
+
+            <!-- Dot 13 (Path 0) -->
+            <DoubleAnimation Storyboard.TargetName="Dot13Scale" Storyboard.TargetProperty="ScaleX" From="0" To="1" Duration="0:0:0.35" BeginTime="0:0:0.65">
+                <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="0.6"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="Dot13Scale" Storyboard.TargetProperty="ScaleY" From="0" To="1" Duration="0:0:0.35" BeginTime="0:0:0.65">
+                <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="0.6"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="Dot13" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.25" BeginTime="0:0:0.65"/>
+
+            <!-- Dot 14 (Path 19) -->
+            <DoubleAnimation Storyboard.TargetName="Dot14Scale" Storyboard.TargetProperty="ScaleX" From="0" To="1" Duration="0:0:0.35" BeginTime="0:0:0.70">
+                <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="0.6"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="Dot14Scale" Storyboard.TargetProperty="ScaleY" From="0" To="1" Duration="0:0:0.35" BeginTime="0:0:0.70">
+                <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="0.6"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="Dot14" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.25" BeginTime="0:0:0.70"/>
+
+            <!-- Dot 15 (Path 20) -->
+            <DoubleAnimation Storyboard.TargetName="Dot15Scale" Storyboard.TargetProperty="ScaleX" From="0" To="1" Duration="0:0:0.35" BeginTime="0:0:0.75">
+                <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="0.6"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="Dot15Scale" Storyboard.TargetProperty="ScaleY" From="0" To="1" Duration="0:0:0.35" BeginTime="0:0:0.75">
+                <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="0.6"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="Dot15" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.25" BeginTime="0:0:0.75"/>
+
+            <!-- Dot 16 (Path 17) -->
+            <DoubleAnimation Storyboard.TargetName="Dot16Scale" Storyboard.TargetProperty="ScaleX" From="0" To="1" Duration="0:0:0.35" BeginTime="0:0:0.80">
+                <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="0.6"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="Dot16Scale" Storyboard.TargetProperty="ScaleY" From="0" To="1" Duration="0:0:0.35" BeginTime="0:0:0.80">
+                <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="0.6"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="Dot16" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.25" BeginTime="0:0:0.80"/>
+
+            <!-- Dot 17 (Path 18) -->
+            <DoubleAnimation Storyboard.TargetName="Dot17Scale" Storyboard.TargetProperty="ScaleX" From="0" To="1" Duration="0:0:0.35" BeginTime="0:0:0.85">
+                <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="0.6"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="Dot17Scale" Storyboard.TargetProperty="ScaleY" From="0" To="1" Duration="0:0:0.35" BeginTime="0:0:0.85">
+                <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="0.6"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="Dot17" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.25" BeginTime="0:0:0.85"/>
+
+            <!-- Dot 18 (Path 14: Middle Right) -->
+            <DoubleAnimation Storyboard.TargetName="Dot18Scale" Storyboard.TargetProperty="ScaleX" From="0" To="1" Duration="0:0:0.35" BeginTime="0:0:0.90">
+                <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="0.6"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="Dot18Scale" Storyboard.TargetProperty="ScaleY" From="0" To="1" Duration="0:0:0.35" BeginTime="0:0:0.90">
+                <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="0.6"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="Dot18" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.25" BeginTime="0:0:0.90"/>
+
+            <!-- Dot 19 (Path 12: Middle Center) -->
+            <DoubleAnimation Storyboard.TargetName="Dot19Scale" Storyboard.TargetProperty="ScaleX" From="0" To="1" Duration="0:0:0.35" BeginTime="0:0:0.95">
+                <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="0.6"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="Dot19Scale" Storyboard.TargetProperty="ScaleY" From="0" To="1" Duration="0:0:0.35" BeginTime="0:0:0.95">
+                <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="0.6"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="Dot19" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.25" BeginTime="0:0:0.95"/>
+
+            <!-- Dot 20 (Path 16: Middle Inner) -->
+            <DoubleAnimation Storyboard.TargetName="Dot20Scale" Storyboard.TargetProperty="ScaleX" From="0" To="1" Duration="0:0:0.35" BeginTime="0:0:1.00">
+                <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="0.6"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="Dot20Scale" Storyboard.TargetProperty="ScaleY" From="0" To="1" Duration="0:0:0.35" BeginTime="0:0:1.00">
+                <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="0.6"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="Dot20" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.25" BeginTime="0:0:1.00"/>
+        </Storyboard>
+
+        <!-- Wave / Ripple Storyboard (Glow & Pulse Wave through bubbles in flow order) -->
+        <Storyboard x:Key="WaveStoryboard">
+            <!-- Dot 0 -->
+            <ColorAnimationUsingKeyFrames Storyboard.TargetName="Dot0Brush" Storyboard.TargetProperty="Color" BeginTime="0:0:0.00">
+                <SplineColorKeyFrame KeyTime="0:0:0.00" Value="#8AFF00"/>
+                <SplineColorKeyFrame KeyTime="0:0:0.18" Value="#FFFFFF"/>
+                <SplineColorKeyFrame KeyTime="0:0:0.36" Value="#8AFF00"/>
+            </ColorAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Dot0Scale" Storyboard.TargetProperty="ScaleX" BeginTime="0:0:0.00">
+                <SplineDoubleKeyFrame KeyTime="0:0:0.00" Value="1.0"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.18" Value="1.35"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.36" Value="1.0"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Dot0Scale" Storyboard.TargetProperty="ScaleY" BeginTime="0:0:0.00">
+                <SplineDoubleKeyFrame KeyTime="0:0:0.00" Value="1.0"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.18" Value="1.35"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.36" Value="1.0"/>
+            </DoubleAnimationUsingKeyFrames>
+
+            <!-- Dot 1 -->
+            <ColorAnimationUsingKeyFrames Storyboard.TargetName="Dot1Brush" Storyboard.TargetProperty="Color" BeginTime="0:0:0.04">
+                <SplineColorKeyFrame KeyTime="0:0:0.00" Value="#8AFF00"/>
+                <SplineColorKeyFrame KeyTime="0:0:0.18" Value="#FFFFFF"/>
+                <SplineColorKeyFrame KeyTime="0:0:0.36" Value="#8AFF00"/>
+            </ColorAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Dot1Scale" Storyboard.TargetProperty="ScaleX" BeginTime="0:0:0.04">
+                <SplineDoubleKeyFrame KeyTime="0:0:0.00" Value="1.0"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.18" Value="1.35"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.36" Value="1.0"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Dot1Scale" Storyboard.TargetProperty="ScaleY" BeginTime="0:0:0.04">
+                <SplineDoubleKeyFrame KeyTime="0:0:0.00" Value="1.0"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.18" Value="1.35"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.36" Value="1.0"/>
+            </DoubleAnimationUsingKeyFrames>
+
+            <!-- Dot 2 -->
+            <ColorAnimationUsingKeyFrames Storyboard.TargetName="Dot2Brush" Storyboard.TargetProperty="Color" BeginTime="0:0:0.08">
+                <SplineColorKeyFrame KeyTime="0:0:0.00" Value="#8AFF00"/>
+                <SplineColorKeyFrame KeyTime="0:0:0.18" Value="#FFFFFF"/>
+                <SplineColorKeyFrame KeyTime="0:0:0.36" Value="#8AFF00"/>
+            </ColorAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Dot2Scale" Storyboard.TargetProperty="ScaleX" BeginTime="0:0:0.08">
+                <SplineDoubleKeyFrame KeyTime="0:0:0.00" Value="1.0"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.18" Value="1.35"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.36" Value="1.0"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Dot2Scale" Storyboard.TargetProperty="ScaleY" BeginTime="0:0:0.08">
+                <SplineDoubleKeyFrame KeyTime="0:0:0.00" Value="1.0"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.18" Value="1.35"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.36" Value="1.0"/>
+            </DoubleAnimationUsingKeyFrames>
+
+            <!-- Dot 3 -->
+            <ColorAnimationUsingKeyFrames Storyboard.TargetName="Dot3Brush" Storyboard.TargetProperty="Color" BeginTime="0:0:0.12">
+                <SplineColorKeyFrame KeyTime="0:0:0.00" Value="#8AFF00"/>
+                <SplineColorKeyFrame KeyTime="0:0:0.18" Value="#FFFFFF"/>
+                <SplineColorKeyFrame KeyTime="0:0:0.36" Value="#8AFF00"/>
+            </ColorAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Dot3Scale" Storyboard.TargetProperty="ScaleX" BeginTime="0:0:0.12">
+                <SplineDoubleKeyFrame KeyTime="0:0:0.00" Value="1.0"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.18" Value="1.35"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.36" Value="1.0"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Dot3Scale" Storyboard.TargetProperty="ScaleY" BeginTime="0:0:0.12">
+                <SplineDoubleKeyFrame KeyTime="0:0:0.00" Value="1.0"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.18" Value="1.35"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.36" Value="1.0"/>
+            </DoubleAnimationUsingKeyFrames>
+
+            <!-- Dot 4 -->
+            <ColorAnimationUsingKeyFrames Storyboard.TargetName="Dot4Brush" Storyboard.TargetProperty="Color" BeginTime="0:0:0.16">
+                <SplineColorKeyFrame KeyTime="0:0:0.00" Value="#8AFF00"/>
+                <SplineColorKeyFrame KeyTime="0:0:0.18" Value="#FFFFFF"/>
+                <SplineColorKeyFrame KeyTime="0:0:0.36" Value="#8AFF00"/>
+            </ColorAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Dot4Scale" Storyboard.TargetProperty="ScaleX" BeginTime="0:0:0.16">
+                <SplineDoubleKeyFrame KeyTime="0:0:0.00" Value="1.0"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.18" Value="1.35"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.36" Value="1.0"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Dot4Scale" Storyboard.TargetProperty="ScaleY" BeginTime="0:0:0.16">
+                <SplineDoubleKeyFrame KeyTime="0:0:0.00" Value="1.0"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.18" Value="1.35"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.36" Value="1.0"/>
+            </DoubleAnimationUsingKeyFrames>
+
+            <!-- Dot 5 -->
+            <ColorAnimationUsingKeyFrames Storyboard.TargetName="Dot5Brush" Storyboard.TargetProperty="Color" BeginTime="0:0:0.20">
+                <SplineColorKeyFrame KeyTime="0:0:0.00" Value="#8AFF00"/>
+                <SplineColorKeyFrame KeyTime="0:0:0.18" Value="#FFFFFF"/>
+                <SplineColorKeyFrame KeyTime="0:0:0.36" Value="#8AFF00"/>
+            </ColorAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Dot5Scale" Storyboard.TargetProperty="ScaleX" BeginTime="0:0:0.20">
+                <SplineDoubleKeyFrame KeyTime="0:0:0.00" Value="1.0"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.18" Value="1.35"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.36" Value="1.0"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Dot5Scale" Storyboard.TargetProperty="ScaleY" BeginTime="0:0:0.20">
+                <SplineDoubleKeyFrame KeyTime="0:0:0.00" Value="1.0"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.18" Value="1.35"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.36" Value="1.0"/>
+            </DoubleAnimationUsingKeyFrames>
+
+            <!-- Dot 6 -->
+            <ColorAnimationUsingKeyFrames Storyboard.TargetName="Dot6Brush" Storyboard.TargetProperty="Color" BeginTime="0:0:0.24">
+                <SplineColorKeyFrame KeyTime="0:0:0.00" Value="#8AFF00"/>
+                <SplineColorKeyFrame KeyTime="0:0:0.18" Value="#FFFFFF"/>
+                <SplineColorKeyFrame KeyTime="0:0:0.36" Value="#8AFF00"/>
+            </ColorAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Dot6Scale" Storyboard.TargetProperty="ScaleX" BeginTime="0:0:0.24">
+                <SplineDoubleKeyFrame KeyTime="0:0:0.00" Value="1.0"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.18" Value="1.35"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.36" Value="1.0"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Dot6Scale" Storyboard.TargetProperty="ScaleY" BeginTime="0:0:0.24">
+                <SplineDoubleKeyFrame KeyTime="0:0:0.00" Value="1.0"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.18" Value="1.35"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.36" Value="1.0"/>
+            </DoubleAnimationUsingKeyFrames>
+
+            <!-- Dot 7 -->
+            <ColorAnimationUsingKeyFrames Storyboard.TargetName="Dot7Brush" Storyboard.TargetProperty="Color" BeginTime="0:0:0.28">
+                <SplineColorKeyFrame KeyTime="0:0:0.00" Value="#8AFF00"/>
+                <SplineColorKeyFrame KeyTime="0:0:0.18" Value="#FFFFFF"/>
+                <SplineColorKeyFrame KeyTime="0:0:0.36" Value="#8AFF00"/>
+            </ColorAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Dot7Scale" Storyboard.TargetProperty="ScaleX" BeginTime="0:0:0.28">
+                <SplineDoubleKeyFrame KeyTime="0:0:0.00" Value="1.0"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.18" Value="1.35"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.36" Value="1.0"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Dot7Scale" Storyboard.TargetProperty="ScaleY" BeginTime="0:0:0.28">
+                <SplineDoubleKeyFrame KeyTime="0:0:0.00" Value="1.0"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.18" Value="1.35"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.36" Value="1.0"/>
+            </DoubleAnimationUsingKeyFrames>
+
+            <!-- Dot 8 -->
+            <ColorAnimationUsingKeyFrames Storyboard.TargetName="Dot8Brush" Storyboard.TargetProperty="Color" BeginTime="0:0:0.32">
+                <SplineColorKeyFrame KeyTime="0:0:0.00" Value="#8AFF00"/>
+                <SplineColorKeyFrame KeyTime="0:0:0.18" Value="#FFFFFF"/>
+                <SplineColorKeyFrame KeyTime="0:0:0.36" Value="#8AFF00"/>
+            </ColorAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Dot8Scale" Storyboard.TargetProperty="ScaleX" BeginTime="0:0:0.32">
+                <SplineDoubleKeyFrame KeyTime="0:0:0.00" Value="1.0"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.18" Value="1.35"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.36" Value="1.0"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Dot8Scale" Storyboard.TargetProperty="ScaleY" BeginTime="0:0:0.32">
+                <SplineDoubleKeyFrame KeyTime="0:0:0.00" Value="1.0"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.18" Value="1.35"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.36" Value="1.0"/>
+            </DoubleAnimationUsingKeyFrames>
+
+            <!-- Dot 9 -->
+            <ColorAnimationUsingKeyFrames Storyboard.TargetName="Dot9Brush" Storyboard.TargetProperty="Color" BeginTime="0:0:0.36">
+                <SplineColorKeyFrame KeyTime="0:0:0.00" Value="#8AFF00"/>
+                <SplineColorKeyFrame KeyTime="0:0:0.18" Value="#FFFFFF"/>
+                <SplineColorKeyFrame KeyTime="0:0:0.36" Value="#8AFF00"/>
+            </ColorAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Dot9Scale" Storyboard.TargetProperty="ScaleX" BeginTime="0:0:0.36">
+                <SplineDoubleKeyFrame KeyTime="0:0:0.00" Value="1.0"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.18" Value="1.35"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.36" Value="1.0"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Dot9Scale" Storyboard.TargetProperty="ScaleY" BeginTime="0:0:0.36">
+                <SplineDoubleKeyFrame KeyTime="0:0:0.00" Value="1.0"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.18" Value="1.35"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.36" Value="1.0"/>
+            </DoubleAnimationUsingKeyFrames>
+
+            <!-- Dot 10 -->
+            <ColorAnimationUsingKeyFrames Storyboard.TargetName="Dot10Brush" Storyboard.TargetProperty="Color" BeginTime="0:0:0.40">
+                <SplineColorKeyFrame KeyTime="0:0:0.00" Value="#8AFF00"/>
+                <SplineColorKeyFrame KeyTime="0:0:0.18" Value="#FFFFFF"/>
+                <SplineColorKeyFrame KeyTime="0:0:0.36" Value="#8AFF00"/>
+            </ColorAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Dot10Scale" Storyboard.TargetProperty="ScaleX" BeginTime="0:0:0.40">
+                <SplineDoubleKeyFrame KeyTime="0:0:0.00" Value="1.0"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.18" Value="1.35"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.36" Value="1.0"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Dot10Scale" Storyboard.TargetProperty="ScaleY" BeginTime="0:0:0.40">
+                <SplineDoubleKeyFrame KeyTime="0:0:0.00" Value="1.0"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.18" Value="1.35"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.36" Value="1.0"/>
+            </DoubleAnimationUsingKeyFrames>
+
+            <!-- Dot 11 -->
+            <ColorAnimationUsingKeyFrames Storyboard.TargetName="Dot11Brush" Storyboard.TargetProperty="Color" BeginTime="0:0:0.44">
+                <SplineColorKeyFrame KeyTime="0:0:0.00" Value="#8AFF00"/>
+                <SplineColorKeyFrame KeyTime="0:0:0.18" Value="#FFFFFF"/>
+                <SplineColorKeyFrame KeyTime="0:0:0.36" Value="#8AFF00"/>
+            </ColorAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Dot11Scale" Storyboard.TargetProperty="ScaleX" BeginTime="0:0:0.44">
+                <SplineDoubleKeyFrame KeyTime="0:0:0.00" Value="1.0"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.18" Value="1.35"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.36" Value="1.0"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Dot11Scale" Storyboard.TargetProperty="ScaleY" BeginTime="0:0:0.44">
+                <SplineDoubleKeyFrame KeyTime="0:0:0.00" Value="1.0"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.18" Value="1.35"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.36" Value="1.0"/>
+            </DoubleAnimationUsingKeyFrames>
+
+            <!-- Dot 12 -->
+            <ColorAnimationUsingKeyFrames Storyboard.TargetName="Dot12Brush" Storyboard.TargetProperty="Color" BeginTime="0:0:0.48">
+                <SplineColorKeyFrame KeyTime="0:0:0.00" Value="#8AFF00"/>
+                <SplineColorKeyFrame KeyTime="0:0:0.18" Value="#FFFFFF"/>
+                <SplineColorKeyFrame KeyTime="0:0:0.36" Value="#8AFF00"/>
+            </ColorAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Dot12Scale" Storyboard.TargetProperty="ScaleX" BeginTime="0:0:0.48">
+                <SplineDoubleKeyFrame KeyTime="0:0:0.00" Value="1.0"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.18" Value="1.35"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.36" Value="1.0"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Dot12Scale" Storyboard.TargetProperty="ScaleY" BeginTime="0:0:0.48">
+                <SplineDoubleKeyFrame KeyTime="0:0:0.00" Value="1.0"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.18" Value="1.35"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.36" Value="1.0"/>
+            </DoubleAnimationUsingKeyFrames>
+
+            <!-- Dot 13 -->
+            <ColorAnimationUsingKeyFrames Storyboard.TargetName="Dot13Brush" Storyboard.TargetProperty="Color" BeginTime="0:0:0.52">
+                <SplineColorKeyFrame KeyTime="0:0:0.00" Value="#8AFF00"/>
+                <SplineColorKeyFrame KeyTime="0:0:0.18" Value="#FFFFFF"/>
+                <SplineColorKeyFrame KeyTime="0:0:0.36" Value="#8AFF00"/>
+            </ColorAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Dot13Scale" Storyboard.TargetProperty="ScaleX" BeginTime="0:0:0.52">
+                <SplineDoubleKeyFrame KeyTime="0:0:0.00" Value="1.0"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.18" Value="1.35"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.36" Value="1.0"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Dot13Scale" Storyboard.TargetProperty="ScaleY" BeginTime="0:0:0.52">
+                <SplineDoubleKeyFrame KeyTime="0:0:0.00" Value="1.0"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.18" Value="1.35"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.36" Value="1.0"/>
+            </DoubleAnimationUsingKeyFrames>
+
+            <!-- Dot 14 -->
+            <ColorAnimationUsingKeyFrames Storyboard.TargetName="Dot14Brush" Storyboard.TargetProperty="Color" BeginTime="0:0:0.56">
+                <SplineColorKeyFrame KeyTime="0:0:0.00" Value="#8AFF00"/>
+                <SplineColorKeyFrame KeyTime="0:0:0.18" Value="#FFFFFF"/>
+                <SplineColorKeyFrame KeyTime="0:0:0.36" Value="#8AFF00"/>
+            </ColorAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Dot14Scale" Storyboard.TargetProperty="ScaleX" BeginTime="0:0:0.56">
+                <SplineDoubleKeyFrame KeyTime="0:0:0.00" Value="1.0"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.18" Value="1.35"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.36" Value="1.0"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Dot14Scale" Storyboard.TargetProperty="ScaleY" BeginTime="0:0:0.56">
+                <SplineDoubleKeyFrame KeyTime="0:0:0.00" Value="1.0"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.18" Value="1.35"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.36" Value="1.0"/>
+            </DoubleAnimationUsingKeyFrames>
+
+            <!-- Dot 15 -->
+            <ColorAnimationUsingKeyFrames Storyboard.TargetName="Dot15Brush" Storyboard.TargetProperty="Color" BeginTime="0:0:0.60">
+                <SplineColorKeyFrame KeyTime="0:0:0.00" Value="#8AFF00"/>
+                <SplineColorKeyFrame KeyTime="0:0:0.18" Value="#FFFFFF"/>
+                <SplineColorKeyFrame KeyTime="0:0:0.36" Value="#8AFF00"/>
+            </ColorAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Dot15Scale" Storyboard.TargetProperty="ScaleX" BeginTime="0:0:0.60">
+                <SplineDoubleKeyFrame KeyTime="0:0:0.00" Value="1.0"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.18" Value="1.35"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.36" Value="1.0"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Dot15Scale" Storyboard.TargetProperty="ScaleY" BeginTime="0:0:0.60">
+                <SplineDoubleKeyFrame KeyTime="0:0:0.00" Value="1.0"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.18" Value="1.35"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.36" Value="1.0"/>
+            </DoubleAnimationUsingKeyFrames>
+
+            <!-- Dot 16 -->
+            <ColorAnimationUsingKeyFrames Storyboard.TargetName="Dot16Brush" Storyboard.TargetProperty="Color" BeginTime="0:0:0.64">
+                <SplineColorKeyFrame KeyTime="0:0:0.00" Value="#8AFF00"/>
+                <SplineColorKeyFrame KeyTime="0:0:0.18" Value="#FFFFFF"/>
+                <SplineColorKeyFrame KeyTime="0:0:0.36" Value="#8AFF00"/>
+            </ColorAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Dot16Scale" Storyboard.TargetProperty="ScaleX" BeginTime="0:0:0.64">
+                <SplineDoubleKeyFrame KeyTime="0:0:0.00" Value="1.0"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.18" Value="1.35"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.36" Value="1.0"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Dot16Scale" Storyboard.TargetProperty="ScaleY" BeginTime="0:0:0.64">
+                <SplineDoubleKeyFrame KeyTime="0:0:0.00" Value="1.0"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.18" Value="1.35"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.36" Value="1.0"/>
+            </DoubleAnimationUsingKeyFrames>
+
+            <!-- Dot 17 -->
+            <ColorAnimationUsingKeyFrames Storyboard.TargetName="Dot17Brush" Storyboard.TargetProperty="Color" BeginTime="0:0:0.68">
+                <SplineColorKeyFrame KeyTime="0:0:0.00" Value="#8AFF00"/>
+                <SplineColorKeyFrame KeyTime="0:0:0.18" Value="#FFFFFF"/>
+                <SplineColorKeyFrame KeyTime="0:0:0.36" Value="#8AFF00"/>
+            </ColorAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Dot17Scale" Storyboard.TargetProperty="ScaleX" BeginTime="0:0:0.68">
+                <SplineDoubleKeyFrame KeyTime="0:0:0.00" Value="1.0"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.18" Value="1.35"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.36" Value="1.0"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Dot17Scale" Storyboard.TargetProperty="ScaleY" BeginTime="0:0:0.68">
+                <SplineDoubleKeyFrame KeyTime="0:0:0.00" Value="1.0"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.18" Value="1.35"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.36" Value="1.0"/>
+            </DoubleAnimationUsingKeyFrames>
+
+            <!-- Dot 18 -->
+            <ColorAnimationUsingKeyFrames Storyboard.TargetName="Dot18Brush" Storyboard.TargetProperty="Color" BeginTime="0:0:0.72">
+                <SplineColorKeyFrame KeyTime="0:0:0.00" Value="#8AFF00"/>
+                <SplineColorKeyFrame KeyTime="0:0:0.18" Value="#FFFFFF"/>
+                <SplineColorKeyFrame KeyTime="0:0:0.36" Value="#8AFF00"/>
+            </ColorAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Dot18Scale" Storyboard.TargetProperty="ScaleX" BeginTime="0:0:0.72">
+                <SplineDoubleKeyFrame KeyTime="0:0:0.00" Value="1.0"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.18" Value="1.35"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.36" Value="1.0"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Dot18Scale" Storyboard.TargetProperty="ScaleY" BeginTime="0:0:0.72">
+                <SplineDoubleKeyFrame KeyTime="0:0:0.00" Value="1.0"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.18" Value="1.35"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.36" Value="1.0"/>
+            </DoubleAnimationUsingKeyFrames>
+
+            <!-- Dot 19 -->
+            <ColorAnimationUsingKeyFrames Storyboard.TargetName="Dot19Brush" Storyboard.TargetProperty="Color" BeginTime="0:0:0.76">
+                <SplineColorKeyFrame KeyTime="0:0:0.00" Value="#8AFF00"/>
+                <SplineColorKeyFrame KeyTime="0:0:0.18" Value="#FFFFFF"/>
+                <SplineColorKeyFrame KeyTime="0:0:0.36" Value="#8AFF00"/>
+            </ColorAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Dot19Scale" Storyboard.TargetProperty="ScaleX" BeginTime="0:0:0.76">
+                <SplineDoubleKeyFrame KeyTime="0:0:0.00" Value="1.0"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.18" Value="1.35"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.36" Value="1.0"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Dot19Scale" Storyboard.TargetProperty="ScaleY" BeginTime="0:0:0.76">
+                <SplineDoubleKeyFrame KeyTime="0:0:0.00" Value="1.0"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.18" Value="1.35"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.36" Value="1.0"/>
+            </DoubleAnimationUsingKeyFrames>
+
+            <!-- Dot 20 -->
+            <ColorAnimationUsingKeyFrames Storyboard.TargetName="Dot20Brush" Storyboard.TargetProperty="Color" BeginTime="0:0:0.80">
+                <SplineColorKeyFrame KeyTime="0:0:0.00" Value="#8AFF00"/>
+                <SplineColorKeyFrame KeyTime="0:0:0.18" Value="#FFFFFF"/>
+                <SplineColorKeyFrame KeyTime="0:0:0.36" Value="#8AFF00"/>
+            </ColorAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Dot20Scale" Storyboard.TargetProperty="ScaleX" BeginTime="0:0:0.80">
+                <SplineDoubleKeyFrame KeyTime="0:0:0.00" Value="1.0"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.18" Value="1.35"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.36" Value="1.0"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Dot20Scale" Storyboard.TargetProperty="ScaleY" BeginTime="0:0:0.80">
+                <SplineDoubleKeyFrame KeyTime="0:0:0.00" Value="1.0"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.18" Value="1.35"/>
+                <SplineDoubleKeyFrame KeyTime="0:0:0.36" Value="1.0"/>
+            </DoubleAnimationUsingKeyFrames>
+        </Storyboard>
+    </Window.Resources>
+
+    <Border BorderThickness="1" BorderBrush="{Binding CardBorderBrush}" Background="{Binding WindowBackgroundBrush}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="40"/> <!-- Custom Chrome Title Bar -->
+                <RowDefinition Height="*"/>    <!-- Main Body -->
+                <RowDefinition Height="Auto"/> <!-- Footer / Shortcuts -->
+            </Grid.RowDefinitions>
+
+            <!-- Custom Chrome Title Bar (Greenshot "G" Icon, no window title text, custom buttons like Recipe Editor) -->
+            <Grid Grid.Row="0" Background="Transparent" MouseLeftButtonDown="OnTitleBarMouseDown">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Left Branding / Window G Icon -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="14,0,0,0" VerticalAlignment="Center">
+                    <Image Source="{Binding WindowIconSource}" Width="16" Height="16" Margin="0,0,8,0" VerticalAlignment="Center" RenderOptions.BitmapScalingMode="HighQuality"/>
+                    <TextBlock Text="Greenshot" FontWeight="Bold" FontSize="12" Foreground="{Binding TextPrimaryBrush}" VerticalAlignment="Center"/>
+                    <TextBlock Text=" — About" FontSize="12" Foreground="{Binding TextSecondaryBrush}" VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <!-- Window Caption Control Buttons -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                    <Button Style="{StaticResource CaptionBtnStyle}" Click="OnThemeToggleClicked" ToolTip="{Binding ThemeToggleToolTip}">
+                        <TextBlock Text="{Binding ThemeToggleIcon}" FontSize="13" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    </Button>
+                    <Button Style="{StaticResource CaptionCloseBtnStyle}" Click="OnCloseClicked" ToolTip="Close (Esc)"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- Main Content -->
+            <Grid Grid.Row="1" Margin="24,10,24,16">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/> <!-- Header Section with Animated G Logo -->
+                    <RowDefinition Height="Auto"/> <!-- License Card -->
+                    <RowDefinition Height="Auto"/> <!-- Links & Credits Card -->
+                </Grid.RowDefinitions>
+
+                <!-- Header Section: Logo + Title & Version -->
+                <Grid Grid.Row="0" Margin="0,0,0,16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="105"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Animated Greenshot "G" Logo Box (Specification from g.svg: 520x520 viewBox with signature dark background #3D3D3D and offset clipped bubbles) -->
+                    <Border Grid.Column="0" Width="95" Height="95"
+                            Background="#3D3D3D"
+                            BorderBrush="{Binding CardBorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="8"
+                            ClipToBounds="True"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Center">
+                        <Viewbox Width="95" Height="95" Stretch="Uniform">
+                            <Canvas Width="520" Height="520" ClipToBounds="True">
+                                <Rectangle Width="520" Height="520" Fill="#3D3D3D"/>
+
+                                <!-- Dot 0 (Top Right) -->
+                                <Path x:Name="Dot0" Data="M420.523,212.144c-3.32-7.392-8.776-12.529-16.357-15.411c-7.593-2.886-15.072-2.663-22.461,0.658 c-7.388,3.321-12.524,8.779-15.404,16.364c-2.885,7.595-2.663,15.078,0.657,22.469c3.32,7.392,8.766,12.526,16.358,15.411 c7.581,2.882,15.07,2.664,22.46-0.658c7.389-3.321,12.521-8.769,15.404-16.364C424.062,227.028,423.844,219.535,420.523,212.144z" Opacity="0">
+                                    <Path.Fill><SolidColorBrush x:Name="Dot0Brush" Color="#8AFF00"/></Path.Fill>
+                                    <Path.RenderTransform><ScaleTransform x:Name="Dot0Scale" CenterX="393.7" CenterY="224.2" ScaleX="0" ScaleY="0"/></Path.RenderTransform>
+                                </Path>
+
+                                <!-- Dot 1 -->
+                                <Path x:Name="Dot1" Data="M315.05,225.69c7.581,2.881,15.071,2.663,22.46-0.658c7.39-3.321,12.521-8.771,15.405-16.364 c2.88-7.585,2.662-15.078-0.658-22.469c-3.32-7.392-8.775-12.53-16.357-15.411c-7.593-2.886-15.071-2.664-22.46,0.657 c-7.39,3.322-12.524,8.78-15.405,16.365c-2.884,7.595-2.662,15.077,0.658,22.469C302.012,217.671,307.457,222.805,315.05,225.69z" Opacity="0">
+                                    <Path.Fill><SolidColorBrush x:Name="Dot1Brush" Color="#8AFF00"/></Path.Fill>
+                                    <Path.RenderTransform><ScaleTransform x:Name="Dot1Scale" CenterX="325.48" CenterY="198.24" ScaleX="0" ScaleY="0"/></Path.RenderTransform>
+                                </Path>
+
+                                <!-- Dot 2 -->
+                                <Path x:Name="Dot2" Data="M246.782,199.745c7.582,2.882,15.071,2.664,22.461-0.658c7.388-3.321,12.521-8.769,15.405-16.364 c2.879-7.584,2.662-15.077-0.658-22.469s-8.776-12.529-16.358-15.411c-7.592-2.885-15.071-2.663-22.46,0.658 c-7.389,3.321-12.524,8.779-15.405,16.364c-2.884,7.596-2.662,15.078,0.658,22.469C233.745,191.726,239.19,196.86,246.782,199.745 z" Opacity="0">
+                                    <Path.Fill><SolidColorBrush x:Name="Dot2Brush" Color="#8AFF00"/></Path.Fill>
+                                    <Path.RenderTransform><ScaleTransform x:Name="Dot2Scale" CenterX="257.24" CenterY="172.29" ScaleX="0" ScaleY="0"/></Path.RenderTransform>
+                                </Path>
+
+                                <!-- Dot 3 -->
+                                <Path x:Name="Dot3" Data="M178.516,173.801c7.582,2.881,15.072,2.663,22.461-0.658c7.388-3.321,12.521-8.77,15.404-16.364 c2.881-7.585,2.663-15.078-0.657-22.469c-3.32-7.392-8.776-12.53-16.358-15.411c-7.592-2.886-15.072-2.664-22.46,0.658 c-7.389,3.321-12.525,8.779-15.405,16.364c-2.884,7.595-2.662,15.077,0.658,22.469 C165.478,165.781,170.924,170.915,178.516,173.801z" Opacity="0">
+                                    <Path.Fill><SolidColorBrush x:Name="Dot3Brush" Color="#8AFF00"/></Path.Fill>
+                                    <Path.RenderTransform><ScaleTransform x:Name="Dot3Scale" CenterX="188.92" CenterY="146.33" ScaleX="0" ScaleY="0"/></Path.RenderTransform>
+                                </Path>
+
+                                <!-- Dot 4 (Top Left) -->
+                                <Path x:Name="Dot4" Data="M110.249,147.855c7.582,2.882,15.072,2.664,22.46-0.658c7.388-3.321,12.521-8.77,15.405-16.364 c2.88-7.584,2.663-15.077-0.658-22.469c-3.32-7.392-8.776-12.529-16.358-15.411c-7.592-2.885-15.072-2.663-22.46,0.658 c-7.388,3.321-12.524,8.78-15.405,16.364c-2.884,7.596-2.663,15.078,0.658,22.47C97.211,139.836,102.657,144.971,110.249,147.855z" Opacity="0">
+                                    <Path.Fill><SolidColorBrush x:Name="Dot4Brush" Color="#8AFF00"/></Path.Fill>
+                                    <Path.RenderTransform><ScaleTransform x:Name="Dot4Scale" CenterX="120.68" CenterY="120.38" ScaleX="0" ScaleY="0"/></Path.RenderTransform>
+                                </Path>
+
+                                <!-- Dot 5 -->
+                                <Path x:Name="Dot5" Data="M0,175.408c3.343,7.053,8.675,11.993,16.048,14.796c7.582,2.882,15.072,2.664,22.46-0.658 c7.389-3.321,12.521-8.769,15.405-16.364c2.88-7.584,2.662-15.077-0.658-22.469c-3.32-7.392-8.776-12.529-16.358-15.411 c-7.592-2.886-15.072-2.663-22.46,0.658C7.802,138.942,3,143.663,0,150.084V175.408z" Opacity="0">
+                                    <Path.Fill><SolidColorBrush x:Name="Dot5Brush" Color="#8AFF00"/></Path.Fill>
+                                    <Path.RenderTransform><ScaleTransform x:Name="Dot5Scale" CenterX="27.97" CenterY="162.77" ScaleX="0" ScaleY="0"/></Path.RenderTransform>
+                                </Path>
+
+                                <!-- Dot 6 -->
+                                <Path x:Name="Dot6" Data="M84.314,216.149c7.582,2.881,15.072,2.663,22.46-0.658c7.388-3.321,12.521-8.77,15.405-16.364 c2.88-7.585,2.663-15.078-0.658-22.47c-3.32-7.391-8.776-12.529-16.358-15.41c-7.592-2.886-15.072-2.664-22.46,0.657 c-7.388,3.322-12.525,8.78-15.405,16.365c-2.884,7.595-2.662,15.077,0.658,22.469C71.276,208.129,76.722,213.264,84.314,216.149z" Opacity="0">
+                                    <Path.Fill><SolidColorBrush x:Name="Dot6Brush" Color="#8AFF00"/></Path.Fill>
+                                    <Path.RenderTransform><ScaleTransform x:Name="Dot6Scale" CenterX="94.74" CenterY="188.7" ScaleX="0" ScaleY="0"/></Path.RenderTransform>
+                                </Path>
+
+                                <!-- Dot 7 -->
+                                <Path x:Name="Dot7" Data="M27.978,241.475c2.88-7.584,2.663-15.077-0.658-22.469c-3.32-7.391-8.776-12.529-16.358-15.411 c-3.68-1.398-7.333-2.06-10.962-1.999v58.903c4.222,0.097,8.414-0.79,12.573-2.659C19.961,254.518,25.094,249.07,27.978,241.475z" Opacity="0">
+                                    <Path.Fill><SolidColorBrush x:Name="Dot7Brush" Color="#8AFF00"/></Path.Fill>
+                                    <Path.RenderTransform><ScaleTransform x:Name="Dot7Scale" CenterX="14.99" CenterY="231.05" ScaleX="0" ScaleY="0"/></Path.RenderTransform>
+                                </Path>
+
+                                <!-- Dot 8 -->
+                                <Path x:Name="Dot8" Data="M95.587,244.951c-3.32-7.392-8.776-12.53-16.358-15.411c-7.592-2.886-15.072-2.663-22.46,0.658 c-7.388,3.321-12.524,8.779-15.405,16.364c-2.884,7.595-2.662,15.079,0.658,22.469c3.32,7.392,8.766,12.525,16.358,15.41 c7.582,2.883,15.072,2.664,22.46-0.657c7.389-3.321,12.521-8.771,15.405-16.364C99.125,259.835,98.907,252.342,95.587,244.951z" Opacity="0">
+                                    <Path.Fill><SolidColorBrush x:Name="Dot8Brush" Color="#8AFF00"/></Path.Fill>
+                                    <Path.RenderTransform><ScaleTransform x:Name="Dot8Scale" CenterX="68.8" CenterY="256.99" ScaleX="0" ScaleY="0"/></Path.RenderTransform>
+                                </Path>
+
+                                <!-- Dot 9 -->
+                                <Path x:Name="Dot9" Data="M1.385,287.299c-0.426-0.947-0.889-1.855-1.385-2.729v29.506c0.764-1.356,1.462-2.776,2.043-4.307 C4.923,302.184,4.706,294.691,1.385,287.299z" Opacity="0">
+                                    <Path.Fill><SolidColorBrush x:Name="Dot9Brush" Color="#8AFF00"/></Path.Fill>
+                                    <Path.RenderTransform><ScaleTransform x:Name="Dot9Scale" CenterX="2.03" CenterY="299.32" ScaleX="0" ScaleY="0"/></Path.RenderTransform>
+                                </Path>
+
+                                <!-- Dot 10 -->
+                                <Path x:Name="Dot10" Data="M32.445,352.734c7.582,2.883,15.072,2.664,22.46-0.657c7.388-3.321,12.521-8.769,15.405-16.364 c2.88-7.584,2.663-15.076-0.658-22.469c-3.321-7.393-8.776-12.529-16.358-15.411c-7.592-2.886-15.072-2.663-22.46,0.658 s-12.524,8.78-15.405,16.364c-2.884,7.596-2.663,15.078,0.658,22.469C19.407,344.716,24.853,349.85,32.445,352.734z" Opacity="0">
+                                    <Path.Fill><SolidColorBrush x:Name="Dot10Brush" Color="#8AFF00"/></Path.Fill>
+                                    <Path.RenderTransform><ScaleTransform x:Name="Dot10Scale" CenterX="42.87" CenterY="325.28" ScaleX="0" ScaleY="0"/></Path.RenderTransform>
+                                </Path>
+
+                                <!-- Dot 11 -->
+                                <Path x:Name="Dot11" Data="M44.375,404.007c2.88-7.585,2.663-15.077-0.658-22.47c-3.32-7.391-8.776-12.529-16.358-15.411 c-7.592-2.885-15.072-2.663-22.46,0.658C3.135,367.577,1.507,368.5,0,369.537v48.069c1.966,1.355,4.119,2.514,6.51,3.423 c7.582,2.881,15.072,2.663,22.46-0.658C36.359,417.049,41.491,411.602,44.375,404.007z" Opacity="0">
+                                    <Path.Fill><SolidColorBrush x:Name="Dot11Brush" Color="#8AFF00"/></Path.Fill>
+                                    <Path.RenderTransform><ScaleTransform x:Name="Dot11Scale" CenterX="23.19" CenterY="393.58" ScaleX="0" ScaleY="0"/></Path.RenderTransform>
+                                </Path>
+
+                                <!-- Dot 12 -->
+                                <Path x:Name="Dot12" Data="M1.425,434.42c-0.476-0.181-0.95-0.35-1.425-0.506v55.933c1.014-0.338,2.026-0.729,3.036-1.183 c7.389-3.321,12.521-8.77,15.405-16.364c2.88-7.585,2.662-15.078-0.658-22.469C14.463,442.439,9.007,437.301,1.425,434.42z" Opacity="0">
+                                    <Path.Fill><SolidColorBrush x:Name="Dot12Brush" Color="#8AFF00"/></Path.Fill>
+                                    <Path.RenderTransform><ScaleTransform x:Name="Dot12Scale" CenterX="10.22" CenterY="461.88" ScaleX="0" ScaleY="0"/></Path.RenderTransform>
+                                </Path>
+
+                                <!-- Dot 13 -->
+                                <Path x:Name="Dot13" Data="M69.692,460.364c-7.592-2.886-15.072-2.663-22.46,0.658c-7.388,3.32-12.525,8.779-15.405,16.363 c-2.884,7.597-2.663,15.078,0.658,22.47c3.32,7.392,8.766,12.525,16.358,15.41c7.582,2.883,15.072,2.664,22.46-0.657 c7.388-3.321,12.521-8.77,15.405-16.364c2.88-7.584,2.663-15.077-0.658-22.469C82.729,468.383,77.273,463.246,69.692,460.364z" Opacity="0">
+                                    <Path.Fill><SolidColorBrush x:Name="Dot13Brush" Color="#8AFF00"/></Path.Fill>
+                                    <Path.RenderTransform><ScaleTransform x:Name="Dot13Scale" CenterX="59.27" CenterY="487.81" ScaleX="0" ScaleY="0"/></Path.RenderTransform>
+                                </Path>
+
+                                <!-- Dot 14 -->
+                                <Path x:Name="Dot14" Data="M154.316,501.721c-3.319-7.392-8.776-12.53-16.358-15.411c-7.592-2.886-15.072-2.663-22.46,0.657 c-7.388,3.322-12.524,8.78-15.405,16.365c-2.132,5.614-2.562,11.168-1.302,16.668h57.459 C157.667,513.843,157.024,507.748,154.316,501.721z" Opacity="0">
+                                    <Path.Fill><SolidColorBrush x:Name="Dot14Brush" Color="#8AFF00"/></Path.Fill>
+                                    <Path.RenderTransform><ScaleTransform x:Name="Dot14Scale" CenterX="127.53" CenterY="502.15" ScaleX="0" ScaleY="0"/></Path.RenderTransform>
+                                </Path>
+
+                                <!-- Dot 15 -->
+                                <Path x:Name="Dot15" Data="M206.226,512.254c-7.593-2.886-15.072-2.663-22.46,0.658c-3.912,1.758-7.173,4.134-9.821,7.088h43.716 C214.628,516.593,210.824,514.002,206.226,512.254z" Opacity="0">
+                                    <Path.Fill><SolidColorBrush x:Name="Dot15Brush" Color="#8AFF00"/></Path.Fill>
+                                    <Path.RenderTransform><ScaleTransform x:Name="Dot15Scale" CenterX="195.8" CenterY="515.12" ScaleX="0" ScaleY="0"/></Path.RenderTransform>
+                                </Path>
+
+                                <!-- Dot 16 -->
+                                <Path x:Name="Dot16" Data="M317.442,507.785c2.881-7.584,2.663-15.077-0.657-22.469c-3.32-7.391-8.776-12.529-16.358-15.411 c-7.592-2.886-15.071-2.663-22.46,0.657c-7.389,3.321-12.525,8.78-15.404,16.364c-2.886,7.597-2.663,15.078,0.658,22.47 c1.935,4.31,4.615,7.827,7.999,10.604h37.555C312.637,516.853,315.539,512.796,317.442,507.785z" Opacity="0">
+                                    <Path.Fill><SolidColorBrush x:Name="Dot16Brush" Color="#8AFF00"/></Path.Fill>
+                                    <Path.RenderTransform><ScaleTransform x:Name="Dot16Scale" CenterX="290" CenterY="493.95" ScaleX="0" ScaleY="0"/></Path.RenderTransform>
+                                </Path>
+
+                                <!-- Dot 17 -->
+                                <Path x:Name="Dot17" Data="M385.051,511.262c-3.319-7.392-8.775-12.53-16.357-15.411c-7.593-2.886-15.072-2.663-22.46,0.658 c-7.39,3.321-12.524,8.779-15.405,16.364c-0.906,2.387-1.505,4.762-1.798,7.127h58.488 C387.17,517.072,386.353,514.159,385.051,511.262z" Opacity="0">
+                                    <Path.Fill><SolidColorBrush x:Name="Dot17Brush" Color="#8AFF00"/></Path.Fill>
+                                    <Path.RenderTransform><ScaleTransform x:Name="Dot17Scale" CenterX="358.28" CenterY="506.92" ScaleX="0" ScaleY="0"/></Path.RenderTransform>
+                                </Path>
+
+                                <!-- Dot 18 -->
+                                <Path x:Name="Dot18" Data="M394.628,427.557c-7.592-2.885-15.071-2.663-22.46,0.658s-12.524,8.78-15.405,16.364 c-2.884,7.596-2.662,15.078,0.658,22.47s8.766,12.525,16.357,15.41c7.582,2.882,15.071,2.664,22.461-0.657 c7.388-3.32,12.521-8.77,15.404-16.364c2.881-7.585,2.662-15.077-0.657-22.47C407.666,435.577,402.21,430.438,394.628,427.557z" Opacity="0">
+                                    <Path.Fill><SolidColorBrush x:Name="Dot18Brush" Color="#8AFF00"/></Path.Fill>
+                                    <Path.RenderTransform><ScaleTransform x:Name="Dot18Scale" CenterX="384.2" CenterY="455.01" ScaleX="0" ScaleY="0"/></Path.RenderTransform>
+                                </Path>
+
+                                <!-- Dot 19 -->
+                                <Path x:Name="Dot19" Data="M343.377,439.492c2.881-7.585,2.663-15.078-0.657-22.469c-3.319-7.393-8.775-12.529-16.357-15.412 c-7.593-2.885-15.072-2.662-22.46,0.658c-7.389,3.321-12.524,8.779-15.405,16.364c-2.884,7.595-2.662,15.078,0.657,22.469 c3.32,7.393,8.767,12.525,16.357,15.411c7.582,2.883,15.072,2.663,22.461-0.657C335.36,452.535,340.493,447.087,343.377,439.492z" Opacity="0">
+                                    <Path.Fill><SolidColorBrush x:Name="Dot19Brush" Color="#8AFF00"/></Path.Fill>
+                                    <Path.RenderTransform><ScaleTransform x:Name="Dot19Scale" CenterX="315.94" CenterY="429.06" ScaleX="0" ScaleY="0"/></Path.RenderTransform>
+                                </Path>
+
+                                <!-- Dot 20 -->
+                                <Path x:Name="Dot20" Data="M259.705,429.912c7.389-3.321,12.521-8.771,15.404-16.364c2.882-7.585,2.662-15.078-0.656-22.47 c-3.32-7.391-8.776-12.529-16.358-15.41c-7.592-2.886-15.072-2.664-22.46,0.657c-7.389,3.321-12.525,8.78-15.405,16.364 c-2.885,7.596-2.662,15.078,0.657,22.47c3.32,7.391,8.767,12.524,16.358,15.411C244.827,433.451,252.317,433.233,259.705,429.912z" Opacity="0">
+                                    <Path.Fill><SolidColorBrush x:Name="Dot20Brush" Color="#8AFF00"/></Path.Fill>
+                                    <Path.RenderTransform><ScaleTransform x:Name="Dot20Scale" CenterX="247.67" CenterY="403.12" ScaleX="0" ScaleY="0"/></Path.RenderTransform>
+                                </Path>
+                            </Canvas>
+                        </Viewbox>
+                    </Border>
+
+                    <!-- Title, Version & Badges -->
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,0,0">
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                            <TextBlock Text="{Binding AppVersionTitle}"
+                                       FontSize="17"
+                                       FontWeight="Bold"
+                                       Foreground="{Binding TextPrimaryBrush}"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+
+                        <!-- Badges row -->
+                        <WrapPanel Orientation="Horizontal" Margin="0,0,0,6">
+                            <Border Background="{Binding BadgeBackgroundBrush}" CornerRadius="4" Padding="6,2" Margin="0,0,6,0">
+                                <TextBlock Text="{Binding BitnessText}" FontSize="11" FontWeight="SemiBold" Foreground="{Binding TextSecondaryBrush}"/>
+                            </Border>
+                            <Border Background="{Binding BadgeBackgroundBrush}" CornerRadius="4" Padding="6,2" Margin="0,0,6,0" Visibility="{Binding PortableBadgeVisibility}">
+                                <TextBlock Text="Portable" FontSize="11" FontWeight="SemiBold" Foreground="{Binding TextSecondaryBrush}"/>
+                            </Border>
+                            <Border Background="#238636" CornerRadius="4" Padding="6,2" Margin="0,0,6,0" Visibility="{Binding BetaTesterBadgeVisibility}">
+                                <TextBlock Text="BETA" FontSize="11" FontWeight="Bold" Foreground="White"/>
+                            </Border>
+                        </WrapPanel>
+
+                        <!-- Homepage link -->
+                        <TextBlock FontSize="13">
+                            <Hyperlink NavigateUri="{Binding WebsiteUrl}" RequestNavigate="OnHyperlinkRequestNavigate">
+                                <TextBlock Text="{Binding WebsiteDisplayUrl}"/>
+                            </Hyperlink>
+                        </TextBlock>
+                    </StackPanel>
+                </Grid>
+
+                <!-- License & Copyright Card -->
+                <Border Grid.Row="1"
+                        Background="{Binding CardBackgroundBrush}"
+                        BorderBrush="{Binding CardBorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="14"
+                        Margin="0,0,0,12">
+                    <StackPanel>
+                        <TextBlock Text="{Binding LicenseCopyrightText}"
+                                   FontWeight="SemiBold"
+                                   Foreground="{Binding TextPrimaryBrush}"
+                                   TextWrapping="Wrap"
+                                   Margin="0,0,0,4"/>
+                        <TextBlock Text="Released as free software under the GNU General Public License (GPLv3)."
+                                   Foreground="{Binding TextSecondaryBrush}"
+                                   FontSize="12"
+                                   TextWrapping="Wrap"
+                                   Margin="0,0,0,6"/>
+                        <TextBlock FontSize="12">
+                            <Hyperlink NavigateUri="https://www.gnu.org/licenses/gpl.html" RequestNavigate="OnHyperlinkRequestNavigate">
+                                <TextBlock Text="https://www.gnu.org/licenses/gpl.html"/>
+                            </Hyperlink>
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+
+                <!-- Links, Resources & Credits Card -->
+                <Border Grid.Row="2"
+                        Background="{Binding CardBackgroundBrush}"
+                        BorderBrush="{Binding CardBorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="14">
+                    <StackPanel>
+                        <!-- GitHub Host -->
+                        <Grid Margin="0,2,0,6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="22"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="🐙" FontSize="12" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1" TextWrapping="Wrap" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding HostLabelText}" Foreground="{Binding TextSecondaryBrush}"/>
+                                <Run Text=" "/>
+                                <Hyperlink NavigateUri="https://github.com/greenshot/greenshot" RequestNavigate="OnHyperlinkRequestNavigate">
+                                    <TextBlock Text="https://github.com/greenshot/greenshot"/>
+                                </Hyperlink>
+                            </TextBlock>
+                        </Grid>
+
+                        <!-- Bug Reports -->
+                        <Grid Margin="0,2,0,6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="22"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="🐛" FontSize="12" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1" TextWrapping="Wrap" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding BugsLabelText}" Foreground="{Binding TextSecondaryBrush}"/>
+                                <Run Text=" "/>
+                                <Hyperlink NavigateUri="{Binding BugsUrl}" RequestNavigate="OnHyperlinkRequestNavigate">
+                                    <TextBlock Text="https://getgreenshot.org/tickets"/>
+                                </Hyperlink>
+                            </TextBlock>
+                        </Grid>
+
+                        <!-- Support / Donations -->
+                        <Grid Margin="0,2,0,6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="22"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="❤️" FontSize="12" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1" TextWrapping="Wrap" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding DonationsLabelText}" Foreground="{Binding TextSecondaryBrush}"/>
+                                <Run Text=" "/>
+                                <Hyperlink NavigateUri="{Binding DonationsUrl}" RequestNavigate="OnHyperlinkRequestNavigate">
+                                    <TextBlock Text="https://getgreenshot.org/support"/>
+                                </Hyperlink>
+                            </TextBlock>
+                        </Grid>
+
+                        <!-- Icons Attribution -->
+                        <Grid Margin="0,2,0,6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="22"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="🎨" FontSize="12" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1" TextWrapping="Wrap" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding IconsLabelText}" Foreground="{Binding TextSecondaryBrush}"/>
+                                <Run Text=" "/>
+                                <Hyperlink NavigateUri="https://p.yusukekamiyamane.com" RequestNavigate="OnHyperlinkRequestNavigate">
+                                    <TextBlock Text="https://p.yusukekamiyamane.com"/>
+                                </Hyperlink>
+                            </TextBlock>
+                        </Grid>
+
+                        <!-- Translation Credits (if available) -->
+                        <Grid Margin="0,2,0,2" Visibility="{Binding TranslationCreditsVisibility}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="22"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="🌐" FontSize="12" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1" Text="{Binding TranslationCreditsText}"
+                                       Foreground="{Binding TextSecondaryBrush}"
+                                       TextWrapping="Wrap"
+                                       VerticalAlignment="Center"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- Footer Action Bar & Shortcuts -->
+            <Border Grid.Row="2"
+                    Background="{Binding CardBackgroundBrush}"
+                    BorderBrush="{Binding CardBorderBrush}"
+                    BorderThickness="0,1,0,0"
+                    Padding="16,10">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Quick Diagnostic Shortcuts / Buttons -->
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Button Style="{StaticResource SecondaryButtonStyle}"
+                                Margin="0,0,6,0"
+                                Click="OnEnvironmentInfoClicked"
+                                ToolTip="View Environment &amp; System Information (E)">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="📋" FontSize="11" Margin="0,0,4,0"/>
+                                <TextBlock Text="SysInfo [E]"/>
+                            </StackPanel>
+                        </Button>
+
+                        <Button Style="{StaticResource SecondaryButtonStyle}"
+                                Margin="0,0,6,0"
+                                Click="OnViewLogClicked"
+                                ToolTip="Open Greenshot Log File (L)">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="📄" FontSize="11" Margin="0,0,4,0"/>
+                                <TextBlock Text="Log [L]"/>
+                            </StackPanel>
+                        </Button>
+
+                        <Button Style="{StaticResource SecondaryButtonStyle}"
+                                Margin="0,0,6,0"
+                                Click="OnViewSettingsClicked"
+                                ToolTip="Open Greenshot Settings INI (I)">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="⚙️" FontSize="11" Margin="0,0,4,0"/>
+                                <TextBlock Text="Config [I]"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+
+                    <!-- Close Button -->
+                    <Button Grid.Column="1"
+                            Content="Close"
+                            Style="{StaticResource PrimaryButtonStyle}"
+                            IsDefault="True"
+                            IsCancel="True"
+                            Width="90"
+                            Height="32"
+                            Click="OnCloseClicked"/>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</Window>
