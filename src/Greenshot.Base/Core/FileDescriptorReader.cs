@@ -45,13 +45,33 @@ namespace Greenshot.Base.Core
             }
 
             var reader = new BinaryReader(fileDescriptorStream);
-            var count = reader.ReadUInt32();
+            uint count = 0;
+            try
+            {
+                count = reader.ReadUInt32();
+            }
+            catch
+            {
+                // Ignoring issues with reading the count
+            }
+
             while (count > 0)
             {
-                var descriptor = new FileDescriptor(reader);
+                FileDescriptor descriptor = null;
 
-                yield return descriptor;
-
+                try
+                {
+                    descriptor = new FileDescriptor(reader);
+                }
+                catch (IOException)
+                {
+                    // Ignoring issues with reading the count, assuming a malformed stream.
+                    break;
+                }
+                if (descriptor != null)
+                {
+                    yield return descriptor;
+                }
                 count--;
             }
         }
@@ -64,13 +84,32 @@ namespace Greenshot.Base.Core
             }
 
             var reader = new BinaryReader(fileDescriptorStream);
-            var count = reader.ReadUInt32();
+            uint count = 0;
+            try
+            {
+                count = reader.ReadUInt32();
+            }
+            catch
+            {
+                // Ignoring issues with reading the count
+            }
             while (count > 0)
             {
-                FileDescriptor descriptor = new FileDescriptor(reader);
+                FileDescriptor descriptor = null;
 
-                yield return descriptor.FileName;
-
+                try
+                {
+                    descriptor = new FileDescriptor(reader);
+                }
+                catch (IOException)
+                {
+                    // Ignoring issues with reading the count, assuming a malformed stream.
+                    break;
+                }
+                if (descriptor != null)
+                {
+                    yield return descriptor.FileName;
+                }
                 count--;
             }
         }
@@ -78,7 +117,7 @@ namespace Greenshot.Base.Core
         internal static MemoryStream GetFileContents(System.Windows.Forms.IDataObject dataObject, int index)
         {
             //cast the default IDataObject to a com IDataObject
-            var comDataObject = (IDataObject) dataObject;
+            var comDataObject = (IDataObject)dataObject;
 
             var format = System.Windows.DataFormats.GetDataFormat("FileContents");
             if (format == null)
@@ -93,7 +132,7 @@ namespace Greenshot.Base.Core
             {
                 var formatetc = new FORMATETC
                 {
-                    cfFormat = (short) format.Id,
+                    cfFormat = (short)format.Id,
                     dwAspect = DVASPECT.DVASPECT_CONTENT,
                     lindex = index,
                     tymed = TYMED.TYMED_ISTREAM | TYMED.TYMED_HGLOBAL
@@ -113,13 +152,13 @@ namespace Greenshot.Base.Core
         private static MemoryStream GetIStream(STGMEDIUM medium)
         {
             //marshal the returned pointer to a IStream object
-            IStream iStream = (IStream) Marshal.GetObjectForIUnknown(medium.unionmember);
+            IStream iStream = (IStream)Marshal.GetObjectForIUnknown(medium.unionmember);
             Marshal.Release(medium.unionmember);
 
             //get the STATSTG of the IStream to determine how many bytes are in it
             var iStreamStat = new System.Runtime.InteropServices.ComTypes.STATSTG();
             iStream.Stat(out iStreamStat, 0);
-            int iStreamSize = (int) iStreamStat.cbSize;
+            int iStreamSize = (int)iStreamStat.cbSize;
 
             //read the data from the IStream into a managed byte array
             byte[] iStreamContent = new byte[iStreamSize];
