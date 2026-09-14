@@ -22,40 +22,69 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.IO;
 using System.Windows;
 using System.Windows.Media;
+using Greenshot.Base.Core;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Triggers;
 using Greenshot.Recipes;
 
 namespace Greenshot.UI
 {
-    public class TriggerBadgeModel
-    {
-        public string Text { get; set; }
-        public Brush ForegroundBrush { get; set; }
-        public Brush BackgroundBrush { get; set; }
-        public Brush BorderBrush { get; set; }
-    }
-
-    public enum RecipeApprovalMode
-    {
-        NewRecipe,
-        Modified,
-        ReVerify
-    }
 
     /// <summary>
     /// Modern WPF dialog for reviewing and approving external capture recipes with dark/light mode support.
     /// </summary>
-    public partial class RecipeApprovalWindow : Window
+    public partial class RecipeApprovalWindow : Window, INotifyPropertyChanged
     {
+        private readonly CaptureRecipe _recipe;
+        private bool _isJsonViewerVisible;
+        private string _recipeJsonContent;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
         public string RecipeName { get; set; }
         public string RecipeVersion { get; set; }
         public string RecipeDescription { get; set; }
         public string RecipeId { get; set; }
         public string FilePath { get; set; }
         public string FileHash { get; set; }
+
+        public bool IsJsonViewerVisible
+        {
+            get => _isJsonViewerVisible;
+            set
+            {
+                if (_isJsonViewerVisible != value)
+                {
+                    _isJsonViewerVisible = value;
+                    OnPropertyChanged(nameof(IsJsonViewerVisible));
+                    OnPropertyChanged(nameof(JsonViewerVisibility));
+                }
+            }
+        }
+
+        public Visibility JsonViewerVisibility => _isJsonViewerVisible ? Visibility.Visible : Visibility.Collapsed;
+
+        public string RecipeJsonContent
+        {
+            get => _recipeJsonContent;
+            set
+            {
+                if (_recipeJsonContent != value)
+                {
+                    _recipeJsonContent = value;
+                    OnPropertyChanged(nameof(RecipeJsonContent));
+                }
+            }
+        }
 
         public RecipeApprovalMode ApprovalMode { get; private set; }
         public bool IsModified => ApprovalMode == RecipeApprovalMode.Modified;
@@ -101,6 +130,7 @@ namespace Greenshot.UI
 
         public RecipeApprovalWindow(CaptureRecipe recipe, string filePath, RecipeValidationResult validationResult = null, RecipeTrustRecord previousTrustRecord = null)
         {
+            _recipe = recipe;
             InitializeComponent();
 
             RecipeName = recipe?.Name ?? "Unnamed Recipe";
@@ -340,66 +370,94 @@ namespace Greenshot.UI
 
         private void OnOpenInExplorerClicked(object sender, RoutedEventArgs e)
         {
-            OpenInExplorer(FilePath);
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(FilePath))
+                {
+                    ExplorerHelper.OpenInExplorer(FilePath);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Failed to open Explorer for '{FilePath}': {ex.Message}");
+            }
         }
 
         private void OnViewFileClicked(object sender, RoutedEventArgs e)
         {
-            OpenRecipeFile(FilePath);
+            ToggleJsonViewer();
         }
 
-        public static void OpenInExplorer(string filePath)
+        private void OnCloseJsonViewerClicked(object sender, RoutedEventArgs e)
+        {
+            IsJsonViewerVisible = false;
+        }
+
+        private void OnCopyJsonClicked(object sender, RoutedEventArgs e)
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(filePath)) return;
-
-                string fullPath = System.IO.Path.GetFullPath(filePath);
-                if (System.IO.File.Exists(fullPath))
+                if (!string.IsNullOrEmpty(RecipeJsonContent))
                 {
-                    System.Diagnostics.Process.Start("explorer.exe", $"/select,\"{fullPath}\"");
+                    System.Windows.Clipboard.SetText(RecipeJsonContent);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Failed to copy JSON to clipboard: {ex.Message}");
+            }
+        }
+
+        public void ToggleJsonViewer()
+        {
+            IsJsonViewerVisible = !IsJsonViewerVisible;
+            if (IsJsonViewerVisible && string.IsNullOrEmpty(RecipeJsonContent))
+            {
+                LoadJsonContent();
+            }
+        }
+
+        private void LoadJsonContent()
+        {
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(FilePath) && File.Exists(FilePath))
+                {
+                    var fi = new FileInfo(FilePath);
+                    if (fi.Length > 1024 * 1024)
+                    {
+                        RecipeJsonContent = "// Recipe file is too large to preview (> 1MB).";
+                    }
+                    else
+                    {
+                        RecipeJsonContent = File.ReadAllText(FilePath);
+                    }
+                }
+                else if (_recipe != null)
+                {
+                    RecipeJsonContent = RecipeSerializer.Serialize(_recipe);
                 }
                 else
                 {
-                    string dir = System.IO.Path.GetDirectoryName(fullPath);
-                    if (!string.IsNullOrEmpty(dir) && System.IO.Directory.Exists(dir))
-                    {
-                        System.Diagnostics.Process.Start("explorer.exe", $"\"{dir}\"");
-                    }
+                    RecipeJsonContent = "// Recipe content unavailable.";
                 }
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Failed to open Explorer for '{filePath}': {ex.Message}");
+                RecipeJsonContent = $"// Error reading recipe: {ex.Message}";
             }
         }
 
-        public static void OpenRecipeFile(string filePath)
+        protected override void OnPreviewKeyDown(System.Windows.Input.KeyEventArgs e)
         {
-            try
+            if (e.Key == System.Windows.Input.Key.Escape && IsJsonViewerVisible)
             {
-                if (string.IsNullOrWhiteSpace(filePath)) return;
+                IsJsonViewerVisible = false;
+                e.Handled = true;
+                return;
+            }
 
-                string fullPath = System.IO.Path.GetFullPath(filePath);
-                if (System.IO.File.Exists(fullPath))
-                {
-                    try
-                    {
-                        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(fullPath)
-                        {
-                            UseShellExecute = true
-                        });
-                    }
-                    catch
-                    {
-                        System.Diagnostics.Process.Start("notepad.exe", $"\"{fullPath}\"");
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Failed to open recipe file '{filePath}': {ex.Message}");
-            }
+            base.OnPreviewKeyDown(e);
         }
 
         private void ApplyImmersiveDarkMode()

@@ -274,10 +274,10 @@
                                     <Button Style="{StaticResource SecondaryButtonStyle}" 
                                             Padding="10,4"
                                             Click="OnViewFileClicked"
-                                            ToolTip="Open recipe file in default editor to inspect changes">
+                                            ToolTip="Inspect the raw recipe JSON definition inside this window">
                                         <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="📝" Margin="0,0,6,0" FontSize="11" VerticalAlignment="Center"/>
-                                            <TextBlock Text="View Recipe File" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{}{ } " FontFamily="Consolas" Margin="0,0,4,0" FontSize="11" VerticalAlignment="Center"/>
+                                            <TextBlock Text="View Recipe JSON" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Button>
                                 </StackPanel>
@@ -320,16 +320,26 @@
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Text="File Path:" FontWeight="SemiBold" Foreground="{Binding TextSecondaryBrush}" VerticalAlignment="Center"/>
                                     <TextBlock Grid.Column="1" Text="{Binding FilePath}" TextTrimming="CharacterEllipsis" ToolTip="{Binding FilePath}" Foreground="{Binding TextPrimaryBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                    <Button Grid.Column="2" 
-                                            Style="{StaticResource SecondaryButtonStyle}" 
-                                            Padding="8,2" FontSize="11"
-                                            Click="OnOpenInExplorerClicked"
-                                            ToolTip="Show this file in Windows Explorer">
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="📁" Margin="0,0,4,0" FontSize="10" VerticalAlignment="Center"/>
-                                            <TextBlock Text="Explorer" FontSize="10" VerticalAlignment="Center"/>
-                                        </StackPanel>
-                                    </Button>
+                                    <StackPanel Grid.Column="2" Orientation="Horizontal">
+                                        <Button Style="{StaticResource SecondaryButtonStyle}" 
+                                                Padding="8,2" FontSize="11" Margin="0,0,4,0"
+                                                Click="OnViewFileClicked"
+                                                ToolTip="Inspect the raw recipe JSON definition inside this window">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="{}{ } " FontFamily="Consolas" Margin="0,0,3,0" FontSize="10" VerticalAlignment="Center"/>
+                                                <TextBlock Text="View JSON" FontSize="10" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Button>
+                                        <Button Style="{StaticResource SecondaryButtonStyle}" 
+                                                Padding="8,2" FontSize="11"
+                                                Click="OnOpenInExplorerClicked"
+                                                ToolTip="Show this file in Windows Explorer">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="📁" Margin="0,0,4,0" FontSize="10" VerticalAlignment="Center"/>
+                                                <TextBlock Text="Explorer" FontSize="10" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Button>
+                                    </StackPanel>
                                 </Grid>
 
                                 <Grid Margin="0,2,0,0">
@@ -342,6 +352,8 @@
                                 </Grid>
                             </StackPanel>
                         </Border>
+
+
 
                         <!-- Triggers Card -->
                         <Border CornerRadius="8" Padding="14" Margin="0,0,0,12"
@@ -449,6 +461,90 @@
                             Padding="16,6"
                             Click="OnApproveClicked"/>
                 </Grid>
+            </Grid>
+
+            <!-- In-Dialog JSON Viewer Full Overlay -->
+            <Grid Grid.Row="1" 
+                  Background="#99000000" 
+                  Visibility="{Binding JsonViewerVisibility}">
+                <Border Background="{Binding CardBackgroundBrush}" 
+                        BorderBrush="{Binding CardBorderBrush}" 
+                        BorderThickness="1" 
+                        CornerRadius="8" 
+                        Margin="18" 
+                        Padding="16">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="25" ShadowDepth="4" Opacity="0.45" Direction="270"/>
+                    </Border.Effect>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Overlay Header -->
+                        <Grid Grid.Row="0" Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="{}{ } " FontFamily="Consolas" FontWeight="Bold" FontSize="15" Foreground="{Binding AccentBrush}"/>
+                                <TextBlock Text="Recipe JSON Definition" FontWeight="Bold" FontSize="15" Foreground="{Binding TextPrimaryBrush}"/>
+                                <TextBlock Text="{Binding RecipeName, StringFormat=' — {0}'}" FontSize="13" Foreground="{Binding TextSecondaryBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                            </StackPanel>
+                            <Button Grid.Column="1" 
+                                    Style="{StaticResource SecondaryButtonStyle}" 
+                                    Padding="10,4" FontSize="11"
+                                    Click="OnCloseJsonViewerClicked"
+                                    ToolTip="Close JSON viewer (Esc)">
+                                <TextBlock Text="✕ Close" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                            </Button>
+                        </Grid>
+
+                        <!-- JSON Content Text Box -->
+                        <TextBox Grid.Row="1" 
+                                 Text="{Binding RecipeJsonContent, Mode=OneWay}"
+                                 FontFamily="Consolas, Courier New" FontSize="12"
+                                 Background="{Binding WindowBackgroundBrush}" 
+                                 Foreground="{Binding TextPrimaryBrush}"
+                                 BorderBrush="{Binding CardBorderBrush}"
+                                 BorderThickness="1"
+                                 IsReadOnly="True"
+                                 VerticalScrollBarVisibility="Auto" 
+                                 HorizontalScrollBarVisibility="Auto"
+                                 Padding="10"
+                                 TextWrapping="NoWrap"/>
+
+                        <!-- Overlay Footer Actions -->
+                        <Grid Grid.Row="2" Margin="0,10,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="{Binding FilePath}" TextTrimming="CharacterEllipsis" ToolTip="{Binding FilePath}" 
+                                       FontSize="11" Foreground="{Binding TextSecondaryBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                                <Button Style="{StaticResource SecondaryButtonStyle}" 
+                                        Padding="12,5" Margin="0,0,8,0"
+                                        Click="OnCopyJsonClicked"
+                                        ToolTip="Copy recipe JSON to clipboard">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="📋" Margin="0,0,6,0" FontSize="11" VerticalAlignment="Center"/>
+                                        <TextBlock Text="Copy to Clipboard" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
+                                <Button Style="{StaticResource PrimaryButtonStyle}" 
+                                        Padding="16,5"
+                                        Click="OnCloseJsonViewerClicked"
+                                        ToolTip="Close JSON viewer">
+                                    <TextBlock Text="Done" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                </Button>
+                            </StackPanel>
+                        </Grid>
+                    </Grid>
+                </Border>
             </Grid>
         </Grid>
     </Border>
