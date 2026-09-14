@@ -43,14 +43,27 @@ namespace Greenshot.Plugin.ExternalCommand
     /// Capture recipe step that executes an external tool or command line utility
     /// against the current screenshot surface/file.
     /// </summary>
-    public class ExternalCommandStep : ICaptureStep, IRequiresExternalCommandAuthorization
+    public class ExternalCommandStep : ICaptureStep, IRequiresRecipeAuthorization
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(ExternalCommandStep));
         private static readonly Regex UriRegex = new Regex(
             @"((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)",
             RegexOptions.Compiled);
 
-        private static IExternalCommandConfiguration Config => IniConfigRegistry.GetSection<IExternalCommandConfiguration>();
+        private static IExternalCommandConfiguration Config
+        {
+            get
+            {
+                try
+                {
+                    return IniConfigRegistry.GetSection<IExternalCommandConfiguration>();
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+        }
 
         public string Name { get; }
         public RecipeNodeConfig NodeConfig { get; }
@@ -61,15 +74,15 @@ namespace Greenshot.Plugin.ExternalCommand
             Name = config.Name ?? "ExternalCommandStep";
         }
 
-        public IEnumerable<string> GetExternalCommands()
+        public IEnumerable<RecipeGatedAction> GetGatedActions()
         {
-            string commandName = NodeConfig.GetFirstParameter<string>("Command", "CommandName");
+            string commandName = NodeConfig.GetParameter<string>("Command");
             if (string.IsNullOrEmpty(commandName) && NodeConfig.StepType.StartsWith("ExternalCommand.", StringComparison.OrdinalIgnoreCase))
             {
                 commandName = NodeConfig.StepType.Substring("ExternalCommand.".Length);
             }
 
-            string commandLine = NodeConfig.GetFirstParameter<string>("CommandLine", "Executable", "Path");
+            string commandLine = NodeConfig.GetParameter<string>("CommandLine") ?? NodeConfig.GetParameter<string>("Path");
 
             var extConfig = Config;
             if (string.IsNullOrEmpty(commandLine) && !string.IsNullOrEmpty(commandName) && extConfig?.Commandline != null && extConfig.Commandline.ContainsKey(commandName))
@@ -81,7 +94,7 @@ namespace Greenshot.Plugin.ExternalCommand
                 ? (!string.IsNullOrEmpty(commandName) ? $"{commandName} ({commandLine})" : commandLine)
                 : (commandName ?? NodeConfig.StepType);
 
-            yield return target;
+            yield return new RecipeGatedAction(RecipeGateType.ExternalCommand, target, "recipe_gate_external_command");
         }
 
         public async Task ExecuteAsync(CaptureFlowContext context, CancellationToken cancellationToken = default)
@@ -169,11 +182,9 @@ namespace Greenshot.Plugin.ExternalCommand
             string fullPath = captureDetails.Filename
                 ?? (context.Properties.TryGetValue("Destination.Filename", out var df) && df is string dfs ? dfs : null);
 
-            bool isTempFile = false;
             if (string.IsNullOrEmpty(fullPath) || !File.Exists(fullPath))
             {
                 fullPath = ImageIO.SaveNamedTmpFile(surface, captureDetails, outputSettings);
-                isTempFile = true;
             }
 
             context.Properties["ExternalCommand.TargetFile"] = fullPath;

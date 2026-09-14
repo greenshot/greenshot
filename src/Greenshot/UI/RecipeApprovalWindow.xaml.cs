@@ -27,6 +27,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Media;
 using Greenshot.Base.Core;
+using Greenshot.Base.Pipeline;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Triggers;
 using Greenshot.Recipes;
@@ -268,21 +269,45 @@ namespace Greenshot.UI
                 }
             }
 
-            // External Command handling
-            if (validationResult != null && validationResult.HasExternalCommands)
+            // Gated Actions / External Command handling
+            if (validationResult != null && validationResult.HasGatedActions)
             {
                 HasExternalCommands = true;
-                foreach (var cmd in validationResult.ExternalCommands)
+                foreach (var action in validationResult.GatedActions)
                 {
-                    ExternalCommandsList.Add(cmd);
+                    ExternalCommandsList.Add(FormatGatedAction(action));
                 }
             }
 
-            // If external commands exist, require authorization before enabling Approve
+            // If gated actions exist, require authorization before enabling Approve
             if (HasExternalCommands)
             {
                 BtnApprove.IsEnabled = false;
             }
+        }
+
+        private static string FormatGatedAction(RecipeGatedAction action)
+        {
+            if (action == null) return string.Empty;
+
+            string typeName = !string.IsNullOrEmpty(action.DescriptionKey)
+                ? Greenshot.Base.Core.Language.GetString(action.DescriptionKey)
+                : null;
+
+            if (string.IsNullOrEmpty(typeName))
+            {
+                typeName = action.GateType switch
+                {
+                    RecipeGateType.ExternalCommand => Greenshot.Base.Core.Language.GetString("recipe_gate_external_command") ?? "External Command",
+                    RecipeGateType.NetworkAccess => Greenshot.Base.Core.Language.GetString("recipe_gate_network_access") ?? "Network Access",
+                    RecipeGateType.FileSystemAccess => Greenshot.Base.Core.Language.GetString("recipe_gate_file_system_access") ?? "File System Access",
+                    _ => Greenshot.Base.Core.Language.GetString("recipe_gate_custom") ?? "Custom Action"
+                };
+            }
+
+            return !string.IsNullOrWhiteSpace(action.Target)
+                ? $"{typeName}: {action.Target}"
+                : typeName;
         }
 
         private void OnAuthorizeChecked(object sender, RoutedEventArgs e)
