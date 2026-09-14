@@ -66,6 +66,28 @@ namespace Greenshot.Base.Pipeline
             return Surface;
         }
 
+        public ICapturePayload Clone()
+        {
+            var clone = new CapturePayload
+            {
+                RawCapture = RawCapture?.Clone(),
+                Surface = Surface?.Clone(),
+                ExtractedText = ExtractedText,
+                RetainSurfaceForEditor = false,
+                SurfaceFactory = SurfaceFactory ?? DefaultSurfaceFactory
+            };
+
+            if (Metadata != null)
+            {
+                foreach (var kvp in Metadata)
+                {
+                    clone.Metadata[kvp.Key] = kvp.Value;
+                }
+            }
+
+            return clone;
+        }
+
         public void Dispose()
         {
             if (_disposed) return;

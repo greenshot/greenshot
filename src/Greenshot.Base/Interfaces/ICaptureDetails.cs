@@ -94,6 +94,11 @@ namespace Greenshot.Base.Interfaces
         System.Collections.Generic.HashSet<string> StartedProcessors { get; }
 
         /// <summary>
+        /// Creates a deep copy of the capture details.
+        /// </summary>
+        ICaptureDetails Clone();
+
+        /// <summary>
         /// Event fired when features have been updated.
         /// </summary>
         event EventHandler FeaturesChanged;
