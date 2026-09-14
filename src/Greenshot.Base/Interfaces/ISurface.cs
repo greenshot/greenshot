@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -273,5 +273,10 @@ namespace Greenshot.Base.Interfaces
         /// Provide access to the controls, this is for the EmojiContainer and needs to go.
         /// </summary>
         public Control.ControlCollection Controls { get; }
+
+        /// <summary>
+        /// Creates a deep copy of the surface, cloning its background image, elements, and capture details.
+        /// </summary>
+        ISurface Clone();
     }
 }

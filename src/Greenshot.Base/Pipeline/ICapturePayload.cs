@@ -66,5 +66,10 @@ namespace Greenshot.Base.Pipeline
         /// Ensures a Surface is instantiated from the RawCapture if not already present.
         /// </summary>
         ISurface EnsureSurface();
+
+        /// <summary>
+        /// Creates a deep copy of the capture payload, cloning its capture, surface (if initialized), extracted text, and metadata.
+        /// </summary>
+        ICapturePayload Clone();
     }
 }

@@ -129,6 +129,48 @@ namespace Greenshot.Base.Core
         public event EventHandler FeaturesChanged;
 
         /// <summary>
+        /// Creates a deep copy of the capture details.
+        /// </summary>
+        public CaptureDetails Clone()
+        {
+            var clone = new CaptureDetails
+            {
+                Title = Title,
+                Filename = Filename,
+                DateTime = DateTime,
+                DpiX = DpiX,
+                DpiY = DpiY,
+                CaptureMode = CaptureMode,
+                CropOffset = CropOffset
+            };
+
+            if (MetaData != null)
+            {
+                foreach (var kvp in MetaData)
+                {
+                    clone.MetaData[kvp.Key] = kvp.Value;
+                }
+            }
+
+            if (Features != null)
+            {
+                lock (Features)
+                {
+                    clone.Features.AddRange(Features);
+                }
+            }
+
+            if (CaptureDestinations != null)
+            {
+                clone.CaptureDestinations.AddRange(CaptureDestinations);
+            }
+
+            return clone;
+        }
+
+        ICaptureDetails ICaptureDetails.Clone() => Clone();
+
+        /// <summary>
         /// Helper to raise the FeaturesChanged event.
         /// </summary>
         public void NotifyFeaturesChanged()
