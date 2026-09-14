@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
@@ -42,7 +43,7 @@ namespace Greenshot.Plugin.ExternalCommand
     /// Capture recipe step that executes an external tool or command line utility
     /// against the current screenshot surface/file.
     /// </summary>
-    public class ExternalCommandStep : ICaptureStep
+    public class ExternalCommandStep : ICaptureStep, IRequiresExternalCommandAuthorization
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(ExternalCommandStep));
         private static readonly Regex UriRegex = new Regex(
@@ -60,6 +61,29 @@ namespace Greenshot.Plugin.ExternalCommand
             Name = config.Name ?? "ExternalCommandStep";
         }
 
+        public IEnumerable<string> GetExternalCommands()
+        {
+            string commandName = NodeConfig.GetFirstParameter<string>("Command", "CommandName");
+            if (string.IsNullOrEmpty(commandName) && NodeConfig.StepType.StartsWith("ExternalCommand.", StringComparison.OrdinalIgnoreCase))
+            {
+                commandName = NodeConfig.StepType.Substring("ExternalCommand.".Length);
+            }
+
+            string commandLine = NodeConfig.GetFirstParameter<string>("CommandLine", "Executable", "Path");
+
+            var extConfig = Config;
+            if (string.IsNullOrEmpty(commandLine) && !string.IsNullOrEmpty(commandName) && extConfig?.Commandline != null && extConfig.Commandline.ContainsKey(commandName))
+            {
+                commandLine = extConfig.Commandline[commandName];
+            }
+
+            string target = !string.IsNullOrEmpty(commandLine)
+                ? (!string.IsNullOrEmpty(commandName) ? $"{commandName} ({commandLine})" : commandLine)
+                : (commandName ?? NodeConfig.StepType);
+
+            yield return target;
+        }
+
         public async Task ExecuteAsync(CaptureFlowContext context, CancellationToken cancellationToken = default)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
@@ -75,60 +99,23 @@ namespace Greenshot.Plugin.ExternalCommand
             var captureDetails = context.Payload?.RawCapture?.CaptureDetails ?? new CaptureDetails();
 
             // 1. Resolve Command Name & Settings
-            string commandName = NodeConfig.GetParameter<string>("Command")
-                ?? NodeConfig.GetParameter<string>("command")
-                ?? NodeConfig.GetParameter<string>("CommandName")
-                ?? NodeConfig.GetParameter<string>("commandName");
+            string commandName = NodeConfig.GetFirstParameter<string>("Command", "CommandName");
+            if (string.IsNullOrEmpty(commandName) && NodeConfig.StepType.StartsWith("ExternalCommand.", StringComparison.OrdinalIgnoreCase))
+            {
+                commandName = NodeConfig.StepType.Substring("ExternalCommand.".Length);
+            }
 
-            string commandLine = NodeConfig.GetParameter<string>("CommandLine")
-                ?? NodeConfig.GetParameter<string>("commandLine")
-                ?? NodeConfig.GetParameter<string>("Executable")
-                ?? NodeConfig.GetParameter<string>("executable")
-                ?? NodeConfig.GetParameter<string>("Path")
-                ?? NodeConfig.GetParameter<string>("path");
-
-            string arguments = NodeConfig.GetParameter<string>("Arguments")
-                ?? NodeConfig.GetParameter<string>("arguments")
-                ?? NodeConfig.GetParameter<string>("Argument")
-                ?? NodeConfig.GetParameter<string>("argument")
-                ?? NodeConfig.GetParameter<string>("Args")
-                ?? NodeConfig.GetParameter<string>("args");
-
-            bool? runInBackgroundParam = NodeConfig.GetParameter<bool?>("RunInBackground")
-                ?? NodeConfig.GetParameter<bool?>("runInBackground")
-                ?? NodeConfig.GetParameter<bool?>("Async")
-                ?? NodeConfig.GetParameter<bool?>("async");
-
-            string formatStr = NodeConfig.GetParameter<string>("OutputFormat")
-                ?? NodeConfig.GetParameter<string>("outputFormat")
-                ?? NodeConfig.GetParameter<string>("Format")
-                ?? NodeConfig.GetParameter<string>("format");
-
-            bool? outputToClipboardParam = NodeConfig.GetParameter<bool?>("OutputToClipboard")
-                ?? NodeConfig.GetParameter<bool?>("outputToClipboard");
-
-            bool? uriToClipboardParam = NodeConfig.GetParameter<bool?>("UriToClipboard")
-                ?? NodeConfig.GetParameter<bool?>("uriToClipboard");
-
-            bool reloadAfterExecution = NodeConfig.GetParameter<bool?>("ReloadAfterExecution")
-                ?? NodeConfig.GetParameter<bool?>("reloadAfterExecution")
-                ?? NodeConfig.GetParameter<bool?>("UpdatePayload")
-                ?? NodeConfig.GetParameter<bool?>("updatePayload")
-                ?? false;
-
-            string workingDirectory = NodeConfig.GetParameter<string>("WorkingDirectory")
-                ?? NodeConfig.GetParameter<string>("workingDirectory")
-                ?? NodeConfig.GetParameter<string>("WorkingDir")
-                ?? NodeConfig.GetParameter<string>("workingDir");
-
-            string verb = NodeConfig.GetParameter<string>("Verb")
-                ?? NodeConfig.GetParameter<string>("verb");
-
-            string setOutputVariable = NodeConfig.GetParameter<string>("SetOutputVariable")
-                ?? NodeConfig.GetParameter<string>("setOutputVariable");
-
-            string setExitCodeVariable = NodeConfig.GetParameter<string>("SetExitCodeVariable")
-                ?? NodeConfig.GetParameter<string>("setExitCodeVariable");
+            string commandLine = NodeConfig.GetFirstParameter<string>("CommandLine", "Executable", "Path");
+            string arguments = NodeConfig.GetFirstParameter<string>("Arguments", "Argument", "Args");
+            bool? runInBackgroundParam = NodeConfig.GetFirstParameter<bool?>("RunInBackground", "Async");
+            string formatStr = NodeConfig.GetFirstParameter<string>("OutputFormat", "Format");
+            bool? outputToClipboardParam = NodeConfig.GetFirstParameter<bool?>("OutputToClipboard");
+            bool? uriToClipboardParam = NodeConfig.GetFirstParameter<bool?>("UriToClipboard");
+            bool reloadAfterExecution = NodeConfig.GetFirstParameter<bool?>("ReloadAfterExecution", "UpdatePayload") ?? false;
+            string workingDirectory = NodeConfig.GetFirstParameter<string>("WorkingDirectory", "WorkingDir");
+            string verb = NodeConfig.GetFirstParameter<string>("Verb");
+            string setOutputVariable = NodeConfig.GetFirstParameter<string>("SetOutputVariable");
+            string setExitCodeVariable = NodeConfig.GetFirstParameter<string>("SetExitCodeVariable");
 
             // Look up configured command if commandName is given or commandLine is not explicitly set
             var extConfig = Config;

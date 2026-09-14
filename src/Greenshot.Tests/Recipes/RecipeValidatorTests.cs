@@ -81,5 +81,113 @@ namespace Greenshot.Tests.Recipes
             Assert.Contains(result.Errors, e => e.Contains("Duplicate node id"));
             Assert.Contains(result.Errors, e => e.Contains("does not match any defined node id"));
         }
+
+        [Fact]
+        public void Validate_RouteA_DottedStepTypeAndPath_FlagsExternalCommands()
+        {
+            var recipe = new CaptureRecipe("route_a_recipe", "Route A PoC")
+                .AddNode(new RecipeNodeConfig { Id = "start", StepType = "Source" })
+                .AddNode(new RecipeNodeConfig
+                {
+                    Id = "cmd_step",
+                    StepType = "ExternalCommand.MS Paint",
+                    Parameters = new Dictionary<string, object>
+                    {
+                        { "Path", @"C:\Windows\System32\cmd.exe" },
+                        { "Arguments", "\"{0}\"" }
+                    }
+                });
+
+            recipe.Flow = new RecipeFlowConfig("start").AddTransition("start", "cmd_step");
+
+            var result = RecipeValidator.Validate(recipe);
+            Assert.True(result.HasExternalCommands, "Route A dotted step type with Path parameter must be flagged as having external commands.");
+            Assert.Contains(result.ExternalCommands, c => c.Contains(@"C:\Windows\System32\cmd.exe") || c.Contains("MS Paint"));
+        }
+
+        [Fact]
+        public void Validate_RouteB_DestinationsExternal_FlagsExternalCommands()
+        {
+            var recipe = new CaptureRecipe("route_b_recipe", "Route B PoC")
+                .AddNode(new RecipeNodeConfig { Id = "start", StepType = "Source" })
+                .AddNode(new RecipeNodeConfig
+                {
+                    Id = "dest_step",
+                    StepType = "Destinations",
+                    Parameters = new Dictionary<string, object>
+                    {
+                        { "DestinationDesignations", new List<string> { "External MS Paint" } }
+                    }
+                });
+
+            recipe.Flow = new RecipeFlowConfig("start").AddTransition("start", "dest_step");
+
+            var result = RecipeValidator.Validate(recipe);
+            Assert.True(result.HasExternalCommands, "Route B Destinations step with External designation must be flagged as having external commands.");
+            Assert.Contains(result.ExternalCommands, c => c.Contains("External MS Paint"));
+        }
+
+        [Fact]
+        public void Validate_RouteB_CustomDestinationExternal_FlagsExternalCommands()
+        {
+            var recipe = new CaptureRecipe("route_b_custom", "Route B Custom Destination")
+                .AddNode(new RecipeNodeConfig { Id = "start", StepType = "Source" })
+                .AddNode(new RecipeNodeConfig
+                {
+                    Id = "dest_step",
+                    StepType = "CustomDestination",
+                    Parameters = new Dictionary<string, object>
+                    {
+                        { "CustomDestinationId", "External Tool" }
+                    }
+                });
+
+            recipe.Flow = new RecipeFlowConfig("start").AddTransition("start", "dest_step");
+
+            var result = RecipeValidator.Validate(recipe);
+            Assert.True(result.HasExternalCommands, "CustomDestination pointing to External destination must be flagged.");
+            Assert.Contains(result.ExternalCommands, c => c.Contains("External Tool"));
+        }
+
+        [Fact]
+        public void Validate_LatentParameterOnBorderNode_FlagsExternalCommands()
+        {
+            var recipe = new CaptureRecipe("latent_recipe", "Latent Parameter Test")
+                .AddNode(new RecipeNodeConfig { Id = "start", StepType = "Source" })
+                .AddNode(new RecipeNodeConfig
+                {
+                    Id = "border_step",
+                    StepType = "Border",
+                    Parameters = new Dictionary<string, object>
+                    {
+                        { "Width", 2 },
+                        { "Path", @"C:\Windows\System32\calc.exe" }
+                    }
+                });
+
+            recipe.Flow = new RecipeFlowConfig("start").AddTransition("start", "border_step");
+
+            var result = RecipeValidator.Validate(recipe);
+            Assert.True(result.HasExternalCommands, "Border step carrying executable Path parameter must be flagged.");
+            Assert.Contains(result.ExternalCommands, c => c.Contains("calc.exe"));
+        }
+
+        [Fact]
+        public void Validate_SafeBuiltInRecipe_HasExternalCommandsFalse()
+        {
+            var recipe = new CaptureRecipe("safe_recipe", "Safe Recipe")
+                .AddNode(new RecipeNodeConfig { Id = "start", StepType = "Source" })
+                .AddNode(new RecipeNodeConfig { Id = "border", StepType = "Border", Parameters = new Dictionary<string, object> { { "Width", 2 } } })
+                .AddNode(new RecipeNodeConfig { Id = "clip", StepType = "Clipboard" });
+
+            recipe.Flow = new RecipeFlowConfig("start")
+                .AddTransition("start", "border")
+                .AddTransition("border", "clip");
+
+            var result = RecipeValidator.Validate(recipe);
+            Assert.True(result.IsValid);
+            Assert.False(result.HasExternalCommands);
+            Assert.Empty(result.ExternalCommands);
+        }
     }
 }
