@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -26,6 +26,8 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.RegularExpressions;
 using Greenshot.Base.Core.FileFormatHandlers;
@@ -60,13 +62,150 @@ namespace Greenshot.Base.Core
         {
             try
             {
-                // Disable certificate checking
-                ServicePointManager.ServerCertificateValidationCallback += delegate { return true; };
+                ServicePointManager.ServerCertificateValidationCallback = ValidateServerCertificate;
             }
             catch (Exception ex)
             {
-                Log.Warn("An error has occurred while allowing self-signed certificates:", ex);
+                Log.Warn("An error has occurred while configuring certificate validation callback:", ex);
             }
+        }
+
+        /// <summary>
+        /// Validates server SSL/TLS certificates according to standard rules and configured exceptions in the Core configuration.
+        /// </summary>
+        /// <param name="sender">The sender object (e.g. HttpWebRequest or ServicePoint)</param>
+        /// <param name="certificate">The certificate to validate</param>
+        /// <param name="chain">The certificate chain</param>
+        /// <param name="sslPolicyErrors">Any SSL policy errors identified by the platform</param>
+        /// <returns>True if the certificate is accepted; otherwise, false.</returns>
+        public static bool ValidateServerCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+        {
+            // If standard platform validation succeeded without any policy errors, accept
+            if (sslPolicyErrors == SslPolicyErrors.None)
+            {
+                return true;
+            }
+
+            if (certificate == null)
+            {
+                Log.Warn($"SSL/TLS certificate validation failed: certificate is null (Policy errors: {sslPolicyErrors}).");
+                return false;
+            }
+
+            // 1. Check certificate thumbprint allowlist
+            var certThumbprint = (certificate as X509Certificate2)?.Thumbprint ?? certificate.GetCertHashString();
+            if (!string.IsNullOrEmpty(certThumbprint) && Config?.AllowedCertificateThumbprints != null)
+            {
+                string normalizedThumbprint = certThumbprint.Replace(":", "").Replace(" ", "");
+                foreach (var allowedThumbprint in Config.AllowedCertificateThumbprints)
+                {
+                    if (string.IsNullOrWhiteSpace(allowedThumbprint))
+                    {
+                        continue;
+                    }
+
+                    string normalizedAllowed = allowedThumbprint.Replace(":", "").Replace(" ", "");
+                    if (string.Equals(normalizedAllowed, normalizedThumbprint, StringComparison.OrdinalIgnoreCase))
+                    {
+                        Log.Info($"SSL/TLS certificate validation exception accepted by thumbprint '{certThumbprint}' for subject '{certificate.Subject}'.");
+                        return true;
+                    }
+                }
+            }
+
+            // 2. Extract host from sender (HttpWebRequest, ServicePoint, Uri, string)
+            string host = null;
+            if (sender is HttpWebRequest webRequest && webRequest.RequestUri != null)
+            {
+                host = webRequest.RequestUri.Host;
+            }
+            else if (sender is ServicePoint servicePoint && servicePoint.Address != null)
+            {
+                host = servicePoint.Address.Host;
+            }
+            else if (sender is Uri uri)
+            {
+                host = uri.Host;
+            }
+            else if (sender is string hostStr)
+            {
+                if (Uri.TryCreate(hostStr, UriKind.Absolute, out var parsedUri))
+                {
+                    host = parsedUri.Host;
+                }
+                else
+                {
+                    host = hostStr;
+                }
+            }
+
+            // 3. Check allowed untrusted hosts allowlist
+            if (!string.IsNullOrEmpty(host) && Config?.AllowedUntrustedCertificateHosts != null)
+            {
+                foreach (var pattern in Config.AllowedUntrustedCertificateHosts)
+                {
+                    if (string.IsNullOrWhiteSpace(pattern))
+                    {
+                        continue;
+                    }
+
+                    if (IsHostMatch(host, pattern.Trim()))
+                    {
+                        Log.Warn($"SSL/TLS certificate validation exception accepted for host '{host}' (Policy errors: {sslPolicyErrors}, Subject: '{certificate.Subject}').");
+                        return true;
+                    }
+                }
+            }
+
+            Log.Warn($"SSL/TLS certificate validation failed for host '{(host ?? "unknown")}' (Policy errors: {sslPolicyErrors}, Subject: '{certificate.Subject}', Thumbprint: '{certThumbprint}').");
+            return false;
+        }
+
+        /// <summary>
+        /// Checks if a host matches a pattern (supports exact match and wildcard like *.example.com or *example.com).
+        /// </summary>
+        /// <param name="host">The target hostname</param>
+        /// <param name="pattern">The configured pattern</param>
+        /// <returns>True if host matches pattern, otherwise false</returns>
+        public static bool IsHostMatch(string host, string pattern)
+        {
+            if (string.IsNullOrWhiteSpace(host) || string.IsNullOrWhiteSpace(pattern))
+            {
+                return false;
+            }
+
+            // Strip port if specified in host or pattern (e.g. host:8443)
+            int colonIndex = host.IndexOf(':');
+            if (colonIndex >= 0)
+            {
+                host = host.Substring(0, colonIndex);
+            }
+
+            int patternColonIndex = pattern.IndexOf(':');
+            if (patternColonIndex >= 0)
+            {
+                pattern = pattern.Substring(0, patternColonIndex);
+            }
+
+            if (string.Equals(host, pattern, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            if (pattern.Contains("*") || pattern.Contains("?"))
+            {
+                string regexPattern = "^" + Regex.Escape(pattern).Replace(@"\*", ".*").Replace(@"\?", ".") + "$";
+                try
+                {
+                    return Regex.IsMatch(host, regexPattern, RegexOptions.IgnoreCase);
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+
+            return false;
         }
 
         /// <summary>

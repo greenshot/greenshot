@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2021 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -376,6 +376,14 @@ namespace Greenshot.Base.Core
         [IniProperty("WebRequestReadWriteTimeout", Description = "The read/write timeout value for web requests, these are seconds", DefaultValue = "100")]
         public int WebRequestReadWriteTimeout { get; set; }
 
+        [IniProperty("AllowedUntrustedCertificateHosts",
+            Description = "Comma separated list of hostnames or domain patterns (e.g. jira.internal, *.mycompany.local) for which SSL/TLS certificate validation errors are ignored.")]
+        public List<string> AllowedUntrustedCertificateHosts { get; set; } = new List<string>();
+
+        [IniProperty("AllowedCertificateThumbprints",
+            Description = "Comma separated list of certificate thumbprints (SHA-1 / SHA-256 hashes) for which SSL/TLS certificate validation errors are ignored.")]
+        public List<string> AllowedCertificateThumbprints { get; set; } = new List<string>();
+
         public bool UseLargeIcons => IconSize.Width >= 32 || IconSize.Height >= 32;
 
         /// <summary>
@@ -425,6 +433,8 @@ namespace Greenshot.Base.Core
             {
                 nameof(ExcludePlugins) => new List<string>(),
                 nameof(IncludePlugins) => new List<string>(),
+                nameof(AllowedUntrustedCertificateHosts) => new List<string>(),
+                nameof(AllowedCertificateThumbprints) => new List<string>(),
                 nameof(OutputFileAsFullpath) => IniConfig.IsPortable ? Path.Combine(Application.StartupPath, @"..\..\Documents\Pictures\Greenshots\dummy.png") : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "dummy.png"),
                 nameof(OutputFilePath) => CreateOutputFilePath(),
                 nameof(DWMBackgroundColor) => Color.Transparent,
