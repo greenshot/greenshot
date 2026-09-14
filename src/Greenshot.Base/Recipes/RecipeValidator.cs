@@ -225,7 +225,7 @@ namespace Greenshot.Base.Recipes
                 result.AddError($"Node '{node.Id}' uses stepType '{node.StepType}' which is not available because the required extension/plugin is not installed or active.");
             }
 
-            // Node-specific parameter validations
+            // Node-specific parameter validations (independent checks)
             if (string.Equals(node.StepType, WellKnownStepTypes.Border, StringComparison.OrdinalIgnoreCase))
             {
                 if (node.Parameters != null && node.Parameters.TryGetValue("Width", out var w) && w != null)
@@ -236,7 +236,7 @@ namespace Greenshot.Base.Recipes
                     }
                 }
             }
-            else if (string.Equals(node.StepType, WellKnownStepTypes.Source, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(node.StepType, WellKnownStepTypes.Source, StringComparison.OrdinalIgnoreCase))
             {
                 if (node.Parameters != null && node.Parameters.TryGetValue("SourceType", out var st) && st is string stStr)
                 {
@@ -246,7 +246,7 @@ namespace Greenshot.Base.Recipes
                     }
                 }
             }
-            else if (string.Equals(node.StepType, WellKnownStepTypes.InteractiveSelection, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(node.StepType, WellKnownStepTypes.InteractiveSelection, StringComparison.OrdinalIgnoreCase))
             {
                 if (node.Parameters != null && node.Parameters.TryGetValue("SelectionMode", out var sm) && sm is string smStr)
                 {
@@ -256,22 +256,116 @@ namespace Greenshot.Base.Recipes
                     }
                 }
             }
-            else if (string.Equals(node.StepType, WellKnownStepTypes.Conditional, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(node.StepType, WellKnownStepTypes.Conditional, StringComparison.OrdinalIgnoreCase))
             {
-                var branches = node.GetParameter<object>("Branches") ?? node.GetParameter<object>("branches");
+                var branches = node.GetFirstParameter<object>("Branches");
                 if (branches == null)
                 {
                     result.AddError($"Node '{node.Id}' [Conditional]: Missing required 'branches' configuration list.");
                 }
             }
-            else if (string.Equals(node.StepType, "ExternalCommand", StringComparison.OrdinalIgnoreCase) ||
-                     string.Equals(node.StepType, "ExecuteCommand", StringComparison.OrdinalIgnoreCase) ||
-                     string.Equals(node.StepType, "RunCommand", StringComparison.OrdinalIgnoreCase) ||
-                     (node.Parameters != null && (node.Parameters.ContainsKey("Command") || node.Parameters.ContainsKey("Executable") || node.Parameters.ContainsKey("CommandLine"))))
+
+            // Programmatic step inspection for external command authorization with fallback
+            CheckAndDetectExternalCommands(node, result);
+        }
+
+        private static void CheckAndDetectExternalCommands(RecipeNodeConfig node, RecipeValidationResult result)
+        {
+            bool detectedProgrammatically = false;
+
+            // 1. Programmatic Step Resolution via StepRegistry
+            try
             {
-                result.HasExternalCommands = true;
-                string cmd = node.GetParameter<string>("Command") ?? node.GetParameter<string>("Executable") ?? node.GetParameter<string>("CommandLine") ?? node.Name;
-                result.ExternalCommands.Add(cmd);
+                var step = StepRegistry.Instance.CreateStep(node);
+                if (step is IRequiresExternalCommandAuthorization authStep)
+                {
+                    var commands = authStep.GetExternalCommands();
+                    if (commands != null)
+                    {
+                        foreach (var cmd in commands)
+                        {
+                            if (!string.IsNullOrWhiteSpace(cmd))
+                            {
+                                result.HasExternalCommands = true;
+                                if (!result.ExternalCommands.Contains(cmd))
+                                {
+                                    result.ExternalCommands.Add(cmd);
+                                }
+                                detectedProgrammatically = true;
+                            }
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                // Fall through to heuristic static fallback
+            }
+
+            // 2. Static Heuristic Fallback (defense-in-depth for offline / unregistered plugin scenarios)
+            if (!detectedProgrammatically)
+            {
+                bool isExternalStepType = string.Equals(node.StepType, "ExternalCommand", StringComparison.OrdinalIgnoreCase) ||
+                                          string.Equals(node.StepType, "ExecuteCommand", StringComparison.OrdinalIgnoreCase) ||
+                                          string.Equals(node.StepType, "RunCommand", StringComparison.OrdinalIgnoreCase) ||
+                                          node.StepType.StartsWith("ExternalCommand.", StringComparison.OrdinalIgnoreCase) ||
+                                          node.StepType.StartsWith("ExecuteCommand.", StringComparison.OrdinalIgnoreCase) ||
+                                          node.StepType.StartsWith("RunCommand.", StringComparison.OrdinalIgnoreCase);
+
+                bool hasExecutableParams = node.HasParameter("Command") ||
+                                           node.HasParameter("CommandName") ||
+                                           node.HasParameter("CommandLine") ||
+                                           node.HasParameter("Executable") ||
+                                           node.HasParameter("Path") ||
+                                           node.HasParameter("Program") ||
+                                           node.HasParameter("Script");
+
+                if (isExternalStepType || hasExecutableParams)
+                {
+                    result.HasExternalCommands = true;
+                    string cmd = node.GetFirstParameter<string>("CommandLine", "Executable", "Path", "Command", "CommandName") ?? node.Name ?? node.StepType;
+                    if (!string.IsNullOrWhiteSpace(cmd) && !result.ExternalCommands.Contains(cmd))
+                    {
+                        result.ExternalCommands.Add(cmd);
+                    }
+                }
+
+                // Check destination steps for External <command> designations
+                if (string.Equals(node.StepType, WellKnownStepTypes.Destinations, StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(node.StepType, WellKnownStepTypes.CustomDestination, StringComparison.OrdinalIgnoreCase) ||
+                    node.HasParameter("Destination") ||
+                    node.HasParameter("Destinations") ||
+                    node.HasParameter("DestinationDesignations") ||
+                    node.HasParameter("CustomDestinationId"))
+                {
+                    var dests = node.GetFirstParameter<List<string>>("DestinationDesignations", "Destinations");
+                    if (dests != null)
+                    {
+                        foreach (var d in dests)
+                        {
+                            if (!string.IsNullOrWhiteSpace(d) && d.StartsWith("External ", StringComparison.OrdinalIgnoreCase))
+                            {
+                                result.HasExternalCommands = true;
+                                if (!result.ExternalCommands.Contains(d)) result.ExternalCommands.Add(d);
+                            }
+                        }
+                    }
+
+                    string singleDest = node.GetFirstParameter<string>("CustomDestinationId", "Destination", "DestinationDesignation");
+                    if (!string.IsNullOrWhiteSpace(singleDest))
+                    {
+                        var parts = singleDest.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                        foreach (var part in parts)
+                        {
+                            string trimmed = part.Trim();
+                            if (trimmed.StartsWith("External ", StringComparison.OrdinalIgnoreCase))
+                            {
+                                result.HasExternalCommands = true;
+                                if (!result.ExternalCommands.Contains(trimmed)) result.ExternalCommands.Add(trimmed);
+                            }
+                        }
+                    }
+                }
             }
         }
 

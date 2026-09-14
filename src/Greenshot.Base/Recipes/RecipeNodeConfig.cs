@@ -54,10 +54,18 @@ namespace Greenshot.Base.Recipes
         /// </summary>
         public bool Enabled { get; set; } = true;
 
+        private Dictionary<string, object> _parameters = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+
         /// <summary>
         /// Configuration parameter dictionary for node execution. Supports dynamic expression evaluation (${...}).
         /// </summary>
-        public Dictionary<string, object> Parameters { get; set; } = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+        public Dictionary<string, object> Parameters
+        {
+            get => _parameters;
+            set => _parameters = value != null
+                ? new Dictionary<string, object>(value, StringComparer.OrdinalIgnoreCase)
+                : new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+        }
 
         public RecipeNodeConfig()
         {
@@ -68,6 +76,34 @@ namespace Greenshot.Base.Recipes
             Id = id ?? throw new ArgumentNullException(nameof(id));
             StepType = stepType ?? throw new ArgumentNullException(nameof(stepType));
             Name = name ?? id;
+        }
+
+        /// <summary>
+        /// Checks whether the parameter key is present in the configuration.
+        /// </summary>
+        public bool HasParameter(string key) => _parameters != null && !string.IsNullOrEmpty(key) && _parameters.ContainsKey(key);
+
+        /// <summary>
+        /// Retrieves the first matching parameter value among the provided alias keys, defaulting to default(T).
+        /// </summary>
+        public T GetFirstParameter<T>(params string[] keys) => GetFirstParameterOrDefault<T>(default, keys);
+
+        /// <summary>
+        /// Retrieves the first matching parameter value among the provided alias keys, or defaultValue if not found.
+        /// </summary>
+        public T GetFirstParameterOrDefault<T>(T defaultValue, params string[] keys)
+        {
+            if (_parameters != null && keys != null)
+            {
+                foreach (var key in keys)
+                {
+                    if (!string.IsNullOrEmpty(key) && _parameters.ContainsKey(key))
+                    {
+                        return GetParameter<T>(key, defaultValue);
+                    }
+                }
+            }
+            return defaultValue;
         }
 
         public T GetParameter<T>(string key, T defaultValue = default)

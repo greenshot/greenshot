@@ -146,5 +146,34 @@ namespace Greenshot.Tests.Recipes
             Assert.Contains("node_dest", unified["node_source"]);
             Assert.Contains("node_alt", unified["node_source"]);
         }
+
+        [Fact]
+        public void RecipeNodeConfig_Parameters_AreAlwaysCaseInsensitiveEvenAfterDeserialization()
+        {
+            string json = @"
+            {
+                ""id"": ""test_node"",
+                ""stepType"": ""ExternalCommand"",
+                ""parameters"": {
+                    ""path"": ""C:\\tools\\test.exe"",
+                    ""commandline"": ""test.exe --flag"",
+                    ""RUNINBACKGROUND"": true
+                }
+            }";
+
+            var node = JsonConvert.DeserializeObject<RecipeNodeConfig>(json);
+            Assert.NotNull(node);
+            Assert.True(node.HasParameter("Path"));
+            Assert.True(node.HasParameter("path"));
+            Assert.True(node.HasParameter("PATH"));
+            Assert.Equal("C:\\tools\\test.exe", node.GetParameter<string>("Path"));
+            Assert.Equal("C:\\tools\\test.exe", node.GetParameter<string>("path"));
+            Assert.Equal("test.exe --flag", node.GetParameter<string>("CommandLine"));
+            Assert.True(node.GetParameter<bool>("RunInBackground"));
+
+            // Test GetFirstParameter with alias list
+            string resolvedPath = node.GetFirstParameter<string>("Executable", "Path", "CommandLine");
+            Assert.Equal("C:\\tools\\test.exe", resolvedPath);
+        }
     }
 }
