@@ -433,27 +433,38 @@ namespace Greenshot.Pipeline
                     // Partition into merge clusters: branches in the same cluster share a merge node downstream;
                     // independent branches (with no common merge descendant) receive isolated cloned contexts/payloads.
                     var clusters = PartitionIntoMergeClusters(nextToLaunch, descendantsMap);
-                    var childTasks = new List<Task>();
-                    bool requiresBranchIsolation = clusters.Count > 1;
 
-                    for (int i = 0; i < clusters.Count; i++)
+                    if (clusters.Count == 1)
                     {
-                        var cluster = clusters[i];
-                        var clusterContext = requiresBranchIsolation ? nodeContext.CreateBranchContext() : nodeContext;
-                        if (requiresBranchIsolation)
+                        // Converging merge cluster: execute branches sequentially in depth-first declaration order
+                        foreach (var childNodeId in clusters[0])
                         {
+                            await RunNodeAsync(childNodeId, nodeContext).ConfigureAwait(false);
+                        }
+                    }
+                    else
+                    {
+                        // Multiple independent non-merging clusters: run clusters in parallel with isolated cloned contexts
+                        var childTasks = new List<Task>();
+                        for (int i = 0; i < clusters.Count; i++)
+                        {
+                            var cluster = clusters[i];
+                            var clusterContext = nodeContext.CreateBranchContext();
                             Log.InfoFormat("Branch split detected without merge downstream for node(s) [{0}]. Created isolated cloned payload and context.",
                                 string.Join(", ", cluster));
                             clusterContext.LogStep($"Branch split without merge: created isolated cloned payload for branch entry [{string.Join(", ", cluster)}]");
+
+                            childTasks.Add(Task.Run(async () =>
+                            {
+                                foreach (var childNodeId in cluster)
+                                {
+                                    await RunNodeAsync(childNodeId, clusterContext).ConfigureAwait(false);
+                                }
+                            }));
                         }
 
-                        foreach (var childNodeId in cluster)
-                        {
-                            childTasks.Add(RunNodeAsync(childNodeId, clusterContext));
-                        }
+                        await Task.WhenAll(childTasks).ConfigureAwait(false);
                     }
-
-                    await Task.WhenAll(childTasks).ConfigureAwait(false);
                 }
             }
 
@@ -462,26 +473,37 @@ namespace Greenshot.Pipeline
             if (validStartNodes.Count > 0)
             {
                 var startClusters = PartitionIntoMergeClusters(validStartNodes, descendantsMap);
-                var initialTasks = new List<Task>();
-                bool requiresStartIsolation = startClusters.Count > 1;
 
-                for (int i = 0; i < startClusters.Count; i++)
+                if (startClusters.Count == 1)
                 {
-                    var cluster = startClusters[i];
-                    var clusterContext = requiresStartIsolation ? context.CreateBranchContext() : context;
-                    if (requiresStartIsolation)
+                    // Converging merge cluster: execute entry nodes sequentially in depth-first order
+                    foreach (var startNodeId in startClusters[0])
                     {
-                        Log.InfoFormat("Multiple independent start nodes detected. Created isolated cloned context for entry [{0}].",
-                            string.Join(", ", cluster));
-                    }
-
-                    foreach (var startNodeId in cluster)
-                    {
-                        initialTasks.Add(RunNodeAsync(startNodeId, clusterContext));
+                        await RunNodeAsync(startNodeId, context).ConfigureAwait(false);
                     }
                 }
+                else
+                {
+                    // Multiple independent start clusters: run clusters in parallel with isolated cloned contexts
+                    var initialTasks = new List<Task>();
+                    for (int i = 0; i < startClusters.Count; i++)
+                    {
+                        var cluster = startClusters[i];
+                        var clusterContext = context.CreateBranchContext();
+                        Log.InfoFormat("Multiple independent start nodes detected. Created isolated cloned context for entry [{0}].",
+                            string.Join(", ", cluster));
 
-                await Task.WhenAll(initialTasks).ConfigureAwait(false);
+                        initialTasks.Add(Task.Run(async () =>
+                        {
+                            foreach (var startNodeId in cluster)
+                            {
+                                await RunNodeAsync(startNodeId, clusterContext).ConfigureAwait(false);
+                            }
+                        }));
+                    }
+
+                    await Task.WhenAll(initialTasks).ConfigureAwait(false);
+                }
             }
         }
 
