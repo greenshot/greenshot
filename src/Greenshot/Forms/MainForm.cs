@@ -667,7 +667,7 @@ namespace Greenshot.Forms
             WindowsMessages message = (WindowsMessages)m.Msg;
             if (message == WindowsMessages.WM_DESTROY)
             {
-                LOG.InfoFormat(" Message {0} ( {1:X} - {2:X} - {3:X}) send, Exit Application.", m, m.LParam.ToInt64(), m.WParam.ToInt64(), m.HWnd.ToInt64());
+                LOG.InfoFormat("Message {0} received, exiting application.", m);
                 // is send from Inno Setup, when the user chooses to exit Greenshot during installation
                 // TODO Only for Greenshot versions before integration of RestartManager
                 Exit();
@@ -1851,11 +1851,19 @@ namespace Greenshot.Forms
             }
         }
 
+
+        private bool _isExiting = false;
         /// <summary>
         /// Shutdown / cleanup
         /// </summary>
         public void Exit()
         {
+            if (_isExiting)
+            {
+                return;
+            }
+            _isExiting = true;
+
             LOG.Info("Exit: " + EnvironmentInfo.EnvironmentToString(false));
 
             // Close all open forms (except this), use a separate List to make sure we don't get a "InvalidOperationException: Collection was modified"
