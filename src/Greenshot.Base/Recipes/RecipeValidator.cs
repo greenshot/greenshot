@@ -35,11 +35,21 @@ namespace Greenshot.Base.Recipes
         public bool IsValid => Errors.Count == 0;
         public List<string> Errors { get; } = new List<string>();
         public List<string> Warnings { get; } = new List<string>();
-        public bool HasExternalCommands { get; set; }
-        public List<string> ExternalCommands { get; } = new List<string>();
+        public List<RecipeGatedAction> GatedActions { get; } = new List<RecipeGatedAction>();
+        public bool HasGatedActions => GatedActions.Count > 0;
+        public bool HasExternalCommands => HasGatedActions;
+        public List<string> ExternalCommands => GatedActions.Select(g => g.Target).ToList();
 
         public void AddError(string error) => Errors.Add(error);
         public void AddWarning(string warning) => Warnings.Add(warning);
+
+        public void AddGatedAction(RecipeGatedAction action)
+        {
+            if (action != null && !GatedActions.Contains(action))
+            {
+                GatedActions.Add(action);
+            }
+        }
 
         public override string ToString()
         {
@@ -265,107 +275,30 @@ namespace Greenshot.Base.Recipes
                 }
             }
 
-            // Programmatic step inspection for external command authorization with fallback
-            CheckAndDetectExternalCommands(node, result);
+            // Programmatic step inspection for recipe authorization gates
+            CheckAndDetectGatedActions(node, result);
         }
 
-        private static void CheckAndDetectExternalCommands(RecipeNodeConfig node, RecipeValidationResult result)
+        private static void CheckAndDetectGatedActions(RecipeNodeConfig node, RecipeValidationResult result)
         {
-            bool detectedProgrammatically = false;
-
-            // 1. Programmatic Step Resolution via StepRegistry
             try
             {
                 var step = StepRegistry.Instance.CreateStep(node);
-                if (step is IRequiresExternalCommandAuthorization authStep)
+                if (step is IRequiresRecipeAuthorization authStep)
                 {
-                    var commands = authStep.GetExternalCommands();
-                    if (commands != null)
+                    var actions = authStep.GetGatedActions();
+                    if (actions != null)
                     {
-                        foreach (var cmd in commands)
+                        foreach (var action in actions)
                         {
-                            if (!string.IsNullOrWhiteSpace(cmd))
-                            {
-                                result.HasExternalCommands = true;
-                                if (!result.ExternalCommands.Contains(cmd))
-                                {
-                                    result.ExternalCommands.Add(cmd);
-                                }
-                                detectedProgrammatically = true;
-                            }
+                            result.AddGatedAction(action);
                         }
                     }
                 }
             }
             catch
             {
-                // Fall through to heuristic static fallback
-            }
-
-            // 2. Static Heuristic Fallback (defense-in-depth for offline / unregistered plugin scenarios)
-            if (!detectedProgrammatically)
-            {
-                bool isExternalStepType = string.Equals(node.StepType, "ExternalCommand", StringComparison.OrdinalIgnoreCase) ||
-                                          string.Equals(node.StepType, "ExecuteCommand", StringComparison.OrdinalIgnoreCase) ||
-                                          string.Equals(node.StepType, "RunCommand", StringComparison.OrdinalIgnoreCase) ||
-                                          node.StepType.StartsWith("ExternalCommand.", StringComparison.OrdinalIgnoreCase) ||
-                                          node.StepType.StartsWith("ExecuteCommand.", StringComparison.OrdinalIgnoreCase) ||
-                                          node.StepType.StartsWith("RunCommand.", StringComparison.OrdinalIgnoreCase);
-
-                bool hasExecutableParams = node.HasParameter("Command") ||
-                                           node.HasParameter("CommandName") ||
-                                           node.HasParameter("CommandLine") ||
-                                           node.HasParameter("Executable") ||
-                                           node.HasParameter("Path") ||
-                                           node.HasParameter("Program") ||
-                                           node.HasParameter("Script");
-
-                if (isExternalStepType || hasExecutableParams)
-                {
-                    result.HasExternalCommands = true;
-                    string cmd = node.GetFirstParameter<string>("CommandLine", "Executable", "Path", "Command", "CommandName") ?? node.Name ?? node.StepType;
-                    if (!string.IsNullOrWhiteSpace(cmd) && !result.ExternalCommands.Contains(cmd))
-                    {
-                        result.ExternalCommands.Add(cmd);
-                    }
-                }
-
-                // Check destination steps for External <command> designations
-                if (string.Equals(node.StepType, WellKnownStepTypes.Destinations, StringComparison.OrdinalIgnoreCase) ||
-                    string.Equals(node.StepType, WellKnownStepTypes.CustomDestination, StringComparison.OrdinalIgnoreCase) ||
-                    node.HasParameter("Destination") ||
-                    node.HasParameter("Destinations") ||
-                    node.HasParameter("DestinationDesignations") ||
-                    node.HasParameter("CustomDestinationId"))
-                {
-                    var dests = node.GetFirstParameter<List<string>>("DestinationDesignations", "Destinations");
-                    if (dests != null)
-                    {
-                        foreach (var d in dests)
-                        {
-                            if (!string.IsNullOrWhiteSpace(d) && d.StartsWith("External ", StringComparison.OrdinalIgnoreCase))
-                            {
-                                result.HasExternalCommands = true;
-                                if (!result.ExternalCommands.Contains(d)) result.ExternalCommands.Add(d);
-                            }
-                        }
-                    }
-
-                    string singleDest = node.GetFirstParameter<string>("CustomDestinationId", "Destination", "DestinationDesignation");
-                    if (!string.IsNullOrWhiteSpace(singleDest))
-                    {
-                        var parts = singleDest.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                        foreach (var part in parts)
-                        {
-                            string trimmed = part.Trim();
-                            if (trimmed.StartsWith("External ", StringComparison.OrdinalIgnoreCase))
-                            {
-                                result.HasExternalCommands = true;
-                                if (!result.ExternalCommands.Contains(trimmed)) result.ExternalCommands.Add(trimmed);
-                            }
-                        }
-                    }
-                }
+                // Unresolvable step types are flagged by the schema check
             }
         }
 
