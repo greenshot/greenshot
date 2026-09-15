@@ -6,8 +6,8 @@
 
   <ItemGroup>
     <PackageReference Include="ZXing.Net" Version="0.16.11" />
-    <PackageReference Include="Dapplo.Ini" Version="1.0.153" />
-    <PackageReference Include="Dapplo.Ini.Generator" Version="1.0.153" />
+    <PackageReference Include="Dapplo.Ini" Version="1.0.162" />
+    <PackageReference Include="Dapplo.Ini.Generator" Version="1.0.162" />
   </ItemGroup>
 
   <ItemGroup>
