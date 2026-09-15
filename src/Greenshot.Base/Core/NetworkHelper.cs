@@ -62,7 +62,7 @@ namespace Greenshot.Base.Core
         {
             try
             {
-                ServicePointManager.ServerCertificateValidationCallback += ValidateServerCertificate;
+                ServicePointManager.ServerCertificateValidationCallback = ValidateServerCertificate;
             }
             catch (Exception ex)
             {

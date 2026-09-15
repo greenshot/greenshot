@@ -268,8 +268,6 @@ namespace Greenshot.Forms
             }
         }
 
-        private static MainForm _instance;
-
         private readonly CopyData _copyData;
 
         // Thumbnail preview
