@@ -121,6 +121,7 @@ namespace Greenshot.Editor.Forms
 			this.downToBottomToolStripMenuItem = new ToolStripMenuItem();
 			this.saveElementsToolStripMenuItem = new ToolStripMenuItem();
 			this.loadElementsToolStripMenuItem = new ToolStripMenuItem();
+			this.recipesToolStripMenuItem = new ToolStripMenuItem();
 			this.pluginToolStripMenuItem = new ToolStripMenuItem();
 			this.helpToolStripMenuItem = new ToolStripMenuItem();
 			this.helpToolStripMenuItem1 = new ToolStripMenuItem();
@@ -563,6 +564,7 @@ namespace Greenshot.Editor.Forms
 									this.fileStripMenuItem,
 									this.editToolStripMenuItem,
 									this.objectToolStripMenuItem,
+									this.recipesToolStripMenuItem,
 									this.pluginToolStripMenuItem,
 									this.zoomMainMenuItem,
 									this.helpToolStripMenuItem});
@@ -819,6 +821,12 @@ namespace Greenshot.Editor.Forms
 			// 
 			this.loadElementsToolStripMenuItem.Name = "loadElementsToolStripMenuItem";
 			this.loadElementsToolStripMenuItem.Click += new System.EventHandler(this.LoadElementsToolStripMenuItemClick);
+			// 
+			// recipesToolStripMenuItem
+			// 
+			this.recipesToolStripMenuItem.Name = "recipesToolStripMenuItem";
+			this.recipesToolStripMenuItem.Text = "Recipes";
+			this.recipesToolStripMenuItem.Visible = false;
 			// 
 			// pluginToolStripMenuItem
 			// 
@@ -1872,6 +1880,7 @@ namespace Greenshot.Editor.Forms
 		private ToolStripLabel fontSizeLabel;
 		private ToolStripNumericUpDown brightnessUpDown;
 		private ToolStripLabel brightnessLabel;
+		private ToolStripMenuItem recipesToolStripMenuItem;
 		private ToolStripMenuItem pluginToolStripMenuItem;
 		private BindableToolStripDropDownButton arrowHeadsDropDownButton;
 		private ToolStripLabel arrowHeadsLabel;

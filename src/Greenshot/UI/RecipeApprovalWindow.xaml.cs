@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 using Greenshot.Base.Core;
@@ -90,6 +91,10 @@ namespace Greenshot.UI
         public RecipeApprovalMode ApprovalMode { get; private set; }
         public bool IsModified => ApprovalMode == RecipeApprovalMode.Modified;
         public bool IsNewRecipe => ApprovalMode == RecipeApprovalMode.NewRecipe;
+        public bool IsValidationError => ApprovalMode == RecipeApprovalMode.ValidationError;
+
+        public Visibility ValidationErrorVisibility => IsValidationError ? Visibility.Visible : Visibility.Collapsed;
+        public Visibility ApprovalActionsVisibility => !IsValidationError ? Visibility.Visible : Visibility.Collapsed;
 
         public string WindowTitleSubtitle { get; private set; }
         public string WindowFullTitle => $"Greenshot{WindowTitleSubtitle}";
@@ -105,13 +110,17 @@ namespace Greenshot.UI
         public string ApproveButtonText { get; private set; }
         public Visibility ModificationWarningVisibility => IsModified ? Visibility.Visible : Visibility.Collapsed;
         public Visibility WarningIconVisibility => IsModified ? Visibility.Visible : Visibility.Collapsed;
-        public Visibility ShieldIconVisibility => !IsModified ? Visibility.Visible : Visibility.Collapsed;
+        public Visibility ShieldIconVisibility => (!IsModified && !IsValidationError) ? Visibility.Visible : Visibility.Collapsed;
+        public Visibility ErrorIconVisibility => IsValidationError ? Visibility.Visible : Visibility.Collapsed;
 
+        public ObservableCollection<RecipeValidationErrorItem> ValidationErrors { get; } = new ObservableCollection<RecipeValidationErrorItem>();
         public ObservableCollection<TriggerBadgeModel> TriggerBadges { get; } = new ObservableCollection<TriggerBadgeModel>();
         public ObservableCollection<string> StepDescriptions { get; } = new ObservableCollection<string>();
         public ObservableCollection<string> ExternalCommandsList { get; } = new ObservableCollection<string>();
 
-        public Visibility ExternalCommandWarningVisibility => HasExternalCommands ? Visibility.Visible : Visibility.Collapsed;
+        public Visibility TriggersVisibility => TriggerBadges.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+        public Visibility PipelineVisibility => StepDescriptions.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+        public Visibility ExternalCommandWarningVisibility => (HasExternalCommands && !IsValidationError) ? Visibility.Visible : Visibility.Collapsed;
         public bool HasExternalCommands { get; set; }
 
         public bool IsApproved { get; private set; }
@@ -127,6 +136,9 @@ namespace Greenshot.UI
         public SolidColorBrush WarningBackgroundBrush => WpfThemeHelper.WarningBackground;
         public SolidColorBrush WarningBorderBrush => WpfThemeHelper.WarningBorder;
         public SolidColorBrush WarningTextBrush => WpfThemeHelper.WarningText;
+        public SolidColorBrush ErrorBackgroundBrush => WpfThemeHelper.ErrorBackground;
+        public SolidColorBrush ErrorBorderBrush => WpfThemeHelper.ErrorBorder;
+        public SolidColorBrush ErrorTextBrush => WpfThemeHelper.ErrorText;
         public SolidColorBrush BadgeBackgroundBrush => WpfThemeHelper.BadgeBackground;
 
         public RecipeApprovalWindow(CaptureRecipe recipe, string filePath, RecipeValidationResult validationResult = null, RecipeTrustRecord previousTrustRecord = null)
@@ -134,65 +146,227 @@ namespace Greenshot.UI
             _recipe = recipe;
             InitializeComponent();
 
-            RecipeName = recipe?.Name ?? "Unnamed Recipe";
-            RecipeVersion = string.IsNullOrWhiteSpace(recipe?.Version) ? "v1.0" : $"v{recipe.Version}";
-            RecipeDescription = string.IsNullOrWhiteSpace(recipe?.Description) ? "No description provided." : recipe.Description;
+            RecipeName = recipe?.Name ?? (File.Exists(filePath) ? Path.GetFileName(filePath) : "Unnamed Recipe");
+            RecipeVersion = string.IsNullOrWhiteSpace(recipe?.Version) ? "" : $"v{recipe.Version}";
+            RecipeDescription = string.IsNullOrWhiteSpace(recipe?.Description) ? (validationResult != null && !validationResult.IsValid ? "Recipe configuration failed validation." : "No description provided.") : recipe.Description;
             RecipeId = recipe?.Id ?? "unknown";
             FilePath = filePath ?? "Unknown file path";
             FileHash = RecipeTrustStore.ComputeSha256(filePath) ?? "Unknown";
 
-            var prev = previousTrustRecord ?? RecipeTrustStore.GetTrustRecord(filePath);
-            if (prev != null && !string.Equals(prev.Sha256Hash, FileHash, StringComparison.OrdinalIgnoreCase))
+            if (validationResult != null && !validationResult.IsValid)
             {
-                ApprovalMode = RecipeApprovalMode.Modified;
-                WindowTitleSubtitle = " — Recipe Modification Detected";
-                HeaderIcon = "⚠️";
-                HeaderTitle = "Recipe File Modified on Disk";
-                HeaderDescription = "This capture recipe was previously approved, but its file content has been modified on disk since it was last approved. Review the updated configuration and changes below before re-approving.";
-                StatusBadgeText = "MODIFIED ON DISK";
-                StatusBadgeBackgroundBrush = WarningBackgroundBrush;
-                StatusBadgeBorderBrush = WarningBorderBrush;
-                StatusBadgeForegroundBrush = WarningTextBrush;
-                PreviousApprovalDate = prev.ApprovedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss");
-                PreviousFileHash = prev.Sha256Hash;
-                ApproveButtonText = "Approve Changes";
-            }
-            else if (prev != null)
-            {
-                ApprovalMode = RecipeApprovalMode.ReVerify;
-                WindowTitleSubtitle = " — Recipe Security Review";
-                HeaderIcon = "🛡️";
-                HeaderTitle = "Capture Recipe Review";
-                HeaderDescription = "Reviewing registration, triggers, and execution permissions for this capture recipe.";
-                StatusBadgeText = "ALREADY APPROVED";
-                StatusBadgeBackgroundBrush = BadgeBackgroundBrush;
-                StatusBadgeBorderBrush = CardBorderBrush;
-                StatusBadgeForegroundBrush = TextSecondaryBrush;
-                PreviousApprovalDate = prev.ApprovedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss");
-                PreviousFileHash = prev.Sha256Hash;
-                ApproveButtonText = "Confirm & Enable";
+                ApprovalMode = RecipeApprovalMode.ValidationError;
+                WindowTitleSubtitle = " — Recipe Validation Failed";
+                HeaderIcon = "❌";
+                HeaderTitle = "Recipe Validation Failed";
+                HeaderDescription = "Greenshot could not load or register this capture recipe because it contains configuration errors. Review the diagnostic details below:";
+                StatusBadgeText = "VALIDATION ERROR";
+                StatusBadgeBackgroundBrush = ErrorBackgroundBrush;
+                StatusBadgeBorderBrush = ErrorBorderBrush;
+                StatusBadgeForegroundBrush = ErrorTextBrush;
+                ApproveButtonText = "Close";
+
+                foreach (var err in validationResult.Errors)
+                {
+                    ValidationErrors.Add(RecipeValidationErrorItem.Create(err));
+                }
             }
             else
             {
-                ApprovalMode = RecipeApprovalMode.NewRecipe;
-                WindowTitleSubtitle = " — Recipe Security Approval";
-                HeaderIcon = "🛡️";
-                HeaderTitle = "External Capture Recipe Detected";
-                HeaderDescription = "A new capture recipe file is requesting to be registered into Greenshot. Review its details, triggers, and execution steps before approving.";
-                StatusBadgeText = "NEW RECIPE";
-                StatusBadgeBackgroundBrush = BadgeBackgroundBrush;
-                StatusBadgeBorderBrush = CardBorderBrush;
-                StatusBadgeForegroundBrush = AccentBrush;
-                PreviousApprovalDate = null;
-                PreviousFileHash = null;
-                ApproveButtonText = "Approve & Enable";
+                var prev = previousTrustRecord ?? RecipeTrustStore.GetTrustRecord(filePath);
+                if (prev != null && !string.Equals(prev.Sha256Hash, FileHash, StringComparison.OrdinalIgnoreCase))
+                {
+                    ApprovalMode = RecipeApprovalMode.Modified;
+                    WindowTitleSubtitle = " — Recipe Modification Detected";
+                    HeaderIcon = "⚠️";
+                    HeaderTitle = "Recipe File Modified on Disk";
+                    HeaderDescription = "This capture recipe was previously approved, but its file content has been modified on disk since it was last approved. Review the updated configuration and changes below before re-approving.";
+                    StatusBadgeText = "MODIFIED ON DISK";
+                    StatusBadgeBackgroundBrush = WarningBackgroundBrush;
+                    StatusBadgeBorderBrush = WarningBorderBrush;
+                    StatusBadgeForegroundBrush = WarningTextBrush;
+                    PreviousApprovalDate = prev.ApprovedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss");
+                    PreviousFileHash = prev.Sha256Hash;
+                    ApproveButtonText = "Approve Changes";
+                }
+                else if (prev != null)
+                {
+                    ApprovalMode = RecipeApprovalMode.ReVerify;
+                    WindowTitleSubtitle = " — Recipe Security Review";
+                    HeaderIcon = "🛡️";
+                    HeaderTitle = "Capture Recipe Review";
+                    HeaderDescription = "Reviewing registration, triggers, and execution permissions for this capture recipe.";
+                    StatusBadgeText = "ALREADY APPROVED";
+                    StatusBadgeBackgroundBrush = BadgeBackgroundBrush;
+                    StatusBadgeBorderBrush = CardBorderBrush;
+                    StatusBadgeForegroundBrush = TextSecondaryBrush;
+                    PreviousApprovalDate = prev.ApprovedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss");
+                    PreviousFileHash = prev.Sha256Hash;
+                    ApproveButtonText = "Confirm & Enable";
+                }
+                else
+                {
+                    ApprovalMode = RecipeApprovalMode.NewRecipe;
+                    WindowTitleSubtitle = " — Recipe Security Approval";
+                    HeaderIcon = "🛡️";
+                    HeaderTitle = "External Capture Recipe Detected";
+                    HeaderDescription = "A new capture recipe file is requesting to be registered into Greenshot. Review its details, triggers, and execution steps before approving.";
+                    StatusBadgeText = "NEW RECIPE";
+                    StatusBadgeBackgroundBrush = BadgeBackgroundBrush;
+                    StatusBadgeBorderBrush = CardBorderBrush;
+                    StatusBadgeForegroundBrush = AccentBrush;
+                    PreviousApprovalDate = null;
+                    PreviousFileHash = null;
+                    ApproveButtonText = "Approve & Enable";
+                }
             }
 
             DataContext = this;
             Background = WindowBackgroundBrush;
             Title = WindowFullTitle;
 
-            // Populate Trigger badges
+            PopulateTriggers(recipe);
+            PopulateSteps(recipe);
+
+            // Gated Actions / External Command handling
+            if (!IsValidationError && validationResult != null && validationResult.HasGatedActions)
+            {
+                HasExternalCommands = true;
+                foreach (var action in validationResult.GatedActions)
+                {
+                    ExternalCommandsList.Add(FormatGatedAction(action));
+                }
+            }
+
+            // If gated actions exist, require authorization before enabling Approve
+            if (HasExternalCommands && BtnApprove != null)
+            {
+                BtnApprove.IsEnabled = false;
+            }
+        }
+
+        public RecipeApprovalWindow(string filePath, RecipeValidationResult validationResult = null, CaptureRecipe recipe = null, string rawErrorMessage = null)
+        {
+            _recipe = recipe;
+            ApprovalMode = RecipeApprovalMode.ValidationError;
+            InitializeComponent();
+
+            RecipeName = recipe?.Name ?? (File.Exists(filePath) ? Path.GetFileName(filePath) : "Unknown Recipe");
+            RecipeVersion = string.IsNullOrWhiteSpace(recipe?.Version) ? "" : $"v{recipe.Version}";
+            RecipeDescription = string.IsNullOrWhiteSpace(recipe?.Description) ? "Recipe configuration failed validation." : recipe.Description;
+            RecipeId = recipe?.Id ?? "unknown";
+            FilePath = filePath ?? "Unknown file path";
+            FileHash = RecipeTrustStore.ComputeSha256(filePath) ?? "Unknown";
+
+            WindowTitleSubtitle = " — Recipe Validation Failed";
+            HeaderIcon = "❌";
+            HeaderTitle = "Recipe Validation Failed";
+            HeaderDescription = "Greenshot could not load or register this capture recipe because it contains configuration errors. Review the diagnostic details below:";
+            StatusBadgeText = "VALIDATION ERROR";
+            StatusBadgeBackgroundBrush = ErrorBackgroundBrush;
+            StatusBadgeBorderBrush = ErrorBorderBrush;
+            StatusBadgeForegroundBrush = ErrorTextBrush;
+            ApproveButtonText = "Close";
+
+            DataContext = this;
+            Background = WindowBackgroundBrush;
+            Title = WindowFullTitle;
+
+            if (validationResult != null && validationResult.Errors.Count > 0)
+            {
+                foreach (var err in validationResult.Errors)
+                {
+                    ValidationErrors.Add(RecipeValidationErrorItem.Create(err));
+                }
+            }
+            else if (!string.IsNullOrWhiteSpace(rawErrorMessage))
+            {
+                ValidationErrors.Add(RecipeValidationErrorItem.Create(rawErrorMessage));
+            }
+            else
+            {
+                ValidationErrors.Add(RecipeValidationErrorItem.Create("An unknown validation error occurred while loading the recipe."));
+            }
+
+            PopulateTriggers(recipe);
+            PopulateSteps(recipe);
+        }
+
+        public static void ShowValidationError(string filePath, RecipeValidationResult validationResult = null, CaptureRecipe recipe = null, string rawErrorMessage = null)
+        {
+            void Show()
+            {
+                var window = new RecipeApprovalWindow(filePath, validationResult, recipe, rawErrorMessage)
+                {
+                    Topmost = true,
+                    ShowActivated = true,
+                    WindowStartupLocation = WindowStartupLocation.CenterScreen
+                };
+
+                IntPtr ownerHwnd = IntPtr.Zero;
+                var mainForm = SimpleServiceProvider.Current.GetInstance<System.Windows.Forms.Form>(isOptional: true);
+                if (mainForm != null && mainForm.IsHandleCreated)
+                {
+                    try
+                    {
+                        if (mainForm.InvokeRequired)
+                        {
+                            ownerHwnd = (IntPtr)mainForm.Invoke(new Func<IntPtr>(() =>
+                                (mainForm.Visible && !mainForm.Disposing && !mainForm.IsDisposed) ? mainForm.Handle : IntPtr.Zero));
+                        }
+                        else if (mainForm.Visible && !mainForm.Disposing && !mainForm.IsDisposed)
+                        {
+                            ownerHwnd = mainForm.Handle;
+                        }
+                    }
+                    catch
+                    {
+                        ownerHwnd = IntPtr.Zero;
+                    }
+                }
+
+                if (ownerHwnd == IntPtr.Zero && System.Windows.Application.Current != null)
+                {
+                    try
+                    {
+                        var activeWpfWindow = System.Windows.Application.Current.Windows
+                            .OfType<System.Windows.Window>()
+                            .FirstOrDefault(w => w.IsActive && w != window);
+                        if (activeWpfWindow != null)
+                        {
+                            ownerHwnd = new System.Windows.Interop.WindowInteropHelper(activeWpfWindow).Handle;
+                        }
+                    }
+                    catch
+                    {
+                        ownerHwnd = IntPtr.Zero;
+                    }
+                }
+
+                if (ownerHwnd != IntPtr.Zero)
+                {
+                    new System.Windows.Interop.WindowInteropHelper(window).Owner = ownerHwnd;
+                }
+
+                window.ShowDialog();
+            }
+
+            if (System.Threading.Thread.CurrentThread.GetApartmentState() == System.Threading.ApartmentState.STA)
+            {
+                Show();
+            }
+            else
+            {
+                var staThread = new System.Threading.Thread(() => Show());
+                staThread.SetApartmentState(System.Threading.ApartmentState.STA);
+                staThread.Start();
+                staThread.Join();
+            }
+        }
+
+        private void PopulateTriggers(CaptureRecipe recipe)
+        {
+            TriggerBadges.Clear();
             if (recipe?.Triggers != null && recipe.Triggers.Count > 0)
             {
                 foreach (var trigger in recipe.Triggers)
@@ -206,6 +380,10 @@ namespace Greenshot.UI
                              string.Equals(trigger.TriggerType, TriggerConfig.TypeSystray, StringComparison.OrdinalIgnoreCase))
                     {
                         label = $"📋 Systray: \"{trigger.GetParameter<string>("MenuItemText", recipe.Name)}\"";
+                    }
+                    else if (string.Equals(trigger.TriggerType, TriggerConfig.TypeEditor, StringComparison.OrdinalIgnoreCase))
+                    {
+                        label = $"🎨 Editor: \"{trigger.GetParameter<string>("MenuItemText", recipe.Name)}\"";
                     }
                     else if (string.Equals(trigger.TriggerType, TriggerConfig.TypeClipboard, StringComparison.OrdinalIgnoreCase))
                     {
@@ -225,7 +403,7 @@ namespace Greenshot.UI
                     });
                 }
             }
-            else
+            else if (!IsValidationError)
             {
                 TriggerBadges.Add(new TriggerBadgeModel
                 {
@@ -235,8 +413,11 @@ namespace Greenshot.UI
                     BorderBrush = CardBorderBrush
                 });
             }
+        }
 
-            // Populate Node descriptions
+        private void PopulateSteps(CaptureRecipe recipe)
+        {
+            StepDescriptions.Clear();
             if (recipe?.Nodes != null)
             {
                 for (int i = 0; i < recipe.Nodes.Count; i++)
@@ -251,9 +432,9 @@ namespace Greenshot.UI
                     {
                         paramSummary = $" [{s.GetParameter<string>("SourceType", "Region")}]";
                     }
-                    else if (string.Equals(s.StepType, WellKnownStepTypes.Drawable, StringComparison.OrdinalIgnoreCase))
+                    else if (string.Equals(s.StepType, WellKnownStepTypes.Annotation, StringComparison.OrdinalIgnoreCase))
                     {
-                        paramSummary = $" [{s.GetParameter<string>("DrawableType", "Element")}]";
+                        paramSummary = $" [{s.GetParameter<string>("AnnotationType", s.GetParameter<string>("Type", "Element"))}]";
                     }
                     else if (string.Equals(s.StepType, WellKnownStepTypes.SetVariable, StringComparison.OrdinalIgnoreCase))
                     {
@@ -267,22 +448,6 @@ namespace Greenshot.UI
 
                     StepDescriptions.Add($"[{s.Id}] {s.StepType}{paramSummary}");
                 }
-            }
-
-            // Gated Actions / External Command handling
-            if (validationResult != null && validationResult.HasGatedActions)
-            {
-                HasExternalCommands = true;
-                foreach (var action in validationResult.GatedActions)
-                {
-                    ExternalCommandsList.Add(FormatGatedAction(action));
-                }
-            }
-
-            // If gated actions exist, require authorization before enabling Approve
-            if (HasExternalCommands)
-            {
-                BtnApprove.IsEnabled = false;
             }
         }
 
@@ -517,10 +682,32 @@ namespace Greenshot.UI
         [return: System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)]
         private static extern bool BringWindowToTop(IntPtr hWnd);
 
+        private void OnCloseClicked(object sender, RoutedEventArgs e)
+        {
+            IsApproved = false;
+            DialogResult = false;
+            Close();
+        }
+
+        private void OnEditFileClicked(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(FilePath) && File.Exists(FilePath))
+                {
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(FilePath) { UseShellExecute = true });
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Failed to open recipe file in editor: {ex.Message}");
+            }
+        }
+
         private void OnApproveClicked(object sender, RoutedEventArgs e)
         {
             IsApproved = true;
-            AllowExternalCommands = ChkAuthorizeExternalCommands.IsChecked == true;
+            AllowExternalCommands = ChkAuthorizeExternalCommands?.IsChecked == true;
             DialogResult = true;
             Close();
         }

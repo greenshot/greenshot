@@ -123,7 +123,7 @@ namespace Greenshot.UI.RecipeEditor.Converters
                 case "Effect": return "✨";
                 case "TextEffect":
                 case "ObfuscateText": return "🛡️";
-                case "Drawable": return "🎨";
+                case "Annotation": return "🎨";
                 case "SetVariable": return "💲";
                 case "ImmediateFeedback": return "🔊";
                 case "Processors": return "⚙️";

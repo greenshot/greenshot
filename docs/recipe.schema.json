@@ -40,6 +40,13 @@
       "default": true,
       "description": "Whether this recipe is active and available."
     },
+    "requires": {
+      "type": "array",
+      "description": "Optional list of extension or plugin dependencies required to execute this recipe.",
+      "items": {
+        "$ref": "#/definitions/RecipeRequirement"
+      }
+    },
     "triggers": {
       "type": "array",
       "description": "Optional modular triggers attached to this recipe (e.g. Hotkey, ContextMenu, Clipboard).",
@@ -130,7 +137,7 @@
         },
         "stepType": {
           "type": "string",
-          "description": "The modular step type identifier. Supports core built-in steps (Source, InteractiveSelection, Effect, TextEffect, Drawable, SetVariable, ImmediateFeedback, Processors, Destinations, Notification, Conditional) as well as extension/plugin-provided steps (e.g., ExternalCommand, ExecuteCommand, RunCommand, Box, Dropbox, Imgur, Jira, Confluence, Office, Zxing)."
+          "description": "The modular step type identifier. Supports core built-in steps (Source, InteractiveSelection, Effect, TextEffect, Annotation, SetVariable, ImmediateFeedback, Processors, Destinations, Notification, Conditional) as well as extension/plugin-provided steps (e.g., ExternalCommand, ExecuteCommand, RunCommand, Box, Dropbox, Imgur, Jira, Confluence, Office, Zxing)."
         },
         "name": {
           "type": "string",
@@ -241,11 +248,11 @@
               ],
               "description": "Used by 'Effect' step: The effect type to apply."
             },
-            "Drawables": {
+            "Annotations": {
               "type": "array",
-              "description": "Used by 'Drawable' step: List of drawable elements to place on the capture surface.",
+              "description": "Used by 'Annotation' step: List of annotation elements to place on the capture surface.",
               "items": {
-                "$ref": "#/definitions/DrawableElementConfig"
+                "$ref": "#/definitions/AnnotationElementConfig"
               }
             },
             "VariableName": {
@@ -304,7 +311,7 @@
         }
       }
     },
-    "DrawableElementConfig": {
+    "AnnotationElementConfig": {
       "type": "object",
       "required": [
         "type"
@@ -312,28 +319,7 @@
       "properties": {
         "type": {
           "type": "string",
-          "enum": [
-            "Rectangle",
-            "Ellipse",
-            "Line",
-            "Arrow",
-            "Freehand",
-            "Text",
-            "Speechbubble",
-            "StepLabel",
-            "Image",
-            "Icon",
-            "Cursor",
-            "Emoji",
-            "Svg",
-            "Obfuscate",
-            "Blur",
-            "Pixelize",
-            "Highlight",
-            "Magnify",
-            "Crop"
-          ],
-          "description": "The type of drawable element."
+          "description": "The type of annotation element. Built-in types include Rectangle, Ellipse, Line, Arrow, Freehand, Text, Speechbubble, StepLabel, Image, Icon, Cursor, Emoji, Svg, Obfuscate, Blur, Pixelize, Highlight, Magnify, Crop. Extension-provided annotations (e.g. QRCode, Barcode) are dynamically registered by installed plugins."
         },
         "horizontalAnchor": {
           "type": "string",
@@ -413,15 +399,15 @@
         },
         "filePath": {
           "type": "string",
-          "description": "File path for Image, Icon, Cursor, or Svg drawables."
+          "description": "File path for Image, Icon, Cursor, or Svg annotations."
         },
         "emoji": {
           "type": "string",
-          "description": "Emoji character for Emoji drawables (e.g. '⚠️', '🔥', '✅')."
+          "description": "Emoji character for Emoji annotations (e.g. '⚠️', '🔥', '✅')."
         },
         "points": {
           "type": "string",
-          "description": "Coordinates list for Freehand drawable (e.g. '10,10;20,30;50,80')."
+          "description": "Coordinates list for Freehand annotation (e.g. '10,10;20,30;50,80')."
         },
         "tailDirection": {
           "type": "string",
@@ -435,7 +421,7 @@
             "Left",
             "Right"
           ],
-          "description": "Direction/placement preset of the tail for Speechbubble drawables."
+          "description": "Direction/placement preset of the tail for Speechbubble annotations."
         },
         "tailOffsetX": {
           "type": "integer",
@@ -452,9 +438,43 @@
         "tailY": {
           "type": "integer",
           "description": "Absolute Y coordinate of the Speechbubble tail target."
+        },
+        "size": {
+          "type": "integer",
+          "description": "Square size dimension (e.g. for icon, emoji, or square element)."
+        },
+        "margin": {
+          "type": "integer",
+          "description": "Outer margin or quiet zone in pixels."
         }
       },
       "additionalProperties": true
+    },
+    "RecipeRequirement": {
+      "type": "object",
+      "required": [
+        "id"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Unique identifier of the required extension or plugin (e.g. 'Greenshot.Plugin.Zxing')."
+        },
+        "name": {
+          "type": "string",
+          "description": "Optional human-readable display name of the required extension."
+        },
+        "minVersion": {
+          "type": "string",
+          "description": "Optional minimum version required for the extension (e.g. '1.3.0')."
+        },
+        "url": {
+          "type": "string",
+          "description": "Optional download or documentation URL where the extension can be obtained."
+        }
+      },
+      "additionalProperties": false
     },
     "TriggerConfig": {
       "type": "object",

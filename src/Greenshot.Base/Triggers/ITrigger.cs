@@ -40,6 +40,11 @@ namespace Greenshot.Base.Triggers
         string Name { get; set; }
 
         /// <summary>
+        /// The type of the trigger (e.g. Hotkey, ContextMenu, Editor, Clipboard, Manual).
+        /// </summary>
+        string TriggerType { get; }
+
+        /// <summary>
         /// The ID of the target CaptureRecipe to invoke when fired.
         /// </summary>
         string TargetRecipeId { get; set; }

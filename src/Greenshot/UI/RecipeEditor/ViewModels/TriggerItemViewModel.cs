@@ -24,6 +24,7 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
                     OnPropertyChanged();
                     OnPropertyChanged(nameof(IsHotkey));
                     OnPropertyChanged(nameof(IsContextMenu));
+                    OnPropertyChanged(nameof(IsEditor));
                     OnPropertyChanged(nameof(IsClipboard));
                     OnPropertyChanged(nameof(IsManual));
                     OnPropertyChanged(nameof(DisplayTitle));
@@ -79,15 +80,16 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
             set => SetParam("Group", value);
         }
 
-        public string ClipboardPattern
+        public string FormatFilter
         {
-            get => GetParam("Pattern", "");
-            set => SetParam("Pattern", value);
+            get => GetParam("FormatFilter", "");
+            set => SetParam("FormatFilter", value);
         }
 
         public bool IsHotkey => string.Equals(TriggerType, TriggerConfig.TypeHotkey, StringComparison.OrdinalIgnoreCase);
         public bool IsContextMenu => string.Equals(TriggerType, TriggerConfig.TypeContextMenu, StringComparison.OrdinalIgnoreCase) ||
                                      string.Equals(TriggerType, TriggerConfig.TypeSystray, StringComparison.OrdinalIgnoreCase);
+        public bool IsEditor => string.Equals(TriggerType, TriggerConfig.TypeEditor, StringComparison.OrdinalIgnoreCase);
         public bool IsClipboard => string.Equals(TriggerType, TriggerConfig.TypeClipboard, StringComparison.OrdinalIgnoreCase);
         public bool IsManual => string.Equals(TriggerType, TriggerConfig.TypeManual, StringComparison.OrdinalIgnoreCase);
 
@@ -97,7 +99,8 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
             {
                 if (IsHotkey) return $"⌨ Hotkey: {Hotkey}";
                 if (IsContextMenu) return $"📋 Context Menu: {MenuItemText}";
-                if (IsClipboard) return "📋 Clipboard Monitor";
+                if (IsEditor) return $"🎨 Editor Menu: {MenuItemText}";
+                if (IsClipboard) return string.IsNullOrEmpty(FormatFilter) ? "📋 Clipboard Monitor" : $"📋 Clipboard: {FormatFilter}";
                 return $"⚡ Trigger: {TriggerType}";
             }
         }

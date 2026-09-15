@@ -77,9 +77,9 @@ namespace Greenshot.Base.Recipes
         public const string TextEffect = "TextEffect";
 
         /// <summary>
-        /// Adds one or more drawable elements (shapes, text, arrows, icons, images, stamps, filters) directly onto the capture surface.
+        /// Adds one or more annotation elements (shapes, text, arrows, icons, images, stamps, filters) directly onto the capture surface.
         /// </summary>
-        public const string Drawable = "Drawable";
+        public const string Annotation = "Annotation";
 
         /// <summary>
         /// Evaluates an expression and creates or updates a variable in the flow context.

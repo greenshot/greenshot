@@ -246,5 +246,115 @@ namespace Greenshot.Tests.Recipes
             Assert.Single(result.GatedActions);
             Assert.Equal(RecipeGateType.ExternalCommand, result.GatedActions[0].GateType);
         }
+
+        [Fact]
+        public void Validate_RequiresMissingExtension_ReturnsErrorWithUrl()
+        {
+            RecipeValidator.ExtensionAvailabilityCheck = req => (false, null);
+            try
+            {
+                var recipe = new CaptureRecipe("req_test", "Requirement Test")
+                    .AddNode(new RecipeNodeConfig { Id = "start", StepType = "Source" });
+                recipe.Requires = new List<RecipeRequirement>
+                {
+                    new RecipeRequirement
+                    {
+                        Id = "Greenshot.Plugin.Zxing",
+                        Name = "ZXing Extension",
+                        MinVersion = "1.3.0",
+                        Url = "https://getgreenshot.org/plugins/zxing"
+                    }
+                };
+                recipe.Flow = new RecipeFlowConfig("start");
+
+                var result = RecipeValidator.Validate(recipe);
+                Assert.False(result.IsValid);
+                Assert.Contains(result.Errors, e => e.Contains("Greenshot.Plugin.Zxing") && e.Contains("https://getgreenshot.org/plugins/zxing") && e.Contains("v1.3.0+"));
+            }
+            finally
+            {
+                RecipeValidator.ExtensionAvailabilityCheck = null;
+            }
+        }
+
+        [Fact]
+        public void Validate_RequiresInstalledExtension_PassesValidation()
+        {
+            RecipeValidator.ExtensionAvailabilityCheck = req => (true, "1.4.0");
+            try
+            {
+                var recipe = new CaptureRecipe("req_pass", "Requirement Pass")
+                    .AddNode(new RecipeNodeConfig { Id = "start", StepType = "Source" });
+                recipe.Requires = new List<RecipeRequirement>
+                {
+                    new RecipeRequirement
+                    {
+                        Id = "Greenshot.Plugin.Zxing",
+                        MinVersion = "1.3.0"
+                    }
+                };
+                recipe.Flow = new RecipeFlowConfig("start");
+
+                var result = RecipeValidator.Validate(recipe);
+                Assert.True(result.IsValid, string.Join(", ", result.Errors));
+            }
+            finally
+            {
+                RecipeValidator.ExtensionAvailabilityCheck = null;
+            }
+        }
+
+        [Fact]
+        public void Validate_RequiresOutdatedExtension_ReturnsVersionError()
+        {
+            RecipeValidator.ExtensionAvailabilityCheck = req => (true, "1.1.0");
+            try
+            {
+                var recipe = new CaptureRecipe("req_outdated", "Requirement Outdated")
+                    .AddNode(new RecipeNodeConfig { Id = "start", StepType = "Source" });
+                recipe.Requires = new List<RecipeRequirement>
+                {
+                    new RecipeRequirement
+                    {
+                        Id = "Greenshot.Plugin.Zxing",
+                        Name = "ZXing Barcode Plugin",
+                        MinVersion = "1.3.0"
+                    }
+                };
+                recipe.Flow = new RecipeFlowConfig("start");
+
+                var result = RecipeValidator.Validate(recipe);
+                Assert.False(result.IsValid);
+                Assert.Contains(result.Errors, e => e.Contains("version 1.3.0 or newer") && e.Contains("1.1.0"));
+            }
+            finally
+            {
+                RecipeValidator.ExtensionAvailabilityCheck = null;
+            }
+        }
+
+        [Fact]
+        public void Validate_UnregisteredCustomAnnotation_ReturnsError()
+        {
+            var recipe = new CaptureRecipe("unreg_annotation", "Unregistered Annotation Test")
+                .AddNode(new RecipeNodeConfig { Id = "start", StepType = "Source" })
+                .AddNode(new RecipeNodeConfig
+                {
+                    Id = "annot_step",
+                    StepType = "Annotation",
+                    Parameters = new Dictionary<string, object>
+                    {
+                        ["Annotations"] = new List<object>
+                        {
+                            new Dictionary<string, object> { ["Type"] = "NonExistentCustomDrawable" }
+                        }
+                    }
+                });
+            recipe.Flow = new RecipeFlowConfig("start").AddTransition("start", "annot_step");
+
+            var result = RecipeValidator.Validate(recipe);
+            Assert.False(result.IsValid);
+            Assert.Contains(result.Errors, e => e.Contains("NonExistentCustomDrawable") && e.Contains("not available"));
+        }
     }
 }

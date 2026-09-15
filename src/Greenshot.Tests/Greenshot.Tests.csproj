@@ -23,5 +23,6 @@
     <ProjectReference Include="..\Greenshot.Editor\Greenshot.Editor.csproj" />
     <ProjectReference Include="..\Greenshot\Greenshot.csproj" />
     <ProjectReference Include="..\Greenshot.Plugin.ExternalCommand\Greenshot.Plugin.ExternalCommand.csproj" />
+    <ProjectReference Include="..\Greenshot.Plugin.Zxing\Greenshot.Plugin.Zxing.csproj" />
   </ItemGroup>
 </Project>

@@ -59,6 +59,13 @@ namespace Greenshot.Pipeline.Steps
         {
             context.State = CaptureFlowState.Acquiring;
 
+            // 0. Check if payload is already pre-supplied (e.g. from EditorTrigger or ClipboardTrigger)
+            if (context.Payload != null && (context.Payload.Surface != null || context.Payload.RawCapture != null))
+            {
+                context.LogStep("Using pre-supplied payload (from Editor or Trigger), skipping source acquisition.");
+                return;
+            }
+
             // 1. Pre-capture preparation: tray icon reset & delay
             await PreparePreCaptureAsync(context, cancellationToken).ConfigureAwait(false);
             if (context.IsAborted || cancellationToken.IsCancellationRequested) return;

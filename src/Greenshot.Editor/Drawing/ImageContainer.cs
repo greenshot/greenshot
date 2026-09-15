@@ -271,11 +271,11 @@ namespace Greenshot.Editor.Drawing
 
         public override NativeSize DefaultSize => _image?.Size ?? new NativeSize(32, 32);
 
-        public Greenshot.Editor.Helpers.ScaleOptions GetScaleOptions()
+        public ScaleOptions GetScaleOptions()
         {
             if (Tag is Greenshot.Base.Interfaces.Drawing.IDoubleClickHandler)
             {
-                return Greenshot.Editor.Helpers.ScaleOptions.Rational;
+                return ScaleOptions.Rational;
             }
             return Greenshot.Editor.Helpers.ScaleHelper.GetScaleOptions();
         }

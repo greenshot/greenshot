@@ -505,9 +505,14 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
                 config.Parameters["MenuItemText"] = ActiveRecipe?.Name ?? "Capture with Recipe";
                 config.Parameters["Group"] = "Recipes";
             }
+            else if (string.Equals(type, "Editor", StringComparison.OrdinalIgnoreCase))
+            {
+                config.Parameters["MenuItemText"] = ActiveRecipe?.Name ?? "Apply Recipe";
+                config.Parameters["Group"] = "Recipes";
+            }
             else if (string.Equals(type, "Clipboard", StringComparison.OrdinalIgnoreCase))
             {
-                config.Parameters["Pattern"] = "";
+                config.Parameters["FormatFilter"] = "";
             }
 
             var item = new TriggerItemViewModel(config, SyncTriggersToRecipe, RemoveTrigger);
@@ -866,13 +871,22 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
                 try
                 {
                     var recipe = RecipeSerializer.LoadFromFile(dlg.FileName);
-                    recipe.FilePath = dlg.FileName;
-                    ActiveRecipe = recipe;
-                    StatusMessage = $"Loaded: {Path.GetFileName(dlg.FileName)}";
+                    var valResult = RecipeValidator.Validate(recipe);
+                    if (!valResult.IsValid)
+                    {
+                        RecipeApprovalWindow.ShowValidationError(dlg.FileName, valResult, recipe);
+                        StatusMessage = $"Recipe failed validation: {Path.GetFileName(dlg.FileName)}";
+                    }
+                    else
+                    {
+                        recipe.FilePath = dlg.FileName;
+                        ActiveRecipe = recipe;
+                        StatusMessage = $"Loaded: {Path.GetFileName(dlg.FileName)}";
+                    }
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Failed to load recipe file:\n{ex.Message}", "Error Loading Recipe", MessageBoxButton.OK, MessageBoxImage.Error);
+                    RecipeApprovalWindow.ShowValidationError(dlg.FileName, rawErrorMessage: ex.Message);
                 }
             }
         }
@@ -1054,6 +1068,11 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
                         string menuText = t.GetParameter<string>("MenuItemText", t.Name ?? "Context Menu");
                         tLabel = $"🖱️ Menu: {menuText}";
                     }
+                    else if (string.Equals(t.TriggerType, TriggerConfig.TypeEditor, StringComparison.OrdinalIgnoreCase))
+                    {
+                        string menuText = t.GetParameter<string>("MenuItemText", t.Name ?? "Editor Menu");
+                        tLabel = $"🎨 Editor: {menuText}";
+                    }
                     else if (string.Equals(t.TriggerType, TriggerConfig.TypeClipboard, StringComparison.OrdinalIgnoreCase))
                     {
                         tLabel = "📋 Clipboard Monitor";
@@ -1213,8 +1232,8 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
                     dict["FillColor"] = "#000000";
                     dict["Patterns"] = new List<string> { @"\b\d{4}-\d{4}-\d{4}-\d{4}\b" };
                     break;
-                case WellKnownStepTypes.Drawable:
-                    dict["Drawables"] = new List<Dictionary<string, object>>
+                case WellKnownStepTypes.Annotation:
+                    dict["Annotations"] = new List<Dictionary<string, object>>
                     {
                         new Dictionary<string, object>
                         {

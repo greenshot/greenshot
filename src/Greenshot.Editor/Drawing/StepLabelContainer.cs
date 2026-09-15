@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026  Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -38,7 +38,7 @@ namespace Greenshot.Editor.Drawing
     /// To make sure that deleting recalculates, we check the location before every draw.
     /// </summary>
     [Serializable]
-    public sealed class StepLabelContainer : DrawableContainer
+    public sealed class StepLabelContainer : DrawableContainer, IHaveScaleOptions
     {
         [NonSerialized] private StringFormat _stringFormat = new StringFormat();
 
@@ -252,5 +252,7 @@ namespace Greenshot.Editor.Drawing
 
             return EllipseContainer.EllipseClickableAt(rect, 0, fillColor, x, y);
         }
+
+        public ScaleOptions GetScaleOptions() => ScaleOptions.Rational;
     }
 }
