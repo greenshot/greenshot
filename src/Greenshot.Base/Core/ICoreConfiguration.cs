@@ -133,7 +133,7 @@ namespace Greenshot.Base.Core
 
         [Description("Default file type for writing screenshots. (bmp, gif, jpg, png, tiff)")]
         [DefaultValue("png")]
-        OutputFormat OutputFileFormat { get; set; }
+        string OutputFileFormat { get; set; }
 
         [Description("If set to true, than the colors of the output file are reduced to 256 (8-bit) colors")]
         [DefaultValue(false)]

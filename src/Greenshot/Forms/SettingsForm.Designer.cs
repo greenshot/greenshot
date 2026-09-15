@@ -66,7 +66,7 @@ namespace Greenshot.Forms
         this.textbox_screenshotname = new GreenshotTextBox();
         this.label_language = new Label();
         this.combobox_language = new System.Windows.Forms.ComboBox();
-        this.combobox_primaryimageformat = new GreenshotComboBox();
+        this.combobox_primaryimageformat = new System.Windows.Forms.ComboBox();
         this.label_primaryimageformat = new Label();
         this.groupbox_preferredfilesettings = new GroupBox();
         this.btnPatternHelp = new Button();
@@ -1270,7 +1270,7 @@ namespace Greenshot.Forms
     private GroupBox groupbox_preferredfilesettings;
     private GreenshotCheckBox checkbox_playsound;
     private Label label_primaryimageformat;
-    private GreenshotComboBox combobox_primaryimageformat;
+    private System.Windows.Forms.ComboBox combobox_primaryimageformat;
     private System.Windows.Forms.ComboBox combobox_language;
     private Label label_language;
     private GreenshotTextBox textbox_screenshotname;

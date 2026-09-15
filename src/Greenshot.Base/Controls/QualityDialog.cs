@@ -62,9 +62,9 @@ namespace Greenshot.Base.Controls
             InitializeLanguage();
 
             checkBox_reduceColors.Checked = Settings.ReduceColors;
-            trackBarJpegQuality.Enabled = OutputFormat.jpg.Equals(outputSettings.Format);
+            trackBarJpegQuality.Enabled = string.Equals(outputSettings.Format, OutputFormat.jpg.ToString(), StringComparison.OrdinalIgnoreCase);
             trackBarJpegQuality.Value = Settings.JPGQuality;
-            textBoxJpegQuality.Enabled = OutputFormat.jpg.Equals(outputSettings.Format);
+            textBoxJpegQuality.Enabled = string.Equals(outputSettings.Format, OutputFormat.jpg.ToString(), StringComparison.OrdinalIgnoreCase);
             textBoxJpegQuality.Text = Settings.JPGQuality.ToString();
             ToFront = true;
         }

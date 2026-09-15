@@ -20,7 +20,6 @@
  */
 
 using System.Windows.Forms;
-using Greenshot.Base.Controls;
 
 namespace Greenshot.Plugin.ExternalCommand;
 
@@ -66,7 +65,7 @@ partial class SettingsFormDetail
         this.label1 = new Label();
         this.textBox_commandline = new System.Windows.Forms.TextBox();
         this.label5 = new Label();
-        this.comboBox_outputFormat = new EnumComboBox();
+        this.comboBox_outputFormat = new ComboBox();
         this.groupBox1.SuspendLayout();
         this.SuspendLayout();
         // 
@@ -224,7 +223,7 @@ partial class SettingsFormDetail
     private Button buttonOk;
     private System.Windows.Forms.TextBox textBox_commandline;
     private System.Windows.Forms.TextBox textBox_arguments;
-    private EnumComboBox comboBox_outputFormat;
+    private ComboBox comboBox_outputFormat;
     private System.Windows.Forms.TextBox textBox_name;
     private Button buttonPathSelect;
 }

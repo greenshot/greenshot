@@ -23,6 +23,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.OutputFormats;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using SixLabors.ImageSharp;
@@ -38,6 +39,7 @@ using SixLabors.ImageSharp.Formats.Webp;
 using SixLabors.ImageSharp.Metadata.Profiles.Exif;
 using SixLabors.ImageSharp.Processing.Processors.Quantization;
 using Image = SixLabors.ImageSharp.Image;
+using IOutputFormatRegistry = Greenshot.Base.Core.OutputFormats.IOutputFormatRegistry;
 
 namespace Greenshot.Editor.FileFormatHandlers
 {
@@ -54,6 +56,13 @@ namespace Greenshot.Editor.FileFormatHandlers
             SupportedExtensions[FileFormatHandlerActions.SaveToStream] = _ourExtensions;
             SupportedExtensions[FileFormatHandlerActions.SaveToFile] = _ourExtensions;
             SupportedExtensions[FileFormatHandlerActions.LoadFromFile] = _ourExtensions;
+        }
+
+        public override void RegisterOutputFormats(IOutputFormatRegistry registry)
+        {
+            RegisterOutputFormat(registry, "tga", "tga", "Truevision TGA (Targa)");
+            RegisterOutputFormat(registry, "pbm", "pbm", "Portable Bitmap (PBM)");
+            RegisterOutputFormat(registry, "webp", "webp", "WebP Image");
         }
 
         /// <inheritdoc />

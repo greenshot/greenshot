@@ -119,9 +119,19 @@ namespace Greenshot.Base.Core
             return GetFilenameFromPattern(pattern, imageFormat, null);
         }
 
+        public static string GetFilenameFromPattern(string pattern, string imageFormat)
+        {
+            return GetFilenameFromPattern(pattern, imageFormat, null);
+        }
+
         public static string GetFilenameFromPattern(string pattern, OutputFormat imageFormat, ICaptureDetails captureDetails)
         {
-            return FillPattern(pattern, captureDetails, true) + "." + imageFormat.ToString().ToLower();
+            return GetFilenameFromPattern(pattern, imageFormat.ToString(), captureDetails);
+        }
+
+        public static string GetFilenameFromPattern(string pattern, string imageFormat, ICaptureDetails captureDetails)
+        {
+            return FillPattern(pattern, captureDetails, true) + "." + imageFormat.ToLower();
         }
 
         /// <summary>
@@ -132,6 +142,17 @@ namespace Greenshot.Base.Core
         /// <param name="captureDetails"></param>
         /// <returns>The filename which should be used to save the image</returns>
         public static string GetFilename(OutputFormat format, ICaptureDetails captureDetails)
+        {
+            string pattern = CoreConfig.OutputFileFilenamePattern;
+            if (string.IsNullOrEmpty(pattern?.Trim()))
+            {
+                pattern = "greenshot ${capturetime}";
+            }
+
+            return GetFilenameFromPattern(pattern, format, captureDetails);
+        }
+
+        public static string GetFilename(string format, ICaptureDetails captureDetails)
         {
             string pattern = CoreConfig.OutputFileFilenamePattern;
             if (string.IsNullOrEmpty(pattern?.Trim()))

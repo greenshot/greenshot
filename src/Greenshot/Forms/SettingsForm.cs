@@ -33,6 +33,7 @@ using Greenshot.Base;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
+using Greenshot.Base.Core.OutputFormats;
 
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
@@ -64,11 +65,23 @@ namespace Greenshot.Forms
         {
             InitializeComponent();
             InitializeLanguage();
+            InitializeOutputFormatComboBox();
             // Make sure we change the icon size depending on the scaling
             DpiChanged += AdjustToDpi;
 
             // Make sure the store isn't called to early, that's why we do it manually
             ManualStoreFields = true;
+        }
+
+        private void InitializeOutputFormatComboBox()
+        {
+            IOutputFormatRegistry registry =
+                SimpleServiceProvider.Current.GetInstance<IOutputFormatRegistry>();
+
+            combobox_primaryimageformat.DataSource = registry.Formats
+                .OrderBy(format => format.Id)
+                .Select(format => format.Id)
+                .ToList();
         }
 
         /// <inheritdoc />
@@ -80,7 +93,6 @@ namespace Greenshot.Forms
             label_screenshotname.Text = Language.GetString("settings_filenamepattern");
             textbox_screenshotname.PropertyName = nameof(ICoreConfiguration.OutputFileFilenamePattern);
             label_language.Text = Language.GetString("settings_language");
-            combobox_primaryimageformat.PropertyName = nameof(ICoreConfiguration.OutputFileFormat);
             label_primaryimageformat.Text = Language.GetString("settings_primaryimageformat");
             groupbox_preferredfilesettings.Text = Language.GetString("settings_preferredfilesettings");
             checkbox_copypathtoclipboard.Text = Language.GetString("settings_copypathtoclipboard");
@@ -749,6 +761,7 @@ namespace Greenshot.Forms
             {
                 HotkeyManager.UnregisterHotkeys();
                 SaveSettings();
+                coreConfiguration.OutputFileFormat = combobox_primaryimageformat.SelectedItem as string;
                 StoreFields();
                 HotkeyHelper.RegisterHotkeys();
 
@@ -956,6 +969,8 @@ namespace Greenshot.Forms
 
         protected override void OnFieldsFilled()
         {
+            combobox_primaryimageformat.SelectedItem = coreConfiguration.OutputFileFormat;
+
             // the color radio button is not actually bound to a setting, but checked when monochrome/grayscale are not checked
             if (!radioBtnGrayScale.Checked && !radioBtnMonochrome.Checked)
             {

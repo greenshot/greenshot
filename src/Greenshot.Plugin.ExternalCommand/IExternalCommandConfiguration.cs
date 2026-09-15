@@ -24,7 +24,6 @@ using System.ComponentModel;
 using System.Runtime.Serialization;
 using Dapplo.Ini.Attributes;
 using Dapplo.Ini.Interfaces;
-using Greenshot.Base.Core.Enums;
 
 namespace Greenshot.Plugin.ExternalCommand;
 
@@ -67,7 +66,7 @@ public interface IExternalCommandConfiguration : IIniSection, IAfterLoad
     Dictionary<string, string> Argument { get; set; }
 
     [Description("The output file format for the output command.")]
-    Dictionary<string, OutputFormat> OutputFormat { get; set; }
+    Dictionary<string, string> OutputFormat { get; set; }
 
     [Description("Should the command be started in the background.")]
     Dictionary<string, bool> RunInbackground { get; set; }

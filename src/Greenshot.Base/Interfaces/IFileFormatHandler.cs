@@ -22,6 +22,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using Greenshot.Base.Core.OutputFormats;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Plugin;
 
@@ -64,6 +65,12 @@ namespace Greenshot.Base.Interfaces
         /// Registry for all the extensions this IFileFormatHandler support
         /// </summary>
         IDictionary<FileFormatHandlerActions, IReadOnlyCollection<string>> SupportedExtensions { get; }
+
+        /// <summary>
+        /// Registers the output formats represented by this handler.
+        /// </summary>
+        /// <param name="registry">The output format registry.</param>
+        void RegisterOutputFormats(IOutputFormatRegistry registry);
 
         /// <summary>
         /// Priority (from high int.MinValue, low int.MaxValue) of this IFileFormatHandler for the specified action and extension

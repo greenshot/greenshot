@@ -166,11 +166,11 @@ namespace Greenshot.Pipeline.Steps
             bool? reduceColors = Config.GetFirstParameter<bool?>("ReduceColors", "OutputFileReduceColors");
             if (jpegQuality.HasValue || reduceColors.HasValue)
             {
-                OutputFormat fmt = CoreConfig.OutputFileFormat;
+                string fmt = CoreConfig.OutputFileFormat;
                 string fmtStr = Config.GetFirstParameter<string>("Format", "ImageFormat");
-                if (!string.IsNullOrWhiteSpace(fmtStr) && Enum.TryParse<OutputFormat>(fmtStr, true, out var parsedFmt))
+                if (!string.IsNullOrWhiteSpace(fmtStr))
                 {
-                    fmt = parsedFmt;
+                    fmt = fmtStr;
                 }
                 var sos = new SurfaceOutputSettings(fmt, jpegQuality ?? CoreConfig.OutputFileJpegQuality, reduceColors ?? CoreConfig.OutputFileReduceColors);
                 context.Properties["Destination.SurfaceOutputSettings"] = sos;
@@ -195,11 +195,11 @@ namespace Greenshot.Pipeline.Steps
                     ?? CoreConfig.OutputFileFilenamePattern
                     ?? "greenshot ${capturetime}";
 
-                OutputFormat outputFormat = CoreConfig.OutputFileFormat;
+                string outputFormat = CoreConfig.OutputFileFormat;
                 string formatStr = Config.GetFirstParameter<string>("Format", "ImageFormat");
-                if (!string.IsNullOrWhiteSpace(formatStr) && Enum.TryParse<OutputFormat>(formatStr, true, out var parsedFmt))
+                if (!string.IsNullOrWhiteSpace(formatStr))
                 {
-                    outputFormat = parsedFmt;
+                    outputFormat = formatStr;
                 }
 
                 var captureDetails = context.Payload?.RawCapture?.CaptureDetails;

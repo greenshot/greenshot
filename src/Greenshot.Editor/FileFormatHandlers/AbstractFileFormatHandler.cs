@@ -25,6 +25,7 @@ using System.IO;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.Base.Core.OutputFormats;
 using Greenshot.Editor.Drawing;
 
 namespace Greenshot.Editor.FileFormatHandlers
@@ -33,6 +34,15 @@ namespace Greenshot.Editor.FileFormatHandlers
     {
         /// <inheritdoc />
         public IDictionary<FileFormatHandlerActions, IReadOnlyCollection<string>> SupportedExtensions { get; } = new Dictionary<FileFormatHandlerActions, IReadOnlyCollection<string>>();
+
+        public virtual void RegisterOutputFormats(IOutputFormatRegistry registry)
+        {
+        }
+
+        protected static void RegisterOutputFormat(IOutputFormatRegistry registry, string id, string extension, string displayName)
+        {
+            registry.RegisterIfMissing(new OutputFormatDefinition(id, extension, displayName));
+        }
 
         /// <inheritdoc />
         public virtual int PriorityFor(FileFormatHandlerActions fileFormatHandlerAction, string extension)

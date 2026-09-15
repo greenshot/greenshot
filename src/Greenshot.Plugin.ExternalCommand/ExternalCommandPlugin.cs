@@ -26,6 +26,7 @@ using System.IO;
 using System.Windows.Forms;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
+using Greenshot.Base.Core.OutputFormats;
 using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
@@ -99,7 +100,7 @@ public class ExternalCommandPlugin : IGreenshotPlugin, IRecipeStepProvider
 
         if (!ExternalCommandConfig.OutputFormat.ContainsKey(command))
         {
-            ExternalCommandConfig.OutputFormat.Add(command, OutputFormat.png);
+            ExternalCommandConfig.OutputFormat.Add(command, WellKnownOutputFormats.Png);
         }
 
         if (!ExternalCommandConfig.Commandline.ContainsKey(command))

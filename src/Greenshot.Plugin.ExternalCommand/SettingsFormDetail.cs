@@ -22,9 +22,10 @@
 using System;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 using Greenshot.Base.Core;
-using Greenshot.Base.Core.Enums;
+using Greenshot.Base.Core.OutputFormats;
 
 namespace Greenshot.Plugin.ExternalCommand;
 
@@ -52,20 +53,26 @@ public partial class SettingsFormDetail : ExternalCommandForm
         AcceptButton = buttonOk;
         CancelButton = buttonCancel;
         _commando = commando;
-        comboBox_outputFormat.Populate(typeof(OutputFormat));
+        IOutputFormatRegistry outputFormatRegistry =
+            SimpleServiceProvider.Current.GetInstance<IOutputFormatRegistry>();
+        comboBox_outputFormat.DisplayMember = nameof(OutputFormatDefinition.DisplayName);
+        comboBox_outputFormat.ValueMember = nameof(OutputFormatDefinition.Id);
+        comboBox_outputFormat.DataSource = outputFormatRegistry.Formats
+            .OrderBy(format => format.DisplayName)
+            .ToList();
 
         if (commando != null)
         {
             textBox_name.Text = commando;
             textBox_commandline.Text = ExternalCommandConfig.Commandline[commando];
             textBox_arguments.Text = ExternalCommandConfig.Argument[commando];
-            comboBox_outputFormat.SetValue(ExternalCommandConfig.OutputFormat[commando]);
+            comboBox_outputFormat.SelectedValue = ExternalCommandConfig.OutputFormat[commando];
             _commandIndex = ExternalCommandConfig.Commands.FindIndex(s => s == commando);
         }
         else
         {
             textBox_arguments.Text = "\"{0}\"";
-            comboBox_outputFormat.SetValue(CoreConfig.OutputFileFormat);
+            comboBox_outputFormat.SelectedValue = CoreConfig.OutputFileFormat;
         }
 
         OkButtonState();
@@ -90,9 +97,8 @@ public partial class SettingsFormDetail : ExternalCommandForm
         string commandName = textBox_name.Text;
         string commandLine = textBox_commandline.Text;
         string arguments = textBox_arguments.Text;          
-        OutputFormat outputFormat = Enum.TryParse(comboBox_outputFormat.SelectedItem as string, true, out OutputFormat parsedFormat)
-            ? parsedFormat
-            : OutputFormat.png;
+        string outputFormat = comboBox_outputFormat.SelectedValue as string
+            ?? WellKnownOutputFormats.Png;
         if (_commando != null)
         {
             ExternalCommandConfig.Commands[_commandIndex] = commandName;
