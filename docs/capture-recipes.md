@@ -11,10 +11,10 @@ Recipes can be written in code or provided as external `.json` (`.gsrecipe.json`
 > ### How to Enable Capture Recipes in Greenshot:
 > To enable external recipes, context menu triggers, the Recipe Importer, and the Visual Recipe Editor:
 > 1. Open your `greenshot.ini` configuration file (located in `%APPDATA%\Greenshot\greenshot.ini` or in the application directory if portable).
-> 2. Under the `[Core]` section, enable beta tester mode:
+> 2. Under the `[Core]` section, find and enable EnableRecipeFeature by setting it to true:
 >    ```ini
 >    [Core]
->    BetaTester=True
+>    EnableRecipeFeature=True
 >    ```
 > 3. Restart Greenshot.
 > 4. Right-click the Greenshot system tray icon to reveal the new **Recipes** menu:
@@ -194,18 +194,18 @@ Create or transform variables in the pipeline context for downstream nodes to co
 
 ---
 
-## 4. Surface Drawables (`Drawable` Step)
+## 4. Surface Annotations (`Annotation` Step)
 
-The `Drawable` step allows adding any Greenshot drawable container to the captured surface.
+The `Annotation` step allows adding any Greenshot annotation container to the captured surface.
 
-### Supported Drawable Types
+### Supported Annotation Types
 - **Shapes & Lines**: `Rectangle`, `Ellipse`, `Line`, `Arrow`, `Freehand`
 - **Text & Annotations**: `Text`, `Speechbubble`, `StepLabel`
 - **Images & Icons**: `Image`, `Icon`, `Cursor`, `Emoji`, `Svg`
 - **Barcodes & QR Codes** *(via ZXing Plugin)*: `QRCode`, `Barcode`
 - **Filters & Effects**: `Obfuscate`, `Blur`, `Pixelize`, `Highlight`, `Magnify`, `Crop`
 
-### Barcode & QR Code Drawables (`QRCode`, `Barcode`)
+### Barcode & QR Code Annotations (`QRCode`, `Barcode`)
 When `Greenshot.Plugin.Zxing` is active, recipes can stamp 2D QR codes and 1D barcodes directly onto the capture surface with uniform positioning, anchoring, and colors. When opened in the Greenshot Image Editor, double-clicking any stamped QR code opens the interactive editor to modify or inspect its payload.
 
 #### 1. Specifying the QR Code Type Contract:
@@ -283,7 +283,7 @@ In the visual Recipe Editor:
 - **`Format`**: Barcode format string for `Barcode` type (e.g. `"QR_CODE"`, `"CODE_128"`, `"EAN_13"`, `"DATA_MATRIX"`, `"AZTEC"`, `"PDF_417"`). Defaults to `"QR_CODE"`.
 
 ### Flexible Positioning: Absolute, Calculated & Anchored
-Drawables can be positioned using:
+Annotations can be positioned using:
 1. **Absolute Coordinates**: Fixed integers (`left: 50, top: 100, width: 200, height: 40`).
 2. **Calculated Expressions**: Dynamic formulas using `${payload.width}` and `${payload.height}` (e.g. `top: "${payload.height - 60}"`, `width: "${payload.width / 2}"`).
 3. **Anchor Alignments**:
@@ -292,13 +292,13 @@ Drawables can be positioned using:
    - Optional `offsetX` and `offsetY` pixel adjustments.
    - `margin`: Margin distance from screen/capture borders when anchored.
 
-#### Example Drawable Node Configuration
+#### Example Annotation Node Configuration
 ```json
 {
   "id": "stamp_watermark",
-  "stepType": "Drawable",
+  "stepType": "Annotation",
   "parameters": {
-    "drawables": [
+    "annotations": [
       {
         "type": "Rectangle",
         "horizontalAnchor": "Right",
@@ -490,9 +490,9 @@ Demonstrating parallel fork/join execution, variable evaluation, user & machine 
     },
     {
       "id": "watermark_node",
-      "stepType": "Drawable",
+      "stepType": "Annotation",
       "parameters": {
-        "drawables": [
+        "annotations": [
           {
             "type": "Rectangle",
             "horizontalAnchor": "Right",

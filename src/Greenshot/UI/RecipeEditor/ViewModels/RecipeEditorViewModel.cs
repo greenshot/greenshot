@@ -866,13 +866,22 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
                 try
                 {
                     var recipe = RecipeSerializer.LoadFromFile(dlg.FileName);
-                    recipe.FilePath = dlg.FileName;
-                    ActiveRecipe = recipe;
-                    StatusMessage = $"Loaded: {Path.GetFileName(dlg.FileName)}";
+                    var valResult = RecipeValidator.Validate(recipe);
+                    if (!valResult.IsValid)
+                    {
+                        RecipeApprovalWindow.ShowValidationError(dlg.FileName, valResult, recipe);
+                        StatusMessage = $"Recipe failed validation: {Path.GetFileName(dlg.FileName)}";
+                    }
+                    else
+                    {
+                        recipe.FilePath = dlg.FileName;
+                        ActiveRecipe = recipe;
+                        StatusMessage = $"Loaded: {Path.GetFileName(dlg.FileName)}";
+                    }
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Failed to load recipe file:\n{ex.Message}", "Error Loading Recipe", MessageBoxButton.OK, MessageBoxImage.Error);
+                    RecipeApprovalWindow.ShowValidationError(dlg.FileName, rawErrorMessage: ex.Message);
                 }
             }
         }

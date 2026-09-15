@@ -62,7 +62,7 @@
       "stepType": "Annotation",
       "name": "Stamp Annotations & Watermarks",
       "parameters": {
-        "drawables": [
+        "annotations": [
           {
             "type": "Rectangle",
             "horizontalAnchor": "Right",

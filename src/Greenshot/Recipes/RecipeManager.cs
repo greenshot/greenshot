@@ -224,9 +224,9 @@ namespace Greenshot.Recipes
 
         public void LoadConfiguredRecipeFiles()
         {
-            if (!CoreConfig.IsBetaTester)
+            if (!CoreConfig.EnableRecipeFeature)
             {
-                Log.Debug("CoreConfig.IsBetaTester is false. Skipping external recipe file loading.");
+                Log.Debug("CoreConfig.EnableRecipeFeature is false. Skipping external recipe file loading.");
                 return;
             }
 
@@ -335,6 +335,10 @@ namespace Greenshot.Recipes
                     if (!valResult.IsValid)
                     {
                         foreach (var err in valResult.Errors) overallResult.AddError($"[{recipe.Id ?? "unknown"}]: {err}");
+                        if (interactiveApproval)
+                        {
+                            UI.RecipeApprovalWindow.ShowValidationError(filePath, valResult, recipe);
+                        }
                         continue;
                     }
 
@@ -414,6 +418,10 @@ namespace Greenshot.Recipes
             {
                 Log.Error($"Failed to parse recipe file '{filePath}'", ex);
                 overallResult.AddError($"Exception reading recipe file: {ex.Message}");
+                if (interactiveApproval)
+                {
+                    UI.RecipeApprovalWindow.ShowValidationError(filePath, rawErrorMessage: ex.Message);
+                }
             }
 
             return overallResult;

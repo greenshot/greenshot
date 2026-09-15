@@ -46,11 +46,11 @@
       }
     },
     {
-      "id": "add_qr_drawables",
-      "stepType": "Drawable",
+      "id": "add_qr_annotations",
+      "stepType": "Annotation",
       "name": "Stamp QR Codes",
       "parameters": {
-        "drawables": [
+        "annotations": [
           {
             "type": "QRCode",
             "qrType": "Payment",
@@ -113,8 +113,8 @@
     "startNodes": [ "source" ],
     "transitions": {
       "source": [ "select" ],
-      "select": [ "add_qr_drawables" ],
-      "add_qr_drawables": [ "destination" ]
+      "select": [ "add_qr_annotations" ],
+      "add_qr_annotations": [ "destination" ]
     }
   }
 }

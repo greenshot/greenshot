@@ -113,6 +113,18 @@ namespace Greenshot.UI
             ? new SolidColorBrush(Color.FromRgb(0xFF, 0xBA, 0x42))
             : new SolidColorBrush(Color.FromRgb(0x66, 0x4D, 0x03));
 
+        public static SolidColorBrush ErrorBackground => IsDarkMode
+            ? new SolidColorBrush(Color.FromRgb(0x3B, 0x18, 0x18))
+            : new SolidColorBrush(Color.FromRgb(0xFD, 0xED, 0xED));
+
+        public static SolidColorBrush ErrorBorder => IsDarkMode
+            ? new SolidColorBrush(Color.FromRgb(0x7F, 0x2A, 0x2A))
+            : new SolidColorBrush(Color.FromRgb(0xF5, 0xC2, 0xC7));
+
+        public static SolidColorBrush ErrorText => IsDarkMode
+            ? new SolidColorBrush(Color.FromRgb(0xFF, 0x6B, 0x6B))
+            : new SolidColorBrush(Color.FromRgb(0x84, 0x20, 0x29));
+
         public static SolidColorBrush BadgeBackground => IsDarkMode
             ? new SolidColorBrush(Color.FromRgb(0x3A, 0x3A, 0x3C))
             : new SolidColorBrush(Color.FromRgb(0xEB, 0xEB, 0xED));
