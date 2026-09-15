@@ -311,11 +311,21 @@ namespace Greenshot.Base.Core
                 }
             }
 
-            if (!allowOverwrite && File.Exists(fullPath))
+            if (File.Exists(fullPath))
             {
-                ArgumentException throwingException = new ArgumentException("File '" + fullPath + "' already exists.");
-                throwingException.Data.Add("fullPath", fullPath);
-                throw throwingException;
+                if (!allowOverwrite)
+                {
+                    ArgumentException throwingException = new ArgumentException("File '" + fullPath + "' already exists.");
+                    throwingException.Data.Add("fullPath", fullPath);
+                    throw throwingException;
+                }
+
+                // Clear read-only attribute so the subsequent FileStream.Dispose flush doesn't throw UnauthorizedAccessException
+                var attributes = File.GetAttributes(fullPath);
+                if ((attributes & FileAttributes.ReadOnly) == FileAttributes.ReadOnly)
+                {
+                    File.SetAttributes(fullPath, attributes & ~FileAttributes.ReadOnly);
+                }
             }
 
             Log.DebugFormat("Saving surface to {0}", fullPath);
