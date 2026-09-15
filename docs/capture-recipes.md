@@ -130,6 +130,27 @@ flowchart TD
 
 You can copy and paste this text directly into Markdown files, GitHub READMEs, or pull request descriptions.
 
+### Declaring Extension Requirements (`requires`)
+When recipes rely on functionality provided by external plugins or extensions (such as `Greenshot.Plugin.Zxing` for QR codes or `Greenshot.Plugin.ExternalCommand` for scripts), they can explicitly declare their requirements in the top-level `"requires"` array:
+
+```json
+"requires": [
+  {
+    "id": "Greenshot.Plugin.Zxing",
+    "name": "ZXing Barcode & QR Code Extension",
+    "minVersion": "1.3.0",
+    "url": "https://getgreenshot.org/plugins/zxing"
+  }
+]
+```
+
+- **`id`** *(required)*: Unique identifier of the required extension or plugin.
+- **`name`** *(optional)*: Human-readable display name.
+- **`minVersion`** *(optional)*: Minimum compatible version required.
+- **`url`** *(optional)*: Download or help URL where the extension can be obtained.
+
+When Greenshot loads or validates recipes (or when opened in the Visual Recipe Editor), `RecipeValidator` checks if every declared requirement is installed and enabled. If a required extension is missing, Greenshot prevents execution and presents the user with a clear, actionable diagnostic message specifying what is missing and where to acquire it.
+
 ---
 
 ## 3. Dynamic Expressions & Scoped Environment Variables
@@ -181,7 +202,85 @@ The `Drawable` step allows adding any Greenshot drawable container to the captur
 - **Shapes & Lines**: `Rectangle`, `Ellipse`, `Line`, `Arrow`, `Freehand`
 - **Text & Annotations**: `Text`, `Speechbubble`, `StepLabel`
 - **Images & Icons**: `Image`, `Icon`, `Cursor`, `Emoji`, `Svg`
+- **Barcodes & QR Codes** *(via ZXing Plugin)*: `QRCode`, `Barcode`
 - **Filters & Effects**: `Obfuscate`, `Blur`, `Pixelize`, `Highlight`, `Magnify`, `Crop`
+
+### Barcode & QR Code Drawables (`QRCode`, `Barcode`)
+When `Greenshot.Plugin.Zxing` is active, recipes can stamp 2D QR codes and 1D barcodes directly onto the capture surface with uniform positioning, anchoring, and colors. When opened in the Greenshot Image Editor, double-clicking any stamped QR code opens the interactive editor to modify or inspect its payload.
+
+#### 1. Specifying the QR Code Type Contract:
+The QR code format is explicitly declared via the `"QrType"` parameter (e.g. `"Link"`, `"Payment"`, `"BusinessCard"`, `"WiFi"`, `"Email"`, `"CalendarEvent"`, `"Phone"`, `"Sms"`, `"Geo"`), ensuring a strict contract without guesswork:
+
+- **Link / Plain Text (`"QrType": "Link"` or `"Text"`)**:
+  - Direct URL, markdown link, or arbitrary text string.
+  - `"Text"`: Content string or dynamic expression (e.g. `"https://getgreenshot.org"`).
+
+- **Payments (`"QrType": "Payment"` or `"Sepa"`)**:
+  - European Payments Council (EPC) SEPA QR Code / GiroCode for instant mobile banking app transfers:
+  - `"EpcIban"`: Recipient IBAN (e.g. `"DE89370400440532013000"`).
+  - `"EpcName"`: Recipient account holder name (e.g. `"Greenshot Community e.V."`).
+  - `"EpcBic"`: Recipient BIC/SWIFT code (optional).
+  - `"EpcAmount"`: Payment transfer amount in EUR (e.g. `15.00` or `"15.00"`).
+  - `"EpcReference"`: Structured remittance reference / invoice number (e.g. `"INV-2026-0042"`).
+  - `"EpcMessage"`: Unstructured payment note or purpose (e.g. `"Support Greenshot"`).
+
+- **Business Cards (`"QrType": "BusinessCard"` or `"Contact"`)**:
+  - Standardized vCard 3.0 contact card:
+  - `"VcardFirstName"`: First name (e.g. `"Robin"`).
+  - `"VcardLastName"`: Last name (e.g. `"Krom"`).
+  - `"VcardCompany"`: Organization / Company (e.g. `"Greenshot Project"`).
+  - `"VcardEmail"`: Email address (e.g. `"robin@getgreenshot.org"`).
+  - `"VcardPhone"`: Phone number (e.g. `"+49-123-456789"`).
+  - `"VcardUrl"`: Website URL (e.g. `"https://getgreenshot.org"`).
+
+- **WiFi Network Configuration (`"QrType": "WiFi"` or `"Network"`)**:
+  - Automatic WiFi connection credentials:
+  - `"WifiSsid"`: Network SSID name.
+  - `"WifiPassword"`: Network password / pre-shared key.
+  - `"WifiEncryption"`: `"WPA"` (default), `"WEP"`, or `"nopass"`.
+
+- **Email (`"QrType": "Email"`)**:
+  - Pre-composed email triggering default email client (`mailto:`):
+  - `"EmailAddress"`: Recipient email address (e.g. `"support@getgreenshot.org"`).
+  - `"EmailSubject"`: Pre-filled email subject line.
+  - `"EmailBody"`: Pre-filled email message body.
+
+- **Calendar Events (`"QrType": "CalendarEvent"` or `"Event"`)**:
+  - Standardized iCalendar (`VEVENT`) meeting or event invitation:
+  - `"EventTitle"`: Summary / title of the event (e.g. `"Sprint Planning"`).
+  - `"EventDescription"`: Detailed event description or meeting notes.
+  - `"EventLocation"`: Physical address or virtual meeting URL.
+  - `"EventStart"`: Event start date/time (ISO 8601 string, e.g. `"2026-10-01T09:00:00Z"`).
+  - `"EventEnd"`: Event end date/time (ISO 8601 string, e.g. `"2026-10-01T10:00:00Z"`).
+
+- **Phone Call (`"QrType": "Phone"`)**:
+  - Direct telephone dialer trigger (`tel:`):
+  - `"PhoneNumber"`: Phone number to dial (e.g. `"+49-123-456789"`).
+
+- **SMS Message (`"QrType": "Sms"`)**:
+  - Direct SMS composer trigger (`smsto:`):
+  - `"SmsNumber"`: Recipient mobile number.
+  - `"SmsMessage"`: Pre-filled SMS text message.
+
+- **Geographic Location (`"QrType": "Geo"`)**:
+  - Map location coordinates or query (`geo:`):
+  - `"GeoLat"`: Latitude in decimal degrees (e.g. `52.5200`).
+  - `"GeoLon"`: Longitude in decimal degrees (e.g. `13.4050`).
+  - `"GeoAlt"`: Optional altitude in meters.
+  - `"GeoQuery"`: Optional search query name (e.g. `"Greenshot HQ"`).
+
+#### Visual Recipe Editor Integration:
+In the visual Recipe Editor:
+- Selecting any `QRCode` drawable displays a dedicated **QR Code Configuration** section with a category dropdown. Selecting a category automatically reveals the exact input fields needed for that specific category.
+- Clicking the **"⚙ Configure QR..."** button opens the interactive `ZxingEditorForm` dialog directly from the Recipe Editor, allowing you to test, format, and preview payloads with live validation.
+
+#### 2. Visual Styling Parameters:
+- **`Size`**: Shorthand pixel size for square QR codes (e.g. `160`).
+- **`Width` / `Height`**: Dimensions for 1D barcodes or rectangular barcodes.
+- **`ForeColor`**: Barcode foreground/module color (e.g. `"#003366"` or `"Black"`).
+- **`BackColor`**: Background quiet-zone color (e.g. `"#FFFFFF"` or `"White"`).
+- **`RoundedDots`**: Boolean (`true`/`false`). Renders modern rounded circular dots for 2D matrix modules while preserving standard finder patterns.
+- **`Format`**: Barcode format string for `Barcode` type (e.g. `"QR_CODE"`, `"CODE_128"`, `"EAN_13"`, `"DATA_MATRIX"`, `"AZTEC"`, `"PDF_417"`). Defaults to `"QR_CODE"`.
 
 ### Flexible Positioning: Absolute, Calculated & Anchored
 Drawables can be positioned using:
@@ -191,6 +290,7 @@ Drawables can be positioned using:
    - `horizontalAnchor`: `"Left"`, `"Center"` (or `"Middle"`), `"Right"`
    - `verticalAnchor`: `"Top"`, `"Center"` (or `"Middle"`), `"Bottom"`
    - Optional `offsetX` and `offsetY` pixel adjustments.
+   - `margin`: Margin distance from screen/capture borders when anchored.
 
 #### Example Drawable Node Configuration
 ```json
@@ -233,6 +333,23 @@ Drawables can be positioned using:
         "top": "${payload.height - 45}",
         "emoji": "🛡️",
         "size": 32
+      },
+      {
+        "type": "QRCode",
+        "qrType": "BusinessCard",
+        "horizontalAnchor": "Right",
+        "verticalAnchor": "Top",
+        "margin": 15,
+        "size": 120,
+        "roundedDots": true,
+        "foreColor": "#003366",
+        "backColor": "#FFFFFF",
+        "vcardFirstName": "Jane",
+        "vcardLastName": "Doe",
+        "vcardCompany": "Greenshot Team",
+        "vcardEmail": "jane@getgreenshot.org",
+        "vcardPhone": "+1-555-0199",
+        "vcardUrl": "https://getgreenshot.org"
       }
     ]
   }
@@ -572,8 +689,7 @@ If a recipe references a step type provided by a plugin that is **not installed 
 | `Jira`<br>`JiraUpload` | `Greenshot.Plugin.Jira` | Attaches capture to a Jira issue or opens Jira issue selection. | `issueKey`, `comment`, `format`, `jpegQuality` |
 | `Confluence`<br>`ConfluenceUpload` | `Greenshot.Plugin.Confluence` | Attaches capture to a Confluence page or opens page picker. | `pageId`, `format`, `jpegQuality` |
 | `Office` | `Greenshot.Plugin.Office` | Exports capture to Microsoft Office applications. | `application` (`Excel`, `PowerPoint`, `Word`, `OneNote`, `Outlook`) |
-| `Excel`, `PowerPoint`, `Word`, `OneNote`, `Outlook` | `Greenshot.Plugin.Office` | Direct application export shortcuts. | - |
-| `Zxing`<br>`ScanBarcode`<br>`ReadQrCode` | `Greenshot.Plugin.Zxing` | Scans capture surface for barcodes/QR codes and sets `payload.extractedText`. | `copyToClipboard`, `variableName` |
+| `BarcodeScan` | `Greenshot.Plugin.Zxing` | Scans capture surface for barcodes/QR codes and sets `payload.extractedText`. | `copyToClipboard`, `variableName`, `openUrlIfValid` |
 
 ### External Command Step In Depth
 

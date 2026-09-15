@@ -1,0 +1,120 @@
+{
+  "$schema": "../recipe.schema.json",
+  "version": "1.0",
+  "id": "recipe_qr_codes_showcase",
+  "name": "QR Codes Showcase (Payments, Business Cards & Links)",
+  "description": "Demonstrates inserting multiple structured QR codes: an EPC SEPA bank transfer QR code for payments, a vCard contact business card, and a dynamic website link with rounded dots styling.",
+  "requires": [
+    {
+      "id": "Greenshot.Plugin.Zxing",
+      "name": "ZXing Barcode & QR Code Extension",
+      "minVersion": "1.3.0",
+      "url": "https://getgreenshot.org/plugins/zxing"
+    }
+  ],
+  "triggers": [
+    {
+      "triggerType": "ContextMenu",
+      "name": "QR Codes Showcase Menu Item",
+      "parameters": {
+        "menuItemText": "QR Codes Showcase (Payments & Business Cards)",
+        "group": "Recipes"
+      }
+    },
+    {
+      "triggerType": "Hotkey",
+      "parameters": {
+        "hotkey": "Ctrl + Shift + Q"
+      }
+    }
+  ],
+  "nodes": [
+    {
+      "id": "source",
+      "stepType": "Source",
+      "name": "Capture Screen Area",
+      "parameters": {
+        "sourceType": "Region"
+      }
+    },
+    {
+      "id": "select",
+      "stepType": "InteractiveSelection",
+      "name": "Interactive Region Selection",
+      "parameters": {
+        "selectionMode": "Region"
+      }
+    },
+    {
+      "id": "add_qr_drawables",
+      "stepType": "Drawable",
+      "name": "Stamp QR Codes",
+      "parameters": {
+        "drawables": [
+          {
+            "type": "QRCode",
+            "qrType": "Payment",
+            "horizontalAnchor": "Right",
+            "verticalAnchor": "Bottom",
+            "margin": 20,
+            "size": 150,
+            "roundedDots": true,
+            "foreColor": "#003366",
+            "backColor": "#FFFFFF",
+            "epcName": "Greenshot Community e.V.",
+            "epcIban": "DE89370400440532013000",
+            "epcBic": "COBADEFFXXX",
+            "epcAmount": 15.00,
+            "epcReference": "DONATION-2026",
+            "epcMessage": "Support Greenshot Development"
+          },
+          {
+            "type": "QRCode",
+            "qrType": "BusinessCard",
+            "horizontalAnchor": "Left",
+            "verticalAnchor": "Bottom",
+            "margin": 20,
+            "size": 150,
+            "roundedDots": false,
+            "foreColor": "#1A1A1A",
+            "backColor": "#FAFAFA",
+            "vcardFirstName": "Robin",
+            "vcardLastName": "Krom",
+            "vcardCompany": "Greenshot Project",
+            "vcardEmail": "robin@getgreenshot.org",
+            "vcardPhone": "+49-123-456789",
+            "vcardUrl": "https://getgreenshot.org"
+          },
+          {
+            "type": "QRCode",
+            "qrType": "Link",
+            "horizontalAnchor": "Right",
+            "verticalAnchor": "Top",
+            "margin": 20,
+            "size": 120,
+            "roundedDots": true,
+            "foreColor": "#0078D7",
+            "backColor": "#FFFFFF",
+            "text": "https://getgreenshot.org/docs"
+          }
+        ]
+      }
+    },
+    {
+      "id": "destination",
+      "stepType": "Destinations",
+      "name": "Open in Greenshot Editor",
+      "parameters": {
+        "destinationDesignations": [ "Editor" ]
+      }
+    }
+  ],
+  "flow": {
+    "startNodes": [ "source" ],
+    "transitions": {
+      "source": [ "select" ],
+      "select": [ "add_qr_drawables" ],
+      "add_qr_drawables": [ "destination" ]
+    }
+  }
+}

@@ -48,6 +48,11 @@ namespace Greenshot.Base.Recipes
         public List<TriggerConfig> Triggers { get; set; } = new List<TriggerConfig>();
 
         /// <summary>
+        /// Explicit extension or plugin dependencies required to execute this recipe.
+        /// </summary>
+        public List<RecipeRequirement> Requires { get; set; } = new List<RecipeRequirement>();
+
+        /// <summary>
         /// Specified flow-local nodes configured for execution.
         /// </summary>
         public List<RecipeNodeConfig> Nodes { get; set; } = new List<RecipeNodeConfig>();

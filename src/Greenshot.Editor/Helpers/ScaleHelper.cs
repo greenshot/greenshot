@@ -24,6 +24,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
+using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Editor.Drawing;
 
 namespace Greenshot.Editor.Helpers

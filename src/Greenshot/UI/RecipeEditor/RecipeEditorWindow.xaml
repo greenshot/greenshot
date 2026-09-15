@@ -1499,6 +1499,10 @@
                                                         <ComboBoxItem Content="Speechbubble"/>
                                                         <ComboBoxItem Content="Blur"/>
                                                         <ComboBoxItem Content="Highlight"/>
+                                                        <ComboBoxItem Content="QRCode"/>
+                                                        <ComboBoxItem Content="Barcode"/>
+                                                        <ComboBoxItem Content="Image"/>
+                                                        <ComboBoxItem Content="Svg"/>
                                                     </ComboBox>
                                                     <Button Content="+ Add" Style="{StaticResource PrimaryBtn}" Padding="6,2"
                                                             Command="{Binding SelectedNode.AddDrawableCommand}"
@@ -1529,6 +1533,10 @@
                                                                         <ComboBoxItem Content="Speechbubble"/>
                                                                         <ComboBoxItem Content="Blur"/>
                                                                         <ComboBoxItem Content="Highlight"/>
+                                                                        <ComboBoxItem Content="QRCode"/>
+                                                                        <ComboBoxItem Content="Barcode"/>
+                                                                        <ComboBoxItem Content="Image"/>
+                                                                        <ComboBoxItem Content="Svg"/>
                                                                     </ComboBox>
                                                                     <Button Grid.Column="1" Content="✕" Width="22" Height="22"
                                                                             Style="{StaticResource ToolbarBtn}" Foreground="#FF6B6B"
@@ -1544,6 +1552,176 @@
                                                                              Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                              Padding="4,2"/>
                                                                 </StackPanel>
+
+                                                                <!-- QR Code / Barcode Settings Panel -->
+                                                                <Border Visibility="{Binding IsQrCodeType, Converter={StaticResource BoolToVis}}" 
+                                                                        Background="{Binding DataContext.WindowBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                        BorderBrush="{Binding DataContext.CardBorderBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                        BorderThickness="1" CornerRadius="4" Padding="6" Margin="0,2,0,6">
+                                                                    <StackPanel>
+                                                                        <Grid Margin="0,0,0,4">
+                                                                            <Grid.ColumnDefinitions>
+                                                                                <ColumnDefinition Width="*"/>
+                                                                                <ColumnDefinition Width="Auto"/>
+                                                                            </Grid.ColumnDefinitions>
+                                                                            <StackPanel Grid.Column="0">
+                                                                                <TextBlock Text="QR Code Category" FontSize="10" FontWeight="SemiBold" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                                                <ComboBox SelectedValue="{Binding QrType, Mode=TwoWay}" SelectedValuePath="Tag" Margin="0,2,0,0">
+                                                                                    <ComboBoxItem Content="Link / Plain Text" Tag="Link"/>
+                                                                                    <ComboBoxItem Content="WiFi Network" Tag="WiFi"/>
+                                                                                    <ComboBoxItem Content="Business Card (vCard)" Tag="BusinessCard"/>
+                                                                                    <ComboBoxItem Content="Payment (EPC SEPA)" Tag="Payment"/>
+                                                                                    <ComboBoxItem Content="Email Message" Tag="Email"/>
+                                                                                    <ComboBoxItem Content="Calendar Event (iCal)" Tag="CalendarEvent"/>
+                                                                                    <ComboBoxItem Content="Phone Call" Tag="Phone"/>
+                                                                                    <ComboBoxItem Content="SMS Message" Tag="Sms"/>
+                                                                                    <ComboBoxItem Content="Geo Location" Tag="Geo"/>
+                                                                                </ComboBox>
+                                                                            </StackPanel>
+                                                                            <Button Grid.Column="1" Content="⚙ Configure QR..." Style="{StaticResource ToolbarBtn}" Padding="6,2" Margin="4,12,0,0"
+                                                                                    Command="{Binding ConfigureQrInDialogCommand}" ToolTip="Open the interactive QR / Barcode generator and live scanner preview"/>
+                                                                        </Grid>
+
+                                                                        <!-- WiFi fields -->
+                                                                        <StackPanel Visibility="{Binding IsQrWifi, Converter={StaticResource BoolToVis}}" Margin="0,4,0,0">
+                                                                            <TextBlock Text="Network SSID" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                                            <TextBox Text="{Binding WifiSsid, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontFamily="Consolas" FontSize="11" Margin="0,1,0,3"/>
+                                                                            <TextBlock Text="Password" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                                            <TextBox Text="{Binding WifiPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontFamily="Consolas" FontSize="11" Margin="0,1,0,3"/>
+                                                                            <TextBlock Text="Encryption" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                                            <ComboBox SelectedValue="{Binding WifiEncryption, Mode=TwoWay}" SelectedValuePath="Tag" Margin="0,1,0,3">
+                                                                                <ComboBoxItem Content="WPA/WPA2" Tag="WPA"/>
+                                                                                <ComboBoxItem Content="WEP" Tag="WEP"/>
+                                                                                <ComboBoxItem Content="None (Unencrypted)" Tag="nopass"/>
+                                                                            </ComboBox>
+                                                                        </StackPanel>
+
+                                                                        <!-- Business Card fields -->
+                                                                        <StackPanel Visibility="{Binding IsQrBusinessCard, Converter={StaticResource BoolToVis}}" Margin="0,4,0,0">
+                                                                            <Grid Margin="0,0,0,3">
+                                                                                <Grid.ColumnDefinitions>
+                                                                                    <ColumnDefinition Width="*"/>
+                                                                                    <ColumnDefinition Width="4"/>
+                                                                                    <ColumnDefinition Width="*"/>
+                                                                                </Grid.ColumnDefinitions>
+                                                                                <StackPanel Grid.Column="0">
+                                                                                    <TextBlock Text="First Name" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                                                    <TextBox Text="{Binding VcardFirstName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="11"/>
+                                                                                </StackPanel>
+                                                                                <StackPanel Grid.Column="2">
+                                                                                    <TextBlock Text="Last Name" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                                                    <TextBox Text="{Binding VcardLastName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="11"/>
+                                                                                </StackPanel>
+                                                                            </Grid>
+                                                                            <TextBlock Text="Company" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                                            <TextBox Text="{Binding VcardCompany, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="11" Margin="0,1,0,3"/>
+                                                                            <TextBlock Text="Email" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                                            <TextBox Text="{Binding VcardEmail, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="11" Margin="0,1,0,3"/>
+                                                                            <TextBlock Text="Phone" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                                            <TextBox Text="{Binding VcardPhone, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="11" Margin="0,1,0,3"/>
+                                                                            <TextBlock Text="Website URL" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                                            <TextBox Text="{Binding VcardUrl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="11" Margin="0,1,0,3"/>
+                                                                        </StackPanel>
+
+                                                                        <!-- Payment (EPC SEPA) fields -->
+                                                                        <StackPanel Visibility="{Binding IsQrPayment, Converter={StaticResource BoolToVis}}" Margin="0,4,0,0">
+                                                                            <TextBlock Text="Recipient Name" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                                            <TextBox Text="{Binding EpcName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="11" Margin="0,1,0,3"/>
+                                                                            <TextBlock Text="IBAN" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                                            <TextBox Text="{Binding EpcIban, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontFamily="Consolas" FontSize="11" Margin="0,1,0,3"/>
+                                                                            <Grid Margin="0,0,0,3">
+                                                                                <Grid.ColumnDefinitions>
+                                                                                    <ColumnDefinition Width="*"/>
+                                                                                    <ColumnDefinition Width="4"/>
+                                                                                    <ColumnDefinition Width="*"/>
+                                                                                </Grid.ColumnDefinitions>
+                                                                                <StackPanel Grid.Column="0">
+                                                                                    <TextBlock Text="BIC (optional)" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                                                    <TextBox Text="{Binding EpcBic, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontFamily="Consolas" FontSize="11"/>
+                                                                                </StackPanel>
+                                                                                <StackPanel Grid.Column="2">
+                                                                                    <TextBlock Text="Amount (EUR)" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                                                    <TextBox Text="{Binding EpcAmount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontFamily="Consolas" FontSize="11"/>
+                                                                                </StackPanel>
+                                                                            </Grid>
+                                                                            <TextBlock Text="Reference" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                                            <TextBox Text="{Binding EpcReference, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="11" Margin="0,1,0,3"/>
+                                                                            <TextBlock Text="Message" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                                            <TextBox Text="{Binding EpcMessage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="11" Margin="0,1,0,3"/>
+                                                                        </StackPanel>
+
+                                                                        <!-- Email fields -->
+                                                                        <StackPanel Visibility="{Binding IsQrEmail, Converter={StaticResource BoolToVis}}" Margin="0,4,0,0">
+                                                                            <TextBlock Text="To Address" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                                            <TextBox Text="{Binding EmailTo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="11" Margin="0,1,0,3"/>
+                                                                            <TextBlock Text="Subject" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                                            <TextBox Text="{Binding EmailSubject, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="11" Margin="0,1,0,3"/>
+                                                                            <TextBlock Text="Body" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                                            <TextBox Text="{Binding EmailBody, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="11" Margin="0,1,0,3" Height="40" TextWrapping="Wrap" AcceptsReturn="True"/>
+                                                                        </StackPanel>
+
+                                                                        <!-- Calendar Event fields -->
+                                                                        <StackPanel Visibility="{Binding IsQrCalendarEvent, Converter={StaticResource BoolToVis}}" Margin="0,4,0,0">
+                                                                            <TextBlock Text="Title / Summary" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                                            <TextBox Text="{Binding EventTitle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="11" Margin="0,1,0,3"/>
+                                                                            <TextBlock Text="Location" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                                            <TextBox Text="{Binding EventLocation, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="11" Margin="0,1,0,3"/>
+                                                                            <Grid Margin="0,0,0,3">
+                                                                                <Grid.ColumnDefinitions>
+                                                                                    <ColumnDefinition Width="*"/>
+                                                                                    <ColumnDefinition Width="4"/>
+                                                                                    <ColumnDefinition Width="*"/>
+                                                                                </Grid.ColumnDefinitions>
+                                                                                <StackPanel Grid.Column="0">
+                                                                                    <TextBlock Text="Start (UTC)" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                                                    <TextBox Text="{Binding EventStart, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontFamily="Consolas" FontSize="10"/>
+                                                                                </StackPanel>
+                                                                                <StackPanel Grid.Column="2">
+                                                                                    <TextBlock Text="End (UTC)" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                                                    <TextBox Text="{Binding EventEnd, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontFamily="Consolas" FontSize="10"/>
+                                                                                </StackPanel>
+                                                                            </Grid>
+                                                                            <TextBlock Text="Description" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                                            <TextBox Text="{Binding EventDescription, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="11" Margin="0,1,0,3"/>
+                                                                        </StackPanel>
+
+                                                                        <!-- Phone fields -->
+                                                                        <StackPanel Visibility="{Binding IsQrPhone, Converter={StaticResource BoolToVis}}" Margin="0,4,0,0">
+                                                                            <TextBlock Text="Phone Number" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                                            <TextBox Text="{Binding PhoneNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontFamily="Consolas" FontSize="11" Margin="0,1,0,3"/>
+                                                                        </StackPanel>
+
+                                                                        <!-- SMS fields -->
+                                                                        <StackPanel Visibility="{Binding IsQrSms, Converter={StaticResource BoolToVis}}" Margin="0,4,0,0">
+                                                                            <TextBlock Text="Recipient Number" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                                            <TextBox Text="{Binding SmsNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontFamily="Consolas" FontSize="11" Margin="0,1,0,3"/>
+                                                                            <TextBlock Text="Message" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                                            <TextBox Text="{Binding SmsMessage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="11" Margin="0,1,0,3" Height="40" TextWrapping="Wrap" AcceptsReturn="True"/>
+                                                                        </StackPanel>
+
+                                                                        <!-- Geo fields -->
+                                                                        <StackPanel Visibility="{Binding IsQrGeo, Converter={StaticResource BoolToVis}}" Margin="0,4,0,0">
+                                                                            <Grid Margin="0,0,0,3">
+                                                                                <Grid.ColumnDefinitions>
+                                                                                    <ColumnDefinition Width="*"/>
+                                                                                    <ColumnDefinition Width="4"/>
+                                                                                    <ColumnDefinition Width="*"/>
+                                                                                </Grid.ColumnDefinitions>
+                                                                                <StackPanel Grid.Column="0">
+                                                                                    <TextBlock Text="Latitude" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                                                    <TextBox Text="{Binding Latitude, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontFamily="Consolas" FontSize="11"/>
+                                                                                </StackPanel>
+                                                                                <StackPanel Grid.Column="2">
+                                                                                    <TextBlock Text="Longitude" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                                                    <TextBox Text="{Binding Longitude, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontFamily="Consolas" FontSize="11"/>
+                                                                                </StackPanel>
+                                                                            </Grid>
+                                                                        </StackPanel>
+
+                                                                        <!-- Modern Rounded Dots Style -->
+                                                                        <CheckBox Content="Rounded Dots (Modern 2D style)" IsChecked="{Binding RoundedDots, Mode=TwoWay}" Margin="0,4,0,0" FontSize="11"/>
+                                                                    </StackPanel>
+                                                                </Border>
 
                                                                 <!-- Speechbubble Tail Controls -->
                                                                 <StackPanel Visibility="{Binding IsSpeechbubbleType, Converter={StaticResource BoolToVis}}" Margin="0,0,0,4">
@@ -1589,6 +1767,50 @@
                                                                              Padding="4,2"/>
                                                                 </StackPanel>
 
+                                                                <!-- Image Controls -->
+                                                                <StackPanel Visibility="{Binding IsImageType, Converter={StaticResource BoolToVis}}" Margin="0,0,0,4">
+                                                                    <TextBlock Text="Image File Path" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                                    <Grid Margin="0,1,0,3">
+                                                                        <Grid.ColumnDefinitions>
+                                                                            <ColumnDefinition Width="*"/>
+                                                                            <ColumnDefinition Width="6"/>
+                                                                            <ColumnDefinition Width="Auto"/>
+                                                                        </Grid.ColumnDefinitions>
+                                                                        <TextBox Grid.Column="0" Text="{Binding FilePath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                                 FontFamily="Consolas" FontSize="11"
+                                                                                 Background="{Binding DataContext.WindowBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                                 Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                                 Padding="4,2"/>
+                                                                        <Button Grid.Column="2" Content="Browse..." Style="{StaticResource ToolbarBtn}" Padding="6,2"
+                                                                                Command="{Binding BrowseFileCommand}"/>
+                                                                    </Grid>
+                                                                </StackPanel>
+
+                                                                <!-- SVG Controls -->
+                                                                <StackPanel Visibility="{Binding IsSvgType, Converter={StaticResource BoolToVis}}" Margin="0,0,0,4">
+                                                                    <TextBlock Text="SVG File Path" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                                    <Grid Margin="0,1,0,3">
+                                                                        <Grid.ColumnDefinitions>
+                                                                            <ColumnDefinition Width="*"/>
+                                                                            <ColumnDefinition Width="6"/>
+                                                                            <ColumnDefinition Width="Auto"/>
+                                                                        </Grid.ColumnDefinitions>
+                                                                        <TextBox Grid.Column="0" Text="{Binding FilePath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                                 FontFamily="Consolas" FontSize="11"
+                                                                                 Background="{Binding DataContext.WindowBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                                 Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                                 Padding="4,2"/>
+                                                                        <Button Grid.Column="2" Content="Browse..." Style="{StaticResource ToolbarBtn}" Padding="6,2"
+                                                                                Command="{Binding BrowseFileCommand}"/>
+                                                                    </Grid>
+                                                                    <TextBlock Text="Or Inline SVG XML" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                                    <TextBox Text="{Binding SvgXml, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                             FontFamily="Consolas" FontSize="10" Height="50" TextWrapping="Wrap" AcceptsReturn="True"
+                                                                             Background="{Binding DataContext.WindowBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                             Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                             Margin="0,1,0,3" Padding="4,2"/>
+                                                                </StackPanel>
+
                                                                 <!-- Anchors: H-Anchor & V-Anchor -->
                                                                 <Grid Margin="0,2,0,4">
                                                                     <Grid.ColumnDefinitions>
@@ -1622,6 +1844,7 @@
                                                                         <ColumnDefinition Width="*"/>
                                                                         <ColumnDefinition Width="6"/>
                                                                         <ColumnDefinition Width="*"/>
+                                                                        <ColumnDefinition Width="Auto"/>
                                                                     </Grid.ColumnDefinitions>
                                                                     <StackPanel Grid.Column="0">
                                                                         <TextBlock Text="Width" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
@@ -1635,6 +1858,9 @@
                                                                                  Background="{Binding DataContext.WindowBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                                  Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}" Padding="4,2"/>
                                                                     </StackPanel>
+                                                                    <CheckBox Grid.Column="3" Content="Lock 1:1" IsChecked="{Binding LockAspectRatio, Mode=TwoWay}"
+                                                                              ToolTip="Locks width and height to maintain aspect ratio"
+                                                                              FontSize="10" VerticalAlignment="Bottom" Margin="6,0,0,3"/>
                                                                 </Grid>
 
                                                                 <!-- Offset X & Offset Y -->

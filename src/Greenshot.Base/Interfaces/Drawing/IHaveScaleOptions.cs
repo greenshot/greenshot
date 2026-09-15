@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom, Francis Noel
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -19,26 +19,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System;
-
-namespace Greenshot.Editor.Helpers
+namespace Greenshot.Base.Interfaces.Drawing
 {
-    [Flags]
-    public enum ScaleOptions
+    public interface IHaveScaleOptions
     {
-        /// <summary>
-        /// Default scale behavior.
-        /// </summary>
-        Default = 0x00,
-
-        /// <summary>
-        /// Scale a rectangle in two our four directions, mirrored at it's center coordinates
-        /// </summary>
-        Centered = 0x01,
-
-        /// <summary>
-        /// Scale a rectangle maintaining it's aspect ratio
-        /// </summary>
-        Rational = 0x02
+        ScaleOptions GetScaleOptions();
     }
 }

@@ -29,6 +29,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
+using Greenshot.Base.Drawing;
 using Greenshot.Base.Expressions;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
@@ -37,6 +38,7 @@ using Greenshot.Base.Recipes;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Drawing.Emoji;
 using Greenshot.Editor.Drawing.Fields;
+using Greenshot.Editor.Helpers;
 using log4net;
 using Newtonsoft.Json.Linq;
 
@@ -159,103 +161,60 @@ namespace Greenshot.Pipeline.Steps
             return Task.CompletedTask;
         }
 
-        private static DrawableContainer CreateDrawable(
+        private static bool _builtInsRegistered;
+        private static readonly object _initLock = new object();
+
+        public static void EnsureBuiltInDrawablesRegistered()
+        {
+            if (_builtInsRegistered) return;
+            lock (_initLock)
+            {
+                if (_builtInsRegistered) return;
+                RegisterBuiltInDrawables(RecipeDrawableRegistry.Instance);
+                _builtInsRegistered = true;
+            }
+        }
+
+        public static void RegisterBuiltInDrawables(IRecipeDrawableRegistry registry)
+        {
+            if (registry == null) return;
+
+            registry.RegisterDrawableFactory("Rectangle", (s, p, c) => CreateRectangle(s, p), ScaleOptions.Default);
+            registry.RegisterDrawableFactory("Ellipse", (s, p, c) => CreateEllipse(s, p), ScaleOptions.Default);
+            registry.RegisterDrawableFactory("Line", (s, p, c) => CreateLine(s, p), ScaleOptions.Default);
+            registry.RegisterDrawableFactory("Arrow", (s, p, c) => CreateArrow(s, p), ScaleOptions.Default);
+            registry.RegisterDrawableFactory("Freehand", (s, p, c) => CreateFreehand(s, p), ScaleOptions.Default);
+            registry.RegisterDrawableFactory("Text", (s, p, c) => CreateText(s, p), ScaleOptions.Default);
+            registry.RegisterDrawableFactory("Speechbubble", (s, p, c) => CreateSpeechbubble(s, p), ScaleOptions.Default);
+            registry.RegisterDrawableFactory("StepLabel", (s, p, c) => CreateStepLabel(s, p), ScaleOptions.Rational);
+            registry.RegisterDrawableFactory("Image", (s, p, c) => CreateImage(s, p), ScaleOptions.Default);
+            registry.RegisterDrawableFactory("Icon", (s, p, c) => CreateIcon(s, p), ScaleOptions.Default);
+            registry.RegisterDrawableFactory("Cursor", (s, p, c) => CreateCursor(s, p), ScaleOptions.Default);
+            registry.RegisterDrawableFactory("Emoji", (s, p, c) => CreateEmoji(s, p), ScaleOptions.Rational);
+            registry.RegisterDrawableFactory("Svg", (s, p, c) => CreateSvg(s, p), ScaleOptions.Rational);
+            registry.RegisterDrawableFactory("Blur", (s, p, c) => CreateObfuscate(s, p, "blur"), ScaleOptions.Default);
+            registry.RegisterDrawableFactory("Pixelize", (s, p, c) => CreateObfuscate(s, p, "pixelize"), ScaleOptions.Default);
+            registry.RegisterDrawableFactory("Highlight", (s, p, c) => CreateHighlight(s, p, "highlight"), ScaleOptions.Default);
+            registry.RegisterDrawableFactory("Magnify", (s, p, c) => CreateHighlight(s, p, "magnify"), ScaleOptions.Default);
+            registry.RegisterDrawableFactory("Crop", (s, p, c) => new CropContainer(s), ScaleOptions.Default);
+        }
+
+        private static IDrawableContainer CreateDrawable(
             ISurface surface,
             Dictionary<string, object> parameters,
             CaptureFlowContext context,
             Dictionary<string, object> extraVariables)
         {
-            string drawableType = GetString(parameters, "DrawableType")
-                ?? GetString(parameters, "Type")
-                ?? GetString(parameters, "Shape")
-                ?? GetString(parameters, "Element")
-                ?? "Rectangle";
+            EnsureBuiltInDrawablesRegistered();
 
-            DrawableContainer container = null;
+            string drawableType = GetString(parameters, "Type") ?? "Rectangle";
 
-            switch (drawableType.ToLowerInvariant())
+            IDrawableContainer container = RecipeDrawableRegistry.Instance.CreateDrawable(drawableType, surface, parameters, context);
+
+            if (container == null)
             {
-                case "rect":
-                case "rectangle":
-                    container = CreateRectangle(surface, parameters);
-                    break;
-
-                case "ellipse":
-                case "circle":
-                    container = CreateEllipse(surface, parameters);
-                    break;
-
-                case "line":
-                    container = CreateLine(surface, parameters);
-                    break;
-
-                case "arrow":
-                    container = CreateArrow(surface, parameters);
-                    break;
-
-                case "freehand":
-                case "path":
-                    container = CreateFreehand(surface, parameters);
-                    break;
-
-                case "text":
-                case "textbox":
-                case "label":
-                    container = CreateText(surface, parameters);
-                    break;
-
-                case "speechbubble":
-                case "bubble":
-                    container = CreateSpeechbubble(surface, parameters);
-                    break;
-
-                case "step":
-                case "steplabel":
-                case "counter":
-                    container = CreateStepLabel(surface, parameters);
-                    break;
-
-                case "image":
-                case "bitmap":
-                case "picture":
-                    container = CreateImage(surface, parameters);
-                    break;
-
-                case "icon":
-                    container = CreateIcon(surface, parameters);
-                    break;
-
-                case "cursor":
-                    container = CreateCursor(surface, parameters);
-                    break;
-
-                case "emoji":
-                    container = CreateEmoji(surface, parameters);
-                    break;
-
-                case "svg":
-                    container = CreateSvg(surface, parameters);
-                    break;
-
-                case "blur":
-                case "pixelize":
-                case "obfuscate":
-                    container = CreateObfuscate(surface, parameters, drawableType);
-                    break;
-
-                case "highlight":
-                case "magnify":
-                    container = CreateHighlight(surface, parameters, drawableType);
-                    break;
-
-                case "crop":
-                    container = new CropContainer(surface);
-                    break;
-
-                default:
-                    Log.WarnFormat("Unknown drawable type '{0}'. Defaulting to RectangleContainer.", drawableType);
-                    container = CreateRectangle(surface, parameters);
-                    break;
+                Log.WarnFormat("Unknown drawable type '{0}'. Defaulting to RectangleContainer.", drawableType);
+                container = CreateRectangle(surface, parameters);
             }
 
             if (container != null)
@@ -570,25 +529,47 @@ namespace Greenshot.Pipeline.Steps
 
         #region Positioning & Alignment
 
-        private static void ApplyPositioning(
-            DrawableContainer container,
+        public static void ApplyPositioning(
+            IDrawableContainer container,
             ISurface surface,
             Dictionary<string, object> p,
-            Dictionary<string, object> extraVariables)
+            Dictionary<string, object> extraVariables = null)
         {
             int surfaceWidth = surface.Image?.Width ?? 0;
             int surfaceHeight = surface.Image?.Height ?? 0;
 
-            // Resolve Width & Height
+            // Resolve Width & Height (or Size as shorthand)
+            int explicitSize = GetInt(p, "Size", 0);
             if (p.TryGetValue("Width", out var wVal) && wVal != null)
             {
                 int w = Convert.ToInt32(wVal);
                 if (w > 0) container.Width = w;
             }
+            else if (explicitSize > 0)
+            {
+                container.Width = explicitSize;
+            }
+
             if (p.TryGetValue("Height", out var hVal) && hVal != null)
             {
                 int h = Convert.ToInt32(hVal);
                 if (h > 0) container.Height = h;
+            }
+            else if (explicitSize > 0)
+            {
+                container.Height = explicitSize;
+            }
+
+            // Lock aspect ratio for containers with Rational scale option (e.g. 2D Barcodes, Emojis, SVGs)
+            if (container is IHaveScaleOptions scaleHolder &&
+                (scaleHolder.GetScaleOptions() & ScaleOptions.Rational) == ScaleOptions.Rational)
+            {
+                if (container.Width != container.Height && container.Width > 0 && container.Height > 0)
+                {
+                    int side = explicitSize > 0 ? explicitSize : Math.Min(container.Width, container.Height);
+                    container.Width = side;
+                    container.Height = side;
+                }
             }
 
             int elemWidth = container.Width;

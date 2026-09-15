@@ -22,7 +22,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Greenshot.Base.Core;
+using Greenshot.Base.Drawing;
 using Greenshot.Base.Interfaces;
+using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Pipeline;
 
 namespace Greenshot.Base.Recipes
@@ -105,6 +108,12 @@ namespace Greenshot.Base.Recipes
         };
 
         /// <summary>
+        /// Optional delegate to check whether an extension/plugin requirement is satisfied.
+        /// Returns (isAvailable, installedVersion). If null, falls back to inspecting loaded plugins from SimpleServiceProvider.Current.
+        /// </summary>
+        public static Func<RecipeRequirement, (bool isAvailable, string installedVersion)> ExtensionAvailabilityCheck { get; set; }
+
+        /// <summary>
         /// Validates a CaptureRecipe DAG against the formal schema contract.
         /// </summary>
         public static RecipeValidationResult Validate(CaptureRecipe recipe)
@@ -139,6 +148,15 @@ namespace Greenshot.Base.Recipes
             if (string.IsNullOrWhiteSpace(recipe.Name))
             {
                 result.AddError("Recipe 'name' is required and cannot be empty.");
+            }
+
+            // Validate Requires (extension dependencies)
+            if (recipe.Requires != null)
+            {
+                foreach (var req in recipe.Requires)
+                {
+                    ValidateRequirement(req, result);
+                }
             }
 
             // Validate Triggers (optional)
@@ -274,9 +292,124 @@ namespace Greenshot.Base.Recipes
                     result.AddError($"Node '{node.Id}' [Conditional]: Missing required 'branches' configuration list.");
                 }
             }
+            if (string.Equals(node.StepType, WellKnownStepTypes.Drawable, StringComparison.OrdinalIgnoreCase))
+            {
+                ValidateDrawableNode(node, result);
+            }
 
             // Programmatic step inspection for recipe authorization gates
             CheckAndDetectGatedActions(node, result);
+        }
+
+        private static readonly HashSet<string> BuiltInDrawableTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "Rectangle", "Ellipse", "Line", "Arrow", "Freehand", "Text", "Speechbubble", "StepLabel",
+            "Image", "Icon", "Cursor", "Emoji", "Svg", "Blur", "Pixelize", "Highlight", "Magnify", "Crop"
+        };
+
+        private static void ValidateDrawableNode(RecipeNodeConfig node, RecipeValidationResult result)
+        {
+            if (node.Parameters == null) return;
+
+            // Single drawable in Type parameter
+            if (node.Parameters.TryGetValue("Type", out var typeObj) && typeObj is string singleType && !string.IsNullOrWhiteSpace(singleType))
+            {
+                ValidateDrawableType(singleType, node.Id, result);
+            }
+
+            // Multiple drawables in Drawables list
+            if (node.Parameters.TryGetValue("Drawables", out var drawablesObj) && drawablesObj is System.Collections.IEnumerable list && !(drawablesObj is string))
+            {
+                foreach (var item in list)
+                {
+                    string dType = null;
+                    if (item is Dictionary<string, object> dict && dict.TryGetValue("Type", out var tObj))
+                    {
+                        dType = tObj?.ToString();
+                    }
+                    else if (item is Newtonsoft.Json.Linq.JObject jobj && jobj.TryGetValue("Type", StringComparison.OrdinalIgnoreCase, out var jt))
+                    {
+                        dType = jt?.ToString();
+                    }
+                    if (!string.IsNullOrWhiteSpace(dType))
+                    {
+                        ValidateDrawableType(dType, node.Id, result);
+                    }
+                }
+            }
+        }
+
+        private static void ValidateDrawableType(string drawableType, string nodeId, RecipeValidationResult result)
+        {
+            if (BuiltInDrawableTypes.Contains(drawableType)) return;
+            if (RecipeDrawableRegistry.Instance.IsRegistered(drawableType)) return;
+
+            result.AddError($"Node '{nodeId}' uses custom drawable type '{drawableType}', which is not available because the required extension is not installed or active.");
+        }
+
+        private static void ValidateRequirement(RecipeRequirement req, RecipeValidationResult result)
+        {
+            if (req == null) return;
+            if (string.IsNullOrWhiteSpace(req.Id))
+            {
+                result.AddError("Recipe requirement is missing required 'id'.");
+                return;
+            }
+
+            if (ExtensionAvailabilityCheck != null)
+            {
+                var (isAvailable, installedVersion) = ExtensionAvailabilityCheck(req);
+                if (!isAvailable)
+                {
+                    string extName = !string.IsNullOrWhiteSpace(req.Name) ? req.Name : req.Id;
+                    string verSuffix = !string.IsNullOrWhiteSpace(req.MinVersion) ? $" (v{req.MinVersion}+)" : string.Empty;
+                    string urlSuffix = !string.IsNullOrWhiteSpace(req.Url) ? $" Download/install from: {req.Url}" : string.Empty;
+                    result.AddError($"This recipe requires the extension '{extName}'{verSuffix} (ID: {req.Id}), which is not installed or is disabled.{urlSuffix}");
+                }
+                else if (!string.IsNullOrWhiteSpace(req.MinVersion) && !string.IsNullOrWhiteSpace(installedVersion))
+                {
+                    if (Version.TryParse(req.MinVersion, out var minV) && Version.TryParse(installedVersion, out var curV))
+                    {
+                        if (curV < minV)
+                        {
+                            result.AddError($"This recipe requires extension '{req.Name ?? req.Id}' version {req.MinVersion} or newer, but version {installedVersion} is installed.");
+                        }
+                    }
+                }
+                return;
+            }
+
+            try
+            {
+                var plugins = SimpleServiceProvider.Current?.GetAllInstances<IGreenshotPlugin>()?.ToList();
+                if (plugins != null && plugins.Count > 0)
+                {
+                    var match = plugins.FirstOrDefault(p =>
+                        string.Equals(p.GetType().Assembly.GetName().Name, req.Id, StringComparison.OrdinalIgnoreCase) ||
+                        string.Equals(p.GetType().FullName, req.Id, StringComparison.OrdinalIgnoreCase) ||
+                        string.Equals(p.Name, req.Id, StringComparison.OrdinalIgnoreCase));
+
+                    if (match == null)
+                    {
+                        string extName = !string.IsNullOrWhiteSpace(req.Name) ? req.Name : req.Id;
+                        string verSuffix = !string.IsNullOrWhiteSpace(req.MinVersion) ? $" (v{req.MinVersion}+)" : string.Empty;
+                        string urlSuffix = !string.IsNullOrWhiteSpace(req.Url) ? $" Download/install from: {req.Url}" : string.Empty;
+                        result.AddError($"This recipe requires the extension '{extName}'{verSuffix} (ID: {req.Id}), which is not installed or is disabled.{urlSuffix}");
+                    }
+                    else if (!string.IsNullOrWhiteSpace(req.MinVersion) && Version.TryParse(req.MinVersion, out var minV))
+                    {
+                        var curV = match.GetType().Assembly.GetName().Version;
+                        if (curV != null && curV < minV)
+                        {
+                            result.AddError($"This recipe requires extension '{match.Name}' version {req.MinVersion} or newer, but version {curV} is installed.");
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                // DI not initialized; skip runtime check
+            }
         }
 
         private static void CheckAndDetectGatedActions(RecipeNodeConfig node, RecipeValidationResult result)

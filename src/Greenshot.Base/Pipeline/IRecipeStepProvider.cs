@@ -32,4 +32,17 @@ namespace Greenshot.Base.Pipeline
         /// <param name="registry">The step registry to register step factories with.</param>
         void RegisterSteps(IStepRegistry registry);
     }
+
+    /// <summary>
+    /// Interface implemented by plugins or extensions that contribute JSON Schema fragments
+    /// describing the parameters of their custom capture steps.
+    /// </summary>
+    public interface IRecipeStepSchemaProvider
+    {
+        /// <summary>
+        /// Returns an optional JSON Schema fragment describing the configuration properties
+        /// accepted by the custom steps provided by this extension, or null if none is provided.
+        /// </summary>
+        string GetStepSchemaJson();
+    }
 }

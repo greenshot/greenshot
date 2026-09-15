@@ -7,6 +7,8 @@ using System.Globalization;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using Greenshot.Base.Drawing;
+using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Recipes;
 using Newtonsoft.Json.Linq;
 
@@ -243,6 +245,51 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
         private string _tailDirection = "BottomLeft";
         private string _tailOffsetX = "0";
         private string _tailOffsetY = "0";
+
+        // Image & SVG fields
+        private string _filePath = "";
+        private string _svgXml = "";
+
+        // QR Code & Barcode fields
+        private string _qrType = "Link";
+        private bool _roundedDots = false;
+
+        private string _wifiSsid = "";
+        private string _wifiPassword = "";
+        private string _wifiEncryption = "WPA";
+
+        private string _vcardFirstName = "";
+        private string _vcardLastName = "";
+        private string _vcardCompany = "";
+        private string _vcardEmail = "";
+        private string _vcardPhone = "";
+        private string _vcardUrl = "";
+
+        private string _epcName = "";
+        private string _epcIban = "";
+        private string _epcBic = "";
+        private string _epcAmount = "10.00";
+        private string _epcReference = "";
+        private string _epcMessage = "";
+
+        private string _emailTo = "";
+        private string _emailSubject = "";
+        private string _emailBody = "";
+
+        private string _eventTitle = "";
+        private string _eventLocation = "";
+        private string _eventStart = "";
+        private string _eventEnd = "";
+        private string _eventDescription = "";
+
+        private string _phoneNumber = "";
+
+        private string _smsNumber = "";
+        private string _smsMessage = "";
+
+        private string _latitude = "";
+        private string _longitude = "";
+
         private readonly Action _onChanged;
 
         public string Type
@@ -252,24 +299,301 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
             {
                 if (SetField(ref _type, value))
                 {
+                    _lockAspectRatio = null;
+                    bool isRational = (RecipeDrawableRegistry.Instance.GetScaleOptions(value) & ScaleOptions.Rational) == ScaleOptions.Rational;
+                    if (isRational && (_width != _height || _height == "40"))
+                    {
+                        if (string.Equals(value, "StepLabel", StringComparison.OrdinalIgnoreCase) || string.Equals(value, "Counter", StringComparison.OrdinalIgnoreCase))
+                        {
+                            _width = "28";
+                            _height = "28";
+                        }
+                        else if (string.Equals(value, "Emoji", StringComparison.OrdinalIgnoreCase))
+                        {
+                            _width = "32";
+                            _height = "32";
+                        }
+                        else
+                        {
+                            _width = "150";
+                            _height = "150";
+                        }
+                        OnPropertyChanged(nameof(Width));
+                        OnPropertyChanged(nameof(Height));
+                    }
+                    else if ((IsImageType || IsSvgType) && (_width == "200" && _height == "40"))
+                    {
+                        _width = "120";
+                        _height = "120";
+                        OnPropertyChanged(nameof(Width));
+                        OnPropertyChanged(nameof(Height));
+                    }
+
                     _onChanged?.Invoke();
                     OnPropertyChanged(nameof(IsTextType));
                     OnPropertyChanged(nameof(IsEmojiType));
                     OnPropertyChanged(nameof(IsSpeechbubbleType));
+                    OnPropertyChanged(nameof(IsQrCodeType));
+                    OnPropertyChanged(nameof(IsImageType));
+                    OnPropertyChanged(nameof(IsSvgType));
+                    OnPropertyChanged(nameof(IsStepLabelType));
+                    OnPropertyChanged(nameof(LockAspectRatio));
+                    NotifyQrTypeProperties();
                 }
             }
         }
 
-        public bool IsTextType => string.Equals(_type, "Text", StringComparison.OrdinalIgnoreCase) ||
+        public bool IsTextType => (string.Equals(_type, "Text", StringComparison.OrdinalIgnoreCase) ||
                                   string.Equals(_type, "Speechbubble", StringComparison.OrdinalIgnoreCase) ||
                                   string.Equals(_type, "StepLabel", StringComparison.OrdinalIgnoreCase) ||
                                   string.Equals(_type, "Counter", StringComparison.OrdinalIgnoreCase) ||
-                                  string.Equals(_type, "Watermark", StringComparison.OrdinalIgnoreCase);
+                                  string.Equals(_type, "Watermark", StringComparison.OrdinalIgnoreCase) ||
+                                  (IsQrCodeType && IsQrLink));
+
+        public bool IsQrCodeType => string.Equals(_type, "QRCode", StringComparison.OrdinalIgnoreCase) ||
+                                    string.Equals(_type, "Barcode", StringComparison.OrdinalIgnoreCase);
 
         public bool IsEmojiType => string.Equals(_type, "Emoji", StringComparison.OrdinalIgnoreCase) ||
                                    string.Equals(_type, "Icon", StringComparison.OrdinalIgnoreCase);
 
         public bool IsSpeechbubbleType => string.Equals(_type, "Speechbubble", StringComparison.OrdinalIgnoreCase);
+
+        public bool IsImageType => string.Equals(_type, "Image", StringComparison.OrdinalIgnoreCase);
+
+        public bool IsSvgType => string.Equals(_type, "Svg", StringComparison.OrdinalIgnoreCase);
+
+        public bool IsStepLabelType => string.Equals(_type, "StepLabel", StringComparison.OrdinalIgnoreCase) ||
+                                       string.Equals(_type, "Counter", StringComparison.OrdinalIgnoreCase);
+
+        private bool? _lockAspectRatio;
+
+        public bool LockAspectRatio
+        {
+            get => _lockAspectRatio ?? ((RecipeDrawableRegistry.Instance.GetScaleOptions(_type) & ScaleOptions.Rational) == ScaleOptions.Rational);
+            set
+            {
+                if (SetField(ref _lockAspectRatio, value))
+                {
+                    if (value && !string.IsNullOrWhiteSpace(Width) && Width != Height)
+                    {
+                        Height = Width;
+                    }
+                    _onChanged?.Invoke();
+                }
+            }
+        }
+
+        // QR Categories
+        public string QrType
+        {
+            get => _qrType;
+            set
+            {
+                if (SetField(ref _qrType, value))
+                {
+                    _onChanged?.Invoke();
+                    OnPropertyChanged(nameof(IsTextType));
+                    NotifyQrTypeProperties();
+                }
+            }
+        }
+
+        public bool IsQrLink => string.Equals(_qrType, "Link", StringComparison.OrdinalIgnoreCase) || string.Equals(_qrType, "Text", StringComparison.OrdinalIgnoreCase);
+        public bool IsQrWifi => string.Equals(_qrType, "WiFi", StringComparison.OrdinalIgnoreCase);
+        public bool IsQrBusinessCard => string.Equals(_qrType, "BusinessCard", StringComparison.OrdinalIgnoreCase) || string.Equals(_qrType, "vCard", StringComparison.OrdinalIgnoreCase);
+        public bool IsQrPayment => string.Equals(_qrType, "Payment", StringComparison.OrdinalIgnoreCase) || string.Equals(_qrType, "Epc", StringComparison.OrdinalIgnoreCase) || string.Equals(_qrType, "Sepa", StringComparison.OrdinalIgnoreCase);
+        public bool IsQrEmail => string.Equals(_qrType, "Email", StringComparison.OrdinalIgnoreCase) || string.Equals(_qrType, "Mail", StringComparison.OrdinalIgnoreCase);
+        public bool IsQrCalendarEvent => string.Equals(_qrType, "CalendarEvent", StringComparison.OrdinalIgnoreCase) || string.Equals(_qrType, "Calendar", StringComparison.OrdinalIgnoreCase) || string.Equals(_qrType, "Event", StringComparison.OrdinalIgnoreCase);
+        public bool IsQrPhone => string.Equals(_qrType, "Phone", StringComparison.OrdinalIgnoreCase) || string.Equals(_qrType, "Tel", StringComparison.OrdinalIgnoreCase);
+        public bool IsQrSms => string.Equals(_qrType, "Sms", StringComparison.OrdinalIgnoreCase);
+        public bool IsQrGeo => string.Equals(_qrType, "Geo", StringComparison.OrdinalIgnoreCase) || string.Equals(_qrType, "Location", StringComparison.OrdinalIgnoreCase);
+
+        private void NotifyQrTypeProperties()
+        {
+            OnPropertyChanged(nameof(IsQrLink));
+            OnPropertyChanged(nameof(IsQrWifi));
+            OnPropertyChanged(nameof(IsQrBusinessCard));
+            OnPropertyChanged(nameof(IsQrPayment));
+            OnPropertyChanged(nameof(IsQrEmail));
+            OnPropertyChanged(nameof(IsQrCalendarEvent));
+            OnPropertyChanged(nameof(IsQrPhone));
+            OnPropertyChanged(nameof(IsQrSms));
+            OnPropertyChanged(nameof(IsQrGeo));
+        }
+
+        public bool RoundedDots
+        {
+            get => _roundedDots;
+            set { if (SetField(ref _roundedDots, value)) _onChanged?.Invoke(); }
+        }
+
+        public string WifiSsid
+        {
+            get => _wifiSsid;
+            set { if (SetField(ref _wifiSsid, value)) _onChanged?.Invoke(); }
+        }
+
+        public string WifiPassword
+        {
+            get => _wifiPassword;
+            set { if (SetField(ref _wifiPassword, value)) _onChanged?.Invoke(); }
+        }
+
+        public string WifiEncryption
+        {
+            get => _wifiEncryption;
+            set { if (SetField(ref _wifiEncryption, value)) _onChanged?.Invoke(); }
+        }
+
+        public string VcardFirstName
+        {
+            get => _vcardFirstName;
+            set { if (SetField(ref _vcardFirstName, value)) _onChanged?.Invoke(); }
+        }
+
+        public string VcardLastName
+        {
+            get => _vcardLastName;
+            set { if (SetField(ref _vcardLastName, value)) _onChanged?.Invoke(); }
+        }
+
+        public string VcardCompany
+        {
+            get => _vcardCompany;
+            set { if (SetField(ref _vcardCompany, value)) _onChanged?.Invoke(); }
+        }
+
+        public string VcardEmail
+        {
+            get => _vcardEmail;
+            set { if (SetField(ref _vcardEmail, value)) _onChanged?.Invoke(); }
+        }
+
+        public string VcardPhone
+        {
+            get => _vcardPhone;
+            set { if (SetField(ref _vcardPhone, value)) _onChanged?.Invoke(); }
+        }
+
+        public string VcardUrl
+        {
+            get => _vcardUrl;
+            set { if (SetField(ref _vcardUrl, value)) _onChanged?.Invoke(); }
+        }
+
+        public string EpcName
+        {
+            get => _epcName;
+            set { if (SetField(ref _epcName, value)) _onChanged?.Invoke(); }
+        }
+
+        public string EpcIban
+        {
+            get => _epcIban;
+            set { if (SetField(ref _epcIban, value)) _onChanged?.Invoke(); }
+        }
+
+        public string EpcBic
+        {
+            get => _epcBic;
+            set { if (SetField(ref _epcBic, value)) _onChanged?.Invoke(); }
+        }
+
+        public string EpcAmount
+        {
+            get => _epcAmount;
+            set { if (SetField(ref _epcAmount, value)) _onChanged?.Invoke(); }
+        }
+
+        public string EpcReference
+        {
+            get => _epcReference;
+            set { if (SetField(ref _epcReference, value)) _onChanged?.Invoke(); }
+        }
+
+        public string EpcMessage
+        {
+            get => _epcMessage;
+            set { if (SetField(ref _epcMessage, value)) _onChanged?.Invoke(); }
+        }
+
+        public string EmailTo
+        {
+            get => _emailTo;
+            set { if (SetField(ref _emailTo, value)) _onChanged?.Invoke(); }
+        }
+
+        public string EmailSubject
+        {
+            get => _emailSubject;
+            set { if (SetField(ref _emailSubject, value)) _onChanged?.Invoke(); }
+        }
+
+        public string EmailBody
+        {
+            get => _emailBody;
+            set { if (SetField(ref _emailBody, value)) _onChanged?.Invoke(); }
+        }
+
+        public string EventTitle
+        {
+            get => _eventTitle;
+            set { if (SetField(ref _eventTitle, value)) _onChanged?.Invoke(); }
+        }
+
+        public string EventLocation
+        {
+            get => _eventLocation;
+            set { if (SetField(ref _eventLocation, value)) _onChanged?.Invoke(); }
+        }
+
+        public string EventStart
+        {
+            get => _eventStart;
+            set { if (SetField(ref _eventStart, value)) _onChanged?.Invoke(); }
+        }
+
+        public string EventEnd
+        {
+            get => _eventEnd;
+            set { if (SetField(ref _eventEnd, value)) _onChanged?.Invoke(); }
+        }
+
+        public string EventDescription
+        {
+            get => _eventDescription;
+            set { if (SetField(ref _eventDescription, value)) _onChanged?.Invoke(); }
+        }
+
+        public string PhoneNumber
+        {
+            get => _phoneNumber;
+            set { if (SetField(ref _phoneNumber, value)) _onChanged?.Invoke(); }
+        }
+
+        public string SmsNumber
+        {
+            get => _smsNumber;
+            set { if (SetField(ref _smsNumber, value)) _onChanged?.Invoke(); }
+        }
+
+        public string SmsMessage
+        {
+            get => _smsMessage;
+            set { if (SetField(ref _smsMessage, value)) _onChanged?.Invoke(); }
+        }
+
+        public string Latitude
+        {
+            get => _latitude;
+            set { if (SetField(ref _latitude, value)) _onChanged?.Invoke(); }
+        }
+
+        public string Longitude
+        {
+            get => _longitude;
+            set { if (SetField(ref _longitude, value)) _onChanged?.Invoke(); }
+        }
 
         public string TailDirection
         {
@@ -313,16 +637,48 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
             set { if (SetField(ref _verticalAnchor, value)) _onChanged?.Invoke(); }
         }
 
+        public string FilePath
+        {
+            get => _filePath;
+            set { if (SetField(ref _filePath, value)) _onChanged?.Invoke(); }
+        }
+
+        public string SvgXml
+        {
+            get => _svgXml;
+            set { if (SetField(ref _svgXml, value)) _onChanged?.Invoke(); }
+        }
+
         public string Width
         {
             get => _width;
-            set { if (SetField(ref _width, value)) _onChanged?.Invoke(); }
+            set
+            {
+                if (SetField(ref _width, value))
+                {
+                    if (LockAspectRatio && !string.IsNullOrWhiteSpace(value) && _height != value)
+                    {
+                        SetField(ref _height, value, nameof(Height));
+                    }
+                    _onChanged?.Invoke();
+                }
+            }
         }
 
         public string Height
         {
             get => _height;
-            set { if (SetField(ref _height, value)) _onChanged?.Invoke(); }
+            set
+            {
+                if (SetField(ref _height, value))
+                {
+                    if (LockAspectRatio && !string.IsNullOrWhiteSpace(value) && _width != value)
+                    {
+                        SetField(ref _width, value, nameof(Width));
+                    }
+                    _onChanged?.Invoke();
+                }
+            }
         }
 
         public string OffsetX
@@ -358,6 +714,8 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
         public ICommand RemoveCommand { get; }
         public ICommand PickFillColorCommand { get; }
         public ICommand PickLineColorCommand { get; }
+        public ICommand ConfigureQrInDialogCommand { get; }
+        public ICommand BrowseFileCommand { get; }
 
         public DrawableItemViewModel(Action onChanged = null, Action<DrawableItemViewModel> onRemove = null)
         {
@@ -373,6 +731,205 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
                 var picked = StepNodeViewModel.PromptColorHelper(LineColor);
                 if (picked != null) LineColor = picked;
             });
+            ConfigureQrInDialogCommand = new RelayCommand(ConfigureQrInDialog);
+            BrowseFileCommand = new RelayCommand(BrowseFile);
+        }
+
+        private void BrowseFile()
+        {
+            var ofd = new Microsoft.Win32.OpenFileDialog();
+            if (IsSvgType)
+            {
+                ofd.Title = "Select SVG Vector Graphic";
+                ofd.Filter = "Scalable Vector Graphics (*.svg)|*.svg|All Files (*.*)|*.*";
+            }
+            else
+            {
+                ofd.Title = "Select Image File";
+                ofd.Filter = "Image Files (*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.ico)|*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.ico|All Files (*.*)|*.*";
+            }
+
+            if (ofd.ShowDialog() == true)
+            {
+                FilePath = ofd.FileName;
+                try
+                {
+                    if (IsImageType && System.IO.File.Exists(ofd.FileName))
+                    {
+                        using var img = System.Drawing.Image.FromFile(ofd.FileName);
+                        Width = img.Width.ToString();
+                        Height = img.Height.ToString();
+                    }
+                }
+                catch
+                {
+                    // Ignore dimension read failures
+                }
+            }
+        }
+
+        private void ConfigureQrInDialog()
+        {
+            try
+            {
+                var zxingModelType = AppDomain.CurrentDomain.GetAssemblies()
+                    .Select(a => a.GetType("Greenshot.Plugin.Zxing.ZxingModel"))
+                    .FirstOrDefault(t => t != null);
+
+                var zxingEditorFormType = AppDomain.CurrentDomain.GetAssemblies()
+                    .Select(a => a.GetType("Greenshot.Plugin.Zxing.ZxingEditorForm"))
+                    .FirstOrDefault(t => t != null);
+
+                if (zxingModelType == null || zxingEditorFormType == null)
+                {
+                    MessageBox.Show(
+                        "The Barcode & QR Code extension (Greenshot.Plugin.Zxing) is not currently installed or enabled.",
+                        "Extension Missing",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information);
+                    return;
+                }
+
+                var model = Activator.CreateInstance(zxingModelType);
+
+                int catIdx = 0;
+                if (IsQrWifi) catIdx = 1;
+                else if (IsQrBusinessCard) catIdx = 2;
+                else if (IsQrPayment) catIdx = 3;
+                else if (IsQrEmail) catIdx = 4;
+                else if (IsQrCalendarEvent) catIdx = 5;
+                else if (IsQrPhone) catIdx = 6;
+                else if (IsQrSms) catIdx = 7;
+                else if (IsQrGeo) catIdx = 8;
+
+                SetModelProp(model, "QrCategoryIndex", catIdx);
+                SetModelProp(model, "RawText", Text);
+                SetModelProp(model, "RoundedDots", RoundedDots);
+
+                SetModelProp(model, "WifiSsid", WifiSsid);
+                SetModelProp(model, "WifiPassword", WifiPassword);
+                int encIdx = string.Equals(WifiEncryption, "WEP", StringComparison.OrdinalIgnoreCase) ? 1 :
+                             string.Equals(WifiEncryption, "nopass", StringComparison.OrdinalIgnoreCase) ? 2 : 0;
+                SetModelProp(model, "WifiEncryptionIndex", encIdx);
+
+                SetModelProp(model, "VcardFirstName", VcardFirstName);
+                SetModelProp(model, "VcardLastName", VcardLastName);
+                SetModelProp(model, "VcardCompany", VcardCompany);
+                SetModelProp(model, "VcardEmail", VcardEmail);
+                SetModelProp(model, "VcardPhone", VcardPhone);
+                SetModelProp(model, "VcardUrl", VcardUrl);
+
+                SetModelProp(model, "EpcName", EpcName);
+                SetModelProp(model, "EpcIban", EpcIban);
+                SetModelProp(model, "EpcBic", EpcBic);
+                SetModelProp(model, "EpcAmount", EpcAmount);
+                SetModelProp(model, "EpcReference", EpcReference);
+                SetModelProp(model, "EpcMessage", EpcMessage);
+
+                SetModelProp(model, "EmailTo", EmailTo);
+                SetModelProp(model, "EmailSubject", EmailSubject);
+                SetModelProp(model, "EmailBody", EmailBody);
+
+                SetModelProp(model, "EventTitle", EventTitle);
+                SetModelProp(model, "EventLocation", EventLocation);
+                SetModelProp(model, "EventStart", EventStart);
+                SetModelProp(model, "EventEnd", EventEnd);
+                SetModelProp(model, "EventDescription", EventDescription);
+
+                SetModelProp(model, "PhoneNumber", PhoneNumber);
+
+                SetModelProp(model, "SmsNumber", SmsNumber);
+                SetModelProp(model, "SmsMessage", SmsMessage);
+
+                SetModelProp(model, "Latitude", Latitude);
+                SetModelProp(model, "Longitude", Longitude);
+
+                using (var form = Activator.CreateInstance(zxingEditorFormType, model) as System.Windows.Forms.Form)
+                {
+                    if (form != null && form.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                    {
+                        int retCat = GetModelProp<int>(model, "QrCategoryIndex");
+                        switch (retCat)
+                        {
+                            case 1: QrType = "WiFi"; break;
+                            case 2: QrType = "BusinessCard"; break;
+                            case 3: QrType = "Payment"; break;
+                            case 4: QrType = "Email"; break;
+                            case 5: QrType = "CalendarEvent"; break;
+                            case 6: QrType = "Phone"; break;
+                            case 7: QrType = "Sms"; break;
+                            case 8: QrType = "Geo"; break;
+                            default: QrType = "Link"; break;
+                        }
+
+                        Text = GetModelProp<string>(model, "RawText") ?? Text;
+                        RoundedDots = GetModelProp<bool>(model, "RoundedDots");
+
+                        WifiSsid = GetModelProp<string>(model, "WifiSsid") ?? "";
+                        WifiPassword = GetModelProp<string>(model, "WifiPassword") ?? "";
+                        int retEnc = GetModelProp<int>(model, "WifiEncryptionIndex");
+                        WifiEncryption = retEnc == 1 ? "WEP" : (retEnc == 2 ? "nopass" : "WPA");
+
+                        VcardFirstName = GetModelProp<string>(model, "VcardFirstName") ?? "";
+                        VcardLastName = GetModelProp<string>(model, "VcardLastName") ?? "";
+                        VcardCompany = GetModelProp<string>(model, "VcardCompany") ?? "";
+                        VcardEmail = GetModelProp<string>(model, "VcardEmail") ?? "";
+                        VcardPhone = GetModelProp<string>(model, "VcardPhone") ?? "";
+                        VcardUrl = GetModelProp<string>(model, "VcardUrl") ?? "";
+
+                        EpcName = GetModelProp<string>(model, "EpcName") ?? "";
+                        EpcIban = GetModelProp<string>(model, "EpcIban") ?? "";
+                        EpcBic = GetModelProp<string>(model, "EpcBic") ?? "";
+                        EpcAmount = GetModelProp<string>(model, "EpcAmount") ?? "";
+                        EpcReference = GetModelProp<string>(model, "EpcReference") ?? "";
+                        EpcMessage = GetModelProp<string>(model, "EpcMessage") ?? "";
+
+                        EmailTo = GetModelProp<string>(model, "EmailTo") ?? "";
+                        EmailSubject = GetModelProp<string>(model, "EmailSubject") ?? "";
+                        EmailBody = GetModelProp<string>(model, "EmailBody") ?? "";
+
+                        EventTitle = GetModelProp<string>(model, "EventTitle") ?? "";
+                        EventLocation = GetModelProp<string>(model, "EventLocation") ?? "";
+                        EventStart = GetModelProp<string>(model, "EventStart") ?? "";
+                        EventEnd = GetModelProp<string>(model, "EventEnd") ?? "";
+                        EventDescription = GetModelProp<string>(model, "EventDescription") ?? "";
+
+                        PhoneNumber = GetModelProp<string>(model, "PhoneNumber") ?? "";
+
+                        SmsNumber = GetModelProp<string>(model, "SmsNumber") ?? "";
+                        SmsMessage = GetModelProp<string>(model, "SmsMessage") ?? "";
+
+                        Latitude = GetModelProp<string>(model, "Latitude") ?? "";
+                        Longitude = GetModelProp<string>(model, "Longitude") ?? "";
+
+                        _onChanged?.Invoke();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to launch QR / Barcode configuration dialog:\n{ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private static void SetModelProp(object target, string propName, object val)
+        {
+            var prop = target?.GetType().GetProperty(propName);
+            if (prop != null && prop.CanWrite)
+            {
+                prop.SetValue(target, val);
+            }
+        }
+
+        private static T GetModelProp<T>(object target, string propName)
+        {
+            var prop = target?.GetType().GetProperty(propName);
+            if (prop != null && prop.CanRead)
+            {
+                var val = prop.GetValue(target);
+                if (val is T tVal) return tVal;
+            }
+            return default;
         }
 
         public Dictionary<string, object> ToDictionary()
@@ -392,12 +949,81 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
             if (!string.IsNullOrEmpty(VerticalAnchor) && VerticalAnchor != "None") dict["VerticalAnchor"] = VerticalAnchor;
             if (IsTextType) dict["Text"] = Text;
             if (IsEmojiType) dict["Emoji"] = Emoji;
+            if (IsImageType)
+            {
+                if (!string.IsNullOrEmpty(FilePath)) dict["FilePath"] = FilePath;
+            }
+            if (IsSvgType)
+            {
+                if (!string.IsNullOrEmpty(FilePath)) dict["FilePath"] = FilePath;
+                if (!string.IsNullOrEmpty(SvgXml)) dict["Content"] = SvgXml;
+            }
             if (IsSpeechbubbleType)
             {
                 dict["TailDirection"] = TailDirection;
                 if (!string.IsNullOrEmpty(TailOffsetX) && TailOffsetX != "0") dict["TailOffsetX"] = TailOffsetX;
                 if (!string.IsNullOrEmpty(TailOffsetY) && TailOffsetY != "0") dict["TailOffsetY"] = TailOffsetY;
             }
+
+            if (IsQrCodeType)
+            {
+                dict["QrType"] = QrType;
+                if (RoundedDots) dict["RoundedDots"] = true;
+
+                if (IsQrWifi)
+                {
+                    dict["WifiSsid"] = WifiSsid;
+                    dict["WifiPassword"] = WifiPassword;
+                    dict["WifiEncryption"] = WifiEncryption;
+                }
+                else if (IsQrBusinessCard)
+                {
+                    dict["VcardFirstName"] = VcardFirstName;
+                    dict["VcardLastName"] = VcardLastName;
+                    dict["VcardCompany"] = VcardCompany;
+                    dict["VcardEmail"] = VcardEmail;
+                    dict["VcardPhone"] = VcardPhone;
+                    dict["VcardUrl"] = VcardUrl;
+                }
+                else if (IsQrPayment)
+                {
+                    dict["EpcName"] = EpcName;
+                    dict["EpcIban"] = EpcIban;
+                    dict["EpcBic"] = EpcBic;
+                    dict["EpcAmount"] = EpcAmount;
+                    dict["EpcReference"] = EpcReference;
+                    dict["EpcMessage"] = EpcMessage;
+                }
+                else if (IsQrEmail)
+                {
+                    dict["EmailTo"] = EmailTo;
+                    dict["EmailSubject"] = EmailSubject;
+                    dict["EmailBody"] = EmailBody;
+                }
+                else if (IsQrCalendarEvent)
+                {
+                    dict["EventTitle"] = EventTitle;
+                    dict["EventLocation"] = EventLocation;
+                    dict["EventStart"] = EventStart;
+                    dict["EventEnd"] = EventEnd;
+                    dict["EventDescription"] = EventDescription;
+                }
+                else if (IsQrPhone)
+                {
+                    dict["PhoneNumber"] = PhoneNumber;
+                }
+                else if (IsQrSms)
+                {
+                    dict["SmsNumber"] = SmsNumber;
+                    dict["SmsMessage"] = SmsMessage;
+                }
+                else if (IsQrGeo)
+                {
+                    dict["Latitude"] = Latitude;
+                    dict["Longitude"] = Longitude;
+                }
+            }
+
             return dict;
         }
 
@@ -434,6 +1060,8 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
                 else if (string.Equals(typeVal, "Speechbubble", StringComparison.OrdinalIgnoreCase)) item._type = "Speechbubble";
                 else if (string.Equals(typeVal, "Blur", StringComparison.OrdinalIgnoreCase)) item._type = "Blur";
                 else if (string.Equals(typeVal, "Highlight", StringComparison.OrdinalIgnoreCase)) item._type = "Highlight";
+                else if (string.Equals(typeVal, "Image", StringComparison.OrdinalIgnoreCase)) item._type = "Image";
+                else if (string.Equals(typeVal, "Svg", StringComparison.OrdinalIgnoreCase)) item._type = "Svg";
                 else item._type = typeVal;
             }
             else
@@ -441,7 +1069,7 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
                 item._type = "Rectangle";
             }
 
-            string txt = GetKey("Text", "Content", "Label", "Number", "Watermark_Text", "WatermarkText");
+            string txt = GetKey("Text", "Content", "Label", "Number", "Watermark_Text", "WatermarkText", "Payload", "Url", "Value", "Data");
             if (txt != null) item._text = txt;
 
             string emo = GetKey("Emoji", "Icon", "Glyph");
@@ -482,6 +1110,83 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
 
             string toy = GetKey("TailOffsetY", "TailOffset_Y", "Tail_OffsetY");
             if (toy != null) item._tailOffsetY = toy;
+
+            // QR & Barcode fields
+            string qrT = GetKey("QrType", "Category");
+            if (!string.IsNullOrEmpty(qrT)) item._qrType = qrT;
+
+            string rd = GetKey("RoundedDots", "Rounded");
+            if (rd != null && bool.TryParse(rd, out bool bRd)) item._roundedDots = bRd;
+
+            string ssid = GetKey("WifiSsid", "Ssid");
+            if (ssid != null) item._wifiSsid = ssid;
+            string wp = GetKey("WifiPassword", "Password");
+            if (wp != null) item._wifiPassword = wp;
+            string we = GetKey("WifiEncryption", "Encryption");
+            if (we != null) item._wifiEncryption = we;
+
+            string fn = GetKey("VcardFirstName", "FirstName");
+            if (fn != null) item._vcardFirstName = fn;
+            string ln = GetKey("VcardLastName", "LastName");
+            if (ln != null) item._vcardLastName = ln;
+            string vc = GetKey("VcardCompany", "Company", "Organization");
+            if (vc != null) item._vcardCompany = vc;
+            string ve = GetKey("VcardEmail", "Email");
+            if (ve != null) item._vcardEmail = ve;
+            string vp = GetKey("VcardPhone", "Phone");
+            if (vp != null) item._vcardPhone = vp;
+            string vu = GetKey("VcardUrl", "Url", "Website");
+            if (vu != null) item._vcardUrl = vu;
+
+            string en = GetKey("EpcName");
+            if (en != null) item._epcName = en;
+            string ei = GetKey("EpcIban", "Iban");
+            if (ei != null) item._epcIban = ei;
+            string eb = GetKey("EpcBic", "Bic");
+            if (eb != null) item._epcBic = eb;
+            string ea = GetKey("EpcAmount", "Amount");
+            if (ea != null) item._epcAmount = ea;
+            string er = GetKey("EpcReference", "Reference");
+            if (er != null) item._epcReference = er;
+            string em = GetKey("EpcMessage", "Message");
+            if (em != null) item._epcMessage = em;
+
+            string mt = GetKey("EmailTo");
+            if (mt != null) item._emailTo = mt;
+            string ms = GetKey("EmailSubject");
+            if (ms != null) item._emailSubject = ms;
+            string mb = GetKey("EmailBody");
+            if (mb != null) item._emailBody = mb;
+
+            string et = GetKey("EventTitle");
+            if (et != null) item._eventTitle = et;
+            string el = GetKey("EventLocation");
+            if (el != null) item._eventLocation = el;
+            string es = GetKey("EventStart");
+            if (es != null) item._eventStart = es;
+            string ee = GetKey("EventEnd");
+            if (ee != null) item._eventEnd = ee;
+            string ed = GetKey("EventDescription");
+            if (ed != null) item._eventDescription = ed;
+
+            string pn = GetKey("PhoneNumber");
+            if (pn != null) item._phoneNumber = pn;
+
+            string sn = GetKey("SmsNumber");
+            if (sn != null) item._smsNumber = sn;
+            string sm = GetKey("SmsMessage");
+            if (sm != null) item._smsMessage = sm;
+
+            string lat = GetKey("Latitude", "Lat");
+            if (lat != null) item._latitude = lat;
+            string lon = GetKey("Longitude", "Lon", "Lng");
+            if (lon != null) item._longitude = lon;
+
+            string fp = GetKey("FilePath", "Path", "File", "ImageFile", "SvgFile");
+            if (fp != null) item._filePath = fp;
+
+            string svg = GetKey("SvgXml", "Svg", "Content", "Xml");
+            if (svg != null && (item.IsSvgType || svg.Contains("<svg"))) item._svgXml = svg;
 
             return item;
         }
@@ -983,6 +1688,17 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
                 item.Emoji = "🛡️";
                 item.Width = "32";
                 item.Height = "32";
+            }
+            else if (item.LockAspectRatio)
+            {
+                item.Text = "https://getgreenshot.org";
+                item.Width = "150";
+                item.Height = "150";
+            }
+            else if (string.Equals(type, "Image", StringComparison.OrdinalIgnoreCase) || string.Equals(type, "Svg", StringComparison.OrdinalIgnoreCase))
+            {
+                item.Width = "120";
+                item.Height = "120";
             }
             Drawables.Add(item);
             SyncDrawablesToConfig();

@@ -40,6 +40,13 @@
       "default": true,
       "description": "Whether this recipe is active and available."
     },
+    "requires": {
+      "type": "array",
+      "description": "Optional list of extension or plugin dependencies required to execute this recipe.",
+      "items": {
+        "$ref": "#/definitions/RecipeRequirement"
+      }
+    },
     "triggers": {
       "type": "array",
       "description": "Optional modular triggers attached to this recipe (e.g. Hotkey, ContextMenu, Clipboard).",
@@ -312,28 +319,7 @@
       "properties": {
         "type": {
           "type": "string",
-          "enum": [
-            "Rectangle",
-            "Ellipse",
-            "Line",
-            "Arrow",
-            "Freehand",
-            "Text",
-            "Speechbubble",
-            "StepLabel",
-            "Image",
-            "Icon",
-            "Cursor",
-            "Emoji",
-            "Svg",
-            "Obfuscate",
-            "Blur",
-            "Pixelize",
-            "Highlight",
-            "Magnify",
-            "Crop"
-          ],
-          "description": "The type of drawable element."
+          "description": "The type of drawable element. Built-in types include Rectangle, Ellipse, Line, Arrow, Freehand, Text, Speechbubble, StepLabel, Image, Icon, Cursor, Emoji, Svg, Obfuscate, Blur, Pixelize, Highlight, Magnify, Crop. Extension-provided drawables (e.g. QRCode, Barcode) are dynamically registered by installed plugins."
         },
         "horizontalAnchor": {
           "type": "string",
@@ -452,9 +438,43 @@
         "tailY": {
           "type": "integer",
           "description": "Absolute Y coordinate of the Speechbubble tail target."
+        },
+        "size": {
+          "type": "integer",
+          "description": "Square size dimension (e.g. for icon, emoji, or square element)."
+        },
+        "margin": {
+          "type": "integer",
+          "description": "Outer margin or quiet zone in pixels."
         }
       },
       "additionalProperties": true
+    },
+    "RecipeRequirement": {
+      "type": "object",
+      "required": [
+        "id"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Unique identifier of the required extension or plugin (e.g. 'Greenshot.Plugin.Zxing')."
+        },
+        "name": {
+          "type": "string",
+          "description": "Optional human-readable display name of the required extension."
+        },
+        "minVersion": {
+          "type": "string",
+          "description": "Optional minimum version required for the extension (e.g. '1.3.0')."
+        },
+        "url": {
+          "type": "string",
+          "description": "Optional download or documentation URL where the extension can be obtained."
+        }
+      },
+      "additionalProperties": false
     },
     "TriggerConfig": {
       "type": "object",
