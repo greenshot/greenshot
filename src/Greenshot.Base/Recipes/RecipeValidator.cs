@@ -103,6 +103,7 @@ namespace Greenshot.Base.Recipes
             Greenshot.Base.Triggers.TriggerConfig.TypeContextMenu,
             Greenshot.Base.Triggers.TriggerConfig.TypeSystray,
             Greenshot.Base.Triggers.TriggerConfig.TypeClipboard,
+            Greenshot.Base.Triggers.TriggerConfig.TypeEditor,
             Greenshot.Base.Triggers.TriggerConfig.TypeManual,
             Greenshot.Base.Triggers.TriggerConfig.TypeSchedule
         };

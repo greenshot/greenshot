@@ -35,6 +35,7 @@ namespace Greenshot.Base.Triggers
         public const string TypeContextMenu = "ContextMenu";
         public const string TypeSystray = "Systray";
         public const string TypeClipboard = "Clipboard";
+        public const string TypeEditor = "Editor";
         public const string TypeManual = "Manual";
         public const string TypeSchedule = "Schedule";
 
@@ -155,10 +156,26 @@ namespace Greenshot.Base.Triggers
             return config;
         }
 
-        public static TriggerConfig CreateClipboard(bool onImageCopied = true, string name = null)
+        public static TriggerConfig CreateEditor(string menuItemText = null, string group = "Recipes", int order = 0)
+        {
+            var config = new TriggerConfig(TypeEditor, menuItemText ?? "Editor Menu");
+            if (!string.IsNullOrEmpty(menuItemText))
+            {
+                config.SetParameter("MenuItemText", menuItemText);
+            }
+            config.SetParameter("Group", group ?? "Recipes");
+            config.SetParameter("Order", order);
+            return config;
+        }
+
+        public static TriggerConfig CreateClipboard(bool onImageCopied = true, string formatFilter = null, string name = null)
         {
             var config = new TriggerConfig(TypeClipboard, name ?? "Clipboard Monitor");
             config.SetParameter("OnImageCopied", onImageCopied);
+            if (!string.IsNullOrEmpty(formatFilter))
+            {
+                config.SetParameter("FormatFilter", formatFilter);
+            }
             return config;
         }
 

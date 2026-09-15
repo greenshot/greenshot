@@ -505,9 +505,14 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
                 config.Parameters["MenuItemText"] = ActiveRecipe?.Name ?? "Capture with Recipe";
                 config.Parameters["Group"] = "Recipes";
             }
+            else if (string.Equals(type, "Editor", StringComparison.OrdinalIgnoreCase))
+            {
+                config.Parameters["MenuItemText"] = ActiveRecipe?.Name ?? "Apply Recipe";
+                config.Parameters["Group"] = "Recipes";
+            }
             else if (string.Equals(type, "Clipboard", StringComparison.OrdinalIgnoreCase))
             {
-                config.Parameters["Pattern"] = "";
+                config.Parameters["FormatFilter"] = "";
             }
 
             var item = new TriggerItemViewModel(config, SyncTriggersToRecipe, RemoveTrigger);
@@ -1062,6 +1067,11 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
                     {
                         string menuText = t.GetParameter<string>("MenuItemText", t.Name ?? "Context Menu");
                         tLabel = $"🖱️ Menu: {menuText}";
+                    }
+                    else if (string.Equals(t.TriggerType, TriggerConfig.TypeEditor, StringComparison.OrdinalIgnoreCase))
+                    {
+                        string menuText = t.GetParameter<string>("MenuItemText", t.Name ?? "Editor Menu");
+                        tLabel = $"🎨 Editor: {menuText}";
                     }
                     else if (string.Equals(t.TriggerType, TriggerConfig.TypeClipboard, StringComparison.OrdinalIgnoreCase))
                     {

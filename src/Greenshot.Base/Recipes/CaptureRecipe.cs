@@ -123,6 +123,54 @@ namespace Greenshot.Base.Recipes
             return Nodes?.FirstOrDefault(n => string.Equals(n.StepType, stepType, StringComparison.OrdinalIgnoreCase));
         }
 
+        /// <summary>
+        /// Checks whether the recipe contains any destination/export steps.
+        /// </summary>
+        public bool HasDestinationStep()
+        {
+            if (Nodes == null || Nodes.Count == 0) return false;
+            return Nodes.Any(n =>
+                string.Equals(n.StepType, WellKnownStepTypes.Destinations, StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(n.StepType, WellKnownStepTypes.SaveFile, StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(n.StepType, "SaveToFile", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(n.StepType, WellKnownStepTypes.Clipboard, StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(n.StepType, WellKnownStepTypes.Editor, StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(n.StepType, WellKnownStepTypes.Printer, StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(n.StepType, WellKnownStepTypes.Email, StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(n.StepType, WellKnownStepTypes.CustomDestination, StringComparison.OrdinalIgnoreCase));
+        }
+
+        /// <summary>
+        /// Checks whether the recipe explicitly exports to an Image Editor destination.
+        /// </summary>
+        public bool HasEditorDestination()
+        {
+            if (Nodes == null || Nodes.Count == 0) return false;
+            foreach (var n in Nodes)
+            {
+                if (string.Equals(n.StepType, WellKnownStepTypes.Editor, StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+                if (string.Equals(n.StepType, WellKnownStepTypes.Destinations, StringComparison.OrdinalIgnoreCase))
+                {
+                    var dests = n.GetParameter<List<string>>("Destinations") 
+                             ?? n.GetParameter<List<string>>("DestinationDesignations");
+                    if (dests != null && dests.Any(d => string.Equals(d, "Editor", StringComparison.OrdinalIgnoreCase)))
+                    {
+                        return true;
+                    }
+                    string singleDest = n.GetParameter<string>("Destinations") 
+                                     ?? n.GetParameter<string>("DestinationDesignations");
+                    if (!string.IsNullOrEmpty(singleDest) && singleDest.IndexOf("Editor", StringComparison.OrdinalIgnoreCase) >= 0)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
         public CaptureRecipe Clone()
         {
             var clone = new CaptureRecipe

@@ -1,6 +1,19 @@
-# Greenshot Capture Recipes Guide
+# Greenshot Capture Recipes: Put Your Screen on Autopilot
 
-Greenshot features a modular, recipe-driven capture pipeline powered by a **Directed Acyclic Graph (DAG)** workflow engine. Instead of linear, hardcoded sequences, screenshot workflows are defined as graphs of configurable execution nodes with support for parallel branch splitting (fork), path merging (join), variable assignment, scoped user/computer environment expressions, and rich surface drawable placement.
+Tired of the same repetitive routine? Capture ➔ crop ➔ annotate ➔ copy to clipboard ➔ upload to cloud ➔ open in browser?
+
+Say hello to **Greenshot Recipes**!
+
+Recipes introduce a flexible workflow engine that lets you define and automate the entire journey of a capture from trigger to destination:
+
+- **Chain actions effortlessly:** Build custom pipelines tailored to specific tasks—such as filing bug reports, documenting steps, or pushing assets to team channels.   
+- **One-touch execution:** Trigger complex, multi-destination flows without clicking through export menus every single time.
+- **Custom capture logic:** Take full control of where your pixels go, turning tedious chores into seamless, automated, single-keypress workflows.
+
+Recipes provide the flexibility, this feature has a lot of power, but as Spidermans uncle said, with great power comes great responsibility.
+For the people who do not have that much experience with computers, recipes will unfortunately be overwhelmingly complex, because of this we will think about how to share recipes with friends and members of the community, who might know their way around computers. We will also look at other ways to make this easier to use, but we first need to lay a foundation which works.
+
+Greenshot features a modular, recipe-driven capture pipeline powered by a **Directed Acyclic Graph (DAG)** workflow engine, *we didn't invent that name*! Instead of linear, hardcoded sequences, screenshot workflows are defined as graphs of configurable execution nodes with support for parallel branch splitting (fork), path merging (join), variable assignment, scoped user/computer environment expressions, and rich surface drawable placement.
 
 Recipes can be written in code or provided as external `.json` (`.gsrecipe.json`) files. External JSON recipes can create new custom capture workflows or securely override Greenshot's built-in recipes.
 

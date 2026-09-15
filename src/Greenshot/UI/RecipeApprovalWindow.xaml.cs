@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 using Greenshot.Base.Core;
@@ -302,10 +303,49 @@ namespace Greenshot.UI
                     WindowStartupLocation = WindowStartupLocation.CenterScreen
                 };
 
+                IntPtr ownerHwnd = IntPtr.Zero;
                 var mainForm = SimpleServiceProvider.Current.GetInstance<System.Windows.Forms.Form>(isOptional: true);
-                if (mainForm != null && mainForm.IsHandleCreated && mainForm.Visible)
+                if (mainForm != null && mainForm.IsHandleCreated)
                 {
-                    new System.Windows.Interop.WindowInteropHelper(window).Owner = mainForm.Handle;
+                    try
+                    {
+                        if (mainForm.InvokeRequired)
+                        {
+                            ownerHwnd = (IntPtr)mainForm.Invoke(new Func<IntPtr>(() =>
+                                (mainForm.Visible && !mainForm.Disposing && !mainForm.IsDisposed) ? mainForm.Handle : IntPtr.Zero));
+                        }
+                        else if (mainForm.Visible && !mainForm.Disposing && !mainForm.IsDisposed)
+                        {
+                            ownerHwnd = mainForm.Handle;
+                        }
+                    }
+                    catch
+                    {
+                        ownerHwnd = IntPtr.Zero;
+                    }
+                }
+
+                if (ownerHwnd == IntPtr.Zero && System.Windows.Application.Current != null)
+                {
+                    try
+                    {
+                        var activeWpfWindow = System.Windows.Application.Current.Windows
+                            .OfType<System.Windows.Window>()
+                            .FirstOrDefault(w => w.IsActive && w != window);
+                        if (activeWpfWindow != null)
+                        {
+                            ownerHwnd = new System.Windows.Interop.WindowInteropHelper(activeWpfWindow).Handle;
+                        }
+                    }
+                    catch
+                    {
+                        ownerHwnd = IntPtr.Zero;
+                    }
+                }
+
+                if (ownerHwnd != IntPtr.Zero)
+                {
+                    new System.Windows.Interop.WindowInteropHelper(window).Owner = ownerHwnd;
                 }
 
                 window.ShowDialog();
@@ -340,6 +380,10 @@ namespace Greenshot.UI
                              string.Equals(trigger.TriggerType, TriggerConfig.TypeSystray, StringComparison.OrdinalIgnoreCase))
                     {
                         label = $"📋 Systray: \"{trigger.GetParameter<string>("MenuItemText", recipe.Name)}\"";
+                    }
+                    else if (string.Equals(trigger.TriggerType, TriggerConfig.TypeEditor, StringComparison.OrdinalIgnoreCase))
+                    {
+                        label = $"🎨 Editor: \"{trigger.GetParameter<string>("MenuItemText", recipe.Name)}\"";
                     }
                     else if (string.Equals(trigger.TriggerType, TriggerConfig.TypeClipboard, StringComparison.OrdinalIgnoreCase))
                     {
