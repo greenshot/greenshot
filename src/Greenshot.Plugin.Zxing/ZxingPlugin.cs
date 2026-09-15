@@ -22,6 +22,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Windows.Forms;
 using Dapplo.Ini;
 using Greenshot.Base.Drawing;
 using Greenshot.Base.Interfaces;
@@ -76,6 +77,8 @@ public class ZxingPlugin : IGreenshotPlugin, IRecipeStepProvider, IRecipeDrawabl
 
         registry.RegisterDrawableFactory("QRCode", (surface, p, ctx) => CreateQrDrawable(surface, p, ctx), ScaleOptions.Rational);
         registry.RegisterDrawableFactory("Barcode", (surface, p, ctx) => CreateQrDrawable(surface, p, ctx), ScaleOptions.Default);
+        registry.RegisterDrawableConfigurator("QRCode", (p, owner) => ConfigureZxingDrawable(p, owner));
+        registry.RegisterDrawableConfigurator("Barcode", (p, owner) => ConfigureZxingDrawable(p, owner));
     }
 
     /// <summary>
@@ -247,7 +250,7 @@ public class ZxingPlugin : IGreenshotPlugin, IRecipeStepProvider, IRecipeDrawabl
         Color foreColor = GetColor(p, "ForeColor", Color.Black);
         Color backColor = GetColor(p, "BackColor", Color.White);
         bool rounded = GetBool(p, "RoundedDots", false);
-        int margin = GetInt(p, "Margin", 4);
+        int margin = GetInt(p, "Margin", 1);
 
         int? requestedW = null;
         int? requestedH = null;
@@ -284,6 +287,7 @@ public class ZxingPlugin : IGreenshotPlugin, IRecipeStepProvider, IRecipeDrawabl
             ForeColor = foreColor,
             BackColor = backColor,
             RoundedDots = rounded,
+            Margin = margin,
             WifiSsid = GetString(p, "WifiSsid"),
             WifiPassword = GetString(p, "WifiPassword"),
             WifiEncryptionIndex = string.Equals(GetString(p, "WifiEncryption"), "WEP", StringComparison.OrdinalIgnoreCase) ? 1 :
@@ -474,13 +478,158 @@ public class ZxingPlugin : IGreenshotPlugin, IRecipeStepProvider, IRecipeDrawabl
         }
     }
 
+    /// <summary>
+    /// Configures a barcode or QR code drawable using the ZxingEditorForm dialog.
+    /// </summary>
+    public static bool ConfigureZxingDrawable(IDictionary<string, object> p, object owner)
+    {
+        if (p == null) return false;
+
+        var model = new ZxingModel();
+
+        string qrType = GetString(p, "QrType") ?? GetString(p, "Category");
+        if (string.Equals(qrType, "WiFi", StringComparison.OrdinalIgnoreCase)) model.QrCategoryIndex = 1;
+        else if (string.Equals(qrType, "BusinessCard", StringComparison.OrdinalIgnoreCase) || string.Equals(qrType, "vCard", StringComparison.OrdinalIgnoreCase)) model.QrCategoryIndex = 2;
+        else if (string.Equals(qrType, "Payment", StringComparison.OrdinalIgnoreCase) || string.Equals(qrType, "Epc", StringComparison.OrdinalIgnoreCase)) model.QrCategoryIndex = 3;
+        else if (string.Equals(qrType, "Email", StringComparison.OrdinalIgnoreCase)) model.QrCategoryIndex = 4;
+        else if (string.Equals(qrType, "CalendarEvent", StringComparison.OrdinalIgnoreCase) || string.Equals(qrType, "Calendar", StringComparison.OrdinalIgnoreCase)) model.QrCategoryIndex = 5;
+        else if (string.Equals(qrType, "Phone", StringComparison.OrdinalIgnoreCase)) model.QrCategoryIndex = 6;
+        else if (string.Equals(qrType, "Sms", StringComparison.OrdinalIgnoreCase)) model.QrCategoryIndex = 7;
+        else if (string.Equals(qrType, "Geo", StringComparison.OrdinalIgnoreCase)) model.QrCategoryIndex = 8;
+        else model.QrCategoryIndex = 0;
+
+        model.RawText = GetString(p, "Text");
+        model.RoundedDots = GetBool(p, "RoundedDots", false);
+
+        model.WifiSsid = GetString(p, "WifiSsid");
+        model.WifiPassword = GetString(p, "WifiPassword");
+        string enc = GetString(p, "WifiEncryption");
+        model.WifiEncryptionIndex = string.Equals(enc, "WEP", StringComparison.OrdinalIgnoreCase) ? 1 :
+                                    string.Equals(enc, "nopass", StringComparison.OrdinalIgnoreCase) ? 2 : 0;
+
+        model.VcardFirstName = GetString(p, "VcardFirstName");
+        model.VcardLastName = GetString(p, "VcardLastName");
+        model.VcardCompany = GetString(p, "VcardCompany");
+        model.VcardEmail = GetString(p, "VcardEmail");
+        model.VcardPhone = GetString(p, "VcardPhone");
+        model.VcardUrl = GetString(p, "VcardUrl");
+
+        model.EpcName = GetString(p, "EpcName");
+        model.EpcIban = GetString(p, "EpcIban");
+        model.EpcBic = GetString(p, "EpcBic");
+        model.EpcAmount = GetString(p, "EpcAmount") ?? "10.00";
+        model.EpcReference = GetString(p, "EpcReference");
+        model.EpcMessage = GetString(p, "EpcMessage");
+
+        model.EmailTo = GetString(p, "EmailTo");
+        model.EmailSubject = GetString(p, "EmailSubject");
+        model.EmailBody = GetString(p, "EmailBody");
+
+        model.EventTitle = GetString(p, "EventTitle");
+        model.EventLocation = GetString(p, "EventLocation");
+        model.EventStart = GetString(p, "EventStart");
+        model.EventEnd = GetString(p, "EventEnd");
+        model.EventDescription = GetString(p, "EventDescription");
+
+        model.PhoneNumber = GetString(p, "PhoneNumber");
+
+        model.SmsNumber = GetString(p, "SmsNumber");
+        model.SmsMessage = GetString(p, "SmsMessage");
+
+        model.Latitude = GetString(p, "Latitude");
+        model.Longitude = GetString(p, "Longitude");
+
+        model.ForeColor = GetColor(p, "ForeColor", Color.Black);
+        model.BackColor = GetColor(p, "BackColor", Color.White);
+        model.Margin = GetInt(p, "Margin", 1);
+
+        IWin32Window win32Owner = owner as IWin32Window;
+        if (win32Owner == null && owner is System.Windows.Window wpfWin)
+        {
+            var helper = new System.Windows.Interop.WindowInteropHelper(wpfWin);
+            win32Owner = new Win32WindowWrapper(helper.Handle);
+        }
+
+        using var form = new ZxingEditorForm(model);
+        var result = win32Owner != null ? form.ShowDialog(win32Owner) : form.ShowDialog();
+
+        if (result == DialogResult.OK)
+        {
+            string newQrType = model.QrCategoryIndex switch
+            {
+                1 => "WiFi",
+                2 => "BusinessCard",
+                3 => "Payment",
+                4 => "Email",
+                5 => "CalendarEvent",
+                6 => "Phone",
+                7 => "Sms",
+                8 => "Geo",
+                _ => "Text"
+            };
+            p["QrType"] = newQrType;
+            p["Text"] = model.RawText;
+            p["RoundedDots"] = model.RoundedDots;
+            p["Margin"] = model.Margin;
+
+            p["WifiSsid"] = model.WifiSsid;
+            p["WifiPassword"] = model.WifiPassword;
+            p["WifiEncryption"] = model.WifiEncryptionIndex == 1 ? "WEP" : model.WifiEncryptionIndex == 2 ? "nopass" : "WPA";
+
+            p["VcardFirstName"] = model.VcardFirstName;
+            p["VcardLastName"] = model.VcardLastName;
+            p["VcardCompany"] = model.VcardCompany;
+            p["VcardEmail"] = model.VcardEmail;
+            p["VcardPhone"] = model.VcardPhone;
+            p["VcardUrl"] = model.VcardUrl;
+
+            p["EpcName"] = model.EpcName;
+            p["EpcIban"] = model.EpcIban;
+            p["EpcBic"] = model.EpcBic;
+            p["EpcAmount"] = model.EpcAmount;
+            p["EpcReference"] = model.EpcReference;
+            p["EpcMessage"] = model.EpcMessage;
+
+            p["EmailTo"] = model.EmailTo;
+            p["EmailSubject"] = model.EmailSubject;
+            p["EmailBody"] = model.EmailBody;
+
+            p["EventTitle"] = model.EventTitle;
+            p["EventLocation"] = model.EventLocation;
+            p["EventStart"] = model.EventStart;
+            p["EventEnd"] = model.EventEnd;
+            p["EventDescription"] = model.EventDescription;
+
+            p["PhoneNumber"] = model.PhoneNumber;
+
+            p["SmsNumber"] = model.SmsNumber;
+            p["SmsMessage"] = model.SmsMessage;
+
+            p["Latitude"] = model.Latitude;
+            p["Longitude"] = model.Longitude;
+
+            p["ForeColor"] = ColorTranslator.ToHtml(model.ForeColor);
+            p["BackColor"] = ColorTranslator.ToHtml(model.BackColor);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    private class Win32WindowWrapper : IWin32Window
+    {
+        public IntPtr Handle { get; }
+        public Win32WindowWrapper(IntPtr handle) => Handle = handle;
+    }
+
     public void Dispose()
     {
     }
 
     #region Helpers
 
-    private static string GetString(Dictionary<string, object> p, string key)
+    private static string GetString(IDictionary<string, object> p, string key)
     {
         if (p != null && p.TryGetValue(key, out var val) && val != null)
         {
@@ -489,7 +638,7 @@ public class ZxingPlugin : IGreenshotPlugin, IRecipeStepProvider, IRecipeDrawabl
         return null;
     }
 
-    private static int GetInt(Dictionary<string, object> p, string key, int defaultValue = 0)
+    private static int GetInt(IDictionary<string, object> p, string key, int defaultValue = 0)
     {
         if (p != null && p.TryGetValue(key, out var val) && val != null)
         {
@@ -499,7 +648,7 @@ public class ZxingPlugin : IGreenshotPlugin, IRecipeStepProvider, IRecipeDrawabl
         return defaultValue;
     }
 
-    private static bool GetBool(Dictionary<string, object> p, string key, bool defaultValue = false)
+    private static bool GetBool(IDictionary<string, object> p, string key, bool defaultValue = false)
     {
         if (p != null && p.TryGetValue(key, out var val) && val != null)
         {
@@ -508,7 +657,7 @@ public class ZxingPlugin : IGreenshotPlugin, IRecipeStepProvider, IRecipeDrawabl
         return defaultValue;
     }
 
-    private static Color GetColor(Dictionary<string, object> p, string key, Color fallback)
+    private static Color GetColor(IDictionary<string, object> p, string key, Color fallback)
     {
         if (p != null && p.TryGetValue(key, out var val) && val != null)
         {

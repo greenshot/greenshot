@@ -1213,8 +1213,8 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
                     dict["FillColor"] = "#000000";
                     dict["Patterns"] = new List<string> { @"\b\d{4}-\d{4}-\d{4}-\d{4}\b" };
                     break;
-                case WellKnownStepTypes.Drawable:
-                    dict["Drawables"] = new List<Dictionary<string, object>>
+                case WellKnownStepTypes.Annotation:
+                    dict["Annotations"] = new List<Dictionary<string, object>>
                     {
                         new Dictionary<string, object>
                         {

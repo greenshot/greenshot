@@ -62,6 +62,9 @@ namespace Greenshot.Plugin.Zxing
         // Modern Style Setting
         public bool RoundedDots { get; set; } = false;
 
+        // Quiet zone margin (modules of padding around barcode)
+        public int Margin { get; set; } = 1;
+
         public string GetPayloadString()
         {
             if (FormatIndex != 0)
@@ -191,6 +194,8 @@ namespace Greenshot.Plugin.Zxing
 
         // Modern style controls
         private CheckBox chkRoundedDots;
+        private Label lblMargin;
+        private NumericUpDown numMargin;
 
         private Color foreColor = Color.Black;
         private Color backColor = Color.White;
@@ -308,6 +313,7 @@ namespace Greenshot.Plugin.Zxing
             pnlBackColor.BackColor = backColor;
 
             chkRoundedDots.Checked = model.RoundedDots;
+            numMargin.Value = Math.Max(numMargin.Minimum, Math.Min(numMargin.Maximum, model.Margin));
             
             UpdatePreview();
         }
@@ -372,10 +378,14 @@ namespace Greenshot.Plugin.Zxing
             btnBackColor = new Button { Text = "Background", Location = new Point(590, 265), Width = 90, Height = 25 };
 
             // Checkbox for rounded dots
-            chkRoundedDots = new CheckBox { Text = "Rounded Dots (Modern 2D style)", Location = new Point(420, 300), AutoSize = true };
+            chkRoundedDots = new CheckBox { Text = "Rounded Dots", Location = new Point(420, 298), AutoSize = true };
+
+            // Padding / Quiet zone margin
+            lblMargin = new Label { Text = "Margin:", Location = new Point(545, 300), AutoSize = true };
+            numMargin = new NumericUpDown { Location = new Point(600, 298), Width = 50, Minimum = 0, Maximum = 10, Value = 1 };
 
             // Status label
-            lblStatus = new Label { Location = new Point(420, 325), Size = new Size(260, 35), ForeColor = Color.Red, Font = new Font("Segoe UI", 9, FontStyle.Regular) };
+            lblStatus = new Label { Location = new Point(420, 328), Size = new Size(260, 35), ForeColor = Color.Red, Font = new Font("Segoe UI", 9, FontStyle.Regular) };
 
             // Buttons
             btnInsert = new Button { Text = "Insert", Location = new Point(420, 370), Width = 110, Height = 35, DialogResult = DialogResult.OK, Font = new Font("Segoe UI", 9, FontStyle.Bold) };
@@ -393,6 +403,8 @@ namespace Greenshot.Plugin.Zxing
             this.Controls.Add(pnlBackColor);
             this.Controls.Add(btnBackColor);
             this.Controls.Add(chkRoundedDots);
+            this.Controls.Add(lblMargin);
+            this.Controls.Add(numMargin);
             this.Controls.Add(lblStatus);
             this.Controls.Add(btnInsert);
             this.Controls.Add(btnCancel);
@@ -636,6 +648,7 @@ namespace Greenshot.Plugin.Zxing
             };
 
             chkRoundedDots.CheckedChanged += (s, e) => UpdatePreview();
+            numMargin.ValueChanged += (s, e) => UpdatePreview();
 
             // Hook text change events to trigger real-time preview updates
             txtRawText.TextChanged += (s, e) => UpdatePreview();
@@ -764,7 +777,8 @@ namespace Greenshot.Plugin.Zxing
                 int targetW = is2D ? 230 : 350;
                 int targetH = is2D ? 230 : 100;
 
-                var bmp = ZxingBarcodeGenerator.Generate(payload, selectedFormat, foreColor, backColor, chkRoundedDots.Checked, targetW, targetH);
+                int margin = (int)numMargin.Value;
+                var bmp = ZxingBarcodeGenerator.Generate(payload, selectedFormat, foreColor, backColor, chkRoundedDots.Checked, targetW, targetH, margin);
                 picPreview.Image = bmp;
                 GeneratedBitmap = bmp;
                 btnInsert.Enabled = (bmp != null);
@@ -981,6 +995,7 @@ namespace Greenshot.Plugin.Zxing
             model.BackColor = backColor;
             
             model.RoundedDots = chkRoundedDots.Checked;
+            model.Margin = (int)numMargin.Value;
         }
     }
 }

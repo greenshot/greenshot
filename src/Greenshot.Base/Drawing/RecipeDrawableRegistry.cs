@@ -45,6 +45,9 @@ namespace Greenshot.Base.Drawing
         private readonly ConcurrentDictionary<string, ScaleOptions> _scaleOptions =
             new ConcurrentDictionary<string, ScaleOptions>(StringComparer.OrdinalIgnoreCase);
 
+        private readonly ConcurrentDictionary<string, Func<IDictionary<string, object>, object, bool>> _configurators =
+            new ConcurrentDictionary<string, Func<IDictionary<string, object>, object, bool>>(StringComparer.OrdinalIgnoreCase);
+
         private static RecipeDrawableRegistry _instance;
         public static RecipeDrawableRegistry Instance => _instance ??= new RecipeDrawableRegistry();
 
@@ -101,6 +104,42 @@ namespace Greenshot.Base.Drawing
                 DiscoverProviders();
                 return new ReadOnlyCollection<string>(_factories.Keys.ToList());
             }
+        }
+
+        public void RegisterDrawableConfigurator(string drawableType, Func<IDictionary<string, object>, object, bool> configurator)
+        {
+            if (string.IsNullOrEmpty(drawableType)) throw new ArgumentNullException(nameof(drawableType));
+            if (configurator == null) throw new ArgumentNullException(nameof(configurator));
+
+            _configurators[drawableType] = configurator;
+            Log.DebugFormat("Registered recipe drawable configurator for '{0}'", drawableType);
+        }
+
+        public bool CanConfigureDrawable(string drawableType)
+        {
+            if (string.IsNullOrEmpty(drawableType)) return false;
+            if (_configurators.ContainsKey(drawableType)) return true;
+            DiscoverProviders();
+            return _configurators.ContainsKey(drawableType);
+        }
+
+        public bool ConfigureDrawable(string drawableType, IDictionary<string, object> parameters, object owner = null)
+        {
+            if (string.IsNullOrEmpty(drawableType) || parameters == null) return false;
+
+            if (_configurators.TryGetValue(drawableType, out var configurator))
+            {
+                return configurator(parameters, owner);
+            }
+
+            DiscoverProviders();
+
+            if (_configurators.TryGetValue(drawableType, out configurator))
+            {
+                return configurator(parameters, owner);
+            }
+
+            return false;
         }
 
         public void RegisterProvider(IRecipeDrawableProvider provider)

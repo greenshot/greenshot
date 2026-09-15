@@ -334,23 +334,23 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Fact]
-        public void Validate_UnregisteredCustomDrawable_ReturnsError()
+        public void Validate_UnregisteredCustomAnnotation_ReturnsError()
         {
-            var recipe = new CaptureRecipe("unreg_drawable", "Unregistered Drawable Test")
+            var recipe = new CaptureRecipe("unreg_annotation", "Unregistered Annotation Test")
                 .AddNode(new RecipeNodeConfig { Id = "start", StepType = "Source" })
                 .AddNode(new RecipeNodeConfig
                 {
-                    Id = "draw_step",
-                    StepType = "Drawable",
+                    Id = "annot_step",
+                    StepType = "Annotation",
                     Parameters = new Dictionary<string, object>
                     {
-                        ["Drawables"] = new List<object>
+                        ["Annotations"] = new List<object>
                         {
                             new Dictionary<string, object> { ["Type"] = "NonExistentCustomDrawable" }
                         }
                     }
                 });
-            recipe.Flow = new RecipeFlowConfig("start").AddTransition("start", "draw_step");
+            recipe.Flow = new RecipeFlowConfig("start").AddTransition("start", "annot_step");
 
             var result = RecipeValidator.Validate(recipe);
             Assert.False(result.IsValid);

@@ -82,6 +82,28 @@ namespace Greenshot.Base.Interfaces.Drawing
         void RegisterProviders(IEnumerable<IRecipeDrawableProvider> providers);
 
         /// <summary>
+        /// Registers an interactive configurator/editor delegate for a drawable type.
+        /// </summary>
+        /// <param name="drawableType">Type name (case-insensitive).</param>
+        /// <param name="configurator">Delegate accepting the parameters dictionary and optional parent window, returning true if modified.</param>
+        void RegisterDrawableConfigurator(string drawableType, Func<IDictionary<string, object>, object, bool> configurator);
+
+        /// <summary>
+        /// Checks whether an interactive configurator is available for the specified drawable type.
+        /// </summary>
+        /// <param name="drawableType">Type name (case-insensitive).</param>
+        bool CanConfigureDrawable(string drawableType);
+
+        /// <summary>
+        /// Opens the registered interactive configurator for the specified drawable type.
+        /// </summary>
+        /// <param name="drawableType">Type name (case-insensitive).</param>
+        /// <param name="parameters">The parameters dictionary to read and update.</param>
+        /// <param name="owner">Optional owner window.</param>
+        /// <returns>True if configuration was edited and confirmed by the user, false otherwise.</returns>
+        bool ConfigureDrawable(string drawableType, IDictionary<string, object> parameters, object owner = null);
+
+        /// <summary>
         /// Gets all currently registered drawable type names.
         /// </summary>
         IReadOnlyCollection<string> RegisteredDrawableTypes { get; }

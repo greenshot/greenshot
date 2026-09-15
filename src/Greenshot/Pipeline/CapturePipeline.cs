@@ -92,8 +92,8 @@ namespace Greenshot.Pipeline
             _stepRegistry.RegisterStepFactory(WellKnownStepTypes.InteractiveSelection, config => new InteractiveSelectionStep(config, _selector));
             _stepRegistry.RegisterStepFactory(WellKnownStepTypes.Border, config => new EffectCaptureStep(config));
             _stepRegistry.RegisterStepFactory(WellKnownStepTypes.Effect, config => new EffectCaptureStep(config));
-            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.Drawable, config => new DrawableStep(config));
-            DrawableStep.EnsureBuiltInDrawablesRegistered();
+            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.Annotation, config => new AnnotationStep(config));
+            AnnotationStep.EnsureBuiltInDrawablesRegistered();
             _stepRegistry.RegisterStepFactory(WellKnownStepTypes.SetVariable, config => new SetVariableStep(config));
             _stepRegistry.RegisterStepFactory(WellKnownStepTypes.ImmediateFeedback, config => new ImmediateFeedbackStep(config));
             _stepRegistry.RegisterStepFactory(WellKnownStepTypes.Processors, config => new ProcessorExecutionStep(config));

@@ -45,20 +45,20 @@ using Newtonsoft.Json.Linq;
 namespace Greenshot.Pipeline.Steps
 {
     /// <summary>
-    /// Pipeline step that instantiates and places any available drawable element onto the visual surface.
+    /// Pipeline step that instantiates and places any available annotation element onto the visual surface.
     /// Supports absolute, calculated (expressions using width/height), and anchored (Left/Center/Right, Top/Middle/Bottom) positioning.
     /// </summary>
-    public class DrawableStep : ICaptureStep
+    public class AnnotationStep : ICaptureStep
     {
-        private static readonly ILog Log = LogManager.GetLogger(typeof(DrawableStep));
+        private static readonly ILog Log = LogManager.GetLogger(typeof(AnnotationStep));
 
         public string Name { get; }
         public RecipeNodeConfig NodeConfig { get; }
 
-        public DrawableStep(RecipeNodeConfig config)
+        public AnnotationStep(RecipeNodeConfig config)
         {
             NodeConfig = config ?? throw new ArgumentNullException(nameof(config));
-            Name = config.Name ?? config.Id ?? WellKnownStepTypes.Drawable;
+            Name = config.Name ?? config.Id ?? WellKnownStepTypes.Annotation;
         }
 
         public Task ExecuteAsync(CaptureFlowContext context, CancellationToken cancellationToken = default)
@@ -66,14 +66,14 @@ namespace Greenshot.Pipeline.Steps
             var payload = context.Payload;
             if (payload == null)
             {
-                context.LogStep("DrawableStep skipped: visual payload is null.");
+                context.LogStep("AnnotationStep skipped: visual payload is null.");
                 return Task.CompletedTask;
             }
 
             var surface = payload.EnsureSurface();
             if (surface?.Image == null)
             {
-                context.LogStep("DrawableStep skipped: surface image is not available.");
+                context.LogStep("AnnotationStep skipped: surface image is not available.");
                 return Task.CompletedTask;
             }
 
@@ -92,34 +92,34 @@ namespace Greenshot.Pipeline.Steps
                 ["h"] = surfaceHeight
             };
 
-            // Support either a single drawable defined in parameters, or a list under "Drawables"
-            var drawableConfigs = new List<Dictionary<string, object>>();
+            // Support either a single annotation defined in parameters, or a list under "Annotations"
+            var annotationConfigs = new List<Dictionary<string, object>>();
 
-            if (NodeConfig.Parameters != null && NodeConfig.Parameters.TryGetValue("Drawables", out var drawablesObj) && drawablesObj != null)
+            if (NodeConfig.Parameters != null && NodeConfig.Parameters.TryGetValue("Annotations", out var annotationsObj) && annotationsObj != null)
             {
-                if (drawablesObj is IEnumerable enumerable && !(drawablesObj is string))
+                if (annotationsObj is IEnumerable enumerable && !(annotationsObj is string))
                 {
                     foreach (var item in enumerable)
                     {
                         if (item is Dictionary<string, object> d)
                         {
-                            drawableConfigs.Add(d);
+                            annotationConfigs.Add(d);
                         }
                         else if (item is JObject jObj)
                         {
-                            drawableConfigs.Add(jObj.ToObject<Dictionary<string, object>>());
+                            annotationConfigs.Add(jObj.ToObject<Dictionary<string, object>>());
                         }
                     }
                 }
             }
             else
             {
-                drawableConfigs.Add(NodeConfig.Parameters ?? new Dictionary<string, object>());
+                annotationConfigs.Add(NodeConfig.Parameters ?? new Dictionary<string, object>());
             }
 
             var elementsToAdd = new DrawableContainerList();
 
-            foreach (var rawParams in drawableConfigs)
+            foreach (var rawParams in annotationConfigs)
             {
                 var resolved = ExpressionEvaluator.Instance.ResolveParameters(rawParams, context, extraVariables);
                 var container = CreateDrawable(surface, resolved, context, extraVariables);
@@ -154,8 +154,8 @@ namespace Greenshot.Pipeline.Steps
                     payload.SharedRenderedBitmap = null;
                 }
 
-                context.LogStep($"DrawableStep added {elementsToAdd.Count} element(s) to surface.");
-                Log.InfoFormat("DrawableStep '{0}' placed {1} element(s) on surface ({2}x{3})", Name, elementsToAdd.Count, surfaceWidth, surfaceHeight);
+                context.LogStep($"AnnotationStep added {elementsToAdd.Count} element(s) to surface.");
+                Log.InfoFormat("AnnotationStep '{0}' placed {1} element(s) on surface ({2}x{3})", Name, elementsToAdd.Count, surfaceWidth, surfaceHeight);
             }
 
             return Task.CompletedTask;
@@ -540,36 +540,82 @@ namespace Greenshot.Pipeline.Steps
 
             // Resolve Width & Height (or Size as shorthand)
             int explicitSize = GetInt(p, "Size", 0);
-            if (p.TryGetValue("Width", out var wVal) && wVal != null)
+            int explicitWidth = 0;
+            int explicitHeight = 0;
+
+            if (p.TryGetValue("Width", out var wVal) && wVal != null && int.TryParse(wVal.ToString(), out int w) && w > 0)
             {
-                int w = Convert.ToInt32(wVal);
-                if (w > 0) container.Width = w;
+                explicitWidth = w;
             }
             else if (explicitSize > 0)
             {
-                container.Width = explicitSize;
+                explicitWidth = explicitSize;
             }
 
-            if (p.TryGetValue("Height", out var hVal) && hVal != null)
+            if (p.TryGetValue("Height", out var hVal) && hVal != null && int.TryParse(hVal.ToString(), out int h) && h > 0)
             {
-                int h = Convert.ToInt32(hVal);
-                if (h > 0) container.Height = h;
+                explicitHeight = h;
             }
             else if (explicitSize > 0)
             {
-                container.Height = explicitSize;
+                explicitHeight = explicitSize;
             }
 
-            // Lock aspect ratio for containers with Rational scale option (e.g. 2D Barcodes, Emojis, SVGs)
-            if (container is IHaveScaleOptions scaleHolder &&
-                (scaleHolder.GetScaleOptions() & ScaleOptions.Rational) == ScaleOptions.Rational)
+            bool lockAspect = GetBool(p, "LockAspectRatio", false);
+            bool isRational = container is IHaveScaleOptions scaleHolder &&
+                              (scaleHolder.GetScaleOptions() & ScaleOptions.Rational) == ScaleOptions.Rational;
+
+            if (lockAspect || isRational)
             {
-                if (container.Width != container.Height && container.Width > 0 && container.Height > 0)
+                // Determine intrinsic / native aspect ratio (or default to 1:1 if unknown/square)
+                double nativeRatio = 1.0;
+                if (container is ImageContainer imgContainer && imgContainer.Image != null && imgContainer.Image.Width > 0 && imgContainer.Image.Height > 0)
                 {
-                    int side = explicitSize > 0 ? explicitSize : Math.Min(container.Width, container.Height);
-                    container.Width = side;
-                    container.Height = side;
+                    nativeRatio = (double)imgContainer.Image.Width / imgContainer.Image.Height;
                 }
+                else if (container.Width > 0 && container.Height > 0)
+                {
+                    nativeRatio = (double)container.Width / container.Height;
+                }
+
+                if (explicitWidth > 0 && explicitHeight <= 0)
+                {
+                    container.Width = explicitWidth;
+                    container.Height = Math.Max(1, (int)Math.Round(explicitWidth / nativeRatio));
+                }
+                else if (explicitHeight > 0 && explicitWidth <= 0)
+                {
+                    container.Height = explicitHeight;
+                    container.Width = Math.Max(1, (int)Math.Round(explicitHeight * nativeRatio));
+                }
+                else if (explicitWidth > 0 && explicitHeight > 0)
+                {
+                    if (Math.Abs(nativeRatio - 1.0) < 0.001)
+                    {
+                        int side = explicitSize > 0 ? explicitSize : Math.Min(explicitWidth, explicitHeight);
+                        container.Width = side;
+                        container.Height = side;
+                    }
+                    else
+                    {
+                        double targetRatio = (double)explicitWidth / explicitHeight;
+                        if (targetRatio > nativeRatio)
+                        {
+                            container.Height = explicitHeight;
+                            container.Width = Math.Max(1, (int)Math.Round(explicitHeight * nativeRatio));
+                        }
+                        else
+                        {
+                            container.Width = explicitWidth;
+                            container.Height = Math.Max(1, (int)Math.Round(explicitWidth / nativeRatio));
+                        }
+                    }
+                }
+            }
+            else
+            {
+                if (explicitWidth > 0) container.Width = explicitWidth;
+                if (explicitHeight > 0) container.Height = explicitHeight;
             }
 
             int elemWidth = container.Width;

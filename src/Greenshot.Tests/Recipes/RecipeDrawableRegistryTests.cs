@@ -42,7 +42,7 @@ namespace Greenshot.Tests.Recipes
         public RecipeDrawableRegistryTests()
         {
             TestEnvironment.EnsureInitialized();
-            DrawableStep.EnsureBuiltInDrawablesRegistered();
+            AnnotationStep.EnsureBuiltInDrawablesRegistered();
             var zxing = new ZxingPlugin();
             zxing.RegisterDrawables(RecipeDrawableRegistry.Instance);
         }
@@ -126,7 +126,7 @@ namespace Greenshot.Tests.Recipes
                 }
             };
 
-            var step = new DrawableStep(nodeConfig);
+            var step = new AnnotationStep(nodeConfig);
             var recipe = new CaptureRecipe("test_recipe", "Test");
             var capture = new Capture((Image)bmp.Clone());
             using var context = new CaptureFlowContext(recipe)
@@ -150,7 +150,7 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Fact]
-        public async Task DrawableStep_WithCenterAnchor_PositionsInCenter()
+        public async Task AnnotationStep_WithCenterAnchor_PositionsInCenter()
         {
             using var bmp = new Bitmap(1000, 800);
             using var surface = new Surface(bmp);
@@ -158,7 +158,7 @@ namespace Greenshot.Tests.Recipes
             var nodeConfig = new RecipeNodeConfig
             {
                 Id = "qr_center",
-                StepType = "Drawable",
+                StepType = "Annotation",
                 Parameters = new Dictionary<string, object>
                 {
                     ["Type"] = "QRCode",
@@ -169,7 +169,7 @@ namespace Greenshot.Tests.Recipes
                 }
             };
 
-            var step = new DrawableStep(nodeConfig);
+            var step = new AnnotationStep(nodeConfig);
             var recipe = new CaptureRecipe("center_recipe", "Test Center");
             var capture = new Capture((Image)bmp.Clone());
             using var context = new CaptureFlowContext(recipe)
@@ -448,7 +448,7 @@ namespace Greenshot.Tests.Recipes
             var nodeConfig = new RecipeNodeConfig
             {
                 Id = "qr_ratio_node",
-                StepType = "Drawable",
+                StepType = "Annotation",
                 Parameters = new Dictionary<string, object>
                 {
                     ["Type"] = "QRCode",
@@ -458,7 +458,7 @@ namespace Greenshot.Tests.Recipes
                 }
             };
 
-            var step = new DrawableStep(nodeConfig);
+            var step = new AnnotationStep(nodeConfig);
             var recipe = new CaptureRecipe("ratio_recipe", "Test Ratio");
             var capture = new Capture((Image)bmp.Clone());
             using var context = new CaptureFlowContext(recipe)
@@ -493,6 +493,87 @@ namespace Greenshot.Tests.Recipes
             Assert.Equal(ScaleOptions.Default, registry.GetScaleOptions("Rectangle"));
             Assert.Equal(ScaleOptions.Default, registry.GetScaleOptions("Text"));
             Assert.Equal(ScaleOptions.Default, registry.GetScaleOptions("UnknownDrawable"));
+        }
+
+        [Fact]
+        public void RecipeDrawableRegistry_CanConfigureDrawable_ReturnsExpected()
+        {
+            var registry = RecipeDrawableRegistry.Instance;
+
+            // QRCode and Barcode configurators are registered by ZxingPlugin
+            Assert.True(registry.CanConfigureDrawable("QRCode"));
+            Assert.True(registry.CanConfigureDrawable("Barcode"));
+
+            // Core geometric shapes do not have an external configurator
+            Assert.False(registry.CanConfigureDrawable("Rectangle"));
+            Assert.False(registry.CanConfigureDrawable("Emoji"));
+        }
+
+        [Fact]
+        public async Task AnnotationStep_ApplyPositioning_CalculatesHeightFromWidthWhenAspectLocked()
+        {
+            using var bmp = new Bitmap(800, 600);
+            var nodeConfig = new RecipeNodeConfig
+            {
+                StepType = "Annotation",
+                Parameters = new Dictionary<string, object>
+                {
+                    ["Annotations"] = new List<object>
+                    {
+                        new Dictionary<string, object>
+                        {
+                            ["Type"] = "Rectangle",
+                            ["Width"] = 400,
+                            ["Height"] = 0, // Not explicitly specified
+                            ["LockAspectRatio"] = true
+                        }
+                    }
+                }
+            };
+
+            var step = new AnnotationStep(nodeConfig);
+            var recipe = new CaptureRecipe("ratio_width_calc", "Test Ratio Width");
+            var capture = new Capture((Image)bmp.Clone());
+            using var context = new CaptureFlowContext(recipe)
+            {
+                Payload = new CapturePayload(capture)
+            };
+
+            await step.ExecuteAsync(context);
+
+            var s = context.Payload.EnsureSurface();
+            Assert.Single(s.Elements);
+            var element = s.Elements.First();
+
+            Assert.Equal(400, element.Width);
+            // Height calculated using native ratio (which was defaulted or initialized)
+            Assert.True(element.Height > 0);
+        }
+
+        [Fact]
+        public void BarcodeContainer_ConfigurableMargin_AffectsRendering()
+        {
+            var model = new ZxingModel
+            {
+                RawText = "https://getgreenshot.org",
+                FormatIndex = 0,
+                Margin = 0
+            };
+
+            using var bmp = new Bitmap(200, 200);
+            using var surface = new Surface(bmp);
+
+            var containerZeroMargin = new BarcodeContainer(surface, model, margin: 0);
+            containerZeroMargin.Width = 100;
+            containerZeroMargin.Height = 100;
+            containerZeroMargin.RegenerateBarcode();
+
+            Assert.Equal(0, containerZeroMargin.Margin);
+            Assert.NotNull(containerZeroMargin.Image);
+
+            containerZeroMargin.Margin = 5;
+            Assert.Equal(5, containerZeroMargin.Margin);
+            Assert.Equal(5, model.Margin);
         }
     }
 }

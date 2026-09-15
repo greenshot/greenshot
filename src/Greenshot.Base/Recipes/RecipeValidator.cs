@@ -84,7 +84,7 @@ namespace Greenshot.Base.Recipes
             WellKnownStepTypes.Notification,
             WellKnownStepTypes.Conditional,
             WellKnownStepTypes.TextEffect,
-            WellKnownStepTypes.Drawable,
+            WellKnownStepTypes.Annotation,
             WellKnownStepTypes.SetVariable,
             WellKnownStepTypes.SaveFile,
             WellKnownStepTypes.Clipboard,
@@ -292,59 +292,59 @@ namespace Greenshot.Base.Recipes
                     result.AddError($"Node '{node.Id}' [Conditional]: Missing required 'branches' configuration list.");
                 }
             }
-            if (string.Equals(node.StepType, WellKnownStepTypes.Drawable, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(node.StepType, WellKnownStepTypes.Annotation, StringComparison.OrdinalIgnoreCase))
             {
-                ValidateDrawableNode(node, result);
+                ValidateAnnotationNode(node, result);
             }
 
             // Programmatic step inspection for recipe authorization gates
             CheckAndDetectGatedActions(node, result);
         }
 
-        private static readonly HashSet<string> BuiltInDrawableTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        private static readonly HashSet<string> BuiltInAnnotationTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             "Rectangle", "Ellipse", "Line", "Arrow", "Freehand", "Text", "Speechbubble", "StepLabel",
             "Image", "Icon", "Cursor", "Emoji", "Svg", "Blur", "Pixelize", "Highlight", "Magnify", "Crop"
         };
 
-        private static void ValidateDrawableNode(RecipeNodeConfig node, RecipeValidationResult result)
+        private static void ValidateAnnotationNode(RecipeNodeConfig node, RecipeValidationResult result)
         {
             if (node.Parameters == null) return;
 
-            // Single drawable in Type parameter
+            // Single annotation in Type parameter
             if (node.Parameters.TryGetValue("Type", out var typeObj) && typeObj is string singleType && !string.IsNullOrWhiteSpace(singleType))
             {
-                ValidateDrawableType(singleType, node.Id, result);
+                ValidateAnnotationType(singleType, node.Id, result);
             }
 
-            // Multiple drawables in Drawables list
-            if (node.Parameters.TryGetValue("Drawables", out var drawablesObj) && drawablesObj is System.Collections.IEnumerable list && !(drawablesObj is string))
+            // Multiple annotations in Annotations list
+            if (node.Parameters.TryGetValue("Annotations", out var annotationsObj) && annotationsObj is System.Collections.IEnumerable list && !(annotationsObj is string))
             {
                 foreach (var item in list)
                 {
-                    string dType = null;
+                    string aType = null;
                     if (item is Dictionary<string, object> dict && dict.TryGetValue("Type", out var tObj))
                     {
-                        dType = tObj?.ToString();
+                        aType = tObj?.ToString();
                     }
                     else if (item is Newtonsoft.Json.Linq.JObject jobj && jobj.TryGetValue("Type", StringComparison.OrdinalIgnoreCase, out var jt))
                     {
-                        dType = jt?.ToString();
+                        aType = jt?.ToString();
                     }
-                    if (!string.IsNullOrWhiteSpace(dType))
+                    if (!string.IsNullOrWhiteSpace(aType))
                     {
-                        ValidateDrawableType(dType, node.Id, result);
+                        ValidateAnnotationType(aType, node.Id, result);
                     }
                 }
             }
         }
 
-        private static void ValidateDrawableType(string drawableType, string nodeId, RecipeValidationResult result)
+        private static void ValidateAnnotationType(string annotationType, string nodeId, RecipeValidationResult result)
         {
-            if (BuiltInDrawableTypes.Contains(drawableType)) return;
-            if (RecipeDrawableRegistry.Instance.IsRegistered(drawableType)) return;
+            if (BuiltInAnnotationTypes.Contains(annotationType)) return;
+            if (RecipeDrawableRegistry.Instance.IsRegistered(annotationType)) return;
 
-            result.AddError($"Node '{nodeId}' uses custom drawable type '{drawableType}', which is not available because the required extension is not installed or active.");
+            result.AddError($"Node '{nodeId}' uses custom annotation type '{annotationType}', which is not available because the required extension is not installed or active.");
         }
 
         private static void ValidateRequirement(RecipeRequirement req, RecipeValidationResult result)

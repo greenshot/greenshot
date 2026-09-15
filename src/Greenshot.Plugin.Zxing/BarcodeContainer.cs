@@ -39,7 +39,7 @@ namespace Greenshot.Plugin.Zxing
     public class BarcodeContainer : ImageContainer, IHaveScaleOptions
     {
         private ZxingModel _model;
-        private int _margin = 4;
+        private int _margin = 1;
 
         public ZxingModel Model
         {
@@ -47,6 +47,10 @@ namespace Greenshot.Plugin.Zxing
             set
             {
                 _model = value;
+                if (value != null)
+                {
+                    _margin = value.Margin;
+                }
                 Tag = value;
                 RegenerateBarcode();
             }
@@ -58,16 +62,20 @@ namespace Greenshot.Plugin.Zxing
             set
             {
                 _margin = value;
+                if (_model != null)
+                {
+                    _model.Margin = value;
+                }
                 RegenerateBarcode();
             }
         }
 
         public bool Is2D => _model == null || _model.FormatIndex <= 3;
 
-        public BarcodeContainer(ISurface parent, ZxingModel model, int margin = 4) : base(parent)
+        public BarcodeContainer(ISurface parent, ZxingModel model, int margin = 1) : base(parent)
         {
             _model = model;
-            _margin = margin;
+            _margin = model != null ? model.Margin : margin;
             Tag = model;
         }
 

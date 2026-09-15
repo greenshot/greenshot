@@ -251,9 +251,9 @@ namespace Greenshot.UI
                     {
                         paramSummary = $" [{s.GetParameter<string>("SourceType", "Region")}]";
                     }
-                    else if (string.Equals(s.StepType, WellKnownStepTypes.Drawable, StringComparison.OrdinalIgnoreCase))
+                    else if (string.Equals(s.StepType, WellKnownStepTypes.Annotation, StringComparison.OrdinalIgnoreCase))
                     {
-                        paramSummary = $" [{s.GetParameter<string>("DrawableType", "Element")}]";
+                        paramSummary = $" [{s.GetParameter<string>("AnnotationType", s.GetParameter<string>("Type", "Element"))}]";
                     }
                     else if (string.Equals(s.StepType, WellKnownStepTypes.SetVariable, StringComparison.OrdinalIgnoreCase))
                     {
