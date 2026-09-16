@@ -148,5 +148,46 @@ namespace Greenshot.Tests.Forms
             Assert.NotNull(source);
             Assert.True(source.IsFrozen);
         }
+
+        [Fact]
+        public void ColorPickerWindow_CanBeInstantiatedAndSetColor()
+        {
+            Exception threadEx = null;
+            var thread = new Thread(() =>
+            {
+                try
+                {
+                    var window = new Greenshot.Editor.Forms.ColorPickerWindow
+                    {
+                        SelectedColor = System.Drawing.Color.CornflowerBlue
+                    };
+
+                    Assert.Equal(System.Drawing.Color.CornflowerBlue.ToArgb(), window.SelectedColor.ToArgb());
+                    Assert.Equal(143, window.PaletteCount);
+                    Assert.Equal(12, window.RecentColorsCount);
+                }
+                catch (Exception ex)
+                {
+                    threadEx = ex;
+                }
+            });
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
+            thread.Join();
+
+            Assert.Null(threadEx);
+        }
+
+        [Fact]
+        public void ColorDialog_Facade_PropertiesAndGetInstanceWork()
+        {
+            using var cd = new Greenshot.Editor.Forms.ColorDialog
+            {
+                Color = System.Drawing.Color.MediumSeaGreen
+            };
+
+            Assert.Equal(System.Drawing.Color.MediumSeaGreen, cd.Color);
+            Assert.Same(cd, Greenshot.Editor.Forms.ColorDialog.GetInstance());
+        }
     }
 }

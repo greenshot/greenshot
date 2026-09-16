@@ -47,11 +47,26 @@ namespace Greenshot.Editor.Controls
 
         public event EventHandler<PipetteUsedArgs> PipetteUsed;
 
+        private static readonly byte[] PipettePngBytes = Convert.FromBase64String(
+            "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAZdEVYdFNvZnR3YXJl" +
+            "AEFkb2JlIEltYWdlUmVhZHlxyWU8AAABqklEQVQ4T6WTvUtCURiH34MiKoo6CKI45HUT/4CgDwz8oMVFXLyGIVpDjTYkuDsoF6RPmtJK" +
+            "kIgKipYsCIoQihYXKxSCICjaGoTTe6R7uflBgcOPwz3wPL/3HM4FSikMkw6sVCphHPNCSE9auPf8kydCJuqEHNYIOakSMsXYjiClUPSF" +
+            "mVAUiHBbEOh7KkWPAC4lQb9mcY8J5HAzGKSP4TDdBrj+SzCGkkqTkHk2NmuWw+sAfklQBYDunAPUaLlMG4Qc9INXkZEERa8Xdvx+2A0E" +
+            "pJR8Pv4UJe1CoaeZwb8E2WwWcrkcCILQST6fd2YymeRS6SG9j5JGKEQ3AW7XAJZFeOBAhN8+v+p7V61jJimi5AMvbgVXDIiRjiBO0A2f" +
+            "3b9uud3u5IzRyOMEDA4MFKCES6fTCbGZwS6XK2G3250RvR42ZM09E/A8D/F4PCaHOY6LWSwWzmq1wp8Cj8fjiMzOLbAzs2YEeZPJ5DCb" +
+            "zfAvgc1mi7L20Unvok6ni2q12hGDwQCDBEV8nRWMdIkajWZapVLFMZxarQb8hn6CMkI3mDvMhVwwzO/8DbWQqn7YBXReAAAAAElFTkSuQmCC");
+
+        internal static Bitmap CreatePipetteBitmap()
+        {
+            using var ms = new System.IO.MemoryStream(PipettePngBytes);
+            return new Bitmap(ms);
+        }
+
         public Pipette()
         {
             BorderStyle = BorderStyle.FixedSingle;
             _dragging = false;
-            _image = (Bitmap) new ComponentResourceManager(typeof(ColorDialog)).GetObject("pipette.Image");
+            _image = CreatePipetteBitmap();
             Image = _image;
             _cursor = CreateCursor(_image, 1, 14);
             _movableShowColorForm = new MovableShowColorForm();

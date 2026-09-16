@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
   <PropertyGroup>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
@@ -55,12 +55,6 @@
     <Compile Update="Controls\ToolStripNumericUpDown.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Update="Drawing\Surface.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Update="Forms\ColorDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
     <Compile Update="Forms\ColorPickerToolStripButton.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -85,10 +79,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Update="Forms\ColorDialog.resx">
-      <SubType>Designer</SubType>
-      <DependentUpon>ColorDialog.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Update="Forms\ImageEditorForm.resx">
       <DependentUpon>ImageEditorForm.cs</DependentUpon>
     </EmbeddedResource>
