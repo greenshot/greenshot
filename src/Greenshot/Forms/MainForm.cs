@@ -47,6 +47,7 @@ using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Core.FileFormatHandlers;
+using Greenshot.Base.Core.OutputFormats;
 using Greenshot.Base.Help;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Ocr;
@@ -334,6 +335,10 @@ namespace Greenshot.Forms
             notifyIcon.Icon = GreenshotResources.GetGreenshotIcon();
             // Make the notify icon available
             SimpleServiceProvider.Current.AddService(notifyIcon);
+
+            IOutputFormatRegistry outputFormatRegistry = new OutputFormatRegistry();
+            SimpleServiceProvider.Current.AddService<IOutputFormatRegistry>(outputFormatRegistry);
+            CoreOutputFormats.RegisterCoreOutputFormats(outputFormatRegistry);
 
             // Load all the plugins, and while doing to load the configuration
             PluginHelper.Instance.LoadPlugins();

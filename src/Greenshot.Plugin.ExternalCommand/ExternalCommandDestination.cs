@@ -28,6 +28,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
+using Greenshot.Base.Core.OutputFormats;
 using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
@@ -113,7 +114,7 @@ public class ExternalCommandDestination : AbstractDestination, IRequiresRecipeAu
         // fallback to PNG if configuration is corrupted
         if (!Config.OutputFormat.ContainsKey(_presetCommand))
         {
-            Config.OutputFormat.Add(_presetCommand,OutputFormat.png);
+            Config.OutputFormat.Add(_presetCommand, WellKnownOutputFormats.Png);
         }
 
         if (!Config.RunInbackground.ContainsKey(_presetCommand))

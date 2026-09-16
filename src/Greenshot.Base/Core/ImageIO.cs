@@ -33,6 +33,7 @@ using System.Windows.Forms;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Core.FileFormatHandlers;
+using Greenshot.Base.Core.OutputFormats;
 using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
@@ -116,7 +117,7 @@ namespace Greenshot.Base.Core
         {
             bool useMemoryStream = false;
             MemoryStream memoryStream = null;
-            if (outputSettings.Format == OutputFormat.greenshot && surface == null)
+            if (string.Equals(outputSettings.Format, OutputFormat.greenshot.ToString(), StringComparison.OrdinalIgnoreCase) && surface == null)
             {
                 throw new ArgumentException("Surface needs to be set when using OutputFormat.Greenshot");
             }
@@ -135,7 +136,7 @@ namespace Greenshot.Base.Core
                 }
 
                 var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
-                if (!fileFormatHandlers.TrySaveToStream(imageToSave as Bitmap, targetStream, outputSettings.Format.ToString(), surface, outputSettings))
+                if (!fileFormatHandlers.TrySaveToStream(imageToSave as Bitmap, targetStream, outputSettings.Format, surface, outputSettings))
                 {
                     return;
                 }
@@ -163,7 +164,7 @@ namespace Greenshot.Base.Core
         {
             bool disposeImage = false;
 
-            if (outputSettings.Format == OutputFormat.greenshot || outputSettings.SaveBackgroundOnly)
+            if (string.Equals(outputSettings.Format, OutputFormat.greenshot.ToString(), StringComparison.OrdinalIgnoreCase) || outputSettings.SaveBackgroundOnly)
             {
                 // We save the image of the surface, this should not be disposed
                 imageToSave = surface.Image;
@@ -176,7 +177,7 @@ namespace Greenshot.Base.Core
             }
 
             // The following block of modifications should be skipped when saving the greenshot format, no effects or otherwise!
-            if (outputSettings.Format == OutputFormat.greenshot)
+            if (string.Equals(outputSettings.Format, OutputFormat.greenshot.ToString(), StringComparison.OrdinalIgnoreCase))
             {
                 return disposeImage;
             }
@@ -381,25 +382,16 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// Get the OutputFormat for a filename
+        /// Get the output format ID for a filename
         /// </summary>
         /// <param name="fullPath">filename (can be a complete path)</param>
-        /// <returns>OutputFormat</returns>
-        public static OutputFormat FormatForFilename(string fullPath)
+        /// <returns>Output format ID</returns>
+        public static string FormatForFilename(string fullPath)
         {
-            // Fix for bug 2912959
-            string extension = fullPath.Substring(fullPath.LastIndexOf(".", StringComparison.Ordinal) + 1);
-            OutputFormat format = OutputFormat.png;
-            try
-            {
-                format = (OutputFormat) Enum.Parse(typeof(OutputFormat), extension.ToLower());
-            }
-            catch (ArgumentException ae)
-            {
-                Log.Warn("Couldn't parse extension: " + extension, ae);
-            }
-
-            return format;
+            string extension = Path.GetExtension(fullPath)?.TrimStart('.');
+            IOutputFormatRegistry registry = SimpleServiceProvider.Current.GetInstance<IOutputFormatRegistry>();
+            OutputFormatDefinition format = registry.GetByExtension(extension);
+            return format?.Id ?? WellKnownOutputFormats.Png;
         }
 
         /// <summary>

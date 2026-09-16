@@ -23,6 +23,8 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using Greenshot.Base.Core.OutputFormats;
+using IOutputFormatRegistry = Greenshot.Base.Core.OutputFormats.IOutputFormatRegistry;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Plugin;
@@ -46,6 +48,11 @@ namespace Greenshot.Editor.FileFormatHandlers
             SupportedExtensions[FileFormatHandlerActions.LoadFromStream] = _ourExtensions;
             SupportedExtensions[FileFormatHandlerActions.SaveToFile] = _ourExtensions;
             SupportedExtensions[FileFormatHandlerActions.LoadFromFile] = _ourExtensions;
+        }
+
+        public override void RegisterOutputFormats(IOutputFormatRegistry registry)
+        {
+            RegisterOutputFormat(registry, "svg", "svg", "Scalable Vector Graphics (SVG)");
         }
 
         public override bool TryLoadFromStream(Stream stream, string extension, out Bitmap bitmap)

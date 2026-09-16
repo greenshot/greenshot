@@ -22,6 +22,7 @@
 using Dapplo.Ini;
 using Dapplo.Ini.Converters;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.OutputFormats;
 using Greenshot.Base.Interfaces;
 using Greenshot.Editor.Configuration;
 using Greenshot.Editor.FileFormatHandlers;
@@ -53,6 +54,14 @@ namespace Greenshot.Editor
                     // JPG XR
                     new WpfFileFormatHandler()
                 );
+
+            IOutputFormatRegistry outputFormatRegistry =
+                SimpleServiceProvider.Current.GetInstance<IOutputFormatRegistry>();
+            foreach (IFileFormatHandler fileFormatHandler in
+                     SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>())
+            {
+                fileFormatHandler.RegisterOutputFormats(outputFormatRegistry);
+            }
         }
     }
 }

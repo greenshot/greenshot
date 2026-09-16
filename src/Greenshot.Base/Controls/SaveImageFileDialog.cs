@@ -106,7 +106,7 @@ namespace Greenshot.Base.Controls
             PrepareFilterOptions();
             string fdf = string.Empty;
             int preselect = 0;
-            var outputFileFormatAsString = Enum.GetName(typeof(OutputFormat), conf.OutputFileFormat);
+            string outputFileFormatAsString = conf.OutputFileFormat;
             for (int i = 0; i < _filterOptions.Length; i++)
             {
                 FilterOption fo = _filterOptions[i];

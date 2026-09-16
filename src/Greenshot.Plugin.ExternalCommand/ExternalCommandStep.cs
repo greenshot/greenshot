@@ -31,6 +31,7 @@ using System.Threading.Tasks;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
+using Greenshot.Base.Core.OutputFormats;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Pipeline;
@@ -151,7 +152,7 @@ namespace Greenshot.Plugin.ExternalCommand
 
                 if (string.IsNullOrEmpty(formatStr) && extConfig.OutputFormat != null && extConfig.OutputFormat.ContainsKey(commandName))
                 {
-                    formatStr = extConfig.OutputFormat[commandName].ToString();
+                    formatStr = extConfig.OutputFormat[commandName];
                 }
             }
 
@@ -169,10 +170,12 @@ namespace Greenshot.Plugin.ExternalCommand
             bool outputToClipboard = outputToClipboardParam ?? (extConfig?.OutputToClipboard ?? false);
             bool uriToClipboard = uriToClipboardParam ?? (extConfig?.UriToClipboard ?? false);
 
-            OutputFormat outputFormat = OutputFormat.png;
-            if (!string.IsNullOrWhiteSpace(formatStr) && Enum.TryParse<OutputFormat>(formatStr, true, out var parsedFormat))
+            string outputFormat = WellKnownOutputFormats.Png;
+            IOutputFormatRegistry outputFormatRegistry =
+                SimpleServiceProvider.Current.GetInstance<IOutputFormatRegistry>();
+            if (!string.IsNullOrWhiteSpace(formatStr) && outputFormatRegistry.TryGet(formatStr, out _))
             {
-                outputFormat = parsedFormat;
+                outputFormat = formatStr;
             }
 
             int jpegQuality = NodeConfig.GetParameter<int?>("JpegQuality") ?? 90;
