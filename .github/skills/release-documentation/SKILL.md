@@ -1,6 +1,7 @@
 ---
 name: release-documentation
 description: Specialist skill for generating and maintaining changelogs, release notes, and blog posts for Greenshot releases, including creating PRs against base branches and gh-pages.
+disable-model-invocation: true
 ---
 
 # Release Documentation Skill
@@ -77,12 +78,13 @@ tags:
 ### Blog Post Content Requirements
 1. **Mandatory Download Link**: The **first paragraph** MUST include a prominent link to Greenshot's official download page:
    `https://getgreenshot.org/downloads/` (e.g., `We are pleased to announce the release of **Greenshot 1.3.315**... Download it from the [official download page](https://getgreenshot.org/downloads/).`)
-2. **Key Highlights**: Summarize the most significant changes in full, engaging sentences.
-3. **Sections**:
+2. **Tone**: Keep the writing casual, warm, and approachable. Write like a helpful announcement to Greenshot users, not like a formal press release. Use contractions where natural, avoid corporate language, and explain technical changes in plain English.
+3. **Key Highlights**: Summarize the most significant changes in full, engaging sentences.
+4. **Sections**:
    - 🔒 **Security Fixes** (with responsible disclosure credits).
    - 🛠️ **Improvements & Fixes**.
    - 🔮 **What's Next** (e.g. roadmap, next major version status).
-4. **Full Changelog Link**: Conclude with a link to the complete technical changelog in the repository.
+5. **Full Changelog Link**: Conclude with a link to the complete technical changelog in the repository.
 
 ### Blog Post PR Workflow
 1. Fetch and branch off the remote `gh-pages` branch:
