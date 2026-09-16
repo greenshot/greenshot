@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -32,10 +32,11 @@ using System.ServiceModel.Security;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Icons;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
 using Greenshot.Base.Effects;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Drawing.Adorners;
@@ -54,7 +55,7 @@ namespace Greenshot.Editor.Drawing
     public sealed class Surface : Control, ISurface, INotifyPropertyChanged
     {
         private static readonly ILog LOG = LogManager.GetLogger(typeof(Surface));
-        private static readonly CoreConfiguration conf = IniConfig.GetIniSection<CoreConfiguration>();
+        private static readonly ICoreConfiguration conf = IniConfigRegistry.GetSection<ICoreConfiguration>();
 
         // Property to identify the Surface ID
         private Guid _uniqueId = Guid.NewGuid();
@@ -101,6 +102,14 @@ namespace Greenshot.Editor.Drawing
         {
             add => _surfaceSizeChanged += value;
             remove => _surfaceSizeChanged -= value;
+        }
+
+        [NonSerialized] private SurfaceExpandedEventHandler _surfaceExpanded;
+
+        public event SurfaceExpandedEventHandler SurfaceExpanded
+        {
+            add => _surfaceExpanded += value;
+            remove => _surfaceExpanded -= value;
         }
 
         [NonSerialized] private SurfaceMessageEventHandler _surfaceMessage;
@@ -246,7 +255,7 @@ namespace Greenshot.Editor.Drawing
         private IFieldAggregator _fieldAggregator;
 
         /// <summary>
-        /// the cursor container, needed with serialization as we need a direct acces to it.
+        /// the cursor container, needed with serialization as we need a direct access to it.
         /// </summary>
         private IDrawableContainer _cursorContainer;
 
@@ -421,6 +430,7 @@ namespace Greenshot.Editor.Drawing
         /// </summary>
         public Surface()
         {
+            CaptureDetails = new CaptureDetails();
             var stepLabelService = SimpleServiceProvider.Current.GetInstance<IStepLabelService>();
             stepLabelService.LabelsChanged += (s, e) => Invalidate();
             _fieldAggregator = new FieldAggregator(this);
@@ -478,7 +488,7 @@ namespace Greenshot.Editor.Drawing
         }
 
         /// <summary>
-        /// Surface contructor with a capture
+        /// Surface constructor with a capture
         /// </summary>
         /// <param name="capture"></param>
         public Surface(ICapture capture) : this(capture.Image)
@@ -491,7 +501,7 @@ namespace Greenshot.Editor.Drawing
                 // check if cursor is on the capture, otherwise we leave it out.
                 if (cursorRect.IntersectsWith(captureRect))
                 {
-                    _cursorContainer = AddImageContainer(capture.Cursor, capture.CursorLocation.X, capture.CursorLocation.Y);
+                    _cursorContainer = AddCursorContainer(capture.Cursor.Clone(), capture.CursorLocation.X, capture.CursorLocation.Y);
                     SelectElement(_cursorContainer);
                 }
             }
@@ -708,6 +718,33 @@ namespace Greenshot.Editor.Drawing
         }
 
         /// <summary>
+        /// Creates a deep copy of the surface, cloning its background image, elements, and capture details.
+        /// </summary>
+        public ISurface Clone()
+        {
+            var clonedImage = _image != null ? ImageHelper.Clone(_image) : null;
+            var clonedSurface = new Surface(clonedImage)
+            {
+                CounterStart = CounterStart,
+                CaptureDetails = (CaptureDetails as CaptureDetails)?.Clone() ?? CaptureDetails,
+                Modified = Modified,
+                ZoomFactor = ZoomFactor,
+                LastSaveFullPath = LastSaveFullPath,
+                UploadUrl = UploadUrl
+            };
+
+            if (_elements != null && _elements.Count > 0)
+            {
+                using var ms = RecyclableMemoryStreamFactory.GetStream("Surface.Clone");
+                SaveElementsToStream(ms);
+                ms.Position = 0;
+                clonedSurface.LoadElementsFromStream(ms);
+            }
+
+            return clonedSurface;
+        }
+
+        /// <summary>
         /// This is called from the DrawingMode setter, which is not very correct...
         /// But here an element is created which is not yet draw, thus "undrawnElement".
         /// The element is than used while drawing on the surface.
@@ -762,7 +799,7 @@ namespace Greenshot.Editor.Drawing
                     _undrawnElement = null;
                     break;
                 case DrawingModes.Emoji:
-                    _undrawnElement = new EmojiContainer(this, "🙂");
+                    _undrawnElement = new EmojiContainer(this);
                     break;
             }
 
@@ -782,6 +819,7 @@ namespace Greenshot.Editor.Drawing
                 Left = x,
                 Top = y
             };
+            bitmapContainer.ResetToDefaultSize();
             AddElement(bitmapContainer);
             return bitmapContainer;
         }
@@ -792,6 +830,7 @@ namespace Greenshot.Editor.Drawing
             bitmapContainer.Load(filename);
             bitmapContainer.Left = x;
             bitmapContainer.Top = y;
+            bitmapContainer.ResetToDefaultSize();
             AddElement(bitmapContainer);
             return bitmapContainer;
         }
@@ -804,6 +843,7 @@ namespace Greenshot.Editor.Drawing
                 Left = x,
                 Top = y
             };
+            iconContainer.ResetToDefaultSize();
             AddElement(iconContainer);
             return iconContainer;
         }
@@ -814,6 +854,7 @@ namespace Greenshot.Editor.Drawing
             iconContainer.Load(filename);
             iconContainer.Left = x;
             iconContainer.Top = y;
+            iconContainer.ResetToDefaultSize();
             AddElement(iconContainer);
             return iconContainer;
         }
@@ -827,7 +868,7 @@ namespace Greenshot.Editor.Drawing
             return iconContainer;
         }
 
-        public ICursorContainer AddCursorContainer(Cursor cursor, int x, int y)
+        public ICursorContainer AddCursorContainer(CapturedCursor cursor, int x, int y)
         {
             CursorContainer cursorContainer = new CursorContainer(this)
             {
@@ -835,6 +876,7 @@ namespace Greenshot.Editor.Drawing
                 Left = x,
                 Top = y
             };
+            cursorContainer.ResetToDefaultSize();
             AddElement(cursorContainer);
             return cursorContainer;
         }
@@ -845,6 +887,7 @@ namespace Greenshot.Editor.Drawing
             cursorContainer.Load(filename);
             cursorContainer.Left = x;
             cursorContainer.Top = y;
+            cursorContainer.ResetToDefaultSize();
             AddElement(cursorContainer);
             return cursorContainer;
         }
@@ -1012,6 +1055,28 @@ namespace Greenshot.Editor.Drawing
             MakeUndoable(new SurfaceBackgroundChangeMemento(this, null), false);
             SetImage(newBitmap, false);
             Invalidate();
+        }
+
+        /// <summary>
+        /// Set the canvas to a new size using the given bounds.
+        /// Each parameter is the distance to expand in that direction.
+        /// </summary>
+        public void ResizeCanvas(int left, int right, int top, int bottom)
+        {
+            var resizeEffect = new ResizeCanvasEffect(left, right, top, bottom);
+            ApplyBitmapEffect(resizeEffect);
+            _surfaceExpanded(this, null);
+        }
+
+        /// <summary>
+        /// Set the canvas to a new size using the given expansion directions.
+        /// </summary>
+        /// <param name="expansion">The amount to expand in each direction.</param>
+        public void ResizeCanvas(Expansion expansion)
+        {
+            var resizeEffect = new ResizeCanvasEffect(expansion.Left, expansion.Right, expansion.Top, expansion.Bottom);
+            ApplyBitmapEffect(resizeEffect);
+            _surfaceExpanded(this, null);
         }
 
         /// <summary>

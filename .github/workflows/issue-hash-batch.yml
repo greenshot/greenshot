@@ -1,0 +1,113 @@
+name: Batch Hash Existing Issues
+on:
+  workflow_dispatch:
+    inputs:
+      batch_size:
+        description: 'Number of issues to process in this run'
+        required: true
+        default: '50'
+
+jobs:
+  batch-hash:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const batchSize = parseInt(context.payload.inputs.batch_size) || 50;
+            const marker = "[stack-trace-hash:";
+            const crypto = require('crypto');
+            
+            console.log(`Starting batch process for up to ${batchSize} issues...`);
+            
+            // Search for issues that don't have the label and haven't been marked with a hash yet
+            // Also exclude issues explicitly marked as not having a stack trace
+            const query = `repo:${context.repo.owner}/${context.repo.repo} is:issue -label:has-stack-trace -label:no-stack-trace`;
+            
+            const searchResult = await github.rest.search.issuesAndPullRequests({
+              q: query,
+              sort: 'created',
+              order: 'desc',
+              per_page: batchSize
+            });
+            
+            const issues = searchResult.data.items;
+            console.log(`Found ${searchResult.data.total_count} issues total. Processing ${issues.length} in this batch.`);
+            
+            for (const issue of issues) {
+              const body = issue.body;
+              if (!body) {
+                await github.rest.issues.addLabels({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  labels: ['no-stack-trace']
+                });
+                continue;
+              }
+              if (body.indexOf(marker) !== -1) {
+                await github.rest.issues.addLabels({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  labels: ['has-stack-trace']
+                });
+                continue;
+              }
+              
+              const lines = body.split(/\r?\n/);
+              let normalizedLines = [];
+              
+              for (let line of lines) {
+                const trimmed = line.trim();
+                if (trimmed.startsWith('Exception: ')) {
+                  const match = trimmed.match(/^Exception:\s+([^\s:]+)/);
+                  if (match) {
+                    normalizedLines.push(match[1]);
+                  }
+                } else if (trimmed.startsWith('at Greenshot.') || trimmed.startsWith('at Dapplo.')) {
+                  const normalizedLine = trimmed.replace(/\s+in\s+.*:line\s+\d+/g, '');
+                  normalizedLines.push(normalizedLine);
+                }
+              }
+              
+              if (normalizedLines.length > 0) {
+                const normalizedText = normalizedLines.join('\n').trim();
+                const hash = crypto.createHash('sha256').update(normalizedText).digest('hex').substring(0, 12);
+                
+                console.log(`Processing issue #${issue.number}: Found stack trace, hash: ${hash}`);
+                
+                const newBody = body + "\n\n---\n**Stack Trace Hash:** [" + hash + "]";
+                
+                // Update issue body
+                await github.rest.issues.update({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  body: newBody
+                });
+                
+                // Add labels
+                await github.rest.issues.addLabels({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  labels: ['has-stack-trace']
+                });
+              } else {
+                console.log(`Issue #${issue.number}: No relevant stack trace found. Labeling.`);
+                await github.rest.issues.addLabels({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  labels: ['no-stack-trace']
+                });
+              }
+              
+              // Small delay to respect secondary rate limits for write operations
+              await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+            
+            console.log('Batch processing complete.');

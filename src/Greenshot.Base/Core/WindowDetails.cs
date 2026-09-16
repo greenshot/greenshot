@@ -6,6 +6,7 @@ using System.Drawing.Imaging;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Windows.Forms;
 using Dapplo.Windows.Common;
 using Dapplo.Windows.Common.Enums;
@@ -23,7 +24,7 @@ using Dapplo.Windows.User32;
 using Dapplo.Windows.User32.Enums;
 using Dapplo.Windows.User32.Structs;
 using Greenshot.Base.Core.Enums;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interop;
 using log4net;
@@ -49,7 +50,7 @@ namespace Greenshot.Base.Core
         }); //"MS-SDIa"
 
         private static readonly ILog Log = LogManager.GetLogger(typeof(WindowDetails));
-        private static readonly CoreConfiguration Conf = IniConfig.GetIniSection<CoreConfiguration>();
+        private static readonly ICoreConfiguration Conf = IniConfigRegistry.GetSection<ICoreConfiguration>();
         private static readonly IList<IntPtr> IgnoreHandles = new List<IntPtr>();
         private static readonly IList<string> ExcludeProcessesFromFreeze = new List<string>();
         private static readonly IAppVisibility AppVisibility;
@@ -206,7 +207,9 @@ namespace Greenshot.Base.Core
 
                 try
                 {
-                    return PluginUtils.GetCachedExeIcon(ProcessPath, 0);
+                    var cachedIcon = PluginUtils.GetCachedExeIcon(ProcessPath, 0);
+                    // Clone the cached icon to prevent issues when the cache is cleared on icon size change
+                    return cachedIcon != null ? ImageHelper.Clone(cachedIcon) : null;
                 }
                 catch (Exception ex)
                 {
@@ -230,7 +233,7 @@ namespace Greenshot.Base.Core
             IntPtr iconSmall2 = new IntPtr(2);
 
             IntPtr iconHandle;
-            if (Conf.UseLargeIcons)
+            if (Conf.IconSize.Width >= 32 || Conf.IconSize.Height >= 32)
             {
                 iconHandle = User32Api.SendMessage(hWnd, WindowsMessages.WM_GETICON, iconBig, IntPtr.Zero);
                 if (iconHandle == IntPtr.Zero)
@@ -672,11 +675,14 @@ namespace Greenshot.Base.Core
 
             User32Api.BringWindowToTop(Handle);
             User32Api.SetForegroundWindow(Handle);
-            // Make sure windows has time to perform the action
-            // TODO: this is BAD practice!
-            while (Iconic)
+            // Wait for the window to restore, with a timeout to prevent CPU spin
+            int waitAttempts = 0;
+            const int maxWaitAttempts = 100; // ~2 seconds max (100 * 20ms)
+            while (Iconic && waitAttempts < maxWaitAttempts)
             {
                 Application.DoEvents();
+                Thread.Sleep(20);
+                waitAttempts++;
             }
         }
 

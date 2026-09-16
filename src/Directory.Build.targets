@@ -1,12 +1,11 @@
 <Project>
-  <UsingTask TaskName="ApplyTokenReplacements" TaskFactory="CodeTaskFactory" AssemblyName="Microsoft.Build.Tasks.Core">
+  <UsingTask TaskName="ApplyTokenReplacements" TaskFactory="RoslynCodeTaskFactory" AssemblyName="Microsoft.Build.Tasks.Core">
     <ParameterGroup>
       <InputLines ParameterType="Microsoft.Build.Framework.ITaskItem[]" Required="true" />
       <Tokens ParameterType="Microsoft.Build.Framework.ITaskItem[]" Required="true" />
       <OutputLines ParameterType="Microsoft.Build.Framework.ITaskItem[]" Output="true" />
     </ParameterGroup>
     <Task>
-      <Reference Include="System.Text.RegularExpressions" />
       <Code Type="Fragment" Language="cs">
         <![CDATA[
         var output = new List<ITaskItem>();
@@ -35,6 +34,10 @@
     </Task>
   </UsingTask>
 
+  <PropertyGroup>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+  </PropertyGroup>
+
   <PropertyGroup Condition="Exists('$(ProjectDir)$(ProjectName).Credentials.template')">
     <MSBuildCommunityTasksPath>$(NuGetPackageRoot)msbuildtasks/1.5.0.235/tools/</MSBuildCommunityTasksPath>
   </PropertyGroup>
@@ -43,7 +46,6 @@
 
   <Target Name="ProcessTemplates" BeforeTargets="PrepareForBuild" Condition="Exists('$(ProjectDir)$(ProjectName).Credentials.template')">
     <Message Text="Processing: $(ProjectDir)$(ProjectName).Credentials.template" Importance="high"/>
-
 
     <ReadLinesFromFile File="$(ProjectDir)$(ProjectName).Credentials.template">
       <Output TaskParameter="Lines" ItemName="TemplateLines" />

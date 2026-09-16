@@ -1,6 +1,6 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -22,6 +22,7 @@
 using System;
 using System.Drawing;
 using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Icons;
 
 namespace Greenshot.Base.Interfaces
 {
@@ -53,7 +54,7 @@ namespace Greenshot.Base.Interfaces
         /// <summary>
         /// The cursor bitmap
         /// </summary>
-        Bitmap Cursor { get; set; }
+        CapturedCursor Cursor { get; set; }
 
         /// <summary>
         /// Boolean to specify if the cursor is available
@@ -82,5 +83,10 @@ namespace Greenshot.Base.Interfaces
         /// <param name="x">x coordinates to move the mouse</param>
         /// <param name="y">y coordinates to move the mouse</param>
         void MoveMouseLocation(int x, int y);
+
+        /// <summary>
+        /// Creates a deep copy of the capture, cloning its image, cursor, and capture details.
+        /// </summary>
+        ICapture Clone();
     }
 }

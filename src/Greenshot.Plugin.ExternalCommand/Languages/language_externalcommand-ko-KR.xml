@@ -32,5 +32,8 @@
       {0}은 이미지 파일명입니다
     </resource>
     <resource name="label_outputimageformat">이미지 형식</resource>
+    <resource name="tooltip_duplicate_name">
+      이 이름의 명령어가 이미 존재합니다. 다른 이름을 선택하십시오.
+    </resource>
   </resources>
 </language>

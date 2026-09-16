@@ -1,6 +1,6 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Threading.Tasks;
@@ -27,6 +28,7 @@ using Windows.Graphics.Imaging;
 using Windows.Media.Ocr;
 using Windows.Storage.Streams;
 using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Common.Extensions;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Effects;
@@ -61,16 +63,17 @@ namespace Greenshot.Plugin.Win10
         /// Scan the surface bitmap for text, and get the OcrResult
         /// </summary>
         /// <param name="surface">ISurface</param>
+        /// <param name="languageTag">Optional OCR language tag (e.g. en-US, de-DE)</param>
         /// <returns>OcrResult sync</returns>
-        public async Task<OcrInformation> DoOcrAsync(ISurface surface)
+        public async Task<List<IOcrLineFeature>> DoOcrAsync(ISurface surface, string languageTag = null)
         {
-            OcrInformation result;
-            using (var imageStream = new MemoryStream())
+            List<IOcrLineFeature> result;
+            using (var imageStream = RecyclableMemoryStreamFactory.GetStream("Win10OcrProvider.DoOcrAsync(ISurface)"))
             {
                 // We only want the background
                 var outputSettings = new SurfaceOutputSettings(OutputFormat.png, 0, true)
                 {
-                    ReduceColors = true,
+                    ReduceColors = false,
                     SaveBackgroundOnly = true
                 };
                 // Force Grayscale output
@@ -102,7 +105,7 @@ namespace Greenshot.Plugin.Win10
                 imageStream.Position = 0;
                 var randomAccessStream = imageStream.AsRandomAccessStream();
 
-                result = await DoOcrAsync(randomAccessStream);
+                result = await DoOcrAsync(randomAccessStream, languageTag).ConfigureAwait(false);
             }
 
             return result;
@@ -112,17 +115,18 @@ namespace Greenshot.Plugin.Win10
         /// Scan the Image for text, and get the OcrResult
         /// </summary>
         /// <param name="image">Image</param>
+        /// <param name="languageTag">Optional OCR language tag (e.g. en-US, de-DE)</param>
         /// <returns>OcrResult sync</returns>
-        public async Task<OcrInformation> DoOcrAsync(Image image)
+        public async Task<List<IOcrLineFeature>> DoOcrAsync(Image image, string languageTag = null)
         {
-            OcrInformation result;
-            using (var imageStream = new MemoryStream())
+            List<IOcrLineFeature> result;
+            using (var imageStream = RecyclableMemoryStreamFactory.GetStream("Win10OcrProvider.DoOcrAsync(Image)"))
             {
                 ImageIO.SaveToStream(image, null, imageStream, new SurfaceOutputSettings());
                 imageStream.Position = 0;
                 var randomAccessStream = imageStream.AsRandomAccessStream();
 
-                result = await DoOcrAsync(randomAccessStream);
+                result = await DoOcrAsync(randomAccessStream, languageTag).ConfigureAwait(false);
             }
 
             return result;
@@ -132,50 +136,95 @@ namespace Greenshot.Plugin.Win10
         /// Scan the surface bitmap for text, and get the OcrResult
         /// </summary>
         /// <param name="randomAccessStream">IRandomAccessStream</param>
+        /// <param name="languageTag">Optional OCR language tag (e.g. en-US, de-DE)</param>
         /// <returns>OcrResult sync</returns>
-        public async Task<OcrInformation> DoOcrAsync(IRandomAccessStream randomAccessStream)
+        public async Task<List<IOcrLineFeature>> DoOcrAsync(IRandomAccessStream randomAccessStream, string languageTag = null)
         {
-            var ocrEngine = OcrEngine.TryCreateFromUserProfileLanguages();
+            OcrEngine ocrEngine = null;
+
+            if (string.IsNullOrWhiteSpace(languageTag))
+            {
+                var win10Config = Dapplo.Ini.IniConfigRegistry.GetSection<Greenshot.Configuration.IWin10Configuration>();
+                languageTag = win10Config?.OcrLanguage;
+            }
+
+            if (!string.IsNullOrWhiteSpace(languageTag))
+            {
+                try
+                {
+                    var winLang = new Windows.Globalization.Language(languageTag.Trim());
+                    if (OcrEngine.IsLanguageSupported(winLang))
+                    {
+                        ocrEngine = OcrEngine.TryCreateFromLanguage(winLang);
+                    }
+                    else
+                    {
+                        Log.WarnFormat("Requested OCR language '{0}' is not currently installed or supported in Windows.", languageTag);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log.Warn($"Failed to create OCR engine for language '{languageTag}'", ex);
+                }
+            }
+
+            if (ocrEngine is null)
+            {
+                ocrEngine = OcrEngine.TryCreateFromUserProfileLanguages();
+            }
+
             if (ocrEngine is null)
             {
                 return null;
             }
 
-            var decoder = await BitmapDecoder.CreateAsync(randomAccessStream);
-            var softwareBitmap = await decoder.GetSoftwareBitmapAsync();
+            var decoder = await BitmapDecoder.CreateAsync(randomAccessStream).AsTask().ConfigureAwait(false);
+            var softwareBitmap = await decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied).AsTask().ConfigureAwait(false);
 
-            var ocrResult = await ocrEngine.RecognizeAsync(softwareBitmap);
+            var ocrResult = await ocrEngine.RecognizeAsync(softwareBitmap).AsTask().ConfigureAwait(false);
 
-            return CreateOcrInformation(ocrResult);
+            return CreateOcrLines(ocrResult);
         }
 
         /// <summary>
-        /// Create the OcrInformation
+        /// Create the list of IOcrLineFeature
         /// </summary>
         /// <param name="ocrResult">OcrResult</param>
-        /// <returns>OcrInformation</returns>
-        private static OcrInformation CreateOcrInformation(OcrResult ocrResult)
+        /// <returns>List of IOcrLineFeature</returns>
+        private static List<IOcrLineFeature> CreateOcrLines(OcrResult ocrResult)
         {
-            var result = new OcrInformation();
+            var result = new List<IOcrLineFeature>();
 
             foreach (var ocrLine in ocrResult.Lines)
             {
-                var line = new Line(ocrLine.Words.Count)
-                {
-                    Text = ocrLine.Text
-                };
-
-                result.Lines.Add(line);
+                var words = new List<OcrWordInfo>();
+                var lineBounds = NativeRect.Empty;
 
                 for (var index = 0; index < ocrLine.Words.Count; index++)
                 {
                     var ocrWord = ocrLine.Words[index];
-                    var location = new NativeRect((int) ocrWord.BoundingRect.X, (int) ocrWord.BoundingRect.Y,
+                    var wordBounds = new NativeRect((int) ocrWord.BoundingRect.X, (int) ocrWord.BoundingRect.Y,
                         (int) ocrWord.BoundingRect.Width, (int) ocrWord.BoundingRect.Height);
 
-                    var word = line.Words[index];
-                    word.Text = ocrWord.Text;
-                    word.Bounds = location;
+                    words.Add(new OcrWordInfo
+                    {
+                        Bounds = wordBounds,
+                        Text = ocrWord.Text
+                    });
+
+                    if (index == 0)
+                    {
+                        lineBounds = wordBounds;
+                    }
+                    else
+                    {
+                        lineBounds = lineBounds.Union(wordBounds);
+                    }
+                }
+
+                if (!lineBounds.IsEmpty)
+                {
+                    result.Add(new DetectedOcrLine(lineBounds, ocrLine.Text, words));
                 }
             }
 

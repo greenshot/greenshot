@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -70,6 +70,8 @@ namespace Greenshot.Configuration
         settings_tooltip_language,
         settings_tooltip_primaryimageformat,
         settings_tooltip_storagelocation,
+        settings_storagelocation_folder_error,
+        settings_storagelocation_folder_error_title,
         settings_visualization,
         settings_window_capture_mode,
         tooltip_firststart,

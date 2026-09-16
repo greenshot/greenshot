@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -32,7 +32,7 @@ using Dapplo.Jira;
 using Dapplo.Jira.Entities;
 using Dapplo.Jira.SvgWinForms.Converters;
 using Greenshot.Base.Core;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 
 namespace Greenshot.Plugin.Jira;
 
@@ -42,9 +42,9 @@ namespace Greenshot.Plugin.Jira;
 public sealed class JiraConnector : IDisposable
 {
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(JiraConnector));
-    private static readonly JiraConfiguration JiraConfig = IniConfig.GetIniSection<JiraConfiguration>();
+    private static readonly IJiraConfiguration JiraConfig = IniConfigRegistry.GetSection<IJiraConfiguration>();
 
-    private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
+    private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
 
     // Used to remove the wsdl information from the old SOAP Uri
     public const string DefaultPostfix = "/rpc/soap/jirasoapservice-v2?wsdl";
@@ -183,7 +183,7 @@ public sealed class JiraConnector : IDisposable
                     Log.Error("Problem using the credentials dialog", e);
                 }
 
-                // For every windows version after XP show an incorrect password baloon
+                // For every windows version after XP show an incorrect password balloon
                 credentialsDialog.IncorrectPassword = true;
                 // Make sure the dialog is display, the password was false!
                 credentialsDialog.AlwaysDisplay = true;
@@ -258,7 +258,7 @@ public sealed class JiraConnector : IDisposable
     public async Task AttachAsync(string issueKey, IBinaryContainer content, CancellationToken cancellationToken = default)
     {
         await CheckCredentialsAsync(cancellationToken);
-        using var memoryStream = new MemoryStream();
+        using var memoryStream = RecyclableMemoryStreamFactory.GetStream("JiraConnector.AttachAsync");
         content.WriteToStream(memoryStream);
         memoryStream.Seek(0, SeekOrigin.Begin);
         await _jiraClient.Attachment.AttachAsync(issueKey, memoryStream, content.Filename, content.ContentType, cancellationToken).ConfigureAwait(false);

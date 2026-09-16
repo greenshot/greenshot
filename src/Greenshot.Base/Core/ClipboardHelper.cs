@@ -1,6 +1,6 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -37,7 +37,7 @@ using Dapplo.Windows.Gdi32.Structs;
 using Dapplo.Windows.User32;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Core.FileFormatHandlers;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Plugin;
@@ -53,7 +53,7 @@ namespace Greenshot.Base.Core
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(ClipboardHelper));
         private static readonly object ClipboardLockObject = new object();
-        private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
+        private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
         private static readonly string FORMAT_FILECONTENTS = "FileContents";
         private static readonly string FORMAT_HTML = "text/html";
         private static readonly string FORMAT_PNG = "PNG";
@@ -168,18 +168,18 @@ EndSelection:<<<<<<<4
         {
             lock (ClipboardLockObject)
             {
-                // Clear first, this seems to solve some issues
                 try
                 {
-                    Clipboard.Clear();
-                }
-                catch (Exception clearException)
-                {
-                    Log.Warn(clearException.Message);
-                }
-
-                try
-                {
+                    // Try to clear the clipboard first to avoid issues with complex existing formats.
+                    try
+                    {
+                        Clipboard.Clear();
+                    }
+                    catch (Exception clearException)
+                    {
+                        // Non-critical: if clearing fails, we still attempt to set the new data.
+                        Log.Warn("Couldn't clear clipboard before setting new data, continuing anyway.", clearException);
+                    }
                     // For BUG-1935 this was changed from looping ourselves, or letting MS retry...
                     Clipboard.SetDataObject(ido, copy, 15, 200);
                 }
@@ -471,7 +471,7 @@ EndSelection:<<<<<<<4
         /// <param name="dataObject">IDataObject</param>
         /// <param name="format">string</param>
         /// <param name="encoding">Encoding</param>
-        /// <returns>sting</returns>
+        /// <returns>string</returns>
         private static string ContentAsString(IDataObject dataObject, string format, Encoding encoding = null)
         {
             encoding ??= Encoding.Unicode;
@@ -948,7 +948,7 @@ EndSelection:<<<<<<<4
             utf8EncodedHtmlString = utf8EncodedHtmlString.Replace("${width}", surface.Image.Width.ToString());
             utf8EncodedHtmlString = utf8EncodedHtmlString.Replace("${height}", surface.Image.Height.ToString());
             utf8EncodedHtmlString = utf8EncodedHtmlString.Replace("${format}", "png");
-            utf8EncodedHtmlString = utf8EncodedHtmlString.Replace("${data}", Convert.ToBase64String(pngStream.GetBuffer(), 0, (int) pngStream.Length));
+            utf8EncodedHtmlString = utf8EncodedHtmlString.Replace("${data}", Convert.ToBase64String(pngStream.ToArray()));
             StringBuilder sb = new StringBuilder();
             sb.Append(utf8EncodedHtmlString);
             sb.Replace("<<<<<<<1", (utf8EncodedHtmlString.IndexOf("<HTML>", StringComparison.Ordinal) + "<HTML>".Length).ToString("D8"));
@@ -967,29 +967,70 @@ EndSelection:<<<<<<<4
         /// When pasting a Dib in PP 2003 the Bitmap is somehow shifted left!
         /// For this problem the user should not use the direct paste (=Dib), but select Bitmap
         /// </summary>
+        /// <summary>
+        /// Sets clipboard data using a pre-rendered bitmap, avoiding a redundant surface render.
+        /// Use this overload when the surface has already been rendered elsewhere (e.g. for file save)
+        /// to avoid rendering the surface twice on the UI thread.
+        /// </summary>
+        public static void SetClipboardData(ISurface surface, Image preRenderedImage)
+        {
+            SetClipboardDataInternal(surface, preRenderedImage, disposeImage: false);
+        }
+
+        public static void SetClipboardData(ISurface surface, Image preRenderedImage, IEnumerable<ClipboardFormat> formats, string text = null)
+        {
+            SetClipboardDataInternal(surface, preRenderedImage, disposeImage: false, formats: formats, text: text);
+        }
+
         public static void SetClipboardData(ISurface surface)
         {
+            SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(OutputFormat.png, 100, false);
+            bool disposeImage = ImageIO.CreateImageFromSurface(surface, outputSettings, out Image rendered);
+            SetClipboardDataInternal(surface, rendered, disposeImage);
+        }
+
+        public static void SetClipboardData(ISurface surface, IEnumerable<ClipboardFormat> formats, string text = null)
+        {
+            SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(OutputFormat.png, 100, false);
+            bool disposeImage = ImageIO.CreateImageFromSurface(surface, outputSettings, out Image rendered);
+            SetClipboardDataInternal(surface, rendered, disposeImage, formats: formats, text: text);
+        }
+
+        private static void SetClipboardDataInternal(ISurface surface, Image imageToSave, bool disposeImage, IEnumerable<ClipboardFormat> formats = null, string text = null)
+        {
+            var activeFormats = formats != null ? formats.ToList() : (CoreConfig.ClipboardFormats ?? new List<ClipboardFormat>());
             DataObject dataObject = new DataObject();
 
-            // This will work for Office and most other applications
-            //ido.SetData(DataFormats.Bitmap, true, image);
+            if (!string.IsNullOrEmpty(text))
+            {
+                dataObject.SetData(DataFormats.UnicodeText, true, text);
+                dataObject.SetData(DataFormats.Text, true, text);
+            }
+
+            if (imageToSave == null || activeFormats.Count == 0)
+            {
+                if (!string.IsNullOrEmpty(text))
+                {
+                    SetDataObject(dataObject, true);
+                }
+                if (disposeImage)
+                {
+                    imageToSave?.Dispose();
+                }
+                return;
+            }
 
             MemoryStream dibStream = null;
             MemoryStream dibV5Stream = null;
             MemoryStream pngStream = null;
-            Image imageToSave = null;
-            bool disposeImage = false;
             try
             {
-                SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(OutputFormat.png, 100, false);
-                // Create the image which is going to be saved so we don't create it multiple times
-                disposeImage = ImageIO.CreateImageFromSurface(surface, outputSettings, out imageToSave);
                 try
                 {
                     // Create PNG stream
-                    if (CoreConfig.ClipboardFormats.Contains(ClipboardFormat.PNG))
+                    if (activeFormats.Contains(ClipboardFormat.PNG))
                     {
-                        pngStream = new MemoryStream();
+                        pngStream = RecyclableMemoryStreamFactory.GetStream("ClipboardHelper.PNG");
                         // PNG works for e.g. Powerpoint
                         SurfaceOutputSettings pngOutputSettings = new SurfaceOutputSettings(OutputFormat.png, 100, false);
                         ImageIO.SaveToStream(imageToSave, null, pngStream, pngOutputSettings);
@@ -1005,10 +1046,10 @@ EndSelection:<<<<<<<4
 
                 try
                 {
-                    if (CoreConfig.ClipboardFormats.Contains(ClipboardFormat.DIB))
+                    if (activeFormats.Contains(ClipboardFormat.DIB))
                     {
                         // Create the stream for the clipboard
-                        dibStream = new MemoryStream();
+                        dibStream = RecyclableMemoryStreamFactory.GetStream("ClipboardHelper.DIB");
                         var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
 
                         if (!fileFormatHandlers.TrySaveToStream((Bitmap)imageToSave, dibStream, DataFormats.Dib))
@@ -1031,10 +1072,10 @@ EndSelection:<<<<<<<4
                 // CF_DibV5
                 try
                 {
-                    if (CoreConfig.ClipboardFormats.Contains(ClipboardFormat.DIBV5))
+                    if (activeFormats.Contains(ClipboardFormat.DIBV5))
                     {
                         // Create the stream for the clipboard
-                        dibV5Stream = new MemoryStream();
+                        dibV5Stream = RecyclableMemoryStreamFactory.GetStream("ClipboardHelper.DIBV5");
 
                         // Create the BITMAPINFOHEADER
                         var header = BitmapV5Header.Create(imageToSave.Width, imageToSave.Height, 32);
@@ -1069,16 +1110,17 @@ EndSelection:<<<<<<<4
                 }
 
                 // Set the HTML
-                if (CoreConfig.ClipboardFormats.Contains(ClipboardFormat.HTML))
+                if (activeFormats.Contains(ClipboardFormat.HTML))
                 {
-                    string tmpFile = ImageIO.SaveToTmpFile(surface, new SurfaceOutputSettings(OutputFormat.png, 100, false), null);
+                    // Use the already-rendered imageToSave to avoid a redundant surface render pass.
+                    string tmpFile = ImageIO.SaveToTmpFile(imageToSave, new SurfaceOutputSettings(OutputFormat.png, 100, false), null);
                     string html = GetHtmlString(surface, tmpFile);
                     dataObject.SetText(html, TextDataFormat.Html);
                 }
-                else if (CoreConfig.ClipboardFormats.Contains(ClipboardFormat.HTMLDATAURL))
+                else if (activeFormats.Contains(ClipboardFormat.HTMLDATAURL))
                 {
                     string html;
-                    using (MemoryStream tmpPngStream = new MemoryStream())
+                    using (MemoryStream tmpPngStream = RecyclableMemoryStreamFactory.GetStream("ClipboardHelper.HTMLDATAURL"))
                     {
                         SurfaceOutputSettings pngOutputSettings = new SurfaceOutputSettings(OutputFormat.png, 100, false)
                         {
@@ -1104,19 +1146,14 @@ EndSelection:<<<<<<<4
             }
             finally
             {
-                // we need to use the SetDataOject before the streams are closed otherwise the buffer will be gone!
                 // Check if Bitmap is wanted
-                if (CoreConfig.ClipboardFormats.Contains(ClipboardFormat.BITMAP))
+                if (activeFormats.Contains(ClipboardFormat.BITMAP))
                 {
                     dataObject.SetImage(imageToSave);
-                    // Place the DataObject to the clipboard
-                    SetDataObject(dataObject, true);
                 }
-                else
-                {
-                    // Place the DataObject to the clipboard
-                    SetDataObject(dataObject, true);
-                }
+
+                // Place the DataObject to the clipboard
+                SetDataObject(dataObject, true);
 
                 pngStream?.Dispose();
                 dibStream?.Dispose();

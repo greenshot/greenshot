@@ -1,6 +1,6 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -25,6 +25,7 @@ using System.Drawing.Drawing2D;
 using System.IO;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Icons;
 using Greenshot.Base.Core;
 using Greenshot.Base.Effects;
 using Greenshot.Base.Interfaces.Drawing;
@@ -40,6 +41,7 @@ namespace Greenshot.Base.Interfaces
         event SurfaceMessageEventHandler SurfaceMessage;
         event SurfaceDrawingModeEventHandler DrawingModeChanged;
         event SurfaceElementEventHandler MovingElementChanged;
+        event SurfaceExpandedEventHandler SurfaceExpanded;
         event SurfaceForegroundColorEventHandler ForegroundColorChanged;
         event SurfaceBackgroundColorEventHandler BackgroundColorChanged;
         event SurfaceLineThicknessEventHandler LineThicknessChanged;
@@ -89,7 +91,7 @@ namespace Greenshot.Base.Interfaces
             Color fillColor);
 
         IImageContainer AddImageContainer(Image image, int x, int y);
-        ICursorContainer AddCursorContainer(Cursor cursor, int x, int y);
+        ICursorContainer AddCursorContainer(CapturedCursor cursor, int x, int y);
         IIconContainer AddIconContainer(Icon icon, int x, int y);
         IImageContainer AddImageContainer(string filename, int x, int y);
         ICursorContainer AddCursorContainer(string filename, int x, int y);
@@ -198,6 +200,8 @@ namespace Greenshot.Base.Interfaces
         void RemoveElement(IDrawableContainer elementToRemove, bool makeUndoable = true, bool invalidate = true, bool generateEvents = true);
 
         void SendMessageEvent(object source, SurfaceMessageTyp messageType, string message);
+        void ResizeCanvas(int left, int right, int top, int bottom);
+        void ResizeCanvas(Expansion expansion);
         void ApplyBitmapEffect(IEffect effect);
         void RemoveCursor();
         bool HasCursor { get; }
@@ -264,5 +268,10 @@ namespace Greenshot.Base.Interfaces
         /// Provide access to the controls, this is for the EmojiContainer and needs to go.
         /// </summary>
         public Control.ControlCollection Controls { get; }
+
+        /// <summary>
+        /// Creates a deep copy of the surface, cloning its background image, elements, and capture details.
+        /// </summary>
+        ISurface Clone();
     }
 }

@@ -1,6 +1,6 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -26,20 +26,21 @@ using System.IO;
 using System.Windows.Forms;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.Base.Pipeline;
 
 namespace Greenshot.Plugin.ExternalCommand;
 
 /// <summary>
 /// An Plugin to run commands after an image was written
 /// </summary>
-public class ExternalCommandPlugin : IGreenshotPlugin
+public class ExternalCommandPlugin : IGreenshotPlugin, IRecipeStepProvider
 {
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ExternalCommandPlugin));
-    private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
-    private static readonly ExternalCommandConfiguration ExternalCommandConfig = IniConfig.GetIniSection<ExternalCommandConfiguration>();
+    private static ICoreConfiguration CoreConfig;
+    private static IExternalCommandConfiguration ExternalCommandConfig;
     private ToolStripMenuItem _itemPlugInRoot;
 
     public void Dispose()
@@ -120,14 +121,23 @@ public class ExternalCommandPlugin : IGreenshotPlugin
     }
 
     /// <summary>
-    /// Implementation of the IGreenshotPlugin.Initialize
+    /// Implementation of RegisterConfiguration phase: register INI sections before file is loaded.
     /// </summary>
-    public virtual bool Initialize()
+    public void RegisterConfiguration(IniConfig iniConfig)
     {
-        Log.DebugFormat("Initialize called");
+        var externalCommandSection = new ExternalCommandConfigurationImpl();
+        iniConfig.AddSection(externalCommandSection);
+        ExternalCommandConfig = externalCommandSection;
+        // CoreConfiguration is registered by the host; retrieve it after Load() in RegisterServices.
+    }
 
+    /// <summary>
+    /// Implementation of RegisterServices phase: register DI services after config is loaded.
+    /// </summary>
+    public void RegisterServices(IServiceLocator serviceLocator)
+    {
+        CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
         var commandsToDelete = new List<string>();
-        // Check configuration
         foreach (string command in ExternalCommandConfig.Commands)
         {
             if (!IsCommandValid(command))
@@ -136,14 +146,44 @@ public class ExternalCommandPlugin : IGreenshotPlugin
             }
         }
 
-        // cleanup
         foreach (string command in commandsToDelete)
         {
             ExternalCommandConfig.Delete(command);
         }
 
-        SimpleServiceProvider.Current.AddService(Destinations());
+        serviceLocator.AddService(Destinations());
+        serviceLocator.AddService<IRecipeStepProvider>(this);
+        StepRegistry.Instance.RegisterProvider(this);
+    }
 
+    /// <summary>
+    /// Registers recipe step factories provided by the ExternalCommand plugin.
+    /// </summary>
+    /// <param name="registry">The step registry.</param>
+    public void RegisterSteps(IStepRegistry registry)
+    {
+        if (registry == null) return;
+        registry.RegisterStepFactory("ExternalCommand", config => new ExternalCommandStep(config));
+        registry.RegisterStepFactory("ExecuteCommand", config => new ExternalCommandStep(config));
+        registry.RegisterStepFactory("RunCommand", config => new ExternalCommandStep(config));
+
+        if (ExternalCommandConfig?.Commands != null)
+        {
+            foreach (string command in ExternalCommandConfig.Commands)
+            {
+                if (!string.IsNullOrWhiteSpace(command))
+                {
+                    registry.RegisterStepFactory($"ExternalCommand.{command}", config => new ExternalCommandStep(config));
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Implementation of the IGreenshotPlugin.Start
+    /// </summary>
+    public bool Start()
+    {
         _itemPlugInRoot = new ToolStripMenuItem();
         _itemPlugInRoot.Click += ConfigMenuClick;
         OnIconSizeChanged(this, new PropertyChangedEventArgs("IconSize"));
@@ -169,7 +209,13 @@ public class ExternalCommandPlugin : IGreenshotPlugin
                 string exePath = PluginUtils.GetExePath("cmd.exe");
                 if (exePath != null && File.Exists(exePath))
                 {
-                    _itemPlugInRoot.Image = PluginUtils.GetCachedExeIcon(exePath, 0);
+                    var icon = PluginUtils.GetCachedExeIcon(exePath, 0);
+                    // Clone the icon to prevent issues when the cache is cleared
+                    var iconClone = icon != null ? ImageHelper.Clone(icon) : null;
+                    // Dispose the previous image before assigning the new one
+                    var oldImage = _itemPlugInRoot.Image;
+                    _itemPlugInRoot.Image = iconClone;
+                    oldImage?.Dispose();
                 }
             }
             catch (Exception ex)
@@ -190,6 +236,8 @@ public class ExternalCommandPlugin : IGreenshotPlugin
     public virtual void Shutdown()
     {
         Log.Debug("Shutdown");
+        Language.LanguageChanged -= OnLanguageChanged;
+        CoreConfig.PropertyChanged -= OnIconSizeChanged;
     }
 
     private void ConfigMenuClick(object sender, EventArgs eventArgs)

@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -23,23 +23,28 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Jira.Entities;
 using Dapplo.Windows.Dpi;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
-using Greenshot.Base.IniFile;
 
 namespace Greenshot.Plugin.Jira.Forms;
 
 public partial class JiraForm : Form
 {
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(JiraForm));
-    private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
+    private static readonly ICoreConfiguration CoreConfig = IniConfigHelper.EnsureSection<ICoreConfiguration>(() => new CoreConfigurationImpl());
     private readonly JiraConnector _jiraConnector;
     private IssueV2 _selectedIssue;
     private readonly GreenshotColumnSorter _columnSorter;
+    private IDisposable _jiraKeySubscription;
+
+    public JiraForm() : this(null)
+    {
+    }
 
     public JiraForm(JiraConnector jiraConnector)
     {
@@ -59,10 +64,22 @@ public partial class JiraForm : Form
 
         uploadButton.Enabled = false;
         Load += OnLoad;
+        FormClosed += (_, __) => _jiraKeySubscription?.Dispose();
+
+        _jiraKeySubscription = Observable
+            .FromEventPattern(jiraKey, nameof(jiraKey.TextChanged))
+            .Throttle(TimeSpan.FromMilliseconds(300))
+            .ObserveOn(this)
+            .Subscribe(async _ => await JiraKeyTextChanged());
     }
 
     private async void OnLoad(object sender, EventArgs eventArgs)
     {
+        if (DesignMode || _jiraConnector == null)
+        {
+            return;
+        }
+
         this.Invoke(async () => { await OnLoad(); });
     }
 
@@ -77,7 +94,7 @@ public partial class JiraForm : Form
         }
         catch (Exception e)
         {
-            Log.Error("Error with loging.", e);
+            Log.Error("Error with login.", e);
             MessageBox.Show(Language.GetFormattedString("jira", LangKey.login_error, e.Message));
         }
 
@@ -269,17 +286,25 @@ public partial class JiraForm : Form
         jiraListView.Sort();
     }
 
-    private async void JiraKeyTextChanged(object sender, EventArgs e)
+    private async Task JiraKeyTextChanged()
     {
         string jiranumber = jiraKey.Text;
         uploadButton.Enabled = false;
+
         int dashIndex = jiranumber.IndexOf('-');
         if (dashIndex > 0 && jiranumber.Length > dashIndex + 1)
         {
-            _selectedIssue = await _jiraConnector.GetIssueAsync(jiraKey.Text);
-            if (_selectedIssue != null)
+            try
             {
-                uploadButton.Enabled = true;
+                _selectedIssue = await _jiraConnector.GetIssueAsync(jiraKey.Text);
+                if (_selectedIssue != null)
+                {
+                    uploadButton.Enabled = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Warn("Error looking up Jira issue", ex);
             }
         }
     }

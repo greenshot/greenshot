@@ -32,5 +32,8 @@
       {0} d isem n ufaylu n tuṭṭfa yinek n ugdil
     </resource>
     <resource name="label_outputimageformat">Amasal n tugna</resource>
+    <resource name="tooltip_duplicate_name">
+      Taladna s isem-agi tella zik. Ttxilk, fren isem nniḍen.
+    </resource>
   </resources>
 </language>

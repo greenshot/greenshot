@@ -1,6 +1,6 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026  Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026  Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -229,6 +229,26 @@ namespace Greenshot.Editor.Drawing
         }
 
         /// <summary>
+        /// Explicitly set the location of the speech bubble tail gripper.
+        /// </summary>
+        public void SetTailLocation(NativePoint location)
+        {
+            if (TargetAdorner == null)
+            {
+                InitTargetAdorner(location);
+            }
+            else
+            {
+                TargetAdorner.Location = location;
+            }
+        }
+
+        public void SetTailLocation(int x, int y)
+        {
+            SetTailLocation(new NativePoint(x, y));
+        }
+
+        /// <summary>
         /// This is to draw the actual container
         /// </summary>
         /// <param name="graphics"></param>
@@ -237,7 +257,8 @@ namespace Greenshot.Editor.Drawing
         {
             if (TargetAdorner == null)
             {
-                return;
+                var rectInit = new NativeRect(Left, Top, Width, Height).Normalize();
+                InitTargetAdorner(new NativePoint(rectInit.Left - 20, rectInit.Bottom + 25));
             }
 
             graphics.SmoothingMode = SmoothingMode.HighQuality;
@@ -266,28 +287,19 @@ namespace Greenshot.Editor.Drawing
             //draw shadow first
             if (shadow && (lineVisible || Colors.IsVisible(fillColor)))
             {
-                const int basealpha = 100;
-                int alpha = basealpha;
-                const int steps = 5;
                 int currentStep = lineVisible ? 1 : 0;
                 using Matrix shadowMatrix = new Matrix();
                 using GraphicsPath bubbleClone = (GraphicsPath) bubble.Clone();
                 using GraphicsPath tailClone = (GraphicsPath) tail.Clone();
                 shadowMatrix.Translate(1, 1);
-                while (currentStep <= steps)
+                DrawShadow(lineThickness, (alpha, currentStep, shadowPen, nil) =>
                 {
-                    using (Pen shadowPen = new Pen(Color.FromArgb(alpha, 100, 100, 100)))
-                    {
-                        shadowPen.Width = lineVisible ? lineThickness : 1;
-                        tailClone.Transform(shadowMatrix);
-                        graphics.DrawPath(shadowPen, tailClone);
-                        bubbleClone.Transform(shadowMatrix);
-                        graphics.DrawPath(shadowPen, bubbleClone);
-                    }
+                    tailClone.Transform(shadowMatrix);
+                    graphics.DrawPath(shadowPen, tailClone);
+                    bubbleClone.Transform(shadowMatrix);
+                    graphics.DrawPath(shadowPen, bubbleClone);
 
-                    currentStep++;
-                    alpha -= basealpha / steps;
-                }
+                });
             }
 
             GraphicsState state = graphics.Save();

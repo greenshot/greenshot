@@ -32,5 +32,8 @@
       {0} är din skärmdumps filnamn
     </resource>
     <resource name="label_outputimageformat">Bildformat</resource>
+    <resource name="tooltip_duplicate_name">
+      Det finns redan ett kommando med det här namnet. Välj ett annat namn.
+    </resource>
   </resources>
 </language>

@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -23,14 +23,14 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Plugin.Confluence.Entities;
 
 namespace Greenshot.Plugin.Confluence.Forms;
 
 public partial class ConfluenceSearch
 {
-    private static readonly ConfluenceConfiguration ConfluenceConfig = IniConfig.GetIniSection<ConfluenceConfiguration>();
+    private static readonly IConfluenceConfiguration ConfluenceConfig = IniConfigRegistry.GetSection<IConfluenceConfiguration>();
     private readonly ConfluenceUpload _confluenceUpload;
 
     public IEnumerable<Space> Spaces => _confluenceUpload.Spaces;

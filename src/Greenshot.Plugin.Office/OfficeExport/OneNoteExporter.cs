@@ -1,5 +1,5 @@
 ﻿// Greenshot - a free and open source screenshot tool
-// Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+// Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
 // 
 // For more information see: https://getgreenshot.org/
 // The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -109,10 +109,12 @@ namespace Greenshot.Plugin.Office.OfficeExport
                 return false;
             }
 
-            using var pngStream = new MemoryStream();
+            using var pngStream = RecyclableMemoryStreamFactory.GetStream("OneNoteExporter.ExportToPage");
             var pngOutputSettings = new SurfaceOutputSettings(OutputFormat.png, 100, false);
             ImageIO.SaveToStream(surfaceToUpload, pngStream, pngOutputSettings);
-            var base64String = Convert.ToBase64String(pngStream.GetBuffer());
+            var base64String = pngStream.TryGetBuffer(out var buffer) && buffer.Array != null
+                ? Convert.ToBase64String(buffer.Array, buffer.Offset, buffer.Count)
+                : Convert.ToBase64String(pngStream.ToArray());
             var imageXmlStr = string.Format(XmlImageContent, base64String, surfaceToUpload.Image.Width, surfaceToUpload.Image.Height);
             var pageChangesXml = string.Format(XmlOutline, imageXmlStr, page.Id, OnenoteNamespace2010, page.Name);
             LOG.InfoFormat("Sending XML: {0}", pageChangesXml);
@@ -255,7 +257,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
                                         Name = xmlReader.GetAttribute("name"),
                                         Id = xmlReader.GetAttribute("ID")
                                     };
-                                    if ((page.Id == null) || (page.Name == null))
+                                    if ((page.Id == null) || (page.Name == null) || (page.Parent == null) || (page.Parent.Parent == null))
                                     {
                                         continue;
                                     }

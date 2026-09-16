@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -177,8 +177,7 @@ namespace Greenshot.Plugin.Jira.Forms;
 			this.jiraKey.Name = "jiraKey";
 			this.jiraKey.Size = new System.Drawing.Size(158, 20);
 			this.jiraKey.TabIndex = 1;
-			this.jiraKey.TextChanged += new System.EventHandler(this.JiraKeyTextChanged);
-			// 
+			//
 			// JiraForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);

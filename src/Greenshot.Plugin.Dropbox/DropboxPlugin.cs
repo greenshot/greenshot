@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom, Francis Noel
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom, Francis Noel
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -25,19 +25,21 @@ using System.Drawing;
 using System.Windows.Forms;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.Base.Pipeline;
+using Greenshot.Plugin.Dropbox.Forms;
 
 namespace Greenshot.Plugin.Dropbox;
 
 /// <summary>
 /// This is the Dropbox base code
 /// </summary>
-public class DropboxPlugin : IGreenshotPlugin
+public class DropboxPlugin : IGreenshotPlugin, IRecipeStepProvider
 {
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(DropboxPlugin));
-    private static DropboxConfiguration _config;
+    private static IDropboxConfiguration _config;
     private ComponentResourceManager _resources;
     private ToolStripMenuItem _itemPlugInConfig;
 
@@ -66,14 +68,43 @@ public class DropboxPlugin : IGreenshotPlugin
     public bool IsConfigurable => true;
 
     /// <summary>
-    /// Implementation of the IGreenshotPlugin.Initialize
+    /// Implementation of RegisterConfiguration phase: register INI section before file is loaded.
     /// </summary>
-    public bool Initialize()
+    public void RegisterConfiguration(IniConfig iniConfig)
     {
-        // Register configuration (don't need the configuration itself)
-        _config = IniConfig.GetIniSection<DropboxConfiguration>();
+        var section = new DropboxConfigurationImpl();
+        iniConfig.AddSection(section);
+        _config = section;
+    }
+
+    /// <summary>
+    /// Implementation of RegisterServices phase: register DI services after config is loaded.
+    /// </summary>
+    public void RegisterServices(IServiceLocator serviceLocator)
+    {
         _resources = new ComponentResourceManager(typeof(DropboxPlugin));
-        SimpleServiceProvider.Current.AddService<IDestination>(new DropboxDestination(this));
+        serviceLocator.AddService<IDestination>(new DropboxDestination(this));
+        serviceLocator.AddService<IRecipeStepProvider>(this);
+        StepRegistry.Instance.RegisterProvider(this);
+    }
+
+    /// <summary>
+    /// Registers recipe step factories provided by the Dropbox plugin.
+    /// </summary>
+    /// <param name="registry">The step registry.</param>
+    public void RegisterSteps(IStepRegistry registry)
+    {
+        if (registry == null) return;
+        registry.RegisterStepFactory("Dropbox", config => new DropboxStep(config, this));
+        registry.RegisterStepFactory("DropboxUpload", config => new DropboxStep(config, this));
+        registry.RegisterStepFactory("UploadToDropbox", config => new DropboxStep(config, this));
+    }
+
+    /// <summary>
+    /// Implementation of the IGreenshotPlugin.Start
+    /// </summary>
+    public bool Start()
+    {
         _itemPlugInConfig = new ToolStripMenuItem
         {
             Text = Language.GetString("dropbox", LangKey.Configure),
@@ -97,6 +128,7 @@ public class DropboxPlugin : IGreenshotPlugin
     public void Shutdown()
     {
         Log.Debug("Dropbox Plugin shutdown.");
+        Language.LanguageChanged -= OnLanguageChanged;
     }
 
     /// <summary>
@@ -104,12 +136,21 @@ public class DropboxPlugin : IGreenshotPlugin
     /// </summary>
     public void Configure()
     {
-        _config.ShowConfigDialog();
+        ShowConfigDialog();
     }
 
     public void ConfigMenuClick(object sender, EventArgs eventArgs)
     {
-        _config.ShowConfigDialog();
+        ShowConfigDialog();
+    }
+
+    /// <summary>
+    /// Opens the Dropbox settings dialog.
+    /// </summary>
+    /// <returns>true if OK was pressed; false if cancelled</returns>
+    private bool ShowConfigDialog()
+    {
+        return new SettingsForm().ShowDialog() == DialogResult.OK;
     }
 
     /// <summary>

@@ -12,5 +12,6 @@
 		<resource name="label_argument">引数:</resource>
 		<resource name="label_information">{0} はスクリーンショットのファイル パスです</resource>
 		<resource name="label_outputimageformat">画像フォーマット</resource>
+		<resource name="tooltip_duplicate_name">この名前のコマンドは既に存在します。別の名前を選択してください。</resource>
 	</resources>
 </language>

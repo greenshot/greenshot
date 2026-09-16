@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -346,7 +346,7 @@ namespace Greenshot.Helpers
         }
 
         /// <summary>
-        /// Ensures any resoures associated with the CopyDataChannel object
+        /// Ensures any resources associated with the CopyDataChannel object
         /// which has been removed are cleared up.
         /// </summary>
         /// <param name="key">The channelName</param>

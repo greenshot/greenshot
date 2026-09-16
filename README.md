@@ -8,7 +8,7 @@ What is Greenshot?
 
 Greenshot is a light-weight screenshot software tool for Windows with the following key features:
 
-* Quickly create screenshots of a selected region, window or fullscreen; you can even capture complete (scrolling) web pages from Internet Explorer.
+* Quickly create screenshots of a selected region, window or fullscreen.
 * Easily annotate, highlight or obfuscate parts of the screenshot.
 * Export the screenshot in various ways: save to file, send to printer, copy to clipboard, attach to e-mail, send Office programs or upload to photo sites like Flickr or Picasa, and others.
 and a lot more options simplifying creation of and work with screenshots every day.
@@ -53,12 +53,13 @@ IDE System Requirements:
 
 * Windows OS environment
 * Greenshot is build using (as of this writing) .net Framework 4.8.0 This means any version between .net Framework 4.8.0-4.8.1 will suffice. 
-* Visual Studio 2022 or newer
+* Visual Studio 2022 or newer (works fine with 2026)
+* .NET SDK 9.0.311 also for building (supported by VS 2022)
 
 Build Instructions:
 -------------------
 
-* Open Visual Studio
+* Open Visual Studio 2022 or 2026
 * Clone GitHub Repository using Visual Studio, using the link in the green code button above. Alternatively, you can download the repository to your machine and open the solution file located in /src/Greenshot.sln.
 * Choose Build->Build Solution in Visual Studio to build binaries.
 * Verify all components are built successfully.

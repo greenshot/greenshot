@@ -21,8 +21,15 @@ technical change logs
 
 blog posts
 
+* should be drafted in a branch derived from and targeting the `gh-pages` branch
 * should have similar content as user change log
 * use full sentences
-* highlight mist important changes.
+* highlight most important changes
+*  should include a link to Greenshot's official download page within the first paragraph: https://getgreenshot.org/downloads/
 * link to user change log at the end
 
+intermediate builds / continuous builds
+
+* do NOT create separate changelog entries for intermediate or continuous builds (e.g. builds tagged as "continuous build" on GitHub)
+* changes from intermediate builds are rolled up into the next official/stable release's changelog entry
+* only official stable releases get their own changelog entry

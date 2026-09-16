@@ -104,21 +104,33 @@ public partial class EmojiPicker : StackPanel
         e.Handled = true;
     }
 
+    private bool _popupInitialized;
+    private IInputElement _oldFocus;
+
     private void OnPopupLoaded(object sender, RoutedEventArgs e)
     {
         if (sender is not Popup popup) return;
 
-        var child = popup.Child;
-        IInputElement oldFocus = null;
-        child.Focusable = true;
-        child.IsVisibleChanged += (o, ea) =>
-        {
-            if (!child.IsVisible) return;
-            oldFocus = Keyboard.FocusedElement;
-            Keyboard.Focus(child);
-        };
+        // Only subscribe event handlers once to prevent accumulating lambda subscriptions
+        if (_popupInitialized) return;
+        _popupInitialized = true;
 
-        popup.Closed += (o, ea) => Keyboard.Focus(oldFocus);
+        var child = popup.Child;
+        child.Focusable = true;
+        child.IsVisibleChanged += OnPopupChildVisibilityChanged;
+        popup.Closed += OnPopupClosed;
+    }
+
+    private void OnPopupChildVisibilityChanged(object sender, DependencyPropertyChangedEventArgs e)
+    {
+        if (sender is not UIElement child || !child.IsVisible) return;
+        _oldFocus = Keyboard.FocusedElement;
+        Keyboard.Focus(child);
+    }
+
+    private void OnPopupClosed(object sender, EventArgs e)
+    {
+        Keyboard.Focus(_oldFocus);
     }
 
     public void ShowPopup(bool show)

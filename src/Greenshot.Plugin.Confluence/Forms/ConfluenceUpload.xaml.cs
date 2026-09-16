@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -90,9 +90,12 @@ public partial class ConfluenceUpload
         get
         {
             UpdateSpaces();
-            while (_spaces == null)
+            int waitAttempts = 0;
+            const int maxWaitAttempts = 100; // ~30 seconds max
+            while (_spaces == null && waitAttempts < maxWaitAttempts)
             {
                 Thread.Sleep(300);
+                waitAttempts++;
             }
 
             return _spaces;

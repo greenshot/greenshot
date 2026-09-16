@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom, Francis Noel
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom, Francis Noel
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -22,14 +22,14 @@
 using System.ComponentModel;
 using System.Drawing;
 using Greenshot.Base.Core;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 
 namespace Greenshot.Plugin.Dropbox;
 
 internal class DropboxDestination : AbstractDestination
 {
-    private static readonly DropboxConfiguration DropboxConfig = IniConfig.GetIniSection<DropboxConfiguration>();
+    private static readonly IDropboxConfiguration DropboxConfig = IniConfigRegistry.GetSection<IDropboxConfiguration>();
 
     private readonly DropboxPlugin _plugin;
 

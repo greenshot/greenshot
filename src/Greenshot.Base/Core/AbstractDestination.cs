@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -27,7 +27,7 @@ using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Dpi;
 using Dapplo.Windows.User32;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using log4net;
 
@@ -39,7 +39,7 @@ namespace Greenshot.Base.Core
     public abstract class AbstractDestination : IDestination
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(AbstractDestination));
-        private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
+        private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
 
         public virtual int CompareTo(object obj)
         {
@@ -92,13 +92,18 @@ namespace Greenshot.Base.Core
         {
             get
             {
-                if (CoreConfig.ExcludeDestinations != null && CoreConfig.ExcludeDestinations.Contains(Designation))
+                if (CoreConfig?.ExcludeDestinations != null && CoreConfig.ExcludeDestinations.Contains(Designation))
                 {
                     return false;
                 }
 
                 return true;
             }
+        }
+
+        public virtual bool IsActiveFor(ICaptureDetails captureDetails)
+        {
+            return IsActive;
         }
 
         public abstract ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails);
@@ -180,7 +185,8 @@ namespace Greenshot.Base.Core
             {
                 ImageScalingSize = CoreConfig.IconSize,
                 Tag = null,
-                TopLevel = true
+                TopLevel = true,
+                Font = new Font(FontFamily.GenericSansSerif, 9) // set new default font, so we are allowed to dispose it later, we will scale it later on the Opening event
             };
 
             menu.Opening += (sender, args) =>
@@ -190,7 +196,9 @@ namespace Greenshot.Base.Core
                 var scaledIconSize = DpiCalculator.ScaleWithDpi(CoreConfig.IconSize, screenDpi);
                 menu.SuspendLayout();
                 var fontSize = DpiCalculator.ScaleWithDpi(12f, screenDpi);
+                var previousFont = menu.Font;
                 menu.Font = new Font(FontFamily.GenericSansSerif, fontSize, FontStyle.Regular, GraphicsUnit.Pixel);
+                previousFont?.Dispose();
                 menu.ImageScalingSize = scaledIconSize;
                 menu.ResumeLayout();
             };
@@ -209,7 +217,10 @@ namespace Greenshot.Base.Core
                         else
                         {
                             Log.DebugFormat("Letting the menu 'close' as the tag is set to '{0}'", menu.Tag);
-                            menu.Close();
+                            if (!menu.IsDisposed)
+                            {
+                                menu.Close();
+                            }
                         }
 
                         break;
@@ -219,15 +230,18 @@ namespace Greenshot.Base.Core
                         break;
                     case ToolStripDropDownCloseReason.Keyboard:
                         // Menu closed via keyboard (e.g., ESC key)
-                        if (!captureDetails.HasDestination("Editor"))
+                        if (!captureDetails.HasDestination("Editor") && surface != null)
                         {
                             surface.Dispose();
                             surface = null;
-                        } 
+                        }
                         // We might already be in the disposing process, so queue the disposal to avoid re-entrancy
                         menu.BeginInvoke(new Action(() =>
                         {
-                            menu.Dispose();
+                            if (!menu.IsDisposed)
+                            {
+                                menu.Dispose();
+                            }
                         }));
                         break;
                     default:
@@ -243,52 +257,105 @@ namespace Greenshot.Base.Core
                     menu.Focus();
                 }
             };
+            EventHandler clickHandler = delegate(object sender, EventArgs e)
+            {
+                ToolStripMenuItem toolStripMenuItem = sender as ToolStripMenuItem;
+                IDestination clickedDestination = (IDestination) toolStripMenuItem?.Tag;
+                if (clickedDestination == null)
+                {
+                    return;
+                }
+
+                // Guard against re-entrant clicks after the surface has already been disposed
+                if (surface == null)
+                {
+                    Log.Warn("Destination click handler invoked after surface was already disposed; ignoring.");
+                    return;
+                }
+
+                menu.Tag = clickedDestination.Designation;
+                // Export
+                exportInformation = clickedDestination.ExportCapture(true, surface, captureDetails);
+                if (exportInformation != null && exportInformation.ExportMade)
+                {
+                    Log.InfoFormat("Export to {0} success, closing menu", exportInformation.DestinationDescription);
+                    // close menu if the destination wasn't the editor
+                    menu.Close();
+                    menu.BeginInvoke(new Action(() =>
+                    {
+                        if (!menu.IsDisposed)
+                        {
+                            menu.Dispose();
+                        }
+                    }));
+                    // Cleanup surface, only if there is no editor in the destinations and we didn't export to the editor
+                    if (!captureDetails.HasDestination("Editor") && !"Editor".Equals(clickedDestination.Designation))
+                    {
+                        surface.Dispose();
+                        surface = null;
+                    }
+                }
+                else
+                {
+                    Log.Info("Export cancelled or failed, showing menu again");
+
+                    // Make sure a click besides the menu don't close it.
+                    menu.Tag = null;
+
+                    // This prevents the problem that the context menu shows in the task-bar
+                    ShowMenuAtCursor(menu);
+                }
+            };
+            var menuItemMap = new Dictionary<IDestination, ToolStripMenuItem>();
             foreach (IDestination destination in destinations)
             {
                 // Fix foreach loop variable for the delegate
-                ToolStripMenuItem item = destination.GetMenuItem(addDynamics, menu,
-                    delegate(object sender, EventArgs e)
-                    {
-                        ToolStripMenuItem toolStripMenuItem = sender as ToolStripMenuItem;
-                        IDestination clickedDestination = (IDestination) toolStripMenuItem?.Tag;
-                        if (clickedDestination == null)
-                        {
-                            return;
-                        }
-
-                        menu.Tag = clickedDestination.Designation;
-                        // Export
-                        exportInformation = clickedDestination.ExportCapture(true, surface, captureDetails);
-                        if (exportInformation != null && exportInformation.ExportMade)
-                        {
-                            Log.InfoFormat("Export to {0} success, closing menu", exportInformation.DestinationDescription);
-                            // close menu if the destination wasn't the editor
-                            menu.Close();
-                            menu.Dispose();
-                            // Cleanup surface, only if there is no editor in the destinations and we didn't export to the editor
-                            if (!captureDetails.HasDestination("Editor") && !"Editor".Equals(clickedDestination.Designation))
-                            {
-                                surface.Dispose();
-                                surface = null;
-                            }
-                        }
-                        else
-                        {
-                            Log.Info("Export cancelled or failed, showing menu again");
-
-                            // Make sure a click besides the menu don't close it.
-                            menu.Tag = null;
-
-                            // This prevents the problem that the context menu shows in the task-bar
-                            ShowMenuAtCursor(menu);
-                        }
-                    }
-                );
+                ToolStripMenuItem item = destination.GetMenuItem(addDynamics, menu, clickHandler, captureDetails);
                 if (item != null)
                 {
+                    item.Visible = destination.IsActiveFor(captureDetails);
                     menu.Items.Add(item);
+                    menuItemMap[destination] = item;
                 }
             }
+
+            EventHandler featuresChangedHandler = null;
+            featuresChangedHandler = delegate(object sender, EventArgs e)
+            {
+                if (menu.IsDisposed)
+                {
+                    return;
+                }
+
+                if (menu.InvokeRequired)
+                {
+                    menu.BeginInvoke(new Action(() => featuresChangedHandler(sender, e)));
+                    return;
+                }
+
+                foreach (var pair in menuItemMap)
+                {
+                    var dest = pair.Key;
+                    var item = pair.Value;
+                    
+                    bool shouldBeVisible = dest.IsActiveFor(captureDetails);
+                    if (item.Visible != shouldBeVisible)
+                    {
+                        item.Visible = shouldBeVisible;
+                        if (shouldBeVisible && dest.IsDynamic)
+                        {
+                            item.DropDownItems.Clear();
+                        }
+                    }
+                }
+            };
+
+            captureDetails.FeaturesChanged += featuresChangedHandler;
+
+            menu.Disposed += delegate
+            {
+                captureDetails.FeaturesChanged -= featuresChangedHandler;
+            };
 
             // Close
             menu.Items.Add(new ToolStripSeparator());
@@ -300,7 +367,13 @@ namespace Greenshot.Base.Core
             {
                 // This menu entry is the close itself, we can dispose the surface
                 menu.Close();
-                menu.Dispose();
+                menu.BeginInvoke(new Action(() =>
+                {
+                    if (!menu.IsDisposed)
+                    {
+                        menu.Dispose();
+                    }
+                }));
                 if (!captureDetails.HasDestination("Editor"))
                 {
                     surface.Dispose();
@@ -348,12 +421,18 @@ namespace Greenshot.Base.Core
         /// <returns>ToolStripMenuItem</returns>
         public virtual ToolStripMenuItem GetMenuItem(bool addDynamics, ContextMenuStrip menu, EventHandler destinationClickHandler)
         {
+            return GetMenuItem(addDynamics, menu, destinationClickHandler, null);
+        }
+
+        public virtual ToolStripMenuItem GetMenuItem(bool addDynamics, ContextMenuStrip menu, EventHandler destinationClickHandler, ICaptureDetails captureDetails)
+        {
             var basisMenuItem = new ToolStripMenuItem(Description)
             {
-                Image = DisplayIcon,
                 Tag = this,
                 Text = Description
             };
+            // Dispose the icon when the menu item is disposed to prevent memory leaks
+            basisMenuItem.AssignAutoDisposingImage(DisplayIcon);
             AddTagEvents(basisMenuItem, menu, Description);
             basisMenuItem.Click -= destinationClickHandler;
             basisMenuItem.Click += destinationClickHandler;
@@ -368,7 +447,7 @@ namespace Greenshot.Base.Core
                         // Fixing Bug #3536968 by catching the COMException (every exception) and not displaying the "subDestinations"
                         try
                         {
-                            subDestinations.AddRange(DynamicDestinations());
+                            subDestinations.AddRange(DynamicDestinations(captureDetails));
                         }
                         catch (Exception ex)
                         {
@@ -388,11 +467,16 @@ namespace Greenshot.Base.Core
                             {
                                 foreach (IDestination subDestination in subDestinations)
                                 {
+                                    if (subDestination == null)
+                                    {
+                                        continue;
+                                    }
                                     var destinationMenuItem = new ToolStripMenuItem(subDestination.Description)
                                     {
-                                        Tag = subDestination,
-                                        Image = subDestination.DisplayIcon
+                                        Tag = subDestination
                                     };
+                                    // Dispose the icon when the menu item is disposed to prevent memory leaks
+                                    destinationMenuItem.AssignAutoDisposingImage(subDestination.DisplayIcon);
                                     destinationMenuItem.Click += destinationClickHandler;
                                     AddTagEvents(destinationMenuItem, menu, subDestination.Description);
                                     basisMenuItem.DropDownItems.Add(destinationMenuItem);
@@ -404,6 +488,11 @@ namespace Greenshot.Base.Core
             }
 
             return basisMenuItem;
+        }
+
+        public virtual IEnumerable<IDestination> DynamicDestinations(ICaptureDetails captureDetails)
+        {
+            return DynamicDestinations();
         }
     }
 }

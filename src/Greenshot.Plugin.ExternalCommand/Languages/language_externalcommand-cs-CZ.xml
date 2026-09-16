@@ -32,5 +32,8 @@
       {0} je název vašeho snímku
     </resource>
     <resource name="label_outputimageformat">Formát obrázku</resource>
+    <resource name="tooltip_duplicate_name">
+      Příkaz s tímto názvem již existuje. Zvolte prosím jiný název.
+    </resource>
   </resources>
 </language>

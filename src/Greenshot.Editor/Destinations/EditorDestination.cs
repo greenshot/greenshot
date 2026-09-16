@@ -1,6 +1,6 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -22,8 +22,9 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Windows.Forms;
 using Greenshot.Base.Core;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Forms;
 using Greenshot.Editor.Configuration;
@@ -38,9 +39,11 @@ namespace Greenshot.Editor.Destinations
     public class EditorDestination : AbstractDestination
     {
         private static readonly ILog LOG = LogManager.GetLogger(typeof(EditorDestination));
-        private static readonly EditorConfiguration editorConfiguration = IniConfig.GetIniSection<EditorConfiguration>();
+        private static readonly IEditorConfiguration editorConfiguration = IniConfigRegistry.GetSection<IEditorConfiguration>();
         public const string DESIGNATION = "Editor";
         private readonly IImageEditor editor;
+        private readonly bool? _reuseEditor;
+        private readonly bool? _matchSizeToCapture;
         private static readonly Image greenshotIcon = GreenshotResources.GetGreenshotIcon().ToBitmap();
 
         public EditorDestination()
@@ -51,6 +54,12 @@ namespace Greenshot.Editor.Destinations
         public EditorDestination(IImageEditor editor)
         {
             this.editor = editor;
+        }
+
+        public EditorDestination(bool? reuseEditor = null, bool? matchSizeToCapture = null)
+        {
+            _reuseEditor = reuseEditor;
+            _matchSizeToCapture = matchSizeToCapture;
         }
 
         public override string Designation => DESIGNATION;
@@ -64,7 +73,9 @@ namespace Greenshot.Editor.Destinations
                     return Language.GetString(LangKey.settings_destination_editor);
                 }
 
-                return Language.GetString(LangKey.settings_destination_editor) + " - " + editor.CaptureDetails.Title?.Substring(0, Math.Min(20, editor.CaptureDetails.Title.Length));
+                var title = editor.CaptureDetails?.Title;
+                if (title == null) return Language.GetString(LangKey.settings_destination_editor_add);
+                return Language.GetString(LangKey.settings_destination_editor_add) + " - " + title.Substring(0, Math.Min(20, title.Length));
             }
         }
 
@@ -85,20 +96,27 @@ namespace Greenshot.Editor.Destinations
         public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
         {
             ExportInformation exportInformation = new ExportInformation(Designation, Description);
-            // Make sure we collect the garbage before opening the screenshot
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
 
             bool modified = surface.Modified;
             if (editor == null)
             {
-                if (editorConfiguration.ReuseEditor)
+                bool reuse = _reuseEditor ?? editorConfiguration.ReuseEditor;
+                if (reuse)
                 {
                     foreach (IImageEditor openedEditor in ImageEditorForm.Editors)
                     {
                         if (openedEditor.Surface.Modified) continue;
 
                         openedEditor.Surface = surface;
+                        if (openedEditor is Form editorForm)
+                        {
+                            if (editorForm.WindowState == FormWindowState.Minimized)
+                            {
+                                editorForm.WindowState = FormWindowState.Normal;
+                            }
+                            editorForm.BringToFront();
+                            editorForm.Activate();
+                        }
                         exportInformation.ExportMade = true;
                         break;
                     }
@@ -108,13 +126,12 @@ namespace Greenshot.Editor.Destinations
                 {
                     try
                     {
-                        ImageEditorForm editorForm = new ImageEditorForm(surface, !surface.Modified); // Output made??
+                        ImageEditorForm editorForm = new ImageEditorForm(surface, !surface.Modified, _matchSizeToCapture); // Output made??
 
                         if (!string.IsNullOrEmpty(captureDetails.Filename))
                         {
                             editorForm.SetImagePath(captureDetails.Filename);
                         }
-
                         editorForm.Show();
                         editorForm.Activate();
                         LOG.Debug("Finished opening Editor");

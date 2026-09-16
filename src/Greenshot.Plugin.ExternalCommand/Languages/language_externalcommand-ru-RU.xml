@@ -12,5 +12,6 @@
 		<resource name="settings_edit">Изменить</resource>
 		<resource name="settings_new">Новая</resource>
 		<resource name="settings_title">Параметры внешней команды</resource>
+		<resource name="tooltip_duplicate_name">Команда с таким именем уже существует. Пожалуйста, выберите другое имя.</resource>
 	</resources>
 </language>

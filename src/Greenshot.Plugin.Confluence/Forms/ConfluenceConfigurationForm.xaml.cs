@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -28,9 +28,9 @@ namespace Greenshot.Plugin.Confluence.Forms;
 /// </summary>
 public partial class ConfluenceConfigurationForm
 {
-    public ConfluenceConfiguration Config { get; }
+    public IConfluenceConfiguration Config { get; }
 
-    public ConfluenceConfigurationForm(ConfluenceConfiguration config)
+    public ConfluenceConfigurationForm(IConfluenceConfiguration config)
     {
         DataContext = config;
         Config = config;

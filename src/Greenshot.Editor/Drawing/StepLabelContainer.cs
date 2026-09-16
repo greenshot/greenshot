@@ -1,6 +1,6 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026  Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026  Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -39,7 +39,7 @@ namespace Greenshot.Editor.Drawing
     /// To make sure that deleting recalculates, we check the location before every draw.
     /// </summary>
     [Serializable]
-    public sealed class StepLabelContainer : DrawableContainer
+    public sealed class StepLabelContainer : DrawableContainer, IHaveScaleOptions
     {
         [NonSerialized] private StringFormat _stringFormat = new StringFormat();
 
@@ -135,13 +135,13 @@ namespace Greenshot.Editor.Drawing
             if (!HasField(FieldType.LINE_THICKNESS))
             {
                 AddField(GetType(), FieldType.LINE_THICKNESS, 0);
-                // aktively set because AddField above uses 0 as default but overrides it with current value from config file
+                // actively set because AddField above uses 0 as default but overrides it with current value from config file
                 SetFieldValue(FieldType.LINE_THICKNESS, 0);
             }
             if (!HasField(FieldType.SHADOW))
             {
                 AddField(GetType(), FieldType.SHADOW, false);
-                // aktively set because AddField above uses false as default but overrides it with current value from config file
+                // actively set because AddField above uses false as default but overrides it with current value from config file
                 SetFieldValue(FieldType.SHADOW, false);
             }
         }
@@ -317,5 +317,7 @@ namespace Greenshot.Editor.Drawing
 
             return EllipseContainer.EllipseClickableAt(rect, 0, fillColor, x, y);
         }
+
+        public ScaleOptions GetScaleOptions() => ScaleOptions.Rational;
     }
 }
