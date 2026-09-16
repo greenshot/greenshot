@@ -28,6 +28,7 @@ namespace Greenshot.UI
     {
         NewRecipe,
         Modified,
-        ReVerify
+        ReVerify,
+        ValidationError
     }
 }

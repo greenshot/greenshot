@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -32,13 +32,14 @@ using Greenshot.Base.Core.OutputFormats;
 using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.Base.Pipeline;
 
 namespace Greenshot.Plugin.ExternalCommand;
 
 /// <summary>
 /// Description of OCRDestination.
 /// </summary>
-public class ExternalCommandDestination : AbstractDestination
+public class ExternalCommandDestination : AbstractDestination, IRequiresRecipeAuthorization
 {
     private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ExternalCommandDestination));
 
@@ -46,12 +47,36 @@ public class ExternalCommandDestination : AbstractDestination
         new Regex(
             @"((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)");
 
-    private static readonly IExternalCommandConfiguration config = IniConfigRegistry.GetSection<IExternalCommandConfiguration>();
+    private static IExternalCommandConfiguration Config
+    {
+        get
+        {
+            try
+            {
+                return IniConfigRegistry.GetSection<IExternalCommandConfiguration>();
+            }
+            catch
+            {
+                return null;
+            }
+        }
+    }
     private readonly string _presetCommand;
 
     public ExternalCommandDestination(string commando)
     {
         _presetCommand = commando;
+    }
+
+    public IEnumerable<RecipeGatedAction> GetGatedActions()
+    {
+        string cmd = _presetCommand;
+        if (Config?.Commandline != null && Config.Commandline.ContainsKey(_presetCommand))
+        {
+            cmd = Config.Commandline[_presetCommand];
+        }
+        string target = !string.IsNullOrWhiteSpace(cmd) ? cmd : Designation;
+        yield return new RecipeGatedAction(RecipeGateType.ExternalCommand, target, "recipe_gate_external_command");
     }
 
     public override string Designation => "External " + _presetCommand.Replace(',', '_');
@@ -78,7 +103,7 @@ public class ExternalCommandDestination : AbstractDestination
         }
 
         // check if the command is still configured
-        if (!config.Commands.Contains(_presetCommand))
+        if (!Config.Commands.Contains(_presetCommand))
         {
             exportInformation.ExportMade = false;
             exportInformation.ErrorMessage = $"Unknown external command '{_presetCommand}'";
@@ -87,19 +112,19 @@ public class ExternalCommandDestination : AbstractDestination
         }
 
         // fallback to PNG if configuration is corrupted
-        if (!config.OutputFormat.ContainsKey(_presetCommand))
+        if (!Config.OutputFormat.ContainsKey(_presetCommand))
         {
-            config.OutputFormat.Add(_presetCommand, WellKnownOutputFormats.Png);
+            Config.OutputFormat.Add(_presetCommand, WellKnownOutputFormats.Png);
         }
 
-        if (!config.RunInbackground.ContainsKey(_presetCommand))
+        if (!Config.RunInbackground.ContainsKey(_presetCommand))
         {
-            config.RunInbackground.Add(_presetCommand, true);
+            Config.RunInbackground.Add(_presetCommand, true);
         }
 
         SurfaceOutputSettings outputSettings = new SurfaceOutputSettings();
-        outputSettings.Format = config.OutputFormat[_presetCommand];
-        bool runInBackground = config.RunInbackground[_presetCommand];
+        outputSettings.Format = Config.OutputFormat[_presetCommand];
+        bool runInBackground = Config.RunInbackground[_presetCommand];
         string fullPath = captureDetails.Filename ?? ImageIO.SaveNamedTmpFile(surface, captureDetails, outputSettings);
 
         string output;
@@ -149,7 +174,7 @@ public class ExternalCommandDestination : AbstractDestination
                 {
                     MatchCollection uriMatches = URI_REGEXP.Matches(output);
                     // Place output on the clipboard before the URI, so if one is found this overwrites
-                    if (config.OutputToClipboard)
+                    if (Config.OutputToClipboard)
                     {
                         ClipboardHelper.SetClipboardData(output);
                     }
@@ -158,7 +183,7 @@ public class ExternalCommandDestination : AbstractDestination
                     {
                         exportInformation.Uri = uriMatches[0].Groups[1].Value;
                         LOG.InfoFormat("Got URI : {0} ", exportInformation.Uri);
-                        if (config.UriToClipboard)
+                        if (Config.UriToClipboard)
                         {
                             ClipboardHelper.SetClipboardData(exportInformation.Uri);
                         }
@@ -202,15 +227,15 @@ public class ExternalCommandDestination : AbstractDestination
             }
             catch
             {
-                w32Ex.Data.Add("commandline", config.Commandline[_presetCommand]);
-                w32Ex.Data.Add("arguments", config.Argument[_presetCommand]);
+                w32Ex.Data.Add("commandline", Config.Commandline[_presetCommand]);
+                w32Ex.Data.Add("arguments", Config.Argument[_presetCommand]);
                 throw;
             }
         }
         catch (Exception ex)
         {
-            ex.Data.Add("commandline", config.Commandline[_presetCommand]);
-            ex.Data.Add("arguments", config.Argument[_presetCommand]);
+            ex.Data.Add("commandline", Config.Commandline[_presetCommand]);
+            ex.Data.Add("arguments", Config.Argument[_presetCommand]);
             throw;
         }
     }
@@ -226,8 +251,8 @@ public class ExternalCommandDestination : AbstractDestination
     /// <returns></returns>
     private int CallExternalCommand(string commando, string fullPath, string verb, out string output, out string error)
     {
-        string commandline = config.Commandline[commando];
-        string arguments = config.Argument[commando];
+        string commandline = Config.Commandline[commando];
+        string arguments = Config.Argument[commando];
         output = null;
         error = null;
         if (!string.IsNullOrEmpty(commandline))
@@ -243,12 +268,12 @@ public class ExternalCommandDestination : AbstractDestination
             process.StartInfo.FileName = FilenameHelper.FillCmdVariables(commandline, true);
             process.StartInfo.Arguments = FormatArguments(arguments, fullPath);
             process.StartInfo.UseShellExecute = false;
-            if (config.RedirectStandardOutput)
+            if (Config.RedirectStandardOutput)
             {
                 process.StartInfo.RedirectStandardOutput = true;
             }
 
-            if (config.RedirectStandardError)
+            if (Config.RedirectStandardError)
             {
                 process.StartInfo.RedirectStandardError = true;
             }
@@ -261,16 +286,16 @@ public class ExternalCommandDestination : AbstractDestination
             LOG.InfoFormat("Starting : {0} {1}", process.StartInfo.FileName, process.StartInfo.Arguments);
             process.Start();
             process.WaitForExit();
-            if (config.RedirectStandardOutput)
+            if (Config.RedirectStandardOutput)
             {
                 output = process.StandardOutput.ReadToEnd();
-                if (config.ShowStandardOutputInLog && output.Trim().Length > 0)
+                if (Config.ShowStandardOutputInLog && output.Trim().Length > 0)
                 {
                     LOG.InfoFormat("Output:\n{0}", output);
                 }
             }
 
-            if (config.RedirectStandardError)
+            if (Config.RedirectStandardError)
             {
                 error = process.StandardError.ReadToEnd();
                 if (error.Trim().Length > 0)

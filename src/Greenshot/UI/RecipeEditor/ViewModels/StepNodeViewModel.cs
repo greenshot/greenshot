@@ -7,6 +7,8 @@ using System.Globalization;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using Greenshot.Base.Drawing;
+using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Recipes;
 using Newtonsoft.Json.Linq;
 
@@ -243,6 +245,16 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
         private string _tailDirection = "BottomLeft";
         private string _tailOffsetX = "0";
         private string _tailOffsetY = "0";
+
+        // Image & SVG fields
+        private string _filePath = "";
+        private string _svgXml = "";
+
+        // Aspect ratio tracking & parameters store
+        private double _aspectRatio = 1.0;
+        private bool? _lockAspectRatio;
+        private readonly Dictionary<string, object> _parameters = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+
         private readonly Action _onChanged;
 
         public string Type
@@ -252,10 +264,52 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
             {
                 if (SetField(ref _type, value))
                 {
+                    _lockAspectRatio = null;
+                    bool isRational = (RecipeDrawableRegistry.Instance.GetScaleOptions(value) & ScaleOptions.Rational) == ScaleOptions.Rational;
+                    if (isRational)
+                    {
+                        _aspectRatio = 1.0;
+                        if (_width != _height || _height == "40")
+                        {
+                            if (string.Equals(value, "StepLabel", StringComparison.OrdinalIgnoreCase) || string.Equals(value, "Counter", StringComparison.OrdinalIgnoreCase))
+                            {
+                                _width = "28";
+                                _height = "28";
+                            }
+                            else if (string.Equals(value, "Emoji", StringComparison.OrdinalIgnoreCase))
+                            {
+                                _width = "32";
+                                _height = "32";
+                            }
+                            else
+                            {
+                                _width = "150";
+                                _height = "150";
+                            }
+                            OnPropertyChanged(nameof(Width));
+                            OnPropertyChanged(nameof(Height));
+                        }
+                    }
+                    else if ((IsImageType || IsSvgType) && (_width == "200" && _height == "40"))
+                    {
+                        _width = "120";
+                        _height = "120";
+                        _aspectRatio = 1.0;
+                        OnPropertyChanged(nameof(Width));
+                        OnPropertyChanged(nameof(Height));
+                    }
+
                     _onChanged?.Invoke();
                     OnPropertyChanged(nameof(IsTextType));
                     OnPropertyChanged(nameof(IsEmojiType));
                     OnPropertyChanged(nameof(IsSpeechbubbleType));
+                    OnPropertyChanged(nameof(IsQrCodeType));
+                    OnPropertyChanged(nameof(IsImageType));
+                    OnPropertyChanged(nameof(IsSvgType));
+                    OnPropertyChanged(nameof(IsStepLabelType));
+                    OnPropertyChanged(nameof(LockAspectRatio));
+                    OnPropertyChanged(nameof(CanConfigure));
+                    OnPropertyChanged(nameof(ConfigurationSummary));
                 }
             }
         }
@@ -266,10 +320,116 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
                                   string.Equals(_type, "Counter", StringComparison.OrdinalIgnoreCase) ||
                                   string.Equals(_type, "Watermark", StringComparison.OrdinalIgnoreCase);
 
+        public bool IsQrCodeType => string.Equals(_type, "QRCode", StringComparison.OrdinalIgnoreCase) ||
+                                    string.Equals(_type, "Barcode", StringComparison.OrdinalIgnoreCase);
+
         public bool IsEmojiType => string.Equals(_type, "Emoji", StringComparison.OrdinalIgnoreCase) ||
                                    string.Equals(_type, "Icon", StringComparison.OrdinalIgnoreCase);
 
         public bool IsSpeechbubbleType => string.Equals(_type, "Speechbubble", StringComparison.OrdinalIgnoreCase);
+
+        public bool IsImageType => string.Equals(_type, "Image", StringComparison.OrdinalIgnoreCase);
+
+        public bool IsSvgType => string.Equals(_type, "Svg", StringComparison.OrdinalIgnoreCase);
+
+        public bool IsStepLabelType => string.Equals(_type, "StepLabel", StringComparison.OrdinalIgnoreCase) ||
+                                       string.Equals(_type, "Counter", StringComparison.OrdinalIgnoreCase);
+
+        public bool CanConfigure => RecipeDrawableRegistry.Instance.CanConfigureDrawable(_type);
+
+        public string ConfigurationSummary
+        {
+            get
+            {
+                if (string.Equals(_type, "QRCode", StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(_type, "Barcode", StringComparison.OrdinalIgnoreCase))
+                {
+                    string cat = _parameters.TryGetValue("QrType", out var q) && q != null ? q.ToString() : "Link / Text";
+                    string txt = _parameters.TryGetValue("Text", out var t) && t != null ? t.ToString() : _text;
+                    string dots = _parameters.TryGetValue("RoundedDots", out var rd) && rd is bool b && b ? " • Rounded Dots" : "";
+                    if (!string.IsNullOrWhiteSpace(txt))
+                    {
+                        if (txt.Length > 35) txt = txt.Substring(0, 32) + "...";
+                        return $"{cat}: {txt}{dots}";
+                    }
+                    return $"{cat}{dots}";
+                }
+
+                if (_parameters.Count > 0)
+                {
+                    return $"{_parameters.Count} custom parameter(s) configured";
+                }
+
+                return "Default configuration";
+            }
+        }
+
+        public IDictionary<string, object> Parameters => _parameters;
+
+        public bool LockAspectRatio
+        {
+            get => _lockAspectRatio ?? ((RecipeDrawableRegistry.Instance.GetScaleOptions(_type) & ScaleOptions.Rational) == ScaleOptions.Rational);
+            set
+            {
+                if (SetField(ref _lockAspectRatio, value))
+                {
+                    if (value)
+                    {
+                        if (double.TryParse(_width, out double w) && double.TryParse(_height, out double h) && w > 0 && h > 0)
+                        {
+                            _aspectRatio = w / h;
+                        }
+                        else
+                        {
+                            _aspectRatio = 1.0;
+                        }
+                    }
+                    _onChanged?.Invoke();
+                }
+            }
+        }
+
+        public string Width
+        {
+            get => _width;
+            set
+            {
+                if (SetField(ref _width, value))
+                {
+                    if (LockAspectRatio && double.TryParse(value, out double w) && w > 0)
+                    {
+                        if (_aspectRatio <= 0.0001) _aspectRatio = 1.0;
+                        int newH = Math.Max(1, (int)Math.Round(w / _aspectRatio));
+                        if (_height != newH.ToString())
+                        {
+                            SetField(ref _height, newH.ToString(), nameof(Height));
+                        }
+                    }
+                    _onChanged?.Invoke();
+                }
+            }
+        }
+
+        public string Height
+        {
+            get => _height;
+            set
+            {
+                if (SetField(ref _height, value))
+                {
+                    if (LockAspectRatio && double.TryParse(value, out double h) && h > 0)
+                    {
+                        if (_aspectRatio <= 0.0001) _aspectRatio = 1.0;
+                        int newW = Math.Max(1, (int)Math.Round(h * _aspectRatio));
+                        if (_width != newW.ToString())
+                        {
+                            SetField(ref _width, newW.ToString(), nameof(Width));
+                        }
+                    }
+                    _onChanged?.Invoke();
+                }
+            }
+        }
 
         public string TailDirection
         {
@@ -292,7 +452,15 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
         public string Text
         {
             get => _text;
-            set { if (SetField(ref _text, value)) _onChanged?.Invoke(); }
+            set
+            {
+                if (SetField(ref _text, value))
+                {
+                    _parameters["Text"] = value;
+                    _onChanged?.Invoke();
+                    OnPropertyChanged(nameof(ConfigurationSummary));
+                }
+            }
         }
 
         public string Emoji
@@ -313,16 +481,16 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
             set { if (SetField(ref _verticalAnchor, value)) _onChanged?.Invoke(); }
         }
 
-        public string Width
+        public string FilePath
         {
-            get => _width;
-            set { if (SetField(ref _width, value)) _onChanged?.Invoke(); }
+            get => _filePath;
+            set { if (SetField(ref _filePath, value)) _onChanged?.Invoke(); }
         }
 
-        public string Height
+        public string SvgXml
         {
-            get => _height;
-            set { if (SetField(ref _height, value)) _onChanged?.Invoke(); }
+            get => _svgXml;
+            set { if (SetField(ref _svgXml, value)) _onChanged?.Invoke(); }
         }
 
         public string OffsetX
@@ -358,6 +526,9 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
         public ICommand RemoveCommand { get; }
         public ICommand PickFillColorCommand { get; }
         public ICommand PickLineColorCommand { get; }
+        public ICommand ConfigureCommand { get; }
+        public ICommand ConfigureQrInDialogCommand => ConfigureCommand;
+        public ICommand BrowseFileCommand { get; }
 
         public DrawableItemViewModel(Action onChanged = null, Action<DrawableItemViewModel> onRemove = null)
         {
@@ -373,11 +544,71 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
                 var picked = StepNodeViewModel.PromptColorHelper(LineColor);
                 if (picked != null) LineColor = picked;
             });
+            ConfigureCommand = new RelayCommand(ConfigureDrawableItem);
+            BrowseFileCommand = new RelayCommand(BrowseFile);
+        }
+
+        private void ConfigureDrawableItem()
+        {
+            var dict = ToDictionary();
+            var window = System.Windows.Application.Current?.Windows.OfType<System.Windows.Window>().FirstOrDefault(w => w.IsActive);
+            if (RecipeDrawableRegistry.Instance.ConfigureDrawable(Type, dict, window))
+            {
+                foreach (var kv in dict)
+                {
+                    _parameters[kv.Key] = kv.Value;
+                }
+                if (dict.TryGetValue("Text", out var t) && t != null)
+                {
+                    _text = t.ToString();
+                    OnPropertyChanged(nameof(Text));
+                }
+                OnPropertyChanged(nameof(ConfigurationSummary));
+                _onChanged?.Invoke();
+            }
+        }
+
+        private void BrowseFile()
+        {
+            var ofd = new Microsoft.Win32.OpenFileDialog();
+            if (IsSvgType)
+            {
+                ofd.Title = "Select SVG Vector Graphic";
+                ofd.Filter = "Scalable Vector Graphics (*.svg)|*.svg|All Files (*.*)|*.*";
+            }
+            else
+            {
+                ofd.Title = "Select Image File";
+                ofd.Filter = "Image Files (*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.ico)|*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.ico|All Files (*.*)|*.*";
+            }
+
+            if (ofd.ShowDialog() == true)
+            {
+                FilePath = ofd.FileName;
+                try
+                {
+                    if (IsImageType && System.IO.File.Exists(ofd.FileName))
+                    {
+                        using var img = System.Drawing.Image.FromFile(ofd.FileName);
+                        if (img.Width > 0 && img.Height > 0)
+                        {
+                            _aspectRatio = (double)img.Width / img.Height;
+                        }
+                        Width = img.Width.ToString();
+                        Height = img.Height.ToString();
+                        LockAspectRatio = true;
+                    }
+                }
+                catch
+                {
+                    // Ignore dimension read failures
+                }
+            }
         }
 
         public Dictionary<string, object> ToDictionary()
         {
-            var dict = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase)
+            var dict = new Dictionary<string, object>(_parameters, StringComparer.OrdinalIgnoreCase)
             {
                 ["Type"] = Type,
                 ["Width"] = Width,
@@ -392,31 +623,46 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
             if (!string.IsNullOrEmpty(VerticalAnchor) && VerticalAnchor != "None") dict["VerticalAnchor"] = VerticalAnchor;
             if (IsTextType) dict["Text"] = Text;
             if (IsEmojiType) dict["Emoji"] = Emoji;
+            if (IsImageType)
+            {
+                if (!string.IsNullOrEmpty(FilePath)) dict["FilePath"] = FilePath;
+            }
+            if (IsSvgType)
+            {
+                if (!string.IsNullOrEmpty(FilePath)) dict["FilePath"] = FilePath;
+                if (!string.IsNullOrEmpty(SvgXml)) dict["Content"] = SvgXml;
+            }
             if (IsSpeechbubbleType)
             {
                 dict["TailDirection"] = TailDirection;
                 if (!string.IsNullOrEmpty(TailOffsetX) && TailOffsetX != "0") dict["TailOffsetX"] = TailOffsetX;
                 if (!string.IsNullOrEmpty(TailOffsetY) && TailOffsetY != "0") dict["TailOffsetY"] = TailOffsetY;
             }
+            if (_lockAspectRatio.HasValue)
+            {
+                dict["LockAspectRatio"] = _lockAspectRatio.Value;
+            }
+
             return dict;
         }
 
-        public static DrawableItemViewModel FromDictionary(IDictionary dict, Action onChanged, Action<DrawableItemViewModel> onRemove)
+        public static DrawableItemViewModel FromDictionary(IDictionary dict, Action onChanged = null, Action<DrawableItemViewModel> onRemove = null)
         {
             var item = new DrawableItemViewModel(onChanged, onRemove);
             if (dict == null) return item;
 
-            string GetKey(params string[] possibleKeys)
+            foreach (DictionaryEntry de in dict)
             {
-                foreach (var pk in possibleKeys)
+                if (de.Key != null) item._parameters[de.Key.ToString()] = de.Value;
+            }
+
+            string GetKey(params string[] keys)
+            {
+                foreach (var k in keys)
                 {
-                    foreach (var k in dict.Keys)
+                    if (item._parameters.TryGetValue(k, out var val) && val != null)
                     {
-                        if (string.Equals(k?.ToString(), pk, StringComparison.OrdinalIgnoreCase))
-                        {
-                            var v = dict[k];
-                            if (v != null) return v.ToString();
-                        }
+                        return val.ToString();
                     }
                 }
                 return null;
@@ -434,6 +680,8 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
                 else if (string.Equals(typeVal, "Speechbubble", StringComparison.OrdinalIgnoreCase)) item._type = "Speechbubble";
                 else if (string.Equals(typeVal, "Blur", StringComparison.OrdinalIgnoreCase)) item._type = "Blur";
                 else if (string.Equals(typeVal, "Highlight", StringComparison.OrdinalIgnoreCase)) item._type = "Highlight";
+                else if (string.Equals(typeVal, "Image", StringComparison.OrdinalIgnoreCase)) item._type = "Image";
+                else if (string.Equals(typeVal, "Svg", StringComparison.OrdinalIgnoreCase)) item._type = "Svg";
                 else item._type = typeVal;
             }
             else
@@ -441,7 +689,7 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
                 item._type = "Rectangle";
             }
 
-            string txt = GetKey("Text", "Content", "Label", "Number", "Watermark_Text", "WatermarkText");
+            string txt = GetKey("Text", "Content", "Label", "Number", "Watermark_Text", "WatermarkText", "Payload", "Url", "Value", "Data");
             if (txt != null) item._text = txt;
 
             string emo = GetKey("Emoji", "Icon", "Glyph");
@@ -482,6 +730,20 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
 
             string toy = GetKey("TailOffsetY", "TailOffset_Y", "Tail_OffsetY");
             if (toy != null) item._tailOffsetY = toy;
+
+            string fp = GetKey("FilePath", "Path", "File", "ImageFile", "SvgFile");
+            if (fp != null) item._filePath = fp;
+
+            string svg = GetKey("SvgXml", "Svg", "Content", "Xml");
+            if (svg != null && (item.IsSvgType || svg.Contains("<svg"))) item._svgXml = svg;
+
+            string lockAsp = GetKey("LockAspectRatio", "LockRatio", "MaintainAspectRatio");
+            if (lockAsp != null && bool.TryParse(lockAsp, out bool bLock)) item._lockAspectRatio = bLock;
+
+            if (double.TryParse(item._width, out double dw) && double.TryParse(item._height, out double dh) && dw > 0 && dh > 0)
+            {
+                item._aspectRatio = dw / dh;
+            }
 
             return item;
         }
@@ -621,12 +883,12 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
         public ObservableCollection<ConditionBranchViewModel> ConditionBranches { get; } = new ObservableCollection<ConditionBranchViewModel>();
         public ObservableCollection<PromptChoiceViewModel> PromptChoices { get; } = new ObservableCollection<PromptChoiceViewModel>();
         public ObservableCollection<VariableItemViewModel> Variables { get; } = new ObservableCollection<VariableItemViewModel>();
-        public ObservableCollection<DrawableItemViewModel> Drawables { get; } = new ObservableCollection<DrawableItemViewModel>();
+        public ObservableCollection<DrawableItemViewModel> Annotations { get; } = new ObservableCollection<DrawableItemViewModel>();
 
         public ICommand AddConditionBranchCommand { get; }
         public ICommand AddPromptChoiceCommand { get; }
         public ICommand AddVariableCommand { get; }
-        public ICommand AddDrawableCommand { get; }
+        public ICommand AddAnnotationCommand { get; }
         public ICommand BrowseSaveDirectoryCommand { get; }
         public ICommand BrowseExternalExecutableCommand { get; }
         public ICommand BrowseSoundFileCommand { get; }
@@ -688,7 +950,7 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
             }
 
             AddVariableCommand = new RelayCommand(() => AddVariable("new_var", "${user.username}"));
-            AddDrawableCommand = new RelayCommand(p => AddDrawable((p as string) ?? "Rectangle"));
+            AddAnnotationCommand = new RelayCommand(p => AddAnnotation((p as string) ?? "Rectangle"));
             BrowseSaveDirectoryCommand = new RelayCommand(() =>
             {
                 using (var dlg = new System.Windows.Forms.FolderBrowserDialog())
@@ -786,7 +1048,7 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
             });
 
             LoadVariablesFromConfig();
-            LoadDrawablesFromConfig();
+            LoadAnnotationsFromConfig();
         }
 
         public static string PromptColorHelper(string currentColor)
@@ -904,61 +1166,61 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
             }
         }
 
-        public void LoadDrawablesFromConfig()
+        public void LoadAnnotationsFromConfig()
         {
-            Drawables.Clear();
+            Annotations.Clear();
             if (Config.Parameters != null)
             {
-                object dObj = null;
+                object aObj = null;
                 foreach (var kvp in Config.Parameters)
                 {
-                    if (string.Equals(kvp.Key, "Drawables", StringComparison.OrdinalIgnoreCase))
+                    if (string.Equals(kvp.Key, "Annotations", StringComparison.OrdinalIgnoreCase))
                     {
-                        dObj = kvp.Value;
+                        aObj = kvp.Value;
                         break;
                     }
                 }
 
-                if (dObj != null)
+                if (aObj != null)
                 {
-                    if (dObj is IEnumerable enumerable && !(dObj is string))
+                    if (aObj is IEnumerable enumerable && !(aObj is string))
                     {
                         foreach (var elem in enumerable)
                         {
                             if (elem is IDictionary d)
                             {
-                                Drawables.Add(DrawableItemViewModel.FromDictionary(d, SyncDrawablesToConfig, RemoveDrawable));
+                                Annotations.Add(DrawableItemViewModel.FromDictionary(d, SyncAnnotationsToConfig, RemoveAnnotation));
                             }
                             else if (elem is JObject jObj)
                             {
                                 var jDict = jObj.ToObject<Dictionary<string, object>>();
-                                Drawables.Add(DrawableItemViewModel.FromDictionary(jDict, SyncDrawablesToConfig, RemoveDrawable));
+                                Annotations.Add(DrawableItemViewModel.FromDictionary(jDict, SyncAnnotationsToConfig, RemoveAnnotation));
                             }
                         }
                     }
                 }
-                else if (Config.Parameters.Keys.Any(k => string.Equals(k, "DrawableType", StringComparison.OrdinalIgnoreCase) ||
+                else if (Config.Parameters.Keys.Any(k => string.Equals(k, "AnnotationType", StringComparison.OrdinalIgnoreCase) ||
                                                          string.Equals(k, "Shape", StringComparison.OrdinalIgnoreCase) ||
                                                          string.Equals(k, "Type", StringComparison.OrdinalIgnoreCase)))
                 {
-                    Drawables.Add(DrawableItemViewModel.FromDictionary(Config.Parameters, SyncDrawablesToConfig, RemoveDrawable));
+                    Annotations.Add(DrawableItemViewModel.FromDictionary(Config.Parameters, SyncAnnotationsToConfig, RemoveAnnotation));
                 }
             }
         }
 
-        public void SyncDrawablesToConfig()
+        public void SyncAnnotationsToConfig()
         {
             if (Config.Parameters == null)
             {
                 Config.Parameters = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
             }
-            Config.Parameters["Drawables"] = Drawables.Select(d => d.ToDictionary()).ToList();
+            Config.Parameters["Annotations"] = Annotations.Select(d => d.ToDictionary()).ToList();
             NotifyConfigUpdated();
         }
 
-        public void AddDrawable(string type = "Rectangle")
+        public void AddAnnotation(string type = "Rectangle")
         {
-            var item = new DrawableItemViewModel(SyncDrawablesToConfig, RemoveDrawable)
+            var item = new DrawableItemViewModel(SyncAnnotationsToConfig, RemoveAnnotation)
             {
                 Type = type
             };
@@ -984,16 +1246,27 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
                 item.Width = "32";
                 item.Height = "32";
             }
-            Drawables.Add(item);
-            SyncDrawablesToConfig();
+            else if (item.LockAspectRatio)
+            {
+                item.Text = "https://getgreenshot.org";
+                item.Width = "150";
+                item.Height = "150";
+            }
+            else if (string.Equals(type, "Image", StringComparison.OrdinalIgnoreCase) || string.Equals(type, "Svg", StringComparison.OrdinalIgnoreCase))
+            {
+                item.Width = "120";
+                item.Height = "120";
+            }
+            Annotations.Add(item);
+            SyncAnnotationsToConfig();
         }
 
-        public void RemoveDrawable(DrawableItemViewModel item)
+        public void RemoveAnnotation(DrawableItemViewModel item)
         {
-            if (item != null && Drawables.Contains(item))
+            if (item != null && Annotations.Contains(item))
             {
-                Drawables.Remove(item);
-                SyncDrawablesToConfig();
+                Annotations.Remove(item);
+                SyncAnnotationsToConfig();
             }
         }
 
@@ -2184,8 +2457,8 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
                     case WellKnownStepTypes.TextEffect:
                     case "ObfuscateText":
                         return $"DLP: {TextEffectAction}";
-                    case WellKnownStepTypes.Drawable:
-                        return Drawables.Count > 0 ? $"{Drawables.Count} item(s): {string.Join(", ", Drawables.Select(d => d.Type).Distinct())}" : "Drawables (0)";
+                    case WellKnownStepTypes.Annotation:
+                        return Annotations.Count > 0 ? $"{Annotations.Count} item(s): {string.Join(", ", Annotations.Select(d => d.Type).Distinct())}" : "Annotations (0)";
                     case WellKnownStepTypes.SetVariable:
                         return Variables.Count > 0 ? string.Join(", ", Variables.Select(v => $"{v.Key}={v.Value}")) : "Variables (0)";
                     case WellKnownStepTypes.ImmediateFeedback:

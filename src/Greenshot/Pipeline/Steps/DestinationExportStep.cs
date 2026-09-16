@@ -25,7 +25,7 @@ namespace Greenshot.Pipeline.Steps
     /// Supports individual destination steps (File, Clipboard, Editor, Printer, Email, Custom)
     /// as well as custom storage directories, filename patterns, and clipboard format selections.
     /// </summary>
-    public class DestinationExportStep : ICaptureStep, IRequiresExternalCommandAuthorization
+    public class DestinationExportStep : ICaptureStep, IRequiresRecipeAuthorization
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(DestinationExportStep));
         private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
@@ -39,19 +39,28 @@ namespace Greenshot.Pipeline.Steps
         {
             Config = config ?? throw new ArgumentNullException(nameof(config));
             Name = config.Name ?? "DestinationExportStep";
-            _dispatcher = dispatcher ?? new DestinationDispatcher();
+            _dispatcher = dispatcher;
         }
 
-        public IEnumerable<string> GetExternalCommands()
+        public IEnumerable<RecipeGatedAction> GetGatedActions()
         {
             var designations = ResolveDestinationDesignations(null);
             if (designations != null)
             {
                 foreach (var des in designations)
                 {
-                    if (!string.IsNullOrWhiteSpace(des) && des.StartsWith("External ", StringComparison.OrdinalIgnoreCase))
+                    if (string.IsNullOrWhiteSpace(des)) continue;
+
+                    IDestination dest = DestinationHelper.GetDestination(des)
+                        ?? SimpleServiceProvider.Current.GetAllInstances<IDestination>()
+                            .FirstOrDefault(d => string.Equals(d.Designation, des, StringComparison.OrdinalIgnoreCase));
+
+                    if (dest is IRequiresRecipeAuthorization authDest)
                     {
-                        yield return des.Trim();
+                        foreach (var action in authDest.GetGatedActions())
+                        {
+                            yield return action;
+                        }
                     }
                 }
             }
@@ -82,21 +91,21 @@ namespace Greenshot.Pipeline.Steps
 
                 if (string.Equals(designation, EditorDestination.DESIGNATION, StringComparison.OrdinalIgnoreCase))
                 {
-                    bool? reuse = Config.GetFirstParameter<bool?>("ReuseEditor");
-                    bool? matchSize = Config.GetFirstParameter<bool?>("MatchSizeToCapture");
+                    bool? reuse = Config.GetParameter<bool?>("ReuseEditor");
+                    bool? matchSize = Config.GetParameter<bool?>("MatchSizeToCapture");
                     dest = new EditorDestination(reuse, matchSize);
                 }
                 else if (string.Equals(designation, nameof(WellKnownDestinations.Printer), StringComparison.OrdinalIgnoreCase))
                 {
-                    string printerName = Config.GetFirstParameter<string>("PrinterName");
-                    bool? promptOptions = Config.GetFirstParameter<bool?>("ShowPrintDialog", "PromptOptions");
-                    bool? allowRotate = Config.GetFirstParameter<bool?>("AllowRotate");
-                    bool? allowEnlarge = Config.GetFirstParameter<bool?>("AllowEnlarge");
-                    bool? allowShrink = Config.GetFirstParameter<bool?>("AllowShrink");
-                    bool? center = Config.GetFirstParameter<bool?>("Center");
-                    string colorMode = Config.GetFirstParameter<string>("ColorMode");
-                    bool? printFooter = Config.GetFirstParameter<bool?>("PrintFooter", "Footer");
-                    string footerPattern = Config.GetFirstParameter<string>("FooterPattern");
+                    string printerName = Config.GetParameter<string>("PrinterName");
+                    bool? promptOptions = Config.GetParameter<bool?>("ShowPrintDialog");
+                    bool? allowRotate = Config.GetParameter<bool?>("AllowRotate");
+                    bool? allowEnlarge = Config.GetParameter<bool?>("AllowEnlarge");
+                    bool? allowShrink = Config.GetParameter<bool?>("AllowShrink");
+                    bool? center = Config.GetParameter<bool?>("Center");
+                    string colorMode = Config.GetParameter<string>("ColorMode");
+                    bool? printFooter = Config.GetParameter<bool?>("PrintFooter");
+                    string footerPattern = Config.GetParameter<string>("FooterPattern");
 
                     var printOptions = new PrintOptions
                     {
@@ -147,23 +156,24 @@ namespace Greenshot.Pipeline.Steps
                 context.LogStep($"Warning: No active destinations resolved for designations: {string.Join(", ", designations)}");
             }
 
-            await _dispatcher.DispatchAsync(context, destinations, cancellationToken).ConfigureAwait(false);
+            var dispatcher = _dispatcher ?? new DestinationDispatcher();
+            await dispatcher.DispatchAsync(context, destinations, cancellationToken).ConfigureAwait(false);
         }
 
         private void ApplyCustomFileSettings(CaptureFlowContext context)
         {
-            string customDir = Config.GetFirstParameter<string>("SaveDirectory", "OutputDirectory", "Directory", "SavePath");
-            bool? promptQuality = Config.GetFirstParameter<bool?>("PromptQuality", "PromptForQuality");
+            string customDir = Config.GetParameter<string>("SaveDirectory");
+            bool? promptQuality = Config.GetParameter<bool?>("PromptQuality");
             if (promptQuality.HasValue) context.Properties["Destination.PromptQuality"] = promptQuality.Value;
 
-            bool? allowOverwrite = Config.GetFirstParameter<bool?>("AllowOverwrite");
+            bool? allowOverwrite = Config.GetParameter<bool?>("AllowOverwrite");
             if (allowOverwrite.HasValue) context.Properties["Destination.AllowOverwrite"] = allowOverwrite.Value;
 
-            bool? copyPath = Config.GetFirstParameter<bool?>("CopyPathToClipboard", "CopyPath");
+            bool? copyPath = Config.GetParameter<bool?>("CopyPathToClipboard");
             if (copyPath.HasValue) context.Properties["Destination.CopyPathToClipboard"] = copyPath.Value;
 
-            int? jpegQuality = Config.GetFirstParameter<int?>("JpegQuality");
-            bool? reduceColors = Config.GetFirstParameter<bool?>("ReduceColors", "OutputFileReduceColors");
+            int? jpegQuality = Config.GetParameter<int?>("JpegQuality");
+            bool? reduceColors = Config.GetParameter<bool?>("ReduceColors");
             if (jpegQuality.HasValue || reduceColors.HasValue)
             {
                 string fmt = CoreConfig.OutputFileFormat;
@@ -191,7 +201,7 @@ namespace Greenshot.Pipeline.Steps
                     }
                 }
 
-                string pattern = Config.GetFirstParameter<string>("FilenamePattern")
+                string pattern = Config.GetParameter<string>("FilenamePattern")
                     ?? CoreConfig.OutputFileFilenamePattern
                     ?? "greenshot ${capturetime}";
 
@@ -241,7 +251,7 @@ namespace Greenshot.Pipeline.Steps
             }
             if (string.Equals(Config.StepType, WellKnownStepTypes.CustomDestination, StringComparison.OrdinalIgnoreCase))
             {
-                string customDest = Config.GetFirstParameter<string>("CustomDestinationId", "Destination", "DestinationDesignation");
+                string customDest = Config.GetParameter<string>("Destination") ?? Config.GetParameter<string>("CustomDestinationId");
                 if (!string.IsNullOrWhiteSpace(customDest))
                 {
                     return new[] { customDest.Trim() };
@@ -255,23 +265,19 @@ namespace Greenshot.Pipeline.Steps
                 if (ctxVal is string ctxStr && !string.IsNullOrWhiteSpace(ctxStr)) return new[] { ctxStr };
             }
 
-            // Priority 3: Explicit step parameter configuration (check list variants)
-            var stepDests = Config.GetFirstParameter<List<string>>("DestinationDesignations", "Destinations");
+            // Priority 3: Explicit step parameter configuration ("Destinations")
+            var stepDests = Config.GetParameter<List<string>>("Destinations");
             if (stepDests != null && stepDests.Count > 0)
             {
                 return stepDests;
             }
 
-            // Priority 3b: Single string designation
-            string singleDest = Config.GetFirstParameter<string>("Destination", "DestinationDesignation", "Destinations", "DestinationDesignations");
+            string singleDest = Config.GetParameter<string>("Destinations");
             if (!string.IsNullOrWhiteSpace(singleDest))
             {
-                // Support comma-separated strings (e.g. "Editor, Clipboard, Imgur")
-                if (singleDest.Contains(","))
-                {
-                    return singleDest.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToList();
-                }
-                return new[] { singleDest.Trim() };
+                return singleDest.Contains(",")
+                    ? singleDest.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToList()
+                    : new List<string> { singleDest.Trim() };
             }
 
             // Priority 4: Dynamic user configuration evaluation

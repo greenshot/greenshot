@@ -295,9 +295,9 @@ namespace Greenshot.UI.RecipeEditor.Layout
                 int count = node.ConditionBranches?.Count ?? 0;
                 return Math.Max(150, 105 + (count * 28));
             }
-            if (node.Drawables != null && node.Drawables.Count > 0)
+            if (node.Annotations != null && node.Annotations.Count > 0)
             {
-                return Math.Max(120, 90 + (node.Drawables.Count * 24));
+                return Math.Max(120, 90 + (node.Annotations.Count * 24));
             }
             if (node.Variables != null && node.Variables.Count > 0)
             {

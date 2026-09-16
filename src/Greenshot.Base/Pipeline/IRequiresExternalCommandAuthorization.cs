@@ -19,19 +19,75 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System;
 using System.Collections.Generic;
 
 namespace Greenshot.Base.Pipeline
 {
     /// <summary>
-    /// Implemented by capture pipeline steps or destinations that execute external processes or commands,
-    /// enabling programmatic discovery of external execution targets for security review and authorization.
+    /// Categories of recipe operations that require explicit user consent.
     /// </summary>
-    public interface IRequiresExternalCommandAuthorization
+    public enum RecipeGateType
+    {
+        ExternalCommand,
+        NetworkAccess,
+        FileSystemAccess,
+        Custom
+    }
+
+    /// <summary>
+    /// Represents a security-gated action within a capture recipe (e.g. process execution).
+    /// </summary>
+    public class RecipeGatedAction : IEquatable<RecipeGatedAction>
+    {
+        public RecipeGateType GateType { get; set; }
+        public string Target { get; set; }
+        public string DescriptionKey { get; set; }
+
+        public RecipeGatedAction()
+        {
+        }
+
+        public RecipeGatedAction(RecipeGateType gateType, string target, string descriptionKey = null)
+        {
+            GateType = gateType;
+            Target = target;
+            DescriptionKey = descriptionKey ?? (gateType == RecipeGateType.ExternalCommand ? "recipe_gate_external_command" : "recipe_gate_custom");
+        }
+
+        public bool Equals(RecipeGatedAction other)
+        {
+            if (other is null) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return GateType == other.GateType &&
+                   string.Equals(Target, other.Target, StringComparison.OrdinalIgnoreCase);
+        }
+
+        public override bool Equals(object obj) => Equals(obj as RecipeGatedAction);
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hash = 17;
+                hash = hash * 23 + GateType.GetHashCode();
+                hash = hash * 23 + (Target != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(Target) : 0);
+                return hash;
+            }
+        }
+
+        public override string ToString() => string.IsNullOrWhiteSpace(Target) ? GateType.ToString() : $"{GateType}: {Target}";
+    }
+
+    /// <summary>
+    /// Implemented by capture pipeline steps or export destinations that perform gated or sensitive actions
+    /// (e.g. launching external processes, sending data over networks), requiring user review and consent.
+    /// </summary>
+    public interface IRequiresRecipeAuthorization
     {
         /// <summary>
-        /// Gets the human-readable external commands, executables, or destination names invoked by this step.
+        /// Returns the gated actions requested by this component.
         /// </summary>
-        IEnumerable<string> GetExternalCommands();
+        IEnumerable<RecipeGatedAction> GetGatedActions();
     }
 }

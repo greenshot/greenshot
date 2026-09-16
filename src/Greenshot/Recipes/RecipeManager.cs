@@ -224,9 +224,9 @@ namespace Greenshot.Recipes
 
         public void LoadConfiguredRecipeFiles()
         {
-            if (!CoreConfig.IsBetaTester)
+            if (!CoreConfig.EnableRecipeFeature)
             {
-                Log.Debug("CoreConfig.IsBetaTester is false. Skipping external recipe file loading.");
+                Log.Debug("CoreConfig.EnableRecipeFeature is false. Skipping external recipe file loading.");
                 return;
             }
 
@@ -335,6 +335,10 @@ namespace Greenshot.Recipes
                     if (!valResult.IsValid)
                     {
                         foreach (var err in valResult.Errors) overallResult.AddError($"[{recipe.Id ?? "unknown"}]: {err}");
+                        if (interactiveApproval)
+                        {
+                            UI.RecipeApprovalWindow.ShowValidationError(filePath, valResult, recipe);
+                        }
                         continue;
                     }
 
@@ -414,6 +418,10 @@ namespace Greenshot.Recipes
             {
                 Log.Error($"Failed to parse recipe file '{filePath}'", ex);
                 overallResult.AddError($"Exception reading recipe file: {ex.Message}");
+                if (interactiveApproval)
+                {
+                    UI.RecipeApprovalWindow.ShowValidationError(filePath, rawErrorMessage: ex.Message);
+                }
             }
 
             return overallResult;
@@ -434,12 +442,53 @@ namespace Greenshot.Recipes
                     WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen
                 };
 
-                // Only set owner if mainForm is actually visible.
-                // If mainForm is a hidden system tray form, setting it as owner causes Windows to push the dialog behind other active windows!
+                // Safely determine owner handle.
+                // Note: If RequestInteractiveApproval runs on a separate STA thread (e.g. from FileWatcher or non-UI thread),
+                // accessing mainForm.Handle or mainForm.Visible directly will throw an InvalidOperationException (Cross-thread operation).
+                IntPtr ownerHwnd = IntPtr.Zero;
                 var mainForm = SimpleServiceProvider.Current.GetInstance<System.Windows.Forms.Form>(isOptional: true);
-                if (mainForm != null && mainForm.IsHandleCreated && mainForm.Visible)
+                if (mainForm != null && mainForm.IsHandleCreated)
                 {
-                    new System.Windows.Interop.WindowInteropHelper(window).Owner = mainForm.Handle;
+                    try
+                    {
+                        if (mainForm.InvokeRequired)
+                        {
+                            ownerHwnd = (IntPtr)mainForm.Invoke(new Func<IntPtr>(() =>
+                                (mainForm.Visible && !mainForm.Disposing && !mainForm.IsDisposed) ? mainForm.Handle : IntPtr.Zero));
+                        }
+                        else if (mainForm.Visible && !mainForm.Disposing && !mainForm.IsDisposed)
+                        {
+                            ownerHwnd = mainForm.Handle;
+                        }
+                    }
+                    catch
+                    {
+                        ownerHwnd = IntPtr.Zero;
+                    }
+                }
+
+                // If MainForm is not available or hidden, check for active WPF window (e.g. RecipeEditorWindow)
+                if (ownerHwnd == IntPtr.Zero && System.Windows.Application.Current != null)
+                {
+                    try
+                    {
+                        var activeWpfWindow = System.Windows.Application.Current.Windows
+                            .OfType<System.Windows.Window>()
+                            .FirstOrDefault(w => w.IsActive && w != window);
+                        if (activeWpfWindow != null)
+                        {
+                            ownerHwnd = new System.Windows.Interop.WindowInteropHelper(activeWpfWindow).Handle;
+                        }
+                    }
+                    catch
+                    {
+                        ownerHwnd = IntPtr.Zero;
+                    }
+                }
+
+                if (ownerHwnd != IntPtr.Zero)
+                {
+                    new System.Windows.Interop.WindowInteropHelper(window).Owner = ownerHwnd;
                 }
 
                 if (window.ShowDialog() == true)

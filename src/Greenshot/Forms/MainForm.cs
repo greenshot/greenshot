@@ -269,8 +269,6 @@ namespace Greenshot.Forms
             }
         }
 
-        private static MainForm _instance;
-
         private readonly CopyData _copyData;
 
         // Thumbnail preview
@@ -718,7 +716,7 @@ namespace Greenshot.Forms
 
         private void UpdateRecipesMenu()
         {
-            if (!coreConfiguration.IsBetaTester)
+            if (!coreConfiguration.EnableRecipeFeature)
             {
                 if (_recipesMenuItem != null && contextMenu.Items.Contains(_recipesMenuItem))
                 {
@@ -848,12 +846,7 @@ namespace Greenshot.Forms
                 {
                     string recipePath = Path.GetFullPath(ofd.FileName);
                     var result = Recipes.RecipeManager.Instance.LoadRecipeFromFile(recipePath, interactiveApproval: true, forceApprovalPrompt: true);
-                    if (!result.IsValid)
-                    {
-                        MessageBox.Show(this, $"{Language.GetString("recipe_import_failed") ?? "Failed to load recipe:"}\n{string.Join("\n", result.Errors)}",
-                            Language.GetString("recipe_import") ?? "Recipe Import", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    }
-                    else
+                    if (result.IsValid)
                     {
                         string existing = coreConfiguration.RecipeFiles ?? "";
                         var configuredPaths = new List<string>();

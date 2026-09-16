@@ -22,7 +22,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Greenshot.Base.Core;
+using Greenshot.Base.Drawing;
 using Greenshot.Base.Interfaces;
+using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Pipeline;
 
 namespace Greenshot.Base.Recipes
@@ -35,11 +38,21 @@ namespace Greenshot.Base.Recipes
         public bool IsValid => Errors.Count == 0;
         public List<string> Errors { get; } = new List<string>();
         public List<string> Warnings { get; } = new List<string>();
-        public bool HasExternalCommands { get; set; }
-        public List<string> ExternalCommands { get; } = new List<string>();
+        public List<RecipeGatedAction> GatedActions { get; } = new List<RecipeGatedAction>();
+        public bool HasGatedActions => GatedActions.Count > 0;
+        public bool HasExternalCommands => HasGatedActions;
+        public List<string> ExternalCommands => GatedActions.Select(g => g.Target).ToList();
 
         public void AddError(string error) => Errors.Add(error);
         public void AddWarning(string warning) => Warnings.Add(warning);
+
+        public void AddGatedAction(RecipeGatedAction action)
+        {
+            if (action != null && !GatedActions.Contains(action))
+            {
+                GatedActions.Add(action);
+            }
+        }
 
         public override string ToString()
         {
@@ -71,7 +84,7 @@ namespace Greenshot.Base.Recipes
             WellKnownStepTypes.Notification,
             WellKnownStepTypes.Conditional,
             WellKnownStepTypes.TextEffect,
-            WellKnownStepTypes.Drawable,
+            WellKnownStepTypes.Annotation,
             WellKnownStepTypes.SetVariable,
             WellKnownStepTypes.SaveFile,
             WellKnownStepTypes.Clipboard,
@@ -90,9 +103,16 @@ namespace Greenshot.Base.Recipes
             Greenshot.Base.Triggers.TriggerConfig.TypeContextMenu,
             Greenshot.Base.Triggers.TriggerConfig.TypeSystray,
             Greenshot.Base.Triggers.TriggerConfig.TypeClipboard,
+            Greenshot.Base.Triggers.TriggerConfig.TypeEditor,
             Greenshot.Base.Triggers.TriggerConfig.TypeManual,
             Greenshot.Base.Triggers.TriggerConfig.TypeSchedule
         };
+
+        /// <summary>
+        /// Optional delegate to check whether an extension/plugin requirement is satisfied.
+        /// Returns (isAvailable, installedVersion). If null, falls back to inspecting loaded plugins from SimpleServiceProvider.Current.
+        /// </summary>
+        public static Func<RecipeRequirement, (bool isAvailable, string installedVersion)> ExtensionAvailabilityCheck { get; set; }
 
         /// <summary>
         /// Validates a CaptureRecipe DAG against the formal schema contract.
@@ -129,6 +149,15 @@ namespace Greenshot.Base.Recipes
             if (string.IsNullOrWhiteSpace(recipe.Name))
             {
                 result.AddError("Recipe 'name' is required and cannot be empty.");
+            }
+
+            // Validate Requires (extension dependencies)
+            if (recipe.Requires != null)
+            {
+                foreach (var req in recipe.Requires)
+                {
+                    ValidateRequirement(req, result);
+                }
             }
 
             // Validate Triggers (optional)
@@ -264,108 +293,146 @@ namespace Greenshot.Base.Recipes
                     result.AddError($"Node '{node.Id}' [Conditional]: Missing required 'branches' configuration list.");
                 }
             }
+            if (string.Equals(node.StepType, WellKnownStepTypes.Annotation, StringComparison.OrdinalIgnoreCase))
+            {
+                ValidateAnnotationNode(node, result);
+            }
 
-            // Programmatic step inspection for external command authorization with fallback
-            CheckAndDetectExternalCommands(node, result);
+            // Programmatic step inspection for recipe authorization gates
+            CheckAndDetectGatedActions(node, result);
         }
 
-        private static void CheckAndDetectExternalCommands(RecipeNodeConfig node, RecipeValidationResult result)
+        private static readonly HashSet<string> BuiltInAnnotationTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
-            bool detectedProgrammatically = false;
+            "Rectangle", "Ellipse", "Line", "Arrow", "Freehand", "Text", "Speechbubble", "StepLabel",
+            "Image", "Icon", "Cursor", "Emoji", "Svg", "Blur", "Pixelize", "Highlight", "Magnify", "Crop"
+        };
 
-            // 1. Programmatic Step Resolution via StepRegistry
+        private static void ValidateAnnotationNode(RecipeNodeConfig node, RecipeValidationResult result)
+        {
+            if (node.Parameters == null) return;
+
+            // Single annotation in Type parameter
+            if (node.Parameters.TryGetValue("Type", out var typeObj) && typeObj is string singleType && !string.IsNullOrWhiteSpace(singleType))
+            {
+                ValidateAnnotationType(singleType, node.Id, result);
+            }
+
+            // Multiple annotations in Annotations list
+            if (node.Parameters.TryGetValue("Annotations", out var annotationsObj) && annotationsObj is System.Collections.IEnumerable list && !(annotationsObj is string))
+            {
+                foreach (var item in list)
+                {
+                    string aType = null;
+                    if (item is Dictionary<string, object> dict && dict.TryGetValue("Type", out var tObj))
+                    {
+                        aType = tObj?.ToString();
+                    }
+                    else if (item is Newtonsoft.Json.Linq.JObject jobj && jobj.TryGetValue("Type", StringComparison.OrdinalIgnoreCase, out var jt))
+                    {
+                        aType = jt?.ToString();
+                    }
+                    if (!string.IsNullOrWhiteSpace(aType))
+                    {
+                        ValidateAnnotationType(aType, node.Id, result);
+                    }
+                }
+            }
+        }
+
+        private static void ValidateAnnotationType(string annotationType, string nodeId, RecipeValidationResult result)
+        {
+            if (BuiltInAnnotationTypes.Contains(annotationType)) return;
+            if (RecipeDrawableRegistry.Instance.IsRegistered(annotationType)) return;
+
+            result.AddError($"Node '{nodeId}' uses custom annotation type '{annotationType}', which is not available because the required extension is not installed or active.");
+        }
+
+        private static void ValidateRequirement(RecipeRequirement req, RecipeValidationResult result)
+        {
+            if (req == null) return;
+            if (string.IsNullOrWhiteSpace(req.Id))
+            {
+                result.AddError("Recipe requirement is missing required 'id'.");
+                return;
+            }
+
+            if (ExtensionAvailabilityCheck != null)
+            {
+                var (isAvailable, installedVersion) = ExtensionAvailabilityCheck(req);
+                if (!isAvailable)
+                {
+                    string extName = !string.IsNullOrWhiteSpace(req.Name) ? req.Name : req.Id;
+                    string verSuffix = !string.IsNullOrWhiteSpace(req.MinVersion) ? $" (v{req.MinVersion}+)" : string.Empty;
+                    string urlSuffix = !string.IsNullOrWhiteSpace(req.Url) ? $" Download/install from: {req.Url}" : string.Empty;
+                    result.AddError($"This recipe requires the extension '{extName}'{verSuffix} (ID: {req.Id}), which is not installed or is disabled.{urlSuffix}");
+                }
+                else if (!string.IsNullOrWhiteSpace(req.MinVersion) && !string.IsNullOrWhiteSpace(installedVersion))
+                {
+                    if (Version.TryParse(req.MinVersion, out var minV) && Version.TryParse(installedVersion, out var curV))
+                    {
+                        if (curV < minV)
+                        {
+                            result.AddError($"This recipe requires extension '{req.Name ?? req.Id}' version {req.MinVersion} or newer, but version {installedVersion} is installed.");
+                        }
+                    }
+                }
+                return;
+            }
+
             try
             {
-                var step = StepRegistry.Instance.CreateStep(node);
-                if (step is IRequiresExternalCommandAuthorization authStep)
+                var plugins = SimpleServiceProvider.Current?.GetAllInstances<IGreenshotPlugin>()?.ToList();
+                if (plugins != null && plugins.Count > 0)
                 {
-                    var commands = authStep.GetExternalCommands();
-                    if (commands != null)
+                    var match = plugins.FirstOrDefault(p =>
+                        string.Equals(p.GetType().Assembly.GetName().Name, req.Id, StringComparison.OrdinalIgnoreCase) ||
+                        string.Equals(p.GetType().FullName, req.Id, StringComparison.OrdinalIgnoreCase) ||
+                        string.Equals(p.Name, req.Id, StringComparison.OrdinalIgnoreCase));
+
+                    if (match == null)
                     {
-                        foreach (var cmd in commands)
+                        string extName = !string.IsNullOrWhiteSpace(req.Name) ? req.Name : req.Id;
+                        string verSuffix = !string.IsNullOrWhiteSpace(req.MinVersion) ? $" (v{req.MinVersion}+)" : string.Empty;
+                        string urlSuffix = !string.IsNullOrWhiteSpace(req.Url) ? $" Download/install from: {req.Url}" : string.Empty;
+                        result.AddError($"This recipe requires the extension '{extName}'{verSuffix} (ID: {req.Id}), which is not installed or is disabled.{urlSuffix}");
+                    }
+                    else if (!string.IsNullOrWhiteSpace(req.MinVersion) && Version.TryParse(req.MinVersion, out var minV))
+                    {
+                        var curV = match.GetType().Assembly.GetName().Version;
+                        if (curV != null && curV < minV)
                         {
-                            if (!string.IsNullOrWhiteSpace(cmd))
-                            {
-                                result.HasExternalCommands = true;
-                                if (!result.ExternalCommands.Contains(cmd))
-                                {
-                                    result.ExternalCommands.Add(cmd);
-                                }
-                                detectedProgrammatically = true;
-                            }
+                            result.AddError($"This recipe requires extension '{match.Name}' version {req.MinVersion} or newer, but version {curV} is installed.");
                         }
                     }
                 }
             }
             catch
             {
-                // Fall through to heuristic static fallback
+                // DI not initialized; skip runtime check
             }
+        }
 
-            // 2. Static Heuristic Fallback (defense-in-depth for offline / unregistered plugin scenarios)
-            if (!detectedProgrammatically)
+        private static void CheckAndDetectGatedActions(RecipeNodeConfig node, RecipeValidationResult result)
+        {
+            try
             {
-                bool isExternalStepType = string.Equals(node.StepType, "ExternalCommand", StringComparison.OrdinalIgnoreCase) ||
-                                          string.Equals(node.StepType, "ExecuteCommand", StringComparison.OrdinalIgnoreCase) ||
-                                          string.Equals(node.StepType, "RunCommand", StringComparison.OrdinalIgnoreCase) ||
-                                          node.StepType.StartsWith("ExternalCommand.", StringComparison.OrdinalIgnoreCase) ||
-                                          node.StepType.StartsWith("ExecuteCommand.", StringComparison.OrdinalIgnoreCase) ||
-                                          node.StepType.StartsWith("RunCommand.", StringComparison.OrdinalIgnoreCase);
-
-                bool hasExecutableParams = node.HasParameter("Command") ||
-                                           node.HasParameter("CommandName") ||
-                                           node.HasParameter("CommandLine") ||
-                                           node.HasParameter("Executable") ||
-                                           node.HasParameter("Path") ||
-                                           node.HasParameter("Program") ||
-                                           node.HasParameter("Script");
-
-                if (isExternalStepType || hasExecutableParams)
+                var step = StepRegistry.Instance.CreateStep(node);
+                if (step is IRequiresRecipeAuthorization authStep)
                 {
-                    result.HasExternalCommands = true;
-                    string cmd = node.GetFirstParameter<string>("CommandLine", "Executable", "Path", "Command", "CommandName") ?? node.Name ?? node.StepType;
-                    if (!string.IsNullOrWhiteSpace(cmd) && !result.ExternalCommands.Contains(cmd))
+                    var actions = authStep.GetGatedActions();
+                    if (actions != null)
                     {
-                        result.ExternalCommands.Add(cmd);
-                    }
-                }
-
-                // Check destination steps for External <command> designations
-                if (string.Equals(node.StepType, WellKnownStepTypes.Destinations, StringComparison.OrdinalIgnoreCase) ||
-                    string.Equals(node.StepType, WellKnownStepTypes.CustomDestination, StringComparison.OrdinalIgnoreCase) ||
-                    node.HasParameter("Destination") ||
-                    node.HasParameter("Destinations") ||
-                    node.HasParameter("DestinationDesignations") ||
-                    node.HasParameter("CustomDestinationId"))
-                {
-                    var dests = node.GetFirstParameter<List<string>>("DestinationDesignations", "Destinations");
-                    if (dests != null)
-                    {
-                        foreach (var d in dests)
+                        foreach (var action in actions)
                         {
-                            if (!string.IsNullOrWhiteSpace(d) && d.StartsWith("External ", StringComparison.OrdinalIgnoreCase))
-                            {
-                                result.HasExternalCommands = true;
-                                if (!result.ExternalCommands.Contains(d)) result.ExternalCommands.Add(d);
-                            }
-                        }
-                    }
-
-                    string singleDest = node.GetFirstParameter<string>("CustomDestinationId", "Destination", "DestinationDesignation");
-                    if (!string.IsNullOrWhiteSpace(singleDest))
-                    {
-                        var parts = singleDest.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                        foreach (var part in parts)
-                        {
-                            string trimmed = part.Trim();
-                            if (trimmed.StartsWith("External ", StringComparison.OrdinalIgnoreCase))
-                            {
-                                result.HasExternalCommands = true;
-                                if (!result.ExternalCommands.Contains(trimmed)) result.ExternalCommands.Add(trimmed);
-                            }
+                            result.AddGatedAction(action);
                         }
                     }
                 }
+            }
+            catch
+            {
+                // Unresolvable step types are flagged by the schema check
             }
         }
 

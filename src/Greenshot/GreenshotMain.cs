@@ -137,7 +137,7 @@ public class GreenshotMain
                {
                    CaseSensitiveKeys = false,
                    EscapeSequences = false,
-                   LineContinuation = true,
+                   LineContinuation = false,
                    QuotedValues = false
                })
                .RegisterSection<ICoreConfiguration>(new CoreConfigurationImpl())

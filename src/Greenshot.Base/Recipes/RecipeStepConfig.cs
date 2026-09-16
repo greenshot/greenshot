@@ -95,10 +95,10 @@ namespace Greenshot.Base.Recipes
             return node;
         }
 
-        public static RecipeNodeConfig CreateDrawable(string id = "drawable", string drawableType = "Text", Dictionary<string, object> parameters = null)
+        public static RecipeNodeConfig CreateAnnotation(string id = "annotation", string annotationType = "Text", Dictionary<string, object> parameters = null)
         {
-            var node = new RecipeNodeConfig(id, WellKnownStepTypes.Drawable, $"Add {drawableType}");
-            node.Set("DrawableType", drawableType);
+            var node = new RecipeNodeConfig(id, WellKnownStepTypes.Annotation, $"Add {annotationType}");
+            node.Set("AnnotationType", annotationType);
             if (parameters != null)
             {
                 foreach (var kvp in parameters)

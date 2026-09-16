@@ -19,8 +19,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using Greenshot.Base.Core;
+using Greenshot.Base.Interfaces;
+using Greenshot.Base.Pipeline;
 using Greenshot.Base.Recipes;
+using Greenshot.Pipeline.Steps;
+using Greenshot.Plugin.ExternalCommand;
 using Xunit;
 
 namespace Greenshot.Tests.Recipes
@@ -30,6 +37,9 @@ namespace Greenshot.Tests.Recipes
         public RecipeValidatorTests()
         {
             TestEnvironment.EnsureInitialized();
+            StepRegistry.Instance.RegisterStepFactory(WellKnownStepTypes.Destinations, config => new DestinationExportStep(config));
+            StepRegistry.Instance.RegisterStepFactory("ExternalCommand", config => new ExternalCommandStep(config));
+            StepRegistry.Instance.RegisterStepFactory("ExternalCommand.MS Paint", config => new ExternalCommandStep(config));
         }
 
         [Fact]
@@ -108,6 +118,9 @@ namespace Greenshot.Tests.Recipes
         [Fact]
         public void Validate_RouteB_DestinationsExternal_FlagsExternalCommands()
         {
+            var extDest = new ExternalCommandDestination("MS Paint");
+            SimpleServiceProvider.Current.AddService<IDestination>(extDest);
+
             var recipe = new CaptureRecipe("route_b_recipe", "Route B PoC")
                 .AddNode(new RecipeNodeConfig { Id = "start", StepType = "Source" })
                 .AddNode(new RecipeNodeConfig
@@ -116,7 +129,7 @@ namespace Greenshot.Tests.Recipes
                     StepType = "Destinations",
                     Parameters = new Dictionary<string, object>
                     {
-                        { "DestinationDesignations", new List<string> { "External MS Paint" } }
+                        { "Destinations", new List<string> { "External MS Paint" } }
                     }
                 });
 
@@ -124,52 +137,57 @@ namespace Greenshot.Tests.Recipes
 
             var result = RecipeValidator.Validate(recipe);
             Assert.True(result.HasExternalCommands, "Route B Destinations step with External designation must be flagged as having external commands.");
-            Assert.Contains(result.ExternalCommands, c => c.Contains("External MS Paint"));
+            Assert.Contains(result.ExternalCommands, c => c.Contains("MS Paint"));
         }
 
         [Fact]
-        public void Validate_RouteB_CustomDestinationExternal_FlagsExternalCommands()
+        public void Validate_RouteB_ScalarDestinationString_FlagsExternalCommands()
         {
-            var recipe = new CaptureRecipe("route_b_custom", "Route B Custom Destination")
+            var extDest = new ExternalCommandDestination("MS Paint");
+            SimpleServiceProvider.Current.AddService<IDestination>(extDest);
+
+            var recipe = new CaptureRecipe("route_b_scalar", "Route B Scalar PoC")
                 .AddNode(new RecipeNodeConfig { Id = "start", StepType = "Source" })
                 .AddNode(new RecipeNodeConfig
                 {
                     Id = "dest_step",
-                    StepType = "CustomDestination",
+                    StepType = "Destinations",
                     Parameters = new Dictionary<string, object>
                     {
-                        { "CustomDestinationId", "External Tool" }
+                        { "Destinations", "External MS Paint" }
                     }
                 });
 
             recipe.Flow = new RecipeFlowConfig("start").AddTransition("start", "dest_step");
 
             var result = RecipeValidator.Validate(recipe);
-            Assert.True(result.HasExternalCommands, "CustomDestination pointing to External destination must be flagged.");
-            Assert.Contains(result.ExternalCommands, c => c.Contains("External Tool"));
+            Assert.True(result.HasExternalCommands, "Route B Destinations step with scalar Destinations string must be flagged.");
+            Assert.Contains(result.ExternalCommands, c => c.Contains("MS Paint"));
         }
 
         [Fact]
-        public void Validate_LatentParameterOnBorderNode_FlagsExternalCommands()
+        public void Validate_RouteB_CommaSeparatedDestinationsString_FlagsExternalCommands()
         {
-            var recipe = new CaptureRecipe("latent_recipe", "Latent Parameter Test")
+            var extDest = new ExternalCommandDestination("MS Paint");
+            SimpleServiceProvider.Current.AddService<IDestination>(extDest);
+
+            var recipe = new CaptureRecipe("route_b_comma", "Route B Comma PoC")
                 .AddNode(new RecipeNodeConfig { Id = "start", StepType = "Source" })
                 .AddNode(new RecipeNodeConfig
                 {
-                    Id = "border_step",
-                    StepType = "Border",
+                    Id = "dest_step",
+                    StepType = "Destinations",
                     Parameters = new Dictionary<string, object>
                     {
-                        { "Width", 2 },
-                        { "Path", @"C:\Windows\System32\calc.exe" }
+                        { "Destinations", "Clipboard, External MS Paint" }
                     }
                 });
 
-            recipe.Flow = new RecipeFlowConfig("start").AddTransition("start", "border_step");
+            recipe.Flow = new RecipeFlowConfig("start").AddTransition("start", "dest_step");
 
             var result = RecipeValidator.Validate(recipe);
-            Assert.True(result.HasExternalCommands, "Border step carrying executable Path parameter must be flagged.");
-            Assert.Contains(result.ExternalCommands, c => c.Contains("calc.exe"));
+            Assert.True(result.HasExternalCommands, "Route B comma-separated destinations string must be flagged as having external commands.");
+            Assert.Contains(result.ExternalCommands, c => c.Contains("MS Paint"));
         }
 
         [Fact]
@@ -188,6 +206,155 @@ namespace Greenshot.Tests.Recipes
             Assert.True(result.IsValid);
             Assert.False(result.HasExternalCommands);
             Assert.Empty(result.ExternalCommands);
+        }
+
+        private class MockAuthorizedDestination : AbstractDestination, IRequiresRecipeAuthorization
+        {
+            public override string Designation => "SecurityAuditDestination";
+            public override string Description => "Custom Security Destination";
+            public override IEnumerable<IDestination> DynamicDestinations() => Enumerable.Empty<IDestination>();
+            public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) => null;
+            public IEnumerable<RecipeGatedAction> GetGatedActions()
+            {
+                yield return new RecipeGatedAction(RecipeGateType.ExternalCommand, @"C:\Security\audit.exe");
+            }
+        }
+
+        [Fact]
+        public void Validate_CustomDestinationImplementingInterface_DetectedWithoutExternalPrefix()
+        {
+            var mockDest = new MockAuthorizedDestination();
+            SimpleServiceProvider.Current.AddService<IDestination>(mockDest);
+
+            var recipe = new CaptureRecipe("custom_auth_dest", "Custom Destination Authorization Test")
+                .AddNode(new RecipeNodeConfig { Id = "start", StepType = "Source" })
+                .AddNode(new RecipeNodeConfig
+                {
+                    Id = "dest_step",
+                    StepType = "Destinations",
+                    Parameters = new Dictionary<string, object>
+                    {
+                        { "Destinations", "SecurityAuditDestination" }
+                    }
+                });
+
+            recipe.Flow = new RecipeFlowConfig("start").AddTransition("start", "dest_step");
+
+            var result = RecipeValidator.Validate(recipe);
+            Assert.True(result.HasExternalCommands, "Destination implementing IRequiresRecipeAuthorization must be flagged even without 'External ' prefix.");
+            Assert.Contains(result.ExternalCommands, c => c.Contains(@"C:\Security\audit.exe"));
+            Assert.Single(result.GatedActions);
+            Assert.Equal(RecipeGateType.ExternalCommand, result.GatedActions[0].GateType);
+        }
+
+        [Fact]
+        public void Validate_RequiresMissingExtension_ReturnsErrorWithUrl()
+        {
+            RecipeValidator.ExtensionAvailabilityCheck = req => (false, null);
+            try
+            {
+                var recipe = new CaptureRecipe("req_test", "Requirement Test")
+                    .AddNode(new RecipeNodeConfig { Id = "start", StepType = "Source" });
+                recipe.Requires = new List<RecipeRequirement>
+                {
+                    new RecipeRequirement
+                    {
+                        Id = "Greenshot.Plugin.Zxing",
+                        Name = "ZXing Extension",
+                        MinVersion = "1.3.0",
+                        Url = "https://getgreenshot.org/plugins/zxing"
+                    }
+                };
+                recipe.Flow = new RecipeFlowConfig("start");
+
+                var result = RecipeValidator.Validate(recipe);
+                Assert.False(result.IsValid);
+                Assert.Contains(result.Errors, e => e.Contains("Greenshot.Plugin.Zxing") && e.Contains("https://getgreenshot.org/plugins/zxing") && e.Contains("v1.3.0+"));
+            }
+            finally
+            {
+                RecipeValidator.ExtensionAvailabilityCheck = null;
+            }
+        }
+
+        [Fact]
+        public void Validate_RequiresInstalledExtension_PassesValidation()
+        {
+            RecipeValidator.ExtensionAvailabilityCheck = req => (true, "1.4.0");
+            try
+            {
+                var recipe = new CaptureRecipe("req_pass", "Requirement Pass")
+                    .AddNode(new RecipeNodeConfig { Id = "start", StepType = "Source" });
+                recipe.Requires = new List<RecipeRequirement>
+                {
+                    new RecipeRequirement
+                    {
+                        Id = "Greenshot.Plugin.Zxing",
+                        MinVersion = "1.3.0"
+                    }
+                };
+                recipe.Flow = new RecipeFlowConfig("start");
+
+                var result = RecipeValidator.Validate(recipe);
+                Assert.True(result.IsValid, string.Join(", ", result.Errors));
+            }
+            finally
+            {
+                RecipeValidator.ExtensionAvailabilityCheck = null;
+            }
+        }
+
+        [Fact]
+        public void Validate_RequiresOutdatedExtension_ReturnsVersionError()
+        {
+            RecipeValidator.ExtensionAvailabilityCheck = req => (true, "1.1.0");
+            try
+            {
+                var recipe = new CaptureRecipe("req_outdated", "Requirement Outdated")
+                    .AddNode(new RecipeNodeConfig { Id = "start", StepType = "Source" });
+                recipe.Requires = new List<RecipeRequirement>
+                {
+                    new RecipeRequirement
+                    {
+                        Id = "Greenshot.Plugin.Zxing",
+                        Name = "ZXing Barcode Plugin",
+                        MinVersion = "1.3.0"
+                    }
+                };
+                recipe.Flow = new RecipeFlowConfig("start");
+
+                var result = RecipeValidator.Validate(recipe);
+                Assert.False(result.IsValid);
+                Assert.Contains(result.Errors, e => e.Contains("version 1.3.0 or newer") && e.Contains("1.1.0"));
+            }
+            finally
+            {
+                RecipeValidator.ExtensionAvailabilityCheck = null;
+            }
+        }
+
+        [Fact]
+        public void Validate_UnregisteredCustomAnnotation_ReturnsError()
+        {
+            var recipe = new CaptureRecipe("unreg_annotation", "Unregistered Annotation Test")
+                .AddNode(new RecipeNodeConfig { Id = "start", StepType = "Source" })
+                .AddNode(new RecipeNodeConfig
+                {
+                    Id = "annot_step",
+                    StepType = "Annotation",
+                    Parameters = new Dictionary<string, object>
+                    {
+                        ["Annotations"] = new List<object>
+                        {
+                            new Dictionary<string, object> { ["Type"] = "NonExistentCustomDrawable" }
+                        }
+                    }
+                });
+            recipe.Flow = new RecipeFlowConfig("start").AddTransition("start", "annot_step");
+
+            var result = RecipeValidator.Validate(recipe);
+            Assert.False(result.IsValid);
+            Assert.Contains(result.Errors, e => e.Contains("NonExistentCustomDrawable") && e.Contains("not available"));
         }
     }
 }

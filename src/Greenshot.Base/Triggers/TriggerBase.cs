@@ -33,6 +33,7 @@ namespace Greenshot.Base.Triggers
 
         public string Id { get; protected set; }
         public string Name { get; set; }
+        public virtual string TriggerType => GetType().Name.Replace("Trigger", "");
         public string TargetRecipeId { get; set; }
         public bool IsEnabled { get; set; } = true;
 

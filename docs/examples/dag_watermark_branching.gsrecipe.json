@@ -59,10 +59,10 @@
     },
     {
       "id": "watermark_node",
-      "stepType": "Drawable",
-      "name": "Stamp Drawables & Watermarks",
+      "stepType": "Annotation",
+      "name": "Stamp Annotations & Watermarks",
       "parameters": {
-        "drawables": [
+        "annotations": [
           {
             "type": "Rectangle",
             "horizontalAnchor": "Right",

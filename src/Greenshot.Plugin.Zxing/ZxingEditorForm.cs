@@ -32,6 +32,29 @@ namespace Greenshot.Plugin.Zxing
         public string EpcReference { get; set; }
         public string EpcMessage { get; set; }
 
+        // Email Settings
+        public string EmailTo { get; set; }
+        public string EmailSubject { get; set; }
+        public string EmailBody { get; set; }
+
+        // Calendar Event Settings
+        public string EventTitle { get; set; }
+        public string EventLocation { get; set; }
+        public string EventStart { get; set; }
+        public string EventEnd { get; set; }
+        public string EventDescription { get; set; }
+
+        // Phone Settings
+        public string PhoneNumber { get; set; }
+
+        // SMS Settings
+        public string SmsNumber { get; set; }
+        public string SmsMessage { get; set; }
+
+        // Geo Location Settings
+        public string Latitude { get; set; }
+        public string Longitude { get; set; }
+
         // Color Settings
         public Color ForeColor { get; set; } = Color.Black;
         public Color BackColor { get; set; } = Color.White;
@@ -39,19 +62,107 @@ namespace Greenshot.Plugin.Zxing
         // Modern Style Setting
         public bool RoundedDots { get; set; } = false;
 
+        // Quiet zone margin (modules of padding around barcode)
+        public int Margin { get; set; } = 1;
+
+        public string GetPayloadString()
+        {
+            if (FormatIndex != 0)
+            {
+                return RawText ?? string.Empty;
+            }
+
+            switch (QrCategoryIndex)
+            {
+                case 0: // Text/URL
+                    return RawText ?? string.Empty;
+
+                case 1: // WiFi
+                    string enc = WifiEncryptionIndex == 1 ? "WEP" : (WifiEncryptionIndex == 2 ? "nopass" : "WPA");
+                    return $"WIFI:S:{WifiSsid};T:{enc};P:{WifiPassword};;";
+
+                case 2: // vCard
+                    return "BEGIN:VCARD\r\nVERSION:3.0\r\n" +
+                           $"N:{VcardLastName};{VcardFirstName}\r\n" +
+                           $"FN:{VcardFirstName} {VcardLastName}\r\n" +
+                           $"ORG:{VcardCompany}\r\n" +
+                           $"TEL;TYPE=CELL:{VcardPhone}\r\n" +
+                           $"EMAIL:{VcardEmail}\r\n" +
+                           $"URL:{VcardUrl}\r\nEND:VCARD";
+
+                case 3: // EPC transaction data
+                    string formattedAmount = string.Empty;
+                    if (double.TryParse(EpcAmount, out double amt))
+                    {
+                        formattedAmount = string.Format(System.Globalization.CultureInfo.InvariantCulture, "EUR{0:F2}", amt);
+                    }
+                    else if (!string.IsNullOrEmpty(EpcAmount))
+                    {
+                        formattedAmount = EpcAmount.StartsWith("EUR", StringComparison.OrdinalIgnoreCase) ? EpcAmount : $"EUR{EpcAmount}";
+                    }
+
+                    return "BCD\n" +
+                           "002\n" +
+                           "1\n" +
+                           "SCT\n" +
+                           $"{EpcBic}\n" +
+                           $"{EpcName}\n" +
+                           $"{EpcIban}\n" +
+                           $"{formattedAmount}\n" +
+                           "\n" +
+                           $"{EpcReference}\n" +
+                           $"{EpcMessage}\n";
+
+                case 4: // Email
+                    string mailto = $"mailto:{EmailTo}";
+                    var query = new List<string>();
+                    if (!string.IsNullOrEmpty(EmailSubject)) query.Add($"subject={Uri.EscapeDataString(EmailSubject)}");
+                    if (!string.IsNullOrEmpty(EmailBody)) query.Add($"body={Uri.EscapeDataString(EmailBody)}");
+                    if (query.Count > 0) mailto += "?" + string.Join("&", query);
+                    return mailto;
+
+                case 5: // Calendar Event
+                    return "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nBEGIN:VEVENT\r\n" +
+                           $"SUMMARY:{EventTitle}\r\n" +
+                           $"LOCATION:{EventLocation}\r\n" +
+                           $"DESCRIPTION:{EventDescription}\r\n" +
+                           (!string.IsNullOrEmpty(EventStart) ? $"DTSTART:{EventStart}\r\n" : "") +
+                           (!string.IsNullOrEmpty(EventEnd) ? $"DTEND:{EventEnd}\r\n" : "") +
+                           "END:VEVENT\r\nEND:VCALENDAR";
+
+                case 6: // Phone
+                    return $"tel:{PhoneNumber}";
+
+                case 7: // SMS
+                    return $"smsto:{SmsNumber}:{SmsMessage}";
+
+                case 8: // Geo Location
+                    return $"geo:{Latitude},{Longitude}";
+
+                default:
+                    return RawText ?? string.Empty;
+            }
+        }
+
         public void OnDoubleClick(Greenshot.Base.Interfaces.Drawing.IDrawableContainer container)
         {
-            if (container is Greenshot.Base.Interfaces.Drawing.IImageContainer imageContainer)
+            Form ownerForm = null;
+            if (container.Parent is Control ctrl)
             {
-                Form ownerForm = null;
-                if (container.Parent is Control ctrl)
-                {
-                    ownerForm = ctrl.FindForm();
-                }
+                ownerForm = ctrl.FindForm();
+            }
 
-                using (var form = new ZxingEditorForm(this))
+            using (var form = new ZxingEditorForm(this))
+            {
+                if (form.ShowDialog(ownerForm) == DialogResult.OK)
                 {
-                    if (form.ShowDialog(ownerForm) == DialogResult.OK && form.GeneratedBitmap != null)
+                    form.PopulateModel(this);
+                    if (container is BarcodeContainer barcodeContainer)
+                    {
+                        barcodeContainer.RegenerateBarcode();
+                        barcodeContainer.Invalidate();
+                    }
+                    else if (container is Greenshot.Base.Interfaces.Drawing.IImageContainer imageContainer && form.GeneratedBitmap != null)
                     {
                         imageContainer.Image = form.GeneratedBitmap;
                         imageContainer.Width = form.GeneratedBitmap.Width;
@@ -83,6 +194,8 @@ namespace Greenshot.Plugin.Zxing
 
         // Modern style controls
         private CheckBox chkRoundedDots;
+        private Label lblMargin;
+        private NumericUpDown numMargin;
 
         private Color foreColor = Color.Black;
         private Color backColor = Color.White;
@@ -111,6 +224,29 @@ namespace Greenshot.Plugin.Zxing
         private TextBox txtEpcAmount;
         private TextBox txtEpcReference;
         private TextBox txtEpcMessage;
+
+        private Panel pnlEmail;
+        private TextBox txtEmailTo;
+        private TextBox txtEmailSubject;
+        private TextBox txtEmailBody;
+
+        private Panel pnlCalendar;
+        private TextBox txtEventTitle;
+        private TextBox txtEventLocation;
+        private TextBox txtEventStart;
+        private TextBox txtEventEnd;
+        private TextBox txtEventDescription;
+
+        private Panel pnlPhone;
+        private TextBox txtPhoneNumber;
+
+        private Panel pnlSms;
+        private TextBox txtSmsNumber;
+        private TextBox txtSmsMessage;
+
+        private Panel pnlGeo;
+        private TextBox txtLatitude;
+        private TextBox txtLongitude;
 
         public Bitmap GeneratedBitmap { get; private set; }
 
@@ -153,12 +289,31 @@ namespace Greenshot.Plugin.Zxing
             txtEpcReference.Text = model.EpcReference;
             txtEpcMessage.Text = model.EpcMessage;
 
+            txtEmailTo.Text = model.EmailTo;
+            txtEmailSubject.Text = model.EmailSubject;
+            txtEmailBody.Text = model.EmailBody;
+
+            txtEventTitle.Text = model.EventTitle;
+            txtEventLocation.Text = model.EventLocation;
+            txtEventStart.Text = model.EventStart;
+            txtEventEnd.Text = model.EventEnd;
+            txtEventDescription.Text = model.EventDescription;
+
+            txtPhoneNumber.Text = model.PhoneNumber;
+
+            txtSmsNumber.Text = model.SmsNumber;
+            txtSmsMessage.Text = model.SmsMessage;
+
+            txtLatitude.Text = model.Latitude;
+            txtLongitude.Text = model.Longitude;
+
             foreColor = model.ForeColor;
             backColor = model.BackColor;
             pnlForeColor.BackColor = foreColor;
             pnlBackColor.BackColor = backColor;
 
             chkRoundedDots.Checked = model.RoundedDots;
+            numMargin.Value = Math.Max(numMargin.Minimum, Math.Min(numMargin.Maximum, model.Margin));
             
             UpdatePreview();
         }
@@ -198,6 +353,11 @@ namespace Greenshot.Plugin.Zxing
             cmbQrCategory.Items.Add("WiFi Network");
             cmbQrCategory.Items.Add("vCard Contact");
             cmbQrCategory.Items.Add("EPC SEPA Transfer");
+            cmbQrCategory.Items.Add("Email");
+            cmbQrCategory.Items.Add("Calendar Event");
+            cmbQrCategory.Items.Add("Phone Call");
+            cmbQrCategory.Items.Add("SMS");
+            cmbQrCategory.Items.Add("Geo Location");
 
             // GroupBox for dynamic input fields
             grpInputs = new GroupBox { Text = "Inputs", Location = new Point(20, 95), Size = new Size(380, 310) };
@@ -218,10 +378,14 @@ namespace Greenshot.Plugin.Zxing
             btnBackColor = new Button { Text = "Background", Location = new Point(590, 265), Width = 90, Height = 25 };
 
             // Checkbox for rounded dots
-            chkRoundedDots = new CheckBox { Text = "Rounded Dots (Modern 2D style)", Location = new Point(420, 300), AutoSize = true };
+            chkRoundedDots = new CheckBox { Text = "Rounded Dots", Location = new Point(420, 298), AutoSize = true };
+
+            // Padding / Quiet zone margin
+            lblMargin = new Label { Text = "Margin:", Location = new Point(545, 300), AutoSize = true };
+            numMargin = new NumericUpDown { Location = new Point(600, 298), Width = 50, Minimum = 0, Maximum = 10, Value = 1 };
 
             // Status label
-            lblStatus = new Label { Location = new Point(420, 325), Size = new Size(260, 35), ForeColor = Color.Red, Font = new Font("Segoe UI", 9, FontStyle.Regular) };
+            lblStatus = new Label { Location = new Point(420, 328), Size = new Size(260, 35), ForeColor = Color.Red, Font = new Font("Segoe UI", 9, FontStyle.Regular) };
 
             // Buttons
             btnInsert = new Button { Text = "Insert", Location = new Point(420, 370), Width = 110, Height = 35, DialogResult = DialogResult.OK, Font = new Font("Segoe UI", 9, FontStyle.Bold) };
@@ -239,6 +403,8 @@ namespace Greenshot.Plugin.Zxing
             this.Controls.Add(pnlBackColor);
             this.Controls.Add(btnBackColor);
             this.Controls.Add(chkRoundedDots);
+            this.Controls.Add(lblMargin);
+            this.Controls.Add(numMargin);
             this.Controls.Add(lblStatus);
             this.Controls.Add(btnInsert);
             this.Controls.Add(btnCancel);
@@ -338,6 +504,86 @@ namespace Greenshot.Plugin.Zxing
             txtEpcMessage = new TextBox { Location = new Point(120, yOffset - 3), Width = 230 };
             pnlEpc.Controls.Add(txtEpcMessage);
             grpInputs.Controls.Add(pnlEpc);
+
+            // Panel 5: Email Message
+            pnlEmail = new Panel { Dock = DockStyle.Fill, Visible = false };
+            yOffset = 10;
+            pnlEmail.Controls.Add(new Label { Text = "To Address:", Location = new Point(10, yOffset), Width = 100 });
+            txtEmailTo = new TextBox { Location = new Point(120, yOffset - 3), Width = 230 };
+            pnlEmail.Controls.Add(txtEmailTo);
+
+            yOffset += 40;
+            pnlEmail.Controls.Add(new Label { Text = "Subject:", Location = new Point(10, yOffset), Width = 100 });
+            txtEmailSubject = new TextBox { Location = new Point(120, yOffset - 3), Width = 230 };
+            pnlEmail.Controls.Add(txtEmailSubject);
+
+            yOffset += 40;
+            pnlEmail.Controls.Add(new Label { Text = "Body:", Location = new Point(10, yOffset), Width = 100 });
+            txtEmailBody = new TextBox { Location = new Point(10, yOffset + 25), Width = 340, Height = 120, Multiline = true, ScrollBars = ScrollBars.Vertical };
+            pnlEmail.Controls.Add(txtEmailBody);
+            grpInputs.Controls.Add(pnlEmail);
+
+            // Panel 6: Calendar Event
+            pnlCalendar = new Panel { Dock = DockStyle.Fill, Visible = false };
+            yOffset = 10;
+            pnlCalendar.Controls.Add(new Label { Text = "Title / Summary:", Location = new Point(10, yOffset), Width = 100 });
+            txtEventTitle = new TextBox { Location = new Point(120, yOffset - 3), Width = 230 };
+            pnlCalendar.Controls.Add(txtEventTitle);
+
+            yOffset += 40;
+            pnlCalendar.Controls.Add(new Label { Text = "Location:", Location = new Point(10, yOffset), Width = 100 });
+            txtEventLocation = new TextBox { Location = new Point(120, yOffset - 3), Width = 230 };
+            pnlCalendar.Controls.Add(txtEventLocation);
+
+            yOffset += 40;
+            pnlCalendar.Controls.Add(new Label { Text = "Start (UTC):", Location = new Point(10, yOffset), Width = 100 });
+            txtEventStart = new TextBox { Location = new Point(120, yOffset - 3), Width = 230 };
+            pnlCalendar.Controls.Add(txtEventStart);
+
+            yOffset += 40;
+            pnlCalendar.Controls.Add(new Label { Text = "End (UTC):", Location = new Point(10, yOffset), Width = 100 });
+            txtEventEnd = new TextBox { Location = new Point(120, yOffset - 3), Width = 230 };
+            pnlCalendar.Controls.Add(txtEventEnd);
+
+            yOffset += 40;
+            pnlCalendar.Controls.Add(new Label { Text = "Description:", Location = new Point(10, yOffset), Width = 100 });
+            txtEventDescription = new TextBox { Location = new Point(120, yOffset - 3), Width = 230 };
+            pnlCalendar.Controls.Add(txtEventDescription);
+            grpInputs.Controls.Add(pnlCalendar);
+
+            // Panel 7: Phone Call
+            pnlPhone = new Panel { Dock = DockStyle.Fill, Visible = false };
+            yOffset = 10;
+            pnlPhone.Controls.Add(new Label { Text = "Phone Number:", Location = new Point(10, yOffset), Width = 100 });
+            txtPhoneNumber = new TextBox { Location = new Point(120, yOffset - 3), Width = 230 };
+            pnlPhone.Controls.Add(txtPhoneNumber);
+            grpInputs.Controls.Add(pnlPhone);
+
+            // Panel 8: SMS Message
+            pnlSms = new Panel { Dock = DockStyle.Fill, Visible = false };
+            yOffset = 10;
+            pnlSms.Controls.Add(new Label { Text = "Recipient Number:", Location = new Point(10, yOffset), Width = 110 });
+            txtSmsNumber = new TextBox { Location = new Point(130, yOffset - 3), Width = 220 };
+            pnlSms.Controls.Add(txtSmsNumber);
+
+            yOffset += 40;
+            pnlSms.Controls.Add(new Label { Text = "Message:", Location = new Point(10, yOffset), Width = 100 });
+            txtSmsMessage = new TextBox { Location = new Point(10, yOffset + 25), Width = 340, Height = 130, Multiline = true, ScrollBars = ScrollBars.Vertical };
+            pnlSms.Controls.Add(txtSmsMessage);
+            grpInputs.Controls.Add(pnlSms);
+
+            // Panel 9: Geo Location
+            pnlGeo = new Panel { Dock = DockStyle.Fill, Visible = false };
+            yOffset = 10;
+            pnlGeo.Controls.Add(new Label { Text = "Latitude:", Location = new Point(10, yOffset), Width = 100 });
+            txtLatitude = new TextBox { Location = new Point(120, yOffset - 3), Width = 230 };
+            pnlGeo.Controls.Add(txtLatitude);
+
+            yOffset += 40;
+            pnlGeo.Controls.Add(new Label { Text = "Longitude:", Location = new Point(10, yOffset), Width = 100 });
+            txtLongitude = new TextBox { Location = new Point(120, yOffset - 3), Width = 230 };
+            pnlGeo.Controls.Add(txtLongitude);
+            grpInputs.Controls.Add(pnlGeo);
         }
 
         private void SetupEventHandlers()
@@ -402,6 +648,7 @@ namespace Greenshot.Plugin.Zxing
             };
 
             chkRoundedDots.CheckedChanged += (s, e) => UpdatePreview();
+            numMargin.ValueChanged += (s, e) => UpdatePreview();
 
             // Hook text change events to trigger real-time preview updates
             txtRawText.TextChanged += (s, e) => UpdatePreview();
@@ -422,6 +669,24 @@ namespace Greenshot.Plugin.Zxing
             txtEpcAmount.TextChanged += (s, e) => UpdatePreview();
             txtEpcReference.TextChanged += (s, e) => UpdatePreview();
             txtEpcMessage.TextChanged += (s, e) => UpdatePreview();
+
+            txtEmailTo.TextChanged += (s, e) => UpdatePreview();
+            txtEmailSubject.TextChanged += (s, e) => UpdatePreview();
+            txtEmailBody.TextChanged += (s, e) => UpdatePreview();
+
+            txtEventTitle.TextChanged += (s, e) => UpdatePreview();
+            txtEventLocation.TextChanged += (s, e) => UpdatePreview();
+            txtEventStart.TextChanged += (s, e) => UpdatePreview();
+            txtEventEnd.TextChanged += (s, e) => UpdatePreview();
+            txtEventDescription.TextChanged += (s, e) => UpdatePreview();
+
+            txtPhoneNumber.TextChanged += (s, e) => UpdatePreview();
+
+            txtSmsNumber.TextChanged += (s, e) => UpdatePreview();
+            txtSmsMessage.TextChanged += (s, e) => UpdatePreview();
+
+            txtLatitude.TextChanged += (s, e) => UpdatePreview();
+            txtLongitude.TextChanged += (s, e) => UpdatePreview();
 
             btnInsert.Click += (s, e) =>
             {
@@ -452,6 +717,26 @@ namespace Greenshot.Plugin.Zxing
                     ShowPanel(pnlEpc);
                     grpInputs.Text = "EPC SEPA Credit Transfer Transaction Details";
                     break;
+                case 4:
+                    ShowPanel(pnlEmail);
+                    grpInputs.Text = "Email Message Details";
+                    break;
+                case 5:
+                    ShowPanel(pnlCalendar);
+                    grpInputs.Text = "Calendar Event (iCal) Details";
+                    break;
+                case 6:
+                    ShowPanel(pnlPhone);
+                    grpInputs.Text = "Phone Call Details";
+                    break;
+                case 7:
+                    ShowPanel(pnlSms);
+                    grpInputs.Text = "SMS Text Message Details";
+                    break;
+                case 8:
+                    ShowPanel(pnlGeo);
+                    grpInputs.Text = "Geo Location Details";
+                    break;
             }
         }
 
@@ -461,6 +746,11 @@ namespace Greenshot.Plugin.Zxing
             pnlWifi.Visible = (panelToShow == pnlWifi);
             pnlVcard.Visible = (panelToShow == pnlVcard);
             pnlEpc.Visible = (panelToShow == pnlEpc);
+            pnlEmail.Visible = (panelToShow == pnlEmail);
+            pnlCalendar.Visible = (panelToShow == pnlCalendar);
+            pnlPhone.Visible = (panelToShow == pnlPhone);
+            pnlSms.Visible = (panelToShow == pnlSms);
+            pnlGeo.Visible = (panelToShow == pnlGeo);
         }
 
         private void UpdatePreview()
@@ -479,19 +769,19 @@ namespace Greenshot.Plugin.Zxing
             BarcodeFormat selectedFormat = MapBarcodeFormat(cmbFormat.Text);
             try
             {
-                var hints = new Dictionary<EncodeHintType, object>
-                {
-                    { EncodeHintType.CHARACTER_SET, "UTF-8" },
-                    { EncodeHintType.MARGIN, 4 }
-                };
+                bool is2D = (selectedFormat == BarcodeFormat.QR_CODE || 
+                             selectedFormat == BarcodeFormat.AZTEC || 
+                             selectedFormat == BarcodeFormat.DATA_MATRIX || 
+                             selectedFormat == BarcodeFormat.PDF_417);
 
-                var writer = new MultiFormatWriter();
-                var matrix = writer.encode(payload, selectedFormat, 0, 0, hints);
+                int targetW = is2D ? 230 : 350;
+                int targetH = is2D ? 230 : 100;
 
-                var bmp = RenderMatrix(matrix, foreColor, backColor, chkRoundedDots.Checked, selectedFormat);
+                int margin = (int)numMargin.Value;
+                var bmp = ZxingBarcodeGenerator.Generate(payload, selectedFormat, foreColor, backColor, chkRoundedDots.Checked, targetW, targetH, margin);
                 picPreview.Image = bmp;
                 GeneratedBitmap = bmp;
-                btnInsert.Enabled = true;
+                btnInsert.Enabled = (bmp != null);
             }
             catch (Exception ex)
             {
@@ -500,83 +790,6 @@ namespace Greenshot.Plugin.Zxing
                 btnInsert.Enabled = false;
                 lblStatus.Text = "Error generating barcode:\n" + ex.Message;
             }
-        }
-
-        private Bitmap RenderMatrix(BitMatrix matrix, Color fore, Color back, bool rounded, BarcodeFormat format)
-        {
-            int width = matrix.Width;
-            int height = matrix.Height;
-            
-            bool is2D = (format == BarcodeFormat.QR_CODE || 
-                         format == BarcodeFormat.AZTEC || 
-                         format == BarcodeFormat.DATA_MATRIX || 
-                         format == BarcodeFormat.PDF_417);
-                         
-            int targetWidth = is2D ? 230 : 350;
-            int targetHeight = is2D ? 230 : 100;
-            
-            float scaleX = (float)targetWidth / width;
-            float scaleY = (float)targetHeight / height;
-            
-            if (is2D)
-            {
-                float minScale = Math.Min(scaleX, scaleY);
-                scaleX = minScale;
-                scaleY = minScale;
-                targetWidth = (int)Math.Round(width * scaleX);
-                targetHeight = (int)Math.Round(height * scaleY);
-            }
-            
-            var bmp = new Bitmap(targetWidth, targetHeight);
-            using (var g = Graphics.FromImage(bmp))
-            {
-                g.Clear(back);
-                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-                
-                using (var brush = new SolidBrush(fore))
-                {
-                    for (int y = 0; y < height; y++)
-                    {
-                        for (int x = 0; x < width; x++)
-                        {
-                            if (matrix[x, y])
-                            {
-                                float px = x * scaleX;
-                                float py = y * scaleY;
-                                
-                                if (rounded && is2D)
-                                {
-                                    bool isFinder = false;
-                                    if (format == BarcodeFormat.QR_CODE)
-                                    {
-                                        int margin = 4;
-                                        if (x >= margin && x < margin + 7 && y >= margin && y < margin + 7) isFinder = true;
-                                        else if (x >= width - margin - 7 && x < width - margin && y >= margin && y < margin + 7) isFinder = true;
-                                        else if (x >= margin && x < margin + 7 && y >= height - margin - 7 && y < height - margin) isFinder = true;
-                                    }
-                                    
-                                    if (isFinder)
-                                    {
-                                        g.FillRectangle(brush, px, py, scaleX, scaleY);
-                                    }
-                                    else
-                                    {
-                                        float sizeX = scaleX - 0.5f;
-                                        float sizeY = scaleY - 0.5f;
-                                        g.FillEllipse(brush, px + 0.25f, py + 0.25f, sizeX, sizeY);
-                                    }
-                                }
-                                else
-                                {
-                                    g.FillRectangle(brush, px, py, scaleX, scaleY);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            
-            return bmp;
         }
 
         private string GetPayloadString()
@@ -633,8 +846,78 @@ namespace Greenshot.Plugin.Zxing
                            $"{txtEpcReference.Text}\n" +
                            $"{txtEpcMessage.Text}\n";
 
+                case 4: // Email
+                    string mailto = $"mailto:{txtEmailTo.Text}";
+                    var query = new List<string>();
+                    if (!string.IsNullOrEmpty(txtEmailSubject.Text)) query.Add($"subject={Uri.EscapeDataString(txtEmailSubject.Text)}");
+                    if (!string.IsNullOrEmpty(txtEmailBody.Text)) query.Add($"body={Uri.EscapeDataString(txtEmailBody.Text)}");
+                    if (query.Count > 0) mailto += "?" + string.Join("&", query);
+                    return mailto;
+
+                case 5: // Calendar Event
+                    return "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nBEGIN:VEVENT\r\n" +
+                           $"SUMMARY:{txtEventTitle.Text}\r\n" +
+                           $"LOCATION:{txtEventLocation.Text}\r\n" +
+                           $"DESCRIPTION:{txtEventDescription.Text}\r\n" +
+                           (!string.IsNullOrEmpty(txtEventStart.Text) ? $"DTSTART:{txtEventStart.Text}\r\n" : "") +
+                           (!string.IsNullOrEmpty(txtEventEnd.Text) ? $"DTEND:{txtEventEnd.Text}\r\n" : "") +
+                           "END:VEVENT\r\nEND:VCALENDAR";
+
+                case 6: // Phone
+                    return $"tel:{txtPhoneNumber.Text}";
+
+                case 7: // SMS
+                    return $"smsto:{txtSmsNumber.Text}:{txtSmsMessage.Text}";
+
+                case 8: // Geo Location
+                    return $"geo:{txtLatitude.Text},{txtLongitude.Text}";
+
                 default:
                     return string.Empty;
+            }
+        }
+
+        public static BarcodeFormat MapFormatIndex(int index)
+        {
+            switch (index)
+            {
+                case 1: return BarcodeFormat.AZTEC;
+                case 2: return BarcodeFormat.DATA_MATRIX;
+                case 3: return BarcodeFormat.PDF_417;
+                case 4: return BarcodeFormat.CODE_128;
+                case 5: return BarcodeFormat.CODE_39;
+                case 6: return BarcodeFormat.CODE_93;
+                case 7: return BarcodeFormat.EAN_13;
+                case 8: return BarcodeFormat.EAN_8;
+                case 9: return BarcodeFormat.UPC_A;
+                case 10: return BarcodeFormat.UPC_E;
+                case 11: return BarcodeFormat.CODABAR;
+                case 12: return BarcodeFormat.ITF;
+                case 13: return BarcodeFormat.MSI;
+                case 14: return BarcodeFormat.PLESSEY;
+                default: return BarcodeFormat.QR_CODE;
+            }
+        }
+
+        public static int MapFormatToIndex(BarcodeFormat format)
+        {
+            switch (format)
+            {
+                case BarcodeFormat.AZTEC: return 1;
+                case BarcodeFormat.DATA_MATRIX: return 2;
+                case BarcodeFormat.PDF_417: return 3;
+                case BarcodeFormat.CODE_128: return 4;
+                case BarcodeFormat.CODE_39: return 5;
+                case BarcodeFormat.CODE_93: return 6;
+                case BarcodeFormat.EAN_13: return 7;
+                case BarcodeFormat.EAN_8: return 8;
+                case BarcodeFormat.UPC_A: return 9;
+                case BarcodeFormat.UPC_E: return 10;
+                case BarcodeFormat.CODABAR: return 11;
+                case BarcodeFormat.ITF: return 12;
+                case BarcodeFormat.MSI: return 13;
+                case BarcodeFormat.PLESSEY: return 14;
+                default: return 0;
             }
         }
 
@@ -690,10 +973,29 @@ namespace Greenshot.Plugin.Zxing
             model.EpcReference = txtEpcReference.Text;
             model.EpcMessage = txtEpcMessage.Text;
 
+            model.EmailTo = txtEmailTo.Text;
+            model.EmailSubject = txtEmailSubject.Text;
+            model.EmailBody = txtEmailBody.Text;
+
+            model.EventTitle = txtEventTitle.Text;
+            model.EventLocation = txtEventLocation.Text;
+            model.EventStart = txtEventStart.Text;
+            model.EventEnd = txtEventEnd.Text;
+            model.EventDescription = txtEventDescription.Text;
+
+            model.PhoneNumber = txtPhoneNumber.Text;
+
+            model.SmsNumber = txtSmsNumber.Text;
+            model.SmsMessage = txtSmsMessage.Text;
+
+            model.Latitude = txtLatitude.Text;
+            model.Longitude = txtLongitude.Text;
+
             model.ForeColor = foreColor;
             model.BackColor = backColor;
             
             model.RoundedDots = chkRoundedDots.Checked;
+            model.Margin = (int)numMargin.Value;
         }
     }
 }

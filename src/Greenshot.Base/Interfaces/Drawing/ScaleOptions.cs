@@ -1,48 +1,44 @@
 /*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
- *
+ * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
- *
+ * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 1 of the License, or
  * (at your option) any later version.
- *
+ * 
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace Greenshot.Base.Pipeline
-{
-    /// <summary>
-    /// Interface implemented by plugins or extensions that contribute custom capture steps to the recipe pipeline.
-    /// </summary>
-    public interface IRecipeStepProvider
-    {
-        /// <summary>
-        /// Registers step factories into the step registry.
-        /// </summary>
-        /// <param name="registry">The step registry to register step factories with.</param>
-        void RegisterSteps(IStepRegistry registry);
-    }
+using System;
 
-    /// <summary>
-    /// Interface implemented by plugins or extensions that contribute JSON Schema fragments
-    /// describing the parameters of their custom capture steps.
-    /// </summary>
-    public interface IRecipeStepSchemaProvider
+namespace Greenshot.Base.Interfaces.Drawing
+{
+    [Flags]
+    public enum ScaleOptions
     {
         /// <summary>
-        /// Returns an optional JSON Schema fragment describing the configuration properties
-        /// accepted by the custom steps provided by this extension, or null if none is provided.
+        /// Default scale behavior.
         /// </summary>
-        string GetStepSchemaJson();
+        Default = 0x00,
+
+        /// <summary>
+        /// Scale a rectangle in two or four directions, mirrored at its center coordinates
+        /// </summary>
+        Centered = 0x01,
+
+        /// <summary>
+        /// Scale a rectangle maintaining its aspect ratio
+        /// </summary>
+        Rational = 0x02
     }
 }
