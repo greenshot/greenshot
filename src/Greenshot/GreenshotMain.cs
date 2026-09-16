@@ -172,6 +172,12 @@ public class GreenshotMain
             return;
         }
 
+        if (IsMissingDependencyException(exceptionToLog))
+        {
+            new MissingDependencyForm(exceptionToLog, exceptionText).ShowDialog();
+            return;
+        }
+
         new BugReportForm(exceptionText).ShowDialog();
     }
 
@@ -187,6 +193,12 @@ public class GreenshotMain
             return;
         }
 
+        if (IsMissingDependencyException(exceptionToLog))
+        {
+            new MissingDependencyForm(exceptionToLog, exceptionText).ShowDialog();
+            return;
+        }
+
         new BugReportForm(exceptionText).ShowDialog();
     }
 
@@ -198,11 +210,31 @@ public class GreenshotMain
             string exceptionText = EnvironmentInfo.BuildReport(exceptionToLog);
             LOG.Error("Exception caught in the UnobservedTaskException handler.");
             LOG.Error(exceptionText);
+            if (IsMissingDependencyException(exceptionToLog))
+            {
+                new MissingDependencyForm(exceptionToLog, exceptionText).ShowDialog();
+                return;
+            }
             new BugReportForm(exceptionText).ShowDialog();
         }
         finally
         {
             args.SetObserved();
         }
+    }
+
+    /// <summary>
+    /// Returns true when the exception (or any inner exception) is a missing assembly / dependency error.
+    /// This typically means the user installed Greenshot without the official installer.
+    /// </summary>
+    internal static bool IsMissingDependencyException(Exception ex)
+    {
+        while (ex != null)
+        {
+            if (ex is FileNotFoundException && ex.Message.Contains("Could not load file or assembly"))
+                return true;
+            ex = ex.InnerException;
+        }
+        return false;
     }
 }

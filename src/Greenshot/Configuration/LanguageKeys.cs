@@ -77,6 +77,12 @@ namespace Greenshot.Configuration
         tooltip_firststart,
         warning,
         warning_hotkeys,
-        update_found
+        update_found,
+        missing_dependency_title,
+        missing_dependency_info,
+        missing_dependency_assembly_label,
+        missing_dependency_download,
+        missing_dependency_show_details,
+        missing_dependency_hide_details
     }
 }

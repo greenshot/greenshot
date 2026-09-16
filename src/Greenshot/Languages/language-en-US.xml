@@ -12,6 +12,16 @@ Details about the GNU General Public License:</resource>
 		<resource name="about_translation"><!-- diplayed in about dialog, use to add credits or other translation-related info, e.g. "English translation by Jane Doe" --></resource>
 		<resource name="application_title">Greenshot - the revolutionary screenshot utility</resource>
 		<resource name="bugreport_cancel">Close</resource>
+		<resource name="missing_dependency_title">Greenshot could not start — missing file</resource>
+		<resource name="missing_dependency_info">Greenshot could not start because a required file is missing.
+
+This usually happens when Greenshot was not installed using the official installer, or when files were partially deleted or moved.
+
+To fix this, please download and run the official Greenshot installer.</resource>
+		<resource name="missing_dependency_assembly_label">Missing file:</resource>
+		<resource name="missing_dependency_download">Download official installer…</resource>
+		<resource name="missing_dependency_show_details">Show technical details</resource>
+		<resource name="missing_dependency_hide_details">Hide technical details</resource>
 		<resource name="bugreport_info">Sorry, an unexpected error occurred.
 
 The good news is: you can help us getting rid of it by filing a bug report.
