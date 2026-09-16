@@ -8,7 +8,7 @@ tags:
 - '1.3'
 ---
 
-Mit Greenshot 1.3 steht ein wichtiges Sicherheitsupdate bereit. Wir empfehlen allen Nutzerinnen und Nutzern das zeitnahe Update über die offizielle Download-Seite: https://getgreenshot.org/downloads/
+Mit Greenshot 1.3 steht ein wichtiges Sicherheitsupdate bereit. Wir empfehlen allen Nutzerinnen und Nutzern das zeitnahe Update über die offizielle [Download-Seite](https://getgreenshot.org/downloads/).
 
 ## Was ist neu?
 
