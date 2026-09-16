@@ -114,6 +114,18 @@ namespace Greenshot.Tests.Forms
                     var confluenceConfig = IniConfigHelper.EnsureSection<IConfluenceConfiguration>(() => new ConfluenceConfigurationImpl());
                     var confluenceForm = new ConfluenceConfigurationForm(confluenceConfig);
                     Assert.NotNull(confluenceForm);
+
+                    var instances = new[]
+                    {
+                        new Greenshot.Forms.Wpf.RunningInstanceItem
+                        {
+                            Index = 1,
+                            ProcessId = 1234,
+                            Path = @"C:\Program Files\Greenshot\Greenshot.exe"
+                        }
+                    };
+                    var instanceRunningWindow = new Greenshot.Forms.Wpf.InstanceRunningWindow(instances);
+                    Assert.NotNull(instanceRunningWindow);
                 }
                 catch (Exception ex)
                 {
