@@ -19,15 +19,21 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Forms;
+using Dapplo.Ini;
 using Greenshot.Base;
-using Greenshot.Base.IniFile;
+using Greenshot.Base.Core;
+using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Wpf;
 using Greenshot.Configuration;
+using Greenshot.Helpers;
+using BaseLanguage = Greenshot.Base.Core.Language;
 using MessageBox = System.Windows.MessageBox;
 
 namespace Greenshot.Forms.Wpf
@@ -46,6 +52,7 @@ namespace Greenshot.Forms.Wpf
             
             _viewModel = new SettingsViewModel();
             DataContext = _viewModel;
+            Icon = _viewModel.WindowIcon;
             
             // Apply theme
             Resources.MergedDictionaries.Add(ThemeManager.Instance.GetThemeResources());
@@ -60,24 +67,17 @@ namespace Greenshot.Forms.Wpf
 
         private void TitleBar_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            if (e.ClickCount == 2)
-            {
-                MaximizeButton_Click(sender, null);
-            }
-            else
-            {
-                DragMove();
-            }
+            DragMove();
+        }
+
+        private void ThemeToggle_Click(object sender, RoutedEventArgs e)
+        {
+            _viewModel.ToggleTheme();
         }
 
         private void MinimizeButton_Click(object sender, RoutedEventArgs e)
         {
             WindowState = WindowState.Minimized;
-        }
-
-        private void MaximizeButton_Click(object sender, RoutedEventArgs e)
-        {
-            WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
         }
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
@@ -87,8 +87,13 @@ namespace Greenshot.Forms.Wpf
 
         private void OkButton_Click(object sender, RoutedEventArgs e)
         {
-            // Save settings
+            HotkeyManager.UnregisterHotkeys();
             SaveSettings();
+            HotkeyHelper.RegisterHotkeys();
+
+            var mainForm = SimpleServiceProvider.Current.GetInstance<MainForm>();
+            mainForm?.UpdateUi();
+
             DialogResult = true;
             Close();
         }
@@ -102,22 +107,27 @@ namespace Greenshot.Forms.Wpf
 
         private void BrowseStorageLocation_Click(object sender, RoutedEventArgs e)
         {
-            using (var dialog = new FolderBrowserDialog())
+            string selectedPath = ModernFolderPicker.SelectFolder(
+                this,
+                _viewModel.CoreConfiguration.OutputFilePath,
+                BaseLanguage.GetString("settings_storagelocation"));
+
+            if (!string.IsNullOrEmpty(selectedPath))
             {
-                dialog.SelectedPath = _viewModel.CoreConfiguration.OutputFilePath;
-                if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-                {
-                    _viewModel.CoreConfiguration.OutputFilePath = dialog.SelectedPath;
-                }
+                _viewModel.CoreConfiguration.OutputFilePath = selectedPath;
             }
         }
 
         private void ShowPatternHelp_Click(object sender, RoutedEventArgs e)
         {
-            string filenamepatternText = Greenshot.Base.Core.Language.GetString(LangKey.settings_message_filenamepattern);
+            string filenamepatternText = BaseLanguage.GetString(LangKey.settings_message_filenamepattern);
             // Convert %NUM% to ${NUM} for old language files!
             filenamepatternText = Regex.Replace(filenamepatternText, "%([a-zA-Z_0-9]+)%", @"${$1}");
-            MessageBox.Show(filenamepatternText, Greenshot.Base.Core.Language.GetString(LangKey.settings_filenamepattern));
+            var dialog = new PatternHelpWindow(filenamepatternText)
+            {
+                Owner = this
+            };
+            dialog.ShowDialog();
         }
 
         private void IconSizeUp_Click(object sender, RoutedEventArgs e)
@@ -134,6 +144,16 @@ namespace Greenshot.Forms.Wpf
             {
                 _viewModel.IconSize -= 16;
             }
+        }
+
+        private void PluginConfigure_Click(object sender, RoutedEventArgs e)
+        {
+            _viewModel.ConfigureSelectedPlugin();
+        }
+
+        private void PluginListView_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            _viewModel.ConfigureSelectedPlugin();
         }
 
         private void SaveSettings()
@@ -154,9 +174,45 @@ namespace Greenshot.Forms.Wpf
             }
             
             _viewModel.CoreConfiguration.OutputDestinations = destinations;
+
+            // Save clipboard formats
+            if (_viewModel.ClipboardFormats != null)
+            {
+                _viewModel.CoreConfiguration.ClipboardFormats = _viewModel.ClipboardFormats
+                    .Where(cf => cf.IsSelected)
+                    .Select(cf => cf.Format)
+                    .ToList();
+            }
+
+            try
+            {
+                if (_viewModel.AutoStartEnabled)
+                {
+                    if (!StartupHelper.HasRunAll())
+                    {
+                        StartupHelper.SetRunUser();
+                    }
+                }
+                else
+                {
+                    if (StartupHelper.HasRunAll())
+                    {
+                        StartupHelper.DeleteRunAll();
+                    }
+
+                    if (StartupHelper.HasRunUser())
+                    {
+                        StartupHelper.DeleteRunUser();
+                    }
+                }
+            }
+            catch
+            {
+                // ignored
+            }
             
             // Force save of all configuration sections
-            IniConfig.Save();
+            IniConfigRegistry.Get()?.Save();
         }
     }
 }

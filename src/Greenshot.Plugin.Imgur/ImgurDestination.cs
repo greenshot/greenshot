@@ -21,6 +21,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
@@ -32,12 +33,13 @@ namespace Greenshot.Plugin.Imgur
     public class ImgurDestination : AbstractDestination
     {
         private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ImgurDestination));
+        private static readonly ComponentResourceManager Resources = new ComponentResourceManager(typeof(ImgurPlugin));
 
         public override string Designation => "Imgur";
 
         public override string Description => Language.GetString("imgur", LangKey.upload_menu_item) ?? "Upload to Imgur";
 
-        public override Image DisplayIcon => null;
+        public override Image DisplayIcon => (Image) Resources.GetObject("Imgur");
 
         public override IEnumerable<IDestination> DynamicDestinations()
         {

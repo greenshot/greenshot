@@ -22,7 +22,6 @@
 using System;
 using System.Globalization;
 using System.Windows.Data;
-using Greenshot.Base.IniFile;
 
 namespace Greenshot.Base.Wpf
 {
@@ -33,11 +32,9 @@ namespace Greenshot.Base.Wpf
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is IniValue iniValue)
+            if (value is bool boolValue)
             {
-                bool expertModeEnabled = parameter as bool? ?? false;
-                // Show if not expert, or if expert and expert mode is enabled
-                return !iniValue.IsExpert || expertModeEnabled 
+                return boolValue 
                     ? System.Windows.Visibility.Visible 
                     : System.Windows.Visibility.Collapsed;
             }
@@ -51,20 +48,98 @@ namespace Greenshot.Base.Wpf
     }
 
     /// <summary>
-    /// Converter for IniValue to determine if control should be enabled (based on IsFixed)
+    /// Converter to determine if control should be enabled (based on IsFixed/IsConstant in Dapplo.Ini).
+    /// Disables controls (returns false) if the bound INI property is marked as constant.
+    /// Supports:
+    /// - Binding to an IIniSection with ConverterParameter="PropertyName"
+    /// - MultiBinding with [0] = IIniSection, [1] = PropertyName
+    /// - Direct boolean input (true => false, false => true)
     /// </summary>
-    public class FixedToEnabledConverter : IValueConverter
+    public class FixedToEnabledConverter : IValueConverter, IMultiValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is IniValue iniValue)
+            if (value is Dapplo.Ini.Interfaces.IIniSection section && parameter is string propertyName)
             {
-                return !iniValue.IsFixed; // Enabled when not fixed
+                return !section.IsConstant(propertyName);
             }
+
+            if (value is bool isFixed)
+            {
+                return !isFixed; // Enabled when not fixed
+            }
+
+            if (value != null && parameter is string propName)
+            {
+                // In case a ViewModel or wrapper object was passed
+                var dotIndex = propName.IndexOf('.');
+                if (dotIndex > 0)
+                {
+                    var sectionPropName = propName.Substring(0, dotIndex);
+                    var actualPropName = propName.Substring(dotIndex + 1);
+                    var sectionObj = value.GetType().GetProperty(sectionPropName)?.GetValue(value) as Dapplo.Ini.Interfaces.IIniSection;
+                    if (sectionObj != null)
+                    {
+                        return !sectionObj.IsConstant(actualPropName);
+                    }
+                }
+                else
+                {
+                    var coreProp = value.GetType().GetProperty("CoreConfiguration")?.GetValue(value) as Dapplo.Ini.Interfaces.IIniSection;
+                    if (coreProp != null)
+                    {
+                        return !coreProp.IsConstant(propName);
+                    }
+                }
+            }
+
             return true;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (values == null || values.Length == 0)
+            {
+                return true;
+            }
+
+            foreach (var val in values)
+            {
+                if (val is bool b && !b)
+                {
+                    return false;
+                }
+            }
+
+            string propertyName = parameter as string;
+            Dapplo.Ini.Interfaces.IIniSection section = null;
+
+            foreach (var val in values)
+            {
+                if (val is Dapplo.Ini.Interfaces.IIniSection s)
+                {
+                    section = s;
+                }
+                else if (val is string str && propertyName == null)
+                {
+                    propertyName = str;
+                }
+            }
+
+            if (section != null && !string.IsNullOrEmpty(propertyName))
+            {
+                return !section.IsConstant(propertyName);
+            }
+
+            return true;
+        }
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }

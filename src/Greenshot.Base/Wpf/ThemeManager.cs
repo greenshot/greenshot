@@ -48,7 +48,7 @@ namespace Greenshot.Base.Wpf
         public bool IsDarkTheme
         {
             get => _isDarkTheme;
-            private set
+            set
             {
                 if (_isDarkTheme != value)
                 {
@@ -67,6 +67,11 @@ namespace Greenshot.Base.Wpf
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TitleBarBrush)));
                 }
             }
+        }
+
+        public void ToggleTheme()
+        {
+            IsDarkTheme = !IsDarkTheme;
         }
 
         public Brush BackgroundBrush => _isDarkTheme 

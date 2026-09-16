@@ -19,17 +19,28 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Windows;
+using System.Windows.Interop;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using Dapplo.Ini;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
-using Greenshot.Base.IniFile;
 using Greenshot.Base.Interfaces;
+using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.Base.Wpf;
 using Greenshot.Editor.Configuration;
+using Greenshot.Helpers;
 
 namespace Greenshot.Forms.Wpf
 {
@@ -38,19 +49,20 @@ namespace Greenshot.Forms.Wpf
     /// </summary>
     public class SettingsViewModel : INotifyPropertyChanged
     {
+        private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(SettingsViewModel));
         private bool _expertModeEnabled;
         private bool _autoStartEnabled;
         private bool _pickerSelected;
         private string _selectedLanguage;
         private int _iconSize;
+        private PluginItem _selectedPlugin;
 
         public SettingsViewModel()
         {
-            CoreConfiguration = IniConfig.GetIniSection<CoreConfiguration>();
-            EditorConfiguration = IniConfig.GetIniSection<EditorConfiguration>();
+            CoreConfiguration = IniConfigHelper.EnsureSection<ICoreConfiguration>(() => new CoreConfigurationImpl());
+            EditorConfiguration = IniConfigHelper.EnsureSection<IEditorConfiguration>(() => new EditorConfigurationImpl());
             _expertModeEnabled = !CoreConfiguration.HideExpertSettings;
-            // AutoStart is handled separately from INI config
-            _autoStartEnabled = false;
+            _autoStartEnabled = StartupHelper.HasRunUser() || StartupHelper.HasRunAll();
             
             // Initialize language
             _selectedLanguage = Language.CurrentLanguage;
@@ -67,15 +79,152 @@ namespace Greenshot.Forms.Wpf
             // Initialize destinations
             InitializeDestinations();
             
+            // Initialize plugins
+            InitializePlugins();
+
+            // Initialize clipboard formats
+            InitializeClipboardFormats();
+
             // Initialize plugin controls collection
             PluginControls = new ObservableCollection<UIElement>();
+
+            ThemeManager.Instance.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(ThemeManager.IsDarkTheme))
+                {
+                    OnPropertyChanged(nameof(ThemeToggleIcon));
+                    OnPropertyChanged(nameof(ThemeToggleToolTip));
+                }
+            };
         }
 
-        public CoreConfiguration CoreConfiguration { get; }
+        public ICoreConfiguration CoreConfiguration { get; }
         
-        public EditorConfiguration EditorConfiguration { get; }
+        public IEditorConfiguration EditorConfiguration { get; }
         
         public ObservableCollection<UIElement> PluginControls { get; }
+
+        public ObservableCollection<PluginItem> Plugins { get; private set; }
+
+        public PluginItem SelectedPlugin
+        {
+            get => _selectedPlugin;
+            set
+            {
+                if (_selectedPlugin != value)
+                {
+                    _selectedPlugin = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(CanConfigureSelectedPlugin));
+                }
+            }
+        }
+
+        public bool CanConfigureSelectedPlugin => SelectedPlugin?.IsConfigurable == true;
+
+        public void ConfigureSelectedPlugin()
+        {
+            if (CanConfigureSelectedPlugin)
+            {
+                SelectedPlugin?.Plugin.Configure();
+            }
+        }
+
+        public bool PrintColor
+        {
+            get => !CoreConfiguration.OutputPrintGrayscale && !CoreConfiguration.OutputPrintMonochrome;
+            set
+            {
+                if (value)
+                {
+                    CoreConfiguration.OutputPrintGrayscale = false;
+                    CoreConfiguration.OutputPrintMonochrome = false;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(PrintGrayscale));
+                    OnPropertyChanged(nameof(PrintMonochrome));
+                }
+            }
+        }
+
+        public bool PrintGrayscale
+        {
+            get => CoreConfiguration.OutputPrintGrayscale;
+            set
+            {
+                if (value)
+                {
+                    CoreConfiguration.OutputPrintGrayscale = true;
+                    CoreConfiguration.OutputPrintMonochrome = false;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(PrintColor));
+                    OnPropertyChanged(nameof(PrintMonochrome));
+                }
+            }
+        }
+
+        public bool PrintMonochrome
+        {
+            get => CoreConfiguration.OutputPrintMonochrome;
+            set
+            {
+                if (value)
+                {
+                    CoreConfiguration.OutputPrintGrayscale = false;
+                    CoreConfiguration.OutputPrintMonochrome = true;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(PrintColor));
+                    OnPropertyChanged(nameof(PrintGrayscale));
+                }
+            }
+        }
+
+        public ObservableCollection<ClipboardFormatItem> ClipboardFormats { get; private set; }
+
+        private static ImageSource _greenshotIconSource;
+
+        public static ImageSource GetGreenshotIconSource()
+        {
+            if (_greenshotIconSource != null)
+            {
+                return _greenshotIconSource;
+            }
+
+            try
+            {
+                using (var icon = GreenshotResources.GetGreenshotIcon())
+                {
+                    if (icon != null)
+                    {
+                        _greenshotIconSource = Imaging.CreateBitmapSourceFromHIcon(
+                            icon.Handle,
+                            Int32Rect.Empty,
+                            BitmapSizeOptions.FromEmptyOptions());
+                        _greenshotIconSource.Freeze();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Warn("Failed to load Greenshot icon source", ex);
+            }
+
+            return _greenshotIconSource;
+        }
+
+        public ImageSource WindowIcon => GetGreenshotIconSource();
+
+        public bool IsExpertTabVisible => !CoreConfiguration.HideExpertSettings;
+
+        public string ThemeToggleIcon => ThemeManager.Instance.IsDarkTheme ? "☀️" : "🌙";
+        public string ThemeToggleToolTip => ThemeManager.Instance.IsDarkTheme ? "Switch to Light Mode" : "Switch to Dark Mode";
+
+        public void ToggleTheme()
+        {
+            ThemeManager.Instance.ToggleTheme();
+            Greenshot.UI.WpfThemeHelper.IsDarkMode = ThemeManager.Instance.IsDarkTheme;
+            OnPropertyChanged(nameof(ThemeToggleIcon));
+            OnPropertyChanged(nameof(ThemeToggleToolTip));
+        }
 
         public bool ExpertModeEnabled
         {
@@ -132,7 +281,7 @@ namespace Greenshot.Forms.Wpf
                 if (_iconSize != value && value >= 16 && value <= 256)
                 {
                     _iconSize = value;
-                    CoreConfiguration.IconSize = new System.Drawing.Size(value, value);
+                    CoreConfiguration.IconSize = new NativeSize(value, value);
                     OnPropertyChanged();
                 }
             }
@@ -187,6 +336,34 @@ namespace Greenshot.Forms.Wpf
             }
         }
 
+        private static ImageSource CreateImageSource(System.Drawing.Image image)
+        {
+            if (image == null)
+            {
+                return null;
+            }
+
+            try
+            {
+                using (var ms = new MemoryStream())
+                {
+                    image.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                    ms.Position = 0;
+                    var bitmapImage = new BitmapImage();
+                    bitmapImage.BeginInit();
+                    bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+                    bitmapImage.StreamSource = ms;
+                    bitmapImage.EndInit();
+                    bitmapImage.Freeze();
+                    return bitmapImage;
+                }
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         private void InitializeDestinations()
         {
             Destinations = new ObservableCollection<DestinationItem>();
@@ -196,18 +373,90 @@ namespace Greenshot.Forms.Wpf
                 // Skip picker - it's handled separately
                 if (nameof(WellKnownDestinations.Picker).Equals(destination.Designation))
                 {
-                    _pickerSelected = CoreConfiguration.OutputDestinations.Contains(destination.Designation);
+                    _pickerSelected = CoreConfiguration.OutputDestinations != null && CoreConfiguration.OutputDestinations.Contains(destination.Designation);
                     continue;
+                }
+
+                ImageSource iconSource = null;
+                try
+                {
+                    var displayIcon = destination.DisplayIcon;
+                    if (displayIcon != null)
+                    {
+                        iconSource = CreateImageSource(displayIcon);
+                    }
+                }
+                catch
+                {
+                    // Some plugins may fail to resolve icons if their config section is not initialized
+                }
+
+                string description = destination.Designation;
+                try
+                {
+                    description = destination.Description ?? destination.Designation;
+                }
+                catch
+                {
+                    // Fallback to designation
                 }
 
                 var destItem = new DestinationItem
                 {
                     Destination = destination,
-                    Description = destination.Description,
-                    IsSelected = CoreConfiguration.OutputDestinations.Contains(destination.Designation)
+                    Description = description,
+                    IconSource = iconSource,
+                    IsSelected = CoreConfiguration.OutputDestinations != null && CoreConfiguration.OutputDestinations.Contains(destination.Designation)
                 };
                 
                 Destinations.Add(destItem);
+            }
+        }
+
+        private void InitializePlugins()
+        {
+            Plugins = new ObservableCollection<PluginItem>();
+            try
+            {
+                var plugins = SimpleServiceProvider.Current.GetAllInstances<IGreenshotPlugin>();
+                if (plugins != null)
+                {
+                    foreach (var plugin in plugins)
+                    {
+                        var assembly = plugin.GetType().Assembly;
+                        var company = assembly.GetCustomAttribute<AssemblyCompanyAttribute>()?.Company ?? string.Empty;
+                        var version = assembly.GetName().Version?.ToString() ?? string.Empty;
+                        var location = assembly.Location ?? string.Empty;
+
+                        Plugins.Add(new PluginItem
+                        {
+                            Plugin = plugin,
+                            Name = plugin.Name,
+                            Version = version,
+                            Company = company,
+                            Location = location
+                        });
+                    }
+                }
+            }
+            catch
+            {
+                // In some test scenarios SimpleServiceProvider might not have plugins registered
+            }
+        }
+
+        private void InitializeClipboardFormats()
+        {
+            ClipboardFormats = new ObservableCollection<ClipboardFormatItem>();
+            var currentFormats = CoreConfiguration.ClipboardFormats ?? new List<ClipboardFormat>();
+            foreach (ClipboardFormat format in System.Enum.GetValues(typeof(ClipboardFormat)))
+            {
+                ClipboardFormats.Add(new ClipboardFormatItem
+                {
+                    Format = format,
+                    Name = Language.Translate(format),
+                    IsSelected = currentFormats.Contains(format)
+                });
             }
         }
 
@@ -237,6 +486,40 @@ namespace Greenshot.Forms.Wpf
 
         public IDestination Destination { get; set; }
         public string Description { get; set; }
+        public ImageSource IconSource { get; set; }
+
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set
+            {
+                if (_isSelected != value)
+                {
+                    _isSelected = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsSelected)));
+                }
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+    }
+
+    public class PluginItem
+    {
+        public IGreenshotPlugin Plugin { get; set; }
+        public string Name { get; set; }
+        public string Version { get; set; }
+        public string Company { get; set; }
+        public string Location { get; set; }
+        public bool IsConfigurable => Plugin?.IsConfigurable == true;
+    }
+
+    public class ClipboardFormatItem : INotifyPropertyChanged
+    {
+        private bool _isSelected;
+
+        public ClipboardFormat Format { get; set; }
+        public string Name { get; set; }
 
         public bool IsSelected
         {

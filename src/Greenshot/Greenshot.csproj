@@ -18,6 +18,7 @@
     <None Include="Languages\language*.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Resource Include="icons\applicationIcon\icon.ico" />
   </ItemGroup>
 
   <ItemGroup>
