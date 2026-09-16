@@ -16,7 +16,7 @@ Greenshot 1.3 behebt ein Sicherheitsproblem bei sicheren Internetverbindungen (H
 
 ## Kurz und einfach erklärt
 
-In manchen Situationen hat Greenshot früher Zertifikate zu leicht akzeptiert. In einem unsicheren Netzwerk (zum Beispiel in einem fremden WLAN) hätte sich dadurch jemand zwischen Greenshot und einen Onlinedienst schalten können.
+In manchen Situationen hat Greenshot früher Zertifikate zu leicht akzeptiert. In einem unsicheren Netzwerk (zum Beispiel in einem fremden WLAN) hätte sich dadurch jemand zwischen Greenshot und einem Onlinedienst schalten können.
 
 Mit dem Update prüft Greenshot diese Zertifikate jetzt korrekt. Das macht den Datenaustausch deutlich sicherer.
 
