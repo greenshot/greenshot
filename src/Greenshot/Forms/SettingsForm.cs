@@ -115,6 +115,12 @@ namespace Greenshot.Forms
             checkbox_editor_match_capture_size.Text = Language.GetString("editor_match_capture_size");
             checkbox_editor_match_capture_size.PropertyName = nameof(Editor.Configuration.IEditorConfiguration.MatchSizeToCapture);
             checkbox_editor_match_capture_size.SectionName = "Editor";
+            checkbox_reuseeditor.Text = Language.GetString("expertsettings_reuseeditorifpossible");
+            checkbox_reuseeditor.PropertyName = nameof(Editor.Configuration.IEditorConfiguration.ReuseEditor);
+            checkbox_reuseeditor.SectionName = "Editor";
+            checkbox_suppresssavedialogatclose.Text = Language.GetString("expertsettings_suppresssavedialogatclose");
+            checkbox_suppresssavedialogatclose.PropertyName = nameof(Editor.Configuration.IEditorConfiguration.SuppressSaveDialogAtClose);
+            checkbox_suppresssavedialogatclose.SectionName = "Editor";
             groupbox_windowscapture.Text = Language.GetString("settings_windowscapture");
             radiobuttonWindowCapture.Text = Language.GetString("settings_window_capture_mode");
             radiobuttonInteractiveCapture.Text = Language.GetString("settings_capture_windows_interactive");
@@ -159,16 +165,12 @@ namespace Greenshot.Forms
             button_pluginconfigure.Text = Language.GetString("settings_configureplugin");
             tab_expert.Text = Language.GetString("expertsettings");
             groupbox_expert.Text = Language.GetString("expertsettings");
-            checkbox_reuseeditor.Text = Language.GetString("expertsettings_reuseeditorifpossible");
-            checkbox_reuseeditor.PropertyName = nameof(Editor.Configuration.IEditorConfiguration.ReuseEditor);
-            checkbox_reuseeditor.SectionName = "Editor";
+            checkbox_enablerecipes.Text = Language.GetString("expertsettings_enablerecipes");
+            checkbox_enablerecipes.PropertyName = nameof(ICoreConfiguration.EnableRecipeFeature);
             checkbox_minimizememoryfootprint.Text = Language.GetString("expertsettings_minimizememoryfootprint");
             checkbox_minimizememoryfootprint.PropertyName = nameof(ICoreConfiguration.MinimizeWorkingSetSize);
             checkbox_checkunstableupdates.Text = Language.GetString("expertsettings_checkunstableupdates");
             checkbox_checkunstableupdates.PropertyName = nameof(ICoreConfiguration.CheckForUnstable);
-            checkbox_suppresssavedialogatclose.Text = Language.GetString("expertsettings_suppresssavedialogatclose");
-            checkbox_suppresssavedialogatclose.PropertyName = nameof(Editor.Configuration.IEditorConfiguration.SuppressSaveDialogAtClose);
-            checkbox_suppresssavedialogatclose.SectionName = "Editor";
             label_counter.Text = Language.GetString("expertsettings_counter");
             textbox_counter.PropertyName = nameof(ICoreConfiguration.OutputFileIncrementingNumber);
             label_footerpattern.Text = Language.GetString("expertsettings_footerpattern");
@@ -975,10 +977,9 @@ namespace Greenshot.Forms
             checkbox_thumbnailpreview.Enabled = state;
             textbox_footerpattern.Enabled = state;
             textbox_counter.Enabled = state;
-            checkbox_suppresssavedialogatclose.Enabled = state;
             checkbox_checkunstableupdates.Enabled = state;
             checkbox_minimizememoryfootprint.Enabled = state;
-            checkbox_reuseeditor.Enabled = state;
+            checkbox_enablerecipes.Enabled = state;
         }
 
         /// <summary>

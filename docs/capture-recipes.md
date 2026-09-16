@@ -295,6 +295,63 @@ In the visual Recipe Editor:
 - **`RoundedDots`**: Boolean (`true`/`false`). Renders modern rounded circular dots for 2D matrix modules while preserving standard finder patterns.
 - **`Format`**: Barcode format string for `Barcode` type (e.g. `"QR_CODE"`, `"CODE_128"`, `"EAN_13"`, `"DATA_MATRIX"`, `"AZTEC"`, `"PDF_417"`). Defaults to `"QR_CODE"`.
 
+### Image, Cursor & SVG Annotations
+
+Greenshot supports rich graphical elements including bitmaps (`Image`), Windows mouse cursors (`Cursor`), and vector graphics (`Svg`):
+
+#### 1. Embedded (Base64) vs Linked (File Path) Storage:
+- **Embedded (`ImageData` / `Content`)**: Binary image or cursor bitmaps are encoded as Base64 strings, and SVG vectors as inline XML text. This makes recipe files 100% self-contained and portable across environments with no external file dependencies:
+  ```json
+  {
+    "type": "Cursor",
+    "horizontalAnchor": "Center",
+    "verticalAnchor": "Center",
+    "imageData": "iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0...",
+    "width": 32,
+    "height": 32
+  }
+  ```
+- **Linked (`FilePath`)**: Stored as a reference path to an external image (`.png`, `.jpg`, `.bmp`, `.ico`), cursor (`.cur`, `.ico`), or SVG (`.svg`) file on disk.
+
+#### 2. Standard Windows Cursor Presets:
+`Cursor` annotations can directly use any standard Windows system cursor via `"cursorName"` without requiring any image file:
+- **Available Presets**: `"Arrow"` (default), `"AppStarting"`, `"Cross"`, `"Hand"`, `"Help"`, `"IBeam"`, `"No"`, `"SizeAll"`, `"SizeNESW"`, `"SizeNS"`, `"SizeNWSE"`, `"SizeWE"`, `"UpArrow"`, `"Wait"`.
+```json
+{
+  "type": "Cursor",
+  "horizontalAnchor": "Right",
+  "verticalAnchor": "Bottom",
+  "offsetX": -50,
+  "offsetY": -50,
+  "cursorName": "Hand",
+  "width": 32,
+  "height": 32
+}
+```
+
+#### 3. Aspect Ratio Locking:
+Annotations with scalable visual proportions (`Image`, `Svg`, `Emoji`, `StepLabel`, `Cursor`) support `"lockAspectRatio": true` to preserve original dimensions and prevent distortion when resizing in the editor.
+
+---
+
+### Visual Recipe Editor — Creating Templates from Editors & Files
+
+The visual Recipe Editor includes a built-in workflow to convert open screenshot editor surfaces into recipe annotation steps:
+
+1. **Import from Editor / File**:
+   - In the Recipe Editor, select an `Annotation` step and click **"📥 Import from Editor..."** or **"📂 Import from .greenshot..."**.
+   - If multiple image editors are currently open, the **Select Image Editor** window appears:
+     - **Side-by-Side Master-Detail View**: Left column lists open editors with titles, canvas dimensions, and annotation counts; right column displays a live full canvas preview of the selected editor.
+     - **Always Accessible**: Designed with custom `WindowChrome`, taskbar integration (`ShowInTaskbar="True"`), and topmost layering (`Topmost="True"`) so the dialog never gets obscured or lost behind external editor windows.
+2. **Interactive Import Annotations Dialog**:
+   - **Target Step Mode**: Choose whether to **Append** imported annotations to existing step elements or **Replace** existing annotations.
+   - **Interactive Elements List**: Toggle and inspect individual elements sorted alphabetically (A-Z).
+   - **Asset Storage Selection**: For every bitmap, cursor, and SVG graphic, choose whether to:
+     - **Embed (Base64)** directly into the recipe JSON (preferred for portability).
+     - **Save to File** with a designated destination folder and recipe filename prefix (e.g. `<Folder>\{prefix}_{type}_{index}.png`).
+
+---
+
 ### Flexible Positioning: Absolute, Calculated & Anchored
 Annotations can be positioned using:
 1. **Absolute Coordinates**: Fixed integers (`left: 50, top: 100, width: 200, height: 40`).

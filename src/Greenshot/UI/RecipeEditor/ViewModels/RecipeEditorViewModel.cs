@@ -337,6 +337,7 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
             foreach (var nodeConfig in recipe.Nodes)
             {
                 var vm = new StepNodeViewModel(nodeConfig, new Point(defaultX, defaultY), SetStartNode, DeleteNode, HandleNodeIdChanged, OnNodeStartToggled);
+                vm.RecipeNameProvider = () => RecipeTitle;
                 if (hasExplicitStarts)
                 {
                     vm.IsStartNode = recipe.Flow.StartNodes.Contains(nodeConfig.Id, StringComparer.OrdinalIgnoreCase);
@@ -639,6 +640,7 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
             double y = Nodes.Count > 0 ? Nodes.Max(n => n.Location.Y) + 140 : 100;
 
             var nodeVm = new StepNodeViewModel(config, new Point(x, y), SetStartNode, DeleteNode, HandleNodeIdChanged, OnNodeStartToggled);
+            nodeVm.RecipeNameProvider = () => RecipeTitle;
             if (Nodes.Count == 0)
             {
                 nodeVm.IsStartNode = true;

@@ -10,10 +10,13 @@
 - **Build System**: MSBuild (requires Visual Studio or MSBuild Tools for Windows)
 - **Versioning**: Nerdbank.GitVersioning (version base: 1.4.x)
 
-## Specialised Agents
+## Specialised Agents & Skills
 
--translation-manager: always consult them about UI messages, esp. after addition/change/removal of UI messages
-- release-documentation-specialist: always ask them to update release notes after applying changes to the code base or when there is demand to update release notes or write a release blog post
+- **translation-manager**: Always consult them about UI messages, esp. after addition/change/removal of UI messages (see `.github/agents/translation-manager.md` and `docs/translation/`).
+- **release-documentation** (Skill with Visual Studio wrapper): The user may explicitly invoke this workflow when release notes, changelogs, or release blog posts need to be generated or updated. It is not automatically invoked by models (see `.github/skills/release-documentation/SKILL.md` and `.github/agents/release-documentation-specialist.agent.md`).
+  - Changelogs are updated in `docs/changelogs/` and submitted as a PR against the original base branch (e.g. `main` or `release/1.3`).
+  - Release blog posts are created under `_posts/` and submitted as a PR against the `gh-pages` branch.
+  - All documentation is written in English.
 
 ## Build Requirements & Environment
 

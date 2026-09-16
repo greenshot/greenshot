@@ -399,7 +399,85 @@
         },
         "filePath": {
           "type": "string",
-          "description": "File path for Image, Icon, Cursor, or Svg annotations."
+          "description": "File path for Image, Icon, Cursor, or Svg annotations when linked as an external file."
+        },
+        "imageData": {
+          "type": "string",
+          "description": "Base64-encoded image or cursor bitmap data for embedded Image or Cursor annotations."
+        },
+        "content": {
+          "type": "string",
+          "description": "Raw SVG XML string or text content for embedded Svg annotations."
+        },
+        "cursorName": {
+          "type": "string",
+          "enum": [
+            "AppStarting",
+            "Arrow",
+            "Cross",
+            "Hand",
+            "Help",
+            "IBeam",
+            "No",
+            "SizeAll",
+            "SizeNESW",
+            "SizeNS",
+            "SizeNWSE",
+            "SizeWE",
+            "UpArrow",
+            "Wait"
+          ],
+          "description": "Standard Windows cursor preset name for Cursor annotations."
+        },
+        "hotspotX": {
+          "type": "integer",
+          "description": "Horizontal hotspot coordinate offset in pixels for Cursor annotations."
+        },
+        "hotspotY": {
+          "type": "integer",
+          "description": "Vertical hotspot coordinate offset in pixels for Cursor annotations."
+        },
+        "lockAspectRatio": {
+          "type": "boolean",
+          "description": "Whether to preserve the width-to-height aspect ratio when resizing or configuring the annotation."
+        },
+        "arrowHeads": {
+          "type": "string",
+          "enum": [
+            "END_POINT",
+            "START_POINT",
+            "BOTH",
+            "NONE"
+          ],
+          "description": "Arrowheads rendering placement for Arrow annotations."
+        },
+        "number": {
+          "type": "integer",
+          "description": "Counter sequence number for StepLabel annotations."
+        },
+        "blurRadius": {
+          "type": "integer",
+          "description": "Blur kernel radius in pixels for Blur annotations."
+        },
+        "pixelSize": {
+          "type": "integer",
+          "description": "Pixel block size in pixels for Pixelize annotations."
+        },
+        "magnificationFactor": {
+          "type": "integer",
+          "description": "Magnification zoom multiplier (e.g. 2 for 2x zoom) for Magnify annotations."
+        },
+        "foreColor": {
+          "type": "string",
+          "description": "Foreground or module color for QRCode or Barcode annotations."
+        },
+        "backColor": {
+          "type": "string",
+          "description": "Background quiet-zone color for QRCode or Barcode annotations."
+        },
+        "roundedDots": {
+          "type": "boolean",
+          "description": "Whether QRCode data modules are drawn as rounded dots instead of square blocks."
         },
         "emoji": {
           "type": "string",
