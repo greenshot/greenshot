@@ -31,8 +31,10 @@ using Greenshot.Base.Pipeline;
 using Greenshot.Base.Recipes;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Helpers;
+using System.IO;
 using Greenshot.Pipeline.Steps;
 using Greenshot.Plugin.Zxing;
+using Greenshot.UI.RecipeEditor.Helpers;
 using Xunit;
 
 namespace Greenshot.Tests.Recipes
@@ -574,6 +576,184 @@ namespace Greenshot.Tests.Recipes
             containerZeroMargin.Margin = 5;
             Assert.Equal(5, containerZeroMargin.Margin);
             Assert.Equal(5, model.Margin);
+        }
+
+        [Fact]
+        public void Registry_CursorDrawable_SupportsWindowsCursorPresets()
+        {
+            var registry = RecipeDrawableRegistry.Instance;
+            Assert.True(registry.IsRegistered("Cursor"));
+
+            using var bmp = new Bitmap(400, 400);
+            using var surface = new Surface(bmp);
+
+            // Test Hand cursor
+            var pHand = new Dictionary<string, object>
+            {
+                ["CursorName"] = "Hand",
+                ["Width"] = 32,
+                ["Height"] = 32
+            };
+            var handContainer = registry.CreateDrawable("Cursor", surface, pHand, null);
+            Assert.NotNull(handContainer);
+            Assert.IsType<CursorContainer>(handContainer);
+            var ccHand = (CursorContainer)handContainer;
+            Assert.NotNull(ccHand.Cursor);
+            Assert.True(ccHand.Cursor.Size.Width > 0);
+
+            // Test Cross cursor
+            var pCross = new Dictionary<string, object>
+            {
+                ["CursorName"] = "Cross",
+                ["Width"] = 32,
+                ["Height"] = 32
+            };
+            var crossContainer = registry.CreateDrawable("Cursor", surface, pCross, null);
+            Assert.NotNull(crossContainer);
+            Assert.IsType<CursorContainer>(crossContainer);
+            var ccCross = (CursorContainer)crossContainer;
+            Assert.NotNull(ccCross.Cursor);
+        }
+
+        [Fact]
+        public void Registry_ImageDrawable_SupportsBase64EmbeddedData()
+        {
+            var registry = RecipeDrawableRegistry.Instance;
+            Assert.True(registry.IsRegistered("Image"));
+
+            using var sampleBmp = new Bitmap(64, 64);
+            using (var g = Graphics.FromImage(sampleBmp))
+            {
+                g.Clear(Color.CornflowerBlue);
+            }
+
+            string base64;
+            using (var ms = new MemoryStream())
+            {
+                sampleBmp.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                base64 = Convert.ToBase64String(ms.ToArray());
+            }
+
+            using var bmp = new Bitmap(400, 400);
+            using var surface = new Surface(bmp);
+
+            var p = new Dictionary<string, object>
+            {
+                ["ImageData"] = base64,
+                ["Width"] = 64,
+                ["Height"] = 64
+            };
+
+            var imgContainer = registry.CreateDrawable("Image", surface, p, null);
+            Assert.NotNull(imgContainer);
+            Assert.IsType<ImageContainer>(imgContainer);
+            var ic = (ImageContainer)imgContainer;
+            Assert.NotNull(ic.Image);
+            Assert.Equal(64, ic.Image.Width);
+            Assert.Equal(64, ic.Image.Height);
+        }
+
+        [Fact]
+        public void EditorAnnotationImporter_AnalyzeSurfaceElements_ExtractsItemsProperly()
+        {
+            using var bmp = new Bitmap(400, 400);
+            using var surface = new Surface(bmp);
+
+            // Add a rectangle
+            var rect = new RectangleContainer(surface)
+            {
+                Left = 10,
+                Top = 10,
+                Width = 100,
+                Height = 80
+            };
+            surface.AddElement(rect);
+
+            // Add text
+            var text = new TextContainer(surface)
+            {
+                Text = "Sample Label",
+                Left = 20,
+                Top = 20,
+                Width = 120,
+                Height = 40
+            };
+            surface.AddElement(text);
+
+            var items = EditorAnnotationImporter.AnalyzeSurfaceElements(surface);
+            Assert.Equal(2, items.Count);
+
+            var rectItem = items.First(i => i.Type == "Rectangle");
+            Assert.Contains("100", rectItem.Dimensions);
+            Assert.False(rectItem.CanSaveAsFile);
+
+            var textItem = items.First(i => i.Type == "Text");
+            Assert.Contains("Sample Label", textItem.Description);
+            Assert.False(textItem.CanSaveAsFile);
+        }
+
+        [Fact]
+        public void EditorAnnotationImporter_ProcessImport_SupportsEmbedAndFileModes()
+        {
+            var rawBytes = new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A }; // PNG header magic bytes
+            var itemEmbed = new ImportableElementItem
+            {
+                Type = "Image",
+                IsSelected = true,
+                CanSaveAsFile = true,
+                StorageMode = AssetStorageMode.EmbedBase64,
+                RawData = rawBytes,
+                FileExtension = ".png",
+                Parameters = new Dictionary<string, object>
+                {
+                    ["Type"] = "Image",
+                    ["Width"] = 50,
+                    ["Height"] = 50
+                }
+            };
+
+            var itemFile = new ImportableElementItem
+            {
+                Type = "Image",
+                IsSelected = true,
+                CanSaveAsFile = true,
+                StorageMode = AssetStorageMode.SaveToFile,
+                RawData = rawBytes,
+                FileExtension = ".png",
+                Parameters = new Dictionary<string, object>
+                {
+                    ["Type"] = "Image",
+                    ["Width"] = 50,
+                    ["Height"] = 50
+                }
+            };
+
+            string tempDir = Path.Combine(Path.GetTempPath(), "Greenshot_Test_" + Guid.NewGuid().ToString("N"));
+            try
+            {
+                var processed = EditorAnnotationImporter.ProcessImport(new[] { itemEmbed, itemFile }, tempDir, "test_recipe");
+                Assert.Equal(2, processed.Count);
+
+                // First should have embedded base64
+                var p1 = processed[0];
+                Assert.True(p1.ContainsKey("ImageData"));
+                Assert.Equal(Convert.ToBase64String(rawBytes), p1["ImageData"]);
+                Assert.False(p1.ContainsKey("FilePath"));
+
+                // Second should have saved file path
+                var p2 = processed[1];
+                Assert.True(p2.ContainsKey("FilePath"));
+                string path = (string)p2["FilePath"];
+                Assert.True(File.Exists(path));
+                Assert.Equal(rawBytes, File.ReadAllBytes(path));
+            }
+            finally
+            {
+                if (Directory.Exists(tempDir))
+                {
+                    Directory.Delete(tempDir, true);
+                }
+            }
         }
     }
 }

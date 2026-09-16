@@ -4,12 +4,16 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using Greenshot.Base.Drawing;
 using Greenshot.Base.Interfaces.Drawing;
+using Greenshot.Base.Interfaces.Forms;
 using Greenshot.Base.Recipes;
+using Greenshot.UI.RecipeEditor.Dialogs;
+using Greenshot.UI.RecipeEditor.Helpers;
 using Newtonsoft.Json.Linq;
 
 namespace Greenshot.UI.RecipeEditor.ViewModels
@@ -242,13 +246,31 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
         private string _fillColor = "transparent";
         private string _lineColor = "#FF0000";
         private int _lineThickness = 2;
+        private bool _shadow = true;
+        private string _fontFamily = "Segoe UI";
+        private double _fontSize = 12.0;
+        private bool _fontBold = false;
+        private bool _fontItalic = false;
+        private string _textAlignment = "Center";
+        private string _arrowHeads = "END_POINT";
+        private int _stepNumber = 1;
+        private int _blurRadius = 10;
+        private int _pixelSize = 5;
+        private int _magnificationFactor = 2;
+        private string _foreColor = "#000000";
+        private string _backColor = "#FFFFFF";
+        private bool _roundedDots = false;
+        private int _margin = 1;
         private string _tailDirection = "BottomLeft";
         private string _tailOffsetX = "0";
         private string _tailOffsetY = "0";
 
-        // Image & SVG fields
+        // Image, SVG & Cursor fields
         private string _filePath = "";
         private string _svgXml = "";
+        private string _imageData = "";
+        private string _assetStorageMode = "Embed";
+        private string _cursorName = "Arrow";
 
         // Aspect ratio tracking & parameters store
         private double _aspectRatio = 1.0;
@@ -256,6 +278,26 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
         private readonly Dictionary<string, object> _parameters = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
 
         private readonly Action _onChanged;
+
+        public static IReadOnlyList<string> AvailableFontFamilies { get; } = GetAvailableFonts();
+        public static IReadOnlyList<string> AvailableTextAlignments { get; } = new[] { "Left", "Center", "Right" };
+        public static IReadOnlyList<string> AvailableArrowHeads { get; } = new[] { "END_POINT", "START_POINT", "BOTH", "NONE" };
+        public static IReadOnlyList<string> AvailableCursors { get; } = new[] { "AppStarting", "Arrow", "Cross", "Hand", "Help", "IBeam", "No", "SizeAll", "SizeNESW", "SizeNS", "SizeNWSE", "SizeWE", "UpArrow", "Wait" };
+
+        private static List<string> GetAvailableFonts()
+        {
+            try
+            {
+                var fonts = System.Windows.Media.Fonts.SystemFontFamilies
+                    .Select(f => f.Source)
+                    .Where(s => !string.IsNullOrWhiteSpace(s))
+                    .OrderBy(s => s)
+                    .ToList();
+                if (fonts.Count > 0) return fonts;
+            }
+            catch { }
+            return new List<string> { "Arial", "Calibri", "Comic Sans MS", "Consolas", "Courier New", "Georgia", "Impact", "Lucida Console", "Segoe UI", "Tahoma", "Times New Roman", "Trebuchet MS", "Verdana" };
+        }
 
         public string Type
         {
@@ -306,7 +348,22 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
                     OnPropertyChanged(nameof(IsQrCodeType));
                     OnPropertyChanged(nameof(IsImageType));
                     OnPropertyChanged(nameof(IsSvgType));
+                    OnPropertyChanged(nameof(IsCursorType));
                     OnPropertyChanged(nameof(IsStepLabelType));
+                    OnPropertyChanged(nameof(IsArrowType));
+                    OnPropertyChanged(nameof(IsBlurType));
+                    OnPropertyChanged(nameof(IsPixelizeType));
+                    OnPropertyChanged(nameof(IsObfuscateType));
+                    OnPropertyChanged(nameof(IsHighlightType));
+                    OnPropertyChanged(nameof(IsMagnifyType));
+                    OnPropertyChanged(nameof(HasFontSettings));
+                    OnPropertyChanged(nameof(HasLineThickness));
+                    OnPropertyChanged(nameof(HasShadow));
+                    OnPropertyChanged(nameof(HasFillColor));
+                    OnPropertyChanged(nameof(HasLineColor));
+                    OnPropertyChanged(nameof(HasAnyStandardColor));
+                    OnPropertyChanged(nameof(FillColorLabel));
+                    OnPropertyChanged(nameof(LineColorLabel));
                     OnPropertyChanged(nameof(LockAspectRatio));
                     OnPropertyChanged(nameof(CanConfigure));
                     OnPropertyChanged(nameof(ConfigurationSummary));
@@ -314,10 +371,10 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
             }
         }
 
+        private bool IsKnownNonColorType => IsQrCodeType || IsObfuscateType || IsMagnifyType || IsEmojiType || IsImageType || IsSvgType || IsCursorType;
+
         public bool IsTextType => string.Equals(_type, "Text", StringComparison.OrdinalIgnoreCase) ||
                                   string.Equals(_type, "Speechbubble", StringComparison.OrdinalIgnoreCase) ||
-                                  string.Equals(_type, "StepLabel", StringComparison.OrdinalIgnoreCase) ||
-                                  string.Equals(_type, "Counter", StringComparison.OrdinalIgnoreCase) ||
                                   string.Equals(_type, "Watermark", StringComparison.OrdinalIgnoreCase);
 
         public bool IsQrCodeType => string.Equals(_type, "QRCode", StringComparison.OrdinalIgnoreCase) ||
@@ -332,8 +389,74 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
 
         public bool IsSvgType => string.Equals(_type, "Svg", StringComparison.OrdinalIgnoreCase);
 
+        public bool IsCursorType => string.Equals(_type, "Cursor", StringComparison.OrdinalIgnoreCase);
+
         public bool IsStepLabelType => string.Equals(_type, "StepLabel", StringComparison.OrdinalIgnoreCase) ||
                                        string.Equals(_type, "Counter", StringComparison.OrdinalIgnoreCase);
+
+        public bool IsArrowType => string.Equals(_type, "Arrow", StringComparison.OrdinalIgnoreCase);
+
+        public bool IsBlurType => string.Equals(_type, "Blur", StringComparison.OrdinalIgnoreCase);
+
+        public bool IsPixelizeType => string.Equals(_type, "Pixelize", StringComparison.OrdinalIgnoreCase);
+
+        public bool IsObfuscateType => IsBlurType || IsPixelizeType;
+
+        public bool IsHighlightType => string.Equals(_type, "Highlight", StringComparison.OrdinalIgnoreCase);
+
+        public bool IsMagnifyType => string.Equals(_type, "Magnify", StringComparison.OrdinalIgnoreCase);
+
+        public bool HasFontSettings => string.Equals(_type, "Text", StringComparison.OrdinalIgnoreCase) ||
+                                       string.Equals(_type, "Speechbubble", StringComparison.OrdinalIgnoreCase);
+
+        public bool HasLineThickness => string.Equals(_type, "Rectangle", StringComparison.OrdinalIgnoreCase) ||
+                                        string.Equals(_type, "Ellipse", StringComparison.OrdinalIgnoreCase) ||
+                                        string.Equals(_type, "Line", StringComparison.OrdinalIgnoreCase) ||
+                                        string.Equals(_type, "Arrow", StringComparison.OrdinalIgnoreCase) ||
+                                        string.Equals(_type, "Freehand", StringComparison.OrdinalIgnoreCase) ||
+                                        string.Equals(_type, "Text", StringComparison.OrdinalIgnoreCase) ||
+                                        string.Equals(_type, "Speechbubble", StringComparison.OrdinalIgnoreCase);
+
+        public bool HasShadow => string.Equals(_type, "Rectangle", StringComparison.OrdinalIgnoreCase) ||
+                                 string.Equals(_type, "Ellipse", StringComparison.OrdinalIgnoreCase) ||
+                                 string.Equals(_type, "Line", StringComparison.OrdinalIgnoreCase) ||
+                                 string.Equals(_type, "Arrow", StringComparison.OrdinalIgnoreCase) ||
+                                 string.Equals(_type, "Freehand", StringComparison.OrdinalIgnoreCase) ||
+                                 string.Equals(_type, "Text", StringComparison.OrdinalIgnoreCase) ||
+                                 string.Equals(_type, "Speechbubble", StringComparison.OrdinalIgnoreCase) ||
+                                 string.Equals(_type, "StepLabel", StringComparison.OrdinalIgnoreCase) ||
+                                 string.Equals(_type, "Counter", StringComparison.OrdinalIgnoreCase) ||
+                                 string.Equals(_type, "Image", StringComparison.OrdinalIgnoreCase);
+
+        public bool HasFillColor => string.Equals(_type, "Rectangle", StringComparison.OrdinalIgnoreCase) ||
+                                    string.Equals(_type, "Ellipse", StringComparison.OrdinalIgnoreCase) ||
+                                    string.Equals(_type, "Text", StringComparison.OrdinalIgnoreCase) ||
+                                    string.Equals(_type, "Speechbubble", StringComparison.OrdinalIgnoreCase) ||
+                                    string.Equals(_type, "StepLabel", StringComparison.OrdinalIgnoreCase) ||
+                                    string.Equals(_type, "Counter", StringComparison.OrdinalIgnoreCase) ||
+                                    string.Equals(_type, "Highlight", StringComparison.OrdinalIgnoreCase) ||
+                                    (!IsKnownNonColorType && !string.Equals(_type, "Line", StringComparison.OrdinalIgnoreCase) && !string.Equals(_type, "Arrow", StringComparison.OrdinalIgnoreCase) && !string.Equals(_type, "Freehand", StringComparison.OrdinalIgnoreCase));
+
+        public bool HasLineColor => string.Equals(_type, "Rectangle", StringComparison.OrdinalIgnoreCase) ||
+                                    string.Equals(_type, "Ellipse", StringComparison.OrdinalIgnoreCase) ||
+                                    string.Equals(_type, "Line", StringComparison.OrdinalIgnoreCase) ||
+                                    string.Equals(_type, "Arrow", StringComparison.OrdinalIgnoreCase) ||
+                                    string.Equals(_type, "Freehand", StringComparison.OrdinalIgnoreCase) ||
+                                    string.Equals(_type, "Text", StringComparison.OrdinalIgnoreCase) ||
+                                    string.Equals(_type, "Speechbubble", StringComparison.OrdinalIgnoreCase) ||
+                                    string.Equals(_type, "StepLabel", StringComparison.OrdinalIgnoreCase) ||
+                                    string.Equals(_type, "Counter", StringComparison.OrdinalIgnoreCase) ||
+                                    string.Equals(_type, "Highlight", StringComparison.OrdinalIgnoreCase) ||
+                                    !IsKnownNonColorType;
+
+        public bool HasAnyStandardColor => !IsQrCodeType && (HasFillColor || HasLineColor);
+
+        public string FillColorLabel => IsStepLabelType ? "Circle Color" :
+                                        IsHighlightType ? "Highlight Color" :
+                                        IsTextType ? "Background Color" : "Fill Color";
+
+        public string LineColorLabel => IsStepLabelType ? "Number Color" :
+                                        IsTextType ? "Text Color" : "Line Color";
 
         public bool CanConfigure => RecipeDrawableRegistry.Instance.CanConfigureDrawable(_type);
 
@@ -457,6 +580,11 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
                 if (SetField(ref _text, value))
                 {
                     _parameters["Text"] = value;
+                    if (IsStepLabelType && int.TryParse(value, out int parsedNum))
+                    {
+                        _stepNumber = parsedNum;
+                        OnPropertyChanged(nameof(StepNumber));
+                    }
                     _onChanged?.Invoke();
                     OnPropertyChanged(nameof(ConfigurationSummary));
                 }
@@ -484,13 +612,183 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
         public string FilePath
         {
             get => _filePath;
-            set { if (SetField(ref _filePath, value)) _onChanged?.Invoke(); }
+            set
+            {
+                if (SetField(ref _filePath, value))
+                {
+                    OnPropertyChanged(nameof(HasLinkedFile));
+                    OnPropertyChanged(nameof(SourceSummaryBadge));
+                    _onChanged?.Invoke();
+                }
+            }
         }
 
         public string SvgXml
         {
             get => _svgXml;
-            set { if (SetField(ref _svgXml, value)) _onChanged?.Invoke(); }
+            set
+            {
+                if (SetField(ref _svgXml, value))
+                {
+                    OnPropertyChanged(nameof(HasEmbeddedData));
+                    OnPropertyChanged(nameof(SourceSummaryBadge));
+                    _onChanged?.Invoke();
+                }
+            }
+        }
+
+        public string ImageData
+        {
+            get => _imageData;
+            set
+            {
+                if (SetField(ref _imageData, value))
+                {
+                    OnPropertyChanged(nameof(HasEmbeddedData));
+                    OnPropertyChanged(nameof(SourceSummaryBadge));
+                    _onChanged?.Invoke();
+                }
+            }
+        }
+
+        public bool HasEmbeddedData => !string.IsNullOrEmpty(_imageData) || (!string.IsNullOrEmpty(_svgXml) && IsSvgType);
+        public bool HasLinkedFile => !string.IsNullOrEmpty(_filePath);
+
+        public string AssetStorageMode
+        {
+            get => _assetStorageMode;
+            set
+            {
+                if (SetField(ref _assetStorageMode, value))
+                {
+                    OnPropertyChanged(nameof(IsEmbedMode));
+                    OnPropertyChanged(nameof(IsLinkMode));
+                    OnPropertyChanged(nameof(IsCursorPresetMode));
+                    OnPropertyChanged(nameof(IsCursorEmbedMode));
+                    OnPropertyChanged(nameof(IsCursorLinkMode));
+                    OnPropertyChanged(nameof(SourceSummaryBadge));
+                    _onChanged?.Invoke();
+                }
+            }
+        }
+
+        public bool IsEmbedMode
+        {
+            get => string.Equals(_assetStorageMode, "Embed", StringComparison.OrdinalIgnoreCase) || (HasEmbeddedData && !HasLinkedFile);
+            set { if (value) AssetStorageMode = "Embed"; }
+        }
+
+        public bool IsLinkMode
+        {
+            get => string.Equals(_assetStorageMode, "Link", StringComparison.OrdinalIgnoreCase) || (HasLinkedFile && !HasEmbeddedData);
+            set { if (value) AssetStorageMode = "Link"; }
+        }
+
+        public bool IsCursorPresetMode
+        {
+            get => IsCursorType && !HasEmbeddedData && !HasLinkedFile;
+            set
+            {
+                if (value && IsCursorType)
+                {
+                    _imageData = null;
+                    _filePath = null;
+                    _assetStorageMode = "Preset";
+                    if (string.IsNullOrEmpty(_cursorName)) _cursorName = "Arrow";
+                    OnPropertyChanged(nameof(ImageData));
+                    OnPropertyChanged(nameof(FilePath));
+                    OnPropertyChanged(nameof(CursorName));
+                    OnPropertyChanged(nameof(HasEmbeddedData));
+                    OnPropertyChanged(nameof(HasLinkedFile));
+                    OnPropertyChanged(nameof(IsCursorPresetMode));
+                    OnPropertyChanged(nameof(IsCursorEmbedMode));
+                    OnPropertyChanged(nameof(IsCursorLinkMode));
+                    OnPropertyChanged(nameof(SourceSummaryBadge));
+                    _onChanged?.Invoke();
+                }
+            }
+        }
+
+        public bool IsCursorEmbedMode
+        {
+            get => IsCursorType && HasEmbeddedData;
+            set
+            {
+                if (value && IsCursorType)
+                {
+                    _filePath = null;
+                    _assetStorageMode = "Embed";
+                    OnPropertyChanged(nameof(FilePath));
+                    OnPropertyChanged(nameof(HasEmbeddedData));
+                    OnPropertyChanged(nameof(HasLinkedFile));
+                    OnPropertyChanged(nameof(IsCursorPresetMode));
+                    OnPropertyChanged(nameof(IsCursorEmbedMode));
+                    OnPropertyChanged(nameof(IsCursorLinkMode));
+                    OnPropertyChanged(nameof(SourceSummaryBadge));
+                    _onChanged?.Invoke();
+                }
+            }
+        }
+
+        public bool IsCursorLinkMode
+        {
+            get => IsCursorType && HasLinkedFile;
+            set
+            {
+                if (value && IsCursorType)
+                {
+                    _imageData = null;
+                    _assetStorageMode = "Link";
+                    OnPropertyChanged(nameof(ImageData));
+                    OnPropertyChanged(nameof(HasEmbeddedData));
+                    OnPropertyChanged(nameof(HasLinkedFile));
+                    OnPropertyChanged(nameof(IsCursorPresetMode));
+                    OnPropertyChanged(nameof(IsCursorEmbedMode));
+                    OnPropertyChanged(nameof(IsCursorLinkMode));
+                    OnPropertyChanged(nameof(SourceSummaryBadge));
+                    _onChanged?.Invoke();
+                }
+            }
+        }
+
+        public string SourceSummaryBadge
+        {
+            get
+            {
+                if (IsCursorType)
+                {
+                    if (HasEmbeddedData) return "📦 Embedded Cursor (Bitmap)";
+                    if (HasLinkedFile) return $"🔗 {Path.GetFileName(_filePath)}";
+                    return $"Preset: {_cursorName ?? "Arrow"}";
+                }
+                if (IsImageType)
+                {
+                    if (HasEmbeddedData) return "📦 Embedded Image";
+                    if (HasLinkedFile) return $"🔗 {Path.GetFileName(_filePath)}";
+                    return "";
+                }
+                if (IsSvgType)
+                {
+                    if (HasEmbeddedData) return "📦 Embedded SVG";
+                    if (HasLinkedFile) return $"🔗 {Path.GetFileName(_filePath)}";
+                    return "";
+                }
+                return "";
+            }
+        }
+
+        public string CursorName
+        {
+            get => _cursorName;
+            set
+            {
+                if (SetField(ref _cursorName, value))
+                {
+                    _parameters["CursorName"] = value;
+                    OnPropertyChanged(nameof(SourceSummaryBadge));
+                    _onChanged?.Invoke();
+                }
+            }
         }
 
         public string OffsetX
@@ -523,9 +821,112 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
             set { if (SetField(ref _lineThickness, value)) _onChanged?.Invoke(); }
         }
 
+        public bool Shadow
+        {
+            get => _shadow;
+            set { if (SetField(ref _shadow, value)) _onChanged?.Invoke(); }
+        }
+
+        public string FontFamily
+        {
+            get => _fontFamily;
+            set { if (SetField(ref _fontFamily, value)) _onChanged?.Invoke(); }
+        }
+
+        public double FontSize
+        {
+            get => _fontSize;
+            set { if (SetField(ref _fontSize, value)) _onChanged?.Invoke(); }
+        }
+
+        public bool FontBold
+        {
+            get => _fontBold;
+            set { if (SetField(ref _fontBold, value)) _onChanged?.Invoke(); }
+        }
+
+        public bool FontItalic
+        {
+            get => _fontItalic;
+            set { if (SetField(ref _fontItalic, value)) _onChanged?.Invoke(); }
+        }
+
+        public string TextAlignment
+        {
+            get => _textAlignment;
+            set { if (SetField(ref _textAlignment, value)) _onChanged?.Invoke(); }
+        }
+
+        public string ArrowHeads
+        {
+            get => _arrowHeads;
+            set { if (SetField(ref _arrowHeads, value)) _onChanged?.Invoke(); }
+        }
+
+        public int StepNumber
+        {
+            get => _stepNumber;
+            set
+            {
+                if (SetField(ref _stepNumber, value))
+                {
+                    if (IsStepLabelType)
+                    {
+                        _text = value.ToString();
+                        OnPropertyChanged(nameof(Text));
+                    }
+                    _onChanged?.Invoke();
+                }
+            }
+        }
+
+        public int BlurRadius
+        {
+            get => _blurRadius;
+            set { if (SetField(ref _blurRadius, value)) _onChanged?.Invoke(); }
+        }
+
+        public int PixelSize
+        {
+            get => _pixelSize;
+            set { if (SetField(ref _pixelSize, value)) _onChanged?.Invoke(); }
+        }
+
+        public int MagnificationFactor
+        {
+            get => _magnificationFactor;
+            set { if (SetField(ref _magnificationFactor, value)) _onChanged?.Invoke(); }
+        }
+
+        public string ForeColor
+        {
+            get => _foreColor;
+            set { if (SetField(ref _foreColor, value)) { _parameters["ForeColor"] = value; _onChanged?.Invoke(); } }
+        }
+
+        public string BackColor
+        {
+            get => _backColor;
+            set { if (SetField(ref _backColor, value)) { _parameters["BackColor"] = value; _onChanged?.Invoke(); } }
+        }
+
+        public bool RoundedDots
+        {
+            get => _roundedDots;
+            set { if (SetField(ref _roundedDots, value)) { _parameters["RoundedDots"] = value; OnPropertyChanged(nameof(ConfigurationSummary)); _onChanged?.Invoke(); } }
+        }
+
+        public int Margin
+        {
+            get => _margin;
+            set { if (SetField(ref _margin, value)) { _parameters["Margin"] = value; _onChanged?.Invoke(); } }
+        }
+
         public ICommand RemoveCommand { get; }
         public ICommand PickFillColorCommand { get; }
         public ICommand PickLineColorCommand { get; }
+        public ICommand PickForeColorCommand { get; }
+        public ICommand PickBackColorCommand { get; }
         public ICommand ConfigureCommand { get; }
         public ICommand ConfigureQrInDialogCommand => ConfigureCommand;
         public ICommand BrowseFileCommand { get; }
@@ -543,6 +944,16 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
             {
                 var picked = StepNodeViewModel.PromptColorHelper(LineColor);
                 if (picked != null) LineColor = picked;
+            });
+            PickForeColorCommand = new RelayCommand(() =>
+            {
+                var picked = StepNodeViewModel.PromptColorHelper(ForeColor);
+                if (picked != null) ForeColor = picked;
+            });
+            PickBackColorCommand = new RelayCommand(() =>
+            {
+                var picked = StepNodeViewModel.PromptColorHelper(BackColor);
+                if (picked != null) BackColor = picked;
             });
             ConfigureCommand = new RelayCommand(ConfigureDrawableItem);
             BrowseFileCommand = new RelayCommand(BrowseFile);
@@ -563,6 +974,26 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
                     _text = t.ToString();
                     OnPropertyChanged(nameof(Text));
                 }
+                if (dict.TryGetValue("ForeColor", out var fc) && fc != null)
+                {
+                    _foreColor = fc.ToString();
+                    OnPropertyChanged(nameof(ForeColor));
+                }
+                if (dict.TryGetValue("BackColor", out var bc) && bc != null)
+                {
+                    _backColor = bc.ToString();
+                    OnPropertyChanged(nameof(BackColor));
+                }
+                if (dict.TryGetValue("RoundedDots", out var rd) && rd != null && bool.TryParse(rd.ToString(), out bool bRd))
+                {
+                    _roundedDots = bRd;
+                    OnPropertyChanged(nameof(RoundedDots));
+                }
+                if (dict.TryGetValue("Margin", out var mg) && mg != null && int.TryParse(mg.ToString(), out int iMg))
+                {
+                    _margin = iMg;
+                    OnPropertyChanged(nameof(Margin));
+                }
                 OnPropertyChanged(nameof(ConfigurationSummary));
                 _onChanged?.Invoke();
             }
@@ -575,6 +1006,11 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
             {
                 ofd.Title = "Select SVG Vector Graphic";
                 ofd.Filter = "Scalable Vector Graphics (*.svg)|*.svg|All Files (*.*)|*.*";
+            }
+            else if (IsCursorType)
+            {
+                ofd.Title = "Select Cursor or Image File";
+                ofd.Filter = "Cursor and Image Files (*.cur;*.ico;*.png)|*.cur;*.ico;*.png|All Files (*.*)|*.*";
             }
             else
             {
@@ -597,6 +1033,29 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
                         Width = img.Width.ToString();
                         Height = img.Height.ToString();
                         LockAspectRatio = true;
+
+                        // Default embed mode automatically loads ImageData
+                        if (IsEmbedMode)
+                        {
+                            using var ms = new MemoryStream();
+                            img.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                            ImageData = Convert.ToBase64String(ms.ToArray());
+                        }
+                    }
+                    else if (IsSvgType && System.IO.File.Exists(ofd.FileName))
+                    {
+                        if (IsEmbedMode)
+                        {
+                            SvgXml = File.ReadAllText(ofd.FileName);
+                        }
+                    }
+                    else if (IsCursorType && System.IO.File.Exists(ofd.FileName))
+                    {
+                        if (IsCursorEmbedMode || IsEmbedMode)
+                        {
+                            byte[] bytes = File.ReadAllBytes(ofd.FileName);
+                            ImageData = Convert.ToBase64String(bytes);
+                        }
                     }
                 }
                 catch
@@ -614,23 +1073,93 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
                 ["Width"] = Width,
                 ["Height"] = Height,
                 ["OffsetX"] = OffsetX,
-                ["OffsetY"] = OffsetY,
-                ["FillColor"] = FillColor,
-                ["LineColor"] = LineColor,
-                ["LineThickness"] = LineThickness
+                ["OffsetY"] = OffsetY
             };
             if (!string.IsNullOrEmpty(HorizontalAnchor) && HorizontalAnchor != "None") dict["HorizontalAnchor"] = HorizontalAnchor;
             if (!string.IsNullOrEmpty(VerticalAnchor) && VerticalAnchor != "None") dict["VerticalAnchor"] = VerticalAnchor;
+
+            if (HasLineThickness) dict["LineThickness"] = LineThickness;
+            if (HasShadow) dict["Shadow"] = Shadow;
+            if (HasFillColor) dict["FillColor"] = FillColor;
+            if (HasLineColor) dict["LineColor"] = LineColor;
+
+            if (HasFontSettings)
+            {
+                dict["FontFamily"] = FontFamily;
+                dict["FontSize"] = FontSize;
+                dict["Bold"] = FontBold;
+                dict["Italic"] = FontItalic;
+                dict["TextAlign"] = TextAlignment;
+            }
+
             if (IsTextType) dict["Text"] = Text;
             if (IsEmojiType) dict["Emoji"] = Emoji;
+            if (IsArrowType) dict["ArrowHeads"] = ArrowHeads;
+            if (IsStepLabelType)
+            {
+                dict["Number"] = StepNumber;
+                dict["Text"] = StepNumber.ToString();
+            }
+            if (IsBlurType) dict["BlurRadius"] = BlurRadius;
+            if (IsPixelizeType) dict["PixelSize"] = PixelSize;
+            if (IsMagnifyType) dict["MagnificationFactor"] = MagnificationFactor;
+            if (IsQrCodeType)
+            {
+                dict["ForeColor"] = ForeColor;
+                dict["BackColor"] = BackColor;
+                dict["RoundedDots"] = RoundedDots;
+                dict["Margin"] = Margin;
+                if (!string.IsNullOrEmpty(Text)) dict["Text"] = Text;
+            }
             if (IsImageType)
             {
-                if (!string.IsNullOrEmpty(FilePath)) dict["FilePath"] = FilePath;
+                if (IsEmbedMode && !string.IsNullOrEmpty(ImageData))
+                {
+                    dict["ImageData"] = ImageData;
+                    dict.Remove("FilePath");
+                }
+                else if (!string.IsNullOrEmpty(FilePath))
+                {
+                    dict["FilePath"] = FilePath;
+                    dict.Remove("ImageData");
+                }
             }
             if (IsSvgType)
             {
-                if (!string.IsNullOrEmpty(FilePath)) dict["FilePath"] = FilePath;
-                if (!string.IsNullOrEmpty(SvgXml)) dict["Content"] = SvgXml;
+                if (IsEmbedMode && !string.IsNullOrEmpty(SvgXml))
+                {
+                    dict["Content"] = SvgXml;
+                    dict.Remove("FilePath");
+                }
+                else if (!string.IsNullOrEmpty(FilePath))
+                {
+                    dict["FilePath"] = FilePath;
+                }
+                else if (!string.IsNullOrEmpty(SvgXml))
+                {
+                    dict["Content"] = SvgXml;
+                }
+            }
+            if (IsCursorType)
+            {
+                if (HasEmbeddedData && !string.IsNullOrEmpty(ImageData))
+                {
+                    dict["ImageData"] = ImageData;
+                    dict.Remove("FilePath");
+                    dict.Remove("CursorName");
+                }
+                else if (HasLinkedFile && !string.IsNullOrEmpty(FilePath))
+                {
+                    dict["FilePath"] = FilePath;
+                    dict.Remove("ImageData");
+                    dict.Remove("CursorName");
+                }
+                else
+                {
+                    dict["CursorName"] = CursorName ?? "Arrow";
+                    dict.Remove("ImageData");
+                    dict.Remove("FilePath");
+                }
             }
             if (IsSpeechbubbleType)
             {
@@ -668,6 +1197,48 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
                 return null;
             }
 
+            bool? GetBool(params string[] keys)
+            {
+                foreach (var k in keys)
+                {
+                    if (item._parameters.TryGetValue(k, out var val) && val != null)
+                    {
+                        if (val is bool b) return b;
+                        if (bool.TryParse(val.ToString(), out bool pb)) return pb;
+                    }
+                }
+                return null;
+            }
+
+            int? GetInt(params string[] keys)
+            {
+                foreach (var k in keys)
+                {
+                    if (item._parameters.TryGetValue(k, out var val) && val != null)
+                    {
+                        if (val is int i) return i;
+                        if (val is long l) return (int)l;
+                        if (int.TryParse(val.ToString(), out int pi)) return pi;
+                    }
+                }
+                return null;
+            }
+
+            double? GetDouble(params string[] keys)
+            {
+                foreach (var k in keys)
+                {
+                    if (item._parameters.TryGetValue(k, out var val) && val != null)
+                    {
+                        if (val is double d) return d;
+                        if (val is float f) return f;
+                        if (val is int i) return i;
+                        if (double.TryParse(val.ToString(), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double pd)) return pd;
+                    }
+                }
+                return null;
+            }
+
             string typeVal = GetKey("Type", "DrawableType", "Shape", "Element", "Kind");
             if (!string.IsNullOrEmpty(typeVal))
             {
@@ -676,12 +1247,18 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
                 else if (string.Equals(typeVal, "Text", StringComparison.OrdinalIgnoreCase)) item._type = "Text";
                 else if (string.Equals(typeVal, "Rectangle", StringComparison.OrdinalIgnoreCase)) item._type = "Rectangle";
                 else if (string.Equals(typeVal, "Ellipse", StringComparison.OrdinalIgnoreCase)) item._type = "Ellipse";
+                else if (string.Equals(typeVal, "Line", StringComparison.OrdinalIgnoreCase)) item._type = "Line";
                 else if (string.Equals(typeVal, "Arrow", StringComparison.OrdinalIgnoreCase)) item._type = "Arrow";
                 else if (string.Equals(typeVal, "Speechbubble", StringComparison.OrdinalIgnoreCase)) item._type = "Speechbubble";
                 else if (string.Equals(typeVal, "Blur", StringComparison.OrdinalIgnoreCase)) item._type = "Blur";
+                else if (string.Equals(typeVal, "Pixelize", StringComparison.OrdinalIgnoreCase)) item._type = "Pixelize";
                 else if (string.Equals(typeVal, "Highlight", StringComparison.OrdinalIgnoreCase)) item._type = "Highlight";
+                else if (string.Equals(typeVal, "Magnify", StringComparison.OrdinalIgnoreCase)) item._type = "Magnify";
+                else if (string.Equals(typeVal, "QRCode", StringComparison.OrdinalIgnoreCase)) item._type = "QRCode";
+                else if (string.Equals(typeVal, "Barcode", StringComparison.OrdinalIgnoreCase)) item._type = "Barcode";
                 else if (string.Equals(typeVal, "Image", StringComparison.OrdinalIgnoreCase)) item._type = "Image";
                 else if (string.Equals(typeVal, "Svg", StringComparison.OrdinalIgnoreCase)) item._type = "Svg";
+                else if (string.Equals(typeVal, "Cursor", StringComparison.OrdinalIgnoreCase)) item._type = "Cursor";
                 else item._type = typeVal;
             }
             else
@@ -719,8 +1296,62 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
             string lc = GetKey("LineColor", "Line", "Stroke", "Border", "BorderColor", "TextColor");
             if (lc != null) item._lineColor = lc;
 
-            string lt = GetKey("LineThickness", "Thickness", "StrokeThickness", "BorderWidth");
-            if (lt != null && int.TryParse(lt, out int it)) item._lineThickness = it;
+            int? lt = GetInt("LineThickness", "Thickness", "StrokeThickness", "BorderWidth");
+            if (lt.HasValue) item._lineThickness = lt.Value;
+
+            bool? sh = GetBool("Shadow", "DropShadow");
+            if (sh.HasValue) item._shadow = sh.Value;
+            else item._shadow = item._type switch
+            {
+                "Rectangle" or "Ellipse" or "Line" or "Arrow" or "Text" => true,
+                _ => false
+            };
+
+            string ff = GetKey("FontFamily", "Font");
+            if (ff != null) item._fontFamily = ff;
+
+            double? fs = GetDouble("FontSize");
+            if (fs.HasValue) item._fontSize = fs.Value;
+            else if (item.IsSpeechbubbleType) item._fontSize = 14.0;
+            else item._fontSize = 12.0;
+
+            bool? fb = GetBool("Bold", "FontBold");
+            if (fb.HasValue) item._fontBold = fb.Value;
+            else if (item.IsSpeechbubbleType) item._fontBold = true;
+
+            bool? fi = GetBool("Italic", "FontItalic");
+            if (fi.HasValue) item._fontItalic = fi.Value;
+
+            string ta = GetKey("TextAlign", "TextHorizontalAlignment", "Alignment", "Align");
+            if (ta != null) item._textAlignment = ta;
+
+            string ah = GetKey("ArrowHeads", "Heads");
+            if (ah != null) item._arrowHeads = ah;
+
+            int? sn = GetInt("Number", "Counter", "StepNumber");
+            if (sn.HasValue) item._stepNumber = sn.Value;
+            else if (int.TryParse(item._text, out int parsedNum)) item._stepNumber = parsedNum;
+
+            int? br = GetInt("BlurRadius", "Radius");
+            if (br.HasValue) item._blurRadius = br.Value;
+
+            int? ps = GetInt("PixelSize", "PixelRadius", "BlockSize");
+            if (ps.HasValue) item._pixelSize = ps.Value;
+
+            int? mf = GetInt("MagnificationFactor", "Factor", "Zoom");
+            if (mf.HasValue) item._magnificationFactor = mf.Value;
+
+            string foreC = GetKey("ForeColor", "Foreground");
+            if (foreC != null) item._foreColor = foreC;
+
+            string backC = GetKey("BackColor", "Background", "BackgroundColor");
+            if (backC != null) item._backColor = backC;
+
+            bool? rd = GetBool("RoundedDots", "Rounded");
+            if (rd.HasValue) item._roundedDots = rd.Value;
+
+            int? mg = GetInt("Margin");
+            if (mg.HasValue) item._margin = mg.Value;
 
             string td = GetKey("TailDirection", "TailPosition", "Tail", "TailDir");
             if (td != null) item._tailDirection = td;
@@ -733,6 +1364,38 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
 
             string fp = GetKey("FilePath", "Path", "File", "ImageFile", "SvgFile");
             if (fp != null) item._filePath = fp;
+
+            string imgData = GetKey("ImageData", "Base64", "CursorData");
+            if (imgData != null)
+            {
+                item._imageData = imgData;
+                item._assetStorageMode = "Embed";
+            }
+            else if (!string.IsNullOrEmpty(fp))
+            {
+                item._assetStorageMode = "Link";
+            }
+
+            string curName = GetKey("CursorName", "Cursor", "CursorType");
+            if (curName != null)
+            {
+                item._cursorName = curName;
+            }
+            else if (item.IsCursorType && !string.IsNullOrEmpty(imgData))
+            {
+                item._cursorName = null;
+                item._assetStorageMode = "Embed";
+            }
+            else if (item.IsCursorType && !string.IsNullOrEmpty(fp))
+            {
+                item._cursorName = null;
+                item._assetStorageMode = "Link";
+            }
+            else if (item.IsCursorType)
+            {
+                item._cursorName = "Arrow";
+                item._assetStorageMode = "Preset";
+            }
 
             string svg = GetKey("SvgXml", "Svg", "Content", "Xml");
             if (svg != null && (item.IsSvgType || svg.Contains("<svg"))) item._svgXml = svg;
@@ -761,6 +1424,7 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
         public RecipeNodeConfig Config { get; }
 
         public Action<StepNodeViewModel, string, string> OnIdChanged { get; set; }
+        public Func<string> RecipeNameProvider { get; set; }
 
         public string Id
         {
@@ -889,6 +1553,8 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
         public ICommand AddPromptChoiceCommand { get; }
         public ICommand AddVariableCommand { get; }
         public ICommand AddAnnotationCommand { get; }
+        public ICommand ImportFromEditorCommand { get; }
+        public ICommand ImportFromGreenshotFileCommand { get; }
         public ICommand BrowseSaveDirectoryCommand { get; }
         public ICommand BrowseExternalExecutableCommand { get; }
         public ICommand BrowseSoundFileCommand { get; }
@@ -951,6 +1617,8 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
 
             AddVariableCommand = new RelayCommand(() => AddVariable("new_var", "${user.username}"));
             AddAnnotationCommand = new RelayCommand(p => AddAnnotation((p as string) ?? "Rectangle"));
+            ImportFromEditorCommand = new RelayCommand(ExecuteImportFromEditor);
+            ImportFromGreenshotFileCommand = new RelayCommand(ExecuteImportFromGreenshotFile);
             BrowseSaveDirectoryCommand = new RelayCommand(() =>
             {
                 using (var dlg = new System.Windows.Forms.FolderBrowserDialog())
@@ -1229,16 +1897,35 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
                 item.Text = "Captured: ${now:yyyy-MM-dd}";
                 item.Width = "220";
                 item.Height = "32";
-                item.FillColor = "rgba(0,0,0,160)";
-                item.LineColor = "#0078D7";
+                item.FillColor = "transparent";
+                item.LineColor = "#FF0000";
+                item.FontSize = 12.0;
+                item.FontBold = false;
+                item.FontItalic = false;
+                item.Shadow = true;
+                item.LineThickness = 0;
+            }
+            else if (string.Equals(type, "Speechbubble", StringComparison.OrdinalIgnoreCase))
+            {
+                item.Text = "Note";
+                item.Width = "160";
+                item.Height = "60";
+                item.FontSize = 14.0;
+                item.FontBold = true;
+                item.LineColor = "#0000FF";
+                item.FillColor = "#FFFFFF";
+                item.LineThickness = 2;
+                item.Shadow = false;
             }
             else if (string.Equals(type, "StepLabel", StringComparison.OrdinalIgnoreCase) || string.Equals(type, "Counter", StringComparison.OrdinalIgnoreCase))
             {
+                item.StepNumber = 1;
                 item.Text = "1";
                 item.Width = "28";
                 item.Height = "28";
                 item.FillColor = "#E81123";
                 item.LineColor = "#FFFFFF";
+                item.Shadow = false;
             }
             else if (string.Equals(type, "Emoji", StringComparison.OrdinalIgnoreCase))
             {
@@ -1246,16 +1933,82 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
                 item.Width = "32";
                 item.Height = "32";
             }
-            else if (item.LockAspectRatio)
+            else if (string.Equals(type, "Arrow", StringComparison.OrdinalIgnoreCase))
+            {
+                item.ArrowHeads = "END_POINT";
+                item.LineThickness = 2;
+                item.LineColor = "#FF0000";
+                item.Shadow = true;
+                item.Width = "100";
+                item.Height = "50";
+            }
+            else if (string.Equals(type, "Line", StringComparison.OrdinalIgnoreCase))
+            {
+                item.LineThickness = 2;
+                item.LineColor = "#FF0000";
+                item.Shadow = true;
+                item.Width = "100";
+                item.Height = "50";
+            }
+            else if (string.Equals(type, "Blur", StringComparison.OrdinalIgnoreCase))
+            {
+                item.BlurRadius = 10;
+                item.Width = "150";
+                item.Height = "80";
+            }
+            else if (string.Equals(type, "Pixelize", StringComparison.OrdinalIgnoreCase))
+            {
+                item.PixelSize = 5;
+                item.Width = "150";
+                item.Height = "80";
+            }
+            else if (string.Equals(type, "Magnify", StringComparison.OrdinalIgnoreCase))
+            {
+                item.MagnificationFactor = 2;
+                item.Width = "120";
+                item.Height = "120";
+            }
+            else if (string.Equals(type, "Highlight", StringComparison.OrdinalIgnoreCase))
+            {
+                item.FillColor = "#FFFF00";
+                item.LineColor = "#FF0000";
+                item.Width = "150";
+                item.Height = "40";
+            }
+            else if (string.Equals(type, "QRCode", StringComparison.OrdinalIgnoreCase) || string.Equals(type, "Barcode", StringComparison.OrdinalIgnoreCase))
             {
                 item.Text = "https://getgreenshot.org";
-                item.Width = "150";
-                item.Height = "150";
+                item.ForeColor = "#000000";
+                item.BackColor = "#FFFFFF";
+                item.Margin = 1;
+                item.RoundedDots = false;
+                if (string.Equals(type, "QRCode", StringComparison.OrdinalIgnoreCase))
+                {
+                    item.Width = "150";
+                    item.Height = "150";
+                }
+                else
+                {
+                    item.Width = "250";
+                    item.Height = "80";
+                }
             }
             else if (string.Equals(type, "Image", StringComparison.OrdinalIgnoreCase) || string.Equals(type, "Svg", StringComparison.OrdinalIgnoreCase))
             {
                 item.Width = "120";
                 item.Height = "120";
+            }
+            else if (string.Equals(type, "Cursor", StringComparison.OrdinalIgnoreCase))
+            {
+                item.CursorName = "Arrow";
+                item.Width = "32";
+                item.Height = "32";
+                item.LockAspectRatio = true;
+            }
+            else if (item.LockAspectRatio)
+            {
+                item.Width = "150";
+                item.Height = "150";
             }
             Annotations.Add(item);
             SyncAnnotationsToConfig();
@@ -1267,6 +2020,175 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
             {
                 Annotations.Remove(item);
                 SyncAnnotationsToConfig();
+            }
+        }
+
+        public void ImportAnnotations(IEnumerable<Dictionary<string, object>> annotations, bool replaceExisting = false)
+        {
+            if (annotations == null) return;
+            if (replaceExisting)
+            {
+                Annotations.Clear();
+            }
+            foreach (var dict in annotations)
+            {
+                Annotations.Add(DrawableItemViewModel.FromDictionary(dict, SyncAnnotationsToConfig, RemoveAnnotation));
+            }
+            SyncAnnotationsToConfig();
+        }
+
+        private static Window GetActiveWindow()
+        {
+            return Application.Current?.Windows.OfType<Window>().FirstOrDefault(w => w.IsActive)
+                ?? Application.Current?.Windows.OfType<Window>().FirstOrDefault()
+                ?? Application.Current?.MainWindow;
+        }
+
+        private static MessageBoxResult ShowMessageBox(string messageBoxText, string caption, MessageBoxButton button, MessageBoxImage icon)
+        {
+            var owner = GetActiveWindow();
+            if (owner != null)
+            {
+                return MessageBox.Show(owner, messageBoxText, caption, button, icon);
+            }
+            return MessageBox.Show(messageBoxText, caption, button, icon);
+        }
+
+        private static void ShowInfoMessage(string messageBoxText, string caption, MessageBoxImage icon = MessageBoxImage.Information)
+        {
+            var owner = GetActiveWindow();
+            if (owner != null)
+            {
+                MessageBox.Show(owner, messageBoxText, caption, MessageBoxButton.OK, icon);
+            }
+            else
+            {
+                MessageBox.Show(messageBoxText, caption, MessageBoxButton.OK, icon);
+            }
+        }
+
+        private void ExecuteImportFromEditor()
+        {
+            var editors = Greenshot.Editor.Forms.ImageEditorForm.Editors;
+            if (editors == null || editors.Count == 0)
+            {
+                var result = ShowMessageBox(
+                    "No open image editors were found in Greenshot.\n\nWould you like to import annotations from a saved .greenshot file instead?",
+                    "No Open Editors Found",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Information);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    ExecuteImportFromGreenshotFile();
+                }
+                return;
+            }
+
+            IImageEditor chosenEditor = null;
+            if (editors.Count == 1)
+            {
+                chosenEditor = editors[0];
+            }
+            else
+            {
+                var owner = GetActiveWindow();
+                var dlg = new SelectEditorDialog(editors);
+                if (owner != null)
+                {
+                    dlg.Owner = owner;
+                }
+                else
+                {
+                    dlg.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+                }
+                if (dlg.ShowDialog() == true && dlg.SelectedEditor != null)
+                {
+                    chosenEditor = dlg.SelectedEditor;
+                }
+                else
+                {
+                    return;
+                }
+            }
+
+            if (chosenEditor?.Surface == null)
+            {
+                ShowInfoMessage("Could not access the surface of the selected editor.", "Import Failed", MessageBoxImage.Warning);
+                return;
+            }
+
+            var items = EditorAnnotationImporter.AnalyzeSurfaceElements(chosenEditor.Surface);
+            if (items.Count == 0)
+            {
+                ShowInfoMessage("The selected image editor does not contain any annotations.", "No Annotations Found", MessageBoxImage.Information);
+                return;
+            }
+
+            string sourceTitle = chosenEditor.CaptureDetails?.Title ?? chosenEditor.Surface?.CaptureDetails?.Title ?? "Image Editor";
+            string recipeName = RecipeNameProvider?.Invoke() ?? DisplayName;
+
+            var ownerWin = GetActiveWindow();
+            var importDlg = new ImportAnnotationsDialog(items, sourceTitle, recipeName, Annotations.Count > 0);
+            if (ownerWin != null)
+            {
+                importDlg.Owner = ownerWin;
+            }
+            else
+            {
+                importDlg.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            }
+
+            if (importDlg.ShowDialog() == true && importDlg.ResultAnnotations != null && importDlg.ResultAnnotations.Count > 0)
+            {
+                ImportAnnotations(importDlg.ResultAnnotations, importDlg.ShouldReplaceExisting);
+            }
+        }
+
+        private void ExecuteImportFromGreenshotFile()
+        {
+            var ofd = new Microsoft.Win32.OpenFileDialog
+            {
+                Title = "Select Greenshot File to Import Annotations",
+                Filter = "Greenshot Files (*.greenshot)|*.greenshot|All Files (*.*)|*.*",
+                CheckFileExists = true
+            };
+
+            if (ofd.ShowDialog() == true)
+            {
+                try
+                {
+                    var surface = EditorAnnotationImporter.LoadSurfaceFromGreenshotFile(ofd.FileName);
+                    var items = EditorAnnotationImporter.AnalyzeSurfaceElements(surface);
+                    if (items.Count == 0)
+                    {
+                        ShowInfoMessage("No annotations were found in the selected .greenshot file.", "No Annotations Found", MessageBoxImage.Information);
+                        return;
+                    }
+
+                    string sourceTitle = System.IO.Path.GetFileName(ofd.FileName);
+                    string recipeName = RecipeNameProvider?.Invoke() ?? DisplayName;
+
+                    var ownerWin = GetActiveWindow();
+                    var importDlg = new ImportAnnotationsDialog(items, sourceTitle, recipeName, Annotations.Count > 0);
+                    if (ownerWin != null)
+                    {
+                        importDlg.Owner = ownerWin;
+                    }
+                    else
+                    {
+                        importDlg.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+                    }
+
+                    if (importDlg.ShowDialog() == true && importDlg.ResultAnnotations != null && importDlg.ResultAnnotations.Count > 0)
+                    {
+                        ImportAnnotations(importDlg.ResultAnnotations, importDlg.ShouldReplaceExisting);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ShowInfoMessage($"Failed to load .greenshot file:\n{ex.Message}", "Import Error", MessageBoxImage.Error);
+                }
             }
         }
 
