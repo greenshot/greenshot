@@ -1,3 +1,9 @@
+---
+layout: page
+title: "Greenshot 1.3 – Technical Changelog"
+permalink: /changelogs/CHANGELOG-1.3-technical/
+---
+
 # Greenshot 1.3 – Technical Changelog
 
 ## Security

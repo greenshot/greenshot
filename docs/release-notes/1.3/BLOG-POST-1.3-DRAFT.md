@@ -30,4 +30,4 @@ Vielen Dank an die Security-Community für die verantwortungsvolle Offenlegung s
 
 ---
 
-Benutzerfreundliche Release Notes: [Zur Übersicht der Release Notes](https://github.com/greenshot/greenshot/blob/copilot/prepare-release-notes-and-blog-post/docs/release-notes/1.3/USER-CHANGELOG-1.3.md)
+Benutzerfreundliche Release Notes: [Zur Übersicht der Release Notes](https://getgreenshot.org/changelogs/CHANGELOG-1.3-user/)

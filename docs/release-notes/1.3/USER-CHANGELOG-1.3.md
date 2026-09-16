@@ -1,3 +1,9 @@
+---
+layout: page
+title: "Greenshot 1.3 – Release Notes (für Anwender)"
+permalink: /changelogs/CHANGELOG-1.3-user/
+---
+
 # Greenshot 1.3 – Release Notes (für Anwender)
 
 ## Wichtigste Änderungen
@@ -16,4 +22,4 @@ Bitte auf Greenshot 1.3 aktualisieren, um den Sicherheitsfix zu erhalten.
 
 ---
 
-Detaillierter technischer Changelog: [TECHNICAL-CHANGELOG-1.3.md](./TECHNICAL-CHANGELOG-1.3.md)
+Detaillierter technischer Changelog: [Technischer Changelog zu Greenshot 1.3](https://getgreenshot.org/changelogs/CHANGELOG-1.3-technical/)
