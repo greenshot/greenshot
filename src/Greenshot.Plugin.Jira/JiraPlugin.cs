@@ -172,13 +172,6 @@ public class JiraPlugin : IGreenshotPlugin, IRecipeStepProvider
     /// <returns>bool true if OK was pressed, false if cancel</returns>
     private bool ShowConfigDialog()
     {
-        var settingsForm = new SettingsForm();
-        var result = settingsForm.ShowDialog();
-        if (result == DialogResult.OK)
-        {
-            return true;
-        }
-
-        return false;
+        return new Forms.JiraSettingsWindow(_config).ShowDialog() == true;
     }
 }

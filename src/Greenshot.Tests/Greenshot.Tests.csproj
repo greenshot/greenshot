@@ -24,5 +24,10 @@
     <ProjectReference Include="..\Greenshot\Greenshot.csproj" />
     <ProjectReference Include="..\Greenshot.Plugin.ExternalCommand\Greenshot.Plugin.ExternalCommand.csproj" />
     <ProjectReference Include="..\Greenshot.Plugin.Zxing\Greenshot.Plugin.Zxing.csproj" />
+    <ProjectReference Include="..\Greenshot.Plugin.Confluence\Greenshot.Plugin.Confluence.csproj" />
+    <ProjectReference Include="..\Greenshot.Plugin.Box\Greenshot.Plugin.Box.csproj" />
+    <ProjectReference Include="..\Greenshot.Plugin.Dropbox\Greenshot.Plugin.Dropbox.csproj" />
+    <ProjectReference Include="..\Greenshot.Plugin.Imgur\Greenshot.Plugin.Imgur.csproj" />
+    <ProjectReference Include="..\Greenshot.Plugin.Jira\Greenshot.Plugin.Jira.csproj" />
   </ItemGroup>
 </Project>

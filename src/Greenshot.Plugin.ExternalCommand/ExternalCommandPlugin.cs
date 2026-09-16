@@ -251,6 +251,6 @@ public class ExternalCommandPlugin : IGreenshotPlugin, IRecipeStepProvider
     public virtual void Configure()
     {
         Log.Debug("Configure called");
-        new SettingsForm().ShowDialog();
+        new Forms.ExternalCommandSettingsWindow().ShowDialog();
     }
 }

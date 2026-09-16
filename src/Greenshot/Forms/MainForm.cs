@@ -275,8 +275,7 @@ namespace Greenshot.Forms
         // Thumbnail preview
         private ThumbnailForm _thumbnailForm;
 
-        // Make sure we have only one settings form
-        private SettingsForm _settingsForm;
+        // Make sure we have only one settings window
         private SettingsWindow _settingsWindow;
 
         // Make sure we have only one about window

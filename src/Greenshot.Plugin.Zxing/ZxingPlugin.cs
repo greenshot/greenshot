@@ -472,10 +472,7 @@ public class ZxingPlugin : IGreenshotPlugin, IRecipeStepProvider, IRecipeDrawabl
 
     public void Configure()
     {
-        using (var form = new ZxingSettingsForm(_config))
-        {
-            form.ShowDialog();
-        }
+        new Forms.ZxingSettingsWindow(_config).ShowDialog();
     }
 
     /// <summary>

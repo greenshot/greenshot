@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -20,13 +20,15 @@
  */
 
 using System.Windows;
+using System.Windows.Input;
+using Greenshot.Base.Core;
 
 namespace Greenshot.Plugin.Confluence.Forms;
 
 /// <summary>
 /// Interaction logic for ConfluenceConfigurationForm.xaml
 /// </summary>
-public partial class ConfluenceConfigurationForm
+public partial class ConfluenceConfigurationForm : Window
 {
     public IConfluenceConfiguration Config { get; }
 
@@ -35,6 +37,28 @@ public partial class ConfluenceConfigurationForm
         DataContext = config;
         Config = config;
         InitializeComponent();
+
+        try
+        {
+            Icon = ConfluenceDestination.ConfluenceIcon?.ToBitmapSource() ?? GreenshotResources.GetGreenshotIcon()?.ToBitmapSource();
+        }
+        catch
+        {
+            // Ignore in headless/test environments
+        }
+    }
+
+    private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        if (e.LeftButton == MouseButtonState.Pressed)
+        {
+            DragMove();
+        }
+    }
+
+    private void CloseButton_Click(object sender, RoutedEventArgs e)
+    {
+        Close();
     }
 
     private void Button_OK_Click(object sender, RoutedEventArgs e)

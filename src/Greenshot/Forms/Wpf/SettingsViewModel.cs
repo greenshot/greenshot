@@ -336,34 +336,6 @@ namespace Greenshot.Forms.Wpf
             }
         }
 
-        private static ImageSource CreateImageSource(System.Drawing.Image image)
-        {
-            if (image == null)
-            {
-                return null;
-            }
-
-            try
-            {
-                using (var ms = new MemoryStream())
-                {
-                    image.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-                    ms.Position = 0;
-                    var bitmapImage = new BitmapImage();
-                    bitmapImage.BeginInit();
-                    bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-                    bitmapImage.StreamSource = ms;
-                    bitmapImage.EndInit();
-                    bitmapImage.Freeze();
-                    return bitmapImage;
-                }
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
         private void InitializeDestinations()
         {
             Destinations = new ObservableCollection<DestinationItem>();
@@ -383,7 +355,7 @@ namespace Greenshot.Forms.Wpf
                     var displayIcon = destination.DisplayIcon;
                     if (displayIcon != null)
                     {
-                        iconSource = CreateImageSource(displayIcon);
+                        iconSource = displayIcon.ToBitmapSource();
                     }
                 }
                 catch

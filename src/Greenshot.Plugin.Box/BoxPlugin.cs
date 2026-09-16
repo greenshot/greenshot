@@ -150,7 +150,7 @@ public class BoxPlugin : IGreenshotPlugin, IRecipeStepProvider
     /// <returns>true if OK was pressed; false if cancelled</returns>
     private bool ShowConfigDialog()
     {
-        return new SettingsForm().ShowDialog() == DialogResult.OK;
+        return new Forms.BoxSettingsWindow(_config).ShowDialog() == true;
     }
 
     /// <summary>
