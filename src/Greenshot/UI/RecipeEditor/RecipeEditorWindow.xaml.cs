@@ -34,6 +34,17 @@ namespace Greenshot.UI.RecipeEditor
             {
                 ApplyImmersiveDarkMode();
                 System.Windows.Forms.Integration.ElementHost.EnableModelessKeyboardInterop(this);
+                try
+                {
+                    if (Greenshot.Editor.Controls.Emoji.EmojiData.Data?.Groups == null || Greenshot.Editor.Controls.Emoji.EmojiData.Data.Groups.Count == 0)
+                    {
+                        Greenshot.Editor.Controls.Emoji.EmojiData.Load();
+                    }
+                }
+                catch
+                {
+                    // Ignore if emojis.xml is not present
+                }
             };
         }
 

@@ -28,6 +28,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.Icons;
 using Greenshot.Base.Core;
 using Greenshot.Base.Drawing;
 using Greenshot.Base.Expressions;
@@ -434,11 +435,30 @@ namespace Greenshot.Pipeline.Steps
         private static ImageContainer CreateImage(ISurface surface, Dictionary<string, object> p)
         {
             var imgContainer = new ImageContainer(surface);
-            string filePath = GetString(p, "FilePath") ?? GetString(p, "Path") ?? GetString(p, "File");
-            if (!string.IsNullOrWhiteSpace(filePath) && File.Exists(filePath))
+            string base64 = GetString(p, "ImageData") ?? GetString(p, "Base64");
+            if (!string.IsNullOrWhiteSpace(base64))
             {
-                imgContainer.Load(filePath);
+                try
+                {
+                    byte[] bytes = Convert.FromBase64String(base64);
+                    using var ms = new MemoryStream(bytes);
+                    imgContainer.Image = Image.FromStream(ms);
+                }
+                catch (Exception ex)
+                {
+                    Log.Warn("Failed to load embedded Base64 image: " + ex.Message);
+                }
             }
+
+            if (imgContainer.Image == null)
+            {
+                string filePath = GetString(p, "FilePath") ?? GetString(p, "Path") ?? GetString(p, "File");
+                if (!string.IsNullOrWhiteSpace(filePath) && File.Exists(filePath))
+                {
+                    imgContainer.Load(filePath);
+                }
+            }
+
             imgContainer.SetFieldValue(FieldType.SHADOW, GetBool(p, "Shadow", false));
             return imgContainer;
         }
@@ -457,12 +477,146 @@ namespace Greenshot.Pipeline.Steps
         private static CursorContainer CreateCursor(ISurface surface, Dictionary<string, object> p)
         {
             var cursorContainer = new CursorContainer(surface);
+            string cursorName = GetString(p, "CursorName") ?? GetString(p, "Cursor") ?? GetString(p, "CursorType");
+            string base64 = GetString(p, "ImageData") ?? GetString(p, "CursorData") ?? GetString(p, "Base64");
             string filePath = GetString(p, "FilePath") ?? GetString(p, "Path");
-            if (!string.IsNullOrWhiteSpace(filePath) && File.Exists(filePath))
+
+            if (!string.IsNullOrWhiteSpace(base64))
             {
-                cursorContainer.Load(filePath);
+                try
+                {
+                    byte[] bytes = Convert.FromBase64String(base64);
+                    using var ms = new MemoryStream(bytes);
+                    using var bmp = new Bitmap(ms);
+                    int hsX = GetInt(p, "HotspotX", 0);
+                    int hsY = GetInt(p, "HotspotY", 0);
+                    cursorContainer.Cursor = new CapturedCursor
+                    {
+                        ColorLayer = new Bitmap(bmp),
+                        MaskLayer = new Bitmap(bmp.Width, bmp.Height),
+                        Size = new NativeSize(bmp.Width, bmp.Height),
+                        HotSpot = new NativePoint(hsX, hsY)
+                    };
+                }
+                catch (Exception ex)
+                {
+                    Log.Warn("Failed to load embedded cursor: " + ex.Message);
+                }
             }
+            else if (!string.IsNullOrWhiteSpace(cursorName))
+            {
+                var winFormsCursor = ResolveWindowsCursor(cursorName);
+                if (winFormsCursor != null)
+                {
+                    int w = winFormsCursor.Size.Width > 0 ? winFormsCursor.Size.Width : 32;
+                    int h = winFormsCursor.Size.Height > 0 ? winFormsCursor.Size.Height : 32;
+                    var colorLayer = new Bitmap(w, h);
+                    using (var g = Graphics.FromImage(colorLayer))
+                    {
+                        winFormsCursor.Draw(g, new Rectangle(0, 0, w, h));
+                    }
+                    cursorContainer.Cursor = new CapturedCursor
+                    {
+                        ColorLayer = colorLayer,
+                        MaskLayer = new Bitmap(w, h),
+                        Size = new NativeSize(w, h),
+                        HotSpot = new NativePoint(winFormsCursor.HotSpot.X, winFormsCursor.HotSpot.Y)
+                    };
+                }
+            }
+            else if (!string.IsNullOrWhiteSpace(filePath) && File.Exists(filePath))
+            {
+                try
+                {
+                    using var cur = new System.Windows.Forms.Cursor(filePath);
+                    int w = cur.Size.Width > 0 ? cur.Size.Width : 32;
+                    int h = cur.Size.Height > 0 ? cur.Size.Height : 32;
+                    var colorLayer = new Bitmap(w, h);
+                    using (var g = Graphics.FromImage(colorLayer))
+                    {
+                        cur.Draw(g, new Rectangle(0, 0, w, h));
+                    }
+                    cursorContainer.Cursor = new CapturedCursor
+                    {
+                        ColorLayer = colorLayer,
+                        MaskLayer = new Bitmap(w, h),
+                        Size = new NativeSize(w, h),
+                        HotSpot = new NativePoint(cur.HotSpot.X, cur.HotSpot.Y)
+                    };
+                }
+                catch (Exception ex)
+                {
+                    Log.Warn("Failed to load cursor from file: " + ex.Message);
+                }
+            }
+            else
+            {
+                // Default to standard Arrow cursor if none specified
+                var arrow = System.Windows.Forms.Cursors.Arrow;
+                var colorLayer = new Bitmap(arrow.Size.Width, arrow.Size.Height);
+                using (var g = Graphics.FromImage(colorLayer))
+                {
+                    arrow.Draw(g, new Rectangle(0, 0, arrow.Size.Width, arrow.Size.Height));
+                }
+                cursorContainer.Cursor = new CapturedCursor
+                {
+                    ColorLayer = colorLayer,
+                    MaskLayer = new Bitmap(arrow.Size.Width, arrow.Size.Height),
+                    Size = new NativeSize(arrow.Size.Width, arrow.Size.Height),
+                    HotSpot = new NativePoint(arrow.HotSpot.X, arrow.HotSpot.Y)
+                };
+            }
+
             return cursorContainer;
+        }
+
+        private static System.Windows.Forms.Cursor ResolveWindowsCursor(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name)) return System.Windows.Forms.Cursors.Arrow;
+            switch (name.Trim().ToLowerInvariant())
+            {
+                case "hand":
+                case "link":
+                    return System.Windows.Forms.Cursors.Hand;
+                case "ibeam":
+                case "text":
+                    return System.Windows.Forms.Cursors.IBeam;
+                case "cross":
+                case "crosshair":
+                case "precision":
+                    return System.Windows.Forms.Cursors.Cross;
+                case "sizeall":
+                case "move":
+                    return System.Windows.Forms.Cursors.SizeAll;
+                case "help":
+                    return System.Windows.Forms.Cursors.Help;
+                case "wait":
+                case "hourglass":
+                case "busy":
+                    return System.Windows.Forms.Cursors.WaitCursor;
+                case "appstarting":
+                case "working":
+                    return System.Windows.Forms.Cursors.AppStarting;
+                case "no":
+                case "unavailable":
+                    return System.Windows.Forms.Cursors.No;
+                case "sizens":
+                case "resizevertical":
+                    return System.Windows.Forms.Cursors.SizeNS;
+                case "sizewe":
+                case "resizehorizontal":
+                    return System.Windows.Forms.Cursors.SizeWE;
+                case "sizenesw":
+                    return System.Windows.Forms.Cursors.SizeNESW;
+                case "sizenwse":
+                    return System.Windows.Forms.Cursors.SizeNWSE;
+                case "uparrow":
+                    return System.Windows.Forms.Cursors.UpArrow;
+                case "arrow":
+                case "default":
+                default:
+                    return System.Windows.Forms.Cursors.Arrow;
+            }
         }
 
         private static EmojiContainer CreateEmoji(ISurface surface, Dictionary<string, object> p)
@@ -478,6 +632,21 @@ namespace Greenshot.Pipeline.Steps
 
         private static SvgContainer CreateSvg(ISurface surface, Dictionary<string, object> p)
         {
+            string base64 = GetString(p, "ImageData") ?? GetString(p, "Base64");
+            if (!string.IsNullOrWhiteSpace(base64))
+            {
+                try
+                {
+                    byte[] bytes = Convert.FromBase64String(base64);
+                    var stream = new MemoryStream(bytes);
+                    return new SvgContainer(stream, surface);
+                }
+                catch (Exception ex)
+                {
+                    Log.Warn("Failed to load embedded Base64 SVG: " + ex.Message);
+                }
+            }
+
             string filePath = GetString(p, "FilePath") ?? GetString(p, "Path");
             if (!string.IsNullOrWhiteSpace(filePath) && File.Exists(filePath))
             {

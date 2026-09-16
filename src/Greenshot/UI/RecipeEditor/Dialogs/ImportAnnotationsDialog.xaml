@@ -1,0 +1,446 @@
+<Window x:Class="Greenshot.UI.RecipeEditor.Dialogs.ImportAnnotationsDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ui="clr-namespace:Greenshot.UI"
+        xmlns:helpers="clr-namespace:Greenshot.UI.RecipeEditor.Helpers"
+        Title="Greenshot — Import Annotations"
+        Height="580" Width="720"
+        MinHeight="460" MinWidth="560"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="True"
+        Topmost="True"
+        FontFamily="Segoe UI, Segoe UI Variable Display, Tahoma, Arial"
+        Background="{x:Static ui:WpfThemeHelper.WindowBackground}">
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="38"
+                      ResizeBorderThickness="5"
+                      CornerRadius="0"
+                      GlassFrameThickness="0"
+                      UseAeroCaptionButtons="False" />
+    </WindowChrome.WindowChrome>
+
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+
+        <!-- CheckBox Style -->
+        <Style TargetType="{x:Type CheckBox}">
+            <Setter Property="Foreground" Value="{x:Static ui:WpfThemeHelper.TextPrimary}"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type CheckBox}">
+                        <Grid Background="Transparent">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border x:Name="checkBorder" Grid.Column="0"
+                                    Width="16" Height="16"
+                                    CornerRadius="3"
+                                    Background="{x:Static ui:WpfThemeHelper.CardBackground}"
+                                    BorderBrush="{x:Static ui:WpfThemeHelper.CardBorder}"
+                                    BorderThickness="1.5"
+                                    VerticalAlignment="Center"
+                                    HorizontalAlignment="Center"
+                                    SnapsToDevicePixels="True">
+                                <Path x:Name="checkMark"
+                                      Data="M 3,8 L 6.5,11.5 L 12.5,4.5"
+                                      Stroke="{x:Static ui:WpfThemeHelper.Accent}"
+                                      StrokeThickness="2"
+                                      StrokeStartLineCap="Round"
+                                      StrokeEndLineCap="Round"
+                                      StrokeLineJoin="Round"
+                                      Visibility="Collapsed"
+                                      SnapsToDevicePixels="True"/>
+                            </Border>
+                            <ContentPresenter Grid.Column="1"
+                                              Margin="6,0,0,0"
+                                              VerticalAlignment="Center"
+                                              HorizontalAlignment="Left"
+                                              RecognizesAccessKey="True"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="checkMark" Property="Visibility" Value="Visible"/>
+                                <Setter TargetName="checkBorder" Property="BorderBrush" Value="{x:Static ui:WpfThemeHelper.Accent}"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="{x:Null}">
+                                <Setter TargetName="checkMark" Property="Visibility" Value="Visible"/>
+                                <Setter TargetName="checkMark" Property="Data" Value="M 4,8 L 12,8"/>
+                                <Setter TargetName="checkBorder" Property="BorderBrush" Value="{x:Static ui:WpfThemeHelper.Accent}"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="checkBorder" Property="BorderBrush" Value="{x:Static ui:WpfThemeHelper.Accent}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- RadioButton Style -->
+        <Style TargetType="{x:Type RadioButton}">
+            <Setter Property="Foreground" Value="{x:Static ui:WpfThemeHelper.TextPrimary}"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type RadioButton}">
+                        <Grid Background="Transparent">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border x:Name="radioBorder" Grid.Column="0"
+                                    Width="16" Height="16"
+                                    CornerRadius="8"
+                                    Background="{x:Static ui:WpfThemeHelper.CardBackground}"
+                                    BorderBrush="{x:Static ui:WpfThemeHelper.CardBorder}"
+                                    BorderThickness="1.5"
+                                    VerticalAlignment="Center"
+                                    HorizontalAlignment="Center"
+                                    SnapsToDevicePixels="True">
+                                <Ellipse x:Name="dot" Width="8" Height="8"
+                                         Fill="{x:Static ui:WpfThemeHelper.Accent}"
+                                         Visibility="Collapsed"
+                                         VerticalAlignment="Center"
+                                         HorizontalAlignment="Center"/>
+                            </Border>
+                            <ContentPresenter Grid.Column="1" Margin="6,0,0,0"
+                                              VerticalAlignment="Center"
+                                              HorizontalAlignment="Left"
+                                              RecognizesAccessKey="True"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="dot" Property="Visibility" Value="Visible"/>
+                                <Setter TargetName="radioBorder" Property="BorderBrush" Value="{x:Static ui:WpfThemeHelper.Accent}"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="radioBorder" Property="BorderBrush" Value="{x:Static ui:WpfThemeHelper.Accent}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Caption Close Button -->
+        <Style x:Key="CaptionCloseBtnStyle" TargetType="Button">
+            <Setter Property="WindowChrome.IsHitTestVisibleInChrome" Value="True"/>
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="Width" Value="46"/>
+            <Setter Property="Height" Value="38"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="{x:Static ui:WpfThemeHelper.TextPrimary}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}">
+                            <Path x:Name="crossPath" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                  Width="10" Height="10" Stretch="Uniform"
+                                  Stroke="{TemplateBinding Foreground}" StrokeThickness="1.5"
+                                  Data="M 0,0 L 10,10 M 10,0 L 0,10"
+                                  SnapsToDevicePixels="True"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#E81123"/>
+                                <Setter TargetName="crossPath" Property="Stroke" Value="White"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#C42B1C"/>
+                                <Setter TargetName="crossPath" Property="Stroke" Value="White"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Dialog Button Style -->
+        <Style x:Key="DialogBtn" TargetType="Button">
+            <Setter Property="Background" Value="{x:Static ui:WpfThemeHelper.CardBackground}"/>
+            <Setter Property="Foreground" Value="{x:Static ui:WpfThemeHelper.TextPrimary}"/>
+            <Setter Property="BorderBrush" Value="{x:Static ui:WpfThemeHelper.CardBorder}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="14,6"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="{x:Static ui:WpfThemeHelper.BadgeBackground}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Opacity" Value="0.8"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Dialog Primary Button -->
+        <Style x:Key="DialogPrimaryBtn" TargetType="Button" BasedOn="{StaticResource DialogBtn}">
+            <Setter Property="Background" Value="{x:Static ui:WpfThemeHelper.Accent}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="{x:Static ui:WpfThemeHelper.Accent}"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Opacity" Value="0.9"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Opacity" Value="0.75"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <!-- Outer Window Border -->
+    <Border BorderBrush="{x:Static ui:WpfThemeHelper.CardBorder}" BorderThickness="1">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="38"/> <!-- Title bar -->
+                <RowDefinition Height="Auto"/> <!-- Source header & Target Step Mode -->
+                <RowDefinition Height="*"/> <!-- Elements List -->
+                <RowDefinition Height="Auto"/> <!-- External Asset Output -->
+                <RowDefinition Height="Auto"/> <!-- Footer -->
+            </Grid.RowDefinitions>
+
+            <!-- Custom Chrome Title Bar -->
+            <Grid Grid.Row="0" Background="{x:Static ui:WpfThemeHelper.CardBackground}" MouseLeftButtonDown="OnTitleBarMouseDown">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="14,0,0,0" VerticalAlignment="Center">
+                    <TextBlock Text="📥" FontSize="13" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                    <TextBlock Text="Greenshot" FontWeight="Bold" FontSize="12" Foreground="{x:Static ui:WpfThemeHelper.TextPrimary}" VerticalAlignment="Center"/>
+                    <TextBlock Text=" — Import Annotations" FontSize="12" Foreground="{x:Static ui:WpfThemeHelper.TextSecondary}" VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <Button Grid.Column="2" Style="{StaticResource CaptionCloseBtnStyle}" Click="OnCloseTitleBarClicked" ToolTip="Close"/>
+            </Grid>
+
+            <!-- Header & Mode Selection -->
+            <StackPanel Grid.Row="1" Margin="16,10,16,10">
+                <Grid Margin="0,0,0,8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock x:Name="SourceTextBlock" Text="Source: Image Editor" FontSize="11" Foreground="{x:Static ui:WpfThemeHelper.TextSecondary}" VerticalAlignment="Center"/>
+                    <Button Grid.Column="1" x:Name="SortButton" Content="Sort A-Z ▲" Style="{StaticResource DialogBtn}" Padding="8,3" FontSize="10" Click="OnSortClicked" ToolTip="Toggle alphabetical sort"/>
+                </Grid>
+
+                <!-- Target Step Mode Selection -->
+                <Border Background="{x:Static ui:WpfThemeHelper.CardBackground}"
+                        BorderBrush="{x:Static ui:WpfThemeHelper.CardBorder}"
+                        BorderThickness="1" CornerRadius="6" Padding="12,8">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Target Step Mode:" FontWeight="SemiBold" FontSize="11"
+                                   Foreground="{x:Static ui:WpfThemeHelper.TextPrimary}" VerticalAlignment="Center" Margin="0,0,14,0"/>
+                        <Border x:Name="AppendCard" Grid.Column="1" Background="{x:Static ui:WpfThemeHelper.WindowBackground}"
+                                BorderBrush="{x:Static ui:WpfThemeHelper.CardBorder}" BorderThickness="1" CornerRadius="4" Padding="10,6" Margin="0,0,8,0"
+                                PreviewMouseDown="OnAppendCardClicked" Cursor="Hand">
+                            <RadioButton x:Name="AppendRadio" GroupName="TargetStepMode" Content="Append to existing annotations" IsChecked="True"/>
+                        </Border>
+                        <Border x:Name="ReplaceCard" Grid.Column="2" Background="{x:Static ui:WpfThemeHelper.WindowBackground}"
+                                BorderBrush="{x:Static ui:WpfThemeHelper.CardBorder}" BorderThickness="1" CornerRadius="4" Padding="10,6"
+                                PreviewMouseDown="OnReplaceCardClicked" Cursor="Hand">
+                            <RadioButton x:Name="ReplaceRadio" GroupName="TargetStepMode" Content="Replace existing annotations"/>
+                        </Border>
+                    </Grid>
+                </Border>
+            </StackPanel>
+
+            <!-- Elements List / Table -->
+            <Border Grid.Row="2" Background="{x:Static ui:WpfThemeHelper.CardBackground}"
+                    BorderBrush="{x:Static ui:WpfThemeHelper.CardBorder}"
+                    BorderThickness="1" CornerRadius="6" Padding="6" Margin="16,0,16,10">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Table Header Bar -->
+                    <Border Grid.Row="0" BorderBrush="{x:Static ui:WpfThemeHelper.CardBorder}" BorderThickness="0,0,0,1" Padding="6,4,6,6" Margin="0,0,0,4">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="36"/>
+                                <ColumnDefinition Width="110"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="180"/>
+                            </Grid.ColumnDefinitions>
+                            <CheckBox x:Name="SelectAllCheckBox" Click="OnSelectAllClicked" IsChecked="True" ToolTip="Select / Deselect all" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1" Text="Type (A-Z)" FontWeight="SemiBold" FontSize="11" Foreground="{x:Static ui:WpfThemeHelper.TextSecondary}"/>
+                            <TextBlock Grid.Column="2" Text="Description / Content" FontWeight="SemiBold" FontSize="11" Foreground="{x:Static ui:WpfThemeHelper.TextSecondary}"/>
+                            <TextBlock Grid.Column="3" Text="Asset Storage" FontWeight="SemiBold" FontSize="11" Foreground="{x:Static ui:WpfThemeHelper.TextSecondary}"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Items ListView -->
+                    <ListView x:Name="ElementsListView" Grid.Row="1" BorderThickness="0" Background="Transparent"
+                              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                              ScrollViewer.VerticalScrollBarVisibility="Auto">
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                <Setter Property="Padding" Value="6,4"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="ListViewItem">
+                                            <Border Background="{TemplateBinding Background}" CornerRadius="4" Margin="0,1">
+                                                <ContentPresenter/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="{x:Static ui:WpfThemeHelper.BadgeBackground}"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="36"/>
+                                        <ColumnDefinition Width="110"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="180"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Checkbox -->
+                                    <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" Click="OnItemSelectionChanged" VerticalAlignment="Center"/>
+
+                                    <!-- Type Badge -->
+                                    <Border Grid.Column="1" Background="{x:Static ui:WpfThemeHelper.BadgeBackground}"
+                                            BorderBrush="{x:Static ui:WpfThemeHelper.CardBorder}"
+                                            BorderThickness="1" CornerRadius="3" Padding="6,2" HorizontalAlignment="Left" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding Type}" FontWeight="SemiBold" FontSize="10" Foreground="{x:Static ui:WpfThemeHelper.Accent}"/>
+                                    </Border>
+
+                                    <!-- Description -->
+                                    <TextBlock Grid.Column="2" Text="{Binding Description}" FontSize="11"
+                                               Foreground="{x:Static ui:WpfThemeHelper.TextPrimary}"
+                                               TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Margin="0,0,10,0"/>
+
+                                    <!-- Storage Mode (Embed vs File) -->
+                                    <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center"
+                                                Visibility="{Binding CanSaveAsFile, Converter={StaticResource BoolToVis}}">
+                                        <ComboBox SelectedValue="{Binding StorageMode, Mode=TwoWay}"
+                                                  SelectedValuePath="Tag"
+                                                  SelectionChanged="OnStorageModeChanged"
+                                                  Width="160" Height="24" FontSize="10">
+                                            <ComboBoxItem Content="📦 Embed (Base64)" Tag="{x:Static helpers:AssetStorageMode.EmbedBase64}"/>
+                                            <ComboBoxItem Content="💾 Save to File" Tag="{x:Static helpers:AssetStorageMode.SaveToFile}"/>
+                                        </ComboBox>
+                                    </StackPanel>
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </Grid>
+            </Border>
+
+            <!-- External Asset Output Section (Issue 3: Clear labels and explanation) -->
+            <Border x:Name="AssetOutputPanel" Grid.Row="3" Background="{x:Static ui:WpfThemeHelper.CardBackground}"
+                    BorderBrush="{x:Static ui:WpfThemeHelper.CardBorder}"
+                    BorderThickness="1" CornerRadius="6" Padding="14,10" Margin="16,0,16,10"
+                    Visibility="Collapsed">
+                <StackPanel>
+                    <TextBlock Text="💾 File Storage Destination (For elements set to 'Save to File'):"
+                               FontWeight="SemiBold" FontSize="11" Foreground="{x:Static ui:WpfThemeHelper.TextPrimary}" Margin="0,0,0,8"/>
+
+                    <!-- Directory Path Picker -->
+                    <Grid Margin="0,0,0,6">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="110"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="6"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Save to Folder:" FontSize="11" Foreground="{x:Static ui:WpfThemeHelper.TextSecondary}" VerticalAlignment="Center"/>
+                        <TextBox x:Name="DirectoryTextBox" Grid.Column="1" FontSize="11" FontFamily="Consolas" VerticalContentAlignment="Center" Padding="6,3"
+                                 Background="{x:Static ui:WpfThemeHelper.WindowBackground}"
+                                 Foreground="{x:Static ui:WpfThemeHelper.TextPrimary}"/>
+                        <Button Grid.Column="3" Content="Browse..." Style="{StaticResource DialogBtn}" Padding="10,4" Click="OnBrowseDirectoryClicked"/>
+                    </Grid>
+
+                    <!-- Base Filename Prefix -->
+                    <Grid Margin="0,0,0,4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="110"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Filename Prefix:" FontSize="11" Foreground="{x:Static ui:WpfThemeHelper.TextSecondary}" VerticalAlignment="Center"/>
+                        <TextBox x:Name="BaseFileNameTextBox" Grid.Column="1" FontSize="11" FontFamily="Consolas" VerticalContentAlignment="Center" Padding="6,3"
+                                 ToolTip="Prefix used for all exported asset files"
+                                 Background="{x:Static ui:WpfThemeHelper.WindowBackground}"
+                                 Foreground="{x:Static ui:WpfThemeHelper.TextPrimary}"/>
+                    </Grid>
+
+                    <!-- Helper explanation -->
+                    <TextBlock Text="ℹ Exported files will be named: &lt;Folder&gt;\{prefix}_{type}_{number}.png (e.g., &quot;myrecipe_cursor_1.png&quot;)"
+                               FontSize="10" Foreground="{x:Static ui:WpfThemeHelper.TextSecondary}" Margin="110,2,0,0"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Footer Action Buttons -->
+            <Border Grid.Row="4" Background="{x:Static ui:WpfThemeHelper.CardBackground}"
+                    BorderBrush="{x:Static ui:WpfThemeHelper.CardBorder}" BorderThickness="0,1,0,0" Padding="16,10">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock x:Name="StatusTextBlock" Text="0 items selected" FontSize="11" Foreground="{x:Static ui:WpfThemeHelper.TextSecondary}" VerticalAlignment="Center"/>
+
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <Button Content="Cancel" Style="{StaticResource DialogBtn}" Click="OnCancelClicked" Margin="0,0,8,0"/>
+                        <Button x:Name="ImportBtn" Content="Proceed Import" Style="{StaticResource DialogPrimaryBtn}" Click="OnProceedClicked"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</Window>
