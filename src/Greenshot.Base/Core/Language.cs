@@ -1,6 +1,6 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -25,7 +25,7 @@ using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Xml;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using log4net;
 using Microsoft.Win32;
 
@@ -58,12 +58,6 @@ namespace Greenshot.Base.Core
         /// </summary>
         static Language()
         {
-            if (!IniConfig.IsInitialized)
-            {
-                Log.Warn("IniConfig hasn't been initialized yet! (Design mode?)");
-                IniConfig.Init("greenshot", "greenshot");
-            }
-
             if (!LogHelper.IsInitialized)
             {
                 Log.Warn("Log4net hasn't been initialized yet! (Design mode?)");
@@ -88,6 +82,30 @@ namespace Greenshot.Base.Core
                 if (applicationFolder != null)
                 {
                     AddPath(Path.Combine(applicationFolder, @"Languages"));
+                }
+
+                // Search relative to Greenshot.Base.dll assembly location
+                string assemblyLocation = typeof(Language).Assembly.Location;
+                if (!string.IsNullOrEmpty(assemblyLocation))
+                {
+                    string assemblyFolder = Path.GetDirectoryName(assemblyLocation);
+                    if (!string.IsNullOrEmpty(assemblyFolder))
+                    {
+                        AddPath(Path.Combine(assemblyFolder, @"Languages"));
+
+                        // Search upward for solution/repo root Languages folders during development
+                        var dir = new DirectoryInfo(assemblyFolder);
+                        while (dir != null && dir.Parent != null)
+                        {
+                            string candidate = Path.Combine(dir.FullName, @"Languages");
+                            AddPath(candidate);
+                            string srcCandidate = Path.Combine(dir.FullName, @"src", @"Greenshot", @"Languages");
+                            AddPath(srcCandidate);
+                            string greenshotCandidate = Path.Combine(dir.FullName, @"Greenshot", @"Languages");
+                            AddPath(greenshotCandidate);
+                            dir = dir.Parent;
+                        }
+                    }
                 }
             }
             catch (Exception pathException)
@@ -117,9 +135,21 @@ namespace Greenshot.Base.Core
                 Log.Warn("Couldn't read the installed language groups.", e);
             }
 
-            var coreConfig = IniConfig.GetIniSection<CoreConfiguration>();
             ScanFiles();
-            if (!string.IsNullOrEmpty(coreConfig.Language))
+
+            // Direct registry lookup for production (fast path, no designer overhead)
+            ICoreConfiguration coreConfig = null;
+            if (IniConfigRegistry.TryGet("greenshot.ini", out var iniConfig))
+            {
+                coreConfig = iniConfig.GetSection<ICoreConfiguration>();
+            }
+            else
+            {
+                // Fallback for Windows Forms Designer / uninitialized unit tests only
+                coreConfig = IniConfigHelper.EnsureSection<ICoreConfiguration>(() => new CoreConfigurationImpl());
+            }
+
+            if (!string.IsNullOrEmpty(coreConfig?.Language))
             {
                 CurrentLanguage = coreConfig.Language;
                 if (CurrentLanguage != null && CurrentLanguage != coreConfig.Language)
@@ -132,7 +162,7 @@ namespace Greenshot.Base.Core
             {
                 Log.Warn("Couldn't set language from configuration, changing to default. Installation problem?");
                 CurrentLanguage = DefaultLanguage;
-                if (CurrentLanguage != null)
+                if (CurrentLanguage != null && coreConfig != null)
                 {
                     coreConfig.Language = CurrentLanguage;
                 }
@@ -354,7 +384,7 @@ namespace Greenshot.Base.Core
                 XmlNodeList resourceNodes = xmlDocument.GetElementsByTagName("resource");
                 foreach (XmlNode resourceNode in resourceNodes)
                 {
-                    string key = resourceNode.Attributes?["name"].Value;
+                    string key = resourceNode.Attributes?["name"]?.Value;
                     if (string.IsNullOrEmpty(key))
                     {
                         continue;

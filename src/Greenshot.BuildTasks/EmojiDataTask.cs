@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -25,7 +25,6 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Greenshot.Editor.Controls.Emoji;
-using SixLabors.Fonts.Unicode;
 using Task = Microsoft.Build.Utilities.Task;
 using System.Text;
 using System.Xml;
@@ -126,7 +125,7 @@ public class EmojiDataTask : Task
             }
 
             // Fix simple fully-qualified emojis
-            if (CodePoint.GetCodePointCount(text.AsSpan()) == 2)
+            if (GetCodePointCount(text) == 2)
             {
                 text = text.TrimEnd('\ufe0f');
             }
@@ -174,5 +173,19 @@ public class EmojiDataTask : Task
         {
             yield return line;
         }
+    }
+
+    private static int GetCodePointCount(string s)
+    {
+        int count = 0;
+        for (int i = 0; i < s.Length; i++)
+        {
+            count++;
+            if (char.IsHighSurrogate(s[i]) && i + 1 < s.Length && char.IsLowSurrogate(s[i + 1]))
+            {
+                i++;
+            }
+        }
+        return count;
     }
 }

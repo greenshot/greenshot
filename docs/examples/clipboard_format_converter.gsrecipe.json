@@ -1,0 +1,81 @@
+{
+  "version": "1.0",
+  "id": "recipe_clipboard_format_converter",
+  "name": "Clipboard Format Converter & Watermark",
+  "description": "Automatically detects external image clipboard copies (e.g. DeviceIndependentBitmap, DIBV5, or PNG), applies a subtle timestamped watermark annotation, and re-places clean PNG data onto the clipboard.",
+  "triggers": [
+    {
+      "triggerType": "Clipboard",
+      "name": "Monitor External Image Copies",
+      "enabled": true,
+      "parameters": {
+        "formatFilter": ""
+      }
+    }
+  ],
+  "requires": [],
+  "nodes": [
+    {
+      "id": "annotate_clipboard",
+      "stepType": "Annotation",
+      "name": "Add Processed Tag",
+      "enabled": true,
+      "parameters": {
+        "annotations": [
+          {
+            "type": "Rectangle",
+            "horizontalAnchor": "Right",
+            "verticalAnchor": "Bottom",
+            "width": 180,
+            "height": 24,
+            "offsetX": -10,
+            "offsetY": -10,
+            "fillColor": "rgba(0, 0, 0, 160)",
+            "lineColor": "#00AA00",
+            "lineThickness": 1,
+            "shadow": true
+          },
+          {
+            "type": "Text",
+            "horizontalAnchor": "Right",
+            "verticalAnchor": "Bottom",
+            "width": 170,
+            "height": 20,
+            "offsetX": -15,
+            "offsetY": -12,
+            "text": "Greenshot: ${now:HH:mm:ss}",
+            "textColor": "#FFFFFF",
+            "fontSize": 9.0,
+            "fontFamily": "Segoe UI",
+            "bold": true,
+            "shadow": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "editor_2850",
+      "stepType": "Editor",
+      "name": "Editor",
+      "enabled": true,
+      "parameters": {
+        "destination": "Editor"
+      }
+    }
+  ],
+  "flow": {
+    "startNodes": [
+      "annotate_clipboard"
+    ],
+    "transitions": {
+      "annotate_clipboard": [
+        "editor_2850"
+      ]
+    },
+    "conditionalTransitions": []
+  },
+  "showInContextMenu": true,
+  "isBuiltIn": false,
+  "isOverridden": false,
+  "filePath": "D:\\code\\greenshot\\docs\\examples\\clipboard_format_converter.gsrecipe.json"
+}

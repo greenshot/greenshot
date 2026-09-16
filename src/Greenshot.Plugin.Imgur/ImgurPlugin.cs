@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -24,18 +24,21 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using Greenshot.Base.Core;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
+using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.Base.Pipeline;
+using Greenshot.Plugin.Imgur.Forms;
 
 namespace Greenshot.Plugin.Imgur;
 
 /// <summary>
 /// This is the ImgurPlugin code
 /// </summary>
-public class ImgurPlugin : IGreenshotPlugin
+public class ImgurPlugin : IGreenshotPlugin, IRecipeStepProvider
 {
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ImgurPlugin));
-    private static ImgurConfiguration _config;
+    private static IImgurConfiguration _config;
     private ComponentResourceManager _resources;
     private ToolStripMenuItem _historyMenuItem;
     private ToolStripMenuItem _itemPlugInConfig;
@@ -73,28 +76,56 @@ public class ImgurPlugin : IGreenshotPlugin
     public bool IsConfigurable => true;
 
     /// <summary>
-    /// Implementation of the IGreenshotPlugin.Initialize
+    /// Implementation of RegisterConfiguration phase: register INI section before file is loaded.
+    /// </summary>
+    public void RegisterConfiguration(IniConfig iniConfig)
+    {
+        var section = new ImgurConfigurationImpl();
+        iniConfig.AddSection(section);
+        _config = section;
+    }
+
+    /// <summary>
+    /// Implementation of RegisterServices phase: register DI services after config is loaded.
+    /// </summary>
+    public void RegisterServices(IServiceLocator serviceLocator)
+    {
+        _resources = new ComponentResourceManager(typeof(ImgurPlugin));
+        serviceLocator.AddService<IDestination>(new ImgurDestination());
+        serviceLocator.AddService<IRecipeStepProvider>(this);
+        StepRegistry.Instance.RegisterProvider(this);
+    }
+
+    /// <summary>
+    /// Registers recipe step factories provided by the Imgur plugin.
+    /// </summary>
+    /// <param name="registry">The step registry.</param>
+    public void RegisterSteps(IStepRegistry registry)
+    {
+        if (registry == null) return;
+        registry.RegisterStepFactory("Imgur", config => new ImgurStep(config));
+        registry.RegisterStepFactory("ImgurUpload", config => new ImgurStep(config));
+        registry.RegisterStepFactory("UploadToImgur", config => new ImgurStep(config));
+    }
+
+    /// <summary>
+    /// Implementation of the IGreenshotPlugin.Start
     /// </summary>
     /// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
-    public bool Initialize()
+    public bool Start()
     {
-        // Get configuration
-        _config = IniConfig.GetIniSection<ImgurConfiguration>();
-        _resources = new ComponentResourceManager(typeof(ImgurPlugin));
-
         ToolStripMenuItem itemPlugInRoot = new ToolStripMenuItem("Imgur")
         {
             Image = (Image) _resources.GetObject("Imgur")
         };
 
         _itemPlugInConfig = new ToolStripMenuItem(Language.GetString("imgur", LangKey.configure));
-        _itemPlugInConfig.Click += delegate { _config.ShowConfigDialog(); };
+        _itemPlugInConfig.Click += delegate { ShowConfigDialog(); };
         itemPlugInRoot.DropDownItems.Add(_itemPlugInConfig);
 
         PluginUtils.AddToContextMenu(itemPlugInRoot);
         Language.LanguageChanged += OnLanguageChanged;
 
-        // Enable history if there are items available
         UpdateHistoryMenuItem();
         return true;
     }
@@ -157,6 +188,15 @@ public class ImgurPlugin : IGreenshotPlugin
     /// </summary>
     public virtual void Configure()
     {
-        _config.ShowConfigDialog();
+        ShowConfigDialog();
+    }
+
+    /// <summary>
+    /// Opens the Imgur settings dialog.
+    /// </summary>
+    /// <returns>true if OK was pressed; false if cancelled</returns>
+    private bool ShowConfigDialog()
+    {
+        return new SettingsForm().ShowDialog() == DialogResult.OK;
     }
 }

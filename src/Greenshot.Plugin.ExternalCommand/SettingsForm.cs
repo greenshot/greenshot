@@ -1,6 +1,6 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -22,7 +22,8 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
+using Greenshot.Base.Core;
 
 namespace Greenshot.Plugin.ExternalCommand;
 
@@ -31,7 +32,7 @@ namespace Greenshot.Plugin.ExternalCommand;
 /// </summary>
 public partial class SettingsForm : ExternalCommandForm
 {
-    private static readonly ExternalCommandConfiguration ExternalCommandConfig = IniConfig.GetIniSection<ExternalCommandConfiguration>();
+    private static readonly IExternalCommandConfiguration ExternalCommandConfig = IniConfigHelper.EnsureSection<IExternalCommandConfiguration>(() => new ExternalCommandConfigurationImpl());
 
     public SettingsForm()
     {
@@ -39,14 +40,26 @@ public partial class SettingsForm : ExternalCommandForm
         // The InitializeComponent() call is required for Windows Forms designer support.
         //
         InitializeComponent();
+        InitializeLanguage();
         AcceptButton = buttonOk;
         CancelButton = buttonCancel;
         UpdateView();
     }
 
+    /// <inheritdoc />
+    protected override void InitializeLanguage()
+    {
+        buttonCancel.Text = Language.GetString("CANCEL");
+        buttonOk.Text = Language.GetString("OK");
+        button_new.Text = Language.GetString("externalcommand.settings_new");
+        button_delete.Text = Language.GetString("externalcommand.settings_delete");
+        button_edit.Text = Language.GetString("externalcommand.settings_edit");
+        Text = Language.GetString("externalcommand.settings_title");
+    }
+
     private void ButtonOkClick(object sender, EventArgs e)
     {
-        IniConfig.Save();
+        IniConfigRegistry.Get().Save();
     }
 
     private void ButtonAddClick(object sender, EventArgs e)

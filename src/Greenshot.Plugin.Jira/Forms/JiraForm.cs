@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -30,18 +30,21 @@ using Dapplo.Jira.Entities;
 using Dapplo.Windows.Dpi;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
-using Greenshot.Base.IniFile;
 
 namespace Greenshot.Plugin.Jira.Forms;
 
 public partial class JiraForm : Form
 {
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(JiraForm));
-    private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
+    private static readonly ICoreConfiguration CoreConfig = IniConfigHelper.EnsureSection<ICoreConfiguration>(() => new CoreConfigurationImpl());
     private readonly JiraConnector _jiraConnector;
     private IssueV2 _selectedIssue;
     private readonly GreenshotColumnSorter _columnSorter;
     private IDisposable _jiraKeySubscription;
+
+    public JiraForm() : this(null)
+    {
+    }
 
     public JiraForm(JiraConnector jiraConnector)
     {
@@ -72,6 +75,11 @@ public partial class JiraForm : Form
 
     private async void OnLoad(object sender, EventArgs eventArgs)
     {
+        if (DesignMode || _jiraConnector == null)
+        {
+            return;
+        }
+
         this.Invoke(async () => { await OnLoad(); });
     }
 

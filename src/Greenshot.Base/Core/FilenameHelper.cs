@@ -1,6 +1,6 @@
 ﻿/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -27,7 +27,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Greenshot.Base.Core.Enums;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using log4net;
 
@@ -48,7 +48,7 @@ namespace Greenshot.Base.Core
 
         private static readonly Regex SplitRegexp = new Regex(";(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", RegexOptions.Compiled);
         private const int MaxTitleLength = 80;
-        private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
+        private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
         private const string UnsafeReplacement = "_";
         private static readonly Random RandomNumberGen = new Random();
         private static readonly Regex RandRegexp = new Regex("^R+$", RegexOptions.Compiled);
@@ -424,7 +424,6 @@ namespace Greenshot.Base.Core
                         break;
                     case "NUM":
                         CoreConfig.OutputFileIncrementingNumber++;
-                        IniConfig.Save();
                         replaceValue = CoreConfig.OutputFileIncrementingNumber.ToString();
                         if (padWidth == 0)
                         {

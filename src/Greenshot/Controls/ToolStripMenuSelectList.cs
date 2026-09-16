@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -25,7 +25,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using Dapplo.Windows.Dpi;
 using Greenshot.Base.Core;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 
 namespace Greenshot.Controls
@@ -35,7 +35,7 @@ namespace Greenshot.Controls
     /// </summary>
     public sealed class ToolStripMenuSelectList : ToolStripMenuItem
     {
-        private static readonly CoreConfiguration CoreConfig = IniConfig.GetIniSection<CoreConfiguration>();
+        private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
         private readonly bool _multiCheckAllowed;
         private readonly IProvideDeviceDpi _provideDeviceDpi;
         private bool _updateInProgress;

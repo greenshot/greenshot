@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -21,16 +21,15 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
-using Greenshot.Base.Interfaces.Ocr;
+using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Editor.Configuration;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Drawing.Fields;
@@ -43,23 +42,28 @@ namespace Greenshot.Editor.Forms
     /// </summary>
     public partial class TextObfuscationForm : EditorForm
     {
-        private static readonly EditorConfiguration EditorConfig = IniConfig.GetIniSection<EditorConfiguration>();
+        private static readonly IEditorConfiguration EditorConfig = IniConfigRegistry.GetSection<IEditorConfiguration>();
         
         private readonly ISurface _surface;
-        private readonly OcrInformation _ocrInfo;
+        private readonly IEnumerable<IOcrLineFeature> _ocrLines;
         private readonly List<NativeRect> _matchedBounds = new List<NativeRect>();
         private readonly List<FilterContainer> _previewContainers = new List<FilterContainer>();
         private IDisposable _searchSubscription;
         private bool _isInitializing = true;
 
-        public TextObfuscationForm(ISurface surface, OcrInformation ocrInfo)
+        /// <summary>
+        /// Parameterless constructor for Windows Forms designer support.
+        /// </summary>
+        public TextObfuscationForm() : this(null, null)
         {
-            _surface = surface ?? throw new ArgumentNullException(nameof(surface));
-            _ocrInfo = ocrInfo ?? throw new ArgumentNullException(nameof(ocrInfo));
+        }
+
+        public TextObfuscationForm(ISurface surface, IEnumerable<IOcrLineFeature> ocrLines)
+        {
+            _surface = surface;
+            _ocrLines = ocrLines;
             InitializeComponent();
-            
-            // Initialize match count label with formatted text
-            matchCountLabel.Text = string.Format(Language.GetString("editor_obfuscate_text_matches"), "0");
+            InitializeLanguage();
             
             InitializeEffectDropdown();
             InitializeSearchScopeDropdown();
@@ -74,6 +78,22 @@ namespace Greenshot.Editor.Forms
             {
                 UpdatePreview();
             }
+        }
+
+        protected override void InitializeLanguage()
+        {
+            searchLabel.Text = Language.GetString("editor_obfuscate_text_search");
+            searchButton.Text = Language.GetString("editor_obfuscate_text_search_button");
+            regexCheckBox.Text = Language.GetString("editor_obfuscate_text_regex");
+            caseSensitiveCheckBox.Text = Language.GetString("editor_obfuscate_text_case_sensitive");
+            searchScopeLabel.Text = Language.GetString("editor_obfuscate_text_search_scope");
+            advancedSettingsCheckBox.Text = Language.GetString("editor_obfuscate_text_advanced");
+            applyButton.Text = Language.GetString("editor_obfuscate_text_apply");
+            cancelButton.Text = Language.GetString("CANCEL");
+            Text = Language.GetString("editor_obfuscate_text_title");
+
+            // Initialize match count label with formatted text
+            matchCountLabel.Text = string.Format(Language.GetString("editor_obfuscate_text_matches"), "0");
         }
 
         private void InitializeEffectDropdown()
@@ -198,6 +218,11 @@ namespace Greenshot.Editor.Forms
             ClearPreview();
             _matchedBounds.Clear();
 
+            if (_surface == null || _ocrLines == null)
+            {
+                return;
+            }
+
             string searchText = searchTextBox.Text;
             if (string.IsNullOrEmpty(searchText) || searchText.Length < 3)
             {
@@ -251,7 +276,7 @@ namespace Greenshot.Editor.Forms
 
         private void SearchWords(string searchText, bool useRegex)
         {
-            foreach (var line in _ocrInfo.Lines)
+            foreach (var line in _ocrLines)
             {
                 foreach (var word in line.Words)
                 {
@@ -265,11 +290,11 @@ namespace Greenshot.Editor.Forms
 
         private void SearchLines(string searchText, bool useRegex)
         {
-            foreach (var line in _ocrInfo.Lines)
+            foreach (var line in _ocrLines)
             {
                 if (IsMatch(line.Text, searchText, useRegex))
                 {
-                    _matchedBounds.Add(ApplyPadding(line.CalculatedBounds));
+                    _matchedBounds.Add(ApplyPadding(line.Bounds));
                 }
             }
         }
@@ -318,6 +343,11 @@ namespace Greenshot.Editor.Forms
 
         private void ShowPreview()
         {
+            if (_surface == null)
+            {
+                return;
+            }
+
             if (!(effectComboBox.SelectedItem is EffectItem item))
             {
                 return;
@@ -338,6 +368,12 @@ namespace Greenshot.Editor.Forms
 
         private void ClearPreview()
         {
+            if (_surface == null)
+            {
+                _previewContainers.Clear();
+                return;
+            }
+
             foreach (var container in _previewContainers)
             {
                 _surface.RemoveElement(container, false);
@@ -408,7 +444,7 @@ namespace Greenshot.Editor.Forms
                 }
             }
 
-            if (containers.Count > 0)
+            if (_surface != null && containers.Count > 0)
             {
                 _surface.AddElements(containers, true);
             }

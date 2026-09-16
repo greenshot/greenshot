@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -29,7 +29,7 @@ using System.Runtime.Serialization;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Drawing.Adorners;
@@ -53,7 +53,17 @@ namespace Greenshot.Editor.Drawing
     public abstract class DrawableContainer : AbstractFieldHolderWithChildren, IDrawableContainer
     {
         private static readonly ILog LOG = LogManager.GetLogger(typeof(DrawableContainer));
-        protected static readonly EditorConfiguration EditorConfig = IniConfig.GetIniSection<EditorConfiguration>();
+        protected static readonly IEditorConfiguration EditorConfig = IniConfigRegistry.GetSection<IEditorConfiguration>();
+        
+        [NonSerialized]
+        private object _tag;
+
+        public object Tag
+        {
+            get => _tag;
+            set => _tag = value;
+        }
+
         private const int M11 = 0;
         private const int M22 = 3;
 
@@ -361,6 +371,10 @@ namespace Greenshot.Editor.Drawing
 
         public virtual void OnDoubleClick()
         {
+            if (Tag is Greenshot.Base.Interfaces.Drawing.IDoubleClickHandler handler)
+            {
+                handler.OnDoubleClick(this);
+            }
         }
 
         /// <summary>
@@ -424,7 +438,7 @@ namespace Greenshot.Editor.Drawing
             }
         }
 
-        public virtual void DrawContent(Graphics graphics, Bitmap bmp, RenderMode renderMode, NativeRect clipRectangle)
+        public virtual void DrawContent(Graphics graphics, Bitmap bmp, RenderMode renderMode, NativeRect clipRectangle, bool skipInvertedFilters = false)
         {
             if (Children.Count > 0)
             {
@@ -440,7 +454,10 @@ namespace Greenshot.Editor.Drawing
                         {
                             if (filter.Invert)
                             {
-                                filter.Apply(graphics, bmp, Bounds, renderMode);
+                                if (!skipInvertedFilters)
+                                {
+                                    filter.Apply(graphics, bmp, Bounds, renderMode);
+                                }
                             }
                             else
                             {
@@ -718,6 +735,41 @@ namespace Greenshot.Editor.Drawing
         /// </summary>
         protected virtual void InitializeFields()
         {
+        }
+
+        /// <summary>
+        /// Snap the container to the edge of the surface.
+        /// </summary>
+        /// <param name="direction">Direction in which to move the container.</param>
+        /// <param name="surface">The surface the container belongs to.</param>
+        public void SnapToEdge(Direction direction, Size surfaceSize)
+        {
+            NativeRectFloat newBounds = GetLocationAfterSnap(direction, this.Bounds, surfaceSize);
+
+            this.MakeBoundsChangeUndoable(allowMerge: false);
+            this.ApplyBounds(newBounds);
+        }
+
+        private static NativeRectFloat GetLocationAfterSnap(Direction direction, NativeRect bounds, Size surfaceSize)
+        {
+            switch (direction)
+            {
+                case Direction.LEFT:
+                    bounds = bounds.ChangeX(0);
+                    break;
+                case Direction.RIGHT:
+                    bounds = bounds.Offset(offsetX: surfaceSize.Width - bounds.Right);
+                    break;
+                case Direction.TOP:
+                    bounds = bounds.ChangeY(0);
+                    break;
+                case Direction.BOTTOM:
+                    bounds = bounds.Offset(offsetY: surfaceSize.Height - bounds.Bottom);
+                    break;
+                default:
+                    break;
+            }
+            return bounds;
         }
     }
 }

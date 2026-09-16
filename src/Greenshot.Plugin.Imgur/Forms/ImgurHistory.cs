@@ -1,6 +1,6 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -20,12 +20,12 @@
  */
 
 using System;
+using System.ComponentModel;
 using System.Globalization;
 using System.Text;
 using System.Windows.Forms;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
-using Greenshot.Base.IniFile;
 
 namespace Greenshot.Plugin.Imgur.Forms;
 
@@ -37,7 +37,7 @@ public sealed partial class ImgurHistory : ImgurForm
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ImgurHistory));
     private readonly GreenshotColumnSorter _columnSorter;
     private static readonly object Lock = new object();
-    private static readonly ImgurConfiguration Config = IniConfig.GetIniSection<ImgurConfiguration>();
+    private static readonly IImgurConfiguration Config = IniConfigHelper.EnsureSection<IImgurConfiguration>(() => new ImgurConfigurationImpl());
     private static ImgurHistory _instance;
 
     public static void ShowHistory()
@@ -53,7 +53,7 @@ public sealed partial class ImgurHistory : ImgurForm
             }
 
             // Make sure the history is loaded, will be done only once
-            if (_instance == null)
+            if (_instance == null || _instance.IsDisposed)
             {
                 _instance = new ImgurHistory();
             }
@@ -64,16 +64,39 @@ public sealed partial class ImgurHistory : ImgurForm
             }
 
             _instance.Redraw();
+            _instance.BringToFront();
         }
     }
 
-    private ImgurHistory()
+    /// <summary>
+    /// Parameterless constructor required for Windows Forms designer support.
+    /// Callers should use <see cref="ShowHistory"/> to display the singleton instance.
+    /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [Obsolete("Use ImgurHistory.ShowHistory() instead.", false)]
+    public ImgurHistory()
     {
-        ManualLanguageApply = true;
+        lock (Lock)
+        {
+            if (_instance != null && !_instance.IsDisposed && _instance != this)
+            {
+                try
+                {
+                    _instance.Close();
+                }
+                catch
+                {
+                    // Ignore
+                }
+            }
+            _instance = this;
+        }
+
         //
         // The InitializeComponent() call is required for Windows Forms designer support.
         //
         InitializeComponent();
+        InitializeLanguage();
         AcceptButton = finishedButton;
         CancelButton = finishedButton;
         // Init sorting
@@ -86,8 +109,17 @@ public sealed partial class ImgurHistory : ImgurForm
         {
             listview_imgur_uploads.Items[0].Selected = true;
         }
+    }
 
-        ApplyLanguage();
+    /// <inheritdoc />
+    protected override void InitializeLanguage()
+    {
+        Text = Language.GetString("imgur.history");
+        deleteButton.Text = Language.GetString("imgur.history.delete");
+        openButton.Text = Language.GetString("imgur.history.open");
+        finishedButton.Text = Language.GetString("imgur.OK");
+        clipboardButton.Text = Language.GetString("imgur.history.copy_to_clipboard");
+        clearHistoryButton.Text = Language.GetString("imgur.history.clear");
     }
 
     private void Redraw()
@@ -106,16 +138,19 @@ public sealed partial class ImgurHistory : ImgurForm
             listview_imgur_uploads.Columns.Add(column);
         }
 
-        foreach (ImgurInfo imgurInfo in Config.runtimeImgurHistory.Values)
+        if (Config.RuntimeImgurHistory != null)
         {
-            var item = new ListViewItem(imgurInfo.Hash)
+            foreach (ImgurInfo imgurInfo in Config.RuntimeImgurHistory.Values)
             {
-                Tag = imgurInfo
-            };
-            item.SubItems.Add(imgurInfo.Title);
-            item.SubItems.Add(imgurInfo.DeleteHash);
-            item.SubItems.Add(imgurInfo.Timestamp.ToString("yyyy-MM-dd HH:mm:ss", DateTimeFormatInfo.InvariantInfo));
-            listview_imgur_uploads.Items.Add(item);
+                var item = new ListViewItem(imgurInfo.Hash)
+                {
+                    Tag = imgurInfo
+                };
+                item.SubItems.Add(imgurInfo.Title);
+                item.SubItems.Add(imgurInfo.DeleteHash);
+                item.SubItems.Add(imgurInfo.Timestamp.ToString("yyyy-MM-dd HH:mm:ss", DateTimeFormatInfo.InvariantInfo));
+                listview_imgur_uploads.Items.Add(item);
+            }
         }
 
         for (int i = 0; i < columns.Length; i++)
@@ -207,9 +242,8 @@ public sealed partial class ImgurHistory : ImgurForm
         DialogResult result = MessageBox.Show(Language.GetString("imgur", LangKey.clear_question), "Imgur", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
         if (result == DialogResult.Yes)
         {
-            Config.runtimeImgurHistory.Clear();
+            Config.RuntimeImgurHistory.Clear();
             Config.ImgurUploadHistory.Clear();
-            IniConfig.Save();
             Redraw();
         }
     }
@@ -253,6 +287,12 @@ public sealed partial class ImgurHistory : ImgurForm
 
     private void ImgurHistoryFormClosing(object sender, FormClosingEventArgs e)
     {
-        _instance = null;
+        lock (Lock)
+        {
+            if (_instance == this)
+            {
+                _instance = null;
+            }
+        }
     }
 }

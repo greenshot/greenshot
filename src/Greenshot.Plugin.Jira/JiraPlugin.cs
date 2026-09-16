@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -28,9 +28,10 @@ using Dapplo.HttpExtensions.WinForms.ContentConverter;
 using Dapplo.Jira.SvgWinForms.Converters;
 using Dapplo.Log;
 using Greenshot.Base.Core;
-using Greenshot.Base.IniFile;
+using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.Base.Pipeline;
 using Greenshot.Plugin.Jira.Forms;
 using log4net;
 
@@ -39,10 +40,10 @@ namespace Greenshot.Plugin.Jira;
 /// <summary>
 /// This is the JiraPlugin base code
 /// </summary>
-public class JiraPlugin : IGreenshotPlugin
+public class JiraPlugin : IGreenshotPlugin, IRecipeStepProvider
 {
     private static readonly ILog Log = LogManager.GetLogger(typeof(JiraPlugin));
-    private JiraConfiguration _config;
+    private IJiraConfiguration _config;
 
     public void Dispose()
     {
@@ -68,26 +69,51 @@ public class JiraPlugin : IGreenshotPlugin
     public bool IsConfigurable => true;
 
     /// <summary>
-    /// Implementation of the IGreenshotPlugin.Initialize
+    /// Implementation of RegisterConfiguration phase: register INI section before file is loaded.
+    /// </summary>
+    public void RegisterConfiguration(IniConfig iniConfig)
+    {
+        var section = new JiraConfigurationImpl();
+        iniConfig.AddSection(section);
+        _config = section;
+    }
+
+    /// <summary>
+    /// Implementation of RegisterServices phase: register DI services after config is loaded.
+    /// </summary>
+    public void RegisterServices(IServiceLocator serviceLocator)
+    {
+        serviceLocator.AddService(new JiraConnector());
+        serviceLocator.AddService<IDestination>(new JiraDestination());
+        serviceLocator.AddService<IRecipeStepProvider>(this);
+        StepRegistry.Instance.RegisterProvider(this);
+    }
+
+    /// <summary>
+    /// Registers recipe step factories provided by the Jira plugin.
+    /// </summary>
+    /// <param name="registry">The step registry.</param>
+    public void RegisterSteps(IStepRegistry registry)
+    {
+        if (registry == null) return;
+        registry.RegisterStepFactory("Jira", config => new JiraStep(config));
+        registry.RegisterStepFactory("JiraUpload", config => new JiraStep(config));
+        registry.RegisterStepFactory("UploadToJira", config => new JiraStep(config));
+        registry.RegisterStepFactory("AttachToJira", config => new JiraStep(config));
+    }
+
+    /// <summary>
+    /// Implementation of the IGreenshotPlugin.Start
     /// </summary>
     /// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
-    public bool Initialize()
+    public bool Start()
     {
-        // Register configuration (don't need the configuration itself)
-        _config = IniConfig.GetIniSection<JiraConfiguration>();
-
-        // Provide the JiraConnector
-        SimpleServiceProvider.Current.AddService(new JiraConnector());
-        // Provide the IDestination
-        SimpleServiceProvider.Current.AddService<IDestination>(new JiraDestination());
-
         if (HttpExtensionsGlobals.HttpContentConverters.All(x => x.GetType() != typeof(SvgBitmapHttpContentConverter)))
         {
             HttpExtensionsGlobals.HttpContentConverters.Add(SvgBitmapHttpContentConverter.Instance.Value);
         }
         BitmapHttpContentConverter.RegisterGlobally();
 
-        // Make sure the log is enabled for the correct level.
         if (Log.IsDebugEnabled)
         {
             LogSettings.RegisterDefaultLogger<Log4NetLogger>(LogLevels.Verbose);
@@ -99,10 +125,6 @@ public class JiraPlugin : IGreenshotPlugin
         else if (Log.IsWarnEnabled)
         {
             LogSettings.RegisterDefaultLogger<Log4NetLogger>(LogLevels.Warn);
-        }
-        else if (Log.IsErrorEnabled)
-        {
-            LogSettings.RegisterDefaultLogger<Log4NetLogger>(LogLevels.Error);
         }
         else if (Log.IsErrorEnabled)
         {
