@@ -2,7 +2,7 @@
 layout: post
 status: draft
 published: false
-title: "🔐 Greenshot 1.3: Sicherheitsupdate ist da"
+title: "Greenshot 1.3: Sicherheitsupdate ist da"
 tags:
 - status
 - '1.3'
