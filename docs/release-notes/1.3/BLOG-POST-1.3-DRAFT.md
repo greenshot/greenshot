@@ -4,8 +4,8 @@ status: draft
 published: false
 title: "Greenshot 1.3: Sicherheitsupdate ist da"
 tags:
-- status
 - '1.3'
+- security
 ---
 
 Mit Greenshot 1.3 steht ein wichtiges Sicherheitsupdate bereit. Wir empfehlen allen Nutzerinnen und Nutzern das zeitnahe Update über die offizielle [Download-Seite](https://getgreenshot.org/downloads/).
