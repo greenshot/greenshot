@@ -24,6 +24,7 @@ using Dapplo.Ini.Converters;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Editor.Configuration;
+using Greenshot.Editor.Drawing;
 using Greenshot.Editor.FileFormatHandlers;
 
 namespace Greenshot.Editor
@@ -34,6 +35,7 @@ namespace Greenshot.Editor
 
         public static void Initialize()
         {
+            SimpleServiceProvider.Current.AddService<IStepLabelService>(new StepLabelService());
             // Make sure the value converter for the editor is registered, so we can use it in the configuration
             ValueConverterRegistry.Register(new GreenshotEditorObjectValueConverter());
 
