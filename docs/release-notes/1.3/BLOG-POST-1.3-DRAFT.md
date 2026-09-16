@@ -24,7 +24,7 @@ Mit dem Update prüft Greenshot diese Zertifikate jetzt korrekt. Das macht den D
 
 Viele Nutzer verbinden Greenshot mit Diensten wie Imgur, Box, Dropbox, Flickr, Confluence oder Jira. Der Fix reduziert das Risiko, dass dabei sensible Verbindungsdaten abgefangen oder verändert werden.
 
-## Danke für verantwortungsvolle Meldung
+## Danke für verantwortungsvolle Offenlegung
 
 Vielen Dank an die Security-Community für die verantwortungsvolle Offenlegung solcher Themen. Das hilft uns, Greenshot für alle sicherer zu machen.
 
