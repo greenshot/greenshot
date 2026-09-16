@@ -13,6 +13,7 @@ This skill defines the procedures, standards, and workflows for creating and mai
 - **Language**: All changelogs, release notes, blog posts, git commits, PR titles, and PR descriptions must be written in **English** (`en-US`).
 - **Audience Focus**: Differentiate between user-facing communication (value, clarity, benefits) and developer-facing documentation (technical details, PRs, issues).
 - **Official Releases Only**: Only official stable releases receive dedicated release entries. Intermediate or continuous builds (e.g., continuous builds on `main`) do NOT get individual changelog entries; their changes are rolled up into the next official release.
+- **Shipped Software Only**: Changelogs and blog posts must include only changes that affect the software or user-visible distribution. Exclude repository-only changes with no shipped-software impact, such as GitHub Actions workflows, internal documentation, agent or skill configuration, CI/build maintenance, and other development-process changes.
 
 ---
 
@@ -46,7 +47,7 @@ Every official release entry in `CHANGELOG-<MAJOR>.<MINOR>.md` must contain two 
 
 ### Changelog PR Workflow
 1. Identify the base branch where the release is cut (e.g., `main`, `release/1.3`).
-2. Collect git commit history, PRs, and resolved issues since the previous release.
+2. Collect git commit history, PRs, and resolved issues since the previous release. Classify each change by whether it affects shipped software or its user-visible distribution; exclude repository-only and development-process changes.
 3. Update the appropriate `docs/changelogs/CHANGELOG-X.X.md` and `docs/changelogs/README.md`.
 4. Create a dedicated branch off the original branch (e.g., `git checkout -b docs/changelog-<version>`).
 5. Commit and push the changes.
@@ -88,6 +89,8 @@ tags:
 5. **Contributor Credits**: Add a short **Thanks to the contributors** section before the full changelog link. Credit every human contributor whose work is included in the release, including code, documentation, translations, issue reports, reviews, and security disclosures where applicable. Use verified GitHub handles (`@username`) and keep the wording warm and casual.
 6. **Full Changelog Link**: Conclude with a link to the complete technical changelog in the repository.
 
+Do not mention changes that do not affect shipped software, including GitHub workflow changes, repository documentation, agent or skill changes, CI/build maintenance, and other internal development-process work.
+
 ### Blog Post PR Workflow
 1. Fetch and branch off the remote `gh-pages` branch:
    ```bash
@@ -111,6 +114,8 @@ tags:
 Before completing documentation work:
 - [ ] All text is written in clean, natural English.
 - [ ] No intermediate/continuous builds were documented as standalone releases.
+- [ ] Only shipped-software or user-visible distribution changes are included.
+- [ ] Repository-only changes such as workflows, documentation, agents, skills, and CI maintenance are excluded.
 - [ ] User changelog highlights benefits and key fixes in non-technical terms.
 - [ ] Technical details section includes PR numbers, issues, and contributor mentions.
 - [ ] Every human contributor included in the release is credited by a verified GitHub handle.

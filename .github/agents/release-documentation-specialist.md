@@ -26,3 +26,4 @@ For detailed guidelines, templates, and checklists, refer to the release documen
 3. **General Rules**:
    - **Language**: All documentation, changelogs, blog posts, and PR descriptions must be in **English** (`en-US`).
    - **Intermediate / Continuous Builds**: Do NOT create standalone changelog entries for continuous builds (e.g. `v1.4.x (continuous build)`). Intermediate build changes are rolled up into the next official stable release.
+   - **Shipped Software Only**: Exclude changes with no impact on the shipped software or user-visible distribution, including GitHub workflows, repository documentation, agent or skill configuration, CI/build maintenance, and other internal development-process changes.
