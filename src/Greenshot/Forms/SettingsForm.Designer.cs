@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -140,6 +140,7 @@ namespace Greenshot.Forms
         this.checkbox_minimizememoryfootprint = new GreenshotCheckBox();
         this.checkbox_checkunstableupdates = new GreenshotCheckBox();
         this.checkbox_suppresssavedialogatclose = new GreenshotCheckBox();
+        this.checkbox_enablerecipes = new GreenshotCheckBox();
         this.label_counter = new Label();
         this.textbox_counter = new GreenshotTextBox();
         this.label_footerpattern = new Label();
@@ -624,22 +625,42 @@ namespace Greenshot.Forms
         // 
         // groupbox_editor
         // 
+        this.groupbox_editor.Controls.Add(this.checkbox_suppresssavedialogatclose);
+        this.groupbox_editor.Controls.Add(this.checkbox_reuseeditor);
         this.groupbox_editor.Controls.Add(this.checkbox_editor_match_capture_size);
-        this.groupbox_editor.Location = new System.Drawing.Point(4, 277);
+        this.groupbox_editor.Location = new System.Drawing.Point(4, 226);
         this.groupbox_editor.Name = "groupbox_editor";
         this.groupbox_editor.Text = "Editor";
-        this.groupbox_editor.Size = new System.Drawing.Size(416, 50);
+        this.groupbox_editor.Size = new System.Drawing.Size(416, 96);
         this.groupbox_editor.TabIndex = 27;
         this.groupbox_editor.TabStop = false;
         // 
         // checkbox_editor_match_capture_size
         // 
-        this.checkbox_editor_match_capture_size.Location = new System.Drawing.Point(6, 19);
+        this.checkbox_editor_match_capture_size.Location = new System.Drawing.Point(10, 19);
         this.checkbox_editor_match_capture_size.Name = "checkbox_editor_match_capture_size";
         this.checkbox_editor_match_capture_size.Text = "Match capture size";
         this.checkbox_editor_match_capture_size.Size = new System.Drawing.Size(397, 24);
         this.checkbox_editor_match_capture_size.TabIndex = 11;
         this.checkbox_editor_match_capture_size.UseVisualStyleBackColor = true;
+        // 
+        // checkbox_reuseeditor
+        // 
+        this.checkbox_reuseeditor.Location = new System.Drawing.Point(10, 43);
+        this.checkbox_reuseeditor.Name = "checkbox_reuseeditor";
+        this.checkbox_reuseeditor.Text = "Reuse editor if possible";
+        this.checkbox_reuseeditor.Size = new System.Drawing.Size(397, 24);
+        this.checkbox_reuseeditor.TabIndex = 12;
+        this.checkbox_reuseeditor.UseVisualStyleBackColor = true;
+        // 
+        // checkbox_suppresssavedialogatclose
+        // 
+        this.checkbox_suppresssavedialogatclose.Location = new System.Drawing.Point(10, 67);
+        this.checkbox_suppresssavedialogatclose.Name = "checkbox_suppresssavedialogatclose";
+        this.checkbox_suppresssavedialogatclose.Text = "Suppress the save dialog when closing the editor";
+        this.checkbox_suppresssavedialogatclose.Size = new System.Drawing.Size(397, 24);
+        this.checkbox_suppresssavedialogatclose.TabIndex = 13;
+        this.checkbox_suppresssavedialogatclose.UseVisualStyleBackColor = true;
         // 
         // groupbox_windowscapture
         // 
@@ -1015,10 +1036,9 @@ namespace Greenshot.Forms
         // 
         // groupbox_expert
         // 
-        this.groupbox_expert.Controls.Add(this.checkbox_reuseeditor);
+        this.groupbox_expert.Controls.Add(this.checkbox_enablerecipes);
         this.groupbox_expert.Controls.Add(this.checkbox_minimizememoryfootprint);
         this.groupbox_expert.Controls.Add(this.checkbox_checkunstableupdates);
-        this.groupbox_expert.Controls.Add(this.checkbox_suppresssavedialogatclose);
         this.groupbox_expert.Controls.Add(this.label_counter);
         this.groupbox_expert.Controls.Add(this.textbox_counter);
         this.groupbox_expert.Controls.Add(this.label_footerpattern);
@@ -1036,41 +1056,32 @@ namespace Greenshot.Forms
         this.groupbox_expert.TabStop = false;
         this.groupbox_expert.Text = "Expert";
         // 
-        // checkbox_reuseeditor
+        // checkbox_enablerecipes
         // 
-        this.checkbox_reuseeditor.Location = new System.Drawing.Point(10, 220);
-        this.checkbox_reuseeditor.Name = "checkbox_reuseeditor";
-        this.checkbox_reuseeditor.Text = "Reuse editor if possible";
-        this.checkbox_reuseeditor.Size = new System.Drawing.Size(394, 20);
-        this.checkbox_reuseeditor.TabIndex = 9;
-        this.checkbox_reuseeditor.UseVisualStyleBackColor = true;
+        this.checkbox_enablerecipes.Location = new System.Drawing.Point(10, 202);
+        this.checkbox_enablerecipes.Name = "checkbox_enablerecipes";
+        this.checkbox_enablerecipes.Text = "Enable recipes feature";
+        this.checkbox_enablerecipes.Size = new System.Drawing.Size(394, 20);
+        this.checkbox_enablerecipes.TabIndex = 8;
+        this.checkbox_enablerecipes.UseVisualStyleBackColor = true;
         // 
         // checkbox_minimizememoryfootprint
         // 
-        this.checkbox_minimizememoryfootprint.Location = new System.Drawing.Point(10, 202);
+        this.checkbox_minimizememoryfootprint.Location = new System.Drawing.Point(10, 184);
         this.checkbox_minimizememoryfootprint.Name = "checkbox_minimizememoryfootprint";
         this.checkbox_minimizememoryfootprint.Text = "Minimize memory footprint, but with a performance penalty (not advised).";
         this.checkbox_minimizememoryfootprint.Size = new System.Drawing.Size(394, 20);
-        this.checkbox_minimizememoryfootprint.TabIndex = 8;
+        this.checkbox_minimizememoryfootprint.TabIndex = 7;
         this.checkbox_minimizememoryfootprint.UseVisualStyleBackColor = true;
         // 
         // checkbox_checkunstableupdates
         // 
-        this.checkbox_checkunstableupdates.Location = new System.Drawing.Point(10, 184);
+        this.checkbox_checkunstableupdates.Location = new System.Drawing.Point(10, 166);
         this.checkbox_checkunstableupdates.Name = "checkbox_checkunstableupdates";
         this.checkbox_checkunstableupdates.Text = "Check for unstable updates";
         this.checkbox_checkunstableupdates.Size = new System.Drawing.Size(394, 20);
-        this.checkbox_checkunstableupdates.TabIndex = 7;
+        this.checkbox_checkunstableupdates.TabIndex = 6;
         this.checkbox_checkunstableupdates.UseVisualStyleBackColor = true;
-        // 
-        // checkbox_suppresssavedialogatclose
-        // 
-        this.checkbox_suppresssavedialogatclose.Location = new System.Drawing.Point(10, 166);
-        this.checkbox_suppresssavedialogatclose.Name = "checkbox_suppresssavedialogatclose";
-        this.checkbox_suppresssavedialogatclose.Text = "Suppress the save dialog when closing the editor";
-        this.checkbox_suppresssavedialogatclose.Size = new System.Drawing.Size(394, 20);
-        this.checkbox_suppresssavedialogatclose.TabIndex = 6;
-        this.checkbox_suppresssavedialogatclose.UseVisualStyleBackColor = true;
         // 
         // label_counter
         // 
@@ -1298,6 +1309,7 @@ namespace Greenshot.Forms
     private GreenshotCheckBox checkbox_reducecolors;
     private GreenshotCheckBox checkbox_suppresssavedialogatclose;
     private GreenshotCheckBox checkbox_checkunstableupdates;
+    private GreenshotCheckBox checkbox_enablerecipes;
     private GreenshotCheckBox checkbox_reuseeditor;
     private GreenshotCheckBox checkbox_alwaysshowprintoptionsdialog;
     private GroupBox groupBoxColors;

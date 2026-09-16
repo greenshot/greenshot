@@ -197,6 +197,7 @@ Bitte überprüfen Sie die Schreibrechte oder wählen Sie einen anderen Speicher
 		<resource name="expertsettings_clipboardformats">Zwischenablage-Formate</resource>
 		<resource name="expertsettings_counter">Wert für ${NUM} im Dateinamensmuster</resource>
 		<resource name="expertsettings_enableexpert">Ich weiß, was ich tue!</resource>
+		<resource name="expertsettings_enablerecipes">Rezepte aktivieren</resource>
 		<resource name="expertsettings_footerpattern">Fußzeile für Druck</resource>
 		<resource name="expertsettings_minimizememoryfootprint">Speicherverbrauch reduzieren (auf Kosten der Performance - nicht empfohlen)</resource>
 		<resource name="expertsettings_optimizeforrdp">Für Benutzung mit Remotedesktop optimieren</resource>
