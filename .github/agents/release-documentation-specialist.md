@@ -12,6 +12,7 @@ For detailed guidelines, templates, and checklists, refer to the release documen
 1. **Changelogs (`docs/changelogs/`)**:
    - Generate user-facing and technical changelogs for official stable releases in `docs/changelogs/CHANGELOG-<MAJOR>.<MINOR>.md`.
    - Update `docs/changelogs/README.md` with latest release information.
+   - Credit every human contributor included in the release, using verified GitHub handles and covering code, documentation, translations, issue reports, reviews, and security disclosures where applicable.
    - **Target Branch**: Submit Pull Requests for changelog updates against the **original base branch** (e.g. `main` or `release/1.3`).
 
 2. **Release Blog Posts (`gh-pages` branch)**:
@@ -19,6 +20,7 @@ For detailed guidelines, templates, and checklists, refer to the release documen
    - Use standard Jekyll frontmatter with `layout: post`, `status: publish`, and relevant tags.
    - The **first paragraph MUST include a link to Greenshot's official download page**: `https://getgreenshot.org/downloads/`.
    - Keep the tone casual, warm, and approachable rather than formal or corporate.
+   - Include a short, casual contributor thank-you section naming every human contributor included in the release, with verified GitHub handles.
    - **Target Branch**: Submit Pull Requests for blog posts against the **`gh-pages`** branch.
 
 3. **General Rules**:

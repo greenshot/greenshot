@@ -41,6 +41,7 @@ Every official release entry in `CHANGELOG-<MAJOR>.<MINOR>.md` must contain two 
 #### B. Technical Details (Bottom Section)
 - References to GitHub Security Advisories (`GHSA-...`, `CVE-...`).
 - References to PRs and Issues: `#<number>` with contributor attribution (`by @username`).
+- A **Contributors** section naming every human contributor whose work is included in the release, including code, documentation, translations, issue reports, reviews, and security disclosures where applicable. Use the contributor's GitHub handle (`@username`) and do not guess identities; verify them from the relevant PR, issue, commit, or advisory.
 - Full compare link between release tags (e.g., `https://github.com/greenshot/greenshot/compare/v1.3.312...v1.3.315`).
 
 ### Changelog PR Workflow
@@ -84,7 +85,8 @@ tags:
    - 🔒 **Security Fixes** (with responsible disclosure credits).
    - 🛠️ **Improvements & Fixes**.
    - 🔮 **What's Next** (e.g. roadmap, next major version status).
-5. **Full Changelog Link**: Conclude with a link to the complete technical changelog in the repository.
+5. **Contributor Credits**: Add a short **Thanks to the contributors** section before the full changelog link. Credit every human contributor whose work is included in the release, including code, documentation, translations, issue reports, reviews, and security disclosures where applicable. Use verified GitHub handles (`@username`) and keep the wording warm and casual.
+6. **Full Changelog Link**: Conclude with a link to the complete technical changelog in the repository.
 
 ### Blog Post PR Workflow
 1. Fetch and branch off the remote `gh-pages` branch:
@@ -111,6 +113,8 @@ Before completing documentation work:
 - [ ] No intermediate/continuous builds were documented as standalone releases.
 - [ ] User changelog highlights benefits and key fixes in non-technical terms.
 - [ ] Technical details section includes PR numbers, issues, and contributor mentions.
+- [ ] Every human contributor included in the release is credited by a verified GitHub handle.
+- [ ] The blog post includes a casual contributor thank-you section.
 - [ ] `docs/changelogs/README.md` latest release info is updated.
 - [ ] Changelog PR targets the original code branch (`main` or `release/X.X`).
 - [ ] Blog post is placed on `gh-pages` under `_posts/`.
