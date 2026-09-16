@@ -112,8 +112,15 @@ namespace Greenshot.Pipeline
                 d.Designation == nameof(WellKnownDestinations.FileNoDialog) ||
                 d.Designation == nameof(WellKnownDestinations.FileDialog));
 
-            var sharedFileOutputSettings = new SurfaceOutputSettings();
-            if (hasFileDestination && CoreConfig.OutputFilePromptQuality)
+            bool promptQuality = context.Properties.TryGetValue("Destination.PromptQuality", out var pqObj) && pqObj is bool pq
+                ? pq
+                : CoreConfig.OutputFilePromptQuality;
+
+            var sharedFileOutputSettings = context.Properties.TryGetValue("Destination.SurfaceOutputSettings", out var sosObj) && sosObj is SurfaceOutputSettings customSos
+                ? customSos
+                : new SurfaceOutputSettings();
+
+            if (hasFileDestination && promptQuality)
             {
                 if (uiContext != null && SynchronizationContext.Current != uiContext)
                 {
@@ -163,13 +170,13 @@ namespace Greenshot.Pipeline
                         if (captureDetails.Filename != null)
                         {
                             fullPath = captureDetails.Filename;
-                            overwrite = true;
+                            overwrite = context.Properties.TryGetValue("Destination.AllowOverwrite", out var aoVal) && aoVal is bool ao ? ao : true;
                             sharedFileOutputSettings.Format = ImageIO.FormatForFilename(fullPath);
                         }
                         else
                         {
                             fullPath = FileDestination.CreateNewFilename(captureDetails);
-                            overwrite = CoreConfig.OutputFileAllowOverwrite;
+                            overwrite = context.Properties.TryGetValue("Destination.AllowOverwrite", out var aoVal) && aoVal is bool ao ? ao : CoreConfig.OutputFileAllowOverwrite;
                         }
 
                         if (fullPath == null)
@@ -182,6 +189,10 @@ namespace Greenshot.Pipeline
                         var bgFullPath = fullPath;
                         var bgOverwrite = overwrite;
                         var bgOutputSettings = sharedFileOutputSettings;
+
+                        bool copyPath = context.Properties.TryGetValue("Destination.CopyPathToClipboard", out var cpVal) && cpVal is bool cp
+                            ? cp
+                            : CoreConfig.OutputFileCopyPathToClipboard;
 
                         Image bgRenderedBitmap = sharedRenderedBitmap != null ? (Image)sharedRenderedBitmap.Clone() : null;
 
@@ -196,7 +207,7 @@ namespace Greenshot.Pipeline
                                         bgFullPath,
                                         bgOverwrite,
                                         bgOutputSettings,
-                                        CoreConfig.OutputFileCopyPathToClipboard,
+                                        copyPath,
                                         uiContext);
                                 }
 

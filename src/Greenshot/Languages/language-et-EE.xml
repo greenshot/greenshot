@@ -315,5 +315,6 @@ Kõik Greenshoti lisad töötavad süsteemisalvest ilma kiirklahvide olemasoluta
 	<resource name="editor_fit">Venita</resource>
 	<resource name="editor_pushout">Laienda jäädvustust ja liiguta väljapoole</resource>
 	<resource name="editor_snap">Dokki serva</resource>
+		<resource name="editor_counter_startvalue">Algväärtus</resource>
 	</resources>
 </language>

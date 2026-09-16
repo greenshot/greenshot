@@ -314,5 +314,6 @@ ${hostname} Όνομα Υπολογιστή
 	<resource name="editor_fit">Τέντωμα</resource>
 	<resource name="editor_pushout">Επέκταση λήψης και μετακίνηση εκτός</resource>
 	<resource name="editor_snap">Προσάρτηση στην άκρη</resource>
+		<resource name="editor_counter_startvalue">Αρχική τιμή</resource>
 	</resources>
 </language>

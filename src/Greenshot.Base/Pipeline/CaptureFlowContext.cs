@@ -126,6 +126,37 @@ namespace Greenshot.Base.Pipeline
             LogStep($"Flow failed: {reason} {(ex != null ? ex.Message : "")}");
         }
 
+        private readonly List<CaptureFlowContext> _childBranchContexts = new List<CaptureFlowContext>();
+
+        /// <summary>
+        /// Creates an isolated child context for an independent DAG branch.
+        /// Deep-copies properties and assigns a cloned payload if none is explicitly provided.
+        /// </summary>
+        public CaptureFlowContext CreateBranchContext(ICapturePayload payload = null)
+        {
+            var branchPayload = payload ?? Payload?.Clone();
+            var branchContext = new CaptureFlowContext(Recipe, Trigger, CancellationToken)
+            {
+                State = State,
+                Payload = branchPayload
+            };
+
+            if (Properties != null)
+            {
+                foreach (var kvp in Properties)
+                {
+                    branchContext.Properties[kvp.Key] = kvp.Value;
+                }
+            }
+
+            lock (_childBranchContexts)
+            {
+                _childBranchContexts.Add(branchContext);
+            }
+
+            return branchContext;
+        }
+
         public void Dispose()
         {
             Dispose(true);
@@ -139,6 +170,15 @@ namespace Greenshot.Base.Pipeline
 
             if (disposing)
             {
+                lock (_childBranchContexts)
+                {
+                    foreach (var child in _childBranchContexts)
+                    {
+                        child.Dispose();
+                    }
+                    _childBranchContexts.Clear();
+                }
+
                 Payload?.Dispose();
                 Payload = null;
             }

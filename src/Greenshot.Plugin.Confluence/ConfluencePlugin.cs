@@ -25,6 +25,7 @@ using Greenshot.Base.Core;
 using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.Base.Pipeline;
 using Greenshot.Plugin.Confluence.Forms;
 using Greenshot.Plugin.Confluence.Support;
 
@@ -33,7 +34,7 @@ namespace Greenshot.Plugin.Confluence;
 /// <summary>
 /// This is the ConfluencePlugin base code
 /// </summary>
-public class ConfluencePlugin : IGreenshotPlugin
+public class ConfluencePlugin : IGreenshotPlugin, IRecipeStepProvider
 {
     private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluencePlugin));
     private static ConfluenceConnector _confluenceConnector;
@@ -121,6 +122,21 @@ public class ConfluencePlugin : IGreenshotPlugin
         {
             LOG.ErrorFormat("Problem registering Confluence services: {0}", ex.Message);
         }
+
+        serviceLocator.AddService<IRecipeStepProvider>(this);
+        StepRegistry.Instance.RegisterProvider(this);
+    }
+
+    /// <summary>
+    /// Registers recipe step factories provided by the Confluence plugin.
+    /// </summary>
+    /// <param name="registry">The step registry.</param>
+    public void RegisterSteps(IStepRegistry registry)
+    {
+        if (registry == null) return;
+        registry.RegisterStepFactory("Confluence", config => new ConfluenceStep(config));
+        registry.RegisterStepFactory("ConfluenceUpload", config => new ConfluenceStep(config));
+        registry.RegisterStepFactory("UploadToConfluence", config => new ConfluenceStep(config));
     }
 
     /// <summary>

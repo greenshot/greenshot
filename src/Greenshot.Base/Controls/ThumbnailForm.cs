@@ -39,7 +39,7 @@ namespace Greenshot.Base.Controls
     /// </summary>
     public sealed class ThumbnailForm : FormWithoutActivation
     {
-        private static readonly ICoreConfiguration conf = IniConfigHelper.EnsureSection<ICoreConfiguration>(() => new CoreConfigurationImpl());
+        private static ICoreConfiguration conf => IniConfigHelper.EnsureSection<ICoreConfiguration>(() => new CoreConfigurationImpl());
 
         private IntPtr _thumbnailHandle = IntPtr.Zero;
 

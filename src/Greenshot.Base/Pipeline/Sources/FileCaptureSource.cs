@@ -20,11 +20,13 @@
  */
 
 using System;
-using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.Enums;
+using Greenshot.Base.Core.FileFormatHandlers;
 using Greenshot.Base.Interfaces;
 using log4net;
 
@@ -53,9 +55,52 @@ namespace Greenshot.Base.Pipeline.Sources
                 return Task.FromResult<ICapturePayload>(null);
             }
 
+            var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
+
+            var extension = Path.GetExtension(filename);
+            extension = FileFormatHandlerExtensions.NormalizeExtension(extension);
+
+            var loadFileFormatHandler = fileFormatHandlers
+                .Where(ffh => ffh.Supports(FileFormatHandlerActions.LoadFromStream, extension))
+                .OrderBy(ffh => ffh.PriorityFor(FileFormatHandlerActions.LoadFromStream, extension))
+                .FirstOrDefault();
+
             try
             {
-                Image fileImage = ImageIO.LoadImage(filename);
+                if (filename.ToLower().EndsWith("." + OutputFormat.greenshot))
+                {
+                    using FileStream fileStream = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read);
+                    try
+                    {
+                        var surface = loadFileFormatHandler.LoadSurface(fileStream);
+
+                        var payload = new CapturePayload
+                        {
+                            Surface = surface,
+                            RawCapture = new Capture(surface.GetImageForExport())
+                            {
+                                CaptureDetails = surface.CaptureDetails
+                            }
+                        };
+                        return Task.FromResult<ICapturePayload>(payload);
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error("Couldn't read file contents", ex);
+                    }
+
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error(e.Message, e);
+            }
+
+
+
+            try
+            {
+                var fileImage = ImageIO.LoadImage(filename);
                 if (fileImage == null)
                 {
                     context.Abort($"Could not load image from '{filename}'");
@@ -71,12 +116,12 @@ namespace Greenshot.Base.Pipeline.Sources
                 var payload = new CapturePayload(capture);
                 return Task.FromResult<ICapturePayload>(payload);
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                Log.Error($"Error loading capture from file {filename}", ex);
-                context.Fail($"Error loading file {filename}", ex);
-                return Task.FromResult<ICapturePayload>(null);
+                Log.Error(e.Message, e);
             }
+            context.Abort($"No filename specified.");
+            return Task.FromResult<ICapturePayload>(null);
         }
     }
 }

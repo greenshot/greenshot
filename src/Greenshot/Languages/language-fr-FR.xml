@@ -342,5 +342,6 @@ Toutes les fonctionnalités de Greenshot se lancent aussi directement depuis le 
 		<resource name="editor_fit">Étirer</resource>
 		<resource name="editor_pushout">Agrandir la capture et déplacer à l’extérieur</resource>
 		<resource name="editor_snap">Ancrer au bord</resource>
+		<resource name="editor_counter_startvalue">Valeur de départ</resource>
 	</resources>
 </language>

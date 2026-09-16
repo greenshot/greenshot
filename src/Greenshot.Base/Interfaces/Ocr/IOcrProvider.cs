@@ -35,14 +35,16 @@ namespace Greenshot.Base.Interfaces.Ocr
         /// Start the actual OCR
         /// </summary>
         /// <param name="image">Image</param>
+        /// <param name="languageTag">Optional OCR language tag (e.g. en-US, de-DE)</param>
         /// <returns>List of detected OCR line features</returns>
-        Task<List<IOcrLineFeature>> DoOcrAsync(Image image);
+        Task<List<IOcrLineFeature>> DoOcrAsync(Image image, string languageTag = null);
 
         /// <summary>
         /// Start the actual OCR
         /// </summary>
         /// <param name="surface">ISurface</param>
+        /// <param name="languageTag">Optional OCR language tag (e.g. en-US, de-DE)</param>
         /// <returns>List of detected OCR line features</returns>
-        Task<List<IOcrLineFeature>> DoOcrAsync(ISurface surface);
+        Task<List<IOcrLineFeature>> DoOcrAsync(ISurface surface, string languageTag = null);
     }
 }

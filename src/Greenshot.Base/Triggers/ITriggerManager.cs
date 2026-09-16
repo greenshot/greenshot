@@ -35,6 +35,11 @@ namespace Greenshot.Base.Triggers
         IReadOnlyList<ITrigger> GetAllTriggers();
 
         /// <summary>
+        /// Gets all registered triggers designed for the Image Editor menu.
+        /// </summary>
+        IReadOnlyList<IEditorTrigger> GetEditorTriggers();
+
+        /// <summary>
         /// Registers a new trigger and starts it if enabled.
         /// </summary>
         void RegisterTrigger(ITrigger trigger);

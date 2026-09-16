@@ -82,21 +82,24 @@ namespace Greenshot.Recipes
         private void InitializeDefaultRecipes()
         {
             // 1. Interactive Region Capture
-            // Pre-selection Processors runs processors whose PreferredTiming == PreSelection
-            // (e.g. ZXing QR scan, Win10 OCR) while the CaptureForm is open so their results
-            // appear as interactive hotspots. Post-selection runs PostSelection processors after
-            // the user confirms the crop.
             var regionRecipe = new CaptureRecipe(
                 RecipeIdRegion,
                 Language.GetString("contextmenu_capturearea") ?? "Capture region",
                 "Interactively select a region on the screen")
-                .AddStep(RecipeStepConfig.CreateSource(CaptureSourceType.Region))
-                .AddStep(RecipeStepConfig.CreateProcessors(timing: ProcessorTiming.PreSelection).WithName("Scan Before Selection"))
-                .AddStep(RecipeStepConfig.CreateSelection(CaptureMode.Region))
-                .AddStep(RecipeStepConfig.CreateFeedback())
-                .AddStep(RecipeStepConfig.CreateProcessors(timing: ProcessorTiming.PostSelection).WithName("Process After Selection"))
-                .AddStep(RecipeStepConfig.CreateDestinations())
-                .AddStep(RecipeStepConfig.CreateNotification());
+                .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.Region))
+                .AddNode(RecipeStepConfig.CreateProcessors("scan_pre", timing: ProcessorTiming.PreSelection).WithName("Scan Before Selection"))
+                .AddNode(RecipeStepConfig.CreateSelection("select", CaptureMode.Region))
+                .AddNode(RecipeStepConfig.CreateFeedback("feedback"))
+                .AddNode(RecipeStepConfig.CreateProcessors("scan_post", timing: ProcessorTiming.PostSelection).WithName("Process After Selection"))
+                .AddNode(RecipeStepConfig.CreateDestinations("export"))
+                .AddNode(RecipeStepConfig.CreateNotification("notify"));
+            regionRecipe.Flow = new RecipeFlowConfig("acquire")
+                .AddTransition("acquire", "scan_pre")
+                .AddTransition("scan_pre", "select")
+                .AddTransition("select", "feedback")
+                .AddTransition("feedback", "scan_post")
+                .AddTransition("scan_post", "export")
+                .AddTransition("export", "notify");
             RegisterBuiltIn(regionRecipe);
 
             // 2. Interactive Window Capture
@@ -104,13 +107,20 @@ namespace Greenshot.Recipes
                 RecipeIdWindow,
                 Language.GetString("contextmenu_capturewindow") ?? "Capture window",
                 "Interactively select a window on the screen")
-                .AddStep(RecipeStepConfig.CreateSource(CaptureSourceType.Window))
-                .AddStep(RecipeStepConfig.CreateProcessors(timing: ProcessorTiming.PreSelection).WithName("Scan Before Selection"))
-                .AddStep(RecipeStepConfig.CreateSelection(CaptureMode.Window))
-                .AddStep(RecipeStepConfig.CreateFeedback())
-                .AddStep(RecipeStepConfig.CreateProcessors(timing: ProcessorTiming.PostSelection).WithName("Process After Selection"))
-                .AddStep(RecipeStepConfig.CreateDestinations())
-                .AddStep(RecipeStepConfig.CreateNotification());
+                .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.Window))
+                .AddNode(RecipeStepConfig.CreateProcessors("scan_pre", timing: ProcessorTiming.PreSelection).WithName("Scan Before Selection"))
+                .AddNode(RecipeStepConfig.CreateSelection("select", CaptureMode.Window))
+                .AddNode(RecipeStepConfig.CreateFeedback("feedback"))
+                .AddNode(RecipeStepConfig.CreateProcessors("scan_post", timing: ProcessorTiming.PostSelection).WithName("Process After Selection"))
+                .AddNode(RecipeStepConfig.CreateDestinations("export"))
+                .AddNode(RecipeStepConfig.CreateNotification("notify"));
+            windowRecipe.Flow = new RecipeFlowConfig("acquire")
+                .AddTransition("acquire", "scan_pre")
+                .AddTransition("scan_pre", "select")
+                .AddTransition("select", "feedback")
+                .AddTransition("feedback", "scan_post")
+                .AddTransition("scan_post", "export")
+                .AddTransition("export", "notify");
             RegisterBuiltIn(windowRecipe);
 
             // 3. Active Window Capture
@@ -118,11 +128,16 @@ namespace Greenshot.Recipes
                 RecipeIdActiveWindow,
                 "Capture active window",
                 "Directly capture the active window")
-                .AddStep(RecipeStepConfig.CreateSource(CaptureSourceType.ActiveWindow))
-                .AddStep(RecipeStepConfig.CreateFeedback())
-                .AddStep(RecipeStepConfig.CreateProcessors())
-                .AddStep(RecipeStepConfig.CreateDestinations())
-                .AddStep(RecipeStepConfig.CreateNotification());
+                .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.ActiveWindow))
+                .AddNode(RecipeStepConfig.CreateFeedback("feedback"))
+                .AddNode(RecipeStepConfig.CreateProcessors("processors"))
+                .AddNode(RecipeStepConfig.CreateDestinations("export"))
+                .AddNode(RecipeStepConfig.CreateNotification("notify"));
+            activeWindowRecipe.Flow = new RecipeFlowConfig("acquire")
+                .AddTransition("acquire", "feedback")
+                .AddTransition("feedback", "processors")
+                .AddTransition("processors", "export")
+                .AddTransition("export", "notify");
             RegisterBuiltIn(activeWindowRecipe);
 
             // 4. Full Screen Capture
@@ -130,11 +145,16 @@ namespace Greenshot.Recipes
                 RecipeIdFullScreen,
                 Language.GetString("contextmenu_capturefullscreen") ?? "Capture full screen",
                 "Capture the entire screen or monitor")
-                .AddStep(RecipeStepConfig.CreateSource(CaptureSourceType.FullScreen))
-                .AddStep(RecipeStepConfig.CreateFeedback())
-                .AddStep(RecipeStepConfig.CreateProcessors())
-                .AddStep(RecipeStepConfig.CreateDestinations())
-                .AddStep(RecipeStepConfig.CreateNotification());
+                .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.FullScreen))
+                .AddNode(RecipeStepConfig.CreateFeedback("feedback"))
+                .AddNode(RecipeStepConfig.CreateProcessors("processors"))
+                .AddNode(RecipeStepConfig.CreateDestinations("export"))
+                .AddNode(RecipeStepConfig.CreateNotification("notify"));
+            fullScreenRecipe.Flow = new RecipeFlowConfig("acquire")
+                .AddTransition("acquire", "feedback")
+                .AddTransition("feedback", "processors")
+                .AddTransition("processors", "export")
+                .AddTransition("export", "notify");
             RegisterBuiltIn(fullScreenRecipe);
 
             // 5. Last Region Capture
@@ -142,11 +162,16 @@ namespace Greenshot.Recipes
                 RecipeIdLastRegion,
                 Language.GetString("contextmenu_capturelastregion") ?? "Capture last region",
                 "Re-capture the coordinates of the previous region")
-                .AddStep(RecipeStepConfig.CreateSource(CaptureSourceType.LastRegion))
-                .AddStep(RecipeStepConfig.CreateFeedback())
-                .AddStep(RecipeStepConfig.CreateProcessors())
-                .AddStep(RecipeStepConfig.CreateDestinations())
-                .AddStep(RecipeStepConfig.CreateNotification());
+                .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.LastRegion))
+                .AddNode(RecipeStepConfig.CreateFeedback("feedback"))
+                .AddNode(RecipeStepConfig.CreateProcessors("processors"))
+                .AddNode(RecipeStepConfig.CreateDestinations("export"))
+                .AddNode(RecipeStepConfig.CreateNotification("notify"));
+            lastRegionRecipe.Flow = new RecipeFlowConfig("acquire")
+                .AddTransition("acquire", "feedback")
+                .AddTransition("feedback", "processors")
+                .AddTransition("processors", "export")
+                .AddTransition("export", "notify");
             RegisterBuiltIn(lastRegionRecipe);
 
             // 6. Clipboard Import
@@ -154,8 +179,10 @@ namespace Greenshot.Recipes
                 RecipeIdClipboard,
                 Language.GetString("contextmenu_captureclipboard") ?? "Capture from clipboard",
                 "Import and process image from system clipboard")
-                .AddStep(RecipeStepConfig.CreateSource(CaptureSourceType.Clipboard, captureMouse: false))
-                .AddStep(RecipeStepConfig.CreateDestinations(new[] { "Editor" }));
+                .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.Clipboard, captureMouse: false))
+                .AddNode(RecipeStepConfig.CreateDestinations("export", new[] { "Editor" }));
+            clipboardRecipe.Flow = new RecipeFlowConfig("acquire")
+                .AddTransition("acquire", "export");
             RegisterBuiltIn(clipboardRecipe);
 
             // 7. File Import
@@ -163,8 +190,10 @@ namespace Greenshot.Recipes
                 RecipeIdFile,
                 Language.GetString("contextmenu_openfile") ?? "Open file",
                 "Import an image or .greenshot file from disk")
-                .AddStep(RecipeStepConfig.CreateSource(CaptureSourceType.File, captureMouse: false))
-                .AddStep(RecipeStepConfig.CreateDestinations(new[] { "Editor" }));
+                .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.File, captureMouse: false))
+                .AddNode(RecipeStepConfig.CreateDestinations("export", new[] { "Editor" }));
+            fileRecipe.Flow = new RecipeFlowConfig("acquire")
+                .AddTransition("acquire", "export");
             RegisterBuiltIn(fileRecipe);
 
             // 8. OCR Text Capture
@@ -172,11 +201,16 @@ namespace Greenshot.Recipes
                 RecipeIdOcr,
                 "OCR text to clipboard",
                 "Select a region and extract text directly to clipboard")
-                .AddStep(RecipeStepConfig.CreateSource(CaptureSourceType.TextOcr, captureMouse: false))
-                .AddStep(RecipeStepConfig.CreateSelection(CaptureMode.Text))
-                .AddStep(RecipeStepConfig.CreateFeedback())
-                .AddStep(RecipeStepConfig.CreateProcessors(new[] { "Windows10OcrProcessor" }))
-                .AddStep(RecipeStepConfig.CreateDestinations(new[] { "Clipboard" }));
+                .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.TextOcr, captureMouse: false))
+                .AddNode(RecipeStepConfig.CreateSelection("select", CaptureMode.Text))
+                .AddNode(RecipeStepConfig.CreateFeedback("feedback"))
+                .AddNode(RecipeStepConfig.CreateProcessors("ocr", new[] { "Windows10OcrProcessor" }))
+                .AddNode(RecipeStepConfig.CreateDestinations("export", new[] { "Clipboard" }));
+            ocrRecipe.Flow = new RecipeFlowConfig("acquire")
+                .AddTransition("acquire", "select")
+                .AddTransition("select", "feedback")
+                .AddTransition("feedback", "ocr")
+                .AddTransition("ocr", "export");
             RegisterBuiltIn(ocrRecipe);
         }
 
@@ -190,9 +224,9 @@ namespace Greenshot.Recipes
 
         public void LoadConfiguredRecipeFiles()
         {
-            if (!CoreConfig.IsBetaTester)
+            if (!CoreConfig.EnableRecipeFeature)
             {
-                Log.Debug("CoreConfig.IsBetaTester is false. Skipping external recipe file loading.");
+                Log.Debug("CoreConfig.EnableRecipeFeature is false. Skipping external recipe file loading.");
                 return;
             }
 
@@ -301,6 +335,10 @@ namespace Greenshot.Recipes
                     if (!valResult.IsValid)
                     {
                         foreach (var err in valResult.Errors) overallResult.AddError($"[{recipe.Id ?? "unknown"}]: {err}");
+                        if (interactiveApproval)
+                        {
+                            UI.RecipeApprovalWindow.ShowValidationError(filePath, valResult, recipe);
+                        }
                         continue;
                     }
 
@@ -380,6 +418,10 @@ namespace Greenshot.Recipes
             {
                 Log.Error($"Failed to parse recipe file '{filePath}'", ex);
                 overallResult.AddError($"Exception reading recipe file: {ex.Message}");
+                if (interactiveApproval)
+                {
+                    UI.RecipeApprovalWindow.ShowValidationError(filePath, rawErrorMessage: ex.Message);
+                }
             }
 
             return overallResult;
@@ -400,12 +442,53 @@ namespace Greenshot.Recipes
                     WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen
                 };
 
-                // Only set owner if mainForm is actually visible.
-                // If mainForm is a hidden system tray form, setting it as owner causes Windows to push the dialog behind other active windows!
+                // Safely determine owner handle.
+                // Note: If RequestInteractiveApproval runs on a separate STA thread (e.g. from FileWatcher or non-UI thread),
+                // accessing mainForm.Handle or mainForm.Visible directly will throw an InvalidOperationException (Cross-thread operation).
+                IntPtr ownerHwnd = IntPtr.Zero;
                 var mainForm = SimpleServiceProvider.Current.GetInstance<System.Windows.Forms.Form>(isOptional: true);
-                if (mainForm != null && mainForm.IsHandleCreated && mainForm.Visible)
+                if (mainForm != null && mainForm.IsHandleCreated)
                 {
-                    new System.Windows.Interop.WindowInteropHelper(window).Owner = mainForm.Handle;
+                    try
+                    {
+                        if (mainForm.InvokeRequired)
+                        {
+                            ownerHwnd = (IntPtr)mainForm.Invoke(new Func<IntPtr>(() =>
+                                (mainForm.Visible && !mainForm.Disposing && !mainForm.IsDisposed) ? mainForm.Handle : IntPtr.Zero));
+                        }
+                        else if (mainForm.Visible && !mainForm.Disposing && !mainForm.IsDisposed)
+                        {
+                            ownerHwnd = mainForm.Handle;
+                        }
+                    }
+                    catch
+                    {
+                        ownerHwnd = IntPtr.Zero;
+                    }
+                }
+
+                // If MainForm is not available or hidden, check for active WPF window (e.g. RecipeEditorWindow)
+                if (ownerHwnd == IntPtr.Zero && System.Windows.Application.Current != null)
+                {
+                    try
+                    {
+                        var activeWpfWindow = System.Windows.Application.Current.Windows
+                            .OfType<System.Windows.Window>()
+                            .FirstOrDefault(w => w.IsActive && w != window);
+                        if (activeWpfWindow != null)
+                        {
+                            ownerHwnd = new System.Windows.Interop.WindowInteropHelper(activeWpfWindow).Handle;
+                        }
+                    }
+                    catch
+                    {
+                        ownerHwnd = IntPtr.Zero;
+                    }
+                }
+
+                if (ownerHwnd != IntPtr.Zero)
+                {
+                    new System.Windows.Interop.WindowInteropHelper(window).Owner = ownerHwnd;
                 }
 
                 if (window.ShowDialog() == true)

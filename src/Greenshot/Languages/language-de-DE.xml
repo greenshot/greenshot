@@ -342,5 +342,6 @@ Sie können aber auch alle Greenshot-Funktionen über das Kontextmenü des Green
 	<resource name="editor_fit">Strecken</resource>
 	<resource name="editor_pushout">Aufnahme vergrößern und nach außen verschieben</resource>
 	<resource name="editor_snap">Am Rand andocken</resource>
+		<resource name="editor_counter_startvalue">Startwert</resource>
 	</resources>
 </language>

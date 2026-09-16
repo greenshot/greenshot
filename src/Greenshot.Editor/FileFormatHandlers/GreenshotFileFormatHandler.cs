@@ -90,7 +90,7 @@ namespace Greenshot.Editor.FileFormatHandlers
             return false;
         }
 
-        private ISurface LoadSurface(Stream surfaceFileStream)
+        public override ISurface LoadSurface(Stream surfaceFileStream)
         {
             var returnSurface = SimpleServiceProvider.Current.GetInstance<Func<ISurface>>().Invoke();
             Bitmap captureBitmap;

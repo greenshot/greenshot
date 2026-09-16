@@ -84,7 +84,7 @@ public class GreenshotMain
         // Init Log4NET
         LogFileLocation = LogHelper.InitializeLog4Net();
         // Get logger
-        LOG = LogManager.GetLogger(typeof(MainForm));
+        LOG = LogManager.GetLogger(typeof(GreenshotMain));
 
         Application.ThreadException += Application_ThreadException;
         AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
@@ -137,7 +137,7 @@ public class GreenshotMain
                {
                    CaseSensitiveKeys = false,
                    EscapeSequences = false,
-                   LineContinuation = true,
+                   LineContinuation = false,
                    QuotedValues = false
                })
                .RegisterSection<ICoreConfiguration>(new CoreConfigurationImpl())

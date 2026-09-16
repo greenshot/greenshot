@@ -129,7 +129,9 @@ namespace Greenshot.Forms
         {
             if (_uniqueInstance == null || _uniqueInstance.IsDisposed)
             {
+#pragma warning disable CS0618 // Type or member is obsolete
                 _uniqueInstance = new LanguageDialog();
+#pragma warning restore CS0618 // Type or member is obsolete
             }
             return _uniqueInstance;
         }

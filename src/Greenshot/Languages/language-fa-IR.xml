@@ -237,5 +237,6 @@ Right-click here or press the Print-key.</resource>
 	<resource name="editor_fit">کشیدن</resource>
 	<resource name="editor_pushout">گسترش تصویر و انتقال به بیرون</resource>
 	<resource name="editor_snap">چسباندن به لبه</resource>
+		<resource name="editor_counter_startvalue">مقدار شروع</resource>
 	</resources>
 </language>

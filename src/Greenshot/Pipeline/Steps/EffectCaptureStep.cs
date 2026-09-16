@@ -42,9 +42,9 @@ namespace Greenshot.Pipeline.Steps
         private static readonly ILog Log = LogManager.GetLogger(typeof(EffectCaptureStep));
 
         public string Name { get; }
-        public RecipeStepConfig Config { get; }
+        public RecipeNodeConfig Config { get; }
 
-        public EffectCaptureStep(RecipeStepConfig config)
+        public EffectCaptureStep(RecipeNodeConfig config)
         {
             Config = config ?? throw new ArgumentNullException(nameof(config));
             Name = config.Name ?? config.StepType ?? "EffectCaptureStep";

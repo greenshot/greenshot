@@ -217,5 +217,6 @@ Sammuta se ohjelma joka käyttäää print näppäintä. Vaihtoehtoisesti voit k
 	<resource name="editor_fit">Venytä</resource>
 	<resource name="editor_pushout">Laajenna kaappausta ja siirrä ulkopuolelle</resource>
 		<resource name="editor_snap">Telakoi reunaan</resource>
+		<resource name="editor_counter_startvalue">Aloitusarvo</resource>
 	</resources>
 </language>

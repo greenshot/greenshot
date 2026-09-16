@@ -216,5 +216,6 @@
 	<resource name="editor_fit">Kéo giãn</resource>
 	<resource name="editor_pushout">Mở rộng ảnh chụp và di chuyển ra ngoài</resource>
 	<resource name="editor_snap">Neo vào cạnh</resource>
+		<resource name="editor_counter_startvalue">Giá trị bắt đầu</resource>
 	</resources>
 </language>

@@ -20,23 +20,48 @@
  */
 
 using System;
+using System.Collections.Generic;
 using Greenshot.Base.Recipes;
 
 namespace Greenshot.Base.Pipeline
 {
     /// <summary>
-    /// Registry responsible for creating executable ICaptureStep instances from RecipeStepConfig definitions.
+    /// Registry responsible for creating executable ICaptureStep instances from RecipeNodeConfig definitions.
     /// </summary>
     public interface IStepRegistry
     {
         /// <summary>
         /// Registers a factory for a given step type identifier.
         /// </summary>
-        void RegisterStepFactory(string stepType, Func<RecipeStepConfig, ICaptureStep> factory);
+        void RegisterStepFactory(string stepType, Func<RecipeNodeConfig, ICaptureStep> factory);
 
         /// <summary>
-        /// Instantiates an executable step from a step configuration.
+        /// Checks whether a factory for the specified step type has been registered.
         /// </summary>
-        ICaptureStep CreateStep(RecipeStepConfig config);
+        /// <param name="stepType">The step type identifier to check.</param>
+        /// <returns>True if a factory exists for the step type; otherwise false.</returns>
+        bool IsRegistered(string stepType);
+
+        /// <summary>
+        /// Gets a collection of all currently registered step type identifiers.
+        /// </summary>
+        IReadOnlyCollection<string> RegisteredStepTypes { get; }
+
+        /// <summary>
+        /// Registers all step factories provided by the specified step provider.
+        /// </summary>
+        /// <param name="provider">The step provider.</param>
+        void RegisterProvider(IRecipeStepProvider provider);
+
+        /// <summary>
+        /// Registers all step factories provided by the specified step providers.
+        /// </summary>
+        /// <param name="providers">The collection of step providers.</param>
+        void RegisterProviders(IEnumerable<IRecipeStepProvider> providers);
+
+        /// <summary>
+        /// Instantiates an executable step from a node configuration.
+        /// </summary>
+        ICaptureStep CreateStep(RecipeNodeConfig config);
     }
 }

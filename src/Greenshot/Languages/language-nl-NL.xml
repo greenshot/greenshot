@@ -338,5 +338,6 @@ Alle Greenshot functies werken ook zonder sneltoetsen via het context menu.</res
 	<resource name="editor_fit">Uitrekken</resource>
 	<resource name="editor_pushout">Opname uitbreiden en naar buiten verplaatsen</resource>
 	<resource name="editor_snap">Aan rand vastmaken</resource>
+		<resource name="editor_counter_startvalue">Startwaarde</resource>
 	</resources>
 </language>

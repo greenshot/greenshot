@@ -299,5 +299,6 @@ Wennsd mogsd, kannsd nadürlich a einfach es Gondexdmenü nehmen (des grüne G r
 	<resource name="editor_fit">Streckn</resource>
 	<resource name="editor_pushout">Aufnahme vergrößern und naus schiebn</resource>
 	<resource name="editor_snap">Am Rand andockn</resource>
+		<resource name="editor_counter_startvalue">Startwert</resource>
 	</resources>
 </language>

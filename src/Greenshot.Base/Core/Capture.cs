@@ -253,6 +253,39 @@ namespace Greenshot.Base.Core
             _cursorLocation = _cursorLocation.Offset(x, y);
         }
 
+        /// <summary>
+        /// Creates a deep copy of the capture, cloning its image, cursor, and capture details.
+        /// </summary>
+        public Capture Clone()
+        {
+            var clone = new Capture
+            {
+                ScreenBounds = ScreenBounds,
+                Location = Location,
+                CursorLocation = CursorLocation,
+                CursorVisible = CursorVisible
+            };
+
+            if (Image != null)
+            {
+                clone.Image = ImageHelper.Clone(Image);
+            }
+
+            if (Cursor != null)
+            {
+                clone.Cursor = Cursor.Clone();
+            }
+
+            if (CaptureDetails != null)
+            {
+                clone.CaptureDetails = CaptureDetails.Clone();
+            }
+
+            return clone;
+        }
+
+        ICapture ICapture.Clone() => Clone();
+
         // TODO: Enable when the elements are usable again.
         ///// <summary>
         ///// Apply a translate to the elements

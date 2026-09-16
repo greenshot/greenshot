@@ -217,5 +217,6 @@ Kapcsolja ki a szotvert és használja PrintScrn billentyűt. Egyszerűen haszn�
 	<resource name="editor_fit">Nyújtás</resource>
 	<resource name="editor_pushout">Rögzített kép kiterjesztése és áthelyezés kívülre</resource>
 	<resource name="editor_snap">Igazítás a szélhez</resource>
+		<resource name="editor_counter_startvalue">Kezdőérték</resource>
 	</resources>
 </language>

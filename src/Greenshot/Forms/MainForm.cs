@@ -66,6 +66,7 @@ using Greenshot.Plugin.Win10;
 using Greenshot.Processors;
 using Greenshot.Recipes;
 using Greenshot.Triggers;
+using Greenshot.UI;
 using log4net;
 
 using Timer = System.Timers.Timer;
@@ -79,7 +80,7 @@ namespace Greenshot.Forms
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(MainForm));
         private static ResourceMutex _applicationMutex;
-        private static ICoreConfiguration _conf = IniConfigRegistry.GetSection<ICoreConfiguration>();
+        private static ICoreConfiguration _conf => IniConfigHelper.EnsureSection<ICoreConfiguration>(() => new CoreConfigurationImpl());
 
         /// <summary>
         /// Application entry-point, called from <see cref="GreenshotMain"/> after the
@@ -267,8 +268,6 @@ namespace Greenshot.Forms
             }
         }
 
-        private static MainForm _instance;
-
         private readonly CopyData _copyData;
 
         // Thumbnail preview
@@ -277,8 +276,8 @@ namespace Greenshot.Forms
         // Make sure we have only one settings form
         private SettingsForm _settingsForm;
 
-        // Make sure we have only one about form
-        private AboutForm _aboutForm;
+        // Make sure we have only one about window
+        private AboutWindow _aboutWindow;
 
         // Timer for the double click test
         private readonly Timer _doubleClickTimer = new Timer();
@@ -301,6 +300,7 @@ namespace Greenshot.Forms
             SimpleServiceProvider.Current.AddService<ICaptureHelper>(this);
             SimpleServiceProvider.Current.AddService<ITriggerManager>(TriggerManager.Instance);
             SimpleServiceProvider.Current.AddService<IRecipeManager>(RecipeManager.Instance);
+            SimpleServiceProvider.Current.AddService<IStepRegistry>(StepRegistry.Instance);
             SimpleServiceProvider.Current.AddService<ICapturePipeline>(CapturePipeline.Instance);
 
             // Windows specific services
@@ -367,6 +367,11 @@ namespace Greenshot.Forms
                 LanguageDialog languageDialog = LanguageDialog.GetInstance();
                 languageDialog.ShowDialog();
                 _conf.Language = languageDialog.SelectedLanguage;
+                Language.CurrentLanguage = languageDialog.SelectedLanguage;
+            }
+            else if (Language.CurrentLanguage != _conf.Language)
+            {
+                Language.CurrentLanguage = _conf.Language;
             }
 
             // Disable access to the settings, for feature #3521446
@@ -706,7 +711,7 @@ namespace Greenshot.Forms
 
         private void UpdateRecipesMenu()
         {
-            if (!coreConfiguration.IsBetaTester)
+            if (!coreConfiguration.EnableRecipeFeature)
             {
                 if (_recipesMenuItem != null && contextMenu.Items.Contains(_recipesMenuItem))
                 {
@@ -786,6 +791,41 @@ namespace Greenshot.Forms
                 recipeManager.ReloadRecipes();
             };
             _recipesMenuItem.DropDownItems.Add(reloadItem);
+
+            var editorItem = new ToolStripMenuItem(Language.GetString("contextmenu_recipeeditor") ?? "Recipe Editor...");
+            editorItem.Click += (s, ev) =>
+            {
+                OnOpenRecipeEditorClicked();
+            };
+            _recipesMenuItem.DropDownItems.Add(editorItem);
+        }
+
+        private static UI.RecipeEditor.RecipeEditorWindow _activeRecipeEditorWindow;
+
+        private void OnOpenRecipeEditorClicked()
+        {
+            try
+            {
+                if (_activeRecipeEditorWindow != null && _activeRecipeEditorWindow.IsLoaded)
+                {
+                    if (_activeRecipeEditorWindow.WindowState == System.Windows.WindowState.Minimized)
+                    {
+                        _activeRecipeEditorWindow.WindowState = System.Windows.WindowState.Normal;
+                    }
+                    _activeRecipeEditorWindow.Activate();
+                    _activeRecipeEditorWindow.Focus();
+                    return;
+                }
+
+                _activeRecipeEditorWindow = new UI.RecipeEditor.RecipeEditorWindow(RecipeManager.Instance);
+                _activeRecipeEditorWindow.Closed += (s, e) => _activeRecipeEditorWindow = null;
+                System.Windows.Forms.Integration.ElementHost.EnableModelessKeyboardInterop(_activeRecipeEditorWindow);
+                _activeRecipeEditorWindow.Show();
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Failed to open native recipe editor window.", ex);
+            }
         }
 
         private void OnImportRecipeClicked()
@@ -801,12 +841,7 @@ namespace Greenshot.Forms
                 {
                     string recipePath = Path.GetFullPath(ofd.FileName);
                     var result = Recipes.RecipeManager.Instance.LoadRecipeFromFile(recipePath, interactiveApproval: true, forceApprovalPrompt: true);
-                    if (!result.IsValid)
-                    {
-                        MessageBox.Show(this, $"{Language.GetString("recipe_import_failed") ?? "Failed to load recipe:"}\n{string.Join("\n", result.Errors)}",
-                            Language.GetString("recipe_import") ?? "Recipe Import", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    }
-                    else
+                    if (result.IsValid)
                     {
                         string existing = coreConfiguration.RecipeFiles ?? "";
                         var configuredPaths = new List<string>();
@@ -1132,22 +1167,25 @@ namespace Greenshot.Forms
 
         public void ShowAbout()
         {
-            if (_aboutForm != null)
+            if (_aboutWindow != null && _aboutWindow.IsLoaded)
             {
-                WindowDetails.ToForeground(_aboutForm.Handle);
+                _aboutWindow.Activate();
+                WindowDetails.ToForeground(new System.Windows.Interop.WindowInteropHelper(_aboutWindow).Handle);
             }
             else
             {
                 try
                 {
-                    using (_aboutForm = new AboutForm())
+                    _aboutWindow = new AboutWindow();
+                    var helper = new System.Windows.Interop.WindowInteropHelper(_aboutWindow)
                     {
-                        _aboutForm.ShowDialog(this);
-                    }
+                        Owner = this.Handle
+                    };
+                    _aboutWindow.ShowDialog();
                 }
                 finally
                 {
-                    _aboutForm = null;
+                    _aboutWindow = null;
                 }
             }
         }

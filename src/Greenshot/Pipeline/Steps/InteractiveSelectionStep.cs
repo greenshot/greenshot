@@ -50,9 +50,9 @@ namespace Greenshot.Pipeline.Steps
         private readonly IInteractiveCaptureSelector _selector;
 
         public string Name { get; }
-        public RecipeStepConfig Config { get; }
+        public RecipeNodeConfig Config { get; }
 
-        public InteractiveSelectionStep(RecipeStepConfig config, IInteractiveCaptureSelector selector = null)
+        public InteractiveSelectionStep(RecipeNodeConfig config, IInteractiveCaptureSelector selector = null)
         {
             Config = config ?? throw new ArgumentNullException(nameof(config));
             Name = config.Name ?? "InteractiveSelectionStep";

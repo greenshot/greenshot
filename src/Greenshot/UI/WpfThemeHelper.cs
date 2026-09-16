@@ -30,14 +30,21 @@ namespace Greenshot.UI
     public static class WpfThemeHelper
     {
         private const string PersonalizeKey = @"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize";
+        private static bool? _themeOverride;
+
+        public static event System.Action ThemeChanged;
 
         /// <summary>
-        /// Returns true if Windows system apps are set to Dark Mode.
+        /// Returns true if Windows system apps or user override is set to Dark Mode.
         /// </summary>
         public static bool IsDarkMode
         {
             get
             {
+                if (_themeOverride.HasValue)
+                {
+                    return _themeOverride.Value;
+                }
                 try
                 {
                     using (var key = Registry.CurrentUser.OpenSubKey(PersonalizeKey))
@@ -55,6 +62,19 @@ namespace Greenshot.UI
                 }
                 return false;
             }
+            set
+            {
+                if (_themeOverride != value)
+                {
+                    _themeOverride = value;
+                    ThemeChanged?.Invoke();
+                }
+            }
+        }
+
+        public static void ToggleTheme()
+        {
+            IsDarkMode = !IsDarkMode;
         }
 
         public static SolidColorBrush WindowBackground => IsDarkMode
@@ -92,6 +112,18 @@ namespace Greenshot.UI
         public static SolidColorBrush WarningText => IsDarkMode
             ? new SolidColorBrush(Color.FromRgb(0xFF, 0xBA, 0x42))
             : new SolidColorBrush(Color.FromRgb(0x66, 0x4D, 0x03));
+
+        public static SolidColorBrush ErrorBackground => IsDarkMode
+            ? new SolidColorBrush(Color.FromRgb(0x3B, 0x18, 0x18))
+            : new SolidColorBrush(Color.FromRgb(0xFD, 0xED, 0xED));
+
+        public static SolidColorBrush ErrorBorder => IsDarkMode
+            ? new SolidColorBrush(Color.FromRgb(0x7F, 0x2A, 0x2A))
+            : new SolidColorBrush(Color.FromRgb(0xF5, 0xC2, 0xC7));
+
+        public static SolidColorBrush ErrorText => IsDarkMode
+            ? new SolidColorBrush(Color.FromRgb(0xFF, 0x6B, 0x6B))
+            : new SolidColorBrush(Color.FromRgb(0x84, 0x20, 0x29));
 
         public static SolidColorBrush BadgeBackground => IsDarkMode
             ? new SolidColorBrush(Color.FromRgb(0x3A, 0x3A, 0x3C))

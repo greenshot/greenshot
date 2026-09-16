@@ -92,7 +92,7 @@ namespace Greenshot.Base.Core
         {
             get
             {
-                if (CoreConfig.ExcludeDestinations != null && CoreConfig.ExcludeDestinations.Contains(Designation))
+                if (CoreConfig?.ExcludeDestinations != null && CoreConfig.ExcludeDestinations.Contains(Designation))
                 {
                     return false;
                 }

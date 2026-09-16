@@ -289,5 +289,6 @@ A pesar de esto, se sigue pudiendo utilizar todas las características de Greens
 	<resource name="editor_fit">Estirar</resource>
 	<resource name="editor_pushout">Ampliar captura y mover fuera</resource>
 	<resource name="editor_snap">Acoplar al borde</resource>
+		<resource name="editor_counter_startvalue">Valor inicial</resource>
 	</resources>
 </language>

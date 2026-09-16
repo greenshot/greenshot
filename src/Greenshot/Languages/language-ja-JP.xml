@@ -338,5 +338,6 @@ ${hostname} コンピューター名
 	<resource name="editor_fit">引き伸ばす</resource>
 	<resource name="editor_pushout">キャプチャを拡張して外側へ移動</resource>
 	<resource name="editor_snap">端にドッキング</resource>
+		<resource name="editor_counter_startvalue">開始値</resource>
 	</resources>
 </language>

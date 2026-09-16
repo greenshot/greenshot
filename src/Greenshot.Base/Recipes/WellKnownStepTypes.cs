@@ -75,5 +75,55 @@ namespace Greenshot.Base.Recipes
         /// Scans text via OCR, locates occurrences matching regex/text pattern, and applies effects (Blur, Pixelize, Highlight, Redact).
         /// </summary>
         public const string TextEffect = "TextEffect";
+
+        /// <summary>
+        /// Adds one or more annotation elements (shapes, text, arrows, icons, images, stamps, filters) directly onto the capture surface.
+        /// </summary>
+        public const string Annotation = "Annotation";
+
+        /// <summary>
+        /// Evaluates an expression and creates or updates a variable in the flow context.
+        /// </summary>
+        public const string SetVariable = "SetVariable";
+
+        /// <summary>
+        /// Dedicated step saving the capture to a file with customizable directory, pattern, and format.
+        /// </summary>
+        public const string SaveFile = "SaveFile";
+
+        /// <summary>
+        /// Dedicated step copying the capture to the clipboard.
+        /// </summary>
+        public const string Clipboard = "Clipboard";
+
+        /// <summary>
+        /// Dedicated step opening the capture in the Greenshot image editor.
+        /// </summary>
+        public const string Editor = "Editor";
+
+        /// <summary>
+        /// Dedicated step sending the capture to a printer.
+        /// </summary>
+        public const string Printer = "Printer";
+
+        /// <summary>
+        /// Dedicated step sending the capture via email.
+        /// </summary>
+        public const string Email = "Email";
+
+        /// <summary>
+        /// Custom destination step allowing free-string destination designations (plugins, external handlers).
+        /// </summary>
+        public const string CustomDestination = "CustomDestination";
+
+        /// <summary>
+        /// Prompts the user with an interactive decision dialog with choices that route to DAG branches.
+        /// </summary>
+        public const string UserPrompt = "UserPrompt";
+
+        /// <summary>
+        /// Alias for UserPrompt.
+        /// </summary>
+        public const string PromptChoice = "PromptChoice";
     }
 }

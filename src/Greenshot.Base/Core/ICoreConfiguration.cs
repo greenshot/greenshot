@@ -381,10 +381,20 @@ namespace Greenshot.Base.Core
         [Range(1, 100, ErrorMessage = "WebRequestReadWriteTimeout must be between 1 and 100 seconds.")]
         int WebRequestReadWriteTimeout { get; set; }
 
+        [Description("List of hostnames or domain patterns (e.g. jira.internal, *.mycompany.local) for which SSL/TLS certificate validation errors are ignored.")]
+        List<string> AllowedUntrustedCertificateHosts { get; set; }
+
+        [Description("List of certificate thumbprints (SHA-1 / SHA-256 hashes) for which SSL/TLS certificate validation errors are ignored.")]
+        List<string> AllowedCertificateThumbprints { get; set; }
+
         /// <summary>Validates <see cref="OutputFilePath"/>; resets it to the default output folder when the path no longer exists.</summary>
         void ValidateAndCorrectOutputFilePath();
 
         /// <summary>Validates <see cref="OutputFileAsFullpath"/>; resets it to a default full-path dummy when the directory no longer exists.</summary>
         void ValidateAndCorrectOutputFileAsFullpath();
+
+        [DataMember(Name = "EnableRecipeFeature")]
+        [Description("Set this to true to enable recipes")]
+        bool EnableRecipeFeature { get; set; }
     }
 }

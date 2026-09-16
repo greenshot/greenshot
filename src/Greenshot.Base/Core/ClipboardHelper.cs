@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -977,6 +977,11 @@ EndSelection:<<<<<<<4
             SetClipboardDataInternal(surface, preRenderedImage, disposeImage: false);
         }
 
+        public static void SetClipboardData(ISurface surface, Image preRenderedImage, IEnumerable<ClipboardFormat> formats, string text = null)
+        {
+            SetClipboardDataInternal(surface, preRenderedImage, disposeImage: false, formats: formats, text: text);
+        }
+
         public static void SetClipboardData(ISurface surface)
         {
             SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(OutputFormat.png, 100, false);
@@ -984,12 +989,36 @@ EndSelection:<<<<<<<4
             SetClipboardDataInternal(surface, rendered, disposeImage);
         }
 
-        private static void SetClipboardDataInternal(ISurface surface, Image imageToSave, bool disposeImage)
+        public static void SetClipboardData(ISurface surface, IEnumerable<ClipboardFormat> formats, string text = null)
         {
+            SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(OutputFormat.png, 100, false);
+            bool disposeImage = ImageIO.CreateImageFromSurface(surface, outputSettings, out Image rendered);
+            SetClipboardDataInternal(surface, rendered, disposeImage, formats: formats, text: text);
+        }
+
+        private static void SetClipboardDataInternal(ISurface surface, Image imageToSave, bool disposeImage, IEnumerable<ClipboardFormat> formats = null, string text = null)
+        {
+            var activeFormats = formats != null ? formats.ToList() : (CoreConfig.ClipboardFormats ?? new List<ClipboardFormat>());
             DataObject dataObject = new DataObject();
 
-            // This will work for Office and most other applications
-            //ido.SetData(DataFormats.Bitmap, true, image);
+            if (!string.IsNullOrEmpty(text))
+            {
+                dataObject.SetData(DataFormats.UnicodeText, true, text);
+                dataObject.SetData(DataFormats.Text, true, text);
+            }
+
+            if (imageToSave == null || activeFormats.Count == 0)
+            {
+                if (!string.IsNullOrEmpty(text))
+                {
+                    SetDataObject(dataObject, true);
+                }
+                if (disposeImage)
+                {
+                    imageToSave?.Dispose();
+                }
+                return;
+            }
 
             MemoryStream dibStream = null;
             MemoryStream dibV5Stream = null;
@@ -999,7 +1028,7 @@ EndSelection:<<<<<<<4
                 try
                 {
                     // Create PNG stream
-                    if (CoreConfig.ClipboardFormats.Contains(ClipboardFormat.PNG))
+                    if (activeFormats.Contains(ClipboardFormat.PNG))
                     {
                         pngStream = RecyclableMemoryStreamFactory.GetStream("ClipboardHelper.PNG");
                         // PNG works for e.g. Powerpoint
@@ -1017,7 +1046,7 @@ EndSelection:<<<<<<<4
 
                 try
                 {
-                    if (CoreConfig.ClipboardFormats.Contains(ClipboardFormat.DIB))
+                    if (activeFormats.Contains(ClipboardFormat.DIB))
                     {
                         // Create the stream for the clipboard
                         dibStream = RecyclableMemoryStreamFactory.GetStream("ClipboardHelper.DIB");
@@ -1043,7 +1072,7 @@ EndSelection:<<<<<<<4
                 // CF_DibV5
                 try
                 {
-                    if (CoreConfig.ClipboardFormats.Contains(ClipboardFormat.DIBV5))
+                    if (activeFormats.Contains(ClipboardFormat.DIBV5))
                     {
                         // Create the stream for the clipboard
                         dibV5Stream = RecyclableMemoryStreamFactory.GetStream("ClipboardHelper.DIBV5");
@@ -1081,14 +1110,14 @@ EndSelection:<<<<<<<4
                 }
 
                 // Set the HTML
-                if (CoreConfig.ClipboardFormats.Contains(ClipboardFormat.HTML))
+                if (activeFormats.Contains(ClipboardFormat.HTML))
                 {
                     // Use the already-rendered imageToSave to avoid a redundant surface render pass.
                     string tmpFile = ImageIO.SaveToTmpFile(imageToSave, new SurfaceOutputSettings(OutputFormat.png, 100, false), null);
                     string html = GetHtmlString(surface, tmpFile);
                     dataObject.SetText(html, TextDataFormat.Html);
                 }
-                else if (CoreConfig.ClipboardFormats.Contains(ClipboardFormat.HTMLDATAURL))
+                else if (activeFormats.Contains(ClipboardFormat.HTMLDATAURL))
                 {
                     string html;
                     using (MemoryStream tmpPngStream = RecyclableMemoryStreamFactory.GetStream("ClipboardHelper.HTMLDATAURL"))
@@ -1117,19 +1146,14 @@ EndSelection:<<<<<<<4
             }
             finally
             {
-                // we need to use the SetDataOject before the streams are closed otherwise the buffer will be gone!
                 // Check if Bitmap is wanted
-                if (CoreConfig.ClipboardFormats.Contains(ClipboardFormat.BITMAP))
+                if (activeFormats.Contains(ClipboardFormat.BITMAP))
                 {
                     dataObject.SetImage(imageToSave);
-                    // Place the DataObject to the clipboard
-                    SetDataObject(dataObject, true);
                 }
-                else
-                {
-                    // Place the DataObject to the clipboard
-                    SetDataObject(dataObject, true);
-                }
+
+                // Place the DataObject to the clipboard
+                SetDataObject(dataObject, true);
 
                 pngStream?.Dispose();
                 dibStream?.Dispose();

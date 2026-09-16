@@ -42,11 +42,11 @@ namespace Greenshot.Base.Pipeline.Sources
         private static readonly ILog Log = LogManager.GetLogger(typeof(ActiveWindowCaptureSource));
         private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
 
-        private readonly RecipeStepConfig _config;
+        private readonly RecipeNodeConfig _config;
 
         public string Name => "ActiveWindowCaptureSource";
 
-        public ActiveWindowCaptureSource(RecipeStepConfig config = null)
+        public ActiveWindowCaptureSource(RecipeNodeConfig config = null)
         {
             _config = config;
         }

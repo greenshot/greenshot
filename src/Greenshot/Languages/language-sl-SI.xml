@@ -268,5 +268,6 @@ Vse funkcije Greenshota še vedno delujejo preko ikone za hitri zagon.</resource
 	<resource name="editor_fit">Raztegni</resource>
 	<resource name="editor_pushout">Razširi zajem in premakni navzven</resource>
 	<resource name="editor_snap">Pripni na rob</resource>
+		<resource name="editor_counter_startvalue">Začetna vrednost</resource>
 	</resources>
 </language>

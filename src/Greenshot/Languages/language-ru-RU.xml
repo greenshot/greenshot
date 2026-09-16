@@ -318,5 +318,6 @@ ${hostname} Имя ПК
 	<resource name="editor_fit">Растянуть</resource>
 	<resource name="editor_pushout">Расширить снимок и переместить наружу</resource>
 	<resource name="editor_snap">Прикрепить к краю</resource>
+		<resource name="editor_counter_startvalue">Начальное значение</resource>
 	</resources>
 </language>

@@ -1,8 +1,42 @@
-# Greenshot Capture Recipes Guide
+# Greenshot Capture Recipes: Put Your Screen on Autopilot
 
-Greenshot features a modular, recipe-driven capture pipeline. Instead of hardcoded capture flows, every screenshot workflow is an ordered sequence of configurable steps defined as a **Capture Recipe**.
+Tired of the same repetitive routine? Capture ➔ crop ➔ annotate ➔ copy to clipboard ➔ upload to cloud ➔ open in browser?
 
-Recipes can be written in code or provided as external `.json` files. External JSON recipes can create new custom capture workflows or securely override Greenshot's built-in recipes.
+Say hello to **Greenshot Recipes**!
+
+Recipes introduce a flexible workflow engine that lets you define and automate the entire journey of a capture from trigger to destination:
+
+- **Chain actions effortlessly:** Build custom pipelines tailored to specific tasks—such as filing bug reports, documenting steps, or pushing assets to team channels.   
+- **One-touch execution:** Trigger complex, multi-destination flows without clicking through export menus every single time.
+- **Custom capture logic:** Take full control of where your pixels go, turning tedious chores into seamless, automated, single-keypress workflows.
+
+Recipes provide the flexibility, this feature has a lot of power, but as Spidermans uncle said, with great power comes great responsibility.
+For the people who do not have that much experience with computers, recipes will unfortunately be overwhelmingly complex, because of this we will think about how to share recipes with friends and members of the community, who might know their way around computers. We will also look at other ways to make this easier to use, but we first need to lay a foundation which works.
+
+Greenshot features a modular, recipe-driven capture pipeline powered by a **Directed Acyclic Graph (DAG)** workflow engine, *we didn't invent that name*! Instead of linear, hardcoded sequences, screenshot workflows are defined as graphs of configurable execution nodes with support for parallel branch splitting (fork), path merging (join), variable assignment, scoped user/computer environment expressions, and rich surface drawable placement.
+
+Recipes can be written in code or provided as external `.json` (`.gsrecipe.json`) files. External JSON recipes can create new custom capture workflows or securely override Greenshot's built-in recipes.
+
+> [!IMPORTANT]
+> **Experimental Feature Notice & Activation**:
+> Capture Recipes, the DAG workflow execution engine, the Visual Recipe Editor, and external recipe loading are **experimental features** primarily intended for technical, tech-affine users and power users. We do not know yet if or in what format this capability will be made available in future public releases.
+>
+> ### How to Enable Capture Recipes in Greenshot:
+> To enable external recipes, context menu triggers, the Recipe Importer, and the Visual Recipe Editor:
+> 1. Open your `greenshot.ini` configuration file (located in `%APPDATA%\Greenshot\greenshot.ini` or in the application directory if portable).
+> 2. Under the `[Core]` section, find and enable EnableRecipeFeature by setting it to true:
+>    ```ini
+>    [Core]
+>    EnableRecipeFeature=True
+>    ```
+> 3. Restart Greenshot.
+> 4. Right-click the Greenshot system tray icon to reveal the new **Recipes** menu:
+>    - **Recipes $\rightarrow$ [Configured Recipe Triggers]**: Runs recipe workflows with a single click.
+>    - **Recipes $\rightarrow$ Import Recipe...**: Imports and installs `.gsrecipe.json` recipe files.
+>    - **Recipes $\rightarrow$ Reload Recipes**: Hot-reloads all recipes from disk without restarting Greenshot.
+>    - **Recipes $\rightarrow$ Recipe Editor...**: Opens the visual node-based Recipe Editor.
+>
+> Custom recipes are stored in `%APPDATA%\Greenshot\Recipes\*.gsrecipe.json`.
 
 ---
 
@@ -10,15 +44,334 @@ Recipes can be written in code or provided as external `.json` files. External J
 
 In Greenshot:
 - **A Trigger** defines *when and how* a capture is initiated (e.g. pressing a hotkey like `PrintScreen`, clicking a systray menu item, or receiving a clipboard image).
-- **A Recipe** defines *what sequence of steps* is executed once triggered (e.g. acquiring pixels, showing an interactive selection rectangle, adding a border, playing feedback, running OCR, exporting to destinations).
+- **A Recipe** defines *what DAG workflow of nodes* executes once triggered (e.g. acquiring pixels, showing an interactive selection rectangle, evaluating environment variables, branching to parallel feedback and watermark steps, running OCR, stamping drawables, and exporting to destinations).
 
-Triggers and recipes are completely decoupled. Any trigger can run any recipe, and a single recipe can be executed by multiple triggers or invoked manually.
+Triggers and recipes are decoupled. Any trigger can run any recipe, and a single recipe can be executed by multiple triggers or invoked manually.
 
 ---
 
-## 2. Configuration Precedence Explained
+## 2. Directed Acyclic Graph (DAG) Workflow Engine
 
-When a recipe step executes, it often needs settings such as whether to capture the mouse pointer, how long to delay, what color border to draw, or whether to play the shutter sound.
+Every recipe defines:
+1. **`nodes`**: A list of execution nodes, each having a unique flow-local `id`, a `stepType`, an optional `name`, and step-specific `parameters`.
+2. **`flow`**: A graph configuration defining entry point(s) (`startNodes`), unconditional transitions (`transitions`), and branch-routed transitions (`conditionalTransitions`).
+
+
+```
+                    ┌─────────────────┐
+                    │  capture_node   │
+                    └────────┬────────┘
+                             │
+                    ┌────────▼────────┐
+                    │   select_node   │
+                    └────────┬────────┘
+                             │ (Fork / Split)
+                ┌────────────┴────────────┐
+                │                         │
+       ┌────────▼────────┐       ┌────────▼────────┐
+       │ feedback_branch │       │  set_vars_node  │
+       └────────┬────────┘       └────────┬────────┘
+                │                         │
+                │                ┌────────▼────────┐
+                │                │  watermark_node │
+                │                └────────┬────────┘
+                │                         │
+                └────────────┬────────────┘
+                             │ (Join / Merge)
+                    ┌────────▼────────┐
+                    │   export_join   │
+                    └─────────────────┘
+```
+
+### Fork, Join & Conditional Branch Execution Semantics
+- **Parallel Branching (Fork)**: When an unconditional transition maps one node to multiple targets (e.g. `"select_node": ["feedback_branch", "set_vars_node"]`), all downstream branches execute concurrently as async tasks.
+- **Barrier Synchronization (Join)**: When multiple branches converge into a single downstream node (e.g. `export_join`), the engine pauses execution of that node until **all** parent dependency branches have fully completed.
+- **Conditional Decision Routing**: A `Conditional` node defines ordered decision `branches` (e.g. `[ { "key": "A", "expression": "${payload.width > 800}" }, { "key": "B", "expression": "else" } ]`). Downstream routing from branch pins is declared in `flow.conditionalTransitions` (e.g. `[ { "from": "decide", "branch": "A", "to": "full_editor" } ]`).
+- **Acyclic Enforcement**: The workflow engine performs cycle detection during recipe load. If any cycle/loop is detected, the recipe is rejected with a validation error.
+
+### Flow Definition Syntax
+Transitions map source node IDs to arrays of downstream target node IDs:
+
+```json
+"flow": {
+  "startNodes": [ "source" ],
+  "transitions": {
+    "source": [ "select" ],
+    "select": [ "feedback", "watermark" ],
+    "watermark": [ "export" ],
+    "feedback": [ "export" ]
+  }
+}
+```
+
+When using conditional branching:
+```json
+"flow": {
+  "startNodes": [ "source" ],
+  "transitions": {
+    "source": [ "decide_step" ]
+  },
+  "conditionalTransitions": [
+    { "from": "decide_step", "branch": "A", "to": "large_editor" },
+    { "from": "decide_step", "branch": "B", "to": "quick_clipboard" }
+  ]
+}
+```
+
+### Mermaid Workflow Diagram Export
+Both the WPF Recipe Editor and Web Recipe Editor include a **Mermaid** export button (`🧜 Mermaid` / `Mermaid`). This generates a clean, text-based [Mermaid.js](https://mermaid.js.org/) flowchart DSL representing the recipe's nodes, decision diamonds, unconditional transitions, branch conditions, and entry points:
+
+```mermaid
+flowchart TD
+    %% Node Definitions
+    source["Capture Area [source]"]
+    decide_step{"Evaluate Condition [decide_step]"}
+    large_editor["Image Editor [large_editor]"]
+    quick_clipboard["System Clipboard [quick_clipboard]"]
+
+    %% Unconditional Transitions
+    source --> decide_step
+
+    %% Conditional Branch Transitions
+    decide_step -- "A: ${payload.width > 800}" --> large_editor
+    decide_step -- "B: else" --> quick_clipboard
+
+    %% Start Nodes Styling
+    classDef startNode fill:#238636,stroke:#2ea043,stroke-width:2px,color:#ffffff;
+    class source startNode;
+```
+
+You can copy and paste this text directly into Markdown files, GitHub READMEs, or pull request descriptions.
+
+### Declaring Extension Requirements (`requires`)
+When recipes rely on functionality provided by external plugins or extensions (such as `Greenshot.Plugin.Zxing` for QR codes or `Greenshot.Plugin.ExternalCommand` for scripts), they can explicitly declare their requirements in the top-level `"requires"` array:
+
+```json
+"requires": [
+  {
+    "id": "Greenshot.Plugin.Zxing",
+    "name": "ZXing Barcode & QR Code Extension",
+    "minVersion": "1.3.0",
+    "url": "https://getgreenshot.org/plugins/zxing"
+  }
+]
+```
+
+- **`id`** *(required)*: Unique identifier of the required extension or plugin.
+- **`name`** *(optional)*: Human-readable display name.
+- **`minVersion`** *(optional)*: Minimum compatible version required.
+- **`url`** *(optional)*: Download or help URL where the extension can be obtained.
+
+When Greenshot loads or validates recipes (or when opened in the Visual Recipe Editor), `RecipeValidator` checks if every declared requirement is installed and enabled. If a required extension is missing, Greenshot prevents execution and presents the user with a clear, actionable diagnostic message specifying what is missing and where to acquire it.
+
+---
+
+## 3. Dynamic Expressions & Scoped Environment Variables
+
+Recipe step parameters support embedded mathematical expressions, boolean conditions, string interpolation, and system environment information using `${...}` syntax exclusively.
+
+### Scopes & Variable Sources
+Greenshot expression evaluation separates system information into distinct scopes:
+
+| Scope Prefix | Source | Description | Example |
+|---|---|---|---|
+| `user.*` | Windows User Environment | User-specific environment variables (from `EnvironmentVariableTarget.User`) | `${user.username}`, `${user.temp}`, `${user.appdata}` |
+| `machine.*` | Windows Machine Environment | System-wide / machine-scoped environment variables (from `EnvironmentVariableTarget.Machine`) | `${machine.computername}`, `${machine.os}`, `${machine.programfiles}` |
+| `config.*` | Greenshot INI Configuration | Live configuration settings from `greenshot.ini` | `${config.language}`, `${config.capturemousepointer}` |
+| `context.*` | Pipeline Flow Context | Variables stored in `context.Properties` or set by preceding steps | `${context.watermark_text}`, `${context.WindowTitle}` |
+| `payload.*` | Capture Surface Metrics | Dynamic dimensions and details of the current capture | `${payload.width}`, `${payload.height}`, `${payload.extractedtext}` |
+| `now:format` | Date / Time | Current timestamp formatted with .NET DateTime format strings | `${now:yyyy-MM-dd HH:mm:ss}` |
+
+### Mathematical & Logical Expressions
+Parameters such as coordinates, widths, heights, and variables can be calculated dynamically inside `${...}`:
+- `"${payload.width - 200}"`
+- `"${payload.height * 0.5}"`
+- `"${(payload.width / 2) - 50}"`
+
+### Setting Variables (`SetVariable` Step)
+Create or transform variables in the pipeline context for downstream nodes to consume:
+
+```json
+{
+  "id": "set_metadata",
+  "stepType": "SetVariable",
+  "parameters": {
+    "variables": {
+      "captured_by": "Captured by ${user.username} on ${machine.computername}",
+      "watermark_box_width": "${payload.width * 0.4}",
+      "timestamp_header": "[${now:yyyy-MM-dd HH:mm:ss}]"
+    }
+  }
+}
+```
+
+---
+
+## 4. Surface Annotations (`Annotation` Step)
+
+The `Annotation` step allows adding any Greenshot annotation container to the captured surface.
+
+### Supported Annotation Types
+- **Shapes & Lines**: `Rectangle`, `Ellipse`, `Line`, `Arrow`, `Freehand`
+- **Text & Annotations**: `Text`, `Speechbubble`, `StepLabel`
+- **Images & Icons**: `Image`, `Icon`, `Cursor`, `Emoji`, `Svg`
+- **Barcodes & QR Codes** *(via ZXing Plugin)*: `QRCode`, `Barcode`
+- **Filters & Effects**: `Obfuscate`, `Blur`, `Pixelize`, `Highlight`, `Magnify`, `Crop`
+
+### Barcode & QR Code Annotations (`QRCode`, `Barcode`)
+When `Greenshot.Plugin.Zxing` is active, recipes can stamp 2D QR codes and 1D barcodes directly onto the capture surface with uniform positioning, anchoring, and colors. When opened in the Greenshot Image Editor, double-clicking any stamped QR code opens the interactive editor to modify or inspect its payload.
+
+#### 1. Specifying the QR Code Type Contract:
+The QR code format is explicitly declared via the `"QrType"` parameter (e.g. `"Link"`, `"Payment"`, `"BusinessCard"`, `"WiFi"`, `"Email"`, `"CalendarEvent"`, `"Phone"`, `"Sms"`, `"Geo"`), ensuring a strict contract without guesswork:
+
+- **Link / Plain Text (`"QrType": "Link"` or `"Text"`)**:
+  - Direct URL, markdown link, or arbitrary text string.
+  - `"Text"`: Content string or dynamic expression (e.g. `"https://getgreenshot.org"`).
+
+- **Payments (`"QrType": "Payment"` or `"Sepa"`)**:
+  - European Payments Council (EPC) SEPA QR Code / GiroCode for instant mobile banking app transfers:
+  - `"EpcIban"`: Recipient IBAN (e.g. `"DE89370400440532013000"`).
+  - `"EpcName"`: Recipient account holder name (e.g. `"Greenshot Community e.V."`).
+  - `"EpcBic"`: Recipient BIC/SWIFT code (optional).
+  - `"EpcAmount"`: Payment transfer amount in EUR (e.g. `15.00` or `"15.00"`).
+  - `"EpcReference"`: Structured remittance reference / invoice number (e.g. `"INV-2026-0042"`).
+  - `"EpcMessage"`: Unstructured payment note or purpose (e.g. `"Support Greenshot"`).
+
+- **Business Cards (`"QrType": "BusinessCard"` or `"Contact"`)**:
+  - Standardized vCard 3.0 contact card:
+  - `"VcardFirstName"`: First name (e.g. `"Robin"`).
+  - `"VcardLastName"`: Last name (e.g. `"Krom"`).
+  - `"VcardCompany"`: Organization / Company (e.g. `"Greenshot Project"`).
+  - `"VcardEmail"`: Email address (e.g. `"robin@getgreenshot.org"`).
+  - `"VcardPhone"`: Phone number (e.g. `"+49-123-456789"`).
+  - `"VcardUrl"`: Website URL (e.g. `"https://getgreenshot.org"`).
+
+- **WiFi Network Configuration (`"QrType": "WiFi"` or `"Network"`)**:
+  - Automatic WiFi connection credentials:
+  - `"WifiSsid"`: Network SSID name.
+  - `"WifiPassword"`: Network password / pre-shared key.
+  - `"WifiEncryption"`: `"WPA"` (default), `"WEP"`, or `"nopass"`.
+
+- **Email (`"QrType": "Email"`)**:
+  - Pre-composed email triggering default email client (`mailto:`):
+  - `"EmailAddress"`: Recipient email address (e.g. `"support@getgreenshot.org"`).
+  - `"EmailSubject"`: Pre-filled email subject line.
+  - `"EmailBody"`: Pre-filled email message body.
+
+- **Calendar Events (`"QrType": "CalendarEvent"` or `"Event"`)**:
+  - Standardized iCalendar (`VEVENT`) meeting or event invitation:
+  - `"EventTitle"`: Summary / title of the event (e.g. `"Sprint Planning"`).
+  - `"EventDescription"`: Detailed event description or meeting notes.
+  - `"EventLocation"`: Physical address or virtual meeting URL.
+  - `"EventStart"`: Event start date/time (ISO 8601 string, e.g. `"2026-10-01T09:00:00Z"`).
+  - `"EventEnd"`: Event end date/time (ISO 8601 string, e.g. `"2026-10-01T10:00:00Z"`).
+
+- **Phone Call (`"QrType": "Phone"`)**:
+  - Direct telephone dialer trigger (`tel:`):
+  - `"PhoneNumber"`: Phone number to dial (e.g. `"+49-123-456789"`).
+
+- **SMS Message (`"QrType": "Sms"`)**:
+  - Direct SMS composer trigger (`smsto:`):
+  - `"SmsNumber"`: Recipient mobile number.
+  - `"SmsMessage"`: Pre-filled SMS text message.
+
+- **Geographic Location (`"QrType": "Geo"`)**:
+  - Map location coordinates or query (`geo:`):
+  - `"GeoLat"`: Latitude in decimal degrees (e.g. `52.5200`).
+  - `"GeoLon"`: Longitude in decimal degrees (e.g. `13.4050`).
+  - `"GeoAlt"`: Optional altitude in meters.
+  - `"GeoQuery"`: Optional search query name (e.g. `"Greenshot HQ"`).
+
+#### Visual Recipe Editor Integration:
+In the visual Recipe Editor:
+- Selecting any `QRCode` drawable displays a dedicated **QR Code Configuration** section with a category dropdown. Selecting a category automatically reveals the exact input fields needed for that specific category.
+- Clicking the **"⚙ Configure QR..."** button opens the interactive `ZxingEditorForm` dialog directly from the Recipe Editor, allowing you to test, format, and preview payloads with live validation.
+
+#### 2. Visual Styling Parameters:
+- **`Size`**: Shorthand pixel size for square QR codes (e.g. `160`).
+- **`Width` / `Height`**: Dimensions for 1D barcodes or rectangular barcodes.
+- **`ForeColor`**: Barcode foreground/module color (e.g. `"#003366"` or `"Black"`).
+- **`BackColor`**: Background quiet-zone color (e.g. `"#FFFFFF"` or `"White"`).
+- **`RoundedDots`**: Boolean (`true`/`false`). Renders modern rounded circular dots for 2D matrix modules while preserving standard finder patterns.
+- **`Format`**: Barcode format string for `Barcode` type (e.g. `"QR_CODE"`, `"CODE_128"`, `"EAN_13"`, `"DATA_MATRIX"`, `"AZTEC"`, `"PDF_417"`). Defaults to `"QR_CODE"`.
+
+### Flexible Positioning: Absolute, Calculated & Anchored
+Annotations can be positioned using:
+1. **Absolute Coordinates**: Fixed integers (`left: 50, top: 100, width: 200, height: 40`).
+2. **Calculated Expressions**: Dynamic formulas using `${payload.width}` and `${payload.height}` (e.g. `top: "${payload.height - 60}"`, `width: "${payload.width / 2}"`).
+3. **Anchor Alignments**:
+   - `horizontalAnchor`: `"Left"`, `"Center"` (or `"Middle"`), `"Right"`
+   - `verticalAnchor`: `"Top"`, `"Center"` (or `"Middle"`), `"Bottom"`
+   - Optional `offsetX` and `offsetY` pixel adjustments.
+   - `margin`: Margin distance from screen/capture borders when anchored.
+
+#### Example Annotation Node Configuration
+```json
+{
+  "id": "stamp_watermark",
+  "stepType": "Annotation",
+  "parameters": {
+    "annotations": [
+      {
+        "type": "Rectangle",
+        "horizontalAnchor": "Right",
+        "verticalAnchor": "Bottom",
+        "width": 380,
+        "height": 40,
+        "offsetX": -15,
+        "offsetY": -15,
+        "fillColor": "rgba(0, 0, 0, 180)",
+        "lineColor": "#0078D7",
+        "lineThickness": 2,
+        "shadow": true
+      },
+      {
+        "type": "Text",
+        "horizontalAnchor": "Right",
+        "verticalAnchor": "Bottom",
+        "width": 370,
+        "height": 30,
+        "offsetX": -20,
+        "offsetY": -20,
+        "text": "User: ${user.username} | Host: ${machine.computername} | ${now:yyyy-MM-dd}",
+        "textColor": "#FFFFFF",
+        "fontSize": 9.5,
+        "bold": true
+      },
+      {
+        "type": "Emoji",
+        "horizontalAnchor": "Left",
+        "verticalAnchor": "Bottom",
+        "left": 20,
+        "top": "${payload.height - 45}",
+        "emoji": "🛡️",
+        "size": 32
+      },
+      {
+        "type": "QRCode",
+        "qrType": "BusinessCard",
+        "horizontalAnchor": "Right",
+        "verticalAnchor": "Top",
+        "margin": 15,
+        "size": 120,
+        "roundedDots": true,
+        "foreColor": "#003366",
+        "backColor": "#FFFFFF",
+        "vcardFirstName": "Jane",
+        "vcardLastName": "Doe",
+        "vcardCompany": "Greenshot Team",
+        "vcardEmail": "jane@getgreenshot.org",
+        "vcardPhone": "+1-555-0199",
+        "vcardUrl": "https://getgreenshot.org"
+      }
+    ]
+  }
+}
+```
+
+---
+
+## 5. Configuration Precedence Explained
 
 Greenshot resolves every parameter using a strict **three-tier precedence model**:
 
@@ -27,466 +380,202 @@ Greenshot resolves every parameter using a strict **three-tier precedence model*
 │ Priority 1: Runtime Context Override                        │
 │   (Forced for this single run by CLI, Trigger, or API)      │
 ├─────────────────────────────────────────────────────────────┤
-│ Priority 2: Step Parameter Pre-definition                   │
-│   (Explicitly hardcoded in the recipe JSON or C# code)      │
+│ Priority 2: Node Parameter Pre-definition                   │
+│   (Explicitly defined in the recipe JSON or C# code)        │
 ├─────────────────────────────────────────────────────────────┤
 │ Priority 3: Dynamic User Configuration Evaluation           │
 │   (Omitted/null in JSON → evaluated live from greenshot.ini)│
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### Priority 1: Runtime Context Override
-* **What it means**: An explicit parameter passed into `context.Properties` specifically for *one single capture execution*.
-* **When it occurs**:
-  - A user presses a special hotkey configured to suppress the mouse pointer.
-  - A command-line switch like `--no-mouse` or `--region 100,100,500,400` is supplied.
-  - A plugin or programmatic caller calls `CaptureHelper.CaptureRegion(captureMouse: false)`.
-* **Why it exists**: When an external event or caller explicitly requests specific behavior for *this exact shot*, it overrides both the recipe definition and global preferences.
-
-### Priority 2: Step Parameter Pre-definition
-* **What it means**: Explicitly hardcoding a parameter value on a step within the recipe JSON or code.
-* **When it occurs**:
-  - In an OCR recipe, you *never* want the mouse pointer obscuring text, so the step explicitly defines:
-    ```json
-    {
-      "stepType": "Source",
-      "parameters": {
-        "CaptureMouseCursor": false
-      }
-    }
-    ```
-  - In a border recipe, you explicitly specify a 5-pixel red border:
-    ```json
-    {
-      "stepType": "Border",
-      "parameters": {
-        "Width": 5,
-        "Color": "#FF0000"
-      }
-    }
-    ```
-* **Why it exists**: The recipe author designed this specific workflow to have fixed, predictable behavior regardless of the user's general preferences.
-
-### Priority 3: Dynamic User Configuration Evaluation
-* **What it means**: Leaving a parameter omitted (or `null`) in the recipe JSON. At runtime, the step dynamically reads the live setting from `greenshot.ini` (`CoreConfig`).
-* **When it occurs**:
-  - The `ImmediateFeedback` step is declared with no parameters:
-    ```json
-    {
-      "stepType": "ImmediateFeedback"
-    }
-    ```
-    At the moment the screenshot is taken, Greenshot checks `CoreConfig.PlayCameraSound`. If the user turned off camera sounds in Greenshot's Settings dialog, no sound is played; if they turned it on, the sound plays.
-  - The `Source` step omits `"CaptureMouseCursor"`. Greenshot dynamically evaluates `CoreConfig.CaptureMousepointer`.
-  - The `Destinations` step omits `"DestinationDesignations"`. Greenshot exports to whatever destinations the user currently has selected in `CoreConfig.OutputDestinations` (e.g. Editor, Clipboard, File).
-* **Why it exists**: Recipes do not become outdated when users change their general preferences in the Settings dialog. Standard recipes stay fully synchronized with user settings automatically.
-
----
-> [!IMPORTANT]
-> **Beta Feature Gating (`IsBetaTester`)**:
-> The external recipe engine, custom recipe loading, systray recipe menu, and interactive approval prompts are gated behind the `IsBetaTester` flag.
-> To enable external recipes, ensure your `greenshot.ini` contains:
-> ```ini
-> [Core]
-> IsBetaTester=True
-> ```
-> When `IsBetaTester` is `False`, Greenshot operates strictly with its built-in hardcoded capture recipes.
+1. **Priority 1 (Runtime Context Override)**: Explicit parameters supplied for this specific run in `context.Properties` (e.g. from CLI switch `--no-mouse`).
+2. **Priority 2 (Node Parameter Pre-definition)**: Hardcoded parameter or expression defined on the node in the recipe JSON.
+3. **Priority 3 (Dynamic Evaluation)**: Parameter omitted or `null` in JSON → dynamically evaluates live setting from `greenshot.ini` (`CoreConfig`).
 
 ---
 
-## 3. Modular Triggers: Connecting Recipes to Hotkeys & Menus
+## 6. Complete Recipe Examples
 
-Triggers define how and when a recipe executes. In Greenshot, triggers are modular first-class entities configured directly within the recipe's `triggers` array.
-
-A single recipe can define **multiple triggers**—for example, both a systray context menu item and a global keyboard shortcut:
-
-```json
-"triggers": [
-  {
-    "triggerType": "ContextMenu",
-    "name": "Systray Menu Entry",
-    "parameters": {
-      "menuItemText": "Region with Blue Border",
-      "group": "Recipes"
-    }
-  },
-  {
-    "triggerType": "Hotkey",
-    "name": "Keyboard Shortcut",
-    "parameters": {
-      "hotkey": "Ctrl + Shift + B"
-    }
-  }
-]
-```
-
-### Supported Trigger Types
-- **`ContextMenu` / `Systray`**: Registers an entry in Greenshot's systray context menu. If the recipe also defines a `Hotkey` trigger, the menu item automatically displays the shortcut accelerator (e.g. `Region with Blue Border   Ctrl+Shift+B`).
-- **`Hotkey`**: Registers an OS-level global hotkey (e.g. `"Ctrl + Shift + B"`, `"Alt + PrintScreen"`).
-- **`Clipboard`**: Monitors the Windows clipboard and fires automatically when an image is copied (`"OnImageCopied": true`).
-- **`Manual`**: Explicitly manual trigger invoked via CLI or API.
-
-### How Triggerless Recipes Run
-If a recipe has an empty or omitted `triggers` list:
-1. **Systray Context Menu**: If `showInContextMenu` is `true`, the recipe appears in Greenshot's systray context menu.
-2. **Command-Line Interface (CLI)**: Running `greenshot.exe /recipe:recipe_region_blue_border`.
-3. **Plugins & API**: Programmatic invocation via `CapturePipeline.Instance.ExecuteAsync(recipe)`.
-
----
-
-## 4. Security Architecture & Threat Model
-
-> [!CAUTION]
-> **Why Unrestricted Configuration is Dangerous**:
-> If an unprivileged malicious process running in the user session could silently write to `greenshot.ini` or drop recipe files, it could attempt:
-> 1. **Arbitrary Code Execution (RCE)**: Specifying an `ExternalCommand` step to launch malicious payloads (`powershell.exe`, reverse shells) under Greenshot's process.
-> 2. **Silent Surveillance / Spyware**: Taking fullscreen captures with sound and notifications disabled (`PlaySound: false`, `ShowNotification: false`), quietly saving screenshots to a hidden directory (`FileNoDialog`).
-> 3. **Clipboard Sniffing**: Attaching a clipboard trigger to secretly intercept sensitive passwords copied from password managers.
-> 4. **Workflow Hijacking**: Overriding `recipe_region` so standard captures are secretly copied to an attacker destination while showing the normal crosshair UI.
-
-### Defense-in-Depth Protections
-To completely neutralize these attack vectors, Greenshot implements multiple defensive layers:
-
-1. **Dedicated File Extension (`.gsrecipe.json`)**:
-   External recipes must use the `.gsrecipe.json` extension (e.g. `blue_border.gsrecipe.json`), preventing accidental execution of generic JSON files.
-2. **Interactive Trust Prompt (Modern WPF Dialog)**:
-   When Greenshot detects an external recipe file for the first time, it does **not** execute it blindly. Greenshot presents a modern Fluent WPF dialog showing the recipe's name, version, file path, SHA-256 fingerprint, attached triggers, and execution steps. The UI dynamically supports Windows Dark and Light modes.
-3. **Cryptographic SHA-256 Hash Pinning (DPAPI-Protected)**:
-   Upon user approval, the recipe file's SHA-256 hash is recorded in a protected binary trust store (`%LOCALAPPDATA%\Greenshot\recipe_trust.dat`) encrypted via **Windows DPAPI (`ProtectedData.Protect`)** combined with an **application-specific HMAC salt**. Other user processes cannot forge this cryptographic approval. If the file is altered, the hash mismatch blocks execution until re-approved.
-4. **Mandatory Authorization for `ExternalCommand`**:
-   Recipes containing `ExternalCommand` steps are flagged with a high-visibility security badge. The user must explicitly check a confirmation box (*"I understand the security risks and authorize this recipe to execute external commands"*) before approval can be granted.
-5. **Enterprise Lockdown (`greenshot-fixed.ini`)**:
-   In managed corporate environments, `RecipeFiles` can be configured in `%ProgramFiles%\Greenshot\greenshot-fixed.ini`. Because `%ProgramFiles%` requires Windows Administrator (UAC) elevation to write to, low-privilege malware cannot tamper with it.
-
----
-
-## 5. Formal JSON Schema Contract
-
-Greenshot recipes adhere to the **Draft-07 JSON Schema** located at:
-[`docs/recipe.schema.json`](recipe.schema.json)
-
-Link this schema in your `.gsrecipe.json` files for instant editor autocomplete, validation, and hover documentation:
-
-```json
-{
-  "$schema": "./recipe.schema.json",
-  "version": "1.0",
-  "id": "my_recipe",
-  "name": "My Custom Recipe",
-  "triggers": [ ... ],
-  "steps": [ ... ]
-}
-```
-
-### Root Recipe Properties
-
-| Property | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| `$schema` | `string` | No | Path or URL to `recipe.schema.json` |
-| `version` | `string` | **Yes** | Recipe schema version (e.g. `"1.0"`) |
-| `id` | `string` | **Yes** | Unique identifier (e.g. `recipe_region` to override default region capture) |
-| `name` | `string` | **Yes** | Human-readable title displayed in menus |
-| `description` | `string` | No | Description of what the flow does |
-| `enabled` | `boolean` | No | Whether the recipe is active (default: `true`) |
-| `triggers` | `array` | No | List of modular trigger objects attached to this recipe |
-| `steps` | `array` | **Yes** | Ordered list of step objects (minimum 1) |
-
----
-
-## 6. Step Types & Parameters Reference
-
-### Step: `Source`
-Acquires raw pixels, restores/activates target windows, and aligns display DPI.
-
-| Parameter | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
-| `SourceType` | `string` | `"Region"` | One of: `"Region"`, `"Window"`, `"ActiveWindow"`, `"FullScreen"`, `"LastRegion"`, `"Clipboard"`, `"File"`, `"TextOcr"` |
-| `WindowTitle` | `string` | `null` | Exact or substring title of a specific window to target, restore, bring to front, and capture |
-| `WindowTitlePattern` | `string` | `null` | Regular expression pattern used to match target window title |
-| `ProcessName` | `string` | `null` | Target process executable name (e.g. `"notepad"`, `"Greenshot"`) |
-| `MatchCase` | `boolean` | `false` | Whether title or regex pattern matching is case-sensitive |
-| `CaptureMouseCursor` | `boolean` | `null` | Pre-defines mouse capture. If omitted (`null`), dynamically evaluates `CoreConfig.CaptureMousepointer` |
-| `DelayMs` | `integer` | `null` | Milliseconds to wait before capture. If omitted (`null`), dynamically evaluates `CoreConfig.CaptureDelay` |
-| `AlignDpi` | `boolean` | `true` | Aligns bitmap resolution to match physical display DPI |
-| `ScreenCaptureMode` | `string` | `null` | Screen mode: `"Auto"`, `"Fixed"`, `"FullScreen"` |
-| `WindowCaptureMode` | `string` | `null` | Window mode: `"Auto"`, `"AsDisplayed"`, `"GDI"`, `"Aero"`, `"AeroTransparent"` |
-
-### Step: `InteractiveSelection`
-Presents the interactive selection rectangle or window picker overlay.
-
-| Parameter | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
-| `SelectionMode` | `string` | `"Region"` | One of: `"Region"`, `"Window"`, `"Text"` |
-| `AllowWindowSnapping` | `boolean` | `true` | Whether the selection rectangle snaps to windows under the cursor |
-
-### Step: `Effect`
-Applies an image effect directly to the capture surface. Multiple `Effect` steps can be sequenced.
-
-| Parameter | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
-| `Effect` | `string` | `"Border"` | One of: `"Border"`, `"DropShadow"`, `"TornEdge"`, `"Invert"`, `"Grayscale"`, `"Monochrome"`, `"Adjust"`, `"Rotate"`, `"Resize"`, `"ResizeCanvas"`, `"ReduceColors"`, `"RemoveTransparency"` |
-| `Width` | `integer` | `2` | Used for `"Border"` (thickness) or `"Resize"` (width in pixels) |
-| `Height` | `integer` | `null` | Used for `"Resize"`: target height in pixels |
-| `Percentage` | `number` | `null` | Used for `"Resize"`: scaling percentage (e.g. `50` for 50%) |
-| `MaintainAspectRatio` | `boolean` | `true` | Used for `"Resize"`: preserve original aspect ratio |
-| `Color` | `string` | `"#000000"` | Used for `"Border"`, `"ResizeCanvas"`, `"RemoveTransparency"`: color hex or name |
-| `Darkness` | `number` | `0.6` | Used for `"DropShadow"` and `"TornEdge"`: shadow darkness (0.0 to 1.0) |
-| `ShadowSize` | `integer` | `7` | Used for `"DropShadow"` and `"TornEdge"`: shadow blur/size in pixels |
-| `ToothHeight` | `integer` | `12` | Used for `"TornEdge"`: height of paper teeth in pixels |
-| `HorizontalToothRange` | `integer` | `20` | Used for `"TornEdge"`: horizontal tooth interval |
-| `VerticalToothRange` | `integer` | `20` | Used for `"TornEdge"`: vertical tooth interval |
-| `GenerateShadow` | `boolean` | `true` | Used for `"TornEdge"`: whether to render drop shadow along torn edge |
-| `Edges` | `array / string` | `[true,true,true,true]` | Used for `"TornEdge"`: which edges to tear (e.g. `"top,bottom"` or `[true, false, true, false]`) |
-| `Threshold` | `integer` | `128` | Used for `"Monochrome"`: black/white luminance threshold (0 - 255) |
-| `Brightness` | `number` | `1.0` | Used for `"Adjust"`: brightness multiplier (1.0 = normal) |
-| `Contrast` | `number` | `1.0` | Used for `"Adjust"`: contrast multiplier (1.0 = normal) |
-| `Gamma` | `number` | `1.0` | Used for `"Adjust"`: gamma multiplier (1.0 = normal) |
-| `Angle` | `integer` | `90` | Used for `"Rotate"`: rotation angle in degrees (`90`, `-90`, `270`) |
-| `Margin` | `integer` | `0` | Used for `"ResizeCanvas"`: uniform border padding around image |
-| `Colors` | `integer` | `256` | Used for `"ReduceColors"`: maximum number of quantized colors |
-
-### Step: `TextEffect`
-Runs OCR text recognition, locates occurrences matching regex patterns, and places effect containers (`Blur`, `Pixelize`, `Highlight`, `Redact`, `Magnify`) directly over matched coordinates.
-
-| Parameter | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
-| `Pattern` | `string` | `null` | Single regular expression pattern to detect (e.g. `"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}"`) |
-| `Patterns` | `array of string` | `null` | Array of regex patterns to match (e.g. credit cards, API keys, emails) |
-| `Effect` | `string` | `"Pixelize"` | One of: `"Pixelize"`, `"Blur"`, `"Highlight"`, `"Redact"`, `"Blackout"`, `"Magnify"` |
-| `Scope` | `string` | `"Auto"` | `"Auto"` (maps regex match to exact word bounds), `"Word"` (matches word tokens), or `"Line"` (covers whole line) |
-| `BlurRadius` | `integer` | `10` | Used for `"Blur"`: blur radius in pixels |
-| `PixelSize` | `integer` | `5` | Used for `"Pixelize"`: obfuscation pixel block size |
-| `FillColor` | `string` | `"#FFFF00"` / `"#000000"` | Color used for `"Highlight"` (yellow) or `"Redact"` (black) |
-| `MagnificationFactor` | `integer` | `2` | Used for `"Magnify"`: magnification scale factor |
-| `PaddingHorizontal` | `integer` | `10` | Percentage to grow matched bounding box horizontally |
-| `PaddingVertical` | `integer` | `20` | Percentage to grow matched bounding box vertically |
-| `OffsetHorizontal` | `integer` | `0` | Pixel horizontal offset for effect container |
-| `OffsetVertical` | `integer` | `0` | Pixel vertical offset for effect container |
-| `MatchCase` | `boolean` | `false` | Whether regex matching is case-sensitive |
-
-### Step: `ImmediateFeedback`
-Dispatches immediate sensory feedback upon pixel acquisition.
-
-| Parameter | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
-| `PlaySound` | `boolean` | `null` | Pre-defines shutter sound. If omitted (`null`), dynamically evaluates `CoreConfig.PlayCameraSound` |
-
-### Step: `Processors`
-Executes image and metadata processors (e.g. OCR, TitleFix).
-
-| Parameter | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
-| `ProcessorIds` | `array of string` | `null` | Explicit list of processor designations to run (e.g. `["Windows10OcrProcessor"]`). If omitted (`null`), runs all active registered processors |
-
-### Step: `Destinations`
-Dispatches export to one or more output destinations.
-
-| Parameter | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
-| `DestinationDesignations` | `array of string` | `null` | Explicit list of destinations (e.g. `["Clipboard", "FileNoDialog"]`). If omitted (`null`), dynamically evaluates `CoreConfig.OutputDestinations` |
-
-### Step: `Notification`
-Displays tray balloon or toast notifications upon completion.
-
-| Parameter | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
-| `ShowNotification` | `boolean` | `null` | Pre-defines notification. If omitted (`null`), dynamically evaluates `CoreConfig.ShowTrayNotification` |
-
----
-
-## 6. Concrete Configuration Examples
-
-### Example 1: Capture with Border Flow
-Here is the exact JSON recipe that acquires a region, interactively lets the user select the area, automatically adds a 4-pixel blue border around the capture, plays feedback, and exports to the user's preferred destinations:
+### Example 1: Region Capture with Blue Border
+Interactive region capture that adds a 2px blue border and opens the editor:
 
 ```json
 {
   "$schema": "./recipe.schema.json",
   "id": "recipe_region_blue_border",
   "name": "Region with Blue Border",
-  "description": "Captures a selected region, adds a 4px blue border, and exports to destinations.",
-  "enabled": true,
-  "steps": [
-    {
-      "stepType": "Source",
-      "name": "Acquire Screen",
-      "parameters": {
-        "SourceType": "Region"
-      }
-    },
-    {
-      "stepType": "InteractiveSelection",
-      "name": "Select Area",
-      "parameters": {
-        "SelectionMode": "Region",
-        "AllowWindowSnapping": true
-      }
-    },
-    {
-      "stepType": "Border",
-      "name": "Add 4px Blue Border",
-      "parameters": {
-        "Width": 4,
-        "Color": "#0078D7"
-      }
-    },
-    {
-      "stepType": "ImmediateFeedback",
-      "name": "Shutter Sound"
-    },
-    {
-      "stepType": "Processors",
-      "name": "Run Processors"
-    },
-    {
-      "stepType": "Destinations",
-      "name": "Export"
-    },
-    {
-      "stepType": "Notification",
-      "name": "Notify User"
-    }
-  ]
-}
-```
-
-### Example 2: Overriding the Built-In Region Capture
-To override Greenshot's default region capture so that *every* region capture (including the `PrintScreen` hotkey) automatically applies a 2-pixel black border:
-
-```json
-{
-  "$schema": "./recipe.schema.json",
-  "id": "recipe_region",
-  "name": "Capture region (with Border)",
-  "description": "Default region capture overridden with an automatic border.",
-  "enabled": true,
-  "steps": [
-    {
-      "stepType": "Source",
-      "parameters": {
-        "SourceType": "Region"
-      }
-    },
-    {
-      "stepType": "InteractiveSelection",
-      "parameters": {
-        "SelectionMode": "Region"
-      }
-    },
-    {
-      "stepType": "Border",
-      "parameters": {
-        "Width": 2,
-        "Color": "#000000"
-      }
-    },
-    {
-      "stepType": "ImmediateFeedback"
-    },
-    {
-      "stepType": "Processors"
-    },
-    {
-      "stepType": "Destinations"
-    },
-    {
-      "stepType": "Notification"
-    }
-  ]
-}
-```
-
-### Example 3: Silent Automated Window Capture directly to File
-A recipe that waits 500ms, captures the active window without the cursor, plays no sound, shows no tray notification, and directly saves to a file without opening dialogs:
-
-```json
-{
-  "$schema": "./recipe.schema.json",
-  "id": "recipe_silent_window_to_file",
-  "name": "Silent Window to File",
-  "description": "Automated capture of active window directly saved to disk.",
-  "enabled": true,
-  "steps": [
-    {
-      "stepType": "Source",
-      "parameters": {
-        "SourceType": "ActiveWindow",
-        "CaptureMouseCursor": false,
-        "DelayMs": 500
-      }
-    },
-    {
-      "stepType": "Destinations",
-      "parameters": {
-        "DestinationDesignations": [
-          "FileNoDialog"
-        ]
-      }
-    }
-  ]
-}
-```
-
-### Example 4: Multiple Recipes in a Single File
-A single `.json` file can also contain a JSON array of recipes:
-
-```json
-[
-  {
-    "id": "recipe_red_border",
-    "name": "Red Border Flow",
-    "steps": [
-      { "stepType": "Source", "parameters": { "SourceType": "Region" } },
-      { "stepType": "InteractiveSelection", "parameters": { "SelectionMode": "Region" } },
-      { "stepType": "Border", "parameters": { "Width": 3, "Color": "#FF0000" } },
-      { "stepType": "ImmediateFeedback" },
-      { "stepType": "Destinations" }
-    ]
-  },
-  {
-    "id": "recipe_black_border",
-    "name": "Black Border Flow",
-    "steps": [
-      { "stepType": "Source", "parameters": { "SourceType": "Region" } },
-      { "stepType": "InteractiveSelection", "parameters": { "SelectionMode": "Region" } },
-      { "stepType": "Border", "parameters": { "Width": 2, "Color": "#000000" } },
-      { "stepType": "ImmediateFeedback" },
-      { "stepType": "Destinations" }
-    ]
-  }
-]
-```
-
-### Example 5: Targeted Window Capture with DropShadow and Regex DLP Redaction
-A recipe that targets a specific window matching regex pattern `.*(Greenshot|Notepad|Browser).*`, restores/brings it to front, captures it, applies a 10px drop shadow, scans OCR text for sensitive data (credit cards, emails, API keys), applies blackout redaction, and opens the editor:
-
-```json
-{
-  "$schema": "./recipe.schema.json",
-  "version": "1.0",
-  "id": "recipe_window_regex_redact",
-  "name": "Target Window with DLP Redaction",
-  "description": "Captures a targeted window, adds drop shadow, runs OCR to find sensitive patterns, redacts them, and opens the editor",
+  "description": "Interactive region capture that adds a 2px blue border and opens the editor",
   "triggers": [
     {
       "triggerType": "ContextMenu",
+      "name": "Region with Border Menu Item",
       "parameters": {
-        "menuItemText": "Target Window with DLP Redact",
+        "menuItemText": "Region with Blue Border",
         "group": "Recipes"
       }
     },
     {
       "triggerType": "Hotkey",
-      "name": "Target Window with DLP Redaction Hotkey",
       "parameters": {
-        "hotkey": "Ctrl + Shift + D"
+        "hotkey": "Ctrl + Shift + B"
       }
     }
   ],
-  "steps": [
+  "nodes": [
     {
+      "id": "source",
       "stepType": "Source",
-      "name": "Capture Target Window",
+      "parameters": { "sourceType": "Region" }
+    },
+    {
+      "id": "select",
+      "stepType": "InteractiveSelection",
+      "parameters": { "selectionMode": "Region" }
+    },
+    {
+      "id": "border",
+      "stepType": "Effect",
+      "parameters": { "effect": "Border", "width": 2, "color": "#0000FF" }
+    },
+    {
+      "id": "feedback",
+      "stepType": "ImmediateFeedback",
+      "parameters": { "playSound": true }
+    },
+    {
+      "id": "destination",
+      "stepType": "Destinations",
+      "parameters": { "destinationDesignations": [ "Editor" ] }
+    }
+  ],
+  "flow": {
+    "startNodes": [ "source" ],
+    "transitions": {
+      "source": [ "select" ],
+      "select": [ "border" ],
+      "border": [ "feedback" ],
+      "feedback": [ "destination" ]
+    }
+  }
+}
+```
+
+### Example 2: Branching DAG Workflow with Environment Watermark
+Demonstrating parallel fork/join execution, variable evaluation, user & machine environment scopes, and drawable surface stamping:
+
+```json
+{
+  "$schema": "./recipe.schema.json",
+  "id": "recipe_dag_watermark_branching",
+  "name": "DAG Workflow with Environment Watermark and Parallel Feedback",
+  "description": "Demonstrates DAG branching, variable assignment, scoped user/machine environment variables, mathematical positioning expressions, and multi-drawable surface stamping.",
+  "triggers": [
+    {
+      "triggerType": "Hotkey",
+      "parameters": { "hotkey": "Ctrl + Shift + W" }
+    }
+  ],
+  "nodes": [
+    {
+      "id": "capture_node",
+      "stepType": "Source",
+      "parameters": { "sourceType": "Region" }
+    },
+    {
+      "id": "select_node",
+      "stepType": "InteractiveSelection",
+      "parameters": { "selectionMode": "Region", "allowWindowSnapping": true }
+    },
+    {
+      "id": "feedback_branch",
+      "stepType": "ImmediateFeedback",
+      "parameters": { "playSound": true }
+    },
+    {
+      "id": "set_vars_node",
+      "stepType": "SetVariable",
+      "parameters": {
+        "variables": {
+          "department": "Engineering QA",
+          "watermark_text": "Captured by ${user.username} on ${machine.computername} [${now:yyyy-MM-dd HH:mm}]"
+        }
+      }
+    },
+    {
+      "id": "watermark_node",
+      "stepType": "Annotation",
+      "parameters": {
+        "annotations": [
+          {
+            "type": "Rectangle",
+            "horizontalAnchor": "Right",
+            "verticalAnchor": "Bottom",
+            "width": 380,
+            "height": 40,
+            "offsetX": -15,
+            "offsetY": -15,
+            "fillColor": "rgba(0, 0, 0, 180)",
+            "lineColor": "#0078D7",
+            "lineThickness": 2,
+            "shadow": true
+          },
+          {
+            "type": "Text",
+            "horizontalAnchor": "Right",
+            "verticalAnchor": "Bottom",
+            "width": 370,
+            "height": 30,
+            "offsetX": -20,
+            "offsetY": -20,
+            "text": "${context.watermark_text}",
+            "textColor": "#FFFFFF",
+            "fontSize": 9.5,
+            "fontFamily": "Segoe UI",
+            "bold": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "export_join",
+      "stepType": "Destinations",
+      "parameters": {
+        "destinationDesignations": [ "Editor", "Clipboard" ]
+      }
+    }
+  ],
+  "flow": {
+    "startNodes": [ "capture_node" ],
+    "transitions": {
+      "capture_node": [ "select_node" ],
+      "select_node": [ "feedback_branch", "set_vars_node" ],
+      "set_vars_node": [ "watermark_node" ],
+      "feedback_branch": [ "export_join" ],
+      "watermark_node": [ "export_join" ]
+    }
+  }
+}
+```
+
+### Example 3: Targeted Window Capture with Regex DLP Redaction
+Captures a specific window, applies a drop shadow, scans OCR text for sensitive patterns, redacts them with black bounding boxes, and opens the editor:
+
+```json
+{
+  "$schema": "./recipe.schema.json",
+  "id": "recipe_window_regex_redact",
+  "name": "Target Window with DLP Redaction",
+  "description": "Captures a targeted window, adds drop shadow, runs OCR to find sensitive patterns, redacts them, and opens the editor",
+  "triggers": [
+    {
+      "triggerType": "Hotkey",
+      "parameters": { "hotkey": "Ctrl + Shift + D" }
+    }
+  ],
+  "nodes": [
+    {
+      "id": "capture_window",
+      "stepType": "Source",
       "parameters": {
         "sourceType": "ActiveWindow",
         "windowTitlePattern": ".*(Notepad|Editor|Greenshot|Chrome|Edge).*",
@@ -494,17 +583,13 @@ A recipe that targets a specific window matching regex pattern `.*(Greenshot|Not
       }
     },
     {
+      "id": "shadow",
       "stepType": "Effect",
-      "name": "Apply Drop Shadow",
-      "parameters": {
-        "effect": "DropShadow",
-        "shadowSize": 10,
-        "darkness": 0.65
-      }
+      "parameters": { "effect": "DropShadow", "shadowSize": 10, "darkness": 0.65 }
     },
     {
+      "id": "redact",
       "stepType": "TextEffect",
-      "name": "Redact Sensitive Data",
       "parameters": {
         "effect": "Redact",
         "fillColor": "#000000",
@@ -519,20 +604,121 @@ A recipe that targets a specific window matching regex pattern `.*(Greenshot|Not
       }
     },
     {
+      "id": "feedback",
       "stepType": "ImmediateFeedback",
+      "parameters": { "playSound": true }
+    },
+    {
+      "id": "destination",
+      "stepType": "Destinations",
+      "parameters": { "destinationDesignations": [ "Editor" ] }
+    }
+  ],
+  "flow": {
+    "startNodes": [ "capture_window" ],
+    "transitions": {
+      "capture_window": [ "shadow" ],
+      "shadow": [ "redact" ],
+      "redact": [ "feedback" ],
+      "feedback": [ "destination" ]
+    }
+  }
+}
+```
+
+### Example 4: Conditional Decision Routing by Screen Dimensions
+Evaluates captured screenshot dimensions to route large screen captures through border decoration and image editing, while routing smaller region snips directly to the clipboard:
+
+```json
+{
+  "$schema": "./recipe.schema.json",
+  "id": "recipe_conditional_size_route",
+  "name": "Conditional Capture Routing",
+  "description": "Demonstrates Conditional decision node evaluation and branch-routed transitions",
+  "triggers": [
+    {
+      "triggerType": "Hotkey",
+      "parameters": { "hotkey": "Ctrl + Shift + C" }
+    }
+  ],
+  "nodes": [
+    {
+      "id": "source",
+      "stepType": "Source",
+      "parameters": { "sourceType": "Region" }
+    },
+    {
+      "id": "decide_size",
+      "stepType": "Conditional",
       "parameters": {
-        "playSound": true
+        "branches": [
+          { "key": "Large", "expression": "${payload.width > 800}" },
+          { "key": "Small", "expression": "else" }
+        ]
       }
     },
     {
+      "id": "large_editor",
       "stepType": "Destinations",
-      "parameters": {
-        "destinationDesignations": [
-          "Editor"
-        ]
-      }
+      "parameters": { "destinationDesignations": [ "Editor" ] }
+    },
+    {
+      "id": "quick_clipboard",
+      "stepType": "Destinations",
+      "parameters": { "destinationDesignations": [ "Clipboard" ] }
     }
-  ]
+  ],
+  "flow": {
+    "startNodes": [ "source" ],
+    "transitions": {
+      "source": [ "decide_size" ]
+    },
+    "conditionalTransitions": [
+      { "from": "decide_size", "branch": "Large", "to": "large_editor" },
+      { "from": "decide_size", "branch": "Small", "to": "quick_clipboard" }
+    ]
+  }
 }
 ```
+
+---
+
+## 7. Extension & Plugin Step Providers
+
+Greenshot plugins can dynamically register custom recipe step factories by implementing `IRecipeStepProvider`. Plugin step registration is completed before recipes are loaded, ensuring that all available steps are known when recipes are parsed and validated.
+
+### Missing Extension Validation
+If a recipe references a step type provided by a plugin that is **not installed or disabled**, the recipe fails validation during loading and is not made available in Greenshot. An informative error message indicates the exact missing step type and explains that the corresponding plugin/extension is required.
+
+### Available Plugin Step Types
+
+| Step Type | Plugin | Description | Example Parameters |
+|---|---|---|---|
+| `ExternalCommand`<br>`ExecuteCommand`<br>`RunCommand` | `Greenshot.Plugin.ExternalCommand` | Executes external command-line tools or configured external commands against the capture surface/file. | `commandLine`, `arguments`, `commandName`, `sync`, `timeoutMs`, `reloadAfterExecution` |
+| `ExternalCommand.<Name>` | `Greenshot.Plugin.ExternalCommand` | Executes a specific pre-configured external command from `greenshot.ini`. | `sync`, `timeoutMs`, `reloadAfterExecution` |
+| `Box`<br>`BoxUpload` | `Greenshot.Plugin.Box` | Uploads capture to Box cloud storage and stores the URL in context. | `format`, `jpegQuality` |
+| `Dropbox`<br>`DropboxUpload` | `Greenshot.Plugin.Dropbox` | Uploads capture to Dropbox and stores the URL in context. | `format`, `jpegQuality` |
+| `Imgur`<br>`ImgurUpload` | `Greenshot.Plugin.Imgur` | Uploads capture to Imgur (with title/description) and optionally copies the link to the clipboard. | `title`, `description`, `copyLinkToClipboard` |
+| `Jira`<br>`JiraUpload` | `Greenshot.Plugin.Jira` | Attaches capture to a Jira issue or opens Jira issue selection. | `issueKey`, `comment`, `format`, `jpegQuality` |
+| `Confluence`<br>`ConfluenceUpload` | `Greenshot.Plugin.Confluence` | Attaches capture to a Confluence page or opens page picker. | `pageId`, `format`, `jpegQuality` |
+| `Office` | `Greenshot.Plugin.Office` | Exports capture to Microsoft Office applications. | `application` (`Excel`, `PowerPoint`, `Word`, `OneNote`, `Outlook`) |
+| `BarcodeScan` | `Greenshot.Plugin.Zxing` | Scans capture surface for barcodes/QR codes and sets `payload.extractedText`. | `copyToClipboard`, `variableName`, `openUrlIfValid` |
+
+### External Command Step In Depth
+
+The `ExternalCommand` step allows screenshot automation workflows to invoke external optimization tools (e.g., `pngquant`, `optipng`, `cwebp`), scripts (`PowerShell`, `Bash`), custom webhooks, or processing binaries.
+
+#### Configuration Parameters:
+- **`commandLine`**: Path or executable to run (e.g. `pngquant.exe`, `powershell.exe`, `curl.exe`). Supports `${...}` variable expansion.
+- **`arguments`**: Arguments string passed to the process. Supports `{0}` / `{1}` positional tokens or `${context.ExternalCommand.TargetFile}`, `${user.*}`, `${machine.*}`, etc.
+- **`commandName`**: Name of a pre-configured command in `greenshot.ini` `[ExternalCommand]` section.
+- **`sync`** *(default: `true`)*: If `true`, the workflow engine waits for the process to exit before continuing. If `false`, execution proceeds asynchronously.
+- **`timeoutMs`** *(default: `30000`)*: Maximum execution time in milliseconds when running synchronously.
+- **`format`** *(default: `png`)*: Image format saved to temporary disk before launching the command (`png`, `jpg`, `bmp`, etc.).
+- **`jpegQuality`** *(default: `90`)*: JPEG compression quality if saving as JPEG.
+- **`reloadAfterExecution`** *(default: `false`)*: When `true`, re-reads the modified image file from disk and updates the pipeline surface/payload for subsequent steps. Ideal for in-place image optimization tools.
+- **`outputToClipboard`** *(default: `false`)*: Copies the standard output of the external command to the Windows clipboard.
+- **`uriToClipboard`** *(default: `false`)*: Extracts any URI from stdout using regex and copies it to the Windows clipboard.
+- **`setOutputVariable`**: Stores the raw standard output text in `context.Properties[key]`.
+- **`setExitCodeVariable`**: Stores the process exit code integer in `context.Properties[key]`.
 

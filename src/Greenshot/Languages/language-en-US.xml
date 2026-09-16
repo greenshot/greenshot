@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <language description="English" ietf="en-US" version="1.0.4" languagegroup="1">
 	<resources>
 		<resource name="about_bugs">Please report bugs to</resource>
@@ -62,6 +62,7 @@ Also, we would highly appreciate if you checked whether a tracker item already e
 		<resource name="contextmenu_openrecentcapture">Open last capture location</resource>
 		<resource name="contextmenu_quicksettings">Quick preferences</resource>
 		<resource name="contextmenu_recipes">Recipes</resource>
+		<resource name="contextmenu_recipeeditor">Recipe Editor...</resource>
 		<resource name="contextmenu_reloadrecipes">Reload Recipes</resource>
 		<resource name="contextmenu_settings">Preferences...</resource>
 		<resource name="destination_exportfailed">Error while exporting to {0}. Please try again.</resource>
@@ -235,6 +236,10 @@ Please check write accessibility of the selected storage location.</resource>
 		<resource name="recipe_import">Recipe Import</resource>
 		<resource name="recipe_import_failed">Failed to load recipe:</resource>
 		<resource name="recipe_import_title">Import Capture Recipe</resource>
+		<resource name="recipe_gate_external_command">External Command</resource>
+		<resource name="recipe_gate_network_access">Network Access</resource>
+		<resource name="recipe_gate_file_system_access">File System Access</resource>
+		<resource name="recipe_gate_custom">Custom Action</resource>
 		<resource name="settings_alwaysshowprintoptionsdialog">Show print options dialog every time an image is printed</resource>
 		<resource name="settings_alwaysshowqualitydialog">Show quality dialog every time an image is saved</resource>
 		<resource name="settings_applicationsettings">Application Settings</resource>
@@ -352,5 +357,6 @@ All Greenshot features still work directly from the tray icon context menu witho
     <resource name="editor_resize_height">Height</resource>
 	<resource name="settings_iconsize">Icon size</resource>
     
-  </resources>
+		<resource name="editor_counter_startvalue">Start value</resource>
+	</resources>
 </language>

@@ -48,9 +48,9 @@ namespace Greenshot.Pipeline.Steps
         private static readonly ILog Log = LogManager.GetLogger(typeof(TextEffectStep));
 
         public string Name { get; }
-        public RecipeStepConfig Config { get; }
+        public RecipeNodeConfig Config { get; }
 
-        public TextEffectStep(RecipeStepConfig config)
+        public TextEffectStep(RecipeNodeConfig config)
         {
             Config = config ?? throw new ArgumentNullException(nameof(config));
             Name = config.Name ?? config.StepType ?? WellKnownStepTypes.TextEffect;
@@ -341,7 +341,7 @@ namespace Greenshot.Pipeline.Steps
             ISurface surface,
             string effectType,
             NativeRect bounds,
-            RecipeStepConfig config)
+            RecipeNodeConfig config)
         {
             DrawableContainer container = null;
 

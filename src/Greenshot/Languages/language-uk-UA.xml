@@ -336,5 +336,6 @@ ${hostname} назва комп’ютера
   <resource name="editor_fit">Розтягнути</resource>
   <resource name="editor_pushout">Розширити знімок і перемістити назовні</resource>
   <resource name="editor_snap">Прикріпити до краю</resource>
-  </resources>
+	<resource name="editor_counter_startvalue">Початкове значення</resource>
+	</resources>
 </language>

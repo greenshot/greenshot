@@ -217,5 +217,6 @@ ${hostname} اسم الحاسوب
 		<resource name="editor_fit">تمديد</resource>
 		<resource name="editor_pushout">توسيع الالتقاط ونقل العنصر إلى الخارج</resource>
 		<resource name="editor_snap">إرساء عند الحافة</resource>
+		<resource name="editor_counter_startvalue">قيمة البدء</resource>
 	</resources>
 </language>

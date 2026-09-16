@@ -27,6 +27,8 @@
     </WindowChrome.WindowChrome>
 
     <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+
         <!-- Modern Caption Close Button Style -->
         <Style x:Key="CaptionCloseButtonStyle" TargetType="Button">
             <Setter Property="WindowChrome.IsHitTestVisibleInChrome" Value="True"/>
@@ -163,6 +165,13 @@
                                   StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"
                                   Data="M 4.8,7.8 L 7.1,10.2 L 11.4,5.8" />
                         </Canvas>
+                        <!-- Red Error Icon (Visible when Validation Error) -->
+                        <Canvas Width="16" Height="16" Visibility="{Binding ErrorIconVisibility}">
+                            <Ellipse Fill="#DC2626" Width="16" Height="16" />
+                            <Path Stroke="White" StrokeThickness="1.8"
+                                  StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                                  Data="M 5,5 L 11,11 M 11,5 L 5,11" />
+                        </Canvas>
                     </Grid>
                     <TextBlock Text="Greenshot" FontWeight="SemiBold" FontSize="12" Foreground="{Binding TextPrimaryBrush}" VerticalAlignment="Center"/>
                     <TextBlock Text="{Binding WindowTitleSubtitle}" FontSize="12" Foreground="{Binding TextSecondaryBrush}" VerticalAlignment="Center"/>
@@ -211,6 +220,75 @@
                 <!-- Scrollable Content -->
                 <ScrollViewer x:Name="ContentScrollViewer" Grid.Row="1" MaxHeight="520" Padding="0,0,6,0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="0,0,0,16">
                     <StackPanel>
+                        <!-- Recipe Validation Error Alert Card (Visible only when validation failed) -->
+                        <Border x:Name="ValidationErrorAlertPanel" CornerRadius="8" Padding="14" Margin="0,0,0,12"
+                                Background="{Binding ErrorBackgroundBrush}" 
+                                BorderBrush="{Binding ErrorBorderBrush}" 
+                                BorderThickness="1"
+                                Visibility="{Binding ValidationErrorVisibility}">
+                            <StackPanel>
+                                <Grid Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Canvas Width="16" Height="16" Margin="0,0,8,0" VerticalAlignment="Center">
+                                        <Ellipse Fill="#DC2626" Width="16" Height="16" />
+                                        <Path Stroke="White" StrokeThickness="1.8"
+                                              StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                                              Data="M 5,5 L 11,11 M 11,5 L 5,11" />
+                                    </Canvas>
+                                    <TextBlock Grid.Column="1" Text="Recipe Validation Failed" FontWeight="Bold" FontSize="13" Foreground="{Binding ErrorTextBrush}" VerticalAlignment="Center"/>
+                                </Grid>
+                                <TextBlock Text="This recipe could not be registered or loaded due to configuration errors. Review the issues and diagnostic hints below:" 
+                                           Foreground="{Binding ErrorTextBrush}" TextWrapping="Wrap" Margin="0,0,0,10"/>
+
+                                <ItemsControl ItemsSource="{Binding ValidationErrors}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border CornerRadius="6" Padding="10,8" Margin="0,0,0,8"
+                                                    Background="{Binding DataContext.CardBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                    BorderBrush="{Binding DataContext.ErrorBorderBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                    BorderThickness="1">
+                                                <StackPanel>
+                                                    <Grid Margin="0,0,0,2">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBlock Text="❌" FontSize="11" Margin="0,1,6,0" VerticalAlignment="Top"/>
+                                                        <TextBlock Grid.Column="1" Text="{Binding ErrorMessage}" FontWeight="SemiBold" FontSize="12"
+                                                                   Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                   TextWrapping="Wrap"/>
+                                                    </Grid>
+                                                    <Border CornerRadius="4" Padding="8,6" Margin="18,6,0,0"
+                                                            Background="{Binding DataContext.BadgeBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                            BorderBrush="{Binding DataContext.CardBorderBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                            BorderThickness="1"
+                                                            Visibility="{Binding HasHint, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                        <Grid>
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="Auto"/>
+                                                                <ColumnDefinition Width="*"/>
+                                                            </Grid.ColumnDefinitions>
+                                                            <TextBlock Text="💡" Margin="0,1,6,0" FontSize="11" VerticalAlignment="Top"/>
+                                                            <StackPanel Grid.Column="1">
+                                                                <TextBlock Text="Recommendation / Hint:" FontWeight="Bold" FontSize="11"
+                                                                           Foreground="{Binding DataContext.AccentBrush, RelativeSource={RelativeSource AncestorType=Window}}" Margin="0,0,0,2"/>
+                                                                <TextBlock Text="{Binding DiagnosticHint}" FontSize="11"
+                                                                           Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                           TextWrapping="Wrap"/>
+                                                            </StackPanel>
+                                                        </Grid>
+                                                    </Border>
+                                                </StackPanel>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+
                         <!-- Recipe Modification Alert Card (Visible only when file modified on disk) -->
                         <Border x:Name="ModificationAlertPanel" CornerRadius="8" Padding="14" Margin="0,0,0,12"
                                 Background="{Binding WarningBackgroundBrush}" 
@@ -274,10 +352,10 @@
                                     <Button Style="{StaticResource SecondaryButtonStyle}" 
                                             Padding="10,4"
                                             Click="OnViewFileClicked"
-                                            ToolTip="Open recipe file in default editor to inspect changes">
+                                            ToolTip="Inspect the raw recipe JSON definition inside this window">
                                         <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="📝" Margin="0,0,6,0" FontSize="11" VerticalAlignment="Center"/>
-                                            <TextBlock Text="View Recipe File" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{}{ } " FontFamily="Consolas" Margin="0,0,4,0" FontSize="11" VerticalAlignment="Center"/>
+                                            <TextBlock Text="View Recipe JSON" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Button>
                                 </StackPanel>
@@ -320,16 +398,26 @@
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Text="File Path:" FontWeight="SemiBold" Foreground="{Binding TextSecondaryBrush}" VerticalAlignment="Center"/>
                                     <TextBlock Grid.Column="1" Text="{Binding FilePath}" TextTrimming="CharacterEllipsis" ToolTip="{Binding FilePath}" Foreground="{Binding TextPrimaryBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                    <Button Grid.Column="2" 
-                                            Style="{StaticResource SecondaryButtonStyle}" 
-                                            Padding="8,2" FontSize="11"
-                                            Click="OnOpenInExplorerClicked"
-                                            ToolTip="Show this file in Windows Explorer">
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="📁" Margin="0,0,4,0" FontSize="10" VerticalAlignment="Center"/>
-                                            <TextBlock Text="Explorer" FontSize="10" VerticalAlignment="Center"/>
-                                        </StackPanel>
-                                    </Button>
+                                    <StackPanel Grid.Column="2" Orientation="Horizontal">
+                                        <Button Style="{StaticResource SecondaryButtonStyle}" 
+                                                Padding="8,2" FontSize="11" Margin="0,0,4,0"
+                                                Click="OnViewFileClicked"
+                                                ToolTip="Inspect the raw recipe JSON definition inside this window">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="{}{ } " FontFamily="Consolas" Margin="0,0,3,0" FontSize="10" VerticalAlignment="Center"/>
+                                                <TextBlock Text="View JSON" FontSize="10" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Button>
+                                        <Button Style="{StaticResource SecondaryButtonStyle}" 
+                                                Padding="8,2" FontSize="11"
+                                                Click="OnOpenInExplorerClicked"
+                                                ToolTip="Show this file in Windows Explorer">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="📁" Margin="0,0,4,0" FontSize="10" VerticalAlignment="Center"/>
+                                                <TextBlock Text="Explorer" FontSize="10" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Button>
+                                    </StackPanel>
                                 </Grid>
 
                                 <Grid Margin="0,2,0,0">
@@ -343,11 +431,14 @@
                             </StackPanel>
                         </Border>
 
+
+
                         <!-- Triggers Card -->
                         <Border CornerRadius="8" Padding="14" Margin="0,0,0,12"
                                 Background="{Binding CardBackgroundBrush}" 
                                 BorderBrush="{Binding CardBorderBrush}" 
-                                BorderThickness="1">
+                                BorderThickness="1"
+                                Visibility="{Binding TriggersVisibility}">
                             <StackPanel>
                                 <TextBlock Text="Triggers" FontWeight="Bold" FontSize="13" Foreground="{Binding TextPrimaryBrush}" Margin="0,0,0,8"/>
                                 <ItemsControl ItemsSource="{Binding TriggerBadges}">
@@ -371,7 +462,8 @@
                         <Border CornerRadius="8" Padding="14" Margin="0,0,0,12"
                                 Background="{Binding CardBackgroundBrush}" 
                                 BorderBrush="{Binding CardBorderBrush}" 
-                                BorderThickness="1">
+                                BorderThickness="1"
+                                Visibility="{Binding PipelineVisibility}">
                             <StackPanel>
                                 <TextBlock Text="Execution Pipeline Flow" FontWeight="Bold" FontSize="13" Foreground="{Binding TextPrimaryBrush}" Margin="0,0,0,8"/>
                                 <ItemsControl ItemsSource="{Binding StepDescriptions}">
@@ -436,10 +528,12 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
+                    <!-- Normal Approval Actions -->
                     <Button Grid.Column="1" Content="Reject / Block" 
                             Style="{StaticResource SecondaryButtonStyle}"
                             IsCancel="True"
                             Width="120" Height="34" Margin="0,0,10,0"
+                            Visibility="{Binding ApprovalActionsVisibility}"
                             Click="OnRejectClicked"/>
 
                     <Button x:Name="BtnApprove" Grid.Column="2" Content="{Binding ApproveButtonText}" 
@@ -447,8 +541,109 @@
                             IsDefault="True"
                             MinWidth="150" Height="34"
                             Padding="16,6"
+                            Visibility="{Binding ApprovalActionsVisibility}"
                             Click="OnApproveClicked"/>
+
+                    <!-- Validation Error Actions -->
+                    <Button Grid.Column="1" Content="Edit Recipe File" 
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            Width="130" Height="34" Margin="0,0,10,0"
+                            Visibility="{Binding ValidationErrorVisibility}"
+                            Click="OnEditFileClicked"
+                            ToolTip="Open recipe file in default editor to fix errors"/>
+
+                    <Button Grid.Column="2" Content="Close" 
+                            Style="{StaticResource PrimaryButtonStyle}"
+                            IsDefault="True" IsCancel="True"
+                            MinWidth="110" Height="34"
+                            Padding="16,6"
+                            Visibility="{Binding ValidationErrorVisibility}"
+                            Click="OnCloseClicked"/>
                 </Grid>
+            </Grid>
+
+            <!-- In-Dialog JSON Viewer Full Overlay -->
+            <Grid Grid.Row="1" 
+                  Background="#99000000" 
+                  Visibility="{Binding JsonViewerVisibility}">
+                <Border Background="{Binding CardBackgroundBrush}" 
+                        BorderBrush="{Binding CardBorderBrush}" 
+                        BorderThickness="1" 
+                        CornerRadius="8" 
+                        Margin="18" 
+                        Padding="16">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="25" ShadowDepth="4" Opacity="0.45" Direction="270"/>
+                    </Border.Effect>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Overlay Header -->
+                        <Grid Grid.Row="0" Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="{}{ } " FontFamily="Consolas" FontWeight="Bold" FontSize="15" Foreground="{Binding AccentBrush}"/>
+                                <TextBlock Text="Recipe JSON Definition" FontWeight="Bold" FontSize="15" Foreground="{Binding TextPrimaryBrush}"/>
+                                <TextBlock Text="{Binding RecipeName, StringFormat=' — {0}'}" FontSize="13" Foreground="{Binding TextSecondaryBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                            </StackPanel>
+                            <Button Grid.Column="1" 
+                                    Style="{StaticResource SecondaryButtonStyle}" 
+                                    Padding="10,4" FontSize="11"
+                                    Click="OnCloseJsonViewerClicked"
+                                    ToolTip="Close JSON viewer (Esc)">
+                                <TextBlock Text="✕ Close" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                            </Button>
+                        </Grid>
+
+                        <!-- JSON Content Text Box -->
+                        <TextBox Grid.Row="1" 
+                                 Text="{Binding RecipeJsonContent, Mode=OneWay}"
+                                 FontFamily="Consolas, Courier New" FontSize="12"
+                                 Background="{Binding WindowBackgroundBrush}" 
+                                 Foreground="{Binding TextPrimaryBrush}"
+                                 BorderBrush="{Binding CardBorderBrush}"
+                                 BorderThickness="1"
+                                 IsReadOnly="True"
+                                 VerticalScrollBarVisibility="Auto" 
+                                 HorizontalScrollBarVisibility="Auto"
+                                 Padding="10"
+                                 TextWrapping="NoWrap"/>
+
+                        <!-- Overlay Footer Actions -->
+                        <Grid Grid.Row="2" Margin="0,10,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="{Binding FilePath}" TextTrimming="CharacterEllipsis" ToolTip="{Binding FilePath}" 
+                                       FontSize="11" Foreground="{Binding TextSecondaryBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                                <Button Style="{StaticResource SecondaryButtonStyle}" 
+                                        Padding="12,5" Margin="0,0,8,0"
+                                        Click="OnCopyJsonClicked"
+                                        ToolTip="Copy recipe JSON to clipboard">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="📋" Margin="0,0,6,0" FontSize="11" VerticalAlignment="Center"/>
+                                        <TextBlock Text="Copy to Clipboard" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
+                                <Button Style="{StaticResource PrimaryButtonStyle}" 
+                                        Padding="16,5"
+                                        Click="OnCloseJsonViewerClicked"
+                                        ToolTip="Close JSON viewer">
+                                    <TextBlock Text="Done" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                </Button>
+                            </StackPanel>
+                        </Grid>
+                    </Grid>
+                </Border>
             </Grid>
         </Grid>
     </Border>

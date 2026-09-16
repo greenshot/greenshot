@@ -27,6 +27,7 @@ using System.Reflection;
 using System.Windows.Forms;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core.Enums;
+using System.Text.RegularExpressions;
 using log4net;
 
 namespace Greenshot.Base.Core
@@ -107,11 +108,69 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
+        /// Normalizes file and directory paths by collapsing redundant backslashes,
+        /// while preserving leading double-backslashes for UNC network shares and safely
+        /// handling paths containing pattern variables/tokens (e.g. ${capturetime}).
+        /// </summary>
+        /// <param name="path">The path to normalize.</param>
+        /// <returns>The normalized path.</returns>
+        public static string NormalizePath(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                return path;
+            }
+
+            path = path.Trim();
+            bool isUnc = path.StartsWith(@"\\") || path.StartsWith("//");
+
+            // Replace forward slashes with backslashes
+            path = path.Replace('/', '\\');
+
+            // Collapse 2 or more consecutive backslashes into a single backslash
+            path = Regex.Replace(path, @"\\{2,}", @"\");
+
+            // Restore leading double-backslash for UNC network paths
+            if (isUnc)
+            {
+                path = @"\" + path;
+            }
+
+            // Remove trailing backslash unless it is a drive root like C:\ or UNC root \\server\share\
+            if (path.Length > 3 && path.EndsWith(@"\") && !path.EndsWith(@":\"))
+            {
+                path = path.TrimEnd('\\');
+            }
+
+            return path;
+        }
+
+        partial void OnOutputFilePathSet(ref string value)
+        {
+            if (!string.IsNullOrEmpty(value))
+            {
+                value = NormalizePath(value);
+            }
+        }
+
+        partial void OnOutputFileAsFullpathSet(ref string value)
+        {
+            if (!string.IsNullOrEmpty(value))
+            {
+                value = NormalizePath(value);
+            }
+        }
+
+        /// <summary>
         /// Validate the OutputFilePath, and if this is not correct it will be set to the default.
         /// Added for BUG-1992, reset the OutputFilePath if it doesn't exist (e.g. the configuration is used on a different PC)
         /// </summary>
         public void ValidateAndCorrectOutputFilePath()
         {
+            if (!string.IsNullOrEmpty(OutputFilePath))
+            {
+                OutputFilePath = NormalizePath(OutputFilePath);
+            }
             if (!Directory.Exists(OutputFilePath))
             {
                 OutputFilePath = CreateOutputFilePath();
@@ -124,6 +183,10 @@ namespace Greenshot.Base.Core
         /// </summary>
         public void ValidateAndCorrectOutputFileAsFullpath()
         {
+            if (!string.IsNullOrEmpty(OutputFileAsFullpath))
+            {
+                OutputFileAsFullpath = NormalizePath(OutputFileAsFullpath);
+            }
             var outputFilePath = Path.GetDirectoryName(OutputFileAsFullpath);
             if (outputFilePath == null || (!File.Exists(OutputFileAsFullpath) && !Directory.Exists(outputFilePath)))
             {
@@ -167,6 +230,7 @@ namespace Greenshot.Base.Core
             }
 
             // Make sure there is an output!
+            OutputDestinations ??= new List<string>();
             if (OutputDestinations.Count == 0)
             {
                 OutputDestinations.Add("Editor");
@@ -231,6 +295,27 @@ namespace Greenshot.Base.Core
                 MarkAsDirty();
             }
 
+            // Normalize paths to heal any legacy escaping issues (e.g. duplicated backslashes)
+            if (!string.IsNullOrEmpty(OutputFilePath))
+            {
+                var normalized = NormalizePath(OutputFilePath);
+                if (!string.Equals(normalized, OutputFilePath, StringComparison.Ordinal))
+                {
+                    OutputFilePath = normalized;
+                    MarkAsDirty();
+                }
+            }
+
+            if (!string.IsNullOrEmpty(OutputFileAsFullpath))
+            {
+                var normalized = NormalizePath(OutputFileAsFullpath);
+                if (!string.Equals(normalized, OutputFileAsFullpath, StringComparison.Ordinal))
+                {
+                    OutputFileAsFullpath = normalized;
+                    MarkAsDirty();
+                }
+            }
+
             // Set defaults for properties that need computed defaults
             if (string.IsNullOrEmpty(OutputFilePath) || !Directory.Exists(OutputFilePath))
             {
@@ -262,6 +347,8 @@ namespace Greenshot.Base.Core
             }
             ExcludePlugins ??= new List<string>();
             IncludePlugins ??= new List<string>();
+            AllowedUntrustedCertificateHosts ??= new List<string>();
+            AllowedCertificateThumbprints ??= new List<string>();
         }
 
         public bool OnBeforeSave()

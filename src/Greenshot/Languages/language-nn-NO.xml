@@ -282,5 +282,6 @@ Alle Greenshot-funksjonar er likevel tilgjengeleg via høgreklikkmenyen i varsli
 	<resource name="editor_fit">Strekk</resource>
 	<resource name="editor_pushout">Utvid opptaket og flytt utenfor</resource>
 	<resource name="editor_snap">Fest til kanten</resource>
+		<resource name="editor_counter_startvalue">Startverdi</resource>
 	</resources>
 </language>

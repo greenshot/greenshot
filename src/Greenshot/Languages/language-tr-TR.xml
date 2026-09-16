@@ -340,5 +340,6 @@ Greenshot özellikleri, kısayol tuşları olmadan sistem tepsisi menüsünden k
   <resource name="editor_fit">Esnet</resource>
   <resource name="editor_pushout">Yakalamayı genişlet ve dışarı taşı</resource>
   <resource name="editor_snap">Kenara tuttur</resource>
-  </resources>
+	<resource name="editor_counter_startvalue">Başlangıç değeri</resource>
+	</resources>
 </language>

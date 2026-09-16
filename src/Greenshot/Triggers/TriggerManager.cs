@@ -114,6 +114,14 @@ namespace Greenshot.Triggers
             }
         }
 
+        public IReadOnlyList<IEditorTrigger> GetEditorTriggers()
+        {
+            lock (_triggers)
+            {
+                return _triggers.Values.OfType<IEditorTrigger>().ToList();
+            }
+        }
+
         public HotkeyTrigger FindHotkeyTriggerForRecipe(string recipeId)
         {
             if (string.IsNullOrEmpty(recipeId)) return null;
@@ -180,6 +188,21 @@ namespace Greenshot.Triggers
                             int order = tc.GetParameter<int>("Order", 0);
                             string triggerId = $"trigger_recipe_{recipe.Id}_menu_{i}";
                             RegisterTrigger(new ContextMenuTrigger(triggerId, tc.Name ?? menuText, menuText, recipe.Id, group, order));
+                        }
+                        else if (string.Equals(tc.TriggerType, TriggerConfig.TypeEditor, StringComparison.OrdinalIgnoreCase))
+                        {
+                            string menuText = tc.GetParameter<string>("MenuItemText") ?? recipe.Name;
+                            string group = tc.GetParameter<string>("Group", "Recipes");
+                            int order = tc.GetParameter<int>("Order", 0);
+                            string triggerId = $"trigger_recipe_{recipe.Id}_editor_{i}";
+                            RegisterTrigger(new EditorTrigger(triggerId, tc.Name ?? menuText, menuText, recipe.Id, group, order));
+                        }
+                        else if (string.Equals(tc.TriggerType, TriggerConfig.TypeClipboard, StringComparison.OrdinalIgnoreCase))
+                        {
+                            bool onImageCopied = tc.GetParameter<bool>("OnImageCopied", true);
+                            string formatFilter = tc.GetParameter<string>("FormatFilter");
+                            string triggerId = $"trigger_recipe_{recipe.Id}_clipboard_{i}";
+                            RegisterTrigger(new ClipboardTrigger(triggerId, tc.Name ?? $"{recipe.Name} Clipboard Monitor", recipe.Id, onImageCopied, formatFilter));
                         }
                     }
 
@@ -281,6 +304,26 @@ namespace Greenshot.Triggers
                             foreach (var kvp in e.Parameters)
                             {
                                 ctx.Properties[kvp.Key] = kvp.Value;
+                            }
+                        }
+
+                        // If triggered by ClipboardTrigger, pre-acquire the image payload from the clipboard
+                        if (trigger is ClipboardTrigger)
+                        {
+                            try
+                            {
+                                var img = ClipboardHelper.GetImage();
+                                if (img != null)
+                                {
+                                    var capture = new Capture(img);
+                                    capture.CaptureDetails.Title = "Clipboard Capture";
+                                    capture.CaptureDetails.AddMetaData("source", "Clipboard");
+                                    ctx.Payload = new CapturePayload(capture);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                Log.Warn("Failed to pre-acquire clipboard image for ClipboardTrigger", ex);
                             }
                         }
                     });
