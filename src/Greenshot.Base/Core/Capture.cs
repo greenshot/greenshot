@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -27,7 +27,6 @@ using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Icons;
 using Dapplo.Windows.User32;
 using Greenshot.Base.Interfaces;
-using Greenshot.Base.Interfaces.Ocr;
 using log4net;
 
 namespace Greenshot.Base.Core
@@ -118,10 +117,6 @@ namespace Greenshot.Base.Core
             }
         }
 
-        /// <summary>
-        /// The information which OCR brings
-        /// </summary>
-        public OcrInformation OcrInformation { get; set; }
 
         /// <summary>
         /// Set if the cursor is visible
@@ -234,9 +229,15 @@ namespace Greenshot.Base.Core
             // TODO: Enable when the elements are usable again.
             // MoveElements(-cropRectangle.Location.X, -cropRectangle.Location.Y);
 
-            // Offset the OCR information
-            // TODO: Remove invisible lines/words?
-            CaptureDetails.OcrInformation?.Offset(-cropRectangle.Location.X, -cropRectangle.Location.Y);
+            // Offset all detected features
+            lock (CaptureDetails.Features)
+            {
+                CaptureDetails.CropOffset = CaptureDetails.CropOffset.Offset(cropRectangle.Location.X, cropRectangle.Location.Y);
+                foreach (var feature in CaptureDetails.Features)
+                {
+                    feature.Offset(-cropRectangle.Location.X, -cropRectangle.Location.Y);
+                }
+            }
 
             return true;
         }
@@ -251,6 +252,39 @@ namespace Greenshot.Base.Core
         {
             _cursorLocation = _cursorLocation.Offset(x, y);
         }
+
+        /// <summary>
+        /// Creates a deep copy of the capture, cloning its image, cursor, and capture details.
+        /// </summary>
+        public Capture Clone()
+        {
+            var clone = new Capture
+            {
+                ScreenBounds = ScreenBounds,
+                Location = Location,
+                CursorLocation = CursorLocation,
+                CursorVisible = CursorVisible
+            };
+
+            if (Image != null)
+            {
+                clone.Image = ImageHelper.Clone(Image);
+            }
+
+            if (Cursor != null)
+            {
+                clone.Cursor = Cursor.Clone();
+            }
+
+            if (CaptureDetails != null)
+            {
+                clone.CaptureDetails = CaptureDetails.Clone();
+            }
+
+            return clone;
+        }
+
+        ICapture ICapture.Clone() => Clone();
 
         // TODO: Enable when the elements are usable again.
         ///// <summary>

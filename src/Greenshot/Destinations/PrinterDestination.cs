@@ -1,6 +1,6 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -38,14 +38,16 @@ namespace Greenshot.Destinations
     public class PrinterDestination : AbstractDestination
     {
         private readonly string _printerName;
+        private readonly PrintOptions _printOptions;
 
         public PrinterDestination()
         {
         }
 
-        public PrinterDestination(string printerName)
+        public PrinterDestination(string printerName, PrintOptions printOptions = null)
         {
             _printerName = printerName;
+            _printOptions = printOptions;
         }
 
         public override string Designation => nameof(WellKnownDestinations.Printer);
@@ -123,18 +125,18 @@ namespace Greenshot.Destinations
             PrinterSettings printerSettings;
             if (!string.IsNullOrEmpty(_printerName))
             {
-                using PrintHelper printHelper = new PrintHelper(surface, captureDetails);
+                using PrintHelper printHelper = new PrintHelper(surface, captureDetails, _printOptions);
                 printerSettings = printHelper.PrintTo(_printerName);
             }
             else if (!manuallyInitiated)
             {
                 PrinterSettings settings = new PrinterSettings();
-                using PrintHelper printHelper = new PrintHelper(surface, captureDetails);
+                using PrintHelper printHelper = new PrintHelper(surface, captureDetails, _printOptions);
                 printerSettings = printHelper.PrintTo(settings.PrinterName);
             }
             else
             {
-                using PrintHelper printHelper = new PrintHelper(surface, captureDetails);
+                using PrintHelper printHelper = new PrintHelper(surface, captureDetails, _printOptions);
                 printerSettings = printHelper.PrintWithDialog();
             }
 

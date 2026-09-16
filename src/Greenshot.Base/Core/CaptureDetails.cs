@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -22,7 +22,8 @@
 using System;
 using System.Collections.Generic;
 using Greenshot.Base.Interfaces;
-using Greenshot.Base.Interfaces.Ocr;
+using Greenshot.Base.Interfaces.Plugin;
+using Dapplo.Windows.Common.Structs;
 
 namespace Greenshot.Base.Core
 {
@@ -48,7 +49,7 @@ namespace Greenshot.Base.Core
         public float DpiY { get; set; }
 
         /// <inheritdoc />
-        public OcrInformation OcrInformation { get; set; }
+        public List<IDetectedFeature> Features { get; } = new List<IDetectedFeature>();
 
         /// <inheritdoc />
         public Dictionary<string, string> MetaData { get; } = new Dictionary<string, string>();
@@ -113,6 +114,68 @@ namespace Greenshot.Base.Core
         public CaptureDetails()
         {
             DateTime = DateTime.Now;
+        }
+
+        /// <inheritdoc />
+        public NativePoint CropOffset { get; set; } = NativePoint.Empty;
+
+        /// <inheritdoc />
+        public System.Threading.Tasks.Task ProcessingTask { get; set; }
+
+        /// <inheritdoc />
+        public HashSet<string> StartedProcessors { get; } = new HashSet<string>();
+
+        /// <inheritdoc />
+        public event EventHandler FeaturesChanged;
+
+        /// <summary>
+        /// Creates a deep copy of the capture details.
+        /// </summary>
+        public CaptureDetails Clone()
+        {
+            var clone = new CaptureDetails
+            {
+                Title = Title,
+                Filename = Filename,
+                DateTime = DateTime,
+                DpiX = DpiX,
+                DpiY = DpiY,
+                CaptureMode = CaptureMode,
+                CropOffset = CropOffset
+            };
+
+            if (MetaData != null)
+            {
+                foreach (var kvp in MetaData)
+                {
+                    clone.MetaData[kvp.Key] = kvp.Value;
+                }
+            }
+
+            if (Features != null)
+            {
+                lock (Features)
+                {
+                    clone.Features.AddRange(Features);
+                }
+            }
+
+            if (CaptureDestinations != null)
+            {
+                clone.CaptureDestinations.AddRange(CaptureDestinations);
+            }
+
+            return clone;
+        }
+
+        ICaptureDetails ICaptureDetails.Clone() => Clone();
+
+        /// <summary>
+        /// Helper to raise the FeaturesChanged event.
+        /// </summary>
+        public void NotifyFeaturesChanged()
+        {
+            FeaturesChanged?.Invoke(this, EventArgs.Empty);
         }
     }
 }

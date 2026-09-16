@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -88,6 +88,10 @@ namespace Greenshot.Base.Core
         [DefaultValue(100)]
         [Range(0, int.MaxValue, ErrorMessage = "CaptureDelay must be non-negative.")]
         int CaptureDelay { get; set; }
+
+        [Description("Semicolon-separated list of explicit recipe file paths to load. Automatic directory scanning is disabled for security.")]
+        [DefaultValue(null)]
+        string RecipeFiles { get; set; }
 
         [Description("The capture mode used to capture a screen. (Auto, FullScreen, Fixed)")]
         [DefaultValue("Auto")]
@@ -377,10 +381,20 @@ namespace Greenshot.Base.Core
         [Range(1, 100, ErrorMessage = "WebRequestReadWriteTimeout must be between 1 and 100 seconds.")]
         int WebRequestReadWriteTimeout { get; set; }
 
+        [Description("List of hostnames or domain patterns (e.g. jira.internal, *.mycompany.local) for which SSL/TLS certificate validation errors are ignored.")]
+        List<string> AllowedUntrustedCertificateHosts { get; set; }
+
+        [Description("List of certificate thumbprints (SHA-1 / SHA-256 hashes) for which SSL/TLS certificate validation errors are ignored.")]
+        List<string> AllowedCertificateThumbprints { get; set; }
+
         /// <summary>Validates <see cref="OutputFilePath"/>; resets it to the default output folder when the path no longer exists.</summary>
         void ValidateAndCorrectOutputFilePath();
 
         /// <summary>Validates <see cref="OutputFileAsFullpath"/>; resets it to a default full-path dummy when the directory no longer exists.</summary>
         void ValidateAndCorrectOutputFileAsFullpath();
+
+        [DataMember(Name = "EnableRecipeFeature")]
+        [Description("Set this to true to enable recipes")]
+        bool EnableRecipeFeature { get; set; }
     }
 }

@@ -1,6 +1,6 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -84,7 +84,7 @@ public class GreenshotMain
         // Init Log4NET
         LogFileLocation = LogHelper.InitializeLog4Net();
         // Get logger
-        LOG = LogManager.GetLogger(typeof(MainForm));
+        LOG = LogManager.GetLogger(typeof(GreenshotMain));
 
         Application.ThreadException += Application_ThreadException;
         AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
@@ -111,8 +111,11 @@ public class GreenshotMain
         // Build the IniConfigRegistry:
         //   AddAppDataPath  → %APPDATA%\Greenshot
         //   AddSearchPath   → installation / startup directory
-        //   --ini-directory → optional command-line override (highest priority)
+        // Ensure any design-time / test fallback configuration is removed before production startup
+        IniConfigHelper.UnregisterDesignTimeConfig();
+
         var builder = IniConfigRegistry.ForFile("greenshot.ini")
+
             .AddAppDataPath("Greenshot")
             .AddSearchPath(startupPath);
 
@@ -134,7 +137,7 @@ public class GreenshotMain
                {
                    CaseSensitiveKeys = false,
                    EscapeSequences = false,
-                   LineContinuation = true,
+                   LineContinuation = false,
                    QuotedValues = false
                })
                .RegisterSection<ICoreConfiguration>(new CoreConfigurationImpl())

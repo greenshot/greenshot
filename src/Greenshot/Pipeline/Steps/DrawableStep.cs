@@ -1,0 +1,792 @@
+/*
+ * Greenshot - a free and open source screenshot tool
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
+ *
+ * For more information see: https://getgreenshot.org/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 1 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Dapplo.Windows.Common.Structs;
+using Greenshot.Base.Core;
+using Greenshot.Base.Drawing;
+using Greenshot.Base.Expressions;
+using Greenshot.Base.Interfaces;
+using Greenshot.Base.Interfaces.Drawing;
+using Greenshot.Base.Pipeline;
+using Greenshot.Base.Recipes;
+using Greenshot.Editor.Drawing;
+using Greenshot.Editor.Drawing.Emoji;
+using Greenshot.Editor.Drawing.Fields;
+using Greenshot.Editor.Helpers;
+using log4net;
+using Newtonsoft.Json.Linq;
+
+namespace Greenshot.Pipeline.Steps
+{
+    /// <summary>
+    /// Pipeline step that instantiates and places any available annotation element onto the visual surface.
+    /// Supports absolute, calculated (expressions using width/height), and anchored (Left/Center/Right, Top/Middle/Bottom) positioning.
+    /// </summary>
+    public class AnnotationStep : ICaptureStep
+    {
+        private static readonly ILog Log = LogManager.GetLogger(typeof(AnnotationStep));
+
+        public string Name { get; }
+        public RecipeNodeConfig NodeConfig { get; }
+
+        public AnnotationStep(RecipeNodeConfig config)
+        {
+            NodeConfig = config ?? throw new ArgumentNullException(nameof(config));
+            Name = config.Name ?? config.Id ?? WellKnownStepTypes.Annotation;
+        }
+
+        public Task ExecuteAsync(CaptureFlowContext context, CancellationToken cancellationToken = default)
+        {
+            var payload = context.Payload;
+            if (payload == null)
+            {
+                context.LogStep("AnnotationStep skipped: visual payload is null.");
+                return Task.CompletedTask;
+            }
+
+            var surface = payload.EnsureSurface();
+            if (surface?.Image == null)
+            {
+                context.LogStep("AnnotationStep skipped: surface image is not available.");
+                return Task.CompletedTask;
+            }
+
+            int surfaceWidth = surface.Image.Width;
+            int surfaceHeight = surface.Image.Height;
+
+            var extraVariables = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["payload.width"] = surfaceWidth,
+                ["payload.height"] = surfaceHeight,
+                ["surface.width"] = surfaceWidth,
+                ["surface.height"] = surfaceHeight,
+                ["width"] = surfaceWidth,
+                ["w"] = surfaceWidth,
+                ["height"] = surfaceHeight,
+                ["h"] = surfaceHeight
+            };
+
+            // Support either a single annotation defined in parameters, or a list under "Annotations"
+            var annotationConfigs = new List<Dictionary<string, object>>();
+
+            if (NodeConfig.Parameters != null && NodeConfig.Parameters.TryGetValue("Annotations", out var annotationsObj) && annotationsObj != null)
+            {
+                if (annotationsObj is IEnumerable enumerable && !(annotationsObj is string))
+                {
+                    foreach (var item in enumerable)
+                    {
+                        if (item is Dictionary<string, object> d)
+                        {
+                            annotationConfigs.Add(d);
+                        }
+                        else if (item is JObject jObj)
+                        {
+                            annotationConfigs.Add(jObj.ToObject<Dictionary<string, object>>());
+                        }
+                    }
+                }
+            }
+            else
+            {
+                annotationConfigs.Add(NodeConfig.Parameters ?? new Dictionary<string, object>());
+            }
+
+            var elementsToAdd = new DrawableContainerList();
+
+            foreach (var rawParams in annotationConfigs)
+            {
+                var resolved = ExpressionEvaluator.Instance.ResolveParameters(rawParams, context, extraVariables);
+                var container = CreateDrawable(surface, resolved, context, extraVariables);
+                if (container != null)
+                {
+                    elementsToAdd.Add(container);
+                }
+            }
+
+            if (elementsToAdd.Count > 0)
+            {
+                if (surface is Surface s)
+                {
+                    s.SuspendLayout();
+                }
+                foreach (var element in elementsToAdd)
+                {
+                    element.Selected = false;
+                    surface.AddElement(element, makeUndoable: true, invalidate: false);
+                }
+                if (surface is Surface s2)
+                {
+                    s2.ResumeLayout();
+                }
+                surface.Invalidate();
+                surface.Modified = true;
+
+                // Invalidate composite cache
+                if (payload.SharedRenderedBitmap != null)
+                {
+                    payload.SharedRenderedBitmap.Dispose();
+                    payload.SharedRenderedBitmap = null;
+                }
+
+                context.LogStep($"AnnotationStep added {elementsToAdd.Count} element(s) to surface.");
+                Log.InfoFormat("AnnotationStep '{0}' placed {1} element(s) on surface ({2}x{3})", Name, elementsToAdd.Count, surfaceWidth, surfaceHeight);
+            }
+
+            return Task.CompletedTask;
+        }
+
+        private static bool _builtInsRegistered;
+        private static readonly object _initLock = new object();
+
+        public static void EnsureBuiltInDrawablesRegistered()
+        {
+            if (_builtInsRegistered) return;
+            lock (_initLock)
+            {
+                if (_builtInsRegistered) return;
+                RegisterBuiltInDrawables(RecipeDrawableRegistry.Instance);
+                _builtInsRegistered = true;
+            }
+        }
+
+        public static void RegisterBuiltInDrawables(IRecipeDrawableRegistry registry)
+        {
+            if (registry == null) return;
+
+            registry.RegisterDrawableFactory("Rectangle", (s, p, c) => CreateRectangle(s, p), ScaleOptions.Default);
+            registry.RegisterDrawableFactory("Ellipse", (s, p, c) => CreateEllipse(s, p), ScaleOptions.Default);
+            registry.RegisterDrawableFactory("Line", (s, p, c) => CreateLine(s, p), ScaleOptions.Default);
+            registry.RegisterDrawableFactory("Arrow", (s, p, c) => CreateArrow(s, p), ScaleOptions.Default);
+            registry.RegisterDrawableFactory("Freehand", (s, p, c) => CreateFreehand(s, p), ScaleOptions.Default);
+            registry.RegisterDrawableFactory("Text", (s, p, c) => CreateText(s, p), ScaleOptions.Default);
+            registry.RegisterDrawableFactory("Speechbubble", (s, p, c) => CreateSpeechbubble(s, p), ScaleOptions.Default);
+            registry.RegisterDrawableFactory("StepLabel", (s, p, c) => CreateStepLabel(s, p), ScaleOptions.Rational);
+            registry.RegisterDrawableFactory("Image", (s, p, c) => CreateImage(s, p), ScaleOptions.Default);
+            registry.RegisterDrawableFactory("Icon", (s, p, c) => CreateIcon(s, p), ScaleOptions.Default);
+            registry.RegisterDrawableFactory("Cursor", (s, p, c) => CreateCursor(s, p), ScaleOptions.Default);
+            registry.RegisterDrawableFactory("Emoji", (s, p, c) => CreateEmoji(s, p), ScaleOptions.Rational);
+            registry.RegisterDrawableFactory("Svg", (s, p, c) => CreateSvg(s, p), ScaleOptions.Rational);
+            registry.RegisterDrawableFactory("Blur", (s, p, c) => CreateObfuscate(s, p, "blur"), ScaleOptions.Default);
+            registry.RegisterDrawableFactory("Pixelize", (s, p, c) => CreateObfuscate(s, p, "pixelize"), ScaleOptions.Default);
+            registry.RegisterDrawableFactory("Highlight", (s, p, c) => CreateHighlight(s, p, "highlight"), ScaleOptions.Default);
+            registry.RegisterDrawableFactory("Magnify", (s, p, c) => CreateHighlight(s, p, "magnify"), ScaleOptions.Default);
+            registry.RegisterDrawableFactory("Crop", (s, p, c) => new CropContainer(s), ScaleOptions.Default);
+        }
+
+        private static IDrawableContainer CreateDrawable(
+            ISurface surface,
+            Dictionary<string, object> parameters,
+            CaptureFlowContext context,
+            Dictionary<string, object> extraVariables)
+        {
+            EnsureBuiltInDrawablesRegistered();
+
+            string drawableType = GetString(parameters, "Type") ?? "Rectangle";
+
+            IDrawableContainer container = RecipeDrawableRegistry.Instance.CreateDrawable(drawableType, surface, parameters, context);
+
+            if (container == null)
+            {
+                Log.WarnFormat("Unknown drawable type '{0}'. Defaulting to RectangleContainer.", drawableType);
+                container = CreateRectangle(surface, parameters);
+            }
+
+            if (container != null)
+            {
+                ApplyPositioning(container, surface, parameters, extraVariables);
+
+                if (container is SpeechbubbleContainer bubble)
+                {
+                    ApplySpeechbubbleTail(bubble, parameters);
+                }
+            }
+
+            return container;
+        }
+
+        private static void ApplySpeechbubbleTail(SpeechbubbleContainer bubble, Dictionary<string, object> p)
+        {
+            int bLeft = bubble.Left;
+            int bTop = bubble.Top;
+            int bWidth = Math.Abs(bubble.Width);
+            int bHeight = Math.Abs(bubble.Height);
+            int bRight = bLeft + bWidth;
+            int bBottom = bTop + bHeight;
+            NativePoint tailPoint;
+
+            if (p.ContainsKey("TailX") && p.ContainsKey("TailY"))
+            {
+                tailPoint = new NativePoint(GetInt(p, "TailX", bLeft - 20), GetInt(p, "TailY", bBottom + 25));
+            }
+            else
+            {
+                int tailOffsetX = GetInt(p, "TailOffsetX", int.MinValue);
+                int tailOffsetY = GetInt(p, "TailOffsetY", int.MinValue);
+
+                string tailDirection = GetString(p, "TailDirection") ?? GetString(p, "TailPosition") ?? GetString(p, "Tail") ?? "BottomLeft";
+
+                switch (tailDirection.ToLowerInvariant())
+                {
+                    case "bottomright":
+                        tailPoint = new NativePoint(bRight + 15, bBottom + 25);
+                        break;
+                    case "bottomcenter":
+                    case "bottom":
+                        tailPoint = new NativePoint(bLeft + bWidth / 2, bBottom + 25);
+                        break;
+                    case "topleft":
+                        tailPoint = new NativePoint(bLeft - 15, bTop - 25);
+                        break;
+                    case "topright":
+                        tailPoint = new NativePoint(bRight + 15, bTop - 25);
+                        break;
+                    case "topcenter":
+                    case "top":
+                        tailPoint = new NativePoint(bLeft + bWidth / 2, bTop - 25);
+                        break;
+                    case "left":
+                        tailPoint = new NativePoint(bLeft - 25, bTop + bHeight / 2);
+                        break;
+                    case "right":
+                        tailPoint = new NativePoint(bRight + 25, bTop + bHeight / 2);
+                        break;
+                    case "bottomleft":
+                    default:
+                        tailPoint = new NativePoint(bLeft - 15, bBottom + 25);
+                        break;
+                }
+
+                if (tailOffsetX != int.MinValue || tailOffsetY != int.MinValue)
+                {
+                    int offX = tailOffsetX != int.MinValue ? tailOffsetX : 0;
+                    int offY = tailOffsetY != int.MinValue ? tailOffsetY : 0;
+                    tailPoint = new NativePoint(tailPoint.X + offX, tailPoint.Y + offY);
+                }
+            }
+
+            bubble.SetTailLocation(tailPoint);
+        }
+
+        #region Container Creators
+
+        private static RectangleContainer CreateRectangle(ISurface surface, Dictionary<string, object> p)
+        {
+            var rect = new RectangleContainer(surface);
+            rect.SetFieldValue(FieldType.LINE_THICKNESS, GetInt(p, "LineThickness", GetInt(p, "BorderWidth", 2)));
+            rect.SetFieldValue(FieldType.LINE_COLOR, GetColor(p, "LineColor", GetColor(p, "BorderColor", Color.Red)));
+            rect.SetFieldValue(FieldType.FILL_COLOR, GetColor(p, "FillColor", Color.Transparent));
+            rect.SetFieldValue(FieldType.SHADOW, GetBool(p, "Shadow", true));
+            return rect;
+        }
+
+        private static EllipseContainer CreateEllipse(ISurface surface, Dictionary<string, object> p)
+        {
+            var ellipse = new EllipseContainer(surface);
+            ellipse.SetFieldValue(FieldType.LINE_THICKNESS, GetInt(p, "LineThickness", 2));
+            ellipse.SetFieldValue(FieldType.LINE_COLOR, GetColor(p, "LineColor", Color.Red));
+            ellipse.SetFieldValue(FieldType.FILL_COLOR, GetColor(p, "FillColor", Color.Transparent));
+            ellipse.SetFieldValue(FieldType.SHADOW, GetBool(p, "Shadow", true));
+            return ellipse;
+        }
+
+        private static LineContainer CreateLine(ISurface surface, Dictionary<string, object> p)
+        {
+            var line = new LineContainer(surface);
+            line.SetFieldValue(FieldType.LINE_THICKNESS, GetInt(p, "LineThickness", 2));
+            line.SetFieldValue(FieldType.LINE_COLOR, GetColor(p, "LineColor", Color.Red));
+            line.SetFieldValue(FieldType.SHADOW, GetBool(p, "Shadow", true));
+            return line;
+        }
+
+        private static ArrowContainer CreateArrow(ISurface surface, Dictionary<string, object> p)
+        {
+            var arrow = new ArrowContainer(surface);
+            arrow.SetFieldValue(FieldType.LINE_THICKNESS, GetInt(p, "LineThickness", 2));
+            arrow.SetFieldValue(FieldType.LINE_COLOR, GetColor(p, "LineColor", Color.Red));
+            arrow.SetFieldValue(FieldType.SHADOW, GetBool(p, "Shadow", true));
+
+            string headsStr = GetString(p, "ArrowHeads") ?? GetString(p, "Heads") ?? "END_POINT";
+            if (Enum.TryParse<ArrowContainer.ArrowHeadCombination>(headsStr, true, out var heads))
+            {
+                arrow.SetFieldValue(FieldType.ARROWHEADS, heads);
+            }
+            return arrow;
+        }
+
+        private static FreehandContainer CreateFreehand(ISurface surface, Dictionary<string, object> p)
+        {
+            var freehand = new FreehandContainer(surface);
+            freehand.SetFieldValue(FieldType.LINE_THICKNESS, GetInt(p, "LineThickness", 2));
+            freehand.SetFieldValue(FieldType.LINE_COLOR, GetColor(p, "LineColor", Color.Red));
+            freehand.SetFieldValue(FieldType.SHADOW, GetBool(p, "Shadow", false));
+
+            string pointsStr = GetString(p, "Points");
+            if (!string.IsNullOrWhiteSpace(pointsStr))
+            {
+                var pairs = pointsStr.Split(new[] { ';', '|' }, StringSplitOptions.RemoveEmptyEntries);
+                bool isFirst = true;
+                Point lastPoint = Point.Empty;
+                foreach (var pair in pairs)
+                {
+                    var coords = pair.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                    if (coords.Length == 2 && int.TryParse(coords[0], out int px) && int.TryParse(coords[1], out int py))
+                    {
+                        if (isFirst)
+                        {
+                            freehand.HandleMouseDown(px, py);
+                            isFirst = false;
+                        }
+                        else
+                        {
+                            freehand.HandleMouseMove(px, py);
+                        }
+                        lastPoint = new Point(px, py);
+                    }
+                }
+                if (!isFirst)
+                {
+                    freehand.HandleMouseUp(lastPoint.X, lastPoint.Y);
+                }
+            }
+            return freehand;
+        }
+
+        private static TextContainer CreateText(ISurface surface, Dictionary<string, object> p)
+        {
+            var text = new TextContainer(surface);
+            text.Text = GetString(p, "Text") ?? string.Empty;
+            text.SetFieldValue(FieldType.FONT_FAMILY, GetString(p, "FontFamily") ?? FontFamily.GenericSansSerif.Name);
+            text.SetFieldValue(FieldType.FONT_SIZE, (float)GetDouble(p, "FontSize", 12.0));
+            text.SetFieldValue(FieldType.FONT_BOLD, GetBool(p, "Bold", GetBool(p, "FontBold", false)));
+            text.SetFieldValue(FieldType.FONT_ITALIC, GetBool(p, "Italic", GetBool(p, "FontItalic", false)));
+            text.SetFieldValue(FieldType.LINE_COLOR, GetColor(p, "TextColor", GetColor(p, "LineColor", Color.Red)));
+            text.SetFieldValue(FieldType.FILL_COLOR, GetColor(p, "FillColor", GetColor(p, "BackgroundColor", Color.Transparent)));
+            text.SetFieldValue(FieldType.LINE_THICKNESS, GetInt(p, "LineThickness", GetInt(p, "BorderWidth", 0)));
+            text.SetFieldValue(FieldType.SHADOW, GetBool(p, "Shadow", true));
+
+            string alignH = GetString(p, "TextHorizontalAlignment") ?? GetString(p, "TextAlign") ?? "Center";
+            if (string.Equals(alignH, "Left", StringComparison.OrdinalIgnoreCase) || string.Equals(alignH, "Near", StringComparison.OrdinalIgnoreCase))
+                text.SetFieldValue(FieldType.TEXT_HORIZONTAL_ALIGNMENT, StringAlignment.Near);
+            else if (string.Equals(alignH, "Right", StringComparison.OrdinalIgnoreCase) || string.Equals(alignH, "Far", StringComparison.OrdinalIgnoreCase))
+                text.SetFieldValue(FieldType.TEXT_HORIZONTAL_ALIGNMENT, StringAlignment.Far);
+            else
+                text.SetFieldValue(FieldType.TEXT_HORIZONTAL_ALIGNMENT, StringAlignment.Center);
+
+            if (GetBool(p, "FitToText", true) && !p.ContainsKey("Width"))
+            {
+                text.FitToText();
+            }
+
+            return text;
+        }
+
+        private static SpeechbubbleContainer CreateSpeechbubble(ISurface surface, Dictionary<string, object> p)
+        {
+            var bubble = new SpeechbubbleContainer(surface);
+            bubble.Text = GetString(p, "Text") ?? string.Empty;
+            bubble.SetFieldValue(FieldType.FONT_FAMILY, GetString(p, "FontFamily") ?? FontFamily.GenericSansSerif.Name);
+            bubble.SetFieldValue(FieldType.FONT_SIZE, (float)GetDouble(p, "FontSize", 14.0));
+            bubble.SetFieldValue(FieldType.FONT_BOLD, GetBool(p, "Bold", true));
+            bubble.SetFieldValue(FieldType.LINE_COLOR, GetColor(p, "LineColor", Color.Blue));
+            bubble.SetFieldValue(FieldType.FILL_COLOR, GetColor(p, "FillColor", Color.White));
+            bubble.SetFieldValue(FieldType.LINE_THICKNESS, GetInt(p, "LineThickness", 2));
+            bubble.SetFieldValue(FieldType.SHADOW, GetBool(p, "Shadow", false));
+            return bubble;
+        }
+
+        private static StepLabelContainer CreateStepLabel(ISurface surface, Dictionary<string, object> p)
+        {
+            var stepLabel = new StepLabelContainer(surface);
+            int number = GetInt(p, "Number", GetInt(p, "Counter", 1));
+            stepLabel.Number = number;
+            stepLabel.SetFieldValue(FieldType.FILL_COLOR, GetColor(p, "FillColor", Color.DarkRed));
+            stepLabel.SetFieldValue(FieldType.LINE_COLOR, GetColor(p, "NumberColor", GetColor(p, "LineColor", Color.White)));
+            stepLabel.SetFieldValue(FieldType.SHADOW, GetBool(p, "Shadow", false));
+            return stepLabel;
+        }
+
+        private static ImageContainer CreateImage(ISurface surface, Dictionary<string, object> p)
+        {
+            var imgContainer = new ImageContainer(surface);
+            string filePath = GetString(p, "FilePath") ?? GetString(p, "Path") ?? GetString(p, "File");
+            if (!string.IsNullOrWhiteSpace(filePath) && File.Exists(filePath))
+            {
+                imgContainer.Load(filePath);
+            }
+            imgContainer.SetFieldValue(FieldType.SHADOW, GetBool(p, "Shadow", false));
+            return imgContainer;
+        }
+
+        private static IconContainer CreateIcon(ISurface surface, Dictionary<string, object> p)
+        {
+            var iconContainer = new IconContainer(surface);
+            string filePath = GetString(p, "FilePath") ?? GetString(p, "Path");
+            if (!string.IsNullOrWhiteSpace(filePath) && File.Exists(filePath))
+            {
+                iconContainer.Load(filePath);
+            }
+            return iconContainer;
+        }
+
+        private static CursorContainer CreateCursor(ISurface surface, Dictionary<string, object> p)
+        {
+            var cursorContainer = new CursorContainer(surface);
+            string filePath = GetString(p, "FilePath") ?? GetString(p, "Path");
+            if (!string.IsNullOrWhiteSpace(filePath) && File.Exists(filePath))
+            {
+                cursorContainer.Load(filePath);
+            }
+            return cursorContainer;
+        }
+
+        private static EmojiContainer CreateEmoji(ISurface surface, Dictionary<string, object> p)
+        {
+            if (surface is Surface s)
+            {
+                string emoji = GetString(p, "Emoji") ?? "👍";
+                int size = GetInt(p, "Size", 64);
+                return new EmojiContainer(s, emoji, size);
+            }
+            return null;
+        }
+
+        private static SvgContainer CreateSvg(ISurface surface, Dictionary<string, object> p)
+        {
+            string filePath = GetString(p, "FilePath") ?? GetString(p, "Path");
+            if (!string.IsNullOrWhiteSpace(filePath) && File.Exists(filePath))
+            {
+                using var stream = File.OpenRead(filePath);
+                return new SvgContainer(stream, surface);
+            }
+            string svgXml = GetString(p, "Content") ?? GetString(p, "SvgXml") ?? GetString(p, "Xml");
+            if (!string.IsNullOrWhiteSpace(svgXml))
+            {
+                using var stream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(svgXml));
+                return new SvgContainer(stream, surface);
+            }
+            return null;
+        }
+
+        private static ObfuscateContainer CreateObfuscate(ISurface surface, Dictionary<string, object> p, string type)
+        {
+            var obf = new ObfuscateContainer(surface);
+            if (string.Equals(type, "Blur", StringComparison.OrdinalIgnoreCase) || string.Equals(GetString(p, "Mode"), "Blur", StringComparison.OrdinalIgnoreCase))
+            {
+                obf.SetFieldValue(FieldType.PREPARED_FILTER_OBFUSCATE, FilterContainer.PreparedFilter.BLUR);
+                obf.SetFieldValue(FieldType.BLUR_RADIUS, GetInt(p, "BlurRadius", 10));
+            }
+            else
+            {
+                obf.SetFieldValue(FieldType.PREPARED_FILTER_OBFUSCATE, FilterContainer.PreparedFilter.PIXELIZE);
+                obf.SetFieldValue(FieldType.PIXEL_SIZE, GetInt(p, "PixelSize", 5));
+            }
+            return obf;
+        }
+
+        private static HighlightContainer CreateHighlight(ISurface surface, Dictionary<string, object> p, string type)
+        {
+            var hl = new HighlightContainer(surface);
+            if (string.Equals(type, "Magnify", StringComparison.OrdinalIgnoreCase) || string.Equals(GetString(p, "Mode"), "Magnify", StringComparison.OrdinalIgnoreCase))
+            {
+                hl.SetFieldValue(FieldType.PREPARED_FILTER_HIGHLIGHT, FilterContainer.PreparedFilter.MAGNIFICATION);
+                hl.SetFieldValue(FieldType.MAGNIFICATION_FACTOR, GetInt(p, "MagnificationFactor", 2));
+            }
+            else
+            {
+                hl.SetFieldValue(FieldType.PREPARED_FILTER_HIGHLIGHT, FilterContainer.PreparedFilter.TEXT_HIGHTLIGHT);
+                hl.SetFieldValue(FieldType.FILL_COLOR, GetColor(p, "FillColor", GetColor(p, "HighlightColor", Color.Yellow)));
+            }
+            return hl;
+        }
+
+        #endregion
+
+        #region Positioning & Alignment
+
+        public static void ApplyPositioning(
+            IDrawableContainer container,
+            ISurface surface,
+            Dictionary<string, object> p,
+            Dictionary<string, object> extraVariables = null)
+        {
+            int surfaceWidth = surface.Image?.Width ?? 0;
+            int surfaceHeight = surface.Image?.Height ?? 0;
+
+            // Resolve Width & Height (or Size as shorthand)
+            int explicitSize = GetInt(p, "Size", 0);
+            int explicitWidth = 0;
+            int explicitHeight = 0;
+
+            if (p.TryGetValue("Width", out var wVal) && wVal != null && int.TryParse(wVal.ToString(), out int w) && w > 0)
+            {
+                explicitWidth = w;
+            }
+            else if (explicitSize > 0)
+            {
+                explicitWidth = explicitSize;
+            }
+
+            if (p.TryGetValue("Height", out var hVal) && hVal != null && int.TryParse(hVal.ToString(), out int h) && h > 0)
+            {
+                explicitHeight = h;
+            }
+            else if (explicitSize > 0)
+            {
+                explicitHeight = explicitSize;
+            }
+
+            bool lockAspect = GetBool(p, "LockAspectRatio", false);
+            bool isRational = container is IHaveScaleOptions scaleHolder &&
+                              (scaleHolder.GetScaleOptions() & ScaleOptions.Rational) == ScaleOptions.Rational;
+
+            if (lockAspect || isRational)
+            {
+                // Determine intrinsic / native aspect ratio (or default to 1:1 if unknown/square)
+                double nativeRatio = 1.0;
+                if (container is ImageContainer imgContainer && imgContainer.Image != null && imgContainer.Image.Width > 0 && imgContainer.Image.Height > 0)
+                {
+                    nativeRatio = (double)imgContainer.Image.Width / imgContainer.Image.Height;
+                }
+                else if (container.Width > 0 && container.Height > 0)
+                {
+                    nativeRatio = (double)container.Width / container.Height;
+                }
+
+                if (explicitWidth > 0 && explicitHeight <= 0)
+                {
+                    container.Width = explicitWidth;
+                    container.Height = Math.Max(1, (int)Math.Round(explicitWidth / nativeRatio));
+                }
+                else if (explicitHeight > 0 && explicitWidth <= 0)
+                {
+                    container.Height = explicitHeight;
+                    container.Width = Math.Max(1, (int)Math.Round(explicitHeight * nativeRatio));
+                }
+                else if (explicitWidth > 0 && explicitHeight > 0)
+                {
+                    if (Math.Abs(nativeRatio - 1.0) < 0.001)
+                    {
+                        int side = explicitSize > 0 ? explicitSize : Math.Min(explicitWidth, explicitHeight);
+                        container.Width = side;
+                        container.Height = side;
+                    }
+                    else
+                    {
+                        double targetRatio = (double)explicitWidth / explicitHeight;
+                        if (targetRatio > nativeRatio)
+                        {
+                            container.Height = explicitHeight;
+                            container.Width = Math.Max(1, (int)Math.Round(explicitHeight * nativeRatio));
+                        }
+                        else
+                        {
+                            container.Width = explicitWidth;
+                            container.Height = Math.Max(1, (int)Math.Round(explicitWidth / nativeRatio));
+                        }
+                    }
+                }
+            }
+            else
+            {
+                if (explicitWidth > 0) container.Width = explicitWidth;
+                if (explicitHeight > 0) container.Height = explicitHeight;
+            }
+
+            int elemWidth = container.Width;
+            int elemHeight = container.Height;
+
+            int offsetX = GetInt(p, "OffsetX", 0);
+            int offsetY = GetInt(p, "OffsetY", 0);
+            int marginX = GetInt(p, "MarginX", GetInt(p, "Margin", 10));
+            int marginY = GetInt(p, "MarginY", GetInt(p, "Margin", 10));
+            int marginLeft = GetInt(p, "MarginLeft", marginX);
+            int marginRight = GetInt(p, "MarginRight", marginX);
+            int marginTop = GetInt(p, "MarginTop", marginY);
+            int marginBottom = GetInt(p, "MarginBottom", marginY);
+
+            // Horizontal anchor & coordinate resolution
+            string hAnchor = GetString(p, "HorizontalAnchor")
+                ?? GetString(p, "HorizontalAlignment")
+                ?? GetString(p, "AnchorH")
+                ?? GetString(p, "AlignH")
+                ?? GetString(p, "Align")
+                ?? GetString(p, "Anchor");
+
+            bool hasExplicitLeft = p.ContainsKey("Left") || p.ContainsKey("left") || p.ContainsKey("X") || p.ContainsKey("x");
+            bool hasExplicitRight = p.ContainsKey("Right") || p.ContainsKey("right");
+
+            int posX;
+            if (string.Equals(hAnchor, "Right", StringComparison.OrdinalIgnoreCase))
+            {
+                int rightVal = hasExplicitRight ? GetInt(p, "Right", GetInt(p, "right", 0)) : (hasExplicitLeft ? 0 : marginRight);
+                posX = surfaceWidth - elemWidth - rightVal + offsetX;
+            }
+            else if (string.Equals(hAnchor, "Center", StringComparison.OrdinalIgnoreCase) || string.Equals(hAnchor, "Middle", StringComparison.OrdinalIgnoreCase))
+            {
+                posX = (surfaceWidth - elemWidth) / 2 + offsetX;
+            }
+            else // "Left" or unspecified
+            {
+                if (hasExplicitLeft)
+                {
+                    int leftVal = GetInt(p, "Left", GetInt(p, "left", GetInt(p, "X", GetInt(p, "x", 0))));
+                    posX = leftVal + offsetX;
+                }
+                else if (hasExplicitRight)
+                {
+                    int rightVal = GetInt(p, "Right", GetInt(p, "right", 0));
+                    posX = surfaceWidth - elemWidth - rightVal + offsetX;
+                }
+                else
+                {
+                    posX = (string.Equals(hAnchor, "Left", StringComparison.OrdinalIgnoreCase) ? marginLeft : 0) + offsetX;
+                }
+            }
+
+            // Vertical anchor & coordinate resolution
+            string vAnchor = GetString(p, "VerticalAnchor")
+                ?? GetString(p, "VerticalAlignment")
+                ?? GetString(p, "AnchorV")
+                ?? GetString(p, "AlignV")
+                ?? GetString(p, "VAlign");
+
+            bool hasExplicitTop = p.ContainsKey("Top") || p.ContainsKey("top") || p.ContainsKey("Y") || p.ContainsKey("y");
+            bool hasExplicitBottom = p.ContainsKey("Bottom") || p.ContainsKey("bottom");
+
+            int posY;
+            if (string.Equals(vAnchor, "Bottom", StringComparison.OrdinalIgnoreCase))
+            {
+                if (hasExplicitBottom)
+                {
+                    int bottomVal = GetInt(p, "Bottom", GetInt(p, "bottom", 0));
+                    posY = surfaceHeight - elemHeight - bottomVal + offsetY;
+                }
+                else if (hasExplicitTop)
+                {
+                    // e.g. top was explicitly calculated like "top": "payload.height - 50"
+                    int topVal = GetInt(p, "Top", GetInt(p, "top", GetInt(p, "Y", GetInt(p, "y", 0))));
+                    posY = topVal + offsetY;
+                }
+                else
+                {
+                    posY = surfaceHeight - elemHeight - marginBottom + offsetY;
+                }
+            }
+            else if (string.Equals(vAnchor, "Center", StringComparison.OrdinalIgnoreCase) || string.Equals(vAnchor, "Middle", StringComparison.OrdinalIgnoreCase))
+            {
+                posY = (surfaceHeight - elemHeight) / 2 + offsetY;
+            }
+            else // "Top" or unspecified
+            {
+                if (hasExplicitTop)
+                {
+                    int topVal = GetInt(p, "Top", GetInt(p, "top", GetInt(p, "Y", GetInt(p, "y", 0))));
+                    posY = topVal + offsetY;
+                }
+                else if (hasExplicitBottom)
+                {
+                    int bottomVal = GetInt(p, "Bottom", GetInt(p, "bottom", 0));
+                    posY = surfaceHeight - elemHeight - bottomVal + offsetY;
+                }
+                else
+                {
+                    posY = (string.Equals(vAnchor, "Top", StringComparison.OrdinalIgnoreCase) ? marginTop : 0) + offsetY;
+                }
+            }
+
+            container.Left = posX;
+            container.Top = posY;
+        }
+
+        #endregion
+
+        #region Helper Parsers
+
+        private static string GetString(Dictionary<string, object> p, string key)
+        {
+            if (p != null && p.TryGetValue(key, out var val) && val != null)
+            {
+                return val.ToString();
+            }
+            return null;
+        }
+
+        private static int GetInt(Dictionary<string, object> p, string key, int defaultValue = 0)
+        {
+            if (p != null && p.TryGetValue(key, out var val) && val != null)
+            {
+                if (int.TryParse(val.ToString(), out int i)) return i;
+                if (double.TryParse(val.ToString(), out double d)) return (int)Math.Round(d);
+            }
+            return defaultValue;
+        }
+
+        private static double GetDouble(Dictionary<string, object> p, string key, double defaultValue = 0.0)
+        {
+            if (p != null && p.TryGetValue(key, out var val) && val != null)
+            {
+                if (double.TryParse(val.ToString(), out double d)) return d;
+            }
+            return defaultValue;
+        }
+
+        private static bool GetBool(Dictionary<string, object> p, string key, bool defaultValue = false)
+        {
+            if (p != null && p.TryGetValue(key, out var val) && val != null)
+            {
+                if (bool.TryParse(val.ToString(), out bool b)) return b;
+            }
+            return defaultValue;
+        }
+
+        private static Color GetColor(Dictionary<string, object> p, string key, Color fallback)
+        {
+            if (p != null && p.TryGetValue(key, out var val) && val != null)
+            {
+                if (val is Color c) return c;
+                string s = val.ToString();
+                if (!string.IsNullOrWhiteSpace(s))
+                {
+                    try
+                    {
+                        return ColorTranslator.FromHtml(s);
+                    }
+                    catch
+                    {
+                        var named = Color.FromName(s);
+                        return named.IsKnownColor ? named : fallback;
+                    }
+                }
+            }
+            return fallback;
+        }
+
+        #endregion
+    }
+}

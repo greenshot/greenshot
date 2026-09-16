@@ -1,6 +1,6 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Dapplo.Ini;
@@ -39,10 +40,38 @@ namespace Greenshot.Base.Core
         /// <returns>List of IDestination</returns>
         public static IEnumerable<IDestination> GetAllDestinations()
         {
-            return SimpleServiceProvider.Current.GetAllInstances<IDestination>()
-                .Where(destination => destination.IsActive)
-                .Where(destination => CoreConfig.ExcludeDestinations == null ||
-                                      !CoreConfig.ExcludeDestinations.Contains(destination.Designation)).OrderBy(p => p.Priority).ThenBy(p => p.Description);
+            try
+            {
+                return SimpleServiceProvider.Current.GetAllInstances<IDestination>()
+                    .Where(destination =>
+                    {
+                        try
+                        {
+                            return destination != null && destination.IsActive;
+                        }
+                        catch
+                        {
+                            return destination != null;
+                        }
+                    })
+                    .Where(destination =>
+                    {
+                        try
+                        {
+                            return CoreConfig == null || CoreConfig.ExcludeDestinations == null ||
+                                   !CoreConfig.ExcludeDestinations.Contains(destination.Designation);
+                        }
+                        catch
+                        {
+                            return true;
+                        }
+                    })
+                    .OrderBy(p => p.Priority).ThenBy(p => p.Description);
+            }
+            catch
+            {
+                return SimpleServiceProvider.Current.GetAllInstances<IDestination>() ?? Enumerable.Empty<IDestination>();
+            }
         }
 
         /// <summary>
@@ -57,15 +86,30 @@ namespace Greenshot.Base.Core
                 return null;
             }
 
-            foreach (IDestination destination in GetAllDestinations())
+            try
             {
-                if (designation.Equals(destination.Designation))
+                foreach (IDestination destination in GetAllDestinations())
                 {
-                    return destination;
+                    if (string.Equals(designation, destination?.Designation, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return destination;
+                    }
                 }
             }
+            catch
+            {
+                // Ignore and fall through to direct service provider lookup
+            }
 
-            return null;
+            try
+            {
+                return SimpleServiceProvider.Current.GetAllInstances<IDestination>()
+                    .FirstOrDefault(d => string.Equals(designation, d?.Designation, StringComparison.OrdinalIgnoreCase));
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         /// <summary>

@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -27,6 +27,7 @@ using Greenshot.Base.Core;
 using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.Base.Pipeline;
 using Greenshot.Plugin.Imgur.Forms;
 
 namespace Greenshot.Plugin.Imgur;
@@ -34,7 +35,7 @@ namespace Greenshot.Plugin.Imgur;
 /// <summary>
 /// This is the ImgurPlugin code
 /// </summary>
-public class ImgurPlugin : IGreenshotPlugin
+public class ImgurPlugin : IGreenshotPlugin, IRecipeStepProvider
 {
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ImgurPlugin));
     private static IImgurConfiguration _config;
@@ -90,6 +91,21 @@ public class ImgurPlugin : IGreenshotPlugin
     public void RegisterServices(IServiceLocator serviceLocator)
     {
         _resources = new ComponentResourceManager(typeof(ImgurPlugin));
+        serviceLocator.AddService<IDestination>(new ImgurDestination());
+        serviceLocator.AddService<IRecipeStepProvider>(this);
+        StepRegistry.Instance.RegisterProvider(this);
+    }
+
+    /// <summary>
+    /// Registers recipe step factories provided by the Imgur plugin.
+    /// </summary>
+    /// <param name="registry">The step registry.</param>
+    public void RegisterSteps(IStepRegistry registry)
+    {
+        if (registry == null) return;
+        registry.RegisterStepFactory("Imgur", config => new ImgurStep(config));
+        registry.RegisterStepFactory("ImgurUpload", config => new ImgurStep(config));
+        registry.RegisterStepFactory("UploadToImgur", config => new ImgurStep(config));
     }
 
     /// <summary>

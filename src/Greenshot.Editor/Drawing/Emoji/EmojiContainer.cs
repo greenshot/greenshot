@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -64,6 +64,10 @@ namespace Greenshot.Editor.Drawing.Emoji
             Emoji = emoji ?? EditorConfig.RecentEmoji;
             Width = size ?? DefaultSize.Width;
             Height = size ?? DefaultSize.Height;
+            if (emoji != null)
+            {
+                _justCreated = false;
+            }
             Init();
         }
 
@@ -74,6 +78,11 @@ namespace Greenshot.Editor.Drawing.Emoji
 
         private void ShowEmojiPicker()
         {
+            if (System.Threading.Thread.CurrentThread.GetApartmentState() != System.Threading.ApartmentState.STA || _parent?.Controls == null)
+            {
+                return;
+            }
+
             _currentContainer = this;
 
             GetOrCreatePickerControl();

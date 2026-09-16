@@ -193,6 +193,11 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Restore bitmap lock state after drawing (#878)
 - By @danrhodes
 
+**Remote Desktop / RemoteApp (RAIL)** (#1324)
+- Fixed the system tray icon permanently disappearing after taking a capture when using Greenshot over a RemoteApp/RAIL session (e.g. Azure Virtual Desktop)
+- Greenshot no longer hides and re-shows the tray icon to dismiss a stale balloon tip when running in a Terminal Server/RDP session, since the RAIL shell could fail to resynchronize the icon recreation back to the local taskbar
+- By @Copilot
+
 #### ⚙️ Configuration & Settings
 
 **MAPI Client Detection** (#861)

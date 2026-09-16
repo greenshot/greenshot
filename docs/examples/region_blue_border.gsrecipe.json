@@ -1,0 +1,86 @@
+{
+  "$schema": "../recipe.schema.json",
+  "version": "1.0",
+  "id": "recipe_region_blue_border",
+  "name": "Region with Blue Border",
+  "description": "Interactive region capture that adds a 2px blue border and opens the editor",
+  "triggers": [
+    {
+      "triggerType": "ContextMenu",
+      "name": "Region with Border Menu Item",
+      "parameters": {
+        "menuItemText": "Region with Blue Border",
+        "group": "Recipes"
+      }
+    },
+    {
+      "triggerType": "Hotkey",
+      "parameters": {
+        "hotkey": "Ctrl + Shift + B"
+      }
+    }
+  ],
+  "nodes": [
+    {
+      "id": "source",
+      "stepType": "Source",
+      "parameters": {
+        "sourceType": "Region"
+      }
+    },
+    {
+      "id": "select",
+      "stepType": "InteractiveSelection",
+      "parameters": {
+        "selectionMode": "Region"
+      }
+    },
+    {
+      "id": "border",
+      "stepType": "Effect",
+      "name": "Add Blue Border",
+      "parameters": {
+        "effect": "Border",
+        "width": 2,
+        "color": "#0000FF"
+      }
+    },
+    {
+      "id": "feedback",
+      "stepType": "ImmediateFeedback",
+      "name": "Camera Feedback",
+      "parameters": {
+        "playSound": true
+      }
+    },
+    {
+      "id": "destination",
+      "stepType": "Destinations",
+      "name": "Open Editor",
+      "parameters": {
+        "destinationDesignations": [
+          "Editor"
+        ]
+      }
+    }
+  ],
+  "flow": {
+    "startNodes": [
+      "source"
+    ],
+    "transitions": {
+      "source": [
+        "select"
+      ],
+      "select": [
+        "border"
+      ],
+      "border": [
+        "feedback"
+      ],
+      "feedback": [
+        "destination"
+      ]
+    }
+  }
+}

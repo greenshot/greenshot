@@ -1,6 +1,6 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -46,18 +46,32 @@ namespace Greenshot.Helpers
 
         private ISurface _surface;
         private readonly ICaptureDetails _captureDetails;
+        private readonly PrintOptions _options;
         private PrintDocument _printDocument = new PrintDocument();
         private PrintDialog _printDialog = new PrintDialog();
 
-        public PrintHelper(ISurface surface, ICaptureDetails captureDetails)
+        public PrintHelper(ISurface surface, ICaptureDetails captureDetails, PrintOptions options = null)
         {
             _surface = surface;
             _captureDetails = captureDetails;
+            _options = options;
             _printDialog.UseEXDialog = true;
             _printDocument.DocumentName = FilenameHelper.GetFilenameWithoutExtensionFromPattern(CoreConfig.OutputFileFilenamePattern, captureDetails);
             _printDocument.PrintPage += DrawImageForPrint;
             _printDialog.Document = _printDocument;
         }
+
+        private bool AllowRotate => _options?.AllowRotate ?? CoreConfig.OutputPrintAllowRotate;
+        private bool AllowEnlarge => _options?.AllowEnlarge ?? CoreConfig.OutputPrintAllowEnlarge;
+        private bool AllowShrink => _options?.AllowShrink ?? CoreConfig.OutputPrintAllowShrink;
+        private bool Center => _options?.Center ?? CoreConfig.OutputPrintCenter;
+        private bool Inverted => _options?.Inverted ?? CoreConfig.OutputPrintInverted;
+        private bool Grayscale => _options?.Grayscale ?? CoreConfig.OutputPrintGrayscale;
+        private bool Monochrome => _options?.Monochrome ?? CoreConfig.OutputPrintMonochrome;
+        private byte MonochromeThreshold => _options?.MonochromeThreshold ?? CoreConfig.OutputPrintMonochromeThreshold;
+        private bool Footer => _options?.Footer ?? CoreConfig.OutputPrintFooter;
+        private string FooterPattern => _options?.FooterPattern ?? CoreConfig.OutputPrintFooterPattern;
+        private bool PromptOptions => _options?.PromptOptions ?? CoreConfig.OutputPrintPromptOptions;
 
         /**
          * Destructor
@@ -161,7 +175,7 @@ namespace Greenshot.Helpers
 
         private bool IsColorPrint()
         {
-            return !CoreConfig.OutputPrintGrayscale && !CoreConfig.OutputPrintMonochrome;
+            return !Grayscale && !Monochrome;
         }
 
         /// <summary>
@@ -171,7 +185,7 @@ namespace Greenshot.Helpers
         private DialogResult? ShowPrintOptionsDialog()
         {
             DialogResult? ret = null;
-            if (CoreConfig.OutputPrintPromptOptions)
+            if (PromptOptions)
             {
                 using PrintOptionsDialog printOptionsDialog = new PrintOptionsDialog();
                 ret = printOptionsDialog.ShowDialog();
@@ -190,15 +204,15 @@ namespace Greenshot.Helpers
             bool disposeImage = ImageIO.CreateImageFromSurface(_surface, printOutputSettings, out var image);
             try
             {
-                ContentAlignment alignment = CoreConfig.OutputPrintCenter ? ContentAlignment.MiddleCenter : ContentAlignment.TopLeft;
+                ContentAlignment alignment = Center ? ContentAlignment.MiddleCenter : ContentAlignment.TopLeft;
 
                 // prepare timestamp
                 float footerStringWidth = 0;
                 float footerStringHeight = 0;
                 string footerString = null; //DateTime.Now.ToLongDateString() + " " + DateTime.Now.ToLongTimeString();
-                if (CoreConfig.OutputPrintFooter)
+                if (Footer)
                 {
-                    footerString = FilenameHelper.FillPattern(CoreConfig.OutputPrintFooterPattern, _captureDetails, false, DateCultureMode.UILanguage);
+                    footerString = FilenameHelper.FillPattern(FooterPattern, _captureDetails, false, DateCultureMode.UILanguage);
                     using Font f = new Font(FontFamily.GenericSansSerif, 10, FontStyle.Regular);
                     footerStringWidth = e.Graphics.MeasureString(footerString, f).Width;
                     footerStringHeight = e.Graphics.MeasureString(footerString, f).Height;
@@ -219,7 +233,7 @@ namespace Greenshot.Helpers
                 GraphicsUnit gu = GraphicsUnit.Pixel;
                 RectangleF imageRect = image.GetBounds(ref gu);
                 // rotate the image if it fits the page better
-                if (CoreConfig.OutputPrintAllowRotate)
+                if (AllowRotate)
                 {
                     if (pageRect.Width > pageRect.Height && imageRect.Width < imageRect.Height || pageRect.Width < pageRect.Height && imageRect.Width > imageRect.Height)
                     {
@@ -234,10 +248,10 @@ namespace Greenshot.Helpers
 
                 RectangleF printRect = new RectangleF(0, 0, imageRect.Width, imageRect.Height);
                 // scale the image to fit the page better
-                if (CoreConfig.OutputPrintAllowEnlarge || CoreConfig.OutputPrintAllowShrink)
+                if (AllowEnlarge || AllowShrink)
                 {
                     SizeF resizedRect = ScaleHelper.GetScaledSize(imageRect.Size, pageRect.Size, false);
-                    if (CoreConfig.OutputPrintAllowShrink && resizedRect.Width < printRect.Width || CoreConfig.OutputPrintAllowEnlarge && resizedRect.Width > printRect.Width)
+                    if (AllowShrink && resizedRect.Width < printRect.Width || AllowEnlarge && resizedRect.Width > printRect.Width)
                     {
                         printRect.Size = resizedRect;
                     }
@@ -245,7 +259,7 @@ namespace Greenshot.Helpers
 
                 // align the image
                 printRect = ScaleHelper.GetAlignedRectangle(printRect, new RectangleF(0, 0, pageRect.Width, pageRect.Height), alignment);
-                if (CoreConfig.OutputPrintFooter)
+                if (Footer)
                 {
                     //printRect = new RectangleF(0, 0, printRect.Width, printRect.Height - (dateStringHeight * 2));
                     using Font f = new Font(FontFamily.GenericSansSerif, 10, FontStyle.Regular);
@@ -267,15 +281,15 @@ namespace Greenshot.Helpers
         {
             // TODO:
             // add effects here
-            if (CoreConfig.OutputPrintMonochrome)
+            if (Monochrome)
             {
-                byte threshold = CoreConfig.OutputPrintMonochromeThreshold;
+                byte threshold = MonochromeThreshold;
                 printOutputSettings.Effects.Add(new MonochromeEffect(threshold));
                 printOutputSettings.ReduceColors = true;
             }
 
             // the invert effect should probably be the last
-            if (CoreConfig.OutputPrintInverted)
+            if (Inverted)
             {
                 printOutputSettings.Effects.Add(new InvertEffect());
             }

@@ -1,6 +1,6 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -29,13 +29,14 @@ using Greenshot.Base.Core.Enums;
 using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.Base.Pipeline;
 
 namespace Greenshot.Plugin.ExternalCommand;
 
 /// <summary>
 /// An Plugin to run commands after an image was written
 /// </summary>
-public class ExternalCommandPlugin : IGreenshotPlugin
+public class ExternalCommandPlugin : IGreenshotPlugin, IRecipeStepProvider
 {
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ExternalCommandPlugin));
     private static ICoreConfiguration CoreConfig;
@@ -151,6 +152,31 @@ public class ExternalCommandPlugin : IGreenshotPlugin
         }
 
         serviceLocator.AddService(Destinations());
+        serviceLocator.AddService<IRecipeStepProvider>(this);
+        StepRegistry.Instance.RegisterProvider(this);
+    }
+
+    /// <summary>
+    /// Registers recipe step factories provided by the ExternalCommand plugin.
+    /// </summary>
+    /// <param name="registry">The step registry.</param>
+    public void RegisterSteps(IStepRegistry registry)
+    {
+        if (registry == null) return;
+        registry.RegisterStepFactory("ExternalCommand", config => new ExternalCommandStep(config));
+        registry.RegisterStepFactory("ExecuteCommand", config => new ExternalCommandStep(config));
+        registry.RegisterStepFactory("RunCommand", config => new ExternalCommandStep(config));
+
+        if (ExternalCommandConfig?.Commands != null)
+        {
+            foreach (string command in ExternalCommandConfig.Commands)
+            {
+                if (!string.IsNullOrWhiteSpace(command))
+                {
+                    registry.RegisterStepFactory($"ExternalCommand.{command}", config => new ExternalCommandStep(config));
+                }
+            }
+        }
     }
 
     /// <summary>

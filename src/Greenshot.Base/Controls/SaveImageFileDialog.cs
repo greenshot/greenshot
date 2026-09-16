@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -39,7 +39,7 @@ namespace Greenshot.Base.Controls
     public class SaveImageFileDialog : IDisposable
     {
         private static readonly ILog LOG = LogManager.GetLogger(typeof(SaveImageFileDialog));
-        private static readonly ICoreConfiguration conf = IniConfigRegistry.GetSection<ICoreConfiguration>();
+        private static ICoreConfiguration conf => IniConfigHelper.EnsureSection<ICoreConfiguration>(() => new CoreConfigurationImpl());
         protected SaveFileDialog SaveFileDialog;
         private FilterOption[] _filterOptions;
         private DirectoryInfo _eagerlyCreatedDirectory;

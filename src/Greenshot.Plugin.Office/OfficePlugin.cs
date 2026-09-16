@@ -1,6 +1,6 @@
 /*
  * Greenshot - a free and open source screenshot tool
- * Copyright (C) 2004-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
@@ -22,9 +22,9 @@
 using System;
 using System.Collections.Generic;
 using Dapplo.Ini;
-using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.Base.Pipeline;
 using Greenshot.Plugin.Office.Destinations;
 
 namespace Greenshot.Plugin.Office
@@ -32,7 +32,7 @@ namespace Greenshot.Plugin.Office
     /// <summary>
     /// This is the OfficePlugin base code
     /// </summary>
-    public class OfficePlugin : IGreenshotPlugin
+    public class OfficePlugin : IGreenshotPlugin, IRecipeStepProvider
     {
         private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(OfficePlugin));
 
@@ -146,6 +146,24 @@ namespace Greenshot.Plugin.Office
         public void RegisterServices(IServiceLocator serviceLocator)
         {
             serviceLocator.AddService(Destinations());
+            serviceLocator.AddService<IRecipeStepProvider>(this);
+            StepRegistry.Instance.RegisterProvider(this);
+        }
+
+        /// <summary>
+        /// Registers recipe step factories provided by the Office plugin.
+        /// </summary>
+        /// <param name="registry">The step registry.</param>
+        public void RegisterSteps(IStepRegistry registry)
+        {
+            if (registry == null) return;
+            registry.RegisterStepFactory("Office", config => new OfficeStep(config));
+            registry.RegisterStepFactory("Excel", config => new OfficeStep(config));
+            registry.RegisterStepFactory("PowerPoint", config => new OfficeStep(config));
+            registry.RegisterStepFactory("Powerpoint", config => new OfficeStep(config));
+            registry.RegisterStepFactory("Word", config => new OfficeStep(config));
+            registry.RegisterStepFactory("OneNote", config => new OfficeStep(config));
+            registry.RegisterStepFactory("Outlook", config => new OfficeStep(config));
         }
 
         /// <summary>

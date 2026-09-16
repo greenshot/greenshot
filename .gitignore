@@ -226,3 +226,4 @@ src/*/generated/
 src/generated/
 # Token-replacement generated credential files
 src/**/*.Credentials.cs
+/bom.json
