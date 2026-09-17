@@ -190,16 +190,17 @@
                                       SnapsToDevicePixels="True"
                                       MinWidth="{TemplateBinding ActualWidth}"
                                       MaxHeight="{TemplateBinding MaxDropDownHeight}">
-                                    <Border Name="DropDownBorder"
+                                     <Border Name="DropDownBorder"
                                             Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TextBoxBackgroundBrush}"
                                             BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
                                             TextElement.Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
                                             BorderThickness="1"
                                             CornerRadius="4"
-                                            Padding="0,2"
-                                            Margin="0,2,0,0">
+                                            Padding="0"
+                                            Margin="0,1,0,0">
                                         <ScrollViewer x:Name="DropDownScrollViewer"
                                                       CanContentScroll="True"
+                                                      Focusable="False"
                                                       VerticalScrollBarVisibility="Auto"
                                                       HorizontalScrollBarVisibility="Disabled"
                                                       SnapsToDevicePixels="True">

@@ -41,6 +41,7 @@ namespace Greenshot.Base.Wpf
 
         private ThemeManager()
         {
+            ComboBoxHelper.Initialize();
             DetectSystemTheme();
             SystemEvents.UserPreferenceChanged += OnUserPreferenceChanged;
         }

@@ -249,5 +249,37 @@ namespace Greenshot.Tests.Forms
             Assert.False(string.IsNullOrEmpty(textEn));
             Assert.Equal("Enable to enable beta-test features.", textEn);
         }
+
+        [Fact]
+        public void ComboBoxHelper_SuppressesAutoScrollOnHover()
+        {
+            Exception threadEx = null;
+            var thread = new Thread(() =>
+            {
+                try
+                {
+                    Greenshot.Base.Wpf.ComboBoxHelper.Initialize();
+
+                    var cbi = new System.Windows.Controls.ComboBoxItem();
+                    bool handled = false;
+                    cbi.AddHandler(System.Windows.FrameworkElement.RequestBringIntoViewEvent, new System.Windows.RequestBringIntoViewEventHandler((s, e) =>
+                    {
+                        handled = e.Handled;
+                    }), true);
+
+                    cbi.BringIntoView();
+                    Assert.True(handled, "RequestBringIntoView should be handled/suppressed when no navigation keys are pressed.");
+                }
+                catch (Exception ex)
+                {
+                    threadEx = ex;
+                }
+            });
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
+            thread.Join();
+
+            Assert.Null(threadEx);
+        }
     }
 }
