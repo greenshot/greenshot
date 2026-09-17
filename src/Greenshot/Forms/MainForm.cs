@@ -367,10 +367,10 @@ namespace Greenshot.Forms
             // if language is not set, show language dialog
             if (string.IsNullOrEmpty(_conf.Language))
             {
-                LanguageDialog languageDialog = LanguageDialog.GetInstance();
-                languageDialog.ShowDialog();
-                _conf.Language = languageDialog.SelectedLanguage;
-                Language.CurrentLanguage = languageDialog.SelectedLanguage;
+                var languageWindow = new Greenshot.Forms.Wpf.LanguageWindow();
+                languageWindow.ShowDialog(this);
+                _conf.Language = languageWindow.SelectedLanguage;
+                Language.CurrentLanguage = languageWindow.SelectedLanguage;
             }
             else if (Language.CurrentLanguage != _conf.Language)
             {

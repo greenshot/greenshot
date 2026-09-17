@@ -1,0 +1,223 @@
+<Window x:Class="Greenshot.Forms.Wpf.PrintOptionsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
+        Title="{wpf:Translate printoptions_title}"
+        SizeToContent="Height"
+        Width="520"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BackgroundBrush}"
+        Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
+        WindowStyle="None"
+        AllowsTransparency="False">
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="36"
+                      CornerRadius="0"
+                      GlassFrameThickness="0"
+                      NonClientFrameEdges="None"
+                      ResizeBorderThickness="5"
+                      UseAeroCaptionButtons="False"/>
+    </WindowChrome.WindowChrome>
+
+    <Window.Resources>
+        <!-- Modern GroupBox Style -->
+        <Style TargetType="GroupBox">
+            <Setter Property="Margin" Value="0,4,0,8"/>
+            <Setter Property="Padding" Value="12,10"/>
+            <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
+            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+            <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=GroupBoxBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="GroupBox">
+                        <Grid>
+                            <Border Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="6"
+                                    Padding="{TemplateBinding Padding}">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Text="{TemplateBinding Header}"
+                                               FontWeight="SemiBold"
+                                               FontSize="13"
+                                               Foreground="{TemplateBinding Foreground}"
+                                               Margin="0,0,0,8"/>
+                                    <ContentPresenter Grid.Row="1"/>
+                                </Grid>
+                            </Border>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="CheckBox">
+            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+            <Setter Property="Margin" Value="4,4"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <Style TargetType="RadioButton">
+            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+            <Setter Property="Margin" Value="4,4"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <Style x:Key="TitleBarButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Width" Value="46"/>
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" BorderThickness="0">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#E81123"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="Button">
+            <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="14,6"/>
+            <Setter Property="Margin" Value="4"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Name="Border"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonHoverBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonPressedBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Border BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
+            BorderThickness="1">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="36"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Custom Title Bar -->
+            <Grid Grid.Row="0" 
+                  Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TitleBarBrush}"
+                  MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="36"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Image Grid.Column="0" 
+                       Source="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Icon}"
+                       Width="16" Height="16"
+                       Margin="10,0,0,0"
+                       VerticalAlignment="Center"
+                       WindowChrome.IsHitTestVisibleInChrome="False"/>
+
+                <TextBlock Grid.Column="1"
+                           Text="{wpf:Translate printoptions_title}"
+                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
+                           VerticalAlignment="Center"
+                           Margin="8,0,0,0"
+                           FontSize="13"
+                           FontWeight="SemiBold"
+                           WindowChrome.IsHitTestVisibleInChrome="False"/>
+
+                <Button Grid.Column="2"
+                        Content="✕" 
+                        Click="CloseButton_Click"
+                        Style="{StaticResource TitleBarButtonStyle}"
+                        ToolTip="Close"
+                        WindowChrome.IsHitTestVisibleInChrome="True"/>
+            </Grid>
+
+            <!-- Dialog Content -->
+            <StackPanel Grid.Row="1" Margin="20,16,20,10">
+                <!-- Layout Options -->
+                <GroupBox Header="{wpf:Translate printoptions_layout}">
+                    <StackPanel>
+                        <CheckBox x:Name="CheckboxAllowShrink" Content="{wpf:Translate printoptions_allowshrink}"/>
+                        <CheckBox x:Name="CheckboxAllowEnlarge" Content="{wpf:Translate printoptions_allowenlarge}"/>
+                        <CheckBox x:Name="CheckboxAllowRotate" Content="{wpf:Translate printoptions_allowrotate}"/>
+                        <CheckBox x:Name="CheckboxAllowCenter" Content="{wpf:Translate printoptions_allowcenter}"/>
+                        <CheckBox x:Name="CheckboxDateTime" Content="{wpf:Translate printoptions_timestamp}"/>
+                    </StackPanel>
+                </GroupBox>
+
+                <!-- Color Options -->
+                <GroupBox Header="{wpf:Translate printoptions_colors}">
+                    <StackPanel>
+                        <RadioButton x:Name="RadioBtnColorPrint" Content="{wpf:Translate printoptions_printcolor}"/>
+                        <RadioButton x:Name="RadioBtnGrayScale" Content="{wpf:Translate printoptions_printgrayscale}"/>
+                        <RadioButton x:Name="RadioBtnMonochrome" Content="{wpf:Translate printoptions_printmonochrome}"/>
+                        <Separator Margin="4,6" Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
+                        <CheckBox x:Name="CheckboxPrintInverted" Content="{wpf:Translate printoptions_inverted}"/>
+                    </StackPanel>
+                </GroupBox>
+
+                <!-- Don't ask again -->
+                <CheckBox x:Name="CheckboxDontAskAgain" 
+                          Content="{wpf:Translate printoptions_dontaskagain}"
+                          Margin="4,6,4,0"/>
+            </StackPanel>
+
+            <!-- Buttons -->
+            <Border Grid.Row="2" 
+                    Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TitleBarBrush}"
+                    BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
+                    BorderThickness="0,1,0,0"
+                    Padding="16,10">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="{wpf:Translate OK}" 
+                            IsDefault="True"
+                            Width="80"
+                            Click="OkButton_Click"/>
+                    <Button Content="{wpf:Translate CANCEL}" 
+                            IsCancel="True"
+                            Width="80"
+                            Click="CancelButton_Click"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

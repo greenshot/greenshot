@@ -58,9 +58,6 @@
     <Compile Update="Forms\ColorPickerToolStripButton.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Update="Forms\DropShadowSettingsForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
     <Compile Update="Forms\EditorForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -68,12 +65,6 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="Forms\MovableShowColorForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Update="Forms\ResizeSettingsForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Update="Forms\TornEdgeSettingsForm.cs">
       <SubType>Form</SubType>
     </Compile>
   </ItemGroup>

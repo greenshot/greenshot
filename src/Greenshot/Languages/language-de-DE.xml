@@ -193,6 +193,7 @@ Bitte überprüfen Sie die Schreibrechte oder wählen Sie einen anderen Speicher
 		<resource name="error_save_invalid_chars">Der generierte Datei- oder Verzeichnisname ist nicht gültig. Bitte korrigieren Sie das Dateinamensmuster und versuchen Sie es erneut.</resource>
 		<resource name="expertsettings">Experten</resource>
 		<resource name="expertsettings_autoreducecolors">8-Bit-Bild bei weniger als 256 Farben erstellen</resource>
+		<resource name="expertsettings_betatester">Beta-Test-Funktionen aktivieren.</resource>
 		<resource name="expertsettings_checkunstableupdates">Auch instabile Updates anbieten</resource>
 		<resource name="expertsettings_clipboardformats">Zwischenablage-Formate</resource>
 		<resource name="expertsettings_counter">Wert für ${NUM} im Dateinamensmuster</resource>

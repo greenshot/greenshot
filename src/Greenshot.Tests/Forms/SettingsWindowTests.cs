@@ -39,6 +39,10 @@ namespace Greenshot.Tests.Forms
             Assert.Equal("Link to clipboard", Language.GetString("box.label_AfterUploadLinkToClipBoard"));
             Assert.Equal("Upload to Dropbox", Language.GetString("dropbox", "upload_menu_item"));
             Assert.Equal("Upload to Jira", Language.GetString("jira", "upload_menu_item"));
+            Assert.Equal("Office settings", Language.GetString("office", "settings_title"));
+            Assert.Equal("Lock aspect ratio of the image", Language.GetString("office", "word_lockaspect"));
+            Assert.Equal("Slide layout for exported captures", Language.GetString("office", "powerpoint_slide_layout"));
+            Assert.Equal("Email format for new emails", Language.GetString("office", "outlook_email_format"));
         }
 
         [Fact]

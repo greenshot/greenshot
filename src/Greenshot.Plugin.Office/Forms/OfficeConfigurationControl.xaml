@@ -1,0 +1,186 @@
+<UserControl x:Class="Greenshot.Plugin.Office.Forms.OfficeConfigurationControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
+             xmlns:interop="clr-namespace:Greenshot.Plugin.Office.OfficeInterop">
+    <UserControl.Resources>
+        <wpf:EnumDisplayer Type="{x:Type interop:EmailFormat}" x:Key="emailFormats"/>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+
+        <Style TargetType="Label">
+            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <Style TargetType="CheckBox">
+            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+            <Setter Property="Margin" Value="0,4"/>
+        </Style>
+
+        <Style TargetType="TextBox">
+            <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ControlBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="Padding" Value="6,0"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="4">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="190"/>
+            <ColumnDefinition Width="12"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Master: Applications List -->
+        <Border Grid.Column="0"
+                BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
+                BorderThickness="1"
+                CornerRadius="4"
+                Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TextBoxBackgroundBrush}">
+            <ListBox ItemsSource="{Binding OfficeApps}"
+                     SelectedItem="{Binding SelectedApp, Mode=TwoWay}"
+                     Background="Transparent"
+                     BorderThickness="0">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal" Margin="6,4">
+                            <Image Source="{Binding Icon}" Width="16" Height="16" Margin="0,0,8,0"
+                                   RenderOptions.BitmapScalingMode="HighQuality"/>
+                            <TextBlock Text="{Binding Title}" VerticalAlignment="Center"
+                                       Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Border>
+
+        <!-- Detail: Application Settings -->
+        <Border Grid.Column="2"
+                BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
+                BorderThickness="1"
+                CornerRadius="4"
+                Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ControlBackgroundBrush}"
+                Padding="12">
+            <Grid>
+                <!-- Word Settings -->
+                <StackPanel Visibility="{Binding IsWordSelected, Converter={StaticResource BoolToVis}}">
+                    <TextBlock Text="{wpf:Translate office.app_word}"
+                               FontWeight="SemiBold" FontSize="14"
+                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
+                               Margin="0,0,0,10"/>
+                    <CheckBox IsChecked="{Binding Config.WordLockAspectRatio}"
+                              Content="{wpf:Translate office.word_lockaspect}"/>
+                </StackPanel>
+
+                <!-- PowerPoint Settings -->
+                <StackPanel Visibility="{Binding IsPowerPointSelected, Converter={StaticResource BoolToVis}}">
+                    <TextBlock Text="{wpf:Translate office.app_powerpoint}"
+                               FontWeight="SemiBold" FontSize="14"
+                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
+                               Margin="0,0,0,10"/>
+                    <CheckBox IsChecked="{Binding Config.PowerpointLockAspectRatio}"
+                              Content="{wpf:Translate office.powerpoint_lockaspect}"/>
+                    <Grid Margin="0,6,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Label Grid.Column="0" Content="{wpf:Translate office.powerpoint_slide_layout}" Margin="0,0,12,0"/>
+                        <ComboBox Grid.Column="1"
+                                  HorizontalAlignment="Right" Width="220"
+                                  ItemsSource="{Binding SlideLayouts}"
+                                  SelectedItem="{Binding Config.PowerpointSlideLayout}"/>
+                    </Grid>
+                </StackPanel>
+
+                <!-- Outlook Settings -->
+                <StackPanel Visibility="{Binding IsOutlookSelected, Converter={StaticResource BoolToVis}}">
+                    <TextBlock Text="{wpf:Translate office.app_outlook}"
+                               FontWeight="SemiBold" FontSize="14"
+                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
+                               Margin="0,0,0,10"/>
+
+                    <Grid Margin="0,4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Label Grid.Column="0" Content="{wpf:Translate office.outlook_email_format}" Margin="0,0,12,0"/>
+                        <ComboBox Grid.Column="1"
+                                  HorizontalAlignment="Right" Width="200"
+                                  ItemsSource="{Binding Source={StaticResource emailFormats}, Path=DisplayNames}"
+                                  SelectedValue="{Binding Config.OutlookEmailFormat, Converter={StaticResource emailFormats}}"/>
+                    </Grid>
+
+                    <Grid Margin="0,4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="130"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Label Grid.Column="0" Content="{wpf:Translate office.outlook_subject_pattern}"/>
+                        <TextBox Grid.Column="1" Text="{Binding Config.EmailSubjectPattern, UpdateSourceTrigger=PropertyChanged}"/>
+                    </Grid>
+
+                    <Grid Margin="0,4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="130"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Label Grid.Column="0" Content="{wpf:Translate office.outlook_emailto}"/>
+                        <TextBox Grid.Column="1" Text="{Binding Config.EmailTo, UpdateSourceTrigger=PropertyChanged}"/>
+                    </Grid>
+
+                    <Grid Margin="0,4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="130"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Label Grid.Column="0" Content="{wpf:Translate office.outlook_emailcc}"/>
+                        <TextBox Grid.Column="1" Text="{Binding Config.EmailCC, UpdateSourceTrigger=PropertyChanged}"/>
+                    </Grid>
+
+                    <Grid Margin="0,4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="130"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Label Grid.Column="0" Content="{wpf:Translate office.outlook_emailbcc}"/>
+                        <TextBox Grid.Column="1" Text="{Binding Config.EmailBCC, UpdateSourceTrigger=PropertyChanged}"/>
+                    </Grid>
+
+                    <CheckBox Margin="0,6,0,0"
+                              IsChecked="{Binding Config.OutlookAllowExportInMeetings}"
+                              Content="{wpf:Translate office.outlook_allowmeetings}"/>
+                </StackPanel>
+
+                <!-- Excel Settings -->
+                <StackPanel Visibility="{Binding IsExcelSelected, Converter={StaticResource BoolToVis}}">
+                    <TextBlock Text="{wpf:Translate office.app_excel}"
+                               FontWeight="SemiBold" FontSize="14"
+                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
+                               Margin="0,0,0,10"/>
+                    <TextBlock Text="{wpf:Translate office.excel_info}"
+                               TextWrapping="Wrap"
+                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
+                               FontSize="12"/>
+                </StackPanel>
+
+                <!-- OneNote Settings -->
+                <StackPanel Visibility="{Binding IsOneNoteSelected, Converter={StaticResource BoolToVis}}">
+                    <TextBlock Text="{wpf:Translate office.app_onenote}"
+                               FontWeight="SemiBold" FontSize="14"
+                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
+                               Margin="0,0,0,10"/>
+                    <TextBlock Text="{wpf:Translate office.onenote_info}"
+                               TextWrapping="Wrap"
+                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
+                               FontSize="12"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

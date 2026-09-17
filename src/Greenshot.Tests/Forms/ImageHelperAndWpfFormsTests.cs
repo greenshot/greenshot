@@ -112,6 +112,17 @@ namespace Greenshot.Tests.Forms
                     var confluenceControl = new ConfluenceConfigurationControl(confluenceConfig);
                     Assert.NotNull(confluenceControl);
 
+                    IniConfigHelper.EnsureSection<Greenshot.Plugin.Office.IOfficeConfiguration>(() => new Greenshot.Plugin.Office.OfficeConfigurationImpl());
+                    var officeControl = new Greenshot.Plugin.Office.Forms.OfficeConfigurationControl();
+                    Assert.NotNull(officeControl);
+                    Assert.Equal(5, officeControl.OfficeApps.Count);
+                    Assert.NotNull(officeControl.SelectedApp);
+                    Assert.True(officeControl.IsWordSelected);
+
+                    var officePlugin = new Greenshot.Plugin.Office.OfficePlugin();
+                    Assert.True(officePlugin.IsConfigurable);
+                    Assert.NotNull(officePlugin.CreateConfigurationControl());
+
                     var instances = new[]
                     {
                         new Greenshot.Forms.Wpf.RunningInstanceItem
@@ -176,15 +187,67 @@ namespace Greenshot.Tests.Forms
         }
 
         [Fact]
-        public void ColorDialog_Facade_PropertiesAndGetInstanceWork()
+        public void MigratedWpfDialogs_CanBeInstantiatedOnStaThread()
         {
-            using var cd = new Greenshot.Editor.Forms.ColorDialog
+            Exception threadEx = null;
+            var thread = new Thread(() =>
             {
-                Color = System.Drawing.Color.MediumSeaGreen
-            };
+                try
+                {
+                    // Greenshot WPF windows
+                    var languageWindow = new Greenshot.Forms.Wpf.LanguageWindow();
+                    Assert.NotNull(languageWindow);
 
-            Assert.Equal(System.Drawing.Color.MediumSeaGreen, cd.Color);
-            Assert.Same(cd, Greenshot.Editor.Forms.ColorDialog.GetInstance());
+                    var printOptionsWindow = new Greenshot.Forms.Wpf.PrintOptionsWindow();
+                    Assert.NotNull(printOptionsWindow);
+
+                    // Greenshot.Editor WPF windows
+                    var dropShadowWindow = new Greenshot.Editor.Forms.DropShadowSettingsWindow();
+                    Assert.NotNull(dropShadowWindow);
+
+                    var tornEdgeWindow = new Greenshot.Editor.Forms.TornEdgeSettingsWindow();
+                    Assert.NotNull(tornEdgeWindow);
+
+                    var resizeWindow = new Greenshot.Editor.Forms.ResizeSettingsWindow();
+                    Assert.NotNull(resizeWindow);
+
+                    var textObfuscationWindow = new Greenshot.Editor.Forms.TextObfuscationWindow();
+                    Assert.NotNull(textObfuscationWindow);
+                }
+                catch (Exception ex)
+                {
+                    threadEx = ex;
+                }
+            });
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
+            thread.Join();
+
+            Assert.Null(threadEx);
+        }
+
+        [Fact]
+        public void ExpertSettings_IsBetaTester_ConfigAndTranslationWork()
+        {
+            var coreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
+            Assert.NotNull(coreConfig);
+
+            bool original = coreConfig.IsBetaTester;
+            try
+            {
+                coreConfig.IsBetaTester = true;
+                Assert.True(coreConfig.IsBetaTester);
+                coreConfig.IsBetaTester = false;
+                Assert.False(coreConfig.IsBetaTester);
+            }
+            finally
+            {
+                coreConfig.IsBetaTester = original;
+            }
+
+            var textEn = Greenshot.Base.Core.Language.GetString("expertsettings_betatester");
+            Assert.False(string.IsNullOrEmpty(textEn));
+            Assert.Equal("Enable to enable beta-test features.", textEn);
         }
     }
 }

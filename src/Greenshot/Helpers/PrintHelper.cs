@@ -187,8 +187,9 @@ namespace Greenshot.Helpers
             DialogResult? ret = null;
             if (PromptOptions)
             {
-                using PrintOptionsDialog printOptionsDialog = new PrintOptionsDialog();
-                ret = printOptionsDialog.ShowDialog();
+                var printOptionsWindow = new Greenshot.Forms.Wpf.PrintOptionsWindow();
+                bool? result = printOptionsWindow.ShowDialog();
+                ret = result == true ? DialogResult.OK : DialogResult.Cancel;
             }
 
             return ret;
