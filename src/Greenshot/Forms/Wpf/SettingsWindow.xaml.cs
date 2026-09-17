@@ -46,7 +46,7 @@ namespace Greenshot.Forms.Wpf
     {
         private readonly SettingsViewModel _viewModel;
 
-        public SettingsWindow()
+        public SettingsWindow(string initialPluginName = null)
         {
             InitializeComponent();
             
@@ -63,6 +63,18 @@ namespace Greenshot.Forms.Wpf
                 Resources.MergedDictionaries.Clear();
                 Resources.MergedDictionaries.Add(ThemeManager.Instance.GetThemeResources());
             };
+
+            if (!string.IsNullOrEmpty(initialPluginName))
+            {
+                SelectPlugin(initialPluginName);
+            }
+        }
+
+        public void SelectPlugin(string pluginName)
+        {
+            if (string.IsNullOrWhiteSpace(pluginName)) return;
+            SettingsTabControl.SelectedItem = PluginsTabItem;
+            _viewModel.SelectPluginByName(pluginName);
         }
 
         private void TitleBar_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
@@ -144,16 +156,6 @@ namespace Greenshot.Forms.Wpf
             {
                 _viewModel.IconSize -= 16;
             }
-        }
-
-        private void PluginConfigure_Click(object sender, RoutedEventArgs e)
-        {
-            _viewModel.ConfigureSelectedPlugin();
-        }
-
-        private void PluginListView_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
-        {
-            _viewModel.ConfigureSelectedPlugin();
         }
 
         private void SaveSettings()

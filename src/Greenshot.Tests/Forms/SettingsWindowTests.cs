@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using Greenshot.Base.Core;
@@ -28,6 +29,16 @@ namespace Greenshot.Tests.Forms
             Assert.NotNull(viewModel.Plugins);
             Assert.NotNull(viewModel.ClipboardFormats);
             Assert.NotEmpty(viewModel.ClipboardFormats);
+        }
+
+        [Fact]
+        public void PluginTranslations_AreLoadedCorrectly()
+        {
+            Assert.Equal("Upload to Box", Language.GetString("box", "upload_menu_item"));
+            Assert.Equal("Image format", Language.GetString("box.label_upload_format"));
+            Assert.Equal("Link to clipboard", Language.GetString("box.label_AfterUploadLinkToClipBoard"));
+            Assert.Equal("Upload to Dropbox", Language.GetString("dropbox", "upload_menu_item"));
+            Assert.Equal("Upload to Jira", Language.GetString("jira", "upload_menu_item"));
         }
 
         [Fact]
@@ -90,6 +101,9 @@ namespace Greenshot.Tests.Forms
                     var window = new SettingsWindow();
                     Assert.NotNull(window);
                     Assert.NotNull(window.DataContext);
+
+                    var windowWithPlugin = new SettingsWindow("Imgur");
+                    Assert.NotNull(windowWithPlugin);
                 }
                 catch (Exception ex)
                 {
@@ -101,6 +115,37 @@ namespace Greenshot.Tests.Forms
             thread.Join();
 
             Assert.Null(threadEx);
+        }
+
+        [Fact]
+        public void SettingsViewModel_PluginSelection_ControlsAndPropertiesWork()
+        {
+            var viewModel = new SettingsViewModel();
+            Assert.NotNull(viewModel.Plugins);
+
+            // Test SelectPluginByName with invalid/empty
+            viewModel.SelectPluginByName(null);
+            viewModel.SelectPluginByName("");
+
+            if (viewModel.Plugins.Count > 0)
+            {
+                var first = viewModel.Plugins[0];
+                viewModel.SelectPluginByName(first.Name);
+                Assert.Equal(first, viewModel.SelectedPlugin);
+
+                if (viewModel.HasSelectedPluginControl)
+                {
+                    Assert.NotNull(viewModel.SelectedPluginControl);
+                    Assert.Equal(System.Windows.Visibility.Visible, viewModel.SelectedPluginControlVisibility);
+                    Assert.Equal(System.Windows.Visibility.Collapsed, viewModel.NoSelectedPluginControlVisibility);
+                }
+                else
+                {
+                    Assert.Null(viewModel.SelectedPluginControl);
+                    Assert.Equal(System.Windows.Visibility.Collapsed, viewModel.SelectedPluginControlVisibility);
+                    Assert.Equal(System.Windows.Visibility.Visible, viewModel.NoSelectedPluginControlVisibility);
+                }
+            }
         }
     }
 }

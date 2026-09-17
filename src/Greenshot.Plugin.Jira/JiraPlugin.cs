@@ -150,28 +150,12 @@ public class JiraPlugin : IGreenshotPlugin, IRecipeStepProvider
     /// </summary>
     public void Configure()
     {
-        string url = _config.Url;
-        if (ShowConfigDialog())
-        {
-            // check for re-login
-            var jiraConnector = SimpleServiceProvider.Current.GetInstance<JiraConnector>();
-            if (jiraConnector != null && jiraConnector.IsLoggedIn && !string.IsNullOrEmpty(url))
-            {
-                if (!url.Equals(_config.Url))
-                {
-                    jiraConnector.Logout();
-                    Task.Run(async () => { await jiraConnector.LoginAsync(); });
-                }
-            }
-        }
+        var mainForm = SimpleServiceProvider.Current.GetInstance<IGreenshotMainForm>(isOptional: true);
+        mainForm?.ShowSetting(Name);
     }
 
-    /// <summary>
-    /// A form for username/password
-    /// </summary>
-    /// <returns>bool true if OK was pressed, false if cancel</returns>
-    private bool ShowConfigDialog()
+    public System.Windows.UIElement CreateConfigurationControl()
     {
-        return new Forms.JiraSettingsWindow(_config).ShowDialog() == true;
+        return new Forms.JiraConfigurationControl(_config);
     }
 }

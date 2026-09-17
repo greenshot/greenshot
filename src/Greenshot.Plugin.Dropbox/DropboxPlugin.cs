@@ -136,21 +136,18 @@ public class DropboxPlugin : IGreenshotPlugin, IRecipeStepProvider
     /// </summary>
     public void Configure()
     {
-        ShowConfigDialog();
+        var mainForm = SimpleServiceProvider.Current.GetInstance<IGreenshotMainForm>(isOptional: true);
+        mainForm?.ShowSetting(Name);
+    }
+
+    public System.Windows.UIElement CreateConfigurationControl()
+    {
+        return new Forms.DropboxConfigurationControl(_config);
     }
 
     public void ConfigMenuClick(object sender, EventArgs eventArgs)
     {
-        ShowConfigDialog();
-    }
-
-    /// <summary>
-    /// Opens the Dropbox settings dialog.
-    /// </summary>
-    /// <returns>true if OK was pressed; false if cancelled</returns>
-    private bool ShowConfigDialog()
-    {
-        return new Forms.DropboxSettingsWindow(_config).ShowDialog() == true;
+        Configure();
     }
 
     /// <summary>

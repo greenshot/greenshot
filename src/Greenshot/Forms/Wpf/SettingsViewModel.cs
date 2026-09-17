@@ -116,7 +116,26 @@ namespace Greenshot.Forms.Wpf
                     _selectedPlugin = value;
                     OnPropertyChanged();
                     OnPropertyChanged(nameof(CanConfigureSelectedPlugin));
+                    OnPropertyChanged(nameof(SelectedPluginControl));
+                    OnPropertyChanged(nameof(HasSelectedPluginControl));
+                    OnPropertyChanged(nameof(SelectedPluginControlVisibility));
+                    OnPropertyChanged(nameof(NoSelectedPluginControlVisibility));
                 }
+            }
+        }
+
+        public UIElement SelectedPluginControl => SelectedPlugin?.GetConfigurationControl();
+        public bool HasSelectedPluginControl => SelectedPluginControl != null;
+        public Visibility SelectedPluginControlVisibility => HasSelectedPluginControl ? Visibility.Visible : Visibility.Collapsed;
+        public Visibility NoSelectedPluginControlVisibility => HasSelectedPluginControl ? Visibility.Collapsed : Visibility.Visible;
+
+        public void SelectPluginByName(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name) || Plugins == null) return;
+            var item = Plugins.FirstOrDefault(p => string.Equals(p.Name, name, StringComparison.OrdinalIgnoreCase));
+            if (item != null)
+            {
+                SelectedPlugin = item;
             }
         }
 
@@ -410,6 +429,11 @@ namespace Greenshot.Forms.Wpf
                         });
                     }
                 }
+
+                if (Plugins.Count > 0)
+                {
+                    SelectedPlugin = Plugins.FirstOrDefault();
+                }
             }
             catch
             {
@@ -484,6 +508,19 @@ namespace Greenshot.Forms.Wpf
         public string Company { get; set; }
         public string Location { get; set; }
         public bool IsConfigurable => Plugin?.IsConfigurable == true;
+
+        private UIElement _configControl;
+        private bool _controlCreated;
+
+        public UIElement GetConfigurationControl()
+        {
+            if (!_controlCreated)
+            {
+                _controlCreated = true;
+                _configControl = Plugin?.CreateConfigurationControl();
+            }
+            return _configControl;
+        }
     }
 
     public class ClipboardFormatItem : INotifyPropertyChanged

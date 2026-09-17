@@ -251,6 +251,12 @@ public class ExternalCommandPlugin : IGreenshotPlugin, IRecipeStepProvider
     public virtual void Configure()
     {
         Log.Debug("Configure called");
-        new Forms.ExternalCommandSettingsWindow().ShowDialog();
+        var mainForm = SimpleServiceProvider.Current.GetInstance<IGreenshotMainForm>(isOptional: true);
+        mainForm?.ShowSetting(Name);
+    }
+
+    public System.Windows.UIElement CreateConfigurationControl()
+    {
+        return new Forms.ExternalCommandConfigurationControl();
     }
 }

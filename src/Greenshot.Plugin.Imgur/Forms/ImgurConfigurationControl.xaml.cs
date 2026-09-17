@@ -19,68 +19,25 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System;
 using System.Windows;
-using System.Windows.Input;
-using Greenshot.Base.Core;
+using System.Windows.Controls;
 
 namespace Greenshot.Plugin.Imgur.Forms;
 
-public partial class ImgurSettingsWindow : Window
+public partial class ImgurConfigurationControl : UserControl
 {
     private readonly IImgurConfiguration _config;
-    private readonly bool _initialAnonymousAccess;
-    private readonly bool _initialUsePageLink;
 
-    public ImgurSettingsWindow(IImgurConfiguration config)
+    public ImgurConfigurationControl(IImgurConfiguration config)
     {
         _config = config;
-        _initialAnonymousAccess = config.AnonymousAccess;
-        _initialUsePageLink = config.UsePageLink;
         DataContext = config;
         InitializeComponent();
         ButtonHistory.IsEnabled = ImgurUtils.IsHistoryLoadingNeeded();
-
-        try
-        {
-            Icon = GreenshotResources.GetGreenshotIcon()?.ToBitmapSource();
-        }
-        catch
-        {
-            // Ignore in headless/test environments
-        }
-    }
-
-    private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-    {
-        if (e.LeftButton == MouseButtonState.Pressed)
-        {
-            DragMove();
-        }
-    }
-
-    private void CloseButton_Click(object sender, RoutedEventArgs e)
-    {
-        Close();
     }
 
     private void Button_History_Click(object sender, RoutedEventArgs e)
     {
         ImgurHistory.ShowHistory();
-    }
-
-    private void Button_OK_Click(object sender, RoutedEventArgs e)
-    {
-        DialogResult = true;
-    }
-
-    protected override void OnClosed(EventArgs e)
-    {
-        base.OnClosed(e);
-        if (DialogResult != true)
-        {
-            _config.AnonymousAccess = _initialAnonymousAccess;
-            _config.UsePageLink = _initialUsePageLink;
-        }
     }
 }

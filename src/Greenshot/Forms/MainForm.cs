@@ -1133,18 +1133,22 @@ namespace Greenshot.Forms
         /// <summary>
         /// This is called indirectly from the context menu "Preferences"
         /// </summary>
-        public void ShowSetting()
+        public void ShowSetting(string pluginName = null)
         {
             // Use WPF Settings Window
             if (_settingsWindow != null && _settingsWindow.IsVisible)
             {
+                if (!string.IsNullOrEmpty(pluginName))
+                {
+                    _settingsWindow.SelectPlugin(pluginName);
+                }
                 _settingsWindow.Activate();
             }
             else
             {
                 try
                 {
-                    _settingsWindow = new SettingsWindow();
+                    _settingsWindow = new SettingsWindow(pluginName);
                     
                     // Show the WPF window as a dialog
                     if (_settingsWindow.ShowDialog() == true)

@@ -34,9 +34,10 @@ namespace Greenshot.Base.Interfaces
         void AddCaptureWindowMenuItems(ToolStripMenuItem menuItem, EventHandler eventHandler);
 
         /// <summary>
-        /// This is called indirectly from the context menu "Preferences"
+        /// This is called indirectly from the context menu "Preferences" or plugin "Configure"
         /// </summary>
-        void ShowSetting();
+        /// <param name="pluginName">Optional name of plugin to activate in the plugins tab.</param>
+        void ShowSetting(string pluginName = null);
 
         /// <summary>
         /// Show the about window

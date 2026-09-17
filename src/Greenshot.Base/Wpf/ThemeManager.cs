@@ -56,8 +56,10 @@ namespace Greenshot.Base.Wpf
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsDarkTheme)));
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(BackgroundBrush)));
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ForegroundBrush)));
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(MutedBrush)));
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(BorderBrush)));
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(GroupBoxBrush)));
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ControlBackgroundBrush)));
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TextBoxBackgroundBrush)));
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ButtonBackgroundBrush)));
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ButtonHoverBrush)));
@@ -82,6 +84,10 @@ namespace Greenshot.Base.Wpf
             ? new SolidColorBrush(Color.FromRgb(240, 240, 240)) 
             : new SolidColorBrush(Color.FromRgb(30, 30, 30));
 
+        public Brush MutedBrush => _isDarkTheme
+            ? new SolidColorBrush(Color.FromRgb(175, 175, 175))
+            : new SolidColorBrush(Color.FromRgb(100, 100, 100));
+
         public Brush BorderBrush => _isDarkTheme 
             ? new SolidColorBrush(Color.FromRgb(70, 70, 70)) 
             : new SolidColorBrush(Color.FromRgb(200, 200, 200));
@@ -89,6 +95,10 @@ namespace Greenshot.Base.Wpf
         public Brush GroupBoxBrush => _isDarkTheme 
             ? new SolidColorBrush(Color.FromRgb(42, 42, 42)) 
             : new SolidColorBrush(Colors.White);
+
+        public Brush ControlBackgroundBrush => _isDarkTheme
+            ? new SolidColorBrush(Color.FromRgb(36, 36, 36))
+            : new SolidColorBrush(Color.FromRgb(250, 250, 250));
 
         public Brush TextBoxBackgroundBrush => _isDarkTheme
             ? new SolidColorBrush(Color.FromRgb(24, 24, 24))
@@ -149,8 +159,12 @@ namespace Greenshot.Base.Wpf
             
             dict["ThemeBackgroundBrush"] = BackgroundBrush;
             dict["ThemeForegroundBrush"] = ForegroundBrush;
+            dict["ThemeMutedBrush"] = MutedBrush;
             dict["ThemeBorderBrush"] = BorderBrush;
             dict["ThemeGroupBoxBrush"] = GroupBoxBrush;
+            dict["ThemeControlBackgroundBrush"] = ControlBackgroundBrush;
+            dict["ThemeTextBoxBackgroundBrush"] = TextBoxBackgroundBrush;
+            dict["ThemeButtonBackgroundBrush"] = ButtonBackgroundBrush;
             
             return dict;
         }

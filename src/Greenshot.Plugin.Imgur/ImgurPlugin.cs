@@ -120,7 +120,7 @@ public class ImgurPlugin : IGreenshotPlugin, IRecipeStepProvider
         };
 
         _itemPlugInConfig = new ToolStripMenuItem(Language.GetString("imgur", LangKey.configure));
-        _itemPlugInConfig.Click += delegate { ShowConfigDialog(); };
+        _itemPlugInConfig.Click += delegate { Configure(); };
         itemPlugInRoot.DropDownItems.Add(_itemPlugInConfig);
 
         PluginUtils.AddToContextMenu(itemPlugInRoot);
@@ -188,15 +188,12 @@ public class ImgurPlugin : IGreenshotPlugin, IRecipeStepProvider
     /// </summary>
     public virtual void Configure()
     {
-        ShowConfigDialog();
+        var mainForm = SimpleServiceProvider.Current.GetInstance<IGreenshotMainForm>(isOptional: true);
+        mainForm?.ShowSetting(Name);
     }
 
-    /// <summary>
-    /// Opens the Imgur settings dialog.
-    /// </summary>
-    /// <returns>true if OK was pressed; false if cancelled</returns>
-    private bool ShowConfigDialog()
+    public System.Windows.UIElement CreateConfigurationControl()
     {
-        return new Forms.ImgurSettingsWindow(_config).ShowDialog() == true;
+        return new Forms.ImgurConfigurationControl(_config);
     }
 }

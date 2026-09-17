@@ -187,5 +187,7 @@ namespace Greenshot.Plugin.Office
         {
             throw new NotImplementedException();
         }
+
+        public System.Windows.UIElement CreateConfigurationControl() => null;
     }
 }

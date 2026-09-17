@@ -474,7 +474,7 @@
         </Grid.RowDefinitions>
         
         <!-- Tab Control -->
-        <TabControl Grid.Row="0">
+        <TabControl x:Name="SettingsTabControl" Grid.Row="0">
             <!-- General Tab -->
             <TabItem Header="{wpf:Translate settings_general}">
                 <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
@@ -530,8 +530,8 @@
                             <StackPanel>
                                 <Grid Margin="0,5">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="200"/>
                                         <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto"/>
@@ -542,23 +542,23 @@
                                     </Grid.RowDefinitions>
                                     
                                     <Label Grid.Row="0" Grid.Column="0" Content="{wpf:Translate contextmenu_capturefullscreen}"/>
-                                    <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding CoreConfiguration.FullscreenHotkey}"
+                                    <TextBox Grid.Row="0" Grid.Column="1" HorizontalAlignment="Right" Width="180" Text="{Binding CoreConfiguration.FullscreenHotkey}"
                                              IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=FullscreenHotkey}"/>
                                     
                                     <Label Grid.Row="1" Grid.Column="0" Content="{wpf:Translate contextmenu_capturewindow}"/>
-                                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding CoreConfiguration.WindowHotkey}"
+                                    <TextBox Grid.Row="1" Grid.Column="1" HorizontalAlignment="Right" Width="180" Text="{Binding CoreConfiguration.WindowHotkey}"
                                              IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=WindowHotkey}"/>
                                     
                                     <Label Grid.Row="2" Grid.Column="0" Content="{wpf:Translate contextmenu_capturearea}"/>
-                                    <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding CoreConfiguration.RegionHotkey}"
+                                    <TextBox Grid.Row="2" Grid.Column="1" HorizontalAlignment="Right" Width="180" Text="{Binding CoreConfiguration.RegionHotkey}"
                                              IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=RegionHotkey}"/>
                                     
                                     <Label Grid.Row="3" Grid.Column="0" Content="{wpf:Translate contextmenu_capturelastregion}"/>
-                                    <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding CoreConfiguration.LastregionHotkey}"
+                                    <TextBox Grid.Row="3" Grid.Column="1" HorizontalAlignment="Right" Width="180" Text="{Binding CoreConfiguration.LastregionHotkey}"
                                              IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=LastregionHotkey}"/>
                                     
                                     <Label Grid.Row="4" Grid.Column="0" Content="{wpf:Translate contextmenu_captureclipboard}"/>
-                                    <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding CoreConfiguration.ClipboardHotkey}"
+                                    <TextBox Grid.Row="4" Grid.Column="1" HorizontalAlignment="Right" Width="180" Text="{Binding CoreConfiguration.ClipboardHotkey}"
                                              IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=ClipboardHotkey}"/>
                                 </Grid>
                             </StackPanel>
@@ -573,11 +573,11 @@
                                 
                                 <Grid Margin="0,5">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="250"/>
                                         <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
                                     <Label Content="{wpf:Translate settings_checkperiod}"/>
-                                    <TextBox Grid.Column="1" Text="{Binding CoreConfiguration.UpdateCheckInterval}"
+                                    <TextBox Grid.Column="1" HorizontalAlignment="Right" Width="80" TextAlignment="Right" Text="{Binding CoreConfiguration.UpdateCheckInterval}"
                                              IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=UpdateCheckInterval}"/>
                                 </Grid>
                             </StackPanel>
@@ -631,18 +631,19 @@
                                              IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=CaptureWindowsInteractive}"/>
                                 <Grid Margin="0,5">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
                                     <RadioButton Content="{wpf:Translate settings_window_capture_mode}"
+                                                 VerticalAlignment="Center"
                                                  IsChecked="{Binding CoreConfiguration.CaptureWindowsInteractive, Mode=TwoWay, Converter={StaticResource InverseBooleanConverter}}"
                                                  IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=CaptureWindowsInteractive}"/>
                                     <ComboBox Grid.Column="1" 
+                                              HorizontalAlignment="Right" Width="220"
                                               ItemsSource="{Binding WindowCaptureModes}"
                                               DisplayMemberPath="Description"
                                               SelectedValuePath="Value"
-                                              SelectedValue="{Binding CoreConfiguration.WindowCaptureMode, Mode=TwoWay}"
-                                              Margin="10,0,0,0">
+                                              SelectedValue="{Binding CoreConfiguration.WindowCaptureMode, Mode=TwoWay}">
                                         <ComboBox.IsEnabled>
                                             <MultiBinding Converter="{StaticResource FixedToEnabledConverter}" ConverterParameter="WindowCaptureMode">
                                                 <Binding Path="CoreConfiguration.CaptureWindowsInteractive" Converter="{StaticResource InverseBooleanConverter}"/>
@@ -665,7 +666,7 @@
                             <StackPanel>
                                 <Grid Margin="0,5">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="150"/>
+                                        <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
@@ -675,20 +676,20 @@
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
                                     
-                                    <Label Grid.Row="0" Grid.Column="0" Content="{wpf:Translate settings_storagelocation}"/>
+                                    <Label Grid.Row="0" Grid.Column="0" Content="{wpf:Translate settings_storagelocation}" Margin="0,0,12,0"/>
                                     <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding CoreConfiguration.OutputFilePath}"
                                              IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputFilePath}"/>
                                     <Button Grid.Row="0" Grid.Column="2" Content="..." Style="{StaticResource IconButtonStyle}" Margin="6,0,0,0" Click="BrowseStorageLocation_Click"
-                                            IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputFilePath}"/>
+                                             IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputFilePath}"/>
                                     
-                                    <Label Grid.Row="1" Grid.Column="0" Content="{wpf:Translate settings_filenamepattern}"/>
+                                    <Label Grid.Row="1" Grid.Column="0" Content="{wpf:Translate settings_filenamepattern}" Margin="0,0,12,0"/>
                                     <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding CoreConfiguration.OutputFileFilenamePattern}"
                                              IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputFileFilenamePattern}"/>
                                     <Button Grid.Row="1" Grid.Column="2" Content="?" Style="{StaticResource IconButtonStyle}" Margin="6,0,0,0" Click="ShowPatternHelp_Click"
-                                            IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputFileFilenamePattern}"/>
+                                             IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputFileFilenamePattern}"/>
                                     
-                                    <Label Grid.Row="2" Grid.Column="0" Content="{wpf:Translate settings_primaryimageformat}"/>
-                                    <ComboBox Grid.Row="2" Grid.Column="1" 
+                                    <Label Grid.Row="2" Grid.Column="0" Content="{wpf:Translate settings_primaryimageformat}" Margin="0,0,12,0"/>
+                                    <ComboBox Grid.Row="2" Grid.Column="1"
                                               ItemsSource="{Binding ImageFormats}"
                                               DisplayMemberPath="Description"
                                               SelectedValuePath="Value"
@@ -875,33 +876,66 @@
             </TabItem>
             
             <!-- Plugin Tab -->
-            <TabItem Header="{wpf:Translate settings_plugins}">
+            <TabItem x:Name="PluginsTabItem" Header="{wpf:Translate settings_plugins}">
                 <Grid Margin="8">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-                    <ListView ItemsSource="{Binding Plugins}" 
-                              SelectedItem="{Binding SelectedPlugin, Mode=TwoWay}"
-                              MouseDoubleClick="PluginListView_MouseDoubleClick"
-                              ScrollViewer.VerticalScrollBarVisibility="Auto"
-                              MinHeight="250">
-                        <ListView.View>
-                            <GridView>
-                                <GridViewColumn Header="{wpf:Translate settings_plugins_name}" Width="150" DisplayMemberBinding="{Binding Name}"/>
-                                <GridViewColumn Header="{wpf:Translate settings_plugins_version}" Width="80" DisplayMemberBinding="{Binding Version}"/>
-                                <GridViewColumn Header="{wpf:Translate settings_plugins_createdby}" Width="150" DisplayMemberBinding="{Binding Company}"/>
-                                <GridViewColumn Header="{wpf:Translate settings_plugins_dllpath}" Width="250" DisplayMemberBinding="{Binding Location}"/>
-                            </GridView>
-                        </ListView.View>
-                    </ListView>
-                    <Button Grid.Row="1" 
-                            Content="{wpf:Translate settings_configureplugin}" 
-                            HorizontalAlignment="Right" 
-                            Margin="0,8,0,0" 
-                            Padding="12,6"
-                            IsEnabled="{Binding CanConfigureSelectedPlugin}"
-                            Click="PluginConfigure_Click"/>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="200"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Compact Plugins List -->
+                    <Border Grid.Column="0"
+                            BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="4"
+                            Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TextBoxBackgroundBrush}">
+                        <ListBox ItemsSource="{Binding Plugins}" 
+                                 SelectedItem="{Binding SelectedPlugin, Mode=TwoWay}"
+                                 Background="Transparent"
+                                 BorderThickness="0"
+                                 ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="6,4">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <TextBlock Grid.Row="0"
+                                                   Text="{Binding Name}"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                                        <TextBlock Grid.Row="1"
+                                                   Text="{Binding Version}"
+                                                   FontSize="11"
+                                                   Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Border>
+
+                    <!-- Plugin Configuration Component Host -->
+                    <Border Grid.Column="2"
+                            BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="4"
+                            Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ControlBackgroundBrush}"
+                            Padding="8">
+                        <Grid>
+                            <TextBlock Text="This plugin has no configurable options."
+                                       Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Visibility="{Binding NoSelectedPluginControlVisibility}"/>
+                            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                                          Visibility="{Binding SelectedPluginControlVisibility}">
+                                <ContentControl Content="{Binding SelectedPluginControl}"/>
+                            </ScrollViewer>
+                        </Grid>
+                    </Border>
                 </Grid>
             </TabItem>
             

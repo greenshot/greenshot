@@ -85,35 +85,32 @@ namespace Greenshot.Tests.Forms
                 try
                 {
                     var boxConfig = IniConfigHelper.EnsureSection<IBoxConfiguration>(() => new BoxConfigurationImpl());
-                    var boxWindow = new BoxSettingsWindow(boxConfig);
-                    Assert.NotNull(boxWindow);
+                    var boxControl = new BoxConfigurationControl(boxConfig);
+                    Assert.NotNull(boxControl);
 
                     var dropboxConfig = IniConfigHelper.EnsureSection<IDropboxConfiguration>(() => new DropboxConfigurationImpl());
-                    var dropboxWindow = new DropboxSettingsWindow(dropboxConfig);
-                    Assert.NotNull(dropboxWindow);
+                    var dropboxControl = new DropboxConfigurationControl(dropboxConfig);
+                    Assert.NotNull(dropboxControl);
 
                     var imgurConfig = IniConfigHelper.EnsureSection<IImgurConfiguration>(() => new ImgurConfigurationImpl());
-                    var imgurWindow = new ImgurSettingsWindow(imgurConfig);
-                    Assert.NotNull(imgurWindow);
+                    var imgurControl = new ImgurConfigurationControl(imgurConfig);
+                    Assert.NotNull(imgurControl);
 
                     var jiraConfig = IniConfigHelper.EnsureSection<IJiraConfiguration>(() => new JiraConfigurationImpl());
-                    var jiraWindow = new JiraSettingsWindow(jiraConfig);
-                    Assert.NotNull(jiraWindow);
+                    var jiraControl = new JiraConfigurationControl(jiraConfig);
+                    Assert.NotNull(jiraControl);
 
                     var zxingConfig = IniConfigHelper.EnsureSection<IZxingConfiguration>(() => new ZxingConfigurationImpl());
-                    var zxingWindow = new ZxingSettingsWindow(zxingConfig);
-                    Assert.NotNull(zxingWindow);
+                    var zxingControl = new ZxingConfigurationControl(zxingConfig);
+                    Assert.NotNull(zxingControl);
 
                     IniConfigHelper.EnsureSection<IExternalCommandConfiguration>(() => new ExternalCommandConfigurationImpl());
-                    var extCmdWindow = new ExternalCommandSettingsWindow();
-                    Assert.NotNull(extCmdWindow);
-
-                    var extCmdDetail = new ExternalCommandDetailWindow(null);
-                    Assert.NotNull(extCmdDetail);
+                    var extCmdControl = new ExternalCommandConfigurationControl();
+                    Assert.NotNull(extCmdControl);
 
                     var confluenceConfig = IniConfigHelper.EnsureSection<IConfluenceConfiguration>(() => new ConfluenceConfigurationImpl());
-                    var confluenceForm = new ConfluenceConfigurationForm(confluenceConfig);
-                    Assert.NotNull(confluenceForm);
+                    var confluenceControl = new ConfluenceConfigurationControl(confluenceConfig);
+                    Assert.NotNull(confluenceControl);
 
                     var instances = new[]
                     {
