@@ -1655,18 +1655,25 @@ namespace Greenshot.Base.Core
                 {
                     return ToBitmapSource(bitmap);
                 }
-                catch (NotSupportedException)
+                catch (Exception)
                 {
-                    // Fall back to 32bpp conversion if pixel format is not directly mappable
+                    // Fall back to 32bpp conversion if pixel format is not directly mappable or LockBits fails
                 }
             }
 
-            using var bmp = new Bitmap(image.Width, image.Height, PixelFormat.Format32bppArgb);
-            using (var g = Graphics.FromImage(bmp))
+            try
             {
-                g.DrawImage(image, 0, 0, image.Width, image.Height);
+                using var bmp = new Bitmap(image.Width, image.Height, PixelFormat.Format32bppArgb);
+                using (var g = Graphics.FromImage(bmp))
+                {
+                    g.DrawImage(image, 0, 0, image.Width, image.Height);
+                }
+                return ToBitmapSource(bmp);
             }
-            return ToBitmapSource(bmp);
+            catch
+            {
+                return null;
+            }
         }
 
         /// <summary>

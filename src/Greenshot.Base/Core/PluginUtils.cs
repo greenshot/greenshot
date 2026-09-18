@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -38,14 +38,29 @@ namespace Greenshot.Base.Core
     public static class PluginUtils
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(PluginUtils));
-        private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
+        private static ICoreConfiguration _coreConfig;
+        private static ICoreConfiguration CoreConfig
+        {
+            get
+            {
+                if (_coreConfig != null) return _coreConfig;
+                try
+                {
+                    _coreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
+                    if (_coreConfig != null)
+                    {
+                        _coreConfig.PropertyChanged += OnIconSizeChanged;
+                    }
+                }
+                catch
+                {
+                    // Configuration might not be registered yet (e.g. unit tests)
+                }
+                return _coreConfig;
+            }
+        }
         private static readonly IDictionary<string, Image> ExeIconCache = new Dictionary<string, Image>();
         private const string PathKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\";
-        
-        static PluginUtils()
-        {
-            CoreConfig.PropertyChanged += OnIconSizeChanged;
-        }
 
         /// <summary>
         /// Clear icon cache
@@ -156,9 +171,32 @@ namespace Greenshot.Base.Core
                 return null;
             }
 
+            // For index 0, check if this path points to a Windows App (e.g. AppExecutionAlias or in WindowsApps)
+            if (index == 0)
+            {
+                try
+                {
+                    var appLogo = WindowsAppHelper.GetAppLogo(path);
+                    if (appLogo is Bitmap bitmap)
+                    {
+                        return bitmap;
+                    }
+                    if (appLogo != null)
+                    {
+                        return new Bitmap(appLogo);
+                    }
+                }
+                catch (Exception exApp)
+                {
+                    Log.Debug("Error checking Windows App logo for: " + path, exApp);
+                }
+            }
+
             try
             {
-                var appIcon = IconHelper.ExtractAssociatedIcon<Bitmap>(path, index, CoreConfig.IconSize.Width >= 32 || CoreConfig.IconSize.Height >= 32);
+                var iconSize = CoreConfig?.IconSize;
+                bool isLarge = iconSize.HasValue && (iconSize.Value.Width >= 32 || iconSize.Value.Height >= 32);
+                var appIcon = IconHelper.ExtractAssociatedIcon<Bitmap>(path, index, isLarge);
                 if (appIcon != null)
                 {
                     Log.DebugFormat("Loaded icon for {0}, with dimensions {1}x{2}", path, appIcon.Width, appIcon.Height);
@@ -185,7 +223,40 @@ namespace Greenshot.Base.Core
                 Log.Warn("error retrieving shell icon: ", exShell);
             }
 
+            // Fallback: check WindowsAppHelper if not already checked or if index > 0
+            try
+            {
+                var appLogo = WindowsAppHelper.GetAppLogo(path);
+                if (appLogo is Bitmap bitmap)
+                {
+                    return bitmap;
+                }
+                if (appLogo != null)
+                {
+                    return new Bitmap(appLogo);
+                }
+            }
+            catch
+            {
+                // Ignore
+            }
+
             return null;
+        }
+
+        /// <summary>
+        /// Gets the localized text for a plugin quicklink context menu item (e.g. "Configure {0}").
+        /// </summary>
+        /// <param name="pluginDisplayName">Display name of the plugin.</param>
+        /// <returns>Formatted quicklink text.</returns>
+        public static string GetQuicklinkText(string pluginDisplayName)
+        {
+            string format = Language.GetString("contextmenu_configure_plugin");
+            if (string.IsNullOrEmpty(format) || format.StartsWith("string ###"))
+            {
+                format = "Configure {0}";
+            }
+            return string.Format(format, pluginDisplayName);
         }
 
         /// <summary>
@@ -226,6 +297,50 @@ namespace Greenshot.Base.Core
             if (!addedItem)
             {
                 contextMenu.Items.Add(item);
+            }
+
+            item.VisibleChanged += (s, e) => UpdatePluginSeparatorsVisibility(contextMenu);
+            UpdatePluginSeparatorsVisibility(contextMenu);
+        }
+
+        /// <summary>
+        /// Update visibility of the plugin separator based on whether any plugin items are currently visible.
+        /// If no plugin items are visible, hides the top separator so two separators don't appear next to each other.
+        /// </summary>
+        public static void UpdatePluginSeparatorsVisibility(ContextMenuStrip contextMenu = null)
+        {
+            contextMenu ??= SimpleServiceProvider.Current.GetInstance<ContextMenuStrip>(isOptional: true);
+            if (contextMenu == null) return;
+
+            ToolStripSeparator afterSeparator = null;
+            bool hasVisiblePluginItems = false;
+            bool trackingPlugins = false;
+
+            for (int i = 0; i < contextMenu.Items.Count; i++)
+            {
+                var current = contextMenu.Items[i];
+                if ("PluginsAreAddedAfter".Equals(current.Tag))
+                {
+                    afterSeparator = current as ToolStripSeparator;
+                    trackingPlugins = true;
+                    continue;
+                }
+
+                if ("PluginsAreAddedBefore".Equals(current.Tag))
+                {
+                    break;
+                }
+
+                if (trackingPlugins && current.Available)
+                {
+                    hasVisiblePluginItems = true;
+                    break;
+                }
+            }
+
+            if (afterSeparator != null)
+            {
+                afterSeparator.Available = hasVisiblePluginItems;
             }
         }
     }

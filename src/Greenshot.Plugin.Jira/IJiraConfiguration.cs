@@ -34,6 +34,10 @@ namespace Greenshot.Plugin.Jira;
 [Description("Greenshot Jira Plugin configuration")]
 public interface IJiraConfiguration : IIniSection
 {
+    [Description("Whether to show a quicklink in the tray context menu for configuring this plugin.")]
+    [DefaultValue(false)]
+    bool QuicklinkEnabled { get; set; }
+
     [Description("Base url to Jira system, without anything else")]
     [DefaultValue("https://jira")]
     [Required(ErrorMessage = "Jira URL is required.")]

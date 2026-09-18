@@ -21,9 +21,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using Dapplo.Ini;
+using Greenshot.Base.Core;
 using Greenshot.Base.Drawing;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
@@ -37,9 +39,26 @@ public class ZxingPlugin : IGreenshotPlugin, IRecipeStepProvider, IRecipeDrawabl
 {
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ZxingPlugin));
     private static IZxingConfiguration _config;
+    private ToolStripMenuItem _itemPlugInConfig;
     private ZxingCaptureProcessor _captureProcessor;
     private ZxingEditorPlugin _editorPlugin;
     private ZxingHotspotTransformer _hotspotTransformer;
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    private void Dispose(bool disposing)
+    {
+        if (!disposing) return;
+        if (_itemPlugInConfig != null)
+        {
+            _itemPlugInConfig.Dispose();
+            _itemPlugInConfig = null;
+        }
+    }
 
     public string Name => "Zxing";
 
@@ -462,12 +481,61 @@ public class ZxingPlugin : IGreenshotPlugin, IRecipeStepProvider, IRecipeDrawabl
 
     public bool Start()
     {
+        Image icon = null;
+        try
+        {
+            icon = new ZxingQrDestination().DisplayIcon;
+        }
+        catch
+        {
+            // Ignore
+        }
+
+        _itemPlugInConfig = new ToolStripMenuItem
+        {
+            Image = icon,
+            Text = PluginUtils.GetQuicklinkText("Zxing"),
+            Visible = _config?.QuicklinkEnabled ?? false
+        };
+        _itemPlugInConfig.Click += delegate { Configure(); };
+
+        PluginUtils.AddToContextMenu(_itemPlugInConfig);
+        Language.LanguageChanged += OnLanguageChanged;
+        if (_config is INotifyPropertyChanged notify)
+        {
+            notify.PropertyChanged += OnConfigPropertyChanged;
+        }
+
         return true;
+    }
+
+    private void OnConfigPropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(IZxingConfiguration.QuicklinkEnabled))
+        {
+            if (_itemPlugInConfig != null)
+            {
+                _itemPlugInConfig.Visible = _config?.QuicklinkEnabled ?? false;
+            }
+        }
+    }
+
+    public void OnLanguageChanged(object sender, EventArgs e)
+    {
+        if (_itemPlugInConfig != null)
+        {
+            _itemPlugInConfig.Text = PluginUtils.GetQuicklinkText("Zxing");
+        }
     }
 
     public void Shutdown()
     {
         Log.Debug("ZXing plugin shutdown.");
+        Language.LanguageChanged -= OnLanguageChanged;
+        if (_config is INotifyPropertyChanged notify)
+        {
+            notify.PropertyChanged -= OnConfigPropertyChanged;
+        }
     }
 
     public void Configure()
@@ -624,10 +692,6 @@ public class ZxingPlugin : IGreenshotPlugin, IRecipeStepProvider, IRecipeDrawabl
     {
         public IntPtr Handle { get; }
         public Win32WindowWrapper(IntPtr handle) => Handle = handle;
-    }
-
-    public void Dispose()
-    {
     }
 
     #region Helpers

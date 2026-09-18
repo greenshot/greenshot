@@ -29,6 +29,10 @@
     </UserControl.Resources>
 
     <Grid Margin="4">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="190"/>
             <ColumnDefinition Width="12"/>
@@ -36,7 +40,7 @@
         </Grid.ColumnDefinitions>
 
         <!-- Master: Applications List -->
-        <Border Grid.Column="0"
+        <Border Grid.Row="0" Grid.Column="0"
                 BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
                 BorderThickness="1"
                 CornerRadius="4"
@@ -59,7 +63,7 @@
         </Border>
 
         <!-- Detail: Application Settings -->
-        <Border Grid.Column="2"
+        <Border Grid.Row="0" Grid.Column="2"
                 BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
                 BorderThickness="1"
                 CornerRadius="4"
@@ -182,5 +186,11 @@
                 </StackPanel>
             </Grid>
         </Border>
+
+        <!-- Quicklink -->
+        <CheckBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3"
+                  Margin="0,8,0,0"
+                  IsChecked="{Binding Config.QuicklinkEnabled}"
+                  Content="{wpf:Translate quicklink_enable}"/>
     </Grid>
 </UserControl>

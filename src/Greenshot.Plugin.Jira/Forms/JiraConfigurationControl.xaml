@@ -19,6 +19,10 @@
             <Setter Property="Height" Value="28"/>
             <Setter Property="Padding" Value="6,0"/>
         </Style>
+        <Style TargetType="CheckBox">
+            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+            <Setter Property="Margin" Value="0,6"/>
+        </Style>
     </UserControl.Resources>
 
     <StackPanel Margin="8">
@@ -42,5 +46,8 @@
                       ItemsSource="{Binding Source={StaticResource outputFormats}, Path=DisplayNames}"
                       SelectedValue="{Binding UploadFormat, Converter={StaticResource outputFormats}}"/>
         </Grid>
+
+        <CheckBox IsChecked="{Binding QuicklinkEnabled}"
+                  Content="{wpf:Translate quicklink_enable}"/>
     </StackPanel>
 </UserControl>

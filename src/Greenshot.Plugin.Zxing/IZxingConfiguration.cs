@@ -29,6 +29,10 @@ namespace Greenshot.Plugin.Zxing;
 [Description("Greenshot ZXing Plugin configuration")]
 public interface IZxingConfiguration : IIniSection
 {
+    [Description("Whether to show a quicklink in the tray context menu for configuring this plugin.")]
+    [DefaultValue(false)]
+    bool QuicklinkEnabled { get; set; }
+
     [Description("Enable scanning for QR codes on region capture")]
     [DefaultValue(true)]
     bool ScanOnCapture { get; set; }

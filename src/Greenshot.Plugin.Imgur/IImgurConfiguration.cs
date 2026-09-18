@@ -30,6 +30,10 @@ namespace Greenshot.Plugin.Imgur;
 [Description("Greenshot Imgur Plugin configuration")]
 public interface IImgurConfiguration : IIniSection
 {
+    [Description("Whether to show a quicklink in the tray context menu for configuring this plugin.")]
+    [DefaultValue(false)]
+    bool QuicklinkEnabled { get; set; }
+
     [Description("Url to Imgur system.")]
     [DefaultValue("https://api.imgur.com/3")]
     string ImgurApi3Url { get; set; }

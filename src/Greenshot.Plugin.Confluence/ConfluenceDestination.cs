@@ -47,7 +47,7 @@ public class ConfluenceDestination : AbstractDestination
     private static Image _confluenceIcon;
     private readonly Page _page;
 
-    private static Image LoadConfluenceIcon()
+    internal static Image LoadConfluenceIcon()
     {
         if (_confluenceIcon != null)
         {

@@ -173,7 +173,10 @@ public class ExternalCommandDestination : AbstractDestination, IRequiresRecipeAu
                 {
                     MatchCollection uriMatches = URI_REGEXP.Matches(output);
                     // Place output on the clipboard before the URI, so if one is found this overwrites
-                    if (Config.OutputToClipboard)
+                    bool outputToClipboard = Config?.OutputToClipboardCommand != null && Config.OutputToClipboardCommand.TryGetValue(_presetCommand, out var otc)
+                        ? otc
+                        : Config?.OutputToClipboard ?? false;
+                    if (outputToClipboard)
                     {
                         ClipboardHelper.SetClipboardData(output);
                     }
@@ -182,7 +185,10 @@ public class ExternalCommandDestination : AbstractDestination, IRequiresRecipeAu
                     {
                         exportInformation.Uri = uriMatches[0].Groups[1].Value;
                         LOG.InfoFormat("Got URI : {0} ", exportInformation.Uri);
-                        if (Config.UriToClipboard)
+                        bool uriToClipboard = Config?.UriToClipboardCommand != null && Config.UriToClipboardCommand.TryGetValue(_presetCommand, out var utc)
+                            ? utc
+                            : Config?.UriToClipboard ?? true;
+                        if (uriToClipboard)
                         {
                             ClipboardHelper.SetClipboardData(exportInformation.Uri);
                         }
@@ -266,13 +272,23 @@ public class ExternalCommandDestination : AbstractDestination, IRequiresRecipeAu
 
             process.StartInfo.FileName = FilenameHelper.FillCmdVariables(commandline, true);
             process.StartInfo.Arguments = FormatArguments(arguments, fullPath);
+            bool redirectOutput = Config?.RedirectStandardOutputCommand != null && Config.RedirectStandardOutputCommand.TryGetValue(commando, out var rso)
+                ? rso
+                : Config?.RedirectStandardOutput ?? true;
+            bool redirectError = Config?.RedirectStandardErrorCommand != null && Config.RedirectStandardErrorCommand.TryGetValue(commando, out var rse)
+                ? rse
+                : Config?.RedirectStandardError ?? true;
+            bool showInLog = Config?.ShowStandardOutputInLogCommand != null && Config.ShowStandardOutputInLogCommand.TryGetValue(commando, out var sil)
+                ? sil
+                : Config?.ShowStandardOutputInLog ?? false;
+
             process.StartInfo.UseShellExecute = false;
-            if (Config.RedirectStandardOutput)
+            if (redirectOutput)
             {
                 process.StartInfo.RedirectStandardOutput = true;
             }
 
-            if (Config.RedirectStandardError)
+            if (redirectError)
             {
                 process.StartInfo.RedirectStandardError = true;
             }
@@ -285,16 +301,16 @@ public class ExternalCommandDestination : AbstractDestination, IRequiresRecipeAu
             LOG.InfoFormat("Starting : {0} {1}", process.StartInfo.FileName, process.StartInfo.Arguments);
             process.Start();
             process.WaitForExit();
-            if (Config.RedirectStandardOutput)
+            if (redirectOutput)
             {
                 output = process.StandardOutput.ReadToEnd();
-                if (Config.ShowStandardOutputInLog && output.Trim().Length > 0)
+                if (showInLog && output.Trim().Length > 0)
                 {
                     LOG.InfoFormat("Output:\n{0}", output);
                 }
             }
 
-            if (Config.RedirectStandardError)
+            if (redirectError)
             {
                 error = process.StandardError.ReadToEnd();
                 if (error.Trim().Length > 0)

@@ -66,148 +66,211 @@
     </UserControl.Resources>
 
     <Grid Margin="4">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="190"/>
-            <ColumnDefinition Width="12"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
 
-        <!-- Master: Command List -->
-        <Grid Grid.Column="0">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="8"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
+        <!-- Top Instruction -->
+        <TextBlock Grid.Row="0"
+                   Text="{wpf:Translate externalcommand.settings_instructions}"
+                   Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
+                   Margin="0,0,0,8"/>
 
-            <Button Grid.Row="0"
-                    Content="{wpf:Translate externalcommand.settings_new}"
-                    Click="ButtonAdd_Click"
-                    HorizontalAlignment="Stretch"/>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="190"/>
+                <ColumnDefinition Width="12"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
 
-            <ListBox Grid.Row="2"
-                     ItemsSource="{Binding Commands}"
-                     SelectedItem="{Binding SelectedCommand, Mode=TwoWay}"
-                     Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ControlBackgroundBrush}"
-                     Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
-                     BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
-                     BorderThickness="1">
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <StackPanel Orientation="Horizontal" Margin="4,2">
-                            <Image Source="{Binding Icon}" Width="16" Height="16" Margin="0,0,8,0"
-                                   RenderOptions.BitmapScalingMode="HighQuality"/>
-                            <TextBlock Text="{Binding Name}" VerticalAlignment="Center"
-                                       TextTrimming="CharacterEllipsis"
-                                       Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-                        </StackPanel>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
+            <!-- Master: Command List -->
+            <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="8"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <Button Grid.Row="0"
+                        Content="{wpf:Translate externalcommand.settings_new}"
+                        Click="ButtonAdd_Click"
+                        HorizontalAlignment="Stretch"/>
+
+                <ListBox Grid.Row="2"
+                         ItemsSource="{Binding Commands}"
+                         SelectedItem="{Binding SelectedCommand, Mode=TwoWay}"
+                         Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ControlBackgroundBrush}"
+                         Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
+                         BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
+                         BorderThickness="1">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" Margin="4,2">
+                                <Image Source="{Binding Icon}" Width="16" Height="16" Margin="0,0,8,0"
+                                       RenderOptions.BitmapScalingMode="HighQuality"/>
+                                <TextBlock Text="{Binding Name}" VerticalAlignment="Center"
+                                           TextTrimming="CharacterEllipsis"
+                                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Grid>
+
+            <!-- Detail: Command Settings -->
+            <Border Grid.Column="2"
+                    BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
+                    BorderThickness="1"
+                    Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ControlBackgroundBrush}"
+                    Padding="12">
+                <Grid>
+                    <!-- Placeholder when nothing is selected -->
+                    <TextBlock Text="{wpf:Translate externalcommand.settings_instructions}"
+                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Visibility="{Binding HasSelectedCommand, Converter={StaticResource BoolToVis}, ConverterParameter=Inverse}"/>
+
+                    <!-- Form when command is selected -->
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                                  Visibility="{Binding HasSelectedCommand, Converter={StaticResource BoolToVis}}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="12"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="6"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="6"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="6"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="6"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <!-- Header with Delete -->
+                            <Grid Grid.Row="0">
+                                <TextBlock Text="{wpf:Translate externalcommand.settings_detail_title}"
+                                           FontWeight="SemiBold"
+                                           FontSize="13"
+                                           VerticalAlignment="Center"
+                                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                                <Button Content="{wpf:Translate externalcommand.settings_delete}"
+                                        Click="ButtonDelete_Click"
+                                        HorizontalAlignment="Right"
+                                        Padding="8,2" Height="24"/>
+                            </Grid>
+
+                            <Separator Grid.Row="1" Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}" Margin="0"/>
+
+                            <!-- Command Name -->
+                            <Grid Grid.Row="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="90"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Grid.Column="0" Content="{wpf:Translate externalcommand.label_name}"/>
+                                <TextBox Grid.Column="1" Text="{Binding SelectedCommand.Name, UpdateSourceTrigger=PropertyChanged}"/>
+                            </Grid>
+
+                            <!-- Executable -->
+                            <Grid Grid.Row="4">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="90"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Grid.Column="0" Content="{wpf:Translate externalcommand.label_command}"/>
+                                <TextBox Grid.Column="1" Text="{Binding SelectedCommand.CommandLine, UpdateSourceTrigger=PropertyChanged}"/>
+                                <Button Grid.Column="2" Content="..." Width="28" Height="28" Margin="4,0,0,0" Click="Browse_Click"/>
+                            </Grid>
+
+                            <!-- Arguments -->
+                            <Grid Grid.Row="6">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="90"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Grid.Column="0" Content="{wpf:Translate externalcommand.label_argument}"/>
+                                <TextBox Grid.Column="1" Text="{Binding SelectedCommand.Arguments, UpdateSourceTrigger=PropertyChanged}"/>
+                            </Grid>
+
+                            <!-- Placeholder info -->
+                            <TextBlock Grid.Row="7" Margin="90,2,0,4"
+                                       Text="{wpf:Translate externalcommand.label_information}"
+                                       Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
+                                       FontSize="11"/>
+
+                            <!-- Output Format -->
+                            <Grid Grid.Row="9">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="90"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Grid.Column="0" Content="{wpf:Translate externalcommand.label_outputimageformat}"/>
+                                <ComboBox Grid.Column="1"
+                                          ItemsSource="{Binding Source={StaticResource outputFormats}, Path=DisplayNames}"
+                                          SelectedValue="{Binding SelectedCommand.OutputFormat, Converter={StaticResource outputFormats}}"/>
+                            </Grid>
+
+                            <!-- Run in background -->
+                            <CheckBox Grid.Row="11" Margin="90,4,0,0"
+                                      IsChecked="{Binding SelectedCommand.RunInBackground}"
+                                      Content="{wpf:Translate externalcommand.label_run_in_background}"/>
+
+                            <Separator Grid.Row="12" Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}" Margin="0,8,0,8"/>
+
+                            <!-- Redirection & Output Options (Per-Command) -->
+                            <StackPanel Grid.Row="13">
+                                <CheckBox IsChecked="{Binding SelectedCommand.RedirectStandardError}"
+                                          Content="{wpf:Translate externalcommand.label_redirect_standard_error}"/>
+                                <CheckBox IsChecked="{Binding SelectedCommand.RedirectStandardOutput}"
+                                          Content="{wpf:Translate externalcommand.label_redirect_standard_output}"/>
+                                <CheckBox Margin="20,4,0,4"
+                                          IsEnabled="{Binding SelectedCommand.CanConfigureOutputOptions}"
+                                          IsChecked="{Binding SelectedCommand.ShowStandardOutputInLog}"
+                                          Content="{wpf:Translate externalcommand.label_show_output_in_log}"/>
+                                <CheckBox Margin="20,4,0,4"
+                                          IsEnabled="{Binding SelectedCommand.CanConfigureOutputOptions}"
+                                          IsChecked="{Binding SelectedCommand.ParseOutputForUri}"
+                                          Content="{wpf:Translate externalcommand.label_parse_output_for_uri}"/>
+                                <CheckBox Margin="20,4,0,4"
+                                          IsEnabled="{Binding SelectedCommand.CanConfigureOutputOptions}"
+                                          IsChecked="{Binding SelectedCommand.OutputToClipboard}"
+                                          Content="{wpf:Translate externalcommand.label_output_to_clipboard}"/>
+                                <CheckBox Margin="40,4,0,4"
+                                          IsEnabled="{Binding SelectedCommand.CanConfigureUriToClipboard}"
+                                          IsChecked="{Binding SelectedCommand.UriToClipboard}"
+                                          Content="{wpf:Translate externalcommand.label_uri_to_clipboard}"/>
+                            </StackPanel>
+                        </Grid>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
         </Grid>
 
-        <!-- Detail: Command Settings -->
-        <Border Grid.Column="2"
+        <!-- General Settings -->
+        <Border Grid.Row="2"
                 BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
                 BorderThickness="1"
                 Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ControlBackgroundBrush}"
-                Padding="12">
-            <Grid>
-                <!-- Placeholder when nothing is selected -->
-                <TextBlock Text="Select a command to edit details, or click New to add one."
-                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
-                           HorizontalAlignment="Center"
-                           VerticalAlignment="Center"
-                           Visibility="{Binding HasSelectedCommand, Converter={StaticResource BoolToVis}, ConverterParameter=Inverse}"/>
-
-                <!-- Form when command is selected -->
-                <Grid Visibility="{Binding HasSelectedCommand, Converter={StaticResource BoolToVis}}">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="12"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="6"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="6"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="6"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="6"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-
-                    <!-- Header with Delete -->
-                    <Grid Grid.Row="0">
-                        <TextBlock Text="{wpf:Translate externalcommand.settings_detail_title}"
-                                   FontWeight="SemiBold"
-                                   FontSize="13"
-                                   VerticalAlignment="Center"
-                                   Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-                        <Button Content="{wpf:Translate externalcommand.settings_delete}"
-                                Click="ButtonDelete_Click"
-                                HorizontalAlignment="Right"
-                                Padding="8,2" Height="24"/>
-                    </Grid>
-
-                    <Separator Grid.Row="1" Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}" Margin="0"/>
-
-                    <!-- Command Name -->
-                    <Grid Grid.Row="2">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="90"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Label Grid.Column="0" Content="{wpf:Translate externalcommand.label_name}"/>
-                        <TextBox Grid.Column="1" Text="{Binding SelectedCommand.Name, UpdateSourceTrigger=PropertyChanged}"/>
-                    </Grid>
-
-                    <!-- Executable -->
-                    <Grid Grid.Row="4">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="90"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <Label Grid.Column="0" Content="{wpf:Translate externalcommand.label_command}"/>
-                        <TextBox Grid.Column="1" Text="{Binding SelectedCommand.CommandLine, UpdateSourceTrigger=PropertyChanged}"/>
-                        <Button Grid.Column="2" Content="..." Width="28" Height="28" Margin="4,0,0,0" Click="Browse_Click"/>
-                    </Grid>
-
-                    <!-- Arguments -->
-                    <Grid Grid.Row="6">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="90"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Label Grid.Column="0" Content="{wpf:Translate externalcommand.label_argument}"/>
-                        <TextBox Grid.Column="1" Text="{Binding SelectedCommand.Arguments, UpdateSourceTrigger=PropertyChanged}"/>
-                    </Grid>
-
-                    <!-- Placeholder info -->
-                    <TextBlock Grid.Row="7" Margin="90,2,0,4"
-                               Text="{wpf:Translate externalcommand.label_information}"
-                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
-                               FontSize="11"/>
-
-                    <!-- Output Format -->
-                    <Grid Grid.Row="9">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="90"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Label Grid.Column="0" Content="{wpf:Translate externalcommand.label_outputimageformat}"/>
-                        <ComboBox Grid.Column="1"
-                                  ItemsSource="{Binding Source={StaticResource outputFormats}, Path=DisplayNames}"
-                                  SelectedValue="{Binding SelectedCommand.OutputFormat, Converter={StaticResource outputFormats}}"/>
-                    </Grid>
-
-                    <!-- Run in background -->
-                    <CheckBox Grid.Row="11" Margin="90,4,0,0"
-                              IsChecked="{Binding SelectedCommand.RunInBackground}"
-                              Content="Run in background"/>
-                </Grid>
-            </Grid>
+                Padding="12"
+                Margin="0,12,0,0">
+            <StackPanel>
+                <TextBlock Text="{wpf:Translate externalcommand.settings_general_title}"
+                           FontWeight="SemiBold"
+                           FontSize="13"
+                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
+                           Margin="0,0,0,6"/>
+                <CheckBox IsChecked="{Binding QuicklinkEnabled}"
+                          Content="{wpf:Translate quicklink_enable}"/>
+            </StackPanel>
         </Border>
     </Grid>
 </UserControl>

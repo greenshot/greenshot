@@ -71,6 +71,13 @@ public partial class ExternalCommandConfigurationImpl : IExternalCommandConfigur
         Commandline.Remove(command);
         Argument.Remove(command);
         RunInbackground.Remove(command);
+        OutputFormat.Remove(command);
+        RedirectStandardErrorCommand?.Remove(command);
+        RedirectStandardOutputCommand?.Remove(command);
+        ShowStandardOutputInLogCommand?.Remove(command);
+        ParseOutputForUriCommand?.Remove(command);
+        OutputToClipboardCommand?.Remove(command);
+        UriToClipboardCommand?.Remove(command);
 
         if (MsPaint.Equals(command) || PaintDotNet.Equals(command))
         {
@@ -91,6 +98,12 @@ public partial class ExternalCommandConfigurationImpl : IExternalCommandConfigur
         Argument ??= new Dictionary<string, string>();
         RunInbackground ??= new Dictionary<string, bool>();
         OutputFormat ??= new Dictionary<string, OutputFormat>();
+        RedirectStandardErrorCommand ??= new Dictionary<string, bool>();
+        RedirectStandardOutputCommand ??= new Dictionary<string, bool>();
+        ShowStandardOutputInLogCommand ??= new Dictionary<string, bool>();
+        ParseOutputForUriCommand ??= new Dictionary<string, bool>();
+        OutputToClipboardCommand ??= new Dictionary<string, bool>();
+        UriToClipboardCommand ??= new Dictionary<string, bool>();
         DeletedBuildInCommands ??= new List<string>();
 
         // Check if we need to add MsPaint

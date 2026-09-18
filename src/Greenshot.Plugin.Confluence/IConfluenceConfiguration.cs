@@ -31,6 +31,10 @@ namespace Greenshot.Plugin.Confluence;
 [Description("Greenshot Confluence Plugin configuration")]
 public interface IConfluenceConfiguration : IIniSection
 {
+    [Description("Whether to show a quicklink in the tray context menu for configuring this plugin.")]
+    [DefaultValue(false)]
+    bool QuicklinkEnabled { get; set; }
+
     [Description("Url to Confluence system (e.g., https://confluence.example.com or https://domain.atlassian.net/wiki for Cloud).")]
     [DefaultValue("https://confluence")]
     [Required(ErrorMessage = "Confluence URL is required.")]

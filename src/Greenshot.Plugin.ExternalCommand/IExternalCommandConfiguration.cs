@@ -32,6 +32,10 @@ namespace Greenshot.Plugin.ExternalCommand;
 [Description("Greenshot ExternalCommand Plugin configuration")]
 public interface IExternalCommandConfiguration : IIniSection, IAfterLoad
 {
+    [Description("Whether to show a quicklink in the tray context menu for configuring this plugin.")]
+    [DefaultValue(false)]
+    bool QuicklinkEnabled { get; set; }
+
     [Description("The commands that are available.")]
     List<string> Commands { get; set; }
 
@@ -71,6 +75,24 @@ public interface IExternalCommandConfiguration : IIniSection, IAfterLoad
 
     [Description("Should the command be started in the background.")]
     Dictionary<string, bool> RunInbackground { get; set; }
+
+    [Description("Redirect standard error for the output command.")]
+    Dictionary<string, bool> RedirectStandardErrorCommand { get; set; }
+
+    [Description("Redirect standard output for the output command.")]
+    Dictionary<string, bool> RedirectStandardOutputCommand { get; set; }
+
+    [Description("Show standard output in log for the output command.")]
+    Dictionary<string, bool> ShowStandardOutputInLogCommand { get; set; }
+
+    [Description("Parse output for URI for the output command.")]
+    Dictionary<string, bool> ParseOutputForUriCommand { get; set; }
+
+    [Description("Copy standard output to clipboard for the output command.")]
+    Dictionary<string, bool> OutputToClipboardCommand { get; set; }
+
+    [Description("Copy found URI to clipboard for the output command.")]
+    Dictionary<string, bool> UriToClipboardCommand { get; set; }
 
     [Description("If a build in command was deleted manually, it should not be recreated.")]
     List<string> DeletedBuildInCommands { get; set; }

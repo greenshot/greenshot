@@ -10,6 +10,11 @@ namespace Greenshot.Tests.Core
 {
     public class BugReportWindowTests
     {
+        public BugReportWindowTests()
+        {
+            TestEnvironment.EnsureInitialized();
+        }
+
         [Fact]
         public async Task ShowReport_FromMTAThreadPoolThread_SpawnsSTAAndDoesNotCrash()
         {

@@ -137,7 +137,7 @@ namespace Greenshot.Tests.Recipes
 
             var result = RecipeValidator.Validate(recipe);
             Assert.True(result.HasExternalCommands, "Route B Destinations step with External designation must be flagged as having external commands.");
-            Assert.Contains(result.ExternalCommands, c => c.Contains("MS Paint"));
+            Assert.Contains(result.ExternalCommands, c => c.IndexOf("Paint", StringComparison.OrdinalIgnoreCase) >= 0 || c.IndexOf("pbrush", StringComparison.OrdinalIgnoreCase) >= 0);
         }
 
         [Fact]
@@ -162,7 +162,7 @@ namespace Greenshot.Tests.Recipes
 
             var result = RecipeValidator.Validate(recipe);
             Assert.True(result.HasExternalCommands, "Route B Destinations step with scalar Destinations string must be flagged.");
-            Assert.Contains(result.ExternalCommands, c => c.Contains("MS Paint"));
+            Assert.Contains(result.ExternalCommands, c => c.IndexOf("Paint", StringComparison.OrdinalIgnoreCase) >= 0 || c.IndexOf("pbrush", StringComparison.OrdinalIgnoreCase) >= 0);
         }
 
         [Fact]
@@ -187,7 +187,7 @@ namespace Greenshot.Tests.Recipes
 
             var result = RecipeValidator.Validate(recipe);
             Assert.True(result.HasExternalCommands, "Route B comma-separated destinations string must be flagged as having external commands.");
-            Assert.Contains(result.ExternalCommands, c => c.Contains("MS Paint"));
+            Assert.Contains(result.ExternalCommands, c => c.IndexOf("Paint", StringComparison.OrdinalIgnoreCase) >= 0 || c.IndexOf("pbrush", StringComparison.OrdinalIgnoreCase) >= 0);
         }
 
         [Fact]

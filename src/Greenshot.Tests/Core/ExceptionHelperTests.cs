@@ -7,6 +7,11 @@ namespace Greenshot.Tests.Core
 {
     public class ExceptionHelperTests
     {
+        public ExceptionHelperTests()
+        {
+            TestEnvironment.EnsureInitialized();
+        }
+
         [Fact]
         public void NormalizeStackTrace_HandlesEnglishLocale()
         {

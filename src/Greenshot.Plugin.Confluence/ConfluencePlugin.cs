@@ -20,7 +20,10 @@
  */
 
 using System;
+using System.ComponentModel;
+using System.Drawing;
 using System.Windows;
+using ToolStripMenuItem = System.Windows.Forms.ToolStripMenuItem;
 using Greenshot.Base.Core;
 using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
@@ -39,6 +42,7 @@ public class ConfluencePlugin : IGreenshotPlugin, IRecipeStepProvider
     private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluencePlugin));
     private static ConfluenceConnector _confluenceConnector;
     private static IConfluenceConfiguration _config;
+    private ToolStripMenuItem _itemPlugInConfig;
 
     public void Dispose()
     {
@@ -48,7 +52,12 @@ public class ConfluencePlugin : IGreenshotPlugin, IRecipeStepProvider
 
     private void Dispose(bool disposing)
     {
-        //if (disposing) {}
+        if (!disposing) return;
+        if (_itemPlugInConfig != null)
+        {
+            _itemPlugInConfig.Dispose();
+            _itemPlugInConfig = null;
+        }
     }
 
     /// <summary>
@@ -149,12 +158,51 @@ public class ConfluencePlugin : IGreenshotPlugin, IRecipeStepProvider
             SimpleServiceProvider.Current.AddService<IDestination>(new ConfluenceDestination());
         }
 
+        _itemPlugInConfig = new ToolStripMenuItem
+        {
+            Image = ConfluenceDestination.LoadConfluenceIcon(),
+            Text = PluginUtils.GetQuicklinkText("Confluence"),
+            Visible = _config?.QuicklinkEnabled ?? false
+        };
+        _itemPlugInConfig.Click += delegate { Configure(); };
+
+        PluginUtils.AddToContextMenu(_itemPlugInConfig);
+        Language.LanguageChanged += OnLanguageChanged;
+        if (_config is INotifyPropertyChanged notify)
+        {
+            notify.PropertyChanged += OnConfigPropertyChanged;
+        }
+
         return true;
+    }
+
+    private void OnConfigPropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(IConfluenceConfiguration.QuicklinkEnabled))
+        {
+            if (_itemPlugInConfig != null)
+            {
+                _itemPlugInConfig.Visible = _config?.QuicklinkEnabled ?? false;
+            }
+        }
+    }
+
+    public void OnLanguageChanged(object sender, EventArgs e)
+    {
+        if (_itemPlugInConfig != null)
+        {
+            _itemPlugInConfig.Text = PluginUtils.GetQuicklinkText("Confluence");
+        }
     }
 
     public void Shutdown()
     {
         LOG.Debug("Confluence Plugin shutdown.");
+        Language.LanguageChanged -= OnLanguageChanged;
+        if (_config is INotifyPropertyChanged notify)
+        {
+            notify.PropertyChanged -= OnConfigPropertyChanged;
+        }
         if (_confluenceConnector != null)
         {
             _confluenceConnector.Logout();

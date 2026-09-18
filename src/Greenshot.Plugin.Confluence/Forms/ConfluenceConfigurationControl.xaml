@@ -34,6 +34,7 @@
         <CheckBox IsChecked="{Binding IncludePersonSpaces}" Content="{support:Translate include_person_spaces}"/>
         <CheckBox IsChecked="{Binding OpenPageAfterUpload}" Content="{support:Translate open_page_after_upload}"/>
         <CheckBox IsChecked="{Binding CopyWikiMarkupForImageToClipboard}" Content="{support:Translate copy_wikimarkup}"/>
+        <CheckBox IsChecked="{Binding QuicklinkEnabled}" Content="{wpf:Translate quicklink_enable}"/>
 
         <Grid Margin="0,8,0,4">
             <Grid.ColumnDefinitions>

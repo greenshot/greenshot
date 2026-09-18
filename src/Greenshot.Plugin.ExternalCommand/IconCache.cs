@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom, Francis Noel
  * 
@@ -29,24 +29,81 @@ namespace Greenshot.Plugin.ExternalCommand;
 
 public static class IconCache
 {
-    private static readonly IExternalCommandConfiguration config = IniConfigRegistry.GetSection<IExternalCommandConfiguration>();
+    private static IExternalCommandConfiguration Config
+    {
+        get
+        {
+            try
+            {
+                return IniConfigRegistry.GetSection<IExternalCommandConfiguration>();
+            }
+            catch
+            {
+                return null;
+            }
+        }
+    }
     private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(IconCache));
 
     public static Image IconForCommand(string commandName)
     {
-        Image icon = null;
-        if (commandName != null)
+        if (string.IsNullOrEmpty(commandName))
         {
-            if (config.Commandline.ContainsKey(commandName) && File.Exists(config.Commandline[commandName]))
+            return null;
+        }
+
+        var configuration = Config;
+        string rawCommandLine = null;
+        if (configuration?.Commandline != null && configuration.Commandline.TryGetValue(commandName, out var cmdLine))
+        {
+            rawCommandLine = cmdLine;
+        }
+
+        string expanded = null;
+        if (!string.IsNullOrWhiteSpace(rawCommandLine))
+        {
+            try
             {
-                try
-                {
-                    icon = PluginUtils.GetCachedExeIcon(config.Commandline[commandName], 0);
-                }
-                catch (Exception ex)
-                {
-                    LOG.Warn("Problem loading icon for " + config.Commandline[commandName], ex);
-                }
+                expanded = FilenameHelper.FillVariables(rawCommandLine, true);
+                expanded = FilenameHelper.FillCmdVariables(expanded, true);
+            }
+            catch (Exception ex)
+            {
+                LOG.Warn("Problem expanding command line variables for " + rawCommandLine, ex);
+            }
+        }
+
+        Image icon = null;
+
+        // 1. Try loading from executable if path exists
+        string exePath = expanded;
+        if (!string.IsNullOrEmpty(exePath) && !File.Exists(exePath))
+        {
+            exePath = PluginUtils.GetExePath(exePath);
+        }
+
+        if (!string.IsNullOrEmpty(exePath) && File.Exists(exePath))
+        {
+            try
+            {
+                icon = PluginUtils.GetCachedExeIcon(exePath, 0);
+            }
+            catch (Exception ex)
+            {
+                LOG.Warn("Problem loading icon for " + exePath, ex);
+            }
+        }
+
+        // 2. Fallback: try Windows App logo (for AppExecutionAliases, packaged apps, or store apps)
+        if (icon == null)
+        {
+            try
+            {
+                icon = WindowsAppHelper.GetAppLogo(expanded ?? rawCommandLine, commandName);
+            }
+            catch (Exception ex)
+            {
+                LOG.Warn("Problem loading Windows App icon for " + commandName, ex);
             }
         }
 
