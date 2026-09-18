@@ -215,6 +215,7 @@ Name: it; MessagesFile: compiler:Languages\Italian.isl
 Name: nl; MessagesFile: compiler:Languages\Dutch.isl
 Name: lv; MessagesFile: Languages\Latvian.isl
 Name: nn; MessagesFile: Languages\NorwegianNynorsk.isl
+Name: ptBR; MessagesFile: compiler:Languages\BrazilianPortuguese.isl
 Name: ru; MessagesFile: compiler:Languages\Russian.isl
 Name: sr; MessagesFile: Languages\SerbianCyrillic.isl
 Name: sv; MessagesFile: compiler:Languages\Swedish.isl
@@ -424,6 +425,23 @@ nn.office=Microsoft Office Tillegg
 nn.zxing=ZXing QR/Barcode-tillegg
 nn.startgreenshot=Start {#ExeName}
 nn.startup=Start {#ExeName} når Windows startar
+
+ptBR.box=Plug-in do Box
+ptBR.confluence=Plug-in do Confluence
+ptBR.default=Instalação Padrão
+ptBR.dropbox=Plug-in do Dropbox
+ptBR.externalcommand=Plug-in Abrir com comando externo
+ptBR.imgur=Plug-in do Imgur (Veja: https://imgur.com)
+ptBR.jira=Plug-in do Jira
+ptBR.language=Idiomas adicionais
+ptBR.office=Plug-in do Microsoft Office
+ptBR.zxing=Plug-in do ZXing QR/Código de barras
+ptBR.startgreenshot=Iniciar {#ExeName}
+ptBR.startup=Iniciar {#ExeName} com o Windows
+ptBR.UninstallIconDescription=Desinstalar
+ptBR.ShowLicense=Mostrar licença
+ptBR.ShowReadme=Mostrar Leia-me
+ptBR.disablewin11snippingtool=Desativar ferramenta de captura padrão PrtScr do Win11
 
 ru.confluence=Плагин Confluence
 ru.externalcommand=Открыть с плагином с помощью внешней команды
