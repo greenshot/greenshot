@@ -151,11 +151,9 @@ namespace Greenshot.Helpers
         }
 
         /// <summary>
-        /// Adds any <c>.greenshot</c> state files saved by <see cref="SaveEditorState"/> to the
-        /// supplied <paramref name="transport"/> as <see cref="CommandEnum.OpenFile"/> commands, so
-        /// that the editors will be restored when Greenshot starts with the <c>--restore</c> argument.
+        /// Restores any <c>.greenshot</c> state files saved by <see cref="SaveEditorState"/>
+        /// so that the editors will be restored when Greenshot starts with the <c>--restore</c> argument.
         /// </summary>
-        /// <param name="transport">Transport object to which restore commands are added.</param>
         public static void RestoreState()
         {
             Log.InfoFormat("Greenshot started with a request to restore state.");
