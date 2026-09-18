@@ -32,6 +32,15 @@ Source: {#LanguagesDir}\*nl-NL*; Excludes: "*installer*,*website*"; DestDir: {ap
 Source: {#LanguagesDir}\*en-US*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: greenshot; Flags: {#DefaultInstallFlags};
 Source: {#LanguagesDir}\*de-DE*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: greenshot; Flags: {#DefaultInstallFlags};
 
+; Modern Windows 11 Context Menu Shell Extension
+Source: {#SolutionDir}\x64\Release\Greenshot.ShellExt.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags} restartreplace uninsrestartdelete skipifsourcedoesntexist; Check: IsWindows11OrLater
+#if CertumThumbprint != ""
+Source: {#SolutionDir}\x64\Release\Greenshot.ShellExt.msix; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags} signonce restartreplace uninsrestartdelete skipifsourcedoesntexist; Check: IsWindows11OrLater
+#else
+Source: {#SolutionDir}\x64\Release\Appx\AppxManifest.xml; DestDir: {app}\Greenshot.ShellExt; Components: greenshot; Flags: {#DefaultInstallFlags} skipifsourcedoesntexist; Check: IsWindows11OrLater
+Source: {#SolutionDir}\x64\Release\Appx\Assets\*.*; DestDir: {app}\Greenshot.ShellExt\Assets; Components: greenshot; Flags: {#DefaultInstallFlags} skipifsourcedoesntexist; Check: IsWindows11OrLater
+#endif
+
 [Components]
 Name: "disablesnippingtool"; Description: {cm:disablewin11snippingtool}; Flags: disablenouninstallwarning; Types: default full custom
 Name: "greenshot"; Description: "Greenshot"; Types: default full compact custom; Flags: fixed

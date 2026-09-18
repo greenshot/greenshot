@@ -50,3 +50,7 @@ Name: {app}\Plugins; Type: dirifempty;
 
 // Cleanup the main directory if there are no files left
 Name: {app}; Type: dirifempty;
+
+// Clean up any loose manifest files or old packages before installing
+Type: filesandordirs; Name: "{app}\Greenshot.ShellExt"
+Type: files; Name: "{app}\Greenshot.ShellExt.msix"

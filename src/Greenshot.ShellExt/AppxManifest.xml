@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Package
+  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+  xmlns:desktop4="http://schemas.microsoft.com/appx/manifest/desktop/windows10/4"
+  xmlns:desktop5="http://schemas.microsoft.com/appx/manifest/desktop/windows10/5"
+  xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10"
+  xmlns:uap10="http://schemas.microsoft.com/appx/manifest/uap/windows10/10"
+  IgnorableNamespaces="uap rescap desktop4 desktop5 com uap10">
+
+  <Identity
+    Name="Greenshot.ShellExtension"
+    Publisher="CN=Thomas Braun, O=Thomas Braun, S=Bavaria, C=DE"
+    Version="1.3.0.0"
+    ProcessorArchitecture="x64" />
+
+  <Properties>
+    <DisplayName>Greenshot Shell Extension</DisplayName>
+    <PublisherDisplayName>Thomas Braun</PublisherDisplayName>
+    <Logo>Assets\StoreLogo.png</Logo>
+    <uap10:AllowExternalContent>true</uap10:AllowExternalContent>
+  </Properties>
+
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.19041.0" MaxVersionTested="10.0.22621.0" />
+  </Dependencies>
+
+  <Capabilities>
+    <rescap:Capability Name="runFullTrust" />
+  </Capabilities>
+
+  <Applications>
+    <Application Id="GreenshotApp" Executable="Greenshot.exe" EntryPoint="Windows.FullTrustApplication">
+      <uap:VisualElements
+        DisplayName="Greenshot"
+        Description="Greenshot Screenshot Tool"
+        Square150x150Logo="Assets\Square150x150Logo.png"
+        Square44x44Logo="Assets\Square44x44Logo.png"
+        BackgroundColor="transparent" />
+
+      <Extensions>
+        <!-- Modern context menu -->
+        <desktop4:Extension Category="windows.fileExplorerContextMenus">
+          <desktop4:FileExplorerContextMenus>
+            <desktop5:ItemType Type=".png">
+              <desktop5:Verb Id="GreenshotEdit" Clsid="3D1E6BB3-7033-4D9A-BF6D-F18A32CA11B2" />
+            </desktop5:ItemType>
+            <desktop5:ItemType Type=".jpg">
+              <desktop5:Verb Id="GreenshotEdit" Clsid="3D1E6BB3-7033-4D9A-BF6D-F18A32CA11B2" />
+            </desktop5:ItemType>
+            <desktop5:ItemType Type=".jpeg">
+              <desktop5:Verb Id="GreenshotEdit" Clsid="3D1E6BB3-7033-4D9A-BF6D-F18A32CA11B2" />
+            </desktop5:ItemType>
+            <desktop5:ItemType Type=".bmp">
+              <desktop5:Verb Id="GreenshotEdit" Clsid="3D1E6BB3-7033-4D9A-BF6D-F18A32CA11B2" />
+            </desktop5:ItemType>
+            <desktop5:ItemType Type=".gif">
+              <desktop5:Verb Id="GreenshotEdit" Clsid="3D1E6BB3-7033-4D9A-BF6D-F18A32CA11B2" />
+            </desktop5:ItemType>
+            <desktop5:ItemType Type=".tiff">
+              <desktop5:Verb Id="GreenshotEdit" Clsid="3D1E6BB3-7033-4D9A-BF6D-F18A32CA11B2" />
+            </desktop5:ItemType>
+            <desktop5:ItemType Type=".webp">
+              <desktop5:Verb Id="GreenshotEdit" Clsid="3D1E6BB3-7033-4D9A-BF6D-F18A32CA11B2" />
+            </desktop5:ItemType>
+            <desktop5:ItemType Type=".svg">
+              <desktop5:Verb Id="GreenshotEdit" Clsid="3D1E6BB3-7033-4D9A-BF6D-F18A32CA11B2" />
+            </desktop5:ItemType>
+          </desktop4:FileExplorerContextMenus>
+        </desktop4:Extension>
+
+        <!-- COM server registration -->
+        <com:Extension Category="windows.comServer">
+          <com:ComServer>
+            <com:SurrogateServer DisplayName="Greenshot Context Menu">
+              <com:Class Id="3D1E6BB3-7033-4D9A-BF6D-F18A32CA11B2" Path="Greenshot.ShellExt.dll" ThreadingModel="STA" />
+            </com:SurrogateServer>
+          </com:ComServer>
+        </com:Extension>
+      </Extensions>
+    </Application>
+  </Applications>
+</Package>
