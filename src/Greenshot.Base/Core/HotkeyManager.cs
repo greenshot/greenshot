@@ -53,7 +53,10 @@ public static class HotkeyManager
     private static List<HotkeyInfo> _candidateSequences;
     private static int _activeChordIndex;
     private static DateTime _lastChordTime;
-    private static readonly TimeSpan ChordTimeout = TimeSpan.FromSeconds(2.5);
+    private static readonly TimeSpan ChordTimeout = TimeSpan.FromSeconds(5.0);
+
+    internal static int CandidateSequenceCount => _candidateSequences?.Count ?? 0;
+    internal static int ActiveChordIndex => _activeChordIndex;
 
     private class HotkeyInfo
     {
@@ -78,7 +81,7 @@ public static class HotkeyManager
     [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
     private static extern int GetKeyNameText(uint lParam, [Out] StringBuilder lpString, int nSize);
 
-    private static void HandleKeyboardEvent(KeyboardHookEventArgs e)
+    internal static void HandleKeyboardEvent(KeyboardHookEventArgs e)
     {
         if (IsPaused)
         {
@@ -91,21 +94,32 @@ public static class HotkeyManager
             return;
         }
 
+        // Ignore injected keys (e.g. from MaskWindowsKey or synthetic events) and Noname
+        if (e.IsInjectedByProcess || e.Key == VirtualKeyCode.Noname)
+        {
+            return;
+        }
+
         // Ignore modifier-only key presses as triggers
         if (e.IsModifier)
         {
             return;
         }
 
+        Log.DebugFormat("HotkeyManager: Processing keydown Key={0}, Injected={1}, Ctrl={2}, Alt={3}, Shift={4}, Win={5}, CandidateCount={6}",
+            e.Key, e.IsInjectedByProcess, e.IsControl, e.IsAlt, e.IsShift, e.IsWindows, _candidateSequences?.Count ?? 0);
+
         // Timeout check for multi-chord sequences
         if (_candidateSequences != null && (DateTime.UtcNow - _lastChordTime) > ChordTimeout)
         {
+            Log.DebugFormat("HotkeyManager: Sequence timed out after {0}s. Resetting candidate sequences.", ChordTimeout.TotalSeconds);
             ResetChordState();
         }
 
         // Allow Escape to cancel any pending multi-chord sequence
         if (_candidateSequences != null && e.Key == VirtualKeyCode.Escape)
         {
+            Log.Info("HotkeyManager: Multi-chord sequence cancelled by Escape key.");
             ResetChordState();
             e.Handled = true;
             return;
@@ -121,7 +135,7 @@ public static class HotkeyManager
         if (_candidateSequences != null)
         {
             var nextCandidates = _candidateSequences
-                .Where(c => _activeChordIndex < c.Sequence.Chords.Count && MatchChord(e, c.Sequence.Chords[_activeChordIndex]))
+                .Where(c => _activeChordIndex < c.Sequence.Chords.Count && MatchChord(e, c.Sequence.Chords[_activeChordIndex], c.Sequence.Chords[_activeChordIndex - 1]))
                 .ToList();
 
             if (nextCandidates.Count > 0)
@@ -137,6 +151,7 @@ public static class HotkeyManager
                     // Full sequence matched! Mark handled on the final chord and trigger handler
                     e.Handled = true;
                     var handler = completed.Handler;
+                    Log.InfoFormat("HotkeyManager: Completed multi-chord sequence '{0}'. Triggering action.", completed.Sequence);
                     ResetChordState();
                     handler();
                 }
@@ -144,6 +159,7 @@ public static class HotkeyManager
                 {
                     // Intermediate chord matched; consume the key event
                     e.Handled = true;
+                    Log.InfoFormat("HotkeyManager: Chord step {0} matched for sequence '{1}'. Waiting for next chord...", _activeChordIndex, nextCandidates[0].Sequence);
                 }
                 return;
             }
@@ -151,6 +167,7 @@ public static class HotkeyManager
             {
                 // Key didn't match any active candidate sequence; reset chord state and fall through
                 // to check if this key starts a new sequence
+                Log.DebugFormat("HotkeyManager: Key '{0}' did not match expected chord in candidate sequences. Resetting sequence.", e.Key);
                 ResetChordState();
             }
         }
@@ -161,6 +178,7 @@ public static class HotkeyManager
         if (singleMatch != null)
         {
             e.Handled = true;
+            Log.InfoFormat("HotkeyManager: Single-chord hotkey '{0}' matched. Triggering action.", singleMatch.Sequence);
             singleMatch.Handler();
             return;
         }
@@ -176,6 +194,7 @@ public static class HotkeyManager
             _activeChordIndex = 1;
             _lastChordTime = DateTime.UtcNow;
             e.Handled = true;
+            Log.InfoFormat("HotkeyManager: First chord matched for '{0}'. Waiting for next chord (timeout {1}s)...", matchingMulti[0].Sequence, ChordTimeout.TotalSeconds);
             return;
         }
     }
@@ -186,7 +205,7 @@ public static class HotkeyManager
         _activeChordIndex = 0;
     }
 
-    private static bool MatchChord(KeyboardHookEventArgs e, KeyChord chord)
+    private static bool MatchChord(KeyboardHookEventArgs e, KeyChord chord, KeyChord previousChord = null)
     {
         if (chord == null) return false;
 
@@ -203,7 +222,7 @@ public static class HotkeyManager
             if (chord.CtrlLocation == ModifierLocation.Left && !e.IsLeftControl) return false;
             if (chord.CtrlLocation == ModifierLocation.Right && !e.IsRightControl) return false;
         }
-        else if (e.IsControl)
+        else if (e.IsControl && (previousChord == null || !previousChord.Ctrl))
         {
             return false;
         }
@@ -215,7 +234,7 @@ public static class HotkeyManager
             if (chord.AltLocation == ModifierLocation.Left && !e.IsLeftAlt) return false;
             if (chord.AltLocation == ModifierLocation.Right && !e.IsRightAlt) return false;
         }
-        else if (e.IsAlt)
+        else if (e.IsAlt && (previousChord == null || !previousChord.Alt))
         {
             return false;
         }
@@ -227,7 +246,7 @@ public static class HotkeyManager
             if (chord.ShiftLocation == ModifierLocation.Left && !e.IsLeftShift) return false;
             if (chord.ShiftLocation == ModifierLocation.Right && !e.IsRightShift) return false;
         }
-        else if (e.IsShift)
+        else if (e.IsShift && (previousChord == null || !previousChord.Shift))
         {
             return false;
         }
@@ -239,7 +258,7 @@ public static class HotkeyManager
             if (chord.WinLocation == ModifierLocation.Left && !e.IsLeftWindows) return false;
             if (chord.WinLocation == ModifierLocation.Right && !e.IsRightWindows) return false;
         }
-        else if (e.IsWindows)
+        else if (e.IsWindows && (previousChord == null || !previousChord.Win))
         {
             return false;
         }

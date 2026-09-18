@@ -295,5 +295,144 @@ namespace Greenshot.Tests.Forms
             // Should either return payload (if clipboard contains image) or abort cleanly, without throwing ThreadStateException
             Assert.True(context.IsAborted || payload != null);
         }
+
+        private static Dapplo.Windows.Input.Keyboard.KeyboardHookEventArgs CreateKeyboardHookEventArgs(
+            VirtualKeyCode key,
+            bool isKeyDown,
+            bool isLeftWin = false,
+            bool isRightWin = false,
+            bool isLeftControl = false,
+            bool isLeftAlt = false,
+            bool isLeftShift = false)
+        {
+            var args = (Dapplo.Windows.Input.Keyboard.KeyboardHookEventArgs)System.Runtime.Serialization.FormatterServices.GetUninitializedObject(typeof(Dapplo.Windows.Input.Keyboard.KeyboardHookEventArgs));
+            var type = typeof(Dapplo.Windows.Input.Keyboard.KeyboardHookEventArgs);
+            var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+
+            type.GetField("<Key>k__BackingField", flags)?.SetValue(args, key);
+            type.GetField("<IsKeyDown>k__BackingField", flags)?.SetValue(args, isKeyDown);
+            type.GetField("<IsLeftWindows>k__BackingField", flags)?.SetValue(args, isLeftWin);
+            type.GetField("<IsRightWindows>k__BackingField", flags)?.SetValue(args, isRightWin);
+            type.GetField("<IsLeftControl>k__BackingField", flags)?.SetValue(args, isLeftControl);
+            type.GetField("<IsLeftAlt>k__BackingField", flags)?.SetValue(args, isLeftAlt);
+            type.GetField("<IsLeftShift>k__BackingField", flags)?.SetValue(args, isLeftShift);
+
+            return args;
+        }
+
+        [Fact]
+        public void HotkeyManager_SequenceWithHeldModifier_TriggersCorrectly()
+        {
+            HotkeyManager.ClearRegisteredHotkeys();
+            bool triggered = false;
+            var seq = HotkeySequence.Parse("Win + PrintScreen, C");
+            HotkeyManager.RegisterHotKey(seq, () => triggered = true);
+
+            // Step 1: User presses Win + PrintScreen
+            var e1 = CreateKeyboardHookEventArgs(VirtualKeyCode.Snapshot, isKeyDown: true, isLeftWin: true);
+            HotkeyManager.HandleKeyboardEvent(e1);
+
+            Assert.True(e1.Handled);
+            Assert.Equal(1, HotkeyManager.CandidateSequenceCount);
+            Assert.Equal(1, HotkeyManager.ActiveChordIndex);
+            Assert.False(triggered);
+
+            // Step 2: User presses C while still holding Win
+            var e2 = CreateKeyboardHookEventArgs(VirtualKeyCode.KeyC, isKeyDown: true, isLeftWin: true);
+            HotkeyManager.HandleKeyboardEvent(e2);
+
+            Assert.True(e2.Handled);
+            Assert.True(triggered);
+            Assert.Equal(0, HotkeyManager.CandidateSequenceCount);
+            Assert.Equal(0, HotkeyManager.ActiveChordIndex);
+
+            HotkeyManager.ClearRegisteredHotkeys();
+        }
+
+        [Fact]
+        public void HotkeyManager_SequenceWithReleasedModifier_TriggersCorrectly()
+        {
+            HotkeyManager.ClearRegisteredHotkeys();
+            bool triggered = false;
+            var seq = HotkeySequence.Parse("Win + PrintScreen, C");
+            HotkeyManager.RegisterHotKey(seq, () => triggered = true);
+
+            // Step 1: User presses Win + PrintScreen
+            var e1 = CreateKeyboardHookEventArgs(VirtualKeyCode.Snapshot, isKeyDown: true, isLeftWin: true);
+            HotkeyManager.HandleKeyboardEvent(e1);
+
+            Assert.True(e1.Handled);
+            Assert.Equal(1, HotkeyManager.CandidateSequenceCount);
+            Assert.Equal(1, HotkeyManager.ActiveChordIndex);
+            Assert.False(triggered);
+
+            // Step 2: User releases Win, then presses C
+            var e2 = CreateKeyboardHookEventArgs(VirtualKeyCode.KeyC, isKeyDown: true, isLeftWin: false);
+            HotkeyManager.HandleKeyboardEvent(e2);
+
+            Assert.True(e2.Handled);
+            Assert.True(triggered);
+            Assert.Equal(0, HotkeyManager.CandidateSequenceCount);
+            Assert.Equal(0, HotkeyManager.ActiveChordIndex);
+
+            HotkeyManager.ClearRegisteredHotkeys();
+        }
+
+        [Fact]
+        public void HotkeyManager_SequenceAbortsOnEscape()
+        {
+            HotkeyManager.ClearRegisteredHotkeys();
+            bool triggered = false;
+            var seq = HotkeySequence.Parse("Win + PrintScreen, C");
+            HotkeyManager.RegisterHotKey(seq, () => triggered = true);
+
+            // Step 1: User presses Win + PrintScreen
+            var e1 = CreateKeyboardHookEventArgs(VirtualKeyCode.Snapshot, isKeyDown: true, isLeftWin: true);
+            HotkeyManager.HandleKeyboardEvent(e1);
+            Assert.Equal(1, HotkeyManager.CandidateSequenceCount);
+
+            // User presses Escape
+            var esc = CreateKeyboardHookEventArgs(VirtualKeyCode.Escape, isKeyDown: true);
+            HotkeyManager.HandleKeyboardEvent(esc);
+            Assert.True(esc.Handled);
+            Assert.Equal(0, HotkeyManager.CandidateSequenceCount);
+            Assert.False(triggered);
+
+            HotkeyManager.ClearRegisteredHotkeys();
+        }
+
+        [Fact]
+        public void HotkeyManager_SequenceIgnoresInjectedKeysAndNoname()
+        {
+            HotkeyManager.ClearRegisteredHotkeys();
+            bool triggered = false;
+            var seq = HotkeySequence.Parse("Win + PrintScreen, C");
+            HotkeyManager.RegisterHotKey(seq, () => triggered = true);
+
+            // Step 1: User presses Win + PrintScreen
+            var e1 = CreateKeyboardHookEventArgs(VirtualKeyCode.Snapshot, isKeyDown: true, isLeftWin: true);
+            HotkeyManager.HandleKeyboardEvent(e1);
+            Assert.Equal(1, HotkeyManager.CandidateSequenceCount);
+            Assert.Equal(1, HotkeyManager.ActiveChordIndex);
+
+            // Injected Noname arrives (e.g. from Windows key masking)
+            var noname = CreateKeyboardHookEventArgs(VirtualKeyCode.Noname, isKeyDown: true);
+            HotkeyManager.HandleKeyboardEvent(noname);
+
+            // Sequence should NOT be reset by Noname!
+            Assert.Equal(1, HotkeyManager.CandidateSequenceCount);
+            Assert.Equal(1, HotkeyManager.ActiveChordIndex);
+            Assert.False(triggered);
+
+            // Step 2: User presses C
+            var e2 = CreateKeyboardHookEventArgs(VirtualKeyCode.KeyC, isKeyDown: true, isLeftWin: false);
+            HotkeyManager.HandleKeyboardEvent(e2);
+
+            Assert.True(e2.Handled);
+            Assert.True(triggered);
+            Assert.Equal(0, HotkeyManager.CandidateSequenceCount);
+
+            HotkeyManager.ClearRegisteredHotkeys();
+        }
     }
 }
