@@ -216,5 +216,16 @@ namespace Greenshot.Forms.Wpf
             // Force save of all configuration sections
             IniConfigRegistry.Get()?.Save();
         }
+
+        private void HotkeyDisplayControl_EditRequested(object sender, EventArgs e)
+        {
+            if (sender is UI.Controls.HotkeyDisplayControl displayControl)
+            {
+                HotkeyModal.Open(displayControl.HeaderText, displayControl.HotkeyString, newHotkey =>
+                {
+                    displayControl.HotkeyString = newHotkey;
+                });
+            }
+        }
     }
 }

@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -26,6 +26,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
+using Dapplo.Windows.Input.Enums;
 using Dapplo.Windows.Input.Keyboard;
 using log4net;
 
@@ -33,20 +34,30 @@ namespace Greenshot.Base.Core;
 
 /// <summary>
 /// HotkeyManager handles hotkey registration and execution.
+/// Supports single chords, multi-chord sequences, modifier sides (Left/Right/Any), and dynamic registration.
 /// </summary>
 public static class HotkeyManager
 {
     private static readonly ILog Log = LogManager.GetLogger(typeof(HotkeyManager));
 
-    // Holds the list of hotkeys
     private static readonly List<HotkeyInfo> RegisteredHotkeys = new List<HotkeyInfo>();
     private static IDisposable _keyboardSubscription;
     private static int _hotKeyCounter = 1;
 
+    /// <summary>
+    /// When true, hotkey handling is paused (e.g. while an in-window modal editor is recording keys).
+    /// </summary>
+    public static bool IsPaused { get; set; }
+
+    // Multi-chord sequence tracking
+    private static HotkeyInfo _activeSequenceInfo;
+    private static int _activeChordIndex;
+    private static DateTime _lastChordTime;
+    private static readonly TimeSpan ChordTimeout = TimeSpan.FromSeconds(2.5);
+
     private class HotkeyInfo
     {
-        public Keys Modifiers { get; set; }
-        public Keys Key { get; set; }
+        public HotkeySequence Sequence { get; set; }
         public Action Handler { get; set; }
         public int Id { get; set; }
     }
@@ -69,9 +80,27 @@ public static class HotkeyManager
 
     private static void HandleKeyboardEvent(KeyboardHookEventArgs e)
     {
+        if (IsPaused)
+        {
+            ResetChordState();
+            return;
+        }
+
         if (!e.IsKeyDown)
         {
             return;
+        }
+
+        // Ignore modifier-only key presses as triggers
+        if (e.IsModifier)
+        {
+            return;
+        }
+
+        // Timeout check for multi-chord sequences
+        if (_activeSequenceInfo != null && (DateTime.UtcNow - _lastChordTime) > ChordTimeout)
+        {
+            ResetChordState();
         }
 
         List<HotkeyInfo> hotkeys;
@@ -80,46 +109,144 @@ public static class HotkeyManager
             hotkeys = RegisteredHotkeys.ToList();
         }
 
+        // 1. If currently in the middle of a multi-chord sequence, check if this key matches the next chord
+        if (_activeSequenceInfo != null)
+        {
+            var nextChord = _activeSequenceInfo.Sequence.Chords[_activeChordIndex];
+            if (MatchChord(e, nextChord))
+            {
+                _activeChordIndex++;
+                _lastChordTime = DateTime.UtcNow;
+
+                if (_activeChordIndex >= _activeSequenceInfo.Sequence.Chords.Count)
+                {
+                    // Full sequence matched! Mark handled on the final chord and trigger handler
+                    e.Handled = true;
+                    var handler = _activeSequenceInfo.Handler;
+                    ResetChordState();
+                    handler();
+                }
+                else
+                {
+                    // Intermediate chord matched; consume the key event
+                    e.Handled = true;
+                }
+                return;
+            }
+            else
+            {
+                // Key didn't match the expected next chord; reset sequence and fall through to check for starting a new sequence
+                ResetChordState();
+            }
+        }
+
+        // 2. Check registered hotkeys for starting chord matches
         foreach (var hotkey in hotkeys)
         {
-            if (Match(e, hotkey))
+            if (hotkey.Sequence == null || hotkey.Sequence.Chords.Count == 0)
             {
-                e.Handled = true;
-                hotkey.Handler();
+                continue;
+            }
+
+            var firstChord = hotkey.Sequence.Chords[0];
+            if (MatchChord(e, firstChord))
+            {
+                if (hotkey.Sequence.Chords.Count == 1)
+                {
+                    // Single chord match!
+                    e.Handled = true;
+                    hotkey.Handler();
+                    return;
+                }
+                else
+                {
+                    // Multi-chord sequence started
+                    _activeSequenceInfo = hotkey;
+                    _activeChordIndex = 1;
+                    _lastChordTime = DateTime.UtcNow;
+                    e.Handled = true;
+                    return;
+                }
             }
         }
     }
 
-    private static bool Match(KeyboardHookEventArgs e, HotkeyInfo hotkey)
+    private static void ResetChordState()
     {
-        if ((int)e.Key != (int)hotkey.Key)
+        _activeSequenceInfo = null;
+        _activeChordIndex = 0;
+    }
+
+    private static bool MatchChord(KeyboardHookEventArgs e, KeyChord chord)
+    {
+        if (chord == null) return false;
+
+        // Compare virtual key code
+        if (e.Key != chord.Key)
         {
             return false;
         }
 
-        bool alt = (hotkey.Modifiers & Keys.Alt) != 0;
-        bool ctrl = (hotkey.Modifiers & Keys.Control) != 0;
-        bool shift = (hotkey.Modifiers & Keys.Shift) != 0;
-        bool win = (hotkey.Modifiers & Keys.LWin) != 0 || (hotkey.Modifiers & Keys.RWin) != 0;
+        // Check Ctrl and modifier side
+        if (chord.Ctrl)
+        {
+            if (!e.IsControl) return false;
+            if (chord.CtrlLocation == ModifierLocation.Left && !e.IsLeftControl) return false;
+            if (chord.CtrlLocation == ModifierLocation.Right && !e.IsRightControl) return false;
+        }
+        else if (e.IsControl)
+        {
+            return false;
+        }
 
-        return e.IsAlt == alt &&
-               e.IsControl == ctrl &&
-               e.IsShift == shift &&
-               e.IsWindows == win;
+        // Check Alt and modifier side
+        if (chord.Alt)
+        {
+            if (!e.IsAlt) return false;
+            if (chord.AltLocation == ModifierLocation.Left && !e.IsLeftAlt) return false;
+            if (chord.AltLocation == ModifierLocation.Right && !e.IsRightAlt) return false;
+        }
+        else if (e.IsAlt)
+        {
+            return false;
+        }
+
+        // Check Shift and modifier side
+        if (chord.Shift)
+        {
+            if (!e.IsShift) return false;
+            if (chord.ShiftLocation == ModifierLocation.Left && !e.IsLeftShift) return false;
+            if (chord.ShiftLocation == ModifierLocation.Right && !e.IsRightShift) return false;
+        }
+        else if (e.IsShift)
+        {
+            return false;
+        }
+
+        // Check Windows and modifier side
+        if (chord.Win)
+        {
+            if (!e.IsWindows) return false;
+            if (chord.WinLocation == ModifierLocation.Left && !e.IsLeftWindows) return false;
+            if (chord.WinLocation == ModifierLocation.Right && !e.IsRightWindows) return false;
+        }
+        else if (e.IsWindows)
+        {
+            return false;
+        }
+
+        return true;
     }
 
     /// <summary>
-    /// Register a hotkey with an action
+    /// Register a hotkey sequence with an action.
+    /// Does not re-create the underlying KeyboardHook subscription if already active.
     /// </summary>
-    /// <param name="modifierKeyCode">The modifier, e.g.: Keys.Control, Keys.None or Keys.Alt</param>
-    /// <param name="virtualKeyCode">The virtual key code</param>
-    /// <param name="handler">A Action, this will be called to handle the hotkey press</param>
-    /// <returns>the hotkey number, -1 if failed</returns>
-    public static int RegisterHotKey(Keys modifierKeyCode, Keys virtualKeyCode, Action handler)
+    public static int RegisterHotKey(HotkeySequence sequence, Action handler)
     {
-        if (virtualKeyCode == Keys.None)
+        if (sequence == null || sequence.IsEmpty)
         {
-            Log.Warn("Trying to register a Keys.none hotkey, ignoring");
+            Log.Warn("Trying to register an empty hotkey sequence, ignoring");
             return 0;
         }
 
@@ -127,18 +254,17 @@ public static class HotkeyManager
 
         lock (RegisteredHotkeys)
         {
-            var existing = RegisteredHotkeys.FirstOrDefault(x => x.Modifiers == modifierKeyCode && x.Key == virtualKeyCode);
+            var existing = RegisteredHotkeys.FirstOrDefault(x => x.Sequence.Equals(sequence));
             if (existing != null)
             {
-                Log.WarnFormat("Hotkey {0}+{1} already registered (ID {2}). Replacing previous handler to prevent duplicate triggers.", modifierKeyCode, virtualKeyCode, existing.Id);
+                Log.WarnFormat("Hotkey {0} already registered (ID {1}). Replacing previous handler to prevent duplicate triggers.", sequence, existing.Id);
                 existing.Handler = handler;
                 return existing.Id;
             }
 
             var hotkeyInfo = new HotkeyInfo
             {
-                Modifiers = modifierKeyCode,
-                Key = virtualKeyCode,
+                Sequence = sequence,
                 Handler = handler,
                 Id = _hotKeyCounter++
             };
@@ -148,10 +274,40 @@ public static class HotkeyManager
     }
 
     /// <summary>
+    /// Register a hotkey string (supports chords, side specifications, or legacy strings) with an action.
+    /// </summary>
+    public static int RegisterHotKey(string hotkeyString, Action handler)
+    {
+        var sequence = HotkeySequence.Parse(hotkeyString);
+        return RegisterHotKey(sequence, handler);
+    }
+
+    /// <summary>
+    /// Register a hotkey with an action (legacy overload for Keys modifier and Keys virtualKey).
+    /// </summary>
+    public static int RegisterHotKey(Keys modifierKeyCode, Keys virtualKeyCode, Action handler)
+    {
+        if (virtualKeyCode == Keys.None)
+        {
+            Log.Warn("Trying to register a Keys.none hotkey, ignoring");
+            return 0;
+        }
+
+        var chord = new KeyChord((VirtualKeyCode)(int)virtualKeyCode)
+        {
+            Ctrl = (modifierKeyCode & Keys.Control) != 0,
+            Alt = (modifierKeyCode & Keys.Alt) != 0,
+            Shift = (modifierKeyCode & Keys.Shift) != 0,
+            Win = (modifierKeyCode & Keys.LWin) != 0 || (modifierKeyCode & Keys.RWin) != 0
+        };
+
+        var sequence = HotkeySequence.FromChord(chord);
+        return RegisterHotKey(sequence, handler);
+    }
+
+    /// <summary>
     /// Unregisters all currently registered global hotkeys and releases associated resources.
     /// </summary>
-    /// <remarks>Call this method to remove all hotkey bindings and clean up keyboard event subscriptions.
-    /// After calling this method, no hotkeys will be active until they are registered again.</remarks>
     public static void UnregisterHotkeys()
     {
         lock (RegisteredHotkeys)
@@ -159,14 +315,25 @@ public static class HotkeyManager
             _keyboardSubscription?.Dispose();
             _keyboardSubscription = null;
             RegisteredHotkeys.Clear();
+            ResetChordState();
+        }
+    }
+
+    /// <summary>
+    /// Clears registered hotkeys without disposing the underlying keyboard subscription.
+    /// </summary>
+    public static void ClearRegisteredHotkeys()
+    {
+        lock (RegisteredHotkeys)
+        {
+            RegisteredHotkeys.Clear();
+            ResetChordState();
         }
     }
 
     /// <summary>
     /// Unregisters a specific hotkey by its registration ID.
     /// </summary>
-    /// <param name="id">The hotkey registration ID.</param>
-    /// <returns>True if unregistered, false if not found.</returns>
     public static bool UnregisterHotKey(int id)
     {
         lock (RegisteredHotkeys)
@@ -189,44 +356,33 @@ public static class HotkeyManager
     /// <summary>
     /// Converts a hotkey string to its localized display representation.
     /// </summary>
-    /// <remarks>Use this method to present hotkey combinations in a user-friendly, localized format suitable
-    /// for display in UI elements. The method parses the input string to extract modifiers and key codes, then formats
-    /// them according to localization settings.</remarks>
-    /// <param name="hotkeyString">A string representing the hotkey combination to be localized. The string should follow the expected format for
-    /// hotkey definitions.</param>
-    /// <returns>A localized string that describes the hotkey combination. The string reflects the current system language and
-    /// keyboard layout.</returns>
     public static string GetLocalizedHotkeyStringFromString(string hotkeyString)
     {
-        Keys virtualKeyCode = HotkeyFromString(hotkeyString);
-        Keys modifiers = HotkeyModifiersFromString(hotkeyString);
-        return HotkeyToLocalizedString(modifiers, virtualKeyCode);
+        if (string.IsNullOrWhiteSpace(hotkeyString) || string.Equals(hotkeyString.Trim(), "None", StringComparison.OrdinalIgnoreCase))
+        {
+            return "None";
+        }
+
+        var sequence = HotkeySequence.Parse(hotkeyString);
+        if (sequence.IsEmpty)
+        {
+            return "None";
+        }
+
+        return sequence.ToString();
     }
 
     /// <summary>
     /// Converts the specified modifier and virtual key codes to a human-readable hotkey string representation.
     /// </summary>
-    /// <param name="modifierKeyCode">The modifier key or combination of modifier keys to include in the hotkey string. Typical values include
-    /// Control, Alt, Shift, or combinations thereof.</param>
-    /// <param name="virtualKeyCode">The virtual key code representing the main key of the hotkey. This is appended to the modifier keys in the
-    /// resulting string.</param>
-    /// <returns>A string that represents the combined modifier and virtual key as a hotkey, suitable for display to users.</returns>
     public static string HotkeyToString(Keys modifierKeyCode, Keys virtualKeyCode)
     {
         return HotkeyModifiersToString(modifierKeyCode) + virtualKeyCode;
     }
 
     /// <summary>
-    /// Converts the specified modifier key code to a human-readable string representing the combination of modifier
-    /// keys.
+    /// Converts the specified modifier key code to a human-readable string representing the combination of modifier keys.
     /// </summary>
-    /// <remarks>The returned string lists modifier keys in the order: Alt, Ctrl, Shift, Win. This method does
-    /// not include non-modifier keys in the output.</remarks>
-    /// <param name="modifierKeyCode">A bitwise combination of modifier keys from the <see cref="Keys"/> enumeration to be converted to a string.
-    /// Typical values include <see cref="Keys.Alt"/>, <see cref="Keys.Control"/>, <see cref="Keys.Shift"/>, <see
-    /// cref="Keys.LWin"/>, and <see cref="Keys.RWin"/>.</param>
-    /// <returns>A string containing the names of all modifier keys present in <paramref name="modifierKeyCode"/>, separated by "
-    /// + ". If no modifier keys are present, returns an empty string.</returns>
     public static string HotkeyModifiersToString(Keys modifierKeyCode)
     {
         StringBuilder hotkeyString = new StringBuilder();
@@ -256,14 +412,6 @@ public static class HotkeyManager
     /// <summary>
     /// Converts the specified modifier and virtual key codes to a localized string representation of the hotkey.
     /// </summary>
-    /// <remarks>The returned string is suitable for display in user interfaces and reflects the current
-    /// localization settings. Use this method to present hotkey combinations in a way that is familiar to users in
-    /// their language and region.</remarks>
-    /// <param name="modifierKeyCode">The modifier key or combination of modifier keys to include in the hotkey string. Typical values include
-    /// Control, Alt, Shift, or combinations thereof.</param>
-    /// <param name="virtualKeyCode">The virtual key code representing the main key of the hotkey. This is combined with the modifier keys to form
-    /// the complete hotkey string.</param>
-    /// <returns>A localized string that represents the hotkey combination specified by the modifier and virtual key codes.</returns>
     public static string HotkeyToLocalizedString(Keys modifierKeyCode, Keys virtualKeyCode)
     {
         return HotkeyModifiersToLocalizedString(modifierKeyCode) + GetKeyName(virtualKeyCode);
@@ -272,11 +420,6 @@ public static class HotkeyManager
     /// <summary>
     /// Converts a set of hotkey modifier keys to a localized string representation suitable for display.
     /// </summary>
-    /// <remarks>The returned string includes only the modifier keys present in the input. The order of
-    /// modifiers in the string follows Alt, Control, Shift, and Windows keys.</remarks>
-    /// <param name="modifierKeyCode">A bitwise combination of modifier keys from the <see cref="Keys"/> enumeration to be converted.</param>
-    /// <returns>A string containing the localized names of the specified modifier keys, separated by " + ". Returns an empty
-    /// string if no modifiers are specified.</returns>
     public static string HotkeyModifiersToLocalizedString(Keys modifierKeyCode)
     {
         StringBuilder hotkeyString = new StringBuilder();
@@ -306,13 +449,6 @@ public static class HotkeyManager
     /// <summary>
     /// Converts a string representation of keyboard modifier keys into a combination of corresponding <see cref="Keys"/> flags.
     /// </summary>
-    /// <remarks>The method recognizes "Alt", "Ctrl", "Shift", and "Win" as valid modifier names. Multiple
-    /// modifiers can be specified in the input string, and their corresponding flags will be combined. Unrecognized
-    /// modifier names are ignored.</remarks>
-    /// <param name="modifiersString">A string containing the names of modifier keys (such as "Alt", "Ctrl", "Shift", or "Win"). The string is
-    /// case-insensitive and may include multiple modifiers.</param>
-    /// <returns>A <see cref="Keys"/> value representing the combined modifier keys specified in <paramref
-    /// name="modifiersString"/>. Returns <see cref="Keys.None"/> if no valid modifiers are found.</returns>
     public static Keys HotkeyModifiersFromString(string modifiersString)
     {
         Keys modifiers = Keys.None;
@@ -345,23 +481,35 @@ public static class HotkeyManager
     /// <summary>
     /// Converts a string representation of a hotkey to its corresponding <see cref="Keys"/> value.
     /// </summary>
-    /// <remarks>Only the main key after the last '+' character is parsed. Modifier keys are ignored in the
-    /// result. The input must match a valid <see cref="Keys"/> enumeration name.</remarks>
-    /// <param name="hotkey">A string containing the hotkey name or combination. The string may include modifier keys separated by '+', with
-    /// the main key at the end.</param>
-    /// <returns>A <see cref="Keys"/> value representing the main key of the hotkey. Returns <see cref="Keys.None"/> if the input
-    /// is null, empty, or invalid.</returns>
     public static Keys HotkeyFromString(string hotkey)
     {
         Keys key = Keys.None;
         if (!string.IsNullOrEmpty(hotkey))
         {
+            // If it's a sequence, take the first chord's trigger key
+            if (hotkey.Contains(","))
+            {
+                hotkey = hotkey.Split(',')[0];
+            }
+
             if (hotkey.LastIndexOf('+') > 0)
             {
                 hotkey = hotkey.Remove(0, hotkey.LastIndexOf('+') + 1).Trim();
             }
 
-            key = (Keys)Enum.Parse(typeof(Keys), hotkey);
+            // Clean any trailing or leading whitespace
+            hotkey = hotkey.Trim();
+
+            // Handle common name mapping
+            if (string.Equals(hotkey, "Snapshot", StringComparison.OrdinalIgnoreCase))
+            {
+                return Keys.PrintScreen;
+            }
+
+            if (Enum.TryParse<Keys>(hotkey, true, out var parsed))
+            {
+                return parsed;
+            }
         }
 
         return key;
@@ -370,12 +518,6 @@ public static class HotkeyManager
     /// <summary>
     /// Returns a user-friendly display name for the specified keyboard key.
     /// </summary>
-    /// <remarks>This method handles special cases for modifier and numpad keys to provide more readable
-    /// names. The returned name is suitable for display in user interfaces where keyboard shortcuts or key names are
-    /// shown.</remarks>
-    /// <param name="givenKey">The keyboard key for which to retrieve the display name.</param>
-    /// <returns>A string containing the display name of the specified key. If the key cannot be resolved to a display name, the
-    /// method returns the string representation of the key.</returns>
     public static string GetKeyName(Keys givenKey)
     {
         StringBuilder keyName = new StringBuilder();
@@ -383,7 +525,6 @@ public static class HotkeyManager
 
         Keys virtualKey = givenKey;
         string keyString;
-        // Make VC's to real keys
         switch (virtualKey)
         {
             case Keys.Alt:
@@ -419,27 +560,25 @@ public static class HotkeyManager
 
         uint scanCode = MapVirtualKey((uint)virtualKey, (uint)MapType.MAPVK_VK_TO_VSC);
 
-        // because MapVirtualKey strips the extended bit for some keys
         switch (virtualKey)
         {
             case Keys.Left:
             case Keys.Up:
             case Keys.Right:
-            case Keys.Down: // arrow keys
+            case Keys.Down:
             case Keys.Prior:
-            case Keys.Next: // page up and page down
+            case Keys.Next:
             case Keys.End:
             case Keys.Home:
             case Keys.Insert:
             case Keys.Delete:
             case Keys.NumLock:
-                Log.Debug("Modifying Extended bit");
-                scanCode |= 0x100; // set extended bit
+                scanCode |= 0x100;
                 break;
-            case Keys.PrintScreen: // PrintScreen
+            case Keys.PrintScreen:
                 scanCode = 311;
                 break;
-            case Keys.Pause: // PrintScreen
+            case Keys.Pause:
                 scanCode = 69;
                 break;
         }

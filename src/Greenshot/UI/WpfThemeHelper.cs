@@ -34,6 +34,17 @@ namespace Greenshot.UI
 
         public static event System.Action ThemeChanged;
 
+        static WpfThemeHelper()
+        {
+            Greenshot.Base.Wpf.ThemeManager.Instance.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(Greenshot.Base.Wpf.ThemeManager.IsDarkTheme))
+                {
+                    ThemeChanged?.Invoke();
+                }
+            };
+        }
+
         /// <summary>
         /// Returns true if Windows system apps or user override is set to Dark Mode.
         /// </summary>
@@ -45,28 +56,14 @@ namespace Greenshot.UI
                 {
                     return _themeOverride.Value;
                 }
-                try
-                {
-                    using (var key = Registry.CurrentUser.OpenSubKey(PersonalizeKey))
-                    {
-                        var val = key?.GetValue("AppsUseLightTheme");
-                        if (val is int intVal)
-                        {
-                            return intVal == 0;
-                        }
-                    }
-                }
-                catch
-                {
-                    // Fall back to light mode on error
-                }
-                return false;
+                return Greenshot.Base.Wpf.ThemeManager.Instance.IsDarkTheme;
             }
             set
             {
                 if (_themeOverride != value)
                 {
                     _themeOverride = value;
+                    Greenshot.Base.Wpf.ThemeManager.Instance.IsDarkTheme = value;
                     ThemeChanged?.Invoke();
                 }
             }

@@ -7,6 +7,8 @@
         xmlns:vm="clr-namespace:Greenshot.UI.RecipeEditor.ViewModels"
         xmlns:conv="clr-namespace:Greenshot.UI.RecipeEditor.Converters"
         xmlns:emoji="clr-namespace:Greenshot.Editor.Controls.Emoji;assembly=Greenshot.Editor"
+        xmlns:controls="clr-namespace:Greenshot.UI.Controls"
+        xmlns:forms="clr-namespace:Greenshot.Forms.Wpf"
         mc:Ignorable="d"
         Title="Greenshot - Recipe Visual Editor"
         Height="800" Width="1240"
@@ -2961,12 +2963,10 @@
                                                         <!-- Trigger specific fields -->
                                                         <!-- 1. Hotkey -->
                                                         <StackPanel Visibility="{Binding IsHotkey, Converter={StaticResource BoolToVis}}" Margin="0,2,0,0">
-                                                            <TextBlock Text="Hotkey Combination" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
-                                                            <TextBox Text="{Binding Hotkey, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                                     FontFamily="Consolas" FontSize="11"
-                                                                     Background="{Binding DataContext.WindowBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                                     Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                                     Padding="4,2" Margin="0,2,0,0"/>
+                                                            <TextBlock Text="Hotkey Combination" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}" Margin="0,0,0,4"/>
+                                                            <controls:HotkeyDisplayControl HotkeyString="{Binding Hotkey, Mode=TwoWay}"
+                                                                                           EditRequested="RecipeHotkey_EditRequested"
+                                                                                           HorizontalAlignment="Left"/>
                                                         </StackPanel>
 
                                                         <!-- 2. Context Menu -->
@@ -3038,6 +3038,12 @@
                     <TextBlock Grid.Column="1" Text="Greenshot DAG Pipeline Engine" FontSize="11" Foreground="{Binding TextSecondaryBrush}" VerticalAlignment="Center"/>
                 </Grid>
             </Border>
+
+            <!-- In-Window Modal Hotkey Editor Overlay -->
+            <forms:HotkeyEditorModal x:Name="HotkeyModal"
+                                     Grid.Row="0"
+                                     Grid.RowSpan="4"
+                                     Visibility="Collapsed"/>
         </Grid>
     </Border>
 </Window>

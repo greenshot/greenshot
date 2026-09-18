@@ -198,6 +198,17 @@ namespace Greenshot.UI.RecipeEditor
             }
         }
 
+        private void RecipeHotkey_EditRequested(object sender, EventArgs e)
+        {
+            if (sender is FrameworkElement elem && elem.DataContext is TriggerItemViewModel triggerVm)
+            {
+                HotkeyModal.Open(triggerVm.Name, triggerVm.Hotkey, newHotkey =>
+                {
+                    triggerVm.Hotkey = newHotkey;
+                });
+            }
+        }
+
         [DllImport("dwmapi.dll", PreserveSig = true)]
         private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
     }

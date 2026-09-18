@@ -2,6 +2,8 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
+        xmlns:controls="clr-namespace:Greenshot.UI.Controls"
+        xmlns:forms="clr-namespace:Greenshot.Forms.Wpf"
         Title="{wpf:Translate settings_title}"
         Icon="{Binding WindowIcon}"
         Width="820" Height="820"
@@ -550,25 +552,40 @@
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
                                     
-                                    <Label Grid.Row="0" Grid.Column="0" Content="{wpf:Translate contextmenu_capturefullscreen}"/>
-                                    <TextBox Grid.Row="0" Grid.Column="1" HorizontalAlignment="Right" Width="180" Text="{Binding CoreConfiguration.FullscreenHotkey}"
-                                             IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=FullscreenHotkey}"/>
+                                    <Label Grid.Row="0" Grid.Column="0" Content="{wpf:Translate contextmenu_capturefullscreen}" VerticalAlignment="Center"/>
+                                    <controls:HotkeyDisplayControl Grid.Row="0" Grid.Column="1"
+                                                                  HeaderText="{wpf:Translate contextmenu_capturefullscreen}"
+                                                                  HotkeyString="{Binding CoreConfiguration.FullscreenHotkey, Mode=TwoWay}"
+                                                                  IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=FullscreenHotkey}"
+                                                                  EditRequested="HotkeyDisplayControl_EditRequested"/>
                                     
-                                    <Label Grid.Row="1" Grid.Column="0" Content="{wpf:Translate contextmenu_capturewindow}"/>
-                                    <TextBox Grid.Row="1" Grid.Column="1" HorizontalAlignment="Right" Width="180" Text="{Binding CoreConfiguration.WindowHotkey}"
-                                             IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=WindowHotkey}"/>
+                                    <Label Grid.Row="1" Grid.Column="0" Content="{wpf:Translate contextmenu_capturewindow}" VerticalAlignment="Center" Margin="0,4,0,0"/>
+                                    <controls:HotkeyDisplayControl Grid.Row="1" Grid.Column="1" Margin="0,4,0,0"
+                                                                  HeaderText="{wpf:Translate contextmenu_capturewindow}"
+                                                                  HotkeyString="{Binding CoreConfiguration.WindowHotkey, Mode=TwoWay}"
+                                                                  IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=WindowHotkey}"
+                                                                  EditRequested="HotkeyDisplayControl_EditRequested"/>
                                     
-                                    <Label Grid.Row="2" Grid.Column="0" Content="{wpf:Translate contextmenu_capturearea}"/>
-                                    <TextBox Grid.Row="2" Grid.Column="1" HorizontalAlignment="Right" Width="180" Text="{Binding CoreConfiguration.RegionHotkey}"
-                                             IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=RegionHotkey}"/>
+                                    <Label Grid.Row="2" Grid.Column="0" Content="{wpf:Translate contextmenu_capturearea}" VerticalAlignment="Center" Margin="0,4,0,0"/>
+                                    <controls:HotkeyDisplayControl Grid.Row="2" Grid.Column="1" Margin="0,4,0,0"
+                                                                  HeaderText="{wpf:Translate contextmenu_capturearea}"
+                                                                  HotkeyString="{Binding CoreConfiguration.RegionHotkey, Mode=TwoWay}"
+                                                                  IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=RegionHotkey}"
+                                                                  EditRequested="HotkeyDisplayControl_EditRequested"/>
                                     
-                                    <Label Grid.Row="3" Grid.Column="0" Content="{wpf:Translate contextmenu_capturelastregion}"/>
-                                    <TextBox Grid.Row="3" Grid.Column="1" HorizontalAlignment="Right" Width="180" Text="{Binding CoreConfiguration.LastregionHotkey}"
-                                             IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=LastregionHotkey}"/>
+                                    <Label Grid.Row="3" Grid.Column="0" Content="{wpf:Translate contextmenu_capturelastregion}" VerticalAlignment="Center" Margin="0,4,0,0"/>
+                                    <controls:HotkeyDisplayControl Grid.Row="3" Grid.Column="1" Margin="0,4,0,0"
+                                                                  HeaderText="{wpf:Translate contextmenu_capturelastregion}"
+                                                                  HotkeyString="{Binding CoreConfiguration.LastregionHotkey, Mode=TwoWay}"
+                                                                  IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=LastregionHotkey}"
+                                                                  EditRequested="HotkeyDisplayControl_EditRequested"/>
                                     
-                                    <Label Grid.Row="4" Grid.Column="0" Content="{wpf:Translate contextmenu_captureclipboard}"/>
-                                    <TextBox Grid.Row="4" Grid.Column="1" HorizontalAlignment="Right" Width="180" Text="{Binding CoreConfiguration.ClipboardHotkey}"
-                                             IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=ClipboardHotkey}"/>
+                                    <Label Grid.Row="4" Grid.Column="0" Content="{wpf:Translate contextmenu_captureclipboard}" VerticalAlignment="Center" Margin="0,4,0,0"/>
+                                    <controls:HotkeyDisplayControl Grid.Row="4" Grid.Column="1" Margin="0,4,0,0"
+                                                                  HeaderText="{wpf:Translate contextmenu_captureclipboard}"
+                                                                  HotkeyString="{Binding CoreConfiguration.ClipboardHotkey, Mode=TwoWay}"
+                                                                  IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=ClipboardHotkey}"
+                                                                  EditRequested="HotkeyDisplayControl_EditRequested"/>
                                 </Grid>
                             </StackPanel>
                         </GroupBox>
@@ -1104,5 +1121,11 @@
                     Click="CancelButton_Click"/>
             </StackPanel>
         </Grid>
+
+        <!-- In-Window Modal Hotkey Editor Overlay -->
+        <forms:HotkeyEditorModal x:Name="HotkeyModal"
+                                 Grid.Row="0"
+                                 Grid.RowSpan="2"
+                                 Visibility="Collapsed"/>
     </Grid>
 </Window>

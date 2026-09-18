@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -215,11 +215,16 @@ internal static class HotkeyHelper
     /// <returns>bool</returns>
     private static bool RegisterHotkey(StringBuilder failedKeys, string functionName, string hotkeyString, Action handler)
     {
-        Keys modifierKeyCode = HotkeyManager.HotkeyModifiersFromString(hotkeyString);
-        Keys virtualKeyCode = HotkeyManager.HotkeyFromString(hotkeyString);
-        if (!Keys.None.Equals(virtualKeyCode))
+        if (string.IsNullOrWhiteSpace(hotkeyString) || string.Equals(hotkeyString.Trim(), "None", StringComparison.OrdinalIgnoreCase))
         {
-            if (HotkeyManager.RegisterHotKey(modifierKeyCode, virtualKeyCode, handler) < 0)
+            LOG.InfoFormat("Skipping hotkey registration for {0}, no hotkey set!", functionName);
+            return true;
+        }
+
+        var sequence = HotkeySequence.Parse(hotkeyString);
+        if (!sequence.IsEmpty)
+        {
+            if (HotkeyManager.RegisterHotKey(sequence, handler) < 0)
             {
                 LOG.DebugFormat("Failed to register {0} to hotkey: {1}", functionName, hotkeyString);
                 if (failedKeys.Length > 0)
