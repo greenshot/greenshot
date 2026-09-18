@@ -32,6 +32,10 @@ namespace Greenshot.Plugin.Box;
 [Description("Greenshot Box Plugin configuration")]
 public interface IBoxConfiguration : IIniSection, IAfterLoad, IBeforeSave
 {
+    [Description("Whether to show a quicklink in the tray context menu for configuring this plugin.")]
+    [DefaultValue(false)]
+    bool QuicklinkEnabled { get; set; }
+
     [Description("What file type to use for uploading")]
     [DefaultValue("png")]
     OutputFormat UploadFormat { get; set; }

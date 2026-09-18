@@ -21,6 +21,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Drawing;
+using System.Windows.Forms;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
@@ -36,6 +39,8 @@ namespace Greenshot.Plugin.Office
     public class OfficePlugin : IGreenshotPlugin, IRecipeStepProvider
     {
         private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(OfficePlugin));
+        private IOfficeConfiguration _config;
+        private ToolStripMenuItem _itemPlugInConfig;
 
         public void Dispose()
         {
@@ -45,7 +50,12 @@ namespace Greenshot.Plugin.Office
 
         private void Dispose(bool disposing)
         {
-            // Do nothing
+            if (!disposing) return;
+            if (_itemPlugInConfig != null)
+            {
+                _itemPlugInConfig.Dispose();
+                _itemPlugInConfig = null;
+            }
         }
 
         /// <summary>
@@ -138,7 +148,9 @@ namespace Greenshot.Plugin.Office
         /// </summary>
         public void RegisterConfiguration(IniConfig iniConfig)
         {
-            iniConfig.AddSection(new OfficeConfigurationImpl());
+            var section = new OfficeConfigurationImpl();
+            iniConfig.AddSection(section);
+            _config = section;
         }
 
         /// <summary>
@@ -173,12 +185,61 @@ namespace Greenshot.Plugin.Office
         /// <returns>true if plugin is initialized, false if not (doesn't show)</returns>
         public bool Start()
         {
+            Image icon = null;
+            try
+            {
+                icon = new WordDestination().DisplayIcon;
+            }
+            catch
+            {
+                // Word may not be available
+            }
+
+            _itemPlugInConfig = new ToolStripMenuItem
+            {
+                Image = icon,
+                Text = PluginUtils.GetQuicklinkText("Microsoft Office"),
+                Visible = _config?.QuicklinkEnabled ?? false
+            };
+            _itemPlugInConfig.Click += delegate { Configure(); };
+
+            PluginUtils.AddToContextMenu(_itemPlugInConfig);
+            Language.LanguageChanged += OnLanguageChanged;
+            if (_config is INotifyPropertyChanged notify)
+            {
+                notify.PropertyChanged += OnConfigPropertyChanged;
+            }
+
             return true;
+        }
+
+        private void OnConfigPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(IOfficeConfiguration.QuicklinkEnabled))
+            {
+                if (_itemPlugInConfig != null)
+                {
+                    _itemPlugInConfig.Visible = _config?.QuicklinkEnabled ?? false;
+                }
+            }
+        }
+
+        public void OnLanguageChanged(object sender, EventArgs e)
+        {
+            if (_itemPlugInConfig != null)
+            {
+                _itemPlugInConfig.Text = PluginUtils.GetQuicklinkText("Microsoft Office");
+            }
         }
 
         public void Shutdown()
         {
             LOG.Debug("Office Plugin shutdown.");
+            Language.LanguageChanged -= OnLanguageChanged;
+            if (_config is INotifyPropertyChanged notify)
+            {
+                notify.PropertyChanged -= OnConfigPropertyChanged;
+            }
         }
 
         /// <summary>

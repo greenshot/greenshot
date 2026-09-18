@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <language description="English" ietf="en-US" version="1.0.0">
   <resources>
   <resource name="contextmenu_configure">
@@ -35,5 +35,14 @@
     <resource name="tooltip_duplicate_name">
       A command with this name already exists. Please choose a different name.
     </resource>
+    <resource name="settings_general_title">General settings</resource>
+    <resource name="label_run_in_background">Run in background</resource>
+    <resource name="label_redirect_standard_error">Redirect standard error to Greenshot log (as warning)</resource>
+    <resource name="label_redirect_standard_output">Redirect standard output</resource>
+    <resource name="label_show_output_in_log">Show standard output in Greenshot log</resource>
+    <resource name="label_parse_output_for_uri">Parse output for URI and open on notification click</resource>
+    <resource name="label_output_to_clipboard">Copy standard output to clipboard</resource>
+    <resource name="label_uri_to_clipboard">Copy found URI to clipboard</resource>
+    <resource name="settings_instructions">Select a command to edit details, or click New to add one.</resource>
   </resources>
 </language>

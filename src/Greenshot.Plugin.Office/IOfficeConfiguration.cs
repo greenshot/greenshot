@@ -31,6 +31,10 @@ namespace Greenshot.Plugin.Office
     [Description("Greenshot Office configuration")]
     public interface IOfficeConfiguration : IIniSection
     {
+        [Description("Whether to show a quicklink in the tray context menu for configuring this plugin.")]
+        [DefaultValue(false)]
+        bool QuicklinkEnabled { get; set; }
+
         [Description("Default type for emails. (Text, HTML)")]
         [DefaultValue("HTML")]
         EmailFormat OutlookEmailFormat { get; set; }

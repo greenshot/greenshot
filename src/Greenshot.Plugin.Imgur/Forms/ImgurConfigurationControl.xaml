@@ -49,6 +49,9 @@
         <CheckBox IsChecked="{Binding UsePageLink}"
                   Content="{wpf:Translate imgur.use_page_link}"/>
 
+        <CheckBox IsChecked="{Binding QuicklinkEnabled}"
+                  Content="{wpf:Translate quicklink_enable}"/>
+
         <StackPanel Margin="0,8,0,0" Orientation="Horizontal">
             <Button x:Name="ButtonHistory" Content="{wpf:Translate imgur.history}" Click="Button_History_Click"/>
         </StackPanel>

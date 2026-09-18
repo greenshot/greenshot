@@ -281,5 +281,144 @@ namespace Greenshot.Tests.Forms
 
             Assert.Null(threadEx);
         }
+
+        [Fact]
+        public void PluginConfigurations_QuicklinkEnabled_DefaultsToFalse()
+        {
+            var extCmd = IniConfigHelper.EnsureSection<IExternalCommandConfiguration>(() => new ExternalCommandConfigurationImpl());
+            Assert.False(extCmd.QuicklinkEnabled);
+
+            var imgur = IniConfigHelper.EnsureSection<IImgurConfiguration>(() => new ImgurConfigurationImpl());
+            Assert.False(imgur.QuicklinkEnabled);
+
+            var dropbox = IniConfigHelper.EnsureSection<IDropboxConfiguration>(() => new DropboxConfigurationImpl());
+            Assert.False(dropbox.QuicklinkEnabled);
+
+            var box = IniConfigHelper.EnsureSection<IBoxConfiguration>(() => new BoxConfigurationImpl());
+            Assert.False(box.QuicklinkEnabled);
+
+            var jira = IniConfigHelper.EnsureSection<IJiraConfiguration>(() => new JiraConfigurationImpl());
+            Assert.False(jira.QuicklinkEnabled);
+
+            var confluence = IniConfigHelper.EnsureSection<IConfluenceConfiguration>(() => new ConfluenceConfigurationImpl());
+            Assert.False(confluence.QuicklinkEnabled);
+
+            var office = IniConfigHelper.EnsureSection<Greenshot.Plugin.Office.IOfficeConfiguration>(() => new Greenshot.Plugin.Office.OfficeConfigurationImpl());
+            Assert.False(office.QuicklinkEnabled);
+
+            var zxing = IniConfigHelper.EnsureSection<IZxingConfiguration>(() => new ZxingConfigurationImpl());
+            Assert.False(zxing.QuicklinkEnabled);
+        }
+
+        [Fact]
+        public void ExternalCommandConfigurationControl_PropertyBindingsAndDependentPropertiesWork()
+        {
+            Exception threadEx = null;
+            var thread = new Thread(() =>
+            {
+                try
+                {
+                    var config = IniConfigHelper.EnsureSection<IExternalCommandConfiguration>(() => new ExternalCommandConfigurationImpl());
+                    var control = new ExternalCommandConfigurationControl();
+
+                    // Quicklink
+                    bool origQuicklink = control.QuicklinkEnabled;
+                    control.QuicklinkEnabled = !origQuicklink;
+                    Assert.Equal(!origQuicklink, control.QuicklinkEnabled);
+                    Assert.Equal(!origQuicklink, config.QuicklinkEnabled);
+                    control.QuicklinkEnabled = origQuicklink;
+
+                    // Per-command settings on SelectedCommand
+                    Assert.NotNull(control.SelectedCommand);
+                    var cmd = control.SelectedCommand;
+
+                    cmd.RedirectStandardOutput = true;
+                    cmd.ParseOutputForUri = true;
+                    Assert.True(cmd.CanConfigureOutputOptions);
+                    Assert.True(cmd.CanConfigureUriToClipboard);
+
+                    cmd.ParseOutputForUri = false;
+                    Assert.True(cmd.CanConfigureOutputOptions);
+                    Assert.False(cmd.CanConfigureUriToClipboard);
+
+                    cmd.RedirectStandardOutput = false;
+                    Assert.False(cmd.CanConfigureOutputOptions);
+                    Assert.False(cmd.CanConfigureUriToClipboard);
+
+                    cmd.RedirectStandardOutput = true;
+                    cmd.ParseOutputForUri = true;
+
+                    // Boolean toggling on SelectedCommand
+                    cmd.RedirectStandardError = false;
+                    Assert.False(cmd.RedirectStandardError);
+                    Assert.False(config.RedirectStandardErrorCommand[cmd.Name]);
+                    cmd.RedirectStandardError = true;
+                    Assert.True(config.RedirectStandardErrorCommand[cmd.Name]);
+
+                    cmd.ShowStandardOutputInLog = true;
+                    Assert.True(cmd.ShowStandardOutputInLog);
+                    Assert.True(config.ShowStandardOutputInLogCommand[cmd.Name]);
+                    cmd.ShowStandardOutputInLog = false;
+                    Assert.False(config.ShowStandardOutputInLogCommand[cmd.Name]);
+
+                    cmd.OutputToClipboard = true;
+                    Assert.True(cmd.OutputToClipboard);
+                    Assert.True(config.OutputToClipboardCommand[cmd.Name]);
+                    cmd.OutputToClipboard = false;
+                    Assert.False(config.OutputToClipboardCommand[cmd.Name]);
+
+                    cmd.UriToClipboard = false;
+                    Assert.False(cmd.UriToClipboard);
+                    Assert.False(config.UriToClipboardCommand[cmd.Name]);
+                    cmd.UriToClipboard = true;
+                    Assert.True(config.UriToClipboardCommand[cmd.Name]);
+                }
+                catch (Exception ex)
+                {
+                    threadEx = ex;
+                }
+            });
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
+            thread.Join();
+
+            Assert.Null(threadEx);
+        }
+
+        [Fact]
+        public void PluginUtils_QuicklinkAndSeparatorVisibilityTests()
+        {
+            // 1. Unified quicklink text
+            string text = PluginUtils.GetQuicklinkText("Dropbox");
+            Assert.Equal("Configure Dropbox", text);
+
+            string textImgur = PluginUtils.GetQuicklinkText("Imgur");
+            Assert.Equal("Configure Imgur", textImgur);
+
+            // 2. Separator visibility when no plugin items are visible
+            var contextMenu = new System.Windows.Forms.ContextMenuStrip();
+            var topSeparator = new System.Windows.Forms.ToolStripSeparator { Tag = "PluginsAreAddedAfter" };
+            var pluginItem1 = new System.Windows.Forms.ToolStripMenuItem("Item 1") { Visible = false };
+            var pluginItem2 = new System.Windows.Forms.ToolStripMenuItem("Item 2") { Visible = false };
+            var bottomSeparator = new System.Windows.Forms.ToolStripSeparator { Tag = "PluginsAreAddedBefore" };
+
+            contextMenu.Items.Add(topSeparator);
+            contextMenu.Items.Add(pluginItem1);
+            contextMenu.Items.Add(pluginItem2);
+            contextMenu.Items.Add(bottomSeparator);
+
+            PluginUtils.UpdatePluginSeparatorsVisibility(contextMenu);
+            Assert.False(topSeparator.Available, "Top separator should be hidden when all plugin items are invisible");
+
+            // Make one item visible
+            pluginItem1.Available = true;
+            PluginUtils.UpdatePluginSeparatorsVisibility(contextMenu);
+            Assert.True(topSeparator.Available, "Top separator should be visible when at least one plugin item is visible");
+
+            // Hide it again
+            pluginItem1.Available = false;
+            PluginUtils.UpdatePluginSeparatorsVisibility(contextMenu);
+            Assert.False(topSeparator.Available, "Top separator should be hidden again when all items become invisible");
+        }
     }
 }

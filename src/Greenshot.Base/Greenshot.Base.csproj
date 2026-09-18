@@ -24,6 +24,7 @@
     <PackageReference Include="Dapplo.Ini" Version="1.0.162" />
     <PackageReference Include="Dapplo.Ini.Generator" Version="1.0.162" />
     <PackageReference Include="System.Resources.Extensions" Version="10.0.12" />
+    <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.19041.1" />
     <Reference Include="Accessibility" />
     <Reference Include="CustomMarshalers" />
   </ItemGroup>

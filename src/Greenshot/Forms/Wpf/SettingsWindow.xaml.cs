@@ -44,6 +44,7 @@ namespace Greenshot.Forms.Wpf
     /// </summary>
     public partial class SettingsWindow : Window
     {
+        private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(SettingsWindow));
         private readonly SettingsViewModel _viewModel;
 
         public SettingsWindow(string initialPluginName = null)
@@ -62,6 +63,15 @@ namespace Greenshot.Forms.Wpf
             {
                 Resources.MergedDictionaries.Clear();
                 Resources.MergedDictionaries.Add(ThemeManager.Instance.GetThemeResources());
+            };
+
+            // Lazy plugin configuration: only select/load first plugin if the user navigates to the Plugins tab
+            SettingsTabControl.SelectionChanged += (s, e) =>
+            {
+                if (SettingsTabControl.SelectedItem == PluginsTabItem && _viewModel.SelectedPlugin == null && _viewModel.Plugins?.Count > 0)
+                {
+                    _viewModel.SelectedPlugin = _viewModel.Plugins[0];
+                }
             };
 
             if (!string.IsNullOrEmpty(initialPluginName))

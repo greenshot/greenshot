@@ -43,6 +43,7 @@ namespace Greenshot.Tests
 
                 IniConfigHelper.EnsureInitialized();
                 IniConfigHelper.EnsureSection<IEditorConfiguration>(() => new EditorConfigurationImpl());
+                IniConfigHelper.EnsureSection<Greenshot.Plugin.ExternalCommand.IExternalCommandConfiguration>(() => new Greenshot.Plugin.ExternalCommand.ExternalCommandConfigurationImpl());
 
                 CapturePayload.DefaultSurfaceFactory = capture => new Surface(capture) { Modified = true };
 

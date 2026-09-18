@@ -32,6 +32,10 @@ namespace Greenshot.Plugin.Dropbox;
 [Description("Greenshot Dropbox Plugin configuration")]
 public interface IDropboxConfiguration : IIniSection, IAfterLoad, IBeforeSave
 {
+    [Description("Whether to show a quicklink in the tray context menu for configuring this plugin.")]
+    [DefaultValue(false)]
+    bool QuicklinkEnabled { get; set; }
+
     [Description("What file type to use for uploading")]
     [DefaultValue("png")]
     OutputFormat UploadFormat { get; set; }

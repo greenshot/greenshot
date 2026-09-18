@@ -708,6 +708,7 @@ namespace Greenshot.Forms
             }
 
             UpdateRecipesMenu();
+            PluginUtils.UpdatePluginSeparatorsVisibility(contextMenu);
         }
 
         private ToolStripMenuItem _recipesMenuItem;

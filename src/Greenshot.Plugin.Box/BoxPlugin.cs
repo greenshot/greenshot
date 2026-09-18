@@ -108,20 +108,36 @@ public class BoxPlugin : IGreenshotPlugin, IRecipeStepProvider
         _itemPlugInConfig = new ToolStripMenuItem
         {
             Image = (Image) _resources.GetObject("Box"),
-            Text = Language.GetString("box", LangKey.Configure)
+            Text = PluginUtils.GetQuicklinkText("Box"),
+            Visible = _config?.QuicklinkEnabled ?? false
         };
         _itemPlugInConfig.Click += ConfigMenuClick;
 
         PluginUtils.AddToContextMenu(_itemPlugInConfig);
         Language.LanguageChanged += OnLanguageChanged;
+        if (_config is INotifyPropertyChanged notify)
+        {
+            notify.PropertyChanged += OnConfigPropertyChanged;
+        }
         return true;
+    }
+
+    private void OnConfigPropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(IBoxConfiguration.QuicklinkEnabled))
+        {
+            if (_itemPlugInConfig != null)
+            {
+                _itemPlugInConfig.Visible = _config?.QuicklinkEnabled ?? false;
+            }
+        }
     }
 
     public void OnLanguageChanged(object sender, EventArgs e)
     {
         if (_itemPlugInConfig != null)
         {
-            _itemPlugInConfig.Text = Language.GetString("box", LangKey.Configure);
+            _itemPlugInConfig.Text = PluginUtils.GetQuicklinkText("Box");
         }
     }
 
@@ -129,6 +145,10 @@ public class BoxPlugin : IGreenshotPlugin, IRecipeStepProvider
     {
         LOG.Debug("Box Plugin shutdown.");
         Language.LanguageChanged -= OnLanguageChanged;
+        if (_config is INotifyPropertyChanged notify)
+        {
+            notify.PropertyChanged -= OnConfigPropertyChanged;
+        }
     }
 
     /// <summary>

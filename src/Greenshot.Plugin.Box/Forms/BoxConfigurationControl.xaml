@@ -32,5 +32,8 @@
 
         <CheckBox IsChecked="{Binding AfterUploadLinkToClipBoard}"
                   Content="{wpf:Translate box.label_AfterUploadLinkToClipBoard}"/>
+
+        <CheckBox IsChecked="{Binding QuicklinkEnabled}"
+                  Content="{wpf:Translate quicklink_enable}"/>
     </StackPanel>
 </UserControl>

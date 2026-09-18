@@ -73,35 +73,35 @@ namespace Greenshot.Plugin.Office.Forms
             {
                 Name = "Word",
                 Title = Greenshot.Base.Core.Language.GetString("office", "app_word"),
-                Icon = new WordDestination().DisplayIcon.ToBitmapSource()
+                Icon = new WordDestination().DisplayIcon?.ToBitmapSource()
             });
 
             OfficeApps.Add(new OfficeAppItem
             {
                 Name = "Excel",
                 Title = Greenshot.Base.Core.Language.GetString("office", "app_excel"),
-                Icon = new ExcelDestination().DisplayIcon.ToBitmapSource()
+                Icon = new ExcelDestination().DisplayIcon?.ToBitmapSource()
             });
 
             OfficeApps.Add(new OfficeAppItem
             {
                 Name = "PowerPoint",
                 Title = Greenshot.Base.Core.Language.GetString("office", "app_powerpoint"),
-                Icon = new PowerpointDestination().DisplayIcon.ToBitmapSource()
+                Icon = new PowerpointDestination().DisplayIcon?.ToBitmapSource()
             });
 
             OfficeApps.Add(new OfficeAppItem
             {
                 Name = "Outlook",
                 Title = Greenshot.Base.Core.Language.GetString("office", "app_outlook"),
-                Icon = new OutlookDestination().DisplayIcon.ToBitmapSource()
+                Icon = new OutlookDestination().DisplayIcon?.ToBitmapSource()
             });
 
             OfficeApps.Add(new OfficeAppItem
             {
                 Name = "OneNote",
                 Title = Greenshot.Base.Core.Language.GetString("office", "app_onenote"),
-                Icon = new OneNoteDestination().DisplayIcon.ToBitmapSource()
+                Icon = new OneNoteDestination().DisplayIcon?.ToBitmapSource()
             });
 
             if (OfficeApps.Count > 0)
