@@ -22,6 +22,7 @@
 using System;
 using System.Collections.Generic;
 using Dapplo.Ini;
+using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Pipeline;
@@ -55,7 +56,7 @@ namespace Greenshot.Plugin.Office
         /// <summary>
         /// Specifies if the plugin can be configured
         /// </summary>
-        public bool IsConfigurable => false;
+        public bool IsConfigurable => true;
 
         private IEnumerable<IDestination> Destinations()
         {
@@ -185,7 +186,10 @@ namespace Greenshot.Plugin.Office
         /// </summary>
         public void Configure()
         {
-            throw new NotImplementedException();
+            var mainForm = SimpleServiceProvider.Current.GetInstance<IGreenshotMainForm>(isOptional: true);
+            mainForm?.ShowSetting(Name);
         }
+
+        public System.Windows.UIElement CreateConfigurationControl() => new Forms.OfficeConfigurationControl();
     }
 }

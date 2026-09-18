@@ -48,11 +48,8 @@ namespace Greenshot.Triggers
             if (string.IsNullOrEmpty(HotkeyString)) return;
 
             Stop();
-
-            Keys modifierKeyCode = HotkeyManager.HotkeyModifiersFromString(HotkeyString);
-            Keys virtualKeyCode = HotkeyManager.HotkeyFromString(HotkeyString);
-
-            if (virtualKeyCode == Keys.None)
+            var sequence = HotkeySequence.Parse(HotkeyString);
+            if (sequence.IsEmpty)
             {
                 Log.InfoFormat("Skipping hotkey registration for {0}, no hotkey set!", Name);
                 return;
@@ -68,7 +65,7 @@ namespace Greenshot.Triggers
                 uiContext = SynchronizationContext.Current;
             }
 
-            _registrationId = HotkeyManager.RegisterHotKey(modifierKeyCode, virtualKeyCode, () =>
+            _registrationId = HotkeyManager.RegisterHotKey(sequence, () =>
             {
                 Log.DebugFormat("Hotkey '{0}' pressed for trigger '{1}' -> recipe '{2}'", HotkeyString, Name, TargetRecipeId);
                 if (uiContext != null)

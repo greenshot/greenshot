@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -1627,6 +1627,7 @@ namespace Greenshot.Base.Core
                     bitmap.HorizontalResolution, bitmap.VerticalResolution,
                     bitmap.PixelFormat.Map(), null,
                     bitmapData.Scan0, bitmapData.Stride * bitmapData.Height, bitmapData.Stride);
+                bitmapSource.Freeze();
             }
             finally
             {
@@ -1634,6 +1635,54 @@ namespace Greenshot.Base.Core
             }
 
             return bitmapSource;
+        }
+
+        /// <summary>
+        /// Convert an Image to a BitmapSource
+        /// </summary>
+        /// <param name="image">Image</param>
+        /// <returns>BitmapSource</returns>
+        public static BitmapSource ToBitmapSource(this Image image)
+        {
+            if (image == null)
+            {
+                return null;
+            }
+
+            if (image is Bitmap bitmap)
+            {
+                try
+                {
+                    return ToBitmapSource(bitmap);
+                }
+                catch (NotSupportedException)
+                {
+                    // Fall back to 32bpp conversion if pixel format is not directly mappable
+                }
+            }
+
+            using var bmp = new Bitmap(image.Width, image.Height, PixelFormat.Format32bppArgb);
+            using (var g = Graphics.FromImage(bmp))
+            {
+                g.DrawImage(image, 0, 0, image.Width, image.Height);
+            }
+            return ToBitmapSource(bmp);
+        }
+
+        /// <summary>
+        /// Convert an Icon to a BitmapSource
+        /// </summary>
+        /// <param name="icon">Icon</param>
+        /// <returns>BitmapSource</returns>
+        public static BitmapSource ToBitmapSource(this Icon icon)
+        {
+            if (icon == null)
+            {
+                return null;
+            }
+
+            using var bmp = icon.ToBitmap();
+            return ToBitmapSource(bmp);
         }
 
         /// <summary>

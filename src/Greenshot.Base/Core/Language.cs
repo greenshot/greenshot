@@ -107,6 +107,13 @@ namespace Greenshot.Base.Core
                         }
                     }
                 }
+
+                // Application base directory (e.g. test runner or output folder)
+                string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+                if (!string.IsNullOrEmpty(baseDir))
+                {
+                    AddPath(Path.Combine(baseDir, @"Languages"));
+                }
             }
             catch (Exception pathException)
             {

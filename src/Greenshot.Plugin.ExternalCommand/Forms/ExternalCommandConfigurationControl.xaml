@@ -1,0 +1,213 @@
+<UserControl x:Class="Greenshot.Plugin.ExternalCommand.Forms.ExternalCommandConfigurationControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
+             xmlns:enums="clr-namespace:Greenshot.Base.Core.Enums;assembly=Greenshot.Base">
+    <UserControl.Resources>
+        <wpf:EnumDisplayer Type="{x:Type enums:OutputFormat}" x:Key="outputFormats"/>
+
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+
+        <Style TargetType="Label">
+            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <Style TargetType="CheckBox">
+            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+            <Setter Property="Margin" Value="0,4"/>
+        </Style>
+
+        <Style TargetType="TextBox">
+            <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ControlBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="Padding" Value="6,0"/>
+        </Style>
+
+
+        <Style TargetType="Button">
+            <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="12,4"/>
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Name="Border"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonHoverBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonPressedBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Border" Property="Opacity" Value="0.5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="4">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="190"/>
+            <ColumnDefinition Width="12"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Master: Command List -->
+        <Grid Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="8"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Button Grid.Row="0"
+                    Content="{wpf:Translate externalcommand.settings_new}"
+                    Click="ButtonAdd_Click"
+                    HorizontalAlignment="Stretch"/>
+
+            <ListBox Grid.Row="2"
+                     ItemsSource="{Binding Commands}"
+                     SelectedItem="{Binding SelectedCommand, Mode=TwoWay}"
+                     Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ControlBackgroundBrush}"
+                     Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
+                     BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
+                     BorderThickness="1">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal" Margin="4,2">
+                            <Image Source="{Binding Icon}" Width="16" Height="16" Margin="0,0,8,0"
+                                   RenderOptions.BitmapScalingMode="HighQuality"/>
+                            <TextBlock Text="{Binding Name}" VerticalAlignment="Center"
+                                       TextTrimming="CharacterEllipsis"
+                                       Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Grid>
+
+        <!-- Detail: Command Settings -->
+        <Border Grid.Column="2"
+                BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
+                BorderThickness="1"
+                Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ControlBackgroundBrush}"
+                Padding="12">
+            <Grid>
+                <!-- Placeholder when nothing is selected -->
+                <TextBlock Text="Select a command to edit details, or click New to add one."
+                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           Visibility="{Binding HasSelectedCommand, Converter={StaticResource BoolToVis}, ConverterParameter=Inverse}"/>
+
+                <!-- Form when command is selected -->
+                <Grid Visibility="{Binding HasSelectedCommand, Converter={StaticResource BoolToVis}}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="12"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="6"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="6"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="6"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="6"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Header with Delete -->
+                    <Grid Grid.Row="0">
+                        <TextBlock Text="{wpf:Translate externalcommand.settings_detail_title}"
+                                   FontWeight="SemiBold"
+                                   FontSize="13"
+                                   VerticalAlignment="Center"
+                                   Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                        <Button Content="{wpf:Translate externalcommand.settings_delete}"
+                                Click="ButtonDelete_Click"
+                                HorizontalAlignment="Right"
+                                Padding="8,2" Height="24"/>
+                    </Grid>
+
+                    <Separator Grid.Row="1" Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}" Margin="0"/>
+
+                    <!-- Command Name -->
+                    <Grid Grid.Row="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="90"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Label Grid.Column="0" Content="{wpf:Translate externalcommand.label_name}"/>
+                        <TextBox Grid.Column="1" Text="{Binding SelectedCommand.Name, UpdateSourceTrigger=PropertyChanged}"/>
+                    </Grid>
+
+                    <!-- Executable -->
+                    <Grid Grid.Row="4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="90"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Label Grid.Column="0" Content="{wpf:Translate externalcommand.label_command}"/>
+                        <TextBox Grid.Column="1" Text="{Binding SelectedCommand.CommandLine, UpdateSourceTrigger=PropertyChanged}"/>
+                        <Button Grid.Column="2" Content="..." Width="28" Height="28" Margin="4,0,0,0" Click="Browse_Click"/>
+                    </Grid>
+
+                    <!-- Arguments -->
+                    <Grid Grid.Row="6">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="90"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Label Grid.Column="0" Content="{wpf:Translate externalcommand.label_argument}"/>
+                        <TextBox Grid.Column="1" Text="{Binding SelectedCommand.Arguments, UpdateSourceTrigger=PropertyChanged}"/>
+                    </Grid>
+
+                    <!-- Placeholder info -->
+                    <TextBlock Grid.Row="7" Margin="90,2,0,4"
+                               Text="{wpf:Translate externalcommand.label_information}"
+                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
+                               FontSize="11"/>
+
+                    <!-- Output Format -->
+                    <Grid Grid.Row="9">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="90"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Label Grid.Column="0" Content="{wpf:Translate externalcommand.label_outputimageformat}"/>
+                        <ComboBox Grid.Column="1"
+                                  ItemsSource="{Binding Source={StaticResource outputFormats}, Path=DisplayNames}"
+                                  SelectedValue="{Binding SelectedCommand.OutputFormat, Converter={StaticResource outputFormats}}"/>
+                    </Grid>
+
+                    <!-- Run in background -->
+                    <CheckBox Grid.Row="11" Margin="90,4,0,0"
+                              IsChecked="{Binding SelectedCommand.RunInBackground}"
+                              Content="Run in background"/>
+                </Grid>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

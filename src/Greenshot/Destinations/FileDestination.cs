@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -149,8 +149,8 @@ namespace Greenshot.Destinations
 
                 MessageBox.Show(Language.GetString(LangKey.error_save_invalid_chars), Language.GetString(LangKey.error));
                 // ... lets get the pattern fixed....
-                var dialogResult = new SettingsForm().ShowDialog();
-                if (dialogResult == DialogResult.OK)
+                var dialogResult = new Greenshot.Forms.Wpf.SettingsWindow().ShowDialog();
+                if (dialogResult == true)
                 {
                     // ... OK -> then try again:
                     fullPath = CreateNewFilename(captureDetails);

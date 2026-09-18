@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -41,30 +41,71 @@ namespace Greenshot.Plugin.Confluence;
 public class ConfluenceDestination : AbstractDestination
 {
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ConfluenceDestination));
-    private static readonly IConfluenceConfiguration ConfluenceConfig = IniConfigRegistry.GetSection<IConfluenceConfiguration>();
-    private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
-    private static readonly Image ConfluenceIcon;
+    private static IConfluenceConfiguration ConfluenceConfig => IniConfigHelper.EnsureSection<IConfluenceConfiguration>(() => new ConfluenceConfigurationImpl());
+    private static ICoreConfiguration CoreConfig => IniConfigHelper.EnsureSection<ICoreConfiguration>(() => new CoreConfigurationImpl());
+    private static readonly object IconLock = new object();
+    private static Image _confluenceIcon;
     private readonly Page _page;
+
+    private static Image LoadConfluenceIcon()
+    {
+        if (_confluenceIcon != null)
+        {
+            return _confluenceIcon;
+        }
+
+        lock (IconLock)
+        {
+            if (_confluenceIcon != null)
+            {
+                return _confluenceIcon;
+            }
+
+            try
+            {
+                var assembly = typeof(ConfluenceDestination).Assembly;
+                var resourceManager = new System.Resources.ResourceManager(assembly.GetName().Name + ".g", assembly);
+                using Stream iconStream = resourceManager.GetStream("images/confluence.ico");
+                if (iconStream != null)
+                {
+                    using var icon = new Icon(iconStream);
+                    _confluenceIcon = icon.ToBitmap();
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.WarnFormat("Could not load confluence icon from g.resources: {0}", ex.Message);
+            }
+
+            if (_confluenceIcon == null)
+            {
+                try
+                {
+                    Uri confluenceIconUri = new Uri("/Greenshot.Plugin.Confluence;component/Images/Confluence.ico", UriKind.Relative);
+                    using Stream iconStream = Application.GetResourceStream(confluenceIconUri)?.Stream;
+                    if (iconStream != null)
+                    {
+                        using var icon = new Icon(iconStream);
+                        _confluenceIcon = icon.ToBitmap();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log.WarnFormat("Could not load confluence icon from Application resource stream: {0}", ex.Message);
+                }
+            }
+
+            IsInitialized = _confluenceIcon != null;
+            return _confluenceIcon;
+        }
+    }
 
     static ConfluenceDestination()
     {
-        IsInitialized = false;
-        try
-        {
-            Uri confluenceIconUri = new Uri("/Greenshot.Plugin.Confluence;component/Images/Confluence.ico", UriKind.Relative);
-            using (Stream iconStream = Application.GetResourceStream(confluenceIconUri)?.Stream)
-            {
-                // TODO: Replace with FileFormatHandler
-                ConfluenceIcon = ImageIO.FromStream(iconStream);
-            }
-
-            IsInitialized = true;
-        }
-        catch (Exception ex)
-        {
-            Log.ErrorFormat("Problem in the confluence static initializer: {0}", ex.Message);
-        }
+        LoadConfluenceIcon();
     }
+
+    public static Image ConfluenceIcon => LoadConfluenceIcon();
 
     public static bool IsInitialized { get; private set; }
 

@@ -167,28 +167,12 @@ public class ConfluencePlugin : IGreenshotPlugin, IRecipeStepProvider
     /// </summary>
     public void Configure()
     {
-        ConfluenceConfigurationForm configForm = new ConfluenceConfigurationForm(_config);
-        string url = _config.Url;
-        bool? dialogResult = configForm.ShowDialog();
-        if (dialogResult.HasValue && dialogResult.Value)
-        {
-            if (_confluenceConnector != null)
-            {
-                if (!url.Equals(_config.Url))
-                {
-                    if (_confluenceConnector.IsLoggedIn)
-                    {
-                        _confluenceConnector.Logout();
-                    }
+        var mainForm = SimpleServiceProvider.Current.GetInstance<IGreenshotMainForm>(isOptional: true);
+        mainForm?.ShowSetting(Name);
+    }
 
-                    _confluenceConnector = null;
-                }
-            }
-        }
-        else
-        {
-            // User cancelled — reload to discard any changes made by the form binding.
-            IniConfigRegistry.Get().Reload();
-        }
+    public UIElement CreateConfigurationControl()
+    {
+        return _config != null ? new ConfluenceConfigurationControl(_config) : null;
     }
 }

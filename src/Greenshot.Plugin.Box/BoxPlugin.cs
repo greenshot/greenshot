@@ -136,21 +136,18 @@ public class BoxPlugin : IGreenshotPlugin, IRecipeStepProvider
     /// </summary>
     public void Configure()
     {
-        ShowConfigDialog();
+        var mainForm = SimpleServiceProvider.Current.GetInstance<IGreenshotMainForm>(isOptional: true);
+        mainForm?.ShowSetting(Name);
+    }
+
+    public System.Windows.UIElement CreateConfigurationControl()
+    {
+        return new Forms.BoxConfigurationControl(_config);
     }
 
     public void ConfigMenuClick(object sender, EventArgs eventArgs)
     {
-        ShowConfigDialog();
-    }
-
-    /// <summary>
-    /// Opens the Box settings dialog.
-    /// </summary>
-    /// <returns>true if OK was pressed; false if cancelled</returns>
-    private bool ShowConfigDialog()
-    {
-        return new SettingsForm().ShowDialog() == DialogResult.OK;
+        Configure();
     }
 
     /// <summary>

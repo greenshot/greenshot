@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<language description="Deutsch" ietf="de-DE" version="1.4.0">
+	<resources>
+		<resource name="settings_title">Office-Einstellungen</resource>
+		<resource name="app_word">Microsoft Word</resource>
+		<resource name="app_excel">Microsoft Excel</resource>
+		<resource name="app_powerpoint">Microsoft PowerPoint</resource>
+		<resource name="app_outlook">Microsoft Outlook</resource>
+		<resource name="app_onenote">Microsoft OneNote</resource>
+		<resource name="word_lockaspect">Bildproportionen bei Word-Exporten fixieren</resource>
+		<resource name="powerpoint_lockaspect">Bildformat bei PowerPoint-Exporten fixieren</resource>
+		<resource name="powerpoint_slide_layout">Für den Export verwendetes Layout</resource>
+		<resource name="outlook_email_format">E-Mail-Format für neu erstellte E-Mails</resource>
+		<resource name="outlook_subject_pattern">Vorlage für Outlook-Betreff</resource>
+		<resource name="outlook_emailto">Standardmäßig per E-Mail senden an die Adresse</resource>
+		<resource name="outlook_emailcc">Standardmäßig per E-Mail an folgende CC-Adresse senden</resource>
+		<resource name="outlook_emailbcc">Standardmäßig per E-Mail an die BCC-Adresse senden</resource>
+		<resource name="outlook_allowmeetings">Exporte zu Meetings zulassen</resource>
+		<resource name="excel_info">Screenshots werden in aktive oder neu erstellte Excel-Arbeitsmappen eingefügt.</resource>
+		<resource name="onenote_info">Screenshots werden auf einer neuen Seite im Standard-OneNote-Notizbuch abgelegt.</resource>
+		<resource name="format_html">HTML</resource>
+		<resource name="format_text">Text</resource>
+	</resources>
+</language>

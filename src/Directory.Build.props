@@ -102,7 +102,7 @@
         IF NOT EXIST &quot;$(SolutionDir)$(SolutionName)\$(OutDir)Languages\$(TargetName)&quot; (&#xD;&#xA;
             mkdir &quot;$(SolutionDir)$(SolutionName)\$(OutDir)Languages\$(TargetName)&quot;&#xD;&#xA;
         )&#xD;&#xA;
-        xcopy /f /y /d &quot;$(TargetDir)Languages\*en-US.xml&quot; &quot;$(SolutionDir)$(SolutionName)\$(OutDir)Languages\$(TargetName)&quot;&#xD;&#xA;
+        xcopy /f /y /d &quot;$(TargetDir)Languages\*.xml&quot; &quot;$(SolutionDir)$(SolutionName)\$(OutDir)Languages\$(TargetName)&quot;&#xD;&#xA;
 	  )
     for /f &quot;tokens=*&quot; %%F in ('dir /b /A-D $(SolutionDir)$(SolutionName)\$(OutDir)') do if EXIST &quot;$(SolutionDir)$(SolutionName)\$(OutDir)\Plugins\$(TargetName)\%%F&quot; (&#xD;&#xA;echo %%F&#xD;&#xA;del &quot;$(SolutionDir)$(SolutionName)\$(OutDir)\Plugins\$(TargetName)\%%F&quot;&#xD;&#xA;)&#xD;&#xA;
   " />

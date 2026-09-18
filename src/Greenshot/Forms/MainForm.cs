@@ -33,6 +33,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.Integration;
+using System.Windows.Interop;
 using System.Windows.Threading;
 using Dapplo.Ini;
 using Dapplo.Ini.Interfaces;
@@ -57,6 +58,7 @@ using Greenshot.Editor;
 using Greenshot.Editor.Destinations;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Forms;
+using Greenshot.Forms.Wpf;
 using Greenshot.Base.Pipeline;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Triggers;
@@ -156,7 +158,7 @@ namespace Greenshot.Forms
                     }
                     else
                     {
-                        StringBuilder instanceInfo = new StringBuilder();
+                        var instances = new List<RunningInstanceItem>();
                         bool matchedThisProcess = false;
                         int index = 1;
                         int currentProcessId;
@@ -169,7 +171,13 @@ namespace Greenshot.Forms
                         {
                             try
                             {
-                                instanceInfo.Append(index++ + ": ").AppendLine(Kernel32Api.GetProcessPath(greenshotProcess.Id));
+                                string path = Kernel32Api.GetProcessPath(greenshotProcess.Id);
+                                instances.Add(new RunningInstanceItem
+                                {
+                                    Index = index++,
+                                    ProcessId = greenshotProcess.Id,
+                                    Path = path
+                                });
                                 if (currentProcessId == greenshotProcess.Id)
                                 {
                                     matchedThisProcess = true;
@@ -186,21 +194,16 @@ namespace Greenshot.Forms
                         if (!matchedThisProcess)
                         {
                             using Process currentProcess = Process.GetCurrentProcess();
-                            instanceInfo.Append(index + ": ").AppendLine(Kernel32Api.GetProcessPath(currentProcess.Id));
+                            instances.Add(new RunningInstanceItem
+                            {
+                                Index = index,
+                                ProcessId = currentProcess.Id,
+                                Path = Kernel32Api.GetProcessPath(currentProcess.Id)
+                            });
                         }
 
-                        // A dirty fix to make sure the message box is visible as a Greenshot window on the taskbar
-                        using Form dummyForm = new Form
-                        {
-                            Icon = GreenshotResources.GetGreenshotIcon(),
-                            ShowInTaskbar = true,
-                            FormBorderStyle = FormBorderStyle.None,
-                            Location = new Point(int.MinValue, int.MinValue)
-                        };
-                        dummyForm.Load += delegate { dummyForm.Size = Size.Empty; };
-                        dummyForm.Show();
-                        MessageBox.Show(dummyForm, Language.GetString(LangKey.error_multipleinstances) + "\r\n" + instanceInfo, Language.GetString(LangKey.error),
-                            MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                        var instanceWindow = new InstanceRunningWindow(instances);
+                        instanceWindow.ShowDialog();
                     }
 
                     FreeMutex();
@@ -273,8 +276,8 @@ namespace Greenshot.Forms
         // Thumbnail preview
         private ThumbnailForm _thumbnailForm;
 
-        // Make sure we have only one settings form
-        private SettingsForm _settingsForm;
+        // Make sure we have only one settings window
+        private SettingsWindow _settingsWindow;
 
         // Make sure we have only one about window
         private AboutWindow _aboutWindow;
@@ -364,10 +367,10 @@ namespace Greenshot.Forms
             // if language is not set, show language dialog
             if (string.IsNullOrEmpty(_conf.Language))
             {
-                LanguageDialog languageDialog = LanguageDialog.GetInstance();
-                languageDialog.ShowDialog();
-                _conf.Language = languageDialog.SelectedLanguage;
-                Language.CurrentLanguage = languageDialog.SelectedLanguage;
+                var languageWindow = new Greenshot.Forms.Wpf.LanguageWindow();
+                languageWindow.ShowDialog(this);
+                _conf.Language = languageWindow.SelectedLanguage;
+                Language.CurrentLanguage = languageWindow.SelectedLanguage;
             }
             else if (Language.CurrentLanguage != _conf.Language)
             {
@@ -1130,27 +1133,32 @@ namespace Greenshot.Forms
         /// <summary>
         /// This is called indirectly from the context menu "Preferences"
         /// </summary>
-        public void ShowSetting()
+        public void ShowSetting(string pluginName = null)
         {
-            if (_settingsForm != null)
+            // Use WPF Settings Window
+            if (_settingsWindow != null && _settingsWindow.IsVisible)
             {
-                WindowDetails.ToForeground(_settingsForm.Handle);
+                if (!string.IsNullOrEmpty(pluginName))
+                {
+                    _settingsWindow.SelectPlugin(pluginName);
+                }
+                _settingsWindow.Activate();
             }
             else
             {
                 try
                 {
-                    using (_settingsForm = new SettingsForm())
+                    _settingsWindow = new SettingsWindow(pluginName);
+                    
+                    // Show the WPF window as a dialog
+                    if (_settingsWindow.ShowDialog() == true)
                     {
-                        if (_settingsForm.ShowDialog() == DialogResult.OK)
-                        {
-                            InitializeQuickSettingsMenu();
-                        }
+                        InitializeQuickSettingsMenu();
                     }
                 }
                 finally
                 {
-                    _settingsForm = null;
+                    _settingsWindow = null;
                 }
             }
         }

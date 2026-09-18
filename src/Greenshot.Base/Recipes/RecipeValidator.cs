@@ -216,6 +216,14 @@ namespace Greenshot.Base.Recipes
                 {
                     result.AddError($"Hotkey trigger '{trigger.Name}' at index {index} is missing required 'Hotkey' parameter.");
                 }
+                else
+                {
+                    var seq = HotkeySequence.Parse(hotkey);
+                    if (!seq.Validate(out string error))
+                    {
+                        result.AddError($"Hotkey trigger '{trigger.Name}' at index {index} has invalid hotkey '{hotkey}': {error}");
+                    }
+                }
             }
         }
 

@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -77,5 +77,11 @@ namespace Greenshot.Base.Interfaces.Plugin
         /// Specifies if the plugin can be configured
         /// </summary>
         bool IsConfigurable { get; }
+
+        /// <summary>
+        /// Creates a UI element for configuring this plugin directly in the settings window.
+        /// Returns null if the plugin is not configurable.
+        /// </summary>
+        System.Windows.UIElement CreateConfigurationControl();
     }
 }

@@ -268,6 +268,27 @@ EndSelection:<<<<<<<4
         /// <returns>boolean if there is an image on the clipboard</returns>
         public static bool ContainsImage()
         {
+            if (Thread.CurrentThread.GetApartmentState() != ApartmentState.STA)
+            {
+                var uiContext = SimpleServiceProvider.Current?.GetInstance<SynchronizationContext>(isOptional: true);
+                bool hasImage = false;
+                if (uiContext != null && SynchronizationContext.Current != uiContext)
+                {
+                    uiContext.Send(_ => hasImage = ContainsImage(), null);
+                    return hasImage;
+                }
+
+                var staThread = new Thread(() =>
+                {
+                    try { hasImage = ContainsImage(); }
+                    catch (Exception ex) { Log.Error("Failed to check clipboard on STA thread", ex); }
+                });
+                staThread.SetApartmentState(ApartmentState.STA);
+                staThread.Start();
+                staThread.Join();
+                return hasImage;
+            }
+
             IDataObject clipboardData = GetDataObject();
             return ContainsImage(clipboardData);
         }
@@ -501,6 +522,27 @@ EndSelection:<<<<<<<4
         /// <returns>Image if there is an image on the clipboard</returns>
         public static Image GetImage()
         {
+            if (Thread.CurrentThread.GetApartmentState() != ApartmentState.STA)
+            {
+                var uiContext = SimpleServiceProvider.Current?.GetInstance<SynchronizationContext>(isOptional: true);
+                Image img = null;
+                if (uiContext != null && SynchronizationContext.Current != uiContext)
+                {
+                    uiContext.Send(_ => img = GetImage(), null);
+                    return img;
+                }
+
+                var staThread = new Thread(() =>
+                {
+                    try { img = GetImage(); }
+                    catch (Exception ex) { Log.Error("Failed to get image on STA thread", ex); }
+                });
+                staThread.SetApartmentState(ApartmentState.STA);
+                staThread.Start();
+                staThread.Join();
+                return img;
+            }
+
             IDataObject clipboardData = GetDataObject();
             if (clipboardData == null)
             {

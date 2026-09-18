@@ -1875,10 +1875,8 @@ namespace Greenshot.Editor.Forms
                 return;
             }
 
-            using (var dialog = new TextObfuscationForm(_surface, ocrLines))
-            {
-                dialog.ShowDialog(this);
-            }
+            var dialog = new TextObfuscationWindow(_surface, ocrLines);
+            dialog.ShowDialog(this);
         }
 
         private void Contextmenu_window_Click(object sender, EventArgs e)
@@ -1969,8 +1967,8 @@ namespace Greenshot.Editor.Forms
                     apply = true;
                     break;
                 case MouseButtons.Right:
-                    var result = new DropShadowSettingsForm(dropShadowEffect).ShowDialog(this);
-                    apply = result == DialogResult.OK;
+                    var result = new DropShadowSettingsWindow(dropShadowEffect).ShowDialog(this);
+                    apply = result == true;
                     break;
                 default:
                     return;
@@ -1992,8 +1990,8 @@ namespace Greenshot.Editor.Forms
         private void BtnResizeClick(object sender, EventArgs e)
         {
             var resizeEffect = new ResizeEffect(_surface.Image.Width, _surface.Image.Height, true);
-            var result = new ResizeSettingsForm(resizeEffect).ShowDialog(this);
-            if (result == DialogResult.OK)
+            var result = new ResizeSettingsWindow(resizeEffect).ShowDialog(this);
+            if (result == true)
             {
                 _surface.ApplyBitmapEffect(resizeEffect);
                 UpdateUndoRedoSurfaceDependencies();
@@ -2015,8 +2013,8 @@ namespace Greenshot.Editor.Forms
                     apply = true;
                     break;
                 case MouseButtons.Right:
-                    var result = new TornEdgeSettingsForm(tornEdgeEffect).ShowDialog(this);
-                    apply = result == DialogResult.OK;
+                    var result = new TornEdgeSettingsWindow(tornEdgeEffect).ShowDialog(this);
+                    apply = result == true;
                     break;
                 default:
                     return;

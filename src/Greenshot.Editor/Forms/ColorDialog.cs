@@ -20,314 +20,86 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Globalization;
-using System.Threading;
 using System.Windows.Forms;
-using Greenshot.Base.Controls;
-using Greenshot.Base.Core;
-using Greenshot.Editor.Configuration;
-using Greenshot.Editor.Controls;
+using System.Windows.Interop;
 
 namespace Greenshot.Editor.Forms
 {
     /// <summary>
-    /// Description of ColorDialog.
+    /// Backward-compatible facade for ColorPickerWindow to support legacy WinForms and WPF callers seamlessly.
     /// </summary>
-    public partial class ColorDialog : EditorForm
+    public class ColorDialog : IDisposable
     {
-        private static readonly IEditorConfiguration EditorConfig = IniConfigHelper.EnsureSection<IEditorConfiguration>(() => new EditorConfigurationImpl());
         private static ColorDialog _instance;
+
+        public static ColorDialog GetInstance() => _instance ??= new ColorDialog();
+
+        public Color Color { get; set; } = Color.Black;
+
+        public DialogResult DialogResult { get; set; } = DialogResult.Cancel;
 
         public ColorDialog()
         {
-            SuspendLayout();
-            InitializeComponent();
-            InitializeLanguage();
-            SuspendLayout();
-            CreateColorPalette(5, 5, 15, 15);
-            CreateLastUsedColorButtonRow(5, 190, 15, 15);
-            ResumeLayout();
-            UpdateRecentColorsButtonRow();
             _instance = this;
         }
 
-        protected override void InitializeLanguage()
+        public DialogResult ShowDialog()
         {
-            btnTransparent.Text = Language.GetString("colorpicker_transparent");
-            labelHtmlColor.Text = Language.GetString("colorpicker_htmlcolor");
-            labelRed.Text = Language.GetString("colorpicker_red");
-            labelGreen.Text = Language.GetString("colorpicker_green");
-            labelBlue.Text = Language.GetString("colorpicker_blue");
-            labelRecentColors.Text = Language.GetString("colorpicker_recentcolors");
-            labelAlpha.Text = Language.GetString("colorpicker_alpha");
-            btnApply.Text = Language.GetString("colorpicker_apply") ;
-            Text = Language.GetString("colorpicker_title");
+            return ShowDialog((System.Windows.Forms.IWin32Window)null);
         }
 
-        public static ColorDialog GetInstance() => _instance;
-
-        private readonly List<Button> _colorButtons = new List<Button>();
-        private readonly List<Button> _recentColorButtons = new List<Button>();
-        private readonly ToolTip _toolTip = new ToolTip();
-        private bool _updateInProgress;
-
-        public Color Color
+        public DialogResult ShowDialog(System.Windows.Forms.IWin32Window owner)
         {
-            get { return colorPanel.BackColor; }
-            set { PreviewColor(value, this); }
-        }
-
-        private void CreateColorPalette(int x, int y, int w, int h)
-        {
-            CreateColorButtonColumn(255, 0, 0, x, y, w, h, 11);
-            x += w;
-            CreateColorButtonColumn(255, 255 / 2, 0, x, y, w, h, 11);
-            x += w;
-            CreateColorButtonColumn(255, 255, 0, x, y, w, h, 11);
-            x += w;
-            CreateColorButtonColumn(255 / 2, 255, 0, x, y, w, h, 11);
-            x += w;
-            CreateColorButtonColumn(0, 255, 0, x, y, w, h, 11);
-            x += w;
-            CreateColorButtonColumn(0, 255, 255 / 2, x, y, w, h, 11);
-            x += w;
-            CreateColorButtonColumn(0, 255, 255, x, y, w, h, 11);
-            x += w;
-            CreateColorButtonColumn(0, 255 / 2, 255, x, y, w, h, 11);
-            x += w;
-            CreateColorButtonColumn(0, 0, 255, x, y, w, h, 11);
-            x += w;
-            CreateColorButtonColumn(255 / 2, 0, 255, x, y, w, h, 11);
-            x += w;
-            CreateColorButtonColumn(255, 0, 255, x, y, w, h, 11);
-            x += w;
-            CreateColorButtonColumn(255, 0, 255 / 2, x, y, w, h, 11);
-            x += w + 5;
-            CreateColorButtonColumn(255 / 2, 255 / 2, 255 / 2, x, y, w, h, 11);
-
-            Controls.AddRange(_colorButtons.ToArray());
-        }
-
-        private void CreateColorButtonColumn(int red, int green, int blue, int x, int y, int w, int h, int shades)
-        {
-            int shadedColorsNum = (shades - 1) / 2;
-            for (int i = 0; i <= shadedColorsNum; i++)
+            var window = new ColorPickerWindow
             {
-                _colorButtons.Add(CreateColorButton(red * i / shadedColorsNum, green * i / shadedColorsNum, blue * i / shadedColorsNum, x, y + i * h, w, h));
-                if (i > 0)
-                    _colorButtons.Add(CreateColorButton(red + (255 - red) * i / shadedColorsNum, green + (255 - green) * i / shadedColorsNum,
-                        blue + (255 - blue) * i / shadedColorsNum, x, y + (i + shadedColorsNum) * h, w, h));
-            }
-        }
-
-        private Button CreateColorButton(int red, int green, int blue, int x, int y, int w, int h)
-        {
-            return CreateColorButton(Color.FromArgb(255, red, green, blue), x, y, w, h);
-        }
-
-        private Button CreateColorButton(Color color, int x, int y, int w, int h)
-        {
-            Button b = new GreenshotDoubleClickButton
-            {
-                BackColor = color,
-                FlatStyle = FlatStyle.Flat,
-                Location = new Point(x, y),
-                Size = new Size(w, h),
-                TabStop = false
+                SelectedColor = Color
             };
-            b.FlatAppearance.BorderSize = 0;
-            b.Click += ColorButtonClick;
-            b.DoubleClick += ColorButtonDoubleClick;
-            SetButtonTooltip(b, color);
-            return b;
-        }
 
-        private void ColorButtonDoubleClick(object sender, EventArgs e)
-        {
-            ColorButtonClick(sender, e);
-            BtnApplyClick(sender, e);
-        }
-
-        private void CreateLastUsedColorButtonRow(int x, int y, int w, int h)
-        {
-            for (int i = 0; i < 12; i++)
+            if (owner != null)
             {
-                Button b = CreateColorButton(Color.Transparent, x, y, w, h);
-                b.Enabled = false;
-                _recentColorButtons.Add(b);
-                x += w;
-            }
-
-            Controls.AddRange(_recentColorButtons.ToArray());
-        }
-
-        private void UpdateRecentColorsButtonRow()
-        {
-            if (EditorConfig?.RecentColors == null)
-            {
-                return;
-            }
-
-            for (int i = 0; i < EditorConfig.RecentColors.Count && i < 12; i++)
-            {
-                _recentColorButtons[i].BackColor = EditorConfig.RecentColors[i];
-                _recentColorButtons[i].Enabled = true;
-                SetButtonTooltip(_recentColorButtons[i], EditorConfig.RecentColors[i]);
-            }
-        }
-
-        private void PreviewColor(Color colorToPreview, Control trigger)
-        {
-            _updateInProgress = true;
-            colorPanel.BackColor = colorToPreview;
-            if (trigger != textBoxHtmlColor)
-            {
-                textBoxHtmlColor.Text = ColorTranslator.ToHtml(colorToPreview);
-            }
-
-            if (trigger != textBoxRed && trigger != textBoxGreen && trigger != textBoxBlue && trigger != textBoxAlpha)
-            {
-                textBoxRed.Text = colorToPreview.R.ToString();
-                textBoxGreen.Text = colorToPreview.G.ToString();
-                textBoxBlue.Text = colorToPreview.B.ToString();
-                textBoxAlpha.Text = colorToPreview.A.ToString();
-            }
-
-            _updateInProgress = false;
-        }
-
-        private void AddToRecentColors(Color c)
-        {
-            if (EditorConfig?.RecentColors == null)
-            {
-                return;
-            }
-
-            EditorConfig.RecentColors.Remove(c);
-            EditorConfig.RecentColors.Insert(0, c);
-            if (EditorConfig.RecentColors.Count > 12)
-            {
-                EditorConfig.RecentColors.RemoveRange(12, EditorConfig.RecentColors.Count - 12);
-            }
-
-            UpdateRecentColorsButtonRow();
-        }
-
-        private void TextBoxHexadecimalTextChanged(object sender, EventArgs e)
-        {
-            if (_updateInProgress)
-            {
-                return;
-            }
-
-            TextBox textBox = (TextBox)sender;
-            string text = textBox.Text.Replace("#", string.Empty);
-            Color c;
-            if (int.TryParse(text, NumberStyles.AllowHexSpecifier, Thread.CurrentThread.CurrentCulture, out var i))
-            {
-                c = Color.FromArgb(i);
-            }
-            else
-            {
-                try
+                new WindowInteropHelper(window)
                 {
-                    var knownColor = (KnownColor)Enum.Parse(typeof(KnownColor), text, true);
-                    c = Color.FromKnownColor(knownColor);
-                }
-                catch (Exception)
-                {
-                    return;
-                }
+                    Owner = owner.Handle
+                };
             }
 
-            Color opaqueColor = Color.FromArgb(255, c.R, c.G, c.B);
-            PreviewColor(opaqueColor, textBox);
-        }
+            bool? result = window.ShowDialog();
+            DialogResult = result == true ? DialogResult.OK : DialogResult.Cancel;
 
-        private void TextBoxRgbTextChanged(object sender, EventArgs e)
-        {
-            if (_updateInProgress)
+            if (result == true)
             {
-                return;
+                Color = window.SelectedColor;
             }
 
-            TextBox textBox = (TextBox)sender;
-            PreviewColor(
-                Color.FromArgb(GetColorPartIntFromString(textBoxAlpha.Text), GetColorPartIntFromString(textBoxRed.Text), GetColorPartIntFromString(textBoxGreen.Text),
-                    GetColorPartIntFromString(textBoxBlue.Text)), textBox);
+            return DialogResult;
         }
 
-        private void TextBoxGotFocus(object sender, EventArgs e)
+        public DialogResult ShowDialog(System.Windows.Window owner)
         {
-            textBoxHtmlColor.SelectAll();
-        }
-
-        private void TextBoxKeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Return || e.KeyCode == Keys.Enter)
+            var window = new ColorPickerWindow
             {
-                AddToRecentColors(colorPanel.BackColor);
-            }
-        }
+                SelectedColor = Color
+            };
 
-        private void ColorButtonClick(object sender, EventArgs e)
-        {
-            Button b = (Button)sender;
-            PreviewColor(b.BackColor, b);
-        }
-
-        private void SetButtonTooltip(Button colorButton, Color color)
-        {
-            _toolTip.SetToolTip(colorButton, ColorTranslator.ToHtml(color) + " | R:" + color.R + ", G:" + color.G + ", B:" + color.B);
-        }
-
-        private void BtnTransparentClick(object sender, EventArgs e)
-        {
-            ColorButtonClick(sender, e);
-        }
-
-        private void BtnApplyClick(object sender, EventArgs e)
-        {
-            DialogResult = DialogResult.OK;
-            Hide();
-            AddToRecentColors(colorPanel.BackColor);
-        }
-
-        private int GetColorPartIntFromString(string s)
-        {
-            int.TryParse(s, out var ret);
-            if (ret < 0)
+            if (owner != null)
             {
-                ret = 0;
+                window.Owner = owner;
             }
-            else if (ret > 255)
+
+            bool? result = window.ShowDialog();
+            DialogResult = result == true ? DialogResult.OK : DialogResult.Cancel;
+
+            if (result == true)
             {
-                ret = 255;
+                Color = window.SelectedColor;
             }
 
-            return ret;
+            return DialogResult;
         }
 
-        private void PipetteUsed(object sender, PipetteUsedArgs e)
+        public void Dispose()
         {
-            Color = e.Color;
-        }
-
-        public new DialogResult ShowDialog(IWin32Window owner)
-        {
-            var mouse = Cursor.Position;
-            var screen = Screen.FromPoint(mouse);
-            var workingArea = screen.WorkingArea;
-
-            int x = Math.Max(workingArea.Left, Math.Min(mouse.X - Width / 2, workingArea.Right - Width));
-            int y = Math.Max(workingArea.Top, Math.Min(mouse.Y - Height / 2, workingArea.Bottom - Height));
-
-            StartPosition = FormStartPosition.Manual;
-            Location = new Point(x, y);
-
-            return base.ShowDialog(owner);
         }
     }
 }
