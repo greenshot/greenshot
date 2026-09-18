@@ -13,6 +13,7 @@ it.lcid=1040
 nl.lcid=1043
 lv.lcid=1062
 nn.lcid=2068
+ptBR.lcid=1046
 ru.lcid=1049
 sr.lcid=3098
 sv.lcid=1053
