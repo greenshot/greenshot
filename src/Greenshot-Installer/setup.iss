@@ -672,6 +672,82 @@ begin
   Result := not AppWasRestarted;
 end;
 
+var
+    LanguagePreselected: Boolean;
+
+function GetUserDefaultUILanguage(): Word;
+    external 'GetUserDefaultUILanguage@kernel32.dll stdcall';
+
+procedure CurPageChanged(CurPageID: Integer);
+var
+    LangID: Word;
+    PrimaryLangID: Word;
+    CompName: String;
+begin
+    if (CurPageID = wpSelectComponents) and (not LanguagePreselected) then
+    begin
+        LanguagePreselected := True;
+        LangID := GetUserDefaultUILanguage();
+        PrimaryLangID := LangID and $03FF;
+        
+        // Exact matches for specific regions
+        case LangID of
+            $0416: CompName := 'languages\ptBR';
+            $0816: CompName := 'languages\ptPT';
+            $0C0C: CompName := 'languages\frQC';
+            $0404, $0C04, $1404: CompName := 'languages\zhTW';
+            $0804, $1004: CompName := 'languages\zhCN';
+        else
+            // Fallback to primary language
+            case PrimaryLangID of
+                $01: CompName := 'languages\arSY';
+                $03: CompName := 'languages\caCA';
+                $05: CompName := 'languages\csCZ';
+                $06: CompName := 'languages\daDK';
+                $08: CompName := 'languages\elGR';
+                $0A: CompName := 'languages\esES';
+                $25: CompName := 'languages\etEE';
+                $29: CompName := 'languages\faIR';
+                $0B: CompName := 'languages\fiFI';
+                $0C: CompName := 'languages\frFR';
+                $0D: CompName := 'languages\heIL';
+                $0E: CompName := 'languages\huHU';
+                $21: CompName := 'languages\idID';
+                $10: CompName := 'languages\itIT';
+                $11: CompName := 'languages\jaJP';
+                $12: CompName := 'languages\koKR';
+                $27: CompName := 'languages\ltLT';
+                $26: CompName := 'languages\lvLV';
+                $14: CompName := 'languages\nnNO';
+                $15: CompName := 'languages\plPL';
+                $16: CompName := 'languages\ptPT'; // Fallback
+                $18: CompName := 'languages\roRO';
+                $19: CompName := 'languages\ruRU';
+                $1B: CompName := 'languages\skSK';
+                $24: CompName := 'languages\slSI';
+                $1A: CompName := 'languages\srRS';
+                $1D: CompName := 'languages\svSE';
+                $1F: CompName := 'languages\trTR';
+                $22: CompName := 'languages\ukUA';
+                $2A: CompName := 'languages\viVN';
+                $04: CompName := 'languages\zhCN';
+            end;
+        end;
+
+        if CompName <> '' then
+        begin
+            if WizardSelectedComponents(False) <> '' then
+            begin
+                WizardSelectComponents(WizardSelectedComponents(False) + ',' + CompName);
+            end
+            else
+            begin
+                WizardSelectComponents(CompName);
+            end;
+        end;
+    end;
+end;
+
 [Run]
 Filename: "{app}\{#ExeName}.exe"; Description: "{cm:startgreenshot}"; Parameters: "{code:GetParamsForGS}"; WorkingDir: "{app}"; Flags: nowait postinstall runasoriginaluser; Check: NotAlreadyRestarted
 Filename: "https://getgreenshot.org/thank-you/?language={language}&version={#Version}"; Flags: shellexec runasoriginaluser
