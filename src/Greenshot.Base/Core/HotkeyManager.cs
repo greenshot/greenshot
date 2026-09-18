@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -50,7 +50,7 @@ public static class HotkeyManager
     public static bool IsPaused { get; set; }
 
     // Multi-chord sequence tracking
-    private static HotkeyInfo _activeSequenceInfo;
+    private static List<HotkeyInfo> _candidateSequences;
     private static int _activeChordIndex;
     private static DateTime _lastChordTime;
     private static readonly TimeSpan ChordTimeout = TimeSpan.FromSeconds(2.5);
@@ -98,9 +98,17 @@ public static class HotkeyManager
         }
 
         // Timeout check for multi-chord sequences
-        if (_activeSequenceInfo != null && (DateTime.UtcNow - _lastChordTime) > ChordTimeout)
+        if (_candidateSequences != null && (DateTime.UtcNow - _lastChordTime) > ChordTimeout)
         {
             ResetChordState();
+        }
+
+        // Allow Escape to cancel any pending multi-chord sequence
+        if (_candidateSequences != null && e.Key == VirtualKeyCode.Escape)
+        {
+            ResetChordState();
+            e.Handled = true;
+            return;
         }
 
         List<HotkeyInfo> hotkeys;
@@ -109,20 +117,26 @@ public static class HotkeyManager
             hotkeys = RegisteredHotkeys.ToList();
         }
 
-        // 1. If currently in the middle of a multi-chord sequence, check if this key matches the next chord
-        if (_activeSequenceInfo != null)
+        // 1. If currently in the middle of a multi-chord sequence, check if this key matches the next chord of any candidate
+        if (_candidateSequences != null)
         {
-            var nextChord = _activeSequenceInfo.Sequence.Chords[_activeChordIndex];
-            if (MatchChord(e, nextChord))
+            var nextCandidates = _candidateSequences
+                .Where(c => _activeChordIndex < c.Sequence.Chords.Count && MatchChord(e, c.Sequence.Chords[_activeChordIndex]))
+                .ToList();
+
+            if (nextCandidates.Count > 0)
             {
+                _candidateSequences = nextCandidates;
                 _activeChordIndex++;
                 _lastChordTime = DateTime.UtcNow;
 
-                if (_activeChordIndex >= _activeSequenceInfo.Sequence.Chords.Count)
+                // Check if any candidate has fully completed
+                var completed = _candidateSequences.FirstOrDefault(c => _activeChordIndex >= c.Sequence.Chords.Count);
+                if (completed != null)
                 {
                     // Full sequence matched! Mark handled on the final chord and trigger handler
                     e.Handled = true;
-                    var handler = _activeSequenceInfo.Handler;
+                    var handler = completed.Handler;
                     ResetChordState();
                     handler();
                 }
@@ -135,45 +149,40 @@ public static class HotkeyManager
             }
             else
             {
-                // Key didn't match the expected next chord; reset sequence and fall through to check for starting a new sequence
+                // Key didn't match any active candidate sequence; reset chord state and fall through
+                // to check if this key starts a new sequence
                 ResetChordState();
             }
         }
 
         // 2. Check registered hotkeys for starting chord matches
-        foreach (var hotkey in hotkeys)
+        // First, check if any single-chord hotkey matches exactly
+        var singleMatch = hotkeys.FirstOrDefault(h => h.Sequence?.Chords.Count == 1 && MatchChord(e, h.Sequence.Chords[0]));
+        if (singleMatch != null)
         {
-            if (hotkey.Sequence == null || hotkey.Sequence.Chords.Count == 0)
-            {
-                continue;
-            }
+            e.Handled = true;
+            singleMatch.Handler();
+            return;
+        }
 
-            var firstChord = hotkey.Sequence.Chords[0];
-            if (MatchChord(e, firstChord))
-            {
-                if (hotkey.Sequence.Chords.Count == 1)
-                {
-                    // Single chord match!
-                    e.Handled = true;
-                    hotkey.Handler();
-                    return;
-                }
-                else
-                {
-                    // Multi-chord sequence started
-                    _activeSequenceInfo = hotkey;
-                    _activeChordIndex = 1;
-                    _lastChordTime = DateTime.UtcNow;
-                    e.Handled = true;
-                    return;
-                }
-            }
+        // Next, check for multi-chord sequences whose first chord matches
+        var matchingMulti = hotkeys
+            .Where(h => h.Sequence?.Chords.Count > 1 && MatchChord(e, h.Sequence.Chords[0]))
+            .ToList();
+
+        if (matchingMulti.Count > 0)
+        {
+            _candidateSequences = matchingMulti;
+            _activeChordIndex = 1;
+            _lastChordTime = DateTime.UtcNow;
+            e.Handled = true;
+            return;
         }
     }
 
     private static void ResetChordState()
     {
-        _activeSequenceInfo = null;
+        _candidateSequences = null;
         _activeChordIndex = 0;
     }
 

@@ -184,5 +184,116 @@ namespace Greenshot.Tests.Forms
             Assert.False(invalidResult.IsValid);
             Assert.Contains(invalidResult.Errors, e => e.Contains("require at least one modifier"));
         }
+
+        [Fact]
+        public void ScrollLock_Then_Key_Sequence_Validation()
+        {
+            // ScrollLock then C is valid (chord 1 is standalone system key, chord 2 needs no modifier)
+            var seq = HotkeySequence.Parse("Scroll, C");
+            Assert.True(seq.Validate(out string error), error);
+
+            // Standalone C is invalid (requires modifier)
+            var singleKey = HotkeySequence.Parse("C");
+            Assert.False(singleKey.Validate(out _));
+
+            // Ctrl + K then C is also valid
+            var vsCodeChord = HotkeySequence.Parse("Ctrl + K, C");
+            Assert.True(vsCodeChord.Validate(out string error2), error2);
+        }
+
+        [Fact]
+        public void Modal_Clear_AllowsSavingNone_ToDisableHotkey()
+        {
+            Exception threadEx = null;
+            var thread = new Thread(() =>
+            {
+                try
+                {
+                    var modal = new HotkeyEditorModal();
+                    string savedResult = "Initial";
+                    modal.Open("Test Disable", "Ctrl + Shift + R", s => savedResult = s);
+                    var vm = modal.DataContext as HotkeyEditorViewModel;
+                    Assert.NotNull(vm);
+
+                    vm.ClearCommand.Execute(null);
+                    Assert.True(vm.IsValid);
+                    Assert.Null(vm.ValidationError);
+
+                    vm.SaveCommand.Execute(null);
+                    Assert.Equal("None", savedResult);
+                }
+                catch (Exception ex)
+                {
+                    threadEx = ex;
+                }
+            });
+
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
+            thread.Join();
+
+            Assert.Null(threadEx);
+        }
+
+        [Fact]
+        public void Modal_StepByStep_Editing_And_Removal()
+        {
+            Exception threadEx = null;
+            var thread = new Thread(() =>
+            {
+                try
+                {
+                    var modal = new HotkeyEditorModal();
+                    string savedResult = null;
+                    modal.Open("Test Steps", "Scroll, C", s => savedResult = s);
+                    var vm = modal.DataContext as HotkeyEditorViewModel;
+                    Assert.NotNull(vm);
+                    Assert.Equal(2, vm.Steps.Count);
+                    Assert.Equal(VirtualKeyCode.Scroll, vm.Steps[0].Key);
+                    Assert.Equal(VirtualKeyCode.KeyC, vm.Steps[1].Key);
+
+                    // Select Step 0
+                    vm.SelectStep(0);
+                    Assert.Equal(VirtualKeyCode.Scroll, vm.TriggerKey);
+
+                    // Add Step 3
+                    vm.AddStepCommand.Execute(null);
+                    Assert.Equal(3, vm.Steps.Count);
+                    vm.TriggerKey = VirtualKeyCode.KeyD;
+                    Assert.Equal(VirtualKeyCode.KeyD, vm.Steps[2].Key);
+
+                    // Remove Step 1 (which is 'C')
+                    vm.RemoveStep(1);
+                    Assert.Equal(2, vm.Steps.Count);
+                    Assert.Equal(VirtualKeyCode.Scroll, vm.Steps[0].Key);
+                    Assert.Equal(VirtualKeyCode.KeyD, vm.Steps[1].Key);
+
+                    // Save
+                    vm.SaveCommand.Execute(null);
+                    Assert.Equal("ScrollLock, D", savedResult);
+                }
+                catch (Exception ex)
+                {
+                    threadEx = ex;
+                }
+            });
+
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
+            thread.Join();
+
+            Assert.Null(threadEx);
+        }
+
+        [Fact]
+        public async System.Threading.Tasks.Task ClipboardCaptureSource_AcquireAsync_FromMTAThread_DoesNotThrowThreadStateException()
+        {
+            var source = new Greenshot.Base.Pipeline.Sources.ClipboardCaptureSource();
+            var recipe = new Greenshot.Base.Recipes.CaptureRecipe("test_clipboard", "Test Clipboard", "Test");
+            var context = new Greenshot.Base.Pipeline.CaptureFlowContext(recipe);
+            var payload = await source.AcquireAsync(context);
+            // Should either return payload (if clipboard contains image) or abort cleanly, without throwing ThreadStateException
+            Assert.True(context.IsAborted || payload != null);
+        }
     }
 }

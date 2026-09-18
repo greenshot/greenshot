@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -124,23 +124,27 @@ namespace Greenshot.Base.Core
                     return false;
                 }
 
-                // Allowed standalone keys without modifiers: Function keys F1-F24, Snapshot, Scroll, Pause
-                bool isAllowedStandalone = IsFunctionKey(chord.Key) ||
-                                           chord.Key == VirtualKeyCode.Snapshot ||
-                                           chord.Key == VirtualKeyCode.Scroll ||
-                                           chord.Key == VirtualKeyCode.Pause;
-
-                if (!chord.HasModifiers && !isAllowedStandalone)
+                // The first chord (i == 0) establishes the shortcut prefix and requires a modifier unless it's an allowed standalone key (F1-F24, PrintScreen, ScrollLock, Pause).
+                // Subsequent chords (i > 0) in multi-chord sequences do not require modifiers (e.g. ScrollLock, C or Ctrl + K, C).
+                if (i == 0)
                 {
-                    errorMessage = $"{chordLabel}Common keys require at least one modifier key (Ctrl, Alt, Shift, or Win).";
-                    return false;
-                }
+                    bool isAllowedStandalone = IsFunctionKey(chord.Key) ||
+                                               chord.Key == VirtualKeyCode.Snapshot ||
+                                               chord.Key == VirtualKeyCode.Scroll ||
+                                               chord.Key == VirtualKeyCode.Pause;
 
-                // Disallow Shift as sole modifier for alphanumeric keys
-                if (chord.Shift && !chord.Ctrl && !chord.Alt && !chord.Win && IsAlphanumeric(chord.Key))
-                {
-                    errorMessage = $"{chordLabel}Shift cannot be the only modifier for letters or numbers.";
-                    return false;
+                    if (!chord.HasModifiers && !isAllowedStandalone)
+                    {
+                        errorMessage = $"{chordLabel}Common keys require at least one modifier key (Ctrl, Alt, Shift, or Win).";
+                        return false;
+                    }
+
+                    // Disallow Shift as sole modifier for alphanumeric keys
+                    if (chord.Shift && !chord.Ctrl && !chord.Alt && !chord.Win && IsAlphanumeric(chord.Key))
+                    {
+                        errorMessage = $"{chordLabel}Shift cannot be the only modifier for letters or numbers.";
+                        return false;
+                    }
                 }
             }
 

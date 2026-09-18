@@ -369,8 +369,65 @@
                 </GroupBox>
 
                 <!-- Key Sequence Capture Area -->
-                <GroupBox Grid.Row="2" Header="Key Sequence Capture" Margin="0,0,0,12">
+                <GroupBox Grid.Row="2" Header="Key Sequence Steps &amp; Capture" Margin="0,0,0,12">
                     <StackPanel Margin="0,6">
+                        <!-- Step Chips & + Add Next Step -->
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                                <ItemsControl ItemsSource="{Binding StepItems}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <StackPanel Orientation="Horizontal"/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Margin="0,0,6,0"
+                                                    CornerRadius="4"
+                                                    BorderThickness="1.5"
+                                                    Background="{Binding BackgroundBrush}"
+                                                    BorderBrush="{Binding BorderBrush}"
+                                                    Padding="8,4"
+                                                    Cursor="Hand">
+                                                <Border.InputBindings>
+                                                    <MouseBinding MouseAction="LeftClick" Command="{Binding SelectCommand}"/>
+                                                </Border.InputBindings>
+                                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding StepHeader}" FontWeight="SemiBold" FontSize="11" Foreground="{Binding TextBrush}" VerticalAlignment="Center"/>
+                                                    <TextBlock Text="{Binding StepText}" FontSize="11" Foreground="{Binding TextBrush}" Margin="5,0,0,0" VerticalAlignment="Center"/>
+                                                    <Button Content="✕"
+                                                            Command="{Binding RemoveCommand}"
+                                                            Visibility="{Binding CanRemove, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                                            Margin="6,0,0,0"
+                                                            Padding="3,0"
+                                                            FontSize="10"
+                                                            Cursor="Hand"
+                                                            Background="Transparent"
+                                                            BorderThickness="0"
+                                                            Foreground="{Binding MutedBrush}"/>
+                                                </StackPanel>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+
+                            <Button Grid.Column="1"
+                                    Content="+ Add Step"
+                                    Command="{Binding AddStepCommand}"
+                                    Style="{StaticResource ModalButtonStyle}"
+                                    FontSize="11"
+                                    Padding="10,4"
+                                    MinHeight="28"
+                                    ToolTip="Add next chord step to this sequence"
+                                    VerticalAlignment="Center"/>
+                        </Grid>
+
                         <Border x:Name="KeyCaptureBorder"
                                 Focusable="True"
                                 Cursor="Hand"
@@ -414,19 +471,10 @@
                         <!-- Multi-chord options -->
                         <Grid Margin="0,8,0,0">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <Button Grid.Column="0"
-                                    Content="+ Add Next Chord (Sequence)"
-                                    Command="{Binding AddChordCommand}"
-                                    Style="{StaticResource ModalButtonStyle}"
-                                    FontSize="11"
-                                    Padding="10,4"
-                                    MinHeight="28"
-                                    ToolTip="Add this chord and begin defining the next chord in the sequence"/>
-                            <Button Grid.Column="2"
+                            <Button Grid.Column="1"
                                     Content="Clear / Reset"
                                     Command="{Binding ClearCommand}"
                                     Style="{StaticResource ModalButtonStyle}"
