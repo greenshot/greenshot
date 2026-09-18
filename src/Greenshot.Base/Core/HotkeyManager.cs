@@ -81,6 +81,27 @@ public static class HotkeyManager
     [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
     private static extern int GetKeyNameText(uint lParam, [Out] StringBuilder lpString, int nSize);
 
+    private static bool IsModifierKey(VirtualKeyCode key)
+    {
+        switch (key)
+        {
+            case VirtualKeyCode.LeftShift:
+            case VirtualKeyCode.RightShift:
+            case VirtualKeyCode.Shift:
+            case VirtualKeyCode.LeftControl:
+            case VirtualKeyCode.RightControl:
+            case VirtualKeyCode.Control:
+            case VirtualKeyCode.LeftMenu:
+            case VirtualKeyCode.RightMenu:
+            case VirtualKeyCode.Menu:
+            case VirtualKeyCode.LeftWin:
+            case VirtualKeyCode.RightWin:
+                return true;
+            default:
+                return false;
+        }
+    }
+
     internal static void HandleKeyboardEvent(KeyboardHookEventArgs e)
     {
         if (IsPaused)
@@ -94,14 +115,9 @@ public static class HotkeyManager
             return;
         }
 
-        // Ignore injected keys (e.g. from MaskWindowsKey or synthetic events) and Noname
-        if (e.IsInjectedByProcess || e.Key == VirtualKeyCode.Noname)
-        {
-            return;
-        }
-
-        // Ignore modifier-only key presses as triggers
-        if (e.IsModifier)
+        // Ignore pure modifier keys (Ctrl, Alt, Shift, Win) when pressed alone without a trigger key.
+        // We do not rely on e.IsModifier because Dapplo also classifies toggle/lock keys (ScrollLock, CapsLock, NumLock) as modifiers.
+        if (IsModifierKey(e.Key))
         {
             return;
         }

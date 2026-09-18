@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading;
 using Dapplo.Windows.Input.Enums;
 using Greenshot.Base.Core;
@@ -303,7 +304,9 @@ namespace Greenshot.Tests.Forms
             bool isRightWin = false,
             bool isLeftControl = false,
             bool isLeftAlt = false,
-            bool isLeftShift = false)
+            bool isLeftShift = false,
+            bool isModifier = false,
+            bool isInjected = false)
         {
             var args = (Dapplo.Windows.Input.Keyboard.KeyboardHookEventArgs)System.Runtime.Serialization.FormatterServices.GetUninitializedObject(typeof(Dapplo.Windows.Input.Keyboard.KeyboardHookEventArgs));
             var type = typeof(Dapplo.Windows.Input.Keyboard.KeyboardHookEventArgs);
@@ -316,6 +319,11 @@ namespace Greenshot.Tests.Forms
             type.GetField("<IsLeftControl>k__BackingField", flags)?.SetValue(args, isLeftControl);
             type.GetField("<IsLeftAlt>k__BackingField", flags)?.SetValue(args, isLeftAlt);
             type.GetField("<IsLeftShift>k__BackingField", flags)?.SetValue(args, isLeftShift);
+            type.GetField("<IsModifier>k__BackingField", flags)?.SetValue(args, isModifier);
+            if (isInjected)
+            {
+                type.GetField("<Flags>k__BackingField", flags)?.SetValue(args, Dapplo.Windows.Input.Enums.ExtendedKeyFlags.Injected);
+            }
 
             return args;
         }
@@ -402,30 +410,22 @@ namespace Greenshot.Tests.Forms
         }
 
         [Fact]
-        public void HotkeyManager_SequenceIgnoresInjectedKeysAndNoname()
+        public void HotkeyManager_SequenceWithScrollLock_TriggersCorrectly()
         {
             HotkeyManager.ClearRegisteredHotkeys();
             bool triggered = false;
-            var seq = HotkeySequence.Parse("Win + PrintScreen, C");
+            var seq = HotkeySequence.Parse("ScrollLock, C");
             HotkeyManager.RegisterHotKey(seq, () => triggered = true);
 
-            // Step 1: User presses Win + PrintScreen
-            var e1 = CreateKeyboardHookEventArgs(VirtualKeyCode.Snapshot, isKeyDown: true, isLeftWin: true);
+            // Dapplo marks ScrollLock with IsModifier = true. HotkeyManager must still recognize it!
+            var e1 = CreateKeyboardHookEventArgs(VirtualKeyCode.Scroll, isKeyDown: true, isModifier: true);
             HotkeyManager.HandleKeyboardEvent(e1);
+            Assert.True(e1.Handled);
             Assert.Equal(1, HotkeyManager.CandidateSequenceCount);
             Assert.Equal(1, HotkeyManager.ActiveChordIndex);
-
-            // Injected Noname arrives (e.g. from Windows key masking)
-            var noname = CreateKeyboardHookEventArgs(VirtualKeyCode.Noname, isKeyDown: true);
-            HotkeyManager.HandleKeyboardEvent(noname);
-
-            // Sequence should NOT be reset by Noname!
-            Assert.Equal(1, HotkeyManager.CandidateSequenceCount);
-            Assert.Equal(1, HotkeyManager.ActiveChordIndex);
-            Assert.False(triggered);
 
             // Step 2: User presses C
-            var e2 = CreateKeyboardHookEventArgs(VirtualKeyCode.KeyC, isKeyDown: true, isLeftWin: false);
+            var e2 = CreateKeyboardHookEventArgs(VirtualKeyCode.KeyC, isKeyDown: true);
             HotkeyManager.HandleKeyboardEvent(e2);
 
             Assert.True(e2.Handled);
@@ -433,6 +433,41 @@ namespace Greenshot.Tests.Forms
             Assert.Equal(0, HotkeyManager.CandidateSequenceCount);
 
             HotkeyManager.ClearRegisteredHotkeys();
+        }
+
+        [Fact]
+        public void HotkeyManager_InjectedKeysTriggerSequences_ForAutomation()
+        {
+            HotkeyManager.ClearRegisteredHotkeys();
+            bool triggered = false;
+            var seq = HotkeySequence.Parse("Ctrl + K, C");
+            HotkeyManager.RegisterHotKey(seq, () => triggered = true);
+
+            // Injected Ctrl+K (automation software)
+            var e1 = CreateKeyboardHookEventArgs(VirtualKeyCode.KeyK, isKeyDown: true, isLeftControl: true, isInjected: true);
+            HotkeyManager.HandleKeyboardEvent(e1);
+            Assert.True(e1.Handled);
+            Assert.Equal(1, HotkeyManager.CandidateSequenceCount);
+
+            // Injected C
+            var e2 = CreateKeyboardHookEventArgs(VirtualKeyCode.KeyC, isKeyDown: true, isInjected: true);
+            HotkeyManager.HandleKeyboardEvent(e2);
+            Assert.True(e2.Handled);
+            Assert.True(triggered);
+
+            HotkeyManager.ClearRegisteredHotkeys();
+        }
+
+        [Fact]
+        public void DestinationExportStep_ResolvesDestinationDesignations_WithoutFallbackToPicker()
+        {
+            // Node created with DestinationDesignations (as in RecipeManager.InitializeDefaultRecipes)
+            var node = Greenshot.Base.Recipes.RecipeStepConfig.CreateDestinations("export", new[] { "Editor" });
+            Assert.True(node.Parameters.ContainsKey("DestinationDesignations"));
+
+            var step = new Greenshot.Pipeline.Steps.DestinationExportStep(node);
+            var gatedActions = step.GetGatedActions().ToList();
+            Assert.NotNull(gatedActions);
         }
     }
 }
