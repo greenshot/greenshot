@@ -265,14 +265,16 @@ namespace Greenshot.Pipeline.Steps
                 if (ctxVal is string ctxStr && !string.IsNullOrWhiteSpace(ctxStr)) return new[] { ctxStr };
             }
 
-            // Priority 3: Explicit step parameter configuration ("Destinations")
-            var stepDests = Config.GetParameter<List<string>>("Destinations");
+            // Priority 3: Explicit step parameter configuration ("DestinationDesignations" or "Destinations")
+            var stepDests = Config.GetParameter<List<string>>("DestinationDesignations")
+                ?? Config.GetParameter<List<string>>("Destinations");
             if (stepDests != null && stepDests.Count > 0)
             {
                 return stepDests;
             }
 
-            string singleDest = Config.GetParameter<string>("Destinations");
+            string singleDest = Config.GetParameter<string>("DestinationDesignations")
+                ?? Config.GetParameter<string>("Destinations");
             if (!string.IsNullOrWhiteSpace(singleDest))
             {
                 return singleDest.Contains(",")
