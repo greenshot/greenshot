@@ -110,6 +110,15 @@ Source: {#SolutionDir}\Greenshot.Plugin.ExternalCommand\Languages\language_exter
 ;ZXing Plugin
 Source: {#PluginDir}\Greenshot.Plugin.Zxing\*zxing*.dll; DestDir: {app}\Plugins\Zxing; Components: plugins\zxing; Flags: {#DefaultInstallFlags};
 
+; Modern Windows 11 Context Menu Shell Extension
+Source: {#SolutionDir}\x64\Release\Greenshot.ShellExt.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags} restartreplace uninsrestartdelete skipifsourcedoesntexist; Check: IsWindows11OrLater
+#if CertumThumbprint != ""
+Source: {#SolutionDir}\x64\Release\Greenshot.ShellExt.msix; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags} signonce restartreplace uninsrestartdelete skipifsourcedoesntexist; Check: IsWindows11OrLater
+#else
+Source: {#SolutionDir}\x64\Release\Appx\AppxManifest.xml; DestDir: {app}\Greenshot.ShellExt; Components: greenshot; Flags: {#DefaultInstallFlags} skipifsourcedoesntexist; Check: IsWindows11OrLater
+Source: {#SolutionDir}\x64\Release\Appx\Assets\*.*; DestDir: {app}\Greenshot.ShellExt\Assets; Components: greenshot; Flags: {#DefaultInstallFlags} skipifsourcedoesntexist; Check: IsWindows11OrLater
+#endif
+
 [Setup]
 ; changes associations is used when the installer installs new extensions, it clears the explorer icon cache
 ChangesAssociations=yes
@@ -193,10 +202,27 @@ Root: HKA; Subkey: Software\Microsoft\Windows\CurrentVersion\Run; ValueType: str
 Root: HKA; Subkey: Software\Classes\.greenshot; ValueType: string; ValueName: ""; ValueData: "Greenshot"; Flags: uninsdeletevalue noerror
 Root: HKA; Subkey: Software\Classes\Greenshot; ValueType: string; ValueName: ""; ValueData: "Greenshot File"; Flags: uninsdeletevalue noerror
 Root: HKA; Subkey: Software\Classes\Greenshot\DefaultIcon; ValueType: string; ValueName: ""; ValueData: """{app}\Greenshot.EXE,0"""; Flags: uninsdeletevalue noerror
-Root: HKA; Subkey: Software\Classes\Greenshot\shell\open\command; ValueType: string; ValueName: ""; ValueData: """{app}\Greenshot.EXE"" --openfile ""%1"""; Flags: uninsdeletevalue noerror
+Root: HKA; Subkey: Software\Classes\Greenshot\shell\open\command; ValueType: string; ValueName: ""; ValueData: """{app}\Greenshot.EXE"" ""%1"""; Flags: uninsdeletevalue noerror
 
 ; Disable the default PRTSCR Snipping Tool in Windows 11
 Root: HKCU; Subkey: Control Panel\Keyboard; ValueType: dword; ValueName: "PrintScreenKeyForSnippingEnabled"; ValueData: "0"; Flags: uninsdeletevalue; Check: ShouldDisableSnippingTool
+
+; "Edit with Greenshot" context menu for image files (legacy / "Show more options" on Win11)
+Root: HKA; Subkey: Software\Classes\SystemFileAssociations\image\shell\Greenshot.Edit; ValueType: string; ValueName: ""; ValueData: "{cm:shellext_edit}"; Flags: uninsdeletekey noerror; Tasks: shellext; Check: ShouldInstallLegacyShellExt
+Root: HKA; Subkey: Software\Classes\SystemFileAssociations\image\shell\Greenshot.Edit; ValueType: string; ValueName: "Icon"; ValueData: """{app}\Greenshot.EXE"",0"; Flags: uninsdeletevalue noerror; Tasks: shellext; Check: ShouldInstallLegacyShellExt
+Root: HKA; Subkey: Software\Classes\SystemFileAssociations\image\shell\Greenshot.Edit\command; ValueType: string; ValueName: ""; ValueData: """{app}\Greenshot.EXE"" ""%1"""; Flags: uninsdeletevalue noerror; Tasks: shellext; Check: ShouldInstallLegacyShellExt
+
+; Save InstallDir for the Windows 11 COM DLL
+Root: HKA; Subkey: Software\Greenshot; ValueType: string; ValueName: "InstallDir"; ValueData: "{app}"; Flags: uninsdeletevalue noerror; Tasks: shellext
+
+; Active Setup to register the Windows 11 modern context menu for all users when they log in
+Root: HKLM; Subkey: "Software\Microsoft\Active Setup\Installed Components\{{3D1E6BB3-7033-4D9A-BF6D-F18A32CA11B2}"; ValueType: string; ValueName: ""; ValueData: "Greenshot Shell Extension"; Flags: uninsdeletekey noerror; Check: IsModernShellExtSupportedAndAdmin
+#if CertumThumbprint != ""
+Root: HKLM; Subkey: "Software\Microsoft\Active Setup\Installed Components\{{3D1E6BB3-7033-4D9A-BF6D-F18A32CA11B2}"; ValueType: string; ValueName: "StubPath"; ValueData: "powershell.exe -WindowStyle Hidden -NoProfile -ExecutionPolicy Bypass -Command ""if ([Environment]::OSVersion.Version.Build -ge 22000) {{ Add-AppxPackage -Path '{app}\Greenshot.ShellExt.msix' -ExternalLocation '{app}' }"""; Flags: uninsdeletevalue noerror; Check: IsModernShellExtSupportedAndAdmin
+#else
+Root: HKLM; Subkey: "Software\Microsoft\Active Setup\Installed Components\{{3D1E6BB3-7033-4D9A-BF6D-F18A32CA11B2}"; ValueType: string; ValueName: "StubPath"; ValueData: "powershell.exe -WindowStyle Hidden -NoProfile -ExecutionPolicy Bypass -Command ""if ([Environment]::OSVersion.Version.Build -ge 22000) {{ Add-AppxPackage -Register '{app}\Greenshot.ShellExt\AppxManifest.xml' -ExternalLocation '{app}' }"""; Flags: uninsdeletevalue noerror; Check: IsModernShellExtSupportedAndAdmin
+#endif
+Root: HKLM; Subkey: "Software\Microsoft\Active Setup\Installed Components\{{3D1E6BB3-7033-4D9A-BF6D-F18A32CA11B2}"; ValueType: string; ValueName: "Version"; ValueData: "1,0,0,0"; Flags: uninsdeletevalue noerror; Check: IsModernShellExtSupportedAndAdmin
 
 [Icons]
 Name: {group}\{#ExeName}; Filename: {app}\{#ExeName}.exe; WorkingDir: {app}; AppUserModelID: "{#ExeName}"
@@ -226,6 +252,7 @@ Name: uk; MessagesFile: compiler:Languages\Ukrainian.isl
 
 [Tasks]
 Name: startup; Description: {cm:startup}
+Name: shellext; Description: {cm:shellext}
 
 [CustomMessages]
 ; Global Fallbacks (apply to all languages unless overridden)
@@ -244,6 +271,9 @@ UninstallIconDescription=Uninstall
 ShowLicense=Show license
 ShowReadme=Show Readme
 disablewin11snippingtool=Disable Win11 default PrtScr snipping tool
+shellext=Add "Edit with Greenshot" to Explorer context menu
+shellext_edit=Edit with Greenshot
+shellext_legacyfallback= (Legacy only)
 
 ;Language names in the original language
 dexfranconia=Frängisch (Deutsch)
@@ -300,6 +330,9 @@ en.UninstallIconDescription=Uninstall
 en.ShowLicense=Show license
 en.ShowReadme=Show Readme
 en.disablewin11snippingtool=Disable Win11 default PrtScr snipping tool
+en.shellext=Add "Edit with Greenshot" to Explorer context menu
+en.shellext_edit=Edit with Greenshot
+en.shellext_legacyfallback= (Legacy only)
 
 de.confluence=Confluence Plug-in
 de.default=Standard installation
@@ -442,6 +475,9 @@ ptBR.UninstallIconDescription=Desinstalar
 ptBR.ShowLicense=Mostrar licença
 ptBR.ShowReadme=Mostrar Leia-me
 ptBR.disablewin11snippingtool=Desativar ferramenta de captura padrão PrtScr do Win11
+ptBR.shellext=Adicionar "Editar com o Greenshot" ao menu de contexto
+ptBR.shellext_edit=Editar com o Greenshot
+ptBR.shellext_legacyfallback= (Somente modo legado)
 
 ru.confluence=Плагин Confluence
 ru.externalcommand=Открыть с плагином с помощью внешней команды
@@ -678,6 +714,75 @@ var
 function GetUserDefaultUILanguage(): Word;
     external 'GetUserDefaultUILanguage@kernel32.dll stdcall';
 
+function IsWindows11OrLater: Boolean;
+var
+  Version: TWindowsVersion;
+begin
+  GetWindowsVersionEx(Version);
+  Result := (Version.Major >= 10) and (Version.Build >= 22000);
+end;
+
+var
+  DevModeEnabled: Boolean;
+  DevModeChecked: Boolean;
+
+procedure CheckDevMode;
+var
+  DevModeValue: Cardinal;
+begin
+  if DevModeChecked then Exit;
+  DevModeEnabled := False;
+  if RegQueryDWordValue(HKLM, 'SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock', 'AllowDevelopmentWithoutDevLicense', DevModeValue) then
+  begin
+    if DevModeValue = 1 then DevModeEnabled := True;
+  end;
+  DevModeChecked := True;
+end;
+
+function IsModernShellExtSupported: Boolean;
+begin
+  Result := False;
+  if not IsWindows11OrLater then Exit;
+#if CertumThumbprint != ""
+  Result := True;
+#else
+  CheckDevMode;
+  Result := DevModeEnabled;
+#endif
+end;
+
+function IsModernShellExtSupportedAndAdmin: Boolean;
+begin
+  Result := IsModernShellExtSupported and IsAdminInstallMode;
+end;
+
+function ShouldInstallLegacyShellExt: Boolean;
+begin
+  if not IsWindows11OrLater then
+    Result := True
+  else
+    Result := not IsModernShellExtSupported;
+end;
+
+procedure UpdateShellExtTaskState;
+var
+  i: Integer;
+  TargetCaption: String;
+begin
+  if not IsWindows11OrLater then Exit;
+  if IsModernShellExtSupported then Exit;
+
+  TargetCaption := CustomMessage('shellext');
+  for i := 0 to WizardForm.TasksList.Items.Count - 1 do
+  begin
+    if Pos(TargetCaption, WizardForm.TasksList.ItemCaption[i]) > 0 then
+    begin
+      WizardForm.TasksList.ItemCaption[i] := TargetCaption + CustomMessage('shellext_legacyfallback');
+      Break;
+    end;
+  end;
+end;
+
 procedure CurPageChanged(CurPageID: Integer);
 var
     LangID: Word;
@@ -746,11 +851,24 @@ begin
             end;
         end;
     end;
+
+    if CurPageID = wpSelectTasks then
+    begin
+        UpdateShellExtTaskState;
+    end;
 end;
 
 [Run]
+#if CertumThumbprint != ""
+Filename: "powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -Command ""Add-AppxPackage -Path '{app}\Greenshot.ShellExt.msix' -ExternalLocation '{app}'"""; StatusMsg: "Registering shell extension..."; Flags: runhidden runasoriginaluser; Check: IsModernShellExtSupported; Tasks: shellext
+#else
+Filename: "powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -Command ""Add-AppxPackage -Register '{app}\Greenshot.ShellExt\AppxManifest.xml' -ExternalLocation '{app}'"""; StatusMsg: "Registering shell extension..."; Flags: runhidden runasoriginaluser; Check: IsModernShellExtSupported; Tasks: shellext
+#endif
 Filename: "{app}\{#ExeName}.exe"; Description: "{cm:startgreenshot}"; Parameters: "{code:GetParamsForGS}"; WorkingDir: "{app}"; Flags: nowait postinstall runasoriginaluser; Check: NotAlreadyRestarted
 Filename: "https://getgreenshot.org/thank-you/?language={language}&version={#Version}"; Flags: shellexec runasoriginaluser
+
+[UninstallRun]
+Filename: "powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -Command ""Get-AppxPackage -Name 'Greenshot.ShellExtension' | Remove-AppxPackage"""; Flags: runhidden; RunOnceId: "RemoveAppxPackage"; Check: IsModernShellExtSupported
 
 [InstallDelete]
 // processed as the first step of installation.
@@ -793,6 +911,10 @@ Type: filesandordirs; Name: "{app}\Plugins\Office"
 Type: filesandordirs; Name: "{app}\Plugins\Photobucket"
 Type: filesandordirs; Name: "{app}\Plugins\Win10"
 Type: filesandordirs; Name: "{app}\Plugins\Zxing"
+
+// Clean up any loose manifest files or old packages before installing
+Type: filesandordirs; Name: "{app}\Greenshot.ShellExt"
+Type: files; Name: "{app}\Greenshot.ShellExt.msix"
 
 // Cleanup directory if there are no plugins left
 Name: {app}\Plugins; Type: dirifempty;

@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
 VisualStudioVersion = 18.3.11312.210
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Greenshot.ShellExt", "Greenshot.ShellExt\Greenshot.ShellExt.vcxproj", "{4C1C1FDF-3D6D-4F28-B0A6-128F731BF88D}"
+EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Greenshot", "Greenshot\Greenshot.csproj", "{CD642BF4-D815-4D67-A0B5-C69F0B8231AF}"
 	ProjectSection(ProjectDependencies) = postProject
 		{19FEEF09-313F-43C7-819D-F1BCA782B08B} = {19FEEF09-313F-43C7-819D-F1BCA782B08B}
@@ -64,6 +66,18 @@ Global
 		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4C1C1FDF-3D6D-4F28-B0A6-128F731BF88D}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{4C1C1FDF-3D6D-4F28-B0A6-128F731BF88D}.Debug|Any CPU.Build.0 = Debug|x64
+		{4C1C1FDF-3D6D-4F28-B0A6-128F731BF88D}.Debug|x86.ActiveCfg = Debug|Win32
+		{4C1C1FDF-3D6D-4F28-B0A6-128F731BF88D}.Debug|x86.Build.0 = Debug|Win32
+		{4C1C1FDF-3D6D-4F28-B0A6-128F731BF88D}.Debug|x64.ActiveCfg = Debug|x64
+		{4C1C1FDF-3D6D-4F28-B0A6-128F731BF88D}.Debug|x64.Build.0 = Debug|x64
+		{4C1C1FDF-3D6D-4F28-B0A6-128F731BF88D}.Release|Any CPU.ActiveCfg = Release|x64
+		{4C1C1FDF-3D6D-4F28-B0A6-128F731BF88D}.Release|Any CPU.Build.0 = Release|x64
+		{4C1C1FDF-3D6D-4F28-B0A6-128F731BF88D}.Release|x86.ActiveCfg = Release|Win32
+		{4C1C1FDF-3D6D-4F28-B0A6-128F731BF88D}.Release|x86.Build.0 = Release|Win32
+		{4C1C1FDF-3D6D-4F28-B0A6-128F731BF88D}.Release|x64.ActiveCfg = Release|x64
+		{4C1C1FDF-3D6D-4F28-B0A6-128F731BF88D}.Release|x64.Build.0 = Release|x64
 		{CD642BF4-D815-4D67-A0B5-C69F0B8231AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{CD642BF4-D815-4D67-A0B5-C69F0B8231AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CD642BF4-D815-4D67-A0B5-C69F0B8231AF}.Debug|x86.ActiveCfg = Debug|Any CPU
