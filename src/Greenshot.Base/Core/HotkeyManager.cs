@@ -53,7 +53,7 @@ public static class HotkeyManager
     private static List<HotkeyInfo> _candidateSequences;
     private static int _activeChordIndex;
     private static DateTime _lastChordTime;
-    private static readonly TimeSpan ChordTimeout = TimeSpan.FromSeconds(5.0);
+    private static readonly TimeSpan ChordTimeout = TimeSpan.FromSeconds(2.5);
 
     internal static int CandidateSequenceCount => _candidateSequences?.Count ?? 0;
     internal static int ActiveChordIndex => _activeChordIndex;
@@ -121,9 +121,6 @@ public static class HotkeyManager
         {
             return;
         }
-
-        Log.DebugFormat("HotkeyManager: Processing keydown Key={0}, Injected={1}, Ctrl={2}, Alt={3}, Shift={4}, Win={5}, CandidateCount={6}",
-            e.Key, e.IsInjectedByProcess, e.IsControl, e.IsAlt, e.IsShift, e.IsWindows, _candidateSequences?.Count ?? 0);
 
         // Timeout check for multi-chord sequences
         if (_candidateSequences != null && (DateTime.UtcNow - _lastChordTime) > ChordTimeout)
