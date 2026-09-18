@@ -1,4 +1,4 @@
-﻿// Greenshot - a free and open source screenshot tool
+// Greenshot - a free and open source screenshot tool
 // Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
 //
 // For more information see: https://getgreenshot.org/
@@ -45,6 +45,16 @@ namespace Greenshot.Helpers
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
         /// <summary>
+        /// URI pointing to the Greenshot downloads webpage
+        /// </summary>
+        public static Uri DownloadsUri => Downloads;
+
+        /// <summary>
+        /// Instance property for downloads URI
+        /// </summary>
+        public Uri DownloadsUrl => Downloads;
+
+        /// <summary>
         /// Provides the current version
         /// </summary>
         public Version CurrentVersion { get; }
@@ -62,12 +72,12 @@ namespace Greenshot.Helpers
         /// <summary>
         /// Checks if there is an release update available
         /// </summary>
-        public bool IsUpdateAvailable => LatestReleaseVersion > CurrentVersion;
+        public bool IsUpdateAvailable => LatestReleaseVersion != null && LatestReleaseVersion > CurrentVersion;
 
         /// <summary>
         /// Checks if there is an beta update available
         /// </summary>
-        public bool IsBetaUpdateAvailable => LatestBetaVersion > CurrentVersion;
+        public bool IsBetaUpdateAvailable => LatestBetaVersion != null && LatestBetaVersion > CurrentVersion;
 
         /// <summary>
         /// Keep track of when the update was shown, so it won't be every few minutes
@@ -77,11 +87,44 @@ namespace Greenshot.Helpers
         /// <summary>
         /// Constructor with dependencies
         /// </summary>
-        public UpdateService()
+        public UpdateService() : this(null)
+        {
+        }
+
+        /// <summary>
+        /// Constructor allowing explicit CurrentVersion (useful for unit testing and dependency injection)
+        /// </summary>
+        /// <param name="currentVersion">Current version override</param>
+        public UpdateService(Version currentVersion)
         {
             JsonNetJsonSerializer.RegisterGlobally();
-            var version = FileVersionInfo.GetVersionInfo(GetType().Assembly.Location);
-            LatestReleaseVersion = CurrentVersion = new Version(version.FileMajorPart, version.FileMinorPart, version.FileBuildPart);
+
+            if (currentVersion != null)
+            {
+                CurrentVersion = currentVersion;
+            }
+            else
+            {
+                try
+                {
+                    var location = GetType().Assembly.Location;
+                    if (!string.IsNullOrEmpty(location))
+                    {
+                        var version = FileVersionInfo.GetVersionInfo(location);
+                        CurrentVersion = new Version(version.FileMajorPart, version.FileMinorPart, version.FileBuildPart);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log.Warn("Could not determine current version from assembly file info", ex);
+                }
+
+                if (CurrentVersion == null)
+                {
+                    var ver = GetType().Assembly.GetName().Version;
+                    CurrentVersion = ver != null ? new Version(ver.Major, ver.Minor, Math.Max(0, ver.Build)) : new Version(1, 0, 0);
+                }
+            }
         }
 
         /// <summary>
@@ -89,7 +132,8 @@ namespace Greenshot.Helpers
         /// </summary>
         public void Startup()
         {
-            _ = BackgroundTask(() => TimeSpan.FromDays(CoreConfig.UpdateCheckInterval), UpdateCheck, _cancellationTokenSource.Token);
+            var interval = CoreConfig?.UpdateCheckInterval ?? 14;
+            _ = BackgroundTask(() => TimeSpan.FromDays(interval), ct => CheckForUpdatesAsync(true, ct), _cancellationTokenSource.Token);
         }
 
         /// <summary>
@@ -113,7 +157,7 @@ namespace Greenshot.Helpers
 
                     // If the check is disabled, handle that here
                     var checkIsDisabled = TimeSpan.Zero == interval;
-                    var nextCheckIsInTheFuture = CoreConfig.LastUpdateCheck.Add(interval) > DateTime.Now;
+                    var nextCheckIsInTheFuture = CoreConfig != null && CoreConfig.LastUpdateCheck.Add(interval) > DateTime.Now;
 
                     // If we have an invalid interval
                     if (interval.TotalSeconds < 0)
@@ -158,26 +202,37 @@ namespace Greenshot.Helpers
         }
 
         /// <summary>
-        /// Do the actual update check
+        /// Check for updates asynchronously from the Greenshot update feed.
         /// </summary>
-        /// <param name="cancellationToken">CancellationToken</param>
-        /// <returns>Task</returns>
-        private async Task UpdateCheck(CancellationToken cancellationToken = default)
+        /// <param name="showNotification">Whether to show a toast notification if an update is found.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>True if the update check completed successfully, false if an error occurred (e.g. offline).</returns>
+        public async Task<bool> CheckForUpdatesAsync(bool showNotification = false, CancellationToken cancellationToken = default)
         {
             Log.InfoFormat("Checking for updates from {0}", UpdateFeed);
 
-            CoreConfig.LastUpdateCheck = DateTime.Now;
-
-            var updateFeed = await UpdateFeed.GetAsAsync<UpdateFeed>(cancellationToken);
-            if (updateFeed == null)
+            try
             {
-                return;
+                if (CoreConfig != null)
+                {
+                    CoreConfig.LastUpdateCheck = DateTime.Now;
+                }
+
+                var updateFeed = await UpdateFeed.GetAsAsync<UpdateFeed>(cancellationToken).ConfigureAwait(false);
+                if (updateFeed == null)
+                {
+                    return false;
+                }
+
+                ProcessFeed(updateFeed);
+            }
+            catch (Exception ex)
+            {
+                Log.Warn("Error occurred when checking for updates.", ex);
+                return false;
             }
 
-            ProcessFeed(updateFeed);
-
-            // Only show if the update was shown >24 hours ago.
-            if (DateTimeOffset.Now.AddDays(-1) > LastUpdateShown)
+            if (showNotification && DateTimeOffset.Now.AddDays(-1) > LastUpdateShown)
             {
                 if (IsBetaUpdateAvailable)
                 {
@@ -190,8 +245,9 @@ namespace Greenshot.Helpers
                     ShowUpdate(LatestReleaseVersion);
                 }
             }
-        }
 
+            return true;
+        }
 
         /// <summary>
         /// This takes care of creating the toast view model, publishing it, and disposing afterwards
@@ -199,27 +255,57 @@ namespace Greenshot.Helpers
         /// <param name="newVersion">Version</param>
         private void ShowUpdate(Version newVersion)
         {
-            var notificationService = SimpleServiceProvider.Current.GetInstance<INotificationService>();
-            var message = Language.GetFormattedString(LangKey.update_found, newVersion.ToString());
-            notificationService.ShowInfoMessage(message, TimeSpan.FromHours(1), () => Process.Start(Downloads.AbsoluteUri));
+            try
+            {
+                var notificationService = SimpleServiceProvider.Current?.GetInstance<INotificationService>(isOptional: true);
+                if (notificationService == null) return;
+
+                var message = Language.GetFormattedString(LangKey.update_found, newVersion.ToString());
+                notificationService.ShowInfoMessage(message, TimeSpan.FromHours(1), () =>
+                {
+                    try
+                    {
+                        Process.Start(new ProcessStartInfo(Downloads.AbsoluteUri) { UseShellExecute = true });
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error($"Failed to launch download URL: {Downloads.AbsoluteUri}", ex);
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                Log.Warn("Could not display update notification.", ex);
+            }
         }
 
         /// <summary>
         /// Process the update feed to get the latest version
         /// </summary>
-        /// <param name="updateFeed"></param>
-        private void ProcessFeed(UpdateFeed updateFeed)
+        /// <param name="updateFeed">Update feed entity</param>
+        public void ProcessFeed(UpdateFeed updateFeed)
         {
-            var latestReleaseString = Regex.Replace(updateFeed.CurrentReleaseVersion, "[a-zA-Z\\-]*", "");
-            if (Version.TryParse(latestReleaseString, out var latestReleaseVersion))
+            if (updateFeed == null)
             {
-                LatestReleaseVersion = latestReleaseVersion;
+                return;
             }
 
-            var latestBetaString = Regex.Replace(updateFeed.CurrentBetaVersion, "[a-zA-Z\\-]*", "");
-            if (Version.TryParse(latestBetaString, out var latestBetaVersion))
+            if (!string.IsNullOrEmpty(updateFeed.CurrentReleaseVersion))
             {
-                LatestBetaVersion = latestBetaVersion;
+                var latestReleaseString = Regex.Replace(updateFeed.CurrentReleaseVersion, "[a-zA-Z\\-]*", "");
+                if (Version.TryParse(latestReleaseString, out var latestReleaseVersion))
+                {
+                    LatestReleaseVersion = latestReleaseVersion;
+                }
+            }
+
+            if (!string.IsNullOrEmpty(updateFeed.CurrentBetaVersion))
+            {
+                var latestBetaString = Regex.Replace(updateFeed.CurrentBetaVersion, "[a-zA-Z\\-]*", "");
+                if (Version.TryParse(latestBetaString, out var latestBetaVersion))
+                {
+                    LatestBetaVersion = latestBetaVersion;
+                }
             }
         }
     }

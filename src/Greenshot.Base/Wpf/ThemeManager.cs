@@ -68,6 +68,9 @@ namespace Greenshot.Base.Wpf
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TabItemBackgroundBrush)));
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TabItemSelectedBrush)));
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TitleBarBrush)));
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AccentBrush)));
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(WarningBrush)));
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ErrorBrush)));
                 }
             }
         }
@@ -129,6 +132,18 @@ namespace Greenshot.Base.Wpf
             ? new SolidColorBrush(Color.FromRgb(24, 24, 24))
             : new SolidColorBrush(Color.FromRgb(240, 240, 240));
 
+        public Brush AccentBrush => _isDarkTheme
+            ? new SolidColorBrush(Color.FromRgb(10, 132, 255))
+            : new SolidColorBrush(Color.FromRgb(0, 122, 255));
+
+        public Brush WarningBrush => _isDarkTheme
+            ? new SolidColorBrush(Color.FromRgb(255, 186, 66))
+            : new SolidColorBrush(Color.FromRgb(204, 136, 0));
+
+        public Brush ErrorBrush => _isDarkTheme
+            ? new SolidColorBrush(Color.FromRgb(255, 107, 107))
+            : new SolidColorBrush(Color.FromRgb(220, 53, 69));
+
         private void DetectSystemTheme()
         {
             try
@@ -166,6 +181,12 @@ namespace Greenshot.Base.Wpf
             dict["ThemeControlBackgroundBrush"] = ControlBackgroundBrush;
             dict["ThemeTextBoxBackgroundBrush"] = TextBoxBackgroundBrush;
             dict["ThemeButtonBackgroundBrush"] = ButtonBackgroundBrush;
+            dict["ThemeButtonHoverBrush"] = ButtonHoverBrush;
+            dict["ThemeButtonPressedBrush"] = ButtonPressedBrush;
+            dict["ThemeTitleBarBrush"] = TitleBarBrush;
+            dict["ThemeAccentBrush"] = AccentBrush;
+            dict["ThemeWarningBrush"] = WarningBrush;
+            dict["ThemeErrorBrush"] = ErrorBrush;
             
             return dict;
         }
