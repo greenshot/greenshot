@@ -47,6 +47,36 @@ public static class WindowsAppHelper
 {
     private static readonly ILog Log = LogManager.GetLogger(typeof(WindowsAppHelper));
     private static readonly ConcurrentDictionary<string, Image> LogoCache = new(StringComparer.OrdinalIgnoreCase);
+    private static readonly Image NoLogoSentinel = new Bitmap(1, 1);
+    private static List<Package> _cachedPackages;
+    private static DateTime _packagesCacheTime = DateTime.MinValue;
+    private static readonly object PackagesLock = new();
+
+    private static List<Package> GetCachedPackages(PackageManager packageManager)
+    {
+        lock (PackagesLock)
+        {
+            if (_cachedPackages != null && (DateTime.UtcNow - _packagesCacheTime).TotalMinutes < 5)
+            {
+                return _cachedPackages;
+            }
+
+            try
+            {
+                _cachedPackages = packageManager.FindPackagesForUser(string.Empty)
+                    .Where(p => !p.IsFramework)
+                    .ToList();
+                _packagesCacheTime = DateTime.UtcNow;
+            }
+            catch (Exception ex)
+            {
+                Log.Debug("Error enumerating packages", ex);
+                _cachedPackages = new List<Package>();
+            }
+
+            return _cachedPackages;
+        }
+    }
 
     private const uint OpenExisting = 3;
     private const uint FileFlagOpenReparsePoint = 0x00200000;
@@ -260,9 +290,7 @@ public static class WindowsAppHelper
 
             if (candidates.Count > 0)
             {
-                var packages = packageManager.FindPackagesForUser(string.Empty)
-                    .Where(p => !p.IsFramework)
-                    .ToList();
+                var packages = GetCachedPackages(packageManager);
 
                 foreach (var candidate in candidates)
                 {
@@ -308,7 +336,7 @@ public static class WindowsAppHelper
         string cacheKey = $"{commandLine}|{commandName}|{size.Width}x{size.Height}";
         if (LogoCache.TryGetValue(cacheKey, out Image cachedImage))
         {
-            return cachedImage;
+            return ReferenceEquals(cachedImage, NoLogoSentinel) ? null : cachedImage;
         }
 
         try
@@ -328,11 +356,13 @@ public static class WindowsAppHelper
                         return logo;
                     }
                 }
+                LogoCache[cacheKey] = NoLogoSentinel;
                 return null;
             }).GetAwaiter().GetResult();
         }
         catch (Exception ex)
         {
+            LogoCache[cacheKey] = NoLogoSentinel;
             Log.Debug("Unable to retrieve Windows App logo for " + (commandLine ?? commandName), ex);
             return null;
         }

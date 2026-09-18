@@ -23,6 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Threading.Tasks;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -359,27 +360,14 @@ namespace Greenshot.Forms.Wpf
         {
             Destinations = new ObservableCollection<DestinationItem>();
             
-            foreach (IDestination destination in DestinationHelper.GetAllDestinations())
+            var allDestinations = DestinationHelper.GetAllDestinations().ToList();
+            foreach (IDestination destination in allDestinations)
             {
                 // Skip picker - it's handled separately
                 if (nameof(WellKnownDestinations.Picker).Equals(destination.Designation))
                 {
                     _pickerSelected = CoreConfiguration.OutputDestinations != null && CoreConfiguration.OutputDestinations.Contains(destination.Designation);
                     continue;
-                }
-
-                ImageSource iconSource = null;
-                try
-                {
-                    var displayIcon = destination.DisplayIcon;
-                    if (displayIcon != null)
-                    {
-                        iconSource = displayIcon.ToBitmapSource();
-                    }
-                }
-                catch
-                {
-                    // Some plugins may fail to resolve icons if their config section is not initialized
                 }
 
                 string description = destination.Designation;
@@ -396,12 +384,47 @@ namespace Greenshot.Forms.Wpf
                 {
                     Destination = destination,
                     Description = description,
-                    IconSource = iconSource,
                     IsSelected = CoreConfiguration.OutputDestinations != null && CoreConfiguration.OutputDestinations.Contains(destination.Designation)
                 };
                 
                 Destinations.Add(destItem);
             }
+
+            // Asynchronously resolve destination icons in background to keep opening instant
+            Task.Run(() =>
+            {
+                foreach (var destItem in Destinations)
+                {
+                    try
+                    {
+                        var displayIcon = destItem.Destination?.DisplayIcon;
+                        if (displayIcon != null)
+                        {
+                            var iconSource = displayIcon.ToBitmapSource();
+                            if (iconSource != null)
+                            {
+                                iconSource.Freeze();
+                                var dispatcher = Application.Current?.Dispatcher;
+                                if (dispatcher != null && !dispatcher.HasShutdownStarted)
+                                {
+                                    dispatcher.BeginInvoke(new Action(() =>
+                                    {
+                                        destItem.IconSource = iconSource;
+                                    }));
+                                }
+                                else
+                                {
+                                    destItem.IconSource = iconSource;
+                                }
+                            }
+                        }
+                    }
+                    catch
+                    {
+                        // Some plugins may fail to resolve icons if their config section is not initialized
+                    }
+                }
+            });
         }
 
         private void InitializePlugins()
@@ -428,11 +451,6 @@ namespace Greenshot.Forms.Wpf
                             Location = location
                         });
                     }
-                }
-
-                if (Plugins.Count > 0)
-                {
-                    SelectedPlugin = Plugins.FirstOrDefault();
                 }
             }
             catch
@@ -479,10 +497,22 @@ namespace Greenshot.Forms.Wpf
     public class DestinationItem : INotifyPropertyChanged
     {
         private bool _isSelected;
+        private ImageSource _iconSource;
 
         public IDestination Destination { get; set; }
         public string Description { get; set; }
-        public ImageSource IconSource { get; set; }
+        public ImageSource IconSource
+        {
+            get => _iconSource;
+            set
+            {
+                if (_iconSource != value)
+                {
+                    _iconSource = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IconSource)));
+                }
+            }
+        }
 
         public bool IsSelected
         {

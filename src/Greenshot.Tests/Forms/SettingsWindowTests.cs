@@ -7,14 +7,37 @@ using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Wpf;
 using Greenshot.Forms.Wpf;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Greenshot.Tests.Forms
 {
     public class SettingsWindowTests
     {
-        public SettingsWindowTests()
+        private readonly ITestOutputHelper _output;
+
+        public SettingsWindowTests(ITestOutputHelper output)
         {
+            _output = output;
             TestEnvironment.EnsureInitialized();
+        }
+
+
+        [Fact]
+        public void WindowsAppHelper_NegativeLookup_IsCached()
+        {
+            string nonExistentApp = "Definitely_Not_A_Real_App_987654.exe";
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+            var result1 = WindowsAppHelper.GetAppLogo(nonExistentApp);
+            long firstLookupMs = sw.ElapsedMilliseconds;
+            Assert.Null(result1);
+
+            sw.Restart();
+            var result2 = WindowsAppHelper.GetAppLogo(nonExistentApp);
+            long secondLookupMs = sw.ElapsedMilliseconds;
+            Assert.Null(result2);
+
+            // Second lookup must be cached and essentially instantaneous (< 10ms)
+            Assert.True(secondLookupMs < 15, $"Second negative lookup should be cached (took {secondLookupMs}ms vs {firstLookupMs}ms)");
         }
 
         [Fact]
