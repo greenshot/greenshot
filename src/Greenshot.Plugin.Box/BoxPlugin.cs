@@ -30,6 +30,7 @@ using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Recipes;
 using Greenshot.Plugin.Box.Forms;
 
 namespace Greenshot.Plugin.Box;
@@ -84,8 +85,11 @@ public class BoxPlugin : IGreenshotPlugin, IRecipeStepProvider
     {
         _resources = new ComponentResourceManager(typeof(BoxPlugin));
         serviceLocator.AddService<IDestination>(new BoxDestination(this));
-        serviceLocator.AddService<IRecipeStepProvider>(this);
-        StepRegistry.Instance.RegisterProvider(this);
+        if (RecipeConfigHelper.IsRecipeFeatureEnabled())
+        {
+            serviceLocator.AddService<IRecipeStepProvider>(this);
+            StepRegistry.Instance.RegisterProvider(this);
+        }
     }
 
     /// <summary>

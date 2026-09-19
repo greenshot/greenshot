@@ -9,7 +9,6 @@ using System.Windows.Media;
 using Dapplo.Windows.Input.Enums;
 using Greenshot.Base.Core;
 using Greenshot.Base.Wpf;
-using Greenshot.UI.RecipeEditor.ViewModels;
 
 namespace Greenshot.Forms.Wpf
 {

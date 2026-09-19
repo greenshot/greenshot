@@ -30,6 +30,7 @@ using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Recipes;
 
 namespace Greenshot.Plugin.ExternalCommand;
 
@@ -154,8 +155,11 @@ public class ExternalCommandPlugin : IGreenshotPlugin, IRecipeStepProvider
         }
 
         serviceLocator.AddService(Destinations());
-        serviceLocator.AddService<IRecipeStepProvider>(this);
-        StepRegistry.Instance.RegisterProvider(this);
+        if (RecipeConfigHelper.IsRecipeFeatureEnabled())
+        {
+            serviceLocator.AddService<IRecipeStepProvider>(this);
+            StepRegistry.Instance.RegisterProvider(this);
+        }
     }
 
     /// <summary>

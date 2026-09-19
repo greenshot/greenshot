@@ -34,7 +34,7 @@ using Greenshot.Editor.Helpers;
 using System.IO;
 using Greenshot.Pipeline.Steps;
 using Greenshot.Plugin.Zxing;
-using Greenshot.UI.RecipeEditor.Helpers;
+using Greenshot.Plugin.RecipeEditor.Helpers;
 using Xunit;
 
 namespace Greenshot.Tests.Recipes

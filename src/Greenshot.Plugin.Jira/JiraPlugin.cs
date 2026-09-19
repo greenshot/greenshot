@@ -34,6 +34,7 @@ using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Recipes;
 using Greenshot.Plugin.Jira.Forms;
 using log4net;
 
@@ -95,8 +96,11 @@ public class JiraPlugin : IGreenshotPlugin, IRecipeStepProvider
         _resources = new ComponentResourceManager(typeof(JiraPlugin));
         serviceLocator.AddService(new JiraConnector());
         serviceLocator.AddService<IDestination>(new JiraDestination());
-        serviceLocator.AddService<IRecipeStepProvider>(this);
-        StepRegistry.Instance.RegisterProvider(this);
+        if (RecipeConfigHelper.IsRecipeFeatureEnabled())
+        {
+            serviceLocator.AddService<IRecipeStepProvider>(this);
+            StepRegistry.Instance.RegisterProvider(this);
+        }
     }
 
     /// <summary>

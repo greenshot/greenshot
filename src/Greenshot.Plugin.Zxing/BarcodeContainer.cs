@@ -98,7 +98,7 @@ namespace Greenshot.Plugin.Zxing
                 targetH = side;
             }
 
-            var format = ZxingEditorForm.MapFormatIndex(_model.FormatIndex);
+            var format = Views.ZxingEditorWindow.MapFormatIndex(_model.FormatIndex);
             string payload = _model.GetPayloadString();
             if (string.IsNullOrEmpty(payload))
             {

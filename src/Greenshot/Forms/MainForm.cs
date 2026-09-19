@@ -722,7 +722,7 @@ namespace Greenshot.Forms
 
         private void UpdateRecipesMenu()
         {
-            if (!coreConfiguration.EnableRecipeFeature)
+            if (!RecipeConfigHelper.IsRecipeFeatureEnabled())
             {
                 if (_recipesMenuItem != null && contextMenu.Items.Contains(_recipesMenuItem))
                 {
@@ -803,39 +803,28 @@ namespace Greenshot.Forms
             };
             _recipesMenuItem.DropDownItems.Add(reloadItem);
 
-            var editorItem = new ToolStripMenuItem(Language.GetString("contextmenu_recipeeditor") ?? "Recipe Editor...");
-            editorItem.Click += (s, ev) =>
+            var editorService = SimpleServiceProvider.Current.GetInstance<IRecipeEditorService>(isOptional: true);
+            if (editorService != null)
             {
-                OnOpenRecipeEditorClicked();
-            };
-            _recipesMenuItem.DropDownItems.Add(editorItem);
+                var editorItem = new ToolStripMenuItem(Language.GetString("contextmenu_recipeeditor") ?? "Recipe Editor...");
+                editorItem.Click += (s, ev) =>
+                {
+                    OnOpenRecipeEditorClicked();
+                };
+                _recipesMenuItem.DropDownItems.Add(editorItem);
+            }
         }
-
-        private static UI.RecipeEditor.RecipeEditorWindow _activeRecipeEditorWindow;
 
         private void OnOpenRecipeEditorClicked()
         {
             try
             {
-                if (_activeRecipeEditorWindow != null && _activeRecipeEditorWindow.IsLoaded)
-                {
-                    if (_activeRecipeEditorWindow.WindowState == System.Windows.WindowState.Minimized)
-                    {
-                        _activeRecipeEditorWindow.WindowState = System.Windows.WindowState.Normal;
-                    }
-                    _activeRecipeEditorWindow.Activate();
-                    _activeRecipeEditorWindow.Focus();
-                    return;
-                }
-
-                _activeRecipeEditorWindow = new UI.RecipeEditor.RecipeEditorWindow(RecipeManager.Instance);
-                _activeRecipeEditorWindow.Closed += (s, e) => _activeRecipeEditorWindow = null;
-                System.Windows.Forms.Integration.ElementHost.EnableModelessKeyboardInterop(_activeRecipeEditorWindow);
-                _activeRecipeEditorWindow.Show();
+                var editorService = SimpleServiceProvider.Current.GetInstance<IRecipeEditorService>(isOptional: true);
+                editorService?.OpenEditor();
             }
             catch (Exception ex)
             {
-                Log.Error("Failed to open native recipe editor window.", ex);
+                Log.Error("Failed to open recipe editor window.", ex);
             }
         }
 
@@ -854,7 +843,8 @@ namespace Greenshot.Forms
                     var result = Recipes.RecipeManager.Instance.LoadRecipeFromFile(recipePath, interactiveApproval: true, forceApprovalPrompt: true);
                     if (result.IsValid)
                     {
-                        string existing = coreConfiguration.RecipeFiles ?? "";
+                        var recipeConfig = IniConfigRegistry.GetSection<IRecipeConfiguration>();
+                        string existing = recipeConfig?.RecipeFiles ?? "";
                         var configuredPaths = new List<string>();
                         var currentPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
                         foreach (string configuredPath in existing.Split(new[] { ';', ',' }, StringSplitOptions.RemoveEmptyEntries))
@@ -876,7 +866,10 @@ namespace Greenshot.Forms
                         if (currentPaths.Add(recipePath))
                         {
                             configuredPaths.Add(recipePath);
-                            coreConfiguration.RecipeFiles = string.Join(";", configuredPaths);
+                            if (recipeConfig != null)
+                            {
+                                recipeConfig.RecipeFiles = string.Join(";", configuredPaths);
+                            }
                             IniConfigRegistry.Get()?.Save();
                         }
                     }

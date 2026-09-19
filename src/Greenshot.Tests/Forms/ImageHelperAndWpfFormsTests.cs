@@ -1,10 +1,31 @@
+/*
+ * Greenshot - a free and open source screenshot tool
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
+ * 
+ * For more information see: https://getgreenshot.org/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 1 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Threading;
-using System.Windows.Media.Imaging;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
+using Greenshot.Base.Wpf;
 using Greenshot.Plugin.Box;
 using Greenshot.Plugin.Box.Forms;
 using Greenshot.Plugin.Confluence;
@@ -17,9 +38,11 @@ using Greenshot.Plugin.Imgur;
 using Greenshot.Plugin.Imgur.Forms;
 using Greenshot.Plugin.Jira;
 using Greenshot.Plugin.Jira.Forms;
+using Greenshot.Forms.Wpf;
 using Greenshot.Plugin.Zxing;
-using Greenshot.Plugin.Zxing.Forms;
+using Greenshot.Plugin.Zxing.Views;
 using Xunit;
+using Greenshot.Plugin.Zxing.Controls;
 
 namespace Greenshot.Tests.Forms
 {
@@ -419,6 +442,137 @@ namespace Greenshot.Tests.Forms
             pluginItem1.Available = false;
             PluginUtils.UpdatePluginSeparatorsVisibility(contextMenu);
             Assert.False(topSeparator.Available, "Top separator should be hidden again when all items become invisible");
+        }
+
+        [Fact]
+        public void ZxingEditorWindow_InstantiatesAndPopulatesModelCorrectly()
+        {
+            Assert.Equal(ZXing.BarcodeFormat.QR_CODE, ZxingEditorWindow.MapFormatIndex(0));
+            Assert.Equal(ZXing.BarcodeFormat.CODE_128, ZxingEditorWindow.MapFormatIndex(4));
+            Assert.Equal(0, ZxingEditorWindow.MapFormatToIndex(ZXing.BarcodeFormat.QR_CODE));
+            Assert.Equal(4, ZxingEditorWindow.MapFormatToIndex(ZXing.BarcodeFormat.CODE_128));
+
+            Exception threadEx = null;
+            var thread = new Thread(() =>
+            {
+                try
+                {
+                    var model = new ZxingModel
+                    {
+                        FormatIndex = 0,
+                        QrCategoryIndex = 1,
+                        WifiSsid = "TestWifi",
+                        WifiPassword = "SecretPassword",
+                        WifiEncryptionIndex = 0,
+                        Margin = 2,
+                        RoundedDots = true
+                    };
+
+                    var window = new ZxingEditorWindow(model);
+                    Assert.NotNull(window);
+                    Assert.Equal("Edit QR / Barcode", window.Title);
+
+                    // Verify payload generation for WiFi
+                    string payload = window.GetPayloadString();
+                    Assert.Contains("WIFI:S:TestWifi;T:WPA;P:SecretPassword;;", payload);
+
+                    // Test model populate
+                    var updatedModel = new ZxingModel();
+                    window.PopulateModel(updatedModel);
+                    Assert.Equal("TestWifi", updatedModel.WifiSsid);
+                    Assert.Equal("SecretPassword", updatedModel.WifiPassword);
+                    Assert.True(updatedModel.RoundedDots);
+                    Assert.Equal(2, updatedModel.Margin);
+
+                    // Test theme toggle
+                    bool initialTheme = WpfThemeHelper.IsDarkMode;
+                    WpfThemeHelper.ToggleTheme();
+                    Assert.NotEqual(initialTheme, WpfThemeHelper.IsDarkMode);
+                    WpfThemeHelper.ToggleTheme(); // Toggle back
+                }
+                catch (Exception ex)
+                {
+                    threadEx = ex;
+                }
+            });
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
+            thread.Join();
+
+            Assert.Null(threadEx);
+        }
+
+        [Fact]
+        public void ThemeManager_HasControlBorderBrushAndNotifies()
+        {
+            var tm = ThemeManager.Instance;
+            Assert.NotNull(tm.ControlBorderBrush);
+
+            var dict = tm.GetThemeResources();
+            Assert.True(dict.Contains("ThemeControlBorderBrush"));
+
+            bool notified = false;
+            System.ComponentModel.PropertyChangedEventHandler handler = (s, e) =>
+            {
+                if (e.PropertyName == nameof(ThemeManager.ControlBorderBrush))
+                {
+                    notified = true;
+                }
+            };
+
+            tm.PropertyChanged += handler;
+            try
+            {
+                tm.ToggleTheme();
+                Assert.True(notified);
+            }
+            finally
+            {
+                tm.PropertyChanged -= handler;
+                tm.ToggleTheme(); // Restore
+            }
+        }
+
+        [Fact]
+        public void HotkeyEditorModal_HasInitialViewModelDataContext_ToPreventInheritedBindingErrors()
+        {
+            Exception threadEx = null;
+            var thread = new Thread(() =>
+            {
+                try
+                {
+                    var modal = new HotkeyEditorModal();
+                    Assert.NotNull(modal.DataContext);
+                    Assert.IsType<HotkeyEditorViewModel>(modal.DataContext);
+                }
+                catch (Exception ex)
+                {
+                    threadEx = ex;
+                }
+            });
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
+            thread.Join();
+
+            Assert.Null(threadEx);
+        }
+
+        [Fact]
+        public void WindowsAppHelper_TrimExcessiveTransparentBorders_ReturnsDetachedBitmap()
+        {
+            using var bmp = new Bitmap(64, 64, PixelFormat.Format32bppArgb);
+            using (var g = Graphics.FromImage(bmp))
+            {
+                g.Clear(Color.Transparent);
+                g.FillRectangle(Brushes.Red, 10, 10, 20, 20);
+            }
+
+            var trimmed = WindowsAppHelper.TrimExcessiveTransparentBorders(bmp);
+            Assert.NotNull(trimmed);
+            Assert.IsType<Bitmap>(trimmed);
+            var bitmapSource = trimmed.ToBitmapSource();
+            Assert.NotNull(bitmapSource);
+            trimmed.Dispose();
         }
     }
 }

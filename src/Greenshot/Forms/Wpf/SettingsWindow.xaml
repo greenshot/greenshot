@@ -986,16 +986,6 @@
                                   Margin="8,4,8,8"
                                   IsEnabled="{Binding ExpertModeEnabled}">
                             <StackPanel>
-                                <CheckBox Content="{wpf:Translate expertsettings_enablerecipes}"
-                                          IsChecked="{Binding CoreConfiguration.EnableRecipeFeature, Mode=TwoWay}">
-                                    <CheckBox.IsEnabled>
-                                        <MultiBinding Converter="{StaticResource FixedToEnabledConverter}" ConverterParameter="EnableRecipeFeature">
-                                            <Binding Path="ExpertModeEnabled"/>
-                                            <Binding Path="CoreConfiguration"/>
-                                        </MultiBinding>
-                                    </CheckBox.IsEnabled>
-                                </CheckBox>
-                                
                                 <CheckBox Content="{wpf:Translate expertsettings_autoreducecolors}"
                                           IsChecked="{Binding CoreConfiguration.OutputFileAutoReduceColors, Mode=TwoWay}">
                                     <CheckBox.IsEnabled>

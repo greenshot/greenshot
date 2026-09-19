@@ -211,7 +211,7 @@ namespace Greenshot.Base.Core
             // Fallback: use the Windows shell-associated icon (handles exes with no embedded icon, e.g. Windows curl.exe)
             try
             {
-                var shellIcon = Icon.ExtractAssociatedIcon(path);
+                using var shellIcon = Icon.ExtractAssociatedIcon(path);
                 if (shellIcon != null)
                 {
                     Log.DebugFormat("Loaded shell icon for {0}", path);

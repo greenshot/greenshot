@@ -59,6 +59,7 @@ namespace Greenshot.Base.Wpf
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ForegroundBrush)));
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(MutedBrush)));
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(BorderBrush)));
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ControlBorderBrush)));
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(GroupBoxBrush)));
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ControlBackgroundBrush)));
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TextBoxBackgroundBrush)));
@@ -95,6 +96,10 @@ namespace Greenshot.Base.Wpf
         public Brush BorderBrush => _isDarkTheme 
             ? new SolidColorBrush(Color.FromRgb(70, 70, 70)) 
             : new SolidColorBrush(Color.FromRgb(200, 200, 200));
+
+        public Brush ControlBorderBrush => _isDarkTheme 
+            ? new SolidColorBrush(Color.FromRgb(70, 70, 70)) 
+            : new SolidColorBrush(Color.FromRgb(180, 180, 180));
 
         public Brush GroupBoxBrush => _isDarkTheme 
             ? new SolidColorBrush(Color.FromRgb(42, 42, 42)) 
@@ -177,6 +182,7 @@ namespace Greenshot.Base.Wpf
             dict["ThemeForegroundBrush"] = ForegroundBrush;
             dict["ThemeMutedBrush"] = MutedBrush;
             dict["ThemeBorderBrush"] = BorderBrush;
+            dict["ThemeControlBorderBrush"] = ControlBorderBrush;
             dict["ThemeGroupBoxBrush"] = GroupBoxBrush;
             dict["ThemeControlBackgroundBrush"] = ControlBackgroundBrush;
             dict["ThemeTextBoxBackgroundBrush"] = TextBoxBackgroundBrush;

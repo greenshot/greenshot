@@ -38,15 +38,13 @@ public class ZxingEditorPlugin : IEditorPlugin
     {
         var menuItem = new ToolStripMenuItem("Insert QR / Barcode...", null, (s, e) =>
         {
-            using (var form = new ZxingEditorForm())
+            var window = new Views.ZxingEditorWindow();
+            if (window.ShowDialog(editorForm) == true && window.GeneratedBitmap != null)
             {
-                if (form.ShowDialog(editorForm) == DialogResult.OK && form.GeneratedBitmap != null)
-                {
-                    var container = surface.AddImageContainer(form.GeneratedBitmap, 50, 50);
-                    var model = new ZxingModel();
-                    form.PopulateModel(model);
-                    container.Tag = model;
-                }
+                var container = surface.AddImageContainer(window.GeneratedBitmap, 50, 50);
+                var model = new ZxingModel();
+                window.PopulateModel(model);
+                container.Tag = model;
             }
         });
 

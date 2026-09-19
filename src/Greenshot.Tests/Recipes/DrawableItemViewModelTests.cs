@@ -22,7 +22,7 @@
 using System.Collections.Generic;
 using Greenshot.Base.Recipes;
 using Greenshot.Pipeline.Steps;
-using Greenshot.UI.RecipeEditor.ViewModels;
+using Greenshot.Plugin.RecipeEditor.ViewModels;
 using Xunit;
 
 namespace Greenshot.Tests.Recipes

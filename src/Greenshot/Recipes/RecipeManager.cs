@@ -224,13 +224,14 @@ namespace Greenshot.Recipes
 
         public void LoadConfiguredRecipeFiles()
         {
-            if (!CoreConfig.EnableRecipeFeature)
+            if (!RecipeConfigHelper.IsRecipeFeatureEnabled())
             {
-                Log.Debug("CoreConfig.EnableRecipeFeature is false. Skipping external recipe file loading.");
+                Log.Debug("Recipe feature is disabled. Skipping external recipe file loading.");
                 return;
             }
 
-            string configured = CoreConfig.RecipeFiles;
+            var recipeConfig = IniConfigRegistry.GetSection<IRecipeConfiguration>();
+            string configured = recipeConfig?.RecipeFiles;
             if (string.IsNullOrWhiteSpace(configured)) return;
 
             var paths = configured.Split(new[] { ';', ',' }, StringSplitOptions.RemoveEmptyEntries);

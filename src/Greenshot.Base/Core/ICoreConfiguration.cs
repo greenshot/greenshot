@@ -392,9 +392,5 @@ namespace Greenshot.Base.Core
 
         /// <summary>Validates <see cref="OutputFileAsFullpath"/>; resets it to a default full-path dummy when the directory no longer exists.</summary>
         void ValidateAndCorrectOutputFileAsFullpath();
-
-        [DataMember(Name = "EnableRecipeFeature")]
-        [Description("Set this to true to enable recipes")]
-        bool EnableRecipeFeature { get; set; }
     }
 }

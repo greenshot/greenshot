@@ -20,7 +20,6 @@
  */
 
 using System;
-using Dapplo.Ini;
 using Greenshot.Base.Core;
 using Xunit;
 

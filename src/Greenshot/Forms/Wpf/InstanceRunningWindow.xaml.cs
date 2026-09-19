@@ -59,11 +59,31 @@ namespace Greenshot.Forms.Wpf
             }
 
             Resources.MergedDictionaries.Add(ThemeManager.Instance.GetThemeResources());
-            ThemeManager.Instance.PropertyChanged += (s, e) =>
+            System.ComponentModel.PropertyChangedEventHandler themeHandler = (s, e) =>
             {
-                Resources.MergedDictionaries.Clear();
-                Resources.MergedDictionaries.Add(ThemeManager.Instance.GetThemeResources());
+                if (Dispatcher.CheckAccess())
+                {
+                    Resources.MergedDictionaries.Clear();
+                    Resources.MergedDictionaries.Add(ThemeManager.Instance.GetThemeResources());
+                }
+                else if (!Dispatcher.HasShutdownStarted)
+                {
+                    Dispatcher.InvokeAsync(() =>
+                    {
+                        try
+                        {
+                            Resources.MergedDictionaries.Clear();
+                            Resources.MergedDictionaries.Add(ThemeManager.Instance.GetThemeResources());
+                        }
+                        catch
+                        {
+                            // Window or dispatcher shutting down
+                        }
+                    });
+                }
             };
+            ThemeManager.Instance.PropertyChanged += themeHandler;
+            Closed += (s, e) => ThemeManager.Instance.PropertyChanged -= themeHandler;
 
             KeyDown += (s, e) =>
             {
