@@ -20,6 +20,7 @@
  */
 
 using System.Collections.Generic;
+using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Triggers;
 using Newtonsoft.Json;
@@ -145,6 +146,17 @@ namespace Greenshot.Tests.Recipes
             var unified = deserialized.Flow.GetUnifiedTransitions();
             Assert.Contains("node_dest", unified["node_source"]);
             Assert.Contains("node_alt", unified["node_source"]);
+        }
+
+        [Fact]
+        public void RecipeStepConfig_CreateEditor_UsesTargetEditor()
+        {
+            var node = RecipeStepConfig.CreateEditor(targetEditor: TargetEditor.CurrentEditor);
+
+            Assert.Equal("CurrentEditor", node.GetParameter<string>("TargetEditor"));
+            // check old obsolete parameters 
+            Assert.False(node.HasParameter("ReuseEditor"));
+            Assert.False(node.HasParameter("ReuseCurrentEditor"));
         }
 
         [Fact]

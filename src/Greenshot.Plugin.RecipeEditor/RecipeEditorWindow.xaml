@@ -1146,6 +1146,7 @@
                                                 <ComboBoxItem Content="Clipboard (From clipboard image)" Tag="Clipboard"/>
                                                 <ComboBoxItem Content="File (Load from disk)" Tag="File"/>
                                                 <ComboBoxItem Content="TextOcr (Screen OCR capture)" Tag="TextOcr"/>
+                                                <ComboBoxItem Content="CurrentEditor (Current editor image)" Tag="CurrentEditor"/>
                                             </ComboBox>
 
                                             <StackPanel Visibility="{Binding SelectedNode.IsWindowSource, Converter={StaticResource BoolToVis}}">
@@ -2585,12 +2586,13 @@
                                                 <ComboBoxItem Content="No (Keep current window size)" Tag="false"/>
                                             </ComboBox>
 
-                                            <TextBlock Text="Reuse Existing Editor Window" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
-                                            <ComboBox SelectedValue="{Binding SelectedNode.EditorReuseEditor, Mode=TwoWay}"
+                                            <TextBlock Text="Target Editor" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <ComboBox SelectedValue="{Binding SelectedNode.EditorTargetEditor, Mode=TwoWay}"
                                                       SelectedValuePath="Tag" Margin="0,0,0,8">
                                                 <ComboBoxItem Content="(From Configuration)" Tag=""/>
-                                                <ComboBoxItem Content="Yes (Reuse single instance)" Tag="true"/>
-                                                <ComboBoxItem Content="No (Open new window)" Tag="false"/>
+                                                <ComboBoxItem Content="New editor" Tag="NewEditor"/>
+                                                <ComboBoxItem Content="Available editor" Tag="AvailableEditor"/>
+                                                <ComboBoxItem Content="Current editor" Tag="CurrentEditor"/>
                                             </ComboBox>
 
                                             <TextBlock Text="Suppress Save Confirmation Dialog" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>

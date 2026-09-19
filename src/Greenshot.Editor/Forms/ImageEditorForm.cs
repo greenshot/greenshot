@@ -2498,29 +2498,14 @@ namespace Greenshot.Editor.Forms
                 Log.Warn("ICapturePipeline service not available to run editor recipe.");
                 return;
             }
-
-            bool exportsToEditor = recipe.HasEditorDestination();
-            ISurface targetSurface = exportsToEditor ? Surface.Clone() : Surface;
-
-            var payload = new CapturePayload()
-            {
-                Surface = targetSurface,
-                RetainSurfaceForEditor = true
-            };
-
             try
             {
-                await pipeline.ExecuteAsync(recipe, trigger, ctx =>
+                var recipeToExecute = EditorTriggerRecipePreparer.Prepare(recipe);
+                await pipeline.ExecuteAsync(recipeToExecute, trigger, ctx =>
                 {
-                    ctx.Payload = payload;
                     ctx.Properties["EditorForm"] = this;
                 });
 
-                if (!exportsToEditor)
-                {
-                    Surface.Modified = true;
-                    Surface.Invalidate();
-                }
             }
             catch (Exception ex)
             {

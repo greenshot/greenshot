@@ -19,21 +19,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace Greenshot.Base.Recipes
+namespace Greenshot.Base.Core.Enums
 {
-    /// <summary>
-    /// Supported capture acquisition source types for recipes.
-    /// </summary>
-    public enum CaptureSourceType
+    public enum TargetEditor
     {
-        Region,
-        Window,
-        ActiveWindow,
-        FullScreen,
-        LastRegion,
-        Clipboard,
-        File,
-        TextOcr,
+        NewEditor,
+        AvailableEditor,
         CurrentEditor
     }
 }
