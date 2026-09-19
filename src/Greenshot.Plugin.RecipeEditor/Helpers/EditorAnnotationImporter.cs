@@ -35,9 +35,9 @@ using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Drawing.Emoji;
 using Greenshot.Editor.Drawing.Fields;
 using Greenshot.Editor.Drawing.Filters;
-using Greenshot.UI.RecipeEditor.ViewModels;
+using Greenshot.Plugin.RecipeEditor.ViewModels;
 
-namespace Greenshot.UI.RecipeEditor.Helpers
+namespace Greenshot.Plugin.RecipeEditor.Helpers
 {
     internal static class ImporterDictionaryExtensions
     {

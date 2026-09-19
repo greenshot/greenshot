@@ -30,5 +30,6 @@
     <ProjectReference Include="..\Greenshot.Plugin.Imgur\Greenshot.Plugin.Imgur.csproj" />
     <ProjectReference Include="..\Greenshot.Plugin.Jira\Greenshot.Plugin.Jira.csproj" />
     <ProjectReference Include="..\Greenshot.Plugin.Office\Greenshot.Plugin.Office.csproj" />
+    <ProjectReference Include="..\Greenshot.Plugin.RecipeEditor\Greenshot.Plugin.RecipeEditor.csproj" />
   </ItemGroup>
 </Project>

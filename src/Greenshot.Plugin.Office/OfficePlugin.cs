@@ -29,6 +29,7 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Recipes;
 using Greenshot.Plugin.Office.Destinations;
 
 namespace Greenshot.Plugin.Office
@@ -159,8 +160,11 @@ namespace Greenshot.Plugin.Office
         public void RegisterServices(IServiceLocator serviceLocator)
         {
             serviceLocator.AddService(Destinations());
-            serviceLocator.AddService<IRecipeStepProvider>(this);
-            StepRegistry.Instance.RegisterProvider(this);
+            if (RecipeConfigHelper.IsRecipeFeatureEnabled())
+            {
+                serviceLocator.AddService<IRecipeStepProvider>(this);
+                StepRegistry.Instance.RegisterProvider(this);
+            }
         }
 
         /// <summary>

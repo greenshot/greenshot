@@ -28,9 +28,10 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
-using Greenshot.UI.RecipeEditor.Helpers;
+using Greenshot.Base.Wpf;
+using Greenshot.Plugin.RecipeEditor.Helpers;
 
-namespace Greenshot.UI.RecipeEditor.Dialogs
+namespace Greenshot.Plugin.RecipeEditor.Dialogs
 {
     /// <summary>
     /// Modern interactive dialog for importing annotations into a recipe step.

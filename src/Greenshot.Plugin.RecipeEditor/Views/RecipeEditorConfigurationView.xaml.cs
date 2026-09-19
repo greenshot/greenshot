@@ -20,12 +20,13 @@
  */
 
 using System.Windows.Controls;
+using Greenshot.Base.Recipes;
 
-namespace Greenshot.Plugin.Zxing.Forms;
+namespace Greenshot.Plugin.RecipeEditor.Views;
 
-public partial class ZxingConfigurationControl : UserControl
+public partial class RecipeEditorConfigurationView : UserControl
 {
-    public ZxingConfigurationControl(IZxingConfiguration config)
+    public RecipeEditorConfigurationView(IRecipeConfiguration config)
     {
         DataContext = config;
         InitializeComponent();

@@ -28,6 +28,7 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Recipes;
 using log4net;
 
 namespace Greenshot.Base.Drawing
@@ -145,6 +146,12 @@ namespace Greenshot.Base.Drawing
         public void RegisterProvider(IRecipeDrawableProvider provider)
         {
             if (provider == null) return;
+            if (!RecipeConfigHelper.IsRecipeFeatureEnabled())
+            {
+                Log.DebugFormat("Recipe feature/editor is not enabled; skipping drawable registration for provider '{0}'", provider.GetType().Name);
+                return;
+            }
+
             try
             {
                 provider.RegisterDrawables(this);
@@ -166,6 +173,8 @@ namespace Greenshot.Base.Drawing
 
         private void DiscoverProviders()
         {
+            if (!RecipeConfigHelper.IsRecipeFeatureEnabled()) return;
+
             try
             {
                 var providers = SimpleServiceProvider.Current?.GetAllInstances<IRecipeDrawableProvider>();

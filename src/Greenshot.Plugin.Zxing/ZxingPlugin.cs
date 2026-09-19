@@ -31,7 +31,7 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Pipeline;
-using Greenshot.Editor.Drawing;
+using Greenshot.Base.Recipes;
 
 namespace Greenshot.Plugin.Zxing;
 
@@ -80,10 +80,13 @@ public class ZxingPlugin : IGreenshotPlugin, IRecipeStepProvider, IRecipeDrawabl
         serviceLocator.AddService<IEditorPlugin>(_editorPlugin);
         serviceLocator.AddService<IFeatureHotspotTransformer>(_hotspotTransformer);
         serviceLocator.AddService<IDestination>(new ZxingQrDestination());
-        serviceLocator.AddService<IRecipeStepProvider>(this);
-        serviceLocator.AddService<IRecipeDrawableProvider>(this);
-        StepRegistry.Instance.RegisterProvider(this);
-        RecipeDrawableRegistry.Instance.RegisterProvider(this);
+        if (RecipeConfigHelper.IsRecipeFeatureEnabled())
+        {
+            serviceLocator.AddService<IRecipeStepProvider>(this);
+            serviceLocator.AddService<IRecipeDrawableProvider>(this);
+            StepRegistry.Instance.RegisterProvider(this);
+            RecipeDrawableRegistry.Instance.RegisterProvider(this);
+        }
     }
 
     /// <summary>
@@ -295,7 +298,7 @@ public class ZxingPlugin : IGreenshotPlugin, IRecipeStepProvider, IRecipeDrawabl
         int formatIndex = 0;
         if (format != ZXing.BarcodeFormat.QR_CODE)
         {
-            formatIndex = ZxingEditorForm.MapFormatToIndex(format);
+            formatIndex = Views.ZxingEditorWindow.MapFormatToIndex(format);
         }
 
         var model = new ZxingModel
@@ -546,7 +549,7 @@ public class ZxingPlugin : IGreenshotPlugin, IRecipeStepProvider, IRecipeDrawabl
 
     public System.Windows.UIElement CreateConfigurationControl()
     {
-        return _config != null ? new Forms.ZxingConfigurationControl(_config) : null;
+        return _config != null ? new Controls.ZxingConfigurationControl(_config) : null;
     }
 
     /// <summary>
@@ -621,10 +624,10 @@ public class ZxingPlugin : IGreenshotPlugin, IRecipeStepProvider, IRecipeDrawabl
             win32Owner = new Win32WindowWrapper(helper.Handle);
         }
 
-        using var form = new ZxingEditorForm(model);
-        var result = win32Owner != null ? form.ShowDialog(win32Owner) : form.ShowDialog();
+        var window = new Views.ZxingEditorWindow(model);
+        var result = win32Owner != null ? window.ShowDialog(win32Owner) : window.ShowDialog();
 
-        if (result == DialogResult.OK)
+        if (result == true)
         {
             string newQrType = model.QrCategoryIndex switch
             {

@@ -35,8 +35,8 @@ using Greenshot.Editor.Drawing.Fields;
 using Greenshot.Editor.Drawing.Filters;
 using Greenshot.Editor.FileFormatHandlers;
 using Greenshot.Plugin.Zxing;
-using Greenshot.UI.RecipeEditor.Helpers;
-using Greenshot.UI.RecipeEditor.ViewModels;
+using Greenshot.Plugin.RecipeEditor.Helpers;
+using Greenshot.Plugin.RecipeEditor.ViewModels;
 using Xunit;
 
 namespace Greenshot.Tests.Recipes

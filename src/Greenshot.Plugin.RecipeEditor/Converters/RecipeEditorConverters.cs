@@ -4,7 +4,7 @@ using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
 
-namespace Greenshot.UI.RecipeEditor.Converters
+namespace Greenshot.Plugin.RecipeEditor.Converters
 {
     public class StepTypeToColorConverter : IValueConverter
     {

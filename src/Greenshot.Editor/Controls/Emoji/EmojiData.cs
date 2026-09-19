@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -21,8 +21,7 @@
 
 using System;
 using System.IO;
-using System.Xml;
-using System.Xml.Serialization;
+using System.Xml.Linq;
 using Greenshot.Base.Core;
 
 namespace Greenshot.Editor.Controls.Emoji
@@ -38,16 +37,69 @@ namespace Greenshot.Editor.Controls.Emoji
 
         public static void Load()
         {
-            var x = new XmlSerializer(typeof(Emojis));
-
-            if (File.Exists(EmojisXmlFilePath))
-            {
-                Data = (Emojis)x.Deserialize(new XmlTextReader(EmojisXmlFilePath));
-            }
-            else
+            if (!File.Exists(EmojisXmlFilePath))
             {
                 throw new NotSupportedException($"Missing {EmojisXmlFilePath}, can't load ");
             }
+
+            var doc = XDocument.Load(EmojisXmlFilePath);
+            var emojis = new Emojis();
+            var gsElem = doc.Root?.Element("Gs");
+            if (gsElem != null)
+            {
+                foreach (var gElem in gsElem.Elements("G"))
+                {
+                    emojis.Groups.Add(ParseGroup(gElem));
+                }
+            }
+            Data = emojis;
+        }
+
+        private static Emojis.Group ParseGroup(XElement gElem)
+        {
+            var group = new Emojis.Group
+            {
+                Name = (string)gElem.Attribute("N")
+            };
+
+            var sgElem = gElem.Element("Sg");
+            if (sgElem != null)
+            {
+                foreach (var subG in sgElem.Elements("G"))
+                {
+                    group.SubGroups.Add(ParseGroup(subG));
+                }
+            }
+
+            var esElem = gElem.Element("Es");
+            if (esElem != null)
+            {
+                foreach (var eElem in esElem.Elements("E"))
+                {
+                    group.Emojis.Add(ParseEmoji(eElem));
+                }
+            }
+
+            return group;
+        }
+
+        private static Emojis.Emoji ParseEmoji(XElement eElem)
+        {
+            var emoji = new Emojis.Emoji
+            {
+                Text = (string)eElem.Attribute("T")
+            };
+
+            var vElem = eElem.Element("V");
+            if (vElem != null)
+            {
+                foreach (var subE in vElem.Elements("E"))
+                {
+                    emoji.Variations.Add(ParseEmoji(subE));
+                }
+            }
+
+            return emoji;
         }
     }
 }

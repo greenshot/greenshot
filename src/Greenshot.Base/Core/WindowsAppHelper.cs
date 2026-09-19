@@ -163,8 +163,13 @@ public static class WindowsAppHelper
             using IRandomAccessStream randomAccessStream = await randomAccessStreamReference.OpenReadAsync().AsTask().ConfigureAwait(false);
             using Stream netStream = randomAccessStream.AsStreamForRead();
             using var rawImage = Image.FromStream(netStream);
+            var detached = new Bitmap(rawImage.Width, rawImage.Height, PixelFormat.Format32bppArgb);
+            using (var g = Graphics.FromImage(detached))
+            {
+                g.DrawImage(rawImage, 0, 0, rawImage.Width, rawImage.Height);
+            }
             // Trim Start Menu tile padding so the icon fills the canvas nicely in menus/toolbars
-            return TrimExcessiveTransparentBorders(rawImage);
+            return TrimExcessiveTransparentBorders(detached);
         }
         catch (Exception ex)
         {
@@ -522,8 +527,15 @@ public static class WindowsAppHelper
 
             if (bestFile != null && File.Exists(bestFile))
             {
-                using var stream = new MemoryStream(File.ReadAllBytes(bestFile));
-                return Image.FromStream(stream);
+                byte[] bytes = File.ReadAllBytes(bestFile);
+                using var stream = new MemoryStream(bytes);
+                using var rawImage = Image.FromStream(stream);
+                var detached = new Bitmap(rawImage.Width, rawImage.Height, PixelFormat.Format32bppArgb);
+                using (var g = Graphics.FromImage(detached))
+                {
+                    g.DrawImage(rawImage, 0, 0, rawImage.Width, rawImage.Height);
+                }
+                return detached;
             }
         }
         catch (Exception ex)
@@ -567,7 +579,12 @@ public static class WindowsAppHelper
             int height = bitmap.Height;
             if (width <= 1 || height <= 1)
             {
-                return (Image)original.Clone();
+                if (disposeBitmap)
+                {
+                    disposeBitmap = false;
+                    return bitmap;
+                }
+                return new Bitmap(bitmap);
             }
 
             int minX = width;
@@ -605,7 +622,12 @@ public static class WindowsAppHelper
             }
             catch
             {
-                return (Image)original.Clone();
+                if (disposeBitmap)
+                {
+                    disposeBitmap = false;
+                    return bitmap;
+                }
+                return new Bitmap(bitmap);
             }
             finally
             {
@@ -617,7 +639,12 @@ public static class WindowsAppHelper
 
             if (maxX < minX || maxY < minY)
             {
-                return (Image)original.Clone();
+                if (disposeBitmap)
+                {
+                    disposeBitmap = false;
+                    return bitmap;
+                }
+                return new Bitmap(bitmap);
             }
 
             int contentWidth = maxX - minX + 1;
@@ -626,7 +653,12 @@ public static class WindowsAppHelper
             // If content already occupies 85%+ of canvas, keep original size
             if (contentWidth >= width * 0.85 && contentHeight >= height * 0.85)
             {
-                return (Image)original.Clone();
+                if (disposeBitmap)
+                {
+                    disposeBitmap = false;
+                    return bitmap;
+                }
+                return new Bitmap(bitmap);
             }
 
             int maxDim = Math.Max(contentWidth, contentHeight);

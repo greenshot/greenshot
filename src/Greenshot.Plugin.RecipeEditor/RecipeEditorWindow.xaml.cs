@@ -5,10 +5,11 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
-using Greenshot.Recipes;
-using Greenshot.UI.RecipeEditor.ViewModels;
+using Greenshot.Base.Recipes;
+using Greenshot.Base.Wpf;
+using Greenshot.Plugin.RecipeEditor.ViewModels;
 
-namespace Greenshot.UI.RecipeEditor
+namespace Greenshot.Plugin.RecipeEditor
 {
     /// <summary>
     /// Interaction logic for RecipeEditorWindow.xaml
@@ -20,7 +21,7 @@ namespace Greenshot.UI.RecipeEditor
 
         public RecipeEditorViewModel ViewModel { get; }
 
-        public RecipeEditorWindow(RecipeManager recipeManager = null)
+        public RecipeEditorWindow(IRecipeManager recipeManager = null)
         {
             InitializeComponent();
 
@@ -195,17 +196,6 @@ namespace Greenshot.UI.RecipeEditor
             catch
             {
                 // Silently ignore if DWM call is unsupported on older OS
-            }
-        }
-
-        private void RecipeHotkey_EditRequested(object sender, EventArgs e)
-        {
-            if (sender is FrameworkElement elem && elem.DataContext is TriggerItemViewModel triggerVm)
-            {
-                HotkeyModal.Open(triggerVm.Name, triggerVm.Hotkey, newHotkey =>
-                {
-                    triggerVm.Hotkey = newHotkey;
-                });
             }
         }
 

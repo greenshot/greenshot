@@ -32,8 +32,9 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Greenshot.Base.Interfaces.Forms;
+using Greenshot.Base.Wpf;
 
-namespace Greenshot.UI.RecipeEditor.Dialogs
+namespace Greenshot.Plugin.RecipeEditor.Dialogs
 {
     /// <summary>
     /// Interaction logic for SelectEditorDialog.xaml

@@ -1,0 +1,637 @@
+<Window x:Class="Greenshot.Plugin.Zxing.Views.ZxingEditorWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
+        Title="Insert QR / Barcode"
+        Width="780"
+        Height="620"
+        MinWidth="720"
+        MinHeight="540"
+        WindowStartupLocation="CenterScreen"
+        Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BackgroundBrush}"
+        Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
+        WindowStyle="None"
+        AllowsTransparency="False">
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="36"
+                      CornerRadius="0"
+                      GlassFrameThickness="0"
+                      NonClientFrameEdges="None"
+                      ResizeBorderThickness="5"
+                      UseAeroCaptionButtons="False"/>
+    </WindowChrome.WindowChrome>
+
+    <Window.Resources>
+        <!-- Modern GroupBox Style -->
+        <Style TargetType="GroupBox">
+            <Setter Property="Margin" Value="0,4,0,8"/>
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
+            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+            <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=GroupBoxBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="GroupBox">
+                        <Grid>
+                            <Border Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="6"
+                                    Padding="{TemplateBinding Padding}">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Text="{TemplateBinding Header}"
+                                               FontWeight="SemiBold"
+                                               FontSize="12"
+                                               Foreground="{TemplateBinding Foreground}"
+                                               Margin="0,0,0,8"/>
+                                    <ContentPresenter Grid.Row="1"/>
+                                </Grid>
+                            </Border>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="Label">
+            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Padding" Value="0,2"/>
+        </Style>
+
+        <Style TargetType="TextBox">
+            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+            <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TextBoxBackgroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ControlBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="6,4"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <Style TargetType="ComboBox">
+            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+            <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BackgroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ControlBorderBrush}"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Padding" Value="6,4"/>
+        </Style>
+
+        <Style TargetType="CheckBox">
+            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Margin" Value="0,4"/>
+        </Style>
+
+        <!-- Standard Button Style -->
+        <Style TargetType="Button">
+            <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="14,6"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Name="Border"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonHoverBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonPressedBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.4"/>
+                                <Setter Property="Cursor" Value="Arrow"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- TitleBar Button Styles -->
+        <Style x:Key="TitleBarButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Width" Value="46"/>
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderThickness="0">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonHoverBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="TitleBarCloseButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Width" Value="46"/>
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderThickness="0">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#E81123"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Border BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
+            BorderThickness="1">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="36"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Custom Title Bar -->
+            <Grid Grid.Row="0"
+                  Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BackgroundBrush}"
+                  MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="36"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Icon -->
+                <Image x:Name="ImgWindowIcon"
+                       Grid.Column="0"
+                       Width="16" Height="16"
+                       Margin="10,0,0,0"
+                       VerticalAlignment="Center"
+                       WindowChrome.IsHitTestVisibleInChrome="False"/>
+
+                <!-- Title -->
+                <TextBlock x:Name="TxtWindowTitle"
+                           Grid.Column="1"
+                           Text="Insert QR / Barcode"
+                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
+                           VerticalAlignment="Center"
+                           Margin="8,0,0,0"
+                           FontSize="12"
+                           FontWeight="SemiBold"
+                           WindowChrome.IsHitTestVisibleInChrome="False"/>
+
+                <!-- Caption Buttons -->
+                <StackPanel Grid.Column="2"
+                            Orientation="Horizontal"
+                            WindowChrome.IsHitTestVisibleInChrome="True">
+                    <Button x:Name="BtnThemeToggle"
+                            Content="🌙"
+                            Click="ThemeToggle_Click"
+                            Style="{StaticResource TitleBarButtonStyle}"
+                            ToolTip="Toggle Dark / Light Theme"/>
+                    <Button Content="✕"
+                            Click="CloseButton_Click"
+                            Style="{StaticResource TitleBarCloseButtonStyle}"
+                            ToolTip="Close"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- Main Content Area -->
+            <Grid Grid.Row="1" Margin="14,6,14,14">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="380"/>
+                    <ColumnDefinition Width="14"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Left Column: Barcode format & Category selection & Inputs -->
+                <Grid Grid.Column="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Format row -->
+                    <Grid Grid.Row="0" Margin="0,4,0,6">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="110"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Label Grid.Column="0" Content="Barcode Format:"/>
+                        <ComboBox x:Name="CmbFormat" Grid.Column="1" SelectionChanged="CmbFormat_SelectionChanged"/>
+                    </Grid>
+
+                    <!-- QR Category row -->
+                    <Grid x:Name="RowQrCategory" Grid.Row="1" Margin="0,0,0,8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="110"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Label Grid.Column="0" Content="Category:"/>
+                        <ComboBox x:Name="CmbQrCategory" Grid.Column="1" SelectionChanged="CmbQrCategory_SelectionChanged"/>
+                    </Grid>
+
+                    <!-- Dynamic Inputs GroupBox -->
+                    <GroupBox x:Name="GrpInputs" Grid.Row="2" Header="Inputs" Margin="0,2,0,0">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                            <Grid x:Name="InputPanelsContainer" Margin="4">
+
+                                <!-- Panel 1: Raw Text -->
+                                <StackPanel x:Name="PnlRawText" Visibility="Visible">
+                                    <Label Content="Enter plain text or URL:" Margin="0,0,0,4"/>
+                                    <TextBox x:Name="TxtRawText"
+                                             AcceptsReturn="True"
+                                             TextWrapping="Wrap"
+                                             VerticalScrollBarVisibility="Auto"
+                                             Height="230"
+                                             Text="https://getgreenshot.org"
+                                             TextChanged="InputControl_Changed"/>
+                                </StackPanel>
+
+                                <!-- Panel 2: WiFi -->
+                                <StackPanel x:Name="PnlWifi" Visibility="Collapsed">
+                                    <Label Content="Network Name (SSID):"/>
+                                    <TextBox x:Name="TxtWifiSsid" Margin="0,2,0,8" TextChanged="InputControl_Changed"/>
+                                    <Label Content="Password:"/>
+                                    <TextBox x:Name="TxtWifiPassword" Margin="0,2,0,8" TextChanged="InputControl_Changed"/>
+                                    <Label Content="Encryption Type:"/>
+                                    <ComboBox x:Name="CmbWifiEncryption" Margin="0,2,0,4" SelectionChanged="InputControl_Changed"/>
+                                </StackPanel>
+
+                                <!-- Panel 3: vCard Contact -->
+                                <StackPanel x:Name="PnlVcard" Visibility="Collapsed">
+                                    <Grid Margin="0,2,0,6">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="80"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Label Grid.Column="0" Content="First Name:"/>
+                                        <TextBox x:Name="TxtVcardFirstName" Grid.Column="1" TextChanged="InputControl_Changed"/>
+                                    </Grid>
+                                    <Grid Margin="0,2,0,6">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="80"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Label Grid.Column="0" Content="Last Name:"/>
+                                        <TextBox x:Name="TxtVcardLastName" Grid.Column="1" TextChanged="InputControl_Changed"/>
+                                    </Grid>
+                                    <Grid Margin="0,2,0,6">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="80"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Label Grid.Column="0" Content="Phone:"/>
+                                        <TextBox x:Name="TxtVcardPhone" Grid.Column="1" TextChanged="InputControl_Changed"/>
+                                    </Grid>
+                                    <Grid Margin="0,2,0,6">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="80"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Label Grid.Column="0" Content="Email:"/>
+                                        <TextBox x:Name="TxtVcardEmail" Grid.Column="1" TextChanged="InputControl_Changed"/>
+                                    </Grid>
+                                    <Grid Margin="0,2,0,6">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="80"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Label Grid.Column="0" Content="Company:"/>
+                                        <TextBox x:Name="TxtVcardCompany" Grid.Column="1" TextChanged="InputControl_Changed"/>
+                                    </Grid>
+                                    <Grid Margin="0,2,0,6">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="80"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Label Grid.Column="0" Content="URL:"/>
+                                        <TextBox x:Name="TxtVcardUrl" Grid.Column="1" TextChanged="InputControl_Changed"/>
+                                    </Grid>
+                                </StackPanel>
+
+                                <!-- Panel 4: EPC SEPA Transfer -->
+                                <StackPanel x:Name="PnlEpc" Visibility="Collapsed">
+                                    <Grid Margin="0,2,0,6">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="100"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Label Grid.Column="0" Content="Recipient:"/>
+                                        <TextBox x:Name="TxtEpcName" Grid.Column="1" TextChanged="InputControl_Changed"/>
+                                    </Grid>
+                                    <Grid Margin="0,2,0,6">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="100"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Label Grid.Column="0" Content="IBAN:"/>
+                                        <TextBox x:Name="TxtEpcIban" Grid.Column="1" TextChanged="InputControl_Changed"/>
+                                    </Grid>
+                                    <Grid Margin="0,2,0,6">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="100"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Label Grid.Column="0" Content="BIC (optional):"/>
+                                        <TextBox x:Name="TxtEpcBic" Grid.Column="1" TextChanged="InputControl_Changed"/>
+                                    </Grid>
+                                    <Grid Margin="0,2,0,6">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="100"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Label Grid.Column="0" Content="Amount (EUR):"/>
+                                        <TextBox x:Name="TxtEpcAmount" Grid.Column="1" Text="10.00" TextChanged="InputControl_Changed"/>
+                                    </Grid>
+                                    <Grid Margin="0,2,0,6">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="100"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Label Grid.Column="0" Content="Reference:"/>
+                                        <TextBox x:Name="TxtEpcReference" Grid.Column="1" TextChanged="InputControl_Changed"/>
+                                    </Grid>
+                                    <Grid Margin="0,2,0,6">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="100"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Label Grid.Column="0" Content="Message:"/>
+                                        <TextBox x:Name="TxtEpcMessage" Grid.Column="1" TextChanged="InputControl_Changed"/>
+                                    </Grid>
+                                </StackPanel>
+
+                                <!-- Panel 5: Email -->
+                                <StackPanel x:Name="PnlEmail" Visibility="Collapsed">
+                                    <Grid Margin="0,2,0,6">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="80"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Label Grid.Column="0" Content="To:"/>
+                                        <TextBox x:Name="TxtEmailTo" Grid.Column="1" TextChanged="InputControl_Changed"/>
+                                    </Grid>
+                                    <Grid Margin="0,2,0,6">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="80"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Label Grid.Column="0" Content="Subject:"/>
+                                        <TextBox x:Name="TxtEmailSubject" Grid.Column="1" TextChanged="InputControl_Changed"/>
+                                    </Grid>
+                                    <Label Content="Body:" Margin="0,2,0,2"/>
+                                    <TextBox x:Name="TxtEmailBody"
+                                             AcceptsReturn="True"
+                                             TextWrapping="Wrap"
+                                             VerticalScrollBarVisibility="Auto"
+                                             Height="120"
+                                             TextChanged="InputControl_Changed"/>
+                                </StackPanel>
+
+                                <!-- Panel 6: Calendar Event -->
+                                <StackPanel x:Name="PnlCalendar" Visibility="Collapsed">
+                                    <Grid Margin="0,2,0,6">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="80"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Label Grid.Column="0" Content="Title:"/>
+                                        <TextBox x:Name="TxtEventTitle" Grid.Column="1" TextChanged="InputControl_Changed"/>
+                                    </Grid>
+                                    <Grid Margin="0,2,0,6">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="80"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Label Grid.Column="0" Content="Location:"/>
+                                        <TextBox x:Name="TxtEventLocation" Grid.Column="1" TextChanged="InputControl_Changed"/>
+                                    </Grid>
+                                    <Grid Margin="0,2,0,6">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="80"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Label Grid.Column="0" Content="Start (UTC):"/>
+                                        <TextBox x:Name="TxtEventStart" Grid.Column="1" TextChanged="InputControl_Changed"/>
+                                    </Grid>
+                                    <Grid Margin="0,2,0,6">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="80"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Label Grid.Column="0" Content="End (UTC):"/>
+                                        <TextBox x:Name="TxtEventEnd" Grid.Column="1" TextChanged="InputControl_Changed"/>
+                                    </Grid>
+                                    <Grid Margin="0,2,0,6">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="80"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Label Grid.Column="0" Content="Description:"/>
+                                        <TextBox x:Name="TxtEventDescription" Grid.Column="1" TextChanged="InputControl_Changed"/>
+                                    </Grid>
+                                </StackPanel>
+
+                                <!-- Panel 7: Phone -->
+                                <StackPanel x:Name="PnlPhone" Visibility="Collapsed">
+                                    <Label Content="Phone Number:"/>
+                                    <TextBox x:Name="TxtPhoneNumber" Margin="0,4,0,0" TextChanged="InputControl_Changed"/>
+                                </StackPanel>
+
+                                <!-- Panel 8: SMS -->
+                                <StackPanel x:Name="PnlSms" Visibility="Collapsed">
+                                    <Label Content="Recipient Number:"/>
+                                    <TextBox x:Name="TxtSmsNumber" Margin="0,2,0,6" TextChanged="InputControl_Changed"/>
+                                    <Label Content="Message:"/>
+                                    <TextBox x:Name="TxtSmsMessage"
+                                             AcceptsReturn="True"
+                                             TextWrapping="Wrap"
+                                             VerticalScrollBarVisibility="Auto"
+                                             Height="130"
+                                             Margin="0,2,0,0"
+                                             TextChanged="InputControl_Changed"/>
+                                </StackPanel>
+
+                                <!-- Panel 9: Geo Location -->
+                                <StackPanel x:Name="PnlGeo" Visibility="Collapsed">
+                                    <Grid Margin="0,2,0,6">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="80"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Label Grid.Column="0" Content="Latitude:"/>
+                                        <TextBox x:Name="TxtLatitude" Grid.Column="1" TextChanged="InputControl_Changed"/>
+                                    </Grid>
+                                    <Grid Margin="0,2,0,6">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="80"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Label Grid.Column="0" Content="Longitude:"/>
+                                        <TextBox x:Name="TxtLongitude" Grid.Column="1" TextChanged="InputControl_Changed"/>
+                                    </Grid>
+                                </StackPanel>
+
+                            </Grid>
+                        </ScrollViewer>
+                    </GroupBox>
+                </Grid>
+
+                <!-- Right Column: Preview, Options, Status & Actions -->
+                <Grid Grid.Column="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="240"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Preview GroupBox -->
+                    <GroupBox Grid.Row="0" Header="Real-time Preview" Margin="0,4,0,6">
+                        <Border Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TextBoxBackgroundBrush}"
+                                BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ControlBorderBrush}"
+                                BorderThickness="1"
+                                CornerRadius="4"
+                                SnapsToDevicePixels="True">
+                            <Image x:Name="ImgPreview"
+                                   Stretch="Uniform"
+                                   Margin="8"
+                                   RenderOptions.BitmapScalingMode="NearestNeighbor"/>
+                        </Border>
+                    </GroupBox>
+
+                    <!-- Customization Options -->
+                    <StackPanel Grid.Row="1" Margin="0,4,0,4">
+                        <!-- Colors Row -->
+                        <Grid Margin="0,4,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Foreground -->
+                            <Border x:Name="BdrForeColor"
+                                    Grid.Column="0"
+                                    Width="26" Height="26"
+                                    Background="Black"
+                                    BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ControlBorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="3"
+                                    VerticalAlignment="Center"/>
+                            <Button Grid.Column="1"
+                                    Content="Foreground"
+                                    Margin="6,0,0,0"
+                                    Padding="10,4"
+                                    Click="BtnForeColor_Click"/>
+
+                            <!-- Background -->
+                            <Border x:Name="BdrBackColor"
+                                    Grid.Column="3"
+                                    Width="26" Height="26"
+                                    Background="White"
+                                    BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ControlBorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="3"
+                                    VerticalAlignment="Center"/>
+                            <Button Grid.Column="4"
+                                    Content="Background"
+                                    Margin="6,0,0,0"
+                                    Padding="10,4"
+                                    Click="BtnBackColor_Click"/>
+                        </Grid>
+
+                        <!-- Style & Margin Row -->
+                        <Grid Margin="0,2,0,4">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <CheckBox x:Name="ChkRoundedDots"
+                                      Grid.Column="0"
+                                      Content="Rounded Dots"
+                                      Checked="InputControl_Changed"
+                                      Unchecked="InputControl_Changed"/>
+
+                            <Label Grid.Column="1" Content="Margin:" Margin="12,0,4,0"/>
+                            <ComboBox x:Name="CmbMargin"
+                                      Grid.Column="2"
+                                      Width="60"
+                                      SelectionChanged="InputControl_Changed"/>
+                        </Grid>
+                    </StackPanel>
+
+                    <!-- Status/Error TextBlock -->
+                    <TextBlock x:Name="TxtStatus"
+                               Grid.Row="2"
+                               Foreground="#E81123"
+                               TextWrapping="Wrap"
+                               FontSize="11"
+                               Margin="0,4,0,6"
+                               VerticalAlignment="Top"/>
+
+                    <!-- Action Buttons (Insert/Apply and Cancel) -->
+                    <StackPanel Grid.Row="3"
+                                Orientation="Horizontal"
+                                HorizontalAlignment="Right"
+                                Margin="0,6,0,0">
+                        <Button x:Name="BtnInsert"
+                                Content="Insert"
+                                Width="100"
+                                Height="34"
+                                FontWeight="SemiBold"
+                                IsDefault="True"
+                                Click="BtnInsert_Click"
+                                Margin="0,0,8,0"/>
+                        <Button x:Name="BtnCancel"
+                                Content="Cancel"
+                                Width="90"
+                                Height="34"
+                                IsCancel="True"
+                                Click="BtnCancel_Click"/>
+                    </StackPanel>
+                </Grid>
+            </Grid>
+        </Grid>
+    </Border>
+</Window>

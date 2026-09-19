@@ -11,17 +11,16 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Pipeline;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Triggers;
-using Greenshot.Pipeline;
-using Greenshot.Recipes;
-using Greenshot.UI.RecipeEditor.Layout;
+using Greenshot.Base.Wpf;
+using Greenshot.Plugin.RecipeEditor.Layout;
 using Microsoft.Win32;
 using Newtonsoft.Json.Linq;
 
-namespace Greenshot.UI.RecipeEditor.ViewModels
+namespace Greenshot.Plugin.RecipeEditor.ViewModels
 {
     public class RecipeEditorViewModel : ViewModelBase
     {
-        private readonly RecipeManager _recipeManager;
+        private readonly IRecipeManager _recipeManager;
         private CaptureRecipe _activeRecipe;
         private StepNodeViewModel _selectedNode;
         private StepConnectionViewModel _selectedConnection;
@@ -228,9 +227,9 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
         public ICommand RemoveTriggerCommand { get; }
         public ICommand ToggleThemeCommand { get; }
 
-        public RecipeEditorViewModel(RecipeManager recipeManager = null)
+        public RecipeEditorViewModel(IRecipeManager recipeManager = null)
         {
-            _recipeManager = recipeManager ?? RecipeManager.Instance;
+            _recipeManager = recipeManager ?? SimpleServiceProvider.Current.GetInstance<IRecipeManager>(isOptional: true);
 
             NewRecipeCommand = new RelayCommand(NewRecipe);
             OpenRecipeCommand = new RelayCommand(OpenRecipeDialog);
@@ -301,7 +300,7 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
         public void RefreshAvailableRecipes()
         {
             AvailableRecipes.Clear();
-            var all = _recipeManager.GetAllRecipes();
+            var all = _recipeManager?.GetAllRecipes() ?? Array.Empty<CaptureRecipe>();
             foreach (var r in all)
             {
                 AvailableRecipes.Add(r);
@@ -310,6 +309,16 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
             if (ActiveRecipe == null && AvailableRecipes.Count > 0)
             {
                 ActiveRecipe = AvailableRecipes[0];
+            }
+        }
+
+        public void SelectRecipeById(string recipeId)
+        {
+            if (string.IsNullOrWhiteSpace(recipeId)) return;
+            var found = AvailableRecipes.FirstOrDefault(r => string.Equals(r.Id, recipeId, StringComparison.OrdinalIgnoreCase));
+            if (found != null)
+            {
+                ActiveRecipe = found;
             }
         }
 
@@ -876,7 +885,8 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
                     var valResult = RecipeValidator.Validate(recipe);
                     if (!valResult.IsValid)
                     {
-                        RecipeApprovalWindow.ShowValidationError(dlg.FileName, valResult, recipe);
+                        string msg = $"Recipe failed validation:\n" + string.Join("\n", valResult.Errors);
+                        MessageBox.Show(msg, "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                         StatusMessage = $"Recipe failed validation: {Path.GetFileName(dlg.FileName)}";
                     }
                     else
@@ -888,7 +898,7 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
                 }
                 catch (Exception ex)
                 {
-                    RecipeApprovalWindow.ShowValidationError(dlg.FileName, rawErrorMessage: ex.Message);
+                    MessageBox.Show($"Failed to load recipe:\n{ex.Message}", "Error Loading Recipe", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
@@ -908,7 +918,7 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
             try
             {
                 RecipeSerializer.SaveToFile(ActiveRecipe, ActiveRecipe.FilePath);
-                _recipeManager.RegisterRecipe(ActiveRecipe);
+                _recipeManager?.RegisterRecipe(ActiveRecipe);
                 IsDirty = false;
                 StatusMessage = $"Saved recipe to {Path.GetFileName(ActiveRecipe.FilePath)}";
             }
@@ -937,7 +947,7 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
                 {
                     ActiveRecipe.FilePath = dlg.FileName;
                     RecipeSerializer.SaveToFile(ActiveRecipe, dlg.FileName);
-                    _recipeManager.RegisterRecipe(ActiveRecipe);
+                    _recipeManager?.RegisterRecipe(ActiveRecipe);
                     IsDirty = false;
                     StatusMessage = $"Saved recipe to {Path.GetFileName(dlg.FileName)}";
                 }
@@ -960,10 +970,17 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
                 return;
             }
 
+            var pipeline = SimpleServiceProvider.Current.GetInstance<ICapturePipeline>(isOptional: true);
+            if (pipeline == null)
+            {
+                MessageBox.Show("Capture pipeline service is not available.", "Execution Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
             StatusMessage = $"Executing test run for '{ActiveRecipe.Name}'...";
             try
             {
-                await CapturePipeline.Instance.ExecuteAsync(ActiveRecipe);
+                await pipeline.ExecuteAsync(ActiveRecipe);
                 StatusMessage = $"Test run of '{ActiveRecipe.Name}' completed successfully.";
             }
             catch (Exception ex)

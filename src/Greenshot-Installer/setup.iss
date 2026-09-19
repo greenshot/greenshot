@@ -28,7 +28,6 @@ Source: {#ReleaseDir}\Svg.dll; DestDir: {app}; Components: greenshot; Flags: {#D
 Source: {#ReleaseDir}\ExCSS.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\HtmlAgilityPack.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\Newtonsoft.Json.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
-Source: {#ReleaseDir}\Nodify.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\Microsoft.Toolkit.*.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\Microsoft.IO.RecyclableMemoryStream.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\checksum.SHA256; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
@@ -109,6 +108,9 @@ Source: {#PluginDir}\Greenshot.Plugin.ExternalCommand\Greenshot.Plugin.ExternalC
 Source: {#SolutionDir}\Greenshot.Plugin.ExternalCommand\Languages\language_externalcommand*.xml; DestDir: {app}\Languages\Plugins\ExternalCommand; Components: plugins\externalcommand; Flags: {#DefaultInstallFlags};
 ;ZXing Plugin
 Source: {#PluginDir}\Greenshot.Plugin.Zxing\*zxing*.dll; DestDir: {app}\Plugins\Zxing; Components: plugins\zxing; Flags: {#DefaultInstallFlags};
+;RecipeEditor Plugin
+Source: {#PluginDir}\Greenshot.Plugin.RecipeEditor\Greenshot.Plugin.RecipeEditor.dll; DestDir: {app}\Plugins\RecipeEditor; Components: plugins\recipeeditor; Flags: {#DefaultInstallFlags};
+Source: {#PluginDir}\Greenshot.Plugin.RecipeEditor\Nodify.dll; DestDir: {app}\Plugins\RecipeEditor; Components: plugins\recipeeditor; Flags: {#DefaultInstallFlags};
 
 [Setup]
 ; changes associations is used when the installer installs new extensions, it clears the explorer icon cache
@@ -238,6 +240,7 @@ imgur=Imgur plug-in (See: https://imgur.com)
 jira=Jira plug-in
 language=Additional languages
 office=Microsoft Office plug-in
+recipeeditor=Recipe Editor plug-in
 startup=Start {#ExeName} with Windows start
 startgreenshot=Start {#ExeName}
 UninstallIconDescription=Uninstall
@@ -522,6 +525,7 @@ Name: "plugins\externalcommand"; Description: {cm:externalcommand}; Types: full 
 Name: "plugins\imgur"; Description: {cm:imgur}; Types: full custom; Flags: disablenouninstallwarning
 Name: "plugins\jira"; Description: {cm:jira}; Types: full custom; Flags: disablenouninstallwarning
 Name: "plugins\office"; Description: {cm:office}; Types: default full custom; Flags: disablenouninstallwarning
+Name: "plugins\recipeeditor"; Description: {cm:recipeeditor}; Types: default full custom; Flags: disablenouninstallwarning
 Name: "plugins\zxing"; Description: {cm:zxing}; Types: default full custom; Flags: disablenouninstallwarning
 Name: "languages"; Description: {cm:language}; Types: full custom; Flags: disablenouninstallwarning
 Name: "languages\arSY"; Description: {cm:arSY}; Types: full custom; Flags: disablenouninstallwarning; Check: hasLanguageGroup('d')

@@ -29,6 +29,7 @@ using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Recipes;
 using Greenshot.Plugin.Dropbox.Forms;
 
 namespace Greenshot.Plugin.Dropbox;
@@ -84,8 +85,11 @@ public class DropboxPlugin : IGreenshotPlugin, IRecipeStepProvider
     {
         _resources = new ComponentResourceManager(typeof(DropboxPlugin));
         serviceLocator.AddService<IDestination>(new DropboxDestination(this));
-        serviceLocator.AddService<IRecipeStepProvider>(this);
-        StepRegistry.Instance.RegisterProvider(this);
+        if (RecipeConfigHelper.IsRecipeFeatureEnabled())
+        {
+            serviceLocator.AddService<IRecipeStepProvider>(this);
+            StepRegistry.Instance.RegisterProvider(this);
+        }
     }
 
     /// <summary>

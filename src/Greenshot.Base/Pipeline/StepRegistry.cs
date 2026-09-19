@@ -75,6 +75,12 @@ namespace Greenshot.Base.Pipeline
         public void RegisterProvider(IRecipeStepProvider provider)
         {
             if (provider == null) return;
+            if (!RecipeConfigHelper.IsRecipeFeatureEnabled())
+            {
+                Log.DebugFormat("Recipe feature/editor is not enabled; skipping step registration for provider '{0}'", provider.GetType().Name);
+                return;
+            }
+
             try
             {
                 provider.RegisterSteps(this);
@@ -96,6 +102,8 @@ namespace Greenshot.Base.Pipeline
 
         private void DiscoverProviders()
         {
+            if (!RecipeConfigHelper.IsRecipeFeatureEnabled()) return;
+
             try
             {
                 var providers = SimpleServiceProvider.Current?.GetAllInstances<IRecipeStepProvider>();

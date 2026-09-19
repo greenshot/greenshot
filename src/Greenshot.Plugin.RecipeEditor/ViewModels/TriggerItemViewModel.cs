@@ -2,8 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Windows.Input;
 using Greenshot.Base.Triggers;
+using Greenshot.Base.Wpf;
 
-namespace Greenshot.UI.RecipeEditor.ViewModels
+namespace Greenshot.Plugin.RecipeEditor.ViewModels
 {
     /// <summary>
     /// ViewModel representing a single trigger attached to a recipe (Hotkey, ContextMenu, Clipboard, Manual).

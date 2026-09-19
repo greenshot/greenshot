@@ -12,11 +12,12 @@ using Greenshot.Base.Drawing;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Forms;
 using Greenshot.Base.Recipes;
-using Greenshot.UI.RecipeEditor.Dialogs;
-using Greenshot.UI.RecipeEditor.Helpers;
+using Greenshot.Base.Wpf;
+using Greenshot.Plugin.RecipeEditor.Dialogs;
+using Greenshot.Plugin.RecipeEditor.Helpers;
 using Newtonsoft.Json.Linq;
 
-namespace Greenshot.UI.RecipeEditor.ViewModels
+namespace Greenshot.Plugin.RecipeEditor.ViewModels
 {
     public class StepPortViewModel : ViewModelBase
     {
@@ -1672,18 +1673,21 @@ namespace Greenshot.UI.RecipeEditor.ViewModels
             {
                 if (!string.IsNullOrEmpty(SoundFilePath))
                 {
-                    string expanded = SoundFilePath;
                     try
                     {
-                        expanded = Greenshot.Base.Core.FilenameHelper.FillVariables(SoundFilePath, false);
+                        string expanded = Greenshot.Base.Core.FilenameHelper.FillVariables(SoundFilePath, false);
+                        if (!string.IsNullOrEmpty(expanded) && File.Exists(expanded))
+                        {
+                            using (var player = new System.Media.SoundPlayer(expanded))
+                            {
+                                player.Play();
+                            }
+                            return;
+                        }
                     }
                     catch { }
-                    Greenshot.Helpers.SoundHelper.PlayFile(expanded);
                 }
-                else
-                {
-                    Greenshot.Helpers.SoundHelper.Play();
-                }
+                System.Media.SystemSounds.Beep.Play();
             });
 
             PickBorderColorCommand = new RelayCommand(() =>

@@ -28,6 +28,7 @@ using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Recipes;
 using Greenshot.Plugin.Imgur.Forms;
 
 namespace Greenshot.Plugin.Imgur;
@@ -92,8 +93,11 @@ public class ImgurPlugin : IGreenshotPlugin, IRecipeStepProvider
     {
         _resources = new ComponentResourceManager(typeof(ImgurPlugin));
         serviceLocator.AddService<IDestination>(new ImgurDestination());
-        serviceLocator.AddService<IRecipeStepProvider>(this);
-        StepRegistry.Instance.RegisterProvider(this);
+        if (RecipeConfigHelper.IsRecipeFeatureEnabled())
+        {
+            serviceLocator.AddService<IRecipeStepProvider>(this);
+            StepRegistry.Instance.RegisterProvider(this);
+        }
     }
 
     /// <summary>

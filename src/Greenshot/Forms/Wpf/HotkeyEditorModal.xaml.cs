@@ -18,6 +18,7 @@ namespace Greenshot.Forms.Wpf
         public HotkeyEditorModal()
         {
             InitializeComponent();
+            DataContext = new HotkeyEditorViewModel();
             DataContextChanged += OnDataContextChanged;
             IsVisibleChanged += OnIsVisibleChanged;
         }

@@ -19,35 +19,38 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System.Windows.Forms;
-using Greenshot.Base.Interfaces;
-using Greenshot.Base.Interfaces.Plugin;
+using System;
+using Dapplo.Ini;
 
-namespace Greenshot.Plugin.Zxing;
-
-public class ZxingEditorPlugin : IEditorPlugin
+namespace Greenshot.Base.Recipes
 {
-    private readonly IZxingConfiguration _config;
-
-    public ZxingEditorPlugin(IZxingConfiguration config)
+    public partial class RecipeConfigurationImpl : IRecipeConfiguration
     {
-        _config = config;
-    }
-
-    public void InitializeEditor(Form editorForm, ToolStripMenuItem pluginMenu, ISurface surface)
-    {
-        var menuItem = new ToolStripMenuItem("Insert QR / Barcode...", null, (s, e) =>
+        public void OnAfterLoad()
         {
-            var window = new Views.ZxingEditorWindow();
-            if (window.ShowDialog(editorForm) == true && window.GeneratedBitmap != null)
+            // Backward-compatibility: migrate legacy [Core] EnableRecipeFeature if present
+            try
             {
-                var container = surface.AddImageContainer(window.GeneratedBitmap, 50, 50);
-                var model = new ZxingModel();
-                window.PopulateModel(model);
-                container.Tag = model;
+                var iniConfig = IniConfigRegistry.Get();
+                if (iniConfig != null)
+                {
+                    var coreSection = iniConfig.GetSection("Core");
+                    var legacyVal = coreSection?.GetRawValue("EnableRecipeFeature");
+                    if (!string.IsNullOrEmpty(legacyVal) && bool.TryParse(legacyVal, out bool parsed))
+                    {
+                        Enabled = parsed;
+                    }
+                }
             }
-        });
+            catch
+            {
+                // Ignore migration failure
+            }
+        }
 
-        pluginMenu.DropDownItems.Add(menuItem);
+        public bool OnBeforeSave()
+        {
+            return true;
+        }
     }
 }

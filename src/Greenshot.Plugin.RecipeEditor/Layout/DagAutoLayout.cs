@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
-using Greenshot.UI.RecipeEditor.ViewModels;
+using Greenshot.Plugin.RecipeEditor.ViewModels;
 
-namespace Greenshot.UI.RecipeEditor.Layout
+namespace Greenshot.Plugin.RecipeEditor.Layout
 {
     /// <summary>
     /// Computes hierarchical branch-aligned DAG auto-layout for recipe nodes.

@@ -1,8 +1,9 @@
 using System;
 using System.Windows;
 using System.Windows.Input;
+using Greenshot.Base.Wpf;
 
-namespace Greenshot.UI.RecipeEditor.ViewModels
+namespace Greenshot.Plugin.RecipeEditor.ViewModels
 {
     public class StepConnectionViewModel : ViewModelBase
     {

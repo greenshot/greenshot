@@ -29,6 +29,7 @@ using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Recipes;
 using Greenshot.Plugin.Confluence.Forms;
 using Greenshot.Plugin.Confluence.Support;
 
@@ -132,8 +133,11 @@ public class ConfluencePlugin : IGreenshotPlugin, IRecipeStepProvider
             LOG.ErrorFormat("Problem registering Confluence services: {0}", ex.Message);
         }
 
-        serviceLocator.AddService<IRecipeStepProvider>(this);
-        StepRegistry.Instance.RegisterProvider(this);
+        if (RecipeConfigHelper.IsRecipeFeatureEnabled())
+        {
+            serviceLocator.AddService<IRecipeStepProvider>(this);
+            StepRegistry.Instance.RegisterProvider(this);
+        }
     }
 
     /// <summary>
