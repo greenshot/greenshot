@@ -1,6 +1,7 @@
-; Greenshot Full Installer
-#define AppDisplayName "Greenshot"
-#define OutputSuffix ""
+; Greenshot Light Installer (No plugins/extensions)
+#define IsLightEdition 1
+#define AppDisplayName "Greenshot Light"
+#define OutputSuffix "-Light"
 
 #include "includes\defines.iss"
 #include "includes\setup-header.iss"
@@ -9,5 +10,4 @@
 #include "includes\tasks-icons-reg.iss"
 #include "includes\cleanup.iss"
 #include "includes\languages.iss"
-#include "includes\plugins\all-plugins.iss"
 #include "includes\code.iss"

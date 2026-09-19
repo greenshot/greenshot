@@ -99,19 +99,32 @@ namespace Greenshot.Plugin.Zxing
                     return RawText ?? string.Empty;
 
                 case 1: // WiFi
+                    if (string.IsNullOrWhiteSpace(WifiSsid)) return string.Empty;
                     string enc = WifiEncryptionIndex == 1 ? "WEP" : (WifiEncryptionIndex == 2 ? "nopass" : "WPA");
                     return $"WIFI:S:{WifiSsid};T:{enc};P:{WifiPassword};;";
 
                 case 2: // vCard
+                    if (string.IsNullOrWhiteSpace(VcardFirstName) &&
+                        string.IsNullOrWhiteSpace(VcardLastName) &&
+                        string.IsNullOrWhiteSpace(VcardCompany) &&
+                        string.IsNullOrWhiteSpace(VcardPhone) &&
+                        string.IsNullOrWhiteSpace(VcardEmail))
+                    {
+                        return string.Empty;
+                    }
                     return "BEGIN:VCARD\r\nVERSION:3.0\r\n" +
                            $"N:{VcardLastName};{VcardFirstName}\r\n" +
-                           $"FN:{VcardFirstName} {VcardLastName}\r\n" +
+                           $"FN:{VcardFirstName} {VcardLastName}".Trim() + "\r\n" +
                            $"ORG:{VcardCompany}\r\n" +
                            $"TEL;TYPE=CELL:{VcardPhone}\r\n" +
                            $"EMAIL:{VcardEmail}\r\n" +
                            $"URL:{VcardUrl}\r\nEND:VCARD";
 
                 case 3: // EPC transaction data
+                    if (string.IsNullOrWhiteSpace(EpcIban) && string.IsNullOrWhiteSpace(EpcName))
+                    {
+                        return string.Empty;
+                    }
                     string formattedAmount = string.Empty;
                     if (double.TryParse(EpcAmount, out double amt))
                     {
@@ -135,6 +148,12 @@ namespace Greenshot.Plugin.Zxing
                            $"{EpcMessage}\n";
 
                 case 4: // Email
+                    if (string.IsNullOrWhiteSpace(EmailTo) &&
+                        string.IsNullOrWhiteSpace(EmailSubject) &&
+                        string.IsNullOrWhiteSpace(EmailBody))
+                    {
+                        return string.Empty;
+                    }
                     string mailto = $"mailto:{EmailTo}";
                     var query = new List<string>();
                     if (!string.IsNullOrEmpty(EmailSubject)) query.Add($"subject={Uri.EscapeDataString(EmailSubject)}");
@@ -143,6 +162,10 @@ namespace Greenshot.Plugin.Zxing
                     return mailto;
 
                 case 5: // Calendar Event
+                    if (string.IsNullOrWhiteSpace(EventTitle))
+                    {
+                        return string.Empty;
+                    }
                     return "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nBEGIN:VEVENT\r\n" +
                            $"SUMMARY:{EventTitle}\r\n" +
                            $"LOCATION:{EventLocation}\r\n" +
@@ -152,12 +175,15 @@ namespace Greenshot.Plugin.Zxing
                            "END:VEVENT\r\nEND:VCALENDAR";
 
                 case 6: // Phone
+                    if (string.IsNullOrWhiteSpace(PhoneNumber)) return string.Empty;
                     return $"tel:{PhoneNumber}";
 
                 case 7: // SMS
+                    if (string.IsNullOrWhiteSpace(SmsNumber)) return string.Empty;
                     return $"smsto:{SmsNumber}:{SmsMessage}";
 
                 case 8: // Geo Location
+                    if (string.IsNullOrWhiteSpace(Latitude) && string.IsNullOrWhiteSpace(Longitude)) return string.Empty;
                     return $"geo:{Latitude},{Longitude}";
 
                 default:

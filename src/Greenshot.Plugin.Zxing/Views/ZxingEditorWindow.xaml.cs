@@ -310,10 +310,11 @@ namespace Greenshot.Plugin.Zxing.Views
 
         private void UpdateCategoryVisibility()
         {
-            bool isQr = CmbFormat.SelectedIndex == 0;
+            int formatIdx = CmbFormat.SelectedIndex >= 0 ? CmbFormat.SelectedIndex : 0;
+            bool isQr = formatIdx == 0;
             RowQrCategory.Visibility = isQr ? Visibility.Visible : Visibility.Collapsed;
 
-            BarcodeFormat selectedFormat = MapBarcodeFormat(CmbFormat.Text);
+            BarcodeFormat selectedFormat = MapFormatIndex(formatIdx);
             bool is2D = (selectedFormat == BarcodeFormat.QR_CODE ||
                          selectedFormat == BarcodeFormat.AZTEC ||
                          selectedFormat == BarcodeFormat.DATA_MATRIX ||
@@ -420,6 +421,7 @@ namespace Greenshot.Plugin.Zxing.Views
         private void UpdatePreview()
         {
             TxtStatus.Text = string.Empty;
+            TxtStatus.Foreground = ThemeManager.Instance.MutedBrush;
             string payload = GetPayloadString();
 
             if (string.IsNullOrEmpty(payload))
@@ -427,10 +429,12 @@ namespace Greenshot.Plugin.Zxing.Views
                 ImgPreview.Source = null;
                 GeneratedBitmap = null;
                 BtnInsert.IsEnabled = false;
+                TxtStatus.Text = GetRequiredInputHint();
                 return;
             }
 
-            BarcodeFormat selectedFormat = MapBarcodeFormat(CmbFormat.Text);
+            int formatIdx = CmbFormat.SelectedIndex >= 0 ? CmbFormat.SelectedIndex : 0;
+            BarcodeFormat selectedFormat = MapFormatIndex(formatIdx);
             try
             {
                 bool is2D = (selectedFormat == BarcodeFormat.QR_CODE ||
@@ -438,8 +442,8 @@ namespace Greenshot.Plugin.Zxing.Views
                              selectedFormat == BarcodeFormat.DATA_MATRIX ||
                              selectedFormat == BarcodeFormat.PDF_417);
 
-                int targetW = is2D ? 230 : 350;
-                int targetH = is2D ? 230 : 100;
+                int targetW = is2D ? 210 : 330;
+                int targetH = is2D ? 210 : 100;
                 int margin = CmbMargin.SelectedIndex >= 0 ? CmbMargin.SelectedIndex : 1;
 
                 var bmp = ZxingBarcodeGenerator.Generate(payload, selectedFormat, _foreColor, _backColor, ChkRoundedDots.IsChecked == true, targetW, targetH, margin);
@@ -452,7 +456,30 @@ namespace Greenshot.Plugin.Zxing.Views
                 ImgPreview.Source = null;
                 GeneratedBitmap = null;
                 BtnInsert.IsEnabled = false;
+                TxtStatus.Foreground = ThemeManager.Instance.ErrorBrush;
                 TxtStatus.Text = "Error generating barcode:\n" + ex.Message;
+            }
+        }
+
+        private string GetRequiredInputHint()
+        {
+            if (CmbFormat.SelectedIndex != 0)
+            {
+                return "Please enter a value to generate the barcode.";
+            }
+
+            switch (CmbQrCategory.SelectedIndex)
+            {
+                case 0: return "Please enter text or a URL.";
+                case 1: return "Please enter network name (SSID).";
+                case 2: return "Please enter contact name or details.";
+                case 3: return "Please enter recipient name and IBAN.";
+                case 4: return "Please enter recipient email address.";
+                case 5: return "Please enter event title.";
+                case 6: return "Please enter a phone number.";
+                case 7: return "Please enter recipient number.";
+                case 8: return "Please enter latitude and longitude coordinates.";
+                default: return "Please enter required input on the left.";
             }
         }
 
@@ -469,21 +496,34 @@ namespace Greenshot.Plugin.Zxing.Views
                     return TxtRawText.Text ?? string.Empty;
 
                 case 1: // WiFi
+                    if (string.IsNullOrWhiteSpace(TxtWifiSsid.Text)) return string.Empty;
                     string enc = "WPA";
                     if (CmbWifiEncryption.SelectedIndex == 1) enc = "WEP";
                     else if (CmbWifiEncryption.SelectedIndex == 2) enc = "nopass";
                     return $"WIFI:S:{TxtWifiSsid.Text};T:{enc};P:{TxtWifiPassword.Text};;";
 
                 case 2: // vCard
+                    if (string.IsNullOrWhiteSpace(TxtVcardFirstName.Text) &&
+                        string.IsNullOrWhiteSpace(TxtVcardLastName.Text) &&
+                        string.IsNullOrWhiteSpace(TxtVcardCompany.Text) &&
+                        string.IsNullOrWhiteSpace(TxtVcardPhone.Text) &&
+                        string.IsNullOrWhiteSpace(TxtVcardEmail.Text))
+                    {
+                        return string.Empty;
+                    }
                     return "BEGIN:VCARD\r\nVERSION:3.0\r\n" +
                            $"N:{TxtVcardLastName.Text};{TxtVcardFirstName.Text}\r\n" +
-                           $"FN:{TxtVcardFirstName.Text} {TxtVcardLastName.Text}\r\n" +
+                           $"FN:{TxtVcardFirstName.Text} {TxtVcardLastName.Text}".Trim() + "\r\n" +
                            $"ORG:{TxtVcardCompany.Text}\r\n" +
                            $"TEL;TYPE=CELL:{TxtVcardPhone.Text}\r\n" +
                            $"EMAIL:{TxtVcardEmail.Text}\r\n" +
                            $"URL:{TxtVcardUrl.Text}\r\nEND:VCARD";
 
                 case 3: // EPC transaction data
+                    if (string.IsNullOrWhiteSpace(TxtEpcIban.Text) && string.IsNullOrWhiteSpace(TxtEpcName.Text))
+                    {
+                        return string.Empty;
+                    }
                     string formattedAmount = string.Empty;
                     if (double.TryParse(TxtEpcAmount.Text, out double amt))
                     {
@@ -507,6 +547,12 @@ namespace Greenshot.Plugin.Zxing.Views
                            $"{TxtEpcMessage.Text}\n";
 
                 case 4: // Email
+                    if (string.IsNullOrWhiteSpace(TxtEmailTo.Text) &&
+                        string.IsNullOrWhiteSpace(TxtEmailSubject.Text) &&
+                        string.IsNullOrWhiteSpace(TxtEmailBody.Text))
+                    {
+                        return string.Empty;
+                    }
                     string mailto = $"mailto:{TxtEmailTo.Text}";
                     var query = new List<string>();
                     if (!string.IsNullOrEmpty(TxtEmailSubject.Text)) query.Add($"subject={Uri.EscapeDataString(TxtEmailSubject.Text)}");
@@ -515,6 +561,10 @@ namespace Greenshot.Plugin.Zxing.Views
                     return mailto;
 
                 case 5: // Calendar Event
+                    if (string.IsNullOrWhiteSpace(TxtEventTitle.Text))
+                    {
+                        return string.Empty;
+                    }
                     return "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nBEGIN:VEVENT\r\n" +
                            $"SUMMARY:{TxtEventTitle.Text}\r\n" +
                            $"LOCATION:{TxtEventLocation.Text}\r\n" +
@@ -524,12 +574,15 @@ namespace Greenshot.Plugin.Zxing.Views
                            "END:VEVENT\r\nEND:VCALENDAR";
 
                 case 6: // Phone
+                    if (string.IsNullOrWhiteSpace(TxtPhoneNumber.Text)) return string.Empty;
                     return $"tel:{TxtPhoneNumber.Text}";
 
                 case 7: // SMS
+                    if (string.IsNullOrWhiteSpace(TxtSmsNumber.Text)) return string.Empty;
                     return $"smsto:{TxtSmsNumber.Text}:{TxtSmsMessage.Text}";
 
                 case 8: // Geo Location
+                    if (string.IsNullOrWhiteSpace(TxtLatitude.Text) && string.IsNullOrWhiteSpace(TxtLongitude.Text)) return string.Empty;
                     return $"geo:{TxtLatitude.Text},{TxtLongitude.Text}";
 
                 default:
