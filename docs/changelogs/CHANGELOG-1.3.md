@@ -44,14 +44,8 @@ Released: September 16, 2026
 - [Portable ZIP](https://github.com/greenshot/greenshot/releases/download/v1.3.319/Greenshot-PORTABLE-1.3.319-RELEASE.zip)
 
 ### Technical Details
-- **PR #1003, #986, #1010, #1087, #1022, #1151, #1210, #1154** (by @danrhodes): Editor and capture stability fixes, originally made for 1.4 and backported to 1.3
-- **PR #1348** (by @Lakritzator): Fix tray icon disappearing on RemoteApp/RAIL sessions
-- **PR #981, #1024** (by @Christian-Schulz): Icon size and file format saving fixes
-- **PR #1147** (by @overlord): Toast notification fixes
-- **Issue #1170** (by @Lakritzator): OneDrive hotkey settings fix
-- **PR #730** (by @weihongji): Border effect setting
-- **PR #1092** (by @Lakritzator): Installer cleanup of leftover plugin directories
-- **PR #1109** (by @Christian-Schulz): Restart Manager support for seamless 1.3→1.4 upgrades
+- **Backport scope**: Most bug fixes in this release were originally developed and merged into the 1.4 development line first, then selectively backported to `release/1.3` for stabilization; see the individual attributions above for each original author.
+- **Release scope**: This is the 10th stable release of the 1.3 series, superseding 1.3.315 as the latest stable build.
 - **Full Changelog**: https://github.com/greenshot/greenshot/compare/v1.3.315...v1.3.319
 
 ---
