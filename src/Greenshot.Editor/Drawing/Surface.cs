@@ -489,6 +489,11 @@ namespace Greenshot.Editor.Drawing
             {
                 element.AdjustToDpi(dpi);
             }
+
+            // The framework's automatic DPI-driven control scaling resizes this control along with
+            // every other control on the form, which is wrong here: the canvas size must always be
+            // exactly image-size * zoom-factor, in device pixels, regardless of monitor DPI.
+            UpdateSize();
         }
 
         /// <summary>
