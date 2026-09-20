@@ -37,6 +37,10 @@ A release's changelog entry is a single bullet list, grouped under short themati
 
 Other short thematic headings may be added when they better describe the changes (e.g. "Performance", "Editor").
 
+#### No Redundant Technical Change List
+
+Do not add a second, redundant technical change list under a `Technical Details` heading (or any equivalent heading). Every shipped feature or bug fix must appear exactly once, as a bullet under the relevant thematic heading above. A `Technical Details` section is permitted only for additional metadata or context that is not another description of the changes, such as release scope, a backport note, security-advisory context, or a full compare link.
+
 #### Bullet Requirements
 
 Every bullet must:
@@ -133,6 +137,7 @@ Before completing documentation work:
 - [ ] Only shipped-software or user-visible distribution changes are included.
 - [ ] Repository-only changes such as workflows, documentation, agents, skills, and CI maintenance are excluded.
 - [ ] The changelog entry is a single bullet list, grouped under short thematic headings — no separate technical document.
+- [ ] No redundant second technical change list appears under `Technical Details`; each change is listed exactly once, while technical details contain metadata/context only.
 - [ ] Every bullet is short and user-understandable, credits the original contributor with a linked GitHub handle, and links the relevant PR and/or issue number(s).
 - [ ] Every security bullet either links a public GHSA advisory and credits the reporter, or explicitly says advisory details will follow and flags this back to whoever invoked the skill.
 - [ ] Downloads and Full Changelog links are present for the release.
