@@ -59,10 +59,18 @@ namespace Greenshot.Pipeline.Steps
         public async Task ExecuteAsync(CaptureFlowContext context, CancellationToken cancellationToken = default)
         {
             var payload = context.Payload;
-            if (payload == null) return;
+            if (payload is null)
+            {
+                context.LogStep("TextEffectStep skipped: Payload is null.");
+                return;
+            }
 
             var surface = payload.EnsureSurface();
-            if (surface?.Image == null) return;
+            if (surface?.Image == null) 
+            {
+                context.LogStep("TextEffectStep skipped: Surface or Image is null.");
+                return;
+            }
 
             // Retrieve registered OCR provider
             var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>(isOptional: true);

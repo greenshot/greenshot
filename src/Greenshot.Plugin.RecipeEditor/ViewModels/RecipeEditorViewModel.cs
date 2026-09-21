@@ -980,8 +980,9 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             StatusMessage = $"Executing test run for '{ActiveRecipe.Name}'...";
             try
             {
-                await pipeline.ExecuteAsync(ActiveRecipe);
-                StatusMessage = $"Test run of '{ActiveRecipe.Name}' completed successfully.";
+                var recipeToTest = TriggerRecipePreparer.PrepareForTestRun(ActiveRecipe);
+                await pipeline.ExecuteAsync(recipeToTest);
+                StatusMessage = $"Test run of '{recipeToTest.Name}' completed successfully.";
             }
             catch (Exception ex)
             {

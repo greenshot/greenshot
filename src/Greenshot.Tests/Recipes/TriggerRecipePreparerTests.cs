@@ -23,29 +23,32 @@ using System.Collections.Generic;
 using System.Linq;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Recipes;
+using Greenshot.Base.Triggers;
+using Greenshot.Triggers;
 using Xunit;
 
 namespace Greenshot.Tests.Recipes
 {
-    public class EditorTriggerRecipePreparerTests
+    public class TriggerRecipePreparerTests
     {
-        public EditorTriggerRecipePreparerTests()
+        public TriggerRecipePreparerTests()
         {
             TestEnvironment.EnsureInitialized();
         }
 
         [Fact]
-        public void EnsureRequiredStartSource_AddsCurrentEditorSourceToRecipeWithoutSource()
+        public void EnsureRequiredStartSource_EditorTriggerAddsCurrentEditorSourceToRecipeWithoutSource()
         {
             var recipe = new CaptureRecipe("without_source", "Without Source")
                 .AddNode(CreateEffectNode("effect_e095"));
             recipe.Flow = new RecipeFlowConfig("effect_e095");
+            var trigger = new EditorTrigger("editor_trigger", "Editor Trigger", "Editor Trigger", recipe.Id);
 
-            var preparedRecipe = EditorTriggerRecipePreparer.EnsureRequiredStartSource(recipe);
+            var preparedRecipe = TriggerRecipePreparer.EnsureRequiredStartSource(recipe, trigger);
 
             Assert.NotSame(recipe, preparedRecipe);
             var sourceNode = Assert.Single(preparedRecipe.Nodes, node => node.StepType == WellKnownStepTypes.Source);
-            Assert.StartsWith("editor_source_", sourceNode.Id);
+            Assert.StartsWith("trigger_source_", sourceNode.Id);
             Assert.Equal(CaptureSourceType.CurrentEditor, sourceNode.GetParameter<CaptureSourceType>("SourceType"));
             Assert.Equal(new[] { sourceNode.Id }, preparedRecipe.Flow.StartNodes);
             Assert.Contains("effect_e095", preparedRecipe.Flow.Transitions[sourceNode.Id]);
@@ -58,14 +61,15 @@ namespace Greenshot.Tests.Recipes
             var recipe = new CaptureRecipe("with_source", "With Source")
                 .AddNode(CreateSourceNode("source_f056"));
             recipe.Flow = new RecipeFlowConfig("source_f056");
+            var trigger = new EditorTrigger("editor_trigger", "Editor Trigger", "Editor Trigger", recipe.Id);
 
-            var preparedRecipe = EditorTriggerRecipePreparer.EnsureRequiredStartSource(recipe);
+            var preparedRecipe = TriggerRecipePreparer.EnsureRequiredStartSource(recipe, trigger);
 
             Assert.Same(recipe, preparedRecipe);
         }
 
         [Fact]
-        public void EnsureRequiredEditorDestination_AddsCurrentEditorDestinationAfterEveryEndNode()
+        public void EnsureRequiredDestination_EditorTriggerAddsCurrentEditorDestinationAfterEveryEndNode()
         {
             var recipe = new CaptureRecipe("without_destination", "Without Destination")
                 .AddNode(CreateSourceNode("source_f056"))
@@ -74,8 +78,9 @@ namespace Greenshot.Tests.Recipes
             recipe.Flow = new RecipeFlowConfig("source_f056")
                 .AddTransition("source_f056", "effect_a")
                 .AddTransition("source_f056", "effect_b");
+            var trigger = new EditorTrigger("editor_trigger", "Editor Trigger", "Editor Trigger", recipe.Id);
 
-            var preparedRecipe = EditorTriggerRecipePreparer.EnsureRequiredEditorDestination(recipe);
+            var preparedRecipe = TriggerRecipePreparer.EnsureRequiredDestination(recipe, trigger);
 
             Assert.NotSame(recipe, preparedRecipe);
             var editorNodes = preparedRecipe.Nodes
@@ -85,9 +90,9 @@ namespace Greenshot.Tests.Recipes
             Assert.All(editorNodes, node =>
             {
                 Assert.StartsWith("editor_destination_", node.Id);
-                Assert.Equal(TargetEditor.CurrentEditor.ToString(), node.GetParameter<string>("TargetEditor"));
+                Assert.Equal(nameof(TargetEditor.CurrentEditor), node.GetParameter<string>("TargetEditor"));
             });
-            Assert.All(new[] { "effect_a", "effect_b" }, endNodeId =>
+            Assert.All(["effect_a", "effect_b"], endNodeId =>
             {
                 Assert.Contains(endNodeId, preparedRecipe.Flow.Transitions.Keys);
                 Assert.Single(preparedRecipe.Flow.Transitions[endNodeId]);
@@ -97,7 +102,7 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Fact]
-        public void EnsureRequiredEditorDestination_ReturnsSameRecipeWhenDestinationExists()
+        public void EnsureRequiredDestination_ReturnsSameRecipeWhenDestinationExists()
         {
             var recipe = new CaptureRecipe("with_destination", "With Destination")
                 .AddNode(CreateSourceNode("source_f056"))
@@ -106,26 +111,28 @@ namespace Greenshot.Tests.Recipes
             recipe.Flow = new RecipeFlowConfig("source_f056")
                 .AddTransition("source_f056", "effect_e095")
                 .AddTransition("effect_e095", "editor_4933");
+            var trigger = new EditorTrigger("editor_trigger", "Editor Trigger", "Editor Trigger", recipe.Id);
 
-            var preparedRecipe = EditorTriggerRecipePreparer.EnsureRequiredEditorDestination(recipe);
+            var preparedRecipe = TriggerRecipePreparer.EnsureRequiredDestination(recipe, trigger);
 
             Assert.Same(recipe, preparedRecipe);
         }
 
         [Fact]
-        public void Prepare_AddsSourceAndEditorDestinationWhenBothAreMissing()
+        public void Prepare_EditorTriggerAddsSourceAndEditorDestinationWhenBothAreMissing()
         {
             var recipe = new CaptureRecipe("incomplete", "Incomplete")
                 .AddNode(CreateEffectNode("effect_e095"));
             recipe.Flow = new RecipeFlowConfig("effect_e095");
+            var trigger = new EditorTrigger("editor_trigger", "Editor Trigger", "Editor Trigger", recipe.Id);
 
-            var preparedRecipe = EditorTriggerRecipePreparer.Prepare(recipe);
+            var preparedRecipe = TriggerRecipePreparer.Prepare(recipe, trigger);
 
             Assert.NotSame(recipe, preparedRecipe);
             var sourceNode = Assert.Single(preparedRecipe.Nodes, node => node.StepType == WellKnownStepTypes.Source);
             var editorNode = Assert.Single(preparedRecipe.Nodes, node => node.StepType == WellKnownStepTypes.Editor);
             Assert.Equal(CaptureSourceType.CurrentEditor, sourceNode.GetParameter<CaptureSourceType>("SourceType"));
-            Assert.Equal(TargetEditor.CurrentEditor.ToString(), editorNode.GetParameter<string>("TargetEditor"));
+            Assert.Equal(nameof(TargetEditor.CurrentEditor), editorNode.GetParameter<string>("TargetEditor"));
             Assert.Equal(new[] { sourceNode.Id }, preparedRecipe.Flow.StartNodes);
             Assert.Contains("effect_e095", preparedRecipe.Flow.Transitions[sourceNode.Id]);
             Assert.Contains(editorNode.Id, preparedRecipe.Flow.Transitions["effect_e095"]);
@@ -141,10 +148,30 @@ namespace Greenshot.Tests.Recipes
             recipe.Flow = new RecipeFlowConfig("source_f056")
                 .AddTransition("source_f056", "effect_e095")
                 .AddTransition("effect_e095", "editor_4933");
+            var trigger = new EditorTrigger("editor_trigger", "Editor Trigger", "Editor Trigger", recipe.Id);
 
-            var preparedRecipe = EditorTriggerRecipePreparer.Prepare(recipe);
+            var preparedRecipe = TriggerRecipePreparer.Prepare(recipe, trigger);
 
             Assert.Same(recipe, preparedRecipe);
+        }
+
+        [Fact]
+        public void Prepare_ClipboardTriggerAddsClipboardSourceAndDestinationsWhenBothAreMissing()
+        {
+            var recipe = new CaptureRecipe("clipboard_recipe", "Clipboard Recipe")
+                .AddNode(CreateEffectNode("effect_e095"));
+            recipe.Flow = new RecipeFlowConfig("effect_e095");
+            var trigger = new ClipboardTrigger("clipboard_trigger", "Clipboard Trigger", recipe.Id);
+
+            var preparedRecipe = TriggerRecipePreparer.Prepare(recipe, trigger);
+
+            Assert.NotSame(recipe, preparedRecipe);
+            var sourceNode = Assert.Single(preparedRecipe.Nodes, node => node.StepType == WellKnownStepTypes.Source);
+            var destinationNode = Assert.Single(preparedRecipe.Nodes, node => node.StepType == WellKnownStepTypes.Destinations);
+            Assert.Equal(CaptureSourceType.Clipboard, sourceNode.GetParameter<CaptureSourceType>("SourceType"));
+            Assert.Equal(new[] { sourceNode.Id }, preparedRecipe.Flow.StartNodes);
+            Assert.Contains("effect_e095", preparedRecipe.Flow.Transitions[sourceNode.Id]);
+            Assert.Contains(destinationNode.Id, preparedRecipe.Flow.Transitions["effect_e095"]);
         }
 
         private static RecipeNodeConfig CreateSourceNode(string id)

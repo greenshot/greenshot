@@ -51,7 +51,11 @@ namespace Greenshot.Pipeline.Steps
         public Task ExecuteAsync(CaptureFlowContext context, CancellationToken cancellationToken = default)
         {
             var payload = context.Payload;
-            if (payload?.RawCapture == null) return Task.CompletedTask;
+            if (payload?.RawCapture == null)
+            {
+                context.LogStep("ProcessorExecutionStep skipped: Payload or RawCapture is null.");
+                return Task.CompletedTask;
+            }
 
             context.State = CaptureFlowState.Processing;
 

@@ -19,9 +19,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Collections.Generic;
-
 namespace Greenshot.Base.Triggers
 {
     /// <summary>
@@ -32,5 +29,7 @@ namespace Greenshot.Base.Triggers
         string MenuItemText { get; set; }
         string Group { get; set; }
         int Order { get; set; }
+
+        void Fire(object editorForm);
     }
 }

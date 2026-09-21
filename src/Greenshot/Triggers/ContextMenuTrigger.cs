@@ -53,9 +53,10 @@ namespace Greenshot.Triggers
         /// <summary>
         /// Invoked when the user clicks this item in the context menu.
         /// </summary>
-        public void Fire(IDictionary<string, object> parameters = null)
+        public void Fire()
         {
-            OnTriggered(parameters);
+            var contextMenuHasNoParameters = new Dictionary<string, object>();
+            OnTriggered(contextMenuHasNoParameters);
         }
     }
 }

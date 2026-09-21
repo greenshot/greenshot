@@ -60,11 +60,10 @@ namespace Greenshot.Pipeline.Steps
         {
             context.State = CaptureFlowState.Acquiring;
 
-            // 0. Check if payload is already pre-supplied (e.g. from ClipboardTrigger)
-            if (context.Trigger is ClipboardTrigger)
+            // 0. Check if payload is already pre-supplied 
+            if (context.Payload != null)
             {
-                context.LogStep("Using pre-supplied payload from ClipboardTrigger, skipping source acquisition.");
-                return;
+                Log.Warn($"Source {Name} already has a pre-supplied payload. This should not happen.");
             }
 
             // 1. Pre-capture preparation: tray icon reset & delay

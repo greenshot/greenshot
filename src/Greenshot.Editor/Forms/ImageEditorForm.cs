@@ -2451,8 +2451,7 @@ namespace Greenshot.Editor.Forms
                 return;
             }
 
-            var editorTriggers = triggerManager.GetEditorTriggers()
-                ?? triggerManager.GetAllTriggers().OfType<IEditorTrigger>().ToList();
+            var editorTriggers = triggerManager.GetEditorTriggers();
 
             if (editorTriggers == null || editorTriggers.Count == 0)
             {
@@ -2471,9 +2470,9 @@ namespace Greenshot.Editor.Forms
                     : (!string.IsNullOrWhiteSpace(trigger.Name) ? trigger.Name : recipe.Name);
 
                 var item = new ToolStripMenuItem(menuText);
-                item.Click += async (s, ev) =>
+                item.Click += (s, ev) =>
                 {
-                    await ExecuteEditorRecipeAsync(recipe, trigger);
+                    trigger.Fire(this);
                 };
 
                 recipesToolStripMenuItem.DropDownItems.Add(item);
@@ -2481,36 +2480,6 @@ namespace Greenshot.Editor.Forms
             }
 
             recipesToolStripMenuItem.Visible = count > 0;
-        }
-
-        /// <summary>
-        /// Executes a capture recipe from the editor.
-        /// It prepares the recipe for execution and runs it through the capture pipeline, passing the current editor form in the context.
-        /// </summary>
-        private async System.Threading.Tasks.Task ExecuteEditorRecipeAsync(CaptureRecipe recipe, ITrigger trigger)
-        {
-            if (recipe == null || Surface == null) return;
-
-            var pipeline = SimpleServiceProvider.Current.GetInstance<ICapturePipeline>(isOptional: true);
-            if (pipeline == null)
-            {
-                Log.Warn("ICapturePipeline service not available to run editor recipe.");
-                return;
-            }
-            try
-            {
-                var recipeToExecute = EditorTriggerRecipePreparer.Prepare(recipe);
-                await pipeline.ExecuteAsync(recipeToExecute, trigger, ctx =>
-                {
-                    ctx.Properties["EditorForm"] = this;
-                });
-
-            }
-            catch (Exception ex)
-            {
-                Log.Error($"Failed to execute recipe '{recipe.Name}' from editor", ex);
-                Surface.SendMessageEvent(this, SurfaceMessageTyp.Error, $"Recipe '{recipe.Name}' failed: {ex.Message}");
-            }
         }
     }
 }

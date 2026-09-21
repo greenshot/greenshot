@@ -22,6 +22,7 @@
 using System;
 using System.Collections.Generic;
 using Greenshot.Base.Triggers;
+using log4net;
 
 namespace Greenshot.Triggers
 {
@@ -31,6 +32,8 @@ namespace Greenshot.Triggers
     /// </summary>
     public class EditorTrigger : TriggerBase, IEditorTrigger
     {
+        private static readonly ILog Log = LogManager.GetLogger(typeof(EditorTrigger));
+
         public override string TriggerType => TriggerConfig.TypeEditor;
         public string MenuItemText { get; set; }
         public string Group { get; set; } = "Recipes";
@@ -67,9 +70,15 @@ namespace Greenshot.Triggers
         /// <summary>
         /// Invoked when the user clicks this recipe item in the Image Editor menu.
         /// </summary>
-        public void Fire(IDictionary<string, object> parameters = null)
+        /// <param name="editorForm">The instance of the editor form where the trigger was fired</param>
+        public void Fire(object editorForm)
         {
-            OnTriggered(parameters);
+            if (editorForm == null)
+            {
+                Log.Warn("EditorTrigger fired with null editorForm parameter."); 
+                return;
+            }
+            OnTriggered(new Dictionary<string, object> { { "EditorForm", editorForm } });
         }
     }
 }
