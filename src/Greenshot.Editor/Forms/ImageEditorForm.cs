@@ -2485,8 +2485,7 @@ namespace Greenshot.Editor.Forms
 
         /// <summary>
         /// Executes a capture recipe from the editor.
-        /// If the recipe exports to another editor, clones the surface to avoid sharing mutable state.
-        /// If the recipe only modifies the surface in-place, operates directly on the active canvas.
+        /// It prepares the recipe for execution and runs it through the capture pipeline, passing the current editor form in the context.
         /// </summary>
         private async System.Threading.Tasks.Task ExecuteEditorRecipeAsync(CaptureRecipe recipe, ITrigger trigger)
         {

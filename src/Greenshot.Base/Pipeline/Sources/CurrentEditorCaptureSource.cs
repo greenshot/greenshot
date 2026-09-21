@@ -46,16 +46,16 @@ namespace Greenshot.Base.Pipeline.Sources
                 return Task.FromResult<ICapturePayload>(null);
             }
 
-            var sufaceClone = editor.Surface.Clone();
+            var surfaceClone = editor.Surface.Clone();
 
             return Task.FromResult<ICapturePayload>(new CapturePayload
             {
-                Surface = sufaceClone, 
+                Surface = surfaceClone, 
                 RetainSurfaceForEditor = true,
 
-                RawCapture = new Capture(sufaceClone.GetImageForExport())
+                RawCapture = new Capture(surfaceClone.GetImageForExport())
                 {
-                    CaptureDetails = sufaceClone.CaptureDetails
+                    CaptureDetails = surfaceClone.CaptureDetails
                 }
             });
         }
