@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Português do Brasil" ietf="pt-BR" version="1.0.0" languagegroup="1">
+	<resources>
+		<resource name="plugin_settings">Configurações do Confluence</resource>
+		<resource name="login_error">Ocorreu um problema durante o login: {0}</resource>
+		<resource name="label_url">URL</resource>
+		<resource name="label_timeout">Tempo limite</resource>
+		<resource name="label_user">Usuário</resource>
+		<resource name="label_password">Senha</resource>
+		<resource name="login_title">Por favor insira seus dados de login do Confluence</resource>
+		<resource name="OK">OK</resource>
+		<resource name="CANCEL">Cancelar</resource>
+		<resource name="upload_menu_item">Enviar para o Confluence</resource>
+		<resource name="upload_success">Imagem enviada com sucesso para o Confluence!</resource>
+		<resource name="upload_failure">Ocorreu um erro ao enviar para o Confluence:</resource>
+		<resource name="open_page_after_upload">Abrir página após o envio</resource>
+		<resource name="upload_format">Formato de envio</resource>
+		<resource name="copy_wikimarkup">Copiar marcação Wiki para a área de transferência</resource>
+		<resource name="filename">Nome do arquivo</resource>
+		<resource name="upload">Enviar</resource>
+		<resource name="open_pages">Abrir páginas</resource>
+		<resource name="search_pages">Procurar páginas</resource>
+		<resource name="browse_pages">Navegar nas páginas</resource>
+		<resource name="search_text">Procurar texto</resource>
+		<resource name="search">Procurar</resource>
+		<resource name="loading">Os dados do Confluence estão carregando, por favor aguarde...</resource>
+		<resource name="include_person_spaces">Incluir espaços pessoais na busca e navegação</resource>
+		<resource name="communication_wait">Transferindo dados para o Confluence, por favor aguarde...</resource>
+	</resources>
+</language>

@@ -107,44 +107,6 @@ namespace Greenshot.Forms.Wpf
             _viewModel.SelectPluginByName(pluginName);
         }
 
-        protected override void OnSourceInitialized(EventArgs e)
-        {
-            base.OnSourceInitialized(e);
-            ClampToWorkingArea();
-        }
-
-        private void ClampToWorkingArea()
-        {
-            try
-            {
-                // Get the working area of the screen the window is currently on
-                var hwnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
-                var screen = System.Windows.Forms.Screen.FromHandle(hwnd);
-                var workArea = screen.WorkingArea;
-
-                // Account for DPI scaling (WPF uses device-independent units at 96 DPI,
-                // but Screen.WorkingArea returns physical pixels)
-                var source = PresentationSource.FromVisual(this);
-                double dpiScaleX = source?.CompositionTarget?.TransformFromDevice.M11 ?? 1.0;
-                double dpiScaleY = source?.CompositionTarget?.TransformFromDevice.M22 ?? 1.0;
-
-                double availableW = workArea.Width * dpiScaleX;
-                double availableH = workArea.Height * dpiScaleY;
-
-                // Clamp window size to available working area
-                if (Width > availableW) Width = availableW;
-                if (Height > availableH) Height = availableH;
-
-                // Re-center within the working area
-                Left = (workArea.Left * dpiScaleX) + (availableW - Width) / 2;
-                Top = (workArea.Top * dpiScaleY) + (availableH - Height) / 2;
-            }
-            catch (Exception ex)
-            {
-                Log.Warn("Failed to clamp window to working area", ex);
-            }
-        }
-
         private void TitleBar_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             DragMove();

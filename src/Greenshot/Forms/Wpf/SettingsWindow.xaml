@@ -373,7 +373,7 @@
         </Style>
         
         <!-- Modern ScrollViewer Style -->
-        <Style x:Key="ThemedScrollViewer" TargetType="ScrollViewer">
+        <Style TargetType="ScrollViewer">
             <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BackgroundBrush}"/>
         </Style>
         
@@ -488,7 +488,7 @@
         <TabControl x:Name="SettingsTabControl" Grid.Row="0">
             <!-- General Tab -->
             <TabItem Header="{wpf:Translate settings_general}">
-                <ScrollViewer Style="{StaticResource ThemedScrollViewer}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                     <StackPanel>
                         <!-- Application Settings -->
                         <GroupBox Header="{wpf:Translate settings_applicationsettings}">
@@ -510,7 +510,7 @@
                                 <Grid Margin="0,5">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="150"/>
-                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="100"/>
                                     </Grid.ColumnDefinitions>
                                     <Label Content="{wpf:Translate settings_iconsize}"/>
                                     <Grid Grid.Column="1">
@@ -523,7 +523,7 @@
                                                  IsReadOnly="True"
                                                  IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=BaseIconSize}"/>
                                         <StackPanel Grid.Column="1" Orientation="Vertical" Margin="2,0,0,0">
-                                            <Button Content="▲" Click="IconSizeUp_Click" Padding="4,0" FontSize="8" MinWidth="20" Height="15" Margin="0,0,0,1"
+                                            <Button Content="▲" Click="IconSizeUp_Click" Padding="4,0" FontSize="8" MinWidth="20" Height="15"
                                                     IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=BaseIconSize}"/>
                                             <Button Content="▼" Click="IconSizeDown_Click" Padding="4,0" FontSize="8" MinWidth="20" Height="15" Margin="0,1,0,0"
                                                     IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=BaseIconSize}"/>
@@ -614,7 +614,7 @@
             
             <!-- Capture Tab -->
             <TabItem Header="{wpf:Translate settings_capture}">
-                <ScrollViewer Style="{StaticResource ThemedScrollViewer}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                     <StackPanel>
                         <GroupBox Header="{wpf:Translate settings_capture}">
                             <StackPanel>
@@ -634,7 +634,7 @@
                                 <Grid Margin="0,5">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="80"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Text="{wpf:Translate settings_waittime}"
                                                TextWrapping="Wrap"
@@ -686,7 +686,7 @@
             
             <!-- Output Tab -->
             <TabItem Header="{wpf:Translate settings_output}">
-                <ScrollViewer Style="{StaticResource ThemedScrollViewer}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                     <StackPanel>
                         <GroupBox Header="{wpf:Translate settings_preferredfilesettings}">
                             <StackPanel>
@@ -807,7 +807,7 @@
             
             <!-- Editor Tab -->
             <TabItem Header="{wpf:Translate settings_editor}">
-                <ScrollViewer Style="{StaticResource ThemedScrollViewer}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                     <StackPanel>
                         <GroupBox Header="{wpf:Translate settings_editor}">
                             <StackPanel>
@@ -828,7 +828,7 @@
             
             <!-- Printer Tab -->
             <TabItem Header="{wpf:Translate settings_printer}">
-                <ScrollViewer Style="{StaticResource ThemedScrollViewer}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                     <StackPanel>
                         <GroupBox Header="{wpf:Translate settings_printoptions}">
                             <StackPanel>
@@ -956,9 +956,7 @@
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"
                                        Visibility="{Binding NoSelectedPluginControlVisibility}"/>
-                            <ScrollViewer Style="{StaticResource ThemedScrollViewer}"
-                                          VerticalScrollBarVisibility="Auto" 
-                                          HorizontalScrollBarVisibility="Disabled"
+                            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
                                           Visibility="{Binding SelectedPluginControlVisibility}">
                                 <ContentControl Content="{Binding SelectedPluginControl}"/>
                             </ScrollViewer>
@@ -969,7 +967,7 @@
             
             <!-- Expert Tab -->
             <TabItem Header="{wpf:Translate expertsettings}" Visibility="{Binding IsExpertTabVisible, Converter={StaticResource ExpertVisibilityConverter}}">
-                <ScrollViewer Style="{StaticResource ThemedScrollViewer}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                     <StackPanel>
                         <!-- Top Banner: Enable Expert Mode set apart -->
                         <Border Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=GroupBoxBrush}"
@@ -1051,7 +1049,7 @@
                                 <Grid Margin="0,5">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="80"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Text="{wpf:Translate expertsettings_counter}" 
                                                TextWrapping="Wrap"
@@ -1102,12 +1100,12 @@
                     HorizontalAlignment="Right" 
                     Margin="0,10,0,0">
             <Button Content="{wpf:Translate OK}" 
-                    MinWidth="80" 
+                    Width="75" 
                     Margin="5,0"
                     IsDefault="True"
                     Click="OkButton_Click"/>
             <Button Content="{wpf:Translate CANCEL}" 
-                    MinWidth="80"
+                    Width="75"
                     Margin="5,0"
                     IsCancel="True"
                     Click="CancelButton_Click"/>

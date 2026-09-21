@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Português do Brasil" ietf="pt-BR" version="1.0.0" languagegroup="1">
+	<resources>
+		<resource name="settings_title">Configurações do Office</resource>
+		<resource name="app_word">Microsoft Word</resource>
+		<resource name="app_excel">Microsoft Excel</resource>
+		<resource name="app_powerpoint">Microsoft PowerPoint</resource>
+		<resource name="app_outlook">Microsoft Outlook</resource>
+		<resource name="app_onenote">Microsoft OneNote</resource>
+		<resource name="word_lockaspect">Manter a proporção da imagem</resource>
+		<resource name="powerpoint_lockaspect">Manter a proporção da imagem</resource>
+		<resource name="powerpoint_slide_layout">Layout do slide para capturas exportadas</resource>
+		<resource name="outlook_email_format">Formato de e-mail para novos e-mails</resource>
+		<resource name="outlook_subject_pattern">Formato do assunto do e-mail</resource>
+		<resource name="outlook_emailto">Destinatário padrão "Para"</resource>
+		<resource name="outlook_emailcc">Destinatário padrão "CC"</resource>
+		<resource name="outlook_emailbcc">Destinatário padrão "CCO"</resource>
+		<resource name="outlook_allowmeetings">Permitir a exportação em itens de reunião</resource>
+		<resource name="excel_info">As capturas de tela são inseridas na pasta de trabalho ativa ou em uma nova.</resource>
+		<resource name="onenote_info">As capturas de tela são exportadas para uma nova página no bloco de notas padrão do OneNote.</resource>
+		<resource name="format_html">HTML</resource>
+		<resource name="format_text">Texto</resource>
+	</resources>
+</language>

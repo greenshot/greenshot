@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Português do Brasil" ietf="pt-BR" version="1.0.0" languagegroup="1">
+	<resources>
+		<resource name="label_AfterUploadLinkToClipBoard">Link para a área de transferência</resource>
+		<resource name="label_AfterUpload">Após o upload</resource>
+		<resource name="Configure">Configurar Box</resource>
+		<resource name="upload_menu_item">Enviar para o Box</resource>
+		<resource name="settings_title">Configurações do Box</resource>
+		<resource name="upload_success">Imagem enviada com sucesso para o Box!</resource>
+		<resource name="upload_failure">Ocorreu um erro ao enviar para o Box:</resource>
+		<resource name="label_upload_format">Formato da imagem</resource>
+		<resource name="communication_wait">Comunicando com o Box. Por favor, aguarde...</resource>
+	</resources>
+</language>
