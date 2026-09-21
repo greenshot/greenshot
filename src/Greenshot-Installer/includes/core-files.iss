@@ -33,7 +33,7 @@ Source: {#LanguagesDir}\*en-US*; Excludes: "*installer*,*website*"; DestDir: {ap
 Source: {#LanguagesDir}\*de-DE*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: greenshot; Flags: {#DefaultInstallFlags};
 
 ; Modern Windows 11 Context Menu Shell Extension
-Source: {#SolutionDir}\x64\Release\Greenshot.ShellExt.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags} restartreplace uninsrestartdelete skipifsourcedoesntexist; Check: IsWindows11OrLater
+Source: {#SolutionDir}\x64\Release\greenshot-proxy.exe; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags} restartreplace uninsrestartdelete skipifsourcedoesntexist; Check: IsWindows11OrLater
 #if CertumThumbprint != ""
 Source: {#SolutionDir}\x64\Release\Greenshot.ShellExt.msix; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags} signonce restartreplace uninsrestartdelete skipifsourcedoesntexist; Check: IsWindows11OrLater
 #else

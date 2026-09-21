@@ -73,9 +73,9 @@
         <!-- COM server registration -->
         <com:Extension Category="windows.comServer">
           <com:ComServer>
-            <com:SurrogateServer DisplayName="Greenshot Context Menu">
-              <com:Class Id="3D1E6BB3-7033-4D9A-BF6D-F18A32CA11B2" Path="Greenshot.ShellExt.dll" ThreadingModel="STA" />
-            </com:SurrogateServer>
+            <com:ExeServer Executable="greenshot-proxy.exe" DisplayName="Greenshot Context Menu">
+              <com:Class Id="3D1E6BB3-7033-4D9A-BF6D-F18A32CA11B2" />
+            </com:ExeServer>
           </com:ComServer>
         </com:Extension>
       </Extensions>

@@ -56,7 +56,7 @@
 		<resource name="contextmenu_capturelastregion">Capturar a última região</resource>
 		<resource name="contextmenu_capturewindow">Capturar tela</resource>
 		<resource name="contextmenu_capturewindowfromlist">Capturar janela da lista</resource>
-		<resource name="contextmenu_donate">Suporte do Greenshot</resource>
+		<resource name="contextmenu_donate">Suporte o Greenshot</resource>
 		<resource name="contextmenu_exit">Sair</resource>
 		<resource name="contextmenu_help">Ajuda</resource>
 		<resource name="contextmenu_importrecipe">Importar receita...</resource>

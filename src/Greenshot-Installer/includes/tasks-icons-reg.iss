@@ -40,7 +40,7 @@ Root: HKA; Subkey: Software\Classes\Greenshot\shell\open\command; ValueType: str
 ; "Edit with Greenshot" context menu for image files (legacy / "Show more options" on Win11)
 Root: HKA; Subkey: Software\Classes\SystemFileAssociations\image\shell\Greenshot.Edit; ValueType: string; ValueName: ""; ValueData: "{cm:shellext_edit}"; Flags: uninsdeletekey noerror; Tasks: shellext; Check: ShouldInstallLegacyShellExt
 Root: HKA; Subkey: Software\Classes\SystemFileAssociations\image\shell\Greenshot.Edit; ValueType: string; ValueName: "Icon"; ValueData: """{app}\Greenshot.EXE"",0"; Flags: uninsdeletevalue noerror; Tasks: shellext; Check: ShouldInstallLegacyShellExt
-Root: HKA; Subkey: Software\Classes\SystemFileAssociations\image\shell\Greenshot.Edit\command; ValueType: string; ValueName: ""; ValueData: """{app}\Greenshot.EXE"" ""%1"""; Flags: uninsdeletevalue noerror; Tasks: shellext; Check: ShouldInstallLegacyShellExt
+Root: HKA; Subkey: Software\Classes\SystemFileAssociations\image\shell\Greenshot.Edit\command; ValueType: string; ValueName: ""; ValueData: """{app}\greenshot-proxy.exe"" --file ""%1"""; Flags: uninsdeletevalue noerror; Tasks: shellext; Check: ShouldInstallLegacyShellExt
 
 ; Delete legacy keys if modern shell extension is supported
 Root: HKLM; Subkey: Software\Classes\SystemFileAssociations\image\shell\Greenshot.Edit; Flags: deletekey dontcreatekey uninsdeletekey noerror; Check: IsModernShellExtSupportedAndAdmin

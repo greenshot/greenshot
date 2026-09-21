@@ -1,5 +1,0 @@
-LIBRARY Greenshot.ShellExt
-EXPORTS
-    DllGetClassObject   PRIVATE
-    DllCanUnloadNow     PRIVATE
-
