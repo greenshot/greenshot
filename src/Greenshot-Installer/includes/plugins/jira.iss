@@ -1,10 +1,10 @@
 [Components]
-Name: "greenshot\jira"; Description: {cm:jira}; Types: full custom; Flags: disablenouninstallwarning
+Name: "plugins\jira"; Description: {cm:jira}; Types: full custom; Flags: disablenouninstallwarning
 
 [Files]
-Source: {#PluginDir}\Greenshot.Plugin.Jira\*Jira*.dll; DestDir: {app}\Plugins\Jira; Components: greenshot\jira; Flags: {#DefaultInstallFlags};
-Source: {#PluginDir}\Greenshot.Plugin.Jira\Dapplo.HttpExtensions.WinForms.dll; DestDir: {app}\Plugins\Jira; Components: greenshot\jira; Flags: {#DefaultInstallFlags};
-Source: {#SolutionDir}\Greenshot.Plugin.Jira\Languages\language_jira*.xml; DestDir: {app}\Languages\Plugins\Jira; Components: greenshot\jira; Flags: {#DefaultInstallFlags};
+Source: {#PluginDir}\Greenshot.Plugin.Jira\*Jira*.dll; DestDir: {app}\Plugins\Jira; Components: plugins\jira; Flags: {#DefaultInstallFlags};
+Source: {#PluginDir}\Greenshot.Plugin.Jira\Dapplo.HttpExtensions.WinForms.dll; DestDir: {app}\Plugins\Jira; Components: plugins\jira; Flags: {#DefaultInstallFlags};
+Source: {#SolutionDir}\Greenshot.Plugin.Jira\Languages\language_jira*.xml; DestDir: {app}\Languages\Plugins\Jira; Components: plugins\jira; Flags: {#DefaultInstallFlags};
 
 [CustomMessages]
 jira=Jira plug-in

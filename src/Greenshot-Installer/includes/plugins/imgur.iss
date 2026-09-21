@@ -1,9 +1,9 @@
 [Components]
-Name: "greenshot\imgur"; Description: {cm:imgur}; Types: full custom; Flags: disablenouninstallwarning
+Name: "plugins\imgur"; Description: {cm:imgur}; Types: full custom; Flags: disablenouninstallwarning
 
 [Files]
-Source: {#PluginDir}\Greenshot.Plugin.Imgur\Greenshot.Plugin.Imgur.dll; DestDir: {app}\Plugins\Imgur; Components: greenshot\imgur; Flags: {#DefaultInstallFlags};
-Source: {#SolutionDir}\Greenshot.Plugin.Imgur\Languages\language_imgur*.xml; DestDir: {app}\Languages\Plugins\Imgur; Components: greenshot\imgur; Flags: {#DefaultInstallFlags};
+Source: {#PluginDir}\Greenshot.Plugin.Imgur\Greenshot.Plugin.Imgur.dll; DestDir: {app}\Plugins\Imgur; Components: plugins\imgur; Flags: {#DefaultInstallFlags};
+Source: {#SolutionDir}\Greenshot.Plugin.Imgur\Languages\language_imgur*.xml; DestDir: {app}\Languages\Plugins\Imgur; Components: plugins\imgur; Flags: {#DefaultInstallFlags};
 
 [CustomMessages]
 imgur=Imgur plug-in (See: https://imgur.com)
