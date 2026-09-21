@@ -183,6 +183,9 @@ IFACEMETHODIMP CExplorerCommand::Invoke(IShellItemArray* psiItemArray, IBindCtx*
     PathRemoveFileSpecW(szModule);
     std::wstring exePath = std::wstring(szModule) + L"\\Greenshot.exe";
 
+    std::vector<std::wstring> selectedFilePaths;
+    selectedFilePaths.reserve(count);
+
     for (DWORD i = 0; i < count; i++)
     {
         IShellItem* psi;
@@ -191,38 +194,85 @@ IFACEMETHODIMP CExplorerCommand::Invoke(IShellItemArray* psiItemArray, IBindCtx*
             LPWSTR pszName;
             if (SUCCEEDED(psi->GetDisplayName(SIGDN_FILESYSPATH, &pszName)))
             {
-                std::wstring args = L"\"" + EscapeForQuotedCommandLineArgument(exePath) + L"\" \"" + EscapeForQuotedCommandLineArgument(pszName) + L"\"";
-                
-                // CreateProcessW requires a modifiable buffer for the command line
-                std::vector<wchar_t> cmdLine(args.begin(), args.end());
-                cmdLine.push_back(L'\0');
-                
-                WCHAR szDir[MAX_PATH];
-                wcscpy_s(szDir, exePath.c_str());
-                PathRemoveFileSpecW(szDir);
-                
-                STARTUPINFOW si = { sizeof(si) };
-                PROCESS_INFORMATION pi;
-                if (CreateProcessW(
-                    exePath.c_str(),
-                    cmdLine.data(),
-                    NULL,
-                    NULL,
-                    FALSE,
-                    0,
-                    NULL,
-                    szDir,
-                    &si,
-                    &pi))
-                {
-                    CloseHandle(pi.hProcess);
-                    CloseHandle(pi.hThread);
-                }
-
+                selectedFilePaths.emplace_back(pszName);
                 CoTaskMemFree(pszName);
             }
             psi->Release();
         }
+    }
+
+    if (selectedFilePaths.empty())
+    {
+        return S_OK;
+    }
+
+    WCHAR szDir[MAX_PATH];
+    wcscpy_s(szDir, exePath.c_str());
+    PathRemoveFileSpecW(szDir);
+
+    DWORD launchError = ERROR_SUCCESS;
+    auto launchGreenshot = [&](const std::wstring& commandLine) -> bool
+    {
+        std::vector<wchar_t> cmdLine(commandLine.begin(), commandLine.end());
+        cmdLine.push_back(L'\0');
+
+        STARTUPINFOW si = { sizeof(si) };
+        PROCESS_INFORMATION pi;
+        if (CreateProcessW(
+            exePath.c_str(),
+            cmdLine.data(),
+            NULL,
+            NULL,
+            FALSE,
+            0,
+            NULL,
+            szDir,
+            &si,
+            &pi))
+        {
+            CloseHandle(pi.hProcess);
+            CloseHandle(pi.hThread);
+            return true;
+        }
+
+        launchError = GetLastError();
+        return false;
+    };
+
+    std::wstring escapedExePath = EscapeForQuotedCommandLineArgument(exePath);
+    std::wstring baseCommandLine = L"\"" + escapedExePath + L"\"";
+    std::wstring commandLine = baseCommandLine;
+    const size_t maxCommandLineLength = 30000;
+    bool launchFailed = false;
+    for (const auto& selectedPath : selectedFilePaths)
+    {
+        std::wstring escapedPath = EscapeForQuotedCommandLineArgument(selectedPath);
+        std::wstring fileArgument = L" \"" + escapedPath + L"\"";
+
+        if (commandLine.length() + fileArgument.length() > maxCommandLineLength &&
+            commandLine.length() > baseCommandLine.length())
+        {
+            if (!launchGreenshot(commandLine))
+            {
+                launchFailed = true;
+                break;
+            }
+            commandLine = baseCommandLine;
+        }
+
+        commandLine += fileArgument;
+    }
+
+    if (!launchFailed &&
+        commandLine.length() > baseCommandLine.length() &&
+        !launchGreenshot(commandLine))
+    {
+        launchFailed = true;
+    }
+
+    if (launchFailed)
+    {
+        return HRESULT_FROM_WIN32(launchError == ERROR_SUCCESS ? ERROR_GEN_FAILURE : launchError);
     }
 
     return S_OK;
