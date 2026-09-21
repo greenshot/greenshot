@@ -181,7 +181,7 @@
 		<resource name="expertsettings_reuseeditorifpossible">Reutilizar editor se possível</resource>
 		<resource name="expertsettings_suppresssavedialogatclose">Suprimir o diálogo salvar ao fechar o editor</resource>
 		<resource name="expertsettings_thumbnailpreview">Mostrar miniaturas de janelas no menu de contexto (para Vista e windows 7)</resource>
-		<resource name="exported_to">Exportado to: {0}</resource>
+		<resource name="exported_to">Exportado para: {0}</resource>
 		<resource name="exported_to_error">Ocorreu um erro ao exportar para {0}:</resource>
 		<resource name="help_title">Ajuda do Greenshot</resource>
 		<resource name="hotkeys">Teclas de atalho</resource>
