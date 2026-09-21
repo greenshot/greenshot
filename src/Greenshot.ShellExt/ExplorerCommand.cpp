@@ -44,6 +44,48 @@ static std::wstring GetGreenshotInstallDir(HINSTANCE hInst)
     return L"";
 }
 
+#include <shlobj.h>
+
+static void WriteLog(const wchar_t* level, const wchar_t* fmt, va_list args)
+{
+    WCHAR szLocalAppData[MAX_PATH];
+    if (SUCCEEDED(SHGetFolderPathW(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, szLocalAppData)))
+    {
+        std::wstring logDir = std::wstring(szLocalAppData) + L"\\Greenshot";
+        CreateDirectoryW(logDir.c_str(), NULL);
+        std::wstring logPath = logDir + L"\\Greenshot.log";
+
+        FILE* f = NULL;
+        if (_wfopen_s(&f, logPath.c_str(), L"a, ccs=UTF-8") == 0 && f)
+        {
+            SYSTEMTIME st;
+            GetLocalTime(&st);
+            fwprintf(f, L"%04d-%02d-%02d %02d:%02d:%02d,%03d [Greenshot] %s - [Greenshot.ShellExt] ",
+                st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond, st.wMilliseconds, level);
+
+            vfwprintf(f, fmt, args);
+            fwprintf(f, L"\n");
+            fclose(f);
+        }
+    }
+}
+
+static void LogInfo(const wchar_t* fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+    WriteLog(L"INFO ", fmt, args);
+    va_end(args);
+}
+
+static void LogWarn(const wchar_t* fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+    WriteLog(L"WARN ", fmt, args);
+    va_end(args);
+}
+
 static std::wstring EscapeForQuotedCommandLineArgument(const std::wstring& argument)
 {
     std::wstring escaped;
@@ -218,6 +260,8 @@ IFACEMETHODIMP CExplorerCommand::Invoke(IShellItemArray* psiItemArray, IBindCtx*
     std::wstring installDir = GetGreenshotInstallDir(g_hinst);
     std::wstring exePath = installDir + L"\\Greenshot.exe";
 
+    LogInfo(L"Invoke started. InstallDir: '%s', ExePath: '%s', ItemCount: %lu", installDir.c_str(), exePath.c_str(), count);
+
     std::vector<std::wstring> selectedFilePaths;
     selectedFilePaths.reserve(count);
 
@@ -238,16 +282,19 @@ IFACEMETHODIMP CExplorerCommand::Invoke(IShellItemArray* psiItemArray, IBindCtx*
 
     if (selectedFilePaths.empty())
     {
+        LogWarn(L"Invoke: No valid file paths found in selection");
         return S_OK;
     }
 
     WCHAR szDir[MAX_PATH];
     wcscpy_s(szDir, exePath.c_str());
     PathRemoveFileSpecW(szDir);
+    LogInfo(L"Working directory set to: '%s'", szDir);
 
     DWORD launchError = ERROR_SUCCESS;
     auto launchGreenshot = [&](const std::wstring& arguments) -> bool
     {
+        LogInfo(L"Calling ShellExecuteExW with args: %s", arguments.c_str());
         SHELLEXECUTEINFOW sei = { sizeof(sei) };
         sei.fMask = SEE_MASK_NOASYNC | SEE_MASK_FLAG_NO_UI;
         sei.lpVerb = L"open";
@@ -258,10 +305,12 @@ IFACEMETHODIMP CExplorerCommand::Invoke(IShellItemArray* psiItemArray, IBindCtx*
 
         if (ShellExecuteExW(&sei))
         {
+            LogInfo(L"ShellExecuteExW succeeded. Process launched.");
             return true;
         }
 
         launchError = GetLastError();
+        LogWarn(L"ShellExecuteExW failed with error %lu", launchError);
         return false;
     };
 
