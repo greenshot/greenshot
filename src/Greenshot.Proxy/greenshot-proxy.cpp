@@ -1,8 +1,6 @@
 #include <windows.h>
 #include <shobjidl.h>
 #include <shlwapi.h>
-#include <shldisp.h>
-#include <oleauto.h>
 #include <sddl.h>
 #include <string>
 #include <vector>
@@ -115,46 +113,20 @@ void SendFileToGreenshot(const std::wstring& filePath)
             // Greenshot not running (or busy), spawn it
             std::wstring installDir = GetGreenshotInstallDir();
             std::wstring exePath = installDir + L"\\Greenshot.exe";
-            bool launched = false;
-            IShellDispatch2* pShell = NULL;
-            // CLSID_Shell = {13709620-C279-11CE-A49E-444553540000}
-            const GUID clsidShell = { 0x13709620, 0xc279, 0x11ce, { 0xa4, 0x9e, 0x44, 0x45, 0x53, 0x54, 0x00, 0x00 } };
-            // IID_IShellDispatch2 = {a4c6892c-3ba9-11d2-9dea-00c04f8eeadb}
-            const GUID iidShellDispatch2 = { 0xa4c6892c, 0x3ba9, 0x11d2, { 0x9d, 0xea, 0x00, 0xc0, 0x4f, 0x8e, 0xea, 0xdb } };
+            std::wstring explorerArgs = L"\"" + exePath + L"\"";
             
-            HRESULT hr = CoCreateInstance(clsidShell, NULL, CLSCTX_LOCAL_SERVER, iidShellDispatch2, (void**)&pShell);
-            if (SUCCEEDED(hr) && pShell)
+            SHELLEXECUTEINFOW sei = { sizeof(sei) };
+            sei.fMask = SEE_MASK_NOASYNC | SEE_MASK_FLAG_NO_UI;
+            sei.lpVerb = L"open";
+            sei.lpFile = L"explorer.exe";
+            sei.lpParameters = explorerArgs.c_str(); 
+            sei.lpDirectory = installDir.c_str();
+            sei.nShow = SW_SHOWNORMAL;
+            
+            bool launched = false;
+            if (ShellExecuteExW(&sei))
             {
-                VARIANT vFile; VariantInit(&vFile);
-                V_VT(&vFile) = VT_BSTR;
-                V_BSTR(&vFile) = SysAllocString(exePath.c_str());
-                
-                VARIANT vArgs; VariantInit(&vArgs);
-                V_VT(&vArgs) = VT_BSTR;
-                V_BSTR(&vArgs) = SysAllocString(L"");
-                
-                VARIANT vDir; VariantInit(&vDir);
-                V_VT(&vDir) = VT_BSTR;
-                V_BSTR(&vDir) = SysAllocString(installDir.c_str());
-                
-                VARIANT vOp; VariantInit(&vOp);
-                V_VT(&vOp) = VT_BSTR;
-                V_BSTR(&vOp) = SysAllocString(L"open");
-                
-                VARIANT vShow; VariantInit(&vShow);
-                V_VT(&vShow) = VT_I4;
-                V_I4(&vShow) = SW_SHOWNORMAL;
-                
-                if (SUCCEEDED(pShell->ShellExecute(V_BSTR(&vFile), vArgs, vDir, vOp, vShow)))
-                {
-                    launched = true;
-                }
-                
-                VariantClear(&vFile);
-                VariantClear(&vArgs);
-                VariantClear(&vDir);
-                VariantClear(&vOp);
-                pShell->Release();
+                launched = true;
             }
             
             if (launched)
