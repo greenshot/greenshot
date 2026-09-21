@@ -32,11 +32,11 @@ Root: HKA; Subkey: Software\Microsoft\Windows\CurrentVersion\Run; ValueType: str
 Root: HKA; Subkey: Software\Classes\.greenshot; ValueType: string; ValueName: ""; ValueData: "Greenshot"; Flags: uninsdeletevalue noerror
 Root: HKA; Subkey: Software\Classes\Greenshot; ValueType: string; ValueName: ""; ValueData: "Greenshot File"; Flags: uninsdeletevalue noerror
 Root: HKA; Subkey: Software\Classes\Greenshot\DefaultIcon; ValueType: string; ValueName: ""; ValueData: """{app}\Greenshot.EXE,0"""; Flags: uninsdeletevalue noerror
+Root: HKA; Subkey: Software\Classes\Greenshot\shell\open\command; ValueType: string; ValueName: ""; ValueData: """{app}\Greenshot.EXE"" ""%1"""; Flags: uninsdeletevalue noerror
 
 ; Disable the default PRTSCR Snipping Tool in Windows 11
 Root: HKCU; Subkey: Control Panel\Keyboard; ValueType: dword; ValueName: "PrintScreenKeyForSnippingEnabled"; ValueData: "0"; Flags: uninsdeletevalue; Check: ShouldDisableSnippingTool
 
-Root: HKA; Subkey: Software\Classes\Greenshot\shell\open\command; ValueType: string; ValueName: ""; ValueData: """{app}\Greenshot.EXE"" ""%1"""; Flags: uninsdeletevalue noerror
 ; "Edit with Greenshot" context menu for image files (legacy / "Show more options" on Win11)
 Root: HKA; Subkey: Software\Classes\SystemFileAssociations\image\shell\Greenshot.Edit; ValueType: string; ValueName: ""; ValueData: "{cm:shellext_edit}"; Flags: uninsdeletekey noerror; Tasks: shellext; Check: ShouldInstallLegacyShellExt
 Root: HKA; Subkey: Software\Classes\SystemFileAssociations\image\shell\Greenshot.Edit; ValueType: string; ValueName: "Icon"; ValueData: """{app}\Greenshot.EXE"",0"; Flags: uninsdeletevalue noerror; Tasks: shellext; Check: ShouldInstallLegacyShellExt
@@ -88,10 +88,6 @@ en.shellext=Add "Edit with Greenshot" to Explorer context menu
 en.shellext_edit=Edit with Greenshot
 en.shellext_legacyfallback= (Legacy only)
 en.shellext_registering=Registering shell extension...
-shellext=Add "Edit with Greenshot" to Explorer context menu
-shellext_edit=Edit with Greenshot
-shellext_legacyfallback= (Legacy only)
-shellext_registering=Registering shell extension...
 
 de.default=Standard installation
 de.startgreenshot={#ExeName} starten
