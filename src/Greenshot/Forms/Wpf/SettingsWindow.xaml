@@ -6,10 +6,10 @@
         xmlns:forms="clr-namespace:Greenshot.Forms.Wpf"
         Title="{wpf:Translate settings_title}"
         Icon="{Binding WindowIcon}"
-        Width="820" Height="820"
+        Width="750" Height="600"
         WindowStartupLocation="CenterScreen"
         ResizeMode="CanResizeWithGrip"
-        MinWidth="750" MinHeight="550"
+        MinWidth="700" MinHeight="450"
         Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BackgroundBrush}"
         WindowStyle="None"
         AllowsTransparency="False">
@@ -1100,12 +1100,12 @@
                     HorizontalAlignment="Right" 
                     Margin="0,10,0,0">
             <Button Content="{wpf:Translate OK}" 
-                    Width="75" 
+                    MinWidth="75" 
                     Margin="5,0"
                     IsDefault="True"
                     Click="OkButton_Click"/>
             <Button Content="{wpf:Translate CANCEL}" 
-                    Width="75"
+                    MinWidth="75"
                     Margin="5,0"
                     IsCancel="True"
                     Click="CancelButton_Click"/>
