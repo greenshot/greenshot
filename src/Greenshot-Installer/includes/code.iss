@@ -90,22 +90,20 @@ begin
 end;
 
 /////////////////////////////////////////////////////////////////////
-// Restart manager support. This is needed to restart Greenshot after installation, if it was running when the installer was launched.
+// Restart manager support. This is needed to avoid launching a duplicate
+// Greenshot instance when the Restart Manager already handles restart.
+// When CloseApplications=yes and RestartApplications=yes (setup-header.iss),
+// the RM will close Greenshot before installation and restart it afterwards.
+// In that case, the "Start Greenshot" [Run] entry must be skipped.
 /////////////////////////////////////////////////////////////////////
-var
-  AppWasRestarted: Boolean;
-
-procedure UR_RestartManagerRestarted;
-begin
-  // This is a special internal callback. 
-  // It fires if the Restart Manager actually restarts the app.
-  AppWasRestarted := True;
-end;
-
 function NotAlreadyRestarted: Boolean;
 begin
-  // If AppWasRestarted is True, we return False to skip the [Run] entry.
-  Result := not AppWasRestarted;
+  // RmSessionStarted is a built-in Inno Setup function that returns True
+  // if a Restart Manager session was started during this installation,
+  // meaning Greenshot was running and was closed by the RM.
+  // With RestartApplications=yes, the RM will automatically relaunch it
+  // after installation completes, so skip the manual launch.
+  Result := not RmSessionStarted;
 end;
 
 var
