@@ -33,5 +33,5 @@ Source: {#LanguagesDir}\*en-US*; Excludes: "*installer*,*website*"; DestDir: {ap
 Source: {#LanguagesDir}\*de-DE*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: greenshot; Flags: {#DefaultInstallFlags};
 
 [Components]
-Name: "greenshot"; Description: "Greenshot"; Types: default full compact custom; Flags: fixed
 Name: "disablesnippingtool"; Description: {cm:disablewin11snippingtool}; Flags: disablenouninstallwarning; Types: default full custom
+Name: "greenshot"; Description: "Greenshot"; Types: default full compact custom; Flags: fixed

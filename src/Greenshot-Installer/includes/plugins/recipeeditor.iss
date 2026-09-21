@@ -9,3 +9,4 @@ Source: {#PluginDir}\Greenshot.Plugin.RecipeEditor\Nodify.dll; DestDir: {app}\Pl
 recipeeditor=Recipe Editor plug-in
 en.recipeeditor=Recipe Editor plug-in
 de.recipeeditor=Rezept-Editor Plug-in
+ptBR.recipeeditor=Plug-in do Recipe Editor
