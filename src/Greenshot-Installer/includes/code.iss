@@ -98,12 +98,11 @@ end;
 /////////////////////////////////////////////////////////////////////
 function NotAlreadyRestarted: Boolean;
 begin
-  // RmSessionStarted is a built-in Inno Setup function that returns True
-  // if a Restart Manager session was started during this installation,
-  // meaning Greenshot was running and was closed by the RM.
-  // With RestartApplications=yes, the RM will automatically relaunch it
-  // after installation completes, so skip the manual launch.
-  Result := not RmSessionStarted;
+  // Only skip the "Start Greenshot" option if Greenshot itself is actually running.
+  // Using RmSessionStarted incorrectly skips the launch even on fresh installs,
+  // because Inno Setup starts a Restart Manager session (making it True) just
+  // to check for locked files, regardless of whether any files were actually in use.
+  Result := not CheckForMutexes('F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08,Global\F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08,Local\F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08');
 end;
 
 var
