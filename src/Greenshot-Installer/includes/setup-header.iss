@@ -7,6 +7,7 @@ ChangesAssociations=yes
 CloseApplications=yes
 RestartApplications=yes
 AppId=Greenshot
+AppMutex=F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08
 AppName={#AppDisplayName}
 AppPublisher={#ExeName}
 AppPublisherURL=https://getgreenshot.org

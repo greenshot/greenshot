@@ -1,8 +1,8 @@
 [Components]
-Name: "plugins\office"; Description: {cm:office}; Types: default full custom; Flags: disablenouninstallwarning
+Name: "greenshot\office"; Description: {cm:office}; Types: default full custom; Flags: disablenouninstallwarning
 
 [Files]
-Source: {#PluginDir}\Greenshot.Plugin.Office\Greenshot.Plugin.Office.dll; DestDir: {app}\Plugins\Office; Components: plugins\office; Flags: {#DefaultInstallFlags};
+Source: {#PluginDir}\Greenshot.Plugin.Office\Greenshot.Plugin.Office.dll; DestDir: {app}\Plugins\Office; Components: greenshot\office; Flags: {#DefaultInstallFlags};
 
 [CustomMessages]
 office=Microsoft Office plug-in
