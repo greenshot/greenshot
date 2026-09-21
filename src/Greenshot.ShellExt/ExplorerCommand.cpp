@@ -246,27 +246,18 @@ IFACEMETHODIMP CExplorerCommand::Invoke(IShellItemArray* psiItemArray, IBindCtx*
     PathRemoveFileSpecW(szDir);
 
     DWORD launchError = ERROR_SUCCESS;
-    auto launchGreenshot = [&](const std::wstring& commandLine) -> bool
+    auto launchGreenshot = [&](const std::wstring& arguments) -> bool
     {
-        std::vector<wchar_t> cmdLine(commandLine.begin(), commandLine.end());
-        cmdLine.push_back(L'\0');
+        SHELLEXECUTEINFOW sei = { sizeof(sei) };
+        sei.fMask = SEE_MASK_NOASYNC | SEE_MASK_FLAG_NO_UI;
+        sei.lpVerb = L"open";
+        sei.lpFile = exePath.c_str();
+        sei.lpParameters = arguments.c_str();
+        sei.lpDirectory = szDir;
+        sei.nShow = SW_SHOWNORMAL;
 
-        STARTUPINFOW si = { sizeof(si) };
-        PROCESS_INFORMATION pi;
-        if (CreateProcessW(
-            exePath.c_str(),
-            cmdLine.data(),
-            NULL,
-            NULL,
-            FALSE,
-            0,
-            NULL,
-            szDir,
-            &si,
-            &pi))
+        if (ShellExecuteExW(&sei))
         {
-            CloseHandle(pi.hProcess);
-            CloseHandle(pi.hThread);
             return true;
         }
 
@@ -274,33 +265,31 @@ IFACEMETHODIMP CExplorerCommand::Invoke(IShellItemArray* psiItemArray, IBindCtx*
         return false;
     };
 
-    std::wstring escapedExePath = EscapeForQuotedCommandLineArgument(exePath);
-    std::wstring baseCommandLine = L"\"" + escapedExePath + L"\"";
-    std::wstring commandLine = baseCommandLine;
+    std::wstring arguments = L"";
     const size_t maxCommandLineLength = 30000;
     bool launchFailed = false;
     for (const auto& selectedPath : selectedFilePaths)
     {
         std::wstring escapedPath = EscapeForQuotedCommandLineArgument(selectedPath);
-        std::wstring fileArgument = L" \"" + escapedPath + L"\"";
+        std::wstring fileArgument = L"\"" + escapedPath + L"\" ";
 
-        if (commandLine.length() + fileArgument.length() > maxCommandLineLength &&
-            commandLine.length() > baseCommandLine.length())
+        if (arguments.length() + fileArgument.length() > maxCommandLineLength &&
+            arguments.length() > 0)
         {
-            if (!launchGreenshot(commandLine))
+            if (!launchGreenshot(arguments))
             {
                 launchFailed = true;
                 break;
             }
-            commandLine = baseCommandLine;
+            arguments = L"";
         }
 
-        commandLine += fileArgument;
+        arguments += fileArgument;
     }
 
     if (!launchFailed &&
-        commandLine.length() > baseCommandLine.length() &&
-        !launchGreenshot(commandLine))
+        arguments.length() > 0 &&
+        !launchGreenshot(arguments))
     {
         launchFailed = true;
     }
