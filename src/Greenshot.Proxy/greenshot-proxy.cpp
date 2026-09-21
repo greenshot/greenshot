@@ -304,13 +304,22 @@ public:
     }
     IFACEMETHODIMP LockServer(BOOL fLock)
     {
-        if (fLock) InterlockedIncrement(&g_cRefModule);
-        else InterlockedDecrement(&g_cRefModule);
+        if (fLock)
+        {
+            InterlockedIncrement(&g_cRefModule);
+        }
+        else
+        {
+            if (InterlockedDecrement(&g_cRefModule) == 0 && g_hEventQuit)
+            {
+                SetEvent(g_hEventQuit);
+            }
+        }
         return S_OK;
     }
-    CClassFactory() : _cRef(1) { InterlockedIncrement(&g_cRefModule); }
+    CClassFactory() : _cRef(1) { }
 private:
-    ~CClassFactory() { InterlockedDecrement(&g_cRefModule); }
+    ~CClassFactory() { }
     long _cRef;
 };
 
