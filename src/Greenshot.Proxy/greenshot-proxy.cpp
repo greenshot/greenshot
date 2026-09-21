@@ -113,12 +113,13 @@ void SendFileToGreenshot(const std::wstring& filePath)
             // Greenshot not running (or busy), spawn it
             std::wstring installDir = GetGreenshotInstallDir();
             std::wstring exePath = installDir + L"\\Greenshot.exe";
+            std::wstring explorerArgs = L"\"" + exePath + L"\"";
             
             SHELLEXECUTEINFOW sei = { sizeof(sei) };
             sei.fMask = SEE_MASK_NOASYNC | SEE_MASK_FLAG_NO_UI;
             sei.lpVerb = L"open";
-            sei.lpFile = exePath.c_str();
-            sei.lpParameters = L""; // Start without args, we will send via pipe
+            sei.lpFile = L"explorer.exe";
+            sei.lpParameters = explorerArgs.c_str(); 
             sei.lpDirectory = installDir.c_str();
             sei.nShow = SW_SHOWNORMAL;
             
