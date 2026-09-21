@@ -5,6 +5,45 @@
 
 extern long g_cRefModule;
 
+static std::wstring GetGreenshotInstallDir(HINSTANCE hInst)
+{
+    // Try reading from Inno Setup's uninstall registry key (HKCU first, then HKLM)
+    HKEY hKey = NULL;
+    const wchar_t* subkey = L"Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Greenshot_is1";
+
+    HKEY roots[] = { HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE };
+    for (HKEY root : roots)
+    {
+        if (RegOpenKeyExW(root, subkey, 0, KEY_READ, &hKey) == ERROR_SUCCESS)
+        {
+            WCHAR szPath[MAX_PATH];
+            DWORD cbData = sizeof(szPath);
+            DWORD dwType = 0;
+            if (RegQueryValueExW(hKey, L"InstallLocation", NULL, &dwType, (LPBYTE)szPath, &cbData) == ERROR_SUCCESS
+                && dwType == REG_SZ && cbData > sizeof(WCHAR))
+            {
+                RegCloseKey(hKey);
+                std::wstring path(szPath);
+                // Remove trailing backslash if present
+                while (!path.empty() && path.back() == L'\\')
+                    path.pop_back();
+                return path;
+            }
+            RegCloseKey(hKey);
+        }
+    }
+
+    // Fallback: derive from the DLL's own module path
+    WCHAR szModule[MAX_PATH];
+    if (GetModuleFileNameW(hInst, szModule, MAX_PATH))
+    {
+        PathRemoveFileSpecW(szModule);
+        return std::wstring(szModule);
+    }
+
+    return L"";
+}
+
 static std::wstring EscapeForQuotedCommandLineArgument(const std::wstring& argument)
 {
     std::wstring escaped;
@@ -91,12 +130,12 @@ IFACEMETHODIMP CExplorerCommand::GetTitle(IShellItemArray* psiItemArray, LPWSTR*
         WCHAR szModule[MAX_PATH];
         if (GetModuleFileNameW(g_hinst, szModule, MAX_PATH))
         {
-            PathRemoveFileSpecW(szModule);
+            std::wstring installDir = GetGreenshotInstallDir(g_hinst);
             
             WCHAR szLocale[LOCALE_NAME_MAX_LENGTH];
             if (GetUserDefaultLocaleName(szLocale, LOCALE_NAME_MAX_LENGTH))
             {
-                std::wstring langFile = std::wstring(szModule) + L"\\Languages\\language-" + szLocale + L".xml";
+                std::wstring langFile = installDir + L"\\Languages\\language-" + szLocale + L".xml";
                 
                 // If specific locale file doesn't exist, try language only (e.g. pt-BR -> pt)
                 if (GetFileAttributesW(langFile.c_str()) == INVALID_FILE_ATTRIBUTES)
@@ -105,14 +144,14 @@ IFACEMETHODIMP CExplorerCommand::GetTitle(IShellItemArray* psiItemArray, LPWSTR*
                     size_t dash = localeStr.find(L'-');
                     if (dash != std::wstring::npos)
                     {
-                        langFile = std::wstring(szModule) + L"\\Languages\\language-" + localeStr.substr(0, dash) + L".xml";
+                        langFile = installDir + L"\\Languages\\language-" + localeStr.substr(0, dash) + L".xml";
                     }
                 }
                 
                 // If still doesn't exist, try en-US
                 if (GetFileAttributesW(langFile.c_str()) == INVALID_FILE_ATTRIBUTES)
                 {
-                    langFile = std::wstring(szModule) + L"\\Languages\\language-en-US.xml";
+                    langFile = installDir + L"\\Languages\\language-en-US.xml";
                 }
 
                 FILE* f = NULL;
@@ -145,10 +184,8 @@ IFACEMETHODIMP CExplorerCommand::GetTitle(IShellItemArray* psiItemArray, LPWSTR*
 
 IFACEMETHODIMP CExplorerCommand::GetIcon(IShellItemArray* psiItemArray, LPWSTR* ppszIcon)
 {
-    WCHAR szModule[MAX_PATH];
-    GetModuleFileNameW(g_hinst, szModule, MAX_PATH);
-    PathRemoveFileSpecW(szModule);
-    std::wstring path = std::wstring(szModule) + L"\\Greenshot.exe,0";
+    std::wstring installDir = GetGreenshotInstallDir(g_hinst);
+    std::wstring path = installDir + L"\\Greenshot.exe,0";
 
     return SHStrDupW(path.c_str(), ppszIcon);
 }
@@ -178,10 +215,8 @@ IFACEMETHODIMP CExplorerCommand::Invoke(IShellItemArray* psiItemArray, IBindCtx*
     DWORD count;
     psiItemArray->GetCount(&count);
 
-    WCHAR szModule[MAX_PATH];
-    GetModuleFileNameW(g_hinst, szModule, MAX_PATH);
-    PathRemoveFileSpecW(szModule);
-    std::wstring exePath = std::wstring(szModule) + L"\\Greenshot.exe";
+    std::wstring installDir = GetGreenshotInstallDir(g_hinst);
+    std::wstring exePath = installDir + L"\\Greenshot.exe";
 
     std::vector<std::wstring> selectedFilePaths;
     selectedFilePaths.reserve(count);
