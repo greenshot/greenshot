@@ -56,7 +56,7 @@
 		<resource name="contextmenu_capturelastregion">Capturar a última região</resource>
 		<resource name="contextmenu_capturewindow">Capturar tela</resource>
 		<resource name="contextmenu_capturewindowfromlist">Capturar janela da lista</resource>
-		<resource name="contextmenu_donate">Suporte o Greenshot</resource>
+		<resource name="contextmenu_donate">Suporte do Greenshot</resource>
 		<resource name="contextmenu_exit">Sair</resource>
 		<resource name="contextmenu_help">Ajuda</resource>
 		<resource name="contextmenu_importrecipe">Importar receita...</resource>
@@ -118,7 +118,6 @@
 		<resource name="editor_italic">Itálico</resource>
 		<resource name="editor_load_objects">Carregar objetos de arquivo...</resource>
 		<resource name="editor_magnification_factor">Fator de ampliação</resource>
-		<resource name="editor_match_capture_size">Corresponder ao tamanho da captura</resource>
 		<resource name="editor_obfuscate">Obscurecer (O)</resource>
 		<resource name="editor_obfuscate_blur">Desfocar</resource>
 		<resource name="editor_obfuscate_mode">Modo de obscurecimento</resource>
@@ -181,7 +180,7 @@
 		<resource name="expertsettings_reuseeditorifpossible">Reutilizar editor se possível</resource>
 		<resource name="expertsettings_suppresssavedialogatclose">Suprimir o diálogo salvar ao fechar o editor</resource>
 		<resource name="expertsettings_thumbnailpreview">Mostrar miniaturas de janelas no menu de contexto (para Vista e windows 7)</resource>
-		<resource name="exported_to">Exportado para: {0}</resource>
+		<resource name="exported_to">Exportado to: {0}</resource>
 		<resource name="exported_to_error">Ocorreu um erro ao exportar para {0}:</resource>
 		<resource name="help_title">Ajuda do Greenshot</resource>
 		<resource name="hotkeys">Teclas de atalho</resource>
@@ -216,7 +215,7 @@
 		<resource name="settings_capture">Captura</resource>
 		<resource name="settings_capture_mousepointer">Capturar também o cursor do mouse</resource>
 		<resource name="settings_capture_windows_interactive">Usar modo interativo</resource>
-		<resource name="settings_checkperiod">Intervalo de verificação de atualização em dias (0=sem verificar)</resource>
+		<resource name="settings_checkperiod">intervalo de verificação de atualização em dias (0=sem verificar)</resource>
 		<resource name="settings_configureplugin">Configurar</resource>
 		<resource name="settings_copypathtoclipboard">Copiar o caminho completo do arquivo para a Área de transferência</resource>
 		<resource name="settings_destination">Destino da tela capturada</resource>
