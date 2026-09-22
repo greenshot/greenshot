@@ -144,11 +144,19 @@ namespace Greenshot.Editor.Forms
             // must always be image-size * zoom-factor in device pixels, independent of monitor DPI. Redo
             // the adjustment once that scaling has completed, so the canvas ends up at its correct size
             // instead of being left clipped.
-            BeginInvoke(new MethodInvoker(() =>
-            {
-                _surface?.AdjustToDpi(newDpi);
-                AlignCanvasPositionAfterResize();
-            }));
+if (!IsDisposed && !Disposing && IsHandleCreated)
+{
+    BeginInvoke(new MethodInvoker(() =>
+    {
+        if (IsDisposed || Disposing || _surface?.Image == null)
+        {
+            return;
+        }
+
+        _surface.AdjustToDpi(DeviceDpi);
+        AlignCanvasPositionAfterResize();
+    }));
+}
 
             UpdateUi();
         }
