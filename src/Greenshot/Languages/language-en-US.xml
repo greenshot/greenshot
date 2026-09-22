@@ -251,6 +251,7 @@ Please check write accessibility of the selected storage location.</resource>
 		<resource name="settings_capture">Capture</resource>
 		<resource name="settings_capture_mousepointer">Capture mousepointer</resource>
 		<resource name="settings_capture_windows_interactive">Use interactive window capture mode</resource>
+		<resource name="settings_capture_windowsgraphicscapture">Use Windows Graphics Capture for screen and window capture</resource>
 		<resource name="settings_checkperiod">Update check interval in days (0=no check)</resource>
 		<resource name="settings_configureplugin">Configure</resource>
 		<resource name="settings_copypathtoclipboard">Copy file path to clipboard every time an image is saved</resource>

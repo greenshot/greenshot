@@ -629,7 +629,10 @@
                                           IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=ShowTrayNotification}"/>
                                 <CheckBox Content="{wpf:Translate settings_zoom}"
                                           IsChecked="{Binding CoreConfiguration.ZoomerEnabled, Mode=TwoWay}"
-                                          IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=ZoomerEnabled}"/>
+                                           IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=ZoomerEnabled}"/>
+                                <CheckBox Content="{wpf:Translate settings_capture_windowsgraphicscapture}"
+                                          IsChecked="{Binding CoreConfiguration.UseWindowsGraphicsCapture, Mode=TwoWay}"
+                                          IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=UseWindowsGraphicsCapture}"/>
                                 
                                 <Grid Margin="0,5">
                                     <Grid.ColumnDefinitions>
