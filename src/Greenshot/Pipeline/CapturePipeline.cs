@@ -161,11 +161,11 @@ namespace Greenshot.Pipeline
                 Log.InfoFormat("Starting DAG capture flow: '{0}' ({1} node(s))", recipe.Name, nodeCount);
                 context.LogStep($"Starting DAG flow '{recipe.Name}' with {nodeCount} configured node(s)");
 
-                // WindowsGraphicsCapture beta tester hook
-                if (CoreConfig.IsBetaTester)
-                {
-                    CaptureHandler.CaptureScreenRectangle = WindowsGraphicsCaptureInterop.CaptureRectangle;
-                }
+                 // WindowsGraphicsCapture hook: only use WGC when the user enabled it.
+                 // Always (re)set the handler so toggling the setting takes effect without a restart.
+                 CaptureHandler.CaptureScreenRectangle = CoreConfig.UseWindowsGraphicsCapture
+                     ? WindowsGraphicsCaptureInterop.CaptureRectangle
+                     : null;
 
                 await _dagEngine.ExecuteAsync(recipe, context, cancellationToken).ConfigureAwait(false);
 

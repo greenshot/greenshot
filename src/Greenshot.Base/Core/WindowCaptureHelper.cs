@@ -41,7 +41,7 @@ namespace Greenshot.Base.Core
         private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
 
         /// <summary>
-        /// Optional custom window capture handler (e.g. for Windows Graphics Capture when beta tester mode is enabled).
+        /// Optional custom window capture handler (used for Windows Graphics Capture when the user enabled it).
         /// </summary>
         public static Func<IntPtr, Image> CustomWindowCaptureHandler { get; set; }
 
@@ -104,7 +104,7 @@ namespace Greenshot.Base.Core
                 captureForWindow = new Capture();
             }
 
-            if (CustomWindowCaptureHandler != null && CoreConfig.IsBetaTester)
+            if (CustomWindowCaptureHandler != null && CoreConfig.UseWindowsGraphicsCapture)
             {
                 try
                 {
