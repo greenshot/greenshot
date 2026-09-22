@@ -26,11 +26,12 @@ using System.Drawing.Imaging;
 namespace Greenshot.Native;
 
 /// <summary>
-/// CPU-based fallback tone mapper for converting FP16 HDR textures to 8-bit SDR bitmaps.
+/// CPU-based tone mapper for converting FP16 HDR textures to 8-bit SDR bitmaps.
 /// </summary>
 /// <remarks>
-/// This is the fallback path used when GPU (Direct2D) tone mapping fails.
-/// Applies white-level normalization, simple Reinhard tone mapping, and gamma 2.2 encoding.
+/// Normalizes scRGB linear values using the display's SDR white level, preserves standard
+/// SDR content at 1:1 luminance, smoothly rolls off HDR highlights > 1.0, and applies
+/// the standard IEC 61966-2-1 sRGB transfer function.
 /// </remarks>
 internal static class HdrCpuToneMapper
 {
@@ -83,35 +84,36 @@ internal static class HdrCpuToneMapper
                         b /= a;
                     }
 
-                    // Normalize by SDR white level
+                    // Normalize by SDR white level so standard SDR desktop UI sits at 1.0
                     r *= invScale;
                     g *= invScale;
                     b *= invScale;
 
-                    // Clamp negative values (out-of-gamut)
+                    // Clamp out-of-gamut negative values
                     r = Math.Max(r, 0f);
                     g = Math.Max(g, 0f);
                     b = Math.Max(b, 0f);
 
-                    // Simple Reinhard tone mapping: v / (1 + v)
-                    // Compresses the entire HDR range into [0, 1)
-                    r = r / (1.0f + r);
-                    g = g / (1.0f + g);
-                    b = b / (1.0f + b);
+                    // Tone-map with SDR-preservation:
+                    // Values <= 1.0 remain strictly untouched so standard SDR UI white = 255.
+                    // Values > 1.0 (HDR specular highlights) compress smoothly without clipping.
+                    r = r <= 1.0f ? r : 1.0f + (r - 1.0f) / (1.0f + (r - 1.0f));
+                    g = g <= 1.0f ? g : 1.0f + (g - 1.0f) / (1.0f + (g - 1.0f));
+                    b = b <= 1.0f ? b : 1.0f + (b - 1.0f) / (1.0f + (b - 1.0f));
 
-                    // Gamma 2.2 encoding
-                    r = (float)Math.Pow(r, 1.0 / 2.2);
-                    g = (float)Math.Pow(g, 1.0 / 2.2);
-                    b = (float)Math.Pow(b, 1.0 / 2.2);
+                    // Encode from linear space to standard sRGB display gamma
+                    r = LinearToSrgb(Math.Min(r, 1.0f));
+                    g = LinearToSrgb(Math.Min(g, 1.0f));
+                    b = LinearToSrgb(Math.Min(b, 1.0f));
 
                     // Clamp alpha to [0, 1]
                     a = Math.Min(Math.Max(a, 0f), 1f);
 
                     // Write as BGRA (Format32bppArgb stores pixels as BGRA in memory)
-                    dst[0] = (byte)(Math.Min(b, 1f) * 255f + 0.5f); // B
-                    dst[1] = (byte)(Math.Min(g, 1f) * 255f + 0.5f); // G
-                    dst[2] = (byte)(Math.Min(r, 1f) * 255f + 0.5f); // R
-                    dst[3] = (byte)(a * 255f + 0.5f);               // A
+                    dst[0] = (byte)(b * 255f + 0.5f); // B
+                    dst[1] = (byte)(g * 255f + 0.5f); // G
+                    dst[2] = (byte)(r * 255f + 0.5f); // R
+                    dst[3] = (byte)(a * 255f + 0.5f); // A
 
                     src += 4; // Next pixel (4 half-floats = 8 bytes)
                     dst += 4; // Next pixel (4 bytes)
@@ -130,5 +132,16 @@ internal static class HdrCpuToneMapper
 
         bitmap.UnlockBits(bmpData);
         return bitmap;
+    }
+
+    /// <summary>
+    /// Converts a linear color channel value in [0, 1] to sRGB gamma space
+    /// using the standard IEC 61966-2-1 transfer function.
+    /// </summary>
+    private static float LinearToSrgb(float c)
+    {
+        return c <= 0.0031308f
+            ? c * 12.92f
+            : 1.055f * (float)Math.Pow(c, 1.0 / 2.4) - 0.055f;
     }
 }

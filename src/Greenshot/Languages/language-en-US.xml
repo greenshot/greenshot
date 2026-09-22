@@ -199,7 +199,7 @@ Please check write accessibility of the selected storage location.</resource>
 		<resource name="error_openfile">The file "{0}" could not be opened.</resource>
 		<resource name="error_openlink">Could not open link '{0}'.</resource>
 		<resource name="error_save">Could not save screenshot, please find a suitable location.</resource>
-    <resource name="error_save_invalid_chars">The generated filename or directory name is not valid. Please fix the filename pattern and then try again.</resource>
+        <resource name="error_save_invalid_chars">The generated filename or directory name is not valid. Please fix the filename pattern and then try again.</resource>
 		<resource name="expertsettings">Expert</resource>
 		<resource name="expertsettings_autoreducecolors">Create an 8-bit image if the colors are less than 256 while having a &gt; 8 bits image</resource>
 		<resource name="expertsettings_betatester">Enable to enable beta-test features.</resource>
@@ -225,14 +225,14 @@ Please check write accessibility of the selected storage location.</resource>
 		<resource name="printoptions_allowenlarge">Enlarge printout to fit paper size</resource>
 		<resource name="printoptions_allowrotate">Rotate printout to page orientation</resource>
 		<resource name="printoptions_allowshrink">Shrink printout to fit paper size</resource>
-    <resource name="printoptions_colors">Color settings</resource>
-    <resource name="printoptions_dontaskagain">Save options as default and do not ask again</resource>
+        <resource name="printoptions_colors">Color settings</resource>
+        <resource name="printoptions_dontaskagain">Save options as default and do not ask again</resource>
 		<resource name="printoptions_inverted">Print with inverted colors</resource>
-    <resource name="printoptions_layout">Page layout settings</resource>
-    <resource name="printoptions_printcolor">Full color print</resource>
-    <resource name="printoptions_printgrayscale">Force grayscale printing</resource>
-    <resource name="printoptions_printmonochrome">Force black/white printing</resource>
-    <resource name="printoptions_timestamp">Print date / time at bottom of page</resource>
+        <resource name="printoptions_layout">Page layout settings</resource>
+        <resource name="printoptions_printcolor">Full color print</resource>
+        <resource name="printoptions_printgrayscale">Force grayscale printing</resource>
+        <resource name="printoptions_printmonochrome">Force black/white printing</resource>
+        <resource name="printoptions_timestamp">Print date / time at bottom of page</resource>
 		<resource name="printoptions_title">Greenshot print options</resource>
 		<resource name="qualitydialog_dontaskagain">Save as default quality and do not ask again</resource>
 		<resource name="qualitydialog_title">Greenshot quality</resource>
@@ -251,7 +251,7 @@ Please check write accessibility of the selected storage location.</resource>
 		<resource name="settings_capture">Capture</resource>
 		<resource name="settings_capture_mousepointer">Capture mousepointer</resource>
 		<resource name="settings_capture_windows_interactive">Use interactive window capture mode</resource>
-		<resource name="settings_capture_windowsgraphicscapture">Use Windows Graphics Capture for screen and window capture</resource>
+		<resource name="settings_capture_windowsgraphicscapture">Experimental: Use Windows Graphics Capture for screen and window capture</resource>
 		<resource name="settings_checkperiod">Update check interval in days (0=no check)</resource>
 		<resource name="settings_configureplugin">Configure</resource>
 		<resource name="settings_copypathtoclipboard">Copy file path to clipboard every time an image is saved</resource>
@@ -270,25 +270,25 @@ Please check write accessibility of the selected storage location.</resource>
 		<resource name="settings_jpegquality">JPEG quality</resource>
 		<resource name="settings_language">Language</resource>
 		<resource name="settings_message_filenamepattern">The following placeholders will be replaced automatically in the pattern defined:
-${YYYY} year, 4 digits
-${MM} month, 2 digits
-${DD} day, 2 digits
-${hh} hour, 2 digits
-${mm} minute, 2 digits
-${ss} second, 2 digits
-${NUM} incrementing number, 6 digits by default
-${NUM:p-2,0} incrementing number, 2 digits with leading zeros (01, 02, 03)
-${RRR...} random alphanumerics, same length as 'R's
-${title} Window title
-${user} Windows user
-${domain} Windows domain
-${hostname} PC name
+    ${YYYY} year, 4 digits
+    ${MM} month, 2 digits
+    ${DD} day, 2 digits
+    ${hh} hour, 2 digits
+    ${mm} minute, 2 digits
+    ${ss} second, 2 digits
+    ${NUM} incrementing number, 6 digits by default
+    ${NUM:p-2,0} incrementing number, 2 digits with leading zeros (01, 02, 03)
+    ${RRR...} random alphanumerics, same length as 'R's
+    ${title} Window title
+    ${user} Windows user
+    ${domain} Windows domain
+    ${hostname} PC name
 
-You can also have Greenshot create directories dynamically, simply use the backslash symbol (\) to separate folders and filename.
-To reset the ${NUM} counter, change its value in Expert settings.
-Example: the pattern ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
-will generate a folder for the current day in your default storage location, e.g. 2008-06-29, the contained screenshot file's name will be based on the current
-time, e.g. 11_58_32 (plus extension defined in the settings)</resource>
+    You can also have Greenshot create directories dynamically, simply use the backslash symbol (\) to separate folders and filename.
+    To reset the ${NUM} counter, change its value in Expert settings.
+    Example: the pattern ${YYYY}-${MM}-${DD}\${hh}-${mm}-${ss}
+    will generate a folder for the current day in your default storage location, e.g. 2008-06-29, the contained screenshot file's name will be based on the current
+    time, e.g. 11_58_32 (plus extension defined in the settings)</resource>
 		<resource name="settings_network">Network and updates</resource>
 		<resource name="settings_output">Output</resource>
 		<resource name="settings_playsound">Play camera sound</resource>
@@ -316,7 +316,7 @@ time, e.g. 11_58_32 (plus extension defined in the settings)</resource>
 		<resource name="settings_tooltip_storagelocation">Location where screenshots are stored by default (leave empty for saving to your desktop)</resource>
 		<resource name="settings_storagelocation_folder_error">The folder browser could not be opened.
 
-The storage location has been set to your Documents folder. You can type a different path directly into the box if needed.</resource>
+    The storage location has been set to your Documents folder. You can type a different path directly into the box if needed.</resource>
 		<resource name="settings_storagelocation_folder_error_title">Storage Location</resource>
 		<resource name="settings_usedefaultproxy">Use default system proxy</resource>
 		<resource name="settings_visualization">Effects</resource>
@@ -328,41 +328,40 @@ The storage location has been set to your Documents folder. You can type a diffe
 		<resource name="warning">Warning</resource>
 		<resource name="warning_hotkeys">The hotkey(s) "{0}" could not be registered. This problem is probably caused by another tool{1} claiming usage of the same hotkey(s)! You could either change your hotkey settings or deactivate/change the software making use of the hotkey(s).
 
-All Greenshot features still work directly from the tray icon context menu without hotkeys.</resource>
+    All Greenshot features still work directly from the tray icon context menu without hotkeys.</resource>
 		<resource name="WindowCaptureMode.Aero">Use custom color</resource>
 		<resource name="WindowCaptureMode.AeroTransparent">Preserve transparency</resource>
 		<resource name="WindowCaptureMode.Auto">Automatically</resource>
 		<resource name="WindowCaptureMode.GDI">Use default color</resource>
 		<resource name="WindowCaptureMode.Screen">As displayed</resource>
 
-    <!-- 1.2 -->
-    <resource name="editor_dropshadow_darkness">Shadow darkness</resource>
-    <resource name="editor_dropshadow_offset">Shadow offset</resource>
-    <resource name="editor_dropshadow_settings">Dropshadow settings</resource>
-    <resource name="editor_dropshadow_thickness">Shadow thickness</resource>
+        <!-- 1.2 -->
+        <resource name="editor_dropshadow_darkness">Shadow darkness</resource>
+        <resource name="editor_dropshadow_offset">Shadow offset</resource>
+        <resource name="editor_dropshadow_settings">Dropshadow settings</resource>
+        <resource name="editor_dropshadow_thickness">Shadow thickness</resource>
 
-    <resource name="editor_tornedge_horizontaltoothrange">Horizontal tooth range</resource>
-    <resource name="editor_tornedge_settings">Torn edges settings</resource>
-    <resource name="editor_tornedge_toothsize">Tooth size</resource>
-    <resource name="editor_tornedge_verticaltoothrange">Vertical tooth range</resource>
-    <resource name="editor_tornedge_all">Tear all sides</resource>
-    <resource name="editor_tornedge_left">Left side</resource>
-    <resource name="editor_tornedge_right">Right side</resource>
-    <resource name="editor_tornedge_top">Top side</resource>
-    <resource name="editor_tornedge_bottom">Bottom side</resource>
-    <resource name="editor_tornedge_shadow">Generate shadow</resource>
+        <resource name="editor_tornedge_horizontaltoothrange">Horizontal tooth range</resource>
+        <resource name="editor_tornedge_settings">Torn edges settings</resource>
+        <resource name="editor_tornedge_toothsize">Tooth size</resource>
+        <resource name="editor_tornedge_verticaltoothrange">Vertical tooth range</resource>
+        <resource name="editor_tornedge_all">Tear all sides</resource>
+        <resource name="editor_tornedge_left">Left side</resource>
+        <resource name="editor_tornedge_right">Right side</resource>
+        <resource name="editor_tornedge_top">Top side</resource>
+        <resource name="editor_tornedge_bottom">Bottom side</resource>
+        <resource name="editor_tornedge_shadow">Generate shadow</resource>
     
-    <resource name="editor_counter">Add counter (I)</resource>
-    <resource name="editor_speechbubble">Add speechbubble (S)</resource>
+        <resource name="editor_counter">Add counter (I)</resource>
+        <resource name="editor_speechbubble">Add speechbubble (S)</resource>
 
-    <resource name="editor_resize">Resize (Z)</resource>
-    <resource name="editor_resize_settings">Resize settings</resource>
-    <resource name="editor_resize_aspectratio">Maintain aspect ratio</resource>
-    <resource name="editor_resize_width">Width</resource>
-    <resource name="editor_resize_height">Height</resource>
-	<resource name="settings_iconsize">Icon size</resource>
-    
-		<resource name="editor_counter_startvalue">Start value</resource>
-		<resource name="contextmenu_configure_plugin">Configure {0}</resource>
-	</resources>
+        <resource name="editor_resize">Resize (Z)</resource>
+        <resource name="editor_resize_settings">Resize settings</resource>
+        <resource name="editor_resize_aspectratio">Maintain aspect ratio</resource>
+        <resource name="editor_resize_width">Width</resource>
+        <resource name="editor_resize_height">Height</resource>
+	    <resource name="settings_iconsize">Icon size</resource>
+	    <resource name="editor_counter_startvalue">Start value</resource>
+	    <resource name="contextmenu_configure_plugin">Configure {0}</resource>
+    </resources>
 </language>

@@ -283,28 +283,7 @@ namespace Greenshot.Native
             int width = desc.Width;
             int height = desc.Height;
 
-            // Try GPU path first (D2D WhiteLevelAdjustment effect)
-            try
-            {
-                using (var toneMapper = new HdrToneMapper(device))
-                {
-                    var sdrTexture = toneMapper.ToneMapToSdr(hdrTexture, device, sdrWhiteLevelInNits, width, height);
-                    try
-                    {
-                        return TransformTextureToBitmap(sdrTexture, device, context);
-                    }
-                    finally
-                    {
-                        if (sdrTexture != null) Marshal.ReleaseComObject(sdrTexture);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Warn($"GPU HDR tone mapping failed, falling back to CPU: {ex.Message}");
-            }
-
-            // CPU fallback (Reinhard + gamma 2.2)
+            // CPU tonemap (Reinhard + gamma 2.2)
             try
             {
                 return CpuToneMapFp16(hdrTexture, device, context, sdrWhiteLevelInNits, width, height);
