@@ -87,6 +87,7 @@ internal sealed class HdrToneMapper : IDisposable
 
     // D3D11_BIND_FLAG
     private const int D3D11_BIND_RENDER_TARGET = 0x20;
+    private const int D3D11_BIND_SHADER_RESOURCE = 0x8;
 
     // D2D1_WHITELEVELADJUSTMENT_PROP
     private const uint D2D1_WHITELEVELADJUSTMENT_PROP_INPUT_WHITE_LEVEL = 0;
@@ -169,13 +170,22 @@ internal sealed class HdrToneMapper : IDisposable
         public int AlphaMode;
     }
 
-    [StructLayout(LayoutKind.Sequential)]
+    [StructLayout(LayoutKind.Explicit, Size = 32)]
     private struct D2D1BitmapProperties1
     {
+        [FieldOffset(0)]
         public D2D1PixelFormat PixelFormat;
+
+        [FieldOffset(8)]
         public float DpiX;
+
+        [FieldOffset(12)]
         public float DpiY;
+
+        [FieldOffset(16)]
         public int BitmapOptions;
+
+        [FieldOffset(24)] // Explicit 8-byte alignment for 64-bit
         public IntPtr ColorContext;
     }
 
@@ -250,7 +260,7 @@ internal sealed class HdrToneMapper : IDisposable
                 Format = DXGI_FORMAT_B8G8R8A8_UNORM,
                 SampleDesc = new DXGI_SAMPLE_DESC { Count = 1, Quality = 0 },
                 Usage = D3D11_USAGE.D3D11_USAGE_DEFAULT,
-                BindFlags = D3D11_BIND_RENDER_TARGET,
+                BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE,
                 CPUAccessFlags = (D3D11_CPU_ACCESS_FLAG)0,
                 MiscFlags = 0
             };
@@ -261,8 +271,7 @@ internal sealed class HdrToneMapper : IDisposable
             pSdrSurface = QueryComInterface(sdrTexture, IID_IDXGISurface);
 
             // 3. Create D2D bitmaps wrapping the DXGI surfaces
-            var createBitmapFn = GetVtableDelegate<CreateBitmapFromDxgiSurfaceDelegate>(
-                _pDeviceContext, VT_D2D1DC_CreateBitmapFromDxgiSurface);
+            var createBitmapFn = GetVtableDelegate<CreateBitmapFromDxgiSurfaceDelegate>(_pDeviceContext, VT_D2D1DC_CreateBitmapFromDxgiSurface);
 
             var sourceProps = new D2D1BitmapProperties1
             {
@@ -296,8 +305,7 @@ internal sealed class HdrToneMapper : IDisposable
 
             // 4. Create the WhiteLevelAdjustment effect
             Guid clsid = CLSID_D2D1WhiteLevelAdjustment;
-            var createEffectFn = GetVtableDelegate<CreateEffectDelegate>(
-                _pDeviceContext, VT_D2D1DC_CreateEffect);
+            var createEffectFn = GetVtableDelegate<CreateEffectDelegate>(_pDeviceContext, VT_D2D1DC_CreateEffect);
             hr = createEffectFn(_pDeviceContext, ref clsid, out pEffect);
             Marshal.ThrowExceptionForHR(hr);
 
@@ -308,12 +316,10 @@ internal sealed class HdrToneMapper : IDisposable
                 float inputWhiteLevel = sdrWhiteLevelInNits;
                 float outputWhiteLevel = 80.0f; // D2D1_SCENE_REFERRED_SDR_WHITE_LEVEL
 
-                hr = setValueFn(pEffect, D2D1_WHITELEVELADJUSTMENT_PROP_INPUT_WHITE_LEVEL,
-                    D2D1_PROPERTY_TYPE_UNKNOWN, (IntPtr)(&inputWhiteLevel), sizeof(float));
+                hr = setValueFn(pEffect, D2D1_WHITELEVELADJUSTMENT_PROP_INPUT_WHITE_LEVEL, D2D1_PROPERTY_TYPE_UNKNOWN, (IntPtr)(&inputWhiteLevel), sizeof(float));
                 Marshal.ThrowExceptionForHR(hr);
 
-                hr = setValueFn(pEffect, D2D1_WHITELEVELADJUSTMENT_PROP_OUTPUT_WHITE_LEVEL,
-                    D2D1_PROPERTY_TYPE_UNKNOWN, (IntPtr)(&outputWhiteLevel), sizeof(float));
+                hr = setValueFn(pEffect, D2D1_WHITELEVELADJUSTMENT_PROP_OUTPUT_WHITE_LEVEL, D2D1_PROPERTY_TYPE_UNKNOWN, (IntPtr)(&outputWhiteLevel), sizeof(float));
                 Marshal.ThrowExceptionForHR(hr);
             }
 
