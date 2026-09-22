@@ -19,6 +19,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using Greenshot.Base.Interfaces.Forms;
+
 namespace Greenshot.Base.Triggers
 {
     /// <summary>
@@ -30,6 +32,6 @@ namespace Greenshot.Base.Triggers
         string Group { get; set; }
         int Order { get; set; }
 
-        void Fire(object editorForm);
+        void Fire(IImageEditor editorForm);
     }
 }

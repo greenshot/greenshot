@@ -21,6 +21,7 @@
 
 using System;
 using System.Collections.Generic;
+using Greenshot.Base.Interfaces.Forms;
 using Greenshot.Base.Triggers;
 using log4net;
 
@@ -71,7 +72,7 @@ namespace Greenshot.Triggers
         /// Invoked when the user clicks this recipe item in the Image Editor menu.
         /// </summary>
         /// <param name="editorForm">The instance of the editor form where the trigger was fired</param>
-        public void Fire(object editorForm)
+        public void Fire(IImageEditor editorForm)
         {
             if (editorForm == null)
             {

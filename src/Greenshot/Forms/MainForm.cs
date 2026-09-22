@@ -771,7 +771,10 @@ namespace Greenshot.Forms
 
                 item.Click += (s, ev) =>
                 {
-                    trigger.Fire();
+                    Dispatcher.CurrentDispatcher.BeginInvoke(() =>
+                    {
+                        trigger.Fire();
+                    });
                 };
 
                 _recipesMenuItem.DropDownItems.Add(item);

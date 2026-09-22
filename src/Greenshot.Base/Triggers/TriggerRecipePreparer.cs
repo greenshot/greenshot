@@ -49,7 +49,7 @@ namespace Greenshot.Base.Triggers
         }
 
         /// <summary>
-        /// Prepares a recipe for execution in a test run, using a TestRunTrigger as the trigger with type ContextMenu.
+        /// Prepares a recipe for execution in the recipe editor's test run, using a TestRunTrigger as the trigger with type ContextMenu.
         /// </summary>
         /// <param name="recipe">The recipe to prepare.</param>
         /// <returns>The prepared recipe. Creates a clone in every case.</returns>
@@ -81,7 +81,7 @@ namespace Greenshot.Base.Triggers
         /// </summary>
         /// <param name="recipe">The recipe to inspect.</param>
         /// <param name="trigger">The trigger that determines the source type.</param>
-        /// <returns>The modified recipe with the required start source node added, or the original recipe if no changes were needed.</returns>
+        /// <returns>A clone of the recipe with the required start source node added, or the original recipe if no changes were needed.</returns>
         public static CaptureRecipe EnsureRequiredStartSource(CaptureRecipe recipe, ITrigger trigger)
         {
             if (recipe == null || recipe.HasSourceStep()) return recipe;
@@ -117,7 +117,7 @@ namespace Greenshot.Base.Triggers
         /// </summary>
         /// <param name="recipe">The recipe to inspect.</param>
         /// <param name="trigger">The trigger that determines the destination configuration.</param>
-        /// <returns>The modified recipe, or the original recipe if no changes were needed.</returns>
+        /// <returns>A clone of the recipe with the required destination nodes added, or the original recipe if no changes were needed.</returns>
         public static CaptureRecipe EnsureRequiredDestination(CaptureRecipe recipe, ITrigger trigger)
         {
             if (recipe == null || recipe.HasDestinationStep()) return recipe;
