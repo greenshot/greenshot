@@ -75,9 +75,18 @@ begin
 	Result := returnValue;
 end;
 
-// Initialize the setup
+var
+	GreenshotWasRunning: Boolean;
+
 function InitializeSetup(): Boolean;
 begin
+	// We must check if Greenshot is running at the very beginning of the setup.
+	// If we check at the end (NotAlreadyRestarted), we hit a race condition:
+	// (1) The Restart Manager might have already triggered Greenshot to restart, but 
+	// (2) Greenshot takes a moment to create its Mutex. If the Mutex isn't created yet,
+	// the installer thinks it's not running and launches a duplicate instance.
+	GreenshotWasRunning := CheckForMutexes('F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08,Global\F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08,Local\F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08');
+
 	// Check for .NET and install 4.8.0 if we don't have it
 	Result := IsDotNetInstalled(net48, 0); //Returns True if .NET Framework version 4.6.2 is installed, or a compatible version such as 4.8.0
 	if not Result then
@@ -98,11 +107,9 @@ end;
 /////////////////////////////////////////////////////////////////////
 function NotAlreadyRestarted: Boolean;
 begin
-  // Only skip the "Start Greenshot" option if Greenshot itself is actually running.
-  // Using RmSessionStarted incorrectly skips the launch even on fresh installs,
-  // because Inno Setup starts a Restart Manager session (making it True) just
-  // to check for locked files, regardless of whether any files were actually in use.
-  Result := not CheckForMutexes('F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08,Global\F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08,Local\F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08');
+  // Skip the 'Start Greenshot' post-install option if it was running before installation.
+  // The Windows Restart Manager handles auto-restarting the application.
+  Result := not GreenshotWasRunning;
 end;
 
 var
