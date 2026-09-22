@@ -138,6 +138,26 @@ namespace Greenshot.Editor.Forms
             propertiesToolStrip.ImageScalingSize = newSize;
             propertiesToolStrip.MinimumSize = new Size(150, newSize.Height + 10);
             _surface?.AdjustToDpi(newDpi);
+
+            // The framework's own DPI-triggered scaling runs after this handler returns, and it resizes
+            // the canvas control along with every other control on the form - even though the canvas size
+            // must always be image-size * zoom-factor in device pixels, independent of monitor DPI. Redo
+            // the adjustment once that scaling has completed, so the canvas ends up at its correct size
+            // instead of being left clipped.
+if (!IsDisposed && !Disposing && IsHandleCreated)
+{
+    BeginInvoke(new MethodInvoker(() =>
+    {
+        if (IsDisposed || Disposing || _surface?.Image == null)
+        {
+            return;
+        }
+
+        _surface.AdjustToDpi(DeviceDpi);
+        AlignCanvasPositionAfterResize();
+    }));
+}
+
             UpdateUi();
         }
 
