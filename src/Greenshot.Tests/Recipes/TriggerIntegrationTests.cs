@@ -108,29 +108,5 @@ namespace Greenshot.Tests.Recipes
             Assert.True(recipeWithDestinationsEditor.HasEditorDestination());
         }
 
-        [Fact]
-        public async Task SourceAcquisitionStep_WhenPayloadAlreadyProvided_SkipsAcquisition()
-        {
-            using var bmp = new Bitmap(100, 100);
-            var capture = new Capture((Image)bmp.Clone());
-            var payload = new CapturePayload(capture);
-            var surface = payload.EnsureSurface();
-
-            var recipe = new CaptureRecipe("pre_supplied", "Pre-Supplied Payload");
-            using var context = new CaptureFlowContext(recipe)
-            {
-                Payload = payload
-            };
-
-            var nodeConfig = new RecipeNodeConfig { Id = "src", StepType = "Source" };
-            var step = new SourceAcquisitionStep(nodeConfig);
-
-            await step.ExecuteAsync(context);
-
-            // Context payload and surface remain intact and were not replaced by screen capture
-            Assert.NotNull(context.Payload);
-            Assert.Same(payload, context.Payload);
-            Assert.Same(surface, context.Payload.Surface);
-        }
     }
 }

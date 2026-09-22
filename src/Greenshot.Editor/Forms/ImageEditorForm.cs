@@ -2471,8 +2471,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                 return;
             }
 
-            var editorTriggers = triggerManager.GetEditorTriggers()
-                ?? triggerManager.GetAllTriggers().OfType<IEditorTrigger>().ToList();
+            var editorTriggers = triggerManager.GetEditorTriggers();
 
             if (editorTriggers == null || editorTriggers.Count == 0)
             {
@@ -2491,9 +2490,9 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                     : (!string.IsNullOrWhiteSpace(trigger.Name) ? trigger.Name : recipe.Name);
 
                 var item = new ToolStripMenuItem(menuText);
-                item.Click += async (s, ev) =>
+                item.Click += (s, ev) =>
                 {
-                    await ExecuteEditorRecipeAsync(recipe, trigger);
+                    trigger.Fire(this);
                 };
 
                 recipesToolStripMenuItem.DropDownItems.Add(item);
@@ -2501,52 +2500,6 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             }
 
             recipesToolStripMenuItem.Visible = count > 0;
-        }
-
-        /// <summary>
-        /// Executes a capture recipe from the editor.
-        /// If the recipe exports to another editor, clones the surface to avoid sharing mutable state.
-        /// If the recipe only modifies the surface in-place, operates directly on the active canvas.
-        /// </summary>
-        private async System.Threading.Tasks.Task ExecuteEditorRecipeAsync(CaptureRecipe recipe, ITrigger trigger)
-        {
-            if (recipe == null || Surface == null) return;
-
-            var pipeline = SimpleServiceProvider.Current.GetInstance<ICapturePipeline>(isOptional: true);
-            if (pipeline == null)
-            {
-                Log.Warn("ICapturePipeline service not available to run editor recipe.");
-                return;
-            }
-
-            bool exportsToEditor = recipe.HasEditorDestination();
-            ISurface targetSurface = exportsToEditor ? Surface.Clone() : Surface;
-
-            var payload = new CapturePayload()
-            {
-                Surface = targetSurface,
-                RetainSurfaceForEditor = true
-            };
-
-            try
-            {
-                await pipeline.ExecuteAsync(recipe, trigger, ctx =>
-                {
-                    ctx.Payload = payload;
-                    ctx.Properties["EditorForm"] = this;
-                });
-
-                if (!exportsToEditor)
-                {
-                    Surface.Modified = true;
-                    Surface.Invalidate();
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Error($"Failed to execute recipe '{recipe.Name}' from editor", ex);
-                Surface.SendMessageEvent(this, SurfaceMessageTyp.Error, $"Recipe '{recipe.Name}' failed: {ex.Message}");
-            }
         }
     }
 }

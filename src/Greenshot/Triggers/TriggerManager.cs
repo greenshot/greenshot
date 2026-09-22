@@ -297,33 +297,15 @@ namespace Greenshot.Triggers
                 if (pipeline != null)
                 {
                     var trigger = sender as ITrigger;
-                    pipeline.ExecuteAsync(recipe, trigger, ctx =>
+                    var recipeToExecute = TriggerRecipePreparer.Prepare(recipe, trigger);
+
+                    pipeline.ExecuteAsync(recipeToExecute, trigger, ctx =>
                     {
                         if (e.Parameters != null)
                         {
                             foreach (var kvp in e.Parameters)
                             {
                                 ctx.Properties[kvp.Key] = kvp.Value;
-                            }
-                        }
-
-                        // If triggered by ClipboardTrigger, pre-acquire the image payload from the clipboard
-                        if (trigger is ClipboardTrigger)
-                        {
-                            try
-                            {
-                                var img = ClipboardHelper.GetImage();
-                                if (img != null)
-                                {
-                                    var capture = new Capture(img);
-                                    capture.CaptureDetails.Title = "Clipboard Capture";
-                                    capture.CaptureDetails.AddMetaData("source", "Clipboard");
-                                    ctx.Payload = new CapturePayload(capture);
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                Log.Warn("Failed to pre-acquire clipboard image for ClipboardTrigger", ex);
                             }
                         }
                     });

@@ -32,6 +32,7 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Pipeline;
 using Greenshot.Base.Pipeline.Sources;
 using Greenshot.Base.Recipes;
+using Greenshot.Triggers;
 using log4net;
 
 namespace Greenshot.Pipeline.Steps
@@ -59,11 +60,10 @@ namespace Greenshot.Pipeline.Steps
         {
             context.State = CaptureFlowState.Acquiring;
 
-            // 0. Check if payload is already pre-supplied (e.g. from EditorTrigger or ClipboardTrigger)
-            if (context.Payload != null && (context.Payload.Surface != null || context.Payload.RawCapture != null))
+            // 0. Check if payload is already pre-supplied 
+            if (context.Payload != null)
             {
-                context.LogStep("Using pre-supplied payload (from Editor or Trigger), skipping source acquisition.");
-                return;
+                Log.Warn($"Source {Name} already has a pre-supplied payload. This should not happen.");
             }
 
             // 1. Pre-capture preparation: tray icon reset & delay
@@ -94,10 +94,7 @@ namespace Greenshot.Pipeline.Steps
 
             // Check if window targeting parameters are specified in config
             bool hasTargetWindowConfig = !string.IsNullOrEmpty(Config.GetParameter<string>("WindowTitle")) ||
-                                         !string.IsNullOrEmpty(Config.GetParameter<string>("windowTitle")) ||
                                          !string.IsNullOrEmpty(Config.GetParameter<string>("WindowTitlePattern")) ||
-                                         !string.IsNullOrEmpty(Config.GetParameter<string>("windowTitlePattern")) ||
-                                         !string.IsNullOrEmpty(Config.GetParameter<string>("ProcessName")) ||
                                          !string.IsNullOrEmpty(Config.GetParameter<string>("processName"));
 
             // 5. Instantiate source based on SourceType
@@ -129,6 +126,9 @@ namespace Greenshot.Pipeline.Steps
 
                 CaptureSourceType.File =>
                     new FileCaptureSource(),
+
+                CaptureSourceType.CurrentEditor =>
+                    new CurrentEditorCaptureSource(),
 
                 _ => null
             };

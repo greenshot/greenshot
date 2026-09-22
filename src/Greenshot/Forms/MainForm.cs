@@ -773,10 +773,7 @@ namespace Greenshot.Forms
                 {
                     Dispatcher.CurrentDispatcher.BeginInvoke(() =>
                     {
-                        _ = CapturePipeline.Instance.ExecuteAsync(recipe, trigger, null).ContinueWith(task =>
-                        {
-                            Log.Error("Recipe capture pipeline failed.", task.Exception);
-                        }, TaskContinuationOptions.OnlyOnFaulted);
+                        trigger.Fire();
                     });
                 };
 

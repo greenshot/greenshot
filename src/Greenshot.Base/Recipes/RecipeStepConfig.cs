@@ -175,11 +175,11 @@ namespace Greenshot.Base.Recipes
             return node;
         }
 
-        public static RecipeNodeConfig CreateEditor(string id = "editor", bool? matchSizeToCapture = null, bool? reuseEditor = null, bool? suppressSaveDialog = null)
+        public static RecipeNodeConfig CreateEditor(string id = "editor", bool? matchSizeToCapture = null, TargetEditor? targetEditor = null, bool? suppressSaveDialog = null)
         {
             var node = new RecipeNodeConfig(id, WellKnownStepTypes.Editor, "Open in Editor");
             if (matchSizeToCapture.HasValue) node.Set("MatchSizeToCapture", matchSizeToCapture.Value);
-            if (reuseEditor.HasValue) node.Set("ReuseEditor", reuseEditor.Value);
+            if (targetEditor.HasValue) node.Set("TargetEditor", targetEditor.Value.ToString());
             if (suppressSaveDialog.HasValue) node.Set("SuppressSaveDialog", suppressSaveDialog.Value);
             return node;
         }

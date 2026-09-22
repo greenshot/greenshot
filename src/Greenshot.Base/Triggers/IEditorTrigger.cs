@@ -19,8 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Collections.Generic;
+using Greenshot.Base.Interfaces.Forms;
 
 namespace Greenshot.Base.Triggers
 {
@@ -32,5 +31,7 @@ namespace Greenshot.Base.Triggers
         string MenuItemText { get; set; }
         string Group { get; set; }
         int Order { get; set; }
+
+        void Fire(IImageEditor editorForm);
     }
 }

@@ -51,9 +51,6 @@ namespace Greenshot.Pipeline.Steps
 
         public Task ExecuteAsync(CaptureFlowContext context, CancellationToken cancellationToken = default)
         {
-            var payload = context.Payload;
-            if (payload?.RawCapture == null) return Task.CompletedTask;
-
             // Resolve shutter sound setting dynamically
             bool playSound = ResolvePlaySound(context);
             if (playSound)

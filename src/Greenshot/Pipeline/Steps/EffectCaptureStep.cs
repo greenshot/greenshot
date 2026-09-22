@@ -53,10 +53,18 @@ namespace Greenshot.Pipeline.Steps
         public Task ExecuteAsync(CaptureFlowContext context, CancellationToken cancellationToken = default)
         {
             var payload = context.Payload;
-            if (payload?.RawCapture == null) return Task.CompletedTask;
+            if (payload?.RawCapture == null) 
+            {
+                context.LogStep("EffectStep skipped: Payload or RawCapture is null.");
+                return Task.CompletedTask;
+            }
 
             var surface = payload.EnsureSurface();
-            if (surface?.Image == null) return Task.CompletedTask;
+            if (surface?.Image == null) 
+            {
+                context.LogStep("EffectStep skipped: Surface or Image is null.");
+                return Task.CompletedTask;
+            }
 
             IEffect effect = ResolveEffect(surface.Image);
             if (effect == null) return Task.CompletedTask;

@@ -3090,10 +3090,10 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             set { SetTriStateParam("MatchSizeToCapture", value); OnPropertyChanged(nameof(EditorMatchSizeToCapture)); }
         }
 
-        public string EditorReuseEditor
+        public string EditorTargetEditor
         {
-            get => GetTriStateParam("ReuseEditor");
-            set { SetTriStateParam("ReuseEditor", value); OnPropertyChanged(nameof(EditorReuseEditor)); }
+            get => GetParam("TargetEditor", "");
+            set { SetParamOrRemoveIfEmpty("TargetEditor", value); OnPropertyChanged(nameof(EditorTargetEditor)); }
         }
 
         public string EditorSuppressSaveDialog
@@ -3513,7 +3513,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             OnPropertyChanged(nameof(OutputFileCopyPath));
             OnPropertyChanged(nameof(OutputFileJpegQuality));
             OnPropertyChanged(nameof(EditorMatchSizeToCapture));
-            OnPropertyChanged(nameof(EditorReuseEditor));
+            OnPropertyChanged(nameof(EditorTargetEditor));
             OnPropertyChanged(nameof(EditorSuppressSaveDialog));
             OnPropertyChanged(nameof(PrinterName));
             OnPropertyChanged(nameof(PrinterShowPrintDialog));

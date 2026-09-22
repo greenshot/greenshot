@@ -806,6 +806,11 @@ namespace Greenshot.Editor.Drawing
                 SaveElementsToStream(ms);
                 ms.Position = 0;
                 clonedSurface.LoadElementsFromStream(ms);
+
+                /* TODO: LoadElementsFromStream() selects all Elements, we don't want that in the clone.
+                * It should be changed there but that would be a breaking change, e.g. for copy/paste.
+                */
+                clonedSurface.DeselectAllElements(); 
             }
 
             return clonedSurface;

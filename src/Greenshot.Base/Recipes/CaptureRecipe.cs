@@ -171,6 +171,16 @@ namespace Greenshot.Base.Recipes
             return false;
         }
 
+        /// <summary>
+        /// Determines whether the recipe contains any source step.
+        /// </summary>
+        public bool HasSourceStep()
+        {
+            if (Nodes == null || Nodes.Count == 0) return false;
+            return Nodes.Any(node =>
+                string.Equals(node.StepType, WellKnownStepTypes.Source, StringComparison.OrdinalIgnoreCase));
+        }
+
         public CaptureRecipe Clone()
         {
             var clone = new CaptureRecipe
