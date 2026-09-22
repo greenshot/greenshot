@@ -56,7 +56,7 @@
 		<resource name="contextmenu_capturelastregion">Capturar a última região</resource>
 		<resource name="contextmenu_capturewindow">Capturar tela</resource>
 		<resource name="contextmenu_capturewindowfromlist">Capturar janela da lista</resource>
-		<resource name="contextmenu_donate">Suporte do Greenshot</resource>
+		<resource name="contextmenu_donate">Suporte o Greenshot</resource>
 		<resource name="contextmenu_exit">Sair</resource>
 		<resource name="contextmenu_help">Ajuda</resource>
 		<resource name="contextmenu_importrecipe">Importar receita...</resource>
@@ -90,6 +90,7 @@
 		<resource name="editor_copyimagetoclipboard">Copiar imagem para a Área de transferência</resource>
 		<resource name="editor_copypathtoclipboard">Copiar o caminho da pasta atual do arquivo para a Área de transferência</resource>
 		<resource name="editor_copytoclipboard">Copiar</resource>
+		<resource name="editor_counter_startvalue">Valor inicial</resource>
 		<resource name="editor_crop">Cortar (C)</resource>
 		<resource name="editor_cropmode_default">Cortar</resource>
 		<resource name="editor_cursortool">Ferramenta de Seleção (ESC)</resource>
@@ -107,6 +108,7 @@
 		<resource name="editor_edit">Editar</resource>
 		<resource name="editor_email">Enviar por e-mail</resource>
 		<resource name="editor_file">Arquivo</resource>
+		<resource name="editor_fit">Esticar</resource>
 		<resource name="editor_fontsize">Tamanho</resource>
 		<resource name="editor_forecolor">Cor da linha</resource>
 		<resource name="editor_highlight_area">Destacar área</resource>
@@ -118,6 +120,7 @@
 		<resource name="editor_italic">Itálico</resource>
 		<resource name="editor_load_objects">Carregar objetos de arquivo...</resource>
 		<resource name="editor_magnification_factor">Fator de ampliação</resource>
+		<resource name="editor_match_capture_size">Corresponder ao tamanho da captura</resource>
 		<resource name="editor_obfuscate">Obscurecer (O)</resource>
 		<resource name="editor_obfuscate_blur">Desfocar</resource>
 		<resource name="editor_obfuscate_mode">Modo de obscurecimento</resource>
@@ -145,6 +148,7 @@
 		<resource name="editor_pixel_size">Tamanho de Pixel</resource>
 		<resource name="editor_preview_quality">Qualidade do preview</resource>
 		<resource name="editor_print">Imprimir</resource>
+		<resource name="editor_pushout">Expandir a captura e mover para fora</resource>
 		<resource name="editor_remove_transparency">Remover transparência</resource>
 		<resource name="editor_save">Salvar</resource>
 		<resource name="editor_save_objects">Salvar objetos em arquivo...</resource>
@@ -152,6 +156,7 @@
 		<resource name="editor_selectall">Selecionar tudo</resource>
 		<resource name="editor_senttoprinter">A impressão foi enviada para '{0}'.</resource>
 		<resource name="editor_shadow">Sombra</resource>
+		<resource name="editor_snap">Encaixar à borda</resource>
 		<resource name="editor_image_shadow">Sombra</resource>
 		<resource name="editor_storedtoclipboard">Imagem enviada para a área de transferência.</resource>
 		<resource name="editor_thickness">Espessura da linha</resource>
@@ -170,17 +175,20 @@
 		<resource name="error_save_invalid_chars">O nome do arquivo ou nome do diretório gerado não é válido. Corrija o padrão de nome de arquivo e tente novamente.</resource>
 		<resource name="expertsettings">Especialista</resource>
 		<resource name="expertsettings_autoreducecolors">Criar uma imagem de 8 bits se as cores são menos de 256, tendo um &gt; imagem de 8 bits </resource>
+		<resource name="expertsettings_betatester">Habilitar recursos de teste beta</resource>
 		<resource name="expertsettings_checkunstableupdates">Verificar atualizações instáveis</resource>
 		<resource name="expertsettings_clipboardformats">Formatos da área de transferência</resource>
 		<resource name="expertsettings_counter">O número para ${NUM} no padrão de nome de arquivo</resource>
 		<resource name="expertsettings_enableexpert">Eu sei o que estou fazendo!</resource>
+		<resource name="expertsettings_enablerecipes">Habilitar receitas</resource>
 		<resource name="expertsettings_footerpattern">Rodapé padrão de impressão</resource>
 		<resource name="expertsettings_minimizememoryfootprint">Minimizar footprint de memória, mas com uma penalidade de desempenho (não recomendado).</resource>
 		<resource name="expertsettings_optimizeforrdp">Faça algumas otimizações para usar com computador remoto</resource>
+		<resource name="expertsettings_recipefiles">Arquivos de Receitas Configurados (separados por ponto e vírgula)</resource>
 		<resource name="expertsettings_reuseeditorifpossible">Reutilizar editor se possível</resource>
 		<resource name="expertsettings_suppresssavedialogatclose">Suprimir o diálogo salvar ao fechar o editor</resource>
-		<resource name="expertsettings_thumbnailpreview">Mostrar miniaturas de janelas no menu de contexto (para Vista e windows 7)</resource>
-		<resource name="exported_to">Exportado to: {0}</resource>
+		<resource name="expertsettings_thumbnailpreview">Mostrar miniaturas de janelas no menu de contexto (para Windows Vista e 7)</resource>
+		<resource name="exported_to">Exportado para: {0}</resource>
 		<resource name="exported_to_error">Ocorreu um erro ao exportar para {0}:</resource>
 		<resource name="help_title">Ajuda do Greenshot</resource>
 		<resource name="hotkeys">Teclas de atalho</resource>
@@ -204,18 +212,19 @@
 		<resource name="printoptions_title">Opções de impressão do Greenshot</resource>
 		<resource name="qualitydialog_dontaskagain">Salvar com qualidade padrão e não perguntar novamente</resource>
 		<resource name="qualitydialog_title">Qualidade do Greenshot</resource>
+		<resource name="quicklink_enable">Criar um atalho rápido para a configuração no menu de contexto</resource>
 		<resource name="quicksettings_destination_file">Salvar diretamente (Usando configuração padrão para arquivos capturados)</resource>
 		<resource name="recipe_import">Importação de receita</resource>
 		<resource name="recipe_import_failed">Falha ao carregar a receita:</resource>
 		<resource name="recipe_import_title">Importar receita de captura</resource>
 		<resource name="settings_alwaysshowprintoptionsdialog">Mostrar as opções de impressão toda vez que uma imagem for impressa</resource>
 		<resource name="settings_alwaysshowqualitydialog">Perguntar a qualidade do JPEG toda vez que uma imagem for salva</resource>
-		<resource name="settings_applicationsettings">Configurações da Aplicação</resource>
+		<resource name="settings_applicationsettings">Configurações da aplicação</resource>
 		<resource name="settings_autostartshortcut">Executar o Greenshot ao iniciar o Windows</resource>
 		<resource name="settings_capture">Captura</resource>
 		<resource name="settings_capture_mousepointer">Capturar também o cursor do mouse</resource>
 		<resource name="settings_capture_windows_interactive">Usar modo interativo</resource>
-		<resource name="settings_checkperiod">intervalo de verificação de atualização em dias (0=sem verificar)</resource>
+		<resource name="settings_checkperiod">Intervalo de verificação de atualização em dias (0=sem verificar)</resource>
 		<resource name="settings_configureplugin">Configurar</resource>
 		<resource name="settings_copypathtoclipboard">Copiar o caminho completo do arquivo para a Área de transferência</resource>
 		<resource name="settings_destination">Destino da tela capturada</resource>
@@ -228,6 +237,7 @@
 		<resource name="settings_editor">Editor</resource>
 		<resource name="settings_filenamepattern">Formato do nome</resource>
 		<resource name="settings_general">Geral</resource>
+		<resource name="settings_iconsize">Tamanho do ícone</resource>
 		<resource name="settings_jpegquality">Qualidade JPEG</resource>
 		<resource name="settings_jpegsettings">Configurações JPEG</resource>
 		<resource name="settings_language">Idioma</resource>
@@ -258,7 +268,7 @@
 		<resource name="settings_plugins_dllpath">Caminho da DLL</resource>
 		<resource name="settings_plugins_name">Nome</resource>
 		<resource name="settings_plugins_version">Versões</resource>
-		<resource name="settings_preferredfilesettings">Configurações Padrão para os Arquivos Capturados</resource>
+		<resource name="settings_preferredfilesettings">Configurações padrão para os arquivos capturados</resource>
 		<resource name="settings_primaryimageformat">Formato da imagem</resource>
 		<resource name="settings_printer">Impressora</resource>
 		<resource name="settings_printoptions">Opções de Impressão</resource>
@@ -288,15 +298,12 @@
 			Este problema é geralmente causado por outro aplicativo solicitando acesso a estas teclas de atalho.
 			Por favor desative o outro programa que está usando a tecla Print ou use as funções do Greenshot via menu de contexto no ícone da bandeja do sistema.
 		</resource>
-		<resource name="WindowCaptureModes.Aero">Usar cor personalizada</resource>
-		<resource name="WindowCaptureModes.AeroTransparent">Preservar a transparência</resource>
-		<resource name="WindowCaptureModes.Auto">Automaticamente</resource>
-		<resource name="WindowCaptureModes.GDI">Usar cores padrão</resource>
-		<resource name="WindowCaptureModes.Screen">Como exibido</resource>
-		<resource name="settings_iconsize">Tamanho do ícone</resource>
-	<resource name="editor_fit">Esticar</resource>
-	<resource name="editor_pushout">Expandir a captura e mover para fora</resource>
-	<resource name="editor_snap">Encaixar à borda</resource>
-		<resource name="editor_counter_startvalue">Valor inicial</resource>
+		<resource name="WindowCaptureMode.Aero">Usar cor personalizada</resource>
+		<resource name="WindowCaptureMode.AeroTransparent">Preservar a transparência</resource>
+		<resource name="WindowCaptureMode.Auto">Automaticamente</resource>
+		<resource name="WindowCaptureMode.GDI">Usar cores padrão</resource>
+		<resource name="WindowCaptureMode.Screen">Como exibido</resource>
+		<resource name="zxing_scan_on_capture">Habilitar a leitura de código QR na captura de região</resource>
+		<resource name="zxing_contextmenu_configure">Configurar código QR</resource>
 	</resources>
 </language>

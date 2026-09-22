@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Português do Brasil" ietf="pt-BR" version="1.0.0" languagegroup="1">
+	<resources>
+		<resource name="contextmenu_configure">Configurar comandos externos</resource>
+		<resource name="settings_title">Configurações de comandos externos</resource>
+		<resource name="settings_detail_title">Configurar comando</resource>
+		<resource name="settings_new">Novo</resource>
+		<resource name="settings_delete">Excluir</resource>
+		<resource name="settings_edit">Editar</resource>
+		<resource name="label_name">Nome</resource>
+		<resource name="label_command">Comando</resource>
+		<resource name="label_argument">Argumentos</resource>
+		<resource name="label_outputimageformat">Formato da imagem</resource>
+		<resource name="label_information">{0} é o nome do arquivo da sua captura de tela</resource>
+		<resource name="tooltip_duplicate_name">Já existe um comando com este nome. Por favor escolha um nome diferente.</resource>
+		<resource name="settings_general_title">Configurações gerais</resource>
+		<resource name="label_run_in_background">Executar em segundo plano</resource>
+		<resource name="label_redirect_standard_error">Redirecionar erro padrão para o log (como aviso)</resource>
+		<resource name="label_redirect_standard_output">Redirecionar saída padrão</resource>
+		<resource name="label_show_output_in_log">Mostrar saída padrão no log do Greenshot</resource>
+		<resource name="label_parse_output_for_uri">Analisar saída para URI e abrir ao clicar na notificação</resource>
+		<resource name="label_output_to_clipboard">Copiar saída padrão para a área de transferência</resource>
+		<resource name="label_uri_to_clipboard">Copiar URI encontrado para a área de transferência</resource>
+		<resource name="settings_instructions">Selecione um comando para editar os detalhes, ou clique em Novo para adicionar um.</resource>
+	</resources>
+</language>
