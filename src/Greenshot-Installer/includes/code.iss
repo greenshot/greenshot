@@ -81,17 +81,19 @@ var
 
 function InitializeSetup(): Boolean;
 begin
-	// We must check if Greenshot is running at the very beginning of the setup.
-	// If we check at the end (NotAlreadyRestarted), we hit a race condition:
-	// (1) The Restart Manager might have already triggered Greenshot to restart, but 
-	// (2) Greenshot takes a moment to create its Mutex. If the Mutex isn't created yet,
-	// the installer thinks it's not running and launches a duplicate instance.
-	GreenshotWasRunning := CheckForMutexes('F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08,Global\F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08,Local\F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08');
-
 	// Check for .NET and install 4.8.0 if we don't have it
 	Result := IsDotNetInstalled(net48, 0); //Returns True if .NET Framework version 4.6.2 is installed, or a compatible version such as 4.8.0
 	if not Result then
 		SuppressibleMsgBox(FmtMessage(SetupMessage(msgWinVersionTooLowError), ['.NET Framework', '4.8.0']), mbCriticalError, MB_OK, IDOK);
+end;
+
+function PrepareToInstall(var NeedsRestart: Boolean): String;
+begin
+	// We must check if Greenshot is running HERE at the handoff point before installation.
+	// This prevents a stale snapshot if the user closes/starts Greenshot while sitting on the wizard pages.
+	// PrepareToInstall fires right before the Restart Manager checks for locked files.
+	GreenshotWasRunning := CheckForMutexes('F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08,Global\F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08,Local\F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08');
+	Result := '';
 end;
 
 procedure CurStepChanged(CurStep: TSetupStep);
