@@ -94,30 +94,33 @@ begin
 		SuppressibleMsgBox(FmtMessage(SetupMessage(msgWinVersionTooLowError), ['.NET Framework', '4.8.0']), mbCriticalError, MB_OK, IDOK);
 end;
 
-procedure InitializeWizard();
+procedure CurStepChanged(CurStep: TSetupStep);
 var
   VersionMS, VersionLS: Cardinal;
   Major, Minor, Revision: Word;
 begin
-  GreenshotCanBeRestartedByRM := False;
-
-  // At this point, {app} is initialized to the previous install path (or default).
-  // We can check the version of the Greenshot.exe that the Restart Manager will interact with.
-  if GetVersionNumbers(ExpandConstant('{app}\Greenshot.exe'), VersionMS, VersionLS) then
+  if CurStep = ssInstall then
   begin
-    Major := VersionMS shr 16;
-    Minor := VersionMS and $FFFF;
-    Revision := VersionLS shr 16;
+    GreenshotCanBeRestartedByRM := False;
 
-    // Restart Manager restart is only correctly supported in 1.4.143 and newer.
-    if (Major > 1) then
-      GreenshotCanBeRestartedByRM := True
-    else if (Major = 1) then
+    // At this point (right before installation starts), {app} is fully initialized
+    // and we can check the version of the OLD Greenshot.exe before it gets overwritten.
+    if GetVersionNumbers(ExpandConstant('{app}\Greenshot.exe'), VersionMS, VersionLS) then
     begin
-      if (Minor > 4) then
+      Major := VersionMS shr 16;
+      Minor := VersionMS and $FFFF;
+      Revision := VersionLS shr 16;
+
+      // Restart Manager restart is only correctly supported in 1.4.143 and newer.
+      if (Major > 1) then
         GreenshotCanBeRestartedByRM := True
-      else if (Minor = 4) and (Revision >= 143) then
-        GreenshotCanBeRestartedByRM := True;
+      else if (Major = 1) then
+      begin
+        if (Minor > 4) then
+          GreenshotCanBeRestartedByRM := True
+        else if (Minor = 4) and (Revision >= 143) then
+          GreenshotCanBeRestartedByRM := True;
+      end;
     end;
   end;
 end;
