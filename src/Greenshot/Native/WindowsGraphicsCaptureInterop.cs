@@ -367,6 +367,25 @@ namespace Greenshot.Native
             }
         }
 
+        private static void ConfigureCaptureSession(GraphicsCaptureSession session)
+        {
+            // We do not want to have the cursor in the capture, as we do this separately.
+            session.IsCursorCaptureEnabled = false;
+
+            // We do not want the yellow border around the capture area if the OS supports disabling it (Windows 11+).
+            if ((object)session is IGraphicsCaptureSession3 session3)
+            {
+                try
+                {
+                    session3.IsBorderRequired = false;
+                }
+                catch (Exception ex)
+                {
+                    Log.Debug("Failed to disable capture border: " + ex.Message);
+                }
+            }
+        }
+
         /// <summary>
         /// Captures the visual content of the specified window and returns it as a Bitmap image.
         /// </summary>
@@ -416,8 +435,7 @@ namespace Greenshot.Native
                     using var framePool = Direct3D11CaptureFramePool.CreateFreeThreaded(device, pixelFormat, 1, captureItem.Size);
                     using var session = framePool.CreateCaptureSession(captureItem);
 
-                    // We do not want to have the cursor in the capture, as we do this separately.
-                    session.IsCursorCaptureEnabled = false;
+                    ConfigureCaptureSession(session);
 
                     using var frameArrivedEvent = new ManualResetEvent(false);
                     framePool.FrameArrived += (s, e) => frameArrivedEvent.Set();
@@ -513,8 +531,7 @@ namespace Greenshot.Native
                     using var framePool = Direct3D11CaptureFramePool.CreateFreeThreaded(device, pixelFormat, 1, captureItem.Size);
                     using var session = framePool.CreateCaptureSession(captureItem);
 
-                    // We do not want to have the cursor in the capture, as we do this separately.
-                    session.IsCursorCaptureEnabled = false;
+                    ConfigureCaptureSession(session);
 
                     using var frameArrivedEvent = new ManualResetEvent(false);
                     framePool.FrameArrived += (s, e) => frameArrivedEvent.Set();

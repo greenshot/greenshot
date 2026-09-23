@@ -240,6 +240,50 @@ public class HdrToneMapperTests
         }
     }
 
+    [Fact]
+    public void TestCaptureSessionBorderRequiredInterop()
+    {
+        IntPtr primaryMonitor = HdrDisplayInfo.GetMonitorForWindow(IntPtr.Zero);
+        WindowsGraphicsCaptureInterop.CreateD3D11Device(out var d3d11Device, out var context);
+        try
+        {
+            var captureItem = WindowsGraphicsCaptureInterop.CreateCaptureItemForMonitor(primaryMonitor);
+            Assert.NotNull(captureItem);
+
+            var d3dInterOpDevice = WindowsGraphicsCaptureInterop.CreateID3DDeviceFromD3D11Device(d3d11Device);
+            using var framePool = Windows.Graphics.Capture.Direct3D11CaptureFramePool.CreateFreeThreaded(
+                d3dInterOpDevice,
+                Windows.Graphics.DirectX.DirectXPixelFormat.B8G8R8A8UIntNormalized,
+                1,
+                captureItem.Size);
+            using var session = framePool.CreateCaptureSession(captureItem);
+            Assert.NotNull(session);
+
+            bool isWin11 = Environment.OSVersion.Version.Build >= 22000;
+            _output.WriteLine($"OS Build: {Environment.OSVersion.Version.Build}, isWin11: {isWin11}");
+
+            if ((object)session is IGraphicsCaptureSession3 session3)
+            {
+                _output.WriteLine("session implements IGraphicsCaptureSession3 successfully.");
+                bool initial = session3.IsBorderRequired;
+                _output.WriteLine($"Initial IsBorderRequired: {initial}");
+                session3.IsBorderRequired = false;
+                Assert.False(session3.IsBorderRequired);
+                _output.WriteLine("Successfully set IsBorderRequired to false!");
+            }
+            else
+            {
+                _output.WriteLine("session does NOT implement IGraphicsCaptureSession3 (expected on Windows 10).");
+                Assert.False(isWin11, "Expected Windows 11 build to implement IGraphicsCaptureSession3");
+            }
+        }
+        finally
+        {
+            if (context != null) Marshal.ReleaseComObject(context);
+            if (d3d11Device != null) Marshal.ReleaseComObject(d3d11Device);
+        }
+    }
+
     [DllImport("d3d11.dll")]
     private static extern int D3D11CreateDevice(
         IntPtr pAdapter,
