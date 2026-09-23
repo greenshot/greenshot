@@ -72,7 +72,6 @@ namespace Greenshot.Pipeline.Steps
             if (context.Properties.TryGetValue("PreSuppliedRegion", out var regionObj) &&
                 regionObj is NativeRect preRect && !preRect.IsEmpty)
             {
-                payload.RawCapture.Crop(preRect);
                 return;
             }
 

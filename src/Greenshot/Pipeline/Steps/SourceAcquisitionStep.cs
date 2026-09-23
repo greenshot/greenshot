@@ -25,6 +25,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Ini;
+using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.User32;
 using Greenshot.Base.Core;
@@ -83,7 +84,13 @@ namespace Greenshot.Pipeline.Steps
             {
                 var composite = CreateScreenWithCursorSource(captureMouse, "PreSuppliedRegionSource");
                 var payload = await composite.AcquireAsync(context, cancellationToken).ConfigureAwait(false);
-                payload?.RawCapture?.Crop(preRect);
+
+                if (payload?.RawCapture != null )
+                {
+                    // Offset to bitmap coordinates for cropping
+                    NativeRect screenOffsetRect = preRect.Offset(-payload.RawCapture.Location.X, -payload.RawCapture.Location.Y);
+                    payload.RawCapture.Crop(screenOffsetRect);
+                }
                 if (alignDpi && payload != null)
                 {
                     AlignDpi(payload);
