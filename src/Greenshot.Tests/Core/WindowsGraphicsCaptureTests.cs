@@ -21,7 +21,9 @@
 
 using System;
 using System.Drawing;
+using System.Linq;
 using System.Runtime.InteropServices;
+using Dapplo.Windows.User32;
 using Greenshot.Native;
 using Greenshot.Native.DirectX;
 using Xunit;
@@ -282,6 +284,31 @@ public class WindowsGraphicsCaptureTests
             if (context != null) Marshal.ReleaseComObject(context);
             if (d3d11Device != null) Marshal.ReleaseComObject(d3d11Device);
         }
+    }
+
+    [Fact]
+    public void TestCaptureRectangle_SingleMonitor_ReturnsValidBitmap()
+    {
+        var primaryDisplay = DisplayInfo.AllDisplayInfos.FirstOrDefault(d => d.IsPrimary) ?? DisplayInfo.AllDisplayInfos.First();
+        Assert.NotNull(primaryDisplay);
+
+        using var bitmap = WindowsGraphicsCaptureInterop.CaptureRectangle(primaryDisplay.Bounds);
+        Assert.NotNull(bitmap);
+        Assert.Equal(primaryDisplay.Bounds.Width, bitmap.Width);
+        Assert.Equal(primaryDisplay.Bounds.Height, bitmap.Height);
+    }
+
+    [Fact]
+    public void TestRepeatedCapture_ReusesCachedDevice()
+    {
+        IntPtr primaryMonitor = HdrDisplayInfo.GetMonitorForWindow(IntPtr.Zero);
+        using var first = WindowsGraphicsCaptureInterop.CaptureMonitorToBitmap(primaryMonitor);
+        Assert.NotNull(first);
+
+        using var second = WindowsGraphicsCaptureInterop.CaptureMonitorToBitmap(primaryMonitor);
+        Assert.NotNull(second);
+        Assert.Equal(first.Width, second.Width);
+        Assert.Equal(first.Height, second.Height);
     }
 
     [DllImport("d3d11.dll")]

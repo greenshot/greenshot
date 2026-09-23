@@ -355,6 +355,18 @@ internal sealed class HdrToneMapper : IDisposable
         }
         finally
         {
+            if (_pDeviceContext != IntPtr.Zero)
+            {
+                try
+                {
+                    var setTargetFn = GetVtableDelegate<SetTargetDelegate>(_pDeviceContext, VT_D2D1DC_SetTarget);
+                    setTargetFn(_pDeviceContext, IntPtr.Zero);
+                }
+                catch (Exception ex)
+                {
+                    Log.Debug($"Failed to unset D2D target: {ex.Message}");
+                }
+            }
             if (pEffectOutput != IntPtr.Zero) Marshal.Release(pEffectOutput);
             if (pEffect != IntPtr.Zero) Marshal.Release(pEffect);
             if (pTargetBitmap != IntPtr.Zero) Marshal.Release(pTargetBitmap);
@@ -407,6 +419,12 @@ internal sealed class HdrToneMapper : IDisposable
 
         if (_pDeviceContext != IntPtr.Zero)
         {
+            try
+            {
+                var setTargetFn = GetVtableDelegate<SetTargetDelegate>(_pDeviceContext, VT_D2D1DC_SetTarget);
+                setTargetFn(_pDeviceContext, IntPtr.Zero);
+            }
+            catch { }
             Marshal.Release(_pDeviceContext);
             _pDeviceContext = IntPtr.Zero;
         }

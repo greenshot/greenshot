@@ -124,7 +124,10 @@ namespace Greenshot.Base.Pipeline.Sources
                     capture = WindowCaptureHelper.CaptureWindow(window, capture, windowCaptureMode);
                     if (capture != null)
                     {
-                        capture.MoveMouseLocation(capture.ScreenBounds.Location.X - capture.Location.X, capture.ScreenBounds.Location.Y - capture.Location.Y);
+                        if (capture.Cursor != null)
+                        {
+                            capture.MoveMouseLocation(capture.ScreenBounds.Location.X - capture.Location.X, capture.ScreenBounds.Location.Y - capture.Location.Y);
+                        }
                         capture.CaptureDetails.AddMetaData("source", "Window");
                         captured = true;
                     }

@@ -112,6 +112,7 @@ namespace Greenshot.Base.Core
                     if (customImage != null)
                     {
                         captureForWindow.Image = customImage;
+                        captureForWindow.Location = windowToCapture.Location;
                         captureForWindow.CaptureDetails.Title = windowToCapture.Text;
                         return captureForWindow;
                     }

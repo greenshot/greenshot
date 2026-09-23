@@ -72,6 +72,72 @@ namespace Greenshot.Native
             if (hr != 0) Marshal.ThrowExceptionForHR(hr);
         }
 
+        private static readonly object DeviceLock = new object();
+        private static ID3D11Device _cachedD3D11Device;
+        private static ID3D11DeviceContext _cachedContext;
+        private static IDirect3DDevice _cachedDirect3DDevice;
+        private static HdrToneMapper _cachedToneMapper;
+
+        /// <summary>
+        /// Gets or creates the cached Direct3D 11 device, context, and WinRT Direct3D device.
+        /// Must be called while holding DeviceLock.
+        /// </summary>
+        private static bool GetOrCreateDevice(out ID3D11Device d3d11Device, out ID3D11DeviceContext context, out IDirect3DDevice winrtDevice)
+        {
+            if (_cachedD3D11Device == null)
+            {
+                try
+                {
+                    CreateD3D11Device(out _cachedD3D11Device, out _cachedContext);
+                    _cachedDirect3DDevice = CreateID3DDeviceFromD3D11Device(_cachedD3D11Device);
+                }
+                catch (Exception ex)
+                {
+                    Log.Warn($"Failed to create Direct3D11 device: {ex.Message}", ex);
+                    InvalidateCachedDevice();
+                    d3d11Device = null;
+                    context = null;
+                    winrtDevice = null;
+                    return false;
+                }
+            }
+
+            d3d11Device = _cachedD3D11Device;
+            context = _cachedContext;
+            winrtDevice = _cachedDirect3DDevice;
+            return true;
+        }
+
+        /// <summary>
+        /// Invalidates and releases all cached Direct3D and Direct2D resources.
+        /// </summary>
+        public static void InvalidateCachedDevice()
+        {
+            lock (DeviceLock)
+            {
+                if (_cachedToneMapper != null)
+                {
+                    try { _cachedToneMapper.Dispose(); } catch { }
+                    _cachedToneMapper = null;
+                }
+                if (_cachedDirect3DDevice != null)
+                {
+                    try { (_cachedDirect3DDevice as IDisposable)?.Dispose(); } catch { }
+                    _cachedDirect3DDevice = null;
+                }
+                if (_cachedContext != null)
+                {
+                    try { Marshal.ReleaseComObject(_cachedContext); } catch { }
+                    _cachedContext = null;
+                }
+                if (_cachedD3D11Device != null)
+                {
+                    try { Marshal.ReleaseComObject(_cachedD3D11Device); } catch { }
+                    _cachedD3D11Device = null;
+                }
+            }
+        }
+
         /// <summary>
         /// The GUID representing the GraphicsCaptureItem interface for interop operations.
         /// </summary>
@@ -242,13 +308,20 @@ namespace Greenshot.Native
                     byte* sourcePtr = (byte*)mappedResource.pData;
                     byte* destPtr = (byte*)bmpData.Scan0;
 
-                    for (int y = 0; y < height; y++)
+                    if (mappedResource.RowPitch == bmpData.Stride && mappedResource.RowPitch == bytesPerRow)
                     {
-                        // Use Buffer.MemoryCopy for fast, safe unmanaged copy
-                        Buffer.MemoryCopy(sourcePtr, destPtr, bytesPerRow, bytesPerRow);
+                        Buffer.MemoryCopy(sourcePtr, destPtr, (long)bytesPerRow * height, (long)bytesPerRow * height);
+                    }
+                    else
+                    {
+                        for (int y = 0; y < height; y++)
+                        {
+                            // Use Buffer.MemoryCopy for fast, safe unmanaged copy
+                            Buffer.MemoryCopy(sourcePtr, destPtr, bytesPerRow, bytesPerRow);
 
-                        sourcePtr += mappedResource.RowPitch;
-                        destPtr += bmpData.Stride;
+                            sourcePtr += mappedResource.RowPitch;
+                            destPtr += bmpData.Stride;
+                        }
                     }
 
                     bitmap.UnlockBits(bmpData);
@@ -286,8 +359,12 @@ namespace Greenshot.Native
             // Try GPU path first (Direct2D WhiteLevelAdjustment effect)
             try
             {
-                using var toneMapper = new HdrToneMapper(device);
-                var sdrTexture = toneMapper.ToneMapToSdr(hdrTexture, device, sdrWhiteLevelInNits, width, height);
+                lock (DeviceLock)
+                {
+                    _cachedToneMapper ??= new HdrToneMapper(device);
+                }
+
+                var sdrTexture = _cachedToneMapper.ToneMapToSdr(hdrTexture, device, sdrWhiteLevelInNits, width, height);
                 try
                 {
                     return TransformTextureToBitmap(sdrTexture, device, context);
@@ -300,6 +377,14 @@ namespace Greenshot.Native
             catch (Exception ex)
             {
                 Log.Warn($"GPU HDR tone mapping failed, falling back to CPU: {ex.Message}", ex);
+                lock (DeviceLock)
+                {
+                    if (_cachedToneMapper != null)
+                    {
+                        try { _cachedToneMapper.Dispose(); } catch { }
+                        _cachedToneMapper = null;
+                    }
+                }
             }
 
             // CPU fallback
@@ -399,87 +484,87 @@ namespace Greenshot.Native
         {
             return Task.Run(() =>
             {
-                CreateD3D11Device(out var d3d11Device, out var context);
-
-                try
+                lock (DeviceLock)
                 {
-                    GraphicsCaptureItem captureItem;
+                    if (!GetOrCreateDevice(out var d3d11Device, out var context, out var device))
+                    {
+                        return null;
+                    }
+
                     try
                     {
-                        captureItem = CreateCaptureItemForWindow(window);
+                        GraphicsCaptureItem captureItem;
+                        try
+                        {
+                            captureItem = CreateCaptureItemForWindow(window);
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.Warn($"CreateCaptureItemForWindow failed for window {window}: {ex.Message}");
+                            return null;
+                        }
+
+                        if (captureItem == null)
+                        {
+                            Log.Debug($"CreateCaptureItemForWindow returned null for window {window}.");
+                            return null;
+                        }
+
+                        // Detect HDR on the monitor where this window is located
+                        IntPtr hMonitor = HdrDisplayInfo.GetMonitorForWindow(window);
+                        bool isHdr = HdrDisplayInfo.IsHdrActiveForMonitor(hMonitor);
+                        float sdrWhiteLevelInNits = isHdr ? HdrDisplayInfo.GetSdrWhiteLevelInNits(hMonitor) : 80.0f;
+                        var pixelFormat = isHdr
+                            ? DirectXPixelFormat.R16G16B16A16Float
+                            : DirectXPixelFormat.B8G8R8A8UIntNormalized;
+
+                        Log.Debug($"Window {window}: HDR={isHdr}, SDR white level={sdrWhiteLevelInNits} nits, format={pixelFormat}.");
+
+                        using var framePool = Direct3D11CaptureFramePool.CreateFreeThreaded(device, pixelFormat, 1, captureItem.Size);
+                        using var session = framePool.CreateCaptureSession(captureItem);
+
+                        ConfigureCaptureSession(session);
+
+                        using var frameArrivedEvent = new ManualResetEvent(false);
+                        framePool.FrameArrived += (s, e) => frameArrivedEvent.Set();
+
+                        session.StartCapture();
+
+                        if (!frameArrivedEvent.WaitOne(1000))
+                        {
+                            Log.Debug($"Timeout waiting for FrameArrived on window {window}.");
+                            return null;
+                        }
+                        using var frame = framePool.TryGetNextFrame();
+                        if (frame == null)
+                        {
+                            Log.Debug($"TryGetNextFrame returned null after FrameArrived on window {window}.");
+                            return null;
+                        }
+                        var texture = CreateTexture2DFromID3DSurface(frame.Surface);
+                        try
+                        {
+                            if (texture == null)
+                            {
+                                return null;
+                            }
+                            if (isHdr)
+                            {
+                                return ToneMapHdrTextureToBitmap(texture, d3d11Device, context, sdrWhiteLevelInNits);
+                            }
+                            return TransformTextureToBitmap(texture, d3d11Device, context);
+                        }
+                        finally
+                        {
+                            if (texture != null) Marshal.ReleaseComObject(texture);
+                        }
                     }
                     catch (Exception ex)
                     {
-                        Log.Warn($"CreateCaptureItemForWindow failed for window {window}: {ex.Message}");
+                        Log.Warn($"WindowsGraphicsCapture failed for window {window}: {ex.Message}", ex);
+                        InvalidateCachedDevice();
                         return null;
                     }
-
-                    if (captureItem == null)
-                    {
-                        Log.Debug($"CreateCaptureItemForWindow returned null for window {window}.");
-                        return null;
-                    }
-
-                    var device = CreateID3DDeviceFromD3D11Device(d3d11Device);
-
-                    // Detect HDR on the monitor where this window is located
-                    IntPtr hMonitor = HdrDisplayInfo.GetMonitorForWindow(window);
-                    bool isHdr = HdrDisplayInfo.IsHdrActiveForMonitor(hMonitor);
-                    float sdrWhiteLevelInNits = isHdr ? HdrDisplayInfo.GetSdrWhiteLevelInNits(hMonitor) : 80.0f;
-                    var pixelFormat = isHdr
-                        ? DirectXPixelFormat.R16G16B16A16Float
-                        : DirectXPixelFormat.B8G8R8A8UIntNormalized;
-
-                    Log.Debug($"Window {window}: HDR={isHdr}, SDR white level={sdrWhiteLevelInNits} nits, format={pixelFormat}.");
-
-                    using var framePool = Direct3D11CaptureFramePool.CreateFreeThreaded(device, pixelFormat, 1, captureItem.Size);
-                    using var session = framePool.CreateCaptureSession(captureItem);
-
-                    ConfigureCaptureSession(session);
-
-                    using var frameArrivedEvent = new ManualResetEvent(false);
-                    framePool.FrameArrived += (s, e) => frameArrivedEvent.Set();
-
-                    session.StartCapture();
-
-                    if (!frameArrivedEvent.WaitOne(1000))
-                    {
-                        Log.Debug($"Timeout waiting for FrameArrived on window {window}.");
-                        return null;
-                    }
-                    using var frame = framePool.TryGetNextFrame();
-                    if (frame == null)
-                    {
-                        Log.Debug($"TryGetNextFrame returned null after FrameArrived on window {window}.");
-                        return null;
-                    }
-                    var texture = CreateTexture2DFromID3DSurface(frame.Surface);
-                    try
-                    {
-                        if (texture == null)
-                        {
-                            return null;
-                        }
-                        if (isHdr)
-                        {
-                            return ToneMapHdrTextureToBitmap(texture, d3d11Device, context, sdrWhiteLevelInNits);
-                        }
-                        return TransformTextureToBitmap(texture, d3d11Device, context);
-                    }
-                    finally
-                    {
-                        if (texture != null) Marshal.ReleaseComObject(texture);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Log.Warn($"WindowsGraphicsCapture failed for window {window}: {ex.Message}", ex);
-                    return null;
-                }
-                finally
-                {
-                    if (context != null) Marshal.ReleaseComObject(context);
-                    if (d3d11Device != null) Marshal.ReleaseComObject(d3d11Device);
                 }
             }).GetAwaiter().GetResult();
         }
@@ -497,87 +582,88 @@ namespace Greenshot.Native
         {
             return Task.Run(() =>
             {
-                CreateD3D11Device(out var d3d11Device, out var context);
-                try
+                lock (DeviceLock)
                 {
-                    GraphicsCaptureItem captureItem;
+                    if (!GetOrCreateDevice(out var d3d11Device, out var context, out var device))
+                    {
+                        return null;
+                    }
+
                     try
                     {
-                        captureItem = CreateCaptureItemForMonitor(hMonitor);
+                        GraphicsCaptureItem captureItem;
+                        try
+                        {
+                            captureItem = CreateCaptureItemForMonitor(hMonitor);
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.Warn($"CreateCaptureItemForMonitor failed for monitor {hMonitor}: {ex.Message}");
+                            return null;
+                        }
+
+                        if (captureItem == null)
+                        {
+                            Log.Debug($"CreateCaptureItemForMonitor returned null for monitor {hMonitor}.");
+                            return null;
+                        }
+
+                        // Detect HDR on this monitor
+                        bool isHdr = HdrDisplayInfo.IsHdrActiveForMonitor(hMonitor);
+                        float sdrWhiteLevelInNits = isHdr ? HdrDisplayInfo.GetSdrWhiteLevelInNits(hMonitor) : 80.0f;
+                        var pixelFormat = isHdr
+                            ? DirectXPixelFormat.R16G16B16A16Float
+                            : DirectXPixelFormat.B8G8R8A8UIntNormalized;
+
+                        Log.Debug($"Monitor {hMonitor}: HDR={isHdr}, SDR white level={sdrWhiteLevelInNits} nits, format={pixelFormat}.");
+
+                        using var framePool = Direct3D11CaptureFramePool.CreateFreeThreaded(device, pixelFormat, 1, captureItem.Size);
+                        using var session = framePool.CreateCaptureSession(captureItem);
+
+                        ConfigureCaptureSession(session);
+
+                        using var frameArrivedEvent = new ManualResetEvent(false);
+                        framePool.FrameArrived += (s, e) => frameArrivedEvent.Set();
+
+                        session.StartCapture();
+
+                        if (!frameArrivedEvent.WaitOne(1000))
+                        {
+                            Log.Debug($"Timeout waiting for FrameArrived on monitor {hMonitor}.");
+                            return null;
+                        }
+
+                        using var frame = framePool.TryGetNextFrame();
+                        if (frame == null)
+                        {
+                            Log.Debug($"TryGetNextFrame returned null after FrameArrived on monitor {hMonitor}.");
+                            return null;
+                        }
+
+                        var texture = CreateTexture2DFromID3DSurface(frame.Surface);
+                        try
+                        {
+                            if (texture == null)
+                            {
+                                return null;
+                            }
+                            if (isHdr)
+                            {
+                                return ToneMapHdrTextureToBitmap(texture, d3d11Device, context, sdrWhiteLevelInNits);
+                            }
+                            return TransformTextureToBitmap(texture, d3d11Device, context);
+                        }
+                        finally
+                        {
+                            if (texture != null) Marshal.ReleaseComObject(texture);
+                        }
                     }
                     catch (Exception ex)
                     {
-                        Log.Warn($"CreateCaptureItemForMonitor failed for monitor {hMonitor}: {ex.Message}");
+                        Log.Warn($"WindowsGraphicsCapture failed for monitor {hMonitor}: {ex.Message}", ex);
+                        InvalidateCachedDevice();
                         return null;
                     }
-
-                    if (captureItem == null)
-                    {
-                        Log.Debug($"CreateCaptureItemForMonitor returned null for monitor {hMonitor}.");
-                        return null;
-                    }
-
-                    var device = CreateID3DDeviceFromD3D11Device(d3d11Device);
-
-                    // Detect HDR on this monitor
-                    bool isHdr = HdrDisplayInfo.IsHdrActiveForMonitor(hMonitor);
-                    float sdrWhiteLevelInNits = isHdr ? HdrDisplayInfo.GetSdrWhiteLevelInNits(hMonitor) : 80.0f;
-                    var pixelFormat = isHdr
-                        ? DirectXPixelFormat.R16G16B16A16Float
-                        : DirectXPixelFormat.B8G8R8A8UIntNormalized;
-
-                    Log.Debug($"Monitor {hMonitor}: HDR={isHdr}, SDR white level={sdrWhiteLevelInNits} nits, format={pixelFormat}.");
-
-                    using var framePool = Direct3D11CaptureFramePool.CreateFreeThreaded(device, pixelFormat, 1, captureItem.Size);
-                    using var session = framePool.CreateCaptureSession(captureItem);
-
-                    ConfigureCaptureSession(session);
-
-                    using var frameArrivedEvent = new ManualResetEvent(false);
-                    framePool.FrameArrived += (s, e) => frameArrivedEvent.Set();
-
-                    session.StartCapture();
-
-                    if (!frameArrivedEvent.WaitOne(1000))
-                    {
-                        Log.Debug($"Timeout waiting for FrameArrived on monitor {hMonitor}.");
-                        return null;
-                    }
-
-                    using var frame = framePool.TryGetNextFrame();
-                    if (frame == null)
-                    {
-                        Log.Debug($"TryGetNextFrame returned null after FrameArrived on monitor {hMonitor}.");
-                        return null;
-                    }
-
-                    var texture = CreateTexture2DFromID3DSurface(frame.Surface);
-                    try
-                    {
-                        if (texture == null)
-                        {
-                            return null;
-                        }
-                        if (isHdr)
-                        {
-                            return ToneMapHdrTextureToBitmap(texture, d3d11Device, context, sdrWhiteLevelInNits);
-                        }
-                        return TransformTextureToBitmap(texture, d3d11Device, context);
-                    }
-                    finally
-                    {
-                        if (texture != null) Marshal.ReleaseComObject(texture);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Log.Warn($"WindowsGraphicsCapture failed for monitor {hMonitor}: {ex.Message}", ex);
-                    return null;
-                }
-                finally
-                {
-                    if (context != null) Marshal.ReleaseComObject(context);
-                    if (d3d11Device != null) Marshal.ReleaseComObject(d3d11Device);
                 }
             }).GetAwaiter().GetResult();
         }
@@ -609,6 +695,16 @@ namespace Greenshot.Native
             if (displaysInCapture.Length == 0)
             {
                 return null;
+            }
+
+            // Fast-path: single monitor captured in its entirety avoids duplicate bitmap allocation and GDI+ blit
+            if (displaysInCapture.Length == 1)
+            {
+                var single = displaysInCapture[0];
+                if (single.Intersection.Equals(single.Display.Bounds) && single.Intersection.Equals(captureBounds))
+                {
+                    return CaptureMonitorToBitmap(single.Display.MonitorHandle);
+                }
             }
 
             Bitmap resultBitmap = null;
