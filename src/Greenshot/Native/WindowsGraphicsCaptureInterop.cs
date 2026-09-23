@@ -185,7 +185,7 @@ namespace Greenshot.Native
         /// Ensure that the surface supports ID3D11Texture2D to avoid runtime errors.</remarks>
         /// <param name="surface">The IDirect3DSurface from which to create the texture. Must be a valid Direct3D surface compatible with ID3D11Texture2D.</param>
         /// <returns>An ID3D11Texture2D object representing the texture created from the provided surface.</returns>
-        private static ID3D11Texture2D CreateTexture2DFromID3DSurface(IDirect3DSurface surface)
+        internal static ID3D11Texture2D CreateTexture2DFromID3DSurface(IDirect3DSurface surface)
         {
             var access = (IDirect3DDxgiInterfaceAccess)surface;
             var d3dPointer = access.GetInterface(IID_ID3D11Texture2D);
@@ -201,7 +201,7 @@ namespace Greenshot.Native
         /// <param name="device">The Direct3D 11 device used to create a staging texture for data transfer.</param>
         /// <param name="context">The Direct3D 11 device context used to copy and map the texture data.</param>
         /// <returns>A Bitmap containing the pixel data from the specified texture. The Bitmap is formatted as 32bpp ARGB.</returns>
-        private static unsafe Bitmap TransformTextureToBitmap(ID3D11Texture2D texture, ID3D11Device device, ID3D11DeviceContext context)
+        internal static unsafe Bitmap TransformTextureToBitmap(ID3D11Texture2D texture, ID3D11Device device, ID3D11DeviceContext context)
         {
             D3D11_TEXTURE2D_DESC desc;
             texture.GetDesc(out desc);
@@ -283,7 +283,26 @@ namespace Greenshot.Native
             int width = desc.Width;
             int height = desc.Height;
 
-            // CPU tonemap (Reinhard + gamma 2.2)
+            // Try GPU path first (Direct2D WhiteLevelAdjustment effect)
+            try
+            {
+                using var toneMapper = new HdrToneMapper(device);
+                var sdrTexture = toneMapper.ToneMapToSdr(hdrTexture, device, sdrWhiteLevelInNits, width, height);
+                try
+                {
+                    return TransformTextureToBitmap(sdrTexture, device, context);
+                }
+                finally
+                {
+                    if (sdrTexture != null) Marshal.ReleaseComObject(sdrTexture);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Warn($"GPU HDR tone mapping failed, falling back to CPU: {ex.Message}", ex);
+            }
+
+            // CPU fallback
             try
             {
                 return CpuToneMapFp16(hdrTexture, device, context, sdrWhiteLevelInNits, width, height);
@@ -299,7 +318,7 @@ namespace Greenshot.Native
         /// CPU-based tone mapping: stages the FP16 texture to CPU-readable memory,
         /// then applies Reinhard tone mapping + gamma 2.2 per pixel.
         /// </summary>
-        private static Bitmap CpuToneMapFp16(
+        internal static Bitmap CpuToneMapFp16(
             ID3D11Texture2D hdrTexture, ID3D11Device device,
             ID3D11DeviceContext context, float sdrWhiteLevelInNits,
             int width, int height)
