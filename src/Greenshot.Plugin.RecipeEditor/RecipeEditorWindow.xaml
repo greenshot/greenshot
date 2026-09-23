@@ -819,6 +819,9 @@
                             <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="InteractiveSelection">
                                 <TextBlock Text="🔲 Interactive Selection"/>
                             </Button>
+                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="RecordVideo">
+                                <TextBlock Text="🎥 Record Video (WGC)"/>
+                            </Button>
 
                             <!-- 2. Filters & Effects -->
                             <TextBlock Text="FILTERS &amp; EFFECTS" FontWeight="SemiBold" FontSize="10" Foreground="{Binding TextSecondaryBrush}" Margin="4,12,0,4"/>
@@ -1217,6 +1220,213 @@
                                                 <ComboBoxItem Content="Enabled (Snap to Windows)" Tag="true"/>
                                                 <ComboBoxItem Content="Disabled" Tag="false"/>
                                             </ComboBox>
+                                        </StackPanel>
+ 
+                                        <!-- RecordVideo Step Inspector -->
+                                        <StackPanel Visibility="{Binding SelectedNode.StepType, Converter={StaticResource StringToVis}, ConverterParameter=RecordVideo}">
+                                            <TextBlock Text="Source / Target Type" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <ComboBox SelectedValue="{Binding SelectedNode.VideoSourceType, Mode=TwoWay}"
+                                                      SelectedValuePath="Tag" Margin="0,0,0,8">
+                                                <ComboBoxItem Content="Active Window (Currently focused)" Tag="ActiveWindow"/>
+                                                <ComboBoxItem Content="Window (Match title / process)" Tag="Window"/>
+                                                <ComboBoxItem Content="Full Screen (Display / Monitor)" Tag="FullScreen"/>
+                                                <ComboBoxItem Content="Region (Crop coordinates)" Tag="Region"/>
+                                            </ComboBox>
+
+                                            <!-- Window targeting options -->
+                                            <StackPanel Visibility="{Binding SelectedNode.IsVideoWindowSource, Converter={StaticResource BoolToVis}}">
+                                                <TextBlock Text="Window Title Pattern (Regex)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                <TextBox Text="{Binding SelectedNode.WindowTitlePattern, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                         Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                         Padding="6,4" Margin="0,0,0,8"/>
+
+                                                <TextBlock Text="Process Name (e.g. notepad)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                <TextBox Text="{Binding SelectedNode.ProcessName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                         Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                         Padding="6,4" Margin="0,0,0,8"/>
+
+                                                <CheckBox Content="Record until target window closes" IsChecked="{Binding SelectedNode.VideoUntilWindowCloses, Mode=TwoWay}"
+                                                          Foreground="{Binding TextPrimaryBrush}" Margin="0,0,0,8"/>
+                                            </StackPanel>
+
+                                            <!-- Region targeting options -->
+                                            <StackPanel Visibility="{Binding SelectedNode.IsVideoRegionSource, Converter={StaticResource BoolToVis}}">
+                                                <Grid Margin="0,0,0,8">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="6"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <StackPanel Grid.Column="0">
+                                                        <TextBlock Text="Region X (px)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                        <TextBox Text="{Binding SelectedNode.VideoRegionX, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                 Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas" Padding="6,4"/>
+                                                    </StackPanel>
+                                                    <StackPanel Grid.Column="2">
+                                                        <TextBlock Text="Region Y (px)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                        <TextBox Text="{Binding SelectedNode.VideoRegionY, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                 Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas" Padding="6,4"/>
+                                                    </StackPanel>
+                                                </Grid>
+                                                <Grid Margin="0,0,0,8">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="6"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <StackPanel Grid.Column="0">
+                                                        <TextBlock Text="Region Width" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                        <TextBox Text="{Binding SelectedNode.VideoRegionWidth, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                 Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas" Padding="6,4"/>
+                                                    </StackPanel>
+                                                    <StackPanel Grid.Column="2">
+                                                        <TextBlock Text="Region Height" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                        <TextBox Text="{Binding SelectedNode.VideoRegionHeight, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                 Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas" Padding="6,4"/>
+                                                    </StackPanel>
+                                                </Grid>
+                                            </StackPanel>
+
+                                            <!-- Monitor targeting options -->
+                                            <StackPanel Visibility="{Binding SelectedNode.IsVideoMonitorSource, Converter={StaticResource BoolToVis}}">
+                                                <TextBlock Text="Monitor Index (-1 = Primary display)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                <TextBox Text="{Binding SelectedNode.VideoMonitorIndex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                         Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                         Padding="6,4" Margin="0,0,0,8"/>
+                                            </StackPanel>
+
+                                            <!-- Timing & Duration -->
+                                            <Grid Margin="0,0,0,8">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="6"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel Grid.Column="0">
+                                                    <TextBlock Text="Duration (s, 0=unlimited)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                    <TextBox Text="{Binding SelectedNode.VideoDurationSeconds, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                             Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas" Padding="6,4"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="2">
+                                                    <TextBlock Text="Countdown Delay (ms)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                    <TextBox Text="{Binding SelectedNode.DelayMs, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                             Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas" Padding="6,4"/>
+                                                </StackPanel>
+                                            </Grid>
+
+                                            <!-- Output Path -->
+                                            <TextBlock Text="Output MP4 File Path" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <TextBox Text="{Binding SelectedNode.VideoOutputFilePath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                     Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                     Padding="6,4" Margin="0,0,0,8"/>
+
+                                            <!-- Encoding Preset & Format -->
+                                            <Grid Margin="0,0,0,8">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="6"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel Grid.Column="0">
+                                                    <TextBlock Text="Preset" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                    <ComboBox SelectedValue="{Binding SelectedNode.VideoPreset, Mode=TwoWay}" SelectedValuePath="Tag">
+                                                        <ComboBoxItem Content="Balanced (30 FPS, 2.5 Mbps)" Tag="Balanced"/>
+                                                        <ComboBoxItem Content="Small Size (15 FPS, 800 kbps, 720p)" Tag="SmallSize"/>
+                                                        <ComboBoxItem Content="High Quality (60 FPS, 8 Mbps)" Tag="HighQuality"/>
+                                                        <ComboBoxItem Content="Gaming (144 FPS, 25 Mbps)" Tag="HighFrameRateGaming"/>
+                                                        <ComboBoxItem Content="Custom (Manual values below)" Tag="Custom"/>
+                                                    </ComboBox>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="2">
+                                                    <TextBlock Text="Format / Codec" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                    <ComboBox SelectedValue="{Binding SelectedNode.VideoFormat, Mode=TwoWay}" SelectedValuePath="Tag">
+                                                        <ComboBoxItem Content="MP4 (H.264 / AVC)" Tag="Mp4_H264"/>
+                                                        <ComboBoxItem Content="MP4 (HEVC / H.265)" Tag="Mp4_Hevc"/>
+                                                    </ComboBox>
+                                                </StackPanel>
+                                            </Grid>
+
+                                            <!-- Framerate & Bitrate -->
+                                            <Grid Margin="0,0,0,8">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="6"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel Grid.Column="0">
+                                                    <TextBlock Text="Frame Rate (FPS)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                    <TextBox Text="{Binding SelectedNode.VideoFrameRate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                             Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas" Padding="6,4"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="2">
+                                                    <TextBlock Text="Bitrate (bps)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                    <TextBox Text="{Binding SelectedNode.VideoBitrate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                             Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas" Padding="6,4"/>
+                                                </StackPanel>
+                                            </Grid>
+
+                                            <!-- Dimensions & Scaling -->
+                                            <Grid Margin="0,0,0,8">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="6"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="6"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel Grid.Column="0">
+                                                    <TextBlock Text="Width (0=orig)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                    <TextBox Text="{Binding SelectedNode.VideoTargetWidth, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                             Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas" Padding="6,4"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="2">
+                                                    <TextBlock Text="Height (0=orig)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                    <TextBox Text="{Binding SelectedNode.VideoTargetHeight, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                             Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas" Padding="6,4"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="4">
+                                                    <TextBlock Text="Scale Factor" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                    <TextBox Text="{Binding SelectedNode.VideoScaleFactor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                             Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas" Padding="6,4"/>
+                                                </StackPanel>
+                                            </Grid>
+
+                                            <!-- Audio Source -->
+                                            <TextBlock Text="Audio Recording Source" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <ComboBox SelectedValue="{Binding SelectedNode.VideoAudioSource, Mode=TwoWay}"
+                                                      SelectedValuePath="Tag" Margin="0,0,0,8">
+                                                <ComboBoxItem Content="None (Mute video)" Tag="None"/>
+                                                <ComboBoxItem Content="Microphone (WASAPI input)" Tag="Microphone"/>
+                                                <ComboBoxItem Content="System Audio (Speaker loopback)" Tag="SystemAudioLoopback"/>
+                                            </ComboBox>
+
+                                            <!-- Canvas & Appearance -->
+                                            <TextBlock Text="Window Resize Behavior" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <ComboBox SelectedValue="{Binding SelectedNode.VideoResizeBehavior, Mode=TwoWay}"
+                                                      SelectedValuePath="Tag" Margin="0,0,0,8">
+                                                <ComboBoxItem Content="Letterbox (Fixed Canvas, centered)" Tag="LetterboxFixedCanvas"/>
+                                                <ComboBoxItem Content="Crop to Canvas" Tag="CropToCanvas"/>
+                                                <ComboBoxItem Content="Scale Content" Tag="ScaleContent"/>
+                                            </ComboBox>
+
+                                            <TextBlock Text="Color Mode" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <ComboBox SelectedValue="{Binding SelectedNode.VideoColorMode, Mode=TwoWay}"
+                                                      SelectedValuePath="Tag" Margin="0,0,0,8">
+                                                <ComboBoxItem Content="Full Color (32-bit BGRA)" Tag="FullColor"/>
+                                                <ComboBoxItem Content="Grayscale (Monochrome)" Tag="Grayscale"/>
+                                            </ComboBox>
+
+                                            <CheckBox Content="Capture Mouse Cursor" IsChecked="{Binding SelectedNode.VideoCaptureCursor, Mode=TwoWay}"
+                                                      Foreground="{Binding TextPrimaryBrush}" Margin="0,0,0,6"/>
+
+                                            <CheckBox Content="Show OS Capture Border (Yellow WGC border)" IsChecked="{Binding SelectedNode.VideoShowCaptureBorder, Mode=TwoWay}"
+                                                      Foreground="{Binding TextPrimaryBrush}" Margin="0,0,0,6"/>
+
+                                            <CheckBox Content="Prevent System Sleep while recording" IsChecked="{Binding SelectedNode.VideoPreventSleep, Mode=TwoWay}"
+                                                      Foreground="{Binding TextPrimaryBrush}" Margin="0,0,0,6"/>
+
+                                            <CheckBox Content="Auto-pause when Windows locked (Win+L)" IsChecked="{Binding SelectedNode.VideoAutoPauseOnLock, Mode=TwoWay}"
+                                                      Foreground="{Binding TextPrimaryBrush}" Margin="0,0,0,8"/>
                                         </StackPanel>
 
                                         <!-- 3. Border Step Inspector -->

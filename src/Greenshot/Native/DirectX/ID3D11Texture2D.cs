@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -31,6 +31,7 @@ namespace Greenshot.Native.DirectX;
 /// properties. It is essential for rendering operations that require texture mapping in graphics
 /// applications.</remarks>
 [ComImport]
+[ComVisible(true)]
 [Guid("6f15aaf2-d208-4e89-9ab4-489535d34f9c")]
 [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
 internal interface ID3D11Texture2D : ID3D11Resource

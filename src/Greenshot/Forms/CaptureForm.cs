@@ -1201,12 +1201,7 @@ namespace Greenshot.Forms
 
                 var fixedRect = IsAnimating(_windowAnimator) ? _windowAnimator.Current : _captureRect;
 
-                // TODO: enable when the screen capture code works reliable
-                //if (capture.CaptureDetails.CaptureMode == CaptureMode.Video) {
-                //    graphics.FillRectangle(RedOverlayBrush, fixedRect);
-                //} else {
                 graphics.FillRectangle(GreenOverlayBrush, fixedRect);
-                //}
                 graphics.DrawRectangle(OverlayPen, fixedRect);
 
                 // rulers

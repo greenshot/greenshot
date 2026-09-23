@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -34,6 +34,7 @@ namespace Greenshot.Native.DirectX;
 /// performing tasks such as rendering, resource mapping, and configuring pipeline stages in Direct3D 11
 /// applications.</remarks>
 [ComImport]
+[ComVisible(true)]
 [Guid("c0bfa96c-e089-44fb-8eaf-26f8796190da")]
 [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
 internal interface ID3D11DeviceContext
@@ -60,9 +61,10 @@ internal interface ID3D11DeviceContext
     // 7 + 7 = 14. This is correct.
 
     [PreserveSig]
-    int Map([MarshalAs(UnmanagedType.Interface)] ID3D11Resource pResource, int Subresource, D3D11_MAP MapType, int MapFlags, out D3D11_MAPPED_SUBRESOURCE pMappedResource);
+    int Map([MarshalAs(UnmanagedType.Interface)] ID3D11Texture2D pResource, int Subresource, D3D11_MAP MapType, int MapFlags, out D3D11_MAPPED_SUBRESOURCE pMappedResource);
 
-    void Unmap([MarshalAs(UnmanagedType.Interface)] ID3D11Resource pResource, int Subresource);
+    [PreserveSig]
+    void Unmap([MarshalAs(UnmanagedType.Interface)] ID3D11Texture2D pResource, int Subresource);
 
     void PSSetConstantBuffers();
     void IASetInputLayout();
@@ -94,7 +96,17 @@ internal interface ID3D11DeviceContext
     void RSSetState();
     void RSSetViewports();
     void RSSetScissorRects();
-    void CopySubresourceRegion();
+    [PreserveSig]
+    void CopySubresourceRegion(
+        [MarshalAs(UnmanagedType.Interface)] ID3D11Texture2D pDstResource,
+        uint DstSubresource,
+        uint DstX,
+        uint DstY,
+        uint DstZ,
+        [MarshalAs(UnmanagedType.Interface)] ID3D11Texture2D pSrcResource,
+        uint SrcSubresource,
+        [In] ref D3D11_BOX pSrcBox);
 
-    void CopyResource([MarshalAs(UnmanagedType.Interface)] ID3D11Resource pDstResource, [MarshalAs(UnmanagedType.Interface)] ID3D11Resource pSrcResource);
+    [PreserveSig]
+    void CopyResource([MarshalAs(UnmanagedType.Interface)] ID3D11Texture2D pDstResource, [MarshalAs(UnmanagedType.Interface)] ID3D11Texture2D pSrcResource);
 }

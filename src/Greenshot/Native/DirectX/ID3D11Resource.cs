@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -30,6 +30,7 @@ namespace Greenshot.Native.DirectX;
 /// <remarks>This interface serves as the base for all resource types in Direct3D 11, such as textures and
 /// buffers. It provides a common set of functionalities for handling resources within the Direct3D API.</remarks>
 [ComImport]
+[ComVisible(true)]
 [Guid("dc8e63f3-d12b-4952-b47b-5e45026a862d")]
 [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
 internal interface ID3D11Resource { }

@@ -72,7 +72,7 @@ namespace Greenshot.Native
             if (hr != 0) Marshal.ThrowExceptionForHR(hr);
         }
 
-        private static readonly object DeviceLock = new object();
+        internal static readonly object DeviceLock = new object();
         private static ID3D11Device _cachedD3D11Device;
         private static ID3D11DeviceContext _cachedContext;
         private static IDirect3DDevice _cachedDirect3DDevice;
@@ -82,7 +82,7 @@ namespace Greenshot.Native
         /// Gets or creates the cached Direct3D 11 device, context, and WinRT Direct3D device.
         /// Must be called while holding DeviceLock.
         /// </summary>
-        private static bool GetOrCreateDevice(out ID3D11Device d3d11Device, out ID3D11DeviceContext context, out IDirect3DDevice winrtDevice)
+        internal static bool GetOrCreateDevice(out ID3D11Device d3d11Device, out ID3D11DeviceContext context, out IDirect3DDevice winrtDevice)
         {
             if (_cachedD3D11Device == null)
             {
@@ -239,6 +239,35 @@ namespace Greenshot.Native
             finally
             {
                 Marshal.Release(pDxgiDevice);
+            }
+        }
+
+        [DllImport("d3d11.dll", EntryPoint = "CreateDirect3D11SurfaceFromDXGISurface", PreserveSig = true, CallingConvention = CallingConvention.StdCall)]
+        private static extern int CreateDirect3D11SurfaceFromDXGISurface(IntPtr dxgiSurface, out IntPtr graphicsSurface);
+
+        /// <summary>
+        /// Creates a new IDirect3DSurface WinRT instance from the specified ID3D11Texture2D.
+        /// </summary>
+        internal static IDirect3DSurface CreateDirect3D11SurfaceFromTexture2D(ID3D11Texture2D texture)
+        {
+            var dxgiSurface = (IDXGISurface)texture;
+            IntPtr pDxgiSurface = Marshal.GetComInterfaceForObject(dxgiSurface, typeof(IDXGISurface));
+
+            try
+            {
+                int hr = CreateDirect3D11SurfaceFromDXGISurface(pDxgiSurface, out IntPtr pUnknown);
+                if (hr == 0 && pUnknown != IntPtr.Zero)
+                {
+                    var surface = Marshal.GetObjectForIUnknown(pUnknown) as IDirect3DSurface;
+                    Marshal.Release(pUnknown);
+                    return surface;
+                }
+                Marshal.ThrowExceptionForHR(hr);
+                return null;
+            }
+            finally
+            {
+                Marshal.Release(pDxgiSurface);
             }
         }
 

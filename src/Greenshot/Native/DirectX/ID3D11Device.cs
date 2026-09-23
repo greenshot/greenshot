@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -34,6 +34,7 @@ namespace Greenshot.Native.DirectX;
 /// Direct3D initialization routines and are used throughout the application's lifetime to allocate and manage GPU
 /// resources.</remarks>
 [ComImport]
+[ComVisible(true)]
 [Guid("db6f6ddb-ac77-4e88-8253-819df9bbf140")]
 [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
 internal interface ID3D11Device
