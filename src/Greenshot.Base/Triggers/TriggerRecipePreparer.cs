@@ -120,7 +120,7 @@ namespace Greenshot.Base.Triggers
         /// <returns>A clone of the recipe with the required destination nodes added, or the original recipe if no changes were needed.</returns>
         public static CaptureRecipe EnsureRequiredDestination(CaptureRecipe recipe, ITrigger trigger)
         {
-            if (recipe == null || recipe.HasDestinationStep()) return recipe;
+            if (recipe == null || recipe.HasDestinationStep() || recipe.HasVideoStep()) return recipe;
 
             var transitions = recipe.Flow?.GetUnifiedTransitions();
             var endNodeIds = recipe.Nodes?
