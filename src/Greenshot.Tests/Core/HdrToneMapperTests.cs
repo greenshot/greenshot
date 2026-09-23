@@ -29,6 +29,30 @@ using Xunit.Abstractions;
 
 namespace Greenshot.Tests.Core;
 
+/// <summary>
+/// A custom xUnit Fact attribute that dynamically marks the test as Skipped
+/// when HDR is not enabled on the primary display.
+/// </summary>
+[AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
+public sealed class HdrFactAttribute : FactAttribute
+{
+    public HdrFactAttribute()
+    {
+        try
+        {
+            IntPtr primaryMonitor = HdrDisplayInfo.GetMonitorForWindow(IntPtr.Zero);
+            if (!HdrDisplayInfo.IsHdrActiveForMonitor(primaryMonitor))
+            {
+                Skip = "HDR is not currently enabled on the display.";
+            }
+        }
+        catch (Exception ex)
+        {
+            Skip = $"Failed to query display HDR status: {ex.Message}";
+        }
+    }
+}
+
 public class HdrToneMapperTests
 {
     private readonly ITestOutputHelper _output;
@@ -48,7 +72,7 @@ public class HdrToneMapperTests
         _output.WriteLine($"Monitor HDR active: {isHdr}, SDR white level: {sdrWhite} nits");
     }
 
-    [Fact]
+    [HdrFact]
     public void TestGpuToneMapperWithFp16Texture()
     {
         // 1. Create D3D11 Device
@@ -112,7 +136,7 @@ public class HdrToneMapperTests
         }
     }
 
-    [Fact]
+    [HdrFact]
     public void TestCaptureMonitorUsingGpuToneMapper()
     {
         IntPtr primaryMonitor = HdrDisplayInfo.GetMonitorForWindow(IntPtr.Zero);
@@ -123,7 +147,7 @@ public class HdrToneMapperTests
         Assert.NotNull(bitmap);
     }
 
-    [Fact]
+    [HdrFact]
     public void TestGpuToneMapperOnRealCaptureFrame()
     {
         IntPtr primaryMonitor = HdrDisplayInfo.GetMonitorForWindow(IntPtr.Zero);
