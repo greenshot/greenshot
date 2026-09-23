@@ -77,6 +77,7 @@ end;
 
 var
 	GreenshotWasRunning: Boolean;
+	GreenshotCanBeRestartedByRM: Boolean;
 
 function InitializeSetup(): Boolean;
 begin
@@ -93,6 +94,34 @@ begin
 		SuppressibleMsgBox(FmtMessage(SetupMessage(msgWinVersionTooLowError), ['.NET Framework', '4.8.0']), mbCriticalError, MB_OK, IDOK);
 end;
 
+procedure InitializeWizard();
+var
+  VersionMS, VersionLS: Cardinal;
+  Major, Minor, Revision: Word;
+begin
+  GreenshotCanBeRestartedByRM := False;
+
+  // At this point, {app} is initialized to the previous install path (or default).
+  // We can check the version of the Greenshot.exe that the Restart Manager will interact with.
+  if GetVersionNumbers(ExpandConstant('{app}\Greenshot.exe'), VersionMS, VersionLS) then
+  begin
+    Major := VersionMS shr 16;
+    Minor := VersionMS and $FFFF;
+    Revision := VersionLS shr 16;
+
+    // Restart Manager restart is only correctly supported in 1.4.143 and newer.
+    if (Major > 1) then
+      GreenshotCanBeRestartedByRM := True
+    else if (Major = 1) then
+    begin
+      if (Minor > 4) then
+        GreenshotCanBeRestartedByRM := True
+      else if (Minor = 4) and (Revision >= 143) then
+        GreenshotCanBeRestartedByRM := True;
+    end;
+  end;
+end;
+
 function ShouldDisableSnippingTool: Boolean;
 begin
   Result := WizardIsComponentSelected('disablesnippingtool');
@@ -107,9 +136,9 @@ end;
 /////////////////////////////////////////////////////////////////////
 function NotAlreadyRestarted: Boolean;
 begin
-  // Skip the 'Start Greenshot' post-install option if it was running before installation.
-  // The Windows Restart Manager handles auto-restarting the application.
-  Result := not GreenshotWasRunning;
+  // Skip the 'Start Greenshot' post-install option if it was running before installation
+  // AND the installed version is new enough to support the Windows Restart Manager.
+  Result := not (GreenshotWasRunning and GreenshotCanBeRestartedByRM);
 end;
 
 var
