@@ -45,6 +45,12 @@ public partial class BoxConfigurationImpl : IBoxConfiguration
         if (!string.IsNullOrEmpty(RefreshToken))
         {
             RefreshToken = RefreshToken.Decrypt();
+            if (RefreshToken == null)
+            {
+                // DPAPI-protected refresh tokens are user-profile/machine bound.
+                // If they cannot be decrypted here, force a clean OAuth re-authorization.
+                AccessToken = null;
+            }
         }
     }
 
