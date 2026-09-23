@@ -288,6 +288,122 @@
               "items": {
                 "$ref": "#/definitions/ConditionBranchConfig"
               }
+            },
+            "UntilWindowCloses": {
+              "type": "boolean",
+              "default": true,
+              "description": "Used by 'RecordVideo' step: Automatically stops recording when target window is closed."
+            },
+            "DurationSeconds": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "description": "Used by 'RecordVideo' step: Maximum recording duration in seconds (0 = unlimited / until stopped or window closed)."
+            },
+            "OutputFilePath": {
+              "type": "string",
+              "description": "Used by 'RecordVideo' step: Destination .mp4 file path. Supports %VAR% expansion and {yyyyMMdd_HHmmss} timestamp placeholders."
+            },
+            "OutputDirectory": {
+              "type": "string",
+              "description": "Used by 'RecordVideo' step: Destination directory when OutputFilePath is omitted."
+            },
+            "FilenamePattern": {
+              "type": "string",
+              "description": "Used by 'RecordVideo' step: Filename template (e.g. 'Greenshot_{yyyyMMdd_HHmmss}.mp4')."
+            },
+            "Preset": {
+              "type": "string",
+              "enum": [
+                "SmallSize",
+                "Balanced",
+                "HighQuality",
+                "HighFrameRateGaming",
+                "Custom"
+              ],
+              "default": "Balanced",
+              "description": "Used by 'RecordVideo' step: Pre-configured quality and framerate preset."
+            },
+            "Format": {
+              "type": "string",
+              "enum": [
+                "Mp4_H264",
+                "Mp4_Hevc"
+              ],
+              "default": "Mp4_H264",
+              "description": "Used by 'RecordVideo' step: Video codec container format."
+            },
+            "FrameRate": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 240,
+              "default": 30,
+              "description": "Used by 'RecordVideo' step: Target recording frames per second (e.g. 15, 30, 60, 144)."
+            },
+            "Bitrate": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Used by 'RecordVideo' step: Target video bitrate in bits per second (e.g. 2500000)."
+            },
+            "TargetWidth": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Used by 'RecordVideo' step: Downscaled/upscaled video width in pixels."
+            },
+            "TargetHeight": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Used by 'RecordVideo' step: Downscaled/upscaled video height in pixels."
+            },
+            "ScaleFactor": {
+              "type": "number",
+              "minimum": 0.1,
+              "maximum": 2.0,
+              "description": "Used by 'RecordVideo' step: Uniform scaling factor applied to frames (e.g. 0.5, 0.75)."
+            },
+            "ColorMode": {
+              "type": "string",
+              "enum": [
+                "FullColor",
+                "Grayscale"
+              ],
+              "default": "FullColor",
+              "description": "Used by 'RecordVideo' step: Color mode for recorded frames."
+            },
+            "ShowCaptureBorder": {
+              "type": "boolean",
+              "default": false,
+              "description": "Used by 'RecordVideo' step: Displays OS yellow capture border during recording (Windows 11+)."
+            },
+            "WindowResizeBehavior": {
+              "type": "string",
+              "enum": [
+                "LetterboxFixedCanvas",
+                "CropToCanvas",
+                "ScaleContent"
+              ],
+              "default": "LetterboxFixedCanvas",
+              "description": "Used by 'RecordVideo' step: How canvas handles target window size changes."
+            },
+            "AudioSource": {
+              "type": "string",
+              "enum": [
+                "None",
+                "Microphone",
+                "SystemAudioLoopback"
+              ],
+              "default": "None",
+              "description": "Used by 'RecordVideo' step: Audio source recorded alongside video track."
+            },
+            "PreventSleepWhileRecording": {
+              "type": "boolean",
+              "default": true,
+              "description": "Used by 'RecordVideo' step: Prevents system idle sleep while recording."
+            },
+            "AutoPauseOnSessionLock": {
+              "type": "boolean",
+              "default": true,
+              "description": "Used by 'RecordVideo' step: Pauses recording automatically when workstation is locked."
             }
           },
           "additionalProperties": true

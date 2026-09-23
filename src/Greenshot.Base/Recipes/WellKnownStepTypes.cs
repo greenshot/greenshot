@@ -125,5 +125,10 @@ namespace Greenshot.Base.Recipes
         /// Alias for UserPrompt.
         /// </summary>
         public const string PromptChoice = "PromptChoice";
+
+        /// <summary>
+        /// Records screen video using Windows Graphics Capture (WGC).
+        /// </summary>
+        public const string RecordVideo = "RecordVideo";
     }
 }

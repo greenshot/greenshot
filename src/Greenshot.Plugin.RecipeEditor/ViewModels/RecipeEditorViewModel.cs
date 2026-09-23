@@ -1233,6 +1233,22 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     dict["CaptureMouseCursor"] = null;
                     dict["DelayMs"] = 0;
                     break;
+                case WellKnownStepTypes.RecordVideo:
+                    dict["SourceType"] = "ActiveWindow";
+                    dict["UntilWindowCloses"] = true;
+                    dict["OutputFilePath"] = @"%USERPROFILE%\Videos\Greenshot\Recording_{yyyyMMdd_HHmmss}.mp4";
+                    dict["Preset"] = "Balanced";
+                    dict["Format"] = "Mp4_H264";
+                    dict["FrameRate"] = 30;
+                    dict["Bitrate"] = 2500000;
+                    dict["CaptureMouseCursor"] = true;
+                    dict["ShowCaptureBorder"] = false;
+                    dict["WindowResizeBehavior"] = "LetterboxFixedCanvas";
+                    dict["AudioSource"] = "None";
+                    dict["PreventSleepWhileRecording"] = true;
+                    dict["AutoPauseOnSessionLock"] = true;
+                    dict["DelayMs"] = 0;
+                    break;
                 case WellKnownStepTypes.InteractiveSelection:
                     dict["SelectionMode"] = "Region";
                     dict["AllowWindowSnapping"] = true;

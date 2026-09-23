@@ -172,13 +172,24 @@ namespace Greenshot.Base.Recipes
         }
 
         /// <summary>
+        /// Determines whether the recipe contains any video recording step.
+        /// </summary>
+        public bool HasVideoStep()
+        {
+            if (Nodes == null || Nodes.Count == 0) return false;
+            return Nodes.Any(node =>
+                string.Equals(node.StepType, WellKnownStepTypes.RecordVideo, StringComparison.OrdinalIgnoreCase));
+        }
+
+        /// <summary>
         /// Determines whether the recipe contains any source step.
         /// </summary>
         public bool HasSourceStep()
         {
             if (Nodes == null || Nodes.Count == 0) return false;
             return Nodes.Any(node =>
-                string.Equals(node.StepType, WellKnownStepTypes.Source, StringComparison.OrdinalIgnoreCase));
+                string.Equals(node.StepType, WellKnownStepTypes.Source, StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(node.StepType, WellKnownStepTypes.RecordVideo, StringComparison.OrdinalIgnoreCase));
         }
 
         public CaptureRecipe Clone()

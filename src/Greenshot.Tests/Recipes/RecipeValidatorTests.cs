@@ -356,5 +356,24 @@ namespace Greenshot.Tests.Recipes
             Assert.False(result.IsValid);
             Assert.Contains(result.Errors, e => e.Contains("NonExistentCustomDrawable") && e.Contains("not available"));
         }
+
+        [Fact]
+        public void Validate_RecordActiveWindowExampleRecipe_IsValid()
+        {
+            string repoRoot = System.IO.Path.GetFullPath(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\.."));
+            string examplePath = System.IO.Path.Combine(repoRoot, @"docs\examples\record_active_window.gsrecipe.json");
+
+            Assert.True(System.IO.File.Exists(examplePath), $"Recipe file not found: {examplePath}");
+
+            string json = System.IO.File.ReadAllText(examplePath);
+            var recipe = Newtonsoft.Json.JsonConvert.DeserializeObject<CaptureRecipe>(json);
+
+            Assert.NotNull(recipe);
+            Assert.Equal("recipe_record_active_window", recipe.Id);
+            Assert.Contains(recipe.Triggers, t => t.TriggerType == "Hotkey" && t.GetParameter<string>("hotkey") == "Pause");
+
+            var validation = RecipeValidator.Validate(recipe);
+            Assert.True(validation.IsValid, string.Join("; ", validation.Errors));
+        }
     }
 }

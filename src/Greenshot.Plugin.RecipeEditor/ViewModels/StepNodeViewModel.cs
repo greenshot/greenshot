@@ -3313,6 +3313,163 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             set { SetParam("CopyToClipboard", value); OnPropertyChanged(nameof(ZxingCopyToClipboard)); }
         }
 
+        // --- 19. RecordVideo Step ---
+        public string VideoSourceType
+        {
+            get => GetParam("SourceType", GetParam("Target", "ActiveWindow"));
+            set
+            {
+                SetParam("SourceType", value);
+                SetParam("Target", value);
+                OnPropertyChanged(nameof(VideoSourceType));
+                OnPropertyChanged(nameof(IsVideoWindowSource));
+                OnPropertyChanged(nameof(IsVideoRegionSource));
+                OnPropertyChanged(nameof(IsVideoMonitorSource));
+                OnPropertyChanged(nameof(Summary));
+            }
+        }
+
+        public bool IsVideoWindowSource => string.Equals(VideoSourceType, "Window", StringComparison.OrdinalIgnoreCase) || string.Equals(VideoSourceType, "ActiveWindow", StringComparison.OrdinalIgnoreCase);
+        public bool IsVideoRegionSource => string.Equals(VideoSourceType, "Region", StringComparison.OrdinalIgnoreCase);
+        public bool IsVideoMonitorSource => string.Equals(VideoSourceType, "FullScreen", StringComparison.OrdinalIgnoreCase) || string.Equals(VideoSourceType, "Screen", StringComparison.OrdinalIgnoreCase) || string.Equals(VideoSourceType, "Monitor", StringComparison.OrdinalIgnoreCase);
+
+        public bool VideoUntilWindowCloses
+        {
+            get => GetParamBool("UntilWindowCloses", true);
+            set { SetParam("UntilWindowCloses", value); OnPropertyChanged(nameof(VideoUntilWindowCloses)); }
+        }
+
+        public int VideoDurationSeconds
+        {
+            get => int.TryParse(GetParam("DurationSeconds", "0"), out int d) ? d : 0;
+            set { SetParam("DurationSeconds", value); OnPropertyChanged(nameof(VideoDurationSeconds)); }
+        }
+
+        public string VideoOutputFilePath
+        {
+            get => GetParam("OutputFilePath", @"%USERPROFILE%\Videos\Greenshot\Recording_{yyyyMMdd_HHmmss}.mp4");
+            set { SetParam("OutputFilePath", value); OnPropertyChanged(nameof(VideoOutputFilePath)); }
+        }
+
+        public string VideoPreset
+        {
+            get => GetParam("Preset", "Balanced");
+            set { SetParam("Preset", value); OnPropertyChanged(nameof(VideoPreset)); OnPropertyChanged(nameof(Summary)); }
+        }
+
+        public string VideoFormat
+        {
+            get => GetParam("Format", "Mp4_H264");
+            set { SetParam("Format", value); OnPropertyChanged(nameof(VideoFormat)); }
+        }
+
+        public int VideoFrameRate
+        {
+            get => int.TryParse(GetParam("FrameRate", "30"), out int fps) ? fps : 30;
+            set { SetParam("FrameRate", value); OnPropertyChanged(nameof(VideoFrameRate)); OnPropertyChanged(nameof(Summary)); }
+        }
+
+        public int VideoBitrate
+        {
+            get => int.TryParse(GetParam("Bitrate", "2500000"), out int b) ? b : 2500000;
+            set { SetParam("Bitrate", value); OnPropertyChanged(nameof(VideoBitrate)); }
+        }
+
+        public int VideoTargetWidth
+        {
+            get => int.TryParse(GetParam("TargetWidth", "0"), out int w) ? w : 0;
+            set { SetParam("TargetWidth", value); OnPropertyChanged(nameof(VideoTargetWidth)); }
+        }
+
+        public int VideoTargetHeight
+        {
+            get => int.TryParse(GetParam("TargetHeight", "0"), out int h) ? h : 0;
+            set { SetParam("TargetHeight", value); OnPropertyChanged(nameof(VideoTargetHeight)); }
+        }
+
+        public string VideoScaleFactor
+        {
+            get => GetParam("ScaleFactor", "1.0");
+            set { SetParam("ScaleFactor", value); OnPropertyChanged(nameof(VideoScaleFactor)); }
+        }
+
+        public string VideoColorMode
+        {
+            get => GetParam("ColorMode", "FullColor");
+            set { SetParam("ColorMode", value); OnPropertyChanged(nameof(VideoColorMode)); }
+        }
+
+        public bool VideoCaptureCursor
+        {
+            get => GetParamBool("CaptureMouseCursor", GetParamBool("CaptureCursor", true));
+            set
+            {
+                SetParam("CaptureMouseCursor", value);
+                SetParam("CaptureCursor", value);
+                OnPropertyChanged(nameof(VideoCaptureCursor));
+            }
+        }
+
+        public bool VideoShowCaptureBorder
+        {
+            get => GetParamBool("ShowCaptureBorder", false);
+            set { SetParam("ShowCaptureBorder", value); OnPropertyChanged(nameof(VideoShowCaptureBorder)); }
+        }
+
+        public string VideoResizeBehavior
+        {
+            get => GetParam("WindowResizeBehavior", "LetterboxFixedCanvas");
+            set { SetParam("WindowResizeBehavior", value); OnPropertyChanged(nameof(VideoResizeBehavior)); }
+        }
+
+        public string VideoAudioSource
+        {
+            get => GetParam("AudioSource", "None");
+            set { SetParam("AudioSource", value); OnPropertyChanged(nameof(VideoAudioSource)); }
+        }
+
+        public bool VideoPreventSleep
+        {
+            get => GetParamBool("PreventSleepWhileRecording", true);
+            set { SetParam("PreventSleepWhileRecording", value); OnPropertyChanged(nameof(VideoPreventSleep)); }
+        }
+
+        public bool VideoAutoPauseOnLock
+        {
+            get => GetParamBool("AutoPauseOnSessionLock", true);
+            set { SetParam("AutoPauseOnSessionLock", value); OnPropertyChanged(nameof(VideoAutoPauseOnLock)); }
+        }
+
+        public int VideoRegionX
+        {
+            get => int.TryParse(GetParam("RegionX", "0"), out int x) ? x : 0;
+            set { SetParam("RegionX", value); OnPropertyChanged(nameof(VideoRegionX)); }
+        }
+
+        public int VideoRegionY
+        {
+            get => int.TryParse(GetParam("RegionY", "0"), out int y) ? y : 0;
+            set { SetParam("RegionY", value); OnPropertyChanged(nameof(VideoRegionY)); }
+        }
+
+        public int VideoRegionWidth
+        {
+            get => int.TryParse(GetParam("RegionWidth", "800"), out int w) ? w : 800;
+            set { SetParam("RegionWidth", value); OnPropertyChanged(nameof(VideoRegionWidth)); }
+        }
+
+        public int VideoRegionHeight
+        {
+            get => int.TryParse(GetParam("RegionHeight", "600"), out int h) ? h : 600;
+            set { SetParam("RegionHeight", value); OnPropertyChanged(nameof(VideoRegionHeight)); }
+        }
+
+        public int VideoMonitorIndex
+        {
+            get => int.TryParse(GetParam("MonitorIndex", "-1"), out int m) ? m : -1;
+            set { SetParam("MonitorIndex", value); OnPropertyChanged(nameof(VideoMonitorIndex)); }
+        }
+
         private bool HasDestination(string dest)
         {
             if (Config.Parameters == null) return false;
@@ -3432,6 +3589,11 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                             return active.Count > 0 ? $"Processors: {string.Join(", ", active)}" : "Processors (None)";
                         }
                         return ProcessorTiming != "Any" && !string.IsNullOrEmpty(ProcessorTiming) ? $"Processors: All ({ProcessorTiming})" : "Processors: All Active";
+                    case WellKnownStepTypes.RecordVideo:
+                        string recTarget = GetParam("SourceType", GetParam("sourceType", GetParam("Target", "ActiveWindow")));
+                        string recFps = GetParam("FrameRate", GetParam("frameRate", GetParam("fps", "30")));
+                        string recPreset = GetParam("Preset", GetParam("preset", "Balanced"));
+                        return $"Record Video: {recTarget} ({recFps} FPS, {recPreset})";
                     case var _ when IsExternalCommand:
                         return !string.IsNullOrWhiteSpace(ExternalCommandLine) ? $"Run: {System.IO.Path.GetFileName(ExternalCommandLine)} {ExternalCommandArguments}".Trim() : "Execute Command";
                     case var _ when IsImgur:
@@ -3582,6 +3744,32 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             OnPropertyChanged(nameof(ProcessorRunTitleFix));
             OnPropertyChanged(nameof(ProcessorRunPlugins));
             OnPropertyChanged(nameof(CustomProcessorIdsText));
+            OnPropertyChanged(nameof(VideoSourceType));
+            OnPropertyChanged(nameof(IsVideoWindowSource));
+            OnPropertyChanged(nameof(IsVideoRegionSource));
+            OnPropertyChanged(nameof(IsVideoMonitorSource));
+            OnPropertyChanged(nameof(VideoUntilWindowCloses));
+            OnPropertyChanged(nameof(VideoDurationSeconds));
+            OnPropertyChanged(nameof(VideoOutputFilePath));
+            OnPropertyChanged(nameof(VideoPreset));
+            OnPropertyChanged(nameof(VideoFormat));
+            OnPropertyChanged(nameof(VideoFrameRate));
+            OnPropertyChanged(nameof(VideoBitrate));
+            OnPropertyChanged(nameof(VideoTargetWidth));
+            OnPropertyChanged(nameof(VideoTargetHeight));
+            OnPropertyChanged(nameof(VideoScaleFactor));
+            OnPropertyChanged(nameof(VideoColorMode));
+            OnPropertyChanged(nameof(VideoCaptureCursor));
+            OnPropertyChanged(nameof(VideoShowCaptureBorder));
+            OnPropertyChanged(nameof(VideoResizeBehavior));
+            OnPropertyChanged(nameof(VideoAudioSource));
+            OnPropertyChanged(nameof(VideoPreventSleep));
+            OnPropertyChanged(nameof(VideoAutoPauseOnLock));
+            OnPropertyChanged(nameof(VideoRegionX));
+            OnPropertyChanged(nameof(VideoRegionY));
+            OnPropertyChanged(nameof(VideoRegionWidth));
+            OnPropertyChanged(nameof(VideoRegionHeight));
+            OnPropertyChanged(nameof(VideoMonitorIndex));
         }
 
         public string GetParam(string key, string fallback = "")

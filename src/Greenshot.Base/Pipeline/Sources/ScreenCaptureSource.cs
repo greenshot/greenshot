@@ -64,7 +64,10 @@ namespace Greenshot.Base.Pipeline.Sources
                         {
                             capture = WindowCapture.CaptureRectangle(capture, screen.Bounds);
                             captureTaken = true;
-                            capture.CursorLocation = capture.CursorLocation.Offset(-screen.Bounds.Location.X, -screen.Bounds.Location.Y);
+                            if (capture.Cursor != null)
+                            {
+                                capture.CursorLocation = capture.CursorLocation.Offset(-screen.Bounds.Location.X, -screen.Bounds.Location.Y);
+                            }
                             break;
                         }
                     }

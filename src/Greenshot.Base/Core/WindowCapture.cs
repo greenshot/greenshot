@@ -91,8 +91,11 @@ namespace Greenshot.Base.Core
             {
                 NativePoint cursorLocation = User32Api.GetCursorLocation();
                 // Align cursor location to Bitmap coordinates (instead of Screen coordinates)
-                var x = cursorLocation.X - capturedCursor.HotSpot.X - capture.ScreenBounds.X;
-                var y = cursorLocation.Y - capturedCursor.HotSpot.Y - capture.ScreenBounds.Y;
+                NativePoint origin = (capture.Image != null)
+                    ? capture.Location
+                    : capture.ScreenBounds.Location;
+                var x = cursorLocation.X - capturedCursor.HotSpot.X - origin.X;
+                var y = cursorLocation.Y - capturedCursor.HotSpot.Y - origin.Y;
                 // Set the location
                 capture.CursorLocation = new NativePoint(x, y);
                 capture.Cursor = capturedCursor;

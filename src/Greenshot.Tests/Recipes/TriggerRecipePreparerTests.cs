@@ -174,6 +174,61 @@ namespace Greenshot.Tests.Recipes
             Assert.Contains(destinationNode.Id, preparedRecipe.Flow.Transitions["effect_e095"]);
         }
 
+        [Fact]
+        public void Prepare_VideoRecipe_DoesNotAddSourceOrDestination()
+        {
+            var recipe = new CaptureRecipe("video_recipe", "Video Recipe")
+                .AddNode(CreateRecordVideoNode("record_1"));
+            recipe.Flow = new RecipeFlowConfig("record_1");
+            var trigger = new HotkeyTrigger("hotkey_trigger", "Hotkey Trigger", "Pause", recipe.Id);
+
+            var preparedRecipe = TriggerRecipePreparer.Prepare(recipe, trigger);
+
+            Assert.Same(recipe, preparedRecipe);
+            Assert.Single(preparedRecipe.Nodes);
+            Assert.Equal(WellKnownStepTypes.RecordVideo, preparedRecipe.Nodes[0].StepType);
+        }
+
+        [Fact]
+        public void Prepare_VideoRecipeWithNotification_DoesNotAddSourceOrDestination()
+        {
+            var recipe = new CaptureRecipe("video_recipe", "Video Recipe")
+                .AddNode(CreateRecordVideoNode("record_1"))
+                .AddNode(new RecipeNodeConfig
+                {
+                    Id = "notify_1",
+                    StepType = WellKnownStepTypes.Notification,
+                    Name = "Notification",
+                    Enabled = true
+                });
+            recipe.Flow = new RecipeFlowConfig("record_1")
+                .AddTransition("record_1", "notify_1");
+            var trigger = new HotkeyTrigger("hotkey_trigger", "Hotkey Trigger", "Pause", recipe.Id);
+
+            var preparedRecipe = TriggerRecipePreparer.Prepare(recipe, trigger);
+
+            Assert.Same(recipe, preparedRecipe);
+            Assert.Equal(2, preparedRecipe.Nodes.Count);
+            Assert.DoesNotContain(preparedRecipe.Nodes, n => n.StepType == WellKnownStepTypes.Destinations);
+            Assert.DoesNotContain(preparedRecipe.Nodes, n => n.StepType == WellKnownStepTypes.Source);
+        }
+
+        private static RecipeNodeConfig CreateRecordVideoNode(string id)
+        {
+            return new RecipeNodeConfig
+            {
+                Id = id,
+                StepType = WellKnownStepTypes.RecordVideo,
+                Name = "Record Video",
+                Enabled = true,
+                Parameters = new Dictionary<string, object>
+                {
+                    ["targetType"] = "Window",
+                    ["outputFilePath"] = "test.mp4"
+                }
+            };
+        }
+
         private static RecipeNodeConfig CreateSourceNode(string id)
         {
             return new RecipeNodeConfig
