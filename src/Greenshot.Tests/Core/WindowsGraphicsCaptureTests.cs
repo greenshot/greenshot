@@ -53,11 +53,11 @@ public sealed class HdrFactAttribute : FactAttribute
     }
 }
 
-public class HdrToneMapperTests
+public class WindowsGraphicsCaptureTests
 {
     private readonly ITestOutputHelper _output;
 
-    public HdrToneMapperTests(ITestOutputHelper output)
+    public WindowsGraphicsCaptureTests(ITestOutputHelper output)
     {
         _output = output;
     }
