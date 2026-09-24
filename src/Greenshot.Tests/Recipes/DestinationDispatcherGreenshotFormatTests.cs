@@ -100,7 +100,7 @@ namespace Greenshot.Tests.Recipes
             string path = Path.Combine(Path.GetTempPath(), $"dispatcher_{Guid.NewGuid():N}.greenshot");
             try
             {
-                using var context = CreateContext(path);
+                using CaptureFlowContext context = CreateContext(path);
 
                 await DispatchWithoutUiContext(context, new StubDestination(nameof(WellKnownDestinations.FileNoDialog)));
 
@@ -121,8 +121,8 @@ namespace Greenshot.Tests.Recipes
             string path = Path.Combine(Path.GetTempPath(), $"dispatcher_{Guid.NewGuid():N}.greenshot");
             try
             {
-                var context = CreateContext(path);
-                var surface = context.Payload.Surface;
+                CaptureFlowContext context = CreateContext(path);
+                ISurface surface = context.Payload.Surface;
 
                 await DispatchWithoutUiContext(context,
                     new StubDestination(nameof(WellKnownDestinations.FileNoDialog)),

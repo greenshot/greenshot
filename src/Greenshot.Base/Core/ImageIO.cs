@@ -344,7 +344,7 @@ namespace Greenshot.Base.Core
             // Check before the file is created, otherwise an empty file is left behind
             if (outputSettings.Format == OutputFormat.greenshot)
             {
-                throw new NotSupportedException("The greenshot format needs the surface, use Save instead.");
+                throw new NotSupportedException($"The greenshot format needs the surface, use {nameof(Save)} instead.");
             }
 
             fullPath = FilenameHelper.MakeFqFilenameSafe(fullPath);
