@@ -1,9 +1,9 @@
-﻿<UserControl x:Class="Greenshot.UI.Controls.KeyCapBadge"
+<UserControl x:Class="Greenshot.Base.Wpf.KeyCapBadge"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
+             xmlns:wpf="clr-namespace:Greenshot.Base.Wpf"
              mc:Ignorable="d" 
              d:DesignHeight="30" d:DesignWidth="70">
     <Border x:Name="KeyCapBorder"

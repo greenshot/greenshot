@@ -180,7 +180,7 @@ namespace Greenshot.Plugin.RecipeEditor
 
         private void HotkeyDisplayControl_EditRequested(object sender, EventArgs e)
         {
-            if (sender is Greenshot.UI.Controls.HotkeyDisplayControl displayControl)
+            if (sender is Greenshot.Base.Wpf.HotkeyDisplayControl displayControl)
             {
                 HotkeyModal.Open(displayControl.HeaderText, displayControl.HotkeyString, newHotkey =>
                 {

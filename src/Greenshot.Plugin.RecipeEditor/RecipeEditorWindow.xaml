@@ -7,8 +7,7 @@
         xmlns:vm="clr-namespace:Greenshot.Plugin.RecipeEditor.ViewModels"
         xmlns:conv="clr-namespace:Greenshot.Plugin.RecipeEditor.Converters"
         xmlns:emoji="clr-namespace:Greenshot.Editor.Controls.Emoji;assembly=Greenshot.Editor"
-        xmlns:controls="clr-namespace:Greenshot.UI.Controls;assembly=Greenshot"
-        xmlns:forms="clr-namespace:Greenshot.Forms.Wpf;assembly=Greenshot"
+        xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
         mc:Ignorable="d"
         Title="Greenshot - Recipe Visual Editor"
         Height="800" Width="1240"
@@ -3223,10 +3222,10 @@
                                                         <!-- 1. Hotkey -->
                                                         <StackPanel Visibility="{Binding IsHotkey, Converter={StaticResource BoolToVis}}" Margin="0,2,0,0">
                                                             <TextBlock Text="Hotkey Trigger" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
-                                                            <controls:HotkeyDisplayControl Margin="0,4,0,4"
-                                                                                          HotkeyString="{Binding Hotkey, Mode=TwoWay}"
-                                                                                          HeaderText="{Binding DisplayTitle}"
-                                                                                          EditRequested="HotkeyDisplayControl_EditRequested"/>
+                                                            <wpf:HotkeyDisplayControl Margin="0,4,0,4"
+                                                                                      HotkeyString="{Binding Hotkey, Mode=TwoWay}"
+                                                                                      HeaderText="{Binding DisplayTitle}"
+                                                                                      EditRequested="HotkeyDisplayControl_EditRequested"/>
                                                         </StackPanel>
 
                                                         <!-- 2. Context Menu -->
@@ -3300,9 +3299,9 @@
             </Border>
 
             <!-- In-Window Modal Hotkey Editor Overlay -->
-            <forms:HotkeyEditorModal x:Name="HotkeyModal"
-                                     Grid.RowSpan="4"
-                                     Visibility="Collapsed"/>
+            <wpf:HotkeyEditorModal x:Name="HotkeyModal"
+                                   Grid.RowSpan="4"
+                                   Visibility="Collapsed"/>
         </Grid>
     </Border>
 </Window>

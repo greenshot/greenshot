@@ -24,8 +24,7 @@ using System.Linq;
 using System.Threading;
 using Dapplo.Windows.Input.Enums;
 using Greenshot.Base.Core;
-using Greenshot.Forms.Wpf;
-using Greenshot.UI.Controls;
+using Greenshot.Base.Wpf;
 using Xunit;
 
 namespace Greenshot.Tests.Forms

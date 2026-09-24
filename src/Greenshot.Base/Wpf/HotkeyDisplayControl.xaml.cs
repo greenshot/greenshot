@@ -2,9 +2,8 @@ using System;
 using System.Windows;
 using System.Windows.Controls;
 using Greenshot.Base.Core;
-using Greenshot.Base.Wpf;
 
-namespace Greenshot.UI.Controls
+namespace Greenshot.Base.Wpf
 {
     public partial class HotkeyDisplayControl : UserControl
     {
