@@ -341,6 +341,12 @@ namespace Greenshot.Base.Core
         public static void SaveRenderedImage(Image renderedBitmap, string fullPath, bool allowOverwrite,
             SurfaceOutputSettings outputSettings, bool copyPathToClipboard, SynchronizationContext uiContext = null)
         {
+            // Check before the file is created, otherwise an empty file is left behind
+            if (outputSettings.Format == OutputFormat.greenshot)
+            {
+                throw new NotSupportedException("The greenshot format needs the surface, use Save instead.");
+            }
+
             fullPath = FilenameHelper.MakeFqFilenameSafe(fullPath);
             string path = Path.GetDirectoryName(fullPath);
 
