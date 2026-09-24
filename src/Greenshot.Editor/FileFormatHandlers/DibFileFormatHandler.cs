@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -63,9 +63,51 @@ namespace Greenshot.Editor.FileFormatHandlers
         /// <inheritdoc />
         public override bool TryLoadFromStream(Stream stream, string extension, out Bitmap bitmap)
         {
-            byte[] dibBuffer = new byte[stream.Length];
-            _ = stream.Read(dibBuffer, 0, dibBuffer.Length);
-            var infoHeader = BinaryStructHelper.FromByteArray<BitmapInfoHeader>(dibBuffer);
+            bitmap = null;
+            if (stream == null)
+            {
+                return false;
+            }
+
+            // Zero-copy access if stream is a MemoryStream with an exposed buffer; otherwise read into a buffer
+            byte[] rentedBuffer = null;
+            ReadOnlySpan<byte> dibSpan;
+
+            if (stream is MemoryStream ms && ms.TryGetBuffer(out ArraySegment<byte> segment))
+            {
+                dibSpan = segment.AsSpan();
+            }
+            else if (stream.CanSeek)
+            {
+                rentedBuffer = new byte[stream.Length];
+                long originalPosition = stream.Position;
+                stream.Position = 0;
+                int totalRead = 0;
+                while (totalRead < rentedBuffer.Length)
+                {
+                    int read = stream.Read(rentedBuffer, totalRead, rentedBuffer.Length - totalRead);
+                    if (read == 0) break;
+                    totalRead += read;
+                }
+                stream.Position = originalPosition;
+                dibSpan = rentedBuffer.AsSpan(0, totalRead);
+            }
+            else
+            {
+                using var tempStream = RecyclableMemoryStreamFactory.GetStream("DibFileFormatHandler.LoadFromStream");
+                stream.CopyTo(tempStream);
+                rentedBuffer = tempStream.ToArray();
+                dibSpan = rentedBuffer;
+            }
+
+            int minHeaderSize = Marshal.SizeOf(typeof(BitmapInfoHeader));
+            if (dibSpan.Length < minHeaderSize)
+            {
+                Log.WarnFormat("DIB data too short: {0} bytes (minimum {1} bytes required)", dibSpan.Length, minHeaderSize);
+                return false;
+            }
+
+            var infoHeader = BinaryStructHelper.FromByteArray<BitmapInfoHeader>(rentedBuffer ?? dibSpan.ToArray());
             if (!infoHeader.IsDibV5)
             {
                 Log.InfoFormat("Using special DIB <v5 format reader with biCompression {0}", infoHeader.Compression);
@@ -75,7 +117,15 @@ namespace Greenshot.Editor.FileFormatHandlers
 
                 using var bitmapStream = RecyclableMemoryStreamFactory.GetStream("DibFileFormatHandler.LoadFromStream");
                 bitmapStream.Write(fileHeaderBytes, 0, fileHeaderBytes.Length);
-                bitmapStream.Write(dibBuffer, 0, dibBuffer.Length);
+                if (rentedBuffer != null)
+                {
+                    bitmapStream.Write(rentedBuffer, 0, dibSpan.Length);
+                }
+                else
+                {
+                    var bytes = dibSpan.ToArray();
+                    bitmapStream.Write(bytes, 0, bytes.Length);
+                }
                 bitmapStream.Seek(0, SeekOrigin.Begin);
                 try
                 {
@@ -90,33 +140,96 @@ namespace Greenshot.Editor.FileFormatHandlers
                     return false;
                 }
             }
+
             Log.Info("Using special DIBV5 / Format17 format reader");
             // CF_DIBV5
-            IntPtr gcHandle = IntPtr.Zero;
+            // Validate header and bounds to prevent out-of-bounds reads and native crashes
+            int width = infoHeader.Width;
+            int rawHeight = infoHeader.Height;
+            int bitCount = infoHeader.BitCount;
+
+            // Dimensions check: Width must be positive, Height cannot be 0, within GDI+ limits (65535)
+            if (width <= 0 || width > 65535 || rawHeight == 0 || Math.Abs((long)rawHeight) > 65535)
+            {
+                Log.WarnFormat("Invalid DIB V5 dimensions: width={0}, height={1}", width, rawHeight);
+                return false;
+            }
+
+            // Only 32bpp and 24bpp formats are supported by this direct reader
+            if (bitCount != 32 && bitCount != 24)
+            {
+                Log.WarnFormat("Unsupported DIB V5 bitCount: {0}", bitCount);
+                return false;
+            }
+
+            int absHeight = Math.Abs(rawHeight);
+
+            // Calculate standard DWORD-aligned scanline stride
+            int stride;
             try
             {
-                GCHandle handle = GCHandle.Alloc(dibBuffer, GCHandleType.Pinned);
-                gcHandle = GCHandle.ToIntPtr(handle);
-                bitmap = new Bitmap(infoHeader.Width, infoHeader.Height,
-                        -(int)(infoHeader.SizeImage / infoHeader.Height),
-                        infoHeader.BitCount == 32 ? PixelFormat.Format32bppArgb : PixelFormat.Format24bppRgb,
-                        IntPtr.Add(handle.AddrOfPinnedObject(), (int)infoHeader.OffsetToPixels + (infoHeader.Height - 1) * (int)(infoHeader.SizeImage / infoHeader.Height))
-                    );
+                stride = checked(((width * bitCount + 31) / 32) * 4);
+            }
+            catch (OverflowException)
+            {
+                Log.Warn("Overflow calculating DIB V5 stride");
+                return false;
+            }
+
+            long requiredPixelBytes = (long)stride * absHeight;
+            long offsetToPixels = infoHeader.OffsetToPixels;
+
+            // BITMAPV5HEADER is at least 124 bytes. OffsetToPixels must be at least 124 bytes
+            // and the entire pixel buffer [offsetToPixels, offsetToPixels + requiredPixelBytes)
+            // must fall within dibSpan.
+            if (offsetToPixels < 124 || offsetToPixels >= dibSpan.Length ||
+                offsetToPixels + requiredPixelBytes > dibSpan.Length)
+            {
+                Log.WarnFormat("DIB V5 buffer out of bounds: offsetToPixels={0}, requiredPixelBytes={1}, bufferLength={2}", offsetToPixels, requiredPixelBytes, dibSpan.Length);
+                return false;
+            }
+
+            var pixelFormat = bitCount == 32 ? PixelFormat.Format32bppArgb : PixelFormat.Format24bppRgb;
+            int bytesPerPixel = bitCount / 8;
+            int rowBytesToCopy = width * bytesPerPixel;
+            bool isBottomUp = rawHeight > 0;
+
+            Bitmap createdBitmap = null;
+            try
+            {
+                createdBitmap = new Bitmap(width, absHeight, pixelFormat);
+                var rect = new Rectangle(0, 0, width, absHeight);
+                var bitmapData = createdBitmap.LockBits(rect, ImageLockMode.WriteOnly, pixelFormat);
+                try
+                {
+                    unsafe
+                    {
+                        var destSpan = new Span<byte>(bitmapData.Scan0.ToPointer(), bitmapData.Stride * absHeight);
+                        for (int y = 0; y < absHeight; y++)
+                        {
+                            int srcY = isBottomUp ? (absHeight - 1 - y) : y;
+                            int srcOffset = checked((int)(offsetToPixels + (long)srcY * stride));
+                            var srcRow = dibSpan.Slice(srcOffset, rowBytesToCopy);
+                            var destRow = destSpan.Slice(y * bitmapData.Stride, rowBytesToCopy);
+                            srcRow.CopyTo(destRow);
+                        }
+                    }
+                }
+                finally
+                {
+                    createdBitmap.UnlockBits(bitmapData);
+                }
+
+                bitmap = createdBitmap;
+                return true;
             }
             catch (Exception ex)
             {
                 Log.Error("Problem retrieving Format17 from clipboard.", ex);
+                createdBitmap?.Dispose();
                 bitmap = null;
+                return false;
             }
-            finally
-            {
-                if (gcHandle != IntPtr.Zero)
-                {
-                    GCHandle.FromIntPtr(gcHandle).Free();
-                }
-            }
-
-            return true;
         }
 
         /// <summary>

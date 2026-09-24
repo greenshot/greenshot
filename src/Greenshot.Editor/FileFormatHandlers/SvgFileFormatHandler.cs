@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -39,6 +39,15 @@ namespace Greenshot.Editor.FileFormatHandlers
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(SvgFileFormatHandler));
         private readonly IReadOnlyCollection<string> _ourExtensions = new[] { ".svg" };
+
+        static SvgFileFormatHandler()
+        {
+            // Restrict Svg.NET from resolving external resources (images, elements, entities)
+            // to prevent outbound network requests and unauthorized file access when opening untrusted SVGs.
+            SvgDocument.ResolveExternalImages = ExternalType.None;
+            SvgDocument.ResolveExternalElements = ExternalType.None;
+            SvgDocument.ResolveExternalXmlEntites = ExternalType.None;
+        }
 
         public SvgFileFormatHandler()
         {
