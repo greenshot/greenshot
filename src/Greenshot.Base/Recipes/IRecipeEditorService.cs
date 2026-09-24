@@ -33,6 +33,11 @@ namespace Greenshot.Base.Recipes
         void OpenEditor(string recipeId = null);
 
         /// <summary>
+        /// Opens the visual recipe manager dialog.
+        /// </summary>
+        void OpenRecipeManager();
+
+        /// <summary>
         /// Indicates whether the recipe editor window is currently open.
         /// </summary>
         bool IsEditorOpen { get; }

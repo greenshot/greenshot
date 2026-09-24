@@ -13,5 +13,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Greenshot.Base\Greenshot.Base.csproj" />
     <ProjectReference Include="..\Greenshot.Editor\Greenshot.Editor.csproj" />
+    <ProjectReference Include="..\Greenshot\Greenshot.csproj" Private="false" />
   </ItemGroup>
 </Project>

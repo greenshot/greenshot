@@ -135,6 +135,14 @@ namespace Greenshot.Pipeline
         {
             if (recipe == null) throw new ArgumentNullException(nameof(recipe));
 
+            if (!recipe.IsEnabled)
+            {
+                Log.WarnFormat("Execution aborted for recipe '{0}' because it is deactivated.", recipe.Name);
+                var abortedContext = new CaptureFlowContext(recipe, trigger, cancellationToken);
+                abortedContext.Abort($"Recipe '{recipe.Name}' is deactivated.");
+                return abortedContext;
+            }
+
             // Verify external recipe integrity before executing
             if (!string.IsNullOrEmpty(recipe.FilePath))
             {

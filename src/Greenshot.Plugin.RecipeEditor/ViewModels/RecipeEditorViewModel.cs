@@ -47,9 +47,40 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     OnPropertyChanged(nameof(RecipeDescription));
                     OnPropertyChanged(nameof(RecipeVersion));
                     OnPropertyChanged(nameof(SelectedStartNode));
+                    OnPropertyChanged(nameof(IsActiveRecipeEnabled));
+                    OnPropertyChanged(nameof(ActiveRecipeStatusText));
+                    OnPropertyChanged(nameof(CanUnloadActiveRecipe));
+                    OnPropertyChanged(nameof(UnloadActiveRecipeText));
+                    OnPropertyChanged(nameof(UnloadActiveRecipeToolTip));
                 }
             }
         }
+
+        public bool IsActiveRecipeEnabled
+        {
+            get => _activeRecipe?.IsEnabled ?? false;
+            set
+            {
+                if (_activeRecipe != null && _activeRecipe.IsEnabled != value)
+                {
+                    _activeRecipe.IsEnabled = value;
+                    _recipeManager?.SetRecipeEnabled(_activeRecipe.Id, value);
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(ActiveRecipeStatusText));
+                    RefreshAvailableRecipes();
+                }
+            }
+        }
+
+        public string ActiveRecipeStatusText => (_activeRecipe?.IsEnabled ?? false) ? "Active" : "Deactivated";
+
+        public bool CanUnloadActiveRecipe => _activeRecipe != null && (!_activeRecipe.IsBuiltIn || _activeRecipe.IsOverridden);
+
+        public string UnloadActiveRecipeText => (_activeRecipe?.IsOverridden ?? false) ? "Reset Default" : "Unload";
+
+        public string UnloadActiveRecipeToolTip => (_activeRecipe?.IsOverridden ?? false)
+            ? "Revert overridden recipe to default built-in definition"
+            : "Unload custom recipe from Greenshot";
 
         public StepNodeViewModel SelectedStartNode
         {
@@ -226,6 +257,9 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         public ICommand AddTriggerCommand { get; }
         public ICommand RemoveTriggerCommand { get; }
         public ICommand ToggleThemeCommand { get; }
+        public ICommand OpenRecipeManagerCommand { get; }
+        public ICommand ToggleActiveRecipeEnabledCommand { get; }
+        public ICommand UnloadActiveRecipeCommand { get; }
 
         public RecipeEditorViewModel(IRecipeManager recipeManager = null)
         {
@@ -248,6 +282,20 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             AddTriggerCommand = new RelayCommand(p => AddTrigger(p as string));
             RemoveTriggerCommand = new RelayCommand(p => RemoveTrigger(p as TriggerItemViewModel));
             ToggleThemeCommand = new RelayCommand(WpfThemeHelper.ToggleTheme);
+            OpenRecipeManagerCommand = new RelayCommand(OpenRecipeManager);
+            ToggleActiveRecipeEnabledCommand = new RelayCommand(() => IsActiveRecipeEnabled = !IsActiveRecipeEnabled, () => ActiveRecipe != null);
+            UnloadActiveRecipeCommand = new RelayCommand(UnloadActiveRecipe, () => CanUnloadActiveRecipe);
+
+            if (_recipeManager != null)
+            {
+                _recipeManager.RecipesChanged += (s, e) =>
+                {
+                    Application.Current?.Dispatcher?.BeginInvoke((Action)(() =>
+                    {
+                        RefreshAvailableRecipes();
+                    }));
+                };
+            }
 
             DisconnectConnectorCommand = new RelayCommand(p =>
             {
@@ -299,6 +347,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
         public void RefreshAvailableRecipes()
         {
+            string currentId = ActiveRecipe?.Id;
             AvailableRecipes.Clear();
             var all = _recipeManager?.GetAllRecipes() ?? Array.Empty<CaptureRecipe>();
             foreach (var r in all)
@@ -306,10 +355,28 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 AvailableRecipes.Add(r);
             }
 
-            if (ActiveRecipe == null && AvailableRecipes.Count > 0)
+            if (!string.IsNullOrEmpty(currentId))
+            {
+                var match = AvailableRecipes.FirstOrDefault(r => string.Equals(r.Id, currentId, StringComparison.OrdinalIgnoreCase));
+                if (match != null)
+                {
+                    ActiveRecipe = match;
+                }
+                else if (AvailableRecipes.Count > 0)
+                {
+                    ActiveRecipe = AvailableRecipes[0];
+                }
+            }
+            else if (ActiveRecipe == null && AvailableRecipes.Count > 0)
             {
                 ActiveRecipe = AvailableRecipes[0];
             }
+
+            OnPropertyChanged(nameof(IsActiveRecipeEnabled));
+            OnPropertyChanged(nameof(ActiveRecipeStatusText));
+            OnPropertyChanged(nameof(CanUnloadActiveRecipe));
+            OnPropertyChanged(nameof(UnloadActiveRecipeText));
+            OnPropertyChanged(nameof(UnloadActiveRecipeToolTip));
         }
 
         public void SelectRecipeById(string recipeId)
@@ -869,6 +936,72 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             StatusMessage = "Created new recipe.";
         }
 
+        public void OpenRecipeManager()
+        {
+            var vm = new RecipeManagerViewModel(
+                _recipeManager,
+                SimpleServiceProvider.Current?.GetInstance<ICapturePipeline>(isOptional: true),
+                selected =>
+                {
+                    RefreshAvailableRecipes();
+                    SelectRecipeById(selected.Id);
+                },
+                () =>
+                {
+                    NewRecipe();
+                });
+
+            var dlg = new Dialogs.RecipeManagerDialog(vm)
+            {
+                Owner = Application.Current?.Windows.OfType<RecipeEditorWindow>().FirstOrDefault()
+            };
+            dlg.ShowDialog();
+            RefreshAvailableRecipes();
+            if (ActiveRecipe != null)
+            {
+                SelectRecipeById(ActiveRecipe.Id);
+            }
+        }
+
+        public void UnloadActiveRecipe()
+        {
+            if (!CanUnloadActiveRecipe || ActiveRecipe == null) return;
+
+            string title = ActiveRecipe.IsOverridden ? "Reset Recipe to Default" : "Unload Recipe";
+            string msg = ActiveRecipe.IsOverridden
+                ? $"Revert '{ActiveRecipe.Name}' to default built-in definition?"
+                : $"Unload '{ActiveRecipe.Name}' from Greenshot?";
+
+            if (MessageBox.Show(msg, title, MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+            {
+                return;
+            }
+
+            string recipeId = ActiveRecipe.Id;
+            if (ActiveRecipe.IsOverridden)
+            {
+                _recipeManager?.ResetToDefault(recipeId);
+            }
+            else
+            {
+                _recipeManager?.UnregisterRecipe(recipeId);
+            }
+
+            RefreshAvailableRecipes();
+            if (AvailableRecipes.Count > 0)
+            {
+                var target = AvailableRecipes.FirstOrDefault(r => string.Equals(r.Id, recipeId, StringComparison.OrdinalIgnoreCase))
+                             ?? AvailableRecipes[0];
+                ActiveRecipe = target;
+            }
+            else
+            {
+                ActiveRecipe = null;
+            }
+
+            StatusMessage = $"Unloaded recipe '{recipeId}'.";
+        }
+
         public void OpenRecipeDialog()
         {
             var dlg = new OpenFileDialog
@@ -881,19 +1014,43 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             {
                 try
                 {
-                    var recipe = RecipeSerializer.LoadFromFile(dlg.FileName);
-                    var valResult = RecipeValidator.Validate(recipe);
-                    if (!valResult.IsValid)
+                    if (_recipeManager != null)
                     {
-                        string msg = $"Recipe failed validation:\n" + string.Join("\n", valResult.Errors);
-                        MessageBox.Show(msg, "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-                        StatusMessage = $"Recipe failed validation: {Path.GetFileName(dlg.FileName)}";
+                        var valResult = _recipeManager.LoadRecipeFromFile(dlg.FileName);
+                        if (!valResult.IsValid)
+                        {
+                            string msg = $"Recipe failed validation:\n" + string.Join("\n", valResult.Errors);
+                            MessageBox.Show(msg, "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            StatusMessage = $"Recipe failed validation: {Path.GetFileName(dlg.FileName)}";
+                        }
+                        else
+                        {
+                            RefreshAvailableRecipes();
+                            var newlyLoaded = AvailableRecipes.FirstOrDefault(r => string.Equals(r.FilePath, dlg.FileName, StringComparison.OrdinalIgnoreCase))
+                                              ?? AvailableRecipes.LastOrDefault();
+                            if (newlyLoaded != null)
+                            {
+                                ActiveRecipe = newlyLoaded;
+                            }
+                            StatusMessage = $"Loaded and registered: {Path.GetFileName(dlg.FileName)}";
+                        }
                     }
                     else
                     {
-                        recipe.FilePath = dlg.FileName;
-                        ActiveRecipe = recipe;
-                        StatusMessage = $"Loaded: {Path.GetFileName(dlg.FileName)}";
+                        var recipe = RecipeSerializer.LoadFromFile(dlg.FileName);
+                        var valResult = RecipeValidator.Validate(recipe);
+                        if (!valResult.IsValid)
+                        {
+                            string msg = $"Recipe failed validation:\n" + string.Join("\n", valResult.Errors);
+                            MessageBox.Show(msg, "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            StatusMessage = $"Recipe failed validation: {Path.GetFileName(dlg.FileName)}";
+                        }
+                        else
+                        {
+                            recipe.FilePath = dlg.FileName;
+                            ActiveRecipe = recipe;
+                            StatusMessage = $"Loaded: {Path.GetFileName(dlg.FileName)}";
+                        }
                     }
                 }
                 catch (Exception ex)

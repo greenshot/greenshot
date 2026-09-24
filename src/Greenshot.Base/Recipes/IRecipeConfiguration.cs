@@ -45,5 +45,9 @@ namespace Greenshot.Base.Recipes
         [Description("Semicolon-separated list of explicit recipe file paths to load. Automatic directory scanning is disabled for security.")]
         [DefaultValue(null)]
         string RecipeFiles { get; set; }
+
+        [Description("Semicolon-separated list of deactivated/disabled recipe IDs.")]
+        [DefaultValue(null)]
+        string DisabledRecipeIds { get; set; }
     }
 }

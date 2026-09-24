@@ -7,6 +7,8 @@
         xmlns:vm="clr-namespace:Greenshot.Plugin.RecipeEditor.ViewModels"
         xmlns:conv="clr-namespace:Greenshot.Plugin.RecipeEditor.Converters"
         xmlns:emoji="clr-namespace:Greenshot.Editor.Controls.Emoji;assembly=Greenshot.Editor"
+        xmlns:controls="clr-namespace:Greenshot.UI.Controls;assembly=Greenshot"
+        xmlns:forms="clr-namespace:Greenshot.Forms.Wpf;assembly=Greenshot"
         mc:Ignorable="d"
         Title="Greenshot - Recipe Visual Editor"
         Height="800" Width="1240"
@@ -30,6 +32,7 @@
         <KeyBinding Key="O" Modifiers="Control" Command="{Binding OpenRecipeCommand}"/>
         <KeyBinding Key="N" Modifiers="Control" Command="{Binding NewRecipeCommand}"/>
         <KeyBinding Key="L" Modifiers="Control" Command="{Binding AutoLayoutCommand}"/>
+        <KeyBinding Key="M" Modifiers="Control" Command="{Binding OpenRecipeManagerCommand}"/>
     </Window.InputBindings>
 
     <Window.Resources>
@@ -42,6 +45,7 @@
             <conv:StepTypeToIconConverter x:Key="StepIconConv"/>
             <conv:BoolToVisibilityConverter x:Key="BoolToVis"/>
             <conv:BoolToVisibilityConverter x:Key="InvertBoolToVis" Invert="True"/>
+            <conv:BoolToStatusBrushConverter x:Key="BoolToStatusBrushConv"/>
             <conv:StringToVisibilityConverter x:Key="StringToVis"/>
             <conv:StringToBrushConverter x:Key="StringToBrushConv"/>
 
@@ -769,13 +773,52 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <!-- Recipe Selector -->
+                    <!-- Recipe Selector & Manager -->
                     <StackPanel Orientation="Horizontal" Grid.Column="0" VerticalAlignment="Center">
                         <TextBlock Text="Recipe:" FontWeight="SemiBold" Foreground="{Binding TextSecondaryBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
                         <ComboBox ItemsSource="{Binding AvailableRecipes}"
                                   SelectedItem="{Binding ActiveRecipe, Mode=TwoWay}"
-                                  DisplayMemberPath="Name"
-                                  Width="220" Height="28" Margin="0,0,10,0"/>
+                                  Width="200" Height="28" Margin="0,0,6,0">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Ellipse Width="7" Height="7" Margin="0,0,6,0" VerticalAlignment="Center"
+                                                 Fill="{Binding IsEnabled, Converter={StaticResource BoolToStatusBrushConv}}"/>
+                                        <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+                                        <TextBlock Text=" (Deactivated)" FontStyle="Italic" FontSize="10"
+                                                   Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                   VerticalAlignment="Center"
+                                                   Visibility="{Binding IsEnabled, Converter={StaticResource InvertBoolToVis}}"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+
+                        <!-- Quick Active / Deactivate Toggle for Selected Recipe -->
+                        <Button Style="{StaticResource ToolbarBtn}" Command="{Binding ToggleActiveRecipeEnabledCommand}"
+                                ToolTip="Click to activate or deactivate this recipe in Greenshot" Margin="0,0,6,0" Padding="8,4">
+                            <StackPanel Orientation="Horizontal">
+                                <Ellipse Width="7" Height="7" Margin="0,0,5,0" VerticalAlignment="Center"
+                                         Fill="{Binding IsActiveRecipeEnabled, Converter={StaticResource BoolToStatusBrushConv}}"/>
+                                <TextBlock Text="{Binding ActiveRecipeStatusText}" FontWeight="SemiBold" FontSize="10"/>
+                            </StackPanel>
+                        </Button>
+
+                        <!-- Quick Unload button if custom or overridden -->
+                        <Button Style="{StaticResource ToolbarBtn}" Command="{Binding UnloadActiveRecipeCommand}"
+                                Visibility="{Binding CanUnloadActiveRecipe, Converter={StaticResource BoolToVis}}"
+                                ToolTip="{Binding UnloadActiveRecipeToolTip}" Margin="0,0,6,0" Padding="8,4">
+                            <TextBlock Text="{Binding UnloadActiveRecipeText}" FontSize="10"/>
+                        </Button>
+
+                        <!-- Visual Recipe Manager Button -->
+                        <Button Style="{StaticResource ToolbarBtn}" Command="{Binding OpenRecipeManagerCommand}"
+                                ToolTip="Open Visual Recipe Manager (Ctrl+M)" Margin="0,0,6,0" Padding="8,4">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="📋 " FontSize="11" VerticalAlignment="Center"/>
+                                <TextBlock Text="Manage Recipes..." FontWeight="SemiBold" FontSize="10" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
                     </StackPanel>
 
                     <!-- Actions Toolbar -->
@@ -3179,11 +3222,11 @@
                                                         <!-- Trigger specific fields -->
                                                         <!-- 1. Hotkey -->
                                                         <StackPanel Visibility="{Binding IsHotkey, Converter={StaticResource BoolToVis}}" Margin="0,2,0,0">
-                                                            <TextBlock Text="Hotkey Combination (e.g. Ctrl + Alt + R)" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
-                                                            <TextBox Text="{Binding Hotkey, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                                     Background="{Binding DataContext.WindowBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                                     Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                                     Padding="4,2" Margin="0,2,0,4"/>
+                                                            <TextBlock Text="Hotkey Trigger" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                            <controls:HotkeyDisplayControl Margin="0,4,0,4"
+                                                                                          HotkeyString="{Binding Hotkey, Mode=TwoWay}"
+                                                                                          HeaderText="{Binding DisplayTitle}"
+                                                                                          EditRequested="HotkeyDisplayControl_EditRequested"/>
                                                         </StackPanel>
 
                                                         <!-- 2. Context Menu -->
@@ -3255,6 +3298,11 @@
                     <TextBlock Grid.Column="1" Text="Greenshot DAG Pipeline Engine" FontSize="11" Foreground="{Binding TextSecondaryBrush}" VerticalAlignment="Center"/>
                 </Grid>
             </Border>
+
+            <!-- In-Window Modal Hotkey Editor Overlay -->
+            <forms:HotkeyEditorModal x:Name="HotkeyModal"
+                                     Grid.RowSpan="4"
+                                     Visibility="Collapsed"/>
         </Grid>
     </Border>
 </Window>

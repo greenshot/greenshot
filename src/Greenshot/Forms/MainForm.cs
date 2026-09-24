@@ -759,7 +759,7 @@ namespace Greenshot.Forms
             foreach (var trigger in menuTriggers.OrderBy(t => t.Order))
             {
                 var recipe = recipeManager.GetRecipeById(trigger.TargetRecipeId);
-                if (recipe == null || !recipe.ShowInContextMenu) continue;
+                if (recipe == null || !recipe.ShowInContextMenu || !recipe.IsEnabled) continue;
 
                 var item = new ToolStripMenuItem(trigger.MenuItemText ?? recipe.Name);
 
@@ -803,6 +803,13 @@ namespace Greenshot.Forms
             var editorService = SimpleServiceProvider.Current.GetInstance<IRecipeEditorService>(isOptional: true);
             if (editorService != null)
             {
+                var managerItem = new ToolStripMenuItem(Language.GetString("contextmenu_managerecipes") ?? "Recipe Manager...");
+                managerItem.Click += (s, ev) =>
+                {
+                    editorService.OpenRecipeManager();
+                };
+                _recipesMenuItem.DropDownItems.Add(managerItem);
+
                 var editorItem = new ToolStripMenuItem(Language.GetString("contextmenu_recipeeditor") ?? "Recipe Editor...");
                 editorItem.Click += (s, ev) =>
                 {

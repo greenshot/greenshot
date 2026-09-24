@@ -50,6 +50,17 @@ namespace Greenshot.Base.Recipes
         bool UnregisterRecipe(string recipeId);
 
         /// <summary>
+        /// Checks whether a recipe is currently activated / enabled.
+        /// </summary>
+        bool IsRecipeEnabled(string recipeId);
+
+        /// <summary>
+        /// Activates or deactivates (enables or disables) a recipe by ID.
+        /// Persists the state to configuration and updates active triggers.
+        /// </summary>
+        void SetRecipeEnabled(string recipeId, bool enabled);
+
+        /// <summary>
         /// Loads one or more recipes explicitly from a trusted JSON file path.
         /// Overrides built-in recipes if the recipe ID matches.
         /// </summary>
