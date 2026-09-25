@@ -88,6 +88,7 @@ namespace Greenshot.Plugin.Office.Destinations
             ExportInformation exportInformation = new ExportInformation(Designation, Description);
             bool createdFile = false;
             string imageFile = captureDetails.Filename;
+            Size imageSize = surface.Image?.Size ?? Size.Empty;
             if (imageFile == null || surface.Modified || !Regex.IsMatch(imageFile, @".*(\.png|\.gif|\.jpg|\.jpeg|\.tiff|\.bmp)$"))
             {
                 imageFile = ImageIO.SaveNamedTmpFile(surface, captureDetails, new SurfaceOutputSettings().PreventGreenshotFormat());
@@ -96,11 +97,11 @@ namespace Greenshot.Plugin.Office.Destinations
 
             if (_workbookName != null)
             {
-                ExcelExporter.InsertIntoExistingWorkbook(_workbookName, imageFile, surface.Image.Size);
+                ExcelExporter.InsertIntoExistingWorkbook(_workbookName, imageFile, imageSize);
             }
             else
             {
-                ExcelExporter.InsertIntoNewWorkbook(imageFile, surface.Image.Size);
+                ExcelExporter.InsertIntoNewWorkbook(imageFile, imageSize);
             }
 
             exportInformation.ExportMade = true;
