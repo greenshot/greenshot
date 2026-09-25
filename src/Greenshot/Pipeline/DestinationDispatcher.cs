@@ -31,6 +31,7 @@ using Dapplo.Ini;
 using Greenshot.Base;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Pipeline;
@@ -235,6 +236,21 @@ namespace Greenshot.Pipeline
                             ? cp
                             : CoreConfig.OutputFileCopyPathToClipboard;
 
+                        if (bgOutputSettings.Format == OutputFormat.greenshot)
+                        {
+                            // The .greenshot format serializes the surface elements, which can't be done from a pre-rendered bitmap
+                            // nor on a background thread while the editor might already be using the surface.
+                            if (uiContext != null && SynchronizationContext.Current != uiContext)
+                            {
+                                uiContext.Send(_ => SaveSurface(surface, captureDetails, bgFullPath, bgOverwrite, bgOutputSettings, copyPath), null);
+                            }
+                            else
+                            {
+                                SaveSurface(surface, captureDetails, bgFullPath, bgOverwrite, bgOutputSettings, copyPath);
+                            }
+                            continue;
+                        }
+
                         Image bgRenderedBitmap = sharedRenderedBitmap != null
                             ? (Image)sharedRenderedBitmap.Clone()
                             : surface?.GetImageForExport();
@@ -259,14 +275,19 @@ namespace Greenshot.Pipeline
                                 uiContext?.Post(_ => CoreConfig.OutputFileAsFullpath = bgFullPath, null);
                                 Interlocked.Increment(ref successfulExports);
                             }
-                            catch (Exception ex)
+                            catch (ArgumentException ex1) when (ex1.Data.Contains("fullPath"))
                             {
-                                Log.Error($"Error saving screenshot in background to '{bgFullPath}'!", ex);
+                                Log.InfoFormat("Not overwriting: {0}", ex1.Message);
+                                uiContext?.Send(_ => ImageIO.SaveWithDialog(surface, captureDetails), null);
+                            }
+                            catch (Exception ex2)
+                            {
+                                Log.Error($"Error saving screenshot in background to '{bgFullPath}'!", ex2);
                                 captureDetails.Filename = originalFilename;
                                 payload.RetainSurfaceForEditor = true;
                                 lock (failedExports)
                                 {
-                                    failedExports.Add((destDesignation, ex.Message, ex));
+                                    failedExports.Add((destDesignation, ex2.Message, ex2));
                                 }
                             }
                         }, cancellationToken);
@@ -369,11 +390,35 @@ namespace Greenshot.Pipeline
             }
             finally
             {
+                // Only dispose what we own: for the greenshot format or SaveBackgroundOnly this is the surface image itself.
+                // Always clear the payload reference, otherwise disposing the payload disposes the surface image of the editor.
                 if (disposeSharedBitmap)
                 {
                     sharedRenderedBitmap?.Dispose();
-                    payload.SharedRenderedBitmap = null;
                 }
+                payload.SharedRenderedBitmap = null;
+            }
+        }
+
+        /// <summary>
+        /// Save the surface itself, this is needed for the greenshot format, must be called on the UI thread (if there is one)
+        /// </summary>
+        private static void SaveSurface(ISurface surface, ICaptureDetails captureDetails, string fullPath, bool overwrite, SurfaceOutputSettings outputSettings, bool copyPath)
+        {
+            try
+            {
+                ImageIO.Save(surface, fullPath, overwrite, outputSettings, copyPath);
+                CoreConfig.OutputFileAsFullpath = fullPath;
+            }
+            catch (ArgumentException ex1) when (ex1.Data.Contains("fullPath"))
+            {
+                Log.InfoFormat("Not overwriting: {0}", ex1.Message);
+                ImageIO.SaveWithDialog(surface, captureDetails);
+            }
+            catch (Exception ex2)
+            {
+                Log.Error("Error saving screenshot!", ex2);
+                MessageBox.Show(Language.GetString(LangKey.error_save), Language.GetString(LangKey.error));
             }
         }
 
