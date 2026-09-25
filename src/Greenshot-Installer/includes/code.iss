@@ -181,3 +181,72 @@ begin
         end;
     end;
 end;
+
+function IsWindows11OrLater: Boolean;
+var
+  Version: TWindowsVersion;
+begin
+  GetWindowsVersionEx(Version);
+  Result := (Version.Major >= 10) and (Version.Build >= 22000);
+end;
+
+var
+  DevModeEnabled: Boolean;
+  DevModeChecked: Boolean;
+
+procedure CheckDevMode;
+var
+  DevModeValue: Cardinal;
+begin
+  if DevModeChecked then Exit;
+  DevModeEnabled := False;
+  if RegQueryDWordValue(HKLM, 'SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock', 'AllowDevelopmentWithoutDevLicense', DevModeValue) then
+  begin
+    if DevModeValue = 1 then DevModeEnabled := True;
+  end;
+  DevModeChecked := True;
+end;
+
+function IsModernShellExtSupported: Boolean;
+begin
+  Result := False;
+  if not IsWindows11OrLater then Exit;
+#if CertumThumbprint != ""
+  Result := True;
+#else
+  CheckDevMode;
+  Result := DevModeEnabled;
+#endif
+end;
+
+function IsModernShellExtSupportedAndAdmin: Boolean;
+begin
+  Result := IsModernShellExtSupported and IsAdminInstallMode;
+end;
+
+function ShouldInstallLegacyShellExt: Boolean;
+begin
+  if not IsWindows11OrLater then
+    Result := True
+  else
+    Result := not IsModernShellExtSupported;
+end;
+
+procedure UpdateShellExtTaskState;
+var
+  i: Integer;
+  TargetCaption: String;
+begin
+  if not IsWindows11OrLater then Exit;
+  if IsModernShellExtSupported then Exit;
+
+  TargetCaption := CustomMessage('shellext');
+  for i := 0 to WizardForm.TasksList.Items.Count - 1 do
+  begin
+    if Pos(TargetCaption, WizardForm.TasksList.ItemCaption[i]) > 0 then
+    begin
+      WizardForm.TasksList.ItemCaption[i] := TargetCaption + CustomMessage('shellext_legacyfallback');
+      Break;
+    end;
+  end;
+end;

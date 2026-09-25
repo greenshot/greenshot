@@ -324,6 +324,7 @@ Please check write accessibility of the selected storage location.</resource>
 		<resource name="settings_waittime">Milliseconds to wait before capture</resource>
 		<resource name="settings_window_capture_mode">Window capture mode</resource>
 		<resource name="settings_windowscapture">Window capture</resource>
+		<resource name="shellext_edit">Edit with Greenshot</resource>
 		<resource name="tooltip_firststart">Right-click here or press the {0} key.</resource>
 		<resource name="update_found">A newer version of Greenshot is available! Do you want to download Greenshot {0}?</resource>
 		<resource name="warning">Warning</resource>

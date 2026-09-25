@@ -1,5 +1,6 @@
 [Tasks]
 Name: startup; Description: {cm:startup}
+Name: shellext; Description: {cm:shellext}
 
 [Icons]
 Name: {group}\{#ExeName}; Filename: {app}\{#ExeName}.exe; WorkingDir: {app}; AppUserModelID: "{#ExeName}"
@@ -31,12 +32,35 @@ Root: HKA; Subkey: Software\Microsoft\Windows\CurrentVersion\Run; ValueType: str
 Root: HKA; Subkey: Software\Classes\.greenshot; ValueType: string; ValueName: ""; ValueData: "Greenshot"; Flags: uninsdeletevalue noerror
 Root: HKA; Subkey: Software\Classes\Greenshot; ValueType: string; ValueName: ""; ValueData: "Greenshot File"; Flags: uninsdeletevalue noerror
 Root: HKA; Subkey: Software\Classes\Greenshot\DefaultIcon; ValueType: string; ValueName: ""; ValueData: """{app}\Greenshot.EXE,0"""; Flags: uninsdeletevalue noerror
-Root: HKA; Subkey: Software\Classes\Greenshot\shell\open\command; ValueType: string; ValueName: ""; ValueData: """{app}\Greenshot.EXE"" --openfile ""%1"""; Flags: uninsdeletevalue noerror
+Root: HKA; Subkey: Software\Classes\Greenshot\shell\open\command; ValueType: string; ValueName: ""; ValueData: """{app}\Greenshot.EXE"" ""%1"""; Flags: uninsdeletevalue noerror
 
 ; Disable the default PRTSCR Snipping Tool in Windows 11
 Root: HKCU; Subkey: Control Panel\Keyboard; ValueType: dword; ValueName: "PrintScreenKeyForSnippingEnabled"; ValueData: "0"; Flags: uninsdeletevalue; Check: ShouldDisableSnippingTool
 
+; "Edit with Greenshot" context menu for image files (legacy / "Show more options" on Win11)
+Root: HKA; Subkey: Software\Classes\SystemFileAssociations\image\shell\Greenshot.Edit; ValueType: string; ValueName: ""; ValueData: "{cm:shellext_edit}"; Flags: uninsdeletekey noerror; Tasks: shellext; Check: ShouldInstallLegacyShellExt
+Root: HKA; Subkey: Software\Classes\SystemFileAssociations\image\shell\Greenshot.Edit; ValueType: string; ValueName: "Icon"; ValueData: """{app}\Greenshot.EXE"",0"; Flags: uninsdeletevalue noerror; Tasks: shellext; Check: ShouldInstallLegacyShellExt
+Root: HKA; Subkey: Software\Classes\SystemFileAssociations\image\shell\Greenshot.Edit\command; ValueType: string; ValueName: ""; ValueData: """{app}\greenshot-proxy.exe"" --file ""%1"""; Flags: uninsdeletevalue noerror; Tasks: shellext; Check: ShouldInstallLegacyShellExt
+
+; Delete legacy keys if modern shell extension is supported
+Root: HKLM; Subkey: Software\Classes\SystemFileAssociations\image\shell\Greenshot.Edit; Flags: deletekey dontcreatekey uninsdeletekey noerror; Check: IsModernShellExtSupportedAndAdmin
+Root: HKCU; Subkey: Software\Classes\SystemFileAssociations\image\shell\Greenshot.Edit; Flags: deletekey dontcreatekey uninsdeletekey noerror; Check: IsModernShellExtSupported
+
+; Active Setup to register the Windows 11 modern context menu for all users when they log in
+Root: HKLM; Subkey: "Software\Microsoft\Active Setup\Installed Components\{{3D1E6BB3-7033-4D9A-BF6D-F18A32CA11B2}"; ValueType: string; ValueName: ""; ValueData: "Greenshot Shell Extension"; Flags: uninsdeletekey noerror; Check: IsModernShellExtSupportedAndAdmin
+#if CertumThumbprint != ""
+Root: HKLM; Subkey: "Software\Microsoft\Active Setup\Installed Components\{{3D1E6BB3-7033-4D9A-BF6D-F18A32CA11B2}"; ValueType: string; ValueName: "StubPath"; ValueData: "powershell.exe -WindowStyle Hidden -NoProfile -ExecutionPolicy Bypass -Command ""if ([Environment]::OSVersion.Version.Build -ge 22000) {{ Add-AppxPackage -Path '{app}\Greenshot.ShellExt.msix' -ExternalLocation '{app}' }"""; Flags: uninsdeletevalue noerror; Check: IsModernShellExtSupportedAndAdmin
+#else
+Root: HKLM; Subkey: "Software\Microsoft\Active Setup\Installed Components\{{3D1E6BB3-7033-4D9A-BF6D-F18A32CA11B2}"; ValueType: string; ValueName: "StubPath"; ValueData: "powershell.exe -WindowStyle Hidden -NoProfile -ExecutionPolicy Bypass -Command ""if ([Environment]::OSVersion.Version.Build -ge 22000) {{ Add-AppxPackage -Register '{app}\Greenshot.ShellExt\AppxManifest.xml' -ExternalLocation '{app}' }"""; Flags: uninsdeletevalue noerror; Check: IsModernShellExtSupportedAndAdmin
+#endif
+Root: HKLM; Subkey: "Software\Microsoft\Active Setup\Installed Components\{{3D1E6BB3-7033-4D9A-BF6D-F18A32CA11B2}"; ValueType: string; ValueName: "Version"; ValueData: "1,0,0,0"; Flags: uninsdeletevalue noerror; Check: IsModernShellExtSupportedAndAdmin
+
 [Run]
+#if CertumThumbprint != ""
+Filename: "powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -Command ""Add-AppxPackage -Path '{app}\Greenshot.ShellExt.msix' -ExternalLocation '{app}'"""; StatusMsg: "{cm:shellext_registering}"; Flags: runhidden runasoriginaluser; Check: IsModernShellExtSupported; Tasks: shellext
+#else
+Filename: "powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -Command ""Add-AppxPackage -Register '{app}\Greenshot.ShellExt\AppxManifest.xml' -ExternalLocation '{app}'"""; StatusMsg: "{cm:shellext_registering}"; Flags: runhidden runasoriginaluser; Check: IsModernShellExtSupported; Tasks: shellext
+#endif
 Filename: "{app}\{#ExeName}.exe"; Description: "{cm:startgreenshot}"; Parameters: "{code:GetParamsForGS}"; WorkingDir: "{app}"; Flags: nowait postinstall runasoriginaluser; Check: NotAlreadyRestarted
 Filename: "https://getgreenshot.org/thank-you/?language={language}&version={#Version}"; Flags: shellexec runasoriginaluser
 
@@ -48,6 +72,10 @@ UninstallIconDescription=Uninstall
 ShowLicense=Show license
 ShowReadme=Show Readme
 disablewin11snippingtool=Disable Win11 default PrtScr snipping tool
+shellext=Add "Edit with Greenshot" to Explorer context menu
+shellext_edit=Edit with Greenshot
+shellext_legacyfallback= (Legacy only)
+shellext_registering=Registering shell extension...
 
 en.default=Default installation
 en.startgreenshot=Start {#ExeName}
@@ -56,6 +84,10 @@ en.UninstallIconDescription=Uninstall
 en.ShowLicense=Show license
 en.ShowReadme=Show Readme
 en.disablewin11snippingtool=Disable Win11 default PrtScr snipping tool
+en.shellext=Add "Edit with Greenshot" to Explorer context menu
+en.shellext_edit=Edit with Greenshot
+en.shellext_legacyfallback= (Legacy only)
+en.shellext_registering=Registering shell extension...
 
 de.default=Standard installation
 de.startgreenshot={#ExeName} starten
@@ -96,6 +128,10 @@ ptBR.UninstallIconDescription=Desinstalar
 ptBR.ShowLicense=Mostrar licença
 ptBR.ShowReadme=Mostrar Leia-me
 ptBR.disablewin11snippingtool=Desativar ferramenta de captura padrão PrtScr do Win11
+ptBR.shellext=Adicionar "Editar com o Greenshot" ao menu de contexto
+ptBR.shellext_edit=Editar com o Greenshot
+ptBR.shellext_legacyfallback= (Somente modo legado)
+ptBR.shellext_registering=Registrando extensão do shell...
 
 ru.startgreenshot=Запустить {#ExeName}
 ru.startup=Запускать {#ExeName} при старте Windows
@@ -119,3 +155,6 @@ uk.startup=Запускати {#ExeName} під час запуску Windows
 
 cn.startgreenshot=启动{#ExeName}
 cn.startup=让{#ExeName}随Windows一起启动
+
+[UninstallRun]
+Filename: "powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -Command ""Get-AppxPackage -Name 'Greenshot.ShellExtension' | Remove-AppxPackage"""; Flags: runhidden; RunOnceId: "RemoveAppxPackage"; Check: IsModernShellExtSupported

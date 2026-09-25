@@ -7,6 +7,12 @@
   <ItemGroup>
     <PackageReference Include="Tools.InnoSetup" Version="7.1.0" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Greenshot.ShellExt\Greenshot.ShellExt.vcxproj">
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
   
   <Target Name="GenerateSbom" BeforeTargets="Generate hashes" Condition="'$(Configuration)' == 'Release'">
     <PropertyGroup>

@@ -290,6 +290,7 @@
 		<resource name="settings_waittime">Milisegundos à esperar antes de iniciar a captura</resource>
 		<resource name="settings_window_capture_mode">Modo de captura de janela</resource>
 		<resource name="settings_windowscapture">Captura de janela</resource>
+		<resource name="shellext_edit">Editar com o Greenshot</resource>
 		<resource name="tooltip_firststart">Botão direito aqui ou pressionar a tecla Print.</resource>
 		<resource name="update_found">A versão mais recente do Greenshot está disponível! Você quer baixar o Greenshot {0}?</resource>
 		<resource name="warning">Atenção</resource>
