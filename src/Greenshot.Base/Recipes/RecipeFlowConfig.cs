@@ -301,13 +301,43 @@ namespace Greenshot.Base.Recipes
             }
 
             string exType = ex?.GetType().Name ?? "";
-            // Check exact error type first, then wildcard "*"
-            return ErrorTransitions.FirstOrDefault(et =>
-                string.Equals(et.From, fromNodeId, StringComparison.OrdinalIgnoreCase) &&
-                string.Equals(et.ErrorType, exType, StringComparison.OrdinalIgnoreCase))
-                ?? ErrorTransitions.FirstOrDefault(et =>
-                    string.Equals(et.From, fromNodeId, StringComparison.OrdinalIgnoreCase) &&
-                    (string.Equals(et.ErrorType, "*", StringComparison.OrdinalIgnoreCase) || string.IsNullOrEmpty(et.ErrorType)));
+            string innerType = ex?.InnerException?.GetType().Name ?? "";
+
+            bool MatchesErrorType(RecipeErrorTransitionConfig et)
+            {
+                return string.Equals(et.ErrorType, exType, StringComparison.OrdinalIgnoreCase) ||
+                       (!string.IsNullOrEmpty(innerType) && string.Equals(et.ErrorType, innerType, StringComparison.OrdinalIgnoreCase));
+            }
+
+            bool IsWildcardErrorType(RecipeErrorTransitionConfig et)
+            {
+                return string.Equals(et.ErrorType, "*", StringComparison.OrdinalIgnoreCase) || string.IsNullOrEmpty(et.ErrorType);
+            }
+
+            bool MatchesExactFrom(RecipeErrorTransitionConfig et)
+            {
+                return string.Equals(et.From, fromNodeId, StringComparison.OrdinalIgnoreCase);
+            }
+
+            bool IsWildcardFrom(RecipeErrorTransitionConfig et)
+            {
+                return string.Equals(et.From, "*", StringComparison.OrdinalIgnoreCase) || string.IsNullOrEmpty(et.From);
+            }
+
+            // 1. Exact node + exact error type
+            var match = ErrorTransitions.FirstOrDefault(et => MatchesExactFrom(et) && MatchesErrorType(et));
+            if (match != null) return match;
+
+            // 2. Exact node + wildcard error type
+            match = ErrorTransitions.FirstOrDefault(et => MatchesExactFrom(et) && IsWildcardErrorType(et));
+            if (match != null) return match;
+
+            // 3. Wildcard node ("*" or empty) + exact error type
+            match = ErrorTransitions.FirstOrDefault(et => IsWildcardFrom(et) && MatchesErrorType(et));
+            if (match != null) return match;
+
+            // 4. Wildcard node ("*" or empty) + wildcard error type ("*" or empty)
+            return ErrorTransitions.FirstOrDefault(et => IsWildcardFrom(et) && IsWildcardErrorType(et));
         }
 
         public RecipeFlowConfig Clone()

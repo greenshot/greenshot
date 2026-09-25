@@ -185,6 +185,11 @@ namespace Greenshot.Pipeline
                     context.LogStep("Capture flow completed successfully.");
                     Log.InfoFormat("Capture flow completed successfully: '{0}'", recipe.Name);
                 }
+                else if (context.State == CaptureFlowState.Failed)
+                {
+                    var notifyService = SimpleServiceProvider.Current.GetInstance<INotificationService>(isOptional: true);
+                    notifyService?.ShowErrorMessage(context.AbortReason ?? context.Error?.Message ?? "Capture flow failed.");
+                }
             }
             catch (OperationCanceledException)
             {

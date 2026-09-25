@@ -190,7 +190,7 @@ namespace Greenshot.Pipeline
 
             var backgroundTasks = new List<Task>();
             int successfulExports = 0;
-            var failedExports = new List<(string Designation, string Error)>();
+            var failedExports = new List<(string Designation, string Error, Exception Exception)>();
 
             try
             {
@@ -204,11 +204,11 @@ namespace Greenshot.Pipeline
                     context.LogStep($"Calling destination: {destination.Description}");
                     Log.InfoFormat("Calling destination {0}", destination.Description);
 
-                    if (destination.Designation == nameof(WellKnownDestinations.FileNoDialog) ||
-                        destination.Designation == nameof(WellKnownDestinations.FileDialog))
+                    if (destination.Designation == nameof(WellKnownDestinations.FileNoDialog))
                     {
                         string fullPath;
                         bool overwrite;
+                        string originalFilename = captureDetails.Filename;
                         if (captureDetails.Filename != null)
                         {
                             fullPath = captureDetails.Filename;
@@ -227,7 +227,6 @@ namespace Greenshot.Pipeline
                             continue;
                         }
 
-                        captureDetails.Filename = fullPath;
                         var bgFullPath = fullPath;
                         var bgOverwrite = overwrite;
                         var bgOutputSettings = sharedFileOutputSettings;
@@ -236,8 +235,11 @@ namespace Greenshot.Pipeline
                             ? cp
                             : CoreConfig.OutputFileCopyPathToClipboard;
 
-                        Image bgRenderedBitmap = sharedRenderedBitmap != null ? (Image)sharedRenderedBitmap.Clone() : null;
+                        Image bgRenderedBitmap = sharedRenderedBitmap != null
+                            ? (Image)sharedRenderedBitmap.Clone()
+                            : surface?.GetImageForExport();
 
+                        var destDesignation = destination.Designation;
                         var task = Task.Run(() =>
                         {
                             try
@@ -253,31 +255,44 @@ namespace Greenshot.Pipeline
                                         uiContext);
                                 }
 
+                                captureDetails.Filename = bgFullPath;
                                 uiContext?.Post(_ => CoreConfig.OutputFileAsFullpath = bgFullPath, null);
+                                Interlocked.Increment(ref successfulExports);
                             }
-                            catch (ArgumentException ex1)
+                            catch (Exception ex)
                             {
-                                Log.InfoFormat("Not overwriting: {0}", ex1.Message);
-                                uiContext?.Send(_ => ImageIO.SaveWithDialog(surface, captureDetails), null);
-                            }
-                            catch (Exception ex2)
-                            {
-                                Log.Error("Error saving screenshot in background!", ex2);
-                                uiContext?.Post(_ => MessageBox.Show(
-                                    Language.GetString(LangKey.error_save),
-                                    Language.GetString(LangKey.error)), null);
+                                Log.Error($"Error saving screenshot in background to '{bgFullPath}'!", ex);
+                                captureDetails.Filename = originalFilename;
+                                payload.RetainSurfaceForEditor = true;
+                                lock (failedExports)
+                                {
+                                    failedExports.Add((destDesignation, ex.Message, ex));
+                                }
                             }
                         }, cancellationToken);
 
                         backgroundTasks.Add(task);
-                        successfulExports++;
                     }
                     else if (sharedRenderedBitmap != null && destination is IAcceptsPreRenderedImage preRenderDest)
                     {
                         ExportInformation exportInformation = null;
+                        Exception destEx = null;
                         InvokeOnSta(uiContext, () =>
                         {
-                            exportInformation = preRenderDest.ExportCaptureWithRenderedImage(sharedRenderedBitmap, surface, captureDetails);
+                            try
+                            {
+                                exportInformation = preRenderDest.ExportCaptureWithRenderedImage(sharedRenderedBitmap, surface, captureDetails);
+                            }
+                            catch (Exception ex)
+                            {
+                                Log.Error($"Error exporting to {destination.Designation}", ex);
+                                destEx = ex;
+                                exportInformation = new ExportInformation(destination.Designation, destination.Description)
+                                {
+                                    ExportMade = false,
+                                    ErrorMessage = ex.Message
+                                };
+                            }
                         });
 
                         if (exportInformation != null && exportInformation.ExportMade)
@@ -287,7 +302,7 @@ namespace Greenshot.Pipeline
                         else if (exportInformation != null && !exportInformation.ExportMade && !string.IsNullOrEmpty(exportInformation.ErrorMessage))
                         {
                             payload.RetainSurfaceForEditor = true;
-                            failedExports.Add((destination.Designation, exportInformation.ErrorMessage));
+                            failedExports.Add((destination.Designation, exportInformation.ErrorMessage, destEx));
                         }
                     }
                     else
@@ -298,9 +313,23 @@ namespace Greenshot.Pipeline
                         }
 
                         ExportInformation exportInformation = null;
+                        Exception destEx = null;
                         InvokeOnSta(uiContext, () =>
                         {
-                            exportInformation = destination.ExportCapture(false, surface, captureDetails);
+                            try
+                            {
+                                exportInformation = destination.ExportCapture(false, surface, captureDetails);
+                            }
+                            catch (Exception ex)
+                            {
+                                Log.Error($"Error exporting to {destination.Designation}", ex);
+                                destEx = ex;
+                                exportInformation = new ExportInformation(destination.Designation, destination.Description)
+                                {
+                                    ExportMade = false,
+                                    ErrorMessage = ex.Message
+                                };
+                            }
                         });
 
                         Log.InfoFormat("Destination '{0}' export completed (ExportMade: {1}{2})",
@@ -315,7 +344,7 @@ namespace Greenshot.Pipeline
                         else if (exportInformation != null && !exportInformation.ExportMade && !string.IsNullOrEmpty(exportInformation.ErrorMessage))
                         {
                             payload.RetainSurfaceForEditor = true;
-                            failedExports.Add((destination.Designation, exportInformation.ErrorMessage));
+                            failedExports.Add((destination.Designation, exportInformation.ErrorMessage, destEx));
                         }
 
                         if (EditorDestination.DESIGNATION.Equals(destination.Designation, StringComparison.OrdinalIgnoreCase) &&
@@ -334,12 +363,8 @@ namespace Greenshot.Pipeline
                 if (failedExports.Count > 0)
                 {
                     context.Properties["DestinationExportErrors"] = string.Join("; ", failedExports.Select(f => $"{f.Designation}: {f.Error}"));
-                }
-
-                if (successfulExports == 0 && failedExports.Count > 0)
-                {
                     var first = failedExports[0];
-                    throw new DestinationExportException($"Export to {first.Designation} failed: {first.Error}", first.Designation);
+                    throw new DestinationExportException($"Export to {first.Designation} failed: {first.Error}", first.Designation, first.Exception);
                 }
             }
             finally
