@@ -345,5 +345,171 @@ Sie können aber auch alle Greenshot-Funktionen über das Kontextmenü des Green
 	<resource name="editor_pushout">Aufnahme vergrößern und nach außen verschieben</resource>
 	<resource name="editor_snap">Am Rand andocken</resource>
 		<resource name="editor_counter_startvalue">Startwert</resource>
+
+		<!-- Self-Service & Diagnosedialog -->
+		<resource name="selfservice_title">Fehlerbehebung</resource>
+		<resource name="selfservice_button_text">Fehlerbehebung [S]</resource>
+		<resource name="selfservice_tooltip">Greenshot Fehlerbehebung &amp; Diagnose öffnen (S)</resource>
+		<resource name="selfservice_window_title">Greenshot Fehlerbehebung &amp; Diagnose</resource>
+		<resource name="selfservice_categories_header">DIAGNOSEKATEGORIEN</resource>
+		<resource name="selfservice_shortcuts_hint">Esc: Schließen  |  F5: Aktualisieren  |  T: Farbschema</resource>
+		<resource name="selfservice_tooltip_minimize">Minimieren</resource>
+		<resource name="selfservice_tooltip_maximize">Maximieren / Wiederherstellen</resource>
+		<resource name="selfservice_tooltip_close">Schließen (Esc)</resource>
+		<resource name="selfservice_tooltip_theme">Farbschema umschalten (Hell / Dunkel)</resource>
+
+		<!-- Kategorien -->
+		<resource name="selfservice_category_system">System &amp; Hardware</resource>
+		<resource name="selfservice_category_system_sub">Betriebssystem, Bildschirmskalierung, Speicherauslastung und .NET-Laufzeitumgebung</resource>
+		<resource name="selfservice_category_files">Dateien &amp; Konfiguration</resource>
+		<resource name="selfservice_category_files_sub">Greenshot Konfigurationsdatei, Protokolldateipfade und Protokollanzeige</resource>
+		<resource name="selfservice_category_clipboard">Zwischenablage-Diagnose</resource>
+		<resource name="selfservice_category_clipboard_sub">Echtzeit-Formatprüfung, aktive Formate und Prozessblockierungs-Überprüfung</resource>
+		<resource name="selfservice_category_hotkeys">Tastenkombinationen &amp; Konflikte</resource>
+		<resource name="selfservice_category_hotkeys_sub">Greenshot Tastenkombinationen, Konflikterkennung (OneDrive, Windows 11 Snipping Tool, Dropbox)</resource>
+
+		<!-- System-Bereich -->
+		<resource name="selfservice_system_title">System- &amp; Umgebungsdiagnose</resource>
+		<resource name="selfservice_system_sub">Detaillierte Umgebung, Speichernutzung, Bildschirmanordnung und Prozessmetriken.</resource>
+		<resource name="selfservice_btn_refresh">Aktualisieren (F5)</resource>
+		<resource name="selfservice_btn_copy_sysinfo">Systeminfo kopieren</resource>
+		<resource name="selfservice_sysinfo_copied">Bericht in die Zwischenablage kopiert!</resource>
+		<resource name="selfservice_sys_memory_process">PROZESSSPEICHER</resource>
+		<resource name="selfservice_sys_memory_gc">GC VERWALTETER HEAP</resource>
+		<resource name="selfservice_sys_memory_ram">PHYSISCHER RAM</resource>
+		<resource name="selfservice_sys_uptime_label">⏱️ Laufzeit: </resource>
+		<resource name="selfservice_sys_report_title">Vollständiger Umgebungsdiagnosebericht</resource>
+
+		<!-- Dateien-Bereich -->
+		<resource name="selfservice_files_title">Dateispeicherorte &amp; Diagnoseprotokoll</resource>
+		<resource name="selfservice_files_sub">Greenshot Konfiguration, Protokolldateizugriff, Explorer-Integration und Protokollanzeige.</resource>
+		<resource name="selfservice_files_logfile_title">Greenshot Protokolldatei (greenshot.log)</resource>
+		<resource name="selfservice_files_inifile_title">Greenshot Konfigurationsdatei (greenshot.ini)</resource>
+		<resource name="selfservice_files_quickglance_title">Schnellansicht: Aktuelle Protokollinformationen</resource>
+		<resource name="selfservice_files_quickglance_desc">Öffnet das separate Protokollfenster zum Blättern, Suchen, Aktualisieren oder Kopieren der vollständigen Protokolleinträge.</resource>
+		<resource name="selfservice_btn_open_logviewer">Protokoll anzeigen</resource>
+		<resource name="selfservice_tooltip_open_logviewer">Vollständiges Protokoll in separatem Fenster öffnen</resource>
+		<resource name="selfservice_btn_copy_path">Pfad kopieren</resource>
+		<resource name="selfservice_copied">Kopiert!</resource>
+		<resource name="selfservice_files_exists">Datei vorhanden: {0}</resource>
+		<resource name="selfservice_files_not_found">Datei nicht gefunden</resource>
+		<resource name="selfservice_files_quickglance_status">Bereit zur Protokollüberprüfung</resource>
+
+		<!-- Log Viewer Fenster -->
+		<resource name="selfservice_logviewer_title">Greenshot Protokollanzeige</resource>
+		<resource name="selfservice_logviewer_refresh">Ende aktualisieren (F5)</resource>
+		<resource name="selfservice_logviewer_copy">Protokoll kopieren</resource>
+		<resource name="selfservice_logviewer_wrap">Zeilenumbruch</resource>
+		<resource name="selfservice_logviewer_load_earlier">Frühere laden (+64 KB)</resource>
+		<resource name="selfservice_logviewer_tooltip_load_earlier">Vorherigen 64-KB-Block der Protokollzeilen laden</resource>
+		<resource name="selfservice_logviewer_load_entire">Gesamtes Protokoll laden</resource>
+		<resource name="selfservice_logviewer_tooltip_load_entire">Alle verbleibenden früheren Zeilen laden</resource>
+		<resource name="selfservice_logviewer_status_partial">Zeige Ende der Datei: {0} ({1:N0} Bytes geladen von {2:N0} Bytes gesamt, {3} Zeilen)</resource>
+		<resource name="selfservice_logviewer_status_complete">Vollständige Protokolldatei geladen: {0} ({1:N0} Bytes, {2} Zeilen)</resource>
+		<resource name="selfservice_logviewer_status_notfound">Protokolldatei existiert derzeit nicht unter: {0}</resource>
+		<resource name="selfservice_logviewer_status_error">Fehler beim Lesen der Protokolldatei: {0}</resource>
+		<resource name="selfservice_logviewer_copied">Gesamten Protokollinhalt in die Zwischenablage kopiert ({0:N0} Zeichen)</resource>
+		<resource name="selfservice_logviewer_empty">(Protokolldatei ist leer)</resource>
+
+		<!-- Zwischenablage-Bereich -->
+		<resource name="selfservice_clipboard_title">Zwischenablage-Diagnose &amp; Blockierungsprüfung</resource>
+		<resource name="selfservice_clipboard_sub">Echtzeit-Formatprüfung (automatische Aktualisierung) und Erkennung blockierender Prozesse.</resource>
+		<resource name="selfservice_clipboard_refresh">Aktualisieren</resource>
+		<resource name="selfservice_clipboard_test_now">Zwischenablage jetzt testen</resource>
+		<resource name="selfservice_clipboard_locking_process">Prozess blockiert Zwischenablage:</resource>
+		<resource name="selfservice_clipboard_data_owner">Aktueller Eigentümer der Zwischenablagedaten:</resource>
+		<resource name="selfservice_clipboard_pid">Prozess-ID:   {0}</resource>
+		<resource name="selfservice_clipboard_process_name">Prozessname:  {0}</resource>
+		<resource name="selfservice_clipboard_window_title">Fenstertitel: {0}</resource>
+		<resource name="selfservice_clipboard_executable">Programmdatei: {0}</resource>
+		<resource name="selfservice_clipboard_label_process_name">Prozessname: </resource>
+		<resource name="selfservice_clipboard_label_pid">Prozess-ID:   </resource>
+		<resource name="selfservice_clipboard_label_window_title">Fenstertitel: </resource>
+		<resource name="selfservice_clipboard_label_executable">Ausführbare Datei: </resource>
+		<resource name="selfservice_clipboard_label_path">Pfad: </resource>
+		<resource name="selfservice_clipboard_status_free">Die Zwischenablage ist derzeit frei und zugänglich.</resource>
+		<resource name="selfservice_clipboard_status_locked">Die Zwischenablage scheint von einer externen Anwendung blockiert zu sein!</resource>
+		<resource name="selfservice_clipboard_status_accessible">Zwischenablage ist zugänglich (entsperrt)</resource>
+		<resource name="selfservice_clipboard_status_blocked_by">Zwischenablage ist BLOCKIERT von {0} (PID: {1})</resource>
+		<resource name="selfservice_clipboard_status_last_owner">Zuletzt gesetzte Daten von: {0}</resource>
+		<resource name="selfservice_clipboard_window_label">Fenster: "{0}"</resource>
+		<resource name="selfservice_clipboard_executable_label">Ausführbare Datei: {0}</resource>
+		<resource name="selfservice_clipboard_badge_blocked">BLOCKIERT</resource>
+		<resource name="selfservice_clipboard_monitor_active">Zwischenablage-Überwachungsschleife aktiv</resource>
+		<resource name="selfservice_clipboard_monitor_stopped">Überwachung angehalten</resource>
+		<resource name="selfservice_clipboard_log_cleared">Überwachungsprotokoll gelöscht</resource>
+		<resource name="selfservice_clipboard_monitor_started_msg">Kontinuierliche Zwischenablage-Überwachungsschleife gestartet (Intervall: 600 ms)</resource>
+		<resource name="selfservice_clipboard_monitor_stopped_msg">Zwischenablage-Überwachungsschleife angehalten</resource>
+		<resource name="selfservice_clipboard_loop_title">Live-Zwischenablage-Überwachungsschleife</resource>
+		<resource name="selfservice_clipboard_loop_desc">Prüft alle 600 ms, um vorübergehende oder dauerhafte Blockierungen durch Hintergrundprogramme zu erkennen.</resource>
+		<resource name="selfservice_clipboard_btn_start_monitor">Überwachung starten</resource>
+		<resource name="selfservice_clipboard_btn_stop_monitor">Überwachung anhalten</resource>
+		<resource name="selfservice_clipboard_btn_clear_log">Protokoll leeren</resource>
+		<resource name="selfservice_clipboard_formats_title">Aktive Formate in der Zwischenablage (automatisch aktualisiert)</resource>
+		<resource name="selfservice_clipboard_formats_sub">Überwacht mit Dapplo.Windows.Clipboard</resource>
+		<resource name="selfservice_clipboard_empty">(Zwischenablage ist derzeit leer)</resource>
+		<resource name="selfservice_clipboard_no_data">Zwischenablage enthält keine Daten</resource>
+		<resource name="selfservice_clipboard_no_formats">Derzeit keine Formate aktiv</resource>
+		<resource name="selfservice_clipboard_query_error">Fehler beim Abrufen der Formate</resource>
+		<resource name="selfservice_clipboard_busy">Zwischenablage ist möglicherweise beschäftigt oder gesperrt</resource>
+		<resource name="selfservice_clipformat_ansi">Standard ANSI-Textzeichenfolge</resource>
+		<resource name="selfservice_clipformat_bitmap">Geräteabhängiges Bitmap (GDI)</resource>
+		<resource name="selfservice_clipformat_dib">Geräteunabhängiges Bitmap (DIB)</resource>
+		<resource name="selfservice_clipformat_dibv5">DIB Version 5 Bitmap</resource>
+		<resource name="selfservice_clipformat_unicode">Standard Unicode (UTF-16) Textzeichenfolge</resource>
+		<resource name="selfservice_clipformat_metafile">Erweiterte Windows-Metadatei (EMF)</resource>
+		<resource name="selfservice_clipformat_hdrop">Liste abgelegter oder kopierter Dateien (HDROP)</resource>
+		<resource name="selfservice_clipformat_locale">Gebietsschema-ID für Zwischenablagetexte</resource>
+		<resource name="selfservice_clipformat_oem">OEM-Textzeichenfolge</resource>
+		<resource name="selfservice_clipformat_tiff">TIFF-Bilddaten</resource>
+		<resource name="selfservice_clipformat_html">Hypertext Markup Language (HTML)</resource>
+		<resource name="selfservice_clipformat_rtf">Rich Text Format (RTF)</resource>
+		<resource name="selfservice_clipformat_png">Portable Network Graphics (PNG)</resource>
+		<resource name="selfservice_clipformat_bmp">Bitmap-Bildformat</resource>
+		<resource name="selfservice_clipformat_custom">Benutzerdefiniertes Format</resource>
+
+		<!-- Tastenkombinationen-Bereich -->
+		<resource name="selfservice_hotkeys_title">Tastenkombinationen &amp; Programmkonflikte</resource>
+		<resource name="selfservice_hotkeys_sub">Greenshot-Tastenkürzel überprüfen und Konflikte mit OneDrive, Snipping Tool und Dropbox lösen.</resource>
+		<resource name="selfservice_hotkeys_btn_reregister">Greenshot-Tastenkombinationen neu registrieren</resource>
+		<resource name="selfservice_hotkeys_configured_title">Konfigurierte Tastenkombinationen</resource>
+		<resource name="selfservice_hotkeys_status_ok">Registriert</resource>
+		<resource name="selfservice_hotkeys_status_failed">Nicht registriert / Konflikt</resource>
+		<resource name="selfservice_hotkeys_status_disabled">Deaktiviert</resource>
+		<resource name="selfservice_hotkeys_opened_settings">Windows-Tastatureinstellungen geöffnet</resource>
+		<resource name="selfservice_hotkeys_reregister_success">Greenshot-Tastenkombinationen erfolgreich neu registriert!</resource>
+		<resource name="selfservice_hotkeys_reregister_conflict">Tastenkombinationen neu registriert (einige Tasten haben möglicherweise Konflikte).</resource>
+		<resource name="selfservice_hotkeys_reregister_failed">Fehler beim Neuregistrieren der Tastenkombinationen: {0}</resource>
+		<resource name="selfservice_hotkeys_updated_at">Aktualisiert um {0}</resource>
+		<resource name="selfservice_hotkeys_onedrive_title">Microsoft OneDrive Tastaturkürzelerfassung</resource>
+		<resource name="selfservice_hotkeys_onedrive_disable_btn">🚫 OneDrive Screenshot-Erfassung deaktivieren</resource>
+		<resource name="selfservice_hotkeys_onedrive_desc">OneDrive besitzt die Einstellung 'Screenshots, die ich aufnehme, automatisch auf OneDrive speichern'. Wenn aktiviert, registriert OneDrive die Druck-Taste vor Greenshot. Die Schaltfläche oben aktualisiert die OneDrive-Konfiguration, um dieses Verhalten zu deaktivieren.</resource>
+		<resource name="selfservice_hotkeys_onedrive_status_disabled">OneDrive-Screenshoterfassung ist deaktiviert (in Ordnung).</resource>
+		<resource name="selfservice_hotkeys_onedrive_status_enabled">OneDrive-Screenshoterfassung ist derzeit AKTIVIERT und fängt die Druck-Taste ab!</resource>
+		<resource name="selfservice_hotkeys_onedrive_status_notdetected">OneDrive wurde auf diesem System nicht erkannt.</resource>
+		<resource name="selfservice_hotkeys_onedrive_success">OneDrive-Konfiguration erfolgreich aktualisiert.</resource>
+		<resource name="selfservice_hotkeys_onedrive_error">OneDrive-Konfiguration konnte nicht geändert werden: {0}</resource>
+		<resource name="selfservice_hotkeys_snipping_title">Windows 10 / 11 Snipping Tool Übernahme</resource>
+		<resource name="selfservice_hotkeys_snipping_disable_btn">🚫 Snipping Tool Übernahme deaktivieren</resource>
+		<resource name="selfservice_hotkeys_snipping_settings_btn">⚙️ Windows-Tastatureinstellungen öffnen</resource>
+		<resource name="selfservice_hotkeys_snipping_desc">In modernen Windows 11 Versionen hat Microsoft 'Drucktaste zum Öffnen des Snipping Tools verwenden' standardmäßig aktiviert. Das Deaktivieren stellt die normale Funktionalität der Druck-Taste wieder her.</resource>
+		<resource name="selfservice_hotkeys_snipping_status_disabled">Windows Snipping Tool Übernahme der Druck-Taste ist deaktiviert (in Ordnung).</resource>
+		<resource name="selfservice_hotkeys_snipping_status_enabled">Windows Snipping Tool Übernahme der Druck-Taste ist derzeit AKTIVIERT!</resource>
+		<resource name="selfservice_hotkeys_snipping_status_na">Snipping Tool Übernahme gilt für diese Windows-Version nicht.</resource>
+		<resource name="selfservice_hotkeys_snipping_success">Snipping Tool Übernahme der Druck-Taste in der Windows-Registrierung erfolgreich deaktiviert.</resource>
+		<resource name="selfservice_hotkeys_dropbox_title">Dropbox Screenshot-Freigabe</resource>
+		<resource name="selfservice_hotkeys_dropbox_desc">Dropbox besitzt in den Einstellungen unter Sicherungen die Funktion 'Screenshots mit Dropbox teilen'. Wenn aktiviert, reserviert Dropbox die Druck-Taste beim Systemstart. Öffnen Sie die Dropbox-Einstellungen, um die Funktion abzuwählen.</resource>
+		<resource name="selfservice_hotkeys_dropbox_running">Dropbox-Prozess wird derzeit ausgeführt.</resource>
+		<resource name="selfservice_hotkeys_dropbox_notrunning">Dropbox-Prozess wird nicht ausgeführt.</resource>
+		<resource name="selfservice_hotkeys_other_title">Andere bekannte Bildschirmaufnahmeprogramme</resource>
+		<resource name="selfservice_hotkeys_running">Wird ausgeführt (PID {0})</resource>
+		<resource name="selfservice_hotkeys_notrunning">Wird nicht ausgeführt</resource>
+		<resource name="selfservice_hotkeys_contender_sharex">Vollständiges Bildschirmaufnahme-Dienstprogramm mit globalen Hotkeys</resource>
+		<resource name="selfservice_hotkeys_contender_snagit">TechSmith Snagit Screenshot-Anwendung</resource>
+		<resource name="selfservice_hotkeys_contender_snagit64">TechSmith Snagit 64-Bit Screenshot-Anwendung</resource>
+		<resource name="selfservice_hotkeys_contender_lightshot">Lightshot-Screenshot-Tool (belegt Drucktaste)</resource>
+		<resource name="selfservice_hotkeys_contender_picpick">PicPick Grafikdesign- und Screenshot-Tool</resource>
+		<resource name="selfservice_hotkeys_contender_snipping">Integrierter Windows Snipping Tool-Prozess</resource>
+		<resource name="selfservice_hotkeys_contender_screenclipping">Windows „Ausschneiden und skizzieren“-Overlay-Prozess</resource>
 	</resources>
 </language>

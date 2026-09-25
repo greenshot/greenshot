@@ -64,6 +64,11 @@ namespace Greenshot.UI
             ViewModel?.SearchGitHub();
         }
 
+        private void OnOpenSelfServiceClicked(object sender, RoutedEventArgs e)
+        {
+            SelfService.SelfServiceWindow.ShowSelfService(this);
+        }
+
         private void OnReportIssueClicked(object sender, RoutedEventArgs e)
         {
             ViewModel?.ReportIssue();

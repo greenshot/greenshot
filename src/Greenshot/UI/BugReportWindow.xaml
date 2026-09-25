@@ -436,11 +436,23 @@
                     <Grid Margin="0,18,0,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
                         <Button Grid.Column="0"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                Margin="0,0,8,0"
+                                Click="OnOpenSelfServiceClicked"
+                                ToolTip="{wpf:Translate selfservice_tooltip}">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="🛠️ " FontSize="12" Margin="0,0,2,0"/>
+                                <TextBlock Text="{wpf:Translate selfservice_title}" FontWeight="SemiBold"/>
+                            </StackPanel>
+                        </Button>
+
+                        <Button Grid.Column="1"
                                 Style="{StaticResource SecondaryButtonStyle}"
                                 Click="OnReportIssueClicked">
                             <StackPanel Orientation="Horizontal">
@@ -448,7 +460,7 @@
                             </StackPanel>
                         </Button>
 
-                        <Button Grid.Column="2"
+                        <Button Grid.Column="3"
                                 Style="{StaticResource SecondaryButtonStyle}"
                                 Click="OnCloseClicked"
                                 IsCancel="True"

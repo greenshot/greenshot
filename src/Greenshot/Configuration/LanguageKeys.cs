@@ -79,6 +79,8 @@ namespace Greenshot.Configuration
         tooltip_firststart,
         warning,
         warning_hotkeys,
-        update_found
+        update_found,
+        selfservice_title,
+        selfservice_window_title
     }
 }

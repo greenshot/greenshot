@@ -56,7 +56,8 @@ namespace Greenshot.Base.Wpf
         {
             var binding = new Binding("Value")
             {
-                Source = new TranslationData(_key)
+                Source = new TranslationData(_key),
+                Mode = BindingMode.OneWay
             };
             return binding.ProvideValue(serviceProvider);
         }

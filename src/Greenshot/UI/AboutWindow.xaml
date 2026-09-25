@@ -1078,35 +1078,14 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <!-- Quick Diagnostic Shortcuts / Buttons -->
+                    <!-- Self-Service & Diagnostics Button -->
                     <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
                         <Button Style="{StaticResource SecondaryButtonStyle}"
-                                Margin="0,0,6,0"
-                                Click="OnEnvironmentInfoClicked"
-                                ToolTip="View Environment &amp; System Information (E)">
+                                Click="OnOpenSelfServiceClicked"
+                                ToolTip="{Binding SelfServiceButtonToolTip}">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="📋" FontSize="11" Margin="0,0,4,0"/>
-                                <TextBlock Text="SysInfo [E]"/>
-                            </StackPanel>
-                        </Button>
-
-                        <Button Style="{StaticResource SecondaryButtonStyle}"
-                                Margin="0,0,6,0"
-                                Click="OnViewLogClicked"
-                                ToolTip="Open Greenshot Log File (L)">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="📄" FontSize="11" Margin="0,0,4,0"/>
-                                <TextBlock Text="Log [L]"/>
-                            </StackPanel>
-                        </Button>
-
-                        <Button Style="{StaticResource SecondaryButtonStyle}"
-                                Margin="0,0,6,0"
-                                Click="OnViewSettingsClicked"
-                                ToolTip="Open Greenshot Settings INI (I)">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="⚙️" FontSize="11" Margin="0,0,4,0"/>
-                                <TextBlock Text="Config [I]"/>
+                                <TextBlock Text="🛠️" FontSize="12" Margin="0,0,6,0"/>
+                                <TextBlock Text="{Binding SelfServiceButtonText}" FontWeight="SemiBold"/>
                             </StackPanel>
                         </Button>
                     </StackPanel>

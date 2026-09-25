@@ -96,6 +96,8 @@ namespace Greenshot.UI
         public string IconsLabelText { get; private set; }
         public string TranslationCreditsText { get; private set; }
         public Visibility TranslationCreditsVisibility => string.IsNullOrWhiteSpace(TranslationCreditsText) ? Visibility.Collapsed : Visibility.Visible;
+        public string SelfServiceButtonText { get; private set; }
+        public string SelfServiceButtonToolTip { get; private set; }
         public string CloseButtonText { get; private set; }
         public string CloseButtonToolTip { get; private set; }
 
@@ -179,8 +181,7 @@ namespace Greenshot.UI
         /// </summary>
         protected virtual void InitializeLanguage()
         {
-            string title = Lang.GetString("about_title");
-            WindowTitleText = string.IsNullOrWhiteSpace(title) || title.StartsWith("###") ? "About Greenshot" : title;
+            WindowTitleText = Lang.GetString("about_title");
             WindowTitleSubtitle = $" - {WindowTitleText}";
 
             LicenseCopyrightText = Lang.GetString("about_license");
@@ -189,11 +190,11 @@ namespace Greenshot.UI
             DonationsLabelText = Lang.GetString("about_donations");
             IconsLabelText = Lang.GetString("about_icons");
 
-            string translation = Lang.GetString("about_translation");
-            TranslationCreditsText = string.IsNullOrWhiteSpace(translation) || translation.StartsWith("###") ? null : translation;
+            TranslationCreditsText = Lang.GetString("about_translation");
+            SelfServiceButtonText = Lang.GetString("selfservice_button_text");
+            SelfServiceButtonToolTip = Lang.GetString("selfservice_tooltip");
 
-            string close = Lang.GetString("bugreport_cancel");
-            CloseButtonText = string.IsNullOrWhiteSpace(close) || close.StartsWith("###") ? "Close" : close;
+            CloseButtonText = Lang.GetString("bugreport_cancel");
             CloseButtonToolTip = $"{CloseButtonText} (Esc)";
 
             OnPropertyChanged(nameof(WindowTitleText));
@@ -205,6 +206,8 @@ namespace Greenshot.UI
             OnPropertyChanged(nameof(IconsLabelText));
             OnPropertyChanged(nameof(TranslationCreditsText));
             OnPropertyChanged(nameof(TranslationCreditsVisibility));
+            OnPropertyChanged(nameof(SelfServiceButtonText));
+            OnPropertyChanged(nameof(SelfServiceButtonToolTip));
             OnPropertyChanged(nameof(CloseButtonText));
             OnPropertyChanged(nameof(CloseButtonToolTip));
         }
@@ -358,19 +361,14 @@ namespace Greenshot.UI
             }
         }
 
-        private void OnEnvironmentInfoClicked(object sender, RoutedEventArgs e)
+        private void OnOpenSelfServiceClicked(object sender, RoutedEventArgs e)
         {
-            ShowEnvironmentInfo();
+            OpenSelfService();
         }
 
-        private void OnViewLogClicked(object sender, RoutedEventArgs e)
+        private void OpenSelfService(string sectionId = null)
         {
-            OpenLogFile();
-        }
-
-        private void OnViewSettingsClicked(object sender, RoutedEventArgs e)
-        {
-            OpenConfigFile();
+            SelfService.SelfServiceWindow.ShowSelfService(this, sectionId);
         }
 
         private void OnWindowKeyDown(object sender, KeyEventArgs e)
@@ -381,16 +379,17 @@ namespace Greenshot.UI
                     Close();
                     e.Handled = true;
                     break;
+                case Key.S:
+                    OpenSelfService();
+                    e.Handled = true;
+                    break;
                 case Key.E:
-                    ShowEnvironmentInfo();
+                    OpenSelfService("system");
                     e.Handled = true;
                     break;
                 case Key.L:
-                    OpenLogFile();
-                    e.Handled = true;
-                    break;
                 case Key.I:
-                    OpenConfigFile();
+                    OpenSelfService("files");
                     e.Handled = true;
                     break;
                 case Key.T:
