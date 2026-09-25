@@ -79,6 +79,11 @@ namespace Greenshot.UI
             ViewModel?.CopyReportToClipboard();
         }
 
+        private void OnCopyStackTraceClicked(object sender, RoutedEventArgs e)
+        {
+            ViewModel?.CopyStackTraceToClipboard();
+        }
+
         private void OnToggleDetailsClicked(object sender, RoutedEventArgs e)
         {
             ViewModel?.ToggleDetails();

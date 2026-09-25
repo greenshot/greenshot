@@ -511,5 +511,57 @@ Sie können aber auch alle Greenshot-Funktionen über das Kontextmenü des Green
 		<resource name="selfservice_hotkeys_contender_picpick">PicPick Grafikdesign- und Screenshot-Tool</resource>
 		<resource name="selfservice_hotkeys_contender_snipping">Integrierter Windows Snipping Tool-Prozess</resource>
 		<resource name="selfservice_hotkeys_contender_screenclipping">Windows „Ausschneiden und skizzieren“-Overlay-Prozess</resource>
+
+		<!-- Checksum / Integrity Section -->
+		<resource name="selfservice_category_checksum">Installationsintegrität</resource>
+		<resource name="selfservice_category_checksum_sub">Dateien mit checksum.SHA256 verifizieren, Beschädigungen oder fehlende Dateien erkennen</resource>
+		<resource name="selfservice_checksum_title">Installationsintegrität &amp; Prüfsummen-Validierung</resource>
+		<resource name="selfservice_checksum_sub">Installierte Anwendungs- und Plugin-Dateien anhand der SHA-256-Prüfsummenliste überprüfen.</resource>
+		<resource name="selfservice_checksum_btn_validate">Alle Dateien prüfen</resource>
+		<resource name="selfservice_checksum_btn_copy_report">Integritätsbericht kopieren</resource>
+		<resource name="selfservice_checksum_btn_copy_selected">Details kopieren</resource>
+		<resource name="selfservice_checksum_copied_report">Integritätsbericht in die Zwischenablage kopiert!</resource>
+		<resource name="selfservice_checksum_searching">Überprüfe Datei {0} von {1}...</resource>
+		<resource name="selfservice_checksum_status_ok_title">Installationsintegrität bestätigt</resource>
+		<resource name="selfservice_checksum_status_ok_desc">Alle in checksum.SHA256 aufgeführten Dateien stimmen mit den erwarteten Prüfsummen überein.</resource>
+		<resource name="selfservice_checksum_status_corrupt_title">Möglicherweise beschädigte Installation erkannt!</resource>
+		<resource name="selfservice_checksum_status_corrupt_desc">{0} Datei(en) stimmen nicht mit der Prüfsumme überein. Dateien könnten beschädigt, unvollständig aktualisiert oder verändert worden sein. Bitte installieren Sie Greenshot neu.</resource>
+		<resource name="selfservice_checksum_status_missing_title">Fehlende Installationsdateien erkannt!</resource>
+		<resource name="selfservice_checksum_status_missing_desc">{0} erwartete Datei(en) fehlen im Installationsverzeichnis.</resource>
+		<resource name="selfservice_checksum_status_notfound_title">Prüfsummendatei nicht gefunden</resource>
+		<resource name="selfservice_checksum_status_notfound_desc">Die Datei 'checksum.SHA256' wurde nicht gefunden unter: {0}</resource>
+		<resource name="selfservice_checksum_metric_total">GESAMT GEPRÜFT</resource>
+		<resource name="selfservice_checksum_metric_valid">GÜLTIG / PASSEND</resource>
+		<resource name="selfservice_checksum_metric_corrupt">ABWEICHEND (DEFEKT)</resource>
+		<resource name="selfservice_checksum_metric_missing">FEHLENDE DATEIEN</resource>
+		<resource name="selfservice_checksum_metric_unlisted">NICHT GELIFTETE DATEIEN</resource>
+		<resource name="selfservice_checksum_filter_all">Alle</resource>
+		<resource name="selfservice_checksum_filter_issues">Nur Probleme</resource>
+		<resource name="selfservice_checksum_filter_mismatch">Abweichend</resource>
+		<resource name="selfservice_checksum_filter_missing">Fehlend</resource>
+		<resource name="selfservice_checksum_filter_unlisted">Nicht gelistet</resource>
+		<resource name="selfservice_checksum_filter_valid">Gültig</resource>
+		<resource name="selfservice_checksum_search_placeholder">Nach Dateiname, Pfad oder Hash suchen...</resource>
+		<resource name="selfservice_checksum_col_status">Status</resource>
+		<resource name="selfservice_checksum_col_file">Datei / Relativer Pfad</resource>
+		<resource name="selfservice_checksum_col_actual_hash">Tatsächlicher SHA-256</resource>
+		<resource name="selfservice_checksum_col_expected_hash">Erwarteter SHA-256</resource>
+		<resource name="selfservice_checksum_col_size">Größe</resource>
+		<resource name="selfservice_checksum_status_match">Gültig</resource>
+		<resource name="selfservice_checksum_status_mismatch">Abweichung (Beschädigt)</resource>
+		<resource name="selfservice_checksum_status_missing">Fehlend</resource>
+		<resource name="selfservice_checksum_status_unlisted">Nicht gelistet</resource>
+		<resource name="selfservice_checksum_detail_selected">Details der ausgewählten Datei</resource>
+		<resource name="selfservice_checksum_detail_expected">Erwarteter Hash:</resource>
+		<resource name="selfservice_checksum_detail_actual">Tatsächlicher Hash:</resource>
+		<resource name="selfservice_checksum_detail_path">Vollständiger Pfad:</resource>
+		<resource name="selfservice_checksum_detail_hint_match">✔️ Datei-Prüfsumme stimmt überein. Die Datei ist authentisch und unverändert.</resource>
+		<resource name="selfservice_checksum_detail_hint_mismatch">❌ Prüfsummenabweichung! Die Datei weicht vom offiziellen Release ab. Sie könnte beschädigt oder verändert worden sein.</resource>
+		<resource name="selfservice_checksum_detail_hint_missing">⚠️ Datei ist in checksum.SHA256 verzeichnet, existiert aber nicht auf dem Datenträger.</resource>
+		<resource name="selfservice_checksum_detail_hint_unlisted">ℹ️ Datei ist auf dem Datenträger vorhanden, aber nicht in checksum.SHA256 aufgeführt.</resource>
+		<resource name="selfservice_checksum_empty_list">Keine Dateien entsprechen den aktuellen Such- oder Filterkriterien.</resource>
+		<resource name="selfservice_checksum_manifest_location">Prüfsummendatei: {0}</resource>
+		<resource name="selfservice_sidebar_navigation_header">💡 Navigation</resource>
+		<resource name="selfservice_sidebar_navigation_tip">Drücken Sie 1-5 zum Wechseln der Tabs, F5 zum Aktualisieren und T für Hell/Dunkel-Modus.</resource>
 	</resources>
 </language>

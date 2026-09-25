@@ -42,6 +42,7 @@ namespace Greenshot.UI.SelfService
         public FileInfoSectionViewModel FileInfoSection { get; }
         public ClipboardSectionViewModel ClipboardSection { get; }
         public HotkeySectionViewModel HotkeySection { get; }
+        public ChecksumSectionViewModel ChecksumSection { get; }
 
         public string WindowTitle
         {
@@ -92,11 +93,13 @@ namespace Greenshot.UI.SelfService
             FileInfoSection = new FileInfoSectionViewModel();
             ClipboardSection = new ClipboardSectionViewModel();
             HotkeySection = new HotkeySectionViewModel();
+            ChecksumSection = new ChecksumSectionViewModel();
 
             Sections.Add(SystemInfoSection);
             Sections.Add(FileInfoSection);
             Sections.Add(ClipboardSection);
             Sections.Add(HotkeySection);
+            Sections.Add(ChecksumSection);
 
             SelectSection(initialSectionId ?? "system");
 
@@ -157,6 +160,7 @@ namespace Greenshot.UI.SelfService
             Language.LanguageChanged -= OnLanguageChanged;
             ClipboardSection?.StopMonitoring();
             ClipboardSection?.Dispose();
+            ChecksumSection?.Cleanup();
         }
 
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)

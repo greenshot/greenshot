@@ -383,6 +383,59 @@
                         </DockPanel>
                     </Border>
 
+                    <!-- Dedicated Stack Trace Card -->
+                    <Border Visibility="{Binding HasStackTrace, Converter={StaticResource BooleanToVisibilityConverter}}"
+                            Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ControlBackgroundBrush}"
+                            BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="6"
+                            Padding="12,10"
+                            Margin="0,0,0,12">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <DockPanel Grid.Row="0" LastChildFill="False" Margin="0,0,0,6">
+                                <TextBlock Text="Stack Trace:"
+                                           FontWeight="SemiBold"
+                                           FontSize="11.5"
+                                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
+                                           VerticalAlignment="Center"/>
+                                <Button DockPanel.Dock="Right"
+                                        Style="{StaticResource GhostButtonStyle}"
+                                        Padding="4,2"
+                                        Click="OnCopyStackTraceClicked"
+                                        ToolTip="Copy Stack Trace to Clipboard">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="📋 " FontSize="10"/>
+                                        <TextBlock Text="Copy Stack Trace" FontSize="11"/>
+                                    </StackPanel>
+                                </Button>
+                            </DockPanel>
+                            <Border Grid.Row="1"
+                                    Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TextBoxBackgroundBrush}"
+                                    BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="4"
+                                    Padding="4">
+                                <TextBox Text="{Binding StackTrace, Mode=OneWay}"
+                                         IsReadOnly="True"
+                                         TextWrapping="NoWrap"
+                                         AcceptsReturn="True"
+                                         VerticalScrollBarVisibility="Auto"
+                                         HorizontalScrollBarVisibility="Auto"
+                                         MaxHeight="150"
+                                         FontFamily="Consolas, Cascadia Code, Courier New"
+                                         FontSize="11"
+                                         BorderThickness="0"
+                                         Background="Transparent"
+                                         Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"
+                                         Padding="4"/>
+                            </Border>
+                        </Grid>
+                    </Border>
+
                     <!-- Collapsible Details Header -->
                     <Grid Margin="0,4,0,4">
                         <Grid.ColumnDefinitions>

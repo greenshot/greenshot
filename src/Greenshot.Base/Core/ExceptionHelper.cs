@@ -41,16 +41,20 @@ namespace Greenshot.Base.Core
         public const string GitHubRepoOwner = "greenshot";
         public const string GitHubRepoName = "greenshot";
 
-        // Regex to extract exception type from "Exception: <Full.Type.Name>: message"
-        private static readonly Regex ExceptionTypeRegex = new(@"^Exception:\s+([^\s:]+)", RegexOptions.Compiled);
+        // Regex to extract exception type from "Exception: <Full.Type.Name>: message" or "<Full.Type.Name>: message"
+        private static readonly Regex ExceptionTypeRegex = new(@"^(?:Exception:\s+)?([A-Za-z0-9_.]+(?:Exception|Error))(?::\s*(.*))?$", RegexOptions.Compiled);
 
         // Regex to match and normalize stack frame method calls across Windows locales (en: "at", de: "bei", fr: "à", es: "en", zh: "在", etc.)
         // Matches any leading localized word (or none), followed by method signature starting with Greenshot. or Dapplo. up to closing parenthesis
         private static readonly Regex StackFrameRegex = new(@"^(?:[^\s(]+\s+)?((?:Greenshot|Dapplo)\.[^(]+(?:\([^)]*\))?)", RegexOptions.Compiled);
 
+        // Fallback regex to match non-Greenshot/Dapplo stack frames across locales
+        private static readonly Regex FallbackStackFrameRegex = new(@"^(?:[^\s(]+\s+)?([A-Za-z0-9_.]+\.[^(]+(?:\([^)]*\))?)", RegexOptions.Compiled);
+
         /// <summary>
         /// Normalizes raw stack trace or EnvironmentInfo report text into a stable, locale-independent representation.
         /// Extracts the root exception type name and Greenshot/Dapplo stack frames without file paths or line numbers.
+        /// Falls back to framework stack frames when no Greenshot or Dapplo frames are present.
         /// </summary>
         /// <param name="rawReportOrStackTrace">Raw exception report or stack trace text</param>
         /// <returns>Normalized stack trace text</returns>
@@ -63,6 +67,8 @@ namespace Greenshot.Base.Core
 
             var lines = rawReportOrStackTrace.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
             var normalizedLines = new List<string>();
+            var fallbackFrames = new List<string>();
+            var exceptionTypes = new List<string>();
 
             foreach (var line in lines)
             {
@@ -77,19 +83,51 @@ namespace Greenshot.Base.Core
                     var match = ExceptionTypeRegex.Match(trimmed);
                     if (match.Success)
                     {
-                        normalizedLines.Add(match.Groups[1].Value);
+                        exceptionTypes.Add(match.Groups[1].Value);
                     }
                     continue;
+                }
+
+                if (exceptionTypes.Count == 0)
+                {
+                    var typeMatch = ExceptionTypeRegex.Match(trimmed);
+                    if (typeMatch.Success && !trimmed.StartsWith("at ", StringComparison.OrdinalIgnoreCase) && !trimmed.StartsWith("bei ", StringComparison.OrdinalIgnoreCase) && !trimmed.StartsWith("in ", StringComparison.OrdinalIgnoreCase))
+                    {
+                        exceptionTypes.Add(typeMatch.Groups[1].Value);
+                        continue;
+                    }
                 }
 
                 var frameMatch = StackFrameRegex.Match(trimmed);
                 if (frameMatch.Success)
                 {
                     normalizedLines.Add("at " + frameMatch.Groups[1].Value);
+                    continue;
+                }
+
+                var fallbackMatch = FallbackStackFrameRegex.Match(trimmed);
+                if (fallbackMatch.Success)
+                {
+                    string frame = fallbackMatch.Groups[1].Value;
+                    if (frame.Contains(".") &&
+                        !trimmed.StartsWith("---", StringComparison.Ordinal) &&
+                        !trimmed.StartsWith("Configuration", StringComparison.Ordinal) &&
+                        !trimmed.StartsWith("Message:", StringComparison.Ordinal) &&
+                        !trimmed.StartsWith("Software version:", StringComparison.Ordinal) &&
+                        !trimmed.StartsWith(".NET", StringComparison.Ordinal))
+                    {
+                        fallbackFrames.Add("at " + frame);
+                    }
                 }
             }
 
-            return string.Join("\n", normalizedLines).Trim();
+            var resultFrames = normalizedLines.Count > 0 ? normalizedLines : fallbackFrames;
+
+            var finalLines = new List<string>();
+            finalLines.AddRange(exceptionTypes);
+            finalLines.AddRange(resultFrames);
+
+            return string.Join("\n", finalLines).Trim();
         }
 
         /// <summary>

@@ -139,16 +139,16 @@ namespace Greenshot.UI.SelfService
         public string StatusDetails { get => _statusDetails; private set { _statusDetails = value; OnPropertyChanged(); } }
         public Brush StatusBrush { get => _statusBrush; private set { _statusBrush = value; OnPropertyChanged(); } }
 
-        public string BlockerProcessName { get => _blockerProcessName; private set { _blockerProcessName = value; OnPropertyChanged(); } }
-        public int BlockerProcessId { get => _blockerProcessId; private set { _blockerProcessId = value; OnPropertyChanged(); } }
-        public string BlockerWindowTitle { get => _blockerWindowTitle; private set { _blockerWindowTitle = value; OnPropertyChanged(); } }
-        public string BlockerExecutablePath { get => _blockerExecutablePath; private set { _blockerExecutablePath = value; OnPropertyChanged(); } }
+        public string BlockerProcessName { get => _blockerProcessName; set { _blockerProcessName = value; OnPropertyChanged(); } }
+        public int BlockerProcessId { get => _blockerProcessId; set { _blockerProcessId = value; OnPropertyChanged(); } }
+        public string BlockerWindowTitle { get => _blockerWindowTitle; set { _blockerWindowTitle = value; OnPropertyChanged(); } }
+        public string BlockerExecutablePath { get => _blockerExecutablePath; set { _blockerExecutablePath = value; OnPropertyChanged(); } }
 
-        public string OwnerProcessName { get => _ownerProcessName; private set { _ownerProcessName = value; OnPropertyChanged(); } }
-        public int OwnerProcessId { get => _ownerProcessId; private set { _ownerProcessId = value; OnPropertyChanged(); } }
-        public string OwnerWindowTitle { get => _ownerWindowTitle; private set { _ownerWindowTitle = value; OnPropertyChanged(); } }
-        public string OwnerExecutablePath { get => _ownerExecutablePath; private set { _ownerExecutablePath = value; OnPropertyChanged(); } }
-        public string CurrentOwnerInfo { get => _currentOwnerInfo; private set { _currentOwnerInfo = value; OnPropertyChanged(); } }
+        public string OwnerProcessName { get => _ownerProcessName; set { _ownerProcessName = value; OnPropertyChanged(); } }
+        public int OwnerProcessId { get => _ownerProcessId; set { _ownerProcessId = value; OnPropertyChanged(); } }
+        public string OwnerWindowTitle { get => _ownerWindowTitle; set { _ownerWindowTitle = value; OnPropertyChanged(); } }
+        public string OwnerExecutablePath { get => _ownerExecutablePath; set { _ownerExecutablePath = value; OnPropertyChanged(); } }
+        public string CurrentOwnerInfo { get => _currentOwnerInfo; set { _currentOwnerInfo = value; OnPropertyChanged(); } }
 
         public bool IsMonitoring
         {

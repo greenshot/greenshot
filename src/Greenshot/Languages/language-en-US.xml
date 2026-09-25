@@ -533,5 +533,57 @@ Please check write accessibility of the selected storage location.</resource>
 		<resource name="selfservice_hotkeys_contender_picpick">PicPick graphic design and screen capture tool</resource>
 		<resource name="selfservice_hotkeys_contender_snipping">Built-in Windows Snipping Tool process</resource>
 		<resource name="selfservice_hotkeys_contender_screenclipping">Windows Snip &amp; Sketch overlay process</resource>
+
+		<!-- Checksum / Integrity Section -->
+		<resource name="selfservice_category_checksum">Installation Integrity</resource>
+		<resource name="selfservice_category_checksum_sub">Verify files against checksum.SHA256, detect corruptions or missing files</resource>
+		<resource name="selfservice_checksum_title">Installation Integrity &amp; Checksum Verification</resource>
+		<resource name="selfservice_checksum_sub">Verify installed application and plugin files against the SHA-256 checksum manifest.</resource>
+		<resource name="selfservice_checksum_btn_validate">Re-check All Files</resource>
+		<resource name="selfservice_checksum_btn_copy_report">Copy Integrity Report</resource>
+		<resource name="selfservice_checksum_btn_copy_selected">Copy Details</resource>
+		<resource name="selfservice_checksum_copied_report">Integrity report copied to clipboard!</resource>
+		<resource name="selfservice_checksum_searching">Validating file {0} of {1}...</resource>
+		<resource name="selfservice_checksum_status_ok_title">Installation Integrity Verified</resource>
+		<resource name="selfservice_checksum_status_ok_desc">All files listed in checksum.SHA256 match their expected hashes.</resource>
+		<resource name="selfservice_checksum_status_corrupt_title">Possible Corrupt Installation Detected!</resource>
+		<resource name="selfservice_checksum_status_corrupt_desc">{0} file(s) failed checksum verification. Files may have been corrupted, incompletely updated, or modified. Consider reinstalling Greenshot.</resource>
+		<resource name="selfservice_checksum_status_missing_title">Missing Installation Files Detected!</resource>
+		<resource name="selfservice_checksum_status_missing_desc">{0} expected file(s) are missing from the installation directory.</resource>
+		<resource name="selfservice_checksum_status_notfound_title">Checksum Manifest File Not Found</resource>
+		<resource name="selfservice_checksum_status_notfound_desc">The manifest file 'checksum.SHA256' was not found in: {0}</resource>
+		<resource name="selfservice_checksum_metric_total">TOTAL CHECKED</resource>
+		<resource name="selfservice_checksum_metric_valid">VALID / MATCHED</resource>
+		<resource name="selfservice_checksum_metric_corrupt">MISMATCHED (CORRUPT)</resource>
+		<resource name="selfservice_checksum_metric_missing">MISSING FILES</resource>
+		<resource name="selfservice_checksum_metric_unlisted">UNLISTED FILES</resource>
+		<resource name="selfservice_checksum_filter_all">All</resource>
+		<resource name="selfservice_checksum_filter_issues">Issues Only</resource>
+		<resource name="selfservice_checksum_filter_mismatch">Mismatched</resource>
+		<resource name="selfservice_checksum_filter_missing">Missing</resource>
+		<resource name="selfservice_checksum_filter_unlisted">Unlisted</resource>
+		<resource name="selfservice_checksum_filter_valid">Valid</resource>
+		<resource name="selfservice_checksum_search_placeholder">Search by file name, path, or hash...</resource>
+		<resource name="selfservice_checksum_col_status">Status</resource>
+		<resource name="selfservice_checksum_col_file">File / Relative Path</resource>
+		<resource name="selfservice_checksum_col_actual_hash">Actual SHA-256</resource>
+		<resource name="selfservice_checksum_col_expected_hash">Expected SHA-256</resource>
+		<resource name="selfservice_checksum_col_size">Size</resource>
+		<resource name="selfservice_checksum_status_match">Valid</resource>
+		<resource name="selfservice_checksum_status_mismatch">Mismatch (Corrupt)</resource>
+		<resource name="selfservice_checksum_status_missing">Missing</resource>
+		<resource name="selfservice_checksum_status_unlisted">Unlisted</resource>
+		<resource name="selfservice_checksum_detail_selected">Selected File Details</resource>
+		<resource name="selfservice_checksum_detail_expected">Expected Hash:</resource>
+		<resource name="selfservice_checksum_detail_actual">Actual Hash:</resource>
+		<resource name="selfservice_checksum_detail_path">Full Path:</resource>
+		<resource name="selfservice_checksum_detail_hint_match">✔️ File checksum matches expected signature. File is authentic and unmodified.</resource>
+		<resource name="selfservice_checksum_detail_hint_mismatch">❌ Checksum mismatch! The file differs from the official release. It may be corrupted or modified.</resource>
+		<resource name="selfservice_checksum_detail_hint_missing">⚠️ File is recorded in checksum.SHA256 but does not exist on disk.</resource>
+		<resource name="selfservice_checksum_detail_hint_unlisted">ℹ️ File is present on disk but not listed in the checksum.SHA256 manifest.</resource>
+		<resource name="selfservice_checksum_empty_list">No files match the current search or filter criteria.</resource>
+		<resource name="selfservice_checksum_manifest_location">Checksum manifest: {0}</resource>
+		<resource name="selfservice_sidebar_navigation_header">💡 Navigation</resource>
+		<resource name="selfservice_sidebar_navigation_tip">Press 1-5 to navigate tabs, F5 to refresh, and T to toggle Dark/Light mode.</resource>
     </resources>
 </language>

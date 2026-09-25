@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <Target Name="CoreCompile" />
   <PropertyGroup>
     <SkipCopyBuildProduct>true</SkipCopyBuildProduct>
@@ -22,9 +22,9 @@
     <RemoveDir Directories="$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\_manifest" />
   </Target>
 
-  <Target Name="Generate hashes" BeforeTargets="PostBuildEvent" Condition="'$(Configuration)' == 'Release'">
+  <Target Name="Generate hashes" BeforeTargets="PostBuildEvent">
     <ItemGroup>
-      <FilesToHash Include="$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\**\*.dll" Exclude="$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\Microsoft.Bcl.*.dll;$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\Microsoft.Build.*.dll;$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\Microsoft.IO.Redist.dll;$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\Microsoft.NET.StringTools.dll" />
+      <FilesToHash Include="$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\**\*.dll;$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\**\*.exe*;$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\**\*.ttf;$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\**\*.xml" Exclude="$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\Microsoft.Bcl.*.dll;$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\Microsoft.Build.*.dll;$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\Microsoft.IO.Redist.dll;$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\Microsoft.NET.StringTools.dll;$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\Microsoft.IO.Redist.dll;$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\**\langua*.xml" />
     </ItemGroup>
     <Exec Command="ECHO Generating hashes!" />
     <Delete Files="$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\checksum.SHA256" />
