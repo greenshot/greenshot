@@ -32,6 +32,8 @@ namespace Greenshot.Editor.Configuration
         contextmenu_capturefullscreen_top,
         contextmenu_capturefullscreen_right,
         contextmenu_capturefullscreen_bottom,
+        contextmenu_managerecipes,
+        contextmenu_recipeeditor,
         editor_align_bottom,
         editor_align_left,
         editor_align_right,

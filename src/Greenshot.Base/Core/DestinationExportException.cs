@@ -19,27 +19,29 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace Greenshot.Base.Recipes
+using System;
+
+namespace Greenshot.Base.Core
 {
     /// <summary>
-    /// Service contract provided by the Recipe Editor plugin to launch and manage the editor UI.
+    /// Exception thrown when one or more configured destinations fail to export in the capture pipeline.
     /// </summary>
-    public interface IRecipeEditorService
+    public class DestinationExportException : Exception
     {
-        /// <summary>
-        /// Opens the recipe editor window. If already open, brings it to the front.
-        /// </summary>
-        /// <param name="recipeId">Optional recipe ID to select/open upon launch.</param>
-        void OpenEditor(string recipeId = null);
+        public string FailedDestination { get; }
 
-        /// <summary>
-        /// Opens the visual recipe manager dialog.
-        /// </summary>
-        void OpenRecipeManager();
+        public DestinationExportException(string message) : base(message)
+        {
+        }
 
-        /// <summary>
-        /// Indicates whether the recipe editor window is currently open.
-        /// </summary>
-        bool IsEditorOpen { get; }
+        public DestinationExportException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
+
+        public DestinationExportException(string message, string failedDestination, Exception innerException = null)
+            : base(message, innerException)
+        {
+            FailedDestination = failedDestination;
+        }
     }
 }

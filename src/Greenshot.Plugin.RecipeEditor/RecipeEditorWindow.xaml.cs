@@ -178,6 +178,17 @@ namespace Greenshot.Plugin.RecipeEditor
             Close();
         }
 
+        private void HotkeyDisplayControl_EditRequested(object sender, EventArgs e)
+        {
+            if (sender is Greenshot.Base.Wpf.HotkeyDisplayControl displayControl)
+            {
+                HotkeyModal.Open(displayControl.HeaderText, displayControl.HotkeyString, newHotkey =>
+                {
+                    displayControl.HotkeyString = newHotkey;
+                });
+            }
+        }
+
         private void ApplyImmersiveDarkMode()
         {
             try

@@ -55,7 +55,9 @@ namespace Greenshot.Base.Triggers
         /// <returns>The prepared recipe. Creates a clone in every case.</returns>
         public static CaptureRecipe PrepareForTestRun(CaptureRecipe recipe)
         {
-            return Prepare(recipe, new TestRunTrigger()).Clone();
+            var clone = Prepare(recipe, new TestRunTrigger()).Clone();
+            clone.IsEnabled = true;
+            return clone;
         }
         private class TestRunTrigger : ITrigger
         {

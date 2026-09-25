@@ -287,7 +287,7 @@ namespace Greenshot.Forms.Wpf
 
         private void HotkeyDisplayControl_EditRequested(object sender, EventArgs e)
         {
-            if (sender is UI.Controls.HotkeyDisplayControl displayControl)
+            if (sender is Greenshot.Base.Wpf.HotkeyDisplayControl displayControl)
             {
                 HotkeyModal.Open(displayControl.HeaderText, displayControl.HotkeyString, newHotkey =>
                 {

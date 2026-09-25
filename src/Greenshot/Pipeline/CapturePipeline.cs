@@ -110,6 +110,7 @@ namespace Greenshot.Pipeline
             _stepRegistry.RegisterStepFactory("ObfuscateText", config => new TextEffectStep(config));
             _stepRegistry.RegisterStepFactory(WellKnownStepTypes.UserPrompt, config => new UserPromptStep(config));
             _stepRegistry.RegisterStepFactory("PromptChoice", config => new UserPromptStep(config));
+            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.DynamicDestination, config => new DynamicDestinationStep(config));
             _stepRegistry.RegisterStepFactory(WellKnownStepTypes.RecordVideo, config => new RecordVideoRecipeStep(config));
 
             // Register all plugin step providers
@@ -134,6 +135,14 @@ namespace Greenshot.Pipeline
             CancellationToken cancellationToken = default)
         {
             if (recipe == null) throw new ArgumentNullException(nameof(recipe));
+
+            if (!recipe.IsEnabled)
+            {
+                Log.WarnFormat("Execution aborted for recipe '{0}' because it is deactivated.", recipe.Name);
+                var abortedContext = new CaptureFlowContext(recipe, trigger, cancellationToken);
+                abortedContext.Abort($"Recipe '{recipe.Name}' is deactivated.");
+                return abortedContext;
+            }
 
             // Verify external recipe integrity before executing
             if (!string.IsNullOrEmpty(recipe.FilePath))
@@ -175,6 +184,11 @@ namespace Greenshot.Pipeline
                     context.State = CaptureFlowState.Completed;
                     context.LogStep("Capture flow completed successfully.");
                     Log.InfoFormat("Capture flow completed successfully: '{0}'", recipe.Name);
+                }
+                else if (context.State == CaptureFlowState.Failed)
+                {
+                    var notifyService = SimpleServiceProvider.Current.GetInstance<INotificationService>(isOptional: true);
+                    notifyService?.ShowErrorMessage(context.AbortReason ?? context.Error?.Message ?? "Capture flow failed.");
                 }
             }
             catch (OperationCanceledException)

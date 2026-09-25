@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -64,10 +64,10 @@ namespace Greenshot.Destinations
                 ClipboardHelper.SetClipboardData(surface);
                 exportInformation.ExportMade = true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // TODO: Change to general logic in ProcessExport
-                surface.SendMessageEvent(this, SurfaceMessageTyp.Error, Language.GetString(LangKey.editor_clipboardfailed));
+                exportInformation.ExportMade = false;
+                exportInformation.ErrorMessage = ex.Message;
             }
 
             ProcessExport(exportInformation, surface);
@@ -86,9 +86,10 @@ namespace Greenshot.Destinations
                 ClipboardHelper.SetClipboardData(surface, preRenderedImage);
                 exportInformation.ExportMade = true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                surface.SendMessageEvent(this, SurfaceMessageTyp.Error, Language.GetString(LangKey.editor_clipboardfailed));
+                exportInformation.ExportMade = false;
+                exportInformation.ErrorMessage = ex.Message;
             }
 
             ProcessExport(exportInformation, surface);

@@ -78,6 +78,12 @@ namespace Greenshot.Base.Recipes
         public bool IsOverridden { get; set; }
 
         /// <summary>
+        /// Whether this recipe is currently activated / enabled.
+        /// Disabled recipes do not register active triggers and cannot be triggered from menus or shortcuts.
+        /// </summary>
+        public bool IsEnabled { get; set; } = true;
+
+        /// <summary>
         /// The file path this recipe was loaded from, if loaded from external JSON.
         /// </summary>
         public string FilePath { get; set; }
@@ -137,6 +143,7 @@ namespace Greenshot.Base.Recipes
                 string.Equals(n.StepType, WellKnownStepTypes.Editor, StringComparison.OrdinalIgnoreCase) ||
                 string.Equals(n.StepType, WellKnownStepTypes.Printer, StringComparison.OrdinalIgnoreCase) ||
                 string.Equals(n.StepType, WellKnownStepTypes.Email, StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(n.StepType, WellKnownStepTypes.DynamicDestination, StringComparison.OrdinalIgnoreCase) ||
                 string.Equals(n.StepType, WellKnownStepTypes.CustomDestination, StringComparison.OrdinalIgnoreCase));
         }
 
@@ -203,6 +210,7 @@ namespace Greenshot.Base.Recipes
                 ShowInContextMenu = ShowInContextMenu,
                 IsBuiltIn = IsBuiltIn,
                 IsOverridden = IsOverridden,
+                IsEnabled = IsEnabled,
                 FilePath = FilePath,
                 Triggers = new List<TriggerConfig>(Triggers?.Count ?? 0),
                 Nodes = new List<RecipeNodeConfig>(Nodes?.Count ?? 0),

@@ -601,6 +601,9 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                 // TODO: Fix that we only open files, like in the tooltip
                 switch (eventArgs.MessageType)
                 {
+                    case SurfaceMessageTyp.Error:
+                        UpdateStatusLabel(dateTime + " - ⚠ " + eventArgs.Message, isError: true);
+                        break;
                     case SurfaceMessageTyp.FileSaved:
                         // Put the event message on the status label and attach the context menu
                         UpdateStatusLabel(dateTime + " - " + eventArgs.Message, fileSavedStatusContextMenu);
@@ -1391,9 +1394,10 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             pasteToolStripMenuItem.Enabled = hasClipboard && !_controlsDisabledDueToConfirmable;
         }
 
-        private void UpdateStatusLabel(string text, ContextMenuStrip contextMenu = null)
+        private void UpdateStatusLabel(string text, ContextMenuStrip contextMenu = null, bool isError = false)
         {
             statusLabel.Text = text;
+            statusLabel.ForeColor = isError ? Color.DarkRed : SystemColors.ControlText;
             statusStrip1.ContextMenuStrip = contextMenu;
         }
 
@@ -2471,32 +2475,53 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                 return;
             }
 
+            int count = 0;
             var editorTriggers = triggerManager.GetEditorTriggers();
-
-            if (editorTriggers == null || editorTriggers.Count == 0)
+            if (editorTriggers != null)
             {
-                recipesToolStripMenuItem.Visible = false;
-                return;
+                foreach (var trigger in editorTriggers)
+                {
+                    var recipe = recipeManager.GetRecipeById(trigger.TargetRecipeId);
+                    if (recipe == null || !recipe.IsEnabled) continue;
+
+                    string menuText = !string.IsNullOrWhiteSpace(trigger.MenuItemText)
+                        ? trigger.MenuItemText
+                        : (!string.IsNullOrWhiteSpace(trigger.Name) ? trigger.Name : recipe.Name);
+
+                    var item = new ToolStripMenuItem(menuText);
+                    item.Click += (s, ev) =>
+                    {
+                        trigger.Fire(this);
+                    };
+
+                    recipesToolStripMenuItem.DropDownItems.Add(item);
+                    count++;
+                }
             }
 
-            int count = 0;
-            foreach (var trigger in editorTriggers)
+            var editorService = SimpleServiceProvider.Current.GetInstance<IRecipeEditorService>(isOptional: true);
+            if (editorService != null)
             {
-                var recipe = recipeManager.GetRecipeById(trigger.TargetRecipeId);
-                if (recipe == null) continue;
-
-                string menuText = !string.IsNullOrWhiteSpace(trigger.MenuItemText)
-                    ? trigger.MenuItemText
-                    : (!string.IsNullOrWhiteSpace(trigger.Name) ? trigger.Name : recipe.Name);
-
-                var item = new ToolStripMenuItem(menuText);
-                item.Click += (s, ev) =>
+                if (count > 0)
                 {
-                    trigger.Fire(this);
-                };
+                    recipesToolStripMenuItem.DropDownItems.Add(new ToolStripSeparator());
+                }
 
-                recipesToolStripMenuItem.DropDownItems.Add(item);
-                count++;
+                var managerItem = new ToolStripMenuItem(Language.GetString("contextmenu_managerecipes") ?? "Recipe Manager...");
+                managerItem.Click += (s, ev) =>
+                {
+                    editorService.OpenRecipeManager();
+                };
+                recipesToolStripMenuItem.DropDownItems.Add(managerItem);
+
+                var editorItem = new ToolStripMenuItem(Language.GetString("contextmenu_recipeeditor") ?? "Recipe Editor...");
+                editorItem.Click += (s, ev) =>
+                {
+                    editorService.OpenEditor();
+                };
+                recipesToolStripMenuItem.DropDownItems.Add(editorItem);
+
+                count += 2;
             }
 
             recipesToolStripMenuItem.Visible = count > 0;

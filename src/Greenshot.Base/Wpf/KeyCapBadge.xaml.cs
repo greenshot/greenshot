@@ -1,7 +1,7 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Controls;
 
-namespace Greenshot.UI.Controls
+namespace Greenshot.Base.Wpf
 {
     public partial class KeyCapBadge : UserControl
     {

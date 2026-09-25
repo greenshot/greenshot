@@ -10,7 +10,7 @@ using Dapplo.Windows.Input.Enums;
 using Greenshot.Base.Core;
 using Greenshot.Base.Wpf;
 
-namespace Greenshot.Forms.Wpf
+namespace Greenshot.Base.Wpf
 {
     public class HotkeyEditorViewModel : INotifyPropertyChanged
     {

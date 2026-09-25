@@ -267,6 +267,7 @@ namespace Greenshot.Forms
 
         // Timer for the double click test
         private readonly Timer _doubleClickTimer = new Timer();
+        private UpdateService _updateService;
 
         public MainForm(CommandLineOptions options)
         {
@@ -436,9 +437,9 @@ namespace Greenshot.Forms
             }
 
             // Start the update check in the background
-            var updateService = new UpdateService();
-            updateService.Startup();
-            SimpleServiceProvider.Current.AddService(updateService);
+            _updateService = new UpdateService();
+            _updateService.Startup();
+            SimpleServiceProvider.Current.AddService(_updateService);
 
             // Make Greenshot use less memory after startup
             if (_conf.MinimizeWorkingSetSize)
@@ -759,7 +760,7 @@ namespace Greenshot.Forms
             foreach (var trigger in menuTriggers.OrderBy(t => t.Order))
             {
                 var recipe = recipeManager.GetRecipeById(trigger.TargetRecipeId);
-                if (recipe == null || !recipe.ShowInContextMenu) continue;
+                if (recipe == null || !recipe.ShowInContextMenu || !recipe.IsEnabled) continue;
 
                 var item = new ToolStripMenuItem(trigger.MenuItemText ?? recipe.Name);
 
@@ -803,6 +804,13 @@ namespace Greenshot.Forms
             var editorService = SimpleServiceProvider.Current.GetInstance<IRecipeEditorService>(isOptional: true);
             if (editorService != null)
             {
+                var managerItem = new ToolStripMenuItem(Language.GetString("contextmenu_managerecipes") ?? "Recipe Manager...");
+                managerItem.Click += (s, ev) =>
+                {
+                    editorService.OpenRecipeManager();
+                };
+                _recipesMenuItem.DropDownItems.Add(managerItem);
+
                 var editorItem = new ToolStripMenuItem(Language.GetString("contextmenu_recipeeditor") ?? "Recipe Editor...");
                 editorItem.Click += (s, ev) =>
                 {

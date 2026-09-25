@@ -44,6 +44,7 @@ namespace Greenshot.Plugin.RecipeEditor.Converters
                 case "Processors":
                     return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#0969da")); // Cyan/Blue
                 case "Destinations":
+                case "DynamicDestination":
                 case "SaveFile":
                 case "SaveToFile":
                 case "Clipboard":
@@ -128,6 +129,7 @@ namespace Greenshot.Plugin.RecipeEditor.Converters
                 case "ImmediateFeedback": return "🔊";
                 case "Processors": return "⚙️";
                 case "Destinations": return "↗️";
+                case "DynamicDestination": return "🎯";
                 case "SaveFile":
                 case "SaveToFile": return "💾";
                 case "Clipboard": return "📋";
@@ -227,6 +229,20 @@ namespace Greenshot.Plugin.RecipeEditor.Converters
             }
 
             return Brushes.Transparent;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
+    }
+
+    public class BoolToStatusBrushConverter : IValueConverter
+    {
+        private static readonly SolidColorBrush ActiveBrush = new SolidColorBrush(Color.FromRgb(0x23, 0x86, 0x36)); // Green
+        private static readonly SolidColorBrush InactiveBrush = new SolidColorBrush(Color.FromRgb(0x8A, 0x8A, 0x90)); // Gray
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            bool isEnabled = value is bool b && b;
+            return isEnabled ? ActiveBrush : InactiveBrush;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();

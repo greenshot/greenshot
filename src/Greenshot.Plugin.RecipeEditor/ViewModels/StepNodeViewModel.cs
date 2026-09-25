@@ -1503,6 +1503,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
         public bool IsConditional => string.Equals(StepType, WellKnownStepTypes.Conditional, StringComparison.OrdinalIgnoreCase);
         public bool IsUserPrompt => string.Equals(StepType, WellKnownStepTypes.UserPrompt, StringComparison.OrdinalIgnoreCase) || string.Equals(StepType, "PromptChoice", StringComparison.OrdinalIgnoreCase);
+        public bool IsDynamicDestination => string.Equals(StepType, WellKnownStepTypes.DynamicDestination, StringComparison.OrdinalIgnoreCase);
         public bool HasDynamicOutputPorts => IsConditional || IsUserPrompt;
 
         public bool IsExternalCommand => (StepType != null && StepType.StartsWith("ExternalCommand", StringComparison.OrdinalIgnoreCase)) ||
@@ -2927,6 +2928,169 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             set { SetParam("ClipboardCustomText", value); OnPropertyChanged(nameof(ClipboardCustomText)); }
         }
 
+        // --- Dynamic Destination Step Properties ---
+        public string DynamicDestinationTitle
+        {
+            get => GetParam("Title", "Export Capture");
+            set
+            {
+                SetParam("Title", value);
+                OnPropertyChanged(nameof(DynamicDestinationTitle));
+                OnPropertyChanged(nameof(Summary));
+            }
+        }
+
+        public bool DynamicDestinationShowPreview
+        {
+            get => GetParamBool("ShowPreview", true);
+            set
+            {
+                SetParam("ShowPreview", value);
+                OnPropertyChanged(nameof(DynamicDestinationShowPreview));
+                OnPropertyChanged(nameof(Summary));
+            }
+        }
+
+        public bool DynamicDestinationAllowRecipeForwarding
+        {
+            get => GetParamBool("AllowRecipeForwarding", true);
+            set
+            {
+                SetParam("AllowRecipeForwarding", value);
+                OnPropertyChanged(nameof(DynamicDestinationAllowRecipeForwarding));
+            }
+        }
+
+        public int DynamicDestinationTimeoutSeconds
+        {
+            get
+            {
+                var val = GetParam("TimeoutSeconds", "0");
+                return int.TryParse(val, out int t) ? t : 0;
+            }
+            set
+            {
+                SetParam("TimeoutSeconds", value);
+                OnPropertyChanged(nameof(DynamicDestinationTimeoutSeconds));
+                OnPropertyChanged(nameof(Summary));
+            }
+        }
+
+        public string DynamicDestinationSpecificDestinations
+        {
+            get
+            {
+                if (Config.Parameters.TryGetValue("Destinations", out var obj))
+                {
+                    if (obj is IEnumerable<string> strEnum) return string.Join(", ", strEnum);
+                    if (obj is Newtonsoft.Json.Linq.JArray jarr) return string.Join(", ", jarr.Select(j => j.ToString()));
+                    if (obj is string s) return s;
+                }
+                return "";
+            }
+            set
+            {
+                if (string.IsNullOrWhiteSpace(value))
+                {
+                    Config.Parameters.Remove("Destinations");
+                }
+                else
+                {
+                    var items = value.Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
+                                     .Select(s => s.Trim())
+                                     .Where(s => !string.IsNullOrEmpty(s))
+                                     .ToList();
+                    Config.Parameters["Destinations"] = items;
+                }
+                OnPropertyChanged(nameof(DynamicDestinationSpecificDestinations));
+                OnPropertyChanged(nameof(Summary));
+            }
+        }
+
+        // --- Step Error Handling Properties ---
+        public Func<IEnumerable<StepNodeViewModel>> OtherNodesProvider { get; set; }
+        public Func<IEnumerable<CaptureRecipe>> AvailableRecipesProvider { get; set; }
+
+        public IEnumerable<StepNodeViewModel> AvailableTargetSteps => OtherNodesProvider?.Invoke()?.Where(n => n != this) ?? Enumerable.Empty<StepNodeViewModel>();
+        public IEnumerable<CaptureRecipe> AvailableTargetRecipes => AvailableRecipesProvider?.Invoke() ?? Enumerable.Empty<CaptureRecipe>();
+
+        public string OnErrorAction
+        {
+            get
+            {
+                if (!string.IsNullOrEmpty(OnErrorRecipeId)) return "Recipe";
+                if (!string.IsNullOrEmpty(OnErrorNodeId)) return "Step";
+                return "Default";
+            }
+            set
+            {
+                if (string.Equals(value, "Step", StringComparison.OrdinalIgnoreCase))
+                {
+                    OnErrorRecipeId = null;
+                    if (string.IsNullOrEmpty(OnErrorNodeId))
+                    {
+                        var firstOther = AvailableTargetSteps.FirstOrDefault();
+                        if (firstOther != null) OnErrorNodeId = firstOther.Id;
+                    }
+                }
+                else if (string.Equals(value, "Recipe", StringComparison.OrdinalIgnoreCase))
+                {
+                    OnErrorNodeId = null;
+                    if (string.IsNullOrEmpty(OnErrorRecipeId))
+                    {
+                        var firstRec = AvailableTargetRecipes.FirstOrDefault();
+                        if (firstRec != null) OnErrorRecipeId = firstRec.Id;
+                    }
+                }
+                else
+                {
+                    OnErrorNodeId = null;
+                    OnErrorRecipeId = null;
+                }
+                OnPropertyChanged(nameof(OnErrorAction));
+                OnPropertyChanged(nameof(IsOnErrorStep));
+                OnPropertyChanged(nameof(IsOnErrorRecipe));
+                OnPropertyChanged(nameof(OnErrorSummary));
+            }
+        }
+
+        public bool IsOnErrorStep => string.Equals(OnErrorAction, "Step", StringComparison.OrdinalIgnoreCase);
+        public bool IsOnErrorRecipe => string.Equals(OnErrorAction, "Recipe", StringComparison.OrdinalIgnoreCase);
+
+        public string OnErrorNodeId
+        {
+            get => Config.OnErrorNodeId;
+            set
+            {
+                Config.OnErrorNodeId = string.IsNullOrWhiteSpace(value) ? null : value;
+                OnPropertyChanged(nameof(OnErrorNodeId));
+                OnPropertyChanged(nameof(OnErrorAction));
+                OnPropertyChanged(nameof(OnErrorSummary));
+            }
+        }
+
+        public string OnErrorRecipeId
+        {
+            get => Config.OnErrorRecipeId;
+            set
+            {
+                Config.OnErrorRecipeId = string.IsNullOrWhiteSpace(value) ? null : value;
+                OnPropertyChanged(nameof(OnErrorRecipeId));
+                OnPropertyChanged(nameof(OnErrorAction));
+                OnPropertyChanged(nameof(OnErrorSummary));
+            }
+        }
+
+        public string OnErrorSummary
+        {
+            get
+            {
+                if (!string.IsNullOrEmpty(OnErrorRecipeId)) return $"Fallback Recipe: {OnErrorRecipeId}";
+                if (!string.IsNullOrEmpty(OnErrorNodeId)) return $"Fallback Step: {OnErrorNodeId}";
+                return "Default (Fail/Recipe Fallback)";
+            }
+        }
+
         // --- 11. Processors / OCR Step ---
         public string ProcessorMode
         {
@@ -3571,6 +3735,10 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     case WellKnownStepTypes.Destinations:
                         var dests = GetDestinationList();
                         return dests.Count > 0 ? $"To: {string.Join(", ", dests)}" : "Export targets";
+                    case WellKnownStepTypes.DynamicDestination:
+                        string dDests = !string.IsNullOrWhiteSpace(DynamicDestinationSpecificDestinations) ? DynamicDestinationSpecificDestinations : "All Active";
+                        string dTime = DynamicDestinationTimeoutSeconds > 0 ? $"{DynamicDestinationTimeoutSeconds}s" : "Manual";
+                        return $"Dynamic Destination ({dDests}, {dTime})";
                     case WellKnownStepTypes.Notification:
                         return $"Toast: {NotificationTitle}";
                     case WellKnownStepTypes.Conditional:
@@ -3770,6 +3938,17 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             OnPropertyChanged(nameof(VideoRegionWidth));
             OnPropertyChanged(nameof(VideoRegionHeight));
             OnPropertyChanged(nameof(VideoMonitorIndex));
+            OnPropertyChanged(nameof(DynamicDestinationTitle));
+            OnPropertyChanged(nameof(DynamicDestinationShowPreview));
+            OnPropertyChanged(nameof(DynamicDestinationAllowRecipeForwarding));
+            OnPropertyChanged(nameof(DynamicDestinationTimeoutSeconds));
+            OnPropertyChanged(nameof(DynamicDestinationSpecificDestinations));
+            OnPropertyChanged(nameof(OnErrorAction));
+            OnPropertyChanged(nameof(OnErrorNodeId));
+            OnPropertyChanged(nameof(OnErrorRecipeId));
+            OnPropertyChanged(nameof(OnErrorSummary));
+            OnPropertyChanged(nameof(AvailableTargetSteps));
+            OnPropertyChanged(nameof(AvailableTargetRecipes));
         }
 
         public string GetParam(string key, string fallback = "")

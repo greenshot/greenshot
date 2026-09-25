@@ -92,6 +92,7 @@ namespace Greenshot.Base.Recipes
             WellKnownStepTypes.Printer,
             WellKnownStepTypes.Email,
             WellKnownStepTypes.CustomDestination,
+            WellKnownStepTypes.DynamicDestination,
             WellKnownStepTypes.RecordVideo,
             "SaveToFile",
             "ObfuscateText",

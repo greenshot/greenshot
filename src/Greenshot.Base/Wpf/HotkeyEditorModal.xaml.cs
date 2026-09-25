@@ -7,7 +7,7 @@ using Dapplo.Windows.Input.Enums;
 using Greenshot.Base.Core;
 using Greenshot.Base.Wpf;
 
-namespace Greenshot.Forms.Wpf
+namespace Greenshot.Base.Wpf
 {
     public partial class HotkeyEditorModal : UserControl
     {
@@ -25,7 +25,7 @@ namespace Greenshot.Forms.Wpf
 
         public void Open(string title, string hotkeyString, Action<string> onSaved)
         {
-            ThemeManager.Instance.IsDarkTheme = Greenshot.UI.WpfThemeHelper.IsDarkMode;
+            ThemeManager.Instance.IsDarkTheme = WpfThemeHelper.IsDarkMode;
             _onSavedCallback = onSaved;
             if (ViewModel == null)
             {

@@ -214,10 +214,110 @@ namespace Greenshot.Recipes
             RegisterBuiltIn(ocrRecipe);
         }
 
+        private HashSet<string> GetDisabledRecipeIds()
+        {
+            var set = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            try
+            {
+                var recipeConfig = IniConfigRegistry.GetSection<IRecipeConfiguration>();
+                string raw = recipeConfig?.DisabledRecipeIds;
+                if (!string.IsNullOrWhiteSpace(raw))
+                {
+                    foreach (var id in raw.Split(new[] { ';', ',' }, StringSplitOptions.RemoveEmptyEntries))
+                    {
+                        var trimmed = id.Trim();
+                        if (!string.IsNullOrEmpty(trimmed))
+                        {
+                            set.Add(trimmed);
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                // Fallback to empty if config unavailable
+            }
+            return set;
+        }
+
+        private void AddRecipeFileToConfig(string filePath)
+        {
+            if (string.IsNullOrWhiteSpace(filePath)) return;
+            try
+            {
+                var recipeConfig = IniConfigRegistry.GetSection<IRecipeConfiguration>();
+                if (recipeConfig == null) return;
+
+                string existing = recipeConfig.RecipeFiles ?? "";
+                var currentPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                var configuredPaths = new List<string>();
+
+                foreach (string p in existing.Split(new[] { ';', ',' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    try
+                    {
+                        string norm = Path.GetFullPath(p.Trim());
+                        if (currentPaths.Add(norm))
+                        {
+                            configuredPaths.Add(norm);
+                        }
+                    }
+                    catch { }
+                }
+
+                string targetNorm = Path.GetFullPath(filePath);
+                if (currentPaths.Add(targetNorm))
+                {
+                    configuredPaths.Add(targetNorm);
+                    recipeConfig.RecipeFiles = string.Join(";", configuredPaths);
+                    IniConfigRegistry.Get()?.Save();
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Warn($"Failed to update configured recipe files for '{filePath}'", ex);
+            }
+        }
+
+        private void RemoveRecipeFileFromConfig(string filePath)
+        {
+            if (string.IsNullOrWhiteSpace(filePath)) return;
+            try
+            {
+                var recipeConfig = IniConfigRegistry.GetSection<IRecipeConfiguration>();
+                if (recipeConfig == null) return;
+
+                string existing = recipeConfig.RecipeFiles ?? "";
+                string targetNorm = Path.GetFullPath(filePath);
+                var configuredPaths = new List<string>();
+
+                foreach (string p in existing.Split(new[] { ';', ',' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    try
+                    {
+                        string norm = Path.GetFullPath(p.Trim());
+                        if (!string.Equals(norm, targetNorm, StringComparison.OrdinalIgnoreCase))
+                        {
+                            configuredPaths.Add(norm);
+                        }
+                    }
+                    catch { }
+                }
+
+                recipeConfig.RecipeFiles = string.Join(";", configuredPaths);
+                IniConfigRegistry.Get()?.Save();
+            }
+            catch (Exception ex)
+            {
+                Log.Warn($"Failed to remove recipe file from config: '{filePath}'", ex);
+            }
+        }
+
         private void RegisterBuiltIn(CaptureRecipe recipe)
         {
             recipe.IsBuiltIn = true;
             recipe.IsOverridden = false;
+            recipe.IsEnabled = !GetDisabledRecipeIds().Contains(recipe.Id);
             _builtInRecipes[recipe.Id] = recipe.Clone();
             _recipes[recipe.Id] = recipe;
         }
@@ -389,6 +489,7 @@ namespace Greenshot.Recipes
                     foreach (var warn in valResult.Warnings) overallResult.AddWarning($"[{recipe.Id}]: {warn}");
 
                     recipe.FilePath = Path.GetFullPath(filePath);
+                    recipe.IsEnabled = !GetDisabledRecipeIds().Contains(recipe.Id);
 
                     lock (_recipes)
                     {
@@ -408,6 +509,8 @@ namespace Greenshot.Recipes
                         }
                         anyChanged = true;
                     }
+
+                    AddRecipeFileToConfig(filePath);
                 }
 
                 if (anyChanged)
@@ -581,7 +684,11 @@ namespace Greenshot.Recipes
             {
                 if (_builtInRecipes.TryGetValue(recipeId, out var original))
                 {
-                    _recipes[recipeId] = original.Clone();
+                    string oldFilePath = _recipes.TryGetValue(recipeId, out var cur) ? cur.FilePath : null;
+                    var restored = original.Clone();
+                    restored.IsEnabled = !GetDisabledRecipeIds().Contains(recipeId);
+                    _recipes[recipeId] = restored;
+                    RemoveRecipeFileFromConfig(oldFilePath);
                     Log.InfoFormat("Reset recipe '{0}' back to default built-in definition.", recipeId);
                     NotifyRecipesChanged();
                     return true;
@@ -595,9 +702,12 @@ namespace Greenshot.Recipes
         {
             lock (_recipes)
             {
+                var disabled = GetDisabledRecipeIds();
                 foreach (var kvp in _builtInRecipes)
                 {
-                    _recipes[kvp.Key] = kvp.Value.Clone();
+                    var restored = kvp.Value.Clone();
+                    restored.IsEnabled = !disabled.Contains(kvp.Key);
+                    _recipes[kvp.Key] = restored;
                 }
             }
             Log.Info("Reset all built-in recipes to defaults.");
@@ -609,9 +719,12 @@ namespace Greenshot.Recipes
             lock (_recipes)
             {
                 _recipes.Clear();
+                var disabled = GetDisabledRecipeIds();
                 foreach (var kvp in _builtInRecipes)
                 {
-                    _recipes[kvp.Key] = kvp.Value.Clone();
+                    var restored = kvp.Value.Clone();
+                    restored.IsEnabled = !disabled.Contains(kvp.Key);
+                    _recipes[kvp.Key] = restored;
                 }
             }
             LoadConfiguredRecipeFiles();
@@ -640,9 +753,16 @@ namespace Greenshot.Recipes
         {
             if (recipe == null || string.IsNullOrEmpty(recipe.Id)) throw new ArgumentException("Recipe or Recipe.Id cannot be null/empty");
 
+            recipe.IsEnabled = !GetDisabledRecipeIds().Contains(recipe.Id);
+
             lock (_recipes)
             {
                 _recipes[recipe.Id] = recipe;
+            }
+
+            if (!string.IsNullOrEmpty(recipe.FilePath))
+            {
+                AddRecipeFileToConfig(recipe.FilePath);
             }
 
             Log.InfoFormat("Registered recipe: {0} ({1})", recipe.Name, recipe.Id);
@@ -663,16 +783,22 @@ namespace Greenshot.Recipes
                         return false;
                     }
 
+                    string filePathToRemove = recipe.FilePath;
+
                     if (recipe.IsOverridden)
                     {
                         // Reset overridden recipe back to original built-in
-                        _recipes[recipeId] = _builtInRecipes[recipeId].Clone();
+                        var original = _builtInRecipes[recipeId].Clone();
+                        original.IsEnabled = !GetDisabledRecipeIds().Contains(recipeId);
+                        _recipes[recipeId] = original;
+                        RemoveRecipeFileFromConfig(filePathToRemove);
                         Log.InfoFormat("Reverted overridden recipe '{0}' back to default definition.", recipeId);
                         NotifyRecipesChanged();
                         return true;
                     }
 
                     _recipes.Remove(recipeId);
+                    RemoveRecipeFileFromConfig(filePathToRemove);
                     Log.InfoFormat("Unregistered recipe: {0}", recipeId);
                     NotifyRecipesChanged();
                     return true;
@@ -680,6 +806,58 @@ namespace Greenshot.Recipes
             }
 
             return false;
+        }
+
+        public bool IsRecipeEnabled(string recipeId)
+        {
+            if (string.IsNullOrEmpty(recipeId)) return false;
+            lock (_recipes)
+            {
+                if (_recipes.TryGetValue(recipeId, out var recipe))
+                {
+                    return recipe.IsEnabled;
+                }
+            }
+            return !GetDisabledRecipeIds().Contains(recipeId);
+        }
+
+        public void SetRecipeEnabled(string recipeId, bool enabled)
+        {
+            if (string.IsNullOrEmpty(recipeId)) return;
+
+            lock (_recipes)
+            {
+                if (_recipes.TryGetValue(recipeId, out var recipe))
+                {
+                    recipe.IsEnabled = enabled;
+                }
+            }
+
+            try
+            {
+                var recipeConfig = IniConfigRegistry.GetSection<IRecipeConfiguration>();
+                if (recipeConfig != null)
+                {
+                    var disabled = GetDisabledRecipeIds();
+                    if (enabled)
+                    {
+                        disabled.Remove(recipeId);
+                    }
+                    else
+                    {
+                        disabled.Add(recipeId);
+                    }
+                    recipeConfig.DisabledRecipeIds = string.Join(";", disabled);
+                    IniConfigRegistry.Get()?.Save();
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Warn($"Failed to persist disabled state for recipe '{recipeId}'", ex);
+            }
+
+            Log.InfoFormat("Recipe '{0}' {1}.", recipeId, enabled ? "activated" : "deactivated");
+            NotifyRecipesChanged();
         }
     }
 }

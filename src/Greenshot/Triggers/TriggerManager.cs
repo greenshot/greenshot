@@ -154,6 +154,8 @@ namespace Greenshot.Triggers
 
                 foreach (var recipe in recipes)
                 {
+                    if (!recipe.IsEnabled) continue;
+
                     if (recipe.Triggers == null || recipe.Triggers.Count == 0)
                     {
                         if (!recipe.IsBuiltIn && recipe.ShowInContextMenu)
@@ -293,6 +295,12 @@ namespace Greenshot.Triggers
 
             if (recipe != null)
             {
+                if (!recipe.IsEnabled)
+                {
+                    Log.WarnFormat("Trigger fired for deactivated recipe '{0}', ignoring.", recipe.Id);
+                    return;
+                }
+
                 var pipeline = SimpleServiceProvider.Current.GetInstance<ICapturePipeline>();
                 if (pipeline != null)
                 {

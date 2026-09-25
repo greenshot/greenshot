@@ -7,6 +7,7 @@
         xmlns:vm="clr-namespace:Greenshot.Plugin.RecipeEditor.ViewModels"
         xmlns:conv="clr-namespace:Greenshot.Plugin.RecipeEditor.Converters"
         xmlns:emoji="clr-namespace:Greenshot.Editor.Controls.Emoji;assembly=Greenshot.Editor"
+        xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
         mc:Ignorable="d"
         Title="Greenshot - Recipe Visual Editor"
         Height="800" Width="1240"
@@ -30,6 +31,7 @@
         <KeyBinding Key="O" Modifiers="Control" Command="{Binding OpenRecipeCommand}"/>
         <KeyBinding Key="N" Modifiers="Control" Command="{Binding NewRecipeCommand}"/>
         <KeyBinding Key="L" Modifiers="Control" Command="{Binding AutoLayoutCommand}"/>
+        <KeyBinding Key="M" Modifiers="Control" Command="{Binding OpenRecipeManagerCommand}"/>
     </Window.InputBindings>
 
     <Window.Resources>
@@ -42,6 +44,7 @@
             <conv:StepTypeToIconConverter x:Key="StepIconConv"/>
             <conv:BoolToVisibilityConverter x:Key="BoolToVis"/>
             <conv:BoolToVisibilityConverter x:Key="InvertBoolToVis" Invert="True"/>
+            <conv:BoolToStatusBrushConverter x:Key="BoolToStatusBrushConv"/>
             <conv:StringToVisibilityConverter x:Key="StringToVis"/>
             <conv:StringToBrushConverter x:Key="StringToBrushConv"/>
 
@@ -769,13 +772,52 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <!-- Recipe Selector -->
+                    <!-- Recipe Selector & Manager -->
                     <StackPanel Orientation="Horizontal" Grid.Column="0" VerticalAlignment="Center">
                         <TextBlock Text="Recipe:" FontWeight="SemiBold" Foreground="{Binding TextSecondaryBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
                         <ComboBox ItemsSource="{Binding AvailableRecipes}"
                                   SelectedItem="{Binding ActiveRecipe, Mode=TwoWay}"
-                                  DisplayMemberPath="Name"
-                                  Width="220" Height="28" Margin="0,0,10,0"/>
+                                  Width="200" Height="28" Margin="0,0,6,0">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Ellipse Width="7" Height="7" Margin="0,0,6,0" VerticalAlignment="Center"
+                                                 Fill="{Binding IsEnabled, Converter={StaticResource BoolToStatusBrushConv}}"/>
+                                        <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+                                        <TextBlock Text=" (Deactivated)" FontStyle="Italic" FontSize="10"
+                                                   Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                   VerticalAlignment="Center"
+                                                   Visibility="{Binding IsEnabled, Converter={StaticResource InvertBoolToVis}}"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+
+                        <!-- Quick Active / Deactivate Toggle for Selected Recipe -->
+                        <Button Style="{StaticResource ToolbarBtn}" Command="{Binding ToggleActiveRecipeEnabledCommand}"
+                                ToolTip="Click to activate or deactivate this recipe in Greenshot" Margin="0,0,6,0" Padding="8,4">
+                            <StackPanel Orientation="Horizontal">
+                                <Ellipse Width="7" Height="7" Margin="0,0,5,0" VerticalAlignment="Center"
+                                         Fill="{Binding IsActiveRecipeEnabled, Converter={StaticResource BoolToStatusBrushConv}}"/>
+                                <TextBlock Text="{Binding ActiveRecipeStatusText}" FontWeight="SemiBold" FontSize="10"/>
+                            </StackPanel>
+                        </Button>
+
+                        <!-- Quick Unload button if custom or overridden -->
+                        <Button Style="{StaticResource ToolbarBtn}" Command="{Binding UnloadActiveRecipeCommand}"
+                                Visibility="{Binding CanUnloadActiveRecipe, Converter={StaticResource BoolToVis}}"
+                                ToolTip="{Binding UnloadActiveRecipeToolTip}" Margin="0,0,6,0" Padding="8,4">
+                            <TextBlock Text="{Binding UnloadActiveRecipeText}" FontSize="10"/>
+                        </Button>
+
+                        <!-- Visual Recipe Manager Button -->
+                        <Button Style="{StaticResource ToolbarBtn}" Command="{Binding OpenRecipeManagerCommand}"
+                                ToolTip="Open Visual Recipe Manager (Ctrl+M)" Margin="0,0,6,0" Padding="8,4">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="📋 " FontSize="11" VerticalAlignment="Center"/>
+                                <TextBlock Text="Manage Recipes..." FontWeight="SemiBold" FontSize="10" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
                     </StackPanel>
 
                     <!-- Actions Toolbar -->
@@ -861,6 +903,9 @@
 
                             <!-- 5. Destinations & Output -->
                             <TextBlock Text="OUTPUT &amp; DESTINATIONS" FontWeight="SemiBold" FontSize="10" Foreground="{Binding TextSecondaryBrush}" Margin="4,12,0,4"/>
+                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="DynamicDestination">
+                                <TextBlock Text="🎯 Dynamic Destination (WPF)"/>
+                            </Button>
                             <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="SaveFile">
                                 <TextBlock Text="💾 Save to File"/>
                             </Button>
@@ -2949,6 +2994,39 @@
                                             <TextBlock Text="Example: Imgur, Jira, Confluence, Dropbox, ExternalCommand" FontSize="10" Foreground="{Binding TextSecondaryBrush}"/>
                                         </StackPanel>
 
+                                        <!-- 18b. WPF Dynamic Destination Step Inspector -->
+                                        <StackPanel Visibility="{Binding SelectedNode.StepType, Converter={StaticResource StringToVis}, ConverterParameter=DynamicDestination}">
+                                            <TextBlock Text="Window Title" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <TextBox Text="{Binding SelectedNode.DynamicDestinationTitle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                     Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}"
+                                                     Padding="6,4" Margin="0,0,0,6"/>
+
+                                            <Border Background="{Binding CardBackgroundBrush}" BorderBrush="{Binding CardBorderBrush}" BorderThickness="1" CornerRadius="4" Padding="8" Margin="0,0,0,6">
+                                                <StackPanel>
+                                                    <CheckBox Content="Show capture thumbnail preview" IsChecked="{Binding SelectedNode.DynamicDestinationShowPreview, Mode=TwoWay}" Foreground="{Binding TextPrimaryBrush}" Margin="0,2"/>
+                                                    <CheckBox Content="Allow forwarding capture to other recipes" IsChecked="{Binding SelectedNode.DynamicDestinationAllowRecipeForwarding, Mode=TwoWay}" Foreground="{Binding TextPrimaryBrush}" Margin="0,2"/>
+                                                </StackPanel>
+                                            </Border>
+
+                                            <TextBlock Text="Auto-Dismiss Timeout (Seconds, 0 = Disabled)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <TextBox Text="{Binding SelectedNode.DynamicDestinationTimeoutSeconds, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                     Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}"
+                                                     Padding="6,4" Margin="0,0,0,6"/>
+
+                                            <TextBlock Text="Specific Destinations Filter (Optional, comma-separated)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <TextBox Text="{Binding SelectedNode.DynamicDestinationSpecificDestinations, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                     Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                     Padding="6,4" Margin="0,0,0,4"/>
+                                            <TextBlock Text="Leave empty to display all active destinations (Clipboard, Editor, File, Printer, etc.)." FontSize="10" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,8" TextWrapping="Wrap"/>
+
+                                            <Border Background="{Binding BadgeBackgroundBrush}" BorderBrush="{Binding CardBorderBrush}" BorderThickness="1" CornerRadius="4" Padding="8">
+                                                <StackPanel>
+                                                    <TextBlock Text="🎯 Interactive &amp; Error Recovery Ready" FontWeight="SemiBold" FontSize="10" Foreground="{Binding AccentBrush}" Margin="0,0,0,2"/>
+                                                    <TextBlock Text="Displays a modern WPF flyout with quick-action tiles and a thumbnail. If routed to from an error, it highlights the failed destination and offers immediate retry." FontSize="10" Foreground="{Binding TextSecondaryBrush}" TextWrapping="Wrap"/>
+                                                </StackPanel>
+                                            </Border>
+                                        </StackPanel>
+
                                         <!-- 19. External Command Inspector -->
                                         <StackPanel Visibility="{Binding SelectedNode.IsExternalCommand, Converter={StaticResource BoolToVis}}">
                                             <TextBlock Text="Executable / Script Path" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
@@ -3071,6 +3149,53 @@
                                             <TextBlock Text="Captures will be uploaded directly to your cloud storage account and the public sharing link placed in the clipboard/properties."
                                                        FontSize="11" Foreground="{Binding TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,6"/>
                                         </StackPanel>
+
+                                        <Separator Background="{Binding CardBorderBrush}" Margin="0,12,0,10"/>
+
+                                        <!-- Step Error Handling & Fallback -->
+                                        <Border Background="{Binding CardBackgroundBrush}" BorderBrush="{Binding CardBorderBrush}" BorderThickness="1" CornerRadius="6" Padding="10,8" Margin="0,0,0,10">
+                                            <StackPanel>
+                                                <Grid Margin="0,0,0,6">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <StackPanel VerticalAlignment="Center">
+                                                        <TextBlock Text="STEP ERROR HANDLING" FontWeight="Bold" FontSize="10" Foreground="{Binding TextSecondaryBrush}"/>
+                                                        <TextBlock Text="Action to take if this step fails (e.g. clipboard lock, network error)" FontSize="10" Foreground="{Binding TextSecondaryBrush}" TextWrapping="Wrap"/>
+                                                    </StackPanel>
+                                                    <Border Grid.Column="1" Background="{Binding BadgeBackgroundBrush}" CornerRadius="4" Padding="6,2" VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding SelectedNode.OnErrorAction}" FontWeight="Bold" FontSize="9" Foreground="{Binding AccentBrush}"/>
+                                                    </Border>
+                                                </Grid>
+
+                                                <TextBlock Text="On Error / Failure" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                <ComboBox SelectedValue="{Binding SelectedNode.OnErrorAction, Mode=TwoWay}"
+                                                          SelectedValuePath="Tag" Margin="0,0,0,6">
+                                                    <ComboBoxItem Content="Default (Use Recipe Fallback / Terminate)" Tag="Default"/>
+                                                    <ComboBoxItem Content="Route to Step in this Recipe..." Tag="Step"/>
+                                                    <ComboBoxItem Content="Forward to another Recipe..." Tag="Recipe"/>
+                                                </ComboBox>
+
+                                                <!-- Target Step Selector -->
+                                                <StackPanel Visibility="{Binding SelectedNode.IsOnErrorStep, Converter={StaticResource BoolToVis}}" Margin="0,0,0,6">
+                                                    <TextBlock Text="Fallback Step Node" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                    <ComboBox ItemsSource="{Binding SelectedNode.AvailableTargetSteps}"
+                                                              SelectedValue="{Binding SelectedNode.OnErrorNodeId, Mode=TwoWay}"
+                                                              SelectedValuePath="Id"
+                                                              DisplayMemberPath="DisplayName"/>
+                                                </StackPanel>
+
+                                                <!-- Target Recipe Selector -->
+                                                <StackPanel Visibility="{Binding SelectedNode.IsOnErrorRecipe, Converter={StaticResource BoolToVis}}" Margin="0,0,0,6">
+                                                    <TextBlock Text="Fallback Recipe" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                    <ComboBox ItemsSource="{Binding SelectedNode.AvailableTargetRecipes}"
+                                                              SelectedValue="{Binding SelectedNode.OnErrorRecipeId, Mode=TwoWay}"
+                                                              SelectedValuePath="Id"
+                                                              DisplayMemberPath="Name"/>
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </Border>
                                     </StackPanel>
 
                                     <!-- When nothing is selected -->
@@ -3179,11 +3304,11 @@
                                                         <!-- Trigger specific fields -->
                                                         <!-- 1. Hotkey -->
                                                         <StackPanel Visibility="{Binding IsHotkey, Converter={StaticResource BoolToVis}}" Margin="0,2,0,0">
-                                                            <TextBlock Text="Hotkey Combination (e.g. Ctrl + Alt + R)" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
-                                                            <TextBox Text="{Binding Hotkey, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                                     Background="{Binding DataContext.WindowBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                                     Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                                     Padding="4,2" Margin="0,2,0,4"/>
+                                                            <TextBlock Text="Hotkey Trigger" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                            <wpf:HotkeyDisplayControl Margin="0,4,0,4"
+                                                                                      HotkeyString="{Binding Hotkey, Mode=TwoWay}"
+                                                                                      HeaderText="{Binding DisplayTitle}"
+                                                                                      EditRequested="HotkeyDisplayControl_EditRequested"/>
                                                         </StackPanel>
 
                                                         <!-- 2. Context Menu -->
@@ -3237,6 +3362,84 @@
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>
+
+                                    <Separator Background="{Binding CardBorderBrush}" Margin="0,10,0,12"/>
+
+                                    <!-- Error Handling & Fallback Routes Header -->
+                                    <Grid Margin="0,0,0,8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="ERROR HANDLING &amp; FALLBACK" FontWeight="Bold" FontSize="11" Foreground="{Binding TextSecondaryBrush}" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding ErrorTransitions.Count, StringFormat='{}{0} configured'}" FontSize="11" Foreground="{Binding TextSecondaryBrush}" VerticalAlignment="Center"/>
+                                    </Grid>
+                                    <TextBlock Text="Define what should happen when a step fails (e.g. clipboard lock, network timeout). Route the capture to a fallback step or another recipe."
+                                               FontSize="10" Foreground="{Binding TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,8"/>
+
+                                    <Button Content="+ Add Error Fallback Route" Style="{StaticResource ToolbarBtn}" Command="{Binding AddErrorTransitionCommand}" Margin="0,0,0,10" HorizontalAlignment="Left"/>
+
+                                    <!-- Error Transitions List -->
+                                    <ItemsControl ItemsSource="{Binding ErrorTransitions}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Background="{Binding DataContext.CardBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                        BorderBrush="{Binding DataContext.CardBorderBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                        BorderThickness="1" CornerRadius="6" Padding="10,8" Margin="0,0,0,8">
+                                                    <StackPanel>
+                                                        <Grid Margin="0,0,0,6">
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="*"/>
+                                                                <ColumnDefinition Width="Auto"/>
+                                                            </Grid.ColumnDefinitions>
+                                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                                <TextBlock Text="⚠️ On Error In:" FontSize="10" FontWeight="SemiBold" Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}" Margin="0,0,4,0"/>
+                                                                <TextBox Text="{Binding FromNodeId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                         Width="100" FontFamily="Consolas" FontSize="10"
+                                                                         Background="{Binding DataContext.WindowBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                         Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                         Padding="3,1" ToolTip="Node ID or * for any step in this recipe"/>
+                                                            </StackPanel>
+                                                            <Button Grid.Column="1" Content="🗑️" Style="{StaticResource DangerBtn}"
+                                                                    Command="{Binding DeleteCommand}" Padding="4,1" FontSize="10" ToolTip="Remove this error route"/>
+                                                        </Grid>
+
+                                                        <TextBlock Text="Error Filter (* = all exceptions)" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}" Margin="0,0,0,2"/>
+                                                        <TextBox Text="{Binding ErrorType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                 FontFamily="Consolas" FontSize="10"
+                                                                 Background="{Binding DataContext.WindowBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                 Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                 Padding="4,2" Margin="0,0,0,6"/>
+
+                                                        <TextBlock Text="Route To" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}" Margin="0,0,0,2"/>
+                                                        <ComboBox SelectedValue="{Binding TargetType, Mode=TwoWay}"
+                                                                  SelectedValuePath="Tag" Margin="0,0,0,4">
+                                                            <ComboBoxItem Content="Step in this Recipe" Tag="Step"/>
+                                                            <ComboBoxItem Content="Another Recipe" Tag="Recipe"/>
+                                                        </ComboBox>
+
+                                                        <!-- Target Step -->
+                                                        <StackPanel Visibility="{Binding IsTargetStep, Converter={StaticResource BoolToVis}}" Margin="0,2,0,0">
+                                                            <TextBlock Text="Fallback Step Node" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                            <ComboBox ItemsSource="{Binding AvailableNodes}"
+                                                                      SelectedValue="{Binding ToNodeId, Mode=TwoWay}"
+                                                                      SelectedValuePath="Id"
+                                                                      DisplayMemberPath="DisplayName"/>
+                                                        </StackPanel>
+
+                                                        <!-- Target Recipe -->
+                                                        <StackPanel Visibility="{Binding IsTargetRecipe, Converter={StaticResource BoolToVis}}" Margin="0,2,0,0">
+                                                            <TextBlock Text="Fallback Recipe" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                            <ComboBox ItemsSource="{Binding AvailableRecipes}"
+                                                                      SelectedValue="{Binding TargetRecipeId, Mode=TwoWay}"
+                                                                      SelectedValuePath="Id"
+                                                                      DisplayMemberPath="Name"/>
+                                                        </StackPanel>
+                                                    </StackPanel>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
                                 </StackPanel>
                             </ScrollViewer>
                         </TabItem>
@@ -3255,6 +3458,11 @@
                     <TextBlock Grid.Column="1" Text="Greenshot DAG Pipeline Engine" FontSize="11" Foreground="{Binding TextSecondaryBrush}" VerticalAlignment="Center"/>
                 </Grid>
             </Border>
+
+            <!-- In-Window Modal Hotkey Editor Overlay -->
+            <wpf:HotkeyEditorModal x:Name="HotkeyModal"
+                                   Grid.RowSpan="4"
+                                   Visibility="Collapsed"/>
         </Grid>
     </Border>
 </Window>
