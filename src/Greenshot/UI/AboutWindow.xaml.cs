@@ -358,19 +358,14 @@ namespace Greenshot.UI
             }
         }
 
-        private void OnEnvironmentInfoClicked(object sender, RoutedEventArgs e)
+        private void OnOpenSelfServiceClicked(object sender, RoutedEventArgs e)
         {
-            ShowEnvironmentInfo();
+            OpenSelfService();
         }
 
-        private void OnViewLogClicked(object sender, RoutedEventArgs e)
+        private void OpenSelfService(string sectionId = null)
         {
-            OpenLogFile();
-        }
-
-        private void OnViewSettingsClicked(object sender, RoutedEventArgs e)
-        {
-            OpenConfigFile();
+            SelfService.SelfServiceWindow.ShowSelfService(this, sectionId);
         }
 
         private void OnWindowKeyDown(object sender, KeyEventArgs e)
@@ -381,16 +376,17 @@ namespace Greenshot.UI
                     Close();
                     e.Handled = true;
                     break;
+                case Key.S:
+                    OpenSelfService();
+                    e.Handled = true;
+                    break;
                 case Key.E:
-                    ShowEnvironmentInfo();
+                    OpenSelfService("system");
                     e.Handled = true;
                     break;
                 case Key.L:
-                    OpenLogFile();
-                    e.Handled = true;
-                    break;
                 case Key.I:
-                    OpenConfigFile();
+                    OpenSelfService("files");
                     e.Handled = true;
                     break;
                 case Key.T:
