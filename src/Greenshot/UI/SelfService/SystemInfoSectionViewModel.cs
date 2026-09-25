@@ -31,8 +31,21 @@ namespace Greenshot.UI.SelfService
     public class SystemInfoSectionViewModel : SelfServiceSectionViewModel
     {
         public override string Id => "system";
-        public override string Title => "System & Environment";
-        public override string Subtitle => "OS, runtime, screens and memory metrics";
+        public override string Title
+        {
+            get
+            {
+                return Language.GetString("selfservice_category_system");
+            }
+        }
+
+        public override string Subtitle
+        {
+            get
+            {
+                return Language.GetString("selfservice_category_system_sub");
+            }
+        }
         public override string Icon => "💻";
 
         // Memory & Process metrics
@@ -174,7 +187,7 @@ namespace Greenshot.UI.SelfService
             try
             {
                 Clipboard.SetText(EnvironmentReport ?? string.Empty);
-                StatusMessage = "Copied report to clipboard!";
+                StatusMessage = Language.GetString("selfservice_sysinfo_copied");
             }
             catch (Exception ex)
             {

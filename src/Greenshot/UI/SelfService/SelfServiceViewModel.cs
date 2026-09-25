@@ -43,7 +43,13 @@ namespace Greenshot.UI.SelfService
         public ClipboardSectionViewModel ClipboardSection { get; }
         public HotkeySectionViewModel HotkeySection { get; }
 
-        public string WindowTitle => "Greenshot - Troubleshooting & Self-Service";
+        public string WindowTitle
+        {
+            get
+            {
+                return Language.GetString("selfservice_window_title");
+            }
+        }
         public string AppVersionTitle => $"Greenshot {EnvironmentInfo.GetGreenshotVersion()} ({OsInfo.Bits}-bit)";
 
         public SelfServiceSectionViewModel SelectedSection
@@ -95,6 +101,7 @@ namespace Greenshot.UI.SelfService
             SelectSection(initialSectionId ?? "system");
 
             WpfThemeHelper.ThemeChanged += OnThemeChanged;
+            Language.LanguageChanged += OnLanguageChanged;
         }
 
         public void SelectSection(string sectionId)
@@ -135,9 +142,19 @@ namespace Greenshot.UI.SelfService
             OnPropertyChanged(nameof(ThemeToggleToolTip));
         }
 
+        private void OnLanguageChanged(object sender, EventArgs e)
+        {
+            OnPropertyChanged(nameof(WindowTitle));
+            foreach (var section in Sections)
+            {
+                section.OnLanguageChanged();
+            }
+        }
+
         public void Cleanup()
         {
             WpfThemeHelper.ThemeChanged -= OnThemeChanged;
+            Language.LanguageChanged -= OnLanguageChanged;
             ClipboardSection?.StopMonitoring();
             ClipboardSection?.Dispose();
         }

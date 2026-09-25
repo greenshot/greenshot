@@ -30,6 +30,7 @@ using System.Windows.Media.Imaging;
 using Greenshot.Base.Core;
 using Greenshot.Base.Wpf;
 using log4net;
+using CoreLanguage = Greenshot.Base.Core.Language;
 
 namespace Greenshot.UI.SelfService
 {
@@ -194,7 +195,7 @@ namespace Greenshot.UI.SelfService
                     break;
                 case Key.F5:
                     ViewModel?.SelectedSection?.Refresh();
-                    UpdateStatusText("Refreshed!");
+                    UpdateStatusText(CoreLanguage.GetString("selfservice_status_refreshed") ?? "Refreshed!");
                     e.Handled = true;
                     break;
                 case Key.T:
@@ -230,13 +231,13 @@ namespace Greenshot.UI.SelfService
         private void OnRefreshCurrentSectionClicked(object sender, RoutedEventArgs e)
         {
             ViewModel?.SelectedSection?.Refresh();
-            UpdateStatusText("Refreshed!");
+            UpdateStatusText(CoreLanguage.GetString("selfservice_status_refreshed") ?? "Refreshed!");
         }
 
         private void OnCopySystemInfoClicked(object sender, RoutedEventArgs e)
         {
             ViewModel?.SystemInfoSection.CopyReportToClipboard();
-            UpdateStatusText("System information copied to clipboard!");
+            UpdateStatusText(CoreLanguage.GetString("selfservice_sysinfo_copied") ?? "System information copied to clipboard!");
         }
 
         // Section 2 actions
@@ -280,13 +281,15 @@ namespace Greenshot.UI.SelfService
         private void OnToggleMonitoringClicked(object sender, RoutedEventArgs e)
         {
             ViewModel?.ClipboardSection.ToggleMonitoring();
-            UpdateStatusText(ViewModel?.ClipboardSection.IsMonitoring == true ? "Clipboard loop monitor active" : "Monitor stopped");
+            UpdateStatusText(ViewModel?.ClipboardSection.IsMonitoring == true 
+                ? (CoreLanguage.GetString("selfservice_clipboard_monitor_active") ?? "Clipboard loop monitor active") 
+                : (CoreLanguage.GetString("selfservice_clipboard_monitor_stopped") ?? "Monitor stopped"));
         }
 
         private void OnClearClipboardLogClicked(object sender, RoutedEventArgs e)
         {
             ViewModel?.ClipboardSection.ClearLog();
-            UpdateStatusText("Monitor log cleared");
+            UpdateStatusText(CoreLanguage.GetString("selfservice_clipboard_log_cleared") ?? "Monitor log cleared");
         }
 
         // Section 4 actions
@@ -311,7 +314,7 @@ namespace Greenshot.UI.SelfService
         private void OnOpenWindowsKeyboardSettingsClicked(object sender, RoutedEventArgs e)
         {
             ViewModel?.HotkeySection.OpenWindowsKeyboardSettings();
-            UpdateStatusText("Opened Windows Keyboard Settings");
+            UpdateStatusText(CoreLanguage.GetString("selfservice_hotkeys_opened_settings") ?? "Opened Windows Keyboard Settings");
         }
 
         private void ApplyImmersiveDarkMode()

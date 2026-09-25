@@ -445,9 +445,10 @@
                                 Style="{StaticResource SecondaryButtonStyle}"
                                 Margin="0,0,8,0"
                                 Click="OnOpenSelfServiceClicked"
-                                ToolTip="Open Greenshot Self-Service &amp; Troubleshooting">
+                                ToolTip="{wpf:Translate selfservice_tooltip}">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="🛠️ Self-Service" Margin="0,0,2,0"/>
+                                <TextBlock Text="🛠️ " FontSize="12" Margin="0,0,2,0"/>
+                                <TextBlock Text="{wpf:Translate selfservice_title}" FontWeight="SemiBold"/>
                             </StackPanel>
                         </Button>
 

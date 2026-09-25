@@ -33,8 +33,21 @@ namespace Greenshot.UI.SelfService
         private static readonly ILog Log = LogManager.GetLogger(typeof(FileInfoSectionViewModel));
 
         public override string Id => "files";
-        public override string Title => "File Information & Logs";
-        public override string Subtitle => "Log and config locations, Explorer access and separate log viewer";
+        public override string Title
+        {
+            get
+            {
+                return Language.GetString("selfservice_category_files");
+            }
+        }
+
+        public override string Subtitle
+        {
+            get
+            {
+                return Language.GetString("selfservice_category_files_sub");
+            }
+        }
         public override string Icon => "📁";
 
         // Log file properties
@@ -92,7 +105,7 @@ namespace Greenshot.UI.SelfService
                 else
                 {
                     LogFileExists = false;
-                    LogFileSizeText = "File not found";
+                    LogFileSizeText = Language.GetString("selfservice_files_not_found");
                     LogFileModifiedText = "N/A";
                 }
 
@@ -108,7 +121,7 @@ namespace Greenshot.UI.SelfService
                 else
                 {
                     ConfigFileExists = false;
-                    ConfigFileSizeText = "File not found";
+                    ConfigFileSizeText = Language.GetString("selfservice_files_not_found");
                     ConfigFileModifiedText = "N/A";
                 }
 
@@ -124,11 +137,17 @@ namespace Greenshot.UI.SelfService
             }
         }
 
+        public override void OnLanguageChanged()
+        {
+            base.OnLanguageChanged();
+            Refresh();
+        }
+
         public void LoadRecentLog()
         {
             if (string.IsNullOrEmpty(LogFilePath) || !File.Exists(LogFilePath))
             {
-                RecentLogContent = "Log file does not currently exist at: " + LogFilePath;
+                RecentLogContent = Language.GetFormattedString("selfservice_logviewer_status_notfound", LogFilePath);
                 return;
             }
 
@@ -152,7 +171,8 @@ namespace Greenshot.UI.SelfService
                     }
                 }
 
-                RecentLogContent = string.IsNullOrWhiteSpace(text) ? "(Log file is empty)" : text.TrimEnd();
+                string emptyFallback = Language.GetString("selfservice_logviewer_empty");
+                RecentLogContent = string.IsNullOrWhiteSpace(text) ? emptyFallback : text.TrimEnd();
             }
             catch (Exception ex)
             {

@@ -364,5 +364,174 @@ Please check write accessibility of the selected storage location.</resource>
 	    <resource name="settings_iconsize">Icon size</resource>
 	    <resource name="editor_counter_startvalue">Start value</resource>
 	    <resource name="contextmenu_configure_plugin">Configure {0}</resource>
+
+		<!-- Self-Service & Diagnostics Window -->
+		<resource name="selfservice_title">Self-Service</resource>
+		<resource name="selfservice_button_text">Self-Service [S]</resource>
+		<resource name="selfservice_tooltip">Open Greenshot Self-Service &amp; Troubleshooting (S)</resource>
+		<resource name="selfservice_window_title">Greenshot Self-Service &amp; Diagnostics</resource>
+		<resource name="selfservice_categories_header">DIAGNOSTIC CATEGORIES</resource>
+		<resource name="selfservice_shortcuts_hint">Esc: Close  |  F5: Refresh  |  T: Theme</resource>
+		<resource name="selfservice_tooltip_minimize">Minimize</resource>
+		<resource name="selfservice_tooltip_maximize">Maximize / Restore</resource>
+		<resource name="selfservice_tooltip_close">Close (Esc)</resource>
+		<resource name="selfservice_tooltip_theme">Toggle Theme (Light / Dark)</resource>
+
+		<!-- Categories -->
+		<resource name="selfservice_category_system">System &amp; Hardware</resource>
+		<resource name="selfservice_category_system_sub">OS, display scaling, memory usage, and .NET runtime environment</resource>
+		<resource name="selfservice_category_files">Files &amp; Configuration</resource>
+		<resource name="selfservice_category_files_sub">Greenshot configuration file, log file paths, and quick glance viewer</resource>
+		<resource name="selfservice_category_clipboard">Clipboard Diagnostics</resource>
+		<resource name="selfservice_category_clipboard_sub">Real-time format analysis, active formats, and blocker process checker</resource>
+		<resource name="selfservice_category_hotkeys">Hotkeys &amp; Conflicts</resource>
+		<resource name="selfservice_category_hotkeys_sub">Greenshot shortcuts, conflict detection (OneDrive, Windows 11 Snipping Tool, Dropbox)</resource>
+
+		<!-- System Section -->
+		<resource name="selfservice_system_title">System &amp; Environment Diagnostics</resource>
+		<resource name="selfservice_system_sub">Detailed environment, memory utilization, screen layout, and process metrics.</resource>
+		<resource name="selfservice_btn_refresh">Refresh (F5)</resource>
+		<resource name="selfservice_btn_copy_sysinfo">Copy System Info</resource>
+		<resource name="selfservice_sysinfo_copied">Copied report to clipboard!</resource>
+		<resource name="selfservice_sys_memory_process">PROCESS MEMORY</resource>
+		<resource name="selfservice_sys_memory_gc">GC MANAGED HEAP</resource>
+		<resource name="selfservice_sys_memory_ram">SYSTEM PHYSICAL RAM</resource>
+		<resource name="selfservice_sys_uptime_label">⏱️ Uptime: </resource>
+		<resource name="selfservice_sys_report_title">Full Environment Diagnostic Report</resource>
+
+		<!-- Files Section -->
+		<resource name="selfservice_files_title">File Locations &amp; Diagnostics Log</resource>
+		<resource name="selfservice_files_sub">Greenshot configuration, log file access, Explorer integration and separate log viewer.</resource>
+		<resource name="selfservice_files_logfile_title">Greenshot Log File (greenshot.log)</resource>
+		<resource name="selfservice_files_inifile_title">Greenshot Configuration File (greenshot.ini)</resource>
+		<resource name="selfservice_files_quickglance_title">Quick Glance: Recent Log Information</resource>
+		<resource name="selfservice_files_quickglance_desc">Open the dedicated Log Viewer window to scroll, search, refresh, or copy the complete recent log entries with clear scrollbars.</resource>
+		<resource name="selfservice_btn_open_logviewer">Open Log Viewer</resource>
+		<resource name="selfservice_tooltip_open_logviewer">Open full log in a separate dedicated window</resource>
+		<resource name="selfservice_btn_copy_path">Copy Path</resource>
+		<resource name="selfservice_copied">Copied!</resource>
+		<resource name="selfservice_files_exists">File exists: {0}</resource>
+		<resource name="selfservice_files_not_found">File not found</resource>
+		<resource name="selfservice_files_quickglance_status">Ready to inspect log file</resource>
+
+		<!-- Log Viewer Window -->
+		<resource name="selfservice_logviewer_title">Greenshot Log Viewer</resource>
+		<resource name="selfservice_logviewer_refresh">Refresh Tail (F5)</resource>
+		<resource name="selfservice_logviewer_copy">Copy Log</resource>
+		<resource name="selfservice_logviewer_wrap">Wrap text</resource>
+		<resource name="selfservice_logviewer_load_earlier">Load Earlier (+64 KB)</resource>
+		<resource name="selfservice_logviewer_tooltip_load_earlier">Load previous 64 KB chunk of log lines</resource>
+		<resource name="selfservice_logviewer_load_entire">Load Entire Log</resource>
+		<resource name="selfservice_logviewer_tooltip_load_entire">Load all remaining earlier log lines</resource>
+		<resource name="selfservice_logviewer_status_partial">Showing end of log file: {0} ({1:N0} bytes loaded of {2:N0} bytes total, {3} lines)</resource>
+		<resource name="selfservice_logviewer_status_complete">Loaded complete log file: {0} ({1:N0} bytes, {2} lines)</resource>
+		<resource name="selfservice_logviewer_status_notfound">Log file does not currently exist at: {0}</resource>
+		<resource name="selfservice_logviewer_status_error">Error reading log file: {0}</resource>
+		<resource name="selfservice_logviewer_copied">Copied entire log content to clipboard ({0:N0} characters)</resource>
+		<resource name="selfservice_logviewer_empty">(Log file is empty)</resource>
+
+		<resource name="selfservice_status_refreshed">Refreshed!</resource>
+
+		<!-- Clipboard Section -->
+		<resource name="selfservice_clipboard_title">Clipboard Diagnostics &amp; Blocker Checker</resource>
+		<resource name="selfservice_clipboard_sub">Real-time format analysis (auto-refreshed on updates) and process blocker detection.</resource>
+		<resource name="selfservice_clipboard_refresh">Refresh</resource>
+		<resource name="selfservice_clipboard_test_now">Test Clipboard Now</resource>
+		<resource name="selfservice_clipboard_locking_process">Process Locking Clipboard:</resource>
+		<resource name="selfservice_clipboard_data_owner">Current Clipboard Data Owner:</resource>
+		<resource name="selfservice_clipboard_pid">Process ID:   {0}</resource>
+		<resource name="selfservice_clipboard_process_name">Process Name: {0}</resource>
+		<resource name="selfservice_clipboard_window_title">Window Title: {0}</resource>
+		<resource name="selfservice_clipboard_executable">Executable:   {0}</resource>
+		<resource name="selfservice_clipboard_path">Path: {0}</resource>
+		<resource name="selfservice_clipboard_label_process_name">Process Name: </resource>
+		<resource name="selfservice_clipboard_label_pid">Process ID:   </resource>
+		<resource name="selfservice_clipboard_label_window_title">Window Title: </resource>
+		<resource name="selfservice_clipboard_label_executable">Executable:   </resource>
+		<resource name="selfservice_clipboard_label_path">Path: </resource>
+		<resource name="selfservice_clipboard_status_free">Clipboard is currently free and accessible.</resource>
+		<resource name="selfservice_clipboard_status_locked">Clipboard appears to be locked by an external application!</resource>
+		<resource name="selfservice_clipboard_status_accessible">Clipboard is Accessible (Unlocked)</resource>
+		<resource name="selfservice_clipboard_status_blocked_by">Clipboard is BLOCKED by {0} (PID: {1})</resource>
+		<resource name="selfservice_clipboard_status_last_owner">Last data set by: {0}</resource>
+		<resource name="selfservice_clipboard_window_label">Window: "{0}"</resource>
+		<resource name="selfservice_clipboard_executable_label">Executable: {0}</resource>
+		<resource name="selfservice_clipboard_badge_blocked">BLOCKED</resource>
+		<resource name="selfservice_clipboard_monitor_active">Clipboard loop monitor active</resource>
+		<resource name="selfservice_clipboard_monitor_stopped">Monitor stopped</resource>
+		<resource name="selfservice_clipboard_log_cleared">Monitor log cleared</resource>
+		<resource name="selfservice_clipboard_monitor_started_msg">Started continuous clipboard monitoring loop (interval: 600ms)</resource>
+		<resource name="selfservice_clipboard_monitor_stopped_msg">Stopped clipboard monitoring loop</resource>
+		<resource name="selfservice_clipboard_loop_title">Live Clipboard Blocker Monitor Loop</resource>
+		<resource name="selfservice_clipboard_loop_desc">Loops every 600ms to detect transient or permanent locks by background applications.</resource>
+		<resource name="selfservice_clipboard_btn_start_monitor">Start Monitor Loop</resource>
+		<resource name="selfservice_clipboard_btn_stop_monitor">Stop Monitor Loop</resource>
+		<resource name="selfservice_clipboard_btn_clear_log">Clear Log</resource>
+		<resource name="selfservice_clipboard_formats_title">Active Formats Currently on Clipboard (Auto-refreshed)</resource>
+		<resource name="selfservice_clipboard_formats_sub">Monitored via Dapplo.Windows.Clipboard</resource>
+		<resource name="selfservice_clipboard_empty">(Clipboard is currently empty)</resource>
+		<resource name="selfservice_clipboard_no_data">Clipboard contains no data</resource>
+		<resource name="selfservice_clipboard_no_formats">No formats currently active</resource>
+		<resource name="selfservice_clipboard_query_error">Error querying formats</resource>
+		<resource name="selfservice_clipboard_busy">Clipboard may be busy or locked</resource>
+		<resource name="selfservice_clipformat_ansi">Standard ANSI text string</resource>
+		<resource name="selfservice_clipformat_bitmap">Device-dependent bitmap (GDI)</resource>
+		<resource name="selfservice_clipformat_dib">Device-independent bitmap (DIB)</resource>
+		<resource name="selfservice_clipformat_dibv5">DIB version 5 bitmap</resource>
+		<resource name="selfservice_clipformat_unicode">Standard Unicode (UTF-16) text string</resource>
+		<resource name="selfservice_clipformat_metafile">Enhanced Windows Metafile</resource>
+		<resource name="selfservice_clipformat_hdrop">List of files dragged or copied (HDROP)</resource>
+		<resource name="selfservice_clipformat_locale">Locale identifier for clipboard text</resource>
+		<resource name="selfservice_clipformat_oem">OEM text string</resource>
+		<resource name="selfservice_clipformat_tiff">TIFF image data</resource>
+		<resource name="selfservice_clipformat_html">Hypertext Markup Language (HTML)</resource>
+		<resource name="selfservice_clipformat_rtf">Rich Text Format (RTF)</resource>
+		<resource name="selfservice_clipformat_png">Portable Network Graphics (PNG)</resource>
+		<resource name="selfservice_clipformat_bmp">Bitmap image format</resource>
+		<resource name="selfservice_clipformat_custom">Custom registered format</resource>
+
+		<!-- Hotkeys Section -->
+		<resource name="selfservice_hotkeys_title">Hotkeys &amp; Application Conflicts</resource>
+		<resource name="selfservice_hotkeys_sub">Verify Greenshot shortcuts and resolve hotkey hijacking by OneDrive, Windows Snipping Tool, and Dropbox.</resource>
+		<resource name="selfservice_hotkeys_btn_reregister">Re-register Greenshot Hotkeys</resource>
+		<resource name="selfservice_hotkeys_configured_title">Greenshot Configured Shortcuts</resource>
+		<resource name="selfservice_hotkeys_status_ok">Registered</resource>
+		<resource name="selfservice_hotkeys_status_failed">Not Registered / Conflict</resource>
+		<resource name="selfservice_hotkeys_status_disabled">Disabled</resource>
+		<resource name="selfservice_hotkeys_opened_settings">Opened Windows Keyboard Settings</resource>
+		<resource name="selfservice_hotkeys_reregister_success">Successfully re-registered Greenshot hotkeys!</resource>
+		<resource name="selfservice_hotkeys_reregister_conflict">Hotkeys re-registered (some keys may have conflicts).</resource>
+		<resource name="selfservice_hotkeys_reregister_failed">Failed to re-register hotkeys: {0}</resource>
+		<resource name="selfservice_hotkeys_updated_at">Updated at {0}</resource>
+		<resource name="selfservice_hotkeys_onedrive_title">Microsoft OneDrive Hotkey Hijack Check</resource>
+		<resource name="selfservice_hotkeys_onedrive_disable_btn">🚫 Disable OneDrive Screenshot Interception</resource>
+		<resource name="selfservice_hotkeys_onedrive_desc">OneDrive has a setting 'Automatically save screenshots I capture to OneDrive'. When enabled, OneDrive registers PrintScreen before Greenshot. The button above updates the OneDrive settings file and registry to disable this behavior.</resource>
+		<resource name="selfservice_hotkeys_onedrive_status_disabled">OneDrive screenshot interception is disabled (clean).</resource>
+		<resource name="selfservice_hotkeys_onedrive_status_enabled">OneDrive screenshot capture is currently ENABLED and may intercept PrintScreen!</resource>
+		<resource name="selfservice_hotkeys_onedrive_status_notdetected">OneDrive was not detected on this system.</resource>
+		<resource name="selfservice_hotkeys_onedrive_success">Successfully updated OneDrive configuration to disable screenshot interception.</resource>
+		<resource name="selfservice_hotkeys_onedrive_error">Could not modify OneDrive configuration: {0}</resource>
+		<resource name="selfservice_hotkeys_snipping_title">Windows 10 / 11 Snipping Tool Takeover</resource>
+		<resource name="selfservice_hotkeys_snipping_disable_btn">🚫 Disable Snipping Tool Takeover</resource>
+		<resource name="selfservice_hotkeys_snipping_settings_btn">⚙️ Open Windows Keyboard Settings</resource>
+		<resource name="selfservice_hotkeys_snipping_desc">In modern Windows 11 updates, Microsoft turned on 'Use the Print screen key to open Snipping Tool' by default. This intercepts PrintScreen before any desktop tool can handle it. Disabling it restores normal PrintScreen functionality.</resource>
+		<resource name="selfservice_hotkeys_snipping_status_disabled">Windows Snipping Tool PrintScreen takeover is disabled (clean).</resource>
+		<resource name="selfservice_hotkeys_snipping_status_enabled">Windows Snipping Tool PrintScreen takeover is currently ENABLED!</resource>
+		<resource name="selfservice_hotkeys_snipping_status_na">Windows Snipping Tool takeover is not applicable on this Windows version.</resource>
+		<resource name="selfservice_hotkeys_snipping_success">Successfully disabled Windows Snipping Tool PrintScreen takeover in Windows Registry.</resource>
+		<resource name="selfservice_hotkeys_dropbox_title">Dropbox Screenshot Sharing</resource>
+		<resource name="selfservice_hotkeys_dropbox_desc">Dropbox has a feature 'Share screenshots using Dropbox' in Dropbox Preferences &gt; Backups. When enabled, Dropbox claims PrintScreen and Alt+PrintScreen at system startup. If your hotkeys do not respond, open Dropbox Preferences, go to Backups, and uncheck 'Share screenshots using Dropbox'.</resource>
+		<resource name="selfservice_hotkeys_dropbox_running">Dropbox process is currently running.</resource>
+		<resource name="selfservice_hotkeys_dropbox_notrunning">Dropbox process is not running.</resource>
+		<resource name="selfservice_hotkeys_other_title">Other Known Screen Capture Applications</resource>
+		<resource name="selfservice_hotkeys_running">Running (PID {0})</resource>
+		<resource name="selfservice_hotkeys_notrunning">Not Running</resource>
+		<resource name="selfservice_hotkeys_contender_sharex">Full screen capture utility with global hotkeys</resource>
+		<resource name="selfservice_hotkeys_contender_snagit">TechSmith Snagit screen capture application</resource>
+		<resource name="selfservice_hotkeys_contender_snagit64">TechSmith Snagit 64-bit screen capture application</resource>
+		<resource name="selfservice_hotkeys_contender_lightshot">Lightshot screenshot tool (claims PrintScreen)</resource>
+		<resource name="selfservice_hotkeys_contender_picpick">PicPick graphic design and screen capture tool</resource>
+		<resource name="selfservice_hotkeys_contender_snipping">Built-in Windows Snipping Tool process</resource>
+		<resource name="selfservice_hotkeys_contender_screenclipping">Windows Snip &amp; Sketch overlay process</resource>
     </resources>
 </language>

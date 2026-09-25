@@ -270,7 +270,7 @@
                 <!-- Icon and Title -->
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="14,0,0,0">
                     <TextBlock Text="🛠️" FontSize="16" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                    <TextBlock Text="Greenshot Self-Service &amp; Troubleshooting" 
+                    <TextBlock Text="{wpf:Translate selfservice_window_title}" 
                                FontWeight="SemiBold" 
                                FontSize="13.5" 
                                Foreground="{Binding TextPrimaryBrush}" 
@@ -293,7 +293,7 @@
 
                     <!-- Minimize -->
                     <Button Style="{StaticResource CaptionBtnStyle}" 
-                            ToolTip="Minimize" 
+                            ToolTip="{wpf:Translate selfservice_tooltip_minimize}" 
                             Click="OnMinimizeClicked">
                         <Path Width="10" Height="1" Stretch="Fill" 
                               Stroke="{Binding TextPrimaryBrush}" StrokeThickness="1.2" 
@@ -302,7 +302,7 @@
 
                     <!-- Maximize / Restore -->
                     <Button Style="{StaticResource CaptionBtnStyle}" 
-                            ToolTip="Maximize / Restore" 
+                            ToolTip="{wpf:Translate selfservice_tooltip_maximize}" 
                             Click="OnMaximizeRestoreClicked">
                         <Path Width="10" Height="10" Stretch="Fill" 
                               Stroke="{Binding TextPrimaryBrush}" StrokeThickness="1.2" 
@@ -311,7 +311,7 @@
 
                     <!-- Close -->
                     <Button Style="{StaticResource CaptionCloseBtnStyle}" 
-                            ToolTip="Close (Esc)" 
+                            ToolTip="{wpf:Translate selfservice_tooltip_close}" 
                             Click="OnCloseClicked"/>
                 </StackPanel>
             </Grid>
@@ -340,7 +340,7 @@
                     </Grid.RowDefinitions>
 
                     <TextBlock Grid.Row="0" 
-                               Text="DIAGNOSTIC CATEGORIES" 
+                               Text="{wpf:Translate selfservice_categories_header}" 
                                FontSize="11" 
                                FontWeight="Bold" 
                                Foreground="{Binding TextSecondaryBrush}" 
@@ -443,11 +443,11 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0">
-                                <TextBlock Text="System &amp; Environment Diagnostics" 
+                                <TextBlock Text="{wpf:Translate selfservice_system_title}" 
                                            FontSize="18" 
                                            FontWeight="SemiBold" 
                                            Foreground="{Binding TextPrimaryBrush}"/>
-                                <TextBlock Text="Detailed environment, memory utilization, screen layout, and process metrics." 
+                                <TextBlock Text="{wpf:Translate selfservice_system_sub}" 
                                            FontSize="12" 
                                            Foreground="{Binding TextSecondaryBrush}" 
                                            Margin="0,3,0,0"/>
@@ -458,14 +458,14 @@
                                         Click="OnRefreshCurrentSectionClicked">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="🔄 "/>
-                                        <TextBlock Text="Refresh (F5)"/>
+                                        <TextBlock Text="{wpf:Translate selfservice_btn_refresh}"/>
                                     </StackPanel>
                                 </Button>
                                 <Button Style="{StaticResource PrimaryButtonStyle}" 
                                         Click="OnCopySystemInfoClicked">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="📋 "/>
-                                        <TextBlock Text="Copy System Info"/>
+                                        <TextBlock Text="{wpf:Translate selfservice_btn_copy_sysinfo}"/>
                                     </StackPanel>
                                 </Button>
                             </StackPanel>
@@ -482,7 +482,7 @@
                             <!-- Process Working Set Card -->
                             <Border Grid.Column="0" Style="{StaticResource CardBorderStyle}" Margin="0,0,8,0">
                                 <StackPanel>
-                                    <TextBlock Text="PROCESS MEMORY" FontSize="10.5" FontWeight="Bold" Foreground="{Binding TextSecondaryBrush}"/>
+                                    <TextBlock Text="{wpf:Translate selfservice_sys_memory_process}" FontSize="10.5" FontWeight="Bold" Foreground="{Binding TextSecondaryBrush}"/>
                                     <TextBlock Text="{Binding SystemInfoSection.WorkingSetText}" FontSize="18" FontWeight="Bold" Margin="0,6,0,2"/>
                                     <TextBlock Text="{Binding SystemInfoSection.PeakWorkingSetText, StringFormat='Peak: {0}'}" FontSize="11" Foreground="{Binding TextSecondaryBrush}"/>
                                 </StackPanel>
@@ -491,7 +491,7 @@
                             <!-- Managed GC Heap Card -->
                             <Border Grid.Column="1" Style="{StaticResource CardBorderStyle}" Margin="4,0,4,0">
                                 <StackPanel>
-                                    <TextBlock Text="GC MANAGED HEAP" FontSize="10.5" FontWeight="Bold" Foreground="{Binding TextSecondaryBrush}"/>
+                                    <TextBlock Text="{wpf:Translate selfservice_sys_memory_gc}" FontSize="10.5" FontWeight="Bold" Foreground="{Binding TextSecondaryBrush}"/>
                                     <TextBlock Text="{Binding SystemInfoSection.GcMemoryText}" FontSize="18" FontWeight="Bold" Margin="0,6,0,2"/>
                                     <TextBlock Text="{Binding SystemInfoSection.PrivateMemoryText, StringFormat='Private: {0}'}" FontSize="11" Foreground="{Binding TextSecondaryBrush}"/>
                                 </StackPanel>
@@ -500,7 +500,7 @@
                             <!-- System RAM Card -->
                             <Border Grid.Column="2" Style="{StaticResource CardBorderStyle}" Margin="8,0,0,0">
                                 <StackPanel>
-                                    <TextBlock Text="SYSTEM PHYSICAL RAM" FontSize="10.5" FontWeight="Bold" Foreground="{Binding TextSecondaryBrush}"/>
+                                    <TextBlock Text="{wpf:Translate selfservice_sys_memory_ram}" FontSize="10.5" FontWeight="Bold" Foreground="{Binding TextSecondaryBrush}"/>
                                     <TextBlock Text="{Binding SystemInfoSection.SystemMemoryText}" FontSize="14" FontWeight="Bold" Margin="0,6,0,2"/>
                                     <TextBlock Text="{Binding SystemInfoSection.MemoryLoadText, StringFormat='Memory Load: {0}'}" FontSize="11" Foreground="{Binding TextSecondaryBrush}"/>
                                 </StackPanel>
@@ -519,7 +519,7 @@
                                     <TextBlock Text="{Binding SystemInfoSection.ProcessStatsText}" FontWeight="SemiBold" FontSize="12"/>
                                 </StackPanel>
                                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                    <TextBlock Text="⏱️ Uptime: " FontSize="11.5" Foreground="{Binding TextSecondaryBrush}"/>
+                                    <TextBlock Text="{wpf:Translate selfservice_sys_uptime_label}" FontSize="11.5" Foreground="{Binding TextSecondaryBrush}"/>
                                     <TextBlock Text="{Binding SystemInfoSection.UptimeText}" FontWeight="SemiBold" FontSize="11.5"/>
                                 </StackPanel>
                             </Grid>
@@ -528,7 +528,7 @@
                         <!-- Full Diagnostic Text Viewer Card -->
                         <Border Style="{StaticResource CardBorderStyle}" Padding="12">
                             <StackPanel>
-                                <TextBlock Text="Full Environment Diagnostic Report" FontWeight="SemiBold" FontSize="12.5" Margin="0,0,0,8"/>
+                                <TextBlock Text="{wpf:Translate selfservice_sys_report_title}" FontWeight="SemiBold" FontSize="12.5" Margin="0,0,0,8"/>
                                 <Border Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TextBoxBackgroundBrush}" 
                                         BorderBrush="{Binding CardBorderBrush}" 
                                         BorderThickness="1" 
@@ -565,11 +565,11 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0">
-                                <TextBlock Text="File Locations &amp; Diagnostics Log" 
+                                <TextBlock Text="{wpf:Translate selfservice_files_title}" 
                                            FontSize="18" 
                                            FontWeight="SemiBold" 
                                            Foreground="{Binding TextPrimaryBrush}"/>
-                                <TextBlock Text="Greenshot configuration, log file access, Explorer integration and separate log viewer." 
+                                <TextBlock Text="{wpf:Translate selfservice_files_sub}" 
                                            FontSize="12" 
                                            Foreground="{Binding TextSecondaryBrush}" 
                                            Margin="0,3,0,0"/>
@@ -579,7 +579,7 @@
                                     Click="OnRefreshCurrentSectionClicked">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="🔄 "/>
-                                    <TextBlock Text="Refresh (F5)"/>
+                                    <TextBlock Text="{wpf:Translate selfservice_btn_refresh}"/>
                                 </StackPanel>
                             </Button>
                         </Grid>
@@ -601,7 +601,7 @@
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                         <TextBlock Text="📄 " FontSize="15" Margin="0,0,4,0"/>
-                                        <TextBlock Text="Greenshot Log File (greenshot.log)" FontWeight="SemiBold" FontSize="13"/>
+                                        <TextBlock Text="{wpf:Translate selfservice_files_logfile_title}" FontWeight="SemiBold" FontSize="13"/>
                                     </StackPanel>
                                     <TextBlock Grid.Column="1" Text="{Binding FileInfoSection.LogFileSizeText}" FontSize="11" Foreground="{Binding TextSecondaryBrush}"/>
                                 </Grid>
@@ -620,19 +620,13 @@
                                                TextWrapping="Wrap"/>
                                 </Border>
 
-                                <!-- Actions: Open in Explorer (helper) & Copy Path -->
+                                <!-- Actions: Copy Path -->
                                 <StackPanel Grid.Row="2" Orientation="Horizontal">
-                                    <Button Style="{StaticResource PrimaryButtonStyle}" 
-                                            Margin="0,0,8,0" 
-                                            Click="OnOpenLogInExplorerClicked">
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="📁 Open in Explorer (helper)"/>
-                                        </StackPanel>
-                                    </Button>
                                     <Button Style="{StaticResource SecondaryButtonStyle}" 
                                             Click="OnCopyLogPathClicked">
                                         <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="📋 Copy Path"/>
+                                            <TextBlock Text="📋 "/>
+                                            <TextBlock Text="{wpf:Translate selfservice_btn_copy_path}"/>
                                         </StackPanel>
                                     </Button>
                                 </StackPanel>
@@ -656,7 +650,7 @@
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                         <TextBlock Text="⚙️ " FontSize="15" Margin="0,0,4,0"/>
-                                        <TextBlock Text="Greenshot Configuration File (greenshot.ini)" FontWeight="SemiBold" FontSize="13"/>
+                                        <TextBlock Text="{wpf:Translate selfservice_files_inifile_title}" FontWeight="SemiBold" FontSize="13"/>
                                     </StackPanel>
                                     <TextBlock Grid.Column="1" Text="{Binding FileInfoSection.ConfigFileSizeText}" FontSize="11" Foreground="{Binding TextSecondaryBrush}"/>
                                 </Grid>
@@ -675,19 +669,13 @@
                                                TextWrapping="Wrap"/>
                                 </Border>
 
-                                <!-- Actions: Open in Explorer (helper) & Copy Path -->
+                                <!-- Actions: Copy Path -->
                                 <StackPanel Grid.Row="2" Orientation="Horizontal">
-                                    <Button Style="{StaticResource PrimaryButtonStyle}" 
-                                            Margin="0,0,8,0" 
-                                            Click="OnOpenConfigInExplorerClicked">
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="📁 Open in Explorer (helper)"/>
-                                        </StackPanel>
-                                    </Button>
                                     <Button Style="{StaticResource SecondaryButtonStyle}" 
                                             Click="OnCopyConfigPathClicked">
                                         <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="📋 Copy Path"/>
+                                            <TextBlock Text="📋 "/>
+                                            <TextBlock Text="{wpf:Translate selfservice_btn_copy_path}"/>
                                         </StackPanel>
                                     </Button>
                                 </StackPanel>
@@ -710,7 +698,7 @@
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                         <TextBlock Text="🔍 " FontSize="15" Margin="0,0,4,0"/>
-                                        <TextBlock Text="Quick Glance: Recent Log Information" 
+                                        <TextBlock Text="{wpf:Translate selfservice_files_quickglance_title}" 
                                                    FontWeight="SemiBold" 
                                                    FontSize="13"/>
                                     </StackPanel>
@@ -718,16 +706,16 @@
                                     <Button Grid.Column="1" 
                                             Style="{StaticResource PrimaryButtonStyle}" 
                                             Click="OnOpenLogViewerClicked" 
-                                            ToolTip="Open full log in a separate dedicated window">
+                                            ToolTip="{wpf:Translate selfservice_tooltip_open_logviewer}">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="🔍 " FontSize="12"/>
-                                            <TextBlock Text="Open Log Viewer"/>
+                                            <TextBlock Text="{wpf:Translate selfservice_btn_open_logviewer}"/>
                                         </StackPanel>
                                     </Button>
                                 </Grid>
 
                                 <TextBlock Grid.Row="1" 
-                                           Text="Open the dedicated Log Viewer window to scroll, search, refresh, or copy the complete recent log entries with clear scrollbars." 
+                                           Text="{wpf:Translate selfservice_files_quickglance_desc}" 
                                            FontSize="11.5" 
                                            Foreground="{Binding TextSecondaryBrush}" 
                                            Margin="0,0,0,8"/>
@@ -763,11 +751,11 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0">
-                                <TextBlock Text="Clipboard Diagnostics &amp; Blocker Checker" 
+                                <TextBlock Text="{wpf:Translate selfservice_clipboard_title}" 
                                            FontSize="18" 
                                            FontWeight="SemiBold" 
                                            Foreground="{Binding TextPrimaryBrush}"/>
-                                <TextBlock Text="Real-time format analysis (auto-refreshed on updates) and process blocker detection." 
+                                <TextBlock Text="{wpf:Translate selfservice_clipboard_sub}" 
                                            FontSize="12" 
                                            Foreground="{Binding TextSecondaryBrush}" 
                                            Margin="0,3,0,0"/>
@@ -778,14 +766,14 @@
                                         Click="OnRefreshCurrentSectionClicked">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="🔄 "/>
-                                        <TextBlock Text="Refresh"/>
+                                        <TextBlock Text="{wpf:Translate selfservice_clipboard_refresh}"/>
                                     </StackPanel>
                                 </Button>
                                 <Button Style="{StaticResource PrimaryButtonStyle}" 
                                         Click="OnCheckClipboardNowClicked">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="🔍 "/>
-                                        <TextBlock Text="Test Clipboard Now"/>
+                                        <TextBlock Text="{wpf:Translate selfservice_clipboard_test_now}"/>
                                     </StackPanel>
                                 </Button>
                             </StackPanel>
@@ -831,11 +819,11 @@
                                         Padding="10" 
                                         Margin="0,4,0,0">
                                     <StackPanel>
-                                        <TextBlock Text="🚨 Process Locking Clipboard:" FontWeight="SemiBold" Margin="0,0,0,4"/>
-                                        <TextBlock Text="{Binding ClipboardSection.BlockerProcessName, StringFormat='Process Name: {0}'}" FontFamily="Consolas"/>
-                                        <TextBlock Text="{Binding ClipboardSection.BlockerProcessId, StringFormat='Process ID:   {0}'}" FontFamily="Consolas"/>
-                                        <TextBlock Text="{Binding ClipboardSection.BlockerWindowTitle, StringFormat='Window Title: {0}'}" FontFamily="Consolas"/>
-                                        <TextBlock Text="{Binding ClipboardSection.BlockerExecutablePath, StringFormat='Executable:   {0}'}" FontFamily="Consolas" TextWrapping="Wrap" FontWeight="SemiBold"/>
+                                        <TextBlock Text="{wpf:Translate selfservice_clipboard_locking_process}" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                                        <TextBlock FontFamily="Consolas"><Run Text="{wpf:Translate selfservice_clipboard_label_process_name}"/><Run Text="{Binding ClipboardSection.BlockerProcessName}"/></TextBlock>
+                                        <TextBlock FontFamily="Consolas"><Run Text="{wpf:Translate selfservice_clipboard_label_pid}"/><Run Text="{Binding ClipboardSection.BlockerProcessId}"/></TextBlock>
+                                        <TextBlock FontFamily="Consolas"><Run Text="{wpf:Translate selfservice_clipboard_label_window_title}"/><Run Text="{Binding ClipboardSection.BlockerWindowTitle}"/></TextBlock>
+                                        <TextBlock FontFamily="Consolas" TextWrapping="Wrap" FontWeight="SemiBold"><Run Text="{wpf:Translate selfservice_clipboard_label_executable}"/><Run Text="{Binding ClipboardSection.BlockerExecutablePath}"/></TextBlock>
                                     </StackPanel>
                                 </Border>
 
@@ -849,9 +837,9 @@
                                         Padding="10" 
                                         Margin="0,4,0,0">
                                     <StackPanel>
-                                        <TextBlock Text="📌 Current Clipboard Data Owner:" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                                        <TextBlock Text="{wpf:Translate selfservice_clipboard_data_owner}" FontWeight="SemiBold" Margin="0,0,0,4"/>
                                         <TextBlock Text="{Binding ClipboardSection.CurrentOwnerInfo}" FontFamily="Consolas" FontSize="11.5"/>
-                                        <TextBlock Text="{Binding ClipboardSection.OwnerExecutablePath, StringFormat='Path: {0}'}" FontFamily="Consolas" FontSize="11" Foreground="{Binding TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                                        <TextBlock FontFamily="Consolas" FontSize="11" Foreground="{Binding TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,2,0,0"><Run Text="{wpf:Translate selfservice_clipboard_label_path}"/><Run Text="{Binding ClipboardSection.OwnerExecutablePath}"/></TextBlock>
                                     </StackPanel>
                                 </Border>
                             </Grid>
@@ -866,8 +854,8 @@
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Grid.Column="0">
-                                        <TextBlock Text="Live Clipboard Blocker Monitor Loop" FontWeight="SemiBold" FontSize="13"/>
-                                        <TextBlock Text="Loops every 600ms to detect transient or permanent locks by background applications." 
+                                        <TextBlock Text="{wpf:Translate selfservice_clipboard_loop_title}" FontWeight="SemiBold" FontSize="13"/>
+                                        <TextBlock Text="{wpf:Translate selfservice_clipboard_loop_desc}" 
                                                    FontSize="11.5" 
                                                    Foreground="{Binding TextSecondaryBrush}"/>
                                     </StackPanel>
@@ -879,7 +867,7 @@
                                         </Button>
                                         <Button Style="{StaticResource SecondaryButtonStyle}" 
                                                 Click="OnClearClipboardLogClicked">
-                                            <TextBlock Text="Clear Log"/>
+                                            <TextBlock Text="{wpf:Translate selfservice_clipboard_btn_clear_log}"/>
                                         </Button>
                                     </StackPanel>
                                 </Grid>
@@ -933,8 +921,8 @@
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Text="Active Formats Currently on Clipboard (Auto-refreshed)" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center"/>
-                                    <TextBlock Grid.Column="1" Text="Monitored via Dapplo.Windows.Clipboard" FontSize="10.5" Foreground="{Binding TextSecondaryBrush}" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{wpf:Translate selfservice_clipboard_formats_title}" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="1" Text="{wpf:Translate selfservice_clipboard_formats_sub}" FontSize="10.5" Foreground="{Binding TextSecondaryBrush}" VerticalAlignment="Center"/>
                                 </Grid>
                                 <ItemsControl ItemsSource="{Binding ClipboardSection.Formats}">
                                     <ItemsControl.ItemTemplate>
@@ -989,11 +977,11 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0">
-                                <TextBlock Text="Hotkeys &amp; Application Conflicts" 
+                                <TextBlock Text="{wpf:Translate selfservice_hotkeys_title}" 
                                            FontSize="18" 
                                            FontWeight="SemiBold" 
                                            Foreground="{Binding TextPrimaryBrush}"/>
-                                <TextBlock Text="Verify Greenshot shortcuts and resolve hotkey hijacking by OneDrive, Windows Snipping Tool, and Dropbox." 
+                                <TextBlock Text="{wpf:Translate selfservice_hotkeys_sub}" 
                                            FontSize="12" 
                                            Foreground="{Binding TextSecondaryBrush}" 
                                            Margin="0,3,0,0"/>
@@ -1003,7 +991,7 @@
                                     Click="OnReRegisterHotkeysClicked">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="🔄 "/>
-                                    <TextBlock Text="Re-register Greenshot Hotkeys"/>
+                                    <TextBlock Text="{wpf:Translate selfservice_hotkeys_btn_reregister}"/>
                                 </StackPanel>
                             </Button>
                         </Grid>
@@ -1011,7 +999,7 @@
                         <!-- Greenshot Registered Hotkeys Card -->
                         <Border Style="{StaticResource CardBorderStyle}">
                             <StackPanel>
-                                <TextBlock Text="Greenshot Configured Shortcuts" FontWeight="SemiBold" FontSize="13" Margin="0,0,0,8"/>
+                                <TextBlock Text="{wpf:Translate selfservice_hotkeys_configured_title}" FontWeight="SemiBold" FontSize="13" Margin="0,0,0,8"/>
                                 <ItemsControl ItemsSource="{Binding HotkeySection.Hotkeys}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate DataType="{x:Type local:HotkeyStatusItemViewModel}">
@@ -1067,13 +1055,13 @@
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                         <TextBlock Text="☁️ " FontSize="15" Margin="0,0,4,0"/>
-                                        <TextBlock Text="Microsoft OneDrive Hotkey Hijack Check" FontWeight="SemiBold" FontSize="13"/>
+                                        <TextBlock Text="{wpf:Translate selfservice_hotkeys_onedrive_title}" FontWeight="SemiBold" FontSize="13"/>
                                     </StackPanel>
                                     <Button Grid.Column="1" 
                                             Visibility="{Binding HotkeySection.OneDriveFixButtonVisibility}"
                                             Style="{StaticResource WarningButtonStyle}" 
                                             Click="OnDisableOneDriveHotkeyClicked">
-                                        <TextBlock Text="🚫 Disable OneDrive Screenshot Interception"/>
+                                        <TextBlock Text="{wpf:Translate selfservice_hotkeys_onedrive_disable_btn}"/>
                                     </Button>
                                 </Grid>
                                 <TextBlock Grid.Row="1" 
@@ -1083,7 +1071,7 @@
                                            FontSize="12" 
                                            Margin="0,0,0,4"/>
                                 <TextBlock Grid.Row="2" 
-                                           Text="OneDrive has a setting 'Automatically save screenshots I capture to OneDrive'. When enabled, OneDrive registers PrintScreen before Greenshot. The button above updates the OneDrive settings file and registry to disable this behavior." 
+                                           Text="{wpf:Translate selfservice_hotkeys_onedrive_desc}" 
                                            FontSize="11" 
                                            TextWrapping="Wrap" 
                                            Foreground="{Binding TextSecondaryBrush}"/>
@@ -1105,18 +1093,18 @@
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                         <TextBlock Text="🪟 " FontSize="15" Margin="0,0,4,0"/>
-                                        <TextBlock Text="Windows 10 / 11 Snipping Tool Takeover" FontWeight="SemiBold" FontSize="13"/>
+                                        <TextBlock Text="{wpf:Translate selfservice_hotkeys_snipping_title}" FontWeight="SemiBold" FontSize="13"/>
                                     </StackPanel>
                                     <StackPanel Grid.Column="1" Orientation="Horizontal">
                                         <Button Visibility="{Binding HotkeySection.SnippingToolFixButtonVisibility}"
                                                 Style="{StaticResource WarningButtonStyle}" 
                                                 Margin="0,0,6,0" 
                                                 Click="OnDisableSnippingToolTakeoverClicked">
-                                            <TextBlock Text="🚫 Disable Snipping Tool Takeover"/>
+                                            <TextBlock Text="{wpf:Translate selfservice_hotkeys_snipping_disable_btn}"/>
                                         </Button>
                                         <Button Style="{StaticResource SecondaryButtonStyle}" 
                                                 Click="OnOpenWindowsKeyboardSettingsClicked">
-                                            <TextBlock Text="⚙️ Open Windows Keyboard Settings"/>
+                                            <TextBlock Text="{wpf:Translate selfservice_hotkeys_snipping_settings_btn}"/>
                                         </Button>
                                     </StackPanel>
                                 </Grid>
@@ -1127,7 +1115,7 @@
                                            FontSize="12" 
                                            Margin="0,0,0,4"/>
                                 <TextBlock Grid.Row="2" 
-                                           Text="In modern Windows 11 updates, Microsoft turned on 'Use the Print screen key to open Snipping Tool' by default. This intercepts PrintScreen before any desktop tool can handle it. Disabling it restores normal PrintScreen functionality." 
+                                           Text="{wpf:Translate selfservice_hotkeys_snipping_desc}" 
                                            FontSize="11" 
                                            TextWrapping="Wrap" 
                                            Foreground="{Binding TextSecondaryBrush}"/>
@@ -1139,14 +1127,14 @@
                             <StackPanel>
                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
                                     <TextBlock Text="📦 " FontSize="15" Margin="0,0,4,0"/>
-                                    <TextBlock Text="Dropbox Screenshot Sharing" FontWeight="SemiBold" FontSize="13"/>
+                                    <TextBlock Text="{wpf:Translate selfservice_hotkeys_dropbox_title}" FontWeight="SemiBold" FontSize="13"/>
                                 </StackPanel>
                                 <TextBlock Text="{Binding HotkeySection.DropboxStatusText}" 
                                            Foreground="{Binding HotkeySection.DropboxStatusBrush}" 
                                            FontWeight="SemiBold" 
                                            FontSize="12" 
                                            Margin="0,0,0,4"/>
-                                <TextBlock Text="Dropbox has a feature 'Share screenshots using Dropbox' in Dropbox Preferences &gt; Backups. When enabled, Dropbox claims PrintScreen and Alt+PrintScreen at system startup. If your hotkeys do not respond, open Dropbox Preferences, go to Backups, and uncheck 'Share screenshots using Dropbox'." 
+                                <TextBlock Text="{wpf:Translate selfservice_hotkeys_dropbox_desc}" 
                                            FontSize="11" 
                                            TextWrapping="Wrap" 
                                            Foreground="{Binding TextSecondaryBrush}"/>
@@ -1156,7 +1144,7 @@
                         <!-- Contender Apps Detection Card -->
                         <Border Style="{StaticResource CardBorderStyle}">
                             <StackPanel>
-                                <TextBlock Text="Other Known Screen Capture Applications" FontWeight="SemiBold" FontSize="13" Margin="0,0,0,8"/>
+                                <TextBlock Text="{wpf:Translate selfservice_hotkeys_other_title}" FontWeight="SemiBold" FontSize="13" Margin="0,0,0,8"/>
                                 <ItemsControl ItemsSource="{Binding HotkeySection.Contenders}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate DataType="{x:Type local:ContenderAppViewModel}">
@@ -1208,7 +1196,7 @@
 
                 <!-- Shortcut indicator -->
                 <TextBlock Grid.Column="1" 
-                           Text="Esc: Close  |  F5: Refresh  |  T: Theme" 
+                           Text="{wpf:Translate selfservice_shortcuts_hint}" 
                            FontSize="11" 
                            Foreground="{Binding TextSecondaryBrush}" 
                            VerticalAlignment="Center"/>

@@ -1082,10 +1082,10 @@
                     <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
                         <Button Style="{StaticResource SecondaryButtonStyle}"
                                 Click="OnOpenSelfServiceClicked"
-                                ToolTip="Open Greenshot Self-Service &amp; Troubleshooting (S)">
+                                ToolTip="{Binding SelfServiceButtonToolTip}">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="🛠️" FontSize="12" Margin="0,0,6,0"/>
-                                <TextBlock Text="Self-Service [S]" FontWeight="SemiBold"/>
+                                <TextBlock Text="{Binding SelfServiceButtonText}" FontWeight="SemiBold"/>
                             </StackPanel>
                         </Button>
                     </StackPanel>

@@ -172,11 +172,11 @@ namespace Greenshot.Tests.Forms
             Assert.NotNull(hotkeys.Hotkeys);
             Assert.Equal(5, hotkeys.Hotkeys.Count);
 
-            Assert.Contains(hotkeys.Hotkeys, h => h.ActionName == "Capture Region");
-            Assert.Contains(hotkeys.Hotkeys, h => h.ActionName == "Capture Window");
-            Assert.Contains(hotkeys.Hotkeys, h => h.ActionName == "Capture Fullscreen");
-            Assert.Contains(hotkeys.Hotkeys, h => h.ActionName == "Capture Last Region");
-            Assert.Contains(hotkeys.Hotkeys, h => h.ActionName == "Capture Clipboard");
+            Assert.Contains(hotkeys.Hotkeys, h => h.ConfigKey == "RegionHotkey" && !string.IsNullOrEmpty(h.ActionName));
+            Assert.Contains(hotkeys.Hotkeys, h => h.ConfigKey == "WindowHotkey" && !string.IsNullOrEmpty(h.ActionName));
+            Assert.Contains(hotkeys.Hotkeys, h => h.ConfigKey == "FullscreenHotkey" && !string.IsNullOrEmpty(h.ActionName));
+            Assert.Contains(hotkeys.Hotkeys, h => h.ConfigKey == "LastregionHotkey" && !string.IsNullOrEmpty(h.ActionName));
+            Assert.Contains(hotkeys.Hotkeys, h => h.ConfigKey == "ClipboardHotkey" && !string.IsNullOrEmpty(h.ActionName));
 
             Assert.NotNull(hotkeys.Contenders);
             Assert.NotEmpty(hotkeys.Contenders);
@@ -393,6 +393,75 @@ namespace Greenshot.Tests.Forms
                 if (File.Exists(tempLog))
                 {
                     try { File.Delete(tempLog); } catch { }
+                }
+            }
+        }
+
+        [Fact]
+        public void SelfService_LanguageChanged_UpdatesViewModels()
+        {
+            var vm = new SelfServiceViewModel();
+            Assert.NotNull(vm.WindowTitle);
+
+            // Verify sections have localized titles
+            Assert.False(string.IsNullOrEmpty(vm.SystemInfoSection.Title));
+            Assert.False(string.IsNullOrEmpty(vm.FileInfoSection.Title));
+            Assert.False(string.IsNullOrEmpty(vm.ClipboardSection.Title));
+            Assert.False(string.IsNullOrEmpty(vm.HotkeySection.Title));
+
+            // Trigger language update notification
+            vm.SystemInfoSection.OnLanguageChanged();
+            vm.FileInfoSection.OnLanguageChanged();
+            vm.ClipboardSection.OnLanguageChanged();
+            vm.HotkeySection.OnLanguageChanged();
+
+            Assert.False(string.IsNullOrEmpty(vm.SystemInfoSection.Title));
+            Assert.False(string.IsNullOrEmpty(vm.FileInfoSection.Title));
+            Assert.False(string.IsNullOrEmpty(vm.ClipboardSection.Title));
+            Assert.False(string.IsNullOrEmpty(vm.HotkeySection.Title));
+        }
+
+        [Fact]
+        public void SelfService_LanguageResources_GermanCoversAllSelfServiceKeys()
+        {
+            string enPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\Greenshot\Languages\language-en-US.xml");
+            string dePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\Greenshot\Languages\language-de-DE.xml");
+
+            if (!File.Exists(enPath)) enPath = Path.GetFullPath(@"src\Greenshot\Languages\language-en-US.xml");
+            if (!File.Exists(dePath)) dePath = Path.GetFullPath(@"src\Greenshot\Languages\language-de-DE.xml");
+
+            if (File.Exists(enPath) && File.Exists(dePath))
+            {
+                var enDoc = new System.Xml.XmlDocument();
+                enDoc.Load(enPath);
+
+                var deDoc = new System.Xml.XmlDocument();
+                deDoc.Load(dePath);
+
+                var enKeys = new System.Collections.Generic.HashSet<string>();
+                foreach (System.Xml.XmlNode node in enDoc.SelectNodes("//resource"))
+                {
+                    string name = node.Attributes?["name"]?.Value;
+                    if (name != null && name.StartsWith("selfservice_"))
+                    {
+                        enKeys.Add(name);
+                    }
+                }
+
+                var deKeys = new System.Collections.Generic.HashSet<string>();
+                foreach (System.Xml.XmlNode node in deDoc.SelectNodes("//resource"))
+                {
+                    string name = node.Attributes?["name"]?.Value;
+                    if (name != null && name.StartsWith("selfservice_"))
+                    {
+                        deKeys.Add(name);
+                    }
+                }
+
+                Assert.NotEmpty(enKeys);
+                foreach (var key in enKeys)
+                {
+                    Assert.True(deKeys.Contains(key), $"German language file is missing selfservice key: {key}");
                 }
             }
         }

@@ -95,6 +95,12 @@ namespace Greenshot.UI.SelfService
         {
         }
 
+        public virtual void OnLanguageChanged()
+        {
+            OnPropertyChanged(nameof(Title));
+            OnPropertyChanged(nameof(Subtitle));
+        }
+
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

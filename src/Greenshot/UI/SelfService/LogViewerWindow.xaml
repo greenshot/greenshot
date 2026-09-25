@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
         mc:Ignorable="d"
-        Title="Greenshot - Log Viewer"
+        Title="{wpf:Translate selfservice_logviewer_title}"
         Width="860"
         Height="580"
         MinWidth="640"
@@ -153,7 +153,7 @@
 
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="14,0,0,0">
                     <TextBlock Text="📄 " FontSize="16" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                    <TextBlock Text="Greenshot Log Viewer" 
+                    <TextBlock Text="{wpf:Translate selfservice_logviewer_title}" 
                                FontWeight="SemiBold" 
                                FontSize="13.5" 
                                Foreground="{Binding TextPrimaryBrush}" 
@@ -175,21 +175,21 @@
                         <TextBlock Text="{Binding ThemeToggleIcon}" FontSize="14"/>
                     </Button>
                     <Button Style="{StaticResource CaptionBtnStyle}" 
-                            ToolTip="Minimize" 
+                            ToolTip="{wpf:Translate selfservice_tooltip_minimize}" 
                             Click="OnMinimizeClicked">
                         <Path Width="10" Height="1" Stretch="Fill" 
                               Stroke="{Binding TextPrimaryBrush}" StrokeThickness="1.2" 
                               Data="M 0,0 L 10,0"/>
                     </Button>
                     <Button Style="{StaticResource CaptionBtnStyle}" 
-                            ToolTip="Maximize / Restore" 
+                            ToolTip="{wpf:Translate selfservice_tooltip_maximize}" 
                             Click="OnMaximizeRestoreClicked">
                         <Path Width="10" Height="10" Stretch="Fill" 
                               Stroke="{Binding TextPrimaryBrush}" StrokeThickness="1.2" 
                               Data="M 0,0 L 10,0 L 10,10 L 0,10 Z"/>
                     </Button>
                     <Button Style="{StaticResource CaptionCloseBtnStyle}" 
-                            ToolTip="Close (Esc)" 
+                            ToolTip="{wpf:Translate selfservice_tooltip_close}" 
                             Click="OnCloseClicked"/>
                 </StackPanel>
             </Grid>
@@ -215,7 +215,7 @@
                             Click="OnRefreshLogClicked">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="🔄 "/>
-                            <TextBlock Text="Refresh Tail (F5)"/>
+                            <TextBlock Text="{wpf:Translate selfservice_logviewer_refresh}"/>
                         </StackPanel>
                     </Button>
                     <Button Style="{StaticResource SecondaryButtonStyle}" 
@@ -223,10 +223,10 @@
                             Click="OnCopyLogClicked">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="📋 "/>
-                            <TextBlock Text="Copy Log"/>
+                            <TextBlock Text="{wpf:Translate selfservice_logviewer_copy}"/>
                         </StackPanel>
                     </Button>
-                    <CheckBox Content="Wrap text" 
+                    <CheckBox Content="{wpf:Translate selfservice_logviewer_wrap}" 
                               IsChecked="{Binding WrapText, Mode=TwoWay}" 
                               Foreground="{Binding TextPrimaryBrush}" 
                               VerticalAlignment="Center" 
@@ -267,18 +267,18 @@
                     <Button Style="{StaticResource SecondaryButtonStyle}" 
                             Margin="0,0,8,0" 
                             Click="OnLoadEarlierLinesClicked"
-                            ToolTip="Load previous 64 KB chunk of log lines">
+                            ToolTip="{wpf:Translate selfservice_logviewer_tooltip_load_earlier}">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="⬆ " FontSize="11" Margin="0,0,3,0"/>
-                            <TextBlock Text="Load Earlier (+64 KB)"/>
+                            <TextBlock Text="{wpf:Translate selfservice_logviewer_load_earlier}"/>
                         </StackPanel>
                     </Button>
                     <Button Style="{StaticResource SecondaryButtonStyle}" 
                             Click="OnLoadEntireLogClicked"
-                            ToolTip="Load all remaining earlier log lines">
+                            ToolTip="{wpf:Translate selfservice_logviewer_tooltip_load_entire}">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="⏬ " FontSize="11" Margin="0,0,3,0"/>
-                            <TextBlock Text="Load Entire Log"/>
+                            <TextBlock Text="{wpf:Translate selfservice_logviewer_load_entire}"/>
                         </StackPanel>
                     </Button>
                 </StackPanel>
