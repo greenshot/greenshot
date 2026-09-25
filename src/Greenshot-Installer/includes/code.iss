@@ -75,13 +75,98 @@ begin
 	Result := returnValue;
 end;
 
-// Initialize the setup
+var
+	GreenshotWasRunning: Boolean;
+	GreenshotCanBeRestartedByRM: Boolean;
+
 function InitializeSetup(): Boolean;
+var
+  PrevAppDir: String;
+  VersionMS, VersionLS: Cardinal;
+  Major, Minor, Revision: Word;
+  IsOldVersion: Boolean;
 begin
-	// Check for .NET and install 4.8.0 if we don't have it
-	Result := IsDotNetInstalled(net48, 0); //Returns True if .NET Framework version 4.6.2 is installed, or a compatible version such as 4.8.0
-	if not Result then
-		SuppressibleMsgBox(FmtMessage(SetupMessage(msgWinVersionTooLowError), ['.NET Framework', '4.8.0']), mbCriticalError, MB_OK, IDOK);
+  IsOldVersion := False;
+
+  // Try to find the previous installation path of Greenshot
+  if RegQueryStringValue(HKLM, 'Software\Microsoft\Windows\CurrentVersion\Uninstall\Greenshot_is1', 'Inno Setup: App Path', PrevAppDir) or
+     RegQueryStringValue(HKCU, 'Software\Microsoft\Windows\CurrentVersion\Uninstall\Greenshot_is1', 'Inno Setup: App Path', PrevAppDir) or
+     RegQueryStringValue(HKLM, 'Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Greenshot_is1', 'Inno Setup: App Path', PrevAppDir) then
+  begin
+    if PrevAppDir <> '' then
+    begin
+      // Read the version of the old executable
+      if GetVersionNumbers(PrevAppDir + '\Greenshot.exe', VersionMS, VersionLS) then
+      begin
+        Major := VersionMS shr 16;
+        Minor := VersionMS and $FFFF;
+        Revision := VersionLS shr 16;
+
+        if (Major = 1) and (Minor = 3) and (Revision <= 315) then
+          IsOldVersion := True;
+        if (Major = 1) and (Minor < 3) then
+          IsOldVersion := True;
+        if (Major = 0) then
+          IsOldVersion := True;
+      end;
+    end;
+  end;
+
+  // If Greenshot is running AND it is an old version that doesn't support the Restart Manager, abort.
+  // We use a loop with the built-in translated msgSetupAppRunningError so the user can close it and click OK.
+  while IsOldVersion and CheckForMutexes('F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08,Global\F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08,Local\F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08') do
+  begin
+    if MsgBox(FmtMessage(SetupMessage(msgSetupAppRunningError), ['Greenshot']), mbError, MB_OKCANCEL) = IDCANCEL then
+    begin
+      Result := False;
+      Exit;
+    end;
+  end;
+
+  // Check for .NET and install 4.8.0 if we don't have it
+  Result := IsDotNetInstalled(net48, 0); //Returns True if .NET Framework version 4.6.2 is installed, or a compatible version such as 4.8.0
+  if not Result then
+    SuppressibleMsgBox(FmtMessage(SetupMessage(msgWinVersionTooLowError), ['.NET Framework', '4.8.0']), mbCriticalError, MB_OK, IDOK);
+end;
+
+function PrepareToInstall(var NeedsRestart: Boolean): String;
+begin
+	// We must check if Greenshot is running HERE at the handoff point before installation.
+	// This prevents a stale snapshot if the user closes/starts Greenshot while sitting on the wizard pages.
+	// PrepareToInstall fires right before the Restart Manager checks for locked files.
+	GreenshotWasRunning := CheckForMutexes('F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08,Global\F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08,Local\F48E86D3-E34C-4DB7-8F8F-9A0EA55F0D08');
+	Result := '';
+end;
+
+procedure CurStepChanged(CurStep: TSetupStep);
+var
+  VersionMS, VersionLS: Cardinal;
+  Major, Minor, Revision: Word;
+begin
+  if CurStep = ssInstall then
+  begin
+    GreenshotCanBeRestartedByRM := False;
+
+    // At this point (right before installation starts), {app} is fully initialized
+    // and we can check the version of the OLD Greenshot.exe before it gets overwritten.
+    if GetVersionNumbers(ExpandConstant('{app}\Greenshot.exe'), VersionMS, VersionLS) then
+    begin
+      Major := VersionMS shr 16;
+      Minor := VersionMS and $FFFF;
+      Revision := VersionLS shr 16;
+
+      // Restart Manager restart is only correctly supported in 1.4.143 and newer.
+      if (Major > 1) then
+        GreenshotCanBeRestartedByRM := True
+      else if (Major = 1) then
+      begin
+        if (Minor > 4) then
+          GreenshotCanBeRestartedByRM := True
+        else if (Minor = 4) and (Revision >= 143) then
+          GreenshotCanBeRestartedByRM := True;
+      end;
+    end;
+  end;
 end;
 
 function ShouldDisableSnippingTool: Boolean;
@@ -98,12 +183,9 @@ end;
 /////////////////////////////////////////////////////////////////////
 function NotAlreadyRestarted: Boolean;
 begin
-  // RmSessionStarted is a built-in Inno Setup function that returns True
-  // if a Restart Manager session was started during this installation,
-  // meaning Greenshot was running and was closed by the RM.
-  // With RestartApplications=yes, the RM will automatically relaunch it
-  // after installation completes, so skip the manual launch.
-  Result := not RmSessionStarted;
+  // Skip the 'Start Greenshot' post-install option if it was running before installation
+  // AND the installed version is new enough to support the Windows Restart Manager.
+  Result := not (GreenshotWasRunning and GreenshotCanBeRestartedByRM);
 end;
 
 var
