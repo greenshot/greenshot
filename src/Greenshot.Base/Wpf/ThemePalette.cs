@@ -84,6 +84,22 @@ namespace Greenshot.Base.Wpf
             ? new SolidColorBrush(Color.FromRgb(70, 70, 70))
             : new SolidColorBrush(Color.FromRgb(180, 180, 180));
 
+        public SolidColorBrush ScrollBarTrackBrush => _isDarkTheme
+            ? new SolidColorBrush(Color.FromRgb(44, 44, 44))
+            : new SolidColorBrush(Color.FromRgb(232, 232, 232));
+
+        public SolidColorBrush ScrollBarThumbBrush => _isDarkTheme
+            ? new SolidColorBrush(Color.FromRgb(75, 75, 75))
+            : new SolidColorBrush(Color.FromRgb(190, 190, 190));
+
+        public SolidColorBrush ScrollBarThumbHoverBrush => _isDarkTheme
+            ? new SolidColorBrush(Color.FromRgb(90, 90, 90))
+            : new SolidColorBrush(Color.FromRgb(160, 160, 160));
+
+        public SolidColorBrush ScrollBarThumbPressedBrush => _isDarkTheme
+            ? new SolidColorBrush(Color.FromRgb(120, 120, 120))
+            : new SolidColorBrush(Color.FromRgb(135, 135, 135));
+
         public SolidColorBrush ErrorBackground => _isDarkTheme
             ? new SolidColorBrush(Color.FromRgb(59, 24, 24))
             : new SolidColorBrush(Color.FromRgb(253, 237, 237));
