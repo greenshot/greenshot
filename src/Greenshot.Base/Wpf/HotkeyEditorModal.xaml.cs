@@ -25,7 +25,6 @@ namespace Greenshot.Base.Wpf
 
         public void Open(string title, string hotkeyString, Action<string> onSaved)
         {
-            ThemeManager.Instance.IsDarkTheme = WpfThemeHelper.IsDarkMode;
             _onSavedCallback = onSaved;
             if (ViewModel == null)
             {

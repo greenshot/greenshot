@@ -241,7 +241,6 @@ namespace Greenshot.Forms.Wpf
         public void ToggleTheme()
         {
             ThemeManager.Instance.ToggleTheme();
-            Greenshot.UI.WpfThemeHelper.IsDarkMode = ThemeManager.Instance.IsDarkTheme;
             OnPropertyChanged(nameof(ThemeToggleIcon));
             OnPropertyChanged(nameof(ThemeToggleToolTip));
         }
