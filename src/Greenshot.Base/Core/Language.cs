@@ -787,16 +787,16 @@ namespace Greenshot.Base.Core
         /// Get the resource for key, format with with string.format an supply the parameters
         /// </summary>
         /// <param name="key">string</param>
-        /// <param name="param">object</param>
+        /// <param name="params">object[] parameters</param>
         /// <returns>formatted resource or a "string ###key### not found"</returns>
-        public static string GetFormattedString(string key, object param)
+        public static string GetFormattedString(string key, params object[] @params)
         {
             if (!Resources.TryGetValue(key, out var returnValue))
             {
                 return "string ###" + key + "### not found";
             }
 
-            return string.Format(returnValue, param);
+            return string.Format(returnValue, @params);
         }
     }
 }

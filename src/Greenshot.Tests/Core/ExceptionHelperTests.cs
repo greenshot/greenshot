@@ -122,5 +122,46 @@ namespace Greenshot.Tests.Core
             Assert.True(vm.IsDetailsExpanded);
             Assert.Equal("▲ Hide Details", vm.ToggleDetailsText);
         }
+
+        [Fact]
+        public void NormalizeStackTrace_HandlesFrameworkOnlyStackTraces()
+        {
+            string wpfStack = @"System.InvalidOperationException: A TwoWay or OneWayToSource binding cannot work on the read-only property 'BlockerProcessName' of type 'Greenshot.UI.SelfService.ClipboardSectionViewModel'.
+   at MS.Internal.Data.PropertyPathWorker.CheckPathPoints(Object source)
+   at MS.Internal.Data.PropertyPathWorker.SourceValue(Int32 index)
+   at System.Windows.FrameworkElement.MeasureCore(Size availableSize)";
+
+            string normalized = ExceptionHelper.NormalizeStackTrace(wpfStack);
+            string hash = ExceptionHelper.ComputeHash(normalized);
+
+            Assert.StartsWith("System.InvalidOperationException", normalized);
+            Assert.Contains("at MS.Internal.Data.PropertyPathWorker.CheckPathPoints(Object source)", normalized);
+            Assert.Equal(12, hash.Length);
+            Assert.NotEqual(string.Empty, hash);
+        }
+
+        [Fact]
+        public void BugReportViewModel_ExtractsStackTraceAndFullVersion()
+        {
+            Exception ex;
+            try
+            {
+                throw new InvalidOperationException("Binding failed simulated");
+            }
+            catch (Exception caught)
+            {
+                ex = caught;
+            }
+
+            var vm = new BugReportViewModel(ex);
+
+            Assert.True(vm.HasStackTrace);
+            Assert.Contains("Binding failed simulated", vm.StackTrace);
+            Assert.Contains("BugReportViewModel_ExtractsStackTraceAndFullVersion", vm.StackTrace);
+            Assert.True(vm.HasStackTraceHash);
+            Assert.NotEqual("[No Stack]", vm.FormattedHashDisplay);
+            Assert.False(string.IsNullOrWhiteSpace(vm.CurrentVersion));
+            Assert.NotEqual("Unknown", vm.CurrentVersion);
+        }
     }
 }

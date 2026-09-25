@@ -242,6 +242,81 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <!-- Themed High-Contrast ListViewItem Style for Tables -->
+        <Style x:Key="ThemedListViewItemStyle" TargetType="{x:Type ListViewItem}">
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="4,5"/>
+            <Setter Property="Margin" Value="0,1"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ListViewItem}">
+                        <Border x:Name="itemBorder" 
+                                BorderBrush="{TemplateBinding BorderBrush}" 
+                                BorderThickness="{TemplateBinding BorderThickness}" 
+                                Background="{TemplateBinding Background}" 
+                                CornerRadius="4" 
+                                Padding="{TemplateBinding Padding}" 
+                                SnapsToDevicePixels="True">
+                            <GridViewRowPresenter VerticalAlignment="{TemplateBinding VerticalContentAlignment}" 
+                                                  SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="itemBorder" Property="Background" Value="{Binding DataContext.BadgeBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                <Setter TargetName="itemBorder" Property="BorderBrush" Value="{Binding DataContext.CardBorderBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="itemBorder" Property="Background" Value="{Binding DataContext.BadgeBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                <Setter TargetName="itemBorder" Property="BorderBrush" Value="{Binding DataContext.AccentBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                            </Trigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsSelected" Value="True"/>
+                                    <Condition Property="Selector.IsSelectionActive" Value="False"/>
+                                </MultiTrigger.Conditions>
+                                <Setter TargetName="itemBorder" Property="Background" Value="{Binding DataContext.BadgeBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                <Setter TargetName="itemBorder" Property="BorderBrush" Value="{Binding DataContext.CardBorderBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                            </MultiTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Themed GridViewColumnHeader Style -->
+        <Style x:Key="ThemedGridViewColumnHeaderStyle" TargetType="{x:Type GridViewColumnHeader}">
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="6,6"/>
+            <Setter Property="Foreground" Value="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+            <Setter Property="Background" Value="{Binding DataContext.CardBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+            <Setter Property="BorderBrush" Value="{Binding DataContext.CardBorderBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="11.5"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type GridViewColumnHeader}">
+                        <Border Background="{TemplateBinding Background}" 
+                                BorderBrush="{TemplateBinding BorderBrush}" 
+                                BorderThickness="{TemplateBinding BorderThickness}" 
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}" 
+                                              RecognizesAccessKey="True"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
 
     <Grid>
@@ -419,8 +494,8 @@
                             Padding="10" 
                             Margin="0,10,0,0">
                         <StackPanel>
-                            <TextBlock Text="💡 Navigation" FontWeight="SemiBold" FontSize="11" Margin="0,0,0,4" Foreground="{Binding TextPrimaryBrush}"/>
-                            <TextBlock Text="Press 1-4 to navigate tabs, F5 to refresh, and T to toggle Dark/Light mode." 
+                            <TextBlock Text="{wpf:Translate selfservice_sidebar_navigation_header}" FontWeight="SemiBold" FontSize="11" Margin="0,0,0,4" Foreground="{Binding TextPrimaryBrush}"/>
+                            <TextBlock Text="{wpf:Translate selfservice_sidebar_navigation_tip}" 
                                        FontSize="10.5" 
                                        TextWrapping="Wrap" 
                                        Foreground="{Binding TextSecondaryBrush}"/>
@@ -820,10 +895,10 @@
                                         Margin="0,4,0,0">
                                     <StackPanel>
                                         <TextBlock Text="{wpf:Translate selfservice_clipboard_locking_process}" FontWeight="SemiBold" Margin="0,0,0,4"/>
-                                        <TextBlock FontFamily="Consolas"><Run Text="{wpf:Translate selfservice_clipboard_label_process_name}"/><Run Text="{Binding ClipboardSection.BlockerProcessName}"/></TextBlock>
-                                        <TextBlock FontFamily="Consolas"><Run Text="{wpf:Translate selfservice_clipboard_label_pid}"/><Run Text="{Binding ClipboardSection.BlockerProcessId}"/></TextBlock>
-                                        <TextBlock FontFamily="Consolas"><Run Text="{wpf:Translate selfservice_clipboard_label_window_title}"/><Run Text="{Binding ClipboardSection.BlockerWindowTitle}"/></TextBlock>
-                                        <TextBlock FontFamily="Consolas" TextWrapping="Wrap" FontWeight="SemiBold"><Run Text="{wpf:Translate selfservice_clipboard_label_executable}"/><Run Text="{Binding ClipboardSection.BlockerExecutablePath}"/></TextBlock>
+                                        <TextBlock FontFamily="Consolas"><Run Text="{wpf:Translate selfservice_clipboard_label_process_name}"/><Run Text="{Binding ClipboardSection.BlockerProcessName, Mode=OneWay}"/></TextBlock>
+                                        <TextBlock FontFamily="Consolas"><Run Text="{wpf:Translate selfservice_clipboard_label_pid}"/><Run Text="{Binding ClipboardSection.BlockerProcessId, Mode=OneWay}"/></TextBlock>
+                                        <TextBlock FontFamily="Consolas"><Run Text="{wpf:Translate selfservice_clipboard_label_window_title}"/><Run Text="{Binding ClipboardSection.BlockerWindowTitle, Mode=OneWay}"/></TextBlock>
+                                        <TextBlock FontFamily="Consolas" TextWrapping="Wrap" FontWeight="SemiBold"><Run Text="{wpf:Translate selfservice_clipboard_label_executable}"/><Run Text="{Binding ClipboardSection.BlockerExecutablePath, Mode=OneWay}"/></TextBlock>
                                     </StackPanel>
                                 </Border>
 
@@ -838,8 +913,8 @@
                                         Margin="0,4,0,0">
                                     <StackPanel>
                                         <TextBlock Text="{wpf:Translate selfservice_clipboard_data_owner}" FontWeight="SemiBold" Margin="0,0,0,4"/>
-                                        <TextBlock Text="{Binding ClipboardSection.CurrentOwnerInfo}" FontFamily="Consolas" FontSize="11.5"/>
-                                        <TextBlock FontFamily="Consolas" FontSize="11" Foreground="{Binding TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,2,0,0"><Run Text="{wpf:Translate selfservice_clipboard_label_path}"/><Run Text="{Binding ClipboardSection.OwnerExecutablePath}"/></TextBlock>
+                                        <TextBlock Text="{Binding ClipboardSection.CurrentOwnerInfo, Mode=OneWay}" FontFamily="Consolas" FontSize="11.5"/>
+                                        <TextBlock FontFamily="Consolas" FontSize="11" Foreground="{Binding TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,2,0,0"><Run Text="{wpf:Translate selfservice_clipboard_label_path}"/><Run Text="{Binding ClipboardSection.OwnerExecutablePath, Mode=OneWay}"/></TextBlock>
                                     </StackPanel>
                                 </Border>
                             </Grid>
@@ -1169,6 +1244,454 @@
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
                             </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- Section 5: Installation Integrity & Checksum Verification -->
+                <ScrollViewer x:Name="ChecksumPanel" 
+                              VerticalScrollBarVisibility="Auto" 
+                              Padding="22,18">
+                    <StackPanel>
+                        <!-- Section Header -->
+                        <Grid Margin="0,0,0,16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="{wpf:Translate selfservice_checksum_title}" 
+                                           FontSize="18" 
+                                           FontWeight="SemiBold" 
+                                           Foreground="{Binding TextPrimaryBrush}"/>
+                                <TextBlock Text="{wpf:Translate selfservice_checksum_sub}" 
+                                           FontSize="12" 
+                                           Foreground="{Binding TextSecondaryBrush}" 
+                                           Margin="0,3,0,0"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                <Button Style="{StaticResource SecondaryButtonStyle}" 
+                                        Margin="0,0,8,0" 
+                                        Click="OnRefreshChecksumsClicked">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="🔄 "/>
+                                        <TextBlock Text="{wpf:Translate selfservice_checksum_btn_validate}"/>
+                                    </StackPanel>
+                                </Button>
+                                <Button Style="{StaticResource PrimaryButtonStyle}" 
+                                        Click="OnCopyChecksumReportClicked">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="📋 "/>
+                                        <TextBlock Text="{wpf:Translate selfservice_checksum_btn_copy_report}"/>
+                                    </StackPanel>
+                                </Button>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Scanning / Progress Indicator Card (visible when scanning) -->
+                        <Border Style="{StaticResource CardBorderStyle}" 
+                                Visibility="{Binding ChecksumSection.IsScanning, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                Margin="0,0,0,12"
+                                Padding="12">
+                            <StackPanel>
+                                <Grid Margin="0,0,0,6">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding ChecksumSection.ScanProgressText}" 
+                                               FontWeight="SemiBold" 
+                                               FontSize="12" 
+                                               Foreground="{Binding TextPrimaryBrush}"/>
+                                    <TextBlock Grid.Column="1" 
+                                               Text="{Binding ChecksumSection.ScanProgressPercentage, StringFormat='{}{0}%'}" 
+                                               FontWeight="Bold" 
+                                               FontSize="12" 
+                                               Foreground="{Binding AccentBrush}"/>
+                                </Grid>
+                                <ProgressBar Height="6" 
+                                             Value="{Binding ChecksumSection.ScanProgressPercentage, Mode=OneWay}" 
+                                             Maximum="100" 
+                                             Foreground="{Binding AccentBrush}" 
+                                             Background="{Binding BadgeBackgroundBrush}" 
+                                             BorderThickness="0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Overall Status Banner Card -->
+                        <Border Style="{StaticResource CardBorderStyle}" 
+                                BorderBrush="{Binding ChecksumSection.BannerBrush}" 
+                                Background="{Binding ChecksumSection.BannerBackgroundBrush}"
+                                BorderThickness="1.5">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="38"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Grid.Column="0" 
+                                           Text="{Binding ChecksumSection.BannerIcon}" 
+                                           FontSize="22" 
+                                           VerticalAlignment="Top" 
+                                           HorizontalAlignment="Left"
+                                           Margin="0,2,0,0"/>
+
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding ChecksumSection.BannerTitle}" 
+                                               FontSize="14" 
+                                               FontWeight="Bold" 
+                                               Foreground="{Binding ChecksumSection.BannerBrush}"/>
+                                    <TextBlock Text="{Binding ChecksumSection.BannerDescription}" 
+                                               FontSize="11.5" 
+                                               TextWrapping="Wrap" 
+                                               Foreground="{Binding TextSecondaryBrush}" 
+                                               Margin="0,3,0,0"/>
+                                </StackPanel>
+
+                                <Button Grid.Column="2" 
+                                        Style="{StaticResource SecondaryButtonStyle}" 
+                                        VerticalAlignment="Center" 
+                                        Margin="12,0,0,0"
+                                        Click="OnOpenChecksumManifestClicked">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="📄 "/>
+                                        <TextBlock Text="checksum.SHA256"/>
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+                        </Border>
+
+                        <!-- Summary Metrics Grid -->
+                        <Grid Margin="0,0,0,14">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Total -->
+                            <Border Grid.Column="0" Style="{StaticResource CardBorderStyle}" Margin="0,0,4,0" Padding="10">
+                                <StackPanel>
+                                    <TextBlock Text="{wpf:Translate selfservice_checksum_metric_total}" FontSize="9.5" FontWeight="Bold" Foreground="{Binding TextSecondaryBrush}"/>
+                                    <TextBlock Text="{Binding ChecksumSection.TotalCount}" FontSize="18" FontWeight="Bold" Margin="0,4,0,0"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Valid (Matches) -->
+                            <Border Grid.Column="1" Style="{StaticResource CardBorderStyle}" Margin="4,0,4,0" Padding="10">
+                                <StackPanel>
+                                    <TextBlock Text="{wpf:Translate selfservice_checksum_metric_valid}" FontSize="9.5" FontWeight="Bold" Foreground="#10B981"/>
+                                    <TextBlock Text="{Binding ChecksumSection.MatchedCount}" FontSize="18" FontWeight="Bold" Foreground="#10B981" Margin="0,4,0,0"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Mismatched (Corrupt) -->
+                            <Border Grid.Column="2" Style="{StaticResource CardBorderStyle}" Margin="4,0,4,0" Padding="10">
+                                <StackPanel>
+                                    <TextBlock Text="{wpf:Translate selfservice_checksum_metric_corrupt}" FontSize="9.5" FontWeight="Bold" Foreground="#EF4444"/>
+                                    <TextBlock Text="{Binding ChecksumSection.MismatchedCount}" FontSize="18" FontWeight="Bold" Foreground="#EF4444" Margin="0,4,0,0"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Missing -->
+                            <Border Grid.Column="3" Style="{StaticResource CardBorderStyle}" Margin="4,0,4,0" Padding="10">
+                                <StackPanel>
+                                    <TextBlock Text="{wpf:Translate selfservice_checksum_metric_missing}" FontSize="9.5" FontWeight="Bold" Foreground="#F97316"/>
+                                    <TextBlock Text="{Binding ChecksumSection.MissingCount}" FontSize="18" FontWeight="Bold" Foreground="#F97316" Margin="0,4,0,0"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Unlisted -->
+                            <Border Grid.Column="4" Style="{StaticResource CardBorderStyle}" Margin="4,0,0,0" Padding="10">
+                                <StackPanel>
+                                    <TextBlock Text="{wpf:Translate selfservice_checksum_metric_unlisted}" FontSize="9.5" FontWeight="Bold" Foreground="#3B82F6"/>
+                                    <TextBlock Text="{Binding ChecksumSection.UnlistedCount}" FontSize="18" FontWeight="Bold" Foreground="#3B82F6" Margin="0,4,0,0"/>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+
+                        <!-- Search and Filter Bar -->
+                        <Border Style="{StaticResource CardBorderStyle}" Padding="10" Margin="0,0,0,10">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Search Box -->
+                                <Border Grid.Column="0" 
+                                        Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TextBoxBackgroundBrush}" 
+                                        BorderBrush="{Binding CardBorderBrush}" 
+                                        BorderThickness="1" 
+                                        CornerRadius="4" 
+                                        Padding="6,4" 
+                                        Margin="0,0,10,0">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="🔍 " FontSize="11" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                        <TextBox Grid.Column="1" 
+                                                 Text="{Binding ChecksumSection.SearchQuery, UpdateSourceTrigger=PropertyChanged}" 
+                                                 Background="Transparent" 
+                                                 BorderThickness="0" 
+                                                 FontSize="12" 
+                                                 Foreground="{Binding TextPrimaryBrush}" 
+                                                 CaretBrush="{Binding TextPrimaryBrush}" 
+                                                 VerticalAlignment="Center"/>
+                                    </Grid>
+                                </Border>
+
+                                <!-- Filter Buttons -->
+                                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                    <Button Style="{StaticResource SecondaryButtonStyle}" 
+                                            Tag="All" 
+                                            Click="OnFilterChecksumsClicked" 
+                                            Margin="0,0,4,0">
+                                        <TextBlock Text="{wpf:Translate selfservice_checksum_filter_all}"/>
+                                    </Button>
+                                    <Button Style="{StaticResource SecondaryButtonStyle}" 
+                                            Tag="Issues" 
+                                            Click="OnFilterChecksumsClicked" 
+                                            Margin="0,0,4,0">
+                                        <TextBlock Text="{wpf:Translate selfservice_checksum_filter_issues}"/>
+                                    </Button>
+                                    <Button Style="{StaticResource SecondaryButtonStyle}" 
+                                            Tag="Mismatch" 
+                                            Click="OnFilterChecksumsClicked" 
+                                            Margin="0,0,4,0">
+                                        <TextBlock Text="{wpf:Translate selfservice_checksum_filter_mismatch}"/>
+                                    </Button>
+                                    <Button Style="{StaticResource SecondaryButtonStyle}" 
+                                            Tag="Missing" 
+                                            Click="OnFilterChecksumsClicked" 
+                                            Margin="0,0,4,0">
+                                        <TextBlock Text="{wpf:Translate selfservice_checksum_filter_missing}"/>
+                                    </Button>
+                                    <Button Style="{StaticResource SecondaryButtonStyle}" 
+                                            Tag="Unlisted" 
+                                            Click="OnFilterChecksumsClicked" 
+                                            Margin="0,0,4,0">
+                                        <TextBlock Text="{wpf:Translate selfservice_checksum_filter_unlisted}"/>
+                                    </Button>
+                                    <Button Style="{StaticResource SecondaryButtonStyle}" 
+                                            Tag="Match" 
+                                            Click="OnFilterChecksumsClicked">
+                                        <TextBlock Text="{wpf:Translate selfservice_checksum_filter_valid}"/>
+                                    </Button>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <!-- Table: ListView of Verified Files -->
+                        <Border Style="{StaticResource CardBorderStyle}" Padding="0" Margin="0,0,0,10">
+                            <ListView ItemsSource="{Binding ChecksumSection.FilteredItems}" 
+                                      SelectedItem="{Binding ChecksumSection.SelectedItem, Mode=TwoWay}"
+                                      ItemContainerStyle="{StaticResource ThemedListViewItemStyle}"
+                                      Background="Transparent" 
+                                      BorderThickness="0" 
+                                      MaxHeight="260"
+                                      ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                      ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                      Foreground="{Binding TextPrimaryBrush}">
+                                <ListView.View>
+                                    <GridView ColumnHeaderContainerStyle="{StaticResource ThemedGridViewColumnHeaderStyle}">
+                                        <!-- Status Column -->
+                                        <GridViewColumn Header="{wpf:Translate selfservice_checksum_col_status}" Width="120">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate DataType="{x:Type local:ChecksumItemViewModel}">
+                                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding StatusIcon}" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                                                        <TextBlock Text="{Binding StatusText}" 
+                                                                   FontWeight="SemiBold" 
+                                                                   FontSize="11.5" 
+                                                                   Foreground="{Binding StatusBrush}" 
+                                                                   VerticalAlignment="Center"/>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+
+                                        <!-- File Path Column -->
+                                        <GridViewColumn Header="{wpf:Translate selfservice_checksum_col_file}" Width="260">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate DataType="{x:Type local:ChecksumItemViewModel}">
+                                                    <StackPanel VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding FileName}" FontWeight="SemiBold" FontSize="11.5" TextTrimming="CharacterEllipsis"/>
+                                                        <TextBlock Text="{Binding Directory}" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}" TextTrimming="CharacterEllipsis"/>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+
+                                        <!-- Actual SHA-256 Column -->
+                                        <GridViewColumn Header="{wpf:Translate selfservice_checksum_col_actual_hash}" Width="230">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate DataType="{x:Type local:ChecksumItemViewModel}">
+                                                    <TextBlock Text="{Binding ActualHash}" 
+                                                               FontFamily="Consolas, monospace" 
+                                                               FontSize="10.5" 
+                                                               TextTrimming="CharacterEllipsis" 
+                                                               VerticalAlignment="Center"/>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+
+                                        <!-- Expected SHA-256 Column -->
+                                        <GridViewColumn Header="{wpf:Translate selfservice_checksum_col_expected_hash}" Width="230">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate DataType="{x:Type local:ChecksumItemViewModel}">
+                                                    <TextBlock Text="{Binding ExpectedHash}" 
+                                                               FontFamily="Consolas, monospace" 
+                                                               FontSize="10.5" 
+                                                               TextTrimming="CharacterEllipsis" 
+                                                               VerticalAlignment="Center"/>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+
+                                        <!-- File Size Column -->
+                                        <GridViewColumn Header="{wpf:Translate selfservice_checksum_col_size}" Width="75">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate DataType="{x:Type local:ChecksumItemViewModel}">
+                                                    <TextBlock Text="{Binding FileSizeText}" 
+                                                               FontFamily="Consolas, monospace" 
+                                                               FontSize="10.5" 
+                                                               HorizontalAlignment="Right" 
+                                                               VerticalAlignment="Center"/>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                        </Border>
+
+                        <!-- Selected Item Comparison Detail Inspector Card -->
+                        <Border Style="{StaticResource CardBorderStyle}" 
+                                Visibility="{Binding ChecksumSection.HasSelectedItem, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                Padding="14">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <!-- Header: File Name & Status Badge -->
+                                <Grid Grid.Row="0" Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding ChecksumSection.SelectedItem.StatusIcon}" FontSize="15" Margin="0,0,6,0"/>
+                                        <TextBlock Text="{Binding ChecksumSection.SelectedItem.RelativePath}" FontWeight="Bold" FontSize="13" TextTrimming="CharacterEllipsis"/>
+                                    </StackPanel>
+                                    <Button Grid.Column="1" 
+                                            Style="{StaticResource SecondaryButtonStyle}" 
+                                            Click="OnCopySelectedChecksumDetailsClicked">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="📋 "/>
+                                            <TextBlock Text="{wpf:Translate selfservice_checksum_btn_copy_selected}"/>
+                                        </StackPanel>
+                                    </Button>
+                                </Grid>
+
+                                <!-- Status Hint / Corruption Warning -->
+                                <Border Grid.Row="1" 
+                                        Background="{Binding BadgeBackgroundBrush}" 
+                                        BorderBrush="{Binding ChecksumSection.SelectedItem.StatusBrush}" 
+                                        BorderThickness="1" 
+                                        CornerRadius="4" 
+                                        Padding="10,6" 
+                                        Margin="0,0,0,10">
+                                    <TextBlock Text="{Binding ChecksumSection.SelectedItem.StatusHint}" 
+                                               FontSize="11.5" 
+                                               Foreground="{Binding TextPrimaryBrush}" 
+                                               TextWrapping="Wrap"/>
+                                </Border>
+
+                                <!-- Side-by-Side Comparison of Hashes -->
+                                <Grid Grid.Row="2" Margin="0,0,0,4">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="130"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Expected -->
+                                    <TextBlock Grid.Row="0" Grid.Column="0" 
+                                               Text="{wpf:Translate selfservice_checksum_detail_expected}" 
+                                               FontWeight="SemiBold" 
+                                               FontSize="11" 
+                                               Foreground="{Binding TextSecondaryBrush}" 
+                                               VerticalAlignment="Center"/>
+                                    <Border Grid.Row="0" Grid.Column="1" 
+                                            Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TextBoxBackgroundBrush}" 
+                                            BorderBrush="{Binding CardBorderBrush}" 
+                                            BorderThickness="1" 
+                                            CornerRadius="3" 
+                                            Padding="6,3" 
+                                            Margin="0,0,0,4">
+                                        <TextBox Text="{Binding ChecksumSection.SelectedItem.ExpectedHash, Mode=OneWay}" 
+                                                 IsReadOnly="True" 
+                                                 Background="Transparent" 
+                                                 BorderThickness="0" 
+                                                 FontFamily="Consolas, monospace" 
+                                                 FontSize="11" 
+                                                 Foreground="{Binding TextPrimaryBrush}"/>
+                                    </Border>
+
+                                    <!-- Actual -->
+                                    <TextBlock Grid.Row="1" Grid.Column="0" 
+                                               Text="{wpf:Translate selfservice_checksum_detail_actual}" 
+                                               FontWeight="SemiBold" 
+                                               FontSize="11" 
+                                               Foreground="{Binding TextSecondaryBrush}" 
+                                               VerticalAlignment="Center"/>
+                                    <Border Grid.Row="1" Grid.Column="1" 
+                                            Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TextBoxBackgroundBrush}" 
+                                            BorderBrush="{Binding CardBorderBrush}" 
+                                            BorderThickness="1" 
+                                            CornerRadius="3" 
+                                            Padding="6,3" 
+                                            Margin="0,0,0,4">
+                                        <TextBox Text="{Binding ChecksumSection.SelectedItem.ActualHash, Mode=OneWay}" 
+                                                 IsReadOnly="True" 
+                                                 Background="Transparent" 
+                                                 BorderThickness="0" 
+                                                 FontFamily="Consolas, monospace" 
+                                                 FontSize="11" 
+                                                 Foreground="{Binding ChecksumSection.SelectedItem.StatusBrush}"/>
+                                    </Border>
+
+                                    <!-- Full Path -->
+                                    <TextBlock Grid.Row="2" Grid.Column="0" 
+                                               Text="{wpf:Translate selfservice_checksum_detail_path}" 
+                                               FontWeight="SemiBold" 
+                                               FontSize="11" 
+                                               Foreground="{Binding TextSecondaryBrush}" 
+                                               VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Row="2" Grid.Column="1" 
+                                               Text="{Binding ChecksumSection.SelectedItem.FullPath}" 
+                                               FontFamily="Consolas, monospace" 
+                                               FontSize="10.5" 
+                                               Foreground="{Binding TextSecondaryBrush}" 
+                                               TextWrapping="Wrap" 
+                                               VerticalAlignment="Center" 
+                                               Margin="6,2,0,0"/>
+                                </Grid>
+                            </Grid>
                         </Border>
                     </StackPanel>
                 </ScrollViewer>

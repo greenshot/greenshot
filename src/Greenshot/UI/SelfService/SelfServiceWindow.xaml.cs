@@ -83,6 +83,7 @@ namespace Greenshot.UI.SelfService
             FileInfoPanel.Visibility = sectionId == "files" ? Visibility.Visible : Visibility.Collapsed;
             ClipboardPanel.Visibility = sectionId == "clipboard" ? Visibility.Visible : Visibility.Collapsed;
             HotkeysPanel.Visibility = sectionId == "hotkeys" ? Visibility.Visible : Visibility.Collapsed;
+            ChecksumPanel.Visibility = sectionId == "checksum" ? Visibility.Visible : Visibility.Collapsed;
 
             UpdateStatusText(null);
         }
@@ -111,6 +112,9 @@ namespace Greenshot.UI.SelfService
                     break;
                 case "hotkeys":
                     FooterStatusText.Text = ViewModel?.HotkeySection.StatusMessage ?? "Hotkey diagnostics ready";
+                    break;
+                case "checksum":
+                    FooterStatusText.Text = ViewModel?.ChecksumSection.StatusMessage ?? "Checksum validation ready";
                     break;
                 default:
                     FooterStatusText.Text = "Ready";
@@ -187,6 +191,22 @@ namespace Greenshot.UI.SelfService
 
         private void OnWindowKeyDown(object sender, KeyEventArgs e)
         {
+            // If the user is currently typing in an editable input (search TextBox, etc.),
+            // do not intercept typing keystrokes.
+            var focused = Keyboard.FocusedElement ?? FocusManager.GetFocusedElement(this);
+            if (e.OriginalSource is System.Windows.Controls.Primitives.TextBoxBase ||
+                e.OriginalSource is System.Windows.Controls.PasswordBox ||
+                focused is System.Windows.Controls.Primitives.TextBoxBase ||
+                focused is System.Windows.Controls.PasswordBox)
+            {
+                if (e.Key == Key.Escape)
+                {
+                    Close();
+                    e.Handled = true;
+                }
+                return;
+            }
+
             switch (e.Key)
             {
                 case Key.Escape:
@@ -222,6 +242,12 @@ namespace Greenshot.UI.SelfService
                 case Key.D4:
                 case Key.H:
                     ViewModel?.SelectSection("hotkeys");
+                    e.Handled = true;
+                    break;
+                case Key.D5:
+                case Key.K:
+                case Key.V:
+                    ViewModel?.SelectSection("checksum");
                     e.Handled = true;
                     break;
             }
@@ -317,6 +343,42 @@ namespace Greenshot.UI.SelfService
             UpdateStatusText(CoreLanguage.GetString("selfservice_hotkeys_opened_settings") ?? "Opened Windows Keyboard Settings");
         }
 
+        // Section 5 actions
+        private void OnRefreshChecksumsClicked(object sender, RoutedEventArgs e)
+        {
+            ViewModel?.ChecksumSection.Refresh();
+            UpdateStatusText(CoreLanguage.GetString("selfservice_status_refreshed") ?? "Refreshed!");
+        }
+
+        private void OnCopyChecksumReportClicked(object sender, RoutedEventArgs e)
+        {
+            ViewModel?.ChecksumSection.CopyReportToClipboard();
+            UpdateStatusText(ViewModel?.ChecksumSection.StatusMessage);
+        }
+
+        private void OnFilterChecksumsClicked(object sender, RoutedEventArgs e)
+        {
+            if (sender is FrameworkElement fe && fe.Tag is string filter)
+            {
+                if (ViewModel?.ChecksumSection != null)
+                {
+                    ViewModel.ChecksumSection.ActiveFilter = filter;
+                }
+            }
+        }
+
+        private void OnCopySelectedChecksumDetailsClicked(object sender, RoutedEventArgs e)
+        {
+            ViewModel?.ChecksumSection.CopySelectedDetails();
+            UpdateStatusText(ViewModel?.ChecksumSection.StatusMessage);
+        }
+
+        private void OnOpenChecksumManifestClicked(object sender, RoutedEventArgs e)
+        {
+            ViewModel?.ChecksumSection.OpenChecksumFile();
+            UpdateStatusText(ViewModel?.ChecksumSection.StatusMessage);
+        }
+
         private void ApplyImmersiveDarkMode()
         {
             try
@@ -376,11 +438,7 @@ namespace Greenshot.UI.SelfService
                 catch (Exception ex)
                 {
                     Log.Error("Error opening SelfServiceWindow", ex);
-                    MessageBox.Show(
-                        $"Could not open Greenshot Self-Service:\n{ex.Message}",
-                        "Greenshot - Self-Service",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Error);
+                    BugReportWindow.ShowReport(ex);
                 }
             }
 

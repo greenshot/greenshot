@@ -38,6 +38,7 @@ namespace Greenshot.UI.ViewModels
         private string _fullReport;
         private string _exceptionType;
         private string _exceptionMessage;
+        private string _stackTrace;
         private string _stackTraceHash;
         private string _searchGitHubUrl;
         private string _newIssueUrl;
@@ -60,7 +61,23 @@ namespace Greenshot.UI.ViewModels
             _fullReport = fullReport ?? (ex != null ? EnvironmentInfo.BuildReport(ex) : string.Empty);
             _updateService = updateService ?? SimpleServiceProvider.Current?.GetInstance<UpdateService>(isOptional: true) ?? new UpdateService();
 
-            _currentVersion = _updateService.CurrentVersion?.ToString() ?? "Unknown";
+            if (updateService?.CurrentVersion != null)
+            {
+                _currentVersion = updateService.CurrentVersion.ToString();
+            }
+            else
+            {
+                string greenshotVer = EnvironmentInfo.GetGreenshotVersion();
+                if (string.IsNullOrWhiteSpace(greenshotVer) || greenshotVer == "Unknown")
+                {
+                    greenshotVer = _updateService.CurrentVersion?.ToString() ?? "Unknown";
+                }
+                if (!string.IsNullOrWhiteSpace(greenshotVer) && !greenshotVer.Contains("bit") && OsInfo.Bits != 0)
+                {
+                    greenshotVer += (GreenshotEnvironment.IsPortable ? " Portable" : "") + $" ({OsInfo.Bits} bit)";
+                }
+                _currentVersion = greenshotVer;
+            }
             _upgradeDownloadUrl = UpdateService.DownloadsUri.AbsoluteUri;
 
             if (_updateService.LatestReleaseVersion != null)
@@ -79,6 +96,7 @@ namespace Greenshot.UI.ViewModels
             {
                 _exceptionType = _exception.GetType().FullName;
                 _exceptionMessage = _exception.Message;
+                _stackTrace = FormatExceptionStackTrace(_exception);
             }
             else if (!string.IsNullOrWhiteSpace(_fullReport))
             {
@@ -106,11 +124,84 @@ namespace Greenshot.UI.ViewModels
                 _exceptionMessage = "An unexpected error occurred.";
             }
 
+            if (string.IsNullOrWhiteSpace(_stackTrace) && !string.IsNullOrWhiteSpace(_fullReport))
+            {
+                _stackTrace = ExtractStackTraceFromReport(_fullReport);
+            }
+            if (string.IsNullOrWhiteSpace(_stackTrace) && _exception != null)
+            {
+                _stackTrace = _exception.ToString();
+            }
+
             string normalized = ExceptionHelper.NormalizeStackTrace(_fullReport);
+            if (string.IsNullOrWhiteSpace(normalized) && _exception != null)
+            {
+                normalized = ExceptionHelper.NormalizeException(_exception);
+            }
             _stackTraceHash = ExceptionHelper.ComputeHash(normalized);
 
             _searchGitHubUrl = ExceptionHelper.GetGitHubSearchUrl(_stackTraceHash);
             _newIssueUrl = ExceptionHelper.GetNewIssueUrl(_stackTraceHash, _exceptionType);
+        }
+
+        private static string FormatExceptionStackTrace(Exception ex)
+        {
+            if (ex == null) return string.Empty;
+
+            var sb = new System.Text.StringBuilder();
+            var current = ex;
+            int level = 0;
+            while (current != null)
+            {
+                if (level > 0)
+                {
+                    sb.AppendLine();
+                    sb.AppendLine("--- Inner Exception: " + current.GetType().FullName + ": " + current.Message + " ---");
+                }
+                else
+                {
+                    sb.AppendLine(current.GetType().FullName + ": " + current.Message);
+                }
+
+                if (!string.IsNullOrWhiteSpace(current.StackTrace))
+                {
+                    sb.AppendLine(current.StackTrace);
+                }
+
+                current = current.InnerException;
+                level++;
+            }
+            return sb.ToString().Trim();
+        }
+
+        private static string ExtractStackTraceFromReport(string report)
+        {
+            if (string.IsNullOrWhiteSpace(report)) return string.Empty;
+
+            var lines = report.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
+            var sb = new System.Text.StringBuilder();
+            bool inStackSection = false;
+
+            foreach (var line in lines)
+            {
+                if (line.StartsWith("Stack:", StringComparison.OrdinalIgnoreCase) ||
+                    line.StartsWith("Exception: ", StringComparison.OrdinalIgnoreCase))
+                {
+                    inStackSection = true;
+                }
+                else if (line.StartsWith("Configuration dump:", StringComparison.OrdinalIgnoreCase))
+                {
+                    break;
+                }
+
+                if (inStackSection)
+                {
+                    sb.AppendLine(line);
+                }
+            }
+
+            string extracted = sb.ToString().Trim();
+            return !string.IsNullOrWhiteSpace(extracted) ? extracted : string.Empty;
         }
 
         public async Task CheckVersionAsync()
@@ -190,6 +281,22 @@ namespace Greenshot.UI.ViewModels
                 }
             }
         }
+
+        public string StackTrace
+        {
+            get => _stackTrace;
+            set
+            {
+                if (_stackTrace != value)
+                {
+                    _stackTrace = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(HasStackTrace));
+                }
+            }
+        }
+
+        public bool HasStackTrace => !string.IsNullOrWhiteSpace(_stackTrace);
 
         public string StackTraceHash
         {
@@ -352,6 +459,20 @@ namespace Greenshot.UI.ViewModels
             catch
             {
                 CopyButtonText = "Failed to copy";
+            }
+        }
+
+        public void CopyStackTraceToClipboard()
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(_stackTrace))
+                {
+                    Clipboard.SetText(_stackTrace);
+                }
+            }
+            catch
+            {
             }
         }
 
