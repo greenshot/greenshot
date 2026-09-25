@@ -39,6 +39,8 @@ namespace Greenshot.Base.Wpf
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        public ThemePalette CurrentPalette => _isDarkTheme ? ThemePalette.Dark : ThemePalette.Light;
+
         private ThemeManager()
         {
             ComboBoxHelper.Initialize();
@@ -55,6 +57,7 @@ namespace Greenshot.Base.Wpf
                 {
                     _isDarkTheme = value;
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsDarkTheme)));
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentPalette)));
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(BackgroundBrush)));
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ForegroundBrush)));
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(MutedBrush)));
@@ -81,73 +84,39 @@ namespace Greenshot.Base.Wpf
             IsDarkTheme = !IsDarkTheme;
         }
 
-        public Brush BackgroundBrush => _isDarkTheme 
-            ? new SolidColorBrush(Color.FromRgb(32, 32, 32)) 
-            : new SolidColorBrush(Color.FromRgb(245, 245, 245));
+        public Brush BackgroundBrush => CurrentPalette.BackgroundBrush;
 
-        public Brush ForegroundBrush => _isDarkTheme 
-            ? new SolidColorBrush(Color.FromRgb(240, 240, 240)) 
-            : new SolidColorBrush(Color.FromRgb(30, 30, 30));
+        public Brush ForegroundBrush => CurrentPalette.ForegroundBrush;
 
-        public Brush MutedBrush => _isDarkTheme
-            ? new SolidColorBrush(Color.FromRgb(175, 175, 175))
-            : new SolidColorBrush(Color.FromRgb(100, 100, 100));
+        public Brush MutedBrush => CurrentPalette.MutedBrush;
 
-        public Brush BorderBrush => _isDarkTheme 
-            ? new SolidColorBrush(Color.FromRgb(70, 70, 70)) 
-            : new SolidColorBrush(Color.FromRgb(200, 200, 200));
+        public Brush BorderBrush => CurrentPalette.BorderBrush;
 
-        public Brush ControlBorderBrush => _isDarkTheme 
-            ? new SolidColorBrush(Color.FromRgb(70, 70, 70)) 
-            : new SolidColorBrush(Color.FromRgb(180, 180, 180));
+        public Brush ControlBorderBrush => CurrentPalette.ControlBorderBrush;
 
-        public Brush GroupBoxBrush => _isDarkTheme 
-            ? new SolidColorBrush(Color.FromRgb(42, 42, 42)) 
-            : new SolidColorBrush(Colors.White);
+        public Brush GroupBoxBrush => CurrentPalette.GroupBoxBrush;
 
-        public Brush ControlBackgroundBrush => _isDarkTheme
-            ? new SolidColorBrush(Color.FromRgb(36, 36, 36))
-            : new SolidColorBrush(Color.FromRgb(250, 250, 250));
+        public Brush ControlBackgroundBrush => CurrentPalette.ControlBackgroundBrush;
 
-        public Brush TextBoxBackgroundBrush => _isDarkTheme
-            ? new SolidColorBrush(Color.FromRgb(24, 24, 24))
-            : new SolidColorBrush(Colors.White);
+        public Brush TextBoxBackgroundBrush => CurrentPalette.TextBoxBackgroundBrush;
 
-        public Brush ButtonBackgroundBrush => _isDarkTheme
-            ? new SolidColorBrush(Color.FromRgb(55, 55, 55))
-            : new SolidColorBrush(Color.FromRgb(230, 230, 230));
+        public Brush ButtonBackgroundBrush => CurrentPalette.ButtonBackgroundBrush;
 
-        public Brush ButtonHoverBrush => _isDarkTheme
-            ? new SolidColorBrush(Color.FromRgb(70, 70, 70))
-            : new SolidColorBrush(Color.FromRgb(210, 210, 210));
+        public Brush ButtonHoverBrush => CurrentPalette.ButtonHoverBrush;
 
-        public Brush ButtonPressedBrush => _isDarkTheme
-            ? new SolidColorBrush(Color.FromRgb(45, 45, 45))
-            : new SolidColorBrush(Color.FromRgb(190, 190, 190));
+        public Brush ButtonPressedBrush => CurrentPalette.ButtonPressedBrush;
 
-        public Brush TabItemBackgroundBrush => _isDarkTheme
-            ? new SolidColorBrush(Color.FromRgb(50, 50, 50))
-            : new SolidColorBrush(Color.FromRgb(220, 220, 220));
+        public Brush TabItemBackgroundBrush => CurrentPalette.TabItemBackgroundBrush;
 
-        public Brush TabItemSelectedBrush => _isDarkTheme
-            ? new SolidColorBrush(Color.FromRgb(42, 42, 42))
-            : new SolidColorBrush(Colors.White);
+        public Brush TabItemSelectedBrush => CurrentPalette.TabItemSelectedBrush;
 
-        public Brush TitleBarBrush => _isDarkTheme
-            ? new SolidColorBrush(Color.FromRgb(24, 24, 24))
-            : new SolidColorBrush(Color.FromRgb(240, 240, 240));
+        public Brush TitleBarBrush => CurrentPalette.TitleBarBrush;
 
-        public Brush AccentBrush => _isDarkTheme
-            ? new SolidColorBrush(Color.FromRgb(10, 132, 255))
-            : new SolidColorBrush(Color.FromRgb(0, 122, 255));
+        public Brush AccentBrush => CurrentPalette.AccentBrush;
 
-        public Brush WarningBrush => _isDarkTheme
-            ? new SolidColorBrush(Color.FromRgb(255, 186, 66))
-            : new SolidColorBrush(Color.FromRgb(204, 136, 0));
+        public Brush WarningBrush => CurrentPalette.WarningBrush;
 
-        public Brush ErrorBrush => _isDarkTheme
-            ? new SolidColorBrush(Color.FromRgb(255, 107, 107))
-            : new SolidColorBrush(Color.FromRgb(220, 53, 69));
+        public Brush ErrorBrush => CurrentPalette.ErrorBrush;
 
         private void DetectSystemTheme()
         {

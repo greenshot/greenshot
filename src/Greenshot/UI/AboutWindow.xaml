@@ -11,7 +11,7 @@
         MinWidth="600"
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
-        ShowInTaskbar="False"
+        ShowInTaskbar="True"
         FontFamily="Segoe UI, Segoe UI Variable Display, Tahoma, Arial"
         FontSize="13"
         Background="{Binding WindowBackgroundBrush}">
