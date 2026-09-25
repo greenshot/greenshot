@@ -24,13 +24,13 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
+using System.Threading;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Threading;
-using Bitmap = System.Drawing.Bitmap;
 using Dapplo.Windows.Clipboard;
 using Dapplo.Windows.User32;
 using Greenshot.Base.Wpf;
@@ -64,27 +64,9 @@ namespace Greenshot.UI.SelfService
         public override string Subtitle => "Active formats and live clipboard locker detection";
         public override string Icon => "📋";
 
-        // Win32 APIs for lock testing
-        [DllImport("user32.dll", SetLastError = true)]
-        private static extern bool OpenClipboard(IntPtr hWndNewOwner);
-
-        [DllImport("user32.dll", SetLastError = true)]
-        private static extern bool CloseClipboard();
-
+        // Win32 API to find which window currently holds the clipboard open (locker detection)
         [DllImport("user32.dll", SetLastError = true)]
         private static extern IntPtr GetOpenClipboardWindow();
-
-        [DllImport("user32.dll", SetLastError = true)]
-        private static extern uint EnumClipboardFormats(uint format);
-
-        [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
-        private static extern int GetClipboardFormatName(uint format, [Out] StringBuilder lpszFormatName, int cchMaxCount);
-
-        [DllImport("user32.dll", SetLastError = true)]
-        private static extern IntPtr GetClipboardData(uint uFormat);
-
-        [DllImport("kernel32.dll")]
-        private static extern UIntPtr GlobalSize(IntPtr hMem);
 
         // State properties
         private bool _isBlocked;
@@ -111,6 +93,7 @@ namespace Greenshot.UI.SelfService
         private int _blockedOccurrenceCount;
         private DispatcherTimer _monitorTimer;
         private IDisposable _clipboardSubscription;
+        private int _isProcessingUpdate;
 
         private readonly Dispatcher _dispatcher;
         private readonly object _formatsLock = new object();
@@ -226,6 +209,7 @@ namespace Greenshot.UI.SelfService
             try
             {
                 _clipboardSubscription ??= ClipboardNative.OnUpdate
+                    .Throttle(TimeSpan.FromMilliseconds(150))
                     .Subscribe(updateInfo =>
                     {
                         RunOnUIThread(() => OnClipboardUpdateReceived(updateInfo));
@@ -239,25 +223,31 @@ namespace Greenshot.UI.SelfService
 
         private void OnClipboardUpdateReceived(ClipboardUpdateInformation updateInfo)
         {
-            RunOnUIThread(() =>
+            if (Interlocked.CompareExchange(ref _isProcessingUpdate, 1, 0) != 0)
             {
-                try
-                {
-                    // Auto-refresh formats whenever clipboard is updated!
-                    QueryClipboardFormats();
+                return;
+            }
 
-                    // Resolve owner process details
-                    IntPtr ownerHwnd = updateInfo.OwnerHandle != IntPtr.Zero ? updateInfo.OwnerHandle : ClipboardNative.CurrentOwner;
-                    ResolveOwnerDetails(ownerHwnd);
+            try
+            {
+                // Auto-refresh formats whenever clipboard is updated!
+                QueryClipboardFormats();
 
-                    // Update lock status
-                    CheckClipboardStatus(logToMonitor: IsMonitoring);
-                }
-                catch (Exception ex)
-                {
-                    Log.Debug("Error handling clipboard update event", ex);
-                }
-            });
+                // Resolve owner process details
+                IntPtr ownerHwnd = updateInfo.OwnerHandle != IntPtr.Zero ? updateInfo.OwnerHandle : ClipboardNative.CurrentOwner;
+                ResolveOwnerDetails(ownerHwnd);
+
+                // Update lock status
+                CheckClipboardStatus(logToMonitor: IsMonitoring);
+            }
+            catch (Exception ex)
+            {
+                Log.Debug("Error handling clipboard update event", ex);
+            }
+            finally
+            {
+                Interlocked.Exchange(ref _isProcessingUpdate, 0);
+            }
         }
 
         public override void OnNavigatedTo()
@@ -306,17 +296,23 @@ namespace Greenshot.UI.SelfService
                 try
                 {
                     IntPtr openHwnd = GetOpenClipboardWindow();
-                    bool canOpen = OpenClipboard(IntPtr.Zero);
+                    bool canAccess = false;
 
-                    if (canOpen)
+                    try
                     {
-                        CloseClipboard();
+                        // Use Dapplo.Windows.Clipboard to safely test access
+                        using var token = ClipboardNative.Access(IntPtr.Zero, retries: 0, retryInterval: TimeSpan.Zero, timeout: TimeSpan.FromMilliseconds(40));
+                        canAccess = token.CanAccess;
+                    }
+                    catch
+                    {
+                        canAccess = false;
                     }
 
-                    // If OpenClipboard failed OR GetOpenClipboardWindow returned a non-zero handle, it is blocked!
-                    bool blocked = !canOpen || openHwnd != IntPtr.Zero;
+                    // If Access failed or GetOpenClipboardWindow returned non-zero, clipboard is locked!
+                    bool isBlocked = !canAccess || openHwnd != IntPtr.Zero;
 
-                    if (blocked)
+                    if (isBlocked)
                     {
                         IntPtr targetHwnd = openHwnd != IntPtr.Zero ? openHwnd : GetOpenClipboardWindow();
                         ExtractProcessDetails(targetHwnd, out string procName, out int pid, out string title, out string path);
@@ -436,82 +432,74 @@ namespace Greenshot.UI.SelfService
                 var items = new List<ClipboardFormatItemViewModel>();
                 try
                 {
-                    // Enumerate formats using Win32 API
-                    if (OpenClipboard(IntPtr.Zero))
+                    // Access clipboard safely via Dapplo.Windows.Clipboard
+                    using var token = ClipboardNative.Access(IntPtr.Zero, retries: 1, retryInterval: TimeSpan.Zero, timeout: TimeSpan.FromMilliseconds(50));
+                    if (token.CanAccess)
                     {
-                        try
+                        var formats = token.AvailableFormats()?.ToList() ?? new List<string>();
+                        foreach (var formatName in formats)
                         {
-                            uint format = 0;
-                            while ((format = EnumClipboardFormats(format)) != 0)
-                            {
-                                string formatName = GetFormatName(format);
-                                string typeDescription = GetFormatDescription(format, formatName);
-                                string details = "Native clipboard data";
-                                string sizeText = "N/A";
+                            string desc = GetFormatDescription(formatName);
+                            string details = "Native clipboard data";
+                            string sizeText = "-";
 
-                                try
+                            try
+                            {
+                                if (string.Equals(formatName, "CF_UNICODETEXT", StringComparison.OrdinalIgnoreCase) ||
+                                    string.Equals(formatName, "CF_TEXT", StringComparison.OrdinalIgnoreCase))
                                 {
-                                    IntPtr hData = GetClipboardData(format);
-                                    if (hData != IntPtr.Zero)
+                                    string text = token.GetAsUnicodeString(formatName);
+                                    if (text != null)
                                     {
-                                        UIntPtr size = GlobalSize(hData);
-                                        if (size.ToUInt64() > 0)
-                                        {
-                                            sizeText = $"{size.ToUInt64():N0} bytes";
-                                        }
+                                        details = $"Text: \"{TruncateString(text, 60)}\"";
+                                        sizeText = $"{text.Length:N0} chars";
                                     }
                                 }
-                                catch
+                                else if (string.Equals(formatName, "CF_HDROP", StringComparison.OrdinalIgnoreCase))
                                 {
-                                    // Ignore
+                                    var files = token.GetFileNames()?.ToList();
+                                    if (files != null && files.Count > 0)
+                                    {
+                                        string preview = string.Join(", ", files.Take(2));
+                                        if (files.Count > 2) preview += $" (+{files.Count - 2} more)";
+                                        details = $"Files: {preview}";
+                                        sizeText = $"{files.Count} files";
+                                    }
                                 }
+                                else if (string.Equals(formatName, "CF_BITMAP", StringComparison.OrdinalIgnoreCase) ||
+                                         string.Equals(formatName, "CF_DIB", StringComparison.OrdinalIgnoreCase) ||
+                                         string.Equals(formatName, "CF_DIBV5", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    details = "Raster bitmap image data";
+                                    sizeText = "Image";
+                                }
+                                else if (formatName.IndexOf("PNG", StringComparison.OrdinalIgnoreCase) >= 0)
+                                {
+                                    details = "PNG compressed image data";
+                                    sizeText = "Image";
+                                }
+                                else if (formatName.StartsWith("HTML", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    details = "HTML formatted text fragment";
+                                }
+                                else if (formatName.StartsWith("Rich Text", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    details = "Rich Text Format (RTF)";
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                Log.Debug($"Could not read preview for format {formatName}", ex);
+                            }
 
-                                items.Add(new ClipboardFormatItemViewModel
-                                {
-                                    Name = formatName,
-                                    TypeDescription = typeDescription,
-                                    Details = details,
-                                    SizeText = sizeText
-                                });
-                            }
-                        }
-                        finally
-                        {
-                            CloseClipboard();
-                        }
-                    }
-
-                    // Complement with managed IDataObject preview details
-                    try
-                    {
-                        var dataObj = System.Windows.Forms.Clipboard.GetDataObject();
-                        if (dataObj != null)
-                        {
-                            if (dataObj.GetDataPresent(System.Windows.Forms.DataFormats.UnicodeText))
+                            items.Add(new ClipboardFormatItemViewModel
                             {
-                                string text = dataObj.GetData(System.Windows.Forms.DataFormats.UnicodeText) as string;
-                                UpdateFormatDetailsInList(items, "CF_UNICODETEXT", $"Text snippet: \"{TruncateString(text, 60)}\" ({text?.Length ?? 0} chars)");
-                            }
-                            if (dataObj.GetDataPresent(System.Windows.Forms.DataFormats.Bitmap))
-                            {
-                                if (dataObj.GetData(System.Windows.Forms.DataFormats.Bitmap) is Bitmap bmp)
-                                {
-                                    UpdateFormatDetailsInList(items, "CF_BITMAP", $"Bitmap: {bmp.Width}x{bmp.Height} ({bmp.PixelFormat})");
-                                    UpdateFormatDetailsInList(items, "CF_DIB", $"DIB: {bmp.Width}x{bmp.Height}");
-                                }
-                            }
-                            if (dataObj.GetDataPresent(System.Windows.Forms.DataFormats.FileDrop))
-                            {
-                                if (dataObj.GetData(System.Windows.Forms.DataFormats.FileDrop) is string[] files)
-                                {
-                                    UpdateFormatDetailsInList(items, "CF_HDROP", $"Files ({files.Length}): {string.Join(", ", files)}");
-                                }
-                            }
+                                Name = formatName,
+                                TypeDescription = desc,
+                                Details = details,
+                                SizeText = sizeText
+                            });
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Debug("Error inspecting managed IDataObject", ex);
                     }
 
                     if (items.Count == 0)
@@ -527,12 +515,12 @@ namespace Greenshot.UI.SelfService
                 }
                 catch (Exception ex)
                 {
-                    Log.Error("Error querying clipboard formats", ex);
+                    Log.Debug("Error querying clipboard formats via Dapplo", ex);
                     items.Add(new ClipboardFormatItemViewModel
                     {
                         Name = "Error querying formats",
                         TypeDescription = ex.Message,
-                        Details = "Clipboard may be locked by another application",
+                        Details = "Clipboard may be busy or locked",
                         SizeText = "-"
                     });
                 }
@@ -548,73 +536,23 @@ namespace Greenshot.UI.SelfService
             });
         }
 
-        private static void UpdateFormatDetailsInList(List<ClipboardFormatItemViewModel> list, string formatName, string newDetails)
+        private string GetFormatDescription(string name)
         {
-            var item = list.FirstOrDefault(f => string.Equals(f.Name, formatName, StringComparison.OrdinalIgnoreCase));
-            if (item != null)
-            {
-                item.Details = newDetails;
-            }
-        }
-
-        private void UpdateFormatDetails(string formatName, string newDetails)
-        {
-            lock (_formatsLock)
-            {
-                foreach (var item in Formats)
-                {
-                    if (item.Name.Equals(formatName, StringComparison.OrdinalIgnoreCase))
-                    {
-                        item.Details = newDetails;
-                    }
-                }
-            }
-        }
-
-        private string GetFormatName(uint format)
-        {
-            switch (format)
-            {
-                case 1: return "CF_TEXT";
-                case 2: return "CF_BITMAP";
-                case 3: return "CF_METAFILEPICT";
-                case 4: return "CF_SYLK";
-                case 5: return "CF_DIF";
-                case 6: return "CF_TIFF";
-                case 7: return "CF_OEMTEXT";
-                case 8: return "CF_DIB";
-                case 9: return "CF_PALETTE";
-                case 13: return "CF_UNICODETEXT";
-                case 14: return "CF_ENHMETAFILE";
-                case 15: return "CF_HDROP";
-                case 16: return "CF_LOCALE";
-                case 17: return "CF_DIBV5";
-                default:
-                    var sb = new StringBuilder(256);
-                    if (GetClipboardFormatName(format, sb, 256) > 0)
-                    {
-                        return sb.ToString();
-                    }
-                    return $"Format_0x{format:X4}";
-            }
-        }
-
-        private string GetFormatDescription(uint format, string name)
-        {
-            switch (format)
-            {
-                case 1: return "Standard ANSI text";
-                case 2: return "Windows Bitmap";
-                case 8: return "Device-Independent Bitmap (DIB)";
-                case 13: return "Unicode Text";
-                case 15: return "File Drop List";
-                case 17: return "DIB Version 5 (Alpha transparency)";
-                default:
-                    if (name.IndexOf("PNG", StringComparison.OrdinalIgnoreCase) >= 0) return "PNG compressed image";
-                    if (name.IndexOf("HTML", StringComparison.OrdinalIgnoreCase) >= 0) return "HTML formatted text";
-                    if (name.IndexOf("Rich Text", StringComparison.OrdinalIgnoreCase) >= 0) return "Rich Text Format (RTF)";
-                    return "Custom / Registered format";
-            }
+            if (string.Equals(name, "CF_TEXT", StringComparison.OrdinalIgnoreCase)) return "Standard ANSI text string";
+            if (string.Equals(name, "CF_BITMAP", StringComparison.OrdinalIgnoreCase)) return "Device-dependent bitmap (GDI)";
+            if (string.Equals(name, "CF_DIB", StringComparison.OrdinalIgnoreCase)) return "Device-independent bitmap (DIB)";
+            if (string.Equals(name, "CF_DIBV5", StringComparison.OrdinalIgnoreCase)) return "DIB version 5 bitmap";
+            if (string.Equals(name, "CF_UNICODETEXT", StringComparison.OrdinalIgnoreCase)) return "Standard Unicode (UTF-16) text string";
+            if (string.Equals(name, "CF_ENHMETAFILE", StringComparison.OrdinalIgnoreCase)) return "Enhanced Windows Metafile";
+            if (string.Equals(name, "CF_HDROP", StringComparison.OrdinalIgnoreCase)) return "List of files dragged or copied (HDROP)";
+            if (string.Equals(name, "CF_LOCALE", StringComparison.OrdinalIgnoreCase)) return "Locale identifier for clipboard text";
+            if (string.Equals(name, "CF_OEMTEXT", StringComparison.OrdinalIgnoreCase)) return "OEM text string";
+            if (string.Equals(name, "CF_TIFF", StringComparison.OrdinalIgnoreCase)) return "TIFF image data";
+            if (name.StartsWith("HTML", StringComparison.OrdinalIgnoreCase)) return "Hypertext Markup Language (HTML)";
+            if (name.StartsWith("Rich Text", StringComparison.OrdinalIgnoreCase)) return "Rich Text Format (RTF)";
+            if (name.IndexOf("PNG", StringComparison.OrdinalIgnoreCase) >= 0) return "Portable Network Graphics (PNG)";
+            if (name.IndexOf("Bitmap", StringComparison.OrdinalIgnoreCase) >= 0) return "Bitmap image format";
+            return "Custom registered format";
         }
 
         public void ToggleMonitoring()

@@ -297,6 +297,42 @@ namespace Greenshot.Tests.Forms
         }
 
         [Fact]
+        public void ClipboardSectionViewModel_BitmapOnClipboard_EnumeratesFormatsSafelyWithoutCrash()
+        {
+            Exception threadEx = null;
+            var thread = new Thread(() =>
+            {
+                try
+                {
+                    using (var bmp = new System.Drawing.Bitmap(32, 32))
+                    {
+                        System.Windows.Forms.Clipboard.SetImage(bmp);
+                    }
+
+                    var clip = new ClipboardSectionViewModel();
+                    clip.QueryClipboardFormats();
+
+                    Assert.NotNull(clip.Formats);
+                    Assert.Contains(clip.Formats, f => f.Name.Contains("BITMAP") || f.Name.Contains("Bitmap") || f.Name.Contains("DIB"));
+
+                    clip.CheckClipboardStatus(logToMonitor: true);
+                    Assert.False(clip.IsBlocked);
+
+                    clip.Dispose();
+                }
+                catch (Exception ex)
+                {
+                    threadEx = ex;
+                }
+            });
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
+            thread.Join();
+
+            Assert.Null(threadEx);
+        }
+
+        [Fact]
         public void LogViewerWindow_ChunkedLoading_LoadsTailTrimsFirstLineAndLoadsEarlierChunks()
         {
             string tempLog = Path.Combine(Path.GetTempPath(), $"greenshot_chunk_test_{Guid.NewGuid():N}.log");
