@@ -262,5 +262,100 @@ namespace Greenshot.Tests.Recipes
             Assert.True(context.IsAborted);
             Assert.Contains("Simulated step failure", context.AbortReason);
         }
+
+        [Fact]
+        public async Task ExecuteAsync_StepError_WithMatchingErrorTransition_RoutesToErrorHandlerNode()
+        {
+            var recipe = new CaptureRecipe("error_routed_recipe", "Error Routed Recipe")
+                .AddNode(new RecipeNodeConfig { Id = "start", StepType = "Start" })
+                .AddNode(new RecipeNodeConfig { Id = "clipboard_export", StepType = "Export" })
+                .AddNode(new RecipeNodeConfig { Id = "success_notify", StepType = "Notify" })
+                .AddNode(new RecipeNodeConfig { Id = "error_fallback_dest", StepType = "DynamicDestination" });
+
+            recipe.Flow = new RecipeFlowConfig("start")
+                .AddTransition("start", "clipboard_export")
+                .AddTransition("clipboard_export", "success_notify")
+                .AddErrorTransition("clipboard_export", "error_fallback_dest", "ClipboardException");
+
+            using var bmp = new Bitmap(10, 10);
+            var capture = new Capture((Image)bmp.Clone());
+            using var context = new CaptureFlowContext(recipe)
+            {
+                Payload = new CapturePayload(capture)
+            };
+
+            var executed = new List<string>();
+
+            var engine = new DagExecutionEngine(nodeConfig =>
+            {
+                return new MockTestStep(nodeConfig.Id, ctx =>
+                {
+                    executed.Add(nodeConfig.Id);
+                    if (nodeConfig.Id == "clipboard_export")
+                    {
+                        throw new ClipboardException("The clipboard is currently in use by Excel.exe", "Excel.exe");
+                    }
+                    return Task.CompletedTask;
+                });
+            });
+
+            await engine.ExecuteAsync(recipe, context);
+
+            Assert.Contains("start", executed);
+            Assert.Contains("clipboard_export", executed);
+            Assert.DoesNotContain("success_notify", executed); // Bypassed
+            Assert.Contains("error_fallback_dest", executed);  // Error handler executed!
+            Assert.False(context.IsAborted);                   // Handled gracefully!
+            Assert.Equal("The clipboard is currently in use by Excel.exe", context.Properties["LastError"]);
+            Assert.Equal("clipboard_export", context.Properties["FailedNodeId"]);
+        }
+
+        [Fact]
+        public async Task ExecuteAsync_StepError_WithNodeLevelFallbackParameter_RoutesToErrorHandlerNode()
+        {
+            var failNode = new RecipeNodeConfig { Id = "fail_node", StepType = "Export" };
+            failNode.Set("OnErrorNodeId", "recovery_node");
+
+            var recipe = new CaptureRecipe("node_fallback_recipe", "Node Fallback Recipe")
+                .AddNode(new RecipeNodeConfig { Id = "start", StepType = "Start" })
+                .AddNode(failNode)
+                .AddNode(new RecipeNodeConfig { Id = "normal_next", StepType = "Next" })
+                .AddNode(new RecipeNodeConfig { Id = "recovery_node", StepType = "Recovery" });
+
+            recipe.Flow = new RecipeFlowConfig("start")
+                .AddTransition("start", "fail_node")
+                .AddTransition("fail_node", "normal_next");
+
+            using var bmp = new Bitmap(10, 10);
+            var capture = new Capture((Image)bmp.Clone());
+            using var context = new CaptureFlowContext(recipe)
+            {
+                Payload = new CapturePayload(capture)
+            };
+
+            var executed = new List<string>();
+
+            var engine = new DagExecutionEngine(nodeConfig =>
+            {
+                return new MockTestStep(nodeConfig.Id, ctx =>
+                {
+                    executed.Add(nodeConfig.Id);
+                    if (nodeConfig.Id == "fail_node")
+                    {
+                        throw new InvalidOperationException("Export failed");
+                    }
+                    return Task.CompletedTask;
+                });
+            });
+
+            await engine.ExecuteAsync(recipe, context);
+
+            Assert.Contains("start", executed);
+            Assert.Contains("fail_node", executed);
+            Assert.DoesNotContain("normal_next", executed);
+            Assert.Contains("recovery_node", executed);
+            Assert.False(context.IsAborted);
+            Assert.Equal("Export failed", context.Properties["LastError"]);
+        }
     }
 }

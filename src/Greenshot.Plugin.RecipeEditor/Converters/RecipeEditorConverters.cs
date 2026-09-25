@@ -44,6 +44,7 @@ namespace Greenshot.Plugin.RecipeEditor.Converters
                 case "Processors":
                     return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#0969da")); // Cyan/Blue
                 case "Destinations":
+                case "DynamicDestination":
                 case "SaveFile":
                 case "SaveToFile":
                 case "Clipboard":
@@ -128,6 +129,7 @@ namespace Greenshot.Plugin.RecipeEditor.Converters
                 case "ImmediateFeedback": return "🔊";
                 case "Processors": return "⚙️";
                 case "Destinations": return "↗️";
+                case "DynamicDestination": return "🎯";
                 case "SaveFile":
                 case "SaveToFile": return "💾";
                 case "Clipboard": return "📋";

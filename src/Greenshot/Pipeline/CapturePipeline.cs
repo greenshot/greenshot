@@ -110,6 +110,7 @@ namespace Greenshot.Pipeline
             _stepRegistry.RegisterStepFactory("ObfuscateText", config => new TextEffectStep(config));
             _stepRegistry.RegisterStepFactory(WellKnownStepTypes.UserPrompt, config => new UserPromptStep(config));
             _stepRegistry.RegisterStepFactory("PromptChoice", config => new UserPromptStep(config));
+            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.DynamicDestination, config => new DynamicDestinationStep(config));
             _stepRegistry.RegisterStepFactory(WellKnownStepTypes.RecordVideo, config => new RecordVideoRecipeStep(config));
 
             // Register all plugin step providers

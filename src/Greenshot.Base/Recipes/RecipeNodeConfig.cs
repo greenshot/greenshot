@@ -54,6 +54,16 @@ namespace Greenshot.Base.Recipes
         /// </summary>
         public bool Enabled { get; set; } = true;
 
+        /// <summary>
+        /// Optional fallback step node ID within the same recipe to route to when this node encounters an error.
+        /// </summary>
+        public string OnErrorNodeId { get; set; }
+
+        /// <summary>
+        /// Optional fallback recipe ID to invoke when this node encounters an error.
+        /// </summary>
+        public string OnErrorRecipeId { get; set; }
+
         private Dictionary<string, object> _parameters = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>

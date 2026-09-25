@@ -74,6 +74,57 @@ namespace Greenshot.Plugin.Zxing
                     qrFeatures = captureDetails.Features.OfType<IBarcodeFeature>().ToList();
                 }
 
+                // If not pre-scanned, scan the surface on-the-fly
+                if (!qrFeatures.Any() && surface != null)
+                {
+                    try
+                    {
+                        using var image = surface.GetImageForExport();
+                        if (image != null)
+                        {
+                            using var bmp = image is Bitmap b ? (Bitmap)b.Clone() : new Bitmap(image);
+                            var reader = new ZXing.BarcodeReader
+                            {
+                                AutoRotate = true,
+                                Options = new ZXing.Common.DecodingOptions
+                                {
+                                    TryHarder = true,
+                                    TryInverted = true
+                                }
+                            };
+                            var results = reader.DecodeMultiple(bmp);
+                            if (results != null && results.Length > 0)
+                            {
+                                lock (captureDetails.Features)
+                                {
+                                    foreach (var res in results)
+                                    {
+                                        if (!string.IsNullOrEmpty(res?.Text))
+                                        {
+                                            var bounds = Dapplo.Windows.Common.Structs.NativeRect.Empty;
+                                            if (res.ResultPoints != null && res.ResultPoints.Length > 0)
+                                            {
+                                                float minX = res.ResultPoints.Min(p => p.X);
+                                                float minY = res.ResultPoints.Min(p => p.Y);
+                                                float maxX = res.ResultPoints.Max(p => p.X);
+                                                float maxY = res.ResultPoints.Max(p => p.Y);
+                                                bounds = new Dapplo.Windows.Common.Structs.NativeRect((int)minX, (int)minY, (int)(maxX - minX), (int)(maxY - minY));
+                                            }
+                                            var detected = new DetectedBarcode(bounds, res.BarcodeFormat.ToString(), res.Text);
+                                            captureDetails.Features.Add(detected);
+                                            qrFeatures.Add(detected);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception scanEx)
+                    {
+                        Log.Warn("ZxingQrDestination: Error scanning surface for barcodes", scanEx);
+                    }
+                }
+
                 if (qrFeatures.Any())
                 {
                     var sb = new System.Text.StringBuilder();
@@ -90,8 +141,9 @@ namespace Greenshot.Plugin.Zxing
                 }
                 else
                 {
-                    exportInformation.ExportMade = false;
-                    exportInformation.ErrorMessage = "No QR codes detected.";
+                    // No QR codes detected on image: notify user without crashing
+                    exportInformation.ExportMade = true;
+                    surface?.SendMessageEvent(this, SurfaceMessageTyp.Info, "No QR codes or barcodes detected in capture.");
                 }
             }
             catch (Exception ex)

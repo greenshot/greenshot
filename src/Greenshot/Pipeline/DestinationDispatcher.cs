@@ -50,6 +50,46 @@ namespace Greenshot.Pipeline
         private static readonly ILog Log = LogManager.GetLogger(typeof(DestinationDispatcher));
         private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
 
+        internal static void InvokeOnSta(SynchronizationContext uiContext, Action action)
+        {
+            if (action == null) return;
+
+            if (uiContext != null && SynchronizationContext.Current != uiContext)
+            {
+                uiContext.Send(_ => action(), null);
+            }
+            else if (System.Windows.Application.Current?.Dispatcher != null && !System.Windows.Application.Current.Dispatcher.CheckAccess())
+            {
+                System.Windows.Application.Current.Dispatcher.Invoke(action);
+            }
+            else if (Thread.CurrentThread.GetApartmentState() != ApartmentState.STA)
+            {
+                Exception threadEx = null;
+                var staThread = new Thread(() =>
+                {
+                    try
+                    {
+                        action();
+                    }
+                    catch (Exception ex)
+                    {
+                        threadEx = ex;
+                    }
+                });
+                staThread.SetApartmentState(ApartmentState.STA);
+                staThread.Start();
+                staThread.Join();
+                if (threadEx != null)
+                {
+                    throw threadEx;
+                }
+            }
+            else
+            {
+                action();
+            }
+        }
+
         public async Task DispatchAsync(
             CaptureFlowContext context,
             IEnumerable<IDestination> destinations,
@@ -149,6 +189,8 @@ namespace Greenshot.Pipeline
             }
 
             var backgroundTasks = new List<Task>();
+            int successfulExports = 0;
+            var failedExports = new List<(string Designation, string Error)>();
 
             try
             {
@@ -228,16 +270,24 @@ namespace Greenshot.Pipeline
                         }, cancellationToken);
 
                         backgroundTasks.Add(task);
+                        successfulExports++;
                     }
                     else if (sharedRenderedBitmap != null && destination is IAcceptsPreRenderedImage preRenderDest)
                     {
-                        if (uiContext != null && SynchronizationContext.Current != uiContext)
+                        ExportInformation exportInformation = null;
+                        InvokeOnSta(uiContext, () =>
                         {
-                            uiContext.Send(_ => preRenderDest.ExportCaptureWithRenderedImage(sharedRenderedBitmap, surface, captureDetails), null);
+                            exportInformation = preRenderDest.ExportCaptureWithRenderedImage(sharedRenderedBitmap, surface, captureDetails);
+                        });
+
+                        if (exportInformation != null && exportInformation.ExportMade)
+                        {
+                            successfulExports++;
                         }
-                        else
+                        else if (exportInformation != null && !exportInformation.ExportMade && !string.IsNullOrEmpty(exportInformation.ErrorMessage))
                         {
-                            preRenderDest.ExportCaptureWithRenderedImage(sharedRenderedBitmap, surface, captureDetails);
+                            payload.RetainSurfaceForEditor = true;
+                            failedExports.Add((destination.Designation, exportInformation.ErrorMessage));
                         }
                     }
                     else
@@ -248,19 +298,25 @@ namespace Greenshot.Pipeline
                         }
 
                         ExportInformation exportInformation = null;
-                        if (uiContext != null && SynchronizationContext.Current != uiContext)
-                        {
-                            uiContext.Send(_ => exportInformation = destination.ExportCapture(false, surface, captureDetails), null);
-                        }
-                        else
+                        InvokeOnSta(uiContext, () =>
                         {
                             exportInformation = destination.ExportCapture(false, surface, captureDetails);
-                        }
+                        });
 
                         Log.InfoFormat("Destination '{0}' export completed (ExportMade: {1}{2})",
                             destination.Designation,
                             exportInformation?.ExportMade ?? false,
                             !string.IsNullOrEmpty(exportInformation?.ErrorMessage) ? $", Error: {exportInformation.ErrorMessage}" : "");
+
+                        if (exportInformation != null && exportInformation.ExportMade)
+                        {
+                            successfulExports++;
+                        }
+                        else if (exportInformation != null && !exportInformation.ExportMade && !string.IsNullOrEmpty(exportInformation.ErrorMessage))
+                        {
+                            payload.RetainSurfaceForEditor = true;
+                            failedExports.Add((destination.Designation, exportInformation.ErrorMessage));
+                        }
 
                         if (EditorDestination.DESIGNATION.Equals(destination.Designation, StringComparison.OrdinalIgnoreCase) &&
                             exportInformation != null && exportInformation.ExportMade)
@@ -273,6 +329,17 @@ namespace Greenshot.Pipeline
                 if (backgroundTasks.Count > 0)
                 {
                     await Task.WhenAll(backgroundTasks).ConfigureAwait(false);
+                }
+
+                if (failedExports.Count > 0)
+                {
+                    context.Properties["DestinationExportErrors"] = string.Join("; ", failedExports.Select(f => $"{f.Designation}: {f.Error}"));
+                }
+
+                if (successfulExports == 0 && failedExports.Count > 0)
+                {
+                    var first = failedExports[0];
+                    throw new DestinationExportException($"Export to {first.Designation} failed: {first.Error}", first.Designation);
                 }
             }
             finally
@@ -298,7 +365,13 @@ namespace Greenshot.Pipeline
                 switch (eventArgs.MessageType)
                 {
                     case SurfaceMessageTyp.Error:
-                        notifyService.ShowErrorMessage(eventArgs.Message, TimeSpan.FromHours(1));
+                        notifyService.ShowErrorMessage(eventArgs.Message, TimeSpan.FromHours(1), () =>
+                        {
+                            if (eventArgs.Surface != null)
+                            {
+                                DestinationHelper.ExportCapture(false, EditorDestination.DESIGNATION, eventArgs.Surface, eventArgs.Surface.CaptureDetails);
+                            }
+                        });
                         break;
                     case SurfaceMessageTyp.Info:
                         notifyService.ShowInfoMessage(eventArgs.Message, TimeSpan.FromHours(1), () => Log.Info("Clicked!"));
