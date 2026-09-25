@@ -43,6 +43,7 @@ namespace Greenshot.Forms {
 				}
 				_doubleClickTimer?.Stop();
 				_doubleClickTimer?.Dispose();
+				_updateService?.Dispose();
 			}
 			base.Dispose(disposing);
 		}
