@@ -121,6 +121,18 @@ namespace Greenshot.Helpers
             Description = "[Reserved] Called by the Windows Restart Manager to restore the application after a system restart. Not intended for manual use."
         };
 
+        /// <summary>
+        /// Explicit form of the files argument. The installer registers the .greenshot shell open command
+        /// as <c>Greenshot.exe --openfile "%1"</c>, so this option must be recognised; its values are
+        /// combined with <see cref="FilesArgument"/> into <see cref="CommandLineOptions.Files"/>.
+        /// </summary>
+        private static readonly Option<string[]> OpenFileOption = new Option<string[]>("--openfile")
+        {
+            HelpName = "file",
+            Arity = ArgumentArity.OneOrMore,
+            Description = "One or more image files to open. Equivalent to passing the files as arguments."
+        };
+
         private static readonly Argument<string[]> FilesArgument = new Argument<string[]>("files")
         {
             Arity = ArgumentArity.ZeroOrMore,
@@ -164,7 +176,7 @@ namespace Greenshot.Helpers
                     Language = parseResult.GetValue(LanguageOption),
                     IniDirectory = parseResult.GetValue(IniDirectoryOption),
                     Restore = parseResult.GetValue(RestoreOption),
-                    Files = parseResult.GetValue(FilesArgument) ?? []
+                    Files = [.. (parseResult.GetValue(OpenFileOption) ?? []), .. (parseResult.GetValue(FilesArgument) ?? [])]
                 };
             });
 
@@ -199,6 +211,7 @@ namespace Greenshot.Helpers
             rootCommand.Options.Add(LanguageOption);
             rootCommand.Options.Add(IniDirectoryOption);
             rootCommand.Options.Add(RestoreOption);
+            rootCommand.Options.Add(OpenFileOption);
             rootCommand.Arguments.Add(FilesArgument);
 
             return rootCommand;
