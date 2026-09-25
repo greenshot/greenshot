@@ -21,6 +21,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Pipeline;
@@ -277,6 +278,23 @@ namespace Greenshot.Base.Recipes
                 choiceList.Add(new Dictionary<string, object> { ["Key"] = "No", ["Label"] = "No, Cancel", ["Style"] = "Secondary", ["IsCancel"] = true });
             }
             node.Set("Choices", choiceList);
+            return node;
+        }
+
+        public static RecipeNodeConfig CreateDynamicDestination(
+            string id = "dynamic_export",
+            string title = "Export Capture",
+            bool showPreview = true,
+            bool allowRecipeForwarding = true,
+            IEnumerable<string> destinations = null,
+            int timeoutSeconds = 0)
+        {
+            var node = new RecipeNodeConfig(id, WellKnownStepTypes.DynamicDestination, title ?? "Export Capture");
+            node.Set("Title", title ?? "Export Capture");
+            node.Set("ShowPreview", showPreview);
+            node.Set("AllowRecipeForwarding", allowRecipeForwarding);
+            if (destinations != null) node.Set("Destinations", destinations.ToList());
+            if (timeoutSeconds > 0) node.Set("TimeoutSeconds", timeoutSeconds);
             return node;
         }
 

@@ -25,7 +25,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Greenshot.Base.Core;
 using Greenshot.Base.Expressions;
+using Greenshot.Base.Interfaces;
 using Greenshot.Base.Pipeline;
 using Greenshot.Base.Recipes;
 using log4net;
@@ -245,6 +247,84 @@ namespace Greenshot.Pipeline
                     catch (Exception ex)
                     {
                         Log.Error($"Node '{nodeConfig.Id}' failed with exception", ex);
+
+                        // Check flow error transitions or node-level error configuration
+                        var errorTransition = flow.GetErrorTransition(nodeId, ex);
+                        string errorTargetNodeId = errorTransition?.To
+                            ?? (!string.IsNullOrEmpty(nodeConfig.OnErrorNodeId) ? nodeConfig.OnErrorNodeId : nodeConfig.GetFirstParameter<string>("OnErrorNodeId", "OnError", "FallbackNodeId"));
+                        string errorTargetRecipeId = errorTransition?.TargetRecipeId
+                            ?? (!string.IsNullOrEmpty(nodeConfig.OnErrorRecipeId) ? nodeConfig.OnErrorRecipeId : nodeConfig.GetFirstParameter<string>("OnErrorRecipeId", "ErrorRecipeId"));
+
+                        if (!string.IsNullOrEmpty(errorTargetNodeId) || !string.IsNullOrEmpty(errorTargetRecipeId))
+                        {
+                            nodeContext.Properties["LastError"] = ex.Message;
+                            nodeContext.Properties["LastErrorType"] = ex.GetType().Name;
+                            nodeContext.Properties["FailedNodeId"] = nodeId;
+                            nodeContext.LogStep($"Node '{nodeConfig.Id}' failed: {ex.Message}. Routing to error handler: '{(string.IsNullOrEmpty(errorTargetNodeId) ? errorTargetRecipeId : errorTargetNodeId)}'");
+
+                            completedNodes[nodeId] = true;
+
+                            // Bypass standard downstream nodes of the failed node
+                            var toLaunchOnBypass = new List<string>();
+                            lock (syncLock)
+                            {
+                                BypassNodeLocked(nodeId, toLaunchOnBypass);
+                            }
+
+                            foreach (var nextId in toLaunchOnBypass)
+                            {
+                                var childContext = nodeContext.CreateBranchContext();
+                                _ = Task.Run(async () =>
+                                {
+                                    try
+                                    {
+                                        await RunNodeAsync(nextId, childContext).ConfigureAwait(false);
+                                    }
+                                    catch (Exception childEx)
+                                    {
+                                        Log.Error($"Error executing bypassed-join node '{nextId}'", childEx);
+                                    }
+                                }, cancellationToken);
+                            }
+
+                            if (!string.IsNullOrEmpty(errorTargetRecipeId))
+                            {
+                                var recipeManager = SimpleServiceProvider.Current?.GetInstance<IRecipeManager>(isOptional: true);
+                                var targetRecipe = recipeManager?.GetRecipeById(errorTargetRecipeId);
+                                if (targetRecipe != null)
+                                {
+                                    var pipeline = SimpleServiceProvider.Current?.GetInstance<ICapturePipeline>(isOptional: true);
+                                    if (pipeline != null)
+                                    {
+                                        await pipeline.ExecuteAsync(targetRecipe, null, ctx =>
+                                        {
+                                            ctx.Payload = nodeContext.Payload;
+                                            foreach (var kvp in nodeContext.Properties)
+                                            {
+                                                ctx.Properties[kvp.Key] = kvp.Value;
+                                            }
+                                        }, cancellationToken).ConfigureAwait(false);
+                                    }
+                                }
+                                else
+                                {
+                                    Log.WarnFormat("Target error recipe '{0}' not found for node '{1}'.", errorTargetRecipeId, nodeId);
+                                    nodeContext.Fail($"Target error recipe '{errorTargetRecipeId}' not found.", ex);
+                                }
+                                return;
+                            }
+                            else if (!string.IsNullOrEmpty(errorTargetNodeId))
+                            {
+                                lock (syncLock)
+                                {
+                                    activatedNodes.Add(errorTargetNodeId);
+                                    launchedNodes.Add(errorTargetNodeId);
+                                }
+                                await RunNodeAsync(errorTargetNodeId, nodeContext).ConfigureAwait(false);
+                                return;
+                            }
+                        }
+
                         nodeContext.Fail($"Node '{nodeConfig.Id}' failed: {ex.Message}", ex);
                         return;
                     }
@@ -446,10 +526,12 @@ namespace Greenshot.Pipeline
                     {
                         // Multiple independent non-merging clusters: run clusters in parallel with isolated cloned contexts
                         var childTasks = new List<Task>();
+                        var clusterContexts = new List<CaptureFlowContext>();
                         for (int i = 0; i < clusters.Count; i++)
                         {
                             var cluster = clusters[i];
                             var clusterContext = nodeContext.CreateBranchContext();
+                            clusterContexts.Add(clusterContext);
                             Log.InfoFormat("Branch split detected without merge downstream for node(s) [{0}]. Created isolated cloned payload and context.",
                                 string.Join(", ", cluster));
                             clusterContext.LogStep($"Branch split without merge: created isolated cloned payload for branch entry [{string.Join(", ", cluster)}]");
@@ -464,6 +546,23 @@ namespace Greenshot.Pipeline
                         }
 
                         await Task.WhenAll(childTasks).ConfigureAwait(false);
+
+                        foreach (var clusterCtx in clusterContexts)
+                        {
+                            foreach (var kvp in clusterCtx.Properties)
+                            {
+                                nodeContext.Properties[kvp.Key] = kvp.Value;
+                            }
+
+                            if (clusterCtx.State == CaptureFlowState.Failed && nodeContext.State != CaptureFlowState.Failed)
+                            {
+                                nodeContext.Fail(clusterCtx.AbortReason, clusterCtx.Error);
+                            }
+                            else if (clusterCtx.State == CaptureFlowState.Cancelled && !nodeContext.IsAborted)
+                            {
+                                nodeContext.Abort(clusterCtx.AbortReason);
+                            }
+                        }
                     }
                 }
             }
@@ -486,10 +585,12 @@ namespace Greenshot.Pipeline
                 {
                     // Multiple independent start clusters: run clusters in parallel with isolated cloned contexts
                     var initialTasks = new List<Task>();
+                    var initialContexts = new List<CaptureFlowContext>();
                     for (int i = 0; i < startClusters.Count; i++)
                     {
                         var cluster = startClusters[i];
                         var clusterContext = context.CreateBranchContext();
+                        initialContexts.Add(clusterContext);
                         Log.InfoFormat("Multiple independent start nodes detected. Created isolated cloned context for entry [{0}].",
                             string.Join(", ", cluster));
 
@@ -503,6 +604,23 @@ namespace Greenshot.Pipeline
                     }
 
                     await Task.WhenAll(initialTasks).ConfigureAwait(false);
+
+                    foreach (var initCtx in initialContexts)
+                    {
+                        foreach (var kvp in initCtx.Properties)
+                        {
+                            context.Properties[kvp.Key] = kvp.Value;
+                        }
+
+                        if (initCtx.State == CaptureFlowState.Failed && context.State != CaptureFlowState.Failed)
+                        {
+                            context.Fail(initCtx.AbortReason, initCtx.Error);
+                        }
+                        else if (initCtx.State == CaptureFlowState.Cancelled && !context.IsAborted)
+                        {
+                            context.Abort(initCtx.AbortReason);
+                        }
+                    }
                 }
             }
         }

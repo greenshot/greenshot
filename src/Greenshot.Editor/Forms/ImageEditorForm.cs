@@ -601,6 +601,9 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                 // TODO: Fix that we only open files, like in the tooltip
                 switch (eventArgs.MessageType)
                 {
+                    case SurfaceMessageTyp.Error:
+                        UpdateStatusLabel(dateTime + " - ⚠ " + eventArgs.Message, isError: true);
+                        break;
                     case SurfaceMessageTyp.FileSaved:
                         // Put the event message on the status label and attach the context menu
                         UpdateStatusLabel(dateTime + " - " + eventArgs.Message, fileSavedStatusContextMenu);
@@ -1391,9 +1394,10 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             pasteToolStripMenuItem.Enabled = hasClipboard && !_controlsDisabledDueToConfirmable;
         }
 
-        private void UpdateStatusLabel(string text, ContextMenuStrip contextMenu = null)
+        private void UpdateStatusLabel(string text, ContextMenuStrip contextMenu = null, bool isError = false)
         {
             statusLabel.Text = text;
+            statusLabel.ForeColor = isError ? Color.DarkRed : SystemColors.ControlText;
             statusStrip1.ContextMenuStrip = contextMenu;
         }
 

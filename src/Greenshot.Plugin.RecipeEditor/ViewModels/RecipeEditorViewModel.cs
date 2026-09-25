@@ -260,6 +260,9 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         public ICommand OpenRecipeManagerCommand { get; }
         public ICommand ToggleActiveRecipeEnabledCommand { get; }
         public ICommand UnloadActiveRecipeCommand { get; }
+        public ObservableCollection<ErrorTransitionItemViewModel> ErrorTransitions { get; } = new ObservableCollection<ErrorTransitionItemViewModel>();
+        public ICommand AddErrorTransitionCommand { get; }
+        public ICommand RemoveErrorTransitionCommand { get; }
 
         public RecipeEditorViewModel(IRecipeManager recipeManager = null)
         {
@@ -281,6 +284,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             ToggleStartNodeCommand = new RelayCommand(p => ToggleStartNode(p as StepNodeViewModel ?? SelectedNode));
             AddTriggerCommand = new RelayCommand(p => AddTrigger(p as string));
             RemoveTriggerCommand = new RelayCommand(p => RemoveTrigger(p as TriggerItemViewModel));
+            AddErrorTransitionCommand = new RelayCommand(AddErrorTransition);
+            RemoveErrorTransitionCommand = new RelayCommand(p => DeleteErrorTransition(p as ErrorTransitionItemViewModel));
             ToggleThemeCommand = new RelayCommand(WpfThemeHelper.ToggleTheme);
             OpenRecipeManagerCommand = new RelayCommand(OpenRecipeManager);
             ToggleActiveRecipeEnabledCommand = new RelayCommand(() => IsActiveRecipeEnabled = !IsActiveRecipeEnabled, () => ActiveRecipe != null);
@@ -414,6 +419,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             {
                 var vm = new StepNodeViewModel(nodeConfig, new Point(defaultX, defaultY), SetStartNode, DeleteNode, HandleNodeIdChanged, OnNodeStartToggled);
                 vm.RecipeNameProvider = () => RecipeTitle;
+                vm.OtherNodesProvider = () => Nodes.Where(n => n != vm);
+                vm.AvailableRecipesProvider = () => AvailableRecipes;
                 if (hasExplicitStarts)
                 {
                     vm.IsStartNode = recipe.Flow.StartNodes.Contains(nodeConfig.Id, StringComparer.OrdinalIgnoreCase);
@@ -507,6 +514,16 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                         outPort.IsConnected = true;
                         targetNode.InputPort.IsConnected = true;
                     }
+                }
+            }
+
+            // Map Error Transitions
+            ErrorTransitions.Clear();
+            if (recipe.Flow?.ErrorTransitions != null)
+            {
+                foreach (var et in recipe.Flow.ErrorTransitions)
+                {
+                    ErrorTransitions.Add(new ErrorTransitionItemViewModel(et, DeleteErrorTransition, () => Nodes, () => AvailableRecipes));
                 }
             }
 
@@ -717,6 +734,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
             var nodeVm = new StepNodeViewModel(config, new Point(x, y), SetStartNode, DeleteNode, HandleNodeIdChanged, OnNodeStartToggled);
             nodeVm.RecipeNameProvider = () => RecipeTitle;
+            nodeVm.OtherNodesProvider = () => Nodes.Where(n => n != nodeVm);
+            nodeVm.AvailableRecipesProvider = () => AvailableRecipes;
             if (Nodes.Count == 0)
             {
                 nodeVm.IsStartNode = true;
@@ -851,7 +870,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             }
         }
 
-        private void SyncRecipeTransitions()
+        public void SyncRecipeTransitions()
         {
             if (ActiveRecipe?.Flow == null) return;
             var transitions = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
@@ -889,6 +908,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             ActiveRecipe.Flow.StartNodes = Nodes.Where(n => n.IsStartNode).Select(n => n.Id).ToList();
             ActiveRecipe.Flow.Transitions = transitions;
             ActiveRecipe.Flow.ConditionalTransitions = conditionalTransitions;
+            ActiveRecipe.Flow.ErrorTransitions = ErrorTransitions.Select(e => e.ToConfig()).ToList();
         }
 
         private void ValidateGraphCycles()
@@ -917,6 +937,28 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             }
         }
 
+        public void AddErrorTransition()
+        {
+            string fallbackTarget = Nodes.FirstOrDefault(n => n.IsDynamicDestination)?.Id 
+                                  ?? Nodes.FirstOrDefault(n => string.Equals(n.StepType, WellKnownStepTypes.Editor, StringComparison.OrdinalIgnoreCase))?.Id
+                                  ?? Nodes.FirstOrDefault()?.Id;
+            var defaultConfig = new RecipeErrorTransitionConfig("*", fallbackTarget);
+            var item = new ErrorTransitionItemViewModel(defaultConfig, DeleteErrorTransition, () => Nodes, () => AvailableRecipes);
+            ErrorTransitions.Add(item);
+            SyncRecipeTransitions();
+            IsDirty = true;
+            StatusMessage = "Added recipe error fallback route";
+        }
+
+        public void DeleteErrorTransition(ErrorTransitionItemViewModel item)
+        {
+            if (item == null) return;
+            ErrorTransitions.Remove(item);
+            SyncRecipeTransitions();
+            IsDirty = true;
+            StatusMessage = "Removed recipe error fallback route";
+        }
+
         public void NewRecipe()
         {
             var recipe = new CaptureRecipe(
@@ -931,6 +973,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 .AddTransition("acquire", "feedback")
                 .AddTransition("feedback", "export");
 
+            ErrorTransitions.Clear();
             ActiveRecipe = recipe;
             IsDirty = true;
             StatusMessage = "Created new recipe.";
@@ -1355,6 +1398,18 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 }
             }
 
+            if (recipe.Flow?.ErrorTransitions != null && recipe.Flow.ErrorTransitions.Count > 0)
+            {
+                sb.AppendLine();
+                sb.AppendLine("    %% Error Handling Fallbacks");
+                foreach (var et in recipe.Flow.ErrorTransitions)
+                {
+                    if (string.IsNullOrWhiteSpace(et?.From)) continue;
+                    string target = !string.IsNullOrEmpty(et.To) ? et.To : $"Recipe_{et.TargetRecipeId}";
+                    sb.AppendLine($"    {et.From} -. \"Error: {et.ErrorType}\" .-> {target}");
+                }
+            }
+
             if (startNodes.Count > 0)
             {
                 sb.AppendLine();
@@ -1455,6 +1510,13 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     break;
                 case WellKnownStepTypes.Destinations:
                     dict["DestinationDesignations"] = new List<string> { "Editor" };
+                    break;
+                case WellKnownStepTypes.DynamicDestination:
+                    dict["Title"] = "Export Capture";
+                    dict["ShowPreview"] = true;
+                    dict["AllowRecipeForwarding"] = true;
+                    dict["TimeoutSeconds"] = 0;
+                    dict["Destinations"] = new List<string>();
                     break;
                 case WellKnownStepTypes.SaveFile:
                 case "SaveToFile":

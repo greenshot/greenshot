@@ -110,6 +110,7 @@ namespace Greenshot.Pipeline
             _stepRegistry.RegisterStepFactory("ObfuscateText", config => new TextEffectStep(config));
             _stepRegistry.RegisterStepFactory(WellKnownStepTypes.UserPrompt, config => new UserPromptStep(config));
             _stepRegistry.RegisterStepFactory("PromptChoice", config => new UserPromptStep(config));
+            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.DynamicDestination, config => new DynamicDestinationStep(config));
             _stepRegistry.RegisterStepFactory(WellKnownStepTypes.RecordVideo, config => new RecordVideoRecipeStep(config));
 
             // Register all plugin step providers
@@ -183,6 +184,11 @@ namespace Greenshot.Pipeline
                     context.State = CaptureFlowState.Completed;
                     context.LogStep("Capture flow completed successfully.");
                     Log.InfoFormat("Capture flow completed successfully: '{0}'", recipe.Name);
+                }
+                else if (context.State == CaptureFlowState.Failed)
+                {
+                    var notifyService = SimpleServiceProvider.Current.GetInstance<INotificationService>(isOptional: true);
+                    notifyService?.ShowErrorMessage(context.AbortReason ?? context.Error?.Message ?? "Capture flow failed.");
                 }
             }
             catch (OperationCanceledException)

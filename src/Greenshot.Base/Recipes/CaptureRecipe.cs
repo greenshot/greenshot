@@ -143,6 +143,7 @@ namespace Greenshot.Base.Recipes
                 string.Equals(n.StepType, WellKnownStepTypes.Editor, StringComparison.OrdinalIgnoreCase) ||
                 string.Equals(n.StepType, WellKnownStepTypes.Printer, StringComparison.OrdinalIgnoreCase) ||
                 string.Equals(n.StepType, WellKnownStepTypes.Email, StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(n.StepType, WellKnownStepTypes.DynamicDestination, StringComparison.OrdinalIgnoreCase) ||
                 string.Equals(n.StepType, WellKnownStepTypes.CustomDestination, StringComparison.OrdinalIgnoreCase));
         }
 

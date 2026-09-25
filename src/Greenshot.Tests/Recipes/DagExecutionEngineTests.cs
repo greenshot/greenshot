@@ -262,5 +262,267 @@ namespace Greenshot.Tests.Recipes
             Assert.True(context.IsAborted);
             Assert.Contains("Simulated step failure", context.AbortReason);
         }
+
+        [Fact]
+        public async Task ExecuteAsync_StepError_WithMatchingErrorTransition_RoutesToErrorHandlerNode()
+        {
+            var recipe = new CaptureRecipe("error_routed_recipe", "Error Routed Recipe")
+                .AddNode(new RecipeNodeConfig { Id = "start", StepType = "Start" })
+                .AddNode(new RecipeNodeConfig { Id = "clipboard_export", StepType = "Export" })
+                .AddNode(new RecipeNodeConfig { Id = "success_notify", StepType = "Notify" })
+                .AddNode(new RecipeNodeConfig { Id = "error_fallback_dest", StepType = "DynamicDestination" });
+
+            recipe.Flow = new RecipeFlowConfig("start")
+                .AddTransition("start", "clipboard_export")
+                .AddTransition("clipboard_export", "success_notify")
+                .AddErrorTransition("clipboard_export", "error_fallback_dest", "ClipboardException");
+
+            using var bmp = new Bitmap(10, 10);
+            var capture = new Capture((Image)bmp.Clone());
+            using var context = new CaptureFlowContext(recipe)
+            {
+                Payload = new CapturePayload(capture)
+            };
+
+            var executed = new List<string>();
+
+            var engine = new DagExecutionEngine(nodeConfig =>
+            {
+                return new MockTestStep(nodeConfig.Id, ctx =>
+                {
+                    executed.Add(nodeConfig.Id);
+                    if (nodeConfig.Id == "clipboard_export")
+                    {
+                        throw new ClipboardException("The clipboard is currently in use by Excel.exe", "Excel.exe");
+                    }
+                    return Task.CompletedTask;
+                });
+            });
+
+            await engine.ExecuteAsync(recipe, context);
+
+            Assert.Contains("start", executed);
+            Assert.Contains("clipboard_export", executed);
+            Assert.DoesNotContain("success_notify", executed); // Bypassed
+            Assert.Contains("error_fallback_dest", executed);  // Error handler executed!
+            Assert.False(context.IsAborted);                   // Handled gracefully!
+            Assert.Equal("The clipboard is currently in use by Excel.exe", context.Properties["LastError"]);
+            Assert.Equal("clipboard_export", context.Properties["FailedNodeId"]);
+        }
+
+        [Fact]
+        public async Task ExecuteAsync_StepError_WithNodeLevelFallbackParameter_RoutesToErrorHandlerNode()
+        {
+            var failNode = new RecipeNodeConfig { Id = "fail_node", StepType = "Export" };
+            failNode.Set("OnErrorNodeId", "recovery_node");
+
+            var recipe = new CaptureRecipe("node_fallback_recipe", "Node Fallback Recipe")
+                .AddNode(new RecipeNodeConfig { Id = "start", StepType = "Start" })
+                .AddNode(failNode)
+                .AddNode(new RecipeNodeConfig { Id = "normal_next", StepType = "Next" })
+                .AddNode(new RecipeNodeConfig { Id = "recovery_node", StepType = "Recovery" });
+
+            recipe.Flow = new RecipeFlowConfig("start")
+                .AddTransition("start", "fail_node")
+                .AddTransition("fail_node", "normal_next");
+
+            using var bmp = new Bitmap(10, 10);
+            var capture = new Capture((Image)bmp.Clone());
+            using var context = new CaptureFlowContext(recipe)
+            {
+                Payload = new CapturePayload(capture)
+            };
+
+            var executed = new List<string>();
+
+            var engine = new DagExecutionEngine(nodeConfig =>
+            {
+                return new MockTestStep(nodeConfig.Id, ctx =>
+                {
+                    executed.Add(nodeConfig.Id);
+                    if (nodeConfig.Id == "fail_node")
+                    {
+                        throw new InvalidOperationException("Export failed");
+                    }
+                    return Task.CompletedTask;
+                });
+            });
+
+            await engine.ExecuteAsync(recipe, context);
+
+            Assert.Contains("start", executed);
+            Assert.Contains("fail_node", executed);
+            Assert.DoesNotContain("normal_next", executed);
+            Assert.Contains("recovery_node", executed);
+            Assert.False(context.IsAborted);
+            Assert.Equal("Export failed", context.Properties["LastError"]);
+        }
+
+        [Fact]
+        public async Task ExecuteAsync_StepError_WithTypedOnErrorNodeIdProperty_RoutesToErrorHandlerNode()
+        {
+            var failNode = new RecipeNodeConfig { Id = "save_file_node", StepType = "SaveFile", OnErrorNodeId = "dynamic_dest" };
+
+            var recipe = new CaptureRecipe("save_fallback_recipe", "Save Fallback Recipe")
+                .AddNode(new RecipeNodeConfig { Id = "start", StepType = "Start" })
+                .AddNode(failNode)
+                .AddNode(new RecipeNodeConfig { Id = "dynamic_dest", StepType = "DynamicDestination" });
+
+            recipe.Flow = new RecipeFlowConfig("start")
+                .AddTransition("start", "save_file_node");
+
+            using var bmp = new Bitmap(10, 10);
+            var capture = new Capture((Image)bmp.Clone());
+            using var context = new CaptureFlowContext(recipe)
+            {
+                Payload = new CapturePayload(capture)
+            };
+
+            var executed = new List<string>();
+
+            var engine = new DagExecutionEngine(nodeConfig =>
+            {
+                return new MockTestStep(nodeConfig.Id, ctx =>
+                {
+                    executed.Add(nodeConfig.Id);
+                    if (nodeConfig.Id == "save_file_node")
+                    {
+                        throw new DestinationExportException("Access to the path 'D:\\Blocked\\greenshot.png' is denied.", "FileNoDialog", new UnauthorizedAccessException("Access is denied"));
+                    }
+                    return Task.CompletedTask;
+                });
+            });
+
+            await engine.ExecuteAsync(recipe, context);
+
+            Assert.Contains("start", executed);
+            Assert.Contains("save_file_node", executed);
+            Assert.Contains("dynamic_dest", executed);
+            Assert.False(context.IsAborted);
+            Assert.Contains("Access to the path 'D:\\Blocked\\greenshot.png' is denied.", context.Properties["LastError"]?.ToString());
+            Assert.Equal("save_file_node", context.Properties["FailedNodeId"]);
+        }
+
+        [Fact]
+        public async Task ExecuteAsync_StepError_MatchingInnerExceptionTypeInFlow_RoutesToTarget()
+        {
+            var failNode = new RecipeNodeConfig { Id = "save_node", StepType = "SaveFile" };
+
+            var recipe = new CaptureRecipe("inner_exception_recipe", "Inner Exception Recipe")
+                .AddNode(new RecipeNodeConfig { Id = "start", StepType = "Start" })
+                .AddNode(failNode)
+                .AddNode(new RecipeNodeConfig { Id = "unauth_handler", StepType = "DynamicDestination" });
+
+            recipe.Flow = new RecipeFlowConfig("start")
+                .AddTransition("start", "save_node")
+                .AddErrorTransition("save_node", "unauth_handler", "UnauthorizedAccessException");
+
+            using var bmp = new Bitmap(10, 10);
+            var capture = new Capture((Image)bmp.Clone());
+            using var context = new CaptureFlowContext(recipe)
+            {
+                Payload = new CapturePayload(capture)
+            };
+
+            var executed = new List<string>();
+
+            var engine = new DagExecutionEngine(nodeConfig =>
+            {
+                return new MockTestStep(nodeConfig.Id, ctx =>
+                {
+                    executed.Add(nodeConfig.Id);
+                    if (nodeConfig.Id == "save_node")
+                    {
+                        throw new DestinationExportException("Access denied", "FileNoDialog", new UnauthorizedAccessException("Denied"));
+                    }
+                    return Task.CompletedTask;
+                });
+            });
+
+            await engine.ExecuteAsync(recipe, context);
+
+            Assert.Contains("start", executed);
+            Assert.Contains("save_node", executed);
+            Assert.Contains("unauth_handler", executed);
+            Assert.False(context.IsAborted);
+        }
+
+        [Fact]
+        public async Task ExecuteAsync_StepError_MatchingWildcardFromErrorTransition_RoutesToTarget()
+        {
+            var failNode = new RecipeNodeConfig { Id = "savefile_d40e", StepType = "SaveFile" };
+
+            var recipe = new CaptureRecipe("wildcard_error_recipe", "Wildcard Error Recipe")
+                .AddNode(new RecipeNodeConfig { Id = "acquire", StepType = "Source" })
+                .AddNode(new RecipeNodeConfig { Id = "feedback", StepType = "ImmediateFeedback" })
+                .AddNode(failNode)
+                .AddNode(new RecipeNodeConfig { Id = "dynamicdestination_cb0b", StepType = "DynamicDestination" });
+
+            recipe.Flow = new RecipeFlowConfig("acquire")
+                .AddTransition("acquire", "feedback")
+                .AddTransition("acquire", "savefile_d40e")
+                .AddErrorTransition("*", "dynamicdestination_cb0b", "*");
+
+            using var bmp = new Bitmap(10, 10);
+            var capture = new Capture((Image)bmp.Clone());
+            using var context = new CaptureFlowContext(recipe)
+            {
+                Payload = new CapturePayload(capture)
+            };
+
+            var executed = new List<string>();
+
+            var engine = new DagExecutionEngine(nodeConfig =>
+            {
+                return new MockTestStep(nodeConfig.Id, ctx =>
+                {
+                    lock (executed) executed.Add(nodeConfig.Id);
+                    if (nodeConfig.Id == "savefile_d40e")
+                    {
+                        throw new DestinationExportException("Access to path denied", "FileNoDialog", new UnauthorizedAccessException("Denied"));
+                    }
+                    return Task.CompletedTask;
+                });
+            });
+
+            await engine.ExecuteAsync(recipe, context);
+
+            Assert.Contains("acquire", executed);
+            Assert.Contains("feedback", executed);
+            Assert.Contains("savefile_d40e", executed);
+            Assert.Contains("dynamicdestination_cb0b", executed);
+            Assert.False(context.IsAborted);
+            Assert.Contains("Access to path denied", context.Properties["LastError"]?.ToString());
+        }
+
+        [Fact]
+        public async Task DestinationDispatcher_SaveFileFails_ThrowsDestinationExportExceptionWithDetails()
+        {
+            var dispatcher = new DestinationDispatcher();
+            var recipe = new CaptureRecipe("test_recipe", "Test Recipe");
+            using var bmp = new Bitmap(10, 10);
+            var capture = new Capture((Image)bmp.Clone());
+            capture.CaptureDetails.Filename = @"1:\Inaccessible_Path_xyz123\output.png";
+            using var surface = new Greenshot.Editor.Drawing.Surface(capture);
+            using var context = new CaptureFlowContext(recipe)
+            {
+                Payload = new CapturePayload(capture)
+                {
+                    Surface = surface
+                }
+            };
+
+            var fileDest = new Greenshot.Destinations.FileDestination();
+
+            var ex = await Assert.ThrowsAsync<DestinationExportException>(async () =>
+            {
+                await dispatcher.DispatchAsync(context, new[] { fileDest });
+            });
+
+            Assert.Equal(nameof(Greenshot.Base.WellKnownDestinations.FileNoDialog), ex.FailedDestination);
+            Assert.NotNull(ex.InnerException);
+            Assert.True(context.Payload.RetainSurfaceForEditor);
+            Assert.True(context.Properties.ContainsKey("DestinationExportErrors"));
+        }
     }
 }

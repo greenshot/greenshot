@@ -57,6 +57,12 @@ namespace Greenshot.Base.Recipes
         public const string Notification = "Notification";
 
         /// <summary>
+        /// Modern WPF-styled interactive export flyout displaying a thumbnail preview and quick action buttons
+        /// to forward the capture to destinations or other recipes. Also functions as an error recovery UI.
+        /// </summary>
+        public const string DynamicDestination = "DynamicDestination";
+
+        /// <summary>
         /// Applies an image effect (e.g. Border, DropShadow, TornEdge, Invert, Grayscale, Rotate, Resize).
         /// </summary>
         public const string Effect = "Effect";

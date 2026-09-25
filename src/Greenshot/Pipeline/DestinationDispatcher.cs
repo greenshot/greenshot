@@ -50,6 +50,46 @@ namespace Greenshot.Pipeline
         private static readonly ILog Log = LogManager.GetLogger(typeof(DestinationDispatcher));
         private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
 
+        internal static void InvokeOnSta(SynchronizationContext uiContext, Action action)
+        {
+            if (action == null) return;
+
+            if (uiContext != null && SynchronizationContext.Current != uiContext)
+            {
+                uiContext.Send(_ => action(), null);
+            }
+            else if (System.Windows.Application.Current?.Dispatcher != null && !System.Windows.Application.Current.Dispatcher.CheckAccess())
+            {
+                System.Windows.Application.Current.Dispatcher.Invoke(action);
+            }
+            else if (Thread.CurrentThread.GetApartmentState() != ApartmentState.STA)
+            {
+                Exception threadEx = null;
+                var staThread = new Thread(() =>
+                {
+                    try
+                    {
+                        action();
+                    }
+                    catch (Exception ex)
+                    {
+                        threadEx = ex;
+                    }
+                });
+                staThread.SetApartmentState(ApartmentState.STA);
+                staThread.Start();
+                staThread.Join();
+                if (threadEx != null)
+                {
+                    throw threadEx;
+                }
+            }
+            else
+            {
+                action();
+            }
+        }
+
         public async Task DispatchAsync(
             CaptureFlowContext context,
             IEnumerable<IDestination> destinations,
@@ -149,6 +189,8 @@ namespace Greenshot.Pipeline
             }
 
             var backgroundTasks = new List<Task>();
+            int successfulExports = 0;
+            var failedExports = new List<(string Designation, string Error, Exception Exception)>();
 
             try
             {
@@ -162,11 +204,11 @@ namespace Greenshot.Pipeline
                     context.LogStep($"Calling destination: {destination.Description}");
                     Log.InfoFormat("Calling destination {0}", destination.Description);
 
-                    if (destination.Designation == nameof(WellKnownDestinations.FileNoDialog) ||
-                        destination.Designation == nameof(WellKnownDestinations.FileDialog))
+                    if (destination.Designation == nameof(WellKnownDestinations.FileNoDialog))
                     {
                         string fullPath;
                         bool overwrite;
+                        string originalFilename = captureDetails.Filename;
                         if (captureDetails.Filename != null)
                         {
                             fullPath = captureDetails.Filename;
@@ -185,7 +227,6 @@ namespace Greenshot.Pipeline
                             continue;
                         }
 
-                        captureDetails.Filename = fullPath;
                         var bgFullPath = fullPath;
                         var bgOverwrite = overwrite;
                         var bgOutputSettings = sharedFileOutputSettings;
@@ -194,8 +235,11 @@ namespace Greenshot.Pipeline
                             ? cp
                             : CoreConfig.OutputFileCopyPathToClipboard;
 
-                        Image bgRenderedBitmap = sharedRenderedBitmap != null ? (Image)sharedRenderedBitmap.Clone() : null;
+                        Image bgRenderedBitmap = sharedRenderedBitmap != null
+                            ? (Image)sharedRenderedBitmap.Clone()
+                            : surface?.GetImageForExport();
 
+                        var destDesignation = destination.Designation;
                         var task = Task.Run(() =>
                         {
                             try
@@ -211,19 +255,19 @@ namespace Greenshot.Pipeline
                                         uiContext);
                                 }
 
+                                captureDetails.Filename = bgFullPath;
                                 uiContext?.Post(_ => CoreConfig.OutputFileAsFullpath = bgFullPath, null);
+                                Interlocked.Increment(ref successfulExports);
                             }
-                            catch (ArgumentException ex1)
+                            catch (Exception ex)
                             {
-                                Log.InfoFormat("Not overwriting: {0}", ex1.Message);
-                                uiContext?.Send(_ => ImageIO.SaveWithDialog(surface, captureDetails), null);
-                            }
-                            catch (Exception ex2)
-                            {
-                                Log.Error("Error saving screenshot in background!", ex2);
-                                uiContext?.Post(_ => MessageBox.Show(
-                                    Language.GetString(LangKey.error_save),
-                                    Language.GetString(LangKey.error)), null);
+                                Log.Error($"Error saving screenshot in background to '{bgFullPath}'!", ex);
+                                captureDetails.Filename = originalFilename;
+                                payload.RetainSurfaceForEditor = true;
+                                lock (failedExports)
+                                {
+                                    failedExports.Add((destDesignation, ex.Message, ex));
+                                }
                             }
                         }, cancellationToken);
 
@@ -231,13 +275,34 @@ namespace Greenshot.Pipeline
                     }
                     else if (sharedRenderedBitmap != null && destination is IAcceptsPreRenderedImage preRenderDest)
                     {
-                        if (uiContext != null && SynchronizationContext.Current != uiContext)
+                        ExportInformation exportInformation = null;
+                        Exception destEx = null;
+                        InvokeOnSta(uiContext, () =>
                         {
-                            uiContext.Send(_ => preRenderDest.ExportCaptureWithRenderedImage(sharedRenderedBitmap, surface, captureDetails), null);
+                            try
+                            {
+                                exportInformation = preRenderDest.ExportCaptureWithRenderedImage(sharedRenderedBitmap, surface, captureDetails);
+                            }
+                            catch (Exception ex)
+                            {
+                                Log.Error($"Error exporting to {destination.Designation}", ex);
+                                destEx = ex;
+                                exportInformation = new ExportInformation(destination.Designation, destination.Description)
+                                {
+                                    ExportMade = false,
+                                    ErrorMessage = ex.Message
+                                };
+                            }
+                        });
+
+                        if (exportInformation != null && exportInformation.ExportMade)
+                        {
+                            successfulExports++;
                         }
-                        else
+                        else if (exportInformation != null && !exportInformation.ExportMade && !string.IsNullOrEmpty(exportInformation.ErrorMessage))
                         {
-                            preRenderDest.ExportCaptureWithRenderedImage(sharedRenderedBitmap, surface, captureDetails);
+                            payload.RetainSurfaceForEditor = true;
+                            failedExports.Add((destination.Designation, exportInformation.ErrorMessage, destEx));
                         }
                     }
                     else
@@ -248,19 +313,39 @@ namespace Greenshot.Pipeline
                         }
 
                         ExportInformation exportInformation = null;
-                        if (uiContext != null && SynchronizationContext.Current != uiContext)
+                        Exception destEx = null;
+                        InvokeOnSta(uiContext, () =>
                         {
-                            uiContext.Send(_ => exportInformation = destination.ExportCapture(false, surface, captureDetails), null);
-                        }
-                        else
-                        {
-                            exportInformation = destination.ExportCapture(false, surface, captureDetails);
-                        }
+                            try
+                            {
+                                exportInformation = destination.ExportCapture(false, surface, captureDetails);
+                            }
+                            catch (Exception ex)
+                            {
+                                Log.Error($"Error exporting to {destination.Designation}", ex);
+                                destEx = ex;
+                                exportInformation = new ExportInformation(destination.Designation, destination.Description)
+                                {
+                                    ExportMade = false,
+                                    ErrorMessage = ex.Message
+                                };
+                            }
+                        });
 
                         Log.InfoFormat("Destination '{0}' export completed (ExportMade: {1}{2})",
                             destination.Designation,
                             exportInformation?.ExportMade ?? false,
                             !string.IsNullOrEmpty(exportInformation?.ErrorMessage) ? $", Error: {exportInformation.ErrorMessage}" : "");
+
+                        if (exportInformation != null && exportInformation.ExportMade)
+                        {
+                            successfulExports++;
+                        }
+                        else if (exportInformation != null && !exportInformation.ExportMade && !string.IsNullOrEmpty(exportInformation.ErrorMessage))
+                        {
+                            payload.RetainSurfaceForEditor = true;
+                            failedExports.Add((destination.Designation, exportInformation.ErrorMessage, destEx));
+                        }
 
                         if (EditorDestination.DESIGNATION.Equals(destination.Designation, StringComparison.OrdinalIgnoreCase) &&
                             exportInformation != null && exportInformation.ExportMade)
@@ -273,6 +358,13 @@ namespace Greenshot.Pipeline
                 if (backgroundTasks.Count > 0)
                 {
                     await Task.WhenAll(backgroundTasks).ConfigureAwait(false);
+                }
+
+                if (failedExports.Count > 0)
+                {
+                    context.Properties["DestinationExportErrors"] = string.Join("; ", failedExports.Select(f => $"{f.Designation}: {f.Error}"));
+                    var first = failedExports[0];
+                    throw new DestinationExportException($"Export to {first.Designation} failed: {first.Error}", first.Designation, first.Exception);
                 }
             }
             finally
@@ -298,7 +390,13 @@ namespace Greenshot.Pipeline
                 switch (eventArgs.MessageType)
                 {
                     case SurfaceMessageTyp.Error:
-                        notifyService.ShowErrorMessage(eventArgs.Message, TimeSpan.FromHours(1));
+                        notifyService.ShowErrorMessage(eventArgs.Message, TimeSpan.FromHours(1), () =>
+                        {
+                            if (eventArgs.Surface != null)
+                            {
+                                DestinationHelper.ExportCapture(false, EditorDestination.DESIGNATION, eventArgs.Surface, eventArgs.Surface.CaptureDetails);
+                            }
+                        });
                         break;
                     case SurfaceMessageTyp.Info:
                         notifyService.ShowInfoMessage(eventArgs.Message, TimeSpan.FromHours(1), () => Log.Info("Clicked!"));

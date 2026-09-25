@@ -53,7 +53,20 @@ namespace Greenshot.Base.Core
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(ClipboardHelper));
         private static readonly object ClipboardLockObject = new object();
-        private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
+        private static ICoreConfiguration CoreConfig
+        {
+            get
+            {
+                try
+                {
+                    return IniConfigRegistry.GetSection<ICoreConfiguration>();
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+        }
         private static readonly string FORMAT_FILECONTENTS = "FileContents";
         private static readonly string FORMAT_HTML = "text/html";
         private static readonly string FORMAT_PNG = "PNG";
@@ -159,12 +172,9 @@ EndSelection:<<<<<<<4
         }
 
         /// <summary>
-        /// The SetDataObject will lock/try/catch clipboard operations making it save and not show exceptions.
-        /// The bool "copy" is used to decided if the information stays on the clipboard after exit.
+        /// Attempts to set the clipboard data object. Returns true on success; false if the clipboard is locked or an error occurs.
         /// </summary>
-        /// <param name="ido"></param>
-        /// <param name="copy"></param>
-        private static void SetDataObject(IDataObject ido, bool copy)
+        private static bool TrySetDataObject(IDataObject ido, bool copy, out string errorMessage)
         {
             lock (ClipboardLockObject)
             {
@@ -182,22 +192,39 @@ EndSelection:<<<<<<<4
                     }
                     // For BUG-1935 this was changed from looping ourselves, or letting MS retry...
                     Clipboard.SetDataObject(ido, copy, 15, 200);
+                    errorMessage = null;
+                    return true;
                 }
                 catch (Exception clipboardSetException)
                 {
-                    string messageText;
                     string clipboardOwner = GetClipboardOwner();
                     if (clipboardOwner != null)
                     {
-                        messageText = Language.GetFormattedString("clipboard_inuse", clipboardOwner);
+                        errorMessage = Language.GetFormattedString("clipboard_inuse", clipboardOwner);
                     }
                     else
                     {
-                        messageText = Language.GetString("clipboard_error");
+                        errorMessage = Language.GetString("clipboard_error");
                     }
 
-                    Log.Error(messageText, clipboardSetException);
+                    Log.Error(errorMessage, clipboardSetException);
+                    return false;
                 }
+            }
+        }
+
+        /// <summary>
+        /// The SetDataObject will lock/try/catch clipboard operations and throw ClipboardException if the clipboard cannot be opened or written to.
+        /// The bool "copy" is used to decide if the information stays on the clipboard after exit.
+        /// </summary>
+        /// <param name="ido"></param>
+        /// <param name="copy"></param>
+        private static void SetDataObject(IDataObject ido, bool copy)
+        {
+            if (!TrySetDataObject(ido, copy, out string errorMessage))
+            {
+                string clipboardOwner = GetClipboardOwner();
+                throw new ClipboardException(errorMessage, clipboardOwner);
             }
         }
 
@@ -1038,6 +1065,42 @@ EndSelection:<<<<<<<4
             SetClipboardDataInternal(surface, rendered, disposeImage, formats: formats, text: text);
         }
 
+        /// <summary>
+        /// Attempts to set surface capture data on the clipboard. Returns true on success, or false with an errorMessage on failure.
+        /// </summary>
+        public static bool TrySetClipboardData(ISurface surface, out string errorMessage)
+        {
+            try
+            {
+                SetClipboardData(surface);
+                errorMessage = null;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                errorMessage = ex.Message;
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Attempts to set text data on the clipboard. Returns true on success, or false with an errorMessage on failure.
+        /// </summary>
+        public static bool TrySetClipboardData(string text, out string errorMessage)
+        {
+            try
+            {
+                SetClipboardData(text);
+                errorMessage = null;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                errorMessage = ex.Message;
+                return false;
+            }
+        }
+
         private static void SetClipboardDataInternal(ISurface surface, Image imageToSave, bool disposeImage, IEnumerable<ClipboardFormat> formats = null, string text = null)
         {
             var activeFormats = formats != null ? formats.ToList() : (CoreConfig.ClipboardFormats ?? new List<ClipboardFormat>());
@@ -1185,9 +1248,7 @@ EndSelection:<<<<<<<4
 
                     dataObject.SetText(html, TextDataFormat.Html);
                 }
-            }
-            finally
-            {
+
                 // Check if Bitmap is wanted
                 if (activeFormats.Contains(ClipboardFormat.BITMAP))
                 {
@@ -1196,7 +1257,9 @@ EndSelection:<<<<<<<4
 
                 // Place the DataObject to the clipboard
                 SetDataObject(dataObject, true);
-
+            }
+            finally
+            {
                 pngStream?.Dispose();
                 dibStream?.Dispose();
                 dibV5Stream?.Dispose();
