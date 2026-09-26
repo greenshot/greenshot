@@ -43,6 +43,9 @@ namespace Greenshot.UI.SelfService
         public ClipboardSectionViewModel ClipboardSection { get; }
         public HotkeySectionViewModel HotkeySection { get; }
         public ChecksumSectionViewModel ChecksumSection { get; }
+#if DEBUG
+        public IntegrationDebugSectionViewModel IntegrationDebugSection { get; }
+#endif
 
         public string WindowTitle
         {
@@ -100,6 +103,10 @@ namespace Greenshot.UI.SelfService
             Sections.Add(ClipboardSection);
             Sections.Add(HotkeySection);
             Sections.Add(ChecksumSection);
+#if DEBUG
+            IntegrationDebugSection = new IntegrationDebugSectionViewModel();
+            Sections.Add(IntegrationDebugSection);
+#endif
 
             SelectSection(initialSectionId ?? "system");
 

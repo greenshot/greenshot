@@ -206,6 +206,28 @@ namespace Greenshot.Triggers
                             string triggerId = $"trigger_recipe_{recipe.Id}_clipboard_{i}";
                             RegisterTrigger(new ClipboardTrigger(triggerId, tc.Name ?? $"{recipe.Name} Clipboard Monitor", recipe.Id, onImageCopied, formatFilter));
                         }
+                        else if (string.Equals(tc.TriggerType, TriggerConfig.TypeCommandline, StringComparison.OrdinalIgnoreCase))
+                        {
+                            string cmd = tc.GetParameter<string>("Command") ?? recipe.Id;
+                            string desc = tc.GetParameter<string>("Description") ?? recipe.Description;
+                            bool fnf = tc.GetParameter<bool>("FireAndForget", false);
+                            string triggerId = $"trigger_recipe_{recipe.Id}_cmd_{i}";
+                            RegisterTrigger(new CommandlineTrigger(triggerId, tc.Name ?? cmd, recipe.Id, cmd, desc, fnf));
+                        }
+                        else if (string.Equals(tc.TriggerType, TriggerConfig.TypeOpenFile, StringComparison.OrdinalIgnoreCase))
+                        {
+                            string filter = tc.GetParameter<string>("Filter");
+                            bool fnf = tc.GetParameter<bool>("FireAndForget", false);
+                            string triggerId = $"trigger_recipe_{recipe.Id}_openfile_{i}";
+                            RegisterTrigger(new OpenFileTrigger(triggerId, tc.Name ?? $"{recipe.Name} OpenFile", recipe.Id, filter, fnf));
+                        }
+                        else if (string.Equals(tc.TriggerType, TriggerConfig.TypeExtension, StringComparison.OrdinalIgnoreCase))
+                        {
+                            string browser = tc.GetParameter<string>("Browser");
+                            bool fnf = tc.GetParameter<bool>("FireAndForget", false);
+                            string triggerId = $"trigger_recipe_{recipe.Id}_extension_{i}";
+                            RegisterTrigger(new ExtensionTrigger(triggerId, tc.Name ?? $"{recipe.Name} Browser Extension", recipe.Id, browser, fnf));
+                        }
                     }
 
                     if (!hasMenuTrigger && !recipe.IsBuiltIn && recipe.ShowInContextMenu)

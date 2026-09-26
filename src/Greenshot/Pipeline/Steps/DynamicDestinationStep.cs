@@ -151,17 +151,38 @@ namespace Greenshot.Pipeline.Steps
                 }
             }
 
-            if (Application.Current?.Dispatcher != null && !Application.Current.Dispatcher.CheckAccess())
+            if (Application.Current?.Dispatcher != null)
             {
-                Application.Current.Dispatcher.Invoke(ShowDialogOnUi);
+                if (Application.Current.Dispatcher.CheckAccess())
+                {
+                    ShowDialogOnUi();
+                }
+                else
+                {
+                    Application.Current.Dispatcher.Invoke(ShowDialogOnUi);
+                }
             }
-            else if (uiContext != null && SynchronizationContext.Current != uiContext)
+            else if (Thread.CurrentThread.GetApartmentState() == ApartmentState.STA)
             {
-                uiContext.Send(_ => ShowDialogOnUi(), null);
+                ShowDialogOnUi();
             }
             else
             {
-                ShowDialogOnUi();
+                var staThread = new Thread(() =>
+                {
+                    try
+                    {
+                        ShowDialogOnUi();
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error("Error on STA thread displaying DynamicDestinationWindow", ex);
+                        tcs.TrySetException(ex);
+                    }
+                });
+                staThread.SetApartmentState(ApartmentState.STA);
+                staThread.Start();
+                staThread.Join();
             }
 
             var (selectedDest, selectedRecipe, openEditor) = await tcs.Task.ConfigureAwait(false);

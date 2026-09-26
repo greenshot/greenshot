@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Greenshot Companion</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="header">
+    <div class="brand">
+      <div class="logo-mark">G</div>
+      <span class="title">Greenshot</span>
+    </div>
+    <div id="statusIndicator" class="status-indicator offline" title="Connection status">
+      <span class="status-dot"></span>
+      <span id="statusText" class="status-text">Connecting...</span>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button id="btnCaptureVisible" class="btn primary">
+      <svg class="icon" viewBox="0 0 24 24" width="16" height="16">
+        <path fill="currentColor" d="M4 4h3l2-2h6l2 2h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2m8 3a5 5 0 0 0-5 5 5 5 0 0 0 5 5 5 5 0 0 0 5-5 5 5 0 0 0-5-5m0 2a3 3 0 0 1 3 3 3 3 0 0 1-3 3 3 3 0 0 1-3-3 3 3 0 0 1 3-3Z"/>
+      </svg>
+      Capture Visible Page
+    </button>
+  </div>
+
+  <div id="feedbackMessage" class="feedback-msg hidden"></div>
+
+  <div class="footer">
+    <div class="qa-info">
+      <span class="qa-label">QA URL Tracking:</span>
+      <span id="qaTrackingStatus" class="qa-badge">Active</span>
+    </div>
+    <a href="#" id="linkOptions" class="options-link">Settings</a>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

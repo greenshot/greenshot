@@ -1,0 +1,10 @@
+{
+  "name": "org.greenshot.proxy",
+  "description": "Greenshot Native Messaging Host",
+  "path": "greenshot-proxy.exe",
+  "type": "stdio",
+  "allowed_origins": [
+    "chrome-extension://knldjmfmopnpolahpmmgbagdohdnhkik/",
+    "chrome-extension://*/*"
+  ]
+}

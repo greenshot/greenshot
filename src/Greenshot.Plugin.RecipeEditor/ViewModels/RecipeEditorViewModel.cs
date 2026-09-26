@@ -43,6 +43,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 if (SetField(ref _activeRecipe, value))
                 {
                     LoadRecipeIntoCanvas(value);
+                    OnPropertyChanged(nameof(RecipeId));
                     OnPropertyChanged(nameof(RecipeTitle));
                     OnPropertyChanged(nameof(RecipeDescription));
                     OnPropertyChanged(nameof(RecipeVersion));
@@ -90,6 +91,20 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 if (value != null)
                 {
                     SetStartNode(value);
+                }
+            }
+        }
+
+        public string RecipeId
+        {
+            get => _activeRecipe?.Id ?? "";
+            set
+            {
+                if (_activeRecipe != null && _activeRecipe.Id != value)
+                {
+                    _activeRecipe.Id = value;
+                    IsDirty = true;
+                    OnPropertyChanged();
                 }
             }
         }
@@ -252,6 +267,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         public ICommand ApplyJsonCommand { get; }
         public ICommand ToggleMermaidViewCommand { get; }
         public ICommand CopyMermaidCommand { get; }
+        public ICommand CopyRecipeIdCommand { get; }
         public ICommand SetStartNodeCommand { get; }
         public ICommand ToggleStartNodeCommand { get; }
         public ICommand AddTriggerCommand { get; }
@@ -280,6 +296,14 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             ApplyJsonCommand = new RelayCommand(ApplyJson);
             ToggleMermaidViewCommand = new RelayCommand(ToggleMermaidView);
             CopyMermaidCommand = new RelayCommand(CopyMermaidToClipboard);
+            CopyRecipeIdCommand = new RelayCommand(() =>
+            {
+                if (!string.IsNullOrWhiteSpace(RecipeId))
+                {
+                    Clipboard.SetText(RecipeId);
+                    StatusMessage = $"Copied Recipe ID '{RecipeId}' to clipboard";
+                }
+            });
             SetStartNodeCommand = new RelayCommand(p => SetStartNode(p as StepNodeViewModel ?? SelectedNode));
             ToggleStartNodeCommand = new RelayCommand(p => ToggleStartNode(p as StepNodeViewModel ?? SelectedNode));
             AddTriggerCommand = new RelayCommand(p => AddTrigger(p as string));
@@ -607,6 +631,22 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             else if (string.Equals(type, "Clipboard", StringComparison.OrdinalIgnoreCase))
             {
                 config.Parameters["FormatFilter"] = "";
+            }
+            else if (string.Equals(type, TriggerConfig.TypeCommandline, StringComparison.OrdinalIgnoreCase))
+            {
+                config.Parameters["Command"] = ActiveRecipe?.Id ?? "custom";
+                config.Parameters["Description"] = ActiveRecipe?.Description ?? "Custom commandline recipe";
+                config.Parameters["FireAndForget"] = false;
+            }
+            else if (string.Equals(type, TriggerConfig.TypeOpenFile, StringComparison.OrdinalIgnoreCase))
+            {
+                config.Parameters["Filter"] = "";
+                config.Parameters["FireAndForget"] = false;
+            }
+            else if (string.Equals(type, TriggerConfig.TypeExtension, StringComparison.OrdinalIgnoreCase))
+            {
+                config.Parameters["Browser"] = "";
+                config.Parameters["FireAndForget"] = false;
             }
 
             var item = new TriggerItemViewModel(config, SyncTriggersToRecipe, RemoveTrigger);
@@ -1305,6 +1345,20 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     {
                         string cron = t.GetParameter<string>("CronExpression", t.GetParameter<string>("IntervalSeconds", "Timer"));
                         tLabel = $"⏰ Schedule: {cron}";
+                    }
+                    else if (string.Equals(t.TriggerType, TriggerConfig.TypeCommandline, StringComparison.OrdinalIgnoreCase))
+                    {
+                        string cmd = t.GetParameter<string>("Command", t.Name ?? "command");
+                        tLabel = $"💻 CLI: {cmd}";
+                    }
+                    else if (string.Equals(t.TriggerType, TriggerConfig.TypeOpenFile, StringComparison.OrdinalIgnoreCase))
+                    {
+                        tLabel = "📂 Open With File";
+                    }
+                    else if (string.Equals(t.TriggerType, TriggerConfig.TypeExtension, StringComparison.OrdinalIgnoreCase))
+                    {
+                        string browser = t.GetParameter<string>("Browser", "");
+                        tLabel = string.IsNullOrEmpty(browser) ? "🌐 Browser Extension" : $"🌐 Extension ({browser})";
                     }
                     else
                     {

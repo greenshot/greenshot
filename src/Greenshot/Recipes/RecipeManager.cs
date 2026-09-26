@@ -27,6 +27,7 @@ using Dapplo.Ini;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Recipes;
+using Greenshot.Base.Triggers;
 using log4net;
 
 namespace Greenshot.Recipes
@@ -62,6 +63,7 @@ namespace Greenshot.Recipes
         public const string RecipeIdClipboard = "recipe_clipboard";
         public const string RecipeIdFile = "recipe_file";
         public const string RecipeIdOcr = "recipe_ocr";
+        public const string RecipeIdExtension = "recipe_browser_extension";
 
         private readonly Dictionary<string, CaptureRecipe> _builtInRecipes = new Dictionary<string, CaptureRecipe>(StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<string, CaptureRecipe> _recipes = new Dictionary<string, CaptureRecipe>(StringComparer.OrdinalIgnoreCase);
@@ -191,7 +193,8 @@ namespace Greenshot.Recipes
                 Language.GetString("contextmenu_openfile") ?? "Open file",
                 "Import an image or .greenshot file from disk")
                 .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.File, captureMouse: false))
-                .AddNode(RecipeStepConfig.CreateDestinations("export", new[] { "Editor" }));
+                .AddNode(RecipeStepConfig.CreateDestinations("export", new[] { "Editor" }))
+                .AddTrigger(TriggerConfig.CreateOpenFile(name: "Default Open With File Trigger"));
             fileRecipe.Flow = new RecipeFlowConfig("acquire")
                 .AddTransition("acquire", "export");
             RegisterBuiltIn(fileRecipe);
@@ -212,6 +215,18 @@ namespace Greenshot.Recipes
                 .AddTransition("feedback", "ocr")
                 .AddTransition("ocr", "export");
             RegisterBuiltIn(ocrRecipe);
+
+            // 9. Browser Extension Capture
+            var extensionRecipe = new CaptureRecipe(
+                RecipeIdExtension,
+                Language.GetString("recipe_browser_extension_name") ?? "Capture from browser extension",
+                "Process screenshots received from the browser extension and choose destination interactively")
+                .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.Extension, captureMouse: false))
+                .AddNode(RecipeStepConfig.CreateDynamicDestination("export", "Export Browser Capture"))
+                .AddTrigger(TriggerConfig.CreateExtension(name: "Default Browser Extension Trigger"));
+            extensionRecipe.Flow = new RecipeFlowConfig("acquire")
+                .AddTransition("acquire", "export");
+            RegisterBuiltIn(extensionRecipe);
         }
 
         private HashSet<string> GetDisabledRecipeIds()

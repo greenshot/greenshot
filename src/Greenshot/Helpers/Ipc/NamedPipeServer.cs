@@ -30,14 +30,14 @@ using Newtonsoft.Json;
 
 namespace Greenshot.Helpers.Ipc
 {
-
     /// <summary>
     /// Server listener for incoming framed JSON IPC envelopes on the user-SID scoped named pipe.
+    /// Supports bidirectional communication, multiple concurrent client connections, and persistent sessions.
     /// </summary>
     public class NamedPipeServer : IDisposable
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(NamedPipeServer));
-        private const int MaxPayloadSize = 10 * 1024 * 1024; // 10 MB sanity limit
+        private const int MaxPayloadSize = 64 * 1024 * 1024; // 64 MB cap per ADR 003
 
         private readonly string _pipeName;
         private CancellationTokenSource _cancellationTokenSource;
@@ -45,6 +45,7 @@ namespace Greenshot.Helpers.Ipc
         private bool _disposed;
 
         public event EventHandler<IpcEnvelope> MessageReceived;
+        public event Func<IpcRequestContext, Task> RequestReceived;
 
         public NamedPipeServer() : this(NamedPipeEndpoint.GetPipeName())
         {
@@ -76,7 +77,7 @@ namespace Greenshot.Helpers.Ipc
                     PipeSecurity pipeSecurity = NamedPipeEndpoint.CreateServerSecurity();
                     serverStream = new NamedPipeServerStream(
                         _pipeName,
-                        PipeDirection.In,
+                        PipeDirection.InOut,
                         NamedPipeServerStream.MaxAllowedServerInstances,
                         PipeTransmissionMode.Byte,
                         PipeOptions.Asynchronous,
@@ -125,38 +126,59 @@ namespace Greenshot.Helpers.Ipc
                 try
                 {
                     byte[] lengthBytes = new byte[4];
-                    int read = await ReadExactAsync(stream, lengthBytes, 0, 4, cancellationToken).ConfigureAwait(false);
-                    if (read < 4)
-                    {
-                        Log.Warn("Named pipe client disconnected before sending 4-byte length prefix.");
-                        return;
-                    }
 
-                    if (!BitConverter.IsLittleEndian)
+                    while (!cancellationToken.IsCancellationRequested && stream.IsConnected)
                     {
-                        Array.Reverse(lengthBytes);
-                    }
-                    uint payloadLength = BitConverter.ToUInt32(lengthBytes, 0);
+                        int read = await ReadExactAsync(stream, lengthBytes, 0, 4, cancellationToken).ConfigureAwait(false);
+                        if (read == 0)
+                        {
+                            // Client disconnected cleanly
+                            break;
+                        }
 
-                    if (payloadLength == 0 || payloadLength > MaxPayloadSize)
-                    {
-                        Log.Warn($"Invalid or oversized payload received on named pipe: {payloadLength} bytes.");
-                        return;
-                    }
+                        if (read < 4)
+                        {
+                            Log.Warn("Named pipe client disconnected before sending full 4-byte length prefix.");
+                            break;
+                        }
 
-                    byte[] payloadBytes = new byte[payloadLength];
-                    read = await ReadExactAsync(stream, payloadBytes, 0, (int)payloadLength, cancellationToken).ConfigureAwait(false);
-                    if (read < payloadLength)
-                    {
-                        Log.Warn("Named pipe client disconnected before sending full payload.");
-                        return;
-                    }
+                        if (!BitConverter.IsLittleEndian)
+                        {
+                            Array.Reverse(lengthBytes);
+                        }
+                        uint payloadLength = BitConverter.ToUInt32(lengthBytes, 0);
 
-                    string json = Encoding.UTF8.GetString(payloadBytes);
-                    var envelope = JsonConvert.DeserializeObject<IpcEnvelope>(json);
-                    if (envelope != null)
-                    {
-                        MessageReceived?.Invoke(this, envelope);
+                        if (payloadLength < 2 || payloadLength > MaxPayloadSize)
+                        {
+                            Log.Warn($"[SECURITY] Invalid or oversized payload received on named pipe: {payloadLength} bytes. Closing connection.");
+                            break;
+                        }
+
+                        byte[] payloadBytes = new byte[payloadLength];
+                        read = await ReadExactAsync(stream, payloadBytes, 0, (int)payloadLength, cancellationToken).ConfigureAwait(false);
+                        if (read < payloadLength)
+                        {
+                            Log.Warn("Named pipe client disconnected before sending full payload.");
+                            break;
+                        }
+
+                        string json = Encoding.UTF8.GetString(payloadBytes);
+                        var envelope = JsonConvert.DeserializeObject<IpcEnvelope>(json, new JsonSerializerSettings
+                        {
+                            TypeNameHandling = TypeNameHandling.None
+                        });
+
+                        if (envelope != null)
+                        {
+                            var context = new IpcRequestContext(envelope, stream);
+
+                            if (RequestReceived != null)
+                            {
+                                await RequestReceived.Invoke(context).ConfigureAwait(false);
+                            }
+
+                            MessageReceived?.Invoke(this, envelope);
+                        }
                     }
                 }
                 catch (OperationCanceledException)

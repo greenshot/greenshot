@@ -43,7 +43,12 @@ namespace Greenshot.Tests.Forms
             var vm = new SelfServiceViewModel();
 
             Assert.NotNull(vm.Sections);
+#if DEBUG
+            Assert.Equal(6, vm.Sections.Count);
+            Assert.NotNull(vm.IntegrationDebugSection);
+#else
             Assert.Equal(5, vm.Sections.Count);
+#endif
 
             Assert.NotNull(vm.SystemInfoSection);
             Assert.NotNull(vm.FileInfoSection);

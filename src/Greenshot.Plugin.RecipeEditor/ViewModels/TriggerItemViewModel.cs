@@ -28,6 +28,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     OnPropertyChanged(nameof(IsEditor));
                     OnPropertyChanged(nameof(IsClipboard));
                     OnPropertyChanged(nameof(IsManual));
+                    OnPropertyChanged(nameof(IsCommandline));
+                    OnPropertyChanged(nameof(IsOpenFile));
                     OnPropertyChanged(nameof(DisplayTitle));
                     _onChanged?.Invoke();
                 }
@@ -87,12 +89,65 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             set => SetParam("FormatFilter", value);
         }
 
+        public string Command
+        {
+            get => GetParam("Command", Config.Name ?? "custom");
+            set { SetParam("Command", value); OnPropertyChanged(nameof(DisplayTitle)); }
+        }
+
+        public string Description
+        {
+            get => GetParam("Description", "");
+            set => SetParam("Description", value);
+        }
+
+        public string Filter
+        {
+            get => GetParam("Filter", "");
+            set { SetParam("Filter", value); OnPropertyChanged(nameof(DisplayTitle)); }
+        }
+
+        public bool FireAndForget
+        {
+            get
+            {
+                if (Config.Parameters != null && Config.Parameters.TryGetValue("FireAndForget", out var val))
+                {
+                    if (val is bool b) return b;
+                    if (bool.TryParse(val?.ToString(), out var parsed)) return parsed;
+                }
+                return false;
+            }
+            set
+            {
+                SetParam("FireAndForget", value);
+            }
+        }
+
         public bool IsHotkey => string.Equals(TriggerType, TriggerConfig.TypeHotkey, StringComparison.OrdinalIgnoreCase);
         public bool IsContextMenu => string.Equals(TriggerType, TriggerConfig.TypeContextMenu, StringComparison.OrdinalIgnoreCase) ||
                                      string.Equals(TriggerType, TriggerConfig.TypeSystray, StringComparison.OrdinalIgnoreCase);
         public bool IsEditor => string.Equals(TriggerType, TriggerConfig.TypeEditor, StringComparison.OrdinalIgnoreCase);
         public bool IsClipboard => string.Equals(TriggerType, TriggerConfig.TypeClipboard, StringComparison.OrdinalIgnoreCase);
         public bool IsManual => string.Equals(TriggerType, TriggerConfig.TypeManual, StringComparison.OrdinalIgnoreCase);
+        public bool IsCommandline => string.Equals(TriggerType, TriggerConfig.TypeCommandline, StringComparison.OrdinalIgnoreCase);
+        public bool IsOpenFile => string.Equals(TriggerType, TriggerConfig.TypeOpenFile, StringComparison.OrdinalIgnoreCase);
+        public bool IsExtension => string.Equals(TriggerType, TriggerConfig.TypeExtension, StringComparison.OrdinalIgnoreCase);
+
+        public string Browser
+        {
+            get => Config.GetParameter<string>("Browser");
+            set
+            {
+                if (Config.GetParameter<string>("Browser") != value)
+                {
+                    Config.SetParameter("Browser", value);
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(DisplayTitle));
+                    _onChanged?.Invoke();
+                }
+            }
+        }
 
         public string DisplayTitle
         {
@@ -102,6 +157,9 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 if (IsContextMenu) return $"📋 Context Menu: {MenuItemText}";
                 if (IsEditor) return $"🎨 Editor Menu: {MenuItemText}";
                 if (IsClipboard) return string.IsNullOrEmpty(FormatFilter) ? "📋 Clipboard Monitor" : $"📋 Clipboard: {FormatFilter}";
+                if (IsCommandline) return $"💻 CLI: {Command}";
+                if (IsOpenFile) return string.IsNullOrEmpty(Filter) ? "📂 Open With File (All)" : $"📂 Open With: {Filter}";
+                if (IsExtension) return string.IsNullOrEmpty(Browser) ? "🌐 Browser Extension (All)" : $"🌐 Browser: {Browser}";
                 return $"⚡ Trigger: {TriggerType}";
             }
         }

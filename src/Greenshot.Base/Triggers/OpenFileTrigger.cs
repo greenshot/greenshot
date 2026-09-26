@@ -19,22 +19,32 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace Greenshot.Base.Recipes
+namespace Greenshot.Base.Triggers
 {
     /// <summary>
-    /// Supported capture acquisition source types for recipes.
+    /// Trigger that executes a capture recipe when one or more files are supplied via Open With or CLI file open.
+    /// Can be enabled, disabled, filtered by file extension, or customized by user recipes.
     /// </summary>
-    public enum CaptureSourceType
+    public class OpenFileTrigger : TriggerBase
     {
-        Region,
-        Window,
-        ActiveWindow,
-        FullScreen,
-        LastRegion,
-        Clipboard,
-        File,
-        TextOcr,
-        CurrentEditor,
-        Extension
+        public string Filter { get; }
+        public bool FireAndForget { get; }
+
+        public OpenFileTrigger(
+            string id,
+            string name,
+            string targetRecipeId,
+            string filter = null,
+            bool fireAndForget = false)
+            : base(id, name, targetRecipeId)
+        {
+            Filter = filter;
+            FireAndForget = fireAndForget;
+        }
+
+        public override string TriggerType => TriggerConfig.TypeOpenFile;
+
+        public override void Start() { }
+        public override void Stop() { }
     }
 }

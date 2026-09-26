@@ -1,0 +1,30 @@
+{
+  "manifest_version": 3,
+  "name": "Greenshot Companion",
+  "version": "1.0.0",
+  "description": "Seamlessly capture browser pages and route screenshots with tab metadata into Greenshot.",
+  "permissions": [
+    "activeTab",
+    "tabs",
+    "nativeMessaging",
+    "storage"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Greenshot Companion",
+    "default_popup": "popup/popup.html"
+  },
+  "options_ui": {
+    "page": "options/options.html",
+    "open_in_tab": false
+  },
+  "icons": {
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  }
+}

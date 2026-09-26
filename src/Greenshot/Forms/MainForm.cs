@@ -417,7 +417,7 @@ namespace Greenshot.Forms
 
             // Start named pipe server for session-isolated IPC
             _namedPipeServer = new NamedPipeServer();
-            _namedPipeServer.MessageReceived += OnNamedPipeMessageReceived;
+            _namedPipeServer.RequestReceived += OnNamedPipeRequestReceived;
             _namedPipeServer.Start();
 
             if (options.Restore)
@@ -543,71 +543,17 @@ namespace Greenshot.Forms
         }
 
         /// <summary>
-        /// Handles IPC envelopes received via the session-isolated named pipe.
+        /// Handles incoming IPC requests via the security dispatcher.
         /// </summary>
-        private void OnNamedPipeMessageReceived(object sender, IpcEnvelope envelope)
+        private async Task OnNamedPipeRequestReceived(IpcRequestContext context)
         {
-            if (InvokeRequired)
-            {
-                BeginInvoke(new Action(() => OnNamedPipeMessageReceived(sender, envelope)));
-                return;
-            }
-
-            if (envelope?.Parsed == null)
-            {
-                Log.Warn("Received empty or unparseable IPC message.");
-                return;
-            }
-
-            Log.Info($"Named pipe message received: action='{envelope.Parsed.Action}', source='{envelope.Source}'");
-
-            switch (envelope.Parsed.Action?.ToLowerInvariant())
-            {
-                case "open_file":
-                case "open":
-                    string filePath = null;
-                    if (envelope.Parsed.Parameters != null)
-                    {
-                        if (!envelope.Parsed.Parameters.TryGetValue("path", out filePath))
-                        {
-                            envelope.Parsed.Parameters.TryGetValue("file", out filePath);
-                        }
-                    }
-                    if (string.IsNullOrEmpty(filePath))
-                    {
-                        filePath = envelope.RawInput;
-                    }
-
-                    if (!string.IsNullOrEmpty(filePath))
-                    {
-                        ApplicationStartupHelper.OpenFile(filePath);
-                    }
-                    else
-                    {
-                        Log.Warn("OpenFile command received over named pipe without a valid file path.");
-                    }
-                    break;
-
-                case "exit":
-                    Log.Info("Exit requested via named pipe.");
-                    Exit();
-                    break;
-
-                case "reload_config":
-                case "reload":
-                    Log.Info("ReloadConfig requested via named pipe.");
-                    ApplicationStartupHelper.ReloadConfig();
-                    break;
-
-                case "first_launch":
-                    Log.Info("FirstLaunch requested via named pipe.");
-                    ApplicationStartupHelper.FirstLaunch();
-                    break;
-
-                default:
-                    Log.Warn($"Unknown command action received over named pipe: '{envelope.Parsed.Action}'");
-                    break;
-            }
+            await IpcSecurityDispatcher.DispatchAsync(
+                context,
+                this,
+                Exit,
+                ApplicationStartupHelper.ReloadConfig,
+                ApplicationStartupHelper.FirstLaunch,
+                ApplicationStartupHelper.OpenFile).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -1136,14 +1082,17 @@ namespace Greenshot.Forms
             });
         }
 
-        /// <summary>
-        /// This is called indirectly from the context menu "Preferences"
-        /// </summary>
-        public void ShowSetting(string pluginName = null)
+        public void ShowSetting(string pluginName = null) => ShowSetting(pluginName, null);
+
+        public void ShowSetting(string pluginName, string tabName)
         {
             // Use WPF Settings Window
             if (_settingsWindow != null && _settingsWindow.IsVisible)
             {
+                if (!string.IsNullOrEmpty(tabName))
+                {
+                    _settingsWindow.SelectTab(tabName);
+                }
                 if (!string.IsNullOrEmpty(pluginName))
                 {
                     _settingsWindow.SelectPlugin(pluginName);
@@ -1154,7 +1103,7 @@ namespace Greenshot.Forms
             {
                 try
                 {
-                    _settingsWindow = new SettingsWindow(pluginName);
+                    _settingsWindow = new SettingsWindow(pluginName, tabName);
                     
                     // Show the WPF window as a dialog
                     if (_settingsWindow.ShowDialog() == true)

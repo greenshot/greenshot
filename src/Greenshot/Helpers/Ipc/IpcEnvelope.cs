@@ -26,7 +26,37 @@ using Newtonsoft.Json;
 namespace Greenshot.Helpers.Ipc
 {
     /// <summary>
-    /// Represents the length-prefixed JSON envelope matching Architecture Decision Record 002.
+    /// Metadata accompanying a browser capture import.
+    /// </summary>
+    public class IpcCaptureMetadata
+    {
+        [JsonProperty("title")]
+        public string Title { get; set; }
+
+        [JsonProperty("url")]
+        public string Url { get; set; }
+
+        [JsonProperty("timestamp")]
+        public long Timestamp { get; set; }
+    }
+
+    /// <summary>
+    /// Binary data payload representation for browser capture.
+    /// </summary>
+    public class IpcCaptureData
+    {
+        [JsonProperty("mime_type")]
+        public string MimeType { get; set; }
+
+        [JsonProperty("encoding")]
+        public string Encoding { get; set; }
+
+        [JsonProperty("payload")]
+        public string Payload { get; set; }
+    }
+
+    /// <summary>
+    /// Represents the length-prefixed JSON envelope matching Architecture Decision Records 002 and 003.
     /// </summary>
     public class IpcEnvelope
     {
@@ -36,11 +66,92 @@ namespace Greenshot.Helpers.Ipc
         [JsonProperty("source")]
         public string Source { get; set; }
 
+        [JsonProperty("command")]
+        public string Command { get; set; }
+
+        [JsonProperty("extension_version")]
+        public string ExtensionVersion { get; set; }
+
+        [JsonProperty("browser")]
+        public string Browser { get; set; }
+
         [JsonProperty("raw_input")]
         public string RawInput { get; set; }
 
         [JsonProperty("parsed")]
         public IpcParsedCommand Parsed { get; set; } = new IpcParsedCommand();
+
+        [JsonProperty("metadata")]
+        public IpcCaptureMetadata Metadata { get; set; }
+
+        [JsonProperty("data")]
+        public IpcCaptureData Data { get; set; }
+
+        [JsonProperty("url")]
+        public string Url { get; set; }
+
+        [JsonProperty("title")]
+        public string Title { get; set; }
+
+        [JsonProperty("recipe")]
+        public string Recipe { get; set; }
+
+        [JsonProperty("files")]
+        public List<string> Files { get; set; } = new List<string>();
+
+        [JsonProperty("parameters")]
+        public Dictionary<string, string> Parameters { get; set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+        [JsonProperty("async")]
+        public bool Async { get; set; }
+
+        [JsonProperty("cwd")]
+        public string Cwd { get; set; }
+
+        public static IpcEnvelope CreateListRecipes()
+        {
+            return new IpcEnvelope
+            {
+                Version = 1,
+                Source = "cli",
+                Command = "LIST_RECIPES"
+            };
+        }
+
+        public static IpcEnvelope CreateRunRecipe(string recipe, Dictionary<string, string> parameters = null, bool isAsync = false)
+        {
+            var env = new IpcEnvelope
+            {
+                Version = 1,
+                Source = "cli",
+                Command = "RUN_RECIPE",
+                Recipe = recipe,
+                Async = isAsync
+            };
+            if (parameters != null)
+            {
+                foreach (var kvp in parameters)
+                {
+                    env.Parameters[kvp.Key] = kvp.Value;
+                }
+            }
+            return env;
+        }
+
+        public static IpcEnvelope CreateOpenFiles(IEnumerable<string> filePaths)
+        {
+            var env = new IpcEnvelope
+            {
+                Version = 1,
+                Source = "open_with",
+                Command = "OPEN_FILE"
+            };
+            if (filePaths != null)
+            {
+                env.Files.AddRange(filePaths);
+            }
+            return env;
+        }
 
         public static IpcEnvelope CreateOpenFile(string filePath)
         {
@@ -71,6 +182,9 @@ namespace Greenshot.Helpers.Ipc
                 {
                     Action = "exit",
                     Parameters = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        { "path", "" }
+                    }
                 }
             };
         }
@@ -86,6 +200,9 @@ namespace Greenshot.Helpers.Ipc
                 {
                     Action = "reload_config",
                     Parameters = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        { "path", "" }
+                    }
                 }
             };
         }

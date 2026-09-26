@@ -49,6 +49,7 @@ artifacts/
 *.obj
 *.pch
 *.pdb
+*.res
 *.pgc
 *.pgd
 *.rsp
@@ -227,3 +228,4 @@ src/generated/
 # Token-replacement generated credential files
 src/**/*.Credentials.cs
 /bom.json
+src/**/Greenshot-proxy.exe

@@ -3215,6 +3215,19 @@
                                 <StackPanel>
                                     <TextBlock Text="RECIPE CONFIGURATION" FontWeight="Bold" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,10"/>
 
+                                    <TextBlock Text="Recipe ID" FontSize="11" Foreground="{Binding TextSecondaryBrush}"/>
+                                    <Grid Margin="0,2,0,8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox Text="{Binding RecipeId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                 Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}"
+                                                 FontFamily="Consolas" Padding="6,4"/>
+                                        <Button Grid.Column="1" Content="📋 Copy" Style="{StaticResource ToolbarBtn}"
+                                                Command="{Binding CopyRecipeIdCommand}" Margin="4,0,0,0" ToolTip="Copy Recipe ID to Clipboard"/>
+                                    </Grid>
+
                                     <TextBlock Text="Recipe Name" FontSize="11" Foreground="{Binding TextSecondaryBrush}"/>
                                     <TextBox Text="{Binding RecipeTitle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                              Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}"
@@ -3271,13 +3284,16 @@
                                         <Button Content="+ Context Menu" Style="{StaticResource ToolbarBtn}" Command="{Binding AddTriggerCommand}" CommandParameter="ContextMenu" Margin="0,0,4,4"/>
                                         <Button Content="+ Editor" Style="{StaticResource ToolbarBtn}" Command="{Binding AddTriggerCommand}" CommandParameter="Editor" Margin="0,0,4,4"/>
                                         <Button Content="+ Clipboard" Style="{StaticResource ToolbarBtn}" Command="{Binding AddTriggerCommand}" CommandParameter="Clipboard" Margin="0,0,4,4"/>
+                                        <Button Content="+ CLI" Style="{StaticResource ToolbarBtn}" Command="{Binding AddTriggerCommand}" CommandParameter="Commandline" Margin="0,0,4,4" ToolTip="Add Command Line Trigger"/>
+                                        <Button Content="+ Open With" Style="{StaticResource ToolbarBtn}" Command="{Binding AddTriggerCommand}" CommandParameter="OpenFile" Margin="0,0,4,4" ToolTip="Add Open With File Trigger"/>
+                                        <Button Content="+ Extension" Style="{StaticResource ToolbarBtn}" Command="{Binding AddTriggerCommand}" CommandParameter="Extension" Margin="0,0,4,4" ToolTip="Add Browser Extension Trigger"/>
                                         <Button Content="+ Manual" Style="{StaticResource ToolbarBtn}" Command="{Binding AddTriggerCommand}" CommandParameter="Manual" Margin="0,0,0,4"/>
                                     </WrapPanel>
 
                                     <!-- Triggers List -->
                                     <ItemsControl ItemsSource="{Binding Triggers}">
                                         <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
+                                           <DataTemplate>
                                                 <Border Background="{Binding DataContext.CardBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
                                                         BorderBrush="{Binding DataContext.CardBorderBrush, RelativeSource={RelativeSource AncestorType=Window}}"
                                                         BorderThickness="1" CornerRadius="6" Padding="10,8" Margin="0,0,0,8">
@@ -3356,6 +3372,53 @@
                                                                      Background="{Binding DataContext.WindowBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                      Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                      Padding="4,2" Margin="0,2,0,0"/>
+                                                        </StackPanel>
+
+                                                        <!-- 6. Commandline (CLI) -->
+                                                        <StackPanel Visibility="{Binding IsCommandline, Converter={StaticResource BoolToVis}}" Margin="0,2,0,0">
+                                                            <TextBlock Text="CLI Command Name (e.g. ocr, my-task)" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                            <TextBox Text="{Binding Command, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                     FontFamily="Consolas"
+                                                                     Background="{Binding DataContext.WindowBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                     Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                     Padding="4,2" Margin="0,2,0,4"/>
+                                                            <TextBlock Text="CLI Description (Shown in -l / --list-recipes)" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                            <TextBox Text="{Binding Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                     Background="{Binding DataContext.WindowBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                     Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                     Padding="4,2" Margin="0,2,0,4"/>
+                                                            <CheckBox Content="Fire and Forget (Return immediately without waiting)"
+                                                                      IsChecked="{Binding FireAndForget, Mode=TwoWay}"
+                                                                      Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                      FontSize="10" Margin="0,2,0,0"/>
+                                                        </StackPanel>
+
+                                                        <!-- 7. Open With File -->
+                                                        <StackPanel Visibility="{Binding IsOpenFile, Converter={StaticResource BoolToVis}}" Margin="0,2,0,0">
+                                                            <TextBlock Text="File Extension Filter (e.g. *.png;*.jpg;*.bmp or empty for all)" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                            <TextBox Text="{Binding Filter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                     FontFamily="Consolas"
+                                                                     Background="{Binding DataContext.WindowBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                     Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                     Padding="4,2" Margin="0,2,0,4"/>
+                                                            <CheckBox Content="Fire and Forget"
+                                                                      IsChecked="{Binding FireAndForget, Mode=TwoWay}"
+                                                                      Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                      FontSize="10" Margin="0,2,0,0"/>
+                                                        </StackPanel>
+
+                                                        <!-- 8. Browser Extension -->
+                                                        <StackPanel Visibility="{Binding IsExtension, Converter={StaticResource BoolToVis}}" Margin="0,2,0,0">
+                                                            <TextBlock Text="Browser Filter (e.g. chrome, firefox, or empty for all)" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                            <TextBox Text="{Binding Browser, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                     FontFamily="Consolas"
+                                                                     Background="{Binding DataContext.WindowBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                     Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                     Padding="4,2" Margin="0,2,0,4"/>
+                                                            <CheckBox Content="Fire and Forget"
+                                                                      IsChecked="{Binding FireAndForget, Mode=TwoWay}"
+                                                                      Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                      FontSize="10" Margin="0,2,0,0"/>
                                                         </StackPanel>
                                                     </StackPanel>
                                                 </Border>

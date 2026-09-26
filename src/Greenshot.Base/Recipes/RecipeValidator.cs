@@ -107,7 +107,10 @@ namespace Greenshot.Base.Recipes
             Greenshot.Base.Triggers.TriggerConfig.TypeClipboard,
             Greenshot.Base.Triggers.TriggerConfig.TypeEditor,
             Greenshot.Base.Triggers.TriggerConfig.TypeManual,
-            Greenshot.Base.Triggers.TriggerConfig.TypeSchedule
+            Greenshot.Base.Triggers.TriggerConfig.TypeSchedule,
+            Greenshot.Base.Triggers.TriggerConfig.TypeCommandline,
+            Greenshot.Base.Triggers.TriggerConfig.TypeOpenFile,
+            Greenshot.Base.Triggers.TriggerConfig.TypeExtension
         };
 
         /// <summary>

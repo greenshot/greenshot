@@ -26,6 +26,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
+using Greenshot.Base.Interfaces.Ocr;
 using Greenshot.Base.Pipeline;
 using Greenshot.Base.Recipes;
 using log4net;
@@ -48,13 +49,13 @@ namespace Greenshot.Pipeline.Steps
             Name = config.Name ?? "ProcessorExecutionStep";
         }
 
-        public Task ExecuteAsync(CaptureFlowContext context, CancellationToken cancellationToken = default)
+        public async Task ExecuteAsync(CaptureFlowContext context, CancellationToken cancellationToken = default)
         {
             var payload = context.Payload;
             if (payload?.RawCapture == null)
             {
                 context.LogStep("ProcessorExecutionStep skipped: Payload or RawCapture is null.");
-                return Task.CompletedTask;
+                return;
             }
 
             context.State = CaptureFlowState.Processing;
@@ -116,6 +117,43 @@ namespace Greenshot.Pipeline.Steps
                     .ToList();
             }
 
+            // If OCR is specifically requested by the recipe step, execute OCR and populate text properties
+            bool isExplicitOcr = string.Equals(mode, "OCR", StringComparison.OrdinalIgnoreCase) ||
+                                 (processorIds != null && processorIds.Any(id => id.IndexOf("Ocr", StringComparison.OrdinalIgnoreCase) >= 0));
+
+            if (isExplicitOcr)
+            {
+                var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>();
+                if (ocrProvider != null)
+                {
+                    var surf = payload.EnsureSurface();
+                    if (surf != null)
+                    {
+                        try
+                        {
+                            var ocrLines = await ocrProvider.DoOcrAsync(surf).ConfigureAwait(false);
+                            if (ocrLines != null && ocrLines.Any())
+                            {
+                                string txt = string.Join(Environment.NewLine, ocrLines.Select(l => l.Text));
+                                payload.ExtractedText = txt;
+                                context.Properties["OcrText"] = txt;
+                                context.Properties["Text"] = txt;
+                                context.Properties["CommandResult"] = txt;
+                                lock (payload.RawCapture.CaptureDetails.Features)
+                                {
+                                    payload.RawCapture.CaptureDetails.Features.AddRange(ocrLines);
+                                }
+                                context.LogStep($"OCR extracted {ocrLines.Count} line(s) of text.");
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.Error("Failed to execute OCR in ProcessorExecutionStep", ex);
+                        }
+                    }
+                }
+            }
+
             foreach (var processor in processors)
             {
                 if (context.IsAborted || cancellationToken.IsCancellationRequested) break;
@@ -124,8 +162,6 @@ namespace Greenshot.Pipeline.Steps
                 Log.InfoFormat("Calling processor {0}", processor.Description);
                 processor.ProcessCapture(payload.RawCapture);
             }
-
-            return Task.CompletedTask;
         }
     }
 }

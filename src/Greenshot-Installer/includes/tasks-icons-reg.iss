@@ -31,7 +31,21 @@ Root: HKA; Subkey: Software\Microsoft\Windows\CurrentVersion\Run; ValueType: str
 Root: HKA; Subkey: Software\Classes\.greenshot; ValueType: string; ValueName: ""; ValueData: "Greenshot"; Flags: uninsdeletevalue noerror
 Root: HKA; Subkey: Software\Classes\Greenshot; ValueType: string; ValueName: ""; ValueData: "Greenshot File"; Flags: uninsdeletevalue noerror
 Root: HKA; Subkey: Software\Classes\Greenshot\DefaultIcon; ValueType: string; ValueName: ""; ValueData: """{app}\Greenshot.EXE"",0"; Flags: uninsdeletevalue noerror
-Root: HKA; Subkey: Software\Classes\Greenshot\shell\open\command; ValueType: string; ValueName: ""; ValueData: """{app}\Greenshot.EXE"" --openfile ""%1"""; Flags: uninsdeletevalue noerror
+Root: HKA; Subkey: Software\Classes\Greenshot\shell\open\command; ValueType: string; ValueName: ""; ValueData: """{app}\greenshot-proxy.exe"" --openfile ""%1"""; Flags: uninsdeletevalue noerror
+
+; Register custom URL scheme greenshot://
+Root: HKA; Subkey: Software\Classes\greenshot; ValueType: string; ValueName: ""; ValueData: "URL:Greenshot Protocol"; Flags: uninsdeletekey noerror
+Root: HKA; Subkey: Software\Classes\greenshot; ValueType: string; ValueName: "URL Protocol"; ValueData: ""; Flags: uninsdeletevalue noerror
+Root: HKA; Subkey: Software\Classes\greenshot\DefaultIcon; ValueType: string; ValueName: ""; ValueData: """{app}\Greenshot.exe"",0"; Flags: uninsdeletevalue noerror
+Root: HKA; Subkey: Software\Classes\greenshot\shell\open\command; ValueType: string; ValueName: ""; ValueData: """{app}\greenshot-proxy.exe"" ""%1"""; Flags: uninsdeletevalue noerror
+
+; Register Open With application entry
+Root: HKA; Subkey: Software\Classes\Applications\greenshot-proxy.exe\shell\open\command; ValueType: string; ValueName: ""; ValueData: """{app}\greenshot-proxy.exe"" --file ""%1"""; Flags: uninsdeletekey noerror
+
+; Register Native Messaging Hosts in HKLM (Strictly machine-level install per ADR 001)
+Root: HKLM; Subkey: Software\Google\Chrome\NativeMessagingHosts\org.greenshot.proxy; ValueType: string; ValueName: ""; ValueData: "{app}\org.greenshot.proxy.json"; Flags: uninsdeletekey noerror; Check: IsAdminInstallMode
+Root: HKLM; Subkey: Software\Microsoft\Edge\NativeMessagingHosts\org.greenshot.proxy; ValueType: string; ValueName: ""; ValueData: "{app}\org.greenshot.proxy.json"; Flags: uninsdeletekey noerror; Check: IsAdminInstallMode
+Root: HKLM; Subkey: Software\Mozilla\NativeMessagingHosts\org.greenshot.proxy; ValueType: string; ValueName: ""; ValueData: "{app}\org.greenshot.proxy-firefox.json"; Flags: uninsdeletekey noerror; Check: IsAdminInstallMode
 
 ; Disable the default PRTSCR Snipping Tool in Windows 11
 Root: HKCU; Subkey: Control Panel\Keyboard; ValueType: dword; ValueName: "PrintScreenKeyForSnippingEnabled"; ValueData: "0"; Flags: uninsdeletevalue; Check: ShouldDisableSnippingTool

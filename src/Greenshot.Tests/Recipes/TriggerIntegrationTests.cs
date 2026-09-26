@@ -108,5 +108,32 @@ namespace Greenshot.Tests.Recipes
             Assert.True(recipeWithDestinationsEditor.HasEditorDestination());
         }
 
+        [Fact]
+        public void ExtensionTrigger_CreationAndConfiguration_SetsPropertiesCorrectly()
+        {
+            var config = TriggerConfig.CreateExtension("chrome", fireAndForget: true, name: "Chrome Extension");
+
+            Assert.Equal(TriggerConfig.TypeExtension, config.TriggerType);
+            Assert.Equal("chrome", config.GetParameter<string>("Browser"));
+            Assert.True(config.GetParameter<bool>("FireAndForget"));
+
+            var trigger = new ExtensionTrigger("recipe_ext", config);
+            Assert.Equal("Chrome Extension", trigger.Name);
+            Assert.Equal("recipe_ext", trigger.TargetRecipeId);
+            Assert.Equal(TriggerConfig.TypeExtension, trigger.TriggerType);
+            Assert.Equal("chrome", trigger.Browser);
+            Assert.True(trigger.FireAndForget);
+        }
+
+        [Fact]
+        public void RecipeManager_DefaultExtensionRecipe_IsRegisteredAndConfigured()
+        {
+            var recipe = Greenshot.Recipes.RecipeManager.Instance.GetRecipeById(Greenshot.Recipes.RecipeManager.RecipeIdExtension);
+            Assert.NotNull(recipe);
+            Assert.True(recipe.IsEnabled);
+            Assert.Contains(recipe.Nodes, n => n.StepType == WellKnownStepTypes.Source);
+            Assert.Contains(recipe.Nodes, n => n.StepType == WellKnownStepTypes.DynamicDestination);
+            Assert.Contains(recipe.Triggers, t => t.TriggerType == TriggerConfig.TypeExtension);
+        }
     }
 }

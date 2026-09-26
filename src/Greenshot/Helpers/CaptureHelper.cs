@@ -21,11 +21,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Recipes;
+using Greenshot.Base.Triggers;
 using Greenshot.Pipeline;
 using Greenshot.Recipes;
 using log4net;
@@ -165,6 +168,37 @@ namespace Greenshot.Helpers
             _ = CapturePipeline.Instance.ExecuteAsync(recipe, null, ctx =>
             {
                 ctx.Payload = new CapturePayload(captureToImport);
+            });
+        }
+
+        public static void ImportExtensionCapture(ICapture captureToImport, string browser = null)
+        {
+            var allRecipes = RecipeManager.Instance.GetAllRecipes();
+            CaptureRecipe recipe = null;
+            if (allRecipes != null)
+            {
+                recipe = allRecipes.FirstOrDefault(r => r != null && r.IsEnabled && r.Triggers != null && r.Triggers.Any(t =>
+                    t.Enabled &&
+                    string.Equals(t.TriggerType, TriggerConfig.TypeExtension, StringComparison.OrdinalIgnoreCase) &&
+                    (string.IsNullOrEmpty(t.GetParameter<string>("Browser")) ||
+                     string.Equals(t.GetParameter<string>("Browser"), browser, StringComparison.OrdinalIgnoreCase))));
+            }
+            recipe ??= RecipeManager.Instance.GetRecipeById(RecipeManager.RecipeIdExtension);
+
+            if (recipe == null)
+            {
+                Log.Error("No extension recipe found to process browser capture.");
+                return;
+            }
+
+            _ = CapturePipeline.Instance.ExecuteAsync(recipe, null, ctx =>
+            {
+                ctx.Payload = new CapturePayload(captureToImport);
+                ctx.Properties["Capture"] = captureToImport;
+                if (!string.IsNullOrEmpty(browser))
+                {
+                    ctx.Properties["Browser"] = browser;
+                }
             });
         }
 

@@ -75,8 +75,10 @@ namespace Greenshot.Pipeline.Steps
                 return;
             }
 
-            // Skip interaction if capture was already acquired directly from a window (e.g. targeted window capture)
-            if (payload.RawCapture.CaptureDetails?.MetaData?.TryGetValue("source", out var src) == true && src == "Window")
+            // Skip interaction if capture was already acquired directly from a window or file
+            if (payload.RawCapture.CaptureDetails?.MetaData?.TryGetValue("source", out var src) == true &&
+                (string.Equals(src, "Window", StringComparison.OrdinalIgnoreCase) ||
+                 string.Equals(src, "file", StringComparison.OrdinalIgnoreCase)))
             {
                 return;
             }

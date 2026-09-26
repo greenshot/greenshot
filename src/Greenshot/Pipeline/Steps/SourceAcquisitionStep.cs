@@ -21,6 +21,7 @@
 
 using System;
 using System.Drawing;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -59,12 +60,15 @@ namespace Greenshot.Pipeline.Steps
 
         public async Task ExecuteAsync(CaptureFlowContext context, CancellationToken cancellationToken = default)
         {
-            context.State = CaptureFlowState.Acquiring;
-
-            // 0. Check if payload is already pre-supplied 
+            // 0. Check if payload is already pre-supplied (e.g. browser extension capture or programmatic injection)
             if (context.Payload != null)
             {
-                Log.Warn($"Source {Name} already has a pre-supplied payload. This should not happen.");
+                Log.Info($"Source {Name} using pre-supplied capture payload.");
+                if (Config.GetParameter("AlignDpi", true))
+                {
+                    AlignDpi(context.Payload);
+                }
+                return;
             }
 
             // 1. Pre-capture preparation: tray icon reset & delay
@@ -97,6 +101,19 @@ namespace Greenshot.Pipeline.Steps
                 }
                 context.Payload = payload;
                 return;
+            }
+
+            // 4b. Handle pre-supplied file (e.g. CLI -r ocr file="test.png")
+            if (context.Properties.TryGetValue("Filename", out var fileObj) &&
+                fileObj is string filePath && !string.IsNullOrWhiteSpace(filePath) && File.Exists(filePath))
+            {
+                var fileSource = new FileCaptureSource();
+                var payloadFromFile = await fileSource.AcquireAsync(context, cancellationToken).ConfigureAwait(false);
+                if (payloadFromFile != null)
+                {
+                    context.Payload = payloadFromFile;
+                    return;
+                }
             }
 
             // Check if window targeting parameters are specified in config
@@ -137,12 +154,22 @@ namespace Greenshot.Pipeline.Steps
                 CaptureSourceType.CurrentEditor =>
                     new CurrentEditorCaptureSource(),
 
+                CaptureSourceType.Extension =>
+                    null,
+
                 _ => null
             };
 
             if (source == null)
             {
-                context.Fail($"Unsupported capture source type: {sourceType}");
+                if (sourceType == CaptureSourceType.Extension)
+                {
+                    context.Fail("Extension capture source requires a pre-supplied image payload.");
+                }
+                else
+                {
+                    context.Fail($"Unsupported capture source type: {sourceType}");
+                }
                 return;
             }
 

@@ -38,6 +38,9 @@ namespace Greenshot.Base.Triggers
         public const string TypeEditor = "Editor";
         public const string TypeManual = "Manual";
         public const string TypeSchedule = "Schedule";
+        public const string TypeCommandline = "Commandline";
+        public const string TypeOpenFile = "OpenFile";
+        public const string TypeExtension = "Extension";
 
         /// <summary>
         /// The type of trigger (e.g. "Hotkey", "ContextMenu", "Clipboard", "Manual").
@@ -176,6 +179,43 @@ namespace Greenshot.Base.Triggers
             {
                 config.SetParameter("FormatFilter", formatFilter);
             }
+            return config;
+        }
+
+        public static TriggerConfig CreateCommandline(string command = null, string description = null, bool fireAndForget = false, string name = null)
+        {
+            var config = new TriggerConfig(TypeCommandline, name ?? (command ?? "Commandline"));
+            if (!string.IsNullOrEmpty(command))
+            {
+                config.SetParameter("Command", command);
+            }
+            if (!string.IsNullOrEmpty(description))
+            {
+                config.SetParameter("Description", description);
+            }
+            config.SetParameter("FireAndForget", fireAndForget);
+            return config;
+        }
+
+        public static TriggerConfig CreateOpenFile(string filter = null, bool fireAndForget = false, string name = null)
+        {
+            var config = new TriggerConfig(TypeOpenFile, name ?? "Open File");
+            if (!string.IsNullOrEmpty(filter))
+            {
+                config.SetParameter("Filter", filter);
+            }
+            config.SetParameter("FireAndForget", fireAndForget);
+            return config;
+        }
+
+        public static TriggerConfig CreateExtension(string browser = null, bool fireAndForget = false, string name = null)
+        {
+            var config = new TriggerConfig(TypeExtension, name ?? "Browser Extension");
+            if (!string.IsNullOrEmpty(browser))
+            {
+                config.SetParameter("Browser", browser);
+            }
+            config.SetParameter("FireAndForget", fireAndForget);
             return config;
         }
 

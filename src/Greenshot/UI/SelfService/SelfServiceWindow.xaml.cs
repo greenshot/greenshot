@@ -84,6 +84,12 @@ namespace Greenshot.UI.SelfService
             ClipboardPanel.Visibility = sectionId == "clipboard" ? Visibility.Visible : Visibility.Collapsed;
             HotkeysPanel.Visibility = sectionId == "hotkeys" ? Visibility.Visible : Visibility.Collapsed;
             ChecksumPanel.Visibility = sectionId == "checksum" ? Visibility.Visible : Visibility.Collapsed;
+#if DEBUG
+            if (IntegrationDebugPanel != null)
+            {
+                IntegrationDebugPanel.Visibility = sectionId == "debug_integration" ? Visibility.Visible : Visibility.Collapsed;
+            }
+#endif
 
             UpdateStatusText(null);
         }
@@ -399,6 +405,39 @@ namespace Greenshot.UI.SelfService
                 // Ignore if unsupported by OS
             }
         }
+
+#if DEBUG
+        private void OnRegisterDebugHkcuClicked(object sender, RoutedEventArgs e)
+        {
+            ViewModel?.IntegrationDebugSection?.RegisterAll();
+        }
+
+        private void OnUnregisterDebugHkcuClicked(object sender, RoutedEventArgs e)
+        {
+            ViewModel?.IntegrationDebugSection?.UnregisterAll();
+        }
+
+        private void OnSaveDebugExtensionIdClicked(object sender, RoutedEventArgs e)
+        {
+            ViewModel?.IntegrationDebugSection?.SaveExtensionId();
+        }
+
+        private void OnTestDebugUrlSchemeClicked(object sender, RoutedEventArgs e)
+        {
+            ViewModel?.IntegrationDebugSection?.TestUrlScheme();
+        }
+
+        private void OnOpenDebugExtensionFolderClicked(object sender, RoutedEventArgs e)
+        {
+            ViewModel?.IntegrationDebugSection?.OpenExtensionFolder();
+        }
+#else
+        private void OnRegisterDebugHkcuClicked(object sender, RoutedEventArgs e) { }
+        private void OnUnregisterDebugHkcuClicked(object sender, RoutedEventArgs e) { }
+        private void OnSaveDebugExtensionIdClicked(object sender, RoutedEventArgs e) { }
+        private void OnTestDebugUrlSchemeClicked(object sender, RoutedEventArgs e) { }
+        private void OnOpenDebugExtensionFolderClicked(object sender, RoutedEventArgs e) { }
+#endif
 
         [DllImport("dwmapi.dll", PreserveSig = true)]
         private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
