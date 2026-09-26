@@ -136,5 +136,10 @@ namespace Greenshot.Base.Recipes
         /// Records screen video using Windows Graphics Capture (WGC).
         /// </summary>
         public const string RecordVideo = "RecordVideo";
+
+        /// <summary>
+        /// Dedicated step emitting text output directly to the standard output stream (stdout) immediately via IPC or console.
+        /// </summary>
+        public const string Stdout = "Stdout";
     }
 }

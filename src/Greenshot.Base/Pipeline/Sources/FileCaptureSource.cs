@@ -27,31 +27,76 @@ using System.Threading.Tasks;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Core.FileFormatHandlers;
+using Greenshot.Base.Expressions;
 using Greenshot.Base.Interfaces;
+using Greenshot.Base.Recipes;
 using log4net;
 
 namespace Greenshot.Base.Pipeline.Sources
 {
     /// <summary>
     /// Acquires a capture payload by loading an image file or .greenshot file from disk.
+    /// Explicitly resolves the target file path from RecipeNodeConfig parameters ("Filename", "file", etc.)
+    /// with expression evaluation (e.g. "${Filename}"), falling back to flow context properties.
     /// </summary>
     public class FileCaptureSource : ICaptureSource
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(FileCaptureSource));
 
+        private readonly RecipeNodeConfig _nodeConfig;
+
         public string Name => "FileCaptureSource";
+
+        public FileCaptureSource(RecipeNodeConfig nodeConfig = null)
+        {
+            _nodeConfig = nodeConfig;
+        }
 
         public Task<ICapturePayload> AcquireAsync(CaptureFlowContext context, CancellationToken cancellationToken = default)
         {
             string filename = null;
-            if (context.Properties.TryGetValue("Filename", out var fnObj))
+
+            // 1. Resolve from RecipeNodeConfig parameters if configured
+            if (_nodeConfig?.Parameters != null)
             {
-                filename = fnObj as string;
+                if (_nodeConfig.Parameters.TryGetValue("Filename", out var cfgVal) ||
+                    _nodeConfig.Parameters.TryGetValue("filename", out cfgVal) ||
+                    _nodeConfig.Parameters.TryGetValue("File", out cfgVal) ||
+                    _nodeConfig.Parameters.TryGetValue("file", out cfgVal) ||
+                    _nodeConfig.Parameters.TryGetValue("Path", out cfgVal) ||
+                    _nodeConfig.Parameters.TryGetValue("path", out cfgVal))
+                {
+                    if (cfgVal is string strVal && !string.IsNullOrWhiteSpace(strVal))
+                    {
+                        object evaluated = ExpressionEvaluator.Instance.Evaluate(strVal, context);
+                        filename = evaluated?.ToString();
+                    }
+                }
             }
 
-            if (string.IsNullOrEmpty(filename) || !File.Exists(filename))
+            // 2. Fall back to flow context properties bag
+            if (string.IsNullOrWhiteSpace(filename) && context?.Properties != null)
             {
-                context.Abort($"File not found or not specified: '{filename}'");
+                if (context.Properties.TryGetValue("Filename", out var fnObj) ||
+                    context.Properties.TryGetValue("filename", out fnObj) ||
+                    context.Properties.TryGetValue("File", out fnObj) ||
+                    context.Properties.TryGetValue("file", out fnObj) ||
+                    context.Properties.TryGetValue("Path", out fnObj) ||
+                    context.Properties.TryGetValue("path", out fnObj))
+                {
+                    filename = fnObj as string;
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(filename))
+            {
+                context?.Abort("SourceType 'File' requires a file path. Specify 'Filename' parameter on the Source node (e.g. 'filename': '${Filename}') or provide 'Filename' in the flow context properties.");
+                return Task.FromResult<ICapturePayload>(null);
+            }
+
+            if (!File.Exists(filename))
+            {
+                context?.Abort($"SourceType 'File' could not find file: '{filename}'");
                 return Task.FromResult<ICapturePayload>(null);
             }
 
@@ -82,6 +127,17 @@ namespace Greenshot.Base.Pipeline.Sources
                                 CaptureDetails = surface.CaptureDetails
                             }
                         };
+                        if (surface?.CaptureDetails != null)
+                        {
+                            surface.CaptureDetails.Title = Path.GetFileNameWithoutExtension(filename);
+                            surface.CaptureDetails.Filename = filename;
+                            surface.CaptureDetails.AddMetaData("file", filename);
+                            surface.CaptureDetails.AddMetaData("source", "file");
+                            surface.CaptureDetails.AddMetaData("dirname", Path.GetDirectoryName(filename) ?? string.Empty);
+                            surface.CaptureDetails.AddMetaData("filename", Path.GetFileNameWithoutExtension(filename));
+                            surface.CaptureDetails.AddMetaData("basename", Path.GetFileNameWithoutExtension(filename));
+                            surface.CaptureDetails.AddMetaData("extension", Path.GetExtension(filename));
+                        }
                         return Task.FromResult<ICapturePayload>(payload);
                     }
                     catch (Exception ex)
@@ -112,6 +168,10 @@ namespace Greenshot.Base.Pipeline.Sources
                 capture.CaptureDetails.Filename = filename;
                 capture.CaptureDetails.AddMetaData("file", filename);
                 capture.CaptureDetails.AddMetaData("source", "file");
+                capture.CaptureDetails.AddMetaData("dirname", Path.GetDirectoryName(filename) ?? string.Empty);
+                capture.CaptureDetails.AddMetaData("filename", Path.GetFileNameWithoutExtension(filename));
+                capture.CaptureDetails.AddMetaData("basename", Path.GetFileNameWithoutExtension(filename));
+                capture.CaptureDetails.AddMetaData("extension", Path.GetExtension(filename));
 
                 var payload = new CapturePayload(capture);
                 return Task.FromResult<ICapturePayload>(payload);

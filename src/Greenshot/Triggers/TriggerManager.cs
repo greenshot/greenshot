@@ -211,8 +211,10 @@ namespace Greenshot.Triggers
                             string cmd = tc.GetParameter<string>("Command") ?? recipe.Id;
                             string desc = tc.GetParameter<string>("Description") ?? recipe.Description;
                             bool fnf = tc.GetParameter<bool>("FireAndForget", false);
+                            string stdout = tc.GetParameter<string>("Stdout");
+                            var args = tc.GetParameter<System.Collections.Generic.List<CommandlineArgument>>("Arguments");
                             string triggerId = $"trigger_recipe_{recipe.Id}_cmd_{i}";
-                            RegisterTrigger(new CommandlineTrigger(triggerId, tc.Name ?? cmd, recipe.Id, cmd, desc, fnf));
+                            RegisterTrigger(new CommandlineTrigger(triggerId, tc.Name ?? cmd, recipe.Id, cmd, desc, fnf, stdout, args));
                         }
                         else if (string.Equals(tc.TriggerType, TriggerConfig.TypeOpenFile, StringComparison.OrdinalIgnoreCase))
                         {

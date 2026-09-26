@@ -205,7 +205,8 @@ namespace Greenshot.Pipeline.Steps
 
             if (!string.IsNullOrWhiteSpace(customDir))
             {
-                string expandedDir = FilenameHelper.FillVariables(customDir, false);
+                var captureDetails = context.Payload?.RawCapture?.CaptureDetails;
+                string expandedDir = FilenameHelper.FillPattern(customDir, captureDetails, false);
                 if (!Directory.Exists(expandedDir))
                 {
                     try
@@ -229,7 +230,10 @@ namespace Greenshot.Pipeline.Steps
                     outputFormat = parsedFmt;
                 }
 
-                var captureDetails = context.Payload?.RawCapture?.CaptureDetails;
+                if (captureDetails == null)
+                {
+                    captureDetails = context.Payload?.RawCapture?.CaptureDetails;
+                }
                 if (captureDetails != null)
                 {
                     string filename = FilenameHelper.GetFilenameFromPattern(pattern, outputFormat, captureDetails);

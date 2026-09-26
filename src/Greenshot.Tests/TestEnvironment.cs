@@ -23,6 +23,7 @@ using System;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Pipeline;
+using Greenshot.Editor;
 using Greenshot.Editor.Configuration;
 using Greenshot.Editor.Drawing;
 
@@ -51,6 +52,8 @@ namespace Greenshot.Tests
                 {
                     SimpleServiceProvider.Current.AddService<Func<ISurface>>(() => new Surface());
                 }
+
+                EditorInitialize.Initialize();
 
                 _initialized = true;
             }

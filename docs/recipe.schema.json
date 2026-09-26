@@ -166,6 +166,14 @@
               ],
               "description": "Used by 'Source' step: The kind of raw pixels to capture."
             },
+            "Filename": {
+              "type": "string",
+              "description": "Used by 'Source' step (SourceType=File): Path or expression (e.g. '${Filename}') to the image file to load."
+            },
+            "Text": {
+              "type": "string",
+              "description": "Used by 'Stdout' step: String template or expression (e.g. '${Barcode.Text}') to emit to stdout."
+            },
             "WindowTitle": {
               "type": "string",
               "description": "Used by 'Source' step (Window/ActiveWindow): Substring or exact title of a specific window to target."
@@ -684,7 +692,10 @@
             "Systray",
             "Clipboard",
             "Manual",
-            "Schedule"
+            "Schedule",
+            "Commandline",
+            "OpenFile",
+            "Extension"
           ],
           "description": "The trigger mechanism type."
         },
@@ -722,9 +733,62 @@
               "type": "boolean",
               "default": true,
               "description": "For clipboard trigger: whether to trigger automatically when an image is copied to clipboard."
+            },
+            "Command": {
+              "type": "string",
+              "description": "Used by Commandline trigger: Command name / verb invoked from CLI (e.g. 'qr', 'convert', 'ocr')."
+            },
+            "Description": {
+              "type": "string",
+              "description": "Human-readable description displayed in CLI recipe listings."
+            },
+            "FireAndForget": {
+              "type": "boolean",
+              "default": false,
+              "description": "Whether the trigger runs asynchronously without blocking the caller."
+            },
+            "Stdout": {
+              "type": "string",
+              "description": "Used by Commandline trigger: Expression or string template (e.g. '${Barcode.Text}') evaluated and emitted to stdout upon completion."
+            },
+            "Arguments": {
+              "type": "array",
+              "description": "Explicit list of named arguments accepted from the command line, their target context variables, requirement, and default values.",
+              "items": {
+                "$ref": "#/definitions/CommandlineArgument"
+              }
             }
           },
           "additionalProperties": true
+        }
+      }
+    },
+    "CommandlineArgument": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "CLI argument name passed by user (e.g. 'file', 'format', 'lang')."
+        },
+        "variable": {
+          "type": "string",
+          "description": "Target flow context variable (e.g. 'Filename', 'Format'). Defaults to name if omitted."
+        },
+        "description": {
+          "type": "string",
+          "description": "Explanation of this argument displayed in CLI listings."
+        },
+        "required": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether this argument is mandatory. Execution fails if not provided and no default exists."
+        },
+        "defaultValue": {
+          "type": "string",
+          "description": "Default value applied when the argument is omitted by the user."
         }
       }
     }

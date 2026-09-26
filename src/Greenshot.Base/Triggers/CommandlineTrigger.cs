@@ -30,6 +30,8 @@ namespace Greenshot.Base.Triggers
         public string Command { get; }
         public string Description { get; }
         public bool FireAndForget { get; }
+        public string Stdout { get; }
+        public System.Collections.Generic.IReadOnlyList<CommandlineArgument> Arguments { get; }
 
         public CommandlineTrigger(
             string id,
@@ -37,12 +39,18 @@ namespace Greenshot.Base.Triggers
             string targetRecipeId,
             string command = null,
             string description = null,
-            bool fireAndForget = false)
+            bool fireAndForget = false,
+            string stdout = null,
+            System.Collections.Generic.IEnumerable<CommandlineArgument> arguments = null)
             : base(id, name, targetRecipeId)
         {
             Command = command ?? targetRecipeId;
             Description = description;
             FireAndForget = fireAndForget;
+            Stdout = stdout;
+            Arguments = arguments != null
+                ? new System.Collections.Generic.List<CommandlineArgument>(arguments).AsReadOnly()
+                : new System.Collections.Generic.List<CommandlineArgument>().AsReadOnly();
         }
 
         public override string TriggerType => TriggerConfig.TypeCommandline;

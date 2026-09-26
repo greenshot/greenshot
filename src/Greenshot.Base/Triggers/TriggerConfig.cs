@@ -182,7 +182,13 @@ namespace Greenshot.Base.Triggers
             return config;
         }
 
-        public static TriggerConfig CreateCommandline(string command = null, string description = null, bool fireAndForget = false, string name = null)
+        public static TriggerConfig CreateCommandline(
+            string command = null,
+            string description = null,
+            bool fireAndForget = false,
+            string stdout = null,
+            IEnumerable<CommandlineArgument> arguments = null,
+            string name = null)
         {
             var config = new TriggerConfig(TypeCommandline, name ?? (command ?? "Commandline"));
             if (!string.IsNullOrEmpty(command))
@@ -194,6 +200,14 @@ namespace Greenshot.Base.Triggers
                 config.SetParameter("Description", description);
             }
             config.SetParameter("FireAndForget", fireAndForget);
+            if (!string.IsNullOrEmpty(stdout))
+            {
+                config.SetParameter("Stdout", stdout);
+            }
+            if (arguments != null)
+            {
+                config.SetParameter("Arguments", new List<CommandlineArgument>(arguments));
+            }
             return config;
         }
 

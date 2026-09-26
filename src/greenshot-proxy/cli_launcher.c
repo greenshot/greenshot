@@ -397,6 +397,48 @@ static BOOL JsonGetInt(const char* json, const char* key, int* pOut)
     return TRUE;
 }
 
+static BOOL JsonGetBool(const char* json, const char* key, BOOL* pOut)
+{
+    if (!json || !key || !pOut)
+    {
+        return FALSE;
+    }
+
+    char pattern[256];
+    snprintf(pattern, sizeof(pattern), "\"%s\"", key);
+
+    const char* pKey = strstr(json, pattern);
+    if (!pKey)
+    {
+        return FALSE;
+    }
+
+    const char* pColon = strchr(pKey + strlen(pattern), ':');
+    if (!pColon)
+    {
+        return FALSE;
+    }
+
+    const char* pStart = pColon + 1;
+    while (*pStart == ' ' || *pStart == '\t' || *pStart == '\r' || *pStart == '\n')
+    {
+        pStart++;
+    }
+
+    if (_strnicmp(pStart, "true", 4) == 0)
+    {
+        *pOut = TRUE;
+        return TRUE;
+    }
+    if (_strnicmp(pStart, "false", 5) == 0)
+    {
+        *pOut = FALSE;
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
 static void PrintRecipeList(const char* json)
 {
     const char* pRecipes = strstr(json, "\"recipes\"");
@@ -426,7 +468,25 @@ static void PrintRecipeList(const char* json)
             break;
         }
 
-        const char* pObjEnd = strchr(pObjStart, '}');
+        // Match matching outer closing brace
+        int braceDepth = 0;
+        const char* pScan = pObjStart;
+        const char* pObjEnd = NULL;
+        while (*pScan != '\0')
+        {
+            if (*pScan == '{') braceDepth++;
+            else if (*pScan == '}')
+            {
+                braceDepth--;
+                if (braceDepth == 0)
+                {
+                    pObjEnd = pScan;
+                    break;
+                }
+            }
+            pScan++;
+        }
+
         if (!pObjEnd)
         {
             break;
@@ -443,11 +503,13 @@ static void PrintRecipeList(const char* json)
             wchar_t szId[128] = { 0 };
             wchar_t szName[256] = { 0 };
             wchar_t szDesc[512] = { 0 };
+            wchar_t szStdout[256] = { 0 };
 
             JsonGetString(pObjJson, "command", szCmd, _countof(szCmd));
             JsonGetString(pObjJson, "id", szId, _countof(szId));
             JsonGetString(pObjJson, "name", szName, _countof(szName));
             JsonGetString(pObjJson, "description", szDesc, _countof(szDesc));
+            JsonGetString(pObjJson, "stdout", szStdout, _countof(szStdout));
 
             wchar_t line[1024];
             StringCchPrintfW(line, _countof(line), L"  %-20ls %ls (ID: %ls)\n",
@@ -456,6 +518,91 @@ static void PrintRecipeList(const char* json)
                 szId);
             PrintStdout(line);
 
+            if (szStdout[0] != L'\0')
+            {
+                wchar_t outLine[512];
+                StringCchPrintfW(outLine, _countof(outLine), L"      Stdout  : %ls\n", szStdout);
+                PrintStdout(outLine);
+            }
+
+            // Print declared arguments if any
+            const char* pArgsStart = strstr(pObjJson, "\"arguments\"");
+            if (pArgsStart)
+            {
+                const char* pArgsArray = strchr(pArgsStart, '[');
+                if (pArgsArray)
+                {
+                    const char* pArgCurr = pArgsArray + 1;
+                    BOOL hasArgsHeader = FALSE;
+
+                    while (*pArgCurr != '\0' && *pArgCurr != ']')
+                    {
+                        const char* pArgStart = strchr(pArgCurr, '{');
+                        if (!pArgStart) break;
+                        const char* pArgEnd = strchr(pArgStart, '}');
+                        if (!pArgEnd) break;
+
+                        size_t argLen = (size_t)(pArgEnd - pArgStart + 1);
+                        char* pArgJson = (char*)malloc(argLen + 1);
+                        if (pArgJson)
+                        {
+                            memcpy(pArgJson, pArgStart, argLen);
+                            pArgJson[argLen] = '\0';
+
+                            wchar_t szArgName[64] = { 0 };
+                            wchar_t szArgVar[64] = { 0 };
+                            wchar_t szArgDesc[256] = { 0 };
+                            wchar_t szArgDef[128] = { 0 };
+                            BOOL bRequired = FALSE;
+
+                            JsonGetString(pArgJson, "name", szArgName, _countof(szArgName));
+                            JsonGetString(pArgJson, "variable", szArgVar, _countof(szArgVar));
+                            JsonGetString(pArgJson, "description", szArgDesc, _countof(szArgDesc));
+                            JsonGetString(pArgJson, "default_value", szArgDef, _countof(szArgDef));
+                            JsonGetBool(pArgJson, "required", &bRequired);
+
+                            if (!hasArgsHeader)
+                            {
+                                PrintStdout(L"      Arguments:\n");
+                                hasArgsHeader = TRUE;
+                            }
+
+                            wchar_t argLine[1024];
+                            if (bRequired)
+                            {
+                                StringCchPrintfW(argLine, _countof(argLine), L"        * %-14ls (required)          : %ls%ls%ls\n",
+                                    szArgName,
+                                    szArgDesc,
+                                    szArgVar[0] != L'\0' && _wcsicmp(szArgVar, szArgName) != 0 ? L" -> $" : L"",
+                                    szArgVar[0] != L'\0' && _wcsicmp(szArgVar, szArgName) != 0 ? szArgVar : L"");
+                            }
+                            else if (szArgDef[0] != L'\0')
+                            {
+                                StringCchPrintfW(argLine, _countof(argLine), L"          %-14ls (default: %-8ls) : %ls%ls%ls\n",
+                                    szArgName,
+                                    szArgDef,
+                                    szArgDesc,
+                                    szArgVar[0] != L'\0' && _wcsicmp(szArgVar, szArgName) != 0 ? L" -> $" : L"",
+                                    szArgVar[0] != L'\0' && _wcsicmp(szArgVar, szArgName) != 0 ? szArgVar : L"");
+                            }
+                            else
+                            {
+                                StringCchPrintfW(argLine, _countof(argLine), L"          %-14ls (optional)          : %ls%ls%ls\n",
+                                    szArgName,
+                                    szArgDesc,
+                                    szArgVar[0] != L'\0' && _wcsicmp(szArgVar, szArgName) != 0 ? L" -> $" : L"",
+                                    szArgVar[0] != L'\0' && _wcsicmp(szArgVar, szArgName) != 0 ? szArgVar : L"");
+                            }
+                            PrintStdout(argLine);
+
+                            free(pArgJson);
+                        }
+                        pArgCurr = pArgEnd + 1;
+                    }
+                }
+            }
+
+            PrintStdout(L"\n");
             count++;
             free(pObjJson);
         }
@@ -544,13 +691,24 @@ int RunCliOrUrl(LPCWSTR pszPipeName, int argc, wchar_t* argv[])
                 continue;
             }
 
+            LPCWSTR pwszKey = NULL;
+            LPCWSTR pwszVal = NULL;
+
             wchar_t* pEq = wcschr(argv[i], L'=');
             if (pEq)
             {
                 *pEq = L'\0';
-                LPCWSTR pwszKey = argv[i];
-                LPCWSTR pwszVal = pEq + 1;
+                pwszKey = argv[i];
+                pwszVal = pEq + 1;
+            }
+            else if (argv[i][0] == L'-' && i + 1 < argc && argv[i + 1][0] != L'-')
+            {
+                pwszKey = argv[i] + (argv[i][1] == L'-' ? 2 : 1);
+                pwszVal = argv[++i];
+            }
 
+            if (pwszKey && pwszVal)
+            {
                 char szKey[256] = { 0 };
                 char szVal[4096] = { 0 };
                 EscapeJsonString(pwszKey, szKey, sizeof(szKey));
@@ -566,7 +724,7 @@ int RunCliOrUrl(LPCWSTR pszPipeName, int argc, wchar_t* argv[])
                     paramsIdx += pairLen;
                     hasParams = TRUE;
                 }
-                *pEq = L'='; // restore
+                if (pEq) *pEq = L'='; // restore
             }
         }
         szParamsJson[paramsIdx++] = '}';
@@ -702,75 +860,107 @@ int RunCliOrUrl(LPCWSTR pszPipeName, int argc, wchar_t* argv[])
 
     FlushFileBuffers(hPipe);
 
-    /* 5. Read framed JSON response */
+    /* 5. Read framed JSON response(s) in a streaming loop */
     uint32_t respLen = 0;
-    if (!ReadExact(hPipe, &respLen, sizeof(respLen)))
-    {
-        /* Greenshot closed pipe without response */
-        CloseHandle(hPipe);
-        return 0;
-    }
-
-    if (respLen < MIN_PAYLOAD_SIZE || respLen > MAX_PAYLOAD_SIZE)
-    {
-        PrintStderr(L"Error: Received invalid response size from Greenshot.\n");
-        CloseHandle(hPipe);
-        return 1;
-    }
-
-    char* pRespBuffer = (char*)malloc(respLen + 1);
-    if (!pRespBuffer)
-    {
-        PrintStderr(L"Error: Memory allocation failed for response buffer.\n");
-        CloseHandle(hPipe);
-        return 1;
-    }
-
-    if (!ReadExact(hPipe, pRespBuffer, respLen))
-    {
-        PrintStderr(L"Error: Failed to read complete response from Greenshot.\n");
-        free(pRespBuffer);
-        CloseHandle(hPipe);
-        return 1;
-    }
-
-    pRespBuffer[respLen] = '\0';
-    CloseHandle(hPipe);
-
-    /* 6. Parse and render response */
     int exitCode = 0;
-    JsonGetInt(pRespBuffer, "exit_code", &exitCode);
 
-    wchar_t szStatus[64] = { 0 };
-    JsonGetString(pRespBuffer, "status", szStatus, _countof(szStatus));
-
-    if (exitCode == 0 && _wcsicmp(szStatus, L"error") == 0)
+    while (ReadExact(hPipe, &respLen, sizeof(respLen)))
     {
-        exitCode = 1;
-    }
-
-    if (isListRecipes)
-    {
-        PrintRecipeList(pRespBuffer);
-    }
-    else
-    {
-        wchar_t szStdout[32768] = { 0 };
-        wchar_t szStderr[32768] = { 0 };
-
-        if (JsonGetString(pRespBuffer, "stdout", szStdout, _countof(szStdout)) && szStdout[0] != L'\0')
+        if (respLen < MIN_PAYLOAD_SIZE || respLen > MAX_PAYLOAD_SIZE)
         {
-            PrintStdout(szStdout);
-            PrintStdout(L"\n");
+            PrintStderr(L"Error: Received invalid response size from Greenshot.\n");
+            exitCode = 1;
+            break;
         }
 
-        if (JsonGetString(pRespBuffer, "stderr", szStderr, _countof(szStderr)) && szStderr[0] != L'\0')
+        char* pRespBuffer = (char*)malloc(respLen + 1);
+        if (!pRespBuffer)
         {
-            PrintStderr(szStderr);
-            PrintStderr(L"\n");
+            PrintStderr(L"Error: Memory allocation failed for response buffer.\n");
+            exitCode = 1;
+            break;
         }
+
+        if (!ReadExact(hPipe, pRespBuffer, respLen))
+        {
+            PrintStderr(L"Error: Failed to read complete response from Greenshot.\n");
+            free(pRespBuffer);
+            exitCode = 1;
+            break;
+        }
+
+        pRespBuffer[respLen] = '\0';
+
+        wchar_t szStream[64] = { 0 };
+        JsonGetString(pRespBuffer, "stream", szStream, _countof(szStream));
+
+        // Check if this is an intermediate streaming chunk (e.g. from StdoutStep)
+        if (_wcsicmp(szStream, L"stdout") == 0)
+        {
+            wchar_t szChunk[32768] = { 0 };
+            if (JsonGetString(pRespBuffer, "text", szChunk, _countof(szChunk)) ||
+                JsonGetString(pRespBuffer, "data", szChunk, _countof(szChunk)))
+            {
+                PrintStdout(szChunk);
+                PrintStdout(L"\n");
+                fflush(stdout);
+            }
+            free(pRespBuffer);
+            continue;
+        }
+        else if (_wcsicmp(szStream, L"stderr") == 0)
+        {
+            wchar_t szChunk[32768] = { 0 };
+            if (JsonGetString(pRespBuffer, "text", szChunk, _countof(szChunk)) ||
+                JsonGetString(pRespBuffer, "data", szChunk, _countof(szChunk)))
+            {
+                PrintStderr(szChunk);
+                PrintStderr(L"\n");
+                fflush(stderr);
+            }
+            free(pRespBuffer);
+            continue;
+        }
+
+        // Final completion message
+        JsonGetInt(pRespBuffer, "exit_code", &exitCode);
+
+        wchar_t szStatus[64] = { 0 };
+        JsonGetString(pRespBuffer, "status", szStatus, _countof(szStatus));
+
+        if (exitCode == 0 && _wcsicmp(szStatus, L"error") == 0)
+        {
+            exitCode = 1;
+        }
+
+        if (isListRecipes)
+        {
+            PrintRecipeList(pRespBuffer);
+        }
+        else
+        {
+            wchar_t szStdout[32768] = { 0 };
+            wchar_t szStderr[32768] = { 0 };
+
+            if (JsonGetString(pRespBuffer, "stdout", szStdout, _countof(szStdout)) && szStdout[0] != L'\0')
+            {
+                PrintStdout(szStdout);
+                PrintStdout(L"\n");
+                fflush(stdout);
+            }
+
+            if (JsonGetString(pRespBuffer, "stderr", szStderr, _countof(szStderr)) && szStderr[0] != L'\0')
+            {
+                PrintStderr(szStderr);
+                PrintStderr(L"\n");
+                fflush(stderr);
+            }
+        }
+
+        free(pRespBuffer);
+        break; // Final response processed
     }
 
-    free(pRespBuffer);
+    CloseHandle(hPipe);
     return exitCode;
 }

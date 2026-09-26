@@ -22,6 +22,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Triggers;
 
@@ -64,6 +65,11 @@ namespace Greenshot.Base.Pipeline
         /// The visual payload (bitmap, surface, extracted text). Null until acquisition succeeds.
         /// </summary>
         public ICapturePayload Payload { get; set; }
+
+        /// <summary>
+        /// Optional delegate to immediately emit streaming stdout text back to the caller (e.g. IPC client).
+        /// </summary>
+        public Func<string, Task> StdoutWriter { get; set; }
 
         /// <summary>
         /// Cancellation token for early termination.
@@ -138,7 +144,8 @@ namespace Greenshot.Base.Pipeline
             var branchContext = new CaptureFlowContext(Recipe, Trigger, CancellationToken)
             {
                 State = State,
-                Payload = branchPayload
+                Payload = branchPayload,
+                StdoutWriter = StdoutWriter
             };
 
             if (Properties != null)

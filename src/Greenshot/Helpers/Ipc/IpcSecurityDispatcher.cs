@@ -28,6 +28,8 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.FileFormatHandlers;
+using Greenshot.Base.Expressions;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Ocr;
 using Greenshot.Base.Interfaces.Plugin;
@@ -76,10 +78,49 @@ namespace Greenshot.Helpers.Ipc
             "RECIPE_MANAGER"
         };
 
-        private static readonly HashSet<string> AllowedImageExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        private static readonly HashSet<string> FallbackAllowedImageExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
-            ".png", ".jpg", ".jpeg", ".bmp", ".gif", ".tiff", ".tif", ".ico", ".greenshot"
+            ".png", ".jpg", ".jpeg", ".bmp", ".gif", ".tiff", ".tif", ".ico", ".greenshot", ".webp"
         };
+
+        /// <summary>
+        /// Retrieves allowed image extensions dynamically from registered IFileFormatHandler instances.
+        /// Falls back to default well-known image extensions if format handlers are not yet initialized.
+        /// </summary>
+        public static IEnumerable<string> GetAllowedImageExtensions()
+        {
+            var handlers = SimpleServiceProvider.Current?.GetAllInstances<IFileFormatHandler>();
+            if (handlers != null)
+            {
+                var registered = handlers.ExtensionsFor(FileFormatHandlerActions.LoadFromFile).ToList();
+                if (registered.Count > 0)
+                {
+                    return registered;
+                }
+            }
+            return FallbackAllowedImageExtensions;
+        }
+
+        /// <summary>
+        /// Validates whether a file extension is supported for loading by registered IFileFormatHandler instances.
+        /// </summary>
+        public static bool IsAllowedImageExtension(string extension)
+        {
+            if (string.IsNullOrWhiteSpace(extension)) return false;
+            if (!extension.StartsWith(".")) extension = "." + extension;
+
+            var handlers = SimpleServiceProvider.Current?.GetAllInstances<IFileFormatHandler>();
+            if (handlers != null)
+            {
+                var supported = handlers.ExtensionsFor(FileFormatHandlerActions.LoadFromFile);
+                if (supported != null && supported.Any(e => string.Equals(e, extension, StringComparison.OrdinalIgnoreCase)))
+                {
+                    return true;
+                }
+            }
+
+            return FallbackAllowedImageExtensions.Contains(extension);
+        }
 
         private static readonly HashSet<string> ReservedDeviceNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
@@ -508,6 +549,8 @@ namespace Greenshot.Helpers.Ipc
                         string cmd = tc.GetParameter<string>("Command") ?? recipe.Id;
                         string desc = tc.GetParameter<string>("Description") ?? recipe.Description ?? string.Empty;
                         bool fnf = tc.GetParameter<bool>("FireAndForget", false);
+                        string stdoutExpr = tc.GetParameter<string>("Stdout");
+                        var args = tc.GetParameter<List<CommandlineArgument>>("Arguments") ?? new List<CommandlineArgument>();
 
                         list.Add(new
                         {
@@ -515,7 +558,16 @@ namespace Greenshot.Helpers.Ipc
                             name = recipe.Name,
                             command = cmd,
                             description = desc,
-                            fire_and_forget = fnf
+                            fire_and_forget = fnf,
+                            stdout = stdoutExpr,
+                            arguments = args.Select(a => new
+                            {
+                                name = a.Name,
+                                variable = string.IsNullOrWhiteSpace(a.Variable) ? a.Name : a.Variable,
+                                description = a.Description ?? string.Empty,
+                                required = a.Required,
+                                default_value = a.DefaultValue
+                            })
                         });
                     }
                 }
@@ -613,6 +665,8 @@ namespace Greenshot.Helpers.Ipc
             bool fireAndForget = context.Envelope.Async || matchedTriggerConfig.GetParameter<bool>("FireAndForget", false);
             string cmdName = matchedTriggerConfig.GetParameter<string>("Command") ?? matchedRecipe.Id;
             string desc = matchedTriggerConfig.GetParameter<string>("Description") ?? matchedRecipe.Description;
+            string stdoutExpr = matchedTriggerConfig.GetParameter<string>("Stdout");
+            var declaredArgs = matchedTriggerConfig.GetParameter<List<CommandlineArgument>>("Arguments") ?? new List<CommandlineArgument>();
 
             var cmdTrigger = new CommandlineTrigger(
                 $"cli_{matchedRecipe.Id}_{Guid.NewGuid():N}",
@@ -620,7 +674,9 @@ namespace Greenshot.Helpers.Ipc
                 matchedRecipe.Id,
                 cmdName,
                 desc,
-                fireAndForget);
+                fireAndForget,
+                stdoutExpr,
+                declaredArgs);
 
             var recipeToExecute = TriggerRecipePreparer.Prepare(matchedRecipe, cmdTrigger);
 
@@ -663,16 +719,61 @@ namespace Greenshot.Helpers.Ipc
                 }
             }
 
-            // 2. Normalize 'file' and 'path' aliases to 'Filename' (expected by SourceAcquisitionStep)
-            if (!cliParams.ContainsKey("Filename"))
+            // 2. Validate and map declared arguments
+            if (declaredArgs.Count > 0)
             {
-                if (cliParams.TryGetValue("file", out var fVal))
+                foreach (var arg in declaredArgs)
                 {
-                    cliParams["Filename"] = fVal;
+                    if (string.IsNullOrWhiteSpace(arg.Name)) continue;
+                    string varName = !string.IsNullOrWhiteSpace(arg.Variable) ? arg.Variable : arg.Name;
+
+                    object val = null;
+                    if (cliParams.TryGetValue(arg.Name, out var v1) && v1 != null && !(v1 is string s1 && string.IsNullOrWhiteSpace(s1)))
+                    {
+                        val = v1;
+                    }
+                    else if (cliParams.TryGetValue(varName, out var v2) && v2 != null && !(v2 is string s2 && string.IsNullOrWhiteSpace(s2)))
+                    {
+                        val = v2;
+                    }
+
+                    if (val == null && !string.IsNullOrEmpty(arg.DefaultValue))
+                    {
+                        val = arg.DefaultValue;
+                    }
+
+                    if (arg.Required && (val == null || (val is string sv && string.IsNullOrWhiteSpace(sv))))
+                    {
+                        string descHint = string.IsNullOrWhiteSpace(arg.Description) ? "" : $" ({arg.Description})";
+                        await context.ReplyAsync(new
+                        {
+                            status = "error",
+                            exit_code = 1,
+                            stderr = $"Missing required argument '{arg.Name}'{descHint}."
+                        }).ConfigureAwait(false);
+                        return;
+                    }
+
+                    if (val != null)
+                    {
+                        cliParams[varName] = val;
+                        cliParams[arg.Name] = val;
+                    }
                 }
-                else if (cliParams.TryGetValue("path", out var pVal))
+            }
+            else
+            {
+                // Fallback alias mapping when no explicit arguments are declared
+                if (!cliParams.ContainsKey("Filename"))
                 {
-                    cliParams["Filename"] = pVal;
+                    if (cliParams.TryGetValue("file", out var fVal))
+                    {
+                        cliParams["Filename"] = fVal;
+                    }
+                    else if (cliParams.TryGetValue("path", out var pVal))
+                    {
+                        cliParams["Filename"] = pVal;
+                    }
                 }
             }
 
@@ -698,12 +799,23 @@ namespace Greenshot.Helpers.Ipc
                 }
             }
 
+            bool hasStreamedStdout = false;
             Action<CaptureFlowContext> configureContext = flowCtx =>
             {
                 foreach (var kv in cliParams)
                 {
                     flowCtx.Properties[kv.Key] = kv.Value;
                 }
+
+                flowCtx.StdoutWriter = async text =>
+                {
+                    hasStreamedStdout = true;
+                    await context.ReplyAsync(new
+                    {
+                        stream = "stdout",
+                        text = text
+                    }).ConfigureAwait(false);
+                };
             };
 
             if (fireAndForget)
@@ -732,46 +844,80 @@ namespace Greenshot.Helpers.Ipc
                 else
                 {
                     string outputText = null;
-                    if (flowCtx.Properties.TryGetValue("CommandResult", out var crObj) && crObj != null)
+
+                    // Priority 1: Explicit stdout template defined on the trigger
+                    if (!string.IsNullOrWhiteSpace(stdoutExpr))
                     {
-                        outputText = crObj.ToString();
-                    }
-                    else if (flowCtx.Properties.TryGetValue("OutputText", out var otObj) && otObj != null)
-                    {
-                        outputText = otObj.ToString();
-                    }
-                    else if (flowCtx.Properties.TryGetValue("Text", out var tObj) && tObj != null)
-                    {
-                        outputText = tObj.ToString();
-                    }
-                    else if (flowCtx.Properties.TryGetValue("OcrText", out var ocrObj) && ocrObj != null)
-                    {
-                        outputText = ocrObj.ToString();
-                    }
-                    else if (!string.IsNullOrWhiteSpace(flowCtx.Payload?.ExtractedText))
-                    {
-                        outputText = flowCtx.Payload.ExtractedText;
-                    }
-                    else if (flowCtx.Payload?.RawCapture?.CaptureDetails != null)
-                    {
-                        var details = flowCtx.Payload.RawCapture.CaptureDetails;
-                        if (details.ProcessingTask != null)
-                        {
-                            try { details.ProcessingTask.Wait(5000); } catch { }
-                        }
-                        lock (details.Features)
-                        {
-                            var ocrLines = details.Features.OfType<IOcrLineFeature>().ToList();
-                            if (ocrLines.Any())
-                            {
-                                outputText = string.Join(Environment.NewLine, ocrLines.Select(l => l.Text));
-                            }
-                        }
+                        object eval = ExpressionEvaluator.Instance.Evaluate(stdoutExpr, flowCtx);
+                        outputText = eval?.ToString();
                     }
 
-                    if (string.IsNullOrEmpty(outputText))
+                    // Priority 2: If StdoutStep already streamed output and no explicit stdout pattern was set, do not duplicate
+                    if (outputText == null && hasStreamedStdout)
                     {
-                        outputText = $"Recipe '{matchedRecipe.Name}' completed successfully.";
+                        outputText = null;
+                    }
+
+                    // Priority 3: Fallback cascade if neither trigger stdout nor StdoutStep was used (for backwards compatibility)
+                    if (outputText == null && !hasStreamedStdout)
+                    {
+                        if (flowCtx.Properties.TryGetValue("CommandResult", out var crObj) && crObj != null)
+                        {
+                            outputText = crObj.ToString();
+                        }
+                        else if (flowCtx.Properties.TryGetValue("OutputText", out var otObj) && otObj != null)
+                        {
+                            outputText = otObj.ToString();
+                        }
+                        else if (flowCtx.Properties.TryGetValue("LastStdout", out var lsObj) && lsObj != null)
+                        {
+                            outputText = lsObj.ToString();
+                        }
+                        else if (flowCtx.Properties.TryGetValue("Text", out var tObj) && tObj != null)
+                        {
+                            outputText = tObj.ToString();
+                        }
+                        else if (flowCtx.Properties.TryGetValue("OcrText", out var ocrObj) && ocrObj != null)
+                        {
+                            outputText = ocrObj.ToString();
+                        }
+                        else if (flowCtx.Properties.TryGetValue("Barcode.Text", out var bObj) && bObj != null)
+                        {
+                            outputText = bObj.ToString();
+                        }
+                        else if (flowCtx.Properties.TryGetValue("Zxing.DecodedText", out var zObj) && zObj != null)
+                        {
+                            outputText = zObj.ToString();
+                        }
+                        else if (!string.IsNullOrWhiteSpace(flowCtx.Payload?.ExtractedText))
+                        {
+                            outputText = flowCtx.Payload.ExtractedText;
+                        }
+                        else if (flowCtx.Properties.TryGetValue("Destination.Filename", out var dfObj) && dfObj != null)
+                        {
+                            outputText = dfObj.ToString();
+                        }
+                        else if (flowCtx.Payload?.RawCapture?.CaptureDetails != null)
+                        {
+                            var details = flowCtx.Payload.RawCapture.CaptureDetails;
+                            if (details.ProcessingTask != null)
+                            {
+                                try { details.ProcessingTask.Wait(5000); } catch { }
+                            }
+                            lock (details.Features)
+                            {
+                                var ocrLines = details.Features.OfType<IOcrLineFeature>().ToList();
+                                if (ocrLines.Any())
+                                {
+                                    outputText = string.Join(Environment.NewLine, ocrLines.Select(l => l.Text));
+                                }
+                            }
+                        }
+
+                        if (string.IsNullOrEmpty(outputText))
+                        {
+                            outputText = $"Recipe '{matchedRecipe.Name}' completed successfully.";
+                        }
                     }
 
                     await context.ReplyAsync(new
@@ -838,7 +984,7 @@ namespace Greenshot.Helpers.Ipc
                 }
 
                 string ext = Path.GetExtension(fullPath);
-                if (string.IsNullOrEmpty(ext) || !AllowedImageExtensions.Contains(ext))
+                if (string.IsNullOrEmpty(ext) || !IsAllowedImageExtension(ext))
                 {
                     Log.Warn($"[SECURITY] OPEN_FILE rejected: File extension '{ext}' is not permitted.");
                     string clientErr = IsUntrustedSource(context.Envelope.Source)

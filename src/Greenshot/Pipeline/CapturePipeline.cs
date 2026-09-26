@@ -112,6 +112,9 @@ namespace Greenshot.Pipeline
             _stepRegistry.RegisterStepFactory("PromptChoice", config => new UserPromptStep(config));
             _stepRegistry.RegisterStepFactory(WellKnownStepTypes.DynamicDestination, config => new DynamicDestinationStep(config));
             _stepRegistry.RegisterStepFactory(WellKnownStepTypes.RecordVideo, config => new RecordVideoRecipeStep(config));
+            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.Stdout, config => new StdoutStep(config));
+            _stepRegistry.RegisterStepFactory("Print", config => new StdoutStep(config));
+            _stepRegistry.RegisterStepFactory("ConsoleOutput", config => new StdoutStep(config));
 
             // Register all plugin step providers
             try

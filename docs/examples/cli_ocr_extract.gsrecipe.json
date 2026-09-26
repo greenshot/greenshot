@@ -1,0 +1,81 @@
+{
+  "$schema": "../recipe.schema.json",
+  "version": "1.0",
+  "id": "recipe_cli_ocr_extract",
+  "name": "CLI Headless OCR Text Extractor",
+  "description": "Loads a bitmap file from the command line, extracts all visible text via OCR, and outputs the plain text directly to the console stdout.",
+  "triggers": [
+    {
+      "triggerType": "Commandline",
+      "name": "OCR CLI Trigger",
+      "enabled": true,
+      "parameters": {
+        "command": "ocr",
+        "description": "Extract text from an image file using OCR and return to stdout",
+        "fireAndForget": false,
+        "stdout": "${OcrText}",
+        "arguments": [
+          {
+            "name": "file",
+            "variable": "Filename",
+            "description": "Path to the image file to extract text from",
+            "required": true
+          },
+          {
+            "name": "lang",
+            "variable": "OcrLanguage",
+            "description": "Optional OCR language code (e.g. eng, deu, fra)",
+            "required": false,
+            "defaultValue": ""
+          }
+        ]
+      }
+    }
+  ],
+  "nodes": [
+    {
+      "id": "load_file",
+      "stepType": "Source",
+      "name": "Load Image File",
+      "enabled": true,
+      "parameters": {
+        "sourceType": "File",
+        "filename": "${Filename}"
+      }
+    },
+    {
+      "id": "ocr_extraction",
+      "stepType": "Processors",
+      "name": "Perform OCR",
+      "enabled": true,
+      "parameters": {
+        "processors": [
+          "Ocr"
+        ]
+      }
+    },
+    {
+      "id": "print_result",
+      "stepType": "Stdout",
+      "name": "Print Extracted Text",
+      "enabled": true,
+      "parameters": {
+        "text": "${OcrText}"
+      }
+    }
+  ],
+  "flow": {
+    "startNodes": [
+      "load_file"
+    ],
+    "transitions": {
+      "load_file": [
+        "ocr_extraction"
+      ],
+      "ocr_extraction": [
+        "print_result"
+      ]
+    },
+    "conditionalTransitions": []
+  }
+}

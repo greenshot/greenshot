@@ -103,19 +103,6 @@ namespace Greenshot.Pipeline.Steps
                 return;
             }
 
-            // 4b. Handle pre-supplied file (e.g. CLI -r ocr file="test.png")
-            if (context.Properties.TryGetValue("Filename", out var fileObj) &&
-                fileObj is string filePath && !string.IsNullOrWhiteSpace(filePath) && File.Exists(filePath))
-            {
-                var fileSource = new FileCaptureSource();
-                var payloadFromFile = await fileSource.AcquireAsync(context, cancellationToken).ConfigureAwait(false);
-                if (payloadFromFile != null)
-                {
-                    context.Payload = payloadFromFile;
-                    return;
-                }
-            }
-
             // Check if window targeting parameters are specified in config
             bool hasTargetWindowConfig = !string.IsNullOrEmpty(Config.GetParameter<string>("WindowTitle")) ||
                                          !string.IsNullOrEmpty(Config.GetParameter<string>("WindowTitlePattern")) ||
@@ -149,7 +136,7 @@ namespace Greenshot.Pipeline.Steps
                     new ClipboardCaptureSource(),
 
                 CaptureSourceType.File =>
-                    new FileCaptureSource(),
+                    new FileCaptureSource(Config),
 
                 CaptureSourceType.CurrentEditor =>
                     new CurrentEditorCaptureSource(),

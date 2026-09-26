@@ -1,0 +1,80 @@
+{
+  "$schema": "../recipe.schema.json",
+  "version": "1.0",
+  "id": "recipe_cli_qr_decode",
+  "name": "CLI QR Code & Barcode Extractor",
+  "description": "Reads a bitmap file from the command line, decodes any QR codes or barcodes on the image, and outputs the decoded text directly to stdout.",
+  "requires": [
+    {
+      "id": "Greenshot.Plugin.Zxing",
+      "name": "ZXing Barcode Plugin",
+      "minVersion": "1.3.0"
+    }
+  ],
+  "triggers": [
+    {
+      "triggerType": "Commandline",
+      "name": "QR Code CLI Trigger",
+      "enabled": true,
+      "parameters": {
+        "command": "qr",
+        "description": "Scan and decode QR codes from an image file",
+        "fireAndForget": false,
+        "stdout": "${Barcode.Text}",
+        "arguments": [
+          {
+            "name": "file",
+            "variable": "Filename",
+            "description": "Path to the bitmap image containing the QR code",
+            "required": true
+          }
+        ]
+      }
+    }
+  ],
+  "nodes": [
+    {
+      "id": "load_file",
+      "stepType": "Source",
+      "name": "Load Image File",
+      "enabled": true,
+      "parameters": {
+        "sourceType": "File",
+        "filename": "${Filename}"
+      }
+    },
+    {
+      "id": "scan_barcodes",
+      "stepType": "BarcodeScan",
+      "name": "Scan QR & Barcodes",
+      "enabled": true,
+      "parameters": {
+        "setVariable": "Barcode.Text",
+        "copyToClipboard": false
+      }
+    },
+    {
+      "id": "print_result",
+      "stepType": "Stdout",
+      "name": "Print to Console",
+      "enabled": true,
+      "parameters": {
+        "text": "${Barcode.Text}"
+      }
+    }
+  ],
+  "flow": {
+    "startNodes": [
+      "load_file"
+    ],
+    "transitions": {
+      "load_file": [
+        "scan_barcodes"
+      ],
+      "scan_barcodes": [
+        "print_result"
+      ]
+    },
+    "conditionalTransitions": []
+  }
+}
