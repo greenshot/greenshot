@@ -27,6 +27,7 @@ Source: additional_files\installer.txt; DestDir: {app}; Components: greenshot; F
 Source: additional_files\license.txt; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: additional_files\readme.txt; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\greenshot-proxy.exe; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
+Source: {#ReleaseDir}\greenshot.com; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: additional_files\org.greenshot.proxy.json; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: additional_files\org.greenshot.proxy-firefox.json; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 

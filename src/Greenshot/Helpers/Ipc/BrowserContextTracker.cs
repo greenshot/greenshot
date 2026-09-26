@@ -49,12 +49,28 @@ namespace Greenshot.Helpers.Ipc
         {
             lock (_syncLock)
             {
-                CurrentUrl = Sanitize(url, 2048);
-                CurrentTitle = Sanitize(title, 512);
-                CurrentDomain = ExtractDomain(CurrentUrl);
+                if (!string.IsNullOrWhiteSpace(url))
+                {
+                    string sanitizedUrl = Sanitize(url, 2048);
+                    if (!string.Equals(CurrentUrl, sanitizedUrl, StringComparison.OrdinalIgnoreCase))
+                    {
+                        CurrentUrl = sanitizedUrl;
+                        CurrentDomain = ExtractDomain(CurrentUrl);
+                        if (string.IsNullOrWhiteSpace(title))
+                        {
+                            CurrentTitle = string.Empty;
+                        }
+                    }
+                }
+
+                if (!string.IsNullOrWhiteSpace(title))
+                {
+                    CurrentTitle = Sanitize(title, 512);
+                }
+
                 CurrentTicket = ExtractTicket(CurrentUrl, CurrentTitle);
 
-                Log.Debug($"Browser context updated: Domain='{CurrentDomain}', Ticket='{CurrentTicket}', Title='{CurrentTitle}, Url='{CurrentUrl}'");
+                Log.Debug($"Browser context updated: Domain='{CurrentDomain}', Ticket='{CurrentTicket}', Title='{CurrentTitle}', Url='{CurrentUrl}'");
             }
         }
 

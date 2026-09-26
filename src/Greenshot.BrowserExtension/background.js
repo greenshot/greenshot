@@ -191,30 +191,55 @@ async function captureCurrentTab() {
  * Reports active tab URL / title changes to Greenshot to assist QA file routing.
  */
 let lastReportedUrl = "";
+let lastReportedTitle = "";
 
 function reportTabChange(url, title) {
-  if (!extensionConfig.track_tab_urls || !url || url === lastReportedUrl) {
+  if (!extensionConfig.track_tab_urls || !url) {
     return;
   }
 
   // Ignore browser internal schemes
-  if (url.startsWith("chrome://") || url.startsWith("edge://") || url.startsWith("about:")) {
+  if (url.startsWith("chrome://") || url.startsWith("edge://") || url.startsWith("about:") || url.startsWith("chrome-extension://") || url.startsWith("moz-extension://")) {
+    return;
+  }
+
+  title = title || "";
+
+  if (url === lastReportedUrl && title === lastReportedTitle) {
     return;
   }
 
   lastReportedUrl = url;
+  lastReportedTitle = title;
 
   sendNativeMessage({
     source: "native_messaging",
     command: "TAB_CHANGED",
     url: url,
-    title: title || ""
+    title: title
   });
 }
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  if (changeInfo.url && tab.active) {
-    reportTabChange(changeInfo.url, tab.title);
+  if (!tab.active) {
+    return;
+  }
+
+  // 1. Navigation started: URL changed.
+  // During initial navigation / loading, tab.title may still be the previous document's title.
+  // Send the new URL immediately with an empty title to clear stale context in Greenshot.
+  if (changeInfo.url) {
+    reportTabChange(changeInfo.url, "");
+  }
+
+  // 2. Title resolved or changed dynamically (e.g. SPAs, client-side routing, document.title set)
+  if (changeInfo.title) {
+    reportTabChange(tab.url, changeInfo.title);
+  }
+
+  // 3. Page load completed: ensure final URL and title are recorded
+  if (changeInfo.status === "complete" && tab.url) {
+    reportTabChange(tab.url, tab.title);
   }
 });
 

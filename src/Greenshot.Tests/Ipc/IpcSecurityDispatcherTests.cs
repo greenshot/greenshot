@@ -506,6 +506,30 @@ namespace Greenshot.Tests.Ipc
         }
 
         [Fact]
+        public void BrowserContextTracker_DecoupledUrlAndTitleUpdates_ClearsStaleTitleAndUpdatesCleanly()
+        {
+            var tracker = BrowserContextTracker.Instance;
+
+            // 1. Initial page loaded
+            tracker.UpdateContext("https://corp.jira.com/browse/PROJ-123", "PROJ-123: Fix payment portal");
+            Assert.Equal("corp.jira.com", tracker.CurrentDomain);
+            Assert.Equal("PROJ-123", tracker.CurrentTicket);
+            Assert.Equal("PROJ-123: Fix payment portal", tracker.CurrentTitle);
+
+            // 2. Navigation to new URL started before title loads: sends URL with empty title
+            tracker.UpdateContext("https://github.com/greenshot/greenshot", "");
+            Assert.Equal("github.com", tracker.CurrentDomain);
+            Assert.Equal("https://github.com/greenshot/greenshot", tracker.CurrentUrl);
+            Assert.Equal(string.Empty, tracker.CurrentTitle); // Stale title from Jira was cleared!
+            Assert.Equal(string.Empty, tracker.CurrentTicket);
+
+            // 3. Title finishes loading on the new page
+            tracker.UpdateContext("https://github.com/greenshot/greenshot", "Greenshot GitHub Repository");
+            Assert.Equal("github.com", tracker.CurrentDomain);
+            Assert.Equal("Greenshot GitHub Repository", tracker.CurrentTitle);
+        }
+
+        [Fact]
         public void TriggerItemViewModel_CommandlineAndOpenFile_ExposesProperties()
         {
             var cliConfig = new TriggerConfig(TriggerConfig.TypeCommandline, "CLI Trigger");

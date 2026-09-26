@@ -62,20 +62,43 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     UNREFERENCED_PARAMETER(pCmdLine);
     UNREFERENCED_PARAMETER(nCmdShow);
 
+    HANDLE hStdIn = GetStdHandle(STD_INPUT_HANDLE);
     HANDLE hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
-    if (hStdOut == NULL || hStdOut == INVALID_HANDLE_VALUE)
+    HANDLE hStdErr = GetStdHandle(STD_ERROR_HANDLE);
+
+    BOOL needAttach = (hStdOut == NULL || hStdOut == INVALID_HANDLE_VALUE ||
+                       hStdErr == NULL || hStdErr == INVALID_HANDLE_VALUE ||
+                       hStdIn == NULL || hStdIn == INVALID_HANDLE_VALUE);
+
+    if (needAttach)
     {
         if (AttachConsole(ATTACH_PARENT_PROCESS))
         {
-            HANDLE hConOut = CreateFileW(L"CONOUT$", GENERIC_WRITE, FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
-            if (hConOut != INVALID_HANDLE_VALUE)
+            if (hStdOut == NULL || hStdOut == INVALID_HANDLE_VALUE)
             {
-                SetStdHandle(STD_OUTPUT_HANDLE, hConOut);
+                HANDLE hConOut = CreateFileW(L"CONOUT$", GENERIC_WRITE, FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
+                if (hConOut != INVALID_HANDLE_VALUE)
+                {
+                    SetStdHandle(STD_OUTPUT_HANDLE, hConOut);
+                }
             }
-            HANDLE hConErr = CreateFileW(L"CONOUT$", GENERIC_WRITE, FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
-            if (hConErr != INVALID_HANDLE_VALUE)
+
+            if (hStdErr == NULL || hStdErr == INVALID_HANDLE_VALUE)
             {
-                SetStdHandle(STD_ERROR_HANDLE, hConErr);
+                HANDLE hConErr = CreateFileW(L"CONOUT$", GENERIC_WRITE, FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
+                if (hConErr != INVALID_HANDLE_VALUE)
+                {
+                    SetStdHandle(STD_ERROR_HANDLE, hConErr);
+                }
+            }
+
+            if (hStdIn == NULL || hStdIn == INVALID_HANDLE_VALUE)
+            {
+                HANDLE hConIn = CreateFileW(L"CONIN$", GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
+                if (hConIn != INVALID_HANDLE_VALUE)
+                {
+                    SetStdHandle(STD_INPUT_HANDLE, hConIn);
+                }
             }
         }
     }
