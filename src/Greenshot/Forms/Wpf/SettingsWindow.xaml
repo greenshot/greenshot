@@ -328,52 +328,6 @@
             <Setter Property="Margin" Value="6,3"/>
         </Style>
         
-        <!-- Modern ListView Style -->
-        <Style TargetType="ListView">
-            <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TextBoxBackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-            <Setter Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-        </Style>
-
-        <!-- Modern ListViewItem Style -->
-        <Style TargetType="ListViewItem">
-            <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="BorderBrush" Value="Transparent"/>
-            <Setter Property="Padding" Value="4,2"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ListViewItem">
-                        <Border x:Name="Bd"
-                                Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="3"
-                                Padding="{TemplateBinding Padding}"
-                                SnapsToDevicePixels="True">
-                            <GridViewRowPresenter VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ButtonHoverBrush}"/>
-                            </Trigger>
-                            <Trigger Property="IsSelected" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TabItemSelectedBrush}"/>
-                                <Setter TargetName="Bd" Property="BorderBrush" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
-                                <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        
-        <!-- Modern ScrollViewer Style -->
-        <Style x:Key="ThemedScrollViewer" TargetType="ScrollViewer">
-            <Setter Property="Background" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BackgroundBrush}"/>
-        </Style>
         
         <!-- Modern Slider Style -->
         <Style TargetType="Slider">
@@ -486,7 +440,7 @@
         <TabControl x:Name="SettingsTabControl" Grid.Row="0">
             <!-- General Tab -->
             <TabItem Header="{wpf:Translate settings_general}">
-                <ScrollViewer Style="{StaticResource ThemedScrollViewer}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                <ScrollViewer Style="{DynamicResource ThemedScrollViewer}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                     <StackPanel>
                         <!-- Application Settings -->
                         <GroupBox Header="{wpf:Translate settings_applicationsettings}">
@@ -612,7 +566,7 @@
             
             <!-- Capture Tab -->
             <TabItem Header="{wpf:Translate settings_capture}">
-                <ScrollViewer Style="{StaticResource ThemedScrollViewer}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                <ScrollViewer Style="{DynamicResource ThemedScrollViewer}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                     <StackPanel>
                         <GroupBox Header="{wpf:Translate settings_capture}">
                             <StackPanel>
@@ -687,7 +641,7 @@
             
             <!-- Output Tab -->
             <TabItem Header="{wpf:Translate settings_output}">
-                <ScrollViewer Style="{StaticResource ThemedScrollViewer}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                <ScrollViewer Style="{DynamicResource ThemedScrollViewer}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                     <StackPanel>
                         <GroupBox Header="{wpf:Translate settings_preferredfilesettings}">
                             <StackPanel>
@@ -775,12 +729,14 @@
                                       IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputDestinations}"
                                       Margin="5" DockPanel.Dock="Top"/>
                             <ListView ItemsSource="{Binding Destinations}" 
+                                      Style="{DynamicResource ThemeListView}"
+                                      ItemContainerStyle="{DynamicResource ThemeListViewItem}"
                                       Margin="5" 
                                       ScrollViewer.VerticalScrollBarVisibility="Visible"
                                       ScrollViewer.CanContentScroll="False"
                                       IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputDestinations}">
                                 <ListView.View>
-                                    <GridView>
+                                    <GridView ColumnHeaderContainerStyle="{DynamicResource ThemeGridViewColumnHeader}">
                                         <GridViewColumn Width="50">
                                             <GridViewColumn.CellTemplate>
                                                 <DataTemplate>
@@ -808,7 +764,7 @@
             
             <!-- Editor Tab -->
             <TabItem Header="{wpf:Translate settings_editor}">
-                <ScrollViewer Style="{StaticResource ThemedScrollViewer}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                <ScrollViewer Style="{DynamicResource ThemedScrollViewer}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                     <StackPanel>
                         <GroupBox Header="{wpf:Translate settings_editor}">
                             <StackPanel>
@@ -829,7 +785,7 @@
             
             <!-- Printer Tab -->
             <TabItem Header="{wpf:Translate settings_printer}">
-                <ScrollViewer Style="{StaticResource ThemedScrollViewer}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                <ScrollViewer Style="{DynamicResource ThemedScrollViewer}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                     <StackPanel>
                         <GroupBox Header="{wpf:Translate settings_printoptions}">
                             <StackPanel>
@@ -957,7 +913,7 @@
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"
                                        Visibility="{Binding NoSelectedPluginControlVisibility}"/>
-                            <ScrollViewer Style="{StaticResource ThemedScrollViewer}"
+                            <ScrollViewer Style="{DynamicResource ThemedScrollViewer}"
                                           VerticalScrollBarVisibility="Auto" 
                                           HorizontalScrollBarVisibility="Disabled"
                                           Visibility="{Binding SelectedPluginControlVisibility}">
@@ -970,7 +926,7 @@
             
             <!-- Expert Tab -->
             <TabItem Header="{wpf:Translate expertsettings}" Visibility="{Binding IsExpertTabVisible, Converter={StaticResource ExpertVisibilityConverter}}">
-                <ScrollViewer Style="{StaticResource ThemedScrollViewer}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                <ScrollViewer Style="{DynamicResource ThemedScrollViewer}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                     <StackPanel>
                         <!-- Top Banner: Enable Expert Mode set apart -->
                         <Border Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=GroupBoxBrush}"

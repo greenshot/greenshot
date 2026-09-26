@@ -66,6 +66,10 @@ namespace Greenshot.Base.Wpf
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(GroupBoxBrush)));
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ControlBackgroundBrush)));
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TextBoxBackgroundBrush)));
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ScrollBarTrackBrush)));
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ScrollBarThumbBrush)));
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ScrollBarThumbHoverBrush)));
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ScrollBarThumbPressedBrush)));
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ButtonBackgroundBrush)));
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ButtonHoverBrush)));
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ButtonPressedBrush)));
@@ -99,6 +103,14 @@ namespace Greenshot.Base.Wpf
         public Brush ControlBackgroundBrush => CurrentPalette.ControlBackgroundBrush;
 
         public Brush TextBoxBackgroundBrush => CurrentPalette.TextBoxBackgroundBrush;
+
+        public Brush ScrollBarTrackBrush => CurrentPalette.ScrollBarTrackBrush;
+
+        public Brush ScrollBarThumbBrush => CurrentPalette.ScrollBarThumbBrush;
+
+        public Brush ScrollBarThumbHoverBrush => CurrentPalette.ScrollBarThumbHoverBrush;
+
+        public Brush ScrollBarThumbPressedBrush => CurrentPalette.ScrollBarThumbPressedBrush;
 
         public Brush ButtonBackgroundBrush => CurrentPalette.ButtonBackgroundBrush;
 
@@ -146,6 +158,14 @@ namespace Greenshot.Base.Wpf
         public ResourceDictionary GetThemeResources()
         {
             var dict = new ResourceDictionary();
+            dict.MergedDictionaries.Add(new ResourceDictionary
+            {
+                Source = new Uri("/Greenshot.Base;component/Wpf/Styles/ScrollBarStyles.xaml", UriKind.Relative)
+            });
+            dict.MergedDictionaries.Add(new ResourceDictionary
+            {
+                Source = new Uri("/Greenshot.Base;component/Wpf/Styles/ListViewStyles.xaml", UriKind.Relative)
+            });
             
             dict["ThemeBackgroundBrush"] = BackgroundBrush;
             dict["ThemeForegroundBrush"] = ForegroundBrush;
