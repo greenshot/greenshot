@@ -108,25 +108,20 @@ public class GreenshotMain
         var pafAppPath = Path.Combine(startupPath, @"App\Greenshot");
         GreenshotEnvironment.IsPortable = Directory.Exists(pafAppPath);
 
-        // Build the IniConfigRegistry:
-        //   AddAppDataPath  → %APPDATA%\Greenshot
-        //   AddSearchPath   → installation / startup directory
         // Ensure any design-time / test fallback configuration is removed before production startup
         IniConfigHelper.UnregisterDesignTimeConfig();
 
-        var builder = IniConfigRegistry.ForFile("greenshot.ini")
-
-            .AddAppDataPath("Greenshot")
-            .AddSearchPath(startupPath);
-
-        if (!string.IsNullOrEmpty(options.IniDirectory) && Directory.Exists(options.IniDirectory))
+        // Build the IniConfigRegistry. greenshot.ini is searched in %APPDATA%\Greenshot and then the
+        // startup directory, unless --ini-directory is given: then only that directory is used.
+        var builder = IniConfigRegistry.ForFile("greenshot.ini");
+        var appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Greenshot");
+        var iniDirectory = IniLocation.Configure(builder, options.IniDirectory, appDataPath, startupPath);
+        if (iniDirectory != null)
         {
-            builder.AddSearchPath(options.IniDirectory);
+            LOG.Info($"Using ini-directory {iniDirectory}");
         }
 
-        builder.AddDefaultsFile("greenshot-defaults.ini")
-               .AddConstantsFile("greenshot-fixed.ini")
-               .WithWriterOptions(new IniWriterOptions
+        builder.WithWriterOptions(new IniWriterOptions
                {
                    AssignmentSeparator = "=",
                    QuoteStyle = IniValueQuoteStyle.Never,
