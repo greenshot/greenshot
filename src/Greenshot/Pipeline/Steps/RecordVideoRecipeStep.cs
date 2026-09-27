@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -31,6 +31,9 @@ using Dapplo.Windows.User32;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces.Video;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Pipeline.Contracts;
+using Contracts = Greenshot.Base.Pipeline.Contracts;
+
 using Greenshot.Base.Recipes;
 using Greenshot.Video;
 using log4net;
@@ -42,12 +45,17 @@ namespace Greenshot.Pipeline.Steps
     /// Can record full-screen, a window, or a fixed region, and outputs the resulting MP4 file
     /// into the pipeline context for downstream export or automation steps.
     /// </summary>
+    [Contracts.StepInfo(WellKnownStepTypes.RecordVideo, "Record Video", "Records screen video using Windows Graphics Capture (WGC).", "Video")]
+    [Contracts.StepOutputVariable("VideoFile", Contracts.ContractDataType.FilePath, "Path of the recorded video MP4 file")]
     public class RecordVideoRecipeStep : ICaptureStep
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(RecordVideoRecipeStep));
 
         public string Name { get; }
         public RecipeNodeConfig Config { get; }
+
+        public Contracts.StepContract Contract =>
+            Contracts.StepContractRegistry.GetContract(WellKnownStepTypes.RecordVideo) ?? Contracts.StepContractBuilder.FromType(GetType());
 
         public RecordVideoRecipeStep(RecipeNodeConfig config)
         {

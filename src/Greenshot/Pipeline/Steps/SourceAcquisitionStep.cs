@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -32,6 +32,9 @@ using Dapplo.Windows.User32;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Pipeline.Contracts;
+using Contracts = Greenshot.Base.Pipeline.Contracts;
+
 using Greenshot.Base.Pipeline.Sources;
 using Greenshot.Base.Recipes;
 using Greenshot.Triggers;
@@ -44,6 +47,14 @@ namespace Greenshot.Pipeline.Steps
     /// raw pixel acquisition from screen, window, file, or clipboard, and pixel DPI alignment.
     /// Evaluates configuration settings (e.g. mouse cursor, delay) dynamically at runtime.
     /// </summary>
+    [Contracts.StepInfo(WellKnownStepTypes.Source, "Acquire Source", "Acquires raw capture pixels from a capture source (Screen, Window, ActiveWindow, Clipboard, File, LastRegion).", "Acquisition")]
+    [Contracts.StepPayload(RawCapture = Contracts.PayloadRequirement.Created, Surface = Contracts.PayloadRequirement.Created)]
+    [Contracts.StepParameter("sourceType", Contracts.ContractDataType.Enum, Required = true, Description = "Capture source type", AllowedValues = new[] { "Screen", "Window", "ActiveWindow", "Clipboard", "File", "LastRegion" })]
+    [Contracts.StepParameter("filename", Contracts.ContractDataType.FilePath, Required = false, Description = "File path or expression when sourceType is File")]
+    [Contracts.StepOutputVariable("Filename", Contracts.ContractDataType.FilePath, "Full path of the acquired file (if sourceType is File)")]
+    [Contracts.StepOutputVariable("dirname", Contracts.ContractDataType.DirectoryPath, "Directory of the acquired file")]
+    [Contracts.StepOutputVariable("basename", Contracts.ContractDataType.String, "Base file name without extension")]
+    [Contracts.StepOutputVariable("extension", Contracts.ContractDataType.String, "File extension")]
     public class SourceAcquisitionStep : ICaptureStep
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(SourceAcquisitionStep));
@@ -51,6 +62,9 @@ namespace Greenshot.Pipeline.Steps
 
         public string Name { get; }
         public RecipeNodeConfig Config { get; }
+
+        public Contracts.StepContract Contract =>
+            Contracts.StepContractRegistry.GetContract(WellKnownStepTypes.Source) ?? Contracts.StepContractBuilder.FromType(GetType());
 
         public SourceAcquisitionStep(RecipeNodeConfig config)
         {

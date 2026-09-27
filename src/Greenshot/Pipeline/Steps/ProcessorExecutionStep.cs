@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -28,6 +28,9 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Ocr;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Pipeline.Contracts;
+using Contracts = Greenshot.Base.Pipeline.Contracts;
+
 using Greenshot.Base.Recipes;
 using log4net;
 
@@ -36,12 +39,18 @@ namespace Greenshot.Pipeline.Steps
     /// <summary>
     /// Pipeline step executing image processors (OCR, TitleFix, or plugin processors).
     /// </summary>
+    [Contracts.StepInfo(WellKnownStepTypes.Processors, "Processors", "Executes image processors (e.g. OCR, TitleFix).", "Processing")]
+    [Contracts.StepPayload(RawCapture = Contracts.PayloadRequirement.Required, ExtractedText = Contracts.PayloadRequirement.Created)]
+    [Contracts.StepOutputVariable("Payload.ExtractedText", Contracts.ContractDataType.String, "Extracted text content from OCR processor")]
     public class ProcessorExecutionStep : ICaptureStep
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(ProcessorExecutionStep));
 
         public string Name { get; }
         public RecipeNodeConfig Config { get; }
+
+        public Contracts.StepContract Contract =>
+            Contracts.StepContractRegistry.GetContract(WellKnownStepTypes.Processors) ?? Contracts.StepContractBuilder.FromType(GetType());
 
         public ProcessorExecutionStep(RecipeNodeConfig config)
         {

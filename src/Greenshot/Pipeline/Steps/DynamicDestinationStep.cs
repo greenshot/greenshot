@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -30,6 +30,9 @@ using Greenshot.Base;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Pipeline.Contracts;
+using Contracts = Greenshot.Base.Pipeline.Contracts;
+
 using Greenshot.Base.Recipes;
 using Greenshot.Destinations;
 using Greenshot.Editor.Destinations;
@@ -43,12 +46,17 @@ namespace Greenshot.Pipeline.Steps
     /// allows quick forwarding to destinations, supports forwarding to other recipes, and acts
     /// as a rich error recovery UI when a prior export fails.
     /// </summary>
+    [Contracts.StepInfo(WellKnownStepTypes.DynamicDestination, "Dynamic Destination Flyout", "Interactive WPF export flyout with thumbnail preview and action buttons.", "Destination")]
+    [Contracts.StepPayload(RawCapture = Contracts.PayloadRequirement.Required, Surface = Contracts.PayloadRequirement.Optional)]
     public class DynamicDestinationStep : ICaptureStep
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(DynamicDestinationStep));
 
         public string Name { get; }
         public RecipeNodeConfig Config { get; }
+
+        public Contracts.StepContract Contract =>
+            Contracts.StepContractRegistry.GetContract(WellKnownStepTypes.DynamicDestination) ?? Contracts.StepContractBuilder.FromType(GetType());
 
         public DynamicDestinationStep(RecipeNodeConfig config)
         {

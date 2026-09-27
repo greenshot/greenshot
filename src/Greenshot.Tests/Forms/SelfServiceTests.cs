@@ -92,30 +92,34 @@ namespace Greenshot.Tests.Forms
         [Fact]
         public void SelfServiceViewModel_ThemeBrushes_FollowWpfThemeHelper()
         {
-            var vm = new SelfServiceViewModel();
-
-            Assert.NotNull(vm.WindowBackgroundBrush);
-            Assert.NotNull(vm.CardBackgroundBrush);
-            Assert.NotNull(vm.CardBorderBrush);
-            Assert.NotNull(vm.TextPrimaryBrush);
-            Assert.NotNull(vm.TextSecondaryBrush);
-            Assert.NotNull(vm.AccentBrush);
-            Assert.NotNull(vm.ThemeToggleIcon);
-
-            bool wasNotified = false;
-            vm.PropertyChanged += (s, e) =>
+            lock (typeof(Greenshot.Base.Wpf.ThemeManager))
             {
-                if (e.PropertyName == nameof(SelfServiceViewModel.WindowBackgroundBrush))
+                var vm = new SelfServiceViewModel();
+
+                Assert.NotNull(vm.WindowBackgroundBrush);
+                Assert.NotNull(vm.CardBackgroundBrush);
+                Assert.NotNull(vm.CardBorderBrush);
+                Assert.NotNull(vm.TextPrimaryBrush);
+                Assert.NotNull(vm.TextSecondaryBrush);
+                Assert.NotNull(vm.AccentBrush);
+                Assert.NotNull(vm.ThemeToggleIcon);
+
+                bool wasNotified = false;
+                vm.PropertyChanged += (s, e) =>
                 {
-                    wasNotified = true;
-                }
-            };
+                    if (e.PropertyName == nameof(SelfServiceViewModel.WindowBackgroundBrush))
+                    {
+                        wasNotified = true;
+                    }
+                };
 
-            vm.ToggleTheme();
-            Assert.True(wasNotified);
+                bool initial = WpfThemeHelper.IsDarkMode;
+                WpfThemeHelper.IsDarkMode = !initial;
+                Assert.True(wasNotified);
 
-            // Revert back
-            vm.ToggleTheme();
+                // Revert back
+                WpfThemeHelper.IsDarkMode = initial;
+            }
         }
 
         [Fact]

@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -30,6 +30,9 @@ using System.Windows;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Pipeline.Contracts;
+using Contracts = Greenshot.Base.Pipeline.Contracts;
+
 using Greenshot.Base.Recipes;
 using Greenshot.UI;
 using log4net;
@@ -41,12 +44,17 @@ namespace Greenshot.Pipeline.Steps
     /// Interactive conditional pipeline step presenting a decision modal to the user.
     /// The user's selection determines which branch is activated in the DAG execution engine.
     /// </summary>
+    [Contracts.StepInfo(WellKnownStepTypes.UserPrompt, "User Prompt", "Presents an interactive decision prompt to the user to choose a flow branch.", "Interaction")]
+    [Contracts.StepOutputVariable("PromptChoice", Contracts.ContractDataType.String, "The key or text of the choice selected by the user")]
     public class UserPromptStep : ICaptureStep
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(UserPromptStep));
 
         public string Name { get; }
         public RecipeNodeConfig Config { get; }
+
+        public Contracts.StepContract Contract =>
+            Contracts.StepContractRegistry.GetContract(WellKnownStepTypes.UserPrompt) ?? Contracts.StepContractBuilder.FromType(GetType());
 
         public UserPromptStep(RecipeNodeConfig config)
         {

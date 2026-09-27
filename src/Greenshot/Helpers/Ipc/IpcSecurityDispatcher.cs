@@ -34,6 +34,7 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Ocr;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Pipeline.Contracts;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Triggers;
 using Greenshot.Forms;
@@ -68,6 +69,9 @@ namespace Greenshot.Helpers.Ipc
             "FIRST_LAUNCH",
             "LIST_RECIPES",
             "RUN_RECIPE",
+            "DESCRIBE_RECIPE",
+            "RECIPE_INFO",
+            "INFO",
             "VERSION",
             "URL_SCHEME",
             "SETTINGS",
@@ -340,6 +344,12 @@ namespace Greenshot.Helpers.Ipc
                     await HandleRunRecipeAsync(context).ConfigureAwait(false);
                     break;
 
+                case "DESCRIBE_RECIPE":
+                case "RECIPE_INFO":
+                case "INFO":
+                    await HandleDescribeRecipeAsync(context).ConfigureAwait(false);
+                    break;
+
                 case "OPEN_FILE":
                 case "OPEN":
                     await HandleOpenFileAsync(context, mainForm, onOpenFile).ConfigureAwait(false);
@@ -581,6 +591,134 @@ namespace Greenshot.Helpers.Ipc
             }).ConfigureAwait(false);
         }
 
+        private static async Task HandleDescribeRecipeAsync(IpcRequestContext context)
+        {
+            string target = context.Envelope.Recipe;
+            if (string.IsNullOrEmpty(target) && context.Envelope.Parsed?.Parameters != null)
+            {
+                context.Envelope.Parsed.Parameters.TryGetValue("recipe", out target);
+            }
+            if (string.IsNullOrEmpty(target) && context.Envelope.Parameters != null)
+            {
+                if (context.Envelope.Parameters.TryGetValue("recipe", out var rVal) && rVal != null)
+                {
+                    target = rVal.ToString();
+                }
+            }
+            if (string.IsNullOrEmpty(target))
+            {
+                target = context.Envelope.RawInput;
+            }
+
+            if (string.IsNullOrWhiteSpace(target))
+            {
+                await context.ReplyAsync(new
+                {
+                    status = "error",
+                    exit_code = 1,
+                    stderr = "Missing required argument: recipe name or ID to describe."
+                }).ConfigureAwait(false);
+                return;
+            }
+
+            target = target.Trim();
+
+            var recipeManager = SimpleServiceProvider.Current?.GetInstance<IRecipeManager>(isOptional: true) ?? RecipeManager.Instance;
+            CaptureRecipe matchedRecipe = null;
+            if (recipeManager != null)
+            {
+                foreach (var r in recipeManager.GetAllRecipes())
+                {
+                    if (string.Equals(r.Id, target, StringComparison.OrdinalIgnoreCase) ||
+                        string.Equals(r.Name, target, StringComparison.OrdinalIgnoreCase))
+                    {
+                        matchedRecipe = r;
+                        break;
+                    }
+                    if (r.Triggers != null)
+                    {
+                        foreach (var tc in r.Triggers)
+                        {
+                            string cmd = tc.GetParameter<string>("Command");
+                            if (string.Equals(cmd, target, StringComparison.OrdinalIgnoreCase))
+                            {
+                                matchedRecipe = r;
+                                break;
+                            }
+                        }
+                    }
+                    if (matchedRecipe != null) break;
+                }
+            }
+
+            if (matchedRecipe == null)
+            {
+                await context.ReplyAsync(new
+                {
+                    status = "error",
+                    exit_code = 1,
+                    stderr = $"Recipe '{target}' not found."
+                }).ConfigureAwait(false);
+                return;
+            }
+
+            var contract = RecipeContract.Analyze(matchedRecipe);
+
+            await context.ReplyAsync(new
+            {
+                status = "ok",
+                exit_code = 0,
+                recipe = new
+                {
+                    id = matchedRecipe.Id,
+                    name = matchedRecipe.Name,
+                    description = matchedRecipe.Description ?? string.Empty,
+                    category = "General",
+                    triggers = matchedRecipe.Triggers?.Select(t => new
+                    {
+                        type = t.TriggerType,
+                        command = t.GetParameter<string>("Command"),
+                        description = t.GetParameter<string>("Description"),
+                        stdout = t.GetParameter<string>("Stdout"),
+                        arguments = t.GetParameter<List<CommandlineArgument>>("Arguments")
+                    }),
+                    contract = new
+                    {
+                        inputs = contract.Inputs.Select(i => new
+                        {
+                            name = i.Name,
+                            type = i.DataType.ToString(),
+                            required = i.Required,
+                            description = i.Description,
+                            default_value = i.ExampleValue
+                        }),
+                        outputs = contract.Outputs.Select(o => new
+                        {
+                            name = o.Name,
+                            type = o.DataType.ToString(),
+                            description = o.Description
+                        }),
+                        steps = contract.Steps.Select(s => new
+                        {
+                            node_id = s.NodeId,
+                            step_type = s.StepType,
+                            display_name = s.DisplayName,
+                            required_inputs = s.RequiredInputs,
+                            produced_outputs = s.ProducedOutputs,
+                            requires_image = s.RequiresRawCapture != PayloadRequirement.None
+                        }),
+                        lifecycle = new
+                        {
+                            acquires_image = contract.AcquiresImage,
+                            mutates_pixels = contract.MutatesPixels,
+                            extracts_text = contract.ExtractsText
+                        },
+                        warnings = contract.ValidationWarnings
+                    }
+                }
+            }).ConfigureAwait(false);
+        }
+
         private static async Task HandleRunRecipeAsync(IpcRequestContext context)
         {
             string target = context.Envelope.Recipe;
@@ -799,6 +937,18 @@ namespace Greenshot.Helpers.Ipc
                 }
             }
 
+            string queryExpr = null;
+            if (cliParams.TryGetValue("query", out var qObj) && qObj != null)
+            {
+                queryExpr = qObj.ToString();
+            }
+
+            bool outputJson = false;
+            if (cliParams.TryGetValue("json", out var jsonObj))
+            {
+                outputJson = jsonObj is bool b ? b : (jsonObj != null && !string.Equals(jsonObj.ToString(), "false", StringComparison.OrdinalIgnoreCase));
+            }
+
             bool hasStreamedStdout = false;
             Action<CaptureFlowContext> configureContext = flowCtx =>
             {
@@ -810,9 +960,23 @@ namespace Greenshot.Helpers.Ipc
                 flowCtx.StdoutWriter = async text =>
                 {
                     hasStreamedStdout = true;
+                    // If a custom --query expression was requested, suppress recipe StdoutStep output
+                    // to return solely the queried expression
+                    if (string.IsNullOrEmpty(queryExpr) && !outputJson)
+                    {
+                        await context.ReplyAsync(new
+                        {
+                            stream = "stdout",
+                            text = text
+                        }).ConfigureAwait(false);
+                    }
+                };
+
+                flowCtx.StderrWriter = async text =>
+                {
                     await context.ReplyAsync(new
                     {
-                        stream = "stdout",
+                        stream = "stderr",
                         text = text
                     }).ConfigureAwait(false);
                 };
@@ -831,13 +995,15 @@ namespace Greenshot.Helpers.Ipc
             else
             {
                 var flowCtx = await pipeline.ExecuteAsync(recipeToExecute, cmdTrigger, configureContext).ConfigureAwait(false);
+                int finalExitCode = flowCtx.ExitCode != 0 ? flowCtx.ExitCode : (flowCtx.IsAborted ? 1 : 0);
+
                 if (flowCtx.IsAborted || flowCtx.State == CaptureFlowState.Failed)
                 {
                     string err = flowCtx.AbortReason ?? flowCtx.Error?.Message ?? "Recipe execution failed or was aborted.";
                     await context.ReplyAsync(new
                     {
                         status = "error",
-                        exit_code = 1,
+                        exit_code = finalExitCode,
                         stderr = err
                     }).ConfigureAwait(false);
                 }
@@ -845,21 +1011,25 @@ namespace Greenshot.Helpers.Ipc
                 {
                     string outputText = null;
 
-                    // Priority 1: Explicit stdout template defined on the trigger
-                    if (!string.IsNullOrWhiteSpace(stdoutExpr))
+                    // Priority 1: User requested a specific payload/variable query via --query
+                    if (!string.IsNullOrWhiteSpace(queryExpr))
+                    {
+                        object evalQuery = ExpressionEvaluator.Instance.Evaluate(queryExpr, flowCtx);
+                        outputText = evalQuery?.ToString();
+                    }
+                    // Priority 2: Explicit stdout template defined on the trigger
+                    else if (!string.IsNullOrWhiteSpace(stdoutExpr))
                     {
                         object eval = ExpressionEvaluator.Instance.Evaluate(stdoutExpr, flowCtx);
                         outputText = eval?.ToString();
                     }
-
-                    // Priority 2: If StdoutStep already streamed output and no explicit stdout pattern was set, do not duplicate
-                    if (outputText == null && hasStreamedStdout)
+                    // Priority 3: If StdoutStep already streamed output and no explicit stdout pattern was set, do not duplicate
+                    else if (hasStreamedStdout)
                     {
                         outputText = null;
                     }
-
-                    // Priority 3: Fallback cascade if neither trigger stdout nor StdoutStep was used (for backwards compatibility)
-                    if (outputText == null && !hasStreamedStdout)
+                    // Priority 4: Fallback cascade if neither trigger stdout nor StdoutStep was used (for backwards compatibility)
+                    else
                     {
                         if (flowCtx.Properties.TryGetValue("CommandResult", out var crObj) && crObj != null)
                         {
@@ -920,11 +1090,27 @@ namespace Greenshot.Helpers.Ipc
                         }
                     }
 
+                    object payloadSummary = null;
+                    if (outputJson && flowCtx.Payload != null)
+                    {
+                        var img = flowCtx.Payload.Surface?.Image ?? flowCtx.Payload.RawCapture?.Image;
+                        payloadSummary = new
+                        {
+                            width = img?.Width ?? 0,
+                            height = img?.Height ?? 0,
+                            format = img?.PixelFormat.ToString(),
+                            extracted_text = flowCtx.Payload.ExtractedText,
+                            metadata = flowCtx.Payload.Metadata
+                        };
+                    }
+
                     await context.ReplyAsync(new
                     {
                         status = "ok",
                         exit_code = 0,
-                        stdout = outputText
+                        stdout = outputText,
+                        payload = payloadSummary,
+                        variables = outputJson ? flowCtx.Properties : null
                     }).ConfigureAwait(false);
                 }
             }

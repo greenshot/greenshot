@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -26,6 +26,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Expressions;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Pipeline.Contracts;
+using Contracts = Greenshot.Base.Pipeline.Contracts;
+
 using Greenshot.Base.Recipes;
 using log4net;
 using Newtonsoft.Json.Linq;
@@ -36,12 +39,19 @@ namespace Greenshot.Pipeline.Steps
     /// Pipeline step that evaluates expressions and assigns new or updated variable values
     /// into the flow context (context.Properties) for use by subsequent downstream nodes.
     /// </summary>
+    [Contracts.StepInfo(WellKnownStepTypes.SetVariable, "Set Variable", "Evaluates expressions and assigns variables into the flow context for downstream steps.", "Logic")]
+    [Contracts.StepParameter("variable", Contracts.ContractDataType.String, Required = false, Description = "Variable name to assign")]
+    [Contracts.StepParameter("value", Contracts.ContractDataType.String, Required = false, Description = "Value expression to assign to the variable")]
+    [Contracts.StepParameter("variables", Contracts.ContractDataType.Object, Required = false, Description = "Key-value dictionary of variables to assign")]
     public class SetVariableStep : ICaptureStep
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(SetVariableStep));
 
         public string Name { get; }
         public RecipeNodeConfig NodeConfig { get; }
+
+        public Contracts.StepContract Contract =>
+            Contracts.StepContractRegistry.GetContract(WellKnownStepTypes.SetVariable) ?? Contracts.StepContractBuilder.FromType(GetType());
 
         public SetVariableStep(RecipeNodeConfig config)
         {

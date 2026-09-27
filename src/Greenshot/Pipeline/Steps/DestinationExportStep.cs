@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -13,6 +13,9 @@ using Greenshot.Base.Interfaces.Forms;
 using Greenshot.Base.Interfaces.Ocr;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Pipeline.Contracts;
+using Contracts = Greenshot.Base.Pipeline.Contracts;
+
 using Greenshot.Base.Recipes;
 using Greenshot.Destinations;
 using Greenshot.Editor.Destinations;
@@ -26,6 +29,12 @@ namespace Greenshot.Pipeline.Steps
     /// Supports individual destination steps (File, Clipboard, Editor, Printer, Email, Custom)
     /// as well as custom storage directories, filename patterns, and clipboard format selections.
     /// </summary>
+    [Contracts.StepInfo(WellKnownStepTypes.Destinations, "Export Destinations", "Exports capture to one or more destinations (File, Clipboard, Editor, Printer, Email).", "Export")]
+    [Contracts.StepPayload(RawCapture = Contracts.PayloadRequirement.Required, Surface = Contracts.PayloadRequirement.Optional)]
+    [Contracts.StepParameter("destinations", Contracts.ContractDataType.Object, Required = false, Description = "Array or list of destination designations")]
+    [Contracts.StepParameter("path", Contracts.ContractDataType.FilePath, Required = false, Description = "Output path or directory when saving to file")]
+    [Contracts.StepParameter("format", Contracts.ContractDataType.Enum, Required = false, Description = "Output image format (png, jpg, bmp, tiff, greenshot)")]
+    [Contracts.StepOutputVariable("Destination.Filename", Contracts.ContractDataType.FilePath, "Path of the saved file (if file destination used)")]
     public class DestinationExportStep : ICaptureStep, IRequiresRecipeAuthorization
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(DestinationExportStep));
@@ -35,6 +44,9 @@ namespace Greenshot.Pipeline.Steps
 
         public string Name { get; }
         public RecipeNodeConfig Config { get; }
+
+        public Contracts.StepContract Contract =>
+            Contracts.StepContractRegistry.GetContract(Name) ?? Contracts.StepContractRegistry.GetContract(WellKnownStepTypes.Destinations) ?? Contracts.StepContractBuilder.FromType(GetType());
 
         public DestinationExportStep(RecipeNodeConfig config, IDestinationDispatcher dispatcher = null)
         {

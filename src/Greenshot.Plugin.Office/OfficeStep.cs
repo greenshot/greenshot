@@ -42,6 +42,9 @@ namespace Greenshot.Plugin.Office
         public string Name { get; }
         public RecipeNodeConfig NodeConfig { get; }
 
+        public Base.Pipeline.Contracts.StepContract Contract =>
+            Base.Pipeline.Contracts.StepContractRegistry.GetContract(Name) ?? Base.Pipeline.Contracts.StepContractBuilder.FromType(GetType());
+
         public OfficeStep(RecipeNodeConfig config)
         {
             NodeConfig = config ?? throw new ArgumentNullException(nameof(config));

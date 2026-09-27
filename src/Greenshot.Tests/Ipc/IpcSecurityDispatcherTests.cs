@@ -33,6 +33,7 @@ using Xunit;
 
 namespace Greenshot.Tests.Ipc
 {
+    [Collection("RecipeManager")]
     public class IpcSecurityDispatcherTests
     {
         [Fact]

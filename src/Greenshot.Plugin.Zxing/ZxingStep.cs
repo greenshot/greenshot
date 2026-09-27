@@ -40,12 +40,20 @@ namespace Greenshot.Plugin.Zxing
     /// Capture recipe step that scans barcodes / QR codes on the screenshot surface
     /// and extracts decoded text into the pipeline context and clipboard.
     /// </summary>
+    [Base.Pipeline.Contracts.StepInfo("BarcodeScanner", "Barcode Scanner (ZXing)", "Scans and decodes 1D/2D barcodes (such as QR codes) from the capture bitmap.", "Analysis")]
+    [Base.Pipeline.Contracts.StepPayload(RawCapture = Base.Pipeline.Contracts.PayloadRequirement.Required, Surface = Base.Pipeline.Contracts.PayloadRequirement.Optional, ExtractedText = Base.Pipeline.Contracts.PayloadRequirement.Created)]
+    [Base.Pipeline.Contracts.StepParameter("format", Base.Pipeline.Contracts.ContractDataType.String, Required = false, Description = "Barcode format hint")]
+    [Base.Pipeline.Contracts.StepOutputVariable("Barcode.Text", Base.Pipeline.Contracts.ContractDataType.String, "Decoded text content of the detected barcode")]
+    [Base.Pipeline.Contracts.StepOutputVariable("Barcode.Format", Base.Pipeline.Contracts.ContractDataType.String, "Format name of the detected barcode")]
     public class ZxingStep : ICaptureStep
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(ZxingStep));
 
         public string Name { get; }
         public RecipeNodeConfig NodeConfig { get; }
+
+        public Base.Pipeline.Contracts.StepContract Contract =>
+            Base.Pipeline.Contracts.StepContractRegistry.GetContract(Name) ?? Base.Pipeline.Contracts.StepContractBuilder.FromType(GetType());
 
         public ZxingStep(RecipeNodeConfig config)
         {

@@ -32,6 +32,8 @@ namespace Greenshot.Base.Pipeline
     public class ConditionalCaptureStep : ICaptureStep
     {
         public string Name { get; }
+        public Contracts.StepContract Contract =>
+            Contracts.StepContractRegistry.GetContract(Name) ?? Contracts.StepContractBuilder.FromType(GetType());
         public IStepCondition Condition { get; }
         public List<ICaptureStep> ThenSteps { get; } = new List<ICaptureStep>();
         public List<ICaptureStep> ElseSteps { get; } = new List<ICaptureStep>();

@@ -1,0 +1,180 @@
+/*
+ * Greenshot - a free and open source screenshot tool
+ * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
+ *
+ * For more information see: https://getgreenshot.org/
+ * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 1 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+
+namespace Greenshot.Base.Pipeline.Contracts
+{
+    [AttributeUsage(AttributeTargets.Class, Inherited = true, AllowMultiple = false)]
+    public class StepInfoAttribute : Attribute
+    {
+        public string StepType { get; }
+        public string DisplayName { get; }
+        public string Description { get; set; }
+        public string Category { get; set; }
+
+        public StepInfoAttribute(string stepType, string displayName = null, string description = null, string category = null)
+        {
+            StepType = stepType ?? throw new ArgumentNullException(nameof(stepType));
+            DisplayName = displayName ?? stepType;
+            Description = description;
+            Category = category;
+        }
+    }
+
+    [AttributeUsage(AttributeTargets.Class, Inherited = true, AllowMultiple = true)]
+    public class StepParameterAttribute : Attribute
+    {
+        public string Name { get; }
+        public ContractDataType DataType { get; }
+        public bool Required { get; set; }
+        public object DefaultValue { get; set; }
+        public string Description { get; set; }
+        public string[] AllowedValues { get; set; }
+        public bool SupportsExpressions { get; set; } = true;
+
+        public StepParameterAttribute(string name, ContractDataType dataType = ContractDataType.String)
+        {
+            Name = name ?? throw new ArgumentNullException(nameof(name));
+            DataType = dataType;
+        }
+    }
+
+    [AttributeUsage(AttributeTargets.Class, Inherited = true, AllowMultiple = true)]
+    public class StepInputVariableAttribute : Attribute
+    {
+        public string Name { get; }
+        public ContractDataType DataType { get; }
+        public bool Required { get; set; }
+        public string Description { get; set; }
+        public string ExampleValue { get; set; }
+
+        public StepInputVariableAttribute(string name, ContractDataType dataType = ContractDataType.String)
+        {
+            Name = name ?? throw new ArgumentNullException(nameof(name));
+            DataType = dataType;
+        }
+    }
+
+    [AttributeUsage(AttributeTargets.Class, Inherited = true, AllowMultiple = true)]
+    public class StepOutputVariableAttribute : Attribute
+    {
+        public string Name { get; }
+        public ContractDataType DataType { get; }
+        public string Description { get; set; }
+        public string ExampleValue { get; set; }
+
+        public StepOutputVariableAttribute(string name, ContractDataType dataType = ContractDataType.String, string description = null)
+        {
+            Name = name ?? throw new ArgumentNullException(nameof(name));
+            DataType = dataType;
+            Description = description;
+        }
+    }
+
+    [AttributeUsage(AttributeTargets.Class, Inherited = true, AllowMultiple = false)]
+    public class StepPayloadAttribute : Attribute
+    {
+        public PayloadRequirement RawCapture { get; set; } = PayloadRequirement.None;
+        public PayloadRequirement Surface { get; set; } = PayloadRequirement.None;
+        public PayloadRequirement ExtractedText { get; set; } = PayloadRequirement.None;
+        public PayloadEffect VisualMutation { get; set; } = PayloadEffect.None;
+        public string[] ProducedMetadataKeys { get; set; }
+    }
+
+    /// <summary>
+    /// Builds a StepContract by reflecting on a decorated ICaptureStep type.
+    /// </summary>
+    public static class StepContractBuilder
+    {
+        public static StepContract FromType(Type stepType)
+        {
+            if (stepType == null) return null;
+
+            var infoAttr = stepType.GetCustomAttribute<StepInfoAttribute>(true);
+            string stepTypeName = infoAttr?.StepType ?? stepType.Name;
+            string displayName = infoAttr?.DisplayName ?? stepTypeName;
+            string description = infoAttr?.Description ?? string.Empty;
+            string category = infoAttr?.Category ?? "General";
+
+            var paramAttrs = stepType.GetCustomAttributes<StepParameterAttribute>(true);
+            var paramsList = new List<ParameterContract>();
+            foreach (var p in paramAttrs)
+            {
+                paramsList.Add(new ParameterContract(
+                    p.Name,
+                    p.DataType,
+                    p.Required,
+                    p.DefaultValue,
+                    p.Description,
+                    p.AllowedValues,
+                    p.SupportsExpressions));
+            }
+
+            var inVarAttrs = stepType.GetCustomAttributes<StepInputVariableAttribute>(true);
+            var inVarsList = new List<VariableContract>();
+            foreach (var v in inVarAttrs)
+            {
+                inVarsList.Add(new VariableContract(
+                    v.Name,
+                    v.DataType,
+                    v.Required,
+                    v.Description,
+                    v.ExampleValue));
+            }
+
+            var outVarAttrs = stepType.GetCustomAttributes<StepOutputVariableAttribute>(true);
+            var outVarsList = new List<VariableContract>();
+            foreach (var v in outVarAttrs)
+            {
+                outVarsList.Add(new VariableContract(
+                    v.Name,
+                    v.DataType,
+                    false,
+                    v.Description,
+                    v.ExampleValue));
+            }
+
+            var payloadAttr = stepType.GetCustomAttribute<StepPayloadAttribute>(true);
+            var payloadContract = payloadAttr != null
+                ? new PayloadContract(
+                    payloadAttr.RawCapture,
+                    payloadAttr.Surface,
+                    payloadAttr.ExtractedText,
+                    payloadAttr.VisualMutation,
+                    payloadAttr.ProducedMetadataKeys)
+                : new PayloadContract();
+
+            return new StepContract(
+                stepTypeName,
+                displayName,
+                description,
+                category,
+                paramsList,
+                inVarsList,
+                outVarsList,
+                payloadContract);
+        }
+    }
+}

@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -32,6 +32,9 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Ocr;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Pipeline.Contracts;
+using Contracts = Greenshot.Base.Pipeline.Contracts;
+
 using Greenshot.Base.Recipes;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Drawing.Fields;
@@ -43,12 +46,19 @@ namespace Greenshot.Pipeline.Steps
     /// Pipeline step that scans text via OCR, locates occurrences matching regex patterns,
     /// and applies effects (Blur, Pixelize, Highlight, Redact, Magnify) to matched bounding boxes.
     /// </summary>
+    [Contracts.StepInfo(WellKnownStepTypes.TextEffect, "Text Effect", "Scans text via OCR and applies effects (Blur, Redact, Highlight) to matching text patterns.", "Effects")]
+    [Contracts.StepPayload(RawCapture = Contracts.PayloadRequirement.Required, Surface = Contracts.PayloadRequirement.Required, VisualMutation = Contracts.PayloadEffect.AddsAnnotations)]
+    [Contracts.StepParameter("pattern", Contracts.ContractDataType.String, Required = false, Description = "Regex or text pattern to match")]
+    [Contracts.StepParameter("effect", Contracts.ContractDataType.Enum, Required = false, Description = "Effect to apply (Blur, Pixelize, Highlight, Redact)")]
     public class TextEffectStep : ICaptureStep
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(TextEffectStep));
 
         public string Name { get; }
         public RecipeNodeConfig Config { get; }
+
+        public Contracts.StepContract Contract =>
+            Contracts.StepContractRegistry.GetContract(Name) ?? Contracts.StepContractRegistry.GetContract(WellKnownStepTypes.TextEffect) ?? Contracts.StepContractBuilder.FromType(GetType());
 
         public TextEffectStep(RecipeNodeConfig config)
         {

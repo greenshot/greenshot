@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -24,6 +24,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Expressions;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Pipeline.Contracts;
+using Contracts = Greenshot.Base.Pipeline.Contracts;
+
 using Greenshot.Base.Recipes;
 using log4net;
 
@@ -34,12 +37,18 @@ namespace Greenshot.Pipeline.Steps
     /// If executed in an IPC context (e.g. CLI proxy), sends a streaming response packet
     /// back through the IPC stream immediately without waiting for the full pipeline to finish.
     /// </summary>
+    [Contracts.StepInfo(WellKnownStepTypes.Stdout, "Stdout Output", "Emits text directly and immediately to the standard output stream (stdout).", "Diagnostics")]
+    [Contracts.StepParameter("text", Contracts.ContractDataType.String, Required = false, Description = "Text or expression to emit to stdout")]
+    [Contracts.StepParameter("message", Contracts.ContractDataType.String, Required = false, Description = "Alias for text parameter")]
     public class StdoutStep : ICaptureStep
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(StdoutStep));
 
         public string Name { get; }
         public RecipeNodeConfig NodeConfig { get; }
+
+        public Contracts.StepContract Contract =>
+            Contracts.StepContractRegistry.GetContract(WellKnownStepTypes.Stdout) ?? Contracts.StepContractBuilder.FromType(GetType());
 
         public StdoutStep(RecipeNodeConfig config)
         {

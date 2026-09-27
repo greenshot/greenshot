@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -27,6 +27,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Effects;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Pipeline.Contracts;
+using Contracts = Greenshot.Base.Pipeline.Contracts;
+
 using Greenshot.Base.Recipes;
 using log4net;
 
@@ -37,12 +40,18 @@ namespace Greenshot.Pipeline.Steps
     /// monochrome, adjust colors, rotate, resize, resize canvas, reduce colors, remove transparency)
     /// to the captured surface directly during flow execution, without displaying modal UI dialogs.
     /// </summary>
+    [Contracts.StepInfo(WellKnownStepTypes.Effect, "Image Effect", "Applies an image effect (border, shadow, grayscale, resize, etc.) to the capture surface.", "Effects")]
+    [Contracts.StepPayload(RawCapture = Contracts.PayloadRequirement.Required, Surface = Contracts.PayloadRequirement.Required, VisualMutation = Contracts.PayloadEffect.MutatesPixels)]
+    [Contracts.StepParameter("effectType", Contracts.ContractDataType.Enum, Required = false, Description = "Type of effect (Border, Shadow, Grayscale, Invert, Rotate, Resize)")]
     public class EffectCaptureStep : ICaptureStep
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(EffectCaptureStep));
 
         public string Name { get; }
         public RecipeNodeConfig Config { get; }
+
+        public Contracts.StepContract Contract =>
+            Contracts.StepContractRegistry.GetContract(Name) ?? Contracts.StepContractRegistry.GetContract(WellKnownStepTypes.Effect) ?? Contracts.StepContractBuilder.FromType(GetType());
 
         public EffectCaptureStep(RecipeNodeConfig config)
         {

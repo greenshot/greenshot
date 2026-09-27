@@ -57,7 +57,10 @@ static void PrintUsage(void)
         L"  greenshot-proxy <file...>\n\n"
         L"Options:\n"
         L"  --list-recipes, -l            List all recipes configured with a CommandlineTrigger\n"
+        L"  --info, --describe, -i <id>   Describe contract & variables of a recipe (--json for raw JSON)\n"
         L"  --recipe, -r <cmd|id> [k=v]   Execute a recipe by command identifier or recipe ID\n"
+        L"  --query, -q <expr>            Query context/payload expression when executing a recipe\n"
+        L"  --json                        Format recipe output or description as JSON\n"
         L"  --file, -f <file...>          Open one or more files using configured OpenFile triggers\n"
         L"  --reload                      Reload Greenshot configuration\n"
         L"  --exit                        Exit running Greenshot instance\n"
@@ -65,7 +68,8 @@ static void PrintUsage(void)
         L"  --help, -h                    Show this help text\n\n"
         L"Recipe Context Parameters:\n"
         L"  Pass key=value pairs after the recipe name to inject context into the execution flow:\n"
-        L"  Example: greenshot-proxy --recipe ocr destination=clipboard\n";
+        L"  Example: greenshot-proxy --recipe ocr destination=clipboard\n"
+        L"  Example: greenshot-proxy -r qr_code Filename=test.png --query \"${QrText}\"\n";
 
     PrintStdout(pwszUsage);
 }
@@ -617,6 +621,246 @@ static void PrintRecipeList(const char* json)
     PrintStdout(L"\n");
 }
 
+static void PrintRecipeDescription(const char* json)
+{
+    const char* pRecipe = strstr(json, "\"recipe\"");
+    if (!pRecipe)
+    {
+        PrintStdout(L"No recipe details returned.\n");
+        return;
+    }
+
+    wchar_t szId[128] = { 0 };
+    wchar_t szName[256] = { 0 };
+    wchar_t szDesc[512] = { 0 };
+    wchar_t szCategory[128] = { 0 };
+
+    JsonGetString(pRecipe, "id", szId, _countof(szId));
+    JsonGetString(pRecipe, "name", szName, _countof(szName));
+    JsonGetString(pRecipe, "description", szDesc, _countof(szDesc));
+    JsonGetString(pRecipe, "category", szCategory, _countof(szCategory));
+
+    wchar_t header[1024];
+    StringCchPrintfW(header, _countof(header), L"Recipe: %ls (ID: %ls, Category: %ls)\nDescription: %ls\n\n",
+        szName[0] != L'\0' ? szName : szId,
+        szId,
+        szCategory[0] != L'\0' ? szCategory : L"General",
+        szDesc[0] != L'\0' ? szDesc : L"(None)");
+    PrintStdout(header);
+
+    // Lifecycle
+    const char* pLifecycle = strstr(pRecipe, "\"lifecycle\"");
+    if (pLifecycle)
+    {
+        BOOL bAcquires = FALSE;
+        BOOL bMutates = FALSE;
+        BOOL bExtracts = FALSE;
+        JsonGetBool(pLifecycle, "acquires_image", &bAcquires);
+        JsonGetBool(pLifecycle, "mutates_pixels", &bMutates);
+        JsonGetBool(pLifecycle, "extracts_text", &bExtracts);
+
+        wchar_t lifeLine[256];
+        StringCchPrintfW(lifeLine, _countof(lifeLine),
+            L"Payload Lifecycle:\n  Acquires Image: %ls\n  Mutates Pixels: %ls\n  Extracts Text : %ls\n\n",
+            bAcquires ? L"Yes" : L"No",
+            bMutates ? L"Yes" : L"No",
+            bExtracts ? L"Yes" : L"No");
+        PrintStdout(lifeLine);
+    }
+
+    // Inputs
+    const char* pInputs = strstr(pRecipe, "\"inputs\"");
+    if (pInputs)
+    {
+        const char* pArr = strchr(pInputs, '[');
+        if (pArr)
+        {
+            PrintStdout(L"Inputs (Parameters & Variables):\n");
+            const char* pCurr = pArr + 1;
+            int count = 0;
+            while (*pCurr != '\0' && *pCurr != ']')
+            {
+                const char* pObjStart = strchr(pCurr, '{');
+                if (!pObjStart) break;
+                const char* pObjEnd = strchr(pObjStart, '}');
+                if (!pObjEnd) break;
+
+                size_t len = (size_t)(pObjEnd - pObjStart + 1);
+                char* pObj = (char*)malloc(len + 1);
+                if (pObj)
+                {
+                    memcpy(pObj, pObjStart, len);
+                    pObj[len] = '\0';
+
+                    wchar_t szArgName[64] = { 0 };
+                    wchar_t szType[64] = { 0 };
+                    wchar_t szArgDesc[256] = { 0 };
+                    wchar_t szDef[128] = { 0 };
+                    BOOL bReq = FALSE;
+
+                    JsonGetString(pObj, "name", szArgName, _countof(szArgName));
+                    JsonGetString(pObj, "type", szType, _countof(szType));
+                    JsonGetString(pObj, "description", szArgDesc, _countof(szArgDesc));
+                    JsonGetString(pObj, "default_value", szDef, _countof(szDef));
+                    JsonGetBool(pObj, "required", &bReq);
+
+                    wchar_t line[512];
+                    if (bReq)
+                    {
+                        StringCchPrintfW(line, _countof(line), L"  * %-16ls (%ls, required)     : %ls\n",
+                            szArgName, szType[0] != L'\0' ? szType : L"String", szArgDesc);
+                    }
+                    else if (szDef[0] != L'\0')
+                    {
+                        StringCchPrintfW(line, _countof(line), L"    %-16ls (%ls, default: %ls) : %ls\n",
+                            szArgName, szType[0] != L'\0' ? szType : L"String", szDef, szArgDesc);
+                    }
+                    else
+                    {
+                        StringCchPrintfW(line, _countof(line), L"    %-16ls (%ls, optional)     : %ls\n",
+                            szArgName, szType[0] != L'\0' ? szType : L"String", szArgDesc);
+                    }
+                    PrintStdout(line);
+                    count++;
+                    free(pObj);
+                }
+                pCurr = pObjEnd + 1;
+            }
+            if (count == 0) PrintStdout(L"  (None)\n");
+            PrintStdout(L"\n");
+        }
+    }
+
+    // Outputs
+    const char* pOutputs = strstr(pRecipe, "\"outputs\"");
+    if (pOutputs)
+    {
+        const char* pArr = strchr(pOutputs, '[');
+        if (pArr)
+        {
+            PrintStdout(L"Outputs:\n");
+            const char* pCurr = pArr + 1;
+            int count = 0;
+            while (*pCurr != '\0' && *pCurr != ']')
+            {
+                const char* pObjStart = strchr(pCurr, '{');
+                if (!pObjStart) break;
+                const char* pObjEnd = strchr(pObjStart, '}');
+                if (!pObjEnd) break;
+
+                size_t len = (size_t)(pObjEnd - pObjStart + 1);
+                char* pObj = (char*)malloc(len + 1);
+                if (pObj)
+                {
+                    memcpy(pObj, pObjStart, len);
+                    pObj[len] = '\0';
+
+                    wchar_t szVarName[64] = { 0 };
+                    wchar_t szType[64] = { 0 };
+                    wchar_t szVarDesc[256] = { 0 };
+
+                    JsonGetString(pObj, "name", szVarName, _countof(szVarName));
+                    JsonGetString(pObj, "type", szType, _countof(szType));
+                    JsonGetString(pObj, "description", szVarDesc, _countof(szVarDesc));
+
+                    wchar_t line[512];
+                    StringCchPrintfW(line, _countof(line), L"    %-16ls (%ls) : %ls\n",
+                        szVarName, szType[0] != L'\0' ? szType : L"String", szVarDesc);
+                    PrintStdout(line);
+                    count++;
+                    free(pObj);
+                }
+                pCurr = pObjEnd + 1;
+            }
+            if (count == 0) PrintStdout(L"  (None)\n");
+            PrintStdout(L"\n");
+        }
+    }
+
+    // Steps
+    const char* pSteps = strstr(pRecipe, "\"steps\"");
+    if (pSteps)
+    {
+        const char* pArr = strchr(pSteps, '[');
+        if (pArr)
+        {
+            PrintStdout(L"Pipeline Steps:\n");
+            const char* pCurr = pArr + 1;
+            int stepNum = 1;
+            while (*pCurr != '\0' && *pCurr != ']')
+            {
+                const char* pObjStart = strchr(pCurr, '{');
+                if (!pObjStart) break;
+                const char* pObjEnd = strchr(pObjStart, '}');
+                if (!pObjEnd) break;
+
+                size_t len = (size_t)(pObjEnd - pObjStart + 1);
+                char* pObj = (char*)malloc(len + 1);
+                if (pObj)
+                {
+                    memcpy(pObj, pObjStart, len);
+                    pObj[len] = '\0';
+
+                    wchar_t szType[64] = { 0 };
+                    wchar_t szDisplay[128] = { 0 };
+                    BOOL bReqImg = FALSE;
+
+                    JsonGetString(pObj, "step_type", szType, _countof(szType));
+                    JsonGetString(pObj, "display_name", szDisplay, _countof(szDisplay));
+                    JsonGetBool(pObj, "requires_image", &bReqImg);
+
+                    wchar_t line[512];
+                    StringCchPrintfW(line, _countof(line), L"  %2d. %-20ls [%ls]%ls\n",
+                        stepNum++,
+                        szType,
+                        szDisplay[0] != L'\0' ? szDisplay : szType,
+                        bReqImg ? L" (requires image)" : L"");
+                    PrintStdout(line);
+                    free(pObj);
+                }
+                pCurr = pObjEnd + 1;
+            }
+            if (stepNum == 1) PrintStdout(L"  (None)\n");
+            PrintStdout(L"\n");
+        }
+    }
+
+    // Warnings
+    const char* pWarn = strstr(pRecipe, "\"warnings\"");
+    if (pWarn)
+    {
+        const char* pArr = strchr(pWarn, '[');
+        if (pArr && *(pArr + 1) != ']')
+        {
+            PrintStdout(L"Validation Warnings:\n");
+            const char* pScan = pArr + 1;
+            while (*pScan != '\0' && *pScan != ']')
+            {
+                const char* pQuote1 = strchr(pScan, '\"');
+                if (!pQuote1) break;
+                const char* pQuote2 = strchr(pQuote1 + 1, '\"');
+                if (!pQuote2) break;
+
+                size_t wLen = (size_t)(pQuote2 - pQuote1 - 1);
+                char* pW = (char*)malloc(wLen + 1);
+                if (pW)
+                {
+                    memcpy(pW, pQuote1 + 1, wLen);
+                    pW[wLen] = '\0';
+                    wchar_t wStr[512] = { 0 };
+                    MultiByteToWideChar(CP_UTF8, 0, pW, -1, wStr, _countof(wStr));
+                    wchar_t line[600];
+                    StringCchPrintfW(line, _countof(line), L"  [!] %ls\n", wStr);
+                    PrintStdout(line);
+                    free(pW);
+                }
+                pScan = pQuote2 + 1;
+            }
+            PrintStdout(L"\n");
+        }
+    }
+}
+
 int RunCliOrUrl(LPCWSTR pszPipeName, int argc, wchar_t* argv[])
 {
     /* 1. Fast-path offline commands */
@@ -653,6 +897,8 @@ int RunCliOrUrl(LPCWSTR pszPipeName, int argc, wchar_t* argv[])
 
     char szJsonEnvelope[65536] = { 0 };
     BOOL isListRecipes = FALSE;
+    BOOL isDescribeRecipe = FALSE;
+    BOOL bJsonOutput = FALSE;
 
     if (_wcsicmp(firstArg, L"--list-recipes") == 0 ||
         _wcsicmp(firstArg, L"-l") == 0 ||
@@ -661,6 +907,36 @@ int RunCliOrUrl(LPCWSTR pszPipeName, int argc, wchar_t* argv[])
         isListRecipes = TRUE;
         snprintf(szJsonEnvelope, sizeof(szJsonEnvelope),
             "{\"version\":1,\"source\":\"cli\",\"command\":\"LIST_RECIPES\",\"cwd\":\"%s\"}",
+            szEscapedCwd);
+    }
+    else if (_wcsicmp(firstArg, L"--info") == 0 ||
+             _wcsicmp(firstArg, L"--describe") == 0 ||
+             _wcsicmp(firstArg, L"-i") == 0 ||
+             _wcsicmp(firstArg, L"info") == 0 ||
+             _wcsicmp(firstArg, L"describe") == 0)
+    {
+        if (argc < 3)
+        {
+            PrintStderr(L"Error: Missing required recipe identifier.\nUsage: greenshot-proxy --info <cmd|id> [--json]\n");
+            return 1;
+        }
+
+        LPCWSTR pwszRecipe = argv[2];
+        for (int i = 3; i < argc; ++i)
+        {
+            if (_wcsicmp(argv[i], L"--json") == 0)
+            {
+                bJsonOutput = TRUE;
+            }
+        }
+
+        char szEscapedRecipe[512] = { 0 };
+        EscapeJsonString(pwszRecipe, szEscapedRecipe, sizeof(szEscapedRecipe));
+
+        isDescribeRecipe = TRUE;
+        snprintf(szJsonEnvelope, sizeof(szJsonEnvelope),
+            "{\"version\":1,\"source\":\"cli\",\"command\":\"DESCRIBE_RECIPE\",\"recipe\":\"%s\",\"cwd\":\"%s\"}",
+            szEscapedRecipe,
             szEscapedCwd);
     }
     else if (_wcsicmp(firstArg, L"--recipe") == 0 ||
@@ -688,6 +964,37 @@ int RunCliOrUrl(LPCWSTR pszPipeName, int argc, wchar_t* argv[])
             if (_wcsicmp(argv[i], L"--async") == 0 || _wcsicmp(argv[i], L"--fire-and-forget") == 0)
             {
                 bAsync = TRUE;
+                continue;
+            }
+
+            if (_wcsicmp(argv[i], L"--json") == 0)
+            {
+                bJsonOutput = TRUE;
+                char pairBuf[64];
+                int pairLen = snprintf(pairBuf, sizeof(pairBuf), "%s\"json\":\"true\"", hasParams ? "," : "");
+                if (pairLen > 0 && paramsIdx + pairLen + 2 < sizeof(szParamsJson))
+                {
+                    memcpy(szParamsJson + paramsIdx, pairBuf, pairLen);
+                    paramsIdx += pairLen;
+                    hasParams = TRUE;
+                }
+                continue;
+            }
+
+            if ((_wcsicmp(argv[i], L"--query") == 0 || _wcsicmp(argv[i], L"-q") == 0) && i + 1 < argc)
+            {
+                LPCWSTR pwszQuery = argv[++i];
+                char szEscapedQuery[4096] = { 0 };
+                EscapeJsonString(pwszQuery, szEscapedQuery, sizeof(szEscapedQuery));
+
+                char pairBuf[4200];
+                int pairLen = snprintf(pairBuf, sizeof(pairBuf), "%s\"query\":\"%s\"", hasParams ? "," : "", szEscapedQuery);
+                if (pairLen > 0 && paramsIdx + pairLen + 2 < sizeof(szParamsJson))
+                {
+                    memcpy(szParamsJson + paramsIdx, pairBuf, pairLen);
+                    paramsIdx += pairLen;
+                    hasParams = TRUE;
+                }
                 continue;
             }
 
@@ -936,6 +1243,24 @@ int RunCliOrUrl(LPCWSTR pszPipeName, int argc, wchar_t* argv[])
         if (isListRecipes)
         {
             PrintRecipeList(pRespBuffer);
+        }
+        else if (isDescribeRecipe)
+        {
+            if (bJsonOutput)
+            {
+                wchar_t* pwszResp = (wchar_t*)malloc((respLen + 1) * sizeof(wchar_t));
+                if (pwszResp)
+                {
+                    MultiByteToWideChar(CP_UTF8, 0, pRespBuffer, -1, pwszResp, (int)(respLen + 1));
+                    PrintStdout(pwszResp);
+                    PrintStdout(L"\n");
+                    free(pwszResp);
+                }
+            }
+            else
+            {
+                PrintRecipeDescription(pRespBuffer);
+            }
         }
         else
         {

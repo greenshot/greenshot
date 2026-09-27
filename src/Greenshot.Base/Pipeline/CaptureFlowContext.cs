@@ -72,6 +72,16 @@ namespace Greenshot.Base.Pipeline
         public Func<string, Task> StdoutWriter { get; set; }
 
         /// <summary>
+        /// Optional delegate to immediately emit streaming stderr text back to the caller (e.g. IPC client).
+        /// </summary>
+        public Func<string, Task> StderrWriter { get; set; }
+
+        /// <summary>
+        /// Numerical exit code for the flow (0 = success, non-zero = error).
+        /// </summary>
+        public int ExitCode { get; set; } = 0;
+
+        /// <summary>
         /// Cancellation token for early termination.
         /// </summary>
         public CancellationToken CancellationToken { get; set; }
@@ -145,7 +155,9 @@ namespace Greenshot.Base.Pipeline
             {
                 State = State,
                 Payload = branchPayload,
-                StdoutWriter = StdoutWriter
+                StdoutWriter = StdoutWriter,
+                StderrWriter = StderrWriter,
+                ExitCode = ExitCode
             };
 
             if (Properties != null)

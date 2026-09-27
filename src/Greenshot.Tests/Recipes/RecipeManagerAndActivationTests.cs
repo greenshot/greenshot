@@ -34,6 +34,7 @@ using Xunit;
 
 namespace Greenshot.Tests.Recipes
 {
+    [Collection("RecipeManager")]
     public class RecipeManagerAndActivationTests
     {
         public RecipeManagerAndActivationTests()

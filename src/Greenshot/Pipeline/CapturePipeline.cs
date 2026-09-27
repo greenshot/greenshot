@@ -29,6 +29,7 @@ using Dapplo.Windows.Kernel32;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Pipeline.Contracts;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Triggers;
 using Greenshot.Editor.Drawing;
@@ -115,6 +116,26 @@ namespace Greenshot.Pipeline
             _stepRegistry.RegisterStepFactory(WellKnownStepTypes.Stdout, config => new StdoutStep(config));
             _stepRegistry.RegisterStepFactory("Print", config => new StdoutStep(config));
             _stepRegistry.RegisterStepFactory("ConsoleOutput", config => new StdoutStep(config));
+            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.Stderr, config => new StderrStep(config));
+            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.Error, config => new StderrStep(config));
+            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.Fail, config => new StderrStep(config));
+
+            // Register step contracts for discovery, introspection, and recipe editor
+            StepContractRegistry.Register<SourceAcquisitionStep>();
+            StepContractRegistry.Register<DestinationExportStep>();
+            StepContractRegistry.Register<EffectCaptureStep>();
+            StepContractRegistry.Register<AnnotationStep>();
+            StepContractRegistry.Register<SetVariableStep>();
+            StepContractRegistry.Register<StdoutStep>();
+            StepContractRegistry.Register<StderrStep>();
+            StepContractRegistry.Register<NotificationStep>();
+            StepContractRegistry.Register<InteractiveSelectionStep>();
+            StepContractRegistry.Register<DynamicDestinationStep>();
+            StepContractRegistry.Register<UserPromptStep>();
+            StepContractRegistry.Register<RecordVideoRecipeStep>();
+            StepContractRegistry.Register<ImmediateFeedbackStep>();
+            StepContractRegistry.Register<ProcessorExecutionStep>();
+            StepContractRegistry.Register<TextEffectStep>();
 
             // Register all plugin step providers
             try

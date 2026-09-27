@@ -40,6 +40,9 @@ namespace Greenshot.Plugin.Box
         public string Name { get; }
         public RecipeNodeConfig NodeConfig { get; }
 
+        public Base.Pipeline.Contracts.StepContract Contract =>
+            Base.Pipeline.Contracts.StepContractRegistry.GetContract(Name) ?? Base.Pipeline.Contracts.StepContractBuilder.FromType(GetType());
+
         public BoxStep(RecipeNodeConfig config, BoxPlugin plugin)
         {
             NodeConfig = config ?? throw new ArgumentNullException(nameof(config));

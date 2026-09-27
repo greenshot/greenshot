@@ -21,11 +21,13 @@
 
 using System.Threading;
 using System.Threading.Tasks;
+using Greenshot.Base.Pipeline.Contracts;
 
 namespace Greenshot.Base.Pipeline
 {
     /// <summary>
     /// Represents a discrete, modular step in the capture pipeline.
+    /// Discloses a formal StepContract of its parameters, expected variables, produced variables, and payload interactions.
     /// </summary>
     public interface ICaptureStep
     {
@@ -33,6 +35,11 @@ namespace Greenshot.Base.Pipeline
         /// Display name or identifier of this step.
         /// </summary>
         string Name { get; }
+
+        /// <summary>
+        /// Formal contract specifying inputs, outputs, parameters, and payload behavior.
+        /// </summary>
+        StepContract Contract { get; }
 
         /// <summary>
         /// Executes the step against the flow context.

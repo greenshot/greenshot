@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -34,6 +34,9 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Ocr;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Pipeline.Contracts;
+using Contracts = Greenshot.Base.Pipeline.Contracts;
+
 using Greenshot.Base.Recipes;
 using log4net;
 
@@ -42,6 +45,8 @@ namespace Greenshot.Pipeline.Steps
     /// <summary>
     /// Pipeline step presenting interactive selection overlay (region, window snapping, or OCR text).
     /// </summary>
+    [Contracts.StepInfo(WellKnownStepTypes.InteractiveSelection, "Interactive Selection", "Presents interactive selection overlay (region, window snapping, or OCR text selection).", "Interaction")]
+    [Contracts.StepPayload(RawCapture = Contracts.PayloadRequirement.Required, Surface = Contracts.PayloadRequirement.Optional, VisualMutation = Contracts.PayloadEffect.MutatesPixels)]
     public class InteractiveSelectionStep : ICaptureStep
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(InteractiveSelectionStep));
@@ -51,6 +56,9 @@ namespace Greenshot.Pipeline.Steps
 
         public string Name { get; }
         public RecipeNodeConfig Config { get; }
+
+        public Contracts.StepContract Contract =>
+            Contracts.StepContractRegistry.GetContract(WellKnownStepTypes.InteractiveSelection) ?? Contracts.StepContractBuilder.FromType(GetType());
 
         public InteractiveSelectionStep(RecipeNodeConfig config, IInteractiveCaptureSelector selector = null)
         {

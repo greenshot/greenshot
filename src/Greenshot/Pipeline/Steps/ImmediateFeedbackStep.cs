@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -25,6 +25,9 @@ using System.Threading.Tasks;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Pipeline.Contracts;
+using Contracts = Greenshot.Base.Pipeline.Contracts;
+
 using Greenshot.Base.Recipes;
 using Greenshot.Helpers;
 using log4net;
@@ -35,6 +38,7 @@ namespace Greenshot.Pipeline.Steps
     /// Pipeline step providing immediate capture acquisition feedback (e.g. camera sound, flash).
     /// Dynamic configuration evaluation allows live settings to dictate feedback.
     /// </summary>
+    [Contracts.StepInfo(WellKnownStepTypes.ImmediateFeedback, "Immediate Feedback", "Provides immediate acquisition feedback (camera sound, screen flash).", "Feedback")]
     public class ImmediateFeedbackStep : ICaptureStep
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(ImmediateFeedbackStep));
@@ -42,6 +46,9 @@ namespace Greenshot.Pipeline.Steps
 
         public string Name { get; }
         public RecipeNodeConfig Config { get; }
+
+        public Contracts.StepContract Contract =>
+            Contracts.StepContractRegistry.GetContract(WellKnownStepTypes.ImmediateFeedback) ?? Contracts.StepContractBuilder.FromType(GetType());
 
         public ImmediateFeedbackStep(RecipeNodeConfig config)
         {

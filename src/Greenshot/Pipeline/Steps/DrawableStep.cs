@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -35,6 +35,9 @@ using Greenshot.Base.Expressions;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Pipeline.Contracts;
+using Contracts = Greenshot.Base.Pipeline.Contracts;
+
 using Greenshot.Base.Recipes;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Drawing.Emoji;
@@ -49,12 +52,18 @@ namespace Greenshot.Pipeline.Steps
     /// Pipeline step that instantiates and places any available annotation element onto the visual surface.
     /// Supports absolute, calculated (expressions using width/height), and anchored (Left/Center/Right, Top/Middle/Bottom) positioning.
     /// </summary>
+    [Contracts.StepInfo(WellKnownStepTypes.Annotation, "Add Annotation", "Attaches drawable annotations (shapes, text, arrows, icons, blur, stamps) to the capture surface.", "Annotations")]
+    [Contracts.StepPayload(RawCapture = Contracts.PayloadRequirement.Required, Surface = Contracts.PayloadRequirement.Required, VisualMutation = Contracts.PayloadEffect.AddsAnnotations)]
+    [Contracts.StepParameter("drawableType", Contracts.ContractDataType.String, Required = false, Description = "Type of annotation (Text, Rectangle, Arrow, Icon, Blur, SpeechBubble, etc.)")]
     public class AnnotationStep : ICaptureStep
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(AnnotationStep));
 
         public string Name { get; }
         public RecipeNodeConfig NodeConfig { get; }
+
+        public Contracts.StepContract Contract =>
+            Contracts.StepContractRegistry.GetContract(WellKnownStepTypes.Annotation) ?? Contracts.StepContractBuilder.FromType(GetType());
 
         public AnnotationStep(RecipeNodeConfig config)
         {

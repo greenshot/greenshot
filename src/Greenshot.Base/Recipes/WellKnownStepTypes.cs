@@ -141,5 +141,20 @@ namespace Greenshot.Base.Recipes
         /// Dedicated step emitting text output directly to the standard output stream (stdout) immediately via IPC or console.
         /// </summary>
         public const string Stdout = "Stdout";
+
+        /// <summary>
+        /// Dedicated step emitting error text directly to the standard error stream (stderr) and optionally aborting execution with a custom exit code.
+        /// </summary>
+        public const string Stderr = "Stderr";
+
+        /// <summary>
+        /// Alias for Stderr.
+        /// </summary>
+        public const string Error = "Error";
+
+        /// <summary>
+        /// Alias for Stderr.
+        /// </summary>
+        public const string Fail = "Fail";
     }
 }
