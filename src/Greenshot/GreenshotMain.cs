@@ -115,10 +115,11 @@ public class GreenshotMain
         // startup directory, unless --ini-directory is given: then only that directory is used.
         var builder = IniConfigRegistry.ForFile("greenshot.ini");
         var appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Greenshot");
-        var iniDirectory = IniLocation.Configure(builder, options.IniDirectory, appDataPath, startupPath);
-        if (iniDirectory != null)
+        // Keep the resolved directory (null when unusable) so a restart by the Restart Manager uses it as well
+        options.IniDirectory = IniLocation.Configure(builder, options.IniDirectory, appDataPath, startupPath);
+        if (options.IniDirectory != null)
         {
-            LOG.Info($"Using ini-directory {iniDirectory}");
+            LOG.Info($"Using ini-directory {options.IniDirectory}");
         }
 
         builder.WithWriterOptions(new IniWriterOptions

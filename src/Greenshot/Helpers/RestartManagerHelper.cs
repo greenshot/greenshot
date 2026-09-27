@@ -54,14 +54,22 @@ namespace Greenshot.Helpers
         /// When the Restart Manager restarts Greenshot, it will use the <c>--restore</c> argument
         /// so that Greenshot can restore any open image editors.
         /// </summary>
-        public static void RegisterForRestart()
+        /// <param name="iniDirectory">The full path of the active --ini-directory or null, passed on so the restarted Greenshot uses the same configuration</param>
+        public static void RegisterForRestart(string iniDirectory)
         {
             // Capture the current dispatcher for use in saving editor state during shutdown
             _dispatcher = Dispatcher.CurrentDispatcher;
 
+            var commandLineArgs = "--restore";
+            if (!string.IsNullOrWhiteSpace(iniDirectory))
+            {
+                // A trailing backslash would escape the closing quote, so double it
+                commandLineArgs += $" --ini-directory \"{(iniDirectory.EndsWith(@"\") ? iniDirectory + @"\" : iniDirectory)}\"";
+            }
+
             // Register with the Windows Restart Manager so it can restart us after updates
             // Don't restart if the application crashes
-            ApplicationRestartManager.RegisterForRestart(commandLineArgs: "--restore");
+            ApplicationRestartManager.RegisterForRestart(commandLineArgs: commandLineArgs);
 
             ApplicationRestartManager.ListenForEndSession(
                 onQuerySession: (endSessionReason) => {
