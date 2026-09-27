@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Dapplo.Ini;
 using Greenshot.Base;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.OutputFormats;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Forms;
@@ -193,13 +194,10 @@ namespace Greenshot.Pipeline.Steps
             bool? reduceColors = Config.GetParameter<bool?>("ReduceColors");
             if (jpegQuality.HasValue || reduceColors.HasValue)
             {
-                OutputFormat fmt = CoreConfig.OutputFileFormat;
+                string formatId = CoreConfig.OutputFileFormat;
                 string fmtStr = Config.GetParameter<string>("Format");
-                if (!string.IsNullOrWhiteSpace(fmtStr) && Enum.TryParse<OutputFormat>(fmtStr, true, out var parsedFmt))
-                {
-                    fmt = parsedFmt;
-                }
-                var sos = new SurfaceOutputSettings(fmt, jpegQuality ?? CoreConfig.OutputFileJpegQuality, reduceColors ?? CoreConfig.OutputFileReduceColors);
+                formatId = ResolveFormatId(fmtStr, formatId);
+                var sos = new SurfaceOutputSettings(formatId, jpegQuality ?? CoreConfig.OutputFileJpegQuality, reduceColors ?? CoreConfig.OutputFileReduceColors);
                 context.Properties["Destination.SurfaceOutputSettings"] = sos;
             }
 
@@ -222,12 +220,9 @@ namespace Greenshot.Pipeline.Steps
                     ?? CoreConfig.OutputFileFilenamePattern
                     ?? "greenshot ${capturetime}";
 
-                OutputFormat outputFormat = CoreConfig.OutputFileFormat;
+                string outputFormat = CoreConfig.OutputFileFormat;
                 string formatStr = Config.GetParameter<string>("Format");
-                if (!string.IsNullOrWhiteSpace(formatStr) && Enum.TryParse<OutputFormat>(formatStr, true, out var parsedFmt))
-                {
-                    outputFormat = parsedFmt;
-                }
+                outputFormat = ResolveFormatId(formatStr, outputFormat);
 
                 var captureDetails = context.Payload?.RawCapture?.CaptureDetails;
                 if (captureDetails != null)
@@ -240,6 +235,29 @@ namespace Greenshot.Pipeline.Steps
                     Log.InfoFormat("Custom save location configured: '{0}'", fullPath);
                 }
             }
+        }
+
+        private static string ResolveFormatId(string requestedFormat, string fallbackFormat)
+        {
+            var registry = SimpleServiceProvider.Current.GetInstance<IOutputFormatRegistry>(true);
+            if (registry == null)
+            {
+                return string.IsNullOrWhiteSpace(requestedFormat) ? fallbackFormat : requestedFormat;
+            }
+
+            if (!string.IsNullOrWhiteSpace(requestedFormat) && registry.TryGet(requestedFormat, out _))
+            {
+                return requestedFormat;
+            }
+
+            if (!string.IsNullOrWhiteSpace(requestedFormat))
+            {
+                string resolvedFallback = registry.TryGet(fallbackFormat, out _) ? fallbackFormat : WellKnownOutputFormats.Png;
+                Log.WarnFormat("Unknown output format '{0}' in recipe; using '{1}'.", requestedFormat, resolvedFallback);
+                return resolvedFallback;
+            }
+
+            return registry.TryGet(fallbackFormat, out _) ? fallbackFormat : WellKnownOutputFormats.Png;
         }
 
         private IEnumerable<string> ResolveDestinationDesignations(CaptureFlowContext context)

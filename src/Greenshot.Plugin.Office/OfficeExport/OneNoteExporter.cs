@@ -24,6 +24,7 @@ using System.Runtime.InteropServices;
 using System.Xml;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
+using Greenshot.Base.Core.OutputFormats;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Plugin.Office.Com;
@@ -110,7 +111,7 @@ namespace Greenshot.Plugin.Office.OfficeExport
             }
 
             using var pngStream = RecyclableMemoryStreamFactory.GetStream("OneNoteExporter.ExportToPage");
-            var pngOutputSettings = new SurfaceOutputSettings(OutputFormat.png, 100, false);
+            var pngOutputSettings = new SurfaceOutputSettings(WellKnownOutputFormats.Png, 100, false);
             ImageIO.SaveToStream(surfaceToUpload, pngStream, pngOutputSettings);
             var base64String = pngStream.TryGetBuffer(out var buffer) && buffer.Array != null
                 ? Convert.ToBase64String(buffer.Array, buffer.Offset, buffer.Count)

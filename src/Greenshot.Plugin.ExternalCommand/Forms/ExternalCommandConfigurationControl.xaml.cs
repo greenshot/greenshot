@@ -32,6 +32,8 @@ using System.Windows.Media;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
+using Greenshot.Base.Core.OutputFormats;
+using Greenshot.Base.Interfaces;
 using Microsoft.Win32;
 
 namespace Greenshot.Plugin.ExternalCommand.Forms;
@@ -181,7 +183,7 @@ public partial class ExternalCommandConfigurationControl : UserControl, INotifyP
         }
         if (ExternalCommandConfig.OutputFormat == null)
         {
-            ExternalCommandConfig.OutputFormat = new Dictionary<string, OutputFormat>();
+            ExternalCommandConfig.OutputFormat = new Dictionary<string, string>();
         }
         if (ExternalCommandConfig.RunInbackground == null)
         {
@@ -215,7 +217,7 @@ public partial class ExternalCommandConfigurationControl : UserControl, INotifyP
         ExternalCommandConfig.Commands.Add(newName);
         ExternalCommandConfig.Commandline[newName] = string.Empty;
         ExternalCommandConfig.Argument[newName] = "\"{0}\"";
-        ExternalCommandConfig.OutputFormat[newName] = CoreConfig?.OutputFileFormat ?? OutputFormat.png;
+        ExternalCommandConfig.OutputFormat[newName] = CoreConfig?.OutputFileFormat ?? WellKnownOutputFormats.Png;
         ExternalCommandConfig.RunInbackground[newName] = true;
         ExternalCommandConfig.RedirectStandardErrorCommand[newName] = ExternalCommandConfig.RedirectStandardError;
         ExternalCommandConfig.RedirectStandardOutputCommand[newName] = ExternalCommandConfig.RedirectStandardOutput;
@@ -293,7 +295,7 @@ public class ExternalCommandItemViewModel : INotifyPropertyChanged
     private string _name;
     private string _commandLine;
     private string _arguments;
-    private OutputFormat _outputFormat;
+    private string _outputFormat;
     private bool _runInBackground;
     private bool _redirectStandardError;
     private bool _redirectStandardOutput;
@@ -318,7 +320,19 @@ public class ExternalCommandItemViewModel : INotifyPropertyChanged
 
         _outputFormat = config.OutputFormat != null && config.OutputFormat.ContainsKey(commandName)
             ? config.OutputFormat[commandName]
-            : OutputFormat.png;
+            : WellKnownOutputFormats.Png;
+        var registry = SimpleServiceProvider.Current.GetInstance<IOutputFormatRegistry>(true);
+        OutputFormats = registry?.GetSaveableFileFormatOptions().ToList()
+            ?? new List<OutputFormatOption>();
+        if (!OutputFormats.Any(option => string.Equals(option.Id, _outputFormat, StringComparison.OrdinalIgnoreCase)))
+        {
+            OutputFormats.Add(new OutputFormatOption
+            {
+                Id = _outputFormat,
+                DisplayName = _outputFormat,
+                DisplayNameWithPreferredExtension = _outputFormat
+            });
+        }
 
         _runInBackground = config.RunInbackground != null && config.RunInbackground.ContainsKey(commandName)
             ? config.RunInbackground[commandName]
@@ -446,7 +460,9 @@ public class ExternalCommandItemViewModel : INotifyPropertyChanged
         }
     }
 
-    public OutputFormat OutputFormat
+    public List<OutputFormatOption> OutputFormats { get; }
+
+    public string OutputFormat
     {
         get => _outputFormat;
         set

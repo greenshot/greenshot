@@ -292,6 +292,18 @@ Please check write accessibility of the selected storage location.</resource>
     time, e.g. 11_58_32 (plus extension defined in the settings)</resource>
 		<resource name="settings_network">Network and updates</resource>
 		<resource name="settings_output">Output</resource>
+        <resource name="output_format_display_name_bmp">Bitmap</resource>
+        <resource name="output_format_display_name_gif">Graphics Interchange Format</resource>
+        <resource name="output_format_display_name_jpg">JPEG</resource>
+        <resource name="output_format_display_name_png">Portable Network Graphics</resource>
+        <resource name="output_format_display_name_tiff">Tagged Image File Format</resource>
+        <resource name="output_format_display_name_jxr">JPEG XR</resource>
+        <resource name="output_format_display_name_ico">Icon</resource>
+		<resource name="output_format_display_name_greenshot">Greenshot Editor</resource>
+        <resource name="output_format_display_name_svg">Scalable Vector Graphics</resource>
+        <resource name="output_format_display_name_webp">WebP</resource>
+        <resource name="output_format_display_name_tga">Targa</resource>
+        <resource name="output_format_display_name_pbm">Portable Bitmap</resource>
 		<resource name="settings_playsound">Play camera sound</resource>
 		<resource name="settings_plugins">Plugins</resource>
 		<resource name="settings_plugins_createdby">Created by</resource>

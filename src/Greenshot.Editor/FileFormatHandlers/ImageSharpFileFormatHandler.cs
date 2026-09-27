@@ -23,6 +23,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.OutputFormats;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using SixLabors.ImageSharp;
@@ -56,6 +57,13 @@ namespace Greenshot.Editor.FileFormatHandlers
             SupportedExtensions[FileFormatHandlerActions.LoadFromFile] = _ourExtensions;
         }
 
+        public override void RegisterOutputFormats(IOutputFormatRegistry registry)
+        {
+            RegisterOutputFormat(registry, "tga", [".tga"], "tga", "image/x-tga", null, "output_format_display_name_tga", "Targa Image File");
+            RegisterOutputFormat(registry, "pbm", [".pbm"], "pbm", "image/x-portable-bitmap", null, "output_format_display_name_pbm", "Portable Bitmap Image File");
+            RegisterOutputFormat(registry, "webp", [".webp"], "webp", "image/webp", null, "output_format_display_name_webp", "WebP Image File");
+        }
+
         /// <inheritdoc />
         public override bool TrySaveToStream(Bitmap bitmap, Stream destination, string extension, ISurface surface = null, SurfaceOutputSettings surfaceOutputSettings = null)
         {
@@ -70,7 +78,7 @@ namespace Greenshot.Editor.FileFormatHandlers
             var versionString = "Greenshot " + EnvironmentInfo.GetGreenshotVersion(true);
             if (extension == ".png")
             {
-                surfaceOutputSettings ??= new SurfaceOutputSettings(Base.Core.Enums.OutputFormat.png);
+                surfaceOutputSettings ??= new SurfaceOutputSettings(WellKnownOutputFormats.Png);
                 // Access the PNG-specific metadata
                 var pngMetadata = image.Metadata.GetPngMetadata();
                 // Add or update the "Software" text chunk

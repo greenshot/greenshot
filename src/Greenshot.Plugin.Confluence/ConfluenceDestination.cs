@@ -28,6 +28,7 @@ using System.Threading;
 using System.Windows;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.OutputFormats;
 using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
@@ -200,8 +201,12 @@ public class ConfluenceDestination : AbstractDestination
             }
         }
 
-        string extension = "." + ConfluenceConfig.UploadFormat;
-        if (!filename.ToLower().EndsWith(extension))
+        var formatRegistry = SimpleServiceProvider.Current.GetInstance<IOutputFormatRegistry>(true);
+        string uploadFormat = formatRegistry.ResolveFormatId(ConfluenceConfig.UploadFormat, WellKnownOutputFormats.Png);
+        string extension = formatRegistry != null && formatRegistry.TryGet(uploadFormat, out var formatDefinition)
+            ? "." + formatDefinition.PreferredExtension
+            : ".png";
+        if (!filename.EndsWith(extension, StringComparison.OrdinalIgnoreCase))
         {
             filename += extension;
         }
@@ -238,15 +243,20 @@ public class ConfluenceDestination : AbstractDestination
 
     private bool Upload(ISurface surfaceToUpload, Page page, string filename, out string errorMessage)
     {
+        var formatRegistry = SimpleServiceProvider.Current.GetInstance<IOutputFormatRegistry>(true);
+        string uploadFormat = formatRegistry.ResolveFormatId(ConfluenceConfig.UploadFormat, WellKnownOutputFormats.Png);
         SurfaceOutputSettings outputSettings =
-            new SurfaceOutputSettings(ConfluenceConfig.UploadFormat, ConfluenceConfig.UploadJpegQuality, ConfluenceConfig.UploadReduceColors);
+            new SurfaceOutputSettings(uploadFormat, ConfluenceConfig.UploadJpegQuality, ConfluenceConfig.UploadReduceColors);
         errorMessage = null;
         try
         {
             new PleaseWaitForm().ShowAndWait(Description, Language.GetString("confluence", LangKey.communication_wait),
                 delegate
                 {
-                    ConfluencePlugin.ConfluenceConnector.AddAttachment(page.Id, "image/" + ConfluenceConfig.UploadFormat.ToString().ToLower(), null, filename,
+                    string mimeType = formatRegistry != null && formatRegistry.TryGet(uploadFormat, out var uploadDefinition)
+                        ? uploadDefinition.MimeType
+                        : "image/png";
+                    ConfluencePlugin.ConfluenceConnector.AddAttachment(page.Id, mimeType, null, filename,
                         new SurfaceContainer(surfaceToUpload, outputSettings, filename));
                 }
             );

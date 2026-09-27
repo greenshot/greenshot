@@ -22,6 +22,7 @@
 using System.Collections.Generic;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
+using Greenshot.Base.Core.OutputFormats;
 using Greenshot.Base.Effects;
 using Dapplo.Ini;
 
@@ -41,17 +42,17 @@ namespace Greenshot.Base.Interfaces.Plugin
             ReduceColors = CoreConfig.OutputFileReduceColors;
         }
 
-        public SurfaceOutputSettings(OutputFormat format) : this()
+        public SurfaceOutputSettings(string format) : this()
         {
             Format = format;
         }
 
-        public SurfaceOutputSettings(OutputFormat format, int quality) : this(format)
+        public SurfaceOutputSettings(string format, int quality) : this(format)
         {
             JPGQuality = quality;
         }
 
-        public SurfaceOutputSettings(OutputFormat format, int quality, bool reduceColors) : this(format, quality)
+        public SurfaceOutputSettings(string format, int quality, bool reduceColors) : this(format, quality)
         {
             ReduceColors = reduceColors;
         }
@@ -63,15 +64,15 @@ namespace Greenshot.Base.Interfaces.Plugin
         public SurfaceOutputSettings PreventGreenshotFormat()
         {
             // If OutputFormat is Greenshot, use PNG instead.
-            if (Format == OutputFormat.greenshot)
+            if (WellKnownOutputFormats.IsEqualFormat(WellKnownOutputFormats.Greenshot, Format))
             {
-                Format = OutputFormat.png;
+                Format = WellKnownOutputFormats.Png;
             }
 
             return this;
         }
 
-        public OutputFormat Format { get; set; }
+        public string Format { get; set; }
 
         public int JPGQuality { get; set; }
 
@@ -84,7 +85,7 @@ namespace Greenshot.Base.Interfaces.Plugin
             get
             {
                 // Fix for Bug #3468436, force quantizing when output format is gif as this has only 256 colors!
-                if (OutputFormat.gif.Equals(Format))
+                if (WellKnownOutputFormats.IsEqualFormat(WellKnownOutputFormats.Gif, Format))
                 {
                     return true;
                 }
@@ -103,7 +104,7 @@ namespace Greenshot.Base.Interfaces.Plugin
             set
             {
                 // Quantizing os needed when output format is gif as this has only 256 colors!
-                if (!OutputFormat.gif.Equals(Format))
+                if (!WellKnownOutputFormats.IsEqualFormat(WellKnownOutputFormats.Gif, Format))
                 {
                     _disableReduceColors = value;
                 }

@@ -27,6 +27,7 @@ using System.Threading.Tasks;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Core.FileFormatHandlers;
+using Greenshot.Base.Core.OutputFormats;
 using Greenshot.Base.Interfaces;
 using log4net;
 
@@ -67,7 +68,7 @@ namespace Greenshot.Base.Pipeline.Sources
 
             try
             {
-                if (filename.ToLower().EndsWith("." + OutputFormat.greenshot))
+                if (WellKnownOutputFormats.IsEqualFormat(WellKnownOutputFormats.Greenshot, extension.TrimStart('.')))
                 {
                     using FileStream fileStream = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read);
                     try

@@ -23,6 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using Greenshot.Base.Core.OutputFormats;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Plugin;
@@ -47,6 +48,11 @@ namespace Greenshot.Editor.FileFormatHandlers
             SvgDocument.ResolveExternalImages = ExternalType.None;
             SvgDocument.ResolveExternalElements = ExternalType.None;
             SvgDocument.ResolveExternalXmlEntites = ExternalType.None;
+        }
+
+        public override void RegisterOutputFormats(IOutputFormatRegistry registry)
+        {
+            RegisterOutputFormat(registry,"svg", [".svg"], "svg", "image/svg+xml", null, "output_format_display_name_svg", "Scalable Vector Graphics Image File");
         }
 
         public SvgFileFormatHandler()

@@ -20,6 +20,7 @@
   */
 
 using System;
+using Greenshot.Base.Core.OutputFormats;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
 using Dapplo.Ini;
@@ -62,9 +63,9 @@ namespace Greenshot.Base.Controls
             InitializeLanguage();
 
             checkBox_reduceColors.Checked = Settings.ReduceColors;
-            trackBarJpegQuality.Enabled = OutputFormat.jpg.Equals(outputSettings.Format);
+            trackBarJpegQuality.Enabled = WellKnownOutputFormats.IsEqualFormat(WellKnownOutputFormats.Jpg, outputSettings.Format);
             trackBarJpegQuality.Value = Settings.JPGQuality;
-            textBoxJpegQuality.Enabled = OutputFormat.jpg.Equals(outputSettings.Format);
+            textBoxJpegQuality.Enabled = WellKnownOutputFormats.IsEqualFormat(WellKnownOutputFormats.Jpg, outputSettings.Format);
             textBoxJpegQuality.Text = Settings.JPGQuality.ToString();
             ToFront = true;
         }

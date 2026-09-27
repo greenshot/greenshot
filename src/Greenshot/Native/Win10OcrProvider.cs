@@ -24,17 +24,18 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Threading.Tasks;
-using Windows.Graphics.Imaging;
-using Windows.Media.Ocr;
-using Windows.Storage.Streams;
-using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Common.Extensions;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
+using Greenshot.Base.Core.OutputFormats;
 using Greenshot.Base.Effects;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Ocr;
 using Greenshot.Base.Interfaces.Plugin;
+using Windows.Graphics.Imaging;
+using Windows.Media.Ocr;
+using Windows.Storage.Streams;
 
 namespace Greenshot.Plugin.Win10
 {
@@ -71,7 +72,7 @@ namespace Greenshot.Plugin.Win10
             using (var imageStream = RecyclableMemoryStreamFactory.GetStream("Win10OcrProvider.DoOcrAsync(ISurface)"))
             {
                 // We only want the background
-                var outputSettings = new SurfaceOutputSettings(OutputFormat.png, 0, true)
+                var outputSettings = new SurfaceOutputSettings(WellKnownOutputFormats.Png, 0, true)
                 {
                     ReduceColors = false,
                     SaveBackgroundOnly = true

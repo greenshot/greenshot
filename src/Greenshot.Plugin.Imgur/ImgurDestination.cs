@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.OutputFormats;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
@@ -49,7 +50,7 @@ namespace Greenshot.Plugin.Imgur
         public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
         {
             var exportInformation = new ExportInformation(Designation, Description);
-            var outputSettings = new SurfaceOutputSettings(OutputFormat.png, 90, false);
+            var outputSettings = new SurfaceOutputSettings(WellKnownOutputFormats.Png, 90, false);
 
             var info = ImgurStep.UploadToImgur(surface, captureDetails, outputSettings, captureDetails.Title, null);
             if (info != null && !string.IsNullOrEmpty(info.Original))

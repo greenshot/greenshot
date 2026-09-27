@@ -38,7 +38,7 @@ public interface IDropboxConfiguration : IIniSection, IAfterLoad, IBeforeSave
 
     [Description("What file type to use for uploading")]
     [DefaultValue("png")]
-    OutputFormat UploadFormat { get; set; }
+    string UploadFormat { get; set; }
 
     [Description("JPEG file save quality in %.")]
     [DefaultValue(80)]
