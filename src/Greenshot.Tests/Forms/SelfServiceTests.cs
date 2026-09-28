@@ -311,33 +311,65 @@ namespace Greenshot.Tests.Forms
             Assert.Null(backgroundEx);
         }
 
-        [Fact]
+        [InteractiveDesktopFact]
         public void ClipboardSectionViewModel_BitmapOnClipboard_EnumeratesFormatsSafelyWithoutCrash()
         {
             Exception threadEx = null;
             var thread = new Thread(() =>
             {
+                // The clipboard is shared with every other program: one of them can hold it open (CLIPBRD_E_CANT_OPEN)
+                // or replace its content at any moment. Retry a few times before calling it a failure.
+                const int attempts = 5;
+                for (int attempt = 1; attempt <= attempts; attempt++)
+                {
+                    try
+                    {
+                        using (var bmp = new System.Drawing.Bitmap(32, 32))
+                        {
+                            System.Windows.Forms.Clipboard.SetImage(bmp);
+                        }
+
+                        var clip = new ClipboardSectionViewModel();
+                        try
+                        {
+                            clip.QueryClipboardFormats();
+
+                            Assert.NotNull(clip.Formats);
+                            Assert.Contains(clip.Formats, f => f.Name.Contains("BITMAP") || f.Name.Contains("Bitmap") || f.Name.Contains("DIB"));
+
+                            clip.CheckClipboardStatus(logToMonitor: true);
+                            Assert.False(clip.IsBlocked);
+                        }
+                        finally
+                        {
+                            clip.Dispose();
+                        }
+
+                        threadEx = null;
+                        return;
+                    }
+                    catch (Exception ex)
+                    {
+                        threadEx = ex;
+                        Thread.Sleep(250 * attempt);
+                    }
+                }
+
+                // Still failing: name the program that holds the clipboard, so the failure explains itself
                 try
                 {
-                    using (var bmp = new System.Drawing.Bitmap(32, 32))
+                    using (var status = new ClipboardSectionViewModel())
                     {
-                        System.Windows.Forms.Clipboard.SetImage(bmp);
+                        status.CheckClipboardStatus();
+                        if (status.IsBlocked)
+                        {
+                            threadEx = new Exception($"The clipboard is held open by '{status.BlockerProcessName}' (PID {status.BlockerProcessId}, window '{status.BlockerWindowTitle}').", threadEx);
+                        }
                     }
-
-                    var clip = new ClipboardSectionViewModel();
-                    clip.QueryClipboardFormats();
-
-                    Assert.NotNull(clip.Formats);
-                    Assert.Contains(clip.Formats, f => f.Name.Contains("BITMAP") || f.Name.Contains("Bitmap") || f.Name.Contains("DIB"));
-
-                    clip.CheckClipboardStatus(logToMonitor: true);
-                    Assert.False(clip.IsBlocked);
-
-                    clip.Dispose();
                 }
-                catch (Exception ex)
+                catch
                 {
-                    threadEx = ex;
+                    // Diagnostics only
                 }
             });
             thread.SetApartmentState(ApartmentState.STA);

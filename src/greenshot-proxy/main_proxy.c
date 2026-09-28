@@ -15,40 +15,24 @@
 #include "rt.h"
 
 /*
- * Detects a Native Messaging launch by the browser. Only the exact positions browsers use are checked:
+ * Detects a Native Messaging launch by the browser. Only the exact arguments browsers pass are recognized:
  *   Chrome / Edge: greenshot-proxy.exe chrome-extension://<id>/ [--parent-window=<hwnd>]
  *   Firefox:       greenshot-proxy.exe <path-to-host-manifest.json> <extension-id>
+ * The origin found here is passed on in HELLO, and Greenshot only accepts the extensions it allows.
  */
-static BOOL IsExtensionInvocation(int argc, LPWSTR* argv)
-{
-    if (argc < 2)
-    {
-        return FALSE;
-    }
-    if (RtStartsWithW(argv[1], L"chrome-extension://", FALSE) ||
-        RtStartsWithW(argv[1], L"moz-extension://", FALSE) ||
-        RtStartsWithW(argv[1], L"extension://", FALSE) ||
-        RtEqualsIgnoreCaseW(argv[1], L"--native-messaging"))
-    {
-        return TRUE;
-    }
-    /* Firefox: exactly two arguments, the host manifest (.json) followed by the extension id */
-    return argc == 3 && RtEndsWithIgnoreCaseW(argv[1], L".json") &&
-           (RtContainsCharW(argv[2], L'@') || argv[2][0] == L'{');
-}
-
-/* The calling extension as passed by the browser: Chrome/Edge pass the origin first, Firefox the extension id second */
 static LPCWSTR GetExtensionOrigin(int argc, LPWSTR* argv)
 {
-    if (argc == 3 && RtEndsWithIgnoreCaseW(argv[1], L".json"))
+    if (argc >= 2 && RtStartsWithW(argv[1], L"chrome-extension://", FALSE))
+    {
+        return argv[1];
+    }
+    /* Firefox: exactly two arguments, the host manifest (.json) followed by the extension id */
+    if (argc == 3 && RtEndsWithIgnoreCaseW(argv[1], L".json") &&
+        (RtContainsCharW(argv[2], L'@') || argv[2][0] == L'{'))
     {
         return argv[2];
     }
-    return (argc >= 2 && RtStartsWithW(argv[1], L"chrome-extension://", FALSE)) ||
-           (argc >= 2 && RtStartsWithW(argv[1], L"moz-extension://", FALSE)) ||
-           (argc >= 2 && RtStartsWithW(argv[1], L"extension://", FALSE))
-        ? argv[1]
-        : NULL;
+    return NULL;
 }
 
 static int RunProxy(int argc, LPWSTR* argv)
@@ -60,9 +44,10 @@ static int RunProxy(int argc, LPWSTR* argv)
     }
 
     int exitCode;
-    if (IsExtensionInvocation(argc, argv))
+    LPCWSTR pwszOrigin = GetExtensionOrigin(argc, argv);
+    if (pwszOrigin)
     {
-        exitCode = RunExtensionRelay(pwszPipeName, GetExtensionOrigin(argc, argv));
+        exitCode = RunExtensionRelay(pwszPipeName, pwszOrigin);
     }
     else if (argc < 2)
     {

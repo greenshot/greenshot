@@ -434,5 +434,44 @@ namespace Greenshot.Tests.Ipc
                 }
             }
         }
+
+        [Fact]
+        public async Task NamedPipeServer_ClientThatDoesNotRead_IsDisconnectedAfterTimeout()
+        {
+            string testPipeName = NamedPipeEndpoint.GetPipeName() + "_test_" + Guid.NewGuid().ToString("N");
+            var replyOutcome = new TaskCompletionSource<Exception>();
+
+            using (var server = new NamedPipeServer(testPipeName))
+            {
+                server.ReplyWriteTimeout = TimeSpan.FromSeconds(1);
+                server.RequestReceived += async ctx =>
+                {
+                    try
+                    {
+                        // Far more than a pipe buffer holds, so the write needs the client to read
+                        await ctx.ReplyAsync(new { status = "ok", exit_code = 0, stdout = new string('x', 4 * 1024 * 1024) });
+                        replyOutcome.TrySetResult(null);
+                    }
+                    catch (Exception ex)
+                    {
+                        replyOutcome.TrySetResult(ex);
+                        throw;
+                    }
+                };
+                server.Start();
+
+                using (var client = new NamedPipeClientStream(".", testPipeName, PipeDirection.InOut))
+                {
+                    client.Connect(3000);
+                    WriteFrame(client, "{\"version\":1,\"command\":\"HELLO\",\"source\":\"cli\"}");
+                    WriteFrame(client, "{\"version\":1,\"command\":\"VERSION\"}");
+
+                    // The client never reads: the reply must give up instead of waiting forever
+                    var completed = await Task.WhenAny(replyOutcome.Task, Task.Delay(10000));
+                    Assert.Same(replyOutcome.Task, completed);
+                    Assert.IsType<IOException>(await replyOutcome.Task);
+                }
+            }
+        }
     }
 }

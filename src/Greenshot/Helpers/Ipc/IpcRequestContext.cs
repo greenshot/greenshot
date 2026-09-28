@@ -82,6 +82,16 @@ namespace Greenshot.Helpers.Ipc
         /// </summary>
         public bool IsReplyCompleted => _replyState.Completed;
 
+        /// <summary>
+        /// Default for <see cref="WriteTimeout"/>: generous, as a console can pause output (e.g. while selecting text).
+        /// </summary>
+        public static readonly TimeSpan DefaultWriteTimeout = TimeSpan.FromMinutes(2);
+
+        /// <summary>
+        /// How long a frame may take to be read by the client, before the connection is closed.
+        /// </summary>
+        public TimeSpan WriteTimeout { get; set; } = DefaultWriteTimeout;
+
         public IpcRequestContext(IpcEnvelope envelope, Stream stream, SemaphoreSlim connectionWriteLock = null)
             : this(envelope, stream, connectionWriteLock ?? new SemaphoreSlim(1, 1), new ReplyState())
         {
@@ -105,7 +115,8 @@ namespace Greenshot.Helpers.Ipc
             return new IpcRequestContext(envelope, Stream, _writeLock, _replyState)
             {
                 ConnectionOrigin = ConnectionOrigin,
-                UsesTextFrames = UsesTextFrames
+                UsesTextFrames = UsesTextFrames,
+                WriteTimeout = WriteTimeout
             };
         }
 
@@ -207,6 +218,17 @@ namespace Greenshot.Helpers.Ipc
         /// <summary>
         /// Writes a 4-byte little-endian length prefix followed by the payload.
         /// </summary>
+        private static async Task<bool> CompletesWithinAsync(Task task, TimeSpan timeout, CancellationToken cancellationToken)
+        {
+            using (var delayCancellation = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
+            {
+                var completed = await Task.WhenAny(task, Task.Delay(timeout, delayCancellation.Token)).ConfigureAwait(false);
+                // Stop the timer when the write finished first
+                delayCancellation.Cancel();
+                return completed == task;
+            }
+        }
+
         private async Task WriteFrameAsync(byte[] payload, CancellationToken cancellationToken)
         {
             byte[] lengthBytes = BitConverter.GetBytes((uint)payload.Length);
@@ -214,13 +236,26 @@ namespace Greenshot.Helpers.Ipc
             {
                 Array.Reverse(lengthBytes);
             }
+            // One write per frame. No Flush: a pipe has no stream buffer, and FlushFileBuffers would wait until the client read everything.
+            byte[] frame = new byte[lengthBytes.Length + payload.Length];
+            Buffer.BlockCopy(lengthBytes, 0, frame, 0, lengthBytes.Length);
+            Buffer.BlockCopy(payload, 0, frame, lengthBytes.Length, payload.Length);
 
             await _writeLock.WaitAsync(cancellationToken).ConfigureAwait(false);
             try
             {
-                await Stream.WriteAsync(lengthBytes, 0, lengthBytes.Length, cancellationToken).ConfigureAwait(false);
-                await Stream.WriteAsync(payload, 0, payload.Length, cancellationToken).ConfigureAwait(false);
-                await Stream.FlushAsync(cancellationToken).ConfigureAwait(false);
+                var writeTask = Stream.WriteAsync(frame, 0, frame.Length, cancellationToken);
+                if (!writeTask.IsCompleted && !await CompletesWithinAsync(writeTask, WriteTimeout, cancellationToken).ConfigureAwait(false))
+                {
+                    // The client does not read its replies. Closing the connection ends the pending write (and the connection),
+                    // instead of keeping the handler waiting forever.
+                    Log.Warn($"IPC client did not read its reply within {WriteTimeout.TotalSeconds:0} seconds, closing the connection.");
+                    Stream.Dispose();
+                    _ = writeTask.ContinueWith(t => _ = t.Exception, TaskContinuationOptions.OnlyOnFaulted);
+                    cancellationToken.ThrowIfCancellationRequested();
+                    throw new IOException("The IPC client did not read the reply in time.");
+                }
+                await writeTask.ConfigureAwait(false);
             }
             finally
             {

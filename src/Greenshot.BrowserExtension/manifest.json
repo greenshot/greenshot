@@ -3,6 +3,12 @@
   "name": "Greenshot Companion",
   "version": "1.0.0",
   "description": "Seamlessly capture browser pages and route screenshots with tab metadata into Greenshot.",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "greenshot@getgreenshot.org",
+      "strict_min_version": "121.0"
+    }
+  },
   "permissions": [
     "activeTab",
     "tabs",
@@ -13,7 +19,10 @@
     "<all_urls>"
   ],
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background.js",
+    "scripts": [
+      "background.js"
+    ]
   },
   "action": {
     "default_title": "Greenshot Companion",

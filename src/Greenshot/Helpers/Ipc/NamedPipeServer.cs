@@ -48,6 +48,11 @@ namespace Greenshot.Helpers.Ipc
         public event Func<IpcRequestContext, Task> RequestReceived;
 
         /// <summary>
+        /// How long a reply frame may wait for the client to read it; a client that does not read its replies is disconnected.
+        /// </summary>
+        public TimeSpan ReplyWriteTimeout { get; set; } = IpcRequestContext.DefaultWriteTimeout;
+
+        /// <summary>
         /// Checks the extension origin announced in the HELLO of a native_messaging connection.
         /// Defaults to the official extensions plus the host manifests next to Greenshot, see <see cref="ExtensionOriginPolicy"/>.
         /// </summary>
@@ -232,7 +237,8 @@ namespace Greenshot.Helpers.Ipc
                         var context = new IpcRequestContext(envelope, stream, connectionWriteLock)
                         {
                             ConnectionOrigin = connectionOrigin,
-                            UsesTextFrames = connectionUsesTextFrames
+                            UsesTextFrames = connectionUsesTextFrames,
+                            WriteTimeout = ReplyWriteTimeout
                         };
 
                         try
@@ -266,6 +272,11 @@ namespace Greenshot.Helpers.Ipc
                 {
                     // Shutting down
                 }
+                catch (ObjectDisposedException)
+                {
+                    // The connection was closed, e.g. because the client did not read its reply in time
+                    Log.Debug("Named pipe connection closed.");
+                }
                 catch (Exception ex)
                 {
                     Log.Error("Error processing incoming message from named pipe client", ex);
@@ -294,11 +305,11 @@ namespace Greenshot.Helpers.Ipc
         /// <summary>
         /// Sends a final error frame before the server closes a connection that violates the protocol.
         /// </summary>
-        private static async Task RejectAsync(Stream stream, SemaphoreSlim writeLock, string message, CancellationToken cancellationToken)
+        private async Task RejectAsync(Stream stream, SemaphoreSlim writeLock, string message, CancellationToken cancellationToken)
         {
             try
             {
-                var context = new IpcRequestContext(new IpcEnvelope(), stream, writeLock);
+                var context = new IpcRequestContext(new IpcEnvelope(), stream, writeLock) { WriteTimeout = ReplyWriteTimeout };
                 await context.ReplyAsync(new
                 {
                     status = "error",

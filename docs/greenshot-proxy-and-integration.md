@@ -97,7 +97,8 @@ The first frame on every connection is a `HELLO` written by the executable itsel
 | `greenshot.com ...` (terminal) | `cli` | `text` | `{"command":"CLI","cwd":"...","argv":[...]}` |
 | `greenshot-proxy.exe greenshot:...` (URL protocol) | `url_scheme` | `text` | `{"command":"CLI","cwd":"...","argv":["greenshot:..."]}` |
 | `greenshot-proxy.exe --file <path>` (Explorer) | `open_with` | `text` | `{"command":"CLI","cwd":"...","argv":["--file","<path>"]}` |
-| `greenshot-proxy.exe chrome-extension://<id>/` (browser) | `native_messaging` (+ `origin`) | `json` | the extension's messages, relayed unchanged |
+| `greenshot-proxy.exe chrome-extension://<id>/` (Chrome, Edge) | `native_messaging` (+ `origin`) | `json` | the extension's messages, relayed unchanged |
+| `greenshot-proxy.exe <host-manifest>.json <extension-id>` (Firefox) | `native_messaging` (+ `origin` = extension id) | `json` | the extension's messages, relayed unchanged |
 
 * Greenshot binds the source to the connection and **overwrites the `source` of every later envelope** with it. Data relayed from a browser can therefore never claim to be the command line.
 * A connection whose first frame is not a valid `HELLO`, or that sends a second `HELLO`, receives an error frame and is closed.
@@ -108,6 +109,8 @@ The raw arguments are parsed by `CliCommandParser` according to the connection s
 
 #### Replies
 Handlers always produce JSON-shaped replies: streaming chunks `{"stream": "stdout" | "stderr", "text": "..."}` and one final reply `{"status": "ok" | "error", "exit_code": <int>, "stdout": "...", "stderr": "..."}`.
+
+A client has to read its replies: a frame that is not read within 2 minutes (`NamedPipeServer.ReplyWriteTimeout`) closes the connection, so a client that only writes cannot block its handler forever.
 
 * **`json` connections** (browser extension) receive these objects as they are.
 * **`text` connections** (`greenshot.com`, `greenshot-proxy.exe`) receive *text frames*, so the executables never parse JSON. The payload's first byte is the frame type:
