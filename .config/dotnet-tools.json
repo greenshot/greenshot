@@ -10,7 +10,7 @@
       "rollForward": false
     },
     "microsoft.sbom.dotnettool": {
-      "version": "4.1.5",
+      "version": "4.1.13",
       "commands": [
         "sbom-tool"
       ],

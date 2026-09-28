@@ -135,11 +135,6 @@ namespace Greenshot.Forms
                     return;
                 }
 
-                if (options.Language != null)
-                {
-                    _conf.Language = options.Language;
-                }
-
                 if (isAlreadyRunning)
                 {
                     var filesToOpen = new List<string>(options.Files);
@@ -348,6 +343,12 @@ namespace Greenshot.Forms
                 }
             };
 
+            // Apply the command line language after LoadPlugins, as it reloads the configuration from disk
+            if (options.Language != null)
+            {
+                _conf.Language = options.Language;
+            }
+
             // if language is not set, show language dialog
             if (string.IsNullOrEmpty(_conf.Language))
             {
@@ -467,7 +468,7 @@ namespace Greenshot.Forms
             contextmenu_donate.Text = Language.GetString("contextmenu_donate");
             contextmenu_about.Text = Language.GetString("contextmenu_about");
             contextmenu_exit.Text = Language.GetString("contextmenu_exit");
-            notifyIcon.Text = Language.GetString("application_title");
+            notifyIcon.Text = NotifyIconTextHelper.ToNotifyIconText(Language.GetString("application_title"));
         }
 
         /// <summary>
