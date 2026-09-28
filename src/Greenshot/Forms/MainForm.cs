@@ -468,7 +468,7 @@ namespace Greenshot.Forms
             contextmenu_donate.Text = Language.GetString("contextmenu_donate");
             contextmenu_about.Text = Language.GetString("contextmenu_about");
             contextmenu_exit.Text = Language.GetString("contextmenu_exit");
-            notifyIcon.Text = Language.GetString("application_title");
+            notifyIcon.Text = NotifyIconTextHelper.ToNotifyIconText(Language.GetString("application_title"));
         }
 
         /// <summary>
