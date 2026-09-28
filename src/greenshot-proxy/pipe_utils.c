@@ -1,119 +1,88 @@
 #include "pipe_utils.h"
+#include "rt.h"
 
-static BOOL GetUserSidString(LPWSTR pszSidOut, DWORD cchSidOut)
+/* Returns the current user's SID as string (LocalAlloc'ed, free with LocalFree), or NULL */
+static LPWSTR GetUserSidString(void)
 {
-    if (!pszSidOut || cchSidOut == 0)
-    {
-        return FALSE;
-    }
-
     HANDLE hToken = NULL;
     if (!OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &hToken))
     {
-        return FALSE;
+        return NULL;
     }
 
-    DWORD dwSize = 0;
-    GetTokenInformation(hToken, TokenUser, NULL, 0, &dwSize);
-    if (GetLastError() != ERROR_INSUFFICIENT_BUFFER || dwSize == 0)
+    DWORD cbSize = 0;
+    GetTokenInformation(hToken, TokenUser, NULL, 0, &cbSize);
+    if (GetLastError() != ERROR_INSUFFICIENT_BUFFER || cbSize == 0)
     {
         CloseHandle(hToken);
-        return FALSE;
+        return NULL;
     }
 
-    PTOKEN_USER pTokenUser = (PTOKEN_USER)malloc(dwSize);
+    PTOKEN_USER pTokenUser = (PTOKEN_USER)RtAlloc(cbSize);
     if (!pTokenUser)
     {
         CloseHandle(hToken);
-        return FALSE;
+        return NULL;
     }
 
-    BOOL bSuccess = FALSE;
-    if (GetTokenInformation(hToken, TokenUser, pTokenUser, dwSize, &dwSize))
+    LPWSTR pwszSid = NULL;
+    if (!GetTokenInformation(hToken, TokenUser, pTokenUser, cbSize, &cbSize) ||
+        !ConvertSidToStringSidW(pTokenUser->User.Sid, &pwszSid))
     {
-        LPWSTR pszSid = NULL;
-        if (ConvertSidToStringSidW(pTokenUser->User.Sid, &pszSid))
-        {
-            HRESULT hr = StringCchCopyW(pszSidOut, cchSidOut, pszSid);
-            bSuccess = SUCCEEDED(hr);
-            LocalFree(pszSid);
-        }
+        pwszSid = NULL;
     }
 
-    free(pTokenUser);
+    RtFree(pTokenUser);
     CloseHandle(hToken);
-    return bSuccess;
+    return pwszSid;
 }
 
-BOOL GetUserSidPipeName(LPWSTR pszPipeName, DWORD cchPipeName)
+static LPWSTR BuildUserScopedName(LPCWSTR pwszPrefix)
 {
-    wchar_t szSid[128] = { 0 };
-    if (!GetUserSidString(szSid, _countof(szSid)))
+    LPWSTR pwszSid = GetUserSidString();
+    if (!pwszSid)
     {
-        return FALSE;
+        return NULL;
     }
-    return SUCCEEDED(StringCchPrintfW(pszPipeName, cchPipeName, L"%s%s", PIPE_PREFIX, szSid));
+    LPWSTR pwszName = RtConcatW(pwszPrefix, pwszSid);
+    LocalFree(pwszSid);
+    return pwszName;
 }
 
-BOOL GetUserStartupMutexName(LPWSTR pszMutexName, DWORD cchMutexName)
+LPWSTR GetGreenshotPipeName(void)
 {
-    wchar_t szSid[128] = { 0 };
-    if (!GetUserSidString(szSid, _countof(szSid)))
-    {
-        return FALSE;
-    }
-    return SUCCEEDED(StringCchPrintfW(pszMutexName, cchMutexName, L"Local\\Greenshot_Startup_%s", szSid));
+    return BuildUserScopedName(PIPE_PREFIX);
 }
 
-HANDLE ConnectToGreenshotPipe(LPCWSTR pszPipeName, DWORD dwTimeoutMs)
+HANDLE ConnectToGreenshotPipe(LPCWSTR pwszPipeName, DWORD dwTimeoutMs, DWORD dwFlagsAndAttributes)
 {
-    return ConnectToGreenshotPipeEx(pszPipeName, dwTimeoutMs, 0);
-}
-
-HANDLE ConnectToGreenshotPipeEx(LPCWSTR pszPipeName, DWORD dwTimeoutMs, DWORD dwFlagsAndAttributes)
-{
-    if (!pszPipeName)
+    if (!pwszPipeName)
     {
         return INVALID_HANDLE_VALUE;
     }
 
     DWORD dwStart = GetTickCount();
-
-    while (TRUE)
+    for (;;)
     {
-        HANDLE hPipe = CreateFileW(
-            pszPipeName,
-            GENERIC_READ | GENERIC_WRITE,
-            0,              /* no sharing */
-            NULL,           /* default security */
-            OPEN_EXISTING,
-            dwFlagsAndAttributes,
-            NULL);
-
+        HANDLE hPipe = CreateFileW(pwszPipeName, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, dwFlagsAndAttributes, NULL);
         if (hPipe != INVALID_HANDLE_VALUE)
         {
             return hPipe;
         }
 
-        if (dwTimeoutMs == 0)
-        {
-            return INVALID_HANDLE_VALUE;
-        }
-
-        DWORD dwErr = GetLastError();
+        DWORD dwError = GetLastError();
         DWORD dwElapsed = GetTickCount() - dwStart;
-        if (dwElapsed >= dwTimeoutMs)
+        if (dwTimeoutMs == 0 || dwElapsed >= dwTimeoutMs)
         {
             return INVALID_HANDLE_VALUE;
         }
 
         DWORD dwRemaining = dwTimeoutMs - dwElapsed;
-
-        if (dwErr == ERROR_PIPE_BUSY)
+        if (dwError == ERROR_PIPE_BUSY)
         {
-            WaitNamedPipeW(pszPipeName, dwRemaining > 200 ? 200 : dwRemaining);
+            WaitNamedPipeW(pwszPipeName, dwRemaining > 200 ? 200 : dwRemaining);
         }
-        else if (dwErr == ERROR_FILE_NOT_FOUND)
+        else if (dwError == ERROR_FILE_NOT_FOUND)
         {
             Sleep(dwRemaining > 100 ? 100 : dwRemaining);
         }
@@ -124,3 +93,93 @@ HANDLE ConnectToGreenshotPipeEx(LPCWSTR pszPipeName, DWORD dwTimeoutMs, DWORD dw
     }
 }
 
+/* Starts Greenshot.exe located next to this executable */
+static BOOL StartGreenshot(void)
+{
+    const DWORD cchPath = 32768;
+    LPWSTR pwszPath = (LPWSTR)RtAlloc(cchPath * sizeof(WCHAR));
+    if (!pwszPath)
+    {
+        return FALSE;
+    }
+
+    BOOL bStarted = FALSE;
+    DWORD cchModule = GetModuleFileNameW(NULL, pwszPath, cchPath);
+    if (cchModule > 0 && cchModule < cchPath)
+    {
+        /* Cut off the file name, keep the directory */
+        DWORD i = cchModule;
+        while (i > 0 && pwszPath[i - 1] != L'\\')
+        {
+            i--;
+        }
+        if (i > 0)
+        {
+            pwszPath[i - 1] = L'\0';
+            LPWSTR pwszExe = RtConcatW(pwszPath, L"\\Greenshot.exe");
+            if (pwszExe && GetFileAttributesW(pwszExe) != INVALID_FILE_ATTRIBUTES)
+            {
+                STARTUPINFOW startupInfo;
+                PROCESS_INFORMATION processInfo;
+                memset(&startupInfo, 0, sizeof(startupInfo));
+                memset(&processInfo, 0, sizeof(processInfo));
+                startupInfo.cb = sizeof(startupInfo);
+
+                if (CreateProcessW(pwszExe, NULL, NULL, NULL, FALSE, 0, NULL, pwszPath, &startupInfo, &processInfo))
+                {
+                    CloseHandle(processInfo.hThread);
+                    CloseHandle(processInfo.hProcess);
+                    bStarted = TRUE;
+                }
+            }
+            RtFree(pwszExe);
+        }
+    }
+
+    RtFree(pwszPath);
+    return bStarted;
+}
+
+HANDLE ConnectOrColdStart(LPCWSTR pwszPipeName)
+{
+    /* 1. Fast path: Greenshot is already running */
+    HANDLE hPipe = ConnectToGreenshotPipe(pwszPipeName, 0, 0);
+    if (hPipe != INVALID_HANDLE_VALUE)
+    {
+        return hPipe;
+    }
+
+    /* 2. Serialize concurrent cold starts (several proxies started at the same time) */
+    HANDLE hMutex = NULL;
+    BOOL bOwnsMutex = FALSE;
+    LPWSTR pwszMutexName = BuildUserScopedName(STARTUP_MUTEX_PREFIX);
+    if (pwszMutexName)
+    {
+        hMutex = CreateMutexW(NULL, FALSE, pwszMutexName);
+        RtFree(pwszMutexName);
+    }
+    if (hMutex)
+    {
+        DWORD dwWait = WaitForSingleObject(hMutex, COLD_START_TIMEOUT_MS);
+        bOwnsMutex = (dwWait == WAIT_OBJECT_0 || dwWait == WAIT_ABANDONED);
+    }
+
+    /* 3. A peer proxy may have started Greenshot while we waited */
+    hPipe = ConnectToGreenshotPipe(pwszPipeName, 1000, 0);
+
+    /* 4. Start Greenshot and wait for its pipe */
+    if (hPipe == INVALID_HANDLE_VALUE && StartGreenshot())
+    {
+        hPipe = ConnectToGreenshotPipe(pwszPipeName, COLD_START_TIMEOUT_MS, 0);
+    }
+
+    if (hMutex)
+    {
+        if (bOwnsMutex)
+        {
+            ReleaseMutex(hMutex);
+        }
+        CloseHandle(hMutex);
+    }
+    return hPipe;
+}

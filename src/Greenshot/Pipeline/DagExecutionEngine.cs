@@ -296,14 +296,18 @@ namespace Greenshot.Pipeline
                                     var pipeline = SimpleServiceProvider.Current?.GetInstance<ICapturePipeline>(isOptional: true);
                                     if (pipeline != null)
                                     {
-                                        await pipeline.ExecuteAsync(targetRecipe, null, ctx =>
+                                        var errorRecipeContext = await pipeline.ExecuteAsync(targetRecipe, null, ctx =>
                                         {
                                             ctx.Payload = nodeContext.Payload;
+                                            // Keep streaming to the original caller (e.g. a StderrStep in the recovery recipe)
+                                            ctx.StdoutWriter = nodeContext.StdoutWriter;
+                                            ctx.StderrWriter = nodeContext.StderrWriter;
                                             foreach (var kvp in nodeContext.Properties)
                                             {
                                                 ctx.Properties[kvp.Key] = kvp.Value;
                                             }
                                         }, cancellationToken).ConfigureAwait(false);
+                                        MergeOutcome(errorRecipeContext, nodeContext);
                                     }
                                 }
                                 else
@@ -554,14 +558,7 @@ namespace Greenshot.Pipeline
                                 nodeContext.Properties[kvp.Key] = kvp.Value;
                             }
 
-                            if (clusterCtx.State == CaptureFlowState.Failed && nodeContext.State != CaptureFlowState.Failed)
-                            {
-                                nodeContext.Fail(clusterCtx.AbortReason, clusterCtx.Error);
-                            }
-                            else if (clusterCtx.State == CaptureFlowState.Cancelled && !nodeContext.IsAborted)
-                            {
-                                nodeContext.Abort(clusterCtx.AbortReason);
-                            }
+                            MergeOutcome(clusterCtx, nodeContext);
                         }
                     }
                 }
@@ -612,16 +609,36 @@ namespace Greenshot.Pipeline
                             context.Properties[kvp.Key] = kvp.Value;
                         }
 
-                        if (initCtx.State == CaptureFlowState.Failed && context.State != CaptureFlowState.Failed)
-                        {
-                            context.Fail(initCtx.AbortReason, initCtx.Error);
-                        }
-                        else if (initCtx.State == CaptureFlowState.Cancelled && !context.IsAborted)
-                        {
-                            context.Abort(initCtx.AbortReason);
-                        }
+                        MergeOutcome(initCtx, context);
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        /// Propagates the outcome of an isolated child flow (parallel branch, independent start cluster or error-recovery recipe)
+        /// back into its parent: failure/cancellation state and the first non-zero exit code (e.g. set by a StderrStep).
+        /// Properties are merged by the caller.
+        /// </summary>
+        private static void MergeOutcome(CaptureFlowContext child, CaptureFlowContext parent)
+        {
+            if (child == null || parent == null)
+            {
+                return;
+            }
+
+            if (child.ExitCode != 0 && parent.ExitCode == 0)
+            {
+                parent.ExitCode = child.ExitCode;
+            }
+
+            if (child.State == CaptureFlowState.Failed && parent.State != CaptureFlowState.Failed)
+            {
+                parent.Fail(child.AbortReason, child.Error);
+            }
+            else if (child.State == CaptureFlowState.Cancelled && !parent.IsAborted)
+            {
+                parent.Abort(child.AbortReason);
             }
         }
 

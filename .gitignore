@@ -229,3 +229,5 @@ src/generated/
 src/**/*.Credentials.cs
 /bom.json
 src/**/Greenshot-proxy.exe
+# Local build/test runner requests and results (tools/build-runner)
+.build-runner/

@@ -20,7 +20,10 @@
  */
 
 using System;
+using System.IO;
+using System.IO.Pipes;
 using System.Security.Principal;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Helpers.Ipc;
@@ -134,6 +137,198 @@ namespace Greenshot.Tests.Ipc
                 Assert.Equal("open_file", receivedEnvelope.Parsed.Action);
                 Assert.True(receivedEnvelope.Parsed.Parameters.TryGetValue("path", out var path));
                 Assert.Equal(filePath, path);
+            }
+        }
+
+        private static void WriteFrame(Stream stream, string json)
+        {
+            byte[] payload = Encoding.UTF8.GetBytes(json);
+            byte[] length = BitConverter.GetBytes((uint)payload.Length);
+            stream.Write(length, 0, 4);
+            stream.Write(payload, 0, payload.Length);
+            stream.Flush();
+        }
+
+        private static JObject ReadFrame(Stream stream)
+        {
+            byte[] length = new byte[4];
+            int read = 0;
+            while (read < 4)
+            {
+                int n = stream.Read(length, read, 4 - read);
+                if (n == 0) return null;
+                read += n;
+            }
+            byte[] payload = new byte[BitConverter.ToUInt32(length, 0)];
+            read = 0;
+            while (read < payload.Length)
+            {
+                int n = stream.Read(payload, read, payload.Length - read);
+                if (n == 0) return null;
+                read += n;
+            }
+            return JObject.Parse(Encoding.UTF8.GetString(payload));
+        }
+
+        [Fact]
+        public async Task NamedPipeServer_ConnectionWithoutHello_IsRejected()
+        {
+            string testPipeName = NamedPipeEndpoint.GetPipeName() + "_test_" + Guid.NewGuid().ToString("N");
+            bool requestReceived = false;
+
+            using (var server = new NamedPipeServer(testPipeName))
+            {
+                server.RequestReceived += ctx =>
+                {
+                    requestReceived = true;
+                    return Task.CompletedTask;
+                };
+                server.Start();
+
+                using (var client = new NamedPipeClientStream(".", testPipeName, PipeDirection.InOut))
+                {
+                    client.Connect(3000);
+                    WriteFrame(client, "{\"version\":1,\"source\":\"cli\",\"command\":\"EXIT\"}");
+
+                    var response = await Task.Run(() => ReadFrame(client));
+                    Assert.NotNull(response);
+                    Assert.Equal("error", response.Value<string>("status"));
+                    Assert.Contains("HELLO", response.Value<string>("stderr"));
+                }
+            }
+
+            Assert.False(requestReceived);
+        }
+
+        [Fact]
+        public async Task NamedPipeServer_SourceIsBoundFromHello_NotFromLaterEnvelopes()
+        {
+            string testPipeName = NamedPipeEndpoint.GetPipeName() + "_test_" + Guid.NewGuid().ToString("N");
+            var tcs = new TaskCompletionSource<IpcRequestContext>();
+
+            using (var server = new NamedPipeServer(testPipeName))
+            {
+                server.RequestReceived += ctx =>
+                {
+                    tcs.TrySetResult(ctx);
+                    return Task.CompletedTask;
+                };
+                server.Start();
+
+                using (var client = new NamedPipeClientStream(".", testPipeName, PipeDirection.InOut))
+                {
+                    client.Connect(3000);
+                    WriteFrame(client, "{\"version\":1,\"command\":\"HELLO\",\"source\":\"native_messaging\",\"origin\":\"chrome-extension://abc/\"}");
+                    // A relayed message claiming to come from the command line
+                    WriteFrame(client, "{\"version\":1,\"source\":\"cli\",\"command\":\"TAB_CHANGED\",\"url\":\"https://example.com\"}");
+
+                    var completed = await Task.WhenAny(tcs.Task, Task.Delay(4000));
+                    Assert.Same(tcs.Task, completed);
+
+                    var context = await tcs.Task;
+                    Assert.Equal("native_messaging", context.Envelope.Source);
+                    Assert.Equal("chrome-extension://abc/", context.ConnectionOrigin);
+                    Assert.Equal("TAB_CHANGED", context.Envelope.Command);
+                }
+            }
+        }
+
+        [Fact]
+        public async Task NamedPipeServer_RepeatedHello_ClosesConnection()
+        {
+            string testPipeName = NamedPipeEndpoint.GetPipeName() + "_test_" + Guid.NewGuid().ToString("N");
+            bool requestReceived = false;
+
+            using (var server = new NamedPipeServer(testPipeName))
+            {
+                server.RequestReceived += ctx =>
+                {
+                    requestReceived = true;
+                    return Task.CompletedTask;
+                };
+                server.Start();
+
+                using (var client = new NamedPipeClientStream(".", testPipeName, PipeDirection.InOut))
+                {
+                    client.Connect(3000);
+                    WriteFrame(client, "{\"version\":1,\"command\":\"HELLO\",\"source\":\"native_messaging\"}");
+                    WriteFrame(client, "{\"version\":1,\"command\":\"HELLO\",\"source\":\"cli\"}");
+
+                    var response = await Task.Run(() => ReadFrame(client));
+                    Assert.NotNull(response);
+                    Assert.Equal("error", response.Value<string>("status"));
+                    Assert.Contains("HELLO", response.Value<string>("stderr"));
+
+                    // The server closed the connection
+                    Assert.Null(await Task.Run(() => ReadFrame(client)));
+                }
+            }
+
+            Assert.False(requestReceived);
+        }
+
+        [Fact]
+        public async Task NamedPipeServer_TextConnection_ReplyAlwaysEndsWithExitFrame()
+        {
+            string testPipeName = NamedPipeEndpoint.GetPipeName() + "_test_" + Guid.NewGuid().ToString("N");
+
+            using (var server = new NamedPipeServer(testPipeName))
+            {
+                // A handler that does not reply at all
+                server.RequestReceived += ctx => Task.CompletedTask;
+                server.Start();
+
+                using (var client = new NamedPipeClientStream(".", testPipeName, PipeDirection.InOut))
+                {
+                    client.Connect(3000);
+                    WriteFrame(client, "{\"version\":1,\"command\":\"HELLO\",\"source\":\"cli\",\"reply_format\":\"text\"}");
+                    WriteFrame(client, "{\"version\":1,\"command\":\"TAB_CHANGED\"}");
+
+                    byte[] frame = await Task.Run(() =>
+                    {
+                        byte[] length = new byte[4];
+                        int read = 0;
+                        while (read < 4)
+                        {
+                            int n = client.Read(length, read, 4 - read);
+                            if (n == 0) return null;
+                            read += n;
+                        }
+                        byte[] payload = new byte[BitConverter.ToUInt32(length, 0)];
+                        read = 0;
+                        while (read < payload.Length)
+                        {
+                            int n = client.Read(payload, read, payload.Length - read);
+                            if (n == 0) return null;
+                            read += n;
+                        }
+                        return payload;
+                    });
+
+                    Assert.NotNull(frame);
+                    Assert.Equal(5, frame.Length);
+                    Assert.Equal((byte)'X', frame[0]);
+                    Assert.Equal(0, BitConverter.ToInt32(frame, 1));
+                }
+            }
+        }
+
+        [Fact]
+        public async Task NamedPipeServer_UnknownReplyFormat_IsRejected()
+        {
+            string testPipeName = NamedPipeEndpoint.GetPipeName() + "_test_" + Guid.NewGuid().ToString("N");
+
+            using (var server = new NamedPipeServer(testPipeName))
+            {
+                server.Start();
+                using (var client = new NamedPipeClientStream(".", testPipeName, PipeDirection.InOut))
+                {
+                    client.Connect(3000);
+                    WriteFrame(client, "{\"version\":1,\"command\":\"HELLO\",\"source\":\"cli\",\"reply_format\":\"xml\"}");
+                    var response = await Task.Run(() => ReadFrame(client));
+                    Assert.NotNull(response);
+                    Assert.Equal("error", response.Value<string>("status"));
+                }
             }
         }
     }

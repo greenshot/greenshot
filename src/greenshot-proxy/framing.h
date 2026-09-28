@@ -1,57 +1,24 @@
 #pragma once
+
 #include "common.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+/*
+ * Framing: every message is a 4-byte little-endian length followed by that many payload bytes.
+ * bOverlapped must be TRUE for handles opened with FILE_FLAG_OVERLAPPED (the relay's pipe handle).
+ */
+
+/* Reads exactly cbCount bytes. FALSE on error or premature end of stream. */
+BOOL ReadExact(HANDLE hIn, BOOL bOverlapped, void* pBuffer, DWORD cbCount);
+
+/* Writes exactly cbCount bytes. FALSE on error. */
+BOOL WriteExact(HANDLE hOut, BOOL bOverlapped, const void* pBuffer, DWORD cbCount);
+
+/* Writes one frame (length prefix + payload) */
+BOOL WriteFrame(HANDLE hOut, BOOL bOverlapped, const void* pPayload, DWORD cbPayload);
 
 /*
- * Reads exactly dwBytesToRead from hIn.
- * Returns TRUE on success, FALSE if EOF is reached or an error occurs.
+ * Copies one frame from hIn to hOut, validating MIN_JSON_PAYLOAD_SIZE <= length <= MAX_PAYLOAD_SIZE and streaming it
+ * through the caller supplied CHUNK_SIZE buffer (no allocation per frame).
+ * Returns 1 when a frame was copied, 0 on a clean end of stream before a frame started, -1 on errors.
  */
-BOOL ReadExact(HANDLE hIn, void* pBuffer, DWORD dwBytesToRead);
-
-/*
- * Writes exactly dwBytesToWrite to hOut.
- * Returns TRUE on success, FALSE on error.
- */
-BOOL WriteExact(HANDLE hOut, const void* pBuffer, DWORD dwBytesToWrite);
-
-/*
- * Reads a 4-byte length prefixed message from hIn and streams it to hOut.
- * Validates that MIN_PAYLOAD_SIZE <= payload_length <= MAX_PAYLOAD_SIZE.
- * Uses a fixed chunk buffer to prevent large heap allocations and buffer overruns.
- * Returns:
- *   1 on full successful transfer
- *   0 on clean EOF (when reading length prefix)
- *  -1 on framing violation / out-of-bounds size / write error
- */
-int StreamFramedMessage(HANDLE hIn, HANDLE hOut);
-
-/*
- * Reads exactly dwBytesToRead from an overlapped handle using an internal event.
- * Returns TRUE on success, FALSE on error or premature EOF.
- */
-BOOL ReadExactOverlapped(HANDLE hFile, void* pBuffer, DWORD dwBytesToRead);
-
-/*
- * Writes exactly dwBytesToWrite to an overlapped handle using an internal event.
- * Returns TRUE on success, FALSE on error.
- */
-BOOL WriteExactOverlapped(HANDLE hFile, const void* pBuffer, DWORD dwBytesToWrite);
-
-/*
- * Reads a framed message from synchronous handle hIn (e.g. hStdIn)
- * and streams it to overlapped handle hOut (e.g. hPipe).
- */
-int StreamFramedToOverlapped(HANDLE hIn, HANDLE hOut);
-
-/*
- * Reads a framed message from overlapped handle hIn (e.g. hPipe)
- * and streams it to synchronous handle hOut (e.g. hStdOut).
- */
-int StreamFramedFromOverlapped(HANDLE hIn, HANDLE hOut);
-
-#ifdef __cplusplus
-}
-#endif
+int CopyFrame(HANDLE hIn, BOOL bInOverlapped, HANDLE hOut, BOOL bOutOverlapped, BYTE* pChunk);

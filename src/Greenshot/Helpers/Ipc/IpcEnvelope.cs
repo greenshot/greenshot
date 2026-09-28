@@ -58,6 +58,40 @@ namespace Greenshot.Helpers.Ipc
     /// <summary>
     /// Represents the length-prefixed JSON envelope matching Architecture Decision Records 002 and 003.
     /// </summary>
+    /// <summary>
+    /// Connection sources. A connection announces its source once, in the HELLO frame sent by the proxy (or by Greenshot itself);
+    /// the server then ignores the "source" field of all later envelopes on that connection, so data relayed from a browser
+    /// can never claim to come from the command line.
+    /// </summary>
+    public static class IpcSources
+    {
+        public const string HelloCommand = "HELLO";
+
+        /// <summary>
+        /// Raw command line from greenshot.com / greenshot-proxy.exe; parsed by <see cref="CliCommandParser"/> according to the connection source.
+        /// </summary>
+        public const string CliCommand = "CLI";
+
+        /// <summary>
+        /// Reply formats announced in HELLO: JSON objects (browser extension, default) or text frames (terminal / shell).
+        /// </summary>
+        public const string ReplyFormatJson = "json";
+        public const string ReplyFormatText = "text";
+
+        public const string Cli = "cli";
+        public const string OpenWith = "open_with";
+        public const string UrlScheme = "url_scheme";
+        public const string NativeMessaging = "native_messaging";
+
+        public static bool IsKnown(string source)
+        {
+            return string.Equals(source, Cli, StringComparison.OrdinalIgnoreCase) ||
+                   string.Equals(source, OpenWith, StringComparison.OrdinalIgnoreCase) ||
+                   string.Equals(source, UrlScheme, StringComparison.OrdinalIgnoreCase) ||
+                   string.Equals(source, NativeMessaging, StringComparison.OrdinalIgnoreCase);
+        }
+    }
+
     public class IpcEnvelope
     {
         [JsonProperty("version")]
@@ -107,6 +141,55 @@ namespace Greenshot.Helpers.Ipc
 
         [JsonProperty("cwd")]
         public string Cwd { get; set; }
+
+        /// <summary>
+        /// HELLO only: the calling browser extension's origin, as passed to the proxy by the browser.
+        /// </summary>
+        [JsonProperty("origin")]
+        public string Origin { get; set; }
+
+        /// <summary>
+        /// HELLO only: "json" (default) or "text", see <see cref="IpcSources.ReplyFormatText"/>.
+        /// </summary>
+        [JsonProperty("reply_format")]
+        public string ReplyFormat { get; set; }
+
+        /// <summary>
+        /// CLI only: the unparsed command line arguments (without the executable name).
+        /// </summary>
+        [JsonProperty("argv")]
+        public List<string> Argv { get; set; }
+
+        /// <summary>
+        /// RUN_RECIPE only: expression evaluated after the recipe finished; its value replaces the recipe's own output (--query).
+        /// </summary>
+        [JsonProperty("query")]
+        public string Query { get; set; }
+
+        /// <summary>
+        /// RUN_RECIPE only: return a structured JSON result (status, exit code, output, variables) instead of streaming (--json).
+        /// </summary>
+        [JsonProperty("json")]
+        public bool Json { get; set; }
+
+        /// <summary>
+        /// True when this envelope is the HELLO frame that opens every connection.
+        /// </summary>
+        [JsonIgnore]
+        public bool IsHello => string.Equals(Command, IpcSources.HelloCommand, StringComparison.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// Creates the HELLO frame that must be the first frame on every connection. It binds the connection's source.
+        /// </summary>
+        public static IpcEnvelope CreateHello(string source)
+        {
+            return new IpcEnvelope
+            {
+                Version = 1,
+                Command = IpcSources.HelloCommand,
+                Source = source
+            };
+        }
 
         public static IpcEnvelope CreateListRecipes()
         {

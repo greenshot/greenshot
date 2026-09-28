@@ -31,7 +31,7 @@ Root: HKA; Subkey: Software\Microsoft\Windows\CurrentVersion\Run; ValueType: str
 Root: HKA; Subkey: Software\Classes\.greenshot; ValueType: string; ValueName: ""; ValueData: "Greenshot"; Flags: uninsdeletevalue noerror
 Root: HKA; Subkey: Software\Classes\Greenshot; ValueType: string; ValueName: ""; ValueData: "Greenshot File"; Flags: uninsdeletevalue noerror
 Root: HKA; Subkey: Software\Classes\Greenshot\DefaultIcon; ValueType: string; ValueName: ""; ValueData: """{app}\Greenshot.EXE"",0"; Flags: uninsdeletevalue noerror
-Root: HKA; Subkey: Software\Classes\Greenshot\shell\open\command; ValueType: string; ValueName: ""; ValueData: """{app}\greenshot-proxy.exe"" --openfile ""%1"""; Flags: uninsdeletevalue noerror
+Root: HKA; Subkey: Software\Classes\Greenshot\shell\open\command; ValueType: string; ValueName: ""; ValueData: """{app}\greenshot-proxy.exe"" --file ""%1"""; Flags: uninsdeletevalue noerror
 
 ; Register custom URL scheme greenshot://
 Root: HKA; Subkey: Software\Classes\greenshot; ValueType: string; ValueName: ""; ValueData: "URL:Greenshot Protocol"; Flags: uninsdeletekey noerror

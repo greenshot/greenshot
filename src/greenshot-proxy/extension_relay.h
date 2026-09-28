@@ -1,18 +1,12 @@
 #pragma once
+
 #include "common.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /*
- * Executes the Native Messaging relay mode:
- * 1. Checks if Greenshot pipe is available.
- * 2. If OFFLINE: Writes JSON status payload to stdout and exits cleanly without spawning Greenshot.
- * 3. If ONLINE: Sets stdio to binary mode and runs bidirectional stream relay.
+ * Native Messaging relay (greenshot-proxy.exe started by the browser):
+ * 1. If Greenshot is not running: writes OFFLINE_JSON as a frame to stdout and returns (Greenshot is NOT started).
+ * 2. Otherwise sends the HELLO frame (source "native_messaging", JSON replies, the extension's origin)
+ *    and then relays frames in both directions until either side closes.
+ * pwszOrigin is the extension origin as passed by the browser (may be NULL).
  */
-int RunExtensionRelay(LPCWSTR pszPipeName);
-
-#ifdef __cplusplus
-}
-#endif
+int RunExtensionRelay(LPCWSTR pwszPipeName, LPCWSTR pwszOrigin);

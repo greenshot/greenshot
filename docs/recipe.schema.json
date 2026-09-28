@@ -747,6 +747,11 @@
               "default": false,
               "description": "Whether the trigger runs asynchronously without blocking the caller."
             },
+            "AllowBrowserInvocation": {
+              "type": "boolean",
+              "default": false,
+              "description": "Used by Commandline trigger: allows this recipe to be started from a browser, via a greenshot:// URL or the browser extension. Off by default because any web page can open a greenshot:// URL."
+            },
             "Stdout": {
               "type": "string",
               "description": "Used by Commandline trigger: Expression or string template (e.g. '${Barcode.Text}') evaluated and emitted to stdout upon completion."

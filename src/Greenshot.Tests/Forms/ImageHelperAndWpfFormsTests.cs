@@ -46,6 +46,7 @@ using Greenshot.Plugin.Zxing.Controls;
 
 namespace Greenshot.Tests.Forms
 {
+    [Collection(TestCollections.WpfThemeState)]
     public class ImageHelperAndWpfFormsTests
     {
         public ImageHelperAndWpfFormsTests()

@@ -1,30 +1,18 @@
 #pragma once
+
 #include "common.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+/* Returns "\\.\pipe\Greenshot_<UserSID>" (heap allocated, free with RtFree), or NULL */
+LPWSTR GetGreenshotPipeName(void);
 
 /*
- * Resolves the current user's SID and formats the pipe name:
- * \\.\pipe\Greenshot_<UserSID>
+ * Connects to the Greenshot pipe. If dwTimeoutMs > 0, retries until the pipe exists and is available.
+ * dwFlagsAndAttributes is passed to CreateFileW (e.g. FILE_FLAG_OVERLAPPED).
  */
-BOOL GetUserSidPipeName(LPWSTR pszPipeName, DWORD cchPipeName);
+HANDLE ConnectToGreenshotPipe(LPCWSTR pwszPipeName, DWORD dwTimeoutMs, DWORD dwFlagsAndAttributes);
 
 /*
- * Resolves the current user's SID and formats the startup mutex name:
- * Local\Greenshot_Startup_<UserSID>
+ * Connects to the Greenshot pipe, starting Greenshot.exe (from the proxy's own directory) when it is not running.
+ * A per-user mutex prevents several proxies from starting Greenshot at the same time.
  */
-BOOL GetUserStartupMutexName(LPWSTR pszMutexName, DWORD cchMutexName);
-
-/*
- * Attempts to connect to the session-scoped Greenshot named pipe.
- * If dwTimeoutMs > 0, retries until the pipe is created or becomes available.
- */
-HANDLE ConnectToGreenshotPipe(LPCWSTR pszPipeName, DWORD dwTimeoutMs);
-HANDLE ConnectToGreenshotPipeEx(LPCWSTR pszPipeName, DWORD dwTimeoutMs, DWORD dwFlagsAndAttributes);
-
-#ifdef __cplusplus
-}
-#endif
-
+HANDLE ConnectOrColdStart(LPCWSTR pwszPipeName);

@@ -4,7 +4,6 @@
   "path": "greenshot-proxy.exe",
   "type": "stdio",
   "allowed_origins": [
-    "chrome-extension://knldjmfmopnpolahpmmgbagdohdnhkik/",
-    "chrome-extension://*/*"
+    "chrome-extension://knldjmfmopnpolahpmmgbagdohdnhkik/"
   ]
 }

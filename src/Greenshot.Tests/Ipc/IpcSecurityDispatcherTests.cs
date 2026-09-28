@@ -33,7 +33,7 @@ using Xunit;
 
 namespace Greenshot.Tests.Ipc
 {
-    [Collection("RecipeManager")]
+    [Collection(TestCollections.RecipeManager)]
     public class IpcSecurityDispatcherTests
     {
         [Fact]
@@ -592,7 +592,7 @@ namespace Greenshot.Tests.Ipc
             {
                 var testRecipe = new CaptureRecipe("recipe_my_task", "My Task")
                     .AddNode(new RecipeNodeConfig { Id = "s1", StepType = WellKnownStepTypes.Source, Parameters = new Dictionary<string, object> { ["SourceType"] = CaptureSourceType.Clipboard } })
-                    .AddTrigger(TriggerConfig.CreateCommandline("my-task", fireAndForget: true));
+                    .AddTrigger(TriggerConfig.CreateCommandline("my-task", fireAndForget: true).SetParameter("AllowBrowserInvocation", true));
                 RecipeManager.Instance.RegisterRecipe(testRecipe);
             }
 
@@ -626,6 +626,171 @@ namespace Greenshot.Tests.Ipc
                     Assert.True(envelope.Parameters.ContainsValue(expectedParam) ||
                                 (envelope.Parsed != null && envelope.Parsed.Parameters.ContainsValue(expectedParam)));
                 }
+            }
+        }
+
+        private static JObject ReadFirstFrame(MemoryStream ms)
+        {
+            ms.Position = 0;
+            byte[] lenBytes = new byte[4];
+            ms.Read(lenBytes, 0, 4);
+            uint length = BitConverter.ToUInt32(lenBytes, 0);
+            byte[] payloadBytes = new byte[length];
+            ms.Read(payloadBytes, 0, (int)length);
+            return JObject.Parse(Encoding.UTF8.GetString(payloadBytes));
+        }
+
+        [Theory]
+        [InlineData("greenshot://exit")]
+        [InlineData("greenshot:reload_config")]
+        [InlineData("greenshot://first_launch")]
+        [InlineData("greenshot://open_file?path=C:\\temp\\a.png")]
+        public async Task SecurityDispatcher_UrlScheme_RejectsCommandsNotAllowedForBrowser(string url)
+        {
+            var envelope = new IpcEnvelope
+            {
+                Source = "url_scheme",
+                RawInput = url
+            };
+
+            using (var ms = new MemoryStream())
+            {
+                bool exitCalled = false;
+                bool reloadCalled = false;
+                bool firstLaunchCalled = false;
+                bool openFileCalled = false;
+                var context = new IpcRequestContext(envelope, ms);
+                await IpcSecurityDispatcher.DispatchAsync(context, null,
+                    () => exitCalled = true,
+                    () => reloadCalled = true,
+                    () => firstLaunchCalled = true,
+                    f => openFileCalled = true);
+
+                Assert.False(exitCalled);
+                Assert.False(reloadCalled);
+                Assert.False(firstLaunchCalled);
+                Assert.False(openFileCalled);
+
+                var resp = ReadFirstFrame(ms);
+                Assert.Equal("error", resp.Value<string>("status"));
+                Assert.Contains("[SECURITY]", resp.Value<string>("stderr"));
+            }
+        }
+
+        [Theory]
+        [InlineData("EXIT")]
+        [InlineData("RELOAD_CONFIG")]
+        [InlineData("OPEN_FILE")]
+        public async Task SecurityDispatcher_NativeMessaging_RejectsCommandsNotAllowedForExtension(string command)
+        {
+            var envelope = new IpcEnvelope
+            {
+                Source = "native_messaging",
+                Command = command
+            };
+
+            using (var ms = new MemoryStream())
+            {
+                bool exitCalled = false;
+                bool reloadCalled = false;
+                bool openFileCalled = false;
+                var context = new IpcRequestContext(envelope, ms);
+                await IpcSecurityDispatcher.DispatchAsync(context, null,
+                    () => exitCalled = true,
+                    () => reloadCalled = true,
+                    () => { },
+                    f => openFileCalled = true);
+
+                Assert.False(exitCalled);
+                Assert.False(reloadCalled);
+                Assert.False(openFileCalled);
+                Assert.Contains("[SECURITY]", ReadFirstFrame(ms).Value<string>("stderr"));
+            }
+        }
+
+        [Fact]
+        public async Task SecurityDispatcher_UrlScheme_RunRecipeWithoutOptIn_IsRejected()
+        {
+            var testRecipe = new CaptureRecipe("recipe_no_browser_optin", "No Browser Opt-In")
+                .AddNode(new RecipeNodeConfig { Id = "s1", StepType = WellKnownStepTypes.Source, Parameters = new Dictionary<string, object> { ["SourceType"] = CaptureSourceType.Clipboard } })
+                .AddTrigger(TriggerConfig.CreateCommandline("no-browser-task", fireAndForget: true));
+            RecipeManager.Instance.RegisterRecipe(testRecipe);
+
+            var envelope = new IpcEnvelope
+            {
+                Source = "url_scheme",
+                RawInput = "greenshot://run/no-browser-task"
+            };
+
+            using (var ms = new MemoryStream())
+            {
+                var context = new IpcRequestContext(envelope, ms);
+                await IpcSecurityDispatcher.DispatchAsync(context, null, () => { }, () => { }, () => { }, f => { });
+
+                var resp = ReadFirstFrame(ms);
+                Assert.Equal("error", resp.Value<string>("status"));
+                Assert.Contains("AllowBrowserInvocation", resp.Value<string>("stderr"));
+            }
+        }
+
+        [Fact]
+        public void SnapshotJsonSafe_KeepsOnlyJsonRepresentableValues()
+        {
+            using (var bitmap = new System.Drawing.Bitmap(1, 1))
+            {
+                var values = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["Text"] = "hello",
+                    ["Count"] = 3,
+                    ["Ratio"] = 1.5,
+                    ["Flag"] = true,
+                    ["Mode"] = System.IO.FileMode.Open,
+                    ["Lines"] = new List<string> { "a", "b" },
+                    ["Nothing"] = null,
+                    ["Image"] = bitmap,
+                    ["Stream"] = new MemoryStream()
+                };
+
+                var snapshot = IpcSecurityDispatcher.SnapshotJsonSafe(values);
+
+                Assert.Equal("hello", snapshot["Text"]);
+                Assert.Equal(3, snapshot["Count"]);
+                Assert.True((bool)snapshot["Flag"]);
+                Assert.Equal("Open", snapshot["Mode"]);
+                Assert.Equal(new[] { "a", "b" }, (IEnumerable<string>)snapshot["Lines"]);
+                Assert.True(snapshot.ContainsKey("Nothing"));
+                Assert.False(snapshot.ContainsKey("Image"));
+                Assert.False(snapshot.ContainsKey("Stream"));
+
+                // The result must always be serializable
+                Newtonsoft.Json.JsonConvert.SerializeObject(snapshot);
+            }
+        }
+
+        [Fact]
+        public async Task SecurityDispatcher_NativeMessaging_QueryIsRejected()
+        {
+            var testRecipe = new CaptureRecipe("recipe_browser_query", "Browser Query")
+                .AddNode(new RecipeNodeConfig { Id = "s1", StepType = WellKnownStepTypes.Source, Parameters = new Dictionary<string, object> { ["SourceType"] = CaptureSourceType.Clipboard } })
+                .AddTrigger(TriggerConfig.CreateCommandline("browser-query").SetParameter("AllowBrowserInvocation", true));
+            RecipeManager.Instance.RegisterRecipe(testRecipe);
+
+            var envelope = new IpcEnvelope
+            {
+                Source = "native_messaging",
+                Command = "RUN_RECIPE",
+                Recipe = "browser-query",
+                Query = "${user.USERNAME}"
+            };
+
+            using (var ms = new MemoryStream())
+            {
+                var context = new IpcRequestContext(envelope, ms);
+                await IpcSecurityDispatcher.DispatchAsync(context, null, () => { }, () => { }, () => { }, f => { });
+
+                var resp = ReadFirstFrame(ms);
+                Assert.Equal("error", resp.Value<string>("status"));
+                Assert.Contains("[SECURITY]", resp.Value<string>("stderr"));
             }
         }
     }

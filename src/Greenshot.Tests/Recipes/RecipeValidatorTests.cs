@@ -358,22 +358,58 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Fact]
-        public void Validate_RecordActiveWindowExampleRecipe_IsValid()
+        public void LoadFromFile_RecordActiveWindowRecipe_IsValid()
         {
-            string repoRoot = System.IO.Path.GetFullPath(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\.."));
-            string examplePath = System.IO.Path.Combine(repoRoot, @"docs\examples\record_active_window.gsrecipe.json");
+            // The test brings its own recipe file instead of depending on example files in the repository
+            const string recipeJson = @"{
+  ""version"": ""1.0"",
+  ""id"": ""recipe_record_active_window"",
+  ""name"": ""Record Active Window"",
+  ""description"": ""Records the active window as video, started with the Pause key"",
+  ""triggers"": [
+    {
+      ""triggerType"": ""Hotkey"",
+      ""name"": ""Pause Hotkey"",
+      ""enabled"": true,
+      ""parameters"": {
+        ""hotkey"": ""Pause""
+      }
+    }
+  ],
+  ""requires"": [],
+  ""nodes"": [
+    {
+      ""id"": ""record"",
+      ""stepType"": ""RecordVideo"",
+      ""name"": ""Record Active Window"",
+      ""enabled"": true,
+      ""parameters"": {
+        ""sourceType"": ""ActiveWindow""
+      }
+    }
+  ],
+  ""flow"": {
+    ""startNodes"": [ ""record"" ]
+  }
+}";
+            string recipePath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"greenshot_test_{Guid.NewGuid():N}.gsrecipe.json");
+            System.IO.File.WriteAllText(recipePath, recipeJson);
+            try
+            {
+                var recipe = RecipeSerializer.LoadFromFile(recipePath, validate: false);
 
-            Assert.True(System.IO.File.Exists(examplePath), $"Recipe file not found: {examplePath}");
+                Assert.NotNull(recipe);
+                Assert.Equal("recipe_record_active_window", recipe.Id);
+                Assert.Contains(recipe.Triggers, t => t.TriggerType == "Hotkey" && t.GetParameter<string>("hotkey") == "Pause");
+                Assert.Contains(recipe.Nodes, n => n.StepType == WellKnownStepTypes.RecordVideo);
 
-            string json = System.IO.File.ReadAllText(examplePath);
-            var recipe = Newtonsoft.Json.JsonConvert.DeserializeObject<CaptureRecipe>(json);
-
-            Assert.NotNull(recipe);
-            Assert.Equal("recipe_record_active_window", recipe.Id);
-            Assert.Contains(recipe.Triggers, t => t.TriggerType == "Hotkey" && t.GetParameter<string>("hotkey") == "Pause");
-
-            var validation = RecipeValidator.Validate(recipe);
-            Assert.True(validation.IsValid, string.Join("; ", validation.Errors));
+                var validation = RecipeValidator.Validate(recipe);
+                Assert.True(validation.IsValid, string.Join("; ", validation.Errors));
+            }
+            finally
+            {
+                System.IO.File.Delete(recipePath);
+            }
         }
     }
 }

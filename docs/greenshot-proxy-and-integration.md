@@ -50,7 +50,12 @@ flowchart TD
 ```
 
 ### Dual Binaries Architecture (`greenshot-proxy.exe` & `greenshot.com`)
-Greenshot provides two native binaries compiled from the **exact same C codebase**, differing solely in their Windows PE Subsystem:
+Greenshot provides two small native binaries built from one C code base (`src/greenshot-proxy`). They share the
+connection, framing and HELLO code and differ in their entry point (`main_cli.c`, `main_proxy.c`) and Windows PE subsystem.
+Both are built **without the C runtime** (Win32 API only, about 10 KB of code each) and contain no parsing logic:
+they only decide the connection source from how they were started, forward the raw arguments (or relay the browser's
+messages) and print what Greenshot sends back. Parsing, validation and output formatting live in Greenshot
+(`CliCommandParser`, `CliTextRenderer`), where they are unit tested.
 
 1. **`greenshot-proxy.exe` (`/SUBSYSTEM:WINDOWS`)**:
    - Used for:
@@ -80,21 +85,49 @@ Communication across both stdio and the named pipe (`\\.\pipe\Greenshot_IPC`) us
 +-----------------------------------+---------------------------------------+
 ```
 
-Every IPC request conforms to an `IpcEnvelope`:
+#### Connection handshake (`HELLO`)
+The first frame on every connection is a `HELLO` written by the executable itself (or by Greenshot's own `NamedPipeClient`), before anything else is sent or relayed:
 
 ```json
-{
-  "command": "TRIGGER_RECIPE",
-  "source": "cli",
-  "payload": {
-    "recipeId": "ocr-to-stdout",
-    "cwd": "C:\\Workspace",
-    "params": {
-      "file": "sample.png"
-    }
-  }
-}
+{ "version": 1, "command": "HELLO", "source": "cli", "reply_format": "text", "client": "greenshot-proxy", "client_version": "1.4.0" }
 ```
+
+| Started as | `source` | `reply_format` | Then sends |
+| :--- | :--- | :--- | :--- |
+| `greenshot.com ...` (terminal) | `cli` | `text` | `{"command":"CLI","cwd":"...","argv":[...]}` |
+| `greenshot-proxy.exe greenshot:...` (URL protocol) | `url_scheme` | `text` | `{"command":"CLI","cwd":"...","argv":["greenshot:..."]}` |
+| `greenshot-proxy.exe --file <path>` (Explorer) | `open_with` | `text` | `{"command":"CLI","cwd":"...","argv":["--file","<path>"]}` |
+| `greenshot-proxy.exe chrome-extension://<id>/` (browser) | `native_messaging` (+ `origin`) | `json` | the extension's messages, relayed unchanged |
+
+* Greenshot binds the source to the connection and **overwrites the `source` of every later envelope** with it. Data relayed from a browser can therefore never claim to be the command line.
+* A connection whose first frame is not a valid `HELLO`, or that sends a second `HELLO`, receives an error frame and is closed.
+
+#### `CLI` requests
+The raw arguments are parsed by `CliCommandParser` according to the connection source: `cli` accepts the full command line syntax, `url_scheme` exactly one `greenshot:` URL, `open_with` only file paths. The resulting command (`RUN_RECIPE`, `LIST_RECIPES`, `OPEN_FILE`, ...) is then dispatched like any other request, **including the per-source whitelist**. `--query` is only accepted from `cli` connections, because it evaluates arbitrary expressions (including environment and configuration values).
+
+#### Replies
+Handlers always produce JSON-shaped replies: streaming chunks `{"stream": "stdout" | "stderr", "text": "..."}` and one final reply `{"status": "ok" | "error", "exit_code": <int>, "stdout": "...", "stderr": "..."}`.
+
+* **`json` connections** (browser extension) receive these objects as they are.
+* **`text` connections** (`greenshot.com`, `greenshot-proxy.exe`) receive *text frames*, so the executables never parse JSON. The payload's first byte is the frame type:
+  * `O` + UTF-8 text: write to stdout
+  * `E` + UTF-8 text: write to stderr
+  * `X` + 4-byte little-endian signed exit code: end of the reply
+
+  Every request on a text connection ends with exactly one `X` frame, also when the handler did not reply or failed.
+* **`--json`** runs do not stream; the final reply is the complete result document, sent as one `O` frame:
+  ```json
+  { "status": "ok", "exit_code": 0, "recipe": "recipe_qr", "stdout": "...", "stderr": null,
+    "payload": { "width": 800, "height": 600, "format": "Format32bppArgb", "extracted_text": null, "metadata": { } },
+    "variables": { "Barcode.Text": "..." } }
+  ```
+  `variables` and `payload.metadata` contain only JSON-safe values (strings, numbers, booleans, dates, enums, string lists).
+
+#### Command line (`greenshot.com`)
+* `--help` and `--version` are answered by `greenshot.com` itself; everything else is forwarded to Greenshot (which is started when it is not running).
+* Recipe arguments: `key=value`, `--key=value` or `--key value`. The value is taken as-is, also when it starts with `-`. `--` ends option parsing (remaining arguments must be `key=value`). Anything else is an error; nothing is silently dropped or truncated.
+* Output is written as UTF-8 to pipes and files, and as UTF-16 to a console, so any Unicode (including emoji) is preserved.
+* Exit codes: `0` success, `1` failure, `2` invalid command line, `3` Greenshot not available, or the exit code set by the recipe (Stderr step).
 
 ### 2.2 Cold-Start Orchestration & Concurrency
 When a client invokes `greenshot-proxy.exe` while Greenshot is not running:
@@ -115,6 +148,8 @@ Both opaque (`greenshot:<action>`) and hierarchical (`greenshot://<action>`) URI
 | `greenshot:recipe-manager` | Recipe Manager Window | — |
 | `greenshot:recipe/<id>` | Executes a specific recipe | Arbitrary query parameters passed as recipe variables |
 
+Any web page can open a `greenshot:` URL, so only the commands listed above are accepted from this source (e.g. `greenshot://exit` is rejected). A recipe can only be started via `greenshot:recipe/<id>` (or from the browser extension) when its Commandline trigger sets `"AllowBrowserInvocation": true`.
+
 ---
 
 ## 3. Security Architecture & Threat Model
@@ -124,7 +159,7 @@ Exposing an application to local named pipes, native browser messaging, and web 
 ```mermaid
 flowchart TD
     Req["Incoming IPC Request"] --> SourceCheck["1. Source Identification<br/>(native_messaging | cli | url_scheme | open_with)"]
-    SourceCheck --> Whitelist["2. Command Whitelist Check<br/>(Is command in AllowedCommands?)"]
+    SourceCheck --> Whitelist["2. Command Whitelist Check<br/>(AllowedCommands + per-source list:<br/>url_scheme / native_messaging / open_with)"]
     Whitelist -- No --> RejectCommand["403 Forbidden: Invalid Command"]
     Whitelist -- Yes --> RouteCheck{"3. Route-Specific Validation"}
     
@@ -144,7 +179,8 @@ flowchart TD
 
 ### 3.1 Strict Command Whitelist
 Incoming requests are parsed in `IpcSecurityDispatcher`. Any command not explicitly declared in `AllowedCommands` is immediately rejected with a warning log:
-* Allowed: `HANDSHAKE`, `TAB_CHANGED`, `EXTENSION_CAPTURE`, `TRIGGER_RECIPE`, `OPEN_FILE`, `URL_SCHEME`, `SETTINGS`, `ABOUT`, `SELF_SERVICE`, `RECIPE_EDITOR`, `RECIPE_MANAGER`.
+* A command must be in the global `AllowedCommands` list **and**, for `url_scheme`, `native_messaging` and `open_with` connections, in that source's list (`SourceAllowedCommands`). `cli` connections may use every allowed command.
+* The source is the one bound by the connection's `HELLO` frame (see 2.1), not a field the client can choose per message.
 
 ### 3.2 Path Traversal & Alternate Data Stream (ADS) Defense
 When handling file paths (e.g. `OPEN_FILE` or `-f` arguments passed to CLI recipes):
@@ -205,7 +241,7 @@ External callers can supply runtime context that becomes variables inside the re
    - `${Browser.Domain}`: Hostname (e.g. `github.com`)
    - `${Browser.Title}`: Document title
    - `${Browser.Ticket}`: Extracted ticket/issue ID (e.g. `JIRA-1234`)
-2. **CLI Parameters**: Any `-p key=val` passed to `greenshot-proxy` is accessible as `${key}` in node expressions, file naming templates, and dynamic destination steps.
+2. **CLI Parameters**: Any `key=value`, `--key=value` or `--key value` passed after `greenshot --recipe <cmd>` is accessible as `${key}` (or as the declared argument's `variable`) in node expressions, file naming templates, and dynamic destination steps.
 
 ### 4.3 Outputting to Stdout or Dynamic Destinations
 * **CLI Stdout Output**: A recipe with an OCR node can route text output back to the proxy, which writes it directly to the caller's console stdout.
@@ -284,6 +320,6 @@ To add a new capability (e.g., an "Export Visible Page to PDF" button):
    ```
 
 3. **Register and Handle Command in Greenshot**:
-   - Add `"EXPORT_PDF"` to `AllowedCommands` in `IpcSecurityDispatcher.cs`.
+   - Add `"EXPORT_PDF"` to `AllowedCommands` and to the `native_messaging` entry of `SourceAllowedCommands` in `IpcSecurityDispatcher.cs`. (The `source` field sent by the extension is ignored; the proxy's `HELLO` decides.)
    - Add handler method `HandleExportPdfAsync(...)` in `IpcSecurityDispatcher.cs` or trigger a designated recipe with an `ExtensionTrigger`.
    - Send response envelope back through `context.ResponseStream`.

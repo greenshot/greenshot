@@ -20,10 +20,11 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Pipes;
-using System.Security.Principal;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Greenshot.Helpers.Ipc;
@@ -32,200 +33,151 @@ using Xunit;
 
 namespace Greenshot.Tests.Ipc
 {
-    public class GreenshotProxyIntegrationTests
+    /// <summary>
+    /// Locates the native proxy executables in the solution build output (src\Greenshot\bin\&lt;Configuration&gt;\net480).
+    /// </summary>
+    internal static class ProxyBinaries
     {
-        private static string GetProxyExePath()
+        public const string Cli = "greenshot.com";
+        public const string Proxy = "greenshot-proxy.exe";
+
+        public static string Find(string fileName)
         {
-            // Locate greenshot-proxy.exe in the build output directory
             string baseDir = AppDomain.CurrentDomain.BaseDirectory;
-            string candidate = Path.Combine(baseDir, "greenshot-proxy.exe");
+            string candidate = Path.Combine(baseDir, fileName);
             if (File.Exists(candidate))
             {
                 return candidate;
             }
 
-            // Fallback: check relative to solution output
-            string slnOutput = Path.GetFullPath(Path.Combine(baseDir, @"..\..\..\Greenshot\bin\Release\net480\greenshot-proxy.exe"));
-            if (File.Exists(slnOutput))
-            {
-                return slnOutput;
-            }
+            // Prefer the configuration the tests were built with
+            string[] configurations = baseDir.IndexOf(@"\Release\", StringComparison.OrdinalIgnoreCase) >= 0
+                ? new[] { "Release", "Debug" }
+                : new[] { "Debug", "Release" };
 
-            string slnDebugOutput = Path.GetFullPath(Path.Combine(baseDir, @"..\..\..\Greenshot\bin\Debug\net480\greenshot-proxy.exe"));
-            if (File.Exists(slnDebugOutput))
+            for (var dir = new DirectoryInfo(baseDir); dir != null; dir = dir.Parent)
             {
-                return slnDebugOutput;
+                foreach (var configuration in configurations)
+                {
+                    string path = Path.Combine(dir.FullName, "Greenshot", "bin", configuration, "net480", fileName);
+                    if (File.Exists(path))
+                    {
+                        return path;
+                    }
+                }
             }
-
-            return candidate;
+            return null;
         }
 
-        [Fact]
-        public void Proxy_ExtensionMode_WhenGreenshotOffline_ReturnsOfflineJsonImmediately()
+        /// <summary>Reason to skip, or null when the executable exists and the Greenshot pipe is free.</summary>
+        public static string GetSkipReason(string fileName, bool needsPipe)
         {
-            string proxyExe = GetProxyExePath();
-            if (!File.Exists(proxyExe))
+            if (Find(fileName) == null)
             {
-                // Skip if binary not yet built in this test context
-                return;
+                return $"{fileName} was not found in the build output (build the solution with MSBuild, including the C++ projects).";
             }
-
-            var startInfo = new ProcessStartInfo
+            if (needsPipe && Process.GetProcessesByName("Greenshot").Length > 0)
             {
-                FileName = proxyExe,
-                Arguments = "chrome-extension://knldjmfmopnpolahpmmgbagdohdnhkik/",
-                RedirectStandardInput = true,
+                return "Greenshot is running and owns the pipe these tests need.";
+            }
+            return null;
+        }
+    }
+
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
+    public sealed class ProxyFactAttribute : FactAttribute
+    {
+        public ProxyFactAttribute(string fileName, bool needsPipe = true)
+        {
+            Skip = ProxyBinaries.GetSkipReason(fileName, needsPipe);
+        }
+    }
+
+    /// <summary>
+    /// Runs greenshot.com / greenshot-proxy.exe against an in-process fake Greenshot pipe server.
+    /// </summary>
+    public class GreenshotProxyIntegrationTests
+    {
+        private sealed class ProcessResult
+        {
+            public int ExitCode;
+            public string Stdout;
+            public string Stderr;
+        }
+
+        private static ProcessStartInfo CreateStartInfo(string fileName, string arguments, bool redirectInput = false)
+        {
+            return new ProcessStartInfo
+            {
+                FileName = ProxyBinaries.Find(fileName),
+                Arguments = arguments,
+                RedirectStandardInput = redirectInput,
                 RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                StandardOutputEncoding = Encoding.UTF8,
+                StandardErrorEncoding = Encoding.UTF8,
                 UseShellExecute = false,
-                CreateNoWindow = true
+                CreateNoWindow = true,
+                WorkingDirectory = Path.GetTempPath()
             };
-
-            using (var process = Process.Start(startInfo))
-            {
-                Assert.NotNull(process);
-
-                // Read 4-byte length prefix from stdout
-                byte[] lenBytes = new byte[4];
-                int read = process.StandardOutput.BaseStream.Read(lenBytes, 0, 4);
-                Assert.Equal(4, read);
-
-                uint payloadLen = BitConverter.ToUInt32(lenBytes, 0);
-                Assert.True(payloadLen > 0 && payloadLen < 1024, $"Payload length {payloadLen} is unexpected.");
-
-                byte[] payloadBytes = new byte[payloadLen];
-                read = process.StandardOutput.BaseStream.Read(payloadBytes, 0, (int)payloadLen);
-                Assert.Equal((int)payloadLen, read);
-
-                string json = Encoding.UTF8.GetString(payloadBytes);
-                JObject jobj = JObject.Parse(json);
-
-                Assert.Equal("unavailable", jobj.Value<string>("status"));
-                Assert.False(jobj.Value<bool>("greenshot_running"));
-                Assert.True(jobj.Value<bool>("retry"));
-
-                bool exited = process.WaitForExit(3000);
-                Assert.True(exited, "Proxy should terminate immediately in offline extension mode.");
-                Assert.Equal(0, process.ExitCode);
-            }
         }
 
-        [Fact]
-        public async Task Proxy_FullDuplexRelay_TransparentlyPumpsFramedMessages()
+        private static NamedPipeServerStream CreatePipeServer()
         {
-            string proxyExe = GetProxyExePath();
-            if (!File.Exists(proxyExe))
-            {
-                return;
-            }
-
-            string pipeName = NamedPipeEndpoint.GetPipeName();
-            var pipeSecurity = NamedPipeEndpoint.CreateServerSecurity();
-
-            using (var pipeServer = new NamedPipeServerStream(
-                pipeName,
+            return new NamedPipeServerStream(
+                NamedPipeEndpoint.GetPipeName(),
                 PipeDirection.InOut,
                 1,
                 PipeTransmissionMode.Byte,
                 PipeOptions.Asynchronous,
                 0,
                 0,
-                pipeSecurity))
+                NamedPipeEndpoint.CreateServerSecurity());
+        }
+
+        /// <summary>Starts the executable, lets <paramref name="server"/> talk to it, and collects its output.</summary>
+        private static async Task<ProcessResult> RunAgainstFakeServerAsync(string fileName, string arguments, Func<NamedPipeServerStream, Task> server)
+        {
+            using (var pipeServer = CreatePipeServer())
             {
                 var connectTask = pipeServer.WaitForConnectionAsync();
-
-                var startInfo = new ProcessStartInfo
-                {
-                    FileName = proxyExe,
-                    Arguments = "chrome-extension://test-extension-id/",
-                    RedirectStandardInput = true,
-                    RedirectStandardOutput = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true
-                };
-
-                using (var process = Process.Start(startInfo))
+                using (var process = Process.Start(CreateStartInfo(fileName, arguments)))
                 {
                     Assert.NotNull(process);
+                    try
+                    {
+                        var stdoutTask = process.StandardOutput.ReadToEndAsync();
+                        var stderrTask = process.StandardError.ReadToEndAsync();
 
-                    var completed = await Task.WhenAny(connectTask, Task.Delay(5000));
-                    Assert.Same(connectTask, completed);
-                    Assert.True(pipeServer.IsConnected);
+                        var completed = await Task.WhenAny(connectTask, Task.Delay(10000));
+                        Assert.Same(connectTask, completed);
 
-                    // 1. Send test framed message from test client -> proxy stdin -> pipe
-                    string testMessage = "{\"source\":\"test\",\"data\":\"Hello from Extension\"}";
-                    byte[] msgBytes = Encoding.UTF8.GetBytes(testMessage);
-                    byte[] lenBytes = BitConverter.GetBytes((uint)msgBytes.Length);
+                        await server(pipeServer);
 
-                    process.StandardInput.BaseStream.Write(lenBytes, 0, 4);
-                    process.StandardInput.BaseStream.Write(msgBytes, 0, msgBytes.Length);
-                    process.StandardInput.BaseStream.Flush();
-
-                    // Read from pipeServer
-                    byte[] pipeLenBytes = new byte[4];
-                    await ReadExactAsync(pipeServer, pipeLenBytes, 4);
-                    uint receivedLen = BitConverter.ToUInt32(pipeLenBytes, 0);
-                    Assert.Equal((uint)msgBytes.Length, receivedLen);
-
-                    byte[] pipePayloadBytes = new byte[receivedLen];
-                    await ReadExactAsync(pipeServer, pipePayloadBytes, (int)receivedLen);
-                    string receivedMessage = Encoding.UTF8.GetString(pipePayloadBytes);
-                    Assert.Equal(testMessage, receivedMessage);
-
-                    // 2. Send test response from pipe -> proxy -> proxy stdout
-                    string testResponse = "{\"status\":\"ok\",\"reply\":\"Hello from Greenshot\"}";
-                    byte[] respBytes = Encoding.UTF8.GetBytes(testResponse);
-                    byte[] respLenBytes = BitConverter.GetBytes((uint)respBytes.Length);
-
-                    await pipeServer.WriteAsync(respLenBytes, 0, 4);
-                    await pipeServer.WriteAsync(respBytes, 0, respBytes.Length);
-                    await pipeServer.FlushAsync();
-
-                    // Read from proxy stdout
-                    byte[] stdoutLenBytes = new byte[4];
-                    await ReadExactAsync(process.StandardOutput.BaseStream, stdoutLenBytes, 4);
-                    uint stdoutLen = BitConverter.ToUInt32(stdoutLenBytes, 0);
-                    Assert.Equal((uint)respBytes.Length, stdoutLen);
-
-                    byte[] stdoutPayloadBytes = new byte[stdoutLen];
-                    await ReadExactAsync(process.StandardOutput.BaseStream, stdoutPayloadBytes, (int)stdoutLen);
-                    string receivedResponse = Encoding.UTF8.GetString(stdoutPayloadBytes);
-                    Assert.Equal(testResponse, receivedResponse);
-
-                    // Close stdin to signal clean shutdown
-                    process.StandardInput.Close();
-                    pipeServer.Close();
-
-                    process.WaitForExit(3000);
+                        Assert.True(process.WaitForExit(10000), "The executable did not exit.");
+                        return new ProcessResult
+                        {
+                            ExitCode = process.ExitCode,
+                            Stdout = await stdoutTask,
+                            Stderr = await stderrTask
+                        };
+                    }
+                    finally
+                    {
+                        KillIfRunning(process);
+                    }
                 }
             }
         }
 
-        [Fact]
-        public void Proxy_CliMode_Help_OutputsUsageWithoutPipe()
+        [ProxyFact(ProxyBinaries.Cli, needsPipe: false)]
+        public void Cli_Help_IsAnsweredWithoutGreenshot()
         {
-            string proxyExe = GetProxyExePath();
-            if (!File.Exists(proxyExe))
-            {
-                return;
-            }
-
-            var startInfo = new ProcessStartInfo
-            {
-                FileName = proxyExe,
-                Arguments = "--help",
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false,
-                CreateNoWindow = true
-            };
-
-            using (var process = Process.Start(startInfo))
+            using (var process = Process.Start(CreateStartInfo(ProxyBinaries.Cli, "--help")))
             {
                 Assert.NotNull(process);
                 string stdout = process.StandardOutput.ReadToEnd();
-                bool exited = process.WaitForExit(3000);
-
-                Assert.True(exited);
+                Assert.True(process.WaitForExit(5000));
                 Assert.Equal(0, process.ExitCode);
                 Assert.Contains("Greenshot Proxy CLI", stdout);
                 Assert.Contains("--list-recipes", stdout);
@@ -233,152 +185,274 @@ namespace Greenshot.Tests.Ipc
             }
         }
 
-        [Fact]
-        public async Task Proxy_CliMode_ListRecipes_SendsIpcAndFormatsOutput()
+        [ProxyFact(ProxyBinaries.Cli)]
+        public async Task Cli_ForwardsArgumentsVerbatim_AndPrintsTextFrames()
         {
-            string proxyExe = GetProxyExePath();
-            if (!File.Exists(proxyExe))
+            var result = await RunAgainstFakeServerAsync(ProxyBinaries.Cli, "--recipe qr --file=a@b.png --offset -5 \"x \\\"y\\\" \u00fc\ud83d\ude00\" --json", async pipe =>
             {
-                return;
+                JObject hello = await ReadJsonFrameAsync(pipe);
+                Assert.Equal("HELLO", hello.Value<string>("command"));
+                Assert.Equal("cli", hello.Value<string>("source"));
+                Assert.Equal("text", hello.Value<string>("reply_format"));
+
+                JObject request = await ReadJsonFrameAsync(pipe);
+                Assert.Equal("CLI", request.Value<string>("command"));
+                Assert.Equal(
+                    new[] { "--recipe", "qr", "--file=a@b.png", "--offset", "-5", "x \"y\" \u00fc\ud83d\ude00", "--json" },
+                    request["argv"].Values<string>().ToArray());
+                Assert.Equal(Path.GetTempPath().TrimEnd('\\'), request.Value<string>("cwd").TrimEnd('\\'), StringComparer.OrdinalIgnoreCase);
+
+                await WriteTextFrameAsync(pipe, 'O', "result \ud83d\ude80\n");
+                await WriteTextFrameAsync(pipe, 'E', "warning\n");
+                await WriteExitFrameAsync(pipe, 7);
+            });
+
+            Assert.Equal(7, result.ExitCode);
+            Assert.Equal("result \ud83d\ude80\n", result.Stdout);
+            Assert.Equal("warning\n", result.Stderr);
+        }
+
+        [ProxyFact(ProxyBinaries.Cli)]
+        public async Task Cli_ConnectionClosedWithoutExitFrame_ReportsFailure()
+        {
+            var result = await RunAgainstFakeServerAsync(ProxyBinaries.Cli, "--list-recipes", async pipe =>
+            {
+                await ReadJsonFrameAsync(pipe);
+                await ReadJsonFrameAsync(pipe);
+                pipe.Disconnect();
+            });
+
+            Assert.Equal(1, result.ExitCode);
+            Assert.Contains("closed", result.Stderr);
+        }
+
+        [ProxyFact(ProxyBinaries.Proxy)]
+        public async Task Proxy_UrlScheme_AnnouncesUrlSchemeSource()
+        {
+            var result = await RunAgainstFakeServerAsync(ProxyBinaries.Proxy, "\"greenshot://recipe/qr?x=1\"", async pipe =>
+            {
+                JObject hello = await ReadJsonFrameAsync(pipe);
+                Assert.Equal("url_scheme", hello.Value<string>("source"));
+                Assert.Equal("text", hello.Value<string>("reply_format"));
+
+                JObject request = await ReadJsonFrameAsync(pipe);
+                Assert.Equal("CLI", request.Value<string>("command"));
+                Assert.Equal(new[] { "greenshot://recipe/qr?x=1" }, request["argv"].Values<string>().ToArray());
+
+                await WriteExitFrameAsync(pipe, 0);
+            });
+
+            Assert.Equal(0, result.ExitCode);
+        }
+
+        [ProxyFact(ProxyBinaries.Proxy)]
+        public async Task Proxy_OpenWith_AnnouncesOpenWithSource()
+        {
+            var result = await RunAgainstFakeServerAsync(ProxyBinaries.Proxy, "--file \"C:\\some dir\\capture.png\"", async pipe =>
+            {
+                JObject hello = await ReadJsonFrameAsync(pipe);
+                Assert.Equal("open_with", hello.Value<string>("source"));
+
+                JObject request = await ReadJsonFrameAsync(pipe);
+                Assert.Equal(new[] { "--file", "C:\\some dir\\capture.png" }, request["argv"].Values<string>().ToArray());
+
+                await WriteExitFrameAsync(pipe, 0);
+            });
+
+            Assert.Equal(0, result.ExitCode);
+        }
+
+        [ProxyFact(ProxyBinaries.Proxy)]
+        public void Proxy_ExtensionMode_WhenGreenshotOffline_ReturnsOfflineJsonImmediately()
+        {
+            using (var process = Process.Start(CreateStartInfo(ProxyBinaries.Proxy, "chrome-extension://knldjmfmopnpolahpmmgbagdohdnhkik/", redirectInput: true)))
+            {
+                Assert.NotNull(process);
+                var stdout = process.StandardOutput.BaseStream;
+
+                JObject offline;
+                try
+                {
+                    offline = ReadJsonFrameAsync(stdout).GetAwaiter().GetResult();
+                }
+                finally
+                {
+                    if (!process.WaitForExit(5000))
+                    {
+                        KillIfRunning(process);
+                    }
+                }
+                Assert.Equal("unavailable", offline.Value<string>("status"));
+                Assert.False(offline.Value<bool>("greenshot_running"));
+                Assert.True(offline.Value<bool>("retry"));
+
+                Assert.True(process.WaitForExit(5000), "Proxy should terminate immediately in offline extension mode.");
+                Assert.Equal(0, process.ExitCode);
             }
+        }
 
-            string pipeName = NamedPipeEndpoint.GetPipeName();
-            var pipeSecurity = NamedPipeEndpoint.CreateServerSecurity();
-
-            using (var pipeServer = new NamedPipeServerStream(
-                pipeName,
-                PipeDirection.InOut,
-                1,
-                PipeTransmissionMode.Byte,
-                PipeOptions.Asynchronous,
-                0,
-                0,
-                pipeSecurity))
+        [ProxyFact(ProxyBinaries.Proxy)]
+        public async Task Proxy_ExtensionRelay_SendsHelloThenPumpsFramesBothWays()
+        {
+            using (var pipeServer = CreatePipeServer())
             {
                 var connectTask = pipeServer.WaitForConnectionAsync();
-
-                var startInfo = new ProcessStartInfo
-                {
-                    FileName = proxyExe,
-                    Arguments = "--list-recipes",
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true
-                };
-
-                using (var process = Process.Start(startInfo))
+                using (var process = Process.Start(CreateStartInfo(ProxyBinaries.Proxy, "chrome-extension://test-extension-id/ --parent-window=0", redirectInput: true)))
                 {
                     Assert.NotNull(process);
+                    try
+                    {
+                        await StepAsync("connect", () => connectTask);
 
-                    var completed = await Task.WhenAny(connectTask, Task.Delay(5000));
-                    Assert.Same(connectTask, completed);
-                    Assert.True(pipeServer.IsConnected);
+                        // The proxy announces the connection before relaying anything from the extension
+                        JObject hello = await StepAsync("read HELLO from pipe", () => ReadJsonFrameAsync(pipeServer));
+                        Assert.Equal("HELLO", hello.Value<string>("command"));
+                        Assert.Equal("native_messaging", hello.Value<string>("source"));
+                        Assert.Equal("json", hello.Value<string>("reply_format"));
+                        Assert.Equal("chrome-extension://test-extension-id/", hello.Value<string>("origin"));
 
-                    // Read request from proxy
-                    byte[] pipeLenBytes = new byte[4];
-                    await ReadExactAsync(pipeServer, pipeLenBytes, 4);
-                    uint reqLen = BitConverter.ToUInt32(pipeLenBytes, 0);
+                        // Extension -> proxy stdin -> pipe
+                        string message = "{\"command\":\"TAB_CHANGED\",\"url\":\"https://example.com/\"}";
+                        await StepAsync("write message to proxy stdin", () => Task.Run(() => WriteFrame(process.StandardInput.BaseStream, Encoding.UTF8.GetBytes(message))));
+                        byte[] relayed = await StepAsync("read relayed message from pipe", () => ReadFrameAsync(pipeServer));
+                        Assert.Equal(message, Encoding.UTF8.GetString(relayed));
 
-                    byte[] reqBytes = new byte[reqLen];
-                    await ReadExactAsync(pipeServer, reqBytes, (int)reqLen);
-                    string reqJson = Encoding.UTF8.GetString(reqBytes);
+                        // Pipe -> proxy stdout -> extension
+                        string response = "{\"status\":\"ok\",\"reply\":\"Hello from Greenshot\"}";
+                        await StepAsync("write response to pipe", () => WriteFrameAsync(pipeServer, Encoding.UTF8.GetBytes(response)));
+                        byte[] received = await StepAsync("read response from proxy stdout", () => Task.Run(() => ReadFrame(process.StandardOutput.BaseStream)));
+                        Assert.Equal(response, Encoding.UTF8.GetString(received));
 
-                    JObject reqObj = JObject.Parse(reqJson);
-                    Assert.Equal("LIST_RECIPES", reqObj.Value<string>("command"));
-
-                    // Send mock recipes response
-                    string mockResponse = "{\"status\":\"ok\",\"exit_code\":0,\"recipes\":[{\"command\":\"ocr\",\"id\":\"recipe_ocr\",\"name\":\"OCR\",\"description\":\"OCR text capture\"}]}";
-                    byte[] respBytes = Encoding.UTF8.GetBytes(mockResponse);
-                    byte[] respLenBytes = BitConverter.GetBytes((uint)respBytes.Length);
-
-                    await pipeServer.WriteAsync(respLenBytes, 0, 4);
-                    await pipeServer.WriteAsync(respBytes, 0, respBytes.Length);
-                    await pipeServer.FlushAsync();
-
-                    string stdout = await process.StandardOutput.ReadToEndAsync();
-                    process.WaitForExit(3000);
-
-                    Assert.Equal(0, process.ExitCode);
-                    Assert.Contains("ocr", stdout);
-                    Assert.Contains("recipe_ocr", stdout);
+                        await StepAsync("close proxy stdin", () => Task.Run(() => process.StandardInput.Close()));
+                        bool exited = await StepAsync("wait for proxy exit", () => Task.Run(() => process.WaitForExit(5000)));
+                        Assert.True(exited, "Proxy should exit when the extension closes stdin.");
+                    }
+                    catch (TimeoutException ex)
+                    {
+                        string state = process.HasExited ? $"proxy exited with code {process.ExitCode}" : "proxy still running";
+                        throw new TimeoutException($"{ex.Message} ({state})", ex);
+                    }
+                    finally
+                    {
+                        KillIfRunning(process);
+                    }
                 }
             }
         }
 
-        [Fact]
-        public async Task Proxy_CliMode_RunRecipe_SendsContextParametersAndPropagatesOutput()
+        /// <summary>Synchronous frame write for the process' anonymous pipes (async I/O on those streams is emulated on .NET Framework).</summary>
+        private static void WriteFrame(Stream stream, byte[] payload)
         {
-            string proxyExe = GetProxyExePath();
-            if (!File.Exists(proxyExe))
+            stream.Write(BitConverter.GetBytes((uint)payload.Length), 0, 4);
+            stream.Write(payload, 0, payload.Length);
+            stream.Flush();
+        }
+
+        /// <summary>Synchronous frame read for the process' anonymous pipes.</summary>
+        private static byte[] ReadFrame(Stream stream)
+        {
+            byte[] lengthBytes = ReadExact(stream, 4);
+            return ReadExact(stream, (int)BitConverter.ToUInt32(lengthBytes, 0));
+        }
+
+        private static byte[] ReadExact(Stream stream, int count)
+        {
+            byte[] buffer = new byte[count];
+            int total = 0;
+            while (total < count)
             {
-                return;
+                int read = stream.Read(buffer, total, count - total);
+                if (read == 0)
+                {
+                    throw new EndOfStreamException("Stream closed unexpectedly.");
+                }
+                total += read;
             }
+            return buffer;
+        }
 
-            string pipeName = NamedPipeEndpoint.GetPipeName();
-            var pipeSecurity = NamedPipeEndpoint.CreateServerSecurity();
-
-            using (var pipeServer = new NamedPipeServerStream(
-                pipeName,
-                PipeDirection.InOut,
-                1,
-                PipeTransmissionMode.Byte,
-                PipeOptions.Asynchronous,
-                0,
-                0,
-                pipeSecurity))
+        /// <summary>
+        /// Runs one step of an integration test off the test thread with a time limit, so a blocking call fails the test
+        /// with the name of the step instead of hanging the whole test run.
+        /// </summary>
+        private static async Task StepAsync(string name, Func<Task> action, int timeoutSeconds = 15)
+        {
+            await StepAsync(name, async () =>
             {
-                var connectTask = pipeServer.WaitForConnectionAsync();
+                await action().ConfigureAwait(false);
+                return true;
+            }, timeoutSeconds);
+        }
 
-                var startInfo = new ProcessStartInfo
+        private static async Task<T> StepAsync<T>(string name, Func<Task<T>> action, int timeoutSeconds = 15)
+        {
+            var task = Task.Run(action);
+            if (await Task.WhenAny(task, Task.Delay(TimeSpan.FromSeconds(timeoutSeconds))) != task)
+            {
+                throw new TimeoutException($"Step '{name}' did not complete within {timeoutSeconds} seconds.");
+            }
+            return await task;
+        }
+
+        /// <summary>Reads one frame; fails the test instead of hanging when nothing arrives.</summary>
+        private static async Task<byte[]> ReadFrameAsync(Stream stream, [System.Runtime.CompilerServices.CallerLineNumber] int callerLine = 0)
+        {
+            var readTask = ReadFrameCoreAsync(stream);
+            if (await Task.WhenAny(readTask, Task.Delay(TimeSpan.FromSeconds(15))) != readTask)
+            {
+                throw new TimeoutException($"No frame received within 15 seconds (read at line {callerLine}).");
+            }
+            return await readTask;
+        }
+
+        private static async Task<byte[]> ReadFrameCoreAsync(Stream stream)
+        {
+            byte[] lengthBytes = new byte[4];
+            await ReadExactAsync(stream, lengthBytes, 4);
+            byte[] payload = new byte[BitConverter.ToUInt32(lengthBytes, 0)];
+            await ReadExactAsync(stream, payload, payload.Length);
+            return payload;
+        }
+
+        private static void KillIfRunning(Process process)
+        {
+            try
+            {
+                if (!process.HasExited)
                 {
-                    FileName = proxyExe,
-                    Arguments = "--recipe ocr destination=clipboard lang=eng",
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true
-                };
-
-                using (var process = Process.Start(startInfo))
-                {
-                    Assert.NotNull(process);
-
-                    var completed = await Task.WhenAny(connectTask, Task.Delay(5000));
-                    Assert.Same(connectTask, completed);
-                    Assert.True(pipeServer.IsConnected);
-
-                    // Read request from proxy
-                    byte[] pipeLenBytes = new byte[4];
-                    await ReadExactAsync(pipeServer, pipeLenBytes, 4);
-                    uint reqLen = BitConverter.ToUInt32(pipeLenBytes, 0);
-
-                    byte[] reqBytes = new byte[reqLen];
-                    await ReadExactAsync(pipeServer, reqBytes, (int)reqLen);
-                    string reqJson = Encoding.UTF8.GetString(reqBytes);
-
-                    JObject reqObj = JObject.Parse(reqJson);
-                    Assert.Equal("RUN_RECIPE", reqObj.Value<string>("command"));
-                    Assert.Equal("ocr", reqObj.Value<string>("recipe"));
-                    Assert.Equal("clipboard", reqObj["parameters"]?.Value<string>("destination"));
-                    Assert.Equal("eng", reqObj["parameters"]?.Value<string>("lang"));
-
-                    // Send mock flow result
-                    string mockResponse = "{\"status\":\"ok\",\"exit_code\":0,\"stdout\":\"Recognized text: Hello World\"}";
-                    byte[] respBytes = Encoding.UTF8.GetBytes(mockResponse);
-                    byte[] respLenBytes = BitConverter.GetBytes((uint)respBytes.Length);
-
-                    await pipeServer.WriteAsync(respLenBytes, 0, 4);
-                    await pipeServer.WriteAsync(respBytes, 0, respBytes.Length);
-                    await pipeServer.FlushAsync();
-
-                    string stdout = await process.StandardOutput.ReadToEndAsync();
-                    process.WaitForExit(3000);
-
-                    Assert.Equal(0, process.ExitCode);
-                    Assert.Contains("Recognized text: Hello World", stdout);
+                    process.Kill();
                 }
             }
+            catch (InvalidOperationException)
+            {
+            }
+        }
+
+        private static async Task<JObject> ReadJsonFrameAsync(Stream stream, [System.Runtime.CompilerServices.CallerLineNumber] int callerLine = 0)
+        {
+            return JObject.Parse(Encoding.UTF8.GetString(await ReadFrameAsync(stream, callerLine)));
+        }
+
+        private static async Task WriteFrameAsync(Stream stream, byte[] payload)
+        {
+            byte[] lengthBytes = BitConverter.GetBytes((uint)payload.Length);
+            await stream.WriteAsync(lengthBytes, 0, 4);
+            await stream.WriteAsync(payload, 0, payload.Length);
+            await stream.FlushAsync();
+        }
+
+        private static Task WriteTextFrameAsync(Stream stream, char type, string text)
+        {
+            var payload = new List<byte> { (byte)type };
+            payload.AddRange(Encoding.UTF8.GetBytes(text));
+            return WriteFrameAsync(stream, payload.ToArray());
+        }
+
+        private static Task WriteExitFrameAsync(Stream stream, int exitCode)
+        {
+            var payload = new List<byte> { (byte)'X' };
+            payload.AddRange(BitConverter.GetBytes(exitCode));
+            return WriteFrameAsync(stream, payload.ToArray());
         }
 
         private static async Task ReadExactAsync(Stream stream, byte[] buffer, int count)

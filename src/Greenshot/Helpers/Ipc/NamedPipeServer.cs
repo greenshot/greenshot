@@ -127,6 +127,12 @@ namespace Greenshot.Helpers.Ipc
                 {
                     byte[] lengthBytes = new byte[4];
 
+                    // Connection identity: bound once from the mandatory HELLO frame, never from later envelopes.
+                    string connectionSource = null;
+                    string connectionOrigin = null;
+                    bool connectionUsesTextFrames = false;
+                    var connectionWriteLock = new SemaphoreSlim(1, 1);
+
                     while (!cancellationToken.IsCancellationRequested && stream.IsConnected)
                     {
                         int read = await ReadExactAsync(stream, lengthBytes, 0, 4, cancellationToken).ConfigureAwait(false);
@@ -168,17 +174,78 @@ namespace Greenshot.Helpers.Ipc
                             TypeNameHandling = TypeNameHandling.None
                         });
 
-                        if (envelope != null)
+                        if (envelope == null)
                         {
-                            var context = new IpcRequestContext(envelope, stream);
+                            continue;
+                        }
 
+                        if (connectionSource == null)
+                        {
+                            // The first frame must be HELLO, announcing a known source.
+                            if (!envelope.IsHello || !IpcSources.IsKnown(envelope.Source))
+                            {
+                                Log.Warn($"[SECURITY] Named pipe connection rejected: first frame must be HELLO with a known source (got command '{envelope.Command}', source '{envelope.Source}').");
+                                await RejectAsync(stream, connectionWriteLock, "[SECURITY] Connection rejected: the first message must be HELLO with a known source.", cancellationToken).ConfigureAwait(false);
+                                break;
+                            }
+
+                            string replyFormat = string.IsNullOrEmpty(envelope.ReplyFormat) ? IpcSources.ReplyFormatJson : envelope.ReplyFormat;
+                            if (!string.Equals(replyFormat, IpcSources.ReplyFormatJson, StringComparison.OrdinalIgnoreCase) &&
+                                !string.Equals(replyFormat, IpcSources.ReplyFormatText, StringComparison.OrdinalIgnoreCase))
+                            {
+                                Log.Warn($"[SECURITY] Named pipe connection rejected: unknown reply format '{replyFormat}'.");
+                                await RejectAsync(stream, connectionWriteLock, "[SECURITY] Connection rejected: unknown reply format.", cancellationToken).ConfigureAwait(false);
+                                break;
+                            }
+
+                            connectionSource = envelope.Source.ToLowerInvariant();
+                            connectionOrigin = envelope.Origin;
+                            connectionUsesTextFrames = string.Equals(replyFormat, IpcSources.ReplyFormatText, StringComparison.OrdinalIgnoreCase);
+                            Log.Debug($"Named pipe connection identified: source '{connectionSource}'{(string.IsNullOrEmpty(connectionOrigin) ? string.Empty : $", origin '{connectionOrigin}'")}.");
+                            continue;
+                        }
+
+                        if (envelope.IsHello)
+                        {
+                            Log.Warn($"[SECURITY] Named pipe connection closed: repeated HELLO on a connection already identified as '{connectionSource}'.");
+                            await RejectAsync(stream, connectionWriteLock, "[SECURITY] Connection rejected: HELLO is only allowed as the first message.", cancellationToken).ConfigureAwait(false);
+                            break;
+                        }
+
+                        // Whatever the client put into "source" is ignored; the connection's HELLO decides.
+                        envelope.Source = connectionSource;
+
+                        var context = new IpcRequestContext(envelope, stream, connectionWriteLock)
+                        {
+                            ConnectionOrigin = connectionOrigin,
+                            UsesTextFrames = connectionUsesTextFrames
+                        };
+
+                        try
+                        {
                             if (RequestReceived != null)
                             {
                                 await RequestReceived.Invoke(context).ConfigureAwait(false);
                             }
-
-                            MessageReceived?.Invoke(this, envelope);
                         }
+                        catch (Exception ex) when (!(ex is OperationCanceledException))
+                        {
+                            Log.Error($"Error handling IPC command '{envelope.Command}'", ex);
+                            if (!context.IsReplyCompleted)
+                            {
+                                await context.ReplyAsync(new
+                                {
+                                    status = "error",
+                                    exit_code = 1,
+                                    stderr = $"Error: Greenshot failed to handle the command: {ex.Message}"
+                                }, cancellationToken).ConfigureAwait(false);
+                            }
+                        }
+
+                        // Text clients wait for the exit frame; commands without a reply (or failing ones) must still end the reply
+                        await context.CompleteAsync(0, cancellationToken).ConfigureAwait(false);
+
+                        MessageReceived?.Invoke(this, envelope);
                     }
                 }
                 catch (OperationCanceledException)
@@ -189,6 +256,27 @@ namespace Greenshot.Helpers.Ipc
                 {
                     Log.Error("Error processing incoming message from named pipe client", ex);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Sends a final error frame before the server closes a connection that violates the protocol.
+        /// </summary>
+        private static async Task RejectAsync(Stream stream, SemaphoreSlim writeLock, string message, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var context = new IpcRequestContext(new IpcEnvelope(), stream, writeLock);
+                await context.ReplyAsync(new
+                {
+                    status = "error",
+                    exit_code = 1,
+                    stderr = message
+                }, cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                Log.Debug("Could not send rejection to named pipe client", ex);
             }
         }
 
