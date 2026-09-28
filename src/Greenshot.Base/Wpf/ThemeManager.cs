@@ -21,6 +21,7 @@
 
 using System;
 using System.ComponentModel;
+using System.Threading;
 using System.Windows;
 using System.Windows.Media;
 using Microsoft.Win32;
@@ -32,10 +33,11 @@ namespace Greenshot.Base.Wpf
     /// </summary>
     public class ThemeManager : INotifyPropertyChanged
     {
-        private static ThemeManager _instance;
+        // Thread-safe: WPF windows run on several threads, and a second instance would silently lose the subscribers of the first
+        private static readonly Lazy<ThemeManager> LazyInstance = new Lazy<ThemeManager>(() => new ThemeManager(), LazyThreadSafetyMode.ExecutionAndPublication);
         private bool _isDarkTheme;
 
-        public static ThemeManager Instance => _instance ??= new ThemeManager();
+        public static ThemeManager Instance => LazyInstance.Value;
 
         public event PropertyChangedEventHandler PropertyChanged;
 

@@ -24,7 +24,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Greenshot.Base.Expressions;
 using Greenshot.Base.Pipeline;
 using Greenshot.Base.Pipeline.Contracts;
 using Contracts = Greenshot.Base.Pipeline.Contracts;
@@ -108,17 +107,15 @@ namespace Greenshot.Pipeline.Steps
             return Task.CompletedTask;
         }
 
+        /// <summary>
+        /// The engine already evaluated the expressions in the parameters (exactly once, see IEvaluatesOwnParameters);
+        /// the value is used as it is, so ${...} text inside a variable's value stays text.
+        /// </summary>
         private static object EvaluateValue(object rawValue, CaptureFlowContext context)
         {
-            if (rawValue == null) return null;
-            if (rawValue is string s)
+            if (rawValue is JValue jValue)
             {
-                return ExpressionEvaluator.Instance.Evaluate(s, context);
-            }
-            if (rawValue is JValue jValue && jValue.Type == JTokenType.String)
-            {
-                string js = jValue.Value<string>();
-                return ExpressionEvaluator.Instance.Evaluate(js, context);
+                return jValue.Value;
             }
             return rawValue;
         }

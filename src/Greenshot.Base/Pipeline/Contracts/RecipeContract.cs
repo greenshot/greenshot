@@ -86,7 +86,7 @@ namespace Greenshot.Base.Pipeline.Contracts
                             string varName = !string.IsNullOrWhiteSpace(arg.Variable) ? arg.Variable : arg.Name;
                             inputsMap[varName] = new VariableContract(
                                 varName,
-                                ContractDataType.String,
+                                arg.Type,
                                 arg.Required,
                                 arg.Description ?? $"Command-line argument --{arg.Name}",
                                 arg.DefaultValue);

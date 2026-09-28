@@ -221,11 +221,15 @@ namespace Greenshot.Pipeline
                 {
                     try
                     {
-                        // Dynamically resolve expressions in node parameters prior to execution
-                        var resolvedConfig = nodeConfig.Clone();
-                        resolvedConfig.Parameters = ExpressionEvaluator.Instance.ResolveParameters(nodeConfig.Parameters, nodeContext);
-
-                        var step = _stepFactory(resolvedConfig);
+                        // Expressions in node parameters are evaluated exactly once: here, or by the step itself when it
+                        // implements IEvaluatesOwnParameters (it then receives the raw parameters). See IEvaluatesOwnParameters.
+                        var step = _stepFactory(nodeConfig.Clone());
+                        if (step != null && !(step is IEvaluatesOwnParameters))
+                        {
+                            var resolvedConfig = nodeConfig.Clone();
+                            resolvedConfig.Parameters = ExpressionEvaluator.Instance.ResolveParameters(nodeConfig.Parameters, nodeContext);
+                            step = _stepFactory(resolvedConfig);
+                        }
                         if (step == null)
                         {
                             Log.WarnFormat("Could not resolve executable step for node '{0}' [{1}]", nodeConfig.Id, nodeConfig.StepType);

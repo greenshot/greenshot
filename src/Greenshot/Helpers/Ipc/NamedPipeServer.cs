@@ -47,6 +47,12 @@ namespace Greenshot.Helpers.Ipc
         public event EventHandler<IpcEnvelope> MessageReceived;
         public event Func<IpcRequestContext, Task> RequestReceived;
 
+        /// <summary>
+        /// Checks the extension origin announced in the HELLO of a native_messaging connection.
+        /// Defaults to the official extensions plus the host manifests next to Greenshot, see <see cref="ExtensionOriginPolicy"/>.
+        /// </summary>
+        public Func<string, bool> ExtensionOriginValidator { get; set; } = ExtensionOriginPolicy.ForApplicationDirectory().IsAllowed;
+
         public NamedPipeServer() : this(NamedPipeEndpoint.GetPipeName())
         {
         }
@@ -198,6 +204,14 @@ namespace Greenshot.Helpers.Ipc
                                 break;
                             }
 
+                            if (string.Equals(envelope.Source, IpcSources.NativeMessaging, StringComparison.OrdinalIgnoreCase) &&
+                                !IsExtensionOriginAllowed(envelope.Origin))
+                            {
+                                Log.Warn($"[SECURITY] Named pipe connection rejected: browser extension origin '{envelope.Origin}' is not allowed.");
+                                await RejectAsync(stream, connectionWriteLock, "[SECURITY] Connection rejected: this browser extension is not allowed to use Greenshot.", cancellationToken).ConfigureAwait(false);
+                                break;
+                            }
+
                             connectionSource = envelope.Source.ToLowerInvariant();
                             connectionOrigin = envelope.Origin;
                             connectionUsesTextFrames = string.Equals(replyFormat, IpcSources.ReplyFormatText, StringComparison.OrdinalIgnoreCase);
@@ -256,6 +270,24 @@ namespace Greenshot.Helpers.Ipc
                 {
                     Log.Error("Error processing incoming message from named pipe client", ex);
                 }
+            }
+        }
+
+        private bool IsExtensionOriginAllowed(string origin)
+        {
+            var validator = ExtensionOriginValidator;
+            if (validator == null)
+            {
+                return false;
+            }
+            try
+            {
+                return validator(origin);
+            }
+            catch (Exception ex)
+            {
+                Log.Warn("Extension origin validation failed", ex);
+                return false;
             }
         }
 

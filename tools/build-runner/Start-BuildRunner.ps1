@@ -37,6 +37,7 @@ $RequestDir = Join-Path $RunnerDir 'requests'
 $ResultDir = Join-Path $RunnerDir 'results'
 $CancelFile = Join-Path $RunnerDir 'cancel'
 $Solution = Join-Path $RepoRoot 'src\Greenshot.sln'
+$BuildTasksProject = Join-Path $RepoRoot 'src\Greenshot.BuildTasks\Greenshot.BuildTasks.csproj'
 $TestProject = Join-Path $RepoRoot 'src\Greenshot.Tests\Greenshot.Tests.csproj'
 
 New-Item -ItemType Directory -Force -Path $RequestDir, $ResultDir | Out-Null
@@ -117,8 +118,14 @@ function Invoke-Request {
 
     if ($action -in @('build', 'verify')) {
         if (-not $MSBuild) { throw 'MSBuild (Visual Studio or Build Tools with C++ workload) not found; needed for the C++ proxy projects.' }
-        $summary.build_exit_code = Invoke-Step -Name 'build' -Exe $MSBuild -Log $log -Arguments @(
-            "`"$Solution`"", '/restore', "/p:Configuration=$configuration", '/m', '/nologo', '/v:minimal', '/clp:Summary;ErrorsOnly;WarningsOnly')
+        # The build tasks are built on their own first: projects in the solution load Greenshot.BuildTasks.dll from its bin
+        # folder, so building it within the same (parallel) build can collide with its own copy step (file in use).
+        $summary.build_exit_code = Invoke-Step -Name 'buildtasks' -Exe $MSBuild -Log $log -Arguments @(
+            "`"$BuildTasksProject`"", '/restore', "/p:Configuration=$configuration", '/nodeReuse:false', '/nologo', '/v:minimal', '/clp:Summary;ErrorsOnly;WarningsOnly')
+        if ($summary.build_exit_code -eq 0) {
+            $summary.build_exit_code = Invoke-Step -Name 'build' -Exe $MSBuild -Log $log -Arguments @(
+                "`"$Solution`"", '/restore', "/p:Configuration=$configuration", '/m', '/nodeReuse:false', '/nologo', '/v:minimal', '/clp:Summary;ErrorsOnly;WarningsOnly')
+        }
     }
 
     if ($action -eq 'test' -or ($action -eq 'verify' -and $summary.build_exit_code -eq 0)) {

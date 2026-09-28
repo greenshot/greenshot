@@ -22,7 +22,6 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Greenshot.Base.Expressions;
 using Greenshot.Base.Pipeline;
 using Greenshot.Base.Pipeline.Contracts;
 using Greenshot.Base.Recipes;
@@ -67,10 +66,11 @@ namespace Greenshot.Pipeline.Steps
                 ?? NodeConfig.GetParameter<string>("error");
 
             string evaluatedText = string.Empty;
+            // The engine already evaluated the expressions in the parameters; evaluating the result again would expand
+            // ${...} text that came from data (e.g. OCR or barcode text). See IEvaluatesOwnParameters.
             if (!string.IsNullOrWhiteSpace(rawText))
             {
-                object evaluated = ExpressionEvaluator.Instance.Evaluate(rawText, context);
-                evaluatedText = evaluated?.ToString() ?? string.Empty;
+                evaluatedText = rawText;
             }
 
             int exitCode = NodeConfig.GetParameter<int>("ExitCode", 1);

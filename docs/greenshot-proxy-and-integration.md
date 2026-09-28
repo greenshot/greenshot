@@ -101,6 +101,7 @@ The first frame on every connection is a `HELLO` written by the executable itsel
 
 * Greenshot binds the source to the connection and **overwrites the `source` of every later envelope** with it. Data relayed from a browser can therefore never claim to be the command line.
 * A connection whose first frame is not a valid `HELLO`, or that sends a second `HELLO`, receives an error frame and is closed.
+* For `native_messaging` the `origin` (Chromium: `chrome-extension://<id>/`, Firefox: the extension id, both as passed by the browser) must be allowed by `ExtensionOriginPolicy`: the official extension IDs, plus the `allowed_origins` / `allowed_extensions` of the host manifests (`org.greenshot.proxy.json`, `org.greenshot.proxy-firefox.json`) next to Greenshot. The manifests are read on each connection, so a development extension ID saved by the self-service debug page works without restarting. Any other origin, or none, is rejected.
 
 #### `CLI` requests
 The raw arguments are parsed by `CliCommandParser` according to the connection source: `cli` accepts the full command line syntax, `url_scheme` exactly one `greenshot:` URL, `open_with` only file paths. The resulting command (`RUN_RECIPE`, `LIST_RECIPES`, `OPEN_FILE`, ...) is then dispatched like any other request, **including the per-source whitelist**. `--query` is only accepted from `cli` connections, because it evaluates arbitrary expressions (including environment and configuration values).
@@ -189,6 +190,11 @@ When handling file paths (e.g. `OPEN_FILE` or `-f` arguments passed to CLI recip
 * **CWD Resolution**: Relative paths passed from the CLI are resolved against the caller's working directory (`cwd`), canonicalized via `Path.GetFullPath()`, and verified to exist before being passed into the capture pipeline.
 * **URL Scheme Local File Block**: Opening arbitrary local files via `greenshot:` URLs is **strictly forbidden**. Web pages cannot trigger Greenshot to open or read files on disk.
 
+### 3.2a Imported captures (`IMPORT_CAPTURE`)
+* Only PNG and JPEG (checked by signature) are accepted, so GDI+ never parses metafiles, TIFF or icons coming from a browser.
+* The dimensions are read from the image header before decoding: at most 32767 pixels per side and 100 megapixels, so a small file announcing a huge image cannot exhaust memory.
+* Every request is acknowledged with `{"status":"ok","reply_to":"IMPORT_CAPTURE","exit_code":0,"width":...,"height":...}` or `{"status":"error","reply_to":"IMPORT_CAPTURE","exit_code":1,"stderr":"..."}`.
+
 ### 3.3 Recipe Trigger Gating
 A recipe cannot be invoked via the proxy unless it has explicitly configured the corresponding trigger:
 * To be triggered by `greenshot-proxy -r <id>` or `greenshot:recipe/<id>`, the recipe **must** include a `CommandlineTrigger`.
@@ -241,7 +247,12 @@ External callers can supply runtime context that becomes variables inside the re
    - `${Browser.Domain}`: Hostname (e.g. `github.com`)
    - `${Browser.Title}`: Document title
    - `${Browser.Ticket}`: Extracted ticket/issue ID (e.g. `JIRA-1234`)
-2. **CLI Parameters**: Any `key=value`, `--key=value` or `--key value` passed after `greenshot --recipe <cmd>` is accessible as `${key}` (or as the declared argument's `variable`) in node expressions, file naming templates, and dynamic destination steps.
+2. **CLI Parameters**: `key=value`, `--key=value` or `--key value` passed after `greenshot --recipe <cmd>` are bound by `CommandlineArgumentBinder` against the `arguments` declared on the recipe's `CommandlineTrigger`:
+   - Only declared arguments are accepted; anything else (including names of built-in variables) fails with exit code 2 and the list of accepted arguments. A recipe without declared arguments accepts none.
+   - Required arguments must be supplied, missing optional ones get their `defaultValue`.
+   - The value is stored only under the argument's `variable` (defaults to its `name`), so `${variable}` is available in node expressions, file naming templates and destination steps.
+   - The argument's `type` converts and checks the value: `Integer`, `Decimal`, `Boolean` (true/false, yes/no, on/off, 1/0), `Enum` or `allowedValues` (case-insensitive, canonical spelling is stored), and `FilePath` / `DirectoryPath`, which are validated like `-f` paths (3.2) and resolved against the caller's working directory. Other arguments stay plain strings and are never treated as paths.
+   - Values are data: they are not evaluated as expressions. Each node parameter is evaluated exactly once by the engine, so `${...}` inside a supplied value is never expanded.
 
 ### 4.3 Outputting to Stdout or Dynamic Destinations
 * **CLI Stdout Output**: A recipe with an OCR node can route text output back to the proxy, which writes it directly to the caller's console stdout.

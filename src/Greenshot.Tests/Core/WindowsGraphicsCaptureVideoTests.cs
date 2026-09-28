@@ -147,13 +147,23 @@ namespace Greenshot.Tests.Core
 
             // Now test STA to MTA cross-apartment invocation
             ID3D11Texture2D staTex = null;
+            Exception staException = null;
             var staThread = new System.Threading.Thread(() =>
             {
-                d3d11Device.CreateTexture2D(ref desc, IntPtr.Zero, out staTex);
+                // An exception on a raw thread would crash the whole test host, so report it to the test instead
+                try
+                {
+                    d3d11Device.CreateTexture2D(ref desc, IntPtr.Zero, out staTex);
+                }
+                catch (Exception ex)
+                {
+                    staException = ex;
+                }
             });
             staThread.SetApartmentState(System.Threading.ApartmentState.STA);
             staThread.Start();
             staThread.Join();
+            Assert.True(staException == null, $"Using the cached Direct3D11 device from an STA thread failed: {staException}");
 
             _output.WriteLine("Calling context.CopyResource with staTex from MTA thread...");
             context.CopyResource(tex2, staTex);

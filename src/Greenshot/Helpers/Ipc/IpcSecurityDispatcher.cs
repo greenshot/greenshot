@@ -394,7 +394,7 @@ namespace Greenshot.Helpers.Ipc
                     break;
 
                 case "IMPORT_CAPTURE":
-                    HandleImportCapture(context, mainForm);
+                    await HandleImportCaptureAsync(context, mainForm).ConfigureAwait(false);
                     break;
 
                 case "TAB_CHANGED":
@@ -520,75 +520,102 @@ namespace Greenshot.Helpers.Ipc
             Log.Info("Handshake response sent successfully.");
         }
 
-        private static void HandleImportCapture(IpcRequestContext context, Form mainForm)
+        /// <summary>
+        /// Imports a browser capture. The image is validated (PNG/JPEG only, dimension limits) before it is decoded,
+        /// then handed to the UI thread. The extension gets an acknowledgement with "reply_to": "IMPORT_CAPTURE":
+        /// status "ok" when the capture was accepted, or "error" with the reason.
+        /// </summary>
+        private static async Task HandleImportCaptureAsync(IpcRequestContext context, Form mainForm)
         {
-            string base64Payload = context.Envelope.Data?.Payload;
-            if (string.IsNullOrWhiteSpace(base64Payload))
+            if (!ImportCaptureDecoder.TryDecode(context.Envelope.Data?.Payload, out Bitmap importedBmp, out string error))
             {
-                Log.Warn("IMPORT_CAPTURE rejected: Missing or empty payload.");
+                Log.Warn($"IMPORT_CAPTURE rejected: {error}.");
+                await ReplyImportCaptureAsync(context, false, $"Error: {error}.").ConfigureAwait(false);
                 return;
+            }
+
+            if (mainForm == null || mainForm.IsDisposed)
+            {
+                importedBmp.Dispose();
+                Log.Warn("IMPORT_CAPTURE rejected: Greenshot is not ready to import captures.");
+                await ReplyImportCaptureAsync(context, false, "Error: Greenshot is not ready to import captures.").ConfigureAwait(false);
+                return;
+            }
+
+            string title = context.Envelope.Metadata?.Title ?? context.Envelope.Title ?? "Browser Capture";
+            string url = context.Envelope.Metadata?.Url ?? context.Envelope.Url ?? string.Empty;
+            string browser = context.Envelope.Browser;
+            int width = importedBmp.Width;
+            int height = importedBmp.Height;
+
+            if (!string.IsNullOrEmpty(url))
+            {
+                BrowserContextTracker.Instance.UpdateContext(url, title);
             }
 
             try
             {
-                byte[] imageBytes = Convert.FromBase64String(base64Payload);
-                if (imageBytes.Length == 0)
+                mainForm.BeginInvoke(new Action(() =>
                 {
-                    Log.Warn("IMPORT_CAPTURE rejected: Zero length decoded byte array.");
-                    return;
-                }
-
-                // Strictly validate in memory by loading into Bitmap
-                using (var ms = new MemoryStream(imageBytes))
-                using (var sourceBmp = new Bitmap(ms))
-                {
-                    // Clone bitmap so it remains valid after MemoryStream is disposed
-                    var importedBmp = new Bitmap(sourceBmp);
-
-                    string title = context.Envelope.Metadata?.Title ?? context.Envelope.Title ?? "Browser Capture";
-                    string url = context.Envelope.Metadata?.Url ?? context.Envelope.Url ?? string.Empty;
-
-                    if (!string.IsNullOrEmpty(url))
+                    try
                     {
-                        BrowserContextTracker.Instance.UpdateContext(url, title);
+                        var details = new CaptureDetails
+                        {
+                            Title = title,
+                            CaptureMode = CaptureMode.Import
+                        };
+                        if (!string.IsNullOrEmpty(url))
+                        {
+                            details.AddMetaData("url", url);
+                        }
+                        if (!string.IsNullOrEmpty(browser))
+                        {
+                            details.AddMetaData("browser", browser);
+                        }
+
+                        var capture = new Capture
+                        {
+                            Image = importedBmp,
+                            CaptureDetails = details
+                        };
+                        CaptureHelper.ImportExtensionCapture(capture, browser);
+                        Log.Info($"Browser capture successfully imported into pipeline. Title='{title}' Browser='{browser}'");
                     }
-
-                    mainForm?.BeginInvoke(new Action(() =>
+                    catch (Exception ex)
                     {
-                        try
-                        {
-                            var details = new CaptureDetails
-                            {
-                                Title = title,
-                                CaptureMode = CaptureMode.Import
-                            };
-                            if (!string.IsNullOrEmpty(url))
-                            {
-                                details.AddMetaData("url", url);
-                            }
-                            if (!string.IsNullOrEmpty(context.Envelope.Browser))
-                            {
-                                details.AddMetaData("browser", context.Envelope.Browser);
-                            }
+                        Log.Error("Error forwarding imported capture to CaptureHelper", ex);
+                    }
+                }));
+            }
+            catch (InvalidOperationException ex)
+            {
+                // The window handle is gone (Greenshot is shutting down)
+                importedBmp.Dispose();
+                Log.Warn("IMPORT_CAPTURE could not be handed to the UI thread", ex);
+                await ReplyImportCaptureAsync(context, false, "Error: Greenshot is not ready to import captures.").ConfigureAwait(false);
+                return;
+            }
 
-                            var capture = new Capture
-                            {
-                                Image = importedBmp,
-                                CaptureDetails = details
-                            };
-                            CaptureHelper.ImportExtensionCapture(capture, context.Envelope.Browser);
-                            Log.Info($"Browser capture successfully imported into pipeline. Title='{title}' Browser='{context.Envelope.Browser}'");
-                        }
-                        catch (Exception ex)
-                        {
-                            Log.Error("Error forwarding imported capture to CaptureHelper", ex);
-                        }
-                    }));
+            Log.Debug($"IMPORT_CAPTURE accepted ({width}x{height}).");
+            await ReplyImportCaptureAsync(context, true, null, width, height).ConfigureAwait(false);
+        }
+
+        private static async Task ReplyImportCaptureAsync(IpcRequestContext context, bool success, string stderr, int width = 0, int height = 0)
+        {
+            try
+            {
+                if (success)
+                {
+                    await context.ReplyAsync(new { status = "ok", reply_to = "IMPORT_CAPTURE", exit_code = 0, width, height }).ConfigureAwait(false);
+                }
+                else
+                {
+                    await context.ReplyAsync(new { status = "error", reply_to = "IMPORT_CAPTURE", exit_code = 1, stderr }).ConfigureAwait(false);
                 }
             }
             catch (Exception ex)
             {
-                Log.Error("Failed to decode or validate imported capture image surface", ex);
+                Log.Debug("Could not send the IMPORT_CAPTURE acknowledgement", ex);
             }
         }
 
@@ -676,7 +703,9 @@ namespace Greenshot.Helpers.Ipc
                                 variable = string.IsNullOrWhiteSpace(a.Variable) ? a.Name : a.Variable,
                                 description = a.Description ?? string.Empty,
                                 required = a.Required,
-                                default_value = a.DefaultValue
+                                default_value = a.DefaultValue,
+                                type = a.Type.ToString(),
+                                allowed_values = a.AllowedValues
                             })
                         });
                     }
@@ -937,123 +966,37 @@ namespace Greenshot.Helpers.Ipc
 
             var recipeToExecute = TriggerRecipePreparer.Prepare(matchedRecipe, cmdTrigger);
 
-            var cliParams = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+            // Arguments from the caller: CLI "key=value" arguments, or the query string of a greenshot: URL.
+            // "recipe" is the target itself (from greenshot://recipe/<id>), not an argument.
+            var suppliedArguments = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             if (context.Envelope.Parameters != null)
             {
                 foreach (var kvp in context.Envelope.Parameters)
                 {
-                    cliParams[kvp.Key] = kvp.Value;
+                    suppliedArguments[kvp.Key] = kvp.Value;
                 }
             }
             if (context.Envelope.Parsed?.Parameters != null)
             {
                 foreach (var kvp in context.Envelope.Parsed.Parameters)
                 {
-                    cliParams[kvp.Key] = kvp.Value;
+                    suppliedArguments[kvp.Key] = kvp.Value;
                 }
             }
+            suppliedArguments.Remove("recipe");
 
-            // 1. Resolve relative paths in any parameter whose value points to an existing file/directory relative to CWD
-            if (!string.IsNullOrWhiteSpace(context.Envelope.Cwd))
+            // Only declared arguments are accepted, converted according to their declared type (see CommandlineArgumentBinder)
+            var binding = CommandlineArgumentBinder.Bind(declaredArgs, suppliedArguments, cmdName, context.Envelope.Cwd, context.Envelope.Source);
+            if (!binding.Success)
             {
-                var keysToUpdate = new List<(string Key, string ResolvedPath)>();
-                foreach (var kvp in cliParams)
+                Log.Warn($"RUN_RECIPE '{matchedRecipe.Id}' rejected: {binding.Error}");
+                await context.ReplyAsync(new
                 {
-                    if (kvp.Value is string strVal && !string.IsNullOrWhiteSpace(strVal) && !Path.IsPathRooted(strVal))
-                    {
-                        if (TrySanitizeAndResolvePath(strVal, context.Envelope.Cwd, context.Envelope.Source, out string resolved, out _))
-                        {
-                            if (File.Exists(resolved) || Directory.Exists(resolved))
-                            {
-                                keysToUpdate.Add((kvp.Key, resolved));
-                            }
-                        }
-                    }
-                }
-                foreach (var (k, res) in keysToUpdate)
-                {
-                    cliParams[k] = res;
-                }
-            }
-
-            // 2. Validate and map declared arguments
-            if (declaredArgs.Count > 0)
-            {
-                foreach (var arg in declaredArgs)
-                {
-                    if (string.IsNullOrWhiteSpace(arg.Name)) continue;
-                    string varName = !string.IsNullOrWhiteSpace(arg.Variable) ? arg.Variable : arg.Name;
-
-                    object val = null;
-                    if (cliParams.TryGetValue(arg.Name, out var v1) && v1 != null && !(v1 is string s1 && string.IsNullOrWhiteSpace(s1)))
-                    {
-                        val = v1;
-                    }
-                    else if (cliParams.TryGetValue(varName, out var v2) && v2 != null && !(v2 is string s2 && string.IsNullOrWhiteSpace(s2)))
-                    {
-                        val = v2;
-                    }
-
-                    if (val == null && !string.IsNullOrEmpty(arg.DefaultValue))
-                    {
-                        val = arg.DefaultValue;
-                    }
-
-                    if (arg.Required && (val == null || (val is string sv && string.IsNullOrWhiteSpace(sv))))
-                    {
-                        string descHint = string.IsNullOrWhiteSpace(arg.Description) ? "" : $" ({arg.Description})";
-                        await context.ReplyAsync(new
-                        {
-                            status = "error",
-                            exit_code = 1,
-                            stderr = $"Missing required argument '{arg.Name}'{descHint}."
-                        }).ConfigureAwait(false);
-                        return;
-                    }
-
-                    if (val != null)
-                    {
-                        cliParams[varName] = val;
-                        cliParams[arg.Name] = val;
-                    }
-                }
-            }
-            else
-            {
-                // Fallback alias mapping when no explicit arguments are declared
-                if (!cliParams.ContainsKey("Filename"))
-                {
-                    if (cliParams.TryGetValue("file", out var fVal))
-                    {
-                        cliParams["Filename"] = fVal;
-                    }
-                    else if (cliParams.TryGetValue("path", out var pVal))
-                    {
-                        cliParams["Filename"] = pVal;
-                    }
-                }
-            }
-
-            // 3. If Filename is present, validate and sanitize it
-            if (cliParams.TryGetValue("Filename", out var fnObj) && fnObj is string fnStr && !string.IsNullOrWhiteSpace(fnStr))
-            {
-                if (TrySanitizeAndResolvePath(fnStr, context.Envelope.Cwd, context.Envelope.Source, out string fullPath, out string sanitizeErr))
-                {
-                    cliParams["Filename"] = fullPath;
-                    cliParams["file"] = fullPath;
-                    cliParams["path"] = fullPath;
-                }
-                else
-                {
-                    Log.Warn($"[SECURITY] RUN_RECIPE rejected invalid filename '{fnStr}': {sanitizeErr}");
-                    await context.ReplyAsync(new
-                    {
-                        status = "error",
-                        exit_code = 1,
-                        stderr = $"[SECURITY] Invalid filename parameter: {sanitizeErr}"
-                    }).ConfigureAwait(false);
-                    return;
-                }
+                    status = "error",
+                    exit_code = CliCommandParser.UsageExitCode,
+                    stderr = binding.Error
+                }).ConfigureAwait(false);
+                return;
             }
 
             // --query and --json are protocol options (top-level envelope fields), never recipe arguments
@@ -1084,7 +1027,7 @@ namespace Greenshot.Helpers.Ipc
 
             Action<CaptureFlowContext> configureContext = flowCtx =>
             {
-                foreach (var kv in cliParams)
+                foreach (var kv in binding.Variables)
                 {
                     flowCtx.Properties[kv.Key] = kv.Value;
                 }

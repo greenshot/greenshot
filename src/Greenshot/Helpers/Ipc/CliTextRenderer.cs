@@ -170,6 +170,16 @@ namespace Greenshot.Helpers.Ipc
                 string description = GetString(argument, "description");
                 string defaultValue = GetString(argument, "default_value") ?? GetString(argument, "defaultValue");
                 bool required = GetBool(argument, "required");
+                string type = GetString(argument, "type");
+                var allowedToken = GetToken(argument, "allowed_values") ?? GetToken(argument, "allowedValues");
+                if (allowedToken is JArray allowedValues && allowedValues.Count > 0)
+                {
+                    description = $"{description} [{string.Join("|", allowedValues.Values<string>())}]".Trim();
+                }
+                if (!string.IsNullOrEmpty(type) && !string.Equals(type, "String", StringComparison.OrdinalIgnoreCase))
+                {
+                    description = $"{description} <{type}>".Trim();
+                }
 
                 if (required)
                 {

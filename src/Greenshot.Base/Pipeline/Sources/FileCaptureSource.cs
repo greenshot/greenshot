@@ -27,7 +27,6 @@ using System.Threading.Tasks;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Core.FileFormatHandlers;
-using Greenshot.Base.Expressions;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Recipes;
 using log4net;
@@ -66,10 +65,11 @@ namespace Greenshot.Base.Pipeline.Sources
                     _nodeConfig.Parameters.TryGetValue("Path", out cfgVal) ||
                     _nodeConfig.Parameters.TryGetValue("path", out cfgVal))
                 {
-                    if (cfgVal is string strVal && !string.IsNullOrWhiteSpace(strVal))
+                    // Already evaluated by the engine (e.g. "${Filename}"); must not be evaluated again
+                    string configured = cfgVal?.ToString();
+                    if (!string.IsNullOrWhiteSpace(configured))
                     {
-                        object evaluated = ExpressionEvaluator.Instance.Evaluate(strVal, context);
-                        filename = evaluated?.ToString();
+                        filename = configured;
                     }
                 }
             }

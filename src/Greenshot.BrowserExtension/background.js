@@ -80,6 +80,14 @@ function connectNativeHost() {
 function onNativeMessage(msg) {
   if (!msg) return;
 
+  // Acknowledgement of an imported capture: "ok" (with width/height) or "error" with the reason in stderr
+  if (msg.reply_to === "IMPORT_CAPTURE") {
+    if (msg.status !== "ok") {
+      console.warn("Greenshot rejected the capture:", msg.stderr);
+    }
+    return;
+  }
+
   if (msg.status === "unavailable" || msg.greenshot_running === false) {
     // Greenshot is offline
     isConnected = false;

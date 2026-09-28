@@ -18,6 +18,7 @@
           {
             "name": "file",
             "variable": "Filename",
+            "type": "FilePath",
             "description": "Path to the input image to annotate",
             "required": true
           }

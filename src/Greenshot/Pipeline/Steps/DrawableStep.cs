@@ -55,7 +55,7 @@ namespace Greenshot.Pipeline.Steps
     [Contracts.StepInfo(WellKnownStepTypes.Annotation, "Add Annotation", "Attaches drawable annotations (shapes, text, arrows, icons, blur, stamps) to the capture surface.", "Annotations")]
     [Contracts.StepPayload(RawCapture = Contracts.PayloadRequirement.Required, Surface = Contracts.PayloadRequirement.Required, VisualMutation = Contracts.PayloadEffect.AddsAnnotations)]
     [Contracts.StepParameter("drawableType", Contracts.ContractDataType.String, Required = false, Description = "Type of annotation (Text, Rectangle, Arrow, Icon, Blur, SpeechBubble, etc.)")]
-    public class AnnotationStep : ICaptureStep
+    public class AnnotationStep : ICaptureStep, IEvaluatesOwnParameters
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(AnnotationStep));
 

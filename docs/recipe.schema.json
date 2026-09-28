@@ -794,6 +794,17 @@
         "defaultValue": {
           "type": "string",
           "description": "Default value applied when the argument is omitted by the user."
+        },
+        "type": {
+          "type": "string",
+          "enum": [ "String", "Integer", "Decimal", "Boolean", "FilePath", "DirectoryPath", "Enum", "Object" ],
+          "default": "String",
+          "description": "Type of the value. FilePath/DirectoryPath values are sanitized and resolved against the caller's working directory; Integer, Decimal and Boolean values are parsed; Enum values must be one of allowedValues. Only declared arguments are accepted by a recipe."
+        },
+        "allowedValues": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Accepted values (required for type Enum, optional restriction for String)."
         }
       }
     }

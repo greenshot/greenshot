@@ -25,6 +25,7 @@
           {
             "name": "file",
             "variable": "Filename",
+            "type": "FilePath",
             "description": "Path to the bitmap image containing the QR code",
             "required": true
           }

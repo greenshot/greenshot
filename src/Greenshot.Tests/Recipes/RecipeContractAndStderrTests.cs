@@ -67,8 +67,7 @@ namespace Greenshot.Tests.Recipes
                 }
             };
 
-            var step = new StderrStep(nodeConfig);
-            await step.ExecuteAsync(context);
+            await SingleNodeRunner.RunAsync(nodeConfig, cfg => new StderrStep(cfg), context);
 
             Assert.Equal("Fatal error occurred with code: ERR_404", capturedStderr);
             Assert.Equal(42, context.ExitCode);
@@ -101,8 +100,7 @@ namespace Greenshot.Tests.Recipes
                 }
             };
 
-            var step = new StderrStep(nodeConfig);
-            await step.ExecuteAsync(context);
+            await SingleNodeRunner.RunAsync(nodeConfig, cfg => new StderrStep(cfg), context);
 
             Assert.Equal("A non-fatal error occurred", capturedStderr);
             Assert.Equal(2, context.ExitCode);

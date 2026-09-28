@@ -592,7 +592,9 @@ namespace Greenshot.Tests.Ipc
             {
                 var testRecipe = new CaptureRecipe("recipe_my_task", "My Task")
                     .AddNode(new RecipeNodeConfig { Id = "s1", StepType = WellKnownStepTypes.Source, Parameters = new Dictionary<string, object> { ["SourceType"] = CaptureSourceType.Clipboard } })
-                    .AddTrigger(TriggerConfig.CreateCommandline("my-task", fireAndForget: true).SetParameter("AllowBrowserInvocation", true));
+                    .AddTrigger(TriggerConfig.CreateCommandline("my-task", fireAndForget: true,
+                            arguments: new[] { new CommandlineArgument { Name = "destination", Variable = "Destination" } })
+                        .SetParameter("AllowBrowserInvocation", true));
                 RecipeManager.Instance.RegisterRecipe(testRecipe);
             }
 

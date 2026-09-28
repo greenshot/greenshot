@@ -18,12 +18,15 @@
           {
             "name": "file",
             "variable": "Filename",
+            "type": "FilePath",
             "description": "Path to the input image file to convert",
             "required": true
           },
           {
             "name": "format",
             "variable": "Format",
+            "type": "Enum",
+            "allowedValues": [ "png", "jpg", "webp", "bmp", "gif", "tiff" ],
             "description": "Target image format (png, jpg, webp, bmp, gif, tiff)",
             "required": false,
             "defaultValue": "jpg"

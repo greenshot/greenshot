@@ -18,6 +18,7 @@
           {
             "name": "file",
             "variable": "Filename",
+            "type": "FilePath",
             "description": "Path to the image file to extract text from",
             "required": true
           },

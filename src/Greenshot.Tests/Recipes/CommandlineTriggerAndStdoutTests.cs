@@ -91,8 +91,11 @@ namespace Greenshot.Tests.Recipes
                     }
                 };
 
-                var source = new FileCaptureSource(nodeConfig);
-                var payload = await source.AcquireAsync(context);
+                // Run through the engine, which resolves "${CustomFilePath}" before the source sees it
+                ICapturePayload payload = null;
+                await SingleNodeRunner.RunAsync(nodeConfig,
+                    cfg => new MockTestStep(cfg.Id, async ctx => payload = await new FileCaptureSource(cfg).AcquireAsync(ctx)),
+                    context);
 
                 Assert.NotNull(payload);
                 Assert.False(context.IsAborted);
@@ -131,8 +134,7 @@ namespace Greenshot.Tests.Recipes
                 }
             };
 
-            var step = new StdoutStep(nodeConfig);
-            await step.ExecuteAsync(context);
+            await SingleNodeRunner.RunAsync(nodeConfig, cfg => new StdoutStep(cfg), context);
 
             Assert.Single(streamedOutput);
             Assert.Equal("Output: Hello from pipeline", streamedOutput[0]);

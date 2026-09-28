@@ -19,6 +19,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System.Collections.Generic;
+using Greenshot.Base.Pipeline.Contracts;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+
 namespace Greenshot.Base.Triggers
 {
     /// <summary>
@@ -53,5 +58,24 @@ namespace Greenshot.Base.Triggers
         /// Default value assigned if the user does not provide this argument.
         /// </summary>
         public string DefaultValue { get; set; }
+
+        /// <summary>
+        /// Type of the value. Decides how the value is validated and converted before it is stored in the flow context:
+        /// FilePath / DirectoryPath values are sanitized and resolved against the caller's working directory,
+        /// Integer / Decimal / Boolean values are parsed, Enum values must be one of <see cref="AllowedValues"/>.
+        /// </summary>
+        [JsonConverter(typeof(StringEnumConverter))]
+        public ContractDataType Type { get; set; } = ContractDataType.String;
+
+        /// <summary>
+        /// Optional list of accepted values (required for Enum, optional restriction for String).
+        /// </summary>
+        public List<string> AllowedValues { get; set; }
+
+        /// <summary>
+        /// The flow context variable this argument is stored in.
+        /// </summary>
+        [JsonIgnore]
+        public string EffectiveVariable => string.IsNullOrWhiteSpace(Variable) ? Name : Variable;
     }
 }

@@ -213,6 +213,7 @@ namespace Greenshot.Tests.Ipc
                     tcs.TrySetResult(ctx);
                     return Task.CompletedTask;
                 };
+                server.ExtensionOriginValidator = origin => origin == "chrome-extension://abc/";
                 server.Start();
 
                 using (var client = new NamedPipeClientStream(".", testPipeName, PipeDirection.InOut))
@@ -251,8 +252,8 @@ namespace Greenshot.Tests.Ipc
                 using (var client = new NamedPipeClientStream(".", testPipeName, PipeDirection.InOut))
                 {
                     client.Connect(3000);
-                    WriteFrame(client, "{\"version\":1,\"command\":\"HELLO\",\"source\":\"native_messaging\"}");
                     WriteFrame(client, "{\"version\":1,\"command\":\"HELLO\",\"source\":\"cli\"}");
+                    WriteFrame(client, "{\"version\":1,\"command\":\"HELLO\",\"source\":\"native_messaging\"}");
 
                     var response = await Task.Run(() => ReadFrame(client));
                     Assert.NotNull(response);
@@ -328,6 +329,108 @@ namespace Greenshot.Tests.Ipc
                     var response = await Task.Run(() => ReadFrame(client));
                     Assert.NotNull(response);
                     Assert.Equal("error", response.Value<string>("status"));
+                }
+            }
+        }
+
+        [Theory]
+        [InlineData("chrome-extension://someotherextension/")]
+        [InlineData("evil@example.com")]
+        [InlineData(null)]
+        public async Task NamedPipeServer_NativeMessaging_UnknownOrMissingOrigin_IsRejected(string origin)
+        {
+            string testPipeName = NamedPipeEndpoint.GetPipeName() + "_test_" + Guid.NewGuid().ToString("N");
+            bool requestReceived = false;
+
+            using (var server = new NamedPipeServer(testPipeName))
+            {
+                server.ExtensionOriginValidator = new ExtensionOriginPolicy(null).IsAllowed;
+                server.RequestReceived += ctx =>
+                {
+                    requestReceived = true;
+                    return Task.CompletedTask;
+                };
+                server.Start();
+
+                using (var client = new NamedPipeClientStream(".", testPipeName, PipeDirection.InOut))
+                {
+                    client.Connect(3000);
+                    var hello = new JObject { ["version"] = 1, ["command"] = "HELLO", ["source"] = "native_messaging" };
+                    if (origin != null)
+                    {
+                        hello["origin"] = origin;
+                    }
+                    // Only the HELLO: the server stops reading after rejecting it, and a flush of unread data would block
+                    WriteFrame(client, hello.ToString(Formatting.None));
+
+                    var readTask = Task.Run(() => ReadFrame(client));
+                    Assert.Same(readTask, await Task.WhenAny(readTask, Task.Delay(4000)));
+                    var response = await readTask;
+                    Assert.NotNull(response);
+                    Assert.Equal("error", response.Value<string>("status"));
+                    Assert.Contains("extension", response.Value<string>("stderr"));
+
+                    var closeTask = Task.Run(() => ReadFrame(client));
+                    Assert.Same(closeTask, await Task.WhenAny(closeTask, Task.Delay(4000)));
+                    Assert.Null(await closeTask);
+                }
+            }
+
+            Assert.False(requestReceived);
+        }
+
+        [Fact]
+        public async Task NamedPipeServer_NativeMessaging_OfficialOrigin_IsAcceptedByDefault()
+        {
+            string testPipeName = NamedPipeEndpoint.GetPipeName() + "_test_" + Guid.NewGuid().ToString("N");
+            var tcs = new TaskCompletionSource<IpcRequestContext>();
+
+            using (var server = new NamedPipeServer(testPipeName))
+            {
+                server.RequestReceived += ctx =>
+                {
+                    tcs.TrySetResult(ctx);
+                    return Task.CompletedTask;
+                };
+                server.Start();
+
+                using (var client = new NamedPipeClientStream(".", testPipeName, PipeDirection.InOut))
+                {
+                    client.Connect(3000);
+                    WriteFrame(client, "{\"version\":1,\"command\":\"HELLO\",\"source\":\"native_messaging\",\"origin\":\"chrome-extension://knldjmfmopnpolahpmmgbagdohdnhkik/\"}");
+                    WriteFrame(client, "{\"version\":1,\"command\":\"TAB_CHANGED\",\"url\":\"https://example.com\"}");
+
+                    var completed = await Task.WhenAny(tcs.Task, Task.Delay(4000));
+                    Assert.Same(tcs.Task, completed);
+                    Assert.Equal("native_messaging", (await tcs.Task).Envelope.Source);
+                }
+            }
+        }
+
+        [Fact]
+        public async Task NamedPipeServer_OriginIsNotCheckedForOtherSources()
+        {
+            string testPipeName = NamedPipeEndpoint.GetPipeName() + "_test_" + Guid.NewGuid().ToString("N");
+            var tcs = new TaskCompletionSource<IpcRequestContext>();
+
+            using (var server = new NamedPipeServer(testPipeName))
+            {
+                server.ExtensionOriginValidator = origin => false;
+                server.RequestReceived += ctx =>
+                {
+                    tcs.TrySetResult(ctx);
+                    return Task.CompletedTask;
+                };
+                server.Start();
+
+                using (var client = new NamedPipeClientStream(".", testPipeName, PipeDirection.InOut))
+                {
+                    client.Connect(3000);
+                    WriteFrame(client, "{\"version\":1,\"command\":\"HELLO\",\"source\":\"cli\"}");
+                    WriteFrame(client, "{\"version\":1,\"command\":\"VERSION\"}");
+
+                    var completed = await Task.WhenAny(tcs.Task, Task.Delay(4000));
+                    Assert.Same(tcs.Task, completed);
                 }
             }
         }
