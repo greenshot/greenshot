@@ -44,7 +44,7 @@
             "offsetX": -15,
             "offsetY": -12,
             "text": "Greenshot: ${now:HH:mm:ss}",
-            "textColor": "#FFFFFF",
+            "lineColor": "#FFFFFF",
             "fontSize": 9.0,
             "fontFamily": "Segoe UI",
             "bold": true,
@@ -58,9 +58,7 @@
       "stepType": "Editor",
       "name": "Editor",
       "enabled": true,
-      "parameters": {
-        "destination": "Editor"
-      }
+      "parameters": {}
     }
   ],
   "flow": {

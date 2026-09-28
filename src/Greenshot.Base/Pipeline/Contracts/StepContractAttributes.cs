@@ -34,6 +34,12 @@ namespace Greenshot.Base.Pipeline.Contracts
         public string Description { get; set; }
         public string Category { get; set; }
 
+        /// <summary>
+        /// The step also reads parameters that are not declared (e.g. the properties of an annotation), so undeclared
+        /// parameters are not reported.
+        /// </summary>
+        public bool AcceptsUndeclaredParameters { get; set; }
+
         public StepInfoAttribute(string stepType, string displayName = null, string description = null, string category = null)
         {
             StepType = stepType ?? throw new ArgumentNullException(nameof(stepType));
@@ -85,6 +91,12 @@ namespace Greenshot.Base.Pipeline.Contracts
         public string Description { get; set; }
         public string ExampleValue { get; set; }
 
+        /// <summary>The step does not always set this output (e.g. only when something was found).</summary>
+        public bool Conditional { get; set; }
+
+        /// <summary>With Conditional: the output is always set when the node has this parameter.</summary>
+        public string WhenParameter { get; set; }
+
         public StepOutputVariableAttribute(string name, ContractDataType dataType = ContractDataType.String, string description = null)
         {
             Name = name ?? throw new ArgumentNullException(nameof(name));
@@ -108,14 +120,18 @@ namespace Greenshot.Base.Pipeline.Contracts
     /// </summary>
     public static class StepContractBuilder
     {
-        public static StepContract FromType(Type stepType)
+        /// <param name="stepType">The step class.</param>
+        /// <param name="stepTypeName">Overrides the step type of [StepInfo], for a class registered under several step types with different meaning (e.g. Border and Effect).</param>
+        /// <param name="displayName">Overrides the display name.</param>
+        /// <param name="description">Overrides the description.</param>
+        public static StepContract FromType(Type stepType, string stepTypeName = null, string displayName = null, string description = null)
         {
             if (stepType == null) return null;
 
             var infoAttr = stepType.GetCustomAttribute<StepInfoAttribute>(true);
-            string stepTypeName = infoAttr?.StepType ?? stepType.Name;
-            string displayName = infoAttr?.DisplayName ?? stepTypeName;
-            string description = infoAttr?.Description ?? string.Empty;
+            stepTypeName ??= infoAttr?.StepType ?? stepType.Name;
+            displayName ??= stepTypeName == infoAttr?.StepType ? infoAttr?.DisplayName ?? stepTypeName : stepTypeName;
+            description ??= infoAttr?.Description ?? string.Empty;
             string category = infoAttr?.Category ?? "General";
 
             var paramAttrs = stepType.GetCustomAttributes<StepParameterAttribute>(true);
@@ -153,7 +169,11 @@ namespace Greenshot.Base.Pipeline.Contracts
                     v.DataType,
                     false,
                     v.Description,
-                    v.ExampleValue));
+                    v.ExampleValue)
+                {
+                    Conditional = v.Conditional,
+                    WhenParameter = v.WhenParameter
+                });
             }
 
             var payloadAttr = stepType.GetCustomAttribute<StepPayloadAttribute>(true);
@@ -174,7 +194,11 @@ namespace Greenshot.Base.Pipeline.Contracts
                 paramsList,
                 inVarsList,
                 outVarsList,
-                payloadContract);
+                payloadContract)
+            {
+                ImplementationType = stepType,
+                AcceptsUndeclaredParameters = infoAttr?.AcceptsUndeclaredParameters ?? false
+            };
         }
     }
 }

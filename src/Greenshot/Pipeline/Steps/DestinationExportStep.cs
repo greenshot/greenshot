@@ -29,12 +29,47 @@ namespace Greenshot.Pipeline.Steps
     /// Supports individual destination steps (File, Clipboard, Editor, Printer, Email, Custom)
     /// as well as custom storage directories, filename patterns, and clipboard format selections.
     /// </summary>
-    [Contracts.StepInfo(WellKnownStepTypes.Destinations, "Export Destinations", "Exports capture to one or more destinations (File, Clipboard, Editor, Printer, Email).", "Export")]
-    [Contracts.StepPayload(RawCapture = Contracts.PayloadRequirement.Required, Surface = Contracts.PayloadRequirement.Optional)]
-    [Contracts.StepParameter("destinations", Contracts.ContractDataType.Object, Required = false, Description = "Array or list of destination designations")]
-    [Contracts.StepParameter("path", Contracts.ContractDataType.FilePath, Required = false, Description = "Output path or directory when saving to file")]
-    [Contracts.StepParameter("format", Contracts.ContractDataType.Enum, Required = false, Description = "Output image format (png, jpg, bmp, tiff, greenshot)")]
-    [Contracts.StepOutputVariable("Destination.Filename", Contracts.ContractDataType.FilePath, "Path of the saved file (if file destination used)")]
+    [StepInfo(WellKnownStepTypes.Destinations, "Export Destinations", "Exports the capture to one or more destinations (file, clipboard, editor, printer, email, plugins).", "Export")]
+    [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Required, ExtractedText = PayloadRequirement.Optional)]
+    [StepParameter("DestinationDesignations", ContractDataType.Object, Description = "List of destination designations (default: settings)")]
+    [StepParameter("SaveDirectory", ContractDataType.DirectoryPath, Description = "Directory to save to")]
+    [StepParameter("FilenamePattern", ContractDataType.String, Description = "File name pattern (default: settings)")]
+    [StepParameter("Format", ContractDataType.Enum, Description = "Image format (default: settings)", AllowedValues = new[] { "png", "jpg", "bmp", "gif", "tiff", "greenshot" })]
+    [StepParameter("JpegQuality", ContractDataType.Integer, Description = "JPEG quality (1-100)")]
+    [StepParameter("ReduceColors", ContractDataType.Boolean, Description = "Reduce the image to 256 colors")]
+    [StepParameter("PromptQuality", ContractDataType.Boolean, Description = "Ask for the JPEG quality")]
+    [StepParameter("AllowOverwrite", ContractDataType.Boolean, Description = "Overwrite an existing file")]
+    [StepParameter("CopyPathToClipboard", ContractDataType.Boolean, Description = "Copy the saved file's path to the clipboard")]
+    [StepParameter("TargetEditor", ContractDataType.Enum, Description = "Editor to use (Editor)", AllowedValues = new[] { "NewEditor", "AvailableEditor", "CurrentEditor" })]
+    [StepParameter("MatchSizeToCapture", ContractDataType.Boolean, Description = "Size the editor to the capture (Editor)")]
+    [StepParameter("PrinterName", ContractDataType.String, Description = "Printer to use (Printer)")]
+    [StepParameter("ShowPrintDialog", ContractDataType.Boolean, Description = "Show the print options (Printer)")]
+    [StepParameter("AllowRotate", ContractDataType.Boolean, Description = "Rotate to fit the page (Printer)")]
+    [StepParameter("AllowEnlarge", ContractDataType.Boolean, Description = "Enlarge to fit the page (Printer)")]
+    [StepParameter("AllowShrink", ContractDataType.Boolean, Description = "Shrink to fit the page (Printer)")]
+    [StepParameter("Center", ContractDataType.Boolean, Description = "Center on the page (Printer)")]
+    [StepParameter("ColorMode", ContractDataType.Enum, Description = "Print colors (Printer)", AllowedValues = new[] { "Color", "Grayscale", "Monochrome" })]
+    [StepParameter("PrintFooter", ContractDataType.Boolean, Description = "Print a footer (Printer)")]
+    [StepParameter("FooterPattern", ContractDataType.String, Description = "Footer text pattern (Printer)")]
+    [StepParameter("ClipboardMode", ContractDataType.Enum, DefaultValue = "ImageOnly", Description = "What to copy (Clipboard); TextOnly copies the extracted or OCR text", AllowedValues = new[] { "ImageOnly", "TextOnly", "ImageAndText" })]
+    [StepParameter("ClipboardCustomText", ContractDataType.String, Description = "Text to copy instead of the OCR text; ${ocr_text} is the OCR text (Clipboard)")]
+    [StepParameter("ClipboardFormatPNG", ContractDataType.Boolean, DefaultValue = true, Description = "Copy as PNG (Clipboard)")]
+    [StepParameter("ClipboardFormatDIB", ContractDataType.Boolean, DefaultValue = true, Description = "Copy as DIB (Clipboard)")]
+    [StepParameter("ClipboardFormatDIBV5", ContractDataType.Boolean, Description = "Copy as DIBV5 (Clipboard)")]
+    [StepParameter("ClipboardFormatBitmap", ContractDataType.Boolean, Description = "Copy as bitmap (Clipboard)")]
+    [StepParameter("ClipboardFormatHTML", ContractDataType.Boolean, Description = "Copy as HTML (Clipboard)")]
+    [StepParameter("ClipboardFormatHTMLDataUrl", ContractDataType.Boolean, Description = "Copy as HTML with a data URL (Clipboard)")]
+    [StepParameter("ClipboardFormatText", ContractDataType.Boolean, Description = "Also copy the text (Clipboard)")]
+    [StepParameter("CustomDestinationId", ContractDataType.String, Description = "Destination designation (CustomDestination)")]
+    [StepInputVariable("OverrideDestinations", ContractDataType.Object, Description = "Destinations to use instead of the configured ones (set by the caller)")]
+    [StepInputVariable("EditorForm", ContractDataType.Object, Description = "The editor for TargetEditor CurrentEditor (set by the editor trigger)")]
+    [StepOutputVariable("Destination.Filename", ContractDataType.FilePath, "Path of the file to save (with SaveDirectory)", Conditional = true, WhenParameter = "SaveDirectory")]
+    [StepOutputVariable("Destination.SaveDirectory", ContractDataType.DirectoryPath, "The expanded SaveDirectory", Conditional = true, WhenParameter = "SaveDirectory")]
+    [StepOutputVariable("Destination.SurfaceOutputSettings", ContractDataType.Object, "Output settings for the destinations (with JpegQuality or ReduceColors)", Conditional = true)]
+    [StepOutputVariable("Destination.PromptQuality", ContractDataType.Boolean, "The PromptQuality parameter, for the destinations", Conditional = true, WhenParameter = "PromptQuality")]
+    [StepOutputVariable("Destination.AllowOverwrite", ContractDataType.Boolean, "The AllowOverwrite parameter, for the destinations", Conditional = true, WhenParameter = "AllowOverwrite")]
+    [StepOutputVariable("Destination.CopyPathToClipboard", ContractDataType.Boolean, "The CopyPathToClipboard parameter, for the destinations", Conditional = true, WhenParameter = "CopyPathToClipboard")]
+    [StepOutputVariable("DestinationExportErrors", ContractDataType.String, "Errors of destinations that failed", Conditional = true)]
     public class DestinationExportStep : ICaptureStep, IRequiresRecipeAuthorization
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(DestinationExportStep));
@@ -44,9 +79,6 @@ namespace Greenshot.Pipeline.Steps
 
         public string Name { get; }
         public RecipeNodeConfig Config { get; }
-
-        public Contracts.StepContract Contract =>
-            Contracts.StepContractRegistry.GetContract(Name) ?? Contracts.StepContractRegistry.GetContract(WellKnownStepTypes.Destinations) ?? Contracts.StepContractBuilder.FromType(GetType());
 
         public DestinationExportStep(RecipeNodeConfig config, IDestinationDispatcher dispatcher = null)
         {
@@ -261,8 +293,7 @@ namespace Greenshot.Pipeline.Steps
         private IEnumerable<string> ResolveDestinationDesignations(CaptureFlowContext context)
         {
             // Priority 1: StepType direct mapping
-            if (string.Equals(Config.StepType, WellKnownStepTypes.SaveFile, StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(Config.StepType, "SaveToFile", StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(Config.StepType, WellKnownStepTypes.SaveFile, StringComparison.OrdinalIgnoreCase))
             {
                 return new[] { nameof(WellKnownDestinations.FileNoDialog) };
             }
@@ -284,7 +315,7 @@ namespace Greenshot.Pipeline.Steps
             }
             if (string.Equals(Config.StepType, WellKnownStepTypes.CustomDestination, StringComparison.OrdinalIgnoreCase))
             {
-                string customDest = Config.GetParameter<string>("Destination") ?? Config.GetParameter<string>("CustomDestinationId");
+                string customDest = Config.GetParameter<string>("CustomDestinationId");
                 if (!string.IsNullOrWhiteSpace(customDest))
                 {
                     return new[] { customDest.Trim() };
@@ -298,21 +329,11 @@ namespace Greenshot.Pipeline.Steps
                 if (ctxVal is string ctxStr && !string.IsNullOrWhiteSpace(ctxStr)) return new[] { ctxStr };
             }
 
-            // Priority 3: Explicit step parameter configuration ("DestinationDesignations" or "Destinations")
-            var stepDests = Config.GetParameter<List<string>>("DestinationDesignations")
-                ?? Config.GetParameter<List<string>>("Destinations");
+            // Priority 3: Explicit step parameter configuration
+            var stepDests = Config.GetParameter<List<string>>("DestinationDesignations");
             if (stepDests != null && stepDests.Count > 0)
             {
                 return stepDests;
-            }
-
-            string singleDest = Config.GetParameter<string>("DestinationDesignations")
-                ?? Config.GetParameter<string>("Destinations");
-            if (!string.IsNullOrWhiteSpace(singleDest))
-            {
-                return singleDest.Contains(",")
-                    ? singleDest.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToList()
-                    : new List<string> { singleDest.Trim() };
             }
 
             // Priority 4: Dynamic user configuration evaluation

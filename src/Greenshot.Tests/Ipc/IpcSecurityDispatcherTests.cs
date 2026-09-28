@@ -722,7 +722,7 @@ namespace Greenshot.Tests.Ipc
             var envelope = new IpcEnvelope
             {
                 Source = "url_scheme",
-                RawInput = "greenshot://run/no-browser-task"
+                RawInput = "greenshot://recipe/no-browser-task"
             };
 
             using (var ms = new MemoryStream())

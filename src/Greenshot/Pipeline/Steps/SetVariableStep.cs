@@ -38,19 +38,18 @@ namespace Greenshot.Pipeline.Steps
     /// Pipeline step that evaluates expressions and assigns new or updated variable values
     /// into the flow context (context.Properties) for use by subsequent downstream nodes.
     /// </summary>
-    [Contracts.StepInfo(WellKnownStepTypes.SetVariable, "Set Variable", "Evaluates expressions and assigns variables into the flow context for downstream steps.", "Logic")]
-    [Contracts.StepParameter("variable", Contracts.ContractDataType.String, Required = false, Description = "Variable name to assign")]
-    [Contracts.StepParameter("value", Contracts.ContractDataType.String, Required = false, Description = "Value expression to assign to the variable")]
-    [Contracts.StepParameter("variables", Contracts.ContractDataType.Object, Required = false, Description = "Key-value dictionary of variables to assign")]
+    [StepInfo(WellKnownStepTypes.SetVariable, "Set Variable", "Stores values in variables for the following steps.", "Logic")]
+    [StepParameter("Variable", ContractDataType.String, Description = "Name of the variable to set")]
+    [StepParameter("Value", ContractDataType.String, Description = "Value of the variable")]
+    [StepParameter("Variables", ContractDataType.Object, Description = "Several variables: name to value")]
+    [StepOutputVariable("{Parameter:Variable}", ContractDataType.String, "The variable named by the Variable parameter")]
+    [StepOutputVariable("{ParameterKeys:Variables}", ContractDataType.String, "The variables of the Variables parameter")]
     public class SetVariableStep : ICaptureStep
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(SetVariableStep));
 
         public string Name { get; }
         public RecipeNodeConfig NodeConfig { get; }
-
-        public Contracts.StepContract Contract =>
-            Contracts.StepContractRegistry.GetContract(WellKnownStepTypes.SetVariable) ?? Contracts.StepContractBuilder.FromType(GetType());
 
         public SetVariableStep(RecipeNodeConfig config)
         {
@@ -63,15 +62,11 @@ namespace Greenshot.Pipeline.Steps
             if (context == null || NodeConfig.Parameters == null) return Task.CompletedTask;
 
             // Single variable setting: { "Variable": "MyVar", "Value": "${user.name}" }
-            string singleVarName = NodeConfig.GetParameter<string>("Variable")
-                ?? NodeConfig.GetParameter<string>("VariableName")
-                ?? NodeConfig.GetParameter<string>("Name")
-                ?? NodeConfig.GetParameter<string>("Key");
+            string singleVarName = NodeConfig.GetParameter<string>("Variable");
 
             if (!string.IsNullOrWhiteSpace(singleVarName))
             {
-                object rawValue = NodeConfig.Parameters.TryGetValue("Value", out var v) ? v :
-                                  NodeConfig.Parameters.TryGetValue("Expression", out var e) ? e : null;
+                object rawValue = NodeConfig.Parameters.TryGetValue("Value", out var v) ? v : null;
 
                 object evaluated = EvaluateValue(rawValue, context);
                 lock (context.Properties)

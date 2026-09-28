@@ -283,8 +283,9 @@ namespace Greenshot.UI.SelfService
         {
             try
             {
-                Process.Start(new ProcessStartInfo("greenshot://capture?target=screen") { UseShellExecute = true });
-                ActionFeedback = "Launched 'greenshot://capture?target=screen'. Check Greenshot!";
+                // Opens a visible dialog, so the round trip through the URL protocol can be seen
+                Process.Start(new ProcessStartInfo("greenshot://about") { UseShellExecute = true });
+                ActionFeedback = "Launched 'greenshot://about'. The About dialog should open.";
                 ActionFeedbackBrush = Brushes.DodgerBlue;
             }
             catch (Exception ex)

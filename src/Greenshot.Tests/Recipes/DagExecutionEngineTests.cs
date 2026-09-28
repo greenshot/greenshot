@@ -226,8 +226,8 @@ namespace Greenshot.Tests.Recipes
                         {
                             "Branches", new List<Dictionary<string, object>>
                             {
-                                new Dictionary<string, object> { { "Key", "BranchA" }, { "Expression", "" } },
-                                new Dictionary<string, object> { { "Key", "BranchB" }, { "Expression", "default" } }
+                                new Dictionary<string, object> { { "Key", "BranchA" }, { "Expression", "${CustomScore > 50}" } },
+                                new Dictionary<string, object> { { "Key", "BranchB" }, { "Expression", "else" } }
                             }
                         }
                     }
@@ -356,10 +356,9 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Fact]
-        public async Task ExecuteAsync_StepError_WithNodeLevelFallbackParameter_RoutesToErrorHandlerNode()
+        public async Task ExecuteAsync_StepError_WithNodeLevelErrorTarget_RoutesToErrorHandlerNode()
         {
-            var failNode = new RecipeNodeConfig { Id = "fail_node", StepType = "Export" };
-            failNode.Set("OnErrorNodeId", "recovery_node");
+            var failNode = new RecipeNodeConfig { Id = "fail_node", StepType = "Export", OnErrorNodeId = "recovery_node" };
 
             var recipe = new CaptureRecipe("node_fallback_recipe", "Node Fallback Recipe")
                 .AddNode(new RecipeNodeConfig { Id = "start", StepType = "Start" })

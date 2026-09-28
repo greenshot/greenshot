@@ -37,9 +37,8 @@ namespace Greenshot.Tests.Recipes
         public RecipeValidatorTests()
         {
             TestEnvironment.EnsureInitialized();
-            StepRegistry.Instance.RegisterStepFactory(WellKnownStepTypes.Destinations, config => new DestinationExportStep(config));
-            StepRegistry.Instance.RegisterStepFactory("ExternalCommand", config => new ExternalCommandStep(config));
-            StepRegistry.Instance.RegisterStepFactory("ExternalCommand.MS Paint", config => new ExternalCommandStep(config));
+            StepRegistry.Instance.Register<DestinationExportStep>(config => new DestinationExportStep(config));
+            StepRegistry.Instance.Register<ExternalCommandStep>(config => new ExternalCommandStep(config));
         }
 
         [Fact]
@@ -47,7 +46,7 @@ namespace Greenshot.Tests.Recipes
         {
             var recipe = new CaptureRecipe("valid_recipe", "Valid Recipe")
                 .AddNode(new RecipeNodeConfig { Id = "start", StepType = "Source" })
-                .AddNode(new RecipeNodeConfig { Id = "process", StepType = "Border", Parameters = new Dictionary<string, object> { { "Width", 2 } } })
+                .AddNode(new RecipeNodeConfig { Id = "process", StepType = "Effect", Parameters = new Dictionary<string, object> { { "Effect", "Border" }, { "Width", 2 } } })
                 .AddNode(new RecipeNodeConfig { Id = "end", StepType = "Clipboard" });
 
             recipe.Flow = new RecipeFlowConfig("start")
@@ -63,7 +62,7 @@ namespace Greenshot.Tests.Recipes
         {
             var recipe = new CaptureRecipe("cycle_recipe", "Cycle Recipe")
                 .AddNode(new RecipeNodeConfig { Id = "a", StepType = "Source" })
-                .AddNode(new RecipeNodeConfig { Id = "b", StepType = "Border" })
+                .AddNode(new RecipeNodeConfig { Id = "b", StepType = "Effect" })
                 .AddNode(new RecipeNodeConfig { Id = "c", StepType = "Clipboard" });
 
             recipe.Flow = new RecipeFlowConfig("a")
@@ -93,17 +92,17 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Fact]
-        public void Validate_RouteA_DottedStepTypeAndPath_FlagsExternalCommands()
+        public void Validate_RouteA_ExternalCommandStep_FlagsExternalCommands()
         {
             var recipe = new CaptureRecipe("route_a_recipe", "Route A PoC")
                 .AddNode(new RecipeNodeConfig { Id = "start", StepType = "Source" })
                 .AddNode(new RecipeNodeConfig
                 {
                     Id = "cmd_step",
-                    StepType = "ExternalCommand.MS Paint",
+                    StepType = "ExternalCommand",
                     Parameters = new Dictionary<string, object>
                     {
-                        { "Path", @"C:\Windows\System32\cmd.exe" },
+                        { "CommandLine", @"C:\Windows\System32\cmd.exe" },
                         { "Arguments", "\"{0}\"" }
                     }
                 });
@@ -111,8 +110,8 @@ namespace Greenshot.Tests.Recipes
             recipe.Flow = new RecipeFlowConfig("start").AddTransition("start", "cmd_step");
 
             var result = RecipeValidator.Validate(recipe);
-            Assert.True(result.HasExternalCommands, "Route A dotted step type with Path parameter must be flagged as having external commands.");
-            Assert.Contains(result.ExternalCommands, c => c.Contains(@"C:\Windows\System32\cmd.exe") || c.Contains("MS Paint"));
+            Assert.True(result.HasGatedActions, "An ExternalCommand step must be flagged as having external commands.");
+            Assert.Contains(result.GatedActions, c => c.Target.Contains(@"C:\Windows\System32\cmd.exe"));
         }
 
         [Fact]
@@ -129,73 +128,23 @@ namespace Greenshot.Tests.Recipes
                     StepType = "Destinations",
                     Parameters = new Dictionary<string, object>
                     {
-                        { "Destinations", new List<string> { "External MS Paint" } }
+                        { "DestinationDesignations", new List<string> { "External MS Paint" } }
                     }
                 });
 
             recipe.Flow = new RecipeFlowConfig("start").AddTransition("start", "dest_step");
 
             var result = RecipeValidator.Validate(recipe);
-            Assert.True(result.HasExternalCommands, "Route B Destinations step with External designation must be flagged as having external commands.");
-            Assert.Contains(result.ExternalCommands, c => c.IndexOf("Paint", StringComparison.OrdinalIgnoreCase) >= 0 || c.IndexOf("pbrush", StringComparison.OrdinalIgnoreCase) >= 0);
+            Assert.True(result.HasGatedActions, "Route B Destinations step with External designation must be flagged as having external commands.");
+            Assert.Contains(result.GatedActions, c => c.Target.IndexOf("Paint", StringComparison.OrdinalIgnoreCase) >= 0 || c.Target.IndexOf("pbrush", StringComparison.OrdinalIgnoreCase) >= 0);
         }
 
         [Fact]
-        public void Validate_RouteB_ScalarDestinationString_FlagsExternalCommands()
-        {
-            var extDest = new ExternalCommandDestination("MS Paint");
-            SimpleServiceProvider.Current.AddService<IDestination>(extDest);
-
-            var recipe = new CaptureRecipe("route_b_scalar", "Route B Scalar PoC")
-                .AddNode(new RecipeNodeConfig { Id = "start", StepType = "Source" })
-                .AddNode(new RecipeNodeConfig
-                {
-                    Id = "dest_step",
-                    StepType = "Destinations",
-                    Parameters = new Dictionary<string, object>
-                    {
-                        { "Destinations", "External MS Paint" }
-                    }
-                });
-
-            recipe.Flow = new RecipeFlowConfig("start").AddTransition("start", "dest_step");
-
-            var result = RecipeValidator.Validate(recipe);
-            Assert.True(result.HasExternalCommands, "Route B Destinations step with scalar Destinations string must be flagged.");
-            Assert.Contains(result.ExternalCommands, c => c.IndexOf("Paint", StringComparison.OrdinalIgnoreCase) >= 0 || c.IndexOf("pbrush", StringComparison.OrdinalIgnoreCase) >= 0);
-        }
-
-        [Fact]
-        public void Validate_RouteB_CommaSeparatedDestinationsString_FlagsExternalCommands()
-        {
-            var extDest = new ExternalCommandDestination("MS Paint");
-            SimpleServiceProvider.Current.AddService<IDestination>(extDest);
-
-            var recipe = new CaptureRecipe("route_b_comma", "Route B Comma PoC")
-                .AddNode(new RecipeNodeConfig { Id = "start", StepType = "Source" })
-                .AddNode(new RecipeNodeConfig
-                {
-                    Id = "dest_step",
-                    StepType = "Destinations",
-                    Parameters = new Dictionary<string, object>
-                    {
-                        { "Destinations", "Clipboard, External MS Paint" }
-                    }
-                });
-
-            recipe.Flow = new RecipeFlowConfig("start").AddTransition("start", "dest_step");
-
-            var result = RecipeValidator.Validate(recipe);
-            Assert.True(result.HasExternalCommands, "Route B comma-separated destinations string must be flagged as having external commands.");
-            Assert.Contains(result.ExternalCommands, c => c.IndexOf("Paint", StringComparison.OrdinalIgnoreCase) >= 0 || c.IndexOf("pbrush", StringComparison.OrdinalIgnoreCase) >= 0);
-        }
-
-        [Fact]
-        public void Validate_SafeBuiltInRecipe_HasExternalCommandsFalse()
+        public void Validate_SafeBuiltInRecipe_HasNoGatedActions()
         {
             var recipe = new CaptureRecipe("safe_recipe", "Safe Recipe")
                 .AddNode(new RecipeNodeConfig { Id = "start", StepType = "Source" })
-                .AddNode(new RecipeNodeConfig { Id = "border", StepType = "Border", Parameters = new Dictionary<string, object> { { "Width", 2 } } })
+                .AddNode(new RecipeNodeConfig { Id = "border", StepType = "Effect", Parameters = new Dictionary<string, object> { { "Effect", "Border" }, { "Width", 2 } } })
                 .AddNode(new RecipeNodeConfig { Id = "clip", StepType = "Clipboard" });
 
             recipe.Flow = new RecipeFlowConfig("start")
@@ -204,8 +153,8 @@ namespace Greenshot.Tests.Recipes
 
             var result = RecipeValidator.Validate(recipe);
             Assert.True(result.IsValid);
-            Assert.False(result.HasExternalCommands);
-            Assert.Empty(result.ExternalCommands);
+            Assert.False(result.HasGatedActions);
+            Assert.Empty(result.GatedActions);
         }
 
         private class MockAuthorizedDestination : AbstractDestination, IRequiresRecipeAuthorization
@@ -234,15 +183,15 @@ namespace Greenshot.Tests.Recipes
                     StepType = "Destinations",
                     Parameters = new Dictionary<string, object>
                     {
-                        { "Destinations", "SecurityAuditDestination" }
+                        { "DestinationDesignations", new List<string> { "SecurityAuditDestination" } }
                     }
                 });
 
             recipe.Flow = new RecipeFlowConfig("start").AddTransition("start", "dest_step");
 
             var result = RecipeValidator.Validate(recipe);
-            Assert.True(result.HasExternalCommands, "Destination implementing IRequiresRecipeAuthorization must be flagged even without 'External ' prefix.");
-            Assert.Contains(result.ExternalCommands, c => c.Contains(@"C:\Security\audit.exe"));
+            Assert.True(result.HasGatedActions, "Destination implementing IRequiresRecipeAuthorization must be flagged even without 'External ' prefix.");
+            Assert.Contains(result.GatedActions, c => c.Target.Contains(@"C:\Security\audit.exe"));
             Assert.Single(result.GatedActions);
             Assert.Equal(RecipeGateType.ExternalCommand, result.GatedActions[0].GateType);
         }

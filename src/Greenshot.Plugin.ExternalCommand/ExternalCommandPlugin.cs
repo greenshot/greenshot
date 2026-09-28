@@ -169,20 +169,7 @@ public class ExternalCommandPlugin : IGreenshotPlugin, IRecipeStepProvider
     public void RegisterSteps(IStepRegistry registry)
     {
         if (registry == null) return;
-        registry.RegisterStepFactory("ExternalCommand", config => new ExternalCommandStep(config));
-        registry.RegisterStepFactory("ExecuteCommand", config => new ExternalCommandStep(config));
-        registry.RegisterStepFactory("RunCommand", config => new ExternalCommandStep(config));
-
-        if (ExternalCommandConfig?.Commands != null)
-        {
-            foreach (string command in ExternalCommandConfig.Commands)
-            {
-                if (!string.IsNullOrWhiteSpace(command))
-                {
-                    registry.RegisterStepFactory($"ExternalCommand.{command}", config => new ExternalCommandStep(config));
-                }
-            }
-        }
+        registry.Register<ExternalCommandStep>(config => new ExternalCommandStep(config));
     }
 
     /// <summary>

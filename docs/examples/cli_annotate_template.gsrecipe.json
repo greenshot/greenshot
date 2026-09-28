@@ -66,7 +66,7 @@
             "offsetX": -16,
             "offsetY": -15,
             "text": "REVIEWED: ${now:yyyy-MM-dd}",
-            "textColor": "#FFFFFF",
+            "lineColor": "#FFFFFF",
             "fontSize": 10.0,
             "fontFamily": "Segoe UI",
             "bold": true,

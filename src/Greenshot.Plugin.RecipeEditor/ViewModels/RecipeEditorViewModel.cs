@@ -47,7 +47,6 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     OnPropertyChanged(nameof(RecipeTitle));
                     OnPropertyChanged(nameof(RecipeDescription));
                     OnPropertyChanged(nameof(RecipeVersion));
-                    OnPropertyChanged(nameof(SelectedStartNode));
                     OnPropertyChanged(nameof(IsActiveRecipeEnabled));
                     OnPropertyChanged(nameof(ActiveRecipeStatusText));
                     OnPropertyChanged(nameof(CanUnloadActiveRecipe));
@@ -82,18 +81,6 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         public string UnloadActiveRecipeToolTip => (_activeRecipe?.IsOverridden ?? false)
             ? "Revert overridden recipe to default built-in definition"
             : "Unload custom recipe from Greenshot";
-
-        public StepNodeViewModel SelectedStartNode
-        {
-            get => Nodes.FirstOrDefault(n => n.IsStartNode);
-            set
-            {
-                if (value != null)
-                {
-                    SetStartNode(value);
-                }
-            }
-        }
 
         public string RecipeId
         {
@@ -554,7 +541,6 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             // Apply DagAutoLayout
             PerformAutoLayout();
             ValidateGraphCycles();
-            OnPropertyChanged(nameof(SelectedStartNode));
             IsDirty = false;
             StatusMessage = $"Loaded recipe '{recipe.Name}' ({recipe.Nodes.Count} steps, {Triggers.Count} triggers)";
         }
@@ -565,7 +551,6 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             {
                 ActiveRecipe.Flow.StartNodes = Nodes.Where(n => n.IsStartNode).Select(n => n.Id).ToList();
                 IsDirty = true;
-                OnPropertyChanged(nameof(SelectedStartNode));
                 StatusMessage = node.IsStartNode ? $"Added '{node.DisplayName}' to Start Steps" : $"Removed '{node.DisplayName}' from Start Steps";
             }
         }
@@ -578,7 +563,6 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             {
                 ActiveRecipe.Flow.StartNodes = Nodes.Where(n => n.IsStartNode).Select(n => n.Id).ToList();
             }
-            OnPropertyChanged(nameof(SelectedStartNode));
             IsDirty = true;
             StatusMessage = $"'{node.DisplayName}' marked as Start Step";
         }
@@ -1437,7 +1421,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     if (string.IsNullOrWhiteSpace(ct?.From) || string.IsNullOrWhiteSpace(ct?.To)) continue;
 
                     string expr = "";
-                    if (nodeMap.TryGetValue(ct.From, out var srcNode) && srcNode.Parameters != null && srcNode.Parameters.TryGetValue("branches", out var bObj))
+                    if (nodeMap.TryGetValue(ct.From, out var srcNode) && srcNode.Parameters != null && srcNode.Parameters.TryGetValue("Branches", out var bObj))
                     {
                         if (bObj is JArray arr)
                         {
@@ -1519,17 +1503,12 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     dict["SelectionMode"] = "Region";
                     dict["AllowWindowSnapping"] = true;
                     break;
-                case WellKnownStepTypes.Border:
-                    dict["Width"] = 2;
-                    dict["Color"] = "#0078D7";
-                    break;
                 case WellKnownStepTypes.Effect:
                     dict["Effect"] = "DropShadow";
                     dict["ShadowSize"] = 10;
                     dict["Darkness"] = 0.6;
                     break;
                 case WellKnownStepTypes.TextEffect:
-                case "ObfuscateText":
                     dict["Effect"] = "Redact";
                     dict["FillColor"] = "#000000";
                     dict["Patterns"] = new List<string> { @"\b\d{4}-\d{4}-\d{4}-\d{4}\b" };
@@ -1573,15 +1552,12 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     dict["Destinations"] = new List<string>();
                     break;
                 case WellKnownStepTypes.SaveFile:
-                case "SaveToFile":
-                    dict["Destination"] = "File";
                     dict["SaveDirectory"] = "";
                     dict["FilenamePattern"] = "greenshot ${capturetime}";
                     dict["Format"] = "png";
                     dict["AllowOverwrite"] = false;
                     break;
                 case WellKnownStepTypes.Clipboard:
-                    dict["Destination"] = "Clipboard";
                     dict["ClipboardMode"] = "ImageOnly";
                     dict["ClipboardFormatPNG"] = true;
                     dict["ClipboardFormatDIB"] = true;
@@ -1590,25 +1566,16 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     dict["ClipboardFormatHTML"] = true;
                     dict["ClipboardFormatHTMLDataUrl"] = false;
                     dict["ClipboardFormatText"] = false;
-                    dict["ClipboardCustomText"] = "${ocr_text}";
-                    break;
-                case WellKnownStepTypes.Editor:
-                    dict["Destination"] = "Editor";
+                    dict["ClipboardCustomText"] = "${Payload.ExtractedText}";
                     break;
                 case WellKnownStepTypes.Printer:
-                    dict["Destination"] = "Printer";
                     dict["ShowPrintDialog"] = true;
-                    break;
-                case WellKnownStepTypes.Email:
-                    dict["Destination"] = "EMail";
-                    dict["EmailSubject"] = "Screenshot";
                     break;
                 case WellKnownStepTypes.CustomDestination:
                     dict["CustomDestinationId"] = "Imgur";
                     break;
                 case WellKnownStepTypes.Notification:
-                    dict["Title"] = "Greenshot Capture";
-                    dict["Message"] = "Capture completed";
+                    dict["ShowNotification"] = true;
                     break;
                 case WellKnownStepTypes.Conditional:
                     dict["Branches"] = new List<object>
@@ -1618,7 +1585,6 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     };
                     break;
                 case WellKnownStepTypes.UserPrompt:
-                case "PromptChoice":
                     dict["Title"] = "Greenshot decision";
                     dict["Message"] = "Please confirm the next step for this capture:";
                     dict["ShowPreview"] = true;
@@ -1629,13 +1595,18 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                         new Dictionary<string, object> { { "Key", "No" }, { "Label", "No, Cancel" }, { "Style", "Secondary" }, { "IsDefault", false }, { "IsCancel", true } }
                     };
                     break;
+                case WellKnownStepTypes.Stdout:
+                    dict["Text"] = "${Payload.ExtractedText}";
+                    break;
+                case WellKnownStepTypes.Stderr:
+                    dict["Text"] = "The recipe failed.";
+                    dict["ExitCode"] = 1;
+                    dict["Abort"] = true;
+                    break;
                 case WellKnownStepTypes.Processors:
-                    dict["Processors"] = new List<string>();
+                    dict["ProcessorIds"] = new List<string>();
                     break;
                 case "ExternalCommand":
-                case "ExecuteCommand":
-                case "RunCommand":
-                case var _ when node.StepType != null && node.StepType.StartsWith("ExternalCommand", StringComparison.OrdinalIgnoreCase):
                     dict["CommandLine"] = "cmd.exe";
                     dict["Arguments"] = "/c echo Processing {0}";
                     dict["Format"] = "png";
@@ -1645,53 +1616,25 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     dict["ReloadAfterExecution"] = false;
                     break;
                 case "Imgur":
-                case "ImgurUpload":
-                case "UploadToImgur":
                     dict["Format"] = "png";
                     dict["CopyLinkToClipboard"] = true;
-                    dict["OpenInBrowser"] = false;
                     break;
                 case "Jira":
-                case "JiraUpload":
-                case "UploadToJira":
                     dict["IssueKey"] = "PROJECT-123";
                     dict["Format"] = "png";
                     dict["JpegQuality"] = 80;
                     break;
                 case "Confluence":
-                case "ConfluenceUpload":
-                case "UploadToConfluence":
                     dict["PageId"] = "123456";
                     dict["Format"] = "png";
                     dict["JpegQuality"] = 80;
                     break;
                 case "Office":
-                case "Excel":
-                case "PowerPoint":
-                case "Powerpoint":
-                case "Word":
-                case "OneNote":
-                case "Outlook":
-                    dict["Application"] = string.Equals(node.StepType, "Office", StringComparison.OrdinalIgnoreCase) ? "Word" : node.StepType;
+                    dict["Application"] = "Word";
                     break;
-                case "Zxing":
-                case "ZxingQr":
-                case "ZxingBarcode":
                 case "BarcodeScan":
-                case "DecodeBarcode":
-                case "QrCode":
                     dict["SetVariable"] = "barcode_text";
                     dict["CopyToClipboard"] = true;
-                    break;
-                case "Box":
-                case "BoxUpload":
-                case "UploadToBox":
-                    dict["Format"] = "png";
-                    break;
-                case "Dropbox":
-                case "DropboxUpload":
-                case "UploadToDropbox":
-                    dict["Format"] = "png";
                     break;
             }
             node.Parameters = dict;

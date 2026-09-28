@@ -15,7 +15,7 @@ This document specifies the architectural design for introducing **formal contra
 ### Key Capabilities Introduced
 * **Formal `StepContract` & `RecipeContract`**: Declarative schemas for every step and recipe specifying expected inputs, produced outputs, parameter types, and visual payload impact.
 * **Dual Declaration Model**: Attribute-based annotations on step classes for clean compile-time definitions, plus a fluent programmatic API for dynamic or plugin-provided steps.
-* **CLI Recipe Introspection (`greenshot --info <recipe>` / `--describe`)**: Rich human-readable or JSON disclosure of a recipe's complete contract and node topology.
+* **CLI Recipe Introspection (`greenshot --info <recipe>`)**: Rich human-readable or JSON disclosure of a recipe's complete contract and node topology.
 * **Direct Value Querying (`greenshot -r <recipe> --query "${Payload.Width}x${Payload.Height}"` or `--json`)**: Extract arbitrary context or payload values directly from the command line without editing the recipe.
 * **`StderrStep` & Custom Exit Codes**: Dedicated pipeline node to stream messages to stderr in real time and abort execution with a caller-defined exit code (e.g. `2`, `404`).
 * **Recipe Editor Visual Introspection**: Port contracts, variable autocomplete in `${...}` expressions, and compile-time DAG dependency validation.
@@ -152,82 +152,48 @@ namespace Greenshot.Base.Pipeline.Contracts
 
 ---
 
-### 2.3 `ICaptureStep` Interface Evolution
+### 2.3 One Registry for Step Types and Contracts
 
-Because backward compatibility is not constrained, `ICaptureStep` directly exposes its contract:
+A contract describes a step *type*, not a step instance, so it is not a member of `ICaptureStep`. It is registered together with the step's factory in `IStepRegistry`, keyed by the contract's step type. Every step type has exactly one name (case-insensitive):
 
 ```csharp
-namespace Greenshot.Base.Pipeline
+public interface IStepRegistry
 {
-    public interface ICaptureStep
-    {
-        /// <summary>
-        /// Display name or identifier of this step.
-        /// </summary>
-        string Name { get; }
-
-        /// <summary>
-        /// Formal contract specifying inputs, outputs, parameters, and payload behavior.
-        /// </summary>
-        StepContract Contract { get; }
-
-        /// <summary>
-        /// Executes the step against the flow context.
-        /// </summary>
-        Task ExecuteAsync(CaptureFlowContext context, CancellationToken cancellationToken = default);
-    }
+    void Register(StepContract contract, Func<RecipeNodeConfig, ICaptureStep> factory);
+    StepContract GetContract(string stepType);
+    IReadOnlyCollection<StepContract> Contracts { get; }
+    ICaptureStep CreateStep(RecipeNodeConfig config);
+    // IsRegistered, RegisteredStepTypes, RegisterProvider(s)
 }
+
+// Usual registration: the contract comes from the class' attributes
+registry.Register<StdoutStep>(config => new StdoutStep(config));
+// A class implementing several step types gets a contract per step type
+registry.Register<DestinationExportStep>(WellKnownStepTypes.Clipboard, "Copy to Clipboard", "...", config => new DestinationExportStep(config, dispatcher));
 ```
+
+Plugins register through `IRecipeStepProvider.RegisterSteps(IStepRegistry)` the same way, so their contracts are known to `--info` and the recipe analysis. Registering a step type again replaces its registration. A configured external command is chosen with the `Command` parameter of the `ExternalCommand` step.
 
 ---
 
 ### 2.4 Declarative Attributes & Contract Generation
 
-Developers can decorate step classes with expressive attributes. Reflection automatically builds the `StepContract`:
+Step classes are decorated with attributes; `StepContractBuilder.FromType` builds the contract (and records the implementing class):
 
 ```csharp
-[StepInfo(WellKnownStepTypes.Source, "Acquire Source", "Acquires a capture from screen, file, or clipboard.", "Acquisition")]
-[StepPayload(RawCapture = PayloadRequirement.Created, Surface = PayloadRequirement.Created)]
-[StepParameter("sourceType", ContractDataType.Enum, Required = true, Description = "Type of capture source", 
-    AllowedValues = new[] { "Screen", "File", "Clipboard", "ActiveWindow" })]
-[StepParameter("filename", ContractDataType.FilePath, Required = false, Description = "Target file path when sourceType is File")]
-[StepOutputVariable("Filename", ContractDataType.FilePath, "Full path of the acquired file (if sourceType is File)")]
-[StepOutputVariable("dirname", ContractDataType.DirectoryPath, "Directory of the acquired file")]
-[StepOutputVariable("basename", ContractDataType.String, "Base file name without extension")]
-[StepOutputVariable("extension", ContractDataType.String, "File extension (e.g. .png)")]
-public class SourceAcquisitionStep : ICaptureStep
-{
-    // Implementation
-}
+[StepInfo(ZxingStep.StepType, "Barcode Scanner (ZXing)", "Scans and decodes 1D/2D barcodes (such as QR codes).", "Analysis")]
+[StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Required, ExtractedText = PayloadRequirement.Created)]
+[StepParameter("SetVariable", ContractDataType.String, Description = "Also store the decoded text in this variable")]
+[StepOutputVariable("Barcode.Text", ContractDataType.String, "Decoded text", Conditional = true)]
+[StepOutputVariable("Barcode.Format", ContractDataType.String, "Format, e.g. QR_CODE", Conditional = true)]
+[StepOutputVariable("{Parameter:SetVariable}", ContractDataType.String, "The decoded text, when SetVariable is set", Conditional = true)]
+public class ZxingStep : ICaptureStep { ... }
 ```
 
-Example for a Barcode / QR scanner step:
-
-```csharp
-[StepInfo("BarcodeScanner", "Barcode Scanner", "Scans and decodes 1D/2D barcodes (such as QR codes) from the capture bitmap.", "Analysis")]
-[StepPayload(RawCapture = PayloadRequirement.Required)]
-[StepParameter("format", ContractDataType.String, Required = false, DefaultValue = "AUTO", Description = "Barcode format hint (QR_CODE, DATA_MATRIX, etc.)")]
-[StepOutputVariable("Barcode.Text", ContractDataType.String, "Decoded text content of the detected barcode")]
-[StepOutputVariable("Barcode.Format", ContractDataType.String, "Format name of the detected barcode")]
-public class BarcodeScannerStep : ICaptureStep
-{
-    // Implementation
-}
-```
-
-Example for a format conversion destination step:
-
-```csharp
-[StepInfo(WellKnownStepTypes.SaveFile, "Save to File", "Encodes and saves the image to a file on disk.", "Destination")]
-[StepPayload(RawCapture = PayloadRequirement.Required)]
-[StepParameter("path", ContractDataType.FilePath, Required = false, Description = "Target destination path or pattern")]
-[StepParameter("format", ContractDataType.Enum, Required = false, DefaultValue = "png", AllowedValues = new[] { "png", "jpg", "bmp", "tiff", "greenshot" })]
-[StepOutputVariable("Destination.Filename", ContractDataType.FilePath, "The final absolute path of the saved file")]
-public class SaveFileStep : ICaptureStep
-{
-    // Implementation
-}
-```
+* **Parameters** have one name each (parameter names are case-insensitive). `[StepInfo(AcceptsUndeclaredParameters = true)]` marks a step that reads open-ended parameters (Annotation).
+* **Outputs** are `Conditional` when the step does not always set them (only when something was found); `WhenParameter = "SaveDirectory"` marks an output that is always set when the node has that parameter.
+* **Node-specific names**: `{NodeId}` (e.g. `UserChoice.{NodeId}`), `{Parameter:A}` (the variable named by parameter A), and `{ParameterKeys:X}` (every key of the dictionary parameter X, e.g. SetVariable's `Variables`).
+* The contract lists what the code does, not what it could do: an output that is declared must be set, a variable that is set must be declared. The engine checks this (3.3).
 
 ---
 
@@ -235,35 +201,37 @@ public class SaveFileStep : ICaptureStep
 
 ### 3.1 Composite Recipe Contract
 
-A recipe is a directed acyclic graph (DAG) of nodes. By traversing the DAG, Greenshot computes a **`RecipeContract`**:
+`RecipeContract.Analyze(recipe, registry)` follows the flow as the engine executes it, not the order of the nodes in the file:
 
-1. **Required Recipe Inputs**:
-   - Variables required by any node that are **not** produced by any preceding node in the DAG.
-   - Command-line arguments explicitly declared on the recipe's `CommandlineTrigger`.
-2. **Produced Recipe Outputs**:
-   - Union of all variables produced by all reachable nodes in the recipe.
-   - Standard payload attributes available at the conclusion of the pipeline (e.g. `${Payload.Width}`, `${Payload.Height}`, `${Payload.ExtractedText}`).
-3. **Payload Prerequisites**:
-   - Whether the recipe requires an external image input or acquires one internally.
+* A node runs after all its predecessors finished or were bypassed, and shares their context.
+* A node with conditional transitions (Conditional, UserPrompt) follows only the transitions of the chosen branch.
+* A failing node with an error transition continues there (with `LastError`, `LastErrorType`, `FailedNodeId`) instead of with its normal successors.
 
-```mermaid
-flowchart TD
-    subgraph Recipe Contract Calculation
-        N1["Node 1: Source (File)"] -->|"produces: ${Filename}, ${dirname}"| N2["Node 2: BarcodeScanner"]
-        N2 -->|"requires: RawCapture (satisfied by Node 1)<br/>produces: ${Barcode.Text}"| N3["Node 3: Stdout"]
-        N3 -->|"requires: ${Barcode.Text} (satisfied by Node 2)"| OUT["Recipe Outputs"]
-    end
+Every combination of branch choices and error outcomes is a scenario. For each node:
 
-    IN["Recipe Inputs:<br/>- Filename (FilePath, Required)"] --> N1
-    OUT --> RES["Recipe Outputs:<br/>- Barcode.Text (String)<br/>- Filename (FilePath)<br/>- Payload.Width (Integer)<br/>- Payload.Height (Integer)"]
-```
+* **Guaranteed variables**: set in every scenario that runs the node, by a node that ran before it (an ancestor in the graph) or by the trigger. Conditional outputs are never guaranteed.
+* **Covered variables**: as above, but including conditional outputs (the value is empty when the step found nothing).
 
-### 3.2 Static DAG Validation (Design-Time & Pre-Flight)
+Trigger inputs: command-line arguments (an optional argument without default is not guaranteed), `Filename` for Open with, the image, `Capture` and `Browser` for the browser extension, `EditorForm` for editor triggers. A recipe without a source node gets its image from the trigger (`TriggerRecipePreparer` adds a source).
 
-When a recipe is opened in the **Recipe Editor** or loaded by the pipeline, a `RecipeContractValidator` executes:
-* **Missing Variable Warning**: Node B requires `${CustomVar}`, but no ancestor node sets it and no trigger provides it.
-* **Payload Prerequisite Violation**: Node C (e.g. `Effect` or `Crop`) requires `RawCapture = Required`, but no ancestor node initializes `RawCapture` (e.g. missing `Source` node).
-* **Dead Outputs**: Variables created but never consumed or exported.
+Recipe inputs are the trigger inputs plus required step inputs that no node produces. Recipe outputs are the outputs of all nodes (marked "not always set" when conditional) plus the payload values.
+
+### 3.2 Static Validation (when a recipe is loaded)
+
+`RecipeValidator.Validate` adds the analysis' findings as warnings:
+
+* A node uses `${X}` in a parameter, `X` is set by a node of the recipe, but not on every path to this node (only in some branches), or only by nodes that do not run before it.
+* A node needs an image, but on some path no preceding node acquires one.
+* A required parameter is missing, a literal value is not one of the allowed values, a parameter is not read by the step.
+* A node is never executed; a transition or start node refers to a node that does not exist; the flow has a cycle.
+
+`greenshot --info <recipe>` shows the same warnings.
+
+### 3.3 Runtime Checks
+
+* Before a step runs, the engine checks its required parameters and required input variables. A missing one fails the node with a clear message (error transitions apply).
+* After a step ran, debug builds compare what it did with its contract: variables set without being declared, declared (non-conditional) outputs not set, an image that should have been created. They are logged as `[CONTRACT]` warnings; `DagExecutionEngine.ContractViolation` lets tests collect them. Release builds do not check.
+* Tests make sure every registered step type has a contract implemented by the class its factory creates, every `WellKnownStepTypes` name is registered, and the built-in recipes and `docs/examples` produce no warnings.
 
 ---
 
@@ -294,17 +262,17 @@ public class CaptureFlowContext : IDisposable
 
 ### 4.2 `StderrStep` Specification
 
-* **Step Type**: `WellKnownStepTypes.Stderr = "Stderr"` (aliases: `"Error"`, `"Fail"`).
+* **Step Type**: `WellKnownStepTypes.Stderr = "Stderr"`.
 * **Parameters**:
-  * `text` / `message` (string, expression supported): Message to output.
-  * `exitCode` (int, default: `1`): The numerical exit code to return to the process environment.
-  * `abort` (bool, default: `true`): If `true`, halts the DAG immediately with `context.Abort(evaluatedMessage)`.
+  * `Text` (string, expression supported): Message to output.
+  * `ExitCode` (int, default: `1`): The numerical exit code to return to the process environment.
+  * `Abort` (bool, default: `true`): If `true`, halts the DAG immediately with `context.Abort(evaluatedMessage)`.
 
 ```csharp
 [StepInfo(WellKnownStepTypes.Stderr, "Stderr Output", "Emits an error message to stderr and optionally aborts execution with an exit code.", "Diagnostics")]
-[StepParameter("text", ContractDataType.String, Required = true, Description = "Error message to output to stderr")]
-[StepParameter("exitCode", ContractDataType.Integer, Required = false, DefaultValue = 1, Description = "Numerical process exit code (default: 1)")]
-[StepParameter("abort", ContractDataType.Boolean, Required = false, DefaultValue = true, Description = "Whether to abort recipe execution immediately")]
+[StepParameter("Text", ContractDataType.String, Required = true, Description = "Error message to output to stderr")]
+[StepParameter("ExitCode", ContractDataType.Integer, Required = false, DefaultValue = 1, Description = "Numerical process exit code (default: 1)")]
+[StepParameter("Abort", ContractDataType.Boolean, Required = false, DefaultValue = true, Description = "Whether to abort recipe execution immediately")]
 public class StderrStep : ICaptureStep
 {
     private readonly RecipeNodeConfig _config;
@@ -316,10 +284,10 @@ public class StderrStep : ICaptureStep
 
     public async Task ExecuteAsync(CaptureFlowContext context, CancellationToken cancellationToken = default)
     {
-        string rawText = _config.GetParameter<string>("text") ?? _config.GetParameter<string>("message");
+        string rawText = _config.GetParameter<string>("Text");
         string evaluated = ExpressionEvaluator.Instance.Evaluate(rawText, context)?.ToString() ?? string.Empty;
-        int exitCode = _config.GetParameter<int>("exitCode", 1);
-        bool abort = _config.GetParameter<bool>("abort", true);
+        int exitCode = _config.GetParameter<int>("ExitCode", 1);
+        bool abort = _config.GetParameter<bool>("Abort", true);
 
         context.ExitCode = exitCode;
 
@@ -403,7 +371,7 @@ Output:
 
 ---
 
-### 5.3 CLI Recipe Introspection (`--info` / `--describe`)
+### 5.3 CLI Recipe Introspection (`--info`)
 
 Users can inspect any recipe's full contract directly from the terminal:
 
@@ -439,7 +407,7 @@ Recipe Contract:
 
 Step Pipeline:
   [1] source_file        (Source)          Takes: Filename -> Produces: RawCapture
-  [2] scan_barcode       (BarcodeScanner)  Takes: RawCapture -> Produces: Barcode.Text, Barcode.Format
+  [2] scan_barcode       (BarcodeScan)     Takes: RawCapture -> Produces: Barcode.Text, Barcode.Format
   [3] output_result      (Stdout)          Takes: Barcode.Text -> Emits to stdout
 ```
 
@@ -491,9 +459,8 @@ flowchart TD
 
 ### Phase 2: Step Contract Registration & Attributes
 * Add attributes: `[StepInfo]`, `[StepParameter]`, `[StepInputVariable]`, `[StepOutputVariable]`, `[StepPayload]`.
-* Update `ICaptureStep` with `StepContract Contract { get; }`.
-* Create `StepContractRegistry` to discover and index contracts across built-in steps and `IRecipeStepProvider` implementations.
-* Decorate core steps: `SourceAcquisitionStep`, `DestinationExportStep`, `StdoutStep`, `EffectCaptureStep`, `AnnotationStep`, `SetVariableStep`.
+* Register factory and contract together in `IStepRegistry` (2.3); the contract is not part of `ICaptureStep`.
+* Decorate all core and plugin steps, with the parameters and variables they actually use.
 
 ### Phase 3: `StderrStep` Implementation
 * Implement `StderrStep` in `src/Greenshot/Pipeline/Steps/StderrStep.cs`.
@@ -504,7 +471,7 @@ flowchart TD
 ### Phase 4: CLI Inspection & Value Querying
 * Implement IPC command `DESCRIBE_RECIPE` in `IpcSecurityDispatcher`.
 * Update `cli_launcher.c` / `greenshot.com`:
-  * Add `--info <recipe>` / `-i <recipe>` / `--describe <recipe>`.
+  * Add `--info <recipe>` / `-i <recipe>`.
   * Add `--query "<expression>"`.
   * Add `--json` flag to dump payload and variables.
 * Wire `--query` evaluation in `IpcSecurityDispatcher` so that if `--query` is provided in the IPC envelope, the evaluated string is returned as `stdout`.
@@ -520,5 +487,5 @@ flowchart TD
 ## 8. Open Decisions & Feedback Requests
 
 1. **`--query` fallback behavior**: If `--query "${...}"` is supplied on the CLI and the recipe *also* contains a `StdoutStep`, should `--query` override the `StdoutStep` output, or should both outputs be emitted sequentially? *(Recommendation: `--query` replaces recipe stdout, returning solely the queried expression to standard output for clean scripting integration).*
-2. **Strictness of Step Contract Enforcement at Runtime**: Should missing `Required` input variables abort the flow automatically before step execution, or should the step handle it with custom logic? *(Recommendation: Automatic validation in `DagExecutionEngine` before step invocation with a clean error message: `Step '{stepId}' missing required variable '{varName}'`).*
-3. **Naming for Stderr Step**: Which type name is preferred: `Stderr`, `Error`, or `Fail`? *(Recommendation: Register `Stderr` as canonical, with `Error` and `Fail` as aliases).*
+2. **Strictness of Step Contract Enforcement at Runtime**: *Decided:* the engine validates required parameters and required input variables before a step runs and fails the node with a clear message; the recipe is also checked statically when it is loaded (see 3.2 and 3.3).
+3. **Naming for Stderr Step**: *Decided:* `Stderr` is the only name.

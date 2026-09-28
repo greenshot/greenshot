@@ -111,7 +111,7 @@ public class ZxingPlugin : IGreenshotPlugin, IRecipeStepProvider, IRecipeDrawabl
     {
         if (registry == null) return;
 
-        registry.RegisterStepFactory("BarcodeScan", config => new ZxingStep(config));
+        registry.Register<ZxingStep>(config => new ZxingStep(config));
     }
 
     /// <summary>
@@ -182,9 +182,8 @@ public class ZxingPlugin : IGreenshotPlugin, IRecipeStepProvider, IRecipeDrawabl
         ""parameters"": {
           ""type"": ""object"",
           ""properties"": {
-            ""tryHarder"": { ""type"": ""boolean"" },
-            ""pureBarcode"": { ""type"": ""boolean"" },
-            ""autoRotate"": { ""type"": ""boolean"" }
+            ""SetVariable"": { ""type"": ""string"" },
+            ""CopyToClipboard"": { ""type"": ""boolean"" }
           }
         }
       }
@@ -200,45 +199,36 @@ public class ZxingPlugin : IGreenshotPlugin, IRecipeStepProvider, IRecipeDrawabl
     {
         if (surface == null) return null;
 
-        string qrType = GetString(p, "QrType") ?? GetString(p, "Category");
+        string qrType = GetString(p, "QrType");
         string payload = null;
         int qrCategoryIndex = 0;
 
-        if (string.Equals(qrType, "Payment", StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(qrType, "Epc", StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(qrType, "Sepa", StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(qrType, "Payment", StringComparison.OrdinalIgnoreCase))
         {
             qrCategoryIndex = 3;
             payload = FormatEpcPayload(p);
         }
-        else if (string.Equals(qrType, "BusinessCard", StringComparison.OrdinalIgnoreCase) ||
-                 string.Equals(qrType, "Contact", StringComparison.OrdinalIgnoreCase) ||
-                 string.Equals(qrType, "vCard", StringComparison.OrdinalIgnoreCase))
+        else if (string.Equals(qrType, "BusinessCard", StringComparison.OrdinalIgnoreCase))
         {
             qrCategoryIndex = 2;
             payload = FormatVcardPayload(p);
         }
-        else if (string.Equals(qrType, "WiFi", StringComparison.OrdinalIgnoreCase) ||
-                 string.Equals(qrType, "Network", StringComparison.OrdinalIgnoreCase))
+        else if (string.Equals(qrType, "WiFi", StringComparison.OrdinalIgnoreCase))
         {
             qrCategoryIndex = 1;
             payload = FormatWifiPayload(p);
         }
-        else if (string.Equals(qrType, "Email", StringComparison.OrdinalIgnoreCase) ||
-                 string.Equals(qrType, "Mail", StringComparison.OrdinalIgnoreCase))
+        else if (string.Equals(qrType, "Email", StringComparison.OrdinalIgnoreCase))
         {
             qrCategoryIndex = 4;
             payload = FormatEmailPayload(p);
         }
-        else if (string.Equals(qrType, "CalendarEvent", StringComparison.OrdinalIgnoreCase) ||
-                 string.Equals(qrType, "Calendar", StringComparison.OrdinalIgnoreCase) ||
-                 string.Equals(qrType, "Event", StringComparison.OrdinalIgnoreCase))
+        else if (string.Equals(qrType, "CalendarEvent", StringComparison.OrdinalIgnoreCase))
         {
             qrCategoryIndex = 5;
             payload = FormatCalendarPayload(p);
         }
-        else if (string.Equals(qrType, "Phone", StringComparison.OrdinalIgnoreCase) ||
-                 string.Equals(qrType, "Tel", StringComparison.OrdinalIgnoreCase))
+        else if (string.Equals(qrType, "Phone", StringComparison.OrdinalIgnoreCase))
         {
             qrCategoryIndex = 6;
             payload = FormatPhonePayload(p);
@@ -248,8 +238,7 @@ public class ZxingPlugin : IGreenshotPlugin, IRecipeStepProvider, IRecipeDrawabl
             qrCategoryIndex = 7;
             payload = FormatSmsPayload(p);
         }
-        else if (string.Equals(qrType, "Geo", StringComparison.OrdinalIgnoreCase) ||
-                 string.Equals(qrType, "Location", StringComparison.OrdinalIgnoreCase))
+        else if (string.Equals(qrType, "Geo", StringComparison.OrdinalIgnoreCase))
         {
             qrCategoryIndex = 8;
             payload = FormatGeoPayload(p);
@@ -326,7 +315,7 @@ public class ZxingPlugin : IGreenshotPlugin, IRecipeStepProvider, IRecipeDrawabl
             EpcAmount = GetString(p, "EpcAmount"),
             EpcReference = GetString(p, "EpcReference"),
             EpcMessage = GetString(p, "EpcMessage"),
-            EmailTo = GetString(p, "EmailTo") ?? GetString(p, "EmailAddress"),
+            EmailTo = GetString(p, "EmailTo"),
             EmailSubject = GetString(p, "EmailSubject"),
             EmailBody = GetString(p, "EmailBody"),
             EventTitle = GetString(p, "EventTitle"),
@@ -337,8 +326,8 @@ public class ZxingPlugin : IGreenshotPlugin, IRecipeStepProvider, IRecipeDrawabl
             PhoneNumber = GetString(p, "PhoneNumber"),
             SmsNumber = GetString(p, "SmsNumber"),
             SmsMessage = GetString(p, "SmsMessage"),
-            Latitude = GetString(p, "Latitude") ?? GetString(p, "GeoLat"),
-            Longitude = GetString(p, "Longitude") ?? GetString(p, "GeoLon")
+            Latitude = GetString(p, "Latitude"),
+            Longitude = GetString(p, "Longitude")
         };
 
         var container = new BarcodeContainer(surface, model, margin);
@@ -433,7 +422,7 @@ public class ZxingPlugin : IGreenshotPlugin, IRecipeStepProvider, IRecipeDrawabl
 
     public static string FormatEmailPayload(Dictionary<string, object> p)
     {
-        string to = GetString(p, "EmailTo") ?? GetString(p, "EmailAddress") ?? "";
+        string to = GetString(p, "EmailTo") ?? "";
         string subject = GetString(p, "EmailSubject");
         string body = GetString(p, "EmailBody");
 
@@ -477,8 +466,8 @@ public class ZxingPlugin : IGreenshotPlugin, IRecipeStepProvider, IRecipeDrawabl
 
     public static string FormatGeoPayload(Dictionary<string, object> p)
     {
-        string lat = GetString(p, "Latitude") ?? GetString(p, "GeoLat") ?? "0";
-        string lon = GetString(p, "Longitude") ?? GetString(p, "GeoLon") ?? "0";
+        string lat = GetString(p, "Latitude") ?? "0";
+        string lon = GetString(p, "Longitude") ?? "0";
         return $"geo:{lat},{lon}";
     }
 
@@ -561,12 +550,12 @@ public class ZxingPlugin : IGreenshotPlugin, IRecipeStepProvider, IRecipeDrawabl
 
         var model = new ZxingModel();
 
-        string qrType = GetString(p, "QrType") ?? GetString(p, "Category");
+        string qrType = GetString(p, "QrType");
         if (string.Equals(qrType, "WiFi", StringComparison.OrdinalIgnoreCase)) model.QrCategoryIndex = 1;
-        else if (string.Equals(qrType, "BusinessCard", StringComparison.OrdinalIgnoreCase) || string.Equals(qrType, "vCard", StringComparison.OrdinalIgnoreCase)) model.QrCategoryIndex = 2;
-        else if (string.Equals(qrType, "Payment", StringComparison.OrdinalIgnoreCase) || string.Equals(qrType, "Epc", StringComparison.OrdinalIgnoreCase)) model.QrCategoryIndex = 3;
+        else if (string.Equals(qrType, "BusinessCard", StringComparison.OrdinalIgnoreCase)) model.QrCategoryIndex = 2;
+        else if (string.Equals(qrType, "Payment", StringComparison.OrdinalIgnoreCase)) model.QrCategoryIndex = 3;
         else if (string.Equals(qrType, "Email", StringComparison.OrdinalIgnoreCase)) model.QrCategoryIndex = 4;
-        else if (string.Equals(qrType, "CalendarEvent", StringComparison.OrdinalIgnoreCase) || string.Equals(qrType, "Calendar", StringComparison.OrdinalIgnoreCase)) model.QrCategoryIndex = 5;
+        else if (string.Equals(qrType, "CalendarEvent", StringComparison.OrdinalIgnoreCase)) model.QrCategoryIndex = 5;
         else if (string.Equals(qrType, "Phone", StringComparison.OrdinalIgnoreCase)) model.QrCategoryIndex = 6;
         else if (string.Equals(qrType, "Sms", StringComparison.OrdinalIgnoreCase)) model.QrCategoryIndex = 7;
         else if (string.Equals(qrType, "Geo", StringComparison.OrdinalIgnoreCase)) model.QrCategoryIndex = 8;

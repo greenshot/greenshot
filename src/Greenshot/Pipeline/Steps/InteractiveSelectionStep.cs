@@ -45,8 +45,12 @@ namespace Greenshot.Pipeline.Steps
     /// <summary>
     /// Pipeline step presenting interactive selection overlay (region, window snapping, or OCR text).
     /// </summary>
-    [Contracts.StepInfo(WellKnownStepTypes.InteractiveSelection, "Interactive Selection", "Presents interactive selection overlay (region, window snapping, or OCR text selection).", "Interaction")]
-    [Contracts.StepPayload(RawCapture = Contracts.PayloadRequirement.Required, Surface = Contracts.PayloadRequirement.Optional, VisualMutation = Contracts.PayloadEffect.MutatesPixels)]
+    [StepInfo(WellKnownStepTypes.InteractiveSelection, "Interactive Selection", "Lets the user select a region, a window or text on a capture of the screen. A capture that was handed to the flow, or that is not a screen capture, is used as a whole.", "Interaction")]
+    [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Optional, VisualMutation = PayloadEffect.MutatesPixels)]
+    [StepParameter("SelectionMode", ContractDataType.Enum, DefaultValue = "Region", Description = "Initial selection mode; Text also extracts the text of the selection", AllowedValues = new[] { "Region", "Window", "Text" })]
+    [StepParameter("AllowWindowSnapping", ContractDataType.Boolean, DefaultValue = true, Description = "Snap the selection to windows")]
+    [StepInputVariable("PreSuppliedRegion", ContractDataType.Object, Description = "When set, the selection is skipped")]
+    [StepOutputVariable("SelectedWindow", ContractDataType.Object, "The window that was selected", Conditional = true)]
     public class InteractiveSelectionStep : ICaptureStep
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(InteractiveSelectionStep));
@@ -56,9 +60,6 @@ namespace Greenshot.Pipeline.Steps
 
         public string Name { get; }
         public RecipeNodeConfig Config { get; }
-
-        public Contracts.StepContract Contract =>
-            Contracts.StepContractRegistry.GetContract(WellKnownStepTypes.InteractiveSelection) ?? Contracts.StepContractBuilder.FromType(GetType());
 
         public InteractiveSelectionStep(RecipeNodeConfig config, IInteractiveCaptureSelector selector = null)
         {

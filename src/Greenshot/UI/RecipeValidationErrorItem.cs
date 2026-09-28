@@ -20,6 +20,7 @@
  */
 
 using System;
+using Greenshot.Base.Recipes;
 
 namespace Greenshot.UI
 {
@@ -44,20 +45,15 @@ namespace Greenshot.UI
                 return item;
             }
 
-            // Check if stepType 'Drawable' was used (legacy name replaced by 'Annotation')
-            if (rawError.IndexOf("Drawable", StringComparison.OrdinalIgnoreCase) >= 0)
-            {
-                item.DiagnosticHint = "The stepType 'Drawable' was renamed to 'Annotation' in Greenshot. In your recipe file, rename 'stepType': 'Drawable' to 'stepType': 'Annotation', and rename the 'drawables' array to 'annotations'.";
-            }
             // Check if unknown or plugin stepType was used
-            else if (rawError.IndexOf("which is not available because the required extension/plugin is not installed or active", StringComparison.OrdinalIgnoreCase) >= 0)
+            if (rawError.IndexOf("which is not available because the required extension/plugin is not installed or active", StringComparison.OrdinalIgnoreCase) >= 0)
             {
                 item.DiagnosticHint = "The stepType specified is not registered in core Greenshot. If it is provided by a plugin or extension (e.g. Jira, Imgur, OCR, etc.), verify that the plugin is installed in the Plugins folder and enabled under Greenshot Settings > Plugins.";
             }
             // Check for SourceType issues
             else if (rawError.IndexOf("Unknown SourceType", StringComparison.OrdinalIgnoreCase) >= 0)
             {
-                item.DiagnosticHint = "Valid SourceType values are: Screen, Window, Region, AllScreens, Clipboard, File, Context.";
+                item.DiagnosticHint = $"Valid SourceType values are: {string.Join(", ", Enum.GetNames(typeof(CaptureSourceType)))}.";
             }
             // Check for Transition target issues
             else if (rawError.IndexOf("Transition targets node", StringComparison.OrdinalIgnoreCase) >= 0)

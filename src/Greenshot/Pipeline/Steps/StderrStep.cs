@@ -33,20 +33,19 @@ namespace Greenshot.Pipeline.Steps
     /// Dedicated pipeline step that emits error text directly to stderr, sets a custom process exit code,
     /// and optionally aborts the capture pipeline immediately.
     /// </summary>
-    [StepInfo(WellKnownStepTypes.Stderr, "Stderr Output", "Emits an error message directly to stderr and sets a custom process exit code.", "Diagnostics")]
-    [StepParameter("text", ContractDataType.String, Required = false, Description = "Error message expression to output to stderr")]
-    [StepParameter("message", ContractDataType.String, Required = false, Description = "Alias for text parameter")]
-    [StepParameter("exitCode", ContractDataType.Integer, Required = false, DefaultValue = 1, Description = "Numerical process exit code (default: 1)")]
-    [StepParameter("abort", ContractDataType.Boolean, Required = false, DefaultValue = true, Description = "Whether to abort recipe execution immediately")]
+    [StepInfo(WellKnownStepTypes.Stderr, "Stderr Output", "Writes an error message to standard error of the caller, sets the exit code and (by default) ends the flow.", "Diagnostics")]
+    [StepParameter("Text", ContractDataType.String, Description = "Error message")]
+    [StepParameter("ExitCode", ContractDataType.Integer, DefaultValue = 1, Description = "Exit code of the flow")]
+    [StepParameter("Abort", ContractDataType.Boolean, DefaultValue = true, Description = "End the flow")]
+    [StepOutputVariable("LastStderr", ContractDataType.String, "The message that was written")]
+    [StepOutputVariable("StderrEmitted", ContractDataType.Boolean, "True once a message was written")]
+    [StepOutputVariable("ExitCode", ContractDataType.Integer, "The exit code")]
     public class StderrStep : ICaptureStep
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(StderrStep));
 
         public string Name { get; }
         public RecipeNodeConfig NodeConfig { get; }
-
-        public StepContract Contract =>
-            StepContractRegistry.GetContract(WellKnownStepTypes.Stderr) ?? StepContractBuilder.FromType(GetType());
 
         public StderrStep(RecipeNodeConfig config)
         {
@@ -58,12 +57,7 @@ namespace Greenshot.Pipeline.Steps
         {
             if (context == null) return;
 
-            string rawText = NodeConfig.GetParameter<string>("Text")
-                ?? NodeConfig.GetParameter<string>("text")
-                ?? NodeConfig.GetParameter<string>("Message")
-                ?? NodeConfig.GetParameter<string>("message")
-                ?? NodeConfig.GetParameter<string>("Error")
-                ?? NodeConfig.GetParameter<string>("error");
+            string rawText = NodeConfig.GetParameter<string>("Text");
 
             string evaluatedText = string.Empty;
             // The engine already evaluated the expressions in the parameters; evaluating the result again would expand
@@ -74,22 +68,7 @@ namespace Greenshot.Pipeline.Steps
             }
 
             int exitCode = NodeConfig.GetParameter<int>("ExitCode", 1);
-            if (exitCode == 1 && NodeConfig.Parameters != null && NodeConfig.Parameters.TryGetValue("exitcode", out var ecObj))
-            {
-                if (int.TryParse(ecObj?.ToString(), out int parsedEc))
-                {
-                    exitCode = parsedEc;
-                }
-            }
-
             bool abort = NodeConfig.GetParameter<bool>("Abort", true);
-            if (abort && NodeConfig.Parameters != null && NodeConfig.Parameters.TryGetValue("abort", out var abObj))
-            {
-                if (bool.TryParse(abObj?.ToString(), out bool parsedAb))
-                {
-                    abort = parsedAb;
-                }
-            }
 
             context.ExitCode = exitCode;
 

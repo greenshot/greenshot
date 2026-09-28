@@ -68,11 +68,6 @@ namespace Greenshot.Base.Recipes
         public const string Effect = "Effect";
 
         /// <summary>
-        /// Applies a border to the capture. Maintained as alias to Effect for backward compatibility.
-        /// </summary>
-        public const string Border = "Border";
-
-        /// <summary>
         /// Evaluates a condition and executes child steps based on the result.
         /// </summary>
         public const string Conditional = "Conditional";
@@ -128,11 +123,6 @@ namespace Greenshot.Base.Recipes
         public const string UserPrompt = "UserPrompt";
 
         /// <summary>
-        /// Alias for UserPrompt.
-        /// </summary>
-        public const string PromptChoice = "PromptChoice";
-
-        /// <summary>
         /// Records screen video using Windows Graphics Capture (WGC).
         /// </summary>
         public const string RecordVideo = "RecordVideo";
@@ -147,14 +137,5 @@ namespace Greenshot.Base.Recipes
         /// </summary>
         public const string Stderr = "Stderr";
 
-        /// <summary>
-        /// Alias for Stderr.
-        /// </summary>
-        public const string Error = "Error";
-
-        /// <summary>
-        /// Alias for Stderr.
-        /// </summary>
-        public const string Fail = "Fail";
     }
 }

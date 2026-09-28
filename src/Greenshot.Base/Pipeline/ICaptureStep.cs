@@ -21,25 +21,22 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using Greenshot.Base.Pipeline.Contracts;
 
 namespace Greenshot.Base.Pipeline
 {
     /// <summary>
     /// Represents a discrete, modular step in the capture pipeline.
-    /// Discloses a formal StepContract of its parameters, expected variables, produced variables, and payload interactions.
     /// </summary>
+    /// <remarks>
+    /// What a step reads and writes is described by its StepContract. The contract belongs to the step type, not to an
+    /// instance: it is registered together with the step's factory, see <see cref="IStepRegistry.Register"/>.
+    /// </remarks>
     public interface ICaptureStep
     {
         /// <summary>
         /// Display name or identifier of this step.
         /// </summary>
         string Name { get; }
-
-        /// <summary>
-        /// Formal contract specifying inputs, outputs, parameters, and payload behavior.
-        /// </summary>
-        StepContract Contract { get; }
 
         /// <summary>
         /// Executes the step against the flow context.

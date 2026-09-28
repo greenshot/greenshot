@@ -498,7 +498,7 @@ namespace Greenshot.Recipes
                         }
                     }
 
-                    if (valResult.HasExternalCommands && !allowExternalCommands)
+                    if (valResult.HasGatedActions && !allowExternalCommands)
                     {
                         overallResult.AddError($"Recipe '{recipe.Name}' contains external commands, but authorization was not granted.");
                         continue;

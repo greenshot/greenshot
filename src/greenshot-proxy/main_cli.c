@@ -17,7 +17,7 @@ static const char Usage[] =
     "  greenshot <file...>\n\n"
     "Options:\n"
     "  --list-recipes, -l [--json]             List all recipes configured with a CommandlineTrigger\n"
-    "  --info, --describe, -i <id> [--json]    Describe the contract & variables of a recipe\n"
+    "  --info, -i <id> [--json]                Describe the contract & variables of a recipe\n"
     "  --recipe, -r <cmd|id> [arguments]       Execute a recipe by command identifier or recipe ID\n"
     "  --file, -f <file...>                    Open one or more files using configured OpenFile triggers\n"
     "  --reload                                Reload Greenshot configuration\n"
@@ -30,7 +30,7 @@ static const char Usage[] =
     "  --query, -q <expr>                      Print the value of an expression after the recipe finished,\n"
     "                                          instead of the recipe's own output\n"
     "  --json                                  Print the result (status, exit code, output, variables) as JSON\n"
-    "  --async, --fire-and-forget              Start the recipe and return immediately\n"
+    "  --async                                 Start the recipe and return immediately\n"
     "  --                                      Stop option parsing; remaining arguments must be key=value\n\n"
     "  Example: greenshot --recipe ocr destination=clipboard\n"
     "  Example: greenshot -r qr --file=invoice.png --query \"${Barcode.Text}\"\n\n"
@@ -58,14 +58,12 @@ static int Fail(BOOL bJson, int exitCode, const char* pszMessage)
 static int RunCli(int argc, LPWSTR* argv)
 {
     if (argc <= 1 ||
-        RtEqualsIgnoreCaseW(argv[1], L"--help") || RtEqualsIgnoreCaseW(argv[1], L"-h") ||
-        RtEqualsIgnoreCaseW(argv[1], L"/?") || RtEqualsIgnoreCaseW(argv[1], L"help"))
+        RtEqualsIgnoreCaseW(argv[1], L"--help") || RtEqualsIgnoreCaseW(argv[1], L"-h"))
     {
         RtWriteString(STD_OUTPUT_HANDLE, Usage);
         return PROXY_EXIT_OK;
     }
-    if (RtEqualsIgnoreCaseW(argv[1], L"--version") || RtEqualsIgnoreCaseW(argv[1], L"-v") ||
-        RtEqualsIgnoreCaseW(argv[1], L"version"))
+    if (RtEqualsIgnoreCaseW(argv[1], L"--version") || RtEqualsIgnoreCaseW(argv[1], L"-v"))
     {
         RtWriteString(STD_OUTPUT_HANDLE, "Greenshot Proxy " PROXY_CLIENT_VERSION "\n");
         return PROXY_EXIT_OK;

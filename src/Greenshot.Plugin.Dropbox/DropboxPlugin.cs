@@ -99,9 +99,7 @@ public class DropboxPlugin : IGreenshotPlugin, IRecipeStepProvider
     public void RegisterSteps(IStepRegistry registry)
     {
         if (registry == null) return;
-        registry.RegisterStepFactory("Dropbox", config => new DropboxStep(config, this));
-        registry.RegisterStepFactory("DropboxUpload", config => new DropboxStep(config, this));
-        registry.RegisterStepFactory("UploadToDropbox", config => new DropboxStep(config, this));
+        registry.Register<DropboxStep>(config => new DropboxStep(config, this));
     }
 
     /// <summary>

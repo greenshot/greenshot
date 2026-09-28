@@ -61,19 +61,15 @@ namespace Greenshot.Base.Pipeline.Sources
 
             // Check config and context properties for targeted window specifications
             string title = _config?.GetParameter<string>("WindowTitle")
-                ?? _config?.GetParameter<string>("windowTitle")
                 ?? (context.Properties.TryGetValue("WindowTitle", out var tObj) ? tObj as string : null);
 
             string titlePattern = _config?.GetParameter<string>("WindowTitlePattern")
-                ?? _config?.GetParameter<string>("windowTitlePattern")
                 ?? (context.Properties.TryGetValue("WindowTitlePattern", out var tpObj) ? tpObj as string : null);
 
             string processName = _config?.GetParameter<string>("ProcessName")
-                ?? _config?.GetParameter<string>("processName")
                 ?? (context.Properties.TryGetValue("ProcessName", out var pnObj) ? pnObj as string : null);
 
             bool matchCase = _config?.GetParameter("MatchCase", false)
-                ?? _config?.GetParameter("matchCase", false)
                 ?? (context.Properties.TryGetValue("MatchCase", out var mcObj) && mcObj is bool mc && mc);
 
             bool isTargeted = !string.IsNullOrEmpty(title) || !string.IsNullOrEmpty(titlePattern) || !string.IsNullOrEmpty(processName);
@@ -118,9 +114,12 @@ namespace Greenshot.Base.Pipeline.Sources
                 if (window != null)
                 {
                     CoreConfig.LastCapturedRegion = window.WindowRectangle;
+                    // Context (caller) -> node parameter -> settings
                     var windowCaptureMode = context.Properties.TryGetValue("WindowCaptureMode", out var wcmObj) && wcmObj is WindowCaptureMode wcm
                         ? wcm
-                        : CoreConfig.WindowCaptureMode;
+                        : Enum.TryParse(_config?.GetParameter<object>("WindowCaptureMode")?.ToString(), true, out WindowCaptureMode configured)
+                            ? configured
+                            : CoreConfig.WindowCaptureMode;
                     capture = WindowCaptureHelper.CaptureWindow(window, capture, windowCaptureMode);
                     if (capture != null)
                     {

@@ -99,9 +99,7 @@ public class BoxPlugin : IGreenshotPlugin, IRecipeStepProvider
     public void RegisterSteps(IStepRegistry registry)
     {
         if (registry == null) return;
-        registry.RegisterStepFactory("Box", config => new BoxStep(config, this));
-        registry.RegisterStepFactory("BoxUpload", config => new BoxStep(config, this));
-        registry.RegisterStepFactory("UploadToBox", config => new BoxStep(config, this));
+        registry.Register<BoxStep>(config => new BoxStep(config, this));
     }
 
     /// <summary>

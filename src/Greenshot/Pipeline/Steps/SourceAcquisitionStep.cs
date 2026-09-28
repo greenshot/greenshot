@@ -47,14 +47,32 @@ namespace Greenshot.Pipeline.Steps
     /// raw pixel acquisition from screen, window, file, or clipboard, and pixel DPI alignment.
     /// Evaluates configuration settings (e.g. mouse cursor, delay) dynamically at runtime.
     /// </summary>
-    [Contracts.StepInfo(WellKnownStepTypes.Source, "Acquire Source", "Acquires raw capture pixels from a capture source (Screen, Window, ActiveWindow, Clipboard, File, LastRegion).", "Acquisition")]
-    [Contracts.StepPayload(RawCapture = Contracts.PayloadRequirement.Created, Surface = Contracts.PayloadRequirement.Created)]
-    [Contracts.StepParameter("sourceType", Contracts.ContractDataType.Enum, Required = true, Description = "Capture source type", AllowedValues = new[] { "Screen", "Window", "ActiveWindow", "Clipboard", "File", "LastRegion" })]
-    [Contracts.StepParameter("filename", Contracts.ContractDataType.FilePath, Required = false, Description = "File path or expression when sourceType is File")]
-    [Contracts.StepOutputVariable("Filename", Contracts.ContractDataType.FilePath, "Full path of the acquired file (if sourceType is File)")]
-    [Contracts.StepOutputVariable("dirname", Contracts.ContractDataType.DirectoryPath, "Directory of the acquired file")]
-    [Contracts.StepOutputVariable("basename", Contracts.ContractDataType.String, "Base file name without extension")]
-    [Contracts.StepOutputVariable("extension", Contracts.ContractDataType.String, "File extension")]
+    [StepInfo(WellKnownStepTypes.Source, "Acquire Source", "Acquires the image: captures the screen, a region, a window, the clipboard, a file or the current editor. A capture handed to the flow (forwarded from another recipe, imported from the browser extension) is used instead of capturing.", "Acquisition")]
+    [StepPayload(RawCapture = PayloadRequirement.Created, Surface = PayloadRequirement.Created)]
+    [StepParameter("SourceType", ContractDataType.Enum, DefaultValue = "Region", SupportsExpressions = false, Description = "What to capture", AllowedValues = new[] { "Region", "Window", "ActiveWindow", "FullScreen", "LastRegion", "Clipboard", "File", "TextOcr", "CurrentEditor", "Extension" })]
+    [StepParameter("Filename", ContractDataType.FilePath, Description = "File to load (SourceType File); default: variable Filename")]
+    [StepParameter("CaptureMouseCursor", ContractDataType.Boolean, Description = "Include the mouse cursor (default: settings)")]
+    [StepParameter("DelayMs", ContractDataType.Integer, Description = "Delay before capturing in milliseconds (default: settings)")]
+    [StepParameter("ScreenCaptureMode", ContractDataType.Enum, Description = "Which screen(s) to capture for FullScreen (default: settings)", AllowedValues = new[] { "Auto", "FullScreen", "Fixed" })]
+    [StepParameter("WindowCaptureMode", ContractDataType.Enum, Description = "How to capture a window (default: settings)", AllowedValues = new[] { "Screen", "GDI", "Aero", "AeroTransparent", "Auto" })]
+    [StepParameter("WindowTitle", ContractDataType.String, Description = "Capture the window with this title (SourceType Window)")]
+    [StepParameter("WindowTitlePattern", ContractDataType.String, Description = "Capture the window whose title matches this regular expression (SourceType Window)")]
+    [StepParameter("ProcessName", ContractDataType.String, Description = "Capture the window of this process (SourceType Window)")]
+    [StepParameter("MatchCase", ContractDataType.Boolean, Description = "Match WindowTitle / WindowTitlePattern case-sensitively")]
+    [StepParameter("AlignDpi", ContractDataType.Boolean, DefaultValue = true, Description = "Set the image resolution to the screen DPI")]
+    [StepInputVariable("PreSuppliedRegion", ContractDataType.Object, Description = "Region to capture without asking (set by the caller)")]
+    [StepInputVariable("CaptureDelay", ContractDataType.Integer, Description = "Overrides DelayMs")]
+    [StepInputVariable("CaptureMouseCursor", ContractDataType.Boolean, Description = "Overrides the CaptureMouseCursor parameter")]
+    [StepInputVariable("ScreenCaptureMode", ContractDataType.Enum, Description = "Overrides the ScreenCaptureMode parameter")]
+    [StepInputVariable("WindowCaptureMode", ContractDataType.Enum, Description = "Overrides the WindowCaptureMode parameter")]
+    [StepInputVariable("TargetWindow", ContractDataType.Object, Description = "Window to capture (set by the caller)")]
+    [StepInputVariable("WindowTitle", ContractDataType.String, Description = "Window title, when the parameter is not set")]
+    [StepInputVariable("WindowTitlePattern", ContractDataType.String, Description = "Window title pattern, when the parameter is not set")]
+    [StepInputVariable("ProcessName", ContractDataType.String, Description = "Process name, when the parameter is not set")]
+    [StepInputVariable("MatchCase", ContractDataType.Boolean, Description = "Match case, when the parameter is not set")]
+    [StepInputVariable("Filename", ContractDataType.FilePath, Description = "File to load (SourceType File), when the parameter is not set")]
+    [StepInputVariable("EditorForm", ContractDataType.Object, Description = "The editor to take the image from (SourceType CurrentEditor, set by the editor trigger)")]
+    [StepOutputVariable("SelectedWindow", ContractDataType.Object, "The window of the last region (SourceType LastRegion)", Conditional = true)]
     public class SourceAcquisitionStep : ICaptureStep
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(SourceAcquisitionStep));
@@ -62,9 +80,6 @@ namespace Greenshot.Pipeline.Steps
 
         public string Name { get; }
         public RecipeNodeConfig Config { get; }
-
-        public Contracts.StepContract Contract =>
-            Contracts.StepContractRegistry.GetContract(WellKnownStepTypes.Source) ?? Contracts.StepContractBuilder.FromType(GetType());
 
         public SourceAcquisitionStep(RecipeNodeConfig config)
         {
@@ -121,7 +136,7 @@ namespace Greenshot.Pipeline.Steps
             // Check if window targeting parameters are specified in config
             bool hasTargetWindowConfig = !string.IsNullOrEmpty(Config.GetParameter<string>("WindowTitle")) ||
                                          !string.IsNullOrEmpty(Config.GetParameter<string>("WindowTitlePattern")) ||
-                                         !string.IsNullOrEmpty(Config.GetParameter<string>("processName"));
+                                         !string.IsNullOrEmpty(Config.GetParameter<string>("ProcessName"));
 
             // 5. Instantiate source based on SourceType
             ICaptureSource source = sourceType switch

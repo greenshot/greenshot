@@ -31,7 +31,6 @@ namespace Greenshot.Tests.Recipes
     {
         public string Id { get; }
         public string Name => Id;
-        public StepContract Contract => null;
         private readonly Func<CaptureFlowContext, Task> _exec;
 
         public MockTestStep(string id, Func<CaptureFlowContext, Task> exec)

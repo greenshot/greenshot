@@ -44,17 +44,20 @@ namespace Greenshot.Pipeline.Steps
     /// Interactive conditional pipeline step presenting a decision modal to the user.
     /// The user's selection determines which branch is activated in the DAG execution engine.
     /// </summary>
-    [Contracts.StepInfo(WellKnownStepTypes.UserPrompt, "User Prompt", "Presents an interactive decision prompt to the user to choose a flow branch.", "Interaction")]
-    [Contracts.StepOutputVariable("PromptChoice", Contracts.ContractDataType.String, "The key or text of the choice selected by the user")]
+    [StepInfo(WellKnownStepTypes.UserPrompt, "User Prompt", "Asks the user to choose; conditional transitions of this node follow the chosen key.", "Interaction")]
+    [StepParameter("Choices", ContractDataType.Object, Required = true, Description = "The choices (key and text)")]
+    [StepParameter("Title", ContractDataType.String, Description = "Title of the prompt")]
+    [StepParameter("Message", ContractDataType.String, Description = "Message of the prompt")]
+    [StepParameter("DefaultChoice", ContractDataType.String, Description = "Choice used when the prompt times out")]
+    [StepParameter("ShowPreview", ContractDataType.Boolean, DefaultValue = true, Description = "Show a preview of the capture")]
+    [StepParameter("TimeoutSeconds", ContractDataType.Integer, DefaultValue = 0, Description = "Close the prompt after this many seconds (0: never)")]
+    [StepOutputVariable("UserChoice.{NodeId}", ContractDataType.String, "The key of the chosen choice")]
     public class UserPromptStep : ICaptureStep
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(UserPromptStep));
 
         public string Name { get; }
         public RecipeNodeConfig Config { get; }
-
-        public Contracts.StepContract Contract =>
-            Contracts.StepContractRegistry.GetContract(WellKnownStepTypes.UserPrompt) ?? Contracts.StepContractBuilder.FromType(GetType());
 
         public UserPromptStep(RecipeNodeConfig config)
         {
@@ -70,7 +73,7 @@ namespace Greenshot.Pipeline.Steps
             int timeoutSeconds = Config.GetParameter("TimeoutSeconds", 0);
             string defaultChoice = Config.GetParameter<string>("DefaultChoice");
 
-            var choices = ParseChoices(Config.GetParameter<object>("Choices") ?? Config.GetParameter<object>("choices"));
+            var choices = ParseChoices(Config.GetParameter<object>("Choices"));
 
             // Capture preview image if enabled
             Image previewImg = null;
@@ -137,9 +140,7 @@ namespace Greenshot.Pipeline.Steps
 
             string chosenKey = await tcs.Task.ConfigureAwait(false);
 
-            context.Properties["UserPrompt.Choice." + Config.Id] = chosenKey;
             context.Properties["UserChoice." + Config.Id] = chosenKey;
-            context.Properties["LastUserChoice"] = chosenKey;
 
             context.LogStep($"User Prompt '{title}' -> Selected choice: '{chosenKey}'");
             Log.InfoFormat("UserPromptStep [{0}] user selected choice '{1}'", Config.Id, chosenKey);

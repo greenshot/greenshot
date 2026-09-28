@@ -37,7 +37,10 @@ namespace Greenshot.Pipeline.Steps
     /// Pipeline step that enables or dispatches completion notifications (e.g. tray balloon / toast).
     /// Dynamically evaluates whether notifications are enabled based on CoreConfig if not pre-defined.
     /// </summary>
-    [Contracts.StepInfo(WellKnownStepTypes.Notification, "Notification", "Dispatches a system tray balloon or toast notification.", "Feedback")]
+    [StepInfo(WellKnownStepTypes.Notification, "Notification", "Enables or disables the notification shown when the flow completes.", "Feedback")]
+    [StepParameter("ShowNotification", ContractDataType.Boolean, Description = "Show the completion notification (default: settings)")]
+    [StepInputVariable("ShowNotification", ContractDataType.Boolean, Description = "Overrides the ShowNotification parameter")]
+    [StepOutputVariable("EnableCompletionNotification", ContractDataType.Boolean, "Whether the completion notification is shown")]
     public class NotificationStep : ICaptureStep
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(NotificationStep));
@@ -45,9 +48,6 @@ namespace Greenshot.Pipeline.Steps
 
         public string Name { get; }
         public RecipeNodeConfig Config { get; }
-
-        public Contracts.StepContract Contract =>
-            Contracts.StepContractRegistry.GetContract(WellKnownStepTypes.Notification) ?? Contracts.StepContractBuilder.FromType(GetType());
 
         public NotificationStep(RecipeNodeConfig config)
         {

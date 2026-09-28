@@ -94,9 +94,9 @@ namespace Greenshot.Tests.Recipes
                 StepType = WellKnownStepTypes.Stderr,
                 Parameters = new Dictionary<string, object>
                 {
-                    { "message", "A non-fatal error occurred" },
-                    { "exitCode", 2 },
-                    { "abort", false }
+                    { "Text", "A non-fatal error occurred" },
+                    { "ExitCode", 2 },
+                    { "Abort", false }
                 }
             };
 
@@ -116,9 +116,11 @@ namespace Greenshot.Tests.Recipes
             Assert.Equal("Stderr Output", contract.DisplayName);
             Assert.Equal("Diagnostics", contract.Category);
 
-            Assert.Contains(contract.Parameters, p => p.Name == "text" && p.DataType == ContractDataType.String);
-            Assert.Contains(contract.Parameters, p => p.Name == "exitCode" && p.DataType == ContractDataType.Integer && Convert.ToInt32(p.DefaultValue) == 1);
-            Assert.Contains(contract.Parameters, p => p.Name == "abort" && p.DataType == ContractDataType.Boolean);
+            Assert.Contains(contract.Parameters, p => p.Matches("text") && !p.Matches("message") && p.DataType == ContractDataType.String);
+            Assert.Contains(contract.Parameters, p => p.Matches("exitCode") && p.DataType == ContractDataType.Integer && Convert.ToInt32(p.DefaultValue) == 1);
+            Assert.Contains(contract.Parameters, p => p.Matches("abort") && p.DataType == ContractDataType.Boolean);
+            Assert.Contains(contract.OutputVariables, v => v.Name == "ExitCode");
+            Assert.Equal(typeof(StderrStep), contract.ImplementationType);
         }
 
         [Fact]
@@ -162,7 +164,7 @@ namespace Greenshot.Tests.Recipes
                     new RecipeNodeConfig
                     {
                         Id = "zxing_qr",
-                        StepType = "BarcodeScanner",
+                        StepType = Greenshot.Plugin.Zxing.ZxingStep.StepType,
                         Parameters = new Dictionary<string, object>()
                     },
                     new RecipeNodeConfig
@@ -176,11 +178,17 @@ namespace Greenshot.Tests.Recipes
                     }
                 }
             };
-            StepContractRegistry.Register<SourceAcquisitionStep>();
-            StepContractRegistry.Register<StdoutStep>();
-            StepContractRegistry.Register<Greenshot.Plugin.Zxing.ZxingStep>();
+            // Without transitions only the first node would run: the analysis follows the graph, not the node list
+            recipe.Flow = new RecipeFlowConfig("source_file")
+                .AddTransition("source_file", "zxing_qr")
+                .AddTransition("zxing_qr", "print_qr");
 
-            var contract = RecipeContract.Analyze(recipe);
+            var registry = new StepRegistry();
+            registry.Register<SourceAcquisitionStep>(config => new SourceAcquisitionStep(config));
+            registry.Register<StdoutStep>(config => new StdoutStep(config));
+            registry.Register<Greenshot.Plugin.Zxing.ZxingStep>(config => new Greenshot.Plugin.Zxing.ZxingStep(config));
+
+            var contract = RecipeContract.Analyze(recipe, registry);
             Assert.NotNull(contract);
             Assert.Equal("qr_extractor", contract.RecipeId);
 
@@ -188,8 +196,9 @@ namespace Greenshot.Tests.Recipes
             Assert.Contains(contract.Inputs, i => i.Name == "Filename" && i.Required);
             Assert.Contains(contract.Inputs, i => i.Name == "Format" && !i.Required && (string)i.ExampleValue == "png");
 
-            // Outputs
-            Assert.Contains(contract.Outputs, o => o.Name == "Barcode.Text");
+            // Outputs: the barcode text is only set when a barcode was found
+            Assert.Contains(contract.Outputs, o => o.Name == "Barcode.Text" && o.Conditional);
+            Assert.Empty(contract.ValidationWarnings);
 
             // Lifecycle
             Assert.True(contract.AcquiresImage);

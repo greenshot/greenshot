@@ -63,22 +63,17 @@ namespace Greenshot.Helpers.Ipc
             "IMPORT_CAPTURE",
             "TAB_CHANGED",
             "OPEN_FILE",
-            "OPEN",
             "EXIT",
             "RELOAD_CONFIG",
-            "RELOAD",
             "FIRST_LAUNCH",
             "LIST_RECIPES",
             "RUN_RECIPE",
             "DESCRIBE_RECIPE",
-            "RECIPE_INFO",
-            "INFO",
             "VERSION",
             "URL_SCHEME",
             "SETTINGS",
             "ABOUT",
             "SELF_SERVICE",
-            "SELFSERVICE",
             "RECIPE_EDITOR",
             "RECIPE_MANAGER"
         };
@@ -273,7 +268,6 @@ namespace Greenshot.Helpers.Ipc
                 "SETTINGS",
                 "ABOUT",
                 "SELF_SERVICE",
-                "SELFSERVICE",
                 "RECIPE_EDITOR",
                 "RECIPE_MANAGER"
             },
@@ -285,15 +279,12 @@ namespace Greenshot.Helpers.Ipc
                 "VERSION",
                 "LIST_RECIPES",
                 "DESCRIBE_RECIPE",
-                "RECIPE_INFO",
-                "INFO",
                 "RUN_RECIPE"
             },
             ["open_with"] = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
             {
                 "CLI",
-                "OPEN_FILE",
-                "OPEN"
+                "OPEN_FILE"
             }
         };
 
@@ -413,13 +404,10 @@ namespace Greenshot.Helpers.Ipc
                     break;
 
                 case "DESCRIBE_RECIPE":
-                case "RECIPE_INFO":
-                case "INFO":
                     await HandleDescribeRecipeAsync(context).ConfigureAwait(false);
                     break;
 
                 case "OPEN_FILE":
-                case "OPEN":
                     await HandleOpenFileAsync(context, mainForm, onOpenFile).ConfigureAwait(false);
                     break;
 
@@ -436,7 +424,6 @@ namespace Greenshot.Helpers.Ipc
                     break;
 
                 case "SELF_SERVICE":
-                case "SELFSERVICE":
                     await HandleSelfServiceAsync(context, mainForm).ConfigureAwait(false);
                     break;
 
@@ -458,7 +445,6 @@ namespace Greenshot.Helpers.Ipc
                     break;
 
                 case "RELOAD_CONFIG":
-                case "RELOAD":
                     InvokeOnUi(mainForm, () => onReloadConfig?.Invoke());
                     try
                     {
@@ -542,8 +528,8 @@ namespace Greenshot.Helpers.Ipc
                 return;
             }
 
-            string title = context.Envelope.Metadata?.Title ?? context.Envelope.Title ?? "Browser Capture";
-            string url = context.Envelope.Metadata?.Url ?? context.Envelope.Url ?? string.Empty;
+            string title = context.Envelope.Metadata?.Title ?? "Browser Capture";
+            string url = context.Envelope.Metadata?.Url ?? string.Empty;
             string browser = context.Envelope.Browser;
             int width = importedBmp.Width;
             int height = importedBmp.Height;
@@ -621,8 +607,8 @@ namespace Greenshot.Helpers.Ipc
 
         private static void HandleTabChanged(IpcRequestContext context)
         {
-            string url = context.Envelope.Url ?? context.Envelope.Metadata?.Url ?? string.Empty;
-            string title = context.Envelope.Title ?? context.Envelope.Metadata?.Title ?? string.Empty;
+            string url = context.Envelope.Url ?? string.Empty;
+            string title = context.Envelope.Title ?? string.Empty;
 
             BrowserContextTracker.Instance.UpdateContext(url, title);
         }
@@ -823,7 +809,8 @@ namespace Greenshot.Helpers.Ipc
                     {
                         name = o.Name,
                         type = o.DataType.ToString(),
-                        description = o.Description
+                        description = o.Description,
+                        conditional = o.Conditional
                     }),
                     steps = contract.Steps.Select(s => new
                     {
@@ -832,7 +819,8 @@ namespace Greenshot.Helpers.Ipc
                         display_name = s.DisplayName,
                         required_inputs = s.RequiredInputs,
                         produced_outputs = s.ProducedOutputs,
-                        requires_image = s.RequiresRawCapture != PayloadRequirement.None
+                        requires_image = s.RequiresRawCapture == PayloadRequirement.Required,
+                        reachable = s.Reachable
                     }),
                     lifecycle = new
                     {
@@ -1341,10 +1329,6 @@ namespace Greenshot.Helpers.Ipc
                 {
                     rawFiles.Add(p);
                 }
-                else if (context.Envelope.Parsed.Parameters.TryGetValue("file", out var f) && !string.IsNullOrWhiteSpace(f))
-                {
-                    rawFiles.Add(f);
-                }
             }
             if (rawFiles.Count == 0 && !string.IsNullOrWhiteSpace(context.Envelope.RawInput))
             {
@@ -1655,18 +1639,8 @@ namespace Greenshot.Helpers.Ipc
                     parameters["recipe"] = pathAndAction.Substring(7);
                     return "RUN_RECIPE";
                 }
-                if (pathAndAction.StartsWith("run/", StringComparison.OrdinalIgnoreCase))
-                {
-                    parameters["recipe"] = pathAndAction.Substring(4);
-                    return "RUN_RECIPE";
-                }
-                if (string.Equals(pathAndAction, "run", StringComparison.OrdinalIgnoreCase))
-                {
-                    return "RUN_RECIPE";
-                }
 
-                if (string.Equals(pathAndAction, "settings", StringComparison.OrdinalIgnoreCase) ||
-                    string.Equals(pathAndAction, "preferences", StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(pathAndAction, "settings", StringComparison.OrdinalIgnoreCase))
                 {
                     return "SETTINGS";
                 }
@@ -1676,22 +1650,17 @@ namespace Greenshot.Helpers.Ipc
                     return "ABOUT";
                 }
 
-                if (string.Equals(pathAndAction, "self-service", StringComparison.OrdinalIgnoreCase) ||
-                    string.Equals(pathAndAction, "selfservice", StringComparison.OrdinalIgnoreCase) ||
-                    string.Equals(pathAndAction, "diagnostics", StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(pathAndAction, "self-service", StringComparison.OrdinalIgnoreCase))
                 {
                     return "SELF_SERVICE";
                 }
 
-                if (string.Equals(pathAndAction, "editor", StringComparison.OrdinalIgnoreCase) ||
-                    string.Equals(pathAndAction, "recipe-editor", StringComparison.OrdinalIgnoreCase) ||
-                    string.Equals(pathAndAction, "recipeeditor", StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(pathAndAction, "recipe-editor", StringComparison.OrdinalIgnoreCase))
                 {
                     return "RECIPE_EDITOR";
                 }
 
-                if (string.Equals(pathAndAction, "recipe-manager", StringComparison.OrdinalIgnoreCase) ||
-                    string.Equals(pathAndAction, "recipemanager", StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(pathAndAction, "recipe-manager", StringComparison.OrdinalIgnoreCase))
                 {
                     return "RECIPE_MANAGER";
                 }

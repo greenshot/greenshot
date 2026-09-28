@@ -136,12 +136,12 @@ namespace Greenshot.Helpers.Ipc
 
             string first = argv[0];
 
-            if (IsAny(first, "--list-recipes", "-l", "list-recipes"))
+            if (IsAny(first, "--list-recipes", "-l"))
             {
                 return ParseJsonFlagOnly(argv, 1, CreateEnvelope("LIST_RECIPES", cwd));
             }
 
-            if (IsAny(first, "--info", "--describe", "-i", "info", "describe"))
+            if (IsAny(first, "--info", "-i"))
             {
                 if (argv.Count < 2)
                 {
@@ -152,7 +152,7 @@ namespace Greenshot.Helpers.Ipc
                 return ParseJsonFlagOnly(argv, 2, envelope);
             }
 
-            if (IsAny(first, "--recipe", "-r", "run"))
+            if (IsAny(first, "--recipe", "-r"))
             {
                 return ParseRunRecipe(argv, cwd, json);
             }
@@ -168,7 +168,7 @@ namespace Greenshot.Helpers.Ipc
                 return CliParseResult.Ok(envelope);
             }
 
-            if (IsAny(first, "--reload", "--exit", "--version", "-v", "version"))
+            if (IsAny(first, "--reload", "--exit", "--version", "-v"))
             {
                 if (argv.Count > 1)
                 {
@@ -219,7 +219,7 @@ namespace Greenshot.Helpers.Ipc
 
         /// <summary>
         /// --recipe &lt;id&gt; followed by recipe arguments (key=value, --key=value, --key value; values are taken verbatim,
-        /// also when they start with '-') and the options --json, --query/-q, --async/--fire-and-forget and "--".
+        /// also when they start with '-') and the options --json, --query/-q, --async and "--".
         /// </summary>
         private static CliParseResult ParseRunRecipe(IList<string> argv, string cwd, bool json)
         {
@@ -251,7 +251,7 @@ namespace Greenshot.Helpers.Ipc
                         i++;
                         continue;
                     }
-                    if (IsAny(arg, "--async", "--fire-and-forget"))
+                    if (IsAny(arg, "--async"))
                     {
                         envelope.Async = true;
                         i++;

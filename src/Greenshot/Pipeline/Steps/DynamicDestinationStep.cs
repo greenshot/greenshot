@@ -46,17 +46,20 @@ namespace Greenshot.Pipeline.Steps
     /// allows quick forwarding to destinations, supports forwarding to other recipes, and acts
     /// as a rich error recovery UI when a prior export fails.
     /// </summary>
-    [Contracts.StepInfo(WellKnownStepTypes.DynamicDestination, "Dynamic Destination Flyout", "Interactive WPF export flyout with thumbnail preview and action buttons.", "Destination")]
-    [Contracts.StepPayload(RawCapture = Contracts.PayloadRequirement.Required, Surface = Contracts.PayloadRequirement.Optional)]
+    [StepInfo(WellKnownStepTypes.DynamicDestination, "Dynamic Destination Flyout", "Lets the user pick a destination, open the editor, or forward the capture to another recipe.", "Destination")]
+    [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Optional)]
+    [StepParameter("Title", ContractDataType.String, Description = "Title of the flyout")]
+    [StepParameter("Destinations", ContractDataType.Object, Description = "Destinations to offer (default: all)")]
+    [StepParameter("AllowRecipeForwarding", ContractDataType.Boolean, DefaultValue = true, Description = "Offer to forward the capture to another recipe")]
+    [StepParameter("ShowPreview", ContractDataType.Boolean, Description = "Show a preview of the capture")]
+    [StepParameter("TimeoutSeconds", ContractDataType.Integer, Description = "Close the flyout after this many seconds")]
+    [StepInputVariable("LastError", ContractDataType.String, Description = "Shown when the flyout is used to pick another destination after a failed export")]
     public class DynamicDestinationStep : ICaptureStep
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(DynamicDestinationStep));
 
         public string Name { get; }
         public RecipeNodeConfig Config { get; }
-
-        public Contracts.StepContract Contract =>
-            Contracts.StepContractRegistry.GetContract(WellKnownStepTypes.DynamicDestination) ?? Contracts.StepContractBuilder.FromType(GetType());
 
         public DynamicDestinationStep(RecipeNodeConfig config)
         {

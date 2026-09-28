@@ -40,8 +40,6 @@ namespace Greenshot.Base.Recipes
         public List<string> Warnings { get; } = new List<string>();
         public List<RecipeGatedAction> GatedActions { get; } = new List<RecipeGatedAction>();
         public bool HasGatedActions => GatedActions.Count > 0;
-        public bool HasExternalCommands => HasGatedActions;
-        public List<string> ExternalCommands => GatedActions.Select(g => g.Target).ToList();
 
         public void AddError(string error) => Errors.Add(error);
         public void AddWarning(string warning) => Warnings.Add(warning);
@@ -76,7 +74,6 @@ namespace Greenshot.Base.Recipes
         {
             WellKnownStepTypes.Source,
             WellKnownStepTypes.InteractiveSelection,
-            WellKnownStepTypes.Border,
             WellKnownStepTypes.Effect,
             WellKnownStepTypes.ImmediateFeedback,
             WellKnownStepTypes.Processors,
@@ -94,9 +91,9 @@ namespace Greenshot.Base.Recipes
             WellKnownStepTypes.CustomDestination,
             WellKnownStepTypes.DynamicDestination,
             WellKnownStepTypes.RecordVideo,
-            "SaveToFile",
-            "ObfuscateText",
-            "ExternalCommand"
+            WellKnownStepTypes.UserPrompt,
+            WellKnownStepTypes.Stdout,
+            WellKnownStepTypes.Stderr
         };
 
         private static readonly HashSet<string> KnownTriggerTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
@@ -192,7 +189,32 @@ namespace Greenshot.Base.Recipes
             // Validate Flow Definition & DAG acyclicity
             ValidateFlowAndDetectCycles(recipe, nodeIds, result);
 
+            // Check the recipe against the step contracts along the graph: required parameters, allowed values,
+            // variables used before they are set on every path, nodes that never run, ...
+            if (result.IsValid)
+            {
+                AddContractWarnings(recipe, result);
+            }
+
             return result;
+        }
+
+        private static void AddContractWarnings(CaptureRecipe recipe, RecipeValidationResult result)
+        {
+            try
+            {
+                var contract = Pipeline.Contracts.RecipeContract.Analyze(recipe);
+                foreach (var warning in contract?.ValidationWarnings ?? Array.Empty<string>())
+                {
+                    // Unknown step types are already reported as errors above (or are built-ins not registered yet)
+                    if (warning.IndexOf("has no registered contract", StringComparison.Ordinal) >= 0) continue;
+                    result.AddWarning(warning);
+                }
+            }
+            catch (Exception ex)
+            {
+                result.AddWarning($"The recipe could not be checked against the step contracts: {ex.Message}");
+            }
         }
 
         private static void ValidateTrigger(Greenshot.Base.Triggers.TriggerConfig trigger, int index, RecipeValidationResult result)
@@ -268,7 +290,8 @@ namespace Greenshot.Base.Recipes
             }
 
             // Node-specific parameter validations (independent checks)
-            if (string.Equals(node.StepType, WellKnownStepTypes.Border, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(node.StepType, WellKnownStepTypes.Effect, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(node.GetParameter("Effect", "Border"), "Border", StringComparison.OrdinalIgnoreCase))
             {
                 if (node.Parameters != null && node.Parameters.TryGetValue("Width", out var w) && w != null)
                 {
@@ -300,7 +323,7 @@ namespace Greenshot.Base.Recipes
             }
             if (string.Equals(node.StepType, WellKnownStepTypes.Conditional, StringComparison.OrdinalIgnoreCase))
             {
-                var branches = node.GetFirstParameter<object>("Branches");
+                var branches = node.GetParameter<object>("Branches");
                 if (branches == null)
                 {
                     result.AddError($"Node '{node.Id}' [Conditional]: Missing required 'branches' configuration list.");

@@ -46,19 +46,27 @@ namespace Greenshot.Pipeline.Steps
     /// Pipeline step that scans text via OCR, locates occurrences matching regex patterns,
     /// and applies effects (Blur, Pixelize, Highlight, Redact, Magnify) to matched bounding boxes.
     /// </summary>
-    [Contracts.StepInfo(WellKnownStepTypes.TextEffect, "Text Effect", "Scans text via OCR and applies effects (Blur, Redact, Highlight) to matching text patterns.", "Effects")]
-    [Contracts.StepPayload(RawCapture = Contracts.PayloadRequirement.Required, Surface = Contracts.PayloadRequirement.Required, VisualMutation = Contracts.PayloadEffect.AddsAnnotations)]
-    [Contracts.StepParameter("pattern", Contracts.ContractDataType.String, Required = false, Description = "Regex or text pattern to match")]
-    [Contracts.StepParameter("effect", Contracts.ContractDataType.Enum, Required = false, Description = "Effect to apply (Blur, Pixelize, Highlight, Redact)")]
+    [StepInfo(WellKnownStepTypes.TextEffect, "Text Effect", "Finds text via OCR and applies an effect (pixelize, blur, highlight, redact, magnify) to the matches.", "Effects")]
+    [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Required, VisualMutation = PayloadEffect.AddsAnnotations)]
+    [StepParameter("Patterns", ContractDataType.Object, Required = true, Description = "Regular expressions to find")]
+    [StepParameter("Effect", ContractDataType.Enum, DefaultValue = "Pixelize", Description = "Effect to apply", AllowedValues = new[] { "Pixelize", "Blur", "Highlight", "Redact", "Magnify" })]
+    [StepParameter("Scope", ContractDataType.Enum, DefaultValue = "Auto", Description = "Apply to the matching words or whole lines")]
+    [StepParameter("MatchCase", ContractDataType.Boolean, DefaultValue = false, Description = "Match case")]
+    [StepParameter("FillColor", ContractDataType.String, Description = "Color (Highlight: #FFFF00, Redact: #000000)")]
+    [StepParameter("BlurRadius", ContractDataType.Integer, DefaultValue = 10, Description = "Blur radius (Blur)")]
+    [StepParameter("PixelSize", ContractDataType.Integer, DefaultValue = 5, Description = "Pixel size (Pixelize)")]
+    [StepParameter("MagnificationFactor", ContractDataType.Integer, DefaultValue = 2, Description = "Magnification (Magnify)")]
+    [StepParameter("Padding", ContractDataType.Integer, Description = "Padding around the matches")]
+    [StepParameter("PaddingHorizontal", ContractDataType.Integer, Description = "Horizontal padding")]
+    [StepParameter("PaddingVertical", ContractDataType.Integer, Description = "Vertical padding")]
+    [StepParameter("OffsetHorizontal", ContractDataType.Integer, Description = "Horizontal offset")]
+    [StepParameter("OffsetVertical", ContractDataType.Integer, Description = "Vertical offset")]
     public class TextEffectStep : ICaptureStep
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(TextEffectStep));
 
         public string Name { get; }
         public RecipeNodeConfig Config { get; }
-
-        public Contracts.StepContract Contract =>
-            Contracts.StepContractRegistry.GetContract(Name) ?? Contracts.StepContractRegistry.GetContract(WellKnownStepTypes.TextEffect) ?? Contracts.StepContractBuilder.FromType(GetType());
 
         public TextEffectStep(RecipeNodeConfig config)
         {
@@ -100,7 +108,7 @@ namespace Greenshot.Pipeline.Steps
                 return;
             }
 
-            bool matchCase = Config.GetParameter("MatchCase", Config.GetParameter("CaseSensitive", false));
+            bool matchCase = Config.GetParameter("MatchCase", false);
             var regexOptions = matchCase ? RegexOptions.None : RegexOptions.IgnoreCase;
 
             var compiledRegexes = new List<Regex>();
@@ -220,16 +228,7 @@ namespace Greenshot.Pipeline.Steps
         {
             var patterns = new List<string>();
 
-            string single = Config.GetParameter<string>("Pattern")
-                ?? Config.GetParameter<string>("Regex")
-                ?? Config.GetParameter<string>("SearchPattern");
-            if (!string.IsNullOrWhiteSpace(single))
-            {
-                patterns.Add(single);
-            }
-
-            var multiple = Config.GetParameter<List<string>>("Patterns")
-                ?? Config.GetParameter<List<string>>("Regexes");
+            var multiple = Config.GetParameter<List<string>>("Patterns");
             if (multiple != null)
             {
                 foreach (var p in multiple)
@@ -371,17 +370,15 @@ namespace Greenshot.Pipeline.Steps
                 obf.SetFieldValue(FieldType.BLUR_RADIUS, blurRadius);
                 container = obf;
             }
-            else if (string.Equals(effectType, "Highlight", StringComparison.OrdinalIgnoreCase) ||
-                     string.Equals(effectType, "TextHighlight", StringComparison.OrdinalIgnoreCase))
+            else if (string.Equals(effectType, "Highlight", StringComparison.OrdinalIgnoreCase))
             {
                 var hl = new HighlightContainer(surface);
                 hl.SetFieldValue(FieldType.PREPARED_FILTER_HIGHLIGHT, FilterContainer.PreparedFilter.TEXT_HIGHTLIGHT);
-                string colorStr = config.GetParameter<string>("FillColor", config.GetParameter<string>("Color", "#FFFF00"));
+                string colorStr = config.GetParameter<string>("FillColor", "#FFFF00");
                 hl.SetFieldValue(FieldType.FILL_COLOR, ParseColor(colorStr, Color.Yellow));
                 container = hl;
             }
-            else if (string.Equals(effectType, "Magnify", StringComparison.OrdinalIgnoreCase) ||
-                     string.Equals(effectType, "Magnification", StringComparison.OrdinalIgnoreCase))
+            else if (string.Equals(effectType, "Magnify", StringComparison.OrdinalIgnoreCase))
             {
                 var hl = new HighlightContainer(surface);
                 hl.SetFieldValue(FieldType.PREPARED_FILTER_HIGHLIGHT, FilterContainer.PreparedFilter.MAGNIFICATION);
@@ -389,11 +386,10 @@ namespace Greenshot.Pipeline.Steps
                 hl.SetFieldValue(FieldType.MAGNIFICATION_FACTOR, factor);
                 container = hl;
             }
-            else if (string.Equals(effectType, "Redact", StringComparison.OrdinalIgnoreCase) ||
-                     string.Equals(effectType, "Blackout", StringComparison.OrdinalIgnoreCase))
+            else if (string.Equals(effectType, "Redact", StringComparison.OrdinalIgnoreCase))
             {
                 var rect = new RectangleContainer(surface);
-                string colorStr = config.GetParameter<string>("FillColor", config.GetParameter<string>("Color", "#000000"));
+                string colorStr = config.GetParameter<string>("FillColor", "#000000");
                 rect.SetFieldValue(FieldType.FILL_COLOR, ParseColor(colorStr, Color.Black));
                 rect.SetFieldValue(FieldType.LINE_COLOR, Color.Transparent);
                 rect.SetFieldValue(FieldType.LINE_THICKNESS, 0);

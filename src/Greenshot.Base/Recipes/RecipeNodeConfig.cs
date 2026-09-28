@@ -93,29 +93,6 @@ namespace Greenshot.Base.Recipes
         /// </summary>
         public bool HasParameter(string key) => _parameters != null && !string.IsNullOrEmpty(key) && _parameters.ContainsKey(key);
 
-        /// <summary>
-        /// Retrieves the first matching parameter value among the provided alias keys, defaulting to default(T).
-        /// </summary>
-        public T GetFirstParameter<T>(params string[] keys) => GetFirstParameterOrDefault<T>(default, keys);
-
-        /// <summary>
-        /// Retrieves the first matching parameter value among the provided alias keys, or defaultValue if not found.
-        /// </summary>
-        public T GetFirstParameterOrDefault<T>(T defaultValue, params string[] keys)
-        {
-            if (_parameters != null && keys != null)
-            {
-                foreach (var key in keys)
-                {
-                    if (!string.IsNullOrEmpty(key) && _parameters.ContainsKey(key))
-                    {
-                        return GetParameter<T>(key, defaultValue);
-                    }
-                }
-            }
-            return defaultValue;
-        }
-
         public T GetParameter<T>(string key, T defaultValue = default)
         {
             if (Parameters != null && Parameters.TryGetValue(key, out var val) && val != null)

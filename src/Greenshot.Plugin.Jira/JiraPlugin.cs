@@ -110,10 +110,7 @@ public class JiraPlugin : IGreenshotPlugin, IRecipeStepProvider
     public void RegisterSteps(IStepRegistry registry)
     {
         if (registry == null) return;
-        registry.RegisterStepFactory("Jira", config => new JiraStep(config));
-        registry.RegisterStepFactory("JiraUpload", config => new JiraStep(config));
-        registry.RegisterStepFactory("UploadToJira", config => new JiraStep(config));
-        registry.RegisterStepFactory("AttachToJira", config => new JiraStep(config));
+        registry.Register<JiraStep>(config => new JiraStep(config));
     }
 
     /// <summary>

@@ -13,7 +13,7 @@
         "command": "ocr",
         "description": "Extract text from an image file using OCR and return to stdout",
         "fireAndForget": false,
-        "stdout": "${OcrText}",
+        "stdout": "${Payload.ExtractedText}",
         "arguments": [
           {
             "name": "file",
@@ -50,8 +50,8 @@
       "name": "Perform OCR",
       "enabled": true,
       "parameters": {
-        "processors": [
-          "Ocr"
+        "ProcessorIds": [
+          "Windows10OcrProcessor"
         ]
       }
     },
@@ -61,7 +61,7 @@
       "name": "Print Extracted Text",
       "enabled": true,
       "parameters": {
-        "text": "${OcrText}"
+        "text": "${Payload.ExtractedText}"
       }
     }
   ],

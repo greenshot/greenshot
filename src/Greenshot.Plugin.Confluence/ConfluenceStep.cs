@@ -29,6 +29,7 @@ using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Pipeline.Contracts;
 using Greenshot.Base.Recipes;
 using Greenshot.Plugin.Confluence.Entities;
 using log4net;
@@ -38,6 +39,14 @@ namespace Greenshot.Plugin.Confluence
     /// <summary>
     /// Capture recipe step that uploads/attaches the screenshot to a Confluence page.
     /// </summary>
+    [StepInfo("Confluence", "Upload to Confluence", "Uploads the capture as attachment to a Confluence page.", "Export")]
+    [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Required)]
+    [StepParameter("Format", ContractDataType.Enum, Description = "Image format of the upload", AllowedValues = new[] { "png", "jpg", "bmp", "gif", "tiff" })]
+    [StepParameter("JpegQuality", ContractDataType.Integer, Description = "JPEG quality (1-100) when uploading as JPEG")]
+    [StepParameter("ReduceColors", ContractDataType.Boolean, Description = "Reduce the image to 256 colors")]
+    [StepParameter("PageId", ContractDataType.String, Description = "Page to attach to")]
+    [StepOutputVariable("Confluence.PageId", ContractDataType.String, "The page the capture was attached to", Conditional = true)]
+    [StepOutputVariable("Confluence.UploadUrl", ContractDataType.String, "Link to the attachment", Conditional = true)]
     public class ConfluenceStep : ICaptureStep
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(ConfluenceStep));
@@ -45,9 +54,6 @@ namespace Greenshot.Plugin.Confluence
 
         public string Name { get; }
         public RecipeNodeConfig NodeConfig { get; }
-
-        public Base.Pipeline.Contracts.StepContract Contract =>
-            Base.Pipeline.Contracts.StepContractRegistry.GetContract(Name) ?? Base.Pipeline.Contracts.StepContractBuilder.FromType(GetType());
 
         public ConfluenceStep(RecipeNodeConfig config)
         {
@@ -69,17 +75,14 @@ namespace Greenshot.Plugin.Confluence
 
             var captureDetails = context.Payload?.RawCapture?.CaptureDetails ?? new CaptureDetails();
 
-            string pageId = NodeConfig.GetParameter<string>("PageId")
-                ?? NodeConfig.GetParameter<string>("pageId")
-                ?? NodeConfig.GetParameter<string>("Page")
-                ?? NodeConfig.GetParameter<string>("page");
+            string pageId = NodeConfig.GetParameter<string>("PageId");
 
             if (!string.IsNullOrEmpty(pageId))
             {
                 pageId = FilenameHelper.FillVariables(pageId, false);
             }
 
-            string formatStr = NodeConfig.GetParameter<string>("Format") ?? NodeConfig.GetParameter<string>("UploadFormat");
+            string formatStr = NodeConfig.GetParameter<string>("Format");
             OutputFormat uploadFormat = Config?.UploadFormat ?? OutputFormat.png;
             if (!string.IsNullOrWhiteSpace(formatStr) && Enum.TryParse<OutputFormat>(formatStr, true, out var parsedFormat))
             {

@@ -129,7 +129,8 @@ namespace Greenshot.Helpers.Ipc
                         stepNumber++,
                         stepType,
                         string.IsNullOrEmpty(displayName) ? stepType : displayName,
-                        GetBool(step, "requires_image") ? " (requires image)" : string.Empty);
+                        (GetBool(step, "requires_image") ? " (requires image)" : string.Empty) +
+                        (step["reachable"] != null && !GetBool(step, "reachable") ? " (never executed)" : string.Empty));
                 }
                 if (stepNumber == 1)
                 {
@@ -171,7 +172,7 @@ namespace Greenshot.Helpers.Ipc
                 string defaultValue = GetString(argument, "default_value") ?? GetString(argument, "defaultValue");
                 bool required = GetBool(argument, "required");
                 string type = GetString(argument, "type");
-                var allowedToken = GetToken(argument, "allowed_values") ?? GetToken(argument, "allowedValues");
+                var allowedToken = GetToken(argument, "allowed_values");
                 if (allowedToken is JArray allowedValues && allowedValues.Count > 0)
                 {
                     description = $"{description} [{string.Join("|", allowedValues.Values<string>())}]".Trim();
@@ -221,7 +222,8 @@ namespace Greenshot.Helpers.Ipc
 
                 if (!inputs)
                 {
-                    sb.AppendFormat(CultureInfo.InvariantCulture, "    {0,-20} ({1}) : {2}\n", name, type, description);
+                    sb.AppendFormat(CultureInfo.InvariantCulture, "    {0,-20} ({1}{2}) : {3}\n", name, type,
+                        GetBool(item, "conditional") ? ", not always set" : string.Empty, description);
                 }
                 else if (GetBool(item, "required"))
                 {

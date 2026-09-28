@@ -36,18 +36,17 @@ namespace Greenshot.Pipeline.Steps
     /// If executed in an IPC context (e.g. CLI proxy), sends a streaming response packet
     /// back through the IPC stream immediately without waiting for the full pipeline to finish.
     /// </summary>
-    [Contracts.StepInfo(WellKnownStepTypes.Stdout, "Stdout Output", "Emits text directly and immediately to the standard output stream (stdout).", "Diagnostics")]
-    [Contracts.StepParameter("text", Contracts.ContractDataType.String, Required = false, Description = "Text or expression to emit to stdout")]
-    [Contracts.StepParameter("message", Contracts.ContractDataType.String, Required = false, Description = "Alias for text parameter")]
+    [StepInfo(WellKnownStepTypes.Stdout, "Stdout Output", "Writes text to standard output of the caller (e.g. greenshot.com).", "Diagnostics")]
+    [StepPayload(ExtractedText = PayloadRequirement.Optional)]
+    [StepParameter("Text", ContractDataType.String, Description = "Text to write (default: the extracted text)")]
+    [StepOutputVariable("LastStdout", ContractDataType.String, "The text that was written")]
+    [StepOutputVariable("StdoutEmitted", ContractDataType.Boolean, "True once text was written")]
     public class StdoutStep : ICaptureStep
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(StdoutStep));
 
         public string Name { get; }
         public RecipeNodeConfig NodeConfig { get; }
-
-        public Contracts.StepContract Contract =>
-            Contracts.StepContractRegistry.GetContract(WellKnownStepTypes.Stdout) ?? Contracts.StepContractBuilder.FromType(GetType());
 
         public StdoutStep(RecipeNodeConfig config)
         {
@@ -59,12 +58,7 @@ namespace Greenshot.Pipeline.Steps
         {
             if (context == null) return;
 
-            string rawText = NodeConfig.GetParameter<string>("Text")
-                ?? NodeConfig.GetParameter<string>("text")
-                ?? NodeConfig.GetParameter<string>("Message")
-                ?? NodeConfig.GetParameter<string>("message")
-                ?? NodeConfig.GetParameter<string>("Value")
-                ?? NodeConfig.GetParameter<string>("value");
+            string rawText = NodeConfig.GetParameter<string>("Text");
 
             string evaluatedText;
             // The engine already evaluated the expressions in the parameters; evaluating the result again would expand

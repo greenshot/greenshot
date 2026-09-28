@@ -39,18 +39,23 @@ namespace Greenshot.Pipeline.Steps
     /// <summary>
     /// Pipeline step executing image processors (OCR, TitleFix, or plugin processors).
     /// </summary>
-    [Contracts.StepInfo(WellKnownStepTypes.Processors, "Processors", "Executes image processors (e.g. OCR, TitleFix).", "Processing")]
-    [Contracts.StepPayload(RawCapture = Contracts.PayloadRequirement.Required, ExtractedText = Contracts.PayloadRequirement.Created)]
-    [Contracts.StepOutputVariable("Payload.ExtractedText", Contracts.ContractDataType.String, "Extracted text content from OCR processor")]
+    [StepInfo(WellKnownStepTypes.Processors, "Processors", "Runs image processors (e.g. OCR, title fix, plugin processors).", "Processing")]
+    [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Optional, ExtractedText = PayloadRequirement.Created)]
+    [StepParameter("ProcessorIds", ContractDataType.Object, Description = "Only run these processors (type name, description or designation)")]
+    [StepParameter("ProcessorMode", ContractDataType.String, Description = "OCR runs OCR and stores the text")]
+    [StepParameter("Timing", ContractDataType.Enum, Description = "Run the processors that belong before or after the selection", DefaultValue = "Any", AllowedValues = new[] { "Any", "PreSelection", "PostSelection" })]
+    [StepParameter("RunOcr", ContractDataType.Boolean, DefaultValue = true, Description = "Run OCR processors")]
+    [StepParameter("RunTitleFix", ContractDataType.Boolean, DefaultValue = true, Description = "Run the title fix processor")]
+    [StepParameter("RunPlugins", ContractDataType.Boolean, DefaultValue = true, Description = "Run plugin processors")]
+    [StepOutputVariable("OcrText", ContractDataType.String, "Text found by OCR (also in Payload.ExtractedText)", Conditional = true)]
+    [StepOutputVariable("Text", ContractDataType.String, "Same as OcrText", Conditional = true)]
+    [StepOutputVariable("CommandResult", ContractDataType.String, "Same as OcrText", Conditional = true)]
     public class ProcessorExecutionStep : ICaptureStep
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(ProcessorExecutionStep));
 
         public string Name { get; }
         public RecipeNodeConfig Config { get; }
-
-        public Contracts.StepContract Contract =>
-            Contracts.StepContractRegistry.GetContract(WellKnownStepTypes.Processors) ?? Contracts.StepContractBuilder.FromType(GetType());
 
         public ProcessorExecutionStep(RecipeNodeConfig config)
         {
@@ -73,13 +78,11 @@ namespace Greenshot.Pipeline.Steps
                 .Where(p => p.isActive)
                 .ToList();
 
-            // Optional explicit timing filter: when set, only run processors that declare
-            // the matching PreferredTiming. When absent, run all active processors (default,
-            // backward-compatible behaviour for recipes that have a single Processors step).
+            // Timing filter: PreSelection / PostSelection only run the processors that declare that PreferredTiming,
+            // Any (the default) runs all active processors.
             var timingParam = Config.GetParameter<string>("Timing");
             if (!string.IsNullOrEmpty(timingParam) &&
                 !string.Equals(timingParam, "Any", StringComparison.OrdinalIgnoreCase) &&
-                !string.Equals(timingParam, "All", StringComparison.OrdinalIgnoreCase) &&
                 Enum.TryParse<ProcessorTiming>(timingParam, ignoreCase: true, out var requestedTiming))
             {
                 processors = processors
@@ -120,9 +123,7 @@ namespace Greenshot.Pipeline.Steps
             if (processorIds != null && processorIds.Count > 0)
             {
                 processors = processors
-                    .Where(p => processorIds.Contains(p.GetType().Name, StringComparer.OrdinalIgnoreCase) ||
-                                processorIds.Contains(p.Description, StringComparer.OrdinalIgnoreCase) ||
-                                processorIds.Contains(p.Designation, StringComparer.OrdinalIgnoreCase))
+                    .Where(p => processorIds.Contains(p.Designation, StringComparer.OrdinalIgnoreCase))
                     .ToList();
             }
 

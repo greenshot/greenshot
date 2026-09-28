@@ -58,12 +58,7 @@ namespace Greenshot.Base.Pipeline.Sources
             // 1. Resolve from RecipeNodeConfig parameters if configured
             if (_nodeConfig?.Parameters != null)
             {
-                if (_nodeConfig.Parameters.TryGetValue("Filename", out var cfgVal) ||
-                    _nodeConfig.Parameters.TryGetValue("filename", out cfgVal) ||
-                    _nodeConfig.Parameters.TryGetValue("File", out cfgVal) ||
-                    _nodeConfig.Parameters.TryGetValue("file", out cfgVal) ||
-                    _nodeConfig.Parameters.TryGetValue("Path", out cfgVal) ||
-                    _nodeConfig.Parameters.TryGetValue("path", out cfgVal))
+                if (_nodeConfig.Parameters.TryGetValue("Filename", out var cfgVal))
                 {
                     // Already evaluated by the engine (e.g. "${Filename}"); must not be evaluated again
                     string configured = cfgVal?.ToString();
@@ -77,12 +72,7 @@ namespace Greenshot.Base.Pipeline.Sources
             // 2. Fall back to flow context properties bag
             if (string.IsNullOrWhiteSpace(filename) && context?.Properties != null)
             {
-                if (context.Properties.TryGetValue("Filename", out var fnObj) ||
-                    context.Properties.TryGetValue("filename", out fnObj) ||
-                    context.Properties.TryGetValue("File", out fnObj) ||
-                    context.Properties.TryGetValue("file", out fnObj) ||
-                    context.Properties.TryGetValue("Path", out fnObj) ||
-                    context.Properties.TryGetValue("path", out fnObj))
+                if (context.Properties.TryGetValue("Filename", out var fnObj))
                 {
                     filename = fnObj as string;
                 }
@@ -90,7 +80,7 @@ namespace Greenshot.Base.Pipeline.Sources
 
             if (string.IsNullOrWhiteSpace(filename))
             {
-                context?.Abort("SourceType 'File' requires a file path. Specify 'Filename' parameter on the Source node (e.g. 'filename': '${Filename}') or provide 'Filename' in the flow context properties.");
+                context?.Abort("SourceType 'File' requires a file path. Specify 'Filename' parameter on the Source node (e.g. 'Filename': '${Filename}') or provide 'Filename' in the flow context properties.");
                 return Task.FromResult<ICapturePayload>(null);
             }
 

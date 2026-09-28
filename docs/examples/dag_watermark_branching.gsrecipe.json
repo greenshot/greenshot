@@ -85,7 +85,7 @@
             "offsetX": -20,
             "offsetY": -20,
             "text": "${context.watermark_text}",
-            "textColor": "#FFFFFF",
+            "lineColor": "#FFFFFF",
             "fontSize": 9.5,
             "fontFamily": "Segoe UI",
             "bold": true,

@@ -38,7 +38,11 @@ namespace Greenshot.Pipeline.Steps
     /// Pipeline step providing immediate capture acquisition feedback (e.g. camera sound, flash).
     /// Dynamic configuration evaluation allows live settings to dictate feedback.
     /// </summary>
-    [Contracts.StepInfo(WellKnownStepTypes.ImmediateFeedback, "Immediate Feedback", "Provides immediate acquisition feedback (camera sound, screen flash).", "Feedback")]
+    [StepInfo(WellKnownStepTypes.ImmediateFeedback, "Immediate Feedback", "Plays the camera sound after a capture (not for a capture handed to the flow).", "Feedback")]
+    [StepParameter("PlaySound", ContractDataType.Boolean, Description = "Play the camera sound (default: settings)")]
+    [StepParameter("SoundFilePath", ContractDataType.FilePath, Description = "Sound file to play instead of the camera sound")]
+    [StepInputVariable("PlayShutterSound", ContractDataType.Boolean, Description = "Overrides PlaySound")]
+    [StepInputVariable("SoundFilePath", ContractDataType.FilePath, Description = "Overrides SoundFilePath")]
     public class ImmediateFeedbackStep : ICaptureStep
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(ImmediateFeedbackStep));
@@ -46,9 +50,6 @@ namespace Greenshot.Pipeline.Steps
 
         public string Name { get; }
         public RecipeNodeConfig Config { get; }
-
-        public Contracts.StepContract Contract =>
-            Contracts.StepContractRegistry.GetContract(WellKnownStepTypes.ImmediateFeedback) ?? Contracts.StepContractBuilder.FromType(GetType());
 
         public ImmediateFeedbackStep(RecipeNodeConfig config)
         {

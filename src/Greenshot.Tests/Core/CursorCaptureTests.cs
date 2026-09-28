@@ -55,11 +55,13 @@ public class CursorCaptureTests
         };
 
         // Capture the cursor
+        NativePoint cursorBefore = User32Api.GetCursorLocation();
         capture = WindowCapture.CaptureCursor(capture);
+        NativePoint cursorLocation = User32Api.GetCursorLocation();
 
-        if (capture.Cursor != null)
+        // Only comparable when the mouse did not move during the capture
+        if (capture.Cursor != null && cursorBefore.Equals(cursorLocation))
         {
-            NativePoint cursorLocation = User32Api.GetCursorLocation();
             int expectedX = cursorLocation.X - capture.Cursor.HotSpot.X - 400;
             int expectedY = cursorLocation.Y - capture.Cursor.HotSpot.Y - 200;
 

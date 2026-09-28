@@ -50,20 +50,18 @@ namespace Greenshot.Pipeline.Steps
 {
     /// <summary>
     /// Pipeline step that instantiates and places any available annotation element onto the visual surface.
-    /// Supports absolute, calculated (expressions using width/height), and anchored (Left/Center/Right, Top/Middle/Bottom) positioning.
+    /// Supports absolute, calculated (expressions using width/height), and anchored (Left/Center/Right, Top/Center/Bottom) positioning.
     /// </summary>
-    [Contracts.StepInfo(WellKnownStepTypes.Annotation, "Add Annotation", "Attaches drawable annotations (shapes, text, arrows, icons, blur, stamps) to the capture surface.", "Annotations")]
-    [Contracts.StepPayload(RawCapture = Contracts.PayloadRequirement.Required, Surface = Contracts.PayloadRequirement.Required, VisualMutation = Contracts.PayloadEffect.AddsAnnotations)]
-    [Contracts.StepParameter("drawableType", Contracts.ContractDataType.String, Required = false, Description = "Type of annotation (Text, Rectangle, Arrow, Icon, Blur, SpeechBubble, etc.)")]
+    [StepInfo(WellKnownStepTypes.Annotation, "Add Annotation", "Adds annotations (shapes, text, arrows, icons, blur, stamps) to the capture. The properties of an annotation depend on its type.", "Annotations", AcceptsUndeclaredParameters = true)]
+    [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Required, VisualMutation = PayloadEffect.AddsAnnotations)]
+    [StepParameter("Annotations", ContractDataType.Object, Description = "List of annotations; without it the node's own parameters describe one annotation")]
+    [StepParameter("Type", ContractDataType.String, DefaultValue = "Rectangle", Description = "Type of the annotation (Text, Rectangle, Arrow, Icon, Blur, SpeechBubble, ...)")]
     public class AnnotationStep : ICaptureStep, IEvaluatesOwnParameters
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(AnnotationStep));
 
         public string Name { get; }
         public RecipeNodeConfig NodeConfig { get; }
-
-        public Contracts.StepContract Contract =>
-            Contracts.StepContractRegistry.GetContract(WellKnownStepTypes.Annotation) ?? Contracts.StepContractBuilder.FromType(GetType());
 
         public AnnotationStep(RecipeNodeConfig config)
         {
@@ -259,7 +257,7 @@ namespace Greenshot.Pipeline.Steps
                 int tailOffsetX = GetInt(p, "TailOffsetX", int.MinValue);
                 int tailOffsetY = GetInt(p, "TailOffsetY", int.MinValue);
 
-                string tailDirection = GetString(p, "TailDirection") ?? GetString(p, "TailPosition") ?? GetString(p, "Tail") ?? "BottomLeft";
+                string tailDirection = GetString(p, "TailDirection") ?? "BottomLeft";
 
                 switch (tailDirection.ToLowerInvariant())
                 {
@@ -267,7 +265,6 @@ namespace Greenshot.Pipeline.Steps
                         tailPoint = new NativePoint(bRight + 15, bBottom + 25);
                         break;
                     case "bottomcenter":
-                    case "bottom":
                         tailPoint = new NativePoint(bLeft + bWidth / 2, bBottom + 25);
                         break;
                     case "topleft":
@@ -277,7 +274,6 @@ namespace Greenshot.Pipeline.Steps
                         tailPoint = new NativePoint(bRight + 15, bTop - 25);
                         break;
                     case "topcenter":
-                    case "top":
                         tailPoint = new NativePoint(bLeft + bWidth / 2, bTop - 25);
                         break;
                     case "left":
@@ -308,8 +304,8 @@ namespace Greenshot.Pipeline.Steps
         private static RectangleContainer CreateRectangle(ISurface surface, Dictionary<string, object> p)
         {
             var rect = new RectangleContainer(surface);
-            rect.SetFieldValue(FieldType.LINE_THICKNESS, GetInt(p, "LineThickness", GetInt(p, "BorderWidth", 2)));
-            rect.SetFieldValue(FieldType.LINE_COLOR, GetColor(p, "LineColor", GetColor(p, "BorderColor", Color.Red)));
+            rect.SetFieldValue(FieldType.LINE_THICKNESS, GetInt(p, "LineThickness", 2));
+            rect.SetFieldValue(FieldType.LINE_COLOR, GetColor(p, "LineColor", Color.Red));
             rect.SetFieldValue(FieldType.FILL_COLOR, GetColor(p, "FillColor", Color.Transparent));
             rect.SetFieldValue(FieldType.SHADOW, GetBool(p, "Shadow", true));
             return rect;
@@ -341,7 +337,7 @@ namespace Greenshot.Pipeline.Steps
             arrow.SetFieldValue(FieldType.LINE_COLOR, GetColor(p, "LineColor", Color.Red));
             arrow.SetFieldValue(FieldType.SHADOW, GetBool(p, "Shadow", true));
 
-            string headsStr = GetString(p, "ArrowHeads") ?? GetString(p, "Heads") ?? "END_POINT";
+            string headsStr = GetString(p, "ArrowHeads") ?? "END_POINT";
             if (Enum.TryParse<ArrowContainer.ArrowHeadCombination>(headsStr, true, out var heads))
             {
                 arrow.SetFieldValue(FieldType.ARROWHEADS, heads);
@@ -393,17 +389,17 @@ namespace Greenshot.Pipeline.Steps
             text.Text = GetString(p, "Text") ?? string.Empty;
             text.SetFieldValue(FieldType.FONT_FAMILY, GetString(p, "FontFamily") ?? FontFamily.GenericSansSerif.Name);
             text.SetFieldValue(FieldType.FONT_SIZE, (float)GetDouble(p, "FontSize", 12.0));
-            text.SetFieldValue(FieldType.FONT_BOLD, GetBool(p, "Bold", GetBool(p, "FontBold", false)));
-            text.SetFieldValue(FieldType.FONT_ITALIC, GetBool(p, "Italic", GetBool(p, "FontItalic", false)));
-            text.SetFieldValue(FieldType.LINE_COLOR, GetColor(p, "TextColor", GetColor(p, "LineColor", Color.Red)));
-            text.SetFieldValue(FieldType.FILL_COLOR, GetColor(p, "FillColor", GetColor(p, "BackgroundColor", Color.Transparent)));
-            text.SetFieldValue(FieldType.LINE_THICKNESS, GetInt(p, "LineThickness", GetInt(p, "BorderWidth", 0)));
+            text.SetFieldValue(FieldType.FONT_BOLD, GetBool(p, "Bold", false));
+            text.SetFieldValue(FieldType.FONT_ITALIC, GetBool(p, "Italic", false));
+            text.SetFieldValue(FieldType.LINE_COLOR, GetColor(p, "LineColor", Color.Red));
+            text.SetFieldValue(FieldType.FILL_COLOR, GetColor(p, "FillColor", Color.Transparent));
+            text.SetFieldValue(FieldType.LINE_THICKNESS, GetInt(p, "LineThickness", 0));
             text.SetFieldValue(FieldType.SHADOW, GetBool(p, "Shadow", true));
 
-            string alignH = GetString(p, "TextHorizontalAlignment") ?? GetString(p, "TextAlign") ?? "Center";
-            if (string.Equals(alignH, "Left", StringComparison.OrdinalIgnoreCase) || string.Equals(alignH, "Near", StringComparison.OrdinalIgnoreCase))
+            string alignH = GetString(p, "TextAlign") ?? "Center";
+            if (string.Equals(alignH, "Left", StringComparison.OrdinalIgnoreCase))
                 text.SetFieldValue(FieldType.TEXT_HORIZONTAL_ALIGNMENT, StringAlignment.Near);
-            else if (string.Equals(alignH, "Right", StringComparison.OrdinalIgnoreCase) || string.Equals(alignH, "Far", StringComparison.OrdinalIgnoreCase))
+            else if (string.Equals(alignH, "Right", StringComparison.OrdinalIgnoreCase))
                 text.SetFieldValue(FieldType.TEXT_HORIZONTAL_ALIGNMENT, StringAlignment.Far);
             else
                 text.SetFieldValue(FieldType.TEXT_HORIZONTAL_ALIGNMENT, StringAlignment.Center);
@@ -433,10 +429,10 @@ namespace Greenshot.Pipeline.Steps
         private static StepLabelContainer CreateStepLabel(ISurface surface, Dictionary<string, object> p)
         {
             var stepLabel = new StepLabelContainer(surface);
-            int number = GetInt(p, "Number", GetInt(p, "Counter", 1));
+            int number = GetInt(p, "Number", 1);
             stepLabel.Number = number;
             stepLabel.SetFieldValue(FieldType.FILL_COLOR, GetColor(p, "FillColor", Color.DarkRed));
-            stepLabel.SetFieldValue(FieldType.LINE_COLOR, GetColor(p, "NumberColor", GetColor(p, "LineColor", Color.White)));
+            stepLabel.SetFieldValue(FieldType.LINE_COLOR, GetColor(p, "LineColor", Color.White));
             stepLabel.SetFieldValue(FieldType.SHADOW, GetBool(p, "Shadow", false));
             return stepLabel;
         }
@@ -444,7 +440,7 @@ namespace Greenshot.Pipeline.Steps
         private static ImageContainer CreateImage(ISurface surface, Dictionary<string, object> p)
         {
             var imgContainer = new ImageContainer(surface);
-            string base64 = GetString(p, "ImageData") ?? GetString(p, "Base64");
+            string base64 = GetString(p, "ImageData");
             if (!string.IsNullOrWhiteSpace(base64))
             {
                 try
@@ -461,7 +457,7 @@ namespace Greenshot.Pipeline.Steps
 
             if (imgContainer.Image == null)
             {
-                string filePath = GetString(p, "FilePath") ?? GetString(p, "Path") ?? GetString(p, "File");
+                string filePath = GetString(p, "FilePath");
                 if (!string.IsNullOrWhiteSpace(filePath) && File.Exists(filePath))
                 {
                     imgContainer.Load(filePath);
@@ -475,7 +471,7 @@ namespace Greenshot.Pipeline.Steps
         private static IconContainer CreateIcon(ISurface surface, Dictionary<string, object> p)
         {
             var iconContainer = new IconContainer(surface);
-            string filePath = GetString(p, "FilePath") ?? GetString(p, "Path");
+            string filePath = GetString(p, "FilePath");
             if (!string.IsNullOrWhiteSpace(filePath) && File.Exists(filePath))
             {
                 iconContainer.Load(filePath);
@@ -486,9 +482,9 @@ namespace Greenshot.Pipeline.Steps
         private static CursorContainer CreateCursor(ISurface surface, Dictionary<string, object> p)
         {
             var cursorContainer = new CursorContainer(surface);
-            string cursorName = GetString(p, "CursorName") ?? GetString(p, "Cursor") ?? GetString(p, "CursorType");
-            string base64 = GetString(p, "ImageData") ?? GetString(p, "CursorData") ?? GetString(p, "Base64");
-            string filePath = GetString(p, "FilePath") ?? GetString(p, "Path");
+            string cursorName = GetString(p, "CursorName");
+            string base64 = GetString(p, "ImageData");
+            string filePath = GetString(p, "FilePath");
 
             if (!string.IsNullOrWhiteSpace(base64))
             {
@@ -584,47 +580,20 @@ namespace Greenshot.Pipeline.Steps
             if (string.IsNullOrWhiteSpace(name)) return System.Windows.Forms.Cursors.Arrow;
             switch (name.Trim().ToLowerInvariant())
             {
-                case "hand":
-                case "link":
-                    return System.Windows.Forms.Cursors.Hand;
-                case "ibeam":
-                case "text":
-                    return System.Windows.Forms.Cursors.IBeam;
-                case "cross":
-                case "crosshair":
-                case "precision":
-                    return System.Windows.Forms.Cursors.Cross;
-                case "sizeall":
-                case "move":
-                    return System.Windows.Forms.Cursors.SizeAll;
-                case "help":
-                    return System.Windows.Forms.Cursors.Help;
-                case "wait":
-                case "hourglass":
-                case "busy":
-                    return System.Windows.Forms.Cursors.WaitCursor;
-                case "appstarting":
-                case "working":
-                    return System.Windows.Forms.Cursors.AppStarting;
-                case "no":
-                case "unavailable":
-                    return System.Windows.Forms.Cursors.No;
-                case "sizens":
-                case "resizevertical":
-                    return System.Windows.Forms.Cursors.SizeNS;
-                case "sizewe":
-                case "resizehorizontal":
-                    return System.Windows.Forms.Cursors.SizeWE;
-                case "sizenesw":
-                    return System.Windows.Forms.Cursors.SizeNESW;
-                case "sizenwse":
-                    return System.Windows.Forms.Cursors.SizeNWSE;
-                case "uparrow":
-                    return System.Windows.Forms.Cursors.UpArrow;
-                case "arrow":
-                case "default":
-                default:
-                    return System.Windows.Forms.Cursors.Arrow;
+                case "appstarting": return System.Windows.Forms.Cursors.AppStarting;
+                case "cross": return System.Windows.Forms.Cursors.Cross;
+                case "hand": return System.Windows.Forms.Cursors.Hand;
+                case "help": return System.Windows.Forms.Cursors.Help;
+                case "ibeam": return System.Windows.Forms.Cursors.IBeam;
+                case "no": return System.Windows.Forms.Cursors.No;
+                case "sizeall": return System.Windows.Forms.Cursors.SizeAll;
+                case "sizenesw": return System.Windows.Forms.Cursors.SizeNESW;
+                case "sizens": return System.Windows.Forms.Cursors.SizeNS;
+                case "sizenwse": return System.Windows.Forms.Cursors.SizeNWSE;
+                case "sizewe": return System.Windows.Forms.Cursors.SizeWE;
+                case "uparrow": return System.Windows.Forms.Cursors.UpArrow;
+                case "wait": return System.Windows.Forms.Cursors.WaitCursor;
+                default: return System.Windows.Forms.Cursors.Arrow;
             }
         }
 
@@ -641,7 +610,7 @@ namespace Greenshot.Pipeline.Steps
 
         private static SvgContainer CreateSvg(ISurface surface, Dictionary<string, object> p)
         {
-            string base64 = GetString(p, "ImageData") ?? GetString(p, "Base64");
+            string base64 = GetString(p, "ImageData");
             if (!string.IsNullOrWhiteSpace(base64))
             {
                 try
@@ -656,13 +625,13 @@ namespace Greenshot.Pipeline.Steps
                 }
             }
 
-            string filePath = GetString(p, "FilePath") ?? GetString(p, "Path");
+            string filePath = GetString(p, "FilePath");
             if (!string.IsNullOrWhiteSpace(filePath) && File.Exists(filePath))
             {
                 using var stream = File.OpenRead(filePath);
                 return new SvgContainer(stream, surface);
             }
-            string svgXml = GetString(p, "Content") ?? GetString(p, "SvgXml") ?? GetString(p, "Xml");
+            string svgXml = GetString(p, "Content");
             if (!string.IsNullOrWhiteSpace(svgXml))
             {
                 using var stream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(svgXml));
@@ -674,7 +643,7 @@ namespace Greenshot.Pipeline.Steps
         private static ObfuscateContainer CreateObfuscate(ISurface surface, Dictionary<string, object> p, string type)
         {
             var obf = new ObfuscateContainer(surface);
-            if (string.Equals(type, "Blur", StringComparison.OrdinalIgnoreCase) || string.Equals(GetString(p, "Mode"), "Blur", StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(type, "Blur", StringComparison.OrdinalIgnoreCase))
             {
                 obf.SetFieldValue(FieldType.PREPARED_FILTER_OBFUSCATE, FilterContainer.PreparedFilter.BLUR);
                 obf.SetFieldValue(FieldType.BLUR_RADIUS, GetInt(p, "BlurRadius", 10));
@@ -690,7 +659,7 @@ namespace Greenshot.Pipeline.Steps
         private static HighlightContainer CreateHighlight(ISurface surface, Dictionary<string, object> p, string type)
         {
             var hl = new HighlightContainer(surface);
-            if (string.Equals(type, "Magnify", StringComparison.OrdinalIgnoreCase) || string.Equals(GetString(p, "Mode"), "Magnify", StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(type, "Magnify", StringComparison.OrdinalIgnoreCase))
             {
                 hl.SetFieldValue(FieldType.PREPARED_FILTER_HIGHLIGHT, FilterContainer.PreparedFilter.MAGNIFICATION);
                 hl.SetFieldValue(FieldType.MAGNIFICATION_FACTOR, GetInt(p, "MagnificationFactor", 2));
@@ -698,7 +667,7 @@ namespace Greenshot.Pipeline.Steps
             else
             {
                 hl.SetFieldValue(FieldType.PREPARED_FILTER_HIGHLIGHT, FilterContainer.PreparedFilter.TEXT_HIGHTLIGHT);
-                hl.SetFieldValue(FieldType.FILL_COLOR, GetColor(p, "FillColor", GetColor(p, "HighlightColor", Color.Yellow)));
+                hl.SetFieldValue(FieldType.FILL_COLOR, GetColor(p, "FillColor", Color.Yellow));
             }
             return hl;
         }
@@ -801,31 +770,25 @@ namespace Greenshot.Pipeline.Steps
 
             int offsetX = GetInt(p, "OffsetX", 0);
             int offsetY = GetInt(p, "OffsetY", 0);
-            int marginX = GetInt(p, "MarginX", GetInt(p, "Margin", 10));
-            int marginY = GetInt(p, "MarginY", GetInt(p, "Margin", 10));
-            int marginLeft = GetInt(p, "MarginLeft", marginX);
-            int marginRight = GetInt(p, "MarginRight", marginX);
-            int marginTop = GetInt(p, "MarginTop", marginY);
-            int marginBottom = GetInt(p, "MarginBottom", marginY);
+            int margin = GetInt(p, "Margin", 10);
+            int marginLeft = GetInt(p, "MarginLeft", margin);
+            int marginRight = GetInt(p, "MarginRight", margin);
+            int marginTop = GetInt(p, "MarginTop", margin);
+            int marginBottom = GetInt(p, "MarginBottom", margin);
 
             // Horizontal anchor & coordinate resolution
-            string hAnchor = GetString(p, "HorizontalAnchor")
-                ?? GetString(p, "HorizontalAlignment")
-                ?? GetString(p, "AnchorH")
-                ?? GetString(p, "AlignH")
-                ?? GetString(p, "Align")
-                ?? GetString(p, "Anchor");
+            string hAnchor = GetString(p, "HorizontalAnchor");
 
-            bool hasExplicitLeft = p.ContainsKey("Left") || p.ContainsKey("left") || p.ContainsKey("X") || p.ContainsKey("x");
-            bool hasExplicitRight = p.ContainsKey("Right") || p.ContainsKey("right");
+            bool hasExplicitLeft = p.ContainsKey("Left");
+            bool hasExplicitRight = p.ContainsKey("Right");
 
             int posX;
             if (string.Equals(hAnchor, "Right", StringComparison.OrdinalIgnoreCase))
             {
-                int rightVal = hasExplicitRight ? GetInt(p, "Right", GetInt(p, "right", 0)) : (hasExplicitLeft ? 0 : marginRight);
+                int rightVal = hasExplicitRight ? GetInt(p, "Right", 0) : (hasExplicitLeft ? 0 : marginRight);
                 posX = surfaceWidth - elemWidth - rightVal + offsetX;
             }
-            else if (string.Equals(hAnchor, "Center", StringComparison.OrdinalIgnoreCase) || string.Equals(hAnchor, "Middle", StringComparison.OrdinalIgnoreCase))
+            else if (string.Equals(hAnchor, "Center", StringComparison.OrdinalIgnoreCase))
             {
                 posX = (surfaceWidth - elemWidth) / 2 + offsetX;
             }
@@ -833,12 +796,12 @@ namespace Greenshot.Pipeline.Steps
             {
                 if (hasExplicitLeft)
                 {
-                    int leftVal = GetInt(p, "Left", GetInt(p, "left", GetInt(p, "X", GetInt(p, "x", 0))));
+                    int leftVal = GetInt(p, "Left", 0);
                     posX = leftVal + offsetX;
                 }
                 else if (hasExplicitRight)
                 {
-                    int rightVal = GetInt(p, "Right", GetInt(p, "right", 0));
+                    int rightVal = GetInt(p, "Right", 0);
                     posX = surfaceWidth - elemWidth - rightVal + offsetX;
                 }
                 else
@@ -848,27 +811,23 @@ namespace Greenshot.Pipeline.Steps
             }
 
             // Vertical anchor & coordinate resolution
-            string vAnchor = GetString(p, "VerticalAnchor")
-                ?? GetString(p, "VerticalAlignment")
-                ?? GetString(p, "AnchorV")
-                ?? GetString(p, "AlignV")
-                ?? GetString(p, "VAlign");
+            string vAnchor = GetString(p, "VerticalAnchor");
 
-            bool hasExplicitTop = p.ContainsKey("Top") || p.ContainsKey("top") || p.ContainsKey("Y") || p.ContainsKey("y");
-            bool hasExplicitBottom = p.ContainsKey("Bottom") || p.ContainsKey("bottom");
+            bool hasExplicitTop = p.ContainsKey("Top");
+            bool hasExplicitBottom = p.ContainsKey("Bottom");
 
             int posY;
             if (string.Equals(vAnchor, "Bottom", StringComparison.OrdinalIgnoreCase))
             {
                 if (hasExplicitBottom)
                 {
-                    int bottomVal = GetInt(p, "Bottom", GetInt(p, "bottom", 0));
+                    int bottomVal = GetInt(p, "Bottom", 0);
                     posY = surfaceHeight - elemHeight - bottomVal + offsetY;
                 }
                 else if (hasExplicitTop)
                 {
                     // e.g. top was explicitly calculated like "top": "payload.height - 50"
-                    int topVal = GetInt(p, "Top", GetInt(p, "top", GetInt(p, "Y", GetInt(p, "y", 0))));
+                    int topVal = GetInt(p, "Top", 0);
                     posY = topVal + offsetY;
                 }
                 else
@@ -876,7 +835,7 @@ namespace Greenshot.Pipeline.Steps
                     posY = surfaceHeight - elemHeight - marginBottom + offsetY;
                 }
             }
-            else if (string.Equals(vAnchor, "Center", StringComparison.OrdinalIgnoreCase) || string.Equals(vAnchor, "Middle", StringComparison.OrdinalIgnoreCase))
+            else if (string.Equals(vAnchor, "Center", StringComparison.OrdinalIgnoreCase))
             {
                 posY = (surfaceHeight - elemHeight) / 2 + offsetY;
             }
@@ -884,12 +843,12 @@ namespace Greenshot.Pipeline.Steps
             {
                 if (hasExplicitTop)
                 {
-                    int topVal = GetInt(p, "Top", GetInt(p, "top", GetInt(p, "Y", GetInt(p, "y", 0))));
+                    int topVal = GetInt(p, "Top", 0);
                     posY = topVal + offsetY;
                 }
                 else if (hasExplicitBottom)
                 {
-                    int bottomVal = GetInt(p, "Bottom", GetInt(p, "bottom", 0));
+                    int bottomVal = GetInt(p, "Bottom", 0);
                     posY = surfaceHeight - elemHeight - bottomVal + offsetY;
                 }
                 else
