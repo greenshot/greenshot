@@ -135,11 +135,6 @@ namespace Greenshot.Forms
                     return;
                 }
 
-                if (options.Language != null)
-                {
-                    _conf.Language = options.Language;
-                }
-
                 if (isAlreadyRunning)
                 {
                     var filesToOpen = new List<string>(options.Files);
@@ -347,6 +342,12 @@ namespace Greenshot.Forms
                     UpdateRecipesMenu();
                 }
             };
+
+            // Apply the command line language after LoadPlugins, as it reloads the configuration from disk
+            if (options.Language != null)
+            {
+                _conf.Language = options.Language;
+            }
 
             // if language is not set, show language dialog
             if (string.IsNullOrEmpty(_conf.Language))
