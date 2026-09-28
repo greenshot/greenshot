@@ -58,6 +58,12 @@ namespace Greenshot.Pipeline.Steps
 
         public Task ExecuteAsync(CaptureFlowContext context, CancellationToken cancellationToken = default)
         {
+            // Nothing was captured when the image was handed over (forwarded or imported), so no shutter sound
+            if (context.IsPayloadPreSupplied)
+            {
+                return Task.CompletedTask;
+            }
+
             // Resolve shutter sound setting dynamically
             bool playSound = ResolvePlaySound(context);
             if (playSound)

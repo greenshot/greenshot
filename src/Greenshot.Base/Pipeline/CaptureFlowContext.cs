@@ -67,6 +67,13 @@ namespace Greenshot.Base.Pipeline
         public ICapturePayload Payload { get; set; }
 
         /// <summary>
+        /// True when the payload was handed to this flow (forwarded from another recipe, imported from the browser extension,
+        /// injected programmatically) instead of being captured by it. Such an image is used as a whole: there is no screen
+        /// to select a region on, and nothing was captured, so no capture feedback is given either.
+        /// </summary>
+        public bool IsPayloadPreSupplied { get; set; }
+
+        /// <summary>
         /// Optional delegate to immediately emit streaming stdout text back to the caller (e.g. IPC client).
         /// </summary>
         public Func<string, Task> StdoutWriter { get; set; }
@@ -155,6 +162,7 @@ namespace Greenshot.Base.Pipeline
             {
                 State = State,
                 Payload = branchPayload,
+                IsPayloadPreSupplied = IsPayloadPreSupplied,
                 StdoutWriter = StdoutWriter,
                 StderrWriter = StderrWriter,
                 ExitCode = ExitCode

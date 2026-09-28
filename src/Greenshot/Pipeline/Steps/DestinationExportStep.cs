@@ -429,7 +429,7 @@ namespace Greenshot.Pipeline.Steps
                 }
             }
 
-            var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>();
+            var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>(isOptional: true);
             if (ocrProvider != null)
             {
                 var surf = context.Payload?.EnsureSurface();

@@ -24,6 +24,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading;
 using Greenshot.Base.Core;
 using Greenshot.Base.Recipes;
 using log4net;
@@ -39,8 +40,10 @@ namespace Greenshot.Base.Pipeline
         private readonly ConcurrentDictionary<string, Func<RecipeNodeConfig, ICaptureStep>> _factories =
             new ConcurrentDictionary<string, Func<RecipeNodeConfig, ICaptureStep>>(StringComparer.OrdinalIgnoreCase);
 
-        private static StepRegistry _instance;
-        public static StepRegistry Instance => _instance ??= new StepRegistry();
+        // Thread-safe: the first access can come from the UI thread and an IPC or pipeline thread at the same time,
+        // and a second instance would silently lose what was registered in the first one.
+        private static readonly Lazy<StepRegistry> LazyInstance = new Lazy<StepRegistry>(() => new StepRegistry(), LazyThreadSafetyMode.ExecutionAndPublication);
+        public static StepRegistry Instance => LazyInstance.Value;
 
         public void RegisterStepFactory(string stepType, Func<RecipeNodeConfig, ICaptureStep> factory)
         {

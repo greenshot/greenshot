@@ -484,7 +484,7 @@ namespace Greenshot.Forms
                         }
                         else
                         {
-                            var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>();
+                            var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>(isOptional: true);
                             if (ocrProvider != null)
                             {
                                 var uiTaskScheduler = SimpleServiceProvider.Current.GetInstance<TaskScheduler>() ?? TaskScheduler.FromCurrentSynchronizationContext();

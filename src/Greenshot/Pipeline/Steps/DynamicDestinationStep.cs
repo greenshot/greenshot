@@ -231,6 +231,8 @@ namespace Greenshot.Pipeline.Steps
                     await pipeline.ExecuteAsync(selectedRecipe, null, ctx =>
                     {
                         ctx.Payload = context.Payload;
+                        // The capture is handed over: the target recipe must not capture or select again
+                        ctx.IsPayloadPreSupplied = true;
                         foreach (var kvp in context.Properties)
                         {
                             ctx.Properties[kvp.Key] = kvp.Value;

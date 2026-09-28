@@ -238,7 +238,8 @@ namespace Greenshot.Tests.Ipc
         [Fact]
         public async Task SecurityDispatcher_ListRecipes_ReturnsConfiguredCommandlineRecipes()
         {
-            var recipe = new CaptureRecipe("recipe_ocr", "OCR Recipe", "Extracts text")
+            // An id of its own: reusing a built-in id would replace that built-in recipe for every later test
+            var recipe = new CaptureRecipe("recipe_test_list_ocr", "OCR Recipe", "Extracts text")
             {
                 IsEnabled = true
             };
@@ -246,7 +247,7 @@ namespace Greenshot.Tests.Ipc
             {
                 Enabled = true
             };
-            trig.Parameters["Command"] = "ocr";
+            trig.Parameters["Command"] = "test-list-ocr";
             recipe.Triggers.Add(trig);
             RecipeManager.Instance.RegisterRecipe(recipe);
 
@@ -281,7 +282,7 @@ namespace Greenshot.Tests.Ipc
 
                 var recipes = jobj["recipes"] as JArray;
                 Assert.NotNull(recipes);
-                Assert.Contains(recipes, r => r.Value<string>("command") == "ocr" || r.Value<string>("id") == "recipe_ocr");
+                Assert.Contains(recipes, r => r.Value<string>("command") == "test-list-ocr" && r.Value<string>("id") == "recipe_test_list_ocr");
             }
         }
 

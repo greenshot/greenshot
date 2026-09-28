@@ -23,6 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
@@ -71,8 +72,10 @@ namespace Greenshot.Recipes
 
         public event EventHandler RecipesChanged;
 
-        private static RecipeManager _instance;
-        public static RecipeManager Instance => _instance ??= new RecipeManager();
+        // Thread-safe: the first access can come from the UI thread and an IPC or pipeline thread at the same time,
+        // and a second instance would silently lose what was registered in the first one.
+        private static readonly Lazy<RecipeManager> LazyInstance = new Lazy<RecipeManager>(() => new RecipeManager(), LazyThreadSafetyMode.ExecutionAndPublication);
+        public static RecipeManager Instance => LazyInstance.Value;
 
         public RecipeManager()
         {
@@ -208,7 +211,7 @@ namespace Greenshot.Recipes
                 .AddNode(RecipeStepConfig.CreateSelection("select", CaptureMode.Text))
                 .AddNode(RecipeStepConfig.CreateFeedback("feedback"))
                 .AddNode(RecipeStepConfig.CreateProcessors("ocr", new[] { "Windows10OcrProcessor" }))
-                .AddNode(RecipeStepConfig.CreateDestinations("export", new[] { "Clipboard" }));
+                .AddNode(RecipeStepConfig.CreateClipboard("export", "TextOnly"));
             ocrRecipe.Flow = new RecipeFlowConfig("acquire")
                 .AddTransition("acquire", "select")
                 .AddTransition("select", "feedback")

@@ -78,6 +78,7 @@ namespace Greenshot.Pipeline.Steps
             if (context.Payload != null)
             {
                 Log.Info($"Source {Name} using pre-supplied capture payload.");
+                context.IsPayloadPreSupplied = true;
                 if (Config.GetParameter("AlignDpi", true))
                 {
                     AlignDpi(context.Payload);

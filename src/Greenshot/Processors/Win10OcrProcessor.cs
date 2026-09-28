@@ -72,7 +72,7 @@ namespace Greenshot.Processors
                 capture.CaptureDetails.StartedProcessors.Add(Designation);
             }
 
-            var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>();
+            var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>(isOptional: true);
 
             if (ocrProvider == null)
             {

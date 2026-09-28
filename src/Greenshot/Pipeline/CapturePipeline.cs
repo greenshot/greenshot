@@ -53,8 +53,10 @@ namespace Greenshot.Pipeline
         private readonly IStepRegistry _stepRegistry;
         private readonly DagExecutionEngine _dagEngine;
 
-        private static CapturePipeline _instance;
-        public static CapturePipeline Instance => _instance ??= new CapturePipeline();
+        // Thread-safe: the first access can come from the UI thread and an IPC or pipeline thread at the same time,
+        // and a second instance would silently lose what was registered in the first one.
+        private static readonly Lazy<CapturePipeline> LazyInstance = new Lazy<CapturePipeline>(() => new CapturePipeline(), LazyThreadSafetyMode.ExecutionAndPublication);
+        public static CapturePipeline Instance => LazyInstance.Value;
 
         static CapturePipeline()
         {
