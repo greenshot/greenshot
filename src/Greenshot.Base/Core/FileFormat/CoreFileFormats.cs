@@ -32,13 +32,13 @@ public static class CoreFileFormats
             throw new ArgumentNullException(nameof(registry));
         }
 
-        registry.RegisterIfMissing(new FileFormatDefinition(WellKnownFileFormats.Bmp, ["bmp"], ["bmp"], "bmp", "image/bmp", null, "output_format_display_name_bmp", "Bitmap Image File"));
-        registry.RegisterIfMissing(new FileFormatDefinition(WellKnownFileFormats.Gif, ["gif"], ["gif"], "gif", "image/gif", null, "output_format_display_name_gif", "Graphics Interchange Format File"));
-        registry.RegisterIfMissing(new FileFormatDefinition(WellKnownFileFormats.Jpg, ["jpg", "jpeg"], ["jpg", "jpeg"], "jpg", "image/jpeg", null, "output_format_display_name_jpg", "JPEG Image File"));
-        registry.RegisterIfMissing(new FileFormatDefinition(WellKnownFileFormats.Png, ["png"], ["png"], "png", "image/png", null, "output_format_display_name_png", "Portable Network Graphics File"));
-        registry.RegisterIfMissing(new FileFormatDefinition(WellKnownFileFormats.Tiff, ["tif", "tiff"], ["tif", "tiff"], "tiff", "image/tiff", null, "output_format_display_name_tiff", "Tagged Image File Format"));
-        registry.RegisterIfMissing(new FileFormatDefinition(WellKnownFileFormats.Jxr, ["jxr"], ["jxr"], "jxr", "image/vnd.ms-photo", null, "output_format_display_name_jxr", "JPEG XR Image File"));
-        registry.RegisterIfMissing(new FileFormatDefinition(WellKnownFileFormats.Greenshot, ["greenshot"], ["greenshot"], "greenshot", "application/vnd.greenshot", null, "output_format_display_name_greenshot", "Greenshot Editor File"));
-        registry.RegisterIfMissing(new FileFormatDefinition(WellKnownFileFormats.Ico, ["ico"], ["ico"], "ico", "image/vnd.microsoft.icon", ["image/x-icon"], "output_format_display_name_ico", "Icon File"));
+        registry.RegisterIfMissing(new FileFormatDefinition(WellKnownFileFormats.Bmp, ["bmp"], ["bmp"], "bmp", "image/bmp", null, "Bitmap"));
+        registry.RegisterIfMissing(new FileFormatDefinition(WellKnownFileFormats.Gif, ["gif"], ["gif"], "gif", "image/gif", null, "Graphics Interchange Format"));
+        registry.RegisterIfMissing(new FileFormatDefinition(WellKnownFileFormats.Jpg, ["jpg", "jpeg"], ["jpg", "jpeg"], "jpg", "image/jpeg", null, "JPEG"));
+        registry.RegisterIfMissing(new FileFormatDefinition(WellKnownFileFormats.Png, ["png"], ["png"], "png", "image/png", null, "Portable Network Graphics"));
+        registry.RegisterIfMissing(new FileFormatDefinition(WellKnownFileFormats.Tiff, ["tif", "tiff"], ["tif", "tiff"], "tiff", "image/tiff", null, "Tagged Image File Format"));
+        registry.RegisterIfMissing(new FileFormatDefinition(WellKnownFileFormats.Jxr, ["jxr"], ["jxr"], "jxr", "image/vnd.ms-photo", null, "JPEG XR"));
+        registry.RegisterIfMissing(new FileFormatDefinition(WellKnownFileFormats.Greenshot, ["greenshot"], ["greenshot"], "greenshot", "application/vnd.greenshot", null, "Greenshot Editor"));
+        registry.RegisterIfMissing(new FileFormatDefinition(WellKnownFileFormats.Ico, ["ico"], ["ico"], "ico", "image/vnd.microsoft.icon", ["image/x-icon"], "Icon"));
     }
 }

@@ -215,8 +215,7 @@ public sealed class FileFormatRegistry : IFileFormatRegistry
         return string.Equals(left.Id, right.Id, StringComparison.OrdinalIgnoreCase) &&
                string.Equals(left.PreferredExtension, right.PreferredExtension, StringComparison.OrdinalIgnoreCase) &&
                string.Equals(left.MimeType, right.MimeType, StringComparison.OrdinalIgnoreCase) &&
-               string.Equals(left.DisplayNameResourceKey, right.DisplayNameResourceKey, StringComparison.Ordinal) &&
-               string.Equals(left.FallbackDisplayName, right.FallbackDisplayName, StringComparison.Ordinal) &&
+               string.Equals(left.DisplayName, right.DisplayName, StringComparison.Ordinal) &&
                left.LoadableExtensions.OrderBy(value => value, StringComparer.OrdinalIgnoreCase).SequenceEqual(right.LoadableExtensions.OrderBy(value => value, StringComparer.OrdinalIgnoreCase), StringComparer.OrdinalIgnoreCase) &&
                left.SaveableExtensions.OrderBy(value => value, StringComparer.OrdinalIgnoreCase).SequenceEqual(right.SaveableExtensions.OrderBy(value => value, StringComparer.OrdinalIgnoreCase), StringComparer.OrdinalIgnoreCase) &&
                left.MimeTypeAliases.OrderBy(value => value, StringComparer.OrdinalIgnoreCase).SequenceEqual(right.MimeTypeAliases.OrderBy(value => value, StringComparer.OrdinalIgnoreCase), StringComparer.OrdinalIgnoreCase);

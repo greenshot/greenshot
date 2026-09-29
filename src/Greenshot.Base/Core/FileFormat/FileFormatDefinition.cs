@@ -38,8 +38,7 @@ public sealed class FileFormatDefinition
         string preferredExtension,
         string mimeType,
         IEnumerable<string> mimeTypeAliases,
-        string displayNameResourceKey,
-        string fallbackDisplayName)
+        string displayName)
     {
         if (string.IsNullOrWhiteSpace(id))
         {
@@ -68,18 +67,12 @@ public sealed class FileFormatDefinition
             throw new ArgumentException("A MIME alias cannot duplicate the canonical MIME type.", nameof(mimeTypeAliases));
         }
 
-        if (string.IsNullOrWhiteSpace(displayNameResourceKey))
+        if (string.IsNullOrWhiteSpace(displayName))
         {
-            throw new ArgumentException("A display-name resource key is required.", nameof(displayNameResourceKey));
+            throw new ArgumentException("A display name is required.", nameof(displayName));
         }
 
-        if (string.IsNullOrWhiteSpace(fallbackDisplayName))
-        {
-            throw new ArgumentException("A fallback display name is required.", nameof(fallbackDisplayName));
-        }
-
-        DisplayNameResourceKey = displayNameResourceKey.Trim();
-        FallbackDisplayName = fallbackDisplayName.Trim();
+        DisplayName = displayName.Trim();
     }
 
     public string Id { get; }
@@ -94,9 +87,7 @@ public sealed class FileFormatDefinition
 
     public IReadOnlyCollection<string> MimeTypeAliases { get; }
 
-    public string DisplayNameResourceKey { get; }
-
-    public string FallbackDisplayName { get; }
+    public string DisplayName { get; }
 
     public bool CanSave => SaveableExtensions.Count > 0;
 

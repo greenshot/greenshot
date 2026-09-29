@@ -80,19 +80,13 @@ public static class FileFormatRegistryExtensions
     }
 
     /// <summary>
-    /// Returns the display name of the specified FileFormatDefinition, using the translated name if available, or falling back to the fallback display name if not.
+    /// Returns the display name of the specified FileFormatDefinition.
     /// </summary>
     /// <param name="format">The FileFormatDefinition for which to get the display name.</param>
     /// <returns>The display name of the specified FileFormatDefinition.</returns>
     public static string GetDisplayName(this FileFormatDefinition format)
     {
-        if (format != null && Language.TryGetString(format.DisplayNameResourceKey, out string translatedName) &&
-            !string.IsNullOrWhiteSpace(translatedName))
-        {
-            return translatedName;
-        }
-
-        return format?.FallbackDisplayName;
+        return format?.DisplayName;
     }
 
     public static string GetDisplayNameWithPreferredExtension(this FileFormatDefinition format)

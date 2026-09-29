@@ -57,10 +57,9 @@ namespace Greenshot.Editor.FileFormatHandlers
             string preferredExtension,
             string mimeType,
             IEnumerable<string> mimeTypeAliases,
-            string displayNameResourceKey,
-            string fallbackDisplayName)
+            string displayName)
         {
-            registry.RegisterIfMissing(new FileFormatDefinition(formatId, loadableExtensions, saveableExtensions, preferredExtension, mimeType, mimeTypeAliases, displayNameResourceKey, fallbackDisplayName));
+            registry.RegisterIfMissing(new FileFormatDefinition(formatId, loadableExtensions, saveableExtensions, preferredExtension, mimeType, mimeTypeAliases, displayName));
         }
 
         /// <summary>

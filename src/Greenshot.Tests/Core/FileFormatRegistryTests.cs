@@ -127,7 +127,7 @@ namespace Greenshot.Tests.Core
 
         private static FileFormatDefinition CreateFormat(string id, string[] loadableExtensions, string[] saveableExtensions, string preferredExtension, string mimeType, string[] mimeAliases)
         {
-            return new FileFormatDefinition(id, loadableExtensions, saveableExtensions, preferredExtension, mimeType, mimeAliases, "FileFormat." + id.ToLowerInvariant(), "WebP image");
+            return new FileFormatDefinition(id, loadableExtensions, saveableExtensions, preferredExtension, mimeType, mimeAliases, "WebP image");
         }
     }
 }

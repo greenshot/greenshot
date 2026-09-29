@@ -59,9 +59,9 @@ namespace Greenshot.Editor.FileFormatHandlers
 
         public override void RegisterFileFormats(IFileFormatRegistry registry)
         {
-            RegisterFileFormat(registry, "tga", [".tga"], [".tga"], "tga", "image/x-tga", null, "output_format_display_name_tga", "Targa Image File");
-            RegisterFileFormat(registry, "pbm", [".pbm"], [".pbm"], "pbm", "image/x-portable-bitmap", null, "output_format_display_name_pbm", "Portable Bitmap Image File");
-            RegisterFileFormat(registry, "webp", [".webp"], [".webp"], "webp", "image/webp", null, "output_format_display_name_webp", "WebP Image File");
+            RegisterFileFormat(registry, "tga", [".tga"], [".tga"], "tga", "image/x-tga", null, "Targa");
+            RegisterFileFormat(registry, "pbm", [".pbm"], [".pbm"], "pbm", "image/x-portable-bitmap", null, "Portable Bitmap");
+            RegisterFileFormat(registry, "webp", [".webp"], [".webp"], "webp", "image/webp", null, "WebP");
         }
 
         /// <inheritdoc />
