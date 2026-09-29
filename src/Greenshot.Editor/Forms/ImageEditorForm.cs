@@ -55,6 +55,7 @@ using Greenshot.Editor.Drawing.Emoji;
 using Greenshot.Editor.Drawing.Fields;
 using Greenshot.Editor.Drawing.Fields.Binding;
 using Greenshot.Editor.Helpers;
+using Greenshot.Base.Threading;
 using log4net;
 
 namespace Greenshot.Editor.Forms
@@ -179,6 +180,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
 
         private void Initialize(ISurface surface, bool outputMade)
         {
+            ThreadAssert.IsUi(nameof(ImageEditorForm));
             // Compute emojis in background
             EmojiData.Load();
 

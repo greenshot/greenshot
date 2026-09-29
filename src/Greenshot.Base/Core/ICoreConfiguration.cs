@@ -287,6 +287,10 @@ namespace Greenshot.Base.Core
         [DefaultValue(false)]
         bool MinimizeWorkingSetSize { get; set; }
 
+        [Description("Log when the UI thread doesn't respond for more than 250 ms (diagnostics, always active in debug builds).")]
+        [DefaultValue(false)]
+        bool EnableUiStallWatchdog { get; set; }
+
         [Description("Remove the corners from a window capture")]
         [DefaultValue(true)]
         bool WindowCaptureRemoveCorners { get; set; }

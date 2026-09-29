@@ -51,6 +51,7 @@ using Greenshot.Base.Core.FileFormatHandlers;
 using Greenshot.Base.Help;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Ocr;
+using Greenshot.Base.Threading;
 using Greenshot.Configuration;
 using Greenshot.Controls;
 using Greenshot.Destinations;
@@ -243,6 +244,18 @@ namespace Greenshot.Forms
 
         private readonly NamedPipeServer _namedPipeServer;
 
+        /// <summary>
+        /// The dispatcher for the UI thread
+        /// </summary>
+        internal WinFormsUiDispatcher UiDispatcher { get; }
+
+        /// <summary>
+        /// The STA workers for COM servers (Office, MAPI)
+        /// </summary>
+        internal StaWorkerFactory StaWorkers { get; } = new StaWorkerFactory();
+
+        private readonly UiStallWatchdog _uiStallWatchdog;
+
         // Thumbnail preview
         private ThumbnailForm _thumbnailForm;
 
@@ -259,6 +272,18 @@ namespace Greenshot.Forms
         public MainForm(CommandLineOptions options, IpcEnvelope startupCommand = null)
         {
 
+            // The one UI thread: everything else reaches it through the IUiDispatcher
+            UiDispatcher = WinFormsUiDispatcher.CreateForCurrentThread();
+            SimpleServiceProvider.Current.AddService<IUiDispatcher>(UiDispatcher);
+            SimpleServiceProvider.Current.AddService<IStaWorkerFactory>(StaWorkers);
+#if DEBUG
+            _uiStallWatchdog = new UiStallWatchdog(UiDispatcher.Context);
+#else
+            if (_conf.EnableUiStallWatchdog)
+            {
+                _uiStallWatchdog = new UiStallWatchdog(UiDispatcher.Context);
+            }
+#endif
             SimpleServiceProvider.Current.AddService(SynchronizationContext.Current);
             var uiContext = TaskScheduler.FromCurrentSynchronizationContext();
             SimpleServiceProvider.Current.AddService(uiContext);
@@ -1591,6 +1616,8 @@ namespace Greenshot.Forms
             }
 
             ImageIO.RemoveTmpFiles();
+
+            _uiStallWatchdog?.Dispose();
 
             // Remove the application mutex
             FreeMutex();

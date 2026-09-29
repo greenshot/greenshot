@@ -11,6 +11,7 @@
   <ItemGroup>
     <PackageReference Include="Dapplo.HttpExtensions.JsonNet" Version="2.0.12" />
     <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="3.0.1" />
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="10.0.12" />
     <PackageReference Include="Dapplo.Windows.Clipboard" Version="2.0.89" />
     <PackageReference Include="Dapplo.Windows.Dpi" Version="2.0.89" />
     <PackageReference Include="Dapplo.Windows.Gdi32" Version="2.0.89" />

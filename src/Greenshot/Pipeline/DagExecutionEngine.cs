@@ -31,6 +31,7 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Pipeline;
 using Greenshot.Base.Pipeline.Contracts;
 using Greenshot.Base.Recipes;
+using Greenshot.Base.Threading;
 using log4net;
 
 namespace Greenshot.Pipeline
@@ -343,7 +344,12 @@ namespace Greenshot.Pipeline
 
                             nodeContext.LogStep($"Executing node: [{nodeConfig.Id}] {step.Name}");
                             Log.InfoFormat("Executing DAG node: [{0}] '{1}' [{2}]", nodeConfig.Id, step.Name, nodeConfig.StepType);
-                            await step.ExecuteAsync(nodeContext, cancellationToken).ConfigureAwait(false);
+                            // Every step runs on the thread pool (roadmap section 2)
+                            ThreadAssert.NotUi($"Step '{step.Name}' [{nodeConfig.StepType}]");
+                            using (FlowDiagnostics.EnterStep(nodeContext.ExecutionId, $"{step.Name} [{nodeConfig.StepType}]"))
+                            {
+                                await step.ExecuteAsync(nodeContext, cancellationToken).ConfigureAwait(false);
+                            }
                             Log.InfoFormat("Finished DAG node: [{0}] '{1}'", nodeConfig.Id, step.Name);
 
                             if (before != null)
