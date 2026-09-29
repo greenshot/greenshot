@@ -1,4 +1,5 @@
 name: Claude Code
+
 on:
   issue_comment:
     types: [created]
@@ -12,23 +13,32 @@ jobs:
   claude:
     if: >
       contains(github.event.comment.body, '@claude') &&
-      contains(fromJSON('["lakritzator", "jklingen", "larsvegas0815"]'), github.event.comment.user.login)
+      contains(fromJSON('["lakritzator", "jklingen", "larsvegas0815"]'), github.event.comment.user.login) &&
+      github.event.issue.pull_request
     runs-on: ubuntu-latest
     timeout-minutes: 30
+
     permissions:
       contents: write
       pull-requests: write
       issues: write
       id-token: write
       actions: read
+
     steps:
-      - uses: actions/checkout@v6
+      - name: Check out repository
+        uses: actions/checkout@v6
         with:
-          fetch-depth: 1
+          fetch-depth: 0
+
+      - name: Check out commented pull request
+        if: github.event.issue.pull_request
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh pr checkout "${{ github.event.issue.number }}" --force
+
       - uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           claude_args: "--max-turns 15"
-          # Only needed for allowlisted people WITHOUT write access:
-          # allowed_non_write_users: "trusted-contrib"
-          # github_token: ${{ secrets.GITHUB_TOKEN }}
