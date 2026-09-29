@@ -28,6 +28,7 @@ using System.Windows.Input;
 using Greenshot.Base.Core;
 using Greenshot.Base.Wpf;
 using Greenshot.Helpers;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.UI.ViewModels
 {
@@ -87,7 +88,7 @@ namespace Greenshot.UI.ViewModels
             }
 
             InitializeData();
-            _ = CheckVersionAsync();
+            CheckVersionAsync().FireAndLog("Check the version");
         }
 
         private void InitializeData()

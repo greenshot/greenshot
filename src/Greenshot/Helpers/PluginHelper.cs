@@ -164,7 +164,7 @@ namespace Greenshot.Helpers
         /// in parallel without waiting: the returned task completes when all started (or failed / timed out), it never throws.
         /// </summary>
         /// <returns>Task which completes when all plugins started</returns>
-        public Task LoadPlugins()
+        public Task LoadPluginsAsync()
         {
             var pluginFiles = new List<string>();
 

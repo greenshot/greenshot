@@ -30,6 +30,7 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Configuration;
 using Greenshot.Helpers.Entities;
 using log4net;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Helpers
 {
@@ -154,7 +155,7 @@ namespace Greenshot.Helpers
 
                 IsRunning = true;
                 var interval = CoreConfig?.UpdateCheckInterval ?? 14;
-                _ = BackgroundTask(() => TimeSpan.FromDays(interval), ct => CheckForUpdatesAsync(true, ct), _cancellationTokenSource.Token);
+                BackgroundTaskAsync(() => TimeSpan.FromDays(interval), ct => CheckForUpdatesAsync(true, ct), _cancellationTokenSource.Token).FireAndLog("Update check", Log);
             }
         }
 
@@ -183,14 +184,14 @@ namespace Greenshot.Helpers
         /// <param name="reoccurringTask">Func which returns a task</param>
         /// <param name="cancellationToken">CancellationToken</param>
         /// <returns>Task</returns>
-        private async Task BackgroundTask(Func<TimeSpan> intervalFactory, Func<CancellationToken, Task> reoccurringTask, CancellationToken cancellationToken = default)
+        private async Task BackgroundTaskAsync(Func<TimeSpan> intervalFactory, Func<CancellationToken, Task> reoccurringTask, CancellationToken cancellationToken = default)
         {
             try
             {
                 // Initial delay, to make sure this doesn't happen at the startup
                 await Task.Delay(20000, cancellationToken).ConfigureAwait(false);
                 Log.Info("Starting background task to check for updates");
-                await Task.Run(async () =>
+                // Task.Delay with ConfigureAwait(false) continues on the thread pool
                 {
                     try
                     {
@@ -247,7 +248,7 @@ namespace Greenshot.Helpers
                     {
                         Log.Info("Stopping background task to check for updates");
                     }
-                }, cancellationToken).ConfigureAwait(false);
+                }
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {

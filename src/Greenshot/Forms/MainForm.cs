@@ -348,7 +348,7 @@ namespace Greenshot.Forms
 
             // Load all the plugins, and while doing to load the configuration
             // The plugins start in parallel, the main window doesn't wait for them
-            PluginHelper.Instance.LoadPlugins().FireAndLog("Start the plugins", Log);
+            PluginHelper.Instance.LoadPluginsAsync().FireAndLog("Start the plugins", Log);
 
             EditorInitialize.Initialize();
 
@@ -442,7 +442,7 @@ namespace Greenshot.Forms
 
             // Start named pipe server for session-isolated IPC
             _namedPipeServer = new NamedPipeServer();
-            _namedPipeServer.RequestReceived += OnNamedPipeRequestReceived;
+            _namedPipeServer.RequestReceived += OnNamedPipeRequestReceivedAsync;
             _namedPipeServer.Start();
 
             if (options.Restore)
@@ -458,7 +458,11 @@ namespace Greenshot.Forms
             if (startupCommand != null)
             {
                 // The command Greenshot was started with takes the same way as one from greenshot.com, now that the pipe server listens
-                Task.Run(() => NamedPipeClient.SendMessage(startupCommand));
+                AsyncCommand.RunInBackground(() =>
+                {
+                    NamedPipeClient.SendMessage(startupCommand);
+                    return Task.CompletedTask;
+                }, "Send the startup command to the pipe server");
             }
 
             // Start the update check in the background
@@ -566,7 +570,7 @@ namespace Greenshot.Forms
         /// <summary>
         /// Handles incoming IPC requests via the security dispatcher.
         /// </summary>
-        private async Task OnNamedPipeRequestReceived(IpcRequestContext context)
+        private async Task OnNamedPipeRequestReceivedAsync(IpcRequestContext context)
         {
             await IpcSecurityDispatcher.DispatchAsync(
                 context,
@@ -622,6 +626,26 @@ namespace Greenshot.Forms
         private void MainFormFormClosing(object sender, FormClosingEventArgs e)
         {
             Log.DebugFormat("Mainform closing, reason: {0}", e.CloseReason);
+            if (Volatile.Read(ref _shutdownState) == 2)
+            {
+                // The shutdown is done
+                return;
+            }
+
+            if (e.CloseReason is CloseReason.WindowsShutDown or CloseReason.TaskManagerClosing)
+            {
+                // No time to wait for flows or plugins, clean up what is essential
+                if (Interlocked.CompareExchange(ref _shutdownState, 1, 0) == 0)
+                {
+                    ShutdownUi();
+                }
+
+                ShutdownCleanup();
+                return;
+            }
+
+            // Close after the async shutdown
+            e.Cancel = true;
             Exit();
         }
 
@@ -739,7 +763,7 @@ namespace Greenshot.Forms
 
                 item.Click += (s, ev) =>
                 {
-                    Dispatcher.CurrentDispatcher.BeginInvoke(() =>
+                    RunLater(() =>
                     {
                         trigger.Fire();
                     });
@@ -871,7 +895,7 @@ namespace Greenshot.Forms
 
             var captureScreenItem = new ToolStripMenuItem(Language.GetString(LangKey.contextmenu_capturefullscreen_all));
             captureScreenItem.Click += delegate {
-                Dispatcher.CurrentDispatcher.BeginInvoke(() =>
+                RunLater(() =>
                 {
                     CaptureHelper.CaptureFullscreen(false, ScreenCaptureMode.FullScreen);
                 });
@@ -904,7 +928,7 @@ namespace Greenshot.Forms
                 captureScreenItem = new ToolStripMenuItem(deviceAlignment);
                 captureScreenItem.Click += delegate
                 {
-                    Dispatcher.CurrentDispatcher.BeginInvoke(()=>
+                    RunLater(()=>
                     {
                         CaptureHelper.CaptureRegion(false, displayToCapture.Bounds);
                     });
@@ -1012,9 +1036,17 @@ namespace Greenshot.Forms
             }
         }
 
+        /// <summary>
+        /// Run the action after the current UI event (e.g. when the context menu closed), exceptions are logged
+        /// </summary>
+        private void RunLater(Action action)
+        {
+            UiDispatcher.InvokeAsync(action).FireAndLog("Menu action", Log);
+        }
+
         private void CaptureAreaToolStripMenuItemClick(object sender, EventArgs e)
         {
-            Dispatcher.CurrentDispatcher.BeginInvoke(() =>
+            RunLater(() =>
             {
                 CaptureHelper.CaptureRegion(false);
             });
@@ -1022,7 +1054,7 @@ namespace Greenshot.Forms
 
         private void CaptureClipboardToolStripMenuItemClick(object sender, EventArgs e)
         {
-            Dispatcher.CurrentDispatcher.BeginInvoke(() =>
+            RunLater(() =>
             {
                 CaptureHelper.CaptureClipboard();
             });
@@ -1030,7 +1062,7 @@ namespace Greenshot.Forms
 
         private void OpenFileToolStripMenuItemClick(object sender, EventArgs e)
         {
-            Dispatcher.CurrentDispatcher.BeginInvoke(() =>
+            RunLater(() =>
             {
                 CaptureFile();
             });
@@ -1038,7 +1070,7 @@ namespace Greenshot.Forms
 
         private void CaptureFullScreenToolStripMenuItemClick(object sender, EventArgs e)
         {
-            Dispatcher.CurrentDispatcher.BeginInvoke(() =>
+            RunLater(() =>
             {
                 CaptureHelper.CaptureFullscreen(false, _conf.ScreenCaptureMode);
             });
@@ -1046,7 +1078,7 @@ namespace Greenshot.Forms
 
         private void Contextmenu_CaptureLastRegionClick(object sender, EventArgs e)
         {
-            Dispatcher.CurrentDispatcher.BeginInvoke(() =>
+            RunLater(() =>
             {
                 CaptureHelper.CaptureLastRegion(false);
             });
@@ -1054,7 +1086,7 @@ namespace Greenshot.Forms
 
         private void Contextmenu_CaptureWindow_Click(object sender, EventArgs e)
         {
-            Dispatcher.CurrentDispatcher.BeginInvoke(() =>
+            RunLater(() =>
             {
                 CaptureHelper.CaptureWindowInteractive(false);
             });
@@ -1063,7 +1095,7 @@ namespace Greenshot.Forms
         private void Contextmenu_CaptureWindowFromList_Click(object sender, EventArgs e)
         {
             ToolStripMenuItem clickedItem = (ToolStripMenuItem) sender;
-            Dispatcher.CurrentDispatcher.BeginInvoke(() =>
+            RunLater(() =>
             {
                 try
                 {
@@ -1084,7 +1116,7 @@ namespace Greenshot.Forms
         /// <param name="e">EventArgs</param>
         private void Contextmenu_DonateClick(object sender, EventArgs e)
         {
-            Dispatcher.CurrentDispatcher.BeginInvoke(() =>
+            RunLater(() =>
             {
                 Process.Start("https://getgreenshot.org/support/?version=" + EnvironmentInfo.GetGreenshotVersion(true));
             });
@@ -1097,7 +1129,7 @@ namespace Greenshot.Forms
         /// <param name="e"></param>
         private void Contextmenu_SettingsClick(object sender, EventArgs e)
         {
-            Dispatcher.CurrentDispatcher.BeginInvoke(() =>
+            RunLater(() =>
             {
                 ShowSetting();
             });
@@ -1538,12 +1570,76 @@ namespace Greenshot.Forms
         }
 
         /// <summary>
-        /// Shutdown / cleanup
+        /// How long the shutdown waits for the running flows and for each plugin
+        /// </summary>
+        private static readonly TimeSpan ShutdownTimeout = TimeSpan.FromSeconds(5);
+
+        /// <summary>
+        /// 0: running, 1: the async shutdown started, 2: the cleanup is done and the application may close
+        /// </summary>
+        private int _shutdownState;
+
+        /// <summary>
+        /// Start the shutdown from a (sync) UI event
         /// </summary>
         public void Exit()
         {
-            Log.Info("Exit: " + EnvironmentInfo.EnvironmentToString(false));
+            AsyncCommand.Run(ExitAsync, "Exit Greenshot");
+        }
 
+        /// <summary>
+        /// Shutdown / cleanup: wait (bounded) for the running flows, stop the plugins and the STA workers, then exit.
+        /// </summary>
+        public async Task ExitAsync()
+        {
+            if (Interlocked.CompareExchange(ref _shutdownState, 1, 0) != 0)
+            {
+                return;
+            }
+
+            Log.Info("Exit: " + EnvironmentInfo.EnvironmentToString(false));
+            ShutdownUi();
+
+            // Running flows are cancelled, the shutdown waits a bounded time for them
+            using (var timeoutSource = new CancellationTokenSource(ShutdownTimeout))
+            {
+                try
+                {
+                    await _flowRunner.ShutdownAsync(timeoutSource.Token);
+                }
+                catch (Exception ex)
+                {
+                    Log.Warn("Error stopping the running flows", ex);
+                }
+            }
+
+            // Inform all registered plugins
+            try
+            {
+                await PluginHelper.Instance.ShutdownAsync(ShutdownTimeout);
+            }
+            catch (Exception e)
+            {
+                Log.Error("Error shutting down plugins!", e);
+            }
+
+            try
+            {
+                await StaWorkers.DisposeAsync();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Error stopping the STA workers!", e);
+            }
+
+            ShutdownCleanup();
+        }
+
+        /// <summary>
+        /// The first, synchronous part of the shutdown: configuration, other forms, hotkeys, sound.
+        /// </summary>
+        private void ShutdownUi()
+        {
             try
             {
                 IniConfigRegistry.Get()?.Save();
@@ -1568,8 +1664,7 @@ namespace Greenshot.Forms
                 try
                 {
                     Log.InfoFormat("Closing form: {0}", form.Name);
-                    Form formCapturedVariable = form;
-                    Invoke((MethodInvoker) delegate { formCapturedVariable.Close(); });
+                    form.Close();
                 }
                 catch (Exception e)
                 {
@@ -1596,29 +1691,14 @@ namespace Greenshot.Forms
             {
                 Log.Error("Error deinitializing sound!", e);
             }
+        }
 
-            // Inform all registered plugins
-            try
-            {
-                // TODO Phase 5: await in the async shutdown
-                PluginHelper.Instance.ShutdownAsync(TimeSpan.FromSeconds(5)).FireAndLog("Stop the plugins", Log);
-            }
-            catch (Exception e)
-            {
-                Log.Error("Error shutting down plugins!", e);
-            }
-
-            // Graceful shutdown
-            try
-            {
-                Application.DoEvents();
-                Application.Exit();
-            }
-            catch (Exception e)
-            {
-                Log.Error("Error closing application!", e);
-            }
-
+        /// <summary>
+        /// The last part of the shutdown, closes the application.
+        /// </summary>
+        private void ShutdownCleanup()
+        {
+            Interlocked.Exchange(ref _shutdownState, 2);
             ImageIO.RemoveTmpFiles();
 
             _uiStallWatchdog?.Dispose();
@@ -1632,6 +1712,16 @@ namespace Greenshot.Forms
                 notifyIcon.Visible = false;
                 notifyIcon.Dispose();
                 notifyIcon = null;
+            }
+
+            // Graceful shutdown, the message loop ends
+            try
+            {
+                Application.Exit();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Error closing application!", e);
             }
         }
 

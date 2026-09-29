@@ -27,6 +27,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using log4net;
 using Newtonsoft.Json;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Helpers.Ipc
 {
@@ -75,11 +76,14 @@ namespace Greenshot.Helpers.Ipc
             }
 
             _cancellationTokenSource = new CancellationTokenSource();
-            _listenerTask = Task.Run(() => ListenLoopAsync(_cancellationTokenSource.Token));
+            _listenerTask = ListenLoopAsync(_cancellationTokenSource.Token);
+            _listenerTask.FireAndLog("Named pipe listener", Log);
         }
 
         private async Task ListenLoopAsync(CancellationToken cancellationToken)
         {
+            // The server is a background service, it doesn't need the (UI) thread which started it
+            await ThreadPoolSwitch.SwitchToThreadPoolAsync();
             while (!cancellationToken.IsCancellationRequested)
             {
                 NamedPipeServerStream serverStream = null;
@@ -101,7 +105,8 @@ namespace Greenshot.Helpers.Ipc
                     var connectedStream = serverStream;
                     serverStream = null; // Ownership transferred to ProcessClientAsync
 
-                    _ = Task.Run(() => ProcessClientAsync(connectedStream, cancellationToken), cancellationToken);
+                    // Every client is processed concurrently (async I/O), the loop accepts the next connection
+                    ProcessClientAsync(connectedStream, cancellationToken).FireAndLog("Named pipe client", Log);
                 }
                 catch (OperationCanceledException)
                 {

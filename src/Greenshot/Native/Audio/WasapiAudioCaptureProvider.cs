@@ -155,11 +155,13 @@ namespace Greenshot.Native.Audio
             }
 
             _stopwatch.Restart();
+#pragma warning disable RS0030 // Real-time audio: a dedicated capture thread polls the WASAPI buffer every 10 ms, this is not pool work
             _captureThread = new Thread(CaptureLoop)
             {
                 IsBackground = true,
                 Name = "Greenshot-WasapiCapture"
             };
+#pragma warning restore RS0030
             _captureThread.Start();
         }
 
@@ -193,6 +195,7 @@ namespace Greenshot.Native.Audio
             _captureThread = null;
         }
 
+#pragma warning disable RS0030 // R1: Thread.Sleep is the polling interval of the dedicated real-time capture thread
         private void CaptureLoop()
         {
             while (!_cts.IsCancellationRequested)
@@ -260,6 +263,8 @@ namespace Greenshot.Native.Audio
                 }
             }
         }
+
+#pragma warning restore RS0030
 
         public void Dispose()
         {

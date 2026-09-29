@@ -44,6 +44,7 @@ using Greenshot.Recipes;
 using Greenshot.Triggers;
 using Greenshot.UI.SelfService;
 using log4net;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Helpers.Ipc
 {
@@ -463,14 +464,21 @@ namespace Greenshot.Helpers.Ipc
                 return;
             }
 
-            if (form != null && form.InvokeRequired)
+            // The requests arrive on the pipe server threads
+            UiDispatcher.Current.RunOnUiAsync(action).FireAndLog("IPC action", Log);
+        }
+
+        /// <summary>
+        /// Run the action on the UI thread, later (the reply doesn't wait for it). Nothing happens without a main form (tests, headless).
+        /// </summary>
+        private static void RunOnUi(Form mainForm, Action action)
+        {
+            if (mainForm == null)
             {
-                form.BeginInvoke(action);
+                return;
             }
-            else
-            {
-                action();
-            }
+
+            UiDispatcher.Current.InvokeAsync(action).FireAndLog("IPC UI action", Log);
         }
 
         private static async Task HandleHandshakeAsync(IpcRequestContext context)
@@ -529,7 +537,7 @@ namespace Greenshot.Helpers.Ipc
 
             try
             {
-                mainForm.BeginInvoke(new Action(() =>
+                RunOnUi(mainForm, new Action(() =>
                 {
                     try
                     {
@@ -1111,7 +1119,7 @@ namespace Greenshot.Helpers.Ipc
                 else
                 {
                     // Priority 5: Fallback if neither trigger stdout nor StdoutStep was used
-                    stdoutText = GetFallbackOutput(flowContext, matchedRecipe);
+                    stdoutText = await GetFallbackOutputAsync(flowContext, matchedRecipe).ConfigureAwait(false);
                 }
 
                 if (!hasStreamedStderr && collectedStderr.Count > 0)
@@ -1157,7 +1165,7 @@ namespace Greenshot.Helpers.Ipc
         /// <summary>
         /// Output of a recipe that has neither a Stdout step, a trigger Stdout expression nor a --query.
         /// </summary>
-        private static string GetFallbackOutput(CaptureFlowContext flowCtx, CaptureRecipe matchedRecipe)
+        private static async Task<string> GetFallbackOutputAsync(CaptureFlowContext flowCtx, CaptureRecipe matchedRecipe)
         {
             string outputText = null;
             if (flowCtx.Properties.TryGetValue("CommandResult", out var crObj) && crObj != null)
@@ -1201,7 +1209,14 @@ namespace Greenshot.Helpers.Ipc
                 var details = flowCtx.Payload.RawCapture.CaptureDetails;
                 if (details.ProcessingTask != null)
                 {
-                    try { details.ProcessingTask.Wait(5000); } catch { }
+                    try
+                    {
+                        await details.ProcessingTask.WaitAsync(TimeSpan.FromSeconds(5)).ConfigureAwait(false);
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Debug("The processing of the capture didn't finish", ex);
+                    }
                 }
                 lock (details.Features)
                 {
@@ -1502,11 +1517,11 @@ namespace Greenshot.Helpers.Ipc
 
             if (mainForm is MainForm mf)
             {
-                mf.BeginInvoke(new Action(() => mf.ShowSetting(plugin, tab)));
+                RunOnUi(mainForm, new Action(() => mf.ShowSetting(plugin, tab)));
             }
             else
             {
-                mainForm?.BeginInvoke(new Action(() =>
+                RunOnUi(mainForm, new Action(() =>
                 {
                     var window = new SettingsWindow(plugin, tab);
                     window.ShowDialog();
@@ -1525,7 +1540,7 @@ namespace Greenshot.Helpers.Ipc
         {
             if (mainForm is MainForm mf)
             {
-                mf.BeginInvoke(new Action(() => mf.ShowAbout()));
+                RunOnUi(mainForm, new Action(() => mf.ShowAbout()));
             }
 
             await context.ReplyAsync(new
@@ -1542,7 +1557,7 @@ namespace Greenshot.Helpers.Ipc
             context.Envelope.Parsed?.Parameters?.TryGetValue("section", out section);
             if (string.IsNullOrEmpty(section) && context.Envelope.Parameters != null) context.Envelope.Parameters.TryGetValue("section", out section);
 
-            mainForm?.BeginInvoke(new Action(() =>
+            RunOnUi(mainForm, new Action(() =>
             {
                 SelfServiceWindow.ShowSelfService(initialSection: section);
             }));
@@ -1561,7 +1576,7 @@ namespace Greenshot.Helpers.Ipc
             context.Envelope.Parsed?.Parameters?.TryGetValue("recipe", out recipe);
             if (string.IsNullOrEmpty(recipe) && context.Envelope.Parameters != null) context.Envelope.Parameters.TryGetValue("recipe", out recipe);
 
-            mainForm?.BeginInvoke(new Action(() =>
+            RunOnUi(mainForm, new Action(() =>
             {
                 var editorService = SimpleServiceProvider.Current?.GetInstance<IRecipeEditorService>(isOptional: true);
                 editorService?.OpenEditor(recipe);
@@ -1577,7 +1592,7 @@ namespace Greenshot.Helpers.Ipc
 
         private static async Task HandleRecipeManagerAsync(IpcRequestContext context, Form mainForm)
         {
-            mainForm?.BeginInvoke(new Action(() =>
+            RunOnUi(mainForm, new Action(() =>
             {
                 var editorService = SimpleServiceProvider.Current?.GetInstance<IRecipeEditorService>(isOptional: true);
                 editorService?.OpenRecipeManager();

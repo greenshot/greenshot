@@ -33,6 +33,8 @@ using Dapplo.Ini;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
 using Microsoft.Win32;
+using System.Threading.Tasks;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Plugin.ExternalCommand.Forms;
 
@@ -609,9 +611,17 @@ public class ExternalCommandItemViewModel : INotifyPropertyChanged
 
     private void UpdateIcon()
     {
+        AsyncCommand.Run(UpdateIconAsync, "Update the icon of the external command");
+    }
+
+    /// <summary>
+    /// Load the icon without blocking the UI, the continuations run on the UI thread
+    /// </summary>
+    private async Task UpdateIconAsync()
+    {
         try
         {
-            var icon = IconCache.IconForCommand(_name);
+            var icon = await IconCache.IconForCommandAsync(_name);
             if (icon != null)
             {
                 Icon = icon.ToBitmapSource();
@@ -629,7 +639,7 @@ public class ExternalCommandItemViewModel : INotifyPropertyChanged
             expanded = FilenameHelper.FillCmdVariables(expanded, true);
             if (File.Exists(expanded))
             {
-                var icon = PluginUtils.GetCachedExeIcon(expanded, 0);
+                var icon = await PluginUtils.GetCachedExeIconAsync(expanded, 0);
                 if (icon != null)
                 {
                     Icon = icon.ToBitmapSource();
@@ -644,7 +654,7 @@ public class ExternalCommandItemViewModel : INotifyPropertyChanged
 
         try
         {
-            var icon = WindowsAppHelper.GetAppLogo(_commandLine, _name);
+            var icon = await WindowsAppHelper.GetAppLogoAsync(_commandLine, _name);
             if (icon != null)
             {
                 Icon = icon.ToBitmapSource();

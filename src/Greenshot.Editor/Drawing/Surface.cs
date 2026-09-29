@@ -1187,7 +1187,8 @@ namespace Greenshot.Editor.Drawing
         public void ResizeCanvas(int left, int right, int top, int bottom)
         {
             var resizeEffect = new ResizeCanvasEffect(left, right, top, bottom);
-            ApplyBitmapEffect(resizeEffect);
+            // Fast enough for the UI thread
+            ApplyEffectResult(resizeEffect, Image);
             _surfaceExpanded(this, null);
         }
 
@@ -1198,7 +1199,8 @@ namespace Greenshot.Editor.Drawing
         public void ResizeCanvas(Expansion expansion)
         {
             var resizeEffect = new ResizeCanvasEffect(expansion.Left, expansion.Right, expansion.Top, expansion.Bottom);
-            ApplyBitmapEffect(resizeEffect);
+            // Fast enough for the UI thread
+            ApplyEffectResult(resizeEffect, Image);
             _surfaceExpanded(this, null);
         }
 
@@ -1206,39 +1208,76 @@ namespace Greenshot.Editor.Drawing
         /// Apply a bitmap effect to the surface
         /// </summary>
         /// <param name="effect"></param>
-        public void ApplyBitmapEffect(IEffect effect)
+        /// <remarks>
+        /// Call on the UI thread: the effect is calculated on the thread pool with a copy of the image (a progress dialog
+        /// shows when it takes longer), the result is applied on the UI thread.
+        /// </remarks>
+        public async Task ApplyBitmapEffectAsync(IEffect effect, CancellationToken cancellationToken = default)
         {
-            BackgroundForm backgroundForm = new BackgroundForm("Effect", "Please wait");
-            backgroundForm.Show();
-            Application.DoEvents();
+            var sourceImage = ImageHelper.Clone(Image);
+            var matrix = new Matrix();
+            Image newImage;
             try
             {
-                var imageRectangle = new NativeRect(NativePoint.Empty, Image.Size);
-                Matrix matrix = new Matrix();
-                Image newImage = ImageHelper.ApplyEffect(Image, effect, matrix);
-                if (newImage != null)
-                {
-                    // Make sure the elements move according to the offset the effect made the bitmap move
-                    _elements.Transform(matrix);
-                    // Make undoable
-                    MakeUndoable(new SurfaceBackgroundChangeMemento(this, matrix), false);
-                    SetImage(newImage, false);
-                    Invalidate();
-                    if (_surfaceSizeChanged != null && !imageRectangle.Equals(new NativeRect(NativePoint.Empty, newImage.Size)))
-                    {
-                        _surfaceSizeChanged(this, null);
-                    }
-                }
-                else
-                {
-                    // clean up matrix, as it hasn't been used in the undo stack.
-                    matrix.Dispose();
-                }
+                newImage = await UserInteraction.Current.RunWithProgressAsync("Please wait",
+                    (progress, token) => ApplyEffectOnPoolAsync(sourceImage, effect, matrix), cancellationToken);
             }
-            finally
+            catch
             {
-                // Always close the background form
-                backgroundForm.CloseDialog();
+                sourceImage.Dispose();
+                matrix.Dispose();
+                throw;
+            }
+
+            if (ReferenceEquals(newImage, sourceImage))
+            {
+                // The effect didn't change anything
+                newImage = null;
+            }
+
+            sourceImage.Dispose();
+            // Back on the UI thread
+            ApplyEffectResult(newImage, matrix);
+        }
+
+        private static async Task<Image> ApplyEffectOnPoolAsync(Image sourceImage, IEffect effect, Matrix matrix)
+        {
+            await ThreadPoolSwitch.SwitchToThreadPoolAsync();
+            return ImageHelper.ApplyEffect(sourceImage, effect, matrix);
+        }
+
+        /// <summary>
+        /// Apply the effect to the image on the calling (UI) thread
+        /// </summary>
+        private void ApplyEffectResult(IEffect effect, Image sourceImage)
+        {
+            var matrix = new Matrix();
+            var newImage = ImageHelper.ApplyEffect(sourceImage, effect, matrix);
+            ApplyEffectResult(ReferenceEquals(newImage, sourceImage) ? null : newImage, matrix);
+        }
+
+        /// <summary>
+        /// Use the result of an effect: the new image and the matrix of the offset, both are owned by the surface afterwards
+        /// </summary>
+        private void ApplyEffectResult(Image newImage, Matrix matrix)
+        {
+            if (newImage == null)
+            {
+                // clean up matrix, as it hasn't been used in the undo stack.
+                matrix.Dispose();
+                return;
+            }
+
+            var imageRectangle = new NativeRect(NativePoint.Empty, Image.Size);
+            // Make sure the elements move according to the offset the effect made the bitmap move
+            _elements.Transform(matrix);
+            // Make undoable
+            MakeUndoable(new SurfaceBackgroundChangeMemento(this, matrix), false);
+            SetImage(newImage, false);
+            Invalidate();
+            if (_surfaceSizeChanged != null && !imageRectangle.Equals(new NativeRect(NativePoint.Empty, newImage.Size)))
+            {
+                _surfaceSizeChanged(this, null);
             }
         }
 

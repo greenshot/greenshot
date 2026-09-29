@@ -89,8 +89,13 @@ namespace Greenshot.Tests.Threading
         public async Task InvokeAsync_ContinuationDoesNotRunOnUiThread()
         {
             using var ui = StrictTestUiDispatcher.Create();
-            await ui.InvokeAsync(() => { }).ConfigureAwait(false);
-            Assert.NotEqual(ui.ThreadId, Thread.CurrentThread.ManagedThreadId);
+            // Without a SynchronizationContext the continuation runs where the task completes: it must not be the UI thread
+            int continuationThreadId = await Task.Run(async () =>
+            {
+                await ui.InvokeAsync(() => { });
+                return Thread.CurrentThread.ManagedThreadId;
+            });
+            Assert.NotEqual(ui.ThreadId, continuationThreadId);
         }
 
         [Fact]

@@ -29,6 +29,8 @@ using Dapplo.Windows.Icons;
 using Dapplo.Ini;
 using log4net;
 using Microsoft.Win32;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Greenshot.Base.Core
 {
@@ -159,6 +161,29 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
+        /// The icon of the executable; for a Windows App (MSIX, AppExecutionAlias) the app logo, which is loaded async (WinRT).
+        /// The image is cached, don't dispose it.
+        /// </summary>
+        /// <param name="path">path to the exe or dll</param>
+        /// <param name="index">index of the icon</param>
+        /// <param name="cancellationToken">CancellationToken</param>
+        /// <returns>Image with the icon or null</returns>
+        public static async Task<Image> GetCachedExeIconAsync(string path, int index, CancellationToken cancellationToken = default)
+        {
+            if (index == 0 && File.Exists(path))
+            {
+                // Windows Apps have a generic executable icon, their logo is what the user knows
+                var appLogo = await WindowsAppHelper.GetAppLogoAsync(path, cancellationToken: cancellationToken).ConfigureAwait(false);
+                if (appLogo != null)
+                {
+                    return appLogo;
+                }
+            }
+
+            return GetCachedExeIcon(path, index) ?? await WindowsAppHelper.GetAppLogoAsync(path, cancellationToken: cancellationToken).ConfigureAwait(false);
+        }
+
+        /// <summary>
         /// Get icon for executable
         /// </summary>
         /// <param name="path">path to the exe or dll</param>
@@ -169,27 +194,6 @@ namespace Greenshot.Base.Core
             if (!File.Exists(path))
             {
                 return null;
-            }
-
-            // For index 0, check if this path points to a Windows App (e.g. AppExecutionAlias or in WindowsApps)
-            if (index == 0)
-            {
-                try
-                {
-                    var appLogo = WindowsAppHelper.GetAppLogo(path);
-                    if (appLogo is Bitmap bitmap)
-                    {
-                        return bitmap;
-                    }
-                    if (appLogo != null)
-                    {
-                        return new Bitmap(appLogo);
-                    }
-                }
-                catch (Exception exApp)
-                {
-                    Log.Debug("Error checking Windows App logo for: " + path, exApp);
-                }
             }
 
             try
@@ -223,23 +227,6 @@ namespace Greenshot.Base.Core
                 Log.Warn("error retrieving shell icon: ", exShell);
             }
 
-            // Fallback: check WindowsAppHelper if not already checked or if index > 0
-            try
-            {
-                var appLogo = WindowsAppHelper.GetAppLogo(path);
-                if (appLogo is Bitmap bitmap)
-                {
-                    return bitmap;
-                }
-                if (appLogo != null)
-                {
-                    return new Bitmap(appLogo);
-                }
-            }
-            catch
-            {
-                // Ignore
-            }
 
             return null;
         }

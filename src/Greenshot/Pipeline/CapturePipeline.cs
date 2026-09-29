@@ -167,7 +167,7 @@ namespace Greenshot.Pipeline
                 var recipeManager = SimpleServiceProvider.Current.GetInstance<IRecipeManager>(isOptional: true);
                 if (recipeManager != null)
                 {
-                    var verifiedRecipe = recipeManager.EnsureRecipeApprovedAndUpToDate(recipe);
+                    var verifiedRecipe = await recipeManager.EnsureRecipeApprovedAndUpToDateAsync(recipe, cancellationToken).ConfigureAwait(false);
                     if (verifiedRecipe == null)
                     {
                         Log.WarnFormat("Execution aborted for recipe '{0}' because approval was denied or file verification failed.", recipe.Name);

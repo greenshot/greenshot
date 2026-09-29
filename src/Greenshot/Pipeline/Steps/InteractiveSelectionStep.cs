@@ -139,7 +139,7 @@ namespace Greenshot.Pipeline.Steps
                     payload.RawCapture.ScreenBounds.Location.X,
                     payload.RawCapture.ScreenBounds.Location.Y);
                 // Configuration is written on the UI thread (single writer, its change events have UI subscribers)
-                context.Ui.InvokeAsync(() => CoreConfig.LastCapturedRegion = screenOffsetRect).FireAndLog("Store the last captured region", Log);
+                context.Ui.InvokeAsync(() => CoreConfig.LastCapturedRegion = screenOffsetRect, CancellationToken.None).FireAndLog("Store the last captured region", Log);
             }
 
             if (selection.FinalMode == CaptureMode.Text)

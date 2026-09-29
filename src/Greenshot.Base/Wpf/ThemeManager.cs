@@ -25,6 +25,7 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Media;
 using Microsoft.Win32;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Base.Wpf
 {
@@ -153,7 +154,8 @@ namespace Greenshot.Base.Wpf
         {
             if (e.Category == UserPreferenceCategory.General)
             {
-                Application.Current?.Dispatcher.Invoke(() => DetectSystemTheme());
+                // Raised on a system events thread
+                UiDispatcher.Current.InvokeAsync(DetectSystemTheme).FireAndLog("Detect the system theme");
             }
         }
 

@@ -108,7 +108,7 @@ namespace Greenshot.Base.Core
             public bool CanProvide(string iconKey) =>
                 iconKey == Greenshot || iconKey.StartsWith("resource:", StringComparison.Ordinal) || iconKey.StartsWith("exe:", StringComparison.Ordinal);
 
-            public Task<Image> GetIconAsync(string iconKey, CancellationToken cancellationToken)
+            public async Task<Image> GetIconAsync(string iconKey, CancellationToken cancellationToken)
             {
                 Image image = null;
                 if (iconKey == Greenshot)
@@ -127,12 +127,19 @@ namespace Greenshot.Base.Core
                     var parts = iconKey.Split(new[] { ':' }, 3);
                     if (parts.Length == 3 && int.TryParse(parts[1], NumberStyles.Integer, CultureInfo.InvariantCulture, out int index))
                     {
-                        var cached = PluginUtils.GetCachedExeIcon(parts[2], index);
-                        image = cached == null ? null : ImageHelper.Clone(cached);
+                        var cached = await PluginUtils.GetCachedExeIconAsync(parts[2], index, cancellationToken).ConfigureAwait(false);
+                        if (cached != null)
+                        {
+                            // The cache owns the icon, the caller gets a copy
+                            lock (cached)
+                            {
+                                image = ImageHelper.Clone(cached);
+                            }
+                        }
                     }
                 }
 
-                return Task.FromResult(image);
+                return image;
             }
         }
     }

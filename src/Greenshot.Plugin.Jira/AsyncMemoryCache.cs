@@ -149,7 +149,7 @@ public abstract class AsyncMemoryCache<TKey, TResult> where TResult : class
                 }
                 catch (OperationCanceledException)
                 {
-                    completionSource.TrySetCanceled();
+                    completionSource.TrySetCanceled(cancellationToken);
                 }
                 catch (Exception ex)
                 {

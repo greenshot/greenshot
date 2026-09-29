@@ -1819,7 +1819,12 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             mainForm.AddCaptureWindowMenuItems(captureWindowMenuItem, Contextmenu_window_Click);
         }
 
-        private async void ObfuscateTextToolStripMenuItemClick(object sender, EventArgs e)
+        private void ObfuscateTextToolStripMenuItemClick(object sender, EventArgs e)
+        {
+            AsyncCommand.Run(ObfuscateTextAsync, "Obfuscate text");
+        }
+
+        private async Task ObfuscateTextAsync()
         {
             if (_surface?.CaptureDetails == null)
             {
@@ -1935,10 +1940,21 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             }
         }
 
+        /// <summary>
+        /// Apply the effect (calculated on the thread pool), then update the undo/redo state
+        /// </summary>
+        private void ApplyEffect(IEffect effect)
+        {
+            AsyncCommand.Run(async () =>
+            {
+                await _surface.ApplyBitmapEffectAsync(effect);
+                UpdateUndoRedoSurfaceDependencies();
+            }, $"Apply {effect.GetType().Name}");
+        }
+
         private void AddBorderToolStripMenuItemClick(object sender, EventArgs e)
         {
-            _surface.ApplyBitmapEffect(new BorderEffect());
-            UpdateUndoRedoSurfaceDependencies();
+            ApplyEffect(new BorderEffect());
         }
 
         /// <summary>
@@ -1948,8 +1964,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
         /// <param name="e"></param>
         private void EnlargeCanvasToolStripMenuItemClick(object sender, EventArgs e)
         {
-            _surface.ApplyBitmapEffect(new ResizeCanvasEffect(25, 25, 25, 25));
-            UpdateUndoRedoSurfaceDependencies();
+            ApplyEffect(new ResizeCanvasEffect(25, 25, 25, 25));
         }
 
         /// <summary>
@@ -1996,8 +2011,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
 
             if (apply)
             {
-                _surface.ApplyBitmapEffect(dropShadowEffect);
-                UpdateUndoRedoSurfaceDependencies();
+                ApplyEffect(dropShadowEffect);
             }
         }
 
@@ -2013,8 +2027,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             var result = new ResizeSettingsWindow(resizeEffect).ShowDialog(this);
             if (result == true)
             {
-                _surface.ApplyBitmapEffect(resizeEffect);
-                UpdateUndoRedoSurfaceDependencies();
+                ApplyEffect(resizeEffect);
             }
         }
 
@@ -2042,15 +2055,13 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
 
             if (apply)
             {
-                _surface.ApplyBitmapEffect(tornEdgeEffect);
-                UpdateUndoRedoSurfaceDependencies();
+                ApplyEffect(tornEdgeEffect);
             }
         }
 
         private void GrayscaleToolStripMenuItemClick(object sender, EventArgs e)
         {
-            _surface.ApplyBitmapEffect(new GrayscaleEffect());
-            UpdateUndoRedoSurfaceDependencies();
+            ApplyEffect(new GrayscaleEffect());
         }
 
         private void ClearToolStripMenuItemClick(object sender, EventArgs e)
@@ -2061,20 +2072,17 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
 
         private void RotateCwToolstripButtonClick(object sender, EventArgs e)
         {
-            _surface.ApplyBitmapEffect(new RotateEffect(90));
-            UpdateUndoRedoSurfaceDependencies();
+            ApplyEffect(new RotateEffect(90));
         }
 
         private void RotateCcwToolstripButtonClick(object sender, EventArgs e)
         {
-            _surface.ApplyBitmapEffect(new RotateEffect(270));
-            UpdateUndoRedoSurfaceDependencies();
+            ApplyEffect(new RotateEffect(270));
         }
 
         private void InvertToolStripMenuItemClick(object sender, EventArgs e)
         {
-            _surface.ApplyBitmapEffect(new InvertEffect());
-            UpdateUndoRedoSurfaceDependencies();
+            ApplyEffect(new InvertEffect());
         }
 
         private void RemoveTransparencyToolStripMenuItemClick(object sender, EventArgs e)
@@ -2090,8 +2098,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                 {
                     Color = colorDialog.Color
                 };
-                _surface.ApplyBitmapEffect(removeTransparencyEffect);
-                UpdateUndoRedoSurfaceDependencies();
+                ApplyEffect(removeTransparencyEffect);
             }
         }
 

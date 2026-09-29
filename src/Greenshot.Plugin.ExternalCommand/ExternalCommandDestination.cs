@@ -49,11 +49,19 @@ public sealed class ExternalCommandIconProvider : IIconProvider
 
     public bool CanProvide(string iconKey) => iconKey != null && iconKey.StartsWith(Prefix, StringComparison.Ordinal);
 
-    public Task<Image> GetIconAsync(string iconKey, CancellationToken cancellationToken)
+    public async Task<Image> GetIconAsync(string iconKey, CancellationToken cancellationToken)
     {
+        var icon = await IconCache.IconForCommandAsync(iconKey.Substring(Prefix.Length), cancellationToken).ConfigureAwait(false);
+        if (icon == null)
+        {
+            return null;
+        }
+
         // The icon cache owns its images, the caller gets a copy
-        var icon = IconCache.IconForCommand(iconKey.Substring(Prefix.Length));
-        return Task.FromResult(icon == null ? null : ImageHelper.Clone(icon));
+        lock (icon)
+        {
+            return ImageHelper.Clone(icon);
+        }
     }
 }
 

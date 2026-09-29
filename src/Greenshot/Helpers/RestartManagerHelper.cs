@@ -31,6 +31,7 @@ using Greenshot.Editor.Destinations;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Forms;
 using log4net;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Helpers
 {
@@ -42,7 +43,6 @@ namespace Greenshot.Helpers
     internal static class RestartManagerHelper
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(RestartManagerHelper));
-        private static Dispatcher _dispatcher;
 
         /// <summary>
         /// Directory where editor state is stored for restore after a system restart.
@@ -56,9 +56,6 @@ namespace Greenshot.Helpers
         /// </summary>
         public static void RegisterForRestart()
         {
-            // Capture the current dispatcher for use in saving editor state during shutdown
-            _dispatcher = Dispatcher.CurrentDispatcher;
-
             // Register with the Windows Restart Manager so it can restart us after updates
             // Don't restart if the application crashes
             ApplicationRestartManager.RegisterForRestart(commandLineArgs: "--restore");
@@ -122,7 +119,8 @@ namespace Greenshot.Helpers
                 }
 
                 var editors = ImageEditorForm.Editors.ToArray();
-                _dispatcher.Invoke(() =>
+                // The end session message arrives on the UI thread, then this runs directly (the session doesn't wait for posts)
+                UiDispatcher.Current.RunOnUiAsync(() =>
                 {
                     foreach (var editor in editors)
                     {
@@ -142,7 +140,7 @@ namespace Greenshot.Helpers
                     // Make sure the application exits after saving state
                     Application.Exit();
                     Environment.Exit(0);
-                });
+                }).FireAndLog("Save the editor state", Log);
             }
             catch (Exception ex)
             {
@@ -167,7 +165,8 @@ namespace Greenshot.Helpers
 
                 foreach (string filePath in Directory.GetFiles(stateDir, "*.greenshot"))
                 {
-                    _dispatcher.Invoke(() => {
+                    UiDispatcher.Current.RunOnUiAsync(() =>
+                    {
                         ISurface surface = new Surface();
                         surface = ImageIO.LoadGreenshotSurface(filePath, surface);
                         surface.CaptureDetails = new CaptureDetails();
@@ -180,7 +179,7 @@ namespace Greenshot.Helpers
                         {
                             Log.Error("Couldn't open an editor with state file: " + filePath, ex);
                         }
-                    });
+                    }).FireAndLog("Restore an editor", Log);
                     Log.InfoFormat("Queued restore of editor state from: {0}", filePath);
                 }
             }

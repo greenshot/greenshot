@@ -187,7 +187,7 @@ public class GreenshotMain
             return;
         }
 
-        UI.BugReportWindow.ShowReport(exceptionToLog, exceptionText);
+        UI.BugReportWindow.ShowReport(exceptionToLog, exceptionText, e.IsTerminating);
     }
 
     internal static void Task_UnhandledException(object sender, UnobservedTaskExceptionEventArgs args)

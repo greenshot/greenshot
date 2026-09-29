@@ -27,6 +27,7 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Configuration;
 using log4net;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Helpers
 {
@@ -68,17 +69,16 @@ namespace Greenshot.Helpers
         {
             try
             {
-                Dispatcher.CurrentDispatcher.Invoke(() =>
-                {
-                    // Make sure the current hotkeys are disabled
-                    HotkeyManager.UnregisterHotkeys();
-                    IniConfigRegistry.Get().Reload();
-                    var mainForm = SimpleServiceProvider.Current.GetInstance<IGreenshotMainForm>();
-                    // Even update language when needed
-                    mainForm.UpdateUi();
-                    // Update the hotkey
-                    HotkeyHelper.RegisterHotkeys();
-                });
+                // Called on the UI thread (the IPC dispatcher marshals it)
+                UiDispatcher.Current.VerifyAccess();
+                // Make sure the current hotkeys are disabled
+                HotkeyManager.UnregisterHotkeys();
+                IniConfigRegistry.Get().Reload();
+                var mainForm = SimpleServiceProvider.Current.GetInstance<IGreenshotMainForm>();
+                // Even update language when needed
+                mainForm.UpdateUi();
+                // Update the hotkey
+                HotkeyHelper.RegisterHotkeys();
             }
             catch (Exception ex)
             {
@@ -97,10 +97,7 @@ namespace Greenshot.Helpers
             LOG.InfoFormat("Open file requested: {0}", filePath);
             if (File.Exists(filePath))
             {
-                Dispatcher.CurrentDispatcher.BeginInvoke(
-                    ()=> {
-                        CaptureHelper.CaptureFile(filePath);
-                    });
+                UiDispatcher.Current.InvokeAsync(() => CaptureHelper.CaptureFile(filePath)).FireAndLog("Open " + filePath, LOG);
             }
             else
             {

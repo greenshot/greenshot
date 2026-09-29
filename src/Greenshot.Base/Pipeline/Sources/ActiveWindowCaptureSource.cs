@@ -125,7 +125,7 @@ namespace Greenshot.Base.Pipeline.Sources
                 {
                     // Configuration is written on the UI thread (single writer, its change events have UI subscribers)
                     var capturedRegion = window.WindowRectangle;
-                    context.Ui.InvokeAsync(() => CoreConfig.LastCapturedRegion = capturedRegion).FireAndLog("Store the last captured region", Log);
+                    context.Ui.InvokeAsync(() => CoreConfig.LastCapturedRegion = capturedRegion, CancellationToken.None).FireAndLog("Store the last captured region", Log);
                     // Context (caller) -> node parameter -> settings
                     var windowCaptureMode = context.Properties.TryGetValue("WindowCaptureMode", out var wcmObj) && wcmObj is WindowCaptureMode wcm
                         ? wcm

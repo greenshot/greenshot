@@ -36,6 +36,8 @@ using Windows.Storage.Streams;
 using Dapplo.Windows.Common.Structs;
 using log4net;
 using Microsoft.Win32.SafeHandles;
+using System.Threading;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Base.Core;
 
@@ -179,31 +181,6 @@ public static class WindowsAppHelper
     }
 
     /// <summary>
-    /// Synchronously retrieves the application logo image for the specified package at the requested size.
-    /// Safely executes on a thread-pool thread to prevent UI-thread deadlocks.
-    /// </summary>
-    /// <param name="package">The package for which to retrieve the logo.</param>
-    /// <param name="size">Optional desired size of the logo.</param>
-    /// <returns>The logo Image, or null if unavailable.</returns>
-    public static Image GetAppxLogo(Package package, NativeSize size = default)
-    {
-        if (package == null)
-        {
-            return null;
-        }
-
-        try
-        {
-            return Task.Run(() => GetAppxLogoAsync(package, size)).GetAwaiter().GetResult();
-        }
-        catch (Exception ex)
-        {
-            Log.Debug("Unable to retrieve Appx logo synchronously for package: " + package.Id?.FullName, ex);
-            return null;
-        }
-    }
-
-    /// <summary>
     /// Attempts to find a Windows App (UWP/MSIX) Package matching a command line or command name.
     /// Handles AppExecutionAliases, paths in WindowsApps, AppUserModelIds, Package Family Names,
     /// and DisplayNames.
@@ -336,7 +313,7 @@ public static class WindowsAppHelper
     /// <param name="commandName">Optional command name.</param>
     /// <param name="size">Optional desired size.</param>
     /// <returns>An Image if found, or null.</returns>
-    public static Image GetAppLogo(string commandLine, string commandName = null, NativeSize size = default)
+    public static async Task<Image> GetAppLogoAsync(string commandLine, string commandName = null, NativeSize size = default, CancellationToken cancellationToken = default)
     {
         string cacheKey = $"{commandLine}|{commandName}|{size.Width}x{size.Height}";
         if (LogoCache.TryGetValue(cacheKey, out Image cachedImage))
@@ -346,26 +323,25 @@ public static class WindowsAppHelper
 
         try
         {
-            // Run package discovery and logo extraction entirely on the thread pool (MTA).
-            // This prevents WinRT COM objects created during FindPackage from binding to the STA UI thread,
-            // which causes cross-apartment deadlocks/failures when GetAppxLogoAsync is awaited synchronously.
-            return Task.Run(async () =>
+            // Run package discovery and logo extraction on the thread pool (MTA).
+            // This prevents WinRT COM objects created during FindPackage from binding to the STA UI thread.
+            await ThreadPoolSwitch.SwitchToThreadPoolAsync();
+            cancellationToken.ThrowIfCancellationRequested();
+            var package = FindPackage(commandLine, commandName);
+            if (package != null)
             {
-                var package = FindPackage(commandLine, commandName);
-                if (package != null)
+                var logo = await GetAppxLogoAsync(package, size).ConfigureAwait(false);
+                if (logo != null)
                 {
-                    var logo = await GetAppxLogoAsync(package, size).ConfigureAwait(false);
-                    if (logo != null)
-                    {
-                        LogoCache[cacheKey] = logo;
-                        return logo;
-                    }
+                    LogoCache[cacheKey] = logo;
+                    return logo;
                 }
-                LogoCache[cacheKey] = NoLogoSentinel;
-                return null;
-            }).GetAwaiter().GetResult();
+            }
+
+            LogoCache[cacheKey] = NoLogoSentinel;
+            return null;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             LogoCache[cacheKey] = NoLogoSentinel;
             Log.Debug("Unable to retrieve Windows App logo for " + (commandLine ?? commandName), ex);
