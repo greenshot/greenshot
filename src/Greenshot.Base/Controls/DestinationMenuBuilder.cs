@@ -100,7 +100,7 @@ namespace Greenshot.Base.Controls
         }
 
         /// <summary>
-        /// Create the menu item for the destination, dynamic destinations are added as sub items when it opens.
+        /// Create the menu item for the destination, dynamic destinations are loaded right away and added as sub items when they arrive.
         /// </summary>
         /// <param name="destination">IDestination</param>
         /// <param name="captureDetails">The capture the menu is for, null when there is none</param>
@@ -125,20 +125,11 @@ namespace Greenshot.Base.Controls
 
             if (descriptor.HasDynamicDestinations && addDynamics)
             {
-                // A placeholder makes the item open a drop down, it is replaced when the dynamic destinations arrive
+                // Menus are built right before they are shown: the dynamic destinations are loaded immediately (not when the sub menu opens),
+                // so they are usually in place before the user reaches the item. Until then a placeholder shows that there is more.
                 var placeholder = new ToolStripMenuItem("…") { Enabled = false };
                 menuItem.DropDownItems.Add(placeholder);
-                bool loading = false;
-                menuItem.DropDownOpening += (_, _) =>
-                {
-                    if (loading)
-                    {
-                        return;
-                    }
-
-                    loading = true;
-                    AddDynamicDestinationsAsync(menuItem, destination, captureDetails, onClick).FireAndLog($"Dynamic destinations of {destination.Designation}", Log);
-                };
+                AddDynamicDestinationsAsync(menuItem, destination, captureDetails, onClick).FireAndLog($"Dynamic destinations of {destination.Designation}", Log);
             }
 
             return menuItem;
@@ -164,24 +155,39 @@ namespace Greenshot.Base.Controls
                 return;
             }
 
-            menuItem.DropDownItems.Clear();
-            var validSubDestinations = subDestinations.Where(d => d != null).OrderBy(d => d, DestinationComparer.Instance).ToList();
-            if (validSubDestinations.Count == 0)
+            // Changing the items of a drop down while it is shown leaves it with a wrong size and location (an empty line, or at the top left of the screen):
+            // hide it while the items change, and show it again when there is something to show
+            bool wasShown = menuItem.DropDown.Visible;
+            if (wasShown)
             {
-                return;
+                menuItem.HideDropDown();
             }
 
+            var previousItems = menuItem.DropDownItems.Cast<ToolStripItem>().ToList();
+            menuItem.DropDownItems.Clear();
+            foreach (var previousItem in previousItems)
+            {
+                previousItem.Dispose();
+            }
+
+            var validSubDestinations = subDestinations.Where(d => d != null).OrderBy(d => d, DestinationComparer.Instance).ToList();
             if (destination.Descriptor.UseDynamicsOnly && validSubDestinations.Count == 1)
             {
-                // Only one: the item itself becomes that destination
+                // Only one: the item itself becomes that destination, without a sub menu
                 menuItem.Tag = validSubDestinations[0];
                 menuItem.Text = validSubDestinations[0].Descriptor.DisplayName;
                 return;
             }
 
+            // No dynamic destinations: the item stays a plain item for the destination itself
             foreach (var subDestination in validSubDestinations)
             {
                 menuItem.DropDownItems.Add(CreateMenuItem(subDestination, captureDetails, onClick, false));
+            }
+
+            if (wasShown && menuItem.HasDropDownItems && menuItem.Owner is { Visible: true })
+            {
+                menuItem.ShowDropDown();
             }
         }
 
