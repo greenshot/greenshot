@@ -50,11 +50,46 @@ public static class WindowsAppHelper
     private static readonly ILog Log = LogManager.GetLogger(typeof(WindowsAppHelper));
     private static readonly ConcurrentDictionary<string, Image> LogoCache = new(StringComparer.OrdinalIgnoreCase);
     private static readonly Image NoLogoSentinel = new Bitmap(1, 1);
-    private static List<Package> _cachedPackages;
+    private static List<CachedPackage> _cachedPackages;
     private static DateTime _packagesCacheTime = DateTime.MinValue;
     private static readonly object PackagesLock = new();
 
-    private static List<Package> GetCachedPackages(PackageManager packageManager)
+    // The WinRT package objects are cached and shared: concurrent property reads (e.g. Package.DisplayName) crash with an AccessViolationException
+    // inside Windows.ApplicationModel, which can't be caught. The logo lookups (which may run concurrently on the thread pool) are serialized.
+    private static readonly SemaphoreSlim PackageAccess = new(1, 1);
+
+    /// <summary>
+    /// A package with the names used for matching, read once (under the lock) when the cache is filled
+    /// </summary>
+    private sealed class CachedPackage
+    {
+        public CachedPackage(Package package)
+        {
+            Package = package;
+            DisplayName = ReadSafely(() => package.DisplayName);
+            Name = ReadSafely(() => package.Id?.Name);
+        }
+
+        public Package Package { get; }
+        public string DisplayName { get; }
+        public string Name { get; }
+
+        private static string ReadSafely(Func<string> read)
+        {
+            try
+            {
+                return read();
+            }
+            catch (Exception ex)
+            {
+                // Broken or staged packages throw on some properties
+                Log.Debug("Unable to read a package property", ex);
+                return null;
+            }
+        }
+    }
+
+    private static List<CachedPackage> GetCachedPackages(PackageManager packageManager)
     {
         lock (PackagesLock)
         {
@@ -67,13 +102,14 @@ public static class WindowsAppHelper
             {
                 _cachedPackages = packageManager.FindPackagesForUser(string.Empty)
                     .Where(p => !p.IsFramework)
+                    .Select(p => new CachedPackage(p))
                     .ToList();
                 _packagesCacheTime = DateTime.UtcNow;
             }
             catch (Exception ex)
             {
                 Log.Debug("Error enumerating packages", ex);
-                _cachedPackages = new List<Package>();
+                _cachedPackages = new List<CachedPackage>();
             }
 
             return _cachedPackages;
@@ -276,25 +312,26 @@ public static class WindowsAppHelper
 
                 foreach (var candidate in candidates)
                 {
+                    // Only the names read when the cache was filled are used, the package objects are not touched here
                     // Exact DisplayName match
                     var match = packages.LastOrDefault(p => string.Equals(p.DisplayName, candidate, StringComparison.OrdinalIgnoreCase));
-                    if (match != null) return match;
+                    if (match != null) return match.Package;
 
                     // Exact Id.Name match
-                    match = packages.LastOrDefault(p => string.Equals(p.Id?.Name, candidate, StringComparison.OrdinalIgnoreCase));
-                    if (match != null) return match;
+                    match = packages.LastOrDefault(p => string.Equals(p.Name, candidate, StringComparison.OrdinalIgnoreCase));
+                    if (match != null) return match.Package;
 
                     // DisplayName starts with candidate (e.g. "Paint" matching "Paint")
                     match = packages.LastOrDefault(p => p.DisplayName != null && p.DisplayName.StartsWith(candidate, StringComparison.OrdinalIgnoreCase));
-                    if (match != null) return match;
+                    if (match != null) return match.Package;
 
                     // Id.Name contains or starts with candidate
-                    match = packages.LastOrDefault(p => p.Id?.Name != null && p.Id.Name.IndexOf(candidate, StringComparison.OrdinalIgnoreCase) >= 0);
-                    if (match != null) return match;
+                    match = packages.LastOrDefault(p => p.Name != null && p.Name.IndexOf(candidate, StringComparison.OrdinalIgnoreCase) >= 0);
+                    if (match != null) return match.Package;
 
                     // Candidate starts with DisplayName
                     match = packages.LastOrDefault(p => !string.IsNullOrEmpty(p.DisplayName) && candidate.StartsWith(p.DisplayName, StringComparison.OrdinalIgnoreCase));
-                    if (match != null) return match;
+                    if (match != null) return match.Package;
                 }
             }
         }
@@ -321,12 +358,19 @@ public static class WindowsAppHelper
             return ReferenceEquals(cachedImage, NoLogoSentinel) ? null : cachedImage;
         }
 
+        // Run package discovery and logo extraction on the thread pool (MTA).
+        // This prevents WinRT COM objects created during FindPackage from binding to the STA UI thread.
+        await ThreadPoolSwitch.SwitchToThreadPoolAsync();
+        // One lookup at a time, the package objects are shared (see PackageAccess)
+        await PackageAccess.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
-            // Run package discovery and logo extraction on the thread pool (MTA).
-            // This prevents WinRT COM objects created during FindPackage from binding to the STA UI thread.
-            await ThreadPoolSwitch.SwitchToThreadPoolAsync();
-            cancellationToken.ThrowIfCancellationRequested();
+            // Another caller may have looked up the same logo while this one waited
+            if (LogoCache.TryGetValue(cacheKey, out cachedImage))
+            {
+                return ReferenceEquals(cachedImage, NoLogoSentinel) ? null : cachedImage;
+            }
+
             var package = FindPackage(commandLine, commandName);
             if (package != null)
             {
@@ -346,6 +390,10 @@ public static class WindowsAppHelper
             LogoCache[cacheKey] = NoLogoSentinel;
             Log.Debug("Unable to retrieve Windows App logo for " + (commandLine ?? commandName), ex);
             return null;
+        }
+        finally
+        {
+            PackageAccess.Release();
         }
     }
 
