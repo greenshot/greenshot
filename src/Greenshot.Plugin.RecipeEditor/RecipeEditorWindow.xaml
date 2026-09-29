@@ -3395,7 +3395,7 @@
 
                                                         <!-- 7. Open With File -->
                                                         <StackPanel Visibility="{Binding IsOpenFile, Converter={StaticResource BoolToVis}}" Margin="0,2,0,0">
-                                                            <TextBlock Text="File Extension Filter (e.g. *.png;*.jpg;*.bmp or empty for all)" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                            <TextBlock Text="File Extensions (e.g. .png;.jpg;.bmp, empty for all)" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
                                                             <TextBox Text="{Binding Filter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                                      FontFamily="Consolas"
                                                                      Background="{Binding DataContext.WindowBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"

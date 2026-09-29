@@ -252,6 +252,22 @@ namespace Greenshot.Base.Recipes
                     }
                 }
             }
+
+            if (string.Equals(trigger.TriggerType, Greenshot.Base.Triggers.TriggerConfig.TypeOpenFile, StringComparison.OrdinalIgnoreCase))
+            {
+                // Filter: extensions separated by ';', e.g. ".png;.jpg"
+                string filter = trigger.GetParameter<string>("Filter");
+                if (!string.IsNullOrWhiteSpace(filter))
+                {
+                    foreach (string extension in filter.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries).Select(e => e.Trim()))
+                    {
+                        if (extension.Length < 2 || extension[0] != '.' || extension.IndexOfAny(new[] { '.', '*', '?', ',', '|', ' ' }, 1) >= 0)
+                        {
+                            result.AddError($"OpenFile trigger '{trigger.Name}' at index {index} has the invalid extension '{extension}' in its Filter; use extensions separated by ';', e.g. \".png;.jpg\".");
+                        }
+                    }
+                }
+            }
         }
 
         private static void ValidateNode(RecipeNodeConfig node, int index, HashSet<string> seenIds, RecipeValidationResult result)

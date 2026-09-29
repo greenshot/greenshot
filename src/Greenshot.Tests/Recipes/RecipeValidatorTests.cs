@@ -26,6 +26,7 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Pipeline;
 using Greenshot.Base.Recipes;
+using Greenshot.Base.Triggers;
 using Greenshot.Pipeline.Steps;
 using Greenshot.Plugin.ExternalCommand;
 using Xunit;
@@ -55,6 +56,24 @@ namespace Greenshot.Tests.Recipes
 
             var result = RecipeValidator.Validate(recipe);
             Assert.True(result.IsValid, string.Join(", ", result.Errors));
+        }
+
+        [Theory]
+        [InlineData(".png;.jpg", true)]
+        [InlineData(".png", true)]
+        [InlineData("*.png;*.jpg", false)]
+        [InlineData("png", false)]
+        [InlineData(".png,.jpg", false)]
+        public void Validate_OpenFileFilter_AcceptsOnlyExtensionsSeparatedBySemicolons(string filter, bool valid)
+        {
+            var recipe = new CaptureRecipe("open_file_filter", "Open File Filter")
+                .AddNode(new RecipeNodeConfig { Id = "start", StepType = "Source" })
+                .AddNode(new RecipeNodeConfig { Id = "end", StepType = "Clipboard" })
+                .AddTrigger(TriggerConfig.CreateOpenFile(filter));
+            recipe.Flow = new RecipeFlowConfig("start").AddTransition("start", "end");
+
+            var result = RecipeValidator.Validate(recipe);
+            Assert.Equal(valid, !result.Errors.Any(e => e.Contains("Filter")));
         }
 
         [Fact]

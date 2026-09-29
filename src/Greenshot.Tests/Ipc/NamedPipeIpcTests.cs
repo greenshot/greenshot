@@ -35,56 +35,25 @@ namespace Greenshot.Tests.Ipc
 {
     public class NamedPipeIpcTests
     {
+        /// <summary>
+        /// Greenshot.exe sends its command arguments as the same CLI request that greenshot.com and greenshot-proxy.exe send.
+        /// </summary>
         [Fact]
-        public void EnvelopeSerialization_OpenFile_MatchesAdr002Schema()
+        public void EnvelopeSerialization_Cli_MatchesTheProxyRequest()
         {
-            string testFilePath = @"C:\Users\Test\Pictures\screenshot.png";
-            var envelope = IpcEnvelope.CreateOpenFile(testFilePath);
+            var envelope = IpcEnvelope.CreateCli(new[] { "--file", @"C:\Users\Test\Pictures\screenshot.png" }, IpcSources.Cli, @"C:\Users\Test");
 
-            string json = JsonConvert.SerializeObject(envelope, Formatting.Indented);
-            JObject jobj = JObject.Parse(json);
-
+            JObject jobj = JObject.Parse(JsonConvert.SerializeObject(envelope));
             Assert.Equal(1, jobj.Value<int>("version"));
-            Assert.Equal("open_with", jobj.Value<string>("source"));
-            Assert.Equal(testFilePath, jobj.Value<string>("raw_input"));
+            Assert.Equal("CLI", jobj.Value<string>("command"));
+            Assert.Equal("cli", jobj.Value<string>("source"));
+            Assert.Equal(@"C:\Users\Test", jobj.Value<string>("cwd"));
+            Assert.Equal(new[] { "--file", @"C:\Users\Test\Pictures\screenshot.png" }, jobj["argv"].Values<string>());
 
-            JObject parsed = jobj.Value<JObject>("parsed");
-            Assert.NotNull(parsed);
-            Assert.Equal("open_file", parsed.Value<string>("action"));
-
-            JObject parameters = parsed.Value<JObject>("parameters");
-            Assert.NotNull(parameters);
-            Assert.Equal(testFilePath, parameters.Value<string>("path"));
-
-            // Round trip
-            var deserialized = JsonConvert.DeserializeObject<IpcEnvelope>(json);
-            Assert.NotNull(deserialized);
-            Assert.Equal(1, deserialized.Version);
-            Assert.Equal("open_with", deserialized.Source);
-            Assert.Equal(testFilePath, deserialized.RawInput);
-            Assert.NotNull(deserialized.Parsed);
-            Assert.Equal("open_file", deserialized.Parsed.Action);
-            Assert.Equal(testFilePath, deserialized.Parsed.Parameters["path"]);
-        }
-
-        [Fact]
-        public void EnvelopeSerialization_ExitAndReload_MatchAdr002Schema()
-        {
-            var exitEnvelope = IpcEnvelope.CreateExit();
-            string exitJson = JsonConvert.SerializeObject(exitEnvelope);
-            var exitObj = JObject.Parse(exitJson);
-            Assert.Equal(1, exitObj.Value<int>("version"));
-            Assert.Equal("cli", exitObj.Value<string>("source"));
-            Assert.Equal("--exit", exitObj.Value<string>("raw_input"));
-            Assert.Equal("exit", exitObj["parsed"]?.Value<string>("action"));
-
-            var reloadEnvelope = IpcEnvelope.CreateReloadConfig();
-            string reloadJson = JsonConvert.SerializeObject(reloadEnvelope);
-            var reloadObj = JObject.Parse(reloadJson);
-            Assert.Equal(1, reloadObj.Value<int>("version"));
-            Assert.Equal("cli", reloadObj.Value<string>("source"));
-            Assert.Equal("--reload", reloadObj.Value<string>("raw_input"));
-            Assert.Equal("reload_config", reloadObj["parsed"]?.Value<string>("action"));
+            var parsed = CliCommandParser.Parse(envelope.Argv, envelope.Source, envelope.Cwd);
+            Assert.True(parsed.Success);
+            Assert.Equal("OPEN_FILE", parsed.Envelope.Command);
+            Assert.Equal(new[] { @"C:\Users\Test\Pictures\screenshot.png" }, parsed.Envelope.Files);
         }
 
         [Fact]
@@ -120,7 +89,7 @@ namespace Greenshot.Tests.Ipc
                 server.Start();
 
                 string filePath = @"C:\TestPath\capture.png";
-                var envelope = IpcEnvelope.CreateOpenFile(filePath);
+                var envelope = IpcEnvelope.CreateCli(new[] { filePath }, IpcSources.OpenWith, null);
 
                 bool sent = NamedPipeClient.SendMessage(testPipeName, envelope, timeoutMs: 3000);
                 Assert.True(sent, "Client should successfully connect and send message to server.");
@@ -132,11 +101,8 @@ namespace Greenshot.Tests.Ipc
                 Assert.NotNull(receivedEnvelope);
                 Assert.Equal(1, receivedEnvelope.Version);
                 Assert.Equal("open_with", receivedEnvelope.Source);
-                Assert.Equal(filePath, receivedEnvelope.RawInput);
-                Assert.NotNull(receivedEnvelope.Parsed);
-                Assert.Equal("open_file", receivedEnvelope.Parsed.Action);
-                Assert.True(receivedEnvelope.Parsed.Parameters.TryGetValue("path", out var path));
-                Assert.Equal(filePath, path);
+                Assert.Equal("CLI", receivedEnvelope.Command);
+                Assert.Equal(new[] { filePath }, receivedEnvelope.Argv);
             }
         }
 

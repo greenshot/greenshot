@@ -100,32 +100,36 @@ namespace Greenshot.Forms
 
                 var isAlreadyRunning = !_applicationMutex.IsLocked;
 
-                if (options.Exit)
+                // A command (e.g. a file, --recipe, --reload, --exit) is handled exactly like one from greenshot.com:
+                // the unparsed arguments are sent as a CLI request and parsed by the running Greenshot
+                IpcEnvelope startupCommand = null;
+                if (options.CommandArguments.Length > 0)
                 {
-                    // un-register application on uninstall (allow uninstall)
-                    try
+                    var parsed = CliCommandParser.Parse(options.CommandArguments, IpcSources.Cli, Environment.CurrentDirectory);
+                    if (!parsed.Success)
                     {
-                        Log.Info("Sending running instance the exit command via named pipe.");
-                        // Pass Exit to running instance, if any
-                        NamedPipeClient.SendMessage(IpcEnvelope.CreateExit());
-                    }
-                    catch (Exception e)
-                    {
-                        Log.Warn("Exception by exit.", e);
+                        Log.Warn($"Invalid command line: {parsed.Error}");
+                        GreenshotCommandLine.ReportError(parsed.Error);
+                        FreeMutex();
+                        return;
                     }
 
-                    FreeMutex();
-                    return;
-                }
+                    startupCommand = IpcEnvelope.CreateCli(options.CommandArguments, IpcSources.Cli, Environment.CurrentDirectory);
+                    if (isAlreadyRunning)
+                    {
+                        Log.Info($"Sending the command '{parsed.Envelope.Command}' to the running Greenshot.");
+                        NamedPipeClient.SendMessage(startupCommand);
+                        FreeMutex();
+                        return;
+                    }
 
-                if (options.Reload)
-                {
-                    // Modify configuration
-                    Log.Info("Reloading configuration via named pipe!");
-                    // Update running instances
-                    NamedPipeClient.SendMessage(IpcEnvelope.CreateReloadConfig());
-                    FreeMutex();
-                    return;
+                    // Nothing to exit or to reload when Greenshot is not running
+                    if (parsed.Envelope.Command is "EXIT" or "RELOAD_CONFIG")
+                    {
+                        FreeMutex();
+                        return;
+                    }
+                    // Otherwise Greenshot starts and runs the command itself, see the MainForm constructor
                 }
 
                 if (options.NoRun)
@@ -137,64 +141,52 @@ namespace Greenshot.Forms
 
                 if (isAlreadyRunning)
                 {
-                    var filesToOpen = new List<string>(options.Files);
-                    // Finished parsing the command line arguments, see if we need to do anything
-                    if (filesToOpen.Count > 0)
+                    var instances = new List<RunningInstanceItem>();
+                    bool matchedThisProcess = false;
+                    int index = 1;
+                    int currentProcessId;
+                    using (Process currentProcess = Process.GetCurrentProcess())
                     {
-                        foreach (string fileToOpen in filesToOpen)
-                        {
-                            NamedPipeClient.SendMessage(IpcEnvelope.CreateOpenFile(fileToOpen));
-                        }
+                        currentProcessId = currentProcess.Id;
                     }
-                    else
+
+                    foreach (Process greenshotProcess in Process.GetProcessesByName("greenshot"))
                     {
-                        var instances = new List<RunningInstanceItem>();
-                        bool matchedThisProcess = false;
-                        int index = 1;
-                        int currentProcessId;
-                        using (Process currentProcess = Process.GetCurrentProcess())
+                        try
                         {
-                            currentProcessId = currentProcess.Id;
-                        }
-
-                        foreach (Process greenshotProcess in Process.GetProcessesByName("greenshot"))
-                        {
-                            try
-                            {
-                                string path = Kernel32Api.GetProcessPath(greenshotProcess.Id);
-                                instances.Add(new RunningInstanceItem
-                                {
-                                    Index = index++,
-                                    ProcessId = greenshotProcess.Id,
-                                    Path = path
-                                });
-                                if (currentProcessId == greenshotProcess.Id)
-                                {
-                                    matchedThisProcess = true;
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                Log.Debug(ex);
-                            }
-
-                            greenshotProcess.Dispose();
-                        }
-
-                        if (!matchedThisProcess)
-                        {
-                            using Process currentProcess = Process.GetCurrentProcess();
+                            string path = Kernel32Api.GetProcessPath(greenshotProcess.Id);
                             instances.Add(new RunningInstanceItem
                             {
-                                Index = index,
-                                ProcessId = currentProcess.Id,
-                                Path = Kernel32Api.GetProcessPath(currentProcess.Id)
+                                Index = index++,
+                                ProcessId = greenshotProcess.Id,
+                                Path = path
                             });
+                            if (currentProcessId == greenshotProcess.Id)
+                            {
+                                matchedThisProcess = true;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.Debug(ex);
                         }
 
-                        var instanceWindow = new InstanceRunningWindow(instances);
-                        instanceWindow.ShowDialog();
+                        greenshotProcess.Dispose();
                     }
+
+                    if (!matchedThisProcess)
+                    {
+                        using Process currentProcess = Process.GetCurrentProcess();
+                        instances.Add(new RunningInstanceItem
+                        {
+                            Index = index,
+                            ProcessId = currentProcess.Id,
+                            Path = Kernel32Api.GetProcessPath(currentProcess.Id)
+                        });
+                    }
+
+                    var instanceWindow = new InstanceRunningWindow(instances);
+                    instanceWindow.ShowDialog();
 
                     FreeMutex();
                     Application.Exit();
@@ -216,7 +208,7 @@ namespace Greenshot.Forms
 
                 Application.ApplicationExit += Application_ApplicationExit;
 
-                Application.Run(new MainForm(options));
+                Application.Run(new MainForm(options, startupCommand));
             }
             catch (Exception ex)
             {
@@ -264,7 +256,7 @@ namespace Greenshot.Forms
         private readonly Timer _doubleClickTimer = new Timer();
         private UpdateService _updateService;
 
-        public MainForm(CommandLineOptions options)
+        public MainForm(CommandLineOptions options, IpcEnvelope startupCommand = null)
         {
 
             SimpleServiceProvider.Current.AddService(SynchronizationContext.Current);
@@ -431,10 +423,10 @@ namespace Greenshot.Forms
                 ApplicationStartupHelper.FirstLaunch();
             }
 
-            if (options.Files.Length > 0)
+            if (startupCommand != null)
             {
-                // Default behavior was to open only one file (which is not correct)
-                ApplicationStartupHelper.OpenFile(options.Files.First());
+                // The command Greenshot was started with takes the same way as one from greenshot.com, now that the pipe server listens
+                Task.Run(() => NamedPipeClient.SendMessage(startupCommand));
             }
 
             // Start the update check in the background

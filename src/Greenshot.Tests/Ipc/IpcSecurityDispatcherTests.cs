@@ -161,7 +161,7 @@ namespace Greenshot.Tests.Ipc
 
             try
             {
-                var envelope = IpcEnvelope.CreateOpenFile(tempScript);
+                var envelope = IpcEnvelope.CreateCli(new[] { tempScript }, IpcSources.OpenWith, null);
 
                 using (var ms = new MemoryStream())
                 {
@@ -196,7 +196,7 @@ namespace Greenshot.Tests.Ipc
 
             try
             {
-                var envelope = IpcEnvelope.CreateOpenFile(tempImage);
+                var envelope = IpcEnvelope.CreateCli(new[] { tempImage }, IpcSources.OpenWith, null);
 
                 using (var ms = new MemoryStream())
                 {
@@ -550,11 +550,11 @@ namespace Greenshot.Tests.Ipc
             Assert.Equal("ocr-test", cliConfig.Parameters["Command"]);
 
             var openFileConfig = new TriggerConfig(TriggerConfig.TypeOpenFile, "Open File");
-            openFileConfig.Parameters["Filter"] = "*.png;*.jpg";
+            openFileConfig.Parameters["Filter"] = ".png;.jpg";
             var openVm = new Greenshot.Plugin.RecipeEditor.ViewModels.TriggerItemViewModel(openFileConfig);
             Assert.True(openVm.IsOpenFile);
-            Assert.Equal("*.png;*.jpg", openVm.Filter);
-            Assert.Contains("*.png;*.jpg", openVm.DisplayTitle);
+            Assert.Equal(".png;.jpg", openVm.Filter);
+            Assert.Contains(".png;.jpg", openVm.DisplayTitle);
         }
 
         [Fact]
@@ -602,6 +602,7 @@ namespace Greenshot.Tests.Ipc
             var envelope = new IpcEnvelope
             {
                 Source = "url_scheme",
+                Command = "URL_SCHEME",
                 RawInput = url
             };
 
@@ -653,6 +654,7 @@ namespace Greenshot.Tests.Ipc
             var envelope = new IpcEnvelope
             {
                 Source = "url_scheme",
+                Command = "URL_SCHEME",
                 RawInput = url
             };
 
@@ -722,6 +724,7 @@ namespace Greenshot.Tests.Ipc
             var envelope = new IpcEnvelope
             {
                 Source = "url_scheme",
+                Command = "URL_SCHEME",
                 RawInput = "greenshot://recipe/no-browser-task"
             };
 

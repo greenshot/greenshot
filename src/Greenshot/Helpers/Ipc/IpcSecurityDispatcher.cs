@@ -312,47 +312,35 @@ namespace Greenshot.Helpers.Ipc
                 return;
             }
 
-            // Determine command name from Command property, Parsed Action, or RawInput
             string command = context.Envelope.Command;
-            if (string.IsNullOrEmpty(command))
+            // A greenshot: URL (CliCommandParser creates URL_SCHEME for it) names the command it runs
+            if (string.Equals(command, "URL_SCHEME", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrEmpty(context.Envelope.RawInput))
             {
-                command = context.Envelope.Parsed?.Action;
-            }
-            if ((string.IsNullOrEmpty(command) || string.Equals(command, "URL_SCHEME", StringComparison.OrdinalIgnoreCase)) && !string.IsNullOrEmpty(context.Envelope.RawInput))
-            {
-                if (context.Envelope.RawInput.StartsWith("greenshot:", StringComparison.OrdinalIgnoreCase) ||
-                    string.Equals(context.Envelope.Source, "url_scheme", StringComparison.OrdinalIgnoreCase))
+                command = ParseUrlSchemeCommand(context.Envelope.RawInput, out var urlParams);
+                if (context.Envelope.Parsed == null)
                 {
-                    command = ParseUrlSchemeCommand(context.Envelope.RawInput, out var urlParams);
-                    if (context.Envelope.Parsed == null)
-                    {
-                        context.Envelope.Parsed = new IpcParsedCommand();
-                    }
-                    if (urlParams != null)
-                    {
-                        foreach (var kvp in urlParams)
-                        {
-                            context.Envelope.Parsed.Parameters[kvp.Key] = kvp.Value;
-                            context.Envelope.Parameters[kvp.Key] = kvp.Value;
-                        }
-                    }
+                    context.Envelope.Parsed = new IpcParsedCommand();
                 }
-                else if (string.IsNullOrEmpty(command))
+                if (urlParams != null)
                 {
-                    command = "OPEN_FILE";
+                    foreach (var kvp in urlParams)
+                    {
+                        context.Envelope.Parsed.Parameters[kvp.Key] = kvp.Value;
+                        context.Envelope.Parameters[kvp.Key] = kvp.Value;
+                    }
                 }
             }
 
             if (string.IsNullOrEmpty(command))
             {
-                Log.Warn("IPC message dropped: Missing command/action identifier.");
+                Log.Warn("IPC message dropped: Missing command.");
                 try
                 {
                     await context.ReplyAsync(new
                     {
                         status = "error",
                         exit_code = 1,
-                        stderr = "Missing command or action identifier."
+                        stderr = "Missing command."
                     }).ConfigureAwait(false);
                 }
                 catch { }
@@ -1323,17 +1311,6 @@ namespace Greenshot.Helpers.Ipc
             {
                 rawFiles.AddRange(context.Envelope.Files);
             }
-            if (rawFiles.Count == 0 && context.Envelope.Parsed?.Parameters != null)
-            {
-                if (context.Envelope.Parsed.Parameters.TryGetValue("path", out var p) && !string.IsNullOrWhiteSpace(p))
-                {
-                    rawFiles.Add(p);
-                }
-            }
-            if (rawFiles.Count == 0 && !string.IsNullOrWhiteSpace(context.Envelope.RawInput))
-            {
-                rawFiles.Add(context.Envelope.RawInput.Trim('"', ' '));
-            }
 
             if (rawFiles.Count == 0)
             {
@@ -1428,8 +1405,9 @@ namespace Greenshot.Helpers.Ipc
                         string filter = pair.Trigger.GetParameter<string>("Filter");
                         if (!string.IsNullOrWhiteSpace(filter))
                         {
-                            var allowedExts = filter.Split(new[] { ';', ',', '|' }, StringSplitOptions.RemoveEmptyEntries)
-                                .Select(e => e.Trim().StartsWith(".") ? e.Trim() : "." + e.Trim());
+                            // The filter is a list of extensions separated by ';', e.g. ".png;.jpg"
+                            var allowedExts = filter.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries)
+                                .Select(e => e.Trim());
                             if (!allowedExts.Any(e => string.Equals(e, fileExt, StringComparison.OrdinalIgnoreCase)))
                             {
                                 continue;

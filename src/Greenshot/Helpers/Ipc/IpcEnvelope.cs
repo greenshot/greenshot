@@ -21,6 +21,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Newtonsoft.Json;
 
 namespace Greenshot.Helpers.Ipc
@@ -221,12 +222,15 @@ namespace Greenshot.Helpers.Ipc
             return env;
         }
 
-        public static IpcEnvelope CreateOpenFiles(IEnumerable<string> filePaths)
+        /// <summary>
+        /// Creates an OPEN_FILE command, as <see cref="CliCommandParser"/> creates it for the file arguments of a command line.
+        /// </summary>
+        public static IpcEnvelope CreateOpenFiles(IEnumerable<string> filePaths, string source = IpcSources.OpenWith)
         {
             var env = new IpcEnvelope
             {
                 Version = 1,
-                Source = "open_with",
+                Source = source,
                 Command = "OPEN_FILE"
             };
             if (filePaths != null)
@@ -236,57 +240,19 @@ namespace Greenshot.Helpers.Ipc
             return env;
         }
 
-        public static IpcEnvelope CreateOpenFile(string filePath)
+        /// <summary>
+        /// Creates a CLI request: an unparsed command line, which Greenshot parses with <see cref="CliCommandParser"/>.
+        /// This is what greenshot.com and greenshot-proxy.exe send, and what Greenshot.exe sends for its command arguments.
+        /// </summary>
+        public static IpcEnvelope CreateCli(IEnumerable<string> argv, string source, string cwd)
         {
             return new IpcEnvelope
             {
                 Version = 1,
-                Source = "open_with",
-                RawInput = filePath,
-                Parsed = new IpcParsedCommand
-                {
-                    Action = "open_file",
-                    Parameters = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-                    {
-                        { "path", filePath }
-                    }
-                }
-            };
-        }
-
-        public static IpcEnvelope CreateExit()
-        {
-            return new IpcEnvelope
-            {
-                Version = 1,
-                Source = "cli",
-                RawInput = "--exit",
-                Parsed = new IpcParsedCommand
-                {
-                    Action = "exit",
-                    Parameters = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-                    {
-                        { "path", "" }
-                    }
-                }
-            };
-        }
-
-        public static IpcEnvelope CreateReloadConfig()
-        {
-            return new IpcEnvelope
-            {
-                Version = 1,
-                Source = "cli",
-                RawInput = "--reload",
-                Parsed = new IpcParsedCommand
-                {
-                    Action = "reload_config",
-                    Parameters = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-                    {
-                        { "path", "" }
-                    }
-                }
+                Source = source,
+                Command = IpcSources.CliCommand,
+                Cwd = cwd,
+                Argv = argv?.ToList() ?? new List<string>()
             };
         }
     }

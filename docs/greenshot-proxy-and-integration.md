@@ -133,6 +133,13 @@ A client has to read its replies: a frame that is not read within 2 minutes (`Na
 * Output is written as UTF-8 to pipes and files, and as UTF-16 to a console, so any Unicode (including emoji) is preserved.
 * Exit codes: `0` success, `1` failure, `2` invalid command line, `3` Greenshot not available, or the exit code set by the recipe (Stderr step).
 
+#### Command line of `Greenshot.exe`
+`Greenshot.exe [startup options] [command]`
+
+* Startup options, used only by `Greenshot.exe` itself and only at the start of the command line: `--language <code>`, `--ini-directory <dir>`, `--no-run`, `--restore` (Restart Manager) and `--help`.
+* Everything after them is a command in the syntax of `greenshot.com` (e.g. `image.png`, `--file image.png`, `--recipe ocr`, `--reload`, `--exit`). `Greenshot.exe` checks it with the same parser (`CliCommandParser`) and sends it unchanged as a `CLI` request (source `cli`), exactly like `greenshot.com`. When Greenshot is not running it starts and sends the request to itself once its pipe server listens; `--exit` and `--reload` then do nothing.
+* `Greenshot.exe` shows no output of the command; use `greenshot.com` for that.
+
 ### 2.2 Cold-Start Orchestration & Concurrency
 When a client invokes `greenshot-proxy.exe` while Greenshot is not running:
 1. **Global Named Mutex (`Global\Greenshot_ColdStart_Mutex`)**: Prevents race conditions and multiple startup storms if multiple browser tabs or scripts call the proxy simultaneously.
@@ -240,7 +247,22 @@ Enables recipes to receive screenshots and tab metadata from the browser extensi
 ```
 
 #### `OpenFileTrigger`
-Enables recipes to handle Windows Explorer "Open With" invocations.
+Enables recipes to handle files opened from Windows Explorer (double-click, "Open with") or with `greenshot --file`.
+
+* `Filter`: the extensions the recipe handles, separated by `;` (e.g. `".png;.jpg"`). Without a filter the recipe handles every file.
+* Every recipe whose filter matches the file runs. The built-in "Open file" recipe has no filter and opens the file in the editor.
+* Only files that one of Greenshot's image loaders can read are accepted.
+
+**How file types reach Greenshot.** The installer registers:
+
+| Registration | Effect |
+| :--- | :--- |
+| `.greenshot` → ProgID `Greenshot.File` | Greenshot is the default application for its own format. |
+| ProgID `Greenshot.Image`, listed in `OpenWithProgids` of `.png`, `.jpg`, `.jpeg`, `.bmp`, `.gif`, `.tif`, `.tiff`, `.webp`, `.ico`, `.svg`, `.jxr`, `.wdp`, `.emf`, `.wmf`, `.tga` | Greenshot appears in "Open with" for these types; their default application is not changed. |
+| `Software\Greenshot\Capabilities` + `RegisteredApplications` | Greenshot is listed in Settings > Default apps, where the user can make it the default per type (Windows does not allow an application to set itself as default). |
+| `Applications\greenshot-proxy.exe` (`FriendlyAppName`, `SupportedTypes`) | "Open with > Choose another app" shows the proxy as "Greenshot", only for the supported types. |
+
+All of them start `greenshot-proxy.exe --file "%1"`, which passes the file to Greenshot (connection source `open_with`). The ProgIDs are not called `greenshot`: registry keys are case-insensitive, and `Software\Classes\greenshot` is the `greenshot:` URL protocol.
 
 ### 4.2 Passing Variables & Dynamic Context
 External callers can supply runtime context that becomes variables inside the recipe's execution environment:
