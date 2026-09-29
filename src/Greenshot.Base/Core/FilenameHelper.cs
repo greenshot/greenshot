@@ -27,8 +27,8 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Greenshot.Base.Core.Enums;
-using Greenshot.Base.Core.OutputFormats;
 using Dapplo.Ini;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using log4net;
 
@@ -122,7 +122,7 @@ namespace Greenshot.Base.Core
 
         public static string GetFilenameFromPattern(string pattern, string formatId, ICaptureDetails captureDetails)
         {
-            return FillPattern(pattern, captureDetails, true) + OutputFormatRegistry.GetPreferredExtensionWithDot(formatId);
+            return FillPattern(pattern, captureDetails, true) + FileFormatRegistry.GetPreferredExtensionWithDot(formatId);
         }
 
         /// <summary>

@@ -21,7 +21,7 @@
 
 using System;
 using Greenshot.Base.Core;
-using Greenshot.Base.Core.OutputFormats;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Pipeline;
 using Greenshot.Editor.Configuration;
@@ -46,13 +46,13 @@ namespace Greenshot.Tests
                 IniConfigHelper.EnsureSection<IEditorConfiguration>(() => new EditorConfigurationImpl());
                 IniConfigHelper.EnsureSection<Greenshot.Plugin.ExternalCommand.IExternalCommandConfiguration>(() => new Greenshot.Plugin.ExternalCommand.ExternalCommandConfigurationImpl());
 
-                var outputFormatRegistry = SimpleServiceProvider.Current.GetInstance<IOutputFormatRegistry>(true);
-                if (outputFormatRegistry == null)
+                var supportedFileFormatRegistry = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>(true);
+                if (supportedFileFormatRegistry == null)
                 {
-                    outputFormatRegistry = new OutputFormatRegistry();
-                    SimpleServiceProvider.Current.AddService<IOutputFormatRegistry>(outputFormatRegistry);
+                    supportedFileFormatRegistry = new FileFormatRegistry();
+                    SimpleServiceProvider.Current.AddService<IFileFormatRegistry>(supportedFileFormatRegistry);
                 }
-                CoreOutputFormats.RegisterCoreOutputFormats(outputFormatRegistry);
+                CoreFileFormats.RegisterCoreFileFormats(supportedFileFormatRegistry);
 
                 CapturePayload.DefaultSurfaceFactory = capture => new Surface(capture) { Modified = true };
 

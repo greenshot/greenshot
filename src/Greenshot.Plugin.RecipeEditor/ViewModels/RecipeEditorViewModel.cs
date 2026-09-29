@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using Greenshot.Base.Core;
-using Greenshot.Base.Core.OutputFormats;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Pipeline;
 using Greenshot.Base.Recipes;
@@ -35,7 +35,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         public ObservableCollection<StepConnectionViewModel> Connections { get; } = new ObservableCollection<StepConnectionViewModel>();
         public ObservableCollection<TriggerItemViewModel> Triggers { get; } = new ObservableCollection<TriggerItemViewModel>();
         public PendingConnectionViewModel PendingConnection { get; } = new PendingConnectionViewModel();
-        public ObservableCollection<OutputFormatOption> OutputFormatOptions { get; } = new ObservableCollection<OutputFormatOption>();
+        public ObservableCollection<FileFormatOption> OutputFormatOptions { get; } = new ObservableCollection<FileFormatOption>();
 
         public CaptureRecipe ActiveRecipe
         {
@@ -361,14 +361,14 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         private void InitializeOutputFormatOptions()
         {
             OutputFormatOptions.Clear();
-            OutputFormatOptions.Add(new OutputFormatOption
+            OutputFormatOptions.Add(new FileFormatOption
             {
                 Id = string.Empty,
                 DisplayName = "(From Configuration)",
                 DisplayNameWithPreferredExtension = "(From Configuration)"
             });
 
-            var registry = SimpleServiceProvider.Current.GetInstance<IOutputFormatRegistry>(true);
+            var registry = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>(true);
             if (registry == null)
             {
                 return;
@@ -385,7 +385,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             if (!string.IsNullOrWhiteSpace(formatId) &&
                 !OutputFormatOptions.Any(option => string.Equals(option.Id, formatId, StringComparison.OrdinalIgnoreCase)))
             {
-                OutputFormatOptions.Add(new OutputFormatOption
+                OutputFormatOptions.Add(new FileFormatOption
                 {
                     Id = formatId,
                     DisplayName = formatId,

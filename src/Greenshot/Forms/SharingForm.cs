@@ -25,7 +25,6 @@ using System.Windows.Forms;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
-using Greenshot.Base.Core.OutputFormats;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Native;
@@ -33,6 +32,7 @@ using log4net;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
 using Windows.Storage.Streams;
+using Greenshot.Base.Core.FileFormat;
 using Color = Windows.UI.Color;
 
 namespace Greenshot.Forms
@@ -163,7 +163,7 @@ namespace Greenshot.Forms
 
                 // We use a GUID to ensure this specific share action never conflicts with an open app.
                 var shareGuid = Guid.NewGuid();
-                var outputSettings = new SurfaceOutputSettings(WellKnownOutputFormats.Png);
+                var outputSettings = new SurfaceOutputSettings(WellKnownFileFormats.Png);
 
                 // Capture itself
                 string uniqueFileName = $"greenshot_share_{shareGuid}.png";

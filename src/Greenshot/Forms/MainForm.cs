@@ -46,8 +46,8 @@ using Dapplo.Windows.User32;
 using Greenshot.Base;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
-using Greenshot.Base.Core.OutputFormats;
 using Greenshot.Base.Core.Enums;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Core.FileFormatHandlers;
 using Greenshot.Base.Help;
 using Greenshot.Base.Interfaces;
@@ -319,9 +319,9 @@ namespace Greenshot.Forms
             // Make the main menu available
             SimpleServiceProvider.Current.AddService(contextMenu);
 
-            var outputFormatRegistry = new OutputFormatRegistry();
-            SimpleServiceProvider.Current.AddService<IOutputFormatRegistry>(outputFormatRegistry);
-            CoreOutputFormats.RegisterCoreOutputFormats(outputFormatRegistry);
+            var supportedFileFormatRegistry = new FileFormatRegistry();
+            SimpleServiceProvider.Current.AddService<IFileFormatRegistry>(supportedFileFormatRegistry);
+            CoreFileFormats.RegisterCoreFileFormats(supportedFileFormatRegistry);
 
             notifyIcon.Icon = GreenshotResources.GetGreenshotIcon();
             // Make the notify icon available

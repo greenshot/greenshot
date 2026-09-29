@@ -22,10 +22,10 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Plugin;
-using Greenshot.Base.Core.OutputFormats;
 using Greenshot.Editor.Drawing;
 
 namespace Greenshot.Editor.FileFormatHandlers
@@ -45,12 +45,12 @@ namespace Greenshot.Editor.FileFormatHandlers
 
         public abstract bool TryLoadFromStream(Stream stream, string extension, out Bitmap bitmap);
 
-        public virtual void RegisterOutputFormats(IOutputFormatRegistry registry)
+        public virtual void RegisterFileFormats(IFileFormatRegistry registry)
         {
         }
 
-        protected static void RegisterOutputFormat(
-            IOutputFormatRegistry registry, 
+        protected static void RegisterFileFormat(
+            IFileFormatRegistry registry, 
             string formatId,
             IEnumerable<string> extensions,
             string preferredExtension,
@@ -59,7 +59,7 @@ namespace Greenshot.Editor.FileFormatHandlers
             string displayNameResourceKey,
             string fallbackDisplayName)
         {
-            registry.RegisterIfMissing(new OutputFormatDefinition(formatId, extensions, preferredExtension, mimeType, mimeTypeAliases, displayNameResourceKey, fallbackDisplayName));
+            registry.RegisterIfMissing(new FileFormatDefinition(formatId, extensions, preferredExtension, mimeType, mimeTypeAliases, displayNameResourceKey, fallbackDisplayName));
         }
 
         /// <summary>

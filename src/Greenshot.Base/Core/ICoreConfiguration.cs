@@ -29,7 +29,7 @@ using Dapplo.Ini.Attributes;
 using Dapplo.Ini.Interfaces;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core.Enums;
-using Greenshot.Base.Core.OutputFormats;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 
 namespace Greenshot.Base.Core
@@ -137,7 +137,7 @@ namespace Greenshot.Base.Core
         string OutputFileFilenamePattern { get; set; }
 
         [Description("Default file type for writing screenshots.")]
-        [DefaultValue(WellKnownOutputFormats.Png)]
+        [DefaultValue(WellKnownFileFormats.Png)]
         string OutputFileFormat { get; set; }
 
         [Description("If set to true, than the colors of the output file are reduced to 256 (8-bit) colors")]

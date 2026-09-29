@@ -21,7 +21,7 @@
 
 using System.Windows.Controls;
 using Greenshot.Base.Core;
-using Greenshot.Base.Core.OutputFormats;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 
 namespace Greenshot.Plugin.Jira.Forms;
@@ -32,7 +32,7 @@ public partial class JiraConfigurationControl : UserControl
     {
         DataContext = config;
         InitializeComponent();
-        var registry = SimpleServiceProvider.Current.GetInstance<IOutputFormatRegistry>(true);
+        var registry = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>(true);
         if (FindName("UploadFormatCombo") is ComboBox uploadFormatCombo)
         {
             uploadFormatCombo.ItemsSource = registry?.GetSaveableFileFormatOptions()

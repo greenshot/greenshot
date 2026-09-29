@@ -22,14 +22,14 @@
 using System;
 using log4net;
 
-namespace Greenshot.Base.Core.OutputFormats;
+namespace Greenshot.Base.Core.FileFormat;
 
 /// <summary>
-/// Represents well-known output formats (format-IDs) in core Greenshot.
+/// Represents well-known file formats (format-IDs) in core Greenshot.
 /// </summary>
-public static class WellKnownOutputFormats
+public static class WellKnownFileFormats
 {
-    private static readonly ILog Log = LogManager.GetLogger(typeof(WellKnownOutputFormats));
+    private static readonly ILog Log = LogManager.GetLogger(typeof(WellKnownFileFormats));
 
     public const string Bmp = "bmp";
     public const string Gif = "gif";
@@ -40,15 +40,15 @@ public static class WellKnownOutputFormats
     public const string Greenshot = "greenshot";
     public const string Ico = "ico";
 
-    public static bool IsEqualFormat(string wellKnownOutputFormat, string compareFormat)
+    public static bool IsEqualFormat(string wellKnownFileFormat, string compareFormat)
     {
-        if (!IsWellKnownFormat(wellKnownOutputFormat))
+        if (!IsWellKnownFormat(wellKnownFileFormat))
         {
-            Log.WarnFormat("'{0}' is not a well-known output format.", wellKnownOutputFormat);
+            Log.WarnFormat("'{0}' is not a well-known file format.", wellKnownFileFormat);
             return false;
         }
 
-        return string.Equals(wellKnownOutputFormat, compareFormat, StringComparison.OrdinalIgnoreCase);
+        return string.Equals(wellKnownFileFormat, compareFormat, StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsWellKnownFormat(string format)

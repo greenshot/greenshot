@@ -31,7 +31,7 @@ using System.Threading.Tasks;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
-using Greenshot.Base.Core.OutputFormats;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Pipeline;
@@ -170,13 +170,13 @@ namespace Greenshot.Plugin.ExternalCommand
             bool outputToClipboard = outputToClipboardParam ?? (extConfig?.OutputToClipboard ?? false);
             bool uriToClipboard = uriToClipboardParam ?? (extConfig?.UriToClipboard ?? false);
 
-            var formatRegistry = SimpleServiceProvider.Current.GetInstance<IOutputFormatRegistry>(true);
+            var formatRegistry = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>(true);
             if (!string.IsNullOrWhiteSpace(formatStr) && formatRegistry != null && !formatRegistry.TryGet(formatStr, out _))
             {
-                Log.WarnFormat("Unknown output format '{0}' for external command; using PNG.", formatStr);
+                Log.WarnFormat("Unknown output file format '{0}' for external command; using PNG.", formatStr);
             }
 
-            string outputFormat = formatRegistry.ResolveFormatId(formatStr, WellKnownOutputFormats.Png);
+            string outputFormat = formatRegistry.ResolveFormatId(formatStr, WellKnownFileFormats.Png);
 
             int jpegQuality = NodeConfig.GetParameter<int?>("JpegQuality") ?? 90;
             SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(outputFormat, jpegQuality, false);

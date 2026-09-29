@@ -24,14 +24,14 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 
-namespace Greenshot.Base.Core.OutputFormats;
+namespace Greenshot.Base.Core.FileFormat;
 
 /// <summary>
-/// Represents a definition of an output format, including its ID, file extensions, MIME type, and display name.
+/// Represents a definition of a file format, including its ID, file extensions, MIME type, and display name.
 /// </summary>
-public sealed class OutputFormatDefinition
+public sealed class FileFormatDefinition
 {
-    public OutputFormatDefinition(
+    public FileFormatDefinition(
         string id,
         IEnumerable<string> extensions,
         string preferredExtension,

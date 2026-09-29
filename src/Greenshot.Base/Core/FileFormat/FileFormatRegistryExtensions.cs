@@ -24,12 +24,12 @@ using System.Linq;
 using Greenshot.Base.Core.FileFormatHandlers;
 using Greenshot.Base.Interfaces;
 
-namespace Greenshot.Base.Core.OutputFormats;
+namespace Greenshot.Base.Core.FileFormat;
 
 /// <summary>
-/// Helper class representing an output format option. Used for UI elements like dropdowns to display available output formats with their IDs and display names.
+/// Helper class representing a file format option. Used for UI elements like dropdowns to display available supported file formats with their IDs and display names.
 /// </summary>
-public sealed class OutputFormatOption
+public sealed class FileFormatOption
 {
     public string Id { get; set; }
 
@@ -39,20 +39,20 @@ public sealed class OutputFormatOption
 }
 
 /// <summary>
-/// Provides extension methods for the IOutputFormatRegistry interface, allowing retrieval of saveable file formats, display names, and format resolution based on requested or fallback IDs.
+/// Provides extension methods for the IFileFormatRegistry interface, allowing retrieval of saveable file formats, display names, and format resolution based on requested or fallback IDs.
 /// </summary>
-public static class OutputFormatRegistryExtensions
+public static class FileFormatRegistryExtensions
 {
     /// <summary>
-    /// Returns a collection of OutputFormatDefinition objects that can be saved to files, based on the registered file format handlers in the system.
+    /// Returns a collection of FileFormatDefinition objects that can be saved to files, based on the registered file format handlers in the system.
     /// </summary>
     /// <param name="registry"></param>
-    /// <returns>A collection of OutputFormatDefinition objects that can be saved to files, ordered by their display names.</returns>
-    public static IEnumerable<OutputFormatDefinition> GetSaveableFileFormats(this IOutputFormatRegistry registry)
+    /// <returns>A collection of FileFormatDefinition objects that can be saved to files, ordered by their display names.</returns>
+    public static IEnumerable<FileFormatDefinition> GetSaveableFileFormats(this IFileFormatRegistry registry)
     {
         if (registry == null)
         {
-            return Enumerable.Empty<OutputFormatDefinition>();
+            return Enumerable.Empty<FileFormatDefinition>();
         }
 
         var registeredHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>().ToArray();
@@ -62,11 +62,11 @@ public static class OutputFormatRegistryExtensions
     }
 
     /// <summary>
-    /// Returns the display name of the specified OutputFormatDefinition, using the translated name if available, or falling back to the fallback display name if not.
+    /// Returns the display name of the specified FileFormatDefinition, using the translated name if available, or falling back to the fallback display name if not.
     /// </summary>
-    /// <param name="format">The OutputFormatDefinition for which to get the display name.</param>
-    /// <returns>The display name of the specified OutputFormatDefinition.</returns>
-    public static string GetDisplayName(this OutputFormatDefinition format)
+    /// <param name="format">The FileFormatDefinition for which to get the display name.</param>
+    /// <returns>The display name of the specified FileFormatDefinition.</returns>
+    public static string GetDisplayName(this FileFormatDefinition format)
     {
         if (format != null && Language.TryGetString(format.DisplayNameResourceKey, out string translatedName) &&
             !string.IsNullOrWhiteSpace(translatedName))
@@ -77,24 +77,24 @@ public static class OutputFormatRegistryExtensions
         return format?.FallbackDisplayName;
     }
 
-    public static string GetDisplayNameWithPreferredExtension(this OutputFormatDefinition format)
+    public static string GetDisplayNameWithPreferredExtension(this FileFormatDefinition format)
     {
         return format == null
             ? null
             : $"{format.GetDisplayName()} (.{format.PreferredExtension})";
     }
 
-    public static string GetDisplayNameWithSupportedExtensions(this OutputFormatDefinition format)
+    public static string GetDisplayNameWithSupportedExtensions(this FileFormatDefinition format)
     {
         return format == null
             ? null
             : $"{format.GetDisplayName()} ({string.Join(", ", format.Extensions.Select(extension => "." + extension))})";
     }
 
-    public static IReadOnlyCollection<OutputFormatOption> GetSaveableFileFormatOptions(this IOutputFormatRegistry registry)
+    public static IReadOnlyCollection<FileFormatOption> GetSaveableFileFormatOptions(this IFileFormatRegistry registry)
     {
         return registry.GetSaveableFileFormats()
-            .Select(format => new OutputFormatOption
+            .Select(format => new FileFormatOption
             {
                 Id = format.Id,
                 DisplayName = format.GetDisplayName(),
@@ -104,21 +104,21 @@ public static class OutputFormatRegistryExtensions
     }
 
     /// <summary>
-    /// Returns a collection of OutputFormatOption objects, ensuring that the current format ID is included in the collection.
+    /// Returns a collection of FileFormatOption objects, ensuring that the current format ID is included in the collection.
     /// If the current format ID is not already present, it will be added with its ID as the display name.
     /// </summary>
     /// <param name="options"></param>
     /// <param name="currentFormatId"></param>
     /// <returns></returns>
-    public static IReadOnlyCollection<OutputFormatOption> WithCurrentFormat(
-        this IReadOnlyCollection<OutputFormatOption> options,
+    public static IReadOnlyCollection<FileFormatOption> WithCurrentFormat(
+        this IReadOnlyCollection<FileFormatOption> options,
         string currentFormatId)
     {
-        var result = options?.ToList() ?? new List<OutputFormatOption>();
+        var result = options?.ToList() ?? new List<FileFormatOption>();
         if (!string.IsNullOrWhiteSpace(currentFormatId) &&
             !result.Any(option => string.Equals(option.Id, currentFormatId, System.StringComparison.OrdinalIgnoreCase)))
         {
-            result.Add(new OutputFormatOption
+            result.Add(new FileFormatOption
             {
                 Id = currentFormatId,
                 DisplayName = currentFormatId,
@@ -130,21 +130,21 @@ public static class OutputFormatRegistryExtensions
     }
 
     /// <summary>
-    /// Resolves the appropriate output format ID based on the requested format ID and a fallback format ID.
+    /// Resolves the appropriate file format ID based on the requested format ID and a fallback format ID.
     /// If the requested format ID is valid and registered, it will be returned.
     /// If not, the fallback format ID will be checked. If neither is valid, the default PNG format will be returned.
     /// </summary>
-    /// <param name="registry">The output format registry to use for resolving format IDs.</param>
+    /// <param name="registry">The file format registry to use for resolving format IDs.</param>
     /// <param name="requestedFormatId">The requested format ID.</param>
     /// <param name="fallbackFormatId">The fallback format ID to use if the requested format ID is not valid.</param>
-    /// <returns>The resolved output format ID.</returns>
-    public static string ResolveFormatId(this IOutputFormatRegistry registry, string requestedFormatId, string fallbackFormatId)
+    /// <returns>The resolved file format ID.</returns>
+    public static string ResolveFormatId(this IFileFormatRegistry registry, string requestedFormatId, string fallbackFormatId)
     {
         if (registry == null)
         {
             return !string.IsNullOrWhiteSpace(requestedFormatId)
                 ? requestedFormatId
-                : fallbackFormatId ?? WellKnownOutputFormats.Png;
+                : fallbackFormatId ?? WellKnownFileFormats.Png;
         }
 
         if (!string.IsNullOrWhiteSpace(requestedFormatId) && registry.TryGet(requestedFormatId, out var requestedFormat))
@@ -157,6 +157,6 @@ public static class OutputFormatRegistryExtensions
             return fallbackFormat.Id;
         }
 
-        return registry.TryGet(WellKnownOutputFormats.Png, out var pngFormat) ? pngFormat.Id : WellKnownOutputFormats.Png;
+        return registry.TryGet(WellKnownFileFormats.Png, out var pngFormat) ? pngFormat.Id : WellKnownFileFormats.Png;
     }
 }

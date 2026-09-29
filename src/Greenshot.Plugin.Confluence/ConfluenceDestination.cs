@@ -28,8 +28,8 @@ using System.Threading;
 using System.Windows;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
-using Greenshot.Base.Core.OutputFormats;
 using Dapplo.Ini;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Plugin.Confluence.Entities;
@@ -201,8 +201,8 @@ public class ConfluenceDestination : AbstractDestination
             }
         }
 
-        var formatRegistry = SimpleServiceProvider.Current.GetInstance<IOutputFormatRegistry>(true);
-        string uploadFormat = formatRegistry.ResolveFormatId(ConfluenceConfig.UploadFormat, WellKnownOutputFormats.Png);
+        var formatRegistry = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>(true);
+        string uploadFormat = formatRegistry.ResolveFormatId(ConfluenceConfig.UploadFormat, WellKnownFileFormats.Png);
         string extension = formatRegistry != null && formatRegistry.TryGet(uploadFormat, out var formatDefinition)
             ? "." + formatDefinition.PreferredExtension
             : ".png";
@@ -243,8 +243,8 @@ public class ConfluenceDestination : AbstractDestination
 
     private bool Upload(ISurface surfaceToUpload, Page page, string filename, out string errorMessage)
     {
-        var formatRegistry = SimpleServiceProvider.Current.GetInstance<IOutputFormatRegistry>(true);
-        string uploadFormat = formatRegistry.ResolveFormatId(ConfluenceConfig.UploadFormat, WellKnownOutputFormats.Png);
+        var formatRegistry = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>(true);
+        string uploadFormat = formatRegistry.ResolveFormatId(ConfluenceConfig.UploadFormat, WellKnownFileFormats.Png);
         SurfaceOutputSettings outputSettings =
             new SurfaceOutputSettings(uploadFormat, ConfluenceConfig.UploadJpegQuality, ConfluenceConfig.UploadReduceColors);
         errorMessage = null;

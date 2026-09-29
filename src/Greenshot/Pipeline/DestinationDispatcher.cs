@@ -32,7 +32,7 @@ using Greenshot.Base;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
-using Greenshot.Base.Core.OutputFormats;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Pipeline;
@@ -237,7 +237,7 @@ namespace Greenshot.Pipeline
                             ? cp
                             : CoreConfig.OutputFileCopyPathToClipboard;
 
-                        if (WellKnownOutputFormats.IsEqualFormat(WellKnownOutputFormats.Greenshot, bgOutputSettings.Format))
+                        if (WellKnownFileFormats.IsEqualFormat(WellKnownFileFormats.Greenshot, bgOutputSettings.Format))
                         {
                             // The .greenshot format serializes the surface elements, which can't be done from a pre-rendered bitmap
                             // nor on a background thread while the editor might already be using the surface.

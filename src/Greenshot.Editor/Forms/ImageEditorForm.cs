@@ -37,7 +37,7 @@ using Dapplo.Windows.User32.Structs;
 using Greenshot.Base;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
-using Greenshot.Base.Core.OutputFormats;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Effects;
 using Greenshot.Base.Help;
 using Greenshot.Base.Interfaces;
@@ -2316,7 +2316,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             }
             try
             {
-                ImageIO.Save(_surface, filePath, true, new SurfaceOutputSettings(WellKnownOutputFormats.Greenshot), false);
+                ImageIO.Save(_surface, filePath, true, new SurfaceOutputSettings(WellKnownFileFormats.Greenshot), false);
                 // Make sure the user isn't asked to save
                 _surface.Modified = false;
                 Close();

@@ -21,19 +21,19 @@
 
 using System.Collections.Generic;
 
-namespace Greenshot.Base.Core.OutputFormats;
+namespace Greenshot.Base.Core.FileFormat;
 
-public interface IOutputFormatRegistry
+public interface IFileFormatRegistry
 {
-    IReadOnlyCollection<OutputFormatDefinition> Formats { get; }
+    IReadOnlyCollection<FileFormatDefinition> Formats { get; }
 
-    void Register(OutputFormatDefinition format);
+    void Register(FileFormatDefinition format);
 
-    bool RegisterIfMissing(OutputFormatDefinition format);
+    bool RegisterIfMissing(FileFormatDefinition format);
 
-    bool TryGet(string id, out OutputFormatDefinition format);
+    bool TryGet(string id, out FileFormatDefinition format);
 
-    OutputFormatDefinition GetByExtension(string extension);
+    FileFormatDefinition GetByExtension(string extension);
 
-    OutputFormatDefinition GetByMimeType(string mimeType);
+    FileFormatDefinition GetByMimeType(string mimeType);
 }

@@ -37,8 +37,8 @@ using Dapplo.Windows.Gdi32.Enums;
 using Dapplo.Windows.Gdi32.Structs;
 using Dapplo.Windows.User32;
 using Greenshot.Base.Core.Enums;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Core.FileFormatHandlers;
-using Greenshot.Base.Core.OutputFormats;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Plugin;
@@ -1054,14 +1054,14 @@ EndSelection:<<<<<<<4
 
         public static void SetClipboardData(ISurface surface)
         {
-            SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(WellKnownOutputFormats.Png, 100, false);
+            SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(WellKnownFileFormats.Png, 100, false);
             bool disposeImage = ImageIO.CreateImageFromSurface(surface, outputSettings, out Image rendered);
             SetClipboardDataInternal(surface, rendered, disposeImage);
         }
 
         public static void SetClipboardData(ISurface surface, IEnumerable<ClipboardFormat> formats, string text = null)
         {
-            SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(WellKnownOutputFormats.Png, 100, false);
+            SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(WellKnownFileFormats.Png, 100, false);
             bool disposeImage = ImageIO.CreateImageFromSurface(surface, outputSettings, out Image rendered);
             SetClipboardDataInternal(surface, rendered, disposeImage, formats: formats, text: text);
         }
@@ -1138,7 +1138,7 @@ EndSelection:<<<<<<<4
                     {
                         pngStream = RecyclableMemoryStreamFactory.GetStream("ClipboardHelper.PNG");
                         // PNG works for e.g. Powerpoint
-                        SurfaceOutputSettings pngOutputSettings = new SurfaceOutputSettings(WellKnownOutputFormats.Png, 100, false);
+                        SurfaceOutputSettings pngOutputSettings = new SurfaceOutputSettings(WellKnownFileFormats.Png, 100, false);
                         ImageIO.SaveToStream(imageToSave, null, pngStream, pngOutputSettings);
                         pngStream.Seek(0, SeekOrigin.Begin);
                         // Set the PNG stream
@@ -1219,7 +1219,7 @@ EndSelection:<<<<<<<4
                 if (activeFormats.Contains(ClipboardFormat.HTML))
                 {
                     // Use the already-rendered imageToSave to avoid a redundant surface render pass.
-                    string tmpFile = ImageIO.SaveToTmpFile(imageToSave, new SurfaceOutputSettings(WellKnownOutputFormats.Png, 100, false), null);
+                    string tmpFile = ImageIO.SaveToTmpFile(imageToSave, new SurfaceOutputSettings(WellKnownFileFormats.Png, 100, false), null);
                     string html = GetHtmlString(surface, tmpFile);
                     dataObject.SetText(html, TextDataFormat.Html);
                 }
@@ -1228,7 +1228,7 @@ EndSelection:<<<<<<<4
                     string html;
                     using (MemoryStream tmpPngStream = RecyclableMemoryStreamFactory.GetStream("ClipboardHelper.HTMLDATAURL"))
                     {
-                        SurfaceOutputSettings pngOutputSettings = new SurfaceOutputSettings(WellKnownOutputFormats.Png, 100, false)
+                        SurfaceOutputSettings pngOutputSettings = new SurfaceOutputSettings(WellKnownFileFormats.Png, 100, false)
                         {
                             // Do not allow to reduce the colors, some applications dislike 256 color images
                             // reported with bug #3594681

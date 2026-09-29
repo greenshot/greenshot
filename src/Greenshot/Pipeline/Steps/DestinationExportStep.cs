@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 using Dapplo.Ini;
 using Greenshot.Base;
 using Greenshot.Base.Core;
-using Greenshot.Base.Core.OutputFormats;
 using Greenshot.Base.Core.Enums;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Forms;
 using Greenshot.Base.Interfaces.Ocr;
@@ -239,7 +239,7 @@ namespace Greenshot.Pipeline.Steps
 
         private static string ResolveFormatId(string requestedFormat, string fallbackFormat)
         {
-            var registry = SimpleServiceProvider.Current.GetInstance<IOutputFormatRegistry>(true);
+            var registry = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>(true);
             if (registry == null)
             {
                 return string.IsNullOrWhiteSpace(requestedFormat) ? fallbackFormat : requestedFormat;
@@ -252,12 +252,12 @@ namespace Greenshot.Pipeline.Steps
 
             if (!string.IsNullOrWhiteSpace(requestedFormat))
             {
-                string resolvedFallback = registry.TryGet(fallbackFormat, out _) ? fallbackFormat : WellKnownOutputFormats.Png;
-                Log.WarnFormat("Unknown output format '{0}' in recipe; using '{1}'.", requestedFormat, resolvedFallback);
+                string resolvedFallback = registry.TryGet(fallbackFormat, out _) ? fallbackFormat : WellKnownFileFormats.Png;
+                Log.WarnFormat("Unknown output file format '{0}' in recipe; using '{1}'.", requestedFormat, resolvedFallback);
                 return resolvedFallback;
             }
 
-            return registry.TryGet(fallbackFormat, out _) ? fallbackFormat : WellKnownOutputFormats.Png;
+            return registry.TryGet(fallbackFormat, out _) ? fallbackFormat : WellKnownFileFormats.Png;
         }
 
         private IEnumerable<string> ResolveDestinationDesignations(CaptureFlowContext context)

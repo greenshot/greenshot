@@ -24,8 +24,8 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using Greenshot.Base.Core;
-using Greenshot.Base.Core.OutputFormats;
 using Dapplo.Ini;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using log4net;
 
@@ -117,7 +117,7 @@ namespace Greenshot.Base.Controls
             {
                 FilterOption fo = _filterOptions[i];
                 fdf += fo.Label + "|" + string.Join(";", fo.Extensions.Select(extension => "*." + extension)) + "|";
-                if (WellKnownOutputFormats.IsEqualFormat(WellKnownOutputFormats.Png, fo.FormatId))
+                if (WellKnownFileFormats.IsEqualFormat(WellKnownFileFormats.Png, fo.FormatId))
                 {
                     pngFilterIndex = i;
                 }
@@ -140,9 +140,9 @@ namespace Greenshot.Base.Controls
 
         private void PrepareFilterOptions()
         {
-            var registry = SimpleServiceProvider.Current.GetInstance<IOutputFormatRegistry>(true);
+            var registry = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>(true);
             var formats = registry?.GetSaveableFileFormats().ToArray()
-                ?? Array.Empty<OutputFormatDefinition>();
+                ?? Array.Empty<FileFormatDefinition>();
             _filterOptions = new FilterOption[formats.Length];
             for (int i = 0; i < formats.Length; i++)
             {

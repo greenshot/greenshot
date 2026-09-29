@@ -24,30 +24,30 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 
-namespace Greenshot.Base.Core.OutputFormats;
+namespace Greenshot.Base.Core.FileFormat;
 
 /// <summary>
-/// Represents a registry for managing output format definitions, allowing registration and retrieval of formats by ID, extension, or MIME type.
+/// Represents a registry for managing supported file format definitions, allowing registration and retrieval of formats by ID, extension, or MIME type.
 /// </summary>
-public sealed class OutputFormatRegistry : IOutputFormatRegistry
+public sealed class FileFormatRegistry : IFileFormatRegistry
 {
     private readonly object _syncRoot = new object();
-    private readonly List<OutputFormatDefinition> _formats = new List<OutputFormatDefinition>();
-    private readonly Dictionary<string, OutputFormatDefinition> _formatsById = new Dictionary<string, OutputFormatDefinition>(StringComparer.OrdinalIgnoreCase);
-    private readonly Dictionary<string, OutputFormatDefinition> _formatsByExtension = new Dictionary<string, OutputFormatDefinition>(StringComparer.OrdinalIgnoreCase);
-    private readonly Dictionary<string, OutputFormatDefinition> _formatsByMimeType = new Dictionary<string, OutputFormatDefinition>(StringComparer.OrdinalIgnoreCase);
+    private readonly List<FileFormatDefinition> _formats = new List<FileFormatDefinition>();
+    private readonly Dictionary<string, FileFormatDefinition> _formatsById = new Dictionary<string, FileFormatDefinition>(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, FileFormatDefinition> _formatsByExtension = new Dictionary<string, FileFormatDefinition>(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, FileFormatDefinition> _formatsByMimeType = new Dictionary<string, FileFormatDefinition>(StringComparer.OrdinalIgnoreCase);
 
     public static string GetPreferredExtension(string formatId)
     {
-        var registry = SimpleServiceProvider.Current.GetInstance<IOutputFormatRegistry>(true);
-        if (registry != null && registry.TryGet(formatId, out var format))
+        var supportedFileFormatRegistry = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>(true);
+        if (supportedFileFormatRegistry != null && supportedFileFormatRegistry.TryGet(formatId, out var format))
         {
             return format.PreferredExtension;
         }
 
-        if (registry != null || string.IsNullOrWhiteSpace(formatId))
+        if (supportedFileFormatRegistry != null || string.IsNullOrWhiteSpace(formatId))
         {
-            return WellKnownOutputFormats.Png;
+            return WellKnownFileFormats.Png;
         }
 
         return formatId.Trim().TrimStart('.').ToLowerInvariant();
@@ -58,18 +58,18 @@ public sealed class OutputFormatRegistry : IOutputFormatRegistry
         return "." + GetPreferredExtension(formatId);
     }
 
-    public IReadOnlyCollection<OutputFormatDefinition> Formats
+    public IReadOnlyCollection<FileFormatDefinition> Formats
     {
         get
         {
             lock (_syncRoot)
             {
-                return new ReadOnlyCollection<OutputFormatDefinition>(_formats.ToArray());
+                return new ReadOnlyCollection<FileFormatDefinition>(_formats.ToArray());
             }
         }
     }
 
-    public void Register(OutputFormatDefinition format)
+    public void Register(FileFormatDefinition format)
     {
         if (format == null)
         {
@@ -83,7 +83,7 @@ public sealed class OutputFormatRegistry : IOutputFormatRegistry
         }
     }
 
-    public bool RegisterIfMissing(OutputFormatDefinition format)
+    public bool RegisterIfMissing(FileFormatDefinition format)
     {
         if (format == null)
         {
@@ -96,7 +96,7 @@ public sealed class OutputFormatRegistry : IOutputFormatRegistry
             {
                 if (!AreEquivalent(existing, format))
                 {
-                    throw new InvalidOperationException($"Output format '{format.Id}' is already registered with different metadata.");
+                    throw new InvalidOperationException($"File format '{format.Id}' is already registered with different metadata.");
                 }
 
                 return false;
@@ -108,7 +108,7 @@ public sealed class OutputFormatRegistry : IOutputFormatRegistry
         }
     }
 
-    public bool TryGet(string id, out OutputFormatDefinition format)
+    public bool TryGet(string id, out FileFormatDefinition format)
     {
         if (string.IsNullOrWhiteSpace(id))
         {
@@ -122,7 +122,7 @@ public sealed class OutputFormatRegistry : IOutputFormatRegistry
         }
     }
 
-    public OutputFormatDefinition GetByExtension(string extension)
+    public FileFormatDefinition GetByExtension(string extension)
     {
         string normalized = NormalizeLookupValue(extension, true);
         if (normalized == null)
@@ -137,7 +137,7 @@ public sealed class OutputFormatRegistry : IOutputFormatRegistry
         }
     }
 
-    public OutputFormatDefinition GetByMimeType(string mimeType)
+    public FileFormatDefinition GetByMimeType(string mimeType)
     {
         string normalized = NormalizeLookupValue(mimeType, false);
         if (normalized == null)
@@ -158,18 +158,18 @@ public sealed class OutputFormatRegistry : IOutputFormatRegistry
         }
     }
 
-    private void EnsureCanRegister(OutputFormatDefinition format)
+    private void EnsureCanRegister(FileFormatDefinition format)
     {
         if (_formatsById.ContainsKey(format.Id))
         {
-            throw new InvalidOperationException($"Output format '{format.Id}' is already registered.");
+            throw new InvalidOperationException($"File format '{format.Id}' is already registered.");
         }
 
         foreach (string extension in format.Extensions)
         {
             if (_formatsByExtension.TryGetValue(extension, out var existing))
             {
-                throw new InvalidOperationException($"Extension '{extension}' is already registered for output format '{existing.Id}'.");
+                throw new InvalidOperationException($"Extension '{extension}' is already registered for file format '{existing.Id}'.");
             }
         }
 
@@ -177,12 +177,12 @@ public sealed class OutputFormatRegistry : IOutputFormatRegistry
         {
             if (_formatsByMimeType.TryGetValue(mimeType, out var existing))
             {
-                throw new InvalidOperationException($"MIME type '{mimeType}' is already registered for output format '{existing.Id}'.");
+                throw new InvalidOperationException($"MIME type '{mimeType}' is already registered for file format '{existing.Id}'.");
             }
         }
     }
 
-    private void Add(OutputFormatDefinition format)
+    private void Add(FileFormatDefinition format)
     {
         _formats.Add(format);
         _formatsById.Add(format.Id, format);
@@ -197,7 +197,7 @@ public sealed class OutputFormatRegistry : IOutputFormatRegistry
         }
     }
 
-    private static IEnumerable<string> GetMimeTypes(OutputFormatDefinition format)
+    private static IEnumerable<string> GetMimeTypes(FileFormatDefinition format)
     {
         yield return format.MimeType;
         foreach (string alias in format.MimeTypeAliases)
@@ -206,7 +206,7 @@ public sealed class OutputFormatRegistry : IOutputFormatRegistry
         }
     }
 
-    private static bool AreEquivalent(OutputFormatDefinition left, OutputFormatDefinition right)
+    private static bool AreEquivalent(FileFormatDefinition left, FileFormatDefinition right)
     {
         return string.Equals(left.Id, right.Id, StringComparison.OrdinalIgnoreCase) &&
                string.Equals(left.PreferredExtension, right.PreferredExtension, StringComparison.OrdinalIgnoreCase) &&

@@ -37,7 +37,7 @@ using Dapplo.Windows.Common.Structs;
 using Greenshot.Base;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
-using Greenshot.Base.Core.OutputFormats;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Wpf;
@@ -335,7 +335,7 @@ namespace Greenshot.Forms.Wpf
         private void InitializeImageFormats()
         {
             ImageFormats = new List<ImageFormatItem>();
-            var registry = SimpleServiceProvider.Current.GetInstance<IOutputFormatRegistry>(true);
+            var registry = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>(true);
             if (registry == null)
             {
                 return;

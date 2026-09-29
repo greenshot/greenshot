@@ -23,7 +23,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Greenshot.Base.Core;
-using Greenshot.Base.Core.OutputFormats;
 
 namespace Greenshot.Plugin.ExternalCommand;
 

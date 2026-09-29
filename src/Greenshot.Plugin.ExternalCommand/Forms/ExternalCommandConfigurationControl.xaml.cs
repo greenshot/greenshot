@@ -32,7 +32,7 @@ using System.Windows.Media;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
-using Greenshot.Base.Core.OutputFormats;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Microsoft.Win32;
 
@@ -217,7 +217,7 @@ public partial class ExternalCommandConfigurationControl : UserControl, INotifyP
         ExternalCommandConfig.Commands.Add(newName);
         ExternalCommandConfig.Commandline[newName] = string.Empty;
         ExternalCommandConfig.Argument[newName] = "\"{0}\"";
-        ExternalCommandConfig.OutputFormat[newName] = CoreConfig?.OutputFileFormat ?? WellKnownOutputFormats.Png;
+        ExternalCommandConfig.OutputFormat[newName] = CoreConfig?.OutputFileFormat ?? WellKnownFileFormats.Png;
         ExternalCommandConfig.RunInbackground[newName] = true;
         ExternalCommandConfig.RedirectStandardErrorCommand[newName] = ExternalCommandConfig.RedirectStandardError;
         ExternalCommandConfig.RedirectStandardOutputCommand[newName] = ExternalCommandConfig.RedirectStandardOutput;
@@ -320,13 +320,13 @@ public class ExternalCommandItemViewModel : INotifyPropertyChanged
 
         _outputFormat = config.OutputFormat != null && config.OutputFormat.ContainsKey(commandName)
             ? config.OutputFormat[commandName]
-            : WellKnownOutputFormats.Png;
-        var registry = SimpleServiceProvider.Current.GetInstance<IOutputFormatRegistry>(true);
+            : WellKnownFileFormats.Png;
+        var registry = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>(true);
         OutputFormats = registry?.GetSaveableFileFormatOptions().ToList()
-            ?? new List<OutputFormatOption>();
+            ?? new List<FileFormatOption>();
         if (!OutputFormats.Any(option => string.Equals(option.Id, _outputFormat, StringComparison.OrdinalIgnoreCase)))
         {
-            OutputFormats.Add(new OutputFormatOption
+            OutputFormats.Add(new FileFormatOption
             {
                 Id = _outputFormat,
                 DisplayName = _outputFormat,
@@ -460,7 +460,7 @@ public class ExternalCommandItemViewModel : INotifyPropertyChanged
         }
     }
 
-    public List<OutputFormatOption> OutputFormats { get; }
+    public List<FileFormatOption> OutputFormats { get; }
 
     public string OutputFormat
     {

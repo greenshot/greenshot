@@ -33,8 +33,8 @@ using System.Windows.Forms;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Core.FileFormatHandlers;
-using Greenshot.Base.Core.OutputFormats;
 using Dapplo.Ini;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using log4net;
@@ -117,9 +117,9 @@ namespace Greenshot.Base.Core
         {
             bool useMemoryStream = false;
             MemoryStream memoryStream = null;
-            if (WellKnownOutputFormats.IsEqualFormat(WellKnownOutputFormats.Greenshot, outputSettings.Format) && surface == null)
+            if (WellKnownFileFormats.IsEqualFormat(WellKnownFileFormats.Greenshot, outputSettings.Format) && surface == null)
             {
-                throw new ArgumentException("Surface needs to be set when using OutputFormat.Greenshot");
+                throw new ArgumentException("Surface needs to be set when using OutputFormat .greenshot");
             }
 
             try
@@ -136,7 +136,7 @@ namespace Greenshot.Base.Core
                 }
 
                 var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
-                if (!fileFormatHandlers.TrySaveToStream(imageToSave as Bitmap, targetStream, OutputFormatRegistry.GetPreferredExtension(outputSettings.Format), surface, outputSettings))
+                if (!fileFormatHandlers.TrySaveToStream(imageToSave as Bitmap, targetStream, FileFormatRegistry.GetPreferredExtension(outputSettings.Format), surface, outputSettings))
                 {
                     return;
                 }
@@ -164,7 +164,7 @@ namespace Greenshot.Base.Core
         {
             bool disposeImage = false;
 
-            if (WellKnownOutputFormats.IsEqualFormat(WellKnownOutputFormats.Greenshot, outputSettings.Format) || outputSettings.SaveBackgroundOnly)
+            if (WellKnownFileFormats.IsEqualFormat(WellKnownFileFormats.Greenshot, outputSettings.Format) || outputSettings.SaveBackgroundOnly)
             {
                 // We save the image of the surface, this should not be disposed
                 imageToSave = surface.Image;
@@ -177,7 +177,7 @@ namespace Greenshot.Base.Core
             }
 
             // The following block of modifications should be skipped when saving the greenshot format, no effects or otherwise!
-            if (WellKnownOutputFormats.IsEqualFormat(WellKnownOutputFormats.Greenshot, outputSettings.Format))
+            if (WellKnownFileFormats.IsEqualFormat(WellKnownFileFormats.Greenshot, outputSettings.Format))
             {
                 return disposeImage;
             }
@@ -343,7 +343,7 @@ namespace Greenshot.Base.Core
             SurfaceOutputSettings outputSettings, bool copyPathToClipboard, SynchronizationContext uiContext = null)
         {
             // Check before the file is created, otherwise an empty file is left behind
-            if (WellKnownOutputFormats.IsEqualFormat(WellKnownOutputFormats.Greenshot, outputSettings.Format))
+            if (WellKnownFileFormats.IsEqualFormat(WellKnownFileFormats.Greenshot, outputSettings.Format))
             {
                 throw new NotSupportedException($"The greenshot format needs the surface, use {nameof(Save)} instead.");
             }
@@ -388,24 +388,24 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// Get the registered output format ID for a filename
+        /// Get the registered file format ID for a filename
         /// </summary>
         /// <param name="fullPath">filename (can be a complete path)</param>
-        /// <returns>Output format ID</returns>
+        /// <returns>File format ID</returns>
         public static string FormatForFilename(string fullPath)
         {
             string extension = Path.GetExtension(fullPath)?.TrimStart('.');
-            var registry = SimpleServiceProvider.Current.GetInstance<IOutputFormatRegistry>(true);
-            var fallbackExtension = WellKnownOutputFormats.Png;
+            var registry = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>(true);
+            var fallbackExtension = WellKnownFileFormats.Png;
             if (registry is null)
             {
-                Log.WarnFormat("Output format registry is not available, defaulting to ({0})", fallbackExtension);
+                Log.WarnFormat("File format registry is not available, defaulting to ({0})", fallbackExtension);
                 return fallbackExtension;
             }
             var formatId =  registry.GetByExtension(extension)?.Id;
             if (string.IsNullOrEmpty(formatId))
             {
-                Log.WarnFormat("No output format registered for extension {0}, defaulting to ({1})", extension, fallbackExtension);
+                Log.WarnFormat("No file format registered for extension {0}, defaulting to ({1})", extension, fallbackExtension);
                 return fallbackExtension;
             } 
             return formatId;
@@ -563,7 +563,7 @@ namespace Greenshot.Base.Core
         /// <returns></returns>
         public static string SaveToTmpFile(ISurface surface, SurfaceOutputSettings outputSettings, string destinationPath)
         {
-            string tmpFile = Path.GetRandomFileName() + OutputFormatRegistry.GetPreferredExtensionWithDot(outputSettings.Format);
+            string tmpFile = Path.GetRandomFileName() + FileFormatRegistry.GetPreferredExtensionWithDot(outputSettings.Format);
             // Prevent problems with "other characters", which could cause problems
             tmpFile = Regex.Replace(tmpFile, @"[^\d\w\.]", string.Empty);
             if (destinationPath == null)
@@ -593,7 +593,7 @@ namespace Greenshot.Base.Core
         /// </summary>
         public static string SaveToTmpFile(Image renderedImage, SurfaceOutputSettings outputSettings, string destinationPath)
         {
-            string tmpFile = Path.GetRandomFileName() + OutputFormatRegistry.GetPreferredExtensionWithDot(outputSettings.Format);
+            string tmpFile = Path.GetRandomFileName() + FileFormatRegistry.GetPreferredExtensionWithDot(outputSettings.Format);
             tmpFile = Regex.Replace(tmpFile, @"[^\d\w\.]", string.Empty);
             if (destinationPath == null)
             {

@@ -1,11 +1,11 @@
 using System;
 using System.Linq;
-using Greenshot.Base.Core.OutputFormats;
+using Greenshot.Base.Core.FileFormat;
 using Xunit;
 
 namespace Greenshot.Tests.Core
 {
-    public class OutputFormatRegistryTests
+    public class FileFormatRegistryTests
     {
         [Fact]
         public void Definition_NormalizesIdsExtensionsAndMimeTypes()
@@ -21,7 +21,7 @@ namespace Greenshot.Tests.Core
         [Fact]
         public void Registry_ResolvesIdsExtensionsAndMimeAliasesCaseInsensitively()
         {
-            var registry = new OutputFormatRegistry();
+            var registry = new FileFormatRegistry();
             registry.Register(CreateFormat("webp", new[] { "webp" }, "webp", "image/webp", new[] { "image/x-webp" }));
 
             Assert.True(registry.TryGet("WEBP", out var byId));
@@ -33,7 +33,7 @@ namespace Greenshot.Tests.Core
         [Fact]
         public void RegisterIfMissing_DoesNotReplaceExistingMetadata()
         {
-            var registry = new OutputFormatRegistry();
+            var registry = new FileFormatRegistry();
             var definition = CreateFormat("webp", new[] { "webp" }, "webp", "image/webp", null);
             registry.Register(definition);
 
@@ -47,7 +47,7 @@ namespace Greenshot.Tests.Core
         [Fact]
         public void Register_RejectsExtensionAndMimeConflicts()
         {
-            var registry = new OutputFormatRegistry();
+            var registry = new FileFormatRegistry();
             registry.Register(CreateFormat("webp", new[] { "webp" }, "webp", "image/webp", null));
 
             Assert.Throws<InvalidOperationException>(() => registry.Register(
@@ -64,10 +64,10 @@ namespace Greenshot.Tests.Core
         }
 
         [Fact]
-        public void WellKnownOutputFormats_IsFormat_ValidatesKnownFormatAndComparesCaseInsensitively()
+        public void WellKnownFileFormats_IsFormat_ValidatesKnownFormatAndComparesCaseInsensitively()
         {
-            Assert.True(WellKnownOutputFormats.IsEqualFormat(WellKnownOutputFormats.Png, "PNG"));
-            Assert.False(WellKnownOutputFormats.IsEqualFormat("webp", "webp"));
+            Assert.True(WellKnownFileFormats.IsEqualFormat(WellKnownFileFormats.Png, "PNG"));
+            Assert.False(WellKnownFileFormats.IsEqualFormat("webp", "webp"));
         }
 
         [Fact]
@@ -79,9 +79,9 @@ namespace Greenshot.Tests.Core
             Assert.Equal("WebP image (.webp, .webpx)", format.GetDisplayNameWithSupportedExtensions());
         }
 
-        private static OutputFormatDefinition CreateFormat(string id, string[] extensions, string preferredExtension, string mimeType, string[] mimeAliases)
+        private static FileFormatDefinition CreateFormat(string id, string[] extensions, string preferredExtension, string mimeType, string[] mimeAliases)
         {
-            return new OutputFormatDefinition(id, extensions, preferredExtension, mimeType, mimeAliases, "OutputFormat." + id.ToLowerInvariant(), "WebP image");
+            return new FileFormatDefinition(id, extensions, preferredExtension, mimeType, mimeAliases, "FileFormat." + id.ToLowerInvariant(), "WebP image");
         }
     }
 }
