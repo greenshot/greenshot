@@ -150,9 +150,9 @@ namespace Greenshot.Base.Controls
                 _filterOptions[i] = new FilterOption
                 {
                     FormatId = format.Id,
-                    Extensions = format.Extensions.ToArray(),
+                    Extensions = format.SaveableExtensions.ToArray(),
                     PreferredExtension = format.PreferredExtension,
-                    Label = $"{format.GetDisplayName()} ({string.Join("; ", format.Extensions.Select(extension => "*." + extension))})"
+                    Label = format.GetDisplayName()
                 };
             }
         }

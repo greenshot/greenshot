@@ -39,7 +39,7 @@ public sealed class FileFormatOption
 }
 
 /// <summary>
-/// Provides extension methods for the IFileFormatRegistry interface, allowing retrieval of saveable file formats, display names, and format resolution based on requested or fallback IDs.
+/// Provides extension methods for the IFileFormatRegistry interface, allowing retrieval of loadable and saveable file formats, display names, and format resolution based on requested or fallback IDs.
 /// </summary>
 public static class FileFormatRegistryExtensions
 {
@@ -56,8 +56,26 @@ public static class FileFormatRegistryExtensions
         }
 
         var registeredHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>().ToArray();
-        return registry.Formats.Where(format => format.Extensions.All(extension =>
+        return registry.Formats.Where(format => format.CanSave && format.SaveableExtensions.All(extension =>
             registeredHandlers.Any(handler => handler.Supports(FileFormatHandlerActions.SaveToFile, extension))))
+            .OrderBy(format => format.GetDisplayName());
+    }
+
+    /// <summary>
+    /// Returns a collection of FileFormatDefinition objects that can be opened from files, based on the registered file format handlers in the system.
+    /// </summary>
+    /// <param name="registry"></param>
+    /// <returns>A collection of FileFormatDefinition objects that can be opened from files, ordered by their display names.</returns>
+    public static IEnumerable<FileFormatDefinition> GetLoadableFileFormats(this IFileFormatRegistry registry)
+    {
+        if (registry == null)
+        {
+            return Enumerable.Empty<FileFormatDefinition>();
+        }
+
+        var registeredHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>().ToArray();
+        return registry.Formats.Where(format => format.CanOpen && format.LoadableExtensions.All(extension =>
+            registeredHandlers.Any(handler => handler.Supports(FileFormatHandlerActions.LoadFromFile, extension))))
             .OrderBy(format => format.GetDisplayName());
     }
 
@@ -84,11 +102,18 @@ public static class FileFormatRegistryExtensions
             : $"{format.GetDisplayName()} (.{format.PreferredExtension})";
     }
 
-    public static string GetDisplayNameWithSupportedExtensions(this FileFormatDefinition format)
+    public static string GetDisplayNameWithSaveableExtensions(this FileFormatDefinition format)
     {
         return format == null
             ? null
-            : $"{format.GetDisplayName()} ({string.Join(", ", format.Extensions.Select(extension => "." + extension))})";
+            : $"{format.GetDisplayName()} ({string.Join(", ", format.SaveableExtensions.Select(extension => "." + extension))})";
+    }
+
+    public static string GetDisplayNameWithLoadableExtensions(this FileFormatDefinition format)
+    {
+        return format == null
+            ? null
+            : $"{format.GetDisplayName()} ({string.Join(", ", format.LoadableExtensions.Select(extension => "." + extension))})";
     }
 
     public static IReadOnlyCollection<FileFormatOption> GetSaveableFileFormatOptions(this IFileFormatRegistry registry)

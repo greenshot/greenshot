@@ -27,13 +27,14 @@ using System.Linq;
 namespace Greenshot.Base.Core.FileFormat;
 
 /// <summary>
-/// Represents a definition of a file format, including its ID, file extensions, MIME type, and display name.
+/// Represents a definition of a file format, including loadable and saveable extensions, MIME type, and display name.
 /// </summary>
 public sealed class FileFormatDefinition
 {
     public FileFormatDefinition(
         string id,
-        IEnumerable<string> extensions,
+        IEnumerable<string> loadableExtensions,
+        IEnumerable<string> saveableExtensions,
         string preferredExtension,
         string mimeType,
         IEnumerable<string> mimeTypeAliases,
@@ -46,11 +47,18 @@ public sealed class FileFormatDefinition
         }
 
         Id = id.Trim().ToLowerInvariant();
-        Extensions = NormalizeExtensions(extensions);
-        PreferredExtension = NormalizeExtension(preferredExtension);
-        if (!Extensions.Contains(PreferredExtension, StringComparer.OrdinalIgnoreCase))
+        LoadableExtensions = NormalizeExtensions(loadableExtensions, nameof(loadableExtensions));
+        SaveableExtensions = NormalizeExtensions(saveableExtensions, nameof(saveableExtensions));
+        if (LoadableExtensions.Count == 0 && SaveableExtensions.Count == 0)
         {
-            throw new ArgumentException("The preferred extension must be registered in Extensions.", nameof(preferredExtension));
+            throw new ArgumentException("At least one loadable or saveable extension is required.", nameof(loadableExtensions));
+        }
+
+        PreferredExtension = NormalizeExtension(preferredExtension);
+        IReadOnlyCollection<string> preferredExtensionList = SaveableExtensions.Count > 0 ? SaveableExtensions : LoadableExtensions;
+        if (!preferredExtensionList.Contains(PreferredExtension, StringComparer.OrdinalIgnoreCase))
+        {
+            throw new ArgumentException("The preferred extension must be saveable, or loadable when no saveable extensions exist.", nameof(preferredExtension));
         }
 
         MimeType = NormalizeMimeType(mimeType, nameof(mimeType));
@@ -76,7 +84,9 @@ public sealed class FileFormatDefinition
 
     public string Id { get; }
 
-    public IReadOnlyCollection<string> Extensions { get; }
+    public IReadOnlyCollection<string> LoadableExtensions { get; }
+
+    public IReadOnlyCollection<string> SaveableExtensions { get; }
 
     public string PreferredExtension { get; }
 
@@ -88,20 +98,20 @@ public sealed class FileFormatDefinition
 
     public string FallbackDisplayName { get; }
 
-    private static IReadOnlyCollection<string> NormalizeExtensions(IEnumerable<string> extensions)
+    public bool CanSave => SaveableExtensions.Count > 0;
+
+    public bool CanOpen => LoadableExtensions.Count > 0;
+
+    private static IReadOnlyCollection<string> NormalizeExtensions(IEnumerable<string> extensions, string parameterName)
     {
         if (extensions == null)
         {
-            throw new ArgumentNullException(nameof(extensions));
+            throw new ArgumentNullException(parameterName);
         }
 
         var normalized = extensions.Select(extension => NormalizeExtension(extension))
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToArray();
-        if (normalized.Length == 0)
-        {
-            throw new ArgumentException("At least one extension is required.", nameof(extensions));
-        }
 
         return new ReadOnlyCollection<string>(normalized);
     }

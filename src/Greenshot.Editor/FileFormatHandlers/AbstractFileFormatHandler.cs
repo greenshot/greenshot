@@ -52,14 +52,15 @@ namespace Greenshot.Editor.FileFormatHandlers
         protected static void RegisterFileFormat(
             IFileFormatRegistry registry, 
             string formatId,
-            IEnumerable<string> extensions,
+            IEnumerable<string> loadableExtensions,
+            IEnumerable<string> saveableExtensions,
             string preferredExtension,
             string mimeType,
             IEnumerable<string> mimeTypeAliases,
             string displayNameResourceKey,
             string fallbackDisplayName)
         {
-            registry.RegisterIfMissing(new FileFormatDefinition(formatId, extensions, preferredExtension, mimeType, mimeTypeAliases, displayNameResourceKey, fallbackDisplayName));
+            registry.RegisterIfMissing(new FileFormatDefinition(formatId, loadableExtensions, saveableExtensions, preferredExtension, mimeType, mimeTypeAliases, displayNameResourceKey, fallbackDisplayName));
         }
 
         /// <summary>

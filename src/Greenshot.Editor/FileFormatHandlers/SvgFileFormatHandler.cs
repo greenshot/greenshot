@@ -52,14 +52,13 @@ namespace Greenshot.Editor.FileFormatHandlers
 
         public override void RegisterFileFormats(IFileFormatRegistry registry)
         {
-            RegisterFileFormat(registry,"svg", [".svg"], "svg", "image/svg+xml", null, "output_format_display_name_svg", "Scalable Vector Graphics Image File");
+            RegisterFileFormat(registry, "svg", _ourExtensions, Array.Empty<string>(), "svg", "image/svg+xml", null, "output_format_display_name_svg", "Scalable Vector Graphics Image File");
         }
 
         public SvgFileFormatHandler()
         {
             SupportedExtensions[FileFormatHandlerActions.LoadDrawableFromStream] = _ourExtensions;
             SupportedExtensions[FileFormatHandlerActions.LoadFromStream] = _ourExtensions;
-            SupportedExtensions[FileFormatHandlerActions.SaveToFile] = _ourExtensions;
             SupportedExtensions[FileFormatHandlerActions.LoadFromFile] = _ourExtensions;
         }
 

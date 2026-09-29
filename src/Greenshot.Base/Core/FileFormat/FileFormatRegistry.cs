@@ -165,7 +165,7 @@ public sealed class FileFormatRegistry : IFileFormatRegistry
             throw new InvalidOperationException($"File format '{format.Id}' is already registered.");
         }
 
-        foreach (string extension in format.Extensions)
+        foreach (string extension in GetExtensions(format))
         {
             if (_formatsByExtension.TryGetValue(extension, out var existing))
             {
@@ -186,15 +186,19 @@ public sealed class FileFormatRegistry : IFileFormatRegistry
     {
         _formats.Add(format);
         _formatsById.Add(format.Id, format);
-        foreach (string extension in format.Extensions)
+        foreach (string extension in GetExtensions(format))
         {
             _formatsByExtension.Add(extension, format);
         }
-
         foreach (string mimeType in GetMimeTypes(format))
         {
             _formatsByMimeType.Add(mimeType, format);
         }
+    }
+
+    private static IEnumerable<string> GetExtensions(FileFormatDefinition format)
+    {
+        return format.LoadableExtensions.Concat(format.SaveableExtensions).Distinct(StringComparer.OrdinalIgnoreCase);
     }
 
     private static IEnumerable<string> GetMimeTypes(FileFormatDefinition format)
@@ -213,7 +217,8 @@ public sealed class FileFormatRegistry : IFileFormatRegistry
                string.Equals(left.MimeType, right.MimeType, StringComparison.OrdinalIgnoreCase) &&
                string.Equals(left.DisplayNameResourceKey, right.DisplayNameResourceKey, StringComparison.Ordinal) &&
                string.Equals(left.FallbackDisplayName, right.FallbackDisplayName, StringComparison.Ordinal) &&
-               left.Extensions.OrderBy(value => value, StringComparer.OrdinalIgnoreCase).SequenceEqual(right.Extensions.OrderBy(value => value, StringComparer.OrdinalIgnoreCase), StringComparer.OrdinalIgnoreCase) &&
+               left.LoadableExtensions.OrderBy(value => value, StringComparer.OrdinalIgnoreCase).SequenceEqual(right.LoadableExtensions.OrderBy(value => value, StringComparer.OrdinalIgnoreCase), StringComparer.OrdinalIgnoreCase) &&
+               left.SaveableExtensions.OrderBy(value => value, StringComparer.OrdinalIgnoreCase).SequenceEqual(right.SaveableExtensions.OrderBy(value => value, StringComparer.OrdinalIgnoreCase), StringComparer.OrdinalIgnoreCase) &&
                left.MimeTypeAliases.OrderBy(value => value, StringComparer.OrdinalIgnoreCase).SequenceEqual(right.MimeTypeAliases.OrderBy(value => value, StringComparer.OrdinalIgnoreCase), StringComparer.OrdinalIgnoreCase);
     }
 
