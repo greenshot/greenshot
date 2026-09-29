@@ -14,7 +14,7 @@
       <SbomVersion Condition="'$(SbomVersion)' == ''">$(BuildVersionSimple)</SbomVersion>
       <SbomVersion Condition="'$(SbomVersion)' == ''">1.0.0</SbomVersion>
     </PropertyGroup>
-    <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -Command &quot;&amp; '$(MSBuildThisFileDirectory)scripts\generate-sboms.ps1' -SolutionDir '$(SolutionDir)' -Configuration '$(Configuration)' -TargetFramework '$(TargetFramework)' -SbomVersion '$(SbomVersion)'&quot;" />
+    <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -Command &quot;&amp; '$(MSBuildThisFileDirectory)scripts\generate-sboms.ps1' -SolutionDir '$(SolutionDir)' -Configuration '$(Configuration)' -TargetFramework '$(TargetFramework)' -SbomVersion '$(SbomVersion)'&quot;" StdOutEncoding="UTF-8" StdErrEncoding="UTF-8"/>
     <ItemGroup>
       <SpdxManifestFiles Include="$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\_manifest\**\manifest.spdx.json*" />
     </ItemGroup>
