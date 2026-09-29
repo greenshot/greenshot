@@ -38,6 +38,7 @@ using Greenshot.Destinations;
 using Greenshot.Editor.Destinations;
 using Greenshot.UI;
 using log4net;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Pipeline.Steps
 {
@@ -139,7 +140,19 @@ namespace Greenshot.Pipeline.Steps
                         lastError,
                         timeoutSeconds);
 
-                    window.ShowDialog();
+                    // A cancelled flow closes the flyout, the close is posted to the UI thread
+                    using (cancellationToken.Register(() => context.Ui.InvokeAsync(() =>
+                           {
+                               if (window.IsVisible)
+                               {
+                                   window.Close();
+                               }
+                           }, CancellationToken.None).FireAndLog("Close the destination flyout", Log)))
+                    {
+                        window.ShowDialog();
+                    }
+
+                    cancellationToken.ThrowIfCancellationRequested();
                     return (window.SelectedDestination, window.SelectedRecipeToForward, window.OpenInEditorRequested);
                 }, cancellationToken).ConfigureAwait(false);
             }

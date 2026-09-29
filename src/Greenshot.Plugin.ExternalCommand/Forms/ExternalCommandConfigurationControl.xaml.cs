@@ -624,7 +624,12 @@ public class ExternalCommandItemViewModel : INotifyPropertyChanged
             var icon = await IconCache.IconForCommandAsync(_name);
             if (icon != null)
             {
-                Icon = icon.ToBitmapSource();
+                // Cached icons are shared, GDI+ images are not thread safe
+                lock (icon)
+                {
+                    Icon = icon.ToBitmapSource();
+                }
+
                 return;
             }
         }
@@ -642,7 +647,12 @@ public class ExternalCommandItemViewModel : INotifyPropertyChanged
                 var icon = await PluginUtils.GetCachedExeIconAsync(expanded, 0);
                 if (icon != null)
                 {
-                    Icon = icon.ToBitmapSource();
+                    // Cached icons are shared, GDI+ images are not thread safe
+                    lock (icon)
+                    {
+                        Icon = icon.ToBitmapSource();
+                    }
+
                     return;
                 }
             }
@@ -657,7 +667,12 @@ public class ExternalCommandItemViewModel : INotifyPropertyChanged
             var icon = await WindowsAppHelper.GetAppLogoAsync(_commandLine, _name);
             if (icon != null)
             {
-                Icon = icon.ToBitmapSource();
+                // Cached icons are shared, GDI+ images are not thread safe
+                lock (icon)
+                {
+                    Icon = icon.ToBitmapSource();
+                }
+
                 return;
             }
         }

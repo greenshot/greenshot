@@ -87,8 +87,11 @@ namespace Greenshot.Base.Core.Export
             try
             {
                 var image = await RenderLockedAsync(settings, cancellationToken).ConfigureAwait(false);
+                // Every lease gets its own copy: GDI+ images can't be used by two threads at the same time (parallel branches),
+                // and the lease stays valid when this source is disposed
+                var copy = ImageHelper.Clone(image);
                 Interlocked.Increment(ref _openLeases);
-                return new ImageLease(image, this);
+                return new ImageLease(copy, this);
             }
             finally
             {
@@ -116,12 +119,34 @@ namespace Greenshot.Base.Core.Export
             else
             {
                 // Render the surface once, on the UI thread: this source owns the result
-                _exportImage ??= await _ui.InvokeAsync(() => _surface.GetImageForExport(), cancellationToken).ConfigureAwait(false);
+                if (_exportImage == null)
+                {
+                    var exportImage = await _ui.InvokeAsync(() => _surface.GetImageForExport(), cancellationToken).ConfigureAwait(false);
+                    if (_disposed)
+                    {
+                        // Disposed while rendering
+                        exportImage.Dispose();
+                        ThrowIfDisposed();
+                    }
+
+                    _exportImage = exportImage;
+                }
+
                 baseImage = _exportImage;
                 ownsBaseImage = false;
             }
 
             ImageIO.CreateImageForOutput(baseImage, ownsBaseImage, settings, out var rendered);
+            if (_disposed)
+            {
+                // Disposed while rendering
+                if (!ReferenceEquals(rendered, _exportImage))
+                {
+                    rendered.Dispose();
+                }
+
+                ThrowIfDisposed();
+            }
             if (key != null)
             {
                 _renders[key] = rendered;
@@ -233,6 +258,8 @@ namespace Greenshot.Base.Core.Export
         {
             private SurfaceExportSource _owner;
 
+            /// <param name="image">the copy for this lease, the lease owns (disposes) it</param>
+            /// <param name="owner">the source, which counts the open leases</param>
             public ImageLease(Image image, SurfaceExportSource owner)
             {
                 Image = image;
@@ -245,6 +272,7 @@ namespace Greenshot.Base.Core.Export
             {
                 var owner = Interlocked.Exchange(ref _owner, null);
                 if (owner == null) return;
+                Image?.Dispose();
                 Image = null;
                 Interlocked.Decrement(ref owner._openLeases);
             }

@@ -137,29 +137,28 @@ public abstract class AsyncMemoryCache<TKey, TResult> where TResult : class
                 return await result.ConfigureAwait(false);
             }
 
-            // Now, start the creation, which will set the completionSource with the correct response (it never throws, the task is observed)
-            FillAsync().FireAndLog("Fill the async memory cache");
-
-            async Task FillAsync()
-            {
-                try
-                {
-                    var backgroundResult = await CreateAsync(keyObject, cancellationToken).ConfigureAwait(false);
-                    completionSource.TrySetResult(backgroundResult);
-                }
-                catch (OperationCanceledException)
-                {
-                    completionSource.TrySetCanceled(cancellationToken);
-                }
-                catch (Exception ex)
-                {
-                    completionSource.TrySetException(ex);
-                }
-            }
         }
         finally
         {
             _semaphoreSlim.Release();
+        }
+
+        // Our task is in the cache: start the creation outside of the semaphore, it sets the completionSource
+        try
+        {
+            var backgroundResult = await CreateAsync(keyObject, cancellationToken).ConfigureAwait(false);
+            completionSource.TrySetResult(backgroundResult);
+        }
+        catch (OperationCanceledException)
+        {
+            // Don't cache a cancellation or failure, the next call tries again
+            _cache.Remove(key);
+            completionSource.TrySetCanceled(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _cache.Remove(key);
+            completionSource.TrySetException(ex);
         }
 
         return await completionSource.Task.ConfigureAwait(false);

@@ -50,7 +50,7 @@ namespace Greenshot.Destinations
 
             while (true)
             {
-                var picked = await request.Ui.PickDestinationAsync(destinations, cancellationToken).ConfigureAwait(false);
+                var picked = await request.Ui.PickDestinationAsync(destinations, request.Metadata, cancellationToken).ConfigureAwait(false);
                 if (picked == null)
                 {
                     return ExportResult.Declined;

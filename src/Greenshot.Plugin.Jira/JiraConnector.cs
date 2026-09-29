@@ -34,6 +34,7 @@ using Dapplo.Jira.SvgWinForms.Converters;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Dapplo.Ini;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Plugin.Jira;
 
@@ -153,6 +154,8 @@ public sealed class JiraConnector : IDisposable
     public async Task LoginAsync(CancellationToken cancellationToken = default)
     {
         Logout();
+        // The credentials dialog is modal UI, it is shown on the UI thread
+        var ui = UiDispatcher.Current;
         try
         {
             // Get the system name, so the user knows where to login to
@@ -160,9 +163,9 @@ public sealed class JiraConnector : IDisposable
             {
                 Name = null
             };
-            while (credentialsDialog.Show(credentialsDialog.Name) == DialogResult.OK)
+            while (await ui.InvokeAsync(() => credentialsDialog.Show(credentialsDialog.Name), cancellationToken).ConfigureAwait(false) == DialogResult.OK)
             {
-                if (await DoLoginAsync(credentialsDialog.Name, credentialsDialog.Password, cancellationToken))
+                if (await DoLoginAsync(credentialsDialog.Name, credentialsDialog.Password, cancellationToken).ConfigureAwait(false))
                 {
                     if (credentialsDialog.SaveChecked)
                     {
@@ -209,14 +212,14 @@ public sealed class JiraConnector : IDisposable
 
     /// <summary>
     /// check the login credentials, to prevent timeouts of the session, or makes a login
-    /// Do not use ConfigureAwait to call this, as it will move await from the UI thread.
+    /// The login marshals its dialog to the UI thread, so this can be called from any thread.
     /// </summary>
     /// <returns></returns>
     private async Task CheckCredentialsAsync(CancellationToken cancellationToken = default)
     {
         if (!IsLoggedIn)
         {
-            await LoginAsync(cancellationToken);
+            await LoginAsync(cancellationToken).ConfigureAwait(false);
         }
     }
 

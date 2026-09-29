@@ -211,18 +211,30 @@ namespace Greenshot.Base.Controls
                 }
 
                 menu.Tag = destination?.Designation ?? "closed";
-                // We might be in the closing process, dispose later to avoid re-entrancy
-                menu.BeginInvoke(new Action(() =>
+                CloseLater();
+            }
+
+            void CloseLater()
+            {
+                // We might be in the closing process, dispose later (on the UI thread) to avoid re-entrancy
+                UiDispatcher.Current.InvokeAsync(() =>
                 {
                     if (!menu.IsDisposed)
                     {
+                        menu.Tag ??= "cancelled";
                         menu.Close();
                         menu.Dispose();
                     }
-                }));
+                }, CancellationToken.None).FireAndLog("Close the destination picker", Log);
             }
 
-            var registration = cancellationToken.Register(() => picked.TrySetCanceled(cancellationToken));
+            var registration = cancellationToken.Register(() =>
+            {
+                if (picked.TrySetCanceled(cancellationToken))
+                {
+                    CloseLater();
+                }
+            });
             _ = picked.Task.ContinueWith(_ => registration.Dispose(), TaskScheduler.Default);
 
             menu.Opening += (_, _) =>

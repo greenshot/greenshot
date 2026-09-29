@@ -77,20 +77,38 @@ namespace Greenshot.Helpers
 
             // Store the list of currently active windows, so we can make sure we show the email window later!
             var windowsBefore = WindowDetails.GetVisibleWindows();
-            var mailTask = StaWorkers.Get("MAPI").RunAsync(message.ShowMail, CancellationToken.None);
+            // Every mail gets its own STA worker: MAPISendMail blocks until the compose dialog closes, a second mail mustn't wait for it
+            var worker = new StaWorker("MAPI mail");
+            var mailTask = worker.RunAsync(message.ShowMail, CancellationToken.None);
             // The message owns its interop allocations until the MAPI call returned
-            _ = mailTask.ContinueWith(t =>
-            {
-                message.Dispose();
-                if (t.IsFaulted)
-                {
-                    Log.Error("Error sending the MAPI e-mail", t.Exception?.GetBaseException());
-                }
-            }, CancellationToken.None, TaskContinuationOptions.None, TaskScheduler.Default);
+            CleanupAsync().FireAndLog("MAPI e-mail", Log);
 
             // Only wait until the message was handed to MAPI, not for the dialog
-            await Task.WhenAny(message._messageHandedOver.Task, mailTask).WaitAsync(TimeSpan.FromSeconds(60), cancellationToken).ConfigureAwait(false);
+            var completed = await Task.WhenAny(message._messageHandedOver.Task, mailTask).WaitAsync(TimeSpan.FromSeconds(60), cancellationToken).ConfigureAwait(false);
+            if (completed == mailTask)
+            {
+                // The call ended before the hand-over: propagate its failure
+                await mailTask.ConfigureAwait(false);
+            }
+
             WindowDetails.ActiveNewerWindows(windowsBefore);
+
+            async Task CleanupAsync()
+            {
+                try
+                {
+                    await mailTask.ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error("Error sending the MAPI e-mail", ex);
+                }
+                finally
+                {
+                    message.Dispose();
+                    await worker.DisposeAsync().ConfigureAwait(false);
+                }
+            }
         }
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]

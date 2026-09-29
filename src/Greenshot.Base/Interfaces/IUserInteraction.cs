@@ -51,8 +51,9 @@ namespace Greenshot.Base.Interfaces
 
         /// <summary>
         /// Let the user pick one of the destinations (the destination picker), null when the user declined.
+        /// The capture details decide which (dynamic) destinations are available.
         /// </summary>
-        Task<IDestination> PickDestinationAsync(IReadOnlyList<IDestination> choices, CancellationToken cancellationToken);
+        Task<IDestination> PickDestinationAsync(IReadOnlyList<IDestination> choices, ICaptureDetails captureDetails, CancellationToken cancellationToken);
 
         /// <summary>
         /// Show the dialog for the view model (the view is registered by whoever owns it, see IDialogViewRegistry),

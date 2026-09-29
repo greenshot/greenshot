@@ -37,6 +37,7 @@ using Greenshot.Base.Recipes;
 using Greenshot.UI;
 using log4net;
 using Newtonsoft.Json.Linq;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Pipeline.Steps
 {
@@ -102,7 +103,19 @@ namespace Greenshot.Pipeline.Steps
                 chosenKey = await context.Ui.InvokeAsync(() =>
                 {
                     var promptWindow = new RecipeUserPromptWindow(title, message, choices, previewImg, timeoutSeconds, defaultChoice);
-                    promptWindow.ShowDialog();
+                    // A cancelled flow closes the prompt, the close is posted to the UI thread
+                    using (cancellationToken.Register(() => context.Ui.InvokeAsync(() =>
+                           {
+                               if (promptWindow.IsVisible)
+                               {
+                                   promptWindow.Close();
+                               }
+                           }, CancellationToken.None).FireAndLog("Close the user prompt", Log)))
+                    {
+                        promptWindow.ShowDialog();
+                    }
+
+                    cancellationToken.ThrowIfCancellationRequested();
                     return promptWindow.SelectedChoiceKey ?? defaultChoice ?? (choices.FirstOrDefault()?.Key ?? "Yes");
                 }, cancellationToken).ConfigureAwait(false);
             }

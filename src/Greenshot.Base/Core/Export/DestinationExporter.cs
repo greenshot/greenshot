@@ -70,12 +70,13 @@ namespace Greenshot.Base.Core.Export
                 Log.InfoFormat("Export to {0}: {1}", destination.Designation, result);
                 return result;
             }
-            catch (OperationCanceledException)
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
                 throw;
             }
             catch (Exception ex)
             {
+                // Also an OperationCanceledException which isn't ours, e.g. an HTTP timeout
                 Log.Error($"Export to {destination.Designation} failed", ex);
                 return ExportResult.Failed(ex.Message, ex);
             }

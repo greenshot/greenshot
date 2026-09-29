@@ -100,7 +100,7 @@ public static class BoxUtils
                     return null;
                 }
 
-                putRequest.Content = new StringContent("{\"shared_link\": {\"access\": \"open\"}}", Encoding.UTF8);
+                putRequest.Content = new StringContent("{\"shared_link\": {\"access\": \"open\"}}", Encoding.UTF8, "application/json");
                 string filesResponse = await NetworkHelper.SendAsync(putRequest, cancellationToken).ConfigureAwait(false);
                 var file = JsonSerializer.Deserialize<FileEntry>(filesResponse);
                 return file.SharedLink.Url;

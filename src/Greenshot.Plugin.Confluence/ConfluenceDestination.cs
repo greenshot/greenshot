@@ -153,33 +153,41 @@ public class ConfluenceDestination : DestinationBase
     public override async Task<ExportResult> ExportAsync(ExportRequest request, CancellationToken cancellationToken)
     {
         var connector = ConfluencePlugin.ConfluenceConnector;
-        // force password check to take place before the pages load
-        if (!await connector.EnsureLoggedInAsync(cancellationToken).ConfigureAwait(false))
-        {
-            return ExportResult.Declined;
-        }
-
         Page selectedPage = _page;
         bool openPage = (_page == null) && ConfluenceConfig.OpenPageAfterUpload;
         string filename = FilenameHelper.GetFilenameWithoutExtensionFromPattern(CoreConfig.OutputFileFilenamePattern, request.Metadata);
-        if (selectedPage == null)
+        try
         {
-            // Everything the dialog shows is loaded before it opens, the dialog itself only loads the page tree
-            var currentPages = await ConfluenceUtils.GetCurrentPagesAsync(cancellationToken).ConfigureAwait(false);
-            var spaces = await connector.GetSpaceSummariesAsync(cancellationToken).ConfigureAwait(false);
-            var choice = await request.Ui.ShowDialogAsync(new ConfluenceUploadRequest(filename, currentPages, spaces), cancellationToken).ConfigureAwait(false);
-            if (choice?.Page == null)
+            // force password check to take place before the pages load
+            if (!await connector.EnsureLoggedInAsync(cancellationToken).ConfigureAwait(false))
             {
                 return ExportResult.Declined;
             }
 
-            selectedPage = choice.Page;
-            if (choice.IsOpenPageSelected)
+            if (selectedPage == null)
             {
-                openPage = false;
-            }
+                // Everything the dialog shows is loaded before it opens, the dialog itself only loads the page tree
+                var currentPages = await ConfluenceUtils.GetCurrentPagesAsync(cancellationToken).ConfigureAwait(false);
+                var spaces = await connector.GetSpaceSummariesAsync(cancellationToken).ConfigureAwait(false);
+                var choice = await request.Ui.ShowDialogAsync(new ConfluenceUploadRequest(filename, currentPages, spaces), cancellationToken).ConfigureAwait(false);
+                if (choice?.Page == null)
+                {
+                    return ExportResult.Declined;
+                }
 
-            filename = choice.Filename;
+                selectedPage = choice.Page;
+                if (choice.IsOpenPageSelected)
+                {
+                    openPage = false;
+                }
+
+                filename = choice.Filename;
+            }
+        }
+        catch (Exception e) when (e is not OperationCanceledException)
+        {
+            Log.Error("Connecting to Confluence failed", e);
+            return ExportResult.Failed(e.Message, e);
         }
 
         string extension = "." + ConfluenceConfig.UploadFormat;

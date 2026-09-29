@@ -1115,6 +1115,18 @@ namespace Greenshot.Editor.Drawing
                 }
             }
 
+            if (IsDisposed)
+            {
+                // The editor was closed during the download
+                downloaded?.Dispose();
+                foreach (var fallbackContainer in fallbackContainers)
+                {
+                    fallbackContainer?.Dispose();
+                }
+
+                return;
+            }
+
             if (downloaded == null)
             {
                 AddDrawables(fallbackContainers, fallbackLocation, fit, select);
@@ -1212,7 +1224,29 @@ namespace Greenshot.Editor.Drawing
         /// Call on the UI thread: the effect is calculated on the thread pool with a copy of the image (a progress dialog
         /// shows when it takes longer), the result is applied on the UI thread.
         /// </remarks>
+        private bool _effectRunning;
+
         public async Task ApplyBitmapEffectAsync(IEffect effect, CancellationToken cancellationToken = default)
+        {
+            if (_effectRunning)
+            {
+                // One effect at a time, the next would work on the image without the running effect
+                LOG.Info("An effect is still running, ignoring " + effect?.GetType().Name);
+                return;
+            }
+
+            _effectRunning = true;
+            try
+            {
+                await ApplyBitmapEffectCoreAsync(effect, cancellationToken);
+            }
+            finally
+            {
+                _effectRunning = false;
+            }
+        }
+
+        private async Task ApplyBitmapEffectCoreAsync(IEffect effect, CancellationToken cancellationToken)
         {
             var sourceImage = ImageHelper.Clone(Image);
             var matrix = new Matrix();
@@ -1236,6 +1270,14 @@ namespace Greenshot.Editor.Drawing
             }
 
             sourceImage.Dispose();
+            if (IsDisposed)
+            {
+                // The editor was closed in the meantime
+                newImage?.Dispose();
+                matrix.Dispose();
+                return;
+            }
+
             // Back on the UI thread
             ApplyEffectResult(newImage, matrix);
         }

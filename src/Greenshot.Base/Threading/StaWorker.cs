@@ -117,16 +117,16 @@ namespace Greenshot.Base.Threading
 
             var context = await _ready.Task.ConfigureAwait(false);
             var tcs = Tcs.Create<T>();
-            int started = 0;
+            // 0: queued, 1: running, 2: abandoned before it started
+            int state = 0;
             context.Post(_ =>
             {
-                if (cancellationToken.IsCancellationRequested)
+                if (cancellationToken.IsCancellationRequested || Interlocked.CompareExchange(ref state, 1, 0) != 0)
                 {
                     tcs.TrySetCanceled(cancellationToken);
                     return;
                 }
 
-                Interlocked.Exchange(ref started, 1);
                 using var watchdog = new System.Threading.Timer(_ => Log.WarnFormat("STA worker '{0}': a call is running for more than {1:0} s", Name, _watchdogTimeout.TotalSeconds),
                     null, _watchdogTimeout, Timeout.InfiniteTimeSpan);
                 try
@@ -143,7 +143,7 @@ namespace Greenshot.Base.Threading
             {
                 return await tcs.Task.WaitAsync(cancellationToken).ConfigureAwait(false);
             }
-            catch (OperationCanceledException) when (Volatile.Read(ref started) == 1 && !tcs.Task.IsCompleted)
+            catch (OperationCanceledException) when (Interlocked.CompareExchange(ref state, 2, 0) == 1 && !tcs.Task.IsCompleted)
             {
                 // The call is still running on the STA thread and can't be aborted: stop using this worker.
                 Log.WarnFormat("STA worker '{0}': a running call was abandoned, the worker will be replaced.", Name);

@@ -28,6 +28,7 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Configuration;
 using log4net;
 using Greenshot.Base.Threading;
+using System.Threading;
 
 namespace Greenshot.Helpers
 {
@@ -67,10 +68,14 @@ namespace Greenshot.Helpers
         /// modified at runtime to ensure the application state remains consistent.</remarks>
         public static void ReloadConfig()
         {
+            // Hotkeys and the UI belong to the UI thread: runs inline there, otherwise posted to it
+            UiDispatcher.Current.RunOnUiAsync(ReloadConfigOnUi, CancellationToken.None).FireAndLog("Reload the configuration", LOG);
+        }
+
+        private static void ReloadConfigOnUi()
+        {
             try
             {
-                // Called on the UI thread (the IPC dispatcher marshals it)
-                UiDispatcher.Current.VerifyAccess();
                 // Make sure the current hotkeys are disabled
                 HotkeyManager.UnregisterHotkeys();
                 IniConfigRegistry.Get().Reload();

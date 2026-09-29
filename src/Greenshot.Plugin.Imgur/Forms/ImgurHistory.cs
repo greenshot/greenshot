@@ -43,15 +43,31 @@ public sealed partial class ImgurHistory : ImgurForm
     private static readonly IImgurConfiguration Config = IniConfigHelper.EnsureSection<IImgurConfiguration>(() => new ImgurConfigurationImpl());
     private static ImgurHistory _instance;
 
+    // Only accessed on the UI thread: a second request while the history loads is ignored
+    private static bool _isLoading;
+
     /// <summary>
     /// Load the history (if needed) and show it, call on the UI thread.
     /// </summary>
     public static async Task ShowHistoryAsync()
     {
+        if (_isLoading)
+        {
+            return;
+        }
+
         if (ImgurUtils.IsHistoryLoadingNeeded())
         {
-            await UserInteraction.Current.RunWithProgressAsync("Imgur " + Language.GetString("imgur", LangKey.history),
-                (progress, token) => ImgurUtils.LoadHistoryAsync(token), CancellationToken.None);
+            _isLoading = true;
+            try
+            {
+                await UserInteraction.Current.RunWithProgressAsync("Imgur " + Language.GetString("imgur", LangKey.history),
+                    (progress, token) => ImgurUtils.LoadHistoryAsync(token), CancellationToken.None);
+            }
+            finally
+            {
+                _isLoading = false;
+            }
         }
 
         // Make sure the history is loaded, will be done only once

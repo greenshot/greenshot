@@ -37,6 +37,7 @@ using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Pipeline;
 using Greenshot.Base.Recipes;
 using log4net;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Helpers
 {
@@ -116,7 +117,8 @@ namespace Greenshot.Helpers
                 using var timeoutSource = new CancellationTokenSource(timeout);
                 try
                 {
-                    await plugin.StopAsync(timeoutSource.Token);
+                    // A plugin which ignores the cancellation doesn't hold up the exit
+                    await plugin.StopAsync(timeoutSource.Token).WaitAsync(timeout);
                 }
                 catch (Exception ex)
                 {
@@ -125,7 +127,7 @@ namespace Greenshot.Helpers
 
                 try
                 {
-                    await plugin.DisposeAsync();
+                    await plugin.DisposeAsync().AsTask().WaitAsync(timeout);
                 }
                 catch (Exception ex)
                 {

@@ -634,13 +634,14 @@ namespace Greenshot.Forms
 
             if (e.CloseReason is CloseReason.WindowsShutDown or CloseReason.TaskManagerClosing)
             {
-                // No time to wait for flows or plugins, clean up what is essential
+                // No time to wait for flows, clean up what is essential: the plugins stop synchronously as far as they can
                 if (Interlocked.CompareExchange(ref _shutdownState, 1, 0) == 0)
                 {
                     ShutdownUi();
+                    PluginHelper.Instance.ShutdownAsync(TimeSpan.FromSeconds(1)).FireAndLog("Stop the plugins", Log);
                 }
 
-                ShutdownCleanup();
+                ShutdownCleanup(false);
                 return;
             }
 
@@ -1625,14 +1626,15 @@ namespace Greenshot.Forms
 
             try
             {
-                await StaWorkers.DisposeAsync();
+                // A COM call which hangs keeps its worker busy, don't wait for it forever
+                await StaWorkers.DisposeAsync().AsTask().WaitAsync(ShutdownTimeout);
             }
             catch (Exception e)
             {
                 Log.Error("Error stopping the STA workers!", e);
             }
 
-            ShutdownCleanup();
+            ShutdownCleanup(true);
         }
 
         /// <summary>
@@ -1694,11 +1696,16 @@ namespace Greenshot.Forms
         }
 
         /// <summary>
-        /// The last part of the shutdown, closes the application.
+        /// The last part of the shutdown (runs once), closes the application.
         /// </summary>
-        private void ShutdownCleanup()
+        /// <param name="exitApplication">false when the application is already closing (FormClosing)</param>
+        private void ShutdownCleanup(bool exitApplication)
         {
-            Interlocked.Exchange(ref _shutdownState, 2);
+            if (Interlocked.Exchange(ref _shutdownState, 2) == 2)
+            {
+                return;
+            }
+
             ImageIO.RemoveTmpFiles();
 
             _uiStallWatchdog?.Dispose();
@@ -1712,6 +1719,11 @@ namespace Greenshot.Forms
                 notifyIcon.Visible = false;
                 notifyIcon.Dispose();
                 notifyIcon = null;
+            }
+
+            if (!exitApplication)
+            {
+                return;
             }
 
             // Graceful shutdown, the message loop ends

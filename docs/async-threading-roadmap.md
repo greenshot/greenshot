@@ -623,3 +623,7 @@ Done when: no plugin references WinForms/WPF types through the plugin contract, 
 | 2026-09-29 | Editor/capture form extension points (`IEditorPlugin`, `IFeatureHotspotTransformer`) keep their WinForms types until the document/view split of the imaging roadmap |
 | 2026-09-29 | Justified dedicated threads: `IStaWorker`, the WASAPI real-time capture loop, and the crash report of a terminating process (its UI thread may be the problem) |
 | 2026-09-29 | Phases 0–3 and 5 done on one branch; VSTHRD, RS0030, CA2016, CA2012 and CA2007 (library folders) are errors |
+| 2026-09-29 | Recording finalization on suspend is fire-and-log, not a bounded wait: the SystemEvents callback can run on the UI thread, blocking it would stall the message pump that the finalization may need |
+| 2026-09-29 | Cancelling an export closes what it opened: the progress dialog, the destination picker menu and the pipeline prompt/flyout windows close when their token is cancelled, and closing a progress dialog cancels its work |
+| 2026-09-29 | Upload steps (Imgur, Box, Dropbox) log a failed upload to the flow log and let the flow continue; destinations report it as `ExportResult.Failed` |
+| 2026-09-29 | Async caches never keep a failed or cancelled task: the next request retries |

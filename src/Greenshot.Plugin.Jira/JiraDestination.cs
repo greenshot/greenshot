@@ -140,7 +140,7 @@ public sealed class JiraIconProvider : IIconProvider
 public class JiraDestination : DestinationBase
 {
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(JiraDestination));
-    private static readonly IJiraConfiguration Config = IniConfigRegistry.GetSection<IJiraConfiguration>();
+    private static IJiraConfiguration Config => IniConfigRegistry.GetSection<IJiraConfiguration>();
     private readonly IssueV2 _jiraIssue;
 
     public JiraDestination(IssueV2 jiraIssue = null)

@@ -52,7 +52,7 @@ namespace Greenshot.Base.Core
             return Task.FromResult(current);
         }
 
-        public Task<IDestination> PickDestinationAsync(IReadOnlyList<IDestination> choices, CancellationToken cancellationToken)
+        public Task<IDestination> PickDestinationAsync(IReadOnlyList<IDestination> choices, ICaptureDetails captureDetails, CancellationToken cancellationToken)
         {
             throw new InteractionRequiredException("Destination picker");
         }

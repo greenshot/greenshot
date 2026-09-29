@@ -68,7 +68,19 @@ namespace Greenshot.Plugin.Dropbox
             Log.Info("DropboxStep: Executing Dropbox upload.");
 
             var source = await context.Payload.GetExportSourceAsync(context.Ui, cancellationToken).ConfigureAwait(false);
-            bool? success = await _plugin.UploadAsync(source, captureDetails, context.UserInteraction, cancellationToken).ConfigureAwait(false);
+            bool? success;
+            try
+            {
+                success = await _plugin.UploadAsync(source, captureDetails, context.UserInteraction, cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                // Same behaviour as the other upload steps: the flow continues, the failure is logged
+                context.LogStep($"DropboxStep: Upload to Dropbox failed: {ex.Message}");
+                Log.Error("DropboxStep: Upload to Dropbox failed.", ex);
+                return;
+            }
+
             if (success == true)
             {
                 context.LogStep("DropboxStep: Upload to Dropbox succeeded.");

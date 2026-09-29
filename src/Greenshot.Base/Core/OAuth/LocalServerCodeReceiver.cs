@@ -29,6 +29,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using log4net;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Base.Core.OAuth
 {
@@ -67,6 +68,11 @@ Greenshot received information from CloudServiceName. You can close this browser
 </html>";
 
         private string _redirectUri;
+
+        /// <summary>
+        /// How long to wait for the browser to redirect back, after that the authorization counts as declined.
+        /// </summary>
+        public TimeSpan Timeout { get; set; } = TimeSpan.FromMinutes(4);
 
         /// <summary>
         /// The URL to redirect to
@@ -110,7 +116,16 @@ Greenshot received information from CloudServiceName. You can close this browser
                 }
 
                 // Wait to get the authorization code response.
-                HttpListenerContext context = await GetContextAsync(listener, cancellationToken).ConfigureAwait(false);
+                HttpListenerContext context;
+                try
+                {
+                    context = await GetContextAsync(listener, cancellationToken).WaitAsync(Timeout, cancellationToken).ConfigureAwait(false);
+                }
+                catch (TimeoutException)
+                {
+                    Log.WarnFormat("No response from the browser within {0}", Timeout);
+                    return returnValues;
+                }
                 NameValueCollection nameValueCollection = context.Request.QueryString;
 
                 // Write a "close" response.

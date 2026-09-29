@@ -387,21 +387,13 @@ namespace Greenshot.Pipeline.Steps
             if (Config.GetParameter<bool?>("ClipboardFormatHTML") ?? true) formats.Add(ClipboardFormat.HTML);
             if (Config.GetParameter<bool?>("ClipboardFormatHTMLDataUrl") ?? false) formats.Add(ClipboardFormat.HTMLDATAURL);
 
-            var surface = context.Payload?.EnsureSurface();
-            if (surface != null)
+            if (context.Payload?.EnsureSurface() != null)
             {
-                // Rendered and encoded here on the pool, only placing it on the clipboard happens on the UI thread
-                bool disposeRendered = ImageIO.CreateImageFromSurface(surface, new SurfaceOutputSettings(OutputFormat.png, 100, false), out var rendered);
-                try
+                // The export source renders the surface on the UI thread once, the lease is our own copy
+                var source = await context.Payload.GetExportSourceAsync(context.Ui, cancellationToken).ConfigureAwait(false);
+                using (var lease = await source.RenderAsync(new SurfaceOutputSettings(OutputFormat.png, 100, false), cancellationToken).ConfigureAwait(false))
                 {
-                    await clipboard.SetImageAsync(rendered, formats, isImageAndText ? textToCopy : null, cancellationToken).ConfigureAwait(false);
-                }
-                finally
-                {
-                    if (disposeRendered)
-                    {
-                        rendered.Dispose();
-                    }
+                    await clipboard.SetImageAsync(lease.Image, formats, isImageAndText ? textToCopy : null, cancellationToken).ConfigureAwait(false);
                 }
 
                 context.LogStep($"Copied capture to clipboard with {formats.Count} format(s)" + (string.IsNullOrEmpty(textToCopy) ? "." : " (including OCR text)."));

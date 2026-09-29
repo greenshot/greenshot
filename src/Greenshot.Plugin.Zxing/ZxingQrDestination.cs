@@ -66,7 +66,8 @@ namespace Greenshot.Plugin.Zxing
 
         public override async Task<ExportResult> ExportAsync(ExportRequest request, CancellationToken cancellationToken)
         {
-            var captureDetails = request.Metadata;
+            // The metadata is optional (e.g. an export from the editor without capture details)
+            var captureDetails = request.Metadata ?? new CaptureDetails();
             List<IBarcodeFeature> qrFeatures;
             lock (captureDetails.Features)
             {

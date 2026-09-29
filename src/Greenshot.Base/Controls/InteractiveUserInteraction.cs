@@ -100,9 +100,9 @@ namespace Greenshot.Base.Controls
             }, cancellationToken);
         }
 
-        public Task<IDestination> PickDestinationAsync(IReadOnlyList<IDestination> choices, CancellationToken cancellationToken)
+        public Task<IDestination> PickDestinationAsync(IReadOnlyList<IDestination> choices, ICaptureDetails captureDetails, CancellationToken cancellationToken)
         {
-            return ModalTaskAsync(() => DestinationMenuBuilder.ShowPickerAsync(choices, null, cancellationToken), cancellationToken);
+            return ModalTaskAsync(() => DestinationMenuBuilder.ShowPickerAsync(choices, captureDetails, cancellationToken), cancellationToken);
         }
 
         public void Register<TViewModel, TResult>(Func<TViewModel, TResult> showDialog) where TViewModel : IDialogViewModel<TResult>
@@ -148,7 +148,17 @@ namespace Greenshot.Base.Controls
             {
                 dialog = await _ui.InvokeAsync(() =>
                 {
-                    var progressDialog = new ProgressDialog(title, () => cancellation.Cancel());
+                    var progressDialog = new ProgressDialog(title, () =>
+                    {
+                        try
+                        {
+                            cancellation.Cancel();
+                        }
+                        catch (ObjectDisposedException)
+                        {
+                            // The work ended in the meantime
+                        }
+                    });
                     progress.Attach(progressDialog);
                     progressDialog.Show();
                     return progressDialog;
@@ -170,6 +180,7 @@ namespace Greenshot.Base.Controls
                     progress.Detach();
                     _ui.InvokeAsync(() =>
                     {
+                        dialog.DetachCancel();
                         dialog.Close();
                         dialog.Dispose();
                     }, CancellationToken.None).FireAndLog("Close the progress dialog", Log);

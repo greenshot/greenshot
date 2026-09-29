@@ -36,9 +36,11 @@ namespace Greenshot.Base.Controls
         private readonly Label _messageLabel;
         private readonly ProgressBar _progressBar;
         private readonly Button _cancelButton;
+        private Action _cancel;
 
         public ProgressDialog(string title, Action cancel)
         {
+            _cancel = cancel;
             Text = title;
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false;
@@ -74,12 +76,36 @@ namespace Greenshot.Base.Controls
             _cancelButton.Click += (_, _) =>
             {
                 _cancelButton.Enabled = false;
-                cancel?.Invoke();
+                RequestCancel();
+            };
+            // Closing the dialog (X, Alt+F4) cancels the work too
+            FormClosing += (_, eventArgs) =>
+            {
+                if (eventArgs.CloseReason == CloseReason.UserClosing)
+                {
+                    RequestCancel();
+                }
             };
             CancelButton = _cancelButton;
             Controls.Add(_messageLabel);
             Controls.Add(_progressBar);
             Controls.Add(_cancelButton);
+        }
+
+        /// <summary>
+        /// The work ended, cancelling isn't possible anymore (call on the UI thread before closing the dialog).
+        /// </summary>
+        public void DetachCancel()
+        {
+            _cancel = null;
+            _cancelButton.Enabled = false;
+        }
+
+        private void RequestCancel()
+        {
+            var cancel = _cancel;
+            _cancel = null;
+            cancel?.Invoke();
         }
 
         /// <summary>

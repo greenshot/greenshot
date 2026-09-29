@@ -68,7 +68,19 @@ namespace Greenshot.Plugin.Box
             Log.Info("BoxStep: Executing Box upload.");
 
             var source = await context.Payload.GetExportSourceAsync(context.Ui, cancellationToken).ConfigureAwait(false);
-            string uploadUrl = await _plugin.UploadAsync(source, captureDetails, context.UserInteraction, cancellationToken).ConfigureAwait(false);
+            string uploadUrl;
+            try
+            {
+                uploadUrl = await _plugin.UploadAsync(source, captureDetails, context.UserInteraction, cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                // Same behaviour as the other upload steps: the flow continues, the failure is logged
+                context.LogStep($"BoxStep: Upload to Box failed: {ex.Message}");
+                Log.Error("BoxStep: Upload to Box failed.", ex);
+                return;
+            }
+
             if (!string.IsNullOrEmpty(uploadUrl))
             {
                 context.Properties["Box.UploadUrl"] = uploadUrl;

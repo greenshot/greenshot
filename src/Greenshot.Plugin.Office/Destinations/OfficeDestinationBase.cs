@@ -86,13 +86,15 @@ namespace Greenshot.Plugin.Office.Destinations
         /// </summary>
         protected static async Task<ExportResult> PickAndExportAsync(ExportRequest request, IReadOnlyList<IDestination> choices, CancellationToken cancellationToken)
         {
-            var picked = await request.Ui.PickDestinationAsync(choices, cancellationToken).ConfigureAwait(false);
+            var picked = await request.Ui.PickDestinationAsync(choices, request.Metadata, cancellationToken).ConfigureAwait(false);
             if (picked == null)
             {
                 return ExportResult.Declined;
             }
 
-            var result = await picked.ExportAsync(request, cancellationToken).ConfigureAwait(false);
+            // The user picked it: export as manually initiated, else "new document" would show the picker again
+            var pickedRequest = new ExportRequest(request.Source, request.Metadata, true, request.Ui, request.Progress);
+            var result = await picked.ExportAsync(pickedRequest, cancellationToken).ConfigureAwait(false);
             return result.WithTarget(picked.Descriptor?.DisplayName);
         }
 

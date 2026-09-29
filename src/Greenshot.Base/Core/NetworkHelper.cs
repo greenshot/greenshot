@@ -212,14 +212,22 @@ namespace Greenshot.Base.Core
             using var response = await HttpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
             response.EnsureSuccessStatusCode();
             var memoryStream = RecyclableMemoryStreamFactory.GetStream("NetworkHelper.GetAsMemoryStream");
-            using (var responseStream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false))
+            try
             {
-                await responseStream.CopyToAsync(memoryStream, 81920, cancellationToken).ConfigureAwait(false);
-            }
+                using (var responseStream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false))
+                {
+                    await responseStream.CopyToAsync(memoryStream, 81920, cancellationToken).ConfigureAwait(false);
+                }
 
-            // Make sure it can be used directly
-            memoryStream.Seek(0, SeekOrigin.Begin);
-            return memoryStream;
+                // Make sure it can be used directly
+                memoryStream.Seek(0, SeekOrigin.Begin);
+                return memoryStream;
+            }
+            catch
+            {
+                memoryStream.Dispose();
+                throw;
+            }
         }
 
         /// <summary>
@@ -450,11 +458,11 @@ namespace Greenshot.Base.Core
                 }
             }
 
-            // The upload of a large capture needs the read/write timeout, the request itself the connect timeout
-            int timeoutSeconds = Math.Max(Config?.WebRequestTimeout ?? 100, Config?.WebRequestReadWriteTimeout ?? 100);
+            // HttpClient has one timeout for the whole request (the old per read/write timeouts don't exist), a large upload
+            // over a slow connection needs time: the user can cancel, unattended flows end at the latest after this
             var httpClient = new HttpClient(handler)
             {
-                Timeout = TimeSpan.FromSeconds(Math.Max(timeoutSeconds, 30))
+                Timeout = TimeSpan.FromMinutes(10)
             };
             httpClient.DefaultRequestHeaders.UserAgent.ParseAdd($"Greenshot/{EnvironmentInfo.GetGreenshotVersion(true)}");
             return httpClient;
@@ -473,7 +481,18 @@ namespace Greenshot.Base.Core
         {
             using (request)
             {
-                using var response = await HttpClient.SendAsync(request, HttpCompletionOption.ResponseContentRead, cancellationToken).ConfigureAwait(false);
+                HttpResponseMessage sentResponse;
+                try
+                {
+                    sentResponse = await HttpClient.SendAsync(request, HttpCompletionOption.ResponseContentRead, cancellationToken).ConfigureAwait(false);
+                }
+                catch (OperationCanceledException ex) when (!cancellationToken.IsCancellationRequested)
+                {
+                    // HttpClient reports its timeout as a cancellation
+                    throw new TimeoutException($"{request.Method} {request.RequestUri} timed out after {HttpClient.Timeout}", ex);
+                }
+
+                using var response = sentResponse;
                 string content = response.Content == null ? null : await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 Log.InfoFormat("Response status of {0} {1}: {2}", request.Method, request.RequestUri, response.StatusCode);
                 if (response.IsSuccessStatusCode)

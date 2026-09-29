@@ -32,6 +32,8 @@ using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Forms;
 using log4net;
 using Greenshot.Base.Threading;
+using System.Threading.Tasks;
+using Greenshot.Base.Core.Export;
 
 namespace Greenshot.Helpers
 {
@@ -149,6 +151,32 @@ namespace Greenshot.Helpers
         }
 
         /// <summary>
+        /// Open an editor with the saved state, the state file is removed when the editor shows it.
+        /// </summary>
+        private static async Task RestoreEditorAsync(string filePath)
+        {
+            try
+            {
+                ISurface surface = new Surface();
+                surface = ImageIO.LoadGreenshotSurface(filePath, surface);
+                surface.CaptureDetails = new CaptureDetails();
+                var result = await DestinationExporter.ExportAsync(DestinationHelper.GetDestination(EditorDestination.DESIGNATION), surface, surface.CaptureDetails, true);
+                if (result.IsSucceeded)
+                {
+                    File.Delete(filePath);
+                }
+                else
+                {
+                    Log.WarnFormat("Couldn't open an editor with state file {0}: {1}", filePath, result.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Couldn't open an editor with state file: " + filePath, ex);
+            }
+        }
+
+        /// <summary>
         /// Restores any <c>.greenshot</c> state files saved by <see cref="SaveEditorState"/>
         /// so that the editors will be restored when Greenshot starts with the <c>--restore</c> argument.
         /// </summary>
@@ -165,21 +193,8 @@ namespace Greenshot.Helpers
 
                 foreach (string filePath in Directory.GetFiles(stateDir, "*.greenshot"))
                 {
-                    UiDispatcher.Current.RunOnUiAsync(() =>
-                    {
-                        ISurface surface = new Surface();
-                        surface = ImageIO.LoadGreenshotSurface(filePath, surface);
-                        surface.CaptureDetails = new CaptureDetails();
-                        try
-                        {
-                            DestinationHelper.StartExport(EditorDestination.DESIGNATION, surface);
-                            File.Delete(filePath);
-                        }
-                        catch (Exception ex)
-                        {
-                            Log.Error("Couldn't open an editor with state file: " + filePath, ex);
-                        }
-                    }).FireAndLog("Restore an editor", Log);
+                    // Called on the UI thread (startup), the surface is created there
+                    RestoreEditorAsync(filePath).FireAndLog("Restore an editor", Log);
                     Log.InfoFormat("Queued restore of editor state from: {0}", filePath);
                 }
             }

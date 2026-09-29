@@ -92,7 +92,17 @@ namespace Greenshot.Base.Core.Export
                         throw new FileAlreadyExistsException(fullPath);
                     }
 
-                    File.Replace(tmpPath, fullPath, null);
+                    try
+                    {
+                        File.Replace(tmpPath, fullPath, null);
+                    }
+                    catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or PlatformNotSupportedException)
+                    {
+                        // ReplaceFile isn't supported everywhere (some network shares): overwrite the old way
+                        Log.Debug($"File.Replace failed for {fullPath}, copying instead", ex);
+                        File.Copy(tmpPath, fullPath, true);
+                        TryDelete(tmpPath);
+                    }
                 }
                 else
                 {
