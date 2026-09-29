@@ -147,8 +147,10 @@ namespace Greenshot.Tests.Forms
                     Assert.True(officeControl.IsWordSelected);
 
                     var officePlugin = new Greenshot.Plugin.Office.OfficePlugin();
-                    Assert.True(officePlugin.IsConfigurable);
-                    Assert.NotNull(officePlugin.CreateConfigurationControl());
+                    var officeServices = new Greenshot.Tests.Plugins.TestPluginServices();
+                    officePlugin.ConfigureServices(officeServices);
+                    var officeViewModel = ((Greenshot.Base.Interfaces.Plugin.IConfigurablePlugin)officePlugin).CreateSettingsViewModel(null);
+                    Assert.NotNull(officeServices.CreateSettingsView(officeViewModel));
 
                     var instances = new[]
                     {

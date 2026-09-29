@@ -21,6 +21,7 @@
 
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
 using Dapplo.Ini;
@@ -29,51 +30,46 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Pipeline;
 using Greenshot.Base.Recipes;
+using Greenshot.Base.Threading;
 using Greenshot.Plugin.RecipeEditor.Views;
 using log4net;
 
 namespace Greenshot.Plugin.RecipeEditor;
 
-public class RecipeEditorPlugin : IGreenshotPlugin, IRecipeEditorService
+public class RecipeEditorPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeEditorService
 {
     private static readonly ILog Log = LogManager.GetLogger(typeof(RecipeEditorPlugin));
     private static IRecipeConfiguration _config;
     private ToolStripMenuItem _itemPlugInConfig;
     private static RecipeEditorWindow _activeRecipeEditorWindow;
 
-    public void Dispose()
+    public ValueTask DisposeAsync()
     {
-        Dispose(true);
-        GC.SuppressFinalize(this);
+        // The menu item is removed and disposed in StopAsync
+        return default;
     }
 
     public string Name => "RecipeEditor";
 
-    public bool IsConfigurable => true;
-
-    private void Dispose(bool disposing)
-    {
-        if (!disposing) return;
-        if (_itemPlugInConfig != null)
-        {
-            _itemPlugInConfig.Dispose();
-            _itemPlugInConfig = null;
-        }
-    }
-
-    public void RegisterConfiguration(IniConfig iniConfig)
+    public void ConfigureServices(IPluginServices services)
     {
         var section = new RecipeConfigurationImpl();
-        iniConfig.AddSection(section);
+        services.AddConfiguration(section);
         _config = section;
+
+        services.AddService<IRecipeEditorService>(this);
+        services.AddSettingsView<IRecipeConfiguration>(config => new RecipeEditorConfigurationView(config));
     }
 
-    public void RegisterServices(IServiceLocator serviceLocator)
-    {
-        serviceLocator.AddService<IRecipeEditorService>(this);
-    }
+    public object CreateSettingsViewModel(IServiceProvider services) => _config;
 
-    public bool Start()
+    /// <summary>
+    /// Add the quick link to the context menu (on the UI thread)
+    /// </summary>
+    public Task StartAsync(IServiceProvider services, CancellationToken cancellationToken) =>
+        services.GetRequiredService<IUiDispatcher>().RunOnUiAsync(Start, cancellationToken);
+
+    private void Start()
     {
         if (_config != null && _config.QuicklinkEnabled)
         {
@@ -85,24 +81,14 @@ public class RecipeEditorPlugin : IGreenshotPlugin, IRecipeEditorService
             _itemPlugInConfig.Click += (s, e) => OpenEditor();
             PluginUtils.AddToContextMenu(_itemPlugInConfig);
         }
-
-        return true;
     }
 
-    public void Shutdown()
-    {
-        Dispose();
-    }
-
-    public void Configure()
-    {
-        OpenEditor();
-    }
-
-    public UIElement CreateConfigurationControl()
-    {
-        return new RecipeEditorConfigurationView(_config);
-    }
+    public Task StopAsync(CancellationToken cancellationToken) =>
+        UiDispatcher.Current.RunOnUiAsync(() =>
+        {
+            _itemPlugInConfig?.Dispose();
+            _itemPlugInConfig = null;
+        }, cancellationToken);
 
     public bool IsEditorOpen => _activeRecipeEditorWindow != null && _activeRecipeEditorWindow.IsLoaded;
 
@@ -151,16 +137,8 @@ public class RecipeEditorPlugin : IGreenshotPlugin, IRecipeEditorService
             }
         }
 
-        if (Thread.CurrentThread.GetApartmentState() == ApartmentState.STA)
-        {
-            ShowAction();
-        }
-        else
-        {
-            var staThread = new Thread(new ThreadStart(ShowAction));
-            staThread.SetApartmentState(ApartmentState.STA);
-            staThread.Start();
-        }
+        // Windows are shown on the one UI thread
+        UiDispatcher.Current.RunOnUiAsync(ShowAction).FireAndLog("Show a recipe editor window", Log);
     }
 
     public void OpenEditor(string recipeId = null)
@@ -202,15 +180,7 @@ public class RecipeEditorPlugin : IGreenshotPlugin, IRecipeEditorService
             }
         }
 
-        if (Thread.CurrentThread.GetApartmentState() == ApartmentState.STA)
-        {
-            ShowAction();
-        }
-        else
-        {
-            var staThread = new Thread(new ThreadStart(ShowAction));
-            staThread.SetApartmentState(ApartmentState.STA);
-            staThread.Start();
-        }
+        // Windows are shown on the one UI thread
+        UiDispatcher.Current.RunOnUiAsync(ShowAction).FireAndLog("Show a recipe editor window", Log);
     }
 }

@@ -15,6 +15,7 @@ using Greenshot.Base.Wpf;
 using Greenshot.Plugin.RecipeEditor.Layout;
 using Microsoft.Win32;
 using Newtonsoft.Json.Linq;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Plugin.RecipeEditor.ViewModels
 {
@@ -276,7 +277,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             SaveRecipeCommand = new RelayCommand(SaveRecipe);
             SaveAsCommand = new RelayCommand(SaveAsRecipe);
             AutoLayoutCommand = new RelayCommand(PerformAutoLayout);
-            TestRunCommand = new RelayCommand(async () => await ExecuteTestRunAsync());
+            TestRunCommand = new RelayCommand(() => AsyncCommand.Run(ExecuteTestRunAsync, "Recipe test run"));
             DeleteSelectedCommand = new RelayCommand(DeleteSelected, () => SelectedNode != null || SelectedConnection != null);
             AddStepCommand = new RelayCommand(p => AddStep(p as string));
             ToggleJsonViewCommand = new RelayCommand(ToggleJsonView);
@@ -306,10 +307,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             {
                 _recipeManager.RecipesChanged += (s, e) =>
                 {
-                    Application.Current?.Dispatcher?.BeginInvoke((Action)(() =>
-                    {
-                        RefreshAvailableRecipes();
-                    }));
+                    UiDispatcher.Current.InvokeAsync(RefreshAvailableRecipes).FireAndLog("Refresh the available recipes");
                 };
             }
 
@@ -1194,19 +1192,17 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 return;
             }
 
-            var pipeline = SimpleServiceProvider.Current.GetInstance<ICapturePipeline>(isOptional: true);
-            if (pipeline == null)
-            {
-                MessageBox.Show("Capture pipeline service is not available.", "Execution Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
             StatusMessage = $"Executing test run for '{ActiveRecipe.Name}'...";
             try
             {
-                var recipeToTest = TriggerRecipePreparer.PrepareForTestRun(ActiveRecipe);
-                await pipeline.ExecuteAsync(recipeToTest);
-                StatusMessage = $"Test run of '{recipeToTest.Name}' completed successfully.";
+                var result = await TestRun.RunAsync(ActiveRecipe);
+                string error = TestRun.ErrorOf(result);
+                if (error != null)
+                {
+                    throw new InvalidOperationException(error, result.Error);
+                }
+
+                StatusMessage = $"Test run of '{ActiveRecipe.Name}' ended: {result.State}.";
             }
             catch (Exception ex)
             {

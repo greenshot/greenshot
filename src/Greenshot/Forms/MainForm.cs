@@ -347,7 +347,8 @@ namespace Greenshot.Forms
             SimpleServiceProvider.Current.AddService(notifyIcon);
 
             // Load all the plugins, and while doing to load the configuration
-            PluginHelper.Instance.LoadPlugins();
+            // The plugins start in parallel, the main window doesn't wait for them
+            PluginHelper.Instance.LoadPlugins().FireAndLog("Start the plugins", Log);
 
             EditorInitialize.Initialize();
 
@@ -1599,7 +1600,8 @@ namespace Greenshot.Forms
             // Inform all registered plugins
             try
             {
-                PluginHelper.Instance.Shutdown();
+                // TODO Phase 5: await in the async shutdown
+                PluginHelper.Instance.ShutdownAsync(TimeSpan.FromSeconds(5)).FireAndLog("Stop the plugins", Log);
             }
             catch (Exception e)
             {

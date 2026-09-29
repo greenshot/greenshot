@@ -147,7 +147,7 @@ namespace Greenshot.Forms.Wpf
         {
             if (CanConfigureSelectedPlugin)
             {
-                SelectedPlugin?.Plugin.Configure();
+                SimpleServiceProvider.Current.GetInstance<IGreenshotMainForm>(isOptional: true)?.ShowSetting(SelectedPlugin?.Name);
             }
         }
 
@@ -522,7 +522,7 @@ namespace Greenshot.Forms.Wpf
         public string Version { get; set; }
         public string Company { get; set; }
         public string Location { get; set; }
-        public bool IsConfigurable => Plugin?.IsConfigurable == true;
+        public bool IsConfigurable => Plugin is IConfigurablePlugin;
 
         private UIElement _configControl;
         private bool _controlCreated;
@@ -532,7 +532,7 @@ namespace Greenshot.Forms.Wpf
             if (!_controlCreated)
             {
                 _controlCreated = true;
-                _configControl = Plugin?.CreateConfigurationControl();
+                _configControl = Plugin == null ? null : PluginHelper.Instance.CreateSettingsView(Plugin) as UIElement;
             }
             return _configControl;
         }
