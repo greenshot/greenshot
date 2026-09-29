@@ -31,13 +31,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Check out commented pull request
-        if: github.event.issue.pull_request
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh pr checkout "${{ github.event.issue.number }}" --force
-
       - uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
