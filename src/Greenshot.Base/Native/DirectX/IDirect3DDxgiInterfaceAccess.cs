@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -22,24 +22,18 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace Greenshot.Native.DirectX;
+namespace Greenshot.Base.Native.DirectX;
 
 /// <summary>
-/// Represents a Direct3D 11 device that provides methods for creating and managing graphics resources such as buffers
-/// and textures.
+/// Provides access to a specified interface for Direct3D resources.
 /// </summary>
-/// <remarks>This interface is essential for initializing and handling Direct3D resources in graphics
-/// applications. It enables the creation of various resource types required for rendering operations and serves as the
-/// entry point for resource management in Direct3D 11. Typically, instances of this interface are obtained through
-/// Direct3D initialization routines and are used throughout the application's lifetime to allocate and manage GPU
-/// resources.</remarks>
+/// <remarks>This interface allows clients to retrieve a pointer to a Direct3D interface using its GUID. It is
+/// primarily used in scenarios where interoperability with Direct3D resources is required.</remarks>
 [ComImport]
 [ComVisible(true)]
-[Guid("db6f6ddb-ac77-4e88-8253-819df9bbf140")]
+[Guid("A9B3D012-3DF2-4EE3-B8D1-8695F457D3C1")]
 [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-internal interface ID3D11Device
+interface IDirect3DDxgiInterfaceAccess
 {
-    void CreateBuffer();
-    void CreateTexture1D();
-    void CreateTexture2D([In] ref D3D11_TEXTURE2D_DESC pDesc, [In] IntPtr pInitialData, [MarshalAs(UnmanagedType.Interface)] out ID3D11Texture2D ppTexture2D);
-}
+    IntPtr GetInterface([In] ref Guid iid);
+};

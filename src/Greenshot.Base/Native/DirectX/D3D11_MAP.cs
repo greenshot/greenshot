@@ -19,21 +19,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Runtime.InteropServices;
-
-namespace Greenshot.Native.DirectX;
+namespace Greenshot.Base.Native.DirectX;
 
 /// <summary>
-/// Represents a mapped subresource in Direct3D 11, providing access to the resource's data and its layout information.
+/// Specifies the options for accessing a resource when mapping it in Direct3D 11 operations.
 /// </summary>
-/// <remarks>This structure is used when mapping a resource to access its data directly. The `pData` field points
-/// to the mapped data, while `RowPitch` and `DepthPitch` provide the pitch information for the resource's layout in
-/// memory.</remarks>
-[StructLayout(LayoutKind.Sequential)]
-internal struct D3D11_MAPPED_SUBRESOURCE
+/// <remarks>Each value in the D3D11_MAP enumeration defines a distinct access pattern for mapped resources, such
+/// as read-only, write-only, or read-write access. The choice of mapping option can affect performance and resource
+/// management. Use the appropriate value based on the intended usage and requirements of the resource during rendering
+/// or data transfer operations.</remarks>
+internal enum D3D11_MAP
 {
-    public IntPtr pData;
-    public int RowPitch;
-    public int DepthPitch;
+    D3D11_MAP_READ = 1,
+    D3D11_MAP_WRITE = 2,
+    D3D11_MAP_READ_WRITE = 3,
+    D3D11_MAP_WRITE_DISCARD = 4,
+    D3D11_MAP_WRITE_NO_OVERWRITE = 5
 }

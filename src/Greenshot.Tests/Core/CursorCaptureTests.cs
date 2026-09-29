@@ -124,48 +124,42 @@ public class CursorCaptureTests
 
     private static void RunCustomWindowCaptureHandlerTest()
     {
-        // CapturePipeline's static constructor installs the Windows Graphics Capture handler. Run it now, so it cannot
-        // replace the test handler when another test happens to use the pipeline for the first time during this test.
-        RuntimeHelpers.RunClassConstructor(typeof(Greenshot.Pipeline.CapturePipeline).TypeHandle);
+        RunWindowsGraphicsCaptureWindowTestAsync().GetAwaiter().GetResult();
+    }
 
+    private static async Task RunWindowsGraphicsCaptureWindowTestAsync()
+    {
         var coreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
         bool previousUseWgc = coreConfig.UseWindowsGraphicsCapture;
-        var previousHandler = WindowCaptureHelper.CustomWindowCaptureHandler;
 
-        using var dummyBitmap = new Bitmap(320, 240);
-        using var form = new Form
+        using var host = await TestFormHost.ShowAsync(() => new Form
         {
             StartPosition = FormStartPosition.Manual,
             FormBorderStyle = FormBorderStyle.None,
             ShowInTaskbar = false,
             Bounds = new Rectangle(123, 77, 320, 240),
             Text = "Greenshot capture handler test"
-        };
-        IntPtr handle = form.Handle;
-        IntPtr capturedHandle = IntPtr.Zero;
+        });
+        IntPtr handle = IntPtr.Zero;
+        await host.InvokeAsync(form => handle = form.Handle);
 
         try
         {
-            // The handler is only used when Windows Graphics Capture is enabled
+            // Windows Graphics Capture is only used when it is enabled (it falls back to the legacy capture when it isn't supported)
             coreConfig.UseWindowsGraphicsCapture = true;
-            WindowCaptureHelper.CustomWindowCaptureHandler = (hwnd, _) =>
-            {
-                capturedHandle = hwnd;
-                return Task.FromResult(dummyBitmap);
-            };
 
             var windowDetails = new WindowDetails(handle);
-            var capture = WindowCaptureHelper.CaptureWindowAsync(windowDetails, null, WindowCaptureMode.Auto, InlineUiDispatcher.Instance).GetAwaiter().GetResult();
+            var capture = await WindowCaptureHelper.CaptureWindowAsync(windowDetails, null, WindowCaptureMode.Auto, InlineUiDispatcher.Instance);
 
-            Assert.Equal(handle, capturedHandle);
             Assert.NotNull(capture);
-            Assert.Same(dummyBitmap, capture.Image);
+            Assert.NotNull(capture.Image);
+            Assert.Equal(320, capture.Image.Width);
+            Assert.Equal(240, capture.Image.Height);
             Assert.Equal(windowDetails.Location, capture.Location);
             Assert.Equal("Greenshot capture handler test", capture.CaptureDetails.Title);
         }
         finally
         {
-            WindowCaptureHelper.CustomWindowCaptureHandler = previousHandler;
             coreConfig.UseWindowsGraphicsCapture = previousUseWgc;
         }
     }

@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -22,31 +22,20 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace Greenshot.Native.DirectX;
+namespace Greenshot.Base.Native.DirectX;
 
 /// <summary>
-/// Represents a two-dimensional texture resource used in Direct3D 11 for storing and manipulating image data.
+/// Provides methods for creating graphics capture items for a specified window or monitor.
 /// </summary>
-/// <remarks>This interface provides methods to retrieve the texture's description and manage its resource
-/// properties. It is essential for rendering operations that require texture mapping in graphics
-/// applications.</remarks>
+/// <remarks>This interface is used to interact with graphics capture items in a COM environment. It allows the
+/// creation of capture items based on either a window handle or a monitor handle, enabling applications to capture
+/// graphics content from specific sources.</remarks>
 [ComImport]
 [ComVisible(true)]
-[Guid("6f15aaf2-d208-4e89-9ab4-489535d34f9c")]
+[Guid("3628E81B-3CAC-4C60-B7F4-23CE0E0C3356")]
 [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-internal interface ID3D11Texture2D : ID3D11Resource
+internal interface IGraphicsCaptureItemInterop
 {
-    // ID3D11DeviceChild methods (inherited)
-    void GetDevice();
-    void GetPrivateData();
-    void SetPrivateData();
-    void SetPrivateDataInterface();
-
-    // ID3D11Resource methods (inherited)
-    void GetType();
-    void SetEvictionPriority();
-    void GetEvictionPriority();
-
-    // ID3D11Texture2D methods
-    void GetDesc(out D3D11_TEXTURE2D_DESC pDesc);
+    IntPtr CreateForWindow([In] IntPtr window, [In] ref Guid iid);
+    IntPtr CreateForMonitor([In] IntPtr hMonitor, [In] ref Guid iid);
 }

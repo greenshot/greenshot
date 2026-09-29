@@ -23,7 +23,7 @@ using System;
 using System.Runtime.InteropServices;
 using log4net;
 
-namespace Greenshot.Native
+namespace Greenshot.Base.Native
 {
     /// <summary>
     /// Helper to prevent the operating system from entering idle sleep or turning off the screen during active recording.

@@ -19,7 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace Greenshot.Native;
+namespace Greenshot.Base.Native;
 
 /// <summary>
 /// Provides conversion utilities for IEEE 754 half-precision (16-bit) floating-point values.

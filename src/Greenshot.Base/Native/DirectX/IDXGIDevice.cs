@@ -22,7 +22,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace Greenshot.Native.DirectX;
+namespace Greenshot.Base.Native.DirectX;
 
 /// <summary>
 /// Represents a DirectX Graphics Infrastructure (DXGI) device used to create and manage Direct3D resources.

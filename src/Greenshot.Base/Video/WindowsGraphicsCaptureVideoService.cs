@@ -26,8 +26,9 @@ using Greenshot.Base.Interfaces.Video;
 using log4net;
 using Windows.Graphics.Capture;
 using Greenshot.Base.Threading;
+using Greenshot.Base.Native;
 
-namespace Greenshot.Video
+namespace Greenshot.Base.Video
 {
     /// <summary>
     /// Default implementation of <see cref="IVideoCaptureService"/> utilizing Windows Graphics Capture (WGC).
@@ -36,29 +37,10 @@ namespace Greenshot.Video
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(WindowsGraphicsCaptureVideoService));
 
-        public bool IsSupported
-        {
-            get
-            {
-                try
-                {
-                    // Check OS version: Windows 10 Version 1809 (Build 17763) or higher for WGC,
-                    // 19041+ recommended for cursor capture and Direct3D interop.
-                    var version = Environment.OSVersion.Version;
-                    if (version.Major < 10 || (version.Major == 10 && version.Build < 17763))
-                    {
-                        return false;
-                    }
-
-                    return GraphicsCaptureSession.IsSupported();
-                }
-                catch (Exception ex)
-                {
-                    Log.Debug("GraphicsCaptureSession.IsSupported check failed: " + ex.Message);
-                    return false;
-                }
-            }
-        }
+        /// <summary>
+        /// The same check as the still captures (OS version and GraphicsCaptureSession.IsSupported)
+        /// </summary>
+        public bool IsSupported => WindowsGraphicsCaptureInterop.IsSupported;
 
         public async Task<IVideoRecordingSession> StartRecordingAsync(VideoCaptureOptions options, CancellationToken cancellationToken = default)
         {

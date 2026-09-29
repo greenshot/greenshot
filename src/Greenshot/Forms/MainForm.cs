@@ -74,6 +74,7 @@ using Greenshot.UI;
 using log4net;
 
 using Timer = System.Timers.Timer;
+using Greenshot.Base.Native;
 
 namespace Greenshot.Forms
 {
@@ -294,6 +295,12 @@ namespace Greenshot.Forms
             }
 #endif
             // The UI thread is reached through IUiDispatcher (UiDispatcher.Current), the SynchronizationContext and TaskScheduler aren't registered
+
+            if (_conf.UseWindowsGraphicsCapture)
+            {
+                // Creating the Direct3D device costs ~200 ms, do it now in the background instead of in the first capture
+                WindowsGraphicsCaptureInterop.PrewarmAsync().FireAndLog("Prewarm the Windows Graphics Capture", Log);
+            }
 
             // Register the RecyclableMemoryStreamManager to minimise Large Object Heap usage.
             SimpleServiceProvider.Current.AddService(RecyclableMemoryStreamFactory.Manager);

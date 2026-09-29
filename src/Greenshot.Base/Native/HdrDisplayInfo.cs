@@ -23,7 +23,7 @@ using System;
 using System.Runtime.InteropServices;
 using log4net;
 
-namespace Greenshot.Native;
+namespace Greenshot.Base.Native;
 
 /// <summary>
 /// Provides HDR display detection and SDR white level queries via Win32 DisplayConfig APIs.

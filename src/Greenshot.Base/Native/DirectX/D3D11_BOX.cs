@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -19,29 +19,31 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System.Drawing;
-using System.Threading;
-using System.Threading.Tasks;
-using Dapplo.Windows.Common.Structs;
+using System.Runtime.InteropServices;
 
-namespace Greenshot.Base.Core
+namespace Greenshot.Base.Native.DirectX
 {
     /// <summary>
-    /// This is the method signature which is used to capture a rectangle from the screen.
+    /// Defines a 3D box region within a Direct3D 11 resource for subresource copy operations.
     /// </summary>
-    /// <param name="captureBounds">NativeRect</param>
-    /// <param name="cancellationToken">CancellationToken</param>
-    /// <returns>Captured Bitmap, null when this handler can't capture</returns>
-    public delegate Task<Bitmap> CaptureScreenRectangleHandler(NativeRect captureBounds, CancellationToken cancellationToken);
-
-    /// <summary>
-    /// This is a hack to experiment with different screen capture routines
-    /// </summary>
-    public static class CaptureHandler
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct D3D11_BOX
     {
-        /// <summary>
-        /// By changing this value, null is default
-        /// </summary>
-        public static CaptureScreenRectangleHandler CaptureScreenRectangle { get; set; }
+        public uint left;
+        public uint top;
+        public uint front;
+        public uint right;
+        public uint bottom;
+        public uint back;
+
+        public D3D11_BOX(uint left, uint top, uint right, uint bottom, uint front = 0, uint back = 1)
+        {
+            this.left = left;
+            this.top = top;
+            this.right = right;
+            this.bottom = bottom;
+            this.front = front;
+            this.back = back;
+        }
     }
 }

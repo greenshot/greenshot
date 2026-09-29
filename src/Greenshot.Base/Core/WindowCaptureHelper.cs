@@ -32,6 +32,7 @@ using log4net;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Threading;
+using Greenshot.Base.Native;
 
 namespace Greenshot.Base.Core
 {
@@ -42,11 +43,6 @@ namespace Greenshot.Base.Core
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(WindowCaptureHelper));
         private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
-
-        /// <summary>
-        /// Optional custom window capture handler (used for Windows Graphics Capture when the user enabled it), returns null when it can't capture.
-        /// </summary>
-        public static Func<IntPtr, CancellationToken, Task<Bitmap>> CustomWindowCaptureHandler { get; set; }
 
         /// <summary>
         /// Select the window to capture, resolving linked windows for special applications (e.g. TOAD, Excel).
@@ -109,20 +105,21 @@ namespace Greenshot.Base.Core
                 captureForWindow = new Capture();
             }
 
-            var customWindowCaptureHandler = CustomWindowCaptureHandler;
-            if (customWindowCaptureHandler != null && CoreConfig.UseWindowsGraphicsCapture)
+            if (CoreConfig.UseWindowsGraphicsCapture && WindowsGraphicsCaptureInterop.IsSupported)
             {
                 try
                 {
-                    var customImage = await customWindowCaptureHandler(windowToCapture.Handle, cancellationToken).ConfigureAwait(false);
-                    if (customImage != null)
+                    // Restores a minimized window and handles child windows itself
+                    var wgcImage = await WindowsGraphicsCaptureInterop.CaptureWindowToBitmapAsync(windowToCapture.Handle, cancellationToken).ConfigureAwait(false);
+                    if (wgcImage != null)
                     {
-                        captureForWindow.Image = customImage;
+                        captureForWindow.Image = wgcImage;
+                        // After the capture: a restored window may have moved
                         captureForWindow.Location = windowToCapture.Location;
                         captureForWindow.CaptureDetails.Title = windowToCapture.Text;
                         return captureForWindow;
                     }
-                    Log.DebugFormat("CustomWindowCaptureHandler returned null for window {0}, falling back to standard capture.", windowToCapture.Handle);
+                    Log.DebugFormat("Windows Graphics Capture returned nothing for window {0}, falling back to standard capture.", windowToCapture.Handle);
                 }
                 catch (OperationCanceledException)
                 {
@@ -130,7 +127,7 @@ namespace Greenshot.Base.Core
                 }
                 catch (Exception ex)
                 {
-                    Log.Warn($"CustomWindowCaptureHandler failed for window {windowToCapture.Handle} ('{windowToCapture.Text}'), falling back to standard capture.", ex);
+                    Log.Warn($"Windows Graphics Capture failed for window {windowToCapture.Handle} ('{windowToCapture.Text}'), falling back to standard capture.", ex);
                 }
             }
 

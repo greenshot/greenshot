@@ -19,15 +19,21 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace Greenshot.Native.DirectX;
+using System.Runtime.InteropServices;
+
+namespace Greenshot.Base.Native.DirectX;
 
 /// <summary>
-/// Defines flags that specify CPU access options for Direct3D 11 resources.
+/// Describes the multi-sample parameters for a DirectX swap chain, including the number of samples and the quality
+/// level used for anti-aliasing.
 /// </summary>
-/// <remarks>This enumeration is used to indicate the type of access that the CPU has to a resource, which can
-/// affect performance and resource management. The flags can be combined to specify multiple access types.</remarks>
-internal enum D3D11_CPU_ACCESS_FLAG
+/// <remarks>This structure is used to configure multi-sampling in graphics rendering. The Count field specifies
+/// how many samples are used per pixel, while the Quality field indicates the quality level of those samples. Higher
+/// values for Count and Quality can improve visual fidelity but may impact performance. These settings should match the
+/// capabilities of the graphics device and the requirements of the application.</remarks>
+[StructLayout(LayoutKind.Sequential)]
+internal struct DXGI_SAMPLE_DESC
 {
-    D3D11_CPU_ACCESS_WRITE = 0x10000,
-    D3D11_CPU_ACCESS_READ = 0x20000
+    public int Count;
+    public int Quality;
 }

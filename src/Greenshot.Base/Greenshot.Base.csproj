@@ -30,6 +30,9 @@
     <Reference Include="CustomMarshalers" />
   </ItemGroup>
   <ItemGroup>
+    <InternalsVisibleTo Include="Greenshot" />
+  </ItemGroup>
+  <ItemGroup>
     <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
       <_Parameter1>Greenshot.Tests</_Parameter1>
     </AssemblyAttribute>

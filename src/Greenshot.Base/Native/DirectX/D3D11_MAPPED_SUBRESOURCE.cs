@@ -19,21 +19,21 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System;
 using System.Runtime.InteropServices;
 
-namespace Greenshot.Native.DirectX;
+namespace Greenshot.Base.Native.DirectX;
 
 /// <summary>
-/// Describes the multi-sample parameters for a DirectX swap chain, including the number of samples and the quality
-/// level used for anti-aliasing.
+/// Represents a mapped subresource in Direct3D 11, providing access to the resource's data and its layout information.
 /// </summary>
-/// <remarks>This structure is used to configure multi-sampling in graphics rendering. The Count field specifies
-/// how many samples are used per pixel, while the Quality field indicates the quality level of those samples. Higher
-/// values for Count and Quality can improve visual fidelity but may impact performance. These settings should match the
-/// capabilities of the graphics device and the requirements of the application.</remarks>
+/// <remarks>This structure is used when mapping a resource to access its data directly. The `pData` field points
+/// to the mapped data, while `RowPitch` and `DepthPitch` provide the pitch information for the resource's layout in
+/// memory.</remarks>
 [StructLayout(LayoutKind.Sequential)]
-internal struct DXGI_SAMPLE_DESC
+internal struct D3D11_MAPPED_SUBRESOURCE
 {
-    public int Count;
-    public int Quality;
+    public IntPtr pData;
+    public int RowPitch;
+    public int DepthPitch;
 }

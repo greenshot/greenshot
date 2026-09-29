@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -32,10 +32,8 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces.Video;
 using Greenshot.Base.Pipeline;
 using Greenshot.Base.Pipeline.Contracts;
-using Contracts = Greenshot.Base.Pipeline.Contracts;
-
 using Greenshot.Base.Recipes;
-using Greenshot.Video;
+using Greenshot.Base.Video;
 using log4net;
 
 namespace Greenshot.Pipeline.Steps

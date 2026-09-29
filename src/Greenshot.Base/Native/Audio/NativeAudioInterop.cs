@@ -22,7 +22,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace Greenshot.Native.Audio
+namespace Greenshot.Base.Native.Audio
 {
     internal static class WasapiGuids
     {

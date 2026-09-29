@@ -22,20 +22,17 @@
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Windows.Common.Extensions;
-using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.User32;
 using Greenshot.Base.Interfaces.Video;
-using Greenshot.Native;
-using Greenshot.Native.Audio;
-using Greenshot.Native.DirectX;
+using Greenshot.Base.Native;
+using Greenshot.Base.Native.Audio;
+using Greenshot.Base.Native.DirectX;
 using log4net;
 using Microsoft.Win32;
 using Windows.Graphics.Capture;
@@ -47,7 +44,7 @@ using Windows.Media.Transcoding;
 using Windows.Storage.Streams;
 using Greenshot.Base.Threading;
 
-namespace Greenshot.Video
+namespace Greenshot.Base.Video
 {
     /// <summary>
     /// Executes and manages a hardware-accelerated video recording session using

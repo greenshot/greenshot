@@ -23,7 +23,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 
-namespace Greenshot.Native;
+namespace Greenshot.Base.Native;
 
 /// <summary>
 /// CPU-based tone mapper for converting FP16 HDR textures to 8-bit SDR bitmaps.

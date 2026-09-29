@@ -19,21 +19,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Runtime.InteropServices;
-
-namespace Greenshot.Native.DirectX;
+namespace Greenshot.Base.Native.DirectX;
 
 /// <summary>
-/// Provides access to a specified interface for Direct3D resources.
+/// Defines flags that specify CPU access options for Direct3D 11 resources.
 /// </summary>
-/// <remarks>This interface allows clients to retrieve a pointer to a Direct3D interface using its GUID. It is
-/// primarily used in scenarios where interoperability with Direct3D resources is required.</remarks>
-[ComImport]
-[ComVisible(true)]
-[Guid("A9B3D012-3DF2-4EE3-B8D1-8695F457D3C1")]
-[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-interface IDirect3DDxgiInterfaceAccess
+/// <remarks>This enumeration is used to indicate the type of access that the CPU has to a resource, which can
+/// affect performance and resource management. The flags can be combined to specify multiple access types.</remarks>
+internal enum D3D11_CPU_ACCESS_FLAG
 {
-    IntPtr GetInterface([In] ref Guid iid);
-};
+    D3D11_CPU_ACCESS_WRITE = 0x10000,
+    D3D11_CPU_ACCESS_READ = 0x20000
+}

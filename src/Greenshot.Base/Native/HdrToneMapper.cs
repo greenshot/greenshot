@@ -21,10 +21,10 @@
 
 using System;
 using System.Runtime.InteropServices;
-using Greenshot.Native.DirectX;
+using Greenshot.Base.Native.DirectX;
 using log4net;
 
-namespace Greenshot.Native;
+namespace Greenshot.Base.Native;
 
 /// <summary>
 /// GPU-accelerated HDR-to-SDR tone mapper using Direct2D effects via raw COM vtable calls.

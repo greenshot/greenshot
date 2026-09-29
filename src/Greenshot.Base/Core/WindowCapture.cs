@@ -40,6 +40,7 @@ using Greenshot.Base.Interfaces;
 using log4net;
 using System.Threading;
 using System.Threading.Tasks;
+using Greenshot.Base.Native;
 
 namespace Greenshot.Base.Core
 {
@@ -205,13 +206,12 @@ namespace Greenshot.Base.Core
             }
 
             Image capturedImage = null;
-            // If the CaptureHandler has a handle use this, otherwise use the CaptureRectangle here
-            var captureHandler = CaptureHandler.CaptureScreenRectangle;
-            if (captureHandler != null)
+            // Windows Graphics Capture when the user enabled it (and the system supports it), otherwise the legacy capture below
+            if (Configuration.UseWindowsGraphicsCapture && WindowsGraphicsCaptureInterop.IsSupported)
             {
                 try
                 {
-                    capturedImage = await captureHandler(captureBounds, cancellationToken).ConfigureAwait(false);
+                    capturedImage = await WindowsGraphicsCaptureInterop.CaptureRectangleAsync(captureBounds, cancellationToken).ConfigureAwait(false);
                 }
                 catch (OperationCanceledException)
                 {
@@ -219,7 +219,7 @@ namespace Greenshot.Base.Core
                 }
                 catch (Exception ex)
                 {
-                    Log.Debug("The custom capture handler failed, using the legacy capture.", ex);
+                    Log.Debug("Windows Graphics Capture failed, using the legacy capture.", ex);
                 }
             }
 

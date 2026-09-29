@@ -29,15 +29,18 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
+using Dapplo.Windows.DesktopWindowsManager;
+using Dapplo.Windows.DesktopWindowsManager.Enums;
 using Dapplo.Windows.User32;
-using Greenshot.Native.DirectX;
+using Greenshot.Base.Core;
+using Greenshot.Base.Native.DirectX;
 using log4net;
 using Windows.Graphics.Capture;
 using Windows.Graphics.DirectX;
 using Windows.Graphics.DirectX.Direct3D11;
 using Greenshot.Base.Threading;
 
-namespace Greenshot.Native
+namespace Greenshot.Base.Native
 {
     /// <summary>
     /// Provides static methods for capturing the visual content of windows and monitors via Windows Graphics Capture API
@@ -49,18 +52,41 @@ namespace Greenshot.Native
         // Constants
         private const int D3D11_SDK_VERSION = 7;
         private const int D3D_DRIVER_TYPE_HARDWARE = 1;
+        private const int D3D_DRIVER_TYPE_WARP = 5;
         private const int D3D11_CREATE_DEVICE_BGRA_SUPPORT = 0x20;
 
         /// <summary>
-        /// Creates a Direct3D 11 device and its associated device context for hardware rendering with BGRA support.
+        /// Creates a Direct3D 11 device and its associated device context with BGRA support.
+        /// Uses the hardware (GPU) driver, and falls back to WARP (the software rasterizer) when there is no usable GPU,
+        /// e.g. in a virtual machine without GPU or some RDP sessions.
         /// </summary>
         /// <param name="device">When this method returns, contains the created ID3D11Device instance representing the Direct3D device.</param>
         /// <param name="context">When this method returns, contains the created ID3D11DeviceContext instance used to issue rendering commands.</param>
-        public static void CreateD3D11Device(out ID3D11Device device, out ID3D11DeviceContext context)
+        internal static void CreateD3D11Device(out ID3D11Device device, out ID3D11DeviceContext context)
         {
-            int hr = D3D11CreateDevice(
+            int hr = CreateD3D11Device(D3D_DRIVER_TYPE_HARDWARE, out device, out context);
+            if (hr == 0)
+            {
+                return;
+            }
+
+            Log.Info($"Creating a hardware Direct3D 11 device failed (0x{hr:X8}), using the WARP software device.");
+            int warpHr = CreateD3D11Device(D3D_DRIVER_TYPE_WARP, out device, out context);
+            if (warpHr != 0)
+            {
+                Log.Warn($"Creating the WARP Direct3D 11 device failed too (0x{warpHr:X8}).");
+                Marshal.ThrowExceptionForHR(hr);
+            }
+        }
+
+        /// <summary>
+        /// Create a Direct3D 11 device for the driver type, returns the HRESULT
+        /// </summary>
+        internal static int CreateD3D11Device(int driverType, out ID3D11Device device, out ID3D11DeviceContext context)
+        {
+            return D3D11CreateDevice(
                 IntPtr.Zero,
-                D3D_DRIVER_TYPE_HARDWARE,
+                driverType,
                 IntPtr.Zero,
                 D3D11_CREATE_DEVICE_BGRA_SUPPORT,
                 null,
@@ -69,8 +95,68 @@ namespace Greenshot.Native
                 out device,
                 out _,
                 out context);
+        }
 
-            if (hr != 0) Marshal.ThrowExceptionForHR(hr);
+        /// <summary>
+        /// The WARP (software) driver type, for tests which force the fallback
+        /// </summary>
+        internal static int WarpDriverType => D3D_DRIVER_TYPE_WARP;
+
+        private static readonly Lazy<bool> IsSupportedLazy = new(CheckIsSupported, LazyThreadSafetyMode.ExecutionAndPublication);
+
+        /// <summary>
+        /// True when Windows Graphics Capture can be used: Windows 10 1809 (build 17763) or newer and GraphicsCaptureSession.IsSupported().
+        /// Checked once, used for the still captures and the video recording.
+        /// </summary>
+        public static bool IsSupported => IsSupportedLazy.Value;
+
+        private static bool CheckIsSupported()
+        {
+            try
+            {
+                // Windows 10 Version 1809 (Build 17763) or higher for WGC, 19041+ recommended for cursor capture and Direct3D interop.
+                var version = Environment.OSVersion.Version;
+                if (version.Major < 10 || (version.Major == 10 && version.Build < 17763))
+                {
+                    return false;
+                }
+
+                bool isSupported = GraphicsCaptureSession.IsSupported();
+                if (!isSupported)
+                {
+                    Log.Info("Windows Graphics Capture is not supported on this system, the legacy capture is used.");
+                }
+
+                return isSupported;
+            }
+            catch (Exception ex)
+            {
+                Log.Debug("GraphicsCaptureSession.IsSupported check failed: " + ex.Message);
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Create the Direct3D device in the background, so the first capture doesn't pay for it (~200 ms).
+        /// </summary>
+        public static async Task PrewarmAsync(CancellationToken cancellationToken = default)
+        {
+            // The device is bound to the MTA (see GetOrCreateDevice)
+            await ThreadPoolSwitch.SwitchToThreadPoolAsync();
+            cancellationToken.ThrowIfCancellationRequested();
+            if (!IsSupported)
+            {
+                return;
+            }
+
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+            lock (DeviceLock)
+            {
+                if (GetOrCreateDevice(out _, out _, out _))
+                {
+                    Log.Debug($"Direct3D device for Windows Graphics Capture is ready after {stopwatch.ElapsedMilliseconds} ms.");
+                }
+            }
         }
 
         internal static readonly object DeviceLock = new object();
@@ -308,6 +394,11 @@ namespace Greenshot.Native
         /// <summary>
         /// Transforms a Direct3D 11 texture into a .NET Bitmap object in 32bpp ARGB format.
         /// </summary>
+        /// <remarks>
+        /// Windows Graphics Capture (and Direct2D) deliver premultiplied BGRA, Format32bppArgb is straight alpha:
+        /// the colors of partly transparent pixels are un-premultiplied while copying. Otherwise those pixels are too dark,
+        /// e.g. a dark fringe at the rounded corners of Windows 11 windows.
+        /// </remarks>
         /// <param name="texture">The Direct3D 11 texture to be converted. Must be a valid ID3D11Texture2D instance.</param>
         /// <param name="device">The Direct3D 11 device used to create a staging texture for data transfer.</param>
         /// <param name="context">The Direct3D 11 device context used to copy and map the texture data.</param>
@@ -353,20 +444,14 @@ namespace Greenshot.Native
                     byte* sourcePtr = (byte*)mappedResource.pData;
                     byte* destPtr = (byte*)bmpData.Scan0;
 
-                    if (mappedResource.RowPitch == bmpData.Stride && mappedResource.RowPitch == bytesPerRow)
+                    for (int y = 0; y < height; y++)
                     {
-                        Buffer.MemoryCopy(sourcePtr, destPtr, (long)bytesPerRow * height, (long)bytesPerRow * height);
-                    }
-                    else
-                    {
-                        for (int y = 0; y < height; y++)
-                        {
-                            // Use Buffer.MemoryCopy for fast, safe unmanaged copy
-                            Buffer.MemoryCopy(sourcePtr, destPtr, bytesPerRow, bytesPerRow);
+                        // Use Buffer.MemoryCopy for fast, safe unmanaged copy
+                        Buffer.MemoryCopy(sourcePtr, destPtr, bytesPerRow, bytesPerRow);
+                        UnpremultiplyRow(destPtr, width);
 
-                            sourcePtr += mappedResource.RowPitch;
-                            destPtr += bmpData.Stride;
-                        }
+                        sourcePtr += mappedResource.RowPitch;
+                        destPtr += bmpData.Stride;
                     }
 
                     bitmap.UnlockBits(bmpData);
@@ -380,6 +465,30 @@ namespace Greenshot.Native
             finally
             {
                 if (textureCopy != null) Marshal.ReleaseComObject(textureCopy);
+            }
+        }
+
+        /// <summary>
+        /// Convert a row of premultiplied BGRA pixels to straight alpha, in place.
+        /// Opaque (the vast majority) and fully transparent pixels are left as they are.
+        /// </summary>
+        /// <param name="row">Pointer to the first pixel (B, G, R, A byte order)</param>
+        /// <param name="width">Number of pixels in the row</param>
+        internal static unsafe void UnpremultiplyRow(byte* row, int width)
+        {
+            byte* pixel = row;
+            for (int x = 0; x < width; x++, pixel += 4)
+            {
+                int alpha = pixel[3];
+                if (alpha == 255 || alpha == 0)
+                {
+                    continue;
+                }
+
+                int half = alpha / 2;
+                pixel[0] = (byte)Math.Min(255, (pixel[0] * 255 + half) / alpha);
+                pixel[1] = (byte)Math.Min(255, (pixel[1] * 255 + half) / alpha);
+                pixel[2] = (byte)Math.Min(255, (pixel[2] * 255 + half) / alpha);
             }
         }
 
@@ -523,16 +632,91 @@ namespace Greenshot.Native
         /// Captures the visual content of the specified window and returns it as a Bitmap image.
         /// </summary>
         /// <remarks>This method uses Direct3D 11 to capture the window's content.
-        /// The window must be visible and not minimized for accurate results.
+        /// A minimized window is restored first (a minimized window delivers no frames).
+        /// Windows Graphics Capture only captures top-level windows: for a child window its top-level window is captured and cropped
+        /// to the child window.
         /// The caller is responsible for disposing the returned Bitmap when it is no longer needed.
         /// </remarks>
         /// <param name="window">The handle to the window whose content is to be captured. Must be a valid window handle; otherwise, the capture may fail.</param>
         /// <param name="cancellationToken">CancellationToken</param>
         /// <returns>A Bitmap object containing the captured image of the specified window. Returns null if the capture operation fails.</returns>
-        public static Task<Bitmap> CaptureWindowToBitmapAsync(IntPtr window, CancellationToken cancellationToken = default)
+        public static async Task<Bitmap> CaptureWindowToBitmapAsync(IntPtr window, CancellationToken cancellationToken = default)
         {
-            return CaptureItemToBitmapAsync(() => CreateCaptureItemForWindow(window), () => HdrDisplayInfo.GetMonitorForWindow(window), $"window {window}", cancellationToken);
+            if (window == IntPtr.Zero || !IsSupported)
+            {
+                return null;
+            }
+
+            var topLevelWindow = GetAncestor(window, GetAncestorRoot);
+            if (topLevelWindow == IntPtr.Zero)
+            {
+                topLevelWindow = window;
+            }
+
+            // A minimized window doesn't deliver frames, the capture would run into the timeout: restore it first (as the legacy capture does)
+            var topLevelDetails = new WindowDetails(topLevelWindow);
+            if (topLevelDetails.Iconic)
+            {
+                Log.Debug($"Restoring the minimized window {topLevelWindow} for the capture.");
+                await topLevelDetails.RestoreAsync(cancellationToken).ConfigureAwait(false);
+            }
+
+            var bitmap = await CaptureItemToBitmapAsync(() => CreateCaptureItemForWindow(topLevelWindow), () => HdrDisplayInfo.GetMonitorForWindow(topLevelWindow), $"window {topLevelWindow}", cancellationToken).ConfigureAwait(false);
+            if (bitmap == null || topLevelWindow == window)
+            {
+                return bitmap;
+            }
+
+            return CropToChildWindow(bitmap, topLevelWindow, window);
         }
+
+        /// <summary>
+        /// Crop the capture of the top-level window to the bounds of the child window, the capture is disposed.
+        /// </summary>
+        private static Bitmap CropToChildWindow(Bitmap topLevelCapture, IntPtr topLevelWindow, IntPtr childWindow)
+        {
+            using (topLevelCapture)
+            {
+                // The capture of a top-level window covers its visible frame (the extended frame bounds, without the invisible resize borders)
+                if (!TryGetExtendedFrameBounds(topLevelWindow, out var captureBounds) && !GetWindowRect(topLevelWindow, out captureBounds))
+                {
+                    Log.Debug($"Can't determine the bounds of window {topLevelWindow}, the child window {childWindow} isn't captured.");
+                    return null;
+                }
+
+                if (!GetWindowRect(childWindow, out var childBounds))
+                {
+                    Log.Debug($"Can't determine the bounds of the child window {childWindow}.");
+                    return null;
+                }
+
+                var cropRectangle = new Rectangle(childBounds.X - captureBounds.X, childBounds.Y - captureBounds.Y, childBounds.Width, childBounds.Height);
+                cropRectangle.Intersect(new Rectangle(0, 0, topLevelCapture.Width, topLevelCapture.Height));
+                if (cropRectangle.Width <= 0 || cropRectangle.Height <= 0)
+                {
+                    Log.Debug($"The child window {childWindow} is outside of the capture of its top-level window {topLevelWindow}.");
+                    return null;
+                }
+
+                Log.Debug($"Captured the top-level window {topLevelWindow} for the child window {childWindow}, cropped to {cropRectangle}.");
+                return topLevelCapture.Clone(cropRectangle, topLevelCapture.PixelFormat);
+            }
+        }
+
+        private static bool TryGetExtendedFrameBounds(IntPtr window, out NativeRect bounds)
+        {
+            var result = DwmApi.DwmGetWindowAttribute(window, DwmWindowAttributes.ExtendedFrameBounds, out bounds, Marshal.SizeOf(typeof(NativeRect)));
+            return result.Succeeded() && bounds.Width > 0 && bounds.Height > 0;
+        }
+
+        private const uint GetAncestorRoot = 2; // GA_ROOT
+
+        [DllImport("user32.dll", ExactSpelling = true)]
+        private static extern IntPtr GetAncestor(IntPtr hwnd, uint flags);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool GetWindowRect(IntPtr hwnd, out NativeRect rectangle);
 
         /// <summary>
         /// Captures the image of the specified monitor and returns it as a Bitmap object.
@@ -545,6 +729,11 @@ namespace Greenshot.Native
         /// <returns>A Bitmap containing the captured image of the monitor. Returns null if the capture operation fails.</returns>
         public static Task<Bitmap> CaptureMonitorToBitmapAsync(IntPtr hMonitor, CancellationToken cancellationToken = default)
         {
+            if (!IsSupported)
+            {
+                return Task.FromResult<Bitmap>(null);
+            }
+
             return CaptureItemToBitmapAsync(() => CreateCaptureItemForMonitor(hMonitor), () => hMonitor, $"monitor {hMonitor}", cancellationToken);
         }
 
@@ -678,7 +867,7 @@ namespace Greenshot.Native
         /// intersect the specified bounds or the bounds are empty.</returns>
         public static async Task<Bitmap> CaptureRectangleAsync(NativeRect captureBounds, CancellationToken cancellationToken = default)
         {
-            if (captureBounds.Height <= 0 || captureBounds.Width <= 0)
+            if (captureBounds.Height <= 0 || captureBounds.Width <= 0 || !IsSupported)
             {
                 return null;
             }

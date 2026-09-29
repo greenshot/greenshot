@@ -22,12 +22,17 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace Greenshot.Native.DirectX;
+namespace Greenshot.Base.Native.DirectX;
 
 /// <summary>
-/// Represents a DirectX Graphics Infrastructure (DXGI) surface for interop with Windows Runtime Direct3D surfaces.
+/// COM interop interface for Windows.Graphics.Capture.IGraphicsCaptureSession3.
+/// Introduced in Windows 11 Build 22000 (UniversalApiContract v12.0) to control
+/// the capture border.
 /// </summary>
 [ComImport]
-[Guid("cafcb56c-6ac3-4889-bf47-9e23bbd260ec")]
-[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-internal interface IDXGISurface { }
+[Guid("F2CDD966-22AE-5EA1-9596-3A289344C3BE")]
+[InterfaceType(ComInterfaceType.InterfaceIsIInspectable)]
+internal interface IGraphicsCaptureSession3
+{
+    bool IsBorderRequired { get; set; }
+}

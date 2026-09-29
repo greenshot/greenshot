@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  * 
@@ -22,20 +22,15 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace Greenshot.Native.DirectX;
+namespace Greenshot.Base.Native.DirectX;
 
 /// <summary>
-/// Provides methods for creating graphics capture items for a specified window or monitor.
+/// Represents a Direct3D 11 resource that can be used for rendering and resource management operations.
 /// </summary>
-/// <remarks>This interface is used to interact with graphics capture items in a COM environment. It allows the
-/// creation of capture items based on either a window handle or a monitor handle, enabling applications to capture
-/// graphics content from specific sources.</remarks>
+/// <remarks>This interface serves as the base for all resource types in Direct3D 11, such as textures and
+/// buffers. It provides a common set of functionalities for handling resources within the Direct3D API.</remarks>
 [ComImport]
 [ComVisible(true)]
-[Guid("3628E81B-3CAC-4C60-B7F4-23CE0E0C3356")]
+[Guid("dc8e63f3-d12b-4952-b47b-5e45026a862d")]
 [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-internal interface IGraphicsCaptureItemInterop
-{
-    IntPtr CreateForWindow([In] IntPtr window, [In] ref Guid iid);
-    IntPtr CreateForMonitor([In] IntPtr hMonitor, [In] ref Guid iid);
-}
+internal interface ID3D11Resource { }

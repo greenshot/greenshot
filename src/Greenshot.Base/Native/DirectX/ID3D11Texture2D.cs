@@ -22,15 +22,31 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace Greenshot.Native.DirectX;
+namespace Greenshot.Base.Native.DirectX;
 
 /// <summary>
-/// Represents a Direct3D 11 resource that can be used for rendering and resource management operations.
+/// Represents a two-dimensional texture resource used in Direct3D 11 for storing and manipulating image data.
 /// </summary>
-/// <remarks>This interface serves as the base for all resource types in Direct3D 11, such as textures and
-/// buffers. It provides a common set of functionalities for handling resources within the Direct3D API.</remarks>
+/// <remarks>This interface provides methods to retrieve the texture's description and manage its resource
+/// properties. It is essential for rendering operations that require texture mapping in graphics
+/// applications.</remarks>
 [ComImport]
 [ComVisible(true)]
-[Guid("dc8e63f3-d12b-4952-b47b-5e45026a862d")]
+[Guid("6f15aaf2-d208-4e89-9ab4-489535d34f9c")]
 [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-internal interface ID3D11Resource { }
+internal interface ID3D11Texture2D : ID3D11Resource
+{
+    // ID3D11DeviceChild methods (inherited)
+    void GetDevice();
+    void GetPrivateData();
+    void SetPrivateData();
+    void SetPrivateDataInterface();
+
+    // ID3D11Resource methods (inherited)
+    void GetType();
+    void SetEvictionPriority();
+    void GetEvictionPriority();
+
+    // ID3D11Texture2D methods
+    void GetDesc(out D3D11_TEXTURE2D_DESC pDesc);
+}

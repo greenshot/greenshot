@@ -23,11 +23,10 @@ using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
-using System.Threading.Tasks;
 using Greenshot.Base.Interfaces.Video;
 using log4net;
 
-namespace Greenshot.Native.Audio
+namespace Greenshot.Base.Native.Audio
 {
     /// <summary>
     /// Captures audio (system loopback or microphone) using Windows Core Audio (WASAPI).
