@@ -490,13 +490,21 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
 
                 // Generate the entries for the drop down: the destination itself and its dynamic destinations
                 int generation = 0;
+                bool reopening = false;
                 destinationButton.DropDownOpening += delegate
                 {
+                    if (reopening)
+                    {
+                        // Shown again after the dynamic destinations were added, the items are complete
+                        reopening = false;
+                        return;
+                    }
+
                     ClearItems(destinationButton.DropDownItems);
                     destinationButton.DropDownItems.Add(DestinationMenuBuilder.CreateMenuItem(toolstripDestination, _surface.CaptureDetails, ExportTo, addDynamics: false));
                     // Only the latest opening adds its items (a slow COM server could answer after the next opening)
                     int currentGeneration = ++generation;
-                    AddDynamicDestinationItemsAsync(destinationButton, toolstripDestination, () => currentGeneration == generation)
+                    AddDynamicDestinationItemsAsync(destinationButton, toolstripDestination, () => currentGeneration == generation, () => reopening = true)
                         .FireAndLog($"Dynamic destinations of {toolstripDestination.Designation}", Log);
                 };
 
@@ -517,18 +525,23 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
         /// <summary>
         /// Add the dynamic destinations to the drop down when they arrive (the destination may have to ask a COM server).
         /// </summary>
-        private async Task AddDynamicDestinationItemsAsync(ToolStripSplitButton destinationButton, IDestination destination, Func<bool> isCurrent)
+        private async Task AddDynamicDestinationItemsAsync(ToolStripSplitButton destinationButton, IDestination destination, Func<bool> isCurrent, Action beforeReopen)
         {
-            var subDestinations = await destination.GetDynamicDestinationsAsync(_surface.CaptureDetails, CancellationToken.None).ConfigureAwait(true);
+            // Loaded on the thread pool, the continuation is back on the UI thread
+            var subDestinations = await DestinationMenuBuilder.LoadDynamicDestinationsAsync(destination, _surface.CaptureDetails).ConfigureAwait(true);
             if (destinationButton.IsDisposed || !isCurrent())
             {
                 return;
             }
 
-            foreach (var subDestination in subDestinations.Where(d => d != null).OrderBy(d => d, DestinationComparer.Instance))
+            // The drop down is shown already, it must be hidden while its items change
+            DestinationMenuBuilder.UpdateDropDownItems(destinationButton, () =>
             {
-                destinationButton.DropDownItems.Add(DestinationMenuBuilder.CreateMenuItem(subDestination, _surface.CaptureDetails, ExportTo, addDynamics: false));
-            }
+                foreach (var subDestination in subDestinations.Where(d => d != null).OrderBy(d => d, DestinationComparer.Instance))
+                {
+                    destinationButton.DropDownItems.Add(DestinationMenuBuilder.CreateMenuItem(subDestination, _surface.CaptureDetails, ExportTo, addDynamics: false));
+                }
+            }, beforeReopen);
         }
 
         /// <summary>

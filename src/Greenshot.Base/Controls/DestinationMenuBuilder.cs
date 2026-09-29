@@ -147,7 +147,7 @@ namespace Greenshot.Base.Controls
         /// Load the dynamic destinations in the background: some do slow work before their first await
         /// (the printers are enumerated synchronously, Office starts its COM thread), the menu must not wait for that.
         /// </summary>
-        private static async Task<IReadOnlyList<IDestination>> LoadDynamicDestinationsAsync(IDestination destination, ICaptureDetails captureDetails)
+        public static async Task<IReadOnlyList<IDestination>> LoadDynamicDestinationsAsync(IDestination destination, ICaptureDetails captureDetails)
         {
             await ThreadPoolSwitch.SwitchToThreadPoolAsync();
             try
@@ -169,14 +169,41 @@ namespace Greenshot.Base.Controls
                 return;
             }
 
-            // Changing the items of a drop down while it is shown leaves it with a wrong size and location (an empty line, or at the top left of the screen):
-            // hide it while the items change, and show it again when there is something to show
-            bool wasShown = menuItem.DropDown.Visible;
-            if (wasShown)
+            UpdateDropDownItems(menuItem, () => ReplaceWithDynamicDestinations(menuItem, destination, subDestinations, captureDetails, onClick));
+        }
+
+        /// <summary>
+        /// Change the drop down items of the item, on the UI thread.
+        /// Changing the items of a drop down while it is shown leaves it with a wrong size and location (an empty line, or at the top left of the screen):
+        /// it is hidden while the items change, and shown again when there is something to show.
+        /// </summary>
+        /// <param name="item">The item with the drop down</param>
+        /// <param name="update">Changes the items</param>
+        /// <param name="beforeReopen">Called before the drop down is shown again (its DropDownOpening event is raised again)</param>
+        public static void UpdateDropDownItems(ToolStripDropDownItem item, Action update, Action beforeReopen = null)
+        {
+            if (item == null || item.IsDisposed)
             {
-                menuItem.HideDropDown();
+                return;
             }
 
+            bool wasShown = item.DropDown.Visible;
+            if (wasShown)
+            {
+                item.HideDropDown();
+            }
+
+            update();
+
+            if (wasShown && !item.IsDisposed && item.HasDropDownItems && item.Owner is { Visible: true })
+            {
+                beforeReopen?.Invoke();
+                item.ShowDropDown();
+            }
+        }
+
+        private static void ReplaceWithDynamicDestinations(ToolStripMenuItem menuItem, IDestination destination, IReadOnlyList<IDestination> subDestinations, ICaptureDetails captureDetails, Action<IDestination> onClick)
+        {
             var previousItems = menuItem.DropDownItems.Cast<ToolStripItem>().ToList();
             menuItem.DropDownItems.Clear();
             foreach (var previousItem in previousItems)
@@ -197,11 +224,6 @@ namespace Greenshot.Base.Controls
             foreach (var subDestination in validSubDestinations)
             {
                 menuItem.DropDownItems.Add(CreateMenuItem(subDestination, captureDetails, onClick, false));
-            }
-
-            if (wasShown && menuItem.HasDropDownItems && menuItem.Owner is { Visible: true })
-            {
-                menuItem.ShowDropDown();
             }
         }
 
