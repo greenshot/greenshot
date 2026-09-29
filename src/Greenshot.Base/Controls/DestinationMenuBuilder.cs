@@ -125,7 +125,7 @@ namespace Greenshot.Base.Controls
 
             if (descriptor.HasDynamicDestinations && addDynamics)
             {
-                // Menus are built right before they are shown: the dynamic destinations are loaded immediately (not when the sub menu opens),
+                // Menus are built right before they are shown: the dynamic destinations are loaded in the background right away (not when the sub menu opens),
                 // so they are usually in place before the user reaches the item. Until then a placeholder shows that there is more.
                 var placeholder = new ToolStripMenuItem("…") { Enabled = false };
                 menuItem.DropDownItems.Add(placeholder);
@@ -137,19 +137,33 @@ namespace Greenshot.Base.Controls
 
         private static async Task AddDynamicDestinationsAsync(ToolStripMenuItem menuItem, IDestination destination, ICaptureDetails captureDetails, Action<IDestination> onClick)
         {
-            IReadOnlyList<IDestination> subDestinations;
+            var ui = UiDispatcher.Current;
+            var subDestinations = await LoadDynamicDestinationsAsync(destination, captureDetails).ConfigureAwait(false);
+            // Back to the UI thread for the menu, the menu is shown by now (or even closed again)
+            await ui.InvokeAsync(() => ApplyDynamicDestinations(menuItem, destination, subDestinations, captureDetails, onClick), CancellationToken.None).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Load the dynamic destinations in the background: some do slow work before their first await
+        /// (the printers are enumerated synchronously, Office starts its COM thread), the menu must not wait for that.
+        /// </summary>
+        private static async Task<IReadOnlyList<IDestination>> LoadDynamicDestinationsAsync(IDestination destination, ICaptureDetails captureDetails)
+        {
+            await ThreadPoolSwitch.SwitchToThreadPoolAsync();
             try
             {
-                // The destination may ask a COM server (Office) for its documents, this doesn't block the UI
-                subDestinations = await destination.GetDynamicDestinationsAsync(captureDetails, CancellationToken.None).ConfigureAwait(true);
+                return await destination.GetDynamicDestinationsAsync(captureDetails, CancellationToken.None).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
                 // Fixing Bug #3536968: skip the dynamic destinations when there is an error
                 Log.ErrorFormat("Skipping the dynamic destinations of {0}, due to the following error: {1}", destination.Designation, ex.Message);
-                subDestinations = Array.Empty<IDestination>();
+                return Array.Empty<IDestination>();
             }
+        }
 
+        private static void ApplyDynamicDestinations(ToolStripMenuItem menuItem, IDestination destination, IReadOnlyList<IDestination> subDestinations, ICaptureDetails captureDetails, Action<IDestination> onClick)
+        {
             if (menuItem.IsDisposed)
             {
                 return;
@@ -170,7 +184,7 @@ namespace Greenshot.Base.Controls
                 previousItem.Dispose();
             }
 
-            var validSubDestinations = subDestinations.Where(d => d != null).OrderBy(d => d, DestinationComparer.Instance).ToList();
+            var validSubDestinations = (subDestinations ?? Array.Empty<IDestination>()).Where(d => d != null).OrderBy(d => d, DestinationComparer.Instance).ToList();
             if (destination.Descriptor.UseDynamicsOnly && validSubDestinations.Count == 1)
             {
                 // Only one: the item itself becomes that destination, without a sub menu
