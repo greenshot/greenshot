@@ -46,6 +46,9 @@ using Greenshot.Editor.Drawing.Fields;
 using Greenshot.Editor.Helpers;
 using Greenshot.Editor.Memento;
 using log4net;
+using System.Threading;
+using System.Threading.Tasks;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Editor.Drawing
 {
@@ -1056,26 +1059,74 @@ namespace Greenshot.Editor.Drawing
                 // Test if it's an url and try to download the image so we have it in the original form
                 if (possibleUrl != null && possibleUrl.StartsWith("http"))
                 {
-                    var drawableContainer = NetworkHelper.DownloadImageAsDrawableContainer(possibleUrl);
-                    if (drawableContainer != null)
-                    {
-                        drawableContainer.Left = Location.X;
-                        drawableContainer.Top = Location.Y;
-                        FitContainer(drawableContainer);
-                        AddElement(drawableContainer);
-                        return;
-                    }
+                    // The data object is only valid during the drop: take what it has now, the download decides later
+                    var fallbackContainers = ClipboardHelper.GetDrawables(e.Data).ToList();
+                    AsyncCommand.Run(() => AddDownloadedOrFallbackAsync(new[] { possibleUrl }, fallbackContainers, new NativePoint(Location.X, Location.Y), mouse, true, false),
+                        "Download the dropped image");
+                    return;
                 }
             }
 
-            foreach (var drawableContainer in ClipboardHelper.GetDrawables(e.Data))
+            AddDrawables(ClipboardHelper.GetDrawables(e.Data), mouse, true, false);
+        }
+
+        /// <summary>
+        /// Add the drawables, each 10 pixels offset from the previous
+        /// </summary>
+        private void AddDrawables(IEnumerable<IDrawableContainer> drawableContainers, NativePoint location, bool fit, bool select)
+        {
+            foreach (var drawableContainer in drawableContainers)
             {
-                drawableContainer.Left = mouse.X;
-                drawableContainer.Top = mouse.Y;
-                FitContainer(drawableContainer);
+                if (drawableContainer == null) continue;
+                if (select)
+                {
+                    DeselectAllElements();
+                }
+
+                drawableContainer.Left = location.X;
+                drawableContainer.Top = location.Y;
+                if (fit)
+                {
+                    FitContainer(drawableContainer);
+                }
+
                 AddElement(drawableContainer);
-                mouse = mouse.Offset(10, 10);
+                if (select)
+                {
+                    SelectElement(drawableContainer);
+                }
+
+                location = location.Offset(10, 10);
             }
+        }
+
+        /// <summary>
+        /// Download the first image of the urls and add it, else add the fallback drawables. Runs on the UI thread, the download doesn't block it.
+        /// </summary>
+        private async Task AddDownloadedOrFallbackAsync(IList<string> urls, IList<IDrawableContainer> fallbackContainers, NativePoint downloadLocation, NativePoint fallbackLocation, bool fit, bool select)
+        {
+            IDrawableContainer downloaded = null;
+            foreach (var url in urls)
+            {
+                downloaded = await NetworkHelper.DownloadImageAsDrawableContainerAsync(url, CancellationToken.None);
+                if (downloaded != null)
+                {
+                    break;
+                }
+            }
+
+            if (downloaded == null)
+            {
+                AddDrawables(fallbackContainers, fallbackLocation, fit, select);
+                return;
+            }
+
+            foreach (var fallbackContainer in fallbackContainers)
+            {
+                fallbackContainer?.Dispose();
+            }
+
+            AddDrawables(new[] { downloaded }, downloadLocation, fit, select);
         }
 
         #endregion
@@ -2400,15 +2451,16 @@ namespace Greenshot.Editor.Drawing
             {
                 NativePoint pasteLocation = GetPasteLocation(0.1f, 0.1f);
 
-                foreach (var drawableContainer in ClipboardHelper.GetDrawables(clipboard))
+                var drawableContainers = ClipboardHelper.GetDrawables(clipboard).Where(drawableContainer => drawableContainer != null).ToList();
+                var imageUrls = drawableContainers.Count == 0 ? ClipboardHelper.GetHtmlImageUrls(clipboard) : Array.Empty<string>();
+                if (imageUrls.Count > 0)
                 {
-                    if (drawableContainer == null) continue;
-                    DeselectAllElements();
-                    drawableContainer.Left = pasteLocation.X;
-                    drawableContainer.Top = pasteLocation.Y; 
-                    AddElement(drawableContainer);
-                    SelectElement(drawableContainer);
-                    pasteLocation = pasteLocation.Offset(10, 10);
+                    // Only HTML with images: download them without blocking the UI
+                    AsyncCommand.Run(() => AddDownloadedOrFallbackAsync(imageUrls, drawableContainers, pasteLocation, pasteLocation, false, true), "Download the pasted image");
+                }
+                else
+                {
+                    AddDrawables(drawableContainers, pasteLocation, false, true);
                 }
             }
             else if (ClipboardHelper.ContainsText(clipboard))

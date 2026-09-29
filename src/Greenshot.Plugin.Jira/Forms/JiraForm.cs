@@ -30,6 +30,7 @@ using Dapplo.Jira.Entities;
 using Dapplo.Windows.Dpi;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Plugin.Jira.Forms;
 
@@ -70,20 +71,20 @@ public partial class JiraForm : Form
             .FromEventPattern(jiraKey, nameof(jiraKey.TextChanged))
             .Throttle(TimeSpan.FromMilliseconds(300))
             .ObserveOn(this)
-            .Subscribe(async _ => await JiraKeyTextChanged());
+            .Subscribe(_ => AsyncCommand.Run(JiraKeyTextChangedAsync, "Jira key changed"));
     }
 
-    private async void OnLoad(object sender, EventArgs eventArgs)
+    private void OnLoad(object sender, EventArgs eventArgs)
     {
         if (DesignMode || _jiraConnector == null)
         {
             return;
         }
 
-        this.Invoke(async () => { await OnLoad(); });
+        AsyncCommand.Run(OnLoadAsync, "Load the Jira form");
     }
 
-    private async Task OnLoad()
+    private async Task OnLoadAsync()
     {
         try
         {
@@ -154,18 +155,29 @@ public partial class JiraForm : Form
         return _selectedIssue;
     }
 
-    public async Task UploadAsync(IBinaryContainer attachment)
+    /// <summary>
+    /// The view of a <see cref="JiraUploadRequest"/>: shows the dialog modally (on the UI thread).
+    /// </summary>
+    /// <returns>the choice of the user, null when canceled</returns>
+    public static JiraUploadChoice Show(JiraUploadRequest request)
     {
-        attachment.Filename = jiraFilenameBox.Text;
-        await _jiraConnector.AttachAsync(_selectedIssue.Key, attachment);
-
-        if (!string.IsNullOrEmpty(jiraCommentBox.Text))
+        var jiraConnector = SimpleServiceProvider.Current.GetInstance<JiraConnector>();
+        using var jiraForm = new JiraForm(jiraConnector);
+        jiraForm.SetFilename(request.Filename);
+        if (jiraForm.ShowDialog() != DialogResult.OK || jiraForm.GetJiraIssue() == null)
         {
-            await _jiraConnector.AddCommentAsync(_selectedIssue.Key, jiraCommentBox.Text);
+            return null;
         }
+
+        return new JiraUploadChoice(jiraForm.GetJiraIssue(), jiraForm.jiraFilenameBox.Text, jiraForm.jiraCommentBox.Text);
     }
 
-    private async void JiraFilterBox_SelectedIndexChanged(object sender, EventArgs e)
+    private void JiraFilterBox_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        AsyncCommand.Run(FilterSelectedAsync, "Jira filter selected");
+    }
+
+    private async Task FilterSelectedAsync()
     {
         if (!_jiraConnector.IsLoggedIn)
         {
@@ -286,7 +298,7 @@ public partial class JiraForm : Form
         jiraListView.Sort();
     }
 
-    private async Task JiraKeyTextChanged()
+    private async Task JiraKeyTextChangedAsync()
     {
         string jiranumber = jiraKey.Text;
         uploadButton.Enabled = false;

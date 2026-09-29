@@ -19,15 +19,21 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System.ComponentModel;
-using System.Drawing;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 
 namespace Greenshot.Plugin.Box;
 
-public class BoxDestination : AbstractDestination
+public class BoxDestination : DestinationBase
 {
+    /// <summary>
+    /// The icons in the resources of the plugin
+    /// </summary>
+    public static ResourceIconProvider Icons { get; } = new ResourceIconProvider("box", typeof(BoxPlugin));
+
     private readonly BoxPlugin _plugin;
 
     public BoxDestination(BoxPlugin plugin)
@@ -37,28 +43,11 @@ public class BoxDestination : AbstractDestination
 
     public override string Designation => "Box";
 
-    public override string Description => Language.GetString("box", LangKey.upload_menu_item);
+    public override DestinationDescriptor Descriptor => new DestinationDescriptor(Language.GetString("box", LangKey.upload_menu_item), iconKey: Icons.KeyFor("Box"));
 
-    public override Image DisplayIcon
+    public override async Task<ExportResult> ExportAsync(ExportRequest request, CancellationToken cancellationToken)
     {
-        get
-        {
-            ComponentResourceManager resources = new ComponentResourceManager(typeof(BoxPlugin));
-            return (Image) resources.GetObject("Box");
-        }
-    }
-
-    public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
-    {
-        ExportInformation exportInformation = new ExportInformation(Designation, Description);
-        string uploadUrl = _plugin.Upload(captureDetails, surface);
-        if (uploadUrl != null)
-        {
-            exportInformation.ExportMade = true;
-            exportInformation.Uri = uploadUrl;
-        }
-
-        ProcessExport(exportInformation, surface);
-        return exportInformation;
+        string uploadUrl = await _plugin.UploadAsync(request.Source, request.Metadata, request.Ui, cancellationToken).ConfigureAwait(false);
+        return uploadUrl == null ? ExportResult.Declined : ExportResult.Succeeded(uri: new Uri(uploadUrl));
     }
 }

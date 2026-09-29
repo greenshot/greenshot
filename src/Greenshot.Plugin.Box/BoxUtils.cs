@@ -19,12 +19,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net.Http;
 using System.Runtime.Serialization.Json;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.OAuth;
+using Greenshot.Base.Interfaces;
+using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.Base.Threading;
 using Dapplo.Ini;
 
 namespace Greenshot.Plugin.Box;
@@ -40,35 +47,16 @@ public static class BoxUtils
     private const string FilesUri = "https://www.box.com/api/2.0/files/{0}";
 
     /// <summary>
-    /// Put string
-    /// </summary>
-    /// <param name="url"></param>
-    /// <param name="content"></param>
-    /// <param name="settings">OAuth2Settings</param>
-    /// <returns>response</returns>
-    public static string HttpPut(string url, string content, OAuth2Settings settings)
-    {
-        var webRequest = OAuth2Helper.CreateOAuth2WebRequest(HTTPMethod.PUT, url, settings);
-
-        byte[] data = Encoding.UTF8.GetBytes(content);
-        using (var requestStream = webRequest.GetRequestStream())
-        {
-            requestStream.Write(data, 0, data.Length);
-        }
-
-        return NetworkHelper.GetResponseAsString(webRequest);
-    }
-
-    /// <summary>
     /// Do the actual upload to Box
     /// For more details on the available parameters, see: https://developers.box.net/w/page/12923951/ApiFunction_Upload%20and%20Download
     /// </summary>
-    /// <param name="image">Image for box upload</param>
-    /// <param name="title">Title of box upload</param>
+    /// <param name="image">The encoded capture</param>
     /// <param name="filename">Filename of box upload</param>
-    /// <returns>url to uploaded image</returns>
-    /// TODO: Remove title und filename?
-    public static string UploadToBox(SurfaceContainer image, string title, string filename)
+    /// <param name="userInteraction">IUserInteraction for the authorization</param>
+    /// <param name="progress">IProgress for the upload</param>
+    /// <param name="cancellationToken">CancellationToken</param>
+    /// <returns>url to uploaded image, null when the user didn't authorize</returns>
+    public static async Task<string> UploadToBoxAsync(EncodedImage image, string filename, IUserInteraction userInteraction, IProgress<ProgressInfo> progress, CancellationToken cancellationToken)
     {
         // Fill the OAuth2Settings
         var settings = new OAuth2Settings
@@ -85,25 +73,19 @@ public static class BoxUtils
             AccessTokenExpires = Config.AccessTokenExpires
         };
 
-
-        // Copy the settings from the config, which is kept in memory and on the disk
-
         try
         {
-            var webRequest = OAuth2Helper.CreateOAuth2WebRequest(HTTPMethod.POST, UploadFileUri, settings);
-            IDictionary<string, object> parameters = new Dictionary<string, object>
+            var request = await OAuth2Helper.CreateOAuth2RequestAsync(HttpMethod.Post, UploadFileUri, settings, userInteraction, cancellationToken).ConfigureAwait(false);
+            if (request == null)
             {
-                {
-                    "file", image
-                },
-                {
-                    "parent_id", Config.FolderId
-                }
-            };
+                return null;
+            }
 
-            NetworkHelper.WriteMultipartFormData(webRequest, parameters);
-
-            var response = NetworkHelper.GetResponseAsString(webRequest);
+            request.Content = NetworkHelper.CreateMultipartContent("file", image, filename, new Dictionary<string, object>
+            {
+                { "parent_id", Config.FolderId }
+            }, progress);
+            var response = await NetworkHelper.SendAsync(request, cancellationToken).ConfigureAwait(false);
 
             Log.DebugFormat("Box response: {0}", response);
 
@@ -112,7 +94,14 @@ public static class BoxUtils
 
             if (Config.UseSharedLink)
             {
-                string filesResponse = HttpPut(string.Format(FilesUri, upload.Entries[0].Id), "{\"shared_link\": {\"access\": \"open\"}}", settings);
+                var putRequest = await OAuth2Helper.CreateOAuth2RequestAsync(HttpMethod.Put, string.Format(FilesUri, upload.Entries[0].Id), settings, userInteraction, cancellationToken).ConfigureAwait(false);
+                if (putRequest == null)
+                {
+                    return null;
+                }
+
+                putRequest.Content = new StringContent("{\"shared_link\": {\"access\": \"open\"}}", Encoding.UTF8);
+                string filesResponse = await NetworkHelper.SendAsync(putRequest, cancellationToken).ConfigureAwait(false);
                 var file = JsonSerializer.Deserialize<FileEntry>(filesResponse);
                 return file.SharedLink.Url;
             }
@@ -121,14 +110,16 @@ public static class BoxUtils
         }
         finally
         {
-            // Copy the settings back to the config, so they are stored.
-            Config.RefreshToken = settings.RefreshToken;
-            Config.AccessToken = settings.AccessToken;
-            Config.AccessTokenExpires = settings.AccessTokenExpires;
+            // Copy the settings back to the config (on the UI thread), so they are stored.
+            await UiDispatcher.Current.InvokeAsync(() =>
+            {
+                Config.RefreshToken = settings.RefreshToken;
+                Config.AccessToken = settings.AccessToken;
+                Config.AccessTokenExpires = settings.AccessTokenExpires;
+            }, CancellationToken.None).ConfigureAwait(false);
         }
     }
 }
-
 /// <summary>
 /// A simple helper class for the DataContractJsonSerializer
 /// </summary>

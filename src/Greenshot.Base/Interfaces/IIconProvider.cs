@@ -20,27 +20,26 @@
  */
 
 using System.Drawing;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Greenshot.Base.Interfaces
 {
     /// <summary>
-    /// Marker interface for destinations that can accept a pre-rendered bitmap,
-    /// allowing them to skip their own surface render pass when a shared rendered
-    /// image is already available from another destination in the same capture pipeline.
-    ///
-    /// Destinations implementing this interface will be called via
-    /// <see cref="ExportCaptureWithRenderedImage"/> instead of the standard
-    /// <see cref="IDestination.ExportCapture"/> when a shared bitmap is available,
-    /// avoiding redundant GDI+ composite passes per destination.
-    ///
-    /// Future candidates: PrinterDestination.
+    /// Resolves the icon keys of destination descriptors for the UI layer. Several providers can be registered, each one knows
+    /// its own keys (e.g. "resource:", "exe:", "jira:"); icons which need the network are resolved asynchronously,
+    /// the menu shows a placeholder until then (roadmap section 5.1).
     /// </summary>
-    public interface IAcceptsPreRenderedImage
+    public interface IIconProvider
     {
         /// <summary>
-        /// Export the capture using a pre-rendered bitmap. The destination must not
-        /// dispose <paramref name="preRenderedImage"/> — lifetime is managed by the caller.
+        /// True when the key belongs to this provider.
         /// </summary>
-        ExportInformation ExportCaptureWithRenderedImage(Image preRenderedImage, ISurface surface, ICaptureDetails captureDetails);
+        bool CanProvide(string iconKey);
+
+        /// <summary>
+        /// The icon for the key, the caller owns (disposes) it; null when there is none.
+        /// </summary>
+        Task<Image> GetIconAsync(string iconKey, CancellationToken cancellationToken);
     }
 }

@@ -23,8 +23,9 @@ using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
-using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
 using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
@@ -84,6 +85,7 @@ public class BoxPlugin : IGreenshotPlugin, IRecipeStepProvider
     public void RegisterServices(IServiceLocator serviceLocator)
     {
         _resources = new ComponentResourceManager(typeof(BoxPlugin));
+        serviceLocator.AddService<IIconProvider>(BoxDestination.Icons);
         serviceLocator.AddService<IDestination>(new BoxDestination(this));
         if (RecipeConfigHelper.IsRecipeFeatureEnabled())
         {
@@ -173,33 +175,23 @@ public class BoxPlugin : IGreenshotPlugin, IRecipeStepProvider
     }
 
     /// <summary>
-    /// This will be called when the menu item in the Editor is clicked
+    /// Upload the capture to Box, shows the progress to the user.
     /// </summary>
-    public string Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload)
+    /// <returns>the url of the upload, null when the user didn't authorize</returns>
+    public async Task<string> UploadAsync(IExportSource source, ICaptureDetails captureDetails, IUserInteraction userInteraction, CancellationToken cancellationToken)
     {
-        SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, false);
-        try
+        var outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, false);
+        string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
+        var image = await source.EncodeAsync(outputSettings, cancellationToken).ConfigureAwait(false);
+
+        string url = await userInteraction.RunWithProgressAsync(Language.GetString("box", LangKey.communication_wait),
+            (progress, token) => BoxUtils.UploadToBoxAsync(image, filename, userInteraction, progress, token), cancellationToken).ConfigureAwait(false);
+
+        if (url != null && _config.AfterUploadLinkToClipBoard)
         {
-            string url = null;
-            string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
-            SurfaceContainer imageToUpload = new SurfaceContainer(surfaceToUpload, outputSettings, filename);
-
-            new PleaseWaitForm().ShowAndWait("Box", Language.GetString("box", LangKey.communication_wait),
-                delegate { url = BoxUtils.UploadToBox(imageToUpload, captureDetails.Title, filename); }
-            );
-
-            if (url != null && _config.AfterUploadLinkToClipBoard)
-            {
-                ClipboardHelper.SetClipboardData(url);
-            }
-
-            return url;
+            await ClipboardService.Current.SetTextAsync(url, cancellationToken).ConfigureAwait(false);
         }
-        catch (Exception ex)
-        {
-            LOG.Error("Error uploading.", ex);
-            MessageBox.Show(Language.GetString("box", LangKey.upload_failure) + " " + ex.Message);
-            return null;
-        }
+
+        return url;
     }
 }

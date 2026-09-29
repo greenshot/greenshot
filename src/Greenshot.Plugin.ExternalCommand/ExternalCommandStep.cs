@@ -37,6 +37,8 @@ using Greenshot.Base.Pipeline;
 using Greenshot.Base.Pipeline.Contracts;
 using Greenshot.Base.Recipes;
 using log4net;
+using Greenshot.Base.Threading;
+using Greenshot.Base.Core.Export;
 
 namespace Greenshot.Plugin.ExternalCommand
 {
@@ -199,7 +201,8 @@ namespace Greenshot.Plugin.ExternalCommand
 
             if (string.IsNullOrEmpty(fullPath) || !File.Exists(fullPath))
             {
-                fullPath = ImageIO.SaveNamedTmpFile(surface, captureDetails, outputSettings);
+                var source = await context.Payload.GetExportSourceAsync(context.Ui, cancellationToken).ConfigureAwait(false);
+                fullPath = await ExportFiles.SaveNamedTmpFileAsync(source, captureDetails, outputSettings, cancellationToken).ConfigureAwait(false);
             }
 
             context.Properties["ExternalCommand.TargetFile"] = fullPath;
@@ -225,30 +228,15 @@ namespace Greenshot.Plugin.ExternalCommand
             // 4. Execution
             if (runInBackground)
             {
-                _ = Task.Run(() =>
-                {
-                    try
-                    {
-                        ExecuteProcess(resolvedCommandLine, resolvedArguments, resolvedWorkingDir, verb, out _, out _);
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Error($"External command background execution failed: {resolvedCommandLine}", ex);
-                    }
-                }, cancellationToken);
+                // The flow doesn't wait for the command, the task is observed (logged) and outlives the flow
+                ExecuteProcessAsync(resolvedCommandLine, resolvedArguments, resolvedWorkingDir, verb, CancellationToken.None)
+                    .FireAndLog($"External command background execution: {resolvedCommandLine}", Log);
 
                 context.LogStep($"External command '{commandName ?? resolvedCommandLine}' launched in background.");
                 return;
             }
 
-            string output = null;
-            string error = null;
-            int exitCode = -1;
-
-            await Task.Run(() =>
-            {
-                exitCode = ExecuteProcess(resolvedCommandLine, resolvedArguments, resolvedWorkingDir, verb, out output, out error);
-            }, cancellationToken).ConfigureAwait(false);
+            var (exitCode, output, error) = await ExecuteProcessAsync(resolvedCommandLine, resolvedArguments, resolvedWorkingDir, verb, cancellationToken).ConfigureAwait(false);
 
             context.Properties["ExternalCommand.ExitCode"] = exitCode;
             context.Properties["ExternalCommand.Output"] = output ?? "";
@@ -280,15 +268,16 @@ namespace Greenshot.Plugin.ExternalCommand
                     Log.InfoFormat("ExternalCommandStep: Extracted URI '{0}' from output.", matchedUri);
                 }
 
+                var clipboard = ClipboardService.For(context.Ui);
                 if (outputToClipboard)
                 {
-                    ClipboardHelper.SetClipboardData(output);
+                    await clipboard.SetTextAsync(output, cancellationToken).ConfigureAwait(false);
                     context.LogStep("Copied external command output to clipboard.");
                 }
 
                 if (uriToClipboard && !string.IsNullOrEmpty(matchedUri))
                 {
-                    ClipboardHelper.SetClipboardData(matchedUri);
+                    await clipboard.SetTextAsync(matchedUri, cancellationToken).ConfigureAwait(false);
                     context.LogStep($"Copied extracted URL '{matchedUri}' to clipboard.");
                 }
             }
@@ -307,8 +296,7 @@ namespace Greenshot.Plugin.ExternalCommand
                             CaptureDetails = captureDetails
                         };
                         context.Payload.Surface = null;
-                        context.Payload.SharedRenderedBitmap?.Dispose();
-                        context.Payload.SharedRenderedBitmap = null;
+                        context.Payload.InvalidateExportSource();
                         context.LogStep($"Reloaded transformed image from '{fullPath}' ({reloadedBitmap.Width}x{reloadedBitmap.Height}).");
                         Log.InfoFormat("ExternalCommandStep: Reloaded image payload from {0}", fullPath);
                     }
@@ -322,11 +310,9 @@ namespace Greenshot.Plugin.ExternalCommand
             context.LogStep($"External command finished with exit code {exitCode}.");
         }
 
-        private static int ExecuteProcess(string commandLine, string arguments, string workingDirectory, string verb, out string output, out string error)
+        private static async Task<(int ExitCode, string Output, string Error)> ExecuteProcessAsync(string commandLine, string arguments, string workingDirectory, string verb,
+            CancellationToken cancellationToken)
         {
-            output = null;
-            error = null;
-
             var extConfig = Config;
             using (var process = new Process())
             {
@@ -350,7 +336,7 @@ namespace Greenshot.Plugin.ExternalCommand
 
                 try
                 {
-                    process.Start();
+                    return await process.RunAsync(cancellationToken).ConfigureAwait(false);
                 }
                 catch (Win32Exception)
                 {
@@ -359,23 +345,8 @@ namespace Greenshot.Plugin.ExternalCommand
                     process.StartInfo.UseShellExecute = true;
                     process.StartInfo.RedirectStandardOutput = false;
                     process.StartInfo.RedirectStandardError = false;
-                    process.Start();
-                    process.WaitForExit();
-                    return process.ExitCode;
+                    return await process.RunAsync(cancellationToken).ConfigureAwait(false);
                 }
-
-                if (process.StartInfo.RedirectStandardOutput)
-                {
-                    output = process.StandardOutput.ReadToEnd();
-                }
-
-                if (process.StartInfo.RedirectStandardError)
-                {
-                    error = process.StandardError.ReadToEnd();
-                }
-
-                process.WaitForExit();
-                return process.ExitCode;
             }
         }
     }

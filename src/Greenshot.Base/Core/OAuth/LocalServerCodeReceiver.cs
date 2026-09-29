@@ -27,6 +27,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using log4net;
 
 namespace Greenshot.Base.Core.OAuth
@@ -38,7 +39,6 @@ namespace Greenshot.Base.Core.OAuth
     public class LocalServerCodeReceiver
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(LocalServerCodeReceiver));
-        private readonly ManualResetEvent _ready = new ManualResetEvent(true);
 
         /// <summary>
         /// The call back format. Expects one port parameter.
@@ -84,116 +84,92 @@ Greenshot received information from CloudServiceName. You can close this browser
             }
         }
 
-        private string _cloudServiceName;
-
-        private readonly IDictionary<string, string> _returnValues = new Dictionary<string, string>();
-
-
         /// <summary>
-        /// The OAuth code receiver
+        /// The OAuth code receiver: opens the browser and waits (without blocking a thread) for the redirect.
         /// </summary>
         /// <param name="oauth2Settings"></param>
+        /// <param name="cancellationToken">CancellationToken, stops the waiting</param>
         /// <returns>Dictionary with values</returns>
-        public IDictionary<string, string> ReceiveCode(OAuth2Settings oauth2Settings)
+        public async Task<IDictionary<string, string>> ReceiveCodeAsync(OAuth2Settings oauth2Settings, CancellationToken cancellationToken)
         {
             // Set the redirect URL on the settings
             oauth2Settings.RedirectUrl = RedirectUri;
-            _cloudServiceName = oauth2Settings.CloudServiceName;
-            using (var listener = new HttpListener())
-            {
-                listener.Prefixes.Add(oauth2Settings.RedirectUrl);
-                try
-                {
-                    listener.Start();
-
-                    // Get the formatted FormattedAuthUrl
-                    string authorizationUrl = oauth2Settings.FormattedAuthUrl;
-                    Log.DebugFormat("Open a browser with: {0}", authorizationUrl);
-                    Process.Start(authorizationUrl);
-
-                    // Wait to get the authorization code response.
-                    var context = listener.BeginGetContext(ListenerCallback, listener);
-                    _ready.Reset();
-
-                    while (!context.AsyncWaitHandle.WaitOne(1000, true))
-                    {
-                        Log.Debug("Waiting for response");
-                    }
-                }
-                catch (Exception)
-                {
-                    // Make sure we can clean up, also if the thead is aborted
-                    _ready.Set();
-                    throw;
-                }
-                finally
-                {
-                    _ready.WaitOne();
-                    listener.Close();
-                }
-            }
-
-            return _returnValues;
-        }
-
-        /// <summary>
-        /// Handle a connection async, this allows us to break the waiting
-        /// </summary>
-        /// <param name="result">IAsyncResult</param>
-        private void ListenerCallback(IAsyncResult result)
-        {
-            HttpListener listener = (HttpListener) result.AsyncState;
-
-            //If not listening return immediately as this method is called one last time after Close()
-            if (!listener.IsListening)
-            {
-                return;
-            }
-
-            // Use EndGetContext to complete the asynchronous operation.
-            HttpListenerContext context = listener.EndGetContext(result);
-
-
-            // Handle request
-            HttpListenerRequest request = context.Request;
+            string cloudServiceName = oauth2Settings.CloudServiceName;
+            var returnValues = new Dictionary<string, string>();
+            using var listener = new HttpListener();
+            listener.Prefixes.Add(oauth2Settings.RedirectUrl);
+            listener.Start();
             try
             {
-                NameValueCollection nameValueCollection = request.QueryString;
+                // Get the formatted FormattedAuthUrl
+                string authorizationUrl = oauth2Settings.FormattedAuthUrl;
+                Log.DebugFormat("Open a browser with: {0}", authorizationUrl);
+                using (Process.Start(authorizationUrl))
+                {
+                    // Only started
+                }
 
-                // Get response object.
+                // Wait to get the authorization code response.
+                HttpListenerContext context = await GetContextAsync(listener, cancellationToken).ConfigureAwait(false);
+                NameValueCollection nameValueCollection = context.Request.QueryString;
+
+                // Write a "close" response.
                 using (HttpListenerResponse response = context.Response)
                 {
-                    // Write a "close" response.
-                    byte[] buffer = Encoding.UTF8.GetBytes(ClosePageResponse.Replace("CloudServiceName", _cloudServiceName));
-                    // Write to response stream.
+                    byte[] buffer = Encoding.UTF8.GetBytes(ClosePageResponse.Replace("CloudServiceName", cloudServiceName));
                     response.ContentLength64 = buffer.Length;
                     using var stream = response.OutputStream;
-                    stream.Write(buffer, 0, buffer.Length);
+                    await stream.WriteAsync(buffer, 0, buffer.Length, cancellationToken).ConfigureAwait(false);
                 }
 
                 // Create a new response URL with a dictionary that contains all the response query parameters.
                 foreach (var name in nameValueCollection.AllKeys)
                 {
-                    if (!_returnValues.ContainsKey(name))
+                    if (name != null && !returnValues.ContainsKey(name))
                     {
-                        _returnValues.Add(name, nameValueCollection[name]);
+                        returnValues.Add(name, nameValueCollection[name]);
                     }
                 }
             }
-            catch (Exception)
+            finally
             {
-                context.Response.OutputStream.Close();
-                throw;
+                listener.Close();
             }
 
-            _ready.Set();
+            return returnValues;
+        }
+
+        /// <summary>
+        /// Wait for the next request, cancellation closes the listener.
+        /// </summary>
+        internal static async Task<HttpListenerContext> GetContextAsync(HttpListener listener, CancellationToken cancellationToken)
+        {
+            using var registration = cancellationToken.Register(() =>
+            {
+                try
+                {
+                    listener.Close();
+                }
+                catch (ObjectDisposedException)
+                {
+                    // Already closed
+                }
+            });
+            try
+            {
+                return await listener.GetContextAsync().ConfigureAwait(false);
+            }
+            catch (Exception ex) when (cancellationToken.IsCancellationRequested && ex is HttpListenerException or ObjectDisposedException)
+            {
+                throw new OperationCanceledException(cancellationToken);
+            }
         }
 
         /// <summary>
         /// Returns a random, unused port.
         /// </summary>
         /// <returns>port to use</returns>
-        private static int GetRandomUnusedPort()
+        internal static int GetRandomUnusedPort()
         {
             var listener = new TcpListener(IPAddress.Loopback, 0);
             try

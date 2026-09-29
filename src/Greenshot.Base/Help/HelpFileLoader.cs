@@ -21,13 +21,16 @@
 
 using System.Diagnostics;
 using System.Net;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
 using Greenshot.Base.Core;
 using log4net;
 
 namespace Greenshot.Base.Help
 {
     /// <summary>
-    /// Description of HelpFileLoader.
+    /// Opens the online help (localized when available) or the local help file.
     /// </summary>
     public static class HelpFileLoader
     {
@@ -35,14 +38,19 @@ namespace Greenshot.Base.Help
 
         private const string ExtHelpUrl = @"https://getgreenshot.org/help/";
 
-        public static void LoadHelp()
+        /// <summary>
+        /// Open the help, checks (without blocking the UI) if the online help is reachable.
+        /// </summary>
+        public static async Task LoadHelpAsync()
         {
-            string uri = FindOnlineHelpUrl(Language.CurrentLanguage) ?? Language.HelpFilePath;
-            Process.Start(uri);
+            string uri = await FindOnlineHelpUrlAsync(Language.CurrentLanguage, CancellationToken.None).ConfigureAwait(false) ?? Language.HelpFilePath;
+            using (Process.Start(uri))
+            {
+                // Only started
+            }
         }
 
-        /// <returns>URL of help file in selected ietf, or (if not present) default ietf, or null (if not present, too. probably indicating that there is no internet connection)</returns>
-        private static string FindOnlineHelpUrl(string currentIETF)
+        private static async Task<string> FindOnlineHelpUrlAsync(string currentIETF, CancellationToken cancellationToken)
         {
             string ret = null;
 
@@ -53,7 +61,7 @@ namespace Greenshot.Base.Help
                 extHelpUrlForCurrrentIETF += currentIETF.ToLower() + "/";
             }
 
-            HttpStatusCode? httpStatusCode = GetHttpStatus(extHelpUrlForCurrrentIETF);
+            HttpStatusCode? httpStatusCode = await GetHttpStatusAsync(extHelpUrlForCurrrentIETF, cancellationToken).ConfigureAwait(false);
             if (httpStatusCode == HttpStatusCode.OK)
             {
                 ret = extHelpUrlForCurrrentIETF;
@@ -61,7 +69,7 @@ namespace Greenshot.Base.Help
             else if (httpStatusCode != null && !extHelpUrlForCurrrentIETF.Equals(ExtHelpUrl))
             {
                 Log.DebugFormat("Localized online help not found at {0}, will try {1} as fallback", extHelpUrlForCurrrentIETF, ExtHelpUrl);
-                httpStatusCode = GetHttpStatus(ExtHelpUrl);
+                httpStatusCode = await GetHttpStatusAsync(ExtHelpUrl, cancellationToken).ConfigureAwait(false);
                 if (httpStatusCode == HttpStatusCode.OK)
                 {
                     ret = ExtHelpUrl;
@@ -79,22 +87,21 @@ namespace Greenshot.Base.Help
             return ret;
         }
 
-        /// <summary>
-        /// Retrieves HTTP status for a given url.
-        /// </summary>
-        /// <param name="url">URL for which the HTTP status is to be checked</param>
-        /// <returns>An HTTP status code, or null if there is none (probably indicating that there is no internet connection available</returns>
-        private static HttpStatusCode? GetHttpStatus(string url)
+        private static async Task<HttpStatusCode?> GetHttpStatusAsync(string url, CancellationToken cancellationToken)
         {
             try
             {
-                HttpWebRequest req = NetworkHelper.CreateWebRequest(url);
-                using HttpWebResponse res = (HttpWebResponse) req.GetResponse();
-                return res.StatusCode;
+                using var response = await NetworkHelper.HttpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                return response.StatusCode;
             }
-            catch (WebException e)
+            catch (HttpRequestException)
             {
-                return ((HttpWebResponse) e.Response)?.StatusCode;
+                return null;
+            }
+            catch (TaskCanceledException) when (!cancellationToken.IsCancellationRequested)
+            {
+                // Timeout
+                return null;
             }
         }
     }

@@ -29,6 +29,7 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Pipeline;
 using Greenshot.Base.Recipes;
+using Greenshot.Base.Threading;
 using Greenshot.Plugin.Imgur.Forms;
 
 namespace Greenshot.Plugin.Imgur;
@@ -92,6 +93,7 @@ public class ImgurPlugin : IGreenshotPlugin, IRecipeStepProvider
     public void RegisterServices(IServiceLocator serviceLocator)
     {
         _resources = new ComponentResourceManager(typeof(ImgurPlugin));
+        serviceLocator.AddService<IIconProvider>(ImgurDestination.Icons);
         serviceLocator.AddService<IDestination>(new ImgurDestination());
         if (RecipeConfigHelper.IsRecipeFeatureEnabled())
         {
@@ -167,8 +169,7 @@ public class ImgurPlugin : IGreenshotPlugin, IRecipeStepProvider
 
         try
         {
-            var form = SimpleServiceProvider.Current.GetInstance<Form>();
-            form.BeginInvoke((MethodInvoker) delegate
+            UiDispatcher.Current.InvokeAsync(() =>
             {
                 var historyMenuItem = _historyMenuItem;
                 if (historyMenuItem == null)
@@ -184,7 +185,7 @@ public class ImgurPlugin : IGreenshotPlugin, IRecipeStepProvider
                 {
                     historyMenuItem.Enabled = false;
                 }
-            });
+            }).FireAndLog("Update the Imgur history menu item", Log);
         }
         catch (Exception ex)
         {

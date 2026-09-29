@@ -176,12 +176,12 @@ namespace Greenshot.Tests.Recipes
             Assert.Empty(result.GatedActions);
         }
 
-        private class MockAuthorizedDestination : AbstractDestination, IRequiresRecipeAuthorization
+        private class MockAuthorizedDestination : DestinationBase, IRequiresRecipeAuthorization
         {
             public override string Designation => "SecurityAuditDestination";
-            public override string Description => "Custom Security Destination";
-            public override IEnumerable<IDestination> DynamicDestinations() => Enumerable.Empty<IDestination>();
-            public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails) => null;
+            public override DestinationDescriptor Descriptor { get; } = new DestinationDescriptor("Custom Security Destination");
+            public override System.Threading.Tasks.Task<ExportResult> ExportAsync(ExportRequest request, System.Threading.CancellationToken cancellationToken)
+                => System.Threading.Tasks.Task.FromResult(ExportResult.Declined);
             public IEnumerable<RecipeGatedAction> GetGatedActions()
             {
                 yield return new RecipeGatedAction(RecipeGateType.ExternalCommand, @"C:\Security\audit.exe");

@@ -22,6 +22,8 @@
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Automation;
 using Greenshot.Base.Core;
 using Greenshot.Plugin.Confluence.Entities;
@@ -35,7 +37,10 @@ public class ConfluenceUtils
 {
     private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ConfluenceUtils));
 
-    public static List<Page> GetCurrentPages()
+    /// <summary>
+    /// The Confluence pages which are open in a browser
+    /// </summary>
+    public static async Task<List<Page>> GetCurrentPagesAsync(CancellationToken cancellationToken)
     {
         List<Page> pages = new List<Page>();
         Regex pageIdRegex = new Regex(@"pageId=(\d+)");
@@ -72,7 +77,7 @@ public class ConfluenceUtils
 
                     if (!pageDouble)
                     {
-                        Page page = ConfluencePlugin.ConfluenceConnector.GetPage(pageId);
+                        Page page = await ConfluencePlugin.ConfluenceConnector.GetPageAsync(pageId, cancellationToken).ConfigureAwait(false);
                         LOG.DebugFormat("Adding page {0}", page.Title);
                         pages.Add(page);
                     }
@@ -119,7 +124,7 @@ public class ConfluenceUtils
 
                         if (!pageDouble)
                         {
-                            Page page = ConfluencePlugin.ConfluenceConnector.GetPage(space, title);
+                            Page page = await ConfluencePlugin.ConfluenceConnector.GetPageAsync(space, title, cancellationToken).ConfigureAwait(false);
                             LOG.DebugFormat("Adding page {0}", page.Title);
                             pages.Add(page);
                         }

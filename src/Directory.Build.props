@@ -59,6 +59,11 @@
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.401" PrivateAssets="All"/>
   </ItemGroup>
 
+  <!-- HttpClient (NetworkHelper.HttpClient) is part of the framework, but not referenced by default -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net480' And '$(MSBuildProjectExtension)' == '.csproj'">
+    <Reference Include="System.Net.Http" />
+  </ItemGroup>
+
   <!-- Async & threading guardrails, see docs/async-threading-roadmap.md (section 3 and Phase 0).
        Test and build-task projects are excluded: tests may block on tasks, build tasks run inside MSBuild. -->
   <PropertyGroup Condition="!$(MSBuildProjectName.Contains('Tests')) And $(MSBuildProjectName.StartsWith('Greenshot')) And '$(MSBuildProjectName)' != 'Greenshot.BuildTasks'">

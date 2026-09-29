@@ -84,11 +84,7 @@ namespace Greenshot.Pipeline.Steps
             bool disposePreview = false;
             if (showPreview)
             {
-                if (context.Payload?.SharedRenderedBitmap != null)
-                {
-                    previewImg = context.Payload.SharedRenderedBitmap;
-                }
-                else if (context.Payload?.RawCapture?.Image != null)
+                if (context.Payload?.RawCapture?.Image != null)
                 {
                     previewImg = context.Payload.RawCapture.Image;
                 }
@@ -104,7 +100,7 @@ namespace Greenshot.Pipeline.Steps
             }
 
             // Resolve destinations (excluding legacy WinForms destination picker)
-            var allDests = DestinationHelper.GetAllDestinations()?.Where(d => d.IsActive && !string.Equals(d.Designation, "Picker", StringComparison.OrdinalIgnoreCase)).ToList() ?? new List<IDestination>();
+            var allDests = DestinationHelper.GetAllDestinations()?.Where(d => d.IsAvailableFor(context.Payload?.RawCapture?.CaptureDetails) && !string.Equals(d.Designation, "Picker", StringComparison.OrdinalIgnoreCase)).ToList() ?? new List<IDestination>();
             var specificDestDesignations = Config.GetParameter<List<string>>("Destinations");
             List<IDestination> targetDests;
             if (specificDestDesignations != null && specificDestDesignations.Count > 0)
@@ -170,7 +166,7 @@ namespace Greenshot.Pipeline.Steps
             }
             else if (selectedDest != null)
             {
-                context.LogStep($"DynamicDestination: User selected destination '{selectedDest.Description ?? selectedDest.Designation}'.");
+                context.LogStep($"DynamicDestination: User selected destination '{selectedDest.Descriptor?.DisplayName ?? selectedDest.Designation}'.");
                 var dispatcher = new DestinationDispatcher();
                 await dispatcher.DispatchAsync(context, new[] { selectedDest }, cancellationToken).ConfigureAwait(false);
             }

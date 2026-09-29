@@ -24,6 +24,7 @@ using System.Runtime.Caching;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Log;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Plugin.Jira;
 
@@ -101,7 +102,7 @@ public abstract class AsyncMemoryCache<TKey, TResult> where TResult : class
     private async Task<TResult> GetOrCreateInternalAsync(TKey keyObject, CacheItemPolicy cacheItemPolicy = null, CancellationToken cancellationToken = default)
     {
         var key = CreateKey(keyObject);
-        var completionSource = new TaskCompletionSource<TResult>();
+        var completionSource = Tcs.Create<TResult>();
 
         if (cacheItemPolicy == null)
         {
@@ -136,17 +137,17 @@ public abstract class AsyncMemoryCache<TKey, TResult> where TResult : class
                 return await result.ConfigureAwait(false);
             }
 
-            // Now, start the background task, which will set the completionSource with the correct response
-            // ReSharper disable once MethodSupportsCancellation
-            // ReSharper disable once UnusedVariable
-            var ignoreBackgroundTask = Task.Run(async () =>
+            // Now, start the creation, which will set the completionSource with the correct response (it never throws, the task is observed)
+            FillAsync().FireAndLog("Fill the async memory cache");
+
+            async Task FillAsync()
             {
                 try
                 {
                     var backgroundResult = await CreateAsync(keyObject, cancellationToken).ConfigureAwait(false);
                     completionSource.TrySetResult(backgroundResult);
                 }
-                catch (TaskCanceledException)
+                catch (OperationCanceledException)
                 {
                     completionSource.TrySetCanceled();
                 }
@@ -154,7 +155,7 @@ public abstract class AsyncMemoryCache<TKey, TResult> where TResult : class
                 {
                     completionSource.TrySetException(ex);
                 }
-            });
+            }
         }
         finally
         {

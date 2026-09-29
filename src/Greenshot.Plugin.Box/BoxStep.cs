@@ -51,16 +51,15 @@ namespace Greenshot.Plugin.Box
             Name = config.Name ?? "BoxUploadStep";
         }
 
-        public Task ExecuteAsync(CaptureFlowContext context, CancellationToken cancellationToken = default)
+        public async Task ExecuteAsync(CaptureFlowContext context, CancellationToken cancellationToken = default)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
 
-            var surface = context.Payload?.EnsureSurface();
-            if (surface == null)
+            if (context.Payload?.EnsureSurface() == null)
             {
                 context.LogStep("BoxStep: No surface available to upload.");
                 Log.Warn("BoxStep: Surface is null in context payload.");
-                return Task.CompletedTask;
+                return;
             }
 
             var captureDetails = context.Payload?.RawCapture?.CaptureDetails ?? new CaptureDetails();
@@ -68,21 +67,20 @@ namespace Greenshot.Plugin.Box
             context.LogStep("Uploading capture to Box...");
             Log.Info("BoxStep: Executing Box upload.");
 
-            string uploadUrl = _plugin.Upload(captureDetails, surface);
+            var source = await context.Payload.GetExportSourceAsync(context.Ui, cancellationToken).ConfigureAwait(false);
+            string uploadUrl = await _plugin.UploadAsync(source, captureDetails, context.UserInteraction, cancellationToken).ConfigureAwait(false);
             if (!string.IsNullOrEmpty(uploadUrl))
             {
                 context.Properties["Box.UploadUrl"] = uploadUrl;
-                surface.UploadUrl = uploadUrl;
+                await source.UseSurfaceAsync(surface => surface.UploadUrl = uploadUrl, cancellationToken).ConfigureAwait(false);
                 context.LogStep($"Successfully uploaded capture to Box: {uploadUrl}");
                 Log.InfoFormat("BoxStep: Capture uploaded to Box with URL '{0}'", uploadUrl);
             }
             else
             {
-                context.LogStep("BoxStep: Upload to Box did not produce a URL (cancelled or failed).");
-                Log.Warn("BoxStep: Upload to Box failed or was cancelled.");
+                context.LogStep("BoxStep: Upload to Box did not produce a URL (declined).");
+                Log.Warn("BoxStep: Upload to Box was declined.");
             }
-
-            return Task.CompletedTask;
         }
     }
 }

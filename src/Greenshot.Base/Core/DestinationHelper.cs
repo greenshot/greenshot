@@ -32,46 +32,27 @@ namespace Greenshot.Base.Core
     /// </summary>
     public static class DestinationHelper
     {
-        private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
-
         /// <summary>
-        /// Method to get all the destinations from the plugins
+        /// All registered destinations which are available in general (not excluded), sorted by priority and name.
         /// </summary>
         /// <returns>List of IDestination</returns>
         public static IEnumerable<IDestination> GetAllDestinations()
         {
-            try
-            {
-                return SimpleServiceProvider.Current.GetAllInstances<IDestination>()
-                    .Where(destination =>
+            var destinations = SimpleServiceProvider.Current.GetAllInstances<IDestination>() ?? Enumerable.Empty<IDestination>();
+            return destinations
+                .Where(destination =>
+                {
+                    try
                     {
-                        try
-                        {
-                            return destination != null && destination.IsActive;
-                        }
-                        catch
-                        {
-                            return destination != null;
-                        }
-                    })
-                    .Where(destination =>
+                        return destination != null && destination.IsAvailableFor(null);
+                    }
+                    catch
                     {
-                        try
-                        {
-                            return CoreConfig == null || CoreConfig.ExcludeDestinations == null ||
-                                   !CoreConfig.ExcludeDestinations.Contains(destination.Designation);
-                        }
-                        catch
-                        {
-                            return true;
-                        }
-                    })
-                    .OrderBy(p => p.Priority).ThenBy(p => p.Description);
-            }
-            catch
-            {
-                return SimpleServiceProvider.Current.GetAllInstances<IDestination>() ?? Enumerable.Empty<IDestination>();
-            }
+                        return destination != null;
+                    }
+                })
+                .OrderBy(d => d, DestinationComparer.Instance)
+                .ToList();
         }
 
         /// <summary>
@@ -88,21 +69,6 @@ namespace Greenshot.Base.Core
 
             try
             {
-                foreach (IDestination destination in GetAllDestinations())
-                {
-                    if (string.Equals(designation, destination?.Designation, StringComparison.OrdinalIgnoreCase))
-                    {
-                        return destination;
-                    }
-                }
-            }
-            catch
-            {
-                // Ignore and fall through to direct service provider lookup
-            }
-
-            try
-            {
                 return SimpleServiceProvider.Current.GetAllInstances<IDestination>()
                     .FirstOrDefault(d => string.Equals(designation, d?.Designation, StringComparison.OrdinalIgnoreCase));
             }
@@ -113,33 +79,23 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// A simple helper method which will call ExportCapture for the destination with the specified designation
+        /// Start the export of the surface to the destination with the designation, from a UI event (the export runs in the background).
         /// </summary>
-        /// <param name="manuallyInitiated"></param>
-        /// <param name="designation">WellKnownDestinations</param>
-        /// <param name="surface">ISurface</param>
-        /// <param name="captureDetails">ICaptureDetails</param>
-        public static ExportInformation ExportCapture(bool manuallyInitiated, WellKnownDestinations designation, ISurface surface, ICaptureDetails captureDetails)
+        public static void StartExport(WellKnownDestinations designation, ISurface surface, bool manuallyInitiated = true)
         {
-            return ExportCapture(manuallyInitiated, designation.ToString(), surface, captureDetails);
+            StartExport(designation.ToString(), surface, manuallyInitiated);
         }
 
         /// <summary>
-        /// A simple helper method which will call ExportCapture for the destination with the specified designation
+        /// Start the export of the surface to the destination with the designation, from a UI event (the export runs in the background).
         /// </summary>
-        /// <param name="manuallyInitiated">bool</param>
-        /// <param name="designation">string</param>
-        /// <param name="surface">ISurface</param>
-        /// <param name="captureDetails">ICaptureDetails</param>
-        public static ExportInformation ExportCapture(bool manuallyInitiated, string designation, ISurface surface, ICaptureDetails captureDetails)
+        public static void StartExport(string designation, ISurface surface, bool manuallyInitiated = true)
         {
-            IDestination destination = GetDestination(designation);
-            if (destination != null && destination.IsActive)
+            var destination = GetDestination(designation);
+            if (destination != null && destination.IsAvailableFor(surface?.CaptureDetails))
             {
-                return destination.ExportCapture(manuallyInitiated, surface, captureDetails);
+                Export.DestinationExporter.StartExport(destination, surface, manuallyInitiated);
             }
-
-            return null;
         }
     }
 }

@@ -27,6 +27,7 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Threading;
 using Greenshot.Base.Triggers;
+using Greenshot.Base.Interfaces;
 
 namespace Greenshot.Base.Pipeline
 {
@@ -59,6 +60,18 @@ namespace Greenshot.Base.Pipeline
         }
 
         private IUiDispatcher _ui;
+
+        /// <summary>
+        /// Dialogs, progress and notifications for the steps and destinations of this flow.
+        /// Defaults to the registered IUserInteraction, headless when there is none (tests, command line).
+        /// </summary>
+        public IUserInteraction UserInteraction
+        {
+            get => _userInteraction ??= Core.UserInteraction.Current;
+            set => _userInteraction = value;
+        }
+
+        private IUserInteraction _userInteraction;
 
         /// <summary>
         /// The recipe driving this flow.
@@ -181,6 +194,7 @@ namespace Greenshot.Base.Pipeline
             {
                 TriggerContext = TriggerContext,
                 Ui = _ui,
+                UserInteraction = _userInteraction,
                 State = State,
                 Payload = branchPayload,
                 IsPayloadPreSupplied = IsPayloadPreSupplied,

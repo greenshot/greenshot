@@ -173,7 +173,7 @@ namespace Greenshot.Helpers
                         surface.CaptureDetails = new CaptureDetails();
                         try
                         {
-                            DestinationHelper.GetDestination(EditorDestination.DESIGNATION).ExportCapture(true, surface, surface.CaptureDetails);
+                            DestinationHelper.StartExport(EditorDestination.DESIGNATION, surface);
                             File.Delete(filePath);
                         }
                         catch (Exception ex)

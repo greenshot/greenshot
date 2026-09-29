@@ -186,7 +186,7 @@ namespace Greenshot.Plugin.Office
             Image icon = null;
             try
             {
-                icon = new WordDestination().DisplayIcon;
+                icon = WordDestination.WordExePath == null ? null : PluginUtils.GetCachedExeIcon(WordDestination.WordExePath, 0);
             }
             catch
             {

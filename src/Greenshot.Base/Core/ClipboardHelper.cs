@@ -854,35 +854,55 @@ EndSelection:<<<<<<<4
         /// <param name="format">string with the format</param>
         /// <param name="dataObject">IDataObject</param>
         /// <returns>Bitmap or null</returns>
-        private static Bitmap GetImageForFormat(string format, IDataObject dataObject)
+        /// <summary>
+        /// The urls of the images in the HTML of the data object, the caller downloads them (async) when there is no other image.
+        /// </summary>
+        /// <param name="dataObject">IDataObject</param>
+        /// <returns>list with the urls, empty when there are none</returns>
+        public static IList<string> GetHtmlImageUrls(IDataObject dataObject)
         {
-            Bitmap bitmap = null;
-
-            if (format == FORMAT_HTML)
+            var imageUrls = new List<string>();
+            if (dataObject == null || !(GetFormats(dataObject)?.Contains(FORMAT_HTML) ?? false))
             {
-                var textObject = ContentAsString(dataObject, FORMAT_HTML, Encoding.UTF8);
-                if (textObject != null)
+                return imageUrls;
+            }
+
+            var textObject = ContentAsString(dataObject, FORMAT_HTML, Encoding.UTF8);
+            if (textObject == null)
+            {
+                return imageUrls;
+            }
+
+            var doc = new HtmlDocument();
+            doc.LoadHtml(textObject);
+            var imgNodes = doc.DocumentNode.SelectNodes("//img");
+            if (imgNodes == null)
+            {
+                return imageUrls;
+            }
+
+            foreach (var imgNode in imgNodes)
+            {
+                var imageUrl = imgNode.Attributes["src"]?.Value;
+                if (!string.IsNullOrEmpty(imageUrl))
                 {
-                    var doc = new HtmlDocument();
-                    doc.LoadHtml(textObject);
-                    var imgNodes = doc.DocumentNode.SelectNodes("//img");
-                    if (imgNodes != null)
-                    {
-                        foreach (var imgNode in imgNodes)
-                        {
-                            var srcAttribute = imgNode.Attributes["src"];
-                            var imageUrl = srcAttribute.Value;
-                            Log.Debug(imageUrl);
-                            bitmap = NetworkHelper.DownloadImage(imageUrl);
-                            if (bitmap != null)
-                            {
-                                return bitmap;
-                            }
-                        }
-                    }
+                    Log.Debug(imageUrl);
+                    imageUrls.Add(imageUrl);
                 }
             }
 
+            return imageUrls;
+        }
+
+        private static Bitmap GetImageForFormat(string format, IDataObject dataObject)
+        {
+            if (format == FORMAT_HTML)
+            {
+                // The images in HTML need a download, which is async: see GetHtmlImageUrls
+                return null;
+            }
+
+            Bitmap bitmap;
             object clipboardObject = GetFromDataObject(dataObject, format);
             var imageStream = clipboardObject as MemoryStream;
             if (!IsValidStream(imageStream))
@@ -909,31 +929,10 @@ EndSelection:<<<<<<<4
         /// <returns>IDrawableContainer or null</returns>
         private static IDrawableContainer GetDrawableForFormat(string format, IDataObject dataObject)
         {
-            IDrawableContainer drawableContainer = null;
-
             if (format == FORMAT_HTML)
             {
-                var textObject = ContentAsString(dataObject, FORMAT_HTML, Encoding.UTF8);
-                if (textObject != null)
-                {
-                    var doc = new HtmlDocument();
-                    doc.LoadHtml(textObject);
-                    var imgNodes = doc.DocumentNode.SelectNodes("//img");
-                    if (imgNodes != null)
-                    {
-                        foreach (var imgNode in imgNodes)
-                        {
-                            var srcAttribute = imgNode.Attributes["src"];
-                            var imageUrl = srcAttribute.Value;
-                            Log.Debug(imageUrl);
-                            drawableContainer = NetworkHelper.DownloadImageAsDrawableContainer(imageUrl);
-                            if (drawableContainer != null)
-                            {
-                                return drawableContainer;
-                            }
-                        }
-                    }
-                }
+                // The images in HTML need a download, which is async: see GetHtmlImageUrls
+                return null;
             }
 
             object clipboardObject = GetFromDataObject(dataObject, format);

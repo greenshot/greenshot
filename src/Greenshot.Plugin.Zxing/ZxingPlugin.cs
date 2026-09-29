@@ -476,7 +476,7 @@ public class ZxingPlugin : IGreenshotPlugin, IRecipeStepProvider, IRecipeDrawabl
         Image icon = null;
         try
         {
-            icon = new ZxingQrDestination().DisplayIcon;
+            icon = PluginUtils.GetCachedExeIcon(FilenameHelper.FillCmdVariables(@"%windir%\system32\imageres.dll"), 97);
         }
         catch
         {

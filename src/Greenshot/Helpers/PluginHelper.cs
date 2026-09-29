@@ -25,9 +25,12 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.Export;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using log4net;
@@ -130,9 +133,15 @@ namespace Greenshot.Helpers
             return true;
         }
 
-        public ExportInformation ExportCapture(bool manuallyInitiated, string designation, ISurface surface, ICaptureDetails captureDetails)
+        public Task<ExportResult> ExportCaptureAsync(bool manuallyInitiated, string designation, ISurface surface, ICaptureDetails captureDetails, CancellationToken cancellationToken = default)
         {
-            return DestinationHelper.ExportCapture(manuallyInitiated, designation, surface, captureDetails);
+            var destination = DestinationHelper.GetDestination(designation);
+            if (destination == null)
+            {
+                return Task.FromResult(ExportResult.Failed($"Unknown destination {designation}"));
+            }
+
+            return DestinationExporter.ExportAsync(destination, surface, captureDetails, manuallyInitiated, cancellationToken: cancellationToken);
         }
 
         /// <summary>

@@ -80,11 +80,7 @@ namespace Greenshot.Pipeline.Steps
             bool disposePreview = false;
             if (showPreview)
             {
-                if (context.Payload?.SharedRenderedBitmap != null)
-                {
-                    previewImg = context.Payload.SharedRenderedBitmap;
-                }
-                else if (context.Payload?.RawCapture?.Image != null)
+                if (context.Payload?.RawCapture?.Image != null)
                 {
                     previewImg = context.Payload.RawCapture.Image;
                 }

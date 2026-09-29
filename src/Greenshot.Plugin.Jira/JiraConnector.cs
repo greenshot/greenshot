@@ -32,6 +32,7 @@ using Dapplo.Jira;
 using Dapplo.Jira.Entities;
 using Dapplo.Jira.SvgWinForms.Converters;
 using Greenshot.Base.Core;
+using Greenshot.Base.Interfaces;
 using Dapplo.Ini;
 
 namespace Greenshot.Plugin.Jira;
@@ -249,19 +250,17 @@ public sealed class JiraConnector : IDisposable
     }
 
     /// <summary>
-    /// Attach the content to the jira
+    /// Attach the encoded capture to the jira
     /// </summary>
     /// <param name="issueKey"></param>
-    /// <param name="content">IBinaryContainer</param>
+    /// <param name="content">EncodedImage</param>
+    /// <param name="filename">Filename of the attachment</param>
     /// <param name="cancellationToken"></param>
-    /// <returns></returns>
-    public async Task AttachAsync(string issueKey, IBinaryContainer content, CancellationToken cancellationToken = default)
+    public async Task AttachAsync(string issueKey, EncodedImage content, string filename, CancellationToken cancellationToken = default)
     {
-        await CheckCredentialsAsync(cancellationToken);
-        using var memoryStream = RecyclableMemoryStreamFactory.GetStream("JiraConnector.AttachAsync");
-        content.WriteToStream(memoryStream);
-        memoryStream.Seek(0, SeekOrigin.Begin);
-        await _jiraClient.Attachment.AttachAsync(issueKey, memoryStream, content.Filename, content.ContentType, cancellationToken).ConfigureAwait(false);
+        await CheckCredentialsAsync(cancellationToken).ConfigureAwait(false);
+        using var stream = content.OpenRead();
+        await _jiraClient.Attachment.AttachAsync(issueKey, stream, filename, content.MimeType, cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>

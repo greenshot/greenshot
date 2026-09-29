@@ -38,6 +38,6 @@ public partial class ImgurConfigurationControl : UserControl
 
     private void Button_History_Click(object sender, RoutedEventArgs e)
     {
-        ImgurHistory.ShowHistory();
+        Greenshot.Base.Threading.AsyncCommand.Run(ImgurHistory.ShowHistoryAsync, "Show the Imgur history");
     }
 }

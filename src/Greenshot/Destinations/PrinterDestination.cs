@@ -1,20 +1,20 @@
 /*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
- * 
+ *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
@@ -23,19 +23,77 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Printing;
-using System.Windows.Forms;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Greenshot.Base;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Interfaces;
+using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Configuration;
 using Greenshot.Helpers;
 
 namespace Greenshot.Destinations
 {
     /// <summary>
+    /// What to print: shown (print dialog, print options) and printed by the view registered for it, on the UI thread.
+    /// </summary>
+    public sealed class PrintRequest : IDialogViewModel<bool>
+    {
+        public PrintRequest(Image image, ICaptureDetails captureDetails, string printerName, PrintOptions printOptions, bool showPrintDialog)
+        {
+            Image = image;
+            CaptureDetails = captureDetails;
+            PrinterName = printerName;
+            PrintOptions = printOptions;
+            ShowPrintDialog = showPrintDialog;
+        }
+
+        /// <summary>
+        /// The rendered capture, borrowed
+        /// </summary>
+        public Image Image { get; }
+
+        public ICaptureDetails CaptureDetails { get; }
+
+        /// <summary>
+        /// Print to this printer, null: the default printer or the one chosen in the print dialog
+        /// </summary>
+        public string PrinterName { get; }
+
+        public PrintOptions PrintOptions { get; }
+
+        public bool ShowPrintDialog { get; }
+
+        /// <summary>
+        /// The view: prints on the UI thread, returns true when printed.
+        /// </summary>
+        public static bool Print(PrintRequest request)
+        {
+            using var printHelper = new PrintHelper(request.Image, request.CaptureDetails, request.PrintOptions);
+            PrinterSettings printerSettings;
+            if (!string.IsNullOrEmpty(request.PrinterName))
+            {
+                printerSettings = printHelper.PrintTo(request.PrinterName);
+            }
+            else if (!request.ShowPrintDialog)
+            {
+                printerSettings = printHelper.PrintTo(new PrinterSettings().PrinterName);
+            }
+            else
+            {
+                printerSettings = printHelper.PrintWithDialog();
+            }
+
+            return printerSettings != null;
+        }
+    }
+
+    /// <summary>
     /// Description of PrinterDestination.
     /// </summary>
-    public class PrinterDestination : AbstractDestination
+    public class PrinterDestination : DestinationBase
     {
         private readonly string _printerName;
         private readonly PrintOptions _printOptions;
@@ -52,101 +110,48 @@ namespace Greenshot.Destinations
 
         public override string Designation => nameof(WellKnownDestinations.Printer);
 
-        public override string Description
+        public override DestinationDescriptor Descriptor
         {
             get
             {
+                string name = Language.GetString(LangKey.settings_destination_printer);
                 if (_printerName != null)
                 {
-                    return Language.GetString(LangKey.settings_destination_printer) + " - " + _printerName;
+                    name += " - " + _printerName;
                 }
 
-                return Language.GetString(LangKey.settings_destination_printer);
+                return new DestinationDescriptor(name, 2, DestinationIcons.Resource("Printer.Image"), "Ctrl+P", hasDynamicDestinations: _printerName == null);
             }
         }
-
-        public override int Priority => 2;
-
-        public override Keys EditorShortcutKeys => Keys.Control | Keys.P;
-
-        public override Image DisplayIcon => GreenshotResources.GetImage("Printer.Image");
-
-        public override bool IsDynamic => true;
 
         /// <summary>
-        /// Create destinations for all the installed printers
+        /// Create destinations for all the installed printers, the default printer first
         /// </summary>
-        /// <returns>IEnumerable of IDestination</returns>
-        public override IEnumerable<IDestination> DynamicDestinations()
+        public override ValueTask<IReadOnlyList<IDestination>> GetDynamicDestinationsAsync(ICaptureDetails metadata, CancellationToken cancellationToken)
         {
-            PrinterSettings settings = new PrinterSettings();
-            string defaultPrinter = settings.PrinterName;
-            List<string> printers = new List<string>();
-
-            foreach (string printer in PrinterSettings.InstalledPrinters)
+            string defaultPrinter = new PrinterSettings().PrinterName;
+            var printers = PrinterSettings.InstalledPrinters.Cast<string>().ToList();
+            printers.Sort((p1, p2) =>
             {
-                printers.Add(printer);
-            }
-
-            printers.Sort(delegate(string p1, string p2)
-            {
-                if (defaultPrinter.Equals(p1))
-                {
-                    return -1;
-                }
-
-                if (defaultPrinter.Equals(p2))
-                {
-                    return 1;
-                }
-
+                if (defaultPrinter.Equals(p1)) return -1;
+                if (defaultPrinter.Equals(p2)) return 1;
                 return string.Compare(p1, p2, StringComparison.Ordinal);
             });
-            foreach (string printer in printers)
-            {
-                yield return new PrinterDestination(printer);
-            }
+            IReadOnlyList<IDestination> destinations = printers.Select(printer => (IDestination)new PrinterDestination(printer)).ToList();
+            return new ValueTask<IReadOnlyList<IDestination>>(destinations);
         }
-
-        // TODO: Implement IAcceptsPreRenderedImage to avoid a redundant surface render pass
-        // when a shared rendered bitmap is already available from the capture pipeline.
-        // PrintHelper would need an overload accepting a pre-rendered Image instead of ISurface.
 
         /// <summary>
         /// Export the capture to the printer
         /// </summary>
-        /// <param name="manuallyInitiated"></param>
-        /// <param name="surface"></param>
-        /// <param name="captureDetails"></param>
-        /// <returns>ExportInformation</returns>
-        public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
+        public override async Task<ExportResult> ExportAsync(ExportRequest request, CancellationToken cancellationToken)
         {
-            ExportInformation exportInformation = new ExportInformation(Designation, Description);
-            PrinterSettings printerSettings;
-            if (!string.IsNullOrEmpty(_printerName))
-            {
-                using PrintHelper printHelper = new PrintHelper(surface, captureDetails, _printOptions);
-                printerSettings = printHelper.PrintTo(_printerName);
-            }
-            else if (!manuallyInitiated)
-            {
-                PrinterSettings settings = new PrinterSettings();
-                using PrintHelper printHelper = new PrintHelper(surface, captureDetails, _printOptions);
-                printerSettings = printHelper.PrintTo(settings.PrinterName);
-            }
-            else
-            {
-                using PrintHelper printHelper = new PrintHelper(surface, captureDetails, _printOptions);
-                printerSettings = printHelper.PrintWithDialog();
-            }
-
-            if (printerSettings != null)
-            {
-                exportInformation.ExportMade = true;
-            }
-
-            ProcessExport(exportInformation, surface);
-            return exportInformation;
+            // The print applies its own effects (after the print options were chosen): no color reduction here
+            var settings = new SurfaceOutputSettings(OutputFormat.png, 100, false) { DisableReduceColors = true };
+            using var lease = await request.Source.RenderAsync(settings, cancellationToken).ConfigureAwait(false);
+            var printRequest = new PrintRequest(lease.Image, request.Metadata, _printerName, _printOptions, request.ManuallyInitiated);
+            bool printed = await request.Ui.ShowDialogAsync(printRequest, cancellationToken).ConfigureAwait(false);
+            return printed ? ExportResult.Succeeded() : ExportResult.Declined;
         }
     }
 }

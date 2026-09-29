@@ -1,4 +1,6 @@
 ﻿using System.Drawing;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Greenshot.Base.Interfaces.Plugin
 {
@@ -24,7 +26,9 @@ namespace Greenshot.Base.Interfaces.Plugin
         /// <param name="designation"></param>
         /// <param name="surface"></param>
         /// <param name="captureDetails"></param>
-        ExportInformation ExportCapture(bool manuallyInitiated, string designation, ISurface surface, ICaptureDetails captureDetails);
+        /// <param name="cancellationToken">CancellationToken</param>
+        /// <returns>the result of the export, the surface is updated with it</returns>
+        Task<ExportResult> ExportCaptureAsync(bool manuallyInitiated, string designation, ISurface surface, ICaptureDetails captureDetails, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Make region capture with specified Handler

@@ -278,6 +278,13 @@ namespace Greenshot.Forms
             UiDispatcher = WinFormsUiDispatcher.CreateForCurrentThread();
             SimpleServiceProvider.Current.AddService<IUiDispatcher>(UiDispatcher);
             SimpleServiceProvider.Current.AddService<IStaWorkerFactory>(StaWorkers);
+            SimpleServiceProvider.Current.AddService<IClipboardService>(new ClipboardService(UiDispatcher));
+            // The destinations talk to the user only through IUserInteraction, the dialogs are the registered views
+            var userInteraction = new InteractiveUserInteraction(UiDispatcher);
+            userInteraction.Register<PrintRequest, bool>(PrintRequest.Print);
+            userInteraction.Register<ShareRequest, string>(SharingForm.Show);
+            SimpleServiceProvider.Current.AddService<IUserInteraction>(userInteraction);
+            SimpleServiceProvider.Current.AddService<IDialogViewRegistry>(userInteraction);
 #if DEBUG
             _uiStallWatchdog = new UiStallWatchdog(UiDispatcher.Context);
 #else
@@ -527,13 +534,9 @@ namespace Greenshot.Forms
 
             foreach (var internalDestination in internalDestinations)
             {
-                if (internalDestination.IsActive)
+                if (internalDestination.IsAvailableFor(null))
                 {
                     SimpleServiceProvider.Current.AddService(internalDestination);
-                }
-                else
-                {
-                    internalDestination.Dispose();
                 }
             }
         }
@@ -1177,7 +1180,7 @@ namespace Greenshot.Forms
         /// <param name="e"></param>
         private void Contextmenu_HelpClick(object sender, EventArgs e)
         {
-            HelpFileLoader.LoadHelp();
+            AsyncCommand.Run(HelpFileLoader.LoadHelpAsync, "Load the help");
         }
 
         /// <summary>
@@ -1238,7 +1241,7 @@ namespace Greenshot.Forms
                 // Working with IDestination:
                 foreach (var destination in DestinationHelper.GetAllDestinations())
                 {
-                    selectList.AddItem(destination.Description, destination, _conf.OutputDestinations.Contains(destination.Designation));
+                    selectList.AddItem(destination.Descriptor?.DisplayName ?? destination.Designation, destination, _conf.OutputDestinations.Contains(destination.Designation));
                 }
 
                 selectList.CheckedChanged += QuickSettingDestinationChanged;

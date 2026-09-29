@@ -154,6 +154,7 @@ public class ExternalCommandPlugin : IGreenshotPlugin, IRecipeStepProvider
             ExternalCommandConfig.Delete(command);
         }
 
+        serviceLocator.AddService<IIconProvider>(new ExternalCommandIconProvider());
         serviceLocator.AddService(Destinations());
         if (RecipeConfigHelper.IsRecipeFeatureEnabled())
         {

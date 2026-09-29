@@ -196,11 +196,11 @@ namespace Greenshot.Pipeline.Steps
                     }
                 }
 
-                if (dest != null && dest.IsActive)
+                if (dest != null && dest.IsAvailableFor(context.Payload?.RawCapture?.CaptureDetails))
                 {
                     destinations.Add(dest);
                 }
-                else if (dest != null && !dest.IsActive)
+                else if (dest != null)
                 {
                     Log.WarnFormat("Destination '{0}' was resolved but is marked inactive in configuration.", dest.Designation);
                 }

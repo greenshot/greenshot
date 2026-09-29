@@ -95,6 +95,8 @@ public class JiraPlugin : IGreenshotPlugin, IRecipeStepProvider
     {
         _resources = new ComponentResourceManager(typeof(JiraPlugin));
         serviceLocator.AddService(new JiraConnector());
+        serviceLocator.AddService<IIconProvider>(new JiraIconProvider());
+        serviceLocator.GetInstance<IDialogViewRegistry>(isOptional: true)?.Register<JiraUploadRequest, JiraUploadChoice>(Forms.JiraForm.Show);
         serviceLocator.AddService<IDestination>(new JiraDestination());
         if (RecipeConfigHelper.IsRecipeFeatureEnabled())
         {

@@ -21,14 +21,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Net;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using Dapplo.Ini;
-using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Interfaces;
@@ -36,6 +33,7 @@ using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Pipeline;
 using Greenshot.Base.Pipeline.Contracts;
 using Greenshot.Base.Recipes;
+using Greenshot.Base.Threading;
 using log4net;
 
 namespace Greenshot.Plugin.Imgur
@@ -71,8 +69,7 @@ namespace Greenshot.Plugin.Imgur
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
 
-            var surface = context.Payload?.EnsureSurface();
-            if (surface == null)
+            if (context.Payload?.EnsureSurface() == null)
             {
                 context.LogStep("ImgurStep: No surface available to upload.");
                 Log.Warn("ImgurStep: Surface is null in context payload.");
@@ -108,11 +105,9 @@ namespace Greenshot.Plugin.Imgur
 
             var outputSettings = new SurfaceOutputSettings(uploadFormat, jpegQuality, false);
 
-            ImgurInfo imgurInfo = null;
-            await Task.Run(() =>
-            {
-                imgurInfo = UploadToImgur(surface, captureDetails, outputSettings, title, description);
-            }, cancellationToken).ConfigureAwait(false);
+            var source = await context.Payload.GetExportSourceAsync(context.Ui, cancellationToken).ConfigureAwait(false);
+            var image = await source.EncodeAsync(outputSettings, cancellationToken).ConfigureAwait(false);
+            ImgurInfo imgurInfo = await UploadToImgurAsync(image, title, description, cancellationToken).ConfigureAwait(false);
 
             if (imgurInfo != null && !string.IsNullOrEmpty(imgurInfo.Original))
             {
@@ -120,11 +115,11 @@ namespace Greenshot.Plugin.Imgur
                 context.Properties["Imgur.UploadUrl"] = link;
                 context.Properties["Imgur.Hash"] = imgurInfo.Hash;
                 context.Properties["Imgur.DeleteHash"] = imgurInfo.DeleteHash;
-                surface.UploadUrl = link;
+                await source.UseSurfaceAsync(surface => surface.UploadUrl = link, cancellationToken).ConfigureAwait(false);
 
                 if (copyToClipboard)
                 {
-                    ClipboardHelper.SetClipboardData(link);
+                    await ClipboardService.For(context.Ui).SetTextAsync(link, cancellationToken).ConfigureAwait(false);
                     context.LogStep($"Copied Imgur URL '{link}' to clipboard.");
                 }
 
@@ -138,30 +133,20 @@ namespace Greenshot.Plugin.Imgur
             }
         }
 
-        public static ImgurInfo UploadToImgur(ISurface surface, ICaptureDetails captureDetails, SurfaceOutputSettings outputSettings, string title, string description)
+        /// <summary>
+        /// Upload the encoded capture to Imgur and add it to the history
+        /// </summary>
+        /// <returns>ImgurInfo, null when the upload failed</returns>
+        public static async Task<ImgurInfo> UploadToImgurAsync(EncodedImage image, string title, string description, CancellationToken cancellationToken)
         {
             var config = Config;
             string apiUrl = (config?.ImgurApi3Url ?? "https://api.imgur.com/3") + "/image.xml";
 
             try
             {
-                byte[] imageBytes = null;
-                using (var ms = new MemoryStream())
-                {
-                    ImageIO.SaveToStream(surface, ms, outputSettings);
-                    imageBytes = ms.ToArray();
-                }
-
-                string base64Image = Convert.ToBase64String(imageBytes);
-
-                HttpWebRequest webRequest = NetworkHelper.CreateWebRequest(apiUrl, HTTPMethod.POST);
-                webRequest.ServicePoint.Expect100Continue = false;
-                webRequest.Headers.Add("Authorization", "Client-ID " + ImgurCredentials.CONSUMER_KEY);
-                webRequest.ContentType = "application/x-www-form-urlencoded";
-
                 var postData = new Dictionary<string, string>
                 {
-                    { "image", base64Image },
+                    { "image", Convert.ToBase64String(image.ToArray()) },
                     { "type", "base64" }
                 };
 
@@ -175,42 +160,30 @@ namespace Greenshot.Plugin.Imgur
                     postData["description"] = description;
                 }
 
-                string encodedParams = string.Join("&", postData.Select(kvp => $"{Uri.EscapeDataString(kvp.Key)}={Uri.EscapeDataString(kvp.Value)}"));
-                byte[] requestBytes = System.Text.Encoding.UTF8.GetBytes(encodedParams);
-                webRequest.ContentLength = requestBytes.Length;
-
-                using (var reqStream = webRequest.GetRequestStream())
-                {
-                    reqStream.Write(requestBytes, 0, requestBytes.Length);
-                }
-
-                string responseString = null;
-                using (var response = webRequest.GetResponse())
-                using (var resStream = response.GetResponseStream())
-                {
-                    if (resStream != null)
-                    {
-                        using (var reader = new StreamReader(resStream))
-                        {
-                            responseString = reader.ReadToEnd();
-                        }
-                    }
-                }
+                var request = ImgurUtils.CreateRequest(HttpMethod.Post, apiUrl);
+                // FormUrlEncodedContent can't handle the length of a base64 image on .NET Framework
+                string encodedParams = string.Join("&", postData.Select(kvp => $"{NetworkHelper.EscapeDataString(kvp.Key)}={NetworkHelper.EscapeDataString(kvp.Value)}"));
+                request.Content = new StringContent(encodedParams, System.Text.Encoding.UTF8, "application/x-www-form-urlencoded");
+                string responseString = await NetworkHelper.SendAsync(request, cancellationToken).ConfigureAwait(false);
 
                 if (!string.IsNullOrEmpty(responseString))
                 {
                     var info = ImgurInfo.ParseResponse(responseString);
                     if (info != null && config != null)
                     {
-                        config.ImgurUploadHistory ??= new Dictionary<string, string>();
-                        config.RuntimeImgurHistory ??= new Dictionary<string, ImgurInfo>();
-                        config.ImgurUploadHistory[info.Hash] = info.DeleteHash;
-                        config.RuntimeImgurHistory[info.Hash] = info;
+                        await UiDispatcher.Current.InvokeAsync(() =>
+                        {
+                            config.ImgurUploadHistory ??= new Dictionary<string, string>();
+                            config.RuntimeImgurHistory ??= new Dictionary<string, ImgurInfo>();
+                            config.ImgurUploadHistory[info.Hash] = info.DeleteHash;
+                            config.RuntimeImgurHistory[info.Hash] = info;
+                        }, CancellationToken.None).ConfigureAwait(false);
                     }
+
                     return info;
                 }
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 Log.Error("Error uploading image to Imgur", ex);
             }

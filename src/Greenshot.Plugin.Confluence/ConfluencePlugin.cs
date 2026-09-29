@@ -84,6 +84,9 @@ public class ConfluencePlugin : IGreenshotPlugin, IRecipeStepProvider
         get { return _confluenceConnector; }
     }
 
+    /// <summary>
+    /// The connector, created when needed. Its methods log in (ask the user for the credentials) when needed.
+    /// </summary>
     public static ConfluenceConnector ConfluenceConnector
     {
         get
@@ -91,18 +94,6 @@ public class ConfluencePlugin : IGreenshotPlugin, IRecipeStepProvider
             if (_confluenceConnector == null)
             {
                 CreateConfluenceConnector();
-            }
-
-            try
-            {
-                if (_confluenceConnector != null && !_confluenceConnector.IsLoggedIn)
-                {
-                    _confluenceConnector.Login();
-                }
-            }
-            catch (Exception e)
-            {
-                MessageBox.Show(Language.GetFormattedString("confluence", LangKey.login_error, e.Message));
             }
 
             return _confluenceConnector;
@@ -133,6 +124,8 @@ public class ConfluencePlugin : IGreenshotPlugin, IRecipeStepProvider
             LOG.ErrorFormat("Problem registering Confluence services: {0}", ex.Message);
         }
 
+        serviceLocator.AddService<IIconProvider>(new ConfluenceIconProvider());
+        serviceLocator.GetInstance<IDialogViewRegistry>(isOptional: true)?.Register<ConfluenceUploadRequest, ConfluenceUploadChoice>(Forms.ConfluenceUpload.Show);
         if (RecipeConfigHelper.IsRecipeFeatureEnabled())
         {
             serviceLocator.AddService<IRecipeStepProvider>(this);

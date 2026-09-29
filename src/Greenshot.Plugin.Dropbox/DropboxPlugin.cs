@@ -22,8 +22,10 @@
 using System;
 using System.ComponentModel;
 using System.Drawing;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
-using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
 using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
@@ -84,6 +86,7 @@ public class DropboxPlugin : IGreenshotPlugin, IRecipeStepProvider
     public void RegisterServices(IServiceLocator serviceLocator)
     {
         _resources = new ComponentResourceManager(typeof(DropboxPlugin));
+        serviceLocator.AddService<IIconProvider>(DropboxDestination.Icons);
         serviceLocator.AddService<IDestination>(new DropboxDestination(this));
         if (RecipeConfigHelper.IsRecipeFeatureEnabled())
         {
@@ -173,25 +176,15 @@ public class DropboxPlugin : IGreenshotPlugin, IRecipeStepProvider
     }
 
     /// <summary>
-    /// This will be called when the menu item in the Editor is clicked
+    /// Upload the capture to Dropbox, shows the progress to the user.
     /// </summary>
-    public bool Upload(ICaptureDetails captureDetails, ISurface surfaceToUpload, out string uploadUrl)
+    /// <returns>true when uploaded, false when Dropbox didn't accept it, null when the user didn't authorize</returns>
+    public async Task<bool?> UploadAsync(IExportSource source, ICaptureDetails captureDetails, IUserInteraction userInteraction, CancellationToken cancellationToken)
     {
-        uploadUrl = null;
-        SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, false);
-        try
-        {
-            bool result = false;
-            new PleaseWaitForm().ShowAndWait("Dropbox", Language.GetString("dropbox", LangKey.communication_wait),
-                delegate { result = DropboxUtils.UploadToDropbox(surfaceToUpload, outputSettings, captureDetails); }
-            );
-            return result;
-        }
-        catch (Exception e)
-        {
-            Log.Error(e);
-            MessageBox.Show(Language.GetString("dropbox", LangKey.upload_failure) + " " + e.Message);
-            return false;
-        }
+        var outputSettings = new SurfaceOutputSettings(_config.UploadFormat, _config.UploadJpegQuality, false);
+        string filename = Path.GetFileName(FilenameHelper.GetFilename(_config.UploadFormat, captureDetails));
+        var image = await source.EncodeAsync(outputSettings, cancellationToken).ConfigureAwait(false);
+        return await userInteraction.RunWithProgressAsync(Language.GetString("dropbox", LangKey.communication_wait),
+            (progress, token) => DropboxUtils.UploadToDropboxAsync(image, filename, userInteraction, progress, token), cancellationToken).ConfigureAwait(false);
     }
 }

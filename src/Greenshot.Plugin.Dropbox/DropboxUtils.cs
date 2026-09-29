@@ -22,11 +22,15 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.OAuth;
 using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.Base.Threading;
 using Newtonsoft.Json;
 
 namespace Greenshot.Plugin.Dropbox;
@@ -34,16 +38,16 @@ namespace Greenshot.Plugin.Dropbox;
 /// <summary>
 /// Description of DropboxUtils.
 /// </summary>
-public class DropboxUtils
+public static class DropboxUtils
 {
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(DropboxUtils));
     private static readonly IDropboxConfiguration DropboxConfig = IniConfigRegistry.GetSection<IDropboxConfiguration>();
 
-    private DropboxUtils()
-    {
-    }
-
-    public static bool UploadToDropbox(ISurface surfaceToUpload, SurfaceOutputSettings outputSettings, ICaptureDetails captureDetails)
+    /// <summary>
+    /// Upload the encoded capture
+    /// </summary>
+    /// <returns>true when uploaded, false when Dropbox didn't accept it, null when the user didn't authorize</returns>
+    public static async Task<bool?> UploadToDropboxAsync(EncodedImage image, string filename, IUserInteraction userInteraction, IProgress<ProgressInfo> progress, CancellationToken cancellationToken)
     {
         var oauth2Settings = new OAuth2Settings
         {
@@ -60,51 +64,49 @@ public class DropboxUtils
         };
         try
         {
-            string filename = Path.GetFileName(FilenameHelper.GetFilename(DropboxConfig.UploadFormat, captureDetails));
-            SurfaceContainer image = new SurfaceContainer(surfaceToUpload, outputSettings, filename);
-
             IDictionary<string, object> arguments = new Dictionary<string, object>
             {
-                {
-                    "autorename", true
-                },
-                {
-                    "mute", true
-                },
-                {
-                    "path", "/" + filename.Replace(Path.DirectorySeparatorChar, '\\')
-                }
+                { "autorename", true },
+                { "mute", true },
+                { "path", "/" + filename.Replace(Path.DirectorySeparatorChar, '\\') }
             };
 
-            var serializerSettings = new JsonSerializerSettings();
-            serializerSettings.StringEscapeHandling = StringEscapeHandling.EscapeNonAscii;
+            var serializerSettings = new JsonSerializerSettings
+            {
+                StringEscapeHandling = StringEscapeHandling.EscapeNonAscii
+            };
 
             var encodedArgs = JsonConvert.SerializeObject(arguments, serializerSettings);
             encodedArgs = encodedArgs.Replace("\x7F", "\\u007f");
-            IDictionary<string, object> headers = new Dictionary<string, object>
+            var request = await OAuth2Helper.CreateOAuth2RequestAsync(HttpMethod.Post, "https://content.dropboxapi.com/2/files/upload", oauth2Settings, userInteraction, cancellationToken).ConfigureAwait(false);
+            if (request == null)
             {
-                {
-                    "Dropbox-API-Arg", encodedArgs
-                }
-            };
-            var webRequest = OAuth2Helper.CreateOAuth2WebRequest(HTTPMethod.POST, "https://content.dropboxapi.com/2/files/upload", oauth2Settings);
+                return null;
+            }
 
-            NetworkHelper.Post(webRequest, headers, image);
-            var responseString = NetworkHelper.GetResponseAsString(webRequest);
+            request.Headers.Add("Dropbox-API-Arg", encodedArgs);
+            var content = NetworkHelper.CreateContent(image, progress);
+            content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/octet-stream");
+            request.Content = content;
+            var responseString = await NetworkHelper.SendAsync(request, cancellationToken).ConfigureAwait(false);
             Log.DebugFormat("Upload response: {0}", responseString);
-            var response = JsonConvert.DeserializeObject<IDictionary<string, string>>(responseString);
+            var response = JsonConvert.DeserializeObject<IDictionary<string, object>>(responseString);
             return response.ContainsKey("id");
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             Log.Error("Upload error: ", ex);
             throw;
         }
         finally
         {
-            DropboxConfig.RefreshToken = oauth2Settings.RefreshToken;
-            DropboxConfig.AccessToken = oauth2Settings.AccessToken;
-            DropboxConfig.AccessTokenExpires = oauth2Settings.AccessTokenExpires;
+            // Copy the settings back to the config (on the UI thread), so they are stored.
+            await UiDispatcher.Current.InvokeAsync(() =>
+            {
+                DropboxConfig.RefreshToken = oauth2Settings.RefreshToken;
+                DropboxConfig.AccessToken = oauth2Settings.AccessToken;
+                DropboxConfig.AccessTokenExpires = oauth2Settings.AccessTokenExpires;
+            }, CancellationToken.None).ConfigureAwait(false);
         }
     }
 }

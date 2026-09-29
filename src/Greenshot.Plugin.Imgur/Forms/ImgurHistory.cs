@@ -20,12 +20,16 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Plugin.Imgur.Forms;
 
@@ -36,61 +40,58 @@ public sealed partial class ImgurHistory : ImgurForm
 {
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ImgurHistory));
     private readonly GreenshotColumnSorter _columnSorter;
-    private static readonly object Lock = new object();
     private static readonly IImgurConfiguration Config = IniConfigHelper.EnsureSection<IImgurConfiguration>(() => new ImgurConfigurationImpl());
     private static ImgurHistory _instance;
 
-    public static void ShowHistory()
+    /// <summary>
+    /// Load the history (if needed) and show it, call on the UI thread.
+    /// </summary>
+    public static async Task ShowHistoryAsync()
     {
-        lock (Lock)
+        if (ImgurUtils.IsHistoryLoadingNeeded())
         {
-            if (ImgurUtils.IsHistoryLoadingNeeded())
-            {
-                // Run upload in the background
-                new PleaseWaitForm().ShowAndWait("Imgur " + Language.GetString("imgur", LangKey.history), Language.GetString("imgur", LangKey.communication_wait),
-                    ImgurUtils.LoadHistory
-                );
-            }
-
-            // Make sure the history is loaded, will be done only once
-            if (_instance == null || _instance.IsDisposed)
-            {
-                _instance = new ImgurHistory();
-            }
-
-            if (!_instance.Visible)
-            {
-                _instance.Show();
-            }
-
-            _instance.Redraw();
-            _instance.BringToFront();
+            await UserInteraction.Current.RunWithProgressAsync("Imgur " + Language.GetString("imgur", LangKey.history),
+                (progress, token) => ImgurUtils.LoadHistoryAsync(token), CancellationToken.None);
         }
+
+        // Make sure the history is loaded, will be done only once
+        if (_instance == null || _instance.IsDisposed)
+        {
+#pragma warning disable CS0618 // the one place which may create the form
+            _instance = new ImgurHistory();
+#pragma warning restore CS0618
+        }
+
+        if (!_instance.Visible)
+        {
+            _instance.Show();
+        }
+
+        _instance.Redraw();
+        _instance.BringToFront();
     }
 
     /// <summary>
     /// Parameterless constructor required for Windows Forms designer support.
-    /// Callers should use <see cref="ShowHistory"/> to display the singleton instance.
+    /// Callers should use <see cref="ShowHistoryAsync"/> to display the singleton instance.
     /// </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    [Obsolete("Use ImgurHistory.ShowHistory() instead.", false)]
+    [Obsolete("Use ImgurHistory.ShowHistoryAsync() instead.", false)]
     public ImgurHistory()
     {
-        lock (Lock)
+        // Only the UI thread creates the form, no lock needed
+        if (_instance != null && !_instance.IsDisposed && _instance != this)
         {
-            if (_instance != null && !_instance.IsDisposed && _instance != this)
+            try
             {
-                try
-                {
-                    _instance.Close();
-                }
-                catch
-                {
-                    // Ignore
-                }
+                _instance.Close();
             }
-            _instance = this;
+            catch
+            {
+                // Ignore
+            }
         }
+        _instance = this;
 
         //
         // The InitializeComponent() call is required for Windows Forms designer support.
@@ -190,33 +191,37 @@ public sealed partial class ImgurHistory : ImgurForm
 
     private void DeleteButtonClick(object sender, EventArgs e)
     {
-        if (listview_imgur_uploads.SelectedItems.Count > 0)
+        var toDelete = new List<ImgurInfo>();
+        for (int i = 0; i < listview_imgur_uploads.SelectedItems.Count; i++)
         {
-            for (int i = 0; i < listview_imgur_uploads.SelectedItems.Count; i++)
+            ImgurInfo imgurInfo = (ImgurInfo) listview_imgur_uploads.SelectedItems[i].Tag;
+            DialogResult result = MessageBox.Show(Language.GetFormattedString("imgur", LangKey.delete_question, imgurInfo.Title),
+                Language.GetFormattedString("imgur", LangKey.delete_title, imgurInfo.Hash), MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (result == DialogResult.Yes)
             {
-                ImgurInfo imgurInfo = (ImgurInfo) listview_imgur_uploads.SelectedItems[i].Tag;
-                DialogResult result = MessageBox.Show(Language.GetFormattedString("imgur", LangKey.delete_question, imgurInfo.Title),
-                    Language.GetFormattedString("imgur", LangKey.delete_title, imgurInfo.Hash), MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                if (result != DialogResult.Yes)
-                {
-                    continue;
-                }
-
-                // Should fix Bug #3378699 
-                pictureBox1.Image = pictureBox1.ErrorImage;
-                try
-                {
-                    new PleaseWaitForm().ShowAndWait("Imgur", Language.GetString("imgur", LangKey.communication_wait),
-                        delegate { ImgurUtils.DeleteImgurImage(imgurInfo); }
-                    );
-                }
-                catch (Exception ex)
-                {
-                    Log.Warn("Problem communicating with Imgur: ", ex);
-                }
-
-                imgurInfo.Dispose();
+                toDelete.Add(imgurInfo);
             }
+        }
+
+        AsyncCommand.Run(() => DeleteAsync(toDelete), "Delete Imgur images");
+    }
+
+    private async Task DeleteAsync(IList<ImgurInfo> toDelete)
+    {
+        foreach (var imgurInfo in toDelete)
+        {
+            // Should fix Bug #3378699
+            pictureBox1.Image = pictureBox1.ErrorImage;
+            try
+            {
+                await UserInteraction.Current.RunWithProgressAsync("Imgur", (progress, token) => ImgurUtils.DeleteImgurImageAsync(imgurInfo, token), CancellationToken.None);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                Log.Warn("Problem communicating with Imgur: ", ex);
+            }
+
+            imgurInfo.Dispose();
         }
 
         Redraw();
@@ -287,12 +292,9 @@ public sealed partial class ImgurHistory : ImgurForm
 
     private void ImgurHistoryFormClosing(object sender, FormClosingEventArgs e)
     {
-        lock (Lock)
+        if (_instance == this)
         {
-            if (_instance == this)
-            {
-                _instance = null;
-            }
+            _instance = null;
         }
     }
 }

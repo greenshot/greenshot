@@ -33,6 +33,9 @@ using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
 using Windows.Storage.Streams;
 using Color = Windows.UI.Color;
+using System.Threading.Tasks;
+using Greenshot.Base.Threading;
+using Greenshot.Destinations;
 
 namespace Greenshot.Forms
 {
@@ -50,21 +53,34 @@ namespace Greenshot.Forms
         private bool _isShareOpen = false;
         private string _appName;
         private bool _targetPicked = false;
-        private ISurface _surface;
-        private ICaptureDetails _captureDetails;
+        private readonly string _filePath;
+        private readonly string _title;
         private System.Windows.Forms.Timer _watchdogTimer;
 
         public bool TargetPicked { get => _targetPicked; }
         public string AppName { get => _appName; }
 
+        /// <summary>
+        /// The view for a <see cref="ShareRequest"/>: shows the share dialog modally (on the UI thread).
+        /// </summary>
+        /// <returns>the name of the app that received the share, null when nothing was shared</returns>
+        public static string Show(ShareRequest request)
+        {
+            using var sharingForm = new SharingForm(request.FilePath, request.Title);
+            var dialogResult = sharingForm.ShowDialog();
+            return dialogResult == System.Windows.Forms.DialogResult.OK ? sharingForm.AppName ?? "Windows share" : null;
+        }
+
         public SharingForm() : this(null, null)
         {
         }
 
-        public SharingForm(ISurface surface, ICaptureDetails captureDetails)
+        /// <param name="filePath">The capture, saved as PNG</param>
+        /// <param name="title">Title of the share</param>
+        public SharingForm(string filePath, string title)
         {
-            _surface = surface;
-            _captureDetails = captureDetails;
+            _filePath = filePath;
+            _title = title;
 
             InitializeComponent();
 
@@ -143,37 +159,44 @@ namespace Greenshot.Forms
             _dataTransferManager.TargetApplicationChosen += OnTargetApplicationChosen;
         }
 
+        /// <summary>
+        /// Close the form with the result, marshaled to the UI thread (the share events are raised on other threads).
+        /// </summary>
+        private void CloseWith(System.Windows.Forms.DialogResult dialogResult)
+        {
+            UiDispatcher.Current.InvokeAsync(() =>
+            {
+                _watchdogTimer?.Stop();
+                if (!IsDisposed && DialogResult == System.Windows.Forms.DialogResult.None)
+                {
+                    DialogResult = dialogResult;
+                }
+            }).FireAndLog("Close the share form", Log);
+        }
+
         // --- EVENT 1: PREPARING DATA ---
-        private async void OnDataRequested(DataTransferManager sender, DataRequestedEventArgs args)
+        private void OnDataRequested(DataTransferManager sender, DataRequestedEventArgs args)
         {
             // 1. Reset State
             _targetPicked = false;
             _isShareOpen = true;
 
             var request = args.Request;
+            // The deferral tells Windows the data comes later, it is completed by PrepareDataAsync
             var deferral = request.GetDeferral();
+            PrepareDataAsync(request, deferral).FireAndLog("Prepare the share data", Log);
+        }
 
+        private async Task PrepareDataAsync(DataRequest request, DataRequestDeferral deferral)
+        {
             try
             {
-                // --- STEP A: LAZY CLEANUP ---
-                // Fire and forget: Try to clean up ANY old share files from previous runs.
-                // If Paint still has one open, File.Delete will throw, so we catch and ignore it.
-                CleanupOldShareFiles();
-
-                // We use a GUID to ensure this specific share action never conflicts with an open app.
-                var shareGuid = Guid.NewGuid();
-                var outputSettings = new SurfaceOutputSettings(OutputFormat.png);
-
-                // Capture itself
-                string uniqueFileName = $"greenshot_share_{shareGuid}.png";
-                string filePath = Path.Combine(Path.GetTempPath(), uniqueFileName);
-                ImageIO.Save(_surface, filePath, false, outputSettings, false);
+                StorageFile storageFile = await StorageFile.GetFileFromPathAsync(_filePath).AsTask().ConfigureAwait(false);
                 Log.Debug("Created StorageFile for the capture");
-                StorageFile storageFile = await StorageFile.GetFileFromPathAsync(filePath);
                 var imageRandomAccessStreamReference = RandomAccessStreamReference.CreateFromFile(storageFile);
 
                 var dataPackage = request.Data;
-                dataPackage.Properties.Title = _captureDetails?.Title ?? "Share a screenshot";
+                dataPackage.Properties.Title = _title ?? "Share a screenshot";
                 dataPackage.Properties.ApplicationName = "Greenshot";
                 dataPackage.Properties.Thumbnail = imageRandomAccessStreamReference;
                 dataPackage.Properties.LogoBackgroundColor = Color.FromArgb(0xff, 0x3d, 0x3d, 0x3d);
@@ -184,40 +207,27 @@ namespace Greenshot.Forms
                     Log.Debug("DataPackage.ShareCompleted");
                     _targetPicked = true;
                     _isShareOpen = false;
-                    _watchdogTimer?.Stop();
-                    if (DialogResult == System.Windows.Forms.DialogResult.None)
-                    {
-                        DialogResult = System.Windows.Forms.DialogResult.OK;
-                    }
+                    CloseWith(System.Windows.Forms.DialogResult.OK);
                 };
                 dataPackage.ShareCanceled += (dp, scArgs) =>
                 {
                     Log.Debug("DataPackage.ShareCanceled");
                     _isShareOpen = false;
-                    _watchdogTimer?.Stop();
-                    if (DialogResult == System.Windows.Forms.DialogResult.None)
-                    {
-                        DialogResult = System.Windows.Forms.DialogResult.Abort;
-                    }
+                    CloseWith(System.Windows.Forms.DialogResult.Abort);
                 };
                 dataPackage.OperationCompleted += (dp, ocArgs) =>
                 {
                     Log.DebugFormat("DataPackage.OperationCompleted: {0}", ocArgs.Operation);
                     _targetPicked = true;
                     _isShareOpen = false;
-                    _watchdogTimer?.Stop();
-                    if (DialogResult == System.Windows.Forms.DialogResult.None)
-                    {
-                        DialogResult = System.Windows.Forms.DialogResult.OK;
-                    }
+                    CloseWith(System.Windows.Forms.DialogResult.OK);
                 };
                 dataPackage.Destroyed += (dp, dArgs) =>
                 {
                     Log.Debug("DataPackage.Destroyed");
-                    _watchdogTimer?.Stop();
-                    if (!_targetPicked && DialogResult == System.Windows.Forms.DialogResult.None)
+                    if (!_targetPicked)
                     {
-                        DialogResult = System.Windows.Forms.DialogResult.Abort;
+                        CloseWith(System.Windows.Forms.DialogResult.Abort);
                     }
                 };
 
@@ -228,42 +238,12 @@ namespace Greenshot.Forms
             catch (Exception ex)
             {
                 request.FailWithDisplayText("Error: " + ex.Message);
-                DialogResult = System.Windows.Forms.DialogResult.Abort;
+                CloseWith(System.Windows.Forms.DialogResult.Abort);
 
             }
             finally
             {
                 deferral.Complete();
-            }
-        }
-
-        // --- HELPER: SAFE CLEANUP ---
-        private void CleanupOldShareFiles()
-        {
-            try
-            {
-                string tempDir = Path.GetTempPath();
-
-                // Find all files matching our pattern "share_*.png"
-                string[] oldFiles = Directory.GetFiles(tempDir, "greenshot_share_*.png");
-
-                foreach (string file in oldFiles)
-                {
-                    try
-                    {
-                        // Try to delete. If Paint has it locked, this throws IOException.
-                        File.Delete(file);
-                    }
-                    catch
-                    {
-                        // Intentionally empty. 
-                        // If it's locked, we just leave it for the next time/cleanup.
-                    }
-                }
-            }
-            catch
-            {
-                // If Directory.GetFiles fails (rare), just ignore.
             }
         }
 
@@ -273,11 +253,10 @@ namespace Greenshot.Forms
             // The user picked an app!
             _targetPicked = true;
             _isShareOpen = false; // The UI closes immediately after this
-            _watchdogTimer?.Stop();
 
             // 'args.ApplicationName' contains the Package Family Name (e.g., Microsoft.Windows.Mail_...)
             _appName = args.ApplicationName;
-            DialogResult = System.Windows.Forms.DialogResult.OK;
+            CloseWith(System.Windows.Forms.DialogResult.OK);
         }
 
         // --- EVENT 3: CANCELLATION DETECTION (HEURISTIC) ---

@@ -42,6 +42,7 @@ using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Wpf;
 using Greenshot.Editor.Configuration;
 using Greenshot.Helpers;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Forms.Wpf
 {
@@ -372,7 +373,7 @@ namespace Greenshot.Forms.Wpf
                 string description = destination.Designation;
                 try
                 {
-                    description = destination.Description ?? destination.Designation;
+                    description = destination.Descriptor?.DisplayName ?? destination.Designation;
                 }
                 catch
                 {
@@ -389,41 +390,26 @@ namespace Greenshot.Forms.Wpf
                 Destinations.Add(destItem);
             }
 
-            // Asynchronously resolve destination icons in background to keep opening instant
-            Task.Run(() =>
+            // Resolve the destination icons asynchronously, the window opens right away
+            LoadDestinationIconsAsync().FireAndLog("Load the destination icons");
+        }
+
+        /// <summary>
+        /// Started on the UI thread, the icons are set there (continuations return to the UI thread)
+        /// </summary>
+        private async Task LoadDestinationIconsAsync()
+        {
+            foreach (var destItem in Destinations.ToList())
             {
-                foreach (var destItem in Destinations)
+                try
                 {
-                    try
-                    {
-                        var displayIcon = destItem.Destination?.DisplayIcon;
-                        if (displayIcon != null)
-                        {
-                            var iconSource = displayIcon.ToBitmapSource();
-                            if (iconSource != null)
-                            {
-                                iconSource.Freeze();
-                                var dispatcher = Application.Current?.Dispatcher;
-                                if (dispatcher != null && !dispatcher.HasShutdownStarted)
-                                {
-                                    dispatcher.BeginInvoke(new Action(() =>
-                                    {
-                                        destItem.IconSource = iconSource;
-                                    }));
-                                }
-                                else
-                                {
-                                    destItem.IconSource = iconSource;
-                                }
-                            }
-                        }
-                    }
-                    catch
-                    {
-                        // Some plugins may fail to resolve icons if their config section is not initialized
-                    }
+                    destItem.IconSource = await DestinationIcons.GetImageSourceAsync(destItem.Destination?.Descriptor?.IconKey).ConfigureAwait(true);
                 }
-            });
+                catch (Exception)
+                {
+                    // Some plugins may fail to resolve icons if their config section is not initialized
+                }
+            }
         }
 
         private void InitializePlugins()

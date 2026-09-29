@@ -20,9 +20,9 @@
  */
 
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
-using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
@@ -31,9 +31,9 @@ using Greenshot.Plugin.Office.OfficeExport;
 namespace Greenshot.Plugin.Office.Destinations
 {
     /// <summary>
-    /// Description of PowerpointDestination.
+    /// Insert the capture into an Excel workbook.
     /// </summary>
-    public class ExcelDestination : AbstractDestination
+    public class ExcelDestination : OfficeDestinationBase
     {
         private const int IconApplication = 0;
         private const int IconWorkbook = 1;
@@ -65,54 +65,44 @@ namespace Greenshot.Plugin.Office.Destinations
 
         public override string Designation => "Excel";
 
-        public override string Description => _workbookName ?? "Microsoft Excel";
+        public override DestinationDescriptor Descriptor => new DestinationDescriptor(_workbookName ?? "Microsoft Excel", 5,
+            IconKeyFor(ExePath, !string.IsNullOrEmpty(_workbookName) ? IconWorkbook : IconApplication), hasDynamicDestinations: _workbookName == null);
 
-        public override int Priority => 5;
+        public override bool IsAvailableFor(ICaptureDetails metadata) => base.IsAvailableFor(metadata) && ExePath != null;
 
-        public override bool IsDynamic => true;
+        public override ValueTask<IReadOnlyList<IDestination>> GetDynamicDestinationsAsync(ICaptureDetails metadata, CancellationToken cancellationToken) =>
+            _workbookName != null
+                ? base.GetDynamicDestinationsAsync(metadata, cancellationToken)
+                : GetDynamicDestinationsAsync(ExcelExporter.GetWorkbooks, workbookName => new ExcelDestination(workbookName), cancellationToken);
 
-        public override bool IsActive => base.IsActive && ExePath != null;
-
-        public override Image DisplayIcon => PluginUtils.GetCachedExeIcon(ExePath, !string.IsNullOrEmpty(_workbookName) ? IconWorkbook : IconApplication);
-
-        public override IEnumerable<IDestination> DynamicDestinations()
+        public override async Task<ExportResult> ExportAsync(ExportRequest request, CancellationToken cancellationToken)
         {
-            foreach (string workbookName in ExcelExporter.GetWorkbooks())
+            var imageSize = await GetImageSizeAsync(request, cancellationToken).ConfigureAwait(false);
+            var (imageFile, createdFile) = await GetImageFileAsync(request, cancellationToken).ConfigureAwait(false);
+            try
             {
-                yield return new ExcelDestination(workbookName);
+                await Office.RunAsync(() =>
+                {
+                    if (_workbookName != null)
+                    {
+                        ExcelExporter.InsertIntoExistingWorkbook(_workbookName, imageFile, imageSize);
+                    }
+                    else
+                    {
+                        ExcelExporter.InsertIntoNewWorkbook(imageFile, imageSize);
+                    }
+                }, cancellationToken).ConfigureAwait(false);
             }
-        }
-
-        public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
-        {
-            ExportInformation exportInformation = new ExportInformation(Designation, Description);
-            bool createdFile = false;
-            string imageFile = captureDetails.Filename;
-            Size imageSize = surface.Image?.Size ?? Size.Empty;
-            if (imageFile == null || surface.Modified || !Regex.IsMatch(imageFile, @".*(\.png|\.gif|\.jpg|\.jpeg|\.tiff|\.bmp)$"))
+            finally
             {
-                imageFile = ImageIO.SaveNamedTmpFile(surface, captureDetails, new SurfaceOutputSettings().PreventGreenshotFormat());
-                createdFile = true;
-            }
-
-            if (_workbookName != null)
-            {
-                ExcelExporter.InsertIntoExistingWorkbook(_workbookName, imageFile, imageSize);
-            }
-            else
-            {
-                ExcelExporter.InsertIntoNewWorkbook(imageFile, imageSize);
+                // Cleanup imageFile if we created it here, so less tmp-files are generated and left
+                if (createdFile)
+                {
+                    ImageIO.DeleteNamedTmpFile(imageFile);
+                }
             }
 
-            exportInformation.ExportMade = true;
-            ProcessExport(exportInformation, surface);
-            // Cleanup imageFile if we created it here, so less tmp-files are generated and left
-            if (createdFile)
-            {
-                ImageIO.DeleteNamedTmpFile(imageFile);
-            }
-
-            return exportInformation;
+            return ExportResult.Succeeded();
         }
     }
 }

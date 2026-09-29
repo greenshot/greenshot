@@ -116,27 +116,43 @@ namespace Greenshot.Base.Core
         {
             for (int attempt = 1; attempt <= Math.Min(_maxAttempts, 3); attempt++)
             {
-                var (available, image) = await _ui.InvokeAsync(() =>
+                var (available, image, imageUrls) = await _ui.InvokeAsync(() =>
                 {
                     var dataObject = ClipboardHelper.GetDataObject();
                     if (dataObject == null)
                     {
-                        return (false, (Image)null);
+                        return (false, (Image)null, (IList<string>)null);
                     }
 
                     foreach (var clipboardImage in ClipboardHelper.GetImages(dataObject))
                     {
-                        return (true, (Image)clipboardImage);
+                        return (true, (Image)clipboardImage, (IList<string>)null);
                     }
 
-                    return (true, (Image)null);
+                    return (true, (Image)null, ClipboardHelper.GetHtmlImageUrls(dataObject));
                 }, cancellationToken).ConfigureAwait(false);
-                if (available)
+                if (!available)
+                {
+                    await Task.Delay(_retryDelay, cancellationToken).ConfigureAwait(false);
+                    continue;
+                }
+
+                if (image != null || imageUrls == null)
                 {
                     return image;
                 }
 
-                await Task.Delay(_retryDelay, cancellationToken).ConfigureAwait(false);
+                // Only HTML with images: download them, off the UI thread
+                foreach (var imageUrl in imageUrls)
+                {
+                    var downloaded = await NetworkHelper.DownloadImageAsync(imageUrl, cancellationToken).ConfigureAwait(false);
+                    if (downloaded != null)
+                    {
+                        return downloaded;
+                    }
+                }
+
+                return null;
             }
 
             return null;
