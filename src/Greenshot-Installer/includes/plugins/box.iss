@@ -2,7 +2,8 @@
 Name: "plugins\box"; Description: {cm:box}; Types: full custom; Flags: disablenouninstallwarning
 
 [Files]
-Source: {#PluginDir}\Greenshot.Plugin.Box\Greenshot.Plugin.Box.dll; DestDir: {app}\Plugins\Box; Components: plugins\box; Flags: {#DefaultInstallFlags};
+; The plugin and the libraries only it uses; the build removed its copies of the files Greenshot itself installs
+Source: {#PluginDir}\Greenshot.Plugin.Box\*.dll; DestDir: {app}\Plugins\Greenshot.Plugin.Box; Components: plugins\box; Flags: {#DefaultInstallFlags};
 Source: {#SolutionDir}\Greenshot.Plugin.Box\Languages\language_box*.xml; DestDir: {app}\Languages\Plugins\Box; Components: plugins\box; Flags: {#DefaultInstallFlags};
 
 [CustomMessages]

@@ -2,7 +2,8 @@
 Name: "plugins\office"; Description: {cm:office}; Types: default full custom; Flags: disablenouninstallwarning
 
 [Files]
-Source: {#PluginDir}\Greenshot.Plugin.Office\Greenshot.Plugin.Office.dll; DestDir: {app}\Plugins\Office; Components: plugins\office; Flags: {#DefaultInstallFlags};
+; The plugin and the libraries only it uses; the build removed its copies of the files Greenshot itself installs
+Source: {#PluginDir}\Greenshot.Plugin.Office\*.dll; DestDir: {app}\Plugins\Greenshot.Plugin.Office; Components: plugins\office; Flags: {#DefaultInstallFlags};
 Source: {#SolutionDir}\Greenshot.Plugin.Office\Languages\language_office*.xml; DestDir: {app}\Languages\Plugins\Office; Components: plugins\office; Flags: {#DefaultInstallFlags};
 
 [CustomMessages]

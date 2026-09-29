@@ -8,13 +8,13 @@
     <PackageReference Include="Tools.InnoSetup" Version="7.1.0" />
   </ItemGroup>
   
-  <Target Name="GenerateSbom" BeforeTargets="Generate hashes" Condition="'$(Configuration)' == 'Release'">
+  <Target Name="GenerateSbom" BeforeTargets="Generate hashes" DependsOnTargets="PrunePluginFiles" Condition="'$(Configuration)' == 'Release'">
     <PropertyGroup>
       <SbomVersion Condition="'$(NuGetPackageVersion)' != ''">$(NuGetPackageVersion)</SbomVersion>
       <SbomVersion Condition="'$(SbomVersion)' == ''">$(BuildVersionSimple)</SbomVersion>
       <SbomVersion Condition="'$(SbomVersion)' == ''">1.0.0</SbomVersion>
     </PropertyGroup>
-    <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -Command &quot;&amp; '$(MSBuildThisFileDirectory)scripts\generate-sboms.ps1' -SolutionDir '$(SolutionDir)' -Configuration '$(Configuration)' -TargetFramework '$(TargetFramework)' -SbomVersion '$(SbomVersion)'&quot;" StdOutEncoding="UTF-8" StdErrEncoding="UTF-8"/>
+    <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -Command &quot;&amp; '$(MSBuildThisFileDirectory)scripts\generate-sboms.ps1' -SolutionDir '$(SolutionDir)' -Configuration '$(Configuration)' -TargetFramework '$(TargetFramework)' -SbomVersion '$(SbomVersion)'&quot;" StdOutEncoding="UTF-8" StdErrEncoding="UTF-8" />
     <ItemGroup>
       <SpdxManifestFiles Include="$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\_manifest\**\manifest.spdx.json*" />
     </ItemGroup>
@@ -22,17 +22,13 @@
     <RemoveDir Directories="$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\_manifest" />
   </Target>
 
-  <Target Name="Generate hashes" BeforeTargets="PostBuildEvent">
-    <ItemGroup>
-      <FilesToHash Include="$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\**\*.dll;$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\**\*.exe*;$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\**\*.ttf;$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\**\*.xml" Exclude="$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\Microsoft.Bcl.*.dll;$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\Microsoft.Build.*.dll;$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\Microsoft.IO.Redist.dll;$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\Microsoft.NET.StringTools.dll;$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\Microsoft.IO.Redist.dll;$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\**\langua*.xml" />
-    </ItemGroup>
-    <Exec Command="ECHO Generating hashes!" />
-    <Delete Files="$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\checksum.SHA256" />
-    <GetFileHash Files="@(FilesToHash)" Algorithm="SHA256" HashEncoding="hex">
-      <Output TaskParameter="Items" ItemName="FilesWithHashes" />
-    </GetFileHash>
-    <WriteLinesToFile File="$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\checksum.SHA256" Lines="@(FilesWithHashes->'%(FileHash)  %(FullPath)')" Overwrite="true" WriteOnlyWhenDifferent="true" />
-    <Exec Command="powershell -NoProfile -Command &quot;$basePath = '$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\'; $path = '$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\checksum.SHA256'; $text = [System.IO.File]::ReadAllText($path); $text = $text -replace [regex]::Escape($basePath), '' -replace '\\', '/' -replace '\r\n', [char]10; [System.IO.File]::WriteAllText($path, $text)&quot;" />
+  <!-- Makes the output directory the layout of an installation: removes the plugins' copies of files in the main directory -->
+  <Target Name="PrunePluginFiles" BeforeTargets="PostBuildEvent">
+    <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildThisFileDirectory)scripts\prune-plugin-files.ps1&quot; -OutputDir &quot;$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)&quot;" />
+  </Target>
+
+  <Target Name="Generate hashes" BeforeTargets="PostBuildEvent" DependsOnTargets="PrunePluginFiles">
+    <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildThisFileDirectory)scripts\generate-checksums.ps1&quot; -OutputDir &quot;$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)&quot;" />
   </Target>
 
   <UsingTask TaskName="SetEnvironmentVariableTask" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
@@ -54,7 +50,11 @@
     <SetEnvironmentVariableTask Name="BuildVersionSimple" Value="$(BuildVersionSimple)" />
     <SetEnvironmentVariableTask Name="BuildVersionEnhanced" Value="$(NuGetPackageVersion)" />
     <Exec Command="if not &quot;$(CertumThumbprint)&quot; == &quot;&quot; signtool.exe sign /sha1 &quot;$(CertumThumbprint)&quot; /tr http://time.certum.pl /td sha256 /fd sha256 /v &quot;$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\Greenshot.exe&quot;" />
+    <Exec Command="echo Building installer" />
     <Exec Command="$(PkgTools_InnoSetup)\tools\ISCC.exe -q $(SolutionDir)$(ProjectName)\setup.iss" />
+    <Exec Command="echo Building light-installer" />
     <Exec Command="$(PkgTools_InnoSetup)\tools\ISCC.exe -q $(SolutionDir)$(ProjectName)\setup-light.iss" />
+    <!-- The portable versions (full and light), as the release workflow creates them -->
+    <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildThisFileDirectory)scripts\create-portable-zips.ps1&quot; -RepositoryRootPath &quot;$(SolutionDir)..&quot; -BuildArtifactsPath &quot;$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)&quot; -InstallerDir &quot;$(SolutionDir)..\installer&quot;" />
   </Target>
 </Project>

@@ -82,6 +82,13 @@ Write-Host "Creating ZIP archive..."
 $ZipArtifactPath = "$ArtifactsPath\Greenshot-PORTABLE-$Version-RELEASE.zip"
 Compress-Archive -Path "$PortableFilesPath/*" -DestinationPath $ZipArtifactPath -Force
 
+# Create the light ZIP Archive (no plugins)
+Write-Host "Creating light ZIP archive..."
+$LightPortableFilesPath = "$ArtifactsPath\portable-files-light"
+./prepare-portable.ps1 -RepositoryRootPath . -BuildArtifactsPath $BuildArtifactsPath -OutputPath $LightPortableFilesPath -Light
+$LightZipArtifactPath = "$ArtifactsPath\Greenshot-Light-PORTABLE-$Version-RELEASE.zip"
+Compress-Archive -Path "$LightPortableFilesPath/*" -DestinationPath $LightZipArtifactPath -Force
+
 # Create Git Tag
 Write-Host "Creating Git tag..."
 cd $RepoPath

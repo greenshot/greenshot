@@ -2,7 +2,8 @@
 Name: "plugins\dropbox"; Description: {cm:dropbox}; Types: full custom; Flags: disablenouninstallwarning
 
 [Files]
-Source: {#PluginDir}\Greenshot.Plugin.DropBox\Greenshot.Plugin.DropBox.dll; DestDir: {app}\Plugins\DropBox; Components: plugins\dropbox; Flags: {#DefaultInstallFlags};
+; The plugin and the libraries only it uses; the build removed its copies of the files Greenshot itself installs
+Source: {#PluginDir}\Greenshot.Plugin.Dropbox\*.dll; DestDir: {app}\Plugins\Greenshot.Plugin.Dropbox; Components: plugins\dropbox; Flags: {#DefaultInstallFlags};
 Source: {#SolutionDir}\Greenshot.Plugin.DropBox\Languages\language_dropbox*.xml; DestDir: {app}\Languages\Plugins\DropBox; Components: plugins\dropbox; Flags: {#DefaultInstallFlags};
 
 [CustomMessages]

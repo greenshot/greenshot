@@ -147,7 +147,7 @@ When a client invokes `greenshot-proxy.exe` while Greenshot is not running:
 3. **Pipe Polling**: The proxy polls `WaitNamedPipeW` with 250ms backoff until the server is ready, connects, and dispatches the payload.
 
 ### 2.3 URL Protocol Scheme (`greenshot:`)
-Greenshot registers the `greenshot:` protocol in the Windows Registry (`HKCU\Software\Classes\greenshot`).
+Greenshot registers the `greenshot:` protocol in the Windows Registry (`Software\Classes\greenshot`). Like the Native Messaging host of the browser extension, it is not released yet: the installer only registers both when `includes\browser-extension.iss` is included in `setup.iss` (the `#include` is commented out). For development, the self-service debug page registers them for the current user.
 Both opaque (`greenshot:<action>`) and hierarchical (`greenshot://<action>`) URIs are supported:
 
 | URI Pattern | Target UI / Action | Supported Parameters |

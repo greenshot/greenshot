@@ -15,6 +15,7 @@ Source: {#ReleaseDir}\ExCSS.dll; DestDir: {app}; Components: greenshot; Flags: {
 Source: {#ReleaseDir}\HtmlAgilityPack.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\Newtonsoft.Json.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\Microsoft.Toolkit.*.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
+Source: {#ReleaseDir}\Microsoft.Bcl.HashCode.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\Microsoft.IO.RecyclableMemoryStream.dll; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\checksum.SHA256; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\bom.json; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags} skipifsourcedoesntexist
@@ -28,8 +29,6 @@ Source: additional_files\license.txt; DestDir: {app}; Components: greenshot; Fla
 Source: additional_files\readme.txt; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\greenshot-proxy.exe; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 Source: {#ReleaseDir}\greenshot.com; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
-Source: additional_files\org.greenshot.proxy.json; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
-Source: additional_files\org.greenshot.proxy-firefox.json; DestDir: {app}; Components: greenshot; Flags: {#DefaultInstallFlags}
 
 ; Core language files
 Source: {#LanguagesDir}\*nl-NL*; Excludes: "*installer*,*website*"; DestDir: {app}\Languages; Components: greenshot; Flags: {#DefaultInstallFlags};
