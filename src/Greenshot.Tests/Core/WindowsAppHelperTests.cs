@@ -70,6 +70,27 @@ namespace Greenshot.Tests.Core
         }
 
         [Fact]
+        public async Task GetAppLogoAsync_ConcurrentLookups_DoNotCrash()
+        {
+            // Regression: concurrent lookups read properties of the same cached WinRT packages,
+            // which crashed with an (uncatchable) AccessViolationException in Windows.ApplicationModel.
+            var app = InstalledTestApp.Get();
+            var lookups = new Task<System.Drawing.Image>[16];
+            for (int i = 0; i < lookups.Length; i++)
+            {
+                // Different sizes: different cache keys, so every lookup searches the packages
+                int size = 16 + i;
+                lookups[i] = WindowsAppHelper.GetAppLogoAsync(i % 2 == 0 ? app.ExeName : $"NoSuchApp{i}.exe", i % 2 == 0 ? app.DisplayName : $"NoSuchApp{i}", new NativeSize(size, size));
+            }
+
+            var logos = await Task.WhenAll(lookups);
+            for (int i = 0; i < logos.Length; i += 2)
+            {
+                Assert.NotNull(logos[i]);
+            }
+        }
+
+        [Fact]
         public async Task GetAppxLogoAsync_InstalledAppPackage_ReturnsValidImage()
         {
             var package = InstalledTestApp.Get().Package;

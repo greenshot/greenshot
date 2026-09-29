@@ -293,9 +293,7 @@ namespace Greenshot.Forms
                 _uiStallWatchdog = new UiStallWatchdog(UiDispatcher.Context);
             }
 #endif
-            SimpleServiceProvider.Current.AddService(SynchronizationContext.Current);
-            var uiContext = TaskScheduler.FromCurrentSynchronizationContext();
-            SimpleServiceProvider.Current.AddService(uiContext);
+            // The UI thread is reached through IUiDispatcher (UiDispatcher.Current), the SynchronizationContext and TaskScheduler aren't registered
 
             // Register the RecyclableMemoryStreamManager to minimise Large Object Heap usage.
             SimpleServiceProvider.Current.AddService(RecyclableMemoryStreamFactory.Manager);

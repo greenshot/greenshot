@@ -39,6 +39,7 @@ using Greenshot.Base.Pipeline.Sources;
 using Greenshot.Base.Recipes;
 using Greenshot.Triggers;
 using log4net;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Pipeline.Steps
 {
@@ -297,27 +298,19 @@ namespace Greenshot.Pipeline.Steps
                 var notifyIcon = SimpleServiceProvider.Current.GetInstance<NotifyIcon>(isOptional: true);
                 if (notifyIcon != null)
                 {
-                    var uiContext = SimpleServiceProvider.Current.GetInstance<SynchronizationContext>(isOptional: true) ?? SynchronizationContext.Current;
-                    if (uiContext != null && SynchronizationContext.Current != uiContext)
+                    // The tray icon belongs to the UI thread; awaited, so the balloon is gone before the capture
+                    await context.Ui.RunOnUiAsync(() =>
                     {
-                        uiContext.Post(_ =>
+                        try
                         {
-                            try
-                            {
-                                notifyIcon.Visible = false;
-                                notifyIcon.Visible = true;
-                            }
-                            catch (Exception ex)
-                            {
-                                Log.Warn("Failed to toggle notifyIcon visibility", ex);
-                            }
-                        }, null);
-                    }
-                    else
-                    {
-                        notifyIcon.Visible = false;
-                        notifyIcon.Visible = true;
-                    }
+                            notifyIcon.Visible = false;
+                            notifyIcon.Visible = true;
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.Warn("Failed to toggle notifyIcon visibility", ex);
+                        }
+                    }, ct).ConfigureAwait(false);
                 }
             }
 

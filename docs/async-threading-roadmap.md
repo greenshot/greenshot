@@ -472,39 +472,42 @@ Phase 0 ──► Phase 1 ──► Phase 2 ──► Phase 3 ──► Phase 5 
 
 ### Phase 0: Guardrails & measurement (small, do first)
 Goal: make regressions impossible and freezes measurable *before* changing behaviour.
-- [ ] Add `Microsoft.VisualStudio.Threading.Analyzers` (VSTHRD002, VSTHRD100, VSTHRD101, VSTHRD103, VSTHRD110,
+- [x] Add `Microsoft.VisualStudio.Threading.Analyzers` (VSTHRD002, VSTHRD100, VSTHRD101, VSTHRD103, VSTHRD110,
       VSTHRD200) as warnings.
-- [ ] Add `Microsoft.CodeAnalysis.BannedApiAnalyzers`. There are **two** `BannedSymbols.txt` files: a strict one for
+- [x] Add `Microsoft.CodeAnalysis.BannedApiAnalyzers`. There are **two** `BannedSymbols.txt` files: a strict one for
       core/library/plugin projects (everything in R1, R4, R5, R9) and a lighter one for UI projects (R1 only;
       `Control.Invoke` is legitimate there). Start with a suppression baseline and burn it down per phase; it must
       be empty before the PR is opened.
-- [ ] CA2007 (`ConfigureAwait`) for library projects only; CA2016 (forward `CancellationToken`) everywhere.
-- [ ] **UI-stall watchdog** (debug + opt-in in release): a background timer posts to the UI thread every 100 ms
+- [x] CA2007 (`ConfigureAwait`) for library projects only; CA2016 (forward `CancellationToken`) everywhere.
+- [x] **UI-stall watchdog** (debug + opt-in in release): a background timer posts to the UI thread every 100 ms
       and logs a warning with the currently running flow step when a post takes > 250 ms. This produces the
       baseline "freezes per capture" number and proves each phase helped.
-- [ ] Debug-only thread assertions: `ui.VerifyAccess()` in `Surface`/editor entry points, and
+- [x] Debug-only thread assertions: `ui.VerifyAccess()` in `Surface`/editor entry points, and
       `ThreadAssert.NotUi()` at the start of every pipeline step.
-- [ ] Introduce `IUiDispatcher`, `IStaWorker(Factory)`, `Tcs.Create<T>()`, `AsyncCommand` (implementations + tests
+- [x] Introduce `IUiDispatcher`, `IStaWorker(Factory)`, `Tcs.Create<T>()`, `AsyncCommand` (implementations + tests
       for the semantics in 4.1).
 
 Done when: analyzers run with a committed baseline, and the watchdog numbers for "region capture → file",
 "→ clipboard" and "→ Imgur" are recorded.
 
+> Status: analyzers are at error level with an empty baseline. The watchdog numbers still have to be recorded
+> manually (they need a real desktop session) and attached to the PR.
+
 ### Phase 1: Pipeline threading (internal, no public API change)
 Goal: every flow runs on the pool, is tracked and is cancellable.
-- [ ] **Audit 1.5 first** (events with UI subscribers, TCS creation, `Progress<T>`, DPI, shared config). This is
+- [x] **Audit 1.5 first** (events with UI subscribers, TCS creation, `Progress<T>`, DPI, shared config). This is
       required before the pipeline moves, or Phase 1 introduces crashes.
-- [ ] `ICaptureFlowRunner` with concurrency policy and `FlowTriggerContext` snapshot; replace all
+- [x] `ICaptureFlowRunner` with concurrency policy and `FlowTriggerContext` snapshot; replace all
       `_ = ExecuteAsync(...)` call sites.
-- [ ] Remove `Task.Run` inside steps (`InteractiveSelectionStep` window snapshot, `ImgurStep`, `ConfluenceStep`,
+- [x] Remove `Task.Run` inside steps (`InteractiveSelectionStep` window snapshot, `ImgurStep`, `ConfluenceStep`,
       `ExternalCommandStep`).
-- [ ] `DagExecutionEngine`: parallel branches keep `Task.Run` (true parallelism, R10) but are awaited via
+- [x] `DagExecutionEngine`: parallel branches keep `Task.Run` (true parallelism, R10) but are awaited via
       `Task.WhenAll`; bypassed-node runs are awaited or registered with the runner; cancellation is propagated.
-- [ ] `InteractiveCaptureSelector` → `ui.InvokeAsync` + TCS on form close; `Exclusive` policy replaces the
+- [x] `InteractiveCaptureSelector` → `ui.InvokeAsync` + TCS on form close; `Exclusive` policy replaces the
       `CaptureForm` `DoEvents` close-previous logic.
-- [ ] `ProcessingTask.Wait()` → `await` (interim, until `AnalysisResults`).
-- [ ] OCR call sites: `await ocrProvider.DoOcrAsync(...)` instead of `Task.Run(...).Result`.
-- [ ] `ActiveWindowCaptureSource` / `WindowDetails.Restore`: `Task.Delay`.
+- [x] `ProcessingTask.Wait()` → `await` (interim, until `AnalysisResults`).
+- [x] OCR call sites: `await ocrProvider.DoOcrAsync(...)` instead of `Task.Run(...).Result`.
+- [x] `ActiveWindowCaptureSource` / `WindowDetails.Restore`: `Task.Delay`.
 
 Done when: `ThreadAssert.NotUi()` never fires, hotkey spam (20×) produces no exceptions, and region capture →
 file shows no watchdog stall except while `CaptureForm` is open.
@@ -512,29 +515,29 @@ file shows no watchdog stall except while `CaptureForm` is open.
 ### Phase 2: Destination contract + network (the user-visible win)
 Goal: no upload, e-mail or Office export ever freezes the UI. The async network stack is part of this phase
 because an async upload destination is impossible without it.
-- [ ] Delete the old `IDestination`, `ExportInformation`, `IAcceptsPreRenderedImage`; add the new `IDestination` /
+- [x] Delete the old `IDestination`, `ExportInformation`, `IAcceptsPreRenderedImage`; add the new `IDestination` /
       `ExportRequest` / `IExportSource` / `EncodedImage` / `ExportResult` / `IUserInteraction`.
-- [ ] `SurfaceExportSource` bridge (section 6).
-- [ ] `HttpClient`-based upload helper with progress & cancellation; async OAuth (serialized refresh).
-- [ ] Port **all** destinations. Suggested order, simplest first so the contract is validated early:
+- [x] `SurfaceExportSource` bridge (section 6).
+- [x] `HttpClient`-based upload helper with progress & cancellation; async OAuth (serialized refresh).
+- [x] Port **all** destinations. Suggested order, simplest first so the contract is validated early:
       File, FileWithDialog, Clipboard, Printer → **Imgur, Box, Dropbox** (simple uploads) → **Jira, Confluence**
       (remove all `Task.Run(...).GetResult()`, `new Thread`, and the `DisplayIcon .Result` via `IIconProvider`) →
       Email (`IStaWorker("MAPI")`), Office (`IStaWorker("Office")` + message filter) → Editor, Picker,
       Win10 OCR, Win10 Share.
-- [ ] Delete `PleaseWaitForm`.
-- [ ] `DestinationDispatcher`: remove `InvokeOnSta`, `uiContext.Send`, shared-bitmap handling, quality-dialog
+- [x] Delete `PleaseWaitForm`.
+- [x] `DestinationDispatcher`: remove `InvokeOnSta`, `uiContext.Send`, shared-bitmap handling, quality-dialog
       marshalling → `await ui.PromptOutputSettingsAsync`.
 
 Done when: upload of a 4K screenshot with network throttled to 1 Mbit/s shows no watchdog stall, cancel works
 mid-upload, and `NetworkHelper`'s sync paths are deleted.
 
 ### Phase 3: Plugins lifecycle, UI menus
-- [ ] `DestinationMenuBuilder` (tray menu, editor, picker) from descriptors.
-- [ ] New `IGreenshotPlugin` lifecycle (parallel start with timeout); remove `IGreenshotHost` and `IServiceLocator`
+- [x] `DestinationMenuBuilder` (tray menu, editor, picker) from descriptors.
+- [x] New `IGreenshotPlugin` lifecycle (parallel start with timeout); remove `IGreenshotHost` and `IServiceLocator`
       usage in plugins.
-- [ ] ExternalCommand: `Process` + `Exited` event/TCS (net48) → `WaitForExitAsync` (.NET 10); no STA thread.
-- [ ] Zxing: `ICaptureAnalyzer` (or interim async step if Phase 4 isn't ready).
-- [ ] RecipeEditor: open on UI thread via dispatcher (remove STA thread creation).
+- [x] ExternalCommand: `Process` + `Exited` event/TCS (net48) → `WaitForExitAsync` (.NET 10); no STA thread.
+- [x] Zxing: `ICaptureAnalyzer` (or interim async step if Phase 4 isn't ready).
+- [x] RecipeEditor: open on UI thread via dispatcher (remove STA thread creation).
 
 Done when: no plugin references WinForms/WPF types through the plugin contract, and `IGreenshotHost` /
 `IServiceLocator` no longer exist.
@@ -544,14 +547,14 @@ Done when: no plugin references WinForms/WPF types through the plugin contract, 
       `CropOffset` handling.
 
 ### Phase 5: UI thread consolidation
-- [ ] All WPF windows on the main WinForms UI thread (`BugReportWindow`, `SelfServiceWindow`,
+- [x] All WPF windows on the main WinForms UI thread (`BugReportWindow`, `SelfServiceWindow`,
       `RecipeApprovalWindow`, RecipeEditor). No WPF `Application` object is needed: show them directly on the
       WinForms thread and call `ElementHost.EnableModelessKeyboardInterop(window)` for modeless windows so keyboard
       input works. Remove the per-window STA threads. This does **not** need to wait for Avalonia.
-- [ ] `Surface.ApplyBitmapEffect`: effect on the pool via `RunWithProgressAsync`, result applied on UI; delete
+- [x] `Surface.ApplyBitmapEffect`: effect on the pool via `RunWithProgressAsync`, result applied on UI; delete
       `BackgroundForm`.
-- [ ] All async UI event handlers through `AsyncCommand` / `FireAndLog`.
-- [ ] Shutdown: `await runner.ShutdownAsync()`, `await plugin.StopAsync()`, dispose STA workers; no `DoEvents`.
+- [x] All async UI event handlers through `AsyncCommand` / `FireAndLog`.
+- [x] Shutdown: `await runner.ShutdownAsync()`, `await plugin.StopAsync()`, dispose STA workers; no `DoEvents`.
       Use a bounded timeout (e.g. 5 s), then log what is still running and exit anyway.
 
 ### Phase 6: Hosting (with the .NET 10 move)
