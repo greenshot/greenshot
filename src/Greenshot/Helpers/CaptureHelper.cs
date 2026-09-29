@@ -59,10 +59,24 @@ namespace Greenshot.Helpers
             _capture = null;
         }
 
+        /// <summary>
+        /// Start a flow for the recipe through the flow runner, snapshotting the trigger situation now.
+        /// </summary>
+        private static CaptureFlowHandle StartFlow(CaptureRecipe recipe, Action<CaptureFlowContext> configure)
+        {
+            if (recipe == null)
+            {
+                Log.Error("Can't start the capture, the recipe was not found.");
+                return null;
+            }
+
+            return CaptureFlowRunner.Current.Start(recipe, FlowTriggerContext.Capture(), configure);
+        }
+
         public static void CaptureClipboard(IDestination destination = null)
         {
             var recipe = RecipeManager.Instance.GetRecipeById(RecipeManager.RecipeIdClipboard);
-            _ = CapturePipeline.Instance.ExecuteAsync(recipe, null, ctx =>
+            StartFlow(recipe, ctx =>
             {
                 if (destination != null)
                 {
@@ -74,7 +88,7 @@ namespace Greenshot.Helpers
         public static void CaptureRegion(bool captureMouse)
         {
             var recipe = RecipeManager.Instance.GetRecipeById(RecipeManager.RecipeIdRegion);
-            _ = CapturePipeline.Instance.ExecuteAsync(recipe, null, ctx =>
+            StartFlow(recipe, ctx =>
             {
                 ctx.Properties["CaptureMouseCursor"] = captureMouse;
             });
@@ -83,7 +97,7 @@ namespace Greenshot.Helpers
         public static void CaptureRegion(bool captureMouse, IDestination destination)
         {
             var recipe = RecipeManager.Instance.GetRecipeById(RecipeManager.RecipeIdRegion);
-            _ = CapturePipeline.Instance.ExecuteAsync(recipe, null, ctx =>
+            StartFlow(recipe, ctx =>
             {
                 ctx.Properties["CaptureMouseCursor"] = captureMouse;
                 if (destination != null)
@@ -96,7 +110,7 @@ namespace Greenshot.Helpers
         public static void CaptureRegion(bool captureMouse, NativeRect region)
         {
             var recipe = RecipeManager.Instance.GetRecipeById(RecipeManager.RecipeIdRegion);
-            _ = CapturePipeline.Instance.ExecuteAsync(recipe, null, ctx =>
+            StartFlow(recipe, ctx =>
             {
                 ctx.Properties["CaptureMouseCursor"] = captureMouse;
                 ctx.Properties["PreSuppliedRegion"] = region;
@@ -106,7 +120,7 @@ namespace Greenshot.Helpers
         public static void CaptureFullscreen(bool captureMouse, ScreenCaptureMode screenCaptureMode)
         {
             var recipe = RecipeManager.Instance.GetRecipeById(RecipeManager.RecipeIdFullScreen);
-            _ = CapturePipeline.Instance.ExecuteAsync(recipe, null, ctx =>
+            StartFlow(recipe, ctx =>
             {
                 ctx.Properties["CaptureMouseCursor"] = captureMouse;
                 ctx.Properties["ScreenCaptureMode"] = screenCaptureMode;
@@ -116,7 +130,7 @@ namespace Greenshot.Helpers
         public static void CaptureLastRegion(bool captureMouse)
         {
             var recipe = RecipeManager.Instance.GetRecipeById(RecipeManager.RecipeIdLastRegion);
-            _ = CapturePipeline.Instance.ExecuteAsync(recipe, null, ctx =>
+            StartFlow(recipe, ctx =>
             {
                 ctx.Properties["CaptureMouseCursor"] = captureMouse;
             });
@@ -125,7 +139,7 @@ namespace Greenshot.Helpers
         public static void CaptureWindow(bool captureMouse)
         {
             var recipe = RecipeManager.Instance.GetRecipeById(RecipeManager.RecipeIdActiveWindow);
-            _ = CapturePipeline.Instance.ExecuteAsync(recipe, null, ctx =>
+            StartFlow(recipe, ctx =>
             {
                 ctx.Properties["CaptureMouseCursor"] = captureMouse;
             });
@@ -134,7 +148,7 @@ namespace Greenshot.Helpers
         public static void CaptureWindow(WindowDetails windowToCapture)
         {
             var recipe = RecipeManager.Instance.GetRecipeById(RecipeManager.RecipeIdActiveWindow);
-            _ = CapturePipeline.Instance.ExecuteAsync(recipe, null, ctx =>
+            StartFlow(recipe, ctx =>
             {
                 ctx.Properties["TargetWindow"] = windowToCapture;
             });
@@ -143,7 +157,7 @@ namespace Greenshot.Helpers
         public static void CaptureWindowInteractive(bool captureMouse)
         {
             var recipe = RecipeManager.Instance.GetRecipeById(RecipeManager.RecipeIdWindow);
-            _ = CapturePipeline.Instance.ExecuteAsync(recipe, null, ctx =>
+            StartFlow(recipe, ctx =>
             {
                 ctx.Properties["CaptureMouseCursor"] = captureMouse;
             });
@@ -152,7 +166,7 @@ namespace Greenshot.Helpers
         public static void CaptureFile(string filename, IDestination destination = null)
         {
             var recipe = RecipeManager.Instance.GetRecipeById(RecipeManager.RecipeIdFile);
-            _ = CapturePipeline.Instance.ExecuteAsync(recipe, null, ctx =>
+            StartFlow(recipe, ctx =>
             {
                 ctx.Properties["Filename"] = filename;
                 if (destination != null)
@@ -165,7 +179,7 @@ namespace Greenshot.Helpers
         public static void ImportCapture(ICapture captureToImport)
         {
             var recipe = RecipeManager.Instance.GetRecipeById(RecipeManager.RecipeIdClipboard);
-            _ = CapturePipeline.Instance.ExecuteAsync(recipe, null, ctx =>
+            StartFlow(recipe, ctx =>
             {
                 ctx.Payload = new CapturePayload(captureToImport);
             });
@@ -191,7 +205,7 @@ namespace Greenshot.Helpers
                 return;
             }
 
-            _ = CapturePipeline.Instance.ExecuteAsync(recipe, null, ctx =>
+            StartFlow(recipe, ctx =>
             {
                 ctx.Payload = new CapturePayload(captureToImport);
                 ctx.Properties["Capture"] = captureToImport;
@@ -207,10 +221,7 @@ namespace Greenshot.Helpers
             return WindowCaptureHelper.SelectCaptureWindow(windowToCapture);
         }
 
-        public static ICapture CaptureWindow(WindowDetails windowToCapture, ICapture captureForWindow, WindowCaptureMode windowCaptureMode)
-        {
-            return WindowCaptureHelper.CaptureWindow(windowToCapture, captureForWindow, windowCaptureMode);
-        }
+
 
         public CaptureHelper AddDestination(IDestination destination)
         {

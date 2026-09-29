@@ -24,6 +24,7 @@ using System.Windows.Forms;
 using Greenshot.Base.Core;
 using Greenshot.Base.Triggers;
 using log4net;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Triggers
 {
@@ -55,27 +56,13 @@ namespace Greenshot.Triggers
                 return;
             }
 
-            SynchronizationContext uiContext = null;
-            try
-            {
-                uiContext = SimpleServiceProvider.Current.GetInstance<SynchronizationContext>() ?? SynchronizationContext.Current;
-            }
-            catch
-            {
-                uiContext = SynchronizationContext.Current;
-            }
+            var ui = SimpleServiceProvider.Current.GetInstance<IUiDispatcher>(isOptional: true) ?? InlineUiDispatcher.Instance;
 
             _registrationId = HotkeyManager.RegisterHotKey(sequence, () =>
             {
                 Log.DebugFormat("Hotkey '{0}' pressed for trigger '{1}' -> recipe '{2}'", HotkeyString, Name, TargetRecipeId);
-                if (uiContext != null)
-                {
-                    uiContext.Post(_ => OnTriggered(), null);
-                }
-                else
-                {
-                    OnTriggered();
-                }
+                // Raise the trigger on the UI thread (posted, the keyboard hook must return quickly)
+                ui.InvokeAsync(() => OnTriggered()).FireAndLog($"Hotkey trigger {Name}", Log);
             });
 
             if (_registrationId >= 0)

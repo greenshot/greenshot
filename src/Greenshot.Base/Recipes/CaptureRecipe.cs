@@ -88,6 +88,12 @@ namespace Greenshot.Base.Recipes
         /// </summary>
         public string FilePath { get; set; }
 
+        /// <summary>
+        /// What happens when the recipe is started while a flow of it is still running; null means <see cref="FlowConcurrency.Parallel"/>.
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty(NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Pipeline.FlowConcurrency? Concurrency { get; set; }
+
         public CaptureRecipe()
         {
         }
@@ -204,6 +210,7 @@ namespace Greenshot.Base.Recipes
                 IsOverridden = IsOverridden,
                 IsEnabled = IsEnabled,
                 FilePath = FilePath,
+                Concurrency = Concurrency,
                 Triggers = new List<TriggerConfig>(Triggers?.Count ?? 0),
                 Nodes = new List<RecipeNodeConfig>(Nodes?.Count ?? 0),
                 Flow = Flow?.Clone() ?? new RecipeFlowConfig()

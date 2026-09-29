@@ -99,46 +99,24 @@ namespace Greenshot.Pipeline.Steps
                 }
             }
 
-            var tcs = new TaskCompletionSource<string>();
-            var uiContext = SimpleServiceProvider.Current.GetInstance<SynchronizationContext>(isOptional: true) ?? SynchronizationContext.Current;
-
-            void ShowDialogOnUi()
+            string chosenKey;
+            try
             {
-                try
+                // The prompt is UI: shown on the UI thread, the flow waits without blocking
+                chosenKey = await context.Ui.InvokeAsync(() =>
                 {
                     var promptWindow = new RecipeUserPromptWindow(title, message, choices, previewImg, timeoutSeconds, defaultChoice);
                     promptWindow.ShowDialog();
-                    string selected = promptWindow.SelectedChoiceKey ?? defaultChoice ?? (choices.FirstOrDefault()?.Key ?? "Yes");
-                    tcs.SetResult(selected);
-                }
-                catch (Exception ex)
+                    return promptWindow.SelectedChoiceKey ?? defaultChoice ?? (choices.FirstOrDefault()?.Key ?? "Yes");
+                }, cancellationToken).ConfigureAwait(false);
+            }
+            finally
+            {
+                if (disposePreview)
                 {
-                    Log.Error("Error displaying RecipeUserPromptWindow", ex);
-                    tcs.SetException(ex);
-                }
-                finally
-                {
-                    if (disposePreview)
-                    {
-                        previewImg?.Dispose();
-                    }
+                    previewImg?.Dispose();
                 }
             }
-
-            if (Application.Current?.Dispatcher != null && !Application.Current.Dispatcher.CheckAccess())
-            {
-                Application.Current.Dispatcher.Invoke(ShowDialogOnUi);
-            }
-            else if (uiContext != null && SynchronizationContext.Current != uiContext)
-            {
-                uiContext.Send(_ => ShowDialogOnUi(), null);
-            }
-            else
-            {
-                ShowDialogOnUi();
-            }
-
-            string chosenKey = await tcs.Task.ConfigureAwait(false);
 
             context.Properties["UserChoice." + Config.Id] = chosenKey;
 

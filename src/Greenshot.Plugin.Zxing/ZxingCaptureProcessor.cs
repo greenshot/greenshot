@@ -90,7 +90,11 @@ if (capture.Image == null)
         var captureDetails = capture.CaptureDetails;
         var initialCropOffset = captureDetails.CropOffset;
 
+        // PARALLEL: barcode detection runs next to the interactive selection, the codes show up as hotspots while the user selects.
+        // (Background work tracked on the capture details, replaced by an ICaptureAnalyzer with imaging roadmap step 2.)
+#pragma warning disable RS0030 // R10: documented parallel branch
         var task = Task.Run(() =>
+#pragma warning restore RS0030
         {
             using (clonedBitmap)
             {

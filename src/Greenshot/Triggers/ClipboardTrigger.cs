@@ -30,6 +30,8 @@ using Dapplo.Windows.User32;
 using Greenshot.Base.Core;
 using Greenshot.Base.Triggers;
 using log4net;
+using System.Threading.Tasks;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Triggers
 {
@@ -76,7 +78,7 @@ namespace Greenshot.Triggers
             {
                 _subscription = ClipboardNative.OnUpdate
                     .ObserveOn(System.Reactive.Concurrency.Scheduler.Default)
-                    .Subscribe(OnClipboardUpdateReceived, ex => Log.Error("Error in ClipboardNative.OnUpdate stream", ex));
+                    .Subscribe(updateInfo => OnClipboardUpdateReceivedAsync(updateInfo).FireAndLog("Clipboard trigger", Log), ex => Log.Error("Error in ClipboardNative.OnUpdate stream", ex));
 
                 Log.InfoFormat("Started ClipboardTrigger: {0} ({1})", Name, Id);
             }
@@ -96,7 +98,7 @@ namespace Greenshot.Triggers
             }
         }
 
-        private void OnClipboardUpdateReceived(ClipboardUpdateInformation updateInfo)
+        private async Task OnClipboardUpdateReceivedAsync(ClipboardUpdateInformation updateInfo)
         {
             if (!IsEnabled) return;
 
@@ -135,8 +137,8 @@ namespace Greenshot.Triggers
 
                     if (!hasImage)
                     {
-                        // Fallback check on STA/UI or direct check
-                        hasImage = ClipboardHelper.ContainsImage();
+                        // Fallback check, the clipboard is read on the UI thread
+                        hasImage = await ClipboardService.Current.ContainsImageAsync().ConfigureAwait(false);
                     }
 
                     if (!hasImage)

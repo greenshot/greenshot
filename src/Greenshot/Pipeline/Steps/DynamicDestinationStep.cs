@@ -129,12 +129,11 @@ namespace Greenshot.Pipeline.Steps
                 }
             }
 
-            var tcs = new TaskCompletionSource<(IDestination Dest, CaptureRecipe Recipe, bool OpenEditor)>();
-            var uiContext = SimpleServiceProvider.Current.GetInstance<SynchronizationContext>(isOptional: true) ?? SynchronizationContext.Current;
-
-            void ShowDialogOnUi()
+            (IDestination Dest, CaptureRecipe Recipe, bool OpenEditor) choice;
+            try
             {
-                try
+                // The flyout is UI: shown on the UI thread, the flow waits without blocking
+                choice = await context.Ui.InvokeAsync(() =>
                 {
                     var window = new DynamicDestinationWindow(
                         title,
@@ -145,61 +144,18 @@ namespace Greenshot.Pipeline.Steps
                         timeoutSeconds);
 
                     window.ShowDialog();
-
-                    tcs.SetResult((window.SelectedDestination, window.SelectedRecipeToForward, window.OpenInEditorRequested));
-                }
-                catch (Exception ex)
-                {
-                    Log.Error("Error displaying DynamicDestinationWindow", ex);
-                    tcs.SetException(ex);
-                }
-                finally
-                {
-                    if (disposePreview)
-                    {
-                        previewImg?.Dispose();
-                    }
-                }
+                    return (window.SelectedDestination, window.SelectedRecipeToForward, window.OpenInEditorRequested);
+                }, cancellationToken).ConfigureAwait(false);
             }
-
-            if (Application.Current?.Dispatcher != null)
+            finally
             {
-                if (Application.Current.Dispatcher.CheckAccess())
+                if (disposePreview)
                 {
-                    ShowDialogOnUi();
-                }
-                else
-                {
-                    Application.Current.Dispatcher.Invoke(ShowDialogOnUi);
+                    previewImg?.Dispose();
                 }
             }
-            else if (Thread.CurrentThread.GetApartmentState() == ApartmentState.STA)
-            {
-                ShowDialogOnUi();
-            }
-            else
-            {
-                var staThread = new Thread(() =>
-                {
-                    try
-                    {
-                        ShowDialogOnUi();
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Error("Error on STA thread displaying DynamicDestinationWindow", ex);
-                        tcs.TrySetException(ex);
-                    }
-                });
-                staThread.SetApartmentState(ApartmentState.STA);
-                staThread.Start();
-                staThread.Join();
-            }
 
-            var (selectedDest, selectedRecipe, openEditor) = await tcs.Task.ConfigureAwait(false);
-
-            var surface = context.Payload?.EnsureSurface();
-            var captureDetails = context.Payload?.RawCapture?.CaptureDetails;
+            var (selectedDest, selectedRecipe, openEditor) = choice;
 
             if (openEditor || (selectedDest != null && EditorDestination.DESIGNATION.Equals(selectedDest.Designation, StringComparison.OrdinalIgnoreCase)))
             {
@@ -210,13 +166,6 @@ namespace Greenshot.Pipeline.Steps
                 {
                     var dispatcher = new DestinationDispatcher();
                     await dispatcher.DispatchAsync(context, new[] { editorDest }, cancellationToken).ConfigureAwait(false);
-                }
-                else if (surface != null && captureDetails != null)
-                {
-                    DestinationDispatcher.InvokeOnSta(uiContext, () =>
-                    {
-                        DestinationHelper.ExportCapture(false, EditorDestination.DESIGNATION, surface, captureDetails);
-                    });
                 }
             }
             else if (selectedDest != null)

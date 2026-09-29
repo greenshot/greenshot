@@ -211,6 +211,8 @@ namespace Greenshot.Pipeline
                 pendingIncoming[kvp.Key] = kvp.Value.Count;
             }
 
+            // Nodes started next to the running path (joins downstream of a failed node), awaited before the flow ends
+            var detachedRuns = new List<Task>();
             var completedNodes = new ConcurrentDictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
             var activatedNodes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             var launchedNodes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -346,10 +348,13 @@ namespace Greenshot.Pipeline
                             Log.InfoFormat("Executing DAG node: [{0}] '{1}' [{2}]", nodeConfig.Id, step.Name, nodeConfig.StepType);
                             // Every step runs on the thread pool (roadmap section 2)
                             ThreadAssert.NotUi($"Step '{step.Name}' [{nodeConfig.StepType}]");
+                            WinFormsContextGuard.ProtectPoolThread(nodeContext.Ui);
                             using (FlowDiagnostics.EnterStep(nodeContext.ExecutionId, $"{step.Name} [{nodeConfig.StepType}]"))
                             {
                                 await step.ExecuteAsync(nodeContext, cancellationToken).ConfigureAwait(false);
                             }
+                            ThreadAssert.NotUi($"After step '{step.Name}' [{nodeConfig.StepType}]");
+                            WinFormsContextGuard.ProtectPoolThread(nodeContext.Ui);
                             Log.InfoFormat("Finished DAG node: [{0}] '{1}'", nodeConfig.Id, step.Name);
 
                             if (before != null)
@@ -393,7 +398,10 @@ namespace Greenshot.Pipeline
                             foreach (var nextId in toLaunchOnBypass)
                             {
                                 var childContext = nodeContext.CreateBranchContext();
-                                _ = Task.Run(async () =>
+                                // PARALLEL: the join downstream of the failed node runs next to the error handler; awaited before the flow ends
+#pragma warning disable RS0030 // R10: documented parallel branch
+                                var detachedRun = Task.Run(async () =>
+#pragma warning restore RS0030
                                 {
                                     try
                                     {
@@ -404,6 +412,10 @@ namespace Greenshot.Pipeline
                                         Log.Error($"Error executing bypassed-join node '{nextId}'", childEx);
                                     }
                                 }, cancellationToken);
+                                lock (detachedRuns)
+                                {
+                                    detachedRuns.Add(detachedRun);
+                                }
                             }
 
                             if (!string.IsNullOrEmpty(errorTargetRecipeId))
@@ -644,13 +656,16 @@ namespace Greenshot.Pipeline
                                 string.Join(", ", cluster));
                             clusterContext.LogStep($"Branch split without merge: created isolated cloned payload for branch entry [{string.Join(", ", cluster)}]");
 
+                            // PARALLEL: independent branches (no common merge node) run concurrently on their own payload copy
+#pragma warning disable RS0030 // R10: documented parallel branch
                             childTasks.Add(Task.Run(async () =>
+#pragma warning restore RS0030
                             {
                                 foreach (var childNodeId in cluster)
                                 {
                                     await RunNodeAsync(childNodeId, clusterContext).ConfigureAwait(false);
                                 }
-                            }));
+                            }, cancellationToken));
                         }
 
                         await Task.WhenAll(childTasks).ConfigureAwait(false);
@@ -695,13 +710,16 @@ namespace Greenshot.Pipeline
                         Log.InfoFormat("Multiple independent start nodes detected. Created isolated cloned context for entry [{0}].",
                             string.Join(", ", cluster));
 
+                        // PARALLEL: independent start clusters run concurrently on their own context copy
+#pragma warning disable RS0030 // R10: documented parallel branch
                         initialTasks.Add(Task.Run(async () =>
+#pragma warning restore RS0030
                         {
                             foreach (var startNodeId in cluster)
                             {
                                 await RunNodeAsync(startNodeId, clusterContext).ConfigureAwait(false);
                             }
-                        }));
+                        }, cancellationToken));
                     }
 
                     await Task.WhenAll(initialTasks).ConfigureAwait(false);
@@ -715,6 +733,30 @@ namespace Greenshot.Pipeline
 
                         MergeOutcome(initCtx, context);
                     }
+                }
+            }
+
+            // Nothing may outlive the flow: wait for the detached runs (they can start more of them while we wait)
+            while (true)
+            {
+                Task[] pending;
+                lock (detachedRuns)
+                {
+                    pending = detachedRuns.Where(t => !t.IsCompleted).ToArray();
+                }
+
+                if (pending.Length == 0)
+                {
+                    break;
+                }
+
+                try
+                {
+                    await Task.WhenAll(pending).ConfigureAwait(false);
+                }
+                catch (OperationCanceledException)
+                {
+                    // The flow is cancelled, the detached runs were cancelled with it
                 }
             }
         }

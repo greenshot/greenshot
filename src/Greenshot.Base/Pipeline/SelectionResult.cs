@@ -26,15 +26,12 @@ using Greenshot.Base.Interfaces;
 namespace Greenshot.Base.Pipeline
 {
     /// <summary>
-    /// Encapsulates the outcome of an interactive user selection on the screen.
+    /// Encapsulates the outcome of an interactive user selection on the screen. A declined selection is null, not a result.
     /// </summary>
     public class SelectionResult
     {
-        public bool IsCancelled { get; set; }
         public NativeRect SelectedRegion { get; set; } = NativeRect.Empty;
         public WindowDetails SelectedWindow { get; set; }
         public CaptureMode FinalMode { get; set; } = CaptureMode.Region;
-
-        public static SelectionResult Cancelled() => new SelectionResult { IsCancelled = true };
     }
 }

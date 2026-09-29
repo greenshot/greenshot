@@ -229,42 +229,76 @@ EndSelection:<<<<<<<4
         }
 
         /// <summary>
-        /// The GetDataObject will lock/try/catch clipboard operations making it save and not show exceptions.
+        /// Place the data object on the clipboard with a single attempt (no blocking retries), must be called on the UI thread.
+        /// Used by the IClipboardService, which retries with a delay between the attempts so the UI keeps pumping.
         /// </summary>
-        public static IDataObject GetDataObject()
+        public static bool TrySetDataObjectOnce(IDataObject ido, bool copy, out string errorMessage)
         {
+            VerifyStaThread();
             lock (ClipboardLockObject)
             {
-                const int maxRetries = 3;
-                for (int attempt = 0; attempt < maxRetries; attempt++)
+                try
                 {
                     try
                     {
-                        return Clipboard.GetDataObject();
+                        Clipboard.Clear();
                     }
-                    catch (Exception ee)
+                    catch (Exception clearException)
                     {
-                        bool isLastAttempt = attempt == maxRetries - 1;
-                        if (isLastAttempt)
-                        {
-                            string messageText;
-                            string clipboardOwner = GetClipboardOwner();
-                            if (clipboardOwner != null)
-                            {
-                                messageText = Language.GetFormattedString("clipboard_inuse", clipboardOwner);
-                            }
-                            else
-                            {
-                                messageText = Language.GetString("clipboard_error");
-                            }
-
-                            Log.Error(messageText, ee);
-                        }
-                        else
-                        {
-                            Thread.Sleep(100);
-                        }
+                        Log.Debug("Couldn't clear clipboard before setting new data, continuing anyway.", clearException);
                     }
+
+                    Clipboard.SetDataObject(ido, copy, 0, 0);
+                    errorMessage = null;
+                    return true;
+                }
+                catch (Exception clipboardSetException)
+                {
+                    string clipboardOwner = GetClipboardOwner();
+                    errorMessage = clipboardOwner != null
+                        ? Language.GetFormattedString("clipboard_inuse", clipboardOwner)
+                        : Language.GetString("clipboard_error");
+                    Log.Debug(errorMessage, clipboardSetException);
+                    return false;
+                }
+            }
+        }
+
+        /// <summary>
+        /// The owner of the clipboard, if it isn't Greenshot, for error messages.
+        /// </summary>
+        public static string CurrentClipboardOwner => GetClipboardOwner();
+
+        /// <summary>
+        /// Clipboard (OLE) access needs the STA UI thread, from background code use the IClipboardService.
+        /// </summary>
+        private static void VerifyStaThread()
+        {
+            if (Thread.CurrentThread.GetApartmentState() != ApartmentState.STA)
+            {
+                throw new InvalidOperationException("The clipboard can only be used from the UI thread, use the IClipboardService from background code.");
+            }
+        }
+
+        /// <summary>
+        /// Get the clipboard data object with a single attempt, must be called on the UI thread; null when the clipboard is in use.
+        /// </summary>
+        public static IDataObject GetDataObject()
+        {
+            VerifyStaThread();
+            lock (ClipboardLockObject)
+            {
+                try
+                {
+                    return Clipboard.GetDataObject();
+                }
+                catch (Exception ee)
+                {
+                    string clipboardOwner = GetClipboardOwner();
+                    string messageText = clipboardOwner != null
+                        ? Language.GetFormattedString("clipboard_inuse", clipboardOwner)
+                        : Language.GetString("clipboard_error");
+                    Log.Warn(messageText, ee);
                 }
             }
 
@@ -295,27 +329,6 @@ EndSelection:<<<<<<<4
         /// <returns>boolean if there is an image on the clipboard</returns>
         public static bool ContainsImage()
         {
-            if (Thread.CurrentThread.GetApartmentState() != ApartmentState.STA)
-            {
-                var uiContext = SimpleServiceProvider.Current?.GetInstance<SynchronizationContext>(isOptional: true);
-                bool hasImage = false;
-                if (uiContext != null && SynchronizationContext.Current != uiContext)
-                {
-                    uiContext.Send(_ => hasImage = ContainsImage(), null);
-                    return hasImage;
-                }
-
-                var staThread = new Thread(() =>
-                {
-                    try { hasImage = ContainsImage(); }
-                    catch (Exception ex) { Log.Error("Failed to check clipboard on STA thread", ex); }
-                });
-                staThread.SetApartmentState(ApartmentState.STA);
-                staThread.Start();
-                staThread.Join();
-                return hasImage;
-            }
-
             IDataObject clipboardData = GetDataObject();
             return ContainsImage(clipboardData);
         }
@@ -549,27 +562,6 @@ EndSelection:<<<<<<<4
         /// <returns>Image if there is an image on the clipboard</returns>
         public static Image GetImage()
         {
-            if (Thread.CurrentThread.GetApartmentState() != ApartmentState.STA)
-            {
-                var uiContext = SimpleServiceProvider.Current?.GetInstance<SynchronizationContext>(isOptional: true);
-                Image img = null;
-                if (uiContext != null && SynchronizationContext.Current != uiContext)
-                {
-                    uiContext.Send(_ => img = GetImage(), null);
-                    return img;
-                }
-
-                var staThread = new Thread(() =>
-                {
-                    try { img = GetImage(); }
-                    catch (Exception ex) { Log.Error("Failed to get image on STA thread", ex); }
-                });
-                staThread.SetApartmentState(ApartmentState.STA);
-                staThread.Start();
-                staThread.Join();
-                return img;
-            }
-
             IDataObject clipboardData = GetDataObject();
             if (clipboardData == null)
             {
@@ -996,11 +988,11 @@ EndSelection:<<<<<<<4
             SetDataObject(ido, true);
         }
 
-        private static string GetHtmlString(ISurface surface, string filename)
+        private static string GetHtmlString(Size imageSize, string filename)
         {
             string utf8EncodedHtmlString = Encoding.GetEncoding(0).GetString(Encoding.UTF8.GetBytes(HtmlClipboardString));
-            utf8EncodedHtmlString = utf8EncodedHtmlString.Replace("${width}", surface.Image.Width.ToString());
-            utf8EncodedHtmlString = utf8EncodedHtmlString.Replace("${height}", surface.Image.Height.ToString());
+            utf8EncodedHtmlString = utf8EncodedHtmlString.Replace("${width}", imageSize.Width.ToString());
+            utf8EncodedHtmlString = utf8EncodedHtmlString.Replace("${height}", imageSize.Height.ToString());
             utf8EncodedHtmlString = utf8EncodedHtmlString.Replace("${file}", filename.Replace("\\", "/"));
             StringBuilder sb = new StringBuilder();
             sb.Append(utf8EncodedHtmlString);
@@ -1011,11 +1003,11 @@ EndSelection:<<<<<<<4
             return sb.ToString();
         }
 
-        private static string GetHtmlDataUrlString(ISurface surface, MemoryStream pngStream)
+        private static string GetHtmlDataUrlString(Size imageSize, MemoryStream pngStream)
         {
             string utf8EncodedHtmlString = Encoding.GetEncoding(0).GetString(Encoding.UTF8.GetBytes(HtmlClipboardBase64String));
-            utf8EncodedHtmlString = utf8EncodedHtmlString.Replace("${width}", surface.Image.Width.ToString());
-            utf8EncodedHtmlString = utf8EncodedHtmlString.Replace("${height}", surface.Image.Height.ToString());
+            utf8EncodedHtmlString = utf8EncodedHtmlString.Replace("${width}", imageSize.Width.ToString());
+            utf8EncodedHtmlString = utf8EncodedHtmlString.Replace("${height}", imageSize.Height.ToString());
             utf8EncodedHtmlString = utf8EncodedHtmlString.Replace("${format}", "png");
             utf8EncodedHtmlString = utf8EncodedHtmlString.Replace("${data}", Convert.ToBase64String(pngStream.ToArray()));
             StringBuilder sb = new StringBuilder();
@@ -1103,172 +1095,211 @@ EndSelection:<<<<<<<4
 
         private static void SetClipboardDataInternal(ISurface surface, Image imageToSave, bool disposeImage, IEnumerable<ClipboardFormat> formats = null, string text = null)
         {
-            var activeFormats = formats != null ? formats.ToList() : (CoreConfig.ClipboardFormats ?? new List<ClipboardFormat>());
-            DataObject dataObject = new DataObject();
+            try
+            {
+                using var content = CreateContent(imageToSave, formats, text);
+                if (content.HasData)
+                {
+                    SetDataObject(content.DataObject, true);
+                }
+            }
+            finally
+            {
+                if (disposeImage)
+                {
+                    imageToSave?.Dispose();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Everything to put on the clipboard for an image and/or text, created on any thread (it only encodes the image),
+        /// placed on the clipboard on the UI thread (see IClipboardService). Dispose after it was placed on the clipboard:
+        /// Greenshot places data with copy=true, the clipboard has its own copy then.
+        /// </summary>
+        public sealed class ClipboardContent : IDisposable
+        {
+            private readonly List<IDisposable> _resources = new List<IDisposable>();
+
+            internal ClipboardContent()
+            {
+            }
+
+            /// <summary>
+            /// The data object to place on the clipboard
+            /// </summary>
+            public DataObject DataObject { get; } = new DataObject();
+
+            /// <summary>
+            /// False when there is nothing to place (no text, no image formats)
+            /// </summary>
+            public bool HasData { get; internal set; }
+
+            internal T Own<T>(T resource) where T : IDisposable
+            {
+                _resources.Add(resource);
+                return resource;
+            }
+
+            public void Dispose()
+            {
+                foreach (var resource in _resources)
+                {
+                    resource?.Dispose();
+                }
+                _resources.Clear();
+            }
+        }
+
+        /// <summary>
+        /// Create the clipboard content for the image (borrowed, not disposed) in the requested formats (default: configured formats), and text.
+        /// This doesn't touch the clipboard and can run on any thread.
+        /// </summary>
+        public static ClipboardContent CreateContent(Image imageToSave, IEnumerable<ClipboardFormat> formats = null, string text = null)
+        {
+            var activeFormats = formats != null ? formats.ToList() : (CoreConfig?.ClipboardFormats ?? new List<ClipboardFormat>());
+            var content = new ClipboardContent();
+            var dataObject = content.DataObject;
 
             if (!string.IsNullOrEmpty(text))
             {
                 dataObject.SetData(DataFormats.UnicodeText, true, text);
                 dataObject.SetData(DataFormats.Text, true, text);
+                content.HasData = true;
             }
 
             if (imageToSave == null || activeFormats.Count == 0)
             {
-                if (!string.IsNullOrEmpty(text))
-                {
-                    SetDataObject(dataObject, true);
-                }
-                if (disposeImage)
-                {
-                    imageToSave?.Dispose();
-                }
-                return;
+                return content;
             }
 
-            MemoryStream dibStream = null;
-            MemoryStream dibV5Stream = null;
-            MemoryStream pngStream = null;
             try
             {
-                try
+                // Create PNG stream
+                if (activeFormats.Contains(ClipboardFormat.PNG))
                 {
-                    // Create PNG stream
-                    if (activeFormats.Contains(ClipboardFormat.PNG))
-                    {
-                        pngStream = RecyclableMemoryStreamFactory.GetStream("ClipboardHelper.PNG");
-                        // PNG works for e.g. Powerpoint
-                        SurfaceOutputSettings pngOutputSettings = new SurfaceOutputSettings(OutputFormat.png, 100, false);
-                        ImageIO.SaveToStream(imageToSave, null, pngStream, pngOutputSettings);
-                        pngStream.Seek(0, SeekOrigin.Begin);
-                        // Set the PNG stream
-                        dataObject.SetData(FORMAT_PNG, false, pngStream);
-                    }
+                    var pngStream = content.Own(RecyclableMemoryStreamFactory.GetStream("ClipboardHelper.PNG"));
+                    // PNG works for e.g. Powerpoint
+                    SurfaceOutputSettings pngOutputSettings = new SurfaceOutputSettings(OutputFormat.png, 100, false);
+                    ImageIO.SaveToStream(imageToSave, null, pngStream, pngOutputSettings);
+                    pngStream.Seek(0, SeekOrigin.Begin);
+                    // Set the PNG stream
+                    dataObject.SetData(FORMAT_PNG, false, pngStream);
+                    content.HasData = true;
                 }
-                catch (Exception pngEx)
-                {
-                    Log.Error("Error creating PNG for the Clipboard.", pngEx);
-                }
-
-                try
-                {
-                    if (activeFormats.Contains(ClipboardFormat.DIB))
-                    {
-                        // Create the stream for the clipboard
-                        dibStream = RecyclableMemoryStreamFactory.GetStream("ClipboardHelper.DIB");
-                        var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
-
-                        if (!fileFormatHandlers.TrySaveToStream((Bitmap)imageToSave, dibStream, DataFormats.Dib))
-                        {
-                            dibStream.Dispose();
-                            dibStream = null;
-                        }
-                        else
-                        {
-                            // Set the DIB to the clipboard DataObject
-                            dataObject.SetData(DataFormats.Dib, false, dibStream);
-                        }
-                    }
-                }
-                catch (Exception dibEx)
-                {
-                    Log.Error("Error creating DIB for the Clipboard.", dibEx);
-                }
-
-                // CF_DibV5
-                try
-                {
-                    if (activeFormats.Contains(ClipboardFormat.DIBV5))
-                    {
-                        // Create the stream for the clipboard
-                        dibV5Stream = RecyclableMemoryStreamFactory.GetStream("ClipboardHelper.DIBV5");
-
-                        // Create the BITMAPINFOHEADER
-                        var header = BitmapV5Header.Create(imageToSave.Width, imageToSave.Height, 32);
-                        // Make sure we have BI_BITFIELDS, this seems to be normal for Format17?
-                        header.Compression = BitmapCompressionMethods.BI_BITFIELDS;
-                        // Create a byte[] to write
-                        byte[] headerBytes = BinaryStructHelper.ToByteArray(header);
-                        // Write the BITMAPINFOHEADER to the stream
-                        dibV5Stream.Write(headerBytes, 0, headerBytes.Length);
-
-                        // As we have specified BI_COMPRESSION.BI_BITFIELDS, the BitfieldColorMask needs to be added
-                        // This also makes sure the default values are set
-                        BitfieldColorMask colorMask = new BitfieldColorMask();
-                        // Create the byte[] from the struct
-                        byte[] colorMaskBytes = BinaryStructHelper.ToByteArray(colorMask);
-                        Array.Reverse(colorMaskBytes);
-                        // Write to the stream
-                        dibV5Stream.Write(colorMaskBytes, 0, colorMaskBytes.Length);
-
-                        // Create the raw bytes for the pixels only
-                        byte[] bitmapBytes = BitmapToByteArray((Bitmap) imageToSave);
-                        // Write to the stream
-                        dibV5Stream.Write(bitmapBytes, 0, bitmapBytes.Length);
-
-                        // Set the DIBv5 to the clipboard DataObject
-                        dataObject.SetData(FORMAT_17, true, dibV5Stream);
-                    }
-                }
-                catch (Exception dibEx)
-                {
-                    Log.Error("Error creating DIB for the Clipboard.", dibEx);
-                }
-
-                // Set the HTML
-                if (activeFormats.Contains(ClipboardFormat.HTML))
-                {
-                    // Use the already-rendered imageToSave to avoid a redundant surface render pass.
-                    string tmpFile = ImageIO.SaveToTmpFile(imageToSave, new SurfaceOutputSettings(OutputFormat.png, 100, false), null);
-                    string html = GetHtmlString(surface, tmpFile);
-                    dataObject.SetText(html, TextDataFormat.Html);
-                }
-                else if (activeFormats.Contains(ClipboardFormat.HTMLDATAURL))
-                {
-                    string html;
-                    using (MemoryStream tmpPngStream = RecyclableMemoryStreamFactory.GetStream("ClipboardHelper.HTMLDATAURL"))
-                    {
-                        SurfaceOutputSettings pngOutputSettings = new SurfaceOutputSettings(OutputFormat.png, 100, false)
-                        {
-                            // Do not allow to reduce the colors, some applications dislike 256 color images
-                            // reported with bug #3594681
-                            DisableReduceColors = true
-                        };
-                        // Check if we can use the previously used image
-                        if (imageToSave.PixelFormat != PixelFormat.Format8bppIndexed)
-                        {
-                            ImageIO.SaveToStream(imageToSave, surface, tmpPngStream, pngOutputSettings);
-                        }
-                        else
-                        {
-                            ImageIO.SaveToStream(surface, tmpPngStream, pngOutputSettings);
-                        }
-
-                        html = GetHtmlDataUrlString(surface, tmpPngStream);
-                    }
-
-                    dataObject.SetText(html, TextDataFormat.Html);
-                }
-
-                // Check if Bitmap is wanted
-                if (activeFormats.Contains(ClipboardFormat.BITMAP))
-                {
-                    dataObject.SetImage(imageToSave);
-                }
-
-                // Place the DataObject to the clipboard
-                SetDataObject(dataObject, true);
             }
-            finally
+            catch (Exception pngEx)
             {
-                pngStream?.Dispose();
-                dibStream?.Dispose();
-                dibV5Stream?.Dispose();
-                // cleanup if needed
-                if (disposeImage)
+                Log.Error("Error creating PNG for the Clipboard.", pngEx);
+            }
+
+            try
+            {
+                if (activeFormats.Contains(ClipboardFormat.DIB))
                 {
-                    imageToSave?.Dispose();
+                    // Create the stream for the clipboard
+                    var dibStream = content.Own(RecyclableMemoryStreamFactory.GetStream("ClipboardHelper.DIB"));
+                    var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
+
+                    if (fileFormatHandlers.TrySaveToStream((Bitmap)imageToSave, dibStream, DataFormats.Dib))
+                    {
+                        // Set the DIB to the clipboard DataObject
+                        dataObject.SetData(DataFormats.Dib, false, dibStream);
+                        content.HasData = true;
+                    }
                 }
             }
+            catch (Exception dibEx)
+            {
+                Log.Error("Error creating DIB for the Clipboard.", dibEx);
+            }
+
+            // CF_DibV5
+            try
+            {
+                if (activeFormats.Contains(ClipboardFormat.DIBV5))
+                {
+                    // Create the stream for the clipboard
+                    var dibV5Stream = content.Own(RecyclableMemoryStreamFactory.GetStream("ClipboardHelper.DIBV5"));
+
+                    // Create the BITMAPINFOHEADER
+                    var header = BitmapV5Header.Create(imageToSave.Width, imageToSave.Height, 32);
+                    // Make sure we have BI_BITFIELDS, this seems to be normal for Format17?
+                    header.Compression = BitmapCompressionMethods.BI_BITFIELDS;
+                    // Create a byte[] to write
+                    byte[] headerBytes = BinaryStructHelper.ToByteArray(header);
+                    // Write the BITMAPINFOHEADER to the stream
+                    dibV5Stream.Write(headerBytes, 0, headerBytes.Length);
+
+                    // As we have specified BI_COMPRESSION.BI_BITFIELDS, the BitfieldColorMask needs to be added
+                    // This also makes sure the default values are set
+                    BitfieldColorMask colorMask = new BitfieldColorMask();
+                    // Create the byte[] from the struct
+                    byte[] colorMaskBytes = BinaryStructHelper.ToByteArray(colorMask);
+                    Array.Reverse(colorMaskBytes);
+                    // Write to the stream
+                    dibV5Stream.Write(colorMaskBytes, 0, colorMaskBytes.Length);
+
+                    // Create the raw bytes for the pixels only
+                    byte[] bitmapBytes = BitmapToByteArray((Bitmap) imageToSave);
+                    // Write to the stream
+                    dibV5Stream.Write(bitmapBytes, 0, bitmapBytes.Length);
+
+                    // Set the DIBv5 to the clipboard DataObject
+                    dataObject.SetData(FORMAT_17, true, dibV5Stream);
+                    content.HasData = true;
+                }
+            }
+            catch (Exception dibEx)
+            {
+                Log.Error("Error creating DIB for the Clipboard.", dibEx);
+            }
+
+            // Set the HTML
+            if (activeFormats.Contains(ClipboardFormat.HTML))
+            {
+                string tmpFile = ImageIO.SaveToTmpFile(imageToSave, new SurfaceOutputSettings(OutputFormat.png, 100, false), null);
+                string html = GetHtmlString(imageToSave.Size, tmpFile);
+                dataObject.SetText(html, TextDataFormat.Html);
+                content.HasData = true;
+            }
+            else if (activeFormats.Contains(ClipboardFormat.HTMLDATAURL))
+            {
+                string html;
+                using (MemoryStream tmpPngStream = RecyclableMemoryStreamFactory.GetStream("ClipboardHelper.HTMLDATAURL"))
+                {
+                    SurfaceOutputSettings pngOutputSettings = new SurfaceOutputSettings(OutputFormat.png, 100, false)
+                    {
+                        // Do not allow to reduce the colors, some applications dislike 256 color images
+                        // reported with bug #3594681
+                        DisableReduceColors = true
+                    };
+                    // A 256 color image is converted first, some applications dislike them
+                    if (imageToSave.PixelFormat != PixelFormat.Format8bppIndexed)
+                    {
+                        ImageIO.SaveToStream(imageToSave, null, tmpPngStream, pngOutputSettings);
+                    }
+                    else
+                    {
+                        using var fullColorImage = ImageHelper.Clone(imageToSave, PixelFormat.Format32bppArgb);
+                        ImageIO.SaveToStream(fullColorImage, null, tmpPngStream, pngOutputSettings);
+                    }
+
+                    html = GetHtmlDataUrlString(imageToSave.Size, tmpPngStream);
+                }
+
+                dataObject.SetText(html, TextDataFormat.Html);
+                content.HasData = true;
+            }
+
+            // Check if Bitmap is wanted
+            if (activeFormats.Contains(ClipboardFormat.BITMAP))
+            {
+                dataObject.SetImage(imageToSave);
+                content.HasData = true;
+            }
+
+            return content;
         }
 
         /// <summary>

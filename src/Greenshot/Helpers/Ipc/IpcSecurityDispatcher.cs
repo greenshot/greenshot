@@ -1050,9 +1050,11 @@ namespace Greenshot.Helpers.Ipc
                 };
             };
 
+            var runner = CaptureFlowRunner.For(pipeline);
             if (fireAndForget)
             {
-                _ = pipeline.ExecuteAsync(recipeToExecute, cmdTrigger, configureContext);
+                // Tracked by the flow runner, the caller doesn't wait
+                runner.Start(recipeToExecute, FlowTriggerContext.Empty(cmdTrigger), configureContext);
                 await context.ReplyAsync(new
                 {
                     status = "ok",
@@ -1063,7 +1065,8 @@ namespace Greenshot.Helpers.Ipc
                 return;
             }
 
-            var flowContext = await pipeline.ExecuteAsync(recipeToExecute, cmdTrigger, configureContext).ConfigureAwait(false);
+            var flowResult = await runner.Start(recipeToExecute, FlowTriggerContext.Empty(cmdTrigger), configureContext).Completion.ConfigureAwait(false);
+            var flowContext = flowResult.Context ?? CreateContextForResult(recipeToExecute, cmdTrigger, flowResult);
             bool failed = flowContext.IsAborted || flowContext.State == CaptureFlowState.Failed;
             // Honors a custom exit code set by a StderrStep (also when it did not abort)
             int finalExitCode = flowContext.ExitCode != 0 ? flowContext.ExitCode : (failed ? 1 : 0);
@@ -1215,6 +1218,23 @@ namespace Greenshot.Helpers.Ipc
                 outputText = $"Recipe '{matchedRecipe.Name}' completed successfully.";
             }
             return outputText;
+        }
+
+        /// <summary>
+        /// A flow which didn't start (rejected) or failed outside the pipeline has no context, create one describing the outcome.
+        /// </summary>
+        private static CaptureFlowContext CreateContextForResult(CaptureRecipe recipe, ITrigger trigger, CaptureFlowResult result)
+        {
+            var context = new CaptureFlowContext(recipe, trigger);
+            if (result.State == CaptureFlowState.Failed)
+            {
+                context.Fail(result.Reason ?? "Recipe execution failed.", result.Error);
+            }
+            else if (result.State == CaptureFlowState.Cancelled)
+            {
+                context.Abort(result.Reason ?? "Recipe execution was cancelled.");
+            }
+            return context;
         }
 
         private static object CreatePayloadSummary(ICapturePayload payload)
@@ -1424,13 +1444,10 @@ namespace Greenshot.Helpers.Ipc
 
                         var recipeToExecute = TriggerRecipePreparer.Prepare(pair.Recipe, trigger);
 
-                        if (fnf || pipeline == null)
+                        var handle = CaptureFlowRunner.For(pipeline).Start(recipeToExecute, FlowTriggerContext.Empty(trigger), ctx => ctx.Properties["Filename"] = file);
+                        if (!fnf)
                         {
-                            _ = pipeline?.ExecuteAsync(recipeToExecute, trigger, ctx => ctx.Properties["Filename"] = file);
-                        }
-                        else
-                        {
-                            await pipeline.ExecuteAsync(recipeToExecute, trigger, ctx => ctx.Properties["Filename"] = file).ConfigureAwait(false);
+                            await handle.Completion.ConfigureAwait(false);
                         }
                         executedCount++;
                     }

@@ -38,6 +38,8 @@ using Dapplo.Windows.User32;
 using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using log4net;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Greenshot.Base.Core
 {
@@ -107,14 +109,14 @@ namespace Greenshot.Base.Core
         /// This method will call the CaptureRectangle with the screenbounds, therefore Capturing the whole screen.
         /// </summary>
         /// <returns>A Capture Object with the Screen as an Image</returns>
-        public static ICapture CaptureScreen(ICapture capture)
+        public static Task<ICapture> CaptureScreenAsync(ICapture capture, CancellationToken cancellationToken = default)
         {
             if (capture == null)
             {
                 capture = new Capture();
             }
 
-            return CaptureRectangle(capture, capture.ScreenBounds);
+            return CaptureRectangleAsync(capture, capture.ScreenBounds, cancellationToken);
         }
 
         /// <summary>
@@ -195,7 +197,7 @@ namespace Greenshot.Base.Core
         /// <param name="capture">ICapture where the captured Bitmap will be stored</param>
         /// <param name="captureBounds">NativeRect with the bounds to capture</param>
         /// <returns>A Capture Object with a part of the Screen as an Image</returns>
-        public static ICapture CaptureRectangle(ICapture capture, NativeRect captureBounds)
+        public static async Task<ICapture> CaptureRectangleAsync(ICapture capture, NativeRect captureBounds, CancellationToken cancellationToken = default)
         {
             if (capture == null)
             {
@@ -204,15 +206,20 @@ namespace Greenshot.Base.Core
 
             Image capturedImage = null;
             // If the CaptureHandler has a handle use this, otherwise use the CaptureRectangle here
-            if (CaptureHandler.CaptureScreenRectangle != null)
+            var captureHandler = CaptureHandler.CaptureScreenRectangle;
+            if (captureHandler != null)
             {
                 try
                 {
-                    capturedImage = CaptureHandler.CaptureScreenRectangle(captureBounds);
+                    capturedImage = await captureHandler(captureBounds, cancellationToken).ConfigureAwait(false);
                 }
-                catch
+                catch (OperationCanceledException)
                 {
-                    // ignored
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    Log.Debug("The custom capture handler failed, using the legacy capture.", ex);
                 }
             }
 

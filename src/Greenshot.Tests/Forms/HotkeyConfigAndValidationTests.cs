@@ -316,9 +316,11 @@ namespace Greenshot.Tests.Forms
         [Fact]
         public async System.Threading.Tasks.Task ClipboardCaptureSource_AcquireAsync_FromMTAThread_DoesNotThrowThreadStateException()
         {
+            // The flow runs on a pool (MTA) thread, the clipboard is read on the (STA) UI thread through the dispatcher
+            using var ui = Greenshot.Tests.Threading.StrictTestUiDispatcher.Create();
             var source = new Greenshot.Base.Pipeline.Sources.ClipboardCaptureSource();
             var recipe = new Greenshot.Base.Recipes.CaptureRecipe("test_clipboard", "Test Clipboard", "Test");
-            var context = new Greenshot.Base.Pipeline.CaptureFlowContext(recipe);
+            var context = new Greenshot.Base.Pipeline.CaptureFlowContext(recipe) { Ui = ui };
             var payload = await source.AcquireAsync(context);
             // Should either return payload (if clipboard contains image) or abort cleanly, without throwing ThreadStateException
             Assert.True(context.IsAborted || payload != null);

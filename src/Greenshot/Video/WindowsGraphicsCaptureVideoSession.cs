@@ -45,6 +45,7 @@ using Windows.Media.Core;
 using Windows.Media.MediaProperties;
 using Windows.Media.Transcoding;
 using Windows.Storage.Streams;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Video
 {
@@ -89,6 +90,9 @@ namespace Greenshot.Video
 
         // Synchronization events
         private readonly ManualResetEventSlim _frameEvent = new ManualResetEventSlim(false);
+        // Awaitable counterparts of the events, for the start-up (the sample requests are served on the media worker thread)
+        private readonly TaskCompletionSource<bool> _firstFrameArrived = Tcs.Create<bool>();
+        private readonly TaskCompletionSource<bool> _stopRequested = Tcs.Create<bool>();
         private readonly ManualResetEventSlim _stopEvent = new ManualResetEventSlim(false);
 
         // Media Transcoder & Stream Source
@@ -102,7 +106,7 @@ namespace Greenshot.Video
         private readonly ConcurrentQueue<AudioSampleEventArgs> _audioQueue = new ConcurrentQueue<AudioSampleEventArgs>();
 
         // Lifecycle & State
-        private readonly TaskCompletionSource<bool> _recordingFinishedTcs = new TaskCompletionSource<bool>();
+        private readonly TaskCompletionSource<bool> _recordingFinishedTcs = Tcs.Create<bool>();
         private bool _disposed;
 
         public RecordingState State => _state;
@@ -183,14 +187,15 @@ namespace Greenshot.Video
             _captureSession.StartCapture();
 
             // Wait up to 2 seconds for the very first frame to arrive from compositor
-            int initialWait = WaitHandle.WaitAny(new[] { _stopEvent.WaitHandle, _frameEvent.WaitHandle }, 2000);
-            if (initialWait == 0)
+            var firstEvent = await Task.WhenAny(_stopRequested.Task, _firstFrameArrived.Task, Task.Delay(2000, cancellationToken)).ConfigureAwait(false);
+            if (firstEvent == _stopRequested.Task)
             {
                 throw new OperationCanceledException("Capture was cancelled before the first frame arrived.");
             }
+            cancellationToken.ThrowIfCancellationRequested();
 
             // 6. Initialize Media Transcoder & MediaStreamSource
-            await InitializeTranscoderAsync();
+            await InitializeTranscoderAsync().ConfigureAwait(false);
 
             // 7. Start recording state and timer
             _stopwatch.Restart();
@@ -377,7 +382,7 @@ namespace Greenshot.Video
                 HardwareAccelerationEnabled = true
             };
 
-            var prepareOp = await transcoder.PrepareMediaStreamSourceTranscodeAsync(_mediaStreamSource, _randomAccessStream, profile);
+            var prepareOp = await transcoder.PrepareMediaStreamSourceTranscodeAsync(_mediaStreamSource, _randomAccessStream, profile).AsTask().ConfigureAwait(false);
             if (!prepareOp.CanTranscode)
             {
                 throw new InvalidOperationException($"Cannot transcode video: {prepareOp.FailureReason}");
@@ -456,6 +461,7 @@ namespace Greenshot.Video
                 }
 
                 _frameEvent.Set();
+                _firstFrameArrived.TrySetResult(true);
             }
             catch (Exception ex)
             {
@@ -482,9 +488,11 @@ namespace Greenshot.Video
                 if (args.Request.StreamDescriptor is VideoStreamDescriptor)
                 {
                     // If paused, wait until resumed or stopped
+                    // This runs on the MediaStreamSource worker thread which pulls the samples: waiting there is the pull contract.
+                    // The wait ends early when the recording is stopped.
                     while (_state == RecordingState.Paused && !_stopEvent.IsSet)
                     {
-                        Thread.Sleep(30);
+                        _stopEvent.Wait(30);
                     }
 
                     if (_stopEvent.IsSet || (_state != RecordingState.Recording && _state != RecordingState.Unstarted))
@@ -608,13 +616,14 @@ namespace Greenshot.Video
             // 1. Signal stop to unblock any pending SampleRequested and deliver EOS to MediaTranscoder
             _stopEvent.Set();
             _frameEvent.Set();
+            _stopRequested.TrySetResult(true);
 
             // 2. Await transcode task completion (flushes MP4 container and writes moov atom)
             if (_transcodeTask != null)
             {
                 try
                 {
-                    var completed = await Task.WhenAny(_transcodeTask, Task.Delay(5000));
+                    var completed = await Task.WhenAny(_transcodeTask, Task.Delay(5000)).ConfigureAwait(false);
                     if (completed == _transcodeTask)
                     {
                         if (_transcodeTask.IsFaulted)
@@ -668,12 +677,13 @@ namespace Greenshot.Video
 
             _stopEvent.Set();
             _frameEvent.Set();
+            _stopRequested.TrySetResult(true);
 
             if (_transcodeTask != null)
             {
                 try
                 {
-                    await Task.WhenAny(_transcodeTask, Task.Delay(1000));
+                    await Task.WhenAny(_transcodeTask, Task.Delay(1000)).ConfigureAwait(false);
                 }
                 catch { }
             }
@@ -756,12 +766,12 @@ namespace Greenshot.Video
             if (e.Reason == SessionSwitchReason.SessionLock)
             {
                 Log.Info("Session locked (Win+L detected), pausing video recording.");
-                PauseAsync();
+                PauseAsync().FireAndLog("Pause the video recording", Log);
             }
             else if (e.Reason == SessionSwitchReason.SessionUnlock)
             {
                 Log.Info("Session unlocked, resuming video recording.");
-                ResumeAsync();
+                ResumeAsync().FireAndLog("Resume the video recording", Log);
             }
         }
 
@@ -770,7 +780,8 @@ namespace Greenshot.Video
             if (e.Mode == PowerModes.Suspend)
             {
                 Log.Warn("System entering suspend/sleep, auto-finalizing recording to prevent corruption.");
-                StopAsync().GetAwaiter().GetResult();
+                // Not blocking the SystemEvents thread (it can be the UI thread): the finalization runs in the background
+                StopAsync().FireAndLog("Finalize the video recording before suspend", Log);
             }
         }
 
@@ -800,6 +811,7 @@ namespace Greenshot.Video
 
             _stopEvent.Set();
             _frameEvent.Set();
+            _stopRequested.TrySetResult(true);
 
             try { _captureSession?.Dispose(); } catch { }
             try { _framePool?.Dispose(); } catch { }

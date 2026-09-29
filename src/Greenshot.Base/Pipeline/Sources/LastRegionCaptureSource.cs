@@ -37,17 +37,17 @@ namespace Greenshot.Base.Pipeline.Sources
 
         public string Name => "LastRegionCaptureSource";
 
-        public Task<ICapturePayload> AcquireAsync(CaptureFlowContext context, CancellationToken cancellationToken = default)
+        public async Task<ICapturePayload> AcquireAsync(CaptureFlowContext context, CancellationToken cancellationToken = default)
         {
             var lastRegion = CoreConfig.LastCapturedRegion;
             if (lastRegion.IsEmpty)
             {
                 context.Abort("No last captured region available.");
-                return Task.FromResult<ICapturePayload>(null);
+                return null;
             }
 
             ICapture capture = new Capture();
-            capture = WindowCapture.CaptureRectangle(capture, lastRegion);
+            capture = await WindowCapture.CaptureRectangleAsync(capture, lastRegion, cancellationToken).ConfigureAwait(false);
 
             // Attempt to resolve window title from visible window at center of last region
             NativePoint centerPoint = new NativePoint(lastRegion.X + lastRegion.Width / 2, lastRegion.Y + lastRegion.Height / 2);
@@ -64,8 +64,7 @@ namespace Greenshot.Base.Pipeline.Sources
             capture.MoveMouseLocation(capture.ScreenBounds.Location.X - capture.Location.X, capture.ScreenBounds.Location.Y - capture.Location.Y);
             capture.CaptureDetails.AddMetaData("source", "screen");
 
-            var payload = new CapturePayload(capture);
-            return Task.FromResult<ICapturePayload>(payload);
+            return new CapturePayload(capture);
         }
     }
 }

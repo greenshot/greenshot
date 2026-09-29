@@ -256,6 +256,8 @@ namespace Greenshot.Forms
 
         private readonly UiStallWatchdog _uiStallWatchdog;
 
+        private readonly CaptureFlowRunner _flowRunner;
+
         // Thumbnail preview
         private ThumbnailForm _thumbnailForm;
 
@@ -301,6 +303,9 @@ namespace Greenshot.Forms
             SimpleServiceProvider.Current.AddService<IRecipeManager>(RecipeManager.Instance);
             SimpleServiceProvider.Current.AddService<IStepRegistry>(StepRegistry.Instance);
             SimpleServiceProvider.Current.AddService<ICapturePipeline>(CapturePipeline.Instance);
+            // Every flow is started, tracked and cancelled through the flow runner
+            _flowRunner = new CaptureFlowRunner(CapturePipeline.Instance, UiDispatcher, CapturePipeline.Instance.Selector);
+            SimpleServiceProvider.Current.AddService<ICaptureFlowRunner>(_flowRunner);
 
             // Windows specific services
             SimpleServiceProvider.Current.AddService<INotificationService>(ToastNotificationService.Create());
@@ -350,14 +355,8 @@ namespace Greenshot.Forms
 
             RecipeManager.Instance.RecipesChanged += (s, e) =>
             {
-                if (InvokeRequired)
-                {
-                    BeginInvoke(new MethodInvoker(UpdateRecipesMenu));
-                }
-                else
-                {
-                    UpdateRecipesMenu();
-                }
+                // Raised from file watchers and flows: always marshal to the UI thread
+                UiDispatcher.InvokeAsync(UpdateRecipesMenu).FireAndLog("Update recipes menu", Log);
             };
 
             // Apply the command line language after LoadPlugins, as it reloads the configuration from disk
@@ -1648,9 +1647,9 @@ namespace Greenshot.Forms
         /// <param name="capture">ICapture</param>
         /// <param name="coreConfigurationWindowCaptureMode">WindowCaptureMode</param>
         /// <returns>ICapture</returns>
-        public ICapture CaptureWindow(WindowDetails windowToCapture, ICapture capture, WindowCaptureMode coreConfigurationWindowCaptureMode)
+        public Task<ICapture> CaptureWindowAsync(WindowDetails windowToCapture, ICapture capture, WindowCaptureMode coreConfigurationWindowCaptureMode, CancellationToken cancellationToken = default)
         {
-            return CaptureHelper.CaptureWindow(windowToCapture, capture, coreConfigurationWindowCaptureMode);
+            return WindowCaptureHelper.CaptureWindowAsync(windowToCapture, capture, coreConfigurationWindowCaptureMode, UiDispatcher, cancellationToken);
         }
 
         protected override void WndProc(ref Message m)

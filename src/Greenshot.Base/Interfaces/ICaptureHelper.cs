@@ -21,6 +21,8 @@
 
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Greenshot.Base.Interfaces
 {
@@ -42,7 +44,8 @@ namespace Greenshot.Base.Interfaces
         /// <param name="windowToCapture">WindowDetails</param>
         /// <param name="capture">ICapture</param>
         /// <param name="coreConfigurationWindowCaptureMode">WindowCaptureMode</param>
+        /// <param name="cancellationToken">CancellationToken</param>
         /// <returns>ICapture</returns>
-        ICapture CaptureWindow(WindowDetails windowToCapture, ICapture capture, WindowCaptureMode coreConfigurationWindowCaptureMode);
+        Task<ICapture> CaptureWindowAsync(WindowDetails windowToCapture, ICapture capture, WindowCaptureMode coreConfigurationWindowCaptureMode, CancellationToken cancellationToken = default);
     }
 }

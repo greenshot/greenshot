@@ -34,21 +34,21 @@ namespace Greenshot.Base.Pipeline.Sources
     {
         public string Name => "ClipboardCaptureSource";
 
-        public Task<ICapturePayload> AcquireAsync(CaptureFlowContext context, CancellationToken cancellationToken = default)
+        public async Task<ICapturePayload> AcquireAsync(CaptureFlowContext context, CancellationToken cancellationToken = default)
         {
-            Image clipboardImage = ClipboardHelper.GetImage();
+            // The clipboard is read on the UI thread by the clipboard service
+            Image clipboardImage = await ClipboardService.For(context.Ui).GetImageAsync(cancellationToken).ConfigureAwait(false);
             if (clipboardImage == null)
             {
                 context.Abort("Clipboard does not contain a valid image.");
-                return Task.FromResult<ICapturePayload>(null);
+                return null;
             }
 
             ICapture capture = new Capture(clipboardImage);
             capture.CaptureDetails.Title = "Clipboard";
             capture.CaptureDetails.AddMetaData("source", "Clipboard");
 
-            var payload = new CapturePayload(capture);
-            return Task.FromResult<ICapturePayload>(payload);
+            return new CapturePayload(capture);
         }
     }
 }

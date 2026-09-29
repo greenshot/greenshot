@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Threading.Tasks;
 using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -139,12 +140,12 @@ public class WindowsGraphicsCaptureTests
     }
 
     [HdrFact]
-    public void TestCaptureMonitorUsingGpuToneMapper()
+    public async Task TestCaptureMonitorUsingGpuToneMapper()
     {
         IntPtr primaryMonitor = HdrDisplayInfo.GetMonitorForWindow(IntPtr.Zero);
         _output.WriteLine($"Capturing monitor {primaryMonitor}...");
 
-        using var bitmap = WindowsGraphicsCaptureInterop.CaptureMonitorToBitmap(primaryMonitor);
+        using var bitmap = await WindowsGraphicsCaptureInterop.CaptureMonitorToBitmapAsync(primaryMonitor);
         _output.WriteLine($"Capture result: {(bitmap != null ? $"{bitmap.Width}x{bitmap.Height}" : "null")}");
         Assert.NotNull(bitmap);
     }
@@ -287,25 +288,25 @@ public class WindowsGraphicsCaptureTests
     }
 
     [Fact]
-    public void TestCaptureRectangle_SingleMonitor_ReturnsValidBitmap()
+    public async Task TestCaptureRectangle_SingleMonitor_ReturnsValidBitmap()
     {
         var primaryDisplay = DisplayInfo.AllDisplayInfos.FirstOrDefault(d => d.IsPrimary) ?? DisplayInfo.AllDisplayInfos.First();
         Assert.NotNull(primaryDisplay);
 
-        using var bitmap = WindowsGraphicsCaptureInterop.CaptureRectangle(primaryDisplay.Bounds);
+        using var bitmap = await WindowsGraphicsCaptureInterop.CaptureRectangleAsync(primaryDisplay.Bounds);
         Assert.NotNull(bitmap);
         Assert.Equal(primaryDisplay.Bounds.Width, bitmap.Width);
         Assert.Equal(primaryDisplay.Bounds.Height, bitmap.Height);
     }
 
     [Fact]
-    public void TestRepeatedCapture_ReusesCachedDevice()
+    public async Task TestRepeatedCapture_ReusesCachedDevice()
     {
         IntPtr primaryMonitor = HdrDisplayInfo.GetMonitorForWindow(IntPtr.Zero);
-        using var first = WindowsGraphicsCaptureInterop.CaptureMonitorToBitmap(primaryMonitor);
+        using var first = await WindowsGraphicsCaptureInterop.CaptureMonitorToBitmapAsync(primaryMonitor);
         Assert.NotNull(first);
 
-        using var second = WindowsGraphicsCaptureInterop.CaptureMonitorToBitmap(primaryMonitor);
+        using var second = await WindowsGraphicsCaptureInterop.CaptureMonitorToBitmapAsync(primaryMonitor);
         Assert.NotNull(second);
         Assert.Equal(first.Width, second.Width);
         Assert.Equal(first.Height, second.Height);

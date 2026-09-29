@@ -32,6 +32,8 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Interfaces;
 using Xunit;
+using System.Threading.Tasks;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Tests.Core;
 
@@ -146,14 +148,14 @@ public class CursorCaptureTests
         {
             // The handler is only used when Windows Graphics Capture is enabled
             coreConfig.UseWindowsGraphicsCapture = true;
-            WindowCaptureHelper.CustomWindowCaptureHandler = hwnd =>
+            WindowCaptureHelper.CustomWindowCaptureHandler = (hwnd, _) =>
             {
                 capturedHandle = hwnd;
-                return dummyBitmap;
+                return Task.FromResult(dummyBitmap);
             };
 
             var windowDetails = new WindowDetails(handle);
-            var capture = WindowCaptureHelper.CaptureWindow(windowDetails, null, WindowCaptureMode.Auto);
+            var capture = WindowCaptureHelper.CaptureWindowAsync(windowDetails, null, WindowCaptureMode.Auto, InlineUiDispatcher.Instance).GetAwaiter().GetResult();
 
             Assert.Equal(handle, capturedHandle);
             Assert.NotNull(capture);

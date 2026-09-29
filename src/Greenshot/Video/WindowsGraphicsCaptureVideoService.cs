@@ -25,6 +25,7 @@ using System.Threading.Tasks;
 using Greenshot.Base.Interfaces.Video;
 using log4net;
 using Windows.Graphics.Capture;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Video
 {
@@ -74,7 +75,9 @@ namespace Greenshot.Video
             var session = new WindowsGraphicsCaptureVideoSession(options);
             try
             {
-                await Task.Run(() => session.StartAsync(cancellationToken), cancellationToken).ConfigureAwait(false);
+                // The Direct3D objects of the session are bound to the MTA: start it on a pool thread, never on the UI (STA) thread
+                await ThreadPoolSwitch.SwitchToThreadPoolAsync();
+                await session.StartAsync(cancellationToken).ConfigureAwait(false);
                 return session;
             }
             catch (Exception ex)

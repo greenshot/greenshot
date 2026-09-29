@@ -124,7 +124,7 @@ namespace Greenshot.Pipeline.Steps
 
             Log.Info($"Executing RecordVideoRecipeStep: Target={options.Target}, Format={options.Format}, FPS={options.FrameRate}, Bitrate={options.Bitrate}");
 
-            using var session = await videoService.StartRecordingAsync(options, cancellationToken);
+            using var session = await videoService.StartRecordingAsync(options, cancellationToken).ConfigureAwait(false);
 
             // Read duration or wait until window closes
             int durationSeconds = Config.GetParameter("DurationSeconds", 0);
@@ -135,11 +135,11 @@ namespace Greenshot.Pipeline.Steps
             {
                 try
                 {
-                    await Task.Delay(TimeSpan.FromSeconds(durationSeconds), cancellationToken);
+                    await Task.Delay(TimeSpan.FromSeconds(durationSeconds), cancellationToken).ConfigureAwait(false);
                 }
                 catch (OperationCanceledException)
                 {
-                    await session.CancelAsync();
+                    await session.CancelAsync().ConfigureAwait(false);
                     context.State = CaptureFlowState.Cancelled;
                     return;
                 }
@@ -154,7 +154,7 @@ namespace Greenshot.Pipeline.Steps
                     {
                         if (cancellationToken.IsCancellationRequested)
                         {
-                            await session.CancelAsync();
+                            await session.CancelAsync().ConfigureAwait(false);
                             context.State = CaptureFlowState.Cancelled;
                             return;
                         }
@@ -165,18 +165,18 @@ namespace Greenshot.Pipeline.Steps
                             break;
                         }
 
-                        await Task.Delay(250, cancellationToken);
+                        await Task.Delay(250, cancellationToken).ConfigureAwait(false);
                     }
                 }
                 catch (OperationCanceledException)
                 {
-                    await session.CancelAsync();
+                    await session.CancelAsync().ConfigureAwait(false);
                     context.State = CaptureFlowState.Cancelled;
                     return;
                 }
             }
 
-            var result = await session.StopAsync();
+            var result = await session.StopAsync().ConfigureAwait(false);
 
             context.Properties["VideoRecordingResult"] = result;
             context.Properties["VideoFilePath"] = result.FilePath;
@@ -237,7 +237,10 @@ namespace Greenshot.Pipeline.Steps
 
                     if (hWnd == IntPtr.Zero)
                     {
-                        hWnd = User32Api.GetForegroundWindow();
+                        // The window which was active when the recording was triggered, the flow runs later on the pool
+                        hWnd = context.TriggerContext != null && context.TriggerContext.HasExternalForegroundWindow
+                            ? context.TriggerContext.ForegroundWindow
+                            : User32Api.GetForegroundWindow();
                     }
                 }
 

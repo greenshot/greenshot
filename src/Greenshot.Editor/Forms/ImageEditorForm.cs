@@ -57,6 +57,7 @@ using Greenshot.Editor.Drawing.Fields.Binding;
 using Greenshot.Editor.Helpers;
 using Greenshot.Base.Threading;
 using log4net;
+using System.Threading.Tasks;
 
 namespace Greenshot.Editor.Forms
 {
@@ -198,15 +199,13 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
 
             EventHandler recipesChangedHandler = (s, e) =>
             {
-                if (IsDisposed || Disposing) return;
-                if (InvokeRequired)
+                // Raised from file watchers and flows: always marshal to the UI thread
+                var ui = SimpleServiceProvider.Current.GetInstance<IUiDispatcher>(isOptional: true) ?? InlineUiDispatcher.Instance;
+                ui.InvokeAsync(() =>
                 {
-                    try { BeginInvoke(new MethodInvoker(UpdateRecipesMenu)); } catch { }
-                }
-                else
-                {
+                    if (IsDisposed || Disposing) return;
                     UpdateRecipesMenu();
-                }
+                }).FireAndLog("Update the editor recipes menu", Log);
             };
 
             var recipeManager = SimpleServiceProvider.Current.GetInstance<IRecipeManager>(isOptional: true);
@@ -1907,10 +1906,14 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
 
         private void Contextmenu_window_Click(object sender, EventArgs e)
         {
-            ToolStripMenuItem clickedItem = (ToolStripMenuItem)sender;
+            var clickedItem = (ToolStripMenuItem)sender;
+            AsyncCommand.Run(() => CaptureWindowIntoEditorAsync((WindowDetails)clickedItem.Tag), "Capture a window into the editor");
+        }
+
+        private async Task CaptureWindowIntoEditorAsync(WindowDetails windowToCapture)
+        {
             try
             {
-                WindowDetails windowToCapture = (WindowDetails)clickedItem.Tag;
                 ICapture capture = new Capture();
                 using (Graphics graphics = Graphics.FromHwnd(Handle))
                 {
@@ -1922,7 +1925,8 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                 windowToCapture = captureHelper.SelectCaptureWindow(windowToCapture);
                 if (windowToCapture != null)
                 {
-                    capture = captureHelper.CaptureWindow(windowToCapture, capture, coreConfiguration.WindowCaptureMode);
+                    // Continues on the UI thread (the context is captured), where the surface is changed
+                    capture = await captureHelper.CaptureWindowAsync(windowToCapture, capture, coreConfiguration.WindowCaptureMode).ConfigureAwait(true);
                     if (capture?.CaptureDetails != null && capture.Image != null)
                     {
                         ((Bitmap)capture.Image).SetResolution(capture.CaptureDetails.DpiX, capture.CaptureDetails.DpiY);

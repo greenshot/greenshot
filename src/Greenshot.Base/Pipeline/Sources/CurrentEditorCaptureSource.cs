@@ -25,6 +25,8 @@ using System.Threading.Tasks;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces.Forms;
 using log4net;
+using System.Drawing;
+using Greenshot.Base.Interfaces;
 
 namespace Greenshot.Base.Pipeline.Sources
 {
@@ -37,27 +39,42 @@ namespace Greenshot.Base.Pipeline.Sources
 
         public string Name => "CurrentEditorCaptureSource";
 
-        public Task<ICapturePayload> AcquireAsync(CaptureFlowContext context, CancellationToken cancellationToken = default)
+        public async Task<ICapturePayload> AcquireAsync(CaptureFlowContext context, CancellationToken cancellationToken = default)
         {
-            if (!context.Properties.TryGetValue("EditorForm", out var editorObject) || !(editorObject is IImageEditor editor) || editor.Surface == null)
+            if (!context.Properties.TryGetValue("EditorForm", out var editorObject) || !(editorObject is IImageEditor editor))
             {
                 context.Abort("Current editor surface is not available. Property 'EditorForm' with IImageEditor is required.");
-
-                return Task.FromResult<ICapturePayload>(null);
+                return null;
             }
 
-            var surfaceClone = editor.Surface.Clone();
-
-            return Task.FromResult<ICapturePayload>(new CapturePayload
+            // The editor's surface belongs to the UI thread: the flow gets its own copy, made there
+            var copy = await context.Ui.InvokeAsync<(ISurface Surface, Image Image)>(() =>
             {
-                Surface = surfaceClone, 
-                RetainSurfaceForEditor = true,
-
-                RawCapture = new Capture(surfaceClone.GetImageForExport())
+                var surface = editor.Surface;
+                if (surface == null)
                 {
-                    CaptureDetails = surfaceClone.CaptureDetails
+                    return (null, null);
                 }
-            });
+
+                var surfaceClone = surface.Clone();
+                return (Surface: surfaceClone, Image: surfaceClone.GetImageForExport());
+            }, cancellationToken).ConfigureAwait(false);
+
+            if (copy.Surface == null)
+            {
+                context.Abort("Current editor surface is not available.");
+                return null;
+            }
+
+            return new CapturePayload
+            {
+                Surface = copy.Surface,
+                RetainSurfaceForEditor = true,
+                RawCapture = new Capture(copy.Image)
+                {
+                    CaptureDetails = copy.Surface.CaptureDetails
+                }
+            };
         }
 
     }

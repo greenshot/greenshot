@@ -39,6 +39,7 @@ using Contracts = Greenshot.Base.Pipeline.Contracts;
 
 using Greenshot.Base.Recipes;
 using log4net;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Pipeline.Steps
 {
@@ -90,7 +91,7 @@ namespace Greenshot.Pipeline.Steps
             {
                 if (Config.GetParameter("SelectionMode", CaptureMode.Region) == CaptureMode.Text)
                 {
-                    ExtractOcrText(context);
+                    await ExtractOcrTextAsync(context, cancellationToken).ConfigureAwait(false);
                 }
                 return;
             }
@@ -102,25 +103,22 @@ namespace Greenshot.Pipeline.Steps
 
             if (allowSnapping)
             {
-                snapWindows = await Task.Run(() =>
+                // Win32 enumeration, runs inline on the pool thread the step is already on
+                int depth = CoreConfig.WindowCaptureAllChildLocations ? 20 : 3;
+                foreach (var window in WindowDetails.GetVisibleWindows())
                 {
-                    var list = new List<WindowDetails>();
-                    foreach (var window in WindowDetails.GetVisibleWindows())
-                    {
-                        window.FreezeDetails();
-                        int depth = CoreConfig.WindowCaptureAllChildLocations ? 20 : 3;
-                        window.GetChildren(depth);
-                        list.Add(window);
-                    }
-                    return list;
-                }, cancellationToken).ConfigureAwait(false);
+                    cancellationToken.ThrowIfCancellationRequested();
+                    window.FreezeDetails();
+                    window.GetChildren(depth);
+                    snapWindows.Add(window);
+                }
             }
 
             CaptureMode initialMode = Config.GetParameter("SelectionMode", CaptureMode.Region);
 
             var selection = await _selector.SelectAsync(payload.RawCapture, snapWindows, initialMode, cancellationToken).ConfigureAwait(false);
 
-            if (selection.IsCancelled)
+            if (selection == null)
             {
                 context.Abort("User cancelled interactive selection.");
                 return;
@@ -140,12 +138,13 @@ namespace Greenshot.Pipeline.Steps
                 NativeRect screenOffsetRect = selection.SelectedRegion.Offset(
                     payload.RawCapture.ScreenBounds.Location.X,
                     payload.RawCapture.ScreenBounds.Location.Y);
-                CoreConfig.LastCapturedRegion = screenOffsetRect;
+                // Configuration is written on the UI thread (single writer, its change events have UI subscribers)
+                context.Ui.InvokeAsync(() => CoreConfig.LastCapturedRegion = screenOffsetRect).FireAndLog("Store the last captured region", Log);
             }
 
             if (selection.FinalMode == CaptureMode.Text)
             {
-                ExtractOcrText(context);
+                await ExtractOcrTextAsync(context, cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -165,7 +164,7 @@ namespace Greenshot.Pipeline.Steps
         /// Puts the OCR text of the (selected part of the) capture into Payload.ExtractedText.
         /// Where the text goes (clipboard, stdout, ...) is up to the following steps.
         /// </summary>
-        private static void ExtractOcrText(CaptureFlowContext context)
+        private static async Task ExtractOcrTextAsync(CaptureFlowContext context, CancellationToken cancellationToken)
         {
             var rawCapture = context.Payload?.RawCapture;
             var captureDetails = rawCapture?.CaptureDetails;
@@ -175,7 +174,11 @@ namespace Greenshot.Pipeline.Steps
             {
                 try
                 {
-                    captureDetails.ProcessingTask.Wait();
+                    await captureDetails.ProcessingTask.WaitAsync(cancellationToken).ConfigureAwait(false);
+                }
+                catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+                {
+                    throw;
                 }
                 catch (Exception ex)
                 {
@@ -197,7 +200,7 @@ namespace Greenshot.Pipeline.Steps
                 {
                     try
                     {
-                        var lines = Task.Run(async () => await ocrProvider.DoOcrAsync(rawCapture.Image).ConfigureAwait(false)).Result;
+                        var lines = await ocrProvider.DoOcrAsync(rawCapture.Image).ConfigureAwait(false);
                         if (lines != null && lines.Any())
                         {
                             lock (captureDetails.Features)

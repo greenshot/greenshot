@@ -29,6 +29,9 @@ using Dapplo.Windows.DesktopWindowsManager;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Interfaces;
 using log4net;
+using System.Threading;
+using System.Threading.Tasks;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Base.Core
 {
@@ -41,9 +44,9 @@ namespace Greenshot.Base.Core
         private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
 
         /// <summary>
-        /// Optional custom window capture handler (used for Windows Graphics Capture when the user enabled it).
+        /// Optional custom window capture handler (used for Windows Graphics Capture when the user enabled it), returns null when it can't capture.
         /// </summary>
-        public static Func<IntPtr, Image> CustomWindowCaptureHandler { get; set; }
+        public static Func<IntPtr, CancellationToken, Task<Bitmap>> CustomWindowCaptureHandler { get; set; }
 
         /// <summary>
         /// Select the window to capture, resolving linked windows for special applications (e.g. TOAD, Excel).
@@ -96,19 +99,22 @@ namespace Greenshot.Base.Core
 
         /// <summary>
         /// Captures a target window using the specified WindowCaptureMode and fallback heuristics.
+        /// Called from the thread pool; the DWM capture shows a temporary form, that part runs on the UI thread through the dispatcher.
         /// </summary>
-        public static ICapture CaptureWindow(WindowDetails windowToCapture, ICapture captureForWindow, WindowCaptureMode windowCaptureMode)
+        public static async Task<ICapture> CaptureWindowAsync(WindowDetails windowToCapture, ICapture captureForWindow, WindowCaptureMode windowCaptureMode, IUiDispatcher ui = null, CancellationToken cancellationToken = default)
         {
+            ui ??= SimpleServiceProvider.Current?.GetInstance<IUiDispatcher>(isOptional: true) ?? InlineUiDispatcher.Instance;
             if (captureForWindow == null)
             {
                 captureForWindow = new Capture();
             }
 
-            if (CustomWindowCaptureHandler != null && CoreConfig.UseWindowsGraphicsCapture)
+            var customWindowCaptureHandler = CustomWindowCaptureHandler;
+            if (customWindowCaptureHandler != null && CoreConfig.UseWindowsGraphicsCapture)
             {
                 try
                 {
-                    var customImage = CustomWindowCaptureHandler(windowToCapture.Handle);
+                    var customImage = await customWindowCaptureHandler(windowToCapture.Handle, cancellationToken).ConfigureAwait(false);
                     if (customImage != null)
                     {
                         captureForWindow.Image = customImage;
@@ -117,6 +123,10 @@ namespace Greenshot.Base.Core
                         return captureForWindow;
                     }
                     Log.DebugFormat("CustomWindowCaptureHandler returned null for window {0}, falling back to standard capture.", windowToCapture.Handle);
+                }
+                catch (OperationCanceledException)
+                {
+                    throw;
                 }
                 catch (Exception ex)
                 {
@@ -183,7 +193,7 @@ namespace Greenshot.Base.Core
                             {
                                 if (windowToCapture.Iconic)
                                 {
-                                    windowToCapture.Restore();
+                                    await windowToCapture.RestoreAsync(cancellationToken).ConfigureAwait(false);
                                 }
                                 else
                                 {
@@ -245,7 +255,10 @@ namespace Greenshot.Base.Core
                         case WindowCaptureMode.AeroTransparent:
                             if (WindowCapture.IsDwmAllowed(process))
                             {
-                                tmpCapture = windowToCapture.CaptureDwmWindow(captureForWindow, windowCaptureMode, isAutoMode);
+                                // The DWM capture shows a temporary form: UI work
+                                var dwmCaptureMode = windowCaptureMode;
+                                var dwmCapture = captureForWindow;
+                                tmpCapture = await ui.InvokeAsync(() => windowToCapture.CaptureDwmWindowAsync(dwmCapture, dwmCaptureMode, isAutoMode), cancellationToken).ConfigureAwait(false);
                             }
 
                             if (tmpCapture != null)
@@ -262,7 +275,7 @@ namespace Greenshot.Base.Core
                         default:
                             if (windowToCapture.Iconic)
                             {
-                                windowToCapture.Restore();
+                                await windowToCapture.RestoreAsync(cancellationToken).ConfigureAwait(false);
                             }
                             else
                             {
