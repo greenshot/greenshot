@@ -66,6 +66,19 @@ namespace Greenshot.Base.Recipes
             return node;
         }
 
+        public static RecipeNodeConfig CreateSaveFileWithFormat(
+            string format,
+            string id = "save_file",
+            string saveDirectory = null,
+            string filenamePattern = null,
+            bool? allowOverwrite = null,
+            int? jpegQuality = null,
+            bool? reduceColors = null)
+        {
+            var node = CreateSaveFile(id, saveDirectory, filenamePattern, format, allowOverwrite, jpegQuality, reduceColors);
+            return node;
+        }
+
         public static RecipeNodeConfig CreateSelection(string id = "selection", CaptureMode mode = CaptureMode.Region, bool allowWindowSnapping = true)
         {
             var node = new RecipeNodeConfig(id, WellKnownStepTypes.InteractiveSelection, $"Select {mode}");
@@ -147,7 +160,7 @@ namespace Greenshot.Base.Recipes
             string id = "save_file",
             string saveDirectory = null,
             string filenamePattern = null,
-            OutputFormat? format = null,
+            string format = null,
             bool? allowOverwrite = null,
             int? jpegQuality = null,
             bool? reduceColors = null)
@@ -155,7 +168,7 @@ namespace Greenshot.Base.Recipes
             var node = new RecipeNodeConfig(id, WellKnownStepTypes.SaveFile, "Save to File");
             if (!string.IsNullOrEmpty(saveDirectory)) node.Set("SaveDirectory", saveDirectory);
             if (!string.IsNullOrEmpty(filenamePattern)) node.Set("FilenamePattern", filenamePattern);
-            if (format.HasValue) node.Set("Format", format.Value.ToString());
+            if (!string.IsNullOrEmpty(format)) node.Set("Format", format);
             if (allowOverwrite.HasValue) node.Set("AllowOverwrite", allowOverwrite.Value);
             if (jpegQuality.HasValue) node.Set("JpegQuality", jpegQuality.Value);
             if (reduceColors.HasValue) node.Set("ReduceColors", reduceColors.Value);

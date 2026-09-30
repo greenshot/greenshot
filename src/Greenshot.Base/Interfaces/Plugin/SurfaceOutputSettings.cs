@@ -24,6 +24,7 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Effects;
 using Dapplo.Ini;
+using Greenshot.Base.Core.FileFormat;
 
 namespace Greenshot.Base.Interfaces.Plugin
 {
@@ -41,17 +42,17 @@ namespace Greenshot.Base.Interfaces.Plugin
             ReduceColors = CoreConfig.OutputFileReduceColors;
         }
 
-        public SurfaceOutputSettings(OutputFormat format) : this()
+        public SurfaceOutputSettings(string format) : this()
         {
             Format = format;
         }
 
-        public SurfaceOutputSettings(OutputFormat format, int quality) : this(format)
+        public SurfaceOutputSettings(string format, int quality) : this(format)
         {
             JPGQuality = quality;
         }
 
-        public SurfaceOutputSettings(OutputFormat format, int quality, bool reduceColors) : this(format, quality)
+        public SurfaceOutputSettings(string format, int quality, bool reduceColors) : this(format, quality)
         {
             ReduceColors = reduceColors;
         }
@@ -62,16 +63,16 @@ namespace Greenshot.Base.Interfaces.Plugin
         /// <returns>this for fluent API usage</returns>
         public SurfaceOutputSettings PreventGreenshotFormat()
         {
-            // If OutputFormat is Greenshot, use PNG instead.
-            if (Format == OutputFormat.greenshot)
+            // If Format is Greenshot, use PNG instead.
+            if (WellKnownFileFormats.IsEqualFormat(WellKnownFileFormats.Greenshot, Format))
             {
-                Format = OutputFormat.png;
+                Format = WellKnownFileFormats.Png;
             }
 
             return this;
         }
 
-        public OutputFormat Format { get; set; }
+        public string Format { get; set; }
 
         public int JPGQuality { get; set; }
 
@@ -83,8 +84,8 @@ namespace Greenshot.Base.Interfaces.Plugin
         {
             get
             {
-                // Fix for Bug #3468436, force quantizing when output format is gif as this has only 256 colors!
-                if (OutputFormat.gif.Equals(Format))
+                // Fix for Bug #3468436, force quantizing when file format is gif as this has only 256 colors!
+                if (WellKnownFileFormats.IsEqualFormat(WellKnownFileFormats.Gif, Format))
                 {
                     return true;
                 }
@@ -102,8 +103,8 @@ namespace Greenshot.Base.Interfaces.Plugin
             get { return _disableReduceColors; }
             set
             {
-                // Quantizing os needed when output format is gif as this has only 256 colors!
-                if (!OutputFormat.gif.Equals(Format))
+                // Quantizing is needed when file format is gif as this has only 256 colors!
+                if (!WellKnownFileFormats.IsEqualFormat(WellKnownFileFormats.Gif, Format))
                 {
                     _disableReduceColors = value;
                 }

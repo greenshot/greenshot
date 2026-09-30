@@ -29,6 +29,7 @@ using System.Threading;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
 using Dapplo.Ini;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Pipeline;
@@ -113,7 +114,7 @@ public class ExternalCommandDestination : AbstractDestination, IRequiresRecipeAu
         // fallback to PNG if configuration is corrupted
         if (!Config.OutputFormat.ContainsKey(_presetCommand))
         {
-            Config.OutputFormat.Add(_presetCommand,OutputFormat.png);
+            Config.OutputFormat.Add(_presetCommand, WellKnownFileFormats.Png);
         }
 
         if (!Config.RunInbackground.ContainsKey(_presetCommand))
@@ -121,8 +122,14 @@ public class ExternalCommandDestination : AbstractDestination, IRequiresRecipeAu
             Config.RunInbackground.Add(_presetCommand, true);
         }
 
-        SurfaceOutputSettings outputSettings = new SurfaceOutputSettings();
-        outputSettings.Format = Config.OutputFormat[_presetCommand];
+        string configuredFormat = Config.OutputFormat[_presetCommand];
+        var formatRegistry = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>(true);
+        if (formatRegistry != null && !formatRegistry.TryGet(configuredFormat, out _))
+        {
+            LOG.WarnFormat("Unknown output file format '{0}' for external command '{1}'; using PNG.", configuredFormat, _presetCommand);
+        }
+
+        SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(formatRegistry.ResolveFormatId(configuredFormat, WellKnownFileFormats.Png));
         bool runInBackground = Config.RunInbackground[_presetCommand];
         string fullPath = captureDetails.Filename ?? ImageIO.SaveNamedTmpFile(surface, captureDetails, outputSettings);
 

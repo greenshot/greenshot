@@ -21,6 +21,7 @@
 
 using System;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Pipeline;
 using Greenshot.Editor.Configuration;
@@ -44,6 +45,14 @@ namespace Greenshot.Tests
                 IniConfigHelper.EnsureInitialized();
                 IniConfigHelper.EnsureSection<IEditorConfiguration>(() => new EditorConfigurationImpl());
                 IniConfigHelper.EnsureSection<Greenshot.Plugin.ExternalCommand.IExternalCommandConfiguration>(() => new Greenshot.Plugin.ExternalCommand.ExternalCommandConfigurationImpl());
+
+                var supportedFileFormatRegistry = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>(true);
+                if (supportedFileFormatRegistry == null)
+                {
+                    supportedFileFormatRegistry = new FileFormatRegistry();
+                    SimpleServiceProvider.Current.AddService<IFileFormatRegistry>(supportedFileFormatRegistry);
+                }
+                CoreFileFormats.RegisterCoreFileFormats(supportedFileFormatRegistry);
 
                 CapturePayload.DefaultSurfaceFactory = capture => new Surface(capture) { Modified = true };
 

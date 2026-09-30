@@ -2743,16 +2743,10 @@
                                                      Padding="6,4" Margin="0,0,0,8"/>
 
                                             <TextBlock Text="Image Format" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
-                                            <ComboBox SelectedValue="{Binding SelectedNode.OutputFileFormat, Mode=TwoWay}"
-                                                      SelectedValuePath="Tag" Margin="0,0,0,8">
-                                                <ComboBoxItem Content="(From Configuration)" Tag=""/>
-                                                <ComboBoxItem Content="PNG (Portable Network Graphics)" Tag="png"/>
-                                                <ComboBoxItem Content="Greenshot Format (.greenshot)" Tag="greenshot"/>
-                                                <ComboBoxItem Content="JPEG (Joint Photographic Experts Group)" Tag="jpg"/>
-                                                <ComboBoxItem Content="BMP (Windows Bitmap)" Tag="bmp"/>
-                                                <ComboBoxItem Content="GIF (Graphics Interchange Format)" Tag="gif"/>
-                                                <ComboBoxItem Content="TIFF (Tagged Image File Format)" Tag="tiff"/>
-                                                <ComboBoxItem Content="ICO (Windows Icon)" Tag="ico"/>
+                                            <ComboBox ItemsSource="{Binding DataContext.OutputFormatOptions, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                                                      DisplayMemberPath="DisplayNameWithPreferredExtension" SelectedValuePath="Id"
+                                                      SelectedValue="{Binding SelectedNode.OutputFileFormat, Mode=TwoWay}"
+                                                      Margin="0,0,0,8">
                                             </ComboBox>
 
                                             <TextBlock Text="Allow Overwrite" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
@@ -3048,12 +3042,10 @@
                                                      Padding="6,4" Margin="0,0,0,6"/>
 
                                             <TextBlock Text="Temporary Image Format" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
-                                            <ComboBox SelectedValue="{Binding SelectedNode.ExternalCommandFormat, Mode=TwoWay}"
-                                                      SelectedValuePath="Tag" Margin="0,0,0,6">
-                                                <ComboBoxItem Content="PNG (Lossless)" Tag="png"/>
-                                                <ComboBoxItem Content="JPEG / JPG" Tag="jpg"/>
-                                                <ComboBoxItem Content="BMP (Bitmap)" Tag="bmp"/>
-                                                <ComboBoxItem Content="GIF" Tag="gif"/>
+                                            <ComboBox ItemsSource="{Binding DataContext.OutputFormatOptions, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                                                      DisplayMemberPath="DisplayNameWithPreferredExtension" SelectedValuePath="Id"
+                                                      SelectedValue="{Binding SelectedNode.ExternalCommandFormat, Mode=TwoWay}"
+                                                      Margin="0,0,0,6">
                                             </ComboBox>
 
                                             <TextBlock Text="Working Directory (Optional)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
@@ -3079,10 +3071,10 @@
                                         <!-- 20. Imgur Inspector -->
                                         <StackPanel Visibility="{Binding SelectedNode.IsImgur, Converter={StaticResource BoolToVis}}">
                                             <TextBlock Text="Upload Image Format" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
-                                            <ComboBox SelectedValue="{Binding SelectedNode.ImgurFormat, Mode=TwoWay}"
-                                                      SelectedValuePath="Tag" Margin="0,0,0,6">
-                                                <ComboBoxItem Content="PNG (Lossless)" Tag="png"/>
-                                                <ComboBoxItem Content="JPEG / JPG" Tag="jpg"/>
+                                            <ComboBox ItemsSource="{Binding DataContext.OutputFormatOptions, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                                                      DisplayMemberPath="DisplayNameWithPreferredExtension" SelectedValuePath="Id"
+                                                      SelectedValue="{Binding SelectedNode.ImgurFormat, Mode=TwoWay}"
+                                                      Margin="0,0,0,6">
                                             </ComboBox>
 
                                             <Border Background="{Binding CardBackgroundBrush}" BorderBrush="{Binding CardBorderBrush}" BorderThickness="1" CornerRadius="4" Padding="8" Margin="0,0,0,6">
@@ -3100,10 +3092,10 @@
                                                      Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
                                                      Padding="6,4" Margin="0,0,0,6"/>
                                             <TextBlock Text="Upload Format" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
-                                            <ComboBox SelectedValue="{Binding SelectedNode.JiraFormat, Mode=TwoWay}"
-                                                      SelectedValuePath="Tag" Margin="0,0,0,6">
-                                                <ComboBoxItem Content="PNG (Lossless)" Tag="png"/>
-                                                <ComboBoxItem Content="JPEG / JPG" Tag="jpg"/>
+                                            <ComboBox ItemsSource="{Binding DataContext.OutputFormatOptions, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                                                      DisplayMemberPath="DisplayNameWithPreferredExtension" SelectedValuePath="Id"
+                                                      SelectedValue="{Binding SelectedNode.JiraFormat, Mode=TwoWay}"
+                                                      Margin="0,0,0,6">
                                             </ComboBox>
                                         </StackPanel>
 
@@ -3114,10 +3106,10 @@
                                                      Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
                                                      Padding="6,4" Margin="0,0,0,6"/>
                                             <TextBlock Text="Upload Format" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
-                                            <ComboBox SelectedValue="{Binding SelectedNode.ConfluenceFormat, Mode=TwoWay}"
-                                                      SelectedValuePath="Tag" Margin="0,0,0,6">
-                                                <ComboBoxItem Content="PNG (Lossless)" Tag="png"/>
-                                                <ComboBoxItem Content="JPEG / JPG" Tag="jpg"/>
+                                            <ComboBox ItemsSource="{Binding DataContext.OutputFormatOptions, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                                                      DisplayMemberPath="DisplayNameWithPreferredExtension" SelectedValuePath="Id"
+                                                      SelectedValue="{Binding SelectedNode.ConfluenceFormat, Mode=TwoWay}"
+                                                      Margin="0,0,0,6">
                                             </ComboBox>
                                         </StackPanel>
 
