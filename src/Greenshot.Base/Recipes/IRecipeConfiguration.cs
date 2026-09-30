@@ -31,7 +31,7 @@ namespace Greenshot.Base.Recipes
     /// </summary>
     [IniSection("Recipe")]
     [Description("Greenshot Recipe Editor configuration")]
-    public interface IRecipeConfiguration : IIniSection, IAfterLoad, IBeforeSave
+    public interface IRecipeConfiguration : IIniSection
     {
         [DataMember(Name = "EnableRecipeFeature")]
         [Description("Whether to enable the recipe editor extension.")]

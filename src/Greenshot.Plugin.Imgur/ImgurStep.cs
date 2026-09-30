@@ -35,6 +35,7 @@ using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Pipeline.Contracts;
 using Greenshot.Base.Recipes;
 using log4net;
 
@@ -43,6 +44,16 @@ namespace Greenshot.Plugin.Imgur
     /// <summary>
     /// Capture recipe step that uploads the current capture surface to Imgur.
     /// </summary>
+    [StepInfo("Imgur", "Upload to Imgur", "Uploads the capture to Imgur.", "Export")]
+    [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Required)]
+    [StepParameter("Format", ContractDataType.Enum, Description = "Image format of the upload", AllowedValuesProvider = typeof(SaveableFileFormatIds))]
+    [StepParameter("JpegQuality", ContractDataType.Integer, Description = "JPEG quality (1-100) when uploading as JPEG")]
+    [StepParameter("Title", ContractDataType.String, Description = "Title of the image (default: the capture title)")]
+    [StepParameter("Description", ContractDataType.String, Description = "Description of the image")]
+    [StepParameter("CopyLinkToClipboard", ContractDataType.Boolean, DefaultValue = true, Description = "Copy the link to the clipboard")]
+    [StepOutputVariable("Imgur.UploadUrl", ContractDataType.String, "Link to the uploaded image", Conditional = true)]
+    [StepOutputVariable("Imgur.Hash", ContractDataType.String, "Imgur hash of the image", Conditional = true)]
+    [StepOutputVariable("Imgur.DeleteHash", ContractDataType.String, "Hash to delete the image", Conditional = true)]
     public class ImgurStep : ICaptureStep
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(ImgurStep));
@@ -71,7 +82,7 @@ namespace Greenshot.Plugin.Imgur
 
             var captureDetails = context.Payload?.RawCapture?.CaptureDetails ?? new CaptureDetails();
 
-            string formatStr = NodeConfig.GetParameter<string>("Format") ?? NodeConfig.GetParameter<string>("UploadFormat");
+            string formatStr = NodeConfig.GetParameter<string>("Format");
             var formatRegistry = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>(true);
             string uploadFormat = formatRegistry.ResolveFormatId(formatStr, WellKnownFileFormats.Png);
 
@@ -88,9 +99,7 @@ namespace Greenshot.Plugin.Imgur
                 description = FilenameHelper.FillVariables(description, false);
             }
 
-            bool copyToClipboard = NodeConfig.GetParameter<bool?>("CopyLinkToClipboard")
-                ?? NodeConfig.GetParameter<bool?>("CopyToClipboard")
-                ?? true;
+            bool copyToClipboard = NodeConfig.GetParameter<bool?>("CopyLinkToClipboard") ?? true;
 
             context.LogStep("Uploading capture to Imgur...");
             Log.Info("ImgurStep: Uploading capture to Imgur.");

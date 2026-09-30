@@ -28,6 +28,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -553,7 +554,7 @@ namespace Greenshot.UI.SelfService
             {
                 if (TryParseChecksumLine(line, out string hash, out string relPath))
                 {
-                    if (CanSkipFile(relPath))
+                    if (CanSkipFile(relPath) || IsFileOfMissingPlugin(baseDir, relPath))
                     {
                         continue;
                     }
@@ -751,7 +752,42 @@ namespace Greenshot.UI.SelfService
         }
 
         /// <summary>
-        /// Determines whether a given relative or file path corresponds to a file which can be skipped for checksum validation.
+        /// True for a file of a plugin that is not installed: checksum.SHA256 lists every plugin, the plugins are optional
+        /// in the installer, so their files are only expected when the plugin's directory (Plugins\&lt;plugin&gt;) exists.
+        /// </summary>
+        public static bool IsFileOfMissingPlugin(string baseDir, string relativePath)
+        {
+            if (string.IsNullOrEmpty(relativePath))
+            {
+                return false;
+            }
+
+            var segments = relativePath.Split(new[] { '\\', '/' }, StringSplitOptions.RemoveEmptyEntries);
+            if (segments.Length < 3 || !string.Equals(segments[0], "Plugins", StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+            return !Directory.Exists(Path.Combine(baseDir, segments[0], segments[1]));
+        }
+
+        /// <summary>
+        /// Files in the main directory that are shipped or created but are not program files, so checksum.SHA256 does not
+        /// list them: documentation, the SBOM (it has its own hash file), configuration a user may change, and the files
+        /// of the Inno Setup uninstaller.
+        /// </summary>
+        private static readonly HashSet<string> NonProgramFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "readme.txt", "license.txt", "installer.txt",
+            "bom.json", "bom.xml", "manifest.spdx.json", "manifest.spdx.json.sha256",
+            "log4net.xml", "greenshot.ini", "greenshot-defaults.ini", "greenshot-fixed.ini"
+        };
+
+        private static readonly Regex UninstallerFile = new Regex(@"^unins\d{3}\.(exe|dat|msg)$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+        /// <summary>
+        /// Determines whether a given relative or file path corresponds to a file which can be skipped for checksum validation:
+        /// debug symbols, language and help files, and the non-program files of the main directory (<see cref="NonProgramFiles"/>).
+        /// Every other file that is not in checksum.SHA256 is reported as unlisted, e.g. a library left behind by an older version.
         /// </summary>
         public static bool CanSkipFile(string path)
         {
@@ -765,12 +801,23 @@ namespace Greenshot.UI.SelfService
                 return true;
             }
 
+            string relative = path.Replace('/', '\\');
+            if (relative.IndexOf('\\') < 0 && (NonProgramFiles.Contains(relative) || UninstallerFile.IsMatch(relative)))
+            {
+                return true;
+            }
+
+            string fileName = Path.GetFileName(path);
+            if (fileName.StartsWith("help-", StringComparison.OrdinalIgnoreCase) && fileName.EndsWith(".html", StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
             if (!path.EndsWith(".xml", StringComparison.OrdinalIgnoreCase))
             {
                 return false;
             }
 
-            string fileName = Path.GetFileName(path);
             if (fileName.StartsWith("language-", StringComparison.OrdinalIgnoreCase) ||
                 fileName.StartsWith("language_", StringComparison.OrdinalIgnoreCase))
             {

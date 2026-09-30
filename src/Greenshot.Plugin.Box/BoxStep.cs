@@ -24,6 +24,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Pipeline.Contracts;
 using Greenshot.Base.Recipes;
 using log4net;
 
@@ -32,6 +33,9 @@ namespace Greenshot.Plugin.Box
     /// <summary>
     /// Capture recipe step that uploads the current capture surface to Box.
     /// </summary>
+    [StepInfo("Box", "Upload to Box", "Uploads the capture to Box (configured account).", "Export")]
+    [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Required)]
+    [StepOutputVariable("Box.UploadUrl", ContractDataType.String, "Link to the uploaded file", Conditional = true)]
     public class BoxStep : ICaptureStep
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(BoxStep));

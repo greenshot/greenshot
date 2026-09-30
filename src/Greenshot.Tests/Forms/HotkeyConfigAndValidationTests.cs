@@ -29,6 +29,7 @@ using Xunit;
 
 namespace Greenshot.Tests.Forms
 {
+    [Collection(TestCollections.WpfThemeState)]
     public class HotkeyConfigAndValidationTests
     {
         public HotkeyConfigAndValidationTests()
@@ -114,6 +115,7 @@ namespace Greenshot.Tests.Forms
         public void HotkeyControls_CanBeInstantiatedOnStaThread()
         {
             Exception threadEx = null;
+            bool initialDarkMode = Greenshot.UI.WpfThemeHelper.IsDarkMode;
             var thread = new Thread(() =>
             {
                 try
@@ -159,6 +161,11 @@ namespace Greenshot.Tests.Forms
                 catch (Exception ex)
                 {
                     threadEx = ex;
+                }
+                finally
+                {
+                    // Don't leak the dark theme into other tests
+                    Greenshot.UI.WpfThemeHelper.IsDarkMode = initialDarkMode;
                 }
             });
 

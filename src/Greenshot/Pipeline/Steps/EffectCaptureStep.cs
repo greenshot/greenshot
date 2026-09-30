@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -27,6 +27,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Effects;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Pipeline.Contracts;
+using Contracts = Greenshot.Base.Pipeline.Contracts;
+
 using Greenshot.Base.Recipes;
 using log4net;
 
@@ -37,6 +40,35 @@ namespace Greenshot.Pipeline.Steps
     /// monochrome, adjust colors, rotate, resize, resize canvas, reduce colors, remove transparency)
     /// to the captured surface directly during flow execution, without displaying modal UI dialogs.
     /// </summary>
+    [StepInfo(WellKnownStepTypes.Effect, "Image Effect", "Applies an image effect (border, drop shadow, torn edge, grayscale, resize, ...) to the capture.", "Effects")]
+    [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Required, VisualMutation = PayloadEffect.MutatesPixels)]
+    [StepParameter("Effect", ContractDataType.Enum, DefaultValue = "Border", Description = "The effect", AllowedValues = new[] { "Border", "DropShadow", "TornEdge", "Invert", "Grayscale", "Monochrome", "Adjust", "Rotate", "Resize", "ResizeCanvas", "ReduceColors", "RemoveTransparency" })]
+    [StepParameter("Width", ContractDataType.Integer, Description = "Border width (Border), new width (Resize)")]
+    [StepParameter("Height", ContractDataType.Integer, Description = "New height (Resize)")]
+    [StepParameter("Color", ContractDataType.String, Description = "Border color (Border), background color (ResizeCanvas, RemoveTransparency)")]
+    [StepParameter("Darkness", ContractDataType.Decimal, Description = "Shadow darkness (DropShadow, TornEdge)")]
+    [StepParameter("ShadowSize", ContractDataType.Integer, Description = "Shadow size (DropShadow, TornEdge)")]
+    [StepParameter("ShadowOffsetX", ContractDataType.Integer, Description = "Shadow offset (DropShadow)")]
+    [StepParameter("ShadowOffsetY", ContractDataType.Integer, Description = "Shadow offset (DropShadow)")]
+    [StepParameter("ToothHeight", ContractDataType.Integer, Description = "Tooth height (TornEdge)")]
+    [StepParameter("HorizontalToothRange", ContractDataType.Integer, Description = "Horizontal tooth range (TornEdge)")]
+    [StepParameter("VerticalToothRange", ContractDataType.Integer, Description = "Vertical tooth range (TornEdge)")]
+    [StepParameter("GenerateShadow", ContractDataType.Boolean, Description = "Add a shadow (TornEdge)")]
+    [StepParameter("Edges", ContractDataType.Object, Description = "Torn edges: top, right, bottom, left (TornEdge)")]
+    [StepParameter("Threshold", ContractDataType.Integer, DefaultValue = 128, Description = "Threshold (Monochrome)")]
+    [StepParameter("Brightness", ContractDataType.Decimal, Description = "Brightness (Adjust)")]
+    [StepParameter("Contrast", ContractDataType.Decimal, Description = "Contrast (Adjust)")]
+    [StepParameter("Gamma", ContractDataType.Decimal, Description = "Gamma (Adjust)")]
+    [StepParameter("Angle", ContractDataType.Integer, DefaultValue = 90, Description = "Angle (Rotate)")]
+    [StepParameter("Percentage", ContractDataType.Decimal, Description = "Size in percent (Resize)")]
+    [StepParameter("MaintainAspectRatio", ContractDataType.Boolean, DefaultValue = true, Description = "Keep the aspect ratio (Resize)")]
+    [StepParameter("Margin", ContractDataType.Integer, Description = "Margin on all sides (ResizeCanvas)")]
+    [StepParameter("Left", ContractDataType.Integer, Description = "Left margin (ResizeCanvas)")]
+    [StepParameter("Right", ContractDataType.Integer, Description = "Right margin (ResizeCanvas)")]
+    [StepParameter("Top", ContractDataType.Integer, Description = "Top margin (ResizeCanvas)")]
+    [StepParameter("Bottom", ContractDataType.Integer, Description = "Bottom margin (ResizeCanvas)")]
+    [StepParameter("BackgroundColor", ContractDataType.String, Description = "Background color (ResizeCanvas)")]
+    [StepParameter("Colors", ContractDataType.Integer, Description = "Number of colors (ReduceColors)")]
     public class EffectCaptureStep : ICaptureStep
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(EffectCaptureStep));
@@ -98,9 +130,8 @@ namespace Greenshot.Pipeline.Steps
         {
             string effectName = Config.GetParameter<string>("Effect");
 
-            // If step type is Border, or effect parameter is "Border", apply BorderEffect
-            if (string.Equals(Config.StepType, WellKnownStepTypes.Border, StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(effectName, "Border", StringComparison.OrdinalIgnoreCase) ||
+            // Border is the default effect
+            if (string.Equals(effectName, "Border", StringComparison.OrdinalIgnoreCase) ||
                 string.IsNullOrEmpty(effectName))
             {
                 int width = Config.GetParameter("Width", 2);
@@ -132,9 +163,9 @@ namespace Greenshot.Pipeline.Steps
                 tornEdge.ToothHeight = Config.GetParameter("ToothHeight", tornEdge.ToothHeight);
                 tornEdge.HorizontalToothRange = Config.GetParameter("HorizontalToothRange", tornEdge.HorizontalToothRange);
                 tornEdge.VerticalToothRange = Config.GetParameter("VerticalToothRange", tornEdge.VerticalToothRange);
-                tornEdge.GenerateShadow = Config.GetParameter("GenerateShadow", Config.GetParameter("Shadow", tornEdge.GenerateShadow));
+                tornEdge.GenerateShadow = Config.GetParameter("GenerateShadow", tornEdge.GenerateShadow);
                 tornEdge.ShadowSize = Config.GetParameter("ShadowSize", tornEdge.ShadowSize);
-                tornEdge.Darkness = Config.GetParameter("Darkness", Config.GetParameter("ShadowDarkness", tornEdge.Darkness));
+                tornEdge.Darkness = Config.GetParameter("Darkness", tornEdge.Darkness);
 
                 var edgesList = Config.GetParameter<List<bool>>("Edges");
                 if (edgesList != null && edgesList.Count == 4)

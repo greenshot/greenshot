@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -25,6 +25,9 @@ using System.Threading.Tasks;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Pipeline.Contracts;
+using Contracts = Greenshot.Base.Pipeline.Contracts;
+
 using Greenshot.Base.Recipes;
 using Greenshot.Helpers;
 using log4net;
@@ -35,6 +38,11 @@ namespace Greenshot.Pipeline.Steps
     /// Pipeline step providing immediate capture acquisition feedback (e.g. camera sound, flash).
     /// Dynamic configuration evaluation allows live settings to dictate feedback.
     /// </summary>
+    [StepInfo(WellKnownStepTypes.ImmediateFeedback, "Immediate Feedback", "Plays the camera sound after a capture (not for a capture handed to the flow).", "Feedback")]
+    [StepParameter("PlaySound", ContractDataType.Boolean, Description = "Play the camera sound (default: settings)")]
+    [StepParameter("SoundFilePath", ContractDataType.FilePath, Description = "Sound file to play instead of the camera sound")]
+    [StepInputVariable("PlayShutterSound", ContractDataType.Boolean, Description = "Overrides PlaySound")]
+    [StepInputVariable("SoundFilePath", ContractDataType.FilePath, Description = "Overrides SoundFilePath")]
     public class ImmediateFeedbackStep : ICaptureStep
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(ImmediateFeedbackStep));
@@ -51,6 +59,12 @@ namespace Greenshot.Pipeline.Steps
 
         public Task ExecuteAsync(CaptureFlowContext context, CancellationToken cancellationToken = default)
         {
+            // Nothing was captured when the image was handed over (forwarded or imported), so no shutter sound
+            if (context.IsPayloadPreSupplied)
+            {
+                return Task.CompletedTask;
+            }
+
             // Resolve shutter sound setting dynamically
             bool playSound = ResolvePlaySound(context);
             if (playSound)

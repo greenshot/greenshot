@@ -31,6 +31,7 @@ using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Pipeline.Contracts;
 using Greenshot.Base.Recipes;
 using log4net;
 
@@ -39,6 +40,15 @@ namespace Greenshot.Plugin.Jira
     /// <summary>
     /// Capture recipe step that attaches the screenshot to a Jira issue.
     /// </summary>
+    [StepInfo("Jira", "Attach to Jira", "Attaches the capture to a Jira issue.", "Export")]
+    [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Required)]
+    [StepParameter("Format", ContractDataType.Enum, Description = "Image format of the upload", AllowedValuesProvider = typeof(SaveableFileFormatIds))]
+    [StepParameter("JpegQuality", ContractDataType.Integer, Description = "JPEG quality (1-100) when uploading as JPEG")]
+    [StepParameter("ReduceColors", ContractDataType.Boolean, Description = "Reduce the image to 256 colors")]
+    [StepParameter("IssueKey", ContractDataType.String, Description = "Issue to attach to (default: variable Jira.IssueKey)")]
+    [StepInputVariable("Jira.IssueKey", ContractDataType.String, Description = "Issue to attach to, when the IssueKey parameter is not set")]
+    [StepOutputVariable("Jira.UploadUrl", ContractDataType.String, "Link to the attachment", Conditional = true)]
+    [StepOutputVariable("Jira.IssueKey", ContractDataType.String, "The issue the capture was attached to", Conditional = true)]
     public class JiraStep : ICaptureStep
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(JiraStep));
@@ -75,9 +85,6 @@ namespace Greenshot.Plugin.Jira
             }
 
             string issueKey = NodeConfig.GetParameter<string>("IssueKey")
-                ?? NodeConfig.GetParameter<string>("issueKey")
-                ?? NodeConfig.GetParameter<string>("Issue")
-                ?? NodeConfig.GetParameter<string>("issue")
                 ?? (context.Properties.TryGetValue("Jira.IssueKey", out var ik) && ik is string iks ? iks : null);
 
             if (!string.IsNullOrEmpty(issueKey))
@@ -85,7 +92,7 @@ namespace Greenshot.Plugin.Jira
                 issueKey = FilenameHelper.FillVariables(issueKey, false);
             }
 
-            string formatStr = NodeConfig.GetParameter<string>("Format") ?? NodeConfig.GetParameter<string>("UploadFormat");
+            string formatStr = NodeConfig.GetParameter<string>("Format");
             var formatRegistry = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>(true);
             string uploadFormat = formatRegistry.ResolveFormatId(formatStr, Config?.UploadFormat ?? WellKnownFileFormats.Png);
 

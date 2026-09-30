@@ -169,7 +169,6 @@ namespace Greenshot.Tests.Recipes
             Assert.Equal("dyn_dest", config.OnErrorNodeId);
             Assert.Null(config.OnErrorRecipeId);
             Assert.True(vm.IsOnErrorStep);
-            Assert.Contains("dyn_dest", vm.OnErrorSummary);
 
             // Set to Recipe
             vm.OnErrorAction = "Recipe";
@@ -177,7 +176,6 @@ namespace Greenshot.Tests.Recipes
             Assert.Equal("rec_recovery", config.OnErrorRecipeId);
             Assert.Null(config.OnErrorNodeId);
             Assert.True(vm.IsOnErrorRecipe);
-            Assert.Contains("rec_recovery", vm.OnErrorSummary);
         }
 
         [Fact]

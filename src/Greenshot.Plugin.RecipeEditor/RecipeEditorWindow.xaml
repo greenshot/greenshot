@@ -895,10 +895,16 @@
                                 <TextBlock Text="🔊 Shutter Sound"/>
                             </Button>
                             <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="Notification">
-                                <TextBlock Text="🔔 Toast Notification"/>
+                                <TextBlock Text="🔔 Notification"/>
                             </Button>
                             <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="Processors">
                                 <TextBlock Text="⚙️ Processors / OCR"/>
+                            </Button>
+                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="Stdout">
+                                <TextBlock Text="📤 Standard Output (CLI)"/>
+                            </Button>
+                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="Stderr">
+                                <TextBlock Text="⛔ Standard Error / Exit Code (CLI)"/>
                             </Button>
 
                             <!-- 5. Destinations & Output -->
@@ -945,7 +951,7 @@
                             <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="Office">
                                 <TextBlock Text="📊 Microsoft Office"/>
                             </Button>
-                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="Zxing">
+                            <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="BarcodeScan">
                                 <TextBlock Text="🔍 ZXing Barcode / QR"/>
                             </Button>
                             <Button Style="{StaticResource ToolboxItemBtn}" Command="{Binding AddStepCommand}" CommandParameter="Box">
@@ -1195,9 +1201,22 @@
                                                 <ComboBoxItem Content="File (Load from disk)" Tag="File"/>
                                                 <ComboBoxItem Content="TextOcr (Screen OCR capture)" Tag="TextOcr"/>
                                                 <ComboBoxItem Content="CurrentEditor (Current editor image)" Tag="CurrentEditor"/>
+                                                <ComboBoxItem Content="Extension (Capture from the browser extension)" Tag="Extension"/>
                                             </ComboBox>
 
+                                            <StackPanel Visibility="{Binding SelectedNode.IsFileSource, Converter={StaticResource BoolToVis}}">
+                                                <TextBlock Text="File (empty = the Filename variable, e.g. from the command line)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                <TextBox Text="{Binding SelectedNode.SourceFilename, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                         Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                         Padding="6,4" Margin="0,0,0,8"/>
+                                            </StackPanel>
+
                                             <StackPanel Visibility="{Binding SelectedNode.IsWindowSource, Converter={StaticResource BoolToVis}}">
+                                                <TextBlock Text="Window Title (exact)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                <TextBox Text="{Binding SelectedNode.WindowTitle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                         Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                         Padding="6,4" Margin="0,0,0,8"/>
+
                                                 <TextBlock Text="Window Title Pattern (Regex)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
                                                 <TextBox Text="{Binding SelectedNode.WindowTitlePattern, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                          Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
@@ -1207,6 +1226,9 @@
                                                 <TextBox Text="{Binding SelectedNode.ProcessName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                          Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
                                                          Padding="6,4" Margin="0,0,0,8"/>
+
+                                                <CheckBox Content="Match case (title and process name)" IsChecked="{Binding SelectedNode.WindowMatchCase, Mode=TwoWay}"
+                                                          Foreground="{Binding TextPrimaryBrush}" Margin="0,0,0,8"/>
                                             </StackPanel>
 
                                             <TextBlock Text="Capture Mouse Cursor" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
@@ -1221,8 +1243,9 @@
                                             <ComboBox SelectedValue="{Binding SelectedNode.ScreenCaptureMode, Mode=TwoWay}"
                                                       SelectedValuePath="Tag" Margin="0,0,0,8">
                                                 <ComboBoxItem Content="(From Configuration)" Tag=""/>
-                                                <ComboBoxItem Content="All Displays (Desktop)" Tag="FullScreen"/>
-                                                <ComboBoxItem Content="Primary Screen" Tag="PrimaryScreen"/>
+                                                <ComboBoxItem Content="Auto (Screen with the mouse)" Tag="Auto"/>
+                                                <ComboBoxItem Content="All Displays" Tag="FullScreen"/>
+                                                <ComboBoxItem Content="Fixed Screen (from Configuration)" Tag="Fixed"/>
                                             </ComboBox>
 
                                             <TextBlock Text="Window Capture Mode" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
@@ -1230,8 +1253,10 @@
                                                       SelectedValuePath="Tag" Margin="0,0,0,8">
                                                 <ComboBoxItem Content="(From Configuration)" Tag=""/>
                                                 <ComboBoxItem Content="Auto Detect" Tag="Auto"/>
-                                                <ComboBoxItem Content="Aero / Transparent" Tag="Aero"/>
-                                                <ComboBoxItem Content="Classic / GDI" Tag="Classic"/>
+                                                <ComboBoxItem Content="Screen (Copy from screen)" Tag="Screen"/>
+                                                <ComboBoxItem Content="GDI (Classic)" Tag="GDI"/>
+                                                <ComboBoxItem Content="Aero" Tag="Aero"/>
+                                                <ComboBoxItem Content="Aero Transparent" Tag="AeroTransparent"/>
                                             </ComboBox>
 
                                             <TextBlock Text="Align Multi-DPI Displays" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
@@ -1274,7 +1299,7 @@
                                                       SelectedValuePath="Tag" Margin="0,0,0,8">
                                                 <ComboBoxItem Content="Active Window (Currently focused)" Tag="ActiveWindow"/>
                                                 <ComboBoxItem Content="Window (Match title / process)" Tag="Window"/>
-                                                <ComboBoxItem Content="Full Screen (Display / Monitor)" Tag="FullScreen"/>
+                                                <ComboBoxItem Content="Monitor (Display)" Tag="Monitor"/>
                                                 <ComboBoxItem Content="Region (Crop coordinates)" Tag="Region"/>
                                             </ComboBox>
 
@@ -1472,34 +1497,6 @@
 
                                             <CheckBox Content="Auto-pause when Windows locked (Win+L)" IsChecked="{Binding SelectedNode.VideoAutoPauseOnLock, Mode=TwoWay}"
                                                       Foreground="{Binding TextPrimaryBrush}" Margin="0,0,0,8"/>
-                                        </StackPanel>
-
-                                        <!-- 3. Border Step Inspector -->
-                                        <StackPanel Visibility="{Binding SelectedNode.StepType, Converter={StaticResource StringToVis}, ConverterParameter=Border}">
-                                            <TextBlock Text="Border Width (px)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
-                                            <TextBox Text="{Binding SelectedNode.BorderWidth, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                     Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}"
-                                                     Padding="6,4" Margin="0,0,0,8"/>
-
-                                             <TextBlock Text="Border Color Hex" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
-                                             <Grid Margin="0,0,0,8">
-                                                 <Grid.ColumnDefinitions>
-                                                     <ColumnDefinition Width="26"/>
-                                                     <ColumnDefinition Width="6"/>
-                                                     <ColumnDefinition Width="*"/>
-                                                 </Grid.ColumnDefinitions>
-                                                 <Border Grid.Column="0" Width="26" Height="26" CornerRadius="4"
-                                                         BorderBrush="{Binding CardBorderBrush}" BorderThickness="1"
-                                                         Background="{Binding SelectedNode.BorderColor, Converter={StaticResource StringToBrushConv}}"
-                                                         Cursor="Hand" ToolTip="Click to pick color...">
-                                                     <Border.InputBindings>
-                                                         <MouseBinding MouseAction="LeftClick" Command="{Binding SelectedNode.PickBorderColorCommand}"/>
-                                                     </Border.InputBindings>
-                                                 </Border>
-                                                 <TextBox Grid.Column="2" Text="{Binding SelectedNode.BorderColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                          Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
-                                                          VerticalContentAlignment="Center" Padding="6,4"/>
-                                             </Grid>
                                         </StackPanel>
 
                                         <!-- 4. Effect Step Inspector -->
@@ -1755,18 +1752,20 @@
                                             <TextBlock Text="DLP Action" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
                                             <ComboBox SelectedValue="{Binding SelectedNode.TextEffectAction, Mode=TwoWay}"
                                                       SelectedValuePath="Tag" Margin="0,0,0,8">
-                                                <ComboBoxItem Content="Blackout (Redact box)" Tag="Blackout"/>
+                                                <ComboBoxItem Content="Redact (filled box)" Tag="Redact"/>
                                                 <ComboBoxItem Content="Pixelize (Mosaic text)" Tag="Pixelize"/>
                                                 <ComboBoxItem Content="Blur (Gaussian blur)" Tag="Blur"/>
                                                 <ComboBoxItem Content="Highlight (Yellow tint)" Tag="Highlight"/>
+                                                <ComboBoxItem Content="Magnify" Tag="Magnify"/>
                                             </ComboBox>
 
-                                            <TextBlock Text="Target Pattern / Regex" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
-                                            <TextBox Text="{Binding SelectedNode.TextEffectPattern, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            <TextBlock Text="Patterns / Regex (one per line)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <TextBox Text="{Binding SelectedNode.TextEffectPatterns, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                      Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                     AcceptsReturn="True" TextWrapping="NoWrap" MinHeight="44" VerticalScrollBarVisibility="Auto"
                                                      Padding="6,4" Margin="0,0,0,8"/>
 
-                                            <TextBlock Text="Fill Color (for Blackout)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <TextBlock Text="Fill Color (for Redact and Highlight)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
                                             <Grid Margin="0,0,0,8">
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="26"/>
@@ -1785,14 +1784,6 @@
                                                          Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
                                                          VerticalContentAlignment="Center" Padding="6,4"/>
                                             </Grid>
-                                        </StackPanel>
-
-                                        <!-- 6. ObfuscateText Step Inspector -->
-                                        <StackPanel Visibility="{Binding SelectedNode.StepType, Converter={StaticResource StringToVis}, ConverterParameter=ObfuscateText}">
-                                            <TextBlock Text="Preset Patterns (DLP)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
-                                            <TextBox Text="{Binding SelectedNode.TextEffectPattern, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                     Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
-                                                     Padding="6,4" Margin="0,0,0,8"/>
                                         </StackPanel>
 
                                         <!-- 7. SetVariable Step Inspector -->
@@ -2664,15 +2655,28 @@
 
                                         <!-- 11. Notification Step Inspector -->
                                         <StackPanel Visibility="{Binding SelectedNode.StepType, Converter={StaticResource StringToVis}, ConverterParameter=Notification}">
-                                            <TextBlock Text="Notification Title" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
-                                            <TextBox Text="{Binding SelectedNode.NotificationTitle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                      Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}"
-                                                      Padding="6,4" Margin="0,0,0,8"/>
+                                            <CheckBox Content="Show the notification when the flow completes" IsChecked="{Binding SelectedNode.NotificationShow, Mode=TwoWay}"
+                                                      Foreground="{Binding TextPrimaryBrush}" Margin="0,0,0,8"/>
+                                        </StackPanel>
 
-                                            <TextBlock Text="Message Template" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
-                                            <TextBox Text="{Binding SelectedNode.NotificationMessage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                      Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}"
-                                                      Padding="6,4" Margin="0,0,0,8"/>
+                                        <!-- 11a. Stdout / Stderr Step Inspectors -->
+                                        <StackPanel Visibility="{Binding SelectedNode.StepType, Converter={StaticResource StringToVis}, ConverterParameter=Stdout}">
+                                                <TextBlock Text="Text written to standard output (supports ${...})" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                <TextBox Text="{Binding SelectedNode.OutputText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                         Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="44"
+                                                         Padding="6,4" Margin="0,0,0,8"/>
+                                        </StackPanel>
+                                        <StackPanel Visibility="{Binding SelectedNode.StepType, Converter={StaticResource StringToVis}, ConverterParameter=Stderr}">
+                                                <TextBlock Text="Error message written to standard error (supports ${...})" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                <TextBox Text="{Binding SelectedNode.OutputText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                         Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="44"
+                                                         Padding="6,4" Margin="0,0,0,8"/>
+                                                <TextBlock Text="Exit Code" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                                <TextBox Text="{Binding SelectedNode.StderrExitCode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                         Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}"
+                                                         Padding="6,4" Margin="0,0,0,8"/>
+                                            <CheckBox Content="End the recipe after writing the message" IsChecked="{Binding SelectedNode.StderrAbort, Mode=TwoWay}"
+                                                      Foreground="{Binding TextPrimaryBrush}" Margin="0,0,0,8"/>
                                         </StackPanel>
 
                                         <!-- 11b. Processors / OCR Step Inspector -->
@@ -2685,18 +2689,12 @@
                                                 <ComboBoxItem Content="🛠️ Selected Processors" Tag="Selected"/>
                                             </ComboBox>
 
-                                            <TextBlock Text="OCR Language Tag (empty = Config)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
-                                            <TextBox Text="{Binding SelectedNode.OcrLanguage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                     Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
-                                                     Padding="6,4" Margin="0,0,0,8"/>
-
                                             <TextBlock Text="Execution Timing Stage" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
                                             <ComboBox SelectedValue="{Binding SelectedNode.ProcessorTiming, Mode=TwoWay}"
                                                       SelectedValuePath="Tag" Margin="0,0,0,8">
                                                 <ComboBoxItem Content="Any / All Stages" Tag="Any"/>
-                                                <ComboBoxItem Content="Before Interactive Selection" Tag="BeforeInteractiveSelection"/>
-                                                <ComboBoxItem Content="After Interactive Selection" Tag="AfterInteractiveSelection"/>
-                                                <ComboBoxItem Content="Pre-Export" Tag="PreExport"/>
+                                                <ComboBoxItem Content="Before Interactive Selection" Tag="PreSelection"/>
+                                                <ComboBoxItem Content="After Interactive Selection" Tag="PostSelection"/>
                                             </ComboBox>
 
                                             <!-- Checkboxes for Selected Processors mode -->
@@ -2717,7 +2715,7 @@
                                                 <TextBox Text="{Binding SelectedNode.CustomProcessorIdsText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                          Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
                                                          Padding="6,4" Margin="0,0,0,4"/>
-                                                <TextBlock Text="Comma-separated processor class names or designations (e.g. Win10OcrProcessor, TitleFixProcessor)."
+                                                <TextBlock Text="Comma-separated processor designations (e.g. Windows10OcrProcessor, TitleFix)."
                                                            FontSize="10" Foreground="{Binding TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,8"/>
                                             </StackPanel>
                                         </StackPanel>
@@ -2843,14 +2841,6 @@
                                                 <ComboBoxItem Content="Available editor" Tag="AvailableEditor"/>
                                                 <ComboBoxItem Content="Current editor" Tag="CurrentEditor"/>
                                             </ComboBox>
-
-                                            <TextBlock Text="Suppress Save Confirmation Dialog" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
-                                            <ComboBox SelectedValue="{Binding SelectedNode.EditorSuppressSaveDialog, Mode=TwoWay}"
-                                                      SelectedValuePath="Tag" Margin="0,0,0,8">
-                                                <ComboBoxItem Content="(From Configuration)" Tag=""/>
-                                                <ComboBoxItem Content="Yes (Close without asking)" Tag="true"/>
-                                                <ComboBoxItem Content="No (Ask to save unsaved edits)" Tag="false"/>
-                                            </ComboBox>
                                         </StackPanel>
 
                                         <!-- 15. Printer Inspector -->
@@ -2923,26 +2913,13 @@
                                                      Padding="6,4" Margin="0,0,0,8"/>
                                         </StackPanel>
 
-                                        <!-- 16. Email Inspector -->
-                                        <StackPanel Visibility="{Binding SelectedNode.StepType, Converter={StaticResource StringToVis}, ConverterParameter=Email}">
-                                            <TextBlock Text="Email Subject" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
-                                            <TextBox Text="{Binding SelectedNode.EmailSubject, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                     Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}"
-                                                     Padding="6,4" Margin="0,0,0,8"/>
-
-                                            <TextBlock Text="Default Recipient (Optional)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
-                                            <TextBox Text="{Binding SelectedNode.EmailRecipient, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                     Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}"
-                                                     Padding="6,4" Margin="0,0,0,8"/>
-                                        </StackPanel>
-
                                         <!-- 17. Custom Destination Inspector -->
                                         <StackPanel Visibility="{Binding SelectedNode.StepType, Converter={StaticResource StringToVis}, ConverterParameter=CustomDestination}">
                                             <TextBlock Text="Destination ID / Name" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
                                             <TextBox Text="{Binding SelectedNode.CustomDestinationId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                      Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
                                                      Padding="6,4" Margin="0,0,0,8"/>
-                                            <TextBlock Text="Enter any built-in or plugin destination designation (e.g. Imgur, Jira, Confluence, Dropbox, Box, ZxingQr, ExternalCommand)."
+                                            <TextBlock Text="Enter the designation of a destination (e.g. Imgur, Jira, Box, Dropbox, Word, ZxingQrDestination, or External &lt;command name&gt;)."
                                                        FontSize="10" Foreground="{Binding TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,8"/>
                                         </StackPanel>
 
@@ -2956,7 +2933,6 @@
                                                     <CheckBox Content="Save to File" IsChecked="{Binding SelectedNode.DestinationFile, Mode=TwoWay}" Foreground="{Binding TextPrimaryBrush}" Margin="0,2"/>
                                                     <CheckBox Content="Send to Printer" IsChecked="{Binding SelectedNode.DestinationPrinter, Mode=TwoWay}" Foreground="{Binding TextPrimaryBrush}" Margin="0,2"/>
                                                     <CheckBox Content="Send via E-Mail" IsChecked="{Binding SelectedNode.DestinationEmail, Mode=TwoWay}" Foreground="{Binding TextPrimaryBrush}" Margin="0,2"/>
-                                                    <CheckBox Content="Optical Character Recognition (OCR)" IsChecked="{Binding SelectedNode.DestinationOcr, Mode=TwoWay}" Foreground="{Binding TextPrimaryBrush}" Margin="0,2"/>
                                                 </StackPanel>
                                             </Border>
 
@@ -3023,6 +2999,13 @@
 
                                         <!-- 19. External Command Inspector -->
                                         <StackPanel Visibility="{Binding SelectedNode.IsExternalCommand, Converter={StaticResource BoolToVis}}">
+                                            <TextBlock Text="Configured Command (name from the External Command settings)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <TextBox Text="{Binding SelectedNode.ExternalCommandCommand, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                     Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                     Padding="6,4" Margin="0,0,0,8"/>
+                                            <TextBlock Text="When a configured command is set, the executable and arguments below are not used."
+                                                       FontSize="10" Foreground="{Binding TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,8"/>
+
                                             <TextBlock Text="Executable / Script Path" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
                                             <Grid Margin="0,0,0,6">
                                                 <Grid.ColumnDefinitions>
@@ -3048,6 +3031,11 @@
                                                       Margin="0,0,0,6">
                                             </ComboBox>
 
+                                            <TextBlock Text="Shell Verb (Optional, e.g. print; replaces running the executable)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <TextBox Text="{Binding SelectedNode.ExternalCommandVerb, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                     Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                     Padding="6,4" Margin="0,0,0,8"/>
+
                                             <TextBlock Text="Working Directory (Optional)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
                                             <TextBox Text="{Binding SelectedNode.ExternalCommandWorkingDirectory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                      Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
@@ -3065,7 +3053,12 @@
                                             <TextBlock Text="Store Output in Variable (Optional)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
                                             <TextBox Text="{Binding SelectedNode.ExternalCommandSetOutputVariable, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                      Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
-                                                     Padding="6,4" Margin="0,0,0,4"/>
+                                                     Padding="6,4" Margin="0,0,0,8"/>
+
+                                            <TextBlock Text="Store Exit Code in Variable (Optional)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <TextBox Text="{Binding SelectedNode.ExternalCommandSetExitCodeVariable, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                     Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" FontFamily="Consolas"
+                                                     Padding="6,4" Margin="0,0,0,8"/>
                                         </StackPanel>
 
                                         <!-- 20. Imgur Inspector -->
@@ -3080,7 +3073,6 @@
                                             <Border Background="{Binding CardBackgroundBrush}" BorderBrush="{Binding CardBorderBrush}" BorderThickness="1" CornerRadius="4" Padding="8" Margin="0,0,0,6">
                                                 <StackPanel>
                                                     <CheckBox Content="Copy upload link to clipboard" IsChecked="{Binding SelectedNode.ImgurCopyLinkToClipboard, Mode=TwoWay}" Foreground="{Binding TextPrimaryBrush}" Margin="0,2"/>
-                                                    <CheckBox Content="Open image in web browser" IsChecked="{Binding SelectedNode.ImgurOpenInBrowser, Mode=TwoWay}" Foreground="{Binding TextPrimaryBrush}" Margin="0,2"/>
                                                 </StackPanel>
                                             </Border>
                                         </StackPanel>
@@ -3097,6 +3089,10 @@
                                                       SelectedValue="{Binding SelectedNode.JiraFormat, Mode=TwoWay}"
                                                       Margin="0,0,0,6">
                                             </ComboBox>
+                                            <TextBlock Text="JPEG Quality (1-100)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <TextBox Text="{Binding SelectedNode.JiraJpegQuality, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                     Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}"
+                                                     Padding="6,4" Margin="0,0,0,8"/>
                                         </StackPanel>
 
                                         <!-- 22. Confluence Inspector -->
@@ -3111,6 +3107,10 @@
                                                       SelectedValue="{Binding SelectedNode.ConfluenceFormat, Mode=TwoWay}"
                                                       Margin="0,0,0,6">
                                             </ComboBox>
+                                            <TextBlock Text="JPEG Quality (1-100)" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                            <TextBox Text="{Binding SelectedNode.ConfluenceJpegQuality, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                     Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}"
+                                                     Padding="6,4" Margin="0,0,0,8"/>
                                         </StackPanel>
 
                                         <!-- 23. Office Inspector -->
@@ -3207,6 +3207,19 @@
                                 <StackPanel>
                                     <TextBlock Text="RECIPE CONFIGURATION" FontWeight="Bold" FontSize="11" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,10"/>
 
+                                    <TextBlock Text="Recipe ID" FontSize="11" Foreground="{Binding TextSecondaryBrush}"/>
+                                    <Grid Margin="0,2,0,8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox Text="{Binding RecipeId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                 Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}"
+                                                 FontFamily="Consolas" Padding="6,4"/>
+                                        <Button Grid.Column="1" Content="📋 Copy" Style="{StaticResource ToolbarBtn}"
+                                                Command="{Binding CopyRecipeIdCommand}" Margin="4,0,0,0" ToolTip="Copy Recipe ID to Clipboard"/>
+                                    </Grid>
+
                                     <TextBlock Text="Recipe Name" FontSize="11" Foreground="{Binding TextSecondaryBrush}"/>
                                     <TextBox Text="{Binding RecipeTitle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                              Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}"
@@ -3263,13 +3276,16 @@
                                         <Button Content="+ Context Menu" Style="{StaticResource ToolbarBtn}" Command="{Binding AddTriggerCommand}" CommandParameter="ContextMenu" Margin="0,0,4,4"/>
                                         <Button Content="+ Editor" Style="{StaticResource ToolbarBtn}" Command="{Binding AddTriggerCommand}" CommandParameter="Editor" Margin="0,0,4,4"/>
                                         <Button Content="+ Clipboard" Style="{StaticResource ToolbarBtn}" Command="{Binding AddTriggerCommand}" CommandParameter="Clipboard" Margin="0,0,4,4"/>
+                                        <Button Content="+ CLI" Style="{StaticResource ToolbarBtn}" Command="{Binding AddTriggerCommand}" CommandParameter="Commandline" Margin="0,0,4,4" ToolTip="Add Command Line Trigger"/>
+                                        <Button Content="+ Open With" Style="{StaticResource ToolbarBtn}" Command="{Binding AddTriggerCommand}" CommandParameter="OpenFile" Margin="0,0,4,4" ToolTip="Add Open With File Trigger"/>
+                                        <Button Content="+ Extension" Style="{StaticResource ToolbarBtn}" Command="{Binding AddTriggerCommand}" CommandParameter="Extension" Margin="0,0,4,4" ToolTip="Add Browser Extension Trigger"/>
                                         <Button Content="+ Manual" Style="{StaticResource ToolbarBtn}" Command="{Binding AddTriggerCommand}" CommandParameter="Manual" Margin="0,0,0,4"/>
                                     </WrapPanel>
 
                                     <!-- Triggers List -->
                                     <ItemsControl ItemsSource="{Binding Triggers}">
                                         <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
+                                           <DataTemplate>
                                                 <Border Background="{Binding DataContext.CardBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
                                                         BorderBrush="{Binding DataContext.CardBorderBrush, RelativeSource={RelativeSource AncestorType=Window}}"
                                                         BorderThickness="1" CornerRadius="6" Padding="10,8" Margin="0,0,0,8">
@@ -3348,6 +3364,53 @@
                                                                      Background="{Binding DataContext.WindowBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                      Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                      Padding="4,2" Margin="0,2,0,0"/>
+                                                        </StackPanel>
+
+                                                        <!-- 6. Commandline (CLI) -->
+                                                        <StackPanel Visibility="{Binding IsCommandline, Converter={StaticResource BoolToVis}}" Margin="0,2,0,0">
+                                                            <TextBlock Text="CLI Command Name (e.g. ocr, my-task)" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                            <TextBox Text="{Binding Command, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                     FontFamily="Consolas"
+                                                                     Background="{Binding DataContext.WindowBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                     Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                     Padding="4,2" Margin="0,2,0,4"/>
+                                                            <TextBlock Text="CLI Description (Shown in -l / --list-recipes)" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                            <TextBox Text="{Binding Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                     Background="{Binding DataContext.WindowBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                     Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                     Padding="4,2" Margin="0,2,0,4"/>
+                                                            <CheckBox Content="Fire and Forget (Return immediately without waiting)"
+                                                                      IsChecked="{Binding FireAndForget, Mode=TwoWay}"
+                                                                      Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                      FontSize="10" Margin="0,2,0,0"/>
+                                                        </StackPanel>
+
+                                                        <!-- 7. Open With File -->
+                                                        <StackPanel Visibility="{Binding IsOpenFile, Converter={StaticResource BoolToVis}}" Margin="0,2,0,0">
+                                                            <TextBlock Text="File Extensions (e.g. .png;.jpg;.bmp, empty for all)" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                            <TextBox Text="{Binding Filter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                     FontFamily="Consolas"
+                                                                     Background="{Binding DataContext.WindowBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                     Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                     Padding="4,2" Margin="0,2,0,4"/>
+                                                            <CheckBox Content="Fire and Forget"
+                                                                      IsChecked="{Binding FireAndForget, Mode=TwoWay}"
+                                                                      Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                      FontSize="10" Margin="0,2,0,0"/>
+                                                        </StackPanel>
+
+                                                        <!-- 8. Browser Extension -->
+                                                        <StackPanel Visibility="{Binding IsExtension, Converter={StaticResource BoolToVis}}" Margin="0,2,0,0">
+                                                            <TextBlock Text="Browser Filter (e.g. chrome, firefox, or empty for all)" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                            <TextBox Text="{Binding Browser, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                     FontFamily="Consolas"
+                                                                     Background="{Binding DataContext.WindowBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                     Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                     Padding="4,2" Margin="0,2,0,4"/>
+                                                            <CheckBox Content="Fire and Forget"
+                                                                      IsChecked="{Binding FireAndForget, Mode=TwoWay}"
+                                                                      Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                      FontSize="10" Margin="0,2,0,0"/>
                                                         </StackPanel>
                                                     </StackPanel>
                                                 </Border>

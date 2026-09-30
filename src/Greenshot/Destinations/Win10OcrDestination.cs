@@ -93,7 +93,7 @@ namespace Greenshot.Destinations
 
                 if (!ocrFeatures.Any())
                 {
-                    var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>();
+                    var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>(isOptional: true);
                     if (ocrProvider != null)
                     {
                         var ocrLines = Task.Run(async () => await ocrProvider.DoOcrAsync(surface).ConfigureAwait(false)).Result;

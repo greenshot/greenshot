@@ -1,0 +1,85 @@
+{
+  "$schema": "../recipe.schema.json",
+  "version": "1.0",
+  "id": "recipe_cli_convert_format",
+  "name": "CLI Image Format Converter",
+  "description": "Loads an image file, converts it to the requested target format (png, jpg, webp, bmp, gif, tiff), and saves it under the same name with the new extension.",
+  "triggers": [
+    {
+      "triggerType": "Commandline",
+      "name": "Image Format Converter Trigger",
+      "enabled": true,
+      "parameters": {
+        "command": "convert",
+        "description": "Convert an image from one format to another",
+        "fireAndForget": false,
+        "stdout": "${Destination.Filename}",
+        "arguments": [
+          {
+            "name": "file",
+            "variable": "Filename",
+            "type": "FilePath",
+            "description": "Path to the input image file to convert",
+            "required": true
+          },
+          {
+            "name": "format",
+            "variable": "Format",
+            "type": "Enum",
+            "allowedValues": [ "png", "jpg", "webp", "bmp", "gif", "tiff" ],
+            "description": "Target image format (png, jpg, webp, bmp, gif, tiff)",
+            "required": false,
+            "defaultValue": "jpg"
+          }
+        ]
+      }
+    }
+  ],
+  "nodes": [
+    {
+      "id": "load_file",
+      "stepType": "Source",
+      "name": "Load Source Image",
+      "enabled": true,
+      "parameters": {
+        "sourceType": "File",
+        "filename": "${Filename}"
+      }
+    },
+    {
+      "id": "save_converted",
+      "stepType": "SaveFile",
+      "name": "Save Converted File",
+      "enabled": true,
+      "parameters": {
+        "SaveDirectory": "${dirname}",
+        "FilenamePattern": "${title}",
+        "Format": "${Format}",
+        "AllowOverwrite": true
+      }
+    },
+    {
+      "id": "print_result",
+      "stepType": "Stdout",
+      "name": "Print Saved Path",
+      "enabled": true,
+      "parameters": {
+        "text": "${Destination.Filename}"
+      }
+    }
+  ],
+  "flow": {
+    "startNodes": [
+      "load_file"
+    ],
+    "transitions": {
+      "load_file": [
+        "save_converted"
+      ],
+      "save_converted": [
+        "print_result"
+      ]
+    },
+    "conditionalTransitions": []
+  }
+}

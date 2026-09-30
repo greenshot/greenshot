@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.IO;
 using System.IO.Pipes;
 using System.Text;
 using log4net;
@@ -33,6 +34,19 @@ namespace Greenshot.Helpers.Ipc
     public static class NamedPipeClient
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(NamedPipeClient));
+
+        private static void WriteFrame(Stream stream, IpcEnvelope envelope)
+        {
+            string json = JsonConvert.SerializeObject(envelope);
+            byte[] payloadBytes = Encoding.UTF8.GetBytes(json);
+            byte[] lengthBytes = BitConverter.GetBytes((uint)payloadBytes.Length);
+            if (!BitConverter.IsLittleEndian)
+            {
+                Array.Reverse(lengthBytes);
+            }
+            stream.Write(lengthBytes, 0, lengthBytes.Length);
+            stream.Write(payloadBytes, 0, payloadBytes.Length);
+        }
 
         public static bool SendMessage(IpcEnvelope envelope, int timeoutMs = 2000)
         {
@@ -52,19 +66,10 @@ namespace Greenshot.Helpers.Ipc
                 {
                     pipeClient.Connect(timeoutMs);
 
-                    string json = JsonConvert.SerializeObject(envelope);
-                    byte[] payloadBytes = Encoding.UTF8.GetBytes(json);
-
-                    byte[] lengthBytes = BitConverter.GetBytes((uint)payloadBytes.Length);
-                    if (!BitConverter.IsLittleEndian)
-                    {
-                        Array.Reverse(lengthBytes);
-                    }
-
-                    pipeClient.Write(lengthBytes, 0, lengthBytes.Length);
-                    pipeClient.Write(payloadBytes, 0, payloadBytes.Length);
+                    // Every connection starts with HELLO, which binds the connection's source on the server
+                    WriteFrame(pipeClient, IpcEnvelope.CreateHello(envelope.Source ?? IpcSources.Cli));
+                    WriteFrame(pipeClient, envelope);
                     pipeClient.Flush();
-
                     return true;
                 }
             }

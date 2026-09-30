@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -26,7 +26,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
+using Greenshot.Base.Interfaces.Ocr;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Pipeline.Contracts;
+using Contracts = Greenshot.Base.Pipeline.Contracts;
+
 using Greenshot.Base.Recipes;
 using log4net;
 
@@ -35,6 +39,17 @@ namespace Greenshot.Pipeline.Steps
     /// <summary>
     /// Pipeline step executing image processors (OCR, TitleFix, or plugin processors).
     /// </summary>
+    [StepInfo(WellKnownStepTypes.Processors, "Processors", "Runs image processors (e.g. OCR, title fix, plugin processors).", "Processing")]
+    [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Optional, ExtractedText = PayloadRequirement.Created)]
+    [StepParameter("ProcessorIds", ContractDataType.Object, Description = "Only run these processors (type name, description or designation)")]
+    [StepParameter("ProcessorMode", ContractDataType.String, Description = "OCR runs OCR and stores the text")]
+    [StepParameter("Timing", ContractDataType.Enum, Description = "Run the processors that belong before or after the selection", DefaultValue = "Any", AllowedValues = new[] { "Any", "PreSelection", "PostSelection" })]
+    [StepParameter("RunOcr", ContractDataType.Boolean, DefaultValue = true, Description = "Run OCR processors")]
+    [StepParameter("RunTitleFix", ContractDataType.Boolean, DefaultValue = true, Description = "Run the title fix processor")]
+    [StepParameter("RunPlugins", ContractDataType.Boolean, DefaultValue = true, Description = "Run plugin processors")]
+    [StepOutputVariable("OcrText", ContractDataType.String, "Text found by OCR (also in Payload.ExtractedText)", Conditional = true)]
+    [StepOutputVariable("Text", ContractDataType.String, "Same as OcrText", Conditional = true)]
+    [StepOutputVariable("CommandResult", ContractDataType.String, "Same as OcrText", Conditional = true)]
     public class ProcessorExecutionStep : ICaptureStep
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(ProcessorExecutionStep));
@@ -48,13 +63,13 @@ namespace Greenshot.Pipeline.Steps
             Name = config.Name ?? "ProcessorExecutionStep";
         }
 
-        public Task ExecuteAsync(CaptureFlowContext context, CancellationToken cancellationToken = default)
+        public async Task ExecuteAsync(CaptureFlowContext context, CancellationToken cancellationToken = default)
         {
             var payload = context.Payload;
             if (payload?.RawCapture == null)
             {
                 context.LogStep("ProcessorExecutionStep skipped: Payload or RawCapture is null.");
-                return Task.CompletedTask;
+                return;
             }
 
             context.State = CaptureFlowState.Processing;
@@ -63,13 +78,11 @@ namespace Greenshot.Pipeline.Steps
                 .Where(p => p.isActive)
                 .ToList();
 
-            // Optional explicit timing filter: when set, only run processors that declare
-            // the matching PreferredTiming. When absent, run all active processors (default,
-            // backward-compatible behaviour for recipes that have a single Processors step).
+            // Timing filter: PreSelection / PostSelection only run the processors that declare that PreferredTiming,
+            // Any (the default) runs all active processors.
             var timingParam = Config.GetParameter<string>("Timing");
             if (!string.IsNullOrEmpty(timingParam) &&
                 !string.Equals(timingParam, "Any", StringComparison.OrdinalIgnoreCase) &&
-                !string.Equals(timingParam, "All", StringComparison.OrdinalIgnoreCase) &&
                 Enum.TryParse<ProcessorTiming>(timingParam, ignoreCase: true, out var requestedTiming))
             {
                 processors = processors
@@ -110,10 +123,45 @@ namespace Greenshot.Pipeline.Steps
             if (processorIds != null && processorIds.Count > 0)
             {
                 processors = processors
-                    .Where(p => processorIds.Contains(p.GetType().Name, StringComparer.OrdinalIgnoreCase) ||
-                                processorIds.Contains(p.Description, StringComparer.OrdinalIgnoreCase) ||
-                                processorIds.Contains(p.Designation, StringComparer.OrdinalIgnoreCase))
+                    .Where(p => processorIds.Contains(p.Designation, StringComparer.OrdinalIgnoreCase))
                     .ToList();
+            }
+
+            // If OCR is specifically requested by the recipe step, execute OCR and populate text properties
+            bool isExplicitOcr = string.Equals(mode, "OCR", StringComparison.OrdinalIgnoreCase) ||
+                                 (processorIds != null && processorIds.Any(id => id.IndexOf("Ocr", StringComparison.OrdinalIgnoreCase) >= 0));
+
+            if (isExplicitOcr)
+            {
+                var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>(isOptional: true);
+                if (ocrProvider != null)
+                {
+                    var surf = payload.EnsureSurface();
+                    if (surf != null)
+                    {
+                        try
+                        {
+                            var ocrLines = await ocrProvider.DoOcrAsync(surf).ConfigureAwait(false);
+                            if (ocrLines != null && ocrLines.Any())
+                            {
+                                string txt = string.Join(Environment.NewLine, ocrLines.Select(l => l.Text));
+                                payload.ExtractedText = txt;
+                                context.Properties["OcrText"] = txt;
+                                context.Properties["Text"] = txt;
+                                context.Properties["CommandResult"] = txt;
+                                lock (payload.RawCapture.CaptureDetails.Features)
+                                {
+                                    payload.RawCapture.CaptureDetails.Features.AddRange(ocrLines);
+                                }
+                                context.LogStep($"OCR extracted {ocrLines.Count} line(s) of text.");
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.Error("Failed to execute OCR in ProcessorExecutionStep", ex);
+                        }
+                    }
+                }
             }
 
             foreach (var processor in processors)
@@ -124,8 +172,6 @@ namespace Greenshot.Pipeline.Steps
                 Log.InfoFormat("Calling processor {0}", processor.Description);
                 processor.ProcessCapture(payload.RawCapture);
             }
-
-            return Task.CompletedTask;
         }
     }
 }

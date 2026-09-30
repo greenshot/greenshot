@@ -29,6 +29,7 @@ using Dapplo.Windows.Kernel32;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Pipeline.Contracts;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Triggers;
 using Greenshot.Editor.Drawing;
@@ -52,8 +53,10 @@ namespace Greenshot.Pipeline
         private readonly IStepRegistry _stepRegistry;
         private readonly DagExecutionEngine _dagEngine;
 
-        private static CapturePipeline _instance;
-        public static CapturePipeline Instance => _instance ??= new CapturePipeline();
+        // Thread-safe: the first access can come from the UI thread and an IPC or pipeline thread at the same time,
+        // and a second instance would silently lose what was registered in the first one.
+        private static readonly Lazy<CapturePipeline> LazyInstance = new Lazy<CapturePipeline>(() => new CapturePipeline(), LazyThreadSafetyMode.ExecutionAndPublication);
+        public static CapturePipeline Instance => LazyInstance.Value;
 
         static CapturePipeline()
         {
@@ -83,35 +86,42 @@ namespace Greenshot.Pipeline
 
             RegisterBuiltInStepFactories();
 
-            _dagEngine = new DagExecutionEngine(config => _stepRegistry.CreateStep(config));
+            _dagEngine = new DagExecutionEngine(config => _stepRegistry.CreateStep(config), _stepRegistry.GetContract);
         }
 
         private void RegisterBuiltInStepFactories()
         {
-            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.Source, config => new SourceAcquisitionStep(config));
-            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.InteractiveSelection, config => new InteractiveSelectionStep(config, _selector));
-            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.Border, config => new EffectCaptureStep(config));
-            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.Effect, config => new EffectCaptureStep(config));
-            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.Annotation, config => new AnnotationStep(config));
+            // Step types are registered with their contract (from the step class' attributes).
+            // Classes that implement several step types get a contract per step type.
+            _stepRegistry.Register<SourceAcquisitionStep>(config => new SourceAcquisitionStep(config));
+            _stepRegistry.Register<InteractiveSelectionStep>(config => new InteractiveSelectionStep(config, _selector));
+            _stepRegistry.Register<EffectCaptureStep>(config => new EffectCaptureStep(config));
+            _stepRegistry.Register<AnnotationStep>(config => new AnnotationStep(config));
             AnnotationStep.EnsureBuiltInDrawablesRegistered();
-            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.SetVariable, config => new SetVariableStep(config));
-            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.ImmediateFeedback, config => new ImmediateFeedbackStep(config));
-            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.Processors, config => new ProcessorExecutionStep(config));
-            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.Destinations, config => new DestinationExportStep(config, _dispatcher));
-            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.SaveFile, config => new DestinationExportStep(config, _dispatcher));
-            _stepRegistry.RegisterStepFactory("SaveToFile", config => new DestinationExportStep(config, _dispatcher));
-            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.Clipboard, config => new DestinationExportStep(config, _dispatcher));
-            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.Editor, config => new DestinationExportStep(config, _dispatcher));
-            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.Printer, config => new DestinationExportStep(config, _dispatcher));
-            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.Email, config => new DestinationExportStep(config, _dispatcher));
-            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.CustomDestination, config => new DestinationExportStep(config, _dispatcher));
-            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.Notification, config => new NotificationStep(config));
-            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.TextEffect, config => new TextEffectStep(config));
-            _stepRegistry.RegisterStepFactory("ObfuscateText", config => new TextEffectStep(config));
-            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.UserPrompt, config => new UserPromptStep(config));
-            _stepRegistry.RegisterStepFactory("PromptChoice", config => new UserPromptStep(config));
-            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.DynamicDestination, config => new DynamicDestinationStep(config));
-            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.RecordVideo, config => new RecordVideoRecipeStep(config));
+            _stepRegistry.Register<SetVariableStep>(config => new SetVariableStep(config));
+            _stepRegistry.Register<ConditionalStep>(config => new ConditionalStep(config));
+            _stepRegistry.Register<ImmediateFeedbackStep>(config => new ImmediateFeedbackStep(config));
+            _stepRegistry.Register<ProcessorExecutionStep>(config => new ProcessorExecutionStep(config));
+            _stepRegistry.Register<DestinationExportStep>(config => new DestinationExportStep(config, _dispatcher));
+            _stepRegistry.Register<DestinationExportStep>(WellKnownStepTypes.SaveFile, "Save to File", "Saves the capture to a file without asking.",
+                config => new DestinationExportStep(config, _dispatcher));
+            _stepRegistry.Register<DestinationExportStep>(WellKnownStepTypes.Clipboard, "Copy to Clipboard", "Copies the image and/or the extracted text to the clipboard.",
+                config => new DestinationExportStep(config, _dispatcher));
+            _stepRegistry.Register<DestinationExportStep>(WellKnownStepTypes.Editor, "Open in Editor", "Opens the capture in the Greenshot editor.",
+                config => new DestinationExportStep(config, _dispatcher));
+            _stepRegistry.Register<DestinationExportStep>(WellKnownStepTypes.Printer, "Printer", "Prints the capture.",
+                config => new DestinationExportStep(config, _dispatcher));
+            _stepRegistry.Register<DestinationExportStep>(WellKnownStepTypes.Email, "Send by Email", "Attaches the capture to a new email.",
+                config => new DestinationExportStep(config, _dispatcher));
+            _stepRegistry.Register<DestinationExportStep>(WellKnownStepTypes.CustomDestination, "Custom Destination", "Exports to the destination named by CustomDestinationId.",
+                config => new DestinationExportStep(config, _dispatcher));
+            _stepRegistry.Register<NotificationStep>(config => new NotificationStep(config));
+            _stepRegistry.Register<TextEffectStep>(config => new TextEffectStep(config));
+            _stepRegistry.Register<UserPromptStep>(config => new UserPromptStep(config));
+            _stepRegistry.Register<DynamicDestinationStep>(config => new DynamicDestinationStep(config));
+            _stepRegistry.Register<RecordVideoRecipeStep>(config => new RecordVideoRecipeStep(config));
+            _stepRegistry.Register<StdoutStep>(config => new StdoutStep(config));
+            _stepRegistry.Register<StderrStep>(config => new StderrStep(config));
 
             // Register all plugin step providers
             try

@@ -24,6 +24,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Pipeline.Contracts;
 using Greenshot.Base.Recipes;
 using log4net;
 
@@ -32,6 +33,9 @@ namespace Greenshot.Plugin.Dropbox
     /// <summary>
     /// Capture recipe step that uploads the current capture surface to Dropbox.
     /// </summary>
+    [StepInfo("Dropbox", "Upload to Dropbox", "Uploads the capture to Dropbox (configured account).", "Export")]
+    [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Required)]
+    [StepOutputVariable("Dropbox.UploadUrl", ContractDataType.String, "Link to the uploaded file", Conditional = true)]
     public class DropboxStep : ICaptureStep
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(DropboxStep));

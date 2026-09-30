@@ -1,4 +1,4 @@
-param(
+﻿param(
     [string]$SolutionDir,
     [string]$Configuration,
     [string]$TargetFramework,
@@ -44,7 +44,28 @@ try {
     Run-Command { dotnet dotnet-CycloneDX $csproj --output-format Xml --output $outputPath --set-name Greenshot --exclude-test-projects --exclude-dev }
     
     Write-Host "Generating SPDX SBOM via sbom-tool..."
-    Run-Command { dotnet sbom-tool generate -b $outputPath -bc $greenshotProjectDir -pn "Greenshot" -pv $SbomVersion -ps "Greenshot" -nsb "https://github.com/greenshot/greenshot" -pm true -li true }
+    try {
+        $tempManifestDir = Join-Path ([System.IO.Path]::GetTempPath()) ([System.Guid]::NewGuid().ToString())
+        New-Item -ItemType Directory -Path $tempManifestDir -Force | Out-Null
+        Run-Command {
+            dotnet sbom-tool generate -b $outputPath -bc $greenshotProjectDir -m $tempManifestDir -pn "Greenshot" -pv $SbomVersion -ps "Greenshot" -nsb "https://github.com/greenshot/greenshot" -pm true -li true
+        }
+        # Move the generated _manifest folder into the target build output directory
+        $generatedManifestSource = Join-Path $tempManifestDir "_manifest"
+        $destination = Join-Path $outputPath "_manifest"
+
+        if (Test-Path $destination) {
+            Remove-Item -Path $destination -Recurse -Force
+        }
+
+        Move-Item -Path $generatedManifestSource -Destination $outputPath -Force
+    }
+    finally {
+        # Clean up temporary scratch space
+        if (Test-Path $tempManifestDir) {
+            Remove-Item -Path $tempManifestDir -Recurse -Force -ErrorAction SilentlyContinue
+        }
+    }
 }
 finally {
     if (Test-Path $csprojBackup) {

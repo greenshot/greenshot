@@ -42,8 +42,6 @@
       "parameters": {
         "commandLine": "cmd.exe",
         "arguments": "/c echo Optimizing ${context.ExternalCommand.TargetFile}",
-        "sync": true,
-        "timeoutMs": 5000,
         "reloadAfterExecution": false,
         "setOutputVariable": "opt_output"
       }

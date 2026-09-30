@@ -30,6 +30,7 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Pipeline.Contracts;
 using Greenshot.Base.Recipes;
 using log4net;
 using ZXing;
@@ -40,8 +41,19 @@ namespace Greenshot.Plugin.Zxing
     /// Capture recipe step that scans barcodes / QR codes on the screenshot surface
     /// and extracts decoded text into the pipeline context and clipboard.
     /// </summary>
+    [StepInfo(ZxingStep.StepType, "Barcode Scanner (ZXing)", "Scans and decodes 1D/2D barcodes (such as QR codes) from the capture bitmap.", "Analysis")]
+    [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Required, ExtractedText = PayloadRequirement.Created)]
+    [StepParameter("SetVariable", ContractDataType.String, Description = "Also store the decoded text in this variable", SupportsExpressions = false)]
+    [StepParameter("CopyToClipboard", ContractDataType.Boolean, DefaultValue = false, Description = "Copy the decoded text to the clipboard")]
+    [StepOutputVariable("Barcode.Text", ContractDataType.String, "Decoded text of the detected barcode(s), one per line", Conditional = true)]
+    [StepOutputVariable("Barcode.Format", ContractDataType.String, "Format of the detected barcode(s), e.g. QR_CODE, one per line", Conditional = true)]
+    [StepOutputVariable("Zxing.DecodedText", ContractDataType.String, "Same as Barcode.Text", Conditional = true)]
+    [StepOutputVariable("{Parameter:SetVariable}", ContractDataType.String, "The decoded text, when SetVariable is set", Conditional = true)]
     public class ZxingStep : ICaptureStep
     {
+        /// <summary>The step type recipes use for this step.</summary>
+        public const string StepType = "BarcodeScan";
+
         private static readonly ILog Log = LogManager.GetLogger(typeof(ZxingStep));
 
         public string Name { get; }
@@ -67,27 +79,22 @@ namespace Greenshot.Plugin.Zxing
 
             var captureDetails = context.Payload?.RawCapture?.CaptureDetails ?? new CaptureDetails();
 
-            string setVariable = NodeConfig.GetParameter<string>("SetVariable")
-                ?? NodeConfig.GetParameter<string>("setVariable")
-                ?? NodeConfig.GetParameter<string>("Variable")
-                ?? NodeConfig.GetParameter<string>("variable");
-
-            bool copyToClipboard = NodeConfig.GetParameter<bool?>("CopyToClipboard")
-                ?? NodeConfig.GetParameter<bool?>("copyToClipboard")
-                ?? false;
+            string setVariable = NodeConfig.GetParameter<string>("SetVariable");
+            bool copyToClipboard = NodeConfig.GetParameter<bool?>("CopyToClipboard") ?? false;
 
             context.LogStep("Scanning surface for QR codes / barcodes...");
             Log.Info("ZxingStep: Scanning surface for barcodes.");
 
             var decodedResults = new List<string>();
+            var decodedFormats = new List<string>();
 
             // 1. Check existing features if already scanned
             lock (captureDetails.Features)
             {
-                var barcodeFeatures = captureDetails.Features.OfType<IBarcodeFeature>().ToList();
-                if (barcodeFeatures.Any())
+                foreach (var barcode in captureDetails.Features.OfType<IBarcodeFeature>().Where(b => !string.IsNullOrEmpty(b.RawText)))
                 {
-                    decodedResults.AddRange(barcodeFeatures.Select(b => b.RawText).Where(t => !string.IsNullOrEmpty(t)));
+                    decodedResults.Add(barcode.RawText);
+                    decodedFormats.Add(barcode.Format ?? string.Empty);
                 }
             }
 
@@ -117,6 +124,7 @@ namespace Greenshot.Plugin.Zxing
                                 if (!string.IsNullOrEmpty(res?.Text))
                                 {
                                     decodedResults.Add(res.Text);
+                                    decodedFormats.Add(res.BarcodeFormat.ToString());
                                 }
                             }
                         }
@@ -134,6 +142,7 @@ namespace Greenshot.Plugin.Zxing
                 context.Payload.ExtractedText = combinedText;
                 context.Properties["Zxing.DecodedText"] = combinedText;
                 context.Properties["Barcode.Text"] = combinedText;
+                context.Properties["Barcode.Format"] = string.Join(Environment.NewLine, decodedFormats);
 
                 if (!string.IsNullOrEmpty(setVariable))
                 {

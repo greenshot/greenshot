@@ -141,10 +141,6 @@ namespace Greenshot.UI
                     {
                         _cancelChoiceKey = choice.Key;
                     }
-                    else if (_cancelChoiceKey == null && (string.Equals(choice.Key, "No", StringComparison.OrdinalIgnoreCase) || string.Equals(choice.Key, "Cancel", StringComparison.OrdinalIgnoreCase)))
-                    {
-                        _cancelChoiceKey = choice.Key;
-                    }
 
                     ActionButtons.Add(new PromptButtonViewModel
                     {

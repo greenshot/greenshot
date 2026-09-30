@@ -53,88 +53,84 @@ namespace Greenshot.Tests.Editor
         [Fact]
         public void TryLoadFromStream_WithExternalImageReference_DoesNotIssueHttpRequest()
         {
-            int port = GetAvailableTcpPort();
-            int requestCount = 0;
-            using (var listener = new HttpListener())
+            // A loopback TCP listener that stays open for the whole test acts as the canary: any HTTP request for the
+            // external image needs a TCP connection to it. Binding to port 0 lets the OS pick a free port, and because the
+            // listener is never closed in between, no other process can take the port (unlike probing for a "free" port first).
+            var listener = new TcpListener(IPAddress.Loopback, 0);
+            listener.Start();
+            int port = ((IPEndPoint)listener.LocalEndpoint).Port;
+            int connectionCount = 0;
+
+            var acceptThread = new Thread(() =>
             {
-                listener.Prefixes.Add($"http://127.0.0.1:{port}/");
-                listener.Start();
-
-                var listenerThread = new Thread(() =>
-                {
-                    try
-                    {
-                        while (listener.IsListening)
-                        {
-                            var context = listener.GetContext();
-                            Interlocked.Increment(ref requestCount);
-                            context.Response.StatusCode = 200;
-                            context.Response.Close();
-                        }
-                    }
-                    catch (HttpListenerException)
-                    {
-                        // Expected when listener is stopped
-                    }
-                    catch (ObjectDisposedException)
-                    {
-                        // Expected when listener is disposed
-                    }
-                })
-                {
-                    IsBackground = true
-                };
-                listenerThread.Start();
-
                 try
                 {
-                    string svgContent = $@"<svg xmlns=""http://www.w3.org/2000/svg"" width=""100"" height=""100"">
+                    while (true)
+                    {
+                        using (listener.AcceptTcpClient())
+                        {
+                            Interlocked.Increment(ref connectionCount);
+                        }
+                    }
+                }
+                catch (SocketException)
+                {
+                    // Expected when the listener is stopped
+                }
+                catch (ObjectDisposedException)
+                {
+                    // Expected when the listener is stopped
+                }
+                catch (InvalidOperationException)
+                {
+                    // Expected when the listener is stopped
+                }
+            })
+            {
+                IsBackground = true
+            };
+            acceptThread.Start();
+
+            try
+            {
+                string svgContent = $@"<svg xmlns=""http://www.w3.org/2000/svg"" width=""100"" height=""100"">
   <image href=""http://127.0.0.1:{port}/canary.png"" width=""100"" height=""100"" />
   <rect width=""100"" height=""100"" fill=""red"" />
 </svg>";
 
-                    var handler = new SvgFileFormatHandler();
-                    using (var ms = new MemoryStream(Encoding.UTF8.GetBytes(svgContent)))
-                    {
-                        bool success = handler.TryLoadFromStream(ms, ".svg", out var bitmap);
-                        Assert.True(success);
-                        Assert.NotNull(bitmap);
-                        bitmap.Dispose();
-                    }
-
-                    // Also verify SvgContainer
-                    using (var ms = new MemoryStream(Encoding.UTF8.GetBytes(svgContent)))
-                    {
-                        var container = new SvgContainer(ms, null);
-                        Assert.NotNull(container);
-                    }
-
-                    // Also verify LoadDrawablesFromStream
-                    using (var ms = new MemoryStream(Encoding.UTF8.GetBytes(svgContent)))
-                    {
-                        var drawables = new System.Collections.Generic.List<Greenshot.Base.Interfaces.Drawing.IDrawableContainer>(handler.LoadDrawablesFromStream(ms, ".svg", null));
-                        Assert.NotEmpty(drawables);
-                    }
-
-                    // Allow brief window for any rogue async request
-                    Thread.Sleep(200);
-
-                    Assert.Equal(0, requestCount);
-                }
-                finally
+                var handler = new SvgFileFormatHandler();
+                using (var ms = new MemoryStream(Encoding.UTF8.GetBytes(svgContent)))
                 {
-                    listener.Stop();
+                    bool success = handler.TryLoadFromStream(ms, ".svg", out var bitmap);
+                    Assert.True(success);
+                    Assert.NotNull(bitmap);
+                    bitmap.Dispose();
                 }
-            }
-        }
 
-        private static int GetAvailableTcpPort()
-        {
-            var listener = new TcpListener(IPAddress.Loopback, 0);
-            listener.Start();
-            int port = ((IPEndPoint)listener.LocalEndpoint).Port;
-            listener.Stop();
-            return port;
+                // Also verify SvgContainer
+                using (var ms = new MemoryStream(Encoding.UTF8.GetBytes(svgContent)))
+                {
+                    var container = new SvgContainer(ms, null);
+                    Assert.NotNull(container);
+                }
+
+                // Also verify LoadDrawablesFromStream
+                using (var ms = new MemoryStream(Encoding.UTF8.GetBytes(svgContent)))
+                {
+                    var drawables = new System.Collections.Generic.List<Greenshot.Base.Interfaces.Drawing.IDrawableContainer>(handler.LoadDrawablesFromStream(ms, ".svg", null));
+                    Assert.NotEmpty(drawables);
+                }
+
+                // Allow brief window for any rogue async request
+                Thread.Sleep(200);
+
+                Assert.Equal(0, Volatile.Read(ref connectionCount));
+            }
+            finally
+            {
+                listener.Stop();
+                acceptThread.Join(2000);
+            }
         }
     }
 }

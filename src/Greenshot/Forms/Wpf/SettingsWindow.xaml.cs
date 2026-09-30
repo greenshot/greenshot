@@ -47,7 +47,7 @@ namespace Greenshot.Forms.Wpf
         private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(SettingsWindow));
         private readonly SettingsViewModel _viewModel;
 
-        public SettingsWindow(string initialPluginName = null)
+        public SettingsWindow(string initialPluginName = null, string initialTabName = null)
         {
             InitializeComponent();
             
@@ -94,9 +94,57 @@ namespace Greenshot.Forms.Wpf
                 }
             };
 
+            if (!string.IsNullOrEmpty(initialTabName))
+            {
+                SelectTab(initialTabName);
+            }
             if (!string.IsNullOrEmpty(initialPluginName))
             {
                 SelectPlugin(initialPluginName);
+            }
+        }
+
+        public void SelectTab(string tabName)
+        {
+            if (string.IsNullOrWhiteSpace(tabName)) return;
+
+            string normalized = tabName.Trim().ToLowerInvariant();
+            switch (normalized)
+            {
+                case "general":
+                    SettingsTabControl.SelectedIndex = 0;
+                    break;
+                case "capture":
+                    SettingsTabControl.SelectedIndex = 1;
+                    break;
+                case "output":
+                    SettingsTabControl.SelectedIndex = 2;
+                    break;
+                case "destination":
+                case "destinations":
+                    SettingsTabControl.SelectedIndex = 3;
+                    break;
+                case "editor":
+                    SettingsTabControl.SelectedIndex = 4;
+                    break;
+                case "printer":
+                case "print":
+                    SettingsTabControl.SelectedIndex = 5;
+                    break;
+                case "plugin":
+                case "plugins":
+                    SettingsTabControl.SelectedItem = PluginsTabItem;
+                    break;
+                case "expert":
+                case "expertsettings":
+                    if (SettingsTabControl.Items.Count > 7)
+                    {
+                        SettingsTabControl.SelectedIndex = 7;
+                    }
+                    break;
+                default:
+                    SelectPlugin(tabName);
+                    break;
             }
         }
 

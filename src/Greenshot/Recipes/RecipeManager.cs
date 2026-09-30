@@ -23,10 +23,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Recipes;
+using Greenshot.Base.Triggers;
 using log4net;
 
 namespace Greenshot.Recipes
@@ -62,6 +64,7 @@ namespace Greenshot.Recipes
         public const string RecipeIdClipboard = "recipe_clipboard";
         public const string RecipeIdFile = "recipe_file";
         public const string RecipeIdOcr = "recipe_ocr";
+        public const string RecipeIdExtension = "recipe_browser_extension";
 
         private readonly Dictionary<string, CaptureRecipe> _builtInRecipes = new Dictionary<string, CaptureRecipe>(StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<string, CaptureRecipe> _recipes = new Dictionary<string, CaptureRecipe>(StringComparer.OrdinalIgnoreCase);
@@ -69,8 +72,10 @@ namespace Greenshot.Recipes
 
         public event EventHandler RecipesChanged;
 
-        private static RecipeManager _instance;
-        public static RecipeManager Instance => _instance ??= new RecipeManager();
+        // Thread-safe: the first access can come from the UI thread and an IPC or pipeline thread at the same time,
+        // and a second instance would silently lose what was registered in the first one.
+        private static readonly Lazy<RecipeManager> LazyInstance = new Lazy<RecipeManager>(() => new RecipeManager(), LazyThreadSafetyMode.ExecutionAndPublication);
+        public static RecipeManager Instance => LazyInstance.Value;
 
         public RecipeManager()
         {
@@ -191,7 +196,8 @@ namespace Greenshot.Recipes
                 Language.GetString("contextmenu_openfile") ?? "Open file",
                 "Import an image or .greenshot file from disk")
                 .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.File, captureMouse: false))
-                .AddNode(RecipeStepConfig.CreateDestinations("export", new[] { "Editor" }));
+                .AddNode(RecipeStepConfig.CreateDestinations("export", new[] { "Editor" }))
+                .AddTrigger(TriggerConfig.CreateOpenFile(name: "Default Open With File Trigger"));
             fileRecipe.Flow = new RecipeFlowConfig("acquire")
                 .AddTransition("acquire", "export");
             RegisterBuiltIn(fileRecipe);
@@ -205,13 +211,25 @@ namespace Greenshot.Recipes
                 .AddNode(RecipeStepConfig.CreateSelection("select", CaptureMode.Text))
                 .AddNode(RecipeStepConfig.CreateFeedback("feedback"))
                 .AddNode(RecipeStepConfig.CreateProcessors("ocr", new[] { "Windows10OcrProcessor" }))
-                .AddNode(RecipeStepConfig.CreateDestinations("export", new[] { "Clipboard" }));
+                .AddNode(RecipeStepConfig.CreateClipboard("export", "TextOnly"));
             ocrRecipe.Flow = new RecipeFlowConfig("acquire")
                 .AddTransition("acquire", "select")
                 .AddTransition("select", "feedback")
                 .AddTransition("feedback", "ocr")
                 .AddTransition("ocr", "export");
             RegisterBuiltIn(ocrRecipe);
+
+            // 9. Browser Extension Capture
+            var extensionRecipe = new CaptureRecipe(
+                RecipeIdExtension,
+                Language.GetString("recipe_browser_extension_name") ?? "Capture from browser extension",
+                "Process screenshots received from the browser extension and choose destination interactively")
+                .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.Extension, captureMouse: false))
+                .AddNode(RecipeStepConfig.CreateDynamicDestination("export", "Export Browser Capture"))
+                .AddTrigger(TriggerConfig.CreateExtension(name: "Default Browser Extension Trigger"));
+            extensionRecipe.Flow = new RecipeFlowConfig("acquire")
+                .AddTransition("acquire", "export");
+            RegisterBuiltIn(extensionRecipe);
         }
 
         private HashSet<string> GetDisabledRecipeIds()
@@ -480,7 +498,7 @@ namespace Greenshot.Recipes
                         }
                     }
 
-                    if (valResult.HasExternalCommands && !allowExternalCommands)
+                    if (valResult.HasGatedActions && !allowExternalCommands)
                     {
                         overallResult.AddError($"Recipe '{recipe.Name}' contains external commands, but authorization was not granted.");
                         continue;

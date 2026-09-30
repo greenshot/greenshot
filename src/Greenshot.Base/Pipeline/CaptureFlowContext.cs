@@ -22,6 +22,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Triggers;
 
@@ -64,6 +65,28 @@ namespace Greenshot.Base.Pipeline
         /// The visual payload (bitmap, surface, extracted text). Null until acquisition succeeds.
         /// </summary>
         public ICapturePayload Payload { get; set; }
+
+        /// <summary>
+        /// True when the payload was handed to this flow (forwarded from another recipe, imported from the browser extension,
+        /// injected programmatically) instead of being captured by it. Such an image is used as a whole: there is no screen
+        /// to select a region on, and nothing was captured, so no capture feedback is given either.
+        /// </summary>
+        public bool IsPayloadPreSupplied { get; set; }
+
+        /// <summary>
+        /// Optional delegate to immediately emit streaming stdout text back to the caller (e.g. IPC client).
+        /// </summary>
+        public Func<string, Task> StdoutWriter { get; set; }
+
+        /// <summary>
+        /// Optional delegate to immediately emit streaming stderr text back to the caller (e.g. IPC client).
+        /// </summary>
+        public Func<string, Task> StderrWriter { get; set; }
+
+        /// <summary>
+        /// Numerical exit code for the flow (0 = success, non-zero = error).
+        /// </summary>
+        public int ExitCode { get; set; } = 0;
 
         /// <summary>
         /// Cancellation token for early termination.
@@ -138,7 +161,11 @@ namespace Greenshot.Base.Pipeline
             var branchContext = new CaptureFlowContext(Recipe, Trigger, CancellationToken)
             {
                 State = State,
-                Payload = branchPayload
+                Payload = branchPayload,
+                IsPayloadPreSupplied = IsPayloadPreSupplied,
+                StdoutWriter = StdoutWriter,
+                StderrWriter = StderrWriter,
+                ExitCode = ExitCode
             };
 
             if (Properties != null)

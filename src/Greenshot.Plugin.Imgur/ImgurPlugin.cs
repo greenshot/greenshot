@@ -107,9 +107,7 @@ public class ImgurPlugin : IGreenshotPlugin, IRecipeStepProvider
     public void RegisterSteps(IStepRegistry registry)
     {
         if (registry == null) return;
-        registry.RegisterStepFactory("Imgur", config => new ImgurStep(config));
-        registry.RegisterStepFactory("ImgurUpload", config => new ImgurStep(config));
-        registry.RegisterStepFactory("UploadToImgur", config => new ImgurStep(config));
+        registry.Register<ImgurStep>(config => new ImgurStep(config));
     }
 
     /// <summary>

@@ -1,0 +1,165 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+body {
+  width: 260px;
+  padding: 12px;
+  background-color: #ffffff;
+  color: #202124;
+  font-size: 13px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e8eaed;
+  margin-bottom: 12px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.logo-mark {
+  width: 22px;
+  height: 22px;
+  background-color: #43a047;
+  color: #ffffff;
+  font-weight: bold;
+  font-size: 13px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.title {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #9aa0a6;
+}
+
+.status-indicator.online .status-dot {
+  background-color: #34a853;
+}
+
+.status-indicator.offline .status-dot {
+  background-color: #ea4335;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.btn.primary {
+  background-color: #1a73e8;
+  color: #ffffff;
+}
+
+.btn.primary:hover {
+  background-color: #1557b0;
+}
+
+.btn.primary:disabled {
+  background-color: #dadce0;
+  color: #80868b;
+  cursor: not-allowed;
+}
+
+.feedback-msg {
+  margin-top: 8px;
+  padding: 6px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  text-align: center;
+}
+
+.feedback-msg.success {
+  background-color: #e6f4ea;
+  color: #137333;
+}
+
+.feedback-msg.error {
+  background-color: #fce8e6;
+  color: #c5221f;
+}
+
+.hidden {
+  display: none;
+}
+
+.footer {
+  margin-top: 12px;
+  padding-top: 8px;
+  border-top: 1px solid #f1f3f4;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+}
+
+.qa-info {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.qa-label {
+  color: #5f6368;
+}
+
+.qa-badge {
+  font-weight: 600;
+  color: #137333;
+}
+
+.qa-badge.inactive {
+  color: #80868b;
+}
+
+.options-link {
+  color: #1a73e8;
+  text-decoration: none;
+}
+
+.options-link:hover {
+  text-decoration: underline;
+}

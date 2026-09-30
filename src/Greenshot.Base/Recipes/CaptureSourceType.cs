@@ -34,6 +34,7 @@ namespace Greenshot.Base.Recipes
         Clipboard,
         File,
         TextOcr,
-        CurrentEditor
+        CurrentEditor,
+        Extension
     }
 }

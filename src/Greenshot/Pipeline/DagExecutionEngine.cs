@@ -29,6 +29,7 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Expressions;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Pipeline.Contracts;
 using Greenshot.Base.Recipes;
 using log4net;
 
@@ -44,10 +45,108 @@ namespace Greenshot.Pipeline
         private static readonly ILog Log = LogManager.GetLogger(typeof(DagExecutionEngine));
 
         private readonly Func<RecipeNodeConfig, ICaptureStep> _stepFactory;
+        private readonly Func<string, StepContract> _contractLookup;
 
-        public DagExecutionEngine(Func<RecipeNodeConfig, ICaptureStep> stepFactory)
+        /// <param name="stepFactory">Creates the step of a node.</param>
+        /// <param name="contractLookup">The contract of a step type (IStepRegistry.GetContract); without it, contracts are not checked.</param>
+        public DagExecutionEngine(Func<RecipeNodeConfig, ICaptureStep> stepFactory, Func<string, StepContract> contractLookup = null)
         {
             _stepFactory = stepFactory ?? throw new ArgumentNullException(nameof(stepFactory));
+            _contractLookup = contractLookup;
+        }
+
+        /// <summary>
+        /// Receives contract violations found after a step ran: a variable the step wrote without declaring it,
+        /// a declared (non-conditional) output it did not set, or a missing image it should have created.
+        /// Debug builds log them as warnings; release builds do not check (null). Tests can collect them.
+        /// </summary>
+        public Action<string> ContractViolation { get; set; } =
+#if DEBUG
+            message => Log.Warn("[CONTRACT] " + message);
+#else
+            null;
+#endif
+
+        private static string GetBranchProperty(object branch, string name)
+        {
+            switch (branch)
+            {
+                case Newtonsoft.Json.Linq.JObject jObject:
+                    return jObject.GetValue(name, StringComparison.OrdinalIgnoreCase)?.ToString();
+                case System.Collections.IDictionary dictionary:
+                    foreach (System.Collections.DictionaryEntry entry in dictionary)
+                    {
+                        if (string.Equals(entry.Key?.ToString(), name, StringComparison.OrdinalIgnoreCase)) return entry.Value?.ToString();
+                    }
+                    return null;
+                default:
+                    return null;
+            }
+        }
+
+        /// <summary>
+        /// Checks what the step's contract requires before the step runs: required parameters (set, or with a default)
+        /// and required input variables. A missing one fails the node with a clear message.
+        /// </summary>
+        private static void ValidateBeforeStep(RecipeNodeConfig node, StepContract contract, CaptureFlowContext context)
+        {
+            if (contract == null) return;
+            var parameters = node.Parameters ?? new Dictionary<string, object>();
+            foreach (var parameter in contract.Parameters.Where(p => p.Required && p.DefaultValue == null))
+            {
+                bool isSet = parameters.Any(kvp => parameter.Matches(kvp.Key) && kvp.Value != null && !(kvp.Value is string text && string.IsNullOrWhiteSpace(text)));
+                if (!isSet)
+                {
+                    throw new InvalidOperationException($"Node '{node.Id}' ({node.StepType}) is missing required parameter '{parameter.Name}'.");
+                }
+            }
+            foreach (var input in contract.InputVariables.Where(v => v.Required))
+            {
+                foreach (var name in input.ResolveNames(node))
+                {
+                    if (!context.Properties.ContainsKey(name))
+                    {
+                        throw new InvalidOperationException($"Node '{node.Id}' ({node.StepType}) needs variable '{name}', which is not set.");
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Compares what the step did with its contract: variables written without being declared, declared outputs
+        /// that were not set, an image that should have been created. Reported through <see cref="ContractViolation"/>.
+        /// </summary>
+        private void CheckAfterStep(RecipeNodeConfig node, StepContract contract, CaptureFlowContext context, Dictionary<string, object> before)
+        {
+            var report = ContractViolation;
+            if (report == null || context.IsAborted || context.State == CaptureFlowState.Failed) return;
+
+            var declared = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var output in contract.OutputVariables)
+            {
+                foreach (var name in output.ResolveNames(node))
+                {
+                    declared.Add(name);
+                    if (output.IsGuaranteedFor(node) && !context.Properties.ContainsKey(name))
+                    {
+                        report($"Node '{node.Id}' ({node.StepType}) did not set its declared output '{name}'.");
+                    }
+                }
+            }
+
+            foreach (var kvp in context.Properties.ToList())
+            {
+                bool changed = !before.TryGetValue(kvp.Key, out var previous) || !Equals(previous, kvp.Value);
+                if (changed && !declared.Contains(kvp.Key))
+                {
+                    report($"Node '{node.Id}' ({node.StepType}) set variable '{kvp.Key}', which its contract does not declare.");
+                }
+            }
+
+            if (contract.PayloadContract.RawCapture == PayloadRequirement.Created && context.Payload?.RawCapture == null)
+            {
+                report($"Node '{node.Id}' ({node.StepType}) should have created the image, but there is none.");
+            }
         }
 
         /// <summary>
@@ -221,11 +320,15 @@ namespace Greenshot.Pipeline
                 {
                     try
                     {
-                        // Dynamically resolve expressions in node parameters prior to execution
-                        var resolvedConfig = nodeConfig.Clone();
-                        resolvedConfig.Parameters = ExpressionEvaluator.Instance.ResolveParameters(nodeConfig.Parameters, nodeContext);
-
-                        var step = _stepFactory(resolvedConfig);
+                        // Expressions in node parameters are evaluated exactly once: here, or by the step itself when it
+                        // implements IEvaluatesOwnParameters (it then receives the raw parameters). See IEvaluatesOwnParameters.
+                        var step = _stepFactory(nodeConfig.Clone());
+                        if (step != null && !(step is IEvaluatesOwnParameters))
+                        {
+                            var resolvedConfig = nodeConfig.Clone();
+                            resolvedConfig.Parameters = ExpressionEvaluator.Instance.ResolveParameters(nodeConfig.Parameters, nodeContext);
+                            step = _stepFactory(resolvedConfig);
+                        }
                         if (step == null)
                         {
                             Log.WarnFormat("Could not resolve executable step for node '{0}' [{1}]", nodeConfig.Id, nodeConfig.StepType);
@@ -233,10 +336,20 @@ namespace Greenshot.Pipeline
                         }
                         else
                         {
+                            var contract = _contractLookup?.Invoke(nodeConfig.StepType);
+                            // Fails the node (error transitions apply) when a required parameter or input is missing
+                            ValidateBeforeStep(nodeConfig, contract, nodeContext);
+                            var before = contract != null && ContractViolation != null ? new Dictionary<string, object>(nodeContext.Properties, StringComparer.OrdinalIgnoreCase) : null;
+
                             nodeContext.LogStep($"Executing node: [{nodeConfig.Id}] {step.Name}");
                             Log.InfoFormat("Executing DAG node: [{0}] '{1}' [{2}]", nodeConfig.Id, step.Name, nodeConfig.StepType);
                             await step.ExecuteAsync(nodeContext, cancellationToken).ConfigureAwait(false);
                             Log.InfoFormat("Finished DAG node: [{0}] '{1}'", nodeConfig.Id, step.Name);
+
+                            if (before != null)
+                            {
+                                CheckAfterStep(nodeConfig, contract, nodeContext, before);
+                            }
                         }
                     }
                     catch (OperationCanceledException)
@@ -251,9 +364,9 @@ namespace Greenshot.Pipeline
                         // Check flow error transitions or node-level error configuration
                         var errorTransition = flow.GetErrorTransition(nodeId, ex);
                         string errorTargetNodeId = errorTransition?.To
-                            ?? (!string.IsNullOrEmpty(nodeConfig.OnErrorNodeId) ? nodeConfig.OnErrorNodeId : nodeConfig.GetFirstParameter<string>("OnErrorNodeId", "OnError", "FallbackNodeId"));
+                            ?? (!string.IsNullOrEmpty(nodeConfig.OnErrorNodeId) ? nodeConfig.OnErrorNodeId : null);
                         string errorTargetRecipeId = errorTransition?.TargetRecipeId
-                            ?? (!string.IsNullOrEmpty(nodeConfig.OnErrorRecipeId) ? nodeConfig.OnErrorRecipeId : nodeConfig.GetFirstParameter<string>("OnErrorRecipeId", "ErrorRecipeId"));
+                            ?? (!string.IsNullOrEmpty(nodeConfig.OnErrorRecipeId) ? nodeConfig.OnErrorRecipeId : null);
 
                         if (!string.IsNullOrEmpty(errorTargetNodeId) || !string.IsNullOrEmpty(errorTargetRecipeId))
                         {
@@ -296,14 +409,18 @@ namespace Greenshot.Pipeline
                                     var pipeline = SimpleServiceProvider.Current?.GetInstance<ICapturePipeline>(isOptional: true);
                                     if (pipeline != null)
                                     {
-                                        await pipeline.ExecuteAsync(targetRecipe, null, ctx =>
+                                        var errorRecipeContext = await pipeline.ExecuteAsync(targetRecipe, null, ctx =>
                                         {
                                             ctx.Payload = nodeContext.Payload;
+                                            // Keep streaming to the original caller (e.g. a StderrStep in the recovery recipe)
+                                            ctx.StdoutWriter = nodeContext.StdoutWriter;
+                                            ctx.StderrWriter = nodeContext.StderrWriter;
                                             foreach (var kvp in nodeContext.Properties)
                                             {
                                                 ctx.Properties[kvp.Key] = kvp.Value;
                                             }
                                         }, cancellationToken).ConfigureAwait(false);
+                                        MergeOutcome(errorRecipeContext, nodeContext);
                                     }
                                 }
                                 else
@@ -345,7 +462,7 @@ namespace Greenshot.Pipeline
                 string matchedBranchKey = null;
                 if (string.Equals(nodeConfig.StepType, WellKnownStepTypes.Conditional, StringComparison.OrdinalIgnoreCase))
                 {
-                    var branchesParam = nodeConfig.GetParameter<object>("Branches") ?? nodeConfig.GetParameter<object>("branches");
+                    var branchesParam = nodeConfig.GetParameter<object>("Branches");
                     if (branchesParam != null)
                     {
                         var branchList = new List<(string Key, string Expression)>();
@@ -353,27 +470,21 @@ namespace Greenshot.Pipeline
                         {
                             foreach (var item in enumerable)
                             {
-                                if (item is System.Collections.IDictionary d)
-                                {
-                                    string k = d.Contains("Key") ? d["Key"]?.ToString() : (d.Contains("key") ? d["key"]?.ToString() : null);
-                                    string exp = d.Contains("Expression") ? d["Expression"]?.ToString() : (d.Contains("expression") ? d["expression"]?.ToString() : null);
-                                    if (!string.IsNullOrEmpty(k)) branchList.Add((k, exp ?? "${true}"));
-                                }
-                                else if (item is Newtonsoft.Json.Linq.JObject jobj)
-                                {
-                                    string k = jobj.Value<string>("Key") ?? jobj.Value<string>("key");
-                                    string exp = jobj.Value<string>("Expression") ?? jobj.Value<string>("expression");
-                                    if (!string.IsNullOrEmpty(k)) branchList.Add((k, exp ?? "${true}"));
-                                }
+                                // Branch properties are case-insensitive, like parameters (JSON recipes use "key", code "Key")
+                                string k = GetBranchProperty(item, "Key");
+                                string exp = GetBranchProperty(item, "Expression");
+                                if (!string.IsNullOrEmpty(k)) branchList.Add((k, exp));
                             }
                         }
 
                         foreach (var b in branchList)
                         {
                             string exp = b.Expression?.Trim();
-                            if (string.Equals(exp, "else", StringComparison.OrdinalIgnoreCase) ||
-                                string.Equals(exp, "default", StringComparison.OrdinalIgnoreCase) ||
-                                string.IsNullOrEmpty(exp))
+                            if (string.IsNullOrEmpty(exp))
+                            {
+                                continue;
+                            }
+                            if (string.Equals(exp, "else", StringComparison.OrdinalIgnoreCase))
                             {
                                 matchedBranchKey = b.Key;
                                 break;
@@ -390,20 +501,11 @@ namespace Greenshot.Pipeline
                         nodeContext.LogStep($"Conditional node [{nodeId}] evaluated branch -> '{matchedBranchKey ?? "None"}'");
                     }
                 }
-                else if (string.Equals(nodeConfig.StepType, WellKnownStepTypes.UserPrompt, StringComparison.OrdinalIgnoreCase) ||
-                         string.Equals(nodeConfig.StepType, "PromptChoice", StringComparison.OrdinalIgnoreCase))
+                else if (string.Equals(nodeConfig.StepType, WellKnownStepTypes.UserPrompt, StringComparison.OrdinalIgnoreCase))
                 {
-                    if (nodeContext.Properties.TryGetValue("UserPrompt.Choice." + nodeId, out var choiceObj) && choiceObj != null)
+                    if (nodeContext.Properties.TryGetValue("UserChoice." + nodeId, out var choiceObj) && choiceObj != null)
                     {
                         matchedBranchKey = choiceObj.ToString();
-                    }
-                    else if (nodeContext.Properties.TryGetValue("UserChoice." + nodeId, out var ucObj) && ucObj != null)
-                    {
-                        matchedBranchKey = ucObj.ToString();
-                    }
-                    else if (nodeContext.Properties.TryGetValue("LastUserChoice", out var lastChoice) && lastChoice != null)
-                    {
-                        matchedBranchKey = lastChoice.ToString();
                     }
 
                     nodeContext.LogStep($"UserPrompt node [{nodeId}] selected branch -> '{matchedBranchKey ?? "None"}'");
@@ -554,14 +656,7 @@ namespace Greenshot.Pipeline
                                 nodeContext.Properties[kvp.Key] = kvp.Value;
                             }
 
-                            if (clusterCtx.State == CaptureFlowState.Failed && nodeContext.State != CaptureFlowState.Failed)
-                            {
-                                nodeContext.Fail(clusterCtx.AbortReason, clusterCtx.Error);
-                            }
-                            else if (clusterCtx.State == CaptureFlowState.Cancelled && !nodeContext.IsAborted)
-                            {
-                                nodeContext.Abort(clusterCtx.AbortReason);
-                            }
+                            MergeOutcome(clusterCtx, nodeContext);
                         }
                     }
                 }
@@ -612,16 +707,36 @@ namespace Greenshot.Pipeline
                             context.Properties[kvp.Key] = kvp.Value;
                         }
 
-                        if (initCtx.State == CaptureFlowState.Failed && context.State != CaptureFlowState.Failed)
-                        {
-                            context.Fail(initCtx.AbortReason, initCtx.Error);
-                        }
-                        else if (initCtx.State == CaptureFlowState.Cancelled && !context.IsAborted)
-                        {
-                            context.Abort(initCtx.AbortReason);
-                        }
+                        MergeOutcome(initCtx, context);
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        /// Propagates the outcome of an isolated child flow (parallel branch, independent start cluster or error-recovery recipe)
+        /// back into its parent: failure/cancellation state and the first non-zero exit code (e.g. set by a StderrStep).
+        /// Properties are merged by the caller.
+        /// </summary>
+        private static void MergeOutcome(CaptureFlowContext child, CaptureFlowContext parent)
+        {
+            if (child == null || parent == null)
+            {
+                return;
+            }
+
+            if (child.ExitCode != 0 && parent.ExitCode == 0)
+            {
+                parent.ExitCode = child.ExitCode;
+            }
+
+            if (child.State == CaptureFlowState.Failed && parent.State != CaptureFlowState.Failed)
+            {
+                parent.Fail(child.AbortReason, child.Error);
+            }
+            else if (child.State == CaptureFlowState.Cancelled && !parent.IsAborted)
+            {
+                parent.Abort(child.AbortReason);
             }
         }
 

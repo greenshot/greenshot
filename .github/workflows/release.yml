@@ -161,17 +161,26 @@ jobs:
           pwsh -File "${{ github.workspace }}/prepare-portable.ps1" -RepositoryRootPath ${{ github.workspace }} -BuildArtifactsPath $buildArtifacts -OutputPath $portableDir
         shell: pwsh
 
-      - name: Create ZIP archive
+      - name: Prepare light portable folder
+        run: |
+          $buildArtifacts = "${{ github.workspace }}/artifacts-greenshot-build"
+          $portableDir = "${{ github.workspace }}/portable-light"
+          pwsh -File "${{ github.workspace }}/prepare-portable.ps1" -RepositoryRootPath ${{ github.workspace }} -BuildArtifactsPath $buildArtifacts -OutputPath $portableDir -Light
+        shell: pwsh
+
+      - name: Create ZIP archives
         run: |
           $zipName = "Greenshot-PORTABLE-${{ needs.pre_deploy.outputs.version }}-UNSTABLE-UNSIGNED.zip"
           Compress-Archive -Path "${{ github.workspace }}/portable/*" -DestinationPath $zipName -Force
+          $lightZipName = "Greenshot-Light-PORTABLE-${{ needs.pre_deploy.outputs.version }}-UNSTABLE-UNSIGNED.zip"
+          Compress-Archive -Path "${{ github.workspace }}/portable-light/*" -DestinationPath $lightZipName -Force
         shell: pwsh
       
       - name: Upload portable build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: artifacts-greenshot-portable
-          path: Greenshot-PORTABLE-*.zip
+          path: Greenshot-*PORTABLE-*.zip
           if-no-files-found: error
 
   deploy:

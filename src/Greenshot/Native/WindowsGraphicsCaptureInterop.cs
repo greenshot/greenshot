@@ -80,10 +80,25 @@ namespace Greenshot.Native
 
         /// <summary>
         /// Gets or creates the cached Direct3D 11 device, context, and WinRT Direct3D device.
-        /// Must be called while holding DeviceLock.
+        /// Must be called while holding DeviceLock, from an MTA thread (the capture methods use Task.Run for this).
         /// </summary>
+        /// <remarks>
+        /// .NET binds a COM object to the apartment it was created in, and Direct3D objects cannot be marshaled to another
+        /// apartment (E_NOINTERFACE). All MTA threads share one apartment, so keeping every use of the cached device on the
+        /// MTA makes it usable from any of those threads. An STA thread (like the UI thread) is refused here, instead of
+        /// creating a device that the next capture on the thread pool could not use.
+        /// </remarks>
         internal static bool GetOrCreateDevice(out ID3D11Device d3d11Device, out ID3D11DeviceContext context, out IDirect3DDevice winrtDevice)
         {
+            if (Thread.CurrentThread.GetApartmentState() == ApartmentState.STA)
+            {
+                Log.Error("The Direct3D 11 device must be used from an MTA thread, not from an STA thread.");
+                d3d11Device = null;
+                context = null;
+                winrtDevice = null;
+                return false;
+            }
+
             if (_cachedD3D11Device == null)
             {
                 try

@@ -167,6 +167,8 @@ namespace Greenshot.Base.Triggers
             {
                 TriggerConfig.TypeClipboard => CaptureSourceType.Clipboard,
                 TriggerConfig.TypeEditor => CaptureSourceType.CurrentEditor,
+                TriggerConfig.TypeOpenFile => CaptureSourceType.File,
+                TriggerConfig.TypeExtension => CaptureSourceType.Extension,
                 _ => CaptureSourceType.FullScreen
             };
             return RecipeStepConfig.CreateSource(sourceNodeId, sourceType);

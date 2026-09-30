@@ -174,13 +174,7 @@ namespace Greenshot.Plugin.Office
         public void RegisterSteps(IStepRegistry registry)
         {
             if (registry == null) return;
-            registry.RegisterStepFactory("Office", config => new OfficeStep(config));
-            registry.RegisterStepFactory("Excel", config => new OfficeStep(config));
-            registry.RegisterStepFactory("PowerPoint", config => new OfficeStep(config));
-            registry.RegisterStepFactory("Powerpoint", config => new OfficeStep(config));
-            registry.RegisterStepFactory("Word", config => new OfficeStep(config));
-            registry.RegisterStepFactory("OneNote", config => new OfficeStep(config));
-            registry.RegisterStepFactory("Outlook", config => new OfficeStep(config));
+            registry.Register<OfficeStep>(config => new OfficeStep(config));
         }
 
         /// <summary>

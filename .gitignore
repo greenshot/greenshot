@@ -49,6 +49,7 @@ artifacts/
 *.obj
 *.pch
 *.pdb
+*.res
 *.pgc
 *.pgd
 *.rsp
@@ -219,6 +220,7 @@ ModelManifest.xml
 # Files compressed during the build
 *.gz
 /installer/Greenshot-*INSTALLER-*.exe
+/installer/Greenshot-*PORTABLE-*.zip
 
 # Dapplo.Ini source generator output (EmitCompilerGeneratedFiles)
 # These go to obj/generated/ now, but guard against stale project-level generated/ dirs
@@ -227,3 +229,6 @@ src/generated/
 # Token-replacement generated credential files
 src/**/*.Credentials.cs
 /bom.json
+src/**/Greenshot-proxy.exe
+# Local build/test runner requests and results (tools/build-runner)
+.build-runner/

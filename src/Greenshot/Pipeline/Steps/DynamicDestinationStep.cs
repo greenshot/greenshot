@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -30,6 +30,9 @@ using Greenshot.Base;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Pipeline.Contracts;
+using Contracts = Greenshot.Base.Pipeline.Contracts;
+
 using Greenshot.Base.Recipes;
 using Greenshot.Destinations;
 using Greenshot.Editor.Destinations;
@@ -43,6 +46,14 @@ namespace Greenshot.Pipeline.Steps
     /// allows quick forwarding to destinations, supports forwarding to other recipes, and acts
     /// as a rich error recovery UI when a prior export fails.
     /// </summary>
+    [StepInfo(WellKnownStepTypes.DynamicDestination, "Dynamic Destination Flyout", "Lets the user pick a destination, open the editor, or forward the capture to another recipe.", "Destination")]
+    [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Optional)]
+    [StepParameter("Title", ContractDataType.String, Description = "Title of the flyout")]
+    [StepParameter("Destinations", ContractDataType.Object, Description = "Destinations to offer (default: all)")]
+    [StepParameter("AllowRecipeForwarding", ContractDataType.Boolean, DefaultValue = true, Description = "Offer to forward the capture to another recipe")]
+    [StepParameter("ShowPreview", ContractDataType.Boolean, Description = "Show a preview of the capture")]
+    [StepParameter("TimeoutSeconds", ContractDataType.Integer, Description = "Close the flyout after this many seconds")]
+    [StepInputVariable("LastError", ContractDataType.String, Description = "Shown when the flyout is used to pick another destination after a failed export")]
     public class DynamicDestinationStep : ICaptureStep
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(DynamicDestinationStep));
@@ -151,17 +162,38 @@ namespace Greenshot.Pipeline.Steps
                 }
             }
 
-            if (Application.Current?.Dispatcher != null && !Application.Current.Dispatcher.CheckAccess())
+            if (Application.Current?.Dispatcher != null)
             {
-                Application.Current.Dispatcher.Invoke(ShowDialogOnUi);
+                if (Application.Current.Dispatcher.CheckAccess())
+                {
+                    ShowDialogOnUi();
+                }
+                else
+                {
+                    Application.Current.Dispatcher.Invoke(ShowDialogOnUi);
+                }
             }
-            else if (uiContext != null && SynchronizationContext.Current != uiContext)
+            else if (Thread.CurrentThread.GetApartmentState() == ApartmentState.STA)
             {
-                uiContext.Send(_ => ShowDialogOnUi(), null);
+                ShowDialogOnUi();
             }
             else
             {
-                ShowDialogOnUi();
+                var staThread = new Thread(() =>
+                {
+                    try
+                    {
+                        ShowDialogOnUi();
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error("Error on STA thread displaying DynamicDestinationWindow", ex);
+                        tcs.TrySetException(ex);
+                    }
+                });
+                staThread.SetApartmentState(ApartmentState.STA);
+                staThread.Start();
+                staThread.Join();
             }
 
             var (selectedDest, selectedRecipe, openEditor) = await tcs.Task.ConfigureAwait(false);
@@ -202,6 +234,8 @@ namespace Greenshot.Pipeline.Steps
                     await pipeline.ExecuteAsync(selectedRecipe, null, ctx =>
                     {
                         ctx.Payload = context.Payload;
+                        // The capture is handed over: the target recipe must not capture or select again
+                        ctx.IsPayloadPreSupplied = true;
                         foreach (var kvp in context.Properties)
                         {
                             ctx.Properties[kvp.Key] = kvp.Value;

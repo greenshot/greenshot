@@ -22,6 +22,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
 using Greenshot.Base.Pipeline;
@@ -58,8 +59,10 @@ namespace Greenshot.Triggers
 
         public event EventHandler<TriggerEventArgs> TriggerFired;
 
-        private static TriggerManager _instance;
-        public static TriggerManager Instance => _instance ??= new TriggerManager();
+        // Thread-safe: the first access can come from the UI thread and an IPC or pipeline thread at the same time,
+        // and a second instance would silently lose what was registered in the first one.
+        private static readonly Lazy<TriggerManager> LazyInstance = new Lazy<TriggerManager>(() => new TriggerManager(), LazyThreadSafetyMode.ExecutionAndPublication);
+        public static TriggerManager Instance => LazyInstance.Value;
 
         public TriggerManager()
         {
@@ -205,6 +208,30 @@ namespace Greenshot.Triggers
                             string formatFilter = tc.GetParameter<string>("FormatFilter");
                             string triggerId = $"trigger_recipe_{recipe.Id}_clipboard_{i}";
                             RegisterTrigger(new ClipboardTrigger(triggerId, tc.Name ?? $"{recipe.Name} Clipboard Monitor", recipe.Id, onImageCopied, formatFilter));
+                        }
+                        else if (string.Equals(tc.TriggerType, TriggerConfig.TypeCommandline, StringComparison.OrdinalIgnoreCase))
+                        {
+                            string cmd = tc.GetParameter<string>("Command") ?? recipe.Id;
+                            string desc = tc.GetParameter<string>("Description") ?? recipe.Description;
+                            bool fnf = tc.GetParameter<bool>("FireAndForget", false);
+                            string stdout = tc.GetParameter<string>("Stdout");
+                            var args = tc.GetParameter<System.Collections.Generic.List<CommandlineArgument>>("Arguments");
+                            string triggerId = $"trigger_recipe_{recipe.Id}_cmd_{i}";
+                            RegisterTrigger(new CommandlineTrigger(triggerId, tc.Name ?? cmd, recipe.Id, cmd, desc, fnf, stdout, args));
+                        }
+                        else if (string.Equals(tc.TriggerType, TriggerConfig.TypeOpenFile, StringComparison.OrdinalIgnoreCase))
+                        {
+                            string filter = tc.GetParameter<string>("Filter");
+                            bool fnf = tc.GetParameter<bool>("FireAndForget", false);
+                            string triggerId = $"trigger_recipe_{recipe.Id}_openfile_{i}";
+                            RegisterTrigger(new OpenFileTrigger(triggerId, tc.Name ?? $"{recipe.Name} OpenFile", recipe.Id, filter, fnf));
+                        }
+                        else if (string.Equals(tc.TriggerType, TriggerConfig.TypeExtension, StringComparison.OrdinalIgnoreCase))
+                        {
+                            string browser = tc.GetParameter<string>("Browser");
+                            bool fnf = tc.GetParameter<bool>("FireAndForget", false);
+                            string triggerId = $"trigger_recipe_{recipe.Id}_extension_{i}";
+                            RegisterTrigger(new ExtensionTrigger(triggerId, tc.Name ?? $"{recipe.Name} Browser Extension", recipe.Id, browser, fnf));
                         }
                     }
 

@@ -16,9 +16,7 @@ namespace Greenshot.Plugin.RecipeEditor.Converters
                 return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#57606a"));
             }
 
-            if (stepType.StartsWith("ExternalCommand", StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(stepType, "ExecuteCommand", StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(stepType, "RunCommand", StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(stepType, "ExternalCommand", StringComparison.OrdinalIgnoreCase))
             {
                 return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#e36209")); // Amber / Rust
             }
@@ -29,13 +27,11 @@ namespace Greenshot.Plugin.RecipeEditor.Converters
                     return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#0969da")); // Blue
                 case "InteractiveSelection":
                     return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#1f883d")); // Green
-                case "Border":
                 case "Effect":
                     return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#bf8700")); // Gold / Amber
                 case "TextEffect":
-                case "ObfuscateText":
                     return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#cf222e")); // Red
-                case "Drawable":
+                case "Annotation":
                     return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#8250df")); // Purple
                 case "SetVariable":
                     return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#0550ae")); // Dark Blue
@@ -46,7 +42,6 @@ namespace Greenshot.Plugin.RecipeEditor.Converters
                 case "Destinations":
                 case "DynamicDestination":
                 case "SaveFile":
-                case "SaveToFile":
                 case "Clipboard":
                 case "Editor":
                 case "Printer":
@@ -54,45 +49,26 @@ namespace Greenshot.Plugin.RecipeEditor.Converters
                 case "CustomDestination":
                     return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#8250df")); // Purple
                 case "Notification":
+                case "Stdout":
                     return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#57606a")); // Gray
+                case "Stderr":
+                    return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#cf222e")); // Red
                 case "Conditional":
                     return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#bc4c00")); // Orange
                 case "UserPrompt":
-                case "PromptChoice":
                     return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#1a7f37")); // Forest Green
                 case "Imgur":
-                case "ImgurUpload":
-                case "UploadToImgur":
                     return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#2da44e")); // Imgur Green
                 case "Jira":
-                case "JiraUpload":
-                case "UploadToJira":
                     return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#0052cc")); // Jira Blue
                 case "Confluence":
-                case "ConfluenceUpload":
-                case "UploadToConfluence":
                     return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#172b4d")); // Confluence Navy
                 case "Office":
-                case "Excel":
-                case "PowerPoint":
-                case "Powerpoint":
-                case "Word":
-                case "OneNote":
-                case "Outlook":
                     return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#d83b01")); // Office Red/Orange
-                case "Zxing":
-                case "ZxingQr":
-                case "ZxingBarcode":
                 case "BarcodeScan":
-                case "DecodeBarcode":
-                case "QrCode":
                     return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#6f42c1")); // ZXing Violet
                 case "Box":
-                case "BoxUpload":
-                case "UploadToBox":
                 case "Dropbox":
-                case "DropboxUpload":
-                case "UploadToDropbox":
                     return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#0061ff")); // Cloud Blue
                 default:
                     return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#57606a"));
@@ -109,9 +85,7 @@ namespace Greenshot.Plugin.RecipeEditor.Converters
             string stepType = value as string;
             if (string.IsNullOrEmpty(stepType)) return "📦";
 
-            if (stepType.StartsWith("ExternalCommand", StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(stepType, "ExecuteCommand", StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(stepType, "RunCommand", StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(stepType, "ExternalCommand", StringComparison.OrdinalIgnoreCase))
             {
                 return "⚡";
             }
@@ -120,55 +94,33 @@ namespace Greenshot.Plugin.RecipeEditor.Converters
             {
                 case "Source": return "📷";
                 case "InteractiveSelection": return "🔲";
-                case "Border": return "⏹️";
                 case "Effect": return "✨";
-                case "TextEffect":
-                case "ObfuscateText": return "🛡️";
+                case "TextEffect": return "🛡️";
                 case "Annotation": return "🎨";
                 case "SetVariable": return "💲";
                 case "ImmediateFeedback": return "🔊";
                 case "Processors": return "⚙️";
                 case "Destinations": return "↗️";
                 case "DynamicDestination": return "🎯";
-                case "SaveFile":
-                case "SaveToFile": return "💾";
+                case "SaveFile": return "💾";
                 case "Clipboard": return "📋";
                 case "Editor": return "✏️";
                 case "Printer": return "🖨️";
                 case "Email": return "✉️";
                 case "CustomDestination": return "🔌";
                 case "Notification": return "🔔";
+                case "Stdout": return "📤";
+                case "Stderr": return "⛔";
+                case "RecordVideo": return "🎥";
                 case "Conditional": return "🔀";
-                case "UserPrompt":
-                case "PromptChoice": return "❓";
-                case "Imgur":
-                case "ImgurUpload":
-                case "UploadToImgur": return "🖼️";
-                case "Jira":
-                case "JiraUpload":
-                case "UploadToJira": return "🎯";
-                case "Confluence":
-                case "ConfluenceUpload":
-                case "UploadToConfluence": return "📄";
-                case "Office":
-                case "Excel":
-                case "PowerPoint":
-                case "Powerpoint":
-                case "Word":
-                case "OneNote":
-                case "Outlook": return "📊";
-                case "Zxing":
-                case "ZxingQr":
-                case "ZxingBarcode":
-                case "BarcodeScan":
-                case "DecodeBarcode":
-                case "QrCode": return "🔍";
+                case "UserPrompt": return "❓";
+                case "Imgur": return "🖼️";
+                case "Jira": return "🎯";
+                case "Confluence": return "📄";
+                case "Office": return "📊";
+                case "BarcodeScan": return "🔍";
                 case "Box":
-                case "BoxUpload":
-                case "UploadToBox":
-                case "Dropbox":
-                case "DropboxUpload":
-                case "UploadToDropbox": return "📦";
+                case "Dropbox": return "📦";
                 default: return "📦";
             }
         }

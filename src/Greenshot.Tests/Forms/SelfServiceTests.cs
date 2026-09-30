@@ -30,6 +30,7 @@ using Xunit;
 
 namespace Greenshot.Tests.Forms
 {
+    [Collection(TestCollections.WpfThemeState)]
     public class SelfServiceTests
     {
         public SelfServiceTests()
@@ -43,7 +44,12 @@ namespace Greenshot.Tests.Forms
             var vm = new SelfServiceViewModel();
 
             Assert.NotNull(vm.Sections);
+#if DEBUG
+            Assert.Equal(6, vm.Sections.Count);
+            Assert.NotNull(vm.IntegrationDebugSection);
+#else
             Assert.Equal(5, vm.Sections.Count);
+#endif
 
             Assert.NotNull(vm.SystemInfoSection);
             Assert.NotNull(vm.FileInfoSection);
@@ -87,30 +93,34 @@ namespace Greenshot.Tests.Forms
         [Fact]
         public void SelfServiceViewModel_ThemeBrushes_FollowWpfThemeHelper()
         {
-            var vm = new SelfServiceViewModel();
-
-            Assert.NotNull(vm.WindowBackgroundBrush);
-            Assert.NotNull(vm.CardBackgroundBrush);
-            Assert.NotNull(vm.CardBorderBrush);
-            Assert.NotNull(vm.TextPrimaryBrush);
-            Assert.NotNull(vm.TextSecondaryBrush);
-            Assert.NotNull(vm.AccentBrush);
-            Assert.NotNull(vm.ThemeToggleIcon);
-
-            bool wasNotified = false;
-            vm.PropertyChanged += (s, e) =>
+            lock (typeof(Greenshot.Base.Wpf.ThemeManager))
             {
-                if (e.PropertyName == nameof(SelfServiceViewModel.WindowBackgroundBrush))
+                var vm = new SelfServiceViewModel();
+
+                Assert.NotNull(vm.WindowBackgroundBrush);
+                Assert.NotNull(vm.CardBackgroundBrush);
+                Assert.NotNull(vm.CardBorderBrush);
+                Assert.NotNull(vm.TextPrimaryBrush);
+                Assert.NotNull(vm.TextSecondaryBrush);
+                Assert.NotNull(vm.AccentBrush);
+                Assert.NotNull(vm.ThemeToggleIcon);
+
+                bool wasNotified = false;
+                vm.PropertyChanged += (s, e) =>
                 {
-                    wasNotified = true;
-                }
-            };
+                    if (e.PropertyName == nameof(SelfServiceViewModel.WindowBackgroundBrush))
+                    {
+                        wasNotified = true;
+                    }
+                };
 
-            vm.ToggleTheme();
-            Assert.True(wasNotified);
+                bool initial = WpfThemeHelper.IsDarkMode;
+                WpfThemeHelper.IsDarkMode = !initial;
+                Assert.True(wasNotified);
 
-            // Revert back
-            vm.ToggleTheme();
+                // Revert back
+                WpfThemeHelper.IsDarkMode = initial;
+            }
         }
 
         [Fact]
@@ -301,33 +311,65 @@ namespace Greenshot.Tests.Forms
             Assert.Null(backgroundEx);
         }
 
-        [Fact]
+        [InteractiveDesktopFact]
         public void ClipboardSectionViewModel_BitmapOnClipboard_EnumeratesFormatsSafelyWithoutCrash()
         {
             Exception threadEx = null;
             var thread = new Thread(() =>
             {
+                // The clipboard is shared with every other program: one of them can hold it open (CLIPBRD_E_CANT_OPEN)
+                // or replace its content at any moment. Retry a few times before calling it a failure.
+                const int attempts = 5;
+                for (int attempt = 1; attempt <= attempts; attempt++)
+                {
+                    try
+                    {
+                        using (var bmp = new System.Drawing.Bitmap(32, 32))
+                        {
+                            System.Windows.Forms.Clipboard.SetImage(bmp);
+                        }
+
+                        var clip = new ClipboardSectionViewModel();
+                        try
+                        {
+                            clip.QueryClipboardFormats();
+
+                            Assert.NotNull(clip.Formats);
+                            Assert.Contains(clip.Formats, f => f.Name.Contains("BITMAP") || f.Name.Contains("Bitmap") || f.Name.Contains("DIB"));
+
+                            clip.CheckClipboardStatus(logToMonitor: true);
+                            Assert.False(clip.IsBlocked);
+                        }
+                        finally
+                        {
+                            clip.Dispose();
+                        }
+
+                        threadEx = null;
+                        return;
+                    }
+                    catch (Exception ex)
+                    {
+                        threadEx = ex;
+                        Thread.Sleep(250 * attempt);
+                    }
+                }
+
+                // Still failing: name the program that holds the clipboard, so the failure explains itself
                 try
                 {
-                    using (var bmp = new System.Drawing.Bitmap(32, 32))
+                    using (var status = new ClipboardSectionViewModel())
                     {
-                        System.Windows.Forms.Clipboard.SetImage(bmp);
+                        status.CheckClipboardStatus();
+                        if (status.IsBlocked)
+                        {
+                            threadEx = new Exception($"The clipboard is held open by '{status.BlockerProcessName}' (PID {status.BlockerProcessId}, window '{status.BlockerWindowTitle}').", threadEx);
+                        }
                     }
-
-                    var clip = new ClipboardSectionViewModel();
-                    clip.QueryClipboardFormats();
-
-                    Assert.NotNull(clip.Formats);
-                    Assert.Contains(clip.Formats, f => f.Name.Contains("BITMAP") || f.Name.Contains("Bitmap") || f.Name.Contains("DIB"));
-
-                    clip.CheckClipboardStatus(logToMonitor: true);
-                    Assert.False(clip.IsBlocked);
-
-                    clip.Dispose();
                 }
-                catch (Exception ex)
+                catch
                 {
-                    threadEx = ex;
+                    // Diagnostics only
                 }
             });
             thread.SetApartmentState(ApartmentState.STA);
@@ -627,78 +669,99 @@ namespace Greenshot.Tests.Forms
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task ChecksumSectionViewModel_RealChecksumManifest_ExecutesWithoutError()
+        public async System.Threading.Tasks.Task ChecksumSectionViewModel_TestManifest_ReportsMatchMismatchMissingAndUnlisted()
         {
-            string binReleaseDir = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\Greenshot\bin\Release\net480"));
-            string manifestPath = Path.Combine(binReleaseDir, "checksum.SHA256");
-
-            if (File.Exists(manifestPath))
+            // The test creates its own installation folder and checksum manifest instead of depending on build output
+            string baseDir = Path.Combine(Path.GetTempPath(), $"greenshot_checksum_test_{Guid.NewGuid():N}");
+            Directory.CreateDirectory(Path.Combine(baseDir, "Plugins"));
+            try
             {
+                File.WriteAllText(Path.Combine(baseDir, "match.dll"), "match");
+                File.WriteAllText(Path.Combine(baseDir, "Plugins", "mismatch.dll"), "changed content");
+                File.WriteAllText(Path.Combine(baseDir, "Greenshot.exe"), "not in the manifest");
+
+                string manifestPath = Path.Combine(baseDir, "checksum.SHA256");
+                File.WriteAllLines(manifestPath, new[]
+                {
+                    "# Test manifest",
+                    $"{Sha256Hex("match")}  match.dll",
+                    $"{Sha256Hex("original content")} *Plugins/mismatch.dll",
+                    $"{Sha256Hex("deleted")}  missing.dll"
+                });
+
                 var vm = new ChecksumSectionViewModel
                 {
-                    BaseDirectory = binReleaseDir,
+                    BaseDirectory = baseDir,
                     ChecksumFilePath = manifestPath
                 };
 
                 await vm.ValidateChecksumsAsync();
 
                 Assert.False(vm.ChecksumFileNotFound);
-                Assert.True(vm.TotalCount > 0);
-                Assert.NotNull(vm.BannerTitle);
-                Assert.NotEmpty(vm.AllItems);
-
-                // Verify unlisted files are identified (e.g. Greenshot.exe which is omitted from checksum.SHA256)
-                if (File.Exists(Path.Combine(binReleaseDir, "Greenshot.exe")))
-                {
-                    Assert.Contains(vm.AllItems, i => i.RelativePath == "Greenshot.exe" && i.Status == ChecksumStatus.Unlisted);
-                }
+                Assert.Contains(vm.AllItems, i => i.RelativePath == "match.dll" && i.Status == ChecksumStatus.Match);
+                Assert.Contains(vm.AllItems, i => i.RelativePath == @"Plugins\mismatch.dll" && i.Status == ChecksumStatus.Mismatch);
+                Assert.Contains(vm.AllItems, i => i.RelativePath == "missing.dll" && i.Status == ChecksumStatus.Missing);
+                Assert.Contains(vm.AllItems, i => i.RelativePath == "Greenshot.exe" && i.Status == ChecksumStatus.Unlisted);
+                Assert.Equal(1, vm.MatchedCount);
+                Assert.Equal(1, vm.MismatchedCount);
+                Assert.Equal(1, vm.MissingCount);
 
                 vm.Cleanup();
+            }
+            finally
+            {
+                Directory.Delete(baseDir, true);
+            }
+        }
+
+        private static string Sha256Hex(string content)
+        {
+            using (var sha = System.Security.Cryptography.SHA256.Create())
+            {
+                byte[] hash = sha.ComputeHash(System.Text.Encoding.UTF8.GetBytes(content));
+                return BitConverter.ToString(hash).Replace("-", string.Empty);
             }
         }
 
         [Fact]
         public void SelfService_LanguageResources_GermanCoversAllSelfServiceKeys()
         {
-            string enPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\Greenshot\Languages\language-en-US.xml");
-            string dePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\Greenshot\Languages\language-de-DE.xml");
+            // The language files are copied next to the test assembly by the build
+            string enPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Languages", "language-en-US.xml");
+            string dePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Languages", "language-de-DE.xml");
+            Assert.True(File.Exists(enPath), $"Language file not found: {enPath}");
+            Assert.True(File.Exists(dePath), $"Language file not found: {dePath}");
 
-            if (!File.Exists(enPath)) enPath = Path.GetFullPath(@"src\Greenshot\Languages\language-en-US.xml");
-            if (!File.Exists(dePath)) dePath = Path.GetFullPath(@"src\Greenshot\Languages\language-de-DE.xml");
+            var enDoc = new System.Xml.XmlDocument();
+            enDoc.Load(enPath);
 
-            if (File.Exists(enPath) && File.Exists(dePath))
+            var deDoc = new System.Xml.XmlDocument();
+            deDoc.Load(dePath);
+
+            var enKeys = new System.Collections.Generic.HashSet<string>();
+            foreach (System.Xml.XmlNode node in enDoc.SelectNodes("//resource"))
             {
-                var enDoc = new System.Xml.XmlDocument();
-                enDoc.Load(enPath);
-
-                var deDoc = new System.Xml.XmlDocument();
-                deDoc.Load(dePath);
-
-                var enKeys = new System.Collections.Generic.HashSet<string>();
-                foreach (System.Xml.XmlNode node in enDoc.SelectNodes("//resource"))
+                string name = node.Attributes?["name"]?.Value;
+                if (name != null && name.StartsWith("selfservice_"))
                 {
-                    string name = node.Attributes?["name"]?.Value;
-                    if (name != null && name.StartsWith("selfservice_"))
-                    {
-                        enKeys.Add(name);
-                    }
+                    enKeys.Add(name);
                 }
+            }
 
-                var deKeys = new System.Collections.Generic.HashSet<string>();
-                foreach (System.Xml.XmlNode node in deDoc.SelectNodes("//resource"))
+            var deKeys = new System.Collections.Generic.HashSet<string>();
+            foreach (System.Xml.XmlNode node in deDoc.SelectNodes("//resource"))
+            {
+                string name = node.Attributes?["name"]?.Value;
+                if (name != null && name.StartsWith("selfservice_"))
                 {
-                    string name = node.Attributes?["name"]?.Value;
-                    if (name != null && name.StartsWith("selfservice_"))
-                    {
-                        deKeys.Add(name);
-                    }
+                    deKeys.Add(name);
                 }
+            }
 
-                Assert.NotEmpty(enKeys);
-                foreach (var key in enKeys)
-                {
-                    Assert.True(deKeys.Contains(key), $"German language file is missing selfservice key: {key}");
-                }
+            Assert.NotEmpty(enKeys);
+            foreach (var key in enKeys)
+            {
+                Assert.True(deKeys.Contains(key), $"German language file is missing selfservice key: {key}");
             }
         }
 

@@ -424,17 +424,13 @@ namespace Greenshot.UI
                 {
                     var s = recipe.Nodes[i];
                     string paramSummary = "";
-                    if (string.Equals(s.StepType, WellKnownStepTypes.Border, StringComparison.OrdinalIgnoreCase))
-                    {
-                        paramSummary = $" ({s.GetParameter<int>("Width", 2)}px, {s.GetParameter<string>("Color", "Black")})";
-                    }
-                    else if (string.Equals(s.StepType, WellKnownStepTypes.Source, StringComparison.OrdinalIgnoreCase))
+                    if (string.Equals(s.StepType, WellKnownStepTypes.Source, StringComparison.OrdinalIgnoreCase))
                     {
                         paramSummary = $" [{s.GetParameter<string>("SourceType", "Region")}]";
                     }
                     else if (string.Equals(s.StepType, WellKnownStepTypes.Annotation, StringComparison.OrdinalIgnoreCase))
                     {
-                        paramSummary = $" [{s.GetParameter<string>("AnnotationType", s.GetParameter<string>("Type", "Element"))}]";
+                        paramSummary = $" [{s.GetParameter<string>("Type", "Element")}]";
                     }
                     else if (string.Equals(s.StepType, WellKnownStepTypes.SetVariable, StringComparison.OrdinalIgnoreCase))
                     {

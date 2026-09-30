@@ -41,7 +41,7 @@
             "height": 34,
             "offsetY": 20,
             "text": "CONFIDENTIAL // INTERNAL ONLY",
-            "textColor": "#FFFFFF",
+            "lineColor": "#FFFFFF",
             "fontSize": 12.0,
             "fontFamily": "Segoe UI",
             "bold": true,

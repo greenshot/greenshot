@@ -147,9 +147,7 @@ public class ConfluencePlugin : IGreenshotPlugin, IRecipeStepProvider
     public void RegisterSteps(IStepRegistry registry)
     {
         if (registry == null) return;
-        registry.RegisterStepFactory("Confluence", config => new ConfluenceStep(config));
-        registry.RegisterStepFactory("ConfluenceUpload", config => new ConfluenceStep(config));
-        registry.RegisterStepFactory("UploadToConfluence", config => new ConfluenceStep(config));
+        registry.Register<ConfluenceStep>(config => new ConfluenceStep(config));
     }
 
     /// <summary>

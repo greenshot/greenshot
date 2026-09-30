@@ -138,7 +138,6 @@ namespace Greenshot.Base.Recipes
             return Nodes.Any(n =>
                 string.Equals(n.StepType, WellKnownStepTypes.Destinations, StringComparison.OrdinalIgnoreCase) ||
                 string.Equals(n.StepType, WellKnownStepTypes.SaveFile, StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(n.StepType, "SaveToFile", StringComparison.OrdinalIgnoreCase) ||
                 string.Equals(n.StepType, WellKnownStepTypes.Clipboard, StringComparison.OrdinalIgnoreCase) ||
                 string.Equals(n.StepType, WellKnownStepTypes.Editor, StringComparison.OrdinalIgnoreCase) ||
                 string.Equals(n.StepType, WellKnownStepTypes.Printer, StringComparison.OrdinalIgnoreCase) ||
@@ -161,15 +160,8 @@ namespace Greenshot.Base.Recipes
                 }
                 if (string.Equals(n.StepType, WellKnownStepTypes.Destinations, StringComparison.OrdinalIgnoreCase))
                 {
-                    var dests = n.GetParameter<List<string>>("Destinations") 
-                             ?? n.GetParameter<List<string>>("DestinationDesignations");
+                    var dests = n.GetParameter<List<string>>("DestinationDesignations");
                     if (dests != null && dests.Any(d => string.Equals(d, "Editor", StringComparison.OrdinalIgnoreCase)))
-                    {
-                        return true;
-                    }
-                    string singleDest = n.GetParameter<string>("Destinations") 
-                                     ?? n.GetParameter<string>("DestinationDesignations");
-                    if (!string.IsNullOrEmpty(singleDest) && singleDest.IndexOf("Editor", StringComparison.OrdinalIgnoreCase) >= 0)
                     {
                         return true;
                     }

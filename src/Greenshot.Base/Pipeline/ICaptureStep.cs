@@ -27,6 +27,10 @@ namespace Greenshot.Base.Pipeline
     /// <summary>
     /// Represents a discrete, modular step in the capture pipeline.
     /// </summary>
+    /// <remarks>
+    /// What a step reads and writes is described by its StepContract. The contract belongs to the step type, not to an
+    /// instance: it is registered together with the step's factory, see <see cref="IStepRegistry.Register"/>.
+    /// </remarks>
     public interface ICaptureStep
     {
         /// <summary>

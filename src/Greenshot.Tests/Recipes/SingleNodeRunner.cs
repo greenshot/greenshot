@@ -20,37 +20,24 @@
  */
 
 using System;
-using Dapplo.Ini;
+using System.Threading.Tasks;
+using Greenshot.Base.Pipeline;
+using Greenshot.Base.Recipes;
+using Greenshot.Pipeline;
 
-namespace Greenshot.Base.Recipes
+namespace Greenshot.Tests.Recipes
 {
-    public partial class RecipeConfigurationImpl : IRecipeConfiguration
+    /// <summary>
+    /// Runs a single node through the <see cref="DagExecutionEngine"/>, exactly like a recipe would,
+    /// so steps get their parameters resolved (or not, for <see cref="IEvaluatesOwnParameters"/>) by the engine.
+    /// </summary>
+    internal static class SingleNodeRunner
     {
-        public void OnAfterLoad()
+        public static Task RunAsync(RecipeNodeConfig node, Func<RecipeNodeConfig, ICaptureStep> stepFactory, CaptureFlowContext context)
         {
-            // Backward-compatibility: migrate legacy [Core] EnableRecipeFeature if present
-            try
-            {
-                var iniConfig = IniConfigRegistry.Get();
-                if (iniConfig != null)
-                {
-                    var coreSection = iniConfig.GetSection("Core");
-                    var legacyVal = coreSection?.GetRawValue("EnableRecipeFeature");
-                    if (!string.IsNullOrEmpty(legacyVal) && bool.TryParse(legacyVal, out bool parsed))
-                    {
-                        Enabled = parsed;
-                    }
-                }
-            }
-            catch
-            {
-                // Ignore migration failure
-            }
-        }
-
-        public bool OnBeforeSave()
-        {
-            return true;
+            var recipe = new CaptureRecipe(context.Recipe?.Id ?? "single_node_recipe", "Single Node").AddNode(node);
+            recipe.Flow = new RecipeFlowConfig(node.Id);
+            return new DagExecutionEngine(stepFactory).ExecuteAsync(recipe, context);
         }
     }
 }

@@ -105,58 +105,81 @@ namespace Greenshot.Tests.Core
         [Fact]
         public void TestCopyResource_Direct3D11()
         {
-            if (!WindowsGraphicsCaptureInterop.GetOrCreateDevice(out var d3d11Device, out var context, out var winrtDevice))
+            // Same contract as the capture methods: hold the device lock, stay on the MTA
+            lock (WindowsGraphicsCaptureInterop.DeviceLock)
             {
-                return;
+                if (!WindowsGraphicsCaptureInterop.GetOrCreateDevice(out var d3d11Device, out var context, out _))
+                {
+                    return;
+                }
+
+                var desc = new D3D11_TEXTURE2D_DESC
+                {
+                    Width = 256,
+                    Height = 256,
+                    MipLevels = 1,
+                    ArraySize = 1,
+                    Format = 87,
+                    SampleDesc = new DXGI_SAMPLE_DESC { Count = 1, Quality = 0 },
+                    Usage = D3D11_USAGE.D3D11_USAGE_DEFAULT,
+                    BindFlags = 0x20 | 0x08,
+                    CPUAccessFlags = 0,
+                    MiscFlags = 0
+                };
+
+                d3d11Device.CreateTexture2D(ref desc, IntPtr.Zero, out var tex1);
+                d3d11Device.CreateTexture2D(ref desc, IntPtr.Zero, out var tex2);
+
+                _output.WriteLine($"tex1 type: {((object)tex1).GetType().FullName}");
+                Assert.True(tex1 is ID3D11Resource);
+                Assert.True(tex1 is ID3D11Texture2D);
+
+                context.CopyResource(tex1, tex2);
+
+                var surface = WindowsGraphicsCaptureInterop.CreateDirect3D11SurfaceFromTexture2D(tex1);
+                Assert.NotNull(surface);
+
+                var texFromSurface = WindowsGraphicsCaptureInterop.CreateTexture2DFromID3DSurface(surface);
+                Assert.NotNull(texFromSurface);
+                Assert.True(texFromSurface is ID3D11Texture2D);
+
+                context.CopyResource(tex2, texFromSurface);
+
+                // Another MTA thread (the thread pool, like the capture methods) shares the apartment and can use the device
+                ID3D11Texture2D otherThreadTex = null;
+                Task.Run(() => d3d11Device.CreateTexture2D(ref desc, IntPtr.Zero, out otherThreadTex)).GetAwaiter().GetResult();
+                Assert.NotNull(otherThreadTex);
+                context.CopyResource(tex2, otherThreadTex);
             }
+        }
 
-            var desc = new D3D11_TEXTURE2D_DESC
-            {
-                Width = 256,
-                Height = 256,
-                MipLevels = 1,
-                ArraySize = 1,
-                Format = 87,
-                SampleDesc = new DXGI_SAMPLE_DESC { Count = 1, Quality = 0 },
-                Usage = D3D11_USAGE.D3D11_USAGE_DEFAULT,
-                BindFlags = 0x20 | 0x08,
-                CPUAccessFlags = 0,
-                MiscFlags = 0
-            };
-
-            d3d11Device.CreateTexture2D(ref desc, IntPtr.Zero, out var tex1);
-            d3d11Device.CreateTexture2D(ref desc, IntPtr.Zero, out var tex2);
-
-            _output.WriteLine($"tex1 type: {((object)tex1).GetType().FullName}");
-            _output.WriteLine($"tex1 is ID3D11Resource: {tex1 is ID3D11Resource}");
-            _output.WriteLine($"tex1 is ID3D11Texture2D: {tex1 is ID3D11Texture2D}");
-
-            context.CopyResource(tex1, tex2);
-
-            var surface = WindowsGraphicsCaptureInterop.CreateDirect3D11SurfaceFromTexture2D(tex1);
-            Assert.NotNull(surface);
-
-            var texFromSurface = WindowsGraphicsCaptureInterop.CreateTexture2DFromID3DSurface(surface);
-            Assert.NotNull(texFromSurface);
-
-            _output.WriteLine($"texFromSurface type: {((object)texFromSurface).GetType().FullName}");
-            _output.WriteLine($"texFromSurface is ID3D11Resource: {texFromSurface is ID3D11Resource}");
-            _output.WriteLine($"texFromSurface is ID3D11Texture2D: {texFromSurface is ID3D11Texture2D}");
-
-            context.CopyResource(tex2, texFromSurface);
-
-            // Now test STA to MTA cross-apartment invocation
-            ID3D11Texture2D staTex = null;
+        [Fact]
+        public void GetOrCreateDevice_OnStaThread_IsRefused()
+        {
+            // Direct3D objects cannot cross apartments, so an STA thread never gets (or creates) the shared device
+            bool? result = null;
+            Exception staException = null;
             var staThread = new System.Threading.Thread(() =>
             {
-                d3d11Device.CreateTexture2D(ref desc, IntPtr.Zero, out staTex);
+                // An exception on a raw thread would crash the whole test host, so report it to the test instead
+                try
+                {
+                    result = WindowsGraphicsCaptureInterop.GetOrCreateDevice(out var device, out var context, out var winrtDevice);
+                    Assert.Null(device);
+                    Assert.Null(context);
+                    Assert.Null(winrtDevice);
+                }
+                catch (Exception ex)
+                {
+                    staException = ex;
+                }
             });
             staThread.SetApartmentState(System.Threading.ApartmentState.STA);
             staThread.Start();
             staThread.Join();
 
-            _output.WriteLine("Calling context.CopyResource with staTex from MTA thread...");
-            context.CopyResource(tex2, staTex);
+            Assert.Null(staException);
+            Assert.False(result);
         }
 
         [Fact]
