@@ -167,6 +167,15 @@ namespace Greenshot.Base.Core
 
             if (CurrentLanguage == null)
             {
+                CurrentLanguage = System.Threading.Thread.CurrentThread.CurrentUICulture.Name;
+                if (CurrentLanguage != null && coreConfig != null)
+                {
+                    coreConfig.Language = CurrentLanguage;
+                }
+            }
+
+            if (CurrentLanguage == null)
+            {
                 Log.Warn("Couldn't set language from configuration, changing to default. Installation problem?");
                 CurrentLanguage = DefaultLanguage;
                 if (CurrentLanguage != null && coreConfig != null)
