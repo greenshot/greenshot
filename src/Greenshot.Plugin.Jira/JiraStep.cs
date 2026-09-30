@@ -42,7 +42,7 @@ namespace Greenshot.Plugin.Jira
     /// </summary>
     [StepInfo("Jira", "Attach to Jira", "Attaches the capture to a Jira issue.", "Export")]
     [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Required)]
-    [StepParameter("Format", ContractDataType.Enum, Description = "Image format of the upload", AllowedValues = new[] { "png", "jpg", "bmp", "gif", "tiff" })]
+    [StepParameter("Format", ContractDataType.Enum, Description = "Image format of the upload", AllowedValuesProvider = typeof(SaveableFileFormatIds))]
     [StepParameter("JpegQuality", ContractDataType.Integer, Description = "JPEG quality (1-100) when uploading as JPEG")]
     [StepParameter("ReduceColors", ContractDataType.Boolean, Description = "Reduce the image to 256 colors")]
     [StepParameter("IssueKey", ContractDataType.String, Description = "Issue to attach to (default: variable Jira.IssueKey)")]

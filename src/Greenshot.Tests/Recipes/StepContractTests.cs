@@ -203,6 +203,62 @@ namespace Greenshot.Tests.Recipes
             }
         }
 
+        /// <summary>
+        /// Parameters that take a file format do not hard-code the formats, they offer what the file format registry can save.
+        /// </summary>
+        [Theory]
+        [InlineData(typeof(Greenshot.Pipeline.Steps.DestinationExportStep))]
+        [InlineData(typeof(Greenshot.Plugin.ExternalCommand.ExternalCommandStep))]
+        [InlineData(typeof(Greenshot.Plugin.Imgur.ImgurStep))]
+        [InlineData(typeof(Greenshot.Plugin.Jira.JiraStep))]
+        [InlineData(typeof(Greenshot.Plugin.Confluence.ConfluenceStep))]
+        public void FormatParameter_AllowedValues_ComeFromTheFileFormatRegistry(Type stepType)
+        {
+            var registry = SimpleServiceProvider.Current.GetInstance<Greenshot.Base.Core.FileFormat.IFileFormatRegistry>();
+            var saveableIds = Greenshot.Base.Core.FileFormat.FileFormatRegistryExtensions.GetSaveableFileFormats(registry).Select(f => f.Id).ToList();
+            Assert.Contains("png", saveableIds, StringComparer.OrdinalIgnoreCase);
+
+            var format = StepContractBuilder.FromType(stepType).FindParameter("Format");
+            Assert.NotNull(format);
+            Assert.IsType<Greenshot.Base.Core.FileFormat.SaveableFileFormatIds>(format.AllowedValuesProvider);
+            Assert.Equal(saveableIds.OrderBy(id => id), format.AllowedValues.OrderBy(id => id));
+        }
+
+        /// <summary>
+        /// The provider is asked every time, so values registered after the contract was built (e.g. by a plugin) are allowed too.
+        /// </summary>
+        [Fact]
+        public void AllowedValuesProvider_IsEvaluatedWhenRead()
+        {
+            var parameter = StepContractBuilder.FromType(typeof(ProviderTestStep)).FindParameter("Value");
+            ProviderTestValues.Values = new[] { "a" };
+            Assert.Equal(new[] { "a" }, parameter.AllowedValues);
+            ProviderTestValues.Values = new[] { "a", "b" };
+            Assert.Equal(new[] { "a", "b" }, parameter.AllowedValues);
+        }
+
+        [Fact]
+        public void AllowedValuesProvider_MustImplementTheInterface()
+        {
+            Assert.Throws<ArgumentException>(() => StepContractBuilder.FromType(typeof(InvalidProviderTestStep)));
+        }
+
+        public sealed class ProviderTestValues : IAllowedValuesProvider
+        {
+            public static IReadOnlyList<string> Values { get; set; } = Array.Empty<string>();
+            public IReadOnlyList<string> GetAllowedValues() => Values;
+        }
+
+        [StepParameter("Value", ContractDataType.Enum, AllowedValuesProvider = typeof(ProviderTestValues))]
+        private sealed class ProviderTestStep
+        {
+        }
+
+        [StepParameter("Value", ContractDataType.Enum, AllowedValuesProvider = typeof(string))]
+        private sealed class InvalidProviderTestStep
+        {
+        }
+
         private static string FindRepositoryDirectory() => Path.GetDirectoryName(Path.GetDirectoryName(FindExamplesDirectory()));
 
         private static string FindExamplesDirectory()

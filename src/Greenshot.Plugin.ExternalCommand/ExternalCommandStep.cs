@@ -52,7 +52,7 @@ namespace Greenshot.Plugin.ExternalCommand
     [StepParameter("Arguments", ContractDataType.String, Description = "Arguments, {0} is replaced by the file")]
     [StepParameter("WorkingDirectory", ContractDataType.DirectoryPath, Description = "Working directory of the command")]
     [StepParameter("Verb", ContractDataType.String, Description = "Shell verb to use instead of running the executable (e.g. open, print)")]
-    [StepParameter("Format", ContractDataType.Enum, Description = "Format of the file handed to the command", AllowedValues = new[] { "png", "jpg", "bmp", "gif", "tiff" })]
+    [StepParameter("Format", ContractDataType.Enum, Description = "Format of the file handed to the command", AllowedValuesProvider = typeof(SaveableFileFormatIds))]
     [StepParameter("JpegQuality", ContractDataType.Integer, Description = "JPEG quality (1-100) when saving as JPEG")]
     [StepParameter("RunInBackground", ContractDataType.Boolean, Description = "Start the command without waiting for it (no output variables then)")]
     [StepParameter("OutputToClipboard", ContractDataType.Boolean, Description = "Copy the command's output to the clipboard")]

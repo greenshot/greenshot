@@ -46,7 +46,7 @@ namespace Greenshot.Plugin.Imgur
     /// </summary>
     [StepInfo("Imgur", "Upload to Imgur", "Uploads the capture to Imgur.", "Export")]
     [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Required)]
-    [StepParameter("Format", ContractDataType.Enum, Description = "Image format of the upload", AllowedValues = new[] { "png", "jpg", "bmp", "gif", "tiff" })]
+    [StepParameter("Format", ContractDataType.Enum, Description = "Image format of the upload", AllowedValuesProvider = typeof(SaveableFileFormatIds))]
     [StepParameter("JpegQuality", ContractDataType.Integer, Description = "JPEG quality (1-100) when uploading as JPEG")]
     [StepParameter("Title", ContractDataType.String, Description = "Title of the image (default: the capture title)")]
     [StepParameter("Description", ContractDataType.String, Description = "Description of the image")]

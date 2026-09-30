@@ -35,7 +35,21 @@ namespace Greenshot.Base.Pipeline.Contracts
         public bool Required { get; set; }
         public object DefaultValue { get; set; }
         public string Description { get; set; }
-        public IReadOnlyList<string> AllowedValues { get; set; } = Array.Empty<string>();
+        private IReadOnlyList<string> _allowedValues = Array.Empty<string>();
+
+        /// <summary>
+        /// The allowed values (case-insensitive), empty when every value is allowed.
+        /// When an <see cref="AllowedValuesProvider"/> is set, the values come from it, at the moment they are read.
+        /// </summary>
+        public IReadOnlyList<string> AllowedValues
+        {
+            get => AllowedValuesProvider?.GetAllowedValues() ?? _allowedValues;
+            set => _allowedValues = value ?? Array.Empty<string>();
+        }
+
+        /// <summary>Supplies the allowed values at runtime, see <see cref="StepParameterAttribute.AllowedValuesProvider"/>.</summary>
+        public IAllowedValuesProvider AllowedValuesProvider { get; set; }
+
         public bool SupportsExpressions { get; set; } = true;
 
         /// <summary>True when this is the parameter with the given name (parameter names are case-insensitive).</summary>

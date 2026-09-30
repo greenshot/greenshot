@@ -35,7 +35,7 @@ namespace Greenshot.Pipeline.Steps
     [StepParameter("DestinationDesignations", ContractDataType.Object, Description = "List of destination designations (default: settings)")]
     [StepParameter("SaveDirectory", ContractDataType.DirectoryPath, Description = "Directory to save to")]
     [StepParameter("FilenamePattern", ContractDataType.String, Description = "File name pattern (default: settings)")]
-    [StepParameter("Format", ContractDataType.Enum, Description = "Image format (default: settings)", AllowedValues = new[] { "png", "jpg", "bmp", "gif", "tiff", "greenshot" })]
+    [StepParameter("Format", ContractDataType.Enum, Description = "Image format (default: settings)", AllowedValuesProvider = typeof(SaveableFileFormatIds))]
     [StepParameter("JpegQuality", ContractDataType.Integer, Description = "JPEG quality (1-100)")]
     [StepParameter("ReduceColors", ContractDataType.Boolean, Description = "Reduce the image to 256 colors")]
     [StepParameter("PromptQuality", ContractDataType.Boolean, Description = "Ask for the JPEG quality")]

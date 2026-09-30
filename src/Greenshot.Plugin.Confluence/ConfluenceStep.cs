@@ -42,7 +42,7 @@ namespace Greenshot.Plugin.Confluence
     /// </summary>
     [StepInfo("Confluence", "Upload to Confluence", "Uploads the capture as attachment to a Confluence page.", "Export")]
     [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Required)]
-    [StepParameter("Format", ContractDataType.Enum, Description = "Image format of the upload", AllowedValues = new[] { "png", "jpg", "bmp", "gif", "tiff" })]
+    [StepParameter("Format", ContractDataType.Enum, Description = "Image format of the upload", AllowedValuesProvider = typeof(SaveableFileFormatIds))]
     [StepParameter("JpegQuality", ContractDataType.Integer, Description = "JPEG quality (1-100) when uploading as JPEG")]
     [StepParameter("ReduceColors", ContractDataType.Boolean, Description = "Reduce the image to 256 colors")]
     [StepParameter("PageId", ContractDataType.String, Description = "Page to attach to")]
