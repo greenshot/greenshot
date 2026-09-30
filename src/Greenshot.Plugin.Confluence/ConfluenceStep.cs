@@ -26,6 +26,7 @@ using System.Threading.Tasks;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Pipeline;
@@ -42,7 +43,7 @@ namespace Greenshot.Plugin.Confluence
     /// </summary>
     [StepInfo("Confluence", "Upload to Confluence", "Uploads the capture as attachment to a Confluence page.", "Export")]
     [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Required)]
-    [StepParameter("Format", ContractDataType.Enum, Description = "Image format of the upload", AllowedValues = new[] { "png", "jpg", "bmp", "gif", "tiff" })]
+    [StepParameter("Format", ContractDataType.Enum, Description = "Image format of the upload", AllowedValuesProvider = typeof(SaveableFileFormatIds))]
     [StepParameter("JpegQuality", ContractDataType.Integer, Description = "JPEG quality (1-100) when uploading as JPEG")]
     [StepParameter("ReduceColors", ContractDataType.Boolean, Description = "Reduce the image to 256 colors")]
     [StepParameter("PageId", ContractDataType.String, Description = "Page to attach to")]
@@ -83,22 +84,14 @@ namespace Greenshot.Plugin.Confluence
             }
 
             string formatStr = NodeConfig.GetParameter<string>("Format");
-            OutputFormat uploadFormat = Config?.UploadFormat ?? OutputFormat.png;
-            if (!string.IsNullOrWhiteSpace(formatStr) && Enum.TryParse<OutputFormat>(formatStr, true, out var parsedFormat))
-            {
-                uploadFormat = parsedFormat;
-            }
+            var formatRegistry = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>(true);
+            string uploadFormat = formatRegistry.ResolveFormatId(formatStr, Config?.UploadFormat ?? WellKnownFileFormats.Png);
 
             int jpegQuality = NodeConfig.GetParameter<int?>("JpegQuality") ?? (Config?.UploadJpegQuality ?? 80);
             bool reduceColors = NodeConfig.GetParameter<bool?>("ReduceColors") ?? (Config?.UploadReduceColors ?? false);
             var outputSettings = new SurfaceOutputSettings(uploadFormat, jpegQuality, reduceColors);
 
             string filename = Path.GetFileName(FilenameHelper.GetFilename(uploadFormat, captureDetails));
-            string extension = "." + uploadFormat.ToString().ToLower();
-            if (!filename.ToLower().EndsWith(extension))
-            {
-                filename += extension;
-            }
 
             var source = await context.Payload.GetExportSourceAsync(context.Ui, cancellationToken).ConfigureAwait(false);
             if (!string.IsNullOrEmpty(pageId) && long.TryParse(pageId, out long parsedPageId))

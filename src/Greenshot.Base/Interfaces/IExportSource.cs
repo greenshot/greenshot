@@ -26,6 +26,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Core.Enums;
+using Greenshot.Base.Core.FileFormat;
+using Greenshot.Base.Core;
 
 namespace Greenshot.Base.Interfaces
 {
@@ -72,30 +74,29 @@ namespace Greenshot.Base.Interfaces
     {
         private readonly byte[] _bytes;
 
-        public EncodedImage(byte[] bytes, OutputFormat format)
+        public EncodedImage(byte[] bytes, string format)
         {
             _bytes = bytes ?? throw new ArgumentNullException(nameof(bytes));
-            Format = format;
+            Format = format ?? throw new ArgumentNullException(nameof(format));
         }
 
-        public OutputFormat Format { get; }
+        /// <summary>
+        /// The id of the file format (see <see cref="IFileFormatRegistry"/>), e.g. png
+        /// </summary>
+        public string Format { get; }
+
+        private FileFormatDefinition Definition =>
+            SimpleServiceProvider.Current?.GetInstance<IFileFormatRegistry>(true) is { } registry && registry.TryGet(Format, out var definition) ? definition : null;
 
         /// <summary>
-        /// MIME type, e.g. image/png
+        /// MIME type from the file format registry, e.g. image/png
         /// </summary>
-        public string MimeType => Format switch
-        {
-            OutputFormat.jpg => "image/jpeg",
-            OutputFormat.tiff => "image/tiff",
-            OutputFormat.ico => "image/x-icon",
-            OutputFormat.greenshot => "application/octet-stream",
-            _ => "image/" + Format
-        };
+        public string MimeType => Definition?.MimeType ?? "application/octet-stream";
 
         /// <summary>
         /// File extension including the dot, e.g. ".png"
         /// </summary>
-        public string FileExtension => "." + Format;
+        public string FileExtension => "." + (Definition?.PreferredExtension ?? Format);
 
         public ReadOnlyMemory<byte> Bytes => _bytes;
 

@@ -3,11 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
              xmlns:support="clr-namespace:Greenshot.Plugin.Confluence.Support"
-             xmlns:confluence="clr-namespace:Greenshot.Plugin.Confluence"
-             xmlns:enums="clr-namespace:Greenshot.Base.Core.Enums;assembly=Greenshot.Base">
+             xmlns:confluence="clr-namespace:Greenshot.Plugin.Confluence">
     <UserControl.Resources>
-        <confluence:EnumDisplayer Type="{x:Type enums:OutputFormat}" x:Key="outputFormats"/>
-
         <Style TargetType="Label">
             <Setter Property="Foreground" Value="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
@@ -60,9 +57,10 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Label Grid.Column="0" Content="{support:Translate upload_format}"/>
-            <ComboBox Grid.Column="1"
-                      ItemsSource="{Binding Source={StaticResource outputFormats}, Path=DisplayNames}"
-                      SelectedValue="{Binding UploadFormat, Converter={StaticResource outputFormats}}"/>
+            <ComboBox x:Name="UploadFormatCombo" Grid.Column="1"
+                      DisplayMemberPath="DisplayNameWithPreferredExtension"
+                      SelectedValuePath="Id"
+                      SelectedValue="{Binding UploadFormat, Mode=TwoWay}"/>
         </Grid>
     </StackPanel>
 </UserControl>

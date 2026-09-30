@@ -37,6 +37,7 @@ using Dapplo.Windows.Common.Structs;
 using Greenshot.Base;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Wpf;
@@ -284,6 +285,8 @@ namespace Greenshot.Forms.Wpf
                     _selectedLanguage = value;
                     Language.CurrentLanguage = value;
                     CoreConfiguration.Language = value;
+                    InitializeImageFormats();
+                    OnPropertyChanged(nameof(ImageFormats));
                     OnPropertyChanged();
                 }
             }
@@ -333,12 +336,30 @@ namespace Greenshot.Forms.Wpf
         private void InitializeImageFormats()
         {
             ImageFormats = new List<ImageFormatItem>();
-            foreach (OutputFormat format in System.Enum.GetValues(typeof(OutputFormat)))
+            var registry = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>(true);
+            if (registry == null)
+            {
+                return;
+            }
+
+            foreach (var format in registry.GetSaveableFileFormats())
             {
                 ImageFormats.Add(new ImageFormatItem
                 {
-                    Value = format,
-                    Description = Language.Translate(format)
+                    Value = format.Id,
+                    Description = format.GetDisplayNameWithPreferredExtension(),
+                    DisplayNameWithPreferredExtension = format.GetDisplayNameWithPreferredExtension()
+                });
+            }
+
+            // Ensure the current output file format is included in the list, even if it's not registered
+            if (!ImageFormats.Any(item => string.Equals(item.Value, CoreConfiguration.OutputFileFormat, StringComparison.OrdinalIgnoreCase)))
+            {
+                ImageFormats.Add(new ImageFormatItem
+                {
+                    Value = CoreConfiguration.OutputFileFormat,
+                    Description = CoreConfiguration.OutputFileFormat,
+                    DisplayNameWithPreferredExtension = CoreConfiguration.OutputFileFormat
                 });
             }
         }
@@ -469,8 +490,9 @@ namespace Greenshot.Forms.Wpf
 
     public class ImageFormatItem
     {
-        public OutputFormat Value { get; set; }
+        public string Value { get; set; }
         public string Description { get; set; }
+        public string DisplayNameWithPreferredExtension { get; set; }
     }
 
     public class WindowCaptureModeItem

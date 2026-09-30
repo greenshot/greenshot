@@ -23,10 +23,11 @@ using System;
 using System.Drawing;
 using System.Drawing.Printing;
 using System.Windows.Forms;
+using Dapplo.Ini;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Effects;
-using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Configuration;
@@ -205,7 +206,7 @@ namespace Greenshot.Helpers
         private void DrawImageForPrint(object sender, PrintPageEventArgs e)
         {
             // Create the output settings
-            SurfaceOutputSettings printOutputSettings = new SurfaceOutputSettings(OutputFormat.png, 100, false);
+            SurfaceOutputSettings printOutputSettings = new SurfaceOutputSettings(WellKnownFileFormats.Png, 100, false);
 
             ApplyEffects(printOutputSettings);
 

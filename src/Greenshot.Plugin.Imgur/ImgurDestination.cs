@@ -24,6 +24,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 
@@ -42,7 +43,7 @@ namespace Greenshot.Plugin.Imgur
 
         public override async Task<ExportResult> ExportAsync(ExportRequest request, CancellationToken cancellationToken)
         {
-            var outputSettings = new SurfaceOutputSettings(OutputFormat.png, 90, false);
+            var outputSettings = new SurfaceOutputSettings(WellKnownFileFormats.Png, 90, false);
             var image = await request.Source.EncodeAsync(outputSettings, cancellationToken).ConfigureAwait(false);
             var info = await request.Ui.RunWithProgressAsync(Language.GetString("imgur", LangKey.communication_wait),
                 (progress, token) => ImgurStep.UploadToImgurAsync(image, request.Metadata?.Title, null, token), cancellationToken).ConfigureAwait(false);

@@ -49,6 +49,17 @@ namespace Greenshot.Base.Pipeline.Contracts
         }
     }
 
+    /// <summary>
+    /// Supplies the allowed values of a step parameter at runtime, see <see cref="StepParameterAttribute.AllowedValuesProvider"/>.
+    /// The values are requested every time they are needed, so they reflect what is registered at that moment
+    /// (e.g. file formats registered by a plugin after the step contract was built).
+    /// </summary>
+    public interface IAllowedValuesProvider
+    {
+        /// <summary>The allowed values; an empty list means every value is allowed.</summary>
+        IReadOnlyList<string> GetAllowedValues();
+    }
+
     [AttributeUsage(AttributeTargets.Class, Inherited = true, AllowMultiple = true)]
     public class StepParameterAttribute : Attribute
     {
@@ -58,6 +69,14 @@ namespace Greenshot.Base.Pipeline.Contracts
         public object DefaultValue { get; set; }
         public string Description { get; set; }
         public string[] AllowedValues { get; set; }
+
+        /// <summary>
+        /// A type implementing <see cref="IAllowedValuesProvider"/> (with a public parameterless constructor) that supplies the
+        /// allowed values at runtime, for values that are not known at compile time (e.g. the registered file formats).
+        /// Takes precedence over <see cref="AllowedValues"/>.
+        /// </summary>
+        public Type AllowedValuesProvider { get; set; }
+
         public bool SupportsExpressions { get; set; } = true;
 
         public StepParameterAttribute(string name, ContractDataType dataType = ContractDataType.String)
@@ -138,14 +157,23 @@ namespace Greenshot.Base.Pipeline.Contracts
             var paramsList = new List<ParameterContract>();
             foreach (var p in paramAttrs)
             {
-                paramsList.Add(new ParameterContract(
+                var parameter = new ParameterContract(
                     p.Name,
                     p.DataType,
                     p.Required,
                     p.DefaultValue,
                     p.Description,
                     p.AllowedValues,
-                    p.SupportsExpressions));
+                    p.SupportsExpressions);
+                if (p.AllowedValuesProvider != null)
+                {
+                    if (!typeof(IAllowedValuesProvider).IsAssignableFrom(p.AllowedValuesProvider))
+                    {
+                        throw new ArgumentException($"{stepType.Name}: AllowedValuesProvider {p.AllowedValuesProvider.Name} of parameter '{p.Name}' does not implement {nameof(IAllowedValuesProvider)}.");
+                    }
+                    parameter.AllowedValuesProvider = (IAllowedValuesProvider)Activator.CreateInstance(p.AllowedValuesProvider);
+                }
+                paramsList.Add(parameter);
             }
 
             var inVarAttrs = stepType.GetCustomAttributes<StepInputVariableAttribute>(true);

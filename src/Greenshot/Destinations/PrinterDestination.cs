@@ -33,6 +33,7 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Configuration;
 using Greenshot.Helpers;
+using Greenshot.Base.Core.FileFormat;
 
 namespace Greenshot.Destinations
 {
@@ -147,7 +148,7 @@ namespace Greenshot.Destinations
         public override async Task<ExportResult> ExportAsync(ExportRequest request, CancellationToken cancellationToken)
         {
             // The print applies its own effects (after the print options were chosen): no color reduction here
-            var settings = new SurfaceOutputSettings(OutputFormat.png, 100, false) { DisableReduceColors = true };
+            var settings = new SurfaceOutputSettings(WellKnownFileFormats.Png, 100, false) { DisableReduceColors = true };
             using var lease = await request.Source.RenderAsync(settings, cancellationToken).ConfigureAwait(false);
             var printRequest = new PrintRequest(lease.Image, request.Metadata, _printerName, _printOptions, request.ManuallyInitiated);
             bool printed = await request.Ui.ShowDialogAsync(printRequest, cancellationToken).ConfigureAwait(false);

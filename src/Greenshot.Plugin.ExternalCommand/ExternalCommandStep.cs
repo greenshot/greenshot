@@ -31,6 +31,7 @@ using System.Threading.Tasks;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Pipeline;
@@ -53,7 +54,7 @@ namespace Greenshot.Plugin.ExternalCommand
     [StepParameter("Arguments", ContractDataType.String, Description = "Arguments, {0} is replaced by the file")]
     [StepParameter("WorkingDirectory", ContractDataType.DirectoryPath, Description = "Working directory of the command")]
     [StepParameter("Verb", ContractDataType.String, Description = "Shell verb to use instead of running the executable (e.g. open, print)")]
-    [StepParameter("Format", ContractDataType.Enum, Description = "Format of the file handed to the command", AllowedValues = new[] { "png", "jpg", "bmp", "gif", "tiff" })]
+    [StepParameter("Format", ContractDataType.Enum, Description = "Format of the file handed to the command", AllowedValuesProvider = typeof(SaveableFileFormatIds))]
     [StepParameter("JpegQuality", ContractDataType.Integer, Description = "JPEG quality (1-100) when saving as JPEG")]
     [StepParameter("RunInBackground", ContractDataType.Boolean, Description = "Start the command without waiting for it (no output variables then)")]
     [StepParameter("OutputToClipboard", ContractDataType.Boolean, Description = "Copy the command's output to the clipboard")]
@@ -168,7 +169,7 @@ namespace Greenshot.Plugin.ExternalCommand
 
                 if (string.IsNullOrEmpty(formatStr) && extConfig.OutputFormat != null && extConfig.OutputFormat.ContainsKey(commandName))
                 {
-                    formatStr = extConfig.OutputFormat[commandName].ToString();
+                    formatStr = extConfig.OutputFormat[commandName];
                 }
             }
 
@@ -186,11 +187,13 @@ namespace Greenshot.Plugin.ExternalCommand
             bool outputToClipboard = outputToClipboardParam ?? (extConfig?.OutputToClipboard ?? false);
             bool uriToClipboard = uriToClipboardParam ?? (extConfig?.UriToClipboard ?? false);
 
-            OutputFormat outputFormat = OutputFormat.png;
-            if (!string.IsNullOrWhiteSpace(formatStr) && Enum.TryParse<OutputFormat>(formatStr, true, out var parsedFormat))
+            var formatRegistry = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>(true);
+            if (!string.IsNullOrWhiteSpace(formatStr) && formatRegistry != null && !formatRegistry.TryGet(formatStr, out _))
             {
-                outputFormat = parsedFormat;
+                Log.WarnFormat("Unknown output file format '{0}' for external command; using PNG.", formatStr);
             }
+
+            string outputFormat = formatRegistry.ResolveFormatId(formatStr, WellKnownFileFormats.Png);
 
             int jpegQuality = NodeConfig.GetParameter<int?>("JpegQuality") ?? 90;
             SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(outputFormat, jpegQuality, false);

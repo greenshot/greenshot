@@ -30,6 +30,7 @@ using Greenshot.Base.Interfaces.Ocr;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Threading;
 using Windows.Media.Ocr;
+using Greenshot.Base.Core.FileFormat;
 
 namespace Greenshot.Destinations
 {
@@ -97,7 +98,7 @@ namespace Greenshot.Destinations
                 var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>(isOptional: true);
                 if (ocrProvider != null)
                 {
-                    using var lease = await request.Source.RenderAsync(new SurfaceOutputSettings(OutputFormat.png, 100, false) { DisableReduceColors = true }, cancellationToken).ConfigureAwait(false);
+                    using var lease = await request.Source.RenderAsync(new SurfaceOutputSettings(WellKnownFileFormats.Png, 100, false) { DisableReduceColors = true }, cancellationToken).ConfigureAwait(false);
                     var ocrLines = await ocrProvider.DoOcrAsync(lease.Image).ConfigureAwait(false);
                     if (ocrLines != null && ocrLines.Any())
                     {

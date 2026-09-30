@@ -34,6 +34,7 @@ using Greenshot.Base.Controls;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Core.FileFormatHandlers;
 using Dapplo.Ini;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using log4net;
@@ -116,9 +117,9 @@ namespace Greenshot.Base.Core
         {
             bool useMemoryStream = false;
             MemoryStream memoryStream = null;
-            if (outputSettings.Format == OutputFormat.greenshot && surface == null)
+            if (WellKnownFileFormats.IsEqualFormat(WellKnownFileFormats.Greenshot, outputSettings.Format) && surface == null)
             {
-                throw new ArgumentException("Surface needs to be set when using OutputFormat.Greenshot");
+                throw new ArgumentException("Surface needs to be set when using OutputFormat .greenshot");
             }
 
             try
@@ -135,7 +136,7 @@ namespace Greenshot.Base.Core
                 }
 
                 var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
-                if (!fileFormatHandlers.TrySaveToStream(imageToSave as Bitmap, targetStream, outputSettings.Format.ToString(), surface, outputSettings))
+                if (!fileFormatHandlers.TrySaveToStream(imageToSave as Bitmap, targetStream, FileFormatRegistry.GetPreferredExtension(outputSettings.Format), surface, outputSettings))
                 {
                     return;
                 }
@@ -161,12 +162,12 @@ namespace Greenshot.Base.Core
         /// <returns>true if the image must be disposed</returns>
         public static bool CreateImageFromSurface(ISurface surface, SurfaceOutputSettings outputSettings, out Image imageToSave)
         {
-            if (outputSettings.Format == OutputFormat.greenshot || outputSettings.SaveBackgroundOnly)
+            if (WellKnownFileFormats.IsEqualFormat(WellKnownFileFormats.Greenshot, outputSettings.Format) || outputSettings.SaveBackgroundOnly)
             {
                 // We save the image of the surface, this should not be disposed
                 imageToSave = surface.Image;
                 // The following block of modifications should be skipped when saving the greenshot format, no effects or otherwise!
-                if (outputSettings.Format == OutputFormat.greenshot)
+                if (WellKnownFileFormats.IsEqualFormat(WellKnownFileFormats.Greenshot, outputSettings.Format))
                 {
                     return false;
                 }
@@ -353,7 +354,7 @@ namespace Greenshot.Base.Core
             SurfaceOutputSettings outputSettings, bool copyPathToClipboard, SynchronizationContext uiContext = null)
         {
             // Check before the file is created, otherwise an empty file is left behind
-            if (outputSettings.Format == OutputFormat.greenshot)
+            if (WellKnownFileFormats.IsEqualFormat(WellKnownFileFormats.Greenshot, outputSettings.Format))
             {
                 throw new NotSupportedException($"The greenshot format needs the surface, use {nameof(Save)} instead.");
             }
@@ -398,25 +399,27 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// Get the OutputFormat for a filename
+        /// Get the registered file format ID for a filename
         /// </summary>
         /// <param name="fullPath">filename (can be a complete path)</param>
-        /// <returns>OutputFormat</returns>
-        public static OutputFormat FormatForFilename(string fullPath)
+        /// <returns>File format ID</returns>
+        public static string FormatForFilename(string fullPath)
         {
-            // Fix for bug 2912959
-            string extension = fullPath.Substring(fullPath.LastIndexOf(".", StringComparison.Ordinal) + 1);
-            OutputFormat format = OutputFormat.png;
-            try
+            string extension = Path.GetExtension(fullPath)?.TrimStart('.');
+            var registry = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>(true);
+            var fallbackExtension = WellKnownFileFormats.Png;
+            if (registry is null)
             {
-                format = (OutputFormat) Enum.Parse(typeof(OutputFormat), extension.ToLower());
+                Log.WarnFormat("File format registry is not available, defaulting to ({0})", fallbackExtension);
+                return fallbackExtension;
             }
-            catch (ArgumentException ae)
+            var formatId =  registry.GetByExtension(extension)?.Id;
+            if (string.IsNullOrEmpty(formatId))
             {
-                Log.Warn("Couldn't parse extension: " + extension, ae);
-            }
-
-            return format;
+                Log.WarnFormat("No file format registered for extension {0}, defaulting to ({1})", extension, fallbackExtension);
+                return fallbackExtension;
+            } 
+            return formatId;
         }
 
         /// <summary>
@@ -571,7 +574,7 @@ namespace Greenshot.Base.Core
         /// <returns></returns>
         public static string SaveToTmpFile(ISurface surface, SurfaceOutputSettings outputSettings, string destinationPath)
         {
-            string tmpFile = Path.GetRandomFileName() + "." + outputSettings.Format;
+            string tmpFile = Path.GetRandomFileName() + FileFormatRegistry.GetPreferredExtensionWithDot(outputSettings.Format);
             // Prevent problems with "other characters", which could cause problems
             tmpFile = Regex.Replace(tmpFile, @"[^\d\w\.]", string.Empty);
             if (destinationPath == null)
@@ -601,7 +604,7 @@ namespace Greenshot.Base.Core
         /// </summary>
         public static string SaveToTmpFile(Image renderedImage, SurfaceOutputSettings outputSettings, string destinationPath)
         {
-            string tmpFile = Path.GetRandomFileName() + "." + outputSettings.Format;
+            string tmpFile = Path.GetRandomFileName() + FileFormatRegistry.GetPreferredExtensionWithDot(outputSettings.Format);
             tmpFile = Regex.Replace(tmpFile, @"[^\d\w\.]", string.Empty);
             if (destinationPath == null)
             {
@@ -796,5 +799,6 @@ namespace Greenshot.Base.Core
 
             return returnSurface;
         }
+
     }
 }

@@ -31,6 +31,7 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Core.Export;
 using Dapplo.Ini;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Pipeline;
@@ -130,11 +131,15 @@ public class ExternalCommandDestination : DestinationBase, IRequiresRecipeAuthor
             return ExportResult.Failed(error);
         }
 
-        // fallback to PNG / background if the configuration is incomplete (the plugin repairs it on startup)
-        var outputSettings = new SurfaceOutputSettings
+        // fallback to PNG / background if the configuration is incomplete (the plugin repairs it on startup), or the format is unknown
+        string configuredFormat = config.OutputFormat.TryGetValue(_presetCommand, out var format) ? format : WellKnownFileFormats.Png;
+        var formatRegistry = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>(true);
+        if (formatRegistry != null && !formatRegistry.TryGet(configuredFormat, out _))
         {
-            Format = config.OutputFormat.TryGetValue(_presetCommand, out var format) ? format : OutputFormat.png
-        };
+            LOG.WarnFormat("Unknown output file format '{0}' for external command '{1}'; using PNG.", configuredFormat, _presetCommand);
+        }
+
+        var outputSettings = new SurfaceOutputSettings(formatRegistry.ResolveFormatId(configuredFormat, WellKnownFileFormats.Png));
         bool runInBackground = !config.RunInbackground.TryGetValue(_presetCommand, out var background) || background;
         string fullPath = request.Metadata?.Filename
                           ?? await ExportFiles.SaveNamedTmpFileAsync(request.Source, request.Metadata, outputSettings, cancellationToken).ConfigureAwait(false);

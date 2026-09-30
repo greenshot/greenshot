@@ -30,6 +30,7 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Threading;
 using log4net;
+using Greenshot.Base.Core.FileFormat;
 
 namespace Greenshot.Base.Core.Export
 {
@@ -174,7 +175,7 @@ namespace Greenshot.Base.Core.Export
                 }
 
                 byte[] bytes;
-                if (settings.Format == OutputFormat.greenshot)
+                if (WellKnownFileFormats.IsEqualFormat(WellKnownFileFormats.Greenshot, settings.Format))
                 {
                     // The greenshot format serializes the elements of the surface: UI thread
                     bytes = await _ui.InvokeAsync(() =>

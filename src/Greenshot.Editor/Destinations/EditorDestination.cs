@@ -35,6 +35,7 @@ using Greenshot.Base.Threading;
 using Greenshot.Editor.Configuration;
 using Greenshot.Editor.Forms;
 using log4net;
+using Greenshot.Base.Core.FileFormat;
 
 namespace Greenshot.Editor.Destinations
 {
@@ -104,7 +105,7 @@ namespace Greenshot.Editor.Destinations
             if (_dedicatedEditor != null && !_replaceSurfaceInDedicatedEditor)
             {
                 // Add the capture as image to the open editor, it gets its own copy
-                using var lease = await request.Source.RenderAsync(new SurfaceOutputSettings(OutputFormat.png, 100, false) { DisableReduceColors = true }, cancellationToken).ConfigureAwait(false);
+                using var lease = await request.Source.RenderAsync(new SurfaceOutputSettings(WellKnownFileFormats.Png, 100, false) { DisableReduceColors = true }, cancellationToken).ConfigureAwait(false);
                 await UiDispatcher.Current.InvokeAsync(() => _dedicatedEditor.Surface.AddImageContainer(lease.Image, 10, 10), cancellationToken).ConfigureAwait(false);
                 // The editor only shows the capture, it isn't saved
                 return ExportResult.Succeeded(clearsModified: false);

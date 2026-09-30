@@ -32,6 +32,7 @@ using log4net;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
 using Windows.Storage.Streams;
+using Greenshot.Base.Core.FileFormat;
 using Color = Windows.UI.Color;
 using System.Threading.Tasks;
 using Greenshot.Base.Threading;

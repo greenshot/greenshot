@@ -27,6 +27,7 @@ using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Configuration;
+using Greenshot.Base.Core.FileFormat;
 
 namespace Greenshot.Destinations
 {
@@ -44,7 +45,7 @@ namespace Greenshot.Destinations
         {
             try
             {
-                using var lease = await request.Source.RenderAsync(new SurfaceOutputSettings(OutputFormat.png, 100, false), cancellationToken).ConfigureAwait(false);
+                using var lease = await request.Source.RenderAsync(new SurfaceOutputSettings(WellKnownFileFormats.Png, 100, false), cancellationToken).ConfigureAwait(false);
                 await ClipboardService.Current.SetImageAsync(lease.Image, cancellationToken: cancellationToken).ConfigureAwait(false);
                 return ExportResult.Succeeded();
             }

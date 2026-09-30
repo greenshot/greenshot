@@ -52,6 +52,7 @@ classDiagram
         +object DefaultValue
         +string Description
         +IReadOnlyList~string~ AllowedValues
+        +IAllowedValuesProvider AllowedValuesProvider
         +bool SupportsExpressions
     }
 
@@ -191,6 +192,7 @@ public class ZxingStep : ICaptureStep { ... }
 ```
 
 * **Parameters** have one name each (parameter names are case-insensitive). `[StepInfo(AcceptsUndeclaredParameters = true)]` marks a step that reads open-ended parameters (Annotation).
+* **Allowed values** of an `Enum` parameter are either fixed (`AllowedValues = new[] { ... }`) or supplied at runtime by an `IAllowedValuesProvider` (`AllowedValuesProvider = typeof(SaveableFileFormatIds)`), for values that depend on what is registered. The provider is asked every time the values are read, so e.g. file formats registered by a plugin later are allowed too. All `Format` parameters use `SaveableFileFormatIds`: the ids of the formats the file format registry can currently save.
 * **Outputs** are `Conditional` when the step does not always set them (only when something was found); `WhenParameter = "SaveDirectory"` marks an output that is always set when the node has that parameter.
 * **Node-specific names**: `{NodeId}` (e.g. `UserChoice.{NodeId}`), `{Parameter:A}` (the variable named by parameter A), and `{ParameterKeys:X}` (every key of the dictionary parameter X, e.g. SetVariable's `Variables`).
 * The contract lists what the code does, not what it could do: an output that is declared must be set, a variable that is set must be declared. The engine checks this (3.3).

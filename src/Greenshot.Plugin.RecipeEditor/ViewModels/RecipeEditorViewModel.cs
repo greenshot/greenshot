@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Pipeline;
 using Greenshot.Base.Recipes;
@@ -35,6 +36,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         public ObservableCollection<StepConnectionViewModel> Connections { get; } = new ObservableCollection<StepConnectionViewModel>();
         public ObservableCollection<TriggerItemViewModel> Triggers { get; } = new ObservableCollection<TriggerItemViewModel>();
         public PendingConnectionViewModel PendingConnection { get; } = new PendingConnectionViewModel();
+        public ObservableCollection<FileFormatOption> OutputFormatOptions { get; } = new ObservableCollection<FileFormatOption>();
 
         public CaptureRecipe ActiveRecipe
         {
@@ -154,6 +156,11 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             {
                 if (SetField(ref _selectedNode, value))
                 {
+                    AddCurrentFormatOption(value?.OutputFileFormat);
+                    AddCurrentFormatOption(value?.ExternalCommandFormat);
+                    AddCurrentFormatOption(value?.ImgurFormat);
+                    AddCurrentFormatOption(value?.JiraFormat);
+                    AddCurrentFormatOption(value?.ConfluenceFormat);
                     foreach (var n in Nodes) n.IsSelected = (n == value);
                     if (value != null)
                     {
@@ -271,6 +278,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         public RecipeEditorViewModel(IRecipeManager recipeManager = null)
         {
             _recipeManager = recipeManager ?? SimpleServiceProvider.Current.GetInstance<IRecipeManager>(isOptional: true);
+            InitializeOutputFormatOptions();
 
             NewRecipeCommand = new RelayCommand(NewRecipe);
             OpenRecipeCommand = new RelayCommand(OpenRecipeDialog);
@@ -357,6 +365,42 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             });
 
             RefreshAvailableRecipes();
+        }
+
+        private void InitializeOutputFormatOptions()
+        {
+            OutputFormatOptions.Clear();
+            OutputFormatOptions.Add(new FileFormatOption
+            {
+                Id = string.Empty,
+                DisplayName = "(From Configuration)",
+                DisplayNameWithPreferredExtension = "(From Configuration)"
+            });
+
+            var registry = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>(true);
+            if (registry == null)
+            {
+                return;
+            }
+
+            foreach (var option in registry.GetSaveableFileFormatOptions())
+            {
+                OutputFormatOptions.Add(option);
+            }
+        }
+
+        private void AddCurrentFormatOption(string formatId)
+        {
+            if (!string.IsNullOrWhiteSpace(formatId) &&
+                !OutputFormatOptions.Any(option => string.Equals(option.Id, formatId, StringComparison.OrdinalIgnoreCase)))
+            {
+                OutputFormatOptions.Add(new FileFormatOption
+                {
+                    Id = formatId,
+                    DisplayName = formatId,
+                    DisplayNameWithPreferredExtension = formatId
+                });
+            }
         }
 
         public void RefreshAvailableRecipes()

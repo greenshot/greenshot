@@ -30,6 +30,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using Greenshot.Base.Core;
 using Dapplo.Ini;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Plugin.Confluence.Entities;
@@ -190,13 +191,17 @@ public class ConfluenceDestination : DestinationBase
             return ExportResult.Failed(e.Message, e);
         }
 
-        string extension = "." + ConfluenceConfig.UploadFormat;
-        if (!filename.ToLower().EndsWith(extension))
+        var formatRegistry = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>(true);
+        string uploadFormat = formatRegistry.ResolveFormatId(ConfluenceConfig.UploadFormat, WellKnownFileFormats.Png);
+        string extension = formatRegistry != null && formatRegistry.TryGet(uploadFormat, out var formatDefinition)
+            ? "." + formatDefinition.PreferredExtension
+            : ".png";
+        if (!filename.EndsWith(extension, StringComparison.OrdinalIgnoreCase))
         {
             filename += extension;
         }
 
-        var outputSettings = new SurfaceOutputSettings(ConfluenceConfig.UploadFormat, ConfluenceConfig.UploadJpegQuality, ConfluenceConfig.UploadReduceColors);
+        var outputSettings = new SurfaceOutputSettings(uploadFormat, ConfluenceConfig.UploadJpegQuality, ConfluenceConfig.UploadReduceColors);
         try
         {
             var image = await request.Source.EncodeAsync(outputSettings, cancellationToken).ConfigureAwait(false);

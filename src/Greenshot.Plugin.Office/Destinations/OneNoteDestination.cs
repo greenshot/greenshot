@@ -30,6 +30,7 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Plugin.Office.OfficeExport;
 using Greenshot.Plugin.Office.OfficeExport.Entities;
+using Greenshot.Base.Core.FileFormat;
 
 namespace Greenshot.Plugin.Office.Destinations
 {
@@ -87,7 +88,7 @@ namespace Greenshot.Plugin.Office.Destinations
         public override async Task<ExportResult> ExportAsync(ExportRequest request, CancellationToken cancellationToken)
         {
             var imageSize = await GetImageSizeAsync(request, cancellationToken).ConfigureAwait(false);
-            var png = await request.Source.EncodeAsync(new SurfaceOutputSettings(OutputFormat.png, 100, false), cancellationToken).ConfigureAwait(false);
+            var png = await request.Source.EncodeAsync(new SurfaceOutputSettings(WellKnownFileFormats.Png, 100, false), cancellationToken).ConfigureAwait(false);
             string title = request.Metadata?.Title;
             bool exported = await RunOnOfficeAsync(() => page == null
                 ? _oneNoteExporter.ExportToNewPage(png, imageSize, title)

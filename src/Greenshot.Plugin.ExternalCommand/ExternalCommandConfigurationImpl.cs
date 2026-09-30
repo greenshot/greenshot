@@ -23,7 +23,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Greenshot.Base.Core;
-using Greenshot.Base.Core.Enums;
 
 namespace Greenshot.Plugin.ExternalCommand;
 
@@ -97,7 +96,7 @@ public partial class ExternalCommandConfigurationImpl : IExternalCommandConfigur
         Commandline ??= new Dictionary<string, string>();
         Argument ??= new Dictionary<string, string>();
         RunInbackground ??= new Dictionary<string, bool>();
-        OutputFormat ??= new Dictionary<string, OutputFormat>();
+        OutputFormat ??= new Dictionary<string, string>();
         RedirectStandardErrorCommand ??= new Dictionary<string, bool>();
         RedirectStandardOutputCommand ??= new Dictionary<string, bool>();
         ShowStandardOutputInLogCommand ??= new Dictionary<string, bool>();

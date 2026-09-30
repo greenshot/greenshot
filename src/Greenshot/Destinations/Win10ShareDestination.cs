@@ -28,6 +28,7 @@ using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Core.Export;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.Base.Core.FileFormat;
 
 namespace Greenshot.Destinations
 {
@@ -71,7 +72,7 @@ namespace Greenshot.Destinations
             SharingFiles.CleanupOldShareFiles();
             // A unique name, an app which still has an older share open keeps its file
             string filePath = Path.Combine(Path.GetTempPath(), $"greenshot_share_{Guid.NewGuid()}.png");
-            await ExportFiles.SaveAsync(request.Source, filePath, false, new SurfaceOutputSettings(OutputFormat.png), cancellationToken).ConfigureAwait(false);
+            await ExportFiles.SaveAsync(request.Source, filePath, false, new SurfaceOutputSettings(WellKnownFileFormats.Png), cancellationToken).ConfigureAwait(false);
             string appName = await request.Ui.ShowDialogAsync(new ShareRequest(filePath, request.Metadata?.Title), cancellationToken).ConfigureAwait(false);
             return appName == null ? ExportResult.Declined : ExportResult.Succeeded(target: appName);
         }
