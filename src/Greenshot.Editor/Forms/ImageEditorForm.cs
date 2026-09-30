@@ -26,8 +26,10 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Windows.Forms;
 using Dapplo.Ini;
+using Dapplo.Windows.Clipboard;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Dpi;
@@ -219,6 +221,14 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                     recipeManager.RecipesChanged -= recipesChangedHandler;
                 };
             }
+
+            // Keep paste enabled/disabled while the editor is open and something else is copied
+            Load += (s, e) => SubscribeToClipboardChanges();
+            FormClosed += (s, e) =>
+            {
+                _clipboardSubscription?.Dispose();
+                _clipboardSubscription = null;
+            };
 
             // Make sure the editor is placed on the same location as the last editor was on close
             // But only if this still exists, else it will be reset (BUG-1812)
@@ -1463,6 +1473,35 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             if (!hasClipboard && clipboardImage == null)
             {
                 EnablePasteForClipboardImageAsync().FireAndLog("Check the clipboard for an image", Log);
+            }
+        }
+
+        private IDisposable _clipboardSubscription;
+
+        /// <summary>
+        /// Update the paste commands when the clipboard changes. The update information arrives on the SharedMessageWindow thread
+        /// without opening the clipboard; after a short throttle (the copying application may still be busy) the check runs on the UI thread.
+        /// </summary>
+        private void SubscribeToClipboardChanges()
+        {
+            var ui = SimpleServiceProvider.Current.GetInstance<IUiDispatcher>(isOptional: true) ?? InlineUiDispatcher.Instance;
+            try
+            {
+                _clipboardSubscription = ClipboardNative.OnUpdate
+                    // Every subscriber first gets the current state, which the form already checked
+                    .Skip(1)
+                    .Throttle(TimeSpan.FromMilliseconds(150))
+                    .Subscribe(_ => ui.InvokeAsync(() =>
+                    {
+                        if (IsDisposed || Disposing) return;
+                        UpdateClipboardSurfaceDependencies();
+                    }).FireAndLog("Update the paste commands after a clipboard change", Log),
+                    ex => Log.Warn("Clipboard change notifications stopped", ex));
+            }
+            catch (Exception ex)
+            {
+                // E.g. while the process is exiting the SharedMessageWindow isn't created anymore
+                Log.Warn("Couldn't subscribe to clipboard changes", ex);
             }
         }
 
