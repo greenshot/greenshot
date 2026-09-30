@@ -51,6 +51,8 @@ namespace Greenshot.Base.Core
         private static readonly Dictionary<string, string> Resources = new();
         private static string _currentLanguage;
 
+        public static string OSLanguage { get; set; }
+
         public static event LanguageChangedHandler LanguageChanged;
 
         /// <summary>
@@ -167,7 +169,7 @@ namespace Greenshot.Base.Core
 
             if (CurrentLanguage == null)
             {
-                CurrentLanguage = System.Threading.Thread.CurrentThread.CurrentUICulture.Name;
+                CurrentLanguage = OSLanguage ?? System.Threading.Thread.CurrentThread.CurrentUICulture.Name;
                 if (CurrentLanguage != null && coreConfig != null)
                 {
                     coreConfig.Language = CurrentLanguage;
