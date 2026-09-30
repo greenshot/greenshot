@@ -24,6 +24,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
 using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.Base.Core;
 
 namespace Greenshot.Plugin.Zxing;
 
@@ -63,7 +64,7 @@ public class ZxingHotspotTransformer : IFeatureHotspotTransformer
                 {
                     try
                     {
-                        Clipboard.SetText(textContent);
+                        ClipboardHelper.SetClipboardData(textContent);
                     }
                     catch (Exception ex)
                     {

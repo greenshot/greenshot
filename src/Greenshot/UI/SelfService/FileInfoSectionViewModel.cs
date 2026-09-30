@@ -264,7 +264,7 @@ namespace Greenshot.UI.SelfService
             {
                 if (!string.IsNullOrEmpty(text))
                 {
-                    Clipboard.SetText(text);
+                    ClipboardHelper.SetClipboardData(text);
                     StatusMessage = successMessage;
                 }
             }

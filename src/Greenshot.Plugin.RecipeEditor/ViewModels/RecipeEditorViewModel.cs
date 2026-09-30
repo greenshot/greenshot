@@ -296,8 +296,9 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             {
                 if (!string.IsNullOrWhiteSpace(RecipeId))
                 {
-                    Clipboard.SetText(RecipeId);
-                    StatusMessage = $"Copied Recipe ID '{RecipeId}' to clipboard";
+                    StatusMessage = ClipboardHelper.TrySetClipboardData(RecipeId, out var copyError)
+                        ? $"Copied Recipe ID '{RecipeId}' to clipboard"
+                        : $"Failed to copy to clipboard: {copyError}";
                 }
             });
             SetStartNodeCommand = new RelayCommand(p => SetStartNode(p as StepNodeViewModel ?? SelectedNode));
@@ -1307,7 +1308,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             {
                 if (!string.IsNullOrEmpty(MermaidText))
                 {
-                    Clipboard.SetText(MermaidText);
+                    ClipboardHelper.SetClipboardData(MermaidText);
                     StatusMessage = "Copied Mermaid DSL to clipboard.";
                 }
             }

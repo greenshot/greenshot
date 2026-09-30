@@ -574,7 +574,7 @@ namespace Greenshot.UI
             {
                 if (!string.IsNullOrEmpty(RecipeJsonContent))
                 {
-                    System.Windows.Clipboard.SetText(RecipeJsonContent);
+                    ClipboardHelper.SetClipboardData(RecipeJsonContent);
                 }
             }
             catch (Exception ex)

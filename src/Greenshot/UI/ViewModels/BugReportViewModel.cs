@@ -453,7 +453,7 @@ namespace Greenshot.UI.ViewModels
             {
                 if (!string.IsNullOrEmpty(_fullReport))
                 {
-                    Clipboard.SetText(_fullReport);
+                    ClipboardHelper.SetClipboardData(_fullReport);
                     CopyButtonText = "✓ Copied!";
                 }
             }
@@ -469,7 +469,7 @@ namespace Greenshot.UI.ViewModels
             {
                 if (!string.IsNullOrEmpty(_stackTrace))
                 {
-                    Clipboard.SetText(_stackTrace);
+                    ClipboardHelper.SetClipboardData(_stackTrace);
                 }
             }
             catch

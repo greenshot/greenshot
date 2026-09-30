@@ -347,9 +347,9 @@ namespace Greenshot.Base.Core
         /// Saves a pre-rendered bitmap to disk. Unlike <see cref="Save"/>, this method does not call
         /// <see cref="CreateImageFromSurface"/> — the caller is responsible for rendering the bitmap on the
         /// UI thread before calling this method, allowing the encode+write work to run on a background thread.
-        /// If <paramref name="copyPathToClipboard"/> is true and a <paramref name="uiContext"/> is provided,
-        /// the clipboard call is marshalled back to the UI thread automatically.
+        /// If <paramref name="copyPathToClipboard"/> is true the path is placed on the clipboard, which works on any thread.
         /// </summary>
+        /// <param name="uiContext">Not used anymore, the clipboard doesn't need the UI thread</param>
         public static void SaveRenderedImage(Image renderedBitmap, string fullPath, bool allowOverwrite,
             SurfaceOutputSettings outputSettings, bool copyPathToClipboard, SynchronizationContext uiContext = null)
         {
@@ -386,15 +386,8 @@ namespace Greenshot.Base.Core
 
             if (copyPathToClipboard)
             {
-                if (uiContext != null)
-                {
-                    // ClipboardHelper requires the STA/UI thread — marshal back.
-                    uiContext.Post(_ => ClipboardHelper.SetClipboardData(fullPath), null);
-                }
-                else
-                {
-                    ClipboardHelper.SetClipboardData(fullPath);
-                }
+                // The clipboard works on any thread
+                ClipboardHelper.SetClipboardData(fullPath);
             }
         }
 

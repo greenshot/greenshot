@@ -698,11 +698,28 @@ namespace Greenshot.Forms
         }
 
 
+        /// <summary>
+        /// Phase 2 of the clipboard check for the context menu: continues on the UI thread
+        /// </summary>
+        private async Task EnableCaptureClipboardAsync()
+        {
+            if (await ClipboardHelper.ContainsImageAsync())
+            {
+                contextmenu_captureclipboard.Enabled = true;
+            }
+        }
+
         private void ContextMenuOpening(object sender, CancelEventArgs e)
         {
             var factor = DeviceDpi / 96f;
             contextMenu.Scale(new SizeF(factor, factor));
-            contextmenu_captureclipboard.Enabled = ClipboardHelper.MayContainImage(ClipboardHelper.GetDataObject());
+            // Phase 1 only checks the formats; when a file list, virtual files or HTML could contain an image, phase 2 checks them in the background
+            bool? clipboardImage = ClipboardHelper.ContainsImageQuick();
+            contextmenu_captureclipboard.Enabled = clipboardImage == true;
+            if (clipboardImage == null)
+            {
+                EnableCaptureClipboardAsync().FireAndLog("Check the clipboard for an image", Log);
+            }
             contextmenu_capturelastregion.Enabled = coreConfiguration.LastCapturedRegion != NativeRect.Empty;
 
             // Multi-Screen captures

@@ -186,7 +186,7 @@ namespace Greenshot.UI.SelfService
         {
             try
             {
-                Clipboard.SetText(EnvironmentReport ?? string.Empty);
+                ClipboardHelper.SetClipboardData(EnvironmentReport ?? string.Empty);
                 StatusMessage = Language.GetString("selfservice_sysinfo_copied");
             }
             catch (Exception ex)

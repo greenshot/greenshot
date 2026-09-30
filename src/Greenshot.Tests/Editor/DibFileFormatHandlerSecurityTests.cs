@@ -185,6 +185,77 @@ namespace Greenshot.Tests.Editor
             bitmap.Dispose();
         }
 
+        [Theory]
+        [InlineData(12u)]          // smaller than a BITMAPINFOHEADER
+        [InlineData(39u)]
+        [InlineData(1000u)]        // larger than the data
+        [InlineData(0x7FFFFFFFu)]
+        [InlineData(0xFFFFFFFFu)]  // would wrap an offset calculation
+        public void TryLoadFromStream_CraftedBiSize_RejectedSafely(uint biSize)
+        {
+            var handler = new DibFileFormatHandler();
+            byte[] dib = CreateDibV5Buffer(10, 10, 32);
+            BitConverter.GetBytes(biSize).CopyTo(dib, 0);
+
+            using var ms = new MemoryStream(dib);
+            bool success = handler.TryLoadFromStream(ms, ".dib", out Bitmap bitmap);
+
+            Assert.False(success);
+            Assert.Null(bitmap);
+        }
+
+        [Theory]
+        [InlineData(0xFFFFFFFFu)]
+        [InlineData(0x7FFFFFFFu)]
+        [InlineData(1u)]
+        public void TryLoadFromStream_CraftedBiSizeImageWithTruncatedPixels_RejectedSafely(uint biSizeImage)
+        {
+            // The reported CF_DIBV5 out-of-bounds read: a large image, a header which claims a size, and only a few bytes of pixels
+            var handler = new DibFileFormatHandler();
+            byte[] dib = CreateDibV5Buffer(4000, 4000, 32, sizeImage: biSizeImage, pixelDataLength: 64);
+
+            using var ms = new MemoryStream(dib);
+            bool success = handler.TryLoadFromStream(ms, ".dib", out Bitmap bitmap);
+
+            Assert.False(success);
+            Assert.Null(bitmap);
+        }
+
+        [Fact]
+        public void TryLoadFromStream_HugeDimensions_RejectedSafely()
+        {
+            var handler = new DibFileFormatHandler();
+            byte[] dib = CreateDibV5Buffer(1, 1, 32);
+            BitConverter.GetBytes(int.MaxValue).CopyTo(dib, 4);
+            BitConverter.GetBytes(int.MinValue + 1).CopyTo(dib, 8);
+
+            using var ms = new MemoryStream(dib);
+            bool success = handler.TryLoadFromStream(ms, ".dib", out Bitmap bitmap);
+
+            Assert.False(success);
+            Assert.Null(bitmap);
+        }
+
+        [Fact]
+        public void SaveAndLoad_RoundTrip()
+        {
+            var handler = new DibFileFormatHandler();
+            using var source = new Bitmap(7, 5, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            source.SetPixel(0, 0, Color.FromArgb(255, 10, 20, 30));
+            source.SetPixel(6, 4, Color.FromArgb(255, 200, 100, 50));
+
+            using var ms = new MemoryStream();
+            Assert.True(handler.TrySaveToStream(source, ms, ".dib"));
+            ms.Position = 0;
+            Assert.True(handler.TryLoadFromStream(ms, ".dib", out Bitmap bitmap));
+            using (bitmap)
+            {
+                Assert.Equal(source.Size, bitmap.Size);
+                Assert.Equal(source.GetPixel(0, 0).ToArgb(), bitmap.GetPixel(0, 0).ToArgb());
+                Assert.Equal(source.GetPixel(6, 4).ToArgb(), bitmap.GetPixel(6, 4).ToArgb());
+            }
+        }
+
         [Fact]
         public void TryLoadFromStream_DataTooShortForHeader_RejectedSafely()
         {

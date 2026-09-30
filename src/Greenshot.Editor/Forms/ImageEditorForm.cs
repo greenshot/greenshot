@@ -26,8 +26,10 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Windows.Forms;
 using Dapplo.Ini;
+using Dapplo.Windows.Clipboard;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Dpi;
@@ -88,11 +90,6 @@ namespace Greenshot.Editor.Forms
 
         private Surface _surface;
         private ToolStripButton[] _toolbarButtons;
-
-        private static readonly string[] SupportedClipboardFormats =
-        {
-            typeof(string).FullName, "Text", typeof(IDrawableContainerList).FullName
-        };
 
         private bool _originalBoldCheckState;
         private bool _originalItalicCheckState;
@@ -224,6 +221,14 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                     recipeManager.RecipesChanged -= recipesChangedHandler;
                 };
             }
+
+            // Keep paste enabled/disabled while the editor is open and something else is copied
+            Load += (s, e) => SubscribeToClipboardChanges();
+            FormClosed += (s, e) =>
+            {
+                _clipboardSubscription?.Dispose();
+                _clipboardSubscription = null;
+            };
 
             // Make sure the editor is placed on the same location as the last editor was on close
             // But only if this still exists, else it will be reset (BUG-1812)
@@ -1460,11 +1465,61 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             duplicateToolStripMenuItem.Enabled = actionAllowedForSelection;
 
             // check dependencies for the Clipboard
-            // This runs when the editor opens or is activated, the fast check is enough to enable paste (the paste itself checks the content)
-            var clipboardData = ClipboardHelper.GetDataObject();
-            bool hasClipboard = ClipboardHelper.ContainsFormat(clipboardData, SupportedClipboardFormats) || ClipboardHelper.MayContainImage(clipboardData);
+            // This runs when the editor opens or is activated. Phase 1 only checks the formats, without opening the clipboard;
+            // only when a file list, virtual files or HTML could contain an image, phase 2 looks at them in the background.
+            bool? clipboardImage = ClipboardHelper.ContainsImageQuick();
+            bool hasClipboard = DrawableContainerClipboard.IsAvailable || ClipboardHelper.ContainsText() || clipboardImage == true;
+            SetPasteEnabled(hasClipboard);
+            if (!hasClipboard && clipboardImage == null)
+            {
+                EnablePasteForClipboardImageAsync().FireAndLog("Check the clipboard for an image", Log);
+            }
+        }
+
+        private IDisposable _clipboardSubscription;
+
+        /// <summary>
+        /// Update the paste commands when the clipboard changes. The update information arrives on the SharedMessageWindow thread
+        /// without opening the clipboard; after a short throttle (the copying application may still be busy) the check runs on the UI thread.
+        /// </summary>
+        private void SubscribeToClipboardChanges()
+        {
+            var ui = SimpleServiceProvider.Current.GetInstance<IUiDispatcher>(isOptional: true) ?? InlineUiDispatcher.Instance;
+            try
+            {
+                _clipboardSubscription = ClipboardNative.OnUpdate
+                    // Every subscriber first gets the current state, which the form already checked
+                    .Skip(1)
+                    .Throttle(TimeSpan.FromMilliseconds(150))
+                    .Subscribe(_ => ui.InvokeAsync(() =>
+                    {
+                        if (IsDisposed || Disposing) return;
+                        UpdateClipboardSurfaceDependencies();
+                    }).FireAndLog("Update the paste commands after a clipboard change", Log),
+                    ex => Log.Warn("Clipboard change notifications stopped", ex));
+            }
+            catch (Exception ex)
+            {
+                // E.g. while the process is exiting the SharedMessageWindow isn't created anymore
+                Log.Warn("Couldn't subscribe to clipboard changes", ex);
+            }
+        }
+
+        private void SetPasteEnabled(bool hasClipboard)
+        {
             btnPaste.Enabled = hasClipboard && !_controlsDisabledDueToConfirmable;
             pasteToolStripMenuItem.Enabled = hasClipboard && !_controlsDisabledDueToConfirmable;
+        }
+
+        /// <summary>
+        /// Phase 2 of the clipboard check: continues on the UI thread, enables paste when the clipboard has an image after all
+        /// </summary>
+        private async Task EnablePasteForClipboardImageAsync()
+        {
+            if (await ClipboardHelper.ContainsImageAsync() && !IsDisposed)
+            {
+                SetPasteEnabled(true);
+            }
         }
 
         private void UpdateStatusLabel(string text, ContextMenuStrip contextMenu = null, bool isError = false)

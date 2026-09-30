@@ -325,8 +325,9 @@ namespace Greenshot.Tests.Forms
                     try
                     {
                         using (var bmp = new System.Drawing.Bitmap(32, 32))
+                        using (var content = ClipboardHelper.CreateContent(bmp, new[] { Greenshot.Base.Core.Enums.ClipboardFormat.DIB }))
                         {
-                            System.Windows.Forms.Clipboard.SetImage(bmp);
+                            ClipboardHelper.SetClipboardData(content.Contents);
                         }
 
                         var clip = new ClipboardSectionViewModel();
