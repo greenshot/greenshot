@@ -370,6 +370,8 @@ namespace Greenshot.Forms
             PluginHelper.Instance.LoadPluginsAsync().FireAndLog("Start the plugins", Log);
 
             EditorInitialize.Initialize();
+            // JIT-compiling the editor and loading the emoji font takes seconds, do it in the background instead of when the first editor opens
+            EditorPrewarm.PrewarmAsync(TimeSpan.FromSeconds(5)).FireAndLog("Prepare the editor", Log);
 
             // This forces the registration of all destinations inside Greenshot itself.
             RegisterInternalDestinations();

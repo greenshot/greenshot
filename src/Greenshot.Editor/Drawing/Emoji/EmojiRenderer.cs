@@ -20,7 +20,9 @@
  */
 
 using System;
+using System.Collections.Concurrent;
 using System.IO;
+using System.Threading.Tasks;
 using Greenshot.Base.Core;
 using SixLabors.Fonts;
 using SixLabors.ImageSharp;
@@ -35,7 +37,18 @@ namespace Greenshot.Editor.Drawing.Emoji
     /// </summary>
     internal static class EmojiRenderer
     {
+        /// <summary>
+        /// The emoji which is shown on the emoji button of the editor
+        /// </summary>
+        public const string EmojiButtonEmoji = "\uD83D\uDE0A";
+
+        /// <summary>
+        /// The size of the image of the emoji button of the editor
+        /// </summary>
+        public const int EmojiButtonSize = 32;
+
         private static readonly FontCollection TwemojiFontCollection = new();
+        private static readonly ConcurrentDictionary<string, Lazy<Task<System.Drawing.Image>>> SharedBitmaps = new();
 
         private static readonly Lazy<FontFamily> TwemojiFontFamily = new(() =>
         {
@@ -73,6 +86,20 @@ namespace Greenshot.Editor.Drawing.Emoji
             };
 
             image.Mutate(x => x.DrawText(textOptions, emoji, Color.Black));
+        }
+
+        /// <summary>
+        /// Render the emoji once, on the thread pool, the result is shared: don't dispose or change it.
+        /// </summary>
+        /// <param name="emoji">string with the emoji</param>
+        /// <param name="iconSize">int with the size</param>
+        /// <returns>Task with the shared image</returns>
+        public static Task<System.Drawing.Image> GetSharedBitmapAsync(string emoji, int iconSize)
+        {
+            // PARALLEL: the first rendering loads ImageSharp and the Twemoji font, which takes about a second, the UI must not wait for it
+#pragma warning disable RS0030 // R10: documented parallel branch
+            return SharedBitmaps.GetOrAdd($"{emoji}|{iconSize}", _ => new Lazy<Task<System.Drawing.Image>>(() => Task.Run(() => GetBitmap(emoji, iconSize)))).Value;
+#pragma warning restore RS0030
         }
 
         public static System.Drawing.Image GetBitmap(string emoji, int iconSize)
