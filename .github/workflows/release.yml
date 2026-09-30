@@ -39,6 +39,7 @@ jobs:
         dotnet-version: '7.x'
 
     - name: Restore NuGet packages 
+      shell: cmd
       run: msbuild src/Greenshot.sln /p:Configuration=Release /restore /t:PrepareForBuild
       env:
         Box13_ClientId: ${{ secrets.Box13_ClientId }}
@@ -55,6 +56,7 @@ jobs:
         Picasa_ClientSecret: ${{ secrets.Picasa_ClientSecret }}
 
     - name: Build and package
+      shell: cmd
       run: msbuild src/Greenshot.sln /p:Configuration=Release /t:Rebuild /v:normal
       env:
         Box13_ClientId: ${{ secrets.Box13_ClientId }}
