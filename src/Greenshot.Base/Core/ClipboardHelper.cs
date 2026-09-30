@@ -21,18 +21,15 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Ini;
 using Dapplo.Windows.Clipboard;
-using Dapplo.Windows.User32;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Core.FileFormatHandlers;
@@ -126,7 +123,7 @@ namespace Greenshot.Base.Core
         /// </summary>
         public static IReadOnlyList<string> SelectImageReadFormats()
         {
-            var formats = ImageFormatOrder(ClipboardNative.HasFormat).Where(ClipboardNative.HasFormat).Take(2).ToList();
+            var formats = ClipboardNative.AvailableFormats(ImageFormatOrder(ClipboardNative.HasFormat), 2).ToList();
             bool hasImageFormat = formats.Count > 0;
             formats.Add(FormatDrop);
             formats.AddRange(VirtualFileFormats);
@@ -221,59 +218,12 @@ namespace Greenshot.Base.Core
             };
         }
 
-        private static bool IsStaThread => Thread.CurrentThread.GetApartmentState() == ApartmentState.STA;
-
-        /// <summary>
-        /// The application which blocks the clipboard, for messages: the file name of its executable, its process name or the window title
-        /// </summary>
-        internal static string DescribeBlocker(int processId, IntPtr window)
-        {
-            if (processId != 0)
-            {
-                try
-                {
-                    using var process = Process.GetProcessById(processId);
-                    try
-                    {
-                        string fileName = process.MainModule?.FileName;
-                        if (!string.IsNullOrEmpty(fileName))
-                        {
-                            return Path.GetFileName(fileName);
-                        }
-                    }
-                    catch (Exception)
-                    {
-                        // Access to other (elevated / 64-bit) processes is not always possible, use the name
-                    }
-                    return process.ProcessName;
-                }
-                catch (Exception ex)
-                {
-                    Log.Debug($"Couldn't get the process {processId}", ex);
-                }
-            }
-
-            if (window == IntPtr.Zero)
-            {
-                return null;
-            }
-            try
-            {
-                string title = User32Api.GetText(window);
-                return string.IsNullOrEmpty(title) ? null : title;
-            }
-            catch (Exception)
-            {
-                return null;
-            }
-        }
-
         /// <summary>
         /// The ClipboardException with the message the user sees, naming the application which keeps the clipboard open
         /// </summary>
         private static ClipboardException CreateClipboardException(Exception exception)
         {
-            string blocker = exception is ClipboardAccessDeniedException accessDenied ? DescribeBlocker(accessDenied.BlockingProcessId, accessDenied.BlockingWindow) : null;
+            string blocker = (exception as ClipboardAccessDeniedException)?.BlockingProcessName;
             string message = blocker != null
                 ? Language.GetFormattedString("clipboard_inuse", blocker)
                 : Language.GetString("clipboard_error");
@@ -550,7 +500,7 @@ namespace Greenshot.Base.Core
             using var clipboard = ClipboardNative.Access(IntPtr.Zero, DefaultReadRetries, DefaultReadRetryInterval, SyncReadLockTimeout);
             if (!clipboard.CanAccess)
             {
-                Log.WarnFormat("Couldn't read the clipboard, it's in use by {0}", DescribeBlocker(clipboard.BlockingProcessId, clipboard.BlockingWindow) ?? "an unknown application");
+                Log.WarnFormat("Couldn't read the clipboard, it's in use by {0}", clipboard.GetBlockingProcessName() ?? "an unknown application");
                 return null;
             }
 
@@ -571,7 +521,7 @@ namespace Greenshot.Base.Core
             }
             catch (ClipboardAccessDeniedException ex)
             {
-                Log.Warn($"Couldn't read the clipboard, it's in use by {DescribeBlocker(ex.BlockingProcessId, ex.BlockingWindow) ?? "an unknown application"}", ex);
+                Log.Warn($"Couldn't read the clipboard, it's in use by {ex.BlockingProcessName ?? "an unknown application"}", ex);
                 return null;
             }
         }
@@ -607,11 +557,6 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// True when the clipboard has virtual files, which can only be read with OLE on an STA thread
-        /// </summary>
-        internal static bool ContainsVirtualFiles() => VirtualFileFormats.Any(ClipboardNative.HasFormat);
-
-        /// <summary>
         /// True when the clipboard has text, the clipboard isn't opened
         /// </summary>
         public static bool ContainsText() => TextReadFormats.Any(ClipboardNative.HasFormat);
@@ -628,23 +573,13 @@ namespace Greenshot.Base.Core
         public static bool ContainsText(IClipboardDataSource source) => source != null && TextReadFormats.Any(source.HasFormat);
 
         /// <summary>
-        /// Get the text of the source: CF_UNICODETEXT, or CF_TEXT (Windows synthesizes CF_UNICODETEXT on the clipboard, but not in a drop)
+        /// Get the text of the source
         /// </summary>
         /// <returns>string or null</returns>
         public static string GetText(IClipboardDataSource source)
         {
-            if (source == null)
-            {
-                return null;
-            }
-
-            string text = source.GetAsUnicodeString();
-            if (text != null || !source.TryGetAsBytes(FormatText, out var ansi) || ansi == null)
-            {
-                return text;
-            }
-            int length = Array.IndexOf(ansi, (byte)0);
-            return Encoding.Default.GetString(ansi, 0, length >= 0 ? length : ansi.Length);
+            // Falls back to CF_TEXT / CF_OEMTEXT for sources where Windows doesn't synthesize CF_UNICODETEXT, e.g. a drop
+            return source?.GetAsUnicodeString();
         }
 
         /// <summary>
@@ -948,50 +883,26 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// Use the virtual files of the source. A DataObjectReader (drop, OLE clipboard) has them directly; for a snapshot of the clipboard
-        /// the OLE data object is taken, when this is an STA thread and the clipboard didn't change since the snapshot.
-        /// The OLE data object is only valid inside <paramref name="use"/>, so it must return materialized results.
+        /// Use the virtual files of the source. A DataObjectReader (drop) has them directly; for a snapshot of the clipboard
+        /// Dapplo takes the OLE data object, when this is an STA thread and the clipboard didn't change since the snapshot.
+        /// The files can only be read inside <paramref name="use"/>, so it must return materialized results.
         /// </summary>
         private static T UseVirtualFiles<T>(IClipboardDataSource source, Func<IReadOnlyList<VirtualFile>, T> use, T none)
         {
-            if (source is DataObjectReader reader)
+            switch (source)
             {
-                reader.MaxDataSize = Math.Min(reader.MaxDataSize, MaxVirtualFileSize);
-                return use(reader.GetVirtualFiles());
-            }
-
-            if (source is not ClipboardSnapshot snapshot || !VirtualFileFormats.Any(snapshot.HasFormat))
-            {
-                return none;
-            }
-
-            if (!IsStaThread)
-            {
-                Log.Debug("The clipboard has virtual files, these can only be read with OLE on an STA thread.");
-                return none;
-            }
-
-            if (snapshot.SequenceNumber != ClipboardNative.SequenceNumber)
-            {
-                Log.Debug("The clipboard changed since the snapshot, not reading its virtual files.");
-                return none;
-            }
-
-            DataObjectReader oleReader;
-            try
-            {
-                oleReader = ClipboardNative.GetOleDataObject(2, TimeSpan.FromMilliseconds(50));
-                oleReader.MaxDataSize = MaxVirtualFileSize;
-            }
-            catch (Exception ex)
-            {
-                Log.Warn("Couldn't get the OLE data object of the clipboard for its virtual files.", ex);
-                return none;
-            }
-
-            using (oleReader)
-            {
-                return use(oleReader.GetVirtualFiles());
+                case DataObjectReader reader:
+                    reader.MaxDataSize = Math.Min(reader.MaxDataSize, MaxVirtualFileSize);
+                    return use(reader.GetVirtualFiles());
+                case ClipboardSnapshot snapshot when snapshot.HasVirtualFiles():
+                    if (snapshot.TryUseVirtualFiles(use, out var result, MaxVirtualFileSize))
+                    {
+                        return result;
+                    }
+                    Log.Debug("The virtual files of the clipboard couldn't be read: not an STA thread, the clipboard changed, or it's in use.");
+                    return none;
+                default:
+                    return none;
             }
         }
 

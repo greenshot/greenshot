@@ -168,39 +168,6 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// The largest image which is decoded from DIB data: 64 megapixels (256 MiB of BGRA32 pixels)
-        /// </summary>
-        public const long MaxDibPixels = 16384L * 16384L / 4;
-
-        private static bool HasAcceptableDimensions(byte[] dib)
-        {
-            if (dib.Length < 12)
-            {
-                return false;
-            }
-
-            uint headerSize = BitConverter.ToUInt32(dib, 0);
-            long width, height;
-            if (headerSize == 12)
-            {
-                // BITMAPCOREHEADER
-                width = BitConverter.ToUInt16(dib, 4);
-                height = BitConverter.ToUInt16(dib, 6);
-            }
-            else
-            {
-                if (dib.Length < 16)
-                {
-                    return false;
-                }
-                width = BitConverter.ToInt32(dib, 4);
-                height = Math.Abs((long)BitConverter.ToInt32(dib, 8));
-            }
-
-            return width > 0 && height > 0 && width * height <= MaxDibPixels;
-        }
-
-        /// <summary>
         /// Decode CF_DIB / CF_DIBV5 bytes (or the content of a .dib file without BITMAPFILEHEADER) into a Bitmap.
         /// The decoding is done by DibImage.TryDecode which validates the header against the data.
         /// </summary>
@@ -223,13 +190,8 @@ namespace Greenshot.Base.Core
                 dib = withoutFileHeader;
             }
 
-            // The decoder allocates width * height * 4 bytes: reject headers which claim an image Greenshot can't handle anyway
-            if (!HasAcceptableDimensions(dib))
-            {
-                return false;
-            }
-
-            if (!DibImage.TryDecode(dib, out var dibImage))
+            // The pixel count is checked from the header before anything is allocated (DibImage.DefaultMaxPixelCount, 64 megapixels)
+            if (!DibImage.TryDecode(dib, DibImage.DefaultMaxPixelCount, out var dibImage))
             {
                 return false;
             }

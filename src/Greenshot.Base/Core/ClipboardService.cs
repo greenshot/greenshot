@@ -107,7 +107,7 @@ namespace Greenshot.Base.Core
 
             // Same priority as ClipboardHelper.GetImages: image formats, virtual files, files, HTML
             Image image = ClipboardHelper.GetImageFromFormats(snapshot);
-            if (image == null && HasVirtualFiles(snapshot))
+            if (image == null && snapshot.HasVirtualFiles())
             {
                 // Virtual files need the OLE data object, which needs the UI (STA) thread
                 image = IsStaThread
@@ -136,7 +136,7 @@ namespace Greenshot.Base.Core
         /// <inheritdoc />
         public async Task<bool> ContainsImageAsync(CancellationToken cancellationToken = default)
         {
-            if (ClipboardHelper.ContainsVirtualFiles() && !IsStaThread)
+            if (ClipboardNative.HasVirtualFiles() && !IsStaThread)
             {
                 return await _ui.InvokeAsync(ClipboardHelper.ContainsImageExact, cancellationToken).ConfigureAwait(false);
             }
@@ -146,7 +146,6 @@ namespace Greenshot.Base.Core
 
         private static bool IsStaThread => Thread.CurrentThread.GetApartmentState() == ApartmentState.STA;
 
-        private static bool HasVirtualFiles(ClipboardSnapshot snapshot) =>
-            snapshot.HasFormat(DataObjectReader.FileGroupDescriptorWFormat) || snapshot.HasFormat(DataObjectReader.FileGroupDescriptorFormat);
+
     }
 }

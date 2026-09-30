@@ -513,6 +513,35 @@ namespace Greenshot.Tests.Core
             }
         }
 
+        [Fact]
+        public void Drop_AnsiTextOnly_IsRead()
+        {
+            string text = null;
+            Exception threadException = null;
+            var thread = new Thread(() =>
+            {
+                try
+                {
+                    // Only CF_TEXT, Windows doesn't synthesize CF_UNICODETEXT for a data object
+                    var dataObject = new System.Windows.Forms.DataObject();
+                    dataObject.SetData(System.Windows.Forms.DataFormats.Text, false, new MemoryStream(Encoding.Default.GetBytes("dropped text\0")));
+                    using var reader = new DataObjectReader(dataObject);
+                    Assert.True(ClipboardHelper.ContainsText(reader));
+                    text = ClipboardHelper.GetText(reader);
+                }
+                catch (Exception ex)
+                {
+                    threadException = ex;
+                }
+            });
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
+            thread.Join();
+
+            Assert.Null(threadException);
+            Assert.Equal("dropped text", text);
+        }
+
         /// <summary>
         /// FILEGROUPDESCRIPTORW with one FILEDESCRIPTORW (592 bytes) with FD_FILESIZE
         /// </summary>
@@ -551,9 +580,15 @@ namespace Greenshot.Tests.Core
                 try
                 {
                     window.CreateHandle(new System.Windows.Forms.CreateParams());
-                    if (!OpenClipboard(window.Handle))
+                    // Clipboard history or another monitor can have the clipboard open for a moment after the previous test
+                    int attempt = 0;
+                    while (!OpenClipboard(window.Handle))
                     {
-                        throw new InvalidOperationException($"OpenClipboard failed: {Marshal.GetLastWin32Error()}");
+                        if (++attempt >= 50)
+                        {
+                            throw new InvalidOperationException($"OpenClipboard failed: {Marshal.GetLastWin32Error()}");
+                        }
+                        Thread.Sleep(50);
                     }
                     opened.Set();
                     release.Wait(TimeSpan.FromSeconds(30));

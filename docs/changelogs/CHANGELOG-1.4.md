@@ -271,7 +271,7 @@ Continuous builds are automatically created for every commit to the `main` branc
 
 #### 🏗️ Development & Infrastructure
 
-**Clipboard on Dapplo.Windows.Clipboard 3.1**
+**Clipboard on Dapplo.Windows.Clipboard 3.2**
 - All clipboard reads and writes use Dapplo.Windows.Clipboard instead of WinForms / WPF / OLE: the clipboard works on any thread, is only open for a moment (content is prepared before and decoded after), and waiting for a busy clipboard doesn't block the UI
 - When another application keeps the clipboard open, the message names that application (before, it named the last application that copied something)
 - Image copy: the formats are placed as text, PNG, DIBV5, DIB, HTML (richest first); DIBV5 keeps the transparency, also of premultiplied bitmaps; CF_HTML gets correct UTF-8 offsets; the `BITMAP` setting now places a DIB (Windows provides CF_BITMAP from it) instead of a .NET-only object
