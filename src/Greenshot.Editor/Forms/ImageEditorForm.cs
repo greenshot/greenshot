@@ -88,11 +88,6 @@ namespace Greenshot.Editor.Forms
         private Surface _surface;
         private ToolStripButton[] _toolbarButtons;
 
-        private static readonly string[] SupportedClipboardFormats =
-        {
-            typeof(string).FullName, "Text", typeof(IDrawableContainerList).FullName
-        };
-
         private bool _originalBoldCheckState;
         private bool _originalItalicCheckState;
 
@@ -1398,7 +1393,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             duplicateToolStripMenuItem.Enabled = actionAllowedForSelection;
 
             // check dependencies for the Clipboard
-            bool hasClipboard = ClipboardHelper.ContainsFormat(SupportedClipboardFormats) || ClipboardHelper.ContainsImage();
+            bool hasClipboard = DrawableContainerClipboard.IsAvailable || ClipboardHelper.ContainsText() || ClipboardHelper.ContainsImage();
             btnPaste.Enabled = hasClipboard && !_controlsDisabledDueToConfirmable;
             pasteToolStripMenuItem.Enabled = hasClipboard && !_controlsDisabledDueToConfirmable;
         }

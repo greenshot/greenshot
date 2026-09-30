@@ -364,7 +364,7 @@ namespace Greenshot.UI.SelfService
             {
                 if (!string.IsNullOrEmpty(LogText))
                 {
-                    Clipboard.SetText(LogText);
+                    ClipboardHelper.SetClipboardData(LogText);
                     string copiedTemplate = CoreLanguage.GetString("selfservice_logviewer_copied");
                     StatusMessage = string.Format(string.IsNullOrEmpty(copiedTemplate) ? "Copied entire log content to clipboard ({0:N0} characters)" : copiedTemplate, LogText.Length);
                 }

@@ -738,7 +738,7 @@ namespace Greenshot.Editor.Drawing
             {
                 Image = (Image) EditorFormResources.GetObject("copyToolStripMenuItem.Image")
             };
-            item.Click += delegate { ClipboardHelper.SetClipboardData(typeof(IDrawableContainerList), this); };
+            item.Click += delegate { DrawableContainerClipboard.Copy(this); };
             menu.Items.Add(item);
 
             // Cut
@@ -748,7 +748,7 @@ namespace Greenshot.Editor.Drawing
             };
             item.Click += delegate
             {
-                ClipboardHelper.SetClipboardData(typeof(IDrawableContainerList), this);
+                DrawableContainerClipboard.Copy(this);
                 surface.RemoveElements(this);
             };
             menu.Items.Add(item);

@@ -30,6 +30,7 @@ using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.ServiceModel.Security;
 using System.Windows.Forms;
+using Dapplo.Windows.Clipboard;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Icons;
@@ -996,31 +997,34 @@ namespace Greenshot.Editor.Drawing
 
         #region DragDrop
 
+        /// <summary>
+        /// A reader for the dropped data, drop and paste share the IClipboardDataSource code path. Null when the data isn't an OLE data object.
+        /// </summary>
+        private static DataObjectReader CreateDropReader(DragEventArgs e) =>
+            e.Data is System.Runtime.InteropServices.ComTypes.IDataObject comDataObject ? new DataObjectReader(comDataObject) : null;
+
         private void OnDragEnter(object sender, DragEventArgs e)
         {
-            if (LOG.IsDebugEnabled)
-            {
-                LOG.Debug("DragEnter got following formats: ");
-                foreach (string format in ClipboardHelper.GetFormats(e.Data))
-                {
-                    LOG.Debug(format);
-                }
-            }
-
+            e.Effect = DragDropEffects.None;
             if ((e.AllowedEffect & DragDropEffects.Copy) != DragDropEffects.Copy)
             {
-                e.Effect = DragDropEffects.None;
+                return;
             }
-            else
+
+            using var reader = CreateDropReader(e);
+            if (reader == null)
             {
-                if (ClipboardHelper.ContainsImage(e.Data) || ClipboardHelper.ContainsFormat(e.Data, "DragImageBits"))
-                {
-                    e.Effect = DragDropEffects.Copy;
-                }
-                else
-                {
-                    e.Effect = DragDropEffects.None;
-                }
+                return;
+            }
+
+            if (LOG.IsDebugEnabled)
+            {
+                LOG.Debug("DragEnter got following formats: " + string.Join(", ", reader.Formats));
+            }
+
+            if (ClipboardHelper.ContainsImage(reader) || reader.HasFormat("DragImageBits"))
+            {
+                e.Effect = DragDropEffects.Copy;
             }
         }
 
@@ -1053,21 +1057,27 @@ namespace Greenshot.Editor.Drawing
         private void OnDragDrop(object sender, DragEventArgs e)
         {
             NativePoint mouse = PointToClient(new NativePoint(e.X, e.Y));
-            if (e.Data.GetDataPresent("Text"))
+            using var reader = CreateDropReader(e);
+            if (reader == null)
             {
-                string possibleUrl = ClipboardHelper.GetText(e.Data);
+                return;
+            }
+
+            // The data object is only valid during the drop: read everything now
+            var containers = ClipboardHelper.GetDrawables(reader).ToList();
+            if (ClipboardHelper.ContainsText(reader))
+            {
+                string possibleUrl = ClipboardHelper.GetText(reader);
                 // Test if it's an url and try to download the image so we have it in the original form
                 if (possibleUrl != null && possibleUrl.StartsWith("http"))
                 {
-                    // The data object is only valid during the drop: take what it has now, the download decides later
-                    var fallbackContainers = ClipboardHelper.GetDrawables(e.Data).ToList();
-                    AsyncCommand.Run(() => AddDownloadedOrFallbackAsync(new[] { possibleUrl }, fallbackContainers, new NativePoint(Location.X, Location.Y), mouse, true, false),
+                    AsyncCommand.Run(() => AddDownloadedOrFallbackAsync(new[] { possibleUrl }, containers, new NativePoint(Location.X, Location.Y), mouse, true, false),
                         "Download the dropped image");
                     return;
                 }
             }
 
-            AddDrawables(ClipboardHelper.GetDrawables(e.Data), mouse, true, false);
+            AddDrawables(containers, mouse, true, false);
         }
 
         /// <summary>
@@ -2331,7 +2341,7 @@ namespace Greenshot.Editor.Drawing
         public void CutSelectedElements()
         {
             if (!HasSelectedElements) return;
-            ClipboardHelper.SetClipboardData(typeof(IDrawableContainerList), selectedElements);
+            DrawableContainerClipboard.Copy(selectedElements);
             RemoveSelectedElements();
         }
 
@@ -2341,7 +2351,7 @@ namespace Greenshot.Editor.Drawing
         public void CopySelectedElements()
         {
             if (!HasSelectedElements) return;
-            ClipboardHelper.SetClipboardData(typeof(IDrawableContainerList), selectedElements);
+            DrawableContainerClipboard.Copy(selectedElements);
         }
 
         /// <summary>
@@ -2431,26 +2441,11 @@ namespace Greenshot.Editor.Drawing
         /// </summary>
         public void PasteElementFromClipboard()
         {
-            IDataObject clipboard = ClipboardHelper.GetDataObject();
-
-            var formats = ClipboardHelper.GetFormats(clipboard);
-            if (formats == null || formats.Count == 0)
+            // Copy the formats which are needed in one short clipboard session, decode afterwards
+            if (DrawableContainerClipboard.IsAvailable)
             {
-                return;
-            }
-
-            if (LOG.IsDebugEnabled)
-            {
-                LOG.Debug("List of clipboard formats available for pasting:");
-                foreach (string format in formats)
-                {
-                    LOG.Debug("\tgot format: " + format);
-                }
-            }
-
-            if (formats.Contains(typeof(IDrawableContainerList).FullName))
-            {
-                IDrawableContainerList dcs = (IDrawableContainerList) ClipboardHelper.GetFromDataObject(clipboard, typeof(IDrawableContainerList));
+                var elementsSnapshot = ClipboardHelper.ReadSnapshot(new[] { DrawableContainerClipboard.Format }, DrawableContainerClipboard.MaxSize);
+                IDrawableContainerList dcs = DrawableContainerClipboard.Read(elementsSnapshot);
                 if (dcs != null)
                 {
                     // Make element(s) only move 10,10 if the surface is the same
@@ -2526,9 +2521,23 @@ namespace Greenshot.Editor.Drawing
                     FieldAggregator.BindElements(dcs);
                     DeselectAllElements();
                     SelectElements(dcs);
+                    return;
                 }
+                LOG.Warn("The Greenshot elements on the clipboard couldn't be read, pasting the other content.");
             }
-            else if (ClipboardHelper.ContainsImage(clipboard))
+
+            var clipboard = ClipboardHelper.ReadSnapshot(ClipboardHelper.SelectImageReadFormats().Concat(ClipboardHelper.TextReadFormats));
+            if (clipboard == null || clipboard.Formats.Count == 0)
+            {
+                return;
+            }
+
+            if (LOG.IsDebugEnabled)
+            {
+                LOG.Debug("List of clipboard formats available for pasting: " + string.Join(", ", clipboard.Formats));
+            }
+
+            if (ClipboardHelper.ContainsImage(clipboard))
             {
                 NativePoint pasteLocation = GetPasteLocation(0.1f, 0.1f);
 

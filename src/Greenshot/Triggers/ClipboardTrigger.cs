@@ -44,6 +44,18 @@ namespace Greenshot.Triggers
     public class ClipboardTrigger : TriggerBase
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(ClipboardTrigger));
+
+        /// <summary>
+        /// Formats which are an image, with the names Dapplo.Windows.Clipboard reports
+        /// </summary>
+        private static readonly HashSet<string> ImageFormatNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "PNG",
+            StandardClipboardFormats.Bitmap.AsString(),
+            StandardClipboardFormats.DeviceIndependentBitmap.AsString(),
+            StandardClipboardFormats.DeviceIndependentBitmapV5.AsString(),
+            StandardClipboardFormats.Tiff.AsString()
+        };
         private IDisposable _subscription;
         private readonly int _currentProcessId;
 
@@ -126,20 +138,12 @@ namespace Greenshot.Triggers
                 if (OnImageCopied)
                 {
                     // Check standard formats or ClipboardHelper
-                    hasImage = formats.Any(f =>
-                        string.Equals(f, "PNG", StringComparison.OrdinalIgnoreCase) ||
-                        string.Equals(f, "DeviceIndependentBitmap", StringComparison.OrdinalIgnoreCase) ||
-                        string.Equals(f, "Format17", StringComparison.OrdinalIgnoreCase) ||
-                        string.Equals(f, "Bitmap", StringComparison.OrdinalIgnoreCase) ||
-                        string.Equals(f, "System.Drawing.Bitmap", StringComparison.OrdinalIgnoreCase) ||
-                        string.Equals(f, DataFormats.Bitmap, StringComparison.OrdinalIgnoreCase) ||
-                        string.Equals(f, DataFormats.Dib, StringComparison.OrdinalIgnoreCase) ||
-                        string.Equals(f, DataFormats.Tiff, StringComparison.OrdinalIgnoreCase) ||
-                        string.Equals(f, DataFormats.FileDrop, StringComparison.OrdinalIgnoreCase));
+                    // Dapplo reports the standard formats with their Win32 names (CF_DIB, CF_DIBV5, ...)
+                    hasImage = formats.Any(f => ImageFormatNames.Contains(f));
 
                     if (!hasImage)
                     {
-                        // Fallback check, the clipboard is read on the UI thread
+                        // Files, virtual files and HTML are only an image when they contain one: read them
                         hasImage = await ClipboardService.Current.ContainsImageAsync().ConfigureAwait(false);
                     }
 
@@ -153,8 +157,14 @@ namespace Greenshot.Triggers
                 // 3. FormatFilter Check (if specified, e.g. "PNG", "DIB", "DeviceIndependentBitmap")
                 if (!string.IsNullOrWhiteSpace(FormatFilter))
                 {
-                    bool matchesFilter = formats.Any(f => string.Equals(f, FormatFilter, StringComparison.OrdinalIgnoreCase)
-                        || f.IndexOf(FormatFilter, StringComparison.OrdinalIgnoreCase) >= 0);
+                    // A comma separated list; WinForms names (DeviceIndependentBitmap) also match the Win32 names (CF_DIB)
+                    var filters = FormatFilter.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                        .Select(filter => filter.Trim())
+                        .Where(filter => filter.Length > 0)
+                        .SelectMany(filter => new[] { filter, ClipboardHelper.NormalizeFormatName(filter) })
+                        .Distinct(StringComparer.OrdinalIgnoreCase)
+                        .ToList();
+                    bool matchesFilter = formats.Any(f => filters.Any(filter => f.IndexOf(filter, StringComparison.OrdinalIgnoreCase) >= 0));
 
                     if (!matchesFilter)
                     {

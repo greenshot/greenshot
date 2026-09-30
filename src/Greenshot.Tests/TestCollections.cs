@@ -34,6 +34,14 @@ namespace Greenshot.Tests
 
         /// <summary>Tests that change or depend on the global WPF theme (<c>WpfThemeHelper.IsDarkMode</c>, <c>ThemeManager.Instance</c>).</summary>
         public const string WpfThemeState = "WpfThemeState";
+
+        /// <summary>Tests that change the real Windows clipboard: they run alone, never in parallel with other tests.</summary>
+        public const string Clipboard = "Clipboard";
+    }
+
+    [CollectionDefinition(TestCollections.Clipboard, DisableParallelization = true)]
+    public class ClipboardCollection
+    {
     }
 
     [CollectionDefinition(TestCollections.RecipeManager)]

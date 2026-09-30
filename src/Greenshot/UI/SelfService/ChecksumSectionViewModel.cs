@@ -996,7 +996,7 @@ namespace Greenshot.UI.SelfService
                     sb.AppendLine($"{item.Status}\t{item.RelativePath}\t{item.ActualHash}\t{item.ExpectedHash}\t{item.FileSizeText}");
                 }
 
-                Clipboard.SetText(sb.ToString());
+                ClipboardHelper.SetClipboardData(sb.ToString());
                 StatusMessage = Language.GetString("selfservice_checksum_copied_report") ?? "Integrity report copied to clipboard!";
             }
             catch (Exception ex)
@@ -1018,7 +1018,7 @@ namespace Greenshot.UI.SelfService
                 sb.AppendLine($"Expected SHA-256: {SelectedItem.ExpectedHash}");
                 sb.AppendLine($"Size: {SelectedItem.FileSizeText}");
                 sb.AppendLine($"Path: {SelectedItem.FullPath}");
-                Clipboard.SetText(sb.ToString());
+                ClipboardHelper.SetClipboardData(sb.ToString());
                 StatusMessage = Language.GetString("selfservice_copied") ?? "Copied!";
             }
             catch (Exception ex)

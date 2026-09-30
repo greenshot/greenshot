@@ -28,9 +28,9 @@ using Greenshot.Base.Core.Enums;
 namespace Greenshot.Base.Interfaces
 {
     /// <summary>
-    /// Clipboard access for background code (roadmap section 5.5): the clipboard itself is only touched on the UI thread,
-    /// through the IUiDispatcher. A clipboard held by another process is retried with a delay between the attempts,
-    /// so the UI keeps pumping. Encoding the image happens on the calling (pool) thread.
+    /// Clipboard access for background code, on Dapplo.Windows.Clipboard: the clipboard works on any thread.
+    /// A clipboard held by another process is retried asynchronously, the ClipboardException names the blocking application.
+    /// Encoding the image happens on the calling thread before the clipboard is opened, decoding after it was closed.
     /// </summary>
     public interface IClipboardService
     {
