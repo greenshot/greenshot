@@ -160,7 +160,7 @@ namespace Greenshot.Base.Core
 
         public Task<bool> ContainsImageAsync(CancellationToken cancellationToken = default)
         {
-            return _ui.InvokeAsync(ClipboardHelper.ContainsImage, cancellationToken);
+            return _ui.InvokeAsync(() => ClipboardHelper.ContainsImage(ClipboardHelper.GetDataObject()), cancellationToken);
         }
     }
 }

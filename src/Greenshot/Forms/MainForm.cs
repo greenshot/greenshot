@@ -370,6 +370,8 @@ namespace Greenshot.Forms
             PluginHelper.Instance.LoadPluginsAsync().FireAndLog("Start the plugins", Log);
 
             EditorInitialize.Initialize();
+            // JIT-compiling the editor and loading the emoji font takes seconds, do it in the background instead of when the first editor opens
+            EditorPrewarm.PrewarmAsync(TimeSpan.FromSeconds(5)).FireAndLog("Prepare the editor", Log);
 
             // This forces the registration of all destinations inside Greenshot itself.
             RegisterInternalDestinations();
@@ -700,7 +702,7 @@ namespace Greenshot.Forms
         {
             var factor = DeviceDpi / 96f;
             contextMenu.Scale(new SizeF(factor, factor));
-            contextmenu_captureclipboard.Enabled = ClipboardHelper.ContainsImage();
+            contextmenu_captureclipboard.Enabled = ClipboardHelper.MayContainImage(ClipboardHelper.GetDataObject());
             contextmenu_capturelastregion.Enabled = coreConfiguration.LastCapturedRegion != NativeRect.Empty;
 
             // Multi-Screen captures

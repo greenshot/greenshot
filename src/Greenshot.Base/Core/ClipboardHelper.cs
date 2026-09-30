@@ -325,13 +325,64 @@ EndSelection:<<<<<<<4
         }
 
         /// <summary>
-        /// Wrapper for Clipboard.ContainsImage, specialized for Greenshot, Created for Bug #3432313
+        /// Fast check if the IDataObject can contain an image, for enabling paste commands.
+        /// Unlike <see cref="ContainsImage(IDataObject)"/> it only looks at the formats, file names and the HTML text:
+        /// no file contents are read and no image is decoded, so it can report an image which can't be loaded after all.
         /// </summary>
-        /// <returns>boolean if there is an image on the clipboard</returns>
-        public static bool ContainsImage()
+        /// <param name="dataObject">IDataObject</param>
+        /// <returns>true if the data object has a format from which an image might be loaded</returns>
+        public static bool MayContainImage(IDataObject dataObject)
         {
-            IDataObject clipboardData = GetDataObject();
-            return ContainsImage(clipboardData);
+            if (dataObject == null) return false;
+
+            var formats = GetFormats(dataObject);
+            if (formats.Count == 0)
+            {
+                return false;
+            }
+
+            if (formats.Contains(DataFormats.Bitmap)
+                || formats.Contains(DataFormats.Dib)
+                || formats.Contains(DataFormats.Tiff)
+                || formats.Contains(DataFormats.EnhancedMetafile)
+                || formats.Contains(FORMAT_PNG)
+                || formats.Contains(FORMAT_17)
+                || formats.Contains(FORMAT_JPG)
+                || formats.Contains(FORMAT_JFIF)
+                || formats.Contains(FORMAT_JPEG)
+                || formats.Contains(FORMAT_GIF))
+            {
+                return true;
+            }
+
+            if (formats.Contains(DataFormats.FileDrop) && GetImageFilenames(dataObject).Any())
+            {
+                return true;
+            }
+
+            // Virtual files (e.g. attachments dragged or copied from a mail client): decide by the file names
+            var fileDescriptors = formats.Contains("FileGroupDescriptorW") ? AvailableFileDescriptors(dataObject).ToList() : new List<FileDescriptor>();
+            if (fileDescriptors.Count > 0)
+            {
+                var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
+                var supportedExtensions = fileFormatHandlers.ExtensionsFor(FileFormatHandlerActions.LoadDrawableFromStream).ToList();
+                return fileDescriptors.Any(fileDescriptor => (fileDescriptor.FileAttributes & FileAttributes.Directory) == 0
+                                                             && supportedExtensions.Contains(Path.GetExtension(fileDescriptor.FileName)?.ToLowerInvariant()));
+            }
+
+            // Only decoding would tell if this is an image
+            if (formats.Contains(FORMAT_FILECONTENTS))
+            {
+                return true;
+            }
+
+            if (!formats.Contains(FORMAT_HTML))
+            {
+                return false;
+            }
+
+            var html = ContentAsString(dataObject, FORMAT_HTML, Encoding.UTF8);
+            return html != null && html.IndexOf("<img", StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
         /// <summary>
@@ -1382,16 +1433,6 @@ EndSelection:<<<<<<<4
             {
                 format
             });
-        }
-
-        /// <summary>
-        /// Check if there is currently something on the clipboard which has one of the supplied formats
-        /// </summary>
-        /// <param name="formats">string[] with formats</param>
-        /// <returns>true if one of the formats was found</returns>
-        public static bool ContainsFormat(string[] formats)
-        {
-            return ContainsFormat(GetDataObject(), formats);
         }
 
         /// <summary>

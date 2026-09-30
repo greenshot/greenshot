@@ -33,6 +33,7 @@ using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Dpi;
 using Dapplo.Windows.Kernel32;
 using Dapplo.Windows.User32;
+using Dapplo.Windows.User32.Enums;
 using Dapplo.Windows.User32.Structs;
 using Greenshot.Base;
 using Greenshot.Base.Core;
@@ -186,14 +187,16 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
         private void Initialize(ISurface surface, bool outputMade)
         {
             ThreadAssert.IsUi(nameof(ImageEditorForm));
-            // Compute emojis in background
-            EmojiData.Load();
+            var timing = new StartupTiming();
 
             //
             // The InitializeComponent() call is required for Windows Forms designer support.
             //
             InitializeComponent();
+            timing.Mark("InitializeComponent");
             InitializeLanguage();
+            timing.Mark("InitializeLanguage");
+            AssignEmojiButtonImageAsync().FireAndLog("Render the emoji button image", Log);
             // Add the destinations after the form is loaded, this is needed for the dynamic destinations which need the handle of the form
             Load += (s, eventArgs) =>
             {
@@ -224,6 +227,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
 
             // Make sure the editor is placed on the same location as the last editor was on close
             // But only if this still exists, else it will be reset (BUG-1812)
+            timing.Mark("Events");
             WindowPlacement editorWindowPlacement = EditorConfigurationHelper.GetEditorPlacement(EditorConfiguration);
             NativeRect screenBounds = DisplayInfo.ScreenBounds;
             if (!screenBounds.Contains(editorWindowPlacement.NormalPosition))
@@ -231,14 +235,13 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                 EditorConfigurationHelper.ResetEditorPlacement(EditorConfiguration);
             }
 
-            // ReSharper disable once UnusedVariable
-            WindowDetails thisForm = new(Handle)
-            {
-                WindowPlacement = EditorConfigurationHelper.GetEditorPlacement(EditorConfiguration)
-            };
+            timing.Mark("ScreenBounds");
+            ApplyStoredPlacement();
 
+            timing.Mark("Placement");
             // init surface
             Surface = surface;
+            timing.Mark("SetSurface");
             // Initial "saved" flag for asking if the image needs to be save
             _surface.Modified = !outputMade;
 
@@ -247,6 +250,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             // closed editors to linger in the list because Remove() only removes one entry.
 
             UpdateUi();
+            timing.Mark("UpdateUi");
 
             // Re-apply the capture title after UpdateUi()/ApplyLanguage() which resets Text
             // to just the bare form language key ("Greenshot editor").
@@ -273,6 +277,64 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
 
             // Workaround: As the cursor is (mostly) selected on the surface a funny artifact is visible, this fixes it.
             HideToolstripItems();
+            timing.Mark("Rest");
+            Log.Debug("Editor constructed: " + timing);
+        }
+
+        /// <summary>
+        /// Place the editor where the last editor was closed.
+        /// With a "show" command SetWindowPlacement would already show the unfinished form, every change after that
+        /// (surface, size, texts) would be laid out and painted again. The form is shown by Show(), maximized if it was.
+        /// </summary>
+        private void ApplyStoredPlacement()
+        {
+            var placement = EditorConfigurationHelper.GetEditorPlacement(EditorConfiguration);
+            bool maximized = placement.ShowCmd == ShowWindowCommands.Maximize;
+            placement.ShowCmd = ShowWindowCommands.Hide;
+            // ReSharper disable once UnusedVariable
+            WindowDetails thisForm = new(Handle)
+            {
+                WindowPlacement = placement
+            };
+            if (maximized)
+            {
+                WindowState = FormWindowState.Maximized;
+            }
+        }
+
+        /// <summary>
+        /// The emoji button image is rendered with ImageSharp, which takes long the first time (loading and JIT-compiling
+        /// ImageSharp, parsing the Twemoji font). It's rendered in the background once and shared by all editors,
+        /// the button gets it when it's available.
+        /// </summary>
+        private async Task AssignEmojiButtonImageAsync()
+        {
+            var image = await EmojiRenderer.GetSharedBitmapAsync(EmojiRenderer.EmojiButtonEmoji, EmojiRenderer.EmojiButtonSize).ConfigureAwait(true);
+            if (image == null || IsDisposed || Disposing)
+            {
+                return;
+            }
+
+            btnEmoji.Image = image;
+        }
+
+        /// <summary>
+        /// Measures the phases of the editor startup, for the log
+        /// </summary>
+        private sealed class StartupTiming
+        {
+            private readonly System.Diagnostics.Stopwatch _stopwatch = System.Diagnostics.Stopwatch.StartNew();
+            private readonly System.Text.StringBuilder _phases = new();
+            private long _last;
+
+            public void Mark(string phase)
+            {
+                long now = _stopwatch.ElapsedMilliseconds;
+                _phases.Append(phase).Append(' ').Append(now - _last).Append(" ms, ");
+                _last = now;
+            }
+
+            public override string ToString() => $"{_phases}total {_stopwatch.ElapsedMilliseconds} ms";
         }
 
         /// <summary>
@@ -1398,7 +1460,9 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             duplicateToolStripMenuItem.Enabled = actionAllowedForSelection;
 
             // check dependencies for the Clipboard
-            bool hasClipboard = ClipboardHelper.ContainsFormat(SupportedClipboardFormats) || ClipboardHelper.ContainsImage();
+            // This runs when the editor opens or is activated, the fast check is enough to enable paste (the paste itself checks the content)
+            var clipboardData = ClipboardHelper.GetDataObject();
+            bool hasClipboard = ClipboardHelper.ContainsFormat(clipboardData, SupportedClipboardFormats) || ClipboardHelper.MayContainImage(clipboardData);
             btnPaste.Enabled = hasClipboard && !_controlsDisabledDueToConfirmable;
             pasteToolStripMenuItem.Enabled = hasClipboard && !_controlsDisabledDueToConfirmable;
         }
@@ -2356,7 +2420,59 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                 base.WndProc(ref m);
             }
         }
+        /// <summary>
+        /// The language is already applied in the constructor, applying it again when the form loads would cost time
+        /// </summary>
+        protected override bool InitializeLanguageOnLoad => false;
+
         protected override void InitializeLanguage()
+        {
+            // Every changed text or image size would lay out its tool strip again, do that only once at the end
+            var suspendedControls = new List<Control> { this };
+            foreach (var toolStrip in new ToolStrip[] { menuStrip1, toolsToolStrip, destinationsToolStrip, propertiesToolStrip, statusStrip1 })
+            {
+                CollectDropDowns(toolStrip, suspendedControls);
+            }
+
+            foreach (var control in suspendedControls)
+            {
+                control.SuspendLayout();
+            }
+
+            try
+            {
+                ApplyLanguage();
+            }
+            finally
+            {
+                for (int i = suspendedControls.Count - 1; i >= 0; i--)
+                {
+                    suspendedControls[i].ResumeLayout(true);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Add the tool strip and all drop-downs (which are tool strips too) of its items, which already have items
+        /// </summary>
+        private static void CollectDropDowns(ToolStrip toolStrip, List<Control> toolStrips)
+        {
+            if (toolStrip == null)
+            {
+                return;
+            }
+
+            toolStrips.Add(toolStrip);
+            foreach (ToolStripItem item in toolStrip.Items)
+            {
+                if (item is ToolStripDropDownItem { HasDropDownItems: true } dropDownItem)
+                {
+                    CollectDropDowns(dropDownItem.DropDown, toolStrips);
+                }
+            }
+        }
+
+        private void ApplyLanguage()
         {
             this.toolsToolStrip.ImageScalingSize = coreConfiguration.IconSize;
             this.menuStrip1.ImageScalingSize = coreConfiguration.IconSize;
@@ -2373,7 +2489,6 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             this.btnText.Text = Language.GetString("editor_drawtextbox");
             this.btnSpeechBubble.Text = Language.GetString("editor_speechbubble");
             this.btnStepLabel.Text = Language.GetString("editor_counter");
-            this.btnEmoji.Image = EmojiRenderer.GetBitmap("\uD83D\uDE0A", 32);
             this.btnEmoji.Text = "Emoji (M)";
             this.btnHighlight.Text = Language.GetString("editor_drawhighlighter");
             this.btnObfuscate.Text = Language.GetString("editor_obfuscate");
@@ -2475,7 +2590,9 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             this.alignLeftToolStripMenuItem.Text = Language.GetString("editor_align_left");
             this.alignCenterToolStripMenuItem.Text = Language.GetString("editor_align_center");
             this.alignRightToolStripMenuItem.Text = Language.GetString("editor_align_right");
-            this.Text = Language.GetString("editor_title");
+            this.Text = _surface?.CaptureDetails?.Title != null
+                ? _surface.CaptureDetails.Title + " - " + Language.GetString(LangKey.editor_title)
+                : Language.GetString(LangKey.editor_title);
         }
 
         /// <summary>
