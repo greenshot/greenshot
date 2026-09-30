@@ -162,25 +162,36 @@ namespace Greenshot.Base.Core
         /// <returns>true if the image must be disposed</returns>
         public static bool CreateImageFromSurface(ISurface surface, SurfaceOutputSettings outputSettings, out Image imageToSave)
         {
-            bool disposeImage = false;
-
             if (WellKnownFileFormats.IsEqualFormat(WellKnownFileFormats.Greenshot, outputSettings.Format) || outputSettings.SaveBackgroundOnly)
             {
                 // We save the image of the surface, this should not be disposed
                 imageToSave = surface.Image;
-            }
-            else
-            {
-                // We create the export image of the surface to save
-                imageToSave = surface.GetImageForExport();
-                disposeImage = true;
+                // The following block of modifications should be skipped when saving the greenshot format, no effects or otherwise!
+                if (WellKnownFileFormats.IsEqualFormat(WellKnownFileFormats.Greenshot, outputSettings.Format))
+                {
+                    return false;
+                }
+
+                return CreateImageForOutput(imageToSave, false, outputSettings, out imageToSave);
             }
 
-            // The following block of modifications should be skipped when saving the greenshot format, no effects or otherwise!
-            if (WellKnownFileFormats.IsEqualFormat(WellKnownFileFormats.Greenshot, outputSettings.Format))
-            {
-                return disposeImage;
-            }
+            // We create the export image of the surface to save
+            return CreateImageForOutput(surface.GetImageForExport(), true, outputSettings, out imageToSave);
+        }
+
+        /// <summary>
+        /// Apply the output settings (effects, color reduction) to an already rendered image, without the surface: this can run on any thread
+        /// which owns (or borrows, and doesn't share) the source image.
+        /// </summary>
+        /// <param name="sourceImage">The rendered capture</param>
+        /// <param name="ownsSourceImage">True when the source image may be disposed here once it is replaced</param>
+        /// <param name="outputSettings">SurfaceOutputSettings</param>
+        /// <param name="imageToSave">The result, can be the source image</param>
+        /// <returns>true if the result is a new image (or the owned source image) which the caller must dispose</returns>
+        public static bool CreateImageForOutput(Image sourceImage, bool ownsSourceImage, SurfaceOutputSettings outputSettings, out Image imageToSave)
+        {
+            imageToSave = sourceImage;
+            bool disposeImage = ownsSourceImage;
 
             Image tmpImage;
             if (outputSettings.Effects != null && outputSettings.Effects.Count > 0)
@@ -617,6 +628,17 @@ namespace Greenshot.Base.Core
             }
 
             return tmpPath;
+        }
+
+        /// <summary>
+        /// Remember a temporary file, it is removed by RemoveTmpFiles (e.g. at exit).
+        /// </summary>
+        public static void RegisterTmpFile(string tmpFile)
+        {
+            if (!string.IsNullOrEmpty(tmpFile))
+            {
+                TmpFileCache.Add(tmpFile, tmpFile);
+            }
         }
 
         /// <summary>

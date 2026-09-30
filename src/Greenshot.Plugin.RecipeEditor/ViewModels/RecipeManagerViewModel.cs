@@ -13,6 +13,7 @@ using Greenshot.Base.Recipes;
 using Greenshot.Base.Triggers;
 using Greenshot.Base.Wpf;
 using Microsoft.Win32;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Plugin.RecipeEditor.ViewModels
 {
@@ -41,7 +42,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             ToggleActiveCommand = new RelayCommand(() => IsEnabled = !IsEnabled);
             EditCommand = new RelayCommand(() => _onSelectInEditor?.Invoke(Recipe));
             UnloadCommand = new RelayCommand(ExecuteUnload, () => CanUnload);
-            TestRunCommand = new RelayCommand(async () => await ExecuteTestRunAsync());
+            TestRunCommand = new RelayCommand(() => AsyncCommand.Run(ExecuteTestRunAsync, "Recipe test run"));
         }
 
         public string Id => Recipe.Id;
@@ -156,13 +157,6 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
         private async Task ExecuteTestRunAsync()
         {
-            var pipeline = _pipeline ?? SimpleServiceProvider.Current?.GetInstance<ICapturePipeline>(isOptional: true);
-            if (pipeline == null)
-            {
-                MessageBox.Show("Capture pipeline service is not available.", "Execution Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
             var valResult = RecipeValidator.Validate(Recipe);
             if (!valResult.IsValid)
             {
@@ -172,8 +166,12 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
             try
             {
-                var recipeToTest = TriggerRecipePreparer.PrepareForTestRun(Recipe);
-                await pipeline.ExecuteAsync(recipeToTest);
+                var result = await TestRun.RunAsync(Recipe);
+                string error = TestRun.ErrorOf(result);
+                if (error != null)
+                {
+                    throw new InvalidOperationException(error, result.Error);
+                }
             }
             catch (Exception ex)
             {

@@ -36,6 +36,7 @@ using Greenshot.Editor.Drawing;
 using Greenshot.Native;
 using Greenshot.Pipeline.Steps;
 using log4net;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Pipeline
 {
@@ -58,10 +59,16 @@ namespace Greenshot.Pipeline
         private static readonly Lazy<CapturePipeline> LazyInstance = new Lazy<CapturePipeline>(() => new CapturePipeline(), LazyThreadSafetyMode.ExecutionAndPublication);
         public static CapturePipeline Instance => LazyInstance.Value;
 
+        /// <summary>
+        /// The interactive selector used by this pipeline, the flow runner asks it whether a selection is open.
+        /// </summary>
+        public IInteractiveCaptureSelector Selector => _selector;
+
         static CapturePipeline()
         {
             // Wire surface instantiation so Greenshot.Base does not need a reference to Greenshot.Editor
-            CapturePayload.DefaultSurfaceFactory = capture =>
+            // The flow owns the surface on the pool until it hands it to the editor: create it without a WinForms context on this thread
+            CapturePayload.DefaultSurfaceFactory = capture => WinFormsContextGuard.CreateWithoutContext<ISurface>(() =>
             {
                 bool outputMade = capture.CaptureDetails?.CaptureMode == CaptureMode.File ||
                                   capture.CaptureDetails?.CaptureMode == CaptureMode.Clipboard;
@@ -69,10 +76,7 @@ namespace Greenshot.Pipeline
                 {
                     Modified = !outputMade
                 };
-            };
-
-            // Wire custom window capture handler for WindowsGraphicsCapture beta tester mode
-            WindowCaptureHelper.CustomWindowCaptureHandler = handle => WindowsGraphicsCaptureInterop.CaptureWindowToBitmap(handle);
+            });
         }
 
         public CapturePipeline(
@@ -160,7 +164,7 @@ namespace Greenshot.Pipeline
                 var recipeManager = SimpleServiceProvider.Current.GetInstance<IRecipeManager>(isOptional: true);
                 if (recipeManager != null)
                 {
-                    var verifiedRecipe = recipeManager.EnsureRecipeApprovedAndUpToDate(recipe);
+                    var verifiedRecipe = await recipeManager.EnsureRecipeApprovedAndUpToDateAsync(recipe, cancellationToken).ConfigureAwait(false);
                     if (verifiedRecipe == null)
                     {
                         Log.WarnFormat("Execution aborted for recipe '{0}' because approval was denied or file verification failed.", recipe.Name);
@@ -181,12 +185,6 @@ namespace Greenshot.Pipeline
                 Log.InfoFormat("Starting DAG capture flow: '{0}' ({1} node(s))", recipe.Name, nodeCount);
                 context.LogStep($"Starting DAG flow '{recipe.Name}' with {nodeCount} configured node(s)");
 
-                 // WindowsGraphicsCapture hook: only use WGC when the user enabled it.
-                 // Always (re)set the handler so toggling the setting takes effect without a restart.
-                 CaptureHandler.CaptureScreenRectangle = CoreConfig.UseWindowsGraphicsCapture
-                     ? WindowsGraphicsCaptureInterop.CaptureRectangle
-                     : null;
-
                 await _dagEngine.ExecuteAsync(recipe, context, cancellationToken).ConfigureAwait(false);
 
                 if (!context.IsAborted)
@@ -195,11 +193,7 @@ namespace Greenshot.Pipeline
                     context.LogStep("Capture flow completed successfully.");
                     Log.InfoFormat("Capture flow completed successfully: '{0}'", recipe.Name);
                 }
-                else if (context.State == CaptureFlowState.Failed)
-                {
-                    var notifyService = SimpleServiceProvider.Current.GetInstance<INotificationService>(isOptional: true);
-                    notifyService?.ShowErrorMessage(context.AbortReason ?? context.Error?.Message ?? "Capture flow failed.");
-                }
+
             }
             catch (OperationCanceledException)
             {

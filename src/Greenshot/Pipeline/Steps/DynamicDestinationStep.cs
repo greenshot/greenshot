@@ -38,6 +38,7 @@ using Greenshot.Destinations;
 using Greenshot.Editor.Destinations;
 using Greenshot.UI;
 using log4net;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Pipeline.Steps
 {
@@ -84,11 +85,7 @@ namespace Greenshot.Pipeline.Steps
             bool disposePreview = false;
             if (showPreview)
             {
-                if (context.Payload?.SharedRenderedBitmap != null)
-                {
-                    previewImg = context.Payload.SharedRenderedBitmap;
-                }
-                else if (context.Payload?.RawCapture?.Image != null)
+                if (context.Payload?.RawCapture?.Image != null)
                 {
                     previewImg = context.Payload.RawCapture.Image;
                 }
@@ -104,7 +101,7 @@ namespace Greenshot.Pipeline.Steps
             }
 
             // Resolve destinations (excluding legacy WinForms destination picker)
-            var allDests = DestinationHelper.GetAllDestinations()?.Where(d => d.IsActive && !string.Equals(d.Designation, "Picker", StringComparison.OrdinalIgnoreCase)).ToList() ?? new List<IDestination>();
+            var allDests = DestinationHelper.GetAllDestinations()?.Where(d => d.IsAvailableFor(context.Payload?.RawCapture?.CaptureDetails) && !string.Equals(d.Designation, "Picker", StringComparison.OrdinalIgnoreCase)).ToList() ?? new List<IDestination>();
             var specificDestDesignations = Config.GetParameter<List<string>>("Destinations");
             List<IDestination> targetDests;
             if (specificDestDesignations != null && specificDestDesignations.Count > 0)
@@ -129,12 +126,11 @@ namespace Greenshot.Pipeline.Steps
                 }
             }
 
-            var tcs = new TaskCompletionSource<(IDestination Dest, CaptureRecipe Recipe, bool OpenEditor)>();
-            var uiContext = SimpleServiceProvider.Current.GetInstance<SynchronizationContext>(isOptional: true) ?? SynchronizationContext.Current;
-
-            void ShowDialogOnUi()
+            (IDestination Dest, CaptureRecipe Recipe, bool OpenEditor) choice;
+            try
             {
-                try
+                // The flyout is UI: shown on the UI thread, the flow waits without blocking
+                choice = await context.Ui.InvokeAsync(() =>
                 {
                     var window = new DynamicDestinationWindow(
                         title,
@@ -144,62 +140,31 @@ namespace Greenshot.Pipeline.Steps
                         lastError,
                         timeoutSeconds);
 
-                    window.ShowDialog();
-
-                    tcs.SetResult((window.SelectedDestination, window.SelectedRecipeToForward, window.OpenInEditorRequested));
-                }
-                catch (Exception ex)
-                {
-                    Log.Error("Error displaying DynamicDestinationWindow", ex);
-                    tcs.SetException(ex);
-                }
-                finally
-                {
-                    if (disposePreview)
+                    // A cancelled flow closes the flyout, the close is posted to the UI thread
+                    using (cancellationToken.Register(() => context.Ui.InvokeAsync(() =>
+                           {
+                               if (window.IsVisible)
+                               {
+                                   window.Close();
+                               }
+                           }, CancellationToken.None).FireAndLog("Close the destination flyout", Log)))
                     {
-                        previewImg?.Dispose();
+                        window.ShowDialog();
                     }
+
+                    cancellationToken.ThrowIfCancellationRequested();
+                    return (window.SelectedDestination, window.SelectedRecipeToForward, window.OpenInEditorRequested);
+                }, cancellationToken).ConfigureAwait(false);
+            }
+            finally
+            {
+                if (disposePreview)
+                {
+                    previewImg?.Dispose();
                 }
             }
 
-            if (Application.Current?.Dispatcher != null)
-            {
-                if (Application.Current.Dispatcher.CheckAccess())
-                {
-                    ShowDialogOnUi();
-                }
-                else
-                {
-                    Application.Current.Dispatcher.Invoke(ShowDialogOnUi);
-                }
-            }
-            else if (Thread.CurrentThread.GetApartmentState() == ApartmentState.STA)
-            {
-                ShowDialogOnUi();
-            }
-            else
-            {
-                var staThread = new Thread(() =>
-                {
-                    try
-                    {
-                        ShowDialogOnUi();
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Error("Error on STA thread displaying DynamicDestinationWindow", ex);
-                        tcs.TrySetException(ex);
-                    }
-                });
-                staThread.SetApartmentState(ApartmentState.STA);
-                staThread.Start();
-                staThread.Join();
-            }
-
-            var (selectedDest, selectedRecipe, openEditor) = await tcs.Task.ConfigureAwait(false);
-
-            var surface = context.Payload?.EnsureSurface();
-            var captureDetails = context.Payload?.RawCapture?.CaptureDetails;
+            var (selectedDest, selectedRecipe, openEditor) = choice;
 
             if (openEditor || (selectedDest != null && EditorDestination.DESIGNATION.Equals(selectedDest.Designation, StringComparison.OrdinalIgnoreCase)))
             {
@@ -211,17 +176,10 @@ namespace Greenshot.Pipeline.Steps
                     var dispatcher = new DestinationDispatcher();
                     await dispatcher.DispatchAsync(context, new[] { editorDest }, cancellationToken).ConfigureAwait(false);
                 }
-                else if (surface != null && captureDetails != null)
-                {
-                    DestinationDispatcher.InvokeOnSta(uiContext, () =>
-                    {
-                        DestinationHelper.ExportCapture(false, EditorDestination.DESIGNATION, surface, captureDetails);
-                    });
-                }
             }
             else if (selectedDest != null)
             {
-                context.LogStep($"DynamicDestination: User selected destination '{selectedDest.Description ?? selectedDest.Designation}'.");
+                context.LogStep($"DynamicDestination: User selected destination '{selectedDest.Descriptor?.DisplayName ?? selectedDest.Designation}'.");
                 var dispatcher = new DestinationDispatcher();
                 await dispatcher.DispatchAsync(context, new[] { selectedDest }, cancellationToken).ConfigureAwait(false);
             }

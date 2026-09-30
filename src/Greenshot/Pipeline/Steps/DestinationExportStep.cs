@@ -22,6 +22,7 @@ using Greenshot.Destinations;
 using Greenshot.Editor.Destinations;
 using Greenshot.Helpers;
 using log4net;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Pipeline.Steps
 {
@@ -196,11 +197,11 @@ namespace Greenshot.Pipeline.Steps
                     }
                 }
 
-                if (dest != null && dest.IsActive)
+                if (dest != null && dest.IsAvailableFor(context.Payload?.RawCapture?.CaptureDetails))
                 {
                     destinations.Add(dest);
                 }
-                else if (dest != null && !dest.IsActive)
+                else if (dest != null)
                 {
                     Log.WarnFormat("Destination '{0}' was resolved but is marked inactive in configuration.", dest.Designation);
                 }
@@ -364,12 +365,12 @@ namespace Greenshot.Pipeline.Steps
             bool formatText = Config.GetParameter<bool?>("ClipboardFormatText") ?? false;
             bool isTextOnly = string.Equals(mode, "TextOnly", StringComparison.OrdinalIgnoreCase);
             bool isImageAndText = string.Equals(mode, "ImageAndText", StringComparison.OrdinalIgnoreCase) || formatText;
-            var uiContext = SimpleServiceProvider.Current.GetInstance<SynchronizationContext>(isOptional: true) ?? SynchronizationContext.Current;
+            var clipboard = ClipboardService.For(context.Ui);
 
             string textToCopy = null;
             if (isTextOnly || isImageAndText)
             {
-                textToCopy = await ExtractOrGetOcrTextAsync(context).ConfigureAwait(false);
+                textToCopy = await ExtractOrGetOcrTextAsync(context, cancellationToken).ConfigureAwait(false);
                 string customPattern = Config.GetParameter<string>("ClipboardCustomText");
                 if (!string.IsNullOrWhiteSpace(customPattern))
                 {
@@ -384,26 +385,12 @@ namespace Greenshot.Pipeline.Steps
             {
                 if (!string.IsNullOrWhiteSpace(textToCopy))
                 {
-                    if (uiContext != null && SynchronizationContext.Current != uiContext)
-                    {
-                        uiContext.Send(_ => ClipboardHelper.SetClipboardData(textToCopy), null);
-                    }
-                    else
-                    {
-                        ClipboardHelper.SetClipboardData(textToCopy);
-                    }
+                    await clipboard.SetTextAsync(textToCopy, cancellationToken).ConfigureAwait(false);
                     context.LogStep($"Copied {textToCopy.Length} character(s) of OCR text to clipboard.");
                 }
                 else
                 {
-                    if (uiContext != null && SynchronizationContext.Current != uiContext)
-                    {
-                        uiContext.Send(_ => ClipboardHelper.SetClipboardData(""), null);
-                    }
-                    else
-                    {
-                        ClipboardHelper.SetClipboardData("");
-                    }
+                    await clipboard.SetTextAsync("", cancellationToken).ConfigureAwait(false);
                     context.LogStep("Warning: No OCR text detected to place on clipboard.");
                 }
                 return;
@@ -418,23 +405,20 @@ namespace Greenshot.Pipeline.Steps
             if (Config.GetParameter<bool?>("ClipboardFormatHTML") ?? true) formats.Add(ClipboardFormat.HTML);
             if (Config.GetParameter<bool?>("ClipboardFormatHTMLDataUrl") ?? false) formats.Add(ClipboardFormat.HTMLDATAURL);
 
-            var surface = context.Payload?.EnsureSurface();
-            if (surface != null)
+            if (context.Payload?.EnsureSurface() != null)
             {
-                if (uiContext != null && SynchronizationContext.Current != uiContext)
+                // The export source renders the surface on the UI thread once, the lease is our own copy
+                var source = await context.Payload.GetExportSourceAsync(context.Ui, cancellationToken).ConfigureAwait(false);
+                using (var lease = await source.RenderAsync(new SurfaceOutputSettings(WellKnownFileFormats.Png, 100, false), cancellationToken).ConfigureAwait(false))
                 {
-                    uiContext.Send(_ => ClipboardHelper.SetClipboardData(surface, formats, text: isImageAndText ? textToCopy : null), null);
+                    await clipboard.SetImageAsync(lease.Image, formats, isImageAndText ? textToCopy : null, cancellationToken).ConfigureAwait(false);
                 }
-                else
-                {
-                    ClipboardHelper.SetClipboardData(surface, formats, text: isImageAndText ? textToCopy : null);
-                }
-                
+
                 context.LogStep($"Copied capture to clipboard with {formats.Count} format(s)" + (string.IsNullOrEmpty(textToCopy) ? "." : " (including OCR text)."));
             }
         }
 
-        private async Task<string> ExtractOrGetOcrTextAsync(CaptureFlowContext context)
+        private async Task<string> ExtractOrGetOcrTextAsync(CaptureFlowContext context, CancellationToken cancellationToken)
         {
             if (!string.IsNullOrWhiteSpace(context.Payload?.ExtractedText))
             {
@@ -446,7 +430,11 @@ namespace Greenshot.Pipeline.Steps
             {
                 try
                 {
-                    captureDetails.ProcessingTask.Wait();
+                    await captureDetails.ProcessingTask.WaitAsync(cancellationToken).ConfigureAwait(false);
+                }
+                catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+                {
+                    throw;
                 }
                 catch (Exception ex)
                 {

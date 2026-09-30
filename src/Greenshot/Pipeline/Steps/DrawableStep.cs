@@ -156,11 +156,8 @@ namespace Greenshot.Pipeline.Steps
                 surface.Modified = true;
 
                 // Invalidate composite cache
-                if (payload.SharedRenderedBitmap != null)
-                {
-                    payload.SharedRenderedBitmap.Dispose();
-                    payload.SharedRenderedBitmap = null;
-                }
+                // The surface changed: renders cached for the destinations are outdated
+                payload.InvalidateExportSource();
 
                 context.LogStep($"AnnotationStep added {elementsToAdd.Count} element(s) to surface.");
                 Log.InfoFormat("AnnotationStep '{0}' placed {1} element(s) on surface ({2}x{3})", Name, elementsToAdd.Count, surfaceWidth, surfaceHeight);

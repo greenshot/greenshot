@@ -30,6 +30,8 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Triggers;
 using log4net;
+using System.Threading.Tasks;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Recipes
 {
@@ -549,9 +551,18 @@ namespace Greenshot.Recipes
             return overallResult;
         }
 
+        /// <summary>
+        /// Show the approval dialog (modal, on the UI thread)
+        /// </summary>
         private bool RequestInteractiveApproval(CaptureRecipe recipe, string filePath, RecipeValidationResult valResult, out bool allowExternalCommands)
         {
             allowExternalCommands = false;
+            if (!UiDispatcher.Current.CheckAccess())
+            {
+                Log.WarnFormat("The approval of '{0}' can only be asked on the UI thread, the recipe is not approved.", filePath);
+                return false;
+            }
+
             bool approved = false;
             bool localAllow = false;
 
@@ -573,12 +584,7 @@ namespace Greenshot.Recipes
                 {
                     try
                     {
-                        if (mainForm.InvokeRequired)
-                        {
-                            ownerHwnd = (IntPtr)mainForm.Invoke(new Func<IntPtr>(() =>
-                                (mainForm.Visible && !mainForm.Disposing && !mainForm.IsDisposed) ? mainForm.Handle : IntPtr.Zero));
-                        }
-                        else if (mainForm.Visible && !mainForm.Disposing && !mainForm.IsDisposed)
+                        if (mainForm.Visible && !mainForm.Disposing && !mainForm.IsDisposed)
                         {
                             ownerHwnd = mainForm.Handle;
                         }
@@ -620,17 +626,7 @@ namespace Greenshot.Recipes
                 }
             }
 
-            if (System.Threading.Thread.CurrentThread.GetApartmentState() == System.Threading.ApartmentState.STA)
-            {
-                Show();
-            }
-            else
-            {
-                var staThread = new System.Threading.Thread(() => Show());
-                staThread.SetApartmentState(System.Threading.ApartmentState.STA);
-                staThread.Start();
-                staThread.Join();
-            }
+            Show();
 
             allowExternalCommands = localAllow;
             return approved;
@@ -648,7 +644,7 @@ namespace Greenshot.Recipes
         /// If the file has changed since approval, prompts the user interactively (if possible)
         /// and reloads the recipe. Returns the valid/updated recipe, or null if unapproved/rejected.
         /// </summary>
-        public CaptureRecipe EnsureRecipeApprovedAndUpToDate(CaptureRecipe currentRecipe)
+        public async Task<CaptureRecipe> EnsureRecipeApprovedAndUpToDateAsync(CaptureRecipe currentRecipe, CancellationToken cancellationToken = default)
         {
             if (currentRecipe == null) return null;
             if (string.IsNullOrEmpty(currentRecipe.FilePath))
@@ -679,7 +675,8 @@ namespace Greenshot.Recipes
             if (!isApproved)
             {
                 Log.InfoFormat("Recipe file '{0}' was modified on disk or is not approved. Prompting user for approval before execution.", fullPath);
-                var result = LoadRecipeFromFile(fullPath, interactiveApproval: true, forceApprovalPrompt: false);
+                // The approval dialog is shown on the UI thread, the flow waits for it without blocking
+                var result = await UiDispatcher.Current.InvokeAsync(() => LoadRecipeFromFile(fullPath, interactiveApproval: true, forceApprovalPrompt: false), cancellationToken).ConfigureAwait(false);
                 if (!result.IsValid)
                 {
                     Log.WarnFormat("Recipe re-approval or reload failed for '{0}': {1}", fullPath, string.Join("; ", result.Errors));

@@ -22,6 +22,8 @@
 using System;
 using System.Drawing;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using Greenshot.Base.Core;
 using Dapplo.Ini;
 
@@ -45,7 +47,10 @@ public static class IconCache
     }
     private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(IconCache));
 
-    public static Image IconForCommand(string commandName)
+    /// <summary>
+    /// The icon of the command (cached, don't dispose it): the icon of the executable or the logo of the Windows App.
+    /// </summary>
+    public static async Task<Image> IconForCommandAsync(string commandName, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(commandName))
         {
@@ -86,9 +91,9 @@ public static class IconCache
         {
             try
             {
-                icon = PluginUtils.GetCachedExeIcon(exePath, 0);
+                icon = await PluginUtils.GetCachedExeIconAsync(exePath, 0, cancellationToken).ConfigureAwait(false);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 LOG.Warn("Problem loading icon for " + exePath, ex);
             }
@@ -99,9 +104,9 @@ public static class IconCache
         {
             try
             {
-                icon = WindowsAppHelper.GetAppLogo(expanded ?? rawCommandLine, commandName);
+                icon = await WindowsAppHelper.GetAppLogoAsync(expanded ?? rawCommandLine, commandName, cancellationToken: cancellationToken).ConfigureAwait(false);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 LOG.Warn("Problem loading Windows App icon for " + commandName, ex);
             }

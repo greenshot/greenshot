@@ -56,7 +56,12 @@ using Greenshot.Editor.Drawing.Emoji;
 using Greenshot.Editor.Drawing.Fields;
 using Greenshot.Editor.Drawing.Fields.Binding;
 using Greenshot.Editor.Helpers;
+using Greenshot.Base.Threading;
 using log4net;
+using System.Threading.Tasks;
+using System.Threading;
+using Greenshot.Base.Core.Export;
+using Greenshot.Base.Controls;
 
 namespace Greenshot.Editor.Forms
 {
@@ -180,6 +185,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
 
         private void Initialize(ISurface surface, bool outputMade)
         {
+            ThreadAssert.IsUi(nameof(ImageEditorForm));
             // Compute emojis in background
             EmojiData.Load();
 
@@ -197,15 +203,13 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
 
             EventHandler recipesChangedHandler = (s, e) =>
             {
-                if (IsDisposed || Disposing) return;
-                if (InvokeRequired)
+                // Raised from file watchers and flows: always marshal to the UI thread
+                var ui = SimpleServiceProvider.Current.GetInstance<IUiDispatcher>(isOptional: true) ?? InlineUiDispatcher.Instance;
+                ui.InvokeAsync(() =>
                 {
-                    try { BeginInvoke(new MethodInvoker(UpdateRecipesMenu)); } catch { }
-                }
-                else
-                {
+                    if (IsDisposed || Disposing) return;
                     UpdateRecipesMenu();
-                }
+                }).FireAndLog("Update the editor recipes menu", Log);
             };
 
             var recipeManager = SimpleServiceProvider.Current.GetInstance<IRecipeManager>(isOptional: true);
@@ -433,17 +437,18 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             // Create export buttons
             foreach (IDestination destination in DestinationHelper.GetAllDestinations())
             {
-                if (destination.Priority <= 2)
+                var descriptor = destination.Descriptor;
+                if (descriptor.Priority <= 2)
                 {
                     continue;
                 }
 
-                if (!destination.IsActiveFor(_surface.CaptureDetails))
+                if (!destination.IsAvailableFor(_surface.CaptureDetails))
                 {
                     continue;
                 }
 
-                if (destination.DisplayIcon == null)
+                if (descriptor.IconKey == null)
                 {
                     continue;
                 }
@@ -460,55 +465,48 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             }
         }
 
+        /// <summary>
+        /// Export the surface of this editor to the destination, in the background.
+        /// </summary>
+        private void ExportTo(IDestination destination)
+        {
+            DestinationExporter.StartExport(destination, _surface);
+        }
+
         private void AddDestinationButton(IDestination toolstripDestination)
         {
-            if (toolstripDestination.IsDynamic)
+            var descriptor = toolstripDestination.Descriptor;
+            if (descriptor.HasDynamicDestinations)
             {
                 ToolStripSplitButton destinationButton = new()
                 {
                     DisplayStyle = ToolStripItemDisplayStyle.Image,
                     Size = new Size(23, 22),
-                    Text = toolstripDestination.Description,
+                    Text = descriptor.DisplayName,
                 };
-                // Dispose the icon when the toolstrip item is disposed to prevent memory leaks
-                destinationButton.AssignAutoDisposingImage(toolstripDestination?.DisplayIcon);
+                DestinationMenuBuilder.AssignIcon(destinationButton, descriptor.IconKey);
 
-                // Clone the icon for the menu item
-                ToolStripMenuItem defaultItem = new ToolStripMenuItem(toolstripDestination.Description)
-                {
-                    Tag = toolstripDestination,
-                };
-                // Dispose the icon when the toolstrip item is disposed to prevent memory leaks
-                defaultItem.AssignAutoDisposingImage(toolstripDestination?.DisplayIcon);
-                defaultItem.Click += delegate { toolstripDestination.ExportCapture(true, _surface, _surface.CaptureDetails); };
+                // The ButtonClick, this is for the icon, exports to the destination itself
+                destinationButton.ButtonClick += delegate { ExportTo(toolstripDestination); };
 
-                // The ButtonClick, this is for the icon, gets the current default item
-                destinationButton.ButtonClick += delegate { toolstripDestination.ExportCapture(true, _surface, _surface.CaptureDetails); };
-
-                // Generate the entries for the drop down
+                // Generate the entries for the drop down: the destination itself and its dynamic destinations
+                int generation = 0;
+                bool reopening = false;
                 destinationButton.DropDownOpening += delegate
                 {
-                    ClearItems(destinationButton.DropDownItems);
-                    destinationButton.DropDownItems.Add(defaultItem);
-
-                    List<IDestination> subDestinations = new List<IDestination>();
-                    subDestinations.AddRange(toolstripDestination.DynamicDestinations());
-                    if (subDestinations.Count > 0)
+                    if (reopening)
                     {
-                        subDestinations.Sort();
-                        foreach (IDestination subDestination in subDestinations)
-                        {
-                            IDestination closureFixedDestination = subDestination;
-                            ToolStripMenuItem destinationMenuItem = new ToolStripMenuItem(closureFixedDestination.Description)
-                            {
-                                Tag = closureFixedDestination,
-                            };
-                            // Dispose the icon when the toolstrip item is disposed to prevent memory leaks
-                            destinationMenuItem.AssignAutoDisposingImage(closureFixedDestination.DisplayIcon);
-                            destinationMenuItem.Click += delegate { closureFixedDestination.ExportCapture(true, _surface, _surface.CaptureDetails); };
-                            destinationButton.DropDownItems.Add(destinationMenuItem);
-                        }
+                        // Shown again after the dynamic destinations were added, the items are complete
+                        reopening = false;
+                        return;
                     }
+
+                    ClearItems(destinationButton.DropDownItems);
+                    destinationButton.DropDownItems.Add(DestinationMenuBuilder.CreateMenuItem(toolstripDestination, _surface.CaptureDetails, ExportTo, addDynamics: false));
+                    // Only the latest opening adds its items (a slow COM server could answer after the next opening)
+                    int currentGeneration = ++generation;
+                    AddDynamicDestinationItemsAsync(destinationButton, toolstripDestination, () => currentGeneration == generation, () => reopening = true)
+                        .FireAndLog($"Dynamic destinations of {toolstripDestination.Designation}", Log);
                 };
 
                 destinationsToolStrip.Items.Insert(destinationsToolStrip.Items.IndexOf(toolStripSeparator16), destinationButton);
@@ -519,12 +517,32 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                 destinationsToolStrip.Items.Insert(destinationsToolStrip.Items.IndexOf(toolStripSeparator16), destinationButton);
                 destinationButton.DisplayStyle = ToolStripItemDisplayStyle.Image;
                 destinationButton.Size = new Size(23, 22);
-                destinationButton.Text = toolstripDestination.Description;
-                destinationButton.Click += delegate { toolstripDestination.ExportCapture(true, _surface, _surface.CaptureDetails); };
-
-                // Dispose the icon when the toolstrip item is disposed to prevent memory leaks
-                destinationButton.AssignAutoDisposingImage(toolstripDestination.DisplayIcon);
+                destinationButton.Text = descriptor.DisplayName;
+                destinationButton.Click += delegate { ExportTo(toolstripDestination); };
+                DestinationMenuBuilder.AssignIcon(destinationButton, descriptor.IconKey);
             }
+        }
+
+        /// <summary>
+        /// Add the dynamic destinations to the drop down when they arrive (the destination may have to ask a COM server).
+        /// </summary>
+        private async Task AddDynamicDestinationItemsAsync(ToolStripSplitButton destinationButton, IDestination destination, Func<bool> isCurrent, Action beforeReopen)
+        {
+            // Loaded on the thread pool, the continuation is back on the UI thread
+            var subDestinations = await DestinationMenuBuilder.LoadDynamicDestinationsAsync(destination, _surface.CaptureDetails).ConfigureAwait(true);
+            if (destinationButton.IsDisposed || !isCurrent())
+            {
+                return;
+            }
+
+            // The drop down is shown already, it must be hidden while its items change
+            DestinationMenuBuilder.UpdateDropDownItems(destinationButton, () =>
+            {
+                foreach (var subDestination in subDestinations.Where(d => d != null).OrderBy(d => d, DestinationComparer.Instance))
+                {
+                    destinationButton.DropDownItems.Add(DestinationMenuBuilder.CreateMenuItem(subDestination, _surface.CaptureDetails, ExportTo, addDynamics: false));
+                }
+            }, beforeReopen);
         }
 
         /// <summary>
@@ -557,17 +575,14 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                     continue;
                 }
 
-                if (!destination.IsActiveFor(_surface.CaptureDetails))
+                if (!destination.IsAvailableFor(_surface.CaptureDetails))
                 {
                     continue;
                 }
 
-                ToolStripMenuItem item = destination.GetMenuItem(true, null, DestinationToolStripMenuItemClick, _surface.CaptureDetails);
-                if (item != null)
-                {
-                    item.ShortcutKeys = destination.EditorShortcutKeys;
-                    fileStripMenuItem.DropDownItems.Add(item);
-                }
+                ToolStripMenuItem item = DestinationMenuBuilder.CreateMenuItem(destination, _surface.CaptureDetails, ExportTo);
+                item.ShortcutKeys = DestinationMenuBuilder.ToKeys(destination.Descriptor.Shortcut);
+                fileStripMenuItem.DropDownItems.Add(item);
             }
 
             // add the elements after the destinations
@@ -582,40 +597,33 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             closeToolStripMenuItem.ShortcutKeys = Keys.Alt | Keys.F4;
         }
 
-        private delegate void SurfaceMessageReceivedThreadSafeDelegate(object sender, SurfaceMessageEventArgs eventArgs);
-
         /// <summary>
         /// This is the SurfaceMessageEvent receiver which display a message in the status bar if the
         /// surface is exported. It also updates the title to represent the filename, if there is one.
+        /// Surface messages are raised on the UI thread (export results are applied there).
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="eventArgs"></param>
         private void SurfaceMessageReceived(object sender, SurfaceMessageEventArgs eventArgs)
         {
-            if (InvokeRequired)
+            ThreadAssert.IsUi(nameof(SurfaceMessageReceived));
+            string dateTime = DateTime.Now.ToLongTimeString();
+            // TODO: Fix that we only open files, like in the tooltip
+            switch (eventArgs.MessageType)
             {
-                Invoke(new SurfaceMessageReceivedThreadSafeDelegate(SurfaceMessageReceived), sender, eventArgs);
-            }
-            else
-            {
-                string dateTime = DateTime.Now.ToLongTimeString();
-                // TODO: Fix that we only open files, like in the tooltip
-                switch (eventArgs.MessageType)
-                {
-                    case SurfaceMessageTyp.Error:
-                        UpdateStatusLabel(dateTime + " - ⚠ " + eventArgs.Message, isError: true);
-                        break;
-                    case SurfaceMessageTyp.FileSaved:
-                        // Put the event message on the status label and attach the context menu
-                        UpdateStatusLabel(dateTime + " - " + eventArgs.Message, fileSavedStatusContextMenu);
-                        // Change title
-                        Text = eventArgs.Surface.LastSaveFullPath + " - " + Language.GetString(LangKey.editor_title);
-                        break;
-                    default:
-                        // Put the event message on the status label
-                        UpdateStatusLabel(dateTime + " - " + eventArgs.Message);
-                        break;
-                }
+                case SurfaceMessageTyp.Error:
+                    UpdateStatusLabel(dateTime + " - ⚠ " + eventArgs.Message, isError: true);
+                    break;
+                case SurfaceMessageTyp.FileSaved:
+                    // Put the event message on the status label and attach the context menu
+                    UpdateStatusLabel(dateTime + " - " + eventArgs.Message, fileSavedStatusContextMenu);
+                    // Change title
+                    Text = eventArgs.Surface.LastSaveFullPath + " - " + Language.GetString(LangKey.editor_title);
+                    break;
+                default:
+                    // Put the event message on the status label
+                    UpdateStatusLabel(dateTime + " - " + eventArgs.Message);
+                    break;
             }
         }
 
@@ -776,18 +784,18 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                 destinationDesignation = WellKnownDestinations.FileDialog;
             }
 
-            DestinationHelper.ExportCapture(true, destinationDesignation, _surface, _surface.CaptureDetails);
+            DestinationHelper.StartExport(destinationDesignation, _surface);
         }
 
         private void BtnClipboardClick(object sender, EventArgs e)
         {
-            DestinationHelper.ExportCapture(true, WellKnownDestinations.Clipboard, _surface, _surface.CaptureDetails);
+            DestinationHelper.StartExport(WellKnownDestinations.Clipboard, _surface);
         }
 
         private void BtnPrintClick(object sender, EventArgs e)
         {
             // The BeginInvoke is a solution for the printdialog not having focus
-            BeginInvoke((MethodInvoker)delegate { DestinationHelper.ExportCapture(true, WellKnownDestinations.Printer, _surface, _surface.CaptureDetails); });
+            BeginInvoke((MethodInvoker)delegate { DestinationHelper.StartExport(WellKnownDestinations.Printer, _surface); });
         }
 
         private void CloseToolStripMenuItemClick(object sender, EventArgs e)
@@ -1050,7 +1058,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
 
         private void HelpToolStripMenuItem1Click(object sender, EventArgs e)
         {
-            HelpFileLoader.LoadHelp();
+            AsyncCommand.Run(HelpFileLoader.LoadHelpAsync, "Load the help");
         }
 
         private void AboutToolStripMenuItemClick(object sender, EventArgs e)
@@ -1306,14 +1314,14 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                         continue;
                     }
 
-                    if (!destination.IsActiveFor(_surface.CaptureDetails))
+                    if (!destination.IsAvailableFor(_surface.CaptureDetails))
                     {
                         continue;
                     }
 
-                    if (destination.EditorShortcutKeys == keys)
+                    if (DestinationMenuBuilder.ToKeys(destination.Descriptor.Shortcut) == keys)
                     {
-                        destination.ExportCapture(true, _surface, _surface.CaptureDetails);
+                        ExportTo(destination);
                         return true;
                     }
                 }
@@ -1758,10 +1766,10 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                 }
             }
 
-            ExportInformation exportInformation = clickedDestination?.ExportCapture(true, _surface, _surface.CaptureDetails);
-            if (exportInformation != null && exportInformation.ExportMade)
+            // The modified state is cleared when the export succeeds
+            if (clickedDestination != null)
             {
-                _surface.Modified = false;
+                ExportTo(clickedDestination);
             }
         }
 
@@ -1829,7 +1837,12 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             mainForm.AddCaptureWindowMenuItems(captureWindowMenuItem, Contextmenu_window_Click);
         }
 
-        private async void ObfuscateTextToolStripMenuItemClick(object sender, EventArgs e)
+        private void ObfuscateTextToolStripMenuItemClick(object sender, EventArgs e)
+        {
+            AsyncCommand.Run(ObfuscateTextAsync, "Obfuscate text");
+        }
+
+        private async Task ObfuscateTextAsync()
         {
             if (_surface?.CaptureDetails == null)
             {
@@ -1906,10 +1919,14 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
 
         private void Contextmenu_window_Click(object sender, EventArgs e)
         {
-            ToolStripMenuItem clickedItem = (ToolStripMenuItem)sender;
+            var clickedItem = (ToolStripMenuItem)sender;
+            AsyncCommand.Run(() => CaptureWindowIntoEditorAsync((WindowDetails)clickedItem.Tag), "Capture a window into the editor");
+        }
+
+        private async Task CaptureWindowIntoEditorAsync(WindowDetails windowToCapture)
+        {
             try
             {
-                WindowDetails windowToCapture = (WindowDetails)clickedItem.Tag;
                 ICapture capture = new Capture();
                 using (Graphics graphics = Graphics.FromHwnd(Handle))
                 {
@@ -1921,7 +1938,8 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                 windowToCapture = captureHelper.SelectCaptureWindow(windowToCapture);
                 if (windowToCapture != null)
                 {
-                    capture = captureHelper.CaptureWindow(windowToCapture, capture, coreConfiguration.WindowCaptureMode);
+                    // Continues on the UI thread (the context is captured), where the surface is changed
+                    capture = await captureHelper.CaptureWindowAsync(windowToCapture, capture, coreConfiguration.WindowCaptureMode).ConfigureAwait(true);
                     if (capture?.CaptureDetails != null && capture.Image != null)
                     {
                         ((Bitmap)capture.Image).SetResolution(capture.CaptureDetails.DpiX, capture.CaptureDetails.DpiY);
@@ -1940,10 +1958,21 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             }
         }
 
+        /// <summary>
+        /// Apply the effect (calculated on the thread pool), then update the undo/redo state
+        /// </summary>
+        private void ApplyEffect(IEffect effect)
+        {
+            AsyncCommand.Run(async () =>
+            {
+                await _surface.ApplyBitmapEffectAsync(effect);
+                UpdateUndoRedoSurfaceDependencies();
+            }, $"Apply {effect.GetType().Name}");
+        }
+
         private void AddBorderToolStripMenuItemClick(object sender, EventArgs e)
         {
-            _surface.ApplyBitmapEffect(new BorderEffect());
-            UpdateUndoRedoSurfaceDependencies();
+            ApplyEffect(new BorderEffect());
         }
 
         /// <summary>
@@ -1953,8 +1982,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
         /// <param name="e"></param>
         private void EnlargeCanvasToolStripMenuItemClick(object sender, EventArgs e)
         {
-            _surface.ApplyBitmapEffect(new ResizeCanvasEffect(25, 25, 25, 25));
-            UpdateUndoRedoSurfaceDependencies();
+            ApplyEffect(new ResizeCanvasEffect(25, 25, 25, 25));
         }
 
         /// <summary>
@@ -2001,8 +2029,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
 
             if (apply)
             {
-                _surface.ApplyBitmapEffect(dropShadowEffect);
-                UpdateUndoRedoSurfaceDependencies();
+                ApplyEffect(dropShadowEffect);
             }
         }
 
@@ -2018,8 +2045,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             var result = new ResizeSettingsWindow(resizeEffect).ShowDialog(this);
             if (result == true)
             {
-                _surface.ApplyBitmapEffect(resizeEffect);
-                UpdateUndoRedoSurfaceDependencies();
+                ApplyEffect(resizeEffect);
             }
         }
 
@@ -2047,15 +2073,13 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
 
             if (apply)
             {
-                _surface.ApplyBitmapEffect(tornEdgeEffect);
-                UpdateUndoRedoSurfaceDependencies();
+                ApplyEffect(tornEdgeEffect);
             }
         }
 
         private void GrayscaleToolStripMenuItemClick(object sender, EventArgs e)
         {
-            _surface.ApplyBitmapEffect(new GrayscaleEffect());
-            UpdateUndoRedoSurfaceDependencies();
+            ApplyEffect(new GrayscaleEffect());
         }
 
         private void ClearToolStripMenuItemClick(object sender, EventArgs e)
@@ -2066,20 +2090,17 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
 
         private void RotateCwToolstripButtonClick(object sender, EventArgs e)
         {
-            _surface.ApplyBitmapEffect(new RotateEffect(90));
-            UpdateUndoRedoSurfaceDependencies();
+            ApplyEffect(new RotateEffect(90));
         }
 
         private void RotateCcwToolstripButtonClick(object sender, EventArgs e)
         {
-            _surface.ApplyBitmapEffect(new RotateEffect(270));
-            UpdateUndoRedoSurfaceDependencies();
+            ApplyEffect(new RotateEffect(270));
         }
 
         private void InvertToolStripMenuItemClick(object sender, EventArgs e)
         {
-            _surface.ApplyBitmapEffect(new InvertEffect());
-            UpdateUndoRedoSurfaceDependencies();
+            ApplyEffect(new InvertEffect());
         }
 
         private void RemoveTransparencyToolStripMenuItemClick(object sender, EventArgs e)
@@ -2095,8 +2116,7 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
                 {
                     Color = colorDialog.Color
                 };
-                _surface.ApplyBitmapEffect(removeTransparencyEffect);
-                UpdateUndoRedoSurfaceDependencies();
+                ApplyEffect(removeTransparencyEffect);
             }
         }
 

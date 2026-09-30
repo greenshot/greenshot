@@ -31,6 +31,7 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Wpf;
 using log4net;
 using CoreLanguage = Greenshot.Base.Core.Language;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.UI.SelfService
 {
@@ -481,20 +482,8 @@ namespace Greenshot.UI.SelfService
                 }
             }
 
-            if (Thread.CurrentThread.GetApartmentState() == ApartmentState.STA)
-            {
-                Display();
-            }
-            else
-            {
-                var staThread = new Thread(Display)
-                {
-                    Name = "GreenshotSelfServiceSTAThread",
-                    IsBackground = true
-                };
-                staThread.SetApartmentState(ApartmentState.STA);
-                staThread.Start();
-            }
+            // All windows live on the one UI thread
+            Greenshot.Base.Threading.UiDispatcher.Current.RunOnUiAsync(Display).FireAndLog("Show the self service window", Log);
         }
     }
 }

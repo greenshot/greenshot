@@ -31,6 +31,7 @@ using Greenshot.Configuration;
 using Greenshot.Editor.Destinations;
 using Greenshot.Forms;
 using log4net;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Helpers;
 
@@ -47,15 +48,23 @@ internal static class HotkeyHelper
     /// </summary>
     /// <param name="ignoreFailedRegistration">if true, a failed hotkey registration will not be reported to the user - the hotkey will simply not be registered</param>
     /// <returns>Whether the hotkeys could be registered to the users content. This also applies if conflicts arise and the user decides to ignore these (i.e. not to register the conflicting hotkey).</returns>
+    /// <summary>
+    /// Run the hotkey action on the UI thread (posted: the keyboard hook must return quickly); the action starts a flow through the runner.
+    /// </summary>
+    private static void OnUiThread(Action action)
+    {
+        var ui = SimpleServiceProvider.Current.GetInstance<IUiDispatcher>(isOptional: true) ?? InlineUiDispatcher.Instance;
+        ui.InvokeAsync(action).FireAndLog("Hotkey action");
+    }
+
     public static bool RegisterHotkeys(bool ignoreFailedRegistration = false)
     {
         bool success = true;
         StringBuilder failedKeys = new StringBuilder();
 
-        var uiContext = SimpleServiceProvider.Current.GetInstance<SynchronizationContext>();
 
         if (!RegisterWrapper(failedKeys, "CaptureRegion", "RegionHotkey", () => {
-            uiContext?.Post(_ => CaptureHelper.CaptureRegion(true), null);
+            OnUiThread(() => CaptureHelper.CaptureRegion(true));
         }, ignoreFailedRegistration))
         {
             success = false;
@@ -65,11 +74,11 @@ internal static class HotkeyHelper
         {
             if (config.CaptureWindowsInteractive)
             {
-                uiContext?.Post(_ => CaptureHelper.CaptureWindowInteractive(true), null);
+                OnUiThread(() => CaptureHelper.CaptureWindowInteractive(true));
             }
             else
             {
-                uiContext?.Post(_ => CaptureHelper.CaptureWindow(true), null);
+                OnUiThread(() => CaptureHelper.CaptureWindow(true));
             }
         }, ignoreFailedRegistration))
         {
@@ -77,21 +86,21 @@ internal static class HotkeyHelper
         }
 
         if (!RegisterWrapper(failedKeys, "CaptureFullScreen", "FullscreenHotkey", () => {
-            uiContext?.Post(_ => CaptureHelper.CaptureFullscreen(true, config.ScreenCaptureMode), null);
+            OnUiThread(() => CaptureHelper.CaptureFullscreen(true, config.ScreenCaptureMode));
         }, ignoreFailedRegistration))
         {
             success = false;
         }
 
         if (!RegisterWrapper(failedKeys, "CaptureLastRegion", "LastregionHotkey", () => {
-            uiContext?.Post(_ => CaptureHelper.CaptureLastRegion(true), null);
+            OnUiThread(() => CaptureHelper.CaptureLastRegion(true));
         }, ignoreFailedRegistration))
         {
             success = false;
         }
 
         if (!RegisterWrapper(failedKeys, "CaptureClipboard", "ClipboardHotkey", () => {
-            uiContext?.Post(_ => CaptureHelper.CaptureClipboard(DestinationHelper.GetDestination(EditorDestination.DESIGNATION)), null);
+            OnUiThread(() => CaptureHelper.CaptureClipboard(DestinationHelper.GetDestination(EditorDestination.DESIGNATION)));
         }, true))
         {
             success = false;

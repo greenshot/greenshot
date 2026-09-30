@@ -9,6 +9,8 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Plugin.Office.Destinations;
 using Microsoft.Office.Interop.PowerPoint;
+using System.Threading.Tasks;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Plugin.Office.Forms
 {
@@ -16,7 +18,25 @@ namespace Greenshot.Plugin.Office.Forms
     {
         public string Name { get; set; }
         public string Title { get; set; }
-        public ImageSource Icon { get; set; }
+        private ImageSource _icon;
+
+        public ImageSource Icon
+        {
+            get => _icon;
+            set
+            {
+                _icon = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Load the icon of the destination, the continuation sets it on the UI thread
+        /// </summary>
+        public async Task LoadIconAsync(IDestination destination)
+        {
+            Icon = await DestinationIcons.GetImageSourceAsync(destination.Descriptor?.IconKey);
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
@@ -72,37 +92,37 @@ namespace Greenshot.Plugin.Office.Forms
             OfficeApps.Add(new OfficeAppItem
             {
                 Name = "Word",
-                Title = Greenshot.Base.Core.Language.GetString("office", "app_word"),
-                Icon = new WordDestination().DisplayIcon?.ToBitmapSource()
+                Title = Greenshot.Base.Core.Language.GetString("office", "app_word")
             });
+            AsyncCommand.Run(() => OfficeApps[OfficeApps.Count - 1].LoadIconAsync(new WordDestination()), "Load the icon of WordDestination");
 
             OfficeApps.Add(new OfficeAppItem
             {
                 Name = "Excel",
-                Title = Greenshot.Base.Core.Language.GetString("office", "app_excel"),
-                Icon = new ExcelDestination().DisplayIcon?.ToBitmapSource()
+                Title = Greenshot.Base.Core.Language.GetString("office", "app_excel")
             });
+            AsyncCommand.Run(() => OfficeApps[OfficeApps.Count - 1].LoadIconAsync(new ExcelDestination()), "Load the icon of ExcelDestination");
 
             OfficeApps.Add(new OfficeAppItem
             {
                 Name = "PowerPoint",
-                Title = Greenshot.Base.Core.Language.GetString("office", "app_powerpoint"),
-                Icon = new PowerpointDestination().DisplayIcon?.ToBitmapSource()
+                Title = Greenshot.Base.Core.Language.GetString("office", "app_powerpoint")
             });
+            AsyncCommand.Run(() => OfficeApps[OfficeApps.Count - 1].LoadIconAsync(new PowerpointDestination()), "Load the icon of PowerpointDestination");
 
             OfficeApps.Add(new OfficeAppItem
             {
                 Name = "Outlook",
-                Title = Greenshot.Base.Core.Language.GetString("office", "app_outlook"),
-                Icon = new OutlookDestination().DisplayIcon?.ToBitmapSource()
+                Title = Greenshot.Base.Core.Language.GetString("office", "app_outlook")
             });
+            AsyncCommand.Run(() => OfficeApps[OfficeApps.Count - 1].LoadIconAsync(new OutlookDestination()), "Load the icon of OutlookDestination");
 
             OfficeApps.Add(new OfficeAppItem
             {
                 Name = "OneNote",
-                Title = Greenshot.Base.Core.Language.GetString("office", "app_onenote"),
-                Icon = new OneNoteDestination().DisplayIcon?.ToBitmapSource()
+                Title = Greenshot.Base.Core.Language.GetString("office", "app_onenote")
             });
+            AsyncCommand.Run(() => OfficeApps[OfficeApps.Count - 1].LoadIconAsync(new OneNoteDestination()), "Load the icon of OneNoteDestination");
 
             if (OfficeApps.Count > 0)
             {

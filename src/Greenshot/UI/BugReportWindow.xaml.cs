@@ -23,6 +23,7 @@ using System;
 using System.Threading;
 using System.Windows;
 using System.Windows.Input;
+using Greenshot.Base.Threading;
 using Greenshot.UI.ViewModels;
 
 namespace Greenshot.UI
@@ -95,13 +96,14 @@ namespace Greenshot.UI
         }
 
         /// <summary>
-        /// Displays the bug report dialog safely, ensuring execution on an STA thread.
-        /// If called from a non-STA thread (such as a ThreadPool/MTA thread during unobserved task exceptions),
-        /// an STA thread is automatically spawned to host the dialog.
+        /// Displays the bug report dialog on the UI thread (posted to it when called from another thread).
+        /// When the process terminates (unhandled exception on another thread) the report is shown on an own STA thread,
+        /// as the UI thread may be the problem and the process ends as soon as the handler returns.
         /// </summary>
         /// <param name="ex">The exception to display</param>
         /// <param name="fullReport">Optional pre-built report string</param>
-        public static void ShowReport(Exception ex, string fullReport = null)
+        /// <param name="processTerminating">true when the process terminates after the report</param>
+        public static void ShowReport(Exception ex, string fullReport = null, bool processTerminating = false)
         {
             void DisplayDialog()
             {
@@ -122,21 +124,23 @@ namespace Greenshot.UI
                 }
             }
 
-            if (Thread.CurrentThread.GetApartmentState() == ApartmentState.STA)
+            var ui = Greenshot.Base.Threading.UiDispatcher.Current;
+            if (!processTerminating || ui.CheckAccess())
             {
-                DisplayDialog();
+                ui.RunOnUiAsync(DisplayDialog).FireAndLog("Show the bug report");
+                return;
             }
-            else
+
+#pragma warning disable RS0030 // Crash report: the process terminates when this handler returns, the dying thread has to wait for the user and must not depend on the UI thread
+            var staThread = new Thread(DisplayDialog)
             {
-                var staThread = new Thread(DisplayDialog)
-                {
-                    Name = "GreenshotBugReportSTAThread",
-                    IsBackground = true
-                };
-                staThread.SetApartmentState(ApartmentState.STA);
-                staThread.Start();
-                staThread.Join();
-            }
+                Name = "GreenshotBugReportSTAThread",
+                IsBackground = true
+            };
+            staThread.SetApartmentState(ApartmentState.STA);
+            staThread.Start();
+            staThread.Join();
+#pragma warning restore RS0030
         }
     }
 }

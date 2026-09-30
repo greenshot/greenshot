@@ -20,9 +20,8 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
+using System.Threading;
+using System.Threading.Tasks;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Core.FileFormat;
@@ -31,42 +30,29 @@ using Greenshot.Base.Interfaces.Plugin;
 
 namespace Greenshot.Plugin.Imgur
 {
-    public class ImgurDestination : AbstractDestination
+    public class ImgurDestination : DestinationBase
     {
-        private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ImgurDestination));
-        private static readonly ComponentResourceManager Resources = new ComponentResourceManager(typeof(ImgurPlugin));
+        /// <summary>
+        /// The icons in the resources of the plugin
+        /// </summary>
+        public static ResourceIconProvider Icons { get; } = new ResourceIconProvider("imgur", typeof(ImgurPlugin));
 
         public override string Designation => "Imgur";
 
-        public override string Description => Language.GetString("imgur", LangKey.upload_menu_item) ?? "Upload to Imgur";
+        public override DestinationDescriptor Descriptor => new DestinationDescriptor(Language.GetString("imgur", LangKey.upload_menu_item) ?? "Upload to Imgur", iconKey: Icons.KeyFor("Imgur"));
 
-        public override Image DisplayIcon => (Image) Resources.GetObject("Imgur");
-
-        public override IEnumerable<IDestination> DynamicDestinations()
+        public override async Task<ExportResult> ExportAsync(ExportRequest request, CancellationToken cancellationToken)
         {
-            yield break;
-        }
-
-        public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
-        {
-            var exportInformation = new ExportInformation(Designation, Description);
             var outputSettings = new SurfaceOutputSettings(WellKnownFileFormats.Png, 90, false);
-
-            var info = ImgurStep.UploadToImgur(surface, captureDetails, outputSettings, captureDetails.Title, null);
-            if (info != null && !string.IsNullOrEmpty(info.Original))
+            var image = await request.Source.EncodeAsync(outputSettings, cancellationToken).ConfigureAwait(false);
+            var info = await request.Ui.RunWithProgressAsync(Language.GetString("imgur", LangKey.communication_wait),
+                (progress, token) => ImgurStep.UploadToImgurAsync(image, request.Metadata?.Title, null, token), cancellationToken).ConfigureAwait(false);
+            if (info == null || string.IsNullOrEmpty(info.Original))
             {
-                exportInformation.ExportMade = true;
-                exportInformation.Uri = info.Original;
-                surface.UploadUrl = info.Original;
-                ProcessExport(exportInformation, surface);
-            }
-            else
-            {
-                exportInformation.ExportMade = false;
-                exportInformation.ErrorMessage = "Imgur upload failed";
+                return ExportResult.Failed("Imgur upload failed");
             }
 
-            return exportInformation;
+            return ExportResult.Succeeded(uri: new Uri(info.Original));
         }
     }
 }

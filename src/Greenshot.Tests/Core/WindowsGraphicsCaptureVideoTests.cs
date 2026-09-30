@@ -28,10 +28,10 @@ using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.User32;
 using Greenshot.Base.Interfaces.Video;
 using Greenshot.Base.Recipes;
-using Greenshot.Native;
-using Greenshot.Native.DirectX;
+using Greenshot.Base.Native;
+using Greenshot.Base.Native.DirectX;
 using Greenshot.Pipeline.Steps;
-using Greenshot.Video;
+using Greenshot.Base.Video;
 using Xunit;
 using Xunit.Abstractions;
 

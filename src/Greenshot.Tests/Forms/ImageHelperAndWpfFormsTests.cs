@@ -43,6 +43,7 @@ using Greenshot.Plugin.Zxing;
 using Greenshot.Plugin.Zxing.Views;
 using Xunit;
 using Greenshot.Plugin.Zxing.Controls;
+using System.Threading.Tasks;
 
 namespace Greenshot.Tests.Forms
 {
@@ -87,10 +88,12 @@ namespace Greenshot.Tests.Forms
         }
 
         [Fact]
-        public void ConfluenceDestination_DisplayIcon_ReturnsValidImage()
+        public async Task ConfluenceDestination_Icon_ReturnsValidImage()
         {
             var destination = new ConfluenceDestination();
-            var icon = destination.DisplayIcon;
+            var iconProvider = new ConfluenceIconProvider();
+            Assert.True(iconProvider.CanProvide(destination.Descriptor.IconKey));
+            using var icon = await iconProvider.GetIconAsync(destination.Descriptor.IconKey, CancellationToken.None);
             Assert.NotNull(icon);
             Assert.True(icon.Width > 0);
             Assert.True(icon.Height > 0);
@@ -144,8 +147,10 @@ namespace Greenshot.Tests.Forms
                     Assert.True(officeControl.IsWordSelected);
 
                     var officePlugin = new Greenshot.Plugin.Office.OfficePlugin();
-                    Assert.True(officePlugin.IsConfigurable);
-                    Assert.NotNull(officePlugin.CreateConfigurationControl());
+                    var officeServices = new Greenshot.Tests.Plugins.TestPluginServices();
+                    officePlugin.ConfigureServices(officeServices);
+                    var officeViewModel = ((Greenshot.Base.Interfaces.Plugin.IConfigurablePlugin)officePlugin).CreateSettingsViewModel(null);
+                    Assert.NotNull(officeServices.CreateSettingsView(officeViewModel));
 
                     var instances = new[]
                     {

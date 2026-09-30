@@ -27,6 +27,7 @@ using Dapplo.HttpExtensions;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
+using Greenshot.Base.Core.Export;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
@@ -67,8 +68,7 @@ namespace Greenshot.Plugin.Jira
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
 
-            var surface = context.Payload?.EnsureSurface();
-            if (surface == null)
+            if (context.Payload?.EnsureSurface() == null)
             {
                 context.LogStep("JiraStep: No surface available to upload.");
                 Log.Warn("JiraStep: Surface is null in context payload.");
@@ -101,7 +101,7 @@ namespace Greenshot.Plugin.Jira
             var outputSettings = new SurfaceOutputSettings(uploadFormat, jpegQuality, reduceColors);
 
             string filename = Path.GetFileName(FilenameHelper.GetFilename(uploadFormat, captureDetails));
-            var surfaceContainer = new SurfaceContainer(surface, outputSettings, filename);
+            var source = await context.Payload.GetExportSourceAsync(context.Ui, cancellationToken).ConfigureAwait(false);
 
             if (!string.IsNullOrEmpty(issueKey))
             {
@@ -110,14 +110,15 @@ namespace Greenshot.Plugin.Jira
 
                 try
                 {
-                    await jiraConnector.AttachAsync(issueKey, surfaceContainer).ConfigureAwait(false);
+                    var image = await source.EncodeAsync(outputSettings, cancellationToken).ConfigureAwait(false);
+                    await jiraConnector.AttachAsync(issueKey, image, filename, cancellationToken).ConfigureAwait(false);
                     string uploadUrl = jiraConnector.JiraBaseUri.AppendSegments("browse", issueKey).AbsoluteUri;
-                    surface.UploadUrl = uploadUrl;
+                    await source.UseSurfaceAsync(surface => surface.UploadUrl = uploadUrl, cancellationToken).ConfigureAwait(false);
                     context.Properties["Jira.UploadUrl"] = uploadUrl;
                     context.Properties["Jira.IssueKey"] = issueKey;
                     context.LogStep($"Successfully attached capture to Jira issue '{issueKey}': {uploadUrl}");
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (ex is not OperationCanceledException)
                 {
                     context.LogStep($"JiraStep: Failed to attach capture to '{issueKey}': {ex.Message}");
                     Log.Error($"JiraStep: Error attaching capture to {issueKey}", ex);
@@ -128,10 +129,12 @@ namespace Greenshot.Plugin.Jira
                 // Dispatch via JiraDestination (interactive dialog or default)
                 context.LogStep("JiraStep: No issue key specified; delegating to Jira destination.");
                 var destination = new JiraDestination();
-                destination.ExportCapture(false, surface, captureDetails);
-                if (!string.IsNullOrEmpty(surface.UploadUrl))
+                var result = await DestinationExporter.ExportAsync(destination, source, captureDetails, false, context.UserInteraction, cancellationToken).ConfigureAwait(false);
+                await ExportResultHandler.ApplyAsync(destination, result, source, cancellationToken).ConfigureAwait(false);
+                if (result.Uri != null)
                 {
-                    context.Properties["Jira.UploadUrl"] = surface.UploadUrl;
+                    context.Properties["Jira.UploadUrl"] = result.Uri.AbsoluteUri;
+                    context.Properties["Jira.IssueKey"] = result.Target;
                 }
             }
         }

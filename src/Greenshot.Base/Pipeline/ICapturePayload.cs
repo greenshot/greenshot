@@ -23,6 +23,9 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using Greenshot.Base.Interfaces;
+using System.Threading;
+using System.Threading.Tasks;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Base.Pipeline
 {
@@ -48,9 +51,15 @@ namespace Greenshot.Base.Pipeline
         string ExtractedText { get; set; }
 
         /// <summary>
-        /// Pre-rendered bitmap cache shared across destinations to avoid redundant composite rendering passes.
+        /// The export source for the destinations of the flow (created on first use): renders and encodings are cached and shared
+        /// by all destinations. Owned by the payload, disposed with it.
         /// </summary>
-        Image SharedRenderedBitmap { get; set; }
+        Task<IExportSource> GetExportSourceAsync(IUiDispatcher ui, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// A step changed the surface after the export source was created: drop the cached renders.
+        /// </summary>
+        void InvalidateExportSource();
 
         /// <summary>
         /// Whether the surface should be kept alive for the editor instead of being disposed when pipeline finishes.

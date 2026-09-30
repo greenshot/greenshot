@@ -19,20 +19,26 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Interfaces;
+using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Plugin.Office.OfficeExport;
 using Greenshot.Plugin.Office.OfficeExport.Entities;
+using Greenshot.Base.Core.FileFormat;
 
 namespace Greenshot.Plugin.Office.Destinations
 {
-    public class OneNoteDestination : AbstractDestination
+    /// <summary>
+    /// Add the capture to a OneNote page.
+    /// </summary>
+    public class OneNoteDestination : OfficeDestinationBase
     {
-        private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(WordDestination));
         private const int ICON_APPLICATION = 0;
         public const string DESIGNATION = "OneNote";
         private static readonly string exePath;
@@ -61,84 +67,33 @@ namespace Greenshot.Plugin.Office.Destinations
             this.page = page;
         }
 
-        public override string Designation
-        {
-            get { return DESIGNATION; }
-        }
+        public override string Designation => DESIGNATION;
 
-        public override string Description
+        public override DestinationDescriptor Descriptor => new DestinationDescriptor(page == null ? "Microsoft OneNote" : page.DisplayName, 4,
+            IconKeyFor(exePath, ICON_APPLICATION), hasDynamicDestinations: page == null);
+
+        public override bool IsAvailableFor(ICaptureDetails metadata) => base.IsAvailableFor(metadata) && exePath != null;
+
+        public override async ValueTask<IReadOnlyList<IDestination>> GetDynamicDestinationsAsync(ICaptureDetails metadata, CancellationToken cancellationToken)
         {
-            get
+            if (page != null)
             {
-                if (page == null)
-                {
-                    return "Microsoft OneNote";
-                }
-                else
-                {
-                    return page.DisplayName;
-                }
-            }
-        }
-
-        public override int Priority
-        {
-            get { return 4; }
-        }
-
-        public override bool IsDynamic
-        {
-            get { return true; }
-        }
-
-        public override bool IsActive
-        {
-            get { return base.IsActive && exePath != null; }
-        }
-
-        public override Image DisplayIcon
-        {
-            get { return PluginUtils.GetCachedExeIcon(exePath, ICON_APPLICATION); }
-        }
-
-        public override IEnumerable<IDestination> DynamicDestinations()
-        {
-            foreach (OneNotePage page in _oneNoteExporter.GetPages())
-            {
-                yield return new OneNoteDestination(page);
-            }
-        }
-
-        public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
-        {
-            ExportInformation exportInformation = new ExportInformation(Designation, Description);
-
-            if (page == null)
-            {
-                try
-                {
-                    exportInformation.ExportMade = _oneNoteExporter.ExportToNewPage(surface);
-                }
-                catch (Exception ex)
-                {
-                    exportInformation.ErrorMessage = ex.Message;
-                    LOG.Error(ex);
-                }
-            }
-            else
-            {
-                try
-                {
-                    exportInformation.ExportMade = _oneNoteExporter.ExportToPage(surface, page);
-                }
-                catch (Exception ex)
-                {
-                    exportInformation.ErrorMessage = ex.Message;
-                    LOG.Error(ex);
-                }
+                return await base.GetDynamicDestinationsAsync(metadata, cancellationToken).ConfigureAwait(false);
             }
 
-            return exportInformation;
+            var pages = await RunOnOfficeAsync(() => _oneNoteExporter.GetPages().ToList(), cancellationToken).ConfigureAwait(false);
+            return pages.Select(onenotePage => (IDestination) new OneNoteDestination(onenotePage)).ToList();
+        }
+
+        public override async Task<ExportResult> ExportAsync(ExportRequest request, CancellationToken cancellationToken)
+        {
+            var imageSize = await GetImageSizeAsync(request, cancellationToken).ConfigureAwait(false);
+            var png = await request.Source.EncodeAsync(new SurfaceOutputSettings(WellKnownFileFormats.Png, 100, false), cancellationToken).ConfigureAwait(false);
+            string title = request.Metadata?.Title;
+            bool exported = await RunOnOfficeAsync(() => page == null
+                ? _oneNoteExporter.ExportToNewPage(png, imageSize, title)
+                : _oneNoteExporter.ExportToPage(png, imageSize, page), cancellationToken).ConfigureAwait(false);
+            return exported ? ExportResult.Succeeded() : ExportResult.Failed("Export to OneNote failed");
         }
     }
 }

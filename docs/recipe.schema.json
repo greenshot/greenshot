@@ -65,6 +65,16 @@
     "flow": {
       "$ref": "#/definitions/RecipeFlowConfig",
       "description": "DAG workflow definition configuring entry points, transitions, conditional branches, and join merges."
+    },
+    "concurrency": {
+      "type": "string",
+      "enum": [
+        "Parallel",
+        "Exclusive",
+        "ReplacePrevious"
+      ],
+      "default": "Parallel",
+      "description": "What happens when the recipe is started while a flow of it is still running: run both (Parallel), ignore the new start (Exclusive) or cancel the running flow (ReplacePrevious)."
     }
   },
   "definitions": {

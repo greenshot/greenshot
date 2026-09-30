@@ -25,6 +25,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base;
 using Greenshot.Base.Core;
@@ -55,15 +56,22 @@ namespace Greenshot.Tests.Recipes
             }
         }
 
-        private class StubDestination : AbstractDestination
+        private class StubDestination : DestinationBase
         {
-            private readonly string _designation;
-            public StubDestination(string designation) => _designation = designation;
-            public override string Designation => _designation;
-            public override string Description => _designation;
-            public override IEnumerable<IDestination> DynamicDestinations() => Enumerable.Empty<IDestination>();
-            public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
-                => new ExportInformation(Designation, Description, true);
+            private readonly bool _keepsCapture;
+
+            public StubDestination(string designation, bool keepsCapture = false)
+            {
+                Designation = designation;
+                Descriptor = new DestinationDescriptor(designation);
+                _keepsCapture = keepsCapture;
+            }
+
+            public override string Designation { get; }
+            public override DestinationDescriptor Descriptor { get; }
+
+            public override Task<ExportResult> ExportAsync(ExportRequest request, CancellationToken cancellationToken)
+                => Task.FromResult(ExportResult.Succeeded(clearsModified: false, keepsCapture: _keepsCapture));
         }
 
         private static CaptureFlowContext CreateContext(string filename)
@@ -127,7 +135,7 @@ namespace Greenshot.Tests.Recipes
 
                 await DispatchWithoutUiContext(context,
                     new StubDestination(nameof(WellKnownDestinations.FileNoDialog)),
-                    new StubDestination(EditorDestination.DESIGNATION));
+                    new StubDestination(EditorDestination.DESIGNATION, keepsCapture: true));
                 context.Dispose();
 
                 // A disposed GDI+ image throws ArgumentException from its properties

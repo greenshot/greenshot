@@ -24,25 +24,123 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
-using System.Windows.Forms;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Dapplo.HttpExtensions;
 using Dapplo.Jira.Entities;
-using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
 using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
-using Greenshot.Plugin.Jira.Forms;
 
 namespace Greenshot.Plugin.Jira;
 
 /// <summary>
-/// Description of JiraDestination.
+/// What the Jira upload dialog (JiraForm) asks for, the result is the choice of the user or null.
 /// </summary>
-public class JiraDestination : AbstractDestination
+public sealed class JiraUploadRequest : IDialogViewModel<JiraUploadChoice>
+{
+    public JiraUploadRequest(string filename)
+    {
+        Filename = filename;
+    }
+
+    /// <summary>
+    /// The suggested filename of the attachment
+    /// </summary>
+    public string Filename { get; }
+}
+
+/// <summary>
+/// The issue, filename and comment the user chose in the Jira upload dialog.
+/// </summary>
+public sealed class JiraUploadChoice
+{
+    public JiraUploadChoice(IssueV2 issue, string filename, string comment)
+    {
+        Issue = issue;
+        Filename = filename;
+        Comment = comment;
+    }
+
+    public IssueV2 Issue { get; }
+
+    public string Filename { get; }
+
+    public string Comment { get; }
+}
+
+/// <summary>
+/// The icons of the Jira destinations: the issue type of an issue ("jira:issue:KEY"), the favicon of the server or the Jira logo.
+/// </summary>
+public sealed class JiraIconProvider : IIconProvider
+{
+    private const string Prefix = "jira:";
+    private const string IssuePrefix = Prefix + "issue:";
+    private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(JiraIconProvider));
+    private static readonly ComponentResourceManager Resources = new ComponentResourceManager(typeof(JiraPlugin));
+
+    /// <summary>
+    /// The icon of the Jira server (or the Jira logo)
+    /// </summary>
+    public const string Default = Prefix + "default";
+
+    public static string ForIssue(string issueKey) => IssuePrefix + issueKey;
+
+    public bool CanProvide(string iconKey) => iconKey != null && iconKey.StartsWith(Prefix, StringComparison.Ordinal);
+
+    public async Task<Image> GetIconAsync(string iconKey, CancellationToken cancellationToken)
+    {
+        var jiraConnector = SimpleServiceProvider.Current.GetInstance<JiraConnector>(isOptional: true);
+        if (jiraConnector != null)
+        {
+            if (iconKey.StartsWith(IssuePrefix, StringComparison.Ordinal))
+            {
+                string issueKey = iconKey.Substring(IssuePrefix.Length);
+                var issue = jiraConnector.Monitor?.RecentJiras.FirstOrDefault(details => details.JiraIssue?.Key == issueKey)?.JiraIssue;
+                if (issue != null)
+                {
+                    try
+                    {
+                        var issueTypeBitmap = await jiraConnector.GetIssueTypeBitmapAsync(issue, cancellationToken).ConfigureAwait(false);
+                        if (issueTypeBitmap != null)
+                        {
+                            // The cache owns the bitmap, the caller gets a copy
+                            lock (issueTypeBitmap)
+                            {
+                                return ImageHelper.Clone(issueTypeBitmap);
+                            }
+                        }
+                    }
+                    catch (Exception ex) when (ex is not OperationCanceledException)
+                    {
+                        Log.Warn($"Problem loading issue type for {issueKey}, ignoring", ex);
+                    }
+                }
+            }
+
+            var favIcon = jiraConnector.FavIcon;
+            if (favIcon != null)
+            {
+                lock (favIcon)
+                {
+                    return ImageHelper.Clone(favIcon);
+                }
+            }
+        }
+
+        return (Image) Resources.GetObject("Jira");
+    }
+}
+
+/// <summary>
+/// Attach the capture to a Jira issue: a recent one (dynamic destination) or one chosen in the Jira dialog.
+/// </summary>
+public class JiraDestination : DestinationBase
 {
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(JiraDestination));
-    private static readonly IJiraConfiguration Config = IniConfigRegistry.GetSection<IJiraConfiguration>();
+    private static IJiraConfiguration Config => IniConfigRegistry.GetSection<IJiraConfiguration>();
     private readonly IssueV2 _jiraIssue;
 
     public JiraDestination(IssueV2 jiraIssue = null)
@@ -52,129 +150,76 @@ public class JiraDestination : AbstractDestination
 
     public override string Designation => "Jira";
 
-    public override string Description
+    public override DestinationDescriptor Descriptor
     {
         get
         {
             if (_jiraIssue?.Fields?.Summary == null)
             {
-                return Language.GetString("jira", LangKey.upload_menu_item);
+                return new DestinationDescriptor(Language.GetString("jira", LangKey.upload_menu_item), iconKey: JiraIconProvider.Default, hasDynamicDestinations: true);
             }
 
             // Format the title of this destination
-            return _jiraIssue.Key + ": " + _jiraIssue.Fields.Summary.Substring(0, Math.Min(20, _jiraIssue.Fields.Summary.Length));
+            string displayName = _jiraIssue.Key + ": " + _jiraIssue.Fields.Summary.Substring(0, Math.Min(20, _jiraIssue.Fields.Summary.Length));
+            return new DestinationDescriptor(displayName, iconKey: JiraIconProvider.ForIssue(_jiraIssue.Key));
         }
     }
 
-    public override bool IsActive => base.IsActive && !string.IsNullOrEmpty(Config.Url);
+    public override bool IsAvailableFor(ICaptureDetails metadata) => base.IsAvailableFor(metadata) && !string.IsNullOrEmpty(Config.Url);
 
-    public override bool IsDynamic => true;
-
-    public override Image DisplayIcon
+    public override ValueTask<IReadOnlyList<IDestination>> GetDynamicDestinationsAsync(ICaptureDetails metadata, CancellationToken cancellationToken)
     {
-        get
+        var jiraConnector = SimpleServiceProvider.Current.GetInstance<JiraConnector>(isOptional: true);
+        if (_jiraIssue != null || jiraConnector == null || !jiraConnector.IsLoggedIn)
         {
-            Image displayIcon = null;
-            var jiraConnector = SimpleServiceProvider.Current.GetInstance<JiraConnector>();
-            if (jiraConnector != null)
-            {
-                if (_jiraIssue != null)
-                {
-                    // Try to get the issue type as icon
-                    try
-                    {
-                        displayIcon = jiraConnector.GetIssueTypeBitmapAsync(_jiraIssue).Result;
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Warn($"Problem loading issue type for {_jiraIssue.Key}, ignoring", ex);
-                    }
-                }
-
-                if (displayIcon == null)
-                {
-                    displayIcon = jiraConnector.FavIcon;
-                }
-            }
-
-            if (displayIcon == null)
-            {
-                var resources = new ComponentResourceManager(typeof(JiraPlugin));
-                displayIcon = (Image) resources.GetObject("Jira");
-            }
-
-            return displayIcon;
+            return base.GetDynamicDestinationsAsync(metadata, cancellationToken);
         }
+
+        IReadOnlyList<IDestination> destinations = jiraConnector.Monitor.RecentJiras.Select(jiraDetails => (IDestination) new JiraDestination(jiraDetails.JiraIssue)).ToList();
+        return new ValueTask<IReadOnlyList<IDestination>>(destinations);
     }
 
-    public override IEnumerable<IDestination> DynamicDestinations()
+    public override async Task<ExportResult> ExportAsync(ExportRequest request, CancellationToken cancellationToken)
     {
+        string filename = Path.GetFileName(FilenameHelper.GetFilename(Config.UploadFormat, request.Metadata));
+        var outputSettings = new SurfaceOutputSettings(Config.UploadFormat, Config.UploadJpegQuality, Config.UploadReduceColors);
         var jiraConnector = SimpleServiceProvider.Current.GetInstance<JiraConnector>();
-        if (jiraConnector == null || !jiraConnector.IsLoggedIn)
+        var issue = _jiraIssue;
+        string comment = null;
+        if (issue == null)
         {
-            yield break;
+            var choice = await request.Ui.ShowDialogAsync(new JiraUploadRequest(filename), cancellationToken).ConfigureAwait(false);
+            if (choice?.Issue == null)
+            {
+                return ExportResult.Declined;
+            }
+
+            issue = choice.Issue;
+            filename = string.IsNullOrEmpty(choice.Filename) ? filename : choice.Filename;
+            comment = choice.Comment;
         }
 
-        foreach (var jiraDetails in jiraConnector.Monitor.RecentJiras)
+        try
         {
-            yield return new JiraDestination(jiraDetails.JiraIssue);
-        }
-    }
-
-    public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surfaceToUpload, ICaptureDetails captureDetails)
-    {
-        ExportInformation exportInformation = new ExportInformation(Designation, Description);
-        string filename = Path.GetFileName(FilenameHelper.GetFilename(Config.UploadFormat, captureDetails));
-        SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(Config.UploadFormat, Config.UploadJpegQuality, Config.UploadReduceColors);
-        var jiraConnector = SimpleServiceProvider.Current.GetInstance<JiraConnector>();
-        if (_jiraIssue != null)
-        {
-            try
+            var image = await request.Source.EncodeAsync(outputSettings, cancellationToken).ConfigureAwait(false);
+            await request.Ui.RunWithProgressAsync(Language.GetString("jira", LangKey.communication_wait), async (progress, token) =>
             {
-                // Run upload in the background
-                new PleaseWaitForm().ShowAndWait(Description, Language.GetString("jira", LangKey.communication_wait),
-                    async () =>
-                    {
-                        var surfaceContainer = new SurfaceContainer(surfaceToUpload, outputSettings, filename);
-                        await jiraConnector.AttachAsync(_jiraIssue.Key, surfaceContainer);
-                        surfaceToUpload.UploadUrl = jiraConnector.JiraBaseUri.AppendSegments("browse", _jiraIssue.Key).AbsoluteUri;
-                    }
-                );
-                Log.DebugFormat("Uploaded to Jira {0}", _jiraIssue.Key);
-                exportInformation.ExportMade = true;
-                exportInformation.Uri = surfaceToUpload.UploadUrl;
-            }
-            catch (Exception e)
-            {
-                MessageBox.Show(Language.GetString("jira", LangKey.upload_failure) + " " + e.Message);
-            }
-        }
-        else
-        {
-            var jiraForm = new JiraForm(jiraConnector);
-            jiraForm.SetFilename(filename);
-            var dialogResult = jiraForm.ShowDialog();
-            if (dialogResult == DialogResult.OK)
-            {
-                try
+                await jiraConnector.AttachAsync(issue.Key, image, filename, token).ConfigureAwait(false);
+                if (!string.IsNullOrEmpty(comment))
                 {
-                    surfaceToUpload.UploadUrl = jiraConnector.JiraBaseUri.AppendSegments("browse", jiraForm.GetJiraIssue().Key).AbsoluteUri;
-                    // Run upload in the background
-                    new PleaseWaitForm().ShowAndWait(Description, Language.GetString("jira", LangKey.communication_wait),
-                        async () => { await jiraForm.UploadAsync(new SurfaceContainer(surfaceToUpload, outputSettings, filename)); }
-                    );
-                    Log.DebugFormat("Uploaded to Jira {0}", jiraForm.GetJiraIssue().Key);
-                    exportInformation.ExportMade = true;
-                    exportInformation.Uri = surfaceToUpload.UploadUrl;
+                    await jiraConnector.AddCommentAsync(issue.Key, comment, null, token).ConfigureAwait(false);
                 }
-                catch (Exception e)
-                {
-                    MessageBox.Show(Language.GetString("jira", LangKey.upload_failure) + " " + e.Message);
-                }
-            }
+
+                return true;
+            }, cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception e) when (e is not OperationCanceledException)
+        {
+            Log.Error($"Upload to Jira {issue.Key} failed", e);
+            return ExportResult.Failed(Language.GetString("jira", LangKey.upload_failure) + " " + e.Message, e);
         }
 
-        ProcessExport(exportInformation, surfaceToUpload);
-        return exportInformation;
+        Log.DebugFormat("Uploaded to Jira {0}", issue.Key);
+        return ExportResult.Succeeded(uri: jiraConnector.JiraBaseUri.AppendSegments("browse", issue.Key), target: issue.Key);
     }
 }

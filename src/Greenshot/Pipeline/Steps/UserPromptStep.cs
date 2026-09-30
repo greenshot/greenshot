@@ -37,6 +37,7 @@ using Greenshot.Base.Recipes;
 using Greenshot.UI;
 using log4net;
 using Newtonsoft.Json.Linq;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Pipeline.Steps
 {
@@ -80,11 +81,7 @@ namespace Greenshot.Pipeline.Steps
             bool disposePreview = false;
             if (showPreview)
             {
-                if (context.Payload?.SharedRenderedBitmap != null)
-                {
-                    previewImg = context.Payload.SharedRenderedBitmap;
-                }
-                else if (context.Payload?.RawCapture?.Image != null)
+                if (context.Payload?.RawCapture?.Image != null)
                 {
                     previewImg = context.Payload.RawCapture.Image;
                 }
@@ -99,46 +96,36 @@ namespace Greenshot.Pipeline.Steps
                 }
             }
 
-            var tcs = new TaskCompletionSource<string>();
-            var uiContext = SimpleServiceProvider.Current.GetInstance<SynchronizationContext>(isOptional: true) ?? SynchronizationContext.Current;
-
-            void ShowDialogOnUi()
+            string chosenKey;
+            try
             {
-                try
+                // The prompt is UI: shown on the UI thread, the flow waits without blocking
+                chosenKey = await context.Ui.InvokeAsync(() =>
                 {
                     var promptWindow = new RecipeUserPromptWindow(title, message, choices, previewImg, timeoutSeconds, defaultChoice);
-                    promptWindow.ShowDialog();
-                    string selected = promptWindow.SelectedChoiceKey ?? defaultChoice ?? (choices.FirstOrDefault()?.Key ?? "Yes");
-                    tcs.SetResult(selected);
-                }
-                catch (Exception ex)
-                {
-                    Log.Error("Error displaying RecipeUserPromptWindow", ex);
-                    tcs.SetException(ex);
-                }
-                finally
-                {
-                    if (disposePreview)
+                    // A cancelled flow closes the prompt, the close is posted to the UI thread
+                    using (cancellationToken.Register(() => context.Ui.InvokeAsync(() =>
+                           {
+                               if (promptWindow.IsVisible)
+                               {
+                                   promptWindow.Close();
+                               }
+                           }, CancellationToken.None).FireAndLog("Close the user prompt", Log)))
                     {
-                        previewImg?.Dispose();
+                        promptWindow.ShowDialog();
                     }
+
+                    cancellationToken.ThrowIfCancellationRequested();
+                    return promptWindow.SelectedChoiceKey ?? defaultChoice ?? (choices.FirstOrDefault()?.Key ?? "Yes");
+                }, cancellationToken).ConfigureAwait(false);
+            }
+            finally
+            {
+                if (disposePreview)
+                {
+                    previewImg?.Dispose();
                 }
             }
-
-            if (Application.Current?.Dispatcher != null && !Application.Current.Dispatcher.CheckAccess())
-            {
-                Application.Current.Dispatcher.Invoke(ShowDialogOnUi);
-            }
-            else if (uiContext != null && SynchronizationContext.Current != uiContext)
-            {
-                uiContext.Send(_ => ShowDialogOnUi(), null);
-            }
-            else
-            {
-                ShowDialogOnUi();
-            }
-
-            string chosenKey = await tcs.Task.ConfigureAwait(false);
 
             context.Properties["UserChoice." + Config.Id] = chosenKey;
 

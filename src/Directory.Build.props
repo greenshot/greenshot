@@ -59,6 +59,28 @@
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.401" PrivateAssets="All"/>
   </ItemGroup>
 
+  <!-- HttpClient (NetworkHelper.HttpClient) is part of the framework, but not referenced by default -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net480' And '$(MSBuildProjectExtension)' == '.csproj'">
+    <Reference Include="System.Net.Http" />
+  </ItemGroup>
+
+  <!-- Async & threading guardrails, see docs/async-threading-roadmap.md (section 3 and Phase 0).
+       Test and build-task projects are excluded: tests may block on tasks, build tasks run inside MSBuild. -->
+  <PropertyGroup Condition="!$(MSBuildProjectName.Contains('Tests')) And $(MSBuildProjectName.StartsWith('Greenshot')) And '$(MSBuildProjectName)' != 'Greenshot.BuildTasks'">
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+  </PropertyGroup>
+  <ItemGroup Condition="!$(MSBuildProjectName.Contains('Tests')) And $(MSBuildProjectName.StartsWith('Greenshot')) And '$(MSBuildProjectName)' != 'Greenshot.BuildTasks'">
+    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.14.15">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="4.14.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)BannedSymbols.txt" Link="BannedSymbols.txt" />
+  </ItemGroup>
+
   <!-- Exclude the Roslyn-generated *.g.cs files from the normal compilation glob so they are
        not compiled twice (once from the generator output and once from the **/*.cs wildcard). -->
   <ItemGroup Condition="!$(MSBuildProjectName.Contains('Tests')) And $(MSBuildProjectName.StartsWith('Greenshot'))">

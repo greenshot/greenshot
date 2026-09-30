@@ -328,13 +328,14 @@ namespace Greenshot.Triggers
                     return;
                 }
 
-                var pipeline = SimpleServiceProvider.Current.GetInstance<ICapturePipeline>();
-                if (pipeline != null)
+                var runner = SimpleServiceProvider.Current.GetInstance<ICaptureFlowRunner>(isOptional: true);
+                if (runner != null)
                 {
                     var trigger = sender as ITrigger;
                     var recipeToExecute = TriggerRecipePreparer.Prepare(recipe, trigger);
 
-                    pipeline.ExecuteAsync(recipeToExecute, trigger, ctx =>
+                    // Snapshot foreground window and cursor now, the flow runs later on the thread pool
+                    runner.Start(recipeToExecute, FlowTriggerContext.Capture(trigger), ctx =>
                     {
                         if (e.Parameters != null)
                         {
@@ -347,7 +348,7 @@ namespace Greenshot.Triggers
                 }
                 else
                 {
-                    Log.WarnFormat("No ICapturePipeline registered to handle trigger {0} for recipe {1}", (sender as ITrigger)?.Name, e.TargetRecipeId);
+                    Log.WarnFormat("No ICaptureFlowRunner registered to handle trigger {0} for recipe {1}", (sender as ITrigger)?.Name, e.TargetRecipeId);
                 }
             }
             else

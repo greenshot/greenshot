@@ -32,6 +32,7 @@ using Greenshot.Plugin.RecipeEditor;
 using Greenshot.Plugin.Zxing;
 using Greenshot.Recipes;
 using Xunit;
+using System.Linq;
 
 namespace Greenshot.Tests.Recipes
 {
@@ -127,13 +128,11 @@ namespace Greenshot.Tests.Recipes
         public void RecipeEditorPlugin_RegistersEditorService()
         {
             var plugin = new RecipeEditorPlugin();
-            var locator = new SimpleServiceProvider();
-            plugin.RegisterServices(locator);
+            var services = new Greenshot.Tests.Plugins.TestPluginServices();
+            plugin.ConfigureServices(services);
 
-            var editorService = locator.GetInstance<IRecipeEditorService>(isOptional: true);
+            var editorService = services.GetServices<IRecipeEditorService>().SingleOrDefault();
             Assert.NotNull(editorService);
-
-            plugin.Shutdown();
         }
 
         [Fact]

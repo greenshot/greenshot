@@ -207,7 +207,7 @@ namespace Greenshot.Base.Interfaces
         void SendMessageEvent(object source, SurfaceMessageTyp messageType, string message);
         void ResizeCanvas(int left, int right, int top, int bottom);
         void ResizeCanvas(Expansion expansion);
-        void ApplyBitmapEffect(IEffect effect);
+        System.Threading.Tasks.Task ApplyBitmapEffectAsync(IEffect effect, System.Threading.CancellationToken cancellationToken = default);
         void RemoveCursor();
         bool HasCursor { get; }
 

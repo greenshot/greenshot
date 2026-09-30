@@ -31,6 +31,7 @@ using Dapplo.Ini;
 using Dapplo.Ini.Interfaces;
 using Greenshot.Base.Core;
 using log4net;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Base.Controls
 {
@@ -136,14 +137,8 @@ namespace Greenshot.Base.Controls
 
         private void OnLanguageChanged(object sender, EventArgs e)
         {
-            if (InvokeRequired)
-            {
-                Invoke(new MethodInvoker(InitializeLanguage));
-            }
-            else
-            {
-                InitializeLanguage();
-            }
+            // The language can change on another thread
+            UiDispatcher.Current.RunOnUiAsync(InitializeLanguage).FireAndLog("Initialize the language of " + GetType().Name);
         }
 
         /// <summary>

@@ -79,7 +79,8 @@ namespace Greenshot.Base.Wpf
 
         public void FocusCapture()
         {
-            Dispatcher.BeginInvoke(new Action(() =>
+            // Focus after the layout, the operation doesn't need to be awaited
+            _ = Dispatcher.BeginInvoke(new Action(() =>
             {
                 KeyCaptureBorder.Focus();
                 Keyboard.Focus(KeyCaptureBorder);

@@ -36,6 +36,7 @@ using System.Windows.Media;
 using Greenshot.Base.Core;
 using Greenshot.Base.Wpf;
 using log4net;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.UI.SelfService
 {
@@ -434,13 +435,13 @@ namespace Greenshot.UI.SelfService
             if (!_hasEverScanned)
             {
                 _hasEverScanned = true;
-                _ = ValidateChecksumsAsync();
+                ValidateChecksumsAsync().FireAndLog("Validate the checksums", Log);
             }
         }
 
         public override void Refresh()
         {
-            _ = ValidateChecksumsAsync();
+            ValidateChecksumsAsync().FireAndLog("Validate the checksums", Log);
         }
 
         public async Task ValidateChecksumsAsync(CancellationToken externalCancellationToken = default)
@@ -462,7 +463,8 @@ namespace Greenshot.UI.SelfService
 
             try
             {
-                var results = await Task.Run(() => PerformValidation(baseDir, checksumPath, token, (cur, total, name) =>
+                // The validation reads all files: on the thread pool, the progress is posted to the UI thread
+                var results = await RunOnPoolAsync(() => PerformValidation(baseDir, checksumPath, token, (cur, total, name) =>
                 {
                     RunOnUi(() =>
                     {
@@ -1066,15 +1068,17 @@ namespace Greenshot.UI.SelfService
 
         private static void RunOnUi(Action action)
         {
-            var dispatcher = Application.Current?.Dispatcher;
-            if (dispatcher != null && !dispatcher.CheckAccess())
-            {
-                dispatcher.Invoke(action);
-            }
-            else
-            {
-                action();
-            }
+            UiDispatcher.Current.RunOnUiAsync(action).FireAndLog("Checksum view update", Log);
+        }
+
+        /// <summary>
+        /// Run the work on the thread pool, the caller's continuation returns to its context
+        /// </summary>
+        private static async Task<T> RunOnPoolAsync<T>(Func<T> work, CancellationToken cancellationToken)
+        {
+            await ThreadPoolSwitch.SwitchToThreadPoolAsync();
+            cancellationToken.ThrowIfCancellationRequested();
+            return work();
         }
     }
 }

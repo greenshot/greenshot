@@ -70,6 +70,27 @@ namespace Greenshot.Tests.Core
         }
 
         [Fact]
+        public async Task GetAppLogoAsync_ConcurrentLookups_DoNotCrash()
+        {
+            // Regression: concurrent lookups read properties of the same cached WinRT packages,
+            // which crashed with an (uncatchable) AccessViolationException in Windows.ApplicationModel.
+            var app = InstalledTestApp.Get();
+            var lookups = new Task<System.Drawing.Image>[16];
+            for (int i = 0; i < lookups.Length; i++)
+            {
+                // Different sizes: different cache keys, so every lookup searches the packages
+                int size = 16 + i;
+                lookups[i] = WindowsAppHelper.GetAppLogoAsync(i % 2 == 0 ? app.ExeName : $"NoSuchApp{i}.exe", i % 2 == 0 ? app.DisplayName : $"NoSuchApp{i}", new NativeSize(size, size));
+            }
+
+            var logos = await Task.WhenAll(lookups);
+            for (int i = 0; i < logos.Length; i += 2)
+            {
+                Assert.NotNull(logos[i]);
+            }
+        }
+
+        [Fact]
         public async Task GetAppxLogoAsync_InstalledAppPackage_ReturnsValidImage()
         {
             var package = InstalledTestApp.Get().Package;
@@ -81,23 +102,23 @@ namespace Greenshot.Tests.Core
         }
 
         [Fact]
-        public void GetAppxLogo_SynchronousCall_ReturnsValidImageWithoutDeadlock()
+        public async Task GetAppxLogoAsync_48_ReturnsValidImage()
         {
             var package = InstalledTestApp.Get().Package;
 
-            using var image = WindowsAppHelper.GetAppxLogo(package, new NativeSize(48, 48));
+            using var image = await WindowsAppHelper.GetAppxLogoAsync(package, new NativeSize(48, 48));
             Assert.NotNull(image);
             Assert.True(image.Width > 0);
             Assert.True(image.Height > 0);
         }
 
         [Fact]
-        public void GetAppxLogo_InstalledApp_IconIsNotExcessivelyPadded()
+        public async Task GetAppxLogo_InstalledApp_IconIsNotExcessivelyPadded()
         {
             var app = InstalledTestApp.Get();
             var package = app.Package;
 
-            using var image = WindowsAppHelper.GetAppxLogo(package, new NativeSize(64, 64)) as System.Drawing.Bitmap;
+            using var image = await WindowsAppHelper.GetAppxLogoAsync(package, new NativeSize(64, 64)) as System.Drawing.Bitmap;
             Assert.NotNull(image);
 
             // Verify content covers the majority of the image canvas (no huge 65%+ tile margins)
@@ -126,15 +147,15 @@ namespace Greenshot.Tests.Core
         }
 
         [Fact]
-        public void GetAppLogo_ByCommandLineOrName_ReturnsImageAndCaches()
+        public async Task GetAppLogo_ByCommandLineOrName_ReturnsImageAndCaches()
         {
             var app = InstalledTestApp.Get();
-            var image1 = WindowsAppHelper.GetAppLogo(app.ExeName, app.DisplayName);
+            var image1 = await WindowsAppHelper.GetAppLogoAsync(app.ExeName, app.DisplayName);
             Assert.NotNull(image1);
             Assert.True(image1.Width > 0);
 
             // Second call should come from cache
-            var image2 = WindowsAppHelper.GetAppLogo(app.ExeName, app.DisplayName);
+            var image2 = await WindowsAppHelper.GetAppLogoAsync(app.ExeName, app.DisplayName);
             Assert.Same(image1, image2);
         }
 
@@ -148,7 +169,8 @@ namespace Greenshot.Tests.Core
             {
                 try
                 {
-                    img = WindowsAppHelper.GetAppLogo(app.ExeName, app.DisplayName);
+                    // Blocking on purpose: the WinRT calls must not need the STA thread
+                    img = WindowsAppHelper.GetAppLogoAsync(app.ExeName, app.DisplayName).GetAwaiter().GetResult();
                 }
                 catch (Exception ex)
                 {
@@ -164,16 +186,16 @@ namespace Greenshot.Tests.Core
         }
 
         [Fact]
-        public void GetAppLogo_AppExecutionAliasPath_ReturnsImage()
+        public async Task GetAppLogo_AppExecutionAliasPath_ReturnsImage()
         {
             var app = InstalledTestApp.Get();
-            var image = WindowsAppHelper.GetAppLogo(app.AliasPath);
+            var image = await WindowsAppHelper.GetAppLogoAsync(app.AliasPath);
             Assert.NotNull(image);
             Assert.True(image.Width > 0);
         }
 
         [Fact]
-        public void IconCache_IconForCommand_ResolvesAppIconForExternalCommand()
+        public async Task IconCache_IconForCommand_ResolvesAppIconForExternalCommand()
         {
             // The test configures its own external command for an app that is installed on this machine
             var app = InstalledTestApp.Get();
@@ -188,7 +210,7 @@ namespace Greenshot.Tests.Core
 
             try
             {
-                var icon = IconCache.IconForCommand(cmdName);
+                var icon = await IconCache.IconForCommandAsync(cmdName);
                 Assert.NotNull(icon);
                 Assert.True(icon.Width > 0);
                 Assert.True(icon.Height > 0);

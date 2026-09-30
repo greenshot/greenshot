@@ -72,3 +72,44 @@ csharp_new_line_before_catch = true
 csharp_new_line_before_finally = true
 csharp_new_line_before_members_in_object_initializers = true
 csharp_new_line_before_members_in_anonymous_types = true
+# Async & threading guardrails, see docs/async-threading-roadmap.md (section 3), errors: the baseline is empty
+[*.cs]
+dotnet_diagnostic.VSTHRD002.severity = error
+dotnet_diagnostic.VSTHRD100.severity = error
+dotnet_diagnostic.VSTHRD101.severity = error
+dotnet_diagnostic.VSTHRD103.severity = error
+dotnet_diagnostic.VSTHRD110.severity = error
+dotnet_diagnostic.VSTHRD114.severity = error
+dotnet_diagnostic.VSTHRD200.severity = error
+# The remaining VSTHRD rules target Visual Studio extensions (JoinableTaskFactory) or duplicate the banned API list
+dotnet_diagnostic.VSTHRD001.severity = none
+dotnet_diagnostic.VSTHRD003.severity = none
+dotnet_diagnostic.VSTHRD004.severity = none
+dotnet_diagnostic.VSTHRD010.severity = none
+dotnet_diagnostic.VSTHRD011.severity = none
+dotnet_diagnostic.VSTHRD012.severity = none
+dotnet_diagnostic.VSTHRD102.severity = none
+dotnet_diagnostic.VSTHRD104.severity = none
+dotnet_diagnostic.VSTHRD105.severity = none
+dotnet_diagnostic.VSTHRD106.severity = none
+dotnet_diagnostic.VSTHRD107.severity = none
+dotnet_diagnostic.VSTHRD108.severity = none
+dotnet_diagnostic.VSTHRD109.severity = none
+dotnet_diagnostic.VSTHRD111.severity = none
+dotnet_diagnostic.VSTHRD112.severity = none
+dotnet_diagnostic.VSTHRD113.severity = none
+dotnet_diagnostic.VSTHRD115.severity = none
+# Banned APIs (BannedSymbols.txt): R1, R4, R5, R9, R10
+dotnet_diagnostic.RS0030.severity = error
+# R6: forward the CancellationToken
+dotnet_diagnostic.CA2016.severity = error
+# CA2012: ValueTask must be awaited once
+dotnet_diagnostic.CA2012.severity = error
+
+# R11: ConfigureAwait(false) in library (non-UI) code
+[Greenshot.Base/Threading/**.cs]
+dotnet_diagnostic.CA2007.severity = error
+[Greenshot.Base/Pipeline/**.cs]
+dotnet_diagnostic.CA2007.severity = error
+[Greenshot/Pipeline/**.cs]
+dotnet_diagnostic.CA2007.severity = error

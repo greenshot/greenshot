@@ -19,46 +19,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Windows.Forms;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Greenshot.Base.Interfaces
 {
-    public class ExportInformation
-    {
-        public ExportInformation(string destinationDesignation, string destinationDescription)
-        {
-            DestinationDesignation = destinationDesignation;
-            DestinationDescription = destinationDescription;
-        }
-
-        public ExportInformation(string destinationDesignation, string destinationDescription, bool exportMade) : this(destinationDesignation, destinationDescription)
-        {
-            ExportMade = exportMade;
-        }
-
-        public string DestinationDesignation { get; }
-
-        public string DestinationDescription { get; set; }
-
-        /// <summary>
-        /// Set to true to specify if the export worked.
-        /// </summary>
-        public bool ExportMade { get; set; }
-
-        public string Uri { get; set; }
-
-        public string ErrorMessage { get; set; }
-
-        public string Filepath { get; set; }
-    }
-
     /// <summary>
-    /// Description of IDestination.
+    /// A destination for a capture (roadmap section 5.1). Destinations run on the thread pool and never touch UI directly:
+    /// dialogs, notifications and progress go through <see cref="ExportRequest.Ui"/> (IUserInteraction).
     /// </summary>
-    public interface IDestination : IDisposable, IComparable
+    public interface IDestination
     {
         /// <summary>
         /// Simple "designation" like "File", "Editor" etc, used to store the configuration
@@ -66,81 +37,24 @@ namespace Greenshot.Base.Interfaces
         string Designation { get; }
 
         /// <summary>
-        /// Description which will be shown in the settings form, destination picker etc
+        /// How the destination is presented: display name, icon key, priority, shortcut (UI neutral types).
         /// </summary>
-        string Description { get; }
+        DestinationDescriptor Descriptor { get; }
 
         /// <summary>
-        /// Priority, used for sorting
+        /// Is the destination available for the capture (null: in general, e.g. for settings)?
+        /// Must be cheap and non-blocking, it is called while building menus.
         /// </summary>
-        int Priority { get; }
+        bool IsAvailableFor(ICaptureDetails metadata);
 
         /// <summary>
-        /// Gets an icon for the destination
+        /// The dynamic destinations (e.g. the open Word documents), empty when the descriptor says there are none.
         /// </summary>
-        Image DisplayIcon { get; }
+        ValueTask<IReadOnlyList<IDestination>> GetDynamicDestinationsAsync(ICaptureDetails metadata, CancellationToken cancellationToken);
 
         /// <summary>
-        /// Returns if the destination is active
+        /// Export the capture. Cancellation throws an OperationCanceledException, a user who declines returns <see cref="ExportResult.Declined"/>.
         /// </summary>
-        bool IsActive { get; }
-
-        /// <summary>
-        /// Returns if the destination is active for a specific capture context
-        /// </summary>
-        bool IsActiveFor(ICaptureDetails captureDetails);
-
-        /// <summary>
-        /// Return a menu item
-        /// </summary>
-        /// <param name="addDynamics">Resolve the dynamic destinations too?</param>
-        /// <param name="menu">The menu for which the item is created</param>
-        /// <param name="destinationClickHandler">Handler which is called when clicked</param>
-        /// <returns>ToolStripMenuItem</returns>
-        ToolStripMenuItem GetMenuItem(bool addDynamics, ContextMenuStrip menu, EventHandler destinationClickHandler);
-
-        /// <summary>
-        /// Return a menu item with capture details context
-        /// </summary>
-        ToolStripMenuItem GetMenuItem(bool addDynamics, ContextMenuStrip menu, EventHandler destinationClickHandler, ICaptureDetails captureDetails);
-
-        /// <summary>
-        /// Gets the ShortcutKeys for the Editor
-        /// </summary>
-        Keys EditorShortcutKeys { get; }
-
-        /// <summary>
-        /// Gets the dynamic destinations
-        /// </summary>
-        IEnumerable<IDestination> DynamicDestinations();
-
-        /// <summary>
-        /// Gets the dynamic destinations with capture details context
-        /// </summary>
-        IEnumerable<IDestination> DynamicDestinations(ICaptureDetails captureDetails);
-
-        /// <summary>
-        /// Returns true if this destination can be dynamic
-        /// </summary>
-        bool IsDynamic { get; }
-
-        /// <summary>
-        /// Returns if the destination is active
-        /// </summary>
-        bool UseDynamicsOnly { get; }
-
-        /// <summary>
-        /// Returns true if this destination returns a link
-        /// </summary>
-        bool IsLinkable { get; }
-
-        /// <summary>
-        /// If a capture is made, and the destination is enabled, this method is called.
-        /// </summary>
-        /// <param name="manuallyInitiated">true if the user selected this destination from a GUI, false if it was called as part of a process</param>
-        /// <param name="surface"></param>
-        /// <param name="captureDetails"></param>
-        /// <returns>DestinationExportInformation with information, like if the destination has "exported" the capture</returns>
-        ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails);
+        Task<ExportResult> ExportAsync(ExportRequest request, CancellationToken cancellationToken);
     }
 }

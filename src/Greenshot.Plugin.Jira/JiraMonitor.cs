@@ -30,6 +30,7 @@ using Dapplo.Log;
 using Dapplo.Windows.Desktop;
 using Dapplo.Windows.Structs;
 using Dapplo.Windows.User32;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Plugin.Jira;
 
@@ -50,6 +51,9 @@ public class JiraMonitor : IDisposable
 
     // TODO: Add issues from issueHistory (JQL -> Where.IssueKey.InIssueHistory())
     private IDictionary<string, JiraDetails> _recentJiras = new Dictionary<string, JiraDetails>();
+
+    // The title monitor and the destinations (thread pool) access the recent jiras concurrently
+    private readonly object _recentJirasLock = new object();
 
     /// <summary>
     /// Register to this event to get events when new jira issues are detected
@@ -100,10 +104,19 @@ public class JiraMonitor : IDisposable
     /// <summary>
     /// Get the "list" of recently seen Jiras
     /// </summary>
-    public IEnumerable<JiraDetails> RecentJiras =>
-        (from jiraDetails in _recentJiras.Values
-            orderby jiraDetails.SeenAt descending
-            select jiraDetails);
+    public IEnumerable<JiraDetails> RecentJiras
+    {
+        get
+        {
+            lock (_recentJirasLock)
+            {
+                // A snapshot, callers enumerate it without the lock
+                return (from jiraDetails in _recentJiras.Values
+                    orderby jiraDetails.SeenAt descending
+                    select jiraDetails).ToList();
+            }
+        }
+    }
 
     /// <summary>
     /// Check if this monitor has active instances
@@ -187,11 +200,39 @@ public class JiraMonitor : IDisposable
         if (_projectJiraClientMap.TryGetValue(projectKey, out var jiraClient))
         {
             // We have found a project for this _jira key, so it must be a valid & known JIRA
-            if (_recentJiras.TryGetValue(jiraKey, out var currentJiraDetails))
+            JiraDetails currentJiraDetails;
+            bool isKnown;
+            lock (_recentJirasLock)
             {
-                // update 
-                currentJiraDetails.SeenAt = DateTimeOffset.Now;
+                isKnown = _recentJiras.TryGetValue(jiraKey, out currentJiraDetails);
+                if (isKnown)
+                {
+                    // update
+                    currentJiraDetails.SeenAt = DateTimeOffset.Now;
+                }
+                else
+                {
+                    // We detected an unknown JIRA, so add it to our list
+                    currentJiraDetails = new JiraDetails
+                    {
+                        Id = jiraId,
+                        ProjectKey = projectKey
+                    };
+                    _recentJiras.Add(currentJiraDetails.JiraKey, currentJiraDetails);
 
+                    // Make sure we don't collect _jira's until the memory is full
+                    if (_recentJiras.Count > _maxEntries)
+                    {
+                        // Add it to the list of recent Jiras
+                        _recentJiras = (from jiraDetails in _recentJiras.Values.ToList()
+                            orderby jiraDetails.SeenAt descending
+                            select jiraDetails).Take(_maxEntries).ToDictionary(jd => jd.JiraKey, jd => jd);
+                    }
+                }
+            }
+
+            if (isKnown)
+            {
                 // Notify the order change
                 JiraEvent?.Invoke(this, new JiraEventArgs
                 {
@@ -203,26 +244,8 @@ public class JiraMonitor : IDisposable
                 return;
             }
 
-            // We detected an unknown JIRA, so add it to our list
-            currentJiraDetails = new JiraDetails
-            {
-                Id = jiraId,
-                ProjectKey = projectKey
-            };
-            _recentJiras.Add(currentJiraDetails.JiraKey, currentJiraDetails);
-
-            // Make sure we don't collect _jira's until the memory is full
-            if (_recentJiras.Count > _maxEntries)
-            {
-                // Add it to the list of recent Jiras
-                _recentJiras = (from jiraDetails in _recentJiras.Values.ToList()
-                    orderby jiraDetails.SeenAt descending
-                    select jiraDetails).Take(_maxEntries).ToDictionary(jd => jd.JiraKey, jd => jd);
-            }
-
-            // Now we can get the title from JIRA itself
-            // ReSharper disable once UnusedVariable
-            var updateTitleTask = DetectedNewJiraIssueAsync(currentJiraDetails);
+            // Now we can get the title from JIRA itself, the method logs its own failures
+            DetectedNewJiraIssueAsync(currentJiraDetails).FireAndLog("Retrieve the JIRA title");
         }
         else
         {

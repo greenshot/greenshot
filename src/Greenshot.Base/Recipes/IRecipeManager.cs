@@ -70,8 +70,9 @@ namespace Greenshot.Base.Recipes
         /// Verifies that an external recipe's backing file on disk has not been modified since approval.
         /// If modified, interactively prompts for approval (if supported) and reloads the recipe.
         /// Returns the verified up-to-date recipe, or null if unapproved or rejected.
+        /// The prompt (and the reload) run on the UI thread, callable from any thread.
         /// </summary>
-        CaptureRecipe EnsureRecipeApprovedAndUpToDate(CaptureRecipe currentRecipe);
+        System.Threading.Tasks.Task<CaptureRecipe> EnsureRecipeApprovedAndUpToDateAsync(CaptureRecipe currentRecipe, System.Threading.CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Resets an overridden built-in recipe back to its original default definition.

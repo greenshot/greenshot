@@ -41,16 +41,16 @@ namespace Greenshot.Tests.Forms
 
 
         [Fact]
-        public void WindowsAppHelper_NegativeLookup_IsCached()
+        public async System.Threading.Tasks.Task WindowsAppHelper_NegativeLookup_IsCached()
         {
             string nonExistentApp = "Definitely_Not_A_Real_App_987654.exe";
             var sw = System.Diagnostics.Stopwatch.StartNew();
-            var result1 = WindowsAppHelper.GetAppLogo(nonExistentApp);
+            var result1 = await WindowsAppHelper.GetAppLogoAsync(nonExistentApp);
             long firstLookupMs = sw.ElapsedMilliseconds;
             Assert.Null(result1);
 
             sw.Restart();
-            var result2 = WindowsAppHelper.GetAppLogo(nonExistentApp);
+            var result2 = await WindowsAppHelper.GetAppLogoAsync(nonExistentApp);
             long secondLookupMs = sw.ElapsedMilliseconds;
             Assert.Null(result2);
 

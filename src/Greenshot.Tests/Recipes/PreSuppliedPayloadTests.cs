@@ -53,7 +53,13 @@ namespace Greenshot.Tests.Recipes
         {
             public int Calls { get; private set; }
 
-            public Task<SelectionResult> SelectAsync(ICapture fullscreenCapture, List<WindowDetails> visibleWindows, CaptureMode initialMode, CancellationToken cancellationToken = default)
+            public bool IsSelecting => false;
+
+            public void BringToFront()
+            {
+            }
+
+            public Task<SelectionResult> SelectAsync(ICapture fullscreenCapture, IReadOnlyList<WindowDetails> visibleWindows, CaptureMode initialMode, CancellationToken cancellationToken = default)
             {
                 Calls++;
                 return Task.FromResult(new SelectionResult { SelectedRegion = new NativeRect(0, 0, 10, 10), FinalMode = initialMode });

@@ -36,6 +36,7 @@ using Dapplo.Windows.User32;
 using Greenshot.Base.Core;
 using Greenshot.Base.Wpf;
 using log4net;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.UI.SelfService
 {
@@ -208,32 +209,7 @@ namespace Greenshot.UI.SelfService
 
         private void RunOnUIThread(Action action)
         {
-            if (_dispatcher != null && !_dispatcher.HasShutdownStarted)
-            {
-                if (_dispatcher.CheckAccess())
-                {
-                    action();
-                }
-                else
-                {
-                    _dispatcher.BeginInvoke(action);
-                }
-            }
-            else if (Application.Current?.Dispatcher != null && !Application.Current.Dispatcher.HasShutdownStarted)
-            {
-                if (Application.Current.Dispatcher.CheckAccess())
-                {
-                    action();
-                }
-                else
-                {
-                    Application.Current.Dispatcher.BeginInvoke(action);
-                }
-            }
-            else
-            {
-                action();
-            }
+            UiDispatcher.Current.RunOnUiAsync(action).FireAndLog("Clipboard view update", Log);
         }
 
         private void StartListeningToClipboardUpdates()

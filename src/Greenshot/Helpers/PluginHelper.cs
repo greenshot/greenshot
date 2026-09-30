@@ -21,163 +21,121 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Ini;
+using Dapplo.Ini.Interfaces;
 using Greenshot.Base.Core;
+using Greenshot.Base.Drawing;
 using Greenshot.Base.Interfaces;
+using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.Base.Pipeline;
+using Greenshot.Base.Recipes;
 using log4net;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Helpers
 {
     /// <summary>
-    /// The PluginHelper takes care of all plugin related functionality
+    /// The PluginHelper takes care of all plugin related functionality: loading, registration, the parallel start (with
+    /// a timeout, the main window doesn't wait for it), the settings views and stopping the plugins.
     /// </summary>
-    [Serializable]
-    public class PluginHelper : IGreenshotHost
+    public class PluginHelper
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(PluginHelper));
         private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
+        private static readonly TimeSpan StartTimeout = TimeSpan.FromSeconds(30);
 
         private static readonly string ApplicationPath = Path.GetDirectoryName(Application.ExecutablePath);
         private static readonly string PafPath = Path.Combine(Application.StartupPath, @"App\Greenshot");
 
+        private readonly Dictionary<Type, Func<object, object>> _settingsViews = new();
+        private readonly List<IGreenshotPlugin> _startedPlugins = new();
+
         public static PluginHelper Instance { get; } = new PluginHelper();
 
-        public void Shutdown()
-        {
-            foreach (var plugin in SimpleServiceProvider.Current.GetAllInstances<IGreenshotPlugin>())
-            {
-                plugin.Shutdown();
-                plugin.Dispose();
-            }
-        }
-
         /// <summary>
-        /// Add plugins to the ListView
+        /// The started plugins
         /// </summary>
-        /// <param name="listView"></param>
-        public void FillListView(ListView listView)
+        public IReadOnlyList<IGreenshotPlugin> Plugins
         {
-            foreach (var plugin in SimpleServiceProvider.Current.GetAllInstances<IGreenshotPlugin>())
+            get
             {
-                var item = new ListViewItem(plugin.Name)
+                lock (_startedPlugins)
                 {
-                    Tag = plugin
-                };
-                var assembly = plugin.GetType().Assembly;
-
-                var company = assembly.GetCustomAttribute<AssemblyCompanyAttribute>();
-                item.SubItems.Add(assembly.GetName().Version.ToString());
-                item.SubItems.Add(company.Company);
-                item.SubItems.Add(assembly.Location);
-                listView.Items.Add(item);
-            }
-        }
-
-        public bool IsSelectedItemConfigurable(ListView listView)
-        {
-            if (listView.SelectedItems.Count <= 0)
-            {
-                return false;
-            }
-
-            var greenshotPlugin = (IGreenshotPlugin) listView.SelectedItems[0].Tag;
-            return greenshotPlugin?.IsConfigurable == true;
-        }
-
-        public void ConfigureSelectedItem(ListView listView)
-        {
-            if (listView.SelectedItems.Count <= 0)
-            {
-                return;
-            }
-
-            var greenshotPlugin = (IGreenshotPlugin) listView.SelectedItems[0].Tag;
-            if (greenshotPlugin == null)
-            {
-                return;
-            }
-
-            var plugin = SimpleServiceProvider.Current
-                .GetAllInstances<IGreenshotPlugin>()
-                .FirstOrDefault(p => p.Name == greenshotPlugin.Name);
-            plugin?.Configure();
-        }
-
-        /// <summary>
-        /// Create a Thumbnail
-        /// </summary>
-        /// <param name="image">Image of which we need a Thumbnail</param>
-        /// <param name="width">Thumbnail width</param>
-        /// <param name="height">Thumbnail height</param>
-        /// <returns>Image with Thumbnail</returns>
-        public Image GetThumbnail(Image image, int width, int height)
-        {
-            return image.GetThumbnailImage(width, height, ThumbnailCallback, IntPtr.Zero);
-        }
-
-        ///  <summary>
-        /// Required for GetThumbnail, but not used
-        /// </summary>
-        /// <returns>true</returns>
-        private bool ThumbnailCallback()
-        {
-            return true;
-        }
-
-        public ExportInformation ExportCapture(bool manuallyInitiated, string designation, ISurface surface, ICaptureDetails captureDetails)
-        {
-            return DestinationHelper.ExportCapture(manuallyInitiated, designation, surface, captureDetails);
-        }
-
-        /// <summary>
-        /// Make Capture with specified Handler
-        /// </summary>
-        /// <param name="captureMouseCursor">bool false if the mouse should not be captured, true if the configuration should be checked</param>
-        /// <param name="destination">IDestination</param>
-        public void CaptureRegion(bool captureMouseCursor, IDestination destination)
-        {
-            CaptureHelper.CaptureRegion(captureMouseCursor, destination);
-        }
-
-        /// <summary>
-        /// Use the supplied image, and handle it as if it's captured.
-        /// </summary>
-        /// <param name="captureToImport">Image to handle</param>
-        public void ImportCapture(ICapture captureToImport)
-        {
-            var mainForm = SimpleServiceProvider.Current.GetInstance<Form>();
-            mainForm.BeginInvoke((MethodInvoker) delegate { CaptureHelper.ImportCapture(captureToImport); });
-        }
-
-        /// <summary>
-        /// Get an ICapture object, so the plugin can modify this
-        /// </summary>
-        /// <returns></returns>
-        public ICapture GetCapture(Image imageToCapture)
-        {
-            var capture = new Capture(imageToCapture)
-            {
-                CaptureDetails = new CaptureDetails
-                {
-                    CaptureMode = CaptureMode.Import,
-                    Title = "Imported"
+                    return _startedPlugins.ToList();
                 }
-            };
-            return capture;
+            }
         }
 
+        /// <summary>
+        /// The view for the settings of the plugin, null when it has none
+        /// </summary>
+        public object CreateSettingsView(IGreenshotPlugin plugin)
+        {
+            if (plugin is not IConfigurablePlugin configurablePlugin)
+            {
+                return null;
+            }
+
+            var viewModel = configurablePlugin.CreateSettingsViewModel(SimpleServiceProvider.Current);
+            if (viewModel == null)
+            {
+                return null;
+            }
+
+            foreach (var settingsView in _settingsViews)
+            {
+                if (settingsView.Key.IsInstanceOfType(viewModel))
+                {
+                    return settingsView.Value(viewModel);
+                }
+            }
+
+            Log.WarnFormat("No settings view registered for {0} of plugin {1}", viewModel.GetType(), plugin.Name);
+            return null;
+        }
 
         /// <summary>
-        /// Private helper to find the plugins in the path
+        /// Stop all plugins, each with a timeout, and dispose them.
         /// </summary>
-        /// <param name="path">string</param>
-        /// <returns>IEnumerable with plugin files</returns>
+        public async Task ShutdownAsync(TimeSpan timeout)
+        {
+            var plugins = Plugins;
+            lock (_startedPlugins)
+            {
+                _startedPlugins.Clear();
+            }
+
+            foreach (var plugin in plugins)
+            {
+                using var timeoutSource = new CancellationTokenSource(timeout);
+                try
+                {
+                    // A plugin which ignores the cancellation doesn't hold up the exit
+                    await plugin.StopAsync(timeoutSource.Token).WaitAsync(timeout);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error($"Error stopping plugin {plugin.Name}", ex);
+                }
+
+                try
+                {
+                    await plugin.DisposeAsync().AsTask().WaitAsync(timeout);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error($"Error disposing plugin {plugin.Name}", ex);
+                }
+            }
+        }
+
         private IEnumerable<string> FindPluginsOnPath(string path)
         {
             var pluginFiles = Enumerable.Empty<string>();
@@ -203,7 +161,12 @@ namespace Greenshot.Helpers
         ///   <item><description>Phase 3 — every plugin runs its remaining start-up logic.</description></item>
         /// </list>
         /// </summary>
-        public void LoadPlugins()
+        /// <summary>
+        /// Load the plugins and let them register (synchronous, this also loads the configuration), then start them
+        /// in parallel without waiting: the returned task completes when all started (or failed / timed out), it never throws.
+        /// </summary>
+        /// <returns>Task which completes when all plugins started</returns>
+        public Task LoadPluginsAsync()
         {
             var pluginFiles = new List<string>();
 
@@ -256,17 +219,20 @@ namespace Greenshot.Helpers
                 }
             }
 
-            // ── Phase 1: Register configuration sections (no file I/O) ───────────
+            // ── Registration: configuration sections, services, views (no I/O) ───
             var activeIniConfig = IniConfigRegistry.Get();
+            var registrations = new List<(IGreenshotPlugin Plugin, PluginServices Services)>();
             foreach (var plugin in plugins)
             {
+                var pluginServices = new PluginServices(activeIniConfig, _settingsViews);
                 try
                 {
-                    plugin.RegisterConfiguration(activeIniConfig);
+                    plugin.ConfigureServices(pluginServices);
+                    registrations.Add((plugin, pluginServices));
                 }
                 catch (Exception e)
                 {
-                    Log.ErrorFormat("Error during RegisterConfiguration for plugin {0}", plugin.Name);
+                    Log.ErrorFormat("Error during ConfigureServices for plugin {0}", plugin.Name);
                     Log.Error(e);
                 }
             }
@@ -274,45 +240,54 @@ namespace Greenshot.Helpers
             // ── Single file read (all sections populated at once) ─────────────────
             IniConfigRegistry.Get().Load();
 
-            // ── Phase 2: Register services ────────────────────────────────────────
-            foreach (var plugin in plugins)
+            // ── What needs the configuration ─────────────────────────────────────
+            bool recipesEnabled = RecipeConfigHelper.IsRecipeFeatureEnabled();
+            var toStart = new List<IGreenshotPlugin>();
+            foreach (var (plugin, pluginServices) in registrations)
             {
                 try
                 {
-                    plugin.RegisterServices(SimpleServiceProvider.Current);
+                    pluginServices.RegisterDeferred(recipesEnabled);
+                    toStart.Add(plugin);
                 }
                 catch (Exception e)
                 {
-                    Log.ErrorFormat("Error during RegisterServices for plugin {0}", plugin.Name);
+                    Log.ErrorFormat("Error registering the services of plugin {0}", plugin.Name);
                     Log.Error(e);
                 }
             }
 
-            // ── Phase 3: Start ────────────────────────────────────────────────────
-            foreach (var plugin in plugins)
+            // ── Start all in parallel, nobody waits for it ───────────────────────
+            return Task.WhenAll(toStart.Select(StartPluginAsync));
+        }
+
+        /// <summary>
+        /// Start one plugin with a timeout, a failure is logged and the plugin disabled.
+        /// </summary>
+        private async Task StartPluginAsync(IGreenshotPlugin plugin)
+        {
+            using var timeoutSource = new CancellationTokenSource(StartTimeout);
+            try
             {
-                try
+                await plugin.StartAsync(SimpleServiceProvider.Current, timeoutSource.Token);
+                lock (_startedPlugins)
                 {
-                    if (plugin.Start())
-                    {
-                        SimpleServiceProvider.Current.AddService(plugin);
-                    }
-                    else
-                    {
-                        Log.InfoFormat("Plugin {0} did not start.", plugin.Name);
-                    }
+                    _startedPlugins.Add(plugin);
                 }
-                catch (Exception e)
-                {
-                    Log.ErrorFormat("Error during Start for plugin {0}", plugin.Name);
-                    Log.Error(e);
-                }
+
+                SimpleServiceProvider.Current.AddService(plugin);
+            }
+            catch (OperationCanceledException) when (timeoutSource.IsCancellationRequested)
+            {
+                Log.ErrorFormat("Plugin {0} didn't start within {1}, it is disabled.", plugin.Name, StartTimeout);
+            }
+            catch (Exception e)
+            {
+                Log.ErrorFormat("Error during the start of plugin {0}, it is disabled.", plugin.Name);
+                Log.Error(e);
             }
         }
-        /// <summary>
-        /// This method checks the plugin against the configured include and exclude plugin
-        /// lists. If a plugin is excluded, a warning is logged with details about the exclusion.
-        /// </summary>
+
         private bool IsPluginExcludedByConfig(Assembly assembly, string pluginFile)
         {
             // Get plugin identifier from assembly attributes
@@ -357,6 +332,82 @@ namespace Greenshot.Helpers
             var pluginSubNamespace = assembly.GetName().Name.Replace("Greenshot.Plugin.", string.Empty);
             Log.WarnFormat("No '{0}' found in '{1}'. Use plugin namespace '{2}' as fallback.", nameof(AssemblyPluginIdentifierAttribute), pluginFile, pluginSubNamespace);
             return pluginSubNamespace;
+        }
+
+        /// <summary>
+        /// The registrations of one plugin
+        /// </summary>
+        private sealed class PluginServices : IPluginServices
+        {
+            private readonly IniConfig _iniConfig;
+            private readonly Dictionary<Type, Func<object, object>> _settingsViews;
+            private readonly List<Action> _deferred = new();
+            private readonly List<IRecipeStepProvider> _recipeStepProviders = new();
+            private readonly List<IRecipeDrawableProvider> _recipeDrawableProviders = new();
+
+            public PluginServices(IniConfig iniConfig, Dictionary<Type, Func<object, object>> settingsViews)
+            {
+                _iniConfig = iniConfig;
+                _settingsViews = settingsViews;
+            }
+
+            public void AddConfiguration<TSection>(TSection section) where TSection : class, IIniSection
+            {
+                _iniConfig.AddSection(section);
+            }
+
+            public void AddService<TService>(TService service)
+            {
+                SimpleServiceProvider.Current.AddService(service);
+            }
+
+            public void AddServices<TService>(Func<IEnumerable<TService>> factory)
+            {
+                _deferred.Add(() => SimpleServiceProvider.Current.AddService(factory()));
+            }
+
+            public void AddRecipeStepProvider(IRecipeStepProvider provider)
+            {
+                _recipeStepProviders.Add(provider);
+            }
+
+            public void AddRecipeDrawableProvider(IRecipeDrawableProvider provider)
+            {
+                _recipeDrawableProviders.Add(provider);
+            }
+
+            public void AddSettingsView<TViewModel>(Func<TViewModel, object> createView)
+            {
+                _settingsViews[typeof(TViewModel)] = viewModel => createView((TViewModel)viewModel);
+            }
+
+            /// <summary>
+            /// Register what needs the loaded configuration
+            /// </summary>
+            public void RegisterDeferred(bool recipesEnabled)
+            {
+                foreach (var deferred in _deferred)
+                {
+                    deferred();
+                }
+
+                if (!recipesEnabled)
+                {
+                    return;
+                }
+
+                foreach (var recipeStepProvider in _recipeStepProviders)
+                {
+                    SimpleServiceProvider.Current.AddService(recipeStepProvider);
+                    StepRegistry.Instance.RegisterProvider(recipeStepProvider);
+                }
+
+                foreach (var recipeDrawableProvider in _recipeDrawableProviders)
+                {
+                    SimpleServiceProvider.Current.AddService(recipeDrawableProvider);
+                    RecipeDrawableRegistry.Instance.RegisterProvider(recipeDrawableProvider);
+                }
+            }
         }
     }
 }

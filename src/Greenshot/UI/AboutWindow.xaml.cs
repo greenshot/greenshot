@@ -40,6 +40,7 @@ using Greenshot.Configuration;
 using log4net;
 using Lang = Greenshot.Base.Core.Language;
 using Path = System.Windows.Shapes.Path;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.UI
 {
@@ -214,14 +215,8 @@ namespace Greenshot.UI
 
         private void OnLanguageChanged(object sender, EventArgs e)
         {
-            if (Dispatcher.CheckAccess())
-            {
-                InitializeLanguage();
-            }
-            else
-            {
-                Dispatcher.Invoke(InitializeLanguage);
-            }
+            // The language can change on another thread
+            UiDispatcher.Current.RunOnUiAsync(InitializeLanguage).FireAndLog("Initialize the language of the about window");
         }
 
         private void OnWindowLoaded(object sender, RoutedEventArgs e)

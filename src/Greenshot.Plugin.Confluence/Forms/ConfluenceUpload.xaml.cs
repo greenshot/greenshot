@@ -19,10 +19,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Windows;
 using Greenshot.Plugin.Confluence.Entities;
 
@@ -33,7 +31,23 @@ namespace Greenshot.Plugin.Confluence.Forms;
 /// </summary>
 public partial class ConfluenceUpload
 {
+    private readonly ConfluenceUploadRequest _request;
     private ConfluencePagePicker _pickerPage;
+
+    /// <summary>
+    /// The view of a <see cref="ConfluenceUploadRequest"/>: shows the dialog modally (on the UI thread).
+    /// </summary>
+    /// <returns>the choice of the user, null when canceled</returns>
+    public static ConfluenceUploadChoice Show(ConfluenceUploadRequest request)
+    {
+        var confluenceUpload = new ConfluenceUpload(request);
+        if (confluenceUpload.ShowDialog() != true || confluenceUpload.SelectedPage == null)
+        {
+            return null;
+        }
+
+        return new ConfluenceUploadChoice(confluenceUpload.SelectedPage, confluenceUpload.Filename, confluenceUpload.IsOpenPageSelected);
+    }
 
     public ConfluencePagePicker PickerPage
     {
@@ -41,8 +55,8 @@ public partial class ConfluenceUpload
         {
             if (_pickerPage == null)
             {
-                List<Page> pages = ConfluenceUtils.GetCurrentPages();
-                if (pages != null && pages.Count > 0)
+                List<Page> pages = _request.CurrentPages.ToList();
+                if (pages.Count > 0)
                 {
                     _pickerPage = new ConfluencePagePicker(this, pages);
                 }
@@ -82,60 +96,23 @@ public partial class ConfluenceUpload
     public bool IsOpenPageSelected { get; set; }
     public string Filename { get; set; }
 
-    private static DateTime _lastLoad = DateTime.Now;
-    private static IList<Space> _spaces;
+    /// <summary>
+    /// The spaces, loaded before the dialog opened
+    /// </summary>
+    public IList<Space> Spaces => _request.Spaces;
 
-    public IList<Space> Spaces
+    public ConfluenceUpload(ConfluenceUploadRequest request)
     {
-        get
-        {
-            UpdateSpaces();
-            int waitAttempts = 0;
-            const int maxWaitAttempts = 100; // ~30 seconds max
-            while (_spaces == null && waitAttempts < maxWaitAttempts)
-            {
-                Thread.Sleep(300);
-                waitAttempts++;
-            }
-
-            return _spaces;
-        }
-    }
-
-    public ConfluenceUpload(string filename)
-    {
-        Filename = filename;
+        _request = request;
+        Filename = request.Filename;
         InitializeComponent();
         DataContext = this;
-        UpdateSpaces();
         if (PickerPage != null)
         {
             return;
         }
         PickerTab.Visibility = Visibility.Collapsed;
         SearchTab.IsSelected = true;
-    }
-
-    private void UpdateSpaces()
-    {
-        if (_spaces != null && DateTime.Now.AddMinutes(-60).CompareTo(_lastLoad) > 0)
-        {
-            // Reset
-            _spaces = null;
-        }
-
-        // Check if load is needed
-        if (_spaces == null)
-        {
-            (new Thread(() =>
-            {
-                _spaces = ConfluencePlugin.ConfluenceConnector.GetSpaceSummaries().OrderBy(s => s.Name).ToList();
-                _lastLoad = DateTime.Now;
-            })
-            {
-                Name = "Loading spaces for confluence"
-            }).Start();
-        }
     }
 
     private void Upload_Click(object sender, RoutedEventArgs e)

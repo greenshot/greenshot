@@ -32,10 +32,13 @@ using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Pipeline;
 using Greenshot.Base.Recipes;
+using System.Threading;
+using System.Threading.Tasks;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Plugin.Zxing;
 
-public class ZxingPlugin : IGreenshotPlugin, IRecipeStepProvider, IRecipeDrawableProvider, IRecipeStepSchemaProvider
+public class ZxingPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepProvider, IRecipeDrawableProvider, IRecipeStepSchemaProvider
 {
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ZxingPlugin));
     private static IZxingConfiguration _config;
@@ -44,50 +47,33 @@ public class ZxingPlugin : IGreenshotPlugin, IRecipeStepProvider, IRecipeDrawabl
     private ZxingEditorPlugin _editorPlugin;
     private ZxingHotspotTransformer _hotspotTransformer;
 
-    public void Dispose()
+    public ValueTask DisposeAsync()
     {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
-
-    private void Dispose(bool disposing)
-    {
-        if (!disposing) return;
-        if (_itemPlugInConfig != null)
-        {
-            _itemPlugInConfig.Dispose();
-            _itemPlugInConfig = null;
-        }
+        // The menu item is removed and disposed in StopAsync
+        return default;
     }
 
     public string Name => "Zxing";
 
-    public bool IsConfigurable => true;
-
-    public void RegisterConfiguration(IniConfig iniConfig)
+    public void ConfigureServices(IPluginServices services)
     {
         var section = new ZxingConfigurationImpl();
-        iniConfig.AddSection(section);
+        services.AddConfiguration(section);
         _config = section;
-    }
 
-    public void RegisterServices(IServiceLocator serviceLocator)
-    {
         _captureProcessor = new ZxingCaptureProcessor(_config);
         _editorPlugin = new ZxingEditorPlugin(_config);
         _hotspotTransformer = new ZxingHotspotTransformer();
-        serviceLocator.AddService<IProcessor>(_captureProcessor);
-        serviceLocator.AddService<IEditorPlugin>(_editorPlugin);
-        serviceLocator.AddService<IFeatureHotspotTransformer>(_hotspotTransformer);
-        serviceLocator.AddService<IDestination>(new ZxingQrDestination());
-        if (RecipeConfigHelper.IsRecipeFeatureEnabled())
-        {
-            serviceLocator.AddService<IRecipeStepProvider>(this);
-            serviceLocator.AddService<IRecipeDrawableProvider>(this);
-            StepRegistry.Instance.RegisterProvider(this);
-            RecipeDrawableRegistry.Instance.RegisterProvider(this);
-        }
+        services.AddService<IProcessor>(_captureProcessor);
+        services.AddService<IEditorPlugin>(_editorPlugin);
+        services.AddService<IFeatureHotspotTransformer>(_hotspotTransformer);
+        services.AddService<IDestination>(new ZxingQrDestination());
+        services.AddRecipeStepProvider(this);
+        services.AddRecipeDrawableProvider(this);
+        services.AddSettingsView<IZxingConfiguration>(config => new Controls.ZxingConfigurationControl(config));
     }
+
+    public object CreateSettingsViewModel(IServiceProvider services) => _config;
 
     /// <summary>
     /// Registers drawable factories provided by the ZXing plugin for recipe drawables.
@@ -471,12 +457,18 @@ public class ZxingPlugin : IGreenshotPlugin, IRecipeStepProvider, IRecipeDrawabl
         return $"geo:{lat},{lon}";
     }
 
-    public bool Start()
+    /// <summary>
+    /// Add the quick link to the context menu (on the UI thread)
+    /// </summary>
+    public Task StartAsync(IServiceProvider services, CancellationToken cancellationToken) =>
+        services.GetRequiredService<IUiDispatcher>().RunOnUiAsync(Start, cancellationToken);
+
+    private void Start()
     {
         Image icon = null;
         try
         {
-            icon = new ZxingQrDestination().DisplayIcon;
+            icon = PluginUtils.GetCachedExeIcon(FilenameHelper.FillCmdVariables(@"%windir%\system32\imageres.dll"), 97);
         }
         catch
         {
@@ -489,7 +481,7 @@ public class ZxingPlugin : IGreenshotPlugin, IRecipeStepProvider, IRecipeDrawabl
             Text = PluginUtils.GetQuicklinkText("Zxing"),
             Visible = _config?.QuicklinkEnabled ?? false
         };
-        _itemPlugInConfig.Click += delegate { Configure(); };
+        _itemPlugInConfig.Click += delegate { ShowSettings(); };
 
         PluginUtils.AddToContextMenu(_itemPlugInConfig);
         Language.LanguageChanged += OnLanguageChanged;
@@ -497,8 +489,6 @@ public class ZxingPlugin : IGreenshotPlugin, IRecipeStepProvider, IRecipeDrawabl
         {
             notify.PropertyChanged += OnConfigPropertyChanged;
         }
-
-        return true;
     }
 
     private void OnConfigPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -520,25 +510,26 @@ public class ZxingPlugin : IGreenshotPlugin, IRecipeStepProvider, IRecipeDrawabl
         }
     }
 
-    public void Shutdown()
-    {
-        Log.Debug("ZXing plugin shutdown.");
-        Language.LanguageChanged -= OnLanguageChanged;
-        if (_config is INotifyPropertyChanged notify)
+    public Task StopAsync(CancellationToken cancellationToken) =>
+        UiDispatcher.Current.RunOnUiAsync(() =>
         {
-            notify.PropertyChanged -= OnConfigPropertyChanged;
-        }
-    }
+            Log.Debug("ZXing plugin shutdown.");
+            Language.LanguageChanged -= OnLanguageChanged;
+            if (_config is INotifyPropertyChanged notify)
+            {
+                notify.PropertyChanged -= OnConfigPropertyChanged;
+            }
 
-    public void Configure()
-    {
-        var mainForm = Greenshot.Base.Core.SimpleServiceProvider.Current.GetInstance<IGreenshotMainForm>(isOptional: true);
-        mainForm?.ShowSetting(Name);
-    }
+            _itemPlugInConfig?.Dispose();
+            _itemPlugInConfig = null;
+        }, cancellationToken);
 
-    public System.Windows.UIElement CreateConfigurationControl()
+    /// <summary>
+    /// Show the settings of this plugin
+    /// </summary>
+    private void ShowSettings()
     {
-        return _config != null ? new Controls.ZxingConfigurationControl(_config) : null;
+        Greenshot.Base.Core.SimpleServiceProvider.Current.GetInstance<IGreenshotMainForm>(isOptional: true)?.ShowSetting(Name);
     }
 
     /// <summary>

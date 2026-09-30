@@ -45,15 +45,22 @@ namespace Greenshot.Helpers
         private static readonly ILog Log = LogManager.GetLogger(typeof(PrintHelper));
         private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
 
-        private ISurface _surface;
+        // Borrowed: every page works on its own copy
+        private Image _sourceImage;
         private readonly ICaptureDetails _captureDetails;
         private readonly PrintOptions _options;
         private PrintDocument _printDocument = new PrintDocument();
         private PrintDialog _printDialog = new PrintDialog();
 
-        public PrintHelper(ISurface surface, ICaptureDetails captureDetails, PrintOptions options = null)
+        /// <summary>
+        /// Prints the rendered capture, must be used on the UI thread (print dialogs, the print status dialog).
+        /// </summary>
+        /// <param name="sourceImage">The rendered capture without color reduction, borrowed (not changed or disposed)</param>
+        /// <param name="captureDetails">ICaptureDetails</param>
+        /// <param name="options">PrintOptions</param>
+        public PrintHelper(Image sourceImage, ICaptureDetails captureDetails, PrintOptions options = null)
         {
-            _surface = surface;
+            _sourceImage = sourceImage;
             _captureDetails = captureDetails;
             _options = options;
             _printDialog.UseEXDialog = true;
@@ -104,7 +111,7 @@ namespace Greenshot.Helpers
                 _printDialog?.Dispose();
             }
 
-            _surface = null;
+            _sourceImage = null;
             _printDocument = null;
             _printDialog = null;
         }
@@ -203,7 +210,8 @@ namespace Greenshot.Helpers
 
             ApplyEffects(printOutputSettings);
 
-            bool disposeImage = ImageIO.CreateImageFromSurface(_surface, printOutputSettings, out var image);
+            // Every page gets its own copy: the effects and the rotation change it
+            bool disposeImage = ImageIO.CreateImageForOutput(ImageHelper.Clone(_sourceImage), true, printOutputSettings, out var image);
             try
             {
                 ContentAlignment alignment = Center ? ContentAlignment.MiddleCenter : ContentAlignment.TopLeft;

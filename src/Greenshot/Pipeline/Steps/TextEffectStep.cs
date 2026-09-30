@@ -213,11 +213,8 @@ namespace Greenshot.Pipeline.Steps
                 surface.AddElements(containers, true);
                 surface.Modified = true;
 
-                if (payload.SharedRenderedBitmap != null)
-                {
-                    payload.SharedRenderedBitmap.Dispose();
-                    payload.SharedRenderedBitmap = null;
-                }
+                // The surface changed: renders cached for the destinations are outdated
+                payload.InvalidateExportSource();
 
                 context.LogStep($"TextEffectStep applied '{effectType}' to {containers.Count} matched region(s).");
                 Log.InfoFormat("TextEffectStep applied '{0}' to {1} matched region(s).", effectType, containers.Count);

@@ -19,17 +19,21 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using Dapplo.Ini;
+using Greenshot.Base.Threading;
 using Greenshot.Plugin.Confluence.Entities;
 
 namespace Greenshot.Plugin.Confluence.Forms;
 
 public partial class ConfluenceSearch
 {
+    private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ConfluenceSearch));
     private static readonly IConfluenceConfiguration ConfluenceConfig = IniConfigRegistry.GetSection<IConfluenceConfiguration>();
     private readonly ConfluenceUpload _confluenceUpload;
 
@@ -77,17 +81,32 @@ public partial class ConfluenceSearch
 
     private void Search_Click(object sender, RoutedEventArgs e)
     {
-        DoSearch();
+        AsyncCommand.Run(DoSearchAsync, "Search Confluence pages");
     }
 
-    private void DoSearch()
+    private async Task DoSearchAsync()
     {
         string spaceKey = (string) SpaceComboBox.SelectedValue;
         ConfluenceConfig.SearchSpaceKey = spaceKey;
         Pages.Clear();
-        foreach (var page in ConfluencePlugin.ConfluenceConnector.SearchPages(searchText.Text, spaceKey).OrderBy(p => p.Title))
+        Search.IsEnabled = false;
+        try
         {
-            Pages.Add(page);
+            // Continues on the UI thread
+            var pages = await ConfluencePlugin.ConfluenceConnector.SearchPagesAsync(searchText.Text, spaceKey);
+            foreach (var page in pages.OrderBy(p => p.Title))
+            {
+                Pages.Add(page);
+            }
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            Log.Error("Search failed", ex);
+            MessageBox.Show(ex.Message);
+        }
+        finally
+        {
+            Search.IsEnabled = !string.IsNullOrEmpty(searchText.Text);
         }
     }
 
@@ -95,7 +114,7 @@ public partial class ConfluenceSearch
     {
         if (e.Key == System.Windows.Input.Key.Return && Search.IsEnabled)
         {
-            DoSearch();
+            AsyncCommand.Run(DoSearchAsync, "Search Confluence pages");
             e.Handled = true;
         }
     }

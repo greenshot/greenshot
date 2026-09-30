@@ -30,6 +30,7 @@ using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Plugin.Office.Com;
 using Greenshot.Plugin.Office.OfficeExport.Entities;
 using Microsoft.Office.Interop.OneNote;
+using System.Drawing;
 
 namespace Greenshot.Plugin.Office.OfficeExport
 {
@@ -50,9 +51,11 @@ namespace Greenshot.Plugin.Office.OfficeExport
         /// <summary>
         ///     Create a new page in the "unfiled notes section", with the title of the capture, and export the capture there.
         /// </summary>
-        /// <param name="surfaceToUpload">ISurface</param>
+        /// <param name="png">The capture encoded as PNG</param>
+        /// <param name="imageSize">Size of the capture</param>
+        /// <param name="title">Title of the new page</param>
         /// <returns>bool true if export worked</returns>
-        public bool ExportToNewPage(ISurface surfaceToUpload)
+        public bool ExportToNewPage(EncodedImage png, Size imageSize, string title)
         {
             using var oneNoteApplication = GetOrCreateOneNoteApplication();
             if (oneNoteApplication == null)
@@ -73,17 +76,18 @@ namespace Greenshot.Plugin.Office.OfficeExport
             oneNoteApplication.ComObject.CreateNewPage(unfiledNotesSectionId, out pageId, NewPageStyle.npsDefault);
             newPage.Id = pageId;
             // Set the new name, this is automatically done in the export to page
-            newPage.Name = surfaceToUpload.CaptureDetails.Title;
-            return ExportToPage(oneNoteApplication, surfaceToUpload, newPage);
+            newPage.Name = title;
+            return ExportToPage(oneNoteApplication, png, imageSize, newPage);
         }
 
         /// <summary>
         ///     Export the capture to the specified page
         /// </summary>
-        /// <param name="surfaceToUpload">ISurface</param>
+        /// <param name="png">The capture encoded as PNG</param>
+        /// <param name="imageSize">Size of the capture</param>
         /// <param name="page">OneNotePage</param>
         /// <returns>bool true if everything worked</returns>
-        public bool ExportToPage(ISurface surfaceToUpload, OneNotePage page)
+        public bool ExportToPage(EncodedImage png, Size imageSize, OneNotePage page)
         {
             using var oneNoteApplication = GetOrCreateOneNoteApplication();
             if (oneNoteApplication == null)
@@ -92,17 +96,18 @@ namespace Greenshot.Plugin.Office.OfficeExport
                 return false;
             }
 
-            return ExportToPage(oneNoteApplication, surfaceToUpload, page);
+            return ExportToPage(oneNoteApplication, png, imageSize, page);
         }
 
         /// <summary>
         ///     Export the capture to the specified page
         /// </summary>
         /// <param name="oneNoteApplication">IOneNoteApplication</param>
-        /// <param name="surfaceToUpload">ISurface</param>
+        /// <param name="png">The capture encoded as PNG</param>
+        /// <param name="imageSize">Size of the capture</param>
         /// <param name="page">OneNotePage</param>
         /// <returns>bool true if everything worked</returns>
-        private bool ExportToPage(IDisposableCom<Application> oneNoteApplication, ISurface surfaceToUpload, OneNotePage page)
+        private bool ExportToPage(IDisposableCom<Application> oneNoteApplication, EncodedImage png, Size imageSize, OneNotePage page)
         {
             if (oneNoteApplication == null)
             {
@@ -110,13 +115,10 @@ namespace Greenshot.Plugin.Office.OfficeExport
                 return false;
             }
 
-            using var pngStream = RecyclableMemoryStreamFactory.GetStream("OneNoteExporter.ExportToPage");
-            var pngOutputSettings = new SurfaceOutputSettings(WellKnownFileFormats.Png, 100, false);
-            ImageIO.SaveToStream(surfaceToUpload, pngStream, pngOutputSettings);
-            var base64String = pngStream.TryGetBuffer(out var buffer) && buffer.Array != null
+            var base64String = System.Runtime.InteropServices.MemoryMarshal.TryGetArray(png.Bytes, out var buffer) && buffer.Array != null
                 ? Convert.ToBase64String(buffer.Array, buffer.Offset, buffer.Count)
-                : Convert.ToBase64String(pngStream.ToArray());
-            var imageXmlStr = string.Format(XmlImageContent, base64String, surfaceToUpload.Image.Width, surfaceToUpload.Image.Height);
+                : Convert.ToBase64String(png.ToArray());
+            var imageXmlStr = string.Format(XmlImageContent, base64String, imageSize.Width, imageSize.Height);
             var pageChangesXml = string.Format(XmlOutline, imageXmlStr, page.Id, OnenoteNamespace2010, page.Name);
             LOG.InfoFormat("Sending XML: {0}", pageChangesXml);
             oneNoteApplication.ComObject.UpdatePageContent(pageChangesXml, DateTime.MinValue, XMLSchema.xs2010, false);

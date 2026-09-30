@@ -26,10 +26,14 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Core.FileFormatHandlers;
 using Dapplo.Ini;
@@ -40,17 +44,6 @@ using log4net;
 
 namespace Greenshot.Base.Core
 {
-    /// <summary>
-    /// HTTP Method to make sure we have the correct method
-    /// </summary>
-    public enum HTTPMethod
-    {
-        GET,
-        POST,
-        PUT,
-        DELETE
-    };
-
     /// <summary>
     /// Description of NetworkHelper.
     /// </summary>
@@ -213,246 +206,118 @@ namespace Greenshot.Base.Core
         /// Download the uri into a memory stream, without catching exceptions
         /// </summary>
         /// <param name="url">Of an image</param>
+        /// <param name="cancellationToken">CancellationToken</param>
         /// <returns>MemoryStream which is already seek-ed to 0</returns>
-        public static MemoryStream GetAsMemoryStream(string url)
+        public static async Task<MemoryStream> GetAsMemoryStreamAsync(string url, CancellationToken cancellationToken)
         {
-            var request = CreateWebRequest(url);
-            using var response = (HttpWebResponse) request.GetResponse();
+            using var response = await HttpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+            response.EnsureSuccessStatusCode();
             var memoryStream = RecyclableMemoryStreamFactory.GetStream("NetworkHelper.GetAsMemoryStream");
-            using (var responseStream = response.GetResponseStream())
+            try
             {
-                responseStream?.CopyTo(memoryStream);
+                using (var responseStream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false))
+                {
+                    await responseStream.CopyToAsync(memoryStream, 81920, cancellationToken).ConfigureAwait(false);
+                }
+
                 // Make sure it can be used directly
                 memoryStream.Seek(0, SeekOrigin.Begin);
+                return memoryStream;
+            }
+            catch
+            {
+                memoryStream.Dispose();
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Download the url, if it's not an image but a page with an image url in its first line, download that.
+        /// </summary>
+        /// <typeparam name="T">what is loaded from the stream</typeparam>
+        /// <param name="url">Of an image</param>
+        /// <param name="load">loads the result from the stream and the extension, null when it's not possible</param>
+        /// <param name="cancellationToken">CancellationToken</param>
+        /// <returns>the result or default, errors are logged</returns>
+        private static async Task<T> DownloadAsync<T>(string url, Func<Stream, string, T> load, CancellationToken cancellationToken) where T : class
+        {
+            var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
+            var extensions = string.Join("|", fileFormatHandlers.ExtensionsFor(FileFormatHandlerActions.LoadFromStream));
+
+            var imageUrlRegex = new Regex($@"(http|https)://.*(?<extension>{extensions})");
+            var match = imageUrlRegex.Match(url);
+            try
+            {
+                string content;
+                using (var memoryStream = await GetAsMemoryStreamAsync(url, cancellationToken).ConfigureAwait(false))
+                {
+                    try
+                    {
+                        var result = load(memoryStream, match.Success ? match.Groups["extension"]?.Value : null);
+                        if (result != null)
+                        {
+                            return result;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Debug("The download is not an image, checking for an image url", ex);
+                    }
+
+                    // If we arrive here, the image loading didn't work, try to see if the response has a http(s) URL to an image and just take this instead.
+                    memoryStream.Seek(0, SeekOrigin.Begin);
+                    using var streamReader = new StreamReader(memoryStream, Encoding.UTF8, true);
+                    content = await streamReader.ReadLineAsync().ConfigureAwait(false);
+                }
+
+                if (string.IsNullOrEmpty(content))
+                {
+                    return null;
+                }
+
+                match = imageUrlRegex.Match(content);
+                if (!match.Success)
+                {
+                    return null;
+                }
+
+                using var memoryStream2 = await GetAsMemoryStreamAsync(match.Value, cancellationToken).ConfigureAwait(false);
+                return load(memoryStream2, match.Groups["extension"]?.Value);
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch (Exception e)
+            {
+                Log.Error("Problem downloading the image from: " + url, e);
             }
 
-            return memoryStream;
+            return null;
         }
 
         /// <summary>
         /// Download the uri to build an IDrawableContainer
         /// </summary>
         /// <param name="url">Of an image</param>
-        /// <returns>IDrawableContainer</returns>
-        public static IDrawableContainer DownloadImageAsDrawableContainer(string url)
+        /// <param name="cancellationToken">CancellationToken</param>
+        /// <returns>IDrawableContainer, null when it's not possible</returns>
+        public static Task<IDrawableContainer> DownloadImageAsDrawableContainerAsync(string url, CancellationToken cancellationToken)
         {
             var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
-            var extensions = string.Join("|", fileFormatHandlers.ExtensionsFor(FileFormatHandlerActions.LoadFromStream));
-
-            var imageUrlRegex = new Regex($@"(http|https)://.*(?<extension>{extensions})");
-            var match = imageUrlRegex.Match(url);
-            try
-            {
-                using var memoryStream = GetAsMemoryStream(url);
-                try
-                {
-                    var extension = match.Success ? match.Groups["extension"]?.Value : null;
-                    var drawableContainer = fileFormatHandlers.LoadDrawablesFromStream(memoryStream, extension).FirstOrDefault();
-                    if (drawableContainer != null)
-                    {
-                        return drawableContainer;
-                    }
-                }
-                catch (Exception)
-                {
-                    // If we arrive here, the image loading didn't work, try to see if the response has a http(s) URL to an image and just take this instead.
-                    memoryStream.Seek(0, SeekOrigin.Begin);
-                    string content;
-                    using (var streamReader = new StreamReader(memoryStream, Encoding.UTF8, true))
-                    {
-                        content = streamReader.ReadLine();
-                    }
-
-                    if (string.IsNullOrEmpty(content))
-                    {
-                        throw;
-                    }
-
-                    match = imageUrlRegex.Match(content);
-                    if (!match.Success)
-                    {
-                        throw;
-                    }
-
-                    using var memoryStream2 = GetAsMemoryStream(match.Value);
-
-                    var extension = match.Success ? match.Groups["extension"]?.Value : null;
-                    var drawableContainer = fileFormatHandlers.LoadDrawablesFromStream(memoryStream2, extension).FirstOrDefault();
-                    if (drawableContainer != null)
-                    {
-                        return drawableContainer;
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Log.Error("Problem downloading the image from: " + url, e);
-            }
-
-            return null;
+            return DownloadAsync(url, (stream, extension) => fileFormatHandlers.LoadDrawablesFromStream(stream, extension).FirstOrDefault(), cancellationToken);
         }
 
         /// <summary>
         /// Download the uri to create a Bitmap
         /// </summary>
         /// <param name="url">Of an image</param>
-        /// <returns>Bitmap</returns>
-        public static Bitmap DownloadImage(string url)
+        /// <param name="cancellationToken">CancellationToken</param>
+        /// <returns>Bitmap, null when it's not possible</returns>
+        public static Task<Bitmap> DownloadImageAsync(string url, CancellationToken cancellationToken)
         {
             var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
-
-            var extensions = string.Join("|", fileFormatHandlers.ExtensionsFor(FileFormatHandlerActions.LoadFromStream));
-
-            var imageUrlRegex = new Regex($@"(http|https)://.*(?<extension>{extensions})");
-            var match = imageUrlRegex.Match(url);
-            try
-            {
-                using var memoryStream = GetAsMemoryStream(url);
-                try
-                {
-                    if (fileFormatHandlers.TryLoadFromStream(memoryStream, match.Success ? match.Groups["extension"]?.Value : null, out var bitmap))
-                    {
-                        return bitmap;
-                    }
-                }
-                catch (Exception)
-                {
-                    // If we arrive here, the image loading didn't work, try to see if the response has a http(s) URL to an image and just take this instead.
-                    memoryStream.Seek(0, SeekOrigin.Begin);
-                    string content;
-                    using (var streamReader = new StreamReader(memoryStream, Encoding.UTF8, true))
-                    {
-                        content = streamReader.ReadLine();
-                    }
-
-                    if (string.IsNullOrEmpty(content))
-                    {
-                        throw;
-                    }
-
-                    match = imageUrlRegex.Match(content);
-                    if (!match.Success)
-                    {
-                        throw;
-                    }
-
-                    using var memoryStream2 = GetAsMemoryStream(match.Value);
-                    if (fileFormatHandlers.TryLoadFromStream(memoryStream2, match.Success ? match.Groups["extension"]?.Value : null, out var bitmap))
-                    {
-                        return bitmap;
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Log.Error("Problem downloading the image from: " + url, e);
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Helper method to create a web request with a lot of default settings
-        /// </summary>
-        /// <param name="uri">string with uri to connect to</param>
-        /// <returns>WebRequest</returns>
-        public static HttpWebRequest CreateWebRequest(string uri)
-        {
-            return CreateWebRequest(new Uri(uri));
-        }
-
-        /// <summary>
-        /// Helper method to create a web request with a lot of default settings
-        /// </summary>
-        /// <param name="uri">string with uri to connect to</param>
-        /// /// <param name="method">Method to use</param>
-        /// <returns>WebRequest</returns>
-        public static HttpWebRequest CreateWebRequest(string uri, HTTPMethod method)
-        {
-            return CreateWebRequest(new Uri(uri), method);
-        }
-
-        /// <summary>
-        /// Helper method to create a web request with a lot of default settings
-        /// </summary>
-        /// <param name="uri">Uri with uri to connect to</param>
-        /// <param name="method">Method to use</param>
-        /// <returns>WebRequest</returns>
-        public static HttpWebRequest CreateWebRequest(Uri uri, HTTPMethod method)
-        {
-            var webRequest = CreateWebRequest(uri);
-            webRequest.Method = method.ToString();
-            return webRequest;
-        }
-
-        /// <summary>
-        /// Helper method to create a web request, eventually with proxy
-        /// </summary>
-        /// <param name="uri">Uri with uri to connect to</param>
-        /// <returns>WebRequest</returns>
-        public static HttpWebRequest CreateWebRequest(Uri uri)
-        {
-            var webRequest = (HttpWebRequest) WebRequest.Create(uri);
-            webRequest.Proxy = Config.UseProxy ? CreateProxy(uri) : null;
-            // Make sure the default credentials are available
-            webRequest.Credentials = CredentialCache.DefaultCredentials;
-
-            // Allow redirect, this is usually needed so that we don't get a problem when a service moves
-            webRequest.AllowAutoRedirect = true;
-            // Set default timeouts
-            webRequest.Timeout = Config.WebRequestTimeout * 1000;
-            webRequest.ReadWriteTimeout = Config.WebRequestReadWriteTimeout * 1000;
-            return webRequest;
-        }
-
-        /// <summary>
-        /// Create a IWebProxy Object which can be used to access the Internet
-        /// This method will check the configuration if the proxy is allowed to be used.
-        /// Usages can be found in the DownloadFavIcon or Jira and Confluence plugins
-        /// </summary>
-        /// <param name="uri"></param>
-        /// <returns>IWebProxy filled with all the proxy details or null if none is set/wanted</returns>
-        public static IWebProxy CreateProxy(Uri uri)
-        {
-            IWebProxy proxyToUse = null;
-            if (!Config.UseProxy)
-            {
-                return proxyToUse;
-            }
-
-            proxyToUse = WebRequest.DefaultWebProxy;
-            if (proxyToUse != null)
-            {
-                proxyToUse.Credentials = CredentialCache.DefaultCredentials;
-                if (!Log.IsDebugEnabled)
-                {
-                    return proxyToUse;
-                }
-
-                // check the proxy for the Uri
-                if (!proxyToUse.IsBypassed(uri))
-                {
-                    var proxyUri = proxyToUse.GetProxy(uri);
-                    if (proxyUri != null)
-                    {
-                        Log.Debug("Using proxy: " + proxyUri + " for " + uri);
-                    }
-                    else
-                    {
-                        Log.Debug("No proxy found!");
-                    }
-                }
-                else
-                {
-                    Log.Debug("Proxy bypass for: " + uri);
-                }
-            }
-            else
-            {
-                Log.Debug("No proxy found!");
-            }
-
-            return proxyToUse;
+            return DownloadAsync(url, (stream, extension) => fileFormatHandlers.TryLoadFromStream(stream, extension, out var bitmap) ? bitmap : null, cancellationToken);
         }
 
         /// <summary>
@@ -568,374 +433,168 @@ namespace Greenshot.Base.Core
             return sb.ToString();
         }
 
+        private static readonly Lazy<HttpClient> SharedHttpClient = new Lazy<HttpClient>(CreateHttpClient);
+
         /// <summary>
-        /// Write Multipart Form Data directly to the HttpWebRequest
+        /// The one HttpClient of Greenshot, with the proxy, credentials, timeout and certificate validation of the configuration.
         /// </summary>
-        /// <param name="webRequest">HttpWebRequest to write the multipart form data to</param>
-        /// <param name="postParameters">Parameters to include in the multipart form data</param>
-        public static void WriteMultipartFormData(HttpWebRequest webRequest, IDictionary<string, object> postParameters)
+        public static HttpClient HttpClient => SharedHttpClient.Value;
+
+        private static HttpClient CreateHttpClient()
         {
-            string boundary = $"----------{Guid.NewGuid():N}";
-            webRequest.ContentType = "multipart/form-data; boundary=" + boundary;
-            using Stream formDataStream = webRequest.GetRequestStream();
-            WriteMultipartFormData(formDataStream, boundary, postParameters);
+            var handler = new HttpClientHandler
+            {
+                AllowAutoRedirect = true,
+                UseDefaultCredentials = true,
+                UseProxy = Config?.UseProxy ?? true,
+                ServerCertificateCustomValidationCallback = (message, certificate, chain, errors) => ValidateServerCertificate(message?.RequestUri, certificate, chain, errors)
+            };
+            if (handler.UseProxy)
+            {
+                var proxy = WebRequest.DefaultWebProxy;
+                if (proxy != null)
+                {
+                    proxy.Credentials = CredentialCache.DefaultCredentials;
+                    handler.Proxy = proxy;
+                }
+            }
+
+            // HttpClient has one timeout for the whole request (the old per read/write timeouts don't exist), a large upload
+            // over a slow connection needs time: the user can cancel, unattended flows end at the latest after this
+            var httpClient = new HttpClient(handler)
+            {
+                Timeout = TimeSpan.FromMinutes(10)
+            };
+            httpClient.DefaultRequestHeaders.UserAgent.ParseAdd($"Greenshot/{EnvironmentInfo.GetGreenshotVersion(true)}");
+            return httpClient;
         }
 
         /// <summary>
-        /// Write Multipart Form Data to a Stream, content-type should be set before this!
+        /// Send the request and return the content of the response as string.
         /// </summary>
-        /// <param name="formDataStream">Stream to write the multipart form data to</param>
-        /// <param name="boundary">String boundary for the multipart/form-data</param>
-        /// <param name="postParameters">Parameters to include in the multipart form data</param>
-        public static void WriteMultipartFormData(Stream formDataStream, string boundary, IDictionary<string, object> postParameters)
+        /// <param name="request">HttpRequestMessage, disposed after sending</param>
+        /// <param name="cancellationToken">CancellationToken</param>
+        /// <param name="alsoReturnContentOnError">true to return the content of an error response instead of throwing</param>
+        /// <returns>content of the response</returns>
+        /// <exception cref="UnauthorizedAccessException">HTTP 401</exception>
+        /// <exception cref="HttpRequestException">other HTTP errors</exception>
+        public static async Task<string> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken, bool alsoReturnContentOnError = false)
         {
-            bool needsClrf = false;
-            foreach (var param in postParameters)
+            using (request)
             {
-                // Add a CRLF to allow multiple parameters to be added.
-                // Skip it on the first parameter, add it to subsequent parameters.
-                if (needsClrf)
+                HttpResponseMessage sentResponse;
+                try
                 {
-                    formDataStream.Write(Encoding.UTF8.GetBytes("\r\n"), 0, Encoding.UTF8.GetByteCount("\r\n"));
+                    sentResponse = await HttpClient.SendAsync(request, HttpCompletionOption.ResponseContentRead, cancellationToken).ConfigureAwait(false);
+                }
+                catch (OperationCanceledException ex) when (!cancellationToken.IsCancellationRequested)
+                {
+                    // HttpClient reports its timeout as a cancellation
+                    throw new TimeoutException($"{request.Method} {request.RequestUri} timed out after {HttpClient.Timeout}", ex);
                 }
 
-                needsClrf = true;
-
-                if (param.Value is IBinaryContainer binaryContainer)
+                using var response = sentResponse;
+                string content = response.Content == null ? null : await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                Log.InfoFormat("Response status of {0} {1}: {2}", request.Method, request.RequestUri, response.StatusCode);
+                if (response.IsSuccessStatusCode)
                 {
-                    binaryContainer.WriteFormDataToStream(boundary, param.Key, formDataStream);
-                }
-                else
-                {
-                    string postData = $"--{boundary}\r\nContent-Disposition: form-data; name=\"{param.Key}\"\r\n\r\n{param.Value}";
-                    formDataStream.Write(Encoding.UTF8.GetBytes(postData), 0, Encoding.UTF8.GetByteCount(postData));
-                }
-            }
-
-            // Add the end of the request.  Start with a newline
-            string footer = "\r\n--" + boundary + "--\r\n";
-            formDataStream.Write(Encoding.UTF8.GetBytes(footer), 0, Encoding.UTF8.GetByteCount(footer));
-        }
-
-        /// <summary>
-        /// Post content HttpWebRequest
-        /// </summary>
-        /// <param name="webRequest">HttpWebRequest to write the multipart form data to</param>
-        /// <param name="headers">IDictionary with the headers</param>
-        /// <param name="binaryContainer">IBinaryContainer</param>
-        public static void Post(HttpWebRequest webRequest, IDictionary<string, object> headers, IBinaryContainer binaryContainer = null)
-        {
-            foreach (var header in headers)
-            {
-                switch (header.Key)
-                {
-                    case "Content-Type":
-                        webRequest.ContentType = header.Value as string;
-                        break;
-                    case "Accept":
-                        webRequest.Accept = header.Value as string;
-                        break;
-                    default:
-                        webRequest.Headers.Add(header.Key, Convert.ToString(header.Value));
-                        break;
-                }
-            }
-
-            if (!headers.ContainsKey("Content-Type"))
-            {
-                webRequest.ContentType = "application/octet-stream";
-            }
-
-            if (binaryContainer != null)
-            {
-                using var requestStream = webRequest.GetRequestStream();
-                binaryContainer.WriteToStream(requestStream);
-            }
-        }
-
-        /// <summary>
-        /// Post content HttpWebRequest
-        /// </summary>
-        /// <param name="webRequest">HttpWebRequest to write the multipart form data to</param>
-        /// <param name="headers">IDictionary with the headers</param>
-        /// <param name="jsonString">string</param>
-        public static void Post(HttpWebRequest webRequest, IDictionary<string, object> headers, string jsonString)
-        {
-            if (headers != null)
-            {
-                foreach (var header in headers)
-                {
-                    switch (header.Key)
-                    {
-                        case "Content-Type":
-                            webRequest.ContentType = header.Value as string;
-                            break;
-                        case "Accept":
-                            webRequest.Accept = header.Value as string;
-                            break;
-                        default:
-                            webRequest.Headers.Add(header.Key, Convert.ToString(header.Value));
-                            break;
-                    }
+                    return content;
                 }
 
-                if (!headers.ContainsKey("Content-Type"))
+                Log.ErrorFormat("HTTP error {0} with content: {1}", response.StatusCode, content);
+                if (alsoReturnContentOnError)
                 {
-                    webRequest.ContentType = "application/json";
+                    return content;
                 }
-            }
-            else
-            {
-                webRequest.ContentType = "application/json";
-            }
 
-            if (jsonString != null)
-            {
-                using var requestStream = webRequest.GetRequestStream();
-                using var streamWriter = new StreamWriter(requestStream);
-                streamWriter.Write(jsonString);
+                if (response.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    throw new UnauthorizedAccessException($"{(int) response.StatusCode} {response.ReasonPhrase}");
+                }
+
+                throw new HttpRequestException($"{(int) response.StatusCode} {response.ReasonPhrase}: {content}");
             }
         }
 
         /// <summary>
         /// Post the parameters "x-www-form-urlencoded"
         /// </summary>
-        /// <param name="webRequest"></param>
-        /// <param name="parameters"></param>
-        public static void UploadFormUrlEncoded(HttpWebRequest webRequest, IDictionary<string, object> parameters)
+        public static Task<string> PostFormUrlEncodedAsync(string url, IDictionary<string, object> parameters, CancellationToken cancellationToken, bool alsoReturnContentOnError = false)
         {
-            webRequest.ContentType = "application/x-www-form-urlencoded";
-            string urlEncoded = GenerateQueryParameters(parameters);
-
-            byte[] data = Encoding.UTF8.GetBytes(urlEncoded);
-            using var requestStream = webRequest.GetRequestStream();
-            requestStream.Write(data, 0, data.Length);
+            var request = new HttpRequestMessage(HttpMethod.Post, url)
+            {
+                Content = new StringContent(GenerateQueryParameters(parameters), Encoding.UTF8, "application/x-www-form-urlencoded")
+            };
+            return SendAsync(request, cancellationToken, alsoReturnContentOnError);
         }
 
         /// <summary>
-        /// Log the headers of the WebResponse, if IsDebugEnabled
+        /// The encoded capture as HTTP content (without copying the bytes), reports the upload progress.
         /// </summary>
-        /// <param name="response">WebResponse</param>
-        private static void DebugHeaders(WebResponse response)
+        /// <param name="image">EncodedImage</param>
+        /// <param name="progress">IProgress for the percentage of the upload, optional</param>
+        public static HttpContent CreateContent(EncodedImage image, IProgress<ProgressInfo> progress = null)
         {
-            if (!Log.IsDebugEnabled)
-            {
-                return;
-            }
-
-            Log.DebugFormat("Debug information on the response from {0} :", response.ResponseUri);
-            foreach (string key in response.Headers.AllKeys)
-            {
-                Log.DebugFormat("Reponse-header: {0}={1}", key, response.Headers[key]);
-            }
+            if (image == null) throw new ArgumentNullException(nameof(image));
+            var content = new UploadContent(image.Bytes, progress);
+            content.Headers.ContentType = new MediaTypeHeaderValue(image.MimeType);
+            return content;
         }
 
         /// <summary>
-        /// Process the web response.
+        /// Multipart form data with the encoded capture as file and the other parameters as strings.
         /// </summary>
-        /// <param name="webRequest">The request object.</param>
-        /// <returns>The response data.</returns>
-        /// TODO: This method should handle the StatusCode better!
-        public static string GetResponseAsString(HttpWebRequest webRequest)
+        public static MultipartFormDataContent CreateMultipartContent(string fileParameterName, EncodedImage image, string filename, IDictionary<string, object> parameters = null,
+            IProgress<ProgressInfo> progress = null)
         {
-            return GetResponseAsString(webRequest, false);
-        }
-
-        /// <summary>
-        /// Read the response as string
-        /// </summary>
-        /// <param name="response"></param>
-        /// <returns>string or null</returns>
-        private static string GetResponseAsString(HttpWebResponse response)
-        {
-            string responseData = null;
-            if (response == null)
+            var multipartContent = new MultipartFormDataContent($"----------{Guid.NewGuid():N}");
+            if (parameters != null)
             {
-                return null;
-            }
-
-            using (response)
-            {
-                Stream responseStream = response.GetResponseStream();
-                if (responseStream != null)
+                foreach (var parameter in parameters)
                 {
-                    using StreamReader reader = new StreamReader(responseStream, true);
-                    responseData = reader.ReadToEnd();
+                    multipartContent.Add(new StringContent(Convert.ToString(parameter.Value, CultureInfo.InvariantCulture) ?? string.Empty), $"\"{parameter.Key}\"");
                 }
             }
 
-            return responseData;
+            multipartContent.Add(CreateContent(image, progress), $"\"{fileParameterName}\"", $"\"{filename}\"");
+            return multipartContent;
         }
 
         /// <summary>
-        ///
+        /// Writes the bytes in chunks and reports the percentage, the cancellation of the request stops it.
         /// </summary>
-        /// <param name="webRequest"></param>
-        /// <param name="alsoReturnContentOnError"></param>
-        /// <returns></returns>
-        public static string GetResponseAsString(HttpWebRequest webRequest, bool alsoReturnContentOnError)
+        private sealed class UploadContent : HttpContent
         {
-            string responseData = null;
-            HttpWebResponse response = null;
-            bool isHttpError = false;
-            try
-            {
-                response = (HttpWebResponse) webRequest.GetResponse();
-                Log.InfoFormat("Response status: {0}", response.StatusCode);
-                isHttpError = (int) response.StatusCode >= 300;
-                if (isHttpError)
-                {
-                    Log.ErrorFormat("HTTP error {0}", response.StatusCode);
-                }
+            private const int ChunkSize = 64 * 1024;
+            private readonly ReadOnlyMemory<byte> _bytes;
+            private readonly IProgress<ProgressInfo> _progress;
 
-                DebugHeaders(response);
-                responseData = GetResponseAsString(response);
-                if (isHttpError)
-                {
-                    Log.ErrorFormat("HTTP response {0}", responseData);
-                }
+            public UploadContent(ReadOnlyMemory<byte> bytes, IProgress<ProgressInfo> progress)
+            {
+                _bytes = bytes;
+                _progress = progress;
             }
-            catch (WebException e)
+
+            protected override async Task SerializeToStreamAsync(Stream stream, TransportContext context)
             {
-                response = (HttpWebResponse) e.Response;
-                HttpStatusCode statusCode = HttpStatusCode.Unused;
-                if (response != null)
+                var segment = System.Runtime.InteropServices.MemoryMarshal.TryGetArray(_bytes, out var arraySegment)
+                    ? arraySegment
+                    : new ArraySegment<byte>(_bytes.ToArray());
+                int written = 0;
+                while (written < segment.Count)
                 {
-                    statusCode = response.StatusCode;
-                    Log.ErrorFormat("HTTP error {0}", statusCode);
-                    string errorContent = GetResponseAsString(response);
-                    if (alsoReturnContentOnError)
-                    {
-                        return errorContent;
-                    }
-
-                    Log.ErrorFormat("Content: {0}", errorContent);
-                }
-
-                Log.Error("WebException: ", e);
-                if (statusCode == HttpStatusCode.Unauthorized)
-                {
-                    throw new UnauthorizedAccessException(e.Message);
-                }
-
-                throw;
-            }
-            finally
-            {
-                if (response != null)
-                {
-                    if (isHttpError)
-                    {
-                        Log.ErrorFormat("HTTP error {0} with content: {1}", response.StatusCode, responseData);
-                    }
-
-                    response.Close();
+                    int chunk = Math.Min(ChunkSize, segment.Count - written);
+                    await stream.WriteAsync(segment.Array, segment.Offset + written, chunk).ConfigureAwait(false);
+                    written += chunk;
+                    _progress?.Report(new ProgressInfo(null, 100.0 * written / segment.Count));
                 }
             }
 
-            return responseData;
-        }
-    }
-
-    /// <summary>
-    /// This interface can be used to pass binary information around, like byte[] or Image
-    /// </summary>
-    public interface IBinaryContainer
-    {
-        void WriteFormDataToStream(string boundary, string name, Stream formDataStream);
-        void WriteToStream(Stream formDataStream);
-        string ToBase64String(Base64FormattingOptions formattingOptions);
-        byte[] ToByteArray();
-        void Upload(HttpWebRequest webRequest);
-
-        string ContentType { get; }
-        string Filename { get; set; }
-    }
-
-    /// A container to supply surfaces to a Multi-part form data upload
-    /// </summary>
-    public class SurfaceContainer : IBinaryContainer
-    {
-        private readonly ISurface _surface;
-        private readonly SurfaceOutputSettings _outputSettings;
-
-        public SurfaceContainer(ISurface surface, SurfaceOutputSettings outputSettings, string filename)
-        {
-            _surface = surface;
-            _outputSettings = outputSettings;
-            Filename = filename;
-        }
-
-        /// <summary>
-        /// Create a Base64String from the Surface by saving it to a memory stream and converting it.
-        /// Should be avoided if possible, as this uses a lot of memory.
-        /// </summary>
-        /// <returns>string</returns>
-        public string ToBase64String(Base64FormattingOptions formattingOptions)
-        {
-            using MemoryStream stream = new MemoryStream();
-            ImageIO.SaveToStream(_surface, stream, _outputSettings);
-            return Convert.ToBase64String(stream.GetBuffer(), 0, (int) stream.Length, formattingOptions);
-        }
-
-        /// <summary>
-        /// Create a byte[] from the image by saving it to a memory stream.
-        /// Should be avoided if possible, as this uses a lot of memory.
-        /// </summary>
-        /// <returns>byte[]</returns>
-        public byte[] ToByteArray()
-        {
-            using MemoryStream stream = new MemoryStream();
-            ImageIO.SaveToStream(_surface, stream, _outputSettings);
-            return stream.ToArray();
-        }
-
-        /// <summary>
-        /// Write Multipart Form Data directly to the HttpWebRequest response stream
-        /// </summary>
-        /// <param name="boundary">Multipart separator</param>
-        /// <param name="name">Name of the thing</param>
-        /// <param name="formDataStream">Stream to write to</param>
-        public void WriteFormDataToStream(string boundary, string name, Stream formDataStream)
-        {
-            // Add just the first part of this param, since we will write the file data directly to the Stream
-            string header = $"--{boundary}\r\nContent-Disposition: form-data; name=\"{name}\"; filename=\"{Filename ?? name}\";\r\nContent-Type: {ContentType}\r\n\r\n";
-
-            formDataStream.Write(Encoding.UTF8.GetBytes(header), 0, Encoding.UTF8.GetByteCount(header));
-            ImageIO.SaveToStream(_surface, formDataStream, _outputSettings);
-        }
-
-        /// <summary>
-        /// A plain "write data to stream"
-        /// </summary>
-        /// <param name="dataStream"></param>
-        public void WriteToStream(Stream dataStream)
-        {
-            // Write the file data directly to the Stream, rather than serializing it to a string.
-            ImageIO.SaveToStream(_surface, dataStream, _outputSettings);
-        }
-
-        /// <summary>
-        /// Upload the Surface as image to the webrequest
-        /// </summary>
-        /// <param name="webRequest"></param>
-        public void Upload(HttpWebRequest webRequest)
-        {
-            webRequest.ContentType = ContentType;
-            using var requestStream = webRequest.GetRequestStream();
-            WriteToStream(requestStream);
-        }
-
-        public string ContentType
-        {
-            get
+            protected override bool TryComputeLength(out long length)
             {
-                var registry = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>();
-                return registry != null && registry.TryGet(_outputSettings.Format, out var format)
-                    ? format.MimeType
-                    : "application/octet-stream";
+                length = _bytes.Length;
+                return true;
             }
         }
-        public string Filename { get; set; }
     }
 }

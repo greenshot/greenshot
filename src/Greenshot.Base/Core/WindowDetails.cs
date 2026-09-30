@@ -28,6 +28,7 @@ using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interop;
 using log4net;
+using System.Threading.Tasks;
 
 namespace Greenshot.Base.Core
 {
@@ -666,7 +667,7 @@ namespace Greenshot.Base.Core
         /// Restores and Brings the window to the front,
         /// assuming it is a visible application window.
         /// </summary>
-        public void Restore()
+        public async Task RestoreAsync(CancellationToken cancellationToken = default)
         {
             if (Iconic)
             {
@@ -675,14 +676,11 @@ namespace Greenshot.Base.Core
 
             User32Api.BringWindowToTop(Handle);
             User32Api.SetForegroundWindow(Handle);
-            // Wait for the window to restore, with a timeout to prevent CPU spin
-            int waitAttempts = 0;
-            const int maxWaitAttempts = 100; // ~2 seconds max (100 * 20ms)
-            while (Iconic && waitAttempts < maxWaitAttempts)
+            // Wait for the window to restore, polling with a timeout (~2 seconds max, 100 * 20ms)
+            const int maxWaitAttempts = 100;
+            for (int waitAttempts = 0; Iconic && waitAttempts < maxWaitAttempts; waitAttempts++)
             {
-                Application.DoEvents();
-                Thread.Sleep(20);
-                waitAttempts++;
+                await Task.Delay(20, cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -736,13 +734,22 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// Capture DWM Window
+        /// Let the UI thread paint the temporary form and the compositor present it, instead of Application.DoEvents().
+        /// Runs on the UI thread, the continuation returns to it.
+        /// </summary>
+        private static Task WaitForCompositionAsync()
+        {
+            return Task.Delay(20);
+        }
+
+        /// <summary>
+        /// Capture DWM Window, must be called on the UI thread: it shows a temporary form with the DWM thumbnail of the window.
         /// </summary>
         /// <param name="capture">Capture to fill</param>
         /// <param name="windowCaptureMode">Wanted WindowCaptureMode</param>
         /// <param name="autoMode">True if auto mode is used</param>
         /// <returns>ICapture with the capture</returns>
-        public ICapture CaptureDwmWindow(ICapture capture, WindowCaptureMode windowCaptureMode, bool autoMode)
+        public async Task<ICapture> CaptureDwmWindowAsync(ICapture capture, WindowCaptureMode windowCaptureMode, bool autoMode)
         {
             IntPtr thumbnailHandle = IntPtr.Zero;
             Form tempForm = null;
@@ -877,7 +884,7 @@ namespace Greenshot.Base.Core
                         tempForm.BackColor = Color.White;
                         // Make sure everything is visible
                         tempForm.Refresh();
-                        Application.DoEvents();
+                        await WaitForCompositionAsync().ConfigureAwait(true);
 
                         try
                         {
@@ -890,7 +897,7 @@ namespace Greenshot.Base.Core
                             ToForeground();
 
                             // Make sure all changes are processed and visible
-                            Application.DoEvents();
+                            await WaitForCompositionAsync().ConfigureAwait(true);
                             using Bitmap blackBitmap = WindowCapture.CaptureRectangle(captureRectangle);
                             capturedBitmap = ApplyTransparency(blackBitmap, whiteBitmap);
                         }
@@ -927,7 +934,7 @@ namespace Greenshot.Base.Core
                         ToForeground();
 
                         // Make sure all changes are processed and visible
-                        Application.DoEvents();
+                        await WaitForCompositionAsync().ConfigureAwait(true);
                         // Capture from the screen
                         capturedBitmap = WindowCapture.CaptureRectangle(captureRectangle);
                     }

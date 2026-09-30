@@ -96,7 +96,7 @@ namespace Greenshot.Tests.Core
                     {
                         continue;
                     }
-                    using (var logo = WindowsAppHelper.GetAppxLogo(package, new NativeSize(48, 48)))
+                    using (var logo = System.Threading.Tasks.Task.Run(() => WindowsAppHelper.GetAppxLogoAsync(package, new NativeSize(48, 48))).GetAwaiter().GetResult())
                     {
                         if (logo != null)
                         {

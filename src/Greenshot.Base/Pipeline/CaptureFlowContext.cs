@@ -23,8 +23,11 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Greenshot.Base.Core;
 using Greenshot.Base.Recipes;
+using Greenshot.Base.Threading;
 using Greenshot.Base.Triggers;
+using Greenshot.Base.Interfaces;
 
 namespace Greenshot.Base.Pipeline
 {
@@ -39,7 +42,36 @@ namespace Greenshot.Base.Pipeline
         /// <summary>
         /// Unique execution identifier for tracking/logging this flow.
         /// </summary>
-        public Guid ExecutionId { get; } = Guid.NewGuid();
+        public Guid ExecutionId { get; set; } = Guid.NewGuid();
+
+        /// <summary>
+        /// Snapshot of the trigger situation (foreground window, cursor), taken when the flow was started.
+        /// </summary>
+        public FlowTriggerContext TriggerContext { get; set; }
+
+        /// <summary>
+        /// The way to the UI thread for steps and sources which need it (dialogs, clipboard, the editor).
+        /// Defaults to the registered IUiDispatcher, or runs inline when there is none (tests, headless).
+        /// </summary>
+        public IUiDispatcher Ui
+        {
+            get => _ui ??= SimpleServiceProvider.Current?.GetInstance<IUiDispatcher>(isOptional: true) ?? InlineUiDispatcher.Instance;
+            set => _ui = value;
+        }
+
+        private IUiDispatcher _ui;
+
+        /// <summary>
+        /// Dialogs, progress and notifications for the steps and destinations of this flow.
+        /// Defaults to the registered IUserInteraction, headless when there is none (tests, command line).
+        /// </summary>
+        public IUserInteraction UserInteraction
+        {
+            get => _userInteraction ??= Core.UserInteraction.Current;
+            set => _userInteraction = value;
+        }
+
+        private IUserInteraction _userInteraction;
 
         /// <summary>
         /// The recipe driving this flow.
@@ -160,6 +192,9 @@ namespace Greenshot.Base.Pipeline
             var branchPayload = payload ?? Payload?.Clone();
             var branchContext = new CaptureFlowContext(Recipe, Trigger, CancellationToken)
             {
+                TriggerContext = TriggerContext,
+                Ui = _ui,
+                UserInteraction = _userInteraction,
                 State = State,
                 Payload = branchPayload,
                 IsPayloadPreSupplied = IsPayloadPreSupplied,

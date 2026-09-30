@@ -43,6 +43,7 @@ using Greenshot.Base.Wpf;
 using Greenshot.Configuration;
 using Greenshot.Editor.Destinations;
 using BaseLanguage = Greenshot.Base.Core.Language;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.UI
 {
@@ -53,8 +54,28 @@ namespace Greenshot.UI
         public IDestination Destination { get; set; }
         public string Title { get; set; }
         public string Subtitle { get; set; }
-        public ImageSource IconSource { get; set; }
+        private ImageSource _iconSource;
+
+        public ImageSource IconSource
+        {
+            get => _iconSource;
+            set
+            {
+                _iconSource = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IconSource)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IconVisibility)));
+            }
+        }
+
         public Visibility IconVisibility => IconSource != null ? Visibility.Visible : Visibility.Collapsed;
+
+        /// <summary>
+        /// Load the icon of the destination, must be started on the UI thread
+        /// </summary>
+        public async System.Threading.Tasks.Task LoadIconAsync()
+        {
+            IconSource = await DestinationIcons.GetImageSourceAsync(Destination?.Descriptor?.IconKey).ConfigureAwait(true);
+        }
         public string BadgeText { get; set; }
         public Visibility BadgeVisibility => !string.IsNullOrEmpty(BadgeText) ? Visibility.Visible : Visibility.Collapsed;
         public SolidColorBrush BadgeBackgroundBrush { get; set; } = new SolidColorBrush(System.Windows.Media.Color.FromRgb(220, 53, 69));
@@ -222,28 +243,6 @@ namespace Greenshot.UI
 
                 foreach (var dest in destList)
                 {
-                    ImageSource iconSrc = null;
-                    if (dest.DisplayIcon != null)
-                    {
-                        try
-                        {
-                            using var ms = new MemoryStream();
-                            dest.DisplayIcon.Save(ms, ImageFormat.Png);
-                            ms.Position = 0;
-                            var bi = new BitmapImage();
-                            bi.BeginInit();
-                            bi.CacheOption = BitmapCacheOption.OnLoad;
-                            bi.StreamSource = ms;
-                            bi.EndInit();
-                            bi.Freeze();
-                            iconSrc = bi;
-                        }
-                        catch
-                        {
-                            // Ignore icon load failure
-                        }
-                    }
-
                     string badge = null;
                     if (!string.IsNullOrEmpty(errorMessage) && string.Equals(dest.Designation, "Clipboard", StringComparison.OrdinalIgnoreCase))
                     {
@@ -257,9 +256,10 @@ namespace Greenshot.UI
                         Destination = dest,
                         Title = destTitle,
                         Subtitle = destSubtitle,
-                        IconSource = iconSrc,
                         BadgeText = badge
                     };
+                    // The icon arrives asynchronously (started on the UI thread, set there)
+                    tile.LoadIconAsync().FireAndLog("Load a destination icon");
 
                     if (IsCoreDestination(dest))
                     {
@@ -323,7 +323,7 @@ namespace Greenshot.UI
         {
             if (dest == null) return false;
             string des = dest.Designation ?? "";
-            string name = dest.Description ?? des;
+            string name = dest.Descriptor?.DisplayName ?? des;
 
             return string.Equals(des, EditorDestination.DESIGNATION, StringComparison.OrdinalIgnoreCase) ||
                    string.Equals(des, nameof(WellKnownDestinations.Clipboard), StringComparison.OrdinalIgnoreCase) ||
@@ -361,7 +361,7 @@ namespace Greenshot.UI
         private static (string title, string subtitle) FormatDestinationNames(IDestination dest)
         {
             string des = dest.Designation ?? "";
-            string rawDesc = dest.Description ?? des;
+            string rawDesc = dest.Descriptor?.DisplayName ?? des;
 
             switch (des.ToLowerInvariant())
             {
