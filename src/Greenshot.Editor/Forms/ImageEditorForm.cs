@@ -1455,10 +1455,32 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             duplicateToolStripMenuItem.Enabled = actionAllowedForSelection;
 
             // check dependencies for the Clipboard
-            // This runs when the editor opens or is activated: only check the formats, the clipboard isn't opened (the paste itself checks the content)
-            bool hasClipboard = DrawableContainerClipboard.IsAvailable || ClipboardHelper.ContainsText() || ClipboardHelper.ContainsImage();
+            // This runs when the editor opens or is activated. Phase 1 only checks the formats, without opening the clipboard;
+            // only when a file list, virtual files or HTML could contain an image, phase 2 looks at them in the background.
+            bool? clipboardImage = ClipboardHelper.ContainsImageQuick();
+            bool hasClipboard = DrawableContainerClipboard.IsAvailable || ClipboardHelper.ContainsText() || clipboardImage == true;
+            SetPasteEnabled(hasClipboard);
+            if (!hasClipboard && clipboardImage == null)
+            {
+                EnablePasteForClipboardImageAsync().FireAndLog("Check the clipboard for an image", Log);
+            }
+        }
+
+        private void SetPasteEnabled(bool hasClipboard)
+        {
             btnPaste.Enabled = hasClipboard && !_controlsDisabledDueToConfirmable;
             pasteToolStripMenuItem.Enabled = hasClipboard && !_controlsDisabledDueToConfirmable;
+        }
+
+        /// <summary>
+        /// Phase 2 of the clipboard check: continues on the UI thread, enables paste when the clipboard has an image after all
+        /// </summary>
+        private async Task EnablePasteForClipboardImageAsync()
+        {
+            if (await ClipboardHelper.ContainsImageAsync() && !IsDisposed)
+            {
+                SetPasteEnabled(true);
+            }
         }
 
         private void UpdateStatusLabel(string text, ContextMenuStrip contextMenu = null, bool isError = false)

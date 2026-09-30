@@ -513,11 +513,23 @@ namespace Greenshot.Base.Core
         /// <param name="formats">the formats to read, null for all formats</param>
         /// <param name="cancellationToken">CancellationToken</param>
         /// <returns>ClipboardSnapshot, or null when the clipboard couldn't be opened</returns>
-        public static async Task<ClipboardSnapshot> ReadSnapshotAsync(IEnumerable<string> formats, CancellationToken cancellationToken = default)
+        public static Task<ClipboardSnapshot> ReadSnapshotAsync(IEnumerable<string> formats, CancellationToken cancellationToken = default) =>
+            ReadSnapshotAsync(formats, long.MaxValue, cancellationToken);
+
+        /// <summary>
+        /// Copy the formats from the clipboard in one short clipboard session, waiting asynchronously when it's in use.
+        /// The clipboard is read on the context of the caller.
+        /// </summary>
+        /// <param name="formats">the formats to read, null for all formats</param>
+        /// <param name="maxBytesPerFormat">larger formats are skipped</param>
+        /// <param name="cancellationToken">CancellationToken</param>
+        /// <returns>ClipboardSnapshot, or null when the clipboard couldn't be opened</returns>
+        public static async Task<ClipboardSnapshot> ReadSnapshotAsync(IEnumerable<string> formats, long maxBytesPerFormat, CancellationToken cancellationToken = default)
         {
             try
             {
-                return await ClipboardNative.ReadSnapshotAsync(formats, CreateAccessOptions(DefaultReadRetries, DefaultReadRetryInterval), cancellationToken).ConfigureAwait(false);
+                // No ConfigureAwait(false): callers may continue with work which needs their thread
+                return await ClipboardNative.ReadSnapshotAsync(formats, maxBytesPerFormat, CreateAccessOptions(DefaultReadRetries, DefaultReadRetryInterval), cancellationToken);
             }
             catch (ClipboardAccessDeniedException ex)
             {
@@ -527,20 +539,18 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// True when the clipboard has a format which is or might contain an image, checked without opening the clipboard
-        /// (for enabling menus and buttons). File lists, virtual files and HTML are not read, so they count even without an image:
-        /// use <see cref="ContainsImageExact"/> or <see cref="ContainsImage(IClipboardDataSource)"/> when that matters.
+        /// The result of the last detailed image check, with the clipboard sequence number it belongs to
         /// </summary>
-        public static bool ContainsImage()
-        {
-            return DirectImageFormats.Any(ClipboardNative.HasFormat) || IndirectImageFormats.Any(ClipboardNative.HasFormat);
-        }
+        private static Tuple<uint, bool> _lastImageCheck;
 
         /// <summary>
-        /// True when the clipboard has an image: direct image formats are checked without opening the clipboard,
-        /// file names and HTML are read. Virtual files (e.g. Outlook attachments) are only checked on an STA thread.
+        /// Phase 1 of the image check, without opening the clipboard (only IsClipboardFormatAvailable), fast enough for the UI thread:
+        /// true when there is an image format, false when there is nothing which could contain an image, null when a file list,
+        /// virtual files or HTML have to be looked at (phase 2, <see cref="ContainsImageAsync"/>). A detailed result for the current
+        /// clipboard content is remembered, so null is only returned once per clipboard change.
         /// </summary>
-        public static bool ContainsImageExact()
+        /// <returns>bool? true: image, false: no image, null: unknown without reading the clipboard</returns>
+        public static bool? ContainsImageQuick()
         {
             if (DirectImageFormats.Any(ClipboardNative.HasFormat))
             {
@@ -552,8 +562,89 @@ namespace Greenshot.Base.Core
                 return false;
             }
 
+            var lastCheck = Volatile.Read(ref _lastImageCheck);
+            if (lastCheck != null && lastCheck.Item1 == ClipboardNative.SequenceNumber)
+            {
+                return lastCheck.Item2;
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Two phase image check: <see cref="ContainsImageQuick"/>, and only when that can't tell, phase 2 copies the file names and HTML
+        /// in a short snapshot (waiting asynchronously when the clipboard is busy) and checks them without decoding anything:
+        /// supported file extensions, an img element in the HTML, and on an STA thread (the UI thread) the names of virtual files
+        /// (e.g. Outlook attachments), their content isn't read.
+        /// </summary>
+        /// <param name="cancellationToken">CancellationToken</param>
+        /// <returns>Task with true when the clipboard has an image</returns>
+        public static async Task<bool> ContainsImageAsync(CancellationToken cancellationToken = default)
+        {
+            var quick = ContainsImageQuick();
+            if (quick.HasValue)
+            {
+                return quick.Value;
+            }
+
+            // Waiting for a busy clipboard is asynchronous, copying the small formats takes only a moment.
+            // No ConfigureAwait(false): virtual files are checked on the calling (UI, STA) thread.
+            var snapshot = await ReadSnapshotAsync(IndirectImageFormats, SmallFormatLimit, cancellationToken);
+            return snapshot != null && CompleteImageCheck(snapshot, ContainsImageFileOrHtml(snapshot));
+        }
+
+        /// <summary>
+        /// Two phase image check like <see cref="ContainsImageAsync"/>, synchronous: phase 2 runs on the calling thread.
+        /// Virtual files are only checked when that is an STA thread.
+        /// </summary>
+        public static bool ContainsImageExact()
+        {
+            var quick = ContainsImageQuick();
+            if (quick.HasValue)
+            {
+                return quick.Value;
+            }
+
             var snapshot = ReadSnapshot(IndirectImageFormats, SmallFormatLimit);
-            return snapshot != null && ContainsImage(snapshot);
+            return snapshot != null && CompleteImageCheck(snapshot, ContainsImageFileOrHtml(snapshot));
+        }
+
+        private static bool ContainsImageFileOrHtml(IClipboardDataSource source) =>
+            GetImageFilenames(source).Count > 0 || (TryGetHtml(source, out var html, out _) && html.IndexOf("<img", StringComparison.OrdinalIgnoreCase) >= 0);
+
+        /// <summary>
+        /// Check the virtual file names when needed (only possible on an STA thread), and remember the result when it's complete
+        /// </summary>
+        private static bool CompleteImageCheck(ClipboardSnapshot snapshot, bool foundInFilesOrHtml)
+        {
+            bool result = foundInFilesOrHtml;
+            bool complete = true;
+            if (!result && snapshot.HasVirtualFiles())
+            {
+                if (Thread.CurrentThread.GetApartmentState() == ApartmentState.STA)
+                {
+                    result = ContainsVirtualImageFile(snapshot);
+                }
+                else
+                {
+                    complete = false;
+                }
+            }
+
+            if (complete)
+            {
+                Volatile.Write(ref _lastImageCheck, Tuple.Create(snapshot.SequenceNumber, result));
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// True when a virtual file of the source has an extension Greenshot can load, only the names are read
+        /// </summary>
+        private static bool ContainsVirtualImageFile(IClipboardDataSource source)
+        {
+            var supportedExtensions = SupportedExtensions(FileFormatHandlerActions.LoadDrawableFromStream);
+            return UseVirtualFiles(source,
+                virtualFiles => virtualFiles.Any(file => !file.IsDirectory && supportedExtensions.Contains(SafeExtension(file.SafeFileName))), false);
         }
 
         /// <summary>
@@ -599,10 +690,7 @@ namespace Greenshot.Base.Core
                 return true;
             }
 
-            var supportedExtensions = SupportedExtensions(FileFormatHandlerActions.LoadDrawableFromStream);
-            bool hasVirtualImage = UseVirtualFiles(source,
-                virtualFiles => virtualFiles.Any(file => !file.IsDirectory && supportedExtensions.Contains(SafeExtension(file.SafeFileName))), false);
-            return hasVirtualImage || GetHtmlImageUrls(source).Count > 0;
+            return ContainsVirtualImageFile(source) || GetHtmlImageUrls(source).Count > 0;
         }
 
         /// <summary>
@@ -690,19 +778,7 @@ namespace Greenshot.Base.Core
                 return imageUrls;
             }
 
-            string html = null;
-            Uri baseUri = null;
-            if (source.TryGetAsHtml(out var clipboardHtml))
-            {
-                html = clipboardHtml.Fragment ?? clipboardHtml.FullHtml;
-                baseUri = clipboardHtml.SourceUrl;
-            }
-            else if (source.TryGetAsUtf8String(FormatHtmlMime, out var mimeHtml))
-            {
-                html = mimeHtml?.TrimEnd('\0');
-            }
-
-            if (string.IsNullOrEmpty(html))
+            if (!TryGetHtml(source, out var html, out var baseUri))
             {
                 return imageUrls;
             }
@@ -734,6 +810,25 @@ namespace Greenshot.Base.Core
             }
 
             return imageUrls;
+        }
+
+        /// <summary>
+        /// The HTML of the source: the fragment of CF_HTML (with its SourceURL), or Firefox's text/html
+        /// </summary>
+        private static bool TryGetHtml(IClipboardDataSource source, out string html, out Uri baseUri)
+        {
+            html = null;
+            baseUri = null;
+            if (source.TryGetAsHtml(out var clipboardHtml))
+            {
+                html = clipboardHtml.Fragment ?? clipboardHtml.FullHtml;
+                baseUri = clipboardHtml.SourceUrl;
+            }
+            else if (source.TryGetAsUtf8String(FormatHtmlMime, out var mimeHtml))
+            {
+                html = mimeHtml?.TrimEnd('\0');
+            }
+            return !string.IsNullOrEmpty(html);
         }
 
         #endregion

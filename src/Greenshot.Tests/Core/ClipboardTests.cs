@@ -134,7 +134,7 @@ namespace Greenshot.Tests.Core
             Assert.Equal(new byte[] { 0x89, 0x50, 0x4E, 0x47 }, png.Take(4).ToArray());
 
             // Greenshot
-            Assert.True(ClipboardHelper.ContainsImage());
+            Assert.True(ClipboardHelper.ContainsImageQuick());
             using var image = ReadImage();
             AssertSamePixels(bitmap, image, compareAlpha: true);
         }
@@ -259,7 +259,7 @@ namespace Greenshot.Tests.Core
 
             // Greenshot
             Assert.True(ClipboardHelper.ContainsText());
-            Assert.False(ClipboardHelper.ContainsImage());
+            Assert.False(ClipboardHelper.ContainsImageQuick());
             Assert.Equal(text, ClipboardHelper.GetText(snapshot));
         }
 
@@ -319,7 +319,7 @@ namespace Greenshot.Tests.Core
             bitmap.Save(pngStream, ImageFormat.Png);
             ClipboardHelper.SetClipboardData(new ClipboardContents().AddBytes(pngStream.ToArray(), "PNG"));
 
-            Assert.True(ClipboardHelper.ContainsImage());
+            Assert.True(ClipboardHelper.ContainsImageQuick());
             using var image = ReadImage();
             AssertSamePixels(bitmap, image, compareAlpha: true);
         }
@@ -385,7 +385,8 @@ namespace Greenshot.Tests.Core
             ClipboardHelper.SetClipboardData(new ClipboardContents()
                 .AddHtml("<p>A picture <img src=\"images/picture.png?a=1&amp;b=2\" alt=\"x\"></p>", new Uri("https://example.com/articles/page.html")));
 
-            Assert.True(ClipboardHelper.ContainsImage());
+            // HTML: phase 1 can't tell, phase 2 reads it
+            Assert.Null(ClipboardHelper.ContainsImageQuick());
             Assert.True(ClipboardHelper.ContainsImageExact());
             var url = Assert.Single(ClipboardHelper.GetHtmlImageUrls(Snapshot(ClipboardHelper.ImageReadFormats.ToArray())));
             // Relative to the SourceURL, entities decoded
@@ -403,13 +404,20 @@ namespace Greenshot.Tests.Core
         }
 
         [InteractiveDesktopFact]
-        public void Read_NonImageFileList_IsOnlyAPossibleImage()
+        public async Task TwoPhaseCheck_NonImageFileList()
         {
             ClipboardHelper.SetClipboardData(new ClipboardContents().AddFileNames(new[] { Path.Combine(Path.GetTempPath(), "not-an-image.txt") }));
-            // Cheap check for menus: a file list might be an image
-            Assert.True(ClipboardHelper.ContainsImage());
-            // The exact check reads the file names
-            Assert.False(ClipboardHelper.ContainsImageExact());
+            // Phase 1 can't tell from the formats alone
+            Assert.Null(ClipboardHelper.ContainsImageQuick());
+            // Phase 2 reads the file names
+            Assert.False(await ClipboardHelper.ContainsImageAsync());
+            // The result is remembered until the clipboard changes
+            Assert.False(ClipboardHelper.ContainsImageQuick());
+
+            ClipboardHelper.SetClipboardData(new ClipboardContents().AddFileNames(new[] { Path.Combine(Path.GetTempPath(), "an-image.png") }));
+            Assert.Null(ClipboardHelper.ContainsImageQuick());
+            Assert.True(await ClipboardHelper.ContainsImageAsync());
+            Assert.True(ClipboardHelper.ContainsImageQuick());
         }
 
         [InteractiveDesktopFact]
@@ -436,7 +444,7 @@ namespace Greenshot.Tests.Core
             {
                 ClipboardHelper.SetClipboardData(new ClipboardContents().AddFileNames(new[] { textFile, imageFile }));
 
-                Assert.True(ClipboardHelper.ContainsImage());
+                Assert.True(ClipboardHelper.ContainsImageExact());
                 var snapshot = Snapshot(ClipboardHelper.ImageReadFormats.ToArray());
                 // Only the file Greenshot can load, the extension is compared case insensitive
                 Assert.Equal(new[] { imageFile }, ClipboardHelper.GetImageFilenames(snapshot));
@@ -524,7 +532,9 @@ namespace Greenshot.Tests.Core
                 {
                     // Only CF_TEXT, Windows doesn't synthesize CF_UNICODETEXT for a data object
                     var dataObject = new System.Windows.Forms.DataObject();
-                    dataObject.SetData(System.Windows.Forms.DataFormats.Text, false, new MemoryStream(Encoding.Default.GetBytes("dropped text\0")));
+                    // autoConvert false: WinForms doesn't offer CF_UNICODETEXT then
+                    dataObject.SetData(System.Windows.Forms.DataFormats.Text, false, "dropped text");
+                    Assert.False(new DataObjectReader(dataObject).HasFormat(StandardClipboardFormats.UnicodeText.AsString()));
                     using var reader = new DataObjectReader(dataObject);
                     Assert.True(ClipboardHelper.ContainsText(reader));
                     text = ClipboardHelper.GetText(reader);
