@@ -47,7 +47,14 @@ public static class HotkeyManager
     /// <summary>
     /// When true, hotkey handling is paused (e.g. while an in-window modal editor is recording keys).
     /// </summary>
-    public static bool IsPaused { get; set; }
+    public static bool IsPaused
+    {
+        get => _isPaused;
+        set => _isPaused = value;
+    }
+
+    // Set on the UI thread, read on the keyboard hook thread
+    private static volatile bool _isPaused;
 
     // Multi-chord sequence tracking
     private static List<HotkeyInfo> _candidateSequences;
@@ -102,24 +109,53 @@ public static class HotkeyManager
         }
     }
 
+    /// <summary>
+    /// Called by the keyboard hook, which runs on its own thread since Dapplo.Windows 3.0.
+    /// Handled is decided synchronously, the handlers only post their work to the UI thread so the hook returns quickly.
+    /// </summary>
+    /// <param name="e">KeyboardHookEventArgs</param>
     internal static void HandleKeyboardEvent(KeyboardHookEventArgs e)
+    {
+        try
+        {
+            Action handler;
+            // The (un)registration and the chord state are changed from other threads, the hook is serialized with them
+            lock (RegisteredHotkeys)
+            {
+                handler = MatchHotkey(e);
+            }
+            handler?.Invoke();
+        }
+        catch (Exception ex)
+        {
+            // An exception leaving the subscriber ends the keyboard subscription, and with it every hotkey
+            Log.Error($"HotkeyManager: error handling key '{e.Key}'.", ex);
+        }
+    }
+
+    /// <summary>
+    /// Match the key event against the registered hotkeys and the pending chord sequence, must be called with the lock on RegisteredHotkeys
+    /// </summary>
+    /// <param name="e">KeyboardHookEventArgs, Handled is set when the key belongs to a hotkey</param>
+    /// <returns>The handler of a completed hotkey, or null</returns>
+    private static Action MatchHotkey(KeyboardHookEventArgs e)
     {
         if (IsPaused)
         {
             ResetChordState();
-            return;
+            return null;
         }
 
         if (!e.IsKeyDown)
         {
-            return;
+            return null;
         }
 
         // Ignore pure modifier keys (Ctrl, Alt, Shift, Win) when pressed alone without a trigger key.
         // We do not rely on e.IsModifier because Dapplo also classifies toggle/lock keys (ScrollLock, CapsLock, NumLock) as modifiers.
         if (IsModifierKey(e.Key))
         {
-            return;
+            return null;
         }
 
         // Timeout check for multi-chord sequences
@@ -135,14 +171,10 @@ public static class HotkeyManager
             Log.Info("HotkeyManager: Multi-chord sequence cancelled by Escape key.");
             ResetChordState();
             e.Handled = true;
-            return;
+            return null;
         }
 
-        List<HotkeyInfo> hotkeys;
-        lock (RegisteredHotkeys)
-        {
-            hotkeys = RegisteredHotkeys.ToList();
-        }
+        var hotkeys = RegisteredHotkeys;
 
         // 1. If currently in the middle of a multi-chord sequence, check if this key matches the next chord of any candidate
         if (_candidateSequences != null)
@@ -166,7 +198,7 @@ public static class HotkeyManager
                     var handler = completed.Handler;
                     Log.InfoFormat("HotkeyManager: Completed multi-chord sequence '{0}'. Triggering action.", completed.Sequence);
                     ResetChordState();
-                    handler();
+                    return handler;
                 }
                 else
                 {
@@ -174,7 +206,7 @@ public static class HotkeyManager
                     e.Handled = true;
                     Log.InfoFormat("HotkeyManager: Chord step {0} matched for sequence '{1}'. Waiting for next chord...", _activeChordIndex, nextCandidates[0].Sequence);
                 }
-                return;
+                return null;
             }
             else
             {
@@ -192,8 +224,7 @@ public static class HotkeyManager
         {
             e.Handled = true;
             Log.InfoFormat("HotkeyManager: Single-chord hotkey '{0}' matched. Triggering action.", singleMatch.Sequence);
-            singleMatch.Handler();
-            return;
+            return singleMatch.Handler;
         }
 
         // Next, check for multi-chord sequences whose first chord matches
@@ -208,8 +239,10 @@ public static class HotkeyManager
             _lastChordTime = DateTime.UtcNow;
             e.Handled = true;
             Log.InfoFormat("HotkeyManager: First chord matched for '{0}'. Waiting for next chord (timeout {1}s)...", matchingMulti[0].Sequence, ChordTimeout.TotalSeconds);
-            return;
+            return null;
         }
+
+        return null;
     }
 
     private static void ResetChordState()

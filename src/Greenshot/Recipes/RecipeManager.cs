@@ -88,6 +88,9 @@ namespace Greenshot.Recipes
 
         private void InitializeDefaultRecipes()
         {
+            // Read the disabled recipes once, not per recipe
+            var disabled = GetDisabledRecipeIds();
+
             // 1. Interactive Region Capture
             var regionRecipe = new CaptureRecipe(
                 RecipeIdRegion,
@@ -107,7 +110,7 @@ namespace Greenshot.Recipes
                 .AddTransition("feedback", "scan_post")
                 .AddTransition("scan_post", "export")
                 .AddTransition("export", "notify");
-            RegisterBuiltIn(regionRecipe);
+            RegisterBuiltIn(regionRecipe, disabled);
 
             // 2. Interactive Window Capture
             var windowRecipe = new CaptureRecipe(
@@ -128,7 +131,7 @@ namespace Greenshot.Recipes
                 .AddTransition("feedback", "scan_post")
                 .AddTransition("scan_post", "export")
                 .AddTransition("export", "notify");
-            RegisterBuiltIn(windowRecipe);
+            RegisterBuiltIn(windowRecipe, disabled);
 
             // 3. Active Window Capture
             var activeWindowRecipe = new CaptureRecipe(
@@ -145,7 +148,7 @@ namespace Greenshot.Recipes
                 .AddTransition("feedback", "processors")
                 .AddTransition("processors", "export")
                 .AddTransition("export", "notify");
-            RegisterBuiltIn(activeWindowRecipe);
+            RegisterBuiltIn(activeWindowRecipe, disabled);
 
             // 4. Full Screen Capture
             var fullScreenRecipe = new CaptureRecipe(
@@ -162,7 +165,7 @@ namespace Greenshot.Recipes
                 .AddTransition("feedback", "processors")
                 .AddTransition("processors", "export")
                 .AddTransition("export", "notify");
-            RegisterBuiltIn(fullScreenRecipe);
+            RegisterBuiltIn(fullScreenRecipe, disabled);
 
             // 5. Last Region Capture
             var lastRegionRecipe = new CaptureRecipe(
@@ -179,7 +182,7 @@ namespace Greenshot.Recipes
                 .AddTransition("feedback", "processors")
                 .AddTransition("processors", "export")
                 .AddTransition("export", "notify");
-            RegisterBuiltIn(lastRegionRecipe);
+            RegisterBuiltIn(lastRegionRecipe, disabled);
 
             // 6. Clipboard Import
             var clipboardRecipe = new CaptureRecipe(
@@ -190,7 +193,7 @@ namespace Greenshot.Recipes
                 .AddNode(RecipeStepConfig.CreateDestinations("export", new[] { "Editor" }));
             clipboardRecipe.Flow = new RecipeFlowConfig("acquire")
                 .AddTransition("acquire", "export");
-            RegisterBuiltIn(clipboardRecipe);
+            RegisterBuiltIn(clipboardRecipe, disabled);
 
             // 7. File Import
             var fileRecipe = new CaptureRecipe(
@@ -202,7 +205,7 @@ namespace Greenshot.Recipes
                 .AddTrigger(TriggerConfig.CreateOpenFile(name: "Default Open With File Trigger"));
             fileRecipe.Flow = new RecipeFlowConfig("acquire")
                 .AddTransition("acquire", "export");
-            RegisterBuiltIn(fileRecipe);
+            RegisterBuiltIn(fileRecipe, disabled);
 
             // 8. OCR Text Capture
             var ocrRecipe = new CaptureRecipe(
@@ -219,7 +222,7 @@ namespace Greenshot.Recipes
                 .AddTransition("select", "feedback")
                 .AddTransition("feedback", "ocr")
                 .AddTransition("ocr", "export");
-            RegisterBuiltIn(ocrRecipe);
+            RegisterBuiltIn(ocrRecipe, disabled);
 
             // 9. Browser Extension Capture
             var extensionRecipe = new CaptureRecipe(
@@ -231,7 +234,7 @@ namespace Greenshot.Recipes
                 .AddTrigger(TriggerConfig.CreateExtension(name: "Default Browser Extension Trigger"));
             extensionRecipe.Flow = new RecipeFlowConfig("acquire")
                 .AddTransition("acquire", "export");
-            RegisterBuiltIn(extensionRecipe);
+            RegisterBuiltIn(extensionRecipe, disabled);
         }
 
         private HashSet<string> GetDisabledRecipeIds()
@@ -239,7 +242,7 @@ namespace Greenshot.Recipes
             var set = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             try
             {
-                var recipeConfig = IniConfigRegistry.GetSection<IRecipeConfiguration>();
+                var recipeConfig = RecipeConfigHelper.TryGetRecipeConfiguration();
                 string raw = recipeConfig?.DisabledRecipeIds;
                 if (!string.IsNullOrWhiteSpace(raw))
                 {
@@ -265,7 +268,7 @@ namespace Greenshot.Recipes
             if (string.IsNullOrWhiteSpace(filePath)) return;
             try
             {
-                var recipeConfig = IniConfigRegistry.GetSection<IRecipeConfiguration>();
+                var recipeConfig = RecipeConfigHelper.TryGetRecipeConfiguration();
                 if (recipeConfig == null) return;
 
                 string existing = recipeConfig.RecipeFiles ?? "";
@@ -304,7 +307,7 @@ namespace Greenshot.Recipes
             if (string.IsNullOrWhiteSpace(filePath)) return;
             try
             {
-                var recipeConfig = IniConfigRegistry.GetSection<IRecipeConfiguration>();
+                var recipeConfig = RecipeConfigHelper.TryGetRecipeConfiguration();
                 if (recipeConfig == null) return;
 
                 string existing = recipeConfig.RecipeFiles ?? "";
@@ -333,11 +336,11 @@ namespace Greenshot.Recipes
             }
         }
 
-        private void RegisterBuiltIn(CaptureRecipe recipe)
+        private void RegisterBuiltIn(CaptureRecipe recipe, ISet<string> disabledRecipeIds)
         {
             recipe.IsBuiltIn = true;
             recipe.IsOverridden = false;
-            recipe.IsEnabled = !GetDisabledRecipeIds().Contains(recipe.Id);
+            recipe.IsEnabled = !disabledRecipeIds.Contains(recipe.Id);
             _builtInRecipes[recipe.Id] = recipe.Clone();
             _recipes[recipe.Id] = recipe;
         }
@@ -350,7 +353,7 @@ namespace Greenshot.Recipes
                 return;
             }
 
-            var recipeConfig = IniConfigRegistry.GetSection<IRecipeConfiguration>();
+            var recipeConfig = RecipeConfigHelper.TryGetRecipeConfiguration();
             string configured = recipeConfig?.RecipeFiles;
             if (string.IsNullOrWhiteSpace(configured)) return;
 
@@ -850,7 +853,7 @@ namespace Greenshot.Recipes
 
             try
             {
-                var recipeConfig = IniConfigRegistry.GetSection<IRecipeConfiguration>();
+                var recipeConfig = RecipeConfigHelper.TryGetRecipeConfiguration();
                 if (recipeConfig != null)
                 {
                     var disabled = GetDisabledRecipeIds();

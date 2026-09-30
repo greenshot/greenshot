@@ -19,10 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Linq;
 using Dapplo.Ini;
-using log4net;
 
 namespace Greenshot.Base.Recipes
 {
@@ -31,8 +28,6 @@ namespace Greenshot.Base.Recipes
     /// </summary>
     public static class RecipeConfigHelper
     {
-        private static readonly ILog Log = LogManager.GetLogger(typeof(RecipeConfigHelper));
-
         /// <summary>
         /// Returns true if the specified configuration is non-null and has Enabled = true.
         /// </summary>
@@ -45,31 +40,17 @@ namespace Greenshot.Base.Recipes
         /// Returns true if the Recipe Editor plugin is registered in configuration and enabled;
         /// otherwise false (e.g. plugin not installed or disabled in settings).
         /// </summary>
-        public static bool IsRecipeFeatureEnabled()
+        public static bool IsRecipeFeatureEnabled() => IsRecipeFeatureEnabled(TryGetRecipeConfiguration());
+
+        /// <summary>
+        /// Returns the <see cref="IRecipeConfiguration"/> section if it is registered, otherwise null.
+        /// The section is registered by the Recipe Editor plugin, so it is missing when the plugin isn't installed
+        /// or when this is called before the plugins are loaded.
+        /// Use this instead of <c>IniConfigRegistry.GetSection&lt;IRecipeConfiguration&gt;()</c>, which throws for a missing section.
+        /// </summary>
+        public static IRecipeConfiguration TryGetRecipeConfiguration()
         {
-            try
-            {
-                var iniConfig = IniConfigRegistry.Get();
-                if (iniConfig == null) return false;
-
-                var sections = iniConfig.GetSections();
-                if (sections == null) return false;
-
-                foreach (var section in sections)
-                {
-                    if (section is IRecipeConfiguration recipeConfig)
-                    {
-                        return recipeConfig.Enabled;
-                    }
-                }
-
-                return false;
-            }
-            catch (Exception ex)
-            {
-                Log.Debug("Error querying IRecipeConfiguration from IniConfigRegistry", ex);
-                return false;
-            }
+            return IniConfigRegistry.TryGetSection<IRecipeConfiguration>(out var recipeConfiguration) ? recipeConfiguration : null;
         }
     }
 }

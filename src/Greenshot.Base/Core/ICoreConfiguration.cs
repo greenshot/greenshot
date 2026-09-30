@@ -364,6 +364,14 @@ namespace Greenshot.Base.Core
         [Description("Version of Greenshot which created this .ini")]
         string LastSaveWithVersion { get; }
 
+        /// <summary>
+        /// The version of Greenshot which saved greenshot.ini before this start (LastSaveWithVersion as it was loaded), use this for upgrade checks.
+        /// LastSaveWithVersion changes with every save, and plugins add their sections (running IAfterLoad) after the file was loaded,
+        /// possibly after an auto-save.
+        /// </summary>
+        [IniValue(RuntimeOnly = true)]
+        string LoadedWithVersion { get; set; }
+
         [Description("When reading images from files or clipboard, use the EXIF information to correct the orientation")]
         [DefaultValue(true)]
         bool ProcessEXIFOrientation { get; set; }

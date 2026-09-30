@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -45,7 +46,8 @@ public class JiraMonitor : IDisposable
     private readonly Regex _jiraKeyPattern = new Regex(@"[A-Z][A-Z0-9]+\-[0-9]+");
     private readonly IDisposable _monitor;
     private readonly IList<IJiraClient> _jiraInstances = new List<IJiraClient>();
-    private readonly IDictionary<string, IJiraClient> _projectJiraClientMap = new Dictionary<string, IJiraClient>();
+    // Read by the title monitor (WinEventHook, SharedMessageWindow thread) while instances are added asynchronously
+    private readonly ConcurrentDictionary<string, IJiraClient> _projectJiraClientMap = new ConcurrentDictionary<string, IJiraClient>();
 
     private readonly int _maxEntries;
 
@@ -136,10 +138,8 @@ public class JiraMonitor : IDisposable
         {
             foreach (var project in projects)
             {
-                if (!_projectJiraClientMap.ContainsKey(project.Key))
-                {
-                    _projectJiraClientMap.Add(project.Key, jiraInstance);
-                }
+                // The first instance which knows the project wins
+                _projectJiraClientMap.TryAdd(project.Key, jiraInstance);
             }
         }
     }

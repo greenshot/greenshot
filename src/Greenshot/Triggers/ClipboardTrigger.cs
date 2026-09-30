@@ -77,6 +77,8 @@ namespace Greenshot.Triggers
             try
             {
                 _subscription = ClipboardNative.OnUpdate
+                    // Every subscriber first gets the current clipboard state, the trigger only fires for changes after it started
+                    .Skip(1)
                     .ObserveOn(System.Reactive.Concurrency.Scheduler.Default)
                     .Subscribe(updateInfo => OnClipboardUpdateReceivedAsync(updateInfo).FireAndLog("Clipboard trigger", Log), ex => Log.Error("Error in ClipboardNative.OnUpdate stream", ex));
 

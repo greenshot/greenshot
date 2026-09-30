@@ -33,7 +33,7 @@ using System.Windows.Media.Imaging;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Icons;
 using Dapplo.Windows.Icons.SafeHandles;
-using Dapplo.Windows.Messages.Enumerations;
+using Dapplo.Windows.Messages.Enums;
 using Dapplo.Windows.User32;
 using Greenshot.Base.Core;
 using Greenshot.Editor.Configuration;
@@ -102,10 +102,18 @@ namespace Greenshot.Editor.Forms
         {
             using SafeIconHandle iconHandle = new SafeIconHandle(bitmap.GetHicon());
             NativeIconMethods.GetIconInfo(iconHandle, out var iconInfo);
-            iconInfo.Hotspot = new NativePoint(hotspotX, hotspotY);
-            iconInfo.IsIcon = false;
-            var hIcon = NativeIconMethods.CreateIconIndirect(ref iconInfo);
-            return CursorInteropHelper.Create(new SafeIconHandle(hIcon));
+            try
+            {
+                iconInfo.Hotspot = new NativePoint(hotspotX, hotspotY);
+                iconInfo.IsIcon = false;
+                var hIcon = NativeIconMethods.CreateIconIndirect(ref iconInfo);
+                return CursorInteropHelper.Create(new SafeIconHandle(hIcon));
+            }
+            finally
+            {
+                // GetIconInfo created copies of the bitmaps, CreateIconIndirect copied them again
+                iconInfo.DeleteBitmaps();
+            }
         }
 
         protected override void OnSourceInitialized(EventArgs e)

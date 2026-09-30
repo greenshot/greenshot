@@ -38,10 +38,10 @@ namespace Greenshot.Tests.Forms
         }
 
         [Theory]
-        [InlineData("Alt + PrintScreen", false, true, false, false, VirtualKeyCode.Snapshot)]
-        [InlineData("Ctrl + PrintScreen", true, false, false, false, VirtualKeyCode.Snapshot)]
-        [InlineData("Shift + PrintScreen", false, false, true, false, VirtualKeyCode.Snapshot)]
-        [InlineData("PrintScreen", false, false, false, false, VirtualKeyCode.Snapshot)]
+        [InlineData("Alt + PrintScreen", false, true, false, false, VirtualKeyCode.PrintScreen)]
+        [InlineData("Ctrl + PrintScreen", true, false, false, false, VirtualKeyCode.PrintScreen)]
+        [InlineData("Shift + PrintScreen", false, false, true, false, VirtualKeyCode.PrintScreen)]
+        [InlineData("PrintScreen", false, false, false, false, VirtualKeyCode.PrintScreen)]
         public void HotkeySequence_ParsesLegacyConfigStrings(string input, bool ctrl, bool alt, bool shift, bool win, VirtualKeyCode expectedKey)
         {
             var seq = HotkeySequence.Parse(input);
@@ -334,7 +334,6 @@ namespace Greenshot.Tests.Forms
             bool isLeftControl = false,
             bool isLeftAlt = false,
             bool isLeftShift = false,
-            bool isModifier = false,
             bool isInjected = false)
         {
             var args = (Dapplo.Windows.Input.Keyboard.KeyboardHookEventArgs)System.Runtime.Serialization.FormatterServices.GetUninitializedObject(typeof(Dapplo.Windows.Input.Keyboard.KeyboardHookEventArgs));
@@ -348,7 +347,6 @@ namespace Greenshot.Tests.Forms
             type.GetField("<IsLeftControl>k__BackingField", flags)?.SetValue(args, isLeftControl);
             type.GetField("<IsLeftAlt>k__BackingField", flags)?.SetValue(args, isLeftAlt);
             type.GetField("<IsLeftShift>k__BackingField", flags)?.SetValue(args, isLeftShift);
-            type.GetField("<IsModifier>k__BackingField", flags)?.SetValue(args, isModifier);
             if (isInjected)
             {
                 type.GetField("<Flags>k__BackingField", flags)?.SetValue(args, Dapplo.Windows.Input.Enums.ExtendedKeyFlags.Injected);
@@ -366,7 +364,7 @@ namespace Greenshot.Tests.Forms
             HotkeyManager.RegisterHotKey(seq, () => triggered = true);
 
             // Step 1: User presses Win + PrintScreen
-            var e1 = CreateKeyboardHookEventArgs(VirtualKeyCode.Snapshot, isKeyDown: true, isLeftWin: true);
+            var e1 = CreateKeyboardHookEventArgs(VirtualKeyCode.PrintScreen, isKeyDown: true, isLeftWin: true);
             HotkeyManager.HandleKeyboardEvent(e1);
 
             Assert.True(e1.Handled);
@@ -395,7 +393,7 @@ namespace Greenshot.Tests.Forms
             HotkeyManager.RegisterHotKey(seq, () => triggered = true);
 
             // Step 1: User presses Win + PrintScreen
-            var e1 = CreateKeyboardHookEventArgs(VirtualKeyCode.Snapshot, isKeyDown: true, isLeftWin: true);
+            var e1 = CreateKeyboardHookEventArgs(VirtualKeyCode.PrintScreen, isKeyDown: true, isLeftWin: true);
             HotkeyManager.HandleKeyboardEvent(e1);
 
             Assert.True(e1.Handled);
@@ -424,7 +422,7 @@ namespace Greenshot.Tests.Forms
             HotkeyManager.RegisterHotKey(seq, () => triggered = true);
 
             // Step 1: User presses Win + PrintScreen
-            var e1 = CreateKeyboardHookEventArgs(VirtualKeyCode.Snapshot, isKeyDown: true, isLeftWin: true);
+            var e1 = CreateKeyboardHookEventArgs(VirtualKeyCode.PrintScreen, isKeyDown: true, isLeftWin: true);
             HotkeyManager.HandleKeyboardEvent(e1);
             Assert.Equal(1, HotkeyManager.CandidateSequenceCount);
 
@@ -446,8 +444,8 @@ namespace Greenshot.Tests.Forms
             var seq = HotkeySequence.Parse("ScrollLock, C");
             HotkeyManager.RegisterHotKey(seq, () => triggered = true);
 
-            // Dapplo marks ScrollLock with IsModifier = true. HotkeyManager must still recognize it!
-            var e1 = CreateKeyboardHookEventArgs(VirtualKeyCode.Scroll, isKeyDown: true, isModifier: true);
+            // Dapplo computes IsModifier from the key and can classify toggle keys like ScrollLock as modifier, HotkeyManager must still recognize it!
+            var e1 = CreateKeyboardHookEventArgs(VirtualKeyCode.Scroll, isKeyDown: true);
             HotkeyManager.HandleKeyboardEvent(e1);
             Assert.True(e1.Handled);
             Assert.Equal(1, HotkeyManager.CandidateSequenceCount);

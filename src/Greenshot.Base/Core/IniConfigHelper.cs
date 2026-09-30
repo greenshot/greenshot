@@ -75,21 +75,14 @@ namespace Greenshot.Base.Core
                     // Check if ICoreConfiguration is registered for the current Type context.
                     // In the Visual Studio WinForms Designer, Dapplo.Ini can persist in the VS host process across rebuilds,
                     // while Greenshot.Base.dll is recompiled and reloaded with fresh Type identities.
-                    try
+                    if (config.TryGetSection<ICoreConfiguration>(out _))
                     {
-                        config.GetSection<ICoreConfiguration>();
                         return config;
                     }
-                    catch (InvalidOperationException)
-                    {
-                        // ICoreConfiguration is missing or registered under an older Type identity.
-                        // Add an ICoreConfiguration section mapped to the current Type.
-                        var coreConfigInstance = new CoreConfigurationImpl();
-                        coreConfigInstance.ResetToDefaults();
-                        (coreConfigInstance as IAfterLoad)?.OnAfterLoad();
-                        config.AddSection<ICoreConfiguration>(coreConfigInstance);
-                        return config;
-                    }
+
+                    // ICoreConfiguration is missing or registered under an older Type identity. The section name is still taken
+                    // by the old section, so it can't be added again: start over with a design-time configuration for the current types.
+                    IniConfigRegistry.Unregister(DesignTimeConfigName);
                 }
 
                 Log.Debug("Initializing design-time fallback configuration.");
@@ -99,13 +92,12 @@ namespace Greenshot.Base.Core
 
                 // Build design-time configuration with core section defaults
                 var coreConfig = new CoreConfigurationImpl();
-                coreConfig.ResetToDefaults();
+                config = IniConfigRegistry.ForFile(DesignTimeConfigName)
+                    .RegisterSection<ICoreConfiguration>(coreConfig)
+                    .Create();
+
+                // Nothing loads the design-time configuration: registering reset the section to its defaults, run the hook by hand
                 (coreConfig as IAfterLoad)?.OnAfterLoad();
-
-                var builder = IniConfigRegistry.ForFile(DesignTimeConfigName)
-                    .RegisterSection<ICoreConfiguration>(coreConfig);
-
-                config = builder.Create();
 
                 return config;
             }
@@ -121,53 +113,41 @@ namespace Greenshot.Base.Core
         public static T EnsureSection<T>(Func<T> factory = null) where T : class, IIniSection
         {
             var config = EnsureInitialized();
-            try
+            if (config.TryGetSection<T>(out var section))
             {
-                return config.GetSection<T>();
+                return section;
             }
-            catch (InvalidOperationException)
+
+            lock (SyncLock)
             {
-                lock (SyncLock)
+                if (config.TryGetSection(out section))
                 {
-                    try
-                    {
-                        return config.GetSection<T>();
-                    }
-                    catch (InvalidOperationException)
-                    {
-                        T instance = null;
-                        var sections = config.GetSections();
-                        if (sections != null)
-                        {
-                            foreach (var s in sections)
-                            {
-                                if (s is T typed)
-                                {
-                                    instance = typed;
-                                    break;
-                                }
-                            }
-                        }
-
-                        if (instance == null)
-                        {
-                            instance = factory != null ? factory() : CreateSectionInstance<T>();
-                            if (instance != null)
-                            {
-                                instance.ResetToDefaults();
-                                (instance as IAfterLoad)?.OnAfterLoad();
-                            }
-                        }
-
-                        if (instance != null)
-                        {
-                            config.AddSection<T>(instance);
-                            return instance;
-                        }
-
-                        throw;
-                    }
+                    return section;
                 }
+
+                // Registered under another type, e.g. the implementation class: use it as is,
+                // registering the same section again under T would be rejected (same section name).
+                section = config.GetSections()?.OfType<T>().FirstOrDefault();
+                if (section != null)
+                {
+                    return section;
+                }
+
+                section = factory != null ? factory() : CreateSectionInstance<T>();
+                if (section == null)
+                {
+                    throw new InvalidOperationException($"Section '{typeof(T).Name}' is not registered with '{config.FileName}' and no implementation was found.");
+                }
+
+                // For a loaded configuration (AllowLateSectionRegistration) this reads the values from the files and runs IAfterLoad,
+                // for a configuration which isn't loaded it resets the section to its defaults.
+                config.AddSection<T>(section);
+                if (!config.IsLoaded)
+                {
+                    // Design time or tests: nothing will load this configuration, run the hook by hand
+                    (section as IAfterLoad)?.OnAfterLoad();
+                }
+                return section;
             }
         }
 

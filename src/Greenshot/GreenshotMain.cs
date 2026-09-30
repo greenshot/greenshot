@@ -29,6 +29,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Ini;
 using Dapplo.Ini.Parsing;
+using Dapplo.Windows.Input.Keyboard;
+using Dapplo.Windows.Messages;
 using Greenshot.Base.Core;
 using Greenshot.Configuration;
 using Greenshot.Editor.Configuration;
@@ -102,6 +104,7 @@ public class GreenshotMain
 
         // Register custom value converters (NativeRect, Color, etc.) before building the registry.
         IniValueConverters.Register();
+        Editor.EditorInitialize.RegisterValueConverters();
 
         // Detect PortableApp (PAF) mode: the App\Greenshot directory lives next to the executable.
         var startupPath = AppContext.BaseDirectory;
@@ -143,16 +146,24 @@ public class GreenshotMain
                .RegisterSection<ICoreConfiguration>(new CoreConfigurationImpl())
                .RegisterSection<IEditorConfiguration>(new EditorConfigurationImpl())
                .RegisterSection<IWin10Configuration>(new Win10ConfigurationImpl())
+               // Plugins register their sections after the file was read, they are filled from the retained file content.
+               // This also keeps the sections of plugins which are not loaded (excluded or uninstalled) when saving.
+               .AllowLateSectionRegistration()
                .AutoSaveInterval(TimeSpan.FromSeconds(2))
                .EmptyWhenNull()
                .LockFile()
-               .EnableMetadata(applicationName: "Greenshot");
+               .EnableMetadata(applicationName: "Greenshot")
+               // Also logs errors of the background work (auto-save, save on exit), which are only reported to listeners
+               .AddListener(new IniListener());
 
-#if DEBUG
-        builder.AddListener(new Helpers.IniListener());
-#endif
+        // No file access yet: greenshot.ini is read (and locked) in MainForm.Start, only by the instance which really runs.
+        // A second instance, which forwards a command or reports that Greenshot is running, doesn't touch the file.
+        builder.Create();
 
-        var iniConfig = builder.Create();
+        // An exception in a window message or keyboard hook subscriber ends that subscription instead of crashing the process,
+        // log it: otherwise a clipboard listener or the hotkeys just stop working without a trace.
+        SharedMessageWindow.SubscriberErrors.Subscribe(ex => LOG.Error("A window message subscriber failed and was removed.", ex));
+        KeyboardHook.SubscriberErrors.Subscribe(ex => LOG.Error("A keyboard hook subscriber failed and was removed.", ex));
 
         // Log the startup
         LOG.Info("Starting: " + EnvironmentInfo.EnvironmentToString(false));

@@ -129,7 +129,7 @@ namespace Greenshot.Base.Core
                 if (i == 0)
                 {
                     bool isAllowedStandalone = IsFunctionKey(chord.Key) ||
-                                               chord.Key == VirtualKeyCode.Snapshot ||
+                                               chord.Key == VirtualKeyCode.PrintScreen ||
                                                chord.Key == VirtualKeyCode.Scroll ||
                                                chord.Key == VirtualKeyCode.Pause;
 

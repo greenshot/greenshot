@@ -83,8 +83,6 @@ public partial class ExternalCommandConfigurationImpl : IExternalCommandConfigur
             if (!DeletedBuildInCommands.Contains(command))
             {
                 DeletedBuildInCommands.Add(command);
-                // Re-assign to trigger SetRawValue dirty tracking for the in-place Add
-                DeletedBuildInCommands = DeletedBuildInCommands;
             }
         }
         MarkAsDirty();

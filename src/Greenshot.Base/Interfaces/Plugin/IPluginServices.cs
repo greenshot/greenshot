@@ -31,7 +31,8 @@ namespace Greenshot.Base.Interfaces.Plugin
     public interface IPluginServices
     {
         /// <summary>
-        /// Register an INI section, it's loaded with the configuration of Greenshot.
+        /// Register an INI section, it's filled from greenshot.ini (defaults, user and constants files) right away,
+        /// so its values can be used directly after this call. The section of a plugin which isn't loaded stays in the file.
         /// </summary>
         void AddConfiguration<TSection>(TSection section) where TSection : class, IIniSection;
 

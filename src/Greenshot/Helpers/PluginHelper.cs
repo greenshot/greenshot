@@ -162,7 +162,7 @@ namespace Greenshot.Helpers
         /// </list>
         /// </summary>
         /// <summary>
-        /// Load the plugins and let them register (synchronous, this also loads the configuration), then start them
+        /// Load the plugins and let them register (synchronous, their configuration sections are filled from greenshot.ini when added), then start them
         /// in parallel without waiting: the returned task completes when all started (or failed / timed out), it never throws.
         /// </summary>
         /// <returns>Task which completes when all plugins started</returns>
@@ -179,7 +179,7 @@ namespace Greenshot.Helpers
                 pluginFiles.AddRange(FindPluginsOnPath(ApplicationPath));
             }
 
-            // Instantiate all plugins first (needed so they can register sections before Load()).
+            // Instantiate all plugins first, greenshot.ini is already loaded so the include / exclude settings apply
             var plugins = new List<IGreenshotPlugin>();
             foreach (string pluginFile in pluginFiles)
             {
@@ -219,7 +219,7 @@ namespace Greenshot.Helpers
                 }
             }
 
-            // ── Registration: configuration sections, services, views (no I/O) ───
+            // ── Registration: configuration sections (filled from the already read greenshot.ini), services, views ───
             var activeIniConfig = IniConfigRegistry.Get();
             var registrations = new List<(IGreenshotPlugin Plugin, PluginServices Services)>();
             foreach (var plugin in plugins)
@@ -236,9 +236,6 @@ namespace Greenshot.Helpers
                     Log.Error(e);
                 }
             }
-
-            // ── Single file read (all sections populated at once) ─────────────────
-            IniConfigRegistry.Get().Load();
 
             // ── What needs the configuration ─────────────────────────────────────
             bool recipesEnabled = RecipeConfigHelper.IsRecipeFeatureEnabled();

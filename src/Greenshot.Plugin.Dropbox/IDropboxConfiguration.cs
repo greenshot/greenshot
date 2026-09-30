@@ -30,7 +30,7 @@ namespace Greenshot.Plugin.Dropbox;
 
 [IniSection("Dropbox")]
 [Description("Greenshot Dropbox Plugin configuration")]
-public interface IDropboxConfiguration : IIniSection, IAfterLoad, IBeforeSave
+public interface IDropboxConfiguration : IIniSection, IAfterLoad
 {
     [Description("Whether to show a quicklink in the tray context menu for configuring this plugin.")]
     [DefaultValue(false)]
@@ -49,6 +49,7 @@ public interface IDropboxConfiguration : IIniSection, IAfterLoad, IBeforeSave
     [DefaultValue(true)]
     bool AfterUploadLinkToClipBoard { get; set; }
 
+    /// <summary>The refresh token as stored in the ini: encrypted, use Decrypt() before passing it to OAuth and Encrypt() when storing a new one.</summary>
     [Description("Dropbox refresh Token (stored encrypted)")]
     string RefreshToken { get; set; }
 

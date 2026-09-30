@@ -416,6 +416,40 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
+        /// The cultures Windows knows, by name and IETF language tag
+        /// </summary>
+        private static readonly Lazy<Dictionary<string, CultureInfo>> KnownCultures = new(() =>
+        {
+            var cultures = new Dictionary<string, CultureInfo>(StringComparer.OrdinalIgnoreCase);
+            foreach (var culture in CultureInfo.GetCultures(CultureTypes.AllCultures))
+            {
+                if (!string.IsNullOrEmpty(culture.Name))
+                {
+                    cultures[culture.Name] = culture;
+                }
+                string ietfLanguageTag = culture.IetfLanguageTag;
+                if (!string.IsNullOrEmpty(ietfLanguageTag) && !cultures.ContainsKey(ietfLanguageTag))
+                {
+                    cultures[ietfLanguageTag] = culture;
+                }
+            }
+            return cultures;
+        });
+
+        /// <summary>
+        /// Get the CultureInfo for an IETF language tag without an exception for tags Windows doesn't know,
+        /// some language files use those (e.g. de-x-franconia, fr-QC).
+        /// </summary>
+        /// <param name="ietf">string with the IETF language tag</param>
+        /// <param name="cultureInfo">the CultureInfo or null</param>
+        /// <returns>true when the culture is known</returns>
+        public static bool TryGetCultureInfo(string ietf, out CultureInfo cultureInfo)
+        {
+            cultureInfo = null;
+            return !string.IsNullOrEmpty(ietf) && KnownCultures.Value.TryGetValue(ietf, out cultureInfo);
+        }
+
+        /// <summary>
         /// Scan the files in all directories
         /// </summary>
         private static void ScanFiles()
@@ -444,14 +478,9 @@ namespace Greenshot.Base.Core
 
                         LanguageFile languageFile = null;
                         bool loadDetails = false;
-                        try
+                        // Some language files use a tag Windows doesn't know (e.g. de-x-franconia), their details come from the file
+                        if (TryGetCultureInfo(ietf, out var cultureInfo))
                         {
-                            var cultureInfo = CultureInfo.GetCultureInfoByIetfLanguageTag(ietf);
-                            if (cultureInfo == null)
-                            {
-                                continue;
-                            }
-
                             languageFile = new LanguageFile
                             {
                                 Filepath = languageFilepath,
@@ -464,7 +493,7 @@ namespace Greenshot.Base.Core
                                 loadDetails = true;
                             }
                         }
-                        catch (Exception)
+                        else
                         {
                             loadDetails = true;
                         }

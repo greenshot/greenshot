@@ -196,8 +196,31 @@ namespace Greenshot.Base.Core
             }
         }
 
+        /// <summary>
+        /// Lower case all entries of the list in place
+        /// </summary>
+        /// <param name="entries">List of string</param>
+        /// <returns>true when an entry was changed</returns>
+        private static bool LowerCaseEntries(List<string> entries)
+        {
+            bool changed = false;
+            for (int i = 0; i < entries.Count; i++)
+            {
+                var lowerCase = entries[i]?.ToLower();
+                if (!string.Equals(lowerCase, entries[i], StringComparison.Ordinal))
+                {
+                    entries[i] = lowerCase;
+                    changed = true;
+                }
+            }
+            return changed;
+        }
+
         public void OnAfterLoad()
         {
+            // Remember the version the file was saved with, before a save (see OnBeforeSave) replaces it
+            LoadedWithVersion = LastSaveWithVersion;
+
             if (string.IsNullOrEmpty(LastSaveWithVersion))
             {
                 try
@@ -226,6 +249,8 @@ namespace Greenshot.Base.Core
                 if (LastSaveWithVersion != null && LastSaveWithVersion.StartsWith("1.1"))
                 {
                     ExcludeDestinations.Remove("OneNote");
+                    // Changed in place, the section doesn't notice that by itself
+                    MarkAsDirty();
                 }
             }
 
@@ -234,8 +259,8 @@ namespace Greenshot.Base.Core
             if (OutputDestinations.Count == 0)
             {
                 OutputDestinations.Add("Editor");
-                // Re-assign to trigger SetRawValue dirty tracking for the in-place Add
-                OutputDestinations = OutputDestinations;
+                // The list was changed in place: re-assigning the same instance is a no-op for this INotifyPropertyChanged section
+                MarkAsDirty();
             }
 
             // Prevent both settings at once, bug #3435056
@@ -255,8 +280,11 @@ namespace Greenshot.Base.Core
                 };
             }
 
+            // The lists are changed in place, which the section doesn't notice: mark it dirty so the fix is saved.
+            // Since Dapplo.Ini 1.1 the dirty flags are cleared before IAfterLoad, so only do this when something changed.
             if (NoGDICaptureForProduct != null)
             {
+                bool changed = false;
                 // Fix error in configuration
                 if (NoGDICaptureForProduct.Count >= 2)
                 {
@@ -264,19 +292,20 @@ namespace Greenshot.Base.Core
                     {
                         NoGDICaptureForProduct.RemoveRange(0, 2);
                         NoGDICaptureForProduct.Add("Intellij Idea");
+                        changed = true;
                     }
                 }
 
-                for (int i = 0; i < NoGDICaptureForProduct.Count; i++)
+                changed |= LowerCaseEntries(NoGDICaptureForProduct);
+                if (changed)
                 {
-                    NoGDICaptureForProduct[i] = NoGDICaptureForProduct[i].ToLower();
+                    MarkAsDirty();
                 }
-
-                MarkAsDirty();
             }
 
             if (NoDWMCaptureForProduct != null)
             {
+                bool changed = false;
                 // Fix error in configuration
                 if (NoDWMCaptureForProduct.Count >= 3)
                 {
@@ -284,15 +313,15 @@ namespace Greenshot.Base.Core
                     {
                         NoDWMCaptureForProduct.RemoveRange(0, 3);
                         NoDWMCaptureForProduct.Add("Citrix ICA Client");
+                        changed = true;
                     }
                 }
 
-                for (int i = 0; i < NoDWMCaptureForProduct.Count; i++)
+                changed |= LowerCaseEntries(NoDWMCaptureForProduct);
+                if (changed)
                 {
-                    NoDWMCaptureForProduct[i] = NoDWMCaptureForProduct[i].ToLower();
+                    MarkAsDirty();
                 }
-
-                MarkAsDirty();
             }
 
             // Normalize paths to heal any legacy escaping issues (e.g. duplicated backslashes)
@@ -301,8 +330,8 @@ namespace Greenshot.Base.Core
                 var normalized = NormalizePath(OutputFilePath);
                 if (!string.Equals(normalized, OutputFilePath, StringComparison.Ordinal))
                 {
+                    // The setter marks the section dirty, so the healed path is saved
                     OutputFilePath = normalized;
-                    MarkAsDirty();
                 }
             }
 
@@ -312,7 +341,6 @@ namespace Greenshot.Base.Core
                 if (!string.Equals(normalized, OutputFileAsFullpath, StringComparison.Ordinal))
                 {
                     OutputFileAsFullpath = normalized;
-                    MarkAsDirty();
                 }
             }
 

@@ -20,8 +20,8 @@
  */
 
 using System;
-using System.Diagnostics;
 using System.IO;
+using System.Reactive.Linq;
 using System.Windows.Forms;
 using System.Windows.Threading;
 using Dapplo.Windows.AppRestartManager;
@@ -52,6 +52,13 @@ namespace Greenshot.Helpers
         public static string StateDirectory => Path.Combine(Path.GetTempPath(), "Greenshot", "RestartState");
 
         /// <summary>
+        /// How long the end of the session waits for the editors to save their state
+        /// </summary>
+        private static readonly TimeSpan SaveStateTimeout = TimeSpan.FromSeconds(4);
+
+        private static IDisposable _endSessionSubscription;
+
+        /// <summary>
         /// Registers Greenshot for automatic restart by the Windows Restart Manager.
         /// When the Restart Manager restarts Greenshot, it will use the <c>--restore</c> argument
         /// so that Greenshot can restore any open image editors.
@@ -62,22 +69,28 @@ namespace Greenshot.Helpers
             // Don't restart if the application crashes
             ApplicationRestartManager.RegisterForRestart(commandLineArgs: "--restore");
 
-            ApplicationRestartManager.ListenForEndSession(
-                onQuerySession: (endSessionReason) => {
-                    // Accept that an update will take place and allow the session to end
-                    return true;
-                },
-                onEndSession: (endSessionReason) =>
-                {
-                    // Do the work, save state and exit Greenshot
-                    Debug.WriteLine($"Shutting down application due to {endSessionReason}");
-                    SaveEditorState();
-                    return true;
-                }
-                ).Subscribe(endSessionMessage =>
-                {
-                    Debug.WriteLine($"{endSessionMessage.Msg} with session reason: {endSessionMessage.EndSessionReason}");
-                });
+            // WM_QUERYENDSESSION is not answered, which allows the session to end (an update will take place).
+            // OnNext is called on the SharedMessageWindow thread, not on the UI thread.
+            _endSessionSubscription?.Dispose();
+            _endSessionSubscription = ApplicationRestartManager.ListenForEndSession()
+                .Where(endSessionMessage => endSessionMessage.IsSessionEnding)
+                .Subscribe(OnSessionEnding, ex => Log.Error("Error in the end session stream", ex));
+        }
+
+        /// <summary>
+        /// The session really ends, the process can be terminated as soon as this returns: save the state synchronously and exit Greenshot
+        /// </summary>
+        /// <param name="endSessionMessage">EndSessionMessage</param>
+        private static void OnSessionEnding(EndSessionMessage endSessionMessage)
+        {
+            Log.InfoFormat("Shutting down the application due to {0}", endSessionMessage.EndSessionReason);
+            SaveEditorState();
+            // Don't wait for the exit, the editors might want to ask the user something
+            UiDispatcher.Current.RunOnUiAsync(() =>
+            {
+                Application.Exit();
+                Environment.Exit(0);
+            }).FireAndLog("Exit after the end of the session", Log);
         }
 
         /// <summary>
@@ -120,11 +133,11 @@ namespace Greenshot.Helpers
                     }
                 }
 
-                var editors = ImageEditorForm.Editors.ToArray();
-                // The end session message arrives on the UI thread, then this runs directly (the session doesn't wait for posts)
-                UiDispatcher.Current.RunOnUiAsync(() =>
+                // The editors live on the UI thread, but the end of the session is reported on the SharedMessageWindow thread
+                // and the process can be terminated as soon as it was handled: wait (limited) until the state is saved.
+                var saveTask = UiDispatcher.Current.RunOnUiAsync(() =>
                 {
-                    foreach (var editor in editors)
+                    foreach (var editor in ImageEditorForm.Editors.ToArray())
                     {
                         try
                         {
@@ -139,10 +152,16 @@ namespace Greenshot.Helpers
                             Log.Warn("Failed to save state for one editor.", ex);
                         }
                     }
-                    // Make sure the application exits after saving state
-                    Application.Exit();
-                    Environment.Exit(0);
-                }).FireAndLog("Save the editor state", Log);
+                });
+                // R1 exception: this runs inside the window procedure of the SharedMessageWindow for WM_ENDSESSION,
+                // Windows can terminate the process as soon as it returns, so there is nothing to await on.
+#pragma warning disable RS0030, VSTHRD002
+                bool saved = saveTask.Wait(SaveStateTimeout);
+#pragma warning restore RS0030, VSTHRD002
+                if (!saved)
+                {
+                    Log.WarnFormat("Saving the editor state didn't finish within {0}.", SaveStateTimeout);
+                }
             }
             catch (Exception ex)
             {

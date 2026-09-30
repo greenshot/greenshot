@@ -21,7 +21,7 @@
 
 using System;
 using System.Windows.Forms;
-using Dapplo.Windows.Messages.Enumerations;
+using Dapplo.Windows.Messages.Enums;
 
 namespace Greenshot.Editor.Controls
 {

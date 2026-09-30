@@ -45,6 +45,12 @@ namespace Greenshot.UI.SelfService
         public ChecksumSectionViewModel ChecksumSection { get; }
 #if DEBUG
         public IntegrationDebugSectionViewModel IntegrationDebugSection { get; }
+#else
+        /// <summary>
+        /// The integration debug section only exists in debug builds, but SelfServiceWindow.xaml binds to it in every build:
+        /// a null value lets these bindings resolve silently instead of logging a binding error (the panel is never shown).
+        /// </summary>
+        public object IntegrationDebugSection => null;
 #endif
 
         public string WindowTitle

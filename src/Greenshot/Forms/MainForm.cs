@@ -195,6 +195,16 @@ namespace Greenshot.Forms
                     return;
                 }
 
+                // This is the Greenshot instance which runs: read greenshot.ini now, before anything (the language, the plugins,
+                // the main form) uses the configuration. The plugins add their sections later, they are filled from the loaded content.
+                IniConfigRegistry.Get().Load();
+
+                // Apply the command line language before the language is used the first time
+                if (options.Language != null)
+                {
+                    IniConfigRegistry.GetSection<ICoreConfiguration>().Language = options.Language;
+                }
+
                 // Make sure we handle END Session correctly
                 RestartManagerHelper.RegisterForRestart();
 
@@ -355,7 +365,7 @@ namespace Greenshot.Forms
             // Make the notify icon available
             SimpleServiceProvider.Current.AddService(notifyIcon);
 
-            // Load all the plugins, and while doing to load the configuration
+            // Load all the plugins, their configuration sections are filled from the already loaded greenshot.ini
             // The plugins start in parallel, the main window doesn't wait for them
             PluginHelper.Instance.LoadPluginsAsync().FireAndLog("Start the plugins", Log);
 
@@ -366,8 +376,8 @@ namespace Greenshot.Forms
             // This forces the registration of all processors inside Greenshot itself.
             RegisterInternalProcessors();
 
-            // Synchronize triggers and recipes with the newly loaded greenshot.ini configuration
-            TriggerManager.Instance.InitializeDefaultTriggers();
+            // The recipe settings (disabled recipes, recipe files) belong to the Recipe Editor plugin and recipe files can use steps
+            // of other plugins, both are only available now that the plugins registered themselves.
             RecipeManager.Instance.ReloadRecipes();
 
             RecipeManager.Instance.RecipesChanged += (s, e) =>
@@ -376,12 +386,7 @@ namespace Greenshot.Forms
                 UiDispatcher.InvokeAsync(UpdateRecipesMenu).FireAndLog("Update recipes menu", Log);
             };
 
-            // Apply the command line language after LoadPlugins, as it reloads the configuration from disk
-            if (options.Language != null)
-            {
-                _conf.Language = options.Language;
-            }
-
+            // The command line language was already applied in Start, right after greenshot.ini was read
             // if language is not set, show language dialog
             if (string.IsNullOrEmpty(_conf.Language))
             {
@@ -854,7 +859,7 @@ namespace Greenshot.Forms
                     var result = Recipes.RecipeManager.Instance.LoadRecipeFromFile(recipePath, interactiveApproval: true, forceApprovalPrompt: true);
                     if (result.IsValid)
                     {
-                        var recipeConfig = IniConfigRegistry.GetSection<IRecipeConfiguration>();
+                        var recipeConfig = RecipeConfigHelper.TryGetRecipeConfiguration();
                         string existing = recipeConfig?.RecipeFiles ?? "";
                         var configuredPaths = new List<string>();
                         var currentPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);

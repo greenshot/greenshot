@@ -8,6 +8,11 @@
     <PackageReference Include="Tools.InnoSetup" Version="7.1.0" />
   </ItemGroup>
   
+  <ItemGroup>
+    <PackageReference Update="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="5.6.0" />
+    <PackageReference Update="Microsoft.VisualStudio.Threading.Analyzers" Version="18.7.23" />
+  </ItemGroup>
+  
   <Target Name="GenerateSbom" BeforeTargets="Generate hashes" DependsOnTargets="PrunePluginFiles" Condition="'$(Configuration)' == 'Release'">
     <PropertyGroup>
       <SbomVersion Condition="'$(NuGetPackageVersion)' != ''">$(NuGetPackageVersion)</SbomVersion>

@@ -22,10 +22,8 @@
 using System;
 using System.Reflection;
 using System.Resources;
-using System.Runtime.InteropServices;
 using System.IO;
 using Dapplo.Windows.Multimedia;
-using Dapplo.Windows.Multimedia.Enums;
 using Greenshot.Base.Core;
 using Dapplo.Ini;
 using log4net;
@@ -40,12 +38,11 @@ namespace Greenshot.Helpers
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(SoundHelper));
         private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
-        private static GCHandle? _gcHandle;
         private static byte[] _soundBuffer;
 
         public static void Initialize()
         {
-            if (_gcHandle == null)
+            if (_soundBuffer == null)
             {
                 try
                 {
@@ -66,9 +63,6 @@ namespace Greenshot.Helpers
                             Log.WarnFormat("couldn't load {0}: {1}", CoreConfig.NotificationSound, ex.Message);
                         }
                     }
-
-                    // Pin sound so it can't be moved by the Garbage Collector, this was the cause for the bad sound
-                    _gcHandle = GCHandle.Alloc(_soundBuffer, GCHandleType.Pinned);
                 }
                 catch (Exception e)
                 {
@@ -79,23 +73,22 @@ namespace Greenshot.Helpers
 
         public static void Play()
         {
-            if (_soundBuffer != null)
+            if (_soundBuffer == null)
             {
-                //Thread playSoundThread = new Thread(delegate() {
-                var flags = SoundSettings.Async | SoundSettings.Memory| SoundSettings.NoWait| SoundSettings.NoStop;
-                try
-                {
-                    if (_gcHandle != null) WinMm.Play(_gcHandle.Value.AddrOfPinnedObject(), flags);
-                }
-                catch (Exception e)
-                {
-                    Log.Error("Error in play.", e);
-                }
+                return;
+            }
 
-                //});
-                //playSoundThread.Name = "Play camera sound";
-                //playSoundThread.IsBackground = true;
-                //playSoundThread.Start();
+            try
+            {
+                // PlayWave copies the wave data and keeps it alive while the sound plays, so the buffer doesn't need to be pinned
+                if (!WinMm.PlayWave(_soundBuffer))
+                {
+                    Log.Warn("Couldn't play the notification sound.");
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error("Error in play.", e);
             }
         }
 
@@ -123,12 +116,9 @@ namespace Greenshot.Helpers
         {
             try
             {
-                if (_gcHandle != null)
-                {
-                    WinMm.StopPlaying();
-                    _gcHandle.Value.Free();
-                    _gcHandle = null;
-                }
+                // Stops the sound and frees the copy of the wave data
+                WinMm.StopPlaying();
+                _soundBuffer = null;
             }
             catch (Exception e)
             {

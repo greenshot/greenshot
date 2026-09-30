@@ -19,7 +19,7 @@ using Dapplo.Windows.Gdi32;
 using Dapplo.Windows.Gdi32.SafeHandles;
 using Dapplo.Windows.Kernel32;
 using Dapplo.Windows.Kernel32.Enums;
-using Dapplo.Windows.Messages.Enumerations;
+using Dapplo.Windows.Messages.Enums;
 using Dapplo.Windows.User32;
 using Dapplo.Windows.User32.Enums;
 using Dapplo.Windows.User32.Structs;
@@ -795,14 +795,14 @@ namespace Greenshot.Base.Core
                     }
 
                     // If the formLocation is not inside the visible area
-                    if (!workingArea.AreRectangleCornersVisisble(windowRectangle))
+                    if (!workingArea.AreRectangleCornersVisible(windowRectangle))
                     {
                         // If none found we find the biggest screen
 
                         foreach (var displayInfo in DisplayInfo.AllDisplayInfos)
                         {
                             var newWindowRectangle = new NativeRect(displayInfo.WorkingArea.Location, windowRectangle.Size);
-                            if (workingArea.AreRectangleCornersVisisble(newWindowRectangle))
+                            if (workingArea.AreRectangleCornersVisible(newWindowRectangle))
                             {
                                 formLocation = displayInfo.Bounds.Location;
                                 doesCaptureFit = true;
@@ -888,7 +888,10 @@ namespace Greenshot.Base.Core
 
                         try
                         {
+                            // VSTHRD103: CaptureRectangleAsync may use Windows Graphics Capture, this needs the immediate GDI capture of the screen as the temp form shows it right now
+#pragma warning disable VSTHRD103
                             using Bitmap whiteBitmap = WindowCapture.CaptureRectangle(captureRectangle);
+#pragma warning restore VSTHRD103
                             // Apply a white color
                             tempForm.BackColor = Color.Black;
                             // Make sure everything is visible
@@ -898,7 +901,10 @@ namespace Greenshot.Base.Core
 
                             // Make sure all changes are processed and visible
                             await WaitForCompositionAsync().ConfigureAwait(true);
+                            // VSTHRD103: CaptureRectangleAsync may use Windows Graphics Capture, this needs the immediate GDI capture of the screen as the temp form shows it right now
+#pragma warning disable VSTHRD103
                             using Bitmap blackBitmap = WindowCapture.CaptureRectangle(captureRectangle);
+#pragma warning restore VSTHRD103
                             capturedBitmap = ApplyTransparency(blackBitmap, whiteBitmap);
                         }
                         catch (Exception e)
@@ -936,7 +942,10 @@ namespace Greenshot.Base.Core
                         // Make sure all changes are processed and visible
                         await WaitForCompositionAsync().ConfigureAwait(true);
                         // Capture from the screen
+                        // VSTHRD103: CaptureRectangleAsync may use Windows Graphics Capture, this needs the immediate GDI capture of the screen as the temp form shows it right now
+#pragma warning disable VSTHRD103
                         capturedBitmap = WindowCapture.CaptureRectangle(captureRectangle);
+#pragma warning restore VSTHRD103
                     }
 
                     if (capturedBitmap != null)
@@ -1171,9 +1180,9 @@ namespace Greenshot.Base.Core
             // Show window in foreground.
             if (threadId1 != threadId2)
             {
-                User32Api.AttachThreadInput(threadId1, threadId2, 1);
+                User32Api.AttachThreadInput(threadId1, threadId2, true);
                 User32Api.SetForegroundWindow(hWnd);
-                User32Api.AttachThreadInput(threadId1, threadId2, 0);
+                User32Api.AttachThreadInput(threadId1, threadId2, false);
             }
             else
             {

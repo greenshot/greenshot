@@ -677,7 +677,8 @@ namespace Greenshot.Base.Core
         {
             return mode switch
             {
-                DateCultureMode.UILanguage => CultureInfo.GetCultureInfo(Language.CurrentLanguage),
+                // Not every UI language is a culture Windows knows (e.g. de-x-franconia), then the current culture formats the date
+                DateCultureMode.UILanguage => Language.TryGetCultureInfo(Language.CurrentLanguage, out var uiCulture) ? uiCulture : CultureInfo.CurrentCulture,
                 _ => CultureInfo.CurrentCulture
             };
         }

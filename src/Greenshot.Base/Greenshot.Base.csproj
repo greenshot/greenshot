@@ -12,18 +12,20 @@
     <PackageReference Include="Dapplo.HttpExtensions.JsonNet" Version="2.0.12" />
     <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="3.0.1" />
     <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="10.0.12" />
-    <PackageReference Include="Dapplo.Windows.Clipboard" Version="2.0.89" />
-    <PackageReference Include="Dapplo.Windows.Dpi" Version="2.0.89" />
-    <PackageReference Include="Dapplo.Windows.Gdi32" Version="2.0.89" />
-    <PackageReference Include="Dapplo.Windows.Icons" Version="2.0.89" />
-    <PackageReference Include="Dapplo.Windows.Kernel32" Version="2.0.89" />
-    <PackageReference Include="Dapplo.Windows.Multimedia" Version="2.0.89" />
+    <PackageReference Include="Dapplo.Windows.Clipboard" Version="3.0.0" />
+    <PackageReference Include="Dapplo.Windows.DesktopWindowsManager" Version="3.0.0" />
+    <PackageReference Include="Dapplo.Windows.Dpi" Version="3.0.0" />
+    <PackageReference Include="Dapplo.Windows.Gdi32" Version="3.0.0" />
+    <PackageReference Include="Dapplo.Windows.Icons" Version="3.0.0" />
+    <PackageReference Include="Dapplo.Windows.Input" Version="3.0.0" />
+    <PackageReference Include="Dapplo.Windows.Kernel32" Version="3.0.0" />
+    <PackageReference Include="Dapplo.Windows.Multimedia" Version="3.0.0" />
     <PackageReference Include="SixLabors.ImageSharp" Version="2.1.13" />
     <PackageReference Include="HtmlAgilityPack" Version="1.13.0" />
     <PackageReference Include="log4net" version="3.4.0" />
     <PackageReference Include="Svg" Version="3.4.8" />
-    <PackageReference Include="Dapplo.Ini" Version="1.0.162" />
-    <PackageReference Include="Dapplo.Ini.Generator" Version="1.0.162" />
+    <PackageReference Include="Dapplo.Ini" Version="1.1.6" />
+    <PackageReference Include="Dapplo.Ini.Generator" Version="1.1.6" />
     <PackageReference Include="System.Resources.Extensions" Version="10.0.12" />
     <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.19041.1" />
     <Reference Include="Accessibility" />
@@ -39,5 +41,9 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="log4net-embedded.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Update="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="5.6.0" />
+    <PackageReference Update="Microsoft.VisualStudio.Threading.Analyzers" Version="18.7.23" />
   </ItemGroup>
 </Project>
