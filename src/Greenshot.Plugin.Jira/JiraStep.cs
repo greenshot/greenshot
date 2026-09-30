@@ -27,6 +27,7 @@ using Dapplo.HttpExtensions;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Pipeline;
@@ -92,11 +93,8 @@ namespace Greenshot.Plugin.Jira
             }
 
             string formatStr = NodeConfig.GetParameter<string>("Format");
-            OutputFormat uploadFormat = Config?.UploadFormat ?? OutputFormat.png;
-            if (!string.IsNullOrWhiteSpace(formatStr) && Enum.TryParse<OutputFormat>(formatStr, true, out var parsedFormat))
-            {
-                uploadFormat = parsedFormat;
-            }
+            var formatRegistry = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>(true);
+            string uploadFormat = formatRegistry.ResolveFormatId(formatStr, Config?.UploadFormat ?? WellKnownFileFormats.Png);
 
             int jpegQuality = NodeConfig.GetParameter<int?>("JpegQuality") ?? (Config?.UploadJpegQuality ?? 80);
             bool reduceColors = NodeConfig.GetParameter<bool?>("ReduceColors") ?? (Config?.UploadReduceColors ?? false);

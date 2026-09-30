@@ -30,6 +30,7 @@ using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.RegularExpressions;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Core.FileFormatHandlers;
 using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
@@ -925,7 +926,16 @@ namespace Greenshot.Base.Core
             WriteToStream(requestStream);
         }
 
-        public string ContentType => "image/" + _outputSettings.Format;
+        public string ContentType
+        {
+            get
+            {
+                var registry = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>();
+                return registry != null && registry.TryGet(_outputSettings.Format, out var format)
+                    ? format.MimeType
+                    : "application/octet-stream";
+            }
+        }
         public string Filename { get; set; }
     }
 }

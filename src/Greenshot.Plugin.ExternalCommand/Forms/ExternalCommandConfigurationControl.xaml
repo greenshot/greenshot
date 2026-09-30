@@ -4,8 +4,6 @@
              xmlns:wpf="clr-namespace:Greenshot.Base.Wpf;assembly=Greenshot.Base"
              xmlns:enums="clr-namespace:Greenshot.Base.Core.Enums;assembly=Greenshot.Base">
     <UserControl.Resources>
-        <wpf:EnumDisplayer Type="{x:Type enums:OutputFormat}" x:Key="outputFormats"/>
-
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
 
         <Style TargetType="Label">
@@ -215,8 +213,10 @@
                                 </Grid.ColumnDefinitions>
                                 <Label Grid.Column="0" Content="{wpf:Translate externalcommand.label_outputimageformat}"/>
                                 <ComboBox Grid.Column="1"
-                                          ItemsSource="{Binding Source={StaticResource outputFormats}, Path=DisplayNames}"
-                                          SelectedValue="{Binding SelectedCommand.OutputFormat, Converter={StaticResource outputFormats}}"/>
+                                          ItemsSource="{Binding SelectedCommand.OutputFormats}"
+                                          DisplayMemberPath="DisplayNameWithPreferredExtension"
+                                          SelectedValuePath="Id"
+                                          SelectedValue="{Binding SelectedCommand.OutputFormat, Mode=TwoWay}"/>
                             </Grid>
 
                             <!-- Run in background -->

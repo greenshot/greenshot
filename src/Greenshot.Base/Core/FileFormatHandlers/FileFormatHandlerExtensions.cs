@@ -71,7 +71,9 @@ namespace Greenshot.Base.Core.FileFormatHandlers
         public static bool Supports(this IFileFormatHandler fileFormatHandler, FileFormatHandlerActions fileFormatHandlerAction, string extension)
         {
             extension = NormalizeExtension(extension);
-            return fileFormatHandler.SupportedExtensions.ContainsKey(fileFormatHandlerAction) && fileFormatHandler.SupportedExtensions[fileFormatHandlerAction].Contains(extension);
+            return fileFormatHandler.SupportedExtensions.ContainsKey(fileFormatHandlerAction) &&
+                   fileFormatHandler.SupportedExtensions[fileFormatHandlerAction].Any(supportedExtension =>
+                       string.Equals(NormalizeExtension(supportedExtension), extension, System.StringComparison.OrdinalIgnoreCase));
         }
 
         /// <summary>
@@ -100,7 +102,7 @@ namespace Greenshot.Base.Core.FileFormatHandlers
 
             foreach (var fileFormatHandler in saveFileFormatHandlers)
             {
-                if (fileFormatHandler.TrySaveToStream(bitmap, destination, extension, surface))
+                if (fileFormatHandler.TrySaveToStream(bitmap, destination, extension, surface, surfaceOutputSettings))
                 {
                     return true;
                 }

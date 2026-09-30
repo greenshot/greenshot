@@ -672,7 +672,7 @@
                                     <Label Grid.Row="2" Grid.Column="0" Content="{wpf:Translate settings_primaryimageformat}" Margin="0,0,12,0"/>
                                     <ComboBox Grid.Row="2" Grid.Column="1"
                                               ItemsSource="{Binding ImageFormats}"
-                                              DisplayMemberPath="Description"
+                                              DisplayMemberPath="DisplayNameWithPreferredExtension"
                                               SelectedValuePath="Value"
                                               SelectedValue="{Binding CoreConfiguration.OutputFileFormat, Mode=TwoWay}"
                                               IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputFileFormat}"/>

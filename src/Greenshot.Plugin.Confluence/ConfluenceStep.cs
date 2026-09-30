@@ -26,6 +26,7 @@ using System.Threading.Tasks;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Pipeline;
@@ -83,22 +84,17 @@ namespace Greenshot.Plugin.Confluence
             }
 
             string formatStr = NodeConfig.GetParameter<string>("Format");
-            OutputFormat uploadFormat = Config?.UploadFormat ?? OutputFormat.png;
-            if (!string.IsNullOrWhiteSpace(formatStr) && Enum.TryParse<OutputFormat>(formatStr, true, out var parsedFormat))
-            {
-                uploadFormat = parsedFormat;
-            }
+            var formatRegistry = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>(true);
+            string uploadFormat = formatRegistry.ResolveFormatId(formatStr, Config?.UploadFormat ?? WellKnownFileFormats.Png);
 
             int jpegQuality = NodeConfig.GetParameter<int?>("JpegQuality") ?? (Config?.UploadJpegQuality ?? 80);
             bool reduceColors = NodeConfig.GetParameter<bool?>("ReduceColors") ?? (Config?.UploadReduceColors ?? false);
             var outputSettings = new SurfaceOutputSettings(uploadFormat, jpegQuality, reduceColors);
 
             string filename = Path.GetFileName(FilenameHelper.GetFilename(uploadFormat, captureDetails));
-            string extension = "." + uploadFormat.ToString().ToLower();
-            if (!filename.ToLower().EndsWith(extension))
-            {
-                filename += extension;
-            }
+            string mimeType = formatRegistry != null && formatRegistry.TryGet(uploadFormat, out var formatDefinition)
+                ? formatDefinition.MimeType
+                : "image/png";
 
             if (!string.IsNullOrEmpty(pageId) && long.TryParse(pageId, out long parsedPageId))
             {
@@ -113,7 +109,7 @@ namespace Greenshot.Plugin.Confluence
                         if (connector != null)
                         {
                             var surfaceContainer = new SurfaceContainer(surface, outputSettings, filename);
-                            connector.AddAttachment(parsedPageId, "image/" + uploadFormat.ToString().ToLower(), null, filename, surfaceContainer);
+                            connector.AddAttachment(parsedPageId, mimeType, null, filename, surfaceContainer);
                             context.Properties["Confluence.PageId"] = parsedPageId.ToString();
                             context.LogStep($"Successfully uploaded capture to Confluence page '{parsedPageId}'.");
                         }

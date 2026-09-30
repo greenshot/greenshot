@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -19,20 +19,21 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace Greenshot.Base.Core.Enums;
+using System.Collections.Generic;
 
-/// <summary>
-/// These are the supported output formats
-/// </summary>
-public enum OutputFormat
+namespace Greenshot.Base.Core.FileFormat;
+
+public interface IFileFormatRegistry
 {
-    bmp,
-    gif,
-    jpg,
-    png,
-    tiff,
-    jxr,
-    greenshot,
-    ico
-    // , webp, tga, pbm - Awaiting approval to make ImageSharp implementation final
+    IReadOnlyCollection<FileFormatDefinition> Formats { get; }
+
+    void Register(FileFormatDefinition format);
+
+    bool RegisterIfMissing(FileFormatDefinition format);
+
+    bool TryGet(string id, out FileFormatDefinition format);
+
+    FileFormatDefinition GetByExtension(string extension);
+
+    FileFormatDefinition GetByMimeType(string mimeType);
 }

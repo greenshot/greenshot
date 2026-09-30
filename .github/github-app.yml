@@ -1,0 +1,12 @@
+instructions: |
+  Greenshot is a Windows desktop application targeting .NET Framework 4.8. Build it on Windows with MSBuild from Visual Studio or Build Tools.
+  Do not use `dotnet build`; the solution relies on MSBuild tasks that it does not support.
+  Use the "Start Greenshot (Debug)" script to build and launch the application.
+  Greenshot is produced at `src\Greenshot\bin\Debug\net480\Greenshot.exe`.
+  This application has no local web server to start.
+
+scripts:
+  - name: Build Greenshot (Debug)
+    command: msbuild src\Greenshot.sln /p:Configuration=Debug /restore /t:Build /v:minimal
+  - name: Start Greenshot (Debug)
+    command: msbuild src\Greenshot.sln /p:Configuration=Debug /restore /t:Build /v:minimal; if ($LASTEXITCODE -eq 0) { Start-Process -FilePath 'src\Greenshot\bin\Debug\net480\Greenshot.exe' }

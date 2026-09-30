@@ -47,7 +47,7 @@ using Greenshot.Base;
 using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
-using Greenshot.Base.Core.FileFormatHandlers;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Help;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Ocr;
@@ -304,6 +304,10 @@ namespace Greenshot.Forms
 
             // Make the main menu available
             SimpleServiceProvider.Current.AddService(contextMenu);
+
+            var supportedFileFormatRegistry = new FileFormatRegistry();
+            SimpleServiceProvider.Current.AddService<IFileFormatRegistry>(supportedFileFormatRegistry);
+            CoreFileFormats.RegisterCoreFileFormats(supportedFileFormatRegistry);
 
             notifyIcon.Icon = GreenshotResources.GetGreenshotIcon();
             // Make the notify icon available
@@ -605,8 +609,13 @@ namespace Greenshot.Forms
 
         private void CaptureFile(IDestination destination = null)
         {
-            var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
-            var extensions = fileFormatHandlers.ExtensionsFor(FileFormatHandlerActions.LoadFromFile).Select(e => $"*{e}").ToList();
+            var fileFormatRegistry = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>(true);
+            var extensions = fileFormatRegistry.GetLoadableFileFormats()
+                .SelectMany(format => format.LoadableExtensions)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(extension => extension, StringComparer.OrdinalIgnoreCase)
+                .Select(extension => $"*.{extension}")
+                .ToList();
 
             var openFileDialog = new OpenFileDialog
             {
