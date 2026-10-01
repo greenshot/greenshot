@@ -407,7 +407,7 @@ namespace Greenshot.Base.Core
         [Description("Programs (full paths) which the user allowed to list windows, take screenshots and run recipes through greenshot-mcp. Greenshot asks the first time a program connects.")]
         List<string> AiToolsAllowedClients { get; set; }
 
-        [Description("Additional locations of greenshot-mcp.exe (the file or its directory) which may connect, besides Greenshot's own directory; for development builds.")]
+        [Description("Additional locations of greenshot-mcp.exe (the file or its directory) which may connect, besides Greenshot's own directory; only used by Debug builds.")]
         List<string> AiToolsMcpServerPaths { get; set; }
 
         [Description("Processes whose windows are never listed or captured for AI tools (process names without .exe).")]

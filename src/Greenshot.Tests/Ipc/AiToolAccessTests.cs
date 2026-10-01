@@ -235,6 +235,23 @@ namespace Greenshot.Tests.Ipc
         }
 
         [Theory]
+        [InlineData(@"C:\Program Files\Greenshot\greenshot.com", "cli", true)]
+        [InlineData(@"C:\Program Files\Greenshot\Greenshot.exe", "cli", true)]
+        [InlineData(@"C:\Program Files\Greenshot\greenshot-proxy.exe", "url_scheme", true)]
+        [InlineData(@"C:\Program Files\Greenshot\greenshot-proxy.exe", "native_messaging", true)]
+        [InlineData(@"C:\Program Files\Greenshot\greenshot-proxy.exe", "open_with", true)]
+        [InlineData(@"C:\Program Files\Greenshot\greenshot-proxy.exe", "cli", false)]
+        [InlineData(@"C:\Program Files\Greenshot\greenshot.com", "native_messaging", false)]
+        [InlineData(@"C:\Users\me\Downloads\greenshot.com", "cli", false)]
+        [InlineData(@"C:\Program Files\Greenshot\evil.exe", "cli", false)]
+        [InlineData(null, "cli", false)]
+        public void PipeClients_MustBeGreenshotsOwnPrograms(string clientPath, string source, bool allowed)
+        {
+            Assert.Equal(allowed, IpcClientVerifier.IsAllowed(clientPath, source, @"C:\Program Files\Greenshot\", out string error));
+            Assert.Equal(allowed, error == null);
+        }
+
+        [Theory]
         [InlineData(@"C:\Windows\System32\cmd.exe", true)]
         [InlineData(@"C:\Program Files\PowerShell\7\pwsh.exe", true)]
         [InlineData(@"C:\Users\me\AppData\Local\AnthropicClaude\claude.exe", false)]

@@ -22,12 +22,15 @@ window even when other windows cover it. Images are scaled to 1568 pixels on the
 ## Safety
 
 * Greenshot doesn't trust what a connection says about itself. For the source `mcp` it checks the process on the
-  other end of the pipe: it must be `greenshot-mcp.exe` from Greenshot's own directory (or a path in
-  `AiToolsMcpServerPaths`, for development builds). The AI tool is the program which started `greenshot-mcp.exe`
+  other end of the pipe: it must be `greenshot-mcp.exe` from Greenshot's own directory (or, in Debug builds only, a path in
+  `AiToolsMcpServerPaths`). The AI tool is the program which started `greenshot-mcp.exe`
   (cmd.exe / PowerShell in between are skipped), identified by its executable path and verified Authenticode signer.
 * Each AI tool must be allowed by the user: the first request shows a question with the program's name, path and
   signer. Allowed programs are stored in `AiToolsAllowedClients` and can be removed in the settings (General, AI tools).
   A "No" is remembered until Greenshot restarts.
+* The other sources are checked the same way: only Greenshot.exe and greenshot.com (source `cli`) and
+  greenshot-proxy.exe (`url_scheme`, `open_with`, `native_messaging`) from Greenshot's directory may connect, so other
+  programs can't talk to the pipe directly. The pipe also refuses network logons.
 * `LIST_WINDOWS` and `CAPTURE` are only available to the `mcp` source, not to the command line, web pages
   (greenshot:// links) or the browser extension.
 * Windows of the processes in `AiToolsExcludedProcesses` (password managers by default) are never listed or captured,
@@ -50,8 +53,8 @@ Native AOT needs the "Desktop development with C++" workload of Visual Studio. I
 "'vswhere.exe' is not recognized", add `%ProgramFiles(x86)%\Microsoft Visual Studio\Installer` to the PATH.
 
 The native `greenshot-mcp.exe` is in `src/Greenshot.Mcp/bin/Release/net10.0-windows/win-x64/publish`. Placed next to
-`Greenshot.exe`, it starts Greenshot when it isn't running. To use a development build from another directory, add
-that directory to `AiToolsMcpServerPaths` in greenshot.ini.
+`Greenshot.exe`, it starts Greenshot when it isn't running. To use a development build from another directory with a
+Debug build of Greenshot, add that directory to `AiToolsMcpServerPaths` in greenshot.ini (ignored by Release builds).
 
 Claude Code:
 

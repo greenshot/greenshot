@@ -64,10 +64,19 @@ namespace Greenshot.Helpers.Ipc
         /// </summary>
         public McpClientIdentifierDelegate McpClientIdentifier { get; set; } = AiToolCaller.TryIdentify;
 
+        /// <summary>
+        /// Checks the program behind a connection for every source except "mcp", see <see cref="IpcClientVerifier"/>. Null: no check.
+        /// </summary>
+        public ClientVerifierDelegate ClientVerifier { get; set; }
+
+        public delegate bool ClientVerifierDelegate(NamedPipeServerStream pipe, string source, out string error);
+
         public delegate bool McpClientIdentifierDelegate(NamedPipeServerStream pipe, out AiToolClient client, out string error);
 
         public NamedPipeServer() : this(NamedPipeEndpoint.GetPipeName())
         {
+            // The real pipe only accepts Greenshot's own executables (servers on other pipe names, e.g. in tests, don't check)
+            ClientVerifier = IpcClientVerifier.Verify;
         }
 
         public NamedPipeServer(string pipeName)
@@ -230,8 +239,17 @@ namespace Greenshot.Helpers.Ipc
                                 break;
                             }
 
-                            // AI tools: don't trust the HELLO, check which program is connected and who started it
-                            if (string.Equals(envelope.Source, IpcSources.Mcp, StringComparison.OrdinalIgnoreCase))
+                            // Don't trust the HELLO: check which program is connected (and for AI tools, who started it)
+                            if (!string.Equals(envelope.Source, IpcSources.Mcp, StringComparison.OrdinalIgnoreCase))
+                            {
+                                if (ClientVerifier != null && !ClientVerifier(stream, envelope.Source, out string verifyError))
+                                {
+                                    Log.Warn($"[SECURITY] Named pipe connection rejected: {verifyError}");
+                                    await RejectAsync(stream, connectionWriteLock, $"[SECURITY] Connection rejected: {verifyError}", cancellationToken).ConfigureAwait(false);
+                                    break;
+                                }
+                            }
+                            else
                             {
                                 if (!McpClientIdentifier(stream, out connectionAiClient, out string identifyError))
                                 {

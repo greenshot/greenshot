@@ -88,15 +88,13 @@ namespace Greenshot.Helpers.Ipc
         public static bool TryIdentify(NamedPipeServerStream pipe, out AiToolClient client, out string error)
         {
             client = null;
-            if (!GetNamedPipeClientProcessId(pipe.SafePipeHandle, out uint serverProcessId))
+            if (!TryGetClientProcess(pipe, out uint serverProcessId, out string serverPath))
             {
                 error = $"Could not get the process of the connection (error {Marshal.GetLastWin32Error()}).";
                 return false;
             }
 
-            string serverPath = GetProcessPath(serverProcessId);
-            var configuration = IniConfigRegistry.GetSection<ICoreConfiguration>();
-            if (!IsTrustedMcpServer(serverPath, AppDomain.CurrentDomain.BaseDirectory, configuration?.AiToolsMcpServerPaths))
+            if (!IsTrustedMcpServer(serverPath, AppDomain.CurrentDomain.BaseDirectory, GetAdditionalMcpServerPaths()))
             {
                 error = $"Only {McpServerFileName} from Greenshot's directory may connect as an AI tool, not '{serverPath ?? "unknown"}'.";
                 return false;
@@ -112,6 +110,32 @@ namespace Greenshot.Helpers.Ipc
             client = Describe(clientPath);
             error = null;
             return true;
+        }
+
+        /// <summary>
+        /// The process id and executable of the client of a connected pipe.
+        /// </summary>
+        internal static bool TryGetClientProcess(NamedPipeServerStream pipe, out uint processId, out string exePath)
+        {
+            exePath = null;
+            if (!GetNamedPipeClientProcessId(pipe.SafePipeHandle, out processId))
+            {
+                return false;
+            }
+            exePath = GetProcessPath(processId);
+            return exePath != null;
+        }
+
+        /// <summary>
+        /// AiToolsMcpServerPaths, for development builds only: in a release build the ini file must not be able to add a server location.
+        /// </summary>
+        private static IEnumerable<string> GetAdditionalMcpServerPaths()
+        {
+#if DEBUG
+            return IniConfigRegistry.GetSection<ICoreConfiguration>()?.AiToolsMcpServerPaths;
+#else
+            return null;
+#endif
         }
 
         /// <summary>
@@ -156,7 +180,7 @@ namespace Greenshot.Helpers.Ipc
             return !string.IsNullOrEmpty(exePath) && LauncherProcesses.Contains(Path.GetFileName(exePath));
         }
 
-        private static string NormalizeDirectory(string directory)
+        internal static string NormalizeDirectory(string directory)
         {
             if (string.IsNullOrWhiteSpace(directory))
             {
