@@ -48,12 +48,15 @@ builder.Services
         };
         options.ServerInstructions =
             "Greenshot is the screenshot tool running on the user's Windows desktop. " +
-            "Use list_windows to see the open windows and displays, then capture a window by its handle to see its exact contents " +
-            "(also when it is covered by other windows). Capture a region (screen coordinates) to zoom in on details, " +
-            "and use ocr=true to get the text. Recipes are the user's own capture workflows: list_recipes, describe_recipe, run_recipe. " +
-            "The user has to allow AI tools in Greenshot the first time, and can exclude applications.";
+            "Use list_windows to see the open windows and displays, then capture_window with a window id to see the exact contents of a window " +
+            "(also when it is covered by other windows), capture_region to zoom in on details and capture_screen for all displays; " +
+            "ocr=true adds the text. The other tools are Greenshot recipes the user offers to AI tools. " +
+            "The user has to allow each AI tool in Greenshot the first time, and can exclude applications.";
     })
     .WithStdioServerTransport()
     .WithTools<GreenshotTools>(jsonOptions);
+
+// The user's recipes with an AI tool trigger are the other tools
+builder.Services.AddHostedService<RecipeToolSync>();
 
 await builder.Build().RunAsync().ConfigureAwait(false);

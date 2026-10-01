@@ -55,6 +55,11 @@ namespace Greenshot.Helpers.Ipc
         /// </summary>
         public string Signer { get; set; }
 
+        /// <summary>
+        /// The process id of greenshot-mcp.exe: one MCP session of the AI tool (window ids from list_windows belong to it)
+        /// </summary>
+        public uint ServerProcessId { get; set; }
+
         public override string ToString() => $"{DisplayName} ({ExePath})";
     }
 
@@ -108,6 +113,7 @@ namespace Greenshot.Helpers.Ipc
             }
 
             client = Describe(clientPath);
+            client.ServerProcessId = serverProcessId;
             error = null;
             return true;
         }

@@ -64,9 +64,10 @@ namespace Greenshot.Mcp
         /// <param name="request">Envelope with at least "command"</param>
         /// <param name="clientName">Name of the AI tool, shown to the user when Greenshot asks for consent</param>
         /// <param name="cancellationToken">CancellationToken</param>
-        public static async Task<JsonObject> SendAsync(JsonObject request, string? clientName, CancellationToken cancellationToken)
+        /// <param name="startGreenshot">Start Greenshot when it isn't running (false for background requests)</param>
+        public static async Task<JsonObject> SendAsync(JsonObject request, string? clientName, CancellationToken cancellationToken, bool startGreenshot = true)
         {
-            await using var pipe = await ConnectAsync(cancellationToken).ConfigureAwait(false);
+            await using var pipe = await ConnectAsync(startGreenshot, cancellationToken).ConfigureAwait(false);
 
             var hello = new JsonObject
             {
@@ -117,9 +118,9 @@ namespace Greenshot.Mcp
         }
 
         /// <summary>
-        /// Connects to Greenshot; starts Greenshot.exe from the same directory when it isn't running.
+        /// Connects to Greenshot; starts Greenshot.exe from the same directory when it isn't running (and startGreenshot is true).
         /// </summary>
-        private static async Task<NamedPipeClientStream> ConnectAsync(CancellationToken cancellationToken)
+        private static async Task<NamedPipeClientStream> ConnectAsync(bool startGreenshot, CancellationToken cancellationToken)
         {
             string pipeName = GetPipeName();
             var pipe = new NamedPipeClientStream(".", pipeName, PipeDirection.InOut, PipeOptions.Asynchronous);
@@ -134,7 +135,7 @@ namespace Greenshot.Mcp
             }
 
             string greenshotExe = Path.Combine(AppContext.BaseDirectory, "Greenshot.exe");
-            if (!File.Exists(greenshotExe))
+            if (!startGreenshot || !File.Exists(greenshotExe))
             {
                 throw new GreenshotConnectionException("Greenshot is not running. Please start Greenshot and try again.");
             }

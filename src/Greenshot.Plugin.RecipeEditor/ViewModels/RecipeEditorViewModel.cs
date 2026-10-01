@@ -675,6 +675,13 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 config.Parameters["Browser"] = "";
                 config.Parameters["FireAndForget"] = false;
             }
+            else if (string.Equals(type, TriggerConfig.TypeAiTool, StringComparison.OrdinalIgnoreCase))
+            {
+                config.Parameters["ToolName"] = new string((ActiveRecipe?.Id ?? "my_tool").Select(c => (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '-' ? c : '_').Take(64).ToArray());
+                config.Parameters["Title"] = ActiveRecipe?.Name ?? "My tool";
+                config.Parameters["Description"] = ActiveRecipe?.Description ?? "";
+                config.Parameters["ReadOnly"] = true;
+            }
 
             var item = new TriggerItemViewModel(config, SyncTriggersToRecipe, RemoveTrigger);
             Triggers.Add(item);
@@ -1384,6 +1391,10 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     {
                         string browser = t.GetParameter<string>("Browser", "");
                         tLabel = string.IsNullOrEmpty(browser) ? "🌐 Browser Extension" : $"🌐 Extension ({browser})";
+                    }
+                    else if (string.Equals(t.TriggerType, TriggerConfig.TypeAiTool, StringComparison.OrdinalIgnoreCase))
+                    {
+                        tLabel = $"🤖 AI tool: {t.GetParameter<string>("ToolName", t.Name ?? "tool")}";
                     }
                     else
                     {

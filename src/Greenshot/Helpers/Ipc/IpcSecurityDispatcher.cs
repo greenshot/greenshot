@@ -78,16 +78,19 @@ namespace Greenshot.Helpers.Ipc
             "RECIPE_EDITOR",
             "RECIPE_MANAGER",
             "LIST_WINDOWS",
-            "CAPTURE"
+            "LIST_AI_TOOLS",
+            "RUN_AI_TOOL"
         };
 
         /// <summary>
-        /// Commands which expose screen contents: only allowed for the "mcp" source, and they need the user's consent for AI tools (see <see cref="AiToolAccess"/>).
+        /// The commands of AI tools (greenshot-mcp.exe): only allowed for the "mcp" source. Except LIST_AI_TOOLS they need the user's
+        /// consent for the AI tool (see <see cref="AiToolAccess"/>).
         /// </summary>
-        private static readonly HashSet<string> ScreenContentCommands = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        private static readonly HashSet<string> AiToolCommands = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             "LIST_WINDOWS",
-            "CAPTURE"
+            "LIST_AI_TOOLS",
+            "RUN_AI_TOOL"
         };
 
         private static readonly HashSet<string> FallbackAllowedImageExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
@@ -299,15 +302,14 @@ namespace Greenshot.Helpers.Ipc
                 "CLI",
                 "OPEN_FILE"
             },
-            // greenshot-mcp.exe: what an AI tool may do, after the user allowed AI tools
+            // greenshot-mcp.exe: what an AI tool may do, after the user allowed it. Everything it captures goes through a recipe
+            // with an AI tool trigger (RUN_AI_TOOL), not through the command line recipes (RUN_RECIPE).
             [IpcSources.Mcp] = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
             {
                 "VERSION",
                 "LIST_WINDOWS",
-                "CAPTURE",
-                "LIST_RECIPES",
-                "DESCRIBE_RECIPE",
-                "RUN_RECIPE"
+                "LIST_AI_TOOLS",
+                "RUN_AI_TOOL"
             }
         };
 
@@ -320,8 +322,8 @@ namespace Greenshot.Helpers.Ipc
             {
                 return false;
             }
-            // Screen contents only for greenshot-mcp.exe: not for the command line, a web page or the browser extension
-            if (ScreenContentCommands.Contains(command) && !string.Equals(source, IpcSources.Mcp, StringComparison.OrdinalIgnoreCase))
+            // AI tool commands only for greenshot-mcp.exe: not for the command line, a web page or the browser extension
+            if (AiToolCommands.Contains(command) && !string.Equals(source, IpcSources.Mcp, StringComparison.OrdinalIgnoreCase))
             {
                 return false;
             }
@@ -333,17 +335,18 @@ namespace Greenshot.Helpers.Ipc
         }
 
         /// <summary>
-        /// True when the command needs the user's consent for AI tools: every command from greenshot-mcp.exe except VERSION,
-        /// and the commands exposing screen contents from any source.
+        /// True when the command needs the user's consent for AI tools: every command from greenshot-mcp.exe except VERSION and
+        /// LIST_AI_TOOLS (the tool names and descriptions, so the AI tool can show its tools before the user is asked),
+        /// and the AI tool commands from any source.
         /// </summary>
         internal static bool RequiresAiToolConsent(string command, string source)
         {
-            if (ScreenContentCommands.Contains(command))
+            if (string.Equals(command, "VERSION", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(command, "LIST_AI_TOOLS", StringComparison.OrdinalIgnoreCase))
             {
-                return true;
+                return false;
             }
-            return string.Equals(source, IpcSources.Mcp, StringComparison.OrdinalIgnoreCase) &&
-                   !string.Equals(command, "VERSION", StringComparison.OrdinalIgnoreCase);
+            return AiToolCommands.Contains(command) || string.Equals(source, IpcSources.Mcp, StringComparison.OrdinalIgnoreCase);
         }
 
         public static async Task DispatchAsync(IpcRequestContext context, Form mainForm, Action onExit, Action onReloadConfig, Action onFirstLaunch, Action<string> onOpenFile)
@@ -487,8 +490,12 @@ namespace Greenshot.Helpers.Ipc
                     await AiToolIpcHandler.HandleListWindowsAsync(context).ConfigureAwait(false);
                     break;
 
-                case "CAPTURE":
-                    await AiToolIpcHandler.HandleCaptureAsync(context).ConfigureAwait(false);
+                case "LIST_AI_TOOLS":
+                    await AiToolIpcHandler.HandleListAiToolsAsync(context).ConfigureAwait(false);
+                    break;
+
+                case "RUN_AI_TOOL":
+                    await AiToolIpcHandler.HandleRunAiToolAsync(context).ConfigureAwait(false);
                     break;
 
                 case "EXIT":

@@ -33,6 +33,14 @@ namespace Greenshot.Base.Pipeline.Contracts
         FilePath,
         DirectoryPath,
         Enum,
-        Object
+        Object,
+        /// <summary>
+        /// A window: AI tools pass a window reference from list_windows, it is resolved to the window (only for AI tool triggers)
+        /// </summary>
+        Window,
+        /// <summary>
+        /// A screen region "x,y,width,height" in screen coordinates
+        /// </summary>
+        Region
     }
 }

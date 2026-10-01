@@ -3279,6 +3279,7 @@
                                         <Button Content="+ CLI" Style="{StaticResource ToolbarBtn}" Command="{Binding AddTriggerCommand}" CommandParameter="Commandline" Margin="0,0,4,4" ToolTip="Add Command Line Trigger"/>
                                         <Button Content="+ Open With" Style="{StaticResource ToolbarBtn}" Command="{Binding AddTriggerCommand}" CommandParameter="OpenFile" Margin="0,0,4,4" ToolTip="Add Open With File Trigger"/>
                                         <Button Content="+ Extension" Style="{StaticResource ToolbarBtn}" Command="{Binding AddTriggerCommand}" CommandParameter="Extension" Margin="0,0,4,4" ToolTip="Add Browser Extension Trigger"/>
+                                        <Button Content="+ AI Tool" Style="{StaticResource ToolbarBtn}" Command="{Binding AddTriggerCommand}" CommandParameter="AiTool" Margin="0,0,4,4" ToolTip="Offer the recipe as a tool to AI tools (greenshot-mcp)"/>
                                         <Button Content="+ Manual" Style="{StaticResource ToolbarBtn}" Command="{Binding AddTriggerCommand}" CommandParameter="Manual" Margin="0,0,0,4"/>
                                     </WrapPanel>
 
@@ -3395,6 +3396,31 @@
                                                                      Padding="4,2" Margin="0,2,0,4"/>
                                                             <CheckBox Content="Fire and Forget"
                                                                       IsChecked="{Binding FireAndForget, Mode=TwoWay}"
+                                                                      Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                      FontSize="10" Margin="0,2,0,0"/>
+                                                        </StackPanel>
+
+                                                        <!-- AI tool (greenshot-mcp) -->
+                                                        <StackPanel Visibility="{Binding IsAiTool, Converter={StaticResource BoolToVis}}" Margin="0,2,0,0">
+                                                            <TextBlock Text="Tool Name for the AI (letters, digits, _ and -)" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                            <TextBox Text="{Binding ToolName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                     FontFamily="Consolas"
+                                                                     Background="{Binding DataContext.WindowBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                     Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                     Padding="4,2" Margin="0,2,0,4"/>
+                                                            <TextBlock Text="Title (shown to people)" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                            <TextBox Text="{Binding ToolTitle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                     Background="{Binding DataContext.WindowBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                     Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                     Padding="4,2" Margin="0,2,0,4"/>
+                                                            <TextBlock Text="Description (what the tool does, for the AI)" FontSize="10" Foreground="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                            <TextBox Text="{Binding Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                     TextWrapping="Wrap" AcceptsReturn="True" MinHeight="40"
+                                                                     Background="{Binding DataContext.WindowBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                     Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                     Padding="4,2" Margin="0,2,0,4"/>
+                                                            <CheckBox Content="Read only (the tool only captures, it doesn't save or send anything)"
+                                                                      IsChecked="{Binding ReadOnly, Mode=TwoWay}"
                                                                       Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                       FontSize="10" Margin="0,2,0,0"/>
                                                         </StackPanel>

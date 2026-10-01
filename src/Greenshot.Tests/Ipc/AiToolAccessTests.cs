@@ -22,11 +22,16 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Ini;
+using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core;
+using Greenshot.Base.Pipeline.Contracts;
+using Greenshot.Base.Recipes;
+using Greenshot.Base.Triggers;
 using Greenshot.Helpers.Ipc;
 using Newtonsoft.Json.Linq;
 using Xunit;
@@ -34,7 +39,8 @@ using Xunit;
 namespace Greenshot.Tests.Ipc
 {
     /// <summary>
-    /// The rules for AI tools (greenshot-mcp.exe): whitelist, consent, excluded processes and the LIST_WINDOWS / CAPTURE replies.
+    /// The rules for AI tools (greenshot-mcp.exe): whitelist, consent, excluded processes, window ids and the LIST_WINDOWS /
+    /// LIST_AI_TOOLS / RUN_AI_TOOL replies.
     /// Shares the collection with the other dispatcher tests, as it changes the core configuration.
     /// </summary>
     [Collection(TestCollections.RecipeManager)]
@@ -50,10 +56,12 @@ namespace Greenshot.Tests.Ipc
         [Theory]
         [InlineData("VERSION", true)]
         [InlineData("LIST_WINDOWS", true)]
-        [InlineData("CAPTURE", true)]
-        [InlineData("LIST_RECIPES", true)]
-        [InlineData("DESCRIBE_RECIPE", true)]
-        [InlineData("RUN_RECIPE", true)]
+        [InlineData("LIST_AI_TOOLS", true)]
+        [InlineData("RUN_AI_TOOL", true)]
+        [InlineData("CAPTURE", false)]
+        [InlineData("LIST_RECIPES", false)]
+        [InlineData("DESCRIBE_RECIPE", false)]
+        [InlineData("RUN_RECIPE", false)]
         [InlineData("EXIT", false)]
         [InlineData("RELOAD_CONFIG", false)]
         [InlineData("OPEN_FILE", false)]
@@ -72,17 +80,19 @@ namespace Greenshot.Tests.Ipc
         [InlineData("cli")]
         [InlineData("")]
         [InlineData(null)]
-        public void Whitelist_OnlyMcp_CanCapture(string source)
+        public void Whitelist_OnlyMcp_CanUseTheAiToolCommands(string source)
         {
-            Assert.False(IpcSecurityDispatcher.IsCommandAllowedForSource("CAPTURE", source));
             Assert.False(IpcSecurityDispatcher.IsCommandAllowedForSource("LIST_WINDOWS", source));
+            Assert.False(IpcSecurityDispatcher.IsCommandAllowedForSource("LIST_AI_TOOLS", source));
+            Assert.False(IpcSecurityDispatcher.IsCommandAllowedForSource("RUN_AI_TOOL", source));
         }
 
         [Theory]
-        [InlineData("CAPTURE", "cli", true)]
+        [InlineData("RUN_AI_TOOL", "cli", true)]
         [InlineData("LIST_WINDOWS", "cli", true)]
-        [InlineData("RUN_RECIPE", "mcp", true)]
-        [InlineData("LIST_RECIPES", "mcp", true)]
+        [InlineData("RUN_AI_TOOL", "mcp", true)]
+        [InlineData("LIST_WINDOWS", "mcp", true)]
+        [InlineData("LIST_AI_TOOLS", "mcp", false)]
         [InlineData("VERSION", "mcp", false)]
         [InlineData("RUN_RECIPE", "cli", false)]
         [InlineData("LIST_RECIPES", "native_messaging", false)]
@@ -121,7 +131,7 @@ namespace Greenshot.Tests.Ipc
         }
 
         [Fact]
-        public async Task Capture_WhenTheUserDenies_IsRejected_AndNotAskedAgain()
+        public async Task RunAiTool_WhenTheUserDenies_IsRejected_AndNotAskedAgain()
         {
             var askedClients = new List<string>();
             await WithConsentAsync(new List<string>(), (client, cancellationToken) =>
@@ -132,10 +142,10 @@ namespace Greenshot.Tests.Ipc
             {
                 for (int i = 0; i < 2; i++)
                 {
-                    var reply = await DispatchAsync("CAPTURE", TestClient, new Dictionary<string, string> { ["target"] = "screen" });
+                    var reply = await DispatchAsync("RUN_AI_TOOL", TestClient, recipe: "capture_screen");
                     Assert.Equal("error", reply.Value<string>("status"));
                     Assert.Equal(AiToolAccess.NotAllowedMessage, reply.Value<string>("stderr"));
-                    Assert.Null(reply["data"]);
+                    Assert.Null(reply["image"]);
                 }
 
                 Assert.Equal(new[] { TestClient.ExePath }, askedClients);
@@ -204,20 +214,157 @@ namespace Greenshot.Tests.Ipc
                 Assert.NotEmpty(displays);
                 foreach (var window in reply["windows"])
                 {
-                    Assert.StartsWith("0x", window.Value<string>("handle"));
+                    // Ids, not window handles
+                    Assert.Matches("^w[0-9]+$", window.Value<string>("id"));
+                    Assert.Null(window["handle"]);
                     Assert.False(AiToolAccess.IsProcessExcluded(window.Value<string>("process")));
                 }
             });
         }
 
-        [Fact]
-        public async Task Capture_UnknownHandle_IsAnError()
+        [Theory]
+        [InlineData("w999999999")]
+        [InlineData("0x1A2B3C")]
+        [InlineData("Notepad")]
+        public async Task CaptureWindow_OnlyAcceptsCurrentWindowIds(string window)
         {
             await WithConsentAsync(new List<string> { TestClient.ExePath }, (client, cancellationToken) => Task.FromResult(false), async config =>
             {
-                var reply = await DispatchAsync("CAPTURE", TestClient, new Dictionary<string, string> { ["handle"] = "not-a-handle" });
+                var reply = await DispatchAsync("RUN_AI_TOOL", TestClient, new Dictionary<string, string> { ["window"] = window }, "capture_window");
                 Assert.Equal("error", reply.Value<string>("status"));
-                Assert.Contains("not a window handle", reply.Value<string>("stderr"));
+                Assert.Contains("list_windows", reply.Value<string>("stderr"));
+                Assert.Null(reply["image"]);
+            });
+        }
+
+        [Fact]
+        public async Task RunAiTool_UnknownTool_IsAnError()
+        {
+            await WithConsentAsync(new List<string> { TestClient.ExePath }, (client, cancellationToken) => Task.FromResult(false), async config =>
+            {
+                var reply = await DispatchAsync("RUN_AI_TOOL", TestClient, recipe: "no_such_tool");
+                Assert.Equal("error", reply.Value<string>("status"));
+                Assert.Contains("no_such_tool", reply.Value<string>("stderr"));
+            });
+        }
+
+        [Fact]
+        public async Task ListAiTools_NeedsNoConsent_AndListsTheBuiltInTools()
+        {
+            bool asked = false;
+            await WithConsentAsync(new List<string>(), (client, cancellationToken) =>
+            {
+                asked = true;
+                return Task.FromResult(false);
+            }, async config =>
+            {
+                var reply = await DispatchAsync("LIST_AI_TOOLS", TestClient);
+                Assert.Equal("ok", reply.Value<string>("status"));
+                Assert.False(asked);
+                var tools = Assert.IsType<JArray>(reply["tools"]);
+                var captureWindow = tools.Single(t => t.Value<string>("name") == "capture_window");
+                Assert.True(captureWindow.Value<bool>("read_only"));
+                var window = captureWindow["arguments"].Single(a => a.Value<string>("name") == "window");
+                Assert.Equal("Window", window.Value<string>("type"));
+                Assert.True(window.Value<bool>("required"));
+                Assert.Contains(tools, t => t.Value<string>("name") == "capture_region");
+                Assert.Contains(tools, t => t.Value<string>("name") == "capture_screen");
+                // greenshot-mcp's own tool name can't be taken by a recipe
+                Assert.DoesNotContain(tools, t => t.Value<string>("name") == "list_windows");
+            });
+        }
+
+        [Fact]
+        public async Task AiToolRecipes_CannotBeRunFromTheCommandLine()
+        {
+            var envelope = new IpcEnvelope { Command = "RUN_RECIPE", Source = IpcSources.Cli, Recipe = Greenshot.Recipes.RecipeManager.RecipeIdAiCaptureScreen };
+            var reply = await DispatchAsync(envelope, null);
+            Assert.Equal("error", reply.Value<string>("status"));
+            Assert.Contains("CommandlineTrigger", reply.Value<string>("stderr"));
+        }
+
+        /// <summary>
+        /// Runs the test with a fake clock and fake windows (handle -> process id) for the window ids, restores them afterwards.
+        /// </summary>
+        private static void WithFakeWindows(Dictionary<long, int> windows, Action<Func<DateTime>, Action<TimeSpan>> test)
+        {
+            var previousClock = AiWindowRefs.UtcNow;
+            var previousProcess = AiWindowRefs.GetWindowProcessId;
+            var now = new DateTime(2026, 10, 1, 12, 0, 0, DateTimeKind.Utc);
+            try
+            {
+                AiWindowRefs.Clear();
+                AiWindowRefs.UtcNow = () => now;
+                AiWindowRefs.GetWindowProcessId = handle => windows.TryGetValue(handle.ToInt64(), out int processId) ? processId : 0;
+                test(() => now, timeSpan => now += timeSpan);
+            }
+            finally
+            {
+                AiWindowRefs.UtcNow = previousClock;
+                AiWindowRefs.GetWindowProcessId = previousProcess;
+                AiWindowRefs.Clear();
+            }
+        }
+
+        [Fact]
+        public void WindowIds_BelongToTheAiToolAndSession()
+        {
+            WithFakeWindows(new Dictionary<long, int> { [0x100] = 42 }, (now, advance) =>
+            {
+                var session = new AiToolClient { ExePath = @"C:\Test\AiTool.exe", ServerProcessId = 1 };
+                string id = AiWindowRefs.Register(session, new IntPtr(0x100), 42);
+                Assert.Equal(id, AiWindowRefs.Register(session, new IntPtr(0x100), 42));
+
+                Assert.True(AiWindowRefs.TryResolve(session, id, out var handle, out _));
+                Assert.Equal(0x100, handle.ToInt64());
+
+                var otherTool = new AiToolClient { ExePath = @"C:\Other\Tool.exe", ServerProcessId = 1 };
+                Assert.False(AiWindowRefs.TryResolve(otherTool, id, out _, out string error));
+                Assert.Contains("list_windows", error);
+
+                var otherSession = new AiToolClient { ExePath = @"C:\Test\AiTool.exe", ServerProcessId = 2 };
+                Assert.False(AiWindowRefs.TryResolve(otherSession, id, out _, out _));
+                Assert.False(AiWindowRefs.TryResolve(null, id, out _, out _));
+            });
+        }
+
+        [Fact]
+        public void WindowIds_Expire_AndAreNeverReused()
+        {
+            WithFakeWindows(new Dictionary<long, int> { [0x100] = 42, [0x200] = 43 }, (now, advance) =>
+            {
+                var client = new AiToolClient { ExePath = @"C:\Test\AiTool.exe", ServerProcessId = 1 };
+                string id = AiWindowRefs.Register(client, new IntPtr(0x100), 42);
+                advance(AiWindowRefs.Lifetime - TimeSpan.FromSeconds(1));
+                Assert.True(AiWindowRefs.TryResolve(client, id, out _, out _));
+
+                advance(TimeSpan.FromSeconds(2));
+                Assert.False(AiWindowRefs.TryResolve(client, id, out _, out string error));
+                Assert.Contains("list_windows", error);
+
+                string newId = AiWindowRefs.Register(client, new IntPtr(0x200), 43);
+                Assert.NotEqual(id, newId);
+                Assert.NotEqual(id, AiWindowRefs.Register(client, new IntPtr(0x100), 42));
+            });
+        }
+
+        [Fact]
+        public void WindowIds_StopWorking_WhenTheWindowIsClosed()
+        {
+            var windows = new Dictionary<long, int> { [0x100] = 42 };
+            WithFakeWindows(windows, (now, advance) =>
+            {
+                var client = new AiToolClient { ExePath = @"C:\Test\AiTool.exe", ServerProcessId = 1 };
+                string id = AiWindowRefs.Register(client, new IntPtr(0x100), 42);
+
+                // Windows reused the handle for a window of another process
+                windows[0x100] = 99;
+                Assert.False(AiWindowRefs.TryResolve(client, id, out _, out string error));
+                Assert.Contains("closed", error);
+
+                windows.Remove(0x100);
+                string again = AiWindowRefs.Register(client, new IntPtr(0x100), 99);
+                Assert.False(AiWindowRefs.TryResolve(client, again, out _, out _));
             });
         }
 
@@ -283,15 +430,78 @@ namespace Greenshot.Tests.Ipc
             }
         }
 
+        [Fact]
+        public void WindowArguments_AreOnlyForAiTools()
+        {
+            var declared = new List<CommandlineArgument> { new CommandlineArgument { Name = "window", Type = ContractDataType.Window } };
+            var supplied = new Dictionary<string, string> { ["window"] = "0x1A2B3C" };
+
+            var fromCli = CommandlineArgumentBinder.Bind(declared, supplied, "test", Path.GetTempPath(), IpcSources.Cli);
+            Assert.False(fromCli.Success);
+            Assert.Contains("only available to AI tools", fromCli.Error);
+
+            var handleFromAi = CommandlineArgumentBinder.Bind(declared, supplied, "test", null, IpcSources.Mcp, TestClient);
+            Assert.False(handleFromAi.Success);
+            Assert.Contains("list_windows", handleFromAi.Error);
+        }
+
+        [Theory]
+        [InlineData("10,20,300,400", true)]
+        [InlineData(" -1920 , 0 , 1920 , 1080 ", true)]
+        [InlineData("10;20;300;400", true)]
+        [InlineData("10,20,0,400", false)]
+        [InlineData("10,20,300", false)]
+        [InlineData("a,b,c,d", false)]
+        public void RegionArguments_AreParsed(string text, bool valid)
+        {
+            var declared = new List<CommandlineArgument> { new CommandlineArgument { Name = "region", Variable = "PreSuppliedRegion", Type = ContractDataType.Region } };
+            var result = CommandlineArgumentBinder.Bind(declared, new Dictionary<string, string> { ["region"] = text }, "test", null, IpcSources.Mcp, TestClient);
+            Assert.Equal(valid, result.Success);
+            if (valid)
+            {
+                var region = Assert.IsType<NativeRect>(result.Variables["PreSuppliedRegion"]);
+                Assert.True(region.Width > 0 && region.Height > 0);
+            }
+        }
+
+        [Theory]
+        [InlineData("capture_window", true)]
+        [InlineData("my-tool_2", true)]
+        [InlineData("", false)]
+        [InlineData("capture window", false)]
+        [InlineData("fenêtre", false)]
+        public void AiToolTrigger_NeedsAValidToolName(string toolName, bool valid)
+        {
+            var recipe = new CaptureRecipe("ai_tool_name_test", "AI tool name test")
+                .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.FullScreen))
+                .AddTrigger(TriggerConfig.CreateAiTool(toolName, "Test tool"));
+            recipe.Flow = new RecipeFlowConfig("acquire");
+            var result = RecipeValidator.Validate(recipe);
+            Assert.Equal(valid, !result.Errors.Any(e => e.Contains("ToolName")));
+        }
+
+        [Fact]
+        public void AiToolTrigger_AddsNoDestination()
+        {
+            var recipe = new CaptureRecipe("ai_tool_destination_test", "AI tool destination test")
+                .AddNode(RecipeStepConfig.CreateSource("acquire", CaptureSourceType.FullScreen));
+            recipe.Flow = new RecipeFlowConfig("acquire");
+
+            var forAiTool = TriggerRecipePreparer.Prepare(recipe, new AiToolTrigger("t", "t", recipe.Id, "tool"));
+            Assert.False(forAiTool.HasDestinationStep());
+
+            var forCommandline = TriggerRecipePreparer.Prepare(recipe, new CommandlineTrigger("c", "c", recipe.Id));
+            Assert.True(forCommandline.HasDestinationStep());
+        }
+
         [Theory]
         [InlineData("0x1A2B", 0x1A2B)]
         [InlineData("0X00ff", 0xFF)]
         [InlineData("6699", 6699)]
         public void Handles_AreParsed(string text, long expected)
         {
-            Assert.True(AiToolIpcHandler.TryParseHandle(text, out var handle));
+            Assert.True(AiToolCapture.TryParseHandle(text, out var handle));
             Assert.Equal(expected, handle.ToInt64());
-            Assert.Equal("0x" + expected.ToString("X"), AiToolIpcHandler.FormatHandle(handle));
         }
 
         [Theory]
@@ -301,15 +511,16 @@ namespace Greenshot.Tests.Ipc
         [InlineData("window")]
         public void Handles_InvalidAreRejected(string text)
         {
-            Assert.False(AiToolIpcHandler.TryParseHandle(text, out _));
+            Assert.False(AiToolCapture.TryParseHandle(text, out _));
         }
 
-        private static async Task<JObject> DispatchAsync(string command, AiToolClient client, Dictionary<string, string> parameters = null)
+        private static Task<JObject> DispatchAsync(string command, AiToolClient client, Dictionary<string, string> parameters = null, string recipe = null)
         {
             var envelope = new IpcEnvelope
             {
                 Command = command,
-                Source = IpcSources.Mcp
+                Source = IpcSources.Mcp,
+                Recipe = recipe
             };
             if (parameters != null)
             {
@@ -318,7 +529,11 @@ namespace Greenshot.Tests.Ipc
                     envelope.Parameters[parameter.Key] = parameter.Value;
                 }
             }
+            return DispatchAsync(envelope, client);
+        }
 
+        private static async Task<JObject> DispatchAsync(IpcEnvelope envelope, AiToolClient client)
+        {
             using var stream = new MemoryStream();
             var context = new IpcRequestContext(envelope, stream)
             {

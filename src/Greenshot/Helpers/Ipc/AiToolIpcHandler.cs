@@ -22,65 +22,80 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
-using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Dapplo.Windows.Common.Extensions;
-using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.User32;
 using Greenshot.Base.Core;
-using Greenshot.Base.Core.Enums;
+using Greenshot.Base.Core.FileFormat;
+using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Ocr;
 using Greenshot.Base.Interfaces.Plugin;
-using Greenshot.Base.Native;
+using Greenshot.Base.Pipeline;
+using Greenshot.Base.Recipes;
+using Greenshot.Base.Triggers;
+using Greenshot.Pipeline;
+using Greenshot.Recipes;
 using log4net;
 
 namespace Greenshot.Helpers.Ipc
 {
     /// <summary>
-    /// LIST_WINDOWS and CAPTURE: the screen content commands for AI tools (greenshot-mcp.exe).
-    /// The caller (<see cref="IpcSecurityDispatcher"/>) already checked the whitelist and the user's consent.
-    /// </summary>
-    /// <remarks>
-    /// CAPTURE parameters (all optional):
+    /// The commands of greenshot-mcp.exe (AI tools). The caller (<see cref="IpcSecurityDispatcher"/>) already checked the source,
+    /// the connection (<see cref="AiToolCaller"/>) and, except for LIST_AI_TOOLS, the user's consent.
     /// <list type="bullet">
-    /// <item>target: window, active, screen or region (default: window when handle, title or process is given, otherwise active)</item>
-    /// <item>handle: window handle from LIST_WINDOWS (hex with 0x, or decimal)</item>
-    /// <item>title: part of the window title; process: process name (without .exe)</item>
-    /// <item>display: index of the display for target=screen (default: all displays)</item>
-    /// <item>x, y, width, height: the region in screen coordinates for target=region</item>
-    /// <item>ocr: true to add the recognized text</item>
-    /// <item>max_size: scale the image down so its longest side is at most this many pixels (0 = original size)</item>
+    /// <item>LIST_WINDOWS: the windows, with ids instead of handles (<see cref="AiWindowRefs"/>)</item>
+    /// <item>LIST_AI_TOOLS: the recipes with an AI tool trigger, these are the AI tool's tools</item>
+    /// <item>RUN_AI_TOOL: runs such a recipe and replies with its result and image; everything an AI tool captures goes through a recipe</item>
     /// </list>
-    /// </remarks>
+    /// </summary>
     public static class AiToolIpcHandler
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(AiToolIpcHandler));
 
         /// <summary>
-        /// LIST_WINDOWS: the top-level windows in Z-order (top first) and the displays, without windows of excluded processes.
+        /// Default for the MaxImageSize parameter of an AI tool trigger: images are scaled so the longest side is at most this
+        /// (larger images cost the AI more and are scaled down by the model anyway)
+        /// </summary>
+        public const int DefaultMaxImageSize = 1568;
+
+        /// <summary>
+        /// Tool names greenshot-mcp.exe offers itself
+        /// </summary>
+        private static readonly HashSet<string> ReservedToolNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "list_windows" };
+
+        /// <summary>
+        /// LIST_WINDOWS: the top-level windows in Z-order (top first) with ids for Window arguments, and the displays.
+        /// Windows of excluded processes are left out.
         /// </summary>
         public static async Task HandleListWindowsAsync(IpcRequestContext context, CancellationToken cancellationToken = default)
         {
+            if (context.AiClient == null)
+            {
+                await ReplyErrorAsync(context, AiToolAccess.NotAllowedMessage, cancellationToken).ConfigureAwait(false);
+                return;
+            }
+
             IntPtr activeHandle = WindowDetails.GetActiveWindow()?.Handle ?? IntPtr.Zero;
             var windows = new List<object>();
             int excludedCount = 0;
             foreach (var window in WindowDetails.GetTopLevelWindows())
             {
-                string processName = GetProcessName(window);
+                string processName = AiToolCapture.GetProcessName(window);
                 if (AiToolAccess.IsProcessExcluded(processName))
                 {
                     excludedCount++;
                     continue;
                 }
+                int processId = window.ProcessId;
+                if (processId == 0)
+                {
+                    continue;
+                }
                 var bounds = window.WindowRectangle;
                 windows.Add(new
                 {
-                    handle = FormatHandle(window.Handle),
+                    id = AiWindowRefs.Register(context.AiClient, window.Handle, processId),
                     title = window.Text,
                     process = processName,
                     @class = window.ClassName,
@@ -110,380 +125,296 @@ namespace Greenshot.Helpers.Ipc
                 windows,
                 displays,
                 excluded_windows = excludedCount,
+                id_lifetime_minutes = (int)AiWindowRefs.Lifetime.TotalMinutes,
                 stdout = $"{windows.Count} windows, {displays.Count} displays."
             }, cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
-        /// CAPTURE: captures a window, the active window, a display or all displays, or a region, and replies with a PNG (base64).
+        /// An enabled AI tool trigger of an enabled recipe
         /// </summary>
-        public static async Task HandleCaptureAsync(IpcRequestContext context, CancellationToken cancellationToken = default)
+        internal sealed class AiToolEntry
         {
-            var parameters = context.Envelope.Parameters ?? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-            string handleParameter = GetParameter(parameters, "handle");
-            string titleParameter = GetParameter(parameters, "title");
-            string processParameter = GetParameter(parameters, "process");
-            bool hasWindowCriteria = handleParameter != null || titleParameter != null || processParameter != null;
-            string target = (GetParameter(parameters, "target") ?? (hasWindowCriteria ? "window" : "active")).ToLowerInvariant();
-            bool ocr = GetBool(parameters, "ocr");
-            int maxSize = Math.Max(0, GetInt(parameters, "max_size") ?? 0);
+            public CaptureRecipe Recipe { get; set; }
+            public TriggerConfig Trigger { get; set; }
+            public string ToolName { get; set; }
+            public string Title { get; set; }
+            public string Description { get; set; }
+            public List<CommandlineArgument> Arguments { get; set; }
+        }
 
-            Bitmap image = null;
-            try
+        /// <summary>
+        /// The tools: one per enabled AI tool trigger of the enabled recipes. A name used twice belongs to the first recipe.
+        /// </summary>
+        internal static List<AiToolEntry> GetAiTools()
+        {
+            var result = new List<AiToolEntry>();
+            var names = new HashSet<string>(ReservedToolNames, StringComparer.OrdinalIgnoreCase);
+            var recipeManager = SimpleServiceProvider.Current?.GetInstance<IRecipeManager>(isOptional: true) ?? RecipeManager.Instance;
+            if (recipeManager == null)
             {
-                string title;
-                string processName = null;
-                string handle = null;
-                NativeRect bounds;
-                int redactedWindows = 0;
-                string what;
-
-                switch (target)
-                {
-                    case "window":
-                    case "active":
-                        WindowDetails window;
-                        if (target == "active")
-                        {
-                            window = WindowDetails.GetActiveWindow();
-                        }
-                        else
-                        {
-                            window = FindWindow(handleParameter, titleParameter, processParameter, out string findError);
-                            if (window == null)
-                            {
-                                await ReplyErrorAsync(context, findError, cancellationToken).ConfigureAwait(false);
-                                return;
-                            }
-                        }
-                        if (window == null || window.Handle == IntPtr.Zero)
-                        {
-                            await ReplyErrorAsync(context, "There is no active window.", cancellationToken).ConfigureAwait(false);
-                            return;
-                        }
-                        processName = GetProcessName(window);
-                        if (AiToolAccess.IsProcessExcluded(processName))
-                        {
-                            await ReplyErrorAsync(context, $"Windows of '{processName}' are excluded from AI tools (AiToolsExcludedProcesses).", cancellationToken).ConfigureAwait(false);
-                            return;
-                        }
-                        title = window.Text;
-                        handle = FormatHandle(window.Handle);
-                        image = await CaptureWindowAsync(window, cancellationToken).ConfigureAwait(false);
-                        // After the capture: a restored window may have moved
-                        bounds = window.WindowRectangle;
-                        what = $"the window '{title}'";
-                        break;
-
-                    case "screen":
-                        bounds = DisplayInfo.ScreenBounds;
-                        int? displayIndex = GetInt(parameters, "display");
-                        if (displayIndex.HasValue)
-                        {
-                            var displayInfos = DisplayInfo.AllDisplayInfos;
-                            if (displayIndex.Value < 0 || displayIndex.Value >= displayInfos.Length)
-                            {
-                                await ReplyErrorAsync(context, $"There is no display {displayIndex.Value}, there are {displayInfos.Length}.", cancellationToken).ConfigureAwait(false);
-                                return;
-                            }
-                            bounds = displayInfos[displayIndex.Value].Bounds;
-                        }
-                        title = displayIndex.HasValue ? $"Display {displayIndex.Value}" : "Screen";
-                        image = await CaptureBoundsAsync(bounds, cancellationToken).ConfigureAwait(false);
-                        redactedWindows = RedactExcludedWindows(image, bounds);
-                        what = displayIndex.HasValue ? $"display {displayIndex.Value}" : "the screen";
-                        break;
-
-                    case "region":
-                        int? x = GetInt(parameters, "x");
-                        int? y = GetInt(parameters, "y");
-                        int? width = GetInt(parameters, "width");
-                        int? height = GetInt(parameters, "height");
-                        if (!x.HasValue || !y.HasValue || !width.HasValue || !height.HasValue || width.Value <= 0 || height.Value <= 0)
-                        {
-                            await ReplyErrorAsync(context, "A region capture needs x, y, width and height (screen coordinates, width and height above 0).", cancellationToken).ConfigureAwait(false);
-                            return;
-                        }
-                        bounds = new NativeRect(x.Value, y.Value, width.Value, height.Value).Intersect(DisplayInfo.ScreenBounds);
-                        if (bounds.IsEmpty)
-                        {
-                            await ReplyErrorAsync(context, "The region is not on any display.", cancellationToken).ConfigureAwait(false);
-                            return;
-                        }
-                        title = "Region";
-                        image = await CaptureBoundsAsync(bounds, cancellationToken).ConfigureAwait(false);
-                        redactedWindows = RedactExcludedWindows(image, bounds);
-                        what = "a screen region";
-                        break;
-
-                    default:
-                        await ReplyErrorAsync(context, $"Unknown capture target '{target}', use window, active, screen or region.", cancellationToken).ConfigureAwait(false);
-                        return;
-                }
-
-                if (image == null)
-                {
-                    await ReplyErrorAsync(context, $"Capturing {what} failed.", cancellationToken).ConfigureAwait(false);
-                    return;
-                }
-
-                // OCR on the original image, the best quality
-                List<IOcrLineFeature> ocrLines = null;
-                string ocrError = null;
-                if (ocr)
-                {
-                    (ocrLines, ocrError) = await RunOcrAsync(image).ConfigureAwait(false);
-                }
-
-                int originalWidth = image.Width;
-                int originalHeight = image.Height;
-                double scale = 1.0;
-                if (maxSize > 0 && Math.Max(originalWidth, originalHeight) > maxSize)
-                {
-                    scale = (double)maxSize / Math.Max(originalWidth, originalHeight);
-                    var scaled = Scale(image, scale);
-                    image.Dispose();
-                    image = scaled;
-                }
-
-                string data;
-                using (var stream = new MemoryStream())
-                {
-                    image.Save(stream, ImageFormat.Png);
-                    data = Convert.ToBase64String(stream.GetBuffer(), 0, (int)stream.Length);
-                }
-
-                AiToolAccess.NotifyCapture(context.AiClient?.DisplayName ?? context.ConnectionOrigin, what);
-
-                await context.ReplyAsync(new
-                {
-                    status = "ok",
-                    exit_code = 0,
-                    mime_type = "image/png",
-                    data,
-                    width = image.Width,
-                    height = image.Height,
-                    original_width = originalWidth,
-                    original_height = originalHeight,
-                    scale,
-                    target,
-                    title,
-                    process = processName,
-                    handle,
-                    bounds = new { x = bounds.X, y = bounds.Y, width = bounds.Width, height = bounds.Height },
-                    redacted_windows = redactedWindows,
-                    ocr_text = ocrLines == null ? null : string.Join(Environment.NewLine, ocrLines.Select(l => l.Text)),
-                    // OCR bounds are in pixels of the original (unscaled) image
-                    ocr_lines = ocrLines?.Select(l => new
-                    {
-                        text = l.Text,
-                        x = l.Bounds.X,
-                        y = l.Bounds.Y,
-                        width = l.Bounds.Width,
-                        height = l.Bounds.Height
-                    }),
-                    ocr_error = ocrError,
-                    stdout = $"Captured {what} ({originalWidth}x{originalHeight})."
-                }, cancellationToken).ConfigureAwait(false);
+                return result;
             }
-            finally
+            foreach (var recipe in recipeManager.GetAllRecipes().Where(r => r.IsEnabled && r.Triggers != null))
             {
-                image?.Dispose();
+                foreach (var trigger in recipe.Triggers.Where(t => t != null && t.Enabled && string.Equals(t.TriggerType, TriggerConfig.TypeAiTool, StringComparison.OrdinalIgnoreCase)))
+                {
+                    string toolName = trigger.GetParameter<string>("ToolName");
+                    if (!AiToolTrigger.IsValidToolName(toolName))
+                    {
+                        Log.Warn($"The AI tool trigger of recipe '{recipe.Id}' has no valid ToolName ('{toolName}'), it is not offered.");
+                        continue;
+                    }
+                    if (!names.Add(toolName))
+                    {
+                        Log.Warn($"The AI tool '{toolName}' of recipe '{recipe.Id}' is not offered, another recipe (or greenshot-mcp) uses that name.");
+                        continue;
+                    }
+                    result.Add(new AiToolEntry
+                    {
+                        Recipe = recipe,
+                        Trigger = trigger,
+                        ToolName = toolName,
+                        Title = trigger.GetParameter<string>("Title") ?? recipe.Name,
+                        Description = trigger.GetParameter<string>("Description") ?? recipe.Description ?? recipe.Name,
+                        Arguments = trigger.GetParameter<List<CommandlineArgument>>("Arguments") ?? new List<CommandlineArgument>()
+                    });
+                }
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// LIST_AI_TOOLS: the tools greenshot-mcp.exe offers besides list_windows. Names and descriptions only, no screen contents,
+        /// so this needs no consent (the AI tool can show its tools before the user is asked).
+        /// </summary>
+        public static Task HandleListAiToolsAsync(IpcRequestContext context, CancellationToken cancellationToken = default)
+        {
+            var tools = GetAiTools().Select(tool => new
+            {
+                name = tool.ToolName,
+                title = tool.Title,
+                description = tool.Description,
+                recipe = tool.Recipe.Id,
+                read_only = tool.Trigger.GetParameter("ReadOnly", true),
+                destructive = tool.Trigger.GetParameter("Destructive", false),
+                arguments = tool.Arguments.Where(a => !string.IsNullOrWhiteSpace(a?.Name)).Select(a => new
+                {
+                    name = a.Name,
+                    description = a.Description ?? string.Empty,
+                    required = a.Required,
+                    default_value = a.DefaultValue,
+                    type = a.Type.ToString(),
+                    allowed_values = a.AllowedValues
+                })
+            }).ToList();
+
+            return context.ReplyAsync(new
+            {
+                status = "ok",
+                exit_code = 0,
+                tools,
+                stdout = $"{tools.Count} AI tools."
+            }, cancellationToken);
+        }
+
+        /// <summary>
+        /// What the flow produced, collected before the flow disposes its payload
+        /// </summary>
+        private sealed class AiToolResult
+        {
+            public byte[] Png;
+            public int Width;
+            public int Height;
+            public int OriginalWidth;
+            public int OriginalHeight;
+            public string Title;
+            public string Source;
+            public string Text;
+            public List<IOcrLineFeature> OcrLines;
+        }
+
+        /// <summary>
+        /// RUN_AI_TOOL: runs the recipe of the tool (Recipe = tool name, Parameters = arguments) and replies with the result:
+        /// stdout / stderr, the JSON-safe variables, the final image (PNG, base64) and the text found by OCR.
+        /// </summary>
+        public static async Task HandleRunAiToolAsync(IpcRequestContext context, CancellationToken cancellationToken = default)
+        {
+            string toolName = context.Envelope.Recipe?.Trim();
+            var tool = GetAiTools().FirstOrDefault(t => string.Equals(t.ToolName, toolName, StringComparison.OrdinalIgnoreCase));
+            if (tool == null)
+            {
+                await ReplyErrorAsync(context, $"There is no AI tool '{toolName}' (anymore), the tools are the recipes with an AI tool trigger.", cancellationToken).ConfigureAwait(false);
+                return;
+            }
+
+            var supplied = new Dictionary<string, string>(context.Envelope.Parameters ?? new Dictionary<string, string>(), StringComparer.OrdinalIgnoreCase);
+            var binding = CommandlineArgumentBinder.Bind(tool.Arguments, supplied, tool.ToolName, null, IpcSources.Mcp, context.AiClient);
+            if (!binding.Success)
+            {
+                await ReplyErrorAsync(context, binding.Error, cancellationToken).ConfigureAwait(false);
+                return;
+            }
+
+            var pipeline = SimpleServiceProvider.Current?.GetInstance<ICapturePipeline>(isOptional: true) ?? CapturePipeline.Instance;
+            if (pipeline == null)
+            {
+                await ReplyErrorAsync(context, "Capture pipeline not available.", cancellationToken).ConfigureAwait(false);
+                return;
+            }
+
+            int maxImageSize = Math.Max(0, tool.Trigger.GetParameter("MaxImageSize", DefaultMaxImageSize));
+            var trigger = new AiToolTrigger($"ai_{tool.Recipe.Id}_{Guid.NewGuid():N}", tool.Title, tool.Recipe.Id, tool.ToolName, tool.Description, tool.Arguments);
+            var recipeToExecute = TriggerRecipePreparer.Prepare(tool.Recipe, trigger);
+
+            var stdout = new List<string>();
+            var stderr = new List<string>();
+            AiToolResult result = null;
+            Action<CaptureFlowContext> configureContext = flowContext =>
+            {
+                foreach (var kv in binding.Variables)
+                {
+                    flowContext.Properties[kv.Key] = kv.Value;
+                }
+                flowContext.StdoutWriter = text =>
+                {
+                    lock (stdout)
+                    {
+                        stdout.Add(text);
+                    }
+                    return Task.CompletedTask;
+                };
+                flowContext.StderrWriter = text =>
+                {
+                    lock (stderr)
+                    {
+                        stderr.Add(text);
+                    }
+                    return Task.CompletedTask;
+                };
+                flowContext.FlowFinishedAsync = async finished => result = await CollectResultAsync(finished, maxImageSize, cancellationToken).ConfigureAwait(false);
+            };
+
+            var flowResult = await CaptureFlowRunner.For(pipeline).Start(recipeToExecute, FlowTriggerContext.Empty(trigger), configureContext).Completion.ConfigureAwait(false);
+            var flowContext = flowResult.Context;
+            bool failed = flowContext == null || flowContext.IsAborted || flowContext.State == CaptureFlowState.Failed;
+            int exitCode = flowContext != null && flowContext.ExitCode != 0 ? flowContext.ExitCode : (failed ? 1 : 0);
+
+            if (result?.Png != null)
+            {
+                AiToolAccess.NotifyCapture(context.AiClient?.DisplayName ?? context.ConnectionOrigin, $"'{result.Title ?? tool.Title}' ({tool.Title})");
+            }
+
+            string stderrText = Join(stderr);
+            if (failed && string.IsNullOrEmpty(stderrText))
+            {
+                stderrText = flowContext?.AbortReason ?? flowContext?.Error?.Message ?? flowResult.Reason ?? "The recipe failed.";
+            }
+
+            await context.ReplyAsync(new
+            {
+                status = failed ? "error" : "ok",
+                exit_code = exitCode,
+                tool = tool.ToolName,
+                recipe = tool.Recipe.Id,
+                stdout = Join(stdout),
+                stderr = stderrText,
+                variables = flowContext == null ? null : GetVariables(flowContext, result?.Text),
+                image = result?.Png == null ? null : new
+                {
+                    mime_type = "image/png",
+                    data = Convert.ToBase64String(result.Png),
+                    width = result.Width,
+                    height = result.Height,
+                    original_width = result.OriginalWidth,
+                    original_height = result.OriginalHeight
+                },
+                title = result?.Title,
+                source = result?.Source,
+                text = result?.Text,
+                // OCR bounds are in pixels of the original (unscaled) image
+                ocr_lines = result?.OcrLines?.Select(l => new
+                {
+                    text = l.Text,
+                    x = l.Bounds.X,
+                    y = l.Bounds.Y,
+                    width = l.Bounds.Width,
+                    height = l.Bounds.Height
+                })
+            }, cancellationToken).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// The JSON-safe variables, without the copies of the OCR text (OcrText, Text, CommandResult): it is in "text" once
+        /// </summary>
+        private static IDictionary<string, object> GetVariables(CaptureFlowContext flowContext, string text)
+        {
+            var variables = IpcSecurityDispatcher.SnapshotJsonSafe(flowContext.Properties);
+            if (!string.IsNullOrEmpty(text))
+            {
+                foreach (var key in variables.Where(v => v.Value is string value && value == text).Select(v => v.Key).ToList())
+                {
+                    variables.Remove(key);
+                }
+            }
+            return variables;
+        }
+
+        private static string Join(List<string> chunks)
+        {
+            lock (chunks)
+            {
+                return chunks.Count == 0 ? null : string.Join("\n", chunks);
             }
         }
 
         /// <summary>
-        /// Finds a top-level window by handle, or by title (part of it) and / or process name, in Z-order.
-        /// Only top-level windows are considered, a handle of any other window is rejected.
+        /// The final image of the flow (with what the recipe drew on it), and the text found by OCR.
         /// </summary>
-        internal static WindowDetails FindWindow(string handleParameter, string titleParameter, string processParameter, out string error)
+        private static async Task<AiToolResult> CollectResultAsync(CaptureFlowContext flowContext, int maxImageSize, CancellationToken cancellationToken)
         {
-            error = null;
-            IntPtr wantedHandle = IntPtr.Zero;
-            if (handleParameter != null && !TryParseHandle(handleParameter, out wantedHandle))
+            var payload = flowContext.Payload;
+            if (payload?.RawCapture?.Image == null)
             {
-                error = $"'{handleParameter}' is not a window handle, use a handle from list_windows (e.g. 0x1A2B3C).";
                 return null;
             }
 
-            foreach (var window in WindowDetails.GetTopLevelWindows())
+            var details = payload.RawCapture.CaptureDetails;
+            var result = new AiToolResult
             {
-                if (wantedHandle != IntPtr.Zero && window.Handle != wantedHandle)
+                Title = details?.Title,
+                Source = details?.MetaData != null && details.MetaData.TryGetValue("source", out var source) ? source : null,
+                Text = payload.ExtractedText
+            };
+            if (details != null)
+            {
+                lock (details.Features)
                 {
-                    continue;
-                }
-                if (titleParameter != null && (window.Text ?? string.Empty).IndexOf(titleParameter, StringComparison.CurrentCultureIgnoreCase) < 0)
-                {
-                    continue;
-                }
-                if (processParameter != null && !string.Equals(StripExe(GetProcessName(window)), StripExe(processParameter), StringComparison.OrdinalIgnoreCase))
-                {
-                    continue;
-                }
-                return window;
-            }
-
-            error = "No window matches, use list_windows to see the windows.";
-            return null;
-        }
-
-        internal static bool TryParseHandle(string value, out IntPtr handle)
-        {
-            handle = IntPtr.Zero;
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                return false;
-            }
-            string text = value.Trim();
-            long number;
-            bool parsed = text.StartsWith("0x", StringComparison.OrdinalIgnoreCase)
-                ? long.TryParse(text.Substring(2), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out number)
-                : long.TryParse(text, NumberStyles.Integer, CultureInfo.InvariantCulture, out number);
-            if (!parsed || number == 0)
-            {
-                return false;
-            }
-            handle = new IntPtr(number);
-            return true;
-        }
-
-        internal static string FormatHandle(IntPtr handle)
-        {
-            return "0x" + handle.ToInt64().ToString("X", CultureInfo.InvariantCulture);
-        }
-
-        /// <summary>
-        /// The process name (without .exe) of the window; works for elevated processes too.
-        /// </summary>
-        internal static string GetProcessName(WindowDetails window)
-        {
-            try
-            {
-                string path = window.ProcessPath;
-                if (!string.IsNullOrEmpty(path))
-                {
-                    return Path.GetFileNameWithoutExtension(path);
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Debug($"Could not get the process path of window {window.Handle}", ex);
-            }
-
-            try
-            {
-                using var process = window.Process;
-                return process?.ProcessName ?? string.Empty;
-            }
-            catch (Exception ex)
-            {
-                Log.Debug($"Could not get the process of window {window.Handle}", ex);
-                return string.Empty;
-            }
-        }
-
-        private static string StripExe(string processName)
-        {
-            string name = (processName ?? string.Empty).Trim();
-            return name.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) ? name.Substring(0, name.Length - 4) : name;
-        }
-
-        /// <summary>
-        /// The exact contents of the window: Windows Graphics Capture when supported (also for covered windows, independent of
-        /// the UseWindowsGraphicsCapture setting), otherwise the legacy window capture.
-        /// </summary>
-        private static async Task<Bitmap> CaptureWindowAsync(WindowDetails window, CancellationToken cancellationToken)
-        {
-            if (WindowsGraphicsCaptureInterop.IsSupported)
-            {
-                try
-                {
-                    var bitmap = await WindowsGraphicsCaptureInterop.CaptureWindowToBitmapAsync(window.Handle, cancellationToken).ConfigureAwait(false);
-                    if (bitmap != null)
-                    {
-                        return bitmap;
-                    }
-                }
-                catch (OperationCanceledException)
-                {
-                    throw;
-                }
-                catch (Exception ex)
-                {
-                    Log.Warn($"Windows Graphics Capture failed for window {window.Handle}, using the legacy window capture.", ex);
+                    var lines = details.Features.OfType<IOcrLineFeature>().ToList();
+                    result.OcrLines = lines.Count > 0 ? lines : null;
                 }
             }
 
-            using var capture = await WindowCaptureHelper.CaptureWindowAsync(window, new Capture(), WindowCaptureMode.Auto, null, cancellationToken).ConfigureAwait(false);
-            return capture?.Image == null ? null : new Bitmap(capture.Image);
-        }
+            if (payload.Surface == null)
+            {
+                Encode(result, payload.RawCapture.Image, maxImageSize);
+                return result;
+            }
 
-        private static async Task<Bitmap> CaptureBoundsAsync(NativeRect bounds, CancellationToken cancellationToken)
-        {
-            using var capture = await WindowCapture.CaptureRectangleAsync(new Capture(), bounds, cancellationToken).ConfigureAwait(false);
-            return capture?.Image == null ? null : new Bitmap(capture.Image);
-        }
-
-        /// <summary>
-        /// Blacks out the visible windows of excluded processes in a screen or region capture.
-        /// </summary>
-        /// <returns>The number of windows which were blacked out</returns>
-        private static int RedactExcludedWindows(Bitmap image, NativeRect bounds)
-        {
-            if (image == null)
+            // A surface (the recipe drew on the capture): its rendering
+            var exportSource = await payload.GetExportSourceAsync(flowContext.Ui, cancellationToken).ConfigureAwait(false);
+            using (var lease = await exportSource.RenderAsync(new SurfaceOutputSettings(WellKnownFileFormats.Png, 100, false), cancellationToken).ConfigureAwait(false))
             {
-                return 0;
+                Encode(result, lease.Image, maxImageSize);
             }
-            int redacted = 0;
-            using var graphics = Graphics.FromImage(image);
-            // All visible windows, also untitled popups and tool windows (e.g. a password manager's quick access)
-            foreach (var window in WindowDetails.GetVisibleWindows())
-            {
-                if (window.Iconic || !AiToolAccess.IsProcessExcluded(GetProcessName(window)))
-                {
-                    continue;
-                }
-                var overlap = window.WindowRectangle.Intersect(bounds);
-                if (overlap.IsEmpty)
-                {
-                    continue;
-                }
-                graphics.FillRectangle(Brushes.Black, overlap.X - bounds.X, overlap.Y - bounds.Y, overlap.Width, overlap.Height);
-                redacted++;
-            }
-            return redacted;
-        }
-
-        private static async Task<(List<IOcrLineFeature> Lines, string Error)> RunOcrAsync(Image image)
-        {
-            var ocrProvider = SimpleServiceProvider.Current?.GetInstance<IOcrProvider>(isOptional: true);
-            if (ocrProvider == null)
-            {
-                return (null, "OCR is not available on this system.");
-            }
-            try
-            {
-                var lines = await ocrProvider.DoOcrAsync(image).ConfigureAwait(false);
-                return (lines ?? new List<IOcrLineFeature>(), null);
-            }
-            catch (Exception ex)
-            {
-                Log.Warn("OCR for an AI tool capture failed", ex);
-                return (null, $"OCR failed: {ex.Message}");
-            }
-        }
-
-        private static Bitmap Scale(Image image, double scale)
-        {
-            int width = Math.Max(1, (int)Math.Round(image.Width * scale));
-            int height = Math.Max(1, (int)Math.Round(image.Height * scale));
-            var result = new Bitmap(width, height, PixelFormat.Format32bppArgb);
-            using var graphics = Graphics.FromImage(result);
-            graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-            graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
-            graphics.SmoothingMode = SmoothingMode.HighQuality;
-            graphics.DrawImage(image, 0, 0, width, height);
             return result;
+        }
+
+        private static void Encode(AiToolResult result, Image image, int maxImageSize)
+        {
+            result.OriginalWidth = image.Width;
+            result.OriginalHeight = image.Height;
+            result.Png = AiToolCapture.EncodePng(image, maxImageSize, out result.Width, out result.Height);
         }
 
         private static Task ReplyErrorAsync(IpcRequestContext context, string message, CancellationToken cancellationToken)
@@ -494,23 +425,6 @@ namespace Greenshot.Helpers.Ipc
                 exit_code = 1,
                 stderr = message
             }, cancellationToken);
-        }
-
-        private static string GetParameter(IDictionary<string, string> parameters, string name)
-        {
-            return parameters.TryGetValue(name, out var value) && !string.IsNullOrWhiteSpace(value) ? value.Trim() : null;
-        }
-
-        private static int? GetInt(IDictionary<string, string> parameters, string name)
-        {
-            string value = GetParameter(parameters, name);
-            return value != null && int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out int result) ? result : (int?)null;
-        }
-
-        private static bool GetBool(IDictionary<string, string> parameters, string name)
-        {
-            string value = GetParameter(parameters, name);
-            return value != null && (string.Equals(value, "true", StringComparison.OrdinalIgnoreCase) || value == "1" || string.Equals(value, "yes", StringComparison.OrdinalIgnoreCase));
         }
     }
 }
