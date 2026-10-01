@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
   <PropertyGroup>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -22,7 +22,7 @@
     <PackageReference Include="Dapplo.Windows.Multimedia" Version="3.2.3" />
     <PackageReference Include="SixLabors.ImageSharp" Version="2.1.13" />
     <PackageReference Include="HtmlAgilityPack" Version="1.13.0" />
-    <PackageReference Include="log4net" version="3.4.0" />
+    <PackageReference Include="log4net" version="3.5.0" />
     <PackageReference Include="Svg" Version="3.4.8" />
     <PackageReference Include="Dapplo.Ini" Version="1.1.6" />
     <PackageReference Include="Dapplo.Ini.Generator" Version="1.1.6" />
