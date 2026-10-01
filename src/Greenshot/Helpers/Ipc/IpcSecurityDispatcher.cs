@@ -82,7 +82,7 @@ namespace Greenshot.Helpers.Ipc
         };
 
         /// <summary>
-        /// Commands which expose screen contents; they need the user's consent for AI tools (see <see cref="AiToolAccess"/>).
+        /// Commands which expose screen contents: only allowed for the "mcp" source, and they need the user's consent for AI tools (see <see cref="AiToolAccess"/>).
         /// </summary>
         private static readonly HashSet<string> ScreenContentCommands = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
@@ -317,6 +317,11 @@ namespace Greenshot.Helpers.Ipc
         internal static bool IsCommandAllowedForSource(string command, string source)
         {
             if (string.IsNullOrEmpty(command) || !AllowedCommands.Contains(command))
+            {
+                return false;
+            }
+            // Screen contents only for greenshot-mcp.exe: not for the command line, a web page or the browser extension
+            if (ScreenContentCommands.Contains(command) && !string.Equals(source, IpcSources.Mcp, StringComparison.OrdinalIgnoreCase))
             {
                 return false;
             }

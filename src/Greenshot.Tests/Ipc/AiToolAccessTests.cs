@@ -69,7 +69,10 @@ namespace Greenshot.Tests.Ipc
         [InlineData("native_messaging")]
         [InlineData("url_scheme")]
         [InlineData("open_with")]
-        public void Whitelist_BrowserAndOpenWith_CannotCapture(string source)
+        [InlineData("cli")]
+        [InlineData("")]
+        [InlineData(null)]
+        public void Whitelist_OnlyMcp_CanCapture(string source)
         {
             Assert.False(IpcSecurityDispatcher.IsCommandAllowedForSource("CAPTURE", source));
             Assert.False(IpcSecurityDispatcher.IsCommandAllowedForSource("LIST_WINDOWS", source));
