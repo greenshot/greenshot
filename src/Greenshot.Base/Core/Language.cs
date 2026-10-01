@@ -51,6 +51,8 @@ namespace Greenshot.Base.Core
         private static readonly Dictionary<string, string> Resources = new();
         private static string _currentLanguage;
 
+        public static string OSLanguage { get; set; }
+
         public static event LanguageChangedHandler LanguageChanged;
 
         /// <summary>
@@ -160,6 +162,15 @@ namespace Greenshot.Base.Core
             {
                 CurrentLanguage = coreConfig.Language;
                 if (CurrentLanguage != null && CurrentLanguage != coreConfig.Language)
+                {
+                    coreConfig.Language = CurrentLanguage;
+                }
+            }
+
+            if (CurrentLanguage == null)
+            {
+                CurrentLanguage = OSLanguage ?? System.Threading.Thread.CurrentThread.CurrentUICulture.Name;
+                if (CurrentLanguage != null && coreConfig != null)
                 {
                     coreConfig.Language = CurrentLanguage;
                 }
@@ -319,18 +330,31 @@ namespace Greenshot.Base.Core
                 return returnIetf;
             }
             Log.WarnFormat("Unknown language {0}, trying best match!", returnIetf);
-            if (returnIetf.Length == 5)
-            {
-                returnIetf = returnIetf.Substring(0, 2);
-            }
 
+            // Handle installer legacy tags like "ptBR" or "zhCN"
+            string noHyphenInput = returnIetf.Replace("-", "").ToLowerInvariant();
             foreach (string availableIetf in LanguageFiles.Keys)
             {
-                if (!availableIetf.StartsWith(returnIetf)) continue;
+                if (availableIetf.Replace("-", "").ToLowerInvariant() == noHyphenInput)
+                {
+                    Log.InfoFormat("Found language {0}, exact match for {1}!", availableIetf, returnIetf);
+                    returnIetf = availableIetf;
+                    break;
+                }
+            }
 
-                Log.InfoFormat("Found language {0}, best match for {1}!", availableIetf, returnIetf);
-                returnIetf = availableIetf;
-                break;
+            // If an exact match wasn't found above, fallback to matching the first 2 letters
+            if (!LanguageFiles.ContainsKey(returnIetf) && returnIetf.Length >= 2)
+            {
+                string prefix = returnIetf.Substring(0, 2).ToLowerInvariant();
+                foreach (string availableIetf in LanguageFiles.Keys)
+                {
+                    if (!availableIetf.ToLowerInvariant().StartsWith(prefix)) continue;
+
+                    Log.InfoFormat("Found language {0}, best match for {1}!", availableIetf, returnIetf);
+                    returnIetf = availableIetf;
+                    break;
+                }
             }
 
             return returnIetf;
