@@ -35,6 +35,9 @@ window even when other windows cover it. Images are scaled to 1568 pixels on the
 dotnet publish src/Greenshot.Mcp -c Release -r win-x64
 ```
 
+Native AOT needs the "Desktop development with C++" workload of Visual Studio. If the publish fails with
+"'vswhere.exe' is not recognized", add `%ProgramFiles(x86)%\Microsoft Visual Studio\Installer` to the PATH.
+
 The native `greenshot-mcp.exe` is in `src/Greenshot.Mcp/bin/Release/net10.0-windows/win-x64/publish`. Placed next to
 `Greenshot.exe`, it starts Greenshot when it isn't running.
 
