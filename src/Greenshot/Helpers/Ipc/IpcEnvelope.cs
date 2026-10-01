@@ -84,12 +84,18 @@ namespace Greenshot.Helpers.Ipc
         public const string UrlScheme = "url_scheme";
         public const string NativeMessaging = "native_messaging";
 
+        /// <summary>
+        /// greenshot-mcp.exe, the MCP server for AI tools. HELLO origin carries the AI tool's name.
+        /// </summary>
+        public const string Mcp = "mcp";
+
         public static bool IsKnown(string source)
         {
             return string.Equals(source, Cli, StringComparison.OrdinalIgnoreCase) ||
                    string.Equals(source, OpenWith, StringComparison.OrdinalIgnoreCase) ||
                    string.Equals(source, UrlScheme, StringComparison.OrdinalIgnoreCase) ||
-                   string.Equals(source, NativeMessaging, StringComparison.OrdinalIgnoreCase);
+                   string.Equals(source, NativeMessaging, StringComparison.OrdinalIgnoreCase) ||
+                   string.Equals(source, Mcp, StringComparison.OrdinalIgnoreCase);
         }
     }
 

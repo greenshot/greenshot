@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    greenshot-mcp.exe: an MCP server (stdio) for AI tools, it talks to the running Greenshot over the named pipe.
+    Publish as a native executable with:
+      dotnet publish src/Greenshot.Mcp -c Release -r win-x64
+  -->
+  <PropertyGroup>
+    <!-- Override the net480 / WinForms / WPF defaults of Directory.Build.props -->
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>false</UseWPF>
+    <UseWindowsForms>false</UseWindowsForms>
+    <RuntimeIdentifiers>win-x64;win-arm64</RuntimeIdentifiers>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>greenshot-mcp</AssemblyName>
+    <RootNamespace>Greenshot.Mcp</RootNamespace>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <PublishAot>true</PublishAot>
+    <IsAotCompatible>true</IsAotCompatible>
+    <OptimizationPreference>Size</OptimizationPreference>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ModelContextProtocol" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.10" />
+  </ItemGroup>
+</Project>

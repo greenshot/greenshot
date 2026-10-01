@@ -76,7 +76,18 @@ namespace Greenshot.Helpers.Ipc
             "ABOUT",
             "SELF_SERVICE",
             "RECIPE_EDITOR",
-            "RECIPE_MANAGER"
+            "RECIPE_MANAGER",
+            "LIST_WINDOWS",
+            "CAPTURE"
+        };
+
+        /// <summary>
+        /// Commands which expose screen contents; they need the user's consent for AI tools (see <see cref="AiToolAccess"/>).
+        /// </summary>
+        private static readonly HashSet<string> ScreenContentCommands = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "LIST_WINDOWS",
+            "CAPTURE"
         };
 
         private static readonly HashSet<string> FallbackAllowedImageExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
@@ -216,10 +227,11 @@ namespace Greenshot.Helpers.Ipc
             }
 
             // 4. UNC / Network share validation:
-            // Disallow UNC paths from untrusted sources (url_scheme, native_messaging) to prevent NTLM credential relay
+            // Disallow UNC paths from untrusted sources (url_scheme, native_messaging, mcp) to prevent NTLM credential relay
             bool isUnc = fullPath.StartsWith(@"\\") || fullPath.StartsWith("//");
             if (isUnc && (string.Equals(source, "url_scheme", StringComparison.OrdinalIgnoreCase) ||
-                          string.Equals(source, "native_messaging", StringComparison.OrdinalIgnoreCase)))
+                          string.Equals(source, "native_messaging", StringComparison.OrdinalIgnoreCase) ||
+                          string.Equals(source, IpcSources.Mcp, StringComparison.OrdinalIgnoreCase)))
             {
                 errorMessage = "Network (UNC) paths are not permitted from this source.";
                 return false;
@@ -286,6 +298,16 @@ namespace Greenshot.Helpers.Ipc
             {
                 "CLI",
                 "OPEN_FILE"
+            },
+            // greenshot-mcp.exe: what an AI tool may do, after the user allowed AI tools
+            [IpcSources.Mcp] = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                "VERSION",
+                "LIST_WINDOWS",
+                "CAPTURE",
+                "LIST_RECIPES",
+                "DESCRIBE_RECIPE",
+                "RUN_RECIPE"
             }
         };
 
@@ -303,6 +325,20 @@ namespace Greenshot.Helpers.Ipc
                 return sourceCommands.Contains(command);
             }
             return true;
+        }
+
+        /// <summary>
+        /// True when the command needs the user's consent for AI tools: every command from greenshot-mcp.exe except VERSION,
+        /// and the commands exposing screen contents from any source.
+        /// </summary>
+        internal static bool RequiresAiToolConsent(string command, string source)
+        {
+            if (ScreenContentCommands.Contains(command))
+            {
+                return true;
+            }
+            return string.Equals(source, IpcSources.Mcp, StringComparison.OrdinalIgnoreCase) &&
+                   !string.Equals(command, "VERSION", StringComparison.OrdinalIgnoreCase);
         }
 
         public static async Task DispatchAsync(IpcRequestContext context, Form mainForm, Action onExit, Action onReloadConfig, Action onFirstLaunch, Action<string> onOpenFile)
@@ -359,6 +395,24 @@ namespace Greenshot.Helpers.Ipc
                         status = "error",
                         exit_code = 1,
                         stderr = $"[SECURITY] IPC command rejected: '{command}' is not in the allowed command whitelist for source '{context.Envelope.Source}'."
+                    }).ConfigureAwait(false);
+                }
+                catch { }
+                return;
+            }
+
+            // 2. AI tools (and anything reading the screen contents) need the user's consent
+            if (RequiresAiToolConsent(command, context.Envelope.Source) &&
+                !await AiToolAccess.EnsureAllowedAsync(context.ConnectionOrigin).ConfigureAwait(false))
+            {
+                Log.Warn($"[SECURITY] IPC command rejected: '{command}' from source '{context.Envelope.Source}', AI tools are not allowed.");
+                try
+                {
+                    await context.ReplyAsync(new
+                    {
+                        status = "error",
+                        exit_code = 1,
+                        stderr = AiToolAccess.NotAllowedMessage
                     }).ConfigureAwait(false);
                 }
                 catch { }
@@ -422,6 +476,14 @@ namespace Greenshot.Helpers.Ipc
 
                 case "RECIPE_MANAGER":
                     await HandleRecipeManagerAsync(context, mainForm).ConfigureAwait(false);
+                    break;
+
+                case "LIST_WINDOWS":
+                    await AiToolIpcHandler.HandleListWindowsAsync(context).ConfigureAwait(false);
+                    break;
+
+                case "CAPTURE":
+                    await AiToolIpcHandler.HandleCaptureAsync(context).ConfigureAwait(false);
                     break;
 
                 case "EXIT":

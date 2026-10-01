@@ -377,6 +377,7 @@ namespace Greenshot.Base.Core
             IncludePlugins ??= new List<string>();
             AllowedUntrustedCertificateHosts ??= new List<string>();
             AllowedCertificateThumbprints ??= new List<string>();
+            AiToolsExcludedProcesses ??= new List<string>();
         }
 
         public bool OnBeforeSave()

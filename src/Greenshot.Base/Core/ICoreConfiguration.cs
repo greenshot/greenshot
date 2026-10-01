@@ -404,6 +404,18 @@ namespace Greenshot.Base.Core
         [Description("List of certificate thumbprints (SHA-1 / SHA-256 hashes) for which SSL/TLS certificate validation errors are ignored.")]
         List<string> AllowedCertificateThumbprints { get; set; }
 
+        [Description("Allow AI tools (MCP clients using greenshot-mcp) to list windows, take screenshots and run recipes. Greenshot asks the first time an AI tool connects.")]
+        [DefaultValue(false)]
+        bool AllowAiTools { get; set; }
+
+        [Description("Processes whose windows are never listed or captured for AI tools (process names without .exe).")]
+        [DefaultValue("KeePass,KeePassXC,1Password,Bitwarden,LastPass,Dashlane,Enpass,RoboForm,NordPass,ProtonPass")]
+        List<string> AiToolsExcludedProcesses { get; set; }
+
+        [Description("Show a notification every time an AI tool takes a screenshot with Greenshot.")]
+        [DefaultValue(true)]
+        bool AiToolsNotifyOnCapture { get; set; }
+
         /// <summary>Validates <see cref="OutputFilePath"/>; resets it to the default output folder when the path no longer exists.</summary>
         void ValidateAndCorrectOutputFilePath();
 
