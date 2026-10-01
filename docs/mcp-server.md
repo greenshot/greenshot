@@ -119,13 +119,24 @@ The native `greenshot-mcp.exe` is in `src/Greenshot.Mcp/bin/Release/net10.0-wind
 `Greenshot.exe`, it starts Greenshot when it isn't running. To use a development build from another directory with a
 Debug build of Greenshot, add that directory to `AiToolsMcpServerPaths` in greenshot.ini (ignored by Release builds).
 
-Claude Code:
+## Connect an AI tool
+
+Every MCP client starts `greenshot-mcp.exe` itself (stdio), so it only needs the path of the executable. The examples
+use the default install location `C:\Program Files\Greenshot\greenshot-mcp.exe`; in JSON files the backslashes are
+doubled. The installer doesn't include `greenshot-mcp.exe` yet: until it does, copy the published executable (see
+above) next to `Greenshot.exe`. Restart the AI tool or reload its MCP servers after changing a configuration file.
+
+The first time the AI tool uses a Greenshot tool, Greenshot asks whether that program may use it. The answer is
+stored in the Greenshot settings (General, AI tools), where it can be removed again.
+
+### Claude Code
 
 ```
-claude mcp add greenshot -- "C:\Program Files\Greenshot\greenshot-mcp.exe"
+claude mcp add --scope user greenshot -- "C:\Program Files\Greenshot\greenshot-mcp.exe"
 ```
 
-Other clients (e.g. Claude Desktop `claude_desktop_config.json`):
+`--scope user` makes Greenshot available in all projects; without it the server is only added to the current project.
+To share it with a team, put it in the project's `.mcp.json`:
 
 ```json
 {
@@ -134,3 +145,86 @@ Other clients (e.g. Claude Desktop `claude_desktop_config.json`):
   }
 }
 ```
+
+Check it with `claude mcp list` or `/mcp` in a session.
+
+### Claude Desktop
+
+Settings, Developer, Edit Config opens `claude_desktop_config.json` (usually `%APPDATA%\Claude\claude_desktop_config.json`).
+Add the server and restart Claude Desktop:
+
+```json
+{
+  "mcpServers": {
+    "greenshot": { "command": "C:\\Program Files\\Greenshot\\greenshot-mcp.exe" }
+  }
+}
+```
+
+### Google Antigravity
+
+Antigravity 2.0, the Antigravity IDE and the `agy` CLI share `%USERPROFILE%\.gemini\config\mcp_config.json`
+(a workspace can have its own `.agents\mcp_config.json`). In the IDE: the `...` menu at the top of the agent panel,
+MCP Servers, Manage MCP Servers, View raw config.
+
+```json
+{
+  "mcpServers": {
+    "greenshot": {
+      "command": "C:\\Program Files\\Greenshot\\greenshot-mcp.exe",
+      "args": []
+    }
+  }
+}
+```
+
+Then Settings, Customizations, Installed MCP Servers, Refresh (in the CLI: `/mcp`). When removing the server again,
+also delete its cached copy in `%USERPROFILE%\.gemini\antigravity*\mcp\`.
+
+### Gemini CLI
+
+```
+gemini mcp add --scope user greenshot "C:\Program Files\Greenshot\greenshot-mcp.exe"
+```
+
+or add the same `mcpServers` entry as above to `%USERPROFILE%\.gemini\settings.json`. Check it with `/mcp`.
+
+### VS Code (GitHub Copilot agent mode)
+
+Run "MCP: Add Server" from the command palette (Command (stdio), the path of `greenshot-mcp.exe`, name `greenshot`),
+or create `.vscode\mcp.json` in the workspace. VS Code uses `servers` instead of `mcpServers`:
+
+```json
+{
+  "servers": {
+    "greenshot": {
+      "type": "stdio",
+      "command": "C:\\Program Files\\Greenshot\\greenshot-mcp.exe"
+    }
+  }
+}
+```
+
+### Cursor and Windsurf
+
+The same `mcpServers` entry as for Claude Desktop, in `%USERPROFILE%\.cursor\mcp.json` (all projects) or `.cursor\mcp.json`
+(one project) for Cursor, and in `%USERPROFILE%\.codeium\windsurf\mcp_config.json` for Windsurf.
+
+### OpenAI Codex
+
+```
+codex mcp add greenshot -- "C:\Program Files\Greenshot\greenshot-mcp.exe"
+```
+
+or in `%USERPROFILE%\.codex\config.toml`:
+
+```toml
+[mcp_servers.greenshot]
+command = 'C:\Program Files\Greenshot\greenshot-mcp.exe'
+```
+
+### Other MCP clients
+
+Any client that supports local (stdio) MCP servers works: the command is the path of `greenshot-mcp.exe`, without
+arguments or environment variables. Greenshot identifies the AI tool by the program which started `greenshot-mcp.exe`.
+A client that runs on Node.js (e.g. installed with npm) shows up as "Node.js" in Greenshot's question and settings.
