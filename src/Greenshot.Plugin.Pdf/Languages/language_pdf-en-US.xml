@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="English" ietf="en-US" version="1.0.0">
+  <resources>
+    <resource name="settings_title">PDF settings</resource>
+    <resource name="destination">Save as PDF</resource>
+    <resource name="label_pdf_document">PDF document</resource>
+    <resource name="label_destination_options">Destination options</resource>
+    <resource name="label_unit">Unit</resource>
+    <resource name="label_page_size">Page size</resource>
+    <resource name="label_page_width">Width</resource>
+    <resource name="label_page_height">Height</resource>
+    <resource name="label_margins">Margins</resource>
+    <resource name="label_top">Top</resource>
+    <resource name="label_bottom">Bottom</resource>
+    <resource name="label_left">Left</resource>
+    <resource name="label_right">Right</resource>
+    <resource name="label_scaling">Image scaling</resource>
+    <resource name="destination_option_fileas">Save as (displaying dialog)</resource>
+    <resource name="page_image">Automatic (image size)</resource>
+    <resource name="page_custom">Custom</resource>
+    <resource name="page_a3">A3</resource>
+    <resource name="page_a4">A4</resource>
+    <resource name="page_a5">A5</resource>
+    <resource name="page_a6">A6</resource>
+    <resource name="page_letter">Letter</resource>
+    <resource name="unit_mm">Millimeters (mm)</resource>
+    <resource name="unit_cm">Centimeters (cm)</resource>
+    <resource name="unit_inch">Inches (in)</resource>
+    <resource name="scale_shrink">Only shrink to fit</resource>
+    <resource name="scale_fit">Fit to page</resource>
+  </resources>
+</language>

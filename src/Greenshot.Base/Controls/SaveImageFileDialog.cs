@@ -138,6 +138,23 @@ namespace Greenshot.Base.Controls
             SaveFileDialog.FilterIndex = preselect + 1;
         }
 
+        public void SelectFormat(string format)
+        {
+            if (string.IsNullOrWhiteSpace(format))
+            {
+                return;
+            }
+
+            for (int i = 0; i < _filterOptions.Length; i++)
+            {
+                if (string.Equals(_filterOptions[i].FormatId, format, StringComparison.OrdinalIgnoreCase))
+                {
+                    SaveFileDialog.FilterIndex = i + 1;
+                    return;
+                }
+            }
+        }
+
         private void PrepareFilterOptions()
         {
             var registry = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>(true);

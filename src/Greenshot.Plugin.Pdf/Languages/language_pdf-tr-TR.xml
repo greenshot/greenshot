@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Türkçe" ietf="tr-TR" version="1.0.0">
+  <resources>
+    <resource name="settings_title">PDF ayarları</resource>
+    <resource name="destination">PDF olarak kaydet</resource>
+    <resource name="label_pdf_document">PDF belgesi</resource>
+    <resource name="label_destination_options">Hedef seçenekleri</resource>
+    <resource name="label_unit">Birim</resource>
+    <resource name="label_page_size">Sayfa boyutu</resource>
+    <resource name="label_page_width">Genişlik</resource>
+    <resource name="label_page_height">Yükseklik</resource>
+    <resource name="label_margins">Kenar boşlukları</resource>
+    <resource name="label_top">Üst</resource>
+    <resource name="label_bottom">Alt</resource>
+    <resource name="label_left">Sol</resource>
+    <resource name="label_right">Sağ</resource>
+    <resource name="label_scaling">Görüntü ölçeklendirme</resource>
+    <resource name="destination_option_fileas">Farklı kaydet (iletişim kutusunu göster)</resource>
+    <resource name="page_image">Otomatik (görüntü boyutu)</resource>
+    <resource name="page_custom">Özel</resource>
+    <resource name="page_a3">A3</resource>
+    <resource name="page_a4">A4</resource>
+    <resource name="page_a5">A5</resource>
+    <resource name="page_a6">A6</resource>
+    <resource name="page_letter">Letter</resource>
+    <resource name="unit_mm">Milimetre (mm)</resource>
+    <resource name="unit_cm">Santimetre (cm)</resource>
+    <resource name="unit_inch">İnç (in)</resource>
+    <resource name="scale_shrink">Yalnızca sığacak şekilde küçült</resource>
+    <resource name="scale_fit">Sayfaya sığdır</resource>
+  </resources>
+</language>

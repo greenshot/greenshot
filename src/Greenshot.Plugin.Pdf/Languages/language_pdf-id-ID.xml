@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Bahasa Indonesia" ietf="id-ID" version="1.0.0">
+  <resources>
+    <resource name="settings_title">Pengaturan PDF</resource>
+    <resource name="destination">Simpan sebagai PDF</resource>
+    <resource name="label_pdf_document">Dokumen PDF</resource>
+    <resource name="label_destination_options">Opsi tujuan</resource>
+    <resource name="label_unit">Satuan</resource>
+    <resource name="label_page_size">Ukuran halaman</resource>
+    <resource name="label_page_width">Lebar</resource>
+    <resource name="label_page_height">Tinggi</resource>
+    <resource name="label_margins">Margin</resource>
+    <resource name="label_top">Atas</resource>
+    <resource name="label_bottom">Bawah</resource>
+    <resource name="label_left">Kiri</resource>
+    <resource name="label_right">Kanan</resource>
+    <resource name="label_scaling">Penskalaan gambar</resource>
+    <resource name="destination_option_fileas">Simpan sebagai (tampilkan dialog)</resource>
+    <resource name="page_image">Otomatis (ukuran gambar)</resource>
+    <resource name="page_custom">Kustom</resource>
+    <resource name="page_a3">A3</resource>
+    <resource name="page_a4">A4</resource>
+    <resource name="page_a5">A5</resource>
+    <resource name="page_a6">A6</resource>
+    <resource name="page_letter">Letter</resource>
+    <resource name="unit_mm">Milimeter (mm)</resource>
+    <resource name="unit_cm">Sentimeter (cm)</resource>
+    <resource name="unit_inch">Inci (in)</resource>
+    <resource name="scale_shrink">Hanya perkecil agar pas</resource>
+    <resource name="scale_fit">Sesuaikan dengan halaman</resource>
+  </resources>
+</language>

@@ -224,7 +224,7 @@ namespace Greenshot.Base.Core.Export
                 return null;
             }
 
-            return $"{settings.Format}|{settings.JPGQuality}|{settings.ReduceColors}|{settings.DisableReduceColors}|{settings.SaveBackgroundOnly}";
+            return $"{settings.Format}|{settings.JPGQuality}|{settings.ReduceColors}|{settings.DisableReduceColors}|{settings.SaveBackgroundOnly}|{settings.EncodingCacheKey}";
         }
 
         private void ThrowIfDisposed()

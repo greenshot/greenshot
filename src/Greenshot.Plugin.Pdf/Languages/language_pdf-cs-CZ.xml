@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<language description="Čeština" ietf="cs-CZ" version="1.0.0">
+  <resources>
+    <resource name="settings_title">Nastavení PDF</resource>
+    <resource name="destination">Uložit jako PDF</resource>
+    <resource name="label_pdf_document">Dokument PDF</resource>
+    <resource name="label_destination_options">Možnosti cíle</resource>
+    <resource name="label_unit">Jednotka</resource>
+    <resource name="label_page_size">Velikost stránky</resource>
+    <resource name="label_page_width">Šířka</resource>
+    <resource name="label_page_height">Výška</resource>
+    <resource name="label_margins">Okraje</resource>
+    <resource name="label_top">Nahoře</resource>
+    <resource name="label_bottom">Dole</resource>
+    <resource name="label_left">Vlevo</resource>
+    <resource name="label_right">Vpravo</resource>
+    <resource name="label_scaling">Změna velikosti obrázku</resource>
+    <resource name="destination_option_fileas">Uložit jako (zobrazit dialog)</resource>
+    <resource name="page_image">Automaticky (velikost obrázku)</resource>
+    <resource name="page_custom">Vlastní</resource>
+    <resource name="page_a3">A3</resource>
+    <resource name="page_a4">A4</resource>
+    <resource name="page_a5">A5</resource>
+    <resource name="page_a6">A6</resource>
+    <resource name="page_letter">Letter</resource>
+    <resource name="unit_mm">Milimetry (mm)</resource>
+    <resource name="unit_cm">Centimetry (cm)</resource>
+    <resource name="unit_inch">Palce (in)</resource>
+    <resource name="scale_shrink">Pouze zmenšit, aby se vešel</resource>
+    <resource name="scale_fit">Přizpůsobit stránce</resource>
+  </resources>
+</language>
