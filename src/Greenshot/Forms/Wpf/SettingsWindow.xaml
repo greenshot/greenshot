@@ -560,6 +560,37 @@
                                 </Grid>
                             </StackPanel>
                         </GroupBox>
+
+                        <!-- AI tools (greenshot-mcp) -->
+                        <GroupBox Header="{wpf:Translate settings_aitools}">
+                            <StackPanel>
+                                <TextBlock Text="{wpf:Translate settings_aitools_allowed}"
+                                           TextWrapping="Wrap"
+                                           Margin="0,0,0,4"
+                                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <ListBox ItemsSource="{Binding AiToolsAllowedClients}"
+                                             SelectedItem="{Binding SelectedAiToolClient, Mode=TwoWay}"
+                                             MinHeight="48" MaxHeight="120"
+                                             ScrollViewer.HorizontalScrollBarVisibility="Auto"/>
+                                    <Button Grid.Column="1"
+                                            Content="{wpf:Translate settings_aitools_remove}"
+                                            VerticalAlignment="Top"
+                                            Margin="6,0,0,0"
+                                            Padding="8,2"
+                                            Click="RemoveAiToolClient_Click"
+                                            IsEnabled="{Binding HasSelectedAiToolClient}"/>
+                                </Grid>
+                                <CheckBox Content="{wpf:Translate settings_aitools_notify}"
+                                          Margin="0,6,0,0"
+                                          IsChecked="{Binding CoreConfiguration.AiToolsNotifyOnCapture, Mode=TwoWay}"
+                                          IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=AiToolsNotifyOnCapture}"/>
+                            </StackPanel>
+                        </GroupBox>
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>

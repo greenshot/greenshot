@@ -408,9 +408,9 @@ namespace Greenshot.Helpers.Ipc
 
             // 2. AI tools (and anything reading the screen contents) need the user's consent
             if (RequiresAiToolConsent(command, context.Envelope.Source) &&
-                !await AiToolAccess.EnsureAllowedAsync(context.ConnectionOrigin).ConfigureAwait(false))
+                !await AiToolAccess.EnsureAllowedAsync(context.AiClient).ConfigureAwait(false))
             {
-                Log.Warn($"[SECURITY] IPC command rejected: '{command}' from source '{context.Envelope.Source}', AI tools are not allowed.");
+                Log.Warn($"[SECURITY] IPC command rejected: '{command}' from source '{context.Envelope.Source}', the user did not allow {context.AiClient?.ToString() ?? "an unidentified program"}.");
                 try
                 {
                     await context.ReplyAsync(new

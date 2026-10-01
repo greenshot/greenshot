@@ -34,9 +34,10 @@ using log4net;
 namespace Greenshot.Helpers.Ipc
 {
     /// <summary>
-    /// Consent, exclusions and notifications for AI tools (MCP clients) which use Greenshot through the named pipe.
+    /// Consent, exclusions and notifications for AI tools (MCP clients) which use Greenshot through greenshot-mcp.exe.
     /// An AI tool can see whatever is on the screen, so:
-    /// - nothing works until the user allowed AI tools (asked the first time one connects, stored in AllowAiTools),
+    /// - nothing works until the user allowed that program (identified by Greenshot, see <see cref="AiToolCaller"/>; asked the first
+    ///   time it connects, stored in AiToolsAllowedClients and revocable in the settings),
     /// - windows of excluded processes (password managers by default) are never listed or captured,
     /// - every capture shows a notification (AiToolsNotifyOnCapture).
     /// </summary>
@@ -47,9 +48,9 @@ namespace Greenshot.Helpers.Ipc
         private static readonly HashSet<string> DeniedClients = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
-        /// Asks the user whether the named AI tool may use Greenshot. Replaceable for tests.
+        /// Asks the user whether the AI tool may use Greenshot. Replaceable for tests.
         /// </summary>
-        internal static Func<string, CancellationToken, Task<bool>> ConsentPrompt { get; set; } = ShowConsentPromptAsync;
+        internal static Func<AiToolClient, CancellationToken, Task<bool>> ConsentPrompt { get; set; } = ShowConsentPromptAsync;
 
         /// <summary>
         /// The configuration to use, replaceable for tests.
@@ -59,37 +60,46 @@ namespace Greenshot.Helpers.Ipc
         /// <summary>
         /// The message for a rejected request
         /// </summary>
-        public const string NotAllowedMessage = "Greenshot does not allow AI tools to use it. The user can enable this with AllowAiTools=True in the [Core] section of greenshot.ini.";
+        public const string NotAllowedMessage = "The user did not allow this program to use Greenshot. Allowed programs are managed in the Greenshot settings (AI tools).";
 
         /// <summary>
-        /// Returns true when AI tools are allowed; asks the user once (per client and Greenshot run) when they are not.
+        /// True when the user allowed this program (AiToolsAllowedClients).
         /// </summary>
-        /// <param name="clientName">Name of the AI tool, as announced by the MCP server (may be empty)</param>
+        public static bool IsAllowed(AiToolClient client)
+        {
+            var allowed = ConfigurationProvider()?.AiToolsAllowedClients;
+            return client != null && !string.IsNullOrEmpty(client.ExePath) && allowed != null &&
+                   allowed.Any(path => string.Equals(path?.Trim(), client.ExePath, StringComparison.OrdinalIgnoreCase));
+        }
+
+        /// <summary>
+        /// Returns true when the user allowed the program; asks once (per program and Greenshot run) when not.
+        /// </summary>
+        /// <param name="client">The program, as identified by Greenshot; null (unidentified) is never allowed</param>
         /// <param name="cancellationToken">CancellationToken</param>
-        public static async Task<bool> EnsureAllowedAsync(string clientName, CancellationToken cancellationToken = default)
+        public static async Task<bool> EnsureAllowedAsync(AiToolClient client, CancellationToken cancellationToken = default)
         {
             var config = ConfigurationProvider();
-            if (config == null)
+            if (config == null || client == null || string.IsNullOrEmpty(client.ExePath))
             {
                 return false;
             }
-            if (config.AllowAiTools)
+            if (IsAllowed(client))
             {
                 return true;
             }
 
-            string client = string.IsNullOrWhiteSpace(clientName) ? "An AI tool" : clientName.Trim();
             await PromptLock.WaitAsync(cancellationToken).ConfigureAwait(false);
             try
             {
                 // Another request may have been answered while this one waited
-                if (config.AllowAiTools)
+                if (IsAllowed(client))
                 {
                     return true;
                 }
                 lock (DeniedClients)
                 {
-                    if (DeniedClients.Contains(client))
+                    if (DeniedClients.Contains(client.ExePath))
                     {
                         return false;
                     }
@@ -100,26 +110,27 @@ namespace Greenshot.Helpers.Ipc
                 {
                     lock (DeniedClients)
                     {
-                        DeniedClients.Add(client);
+                        DeniedClients.Add(client.ExePath);
                     }
-                    Log.Info($"The user did not allow the AI tool '{client}' to use Greenshot.");
+                    Log.Info($"The user did not allow {client} to use Greenshot.");
                     return false;
                 }
 
                 // Configuration is written on the UI thread (single writer, its change events have UI subscribers)
                 await UiDispatcher.Current.InvokeAsync(() =>
                 {
-                    config.AllowAiTools = true;
+                    var allowedClients = new List<string>(config.AiToolsAllowedClients ?? new List<string>()) { client.ExePath };
+                    config.AiToolsAllowedClients = allowedClients;
                     try
                     {
                         IniConfigRegistry.Get()?.Save();
                     }
                     catch (Exception ex)
                     {
-                        Log.Warn("Could not save the configuration after allowing AI tools", ex);
+                        Log.Warn("Could not save the configuration after allowing an AI tool", ex);
                     }
                 }, cancellationToken).ConfigureAwait(false);
-                Log.Info($"The user allowed AI tools, requested by '{client}'.");
+                Log.Info($"The user allowed {client} to use Greenshot.");
                 return true;
             }
             finally
@@ -187,12 +198,15 @@ namespace Greenshot.Helpers.Ipc
             UiDispatcher.Current.RunOnUiAsync(() => notificationService.ShowInfoMessage(message, TimeSpan.FromSeconds(5))).FireAndLog("AI tool capture notification", Log);
         }
 
-        private static Task<bool> ShowConsentPromptAsync(string client, CancellationToken cancellationToken)
+        private static Task<bool> ShowConsentPromptAsync(AiToolClient client, CancellationToken cancellationToken)
         {
-            string text = $"{client} wants to use Greenshot to list your windows and take screenshots, and to run Greenshot recipes.\r\n\r\n" +
+            string signer = string.IsNullOrEmpty(client.Signer) ? "This program is not signed." : $"Signed by: {client.Signer}";
+            string text = $"{client.DisplayName} wants to use Greenshot to list your windows and take screenshots, and to run Greenshot recipes.\r\n\r\n" +
+                          $"Program: {client.ExePath}\r\n{signer}\r\n\r\n" +
                           "Screenshots can contain anything that is visible on your screen. Windows of excluded applications " +
-                          "(password managers by default, see AiToolsExcludedProcesses in greenshot.ini) are never shared.\r\n\r\n" +
-                          "Allow AI tools to use Greenshot?";
+                          "(password managers by default, see AiToolsExcludedProcesses in greenshot.ini) are never shared. " +
+                          "You can remove the permission in the Greenshot settings.\r\n\r\n" +
+                          $"Allow {client.DisplayName} to use Greenshot?";
             return UiDispatcher.Current.InvokeAsync(() =>
             {
                 // A hidden top-most owner, so the question doesn't end up behind the AI tool's window

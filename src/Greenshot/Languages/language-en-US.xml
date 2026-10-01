@@ -291,6 +291,10 @@ Please check write accessibility of the selected storage location.</resource>
     will generate a folder for the current day in your default storage location, e.g. 2008-06-29, the contained screenshot file's name will be based on the current
     time, e.g. 11_58_32 (plus extension defined in the settings)</resource>
 		<resource name="settings_network">Network and updates</resource>
+		<resource name="settings_aitools">AI tools</resource>
+		<resource name="settings_aitools_allowed">Programs allowed to see your windows, take screenshots and run recipes through greenshot-mcp:</resource>
+		<resource name="settings_aitools_remove">Remove</resource>
+		<resource name="settings_aitools_notify">Show a notification when an AI tool takes a screenshot</resource>
 		<resource name="settings_output">Output</resource>
 		<resource name="settings_playsound">Play camera sound</resource>
 		<resource name="settings_plugins">Plugins</resource>

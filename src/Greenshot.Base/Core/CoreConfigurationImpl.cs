@@ -378,6 +378,8 @@ namespace Greenshot.Base.Core
             AllowedUntrustedCertificateHosts ??= new List<string>();
             AllowedCertificateThumbprints ??= new List<string>();
             AiToolsExcludedProcesses ??= new List<string>();
+            AiToolsAllowedClients ??= new List<string>();
+            AiToolsMcpServerPaths ??= new List<string>();
         }
 
         public bool OnBeforeSave()

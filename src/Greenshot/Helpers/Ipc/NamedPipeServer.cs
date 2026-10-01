@@ -59,6 +59,13 @@ namespace Greenshot.Helpers.Ipc
         /// </summary>
         public Func<string, bool> ExtensionOriginValidator { get; set; } = ExtensionOriginPolicy.ForApplicationDirectory().IsAllowed;
 
+        /// <summary>
+        /// Identifies the AI tool behind a connection with source "mcp", see <see cref="AiToolCaller.TryIdentify"/>. Replaceable for tests.
+        /// </summary>
+        public McpClientIdentifierDelegate McpClientIdentifier { get; set; } = AiToolCaller.TryIdentify;
+
+        public delegate bool McpClientIdentifierDelegate(NamedPipeServerStream pipe, out AiToolClient client, out string error);
+
         public NamedPipeServer() : this(NamedPipeEndpoint.GetPipeName())
         {
         }
@@ -146,6 +153,7 @@ namespace Greenshot.Helpers.Ipc
                     // Connection identity: bound once from the mandatory HELLO frame, never from later envelopes.
                     string connectionSource = null;
                     string connectionOrigin = null;
+                    AiToolClient connectionAiClient = null;
                     bool connectionUsesTextFrames = false;
                     var connectionWriteLock = new SemaphoreSlim(1, 1);
 
@@ -222,6 +230,18 @@ namespace Greenshot.Helpers.Ipc
                                 break;
                             }
 
+                            // AI tools: don't trust the HELLO, check which program is connected and who started it
+                            if (string.Equals(envelope.Source, IpcSources.Mcp, StringComparison.OrdinalIgnoreCase))
+                            {
+                                if (!McpClientIdentifier(stream, out connectionAiClient, out string identifyError))
+                                {
+                                    Log.Warn($"[SECURITY] Named pipe connection rejected: {identifyError}");
+                                    await RejectAsync(stream, connectionWriteLock, $"[SECURITY] Connection rejected: {identifyError}", cancellationToken).ConfigureAwait(false);
+                                    break;
+                                }
+                                Log.Info($"AI tool connected: {connectionAiClient} (calls itself '{envelope.Origin}').");
+                            }
+
                             connectionSource = envelope.Source.ToLowerInvariant();
                             connectionOrigin = envelope.Origin;
                             connectionUsesTextFrames = string.Equals(replyFormat, IpcSources.ReplyFormatText, StringComparison.OrdinalIgnoreCase);
@@ -242,6 +262,7 @@ namespace Greenshot.Helpers.Ipc
                         var context = new IpcRequestContext(envelope, stream, connectionWriteLock)
                         {
                             ConnectionOrigin = connectionOrigin,
+                            AiClient = connectionAiClient,
                             UsesTextFrames = connectionUsesTextFrames,
                             WriteTimeout = ReplyWriteTimeout
                         };

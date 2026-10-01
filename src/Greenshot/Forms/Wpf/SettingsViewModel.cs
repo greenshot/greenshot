@@ -88,6 +88,9 @@ namespace Greenshot.Forms.Wpf
             // Initialize clipboard formats
             InitializeClipboardFormats();
 
+            // Programs allowed to use Greenshot through greenshot-mcp
+            AiToolsAllowedClients = new ObservableCollection<string>(CoreConfiguration.AiToolsAllowedClients ?? new List<string>());
+
             // Initialize plugin controls collection
             PluginControls = new ObservableCollection<UIElement>();
 
@@ -102,6 +105,29 @@ namespace Greenshot.Forms.Wpf
         }
 
         public ICoreConfiguration CoreConfiguration { get; }
+
+        /// <summary>
+        /// Programs (full paths) the user allowed to use Greenshot through greenshot-mcp, written back on save
+        /// </summary>
+        public ObservableCollection<string> AiToolsAllowedClients { get; }
+
+        private string _selectedAiToolClient;
+
+        public string SelectedAiToolClient
+        {
+            get => _selectedAiToolClient;
+            set
+            {
+                if (_selectedAiToolClient != value)
+                {
+                    _selectedAiToolClient = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(HasSelectedAiToolClient));
+                }
+            }
+        }
+
+        public bool HasSelectedAiToolClient => _selectedAiToolClient != null;
         
         public IEditorConfiguration EditorConfiguration { get; }
         

@@ -258,6 +258,14 @@ namespace Greenshot.Forms.Wpf
             dialog.ShowDialog();
         }
 
+        private void RemoveAiToolClient_Click(object sender, RoutedEventArgs e)
+        {
+            if (_viewModel.SelectedAiToolClient != null)
+            {
+                _viewModel.AiToolsAllowedClients.Remove(_viewModel.SelectedAiToolClient);
+            }
+        }
+
         private void IconSizeUp_Click(object sender, RoutedEventArgs e)
         {
             if (_viewModel.IconSize + 16 <= 256)
@@ -292,6 +300,9 @@ namespace Greenshot.Forms.Wpf
             }
             
             _viewModel.CoreConfiguration.OutputDestinations = destinations;
+
+            // Programs allowed to use Greenshot through greenshot-mcp
+            _viewModel.CoreConfiguration.AiToolsAllowedClients = _viewModel.AiToolsAllowedClients.ToList();
 
             // Save clipboard formats
             if (_viewModel.ClipboardFormats != null)

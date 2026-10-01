@@ -253,7 +253,7 @@ namespace Greenshot.Helpers.Ipc
                     data = Convert.ToBase64String(stream.GetBuffer(), 0, (int)stream.Length);
                 }
 
-                AiToolAccess.NotifyCapture(context.ConnectionOrigin, what);
+                AiToolAccess.NotifyCapture(context.AiClient?.DisplayName ?? context.ConnectionOrigin, what);
 
                 await context.ReplyAsync(new
                 {

@@ -91,81 +91,113 @@ namespace Greenshot.Tests.Ipc
             Assert.Equal(required, IpcSecurityDispatcher.RequiresAiToolConsent(command, source));
         }
 
+        private static readonly AiToolClient TestClient = new AiToolClient
+        {
+            ExePath = @"C:\Test\AiTool.exe",
+            DisplayName = "Test AI tool"
+        };
+
+        /// <summary>
+        /// Runs the test with the allowed programs and consent prompt set, and restores them afterwards.
+        /// </summary>
+        private static async Task WithConsentAsync(List<string> allowedClients, Func<AiToolClient, CancellationToken, Task<bool>> prompt, Func<ICoreConfiguration, Task> test)
+        {
+            var config = IniConfigRegistry.GetSection<ICoreConfiguration>();
+            var previousAllowed = config.AiToolsAllowedClients;
+            var previousPrompt = AiToolAccess.ConsentPrompt;
+            try
+            {
+                config.AiToolsAllowedClients = allowedClients;
+                AiToolAccess.ResetDeniedClients();
+                AiToolAccess.ConsentPrompt = prompt;
+                await test(config);
+            }
+            finally
+            {
+                AiToolAccess.ConsentPrompt = previousPrompt;
+                AiToolAccess.ResetDeniedClients();
+                config.AiToolsAllowedClients = previousAllowed;
+            }
+        }
+
         [Fact]
         public async Task Capture_WhenTheUserDenies_IsRejected_AndNotAskedAgain()
         {
-            var config = IniConfigRegistry.GetSection<ICoreConfiguration>();
-            bool previousAllow = config.AllowAiTools;
-            var previousPrompt = AiToolAccess.ConsentPrompt;
             var askedClients = new List<string>();
-            try
+            await WithConsentAsync(new List<string>(), (client, cancellationToken) =>
             {
-                config.AllowAiTools = false;
-                AiToolAccess.ResetDeniedClients();
-                AiToolAccess.ConsentPrompt = (client, cancellationToken) =>
-                {
-                    askedClients.Add(client);
-                    return Task.FromResult(false);
-                };
-
+                askedClients.Add(client.ExePath);
+                return Task.FromResult(false);
+            }, async config =>
+            {
                 for (int i = 0; i < 2; i++)
                 {
-                    var reply = await DispatchAsync("CAPTURE", "Test AI tool", new Dictionary<string, string> { ["target"] = "screen" });
+                    var reply = await DispatchAsync("CAPTURE", TestClient, new Dictionary<string, string> { ["target"] = "screen" });
                     Assert.Equal("error", reply.Value<string>("status"));
                     Assert.Equal(AiToolAccess.NotAllowedMessage, reply.Value<string>("stderr"));
                     Assert.Null(reply["data"]);
                 }
 
-                Assert.Equal(new[] { "Test AI tool" }, askedClients);
-                Assert.False(config.AllowAiTools);
-            }
-            finally
+                Assert.Equal(new[] { TestClient.ExePath }, askedClients);
+                Assert.Empty(config.AiToolsAllowedClients);
+            });
+        }
+
+        [Fact]
+        public async Task UnidentifiedClient_IsRejected_WithoutAsking()
+        {
+            bool asked = false;
+            await WithConsentAsync(new List<string> { TestClient.ExePath }, (client, cancellationToken) =>
             {
-                AiToolAccess.ConsentPrompt = previousPrompt;
-                AiToolAccess.ResetDeniedClients();
-                config.AllowAiTools = previousAllow;
-            }
+                asked = true;
+                return Task.FromResult(true);
+            }, async config =>
+            {
+                var reply = await DispatchAsync("LIST_WINDOWS", null);
+                Assert.Equal("error", reply.Value<string>("status"));
+                Assert.False(asked);
+            });
+        }
+
+        [Fact]
+        public async Task OtherProgram_IsAsked_EvenWhenOneIsAllowed()
+        {
+            var otherClient = new AiToolClient { ExePath = @"C:\Other\Tool.exe", DisplayName = "Other tool" };
+            var askedClients = new List<string>();
+            await WithConsentAsync(new List<string> { TestClient.ExePath }, (client, cancellationToken) =>
+            {
+                askedClients.Add(client.ExePath);
+                return Task.FromResult(false);
+            }, async config =>
+            {
+                var reply = await DispatchAsync("LIST_WINDOWS", otherClient);
+                Assert.Equal("error", reply.Value<string>("status"));
+                Assert.Equal(new[] { otherClient.ExePath }, askedClients);
+            });
         }
 
         [Fact]
         public async Task Version_FromMcp_NeedsNoConsent()
         {
-            var config = IniConfigRegistry.GetSection<ICoreConfiguration>();
-            bool previousAllow = config.AllowAiTools;
-            var previousPrompt = AiToolAccess.ConsentPrompt;
             bool asked = false;
-            try
+            await WithConsentAsync(new List<string>(), (client, cancellationToken) =>
             {
-                config.AllowAiTools = false;
-                AiToolAccess.ResetDeniedClients();
-                AiToolAccess.ConsentPrompt = (client, cancellationToken) =>
-                {
-                    asked = true;
-                    return Task.FromResult(false);
-                };
-
-                var reply = await DispatchAsync("VERSION", "Test AI tool");
+                asked = true;
+                return Task.FromResult(false);
+            }, async config =>
+            {
+                var reply = await DispatchAsync("VERSION", TestClient);
                 Assert.Equal("ok", reply.Value<string>("status"));
                 Assert.False(asked);
-            }
-            finally
-            {
-                AiToolAccess.ConsentPrompt = previousPrompt;
-                AiToolAccess.ResetDeniedClients();
-                config.AllowAiTools = previousAllow;
-            }
+            });
         }
 
         [Fact]
         public async Task ListWindows_WhenAllowed_ReturnsWindowsAndDisplays()
         {
-            var config = IniConfigRegistry.GetSection<ICoreConfiguration>();
-            bool previousAllow = config.AllowAiTools;
-            try
+            await WithConsentAsync(new List<string> { TestClient.ExePath.ToUpperInvariant() }, (client, cancellationToken) => Task.FromResult(false), async config =>
             {
-                config.AllowAiTools = true;
-
-                var reply = await DispatchAsync("LIST_WINDOWS", "Test AI tool");
+                var reply = await DispatchAsync("LIST_WINDOWS", TestClient);
                 Assert.Equal("ok", reply.Value<string>("status"));
                 Assert.IsType<JArray>(reply["windows"]);
                 var displays = Assert.IsType<JArray>(reply["displays"]);
@@ -175,30 +207,41 @@ namespace Greenshot.Tests.Ipc
                     Assert.StartsWith("0x", window.Value<string>("handle"));
                     Assert.False(AiToolAccess.IsProcessExcluded(window.Value<string>("process")));
                 }
-            }
-            finally
-            {
-                config.AllowAiTools = previousAllow;
-            }
+            });
         }
 
         [Fact]
         public async Task Capture_UnknownHandle_IsAnError()
         {
-            var config = IniConfigRegistry.GetSection<ICoreConfiguration>();
-            bool previousAllow = config.AllowAiTools;
-            try
+            await WithConsentAsync(new List<string> { TestClient.ExePath }, (client, cancellationToken) => Task.FromResult(false), async config =>
             {
-                config.AllowAiTools = true;
-
-                var reply = await DispatchAsync("CAPTURE", "Test AI tool", new Dictionary<string, string> { ["handle"] = "not-a-handle" });
+                var reply = await DispatchAsync("CAPTURE", TestClient, new Dictionary<string, string> { ["handle"] = "not-a-handle" });
                 Assert.Equal("error", reply.Value<string>("status"));
                 Assert.Contains("not a window handle", reply.Value<string>("stderr"));
-            }
-            finally
-            {
-                config.AllowAiTools = previousAllow;
-            }
+            });
+        }
+
+        [Theory]
+        [InlineData(@"C:\Program Files\Greenshot\greenshot-mcp.exe", @"C:\Program Files\Greenshot\", true)]
+        [InlineData(@"C:\Program Files\Greenshot\GREENSHOT-MCP.EXE", @"C:\Program Files\Greenshot", true)]
+        [InlineData(@"C:\Users\me\Downloads\greenshot-mcp.exe", @"C:\Program Files\Greenshot\", false)]
+        [InlineData(@"C:\Program Files\Greenshot\other.exe", @"C:\Program Files\Greenshot\", false)]
+        [InlineData(@"D:\code\greenshot\publish\greenshot-mcp.exe", @"C:\Program Files\Greenshot\", true)]
+        [InlineData(null, @"C:\Program Files\Greenshot\", false)]
+        public void McpServer_MustBeInGreenshotsDirectory(string serverPath, string greenshotDirectory, bool trusted)
+        {
+            var additional = new List<string> { @"D:\code\greenshot\publish" };
+            Assert.Equal(trusted, AiToolCaller.IsTrustedMcpServer(serverPath, greenshotDirectory, additional));
+        }
+
+        [Theory]
+        [InlineData(@"C:\Windows\System32\cmd.exe", true)]
+        [InlineData(@"C:\Program Files\PowerShell\7\pwsh.exe", true)]
+        [InlineData(@"C:\Users\me\AppData\Local\AnthropicClaude\claude.exe", false)]
+        [InlineData(@"C:\Program Files\Microsoft VS Code\Code.exe", false)]
+        public void Launchers_AreSkipped(string exePath, bool launcher)
+        {
+            Assert.Equal(launcher, AiToolCaller.IsLauncher(exePath));
         }
 
         [Theory]
@@ -244,7 +287,7 @@ namespace Greenshot.Tests.Ipc
             Assert.False(AiToolIpcHandler.TryParseHandle(text, out _));
         }
 
-        private static async Task<JObject> DispatchAsync(string command, string origin, Dictionary<string, string> parameters = null)
+        private static async Task<JObject> DispatchAsync(string command, AiToolClient client, Dictionary<string, string> parameters = null)
         {
             var envelope = new IpcEnvelope
             {
@@ -262,7 +305,8 @@ namespace Greenshot.Tests.Ipc
             using var stream = new MemoryStream();
             var context = new IpcRequestContext(envelope, stream)
             {
-                ConnectionOrigin = origin
+                ConnectionOrigin = "test-client",
+                AiClient = client
             };
             await IpcSecurityDispatcher.DispatchAsync(context, null, null, null, null, null);
 
