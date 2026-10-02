@@ -70,5 +70,17 @@ namespace Greenshot.Base.Recipes
         /// The changed lines against the built-in recipe it replaces, null when it doesn't replace one
         /// </summary>
         public string BuiltInDiff { get; set; }
+
+        /// <summary>
+        /// A recipe: the automatic steps (extensions) which change it now
+        /// </summary>
+        public IReadOnlyList<string> ChangedBy { get; set; } = Array.Empty<string>();
+
+        /// <summary>
+        /// An automatic step: which recipes it changes, where and when; empty for a recipe
+        /// </summary>
+        public IReadOnlyList<string> Reach { get; set; } = Array.Empty<string>();
+
+        public bool IsExtension => Reach.Count > 0;
     }
 }

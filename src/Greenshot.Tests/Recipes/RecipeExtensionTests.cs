@@ -22,6 +22,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
@@ -566,6 +567,60 @@ namespace Greenshot.Tests.Recipes
             Assert.Equal(new[] { effect.Id }, editor.ActiveRecipe.Flow.Transitions["source"]);
             Assert.Equal(new[] { "feedback" }, editor.ActiveRecipe.Flow.Transitions[effect.Id]);
             Assert.True(editor.Nodes.Single(n => n.Id == "feedback").Location.Y > effect.Location.Y);
+        }
+
+        [Fact]
+        public void ExtensionFile_IsOnlyUsedWhileApproved()
+        {
+            RecipeApprovalTests.WithTemporaryTrustStore(directory =>
+            {
+                var manager = new RecipeManager();
+                var region = manager.GetRecipeById(RecipeManager.RecipeIdRegion);
+                string file = Path.Combine(directory, "border.gsrecipe.json");
+                byte[] bytes = new System.Text.UTF8Encoding(false).GetBytes(RecipeSerializer.Serialize(CreateBorderExtension("ext_test_file")));
+                File.WriteAllBytes(file, bytes);
+
+                // Not approved, and not asked: not used
+                Assert.False(manager.LoadRecipeFromFile(file, interactiveApproval: false).IsValid);
+                Assert.Null(manager.GetExtensionById("ext_test_file"));
+                Assert.Null(manager.GetRecipeById("ext_test_file"));
+
+                RecipeTrustStore.RecordApproval(file, RecipeTrustStore.ComputeSha256(bytes), new RecipeApproval { RecipeId = "ext_test_file" });
+                var result = manager.LoadRecipeFromFile(file, interactiveApproval: false);
+                Assert.True(result.IsValid, string.Join("; ", result.Errors));
+                var loaded = manager.GetExtensionById("ext_test_file");
+                Assert.Equal(Path.GetFullPath(file), loaded.FilePath);
+                Assert.Null(manager.GetRecipeById("ext_test_file"));
+
+                // Without an on/off option it is used right away, here at BeforeExport of the capture recipes
+                Assert.NotNull(manager.GetEffectiveRecipe(region).FindNode("ext_test_file/border"));
+                Assert.Contains(manager.DescribeExtensionReach(loaded), line => line.Contains(region.Name));
+                Assert.True(manager.GetRecipeDetails("ext_test_file").IsExtension);
+                Assert.Contains("Test border", manager.GetRecipeDetails(RecipeManager.RecipeIdRegion).ChangedBy);
+
+                // Revoked: not used anymore
+                Assert.True(manager.RevokeApproval("ext_test_file"));
+                Assert.Null(manager.GetExtensionById("ext_test_file"));
+                Assert.Null(manager.GetEffectiveRecipe(region).FindNode("ext_test_file/border"));
+            });
+        }
+
+        [Fact]
+        public void ExtensionFile_WhichBreaksTheRules_IsNotUsed()
+        {
+            RecipeApprovalTests.WithTemporaryTrustStore(directory =>
+            {
+                var manager = new RecipeManager();
+                var extension = CreateBorderExtension("ext_test_bad").AddNode(RecipeStepConfig.CreateSource("capture"));
+                string file = Path.Combine(directory, "bad.gsrecipe.json");
+                byte[] bytes = new System.Text.UTF8Encoding(false).GetBytes(RecipeSerializer.Serialize(extension));
+                File.WriteAllBytes(file, bytes);
+                RecipeTrustStore.RecordApproval(file, RecipeTrustStore.ComputeSha256(bytes), new RecipeApproval { RecipeId = "ext_test_bad" });
+
+                var result = manager.LoadRecipeFromFile(file, interactiveApproval: false);
+                Assert.Contains(result.Errors, e => e.Contains("can't capture"));
+                Assert.Null(manager.GetExtensionById("ext_test_bad"));
+            });
         }
 
         [Fact]

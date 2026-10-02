@@ -42,7 +42,7 @@ namespace Greenshot.Recipes
     /// Supports overriding built-ins and loading custom recipes from explicitly configured JSON files.
     /// Unauthenticated directory auto-discovery is disabled for security.
     /// </summary>
-    public class RecipeManager : IRecipeManager
+    public partial class RecipeManager : IRecipeManager
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(RecipeManager));
         private static ICoreConfiguration CoreConfig
@@ -124,6 +124,10 @@ namespace Greenshot.Recipes
         {
             foreach (var extension in BuiltInExtensions.Create())
             {
+                lock (_extensions)
+                {
+                    _builtInExtensions[extension.Id] = extension;
+                }
                 RegisterExtension(extension);
             }
         }
@@ -744,6 +748,8 @@ namespace Greenshot.Recipes
                 {
                     inUse = _recipes.Values.Any(r => !string.IsNullOrEmpty(r.FilePath) && string.Equals(Path.GetFullPath(r.FilePath), fullPath, StringComparison.OrdinalIgnoreCase));
                 }
+                var extensionsOfFile = GetExtensionsOfFile(fullPath);
+                inUse |= extensionsOfFile.Count > 0;
                 if (!inUse || !File.Exists(fullPath) || RecipeTrustStore.IsRecipeApproved(fullPath, out string currentHash, out _))
                 {
                     return;
@@ -755,6 +761,11 @@ namespace Greenshot.Recipes
                         return;
                     }
                     _askedForChangedFile[fullPath] = currentHash;
+                }
+                // An automatic step changes other recipes: it is not used until the change is approved
+                foreach (var extension in extensionsOfFile)
+                {
+                    DropExtension(extension.Id);
                 }
                 Log.InfoFormat("Recipe file '{0}' was changed outside Greenshot, asking for approval.", fullPath);
                 UiDispatcher.Current.InvokeAsync(() => LoadRecipeFromFile(fullPath, interactiveApproval: true, forceApprovalPrompt: false)).FireAndLog("Approval of a changed recipe file");
@@ -943,6 +954,11 @@ namespace Greenshot.Recipes
                 byte[] bytes = File.ReadAllBytes(filePath);
                 string content = DecodeRecipeFile(bytes);
                 string contentHash = RecipeTrustStore.ComputeSha256(bytes);
+                if (IsExtensionContent(content))
+                {
+                    // An automatic step: approved and used like a recipe of the file, but it changes other recipes
+                    return LoadExtensionFromContent(filePath, content, contentHash, interactiveApproval, forceApprovalPrompt);
+                }
                 var recipes = RecipeSerializer.DeserializeList(content, validate: false);
                 bool anyChanged = false;
 
@@ -1276,7 +1292,7 @@ namespace Greenshot.Recipes
             var recipe = GetRecipeById(recipeId);
             if (recipe == null)
             {
-                return null;
+                return GetExtensionById(recipeId) is RecipeExtension extension ? GetExtensionDetails(extension) : null;
             }
             var details = new RecipeDetails
             {
@@ -1289,7 +1305,8 @@ namespace Greenshot.Recipes
                     string state = t.IsDisabled ? "disabled" : on ? "on" : "off, not approved";
                     return $"{t.Label} ({state})";
                 }).ToList(),
-                ProposedBy = recipe.ProposedBy
+                ProposedBy = recipe.ProposedBy,
+                ChangedBy = GetExtensionsChanging(recipe.Id).Select(e => RecipeText.Translate(e.Name ?? e.Id)).ToList()
             };
 
             if (!string.IsNullOrEmpty(recipe.FilePath))
@@ -1324,31 +1341,44 @@ namespace Greenshot.Recipes
         /// </summary>
         public bool RevokeApproval(string recipeId, string filePath = null)
         {
-            filePath ??= GetRecipeById(recipeId)?.FilePath;
+            var extension = GetExtensionById(recipeId);
+            bool isExtension = !string.IsNullOrEmpty(extension?.FilePath) && GetRecipeById(recipeId)?.FilePath == null;
+            filePath ??= GetRecipeById(recipeId)?.FilePath ?? extension?.FilePath;
             if (string.IsNullOrEmpty(recipeId) || string.IsNullOrEmpty(filePath))
             {
                 return false;
             }
             RecipeTrustStore.RevokeRecipeApproval(filePath, recipeId);
-            UnregisterRecipe(recipeId);
+            if (isExtension || GetExtensionsOfFile(Path.GetFullPath(filePath)).Any(e => string.Equals(e.Id, recipeId, StringComparison.OrdinalIgnoreCase)))
+            {
+                DropExtension(recipeId);
+            }
+            else
+            {
+                UnregisterRecipe(recipeId);
+            }
             Log.InfoFormat("The user revoked the approval of recipe '{0}' from '{1}'.", recipeId, filePath);
             return true;
         }
 
         public RecipeValidationResult ReviewApproval(string recipeId)
         {
-            var recipe = GetRecipeById(recipeId);
-            if (string.IsNullOrEmpty(recipe?.FilePath))
+            string filePath = GetRecipeById(recipeId)?.FilePath ?? GetExtensionById(recipeId)?.FilePath;
+            if (string.IsNullOrEmpty(filePath))
             {
                 return null;
             }
             // Shows the approval window with the current approval; what the user confirms replaces it
-            return LoadRecipeFromFile(recipe.FilePath, interactiveApproval: true, forceApprovalPrompt: true);
+            return LoadRecipeFromFile(filePath, interactiveApproval: true, forceApprovalPrompt: true);
         }
 
         public bool ShowRecipeDetails(string recipeId)
         {
             var recipe = GetRecipeById(recipeId);
+            if (recipe == null && GetExtensionById(recipeId) is RecipeExtension extension && UiDispatcher.Current.CheckAccess())
+            {
+                return ShowExtensionDetails(extension);
+            }
             if (recipe == null || !UiDispatcher.Current.CheckAccess())
             {
                 return false;

@@ -110,6 +110,44 @@ namespace Greenshot.Base.Recipes
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string When { get; set; }
 
+        /// <summary>
+        /// The file the extension was loaded from, null for a built-in one
+        /// </summary>
+        [JsonIgnore]
+        public string FilePath { get; set; }
+
+        /// <summary>
+        /// The AI tool which wrote the file, null when it wasn't written by an AI tool. Set from the approval, never read from the file.
+        /// </summary>
+        [JsonIgnore]
+        public string ProposedBy { get; set; }
+
+        /// <summary>
+        /// A file which replaces the built-in extension with the same id
+        /// </summary>
+        [JsonIgnore]
+        public bool IsOverridden { get; set; }
+
+        /// <summary>
+        /// The extension as a recipe without triggers, for what works on recipes: describing it, its approval and its step contracts
+        /// </summary>
+        public CaptureRecipe AsRecipeView()
+        {
+            var view = new CaptureRecipe(Id ?? "extension", Name, Description)
+            {
+                FilePath = FilePath,
+                IsBuiltIn = IsBuiltIn,
+                Triggers = new List<Triggers.TriggerConfig>()
+            };
+            var copy = Clone();
+            view.Version = copy.Version;
+            view.Requires = copy.Requires;
+            view.Nodes = copy.Nodes;
+            view.Flow = copy.Flow;
+            view.Options = copy.Options;
+            return view;
+        }
+
         public RecipeExtension()
         {
         }
@@ -165,7 +203,10 @@ namespace Greenshot.Base.Recipes
             var clone = new RecipeExtension
             {
                 Extends = Extends?.Clone() ?? new ExtensionTarget(),
-                When = When
+                When = When,
+                FilePath = FilePath,
+                ProposedBy = ProposedBy,
+                IsOverridden = IsOverridden
             };
             CopyTo(clone);
             return clone;

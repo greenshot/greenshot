@@ -165,7 +165,7 @@ namespace Greenshot.Base.Recipes
             if (kind != FlowDefinition.KindRecipe)
             {
                 throw new JsonException(kind == FlowDefinition.KindExtension
-                    ? "This file is a recipe extension (\"kind\": \"extension\"); Greenshot doesn't load extension files yet."
+                    ? "This file is an automatic step (\"kind\": \"extension\"), not a recipe."
                     : $"Unknown kind '{kind}', use \"recipe\" or \"extension\".");
             }
 

@@ -45,6 +45,11 @@ namespace Greenshot.Base.Recipes
         IReadOnlyList<RecipeExtension> GetAllExtensions();
 
         /// <summary>
+        /// Stops using an extension from a file and forgets the file (a built-in extension it replaced comes back)
+        /// </summary>
+        bool UnregisterExtension(string extensionId);
+
+        /// <summary>
         /// The recipe as it runs: with the switched on extensions in its slots (see <see cref="RecipeComposer"/>).
         /// The recipe itself when no extension changes it.
         /// </summary>

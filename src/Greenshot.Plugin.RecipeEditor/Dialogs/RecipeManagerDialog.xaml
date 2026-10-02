@@ -169,109 +169,7 @@
                     </Setter.Value>
                 </Setter>
             </Style>
-        </ResourceDictionary>
-    </Window.Resources>
-
-    <Border BorderThickness="1" BorderBrush="{x:Static ui:WpfThemeHelper.CardBorder}">
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="40"/> <!-- Custom Title Bar -->
-                <RowDefinition Height="Auto"/> <!-- Header & Controls -->
-                <RowDefinition Height="*"/>    <!-- Recipe Cards List -->
-                <RowDefinition Height="Auto"/> <!-- Footer Status Bar -->
-            </Grid.RowDefinitions>
-
-            <!-- Custom Title Bar -->
-            <Grid Grid.Row="0" Background="Transparent" MouseLeftButtonDown="OnTitleBarMouseDown">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-
-                <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="14,0,0,0" VerticalAlignment="Center">
-                    <TextBlock Text="📋" FontSize="14" Margin="0,0,8,0" VerticalAlignment="Center"/>
-                    <TextBlock Text="Greenshot" FontWeight="Bold" FontSize="12" Foreground="{x:Static ui:WpfThemeHelper.TextPrimary}" VerticalAlignment="Center"/>
-                    <TextBlock Text=" — Capture Recipe Manager" FontSize="12" Foreground="{x:Static ui:WpfThemeHelper.TextSecondary}" VerticalAlignment="Center"/>
-                </StackPanel>
-
-                <StackPanel Grid.Column="2" Orientation="Horizontal">
-                    <Button Style="{StaticResource CaptionBtnStyle}" Click="OnMinimizeClicked" ToolTip="Minimize">
-                        <Rectangle Width="10" Height="1.5" Fill="{x:Static ui:WpfThemeHelper.TextPrimary}" SnapsToDevicePixels="True"/>
-                    </Button>
-                    <Button Style="{StaticResource CaptionCloseBtnStyle}" Click="OnCloseClicked" ToolTip="Close"/>
-                </StackPanel>
-            </Grid>
-
-            <!-- Controls & Filter Header -->
-            <Border Grid.Row="1" Background="{x:Static ui:WpfThemeHelper.CardBackground}"
-                    BorderBrush="{x:Static ui:WpfThemeHelper.CardBorder}" BorderThickness="0,1,0,1" Padding="14,10">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-
-                    <!-- Top Bar: Action Buttons & Search Box -->
-                    <Grid Grid.Row="0" Margin="0,0,0,10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-
-                        <!-- Search Box -->
-                        <Border Grid.Column="0" Background="{x:Static ui:WpfThemeHelper.WindowBackground}"
-                                BorderBrush="{x:Static ui:WpfThemeHelper.CardBorder}" BorderThickness="1"
-                                CornerRadius="4" Padding="6,4" MaxWidth="360" HorizontalAlignment="Left">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Text="🔍 " FontSize="11" VerticalAlignment="Center" Foreground="{x:Static ui:WpfThemeHelper.TextSecondary}"/>
-                                <TextBox Grid.Column="1" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                                         Background="Transparent" BorderThickness="0"
-                                         Foreground="{x:Static ui:WpfThemeHelper.TextPrimary}"
-                                         VerticalAlignment="Center" FontSize="11" Width="280"/>
-                            </Grid>
-                        </Border>
-
-                        <!-- Actions: Load Recipe from Disk, Create New, Reload -->
-                        <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
-                            <Button Content="➕ Load Recipe..." Style="{StaticResource DlgPrimaryBtn}" Command="{Binding LoadRecipeFromFileCommand}"
-                                    ToolTip="Load and register a .gsrecipe.json file into Greenshot" Margin="0,0,6,0"/>
-                            <Button Content="✨ New Recipe" Style="{StaticResource DlgBtn}" Command="{Binding CreateNewRecipeCommand}"
-                                    ToolTip="Create a new capture recipe in the Visual Editor" Margin="0,0,6,0"/>
-                            <Button Content="🔄 Reload All" Style="{StaticResource DlgBtn}" Command="{Binding ReloadAllCommand}"
-                                    ToolTip="Reload configured recipe files from disk" Margin="0,0,6,0"/>
-                            <Button Content="↩ Reset All" Style="{StaticResource DlgBtn}" Command="{Binding ResetAllCommand}"
-                                    ToolTip="Bring back the built-in version of every recipe a file replaces"/>
-                        </StackPanel>
-                    </Grid>
-
-                    <!-- Filter Category Chips -->
-                    <StackPanel Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Center">
-                        <RadioButton Content="All" Style="{StaticResource FilterChipStyle}" IsChecked="True"
-                                     Click="OnFilterAllClicked"/>
-                        <RadioButton Content="Active" Style="{StaticResource FilterChipStyle}"
-                                     Click="OnFilterActiveClicked"/>
-                        <RadioButton Content="Deactivated" Style="{StaticResource FilterChipStyle}"
-                                     Click="OnFilterDeactivatedClicked"/>
-                        <RadioButton Content="Built-in" Style="{StaticResource FilterChipStyle}"
-                                     Click="OnFilterBuiltInClicked"/>
-                        <RadioButton Content="Custom" Style="{StaticResource FilterChipStyle}"
-                                     Click="OnFilterCustomClicked"/>
-                        <RadioButton Content="AI" Style="{StaticResource FilterChipStyle}" ToolTip="Recipes written by AI tools"
-                                     Click="OnFilterAiClicked"/>
-                    </StackPanel>
-                </Grid>
-            </Border>
-
-            <!-- Recipe List -->
-            <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="14,10">
-                <ItemsControl ItemsSource="{Binding FilteredRecipes}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate DataType="{x:Type vm:RecipeManagerItemViewModel}">
+                <DataTemplate x:Key="RecipeItemTemplate" DataType="{x:Type vm:RecipeManagerItemViewModel}">
                             <Border Background="{x:Static ui:WpfThemeHelper.CardBackground}"
                                     BorderBrush="{x:Static ui:WpfThemeHelper.CardBorder}"
                                     BorderThickness="1" CornerRadius="6" Margin="0,0,0,10" Padding="14,12"
@@ -371,8 +269,117 @@
                                 </Grid>
                             </Border>
                         </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+    </ResourceDictionary>
+    </Window.Resources>
+
+    <Border BorderThickness="1" BorderBrush="{x:Static ui:WpfThemeHelper.CardBorder}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="40"/> <!-- Custom Title Bar -->
+                <RowDefinition Height="Auto"/> <!-- Header & Controls -->
+                <RowDefinition Height="*"/>    <!-- Recipe Cards List -->
+                <RowDefinition Height="Auto"/> <!-- Footer Status Bar -->
+            </Grid.RowDefinitions>
+
+            <!-- Custom Title Bar -->
+            <Grid Grid.Row="0" Background="Transparent" MouseLeftButtonDown="OnTitleBarMouseDown">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="14,0,0,0" VerticalAlignment="Center">
+                    <TextBlock Text="📋" FontSize="14" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                    <TextBlock Text="Greenshot" FontWeight="Bold" FontSize="12" Foreground="{x:Static ui:WpfThemeHelper.TextPrimary}" VerticalAlignment="Center"/>
+                    <TextBlock Text=" — Capture Recipe Manager" FontSize="12" Foreground="{x:Static ui:WpfThemeHelper.TextSecondary}" VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                    <Button Style="{StaticResource CaptionBtnStyle}" Click="OnMinimizeClicked" ToolTip="Minimize">
+                        <Rectangle Width="10" Height="1.5" Fill="{x:Static ui:WpfThemeHelper.TextPrimary}" SnapsToDevicePixels="True"/>
+                    </Button>
+                    <Button Style="{StaticResource CaptionCloseBtnStyle}" Click="OnCloseClicked" ToolTip="Close"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- Controls & Filter Header -->
+            <Border Grid.Row="1" Background="{x:Static ui:WpfThemeHelper.CardBackground}"
+                    BorderBrush="{x:Static ui:WpfThemeHelper.CardBorder}" BorderThickness="0,1,0,1" Padding="14,10">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Top Bar: Action Buttons & Search Box -->
+                    <Grid Grid.Row="0" Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Search Box -->
+                        <Border Grid.Column="0" Background="{x:Static ui:WpfThemeHelper.WindowBackground}"
+                                BorderBrush="{x:Static ui:WpfThemeHelper.CardBorder}" BorderThickness="1"
+                                CornerRadius="4" Padding="6,4" MaxWidth="360" HorizontalAlignment="Left">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="🔍 " FontSize="11" VerticalAlignment="Center" Foreground="{x:Static ui:WpfThemeHelper.TextSecondary}"/>
+                                <TextBox Grid.Column="1" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                                         Background="Transparent" BorderThickness="0"
+                                         Foreground="{x:Static ui:WpfThemeHelper.TextPrimary}"
+                                         VerticalAlignment="Center" FontSize="11" Width="280"/>
+                            </Grid>
+                        </Border>
+
+                        <!-- Actions: Load Recipe from Disk, Create New, Reload -->
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                            <Button Content="➕ Load Recipe..." Style="{StaticResource DlgPrimaryBtn}" Command="{Binding LoadRecipeFromFileCommand}"
+                                    ToolTip="Load and register a .gsrecipe.json file into Greenshot" Margin="0,0,6,0"/>
+                            <Button Content="✨ New Recipe" Style="{StaticResource DlgBtn}" Command="{Binding CreateNewRecipeCommand}"
+                                    ToolTip="Create a new capture recipe in the Visual Editor" Margin="0,0,6,0"/>
+                            <Button Content="🔄 Reload All" Style="{StaticResource DlgBtn}" Command="{Binding ReloadAllCommand}"
+                                    ToolTip="Reload configured recipe files from disk" Margin="0,0,6,0"/>
+                            <Button Content="↩ Reset All" Style="{StaticResource DlgBtn}" Command="{Binding ResetAllCommand}"
+                                    ToolTip="Bring back the built-in version of every recipe a file replaces"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Filter Category Chips -->
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Center">
+                        <RadioButton Content="All" Style="{StaticResource FilterChipStyle}" IsChecked="True"
+                                     Click="OnFilterAllClicked"/>
+                        <RadioButton Content="Active" Style="{StaticResource FilterChipStyle}"
+                                     Click="OnFilterActiveClicked"/>
+                        <RadioButton Content="Deactivated" Style="{StaticResource FilterChipStyle}"
+                                     Click="OnFilterDeactivatedClicked"/>
+                        <RadioButton Content="Built-in" Style="{StaticResource FilterChipStyle}"
+                                     Click="OnFilterBuiltInClicked"/>
+                        <RadioButton Content="Custom" Style="{StaticResource FilterChipStyle}"
+                                     Click="OnFilterCustomClicked"/>
+                        <RadioButton Content="AI" Style="{StaticResource FilterChipStyle}" ToolTip="Recipes written by AI tools"
+                                     Click="OnFilterAiClicked"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Recipe List -->
+            <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="14,10">
+                <StackPanel>
+                    <TextBlock Text="RECIPES" FontWeight="SemiBold" FontSize="10" Margin="2,0,0,6" Foreground="{x:Static ui:WpfThemeHelper.TextSecondary}"/>
+                    <ItemsControl ItemsSource="{Binding FilteredRecipes}" ItemTemplate="{StaticResource RecipeItemTemplate}"/>
+                    <!-- Automatic steps (recipe extensions): they change other recipes, they have no triggers of their own -->
+                    <StackPanel Visibility="{Binding HasFilteredExtensions, Converter={StaticResource BoolToVis}}">
+                        <TextBlock Text="AUTOMATIC STEPS" FontWeight="SemiBold" FontSize="10" Margin="2,8,0,2" Foreground="{x:Static ui:WpfThemeHelper.TextSecondary}"/>
+                        <TextBlock Text="Steps Greenshot adds to the recipes with a fitting slot, switched in Settings &gt; Recipes." FontSize="10" Margin="2,0,0,6"
+                                   Foreground="{x:Static ui:WpfThemeHelper.TextSecondary}"/>
+                        <ItemsControl ItemsSource="{Binding FilteredExtensions}" ItemTemplate="{StaticResource RecipeItemTemplate}"/>
+                    </StackPanel>
+                </StackPanel>
             </ScrollViewer>
 
             <!-- Bottom Status Footer -->

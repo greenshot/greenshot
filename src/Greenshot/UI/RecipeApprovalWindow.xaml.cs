@@ -388,6 +388,11 @@ namespace Greenshot.UI
                 }
             }
 
+            if (request.Extension != null)
+            {
+                ApplyExtensionTexts(request);
+            }
+
             // What changed: against the replaced recipe (built-in or current version) or the previously approved file
             CaptureRecipe previousRecipe = request.ReplacedRecipe;
             string previousContent = request.PreviousContent;
@@ -420,7 +425,10 @@ namespace Greenshot.UI
                 _diffText = RecipeTextDiff.ToUnifiedText(previousContent, _content);
             }
 
-            PopulateTriggers(recipe);
+            if (!IsExtension)
+            {
+                PopulateTriggers(recipe);
+            }
             bool startSwitchedOff = IsAiProposal || request.StartSwitchedOff;
             var previousApproval = prev?.GetApproval(recipe?.Id);
             if (request.SuggestedApproval != null)
@@ -465,6 +473,62 @@ namespace Greenshot.UI
             {
                 // Esc means "Keep as Is" in a review, never "Revoke"
                 BtnReject.IsCancel = false;
+            }
+        }
+
+        /// <summary>
+        /// An automatic step (recipe extension) has no triggers, it changes other recipes: the texts say so, and which recipes it changes
+        /// </summary>
+        public bool IsExtension { get; private set; }
+
+        public ObservableCollection<string> ExtensionReachLines { get; } = new ObservableCollection<string>();
+
+        public Visibility ExtensionReachVisibility => IsExtension && !IsValidationError ? Visibility.Visible : Visibility.Collapsed;
+
+        private void ApplyExtensionTexts(RecipeApprovalRequest request)
+        {
+            IsExtension = true;
+            foreach (var line in request.ExtensionReach ?? Array.Empty<string>())
+            {
+                ExtensionReachLines.Add(line);
+            }
+
+            if (IsValidationError)
+            {
+                WindowTitleSubtitle = " — Automatic Step Validation Failed";
+                HeaderTitle = "Automatic Step Validation Failed";
+                HeaderDescription = "Greenshot could not use this automatic step because it contains errors. Review the details below:";
+            }
+            else if (IsReadOnly)
+            {
+                WindowTitleSubtitle = " — Automatic Step Details";
+                HeaderTitle = "Automatic Step Details";
+                HeaderDescription = "What this automatic step does, which recipes it changes and what you approved for it.";
+            }
+            else if (IsAiProposal)
+            {
+                WindowTitleSubtitle = " — Automatic Step Proposed by an AI Tool";
+                HeaderTitle = "An AI Tool Proposes an Automatic Step";
+                HeaderDescription = "This automatic step was written by an AI tool. It changes other recipes, the built-in ones included: check which ones and what it adds below. It starts switched off, switch it on in Settings > Recipes.";
+            }
+            else if (ApprovalMode == RecipeApprovalMode.Modified)
+            {
+                WindowTitleSubtitle = " — Automatic Step Modification Detected";
+                HeaderTitle = "Automatic Step Changed Outside Greenshot";
+                HeaderDescription = "You approved this automatic step before, but its file was changed outside Greenshot since then. Until you approve the changes, it doesn't change any recipe.";
+            }
+            else if (IsReview)
+            {
+                WindowTitleSubtitle = " — Automatic Step Review";
+                HeaderTitle = "Automatic Step Review";
+                HeaderDescription = "Change what this automatic step may do. \"Keep as Is\" or closing the window changes nothing.";
+            }
+            else if (!request.IsOwnEdit)
+            {
+                WindowTitleSubtitle = " — Automatic Step Approval";
+                HeaderTitle = "Automatic Step File Detected";
+                HeaderDescription = "A file wants to add an automatic step to other recipes, the built-in ones included. Review which recipes it changes and what it adds before approving.";
+                StatusBadgeText = "NEW AUTOMATIC STEP";
             }
         }
 

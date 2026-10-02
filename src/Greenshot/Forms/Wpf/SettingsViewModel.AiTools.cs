@@ -213,6 +213,11 @@ namespace Greenshot.Forms.Wpf
                 var details = manager.GetRecipeDetails(recipe.Id);
                 ApprovedRecipes.Add(new ApprovedRecipeItem(recipe, details));
             }
+            // Automatic steps from files have their own approval
+            foreach (var extension in manager.GetAllExtensions().Where(e => !string.IsNullOrEmpty(e.FilePath)).OrderBy(e => e.Name, StringComparer.CurrentCultureIgnoreCase))
+            {
+                ApprovedRecipes.Add(new ApprovedRecipeItem(extension.AsRecipeView(), manager.GetRecipeDetails(extension.Id)));
+            }
             SelectedApprovedRecipe = ApprovedRecipes.FirstOrDefault(r => string.Equals(r.RecipeId, selectedId, StringComparison.OrdinalIgnoreCase));
         }
 
@@ -245,10 +250,11 @@ namespace Greenshot.Forms.Wpf
                 : "changed since its approval";
             int off = details?.Triggers?.Count(t => t.EndsWith("(off, not approved)", StringComparison.Ordinal)) ?? 0;
             string offText = off == 0 ? "" : off == 1 ? " · 1 trigger off" : $" · {off} triggers off";
-            Title = recipe.Name;
-            Subtitle = $"{state}{by}{offText}";
+            string changedBy = details?.ChangedBy?.Count > 0 ? $" · changed by {string.Join(", ", details.ChangedBy)}" : "";
+            Title = details?.IsExtension == true ? $"Automatic step: {recipe.Name}" : recipe.Name;
+            Subtitle = $"{state}{by}{offText}{changedBy}";
             NeedsAttention = details?.ApprovedAt == null || !details.IsApprovalCurrent || off > 0;
-            DisplayText = $"{recipe.Name}{by} · {state}{offText}";
+            DisplayText = $"{Title}{by} · {state}{offText}{changedBy}";
         }
 
         public string Title { get; }

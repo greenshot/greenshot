@@ -600,9 +600,14 @@ and the destinations side by side. New recipes get an extension too, unless it i
 ("(off)" when switched off or not used for this recipe), and the inspector sets the slot and what it accepts. Editing
 extensions in the editor comes later.
 
-> [!NOTE]
-> Until extension files get their own approval, Greenshot only uses the built-in extensions; a file with
-> `"kind": "extension"` is not loaded yet.
+**Automatic step files** (`"kind": "extension"`) are imported and approved like recipe files ("Recipes → Import Recipe...",
+the recipe manager's "Load Recipe..."). The approval window shows what the automatic step adds and "Changes other recipes":
+which recipes it changes now, whether recipes added later get it too, where it runs and when. Its permissions (uploads,
+programs, files) are its own: approving a recipe never allows what an automatic step brings in, and the reverse. Switching
+an automatic step on in Settings is not approving it: only an approved file is used, and one written by an AI tool starts
+switched off. When its file is changed outside Greenshot, it no longer changes any recipe until the change is approved.
+Settings > AI tools > "Approved recipes" lists automatic step files too, and per recipe which automatic steps change it;
+the recipe manager lists automatic steps as a group of their own. Greenshot Light doesn't load automatic step files.
 ---
 
 ## 6. Complete Recipe Examples
