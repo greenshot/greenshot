@@ -52,7 +52,21 @@ namespace Greenshot.Base.Pipeline
         {
             GateType = gateType;
             Target = target;
-            DescriptionKey = descriptionKey ?? (gateType == RecipeGateType.ExternalCommand ? "recipe_gate_external_command" : "recipe_gate_custom");
+            DescriptionKey = descriptionKey ?? GetDefaultDescriptionKey(gateType);
+        }
+
+        /// <summary>
+        /// The language key of the name of a gate type
+        /// </summary>
+        public static string GetDefaultDescriptionKey(RecipeGateType gateType)
+        {
+            return gateType switch
+            {
+                RecipeGateType.ExternalCommand => "recipe_gate_external_command",
+                RecipeGateType.NetworkAccess => "recipe_gate_network_access",
+                RecipeGateType.FileSystemAccess => "recipe_gate_file_system_access",
+                _ => "recipe_gate_custom"
+            };
         }
 
         public bool Equals(RecipeGatedAction other)

@@ -51,10 +51,15 @@ builder.Services
             "Use list_windows to see the open windows and displays, then capture_window with a window id to see the exact contents of a window " +
             "(also when it is covered by other windows), capture_region to zoom in on details and capture_screen for all displays; " +
             "ocr=true adds the text. The other tools are Greenshot recipes the user offers to AI tools. " +
+            "When the user wants Greenshot to do something new (a hotkey that captures and uploads, a tool for you, ...), write a recipe: " +
+            "get_recipe_schema and get_recipe_catalog show what is possible, validate_recipe checks it, propose_recipe or update_recipe " +
+            "show it to the user, who decides whether it is saved and which triggers and permissions are switched on. " +
             "The user has to allow each AI tool in Greenshot the first time, and can exclude applications.";
     })
     .WithStdioServerTransport()
-    .WithTools<GreenshotTools>(jsonOptions);
+    .WithTools<GreenshotTools>(jsonOptions)
+    .WithTools<RecipeAuthoringTools>(jsonOptions)
+    .WithResources<RecipeAuthoringResources>();
 
 // The user's recipes with an AI tool trigger are the other tools
 builder.Services.AddHostedService<RecipeToolSync>();

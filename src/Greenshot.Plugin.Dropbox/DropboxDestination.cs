@@ -19,14 +19,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
+using Greenshot.Base.Pipeline;
 
 namespace Greenshot.Plugin.Dropbox;
 
-internal class DropboxDestination : DestinationBase
+internal class DropboxDestination : DestinationBase, IRequiresRecipeAuthorization
 {
     /// <summary>
     /// The icons in the resources of the plugin
@@ -41,6 +43,14 @@ internal class DropboxDestination : DestinationBase
     }
 
     public override string Designation => "Dropbox";
+
+    /// <summary>
+    /// Uploads the capture: the user has to allow network access when approving a recipe with this destination
+    /// </summary>
+    public IEnumerable<RecipeGatedAction> GetGatedActions()
+    {
+        yield return new RecipeGatedAction(RecipeGateType.NetworkAccess, "Dropbox (dropbox.com)");
+    }
 
     public override DestinationDescriptor Descriptor => new DestinationDescriptor(Language.GetString("dropbox", LangKey.upload_menu_item), iconKey: Icons.KeyFor("Dropbox"));
 

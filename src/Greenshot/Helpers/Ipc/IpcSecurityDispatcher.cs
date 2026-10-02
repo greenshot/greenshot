@@ -79,7 +79,10 @@ namespace Greenshot.Helpers.Ipc
             "RECIPE_MANAGER",
             "LIST_WINDOWS",
             "LIST_AI_TOOLS",
-            "RUN_AI_TOOL"
+            "RUN_AI_TOOL",
+            "RECIPE_CATALOG",
+            "VALIDATE_RECIPE",
+            "PROPOSE_RECIPE"
         };
 
         /// <summary>
@@ -90,7 +93,10 @@ namespace Greenshot.Helpers.Ipc
         {
             "LIST_WINDOWS",
             "LIST_AI_TOOLS",
-            "RUN_AI_TOOL"
+            "RUN_AI_TOOL",
+            "RECIPE_CATALOG",
+            "VALIDATE_RECIPE",
+            "PROPOSE_RECIPE"
         };
 
         private static readonly HashSet<string> FallbackAllowedImageExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
@@ -309,7 +315,10 @@ namespace Greenshot.Helpers.Ipc
                 "VERSION",
                 "LIST_WINDOWS",
                 "LIST_AI_TOOLS",
-                "RUN_AI_TOOL"
+                "RUN_AI_TOOL",
+                "RECIPE_CATALOG",
+                "VALIDATE_RECIPE",
+                "PROPOSE_RECIPE"
             }
         };
 
@@ -337,7 +346,8 @@ namespace Greenshot.Helpers.Ipc
         /// <summary>
         /// True when the command needs the user's consent for AI tools: every command from greenshot-mcp.exe except VERSION and
         /// LIST_AI_TOOLS (the tool names and descriptions, so the AI tool can show its tools before the user is asked),
-        /// and the AI tool commands from any source.
+        /// and the AI tool commands from any source. The recipe commands (catalog, validate, propose) need the consent too; a
+        /// proposed recipe additionally needs the user's approval in the recipe approval window.
         /// </summary>
         internal static bool RequiresAiToolConsent(string command, string source)
         {
@@ -496,6 +506,18 @@ namespace Greenshot.Helpers.Ipc
 
                 case "RUN_AI_TOOL":
                     await AiToolIpcHandler.HandleRunAiToolAsync(context).ConfigureAwait(false);
+                    break;
+
+                case "RECIPE_CATALOG":
+                    await AiRecipeIpcHandler.HandleRecipeCatalogAsync(context).ConfigureAwait(false);
+                    break;
+
+                case "VALIDATE_RECIPE":
+                    await AiRecipeIpcHandler.HandleValidateRecipeAsync(context).ConfigureAwait(false);
+                    break;
+
+                case "PROPOSE_RECIPE":
+                    await AiRecipeIpcHandler.HandleProposeRecipeAsync(context).ConfigureAwait(false);
                     break;
 
                 case "EXIT":
@@ -737,7 +759,7 @@ namespace Greenshot.Helpers.Ipc
                 foreach (var recipe in recipeManager.GetAllRecipes().Where(r => r.IsEnabled))
                 {
                     if (recipe.Triggers == null) continue;
-                    foreach (var tc in recipe.Triggers.Where(t => t.Enabled && string.Equals(t.TriggerType, TriggerConfig.TypeCommandline, StringComparison.OrdinalIgnoreCase)))
+                    foreach (var tc in recipe.Triggers.Where(t => t.IsActive && string.Equals(t.TriggerType, TriggerConfig.TypeCommandline, StringComparison.OrdinalIgnoreCase)))
                     {
                         string cmd = tc.GetParameter<string>("Command") ?? recipe.Id;
                         string desc = tc.GetParameter<string>("Description") ?? recipe.Description ?? string.Empty;
@@ -955,7 +977,7 @@ namespace Greenshot.Helpers.Ipc
             foreach (var recipe in recipeManager.GetAllRecipes().Where(r => r.IsEnabled))
             {
                 if (recipe.Triggers == null) continue;
-                foreach (var tc in recipe.Triggers.Where(t => t.Enabled && string.Equals(t.TriggerType, TriggerConfig.TypeCommandline, StringComparison.OrdinalIgnoreCase)))
+                foreach (var tc in recipe.Triggers.Where(t => t.IsActive && string.Equals(t.TriggerType, TriggerConfig.TypeCommandline, StringComparison.OrdinalIgnoreCase)))
                 {
                     string cmd = tc.GetParameter<string>("Command");
                     if (string.Equals(cmd, target, StringComparison.OrdinalIgnoreCase) ||
@@ -982,7 +1004,7 @@ namespace Greenshot.Helpers.Ipc
             }
 
             // Recipes can only be started from a browser (web page URL or extension) when the trigger explicitly opts in.
-            if (IsBrowserSource(context.Envelope.Source) && !matchedTriggerConfig.GetParameter<bool>("AllowBrowserInvocation", false))
+            if (IsBrowserSource(context.Envelope.Source) && !(matchedTriggerConfig.GetParameter<bool>("AllowBrowserInvocation", false) && matchedTriggerConfig.IsBrowserInvocationApproved))
             {
                 Log.Warn($"[SECURITY] RUN_RECIPE rejected: recipe '{matchedRecipe.Id}' does not allow invocation from source '{context.Envelope.Source}'.");
                 await context.ReplyAsync(new
@@ -1493,7 +1515,7 @@ namespace Greenshot.Helpers.Ipc
                 foreach (var recipe in recipeManager.GetAllRecipes().Where(r => r.IsEnabled))
                 {
                     if (recipe.Triggers == null) continue;
-                    foreach (var tc in recipe.Triggers.Where(t => t.Enabled && string.Equals(t.TriggerType, TriggerConfig.TypeOpenFile, StringComparison.OrdinalIgnoreCase)))
+                    foreach (var tc in recipe.Triggers.Where(t => t.IsActive && string.Equals(t.TriggerType, TriggerConfig.TypeOpenFile, StringComparison.OrdinalIgnoreCase)))
                     {
                         openFileRecipes.Add((recipe, tc));
                     }

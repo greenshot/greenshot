@@ -13,6 +13,11 @@ stdio, built with .NET 10 and Native AOT, and talks to the running Greenshot ove
 | `capture_window` | Screenshot of one window by its id from `list_windows`, with its exact contents (also when it is covered), without activating it |
 | `capture_region` | Screenshot of a part of the screen (`x,y,width,height` in screen coordinates), e.g. to see details at full resolution |
 | `capture_screen` | Screenshot of all displays |
+| `get_recipe_schema` | The recipe JSON schema and example recipes (also the resource `greenshot-mcp://recipes/schema`) |
+| `get_recipe_catalog` | What this Greenshot offers recipes: trigger types, step types with parameters, destinations (uploads marked), processors and the user's recipes; with `recipe_id` the JSON of one recipe |
+| `validate_recipe` | Checks a recipe: errors, warnings, what it does in plain words and what the user will be asked to allow |
+| `propose_recipe` | Shows a new recipe to the user, who decides whether it is saved |
+| `update_recipe` | Shows a changed version of an existing recipe (also a built-in one) with the changed lines |
 | your recipes | Every recipe with an enabled **AI tool** trigger |
 
 `list_windows` is part of greenshot-mcp. All other tools are Greenshot recipes with an AI tool trigger, and the three
@@ -76,6 +81,31 @@ Example: the built-in `capture_window` recipe as JSON.
 }
 ```
 
+### Recipes written by AI tools
+
+The recipe editor is for advanced users; most people can describe what they want, and the AI tool writes the recipe.
+The AI tool reads the schema and the catalog, checks its recipe with `validate_recipe` and then calls
+`propose_recipe` (or `update_recipe`) with the recipe, the user's request and its explanation. Greenshot shows the
+recipe in its recipe approval window and the tool call waits for the user's decision:
+
+* A banner says the recipe was proposed by an AI tool, with the program's name, path and signer (checked as for every
+  AI tool), and shows the request and explanation as the AI tool's words.
+* "What it does" is written by Greenshot from the recipe itself, not by the AI tool: each step in plain words, with
+  uploads (🌐), external programs (⚙) and file access (📁) marked.
+* Each trigger has its own switch with what it means (e.g. "runs on its own every time you copy an image", "any web
+  page you open can start this recipe"). For a recipe from an AI tool all switches start off.
+* Uploads, external commands and file access each need their own permission; the recipe can't be saved without them.
+* A change shows what is added and removed, and "View changed lines" shows a line diff. A change of a built-in recipe
+  says so; the built-in recipe comes back with "Reset Default" in the recipe manager.
+* "Open in the recipe editor after saving" opens the saved recipe for fine-tuning.
+
+Greenshot saves only what it showed: it re-writes the recipe JSON itself, and that exact content is hashed, shown and
+saved. New recipes go to `Recipes\AI\<id>.gsrecipe.json` next to greenshot.ini; a change of a recipe keeps its file
+(when that file holds only this recipe). The approval (hash, switched-on triggers, allowed permissions, origin) is in
+the encrypted trust store, not in the recipe file. When the file changes later, the user is asked again, and for a
+file an AI tool wrote all switches start off again. A rejected proposal isn't shown again until Greenshot restarts,
+and only one proposal is shown at a time.
+
 ## Safety
 
 * Greenshot doesn't trust what a connection says about itself. For the source `mcp` it checks the process on the
@@ -88,8 +118,8 @@ Example: the built-in `capture_window` recipe as JSON.
 * The other sources are checked the same way: only Greenshot.exe and greenshot.com (source `cli`) and
   greenshot-proxy.exe (`url_scheme`, `open_with`, `native_messaging`) from Greenshot's directory may connect, so other
   programs can't talk to the pipe directly. The pipe also refuses network logons.
-* AI tools can only list windows and run recipes with an AI tool trigger (`LIST_WINDOWS`, `LIST_AI_TOOLS`,
-  `RUN_AI_TOOL`), and only through greenshot-mcp.exe: not from the command line, web pages (greenshot:// links) or the
+* AI tools can only list windows, run recipes with an AI tool trigger (`LIST_WINDOWS`, `LIST_AI_TOOLS`,
+  `RUN_AI_TOOL`) and propose recipes (`RECIPE_CATALOG`, `VALIDATE_RECIPE`, `PROPOSE_RECIPE`), and only through greenshot-mcp.exe: not from the command line, web pages (greenshot:// links) or the
   browser extension. An AI tool trigger can't be started any other way, and AI tools can't run command line recipes.
 * Window ids instead of handles: an AI tool can only capture windows Greenshot listed to it. The ids belong to one AI
   tool and greenshot-mcp session, expire 10 minutes after the last `list_windows` that showed the window, and stop

@@ -173,7 +173,7 @@ namespace Greenshot.Triggers
                     for (int i = 0; i < recipe.Triggers.Count; i++)
                     {
                         var tc = recipe.Triggers[i];
-                        if (!tc.Enabled) continue;
+                        if (!tc.IsActive) continue;
 
                         if (string.Equals(tc.TriggerType, TriggerConfig.TypeHotkey, StringComparison.OrdinalIgnoreCase))
                         {

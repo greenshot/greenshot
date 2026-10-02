@@ -38,6 +38,20 @@ Recipes can be written in code or provided as external `.json` (`.gsrecipe.json`
 >
 > Custom recipes are stored in `%APPDATA%\Greenshot\Recipes\*.gsrecipe.json`.
 
+### Approving recipe files
+
+A recipe file only runs after you approved it. The approval window shows what the recipe does in plain words (written
+by Greenshot from the recipe, with uploads, external programs and file access marked), each trigger with its own
+switch and what it means, and a permission for each kind of action that needs one: uploads (network), external
+commands and file access. Without those permissions the recipe isn't loaded. A changed file is shown with what was
+added and removed and the changed lines, and a file that replaces a built-in recipe says so (the recipe manager's
+"Reset Default" brings the built-in recipe back).
+
+The approval is pinned to the exact content of the file (SHA-256) and stored, per recipe of the file, in the
+encrypted trust store (`%LOCALAPPDATA%\Greenshot\recipe_trust.dat`), not in the recipe file: which triggers are
+switched on and which permissions were given. When the file changes you are asked again. Recipes proposed by AI tools
+go through the same window, see [mcp-server.md](mcp-server.md#recipes-written-by-ai-tools).
+
 ---
 
 ## 1. Core Architecture: Decoupling Triggers from Recipes

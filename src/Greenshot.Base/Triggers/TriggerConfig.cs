@@ -21,6 +21,7 @@
 
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Greenshot.Base.Triggers
@@ -57,6 +58,26 @@ namespace Greenshot.Base.Triggers
         /// Whether this trigger is active. Defaults to true.
         /// </summary>
         public bool Enabled { get; set; } = true;
+
+        /// <summary>
+        /// False when the user didn't approve this trigger for a recipe from a file (the approval window lists each trigger,
+        /// the decision is kept in the trust store, not in the recipe file). Not saved with the recipe.
+        /// </summary>
+        [JsonIgnore]
+        public bool IsApproved { get; set; } = true;
+
+        /// <summary>
+        /// Whether the trigger may start the recipe: enabled and approved
+        /// </summary>
+        [JsonIgnore]
+        public bool IsActive => Enabled && IsApproved;
+
+        /// <summary>
+        /// False when the user approved a Commandline trigger, but not its AllowBrowserInvocation (web pages and the browser
+        /// extension). Not saved with the recipe.
+        /// </summary>
+        [JsonIgnore]
+        public bool IsBrowserInvocationApproved { get; set; } = true;
 
         /// <summary>
         /// Trigger-specific parameters (e.g. Hotkey, MenuItemText, Group, Order).
@@ -127,6 +148,8 @@ namespace Greenshot.Base.Triggers
                 TriggerType = TriggerType,
                 Name = Name,
                 Enabled = Enabled,
+                IsApproved = IsApproved,
+                IsBrowserInvocationApproved = IsBrowserInvocationApproved,
                 Parameters = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase)
             };
 

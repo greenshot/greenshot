@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
@@ -36,13 +37,21 @@ namespace Greenshot.Plugin.Box
     [StepInfo("Box", "Upload to Box", "Uploads the capture to Box (configured account).", "Export")]
     [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Required)]
     [StepOutputVariable("Box.UploadUrl", ContractDataType.String, "Link to the uploaded file", Conditional = true)]
-    public class BoxStep : ICaptureStep
+    public class BoxStep : ICaptureStep, IRequiresRecipeAuthorization
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(BoxStep));
         private readonly BoxPlugin _plugin;
 
         public string Name { get; }
         public RecipeNodeConfig NodeConfig { get; }
+
+        /// <summary>
+        /// Uploads the capture: the user has to allow network access when approving a recipe with this step
+        /// </summary>
+        public IEnumerable<RecipeGatedAction> GetGatedActions()
+        {
+            yield return new RecipeGatedAction(RecipeGateType.NetworkAccess, "Box (box.com)");
+        }
 
         public BoxStep(RecipeNodeConfig config, BoxPlugin plugin)
         {

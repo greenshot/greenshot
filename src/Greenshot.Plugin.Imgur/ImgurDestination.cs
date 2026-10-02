@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
@@ -27,10 +28,11 @@ using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.Base.Pipeline;
 
 namespace Greenshot.Plugin.Imgur
 {
-    public class ImgurDestination : DestinationBase
+    public class ImgurDestination : DestinationBase, IRequiresRecipeAuthorization
     {
         /// <summary>
         /// The icons in the resources of the plugin
@@ -38,6 +40,14 @@ namespace Greenshot.Plugin.Imgur
         public static ResourceIconProvider Icons { get; } = new ResourceIconProvider("imgur", typeof(ImgurPlugin));
 
         public override string Designation => "Imgur";
+
+        /// <summary>
+        /// Uploads the capture: the user has to allow network access when approving a recipe with this destination
+        /// </summary>
+        public IEnumerable<RecipeGatedAction> GetGatedActions()
+        {
+            yield return new RecipeGatedAction(RecipeGateType.NetworkAccess, "Imgur (imgur.com)");
+        }
 
         public override DestinationDescriptor Descriptor => new DestinationDescriptor(Language.GetString("imgur", LangKey.upload_menu_item) ?? "Upload to Imgur", iconKey: Icons.KeyFor("Imgur"));
 

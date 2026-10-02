@@ -44,11 +44,25 @@ namespace Greenshot.Recipes
             Encoding.UTF8.GetBytes($"Greenshot.RecipeTrust.Salt.{Environment.MachineName}.6f8c2b1e")
         );
 
-        private static string StoreFilePath => Path.Combine(
+        private static string _storeFilePathOverride;
+
+        private static string StoreFilePath => _storeFilePathOverride ?? Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "Greenshot",
             "recipe_trust.dat"
         );
+
+        /// <summary>
+        /// Uses another store file (tests), null for the default one
+        /// </summary>
+        internal static void UseStoreFile(string storeFilePath)
+        {
+            lock (LockObj)
+            {
+                _storeFilePathOverride = storeFilePath;
+                _records = null;
+            }
+        }
 
         private static Dictionary<string, RecipeTrustRecord> _records;
 
@@ -70,6 +84,88 @@ namespace Greenshot.Recipes
                 }
                 return sb.ToString();
             }
+        }
+
+        /// <summary>
+        /// Computes the SHA-256 hash (lowercase hex) of the given bytes: use the bytes that were read once, shown and parsed,
+        /// so the approval belongs to exactly what the user saw.
+        /// </summary>
+        public static string ComputeSha256(byte[] content)
+        {
+            if (content == null) return null;
+
+            using (var sha = SHA256.Create())
+            {
+                byte[] hash = sha.ComputeHash(content);
+                var sb = new StringBuilder(hash.Length * 2);
+                foreach (byte b in hash)
+                {
+                    sb.Append(b.ToString("x2"));
+                }
+                return sb.ToString();
+            }
+        }
+
+        /// <summary>
+        /// The longest file content kept in a record, to show the changes later
+        /// </summary>
+        public const int MaxApprovedContentLength = 256 * 1024;
+
+        /// <summary>
+        /// The approval of a recipe of the file, when the record belongs to this content (hash). Null when the user didn't
+        /// approve this recipe of this version of the file.
+        /// </summary>
+        public static RecipeApproval GetApproval(string filePath, string sha256, string recipeId)
+        {
+            var record = GetTrustRecord(filePath);
+            if (record == null || string.IsNullOrEmpty(sha256) || !string.Equals(record.Sha256Hash, sha256, StringComparison.OrdinalIgnoreCase))
+            {
+                return null;
+            }
+            return record.GetApproval(recipeId);
+        }
+
+        /// <summary>
+        /// Records what the user approved for one recipe of a file with this content. Approvals of the other recipes of the same
+        /// content are kept, a new content starts a new record.
+        /// </summary>
+        public static void RecordApproval(string filePath, string sha256, RecipeApproval approval, string content = null, string origin = null, string recipeName = null, string recipeVersion = null)
+        {
+            if (string.IsNullOrEmpty(filePath) || string.IsNullOrEmpty(sha256) || approval == null) return;
+
+            string fullPath = Path.GetFullPath(filePath);
+            lock (LockObj)
+            {
+                var records = LoadRecords();
+                if (!records.TryGetValue(fullPath, out var record) || record.Recipes == null ||
+                    !string.Equals(record.Sha256Hash, sha256, StringComparison.OrdinalIgnoreCase))
+                {
+                    record = new RecipeTrustRecord
+                    {
+                        FilePath = fullPath,
+                        Sha256Hash = sha256,
+                        Recipes = new List<RecipeApproval>(),
+                        Origin = origin
+                    };
+                    records[fullPath] = record;
+                }
+                record.ApprovedAt = DateTime.UtcNow;
+                record.RecipeName = recipeName ?? record.RecipeName;
+                record.RecipeVersion = recipeVersion ?? record.RecipeVersion;
+                record.Origin = origin ?? record.Origin;
+                if (content != null && content.Length <= MaxApprovedContentLength)
+                {
+                    record.ApprovedContent = content;
+                }
+                record.AllowExternalCommands = approval.IsGateAllowed(Greenshot.Base.Pipeline.RecipeGateType.ExternalCommand);
+                record.Recipes.RemoveAll(r => string.Equals(r.RecipeId, approval.RecipeId, StringComparison.OrdinalIgnoreCase));
+                record.Recipes.Add(approval);
+                SaveRecords();
+            }
+
+            Log.InfoFormat("Recorded user approval for recipe '{0}' in '{1}' (SHA256: {2}, triggers: {3}, allowed: {4})", approval.RecipeId, fullPath, sha256,
+                approval.AllTriggers ? "all" : string.Join(",", approval.ApprovedTriggers ?? new List<string>()),
+                string.Join(",", approval.AllowedGates ?? new List<Greenshot.Base.Pipeline.RecipeGateType>()));
         }
 
         private static Dictionary<string, RecipeTrustRecord> LoadRecords()

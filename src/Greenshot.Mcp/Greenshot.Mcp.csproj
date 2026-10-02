@@ -33,4 +33,12 @@
     <PackageReference Update="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="5.6.0" />
     <PackageReference Update="Microsoft.VisualStudio.Threading.Analyzers" Version="18.7.23" />
   </ItemGroup>
+  <ItemGroup>
+    <!-- The recipe schema and some examples, for AI tools which write recipes -->
+    <EmbeddedResource Include="..\..\docs\recipe.schema.json" LogicalName="recipe.schema.json" />
+    <EmbeddedResource Include="..\..\docs\examples\region_blue_border.gsrecipe.json" LogicalName="region_blue_border.gsrecipe.json" />
+    <EmbeddedResource Include="..\..\docs\examples\window_regex_redact.gsrecipe.json" LogicalName="window_regex_redact.gsrecipe.json" />
+    <EmbeddedResource Include="..\..\docs\examples\cli_ocr_extract.gsrecipe.json" LogicalName="cli_ocr_extract.gsrecipe.json" />
+  </ItemGroup>
+
 </Project>

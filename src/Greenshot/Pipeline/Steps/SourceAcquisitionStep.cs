@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Threading;
@@ -77,13 +78,26 @@ namespace Greenshot.Pipeline.Steps
     [StepInputVariable("Filename", ContractDataType.FilePath, Description = "File to load (SourceType File), when the parameter is not set")]
     [StepInputVariable("EditorForm", ContractDataType.Object, Description = "The editor to take the image from (SourceType CurrentEditor, set by the editor trigger)")]
     [StepOutputVariable("SelectedWindow", ContractDataType.Object, "The window of the last region (SourceType LastRegion)", Conditional = true)]
-    public class SourceAcquisitionStep : ICaptureStep
+    public class SourceAcquisitionStep : ICaptureStep, IRequiresRecipeAuthorization
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(SourceAcquisitionStep));
         private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
 
         public string Name { get; }
         public RecipeNodeConfig Config { get; }
+
+        /// <summary>
+        /// Loading a file (SourceType File) reads from the file system: the user has to allow file system access
+        /// </summary>
+        public IEnumerable<RecipeGatedAction> GetGatedActions()
+        {
+            if (string.Equals(Config.GetParameter<string>("SourceType"), "File", StringComparison.OrdinalIgnoreCase))
+            {
+                string filename = Config.GetParameter<string>("Filename");
+                yield return new RecipeGatedAction(RecipeGateType.FileSystemAccess,
+                    string.IsNullOrWhiteSpace(filename) ? "Reads the image file named in the variable Filename" : $"Reads the image file {filename}");
+            }
+        }
 
         public SourceAcquisitionStep(RecipeNodeConfig config)
         {

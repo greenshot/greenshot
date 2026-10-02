@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -49,13 +50,21 @@ namespace Greenshot.Plugin.Confluence
     [StepParameter("PageId", ContractDataType.String, Description = "Page to attach to")]
     [StepOutputVariable("Confluence.PageId", ContractDataType.String, "The page the capture was attached to", Conditional = true)]
     [StepOutputVariable("Confluence.UploadUrl", ContractDataType.String, "Link to the attachment", Conditional = true)]
-    public class ConfluenceStep : ICaptureStep
+    public class ConfluenceStep : ICaptureStep, IRequiresRecipeAuthorization
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(ConfluenceStep));
         private static IConfluenceConfiguration Config => IniConfigRegistry.GetSection<IConfluenceConfiguration>();
 
         public string Name { get; }
         public RecipeNodeConfig NodeConfig { get; }
+
+        /// <summary>
+        /// Uploads the capture: the user has to allow network access when approving a recipe with this step
+        /// </summary>
+        public IEnumerable<RecipeGatedAction> GetGatedActions()
+        {
+            yield return new RecipeGatedAction(RecipeGateType.NetworkAccess, "Confluence");
+        }
 
         public ConfluenceStep(RecipeNodeConfig config)
         {

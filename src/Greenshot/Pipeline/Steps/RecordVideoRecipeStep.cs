@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -79,12 +80,24 @@ namespace Greenshot.Pipeline.Steps
     [StepInputVariable("CaptureRegion", ContractDataType.Object, Description = "Region to record (set by the caller)")]
     [StepOutputVariable("VideoFilePath", ContractDataType.FilePath, "Path of the recorded video")]
     [StepOutputVariable("VideoRecordingResult", ContractDataType.Object, "Details of the recording")]
-    public class RecordVideoRecipeStep : ICaptureStep
+    public class RecordVideoRecipeStep : ICaptureStep, IRequiresRecipeAuthorization
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(RecordVideoRecipeStep));
 
         public string Name { get; }
         public RecipeNodeConfig Config { get; }
+
+        /// <summary>
+        /// A recording to a configured file or directory writes there: the user has to allow file system access
+        /// </summary>
+        public IEnumerable<RecipeGatedAction> GetGatedActions()
+        {
+            string target = Config.GetParameter<string>("OutputFilePath") ?? Config.GetParameter<string>("OutputDirectory");
+            if (!string.IsNullOrWhiteSpace(target))
+            {
+                yield return new RecipeGatedAction(RecipeGateType.FileSystemAccess, $"Writes the video to {target}");
+            }
+        }
 
         public RecordVideoRecipeStep(RecipeNodeConfig config)
         {

@@ -23,6 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
@@ -555,11 +556,16 @@ namespace Greenshot.Recipes
 
             try
             {
-                var recipes = RecipeSerializer.LoadListFromFile(filePath, validate: false);
+                // Read the file once: what is parsed, shown and approved are the same bytes (the file can change in between)
+                byte[] bytes = File.ReadAllBytes(filePath);
+                string content = DecodeRecipeFile(bytes);
+                string contentHash = RecipeTrustStore.ComputeSha256(bytes);
+                var recipes = RecipeSerializer.DeserializeList(content, validate: false);
                 bool anyChanged = false;
 
                 foreach (var recipe in recipes)
                 {
+                    recipe.FilePath = filePath;
                     var valResult = RecipeValidator.Validate(recipe);
                     if (!valResult.IsValid)
                     {
@@ -571,29 +577,16 @@ namespace Greenshot.Recipes
                         continue;
                     }
 
-                    // Security check: SHA-256 cryptographic trust pinning
-                    string currentHash = null;
-                    bool allowExternalCommands = false;
-                    bool isApproved = RecipeTrustStore.IsRecipeApproved(filePath, out currentHash, out allowExternalCommands);
-                    if (forceApprovalPrompt)
+                    // Security check: SHA-256 trust pinning, per recipe of the file
+                    var approval = forceApprovalPrompt ? null : RecipeTrustStore.GetApproval(filePath, contentHash, recipe.Id);
+                    if (approval == null)
                     {
-                        isApproved = false;
-                    }
-
-                    if (!isApproved)
-                    {
-                        if (string.IsNullOrEmpty(currentHash))
-                        {
-                            currentHash = RecipeTrustStore.ComputeSha256(filePath);
-                        }
-
                         if (interactiveApproval)
                         {
-                            bool approved = RequestInteractiveApproval(recipe, filePath, valResult, out allowExternalCommands);
-                            if (approved)
+                            approval = RequestInteractiveApproval(CreateApprovalRequest(recipe, filePath, content, contentHash, valResult));
+                            if (approval != null)
                             {
-                                RecipeTrustStore.RecordApproval(filePath, currentHash, allowExternalCommands, recipe.Name, recipe.Version);
-                                forceApprovalPrompt = false; // Once user approves file, don't force prompt again for subsequent recipes in same file
+                                RecipeTrustStore.RecordApproval(filePath, contentHash, approval, content, recipeName: recipe.Name, recipeVersion: recipe.Version);
                             }
                             else
                             {
@@ -608,14 +601,17 @@ namespace Greenshot.Recipes
                         }
                     }
 
-                    if (valResult.HasGatedActions && !allowExternalCommands)
+                    var missingGates = RecipeApprovalPolicy.GetMissingGates(valResult, approval);
+                    if (missingGates.Count > 0)
                     {
-                        overallResult.AddError($"Recipe '{recipe.Name}' contains external commands, but authorization was not granted.");
+                        overallResult.AddError($"Recipe '{recipe.Name}' needs {string.Join(", ", missingGates.Select(RecipeApprovalPolicy.GetGateName))}, but that was not allowed.");
                         continue;
                     }
 
                     foreach (var warn in valResult.Warnings) overallResult.AddWarning($"[{recipe.Id}]: {warn}");
 
+                    // Only the approved triggers can start the recipe
+                    RecipeApprovalPolicy.Apply(recipe, approval);
                     recipe.FilePath = Path.GetFullPath(filePath);
                     recipe.IsEnabled = !GetDisabledRecipeIds().Contains(recipe.Id);
 
@@ -660,84 +656,140 @@ namespace Greenshot.Recipes
         }
 
         /// <summary>
-        /// Show the approval dialog (modal, on the UI thread)
+        /// The text of a recipe file, the encoding detected like File.ReadAllText does
         /// </summary>
-        private bool RequestInteractiveApproval(CaptureRecipe recipe, string filePath, RecipeValidationResult valResult, out bool allowExternalCommands)
+        internal static string DecodeRecipeFile(byte[] bytes)
         {
-            allowExternalCommands = false;
+            using (var reader = new StreamReader(new MemoryStream(bytes), Encoding.UTF8, detectEncodingFromByteOrderMarks: true))
+            {
+                return reader.ReadToEnd();
+            }
+        }
+
+        /// <summary>
+        /// What the approval window shows for a recipe from a file: the content that was read, the earlier approval, and the
+        /// built-in recipe it replaces
+        /// </summary>
+        private UI.RecipeApprovalRequest CreateApprovalRequest(CaptureRecipe recipe, string filePath, string content, string contentHash, RecipeValidationResult valResult)
+        {
+            var previousRecord = RecipeTrustStore.GetTrustRecord(filePath);
+            var request = new UI.RecipeApprovalRequest
+            {
+                Recipe = recipe,
+                FilePath = filePath,
+                Content = content,
+                ContentHash = contentHash,
+                Validation = valResult,
+                PreviousRecord = previousRecord,
+                // A file an AI tool created, changed on disk: it starts switched off, like a proposal
+                StartSwitchedOff = previousRecord?.IsAiCreated == true
+            };
+            var builtIn = GetBuiltInRecipe(recipe.Id);
+            if (builtIn != null)
+            {
+                request.ReplacedRecipe = builtIn;
+                request.ReplacesBuiltIn = true;
+                request.PreviousContent = RecipeSerializer.Serialize(builtIn);
+            }
+            return request;
+        }
+
+        /// <summary>
+        /// A copy of the built-in recipe with this id, null when there is none
+        /// </summary>
+        public CaptureRecipe GetBuiltInRecipe(string recipeId)
+        {
+            if (string.IsNullOrEmpty(recipeId)) return null;
+            lock (_recipes)
+            {
+                return _builtInRecipes.TryGetValue(recipeId, out var builtIn) ? builtIn.Clone() : null;
+            }
+        }
+
+        /// <summary>
+        /// The built-in recipes which are replaced by a recipe from a file
+        /// </summary>
+        public IReadOnlyList<CaptureRecipe> GetReplacedBuiltInRecipes()
+        {
+            lock (_recipes)
+            {
+                return _recipes.Values.Where(r => r.IsBuiltIn && r.IsOverridden).OrderBy(r => r.Name, StringComparer.OrdinalIgnoreCase).ToList();
+            }
+        }
+
+        /// <summary>
+        /// Show the approval dialog (modal, on the UI thread). Returns what the user approved, null when the recipe was rejected.
+        /// </summary>
+        internal UI.RecipeApprovalWindow.ApprovalResult RequestInteractiveApprovalWithOptions(UI.RecipeApprovalRequest request)
+        {
             if (!UiDispatcher.Current.CheckAccess())
             {
-                Log.WarnFormat("The approval of '{0}' can only be asked on the UI thread, the recipe is not approved.", filePath);
-                return false;
+                Log.WarnFormat("The approval of '{0}' can only be asked on the UI thread, the recipe is not approved.", request.FilePath);
+                return null;
             }
 
-            bool approved = false;
-            bool localAllow = false;
-
-            void Show()
+            var window = new UI.RecipeApprovalWindow(request)
             {
-                var window = new UI.RecipeApprovalWindow(recipe, filePath, valResult)
-                {
-                    Topmost = true,
-                    ShowActivated = true,
-                    WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen
-                };
+                Topmost = true,
+                ShowActivated = true,
+                WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen
+            };
 
-                // Safely determine owner handle.
-                // Note: If RequestInteractiveApproval runs on a separate STA thread (e.g. from FileWatcher or non-UI thread),
-                // accessing mainForm.Handle or mainForm.Visible directly will throw an InvalidOperationException (Cross-thread operation).
-                IntPtr ownerHwnd = IntPtr.Zero;
-                var mainForm = SimpleServiceProvider.Current.GetInstance<System.Windows.Forms.Form>(isOptional: true);
-                if (mainForm != null && mainForm.IsHandleCreated)
+            // Safely determine owner handle.
+            // Note: If this runs on a separate STA thread (e.g. from FileWatcher or non-UI thread),
+            // accessing mainForm.Handle or mainForm.Visible directly will throw an InvalidOperationException (Cross-thread operation).
+            IntPtr ownerHwnd = IntPtr.Zero;
+            var mainForm = SimpleServiceProvider.Current.GetInstance<System.Windows.Forms.Form>(isOptional: true);
+            if (mainForm != null && mainForm.IsHandleCreated)
+            {
+                try
                 {
-                    try
+                    if (mainForm.Visible && !mainForm.Disposing && !mainForm.IsDisposed)
                     {
-                        if (mainForm.Visible && !mainForm.Disposing && !mainForm.IsDisposed)
-                        {
-                            ownerHwnd = mainForm.Handle;
-                        }
-                    }
-                    catch
-                    {
-                        ownerHwnd = IntPtr.Zero;
+                        ownerHwnd = mainForm.Handle;
                     }
                 }
-
-                // If MainForm is not available or hidden, check for active WPF window (e.g. RecipeEditorWindow)
-                if (ownerHwnd == IntPtr.Zero && System.Windows.Application.Current != null)
+                catch
                 {
-                    try
-                    {
-                        var activeWpfWindow = System.Windows.Application.Current.Windows
-                            .OfType<System.Windows.Window>()
-                            .FirstOrDefault(w => w.IsActive && w != window);
-                        if (activeWpfWindow != null)
-                        {
-                            ownerHwnd = new System.Windows.Interop.WindowInteropHelper(activeWpfWindow).Handle;
-                        }
-                    }
-                    catch
-                    {
-                        ownerHwnd = IntPtr.Zero;
-                    }
-                }
-
-                if (ownerHwnd != IntPtr.Zero)
-                {
-                    new System.Windows.Interop.WindowInteropHelper(window).Owner = ownerHwnd;
-                }
-
-                if (window.ShowDialog() == true)
-                {
-                    approved = true;
-                    localAllow = window.AllowExternalCommands;
+                    ownerHwnd = IntPtr.Zero;
                 }
             }
 
-            Show();
+            // If MainForm is not available or hidden, check for active WPF window (e.g. RecipeEditorWindow)
+            if (ownerHwnd == IntPtr.Zero && System.Windows.Application.Current != null)
+            {
+                try
+                {
+                    var activeWpfWindow = System.Windows.Application.Current.Windows
+                        .OfType<System.Windows.Window>()
+                        .FirstOrDefault(w => w.IsActive && w != window);
+                    if (activeWpfWindow != null)
+                    {
+                        ownerHwnd = new System.Windows.Interop.WindowInteropHelper(activeWpfWindow).Handle;
+                    }
+                }
+                catch
+                {
+                    ownerHwnd = IntPtr.Zero;
+                }
+            }
 
-            allowExternalCommands = localAllow;
-            return approved;
+            if (ownerHwnd != IntPtr.Zero)
+            {
+                new System.Windows.Interop.WindowInteropHelper(window).Owner = ownerHwnd;
+            }
+
+            if (window.ShowDialog() == true && window.Approval != null)
+            {
+                window.Approval.ReplacesBuiltIn = request.ReplacesBuiltIn;
+                return new UI.RecipeApprovalWindow.ApprovalResult(window.Approval, window.OpenInEditor);
+            }
+            return null;
+        }
+
+        private RecipeApproval RequestInteractiveApproval(UI.RecipeApprovalRequest request)
+        {
+            return RequestInteractiveApprovalWithOptions(request)?.Approval;
         }
 
         private void NotifyRecipesChanged()

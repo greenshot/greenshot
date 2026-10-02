@@ -157,7 +157,7 @@ namespace Greenshot.Helpers.Ipc
             }
             foreach (var recipe in recipeManager.GetAllRecipes().Where(r => r.IsEnabled && r.Triggers != null))
             {
-                foreach (var trigger in recipe.Triggers.Where(t => t != null && t.Enabled && string.Equals(t.TriggerType, TriggerConfig.TypeAiTool, StringComparison.OrdinalIgnoreCase)))
+                foreach (var trigger in recipe.Triggers.Where(t => t != null && t.IsActive && string.Equals(t.TriggerType, TriggerConfig.TypeAiTool, StringComparison.OrdinalIgnoreCase)))
                 {
                     string toolName = trigger.GetParameter<string>("ToolName");
                     if (!AiToolTrigger.IsValidToolName(toolName))
