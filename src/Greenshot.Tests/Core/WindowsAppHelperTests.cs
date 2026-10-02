@@ -52,26 +52,48 @@ namespace Greenshot.Tests.Core
         }
 
         [Fact]
-        public void FindPackage_Paint_FindsPackage()
+        public void FindPackage_ByExecutableName_FindsInstalledApp()
         {
-            var package = WindowsAppHelper.FindPackage("mspaint.exe", "Paint");
+            var app = InstalledTestApp.Get();
+            var package = WindowsAppHelper.FindPackage(app.ExeName, app.DisplayName);
             Assert.NotNull(package);
-            Assert.Contains("Paint", package.DisplayName, StringComparison.OrdinalIgnoreCase);
+            Assert.Equal(app.FamilyName, package.Id.FamilyName);
         }
 
         [Fact]
-        public void FindPackage_Notepad_FindsPackage()
+        public void FindPackage_ByAliasPath_FindsInstalledApp()
         {
-            var package = WindowsAppHelper.FindPackage("notepad.exe", "Notepad");
+            var app = InstalledTestApp.Get();
+            var package = WindowsAppHelper.FindPackage(app.AliasPath);
             Assert.NotNull(package);
-            Assert.Contains("Notepad", package.DisplayName, StringComparison.OrdinalIgnoreCase);
+            Assert.Equal(app.FamilyName, package.Id.FamilyName);
         }
 
         [Fact]
-        public async Task GetAppxLogoAsync_PaintPackage_ReturnsValidImage()
+        public async Task GetAppLogoAsync_ConcurrentLookups_DoNotCrash()
         {
-            var package = WindowsAppHelper.FindPackage("mspaint.exe", "Paint");
-            Assert.NotNull(package);
+            // Regression: concurrent lookups read properties of the same cached WinRT packages,
+            // which crashed with an (uncatchable) AccessViolationException in Windows.ApplicationModel.
+            var app = InstalledTestApp.Get();
+            var lookups = new Task<System.Drawing.Image>[16];
+            for (int i = 0; i < lookups.Length; i++)
+            {
+                // Different sizes: different cache keys, so every lookup searches the packages
+                int size = 16 + i;
+                lookups[i] = WindowsAppHelper.GetAppLogoAsync(i % 2 == 0 ? app.ExeName : $"NoSuchApp{i}.exe", i % 2 == 0 ? app.DisplayName : $"NoSuchApp{i}", new NativeSize(size, size));
+            }
+
+            var logos = await Task.WhenAll(lookups);
+            for (int i = 0; i < logos.Length; i += 2)
+            {
+                Assert.NotNull(logos[i]);
+            }
+        }
+
+        [Fact]
+        public async Task GetAppxLogoAsync_InstalledAppPackage_ReturnsValidImage()
+        {
+            var package = InstalledTestApp.Get().Package;
 
             using var image = await WindowsAppHelper.GetAppxLogoAsync(package, new NativeSize(64, 64));
             Assert.NotNull(image);
@@ -80,24 +102,23 @@ namespace Greenshot.Tests.Core
         }
 
         [Fact]
-        public void GetAppxLogo_SynchronousCall_ReturnsValidImageWithoutDeadlock()
+        public async Task GetAppxLogoAsync_48_ReturnsValidImage()
         {
-            var package = WindowsAppHelper.FindPackage("mspaint.exe", "Paint");
-            Assert.NotNull(package);
+            var package = InstalledTestApp.Get().Package;
 
-            using var image = WindowsAppHelper.GetAppxLogo(package, new NativeSize(48, 48));
+            using var image = await WindowsAppHelper.GetAppxLogoAsync(package, new NativeSize(48, 48));
             Assert.NotNull(image);
             Assert.True(image.Width > 0);
             Assert.True(image.Height > 0);
         }
 
         [Fact]
-        public void GetAppxLogo_Paint_IconIsNotExcessivelyPadded()
+        public async Task GetAppxLogo_InstalledApp_IconIsNotExcessivelyPadded()
         {
-            var package = WindowsAppHelper.FindPackage("mspaint.exe", "Paint");
-            Assert.NotNull(package);
+            var app = InstalledTestApp.Get();
+            var package = app.Package;
 
-            using var image = WindowsAppHelper.GetAppxLogo(package, new NativeSize(64, 64)) as System.Drawing.Bitmap;
+            using var image = await WindowsAppHelper.GetAppxLogoAsync(package, new NativeSize(64, 64)) as System.Drawing.Bitmap;
             Assert.NotNull(image);
 
             // Verify content covers the majority of the image canvas (no huge 65%+ tile margins)
@@ -118,34 +139,38 @@ namespace Greenshot.Tests.Core
 
             int contentWidth = maxX - minX + 1;
             int contentHeight = maxY - minY + 1;
-            double coverage = (double)contentWidth / image.Width;
+            // Logos are not always square: the trimmed logo must fill the canvas in at least one dimension
+            double coverage = Math.Max((double)contentWidth / image.Width, (double)contentHeight / image.Height);
 
             // Coverage should be >= 75% (tightly cropped), unlike the raw 150x150 tile logo which was ~36%
-            Assert.True(coverage >= 0.75, $"Expected icon coverage >= 75%, but got {coverage:P0} ({contentWidth}x{contentHeight} in {image.Width}x{image.Height})");
+            Assert.True(coverage >= 0.75, $"Expected icon coverage >= 75% for {app}, but got {coverage:P0} ({contentWidth}x{contentHeight} in {image.Width}x{image.Height})");
         }
 
         [Fact]
-        public void GetAppLogo_ByCommandLineOrName_ReturnsImageAndCaches()
+        public async Task GetAppLogo_ByCommandLineOrName_ReturnsImageAndCaches()
         {
-            var image1 = WindowsAppHelper.GetAppLogo("mspaint.exe", "Paint");
+            var app = InstalledTestApp.Get();
+            var image1 = await WindowsAppHelper.GetAppLogoAsync(app.ExeName, app.DisplayName);
             Assert.NotNull(image1);
             Assert.True(image1.Width > 0);
 
             // Second call should come from cache
-            var image2 = WindowsAppHelper.GetAppLogo("mspaint.exe", "Paint");
+            var image2 = await WindowsAppHelper.GetAppLogoAsync(app.ExeName, app.DisplayName);
             Assert.Same(image1, image2);
         }
 
         [Fact]
         public void GetAppLogo_CalledFromStaThread_DoesNotDeadlock()
         {
+            var app = InstalledTestApp.Get();
             Exception threadEx = null;
             System.Drawing.Image img = null;
             var thread = new System.Threading.Thread(() =>
             {
                 try
                 {
-                    img = WindowsAppHelper.GetAppLogo("mspaint.exe", "Paint");
+                    // Blocking on purpose: the WinRT calls must not need the STA thread
+                    img = WindowsAppHelper.GetAppLogoAsync(app.ExeName, app.DisplayName).GetAwaiter().GetResult();
                 }
                 catch (Exception ex)
                 {
@@ -161,47 +186,39 @@ namespace Greenshot.Tests.Core
         }
 
         [Fact]
-        public void GetAppLogo_AppExecutionAliasPath_ReturnsImage()
+        public async Task GetAppLogo_AppExecutionAliasPath_ReturnsImage()
         {
-            string aliasPath = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                "Microsoft",
-                "WindowsApps",
-                "mspaint.exe");
-
-            if (File.Exists(aliasPath))
-            {
-                var image = WindowsAppHelper.GetAppLogo(aliasPath);
-                Assert.NotNull(image);
-                Assert.True(image.Width > 0);
-            }
+            var app = InstalledTestApp.Get();
+            var image = await WindowsAppHelper.GetAppLogoAsync(app.AliasPath);
+            Assert.NotNull(image);
+            Assert.True(image.Width > 0);
         }
 
         [Fact]
-        public void IconCache_IconForCommand_ResolvesAppIconForExternalCommand()
+        public async Task IconCache_IconForCommand_ResolvesAppIconForExternalCommand()
         {
+            // The test configures its own external command for an app that is installed on this machine
+            var app = InstalledTestApp.Get();
             var config = IniConfigRegistry.GetSection<IExternalCommandConfiguration>();
-            if (config != null)
+            Assert.NotNull(config);
+            if (config.Commands == null) config.Commands = new System.Collections.Generic.List<string>();
+            if (config.Commandline == null) config.Commandline = new System.Collections.Generic.Dictionary<string, string>();
+
+            string cmdName = $"TestApp_{Guid.NewGuid():N}";
+            config.Commands.Add(cmdName);
+            config.Commandline[cmdName] = app.ExeName;
+
+            try
             {
-                if (config.Commands == null) config.Commands = new System.Collections.Generic.List<string>();
-                if (config.Commandline == null) config.Commandline = new System.Collections.Generic.Dictionary<string, string>();
-
-                string cmdName = "TestPaintApp";
-                config.Commands.Add(cmdName);
-                config.Commandline[cmdName] = "mspaint.exe";
-
-                try
-                {
-                    var icon = IconCache.IconForCommand(cmdName);
-                    Assert.NotNull(icon);
-                    Assert.True(icon.Width > 0);
-                    Assert.True(icon.Height > 0);
-                }
-                finally
-                {
-                    config.Commands.Remove(cmdName);
-                    config.Commandline.Remove(cmdName);
-                }
+                var icon = await IconCache.IconForCommandAsync(cmdName);
+                Assert.NotNull(icon);
+                Assert.True(icon.Width > 0);
+                Assert.True(icon.Height > 0);
+            }
+            finally
+            {
+                config.Commands.Remove(cmdName);
+                config.Commandline.Remove(cmdName);
             }
         }
     }

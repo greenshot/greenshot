@@ -6,12 +6,17 @@
 
   <ItemGroup>
     <PackageReference Include="ZXing.Net" Version="0.16.11" />
-    <PackageReference Include="Dapplo.Ini" Version="1.0.162" />
-    <PackageReference Include="Dapplo.Ini.Generator" Version="1.0.162" />
+    <PackageReference Include="Dapplo.Ini" Version="1.1.6" />
+    <PackageReference Include="Dapplo.Ini.Generator" Version="1.1.6" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Greenshot.Base\Greenshot.Base.csproj" />
     <ProjectReference Include="..\Greenshot.Editor\Greenshot.Editor.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="5.6.0" />
+    <PackageReference Update="Microsoft.VisualStudio.Threading.Analyzers" Version="18.7.23" />
   </ItemGroup>
 </Project>

@@ -167,6 +167,51 @@ namespace Greenshot.Tests.Recipes
             Assert.Equal("B", ctxB.Properties["branch"]);
         }
 
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task ExecuteAsync_SplitWithoutMerge_PropagatesBranchExitCodeToParent(bool abortInBranch)
+        {
+            var recipe = new CaptureRecipe("split_exit_code", "Split Exit Code")
+                .AddNode(new RecipeNodeConfig { Id = "start", StepType = "Start" })
+                .AddNode(new RecipeNodeConfig { Id = "branch_a", StepType = "BranchA" })
+                .AddNode(new RecipeNodeConfig { Id = "branch_b", StepType = "BranchB" });
+
+            recipe.Flow = new RecipeFlowConfig("start")
+                .AddTransition("start", "branch_a")
+                .AddTransition("start", "branch_b");
+
+            using var bmp = new Bitmap(10, 10);
+            var capture = new Capture((Image)bmp.Clone());
+            using var context = new CaptureFlowContext(recipe)
+            {
+                Payload = new CapturePayload(capture)
+            };
+            context.Payload.EnsureSurface();
+
+            var engine = new DagExecutionEngine(nodeConfig =>
+            {
+                return new MockTestStep(nodeConfig.Id, ctx =>
+                {
+                    if (nodeConfig.Id == "branch_b")
+                    {
+                        // Mimics a StderrStep inside an isolated branch
+                        ctx.ExitCode = 3;
+                        if (abortInBranch)
+                        {
+                            ctx.Abort("branch_b failed");
+                        }
+                    }
+                    return Task.CompletedTask;
+                });
+            });
+
+            await engine.ExecuteAsync(recipe, context);
+
+            Assert.Equal(3, context.ExitCode);
+            Assert.Equal(abortInBranch, context.IsAborted);
+        }
+
         [Fact]
         public async Task ExecuteAsync_ConditionalBranching_BypassesUnselectedBranch()
         {
@@ -181,8 +226,8 @@ namespace Greenshot.Tests.Recipes
                         {
                             "Branches", new List<Dictionary<string, object>>
                             {
-                                new Dictionary<string, object> { { "Key", "BranchA" }, { "Expression", "" } },
-                                new Dictionary<string, object> { { "Key", "BranchB" }, { "Expression", "default" } }
+                                new Dictionary<string, object> { { "Key", "BranchA" }, { "Expression", "${CustomScore > 50}" } },
+                                new Dictionary<string, object> { { "Key", "BranchB" }, { "Expression", "else" } }
                             }
                         }
                     }
@@ -311,10 +356,9 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Fact]
-        public async Task ExecuteAsync_StepError_WithNodeLevelFallbackParameter_RoutesToErrorHandlerNode()
+        public async Task ExecuteAsync_StepError_WithNodeLevelErrorTarget_RoutesToErrorHandlerNode()
         {
-            var failNode = new RecipeNodeConfig { Id = "fail_node", StepType = "Export" };
-            failNode.Set("OnErrorNodeId", "recovery_node");
+            var failNode = new RecipeNodeConfig { Id = "fail_node", StepType = "Export", OnErrorNodeId = "recovery_node" };
 
             var recipe = new CaptureRecipe("node_fallback_recipe", "Node Fallback Recipe")
                 .AddNode(new RecipeNodeConfig { Id = "start", StepType = "Start" })

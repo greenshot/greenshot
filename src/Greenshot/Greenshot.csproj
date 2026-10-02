@@ -8,14 +8,82 @@
     <ApplicationManifest>greenshot.manifest</ApplicationManifest>
 	  <EmbeddedResourceUseDependentUponConvention>false</EmbeddedResourceUseDependentUponConvention>
 	  <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
+    <!-- DebugLight and ReleaseLight build Greenshot Light, see Directory.Build.props -->
+    <Configurations>Debug;Release;DebugLight;ReleaseLight</Configurations>
   </PropertyGroup>
 
   <ItemGroup>
     <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
       <_Parameter1>Greenshot.Tests</_Parameter1>
     </AssemblyAttribute>
+    <!-- The edition, read by Greenshot.Base.Core.EditionInfo -->
+    <AssemblyMetadata Include="GreenshotEdition" Value="$(GreenshotEdition)" />
   </ItemGroup>
-  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+  <!-- Every edition but Full has its name in the version info, so Explorer's file properties show it -->
+  <PropertyGroup Condition="'$(GreenshotEdition)' != 'Full'">
+    <Product>Greenshot $(GreenshotEdition)</Product>
+  </PropertyGroup>
+  <!--
+    Greenshot Light (/p:GreenshotEdition=Light, or the DebugLight / ReleaseLight configurations): the basics only, for the Light installer
+    (setup-light.iss) and the Light portable version. GREENSHOT_LIGHT compiles out loading plugins, the AI tools (greenshot-mcp) and the
+    browser extension. It is built next to the full version, in bin\Debug-Light or bin\Release-Light; the Release build of
+    Greenshot-Installer builds it too.
+  -->
+  <PropertyGroup Condition="'$(GreenshotEdition)' == 'Light'">
+    <DefineConstants>$(DefineConstants);GREENSHOT_LIGHT</DefineConstants>
+    <OutputPath>bin\$(GreenshotBaseConfiguration)-Light\</OutputPath>
+    <IntermediateOutputPath>obj\$(GreenshotBaseConfiguration)-Light\</IntermediateOutputPath>
+  </PropertyGroup>
+  <!-- The code Greenshot Light doesn't have: loading plugins, the AI tools (greenshot-mcp) and the browser extension, with their settings tabs -->
+  <ItemGroup Condition="'$(GreenshotEdition)' == 'Light'">
+    <Compile Remove="Helpers\PluginHelper.cs" />
+    <Compile Remove="Helpers\Ipc\Ai*.cs" />
+    <Compile Remove="Helpers\Ipc\McpServerStatus.cs" />
+    <Compile Remove="Helpers\Ipc\BrowserContextTracker.cs" />
+    <Compile Remove="Helpers\Ipc\ExtensionOriginPolicy.cs" />
+    <Compile Remove="Helpers\Ipc\ImportCaptureDecoder.cs" />
+    <Compile Remove="Forms\Wpf\SettingsViewModel.AiTools.cs" />
+    <Compile Remove="Forms\Wpf\SettingsViewModel.Plugins.cs" />
+    <Compile Remove="Forms\Wpf\AiToolsSettingsPage.xaml.cs" />
+    <Compile Remove="Forms\Wpf\PluginsSettingsPage.xaml.cs" />
+    <Page Remove="Forms\Wpf\AiToolsSettingsPage.xaml" />
+    <Page Remove="Forms\Wpf\PluginsSettingsPage.xaml" />
+  </ItemGroup>
+  <!--
+    Greenshot Light must not contain that code at all, not only leave it unused: the build fails when one of these types
+    (or members) is in the compiled Greenshot.exe. Names are looked up in the metadata string heap (UTF-8, zero terminated).
+  -->
+  <UsingTask TaskName="CheckLightAssembly" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <Assembly ParameterType="System.String" Required="true" />
+      <ForbiddenNames ParameterType="System.String" Required="true" />
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System" />
+      <Using Namespace="System.IO" />
+      <Using Namespace="System.Linq" />
+      <Using Namespace="System.Text" />
+      <Code Type="Fragment" Language="cs">
+        <![CDATA[
+        byte[] content = File.ReadAllBytes(Assembly);
+        string latin = Encoding.GetEncoding("ISO-8859-1").GetString(content);
+        var found = ForbiddenNames.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries)
+            .Select(n => n.Trim())
+            .Where(n => latin.Contains("\0" + n + "\0"))
+            .ToList();
+        foreach (var name in found)
+        {
+            Log.LogError("Greenshot Light must not contain " + name + ", it is in " + Assembly);
+        }
+        ]]>
+      </Code>
+    </Task>
+  </UsingTask>
+  <Target Name="CheckLightAssembly" AfterTargets="CoreCompile" Condition="'$(GreenshotEdition)' == 'Light'">
+    <CheckLightAssembly Assembly="@(IntermediateAssembly->'%(FullPath)')"
+                        ForbiddenNames="PluginHelper;LoadPluginsAsync;AiToolIpcHandler;AiRecipeIpcHandler;AiToolCaller;AiToolClient;AiToolAccess;AiToolCapture;AiWindowRefs;McpServerStatus;RegisterAiToolRecipes;ImportCaptureDecoder;BrowserContextTracker;ExtensionOriginPolicy;HandleImportCaptureAsync;AiToolsSettingsPage;PluginsSettingsPage" />
+  </Target>
+  <PropertyGroup Condition="'$(GreenshotBaseConfiguration)' == 'Release'">
     <DebugType>none</DebugType>
     <DebugSymbols>false</DebugSymbols>
   </PropertyGroup>
@@ -28,7 +96,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dapplo.Windows.AppRestartManager" Version="2.0.89" />
+    <PackageReference Include="Dapplo.Windows.AppRestartManager" Version="3.2.3" />
     <PackageReference Include="SixLabors.ImageSharp" Version="2.1.13" />
     <PackageReference Include="System.CommandLine" Version="3.0.0-preview.1.26104.118" />
     <PackageReference Include="Microsoft.Toolkit.Uwp.Notifications" version="7.1.3" />
@@ -39,13 +107,16 @@
     <EmbeddedResource Include="Forms\MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Sounds.resx" />
+    <!-- Images and sounds, loaded with EmbeddedResources (non string .resx entries would need System.Resources.Extensions) -->
+    <EmbeddedResource Include="Resources\MainForm\*.png" LogicalName="Greenshot.Forms.MainForm.%(Filename)" />
+    <EmbeddedResource Include="sounds\camera.wav" LogicalName="Greenshot.Sounds.camera" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Greenshot.Base\Greenshot.Base.csproj" />
-    <ProjectReference Include="..\Greenshot.Editor\Greenshot.Editor.csproj" />
-    <ProjectReference Include="..\Greenshot.BuildTasks\Greenshot.BuildTasks.csproj" ReferenceOutputAssembly="false" ExcludeAssets="all" />
+    <!-- The edition only changes Greenshot.exe, the libraries are the same (and built as Debug or Release for DebugLight and ReleaseLight) -->
+    <ProjectReference Include="..\Greenshot.Base\Greenshot.Base.csproj" UndefineProperties="GreenshotEdition" SetConfiguration="Configuration=$(GreenshotBaseConfiguration)" />
+    <ProjectReference Include="..\Greenshot.Editor\Greenshot.Editor.csproj" UndefineProperties="GreenshotEdition" SetConfiguration="Configuration=$(GreenshotBaseConfiguration)" />
+    <ProjectReference Include="..\Greenshot.BuildTasks\Greenshot.BuildTasks.csproj" ReferenceOutputAssembly="false" ExcludeAssets="all" UndefineProperties="GreenshotEdition" SetConfiguration="Configuration=$(GreenshotBaseConfiguration)" />
   </ItemGroup>
 
   <ItemGroup>
@@ -55,26 +126,30 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Update="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="5.6.0" />
+    <PackageReference Update="Microsoft.VisualStudio.Threading.Analyzers" Version="18.7.23" />
     <PackageReference Update="MSBuildTasks" Version="1.5.0.235">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
 
-  <UsingTask TaskName="EmojiDataTask" TaskFactory="TaskHostFactory" AssemblyFile="..\Greenshot.BuildTasks\bin\$(Configuration)\$(TargetFramework)\Greenshot.BuildTasks.dll" />
+  <UsingTask TaskName="EmojiDataTask" TaskFactory="TaskHostFactory" AssemblyFile="..\Greenshot.BuildTasks\bin\$(GreenshotBaseConfiguration)\$(TargetFramework)\Greenshot.BuildTasks.dll" />
 
-  <Target Name="GenerateEmojiTestTxtFile" BeforeTargets="BeforeBuild">
-    <EmojiDataTask EmojiTestTxtFile="..\Greenshot.Editor\Controls\Emoji\emoji-test.txt" OutputFilename="$(SolutionDir)$(SolutionName)\$(OutDir)\emojis.xml" />
+  <Target Name="GenerateEmojiTestTxtFile" BeforeTargets="BeforeBuild" Inputs="..\Greenshot.Editor\Controls\Emoji\emoji-test.txt" Outputs="$(TargetDir)emojis.xml">
+    <!-- The output directory doesn't exist yet in a clean build (or the first build of Greenshot Light) -->
+    <MakeDir Directories="$(TargetDir)" />
+    <EmojiDataTask EmojiTestTxtFile="..\Greenshot.Editor\Controls\Emoji\emoji-test.txt" OutputFilename="$(TargetDir)emojis.xml" />
   </Target>
 
-  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+  <PropertyGroup Condition="'$(GreenshotBaseConfiguration)' == 'Debug'">
     <PostBuildEvent>
-      copy "$(SolutionDir)Greenshot\log4net-debug.xml" "$(SolutionDir)Greenshot\bin\$(Configuration)\net480\log4net.xml"
+      copy "$(SolutionDir)Greenshot\log4net-debug.xml" "$(TargetDir)log4net.xml"
     </PostBuildEvent>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+  <PropertyGroup Condition="'$(GreenshotBaseConfiguration)' == 'Release'">
     <PostBuildEvent>
-      copy "$(SolutionDir)Greenshot\log4net-release.xml" "$(SolutionDir)Greenshot\bin\$(Configuration)\net480\log4net.xml"
+      copy "$(SolutionDir)Greenshot\log4net-release.xml" "$(TargetDir)log4net.xml"
     </PostBuildEvent>
   </PropertyGroup>
 </Project>

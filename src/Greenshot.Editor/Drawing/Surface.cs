@@ -30,6 +30,7 @@ using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.ServiceModel.Security;
 using System.Windows.Forms;
+using Dapplo.Windows.Clipboard;
 using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Icons;
@@ -46,6 +47,9 @@ using Greenshot.Editor.Drawing.Fields;
 using Greenshot.Editor.Helpers;
 using Greenshot.Editor.Memento;
 using log4net;
+using System.Threading;
+using System.Threading.Tasks;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Editor.Drawing
 {
@@ -993,31 +997,34 @@ namespace Greenshot.Editor.Drawing
 
         #region DragDrop
 
+        /// <summary>
+        /// A reader for the dropped data, drop and paste share the IClipboardDataSource code path. Null when the data isn't an OLE data object.
+        /// </summary>
+        private static DataObjectReader CreateDropReader(DragEventArgs e) =>
+            e.Data is System.Runtime.InteropServices.ComTypes.IDataObject comDataObject ? new DataObjectReader(comDataObject) : null;
+
         private void OnDragEnter(object sender, DragEventArgs e)
         {
-            if (LOG.IsDebugEnabled)
-            {
-                LOG.Debug("DragEnter got following formats: ");
-                foreach (string format in ClipboardHelper.GetFormats(e.Data))
-                {
-                    LOG.Debug(format);
-                }
-            }
-
+            e.Effect = DragDropEffects.None;
             if ((e.AllowedEffect & DragDropEffects.Copy) != DragDropEffects.Copy)
             {
-                e.Effect = DragDropEffects.None;
+                return;
             }
-            else
+
+            using var reader = CreateDropReader(e);
+            if (reader == null)
             {
-                if (ClipboardHelper.ContainsImage(e.Data) || ClipboardHelper.ContainsFormat(e.Data, "DragImageBits"))
-                {
-                    e.Effect = DragDropEffects.Copy;
-                }
-                else
-                {
-                    e.Effect = DragDropEffects.None;
-                }
+                return;
+            }
+
+            if (LOG.IsDebugEnabled)
+            {
+                LOG.Debug("DragEnter got following formats: " + string.Join(", ", reader.Formats));
+            }
+
+            if (ClipboardHelper.ContainsImage(reader) || reader.HasFormat("DragImageBits"))
+            {
+                e.Effect = DragDropEffects.Copy;
             }
         }
 
@@ -1050,32 +1057,98 @@ namespace Greenshot.Editor.Drawing
         private void OnDragDrop(object sender, DragEventArgs e)
         {
             NativePoint mouse = PointToClient(new NativePoint(e.X, e.Y));
-            if (e.Data.GetDataPresent("Text"))
+            using var reader = CreateDropReader(e);
+            if (reader == null)
             {
-                string possibleUrl = ClipboardHelper.GetText(e.Data);
+                return;
+            }
+
+            // The data object is only valid during the drop: read everything now
+            var containers = ClipboardHelper.GetDrawables(reader).ToList();
+            if (ClipboardHelper.ContainsText(reader))
+            {
+                string possibleUrl = ClipboardHelper.GetText(reader);
                 // Test if it's an url and try to download the image so we have it in the original form
                 if (possibleUrl != null && possibleUrl.StartsWith("http"))
                 {
-                    var drawableContainer = NetworkHelper.DownloadImageAsDrawableContainer(possibleUrl);
-                    if (drawableContainer != null)
-                    {
-                        drawableContainer.Left = Location.X;
-                        drawableContainer.Top = Location.Y;
-                        FitContainer(drawableContainer);
-                        AddElement(drawableContainer);
-                        return;
-                    }
+                    AsyncCommand.Run(() => AddDownloadedOrFallbackAsync(new[] { possibleUrl }, containers, new NativePoint(Location.X, Location.Y), mouse, true, false),
+                        "Download the dropped image");
+                    return;
                 }
             }
 
-            foreach (var drawableContainer in ClipboardHelper.GetDrawables(e.Data))
+            AddDrawables(containers, mouse, true, false);
+        }
+
+        /// <summary>
+        /// Add the drawables, each 10 pixels offset from the previous
+        /// </summary>
+        private void AddDrawables(IEnumerable<IDrawableContainer> drawableContainers, NativePoint location, bool fit, bool select)
+        {
+            foreach (var drawableContainer in drawableContainers)
             {
-                drawableContainer.Left = mouse.X;
-                drawableContainer.Top = mouse.Y;
-                FitContainer(drawableContainer);
+                if (drawableContainer == null) continue;
+                if (select)
+                {
+                    DeselectAllElements();
+                }
+
+                drawableContainer.Left = location.X;
+                drawableContainer.Top = location.Y;
+                if (fit)
+                {
+                    FitContainer(drawableContainer);
+                }
+
                 AddElement(drawableContainer);
-                mouse = mouse.Offset(10, 10);
+                if (select)
+                {
+                    SelectElement(drawableContainer);
+                }
+
+                location = location.Offset(10, 10);
             }
+        }
+
+        /// <summary>
+        /// Download the first image of the urls and add it, else add the fallback drawables. Runs on the UI thread, the download doesn't block it.
+        /// </summary>
+        private async Task AddDownloadedOrFallbackAsync(IList<string> urls, IList<IDrawableContainer> fallbackContainers, NativePoint downloadLocation, NativePoint fallbackLocation, bool fit, bool select)
+        {
+            IDrawableContainer downloaded = null;
+            foreach (var url in urls)
+            {
+                downloaded = await NetworkHelper.DownloadImageAsDrawableContainerAsync(url, CancellationToken.None);
+                if (downloaded != null)
+                {
+                    break;
+                }
+            }
+
+            if (IsDisposed)
+            {
+                // The editor was closed during the download
+                downloaded?.Dispose();
+                foreach (var fallbackContainer in fallbackContainers)
+                {
+                    fallbackContainer?.Dispose();
+                }
+
+                return;
+            }
+
+            if (downloaded == null)
+            {
+                AddDrawables(fallbackContainers, fallbackLocation, fit, select);
+                return;
+            }
+
+            foreach (var fallbackContainer in fallbackContainers)
+            {
+                fallbackContainer?.Dispose();
+            }
+
+            AddDrawables(new[] { downloaded }, downloadLocation, fit, select);
         }
 
         #endregion
@@ -1136,7 +1209,8 @@ namespace Greenshot.Editor.Drawing
         public void ResizeCanvas(int left, int right, int top, int bottom)
         {
             var resizeEffect = new ResizeCanvasEffect(left, right, top, bottom);
-            ApplyBitmapEffect(resizeEffect);
+            // Fast enough for the UI thread
+            ApplyEffectResult(resizeEffect, Image);
             _surfaceExpanded(this, null);
         }
 
@@ -1147,7 +1221,8 @@ namespace Greenshot.Editor.Drawing
         public void ResizeCanvas(Expansion expansion)
         {
             var resizeEffect = new ResizeCanvasEffect(expansion.Left, expansion.Right, expansion.Top, expansion.Bottom);
-            ApplyBitmapEffect(resizeEffect);
+            // Fast enough for the UI thread
+            ApplyEffectResult(resizeEffect, Image);
             _surfaceExpanded(this, null);
         }
 
@@ -1155,39 +1230,106 @@ namespace Greenshot.Editor.Drawing
         /// Apply a bitmap effect to the surface
         /// </summary>
         /// <param name="effect"></param>
-        public void ApplyBitmapEffect(IEffect effect)
+        /// <remarks>
+        /// Call on the UI thread: the effect is calculated on the thread pool with a copy of the image (a progress dialog
+        /// shows when it takes longer), the result is applied on the UI thread.
+        /// </remarks>
+        private bool _effectRunning;
+
+        public async Task ApplyBitmapEffectAsync(IEffect effect, CancellationToken cancellationToken = default)
         {
-            BackgroundForm backgroundForm = new BackgroundForm("Effect", "Please wait");
-            backgroundForm.Show();
-            Application.DoEvents();
+            if (_effectRunning)
+            {
+                // One effect at a time, the next would work on the image without the running effect
+                LOG.Info("An effect is still running, ignoring " + effect?.GetType().Name);
+                return;
+            }
+
+            _effectRunning = true;
             try
             {
-                var imageRectangle = new NativeRect(NativePoint.Empty, Image.Size);
-                Matrix matrix = new Matrix();
-                Image newImage = ImageHelper.ApplyEffect(Image, effect, matrix);
-                if (newImage != null)
-                {
-                    // Make sure the elements move according to the offset the effect made the bitmap move
-                    _elements.Transform(matrix);
-                    // Make undoable
-                    MakeUndoable(new SurfaceBackgroundChangeMemento(this, matrix), false);
-                    SetImage(newImage, false);
-                    Invalidate();
-                    if (_surfaceSizeChanged != null && !imageRectangle.Equals(new NativeRect(NativePoint.Empty, newImage.Size)))
-                    {
-                        _surfaceSizeChanged(this, null);
-                    }
-                }
-                else
-                {
-                    // clean up matrix, as it hasn't been used in the undo stack.
-                    matrix.Dispose();
-                }
+                await ApplyBitmapEffectCoreAsync(effect, cancellationToken);
             }
             finally
             {
-                // Always close the background form
-                backgroundForm.CloseDialog();
+                _effectRunning = false;
+            }
+        }
+
+        private async Task ApplyBitmapEffectCoreAsync(IEffect effect, CancellationToken cancellationToken)
+        {
+            var sourceImage = ImageHelper.Clone(Image);
+            var matrix = new Matrix();
+            Image newImage;
+            try
+            {
+                newImage = await UserInteraction.Current.RunWithProgressAsync("Please wait",
+                    (progress, token) => ApplyEffectOnPoolAsync(sourceImage, effect, matrix), cancellationToken);
+            }
+            catch
+            {
+                sourceImage.Dispose();
+                matrix.Dispose();
+                throw;
+            }
+
+            if (ReferenceEquals(newImage, sourceImage))
+            {
+                // The effect didn't change anything
+                newImage = null;
+            }
+
+            sourceImage.Dispose();
+            if (IsDisposed)
+            {
+                // The editor was closed in the meantime
+                newImage?.Dispose();
+                matrix.Dispose();
+                return;
+            }
+
+            // Back on the UI thread
+            ApplyEffectResult(newImage, matrix);
+        }
+
+        private static async Task<Image> ApplyEffectOnPoolAsync(Image sourceImage, IEffect effect, Matrix matrix)
+        {
+            await ThreadPoolSwitch.SwitchToThreadPoolAsync();
+            return ImageHelper.ApplyEffect(sourceImage, effect, matrix);
+        }
+
+        /// <summary>
+        /// Apply the effect to the image on the calling (UI) thread
+        /// </summary>
+        private void ApplyEffectResult(IEffect effect, Image sourceImage)
+        {
+            var matrix = new Matrix();
+            var newImage = ImageHelper.ApplyEffect(sourceImage, effect, matrix);
+            ApplyEffectResult(ReferenceEquals(newImage, sourceImage) ? null : newImage, matrix);
+        }
+
+        /// <summary>
+        /// Use the result of an effect: the new image and the matrix of the offset, both are owned by the surface afterwards
+        /// </summary>
+        private void ApplyEffectResult(Image newImage, Matrix matrix)
+        {
+            if (newImage == null)
+            {
+                // clean up matrix, as it hasn't been used in the undo stack.
+                matrix.Dispose();
+                return;
+            }
+
+            var imageRectangle = new NativeRect(NativePoint.Empty, Image.Size);
+            // Make sure the elements move according to the offset the effect made the bitmap move
+            _elements.Transform(matrix);
+            // Make undoable
+            MakeUndoable(new SurfaceBackgroundChangeMemento(this, matrix), false);
+            SetImage(newImage, false);
+            Invalidate();
+            if (_surfaceSizeChanged != null && !imageRectangle.Equals(new NativeRect(NativePoint.Empty, newImage.Size)))
+            {
+                _surfaceSizeChanged(this, null);
             }
         }
 
@@ -2199,7 +2341,7 @@ namespace Greenshot.Editor.Drawing
         public void CutSelectedElements()
         {
             if (!HasSelectedElements) return;
-            ClipboardHelper.SetClipboardData(typeof(IDrawableContainerList), selectedElements);
+            DrawableContainerClipboard.Copy(selectedElements);
             RemoveSelectedElements();
         }
 
@@ -2209,7 +2351,7 @@ namespace Greenshot.Editor.Drawing
         public void CopySelectedElements()
         {
             if (!HasSelectedElements) return;
-            ClipboardHelper.SetClipboardData(typeof(IDrawableContainerList), selectedElements);
+            DrawableContainerClipboard.Copy(selectedElements);
         }
 
         /// <summary>
@@ -2299,26 +2441,11 @@ namespace Greenshot.Editor.Drawing
         /// </summary>
         public void PasteElementFromClipboard()
         {
-            IDataObject clipboard = ClipboardHelper.GetDataObject();
-
-            var formats = ClipboardHelper.GetFormats(clipboard);
-            if (formats == null || formats.Count == 0)
+            // Copy the formats which are needed in one short clipboard session, decode afterwards
+            if (DrawableContainerClipboard.IsAvailable)
             {
-                return;
-            }
-
-            if (LOG.IsDebugEnabled)
-            {
-                LOG.Debug("List of clipboard formats available for pasting:");
-                foreach (string format in formats)
-                {
-                    LOG.Debug("\tgot format: " + format);
-                }
-            }
-
-            if (formats.Contains(typeof(IDrawableContainerList).FullName))
-            {
-                IDrawableContainerList dcs = (IDrawableContainerList) ClipboardHelper.GetFromDataObject(clipboard, typeof(IDrawableContainerList));
+                var elementsSnapshot = ClipboardHelper.ReadSnapshot(new[] { DrawableContainerClipboard.Format }, DrawableContainerClipboard.MaxSize);
+                IDrawableContainerList dcs = DrawableContainerClipboard.Read(elementsSnapshot);
                 if (dcs != null)
                 {
                     // Make element(s) only move 10,10 if the surface is the same
@@ -2394,21 +2521,36 @@ namespace Greenshot.Editor.Drawing
                     FieldAggregator.BindElements(dcs);
                     DeselectAllElements();
                     SelectElements(dcs);
+                    return;
                 }
+                LOG.Warn("The Greenshot elements on the clipboard couldn't be read, pasting the other content.");
             }
-            else if (ClipboardHelper.ContainsImage(clipboard))
+
+            var clipboard = ClipboardHelper.ReadSnapshot(ClipboardHelper.SelectImageReadFormats().Concat(ClipboardHelper.TextReadFormats));
+            if (clipboard == null || clipboard.Formats.Count == 0)
+            {
+                return;
+            }
+
+            if (LOG.IsDebugEnabled)
+            {
+                LOG.Debug("List of clipboard formats available for pasting: " + string.Join(", ", clipboard.Formats));
+            }
+
+            if (ClipboardHelper.ContainsImage(clipboard))
             {
                 NativePoint pasteLocation = GetPasteLocation(0.1f, 0.1f);
 
-                foreach (var drawableContainer in ClipboardHelper.GetDrawables(clipboard))
+                var drawableContainers = ClipboardHelper.GetDrawables(clipboard).Where(drawableContainer => drawableContainer != null).ToList();
+                var imageUrls = drawableContainers.Count == 0 ? ClipboardHelper.GetHtmlImageUrls(clipboard) : Array.Empty<string>();
+                if (imageUrls.Count > 0)
                 {
-                    if (drawableContainer == null) continue;
-                    DeselectAllElements();
-                    drawableContainer.Left = pasteLocation.X;
-                    drawableContainer.Top = pasteLocation.Y; 
-                    AddElement(drawableContainer);
-                    SelectElement(drawableContainer);
-                    pasteLocation = pasteLocation.Offset(10, 10);
+                    // Only HTML with images: download them without blocking the UI
+                    AsyncCommand.Run(() => AddDownloadedOrFallbackAsync(imageUrls, drawableContainers, pasteLocation, pasteLocation, false, true), "Download the pasted image");
+                }
+                else
+                {
+                    AddDrawables(drawableContainers, pasteLocation, false, true);
                 }
             }
             else if (ClipboardHelper.ContainsText(clipboard))

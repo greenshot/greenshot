@@ -26,7 +26,7 @@ using System.Windows.Forms;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.Icons;
 using Dapplo.Windows.Icons.SafeHandles;
-using Dapplo.Windows.Messages.Enumerations;
+using Dapplo.Windows.Messages.Enums;
 using Dapplo.Windows.User32;
 using Greenshot.Editor.Forms;
 using ColorDialog = Greenshot.Editor.Forms.ColorDialog;
@@ -84,10 +84,18 @@ namespace Greenshot.Editor.Controls
         {
             using SafeIconHandle iconHandle = new SafeIconHandle(bitmap.GetHicon());
             NativeIconMethods.GetIconInfo(iconHandle, out var iconInfo);
-            iconInfo.Hotspot = new NativePoint(hotspotX, hotspotY);
-            iconInfo.IsIcon = false;
-            var icon = NativeIconMethods.CreateIconIndirect(ref iconInfo);
-            return new Cursor(icon);
+            try
+            {
+                iconInfo.Hotspot = new NativePoint(hotspotX, hotspotY);
+                iconInfo.IsIcon = false;
+                var icon = NativeIconMethods.CreateIconIndirect(ref iconInfo);
+                return new Cursor(icon);
+            }
+            finally
+            {
+                // GetIconInfo created copies of the bitmaps, CreateIconIndirect copied them again
+                iconInfo.DeleteBitmaps();
+            }
         }
 
         /// <summary>

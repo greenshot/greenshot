@@ -113,6 +113,28 @@ namespace Greenshot.Tests.Core
         }
 
         [Fact]
+        public void EditionInfo_TheTestedBuild_IsTheFullEdition()
+        {
+            Assert.Equal("Full", Greenshot.Base.Core.EditionInfo.Name);
+            Assert.True(Greenshot.Base.Core.EditionInfo.IsFull);
+            Assert.Equal("Greenshot", Greenshot.Base.Core.EditionInfo.ProductName);
+            Assert.Equal(string.Empty, Greenshot.Base.Core.EditionInfo.Suffix);
+        }
+
+        [Fact]
+        public void UpdateService_FullEdition_IgnoresTheDownloadsOfOtherEditions()
+        {
+            var service = new Greenshot.Helpers.UpdateService(new Version(1, 2, 10));
+            service.ProcessFeed(new Greenshot.Helpers.Entities.UpdateFeed
+            {
+                CurrentReleaseVersion = "1.3.0",
+                Downloads = new System.Collections.Generic.Dictionary<string, string> { ["light"] = "https://getgreenshot.org/downloads/light" }
+            });
+
+            Assert.Equal("https://getgreenshot.org/downloads", service.DownloadsUrl.AbsoluteUri);
+        }
+
+        [Fact]
         public void BugReportViewModel_WithOutdatedVersion_DisplaysUpgradeHint()
         {
             var updateService = new Greenshot.Helpers.UpdateService(new Version(1, 2, 10));

@@ -47,7 +47,7 @@ namespace Greenshot.Forms.Wpf
         private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(SettingsWindow));
         private readonly SettingsViewModel _viewModel;
 
-        public SettingsWindow(string initialPluginName = null)
+        public SettingsWindow(string initialPluginName = null, string initialTabName = null)
         {
             InitializeComponent();
             
@@ -68,7 +68,7 @@ namespace Greenshot.Forms.Wpf
                 }
                 else if (!Dispatcher.HasShutdownStarted)
                 {
-                    Dispatcher.InvokeAsync(() =>
+                    _ = Dispatcher.InvokeAsync(() =>
                     {
                         try
                         {
@@ -85,6 +85,14 @@ namespace Greenshot.Forms.Wpf
             ThemeManager.Instance.PropertyChanged += themeHandler;
             Closed += (s, e) => ThemeManager.Instance.PropertyChanged -= themeHandler;
 
+#if GREENSHOT_LIGHT
+            // Greenshot Light has no plugins and no AI tools
+            SettingsTabControl.Items.Remove(PluginsTabItem);
+            SettingsTabControl.Items.Remove(AiToolsTabItem);
+#else
+            PluginsTabItem.Content = new PluginsSettingsPage();
+            AiToolsTabItem.Content = new AiToolsSettingsPage();
+
             // Lazy plugin configuration: only select/load first plugin if the user navigates to the Plugins tab
             SettingsTabControl.SelectionChanged += (s, e) =>
             {
@@ -93,18 +101,74 @@ namespace Greenshot.Forms.Wpf
                     _viewModel.SelectedPlugin = _viewModel.Plugins[0];
                 }
             };
+#endif
 
+            if (!string.IsNullOrEmpty(initialTabName))
+            {
+                SelectTab(initialTabName);
+            }
             if (!string.IsNullOrEmpty(initialPluginName))
             {
                 SelectPlugin(initialPluginName);
             }
         }
 
+        public void SelectTab(string tabName)
+        {
+            if (string.IsNullOrWhiteSpace(tabName)) return;
+
+            string normalized = tabName.Trim().ToLowerInvariant();
+            switch (normalized)
+            {
+                case "general":
+                    SettingsTabControl.SelectedIndex = 0;
+                    break;
+                case "capture":
+                    SettingsTabControl.SelectedIndex = 1;
+                    break;
+                case "output":
+                    SettingsTabControl.SelectedIndex = 2;
+                    break;
+                case "destination":
+                case "destinations":
+                    SettingsTabControl.SelectedIndex = 3;
+                    break;
+                case "editor":
+                    SettingsTabControl.SelectedIndex = 4;
+                    break;
+                case "printer":
+                case "print":
+                    SettingsTabControl.SelectedIndex = 5;
+                    break;
+                case "plugin":
+                case "plugins":
+                    SettingsTabControl.SelectedItem = PluginsTabItem;
+                    break;
+                case "recipes":
+                    // By name: the tabs before it are not always there
+                    SettingsTabControl.SelectedItem = RecipesTabItem;
+                    break;
+                case "expert":
+                case "expertsettings":
+                    // By name: the AI tools and plugins tabs before it are not always there
+                    if (_viewModel.IsExpertTabVisible)
+                    {
+                        SettingsTabControl.SelectedItem = ExpertTabItem;
+                    }
+                    break;
+                default:
+                    SelectPlugin(tabName);
+                    break;
+            }
+        }
+
         public void SelectPlugin(string pluginName)
         {
+#if !GREENSHOT_LIGHT
             if (string.IsNullOrWhiteSpace(pluginName)) return;
             SettingsTabControl.SelectedItem = PluginsTabItem;
             _viewModel.SelectPluginByName(pluginName);
+#endif
         }
 
         protected override void OnSourceInitialized(EventArgs e)
@@ -245,6 +309,12 @@ namespace Greenshot.Forms.Wpf
             
             _viewModel.CoreConfiguration.OutputDestinations = destinations;
 
+            _viewModel.SaveRecipeOptions();
+
+#if !GREENSHOT_LIGHT
+            _viewModel.SaveAiToolSettings();
+#endif
+
             // Save clipboard formats
             if (_viewModel.ClipboardFormats != null)
             {
@@ -283,6 +353,27 @@ namespace Greenshot.Forms.Wpf
             
             // Force save of all configuration sections
             IniConfigRegistry.Get()?.Save();
+        }
+
+        /// <summary>
+        /// The swatch of a color option of a recipe: pick the color with the editor's color picker
+        /// </summary>
+        private void RecipeOptionColor_Click(object sender, RoutedEventArgs e)
+        {
+            if (!((sender as FrameworkElement)?.DataContext is RecipeOptionItem item))
+            {
+                return;
+            }
+
+            var colorWindow = new Greenshot.Editor.Forms.ColorPickerWindow
+            {
+                Owner = this,
+                SelectedColor = RecipeOptionColors.Parse(item.TextValue)
+            };
+            if (colorWindow.ShowDialog() == true)
+            {
+                item.Value = RecipeOptionColors.Format(colorWindow.SelectedColor);
+            }
         }
 
         private void HotkeyDisplayControl_EditRequested(object sender, EventArgs e)

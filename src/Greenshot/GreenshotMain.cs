@@ -29,7 +29,10 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Ini;
 using Dapplo.Ini.Parsing;
+using Dapplo.Windows.Input.Keyboard;
+using Dapplo.Windows.Messages;
 using Greenshot.Base.Core;
+using Greenshot.Base.Recipes;
 using Greenshot.Configuration;
 using Greenshot.Editor.Configuration;
 using Greenshot.Forms;
@@ -75,6 +78,8 @@ public class GreenshotMain
         // Enable TLS 1.2 and 1.3 support only (TLS 1.0/1.1 deprecated per RFC 8996)
         ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls13;
 
+        Greenshot.Base.Core.Language.OSLanguage = CultureInfo.CurrentUICulture.Name;
+
         CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
         CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
 
@@ -102,27 +107,32 @@ public class GreenshotMain
 
         // Register custom value converters (NativeRect, Color, etc.) before building the registry.
         IniValueConverters.Register();
+        Editor.EditorInitialize.RegisterValueConverters();
 
         // Detect PortableApp (PAF) mode: the App\Greenshot directory lives next to the executable.
         var startupPath = AppContext.BaseDirectory;
         var pafAppPath = Path.Combine(startupPath, @"App\Greenshot");
         GreenshotEnvironment.IsPortable = Directory.Exists(pafAppPath);
 
+        // Build the IniConfigRegistry:
+        //   AddAppDataPath  → %APPDATA%\Greenshot
+        //   AddSearchPath   → installation / startup directory
         // Ensure any design-time / test fallback configuration is removed before production startup
         IniConfigHelper.UnregisterDesignTimeConfig();
 
-        // Build the IniConfigRegistry. greenshot.ini is searched in %APPDATA%\Greenshot and then the
-        // startup directory, unless --ini-directory is given: then only that directory is used.
-        var builder = IniConfigRegistry.ForFile("greenshot.ini");
-        var appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Greenshot");
-        // Keep the resolved directory (null when unusable) so a restart by the Restart Manager uses it as well
-        options.IniDirectory = IniLocation.Configure(builder, options.IniDirectory, appDataPath, startupPath);
-        if (options.IniDirectory != null)
+        var builder = IniConfigRegistry.ForFile("greenshot.ini")
+
+            .AddAppDataPath("Greenshot")
+            .AddSearchPath(startupPath);
+
+        if (!string.IsNullOrEmpty(options.IniDirectory) && Directory.Exists(options.IniDirectory))
         {
-            LOG.Info($"Using ini-directory {options.IniDirectory}");
+            builder.AddSearchPath(options.IniDirectory);
         }
 
-        builder.WithWriterOptions(new IniWriterOptions
+        builder.AddDefaultsFile("greenshot-defaults.ini")
+               .AddConstantsFile("greenshot-fixed.ini")
+               .WithWriterOptions(new IniWriterOptions
                {
                    AssignmentSeparator = "=",
                    QuoteStyle = IniValueQuoteStyle.Never,
@@ -139,16 +149,25 @@ public class GreenshotMain
                .RegisterSection<ICoreConfiguration>(new CoreConfigurationImpl())
                .RegisterSection<IEditorConfiguration>(new EditorConfigurationImpl())
                .RegisterSection<IWin10Configuration>(new Win10ConfigurationImpl())
+               .RegisterSection<IRecipeOptionsConfiguration>(new RecipeOptionsConfigurationImpl())
+               // Plugins register their sections after the file was read, they are filled from the retained file content.
+               // This also keeps the sections of plugins which are not loaded (excluded or uninstalled) when saving.
+               .AllowLateSectionRegistration()
                .AutoSaveInterval(TimeSpan.FromSeconds(2))
                .EmptyWhenNull()
                .LockFile()
-               .EnableMetadata(applicationName: "Greenshot");
+               .EnableMetadata(applicationName: "Greenshot")
+               // Also logs errors of the background work (auto-save, save on exit), which are only reported to listeners
+               .AddListener(new IniListener());
 
-#if DEBUG
-        builder.AddListener(new Helpers.IniListener());
-#endif
+        // No file access yet: greenshot.ini is read (and locked) in MainForm.Start, only by the instance which really runs.
+        // A second instance, which forwards a command or reports that Greenshot is running, doesn't touch the file.
+        builder.Create();
 
-        var iniConfig = builder.Create();
+        // An exception in a window message or keyboard hook subscriber ends that subscription instead of crashing the process,
+        // log it: otherwise a clipboard listener or the hotkeys just stop working without a trace.
+        SharedMessageWindow.SubscriberErrors.Subscribe(ex => LOG.Error("A window message subscriber failed and was removed.", ex));
+        KeyboardHook.SubscriberErrors.Subscribe(ex => LOG.Error("A keyboard hook subscriber failed and was removed.", ex));
 
         // Log the startup
         LOG.Info("Starting: " + EnvironmentInfo.EnvironmentToString(false));
@@ -183,7 +202,7 @@ public class GreenshotMain
             return;
         }
 
-        UI.BugReportWindow.ShowReport(exceptionToLog, exceptionText);
+        UI.BugReportWindow.ShowReport(exceptionToLog, exceptionText, e.IsTerminating);
     }
 
     internal static void Task_UnhandledException(object sender, UnobservedTaskExceptionEventArgs args)

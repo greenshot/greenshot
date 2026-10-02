@@ -20,64 +20,98 @@
  */
 
 using System;
-using System.Drawing;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.Enums;
+using Greenshot.Base.Core.Export;
 using Greenshot.Base.Interfaces;
-using Greenshot.Forms;
-using System.Windows.Forms;
+using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.Base.Core.FileFormat;
 
 namespace Greenshot.Destinations
 {
     /// <summary>
+    /// What to share with the Windows share dialog, the view (SharingForm) returns the name of the app, null when nothing was shared.
+    /// </summary>
+    public sealed class ShareRequest : IDialogViewModel<string>
+    {
+        public ShareRequest(string filePath, string title)
+        {
+            FilePath = filePath;
+            Title = title;
+        }
+
+        /// <summary>
+        /// The capture, saved as PNG
+        /// </summary>
+        public string FilePath { get; }
+
+        public string Title { get; }
+    }
+
+    /// <summary>
     /// This uses the Windows Share dialog to make the capture available to apps.
     /// </summary>
-    public class Win10ShareDestination : AbstractDestination
+    public class Win10ShareDestination : DestinationBase
     {
-        private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(Win10ShareDestination));
-
         public override string Designation { get; } = "Windows10Share";
-        public override string Description { get; } = "Windows share";
-
-        public override int Priority => 3;
 
         /// <summary>
         /// Icon for the App-share, the icon was found via: https://help4windows.com/windows_8_shell32_dll.shtml
         /// </summary>
-        public override Image DisplayIcon => PluginUtils.GetCachedExeIcon(FilenameHelper.FillCmdVariables(@"%windir%\system32\shell32.dll"), 238);
+        public override DestinationDescriptor Descriptor { get; } =
+            new DestinationDescriptor("Windows share", 3, DestinationIcons.Exe(FilenameHelper.FillCmdVariables(@"%windir%\system32\shell32.dll"), 238));
 
         /// <summary>
         /// Share the screenshot with a windows app
         /// </summary>
-        /// <param name="manuallyInitiated">bool</param>
-        /// <param name="surface">ISurface</param>
-        /// <param name="captureDetails">ICaptureDetails</param>
-        /// <returns>ExportInformation</returns>
-        public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
+        public override async Task<ExportResult> ExportAsync(ExportRequest request, CancellationToken cancellationToken)
         {
-            var exportInformation = new ExportInformation(Designation, Description);
+            SharingFiles.CleanupOldShareFiles();
+            // A unique name, an app which still has an older share open keeps its file
+            string filePath = Path.Combine(Path.GetTempPath(), $"greenshot_share_{Guid.NewGuid()}.png");
+            await ExportFiles.SaveAsync(request.Source, filePath, false, new SurfaceOutputSettings(WellKnownFileFormats.Png), cancellationToken).ConfigureAwait(false);
+            string appName = await request.Ui.ShowDialogAsync(new ShareRequest(filePath, request.Metadata?.Title), cancellationToken).ConfigureAwait(false);
+            return appName == null ? ExportResult.Declined : ExportResult.Succeeded(target: appName);
+        }
+    }
+
+    /// <summary>
+    /// The temporary files for the share dialog.
+    /// </summary>
+    public static class SharingFiles
+    {
+        private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(SharingFiles));
+
+        /// <summary>
+        /// Try to clean up the files of previous shares, an app which still has one open keeps it (the delete fails).
+        /// </summary>
+        public static void CleanupOldShareFiles()
+        {
             try
             {
-                var sharingForm = new SharingForm(surface, captureDetails);
-                var result = sharingForm.ShowDialog();
-
-                if (result == DialogResult.Abort)
+                foreach (string file in Directory.GetFiles(Path.GetTempPath(), "greenshot_share_*.png"))
                 {
-                    exportInformation.ExportMade = false;
-                }
-                if (result == DialogResult.OK)
-                {
-                    exportInformation.ExportMade = true;
-                    exportInformation.DestinationDescription = sharingForm.AppName;
+                    try
+                    {
+                        File.Delete(file);
+                    }
+                    catch (IOException)
+                    {
+                        // Still in use
+                    }
+                    catch (UnauthorizedAccessException)
+                    {
+                        // Still in use
+                    }
                 }
             }
             catch (Exception ex)
             {
-                exportInformation.ExportMade = false;
-                exportInformation.ErrorMessage = ex.Message;
+                Log.Debug("Couldn't clean up old share files", ex);
             }
-
-            ProcessExport(exportInformation, surface);
-            return exportInformation;
         }
     }
 }

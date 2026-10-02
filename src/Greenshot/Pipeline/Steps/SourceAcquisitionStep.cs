@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -20,7 +20,9 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -29,12 +31,18 @@ using Dapplo.Windows.Common.Extensions;
 using Dapplo.Windows.Common.Structs;
 using Dapplo.Windows.User32;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Pipeline.Contracts;
+using Contracts = Greenshot.Base.Pipeline.Contracts;
+
 using Greenshot.Base.Pipeline.Sources;
 using Greenshot.Base.Recipes;
+using Greenshot.Helpers.Ipc;
 using Greenshot.Triggers;
 using log4net;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Pipeline.Steps
 {
@@ -43,13 +51,53 @@ namespace Greenshot.Pipeline.Steps
     /// raw pixel acquisition from screen, window, file, or clipboard, and pixel DPI alignment.
     /// Evaluates configuration settings (e.g. mouse cursor, delay) dynamically at runtime.
     /// </summary>
-    public class SourceAcquisitionStep : ICaptureStep
+    [StepInfo(WellKnownStepTypes.Source, "Acquire Source", "Acquires the image: captures the screen, a region, a window, the clipboard, a file or the current editor. A capture handed to the flow (forwarded from another recipe, imported from the browser extension) is used instead of capturing.", "Acquisition")]
+    [StepPayload(RawCapture = PayloadRequirement.Created, Surface = PayloadRequirement.Created)]
+    [StepParameter("SourceType", ContractDataType.Enum, DefaultValue = "Region", SupportsExpressions = false, Description = "What to capture", AllowedValues = new[] { "Region", "Window", "ActiveWindow", "FullScreen", "LastRegion", "Clipboard", "File", "TextOcr", "CurrentEditor", "Extension" })]
+    [StepParameter("Filename", ContractDataType.FilePath, Description = "File to load (SourceType File); default: variable Filename")]
+    [StepParameter("CaptureMouseCursor", ContractDataType.Boolean, Description = "Include the mouse cursor (default: settings)")]
+    [StepParameter("DelayMs", ContractDataType.Integer, Description = "Delay before capturing in milliseconds (default: settings)")]
+    [StepParameter("ScreenCaptureMode", ContractDataType.Enum, Description = "Which screen(s) to capture for FullScreen (default: settings)", AllowedValues = new[] { "Auto", "FullScreen", "Fixed" })]
+    [StepParameter("WindowCaptureMode", ContractDataType.Enum, Description = "How to capture a window (default: settings)", AllowedValues = new[] { "Screen", "GDI", "Aero", "AeroTransparent", "Auto" })]
+    [StepParameter("WindowTitle", ContractDataType.String, Description = "Capture the window with this title (SourceType Window)")]
+    [StepParameter("WindowTitlePattern", ContractDataType.String, Description = "Capture the window whose title matches this regular expression (SourceType Window)")]
+    [StepParameter("ProcessName", ContractDataType.String, Description = "Capture the window of this process (SourceType Window)")]
+    [StepParameter("WindowHandle", ContractDataType.Object, Description = "Capture this window without asking or activating it (SourceType Window): the variable of a Window argument (e.g. ${Window}) or a window handle")]
+    [StepParameter("MatchCase", ContractDataType.Boolean, Description = "Match WindowTitle / WindowTitlePattern case-sensitively")]
+    [StepParameter("AlignDpi", ContractDataType.Boolean, DefaultValue = true, Description = "Set the image resolution to the screen DPI")]
+    [StepInputVariable("PreSuppliedRegion", ContractDataType.Object, Description = "Region to capture without asking (set by the caller)")]
+    [StepInputVariable("CaptureDelay", ContractDataType.Integer, Description = "Overrides DelayMs")]
+    [StepInputVariable("CaptureMouseCursor", ContractDataType.Boolean, Description = "Overrides the CaptureMouseCursor parameter")]
+    [StepInputVariable("ScreenCaptureMode", ContractDataType.Enum, Description = "Overrides the ScreenCaptureMode parameter")]
+    [StepInputVariable("WindowCaptureMode", ContractDataType.Enum, Description = "Overrides the WindowCaptureMode parameter")]
+    [StepInputVariable("TargetWindow", ContractDataType.Object, Description = "Window to capture (set by the caller)")]
+    [StepInputVariable("WindowTitle", ContractDataType.String, Description = "Window title, when the parameter is not set")]
+    [StepInputVariable("WindowTitlePattern", ContractDataType.String, Description = "Window title pattern, when the parameter is not set")]
+    [StepInputVariable("ProcessName", ContractDataType.String, Description = "Process name, when the parameter is not set")]
+    [StepInputVariable("MatchCase", ContractDataType.Boolean, Description = "Match case, when the parameter is not set")]
+    [StepInputVariable("Filename", ContractDataType.FilePath, Description = "File to load (SourceType File), when the parameter is not set")]
+    [StepInputVariable("EditorForm", ContractDataType.Object, Description = "The editor to take the image from (SourceType CurrentEditor, set by the editor trigger)")]
+    [StepOutputVariable("SelectedWindow", ContractDataType.Object, "The window of the last region (SourceType LastRegion)", Conditional = true)]
+    public class SourceAcquisitionStep : ICaptureStep, IRequiresRecipeAuthorization
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(SourceAcquisitionStep));
         private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
 
         public string Name { get; }
         public RecipeNodeConfig Config { get; }
+
+        /// <summary>
+        /// Loading a file (SourceType File) reads from the file system: the user has to allow file system access
+        /// </summary>
+        public IEnumerable<RecipeGatedAction> GetGatedActions()
+        {
+            if (string.Equals(Config.GetParameter<string>("SourceType"), "File", StringComparison.OrdinalIgnoreCase))
+            {
+                string filename = Config.GetParameter<string>("Filename");
+                yield return new RecipeGatedAction(RecipeGateType.FileSystemAccess,
+                    string.IsNullOrWhiteSpace(filename) ? "Reads the image file named in the variable Filename" : $"Reads the image file {filename}");
+            }
+        }
 
         public SourceAcquisitionStep(RecipeNodeConfig config)
         {
@@ -59,12 +107,16 @@ namespace Greenshot.Pipeline.Steps
 
         public async Task ExecuteAsync(CaptureFlowContext context, CancellationToken cancellationToken = default)
         {
-            context.State = CaptureFlowState.Acquiring;
-
-            // 0. Check if payload is already pre-supplied 
+            // 0. Check if payload is already pre-supplied (e.g. browser extension capture or programmatic injection)
             if (context.Payload != null)
             {
-                Log.Warn($"Source {Name} already has a pre-supplied payload. This should not happen.");
+                Log.Info($"Source {Name} using pre-supplied capture payload.");
+                context.IsPayloadPreSupplied = true;
+                if (Config.GetParameter("AlignDpi", true))
+                {
+                    AlignDpi(context.Payload);
+                }
+                return;
             }
 
             // 1. Pre-capture preparation: tray icon reset & delay
@@ -87,6 +139,9 @@ namespace Greenshot.Pipeline.Steps
 
                 if (payload?.RawCapture != null )
                 {
+#if !GREENSHOT_LIGHT
+                    RedactForAiTool(context, payload);
+#endif
                     // Offset to bitmap coordinates for cropping
                     NativeRect screenOffsetRect = preRect.Offset(-payload.RawCapture.Location.X, -payload.RawCapture.Location.Y);
                     payload.RawCapture.Crop(screenOffsetRect);
@@ -99,10 +154,22 @@ namespace Greenshot.Pipeline.Steps
                 return;
             }
 
+            // A given window (WindowHandle): captured directly, with its exact contents, without activating it
+            if (sourceType == CaptureSourceType.Window && Config.GetParameter<object>("WindowHandle") is { } windowHandle)
+            {
+#if GREENSHOT_LIGHT
+                // The window of an AI tool's Window argument: Greenshot Light has no AI tools
+                context.Fail($"Capturing a given window ({windowHandle}) is not available in Greenshot Light.");
+#else
+                await AcquireWindowAsync(context, windowHandle, alignDpi, cancellationToken).ConfigureAwait(false);
+#endif
+                return;
+            }
+
             // Check if window targeting parameters are specified in config
             bool hasTargetWindowConfig = !string.IsNullOrEmpty(Config.GetParameter<string>("WindowTitle")) ||
                                          !string.IsNullOrEmpty(Config.GetParameter<string>("WindowTitlePattern")) ||
-                                         !string.IsNullOrEmpty(Config.GetParameter<string>("processName"));
+                                         !string.IsNullOrEmpty(Config.GetParameter<string>("ProcessName"));
 
             // 5. Instantiate source based on SourceType
             ICaptureSource source = sourceType switch
@@ -132,23 +199,40 @@ namespace Greenshot.Pipeline.Steps
                     new ClipboardCaptureSource(),
 
                 CaptureSourceType.File =>
-                    new FileCaptureSource(),
+                    new FileCaptureSource(Config),
 
                 CaptureSourceType.CurrentEditor =>
                     new CurrentEditorCaptureSource(),
+
+                CaptureSourceType.Extension =>
+                    null,
 
                 _ => null
             };
 
             if (source == null)
             {
-                context.Fail($"Unsupported capture source type: {sourceType}");
+                if (sourceType == CaptureSourceType.Extension)
+                {
+                    context.Fail("Extension capture source requires a pre-supplied image payload.");
+                }
+                else
+                {
+                    context.Fail($"Unsupported capture source type: {sourceType}");
+                }
                 return;
             }
 
             var acquired = await source.AcquireAsync(context, cancellationToken).ConfigureAwait(false);
             if (acquired != null)
             {
+#if !GREENSHOT_LIGHT
+                // Clipboard, file and editor contents are the user's, everything else is taken from the screen
+                if (sourceType != CaptureSourceType.Clipboard && sourceType != CaptureSourceType.File && sourceType != CaptureSourceType.CurrentEditor)
+                {
+                    RedactForAiTool(context, acquired);
+                }
+#endif
                 // Align DPI for raw captured pixels (screen, window, active window, region, last region)
                 if (alignDpi && sourceType != CaptureSourceType.File)
                 {
@@ -161,6 +245,74 @@ namespace Greenshot.Pipeline.Steps
                 context.Abort("Acquisition failed or produced no payload.");
             }
         }
+
+#if !GREENSHOT_LIGHT
+        /// <summary>
+        /// Captures the window of the WindowHandle parameter. For AI tools windows of excluded processes are refused.
+        /// </summary>
+        private async Task AcquireWindowAsync(CaptureFlowContext context, object windowHandle, bool alignDpi, CancellationToken cancellationToken)
+        {
+            var window = AiToolCapture.ResolveWindow(windowHandle);
+            if (window == null)
+            {
+                context.Fail($"The window to capture ({windowHandle}) doesn't exist (anymore).");
+                return;
+            }
+            if (AiToolCapture.IsAiToolRun(context))
+            {
+                string processName = AiToolCapture.GetProcessName(window);
+                if (AiToolAccess.IsProcessExcluded(processName))
+                {
+                    context.Fail($"Windows of '{processName}' are excluded from AI tools.");
+                    return;
+                }
+            }
+
+            // Context (caller) -> node parameter -> settings
+            var windowCaptureMode = context.Properties.TryGetValue("WindowCaptureMode", out var wcmObj) && wcmObj is WindowCaptureMode wcm
+                ? wcm
+                : Enum.TryParse(Config.GetParameter<object>("WindowCaptureMode")?.ToString(), true, out WindowCaptureMode configured)
+                    ? configured
+                    : CoreConfig.WindowCaptureMode;
+            var capture = await AiToolCapture.CaptureWindowAsync(window, windowCaptureMode, context.Ui, cancellationToken).ConfigureAwait(false);
+            if (capture?.Image == null)
+            {
+                capture?.Dispose();
+                context.Fail($"Capturing the window '{window.Text}' failed.");
+                return;
+            }
+
+            var payload = new CapturePayload(capture);
+            // The other window capture modes can contain what covers the window
+            if (!(capture.CaptureDetails?.MetaData != null &&
+                  capture.CaptureDetails.MetaData.TryGetValue(AiToolCapture.CaptureMethodKey, out var method) &&
+                  method == AiToolCapture.CaptureMethodGraphicsCapture))
+            {
+                RedactForAiTool(context, payload);
+            }
+            if (alignDpi)
+            {
+                AlignDpi(payload);
+            }
+            context.Payload = payload;
+        }
+
+        /// <summary>
+        /// AI tools never see windows of excluded processes (password managers by default): they are blacked out in screen captures.
+        /// </summary>
+        private static void RedactForAiTool(CaptureFlowContext context, ICapturePayload payload)
+        {
+            if (!AiToolCapture.IsAiToolRun(context) || payload?.RawCapture?.Image == null)
+            {
+                return;
+            }
+            int redacted = AiToolCapture.RedactExcludedWindows(payload.RawCapture.Image, payload.RawCapture.Location);
+            if (redacted > 0)
+            {
+                context.LogStep($"Blacked out {redacted} window(s) of applications excluded from AI tools.");
+            }
+        }
+#endif
 
         private static void AlignDpi(ICapturePayload payload)
         {
@@ -253,27 +405,19 @@ namespace Greenshot.Pipeline.Steps
                 var notifyIcon = SimpleServiceProvider.Current.GetInstance<NotifyIcon>(isOptional: true);
                 if (notifyIcon != null)
                 {
-                    var uiContext = SimpleServiceProvider.Current.GetInstance<SynchronizationContext>(isOptional: true) ?? SynchronizationContext.Current;
-                    if (uiContext != null && SynchronizationContext.Current != uiContext)
+                    // The tray icon belongs to the UI thread; awaited, so the balloon is gone before the capture
+                    await context.Ui.RunOnUiAsync(() =>
                     {
-                        uiContext.Post(_ =>
+                        try
                         {
-                            try
-                            {
-                                notifyIcon.Visible = false;
-                                notifyIcon.Visible = true;
-                            }
-                            catch (Exception ex)
-                            {
-                                Log.Warn("Failed to toggle notifyIcon visibility", ex);
-                            }
-                        }, null);
-                    }
-                    else
-                    {
-                        notifyIcon.Visible = false;
-                        notifyIcon.Visible = true;
-                    }
+                            notifyIcon.Visible = false;
+                            notifyIcon.Visible = true;
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.Warn("Failed to toggle notifyIcon visibility", ex);
+                        }
+                    }, ct).ConfigureAwait(false);
                 }
             }
 

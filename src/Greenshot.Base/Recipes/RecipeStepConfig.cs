@@ -66,6 +66,19 @@ namespace Greenshot.Base.Recipes
             return node;
         }
 
+        public static RecipeNodeConfig CreateSaveFileWithFormat(
+            string format,
+            string id = "save_file",
+            string saveDirectory = null,
+            string filenamePattern = null,
+            bool? allowOverwrite = null,
+            int? jpegQuality = null,
+            bool? reduceColors = null)
+        {
+            var node = CreateSaveFile(id, saveDirectory, filenamePattern, format, allowOverwrite, jpegQuality, reduceColors);
+            return node;
+        }
+
         public static RecipeNodeConfig CreateSelection(string id = "selection", CaptureMode mode = CaptureMode.Region, bool allowWindowSnapping = true)
         {
             var node = new RecipeNodeConfig(id, WellKnownStepTypes.InteractiveSelection, $"Select {mode}");
@@ -76,7 +89,8 @@ namespace Greenshot.Base.Recipes
 
         public static RecipeNodeConfig CreateBorder(string id = "border", int width = 2, string color = "#000000")
         {
-            var node = new RecipeNodeConfig(id, WellKnownStepTypes.Border, "Add Border");
+            var node = new RecipeNodeConfig(id, WellKnownStepTypes.Effect, "Add Border");
+            node.Set("Effect", "Border");
             node.Set("Width", width);
             node.Set("Color", color ?? "#000000");
             return node;
@@ -99,7 +113,7 @@ namespace Greenshot.Base.Recipes
         public static RecipeNodeConfig CreateAnnotation(string id = "annotation", string annotationType = "Text", Dictionary<string, object> parameters = null)
         {
             var node = new RecipeNodeConfig(id, WellKnownStepTypes.Annotation, $"Add {annotationType}");
-            node.Set("AnnotationType", annotationType);
+            node.Set("Type", annotationType);
             if (parameters != null)
             {
                 foreach (var kvp in parameters)
@@ -125,7 +139,7 @@ namespace Greenshot.Base.Recipes
             return node;
         }
 
-        public static RecipeNodeConfig CreateProcessors(string id = "processors", IEnumerable<string> processorIds = null, ProcessorTiming? timing = null, string ocrLanguage = null)
+        public static RecipeNodeConfig CreateProcessors(string id = "processors", IEnumerable<string> processorIds = null, ProcessorTiming? timing = null)
         {
             var node = new RecipeNodeConfig(id, WellKnownStepTypes.Processors, "Run Processors");
             if (processorIds != null)
@@ -136,10 +150,6 @@ namespace Greenshot.Base.Recipes
             {
                 node.Set("Timing", timing.Value.ToString());
             }
-            if (!string.IsNullOrEmpty(ocrLanguage))
-            {
-                node.Set("OcrLanguage", ocrLanguage);
-            }
             return node;
         }
 
@@ -147,7 +157,7 @@ namespace Greenshot.Base.Recipes
             string id = "save_file",
             string saveDirectory = null,
             string filenamePattern = null,
-            OutputFormat? format = null,
+            string format = null,
             bool? allowOverwrite = null,
             int? jpegQuality = null,
             bool? reduceColors = null)
@@ -155,7 +165,7 @@ namespace Greenshot.Base.Recipes
             var node = new RecipeNodeConfig(id, WellKnownStepTypes.SaveFile, "Save to File");
             if (!string.IsNullOrEmpty(saveDirectory)) node.Set("SaveDirectory", saveDirectory);
             if (!string.IsNullOrEmpty(filenamePattern)) node.Set("FilenamePattern", filenamePattern);
-            if (format.HasValue) node.Set("Format", format.Value.ToString());
+            if (!string.IsNullOrEmpty(format)) node.Set("Format", format);
             if (allowOverwrite.HasValue) node.Set("AllowOverwrite", allowOverwrite.Value);
             if (jpegQuality.HasValue) node.Set("JpegQuality", jpegQuality.Value);
             if (reduceColors.HasValue) node.Set("ReduceColors", reduceColors.Value);
@@ -176,12 +186,11 @@ namespace Greenshot.Base.Recipes
             return node;
         }
 
-        public static RecipeNodeConfig CreateEditor(string id = "editor", bool? matchSizeToCapture = null, TargetEditor? targetEditor = null, bool? suppressSaveDialog = null)
+        public static RecipeNodeConfig CreateEditor(string id = "editor", bool? matchSizeToCapture = null, TargetEditor? targetEditor = null)
         {
             var node = new RecipeNodeConfig(id, WellKnownStepTypes.Editor, "Open in Editor");
             if (matchSizeToCapture.HasValue) node.Set("MatchSizeToCapture", matchSizeToCapture.Value);
             if (targetEditor.HasValue) node.Set("TargetEditor", targetEditor.Value.ToString());
-            if (suppressSaveDialog.HasValue) node.Set("SuppressSaveDialog", suppressSaveDialog.Value);
             return node;
         }
 

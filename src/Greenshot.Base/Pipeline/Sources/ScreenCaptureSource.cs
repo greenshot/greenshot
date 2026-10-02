@@ -46,7 +46,7 @@ namespace Greenshot.Base.Pipeline.Sources
             _configuredMode = mode;
         }
 
-        public Task<ICapturePayload> AcquireAsync(CaptureFlowContext context, CancellationToken cancellationToken = default)
+        public async Task<ICapturePayload> AcquireAsync(CaptureFlowContext context, CancellationToken cancellationToken = default)
         {
             ScreenCaptureMode mode = context.Properties.TryGetValue("ScreenCaptureMode", out var scmObj) && scmObj is ScreenCaptureMode scm
                 ? scm
@@ -57,12 +57,15 @@ namespace Greenshot.Base.Pipeline.Sources
             switch (mode)
             {
                 case ScreenCaptureMode.Auto:
-                    NativePoint mouseLocation = User32Api.GetCursorLocation();
+                    // The screen where the cursor was when the capture was triggered (the flow runs later, on the thread pool)
+                    NativePoint mouseLocation = context.TriggerContext != null && !context.TriggerContext.CursorPosition.Equals(NativePoint.Empty)
+                        ? context.TriggerContext.CursorPosition
+                        : User32Api.GetCursorLocation();
                     foreach (Screen screen in Screen.AllScreens)
                     {
                         if (screen.Bounds.Contains(mouseLocation))
                         {
-                            capture = WindowCapture.CaptureRectangle(capture, screen.Bounds);
+                            capture = await WindowCapture.CaptureRectangleAsync(capture, screen.Bounds, cancellationToken).ConfigureAwait(false);
                             captureTaken = true;
                             if (capture.Cursor != null)
                             {
@@ -77,7 +80,7 @@ namespace Greenshot.Base.Pipeline.Sources
                     int screenIndex = CoreConfig.ScreenToCapture - 1; // 1-based in config
                     if (screenIndex >= 0 && screenIndex < Screen.AllScreens.Length)
                     {
-                        capture = WindowCapture.CaptureRectangle(capture, Screen.AllScreens[screenIndex].Bounds);
+                        capture = await WindowCapture.CaptureRectangleAsync(capture, Screen.AllScreens[screenIndex].Bounds, cancellationToken).ConfigureAwait(false);
                         captureTaken = true;
                     }
                     break;
@@ -88,14 +91,13 @@ namespace Greenshot.Base.Pipeline.Sources
 
             if (!captureTaken)
             {
-                capture = WindowCapture.CaptureScreen(capture);
+                capture = await WindowCapture.CaptureScreenAsync(capture, cancellationToken).ConfigureAwait(false);
             }
 
             capture.CaptureDetails.Title = "Screen";
             capture.CaptureDetails.AddMetaData("source", "Screen");
 
-            var payload = new CapturePayload(capture);
-            return Task.FromResult<ICapturePayload>(payload);
+            return new CapturePayload(capture);
         }
     }
 }

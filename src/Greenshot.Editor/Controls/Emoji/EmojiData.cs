@@ -23,6 +23,7 @@ using System;
 using System.IO;
 using System.Xml.Linq;
 using Greenshot.Base.Core;
+using log4net;
 
 namespace Greenshot.Editor.Controls.Emoji
 {
@@ -31,19 +32,25 @@ namespace Greenshot.Editor.Controls.Emoji
     /// </summary>
     public static class EmojiData
     {
+        private static readonly ILog Log = LogManager.GetLogger(typeof(EmojiData));
         private static readonly string EmojisXmlFilePath = Path.Combine(EnvironmentInfo.GetApplicationFolder(), "emojis.xml");
+        private static readonly Lazy<Emojis> LazyData = new(Load);
 
-        public static Emojis Data { get; private set; } = new();
+        /// <summary>
+        /// The emoji groups, these are loaded on first use (only the emoji picker needs them)
+        /// </summary>
+        public static Emojis Data => LazyData.Value;
 
-        public static void Load()
+        private static Emojis Load()
         {
+            var emojis = new Emojis();
             if (!File.Exists(EmojisXmlFilePath))
             {
-                throw new NotSupportedException($"Missing {EmojisXmlFilePath}, can't load ");
+                Log.ErrorFormat("Missing {0}, the emoji picker will be empty.", EmojisXmlFilePath);
+                return emojis;
             }
 
             var doc = XDocument.Load(EmojisXmlFilePath);
-            var emojis = new Emojis();
             var gsElem = doc.Root?.Element("Gs");
             if (gsElem != null)
             {
@@ -52,7 +59,7 @@ namespace Greenshot.Editor.Controls.Emoji
                     emojis.Groups.Add(ParseGroup(gElem));
                 }
             }
-            Data = emojis;
+            return emojis;
         }
 
         private static Emojis.Group ParseGroup(XElement gElem)

@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -34,14 +34,24 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Ocr;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Pipeline.Contracts;
+using Contracts = Greenshot.Base.Pipeline.Contracts;
+
 using Greenshot.Base.Recipes;
 using log4net;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Pipeline.Steps
 {
     /// <summary>
     /// Pipeline step presenting interactive selection overlay (region, window snapping, or OCR text).
     /// </summary>
+    [StepInfo(WellKnownStepTypes.InteractiveSelection, "Interactive Selection", "Lets the user select a region, a window or text on a capture of the screen. A capture that was handed to the flow, or that is not a screen capture, is used as a whole.", "Interaction")]
+    [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Optional, VisualMutation = PayloadEffect.MutatesPixels)]
+    [StepParameter("SelectionMode", ContractDataType.Enum, DefaultValue = "Region", Description = "Initial selection mode; Text also extracts the text of the selection", AllowedValues = new[] { "Region", "Window", "Text" })]
+    [StepParameter("AllowWindowSnapping", ContractDataType.Boolean, DefaultValue = true, Description = "Snap the selection to windows")]
+    [StepInputVariable("PreSuppliedRegion", ContractDataType.Object, Description = "When set, the selection is skipped")]
+    [StepOutputVariable("SelectedWindow", ContractDataType.Object, "The window that was selected", Conditional = true)]
     public class InteractiveSelectionStep : ICaptureStep
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(InteractiveSelectionStep));
@@ -75,9 +85,14 @@ namespace Greenshot.Pipeline.Steps
                 return;
             }
 
-            // Skip interaction if capture was already acquired directly from a window (e.g. targeted window capture)
-            if (payload.RawCapture.CaptureDetails?.MetaData?.TryGetValue("source", out var src) == true && src == "Window")
+            // The overlay shows the capture at its screen position, so selecting only makes sense on a capture of the screen.
+            // A forwarded or imported image, or one from a window, file or the clipboard, is used as a whole.
+            if (context.IsPayloadPreSupplied || !IsScreenCapture(payload.RawCapture))
             {
+                if (Config.GetParameter("SelectionMode", CaptureMode.Region) == CaptureMode.Text)
+                {
+                    await ExtractOcrTextAsync(context, cancellationToken).ConfigureAwait(false);
+                }
                 return;
             }
 
@@ -88,25 +103,22 @@ namespace Greenshot.Pipeline.Steps
 
             if (allowSnapping)
             {
-                snapWindows = await Task.Run(() =>
+                // Win32 enumeration, runs inline on the pool thread the step is already on
+                int depth = CoreConfig.WindowCaptureAllChildLocations ? 20 : 3;
+                foreach (var window in WindowDetails.GetVisibleWindows())
                 {
-                    var list = new List<WindowDetails>();
-                    foreach (var window in WindowDetails.GetVisibleWindows())
-                    {
-                        window.FreezeDetails();
-                        int depth = CoreConfig.WindowCaptureAllChildLocations ? 20 : 3;
-                        window.GetChildren(depth);
-                        list.Add(window);
-                    }
-                    return list;
-                }, cancellationToken).ConfigureAwait(false);
+                    cancellationToken.ThrowIfCancellationRequested();
+                    window.FreezeDetails();
+                    window.GetChildren(depth);
+                    snapWindows.Add(window);
+                }
             }
 
             CaptureMode initialMode = Config.GetParameter("SelectionMode", CaptureMode.Region);
 
             var selection = await _selector.SelectAsync(payload.RawCapture, snapWindows, initialMode, cancellationToken).ConfigureAwait(false);
 
-            if (selection.IsCancelled)
+            if (selection == null)
             {
                 context.Abort("User cancelled interactive selection.");
                 return;
@@ -126,16 +138,33 @@ namespace Greenshot.Pipeline.Steps
                 NativeRect screenOffsetRect = selection.SelectedRegion.Offset(
                     payload.RawCapture.ScreenBounds.Location.X,
                     payload.RawCapture.ScreenBounds.Location.Y);
-                CoreConfig.LastCapturedRegion = screenOffsetRect;
+                // Configuration is written on the UI thread (single writer, its change events have UI subscribers)
+                context.Ui.InvokeAsync(() => CoreConfig.LastCapturedRegion = screenOffsetRect, CancellationToken.None).FireAndLog("Store the last captured region", Log);
             }
 
             if (selection.FinalMode == CaptureMode.Text)
             {
-                ExtractOcrText(context);
+                await ExtractOcrTextAsync(context, cancellationToken).ConfigureAwait(false);
             }
         }
 
-        private static void ExtractOcrText(CaptureFlowContext context)
+        /// <summary>
+        /// Screen sources mark their captures with source "Screen"; captures without that metadata are treated as screen captures.
+        /// </summary>
+        private static bool IsScreenCapture(ICapture capture)
+        {
+            if (capture.CaptureDetails?.MetaData == null || !capture.CaptureDetails.MetaData.TryGetValue("source", out var source))
+            {
+                return true;
+            }
+            return string.Equals(source, "Screen", StringComparison.OrdinalIgnoreCase);
+        }
+
+        /// <summary>
+        /// Puts the OCR text of the (selected part of the) capture into Payload.ExtractedText.
+        /// Where the text goes (clipboard, stdout, ...) is up to the following steps.
+        /// </summary>
+        private static async Task ExtractOcrTextAsync(CaptureFlowContext context, CancellationToken cancellationToken)
         {
             var rawCapture = context.Payload?.RawCapture;
             var captureDetails = rawCapture?.CaptureDetails;
@@ -145,7 +174,11 @@ namespace Greenshot.Pipeline.Steps
             {
                 try
                 {
-                    captureDetails.ProcessingTask.Wait();
+                    await captureDetails.ProcessingTask.WaitAsync(cancellationToken).ConfigureAwait(false);
+                }
+                catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+                {
+                    throw;
                 }
                 catch (Exception ex)
                 {
@@ -161,12 +194,13 @@ namespace Greenshot.Pipeline.Steps
 
             if (!ocrLines.Any())
             {
-                var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>();
+                // OCR is optional (e.g. no Windows OCR language installed): without it there is simply no text
+                var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>(isOptional: true);
                 if (ocrProvider != null && rawCapture.Image != null)
                 {
                     try
                     {
-                        var lines = Task.Run(async () => await ocrProvider.DoOcrAsync(rawCapture.Image).ConfigureAwait(false)).Result;
+                        var lines = await ocrProvider.DoOcrAsync(rawCapture.Image).ConfigureAwait(false);
                         if (lines != null && lines.Any())
                         {
                             lock (captureDetails.Features)
@@ -222,35 +256,6 @@ namespace Greenshot.Pipeline.Steps
 
             string extracted = textResult.ToString().TrimEnd();
             context.Payload.ExtractedText = extracted;
-            if (!string.IsNullOrEmpty(extracted))
-            {
-                var uiContext = SimpleServiceProvider.Current.GetInstance<SynchronizationContext>();
-                if (uiContext != null)
-                {
-                    uiContext.Post(_ =>
-                    {
-                        try
-                        {
-                            Clipboard.SetText(extracted);
-                        }
-                        catch (Exception ex)
-                        {
-                            Log.Warn("Failed to set clipboard text", ex);
-                        }
-                    }, null);
-                }
-                else
-                {
-                    try
-                    {
-                        Clipboard.SetText(extracted);
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Warn("Failed to set clipboard text", ex);
-                    }
-                }
-            }
         }
     }
 }

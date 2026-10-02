@@ -20,10 +20,12 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Pipeline.Contracts;
 using Greenshot.Base.Recipes;
 using log4net;
 
@@ -32,13 +34,24 @@ namespace Greenshot.Plugin.Dropbox
     /// <summary>
     /// Capture recipe step that uploads the current capture surface to Dropbox.
     /// </summary>
-    public class DropboxStep : ICaptureStep
+    [StepInfo("Dropbox", "Upload to Dropbox", "Uploads the capture to Dropbox (configured account).", "Export")]
+    [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Required)]
+    [StepOutputVariable("Dropbox.UploadUrl", ContractDataType.String, "Link to the uploaded file", Conditional = true)]
+    public class DropboxStep : ICaptureStep, IRequiresRecipeAuthorization
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(DropboxStep));
         private readonly DropboxPlugin _plugin;
 
         public string Name { get; }
         public RecipeNodeConfig NodeConfig { get; }
+
+        /// <summary>
+        /// Uploads the capture: the user has to allow network access when approving a recipe with this step
+        /// </summary>
+        public IEnumerable<RecipeGatedAction> GetGatedActions()
+        {
+            yield return new RecipeGatedAction(RecipeGateType.NetworkAccess, "Dropbox (dropbox.com)");
+        }
 
         public DropboxStep(RecipeNodeConfig config, DropboxPlugin plugin)
         {
@@ -47,16 +60,15 @@ namespace Greenshot.Plugin.Dropbox
             Name = config.Name ?? "DropboxUploadStep";
         }
 
-        public Task ExecuteAsync(CaptureFlowContext context, CancellationToken cancellationToken = default)
+        public async Task ExecuteAsync(CaptureFlowContext context, CancellationToken cancellationToken = default)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
 
-            var surface = context.Payload?.EnsureSurface();
-            if (surface == null)
+            if (context.Payload?.EnsureSurface() == null)
             {
                 context.LogStep("DropboxStep: No surface available to upload.");
                 Log.Warn("DropboxStep: Surface is null in context payload.");
-                return Task.CompletedTask;
+                return;
             }
 
             var captureDetails = context.Payload?.RawCapture?.CaptureDetails ?? new CaptureDetails();
@@ -64,28 +76,29 @@ namespace Greenshot.Plugin.Dropbox
             context.LogStep("Uploading capture to Dropbox...");
             Log.Info("DropboxStep: Executing Dropbox upload.");
 
-            bool success = _plugin.Upload(captureDetails, surface, out string uploadUrl);
-            if (success)
+            var source = await context.Payload.GetExportSourceAsync(context.Ui, cancellationToken).ConfigureAwait(false);
+            bool? success;
+            try
             {
-                if (!string.IsNullOrEmpty(uploadUrl))
-                {
-                    context.Properties["Dropbox.UploadUrl"] = uploadUrl;
-                    surface.UploadUrl = uploadUrl;
-                    context.LogStep($"Successfully uploaded capture to Dropbox: {uploadUrl}");
-                    Log.InfoFormat("DropboxStep: Capture uploaded to Dropbox with URL '{0}'", uploadUrl);
-                }
-                else
-                {
-                    context.LogStep("DropboxStep: Upload to Dropbox succeeded.");
-                }
+                success = await _plugin.UploadAsync(source, captureDetails, context.UserInteraction, cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                // Same behaviour as the other upload steps: the flow continues, the failure is logged
+                context.LogStep($"DropboxStep: Upload to Dropbox failed: {ex.Message}");
+                Log.Error("DropboxStep: Upload to Dropbox failed.", ex);
+                return;
+            }
+
+            if (success == true)
+            {
+                context.LogStep("DropboxStep: Upload to Dropbox succeeded.");
             }
             else
             {
-                context.LogStep("DropboxStep: Upload to Dropbox failed or was cancelled.");
+                context.LogStep("DropboxStep: Upload to Dropbox failed or was declined.");
                 Log.Warn("DropboxStep: Upload to Dropbox failed.");
             }
-
-            return Task.CompletedTask;
         }
     }
 }

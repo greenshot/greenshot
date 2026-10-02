@@ -27,6 +27,7 @@ using System.Runtime.CompilerServices;
 using System.Windows.Media;
 using Greenshot.Base.Core;
 using Greenshot.Base.Wpf;
+using Greenshot.Helpers;
 
 namespace Greenshot.UI.SelfService
 {
@@ -43,6 +44,15 @@ namespace Greenshot.UI.SelfService
         public ClipboardSectionViewModel ClipboardSection { get; }
         public HotkeySectionViewModel HotkeySection { get; }
         public ChecksumSectionViewModel ChecksumSection { get; }
+#if DEBUG
+        public IntegrationDebugSectionViewModel IntegrationDebugSection { get; }
+#else
+        /// <summary>
+        /// The integration debug section only exists in debug builds, but SelfServiceWindow.xaml binds to it in every build:
+        /// a null value lets these bindings resolve silently instead of logging a binding error (the panel is never shown).
+        /// </summary>
+        public object IntegrationDebugSection => null;
+#endif
 
         public string WindowTitle
         {
@@ -51,7 +61,7 @@ namespace Greenshot.UI.SelfService
                 return Language.GetString("selfservice_window_title");
             }
         }
-        public string AppVersionTitle => $"Greenshot {EnvironmentInfo.GetGreenshotVersion()} ({OsInfo.Bits}-bit)";
+        public string AppVersionTitle => $"{GreenshotEdition.ProductName} {EnvironmentInfo.GetGreenshotVersion()} ({OsInfo.Bits}-bit)";
 
         public SelfServiceSectionViewModel SelectedSection
         {
@@ -100,6 +110,10 @@ namespace Greenshot.UI.SelfService
             Sections.Add(ClipboardSection);
             Sections.Add(HotkeySection);
             Sections.Add(ChecksumSection);
+#if DEBUG
+            IntegrationDebugSection = new IntegrationDebugSectionViewModel();
+            Sections.Add(IntegrationDebugSection);
+#endif
 
             SelectSection(initialSectionId ?? "system");
 

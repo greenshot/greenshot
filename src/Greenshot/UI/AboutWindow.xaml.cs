@@ -37,9 +37,11 @@ using System.Windows.Shapes;
 using System.Windows.Threading;
 using Greenshot.Base.Core;
 using Greenshot.Configuration;
+using Greenshot.Helpers;
 using log4net;
 using Lang = Greenshot.Base.Core.Language;
 using Path = System.Windows.Shapes.Path;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.UI
 {
@@ -130,7 +132,7 @@ namespace Greenshot.UI
             var version = EnvironmentInfo.GetGreenshotVersion();
             var versionWithBuild = EnvironmentInfo.GetGreenshotVersion(true);
 
-            AppVersionTitle = $"Greenshot {version}";
+            AppVersionTitle = $"{GreenshotEdition.ProductName} {version}";
             BitnessText = $"{OsInfo.Bits}-bit";
 
             WebsiteUrl = $"https://getgreenshot.org/?version={versionWithBuild}";
@@ -214,14 +216,8 @@ namespace Greenshot.UI
 
         private void OnLanguageChanged(object sender, EventArgs e)
         {
-            if (Dispatcher.CheckAccess())
-            {
-                InitializeLanguage();
-            }
-            else
-            {
-                Dispatcher.Invoke(InitializeLanguage);
-            }
+            // The language can change on another thread
+            UiDispatcher.Current.RunOnUiAsync(InitializeLanguage).FireAndLog("Initialize the language of the about window");
         }
 
         private void OnWindowLoaded(object sender, RoutedEventArgs e)

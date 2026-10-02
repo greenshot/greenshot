@@ -90,7 +90,9 @@ namespace Greenshot.Helpers
                 // 1) Create Mutex
                 _applicationMutex = new Mutex(true, _mutexId, out var createdNew, mutexSecurity);
                 // 2) if the mutex wasn't created new get the right to it, this returns false if it's already locked
+#pragma warning disable RS0030 // R1: a mutex is owned by the thread which acquired it, so it can't be awaited; this waits at most 100 ms at startup
                 if (!createdNew && !_applicationMutex.WaitOne(100, false))
+#pragma warning restore RS0030
                 {
                     Log.InfoFormat("{0} is already in use, mutex {1} is NOT locked for the caller", _resourceName, _mutexId);
                     IsLocked = false;

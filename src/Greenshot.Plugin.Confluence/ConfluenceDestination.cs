@@ -24,13 +24,16 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
-using Greenshot.Base.Controls;
 using Greenshot.Base.Core;
 using Dapplo.Ini;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.Base.Pipeline;
 using Greenshot.Plugin.Confluence.Entities;
 
 namespace Greenshot.Plugin.Confluence;
@@ -38,7 +41,7 @@ namespace Greenshot.Plugin.Confluence;
 /// <summary>
 /// Description of ConfluenceDestination.
 /// </summary>
-public class ConfluenceDestination : AbstractDestination
+public class ConfluenceDestination : DestinationBase, IRequiresRecipeAuthorization
 {
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ConfluenceDestination));
     private static IConfluenceConfiguration ConfluenceConfig => IniConfigHelper.EnsureSection<IConfluenceConfiguration>(() => new ConfluenceConfigurationImpl());
@@ -107,6 +110,11 @@ public class ConfluenceDestination : AbstractDestination
 
     public static Image ConfluenceIcon => LoadConfluenceIcon();
 
+    /// <summary>
+    /// The icon key of the Confluence destinations
+    /// </summary>
+    public const string IconKey = "confluence:icon";
+
     public static bool IsInitialized { get; private set; }
 
     public ConfluenceDestination()
@@ -118,176 +126,198 @@ public class ConfluenceDestination : AbstractDestination
         _page = page;
     }
 
-    public override string Designation
+    public override string Designation => "Confluence";
+
+    /// <summary>
+    /// Uploads the capture: the user has to allow network access when approving a recipe with this destination
+    /// </summary>
+    public IEnumerable<RecipeGatedAction> GetGatedActions()
     {
-        get { return "Confluence"; }
+        yield return new RecipeGatedAction(RecipeGateType.NetworkAccess, "Confluence");
     }
 
-    public override string Description
+    public override DestinationDescriptor Descriptor
     {
         get
         {
-            if (_page == null)
-            {
-                return Language.GetString("confluence", LangKey.upload_menu_item);
-            }
-            else
-            {
-                return Language.GetString("confluence", LangKey.upload_menu_item) + ": \"" + _page.Title + "\"";
-            }
+            string displayName = _page == null
+                ? Language.GetString("confluence", LangKey.upload_menu_item)
+                : Language.GetString("confluence", LangKey.upload_menu_item) + ": \"" + _page.Title + "\"";
+            return new DestinationDescriptor(displayName, iconKey: IconKey, hasDynamicDestinations: _page == null);
         }
     }
 
-    public override bool IsDynamic
-    {
-        get { return true; }
-    }
+    public override bool IsAvailableFor(ICaptureDetails metadata) => base.IsAvailableFor(metadata) && !string.IsNullOrEmpty(ConfluenceConfig.Url);
 
-    public override bool IsActive
+    public override async ValueTask<IReadOnlyList<IDestination>> GetDynamicDestinationsAsync(ICaptureDetails metadata, CancellationToken cancellationToken)
     {
-        get { return base.IsActive && !string.IsNullOrEmpty(ConfluenceConfig.Url); }
-    }
-
-    public override Image DisplayIcon
-    {
-        get { return ConfluenceIcon; }
-    }
-
-    public override IEnumerable<IDestination> DynamicDestinations()
-    {
-        if (ConfluencePlugin.ConfluenceConnectorNoLogin == null || !ConfluencePlugin.ConfluenceConnectorNoLogin.IsLoggedIn)
+        if (_page != null || ConfluencePlugin.ConfluenceConnectorNoLogin == null || !ConfluencePlugin.ConfluenceConnectorNoLogin.IsLoggedIn)
         {
-            yield break;
+            return Array.Empty<IDestination>();
         }
 
-        List<Page> currentPages = ConfluenceUtils.GetCurrentPages();
-        if (currentPages == null || currentPages.Count == 0)
-        {
-            yield break;
-        }
-
-        foreach (Page currentPage in currentPages)
-        {
-            yield return new ConfluenceDestination(currentPage);
-        }
+        List<Page> currentPages = await ConfluenceUtils.GetCurrentPagesAsync(cancellationToken).ConfigureAwait(false);
+        return currentPages.Select(currentPage => (IDestination) new ConfluenceDestination(currentPage)).ToList();
     }
 
-    public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
+    public override async Task<ExportResult> ExportAsync(ExportRequest request, CancellationToken cancellationToken)
     {
-        ExportInformation exportInformation = new ExportInformation(Designation, Description);
-        // force password check to take place before the pages load
-        if (!ConfluencePlugin.ConfluenceConnector.IsLoggedIn)
-        {
-            return exportInformation;
-        }
-
+        var connector = ConfluencePlugin.ConfluenceConnector;
         Page selectedPage = _page;
         bool openPage = (_page == null) && ConfluenceConfig.OpenPageAfterUpload;
-        string filename = FilenameHelper.GetFilenameWithoutExtensionFromPattern(CoreConfig.OutputFileFilenamePattern, captureDetails);
-        if (selectedPage == null)
+        string filename = FilenameHelper.GetFilenameWithoutExtensionFromPattern(CoreConfig.OutputFileFilenamePattern, request.Metadata);
+        try
         {
-            Forms.ConfluenceUpload confluenceUpload = new Forms.ConfluenceUpload(filename);
-            bool? dialogResult = confluenceUpload.ShowDialog();
-            if (dialogResult.HasValue && dialogResult.Value)
+            // force password check to take place before the pages load
+            if (!await connector.EnsureLoggedInAsync(cancellationToken).ConfigureAwait(false))
             {
-                selectedPage = confluenceUpload.SelectedPage;
-                if (confluenceUpload.IsOpenPageSelected)
+                return ExportResult.Declined;
+            }
+
+            if (selectedPage == null)
+            {
+                // Everything the dialog shows is loaded before it opens, the dialog itself only loads the page tree
+                var currentPages = await ConfluenceUtils.GetCurrentPagesAsync(cancellationToken).ConfigureAwait(false);
+                var spaces = await connector.GetSpaceSummariesAsync(cancellationToken).ConfigureAwait(false);
+                var choice = await request.Ui.ShowDialogAsync(new ConfluenceUploadRequest(filename, currentPages, spaces), cancellationToken).ConfigureAwait(false);
+                if (choice?.Page == null)
+                {
+                    return ExportResult.Declined;
+                }
+
+                selectedPage = choice.Page;
+                if (choice.IsOpenPageSelected)
                 {
                     openPage = false;
                 }
 
-                filename = confluenceUpload.Filename;
+                filename = choice.Filename;
             }
         }
+        catch (Exception e) when (e is not OperationCanceledException)
+        {
+            Log.Error("Connecting to Confluence failed", e);
+            return ExportResult.Failed(e.Message, e);
+        }
 
-        string extension = "." + ConfluenceConfig.UploadFormat;
-        if (!filename.ToLower().EndsWith(extension))
+        var formatRegistry = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>(true);
+        string uploadFormat = formatRegistry.ResolveFormatId(ConfluenceConfig.UploadFormat, WellKnownFileFormats.Png);
+        string extension = formatRegistry != null && formatRegistry.TryGet(uploadFormat, out var formatDefinition)
+            ? "." + formatDefinition.PreferredExtension
+            : ".png";
+        if (!filename.EndsWith(extension, StringComparison.OrdinalIgnoreCase))
         {
             filename += extension;
         }
 
-        if (selectedPage != null)
-        {
-            bool uploaded = Upload(surface, selectedPage, filename, out var errorMessage);
-            if (uploaded)
-            {
-                if (openPage)
-                {
-                    try
-                    {
-                        Process.Start(selectedPage.Url);
-                    }
-                    catch
-                    {
-                        // Ignore
-                    }
-                }
-
-                exportInformation.ExportMade = true;
-                exportInformation.Uri = selectedPage.Url;
-            }
-            else
-            {
-                exportInformation.ErrorMessage = errorMessage;
-            }
-        }
-
-        ProcessExport(exportInformation, surface);
-        return exportInformation;
-    }
-
-    private bool Upload(ISurface surfaceToUpload, Page page, string filename, out string errorMessage)
-    {
-        SurfaceOutputSettings outputSettings =
-            new SurfaceOutputSettings(ConfluenceConfig.UploadFormat, ConfluenceConfig.UploadJpegQuality, ConfluenceConfig.UploadReduceColors);
-        errorMessage = null;
+        var outputSettings = new SurfaceOutputSettings(uploadFormat, ConfluenceConfig.UploadJpegQuality, ConfluenceConfig.UploadReduceColors);
         try
         {
-            new PleaseWaitForm().ShowAndWait(Description, Language.GetString("confluence", LangKey.communication_wait),
-                delegate
-                {
-                    ConfluencePlugin.ConfluenceConnector.AddAttachment(page.Id, "image/" + ConfluenceConfig.UploadFormat.ToString().ToLower(), null, filename,
-                        new SurfaceContainer(surfaceToUpload, outputSettings, filename));
-                }
-            );
-            Log.Debug("Uploaded to Confluence.");
-            if (!ConfluenceConfig.CopyWikiMarkupForImageToClipboard)
+            var image = await request.Source.EncodeAsync(outputSettings, cancellationToken).ConfigureAwait(false);
+            await request.Ui.RunWithProgressAsync(Language.GetString("confluence", LangKey.communication_wait), async (progress, token) =>
             {
+                await connector.AddAttachmentAsync(selectedPage.Id, image, filename, null, token).ConfigureAwait(false);
                 return true;
-            }
-
-            int retryCount = 2;
-            while (retryCount >= 0)
-            {
-                try
-                {
-                    Clipboard.SetText("!" + filename + "!");
-                    break;
-                }
-                catch (Exception ee)
-                {
-                    if (retryCount == 0)
-                    {
-                        Log.Error(ee);
-                    }
-                    else
-                    {
-                        Thread.Sleep(100);
-                    }
-                }
-                finally
-                {
-                    --retryCount;
-                }
-            }
-
-            return true;
+            }, cancellationToken).ConfigureAwait(false);
         }
-        catch (Exception e)
+        catch (Exception e) when (e is not OperationCanceledException)
         {
-            errorMessage = e.Message;
+            Log.Error("Upload to Confluence failed", e);
+            return ExportResult.Failed(e.Message, e);
         }
 
-        return false;
+        Log.Debug("Uploaded to Confluence.");
+        if (ConfluenceConfig.CopyWikiMarkupForImageToClipboard)
+        {
+            try
+            {
+                await ClipboardService.Current.SetTextAsync("!" + filename + "!", cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                Log.Error("Couldn't copy the wiki markup to the clipboard", ex);
+            }
+        }
+
+        if (openPage)
+        {
+            try
+            {
+                Process.Start(selectedPage.Url)?.Dispose();
+            }
+            catch
+            {
+                // Ignore
+            }
+        }
+
+        return ExportResult.Succeeded(uri: new Uri(selectedPage.Url));
     }
+}
+
+/// <summary>
+/// The icon of the Confluence destinations
+/// </summary>
+public sealed class ConfluenceIconProvider : IIconProvider
+{
+    public bool CanProvide(string iconKey) => iconKey == ConfluenceDestination.IconKey;
+
+    public Task<Image> GetIconAsync(string iconKey, CancellationToken cancellationToken)
+    {
+        var icon = ConfluenceDestination.ConfluenceIcon;
+        if (icon == null)
+        {
+            return Task.FromResult<Image>(null);
+        }
+
+        // The destination owns the icon, the caller gets a copy
+        lock (icon)
+        {
+            return Task.FromResult<Image>(ImageHelper.Clone(icon));
+        }
+    }
+}
+
+/// <summary>
+/// What the Confluence upload dialog shows: the open pages and the spaces, the result is the choice or null.
+/// </summary>
+public sealed class ConfluenceUploadRequest : IDialogViewModel<ConfluenceUploadChoice>
+{
+    public ConfluenceUploadRequest(string filename, IList<Page> currentPages, IList<Space> spaces)
+    {
+        Filename = filename;
+        CurrentPages = currentPages ?? new List<Page>();
+        Spaces = spaces ?? new List<Space>();
+    }
+
+    public string Filename { get; }
+
+    /// <summary>
+    /// The Confluence pages which are open in a browser
+    /// </summary>
+    public IList<Page> CurrentPages { get; }
+
+    public IList<Space> Spaces { get; }
+}
+
+/// <summary>
+/// The page and filename the user chose in the Confluence upload dialog.
+/// </summary>
+public sealed class ConfluenceUploadChoice
+{
+    public ConfluenceUploadChoice(Page page, string filename, bool isOpenPageSelected)
+    {
+        Page = page;
+        Filename = filename;
+        IsOpenPageSelected = isOpenPageSelected;
+    }
+
+    public Page Page { get; }
+
+    public string Filename { get; }
+
+    /// <summary>
+    /// True when the page was picked from the pages which are open in a browser (no need to open it)
+    /// </summary>
+    public bool IsOpenPageSelected { get; }
 }

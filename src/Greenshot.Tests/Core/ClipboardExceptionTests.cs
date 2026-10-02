@@ -67,14 +67,5 @@ namespace Greenshot.Tests.Core
             Assert.Equal("Failed to copy to clipboard", ex.Message);
             Assert.Same(inner, ex.InnerException);
         }
-
-        [Fact]
-        public void TrySetClipboardData_WithNullSurface_ReturnsFalseWithoutThrowing()
-        {
-            // Null surface should safely return false without throwing
-            bool result = ClipboardHelper.TrySetClipboardData((ISurface)null, out string errorMessage);
-            Assert.False(result);
-            Assert.NotNull(errorMessage);
-        }
     }
 }

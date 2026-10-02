@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -31,8 +32,9 @@ using Dapplo.Windows.User32;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces.Video;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Pipeline.Contracts;
 using Greenshot.Base.Recipes;
-using Greenshot.Video;
+using Greenshot.Base.Video;
 using log4net;
 
 namespace Greenshot.Pipeline.Steps
@@ -42,12 +44,60 @@ namespace Greenshot.Pipeline.Steps
     /// Can record full-screen, a window, or a fixed region, and outputs the resulting MP4 file
     /// into the pipeline context for downstream export or automation steps.
     /// </summary>
-    public class RecordVideoRecipeStep : ICaptureStep
+    [StepInfo(WellKnownStepTypes.RecordVideo, "Record Video", "Records a video of a monitor, window or region (Windows Graphics Capture).", "Video")]
+    [StepParameter("SourceType", ContractDataType.Enum, DefaultValue = "ActiveWindow", Description = "What to record", AllowedValues = new[] { "ActiveWindow", "Window", "Region", "Monitor" })]
+    [StepParameter("MonitorIndex", ContractDataType.Integer, Description = "Monitor to record (Monitor)")]
+    [StepParameter("WindowTitle", ContractDataType.String, Description = "Window to record (Window)")]
+    [StepParameter("WindowTitlePattern", ContractDataType.String, Description = "Window title regular expression (Window)")]
+    [StepParameter("ProcessName", ContractDataType.String, Description = "Process of the window (Window)")]
+    [StepParameter("MatchCase", ContractDataType.Boolean, Description = "Match the window title case-sensitively")]
+    [StepParameter("RegionX", ContractDataType.Integer, Description = "Region (Region)")]
+    [StepParameter("RegionY", ContractDataType.Integer, Description = "Region (Region)")]
+    [StepParameter("RegionWidth", ContractDataType.Integer, Description = "Region (Region)")]
+    [StepParameter("RegionHeight", ContractDataType.Integer, Description = "Region (Region)")]
+    [StepParameter("DelayMs", ContractDataType.Integer, Description = "Delay before recording in milliseconds")]
+    [StepParameter("DurationSeconds", ContractDataType.Integer, Description = "Length of the recording")]
+    [StepParameter("UntilWindowCloses", ContractDataType.Boolean, Description = "Record until the window closes (Window)")]
+    [StepParameter("Preset", ContractDataType.String, Description = "Quality preset")]
+    [StepParameter("Format", ContractDataType.String, Description = "Video format")]
+    [StepParameter("FrameRate", ContractDataType.Integer, Description = "Frames per second")]
+    [StepParameter("Bitrate", ContractDataType.Integer, Description = "Bitrate")]
+    [StepParameter("TargetWidth", ContractDataType.Integer, Description = "Output width")]
+    [StepParameter("TargetHeight", ContractDataType.Integer, Description = "Output height")]
+    [StepParameter("ScaleFactor", ContractDataType.Decimal, Description = "Output scale")]
+    [StepParameter("ColorMode", ContractDataType.String, Description = "Color mode")]
+    [StepParameter("CaptureMouseCursor", ContractDataType.Boolean, DefaultValue = true, Description = "Record the mouse cursor")]
+    [StepParameter("ShowCaptureBorder", ContractDataType.Boolean, DefaultValue = false, Description = "Show the Windows capture border")]
+    [StepParameter("WindowResizeBehavior", ContractDataType.String, Description = "What to do when the window is resized")]
+    [StepParameter("AudioSource", ContractDataType.String, DefaultValue = "None", Description = "Audio to record")]
+    [StepParameter("PreventSleepWhileRecording", ContractDataType.Boolean, DefaultValue = true, Description = "Keep the PC awake while recording")]
+    [StepParameter("AutoPauseOnSessionLock", ContractDataType.Boolean, DefaultValue = true, Description = "Pause while the PC is locked")]
+    [StepParameter("OutputFilePath", ContractDataType.FilePath, Description = "File to write")]
+    [StepParameter("OutputDirectory", ContractDataType.DirectoryPath, Description = "Directory to write to")]
+    [StepParameter("FilenamePattern", ContractDataType.String, Description = "File name pattern")]
+    [StepInputVariable("SourceType", ContractDataType.Enum, Description = "What to record, when the parameter is not set")]
+    [StepInputVariable("WindowHandle", ContractDataType.Object, Description = "Window to record (set by the caller)")]
+    [StepInputVariable("CaptureRegion", ContractDataType.Object, Description = "Region to record (set by the caller)")]
+    [StepOutputVariable("VideoFilePath", ContractDataType.FilePath, "Path of the recorded video")]
+    [StepOutputVariable("VideoRecordingResult", ContractDataType.Object, "Details of the recording")]
+    public class RecordVideoRecipeStep : ICaptureStep, IRequiresRecipeAuthorization
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(RecordVideoRecipeStep));
 
         public string Name { get; }
         public RecipeNodeConfig Config { get; }
+
+        /// <summary>
+        /// A recording to a configured file or directory writes there: the user has to allow file system access
+        /// </summary>
+        public IEnumerable<RecipeGatedAction> GetGatedActions()
+        {
+            string target = Config.GetParameter<string>("OutputFilePath") ?? Config.GetParameter<string>("OutputDirectory");
+            if (!string.IsNullOrWhiteSpace(target))
+            {
+                yield return new RecipeGatedAction(RecipeGateType.FileSystemAccess, $"Writes the video to {target}");
+            }
+        }
 
         public RecordVideoRecipeStep(RecipeNodeConfig config)
         {
@@ -69,13 +119,6 @@ namespace Greenshot.Pipeline.Steps
 
             // Optional pre-capture delay
             int delayMs = Config.GetParameter("DelayMs", 0);
-            if (delayMs <= 0) delayMs = Config.GetParameter("delayMs", 0);
-            if (delayMs <= 0)
-            {
-                int delaySec = Config.GetParameter("DelaySeconds", 0);
-                if (delaySec <= 0) delaySec = Config.GetParameter("delaySeconds", 0);
-                if (delaySec > 0) delayMs = delaySec * 1000;
-            }
 
             if (delayMs > 0)
             {
@@ -92,24 +135,22 @@ namespace Greenshot.Pipeline.Steps
 
             Log.Info($"Executing RecordVideoRecipeStep: Target={options.Target}, Format={options.Format}, FPS={options.FrameRate}, Bitrate={options.Bitrate}");
 
-            using var session = await videoService.StartRecordingAsync(options, cancellationToken);
+            using var session = await videoService.StartRecordingAsync(options, cancellationToken).ConfigureAwait(false);
 
             // Read duration or wait until window closes
             int durationSeconds = Config.GetParameter("DurationSeconds", 0);
-            if (durationSeconds <= 0) durationSeconds = Config.GetParameter("durationSeconds", 0);
 
-            bool untilWindowCloses = Config.GetParameter("UntilWindowCloses", 
-                Config.GetParameter("untilWindowCloses", options.Target.TargetType == VideoCaptureTargetType.Window && durationSeconds <= 0));
+            bool untilWindowCloses = Config.GetParameter("UntilWindowCloses", options.Target.TargetType == VideoCaptureTargetType.Window && durationSeconds <= 0);
 
             if (durationSeconds > 0)
             {
                 try
                 {
-                    await Task.Delay(TimeSpan.FromSeconds(durationSeconds), cancellationToken);
+                    await Task.Delay(TimeSpan.FromSeconds(durationSeconds), cancellationToken).ConfigureAwait(false);
                 }
                 catch (OperationCanceledException)
                 {
-                    await session.CancelAsync();
+                    await session.CancelAsync().ConfigureAwait(false);
                     context.State = CaptureFlowState.Cancelled;
                     return;
                 }
@@ -124,7 +165,7 @@ namespace Greenshot.Pipeline.Steps
                     {
                         if (cancellationToken.IsCancellationRequested)
                         {
-                            await session.CancelAsync();
+                            await session.CancelAsync().ConfigureAwait(false);
                             context.State = CaptureFlowState.Cancelled;
                             return;
                         }
@@ -135,18 +176,18 @@ namespace Greenshot.Pipeline.Steps
                             break;
                         }
 
-                        await Task.Delay(250, cancellationToken);
+                        await Task.Delay(250, cancellationToken).ConfigureAwait(false);
                     }
                 }
                 catch (OperationCanceledException)
                 {
-                    await session.CancelAsync();
+                    await session.CancelAsync().ConfigureAwait(false);
                     context.State = CaptureFlowState.Cancelled;
                     return;
                 }
             }
 
-            var result = await session.StopAsync();
+            var result = await session.StopAsync().ConfigureAwait(false);
 
             context.Properties["VideoRecordingResult"] = result;
             context.Properties["VideoFilePath"] = result.FilePath;
@@ -171,11 +212,6 @@ namespace Greenshot.Pipeline.Steps
 
             // 1. Resolve Target / Source Type
             string sourceType = Config.GetParameter<string>("SourceType", null)
-                ?? Config.GetParameter<string>("sourceType", null)
-                ?? Config.GetParameter<string>("Target", null)
-                ?? Config.GetParameter<string>("target", null)
-                ?? Config.GetParameter<string>("TargetType", null)
-                ?? Config.GetParameter<string>("targetType", null)
                 ?? (context.Properties.TryGetValue("SourceType", out var stObj) ? stObj?.ToString() : null)
                 ?? "ActiveWindow";
 
@@ -191,10 +227,10 @@ namespace Greenshot.Pipeline.Steps
                 }
                 else
                 {
-                    string title = Config.GetParameter<string>("WindowTitle", null) ?? Config.GetParameter<string>("windowTitle", null);
-                    string titlePattern = Config.GetParameter<string>("WindowTitlePattern", null) ?? Config.GetParameter<string>("windowTitlePattern", null);
-                    string processName = Config.GetParameter<string>("ProcessName", null) ?? Config.GetParameter<string>("processName", null);
-                    bool matchCase = Config.GetParameter("MatchCase", false) || Config.GetParameter("matchCase", false);
+                    string title = Config.GetParameter<string>("WindowTitle", null);
+                    string titlePattern = Config.GetParameter<string>("WindowTitlePattern", null);
+                    string processName = Config.GetParameter<string>("ProcessName", null);
+                    bool matchCase = Config.GetParameter("MatchCase", false);
 
                     if (!string.IsNullOrEmpty(title) || !string.IsNullOrEmpty(titlePattern) || !string.IsNullOrEmpty(processName))
                     {
@@ -212,7 +248,10 @@ namespace Greenshot.Pipeline.Steps
 
                     if (hWnd == IntPtr.Zero)
                     {
-                        hWnd = User32Api.GetForegroundWindow();
+                        // The window which was active when the recording was triggered, the flow runs later on the pool
+                        hWnd = context.TriggerContext != null && context.TriggerContext.HasExternalForegroundWindow
+                            ? context.TriggerContext.ForegroundWindow
+                            : User32Api.GetForegroundWindow();
                     }
                 }
 
@@ -227,10 +266,10 @@ namespace Greenshot.Pipeline.Steps
                 }
                 else
                 {
-                    int x = Config.GetParameter("RegionX", Config.GetParameter("regionX", 0));
-                    int y = Config.GetParameter("RegionY", Config.GetParameter("regionY", 0));
-                    int w = Config.GetParameter("RegionWidth", Config.GetParameter("regionWidth", 800));
-                    int h = Config.GetParameter("RegionHeight", Config.GetParameter("regionHeight", 600));
+                    int x = Config.GetParameter("RegionX", 0);
+                    int y = Config.GetParameter("RegionY", 0);
+                    int w = Config.GetParameter("RegionWidth", 800);
+                    int h = Config.GetParameter("RegionHeight", 600);
                     region = new NativeRect(x, y, w, h);
                 }
                 options.Target = VideoCaptureTarget.FromRegion(region);
@@ -238,7 +277,7 @@ namespace Greenshot.Pipeline.Steps
             else
             {
                 // Fullscreen / Screen / Monitor
-                int monitorIndex = Config.GetParameter("MonitorIndex", Config.GetParameter("monitorIndex", -1));
+                int monitorIndex = Config.GetParameter("MonitorIndex", -1);
                 var allMonitors = DisplayInfo.AllDisplayInfos;
                 DisplayInfo monitor = null;
 
@@ -255,14 +294,14 @@ namespace Greenshot.Pipeline.Steps
             }
 
             // 2. Preset (applied first so individual settings can override)
-            string presetStr = Config.GetParameter<string>("Preset", null) ?? Config.GetParameter<string>("preset", null);
+            string presetStr = Config.GetParameter<string>("Preset", null);
             if (!string.IsNullOrWhiteSpace(presetStr) && Enum.TryParse<VideoEncodingPreset>(presetStr, true, out var preset))
             {
                 options.ApplyPreset(preset);
             }
 
             // 3. Format / Codec
-            string formatStr = Config.GetParameter<string>("Format", null) ?? Config.GetParameter<string>("format", null);
+            string formatStr = Config.GetParameter<string>("Format", null);
             if (!string.IsNullOrWhiteSpace(formatStr) && Enum.TryParse<VideoFormat>(formatStr, true, out var format))
             {
                 options.Format = format;
@@ -270,79 +309,62 @@ namespace Greenshot.Pipeline.Steps
 
             // 4. Frame Rate
             int fps = Config.GetParameter("FrameRate", 0);
-            if (fps <= 0) fps = Config.GetParameter("frameRate", 0);
-            if (fps <= 0) fps = Config.GetParameter("fps", 0);
             if (fps > 0) options.FrameRate = fps;
 
             // 5. Bitrate
             int bitrate = Config.GetParameter("Bitrate", 0);
-            if (bitrate <= 0) bitrate = Config.GetParameter("bitrate", 0);
             if (bitrate > 0) options.Bitrate = bitrate;
 
             // 6. Target Size & Scaling
             int targetW = Config.GetParameter("TargetWidth", 0);
-            if (targetW <= 0) targetW = Config.GetParameter("targetWidth", 0);
             int targetH = Config.GetParameter("TargetHeight", 0);
-            if (targetH <= 0) targetH = Config.GetParameter("targetHeight", 0);
             if (targetW > 0 && targetH > 0)
             {
                 options.TargetSize = new Size(targetW, targetH);
             }
 
             double scale = Config.GetParameter("ScaleFactor", 0.0);
-            if (scale <= 0.0) scale = Config.GetParameter("scaleFactor", 0.0);
             if (scale > 0.0 && scale <= 2.0)
             {
                 options.ScaleFactor = scale;
             }
 
             // 7. Color Mode
-            string colorModeStr = Config.GetParameter<string>("ColorMode", null) ?? Config.GetParameter<string>("colorMode", null);
+            string colorModeStr = Config.GetParameter<string>("ColorMode", null);
             if (!string.IsNullOrWhiteSpace(colorModeStr) && Enum.TryParse<VideoColorMode>(colorModeStr, true, out var colorMode))
             {
                 options.ColorMode = colorMode;
             }
 
             // 8. Appearance: Cursor, Capture Border & Window Resize
-            options.CaptureCursor = Config.GetParameter("CaptureMouseCursor", 
-                Config.GetParameter("captureMouseCursor", 
-                Config.GetParameter("CaptureCursor", 
-                Config.GetParameter("captureCursor", true))));
+            options.CaptureCursor = Config.GetParameter("CaptureMouseCursor", true);
 
-            options.ShowCaptureBorder = Config.GetParameter("ShowCaptureBorder", 
-                Config.GetParameter("showCaptureBorder", false));
+            options.ShowCaptureBorder = Config.GetParameter("ShowCaptureBorder", false);
 
-            string resizeBehaviorStr = Config.GetParameter<string>("WindowResizeBehavior", null) 
-                ?? Config.GetParameter<string>("windowResizeBehavior", null);
+            string resizeBehaviorStr = Config.GetParameter<string>("WindowResizeBehavior", null);
             if (!string.IsNullOrWhiteSpace(resizeBehaviorStr) && Enum.TryParse<WindowResizeBehavior>(resizeBehaviorStr, true, out var resizeBehavior))
             {
                 options.WindowResizeBehavior = resizeBehavior;
             }
 
             // 9. Audio
-            string audioSourceStr = Config.GetParameter<string>("AudioSource", null) 
-                ?? Config.GetParameter<string>("audioSource", "None");
+            string audioSourceStr = Config.GetParameter<string>("AudioSource", null);
             if (Enum.TryParse<AudioCaptureSource>(audioSourceStr, true, out var audioSource))
             {
                 options.AudioSource = audioSource;
             }
 
             // 10. Power & System Sleep
-            options.PreventSleepWhileRecording = Config.GetParameter("PreventSleepWhileRecording", 
-                Config.GetParameter("preventSleepWhileRecording", true));
+            options.PreventSleepWhileRecording = Config.GetParameter("PreventSleepWhileRecording", true);
 
-            options.AutoPauseOnSessionLock = Config.GetParameter("AutoPauseOnSessionLock", 
-                Config.GetParameter("autoPauseOnSessionLock", true));
+            options.AutoPauseOnSessionLock = Config.GetParameter("AutoPauseOnSessionLock", true);
 
             // 11. Output file path & directory
-            string outputPath = Config.GetParameter<string>("OutputFilePath", null) 
-                ?? Config.GetParameter<string>("outputFilePath", null);
+            string outputPath = Config.GetParameter<string>("OutputFilePath", null);
 
-            string outputDir = Config.GetParameter<string>("OutputDirectory", null) 
-                ?? Config.GetParameter<string>("outputDirectory", null);
+            string outputDir = Config.GetParameter<string>("OutputDirectory", null);
 
-            string filenamePattern = Config.GetParameter<string>("FilenamePattern", null) 
-                ?? Config.GetParameter<string>("filenamePattern", null);
+            string filenamePattern = Config.GetParameter<string>("FilenamePattern", null);
 
             if (string.IsNullOrWhiteSpace(outputPath) && !string.IsNullOrWhiteSpace(outputDir))
             {

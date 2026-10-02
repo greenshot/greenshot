@@ -30,6 +30,7 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Configuration;
 using Greenshot.Helpers.Entities;
 using log4net;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Helpers
 {
@@ -47,14 +48,17 @@ namespace Greenshot.Helpers
         private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
         /// <summary>
-        /// URI pointing to the Greenshot downloads webpage
+        /// URI pointing to the Greenshot downloads webpage, for any other edition than Full with ?edition=light (etc.)
+        /// so the page can offer that edition's download
         /// </summary>
-        public static Uri DownloadsUri => Downloads;
+        public static Uri DownloadsUri => EditionInfo.IsFull ? Downloads : new Uri($"{Downloads.AbsoluteUri}?edition={Uri.EscapeDataString(EditionInfo.Name.ToLowerInvariant())}");
 
         /// <summary>
-        /// Instance property for downloads URI
+        /// The downloads page for this edition: the one the update feed names for it, otherwise DownloadsUri
         /// </summary>
-        public Uri DownloadsUrl => Downloads;
+        public Uri DownloadsUrl => _editionDownloads ?? DownloadsUri;
+
+        private Uri _editionDownloads;
 
         /// <summary>
         /// Provides the current version
@@ -154,7 +158,7 @@ namespace Greenshot.Helpers
 
                 IsRunning = true;
                 var interval = CoreConfig?.UpdateCheckInterval ?? 14;
-                _ = BackgroundTask(() => TimeSpan.FromDays(interval), ct => CheckForUpdatesAsync(true, ct), _cancellationTokenSource.Token);
+                BackgroundTaskAsync(() => TimeSpan.FromDays(interval), ct => CheckForUpdatesAsync(true, ct), _cancellationTokenSource.Token).FireAndLog("Update check", Log);
             }
         }
 
@@ -183,14 +187,14 @@ namespace Greenshot.Helpers
         /// <param name="reoccurringTask">Func which returns a task</param>
         /// <param name="cancellationToken">CancellationToken</param>
         /// <returns>Task</returns>
-        private async Task BackgroundTask(Func<TimeSpan> intervalFactory, Func<CancellationToken, Task> reoccurringTask, CancellationToken cancellationToken = default)
+        private async Task BackgroundTaskAsync(Func<TimeSpan> intervalFactory, Func<CancellationToken, Task> reoccurringTask, CancellationToken cancellationToken = default)
         {
             try
             {
                 // Initial delay, to make sure this doesn't happen at the startup
                 await Task.Delay(20000, cancellationToken).ConfigureAwait(false);
                 Log.Info("Starting background task to check for updates");
-                await Task.Run(async () =>
+                // Task.Delay with ConfigureAwait(false) continues on the thread pool
                 {
                     try
                     {
@@ -247,7 +251,7 @@ namespace Greenshot.Helpers
                     {
                         Log.Info("Stopping background task to check for updates");
                     }
-                }, cancellationToken).ConfigureAwait(false);
+                }
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
@@ -325,11 +329,11 @@ namespace Greenshot.Helpers
                 {
                     try
                     {
-                        Process.Start(new ProcessStartInfo(Downloads.AbsoluteUri) { UseShellExecute = true });
+                        Process.Start(new ProcessStartInfo(DownloadsUrl.AbsoluteUri) { UseShellExecute = true });
                     }
                     catch (Exception ex)
                     {
-                        Log.Error($"Failed to launch download URL: {Downloads.AbsoluteUri}", ex);
+                        Log.Error($"Failed to launch download URL: {DownloadsUrl.AbsoluteUri}", ex);
                     }
                 });
             }
@@ -356,6 +360,19 @@ namespace Greenshot.Helpers
                 if (Version.TryParse(latestReleaseString, out var latestReleaseVersion))
                 {
                     LatestReleaseVersion = latestReleaseVersion;
+                }
+            }
+
+            if (updateFeed.Downloads != null && !EditionInfo.IsFull)
+            {
+                var edition = EditionInfo.Name.ToLowerInvariant();
+                foreach (var download in updateFeed.Downloads)
+                {
+                    if (string.Equals(download.Key, edition, StringComparison.OrdinalIgnoreCase)
+                        && Uri.TryCreate(download.Value, UriKind.Absolute, out var downloadsUri) && downloadsUri.Scheme == Uri.UriSchemeHttps)
+                    {
+                        _editionDownloads = downloadsUri;
+                    }
                 }
             }
 

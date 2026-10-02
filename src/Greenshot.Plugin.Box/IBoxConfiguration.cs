@@ -30,7 +30,7 @@ namespace Greenshot.Plugin.Box;
 
 [IniSection("Box")]
 [Description("Greenshot Box Plugin configuration")]
-public interface IBoxConfiguration : IIniSection, IAfterLoad, IBeforeSave
+public interface IBoxConfiguration : IIniSection, IAfterLoad
 {
     [Description("Whether to show a quicklink in the tray context menu for configuring this plugin.")]
     [DefaultValue(false)]
@@ -38,7 +38,7 @@ public interface IBoxConfiguration : IIniSection, IAfterLoad, IBeforeSave
 
     [Description("What file type to use for uploading")]
     [DefaultValue("png")]
-    OutputFormat UploadFormat { get; set; }
+    string UploadFormat { get; set; }
 
     [Description("JPEG file save quality in %.")]
     [DefaultValue(80)]
@@ -57,6 +57,7 @@ public interface IBoxConfiguration : IIniSection, IAfterLoad, IBeforeSave
     [DefaultValue("0")]
     string FolderId { get; set; }
 
+    /// <summary>The refresh token as stored in the ini: encrypted, use Decrypt() before passing it to OAuth and Encrypt() when storing a new one.</summary>
     [Description("Box authorization refresh Token (stored encrypted)")]
     string RefreshToken { get; set; }
 

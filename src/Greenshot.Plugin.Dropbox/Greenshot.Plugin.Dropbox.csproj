@@ -11,9 +11,16 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Dropbox.gif" />
+    <!-- Loaded with EmbeddedResources.GetImage(typeof(DropboxPlugin), "Dropbox") -->
+    <EmbeddedResource Include="Dropbox.png" LogicalName="Greenshot.Plugin.Dropbox.DropboxPlugin.Dropbox" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Greenshot.Base\Greenshot.Base.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="5.6.0" />
+    <PackageReference Update="Microsoft.VisualStudio.Threading.Analyzers" Version="18.7.23" />
   </ItemGroup>
 </Project>

@@ -24,6 +24,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Drawing;
@@ -49,8 +50,10 @@ namespace Greenshot.Base.Drawing
         private readonly ConcurrentDictionary<string, Func<IDictionary<string, object>, object, bool>> _configurators =
             new ConcurrentDictionary<string, Func<IDictionary<string, object>, object, bool>>(StringComparer.OrdinalIgnoreCase);
 
-        private static RecipeDrawableRegistry _instance;
-        public static RecipeDrawableRegistry Instance => _instance ??= new RecipeDrawableRegistry();
+        // Thread-safe: the first access can come from the UI thread and an IPC or pipeline thread at the same time,
+        // and a second instance would silently lose what was registered in the first one.
+        private static readonly Lazy<RecipeDrawableRegistry> LazyInstance = new Lazy<RecipeDrawableRegistry>(() => new RecipeDrawableRegistry(), LazyThreadSafetyMode.ExecutionAndPublication);
+        public static RecipeDrawableRegistry Instance => LazyInstance.Value;
 
         public void RegisterDrawableFactory(string drawableType, Func<ISurface, Dictionary<string, object>, CaptureFlowContext, IDrawableContainer> factory)
         {

@@ -20,31 +20,51 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Pipeline.Contracts;
 using Greenshot.Base.Recipes;
 using Greenshot.Plugin.Confluence.Entities;
 using log4net;
+using Greenshot.Base.Core.Export;
 
 namespace Greenshot.Plugin.Confluence
 {
     /// <summary>
     /// Capture recipe step that uploads/attaches the screenshot to a Confluence page.
     /// </summary>
-    public class ConfluenceStep : ICaptureStep
+    [StepInfo("Confluence", "Upload to Confluence", "Uploads the capture as attachment to a Confluence page.", "Export")]
+    [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Required)]
+    [StepParameter("Format", ContractDataType.Enum, Description = "Image format of the upload", AllowedValuesProvider = typeof(SaveableFileFormatIds))]
+    [StepParameter("JpegQuality", ContractDataType.Integer, Description = "JPEG quality (1-100) when uploading as JPEG")]
+    [StepParameter("ReduceColors", ContractDataType.Boolean, Description = "Reduce the image to 256 colors")]
+    [StepParameter("PageId", ContractDataType.String, Description = "Page to attach to")]
+    [StepOutputVariable("Confluence.PageId", ContractDataType.String, "The page the capture was attached to", Conditional = true)]
+    [StepOutputVariable("Confluence.UploadUrl", ContractDataType.String, "Link to the attachment", Conditional = true)]
+    public class ConfluenceStep : ICaptureStep, IRequiresRecipeAuthorization
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(ConfluenceStep));
         private static IConfluenceConfiguration Config => IniConfigRegistry.GetSection<IConfluenceConfiguration>();
 
         public string Name { get; }
         public RecipeNodeConfig NodeConfig { get; }
+
+        /// <summary>
+        /// Uploads the capture: the user has to allow network access when approving a recipe with this step
+        /// </summary>
+        public IEnumerable<RecipeGatedAction> GetGatedActions()
+        {
+            yield return new RecipeGatedAction(RecipeGateType.NetworkAccess, "Confluence");
+        }
 
         public ConfluenceStep(RecipeNodeConfig config)
         {
@@ -56,8 +76,7 @@ namespace Greenshot.Plugin.Confluence
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
 
-            var surface = context.Payload?.EnsureSurface();
-            if (surface == null)
+            if (context.Payload?.EnsureSurface() == null)
             {
                 context.LogStep("ConfluenceStep: No surface available to upload.");
                 Log.Warn("ConfluenceStep: Surface is null in context payload.");
@@ -66,72 +85,60 @@ namespace Greenshot.Plugin.Confluence
 
             var captureDetails = context.Payload?.RawCapture?.CaptureDetails ?? new CaptureDetails();
 
-            string pageId = NodeConfig.GetParameter<string>("PageId")
-                ?? NodeConfig.GetParameter<string>("pageId")
-                ?? NodeConfig.GetParameter<string>("Page")
-                ?? NodeConfig.GetParameter<string>("page");
+            string pageId = NodeConfig.GetParameter<string>("PageId");
 
             if (!string.IsNullOrEmpty(pageId))
             {
                 pageId = FilenameHelper.FillVariables(pageId, false);
             }
 
-            string formatStr = NodeConfig.GetParameter<string>("Format") ?? NodeConfig.GetParameter<string>("UploadFormat");
-            OutputFormat uploadFormat = Config?.UploadFormat ?? OutputFormat.png;
-            if (!string.IsNullOrWhiteSpace(formatStr) && Enum.TryParse<OutputFormat>(formatStr, true, out var parsedFormat))
-            {
-                uploadFormat = parsedFormat;
-            }
+            string formatStr = NodeConfig.GetParameter<string>("Format");
+            var formatRegistry = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>(true);
+            string uploadFormat = formatRegistry.ResolveFormatId(formatStr, Config?.UploadFormat ?? WellKnownFileFormats.Png);
 
             int jpegQuality = NodeConfig.GetParameter<int?>("JpegQuality") ?? (Config?.UploadJpegQuality ?? 80);
             bool reduceColors = NodeConfig.GetParameter<bool?>("ReduceColors") ?? (Config?.UploadReduceColors ?? false);
             var outputSettings = new SurfaceOutputSettings(uploadFormat, jpegQuality, reduceColors);
 
             string filename = Path.GetFileName(FilenameHelper.GetFilename(uploadFormat, captureDetails));
-            string extension = "." + uploadFormat.ToString().ToLower();
-            if (!filename.ToLower().EndsWith(extension))
-            {
-                filename += extension;
-            }
 
+            var source = await context.Payload.GetExportSourceAsync(context.Ui, cancellationToken).ConfigureAwait(false);
             if (!string.IsNullOrEmpty(pageId) && long.TryParse(pageId, out long parsedPageId))
             {
                 context.LogStep($"Uploading capture to Confluence page '{parsedPageId}'...");
                 Log.InfoFormat("ConfluenceStep: Uploading capture to Confluence page '{0}'", parsedPageId);
 
-                await Task.Run(() =>
+                try
                 {
-                    try
+                    var connector = ConfluencePlugin.ConfluenceConnector;
+                    if (connector != null)
                     {
-                        var connector = ConfluencePlugin.ConfluenceConnector;
-                        if (connector != null)
-                        {
-                            var surfaceContainer = new SurfaceContainer(surface, outputSettings, filename);
-                            connector.AddAttachment(parsedPageId, "image/" + uploadFormat.ToString().ToLower(), null, filename, surfaceContainer);
-                            context.Properties["Confluence.PageId"] = parsedPageId.ToString();
-                            context.LogStep($"Successfully uploaded capture to Confluence page '{parsedPageId}'.");
-                        }
-                        else
-                        {
-                            context.LogStep("ConfluenceStep: Confluence connector could not connect.");
-                        }
+                        var image = await source.EncodeAsync(outputSettings, cancellationToken).ConfigureAwait(false);
+                        await connector.AddAttachmentAsync(parsedPageId, image, filename, null, cancellationToken).ConfigureAwait(false);
+                        context.Properties["Confluence.PageId"] = parsedPageId.ToString();
+                        context.LogStep($"Successfully uploaded capture to Confluence page '{parsedPageId}'.");
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        context.LogStep($"ConfluenceStep: Failed to upload to '{parsedPageId}': {ex.Message}");
-                        Log.Error($"ConfluenceStep: Error uploading to page {parsedPageId}", ex);
+                        context.LogStep("ConfluenceStep: Confluence connector could not connect.");
                     }
-                }, cancellationToken).ConfigureAwait(false);
+                }
+                catch (Exception ex) when (ex is not OperationCanceledException)
+                {
+                    context.LogStep($"ConfluenceStep: Failed to upload to '{parsedPageId}': {ex.Message}");
+                    Log.Error($"ConfluenceStep: Error uploading to page {parsedPageId}", ex);
+                }
             }
             else
             {
                 // Fall back to destination dialog
                 context.LogStep("ConfluenceStep: Delegating to Confluence destination.");
                 var destination = new ConfluenceDestination();
-                destination.ExportCapture(false, surface, captureDetails);
-                if (!string.IsNullOrEmpty(surface.UploadUrl))
+                var result = await DestinationExporter.ExportAsync(destination, source, captureDetails, false, context.UserInteraction, cancellationToken).ConfigureAwait(false);
+                await ExportResultHandler.ApplyAsync(destination, result, source, cancellationToken).ConfigureAwait(false);
+                if (result.Uri != null)
                 {
-                    context.Properties["Confluence.UploadUrl"] = surface.UploadUrl;
+                    context.Properties["Confluence.UploadUrl"] = result.Uri.AbsoluteUri;
                 }
             }
         }

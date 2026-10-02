@@ -182,10 +182,6 @@ namespace Greenshot.Tests.Recipes
             Assert.Equal("C:\\tools\\test.exe", node.GetParameter<string>("path"));
             Assert.Equal("test.exe --flag", node.GetParameter<string>("CommandLine"));
             Assert.True(node.GetParameter<bool>("RunInBackground"));
-
-            // Test GetFirstParameter with alias list
-            string resolvedPath = node.GetFirstParameter<string>("Executable", "Path", "CommandLine");
-            Assert.Equal("C:\\tools\\test.exe", resolvedPath);
         }
     }
 }

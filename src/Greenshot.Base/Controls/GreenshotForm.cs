@@ -31,6 +31,7 @@ using Dapplo.Ini;
 using Dapplo.Ini.Interfaces;
 using Greenshot.Base.Core;
 using log4net;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Base.Controls
 {
@@ -128,6 +129,12 @@ namespace Greenshot.Base.Controls
         {
         }
 
+        /// <summary>
+        /// True when <see cref="InitializeLanguage"/> must be called when the form loads.
+        /// A form which already calls it in its constructor can return false, so the work isn't done twice.
+        /// </summary>
+        protected virtual bool InitializeLanguageOnLoad => true;
+
         public GreenshotForm()
         {
             DpiChanged += (sender, dpiChangedEventArgs) => DpiChangedHandler(dpiChangedEventArgs.DeviceDpiOld, dpiChangedEventArgs.DeviceDpiNew);
@@ -136,14 +143,8 @@ namespace Greenshot.Base.Controls
 
         private void OnLanguageChanged(object sender, EventArgs e)
         {
-            if (InvokeRequired)
-            {
-                Invoke(new MethodInvoker(InitializeLanguage));
-            }
-            else
-            {
-                InitializeLanguage();
-            }
+            // The language can change on another thread
+            UiDispatcher.Current.RunOnUiAsync(InitializeLanguage).FireAndLog("Initialize the language of " + GetType().Name);
         }
 
         /// <summary>
@@ -163,7 +164,10 @@ namespace Greenshot.Base.Controls
             if (!DesignMode)
             {
 #endif
-                InitializeLanguage();
+                if (InitializeLanguageOnLoad)
+                {
+                    InitializeLanguage();
+                }
                 FillFields();
                 base.OnLoad(e);
 #if DEBUG

@@ -123,6 +123,8 @@ namespace Greenshot.Base.Triggers
         public static CaptureRecipe EnsureRequiredDestination(CaptureRecipe recipe, ITrigger trigger)
         {
             if (recipe == null || recipe.HasDestinationStep() || recipe.HasVideoStep()) return recipe;
+            // The result of an AI tool goes back to the AI tool, it doesn't need a destination (and must not open the editor)
+            if (string.Equals(trigger?.TriggerType, TriggerConfig.TypeAiTool, StringComparison.OrdinalIgnoreCase)) return recipe;
 
             var transitions = recipe.Flow?.GetUnifiedTransitions();
             var endNodeIds = recipe.Nodes?
@@ -167,6 +169,8 @@ namespace Greenshot.Base.Triggers
             {
                 TriggerConfig.TypeClipboard => CaptureSourceType.Clipboard,
                 TriggerConfig.TypeEditor => CaptureSourceType.CurrentEditor,
+                TriggerConfig.TypeOpenFile => CaptureSourceType.File,
+                TriggerConfig.TypeExtension => CaptureSourceType.Extension,
                 _ => CaptureSourceType.FullScreen
             };
             return RecipeStepConfig.CreateSource(sourceNodeId, sourceType);

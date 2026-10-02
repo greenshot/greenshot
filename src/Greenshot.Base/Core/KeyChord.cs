@@ -23,6 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Dapplo.Windows.Input.Enums;
+using Dapplo.Windows.Input.Keyboard;
 
 namespace Greenshot.Base.Core
 {
@@ -144,7 +145,7 @@ namespace Greenshot.Base.Core
                 case "print":
                 case "prtscr":
                 case "snapshot":
-                    return VirtualKeyCode.Snapshot;
+                    return VirtualKeyCode.PrintScreen;
                 case "scroll":
                 case "scrolllock":
                     return VirtualKeyCode.Scroll;
@@ -208,7 +209,8 @@ namespace Greenshot.Base.Core
                 return prefixedKey;
             }
 
-            return VirtualKeyCode.None;
+            // Names of VirtualKeyCode aliases which were removed in Dapplo.Windows 3.0 (Hangul, Kanji, ...), so hotkeys stored by older versions keep working
+            return KeyHelper.VirtualKeyCodeFromString(clean);
         }
 
         public override string ToString()
@@ -264,7 +266,7 @@ namespace Greenshot.Base.Core
         {
             switch (key)
             {
-                case VirtualKeyCode.Snapshot:
+                case VirtualKeyCode.PrintScreen:
                     return "PrintScreen";
                 case VirtualKeyCode.Scroll:
                     return "ScrollLock";

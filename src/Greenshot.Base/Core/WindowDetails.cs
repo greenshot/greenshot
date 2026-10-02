@@ -19,7 +19,7 @@ using Dapplo.Windows.Gdi32;
 using Dapplo.Windows.Gdi32.SafeHandles;
 using Dapplo.Windows.Kernel32;
 using Dapplo.Windows.Kernel32.Enums;
-using Dapplo.Windows.Messages.Enumerations;
+using Dapplo.Windows.Messages.Enums;
 using Dapplo.Windows.User32;
 using Dapplo.Windows.User32.Enums;
 using Dapplo.Windows.User32.Structs;
@@ -28,6 +28,7 @@ using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interop;
 using log4net;
+using System.Threading.Tasks;
 
 namespace Greenshot.Base.Core
 {
@@ -666,7 +667,7 @@ namespace Greenshot.Base.Core
         /// Restores and Brings the window to the front,
         /// assuming it is a visible application window.
         /// </summary>
-        public void Restore()
+        public async Task RestoreAsync(CancellationToken cancellationToken = default)
         {
             if (Iconic)
             {
@@ -675,14 +676,11 @@ namespace Greenshot.Base.Core
 
             User32Api.BringWindowToTop(Handle);
             User32Api.SetForegroundWindow(Handle);
-            // Wait for the window to restore, with a timeout to prevent CPU spin
-            int waitAttempts = 0;
-            const int maxWaitAttempts = 100; // ~2 seconds max (100 * 20ms)
-            while (Iconic && waitAttempts < maxWaitAttempts)
+            // Wait for the window to restore, polling with a timeout (~2 seconds max, 100 * 20ms)
+            const int maxWaitAttempts = 100;
+            for (int waitAttempts = 0; Iconic && waitAttempts < maxWaitAttempts; waitAttempts++)
             {
-                Application.DoEvents();
-                Thread.Sleep(20);
-                waitAttempts++;
+                await Task.Delay(20, cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -736,13 +734,22 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
-        /// Capture DWM Window
+        /// Let the UI thread paint the temporary form and the compositor present it, instead of Application.DoEvents().
+        /// Runs on the UI thread, the continuation returns to it.
+        /// </summary>
+        private static Task WaitForCompositionAsync()
+        {
+            return Task.Delay(20);
+        }
+
+        /// <summary>
+        /// Capture DWM Window, must be called on the UI thread: it shows a temporary form with the DWM thumbnail of the window.
         /// </summary>
         /// <param name="capture">Capture to fill</param>
         /// <param name="windowCaptureMode">Wanted WindowCaptureMode</param>
         /// <param name="autoMode">True if auto mode is used</param>
         /// <returns>ICapture with the capture</returns>
-        public ICapture CaptureDwmWindow(ICapture capture, WindowCaptureMode windowCaptureMode, bool autoMode)
+        public async Task<ICapture> CaptureDwmWindowAsync(ICapture capture, WindowCaptureMode windowCaptureMode, bool autoMode)
         {
             IntPtr thumbnailHandle = IntPtr.Zero;
             Form tempForm = null;
@@ -788,14 +795,14 @@ namespace Greenshot.Base.Core
                     }
 
                     // If the formLocation is not inside the visible area
-                    if (!workingArea.AreRectangleCornersVisisble(windowRectangle))
+                    if (!workingArea.AreRectangleCornersVisible(windowRectangle))
                     {
                         // If none found we find the biggest screen
 
                         foreach (var displayInfo in DisplayInfo.AllDisplayInfos)
                         {
                             var newWindowRectangle = new NativeRect(displayInfo.WorkingArea.Location, windowRectangle.Size);
-                            if (workingArea.AreRectangleCornersVisisble(newWindowRectangle))
+                            if (workingArea.AreRectangleCornersVisible(newWindowRectangle))
                             {
                                 formLocation = displayInfo.Bounds.Location;
                                 doesCaptureFit = true;
@@ -877,11 +884,14 @@ namespace Greenshot.Base.Core
                         tempForm.BackColor = Color.White;
                         // Make sure everything is visible
                         tempForm.Refresh();
-                        Application.DoEvents();
+                        await WaitForCompositionAsync().ConfigureAwait(true);
 
                         try
                         {
+                            // VSTHRD103: CaptureRectangleAsync may use Windows Graphics Capture, this needs the immediate GDI capture of the screen as the temp form shows it right now
+#pragma warning disable VSTHRD103
                             using Bitmap whiteBitmap = WindowCapture.CaptureRectangle(captureRectangle);
+#pragma warning restore VSTHRD103
                             // Apply a white color
                             tempForm.BackColor = Color.Black;
                             // Make sure everything is visible
@@ -890,8 +900,11 @@ namespace Greenshot.Base.Core
                             ToForeground();
 
                             // Make sure all changes are processed and visible
-                            Application.DoEvents();
+                            await WaitForCompositionAsync().ConfigureAwait(true);
+                            // VSTHRD103: CaptureRectangleAsync may use Windows Graphics Capture, this needs the immediate GDI capture of the screen as the temp form shows it right now
+#pragma warning disable VSTHRD103
                             using Bitmap blackBitmap = WindowCapture.CaptureRectangle(captureRectangle);
+#pragma warning restore VSTHRD103
                             capturedBitmap = ApplyTransparency(blackBitmap, whiteBitmap);
                         }
                         catch (Exception e)
@@ -927,9 +940,12 @@ namespace Greenshot.Base.Core
                         ToForeground();
 
                         // Make sure all changes are processed and visible
-                        Application.DoEvents();
+                        await WaitForCompositionAsync().ConfigureAwait(true);
                         // Capture from the screen
+                        // VSTHRD103: CaptureRectangleAsync may use Windows Graphics Capture, this needs the immediate GDI capture of the screen as the temp form shows it right now
+#pragma warning disable VSTHRD103
                         capturedBitmap = WindowCapture.CaptureRectangle(captureRectangle);
+#pragma warning restore VSTHRD103
                     }
 
                     if (capturedBitmap != null)
@@ -1164,9 +1180,9 @@ namespace Greenshot.Base.Core
             // Show window in foreground.
             if (threadId1 != threadId2)
             {
-                User32Api.AttachThreadInput(threadId1, threadId2, 1);
+                User32Api.AttachThreadInput(threadId1, threadId2, true);
                 User32Api.SetForegroundWindow(hWnd);
-                User32Api.AttachThreadInput(threadId1, threadId2, 0);
+                User32Api.AttachThreadInput(threadId1, threadId2, false);
             }
             else
             {

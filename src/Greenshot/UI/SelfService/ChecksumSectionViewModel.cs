@@ -28,6 +28,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -35,6 +36,7 @@ using System.Windows.Media;
 using Greenshot.Base.Core;
 using Greenshot.Base.Wpf;
 using log4net;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.UI.SelfService
 {
@@ -433,13 +435,13 @@ namespace Greenshot.UI.SelfService
             if (!_hasEverScanned)
             {
                 _hasEverScanned = true;
-                _ = ValidateChecksumsAsync();
+                ValidateChecksumsAsync().FireAndLog("Validate the checksums", Log);
             }
         }
 
         public override void Refresh()
         {
-            _ = ValidateChecksumsAsync();
+            ValidateChecksumsAsync().FireAndLog("Validate the checksums", Log);
         }
 
         public async Task ValidateChecksumsAsync(CancellationToken externalCancellationToken = default)
@@ -461,7 +463,8 @@ namespace Greenshot.UI.SelfService
 
             try
             {
-                var results = await Task.Run(() => PerformValidation(baseDir, checksumPath, token, (cur, total, name) =>
+                // The validation reads all files: on the thread pool, the progress is posted to the UI thread
+                var results = await RunOnPoolAsync(() => PerformValidation(baseDir, checksumPath, token, (cur, total, name) =>
                 {
                     RunOnUi(() =>
                     {
@@ -553,7 +556,7 @@ namespace Greenshot.UI.SelfService
             {
                 if (TryParseChecksumLine(line, out string hash, out string relPath))
                 {
-                    if (CanSkipFile(relPath))
+                    if (CanSkipFile(relPath) || IsFileOfMissingPlugin(baseDir, relPath))
                     {
                         continue;
                     }
@@ -751,7 +754,42 @@ namespace Greenshot.UI.SelfService
         }
 
         /// <summary>
-        /// Determines whether a given relative or file path corresponds to a file which can be skipped for checksum validation.
+        /// True for a file of a plugin that is not installed: checksum.SHA256 lists every plugin, the plugins are optional
+        /// in the installer, so their files are only expected when the plugin's directory (Plugins\&lt;plugin&gt;) exists.
+        /// </summary>
+        public static bool IsFileOfMissingPlugin(string baseDir, string relativePath)
+        {
+            if (string.IsNullOrEmpty(relativePath))
+            {
+                return false;
+            }
+
+            var segments = relativePath.Split(new[] { '\\', '/' }, StringSplitOptions.RemoveEmptyEntries);
+            if (segments.Length < 3 || !string.Equals(segments[0], "Plugins", StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+            return !Directory.Exists(Path.Combine(baseDir, segments[0], segments[1]));
+        }
+
+        /// <summary>
+        /// Files in the main directory that are shipped or created but are not program files, so checksum.SHA256 does not
+        /// list them: documentation, the SBOM (it has its own hash file), configuration a user may change, and the files
+        /// of the Inno Setup uninstaller.
+        /// </summary>
+        private static readonly HashSet<string> NonProgramFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "readme.txt", "license.txt", "installer.txt",
+            "bom.json", "bom.xml", "manifest.spdx.json", "manifest.spdx.json.sha256",
+            "log4net.xml", "greenshot.ini", "greenshot-defaults.ini", "greenshot-fixed.ini"
+        };
+
+        private static readonly Regex UninstallerFile = new Regex(@"^unins\d{3}\.(exe|dat|msg)$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+        /// <summary>
+        /// Determines whether a given relative or file path corresponds to a file which can be skipped for checksum validation:
+        /// debug symbols, language and help files, and the non-program files of the main directory (<see cref="NonProgramFiles"/>).
+        /// Every other file that is not in checksum.SHA256 is reported as unlisted, e.g. a library left behind by an older version.
         /// </summary>
         public static bool CanSkipFile(string path)
         {
@@ -765,12 +803,23 @@ namespace Greenshot.UI.SelfService
                 return true;
             }
 
+            string relative = path.Replace('/', '\\');
+            if (relative.IndexOf('\\') < 0 && (NonProgramFiles.Contains(relative) || UninstallerFile.IsMatch(relative)))
+            {
+                return true;
+            }
+
+            string fileName = Path.GetFileName(path);
+            if (fileName.StartsWith("help-", StringComparison.OrdinalIgnoreCase) && fileName.EndsWith(".html", StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
             if (!path.EndsWith(".xml", StringComparison.OrdinalIgnoreCase))
             {
                 return false;
             }
 
-            string fileName = Path.GetFileName(path);
             if (fileName.StartsWith("language-", StringComparison.OrdinalIgnoreCase) ||
                 fileName.StartsWith("language_", StringComparison.OrdinalIgnoreCase))
             {
@@ -895,7 +944,7 @@ namespace Greenshot.UI.SelfService
                 var sb = new StringBuilder();
                 sb.AppendLine("Greenshot Installation Integrity Report");
                 sb.AppendLine($"Generated: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
-                sb.AppendLine($"Greenshot Version: {EnvironmentInfo.GetGreenshotVersion()} ({OsInfo.Bits}-bit)");
+                sb.AppendLine($"Greenshot Version: {EnvironmentInfo.GetGreenshotVersion()}{EditionInfo.Suffix} ({OsInfo.Bits}-bit)");
                 sb.AppendLine($"Base Directory: {BaseDirectory}");
                 sb.AppendLine($"Checksum File: {ChecksumFilePath}");
                 sb.AppendLine();
@@ -947,7 +996,7 @@ namespace Greenshot.UI.SelfService
                     sb.AppendLine($"{item.Status}\t{item.RelativePath}\t{item.ActualHash}\t{item.ExpectedHash}\t{item.FileSizeText}");
                 }
 
-                Clipboard.SetText(sb.ToString());
+                ClipboardHelper.SetClipboardData(sb.ToString());
                 StatusMessage = Language.GetString("selfservice_checksum_copied_report") ?? "Integrity report copied to clipboard!";
             }
             catch (Exception ex)
@@ -969,7 +1018,7 @@ namespace Greenshot.UI.SelfService
                 sb.AppendLine($"Expected SHA-256: {SelectedItem.ExpectedHash}");
                 sb.AppendLine($"Size: {SelectedItem.FileSizeText}");
                 sb.AppendLine($"Path: {SelectedItem.FullPath}");
-                Clipboard.SetText(sb.ToString());
+                ClipboardHelper.SetClipboardData(sb.ToString());
                 StatusMessage = Language.GetString("selfservice_copied") ?? "Copied!";
             }
             catch (Exception ex)
@@ -1019,15 +1068,17 @@ namespace Greenshot.UI.SelfService
 
         private static void RunOnUi(Action action)
         {
-            var dispatcher = Application.Current?.Dispatcher;
-            if (dispatcher != null && !dispatcher.CheckAccess())
-            {
-                dispatcher.Invoke(action);
-            }
-            else
-            {
-                action();
-            }
+            UiDispatcher.Current.RunOnUiAsync(action).FireAndLog("Checksum view update", Log);
+        }
+
+        /// <summary>
+        /// Run the work on the thread pool, the caller's continuation returns to its context
+        /// </summary>
+        private static async Task<T> RunOnPoolAsync<T>(Func<T> work, CancellationToken cancellationToken)
+        {
+            await ThreadPoolSwitch.SwitchToThreadPoolAsync();
+            cancellationToken.ThrowIfCancellationRequested();
+            return work();
         }
     }
 }

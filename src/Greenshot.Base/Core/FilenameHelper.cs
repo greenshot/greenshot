@@ -28,6 +28,7 @@ using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Greenshot.Base.Core.Enums;
 using Dapplo.Ini;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using log4net;
 
@@ -114,24 +115,24 @@ namespace Greenshot.Base.Core
             return FillPattern(pattern, captureDetails, true);
         }
 
-        public static string GetFilenameFromPattern(string pattern, OutputFormat imageFormat)
+        public static string GetFilenameFromPattern(string pattern, string formatId)
         {
-            return GetFilenameFromPattern(pattern, imageFormat, null);
+            return GetFilenameFromPattern(pattern, formatId, null);
         }
 
-        public static string GetFilenameFromPattern(string pattern, OutputFormat imageFormat, ICaptureDetails captureDetails)
+        public static string GetFilenameFromPattern(string pattern, string formatId, ICaptureDetails captureDetails)
         {
-            return FillPattern(pattern, captureDetails, true) + "." + imageFormat.ToString().ToLower();
+            return FillPattern(pattern, captureDetails, true) + FileFormatRegistry.GetPreferredExtensionWithDot(formatId);
         }
 
         /// <summary>
         /// Return a filename for the current image format (png,jpg etc) with the default file pattern
         /// that is specified in the configuration
         /// </summary>
-        /// <param name="format">A string with the format</param>
+        /// <param name="formatId">A string with the format</param>
         /// <param name="captureDetails"></param>
         /// <returns>The filename which should be used to save the image</returns>
-        public static string GetFilename(OutputFormat format, ICaptureDetails captureDetails)
+        public static string GetFilename(string formatId, ICaptureDetails captureDetails)
         {
             string pattern = CoreConfig.OutputFileFilenamePattern;
             if (string.IsNullOrEmpty(pattern?.Trim()))
@@ -139,9 +140,8 @@ namespace Greenshot.Base.Core
                 pattern = "greenshot ${capturetime}";
             }
 
-            return GetFilenameFromPattern(pattern, format, captureDetails);
+            return GetFilenameFromPattern(pattern, formatId, captureDetails);
         }
-
 
         /// <summary>
         /// This method will be called by the regexp.replace as a MatchEvaluator delegate!
@@ -677,7 +677,8 @@ namespace Greenshot.Base.Core
         {
             return mode switch
             {
-                DateCultureMode.UILanguage => CultureInfo.GetCultureInfo(Language.CurrentLanguage),
+                // Not every UI language is a culture Windows knows (e.g. de-x-franconia), then the current culture formats the date
+                DateCultureMode.UILanguage => Language.TryGetCultureInfo(Language.CurrentLanguage, out var uiCulture) ? uiCulture : CultureInfo.CurrentCulture,
                 _ => CultureInfo.CurrentCulture
             };
         }

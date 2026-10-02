@@ -2,8 +2,8 @@
 Name: "plugins\recipeeditor"; Description: {cm:recipeeditor}; Types: default full custom; Flags: disablenouninstallwarning
 
 [Files]
-Source: {#PluginDir}\Greenshot.Plugin.RecipeEditor\Greenshot.Plugin.RecipeEditor.dll; DestDir: {app}\Plugins\RecipeEditor; Components: plugins\recipeeditor; Flags: {#DefaultInstallFlags};
-Source: {#PluginDir}\Greenshot.Plugin.RecipeEditor\Nodify.dll; DestDir: {app}\Plugins\RecipeEditor; Components: plugins\recipeeditor; Flags: {#DefaultInstallFlags};
+; The plugin and the libraries only it uses; the build removed its copies of the files Greenshot itself installs
+Source: {#PluginDir}\Greenshot.Plugin.RecipeEditor\*.dll; DestDir: {app}\Plugins\Greenshot.Plugin.RecipeEditor; Components: plugins\recipeeditor; Flags: {#DefaultInstallFlags};
 
 [CustomMessages]
 recipeeditor=Recipe Editor plug-in

@@ -27,9 +27,6 @@ namespace Greenshot.Helpers.Ipc
 {
     public class IpcParsedCommand
     {
-        [JsonProperty("action")]
-        public string Action { get; set; }
-
         [JsonProperty("parameters")]
         public Dictionary<string, string> Parameters { get; set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
     }

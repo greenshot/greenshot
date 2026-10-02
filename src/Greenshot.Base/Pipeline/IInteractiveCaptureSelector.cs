@@ -28,21 +28,32 @@ using Greenshot.Base.Interfaces;
 namespace Greenshot.Base.Pipeline
 {
     /// <summary>
-    /// Contract for presenting an interactive selection overlay to the user (e.g. CaptureForm).
+    /// Presents the interactive selection overlay to the user (e.g. CaptureForm), see roadmap section 5.3.
     /// </summary>
     public interface IInteractiveCaptureSelector
     {
         /// <summary>
-        /// Prompts the user to interactively select a region or window from the fullscreen capture.
+        /// True while a selection overlay is open.
+        /// </summary>
+        bool IsSelecting { get; }
+
+        /// <summary>
+        /// Bring an open selection overlay to the front (a second capture was requested while it is open).
+        /// </summary>
+        void BringToFront();
+
+        /// <summary>
+        /// Let the user select a region, window or text on the capture. Called from the thread pool, the implementation
+        /// shows its UI through the IUiDispatcher and completes when the overlay closes.
         /// </summary>
         /// <param name="fullscreenCapture">The captured desktop image.</param>
-        /// <param name="visibleWindows">List of visible windows for geometry snapping.</param>
+        /// <param name="visibleWindows">Visible windows for window snapping.</param>
         /// <param name="initialMode">Initial selection mode (Region, Window, Text).</param>
-        /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>The selection result.</returns>
+        /// <param name="cancellationToken">Cancelling closes the overlay and throws an OperationCanceledException.</param>
+        /// <returns>The selection, or null when the user declined (Esc) or another selection is already open.</returns>
         Task<SelectionResult> SelectAsync(
             ICapture fullscreenCapture,
-            List<WindowDetails> visibleWindows,
+            IReadOnlyList<WindowDetails> visibleWindows,
             CaptureMode initialMode,
             CancellationToken cancellationToken = default);
     }

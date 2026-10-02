@@ -32,7 +32,9 @@ using Dapplo.Jira;
 using Dapplo.Jira.Entities;
 using Dapplo.Jira.SvgWinForms.Converters;
 using Greenshot.Base.Core;
+using Greenshot.Base.Interfaces;
 using Dapplo.Ini;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Plugin.Jira;
 
@@ -152,6 +154,8 @@ public sealed class JiraConnector : IDisposable
     public async Task LoginAsync(CancellationToken cancellationToken = default)
     {
         Logout();
+        // The credentials dialog is modal UI, it is shown on the UI thread
+        var ui = UiDispatcher.Current;
         try
         {
             // Get the system name, so the user knows where to login to
@@ -159,9 +163,9 @@ public sealed class JiraConnector : IDisposable
             {
                 Name = null
             };
-            while (credentialsDialog.Show(credentialsDialog.Name) == DialogResult.OK)
+            while (await ui.InvokeAsync(() => credentialsDialog.Show(credentialsDialog.Name), cancellationToken).ConfigureAwait(false) == DialogResult.OK)
             {
-                if (await DoLoginAsync(credentialsDialog.Name, credentialsDialog.Password, cancellationToken))
+                if (await DoLoginAsync(credentialsDialog.Name, credentialsDialog.Password, cancellationToken).ConfigureAwait(false))
                 {
                     if (credentialsDialog.SaveChecked)
                     {
@@ -208,14 +212,14 @@ public sealed class JiraConnector : IDisposable
 
     /// <summary>
     /// check the login credentials, to prevent timeouts of the session, or makes a login
-    /// Do not use ConfigureAwait to call this, as it will move await from the UI thread.
+    /// The login marshals its dialog to the UI thread, so this can be called from any thread.
     /// </summary>
     /// <returns></returns>
     private async Task CheckCredentialsAsync(CancellationToken cancellationToken = default)
     {
         if (!IsLoggedIn)
         {
-            await LoginAsync(cancellationToken);
+            await LoginAsync(cancellationToken).ConfigureAwait(false);
         }
     }
 
@@ -249,19 +253,17 @@ public sealed class JiraConnector : IDisposable
     }
 
     /// <summary>
-    /// Attach the content to the jira
+    /// Attach the encoded capture to the jira
     /// </summary>
     /// <param name="issueKey"></param>
-    /// <param name="content">IBinaryContainer</param>
+    /// <param name="content">EncodedImage</param>
+    /// <param name="filename">Filename of the attachment</param>
     /// <param name="cancellationToken"></param>
-    /// <returns></returns>
-    public async Task AttachAsync(string issueKey, IBinaryContainer content, CancellationToken cancellationToken = default)
+    public async Task AttachAsync(string issueKey, EncodedImage content, string filename, CancellationToken cancellationToken = default)
     {
-        await CheckCredentialsAsync(cancellationToken);
-        using var memoryStream = RecyclableMemoryStreamFactory.GetStream("JiraConnector.AttachAsync");
-        content.WriteToStream(memoryStream);
-        memoryStream.Seek(0, SeekOrigin.Begin);
-        await _jiraClient.Attachment.AttachAsync(issueKey, memoryStream, content.Filename, content.ContentType, cancellationToken).ConfigureAwait(false);
+        await CheckCredentialsAsync(cancellationToken).ConfigureAwait(false);
+        using var stream = content.OpenRead();
+        await _jiraClient.Attachment.AttachAsync(issueKey, stream, filename, content.MimeType, cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>

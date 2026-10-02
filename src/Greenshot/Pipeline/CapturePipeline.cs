@@ -29,12 +29,14 @@ using Dapplo.Windows.Kernel32;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Pipeline.Contracts;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Triggers;
 using Greenshot.Editor.Drawing;
 using Greenshot.Native;
 using Greenshot.Pipeline.Steps;
 using log4net;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Pipeline
 {
@@ -52,13 +54,21 @@ namespace Greenshot.Pipeline
         private readonly IStepRegistry _stepRegistry;
         private readonly DagExecutionEngine _dagEngine;
 
-        private static CapturePipeline _instance;
-        public static CapturePipeline Instance => _instance ??= new CapturePipeline();
+        // Thread-safe: the first access can come from the UI thread and an IPC or pipeline thread at the same time,
+        // and a second instance would silently lose what was registered in the first one.
+        private static readonly Lazy<CapturePipeline> LazyInstance = new Lazy<CapturePipeline>(() => new CapturePipeline(), LazyThreadSafetyMode.ExecutionAndPublication);
+        public static CapturePipeline Instance => LazyInstance.Value;
+
+        /// <summary>
+        /// The interactive selector used by this pipeline, the flow runner asks it whether a selection is open.
+        /// </summary>
+        public IInteractiveCaptureSelector Selector => _selector;
 
         static CapturePipeline()
         {
             // Wire surface instantiation so Greenshot.Base does not need a reference to Greenshot.Editor
-            CapturePayload.DefaultSurfaceFactory = capture =>
+            // The flow owns the surface on the pool until it hands it to the editor: create it without a WinForms context on this thread
+            CapturePayload.DefaultSurfaceFactory = capture => WinFormsContextGuard.CreateWithoutContext<ISurface>(() =>
             {
                 bool outputMade = capture.CaptureDetails?.CaptureMode == CaptureMode.File ||
                                   capture.CaptureDetails?.CaptureMode == CaptureMode.Clipboard;
@@ -66,10 +76,7 @@ namespace Greenshot.Pipeline
                 {
                     Modified = !outputMade
                 };
-            };
-
-            // Wire custom window capture handler for WindowsGraphicsCapture beta tester mode
-            WindowCaptureHelper.CustomWindowCaptureHandler = handle => WindowsGraphicsCaptureInterop.CaptureWindowToBitmap(handle);
+            });
         }
 
         public CapturePipeline(
@@ -83,35 +90,42 @@ namespace Greenshot.Pipeline
 
             RegisterBuiltInStepFactories();
 
-            _dagEngine = new DagExecutionEngine(config => _stepRegistry.CreateStep(config));
+            _dagEngine = new DagExecutionEngine(config => _stepRegistry.CreateStep(config), _stepRegistry.GetContract);
         }
 
         private void RegisterBuiltInStepFactories()
         {
-            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.Source, config => new SourceAcquisitionStep(config));
-            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.InteractiveSelection, config => new InteractiveSelectionStep(config, _selector));
-            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.Border, config => new EffectCaptureStep(config));
-            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.Effect, config => new EffectCaptureStep(config));
-            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.Annotation, config => new AnnotationStep(config));
+            // Step types are registered with their contract (from the step class' attributes).
+            // Classes that implement several step types get a contract per step type.
+            _stepRegistry.Register<SourceAcquisitionStep>(config => new SourceAcquisitionStep(config));
+            _stepRegistry.Register<InteractiveSelectionStep>(config => new InteractiveSelectionStep(config, _selector));
+            _stepRegistry.Register<EffectCaptureStep>(config => new EffectCaptureStep(config));
+            _stepRegistry.Register<AnnotationStep>(config => new AnnotationStep(config));
             AnnotationStep.EnsureBuiltInDrawablesRegistered();
-            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.SetVariable, config => new SetVariableStep(config));
-            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.ImmediateFeedback, config => new ImmediateFeedbackStep(config));
-            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.Processors, config => new ProcessorExecutionStep(config));
-            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.Destinations, config => new DestinationExportStep(config, _dispatcher));
-            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.SaveFile, config => new DestinationExportStep(config, _dispatcher));
-            _stepRegistry.RegisterStepFactory("SaveToFile", config => new DestinationExportStep(config, _dispatcher));
-            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.Clipboard, config => new DestinationExportStep(config, _dispatcher));
-            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.Editor, config => new DestinationExportStep(config, _dispatcher));
-            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.Printer, config => new DestinationExportStep(config, _dispatcher));
-            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.Email, config => new DestinationExportStep(config, _dispatcher));
-            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.CustomDestination, config => new DestinationExportStep(config, _dispatcher));
-            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.Notification, config => new NotificationStep(config));
-            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.TextEffect, config => new TextEffectStep(config));
-            _stepRegistry.RegisterStepFactory("ObfuscateText", config => new TextEffectStep(config));
-            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.UserPrompt, config => new UserPromptStep(config));
-            _stepRegistry.RegisterStepFactory("PromptChoice", config => new UserPromptStep(config));
-            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.DynamicDestination, config => new DynamicDestinationStep(config));
-            _stepRegistry.RegisterStepFactory(WellKnownStepTypes.RecordVideo, config => new RecordVideoRecipeStep(config));
+            _stepRegistry.Register<SetVariableStep>(config => new SetVariableStep(config));
+            _stepRegistry.Register<ConditionalStep>(config => new ConditionalStep(config));
+            _stepRegistry.Register<ImmediateFeedbackStep>(config => new ImmediateFeedbackStep(config));
+            _stepRegistry.Register<ProcessorExecutionStep>(config => new ProcessorExecutionStep(config));
+            _stepRegistry.Register<DestinationExportStep>(config => new DestinationExportStep(config, _dispatcher));
+            _stepRegistry.Register<DestinationExportStep>(WellKnownStepTypes.SaveFile, "Save to File", "Saves the capture to a file without asking.",
+                config => new DestinationExportStep(config, _dispatcher));
+            _stepRegistry.Register<DestinationExportStep>(WellKnownStepTypes.Clipboard, "Copy to Clipboard", "Copies the image and/or the extracted text to the clipboard.",
+                config => new DestinationExportStep(config, _dispatcher));
+            _stepRegistry.Register<DestinationExportStep>(WellKnownStepTypes.Editor, "Open in Editor", "Opens the capture in the Greenshot editor.",
+                config => new DestinationExportStep(config, _dispatcher));
+            _stepRegistry.Register<DestinationExportStep>(WellKnownStepTypes.Printer, "Printer", "Prints the capture.",
+                config => new DestinationExportStep(config, _dispatcher));
+            _stepRegistry.Register<DestinationExportStep>(WellKnownStepTypes.Email, "Send by Email", "Attaches the capture to a new email.",
+                config => new DestinationExportStep(config, _dispatcher));
+            _stepRegistry.Register<DestinationExportStep>(WellKnownStepTypes.CustomDestination, "Custom Destination", "Exports to the destination named by CustomDestinationId.",
+                config => new DestinationExportStep(config, _dispatcher));
+            _stepRegistry.Register<NotificationStep>(config => new NotificationStep(config));
+            _stepRegistry.Register<TextEffectStep>(config => new TextEffectStep(config));
+            _stepRegistry.Register<UserPromptStep>(config => new UserPromptStep(config));
+            _stepRegistry.Register<DynamicDestinationStep>(config => new DynamicDestinationStep(config));
+            _stepRegistry.Register<RecordVideoRecipeStep>(config => new RecordVideoRecipeStep(config));
+            _stepRegistry.Register<StdoutStep>(config => new StdoutStep(config));
+            _stepRegistry.Register<StderrStep>(config => new StderrStep(config));
 
             // Register all plugin step providers
             try
@@ -150,7 +164,7 @@ namespace Greenshot.Pipeline
                 var recipeManager = SimpleServiceProvider.Current.GetInstance<IRecipeManager>(isOptional: true);
                 if (recipeManager != null)
                 {
-                    var verifiedRecipe = recipeManager.EnsureRecipeApprovedAndUpToDate(recipe);
+                    var verifiedRecipe = await recipeManager.EnsureRecipeApprovedAndUpToDateAsync(recipe, cancellationToken).ConfigureAwait(false);
                     if (verifiedRecipe == null)
                     {
                         Log.WarnFormat("Execution aborted for recipe '{0}' because approval was denied or file verification failed.", recipe.Name);
@@ -171,12 +185,6 @@ namespace Greenshot.Pipeline
                 Log.InfoFormat("Starting DAG capture flow: '{0}' ({1} node(s))", recipe.Name, nodeCount);
                 context.LogStep($"Starting DAG flow '{recipe.Name}' with {nodeCount} configured node(s)");
 
-                 // WindowsGraphicsCapture hook: only use WGC when the user enabled it.
-                 // Always (re)set the handler so toggling the setting takes effect without a restart.
-                 CaptureHandler.CaptureScreenRectangle = CoreConfig.UseWindowsGraphicsCapture
-                     ? WindowsGraphicsCaptureInterop.CaptureRectangle
-                     : null;
-
                 await _dagEngine.ExecuteAsync(recipe, context, cancellationToken).ConfigureAwait(false);
 
                 if (!context.IsAborted)
@@ -185,11 +193,7 @@ namespace Greenshot.Pipeline
                     context.LogStep("Capture flow completed successfully.");
                     Log.InfoFormat("Capture flow completed successfully: '{0}'", recipe.Name);
                 }
-                else if (context.State == CaptureFlowState.Failed)
-                {
-                    var notifyService = SimpleServiceProvider.Current.GetInstance<INotificationService>(isOptional: true);
-                    notifyService?.ShowErrorMessage(context.AbortReason ?? context.Error?.Message ?? "Capture flow failed.");
-                }
+
             }
             catch (OperationCanceledException)
             {
@@ -206,6 +210,19 @@ namespace Greenshot.Pipeline
                 if (CoreConfig.MinimizeWorkingSetSize)
                 {
                     PsApi.EmptyWorkingSet();
+                }
+
+                // The caller's last look at the result, while the payload still exists
+                if (context.FlowFinishedAsync != null)
+                {
+                    try
+                    {
+                        await context.FlowFinishedAsync(context).ConfigureAwait(false);
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Warn("The flow finished callback failed", ex);
+                    }
                 }
 
                 // Dispose context (cleans up raw capture and surface unless editor retained it)

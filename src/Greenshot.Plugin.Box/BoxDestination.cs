@@ -19,15 +19,23 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System.ComponentModel;
-using System.Drawing;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
+using Greenshot.Base.Pipeline;
 
 namespace Greenshot.Plugin.Box;
 
-public class BoxDestination : AbstractDestination
+public class BoxDestination : DestinationBase, IRequiresRecipeAuthorization
 {
+    /// <summary>
+    /// The icons in the resources of the plugin
+    /// </summary>
+    public static ResourceIconProvider Icons { get; } = new ResourceIconProvider("box", typeof(BoxPlugin));
+
     private readonly BoxPlugin _plugin;
 
     public BoxDestination(BoxPlugin plugin)
@@ -37,28 +45,19 @@ public class BoxDestination : AbstractDestination
 
     public override string Designation => "Box";
 
-    public override string Description => Language.GetString("box", LangKey.upload_menu_item);
-
-    public override Image DisplayIcon
+    /// <summary>
+    /// Uploads the capture: the user has to allow network access when approving a recipe with this destination
+    /// </summary>
+    public IEnumerable<RecipeGatedAction> GetGatedActions()
     {
-        get
-        {
-            ComponentResourceManager resources = new ComponentResourceManager(typeof(BoxPlugin));
-            return (Image) resources.GetObject("Box");
-        }
+        yield return new RecipeGatedAction(RecipeGateType.NetworkAccess, "Box (box.com)");
     }
 
-    public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
-    {
-        ExportInformation exportInformation = new ExportInformation(Designation, Description);
-        string uploadUrl = _plugin.Upload(captureDetails, surface);
-        if (uploadUrl != null)
-        {
-            exportInformation.ExportMade = true;
-            exportInformation.Uri = uploadUrl;
-        }
+    public override DestinationDescriptor Descriptor => new DestinationDescriptor(Language.GetString("box", LangKey.upload_menu_item), iconKey: Icons.KeyFor("Box"));
 
-        ProcessExport(exportInformation, surface);
-        return exportInformation;
+    public override async Task<ExportResult> ExportAsync(ExportRequest request, CancellationToken cancellationToken)
+    {
+        string uploadUrl = await _plugin.UploadAsync(request.Source, request.Metadata, request.Ui, cancellationToken).ConfigureAwait(false);
+        return uploadUrl == null ? ExportResult.Declined : ExportResult.Succeeded(uri: new Uri(uploadUrl));
     }
 }

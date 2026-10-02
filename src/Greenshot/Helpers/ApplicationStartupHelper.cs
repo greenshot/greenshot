@@ -27,6 +27,8 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Configuration;
 using log4net;
+using Greenshot.Base.Threading;
+using System.Threading;
 
 namespace Greenshot.Helpers
 {
@@ -66,19 +68,22 @@ namespace Greenshot.Helpers
         /// modified at runtime to ensure the application state remains consistent.</remarks>
         public static void ReloadConfig()
         {
+            // Hotkeys and the UI belong to the UI thread: runs inline there, otherwise posted to it
+            UiDispatcher.Current.RunOnUiAsync(ReloadConfigOnUi, CancellationToken.None).FireAndLog("Reload the configuration", LOG);
+        }
+
+        private static void ReloadConfigOnUi()
+        {
             try
             {
-                Dispatcher.CurrentDispatcher.Invoke(() =>
-                {
-                    // Make sure the current hotkeys are disabled
-                    HotkeyManager.UnregisterHotkeys();
-                    IniConfigRegistry.Get().Reload();
-                    var mainForm = SimpleServiceProvider.Current.GetInstance<IGreenshotMainForm>();
-                    // Even update language when needed
-                    mainForm.UpdateUi();
-                    // Update the hotkey
-                    HotkeyHelper.RegisterHotkeys();
-                });
+                // Make sure the current hotkeys are disabled
+                HotkeyManager.UnregisterHotkeys();
+                IniConfigRegistry.Get().Reload();
+                var mainForm = SimpleServiceProvider.Current.GetInstance<IGreenshotMainForm>();
+                // Even update language when needed
+                mainForm.UpdateUi();
+                // Update the hotkey
+                HotkeyHelper.RegisterHotkeys();
             }
             catch (Exception ex)
             {
@@ -97,10 +102,7 @@ namespace Greenshot.Helpers
             LOG.InfoFormat("Open file requested: {0}", filePath);
             if (File.Exists(filePath))
             {
-                Dispatcher.CurrentDispatcher.BeginInvoke(
-                    ()=> {
-                        CaptureHelper.CaptureFile(filePath);
-                    });
+                UiDispatcher.Current.InvokeAsync(() => CaptureHelper.CaptureFile(filePath)).FireAndLog("Open " + filePath, LOG);
             }
             else
             {

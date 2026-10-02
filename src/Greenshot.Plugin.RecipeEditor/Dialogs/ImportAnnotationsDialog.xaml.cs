@@ -212,7 +212,7 @@ namespace Greenshot.Plugin.RecipeEditor.Dialogs
             var selectedItems = _items.Where(i => i.IsSelected).ToList();
             if (selectedItems.Count == 0)
             {
-                MessageBox.Show(this, "Please select at least one element to import.", "Import Annotations", MessageBoxButton.OK, MessageBoxImage.Information);
+                ThemedMessageBox.Show(this, "Please select at least one element to import.", "Import Annotations", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
 
@@ -222,7 +222,7 @@ namespace Greenshot.Plugin.RecipeEditor.Dialogs
             {
                 if (string.IsNullOrWhiteSpace(targetDir))
                 {
-                    MessageBox.Show(this, "Please specify a destination folder for elements to be saved on disk.", "Invalid Directory", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    ThemedMessageBox.Show(this, "Please specify a destination folder for elements to be saved on disk.", "Invalid Directory", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
                 try
@@ -234,7 +234,7 @@ namespace Greenshot.Plugin.RecipeEditor.Dialogs
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(this, $"Could not create or access directory '{targetDir}':\n{ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    ThemedMessageBox.Show(this, $"Could not create or access directory '{targetDir}':\n{ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
             }

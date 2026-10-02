@@ -24,9 +24,8 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using Greenshot.Base.Core;
-using Greenshot.Base.Core.Enums;
-using Greenshot.Base.Core.FileFormatHandlers;
 using Dapplo.Ini;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using log4net;
 
@@ -104,15 +103,34 @@ namespace Greenshot.Base.Controls
         private void ApplyFilterOptions()
         {
             PrepareFilterOptions();
+            if (_filterOptions.Length == 0)
+            {
+                SaveFileDialog.Filter = "All files|*.*";
+                SaveFileDialog.FilterIndex = 1;
+                return;
+            }
+
             string fdf = string.Empty;
             int preselect = 0;
-            var outputFileFormatAsString = Enum.GetName(typeof(OutputFormat), conf.OutputFileFormat);
+            int pngFilterIndex = -1;
             for (int i = 0; i < _filterOptions.Length; i++)
             {
                 FilterOption fo = _filterOptions[i];
-                fdf += fo.Label + "|*." + fo.Extension + "|";
-                if (outputFileFormatAsString == fo.Extension)
+                fdf += fo.Label + "|" + string.Join(";", fo.Extensions.Select(extension => "*." + extension)) + "|";
+                if (WellKnownFileFormats.IsEqualFormat(WellKnownFileFormats.Png, fo.FormatId))
+                {
+                    pngFilterIndex = i;
+                }
+
+                if (string.Equals(conf.OutputFileFormat, fo.FormatId, StringComparison.OrdinalIgnoreCase))
+                {
                     preselect = i;
+                }
+            }
+
+            if (!string.Equals(conf.OutputFileFormat, _filterOptions[preselect].FormatId, StringComparison.OrdinalIgnoreCase) && pngFilterIndex >= 0)
+            {
+                preselect = pngFilterIndex;
             }
 
             fdf = fdf.Substring(0, fdf.Length - 1);
@@ -122,19 +140,20 @@ namespace Greenshot.Base.Controls
 
         private void PrepareFilterOptions()
         {
-            var fileFormatHandlers = SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>();
-            var supportedExtensions = fileFormatHandlers.ExtensionsFor(FileFormatHandlerActions.SaveToFile).Select(s => s.Substring(1)).ToList();
-
-            _filterOptions = new FilterOption[supportedExtensions.Count];
-            for (int i = 0; i < _filterOptions.Length; i++)
+            var registry = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>(true);
+            var formats = registry?.GetSaveableFileFormats().ToArray()
+                ?? Array.Empty<FileFormatDefinition>();
+            _filterOptions = new FilterOption[formats.Length];
+            for (int i = 0; i < formats.Length; i++)
             {
-                string ifo = supportedExtensions[i];
-                FilterOption fo = new FilterOption
+                var format = formats[i];
+                _filterOptions[i] = new FilterOption
                 {
-                    Label = ifo.ToUpper(),
-                    Extension = ifo.ToLower()
+                    FormatId = format.Id,
+                    Extensions = format.SaveableExtensions.ToArray(),
+                    PreferredExtension = format.PreferredExtension,
+                    Label = format.GetDisplayName()
                 };
-                _filterOptions.SetValue(fo, i);
             }
         }
 
@@ -166,10 +185,11 @@ namespace Greenshot.Base.Controls
             get
             {
                 string fn = SaveFileDialog.FileName;
+                if (_filterOptions.Length == 0) return fn;
                 // if the filename contains a valid extension, which is the same like the selected filter item's extension, the filename is okay
-                if (fn.EndsWith(Extension, StringComparison.CurrentCultureIgnoreCase)) return fn;
+                if (_filterOptions[SaveFileDialog.FilterIndex - 1].Extensions.Any(extension => fn.EndsWith("." + extension, StringComparison.OrdinalIgnoreCase))) return fn;
                 // otherwise we just add the selected filter item's extension
-                return fn + "." + Extension;
+                return fn + "." + _filterOptions[SaveFileDialog.FilterIndex - 1].PreferredExtension;
             }
             set
             {
@@ -183,12 +203,13 @@ namespace Greenshot.Base.Controls
         /// </summary>
         public string Extension
         {
-            get { return _filterOptions[SaveFileDialog.FilterIndex - 1].Extension; }
+            get { return _filterOptions.Length == 0 ? null : _filterOptions[SaveFileDialog.FilterIndex - 1].PreferredExtension; }
             set
             {
+                string normalized = value?.Trim().TrimStart('.');
                 for (int i = 0; i < _filterOptions.Length; i++)
                 {
-                    if (value.Equals(_filterOptions[i].Extension, StringComparison.CurrentCultureIgnoreCase))
+                    if (_filterOptions[i].Extensions.Any(extension => string.Equals(normalized, extension, StringComparison.OrdinalIgnoreCase)))
                     {
                         SaveFileDialog.FilterIndex = i + 1;
                     }
@@ -248,7 +269,9 @@ namespace Greenshot.Base.Controls
         private class FilterOption
         {
             public string Label;
-            public string Extension;
+            public string FormatId;
+            public string PreferredExtension;
+            public string[] Extensions;
         }
 
         private void CleanUp()

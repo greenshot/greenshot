@@ -2,7 +2,8 @@
 Name: "plugins\imgur"; Description: {cm:imgur}; Types: full custom; Flags: disablenouninstallwarning
 
 [Files]
-Source: {#PluginDir}\Greenshot.Plugin.Imgur\Greenshot.Plugin.Imgur.dll; DestDir: {app}\Plugins\Imgur; Components: plugins\imgur; Flags: {#DefaultInstallFlags};
+; The plugin and the libraries only it uses; the build removed its copies of the files Greenshot itself installs
+Source: {#PluginDir}\Greenshot.Plugin.Imgur\*.dll; DestDir: {app}\Plugins\Greenshot.Plugin.Imgur; Components: plugins\imgur; Flags: {#DefaultInstallFlags};
 Source: {#SolutionDir}\Greenshot.Plugin.Imgur\Languages\language_imgur*.xml; DestDir: {app}\Languages\Plugins\Imgur; Components: plugins\imgur; Flags: {#DefaultInstallFlags};
 
 [CustomMessages]

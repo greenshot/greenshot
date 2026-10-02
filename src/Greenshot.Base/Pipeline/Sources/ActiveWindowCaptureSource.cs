@@ -30,6 +30,7 @@ using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Recipes;
 using log4net;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Base.Pipeline.Sources
 {
@@ -51,7 +52,7 @@ namespace Greenshot.Base.Pipeline.Sources
             _config = config;
         }
 
-        public Task<ICapturePayload> AcquireAsync(CaptureFlowContext context, CancellationToken cancellationToken = default)
+        public async Task<ICapturePayload> AcquireAsync(CaptureFlowContext context, CancellationToken cancellationToken = default)
         {
             WindowDetails window = null;
             if (context.Properties.TryGetValue("TargetWindow", out var twObj))
@@ -61,19 +62,15 @@ namespace Greenshot.Base.Pipeline.Sources
 
             // Check config and context properties for targeted window specifications
             string title = _config?.GetParameter<string>("WindowTitle")
-                ?? _config?.GetParameter<string>("windowTitle")
                 ?? (context.Properties.TryGetValue("WindowTitle", out var tObj) ? tObj as string : null);
 
             string titlePattern = _config?.GetParameter<string>("WindowTitlePattern")
-                ?? _config?.GetParameter<string>("windowTitlePattern")
                 ?? (context.Properties.TryGetValue("WindowTitlePattern", out var tpObj) ? tpObj as string : null);
 
             string processName = _config?.GetParameter<string>("ProcessName")
-                ?? _config?.GetParameter<string>("processName")
                 ?? (context.Properties.TryGetValue("ProcessName", out var pnObj) ? pnObj as string : null);
 
             bool matchCase = _config?.GetParameter("MatchCase", false)
-                ?? _config?.GetParameter("matchCase", false)
                 ?? (context.Properties.TryGetValue("MatchCase", out var mcObj) && mcObj is bool mc && mc);
 
             bool isTargeted = !string.IsNullOrEmpty(title) || !string.IsNullOrEmpty(titlePattern) || !string.IsNullOrEmpty(processName);
@@ -94,7 +91,16 @@ namespace Greenshot.Base.Pipeline.Sources
             bool presupplied = window != null;
             if (!presupplied)
             {
-                window = WindowDetails.GetActiveWindow();
+                // The window which was active when the capture was triggered (the flow runs later, on the thread pool).
+                // Started from a Greenshot window (tray menu, editor) there is no such window: use the window which is active now.
+                var triggerContext = context.TriggerContext;
+                if (triggerContext != null && triggerContext.HasExternalForegroundWindow)
+                {
+                    var triggeredWindow = new WindowDetails(triggerContext.ForegroundWindow);
+                    window = triggeredWindow.Visible ? triggeredWindow : null;
+                }
+
+                window ??= WindowDetails.GetActiveWindow();
             }
 
             ICapture capture = new Greenshot.Base.Core.Capture();
@@ -104,24 +110,29 @@ namespace Greenshot.Base.Pipeline.Sources
             {
                 if (window.Iconic)
                 {
-                    window.Restore();
-                    Thread.Sleep(100);
+                    await window.RestoreAsync(cancellationToken).ConfigureAwait(false);
+                    await Task.Delay(100, cancellationToken).ConfigureAwait(false);
                 }
 
                 if (isTargeted)
                 {
                     window.ToForeground();
-                    Thread.Sleep(100);
+                    await Task.Delay(100, cancellationToken).ConfigureAwait(false);
                 }
 
                 window = WindowCaptureHelper.SelectCaptureWindow(window);
                 if (window != null)
                 {
-                    CoreConfig.LastCapturedRegion = window.WindowRectangle;
+                    // Configuration is written on the UI thread (single writer, its change events have UI subscribers)
+                    var capturedRegion = window.WindowRectangle;
+                    context.Ui.InvokeAsync(() => CoreConfig.LastCapturedRegion = capturedRegion, CancellationToken.None).FireAndLog("Store the last captured region", Log);
+                    // Context (caller) -> node parameter -> settings
                     var windowCaptureMode = context.Properties.TryGetValue("WindowCaptureMode", out var wcmObj) && wcmObj is WindowCaptureMode wcm
                         ? wcm
-                        : CoreConfig.WindowCaptureMode;
-                    capture = WindowCaptureHelper.CaptureWindow(window, capture, windowCaptureMode);
+                        : Enum.TryParse(_config?.GetParameter<object>("WindowCaptureMode")?.ToString(), true, out WindowCaptureMode configured)
+                            ? configured
+                            : CoreConfig.WindowCaptureMode;
+                    capture = await WindowCaptureHelper.CaptureWindowAsync(window, capture, windowCaptureMode, context.Ui, cancellationToken).ConfigureAwait(false);
                     if (capture != null)
                     {
                         if (capture.Cursor != null)
@@ -137,13 +148,12 @@ namespace Greenshot.Base.Pipeline.Sources
             if (!captured)
             {
                 Log.Warn("No active or targeted window to capture or capture failed, falling back to screen capture.");
-                capture = WindowCapture.CaptureScreen(capture);
+                capture = await WindowCapture.CaptureScreenAsync(capture, cancellationToken).ConfigureAwait(false);
                 capture.CaptureDetails.AddMetaData("source", "Screen");
                 capture.CaptureDetails.Title = "Screen";
             }
 
-            var payload = new CapturePayload(capture);
-            return Task.FromResult<ICapturePayload>(payload);
+            return new CapturePayload(capture);
         }
 
         private static WindowDetails FindMatchingWindow(string title, string titlePattern, string processName, bool matchCase)

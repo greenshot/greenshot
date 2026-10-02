@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -8,16 +8,21 @@ using Dapplo.Ini;
 using Greenshot.Base;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Forms;
 using Greenshot.Base.Interfaces.Ocr;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Pipeline.Contracts;
+using Contracts = Greenshot.Base.Pipeline.Contracts;
+
 using Greenshot.Base.Recipes;
 using Greenshot.Destinations;
 using Greenshot.Editor.Destinations;
 using Greenshot.Helpers;
 using log4net;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Pipeline.Steps
 {
@@ -26,6 +31,47 @@ namespace Greenshot.Pipeline.Steps
     /// Supports individual destination steps (File, Clipboard, Editor, Printer, Email, Custom)
     /// as well as custom storage directories, filename patterns, and clipboard format selections.
     /// </summary>
+    [StepInfo(WellKnownStepTypes.Destinations, "Export Destinations", "Exports the capture to one or more destinations (file, clipboard, editor, printer, email, plugins).", "Export")]
+    [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Required, ExtractedText = PayloadRequirement.Optional)]
+    [StepParameter("DestinationDesignations", ContractDataType.Object, Description = "List of destination designations (default: settings)")]
+    [StepParameter("SaveDirectory", ContractDataType.DirectoryPath, Description = "Directory to save to")]
+    [StepParameter("FilenamePattern", ContractDataType.String, Description = "File name pattern (default: settings)")]
+    [StepParameter("Format", ContractDataType.Enum, Description = "Image format (default: settings)", AllowedValuesProvider = typeof(SaveableFileFormatIds))]
+    [StepParameter("JpegQuality", ContractDataType.Integer, Description = "JPEG quality (1-100)")]
+    [StepParameter("ReduceColors", ContractDataType.Boolean, Description = "Reduce the image to 256 colors")]
+    [StepParameter("PromptQuality", ContractDataType.Boolean, Description = "Ask for the JPEG quality")]
+    [StepParameter("AllowOverwrite", ContractDataType.Boolean, Description = "Overwrite an existing file")]
+    [StepParameter("CopyPathToClipboard", ContractDataType.Boolean, Description = "Copy the saved file's path to the clipboard")]
+    [StepParameter("TargetEditor", ContractDataType.Enum, Description = "Editor to use (Editor)", AllowedValues = new[] { "NewEditor", "AvailableEditor", "CurrentEditor" })]
+    [StepParameter("MatchSizeToCapture", ContractDataType.Boolean, Description = "Size the editor to the capture (Editor)")]
+    [StepParameter("PrinterName", ContractDataType.String, Description = "Printer to use (Printer)")]
+    [StepParameter("ShowPrintDialog", ContractDataType.Boolean, Description = "Show the print options (Printer)")]
+    [StepParameter("AllowRotate", ContractDataType.Boolean, Description = "Rotate to fit the page (Printer)")]
+    [StepParameter("AllowEnlarge", ContractDataType.Boolean, Description = "Enlarge to fit the page (Printer)")]
+    [StepParameter("AllowShrink", ContractDataType.Boolean, Description = "Shrink to fit the page (Printer)")]
+    [StepParameter("Center", ContractDataType.Boolean, Description = "Center on the page (Printer)")]
+    [StepParameter("ColorMode", ContractDataType.Enum, Description = "Print colors (Printer)", AllowedValues = new[] { "Color", "Grayscale", "Monochrome" })]
+    [StepParameter("PrintFooter", ContractDataType.Boolean, Description = "Print a footer (Printer)")]
+    [StepParameter("FooterPattern", ContractDataType.String, Description = "Footer text pattern (Printer)")]
+    [StepParameter("ClipboardMode", ContractDataType.Enum, DefaultValue = "ImageOnly", Description = "What to copy (Clipboard); TextOnly copies the extracted or OCR text", AllowedValues = new[] { "ImageOnly", "TextOnly", "ImageAndText" })]
+    [StepParameter("ClipboardCustomText", ContractDataType.String, Description = "Text to copy instead of the OCR text; ${ocr_text} is the OCR text (Clipboard)")]
+    [StepParameter("ClipboardFormatPNG", ContractDataType.Boolean, DefaultValue = true, Description = "Copy as PNG (Clipboard)")]
+    [StepParameter("ClipboardFormatDIB", ContractDataType.Boolean, DefaultValue = true, Description = "Copy as DIB (Clipboard)")]
+    [StepParameter("ClipboardFormatDIBV5", ContractDataType.Boolean, Description = "Copy as DIBV5 (Clipboard)")]
+    [StepParameter("ClipboardFormatBitmap", ContractDataType.Boolean, Description = "Copy as bitmap (Clipboard)")]
+    [StepParameter("ClipboardFormatHTML", ContractDataType.Boolean, Description = "Copy as HTML (Clipboard)")]
+    [StepParameter("ClipboardFormatHTMLDataUrl", ContractDataType.Boolean, Description = "Copy as HTML with a data URL (Clipboard)")]
+    [StepParameter("ClipboardFormatText", ContractDataType.Boolean, Description = "Also copy the text (Clipboard)")]
+    [StepParameter("CustomDestinationId", ContractDataType.String, Description = "Destination designation (CustomDestination)")]
+    [StepInputVariable("OverrideDestinations", ContractDataType.Object, Description = "Destinations to use instead of the configured ones (set by the caller)")]
+    [StepInputVariable("EditorForm", ContractDataType.Object, Description = "The editor for TargetEditor CurrentEditor (set by the editor trigger)")]
+    [StepOutputVariable("Destination.Filename", ContractDataType.FilePath, "Path of the file to save (with SaveDirectory)", Conditional = true, WhenParameter = "SaveDirectory")]
+    [StepOutputVariable("Destination.SaveDirectory", ContractDataType.DirectoryPath, "The expanded SaveDirectory", Conditional = true, WhenParameter = "SaveDirectory")]
+    [StepOutputVariable("Destination.SurfaceOutputSettings", ContractDataType.Object, "Output settings for the destinations (with JpegQuality or ReduceColors)", Conditional = true)]
+    [StepOutputVariable("Destination.PromptQuality", ContractDataType.Boolean, "The PromptQuality parameter, for the destinations", Conditional = true, WhenParameter = "PromptQuality")]
+    [StepOutputVariable("Destination.AllowOverwrite", ContractDataType.Boolean, "The AllowOverwrite parameter, for the destinations", Conditional = true, WhenParameter = "AllowOverwrite")]
+    [StepOutputVariable("Destination.CopyPathToClipboard", ContractDataType.Boolean, "The CopyPathToClipboard parameter, for the destinations", Conditional = true, WhenParameter = "CopyPathToClipboard")]
+    [StepOutputVariable("DestinationExportErrors", ContractDataType.String, "Errors of destinations that failed", Conditional = true)]
     public class DestinationExportStep : ICaptureStep, IRequiresRecipeAuthorization
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(DestinationExportStep));
@@ -45,6 +91,12 @@ namespace Greenshot.Pipeline.Steps
 
         public IEnumerable<RecipeGatedAction> GetGatedActions()
         {
+            string saveDirectory = Config.GetParameter<string>("SaveDirectory");
+            if (!string.IsNullOrWhiteSpace(saveDirectory))
+            {
+                yield return new RecipeGatedAction(RecipeGateType.FileSystemAccess, $"Writes files to {saveDirectory}");
+            }
+
             var designations = ResolveDestinationDesignations(null);
             if (designations != null)
             {
@@ -151,11 +203,11 @@ namespace Greenshot.Pipeline.Steps
                     }
                 }
 
-                if (dest != null && dest.IsActive)
+                if (dest != null && dest.IsAvailableFor(context.Payload?.RawCapture?.CaptureDetails))
                 {
                     destinations.Add(dest);
                 }
-                else if (dest != null && !dest.IsActive)
+                else if (dest != null)
                 {
                     Log.WarnFormat("Destination '{0}' was resolved but is marked inactive in configuration.", dest.Designation);
                 }
@@ -193,19 +245,17 @@ namespace Greenshot.Pipeline.Steps
             bool? reduceColors = Config.GetParameter<bool?>("ReduceColors");
             if (jpegQuality.HasValue || reduceColors.HasValue)
             {
-                OutputFormat fmt = CoreConfig.OutputFileFormat;
+                string formatId = CoreConfig.OutputFileFormat;
                 string fmtStr = Config.GetParameter<string>("Format");
-                if (!string.IsNullOrWhiteSpace(fmtStr) && Enum.TryParse<OutputFormat>(fmtStr, true, out var parsedFmt))
-                {
-                    fmt = parsedFmt;
-                }
-                var sos = new SurfaceOutputSettings(fmt, jpegQuality ?? CoreConfig.OutputFileJpegQuality, reduceColors ?? CoreConfig.OutputFileReduceColors);
+                formatId = ResolveFormatId(fmtStr, formatId);
+                var sos = new SurfaceOutputSettings(formatId, jpegQuality ?? CoreConfig.OutputFileJpegQuality, reduceColors ?? CoreConfig.OutputFileReduceColors);
                 context.Properties["Destination.SurfaceOutputSettings"] = sos;
             }
 
             if (!string.IsNullOrWhiteSpace(customDir))
             {
-                string expandedDir = FilenameHelper.FillVariables(customDir, false);
+                var captureDetails = context.Payload?.RawCapture?.CaptureDetails;
+                string expandedDir = FilenameHelper.FillPattern(customDir, captureDetails, false);
                 if (!Directory.Exists(expandedDir))
                 {
                     try
@@ -222,14 +272,14 @@ namespace Greenshot.Pipeline.Steps
                     ?? CoreConfig.OutputFileFilenamePattern
                     ?? "greenshot ${capturetime}";
 
-                OutputFormat outputFormat = CoreConfig.OutputFileFormat;
+                string outputFormat = CoreConfig.OutputFileFormat;
                 string formatStr = Config.GetParameter<string>("Format");
-                if (!string.IsNullOrWhiteSpace(formatStr) && Enum.TryParse<OutputFormat>(formatStr, true, out var parsedFmt))
-                {
-                    outputFormat = parsedFmt;
-                }
+                outputFormat = ResolveFormatId(formatStr, outputFormat);
 
-                var captureDetails = context.Payload?.RawCapture?.CaptureDetails;
+                if (captureDetails == null)
+                {
+                    captureDetails = context.Payload?.RawCapture?.CaptureDetails;
+                }
                 if (captureDetails != null)
                 {
                     string filename = FilenameHelper.GetFilenameFromPattern(pattern, outputFormat, captureDetails);
@@ -242,11 +292,33 @@ namespace Greenshot.Pipeline.Steps
             }
         }
 
+        private static string ResolveFormatId(string requestedFormat, string fallbackFormat)
+        {
+            var registry = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>(true);
+            if (registry == null)
+            {
+                return string.IsNullOrWhiteSpace(requestedFormat) ? fallbackFormat : requestedFormat;
+            }
+
+            if (!string.IsNullOrWhiteSpace(requestedFormat) && registry.TryGet(requestedFormat, out _))
+            {
+                return requestedFormat;
+            }
+
+            if (!string.IsNullOrWhiteSpace(requestedFormat))
+            {
+                string resolvedFallback = registry.TryGet(fallbackFormat, out _) ? fallbackFormat : WellKnownFileFormats.Png;
+                Log.WarnFormat("Unknown output file format '{0}' in recipe; using '{1}'.", requestedFormat, resolvedFallback);
+                return resolvedFallback;
+            }
+
+            return registry.TryGet(fallbackFormat, out _) ? fallbackFormat : WellKnownFileFormats.Png;
+        }
+
         private IEnumerable<string> ResolveDestinationDesignations(CaptureFlowContext context)
         {
             // Priority 1: StepType direct mapping
-            if (string.Equals(Config.StepType, WellKnownStepTypes.SaveFile, StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(Config.StepType, "SaveToFile", StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(Config.StepType, WellKnownStepTypes.SaveFile, StringComparison.OrdinalIgnoreCase))
             {
                 return new[] { nameof(WellKnownDestinations.FileNoDialog) };
             }
@@ -268,7 +340,7 @@ namespace Greenshot.Pipeline.Steps
             }
             if (string.Equals(Config.StepType, WellKnownStepTypes.CustomDestination, StringComparison.OrdinalIgnoreCase))
             {
-                string customDest = Config.GetParameter<string>("Destination") ?? Config.GetParameter<string>("CustomDestinationId");
+                string customDest = Config.GetParameter<string>("CustomDestinationId");
                 if (!string.IsNullOrWhiteSpace(customDest))
                 {
                     return new[] { customDest.Trim() };
@@ -282,21 +354,11 @@ namespace Greenshot.Pipeline.Steps
                 if (ctxVal is string ctxStr && !string.IsNullOrWhiteSpace(ctxStr)) return new[] { ctxStr };
             }
 
-            // Priority 3: Explicit step parameter configuration ("DestinationDesignations" or "Destinations")
-            var stepDests = Config.GetParameter<List<string>>("DestinationDesignations")
-                ?? Config.GetParameter<List<string>>("Destinations");
+            // Priority 3: Explicit step parameter configuration
+            var stepDests = Config.GetParameter<List<string>>("DestinationDesignations");
             if (stepDests != null && stepDests.Count > 0)
             {
                 return stepDests;
-            }
-
-            string singleDest = Config.GetParameter<string>("DestinationDesignations")
-                ?? Config.GetParameter<string>("Destinations");
-            if (!string.IsNullOrWhiteSpace(singleDest))
-            {
-                return singleDest.Contains(",")
-                    ? singleDest.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToList()
-                    : new List<string> { singleDest.Trim() };
             }
 
             // Priority 4: Dynamic user configuration evaluation
@@ -309,12 +371,12 @@ namespace Greenshot.Pipeline.Steps
             bool formatText = Config.GetParameter<bool?>("ClipboardFormatText") ?? false;
             bool isTextOnly = string.Equals(mode, "TextOnly", StringComparison.OrdinalIgnoreCase);
             bool isImageAndText = string.Equals(mode, "ImageAndText", StringComparison.OrdinalIgnoreCase) || formatText;
-            var uiContext = SimpleServiceProvider.Current.GetInstance<SynchronizationContext>(isOptional: true) ?? SynchronizationContext.Current;
+            var clipboard = ClipboardService.For(context.Ui);
 
             string textToCopy = null;
             if (isTextOnly || isImageAndText)
             {
-                textToCopy = await ExtractOrGetOcrTextAsync(context).ConfigureAwait(false);
+                textToCopy = await ExtractOrGetOcrTextAsync(context, cancellationToken).ConfigureAwait(false);
                 string customPattern = Config.GetParameter<string>("ClipboardCustomText");
                 if (!string.IsNullOrWhiteSpace(customPattern))
                 {
@@ -329,26 +391,12 @@ namespace Greenshot.Pipeline.Steps
             {
                 if (!string.IsNullOrWhiteSpace(textToCopy))
                 {
-                    if (uiContext != null && SynchronizationContext.Current != uiContext)
-                    {
-                        uiContext.Send(_ => ClipboardHelper.SetClipboardData(textToCopy), null);
-                    }
-                    else
-                    {
-                        ClipboardHelper.SetClipboardData(textToCopy);
-                    }
+                    await clipboard.SetTextAsync(textToCopy, cancellationToken).ConfigureAwait(false);
                     context.LogStep($"Copied {textToCopy.Length} character(s) of OCR text to clipboard.");
                 }
                 else
                 {
-                    if (uiContext != null && SynchronizationContext.Current != uiContext)
-                    {
-                        uiContext.Send(_ => ClipboardHelper.SetClipboardData(""), null);
-                    }
-                    else
-                    {
-                        ClipboardHelper.SetClipboardData("");
-                    }
+                    await clipboard.SetTextAsync("", cancellationToken).ConfigureAwait(false);
                     context.LogStep("Warning: No OCR text detected to place on clipboard.");
                 }
                 return;
@@ -363,23 +411,20 @@ namespace Greenshot.Pipeline.Steps
             if (Config.GetParameter<bool?>("ClipboardFormatHTML") ?? true) formats.Add(ClipboardFormat.HTML);
             if (Config.GetParameter<bool?>("ClipboardFormatHTMLDataUrl") ?? false) formats.Add(ClipboardFormat.HTMLDATAURL);
 
-            var surface = context.Payload?.EnsureSurface();
-            if (surface != null)
+            if (context.Payload?.EnsureSurface() != null)
             {
-                if (uiContext != null && SynchronizationContext.Current != uiContext)
+                // The export source renders the surface on the UI thread once, the lease is our own copy
+                var source = await context.Payload.GetExportSourceAsync(context.Ui, cancellationToken).ConfigureAwait(false);
+                using (var lease = await source.RenderAsync(new SurfaceOutputSettings(WellKnownFileFormats.Png, 100, false), cancellationToken).ConfigureAwait(false))
                 {
-                    uiContext.Send(_ => ClipboardHelper.SetClipboardData(surface, formats, text: isImageAndText ? textToCopy : null), null);
+                    await clipboard.SetImageAsync(lease.Image, formats, isImageAndText ? textToCopy : null, cancellationToken).ConfigureAwait(false);
                 }
-                else
-                {
-                    ClipboardHelper.SetClipboardData(surface, formats, text: isImageAndText ? textToCopy : null);
-                }
-                
+
                 context.LogStep($"Copied capture to clipboard with {formats.Count} format(s)" + (string.IsNullOrEmpty(textToCopy) ? "." : " (including OCR text)."));
             }
         }
 
-        private async Task<string> ExtractOrGetOcrTextAsync(CaptureFlowContext context)
+        private async Task<string> ExtractOrGetOcrTextAsync(CaptureFlowContext context, CancellationToken cancellationToken)
         {
             if (!string.IsNullOrWhiteSpace(context.Payload?.ExtractedText))
             {
@@ -391,7 +436,11 @@ namespace Greenshot.Pipeline.Steps
             {
                 try
                 {
-                    captureDetails.ProcessingTask.Wait();
+                    await captureDetails.ProcessingTask.WaitAsync(cancellationToken).ConfigureAwait(false);
+                }
+                catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+                {
+                    throw;
                 }
                 catch (Exception ex)
                 {
@@ -413,7 +462,7 @@ namespace Greenshot.Pipeline.Steps
                 }
             }
 
-            var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>();
+            var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>(isOptional: true);
             if (ocrProvider != null)
             {
                 var surf = context.Payload?.EnsureSurface();

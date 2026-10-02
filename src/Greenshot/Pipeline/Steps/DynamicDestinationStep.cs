@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -30,11 +30,15 @@ using Greenshot.Base;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Pipeline.Contracts;
+using Contracts = Greenshot.Base.Pipeline.Contracts;
+
 using Greenshot.Base.Recipes;
 using Greenshot.Destinations;
 using Greenshot.Editor.Destinations;
 using Greenshot.UI;
 using log4net;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Pipeline.Steps
 {
@@ -43,6 +47,14 @@ namespace Greenshot.Pipeline.Steps
     /// allows quick forwarding to destinations, supports forwarding to other recipes, and acts
     /// as a rich error recovery UI when a prior export fails.
     /// </summary>
+    [StepInfo(WellKnownStepTypes.DynamicDestination, "Dynamic Destination Flyout", "Lets the user pick a destination, open the editor, or forward the capture to another recipe.", "Destination")]
+    [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Optional)]
+    [StepParameter("Title", ContractDataType.String, Description = "Title of the flyout")]
+    [StepParameter("Destinations", ContractDataType.Object, Description = "Destinations to offer (default: all)")]
+    [StepParameter("AllowRecipeForwarding", ContractDataType.Boolean, DefaultValue = true, Description = "Offer to forward the capture to another recipe")]
+    [StepParameter("ShowPreview", ContractDataType.Boolean, Description = "Show a preview of the capture")]
+    [StepParameter("TimeoutSeconds", ContractDataType.Integer, Description = "Close the flyout after this many seconds")]
+    [StepInputVariable("LastError", ContractDataType.String, Description = "Shown when the flyout is used to pick another destination after a failed export")]
     public class DynamicDestinationStep : ICaptureStep
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(DynamicDestinationStep));
@@ -73,11 +85,7 @@ namespace Greenshot.Pipeline.Steps
             bool disposePreview = false;
             if (showPreview)
             {
-                if (context.Payload?.SharedRenderedBitmap != null)
-                {
-                    previewImg = context.Payload.SharedRenderedBitmap;
-                }
-                else if (context.Payload?.RawCapture?.Image != null)
+                if (context.Payload?.RawCapture?.Image != null)
                 {
                     previewImg = context.Payload.RawCapture.Image;
                 }
@@ -93,7 +101,7 @@ namespace Greenshot.Pipeline.Steps
             }
 
             // Resolve destinations (excluding legacy WinForms destination picker)
-            var allDests = DestinationHelper.GetAllDestinations()?.Where(d => d.IsActive && !string.Equals(d.Designation, "Picker", StringComparison.OrdinalIgnoreCase)).ToList() ?? new List<IDestination>();
+            var allDests = DestinationHelper.GetAllDestinations()?.Where(d => d.IsAvailableFor(context.Payload?.RawCapture?.CaptureDetails) && !string.Equals(d.Designation, "Picker", StringComparison.OrdinalIgnoreCase)).ToList() ?? new List<IDestination>();
             var specificDestDesignations = Config.GetParameter<List<string>>("Destinations");
             List<IDestination> targetDests;
             if (specificDestDesignations != null && specificDestDesignations.Count > 0)
@@ -118,12 +126,11 @@ namespace Greenshot.Pipeline.Steps
                 }
             }
 
-            var tcs = new TaskCompletionSource<(IDestination Dest, CaptureRecipe Recipe, bool OpenEditor)>();
-            var uiContext = SimpleServiceProvider.Current.GetInstance<SynchronizationContext>(isOptional: true) ?? SynchronizationContext.Current;
-
-            void ShowDialogOnUi()
+            (IDestination Dest, CaptureRecipe Recipe, bool OpenEditor) choice;
+            try
             {
-                try
+                // The flyout is UI: shown on the UI thread, the flow waits without blocking
+                choice = await context.Ui.InvokeAsync(() =>
                 {
                     var window = new DynamicDestinationWindow(
                         title,
@@ -133,41 +140,31 @@ namespace Greenshot.Pipeline.Steps
                         lastError,
                         timeoutSeconds);
 
-                    window.ShowDialog();
-
-                    tcs.SetResult((window.SelectedDestination, window.SelectedRecipeToForward, window.OpenInEditorRequested));
-                }
-                catch (Exception ex)
-                {
-                    Log.Error("Error displaying DynamicDestinationWindow", ex);
-                    tcs.SetException(ex);
-                }
-                finally
-                {
-                    if (disposePreview)
+                    // A cancelled flow closes the flyout, the close is posted to the UI thread
+                    using (cancellationToken.Register(() => context.Ui.InvokeAsync(() =>
+                           {
+                               if (window.IsVisible)
+                               {
+                                   window.Close();
+                               }
+                           }, CancellationToken.None).FireAndLog("Close the destination flyout", Log)))
                     {
-                        previewImg?.Dispose();
+                        window.ShowDialog();
                     }
+
+                    cancellationToken.ThrowIfCancellationRequested();
+                    return (window.SelectedDestination, window.SelectedRecipeToForward, window.OpenInEditorRequested);
+                }, cancellationToken).ConfigureAwait(false);
+            }
+            finally
+            {
+                if (disposePreview)
+                {
+                    previewImg?.Dispose();
                 }
             }
 
-            if (Application.Current?.Dispatcher != null && !Application.Current.Dispatcher.CheckAccess())
-            {
-                Application.Current.Dispatcher.Invoke(ShowDialogOnUi);
-            }
-            else if (uiContext != null && SynchronizationContext.Current != uiContext)
-            {
-                uiContext.Send(_ => ShowDialogOnUi(), null);
-            }
-            else
-            {
-                ShowDialogOnUi();
-            }
-
-            var (selectedDest, selectedRecipe, openEditor) = await tcs.Task.ConfigureAwait(false);
-
-            var surface = context.Payload?.EnsureSurface();
-            var captureDetails = context.Payload?.RawCapture?.CaptureDetails;
+            var (selectedDest, selectedRecipe, openEditor) = choice;
 
             if (openEditor || (selectedDest != null && EditorDestination.DESIGNATION.Equals(selectedDest.Designation, StringComparison.OrdinalIgnoreCase)))
             {
@@ -179,17 +176,10 @@ namespace Greenshot.Pipeline.Steps
                     var dispatcher = new DestinationDispatcher();
                     await dispatcher.DispatchAsync(context, new[] { editorDest }, cancellationToken).ConfigureAwait(false);
                 }
-                else if (surface != null && captureDetails != null)
-                {
-                    DestinationDispatcher.InvokeOnSta(uiContext, () =>
-                    {
-                        DestinationHelper.ExportCapture(false, EditorDestination.DESIGNATION, surface, captureDetails);
-                    });
-                }
             }
             else if (selectedDest != null)
             {
-                context.LogStep($"DynamicDestination: User selected destination '{selectedDest.Description ?? selectedDest.Designation}'.");
+                context.LogStep($"DynamicDestination: User selected destination '{selectedDest.Descriptor?.DisplayName ?? selectedDest.Designation}'.");
                 var dispatcher = new DestinationDispatcher();
                 await dispatcher.DispatchAsync(context, new[] { selectedDest }, cancellationToken).ConfigureAwait(false);
             }
@@ -202,6 +192,8 @@ namespace Greenshot.Pipeline.Steps
                     await pipeline.ExecuteAsync(selectedRecipe, null, ctx =>
                     {
                         ctx.Payload = context.Payload;
+                        // The capture is handed over: the target recipe must not capture or select again
+                        ctx.IsPayloadPreSupplied = true;
                         foreach (var kvp in context.Properties)
                         {
                             ctx.Properties[kvp.Key] = kvp.Value;

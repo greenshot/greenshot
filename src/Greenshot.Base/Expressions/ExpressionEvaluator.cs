@@ -29,6 +29,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
@@ -56,8 +57,10 @@ namespace Greenshot.Base.Expressions
             }
         });
 
-        private static ExpressionEvaluator _instance;
-        public static ExpressionEvaluator Instance => _instance ??= new ExpressionEvaluator();
+        // Thread-safe: the first access can come from the UI thread and an IPC or pipeline thread at the same time,
+        // and a second instance would silently lose what was registered in the first one.
+        private static readonly Lazy<ExpressionEvaluator> LazyInstance = new Lazy<ExpressionEvaluator>(() => new ExpressionEvaluator(), LazyThreadSafetyMode.ExecutionAndPublication);
+        public static ExpressionEvaluator Instance => LazyInstance.Value;
 
         public object Evaluate(string expressionOrTemplate, CaptureFlowContext context, IDictionary<string, object> extraVariables = null)
         {
@@ -505,6 +508,14 @@ namespace Greenshot.Base.Expressions
             {
                 string key = token.Substring(7);
                 return ResolveConfigProperty(key);
+            }
+
+            // Recipe options: the values the user set in Settings > Recipes, e.g. option.border_width.
+            // Checked before the context, so a value set for one run (trigger, command line) can't replace them.
+            if (token.StartsWith("option.", StringComparison.OrdinalIgnoreCase))
+            {
+                string key = token.Substring(7);
+                return Recipes.RecipeOptionStore.TryGetValue(context?.Recipe, key, out var optionValue) ? optionValue : null;
             }
 
             // 4. Flow Context Properties & Custom Variables

@@ -51,6 +51,8 @@ namespace Greenshot.Base.Core
         private static readonly Dictionary<string, string> Resources = new();
         private static string _currentLanguage;
 
+        public static string OSLanguage { get; set; }
+
         public static event LanguageChangedHandler LanguageChanged;
 
         /// <summary>
@@ -160,6 +162,15 @@ namespace Greenshot.Base.Core
             {
                 CurrentLanguage = coreConfig.Language;
                 if (CurrentLanguage != null && CurrentLanguage != coreConfig.Language)
+                {
+                    coreConfig.Language = CurrentLanguage;
+                }
+            }
+
+            if (CurrentLanguage == null)
+            {
+                CurrentLanguage = OSLanguage ?? System.Threading.Thread.CurrentThread.CurrentUICulture.Name;
+                if (CurrentLanguage != null && coreConfig != null)
                 {
                     coreConfig.Language = CurrentLanguage;
                 }
@@ -319,18 +330,31 @@ namespace Greenshot.Base.Core
                 return returnIetf;
             }
             Log.WarnFormat("Unknown language {0}, trying best match!", returnIetf);
-            if (returnIetf.Length == 5)
-            {
-                returnIetf = returnIetf.Substring(0, 2);
-            }
 
+            // Handle installer legacy tags like "ptBR" or "zhCN"
+            string noHyphenInput = returnIetf.Replace("-", "").ToLowerInvariant();
             foreach (string availableIetf in LanguageFiles.Keys)
             {
-                if (!availableIetf.StartsWith(returnIetf)) continue;
+                if (availableIetf.Replace("-", "").ToLowerInvariant() == noHyphenInput)
+                {
+                    Log.InfoFormat("Found language {0}, exact match for {1}!", availableIetf, returnIetf);
+                    returnIetf = availableIetf;
+                    break;
+                }
+            }
 
-                Log.InfoFormat("Found language {0}, best match for {1}!", availableIetf, returnIetf);
-                returnIetf = availableIetf;
-                break;
+            // If an exact match wasn't found above, fallback to matching the first 2 letters
+            if (!LanguageFiles.ContainsKey(returnIetf) && returnIetf.Length >= 2)
+            {
+                string prefix = returnIetf.Substring(0, 2).ToLowerInvariant();
+                foreach (string availableIetf in LanguageFiles.Keys)
+                {
+                    if (!availableIetf.ToLowerInvariant().StartsWith(prefix)) continue;
+
+                    Log.InfoFormat("Found language {0}, best match for {1}!", availableIetf, returnIetf);
+                    returnIetf = availableIetf;
+                    break;
+                }
             }
 
             return returnIetf;
@@ -416,6 +440,40 @@ namespace Greenshot.Base.Core
         }
 
         /// <summary>
+        /// The cultures Windows knows, by name and IETF language tag
+        /// </summary>
+        private static readonly Lazy<Dictionary<string, CultureInfo>> KnownCultures = new(() =>
+        {
+            var cultures = new Dictionary<string, CultureInfo>(StringComparer.OrdinalIgnoreCase);
+            foreach (var culture in CultureInfo.GetCultures(CultureTypes.AllCultures))
+            {
+                if (!string.IsNullOrEmpty(culture.Name))
+                {
+                    cultures[culture.Name] = culture;
+                }
+                string ietfLanguageTag = culture.IetfLanguageTag;
+                if (!string.IsNullOrEmpty(ietfLanguageTag) && !cultures.ContainsKey(ietfLanguageTag))
+                {
+                    cultures[ietfLanguageTag] = culture;
+                }
+            }
+            return cultures;
+        });
+
+        /// <summary>
+        /// Get the CultureInfo for an IETF language tag without an exception for tags Windows doesn't know,
+        /// some language files use those (e.g. de-x-franconia, fr-QC).
+        /// </summary>
+        /// <param name="ietf">string with the IETF language tag</param>
+        /// <param name="cultureInfo">the CultureInfo or null</param>
+        /// <returns>true when the culture is known</returns>
+        public static bool TryGetCultureInfo(string ietf, out CultureInfo cultureInfo)
+        {
+            cultureInfo = null;
+            return !string.IsNullOrEmpty(ietf) && KnownCultures.Value.TryGetValue(ietf, out cultureInfo);
+        }
+
+        /// <summary>
         /// Scan the files in all directories
         /// </summary>
         private static void ScanFiles()
@@ -444,14 +502,9 @@ namespace Greenshot.Base.Core
 
                         LanguageFile languageFile = null;
                         bool loadDetails = false;
-                        try
+                        // Some language files use a tag Windows doesn't know (e.g. de-x-franconia), their details come from the file
+                        if (TryGetCultureInfo(ietf, out var cultureInfo))
                         {
-                            var cultureInfo = CultureInfo.GetCultureInfoByIetfLanguageTag(ietf);
-                            if (cultureInfo == null)
-                            {
-                                continue;
-                            }
-
                             languageFile = new LanguageFile
                             {
                                 Filepath = languageFilepath,
@@ -464,7 +517,7 @@ namespace Greenshot.Base.Core
                                 loadDetails = true;
                             }
                         }
-                        catch (Exception)
+                        else
                         {
                             loadDetails = true;
                         }

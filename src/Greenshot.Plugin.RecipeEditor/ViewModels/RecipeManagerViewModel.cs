@@ -13,6 +13,7 @@ using Greenshot.Base.Recipes;
 using Greenshot.Base.Triggers;
 using Greenshot.Base.Wpf;
 using Microsoft.Win32;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Plugin.RecipeEditor.ViewModels
 {
@@ -41,7 +42,9 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             ToggleActiveCommand = new RelayCommand(() => IsEnabled = !IsEnabled);
             EditCommand = new RelayCommand(() => _onSelectInEditor?.Invoke(Recipe));
             UnloadCommand = new RelayCommand(ExecuteUnload, () => CanUnload);
-            TestRunCommand = new RelayCommand(async () => await ExecuteTestRunAsync());
+            TestRunCommand = new RelayCommand(() => AsyncCommand.Run(ExecuteTestRunAsync, "Recipe test run"));
+            ReviewApprovalCommand = new RelayCommand(ExecuteReviewApproval, () => HasFilePath);
+            DetailsCommand = new RelayCommand(ExecuteShowDetails);
         }
 
         public string Id => Recipe.Id;
@@ -53,9 +56,20 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
         public bool IsBuiltIn => Recipe.IsBuiltIn;
         public bool IsOverridden => Recipe.IsOverridden;
-        public bool IsCustom => !Recipe.IsBuiltIn;
 
         public string RecipeTypeBadge => IsOverridden ? "OVERRIDDEN" : (IsBuiltIn ? "BUILT-IN" : "CUSTOM");
+
+        /// <summary>
+        /// The recipe file was written by an AI tool (and approved by the user)
+        /// </summary>
+        public bool IsAiCreated => !string.IsNullOrEmpty(Recipe.ProposedBy);
+
+        public string AiBadge => IsAiCreated ? $"🤖 BY {Recipe.ProposedBy}" : string.Empty;
+
+        /// <summary>
+        /// Triggers which are in the recipe but not switched on in its approval
+        /// </summary>
+        public bool HasUnapprovedTriggers => Recipe.Triggers?.Any(t => t != null && t.Enabled && !t.IsApproved) ?? false;
 
         public bool IsEnabled
         {
@@ -77,20 +91,6 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
         public int StepCount => Recipe.Nodes?.Count ?? 0;
 
-        public string SourceSummary
-        {
-            get
-            {
-                var sourceNode = Recipe.FindFirstNodeByType(WellKnownStepTypes.Source);
-                if (sourceNode != null)
-                {
-                    return sourceNode.GetParameter<string>("SourceType") ?? "Capture Source";
-                }
-                if (Recipe.HasVideoStep()) return "Video Recording";
-                return "Workflow";
-            }
-        }
-
         public string TriggersSummary
         {
             get
@@ -101,35 +101,75 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 }
 
                 var list = new List<string>();
-                foreach (var t in Recipe.Triggers)
+                foreach (var t in Recipe.Triggers.Where(t => t != null))
                 {
-                    if (string.Equals(t.TriggerType, TriggerConfig.TypeHotkey, StringComparison.OrdinalIgnoreCase))
+                    string label = DescribeTrigger(t);
+                    if (!t.Enabled)
                     {
-                        string hk = t.GetParameter<string>("Hotkey");
-                        list.Add(string.IsNullOrWhiteSpace(hk) ? "⌨ Hotkey" : $"⌨ {hk}");
+                        label += " (disabled)";
                     }
-                    else if (string.Equals(t.TriggerType, TriggerConfig.TypeContextMenu, StringComparison.OrdinalIgnoreCase))
+                    else if (!t.IsApproved)
                     {
-                        string txt = t.GetParameter<string>("MenuItemText") ?? Recipe.Name;
-                        list.Add($"📋 Systray (\"{txt}\")");
+                        label += " (off, not approved)";
                     }
-                    else if (string.Equals(t.TriggerType, TriggerConfig.TypeEditor, StringComparison.OrdinalIgnoreCase))
-                    {
-                        string txt = t.GetParameter<string>("MenuItemText") ?? Recipe.Name;
-                        list.Add($"🎨 Editor (\"{txt}\")");
-                    }
-                    else if (string.Equals(t.TriggerType, TriggerConfig.TypeClipboard, StringComparison.OrdinalIgnoreCase))
-                    {
-                        list.Add("📋 Clipboard Monitor");
-                    }
-                    else
-                    {
-                        list.Add(t.Name ?? t.TriggerType);
-                    }
+                    list.Add(label);
                 }
 
                 return string.Join("  •  ", list);
             }
+        }
+
+        private string DescribeTrigger(TriggerConfig t)
+        {
+            string type = t.TriggerType ?? string.Empty;
+            bool Is(string triggerType) => string.Equals(type, triggerType, StringComparison.OrdinalIgnoreCase);
+            if (Is(TriggerConfig.TypeHotkey))
+            {
+                string hk = t.GetParameter<string>("Hotkey");
+                return string.IsNullOrWhiteSpace(hk) ? "⌨ Hotkey" : $"⌨ {hk}";
+            }
+            if (Is(TriggerConfig.TypeContextMenu))
+            {
+                return $"📋 Systray (\"{t.GetParameter<string>("MenuItemText") ?? Recipe.Name}\")";
+            }
+            if (Is(TriggerConfig.TypeEditor))
+            {
+                return $"🎨 Editor (\"{t.GetParameter<string>("MenuItemText") ?? Recipe.Name}\")";
+            }
+            if (Is(TriggerConfig.TypeClipboard))
+            {
+                return "📋 Clipboard Monitor";
+            }
+            if (Is(TriggerConfig.TypeCommandline))
+            {
+                string label = $"⌨ greenshot.com run {t.GetParameter<string>("Command") ?? Recipe.Id}";
+                if (t.GetParameter("AllowBrowserInvocation", false))
+                {
+                    label += t.IsBrowserInvocationApproved ? " (+ web pages)" : " (web pages: not approved)";
+                }
+                return label;
+            }
+            if (Is(TriggerConfig.TypeAiTool))
+            {
+                return $"🤖 AI tool \"{t.GetParameter<string>("ToolName") ?? t.Name}\"";
+            }
+            if (Is(TriggerConfig.TypeOpenFile))
+            {
+                return "📂 Open file";
+            }
+            if (Is(TriggerConfig.TypeExtension))
+            {
+                return "🌐 Browser extension";
+            }
+            if (Is(TriggerConfig.TypeSchedule))
+            {
+                return "⏱ Schedule";
+            }
+            if (Is(TriggerConfig.TypeManual))
+            {
+                return "▶ Manual";
+            }
+            return t.Name ?? t.TriggerType;
         }
 
         public bool CanUnload => !IsBuiltIn || IsOverridden;
@@ -143,6 +183,32 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         public ICommand UnloadCommand { get; }
         public ICommand TestRunCommand { get; }
 
+        /// <summary>
+        /// Shows the approval of the recipe file again: which triggers are switched on and which permissions are given
+        /// </summary>
+        public ICommand ReviewApprovalCommand { get; }
+
+        /// <summary>
+        /// Shows what the recipe does, its triggers, its approval and the changes against the built-in recipe it replaces
+        /// </summary>
+        public ICommand DetailsCommand { get; }
+
+        private void ExecuteShowDetails()
+        {
+            _recipeManager?.ShowRecipeDetails(Recipe.Id);
+        }
+
+        private void ExecuteReviewApproval()
+        {
+            if (!HasFilePath || _recipeManager == null) return;
+            var result = _recipeManager.ReviewApproval(Recipe.Id);
+            if (result != null && !result.IsValid)
+            {
+                ThemedMessageBox.Show(string.Join("\n", result.Errors), "Recipe Permissions", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+            _onRecipeChanged?.Invoke();
+        }
+
         private void ExecuteUnload()
         {
             if (!CanUnload) return;
@@ -152,7 +218,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 ? $"Are you sure you want to revert '{Name}' back to its default built-in definition?"
                 : $"Are you sure you want to unload '{Name}'? It will be unregistered from Greenshot.";
 
-            if (MessageBox.Show(confirmMsg, confirmTitle, MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+            if (ThemedMessageBox.Show(confirmMsg, confirmTitle, MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
             {
                 return;
             }
@@ -171,28 +237,25 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
         private async Task ExecuteTestRunAsync()
         {
-            var pipeline = _pipeline ?? SimpleServiceProvider.Current?.GetInstance<ICapturePipeline>(isOptional: true);
-            if (pipeline == null)
-            {
-                MessageBox.Show("Capture pipeline service is not available.", "Execution Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
             var valResult = RecipeValidator.Validate(Recipe);
             if (!valResult.IsValid)
             {
-                MessageBox.Show($"Cannot test run recipe. Fix validation errors first:\n\n{string.Join("\n", valResult.Errors)}", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ThemedMessageBox.Show($"Cannot test run recipe. Fix validation errors first:\n\n{string.Join("\n", valResult.Errors)}", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
             try
             {
-                var recipeToTest = TriggerRecipePreparer.PrepareForTestRun(Recipe);
-                await pipeline.ExecuteAsync(recipeToTest);
+                var result = await TestRun.RunAsync(Recipe);
+                string error = TestRun.ErrorOf(result);
+                if (error != null)
+                {
+                    throw new InvalidOperationException(error, result.Error);
+                }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Recipe execution encountered an error:\n{ex.Message}", "Execution Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                ThemedMessageBox.Show($"Recipe execution encountered an error:\n{ex.Message}", "Execution Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }
@@ -227,6 +290,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             LoadRecipeFromFileCommand = new RelayCommand(ExecuteLoadRecipeFromFile);
             CreateNewRecipeCommand = new RelayCommand(ExecuteCreateNewRecipe);
             ReloadAllCommand = new RelayCommand(ExecuteReloadAll);
+            ResetAllCommand = new RelayCommand(ExecuteResetAll, () => AllRecipes.Any(r => r.IsOverridden));
             CloseCommand = new RelayCommand(() => RequestClose?.Invoke());
 
             LoadRecipes();
@@ -271,12 +335,28 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         public int TotalCount => AllRecipes.Count;
         public int ActiveCount => AllRecipes.Count(r => r.IsEnabled);
         public int DeactivatedCount => AllRecipes.Count(r => !r.IsEnabled);
-        public int BuiltInCount => AllRecipes.Count(r => r.IsBuiltIn && !r.IsOverridden);
-        public int CustomCount => AllRecipes.Count(r => !r.IsBuiltIn || r.IsOverridden);
 
         public ICommand LoadRecipeFromFileCommand { get; }
         public ICommand CreateNewRecipeCommand { get; }
         public ICommand ReloadAllCommand { get; }
+
+        /// <summary>
+        /// Brings back every built-in recipe a file replaces
+        /// </summary>
+        public ICommand ResetAllCommand { get; }
+
+        private void ExecuteResetAll()
+        {
+            var replaced = AllRecipes.Where(r => r.IsOverridden).Select(r => r.Name).ToList();
+            if (replaced.Count == 0) return;
+            if (ThemedMessageBox.Show($"Bring back the built-in version of these recipes?\n\n{string.Join("\n", replaced)}", "Reset All to Default",
+                    MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+            {
+                return;
+            }
+            _recipeManager?.ResetAllToDefault();
+            LoadRecipes();
+        }
         public ICommand CloseCommand { get; }
 
         public void LoadRecipes()
@@ -321,6 +401,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     "Deactivated" => !item.IsEnabled,
                     "Built-in" => item.IsBuiltIn && !item.IsOverridden,
                     "Custom" => !item.IsBuiltIn || item.IsOverridden,
+                    "AI" => item.IsAiCreated,
                     _ => true
                 };
 
@@ -352,8 +433,6 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             OnPropertyChanged(nameof(TotalCount));
             OnPropertyChanged(nameof(ActiveCount));
             OnPropertyChanged(nameof(DeactivatedCount));
-            OnPropertyChanged(nameof(BuiltInCount));
-            OnPropertyChanged(nameof(CustomCount));
         }
 
         private void ExecuteLoadRecipeFromFile()
@@ -375,7 +454,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                         var valResult = RecipeValidator.Validate(recipe);
                         if (!valResult.IsValid)
                         {
-                            MessageBox.Show($"Recipe validation failed:\n\n{string.Join("\n", valResult.Errors)}", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            ThemedMessageBox.Show($"Recipe validation failed:\n\n{string.Join("\n", valResult.Errors)}", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                             return;
                         }
                         _onSelectRecipeForEditor?.Invoke(recipe);
@@ -387,7 +466,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     var result = _recipeManager.LoadRecipeFromFile(dlg.FileName);
                     if (!result.IsValid)
                     {
-                        MessageBox.Show($"Failed to load recipe:\n\n{string.Join("\n", result.Errors)}", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        ThemedMessageBox.Show($"Failed to load recipe:\n\n{string.Join("\n", result.Errors)}", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                         StatusMessage = $"Validation failed for {Path.GetFileName(dlg.FileName)}";
                     }
                     else
@@ -405,7 +484,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Failed to load recipe:\n{ex.Message}", "Error Loading Recipe", MessageBoxButton.OK, MessageBoxImage.Error);
+                    ThemedMessageBox.Show($"Failed to load recipe:\n{ex.Message}", "Error Loading Recipe", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }

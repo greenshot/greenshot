@@ -21,11 +21,11 @@
 
 using System;
 using System.Linq;
-using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Threading;
+using Greenshot.Base.Threading;
 using Greenshot.Plugin.Confluence.Entities;
 using Page = Greenshot.Plugin.Confluence.Entities.Page;
 
@@ -63,31 +63,35 @@ public partial class ConfluenceTreePicker
         }
 
         Log.Debug("Loading pages for page: " + page.Title);
-        new Thread(() =>
-        {
-            Dispatcher.BeginInvoke(DispatcherPriority.Normal, (ThreadStart) (() => { ShowBusy.Visibility = Visibility.Visible; }));
-            var pages = _confluenceConnector.GetPageChildren(page).OrderBy(p => p.Title);
-            Dispatcher.BeginInvoke(DispatcherPriority.Normal, (ThreadStart) (() =>
-            {
-                foreach (var childPage in pages)
-                {
-                    Log.Debug("Adding page: " + childPage.Title);
-                    var pageTreeViewItem = new TreeViewItem
-                    {
-                        Header = childPage.Title,
-                        Tag = childPage
-                    };
-                    clickedItem.Items.Add(pageTreeViewItem);
-                    pageTreeViewItem.PreviewMouseDoubleClick += PageTreeViewItem_DoubleClick;
-                    pageTreeViewItem.PreviewMouseLeftButtonDown += PageTreeViewItem_Click;
-                }
+        AsyncCommand.Run(() => LoadChildPagesAsync(clickedItem, page), "Loading childpages for confluence page " + page.Title);
+    }
 
-                ShowBusy.Visibility = Visibility.Collapsed;
-            }));
-        })
+    /// <summary>
+    /// Load the child pages, the continuations run on the UI thread
+    /// </summary>
+    private async Task LoadChildPagesAsync(TreeViewItem clickedItem, Page page)
+    {
+        ShowBusy.Visibility = Visibility.Visible;
+        try
         {
-            Name = "Loading childpages for confluence page " + page.Title
-        }.Start();
+            var pages = await _confluenceConnector.GetPageChildrenAsync(page);
+            foreach (var childPage in pages.OrderBy(p => p.Title))
+            {
+                Log.Debug("Adding page: " + childPage.Title);
+                var pageTreeViewItem = new TreeViewItem
+                {
+                    Header = childPage.Title,
+                    Tag = childPage
+                };
+                clickedItem.Items.Add(pageTreeViewItem);
+                pageTreeViewItem.PreviewMouseDoubleClick += PageTreeViewItem_DoubleClick;
+                pageTreeViewItem.PreviewMouseLeftButtonDown += PageTreeViewItem_Click;
+            }
+        }
+        finally
+        {
+            ShowBusy.Visibility = Visibility.Collapsed;
+        }
     }
 
     private void PageTreeViewItem_Click(object sender, MouseButtonEventArgs eventArgs)
@@ -114,47 +118,53 @@ public partial class ConfluenceTreePicker
             return;
         }
 
+        _isInitDone = true;
+        AsyncCommand.Run(LoadSpacesAsync, "Loading spaces for confluence");
+    }
+
+    /// <summary>
+    /// Add the spaces with their homepage, the continuations run on the UI thread
+    /// </summary>
+    private async Task LoadSpacesAsync()
+    {
         ShowBusy.Visibility = Visibility.Visible;
-        new Thread(() =>
+        try
         {
-            Dispatcher.BeginInvoke(DispatcherPriority.Normal, (ThreadStart) (() =>
+            foreach (Space space in _confluenceUpload.Spaces)
             {
-                foreach (Space space in _confluenceUpload.Spaces)
+                TreeViewItem spaceTreeViewItem = new TreeViewItem
                 {
-                    TreeViewItem spaceTreeViewItem = new TreeViewItem
-                    {
-                        Header = space.Name,
-                        Tag = space
-                    };
+                    Header = space.Name,
+                    Tag = space
+                };
 
-                    // Get homepage
-                    try
+                // Get homepage
+                try
+                {
+                    Page page = await _confluenceConnector.GetSpaceHomepageAsync(space);
+                    if (page != null)
                     {
-                        Page page = _confluenceConnector.GetSpaceHomepage(space);
-                        if (page != null) {
-                            TreeViewItem pageTreeViewItem = new TreeViewItem
-                            {
-                                Header = page.Title,
-                                Tag = page
-                            };
-                            pageTreeViewItem.PreviewMouseDoubleClick += PageTreeViewItem_DoubleClick;
-                            pageTreeViewItem.PreviewMouseLeftButtonDown += PageTreeViewItem_Click;
-                            spaceTreeViewItem.Items.Add(pageTreeViewItem);
-                        }
-                        ConfluenceTreeView.Items.Add(spaceTreeViewItem);
+                        TreeViewItem pageTreeViewItem = new TreeViewItem
+                        {
+                            Header = page.Title,
+                            Tag = page
+                        };
+                        pageTreeViewItem.PreviewMouseDoubleClick += PageTreeViewItem_DoubleClick;
+                        pageTreeViewItem.PreviewMouseLeftButtonDown += PageTreeViewItem_Click;
+                        spaceTreeViewItem.Items.Add(pageTreeViewItem);
                     }
-                    catch (Exception ex)
-                    {
-                        Log.Error("Can't get homepage for space : " + space.Name + " (" + ex.Message + ")");
-                    }
+
+                    ConfluenceTreeView.Items.Add(spaceTreeViewItem);
                 }
-
-                ShowBusy.Visibility = Visibility.Collapsed;
-                _isInitDone = true;
-            }));
-        })
+                catch (Exception ex) when (ex is not OperationCanceledException)
+                {
+                    Log.Error("Can't get homepage for space : " + space.Name + " (" + ex.Message + ")");
+                }
+            }
+        }
+        finally
         {
-            Name = "Loading spaces for confluence"
-        }.Start();
+            ShowBusy.Visibility = Visibility.Collapsed;
+        }
     }
 }

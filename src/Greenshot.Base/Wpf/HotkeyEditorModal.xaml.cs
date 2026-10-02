@@ -79,7 +79,8 @@ namespace Greenshot.Base.Wpf
 
         public void FocusCapture()
         {
-            Dispatcher.BeginInvoke(new Action(() =>
+            // Focus after the layout, the operation doesn't need to be awaited
+            _ = Dispatcher.BeginInvoke(new Action(() =>
             {
                 KeyCaptureBorder.Focus();
                 Keyboard.Focus(KeyCaptureBorder);
@@ -201,7 +202,7 @@ namespace Greenshot.Base.Wpf
             // Handle PrintScreen which sometimes maps specifically
             if (key == Key.Snapshot || key == Key.PrintScreen)
             {
-                vk = VirtualKeyCode.Snapshot;
+                vk = VirtualKeyCode.PrintScreen;
             }
 
             ViewModel?.SetCapturedKey(vk, ctrl, alt, shift, win,
@@ -233,7 +234,7 @@ namespace Greenshot.Base.Wpf
                 bool isLeftWin = Keyboard.IsKeyDown(Key.LWin);
                 bool isRightWin = Keyboard.IsKeyDown(Key.RWin);
 
-                ViewModel?.SetCapturedKey(VirtualKeyCode.Snapshot,
+                ViewModel?.SetCapturedKey(VirtualKeyCode.PrintScreen,
                     isLeftCtrl || isRightCtrl,
                     isLeftAlt || isRightAlt,
                     isLeftShift || isRightShift,

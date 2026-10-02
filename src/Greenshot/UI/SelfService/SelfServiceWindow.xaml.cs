@@ -31,6 +31,7 @@ using Greenshot.Base.Core;
 using Greenshot.Base.Wpf;
 using log4net;
 using CoreLanguage = Greenshot.Base.Core.Language;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.UI.SelfService
 {
@@ -84,6 +85,12 @@ namespace Greenshot.UI.SelfService
             ClipboardPanel.Visibility = sectionId == "clipboard" ? Visibility.Visible : Visibility.Collapsed;
             HotkeysPanel.Visibility = sectionId == "hotkeys" ? Visibility.Visible : Visibility.Collapsed;
             ChecksumPanel.Visibility = sectionId == "checksum" ? Visibility.Visible : Visibility.Collapsed;
+#if DEBUG
+            if (IntegrationDebugPanel != null)
+            {
+                IntegrationDebugPanel.Visibility = sectionId == "debug_integration" ? Visibility.Visible : Visibility.Collapsed;
+            }
+#endif
 
             UpdateStatusText(null);
         }
@@ -400,6 +407,39 @@ namespace Greenshot.UI.SelfService
             }
         }
 
+#if DEBUG
+        private void OnRegisterDebugHkcuClicked(object sender, RoutedEventArgs e)
+        {
+            ViewModel?.IntegrationDebugSection?.RegisterAll();
+        }
+
+        private void OnUnregisterDebugHkcuClicked(object sender, RoutedEventArgs e)
+        {
+            ViewModel?.IntegrationDebugSection?.UnregisterAll();
+        }
+
+        private void OnSaveDebugExtensionIdClicked(object sender, RoutedEventArgs e)
+        {
+            ViewModel?.IntegrationDebugSection?.SaveExtensionId();
+        }
+
+        private void OnTestDebugUrlSchemeClicked(object sender, RoutedEventArgs e)
+        {
+            ViewModel?.IntegrationDebugSection?.TestUrlScheme();
+        }
+
+        private void OnOpenDebugExtensionFolderClicked(object sender, RoutedEventArgs e)
+        {
+            ViewModel?.IntegrationDebugSection?.OpenExtensionFolder();
+        }
+#else
+        private void OnRegisterDebugHkcuClicked(object sender, RoutedEventArgs e) { }
+        private void OnUnregisterDebugHkcuClicked(object sender, RoutedEventArgs e) { }
+        private void OnSaveDebugExtensionIdClicked(object sender, RoutedEventArgs e) { }
+        private void OnTestDebugUrlSchemeClicked(object sender, RoutedEventArgs e) { }
+        private void OnOpenDebugExtensionFolderClicked(object sender, RoutedEventArgs e) { }
+#endif
+
         [DllImport("dwmapi.dll", PreserveSig = true)]
         private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
 
@@ -442,20 +482,8 @@ namespace Greenshot.UI.SelfService
                 }
             }
 
-            if (Thread.CurrentThread.GetApartmentState() == ApartmentState.STA)
-            {
-                Display();
-            }
-            else
-            {
-                var staThread = new Thread(Display)
-                {
-                    Name = "GreenshotSelfServiceSTAThread",
-                    IsBackground = true
-                };
-                staThread.SetApartmentState(ApartmentState.STA);
-                staThread.Start();
-            }
+            // All windows live on the one UI thread
+            Greenshot.Base.Threading.UiDispatcher.Current.RunOnUiAsync(Display).FireAndLog("Show the self service window", Log);
         }
     }
 }

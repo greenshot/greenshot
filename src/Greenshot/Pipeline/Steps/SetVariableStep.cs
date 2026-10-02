@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -24,8 +24,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Greenshot.Base.Expressions;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Pipeline.Contracts;
+using Contracts = Greenshot.Base.Pipeline.Contracts;
+
 using Greenshot.Base.Recipes;
 using log4net;
 using Newtonsoft.Json.Linq;
@@ -36,6 +38,12 @@ namespace Greenshot.Pipeline.Steps
     /// Pipeline step that evaluates expressions and assigns new or updated variable values
     /// into the flow context (context.Properties) for use by subsequent downstream nodes.
     /// </summary>
+    [StepInfo(WellKnownStepTypes.SetVariable, "Set Variable", "Stores values in variables for the following steps.", "Logic")]
+    [StepParameter("Variable", ContractDataType.String, Description = "Name of the variable to set")]
+    [StepParameter("Value", ContractDataType.String, Description = "Value of the variable")]
+    [StepParameter("Variables", ContractDataType.Object, Description = "Several variables: name to value")]
+    [StepOutputVariable("{Parameter:Variable}", ContractDataType.String, "The variable named by the Variable parameter")]
+    [StepOutputVariable("{ParameterKeys:Variables}", ContractDataType.String, "The variables of the Variables parameter")]
     public class SetVariableStep : ICaptureStep
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(SetVariableStep));
@@ -54,15 +62,11 @@ namespace Greenshot.Pipeline.Steps
             if (context == null || NodeConfig.Parameters == null) return Task.CompletedTask;
 
             // Single variable setting: { "Variable": "MyVar", "Value": "${user.name}" }
-            string singleVarName = NodeConfig.GetParameter<string>("Variable")
-                ?? NodeConfig.GetParameter<string>("VariableName")
-                ?? NodeConfig.GetParameter<string>("Name")
-                ?? NodeConfig.GetParameter<string>("Key");
+            string singleVarName = NodeConfig.GetParameter<string>("Variable");
 
             if (!string.IsNullOrWhiteSpace(singleVarName))
             {
-                object rawValue = NodeConfig.Parameters.TryGetValue("Value", out var v) ? v :
-                                  NodeConfig.Parameters.TryGetValue("Expression", out var e) ? e : null;
+                object rawValue = NodeConfig.Parameters.TryGetValue("Value", out var v) ? v : null;
 
                 object evaluated = EvaluateValue(rawValue, context);
                 lock (context.Properties)
@@ -98,17 +102,15 @@ namespace Greenshot.Pipeline.Steps
             return Task.CompletedTask;
         }
 
+        /// <summary>
+        /// The engine already evaluated the expressions in the parameters (exactly once, see IEvaluatesOwnParameters);
+        /// the value is used as it is, so ${...} text inside a variable's value stays text.
+        /// </summary>
         private static object EvaluateValue(object rawValue, CaptureFlowContext context)
         {
-            if (rawValue == null) return null;
-            if (rawValue is string s)
+            if (rawValue is JValue jValue)
             {
-                return ExpressionEvaluator.Instance.Evaluate(s, context);
-            }
-            if (rawValue is JValue jValue && jValue.Type == JTokenType.String)
-            {
-                string js = jValue.Value<string>();
-                return ExpressionEvaluator.Instance.Evaluate(js, context);
+                return jValue.Value;
             }
             return rawValue;
         }

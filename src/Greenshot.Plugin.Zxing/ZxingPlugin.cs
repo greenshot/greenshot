@@ -32,10 +32,13 @@ using Greenshot.Base.Interfaces.Drawing;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Pipeline;
 using Greenshot.Base.Recipes;
+using System.Threading;
+using System.Threading.Tasks;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Plugin.Zxing;
 
-public class ZxingPlugin : IGreenshotPlugin, IRecipeStepProvider, IRecipeDrawableProvider, IRecipeStepSchemaProvider
+public class ZxingPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepProvider, IRecipeDrawableProvider, IRecipeStepSchemaProvider
 {
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ZxingPlugin));
     private static IZxingConfiguration _config;
@@ -44,50 +47,33 @@ public class ZxingPlugin : IGreenshotPlugin, IRecipeStepProvider, IRecipeDrawabl
     private ZxingEditorPlugin _editorPlugin;
     private ZxingHotspotTransformer _hotspotTransformer;
 
-    public void Dispose()
+    public ValueTask DisposeAsync()
     {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
-
-    private void Dispose(bool disposing)
-    {
-        if (!disposing) return;
-        if (_itemPlugInConfig != null)
-        {
-            _itemPlugInConfig.Dispose();
-            _itemPlugInConfig = null;
-        }
+        // The menu item is removed and disposed in StopAsync
+        return default;
     }
 
     public string Name => "Zxing";
 
-    public bool IsConfigurable => true;
-
-    public void RegisterConfiguration(IniConfig iniConfig)
+    public void ConfigureServices(IPluginServices services)
     {
         var section = new ZxingConfigurationImpl();
-        iniConfig.AddSection(section);
+        services.AddConfiguration(section);
         _config = section;
-    }
 
-    public void RegisterServices(IServiceLocator serviceLocator)
-    {
         _captureProcessor = new ZxingCaptureProcessor(_config);
         _editorPlugin = new ZxingEditorPlugin(_config);
         _hotspotTransformer = new ZxingHotspotTransformer();
-        serviceLocator.AddService<IProcessor>(_captureProcessor);
-        serviceLocator.AddService<IEditorPlugin>(_editorPlugin);
-        serviceLocator.AddService<IFeatureHotspotTransformer>(_hotspotTransformer);
-        serviceLocator.AddService<IDestination>(new ZxingQrDestination());
-        if (RecipeConfigHelper.IsRecipeFeatureEnabled())
-        {
-            serviceLocator.AddService<IRecipeStepProvider>(this);
-            serviceLocator.AddService<IRecipeDrawableProvider>(this);
-            StepRegistry.Instance.RegisterProvider(this);
-            RecipeDrawableRegistry.Instance.RegisterProvider(this);
-        }
+        services.AddService<IProcessor>(_captureProcessor);
+        services.AddService<IEditorPlugin>(_editorPlugin);
+        services.AddService<IFeatureHotspotTransformer>(_hotspotTransformer);
+        services.AddService<IDestination>(new ZxingQrDestination());
+        services.AddRecipeStepProvider(this);
+        services.AddRecipeDrawableProvider(this);
+        services.AddSettingsView<IZxingConfiguration>(config => new Controls.ZxingConfigurationControl(config));
     }
+
+    public object CreateSettingsViewModel(IServiceProvider services) => _config;
 
     /// <summary>
     /// Registers drawable factories provided by the ZXing plugin for recipe drawables.
@@ -111,7 +97,7 @@ public class ZxingPlugin : IGreenshotPlugin, IRecipeStepProvider, IRecipeDrawabl
     {
         if (registry == null) return;
 
-        registry.RegisterStepFactory("BarcodeScan", config => new ZxingStep(config));
+        registry.Register<ZxingStep>(config => new ZxingStep(config));
     }
 
     /// <summary>
@@ -182,9 +168,8 @@ public class ZxingPlugin : IGreenshotPlugin, IRecipeStepProvider, IRecipeDrawabl
         ""parameters"": {
           ""type"": ""object"",
           ""properties"": {
-            ""tryHarder"": { ""type"": ""boolean"" },
-            ""pureBarcode"": { ""type"": ""boolean"" },
-            ""autoRotate"": { ""type"": ""boolean"" }
+            ""SetVariable"": { ""type"": ""string"" },
+            ""CopyToClipboard"": { ""type"": ""boolean"" }
           }
         }
       }
@@ -200,45 +185,36 @@ public class ZxingPlugin : IGreenshotPlugin, IRecipeStepProvider, IRecipeDrawabl
     {
         if (surface == null) return null;
 
-        string qrType = GetString(p, "QrType") ?? GetString(p, "Category");
+        string qrType = GetString(p, "QrType");
         string payload = null;
         int qrCategoryIndex = 0;
 
-        if (string.Equals(qrType, "Payment", StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(qrType, "Epc", StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(qrType, "Sepa", StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(qrType, "Payment", StringComparison.OrdinalIgnoreCase))
         {
             qrCategoryIndex = 3;
             payload = FormatEpcPayload(p);
         }
-        else if (string.Equals(qrType, "BusinessCard", StringComparison.OrdinalIgnoreCase) ||
-                 string.Equals(qrType, "Contact", StringComparison.OrdinalIgnoreCase) ||
-                 string.Equals(qrType, "vCard", StringComparison.OrdinalIgnoreCase))
+        else if (string.Equals(qrType, "BusinessCard", StringComparison.OrdinalIgnoreCase))
         {
             qrCategoryIndex = 2;
             payload = FormatVcardPayload(p);
         }
-        else if (string.Equals(qrType, "WiFi", StringComparison.OrdinalIgnoreCase) ||
-                 string.Equals(qrType, "Network", StringComparison.OrdinalIgnoreCase))
+        else if (string.Equals(qrType, "WiFi", StringComparison.OrdinalIgnoreCase))
         {
             qrCategoryIndex = 1;
             payload = FormatWifiPayload(p);
         }
-        else if (string.Equals(qrType, "Email", StringComparison.OrdinalIgnoreCase) ||
-                 string.Equals(qrType, "Mail", StringComparison.OrdinalIgnoreCase))
+        else if (string.Equals(qrType, "Email", StringComparison.OrdinalIgnoreCase))
         {
             qrCategoryIndex = 4;
             payload = FormatEmailPayload(p);
         }
-        else if (string.Equals(qrType, "CalendarEvent", StringComparison.OrdinalIgnoreCase) ||
-                 string.Equals(qrType, "Calendar", StringComparison.OrdinalIgnoreCase) ||
-                 string.Equals(qrType, "Event", StringComparison.OrdinalIgnoreCase))
+        else if (string.Equals(qrType, "CalendarEvent", StringComparison.OrdinalIgnoreCase))
         {
             qrCategoryIndex = 5;
             payload = FormatCalendarPayload(p);
         }
-        else if (string.Equals(qrType, "Phone", StringComparison.OrdinalIgnoreCase) ||
-                 string.Equals(qrType, "Tel", StringComparison.OrdinalIgnoreCase))
+        else if (string.Equals(qrType, "Phone", StringComparison.OrdinalIgnoreCase))
         {
             qrCategoryIndex = 6;
             payload = FormatPhonePayload(p);
@@ -248,8 +224,7 @@ public class ZxingPlugin : IGreenshotPlugin, IRecipeStepProvider, IRecipeDrawabl
             qrCategoryIndex = 7;
             payload = FormatSmsPayload(p);
         }
-        else if (string.Equals(qrType, "Geo", StringComparison.OrdinalIgnoreCase) ||
-                 string.Equals(qrType, "Location", StringComparison.OrdinalIgnoreCase))
+        else if (string.Equals(qrType, "Geo", StringComparison.OrdinalIgnoreCase))
         {
             qrCategoryIndex = 8;
             payload = FormatGeoPayload(p);
@@ -326,7 +301,7 @@ public class ZxingPlugin : IGreenshotPlugin, IRecipeStepProvider, IRecipeDrawabl
             EpcAmount = GetString(p, "EpcAmount"),
             EpcReference = GetString(p, "EpcReference"),
             EpcMessage = GetString(p, "EpcMessage"),
-            EmailTo = GetString(p, "EmailTo") ?? GetString(p, "EmailAddress"),
+            EmailTo = GetString(p, "EmailTo"),
             EmailSubject = GetString(p, "EmailSubject"),
             EmailBody = GetString(p, "EmailBody"),
             EventTitle = GetString(p, "EventTitle"),
@@ -337,8 +312,8 @@ public class ZxingPlugin : IGreenshotPlugin, IRecipeStepProvider, IRecipeDrawabl
             PhoneNumber = GetString(p, "PhoneNumber"),
             SmsNumber = GetString(p, "SmsNumber"),
             SmsMessage = GetString(p, "SmsMessage"),
-            Latitude = GetString(p, "Latitude") ?? GetString(p, "GeoLat"),
-            Longitude = GetString(p, "Longitude") ?? GetString(p, "GeoLon")
+            Latitude = GetString(p, "Latitude"),
+            Longitude = GetString(p, "Longitude")
         };
 
         var container = new BarcodeContainer(surface, model, margin);
@@ -433,7 +408,7 @@ public class ZxingPlugin : IGreenshotPlugin, IRecipeStepProvider, IRecipeDrawabl
 
     public static string FormatEmailPayload(Dictionary<string, object> p)
     {
-        string to = GetString(p, "EmailTo") ?? GetString(p, "EmailAddress") ?? "";
+        string to = GetString(p, "EmailTo") ?? "";
         string subject = GetString(p, "EmailSubject");
         string body = GetString(p, "EmailBody");
 
@@ -477,17 +452,23 @@ public class ZxingPlugin : IGreenshotPlugin, IRecipeStepProvider, IRecipeDrawabl
 
     public static string FormatGeoPayload(Dictionary<string, object> p)
     {
-        string lat = GetString(p, "Latitude") ?? GetString(p, "GeoLat") ?? "0";
-        string lon = GetString(p, "Longitude") ?? GetString(p, "GeoLon") ?? "0";
+        string lat = GetString(p, "Latitude") ?? "0";
+        string lon = GetString(p, "Longitude") ?? "0";
         return $"geo:{lat},{lon}";
     }
 
-    public bool Start()
+    /// <summary>
+    /// Add the quick link to the context menu (on the UI thread)
+    /// </summary>
+    public Task StartAsync(IServiceProvider services, CancellationToken cancellationToken) =>
+        services.GetRequiredService<IUiDispatcher>().RunOnUiAsync(Start, cancellationToken);
+
+    private void Start()
     {
         Image icon = null;
         try
         {
-            icon = new ZxingQrDestination().DisplayIcon;
+            icon = PluginUtils.GetCachedExeIcon(FilenameHelper.FillCmdVariables(@"%windir%\system32\imageres.dll"), 97);
         }
         catch
         {
@@ -500,7 +481,7 @@ public class ZxingPlugin : IGreenshotPlugin, IRecipeStepProvider, IRecipeDrawabl
             Text = PluginUtils.GetQuicklinkText("Zxing"),
             Visible = _config?.QuicklinkEnabled ?? false
         };
-        _itemPlugInConfig.Click += delegate { Configure(); };
+        _itemPlugInConfig.Click += delegate { ShowSettings(); };
 
         PluginUtils.AddToContextMenu(_itemPlugInConfig);
         Language.LanguageChanged += OnLanguageChanged;
@@ -508,8 +489,6 @@ public class ZxingPlugin : IGreenshotPlugin, IRecipeStepProvider, IRecipeDrawabl
         {
             notify.PropertyChanged += OnConfigPropertyChanged;
         }
-
-        return true;
     }
 
     private void OnConfigPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -531,25 +510,26 @@ public class ZxingPlugin : IGreenshotPlugin, IRecipeStepProvider, IRecipeDrawabl
         }
     }
 
-    public void Shutdown()
-    {
-        Log.Debug("ZXing plugin shutdown.");
-        Language.LanguageChanged -= OnLanguageChanged;
-        if (_config is INotifyPropertyChanged notify)
+    public Task StopAsync(CancellationToken cancellationToken) =>
+        UiDispatcher.Current.RunOnUiAsync(() =>
         {
-            notify.PropertyChanged -= OnConfigPropertyChanged;
-        }
-    }
+            Log.Debug("ZXing plugin shutdown.");
+            Language.LanguageChanged -= OnLanguageChanged;
+            if (_config is INotifyPropertyChanged notify)
+            {
+                notify.PropertyChanged -= OnConfigPropertyChanged;
+            }
 
-    public void Configure()
-    {
-        var mainForm = Greenshot.Base.Core.SimpleServiceProvider.Current.GetInstance<IGreenshotMainForm>(isOptional: true);
-        mainForm?.ShowSetting(Name);
-    }
+            _itemPlugInConfig?.Dispose();
+            _itemPlugInConfig = null;
+        }, cancellationToken);
 
-    public System.Windows.UIElement CreateConfigurationControl()
+    /// <summary>
+    /// Show the settings of this plugin
+    /// </summary>
+    private void ShowSettings()
     {
-        return _config != null ? new Controls.ZxingConfigurationControl(_config) : null;
+        Greenshot.Base.Core.SimpleServiceProvider.Current.GetInstance<IGreenshotMainForm>(isOptional: true)?.ShowSetting(Name);
     }
 
     /// <summary>
@@ -561,12 +541,12 @@ public class ZxingPlugin : IGreenshotPlugin, IRecipeStepProvider, IRecipeDrawabl
 
         var model = new ZxingModel();
 
-        string qrType = GetString(p, "QrType") ?? GetString(p, "Category");
+        string qrType = GetString(p, "QrType");
         if (string.Equals(qrType, "WiFi", StringComparison.OrdinalIgnoreCase)) model.QrCategoryIndex = 1;
-        else if (string.Equals(qrType, "BusinessCard", StringComparison.OrdinalIgnoreCase) || string.Equals(qrType, "vCard", StringComparison.OrdinalIgnoreCase)) model.QrCategoryIndex = 2;
-        else if (string.Equals(qrType, "Payment", StringComparison.OrdinalIgnoreCase) || string.Equals(qrType, "Epc", StringComparison.OrdinalIgnoreCase)) model.QrCategoryIndex = 3;
+        else if (string.Equals(qrType, "BusinessCard", StringComparison.OrdinalIgnoreCase)) model.QrCategoryIndex = 2;
+        else if (string.Equals(qrType, "Payment", StringComparison.OrdinalIgnoreCase)) model.QrCategoryIndex = 3;
         else if (string.Equals(qrType, "Email", StringComparison.OrdinalIgnoreCase)) model.QrCategoryIndex = 4;
-        else if (string.Equals(qrType, "CalendarEvent", StringComparison.OrdinalIgnoreCase) || string.Equals(qrType, "Calendar", StringComparison.OrdinalIgnoreCase)) model.QrCategoryIndex = 5;
+        else if (string.Equals(qrType, "CalendarEvent", StringComparison.OrdinalIgnoreCase)) model.QrCategoryIndex = 5;
         else if (string.Equals(qrType, "Phone", StringComparison.OrdinalIgnoreCase)) model.QrCategoryIndex = 6;
         else if (string.Equals(qrType, "Sms", StringComparison.OrdinalIgnoreCase)) model.QrCategoryIndex = 7;
         else if (string.Equals(qrType, "Geo", StringComparison.OrdinalIgnoreCase)) model.QrCategoryIndex = 8;

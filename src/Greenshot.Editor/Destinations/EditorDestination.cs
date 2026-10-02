@@ -1,51 +1,56 @@
 /*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
- * 
+ *
  * For more information see: https://getgreenshot.org/
  * The Greenshot project is hosted on GitHub https://github.com/greenshot/greenshot
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
-using Greenshot.Base.Core;
 using Dapplo.Ini;
+using Greenshot.Base.Core;
+using Greenshot.Base.Core.Enums;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Forms;
+using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.Base.Threading;
 using Greenshot.Editor.Configuration;
 using Greenshot.Editor.Forms;
 using log4net;
+using Greenshot.Base.Core.FileFormat;
 
 namespace Greenshot.Editor.Destinations
 {
     /// <summary>
-    /// Description of EditorDestination.
+    /// Opens the capture in the editor (the editor takes over the surface), or adds it to an open editor.
     /// </summary>
-    public class EditorDestination : AbstractDestination
+    public class EditorDestination : DestinationBase
     {
         private static readonly ILog LOG = LogManager.GetLogger(typeof(EditorDestination));
-        private static readonly IEditorConfiguration editorConfiguration = IniConfigRegistry.GetSection<IEditorConfiguration>();
+        private static readonly IEditorConfiguration EditorConfiguration = IniConfigRegistry.GetSection<IEditorConfiguration>();
         public const string DESIGNATION = "Editor";
         private readonly IImageEditor _dedicatedEditor;
         private readonly bool _replaceSurfaceInDedicatedEditor;
         private readonly bool? _reuseAvailableEditor;
         private readonly bool? _matchSizeToCapture;
-        private static readonly Image greenshotIcon = GreenshotResources.GetGreenshotIcon().ToBitmap();
 
         public EditorDestination()
         {
@@ -54,8 +59,8 @@ namespace Greenshot.Editor.Destinations
 
         public EditorDestination(IImageEditor dedicatedEditor, bool replaceSurfaceInDedicatedEditor = false)
         {
-            this._dedicatedEditor = dedicatedEditor;
-            this._replaceSurfaceInDedicatedEditor = replaceSurfaceInDedicatedEditor;
+            _dedicatedEditor = dedicatedEditor;
+            _replaceSurfaceInDedicatedEditor = replaceSurfaceInDedicatedEditor;
         }
 
         public EditorDestination(bool? reuseAvailableEditor = null, bool? matchSizeToCapture = null)
@@ -66,114 +71,105 @@ namespace Greenshot.Editor.Destinations
 
         public override string Designation => DESIGNATION;
 
-        public override string Description
+        public override DestinationDescriptor Descriptor
         {
             get
             {
+                string name;
                 if (_dedicatedEditor == null)
                 {
-                    return Language.GetString(LangKey.settings_destination_editor);
+                    name = Language.GetString(LangKey.settings_destination_editor);
+                }
+                else
+                {
+                    var title = _dedicatedEditor.CaptureDetails?.Title;
+                    name = title == null
+                        ? Language.GetString(LangKey.settings_destination_editor_add)
+                        : Language.GetString(LangKey.settings_destination_editor_add) + " - " + title.Substring(0, Math.Min(20, title.Length));
                 }
 
-                var title = _dedicatedEditor.CaptureDetails?.Title;
-                if (title == null) return Language.GetString(LangKey.settings_destination_editor_add);
-                return Language.GetString(LangKey.settings_destination_editor_add) + " - " + title.Substring(0, Math.Min(20, title.Length));
+                return new DestinationDescriptor(name, 1, DestinationIcons.Greenshot, hasDynamicDestinations: _dedicatedEditor == null);
             }
         }
 
-        public override int Priority => 1;
-
-        public override bool IsDynamic => true;
-
-        public override Image DisplayIcon => greenshotIcon;
-
-        public override IEnumerable<IDestination> DynamicDestinations()
+        public override async ValueTask<IReadOnlyList<IDestination>> GetDynamicDestinationsAsync(ICaptureDetails metadata, CancellationToken cancellationToken)
         {
-            foreach (IImageEditor someEditor in ImageEditorForm.Editors)
-            {
-                yield return new EditorDestination(someEditor);
-            }
+            // The editors live on the UI thread
+            return await UiDispatcher.Current.InvokeAsync<IReadOnlyList<IDestination>>(
+                () => ImageEditorForm.Editors.Select(editor => (IDestination)new EditorDestination(editor)).ToList(), cancellationToken).ConfigureAwait(false);
         }
 
-        public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
+        public override async Task<ExportResult> ExportAsync(ExportRequest request, CancellationToken cancellationToken)
         {
-            ExportInformation exportInformation = new ExportInformation(Designation, Description);
-
-            bool modified = surface.Modified;
-            if (_dedicatedEditor == null)
+            var captureDetails = request.Metadata;
+            if (_dedicatedEditor != null && !_replaceSurfaceInDedicatedEditor)
             {
-                bool reuse = _reuseAvailableEditor ?? editorConfiguration.ReuseEditor;
-                if (reuse)
+                // Add the capture as image to the open editor, it gets its own copy
+                using var lease = await request.Source.RenderAsync(new SurfaceOutputSettings(WellKnownFileFormats.Png, 100, false) { DisableReduceColors = true }, cancellationToken).ConfigureAwait(false);
+                await UiDispatcher.Current.InvokeAsync(() => _dedicatedEditor.Surface.AddImageContainer(lease.Image, 10, 10), cancellationToken).ConfigureAwait(false);
+                // The editor only shows the capture, it isn't saved
+                return ExportResult.Succeeded(clearsModified: false);
+            }
+
+            // Hand the surface itself to an editor, on the UI thread: the editor keeps it
+            return await request.Source.UseSurfaceAsync(surface => OpenInEditor(surface, captureDetails), cancellationToken).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Runs on the UI thread: show the surface in an editor
+        /// </summary>
+        private ExportResult OpenInEditor(ISurface surface, ICaptureDetails captureDetails)
+        {
+            if (_dedicatedEditor != null)
+            {
+                // we explicitly replace the surface, so we can reset the modified flag
+                _dedicatedEditor.Surface.Modified = false;
+                _dedicatedEditor.Surface = surface;
+                return ExportResult.Succeeded(clearsModified: false, keepsCapture: true);
+            }
+
+            bool reuse = _reuseAvailableEditor ?? EditorConfiguration.ReuseEditor;
+            if (reuse)
+            {
+                foreach (IImageEditor openedEditor in ImageEditorForm.Editors)
                 {
-                    foreach (IImageEditor openedEditor in ImageEditorForm.Editors)
+                    if (openedEditor.Surface.Modified) continue;
+
+                    openedEditor.Surface = surface;
+                    if (openedEditor is Form editorForm)
                     {
-                        if (openedEditor.Surface.Modified) continue;
-
-                        openedEditor.Surface = surface;
-                        if (openedEditor is Form editorForm)
+                        if (editorForm.WindowState == FormWindowState.Minimized)
                         {
-                            if (editorForm.WindowState == FormWindowState.Minimized)
-                            {
-                                editorForm.WindowState = FormWindowState.Normal;
-                            }
-                            editorForm.BringToFront();
-                            editorForm.Activate();
+                            editorForm.WindowState = FormWindowState.Normal;
                         }
-                        exportInformation.ExportMade = true;
-                        break;
-                    }
-                }
 
-                if (!exportInformation.ExportMade)
-                {
-                    try
-                    {
-                        ImageEditorForm editorForm = new ImageEditorForm(surface, !surface.Modified, _matchSizeToCapture); // Output made??
-
-                        if (!string.IsNullOrEmpty(captureDetails.Filename))
-                        {
-                            editorForm.SetImagePath(captureDetails.Filename);
-                        }
-                        editorForm.Show();
+                        editorForm.BringToFront();
                         editorForm.Activate();
-                        LOG.Debug("Finished opening Editor");
-                        exportInformation.ExportMade = true;
                     }
-                    catch (Exception e)
-                    {
-                        LOG.Error(e);
-                        exportInformation.ErrorMessage = e.Message;
-                    }
+
+                    return ExportResult.Succeeded(clearsModified: false, keepsCapture: true);
                 }
             }
-            else
+
+            try
             {
-                try
-                {
-                    if (_replaceSurfaceInDedicatedEditor)
-                    {
-                        _dedicatedEditor.Surface.Modified = false; // we explicitly replace the surface, so we can reset the modified flag
-                        _dedicatedEditor.Surface = surface;
-                    }
-                    else
-                    {
-                        using Image image = surface.GetImageForExport();
-                        _dedicatedEditor.Surface.AddImageContainer(image, 10, 10);
-                    }
+                var editorForm = new ImageEditorForm(surface, !surface.Modified, _matchSizeToCapture); // Output made??
 
-                    exportInformation.ExportMade = true;
-                }
-                catch (Exception e)
+                if (!string.IsNullOrEmpty(captureDetails?.Filename))
                 {
-                    LOG.Error(e);
-                    exportInformation.ErrorMessage = e.Message;
+                    editorForm.SetImagePath(captureDetails.Filename);
                 }
+
+                editorForm.Show();
+                editorForm.Activate();
+                LOG.Debug("Finished opening Editor");
+                return ExportResult.Succeeded(clearsModified: false, keepsCapture: true);
             }
-
-            ProcessExport(exportInformation, surface);
-            // Workaround for the modified flag when using the editor.
-            surface.Modified = modified;
-            return exportInformation;
+            catch (Exception e)
+            {
+                LOG.Error(e);
+                return ExportResult.Failed(e.Message, e);
+            }
         }
     }
 }

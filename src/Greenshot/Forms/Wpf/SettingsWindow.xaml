@@ -25,6 +25,7 @@
         <wpf:ExpertVisibilityConverter x:Key="ExpertVisibilityConverter"/>
         <wpf:FixedToEnabledConverter x:Key="FixedToEnabledConverter"/>
         <wpf:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         
         <!-- Modern GroupBox Style -->
         <Style TargetType="GroupBox">
@@ -672,7 +673,7 @@
                                     <Label Grid.Row="2" Grid.Column="0" Content="{wpf:Translate settings_primaryimageformat}" Margin="0,0,12,0"/>
                                     <ComboBox Grid.Row="2" Grid.Column="1"
                                               ItemsSource="{Binding ImageFormats}"
-                                              DisplayMemberPath="Description"
+                                              DisplayMemberPath="DisplayNameWithPreferredExtension"
                                               SelectedValuePath="Value"
                                               SelectedValue="{Binding CoreConfiguration.OutputFileFormat, Mode=TwoWay}"
                                               IsEnabled="{Binding CoreConfiguration, Converter={StaticResource FixedToEnabledConverter}, ConverterParameter=OutputFileFormat}"/>
@@ -858,74 +859,79 @@
                 </ScrollViewer>
             </TabItem>
             
-            <!-- Plugin Tab -->
-            <TabItem x:Name="PluginsTabItem" Header="{wpf:Translate settings_plugins}">
-                <Grid Margin="8">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="200"/>
-                        <ColumnDefinition Width="12"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-
-                    <!-- Compact Plugins List -->
-                    <Border Grid.Column="0"
-                            BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
-                            BorderThickness="1"
-                            CornerRadius="4"
-                            Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TextBoxBackgroundBrush}">
-                        <ListBox ItemsSource="{Binding Plugins}" 
-                                 SelectedItem="{Binding SelectedPlugin, Mode=TwoWay}"
-                                 Background="Transparent"
-                                 BorderThickness="0"
-                                 ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                            <ListBox.ItemTemplate>
+            <!-- Recipes Tab: the options recipes declare, one group per recipe; only shown when a recipe has options -->
+            <TabItem x:Name="RecipesTabItem" Header="{wpf:Translate settings_recipes}"
+                     Visibility="{Binding HasRecipeOptions, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <ScrollViewer Style="{DynamicResource ThemedScrollViewer}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel>
+                        <TextBlock Text="{wpf:Translate settings_recipes_description}" TextWrapping="Wrap" Margin="4,0,4,8"
+                                   Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+                        <ItemsControl ItemsSource="{Binding RecipeOptionGroups}">
+                            <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Grid Margin="6,4">
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
-                                        </Grid.RowDefinitions>
-                                        <TextBlock Grid.Row="0"
-                                                   Text="{Binding Name}"
-                                                   FontWeight="SemiBold"
-                                                   Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ForegroundBrush}"/>
-                                        <TextBlock Grid.Row="1"
-                                                   Text="{Binding Version}"
-                                                   FontSize="11"
-                                                   Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
-                                    </Grid>
+                                    <GroupBox Header="{Binding Name}" ToolTip="{Binding Description}">
+                                        <StackPanel>
+                                            <ItemsControl ItemsSource="{Binding Items}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Grid Margin="0,2" IsEnabled="{Binding IsEditable}" ToolTip="{Binding Description}">
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="200"/>
+                                                                <ColumnDefinition Width="*"/>
+                                                            </Grid.ColumnDefinitions>
+                                                            <!-- A switch takes the whole row -->
+                                                            <CheckBox Grid.ColumnSpan="2" Content="{Binding Label}" IsChecked="{Binding BoolValue, Mode=TwoWay}"
+                                                                      Visibility="{Binding IsBoolean, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                                            <TextBlock Grid.Column="0" Text="{Binding Label}" VerticalAlignment="Center" TextWrapping="Wrap"
+                                                                       Visibility="{Binding HasLabelColumn, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                                            <!-- Number: a box with the range next to it -->
+                                                            <StackPanel Grid.Column="1" Orientation="Horizontal"
+                                                                        Visibility="{Binding IsNumber, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                                <TextBox Width="80" Text="{Binding TextValue, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"/>
+                                                                <TextBlock Text="{Binding RangeText}" Margin="8,0,0,0" VerticalAlignment="Center"
+                                                                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+                                                            </StackPanel>
+                                                            <!-- Text -->
+                                                            <TextBox Grid.Column="1" Text="{Binding TextValue, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+                                                                     Visibility="{Binding IsText, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                                            <!-- Choice -->
+                                                            <ComboBox Grid.Column="1" HorizontalAlignment="Left" MinWidth="160"
+                                                                      ItemsSource="{Binding Choices}" DisplayMemberPath="DisplayLabel"
+                                                                      SelectedItem="{Binding SelectedChoice, Mode=TwoWay}"
+                                                                      Visibility="{Binding IsEnum, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                                            <!-- Color: the swatch opens the color picker, the text can be typed -->
+                                                            <StackPanel Grid.Column="1" Orientation="Horizontal"
+                                                                        Visibility="{Binding IsColor, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                                <Button Width="28" Height="22" Padding="0" Click="RecipeOptionColor_Click">
+                                                                    <Border Width="20" Height="14" Background="{Binding ColorBrush}" BorderThickness="1"
+                                                                            BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
+                                                                </Button>
+                                                                <TextBox Width="90" Margin="6,0,0,0" Text="{Binding TextValue, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"/>
+                                                            </StackPanel>
+                                                        </Grid>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                            <Button Content="{wpf:Translate settings_recipes_reset}" HorizontalAlignment="Right" Margin="0,6,0,0" Padding="8,2"
+                                                    Command="{Binding ResetCommand}"/>
+                                        </StackPanel>
+                                    </GroupBox>
                                 </DataTemplate>
-                            </ListBox.ItemTemplate>
-                        </ListBox>
-                    </Border>
-
-                    <!-- Plugin Configuration Component Host -->
-                    <Border Grid.Column="2"
-                            BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"
-                            BorderThickness="1"
-                            CornerRadius="4"
-                            Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=ControlBackgroundBrush}"
-                            Padding="8">
-                        <Grid>
-                            <TextBlock Text="This plugin has no configurable options."
-                                       Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"
-                                       Visibility="{Binding NoSelectedPluginControlVisibility}"/>
-                            <ScrollViewer Style="{DynamicResource ThemedScrollViewer}"
-                                          VerticalScrollBarVisibility="Auto" 
-                                          HorizontalScrollBarVisibility="Disabled"
-                                          Visibility="{Binding SelectedPluginControlVisibility}">
-                                <ContentControl Content="{Binding SelectedPluginControl}"/>
-                            </ScrollViewer>
-                        </Grid>
-                    </Border>
-                </Grid>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </ScrollViewer>
             </TabItem>
+
+            <!-- AI tools Tab (greenshot-mcp): an opt-in, shown for beta testers -->
+            <TabItem x:Name="AiToolsTabItem" Header="{wpf:Translate settings_aitools}"
+                     Visibility="{Binding CoreConfiguration.IsBetaTester, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+            <!-- Plugin Tab -->
+            <TabItem x:Name="PluginsTabItem" Header="{wpf:Translate settings_plugins}"/>
             
             <!-- Expert Tab -->
-            <TabItem Header="{wpf:Translate expertsettings}" Visibility="{Binding IsExpertTabVisible, Converter={StaticResource ExpertVisibilityConverter}}">
+            <TabItem x:Name="ExpertTabItem" Header="{wpf:Translate expertsettings}" Visibility="{Binding IsExpertTabVisible, Converter={StaticResource ExpertVisibilityConverter}}">
                 <ScrollViewer Style="{DynamicResource ThemedScrollViewer}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                     <StackPanel>
                         <!-- Top Banner: Enable Expert Mode set apart -->

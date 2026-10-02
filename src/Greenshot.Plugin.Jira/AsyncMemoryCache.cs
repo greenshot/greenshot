@@ -24,6 +24,7 @@ using System.Runtime.Caching;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapplo.Log;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Plugin.Jira;
 
@@ -101,7 +102,7 @@ public abstract class AsyncMemoryCache<TKey, TResult> where TResult : class
     private async Task<TResult> GetOrCreateInternalAsync(TKey keyObject, CacheItemPolicy cacheItemPolicy = null, CancellationToken cancellationToken = default)
     {
         var key = CreateKey(keyObject);
-        var completionSource = new TaskCompletionSource<TResult>();
+        var completionSource = Tcs.Create<TResult>();
 
         if (cacheItemPolicy == null)
         {
@@ -136,29 +137,28 @@ public abstract class AsyncMemoryCache<TKey, TResult> where TResult : class
                 return await result.ConfigureAwait(false);
             }
 
-            // Now, start the background task, which will set the completionSource with the correct response
-            // ReSharper disable once MethodSupportsCancellation
-            // ReSharper disable once UnusedVariable
-            var ignoreBackgroundTask = Task.Run(async () =>
-            {
-                try
-                {
-                    var backgroundResult = await CreateAsync(keyObject, cancellationToken).ConfigureAwait(false);
-                    completionSource.TrySetResult(backgroundResult);
-                }
-                catch (TaskCanceledException)
-                {
-                    completionSource.TrySetCanceled();
-                }
-                catch (Exception ex)
-                {
-                    completionSource.TrySetException(ex);
-                }
-            });
         }
         finally
         {
             _semaphoreSlim.Release();
+        }
+
+        // Our task is in the cache: start the creation outside of the semaphore, it sets the completionSource
+        try
+        {
+            var backgroundResult = await CreateAsync(keyObject, cancellationToken).ConfigureAwait(false);
+            completionSource.TrySetResult(backgroundResult);
+        }
+        catch (OperationCanceledException)
+        {
+            // Don't cache a cancellation or failure, the next call tries again
+            _cache.Remove(key);
+            completionSource.TrySetCanceled(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _cache.Remove(key);
+            completionSource.TrySetException(ex);
         }
 
         return await completionSource.Task.ConfigureAwait(false);

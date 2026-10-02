@@ -38,6 +38,32 @@ Recipes can be written in code or provided as external `.json` (`.gsrecipe.json`
 >
 > Custom recipes are stored in `%APPDATA%\Greenshot\Recipes\*.gsrecipe.json`.
 
+### Approving recipe files
+
+A recipe file only runs after you approved it. The approval window shows what the recipe does in plain words (written
+by Greenshot from the recipe, with uploads, external programs and file access marked), each trigger with its own
+switch and what it means, and a permission for each kind of action that needs one: uploads (network), external
+commands and file access. Without those permissions the recipe isn't loaded. A changed file is shown with what was
+added and removed and the changed lines, and a file that replaces a built-in recipe says so (the recipe manager's
+"Reset Default" brings the built-in recipe back).
+
+The approval is pinned to the exact content of the file (SHA-256) and stored, per recipe of the file, in the
+encrypted trust store (`%LOCALAPPDATA%\Greenshot\recipe_trust.dat`), not in the recipe file: which triggers are
+switched on and which permissions were given. When the file is changed outside Greenshot you are asked again, right after the change. Saving in Greenshot's recipe
+editor renews the approval for the saved content without asking: triggers keep their switch, and new harmless ones
+(hotkey, menu entry) are on. Only a change which adds a trigger that starts the recipe on its own or from outside
+(clipboard, schedule, command line, web pages, browser extension, AI tools), a new kind of permission, or the first
+replacement of a built-in recipe shows the approval window when you save. To change the triggers or permissions later,
+use "Permissions" in the recipe manager: "Save Changes" keeps the new switches, "Keep as Is" (or closing the window)
+changes nothing, and "Revoke Approval" takes an approval back; Settings > AI tools >
+"Approved recipes" offers the same (Details, Review, Revoke) without the recipe editor plug-in. "Details" shows the approval window read-only: what a recipe does, its approval and the changes against the
+built-in recipe it replaces. The recipe editor works on a copy: changes reach Greenshot only when you save, the
+title shows "*" while there are unsaved changes, and closing the editor, switching the recipe, New and Open ask to save
+or discard them. Undo and Redo (Ctrl+Z, Ctrl+Y) go back and forth through the changes of each recipe while the editor is open, also past a
+save. A bar under the toolbar says what is pending: what saving will ask for, or that the file changed outside
+Greenshot or has triggers switched off by the approval. Recipes proposed by AI tools
+go through the same window, see [mcp-server.md](mcp-server.md#recipes-written-by-ai-tools).
+
 ---
 
 ## 1. Core Architecture: Decoupling Triggers from Recipes
@@ -216,19 +242,19 @@ The `Annotation` step allows adding any Greenshot annotation container to the ca
 - **Text & Annotations**: `Text`, `Speechbubble`, `StepLabel`
 - **Images & Icons**: `Image`, `Icon`, `Cursor`, `Emoji`, `Svg`
 - **Barcodes & QR Codes** *(via ZXing Plugin)*: `QRCode`, `Barcode`
-- **Filters & Effects**: `Obfuscate`, `Blur`, `Pixelize`, `Highlight`, `Magnify`, `Crop`
+- **Filters & Effects**: `Blur`, `Pixelize`, `Highlight`, `Magnify`, `Crop`
 
 ### Barcode & QR Code Annotations (`QRCode`, `Barcode`)
 When `Greenshot.Plugin.Zxing` is active, recipes can stamp 2D QR codes and 1D barcodes directly onto the capture surface with uniform positioning, anchoring, and colors. When opened in the Greenshot Image Editor, double-clicking any stamped QR code opens the interactive editor to modify or inspect its payload.
 
 #### 1. Specifying the QR Code Type Contract:
-The QR code format is explicitly declared via the `"QrType"` parameter (e.g. `"Link"`, `"Payment"`, `"BusinessCard"`, `"WiFi"`, `"Email"`, `"CalendarEvent"`, `"Phone"`, `"Sms"`, `"Geo"`), ensuring a strict contract without guesswork:
+The QR code format is explicitly declared via the `"QrType"` parameter (`"Text"`, `"Payment"`, `"BusinessCard"`, `"WiFi"`, `"Email"`, `"CalendarEvent"`, `"Phone"`, `"Sms"`, `"Geo"`), ensuring a strict contract without guesswork:
 
-- **Link / Plain Text (`"QrType": "Link"` or `"Text"`)**:
+- **Link / Plain Text (`"QrType": "Text"`, the default)**:
   - Direct URL, markdown link, or arbitrary text string.
   - `"Text"`: Content string or dynamic expression (e.g. `"https://getgreenshot.org"`).
 
-- **Payments (`"QrType": "Payment"` or `"Sepa"`)**:
+- **Payments (`"QrType": "Payment"`)**:
   - European Payments Council (EPC) SEPA QR Code / GiroCode for instant mobile banking app transfers:
   - `"EpcIban"`: Recipient IBAN (e.g. `"DE89370400440532013000"`).
   - `"EpcName"`: Recipient account holder name (e.g. `"Greenshot Community e.V."`).
@@ -237,7 +263,7 @@ The QR code format is explicitly declared via the `"QrType"` parameter (e.g. `"L
   - `"EpcReference"`: Structured remittance reference / invoice number (e.g. `"INV-2026-0042"`).
   - `"EpcMessage"`: Unstructured payment note or purpose (e.g. `"Support Greenshot"`).
 
-- **Business Cards (`"QrType": "BusinessCard"` or `"Contact"`)**:
+- **Business Cards (`"QrType": "BusinessCard"`)**:
   - Standardized vCard 3.0 contact card:
   - `"VcardFirstName"`: First name (e.g. `"Robin"`).
   - `"VcardLastName"`: Last name (e.g. `"Krom"`).
@@ -246,7 +272,7 @@ The QR code format is explicitly declared via the `"QrType"` parameter (e.g. `"L
   - `"VcardPhone"`: Phone number (e.g. `"+49-123-456789"`).
   - `"VcardUrl"`: Website URL (e.g. `"https://getgreenshot.org"`).
 
-- **WiFi Network Configuration (`"QrType": "WiFi"` or `"Network"`)**:
+- **WiFi Network Configuration (`"QrType": "WiFi"`)**:
   - Automatic WiFi connection credentials:
   - `"WifiSsid"`: Network SSID name.
   - `"WifiPassword"`: Network password / pre-shared key.
@@ -254,11 +280,11 @@ The QR code format is explicitly declared via the `"QrType"` parameter (e.g. `"L
 
 - **Email (`"QrType": "Email"`)**:
   - Pre-composed email triggering default email client (`mailto:`):
-  - `"EmailAddress"`: Recipient email address (e.g. `"support@getgreenshot.org"`).
+  - `"EmailTo"`: Recipient email address (e.g. `"support@getgreenshot.org"`).
   - `"EmailSubject"`: Pre-filled email subject line.
   - `"EmailBody"`: Pre-filled email message body.
 
-- **Calendar Events (`"QrType": "CalendarEvent"` or `"Event"`)**:
+- **Calendar Events (`"QrType": "CalendarEvent"`)**:
   - Standardized iCalendar (`VEVENT`) meeting or event invitation:
   - `"EventTitle"`: Summary / title of the event (e.g. `"Sprint Planning"`).
   - `"EventDescription"`: Detailed event description or meeting notes.
@@ -277,10 +303,8 @@ The QR code format is explicitly declared via the `"QrType"` parameter (e.g. `"L
 
 - **Geographic Location (`"QrType": "Geo"`)**:
   - Map location coordinates or query (`geo:`):
-  - `"GeoLat"`: Latitude in decimal degrees (e.g. `52.5200`).
-  - `"GeoLon"`: Longitude in decimal degrees (e.g. `13.4050`).
-  - `"GeoAlt"`: Optional altitude in meters.
-  - `"GeoQuery"`: Optional search query name (e.g. `"Greenshot HQ"`).
+  - `"Latitude"`: Latitude in decimal degrees (e.g. `52.5200`).
+  - `"Longitude"`: Longitude in decimal degrees (e.g. `13.4050`).
 
 #### Visual Recipe Editor Integration:
 In the visual Recipe Editor:
@@ -357,8 +381,8 @@ Annotations can be positioned using:
 1. **Absolute Coordinates**: Fixed integers (`left: 50, top: 100, width: 200, height: 40`).
 2. **Calculated Expressions**: Dynamic formulas using `${payload.width}` and `${payload.height}` (e.g. `top: "${payload.height - 60}"`, `width: "${payload.width / 2}"`).
 3. **Anchor Alignments**:
-   - `horizontalAnchor`: `"Left"`, `"Center"` (or `"Middle"`), `"Right"`
-   - `verticalAnchor`: `"Top"`, `"Center"` (or `"Middle"`), `"Bottom"`
+   - `horizontalAnchor`: `"Left"`, `"Center"`, `"Right"`
+   - `verticalAnchor`: `"Top"`, `"Center"`, `"Bottom"`
    - Optional `offsetX` and `offsetY` pixel adjustments.
    - `margin`: Margin distance from screen/capture borders when anchored.
 
@@ -391,7 +415,7 @@ Annotations can be positioned using:
         "offsetX": -20,
         "offsetY": -20,
         "text": "User: ${user.username} | Host: ${machine.computername} | ${now:yyyy-MM-dd}",
-        "textColor": "#FFFFFF",
+        "lineColor": "#FFFFFF",
         "fontSize": 9.5,
         "bold": true
       },
@@ -448,6 +472,39 @@ Greenshot resolves every parameter using a strict **three-tier precedence model*
 1. **Priority 1 (Runtime Context Override)**: Explicit parameters supplied for this specific run in `context.Properties` (e.g. from CLI switch `--no-mouse`).
 2. **Priority 2 (Node Parameter Pre-definition)**: Hardcoded parameter or expression defined on the node in the recipe JSON.
 3. **Priority 3 (Dynamic Evaluation)**: Parameter omitted or `null` in JSON → dynamically evaluates live setting from `greenshot.ini` (`CoreConfig`).
+
+### Recipe Options (`options`)
+A recipe can offer settings the user sets once, for example whether a border is added and how wide it is. They are
+declared in the recipe and shown by Greenshot in Settings > Recipes, one group per recipe; switches and choices can
+also go to the quick settings of the tray menu. The recipe file only holds the definition: the values the user picks are
+stored in `greenshot.ini` (section `[RecipeOptions]`, as `<recipe id>.<option key>`, only when they differ from the
+default). Changing a value therefore doesn't change the file and doesn't ask for a new approval.
+
+```json
+"options": [
+  { "key": "border", "type": "Boolean", "default": false, "label": "Add a border", "quickSettings": true },
+  { "key": "width", "type": "Integer", "default": 2, "min": 1, "max": 50, "label": "Width (px)", "enabledWhen": "border" },
+  { "key": "color", "type": "Color", "default": "#000000", "label": "Color", "enabledWhen": "border" }
+],
+"nodes": [
+  { "id": "frame", "stepType": "Effect", "enabled": "${option.border}",
+    "parameters": { "effect": "Border", "width": "${option.width}", "color": "${option.color}" } }
+]
+```
+
+- **Types**: `Boolean`, `Integer` and `Decimal` (with `min` and `max`), `String`, `Enum` (with `choices`, each a `value`
+  and an optional `label`) and `Color` (`#RRGGBB` or `#AARRGGBB`). Only `Boolean` and `Enum` can be in the quick settings:
+  they appear in the tray menu's quick settings under "Automatic steps", a switch as a checked item and a choice as a
+  submenu, at most six of them; "More…" opens Settings > Recipes.
+- **`enabledWhen`**: the key of a `Boolean` option; this option can only be changed while that one is on.
+- **Reading a value**: `${option.key}` in any parameter. Only the user sets these values: a value for one run (trigger,
+  command line, AI tools) can't replace them.
+- **Switching a step**: a node's `enabled` can be an expression, e.g. `"${option.border}"`. A node which doesn't run
+  passes the flow on to its next nodes.
+- **Checks**: options are checked when the recipe loads (valid keys and types, defaults which fit, no undeclared
+  `${option...}`). A `String` option can't be used by a step which needs an approval (external commands, uploads, files),
+  so a typed text never ends up in a command line, an upload address or a file path.
+- **Greenshot Light** has no recipe files; it shows only the options of its built-in recipes.
 
 ---
 
@@ -585,7 +642,7 @@ Demonstrating parallel fork/join execution, variable evaluation, user & machine 
             "offsetX": -20,
             "offsetY": -20,
             "text": "${context.watermark_text}",
-            "textColor": "#FFFFFF",
+            "lineColor": "#FFFFFF",
             "fontSize": 9.5,
             "fontFamily": "Segoe UI",
             "bold": true
@@ -749,17 +806,18 @@ If a recipe references a step type provided by a plugin that is **not installed 
 
 ### Available Plugin Step Types
 
-| Step Type | Plugin | Description | Example Parameters |
+| Step Type | Plugin | Description | Parameters |
 |---|---|---|---|
-| `ExternalCommand`<br>`ExecuteCommand`<br>`RunCommand` | `Greenshot.Plugin.ExternalCommand` | Executes external command-line tools or configured external commands against the capture surface/file. | `commandLine`, `arguments`, `commandName`, `sync`, `timeoutMs`, `reloadAfterExecution` |
-| `ExternalCommand.<Name>` | `Greenshot.Plugin.ExternalCommand` | Executes a specific pre-configured external command from `greenshot.ini`. | `sync`, `timeoutMs`, `reloadAfterExecution` |
-| `Box`<br>`BoxUpload` | `Greenshot.Plugin.Box` | Uploads capture to Box cloud storage and stores the URL in context. | `format`, `jpegQuality` |
-| `Dropbox`<br>`DropboxUpload` | `Greenshot.Plugin.Dropbox` | Uploads capture to Dropbox and stores the URL in context. | `format`, `jpegQuality` |
-| `Imgur`<br>`ImgurUpload` | `Greenshot.Plugin.Imgur` | Uploads capture to Imgur (with title/description) and optionally copies the link to the clipboard. | `title`, `description`, `copyLinkToClipboard` |
-| `Jira`<br>`JiraUpload` | `Greenshot.Plugin.Jira` | Attaches capture to a Jira issue or opens Jira issue selection. | `issueKey`, `comment`, `format`, `jpegQuality` |
-| `Confluence`<br>`ConfluenceUpload` | `Greenshot.Plugin.Confluence` | Attaches capture to a Confluence page or opens page picker. | `pageId`, `format`, `jpegQuality` |
-| `Office` | `Greenshot.Plugin.Office` | Exports capture to Microsoft Office applications. | `application` (`Excel`, `PowerPoint`, `Word`, `OneNote`, `Outlook`) |
-| `BarcodeScan` | `Greenshot.Plugin.Zxing` | Scans capture surface for barcodes/QR codes and sets `payload.extractedText`. | `copyToClipboard`, `variableName`, `openUrlIfValid` |
+| `ExternalCommand` | `Greenshot.Plugin.ExternalCommand` | Saves the capture to a file and runs an external command with it. `command` runs a command configured in `greenshot.ini`. | `command`, `commandLine`, `arguments`, `workingDirectory`, `verb`, `format`, `jpegQuality`, `runInBackground`, `outputToClipboard`, `uriToClipboard`, `reloadAfterExecution`, `setOutputVariable`, `setExitCodeVariable` |
+| `Box` | `Greenshot.Plugin.Box` | Uploads the capture to Box; sets `Box.UploadUrl`. | (account settings) |
+| `Dropbox` | `Greenshot.Plugin.Dropbox` | Uploads the capture to Dropbox; sets `Dropbox.UploadUrl`. | (account settings) |
+| `Imgur` | `Greenshot.Plugin.Imgur` | Uploads the capture to Imgur; sets `Imgur.UploadUrl`, `Imgur.Hash`, `Imgur.DeleteHash`. | `format`, `jpegQuality`, `title`, `description`, `copyLinkToClipboard` |
+| `Jira` | `Greenshot.Plugin.Jira` | Attaches the capture to a Jira issue; sets `Jira.UploadUrl`, `Jira.IssueKey`. | `issueKey` (default: variable `Jira.IssueKey`), `format`, `jpegQuality`, `reduceColors` |
+| `Confluence` | `Greenshot.Plugin.Confluence` | Attaches the capture to a Confluence page; sets `Confluence.PageId`, `Confluence.UploadUrl`. | `pageId`, `format`, `jpegQuality`, `reduceColors` |
+| `Office` | `Greenshot.Plugin.Office` | Sends the capture to an Office application. | `application`: `Word` (default), `Excel`, `PowerPoint`, `OneNote`, `Outlook` |
+| `BarcodeScan` | `Greenshot.Plugin.Zxing` | Scans the capture for barcodes/QR codes; sets `Barcode.Text`, `Barcode.Format` and `Payload.ExtractedText` when something was found. | `setVariable`, `copyToClipboard` |
+
+The complete, current description of every step type (parameters, variables it reads and sets, payload) is its contract: `greenshot --info <recipe>` shows it for the steps of a recipe. See section 8.
 
 ### External Command Step In Depth
 
@@ -768,9 +826,9 @@ The `ExternalCommand` step allows screenshot automation workflows to invoke exte
 #### Configuration Parameters:
 - **`commandLine`**: Path or executable to run (e.g. `pngquant.exe`, `powershell.exe`, `curl.exe`). Supports `${...}` variable expansion.
 - **`arguments`**: Arguments string passed to the process. Supports `{0}` / `{1}` positional tokens or `${context.ExternalCommand.TargetFile}`, `${user.*}`, `${machine.*}`, etc.
-- **`commandName`**: Name of a pre-configured command in `greenshot.ini` `[ExternalCommand]` section.
-- **`sync`** *(default: `true`)*: If `true`, the workflow engine waits for the process to exit before continuing. If `false`, execution proceeds asynchronously.
-- **`timeoutMs`** *(default: `30000`)*: Maximum execution time in milliseconds when running synchronously.
+- **`command`**: Name of a pre-configured command in `greenshot.ini` `[ExternalCommand]` section.
+- **`runInBackground`** *(default: `false`)*: Start the command without waiting for it; the output variables are not set then.
+- **`workingDirectory`**, **`verb`**: Working directory, or a shell verb (e.g. `print`) instead of running the executable.
 - **`format`** *(default: `png`)*: Image format saved to temporary disk before launching the command (`png`, `jpg`, `bmp`, etc.).
 - **`jpegQuality`** *(default: `90`)*: JPEG compression quality if saving as JPEG.
 - **`reloadAfterExecution`** *(default: `false`)*: When `true`, re-reads the modified image file from disk and updates the pipeline surface/payload for subsequent steps. Ideal for in-place image optimization tools.
@@ -778,4 +836,22 @@ The `ExternalCommand` step allows screenshot automation workflows to invoke exte
 - **`uriToClipboard`** *(default: `false`)*: Extracts any URI from stdout using regex and copies it to the Windows clipboard.
 - **`setOutputVariable`**: Stores the raw standard output text in `context.Properties[key]`.
 - **`setExitCodeVariable`**: Stores the process exit code integer in `context.Properties[key]`.
+
+---
+
+## 8. Step Contracts
+
+Every step type has a contract: its parameters (with their allowed values), the variables it reads and sets, and what it needs from and does to the image. The contract is registered together with the step's factory (plugins included), so a step type cannot exist without one.
+
+When a recipe is loaded, Greenshot checks it against the contracts along the flow (see `recipe-contracts-cli-query-plan.md`, section 3). The warnings appear in the log, the recipe editor and `greenshot --info <recipe>`:
+
+* `${X}` is used, but `X` is only set in some branches before this node, or only by nodes that do not run before it.
+* A step needs an image, but on some path none was acquired.
+* A required parameter is missing, a value is not allowed, or a parameter is not read by the step (often a typo, or a parameter from an older version).
+* A node is never executed.
+
+Outputs marked *not always set* (e.g. `Barcode.Text` when no code was found) are empty when the step found nothing; using them after their step is fine.
+
+At run time, a missing required parameter fails the node with a clear message, so error transitions apply.
+
 

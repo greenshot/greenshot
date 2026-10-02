@@ -27,18 +27,6 @@ namespace Greenshot.Tests.Recipes
     public class RecipeValidationErrorItemTests
     {
         [Fact]
-        public void Create_LegacyDrawableError_ReturnsSpecificAnnotationHint()
-        {
-            string errorMessage = "Recipe validation failed: Node 'watermark_node' uses stepType 'Drawable' which is not available because the required extension/plugin is not installed or active.";
-            var item = RecipeValidationErrorItem.Create(errorMessage);
-
-            Assert.Equal(errorMessage, item.ErrorMessage);
-            Assert.True(item.HasHint);
-            Assert.Contains("renamed to 'Annotation'", item.DiagnosticHint);
-            Assert.Contains("'annotations'", item.DiagnosticHint);
-        }
-
-        [Fact]
         public void Create_UnknownStepTypePluginError_ReturnsPluginHint()
         {
             string errorMessage = "Node 'ocr_node' uses stepType 'OcrPlugin' which is not available because the required extension/plugin is not installed or active.";
@@ -55,7 +43,7 @@ namespace Greenshot.Tests.Recipes
             var item = RecipeValidationErrorItem.Create(errorMessage);
 
             Assert.True(item.HasHint);
-            Assert.Contains("Screen, Window, Region", item.DiagnosticHint);
+            Assert.Contains("Region, Window, ActiveWindow", item.DiagnosticHint);
         }
 
         [Fact]

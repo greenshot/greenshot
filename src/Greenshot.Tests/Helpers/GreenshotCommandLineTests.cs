@@ -27,32 +27,42 @@ namespace Greenshot.Tests.Helpers
     public class GreenshotCommandLineTests
     {
         [Fact]
-        public void Parse_OpenFileOption_PutsPathInFiles()
+        public void Parse_FileArgument_IsTheCommand()
         {
-            // This is the form the installer registers for the .greenshot shell open command.
-            CommandLineOptions options = GreenshotCommandLine.Parse(["--openfile", @"C:\x.greenshot"]);
-
-            Assert.NotNull(options);
-            Assert.Equal([@"C:\x.greenshot"], options.Files);
-        }
-
-        [Fact]
-        public void Parse_PositionalFile_PutsPathInFiles()
-        {
+            // The form the shell uses when Greenshot.exe was chosen via "Open with"
             CommandLineOptions options = GreenshotCommandLine.Parse([@"C:\x.greenshot"]);
 
             Assert.NotNull(options);
-            Assert.Equal([@"C:\x.greenshot"], options.Files);
+            Assert.Equal([@"C:\x.greenshot"], options.CommandArguments);
         }
 
         [Fact]
-        public void Parse_OpenFileOptionAndPositionalFiles_CombinesThemInOrder()
+        public void Parse_StartupOptionsFirst_TheRestIsTheCommandUnchanged()
         {
-            CommandLineOptions options = GreenshotCommandLine.Parse(["--openfile", @"C:\a.greenshot", "--exit", @"C:\b.png"]);
+            // --language after the command belongs to the command (e.g. a recipe argument), not to Greenshot.exe
+            CommandLineOptions options = GreenshotCommandLine.Parse(["--language", "de-DE", "--no-run", "--recipe", "ocr", "--language", "en"]);
 
             Assert.NotNull(options);
-            Assert.True(options.Exit);
-            Assert.Equal([@"C:\a.greenshot", @"C:\b.png"], options.Files);
+            Assert.Equal("de-DE", options.Language);
+            Assert.True(options.NoRun);
+            Assert.Equal(["--recipe", "ocr", "--language", "en"], options.CommandArguments);
+        }
+
+        [Fact]
+        public void Parse_OnlyStartupOptions_HasNoCommand()
+        {
+            CommandLineOptions options = GreenshotCommandLine.Parse(["--restore"]);
+
+            Assert.NotNull(options);
+            Assert.True(options.Restore);
+            Assert.Empty(options.CommandArguments);
+        }
+
+        [Fact]
+        public void Parse_ReloadAndExit_AreCommandsForTheRunningGreenshot()
+        {
+            Assert.Equal(["--exit"], GreenshotCommandLine.Parse(["--exit"]).CommandArguments);
+            Assert.Equal(["--reload"], GreenshotCommandLine.Parse(["--reload"]).CommandArguments);
         }
     }
 }

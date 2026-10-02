@@ -264,7 +264,20 @@ Continuous builds are automatically created for every commit to the `main` branc
 - Modern security standards
 - By @tsiakoulias
 
+**Clipboard data is treated as untrusted**
+- Fixed an out-of-bounds read when pasting a crafted CF_DIBV5 (DIB) image: DIB data is now decoded by Dapplo.Windows.Clipboard's `DibImage`, from managed arrays with validated headers, also for `.dib` files
+- Pasting editor elements no longer deserializes .NET objects from the clipboard with an unrestricted BinaryFormatter: elements are placed in Greenshot's own `Greenshot.DrawableContainerList` format, and on paste only the types a `.greenshot` file may contain are created, with a size limit
+- Names of dropped or pasted virtual files (e.g. Outlook attachments) are sanitized
+
 #### 🏗️ Development & Infrastructure
+
+**Clipboard on Dapplo.Windows.Clipboard 3.2**
+- All clipboard reads and writes use Dapplo.Windows.Clipboard instead of WinForms / WPF / OLE: the clipboard works on any thread, is only open for a moment (content is prepared before and decoded after), and waiting for a busy clipboard doesn't block the UI
+- When another application keeps the clipboard open, the message names that application (before, it named the last application that copied something)
+- Image copy: the formats are placed as text, PNG, DIBV5, DIB, HTML (richest first); DIBV5 keeps the transparency, also of premultiplied bitmaps; CF_HTML gets correct UTF-8 offsets; the `BITMAP` setting now places a DIB (Windows provides CF_BITMAP from it) instead of a .NET-only object
+- Image paste and drop share one code path; images in HTML copied from Chrome / Edge (CF_HTML) are found now, relative image URLs are resolved, and JPEG, TIFF and uppercase file extensions are recognized
+- Copying text from pipeline steps (e.g. the QR code step) and "copy path to clipboard" work from background threads
+- Clipboard triggers recognize DIB, DIBV5 and file formats directly, and the format filter accepts a comma separated list
 
 **Command Line Parsing**
 - Migrated to System.CommandLine 2.0.3 for robust CLI argument parsing
@@ -421,6 +434,13 @@ If you're upgrading from 1.3 to a 1.4 continuous build:
 3. **Install 1.4 build**: Install the latest 1.4 continuous build
 4. **Test thoroughly**: As these are development builds, test your usual workflows
 5. **Update command line scripts**: If you use Greenshot with command line arguments, update from `/` style (e.g., `/exit`, `/reload`) to `--` style (e.g., `--exit`, `--reload`)
+
+### Plugin API changes (clipboard)
+
+- The `ClipboardHelper` methods which took a WinForms `IDataObject` were removed, and so were `GetDataObject()`, `GetFromDataObject`, `SetClipboardData(Type, object)`, the `ISurface` overloads of `SetClipboardData` / `TrySetClipboardData`, `GetImage()`, `GetImages`, `ContainsFormat`, `CurrentClipboardOwner` and `TrySetDataObjectOnce`
+- Read with a `ClipboardSnapshot` (`ClipboardHelper.ReadSnapshot` / `ReadSnapshotAsync`, e.g. with `SelectImageReadFormats()`) and the `IClipboardDataSource` methods (`GetFirstImage`, `GetDrawables`, `GetText`, `GetHtmlImageUrls`, `ContainsImage`); for a drop use `new DataObjectReader((System.Runtime.InteropServices.ComTypes.IDataObject)e.Data)`
+- Write with `ClipboardHelper.SetClipboardData(ClipboardContents)` / `SetClipboardDataAsync`, `SetClipboardData(string)`, or `IClipboardService`; `ClipboardHelper.ClipboardContent.DataObject` was replaced by `Contents` (a Dapplo `ClipboardContents`)
+- Clipboard format names are the Win32 names reported by Dapplo (`CF_DIB`, `CF_DIBV5`, `CF_HDROP`, …) instead of the WinForms names
 
 ### Command Line Argument Changes
 

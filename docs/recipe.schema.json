@@ -65,9 +65,86 @@
     "flow": {
       "$ref": "#/definitions/RecipeFlowConfig",
       "description": "DAG workflow definition configuring entry points, transitions, conditional branches, and join merges."
+    },
+    "options": {
+      "type": "array",
+      "description": "Values the user sets once in Settings > Recipes (switches also in the quick settings), read by nodes with ${option.key}. The values are stored in greenshot.ini, not in the recipe file.",
+      "items": {
+        "$ref": "#/definitions/RecipeOption"
+      }
+    },
+    "concurrency": {
+      "type": "string",
+      "enum": [
+        "Parallel",
+        "Exclusive",
+        "ReplacePrevious"
+      ],
+      "default": "Parallel",
+      "description": "What happens when the recipe is started while a flow of it is still running: run both (Parallel), ignore the new start (Exclusive) or cancel the running flow (ReplacePrevious)."
     }
   },
   "definitions": {
+    "RecipeOption": {
+      "type": "object",
+      "description": "An option of the recipe, shown in Settings > Recipes.",
+      "required": [ "key", "type" ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
+          "description": "Unique in the recipe, used as ${option.key}."
+        },
+        "type": {
+          "type": "string",
+          "enum": [ "Boolean", "Integer", "Decimal", "String", "Enum", "Color" ]
+        },
+        "default": {
+          "description": "The value until the user changes it. A Color is \"#RRGGBB\" or \"#AARRGGBB\"."
+        },
+        "label": {
+          "type": "string",
+          "description": "The text in the settings, the key when empty."
+        },
+        "description": {
+          "type": "string",
+          "description": "Shown as tooltip."
+        },
+        "min": {
+          "type": "number",
+          "description": "Smallest value (Integer, Decimal)."
+        },
+        "max": {
+          "type": "number",
+          "description": "Largest value (Integer, Decimal)."
+        },
+        "choices": {
+          "type": "array",
+          "description": "The values of an Enum option.",
+          "items": {
+            "type": "object",
+            "required": [ "value" ],
+            "properties": {
+              "value": { "type": "string" },
+              "label": { "type": "string", "description": "The text in the settings, the value when empty." }
+            }
+          }
+        },
+        "enabledWhen": {
+          "type": "string",
+          "description": "The key of a Boolean option: this option can only be changed while that one is on."
+        },
+        "quickSettings": {
+          "type": "boolean",
+          "default": false,
+          "description": "Also show the option in the quick settings of the tray menu (Boolean and Enum only)."
+        },
+        "format": {
+          "type": "string",
+          "description": "A hint how a String is meant, e.g. dateTime for a .NET date and time format."
+        }
+      }
+    },
     "RecipeFlowConfig": {
       "type": "object",
       "required": [
@@ -137,16 +214,19 @@
         },
         "stepType": {
           "type": "string",
-          "description": "The modular step type identifier. Supports core built-in steps (Source, InteractiveSelection, Effect, TextEffect, Annotation, SetVariable, ImmediateFeedback, Processors, Destinations, Notification, Conditional) as well as extension/plugin-provided steps (e.g., ExternalCommand, ExecuteCommand, RunCommand, Box, Dropbox, Imgur, Jira, Confluence, Office, Zxing)."
+          "description": "The modular step type identifier. Supports core built-in steps (Source, InteractiveSelection, Effect, TextEffect, Annotation, SetVariable, ImmediateFeedback, Processors, Destinations, Notification, Conditional) as well as extension/plugin-provided steps (e.g., ExternalCommand, Box, Dropbox, Imgur, Jira, Confluence, Office, BarcodeScan)."
         },
         "name": {
           "type": "string",
           "description": "Optional label for this node (defaults to stepType if omitted)."
         },
         "enabled": {
-          "type": "boolean",
+          "oneOf": [
+            { "type": "boolean" },
+            { "type": "string", "pattern": "\\$\\{" }
+          ],
           "default": true,
-          "description": "Whether this individual node is enabled in the flow."
+          "description": "Whether this node runs: true, false or an expression such as \"${option.border}\". A node which doesn't run passes the flow on to its next nodes."
         },
         "parameters": {
           "type": "object",
@@ -166,6 +246,14 @@
               ],
               "description": "Used by 'Source' step: The kind of raw pixels to capture."
             },
+            "Filename": {
+              "type": "string",
+              "description": "Used by 'Source' step (SourceType=File): Path or expression (e.g. '${Filename}') to the image file to load."
+            },
+            "Text": {
+              "type": "string",
+              "description": "Used by 'Stdout' step: String template or expression (e.g. '${Barcode.Text}') to emit to stdout."
+            },
             "WindowTitle": {
               "type": "string",
               "description": "Used by 'Source' step (Window/ActiveWindow): Substring or exact title of a specific window to target."
@@ -177,6 +265,9 @@
             "ProcessName": {
               "type": "string",
               "description": "Used by 'Source' step (Window/ActiveWindow): Target process name (e.g. 'notepad', 'Greenshot')."
+            },
+            "WindowHandle": {
+              "description": "Used by 'Source' step (Window): the window to capture without asking or activating it, usually the variable of a Window argument (e.g. '${Window}')."
             },
             "MatchCase": {
               "type": "boolean",
@@ -243,7 +334,6 @@
                 "Blur",
                 "Highlight",
                 "Redact",
-                "Blackout",
                 "Magnify"
               ],
               "description": "Used by 'Effect' step: The effect type to apply."
@@ -255,7 +345,7 @@
                 "$ref": "#/definitions/AnnotationElementConfig"
               }
             },
-            "VariableName": {
+            "Variable": {
               "type": "string",
               "description": "Used by 'SetVariable' step: Target variable name stored in context.Properties."
             },
@@ -282,7 +372,7 @@
               "type": "boolean",
               "description": "Used by 'ImmediateFeedback' step: Explicitly pre-defines shutter sound."
             },
-            "branches": {
+            "Branches": {
               "type": "array",
               "description": "Used by 'Conditional' step: List of decision branches evaluating expressions.",
               "items": {
@@ -423,7 +513,7 @@
         },
         "expression": {
           "type": "string",
-          "description": "Dynamic expression (${...}) or 'else'/'default' evaluated at runtime."
+          "description": "Dynamic expression (${...}) or 'else' evaluated at runtime."
         }
       }
     },
@@ -435,14 +525,13 @@
       "properties": {
         "type": {
           "type": "string",
-          "description": "The type of annotation element. Built-in types include Rectangle, Ellipse, Line, Arrow, Freehand, Text, Speechbubble, StepLabel, Image, Icon, Cursor, Emoji, Svg, Obfuscate, Blur, Pixelize, Highlight, Magnify, Crop. Extension-provided annotations (e.g. QRCode, Barcode) are dynamically registered by installed plugins."
+          "description": "The type of annotation element. Built-in types include Rectangle, Ellipse, Line, Arrow, Freehand, Text, Speechbubble, StepLabel, Image, Icon, Cursor, Emoji, Svg, Blur, Pixelize, Highlight, Magnify, Crop. Extension-provided annotations (e.g. QRCode, Barcode) are dynamically registered by installed plugins."
         },
         "horizontalAnchor": {
           "type": "string",
           "enum": [
             "Left",
             "Center",
-            "Middle",
             "Right"
           ],
           "description": "Horizontal alignment anchor relative to the capture payload surface."
@@ -452,17 +541,24 @@
           "enum": [
             "Top",
             "Center",
-            "Middle",
             "Bottom"
           ],
           "description": "Vertical alignment anchor relative to the capture payload surface."
         },
         "left": {
-          "description": "X coordinate or expression (e.g. 20, '${payload.width - 200}', 'center').",
+          "description": "Distance from the left edge, or expression (e.g. 20, '${payload.width - 200}').",
           "oneOf": [{ "type": "integer" }, { "type": "string" }]
         },
         "top": {
-          "description": "Y coordinate or expression (e.g. 15, '${payload.height - 50}', 'bottom').",
+          "description": "Distance from the top edge, or expression (e.g. 15, '${payload.height - 50}').",
+          "oneOf": [{ "type": "integer" }, { "type": "string" }]
+        },
+        "right": {
+          "description": "Distance from the right edge, or expression.",
+          "oneOf": [{ "type": "integer" }, { "type": "string" }]
+        },
+        "bottom": {
+          "description": "Distance from the bottom edge, or expression.",
           "oneOf": [{ "type": "integer" }, { "type": "string" }]
         },
         "width": {
@@ -508,6 +604,19 @@
         "bold": {
           "type": "boolean",
           "description": "Font bold weight."
+        },
+        "italic": {
+          "type": "boolean",
+          "description": "Italic font style."
+        },
+        "textAlign": {
+          "type": "string",
+          "enum": [
+            "Left",
+            "Center",
+            "Right"
+          ],
+          "description": "Horizontal alignment of the text inside the element."
         },
         "shadow": {
           "type": "boolean",
@@ -684,7 +793,11 @@
             "Systray",
             "Clipboard",
             "Manual",
-            "Schedule"
+            "Schedule",
+            "Commandline",
+            "OpenFile",
+            "Extension",
+            "AiTool"
           ],
           "description": "The trigger mechanism type."
         },
@@ -722,9 +835,102 @@
               "type": "boolean",
               "default": true,
               "description": "For clipboard trigger: whether to trigger automatically when an image is copied to clipboard."
+            },
+            "Command": {
+              "type": "string",
+              "description": "Used by Commandline trigger: Command name / verb invoked from CLI (e.g. 'qr', 'convert', 'ocr')."
+            },
+            "Description": {
+              "type": "string",
+              "description": "Human-readable description displayed in CLI recipe listings."
+            },
+            "FireAndForget": {
+              "type": "boolean",
+              "default": false,
+              "description": "Whether the trigger runs asynchronously without blocking the caller."
+            },
+            "AllowBrowserInvocation": {
+              "type": "boolean",
+              "default": false,
+              "description": "Used by Commandline trigger: allows this recipe to be started from a browser, via a greenshot:// URL or the browser extension. Off by default because any web page can open a greenshot:// URL."
+            },
+            "Stdout": {
+              "type": "string",
+              "description": "Used by Commandline trigger: Expression or string template (e.g. '${Barcode.Text}') evaluated and emitted to stdout upon completion."
+            },
+            "ToolName": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]{1,64}$",
+              "description": "Used by AiTool trigger: the tool name AI tools use (greenshot-mcp)."
+            },
+            "Title": {
+              "type": "string",
+              "description": "Used by AiTool trigger: the name of the tool shown to people."
+            },
+            "ReadOnly": {
+              "type": "boolean",
+              "default": true,
+              "description": "Used by AiTool trigger: hint that the tool doesn't change anything (e.g. only captures)."
+            },
+            "Destructive": {
+              "type": "boolean",
+              "default": false,
+              "description": "Used by AiTool trigger: hint that the tool can overwrite or delete something."
+            },
+            "MaxImageSize": {
+              "type": "integer",
+              "default": 1568,
+              "description": "Used by AiTool trigger: the image returned to the AI tool is scaled so its longest side is at most this many pixels, 0 keeps the original size."
+            },
+            "Arguments": {
+              "type": "array",
+              "description": "Explicit list of named arguments accepted from the command line (Commandline trigger) or the AI tool (AiTool trigger), their target context variables, requirement, and default values.",
+              "items": {
+                "$ref": "#/definitions/CommandlineArgument"
+              }
             }
           },
           "additionalProperties": true
+        }
+      }
+    },
+    "CommandlineArgument": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "CLI argument name passed by user (e.g. 'file', 'format', 'lang')."
+        },
+        "variable": {
+          "type": "string",
+          "description": "Target flow context variable (e.g. 'Filename', 'Format'). Defaults to name if omitted."
+        },
+        "description": {
+          "type": "string",
+          "description": "Explanation of this argument displayed in CLI listings."
+        },
+        "required": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether this argument is mandatory. Execution fails if not provided and no default exists."
+        },
+        "defaultValue": {
+          "type": "string",
+          "description": "Default value applied when the argument is omitted by the user."
+        },
+        "type": {
+          "type": "string",
+          "enum": [ "String", "Integer", "Decimal", "Boolean", "FilePath", "DirectoryPath", "Enum", "Object", "Window", "Region" ],
+          "default": "String",
+          "description": "Type of the value. FilePath/DirectoryPath values are sanitized and resolved against the caller's working directory; Integer, Decimal and Boolean values are parsed; Enum values must be one of allowedValues. Window (AiTool triggers only): a window id from list_windows, resolved to the window. Region: 'x,y,width,height' in screen coordinates. Only declared arguments are accepted by a recipe."
+        },
+        "allowedValues": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Accepted values (required for type Enum, optional restriction for String)."
         }
       }
     }

@@ -68,7 +68,7 @@ namespace Greenshot.Forms.Wpf
                 }
                 else if (!Dispatcher.HasShutdownStarted)
                 {
-                    Dispatcher.InvokeAsync(() =>
+                    _ = Dispatcher.InvokeAsync(() =>
                     {
                         try
                         {

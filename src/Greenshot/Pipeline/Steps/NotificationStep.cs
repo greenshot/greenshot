@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -25,6 +25,9 @@ using System.Threading.Tasks;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Pipeline.Contracts;
+using Contracts = Greenshot.Base.Pipeline.Contracts;
+
 using Greenshot.Base.Recipes;
 using log4net;
 
@@ -34,6 +37,10 @@ namespace Greenshot.Pipeline.Steps
     /// Pipeline step that enables or dispatches completion notifications (e.g. tray balloon / toast).
     /// Dynamically evaluates whether notifications are enabled based on CoreConfig if not pre-defined.
     /// </summary>
+    [StepInfo(WellKnownStepTypes.Notification, "Notification", "Enables or disables the notification shown when the flow completes.", "Feedback")]
+    [StepParameter("ShowNotification", ContractDataType.Boolean, Description = "Show the completion notification (default: settings)")]
+    [StepInputVariable("ShowNotification", ContractDataType.Boolean, Description = "Overrides the ShowNotification parameter")]
+    [StepOutputVariable("EnableCompletionNotification", ContractDataType.Boolean, "Whether the completion notification is shown")]
     public class NotificationStep : ICaptureStep
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(NotificationStep));

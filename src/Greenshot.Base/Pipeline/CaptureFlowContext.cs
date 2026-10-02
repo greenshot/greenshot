@@ -22,8 +22,12 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
+using Greenshot.Base.Core;
 using Greenshot.Base.Recipes;
+using Greenshot.Base.Threading;
 using Greenshot.Base.Triggers;
+using Greenshot.Base.Interfaces;
 
 namespace Greenshot.Base.Pipeline
 {
@@ -38,7 +42,36 @@ namespace Greenshot.Base.Pipeline
         /// <summary>
         /// Unique execution identifier for tracking/logging this flow.
         /// </summary>
-        public Guid ExecutionId { get; } = Guid.NewGuid();
+        public Guid ExecutionId { get; set; } = Guid.NewGuid();
+
+        /// <summary>
+        /// Snapshot of the trigger situation (foreground window, cursor), taken when the flow was started.
+        /// </summary>
+        public FlowTriggerContext TriggerContext { get; set; }
+
+        /// <summary>
+        /// The way to the UI thread for steps and sources which need it (dialogs, clipboard, the editor).
+        /// Defaults to the registered IUiDispatcher, or runs inline when there is none (tests, headless).
+        /// </summary>
+        public IUiDispatcher Ui
+        {
+            get => _ui ??= SimpleServiceProvider.Current?.GetInstance<IUiDispatcher>(isOptional: true) ?? InlineUiDispatcher.Instance;
+            set => _ui = value;
+        }
+
+        private IUiDispatcher _ui;
+
+        /// <summary>
+        /// Dialogs, progress and notifications for the steps and destinations of this flow.
+        /// Defaults to the registered IUserInteraction, headless when there is none (tests, command line).
+        /// </summary>
+        public IUserInteraction UserInteraction
+        {
+            get => _userInteraction ??= Core.UserInteraction.Current;
+            set => _userInteraction = value;
+        }
+
+        private IUserInteraction _userInteraction;
 
         /// <summary>
         /// The recipe driving this flow.
@@ -64,6 +97,34 @@ namespace Greenshot.Base.Pipeline
         /// The visual payload (bitmap, surface, extracted text). Null until acquisition succeeds.
         /// </summary>
         public ICapturePayload Payload { get; set; }
+
+        /// <summary>
+        /// True when the payload was handed to this flow (forwarded from another recipe, imported from the browser extension,
+        /// injected programmatically) instead of being captured by it. Such an image is used as a whole: there is no screen
+        /// to select a region on, and nothing was captured, so no capture feedback is given either.
+        /// </summary>
+        public bool IsPayloadPreSupplied { get; set; }
+
+        /// <summary>
+        /// Optional callback of the caller, run once when the flow finished and before the payload is disposed
+        /// (e.g. to hand the final image to an AI tool). Not copied to branch contexts.
+        /// </summary>
+        public Func<CaptureFlowContext, Task> FlowFinishedAsync { get; set; }
+
+        /// <summary>
+        /// Optional delegate to immediately emit streaming stdout text back to the caller (e.g. IPC client).
+        /// </summary>
+        public Func<string, Task> StdoutWriter { get; set; }
+
+        /// <summary>
+        /// Optional delegate to immediately emit streaming stderr text back to the caller (e.g. IPC client).
+        /// </summary>
+        public Func<string, Task> StderrWriter { get; set; }
+
+        /// <summary>
+        /// Numerical exit code for the flow (0 = success, non-zero = error).
+        /// </summary>
+        public int ExitCode { get; set; } = 0;
 
         /// <summary>
         /// Cancellation token for early termination.
@@ -137,8 +198,15 @@ namespace Greenshot.Base.Pipeline
             var branchPayload = payload ?? Payload?.Clone();
             var branchContext = new CaptureFlowContext(Recipe, Trigger, CancellationToken)
             {
+                TriggerContext = TriggerContext,
+                Ui = _ui,
+                UserInteraction = _userInteraction,
                 State = State,
-                Payload = branchPayload
+                Payload = branchPayload,
+                IsPayloadPreSupplied = IsPayloadPreSupplied,
+                StdoutWriter = StdoutWriter,
+                StderrWriter = StderrWriter,
+                ExitCode = ExitCode
             };
 
             if (Properties != null)

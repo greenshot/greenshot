@@ -26,19 +26,50 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
+using Greenshot.Base.Core.Export;
 using Dapplo.Ini;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Plugin.ExternalCommand;
 
 /// <summary>
-/// Description of OCRDestination.
+/// Icons of the external commands: key "extcmd:commandName".
 /// </summary>
-public class ExternalCommandDestination : AbstractDestination, IRequiresRecipeAuthorization
+public sealed class ExternalCommandIconProvider : IIconProvider
+{
+    private const string Prefix = "extcmd:";
+
+    public static string KeyFor(string command) => Prefix + command;
+
+    public bool CanProvide(string iconKey) => iconKey != null && iconKey.StartsWith(Prefix, StringComparison.Ordinal);
+
+    public async Task<Image> GetIconAsync(string iconKey, CancellationToken cancellationToken)
+    {
+        var icon = await IconCache.IconForCommandAsync(iconKey.Substring(Prefix.Length), cancellationToken).ConfigureAwait(false);
+        if (icon == null)
+        {
+            return null;
+        }
+
+        // The icon cache owns its images, the caller gets a copy
+        lock (icon)
+        {
+            return ImageHelper.Clone(icon);
+        }
+    }
+}
+
+/// <summary>
+/// Calls an external command with the capture.
+/// </summary>
+public class ExternalCommandDestination : DestinationBase, IRequiresRecipeAuthorization
 {
     private static readonly log4net.ILog LOG = log4net.LogManager.GetLogger(typeof(ExternalCommandDestination));
 
@@ -65,6 +96,7 @@ public class ExternalCommandDestination : AbstractDestination, IRequiresRecipeAu
     public ExternalCommandDestination(string commando)
     {
         _presetCommand = commando;
+        Descriptor = new DestinationDescriptor(commando, iconKey: ExternalCommandIconProvider.KeyFor(commando));
     }
 
     public IEnumerable<RecipeGatedAction> GetGatedActions()
@@ -80,167 +112,133 @@ public class ExternalCommandDestination : AbstractDestination, IRequiresRecipeAu
 
     public override string Designation => "External " + _presetCommand.Replace(',', '_');
 
-    public override string Description => _presetCommand;
+    public override DestinationDescriptor Descriptor { get; }
 
-    public override IEnumerable<IDestination> DynamicDestinations()
+    public override async Task<ExportResult> ExportAsync(ExportRequest request, CancellationToken cancellationToken)
     {
-        yield break;
-    }
-
-    public override Image DisplayIcon => IconCache.IconForCommand(_presetCommand);
-
-    public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
-    {
-        ExportInformation exportInformation = new ExportInformation(Designation, Description);
-
         if (_presetCommand is null)
         {
-            exportInformation.ExportMade = false;
-            exportInformation.ErrorMessage = "No external commandconfigured";
-            LOG.Warn(exportInformation.ErrorMessage);
-            return exportInformation;
+            LOG.Warn("No external command configured");
+            return ExportResult.Failed("No external command configured");
         }
 
+        var config = Config;
         // check if the command is still configured
-        if (!Config.Commands.Contains(_presetCommand))
+        if (config == null || !config.Commands.Contains(_presetCommand))
         {
-            exportInformation.ExportMade = false;
-            exportInformation.ErrorMessage = $"Unknown external command '{_presetCommand}'";
-            LOG.WarnFormat("Error calling external command: {0} ", exportInformation.ErrorMessage);
-            return exportInformation;
+            string error = $"Unknown external command '{_presetCommand}'";
+            LOG.WarnFormat("Error calling external command: {0} ", error);
+            return ExportResult.Failed(error);
         }
 
-        // fallback to PNG if configuration is corrupted
-        if (!Config.OutputFormat.ContainsKey(_presetCommand))
+        // fallback to PNG / background if the configuration is incomplete (the plugin repairs it on startup), or the format is unknown
+        string configuredFormat = config.OutputFormat.TryGetValue(_presetCommand, out var format) ? format : WellKnownFileFormats.Png;
+        var formatRegistry = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>(true);
+        if (formatRegistry != null && !formatRegistry.TryGet(configuredFormat, out _))
         {
-            Config.OutputFormat.Add(_presetCommand,OutputFormat.png);
+            LOG.WarnFormat("Unknown output file format '{0}' for external command '{1}'; using PNG.", configuredFormat, _presetCommand);
         }
 
-        if (!Config.RunInbackground.ContainsKey(_presetCommand))
-        {
-            Config.RunInbackground.Add(_presetCommand, true);
-        }
+        var outputSettings = new SurfaceOutputSettings(formatRegistry.ResolveFormatId(configuredFormat, WellKnownFileFormats.Png));
+        bool runInBackground = !config.RunInbackground.TryGetValue(_presetCommand, out var background) || background;
+        string fullPath = request.Metadata?.Filename
+                          ?? await ExportFiles.SaveNamedTmpFileAsync(request.Source, request.Metadata, outputSettings, cancellationToken).ConfigureAwait(false);
 
-        SurfaceOutputSettings outputSettings = new SurfaceOutputSettings();
-        outputSettings.Format = Config.OutputFormat[_presetCommand];
-        bool runInBackground = Config.RunInbackground[_presetCommand];
-        string fullPath = captureDetails.Filename ?? ImageIO.SaveNamedTmpFile(surface, captureDetails, outputSettings);
-
-        string output;
-        string error;
         if (runInBackground)
         {
-            Thread commandThread = new Thread(delegate ()
-            {
-                CallExternalCommand(exportInformation, fullPath, out output, out error);
-                ProcessExport(exportInformation, surface);
-            })
-            {
-                Name = "Running " + _presetCommand,
-                IsBackground = true
-            };
-            commandThread.SetApartmentState(ApartmentState.STA);
-            commandThread.Start();
-            exportInformation.ExportMade = true;
-        }
-        else
-        {
-            CallExternalCommand(exportInformation, fullPath, out output, out error);
-            ProcessExport(exportInformation, surface);
+            // The export doesn't wait for the command, its outcome is reported by a notification (the task is observed)
+            RunInBackgroundAsync(fullPath, request.Ui).FireAndLog("Running " + _presetCommand, LOG);
+            return ExportResult.Succeeded(fullPath);
         }
 
-        return exportInformation;
+        return await RunAsync(fullPath, cancellationToken).ConfigureAwait(false);
+    }
+
+    private async Task RunInBackgroundAsync(string fullPath, IUserInteraction userInteraction)
+    {
+        var result = await RunAsync(fullPath, CancellationToken.None).ConfigureAwait(false);
+        if (result.Status == ExportStatus.Failed)
+        {
+            await userInteraction.NotifyAsync(new Notification(NotificationKind.Error, $"{_presetCommand}: {result.Error}")).ConfigureAwait(false);
+        }
     }
 
     /// <summary>
-    /// Wrapper method for the background and normal call, this does all the logic:
-    /// Call the external command, parse for URI, place to clipboard and set the export information
+    /// Call the external command, parse the output for an URI and place it on the clipboard
     /// </summary>
-    /// <param name="exportInformation"></param>
-    /// <param name="fullPath"></param>
-    /// <param name="output"></param>
-    /// <param name="error"></param>
-    private void CallExternalCommand(ExportInformation exportInformation, string fullPath, out string output, out string error)
+    private async Task<ExportResult> RunAsync(string fullPath, CancellationToken cancellationToken)
     {
-        output = null;
-        error = null;
         try
         {
-            if (CallExternalCommand(_presetCommand, fullPath, out output, out error) == 0)
+            var (exitCode, output, error) = await CallExternalCommandAsync(_presetCommand, fullPath, cancellationToken).ConfigureAwait(false);
+            if (exitCode != 0)
             {
-                exportInformation.ExportMade = true;
-                if (!string.IsNullOrEmpty(output))
-                {
-                    MatchCollection uriMatches = URI_REGEXP.Matches(output);
-                    // Place output on the clipboard before the URI, so if one is found this overwrites
-                    bool outputToClipboard = Config?.OutputToClipboardCommand != null && Config.OutputToClipboardCommand.TryGetValue(_presetCommand, out var otc)
-                        ? otc
-                        : Config?.OutputToClipboard ?? false;
-                    if (outputToClipboard)
-                    {
-                        ClipboardHelper.SetClipboardData(output);
-                    }
+                LOG.WarnFormat("Error calling external command: {0} ", output);
+                return ExportResult.Failed(string.IsNullOrEmpty(error) ? $"Exit code {exitCode}" : error);
+            }
 
-                    if (uriMatches.Count > 0)
+            Uri uri = null;
+            if (!string.IsNullOrEmpty(output))
+            {
+                var clipboard = ClipboardService.Current;
+                MatchCollection uriMatches = URI_REGEXP.Matches(output);
+                // Place output on the clipboard before the URI, so if one is found this overwrites
+                bool outputToClipboard = Config?.OutputToClipboardCommand != null && Config.OutputToClipboardCommand.TryGetValue(_presetCommand, out var otc)
+                    ? otc
+                    : Config?.OutputToClipboard ?? false;
+                if (outputToClipboard)
+                {
+                    await clipboard.SetTextAsync(output, cancellationToken).ConfigureAwait(false);
+                }
+
+                if (uriMatches.Count > 0)
+                {
+                    string uriText = uriMatches[0].Groups[1].Value;
+                    LOG.InfoFormat("Got URI : {0} ", uriText);
+                    Uri.TryCreate(uriText, UriKind.RelativeOrAbsolute, out uri);
+                    bool uriToClipboard = Config?.UriToClipboardCommand != null && Config.UriToClipboardCommand.TryGetValue(_presetCommand, out var utc)
+                        ? utc
+                        : Config?.UriToClipboard ?? true;
+                    if (uriToClipboard)
                     {
-                        exportInformation.Uri = uriMatches[0].Groups[1].Value;
-                        LOG.InfoFormat("Got URI : {0} ", exportInformation.Uri);
-                        bool uriToClipboard = Config?.UriToClipboardCommand != null && Config.UriToClipboardCommand.TryGetValue(_presetCommand, out var utc)
-                            ? utc
-                            : Config?.UriToClipboard ?? true;
-                        if (uriToClipboard)
-                        {
-                            ClipboardHelper.SetClipboardData(exportInformation.Uri);
-                        }
+                        await clipboard.SetTextAsync(uriText, cancellationToken).ConfigureAwait(false);
                     }
                 }
             }
-            else
-            {
-                LOG.WarnFormat("Error calling external command: {0} ", output);
-                exportInformation.ExportMade = false;
-                exportInformation.ErrorMessage = error;
-            }
+
+            return ExportResult.Succeeded(fullPath, uri);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
         }
         catch (Exception ex)
         {
-            exportInformation.ExportMade = false;
-            exportInformation.ErrorMessage = ex.Message;
-            LOG.WarnFormat("Error calling external command: {0} ", exportInformation.ErrorMessage);
+            LOG.WarnFormat("Error calling external command: {0} ", ex.Message);
+            return ExportResult.Failed(ex.Message, ex);
         }
     }
 
     /// <summary>
     /// Wrapper to retry with a runas
     /// </summary>
-    /// <param name="commando"></param>
-    /// <param name="fullPath"></param>
-    /// <param name="output"></param>
-    /// <param name="error"></param>
-    /// <returns></returns>
-    private int CallExternalCommand(string commando, string fullPath, out string output, out string error)
+    private async Task<(int ExitCode, string Output, string Error)> CallExternalCommandAsync(string commando, string fullPath, CancellationToken cancellationToken)
     {
         try
         {
-            return CallExternalCommand(commando, fullPath, null, out output, out error);
-        }
-        catch (Win32Exception w32Ex)
-        {
             try
             {
-                return CallExternalCommand(commando, fullPath, "runas", out output, out error);
+                return await CallExternalCommandAsync(commando, fullPath, null, cancellationToken).ConfigureAwait(false);
             }
-            catch
+            catch (Win32Exception)
             {
-                w32Ex.Data.Add("commandline", Config.Commandline[_presetCommand]);
-                w32Ex.Data.Add("arguments", Config.Argument[_presetCommand]);
-                throw;
+                return await CallExternalCommandAsync(commando, fullPath, "runas", cancellationToken).ConfigureAwait(false);
             }
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            ex.Data.Add("commandline", Config.Commandline[_presetCommand]);
-            ex.Data.Add("arguments", Config.Argument[_presetCommand]);
+            ex.Data["commandline"] = Config.Commandline[_presetCommand];
+            ex.Data["arguments"] = Config.Argument[_presetCommand];
             throw;
         }
     }
@@ -248,82 +246,58 @@ public class ExternalCommandDestination : AbstractDestination, IRequiresRecipeAu
     /// <summary>
     /// The actual executing code for the external command
     /// </summary>
-    /// <param name="commando"></param>
-    /// <param name="fullPath"></param>
-    /// <param name="verb"></param>
-    /// <param name="output"></param>
-    /// <param name="error"></param>
-    /// <returns></returns>
-    private int CallExternalCommand(string commando, string fullPath, string verb, out string output, out string error)
+    private async Task<(int ExitCode, string Output, string Error)> CallExternalCommandAsync(string commando, string fullPath, string verb, CancellationToken cancellationToken)
     {
         string commandline = Config.Commandline[commando];
         string arguments = Config.Argument[commando];
-        output = null;
-        error = null;
-        if (!string.IsNullOrEmpty(commandline))
+        if (string.IsNullOrEmpty(commandline))
         {
-            using Process process = new Process();
-            // Fix variables
-            commandline = FilenameHelper.FillVariables(commandline, true);
-            commandline = FilenameHelper.FillCmdVariables(commandline, true);
-
-            arguments = FilenameHelper.FillVariables(arguments, false);
-            arguments = FilenameHelper.FillCmdVariables(arguments, false);
-
-            process.StartInfo.FileName = FilenameHelper.FillCmdVariables(commandline, true);
-            process.StartInfo.Arguments = FormatArguments(arguments, fullPath);
-            bool redirectOutput = Config?.RedirectStandardOutputCommand != null && Config.RedirectStandardOutputCommand.TryGetValue(commando, out var rso)
-                ? rso
-                : Config?.RedirectStandardOutput ?? true;
-            bool redirectError = Config?.RedirectStandardErrorCommand != null && Config.RedirectStandardErrorCommand.TryGetValue(commando, out var rse)
-                ? rse
-                : Config?.RedirectStandardError ?? true;
-            bool showInLog = Config?.ShowStandardOutputInLogCommand != null && Config.ShowStandardOutputInLogCommand.TryGetValue(commando, out var sil)
-                ? sil
-                : Config?.ShowStandardOutputInLog ?? false;
-
-            process.StartInfo.UseShellExecute = false;
-            if (redirectOutput)
-            {
-                process.StartInfo.RedirectStandardOutput = true;
-            }
-
-            if (redirectError)
-            {
-                process.StartInfo.RedirectStandardError = true;
-            }
-
-            if (verb != null)
-            {
-                process.StartInfo.Verb = verb;
-            }
-
-            LOG.InfoFormat("Starting : {0} {1}", process.StartInfo.FileName, process.StartInfo.Arguments);
-            process.Start();
-            process.WaitForExit();
-            if (redirectOutput)
-            {
-                output = process.StandardOutput.ReadToEnd();
-                if (showInLog && output.Trim().Length > 0)
-                {
-                    LOG.InfoFormat("Output:\n{0}", output);
-                }
-            }
-
-            if (redirectError)
-            {
-                error = process.StandardError.ReadToEnd();
-                if (error.Trim().Length > 0)
-                {
-                    LOG.WarnFormat("Error:\n{0}", error);
-                }
-            }
-
-            LOG.InfoFormat("Finished : {0} {1}", process.StartInfo.FileName, process.StartInfo.Arguments);
-            return process.ExitCode;
+            return (-1, null, null);
         }
 
-        return -1;
+        using Process process = new Process();
+        // Fix variables
+        commandline = FilenameHelper.FillVariables(commandline, true);
+        commandline = FilenameHelper.FillCmdVariables(commandline, true);
+
+        arguments = FilenameHelper.FillVariables(arguments, false);
+        arguments = FilenameHelper.FillCmdVariables(arguments, false);
+
+        process.StartInfo.FileName = FilenameHelper.FillCmdVariables(commandline, true);
+        process.StartInfo.Arguments = FormatArguments(arguments, fullPath);
+        bool redirectOutput = Config?.RedirectStandardOutputCommand != null && Config.RedirectStandardOutputCommand.TryGetValue(commando, out var rso)
+            ? rso
+            : Config?.RedirectStandardOutput ?? true;
+        bool redirectError = Config?.RedirectStandardErrorCommand != null && Config.RedirectStandardErrorCommand.TryGetValue(commando, out var rse)
+            ? rse
+            : Config?.RedirectStandardError ?? true;
+        bool showInLog = Config?.ShowStandardOutputInLogCommand != null && Config.ShowStandardOutputInLogCommand.TryGetValue(commando, out var sil)
+            ? sil
+            : Config?.ShowStandardOutputInLog ?? false;
+
+        process.StartInfo.UseShellExecute = false;
+        process.StartInfo.RedirectStandardOutput = redirectOutput;
+        process.StartInfo.RedirectStandardError = redirectError;
+
+        if (verb != null)
+        {
+            process.StartInfo.Verb = verb;
+        }
+
+        LOG.InfoFormat("Starting : {0} {1}", process.StartInfo.FileName, process.StartInfo.Arguments);
+        var (exitCode, output, error) = await process.RunAsync(cancellationToken).ConfigureAwait(false);
+        if (showInLog && output?.Trim().Length > 0)
+        {
+            LOG.InfoFormat("Output:\n{0}", output);
+        }
+
+        if (error?.Trim().Length > 0)
+        {
+            LOG.WarnFormat("Error:\n{0}", error);
+        }
+
+        LOG.InfoFormat("Finished : {0} {1}", process.StartInfo.FileName, process.StartInfo.Arguments);
+        return (exitCode, output, error);
     }
 
     public static string FormatArguments(string arguments, string fullpath)

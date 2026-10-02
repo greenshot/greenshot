@@ -21,10 +21,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
@@ -33,9 +33,9 @@ using Greenshot.Plugin.Office.OfficeExport;
 namespace Greenshot.Plugin.Office.Destinations
 {
     /// <summary>
-    /// Description of EmailDestination.
+    /// Insert the capture into a Word document.
     /// </summary>
-    public class WordDestination : AbstractDestination
+    public class WordDestination : OfficeDestinationBase
     {
         private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(WordDestination));
         private const int IconApplication = 0;
@@ -53,6 +53,11 @@ namespace Greenshot.Plugin.Office.Destinations
             }
         }
 
+        /// <summary>
+        /// The path of Word, null when it's not installed
+        /// </summary>
+        internal static string WordExePath => ExePath;
+
         public WordDestination()
         {
         }
@@ -64,100 +69,58 @@ namespace Greenshot.Plugin.Office.Destinations
 
         public override string Designation => "Word";
 
-        public override string Description => _documentCaption ?? "Microsoft Word";
+        public override DestinationDescriptor Descriptor => new DestinationDescriptor(_documentCaption ?? "Microsoft Word", 4,
+            IconKeyFor(ExePath, !string.IsNullOrEmpty(_documentCaption) ? IconDocument : IconApplication), hasDynamicDestinations: _documentCaption == null);
 
-        public override int Priority => 4;
+        public override bool IsAvailableFor(ICaptureDetails metadata) => base.IsAvailableFor(metadata) && ExePath != null;
 
-        public override bool IsDynamic => true;
+        public override ValueTask<IReadOnlyList<IDestination>> GetDynamicDestinationsAsync(ICaptureDetails metadata, CancellationToken cancellationToken) =>
+            _documentCaption != null
+                ? base.GetDynamicDestinationsAsync(metadata, cancellationToken)
+                : GetDynamicDestinationsAsync(_wordExporter.GetWordDocuments, wordCaption => new WordDestination(wordCaption), cancellationToken);
 
-        public override bool IsActive => base.IsActive && ExePath != null;
-
-        public override Image DisplayIcon => PluginUtils.GetCachedExeIcon(ExePath, !string.IsNullOrEmpty(_documentCaption) ? IconDocument : IconApplication);
-
-        public override IEnumerable<IDestination> DynamicDestinations()
+        public override async Task<ExportResult> ExportAsync(ExportRequest request, CancellationToken cancellationToken)
         {
-            foreach (string wordCaption in _wordExporter.GetWordDocuments())
+            if (_documentCaption == null && !request.ManuallyInitiated)
             {
-                yield return new WordDestination(wordCaption);
+                var documents = await RunOnOfficeAsync(() => _wordExporter.GetWordDocuments().ToList(), cancellationToken).ConfigureAwait(false);
+                if (documents.Count > 0)
+                {
+                    var destinations = new List<IDestination>
+                    {
+                        new WordDestination()
+                    };
+                    destinations.AddRange(documents.Select(document => new WordDestination(document)));
+                    // A new document or one of the open ones
+                    return await PickAndExportAsync(request, destinations, cancellationToken).ConfigureAwait(false);
+                }
             }
+
+            var (tmpFile, _) = await GetImageFileAsync(request, cancellationToken).ConfigureAwait(false);
+            try
+            {
+                await Office.RunAsync(() => Insert(tmpFile), cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                // Retry once, just in case
+                Log.Warn("Export to Word failed, retrying", ex);
+                await Office.RunAsync(() => Insert(tmpFile), cancellationToken).ConfigureAwait(false);
+            }
+
+            return ExportResult.Succeeded();
         }
 
-        public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
+        private void Insert(string tmpFile)
         {
-            ExportInformation exportInformation = new ExportInformation(Designation, Description);
-            string tmpFile = captureDetails.Filename;
-            if (tmpFile == null || surface.Modified || !Regex.IsMatch(tmpFile, @".*(\.png|\.gif|\.jpg|\.jpeg|\.tiff|\.bmp)$"))
-            {
-                tmpFile = ImageIO.SaveNamedTmpFile(surface, captureDetails, new SurfaceOutputSettings().PreventGreenshotFormat());
-            }
-
             if (_documentCaption != null)
             {
-                try
-                {
-                    _wordExporter.InsertIntoExistingDocument(_documentCaption, tmpFile);
-                    exportInformation.ExportMade = true;
-                }
-                catch (Exception)
-                {
-                    try
-                    {
-                        _wordExporter.InsertIntoExistingDocument(_documentCaption, tmpFile);
-                        exportInformation.ExportMade = true;
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Error(ex);
-                        // TODO: Change to general logic in ProcessExport
-                        surface.SendMessageEvent(this, SurfaceMessageTyp.Error, Language.GetFormattedString("destination_exportfailed", Description));
-                    }
-                }
+                _wordExporter.InsertIntoExistingDocument(_documentCaption, tmpFile);
             }
             else
             {
-                if (!manuallyInitiated)
-                {
-                    var documents = _wordExporter.GetWordDocuments().ToList();
-                    if (documents is { Count: > 0 })
-                    {
-                        var destinations = new List<IDestination>
-                        {
-                            new WordDestination()
-                        };
-                        foreach (string document in documents)
-                        {
-                            destinations.Add(new WordDestination(document));
-                        }
-
-                        // Return the ExportInformation from the picker without processing, as this indirectly comes from us self
-                        return ShowPickerMenu(false, surface, captureDetails, destinations);
-                    }
-                }
-
-                try
-                {
-                    _wordExporter.InsertIntoNewDocument(tmpFile, null, null);
-                    exportInformation.ExportMade = true;
-                }
-                catch (Exception)
-                {
-                    // Retry once, just in case
-                    try
-                    {
-                        _wordExporter.InsertIntoNewDocument(tmpFile, null, null);
-                        exportInformation.ExportMade = true;
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Error(ex);
-                        // TODO: Change to general logic in ProcessExport
-                        surface.SendMessageEvent(this, SurfaceMessageTyp.Error, Language.GetFormattedString("destination_exportfailed", Description));
-                    }
-                }
+                _wordExporter.InsertIntoNewDocument(tmpFile, null, null);
             }
-
-            ProcessExport(exportInformation, surface);
-            return exportInformation;
         }
     }
 }

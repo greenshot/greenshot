@@ -28,6 +28,7 @@ using System.Windows.Input;
 using Greenshot.Base.Core;
 using Greenshot.Base.Wpf;
 using Greenshot.Helpers;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.UI.ViewModels
 {
@@ -74,11 +75,11 @@ namespace Greenshot.UI.ViewModels
                 }
                 if (!string.IsNullOrWhiteSpace(greenshotVer) && !greenshotVer.Contains("bit") && OsInfo.Bits != 0)
                 {
-                    greenshotVer += (GreenshotEnvironment.IsPortable ? " Portable" : "") + $" ({OsInfo.Bits} bit)";
+                    greenshotVer += EditionInfo.Suffix + (GreenshotEnvironment.IsPortable ? " Portable" : "") + $" ({OsInfo.Bits} bit)";
                 }
                 _currentVersion = greenshotVer;
             }
-            _upgradeDownloadUrl = UpdateService.DownloadsUri.AbsoluteUri;
+            _upgradeDownloadUrl = _updateService.DownloadsUrl.AbsoluteUri;
 
             if (_updateService.LatestReleaseVersion != null)
             {
@@ -87,7 +88,7 @@ namespace Greenshot.UI.ViewModels
             }
 
             InitializeData();
-            _ = CheckVersionAsync();
+            CheckVersionAsync().FireAndLog("Check the version");
         }
 
         private void InitializeData()
@@ -452,7 +453,7 @@ namespace Greenshot.UI.ViewModels
             {
                 if (!string.IsNullOrEmpty(_fullReport))
                 {
-                    Clipboard.SetText(_fullReport);
+                    ClipboardHelper.SetClipboardData(_fullReport);
                     CopyButtonText = "✓ Copied!";
                 }
             }
@@ -468,7 +469,7 @@ namespace Greenshot.UI.ViewModels
             {
                 if (!string.IsNullOrEmpty(_stackTrace))
                 {
-                    Clipboard.SetText(_stackTrace);
+                    ClipboardHelper.SetClipboardData(_stackTrace);
                 }
             }
             catch

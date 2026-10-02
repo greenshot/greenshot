@@ -2,8 +2,8 @@
 Name: "plugins\jira"; Description: {cm:jira}; Types: full custom; Flags: disablenouninstallwarning
 
 [Files]
-Source: {#PluginDir}\Greenshot.Plugin.Jira\*Jira*.dll; DestDir: {app}\Plugins\Jira; Components: plugins\jira; Flags: {#DefaultInstallFlags};
-Source: {#PluginDir}\Greenshot.Plugin.Jira\Dapplo.HttpExtensions.WinForms.dll; DestDir: {app}\Plugins\Jira; Components: plugins\jira; Flags: {#DefaultInstallFlags};
+; The plugin and the libraries only it uses; the build removed its copies of the files Greenshot itself installs
+Source: {#PluginDir}\Greenshot.Plugin.Jira\*.dll; DestDir: {app}\Plugins\Greenshot.Plugin.Jira; Components: plugins\jira; Flags: {#DefaultInstallFlags};
 Source: {#SolutionDir}\Greenshot.Plugin.Jira\Languages\language_jira*.xml; DestDir: {app}\Languages\Plugins\Jira; Components: plugins\jira; Flags: {#DefaultInstallFlags};
 
 [CustomMessages]

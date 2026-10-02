@@ -1695,6 +1695,199 @@
                         </Border>
                     </StackPanel>
                 </ScrollViewer>
+
+                <!-- Section 6 (DEBUG only): Browser Extension & IPC Integration Debugger -->
+                <ScrollViewer x:Name="IntegrationDebugPanel" 
+                              VerticalScrollBarVisibility="Auto" 
+                              Visibility="Collapsed"
+                              Padding="22,18">
+                    <StackPanel>
+                        <!-- Section Header -->
+                        <Grid Margin="0,0,0,16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Integration &amp; Extension Debugger" 
+                                           FontSize="18" 
+                                           FontWeight="SemiBold" 
+                                           Foreground="{Binding TextPrimaryBrush}"/>
+                                <TextBlock Text="Configure and test local Native Messaging hosts &amp; greenshot:// URL protocol in HKCU" 
+                                           FontSize="12" 
+                                           Foreground="{Binding TextSecondaryBrush}" 
+                                           Margin="0,3,0,0"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                <Button Style="{StaticResource SecondaryButtonStyle}" 
+                                        Margin="0,0,8,0" 
+                                        Click="OnOpenDebugExtensionFolderClicked">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="📁 "/>
+                                        <TextBlock Text="Extension Folder"/>
+                                    </StackPanel>
+                                </Button>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Feedback Banner (when an action is performed) -->
+                        <Border Style="{StaticResource CardBorderStyle}"
+                                BorderThickness="1.5"
+                                BorderBrush="{Binding IntegrationDebugSection.ActionFeedbackBrush}"
+                                Margin="0,0,0,12"
+                                Padding="12"
+                                Visibility="{Binding IntegrationDebugSection.HasActionFeedback, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <TextBlock Text="{Binding IntegrationDebugSection.ActionFeedback}"
+                                       Foreground="{Binding IntegrationDebugSection.ActionFeedbackBrush}"
+                                       FontWeight="SemiBold"
+                                       FontSize="12"/>
+                        </Border>
+
+                        <!-- Host & Proxy Status Overview Card -->
+                        <Border Style="{StaticResource CardBorderStyle}" Padding="16" Margin="0,0,0,14">
+                            <StackPanel>
+                                <TextBlock Text="Registry &amp; Binary Status (Current User / HKCU)" 
+                                           FontSize="13" 
+                                           FontWeight="SemiBold" 
+                                           Foreground="{Binding TextPrimaryBrush}" 
+                                           Margin="0,0,0,10"/>
+                                
+                                <Grid Margin="0,0,0,6">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="180"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Proxy Executable:" FontWeight="SemiBold" Foreground="{Binding TextSecondaryBrush}"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding IntegrationDebugSection.ProxyStatus}" Foreground="{Binding TextPrimaryBrush}" TextWrapping="Wrap"/>
+                                </Grid>
+
+                                <Grid Margin="0,0,0,6">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="180"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Chrome Host (HKCU):" FontWeight="SemiBold" Foreground="{Binding TextSecondaryBrush}"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding IntegrationDebugSection.ChromeStatus}" Foreground="{Binding TextPrimaryBrush}" TextWrapping="Wrap"/>
+                                </Grid>
+
+                                <Grid Margin="0,0,0,6">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="180"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Edge Host (HKCU):" FontWeight="SemiBold" Foreground="{Binding TextSecondaryBrush}"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding IntegrationDebugSection.EdgeStatus}" Foreground="{Binding TextPrimaryBrush}" TextWrapping="Wrap"/>
+                                </Grid>
+
+                                <Grid Margin="0,0,0,6">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="180"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Firefox Host (HKCU):" FontWeight="SemiBold" Foreground="{Binding TextSecondaryBrush}"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding IntegrationDebugSection.FirefoxStatus}" Foreground="{Binding TextPrimaryBrush}" TextWrapping="Wrap"/>
+                                </Grid>
+
+                                <Grid Margin="0,0,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="180"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="URL Protocol (greenshot://):" FontWeight="SemiBold" Foreground="{Binding TextSecondaryBrush}"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding IntegrationDebugSection.UrlSchemeStatus}" Foreground="{Binding TextPrimaryBrush}" TextWrapping="Wrap"/>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Extension ID Configuration Card -->
+                        <Border Style="{StaticResource CardBorderStyle}" Padding="16" Margin="0,0,0,14">
+                            <StackPanel>
+                                <TextBlock Text="Browser Extension ID (Unpacked Developer Mode)" 
+                                           FontSize="13" 
+                                           FontWeight="SemiBold" 
+                                           Foreground="{Binding TextPrimaryBrush}" 
+                                           Margin="0,0,0,6"/>
+                                <TextBlock Text="Chromium browsers (Chrome, Edge, Brave) enforce allowed_origins with the exact extension ID generated when loading an unpacked extension. Paste your extension ID below to update org.greenshot.proxy.json." 
+                                           FontSize="11.5" 
+                                           Foreground="{Binding TextSecondaryBrush}" 
+                                           TextWrapping="Wrap" 
+                                           Margin="0,0,0,10"/>
+                                
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Grid.Column="0" 
+                                            Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=TextBoxBackgroundBrush}" 
+                                            BorderBrush="{Binding CardBorderBrush}" 
+                                            BorderThickness="1" 
+                                            CornerRadius="4" 
+                                            Padding="8,6" 
+                                            Margin="0,0,10,0">
+                                        <TextBox Text="{Binding IntegrationDebugSection.ExtensionId, UpdateSourceTrigger=PropertyChanged}" 
+                                                 Background="Transparent" 
+                                                 BorderThickness="0" 
+                                                 FontFamily="Consolas, monospace" 
+                                                 FontSize="12" 
+                                                 Foreground="{Binding TextPrimaryBrush}" 
+                                                 CaretBrush="{Binding TextPrimaryBrush}"/>
+                                    </Border>
+                                    <Button Grid.Column="1" 
+                                            Style="{StaticResource SecondaryButtonStyle}" 
+                                            Click="OnSaveDebugExtensionIdClicked">
+                                        <TextBlock Text="Save ID to Manifest"/>
+                                    </Button>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Actions Card -->
+                        <Border Style="{StaticResource CardBorderStyle}" Padding="16">
+                            <StackPanel>
+                                <TextBlock Text="Registry Actions" 
+                                           FontSize="13" 
+                                           FontWeight="SemiBold" 
+                                           Foreground="{Binding TextPrimaryBrush}" 
+                                           Margin="0,0,0,10"/>
+                                
+                                <WrapPanel Margin="0,0,0,10">
+                                    <Button Style="{StaticResource PrimaryButtonStyle}" 
+                                            Margin="0,0,10,6" 
+                                            Click="OnRegisterDebugHkcuClicked">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="➕ "/>
+                                            <TextBlock Text="Register Debug Host &amp; Protocol (HKCU)"/>
+                                        </StackPanel>
+                                    </Button>
+
+                                    <Button Style="{StaticResource SecondaryButtonStyle}" 
+                                            Margin="0,0,10,6" 
+                                            Click="OnUnregisterDebugHkcuClicked">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="🗑️ "/>
+                                            <TextBlock Text="Unregister from HKCU"/>
+                                        </StackPanel>
+                                    </Button>
+
+                                    <Button Style="{StaticResource SecondaryButtonStyle}" 
+                                            Margin="0,0,0,6" 
+                                            Click="OnTestDebugUrlSchemeClicked">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="🚀 "/>
+                                            <TextBlock Text="Test greenshot:// URL Scheme"/>
+                                        </StackPanel>
+                                    </Button>
+                                </WrapPanel>
+
+                                <TextBlock Text="Note: Registering in HKCU modifies only your user account (no admin privileges needed). Chrome, Edge, and Firefox will immediately detect this debug build's greenshot-proxy." 
+                                           FontSize="11" 
+                                           Foreground="{Binding TextSecondaryBrush}" 
+                                           TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
             </Grid>
         </Grid>
 

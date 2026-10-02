@@ -27,6 +27,9 @@ using Greenshot.Base.Drawing;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Pipeline.Contracts;
+using System.Text.RegularExpressions;
+using Newtonsoft.Json;
 
 namespace Greenshot.Base.Recipes
 {
@@ -40,8 +43,6 @@ namespace Greenshot.Base.Recipes
         public List<string> Warnings { get; } = new List<string>();
         public List<RecipeGatedAction> GatedActions { get; } = new List<RecipeGatedAction>();
         public bool HasGatedActions => GatedActions.Count > 0;
-        public bool HasExternalCommands => HasGatedActions;
-        public List<string> ExternalCommands => GatedActions.Select(g => g.Target).ToList();
 
         public void AddError(string error) => Errors.Add(error);
         public void AddWarning(string warning) => Warnings.Add(warning);
@@ -76,7 +77,6 @@ namespace Greenshot.Base.Recipes
         {
             WellKnownStepTypes.Source,
             WellKnownStepTypes.InteractiveSelection,
-            WellKnownStepTypes.Border,
             WellKnownStepTypes.Effect,
             WellKnownStepTypes.ImmediateFeedback,
             WellKnownStepTypes.Processors,
@@ -94,9 +94,9 @@ namespace Greenshot.Base.Recipes
             WellKnownStepTypes.CustomDestination,
             WellKnownStepTypes.DynamicDestination,
             WellKnownStepTypes.RecordVideo,
-            "SaveToFile",
-            "ObfuscateText",
-            "ExternalCommand"
+            WellKnownStepTypes.UserPrompt,
+            WellKnownStepTypes.Stdout,
+            WellKnownStepTypes.Stderr
         };
 
         private static readonly HashSet<string> KnownTriggerTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
@@ -107,7 +107,11 @@ namespace Greenshot.Base.Recipes
             Greenshot.Base.Triggers.TriggerConfig.TypeClipboard,
             Greenshot.Base.Triggers.TriggerConfig.TypeEditor,
             Greenshot.Base.Triggers.TriggerConfig.TypeManual,
-            Greenshot.Base.Triggers.TriggerConfig.TypeSchedule
+            Greenshot.Base.Triggers.TriggerConfig.TypeSchedule,
+            Greenshot.Base.Triggers.TriggerConfig.TypeCommandline,
+            Greenshot.Base.Triggers.TriggerConfig.TypeOpenFile,
+            Greenshot.Base.Triggers.TriggerConfig.TypeExtension,
+            Greenshot.Base.Triggers.TriggerConfig.TypeAiTool
         };
 
         /// <summary>
@@ -186,10 +190,38 @@ namespace Greenshot.Base.Recipes
                 ValidateNode(node, i, nodeIds, result);
             }
 
+            // Validate the options and where the nodes use them
+            ValidateOptions(recipe, result);
+
             // Validate Flow Definition & DAG acyclicity
             ValidateFlowAndDetectCycles(recipe, nodeIds, result);
 
+            // Check the recipe against the step contracts along the graph: required parameters, allowed values,
+            // variables used before they are set on every path, nodes that never run, ...
+            if (result.IsValid)
+            {
+                AddContractWarnings(recipe, result);
+            }
+
             return result;
+        }
+
+        private static void AddContractWarnings(CaptureRecipe recipe, RecipeValidationResult result)
+        {
+            try
+            {
+                var contract = Pipeline.Contracts.RecipeContract.Analyze(recipe);
+                foreach (var warning in contract?.ValidationWarnings ?? Array.Empty<string>())
+                {
+                    // Unknown step types are already reported as errors above (or are built-ins not registered yet)
+                    if (warning.IndexOf("has no registered contract", StringComparison.Ordinal) >= 0) continue;
+                    result.AddWarning(warning);
+                }
+            }
+            catch (Exception ex)
+            {
+                result.AddWarning($"The recipe could not be checked against the step contracts: {ex.Message}");
+            }
         }
 
         private static void ValidateTrigger(Greenshot.Base.Triggers.TriggerConfig trigger, int index, RecipeValidationResult result)
@@ -224,6 +256,35 @@ namespace Greenshot.Base.Recipes
                     if (!seq.Validate(out string error))
                     {
                         result.AddError($"Hotkey trigger '{trigger.Name}' at index {index} has invalid hotkey '{hotkey}': {error}");
+                    }
+                }
+            }
+
+            if (string.Equals(trigger.TriggerType, Greenshot.Base.Triggers.TriggerConfig.TypeAiTool, StringComparison.OrdinalIgnoreCase))
+            {
+                string toolName = trigger.GetParameter<string>("ToolName");
+                if (!Greenshot.Base.Triggers.AiToolTrigger.IsValidToolName(toolName))
+                {
+                    result.AddError($"AI tool trigger '{trigger.Name}' at index {index} needs a 'ToolName' of 1 to 64 letters, digits, '_' or '-'{(string.IsNullOrEmpty(toolName) ? string.Empty : $", not '{toolName}'")}.");
+                }
+                if (string.IsNullOrWhiteSpace(trigger.GetParameter<string>("Description")))
+                {
+                    result.AddWarning($"AI tool trigger '{trigger.Name}' at index {index} has no 'Description', the AI won't know what the tool does.");
+                }
+            }
+
+            if (string.Equals(trigger.TriggerType, Greenshot.Base.Triggers.TriggerConfig.TypeOpenFile, StringComparison.OrdinalIgnoreCase))
+            {
+                // Filter: extensions separated by ';', e.g. ".png;.jpg"
+                string filter = trigger.GetParameter<string>("Filter");
+                if (!string.IsNullOrWhiteSpace(filter))
+                {
+                    foreach (string extension in filter.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries).Select(e => e.Trim()))
+                    {
+                        if (extension.Length < 2 || extension[0] != '.' || extension.IndexOfAny(new[] { '.', '*', '?', ',', '|', ' ' }, 1) >= 0)
+                        {
+                            result.AddError($"OpenFile trigger '{trigger.Name}' at index {index} has the invalid extension '{extension}' in its Filter; use extensions separated by ';', e.g. \".png;.jpg\".");
+                        }
                     }
                 }
             }
@@ -265,7 +326,8 @@ namespace Greenshot.Base.Recipes
             }
 
             // Node-specific parameter validations (independent checks)
-            if (string.Equals(node.StepType, WellKnownStepTypes.Border, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(node.StepType, WellKnownStepTypes.Effect, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(node.GetParameter("Effect", "Border"), "Border", StringComparison.OrdinalIgnoreCase))
             {
                 if (node.Parameters != null && node.Parameters.TryGetValue("Width", out var w) && w != null)
                 {
@@ -297,7 +359,7 @@ namespace Greenshot.Base.Recipes
             }
             if (string.Equals(node.StepType, WellKnownStepTypes.Conditional, StringComparison.OrdinalIgnoreCase))
             {
-                var branches = node.GetFirstParameter<object>("Branches");
+                var branches = node.GetParameter<object>("Branches");
                 if (branches == null)
                 {
                     result.AddError($"Node '{node.Id}' [Conditional]: Missing required 'branches' configuration list.");
@@ -420,6 +482,140 @@ namespace Greenshot.Base.Recipes
             catch
             {
                 // DI not initialized; skip runtime check
+            }
+        }
+
+        private static readonly Regex ExpressionPattern = new Regex(@"\$\{([^}]*)\}", RegexOptions.Compiled);
+        private static readonly Regex OptionReferencePattern = new Regex(@"(?<![A-Za-z0-9_.])option\.([A-Za-z0-9_]+)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+        /// <summary>
+        /// The keys of the options a text uses in its ${...} expressions
+        /// </summary>
+        public static IReadOnlyCollection<string> FindOptionReferences(string text)
+        {
+            var keys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            if (string.IsNullOrEmpty(text)) return keys;
+            foreach (Match expression in ExpressionPattern.Matches(text))
+            {
+                foreach (Match reference in OptionReferencePattern.Matches(expression.Groups[1].Value))
+                {
+                    keys.Add(reference.Groups[1].Value);
+                }
+            }
+            return keys;
+        }
+
+        private static void ValidateOptions(CaptureRecipe recipe, RecipeValidationResult result)
+        {
+            var options = new Dictionary<string, RecipeOption>(StringComparer.OrdinalIgnoreCase);
+            foreach (var option in recipe.Options ?? new List<RecipeOption>())
+            {
+                if (option == null)
+                {
+                    result.AddError("An option cannot be null.");
+                    continue;
+                }
+                if (string.IsNullOrWhiteSpace(option.Key) || !RecipeOption.KeyPattern.IsMatch(option.Key))
+                {
+                    result.AddError($"Option key '{option.Key}' is invalid: use letters, digits and underscores, starting with a letter.");
+                    continue;
+                }
+                if (options.ContainsKey(option.Key))
+                {
+                    result.AddError($"Duplicate option key '{option.Key}'.");
+                    continue;
+                }
+                options[option.Key] = option;
+
+                if (!RecipeOption.SupportedTypes.Contains(option.Type))
+                {
+                    result.AddError($"Option '{option.Key}' has type '{option.Type}', options can be {string.Join(", ", RecipeOption.SupportedTypes)}.");
+                    continue;
+                }
+                if (option.Type == ContractDataType.Enum)
+                {
+                    var values = option.Choices?.Where(c => c != null).Select(c => c.Value).ToList() ?? new List<string>();
+                    if (values.Count == 0 || values.Any(string.IsNullOrWhiteSpace))
+                    {
+                        result.AddError($"Option '{option.Key}' is an Enum and needs 'choices', each with a 'value'.");
+                    }
+                    else if (values.Distinct(StringComparer.OrdinalIgnoreCase).Count() != values.Count)
+                    {
+                        result.AddError($"Option '{option.Key}' has duplicate choices.");
+                    }
+                }
+                else if (option.Choices != null && option.Choices.Count > 0)
+                {
+                    result.AddWarning($"Option '{option.Key}': 'choices' are only used for Enum options.");
+                }
+                bool isNumber = option.Type == ContractDataType.Integer || option.Type == ContractDataType.Decimal;
+                if (!isNumber && (option.Min.HasValue || option.Max.HasValue))
+                {
+                    result.AddWarning($"Option '{option.Key}': 'min' and 'max' are only used for Integer and Decimal options.");
+                }
+                if (option.Min.HasValue && option.Max.HasValue && option.Min.Value > option.Max.Value)
+                {
+                    result.AddError($"Option '{option.Key}': 'min' ({option.Min}) is larger than 'max' ({option.Max}).");
+                }
+                if (option.DefaultValue != null && !option.TryConvert(option.DefaultValue, out _))
+                {
+                    result.AddError($"Option '{option.Key}': the default '{option.DefaultValue}' is not a valid {option.Type}.");
+                }
+                if (option.QuickSettings && !RecipeOption.QuickSettingsTypes.Contains(option.Type))
+                {
+                    result.AddError($"Option '{option.Key}' can't be shown in the quick settings, only Boolean and Enum options can.");
+                }
+            }
+
+            foreach (var option in options.Values.Where(o => !string.IsNullOrWhiteSpace(o.EnabledWhen)))
+            {
+                if (string.Equals(option.EnabledWhen, option.Key, StringComparison.OrdinalIgnoreCase) ||
+                    !options.TryGetValue(option.EnabledWhen, out var switchOption) || switchOption.Type != ContractDataType.Boolean)
+                {
+                    result.AddError($"Option '{option.Key}': 'enabledWhen' must be the key of another Boolean option of the recipe.");
+                }
+            }
+
+            foreach (var node in recipe.Nodes.Where(n => n != null))
+            {
+                if (!string.IsNullOrWhiteSpace(node.EnabledExpression) && node.EnabledExpression.IndexOf("${", StringComparison.Ordinal) < 0)
+                {
+                    result.AddError($"Node '{node.Id}': 'enabled' must be true, false or an expression like \"${{option.key}}\".");
+                }
+
+                string parameters = node.Parameters == null || node.Parameters.Count == 0 ? null : JsonConvert.SerializeObject(node.Parameters);
+                var parameterReferences = FindOptionReferences(parameters);
+                foreach (var key in parameterReferences.Concat(FindOptionReferences(node.EnabledExpression)).Distinct(StringComparer.OrdinalIgnoreCase))
+                {
+                    if (!options.ContainsKey(key))
+                    {
+                        result.AddError($"Node '{node.Id}' uses the option '{key}', which the recipe doesn't declare in 'options'.");
+                    }
+                }
+
+                // A text the user types must not end up in a command line, an upload address or a file path:
+                // a step which needs an approval may only use options whose values the approved recipe limits.
+                var textOptions = parameterReferences
+                    .Where(key => options.TryGetValue(key, out var option) && option.Type == ContractDataType.String)
+                    .ToList();
+                if (textOptions.Count > 0 && IsGatedNode(node))
+                {
+                    result.AddError($"Node '{node.Id}' needs an approval and can't use the text option(s) {string.Join(", ", textOptions.Select(k => $"'{k}'"))}.");
+                }
+            }
+        }
+
+        private static bool IsGatedNode(RecipeNodeConfig node)
+        {
+            try
+            {
+                return StepRegistry.Instance.CreateStep(node) is IRequiresRecipeAuthorization authStep &&
+                       (authStep.GetGatedActions()?.Any() ?? false);
+            }
+            catch
+            {
+                // Unresolvable step types are flagged by the schema check
+                return false;
             }
         }
 

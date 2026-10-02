@@ -22,30 +22,36 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dapplo.Confluence;
 using Dapplo.Confluence.Entities;
 using Dapplo.Confluence.Query;
 using Greenshot.Base.Core;
+using Greenshot.Base.Interfaces;
+using Greenshot.Base.Threading;
 using Dapplo.Ini;
 
 namespace Greenshot.Plugin.Confluence;
 
 /// <summary>
-/// Confluence connector using REST API via Dapplo.Confluence
+/// Confluence connector using REST API via Dapplo.Confluence, everything is async (rule R12).
 /// See: https://docs.atlassian.com/ConfluenceServer/rest/
 /// </summary>
 public class ConfluenceConnector : IDisposable
 {
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(ConfluenceConnector));
     private static readonly IConfluenceConfiguration Config = IniConfigRegistry.GetSection<IConfluenceConfiguration>();
+    private readonly SemaphoreSlim _loginLock = new SemaphoreSlim(1, 1);
     private DateTime _loggedInTime = DateTime.Now;
-    private bool _loggedIn;
+    private volatile bool _loggedIn;
     private IConfluenceClient _confluence;
     private readonly int _timeout;
     private string _url;
     private readonly Cache<string, Content> _pageCache = new Cache<string, Content>(60 * Config.Timeout);
+    private IList<Entities.Space> _spaces;
+    private DateTime _spacesLoaded;
 
     public void Dispose()
     {
@@ -86,22 +92,22 @@ public class ConfluenceConnector : IDisposable
     }
 
     /// <summary>
-    /// Internal login which catches the exceptions
+    /// Internal login which catches the authentication failure
     /// </summary>
     /// <returns>true if login was done successfully</returns>
-    private bool DoLogin(string user, string password)
+    private async Task<bool> DoLoginAsync(string user, string password, CancellationToken cancellationToken)
     {
         try
         {
             _confluence.SetBasicAuthentication(user, password);
-            
+
             // Test the credentials by getting current user info
-            Task.Run(async () => await _confluence.User.GetCurrentUserAsync().ConfigureAwait(false)).GetAwaiter().GetResult();
-            
+            await _confluence.User.GetCurrentUserAsync(cancellationToken).ConfigureAwait(false);
+
             _loggedInTime = DateTime.Now;
             _loggedIn = true;
         }
-        catch (Exception e)
+        catch (Exception e) when (e is not OperationCanceledException)
         {
             // Check if auth failed
             if (e.InnerException != null && (e.InnerException.Message.Contains("401") || e.InnerException.Message.Contains("Unauthorized")))
@@ -111,17 +117,21 @@ public class ConfluenceConnector : IDisposable
 
             // Not an authentication issue
             _loggedIn = false;
-            e.Data.Add("user", user);
-            e.Data.Add("url", _url);
+            e.Data["user"] = user;
+            e.Data["url"] = _url;
             throw;
         }
 
         return true;
     }
 
-    public void Login()
+    /// <summary>
+    /// Ask the user for the credentials (on the UI thread) until the login worked or the user canceled.
+    /// </summary>
+    public async Task LoginAsync(CancellationToken cancellationToken = default)
     {
         Logout();
+        var ui = UiDispatcher.Current;
         try
         {
             // Get the system name, so the user knows where to login to
@@ -130,34 +140,32 @@ public class ConfluenceConnector : IDisposable
             {
                 Name = null
             };
-            while (dialog.Show(dialog.Name) == DialogResult.OK)
+            while (await ui.InvokeAsync(() => dialog.Show(dialog.Name), cancellationToken).ConfigureAwait(false) == DialogResult.OK)
             {
-                if (DoLogin(dialog.Name, dialog.Password))
+                if (await DoLoginAsync(dialog.Name, dialog.Password, cancellationToken).ConfigureAwait(false))
                 {
                     if (dialog.SaveChecked)
                     {
-                        dialog.Confirm(true);
+                        await ui.InvokeAsync(() => dialog.Confirm(true), cancellationToken).ConfigureAwait(false);
                     }
 
                     return;
                 }
-                else
-                {
-                    try
-                    {
-                        dialog.Confirm(false);
-                    }
-                    catch (ApplicationException e)
-                    {
-                        // exception handling ...
-                        Log.Error("Problem using the credentials dialog", e);
-                    }
 
-                    // For every windows version after XP show an incorrect password balloon
-                    dialog.IncorrectPassword = true;
-                    // Make sure the dialog is display, the password was false!
-                    dialog.AlwaysDisplay = true;
+                try
+                {
+                    await ui.InvokeAsync(() => dialog.Confirm(false), cancellationToken).ConfigureAwait(false);
                 }
+                catch (ApplicationException e)
+                {
+                    // exception handling ...
+                    Log.Error("Problem using the credentials dialog", e);
+                }
+
+                // For every windows version after XP show an incorrect password balloon
+                dialog.IncorrectPassword = true;
+                // Make sure the dialog is display, the password was false!
+                dialog.AlwaysDisplay = true;
             }
         }
         catch (ApplicationException e)
@@ -177,36 +185,51 @@ public class ConfluenceConnector : IDisposable
         }
     }
 
-    private void CheckCredentials()
+    /// <summary>
+    /// Make sure the connector is logged in (asks the user when needed), one login at a time.
+    /// </summary>
+    /// <returns>true when logged in, false when the user canceled the login</returns>
+    public async Task<bool> EnsureLoggedInAsync(CancellationToken cancellationToken = default)
     {
-        if (_loggedIn)
+        await _loginLock.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
         {
-            if (_loggedInTime.AddMinutes(_timeout - 1).CompareTo(DateTime.Now) < 0)
+            if (_loggedIn && _loggedInTime.AddMinutes(_timeout - 1).CompareTo(DateTime.Now) < 0)
             {
                 Logout();
-                Login();
             }
+
+            if (!_loggedIn)
+            {
+                await LoginAsync(cancellationToken).ConfigureAwait(false);
+            }
+
+            return _loggedIn;
         }
-        else
+        finally
         {
-            Login();
+            _loginLock.Release();
+        }
+    }
+
+    private async Task CheckCredentialsAsync(CancellationToken cancellationToken)
+    {
+        if (!await EnsureLoggedInAsync(cancellationToken).ConfigureAwait(false))
+        {
+            throw new UnauthorizedAccessException($"Not logged in to {_url}");
         }
     }
 
     public bool IsLoggedIn => _loggedIn;
 
-    public void AddAttachment(long pageId, string mime, string comment, string filename, IBinaryContainer image)
+    public async Task AddAttachmentAsync(long pageId, EncodedImage image, string filename, string comment, CancellationToken cancellationToken = default)
     {
-        CheckCredentials();
-        
-        Task.Run(async () =>
-        {
-            using var stream = new System.IO.MemoryStream(image.ToByteArray());
-            await _confluence.Attachment.AttachAsync(pageId, stream, filename, comment, mime).ConfigureAwait(false);
-        }).GetAwaiter().GetResult();
+        await CheckCredentialsAsync(cancellationToken).ConfigureAwait(false);
+        using var stream = image.OpenRead();
+        await _confluence.Attachment.AttachAsync(pageId, stream, filename, comment, image.MimeType, cancellationToken).ConfigureAwait(false);
     }
 
-    public Entities.Page GetPage(string spaceKey, string pageTitle)
+    public async Task<Entities.Page> GetPageAsync(string spaceKey, string pageTitle, CancellationToken cancellationToken = default)
     {
         Content page = null;
         string cacheKey = spaceKey + pageTitle;
@@ -217,23 +240,18 @@ public class ConfluenceConnector : IDisposable
 
         if (page == null)
         {
-            CheckCredentials();
-            
-            page = Task.Run(async () =>
+            await CheckCredentialsAsync(cancellationToken).ConfigureAwait(false);
+            var query = Where.And(Where.Type.IsPage, Where.Title.Is(pageTitle), Where.Space.Is(spaceKey));
+            var searchResult = await _confluence.Content.SearchAsync(query, pagingInformation: new PagingInformation
             {
-                var query = Where.And(Where.Type.IsPage, Where.Title.Is(pageTitle), Where.Space.Is(spaceKey));
-                var searchResult = await _confluence.Content.SearchAsync(query, pagingInformation: new PagingInformation
-                {
-                    Limit = 1
-                }).ConfigureAwait(false);
-                return searchResult.Results.FirstOrDefault();
-            }).GetAwaiter().GetResult();
+                Limit = 1
+            }, cancellationToken: cancellationToken).ConfigureAwait(false);
+            page = searchResult.Results.FirstOrDefault();
 
             if (page != null)
             {
                 // Get full page details with body
-                page = Task.Run(async () =>
-                    await _confluence.Content.GetAsync(page, ConfluenceClientConfig.ExpandGetContentWithStorage).ConfigureAwait(false)).GetAwaiter().GetResult();
+                page = await _confluence.Content.GetAsync(page, ConfluenceClientConfig.ExpandGetContentWithStorage, cancellationToken).ConfigureAwait(false);
                 _pageCache.Add(cacheKey, page);
             }
         }
@@ -241,7 +259,7 @@ public class ConfluenceConnector : IDisposable
         return page != null ? new Entities.Page(page) : null;
     }
 
-    public Entities.Page GetPage(long pageId)
+    public async Task<Entities.Page> GetPageAsync(long pageId, CancellationToken cancellationToken = default)
     {
         Content page = null;
         string cacheKey = pageId.ToString();
@@ -253,137 +271,87 @@ public class ConfluenceConnector : IDisposable
 
         if (page == null)
         {
-            CheckCredentials();
-            
-            page = Task.Run(async () =>
-                await _confluence.Content.GetAsync(pageId, ConfluenceClientConfig.ExpandGetContentWithStorage).ConfigureAwait(false)).GetAwaiter().GetResult();
+            await CheckCredentialsAsync(cancellationToken).ConfigureAwait(false);
+            page = await _confluence.Content.GetAsync(pageId, ConfluenceClientConfig.ExpandGetContentWithStorage, cancellationToken).ConfigureAwait(false);
             _pageCache.Add(cacheKey, page);
         }
 
         return new Entities.Page(page);
     }
 
-    public Entities.Page GetSpaceHomepage(Entities.Space spaceSummary)
+    public async Task<Entities.Page> GetSpaceHomepageAsync(Entities.Space spaceSummary, CancellationToken cancellationToken = default)
     {
-        CheckCredentials();
-        
-        var page = Task.Run(async () =>
+        await CheckCredentialsAsync(cancellationToken).ConfigureAwait(false);
+        var space = await _confluence.Space.GetAsync(spaceSummary.Key, cancellationToken: cancellationToken).ConfigureAwait(false);
+        if (space.HomepageId == 0)
         {
-            var space = await _confluence.Space.GetAsync(spaceSummary.Key).ConfigureAwait(false);
-            if (space.HomepageId != 0)
-            {
-                return await _confluence.Content.GetAsync(space.HomepageId, ConfluenceClientConfig.ExpandGetContentWithStorage).ConfigureAwait(false);
-            }
             return null;
-        }).GetAwaiter().GetResult();
+        }
+
+        var page = await _confluence.Content.GetAsync(space.HomepageId, ConfluenceClientConfig.ExpandGetContentWithStorage, cancellationToken).ConfigureAwait(false);
         return page != null ? new Entities.Page(page) : null;
     }
 
-    public IEnumerable<Entities.Space> GetSpaceSummaries()
+    /// <summary>
+    /// The spaces, sorted by name and cached for an hour
+    /// </summary>
+    public async Task<IList<Entities.Space>> GetSpaceSummariesAsync(CancellationToken cancellationToken = default)
     {
-        CheckCredentials();
-        
-        var spaces = Task.Run(async () =>
+        var spaces = _spaces;
+        if (spaces != null && DateTime.Now.AddMinutes(-60).CompareTo(_spacesLoaded) < 0)
         {
-            var allSpaces = new List<Dapplo.Confluence.Entities.Space>();
-            var spacesResult = await _confluence.Space.GetAllAsync().ConfigureAwait(false);
-
-            foreach (var space in spacesResult)
-            {
-                allSpaces.Add(space);
-            }
-
-            return allSpaces;
-        }).GetAwaiter().GetResult();
-        
-        foreach (var space in spaces)
-        {
-            yield return new Entities.Space(space);
+            return spaces;
         }
+
+        await CheckCredentialsAsync(cancellationToken).ConfigureAwait(false);
+        var spacesResult = await _confluence.Space.GetAllAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+        spaces = spacesResult.Select(space => new Entities.Space(space)).OrderBy(space => space.Name).ToList();
+        _spaces = spaces;
+        _spacesLoaded = DateTime.Now;
+        return spaces;
     }
 
-    public IEnumerable<Entities.Page> GetPageChildren(Entities.Page parentPage)
+    public async Task<IList<Entities.Page>> GetPageChildrenAsync(Entities.Page parentPage, CancellationToken cancellationToken = default)
     {
-        CheckCredentials();
-        
-        var pages = Task.Run(async () =>
-        {
-            var children = new List<Content>();
-            var childrenResult = await _confluence.Content.GetChildrenAsync(parentPage.Id).ConfigureAwait(false);
-
-            if (childrenResult?.Results != null)
-            {
-                children.AddRange(childrenResult.Results);
-            }
-
-            return children;
-        }).GetAwaiter().GetResult();
-        
-        foreach (var page in pages)
-        {
-            yield return new Entities.Page(page);
-        }
+        await CheckCredentialsAsync(cancellationToken).ConfigureAwait(false);
+        var childrenResult = await _confluence.Content.GetChildrenAsync(parentPage.Id, cancellationToken: cancellationToken).ConfigureAwait(false);
+        return childrenResult?.Results?.Select(page => new Entities.Page(page)).ToList() ?? new List<Entities.Page>();
     }
 
-    public IEnumerable<Entities.Page> GetPageSummaries(Entities.Space space)
+    public async Task<IList<Entities.Page>> GetPageSummariesAsync(Entities.Space space, CancellationToken cancellationToken = default)
     {
-        CheckCredentials();
-        
-        var pages = Task.Run(async () =>
-        {
-            var allPages = new List<Content>();
-            var query = Where.And(Where.Type.IsPage, Where.Space.Is(space.Key));
-            var searchResult = await _confluence.Content.SearchAsync(query).ConfigureAwait(false);
-
-            foreach (var page in searchResult.Results)
-            {
-                allPages.Add(page);
-            }
-
-            return allPages;
-        }).GetAwaiter().GetResult();
-        
-        foreach (var page in pages)
-        {
-            yield return new Entities.Page(page);
-        }
+        await CheckCredentialsAsync(cancellationToken).ConfigureAwait(false);
+        var query = Where.And(Where.Type.IsPage, Where.Space.Is(space.Key));
+        var searchResult = await _confluence.Content.SearchAsync(query, cancellationToken: cancellationToken).ConfigureAwait(false);
+        return searchResult.Results.Select(page => new Entities.Page(page)).ToList();
     }
 
-    public IEnumerable<Entities.Page> SearchPages(string query, string space)
+    public async Task<IList<Entities.Page>> SearchPagesAsync(string query, string space, CancellationToken cancellationToken = default)
     {
-        CheckCredentials();
-        
-        var pages = Task.Run(async () =>
+        await CheckCredentialsAsync(cancellationToken).ConfigureAwait(false);
+        IFinalClause whereClause;
+
+        if (!string.IsNullOrEmpty(space))
         {
-            var allPages = new List<Content>();
-            IFinalClause whereClause;
-
-            if (!string.IsNullOrEmpty(space))
-            {
-                whereClause = Where.And(Where.Type.IsPage, Where.Text.Contains(query), Where.Space.Is(space));
-            }
-            else
-            {
-                whereClause = Where.And(Where.Type.IsPage, Where.Text.Contains(query));
-            }
-
-            var searchResult = await _confluence.Content.SearchAsync(whereClause, pagingInformation: new PagingInformation { Limit = 20 }).ConfigureAwait(false);
-
-            foreach (var page in searchResult.Results)
-            {
-                Log.DebugFormat("Got result of type {0}", page.Type);
-                if (page.Type == ContentTypes.Page)
-                {
-                    allPages.Add(page);
-                }
-            }
-
-            return allPages;
-        }).GetAwaiter().GetResult();
-        
-        foreach (var page in pages)
-        {
-            yield return new Entities.Page(page);
+            whereClause = Where.And(Where.Type.IsPage, Where.Text.Contains(query), Where.Space.Is(space));
         }
+        else
+        {
+            whereClause = Where.And(Where.Type.IsPage, Where.Text.Contains(query));
+        }
+
+        var searchResult = await _confluence.Content.SearchAsync(whereClause, pagingInformation: new PagingInformation { Limit = 20 }, cancellationToken: cancellationToken).ConfigureAwait(false);
+
+        var pages = new List<Entities.Page>();
+        foreach (var page in searchResult.Results)
+        {
+            Log.DebugFormat("Got result of type {0}", page.Type);
+            if (page.Type == ContentTypes.Page)
+            {
+                pages.Add(new Entities.Page(page));
+            }
+        }
+
+        return pages;
     }
 }

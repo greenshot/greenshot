@@ -23,8 +23,10 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.Export;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Pipeline.Contracts;
 using Greenshot.Base.Recipes;
 using Greenshot.Plugin.Office.Destinations;
 using log4net;
@@ -35,6 +37,9 @@ namespace Greenshot.Plugin.Office
     /// Capture recipe step that inserts/exports the capture surface into Microsoft Office applications
     /// (Word, Excel, PowerPoint, OneNote, Outlook).
     /// </summary>
+    [StepInfo("Office", "Send to Office", "Sends the capture to an Office application (Excel, PowerPoint, Word, OneNote, Outlook).", "Export")]
+    [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Required)]
+    [StepParameter("Application", ContractDataType.Enum, DefaultValue = "Word", Description = "Office application", AllowedValues = new[] { "Excel", "PowerPoint", "Word", "OneNote", "Outlook" })]
     public class OfficeStep : ICaptureStep
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(OfficeStep));
@@ -48,33 +53,28 @@ namespace Greenshot.Plugin.Office
             Name = config.Name ?? "OfficeExportStep";
         }
 
-        public Task ExecuteAsync(CaptureFlowContext context, CancellationToken cancellationToken = default)
+        public async Task ExecuteAsync(CaptureFlowContext context, CancellationToken cancellationToken = default)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
 
-            var surface = context.Payload?.EnsureSurface();
-            if (surface == null)
+            if (context.Payload?.EnsureSurface() == null)
             {
                 context.LogStep("OfficeStep: No surface available to export.");
                 Log.Warn("OfficeStep: Surface is null in context payload.");
-                return Task.CompletedTask;
+                return;
             }
 
             var captureDetails = context.Payload?.RawCapture?.CaptureDetails ?? new CaptureDetails();
 
             // Determine target Office application
-            string appName = NodeConfig.GetParameter<string>("Application")
-                ?? NodeConfig.GetParameter<string>("application")
-                ?? NodeConfig.GetParameter<string>("Target")
-                ?? NodeConfig.GetParameter<string>("target")
-                ?? NodeConfig.StepType;
+            string appName = NodeConfig.GetParameter<string>("Application") ?? "Word";
 
             IDestination destination = null;
             if (string.Equals(appName, "Excel", StringComparison.OrdinalIgnoreCase))
             {
                 destination = new ExcelDestination();
             }
-            else if (string.Equals(appName, "PowerPoint", StringComparison.OrdinalIgnoreCase) || string.Equals(appName, "Powerpoint", StringComparison.OrdinalIgnoreCase))
+            else if (string.Equals(appName, "PowerPoint", StringComparison.OrdinalIgnoreCase))
             {
                 destination = new PowerpointDestination();
             }
@@ -82,7 +82,7 @@ namespace Greenshot.Plugin.Office
             {
                 destination = new WordDestination();
             }
-            else if (string.Equals(appName, "OneNote", StringComparison.OrdinalIgnoreCase) || string.Equals(appName, "Onenote", StringComparison.OrdinalIgnoreCase))
+            else if (string.Equals(appName, "OneNote", StringComparison.OrdinalIgnoreCase))
             {
                 destination = new OneNoteDestination();
             }
@@ -98,25 +98,22 @@ namespace Greenshot.Plugin.Office
             context.LogStep($"Exporting capture to Office application ({appName})...");
             Log.InfoFormat("OfficeStep: Exporting capture to {0}", appName);
 
-            try
+            var source = await context.Payload.GetExportSourceAsync(context.Ui, cancellationToken).ConfigureAwait(false);
+            var result = await DestinationExporter.ExportAsync(destination, source, captureDetails, false, context.UserInteraction, cancellationToken).ConfigureAwait(false);
+            await ExportResultHandler.ApplyAsync(destination, result, source, cancellationToken).ConfigureAwait(false);
+            switch (result.Status)
             {
-                var exportInfo = destination.ExportCapture(false, surface, captureDetails);
-                if (exportInfo != null && exportInfo.ExportMade)
-                {
+                case ExportStatus.Succeeded:
                     context.LogStep($"Successfully exported capture to {appName}.");
-                }
-                else
-                {
+                    break;
+                case ExportStatus.Failed:
+                    context.LogStep($"OfficeStep: Error exporting to {appName}: {result.Error}");
+                    Log.ErrorFormat("OfficeStep: Failed to export to {0}: {1}", appName, result.Error);
+                    break;
+                default:
                     context.LogStep($"OfficeStep: Export to {appName} was not completed.");
-                }
+                    break;
             }
-            catch (Exception ex)
-            {
-                context.LogStep($"OfficeStep: Error exporting to {appName}: {ex.Message}");
-                Log.Error($"OfficeStep: Failed to export to {appName}", ex);
-            }
-
-            return Task.CompletedTask;
         }
     }
 }

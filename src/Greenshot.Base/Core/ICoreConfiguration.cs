@@ -29,6 +29,7 @@ using Dapplo.Ini.Attributes;
 using Dapplo.Ini.Interfaces;
 using Dapplo.Windows.Common.Structs;
 using Greenshot.Base.Core.Enums;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 
 namespace Greenshot.Base.Core
@@ -135,9 +136,9 @@ namespace Greenshot.Base.Core
         [DefaultValue("${capturetime:d\"yyyy-MM-dd HH_mm_ss\"}-${title}")]
         string OutputFileFilenamePattern { get; set; }
 
-        [Description("Default file type for writing screenshots. (bmp, gif, jpg, png, tiff)")]
-        [DefaultValue("png")]
-        OutputFormat OutputFileFormat { get; set; }
+        [Description("Default file type for writing screenshots.")]
+        [DefaultValue(WellKnownFileFormats.Png)]
+        string OutputFileFormat { get; set; }
 
         [Description("If set to true, than the colors of the output file are reduced to 256 (8-bit) colors")]
         [DefaultValue(false)]
@@ -287,6 +288,10 @@ namespace Greenshot.Base.Core
         [DefaultValue(false)]
         bool MinimizeWorkingSetSize { get; set; }
 
+        [Description("Log when the UI thread doesn't respond for more than 250 ms (diagnostics, always active in debug builds).")]
+        [DefaultValue(false)]
+        bool EnableUiStallWatchdog { get; set; }
+
         [Description("Remove the corners from a window capture")]
         [DefaultValue(true)]
         bool WindowCaptureRemoveCorners { get; set; }
@@ -359,6 +364,14 @@ namespace Greenshot.Base.Core
         [Description("Version of Greenshot which created this .ini")]
         string LastSaveWithVersion { get; }
 
+        /// <summary>
+        /// The version of Greenshot which saved greenshot.ini before this start (LastSaveWithVersion as it was loaded), use this for upgrade checks.
+        /// LastSaveWithVersion changes with every save, and plugins add their sections (running IAfterLoad) after the file was loaded,
+        /// possibly after an auto-save.
+        /// </summary>
+        [IniValue(RuntimeOnly = true)]
+        string LoadedWithVersion { get; set; }
+
         [Description("When reading images from files or clipboard, use the EXIF information to correct the orientation")]
         [DefaultValue(true)]
         bool ProcessEXIFOrientation { get; set; }
@@ -390,6 +403,28 @@ namespace Greenshot.Base.Core
 
         [Description("List of certificate thumbprints (SHA-1 / SHA-256 hashes) for which SSL/TLS certificate validation errors are ignored.")]
         List<string> AllowedCertificateThumbprints { get; set; }
+
+        [Description("Let AI tools use Greenshot through greenshot-mcp (opt-in). When false, every greenshot-mcp request is refused without asking. Lock it with greenshot-fixed.ini.")]
+        [DefaultValue(false)]
+        bool AiToolsEnabled { get; set; }
+
+        [Description("Let allowed AI tools propose new or changed recipes (each one is still shown for approval).")]
+        [DefaultValue(true)]
+        bool AiToolsAllowRecipeProposals { get; set; }
+
+        [Description("Programs (full paths) which the user allowed to list windows, take screenshots and run recipes through greenshot-mcp. Greenshot asks the first time a program connects.")]
+        List<string> AiToolsAllowedClients { get; set; }
+
+        [Description("Additional locations of greenshot-mcp.exe (the file or its directory) which may connect, besides Greenshot's own directory; only used by Debug builds.")]
+        List<string> AiToolsMcpServerPaths { get; set; }
+
+        [Description("Processes whose windows are never listed or captured for AI tools (process names without .exe).")]
+        [DefaultValue("KeePass,KeePassXC,1Password,Bitwarden,LastPass,Dashlane,Enpass,RoboForm,NordPass,ProtonPass")]
+        List<string> AiToolsExcludedProcesses { get; set; }
+
+        [Description("Show a notification every time an AI tool takes a screenshot with Greenshot.")]
+        [DefaultValue(true)]
+        bool AiToolsNotifyOnCapture { get; set; }
 
         /// <summary>Validates <see cref="OutputFilePath"/>; resets it to the default output folder when the path no longer exists.</summary>
         void ValidateAndCorrectOutputFilePath();

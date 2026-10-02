@@ -37,18 +37,20 @@ using Dapplo.Windows.Common.Structs;
 using Greenshot.Base;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Wpf;
 using Greenshot.Editor.Configuration;
 using Greenshot.Helpers;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Forms.Wpf
 {
     /// <summary>
     /// ViewModel for the WPF Settings Window
     /// </summary>
-    public class SettingsViewModel : INotifyPropertyChanged
+    public partial class SettingsViewModel : INotifyPropertyChanged
     {
         private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(SettingsViewModel));
         private bool _expertModeEnabled;
@@ -56,7 +58,6 @@ namespace Greenshot.Forms.Wpf
         private bool _pickerSelected;
         private string _selectedLanguage;
         private int _iconSize;
-        private PluginItem _selectedPlugin;
 
         public SettingsViewModel()
         {
@@ -80,14 +81,17 @@ namespace Greenshot.Forms.Wpf
             // Initialize destinations
             InitializeDestinations();
             
-            // Initialize plugins
+            // The options of the recipes (Greenshot Light: those of the built-in recipes)
+            InitializeRecipeOptions();
+
+#if !GREENSHOT_LIGHT
+            // Plugins and AI tools: Greenshot Light has neither
             InitializePlugins();
+            InitializeAiTools();
+#endif
 
             // Initialize clipboard formats
             InitializeClipboardFormats();
-
-            // Initialize plugin controls collection
-            PluginControls = new ObservableCollection<UIElement>();
 
             ThemeManager.Instance.PropertyChanged += (s, e) =>
             {
@@ -100,55 +104,10 @@ namespace Greenshot.Forms.Wpf
         }
 
         public ICoreConfiguration CoreConfiguration { get; }
+
         
         public IEditorConfiguration EditorConfiguration { get; }
         
-        public ObservableCollection<UIElement> PluginControls { get; }
-
-        public ObservableCollection<PluginItem> Plugins { get; private set; }
-
-        public PluginItem SelectedPlugin
-        {
-            get => _selectedPlugin;
-            set
-            {
-                if (_selectedPlugin != value)
-                {
-                    _selectedPlugin = value;
-                    OnPropertyChanged();
-                    OnPropertyChanged(nameof(CanConfigureSelectedPlugin));
-                    OnPropertyChanged(nameof(SelectedPluginControl));
-                    OnPropertyChanged(nameof(HasSelectedPluginControl));
-                    OnPropertyChanged(nameof(SelectedPluginControlVisibility));
-                    OnPropertyChanged(nameof(NoSelectedPluginControlVisibility));
-                }
-            }
-        }
-
-        public UIElement SelectedPluginControl => SelectedPlugin?.GetConfigurationControl();
-        public bool HasSelectedPluginControl => SelectedPluginControl != null;
-        public Visibility SelectedPluginControlVisibility => HasSelectedPluginControl ? Visibility.Visible : Visibility.Collapsed;
-        public Visibility NoSelectedPluginControlVisibility => HasSelectedPluginControl ? Visibility.Collapsed : Visibility.Visible;
-
-        public void SelectPluginByName(string name)
-        {
-            if (string.IsNullOrWhiteSpace(name) || Plugins == null) return;
-            var item = Plugins.FirstOrDefault(p => string.Equals(p.Name, name, StringComparison.OrdinalIgnoreCase));
-            if (item != null)
-            {
-                SelectedPlugin = item;
-            }
-        }
-
-        public bool CanConfigureSelectedPlugin => SelectedPlugin?.IsConfigurable == true;
-
-        public void ConfigureSelectedPlugin()
-        {
-            if (CanConfigureSelectedPlugin)
-            {
-                SelectedPlugin?.Plugin.Configure();
-            }
-        }
 
         public bool PrintColor
         {
@@ -283,6 +242,8 @@ namespace Greenshot.Forms.Wpf
                     _selectedLanguage = value;
                     Language.CurrentLanguage = value;
                     CoreConfiguration.Language = value;
+                    InitializeImageFormats();
+                    OnPropertyChanged(nameof(ImageFormats));
                     OnPropertyChanged();
                 }
             }
@@ -332,12 +293,30 @@ namespace Greenshot.Forms.Wpf
         private void InitializeImageFormats()
         {
             ImageFormats = new List<ImageFormatItem>();
-            foreach (OutputFormat format in System.Enum.GetValues(typeof(OutputFormat)))
+            var registry = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>(true);
+            if (registry == null)
+            {
+                return;
+            }
+
+            foreach (var format in registry.GetSaveableFileFormats())
             {
                 ImageFormats.Add(new ImageFormatItem
                 {
-                    Value = format,
-                    Description = Language.Translate(format)
+                    Value = format.Id,
+                    Description = format.GetDisplayNameWithPreferredExtension(),
+                    DisplayNameWithPreferredExtension = format.GetDisplayNameWithPreferredExtension()
+                });
+            }
+
+            // Ensure the current output file format is included in the list, even if it's not registered
+            if (!ImageFormats.Any(item => string.Equals(item.Value, CoreConfiguration.OutputFileFormat, StringComparison.OrdinalIgnoreCase)))
+            {
+                ImageFormats.Add(new ImageFormatItem
+                {
+                    Value = CoreConfiguration.OutputFileFormat,
+                    Description = CoreConfiguration.OutputFileFormat,
+                    DisplayNameWithPreferredExtension = CoreConfiguration.OutputFileFormat
                 });
             }
         }
@@ -372,7 +351,7 @@ namespace Greenshot.Forms.Wpf
                 string description = destination.Designation;
                 try
                 {
-                    description = destination.Description ?? destination.Designation;
+                    description = destination.Descriptor?.DisplayName ?? destination.Designation;
                 }
                 catch
                 {
@@ -389,72 +368,25 @@ namespace Greenshot.Forms.Wpf
                 Destinations.Add(destItem);
             }
 
-            // Asynchronously resolve destination icons in background to keep opening instant
-            Task.Run(() =>
-            {
-                foreach (var destItem in Destinations)
-                {
-                    try
-                    {
-                        var displayIcon = destItem.Destination?.DisplayIcon;
-                        if (displayIcon != null)
-                        {
-                            var iconSource = displayIcon.ToBitmapSource();
-                            if (iconSource != null)
-                            {
-                                iconSource.Freeze();
-                                var dispatcher = Application.Current?.Dispatcher;
-                                if (dispatcher != null && !dispatcher.HasShutdownStarted)
-                                {
-                                    dispatcher.BeginInvoke(new Action(() =>
-                                    {
-                                        destItem.IconSource = iconSource;
-                                    }));
-                                }
-                                else
-                                {
-                                    destItem.IconSource = iconSource;
-                                }
-                            }
-                        }
-                    }
-                    catch
-                    {
-                        // Some plugins may fail to resolve icons if their config section is not initialized
-                    }
-                }
-            });
+            // Resolve the destination icons asynchronously, the window opens right away
+            LoadDestinationIconsAsync().FireAndLog("Load the destination icons");
         }
 
-        private void InitializePlugins()
+        /// <summary>
+        /// Started on the UI thread, the icons are set there (continuations return to the UI thread)
+        /// </summary>
+        private async Task LoadDestinationIconsAsync()
         {
-            Plugins = new ObservableCollection<PluginItem>();
-            try
+            foreach (var destItem in Destinations.ToList())
             {
-                var plugins = SimpleServiceProvider.Current.GetAllInstances<IGreenshotPlugin>();
-                if (plugins != null)
+                try
                 {
-                    foreach (var plugin in plugins)
-                    {
-                        var assembly = plugin.GetType().Assembly;
-                        var company = assembly.GetCustomAttribute<AssemblyCompanyAttribute>()?.Company ?? string.Empty;
-                        var version = assembly.GetName().Version?.ToString() ?? string.Empty;
-                        var location = assembly.Location ?? string.Empty;
-
-                        Plugins.Add(new PluginItem
-                        {
-                            Plugin = plugin,
-                            Name = plugin.Name,
-                            Version = version,
-                            Company = company,
-                            Location = location
-                        });
-                    }
+                    destItem.IconSource = await DestinationIcons.GetImageSourceAsync(destItem.Destination?.Descriptor?.IconKey).ConfigureAwait(true);
                 }
-            }
-            catch
-            {
-                // In some test scenarios SimpleServiceProvider might not have plugins registered
+                catch (Exception)
+                {
+                    // Some plugins may fail to resolve icons if their config section is not initialized
+                }
             }
         }
 
@@ -483,8 +415,9 @@ namespace Greenshot.Forms.Wpf
 
     public class ImageFormatItem
     {
-        public OutputFormat Value { get; set; }
+        public string Value { get; set; }
         public string Description { get; set; }
+        public string DisplayNameWithPreferredExtension { get; set; }
     }
 
     public class WindowCaptureModeItem
@@ -529,28 +462,6 @@ namespace Greenshot.Forms.Wpf
         public event PropertyChangedEventHandler PropertyChanged;
     }
 
-    public class PluginItem
-    {
-        public IGreenshotPlugin Plugin { get; set; }
-        public string Name { get; set; }
-        public string Version { get; set; }
-        public string Company { get; set; }
-        public string Location { get; set; }
-        public bool IsConfigurable => Plugin?.IsConfigurable == true;
-
-        private UIElement _configControl;
-        private bool _controlCreated;
-
-        public UIElement GetConfigurationControl()
-        {
-            if (!_controlCreated)
-            {
-                _controlCreated = true;
-                _configControl = Plugin?.CreateConfigurationControl();
-            }
-            return _configControl;
-        }
-    }
 
     public class ClipboardFormatItem : INotifyPropertyChanged
     {

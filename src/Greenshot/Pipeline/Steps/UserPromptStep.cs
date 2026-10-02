@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Greenshot - a free and open source screenshot tool
  * Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom
  *
@@ -30,10 +30,14 @@ using System.Windows;
 using Greenshot.Base.Core;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Pipeline.Contracts;
+using Contracts = Greenshot.Base.Pipeline.Contracts;
+
 using Greenshot.Base.Recipes;
 using Greenshot.UI;
 using log4net;
 using Newtonsoft.Json.Linq;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Pipeline.Steps
 {
@@ -41,6 +45,14 @@ namespace Greenshot.Pipeline.Steps
     /// Interactive conditional pipeline step presenting a decision modal to the user.
     /// The user's selection determines which branch is activated in the DAG execution engine.
     /// </summary>
+    [StepInfo(WellKnownStepTypes.UserPrompt, "User Prompt", "Asks the user to choose; conditional transitions of this node follow the chosen key.", "Interaction")]
+    [StepParameter("Choices", ContractDataType.Object, Required = true, Description = "The choices (key and text)")]
+    [StepParameter("Title", ContractDataType.String, Description = "Title of the prompt")]
+    [StepParameter("Message", ContractDataType.String, Description = "Message of the prompt")]
+    [StepParameter("DefaultChoice", ContractDataType.String, Description = "Choice used when the prompt times out")]
+    [StepParameter("ShowPreview", ContractDataType.Boolean, DefaultValue = true, Description = "Show a preview of the capture")]
+    [StepParameter("TimeoutSeconds", ContractDataType.Integer, DefaultValue = 0, Description = "Close the prompt after this many seconds (0: never)")]
+    [StepOutputVariable("UserChoice.{NodeId}", ContractDataType.String, "The key of the chosen choice")]
     public class UserPromptStep : ICaptureStep
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(UserPromptStep));
@@ -62,18 +74,14 @@ namespace Greenshot.Pipeline.Steps
             int timeoutSeconds = Config.GetParameter("TimeoutSeconds", 0);
             string defaultChoice = Config.GetParameter<string>("DefaultChoice");
 
-            var choices = ParseChoices(Config.GetParameter<object>("Choices") ?? Config.GetParameter<object>("choices"));
+            var choices = ParseChoices(Config.GetParameter<object>("Choices"));
 
             // Capture preview image if enabled
             Image previewImg = null;
             bool disposePreview = false;
             if (showPreview)
             {
-                if (context.Payload?.SharedRenderedBitmap != null)
-                {
-                    previewImg = context.Payload.SharedRenderedBitmap;
-                }
-                else if (context.Payload?.RawCapture?.Image != null)
+                if (context.Payload?.RawCapture?.Image != null)
                 {
                     previewImg = context.Payload.RawCapture.Image;
                 }
@@ -88,50 +96,38 @@ namespace Greenshot.Pipeline.Steps
                 }
             }
 
-            var tcs = new TaskCompletionSource<string>();
-            var uiContext = SimpleServiceProvider.Current.GetInstance<SynchronizationContext>(isOptional: true) ?? SynchronizationContext.Current;
-
-            void ShowDialogOnUi()
+            string chosenKey;
+            try
             {
-                try
+                // The prompt is UI: shown on the UI thread, the flow waits without blocking
+                chosenKey = await context.Ui.InvokeAsync(() =>
                 {
                     var promptWindow = new RecipeUserPromptWindow(title, message, choices, previewImg, timeoutSeconds, defaultChoice);
-                    promptWindow.ShowDialog();
-                    string selected = promptWindow.SelectedChoiceKey ?? defaultChoice ?? (choices.FirstOrDefault()?.Key ?? "Yes");
-                    tcs.SetResult(selected);
-                }
-                catch (Exception ex)
-                {
-                    Log.Error("Error displaying RecipeUserPromptWindow", ex);
-                    tcs.SetException(ex);
-                }
-                finally
-                {
-                    if (disposePreview)
+                    // A cancelled flow closes the prompt, the close is posted to the UI thread
+                    using (cancellationToken.Register(() => context.Ui.InvokeAsync(() =>
+                           {
+                               if (promptWindow.IsVisible)
+                               {
+                                   promptWindow.Close();
+                               }
+                           }, CancellationToken.None).FireAndLog("Close the user prompt", Log)))
                     {
-                        previewImg?.Dispose();
+                        promptWindow.ShowDialog();
                     }
+
+                    cancellationToken.ThrowIfCancellationRequested();
+                    return promptWindow.SelectedChoiceKey ?? defaultChoice ?? (choices.FirstOrDefault()?.Key ?? "Yes");
+                }, cancellationToken).ConfigureAwait(false);
+            }
+            finally
+            {
+                if (disposePreview)
+                {
+                    previewImg?.Dispose();
                 }
             }
 
-            if (Application.Current?.Dispatcher != null && !Application.Current.Dispatcher.CheckAccess())
-            {
-                Application.Current.Dispatcher.Invoke(ShowDialogOnUi);
-            }
-            else if (uiContext != null && SynchronizationContext.Current != uiContext)
-            {
-                uiContext.Send(_ => ShowDialogOnUi(), null);
-            }
-            else
-            {
-                ShowDialogOnUi();
-            }
-
-            string chosenKey = await tcs.Task.ConfigureAwait(false);
-
-            context.Properties["UserPrompt.Choice." + Config.Id] = chosenKey;
             context.Properties["UserChoice." + Config.Id] = chosenKey;
-            context.Properties["LastUserChoice"] = chosenKey;
 
             context.LogStep($"User Prompt '{title}' -> Selected choice: '{chosenKey}'");
             Log.InfoFormat("UserPromptStep [{0}] user selected choice '{1}'", Config.Id, chosenKey);

@@ -24,51 +24,77 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading;
 using Greenshot.Base.Core;
+using Greenshot.Base.Pipeline.Contracts;
 using Greenshot.Base.Recipes;
 using log4net;
 
 namespace Greenshot.Base.Pipeline
 {
     /// <summary>
-    /// Thread-safe registry mapping step types to step factory delegates.
+    /// Thread-safe registry of step types: factory and contract per step type.
     /// </summary>
     public class StepRegistry : IStepRegistry
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(StepRegistry));
-        private readonly ConcurrentDictionary<string, Func<RecipeNodeConfig, ICaptureStep>> _factories =
-            new ConcurrentDictionary<string, Func<RecipeNodeConfig, ICaptureStep>>(StringComparer.OrdinalIgnoreCase);
 
-        private static StepRegistry _instance;
-        public static StepRegistry Instance => _instance ??= new StepRegistry();
-
-        public void RegisterStepFactory(string stepType, Func<RecipeNodeConfig, ICaptureStep> factory)
+        private sealed class Registration
         {
-            if (string.IsNullOrEmpty(stepType)) throw new ArgumentNullException(nameof(stepType));
-            if (factory == null) throw new ArgumentNullException(nameof(factory));
-
-            _factories[stepType] = factory;
-            Log.DebugFormat("Registered step factory for step type '{0}'", stepType);
+            public StepContract Contract;
+            public Func<RecipeNodeConfig, ICaptureStep> Factory;
         }
 
-        public bool IsRegistered(string stepType)
-        {
-            if (string.IsNullOrEmpty(stepType)) return false;
+        private readonly ConcurrentDictionary<string, Registration> _registrations = new ConcurrentDictionary<string, Registration>(StringComparer.OrdinalIgnoreCase);
 
-            if (_factories.ContainsKey(stepType)) return true;
+        // Thread-safe: the first access can come from the UI thread and an IPC or pipeline thread at the same time,
+        // and a second instance would silently lose what was registered in the first one.
+        private static readonly Lazy<StepRegistry> LazyInstance = new Lazy<StepRegistry>(() => new StepRegistry(), LazyThreadSafetyMode.ExecutionAndPublication);
+        public static StepRegistry Instance => LazyInstance.Value;
+
+        public void Register(StepContract contract, Func<RecipeNodeConfig, ICaptureStep> factory)
+        {
+            if (contract == null) throw new ArgumentNullException(nameof(contract));
+            if (string.IsNullOrWhiteSpace(contract.StepType)) throw new ArgumentException("The contract has no step type.", nameof(contract));
+            if (factory == null) throw new ArgumentNullException(nameof(factory));
+
+            _registrations[contract.StepType] = new Registration { Contract = contract, Factory = factory };
+            Log.DebugFormat("Registered step type '{0}'", contract.StepType);
+        }
+
+        private Registration Find(string stepType, bool discover)
+        {
+            if (string.IsNullOrWhiteSpace(stepType)) return null;
+            if (_registrations.TryGetValue(stepType, out var registration))
+            {
+                return registration;
+            }
+            if (!discover) return null;
 
             // Attempt dynamic discovery from registered IRecipeStepProvider services
             DiscoverProviders();
-
-            return _factories.ContainsKey(stepType);
+            return Find(stepType, false);
         }
+
+        public StepContract GetContract(string stepType) => Find(stepType, true)?.Contract;
+
+        public IReadOnlyCollection<StepContract> Contracts
+        {
+            get
+            {
+                DiscoverProviders();
+                return _registrations.Values.Select(r => r.Contract).ToList().AsReadOnly();
+            }
+        }
+
+        public bool IsRegistered(string stepType) => Find(stepType, true) != null;
 
         public IReadOnlyCollection<string> RegisteredStepTypes
         {
             get
             {
                 DiscoverProviders();
-                return new ReadOnlyCollection<string>(_factories.Keys.ToList());
+                return new ReadOnlyCollection<string>(_registrations.Keys.ToList());
             }
         }
 
@@ -125,17 +151,10 @@ namespace Greenshot.Base.Pipeline
         {
             if (config == null || string.IsNullOrEmpty(config.StepType)) return null;
 
-            if (_factories.TryGetValue(config.StepType, out var factory))
+            var registration = Find(config.StepType, true);
+            if (registration != null)
             {
-                return factory(config);
-            }
-
-            // Try dynamic discovery of newly loaded providers
-            DiscoverProviders();
-
-            if (_factories.TryGetValue(config.StepType, out factory))
-            {
-                return factory(config);
+                return registration.Factory(config);
             }
 
             Log.WarnFormat("No step factory registered for step type '{0}'", config.StepType);

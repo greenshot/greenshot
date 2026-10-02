@@ -2,7 +2,8 @@
 Name: "plugins\externalcommand"; Description: {cm:externalcommand}; Types: full custom; Flags: disablenouninstallwarning
 
 [Files]
-Source: {#PluginDir}\Greenshot.Plugin.ExternalCommand\Greenshot.Plugin.ExternalCommand.dll; DestDir: {app}\Plugins\ExternalCommand; Components: plugins\externalcommand; Flags: {#DefaultInstallFlags};
+; The plugin and the libraries only it uses; the build removed its copies of the files Greenshot itself installs
+Source: {#PluginDir}\Greenshot.Plugin.ExternalCommand\*.dll; DestDir: {app}\Plugins\Greenshot.Plugin.ExternalCommand; Components: plugins\externalcommand; Flags: {#DefaultInstallFlags};
 Source: {#SolutionDir}\Greenshot.Plugin.ExternalCommand\Languages\language_externalcommand*.xml; DestDir: {app}\Languages\Plugins\ExternalCommand; Components: plugins\externalcommand; Flags: {#DefaultInstallFlags};
 
 [CustomMessages]

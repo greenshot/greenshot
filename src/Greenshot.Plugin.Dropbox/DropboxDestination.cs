@@ -19,17 +19,21 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System.ComponentModel;
-using System.Drawing;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Greenshot.Base.Core;
-using Dapplo.Ini;
 using Greenshot.Base.Interfaces;
+using Greenshot.Base.Pipeline;
 
 namespace Greenshot.Plugin.Dropbox;
 
-internal class DropboxDestination : AbstractDestination
+internal class DropboxDestination : DestinationBase, IRequiresRecipeAuthorization
 {
-    private static readonly IDropboxConfiguration DropboxConfig = IniConfigRegistry.GetSection<IDropboxConfiguration>();
+    /// <summary>
+    /// The icons in the resources of the plugin
+    /// </summary>
+    public static ResourceIconProvider Icons { get; } = new ResourceIconProvider("dropbox", typeof(DropboxPlugin));
 
     private readonly DropboxPlugin _plugin;
 
@@ -40,32 +44,24 @@ internal class DropboxDestination : AbstractDestination
 
     public override string Designation => "Dropbox";
 
-    public override string Description => Language.GetString("dropbox", LangKey.upload_menu_item);
-
-    public override Image DisplayIcon
+    /// <summary>
+    /// Uploads the capture: the user has to allow network access when approving a recipe with this destination
+    /// </summary>
+    public IEnumerable<RecipeGatedAction> GetGatedActions()
     {
-        get
-        {
-            ComponentResourceManager resources = new ComponentResourceManager(typeof(DropboxPlugin));
-            return (Image) resources.GetObject("Dropbox");
-        }
+        yield return new RecipeGatedAction(RecipeGateType.NetworkAccess, "Dropbox (dropbox.com)");
     }
 
-    public override ExportInformation ExportCapture(bool manually, ISurface surface, ICaptureDetails captureDetails)
-    {
-        ExportInformation exportInformation = new ExportInformation(Designation, Description);
-        bool uploaded = _plugin.Upload(captureDetails, surface, out var uploadUrl);
-        if (uploaded)
-        {
-            exportInformation.Uri = uploadUrl;
-            exportInformation.ExportMade = true;
-            if (DropboxConfig.AfterUploadLinkToClipBoard)
-            {
-                ClipboardHelper.SetClipboardData(uploadUrl);
-            }
-        }
+    public override DestinationDescriptor Descriptor => new DestinationDescriptor(Language.GetString("dropbox", LangKey.upload_menu_item), iconKey: Icons.KeyFor("Dropbox"));
 
-        ProcessExport(exportInformation, surface);
-        return exportInformation;
+    public override async Task<ExportResult> ExportAsync(ExportRequest request, CancellationToken cancellationToken)
+    {
+        bool? uploaded = await _plugin.UploadAsync(request.Source, request.Metadata, request.Ui, cancellationToken).ConfigureAwait(false);
+        return uploaded switch
+        {
+            null => ExportResult.Declined,
+            true => ExportResult.Succeeded(),
+            false => ExportResult.Failed(Language.GetString("dropbox", LangKey.upload_failure))
+        };
     }
 }

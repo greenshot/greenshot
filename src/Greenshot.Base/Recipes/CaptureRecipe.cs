@@ -63,6 +63,12 @@ namespace Greenshot.Base.Recipes
         public RecipeFlowConfig Flow { get; set; } = new RecipeFlowConfig();
 
         /// <summary>
+        /// Values the user sets once in Settings > Recipes, read by the nodes with ${option.key}. See <see cref="RecipeOption"/>.
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty(NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public List<RecipeOption> Options { get; set; }
+
+        /// <summary>
         /// Whether this recipe should appear as an option in the systray context menu.
         /// </summary>
         public bool ShowInContextMenu { get; set; } = true;
@@ -87,6 +93,19 @@ namespace Greenshot.Base.Recipes
         /// The file path this recipe was loaded from, if loaded from external JSON.
         /// </summary>
         public string FilePath { get; set; }
+
+        /// <summary>
+        /// The AI tool which wrote the recipe file, null when it wasn't written by an AI tool. Set by Greenshot from the approval,
+        /// never read from the recipe file.
+        /// </summary>
+        [Newtonsoft.Json.JsonIgnore]
+        public string ProposedBy { get; set; }
+
+        /// <summary>
+        /// What happens when the recipe is started while a flow of it is still running; null means <see cref="FlowConcurrency.Parallel"/>.
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty(NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public Pipeline.FlowConcurrency? Concurrency { get; set; }
 
         public CaptureRecipe()
         {
@@ -119,6 +138,14 @@ namespace Greenshot.Base.Recipes
             return this;
         }
 
+        public RecipeOption FindOption(string key)
+        {
+            return Options?.FirstOrDefault(o => o != null && string.Equals(o.Key, key, StringComparison.OrdinalIgnoreCase));
+        }
+
+        [Newtonsoft.Json.JsonIgnore]
+        public bool HasOptions => Options != null && Options.Any(o => o != null);
+
         public RecipeNodeConfig FindNode(string nodeId)
         {
             return Nodes?.FirstOrDefault(n => string.Equals(n.Id, nodeId, StringComparison.OrdinalIgnoreCase));
@@ -138,7 +165,6 @@ namespace Greenshot.Base.Recipes
             return Nodes.Any(n =>
                 string.Equals(n.StepType, WellKnownStepTypes.Destinations, StringComparison.OrdinalIgnoreCase) ||
                 string.Equals(n.StepType, WellKnownStepTypes.SaveFile, StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(n.StepType, "SaveToFile", StringComparison.OrdinalIgnoreCase) ||
                 string.Equals(n.StepType, WellKnownStepTypes.Clipboard, StringComparison.OrdinalIgnoreCase) ||
                 string.Equals(n.StepType, WellKnownStepTypes.Editor, StringComparison.OrdinalIgnoreCase) ||
                 string.Equals(n.StepType, WellKnownStepTypes.Printer, StringComparison.OrdinalIgnoreCase) ||
@@ -161,15 +187,8 @@ namespace Greenshot.Base.Recipes
                 }
                 if (string.Equals(n.StepType, WellKnownStepTypes.Destinations, StringComparison.OrdinalIgnoreCase))
                 {
-                    var dests = n.GetParameter<List<string>>("Destinations") 
-                             ?? n.GetParameter<List<string>>("DestinationDesignations");
+                    var dests = n.GetParameter<List<string>>("DestinationDesignations");
                     if (dests != null && dests.Any(d => string.Equals(d, "Editor", StringComparison.OrdinalIgnoreCase)))
-                    {
-                        return true;
-                    }
-                    string singleDest = n.GetParameter<string>("Destinations") 
-                                     ?? n.GetParameter<string>("DestinationDesignations");
-                    if (!string.IsNullOrEmpty(singleDest) && singleDest.IndexOf("Editor", StringComparison.OrdinalIgnoreCase) >= 0)
                     {
                         return true;
                     }
@@ -212,9 +231,12 @@ namespace Greenshot.Base.Recipes
                 IsOverridden = IsOverridden,
                 IsEnabled = IsEnabled,
                 FilePath = FilePath,
+                ProposedBy = ProposedBy,
+                Concurrency = Concurrency,
                 Triggers = new List<TriggerConfig>(Triggers?.Count ?? 0),
                 Nodes = new List<RecipeNodeConfig>(Nodes?.Count ?? 0),
-                Flow = Flow?.Clone() ?? new RecipeFlowConfig()
+                Flow = Flow?.Clone() ?? new RecipeFlowConfig(),
+                Options = Options?.Select(o => o?.Clone()).ToList()
             };
 
             if (Triggers != null)

@@ -20,7 +20,7 @@
  */
 
 using System.Windows.Forms;
-using Dapplo.Windows.Messages.Enumerations;
+using Dapplo.Windows.Messages.Enums;
 using log4net;
 
 namespace Greenshot.Base.Core

@@ -10,6 +10,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Loaded with EmbeddedResources.GetImage(typeof(ImgurPlugin), "Imgur") -->
+    <EmbeddedResource Include="Imgur.png" LogicalName="Greenshot.Plugin.Imgur.ImgurPlugin.Imgur" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Greenshot.Base\Greenshot.Base.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="5.6.0" />
+    <PackageReference Update="Microsoft.VisualStudio.Threading.Analyzers" Version="18.7.23" />
   </ItemGroup>
 </Project>

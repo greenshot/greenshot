@@ -31,11 +31,15 @@ using System.Threading.Tasks;
 using Dapplo.Ini;
 using Greenshot.Base.Core;
 using Greenshot.Base.Core.Enums;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Pipeline.Contracts;
 using Greenshot.Base.Recipes;
 using log4net;
+using Greenshot.Base.Threading;
+using Greenshot.Base.Core.Export;
 
 namespace Greenshot.Plugin.ExternalCommand
 {
@@ -43,6 +47,29 @@ namespace Greenshot.Plugin.ExternalCommand
     /// Capture recipe step that executes an external tool or command line utility
     /// against the current screenshot surface/file.
     /// </summary>
+    [StepInfo("ExternalCommand", "External Command", "Saves the capture to a file and runs an external command with it: a command configured in the settings (Command) or an executable (CommandLine).", "Export")]
+    [StepPayload(RawCapture = PayloadRequirement.Required, Surface = PayloadRequirement.Required)]
+    [StepParameter("Command", ContractDataType.String, Description = "Name of an external command configured in the settings")]
+    [StepParameter("CommandLine", ContractDataType.FilePath, Description = "Executable to run, instead of a configured command")]
+    [StepParameter("Arguments", ContractDataType.String, Description = "Arguments, {0} is replaced by the file")]
+    [StepParameter("WorkingDirectory", ContractDataType.DirectoryPath, Description = "Working directory of the command")]
+    [StepParameter("Verb", ContractDataType.String, Description = "Shell verb to use instead of running the executable (e.g. open, print)")]
+    [StepParameter("Format", ContractDataType.Enum, Description = "Format of the file handed to the command", AllowedValuesProvider = typeof(SaveableFileFormatIds))]
+    [StepParameter("JpegQuality", ContractDataType.Integer, Description = "JPEG quality (1-100) when saving as JPEG")]
+    [StepParameter("RunInBackground", ContractDataType.Boolean, Description = "Start the command without waiting for it (no output variables then)")]
+    [StepParameter("OutputToClipboard", ContractDataType.Boolean, Description = "Copy the command's output to the clipboard")]
+    [StepParameter("UriToClipboard", ContractDataType.Boolean, Description = "Copy a URI found in the command's output to the clipboard")]
+    [StepParameter("ReloadAfterExecution", ContractDataType.Boolean, DefaultValue = false, Description = "Reload the image from the file after the command changed it")]
+    [StepParameter("SetOutputVariable", ContractDataType.String, Description = "Also store the command's output in this variable", SupportsExpressions = false)]
+    [StepParameter("SetExitCodeVariable", ContractDataType.String, Description = "Also store the command's exit code in this variable", SupportsExpressions = false)]
+    [StepInputVariable("Destination.Filename", ContractDataType.FilePath, Description = "File saved by an earlier destination step, handed to the command instead of a new file")]
+    [StepOutputVariable("ExternalCommand.TargetFile", ContractDataType.FilePath, "The file handed to the command")]
+    [StepOutputVariable("ExternalCommand.ExitCode", ContractDataType.Integer, "Exit code of the command", Conditional = true)]
+    [StepOutputVariable("ExternalCommand.Output", ContractDataType.String, "Standard output of the command", Conditional = true)]
+    [StepOutputVariable("ExternalCommand.Error", ContractDataType.String, "Standard error of the command", Conditional = true)]
+    [StepOutputVariable("ExternalCommand.Uri", ContractDataType.String, "First URI found in the output", Conditional = true)]
+    [StepOutputVariable("{Parameter:SetOutputVariable}", ContractDataType.String, "The command's output", Conditional = true)]
+    [StepOutputVariable("{Parameter:SetExitCodeVariable}", ContractDataType.Integer, "The command's exit code", Conditional = true)]
     public class ExternalCommandStep : ICaptureStep, IRequiresRecipeAuthorization
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(ExternalCommandStep));
@@ -77,12 +104,7 @@ namespace Greenshot.Plugin.ExternalCommand
         public IEnumerable<RecipeGatedAction> GetGatedActions()
         {
             string commandName = NodeConfig.GetParameter<string>("Command");
-            if (string.IsNullOrEmpty(commandName) && NodeConfig.StepType.StartsWith("ExternalCommand.", StringComparison.OrdinalIgnoreCase))
-            {
-                commandName = NodeConfig.StepType.Substring("ExternalCommand.".Length);
-            }
-
-            string commandLine = NodeConfig.GetParameter<string>("CommandLine") ?? NodeConfig.GetParameter<string>("Path");
+            string commandLine = NodeConfig.GetParameter<string>("CommandLine");
 
             var extConfig = Config;
             if (string.IsNullOrEmpty(commandLine) && !string.IsNullOrEmpty(commandName) && extConfig?.Commandline != null && extConfig.Commandline.ContainsKey(commandName))
@@ -92,7 +114,7 @@ namespace Greenshot.Plugin.ExternalCommand
 
             string target = !string.IsNullOrEmpty(commandLine)
                 ? (!string.IsNullOrEmpty(commandName) ? $"{commandName} ({commandLine})" : commandLine)
-                : (commandName ?? NodeConfig.StepType);
+                : (commandName ?? string.Empty);
 
             yield return new RecipeGatedAction(RecipeGateType.ExternalCommand, target, "recipe_gate_external_command");
         }
@@ -112,23 +134,19 @@ namespace Greenshot.Plugin.ExternalCommand
             var captureDetails = context.Payload?.RawCapture?.CaptureDetails ?? new CaptureDetails();
 
             // 1. Resolve Command Name & Settings
-            string commandName = NodeConfig.GetFirstParameter<string>("Command", "CommandName");
-            if (string.IsNullOrEmpty(commandName) && NodeConfig.StepType.StartsWith("ExternalCommand.", StringComparison.OrdinalIgnoreCase))
-            {
-                commandName = NodeConfig.StepType.Substring("ExternalCommand.".Length);
-            }
+            string commandName = NodeConfig.GetParameter<string>("Command");
 
-            string commandLine = NodeConfig.GetFirstParameter<string>("CommandLine", "Executable", "Path");
-            string arguments = NodeConfig.GetFirstParameter<string>("Arguments", "Argument", "Args");
-            bool? runInBackgroundParam = NodeConfig.GetFirstParameter<bool?>("RunInBackground", "Async");
-            string formatStr = NodeConfig.GetFirstParameter<string>("OutputFormat", "Format");
-            bool? outputToClipboardParam = NodeConfig.GetFirstParameter<bool?>("OutputToClipboard");
-            bool? uriToClipboardParam = NodeConfig.GetFirstParameter<bool?>("UriToClipboard");
-            bool reloadAfterExecution = NodeConfig.GetFirstParameter<bool?>("ReloadAfterExecution", "UpdatePayload") ?? false;
-            string workingDirectory = NodeConfig.GetFirstParameter<string>("WorkingDirectory", "WorkingDir");
-            string verb = NodeConfig.GetFirstParameter<string>("Verb");
-            string setOutputVariable = NodeConfig.GetFirstParameter<string>("SetOutputVariable");
-            string setExitCodeVariable = NodeConfig.GetFirstParameter<string>("SetExitCodeVariable");
+            string commandLine = NodeConfig.GetParameter<string>("CommandLine");
+            string arguments = NodeConfig.GetParameter<string>("Arguments");
+            bool? runInBackgroundParam = NodeConfig.GetParameter<bool?>("RunInBackground");
+            string formatStr = NodeConfig.GetParameter<string>("Format");
+            bool? outputToClipboardParam = NodeConfig.GetParameter<bool?>("OutputToClipboard");
+            bool? uriToClipboardParam = NodeConfig.GetParameter<bool?>("UriToClipboard");
+            bool reloadAfterExecution = NodeConfig.GetParameter<bool?>("ReloadAfterExecution") ?? false;
+            string workingDirectory = NodeConfig.GetParameter<string>("WorkingDirectory");
+            string verb = NodeConfig.GetParameter<string>("Verb");
+            string setOutputVariable = NodeConfig.GetParameter<string>("SetOutputVariable");
+            string setExitCodeVariable = NodeConfig.GetParameter<string>("SetExitCodeVariable");
 
             // Look up configured command if commandName is given or commandLine is not explicitly set
             var extConfig = Config;
@@ -151,7 +169,7 @@ namespace Greenshot.Plugin.ExternalCommand
 
                 if (string.IsNullOrEmpty(formatStr) && extConfig.OutputFormat != null && extConfig.OutputFormat.ContainsKey(commandName))
                 {
-                    formatStr = extConfig.OutputFormat[commandName].ToString();
+                    formatStr = extConfig.OutputFormat[commandName];
                 }
             }
 
@@ -169,11 +187,13 @@ namespace Greenshot.Plugin.ExternalCommand
             bool outputToClipboard = outputToClipboardParam ?? (extConfig?.OutputToClipboard ?? false);
             bool uriToClipboard = uriToClipboardParam ?? (extConfig?.UriToClipboard ?? false);
 
-            OutputFormat outputFormat = OutputFormat.png;
-            if (!string.IsNullOrWhiteSpace(formatStr) && Enum.TryParse<OutputFormat>(formatStr, true, out var parsedFormat))
+            var formatRegistry = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>(true);
+            if (!string.IsNullOrWhiteSpace(formatStr) && formatRegistry != null && !formatRegistry.TryGet(formatStr, out _))
             {
-                outputFormat = parsedFormat;
+                Log.WarnFormat("Unknown output file format '{0}' for external command; using PNG.", formatStr);
             }
+
+            string outputFormat = formatRegistry.ResolveFormatId(formatStr, WellKnownFileFormats.Png);
 
             int jpegQuality = NodeConfig.GetParameter<int?>("JpegQuality") ?? 90;
             SurfaceOutputSettings outputSettings = new SurfaceOutputSettings(outputFormat, jpegQuality, false);
@@ -184,7 +204,8 @@ namespace Greenshot.Plugin.ExternalCommand
 
             if (string.IsNullOrEmpty(fullPath) || !File.Exists(fullPath))
             {
-                fullPath = ImageIO.SaveNamedTmpFile(surface, captureDetails, outputSettings);
+                var source = await context.Payload.GetExportSourceAsync(context.Ui, cancellationToken).ConfigureAwait(false);
+                fullPath = await ExportFiles.SaveNamedTmpFileAsync(source, captureDetails, outputSettings, cancellationToken).ConfigureAwait(false);
             }
 
             context.Properties["ExternalCommand.TargetFile"] = fullPath;
@@ -210,30 +231,15 @@ namespace Greenshot.Plugin.ExternalCommand
             // 4. Execution
             if (runInBackground)
             {
-                _ = Task.Run(() =>
-                {
-                    try
-                    {
-                        ExecuteProcess(resolvedCommandLine, resolvedArguments, resolvedWorkingDir, verb, out _, out _);
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Error($"External command background execution failed: {resolvedCommandLine}", ex);
-                    }
-                }, cancellationToken);
+                // The flow doesn't wait for the command, the task is observed (logged) and outlives the flow
+                ExecuteProcessAsync(resolvedCommandLine, resolvedArguments, resolvedWorkingDir, verb, CancellationToken.None)
+                    .FireAndLog($"External command background execution: {resolvedCommandLine}", Log);
 
                 context.LogStep($"External command '{commandName ?? resolvedCommandLine}' launched in background.");
                 return;
             }
 
-            string output = null;
-            string error = null;
-            int exitCode = -1;
-
-            await Task.Run(() =>
-            {
-                exitCode = ExecuteProcess(resolvedCommandLine, resolvedArguments, resolvedWorkingDir, verb, out output, out error);
-            }, cancellationToken).ConfigureAwait(false);
+            var (exitCode, output, error) = await ExecuteProcessAsync(resolvedCommandLine, resolvedArguments, resolvedWorkingDir, verb, cancellationToken).ConfigureAwait(false);
 
             context.Properties["ExternalCommand.ExitCode"] = exitCode;
             context.Properties["ExternalCommand.Output"] = output ?? "";
@@ -265,15 +271,16 @@ namespace Greenshot.Plugin.ExternalCommand
                     Log.InfoFormat("ExternalCommandStep: Extracted URI '{0}' from output.", matchedUri);
                 }
 
+                var clipboard = ClipboardService.For(context.Ui);
                 if (outputToClipboard)
                 {
-                    ClipboardHelper.SetClipboardData(output);
+                    await clipboard.SetTextAsync(output, cancellationToken).ConfigureAwait(false);
                     context.LogStep("Copied external command output to clipboard.");
                 }
 
                 if (uriToClipboard && !string.IsNullOrEmpty(matchedUri))
                 {
-                    ClipboardHelper.SetClipboardData(matchedUri);
+                    await clipboard.SetTextAsync(matchedUri, cancellationToken).ConfigureAwait(false);
                     context.LogStep($"Copied extracted URL '{matchedUri}' to clipboard.");
                 }
             }
@@ -292,8 +299,7 @@ namespace Greenshot.Plugin.ExternalCommand
                             CaptureDetails = captureDetails
                         };
                         context.Payload.Surface = null;
-                        context.Payload.SharedRenderedBitmap?.Dispose();
-                        context.Payload.SharedRenderedBitmap = null;
+                        context.Payload.InvalidateExportSource();
                         context.LogStep($"Reloaded transformed image from '{fullPath}' ({reloadedBitmap.Width}x{reloadedBitmap.Height}).");
                         Log.InfoFormat("ExternalCommandStep: Reloaded image payload from {0}", fullPath);
                     }
@@ -307,11 +313,9 @@ namespace Greenshot.Plugin.ExternalCommand
             context.LogStep($"External command finished with exit code {exitCode}.");
         }
 
-        private static int ExecuteProcess(string commandLine, string arguments, string workingDirectory, string verb, out string output, out string error)
+        private static async Task<(int ExitCode, string Output, string Error)> ExecuteProcessAsync(string commandLine, string arguments, string workingDirectory, string verb,
+            CancellationToken cancellationToken)
         {
-            output = null;
-            error = null;
-
             var extConfig = Config;
             using (var process = new Process())
             {
@@ -335,7 +339,7 @@ namespace Greenshot.Plugin.ExternalCommand
 
                 try
                 {
-                    process.Start();
+                    return await process.RunAsync(cancellationToken).ConfigureAwait(false);
                 }
                 catch (Win32Exception)
                 {
@@ -344,23 +348,8 @@ namespace Greenshot.Plugin.ExternalCommand
                     process.StartInfo.UseShellExecute = true;
                     process.StartInfo.RedirectStandardOutput = false;
                     process.StartInfo.RedirectStandardError = false;
-                    process.Start();
-                    process.WaitForExit();
-                    return process.ExitCode;
+                    return await process.RunAsync(cancellationToken).ConfigureAwait(false);
                 }
-
-                if (process.StartInfo.RedirectStandardOutput)
-                {
-                    output = process.StandardOutput.ReadToEnd();
-                }
-
-                if (process.StartInfo.RedirectStandardError)
-                {
-                    error = process.StandardError.ReadToEnd();
-                }
-
-                process.WaitForExit();
-                return process.ExitCode;
             }
         }
     }

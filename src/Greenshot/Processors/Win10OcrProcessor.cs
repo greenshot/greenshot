@@ -72,7 +72,7 @@ namespace Greenshot.Processors
                 capture.CaptureDetails.StartedProcessors.Add(Designation);
             }
 
-            var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>();
+            var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>(isOptional: true);
 
             if (ocrProvider == null)
             {
@@ -98,13 +98,17 @@ namespace Greenshot.Processors
             var captureDetails = capture.CaptureDetails;
             var initialCropOffset = captureDetails.CropOffset;
 
-            var task = Task.Run(() =>
+            // PARALLEL: the OCR runs next to the interactive selection, its lines show up as hotspots while the user selects.
+            // (Background work tracked on the capture details, replaced by AnalysisResults with imaging roadmap step 2.)
+#pragma warning disable RS0030 // R10: documented parallel branch
+            var task = Task.Run(async () =>
+#pragma warning restore RS0030
             {
                 using (clonedImage)
                 {
                     try
                     {
-                        var ocrLines = Task.Run(async () => await ocrProvider.DoOcrAsync(clonedImage).ConfigureAwait(false)).Result;
+                        var ocrLines = await ocrProvider.DoOcrAsync(clonedImage).ConfigureAwait(false);
                         if (ocrLines != null && ocrLines.Any())
                         {
                             lock (captureDetails.Features)

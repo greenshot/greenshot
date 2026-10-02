@@ -70,13 +70,48 @@ namespace Greenshot.Base.Recipes
         /// Verifies that an external recipe's backing file on disk has not been modified since approval.
         /// If modified, interactively prompts for approval (if supported) and reloads the recipe.
         /// Returns the verified up-to-date recipe, or null if unapproved or rejected.
+        /// The prompt (and the reload) run on the UI thread, callable from any thread.
         /// </summary>
-        CaptureRecipe EnsureRecipeApprovedAndUpToDate(CaptureRecipe currentRecipe);
+        System.Threading.Tasks.Task<CaptureRecipe> EnsureRecipeApprovedAndUpToDateAsync(CaptureRecipe currentRecipe, System.Threading.CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Resets an overridden built-in recipe back to its original default definition.
         /// </summary>
         bool ResetToDefault(string recipeId);
+
+        /// <summary>
+        /// Shows the approval of a recipe from a file again, so the user can switch triggers and permissions on or off.
+        /// Returns null when the recipe has no file.
+        /// </summary>
+        RecipeValidationResult ReviewApproval(string recipeId);
+
+        /// <summary>
+        /// Saves a recipe from Greenshot's recipe editor to the file and registers it. The approval is renewed for exactly the saved
+        /// content; the approval window is only shown when the change adds a trigger which starts the recipe on its own or from
+        /// outside, a kind of gated action that wasn't allowed, or replaces a built-in recipe. Errors when it wasn't saved.
+        /// </summary>
+        RecipeValidationResult SaveRecipeToFile(CaptureRecipe recipe, string filePath);
+
+        /// <summary>
+        /// What saving the recipe (as edited in the recipe editor) to the file would ask the user to decide, empty when the save
+        /// renews the approval without asking. See <see cref="SaveRecipeToFile"/>.
+        /// </summary>
+        IReadOnlyList<string> GetSaveDecisionReasons(CaptureRecipe recipe, string filePath);
+
+        /// <summary>
+        /// What the recipe does in plain words, its approval and the changes against the built-in recipe it replaces; null for an unknown id
+        /// </summary>
+        RecipeDetails GetRecipeDetails(string recipeId);
+
+        /// <summary>
+        /// Shows the recipe and its approval in the approval window, read-only (UI thread). False for an unknown id.
+        /// </summary>
+        bool ShowRecipeDetails(string recipeId);
+
+        /// <summary>
+        /// Brings back every built-in recipe a file replaces
+        /// </summary>
+        void ResetAllToDefault();
 
         /// <summary>
         /// Reloads built-in recipes and re-applies configured recipe files from greenshot.ini.

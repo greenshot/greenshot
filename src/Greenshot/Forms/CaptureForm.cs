@@ -42,6 +42,7 @@ using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Ocr;
 using Dapplo.Windows.Icons;
 using Greenshot.Base.Interfaces.Plugin;
+using Greenshot.Base.Threading;
 
 namespace Greenshot.Forms
 {
@@ -62,7 +63,7 @@ namespace Greenshot.Forms
         private static readonly ICoreConfiguration Conf = IniConfigRegistry.GetSection<ICoreConfiguration>();
         private static readonly Brush GreenOverlayBrush;
         private static readonly Pen OverlayPen;
-        private static CaptureForm _currentForm;
+
         private static readonly Brush BackgroundBrush;
 
         /// <summary>
@@ -141,14 +142,12 @@ namespace Greenshot.Forms
 
         private void ClosedHandler(object sender, EventArgs e)
         {
-            _currentForm = null;
             // Change the final mode
             if (_captureMode == CaptureMode.Text)
             {
                 _capture.CaptureDetails.CaptureMode = CaptureMode.Text;
             }
 
-            Log.Debug("Remove CaptureForm from currentForm");
         }
 
         private void ClosingHandler(object sender, EventArgs e)
@@ -190,16 +189,7 @@ namespace Greenshot.Forms
         /// <param name="capture"></param>
         public CaptureForm(ICapture capture)
         {
-            if (_currentForm != null)
-            {
-                Log.Warn("Found currentForm, Closing already opened CaptureForm");
-                _currentForm.Close();
-                _currentForm = null;
-                Application.DoEvents();
-            }
-
-            _currentForm = this;
-
+            // Only one capture form at a time is guaranteed by the InteractiveCaptureSelector and the flow runner.
             // clean up
             FormClosed += ClosedHandler;
             _capture = capture;
@@ -287,15 +277,14 @@ namespace Greenshot.Forms
 
         private void OnFeaturesChanged(object sender, EventArgs e)
         {
-            if (IsDisposed || Disposing) return;
-            if (InvokeRequired)
+            // Raised by background processors: marshal to the UI thread (always posted, also when raised on the UI thread)
+            var ui = SimpleServiceProvider.Current.GetInstance<IUiDispatcher>(isOptional: true) ?? InlineUiDispatcher.Instance;
+            ui.InvokeAsync(() =>
             {
-                BeginInvoke(new Action(() => OnFeaturesChanged(sender, e)));
-                return;
-            }
-            if (IsDisposed || Disposing) return;
-            RebuildFeatureHotspots();
-            Invalidate();
+                if (IsDisposed || Disposing) return;
+                RebuildFeatureHotspots();
+                Invalidate();
+            }).FireAndLog("CaptureForm features changed", Log);
         }
 
         private void CaptureForm_Resize(object sender, EventArgs e)
@@ -484,12 +473,14 @@ namespace Greenshot.Forms
                         }
                         else
                         {
-                            var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>();
+                            var ocrProvider = SimpleServiceProvider.Current.GetInstance<IOcrProvider>(isOptional: true);
                             if (ocrProvider != null)
                             {
-                                var uiTaskScheduler = SimpleServiceProvider.Current.GetInstance<TaskScheduler>() ?? TaskScheduler.FromCurrentSynchronizationContext();
-                                var ocrTask = Task.Factory.StartNew(async () =>                                {                                    var ocrLines = await ocrProvider.DoOcrAsync(_capture.Image).ConfigureAwait(true);                                    if (ocrLines != null && ocrLines.Any())                                    {                                        lock (_capture.CaptureDetails.Features)                                        {                                            _capture.CaptureDetails.Features.AddRange(ocrLines);                                        }                                        if (_capture.CaptureDetails is CaptureDetails concreteDetails)                                        {                                            concreteDetails.NotifyFeaturesChanged();                                        }                                    }                                    Invalidate();                                }, CancellationToken.None, TaskCreationOptions.None, uiTaskScheduler).Unwrap();
-                                var processingTask = _capture.CaptureDetails.ProcessingTask;                                _capture.CaptureDetails.ProcessingTask = processingTask != null ? Task.WhenAll(processingTask, ocrTask) : ocrTask;                            }
+                                // Started on the UI thread: the OCR result is merged and the form invalidated there
+                                var ocrTask = RunOcrAsync(ocrProvider);
+                                var processingTask = _capture.CaptureDetails.ProcessingTask;
+                                _capture.CaptureDetails.ProcessingTask = processingTask != null ? Task.WhenAll(processingTask, ocrTask) : ocrTask;
+                            }
                         }
                     }
                     else
@@ -498,6 +489,31 @@ namespace Greenshot.Forms
                     }
 
                     break;
+            }
+        }
+
+        /// <summary>
+        /// Run the OCR for the text mode, started on the UI thread: the result is merged and the form invalidated there.
+        /// </summary>
+        private async Task RunOcrAsync(IOcrProvider ocrProvider)
+        {
+            var ocrLines = await ocrProvider.DoOcrAsync(_capture.Image).ConfigureAwait(true);
+            if (ocrLines != null && ocrLines.Any())
+            {
+                lock (_capture.CaptureDetails.Features)
+                {
+                    _capture.CaptureDetails.Features.AddRange(ocrLines);
+                }
+
+                if (_capture.CaptureDetails is CaptureDetails concreteDetails)
+                {
+                    concreteDetails.NotifyFeaturesChanged();
+                }
+            }
+
+            if (!IsDisposed)
+            {
+                Invalidate();
             }
         }
 

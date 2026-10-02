@@ -21,7 +21,9 @@
 
 using Dapplo.Ini;
 using Dapplo.Ini.Converters;
+using System.Linq;
 using Greenshot.Base.Core;
+using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Editor.Configuration;
 using Greenshot.Editor.FileFormatHandlers;
@@ -30,12 +32,22 @@ namespace Greenshot.Editor
 {
     public static class EditorInitialize
     {
-        private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
+        // Not a static field: RegisterValueConverters is called before the configuration exists
+        private static ICoreConfiguration CoreConfig => IniConfigRegistry.GetSection<ICoreConfiguration>();
+
+        /// <summary>
+        /// Register the value converters the editor configuration needs, this must happen before greenshot.ini is loaded,
+        /// otherwise e.g. the last used field values can't be read.
+        /// </summary>
+        public static void RegisterValueConverters()
+        {
+            ValueConverterRegistry.Register(new GreenshotEditorObjectValueConverter());
+        }
 
         public static void Initialize()
         {
-            // Make sure the value converter for the editor is registered, so we can use it in the configuration
-            ValueConverterRegistry.Register(new GreenshotEditorObjectValueConverter());
+            // Registering again is harmless, this keeps hosts which only call Initialize (tests) working
+            RegisterValueConverters();
 
             SimpleServiceProvider.Current.AddService<IFileFormatHandler>(
                     // All generic things, like gif, png, jpg etc.
@@ -53,6 +65,12 @@ namespace Greenshot.Editor
                     // JPG XR
                     new WpfFileFormatHandler()
                 );
+
+            IFileFormatRegistry registry = SimpleServiceProvider.Current.GetInstance<IFileFormatRegistry>();
+            foreach (var handler in SimpleServiceProvider.Current.GetAllInstances<IFileFormatHandler>().OfType<AbstractFileFormatHandler>())
+            {
+                handler.RegisterFileFormats(registry);
+            }
         }
     }
 }

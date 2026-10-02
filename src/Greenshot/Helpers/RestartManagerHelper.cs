@@ -20,8 +20,8 @@
  */
 
 using System;
-using System.Diagnostics;
 using System.IO;
+using System.Reactive.Linq;
 using System.Windows.Forms;
 using System.Windows.Threading;
 using Dapplo.Windows.AppRestartManager;
@@ -31,6 +31,9 @@ using Greenshot.Editor.Destinations;
 using Greenshot.Editor.Drawing;
 using Greenshot.Editor.Forms;
 using log4net;
+using Greenshot.Base.Threading;
+using System.Threading.Tasks;
+using Greenshot.Base.Core.Export;
 
 namespace Greenshot.Helpers
 {
@@ -42,7 +45,6 @@ namespace Greenshot.Helpers
     internal static class RestartManagerHelper
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(RestartManagerHelper));
-        private static Dispatcher _dispatcher;
 
         /// <summary>
         /// Directory where editor state is stored for restore after a system restart.
@@ -50,43 +52,79 @@ namespace Greenshot.Helpers
         public static string StateDirectory => Path.Combine(Path.GetTempPath(), "Greenshot", "RestartState");
 
         /// <summary>
+        /// How long the end of the session waits for the editors to save their state
+        /// </summary>
+        private static readonly TimeSpan SaveStateTimeout = TimeSpan.FromSeconds(4);
+
+        private static IDisposable _endSessionSubscription;
+
+        /// <summary>
         /// Registers Greenshot for automatic restart by the Windows Restart Manager.
         /// When the Restart Manager restarts Greenshot, it will use the <c>--restore</c> argument
         /// so that Greenshot can restore any open image editors.
         /// </summary>
-        /// <param name="iniDirectory">The full path of the active --ini-directory or null, passed on so the restarted Greenshot uses the same configuration</param>
-        public static void RegisterForRestart(string iniDirectory)
+        public static void RegisterForRestart()
         {
-            // Capture the current dispatcher for use in saving editor state during shutdown
-            _dispatcher = Dispatcher.CurrentDispatcher;
-
-            var commandLineArgs = "--restore";
-            if (!string.IsNullOrWhiteSpace(iniDirectory))
-            {
-                // A trailing backslash would escape the closing quote, so double it
-                commandLineArgs += $" --ini-directory \"{(iniDirectory.EndsWith(@"\") ? iniDirectory + @"\" : iniDirectory)}\"";
-            }
-
             // Register with the Windows Restart Manager so it can restart us after updates
             // Don't restart if the application crashes
-            ApplicationRestartManager.RegisterForRestart(commandLineArgs: commandLineArgs);
+            ApplicationRestartManager.RegisterForRestart(commandLineArgs: "--restore");
 
-            ApplicationRestartManager.ListenForEndSession(
-                onQuerySession: (endSessionReason) => {
-                    // Accept that an update will take place and allow the session to end
-                    return true;
-                },
-                onEndSession: (endSessionReason) =>
-                {
-                    // Do the work, save state and exit Greenshot
-                    Debug.WriteLine($"Shutting down application due to {endSessionReason}");
-                    SaveEditorState();
-                    return true;
-                }
-                ).Subscribe(endSessionMessage =>
-                {
-                    Debug.WriteLine($"{endSessionMessage.Msg} with session reason: {endSessionMessage.EndSessionReason}");
-                });
+            // WM_QUERYENDSESSION is not answered, which allows the session to end (an update will take place).
+            // OnNext is called on the SharedMessageWindow thread, not on the UI thread.
+            _endSessionSubscription?.Dispose();
+            _endSessionSubscription = ApplicationRestartManager.ListenForEndSession()
+                .Where(endSessionMessage => endSessionMessage.IsSessionEnding)
+                .Subscribe(OnSessionEnding, ex => Log.Error("Error in the end session stream", ex));
+        }
+
+        /// <summary>
+        /// The session really ends, the process can be terminated as soon as this returns: save the state synchronously and exit Greenshot
+        /// </summary>
+        /// <param name="endSessionMessage">EndSessionMessage</param>
+        private static void OnSessionEnding(EndSessionMessage endSessionMessage)
+        {
+            Log.InfoFormat("Shutting down the application due to {0}", endSessionMessage.EndSessionReason);
+            // The Restart Manager closes Greenshot for an installer (update or uninstall): greenshot-mcp has to exit too,
+            // otherwise it keeps the installation directory locked
+            bool closedForInstaller = endSessionMessage.EndSessionReason.HasFlag(Dapplo.Windows.AppRestartManager.Enums.EndSessionReasons.ENDSESSION_CLOSEAPP);
+            NotifyClientsOfShutdown(closedForInstaller ? Ipc.NamedPipeServer.ShutdownReasonUpdate : Ipc.NamedPipeServer.ShutdownReasonSessionEnd);
+            SaveEditorState();
+            // Don't wait for the exit, the editors might want to ask the user something
+            UiDispatcher.Current.RunOnUiAsync(() =>
+            {
+                Application.Exit();
+                Environment.Exit(0);
+            }).FireAndLog("Exit after the end of the session", Log);
+        }
+
+        /// <summary>
+        /// Tells the named pipe clients that Greenshot exits, set by the MainForm
+        /// </summary>
+        internal static Func<string, Task> ShutdownNotifier { get; set; }
+
+        /// <summary>
+        /// How long the end of the session waits for the clients to get the shutdown message
+        /// </summary>
+        private static readonly TimeSpan NotifyTimeout = TimeSpan.FromSeconds(1);
+
+        private static void NotifyClientsOfShutdown(string reason)
+        {
+            var notifier = ShutdownNotifier;
+            if (notifier == null)
+            {
+                return;
+            }
+            try
+            {
+                // R1 exception: like SaveEditorState, this runs inside the window procedure for WM_ENDSESSION
+#pragma warning disable RS0030, VSTHRD002
+                notifier(reason).Wait(NotifyTimeout);
+#pragma warning restore RS0030, VSTHRD002
+            }
+            catch (Exception ex)
+            {
+                Log.Debug("Could not tell the named pipe clients that Greenshot exits.", ex);
+            }
         }
 
         /// <summary>
@@ -129,10 +167,11 @@ namespace Greenshot.Helpers
                     }
                 }
 
-                var editors = ImageEditorForm.Editors.ToArray();
-                _dispatcher.Invoke(() =>
+                // The editors live on the UI thread, but the end of the session is reported on the SharedMessageWindow thread
+                // and the process can be terminated as soon as it was handled: wait (limited) until the state is saved.
+                var saveTask = UiDispatcher.Current.RunOnUiAsync(() =>
                 {
-                    foreach (var editor in editors)
+                    foreach (var editor in ImageEditorForm.Editors.ToArray())
                     {
                         try
                         {
@@ -147,14 +186,46 @@ namespace Greenshot.Helpers
                             Log.Warn("Failed to save state for one editor.", ex);
                         }
                     }
-                    // Make sure the application exits after saving state
-                    Application.Exit();
-                    Environment.Exit(0);
                 });
+                // R1 exception: this runs inside the window procedure of the SharedMessageWindow for WM_ENDSESSION,
+                // Windows can terminate the process as soon as it returns, so there is nothing to await on.
+#pragma warning disable RS0030, VSTHRD002
+                bool saved = saveTask.Wait(SaveStateTimeout);
+#pragma warning restore RS0030, VSTHRD002
+                if (!saved)
+                {
+                    Log.WarnFormat("Saving the editor state didn't finish within {0}.", SaveStateTimeout);
+                }
             }
             catch (Exception ex)
             {
                 Log.Warn("Failed to save editor states for restart.", ex);
+            }
+        }
+
+        /// <summary>
+        /// Open an editor with the saved state, the state file is removed when the editor shows it.
+        /// </summary>
+        private static async Task RestoreEditorAsync(string filePath)
+        {
+            try
+            {
+                ISurface surface = new Surface();
+                surface = ImageIO.LoadGreenshotSurface(filePath, surface);
+                surface.CaptureDetails = new CaptureDetails();
+                var result = await DestinationExporter.ExportAsync(DestinationHelper.GetDestination(EditorDestination.DESIGNATION), surface, surface.CaptureDetails, true);
+                if (result.IsSucceeded)
+                {
+                    File.Delete(filePath);
+                }
+                else
+                {
+                    Log.WarnFormat("Couldn't open an editor with state file {0}: {1}", filePath, result.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Couldn't open an editor with state file: " + filePath, ex);
             }
         }
 
@@ -175,20 +246,8 @@ namespace Greenshot.Helpers
 
                 foreach (string filePath in Directory.GetFiles(stateDir, "*.greenshot"))
                 {
-                    _dispatcher.Invoke(() => {
-                        ISurface surface = new Surface();
-                        surface = ImageIO.LoadGreenshotSurface(filePath, surface);
-                        surface.CaptureDetails = new CaptureDetails();
-                        try
-                        {
-                            DestinationHelper.GetDestination(EditorDestination.DESIGNATION).ExportCapture(true, surface, surface.CaptureDetails);
-                            File.Delete(filePath);
-                        }
-                        catch (Exception ex)
-                        {
-                            Log.Error("Couldn't open an editor with state file: " + filePath, ex);
-                        }
-                    });
+                    // Called on the UI thread (startup), the surface is created there
+                    RestoreEditorAsync(filePath).FireAndLog("Restore an editor", Log);
                     Log.InfoFormat("Queued restore of editor state from: {0}", filePath);
                 }
             }

@@ -412,12 +412,14 @@ Sie können aber auch alle Greenshot-Funktionen über das Kontextmenü des Green
 		<resource name="selfservice_logviewer_empty">(Protokolldatei ist leer)</resource>
 
 		<!-- Zwischenablage-Bereich -->
+		<resource name="selfservice_status_refreshed">Aktualisiert!</resource>
 		<resource name="selfservice_clipboard_title">Zwischenablage-Diagnose &amp; Blockierungsprüfung</resource>
 		<resource name="selfservice_clipboard_sub">Echtzeit-Formatprüfung (automatische Aktualisierung) und Erkennung blockierender Prozesse.</resource>
 		<resource name="selfservice_clipboard_refresh">Aktualisieren</resource>
 		<resource name="selfservice_clipboard_test_now">Zwischenablage jetzt testen</resource>
 		<resource name="selfservice_clipboard_locking_process">Prozess blockiert Zwischenablage:</resource>
 		<resource name="selfservice_clipboard_data_owner">Aktueller Eigentümer der Zwischenablagedaten:</resource>
+		<resource name="selfservice_clipboard_path">Pfad: {0}</resource>
 		<resource name="selfservice_clipboard_pid">Prozess-ID:   {0}</resource>
 		<resource name="selfservice_clipboard_process_name">Prozessname:  {0}</resource>
 		<resource name="selfservice_clipboard_window_title">Fenstertitel: {0}</resource>

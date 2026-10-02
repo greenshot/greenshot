@@ -23,6 +23,10 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using Greenshot.Base.Interfaces;
+using System.Threading;
+using System.Threading.Tasks;
+using Greenshot.Base.Threading;
+using Greenshot.Base.Core.Export;
 
 namespace Greenshot.Base.Pipeline
 {
@@ -36,7 +40,8 @@ namespace Greenshot.Base.Pipeline
         public ICapture RawCapture { get; set; }
         public ISurface Surface { get; set; }
         public string ExtractedText { get; set; }
-        public Image SharedRenderedBitmap { get; set; }
+        private SurfaceExportSource _exportSource;
+        private readonly object _exportSourceLock = new object();
         public bool RetainSurfaceForEditor { get; set; }
         public IDictionary<string, object> Metadata { get; } = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
 
@@ -66,6 +71,48 @@ namespace Greenshot.Base.Pipeline
             return Surface;
         }
 
+        public async Task<IExportSource> GetExportSourceAsync(IUiDispatcher ui, CancellationToken cancellationToken = default)
+        {
+            lock (_exportSourceLock)
+            {
+                if (_exportSource != null)
+                {
+                    return _exportSource;
+                }
+            }
+
+            var surface = EnsureSurface();
+            if (surface == null)
+            {
+                return null;
+            }
+
+            var exportSource = await SurfaceExportSource.CreateAsync(surface, ui, cancellationToken).ConfigureAwait(false);
+            lock (_exportSourceLock)
+            {
+                if (_exportSource != null)
+                {
+                    exportSource.Dispose();
+                    return _exportSource;
+                }
+
+                _exportSource = exportSource;
+                return exportSource;
+            }
+        }
+
+        public void InvalidateExportSource()
+        {
+            SurfaceExportSource exportSource;
+            lock (_exportSourceLock)
+            {
+                exportSource = _exportSource;
+                _exportSource = null;
+            }
+
+            exportSource?.Dispose();
+        }
+
         public ICapturePayload Clone()
         {
             var clone = new CapturePayload
@@ -93,8 +140,7 @@ namespace Greenshot.Base.Pipeline
             if (_disposed) return;
             _disposed = true;
 
-            SharedRenderedBitmap?.Dispose();
-            SharedRenderedBitmap = null;
+            InvalidateExportSource();
 
             RawCapture?.Dispose();
             RawCapture = null;

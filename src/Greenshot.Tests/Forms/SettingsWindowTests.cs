@@ -41,16 +41,16 @@ namespace Greenshot.Tests.Forms
 
 
         [Fact]
-        public void WindowsAppHelper_NegativeLookup_IsCached()
+        public async System.Threading.Tasks.Task WindowsAppHelper_NegativeLookup_IsCached()
         {
             string nonExistentApp = "Definitely_Not_A_Real_App_987654.exe";
             var sw = System.Diagnostics.Stopwatch.StartNew();
-            var result1 = WindowsAppHelper.GetAppLogo(nonExistentApp);
+            var result1 = await WindowsAppHelper.GetAppLogoAsync(nonExistentApp);
             long firstLookupMs = sw.ElapsedMilliseconds;
             Assert.Null(result1);
 
             sw.Restart();
-            var result2 = WindowsAppHelper.GetAppLogo(nonExistentApp);
+            var result2 = await WindowsAppHelper.GetAppLogoAsync(nonExistentApp);
             long secondLookupMs = sw.ElapsedMilliseconds;
             Assert.Null(result2);
 
@@ -149,6 +149,40 @@ namespace Greenshot.Tests.Forms
 
                     var windowWithPlugin = new SettingsWindow("Imgur");
                     Assert.NotNull(windowWithPlugin);
+                }
+                catch (Exception ex)
+                {
+                    threadEx = ex;
+                }
+            });
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
+            thread.Join();
+
+            Assert.Null(threadEx);
+        }
+
+        [Fact]
+        public void SettingsWindow_HasTheAiToolsAndPluginsPages_AndSelectsTabsByName()
+        {
+            Exception threadEx = null;
+            var thread = new Thread(() =>
+            {
+                try
+                {
+                    var window = new SettingsWindow();
+                    // The full version: the pages are their own controls, Greenshot Light doesn't have them
+                    Assert.IsType<AiToolsSettingsPage>(window.AiToolsTabItem.Content);
+                    Assert.IsType<PluginsSettingsPage>(window.PluginsTabItem.Content);
+
+                    window.SelectTab("plugins");
+                    Assert.Same(window.PluginsTabItem, window.SettingsTabControl.SelectedItem);
+                    // By name, not by index: the expert tab comes after the AI tools and plugins tabs
+                    if (((SettingsViewModel)window.DataContext).IsExpertTabVisible)
+                    {
+                        window.SelectTab("expert");
+                        Assert.Same(window.ExpertTabItem, window.SettingsTabControl.SelectedItem);
+                    }
                 }
                 catch (Exception ex)
                 {
