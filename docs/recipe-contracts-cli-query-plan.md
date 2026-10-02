@@ -16,7 +16,7 @@ This document specifies the architectural design for introducing **formal contra
 * **Formal `StepContract` & `RecipeContract`**: Declarative schemas for every step and recipe specifying expected inputs, produced outputs, parameter types, and visual payload impact.
 * **Dual Declaration Model**: Attribute-based annotations on step classes for clean compile-time definitions, plus a fluent programmatic API for dynamic or plugin-provided steps.
 * **CLI Recipe Introspection (`greenshot --info <recipe>`)**: Rich human-readable or JSON disclosure of a recipe's complete contract and node topology.
-* **Direct Value Querying (`greenshot -r <recipe> --query "${Payload.Width}x${Payload.Height}"` or `--json`)**: Extract arbitrary context or payload values directly from the command line without editing the recipe.
+* **Direct Value Querying (`greenshot-cli -r <recipe> --query "${Payload.Width}x${Payload.Height}"` or `--json`)**: Extract arbitrary context or payload values directly from the command line without editing the recipe.
 * **`StderrStep` & Custom Exit Codes**: Dedicated pipeline node to stream messages to stderr in real time and abort execution with a caller-defined exit code (e.g. `2`, `404`).
 * **Recipe Editor Visual Introspection**: Port contracts, variable autocomplete in `${...}` expressions, and compile-time DAG dependency validation.
 
@@ -315,7 +315,7 @@ When `StderrStep` writes:
   "text": "Error: Barcode not detected in file 'sample.png'\n"
 }
 ```
-`greenshot.com` immediately writes this chunk to standard error. Upon recipe completion, the process terminates with the specified `exitCode`.
+`greenshot-cli.exe` immediately writes this chunk to standard error. Upon recipe completion, the process terminates with the specified `exitCode`.
 
 ---
 
@@ -323,19 +323,19 @@ When `StderrStep` writes:
 
 ### 5.1 Querying Payload / Context Directly (`--query`)
 
-Users often need a specific value from a recipe without modifying its nodes to insert a `StdoutStep`. We introduce `--query "<expression>"` to `greenshot.com`:
+Users often need a specific value from a recipe without modifying its nodes to insert a `StdoutStep`. We introduce `--query "<expression>"` to `greenshot-cli.exe`:
 
 ```bash
 # Extract image dimensions:
-greenshot.com -r capture_screen --query "${Payload.Width}x${Payload.Height}"
+greenshot-cli.exe -r capture_screen --query "${Payload.Width}x${Payload.Height}"
 # Output: 1920x1080
 
 # Extract QR code text:
-greenshot.com -r qr --file invoice.png --query "${Barcode.Text}"
+greenshot-cli.exe -r qr --file invoice.png --query "${Barcode.Text}"
 # Output: https://invoice.example.com/pay/12345
 
 # Query saved destination file path:
-greenshot.com -r save_window --query "${Destination.Filename}"
+greenshot-cli.exe -r save_window --query "${Destination.Filename}"
 # Output: C:\Users\robin\Pictures\Greenshot\Greenshot_2026-09-27.png
 ```
 
@@ -344,7 +344,7 @@ greenshot.com -r save_window --query "${Destination.Filename}"
 If `--json` is supplied, Greenshot outputs a structured JSON object containing all execution metadata, resolved variables, and payload details:
 
 ```bash
-greenshot.com -r qr --file invoice.png --json
+greenshot-cli.exe -r qr --file invoice.png --json
 ```
 
 Output:
@@ -378,7 +378,7 @@ Output:
 Users can inspect any recipe's full contract directly from the terminal:
 
 ```bash
-greenshot.com --info qr
+greenshot-cli.exe --info qr
 ```
 
 Sample output:
@@ -415,7 +415,7 @@ Step Pipeline:
 
 Or in JSON format for automated tooling or extensions:
 ```bash
-greenshot.com --info qr --json
+greenshot-cli.exe --info qr --json
 ```
 
 ---
@@ -472,7 +472,7 @@ flowchart TD
 
 ### Phase 4: CLI Inspection & Value Querying
 * Implement IPC command `DESCRIBE_RECIPE` in `IpcSecurityDispatcher`.
-* Update `cli_launcher.c` / `greenshot.com`:
+* Update `cli_launcher.c` / `greenshot-cli.exe`:
   * Add `--info <recipe>` / `-i <recipe>`.
   * Add `--query "<expression>"`.
   * Add `--json` flag to dump payload and variables.

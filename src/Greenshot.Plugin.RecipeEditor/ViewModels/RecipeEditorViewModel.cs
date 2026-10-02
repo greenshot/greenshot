@@ -21,7 +21,7 @@ using Greenshot.Base.Threading;
 
 namespace Greenshot.Plugin.RecipeEditor.ViewModels
 {
-    public class RecipeEditorViewModel : ViewModelBase
+    public partial class RecipeEditorViewModel : ViewModelBase
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(RecipeEditorViewModel));
         private readonly IRecipeManager _recipeManager;
@@ -50,6 +50,12 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 {
                     KeepHistory(previous.Id);
                 }
+                // A recipe is opened: no automatic step is edited anymore
+                bool wasExtension = _extension != null;
+                if (!_openingExtension)
+                {
+                    _extension = null;
+                }
                 if (SetField(ref _activeRecipe, value))
                 {
                     LoadRecipeIntoCanvas(value);
@@ -68,6 +74,11 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     OnPropertyChanged(nameof(CanUnloadActiveRecipe));
                     OnPropertyChanged(nameof(UnloadActiveRecipeText));
                     OnPropertyChanged(nameof(UnloadActiveRecipeToolTip));
+                    if (wasExtension && _extension == null)
+                    {
+                        OnPropertyChanged(nameof(IsExtensionMode));
+                        OnPropertyChanged(nameof(IsRecipeMode));
+                    }
                 }
             }
         }
@@ -361,6 +372,10 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             {
                 return null;
             }
+            if (_extension != null)
+            {
+                return RecipeSerializer.Serialize(BuildExtension());
+            }
             SyncRecipeTransitions();
             _activeRecipe.Triggers = Triggers.Select(t => t.Config).ToList();
             return RecipeSerializer.Serialize(_activeRecipe);
@@ -557,12 +572,28 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         private void Restore(RecipeMemento memento)
         {
             var previous = _activeRecipe;
-            var restored = RecipeSerializer.Deserialize(memento.Content, validate: false);
-            restored.FilePath = previous.FilePath;
-            restored.IsBuiltIn = previous.IsBuiltIn;
-            restored.IsOverridden = previous.IsOverridden;
-            restored.IsEnabled = previous.IsEnabled;
-            restored.ProposedBy = previous.ProposedBy;
+            CaptureRecipe restored;
+            if (_extension != null)
+            {
+                // An automatic step: its state is its JSON
+                var restoredExtension = RecipeSerializer.DeserializeExtension(memento.Content, validate: false);
+                restoredExtension.FilePath = previous.FilePath;
+                restoredExtension.IsBuiltIn = _extension.IsBuiltIn;
+                restoredExtension.IsOverridden = _extension.IsOverridden;
+                restoredExtension.ProposedBy = _extension.ProposedBy;
+                _extension = restoredExtension;
+                restored = restoredExtension.AsRecipeView();
+                _openingExtension = true;
+            }
+            else
+            {
+                restored = RecipeSerializer.Deserialize(memento.Content, validate: false);
+                restored.FilePath = previous.FilePath;
+                restored.IsBuiltIn = previous.IsBuiltIn;
+                restored.IsOverridden = previous.IsOverridden;
+                restored.IsEnabled = previous.IsEnabled;
+                restored.ProposedBy = previous.ProposedBy;
+            }
             string savedContent = _savedContent;
             _isRestoring = true;
             try
@@ -579,6 +610,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             finally
             {
                 _isRestoring = false;
+                _openingExtension = false;
             }
             _savedContent = savedContent;
             // The restored content as the editor writes it, so it isn't recorded as a new change
@@ -590,8 +622,9 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
         private void UpdateApprovalNotice(bool force, string current = null)
         {
-            if (_recipeManager == null || _activeRecipe == null)
+            if (_recipeManager == null || _activeRecipe == null || _extension != null)
             {
+                // An automatic step: saving asks when its change needs a decision
                 ApprovalNotice = null;
                 return;
             }
@@ -949,6 +982,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             Connections.Clear();
             SelectedNode = null;
 
+            LoadOptions(recipe);
             if (recipe == null)
             {
                 Triggers.Clear();
@@ -968,6 +1002,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             {
                 var vm = new StepNodeViewModel(nodeConfig, new Point(defaultX, defaultY), SetStartNode, DeleteNode, HandleNodeIdChanged, OnNodeStartToggled);
                 vm.RecipeNameProvider = () => RecipeTitle;
+                vm.SlotExtensionsProvider = GetSlotExtensions;
                 vm.OtherNodesProvider = () => Nodes.Where(n => n != vm);
                 vm.AvailableRecipesProvider = () => AvailableRecipes;
                 if (hasExplicitStarts)
@@ -977,6 +1012,13 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 Nodes.Add(vm);
                 nodeMap[nodeConfig.Id] = vm;
                 defaultY += 140;
+            }
+
+            // An automatic step: In and Out show where it starts and where the recipe goes on
+            if (_extension != null)
+            {
+                AddBoundaryNodes(recipe, nodeMap);
+                hasExplicitStarts = true;
             }
 
             // If no explicit start nodes were defined, infer start nodes from graph topology
@@ -1076,8 +1118,18 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 }
             }
 
-            // Apply DagAutoLayout
+            // An automatic step: its last steps lead to Out (they do so anyway, the arrow shows it)
+            if (_extension != null)
+            {
+                ConnectEndsToOut();
+            }
+
+            // Apply DagAutoLayout, and again once the steps are drawn and their real height is known
             PerformAutoLayout();
+            if (!_isRestoring)
+            {
+                ScheduleAutoLayout();
+            }
             ValidateGraphCycles();
             IsDirty = false;
             StatusMessage = $"Loaded recipe '{recipe.Name}' ({recipe.Nodes.Count} steps, {Triggers.Count} triggers)";
@@ -1287,22 +1339,94 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             }
         }
 
+        /// <summary>
+        /// Distance between two steps one under the other
+        /// </summary>
+        private const double StepSpacing = 140;
+
+        /// <summary>
+        /// Adds a step from the toolbox: into the selected connection, after the selected step (its next steps follow the
+        /// new one), or on its own below the others.
+        /// </summary>
         public void AddStep(string stepType)
         {
             if (string.IsNullOrEmpty(stepType)) return;
 
-            string id = $"{stepType.ToLowerInvariant()}_{Guid.NewGuid().ToString("N").Substring(0, 4)}";
-            var config = new RecipeNodeConfig(id, stepType, stepType);
-            
-            // Set defaults
-            SetDefaultParametersForStep(config);
+            if (SelectedConnection != null && Connections.Contains(SelectedConnection))
+            {
+                InsertStepIntoConnection(SelectedConnection, stepType);
+                return;
+            }
+            if (SelectedNode != null && Nodes.Contains(SelectedNode) && !SelectedNode.HasDynamicOutputPorts && !SelectedNode.IsOutNode)
+            {
+                InsertStepAfter(SelectedNode, stepType);
+                return;
+            }
 
             // Position at center below existing nodes
-            double x = 350;
-            double y = Nodes.Count > 0 ? Nodes.Max(n => n.Location.Y) + 140 : 100;
+            double y = Nodes.Count > 0 ? Nodes.Max(n => n.Location.Y) + StepSpacing : 100;
+            var nodeVm = CreateStepNode(stepType, new Point(350, y), null, null);
+            SelectedNode = nodeVm;
+            StatusMessage = $"Added step: {stepType}";
+        }
 
-            var nodeVm = new StepNodeViewModel(config, new Point(x, y), SetStartNode, DeleteNode, HandleNodeIdChanged, OnNodeStartToggled);
+        /// <summary>
+        /// Puts a new step between the two steps of the connection: A -> B becomes A -> new -> B
+        /// </summary>
+        public void InsertStepIntoConnection(StepConnectionViewModel connection, string stepType)
+        {
+            if (connection == null || string.IsNullOrEmpty(stepType) || !Connections.Contains(connection)) return;
+            var source = connection.Source;
+            var target = connection.Target;
+            var nodeVm = CreateStepNode(stepType, target.Node.Location, source.Node, target.Node);
+
+            PutNodeIntoConnection(connection, nodeVm);
+            StatusMessage = $"Inserted {stepType} between '{source.Node.DisplayName}' and '{target.Node.DisplayName}'";
+        }
+
+        /// <summary>
+        /// Puts a new step right after the step: its next steps follow the new one
+        /// </summary>
+        public void InsertStepAfter(StepNodeViewModel previous, string stepType)
+        {
+            if (previous == null || string.IsNullOrEmpty(stepType)) return;
+            var outgoing = Connections.Where(c => c.Source == previous.OutputPort).ToList();
+            var location = new Point(previous.Location.X, previous.Location.Y + StepSpacing);
+            var nodeVm = CreateStepNode(stepType, location, previous, outgoing.Count == 1 ? outgoing[0].TargetNode : null);
+
+            foreach (var connection in outgoing)
+            {
+                var target = connection.Target;
+                RemoveConnection(connection);
+                // A decision: each of its branches leads to the next step until it is changed
+                foreach (var port in GetOutgoingPorts(nodeVm))
+                {
+                    Connect(port, target);
+                }
+            }
+            Connect(previous.OutputPort, nodeVm.InputPort);
+            SelectedNode = nodeVm;
+            ScheduleAutoLayout();
+            StatusMessage = $"Inserted {stepType} after '{previous.DisplayName}'";
+        }
+
+        private StepNodeViewModel CreateStepNode(string stepType, Point location, StepNodeViewModel previous, StepNodeViewModel next)
+        {
+            string id = $"{stepType.ToLowerInvariant()}_{Guid.NewGuid().ToString("N").Substring(0, 4)}";
+            var config = new RecipeNodeConfig(id, stepType, stepType);
+
+            // Set defaults
+            SetDefaultParametersForStep(config);
+            if (string.Equals(stepType, WellKnownStepTypes.Slot, StringComparison.OrdinalIgnoreCase))
+            {
+                string slotName = GuessSlotName(previous, next);
+                config.Set("Name", slotName);
+                config.Name = slotName;
+            }
+
+            var nodeVm = new StepNodeViewModel(config, location, SetStartNode, DeleteNode, HandleNodeIdChanged, OnNodeStartToggled);
             nodeVm.RecipeNameProvider = () => RecipeTitle;
+            nodeVm.SlotExtensionsProvider = GetSlotExtensions;
             nodeVm.OtherNodesProvider = () => Nodes.Where(n => n != nodeVm);
             nodeVm.AvailableRecipesProvider = () => AvailableRecipes;
             if (Nodes.Count == 0)
@@ -1316,15 +1440,28 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             {
                 ActiveRecipe.Nodes.Add(config);
             }
-
-            SelectedNode = nodeVm;
             IsDirty = true;
-            StatusMessage = $"Added step: {stepType}";
+            return nodeVm;
         }
 
+        /// <summary>
+        /// The slot which fits where a slot is put: after an export AfterExport, before an export BeforeExport, otherwise AfterCapture
+        /// </summary>
+        private static string GuessSlotName(StepNodeViewModel previous, StepNodeViewModel next)
+        {
+            if (previous != null && WellKnownStepTypes.IsDestination(previous.StepType)) return RecipeSlots.AfterExport;
+            if (next != null && WellKnownStepTypes.IsDestination(next.StepType)) return RecipeSlots.BeforeExport;
+            return RecipeSlots.AfterCapture;
+        }
         private void HandleNodeIdChanged(StepNodeViewModel node, string oldId, string newId)
         {
             if (node == null || string.IsNullOrWhiteSpace(newId) || string.Equals(oldId, newId, StringComparison.OrdinalIgnoreCase)) return;
+            if (node.IsBoundary)
+            {
+                node.ResetId(oldId);
+                StatusMessage = "In and Out keep their names.";
+                return;
+            }
 
             // Check for collision with another node
             bool duplicate = Nodes.Any(n => n != node && string.Equals(n.Id, newId, StringComparison.OrdinalIgnoreCase));
@@ -1390,6 +1527,11 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         public void DeleteNode(StepNodeViewModel nodeToDelete)
         {
             if (nodeToDelete == null) return;
+            if (nodeToDelete.IsBoundary)
+            {
+                StatusMessage = "In and Out belong to the automatic step, they can't be deleted.";
+                return;
+            }
             var connsToRemove = Connections.Where(c => c.SourceNode == nodeToDelete || c.TargetNode == nodeToDelete).ToList();
             foreach (var c in connsToRemove)
             {
@@ -1444,11 +1586,22 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             if (ActiveRecipe?.Flow == null) return;
             var transitions = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
             var conditionalTransitions = new List<RecipeConditionalTransitionConfig>();
+            var extensionStarts = new List<string>();
 
             foreach (var c in Connections)
             {
                 if (c.SourceNode != null && c.TargetNode != null)
                 {
+                    // In: the start steps of an automatic step; connections to Out are transitions to "Out"
+                    if (c.SourceNode.IsInNode)
+                    {
+                        if (!c.TargetNode.IsBoundary) extensionStarts.Add(c.TargetNode.Id);
+                        continue;
+                    }
+                    if (c.SourceNode.IsOutNode || c.TargetNode.IsInNode)
+                    {
+                        continue;
+                    }
                     var branch = c.SourceNode.ConditionBranches.FirstOrDefault(b => b.Port == c.Source);
                     var promptChoice = c.SourceNode.PromptChoices.FirstOrDefault(p => p.Port == c.Source);
                     if (branch != null)
@@ -1474,7 +1627,9 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 }
             }
 
-            ActiveRecipe.Flow.StartNodes = Nodes.Where(n => n.IsStartNode).Select(n => n.Id).ToList();
+            ActiveRecipe.Flow.StartNodes = _extension != null
+                ? extensionStarts.Distinct(StringComparer.OrdinalIgnoreCase).ToList()
+                : Nodes.Where(n => n.IsStartNode).Select(n => n.Id).ToList();
             ActiveRecipe.Flow.Transitions = transitions;
             ActiveRecipe.Flow.ConditionalTransitions = conditionalTransitions;
             ActiveRecipe.Flow.ErrorTransitions = ErrorTransitions.Select(e => e.ToConfig()).ToList();
@@ -1482,7 +1637,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
         private void ValidateGraphCycles()
         {
-            var valResult = RecipeValidator.Validate(ActiveRecipe);
+            var valResult = _extension != null ? RecipeValidator.Validate(BuildExtension(sync: false)) : RecipeValidator.Validate(ActiveRecipe);
             bool hasCycle = !valResult.IsValid && valResult.Errors.Any(e => e.IndexOf("cycle", StringComparison.OrdinalIgnoreCase) >= 0);
 
             foreach (var c in Connections) c.IsCycle = hasCycle;
@@ -1528,6 +1683,34 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             StatusMessage = "Removed recipe error fallback route";
         }
 
+        /// <summary>
+        /// The extensions which plug into a slot of the recipe, by order: they target the recipe and the slot accepts them.
+        /// Shown greyed out on the slot; "(off)" when the user switched it off or not for this recipe.
+        /// </summary>
+        private IReadOnlyList<string> GetSlotExtensions(StepNodeViewModel node)
+        {
+            string slotName = RecipeSlots.GetSlotName(node?.Config);
+            var recipe = _activeRecipe;
+            if (slotName == null || recipe == null || _recipeManager == null) return Array.Empty<string>();
+            try
+            {
+                return _recipeManager.GetAllExtensions()
+                    .Where(e => e.SlotName == slotName && RecipeSlots.Accepts(node.Config, e.Id) && RecipeComposer.Targets(e, recipe))
+                    .OrderBy(e => e.Extends.Order).ThenBy(e => e.Id, StringComparer.OrdinalIgnoreCase)
+                    .Select(e =>
+                    {
+                        string name = RecipeText.Translate(e.Name ?? e.Id);
+                        return RecipeExtensionSettings.FromStore(e).AllowsRecipe(recipe.Id) ? name : $"{name} (off)";
+                    })
+                    .ToList();
+            }
+            catch (Exception ex)
+            {
+                Log.Debug("Couldn't find the extensions of a slot", ex);
+                return Array.Empty<string>();
+            }
+        }
+
         public void NewRecipe()
         {
             if (!ConfirmDiscardChanges()) return;
@@ -1542,6 +1725,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             recipe.Flow = new RecipeFlowConfig("acquire")
                 .AddTransition("acquire", "feedback")
                 .AddTransition("feedback", "export");
+            // New recipes accept extensions (border, drop shadow, caption, ...) like the built-in capture recipes
+            RecipeStepConfig.AddStandardSlots(recipe, "export", "export");
 
             ErrorTransitions.Clear();
             _openedFromContent = null;
@@ -1565,7 +1750,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 () =>
                 {
                     NewRecipe();
-                });
+                },
+                OpenExtension);
 
             var dlg = new Dialogs.RecipeManagerDialog(vm)
             {
@@ -1643,6 +1829,12 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                             ThemedMessageBox.Show(msg, "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                             StatusMessage = $"Recipe failed validation: {Path.GetFileName(dlg.FileName)}";
                         }
+                        else if (_recipeManager.GetAllExtensions().FirstOrDefault(e => string.Equals(e.FilePath, Path.GetFullPath(dlg.FileName), StringComparison.OrdinalIgnoreCase)) is RecipeExtension loadedExtension)
+                        {
+                            // An automatic step file
+                            OpenExtensionCopy(loadedExtension, RecipeSerializer.Serialize(loadedExtension));
+                            StatusMessage = $"Loaded and registered automatic step: {Path.GetFileName(dlg.FileName)}";
+                        }
                         else
                         {
                             RefreshAvailableRecipes();
@@ -1715,6 +1907,10 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         /// </summary>
         private bool SaveActiveRecipeTo(string filePath)
         {
+            if (_extension != null)
+            {
+                return SaveActiveExtensionTo(filePath);
+            }
             if (_recipeManager == null)
             {
                 RecipeSerializer.SaveToFile(ActiveRecipe, filePath);
@@ -1780,6 +1976,12 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         public async Task ExecuteTestRunAsync()
         {
             if (ActiveRecipe == null) return;
+            if (_extension != null)
+            {
+                ThemedMessageBox.Show("An automatic step runs inside the recipes it changes: save it, switch it on in Settings > Recipes and test run one of those recipes.",
+                    "Test Run", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
             SyncRecipeTransitions();
 
             var valResult = RecipeValidator.Validate(ActiveRecipe);
@@ -1813,7 +2015,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             if (!IsJsonViewVisible)
             {
                 SyncRecipeTransitions();
-                RawJsonText = RecipeSerializer.Serialize(ActiveRecipe);
+                RawJsonText = _extension != null ? RecipeSerializer.Serialize(BuildExtension()) : RecipeSerializer.Serialize(ActiveRecipe);
                 IsJsonViewVisible = true;
                 IsMermaidViewVisible = false;
             }
@@ -1827,6 +2029,11 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         {
             try
             {
+                if (_extension != null)
+                {
+                    ApplyExtensionJson();
+                    return;
+                }
                 var parsed = RecipeSerializer.Deserialize(RawJsonText);
                 // The same recipe, changed: it keeps its file and what was saved
                 var previous = ActiveRecipe;
@@ -1966,7 +2173,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     else if (string.Equals(t.TriggerType, TriggerConfig.TypeExtension, StringComparison.OrdinalIgnoreCase))
                     {
                         string browser = t.GetParameter<string>("Browser", "");
-                        tLabel = string.IsNullOrEmpty(browser) ? "🌐 Browser Extension" : $"🌐 Extension ({browser})";
+                        tLabel = string.IsNullOrEmpty(browser) ? "🌐 Browser Extension" : $"🌐 Browser Extension ({browser})";
                     }
                     else if (string.Equals(t.TriggerType, TriggerConfig.TypeAiTool, StringComparison.OrdinalIgnoreCase))
                     {
@@ -2233,6 +2440,9 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                     break;
                 case WellKnownStepTypes.Processors:
                     dict["ProcessorIds"] = new List<string>();
+                    break;
+                case WellKnownStepTypes.Slot:
+                    dict["Name"] = RecipeSlots.BeforeExport;
                     break;
                 case "ExternalCommand":
                     dict["CommandLine"] = "cmd.exe";

@@ -493,6 +493,27 @@
 
 
 
+                        <!-- Automatic step: which recipes it changes, where and when -->
+                        <Border CornerRadius="8" Padding="14" Margin="0,0,0,12"
+                                Background="{Binding CardBackgroundBrush}"
+                                BorderBrush="{Binding WarningBorderBrush}"
+                                BorderThickness="1"
+                                Visibility="{Binding ExtensionReachVisibility}">
+                            <StackPanel>
+                                <TextBlock Text="Changes other recipes" FontWeight="Bold" FontSize="13" Foreground="{Binding TextPrimaryBrush}" Margin="0,0,0,2"/>
+                                <TextBlock Text="An automatic step adds its steps to other recipes, the built-in ones included. It has no triggers of its own."
+                                           FontSize="11" Foreground="{Binding TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                                <ItemsControl ItemsSource="{Binding ExtensionReachLines}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding}" TextWrapping="Wrap" Margin="0,1,0,1"
+                                                       Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+
                         <!-- Triggers Card: each trigger is switched on or off -->
                         <Border CornerRadius="8" Padding="14" Margin="0,0,0,12"
                                 Background="{Binding CardBackgroundBrush}" 

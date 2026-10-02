@@ -64,6 +64,11 @@ namespace Greenshot.Plugin.RecipeEditor
                     new Nodify.Interactivity.MouseGesture(MouseAction.MiddleClick),
                     new Nodify.Interactivity.MouseGesture(MouseAction.LeftClick, Key.Space)
                 );
+                // Mouse wheel as in other Windows apps: scroll up/down, Shift scrolls sideways, Ctrl zooms
+                gestures.Editor.PanWithMouseWheel = true;
+                gestures.Editor.PanVerticalModifierKey = ModifierKeys.None;
+                gestures.Editor.PanHorizontalModifierKey = ModifierKeys.Shift;
+                gestures.Editor.ZoomModifierKey = ModifierKeys.Control;
                 EditorCanvas.InputGestures = gestures;
             }
             catch
@@ -122,9 +127,15 @@ namespace Greenshot.Plugin.RecipeEditor
                             {
                                 if (element is FrameworkElement fe && fe.ContextMenu != null)
                                 {
-                                    fe.ContextMenu.PlacementTarget = fe;
-                                    fe.ContextMenu.IsOpen = true;
+                                    // After this mouse up: the canvas may still hold the mouse (right drag pans), the menu wouldn't get its clicks
+                                    var menu = fe.ContextMenu;
                                     e.Handled = true;
+                                    _ = Dispatcher.BeginInvoke(new Action(() =>
+                                    {
+                                        Mouse.Capture(null);
+                                        menu.PlacementTarget = fe;
+                                        menu.IsOpen = true;
+                                    }), System.Windows.Threading.DispatcherPriority.Input);
                                     break;
                                 }
                                 element = VisualTreeHelper.GetParent(element);

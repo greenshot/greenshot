@@ -413,8 +413,17 @@ namespace Greenshot.Pipeline.Steps
 
             if (context.Payload?.EnsureSurface() != null)
             {
+                // Extensions on the BeforeDestination slot (border, ...) change a copy for the clipboard
+                var payload = context.Payload;
+                var chains = DestinationDispatcher.ChainsFor(context, nameof(WellKnownDestinations.Clipboard));
+                if (chains.Count > 0)
+                {
+                    var copyContext = await DestinationDispatcher.RunChainsOnCopyAsync(context, chains, "the clipboard", cancellationToken).ConfigureAwait(false);
+                    payload = copyContext?.Payload ?? payload;
+                }
+
                 // The export source renders the surface on the UI thread once, the lease is our own copy
-                var source = await context.Payload.GetExportSourceAsync(context.Ui, cancellationToken).ConfigureAwait(false);
+                var source = await payload.GetExportSourceAsync(context.Ui, cancellationToken).ConfigureAwait(false);
                 using (var lease = await source.RenderAsync(new SurfaceOutputSettings(WellKnownFileFormats.Png, 100, false), cancellationToken).ConfigureAwait(false))
                 {
                     await clipboard.SetImageAsync(lease.Image, formats, isImageAndText ? textToCopy : null, cancellationToken).ConfigureAwait(false);

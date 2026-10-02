@@ -19,6 +19,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System;
+using System.Collections.Generic;
+
 namespace Greenshot.Base.Recipes
 {
     /// <summary>
@@ -137,5 +140,19 @@ namespace Greenshot.Base.Recipes
         /// </summary>
         public const string Stderr = "Stderr";
 
+        /// <summary>
+        /// A named place in a recipe where recipe extensions put their steps (see <see cref="RecipeSlots"/>); does nothing itself.
+        /// </summary>
+        public const string Slot = "Slot";
+
+        private static readonly HashSet<string> DestinationStepTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            Destinations, SaveFile, Clipboard, Editor, Printer, Email, DynamicDestination, CustomDestination
+        };
+
+        /// <summary>
+        /// Whether the step type exports the capture (destinations, file, clipboard, editor, printer, email, picker)
+        /// </summary>
+        public static bool IsDestination(string stepType) => !string.IsNullOrEmpty(stepType) && DestinationStepTypes.Contains(stepType);
     }
 }

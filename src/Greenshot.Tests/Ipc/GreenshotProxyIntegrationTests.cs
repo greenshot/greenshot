@@ -38,7 +38,7 @@ namespace Greenshot.Tests.Ipc
     /// </summary>
     internal static class ProxyBinaries
     {
-        public const string Cli = "greenshot.com";
+        public const string Cli = "greenshot-cli.exe";
         public const string Proxy = "greenshot-proxy.exe";
 
         public static string Find(string fileName)
@@ -94,7 +94,7 @@ namespace Greenshot.Tests.Ipc
     }
 
     /// <summary>
-    /// Runs greenshot.com / greenshot-proxy.exe against an in-process fake Greenshot pipe server.
+    /// Runs greenshot-cli.exe / greenshot-proxy.exe against an in-process fake Greenshot pipe server.
     /// </summary>
     public class GreenshotProxyIntegrationTests
     {

@@ -376,6 +376,23 @@ namespace Greenshot.Forms.Wpf
             }
         }
 
+        /// <summary>
+        /// "Change…" of an extension: where it is used, the captures and the destinations
+        /// </summary>
+        private void RecipeExtensionScope_Click(object sender, RoutedEventArgs e)
+        {
+            if (!((sender as FrameworkElement)?.DataContext is RecipeOptionGroup group) || group.UseIn == null)
+            {
+                return;
+            }
+
+            var scopeWindow = new RecipeExtensionScopeWindow(group.Name, group.UseIn, group.OnlyDestinations)
+            {
+                Owner = this
+            };
+            scopeWindow.ShowDialog();
+        }
+
         private void HotkeyDisplayControl_EditRequested(object sender, EventArgs e)
         {
             if (sender is Greenshot.Base.Wpf.HotkeyDisplayControl displayControl)

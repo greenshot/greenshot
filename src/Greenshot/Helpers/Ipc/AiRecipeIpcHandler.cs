@@ -93,9 +93,24 @@ namespace Greenshot.Helpers.Ipc
                 return context.ReplyAsync(BuildCatalog(), cancellationToken);
             }
             var recipe = RecipeManager.Instance.GetRecipeById(recipeId);
+            if (recipe == null && RecipeManager.Instance.GetExtensionById(recipeId) is RecipeExtension extension)
+            {
+                var extensionCopy = extension.Clone();
+                extensionCopy.FilePath = null;
+                return context.ReplyAsync(new
+                {
+                    status = "ok",
+                    exit_code = 0,
+                    recipe = extension.Id,
+                    kind = FlowDefinition.KindExtension,
+                    built_in = extension.IsBuiltIn,
+                    replaces_built_in = extension.IsOverridden,
+                    recipe_json = RecipeSerializer.Serialize(extensionCopy)
+                }, cancellationToken);
+            }
             if (recipe == null)
             {
-                return ReplyErrorAsync(context, $"There is no recipe with the id '{recipeId}'.", cancellationToken);
+                return ReplyErrorAsync(context, $"There is no recipe or automatic step with the id '{recipeId}'.", cancellationToken);
             }
             var copy = recipe.Clone();
             copy.FilePath = null;
@@ -157,14 +172,47 @@ namespace Greenshot.Helpers.Ipc
                     "Check it with validate_recipe, then propose_recipe shows it to the user. Nothing is saved or run unless the user approves it.",
                     "A new recipe needs an id that no recipe uses; to change a recipe (also a built-in one) use update_recipe with its id.",
                     "The user switches each trigger on or off; for a recipe from an AI tool they start switched off. Uploads, files outside the output folder and external commands need the user's permission.",
-                    "Destinations with uploads=true send the capture to the internet."
+                    "Destinations with uploads=true send the capture to the internet.",
+                    "An automatic step (\"kind\": \"extension\") adds steps to other recipes, e.g. a border on every capture: \"extends\": { \"recipes\": [ ids, \"*\" or \"*capture\" ], \"slot\": one of the slots, \"order\" }, an optional \"when\" expression, no triggers and no Source step. Its flow starts at its startNodes; a transition to \"Out\" ends it and the recipe goes on. Destinations only at AfterExport. Propose and update it like a recipe; it starts switched off, the user switches it on in Settings > Recipes.",
+                    "Options (\"options\") are values the user sets once in Settings > Recipes, read by the steps with ${option.key}. Give an automatic step a Boolean option \"enabled\" as its on/off switch. A String option can't be used by a step which needs a permission; \"format\": \"template\" lets its value contain ${...}."
                 },
                 trigger_types = TriggerTypes,
                 steps,
                 destinations,
                 processors,
-                recipes
+                recipes,
+                slots = RecipeSlots.All.Select(s => new
+                {
+                    name = s,
+                    where = DescribeSlot(s),
+                    recipes = recipeManager.GetAllRecipes().Where(r => RecipeComposer.FindSlots(r, s).Count > 0).Select(r => r.Id).ToList()
+                }).ToList(),
+                option_types = RecipeOption.SupportedTypes.Select(t => t.ToString()).ToList(),
+                automatic_steps = recipeManager.GetAllExtensions().Select(e => new
+                {
+                    id = e.Id,
+                    name = RecipeText.Translate(e.Name),
+                    description = RecipeText.Translate(e.Description),
+                    slot = e.SlotName,
+                    recipes = e.Extends?.Recipes ?? new List<string>(),
+                    order = e.Extends?.Order ?? 0,
+                    built_in = e.IsBuiltIn,
+                    switched_on = RecipeExtensionSettings.FromStore(e).Enabled,
+                    ai_created = !string.IsNullOrEmpty(e.ProposedBy)
+                }).ToList()
             };
+        }
+
+        private static string DescribeSlot(string slot)
+        {
+            switch (slot)
+            {
+                case RecipeSlots.AfterCapture: return "after the capture and the selection, before the processors";
+                case RecipeSlots.BeforeExport: return "once before the destinations, the image is final";
+                case RecipeSlots.AfterExport: return "after the destinations";
+                case RecipeSlots.BeforeDestination: return "for each destination on its own copy of the capture (the user can limit it to some destinations)";
+                default: return null;
+            }
         }
 
         private static readonly object[] TriggerTypes =
@@ -174,7 +222,7 @@ namespace Greenshot.Helpers.Ipc
             new { type = TriggerConfig.TypeEditor, parameters = "MenuItemText, Group, Order", note = "an entry in the editor's recipe menu, works on the open image" },
             new { type = TriggerConfig.TypeClipboard, parameters = "OnImageCopied, FormatFilter", note = "runs on its own when an image is copied" },
             new { type = TriggerConfig.TypeManual, parameters = "", note = "only started from the recipe list" },
-            new { type = TriggerConfig.TypeCommandline, parameters = "Command, Description, FireAndForget, Stdout, Arguments, AllowBrowserInvocation", note = "greenshot.com run <Command>" },
+            new { type = TriggerConfig.TypeCommandline, parameters = "Command, Description, FireAndForget, Stdout, Arguments, AllowBrowserInvocation", note = "greenshot-cli.exe run <Command>" },
             new { type = TriggerConfig.TypeOpenFile, parameters = "Filter, FireAndForget", note = "runs for files opened with Greenshot" },
             new { type = TriggerConfig.TypeExtension, parameters = "Browser, FireAndForget", note = "handles captures from the browser extension" },
             new { type = TriggerConfig.TypeAiTool, parameters = "ToolName, Title, Description, ReadOnly, Destructive, Arguments, MaxImageSize", note = "offers the recipe as a tool to AI tools" }
@@ -230,6 +278,12 @@ namespace Greenshot.Helpers.Ipc
         internal sealed class ParsedProposal
         {
             public CaptureRecipe Recipe { get; set; }
+
+            /// <summary>
+            /// An automatic step (recipe extension) instead of a recipe; <see cref="Recipe"/> is then its view without triggers
+            /// </summary>
+            public RecipeExtension Extension { get; set; }
+
             public RecipeValidationResult Validation { get; set; }
 
             /// <summary>
@@ -252,6 +306,11 @@ namespace Greenshot.Helpers.Ipc
             if (json.Length > MaxRecipeLength)
             {
                 return new ParsedProposal { Error = $"The recipe is too large (more than {MaxRecipeLength / 1024} KB)." };
+            }
+
+            if (RecipeManager.IsExtensionContent(json))
+            {
+                return ParseExtension(json);
             }
 
             List<CaptureRecipe> recipes;
@@ -283,6 +342,34 @@ namespace Greenshot.Helpers.Ipc
         }
 
         /// <summary>
+        /// Parses and validates an automatic step from an AI tool
+        /// </summary>
+        private static ParsedProposal ParseExtension(string json)
+        {
+            RecipeExtension extension;
+            try
+            {
+                extension = RecipeSerializer.DeserializeExtension(json, validate: false);
+            }
+            catch (Exception ex)
+            {
+                return new ParsedProposal { Error = $"The JSON is not a valid automatic step: {ex.Message}" };
+            }
+            // Where it comes from is decided by Greenshot, not by the JSON
+            extension.FilePath = null;
+            extension.IsBuiltIn = false;
+            extension.IsOverridden = false;
+            extension.ProposedBy = null;
+            return new ParsedProposal
+            {
+                Extension = extension,
+                Recipe = extension.AsRecipeView(),
+                Validation = RecipeManager.Instance.ValidateExtension(extension),
+                Content = RecipeSerializer.Serialize(extension)
+            };
+        }
+
+        /// <summary>
         /// VALIDATE_RECIPE: errors, warnings and what the user will be asked to allow; nothing is saved or shown
         /// </summary>
         public static Task HandleValidateRecipeAsync(IpcRequestContext context, CancellationToken cancellationToken = default)
@@ -304,7 +391,9 @@ namespace Greenshot.Helpers.Ipc
                 needs_permission = validation.GatedActions.Select(a => new { kind = a.GateType.ToString(), what = RecipeDescriber.DescribeGatedAction(a) }).ToList(),
                 what_it_does = validation.IsValid ? RecipeDescriber.DescribeSteps(parsed.Recipe).Select(l => l.Text).ToList() : new List<string>(),
                 triggers = RecipeDescriber.DescribeTriggers(parsed.Recipe).Select(t => t.Label).ToList(),
-                existing_recipe = RecipeManager.Instance.GetRecipeById(parsed.Recipe.Id) != null,
+                kind = parsed.Extension != null ? FlowDefinition.KindExtension : FlowDefinition.KindRecipe,
+                changes_other_recipes = parsed.Extension != null && validation.IsValid ? RecipeManager.Instance.DescribeExtensionReach(parsed.Extension).ToList() : new List<string>(),
+                existing_recipe = RecipeManager.Instance.GetRecipeById(parsed.Recipe.Id) != null || RecipeManager.Instance.GetExtensionById(parsed.Recipe.Id) != null,
                 stdout = validation.IsValid ? "The recipe is valid." : $"The recipe has {validation.Errors.Count} error(s)."
             }, cancellationToken);
         }
@@ -331,6 +420,12 @@ namespace Greenshot.Helpers.Ipc
             if (!parsed.Validation.IsValid)
             {
                 await ReplyErrorAsync(context, "The recipe is not valid, fix it first (validate_recipe):\n" + string.Join("\n", parsed.Validation.Errors), cancellationToken).ConfigureAwait(false);
+                return;
+            }
+
+            if (parsed.Extension != null)
+            {
+                await ProposeExtensionAsync(context, client, parsed, cancellationToken).ConfigureAwait(false);
                 return;
             }
 
@@ -434,6 +529,136 @@ namespace Greenshot.Helpers.Ipc
                     triggers_on = triggers.Where(t => approval.IsTriggerApproved(t.Key)).Select(t => t.Label).ToList(),
                     triggers_off = triggers.Where(t => !approval.IsTriggerApproved(t.Key)).Select(t => t.Label).ToList(),
                     stdout = "The user approved the recipe, it is saved."
+                }, cancellationToken).ConfigureAwait(false);
+            }
+            finally
+            {
+                ProposalLock.Release();
+            }
+        }
+
+        /// <summary>
+        /// An automatic step proposed by an AI tool: the approval window with which recipes it changes; saved only when the user
+        /// approves it, and switched off until the user switches it on in Settings > Recipes
+        /// </summary>
+        private static async Task ProposeExtensionAsync(IpcRequestContext context, AiToolClient client, ParsedProposal parsed, CancellationToken cancellationToken)
+        {
+            var extension = parsed.Extension;
+            var recipeManager = RecipeManager.Instance;
+            string replaces = GetParameter(context, ReplacesParameter)?.Trim();
+            string filePath;
+            RecipeExtension replaced = null;
+            if (string.IsNullOrWhiteSpace(replaces))
+            {
+                if (recipeManager.GetExtensionById(extension.Id) != null || recipeManager.GetRecipeById(extension.Id) != null)
+                {
+                    await ReplyErrorAsync(context, $"The id '{extension.Id}' is used. Use another id, or update_recipe to change that automatic step.", cancellationToken).ConfigureAwait(false);
+                    return;
+                }
+                filePath = GetNewFilePath(extension.Id);
+            }
+            else
+            {
+                replaced = recipeManager.GetExtensionById(replaces);
+                if (replaced == null)
+                {
+                    await ReplyErrorAsync(context, $"There is no automatic step with the id '{replaces}'.", cancellationToken).ConfigureAwait(false);
+                    return;
+                }
+                // The changed automatic step keeps the id of the one it replaces, and its file when it has one
+                extension.Id = replaced.Id;
+                filePath = string.IsNullOrEmpty(replaced.FilePath) ? GetNewFilePath(replaced.Id) : replaced.FilePath;
+                parsed.Content = RecipeSerializer.Serialize(extension);
+            }
+
+            byte[] bytes = new UTF8Encoding(false).GetBytes(parsed.Content);
+            string contentHash = RecipeTrustStore.ComputeSha256(bytes);
+            string rejectionKey = $"{client.ExePath}|{contentHash}";
+            lock (RejectedProposals)
+            {
+                if (RejectedProposals.Contains(rejectionKey))
+                {
+                    rejectionKey = null;
+                }
+            }
+            if (rejectionKey == null)
+            {
+                await ReplyErrorAsync(context, "The user already rejected this automatic step. Ask the user what to change before proposing it again.", cancellationToken).ConfigureAwait(false);
+                return;
+            }
+
+            if (!await ProposalLock.WaitAsync(0, cancellationToken).ConfigureAwait(false))
+            {
+                await ReplyErrorAsync(context, "Another proposal is waiting for the user, try again after it was answered.", cancellationToken).ConfigureAwait(false);
+                return;
+            }
+            try
+            {
+                var view = extension.AsRecipeView();
+                var request = new RecipeApprovalRequest
+                {
+                    Recipe = view,
+                    Extension = extension,
+                    ExtensionReach = recipeManager.DescribeExtensionReach(extension),
+                    FilePath = filePath,
+                    Content = parsed.Content,
+                    ContentHash = contentHash,
+                    Validation = parsed.Validation,
+                    PreviousRecord = File.Exists(filePath) ? RecipeTrustStore.GetTrustRecord(filePath) : null,
+                    ProposedByName = client.DisplayName ?? Path.GetFileName(client.ExePath),
+                    ProposedByPath = client.ExePath,
+                    ProposedBySigner = client.Signer,
+                    AiRequest = Truncate(GetParameter(context, RequestParameter), 2000),
+                    AiExplanation = Truncate(GetParameter(context, ExplanationParameter), 4000),
+                    ReplacedRecipe = replaced?.AsRecipeView(),
+                    ReplacesBuiltIn = replaced?.IsBuiltIn == true,
+                    PreviousContent = replaced != null ? RecipeSerializer.Serialize(replaced) : null,
+                    StartSwitchedOff = true
+                };
+
+                var decision = await ApprovalPrompt(request, cancellationToken).ConfigureAwait(false);
+                if (decision?.Approval == null)
+                {
+                    lock (RejectedProposals)
+                    {
+                        RejectedProposals.Add(rejectionKey);
+                    }
+                    Log.InfoFormat("The user rejected the automatic step '{0}' proposed by {1}.", extension.Id, client);
+                    await context.ReplyAsync(new
+                    {
+                        status = "ok",
+                        exit_code = 0,
+                        decision = "rejected",
+                        recipe = extension.Id,
+                        stdout = "The user rejected the automatic step, nothing was saved."
+                    }, cancellationToken).ConfigureAwait(false);
+                    return;
+                }
+
+                var approval = decision.Approval;
+                approval.RecipeId = extension.Id;
+                // Approving is not switching on: what an AI tool wrote starts switched off
+                if (extension.EnabledOption != null)
+                {
+                    RecipeOptionStore.SetValue(extension.Id, extension.EnabledOption, false);
+                }
+                string error = await SaveAsync(recipeManager, filePath, bytes, parsed.Content, contentHash, approval, client, view, cancellationToken).ConfigureAwait(false);
+                if (error != null)
+                {
+                    await ReplyErrorAsync(context, error, cancellationToken).ConfigureAwait(false);
+                    return;
+                }
+
+                await context.ReplyAsync(new
+                {
+                    status = "ok",
+                    exit_code = 0,
+                    decision = "approved",
+                    recipe = extension.Id,
+                    kind = FlowDefinition.KindExtension,
+                    file = filePath,
+                    switched_on = false,
+                    stdout = "The user approved the automatic step, it is saved. It is switched off: the user switches it on in Settings > Recipes."
                 }, cancellationToken).ConfigureAwait(false);
             }
             finally

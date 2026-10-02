@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  greenshot.com: console command line interface. /SUBSYSTEM:CONSOLE
+  greenshot-cli.exe: console command line interface. /SUBSYSTEM:CONSOLE
   Built without the C runtime (Win32 API only, entry point ProxyEntry) to keep the executable small; see common.h.
 -->
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
@@ -70,8 +70,8 @@
     <OutDir Condition="'$(SolutionDir)' != '' and '$(SolutionDir)' != '*Undefined*'">$(SolutionDir)Greenshot\bin\$(Configuration)\net480\</OutDir>
     <OutDir Condition="'$(SolutionDir)' == '' or '$(SolutionDir)' == '*Undefined*'">$(ProjectDir)..\Greenshot\bin\$(Configuration)\net480\</OutDir>
     <IntDir>$(ProjectDir)obj\cli\$(Configuration)\$(Platform)\</IntDir>
-    <TargetName>greenshot</TargetName>
-    <TargetExt>.com</TargetExt>
+    <TargetName>greenshot-cli</TargetName>
+    <TargetExt>.exe</TargetExt>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
     <ClCompile>

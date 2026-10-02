@@ -781,7 +781,7 @@ namespace Greenshot.Helpers.Ipc
         }
 
         /// <summary>
-        /// True when the reply is printed by greenshot.com as text (and not requested as --json).
+        /// True when the reply is printed by greenshot-cli.exe as text (and not requested as --json).
         /// </summary>
         private static bool WantsTextOutput(IpcRequestContext context)
         {
@@ -789,7 +789,7 @@ namespace Greenshot.Helpers.Ipc
         }
 
         /// <summary>
-        /// CLI: a raw command line forwarded by greenshot.com / greenshot-proxy.exe. It is parsed according to the connection
+        /// CLI: a raw command line forwarded by greenshot-cli.exe / greenshot-proxy.exe. It is parsed according to the connection
         /// source and the resulting command is dispatched like any other request (including the per-source whitelist).
         /// </summary>
         private static async Task HandleCliAsync(IpcRequestContext context, Form mainForm, Action onExit, Action onReloadConfig, Action onFirstLaunch, Action<string> onOpenFile)
@@ -858,7 +858,7 @@ namespace Greenshot.Helpers.Ipc
                 status = "ok",
                 exit_code = 0,
                 recipes = list,
-                // Console output for greenshot.com; JSON clients use "recipes"
+                // Console output for greenshot-cli.exe; JSON clients use "recipes"
                 stdout = WantsTextOutput(context) ? CliTextRenderer.RenderRecipeList(Newtonsoft.Json.Linq.JToken.FromObject(list)) : null
             }).ConfigureAwait(false);
         }
@@ -992,7 +992,7 @@ namespace Greenshot.Helpers.Ipc
                 status = "ok",
                 exit_code = 0,
                 recipe = recipeInfo,
-                // Console output for greenshot.com; JSON clients use "recipe"
+                // Console output for greenshot-cli.exe; JSON clients use "recipe"
                 stdout = WantsTextOutput(context) ? CliTextRenderer.RenderRecipeDescription(Newtonsoft.Json.Linq.JToken.FromObject(recipeInfo)) : null
             }).ConfigureAwait(false);
         }

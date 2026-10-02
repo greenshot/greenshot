@@ -55,6 +55,11 @@ namespace Greenshot.Plugin.RecipeEditor.Converters
                     return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#cf222e")); // Red
                 case "Conditional":
                     return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#bc4c00")); // Orange
+                case "Slot":
+                    return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#6e7781")); // Slate
+                case "In":
+                case "Out":
+                    return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#1f6feb")); // Boundary blue
                 case "UserPrompt":
                     return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#1a7f37")); // Forest Green
                 case "Imgur":
@@ -113,6 +118,9 @@ namespace Greenshot.Plugin.RecipeEditor.Converters
                 case "Stderr": return "⛔";
                 case "RecordVideo": return "🎥";
                 case "Conditional": return "🔀";
+                case "Slot": return "🧩";
+                case "In": return "▶";
+                case "Out": return "⏏";
                 case "UserPrompt": return "❓";
                 case "Imgur": return "🖼️";
                 case "Jira": return "🎯";

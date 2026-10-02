@@ -22,8 +22,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 
 namespace Greenshot.Base.Recipes
@@ -91,13 +93,83 @@ namespace Greenshot.Base.Recipes
         }
 
         /// <summary>
+        /// The "kind" of a definition in a file: "recipe" (also when it is missing) or "extension"
+        /// </summary>
+        public static string ReadKind(JObject definition)
+        {
+            var kind = definition?.GetValue("kind", StringComparison.OrdinalIgnoreCase)?.ToString()?.Trim();
+            return string.IsNullOrEmpty(kind) ? FlowDefinition.KindRecipe : kind.ToLowerInvariant();
+        }
+
+        /// <summary>
+        /// Serializes a recipe or an extension into a formatted JSON string.
+        /// </summary>
+        public static string Serialize(FlowDefinition definition, bool indented = true)
+        {
+            if (definition is CaptureRecipe recipe) return Serialize(recipe, indented);
+            if (definition == null) throw new ArgumentNullException(nameof(definition));
+            return JsonConvert.SerializeObject(definition, indented ? SerializerSettings : new JsonSerializerSettings
+            {
+                Formatting = Formatting.None,
+                NullValueHandling = NullValueHandling.Ignore,
+                ContractResolver = new CamelCasePropertyNamesContractResolver(),
+                Converters = new List<JsonConverter> { new StringEnumConverter() }
+            });
+        }
+
+        /// <summary>
+        /// Deserializes a recipe extension ("kind": "extension"), optionally validating it.
+        /// </summary>
+        public static RecipeExtension DeserializeExtension(string json, bool validate = true)
+        {
+            if (string.IsNullOrWhiteSpace(json)) throw new ArgumentException("JSON content cannot be empty", nameof(json));
+
+            var definition = JObject.Parse(json.Trim());
+            string kind = ReadKind(definition);
+            if (kind != FlowDefinition.KindExtension)
+            {
+                throw new JsonException($"Expected an extension (\"kind\": \"extension\"), but the kind is '{kind}'.");
+            }
+            if (definition.GetValue("triggers", StringComparison.OrdinalIgnoreCase) != null)
+            {
+                throw new JsonException("An extension can't have triggers; it runs in the recipes it extends.");
+            }
+
+            var extension = definition.ToObject<RecipeExtension>(JsonSerializer.Create(DeserializerSettings));
+            if (extension == null)
+            {
+                throw new JsonException("Failed to deserialize RecipeExtension from JSON.");
+            }
+
+            if (validate)
+            {
+                var validationResult = RecipeValidator.Validate(extension);
+                if (!validationResult.IsValid)
+                {
+                    throw new JsonException($"Extension validation failed: {string.Join("; ", validationResult.Errors)}");
+                }
+            }
+
+            return extension;
+        }
+
+        /// <summary>
         /// Deserializes a CaptureRecipe from a JSON string, optionally validating against the schema contract.
         /// </summary>
         public static CaptureRecipe Deserialize(string json, bool validate = true)
         {
             if (string.IsNullOrWhiteSpace(json)) throw new ArgumentException("JSON content cannot be empty", nameof(json));
 
-            CaptureRecipe recipe = JsonConvert.DeserializeObject<CaptureRecipe>(json.Trim(), DeserializerSettings);
+            var definition = JObject.Parse(json.Trim());
+            string kind = ReadKind(definition);
+            if (kind != FlowDefinition.KindRecipe)
+            {
+                throw new JsonException(kind == FlowDefinition.KindExtension
+                    ? "This file is an automatic step (\"kind\": \"extension\"), not a recipe."
+                    : $"Unknown kind '{kind}', use \"recipe\" or \"extension\".");
+            }
+
+            CaptureRecipe recipe = definition.ToObject<CaptureRecipe>(JsonSerializer.Create(DeserializerSettings));
             if (recipe == null)
             {
                 throw new JsonException("Failed to deserialize CaptureRecipe from JSON.");
@@ -127,10 +199,19 @@ namespace Greenshot.Base.Recipes
 
             if (trimmed.StartsWith("["))
             {
-                var deserialized = JsonConvert.DeserializeObject<List<CaptureRecipe>>(trimmed, DeserializerSettings);
-                if (deserialized != null)
+                var serializer = JsonSerializer.Create(DeserializerSettings);
+                foreach (var item in JArray.Parse(trimmed).OfType<JObject>())
                 {
-                    list.AddRange(deserialized);
+                    string kind = ReadKind(item);
+                    if (kind != FlowDefinition.KindRecipe)
+                    {
+                        throw new JsonException($"The list contains a definition of kind '{kind}'; a recipe list can only hold recipes.");
+                    }
+                    var recipe = item.ToObject<CaptureRecipe>(serializer);
+                    if (recipe != null)
+                    {
+                        list.Add(recipe);
+                    }
                 }
             }
             else

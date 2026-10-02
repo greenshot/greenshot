@@ -36,7 +36,7 @@ namespace Greenshot.Pipeline.Steps
     /// If executed in an IPC context (e.g. CLI proxy), sends a streaming response packet
     /// back through the IPC stream immediately without waiting for the full pipeline to finish.
     /// </summary>
-    [StepInfo(WellKnownStepTypes.Stdout, "Stdout Output", "Writes text to standard output of the caller (e.g. greenshot.com).", "Diagnostics")]
+    [StepInfo(WellKnownStepTypes.Stdout, "Stdout Output", "Writes text to standard output of the caller (e.g. greenshot-cli.exe).", "Diagnostics")]
     [StepPayload(ExtractedText = PayloadRequirement.Optional)]
     [StepParameter("Text", ContractDataType.String, Description = "Text to write (default: the extracted text)")]
     [StepOutputVariable("LastStdout", ContractDataType.String, "The text that was written")]

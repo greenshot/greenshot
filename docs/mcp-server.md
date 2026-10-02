@@ -3,7 +3,7 @@
 `greenshot-mcp.exe` lets AI tools (Claude Code, Claude Desktop, VS Code, Cursor and other MCP clients) see the
 user's windows through Greenshot. It is a small [Model Context Protocol](https://modelcontextprotocol.io) server over
 stdio, built with .NET 10 and Native AOT, and talks to the running Greenshot over the same named pipe as
-`greenshot.com` and the browser extension (see [greenshot-proxy-and-integration.md](greenshot-proxy-and-integration.md)).
+`greenshot-cli.exe` and the browser extension (see [greenshot-proxy-and-integration.md](greenshot-proxy-and-integration.md)).
 
 ## Tools
 
@@ -119,6 +119,12 @@ the encrypted trust store, not in the recipe file. When the file changes later, 
 file an AI tool wrote all switches start off again. A rejected proposal isn't shown again until Greenshot restarts,
 and only one proposal is shown at a time.
 
+AI tools can also propose an **automatic step** (`"kind": "extension"`, see [capture-recipes.md](capture-recipes.md)): steps
+Greenshot adds to other recipes, like a border on every capture. `get_recipe_catalog` lists the slots (and which
+recipes have them), the option types and the automatic steps; `validate_recipe` also says which recipes it would change.
+The approval window shows "Changes other recipes" (which recipes now, also later ones, where and when). An approved
+automatic step from an AI tool is saved switched off; the user switches it on in Settings > Recipes.
+
 The recipe manager marks recipes written by AI tools (🤖, and the filter "AI"), shows triggers that are switched off
 by the approval as "off, not approved", and its "Permissions" button opens the approval again to change them or to
 revoke it. Without the recipe editor plug-in (it is optional, and not in the Light version), Settings > AI tools >
@@ -145,7 +151,7 @@ and warns when its version isn't Greenshot's. The excluded applications are edit
   Escape, and its buttons only react after a second, so a keystroke meant for the AI tool can't answer it. The log says
   how it was answered. A helper without a name of its own (Antigravity's `resources\bin\language_server.exe`) is shown
   with its application's name, "Antigravity (language_server)"; the helper's path is what is allowed.
-* The other sources are checked the same way: only Greenshot.exe and greenshot.com (source `cli`) and
+* The other sources are checked the same way: only Greenshot.exe and greenshot-cli.exe (source `cli`) and
   greenshot-proxy.exe (`url_scheme`, `open_with`, `native_messaging`) from Greenshot's directory may connect, so other
   programs can't talk to the pipe directly. The pipe also refuses network logons.
 * AI tools can only list windows, run recipes with an AI tool trigger (`LIST_WINDOWS`, `LIST_AI_TOOLS`,

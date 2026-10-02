@@ -106,6 +106,16 @@ namespace Greenshot.UI
         /// </summary>
         public bool IsReadOnly { get; set; }
 
+        /// <summary>
+        /// An automatic step (recipe extension) instead of a recipe: <see cref="Recipe"/> is its view as a recipe without triggers
+        /// </summary>
+        public RecipeExtension Extension { get; set; }
+
+        /// <summary>
+        /// For an automatic step: which recipes it changes, where and when, in plain words
+        /// </summary>
+        public IReadOnlyList<string> ExtensionReach { get; set; }
+
         public bool IsOwnEdit => OwnEditReasons != null;
 
         public bool IsAiProposal => !string.IsNullOrEmpty(ProposedByName);

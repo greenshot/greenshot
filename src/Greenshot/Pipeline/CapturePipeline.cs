@@ -126,6 +126,7 @@ namespace Greenshot.Pipeline
             _stepRegistry.Register<RecordVideoRecipeStep>(config => new RecordVideoRecipeStep(config));
             _stepRegistry.Register<StdoutStep>(config => new StdoutStep(config));
             _stepRegistry.Register<StderrStep>(config => new StderrStep(config));
+            _stepRegistry.Register<SlotStep>(config => new SlotStep(config));
 
             // Register all plugin step providers
             try
@@ -158,10 +159,11 @@ namespace Greenshot.Pipeline
                 return abortedContext;
             }
 
+            var recipeManager = SimpleServiceProvider.Current?.GetInstance<IRecipeManager>(isOptional: true);
+
             // Verify external recipe integrity before executing
             if (!string.IsNullOrEmpty(recipe.FilePath))
             {
-                var recipeManager = SimpleServiceProvider.Current.GetInstance<IRecipeManager>(isOptional: true);
                 if (recipeManager != null)
                 {
                     var verifiedRecipe = await recipeManager.EnsureRecipeApprovedAndUpToDateAsync(recipe, cancellationToken).ConfigureAwait(false);
@@ -173,6 +175,17 @@ namespace Greenshot.Pipeline
                         return abortedContext;
                     }
                     recipe = verifiedRecipe;
+                }
+            }
+
+            // The recipe runs with the switched on extensions in its slots (border, drop shadow, caption, ...)
+            if (recipeManager != null)
+            {
+                var effective = recipeManager.GetEffectiveRecipe(recipe);
+                if (effective != null && !ReferenceEquals(effective, recipe))
+                {
+                    Log.InfoFormat("Recipe '{0}' runs with the extension(s) {1}.", recipe.Name, string.Join(", ", effective.AppliedExtensions.Select(e => e.Name ?? e.Id)));
+                    recipe = effective;
                 }
             }
 

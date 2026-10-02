@@ -40,6 +40,28 @@ namespace Greenshot.Base.Recipes
         CaptureRecipe GetRecipeById(string id);
 
         /// <summary>
+        /// The recipe extensions (border, drop shadow, ...), whether switched on or not
+        /// </summary>
+        IReadOnlyList<RecipeExtension> GetAllExtensions();
+
+        /// <summary>
+        /// Stops using an extension from a file and forgets the file (a built-in extension it replaced comes back)
+        /// </summary>
+        bool UnregisterExtension(string extensionId);
+
+        /// <summary>
+        /// Saves an extension (from the recipe editor) to its file and uses it: its approval is renewed for the saved content,
+        /// the user is asked when the change needs a decision (a new extension, it changes more recipes, a new permission)
+        /// </summary>
+        RecipeValidationResult SaveExtensionToFile(RecipeExtension extension, string filePath);
+
+        /// <summary>
+        /// The recipe as it runs: with the switched on extensions in its slots (see <see cref="RecipeComposer"/>).
+        /// The recipe itself when no extension changes it.
+        /// </summary>
+        CaptureRecipe GetEffectiveRecipe(CaptureRecipe recipe);
+
+        /// <summary>
         /// Registers or updates a recipe.
         /// </summary>
         void RegisterRecipe(CaptureRecipe recipe);

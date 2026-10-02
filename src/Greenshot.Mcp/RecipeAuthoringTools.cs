@@ -69,8 +69,9 @@ namespace Greenshot.Mcp
 
         [McpServerTool(Name = "get_recipe_catalog", Title = "Get the recipe catalog", ReadOnly = true, Idempotent = true, OpenWorld = false)]
         [Description("Returns what recipes can use in this Greenshot: the trigger types, the step types with their parameters, the " +
-                     "destinations (uploads=true sends the capture to the internet), the processors and the user's recipes (id, name, triggers). " +
-                     "With recipe_id it returns the JSON of that recipe instead, to change it with update_recipe.")]
+                     "destinations (uploads=true sends the capture to the internet), the processors, the user's recipes (id, name, triggers), the slots " +
+                     "and the automatic steps (steps Greenshot adds to other recipes, like a border on every capture), and the option types. " +
+                     "With recipe_id it returns the JSON of that recipe or automatic step instead, to change it with update_recipe.")]
         public static Task<CallToolResult> GetRecipeCatalogAsync(McpServer server,
             [Description("Optional: the id of a recipe to get its JSON")] string? recipe_id = null,
             CancellationToken cancellationToken = default)
@@ -84,8 +85,8 @@ namespace Greenshot.Mcp
         }
 
         [McpServerTool(Name = "validate_recipe", Title = "Validate a recipe", ReadOnly = true, Idempotent = true, OpenWorld = false)]
-        [Description("Checks a recipe (JSON of one recipe) without saving or showing it: errors, warnings, what it does in plain words, " +
-                     "its triggers, and what the user will be asked to allow (uploads, files, external commands). Fix the errors before propose_recipe.")]
+        [Description("Checks a recipe or an automatic step (\"kind\": \"extension\") without saving or showing it: errors, warnings, what it does in plain words, " +
+                     "its triggers or which recipes it changes, and what the user will be asked to allow (uploads, files, external commands). Fix the errors before propose_recipe.")]
         public static Task<CallToolResult> ValidateRecipeAsync(McpServer server,
             [Description("The recipe as a JSON object")] string recipe_json,
             CancellationToken cancellationToken = default)
@@ -101,7 +102,8 @@ namespace Greenshot.Mcp
         [McpServerTool(Name = "propose_recipe", Title = "Propose a new recipe", ReadOnly = false, Destructive = false, Idempotent = false, OpenWorld = false)]
         [Description("Shows a new recipe to the user in Greenshot, marked as written by you, with what it does and what it needs. " +
                      "Greenshot saves it only when the user approves it; the user decides which triggers are switched on (they start off) " +
-                     "and allows uploads, files and external commands. Waits for the user's decision. The id must not be used by another recipe.")]
+                     "and allows uploads, files and external commands. Waits for the user's decision. The id must not be used by another recipe. " +
+                     "It can also be an automatic step (\"kind\": \"extension\"): the user sees which recipes it changes, and it starts switched off.")]
         public static Task<CallToolResult> ProposeRecipeAsync(McpServer server,
             [Description("The recipe as a JSON object, checked with validate_recipe")] string recipe_json,
             [Description("What the user asked for, in a sentence; shown to the user as your words")] string request,
@@ -112,7 +114,7 @@ namespace Greenshot.Mcp
         }
 
         [McpServerTool(Name = "update_recipe", Title = "Propose a change to a recipe", ReadOnly = false, Destructive = true, Idempotent = false, OpenWorld = false)]
-        [Description("Shows a changed version of an existing recipe (also a built-in one) to the user in Greenshot, with the changed lines. " +
+        [Description("Shows a changed version of an existing recipe or automatic step (also a built-in one) to the user in Greenshot, with the changed lines. " +
                      "Get the current JSON with get_recipe_catalog(recipe_id). Greenshot saves it only when the user approves it; a built-in " +
                      "recipe can be restored in Greenshot's recipe manager. Waits for the user's decision.")]
         public static Task<CallToolResult> UpdateRecipeAsync(McpServer server,

@@ -18,7 +18,7 @@ BEGIN
             VALUE "FileVersion", "1.4.0.0"
             VALUE "InternalName", "greenshot-cli"
             VALUE "LegalCopyright", "Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom"
-            VALUE "OriginalFilename", "greenshot.com"
+            VALUE "OriginalFilename", "greenshot-cli.exe"
             VALUE "ProductName", "Greenshot"
             VALUE "ProductVersion", "1.4.0.0"
         END

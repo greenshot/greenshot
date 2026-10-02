@@ -103,7 +103,7 @@ namespace Greenshot.Forms
 
                 var isAlreadyRunning = !_applicationMutex.IsLocked;
 
-                // A command (e.g. a file, --recipe, --reload, --exit) is handled exactly like one from greenshot.com:
+                // A command (e.g. a file, --recipe, --reload, --exit) is handled exactly like one from greenshot-cli.exe:
                 // the unparsed arguments are sent as a CLI request and parsed by the running Greenshot
                 IpcEnvelope startupCommand = null;
                 if (options.CommandArguments.Length > 0)
@@ -491,7 +491,7 @@ namespace Greenshot.Forms
 
             if (startupCommand != null)
             {
-                // The command Greenshot was started with takes the same way as one from greenshot.com, now that the pipe server listens
+                // The command Greenshot was started with takes the same way as one from greenshot-cli.exe, now that the pipe server listens
                 AsyncCommand.RunInBackground(() =>
                 {
                     NamedPipeClient.SendMessage(startupCommand);
@@ -1433,12 +1433,16 @@ namespace Greenshot.Forms
         /// </summary>
         private void AddRecipeQuickSettings()
         {
-            List<(CaptureRecipe Recipe, RecipeOption Option)> options;
+            List<(FlowDefinition Recipe, RecipeOption Option)> options;
             try
             {
-                options = RecipeManager.Instance.GetAllRecipes()
+                // The extensions (border, drop shadow, caption, ...) first, then the recipes
+                var manager = RecipeManager.Instance;
+                options = manager.GetAllExtensions()
+                    .OrderBy(e => e.Extends?.Order ?? 0).ThenBy(e => e.Id, StringComparer.OrdinalIgnoreCase)
+                    .Cast<FlowDefinition>()
+                    .Concat(manager.GetAllRecipes().OrderBy(r => r.Name, StringComparer.CurrentCultureIgnoreCase))
                     .Where(r => r?.Options != null)
-                    .OrderBy(r => r.Name, StringComparer.CurrentCultureIgnoreCase)
                     .SelectMany(r => r.Options
                         .Where(o => o != null && o.QuickSettings && (o.Type == ContractDataType.Boolean || (o.Type == ContractDataType.Enum && o.Choices != null)))
                         .Select(o => (Recipe: r, Option: o)))
@@ -1470,7 +1474,7 @@ namespace Greenshot.Forms
 
             foreach (var (recipe, option) in options.Take(MaxRecipeQuickSettings))
             {
-                string label = duplicateLabels.Contains(option.DisplayLabel) ? $"{recipe.Name ?? recipe.Id}: {option.DisplayLabel}" : option.DisplayLabel;
+                string label = duplicateLabels.Contains(option.DisplayLabel) ? $"{RecipeText.Translate(recipe.Name ?? recipe.Id)}: {option.DisplayLabel}" : option.DisplayLabel;
                 var value = RecipeOptionStore.GetValue(recipe, option);
                 if (option.Type == ContractDataType.Boolean)
                 {
@@ -1479,7 +1483,7 @@ namespace Greenshot.Forms
                         Text = label,
                         Checked = value is true,
                         CheckOnClick = true,
-                        ToolTipText = option.Description
+                        ToolTipText = option.DisplayDescription
                     };
                     switchItem.CheckedChanged += (sender, args) => RecipeOptionStore.SetValue(recipe.Id, option, switchItem.Checked);
                     contextmenu_quicksettings.DropDownItems.Add(switchItem);

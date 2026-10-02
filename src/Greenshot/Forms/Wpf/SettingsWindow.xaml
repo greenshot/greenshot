@@ -859,66 +859,147 @@
                 </ScrollViewer>
             </TabItem>
             
-            <!-- Recipes Tab: the options recipes declare, one group per recipe; only shown when a recipe has options -->
+            <!-- Recipes Tab: the extensions (border, drop shadow, caption, ...) and the options recipes declare, one compact card each -->
             <TabItem x:Name="RecipesTabItem" Header="{wpf:Translate settings_recipes}"
                      Visibility="{Binding HasRecipeOptions, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <ScrollViewer Style="{DynamicResource ThemedScrollViewer}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                     <StackPanel>
-                        <TextBlock Text="{wpf:Translate settings_recipes_description}" TextWrapping="Wrap" Margin="4,0,4,8"
+                        <StackPanel.Resources>
+                            <!-- Compact fields: one line per option -->
+                            <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+                                <Setter Property="Padding" Value="4,0"/>
+                                <Setter Property="Margin" Value="0,1"/>
+                                <Setter Property="Height" Value="24"/>
+                                <Setter Property="VerticalAlignment" Value="Center"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <!-- The text centered in the box -->
+                                        <ControlTemplate TargetType="TextBox">
+                                            <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                                                    BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4" Padding="{TemplateBinding Padding}">
+                                                <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                            <Style TargetType="ComboBox" BasedOn="{StaticResource {x:Type ComboBox}}">
+                                <Setter Property="Padding" Value="6,2"/>
+                                <Setter Property="Margin" Value="0,1"/>
+                            </Style>
+                        </StackPanel.Resources>
+                        <TextBlock Text="{wpf:Translate settings_recipes_description}" TextWrapping="Wrap" Margin="4,0,4,6"
                                    Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
                         <ItemsControl ItemsSource="{Binding RecipeOptionGroups}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <GroupBox Header="{Binding Name}" ToolTip="{Binding Description}">
+                                    <Border Margin="4,2" Padding="10,6" CornerRadius="6" BorderThickness="1"
+                                            Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=GroupBoxBrush}"
+                                            BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}">
                                         <StackPanel>
-                                            <ItemsControl ItemsSource="{Binding Items}">
-                                                <ItemsControl.ItemTemplate>
-                                                    <DataTemplate>
-                                                        <Grid Margin="0,2" IsEnabled="{Binding IsEditable}" ToolTip="{Binding Description}">
-                                                            <Grid.ColumnDefinitions>
-                                                                <ColumnDefinition Width="200"/>
-                                                                <ColumnDefinition Width="*"/>
-                                                            </Grid.ColumnDefinitions>
-                                                            <!-- A switch takes the whole row -->
-                                                            <CheckBox Grid.ColumnSpan="2" Content="{Binding Label}" IsChecked="{Binding BoolValue, Mode=TwoWay}"
-                                                                      Visibility="{Binding IsBoolean, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                                                            <TextBlock Grid.Column="0" Text="{Binding Label}" VerticalAlignment="Center" TextWrapping="Wrap"
-                                                                       Visibility="{Binding HasLabelColumn, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                                                            <!-- Number: a box with the range next to it -->
-                                                            <StackPanel Grid.Column="1" Orientation="Horizontal"
-                                                                        Visibility="{Binding IsNumber, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                                                <TextBox Width="80" Text="{Binding TextValue, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"/>
-                                                                <TextBlock Text="{Binding RangeText}" Margin="8,0,0,0" VerticalAlignment="Center"
-                                                                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
-                                                            </StackPanel>
-                                                            <!-- Text -->
-                                                            <TextBox Grid.Column="1" Text="{Binding TextValue, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
-                                                                     Visibility="{Binding IsText, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                                                            <!-- Choice -->
-                                                            <ComboBox Grid.Column="1" HorizontalAlignment="Left" MinWidth="160"
-                                                                      ItemsSource="{Binding Choices}" DisplayMemberPath="DisplayLabel"
-                                                                      SelectedItem="{Binding SelectedChoice, Mode=TwoWay}"
-                                                                      Visibility="{Binding IsEnum, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                                                            <!-- Color: the swatch opens the color picker, the text can be typed -->
-                                                            <StackPanel Grid.Column="1" Orientation="Horizontal"
-                                                                        Visibility="{Binding IsColor, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                                                <Button Width="28" Height="22" Padding="0" Click="RecipeOptionColor_Click">
-                                                                    <Border Width="20" Height="14" Background="{Binding ColorBrush}" BorderThickness="1"
-                                                                            BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
-                                                                </Button>
-                                                                <TextBox Width="90" Margin="6,0,0,0" Text="{Binding TextValue, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"/>
-                                                            </StackPanel>
-                                                        </Grid>
-                                                    </DataTemplate>
-                                                </ItemsControl.ItemTemplate>
-                                            </ItemsControl>
-                                            <Button Content="{wpf:Translate settings_recipes_reset}" HorizontalAlignment="Right" Margin="0,6,0,0" Padding="8,2"
-                                                    Command="{Binding ResetCommand}"/>
+                                            <!-- The name with its description on one line; an extension has its on/off checkbox in front -->
+                                            <DockPanel>
+                                                <Button DockPanel.Dock="Right" Content="{wpf:Translate settings_recipes_reset}" Padding="6,0" Margin="8,0,0,0"
+                                                        VerticalAlignment="Center" Command="{Binding ResetCommand}"
+                                                        Visibility="{Binding IsOn, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                                <CheckBox VerticalAlignment="Center" IsChecked="{Binding IsOn, Mode=TwoWay}"
+                                                          Visibility="{Binding HasSwitch, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                    <TextBlock TextWrapping="Wrap">
+                                                        <Run Text="{Binding Name, Mode=OneWay}" FontWeight="SemiBold"/>
+                                                        <Run Text="{Binding Description, Mode=OneWay}" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+                                                    </TextBlock>
+                                                </CheckBox>
+                                                <TextBlock TextWrapping="Wrap" VerticalAlignment="Center"
+                                                           Visibility="{Binding HasNoSwitch, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                    <Run Text="{Binding Name, Mode=OneWay}" FontWeight="SemiBold"/>
+                                                    <Run Text="{Binding Description, Mode=OneWay}" Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+                                                </TextBlock>
+                                            </DockPanel>
+                                            <!-- Only while it is on: the options, and where it is used -->
+                                            <StackPanel Margin="20,4,0,0" Visibility="{Binding IsOn, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                <ItemsControl ItemsSource="{Binding BodyItems}">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Grid Margin="0,1" IsEnabled="{Binding IsEditable}" ToolTip="{Binding Description}">
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="140"/>
+                                                                    <ColumnDefinition Width="*"/>
+                                                                </Grid.ColumnDefinitions>
+                                                                <!-- A switch takes the whole row -->
+                                                                <CheckBox Grid.ColumnSpan="2" Content="{Binding Label}" IsChecked="{Binding BoolValue, Mode=TwoWay}"
+                                                                          Visibility="{Binding IsBoolean, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                                                <TextBlock Grid.Column="0" Text="{Binding Label}" VerticalAlignment="Center" TextWrapping="Wrap"
+                                                                           Visibility="{Binding HasLabelColumn, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                                                <!-- Number: a box with the range next to it -->
+                                                                <StackPanel Grid.Column="1" Orientation="Horizontal"
+                                                                            Visibility="{Binding IsNumber, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                                    <TextBox Width="60" Text="{Binding TextValue, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"/>
+                                                                    <TextBlock Text="{Binding RangeText}" Margin="8,0,0,0" VerticalAlignment="Center"
+                                                                               Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"/>
+                                                                </StackPanel>
+                                                                <!-- Text -->
+                                                                <TextBox Grid.Column="1" Text="{Binding TextValue, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+                                                                         Visibility="{Binding IsText, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                                                <!-- Choice -->
+                                                                <ComboBox Grid.Column="1" HorizontalAlignment="Left" MinWidth="140"
+                                                                          ItemsSource="{Binding Choices}" DisplayMemberPath="DisplayLabel"
+                                                                          SelectedItem="{Binding SelectedChoice, Mode=TwoWay}"
+                                                                          Visibility="{Binding IsEnum, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                                                <!-- Color: the swatch opens the color picker, the text can be typed -->
+                                                                <StackPanel Grid.Column="1" Orientation="Horizontal"
+                                                                            Visibility="{Binding IsColor, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                                    <Button Width="28" Height="22" Padding="0" VerticalAlignment="Center" Click="RecipeOptionColor_Click">
+                                                                        <Border Width="20" Height="12" Background="{Binding ColorBrush}" BorderThickness="1"
+                                                                                BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}"/>
+                                                                    </Button>
+                                                                    <TextBox Width="80" Margin="6,1,0,1" Text="{Binding TextValue, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"/>
+                                                                </StackPanel>
+                                                            </Grid>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                                <!-- Extensions: where they are used, changed in a dialog with the captures and the destinations -->
+                                                <Grid Margin="0,3,0,0" Visibility="{Binding HasUseIn, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="140"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Text="{wpf:Translate settings_recipes_usedfor}" VerticalAlignment="Center"/>
+                                                    <TextBlock Grid.Column="1" Text="{Binding ScopeSummary}" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                                    <Button Grid.Column="2" Content="{wpf:Translate settings_recipes_change}" Padding="6,0" Margin="8,0,0,0"
+                                                            VerticalAlignment="Center" Click="RecipeExtensionScope_Click"/>
+                                                </Grid>                                            </StackPanel>
                                         </StackPanel>
-                                    </GroupBox>
+                                    </Border>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
+                        <!-- Per recipe, the extensions which change it, with the values above -->
+                        <Border Margin="4,2" Padding="10,6" CornerRadius="6" BorderThickness="1"
+                                Background="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=GroupBoxBrush}"
+                                BorderBrush="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=BorderBrush}">
+                            <StackPanel>
+                                <TextBlock Text="{wpf:Translate settings_recipes_changes}" FontWeight="SemiBold"/>
+                                <TextBlock Text="{wpf:Translate settings_recipes_changes_none}" TextWrapping="Wrap" Margin="20,2,0,0"
+                                           Foreground="{Binding Source={x:Static wpf:ThemeManager.Instance}, Path=MutedBrush}"
+                                           Visibility="{Binding HasNoRecipeChanges, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                <ItemsControl ItemsSource="{Binding RecipeChanges}" Margin="20,2,0,0">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid Margin="0,1">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="140"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="{Binding Extensions}" TextWrapping="Wrap"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding Recipes}" TextWrapping="Wrap"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>

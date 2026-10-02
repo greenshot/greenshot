@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://getgreenshot.org/schemas/recipe.schema.json",
   "title": "CaptureRecipe",
-  "description": "Formal written contract and schema for Greenshot DAG-based capture recipes.",
+  "description": "Formal written contract and schema for Greenshot DAG-based capture recipes and recipe extensions (\"kind\": \"extension\").",
   "type": "object",
   "required": [
     "id",
@@ -14,6 +14,12 @@
     "$schema": {
       "type": "string",
       "description": "Optional URI referencing this schema for editor autocompletion and validation."
+    },
+    "kind": {
+      "type": "string",
+      "enum": [ "recipe", "extension" ],
+      "default": "recipe",
+      "description": "A recipe (with triggers) or an extension: a small flow Greenshot puts into a slot of other recipes (with extends, no triggers)."
     },
     "version": {
       "type": "string",
@@ -73,6 +79,34 @@
         "$ref": "#/definitions/RecipeOption"
       }
     },
+    "extends": {
+      "type": "object",
+      "description": "Extensions only: which recipes it extends, at which slot and in which order.",
+      "required": [ "recipes", "slot" ],
+      "properties": {
+        "recipes": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 },
+          "description": "Recipe ids, \"*\" (every recipe with the slot) or \"*capture\" (recipes with a Source step and a destination). AI tool recipes are only extended when named by id."
+        },
+        "slot": {
+          "type": "string",
+          "enum": [ "AfterCapture", "BeforeExport", "AfterExport", "BeforeDestination" ],
+          "description": "Where the extension goes: a Slot node of the recipe with this name. BeforeDestination runs in the export steps, once per destination on its own copy of the capture."
+        },
+        "order": {
+          "type": "integer",
+          "default": 0,
+          "description": "Several extensions on one slot run by order, then by id."
+        }
+      }
+    },
+    "when": {
+      "type": "string",
+      "pattern": "\\$\\{",
+      "description": "Extensions only: an expression evaluated at the slot, e.g. \"${payload.width > 800}\"; when false the extension is skipped for that run."
+    },
     "concurrency": {
       "type": "string",
       "enum": [
@@ -84,6 +118,12 @@
       "description": "What happens when the recipe is started while a flow of it is still running: run both (Parallel), ignore the new start (Exclusive) or cancel the running flow (ReplacePrevious)."
     }
   },
+  "allOf": [
+    {
+      "if": { "properties": { "kind": { "const": "extension" } }, "required": [ "kind" ] },
+      "then": { "required": [ "extends" ], "not": { "required": [ "triggers" ] } }
+    }
+  ],
   "definitions": {
     "RecipeOption": {
       "type": "object",
@@ -141,7 +181,7 @@
         },
         "format": {
           "type": "string",
-          "description": "A hint how a String is meant, e.g. dateTime for a .NET date and time format."
+          "description": "A hint how a String is meant, e.g. dateTime for a .NET date and time format, or template: ${...} in the value is evaluated where the option is used (e.g. a caption \"${now:yyyy-MM-dd}\")."
         }
       }
     },
@@ -214,7 +254,7 @@
         },
         "stepType": {
           "type": "string",
-          "description": "The modular step type identifier. Supports core built-in steps (Source, InteractiveSelection, Effect, TextEffect, Annotation, SetVariable, ImmediateFeedback, Processors, Destinations, Notification, Conditional) as well as extension/plugin-provided steps (e.g., ExternalCommand, Box, Dropbox, Imgur, Jira, Confluence, Office, BarcodeScan)."
+          "description": "The modular step type identifier. Supports core built-in steps (Source, InteractiveSelection, Effect, TextEffect, Annotation, SetVariable, ImmediateFeedback, Processors, Destinations, Notification, Conditional, Slot) as well as extension/plugin-provided steps (e.g., ExternalCommand, Box, Dropbox, Imgur, Jira, Confluence, Office, BarcodeScan)."
         },
         "name": {
           "type": "string",
@@ -232,6 +272,19 @@
           "type": "object",
           "description": "Node-specific configuration parameters and expressions.",
           "properties": {
+            "Name": {
+              "type": "string",
+              "enum": [ "AfterCapture", "BeforeExport", "AfterExport", "BeforeDestination" ],
+              "description": "Used by 'Slot' step: the name of the slot, where extensions add their steps."
+            },
+            "Accept": {
+              "oneOf": [
+                { "type": "string", "enum": [ "all", "none" ] },
+                { "type": "array", "items": { "type": "string" } }
+              ],
+              "default": "all",
+              "description": "Used by 'Slot' step: which extensions the slot takes: all (default), none or a list of extension ids."
+            },
             "SourceType": {
               "type": "string",
               "enum": [

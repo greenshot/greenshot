@@ -58,9 +58,9 @@ namespace Greenshot.Helpers
         public bool Restore { get; set; }
 
         /// <summary>
-        /// The arguments after the startup options: a Greenshot command in the syntax of greenshot.com
+        /// The arguments after the startup options: a Greenshot command in the syntax of greenshot-cli.exe
         /// (e.g. <c>--file a.png</c>, <c>a.png</c>, <c>--recipe ocr</c>, <c>--reload</c>, <c>--exit</c>).
-        /// It is sent to the running Greenshot exactly as greenshot.com sends it; empty when there is none.
+        /// It is sent to the running Greenshot exactly as greenshot-cli.exe sends it; empty when there is none.
         /// </summary>
         public string[] CommandArguments { get; set; } = [];
     }
@@ -69,7 +69,7 @@ namespace Greenshot.Helpers
     /// Parses Greenshot.exe's command line: leading startup options, which only Greenshot.exe itself uses
     /// (--language, --ini-directory, --no-run, --restore, --help), followed by an optional Greenshot command.
     /// The command is not interpreted here: it is parsed by <see cref="Ipc.CliCommandParser"/>, like every
-    /// command that reaches Greenshot through greenshot.com or greenshot-proxy.exe.
+    /// command that reaches Greenshot through greenshot-cli.exe or greenshot-proxy.exe.
     /// </summary>
     internal static class GreenshotCommandLine
     {
@@ -201,12 +201,12 @@ namespace Greenshot.Helpers
             {
                 Description = "Greenshot is a free and open source screenshot tool for Windows.\n\n" +
                               "Usage: Greenshot.exe [startup options] [command]\n\n" +
-                              "The command has the same syntax as for greenshot.com (see greenshot.com --help), e.g.\n" +
+                              "The command has the same syntax as for greenshot-cli.exe (see greenshot-cli.exe --help), e.g.\n" +
                               "  Greenshot.exe image.png            open a file with the recipes of its OpenFile triggers\n" +
                               "  Greenshot.exe --recipe ocr         run a recipe\n" +
                               "  Greenshot.exe --reload / --exit    reload the configuration / exit Greenshot\n" +
                               "The command is sent to the running Greenshot; if none is running, Greenshot starts and runs it.\n" +
-                              "Unlike greenshot.com, Greenshot.exe shows no output of the command."
+                              "Unlike greenshot-cli.exe, Greenshot.exe shows no output of the command."
             };
             rootCommand.Options.Add(NoRunOption);
             rootCommand.Options.Add(LanguageOption);
