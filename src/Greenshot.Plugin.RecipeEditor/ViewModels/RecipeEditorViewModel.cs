@@ -45,6 +45,11 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             get => _activeRecipe;
             set
             {
+                var previous = _activeRecipe;
+                if (!_isRestoring && previous != null && !ReferenceEquals(previous, value))
+                {
+                    KeepHistory(previous.Id);
+                }
                 if (SetField(ref _activeRecipe, value))
                 {
                     LoadRecipeIntoCanvas(value);
@@ -404,12 +409,55 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                 .ToDictionary(g => g.Key, g => g.First().Location, StringComparer.OrdinalIgnoreCase)
         };
 
+        /// <summary>
+        /// The history of the other recipes opened while the editor is open, by id
+        /// </summary>
+        private readonly Dictionary<string, (List<RecipeMemento> Undo, List<RecipeMemento> Redo, RecipeMemento Current)> _keptHistories =
+            new Dictionary<string, (List<RecipeMemento>, List<RecipeMemento>, RecipeMemento)>(StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// Keeps the history of the recipe which is closed in the editor, for when it is opened again
+        /// </summary>
+        private void KeepHistory(string recipeId)
+        {
+            if (string.IsNullOrEmpty(recipeId) || _currentMemento == null)
+            {
+                return;
+            }
+            // Redo order: the next state to redo first
+            _keptHistories[recipeId] = (_undoHistory.ToList(), _redoHistory.ToList(), _currentMemento);
+        }
+
+        /// <summary>
+        /// Starts the history of the recipe which was opened, with what was kept from earlier in this editor
+        /// </summary>
         private void ResetHistory()
         {
             _undoHistory.Clear();
             _redoHistory.Clear();
             _pendingContent = null;
             _currentMemento = _activeRecipe == null ? null : CreateMemento(GetCurrentContent());
+            if (_activeRecipe != null && _keptHistories.TryGetValue(_activeRecipe.Id ?? "", out var kept))
+            {
+                _keptHistories.Remove(_activeRecipe.Id);
+                _undoHistory.AddRange(kept.Undo);
+                if (string.Equals(kept.Current.Content, _currentMemento.Content, StringComparison.Ordinal))
+                {
+                    for (int i = kept.Redo.Count - 1; i >= 0; i--)
+                    {
+                        _redoHistory.Push(kept.Redo[i]);
+                    }
+                }
+                else
+                {
+                    // It changed since (discarded changes, or saved elsewhere): undo goes back to how it was left
+                    _undoHistory.Add(kept.Current);
+                }
+                while (_undoHistory.Count > MaxHistory)
+                {
+                    _undoHistory.RemoveAt(0);
+                }
+            }
             RaiseHistoryChanged();
         }
 
