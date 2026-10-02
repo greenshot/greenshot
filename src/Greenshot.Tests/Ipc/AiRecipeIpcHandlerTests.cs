@@ -290,6 +290,75 @@ namespace Greenshot.Tests.Ipc
             });
         }
 
+        [Fact]
+        public async Task RecipeCatalog_ListsSlotsOptionTypesAndAutomaticSteps()
+        {
+            await WithConsentAsync(async () =>
+            {
+                var catalog = await DispatchAsync("RECIPE_CATALOG", null);
+                Assert.Contains(catalog.Value<JArray>("slots"), s => s.Value<string>("name") == RecipeSlots.BeforeDestination && s.Value<JArray>("recipes").Count > 0);
+                Assert.Contains(catalog.Value<JArray>("option_types"), t => t.Value<string>() == "Color");
+                Assert.Contains(catalog.Value<JArray>("automatic_steps"), e => e.Value<string>("id") == BuiltInExtensions.BorderId);
+
+                var border = await DispatchAsync("RECIPE_CATALOG", new Dictionary<string, string> { ["recipe"] = BuiltInExtensions.BorderId });
+                Assert.Equal("extension", border.Value<string>("kind"));
+                Assert.Equal(BuiltInExtensions.BorderId, RecipeSerializer.DeserializeExtension(border.Value<string>("recipe_json"), validate: false).Id);
+            });
+        }
+
+        [Fact]
+        public async Task ProposeAutomaticStep_Approved_IsSaved_AndStartsSwitchedOff()
+        {
+            const string id = "ext_ai_test";
+            var extension = new RecipeExtension(id, "AI border", "A border from an AI tool")
+            {
+                Extends = new ExtensionTarget { Recipes = new List<string> { RecipeExtension.TargetCaptures }, Slot = RecipeSlots.BeforeDestination }
+            }
+                .AddOption(new RecipeOption { Key = RecipeExtension.EnabledOptionKey, Type = Greenshot.Base.Pipeline.Contracts.ContractDataType.Boolean, DefaultValue = true })
+                .AddNode(RecipeStepConfig.CreateBorder("border"));
+            extension.Flow = new RecipeFlowConfig("border");
+            var parameters = new Dictionary<string, string>
+            {
+                ["recipe"] = RecipeSerializer.Serialize(extension),
+                ["request"] = "A border around my captures",
+                ["explanation"] = "Adds a black border before each destination."
+            };
+
+            RecipeApprovalRequest shown = null;
+            await WithProposalPromptAsync((request, cancellationToken) =>
+            {
+                shown = request;
+                return Task.FromResult(new RecipeApprovalWindow.ApprovalResult(new RecipeApproval(), false));
+            }, async () =>
+            {
+                try
+                {
+                    var validation = await DispatchAsync("VALIDATE_RECIPE", parameters);
+                    Assert.True(validation.Value<bool>("valid"));
+                    Assert.Equal("extension", validation.Value<string>("kind"));
+                    Assert.NotEmpty(validation.Value<JArray>("changes_other_recipes"));
+
+                    var reply = await DispatchAsync("PROPOSE_RECIPE", parameters);
+                    Assert.Equal("approved", reply.Value<string>("decision"));
+                    Assert.Equal("extension", reply.Value<string>("kind"));
+                    Assert.NotNull(shown.Extension);
+                    Assert.NotEmpty(shown.ExtensionReach);
+                    Assert.True(shown.StartSwitchedOff);
+
+                    var loaded = RecipeManager.Instance.GetExtensionById(id);
+                    Assert.NotNull(loaded);
+                    Assert.NotNull(loaded.ProposedBy);
+                    Assert.False(RecipeExtensionSettings.FromStore(loaded).Enabled);
+                    Assert.True(RecipeTrustStore.GetTrustRecord(reply.Value<string>("file")).IsAiCreated);
+                }
+                finally
+                {
+                    RecipeManager.Instance.UnregisterExtension(id);
+                    RecipeOptionStore.Reset(id);
+                }
+            });
+        }
+
         private static CaptureRecipe CreateProposal(string id)
         {
             var recipe = RecipeApprovalTests.CreateRecipe(id)

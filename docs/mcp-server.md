@@ -119,6 +119,12 @@ the encrypted trust store, not in the recipe file. When the file changes later, 
 file an AI tool wrote all switches start off again. A rejected proposal isn't shown again until Greenshot restarts,
 and only one proposal is shown at a time.
 
+AI tools can also propose an **automatic step** (`"kind": "extension"`, see [capture-recipes.md](capture-recipes.md)): steps
+Greenshot adds to other recipes, like a border on every capture. `get_recipe_catalog` lists the slots (and which
+recipes have them), the option types and the automatic steps; `validate_recipe` also says which recipes it would change.
+The approval window shows "Changes other recipes" (which recipes now, also later ones, where and when). An approved
+automatic step from an AI tool is saved switched off; the user switches it on in Settings > Recipes.
+
 The recipe manager marks recipes written by AI tools (🤖, and the filter "AI"), shows triggers that are switched off
 by the approval as "off, not approved", and its "Permissions" button opens the approval again to change them or to
 revoke it. Without the recipe editor plug-in (it is optional, and not in the Light version), Settings > AI tools >

@@ -597,8 +597,11 @@ on. "Used for" sums up where it is used ("6 of 7 captures → Email"), "Change�
 and the destinations side by side. New recipes get an extension too, unless it is limited to some destinations.
 
 **Recipe editor.** The toolbox has "Slot for Automatic Steps"; a slot node shows the extensions which plug into it, greyed out
-("(off)" when switched off or not used for this recipe), and the inspector sets the slot and what it accepts. Editing
-extensions in the editor comes later.
+("(off)" when switched off or not used for this recipe), and the inspector sets the slot and what it accepts. A step is
+inserted into an arrow (select it, or "Insert step here" on it) or right after the selected step. "New Automatic Step"
+(and Edit in the recipe manager) edits an automatic step: its steps sit between In (its start) and Out (where the recipe
+goes on), and the recipe tab sets which recipes, the slot, the order and the condition. The Options panel declares the
+options of a recipe or an automatic step.
 
 **Automatic step files** (`"kind": "extension"`) are imported and approved like recipe files ("Recipes → Import Recipe...",
 the recipe manager's "Load Recipe..."). The approval window shows what the automatic step adds and "Changes other recipes":

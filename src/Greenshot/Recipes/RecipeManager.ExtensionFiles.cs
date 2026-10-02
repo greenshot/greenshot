@@ -155,7 +155,7 @@ namespace Greenshot.Recipes
         /// <summary>
         /// The checks of an extension: the validator's, and that it doesn't extend another extension
         /// </summary>
-        private RecipeValidationResult ValidateExtension(RecipeExtension extension)
+        internal RecipeValidationResult ValidateExtension(RecipeExtension extension)
         {
             var result = RecipeValidator.Validate(extension);
             if (extension?.Extends?.Recipes == null) return result;
