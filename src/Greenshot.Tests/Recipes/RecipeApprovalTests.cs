@@ -300,6 +300,109 @@ namespace Greenshot.Tests.Recipes
             Assert.DoesNotContain("Test AI", RecipeSerializer.Serialize(recipe));
         }
 
+        [Fact]
+        public void EditApproval_KeepsUnchangedSwitches_AndApprovesHarmlessNewTriggers()
+        {
+            var approved = CreateRecipe("edit_recipe")
+                .AddTrigger(TriggerConfig.CreateHotkey("Ctrl + Shift + F9"))
+                .AddTrigger(TriggerConfig.CreateClipboard());
+            // The user switched the clipboard trigger off when approving
+            var previous = new RecipeApproval { RecipeId = "edit_recipe", ApprovedTriggers = new List<string> { "0:Hotkey" } };
+
+            // The edit puts a new hotkey first: positions change, the switches stay with their triggers
+            var edited = RecipeSerializer.Deserialize(RecipeSerializer.Serialize(approved), validate: false);
+            edited.Triggers.Insert(0, TriggerConfig.CreateHotkey("Ctrl + Shift + F10"));
+
+            var approval = RecipeEditApproval.Create(edited, RecipeValidator.Validate(edited), approved, previous, false, out var decision);
+
+            Assert.False(decision.IsNeeded, string.Join(" ", decision.Reasons));
+            Assert.True(approval.IsTriggerApproved("0:Hotkey"));
+            Assert.True(approval.IsTriggerApproved("1:Hotkey"));
+            Assert.False(approval.IsTriggerApproved("2:Clipboard"));
+        }
+
+        [Fact]
+        public void EditApproval_NewTriggerWhichStartsOnItsOwn_NeedsADecision()
+        {
+            var approved = CreateRecipe("edit_risky");
+            var previous = new RecipeApproval { RecipeId = "edit_risky" };
+            var edited = CreateRecipe("edit_risky").AddTrigger(TriggerConfig.CreateClipboard());
+
+            RecipeEditApproval.Create(edited, RecipeValidator.Validate(edited), approved, previous, false, out var decision);
+
+            Assert.True(decision.IsNeeded);
+            Assert.Equal(new[] { "0:Clipboard" }, decision.TriggerKeys);
+        }
+
+        [Fact]
+        public void EditApproval_NewKindOfGatedAction_NeedsADecision_AllowedOnesStay()
+        {
+            var edited = CreateRecipe("edit_gates")
+                .AddNode(new RecipeNodeConfig
+                {
+                    Id = "cmd_step",
+                    StepType = "ExternalCommand",
+                    Parameters = new Dictionary<string, object> { { "CommandLine", @"C:\Tools\optimize.exe" }, { "Arguments", "\"{0}\"" } }
+                });
+            edited.Flow.AddTransition("source", "cmd_step");
+            var validation = RecipeValidator.Validate(edited);
+
+            RecipeEditApproval.Create(edited, validation, CreateRecipe("edit_gates"), new RecipeApproval(), false, out var decision);
+            Assert.True(decision.IsNeeded);
+
+            var allowed = new RecipeApproval { AllowedGates = new List<RecipeGateType> { RecipeGateType.ExternalCommand } };
+            var approval = RecipeEditApproval.Create(edited, validation, CreateRecipe("edit_gates"), allowed, false, out decision);
+            Assert.False(decision.IsNeeded);
+            Assert.True(approval.IsGateAllowed(RecipeGateType.ExternalCommand));
+        }
+
+        [Fact]
+        public void EditApproval_FirstReplacementOfABuiltIn_NeedsADecision()
+        {
+            var edited = CreateRecipe("edit_builtin");
+            RecipeEditApproval.Create(edited, RecipeValidator.Validate(edited), null, null, true, out var decision);
+            Assert.True(decision.IsNeeded);
+
+            RecipeEditApproval.Create(edited, RecipeValidator.Validate(edited), edited, new RecipeApproval { ReplacesBuiltIn = true }, true, out decision);
+            Assert.False(decision.IsNeeded);
+        }
+
+        [Fact]
+        public void SaveRecipeToFile_RenewsTheApproval_ForExactlyTheSavedContent()
+        {
+            WithTemporaryTrustStore(directory =>
+            {
+                const string id = "saved_in_editor";
+                string file = Path.Combine(directory, id + RecipeSerializer.RecipeFileExtension);
+                var recipe = CreateRecipe(id).AddTrigger(new TriggerConfig(TriggerConfig.TypeManual));
+                try
+                {
+                    var result = RecipeManager.Instance.SaveRecipeToFile(recipe, file);
+                    Assert.True(result.IsValid, string.Join("; ", result.Errors));
+                    Assert.True(File.Exists(file));
+                    Assert.True(RecipeTrustStore.IsRecipeApproved(file, out _, out _));
+                    Assert.NotNull(RecipeTrustStore.GetApproval(file, RecipeTrustStore.ComputeSha256(file), id));
+                    Assert.Same(recipe, RecipeManager.Instance.GetRecipeById(id));
+                    Assert.True(recipe.Triggers[0].IsActive);
+
+                    // A second save after a harmless change: approved again, without asking
+                    recipe.Description = "changed";
+                    result = RecipeManager.Instance.SaveRecipeToFile(recipe, file);
+                    Assert.True(result.IsValid, string.Join("; ", result.Errors));
+                    Assert.True(RecipeTrustStore.IsRecipeApproved(file, out _, out _));
+
+                    var details = RecipeManager.Instance.GetRecipeDetails(id);
+                    Assert.NotNull(details.ApprovedAt);
+                    Assert.True(details.IsApprovalCurrent);
+                    Assert.NotEmpty(details.WhatItDoes);
+                }
+                finally
+                {
+                    RecipeManager.Instance.UnregisterRecipe(id);
+                }
+            });
+        }
+
         internal static CaptureRecipe CreateRecipe(string id)
         {
             var recipe = new CaptureRecipe(id, id)

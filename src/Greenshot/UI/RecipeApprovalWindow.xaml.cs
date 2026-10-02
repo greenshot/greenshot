@@ -266,13 +266,32 @@ namespace Greenshot.UI
                 StatusBadgeForegroundBrush = WarningTextBrush;
                 ApproveButtonText = "Save Recipe";
             }
+            else if (request.IsOwnEdit)
+            {
+                ApprovalMode = prev != null ? RecipeApprovalMode.Modified : RecipeApprovalMode.NewRecipe;
+                WindowTitleSubtitle = " — Approve Your Changes";
+                HeaderIcon = "🛡️";
+                HeaderTitle = "Your Change Needs a Decision";
+                HeaderDescription = "You saved this recipe in the recipe editor. Most changes are approved without asking, but this one adds something that needs your decision: " +
+                                    string.Join(" ", request.OwnEditReasons);
+                StatusBadgeText = "YOUR CHANGE";
+                StatusBadgeBackgroundBrush = BadgeBackgroundBrush;
+                StatusBadgeBorderBrush = CardBorderBrush;
+                StatusBadgeForegroundBrush = AccentBrush;
+                if (prev != null)
+                {
+                    PreviousApprovalDate = prev.ApprovedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss");
+                    PreviousFileHash = prev.Sha256Hash;
+                }
+                ApproveButtonText = "Approve & Save";
+            }
             else if (prev != null && !string.Equals(prev.Sha256Hash, FileHash, StringComparison.OrdinalIgnoreCase))
             {
                 ApprovalMode = RecipeApprovalMode.Modified;
                 WindowTitleSubtitle = " — Recipe Modification Detected";
                 HeaderIcon = "⚠️";
-                HeaderTitle = "Recipe File Modified on Disk";
-                HeaderDescription = "This capture recipe was previously approved, but its file content has been modified on disk since it was last approved. Review the updated configuration and changes below before re-approving.";
+                HeaderTitle = "Recipe Changed Outside Greenshot";
+                HeaderDescription = "You approved this capture recipe before, but its file was changed outside Greenshot since then (by another program or by hand). Review the changes below before approving them.";
                 StatusBadgeText = "MODIFIED ON DISK";
                 StatusBadgeBackgroundBrush = WarningBackgroundBrush;
                 StatusBadgeBorderBrush = WarningBorderBrush;
@@ -347,7 +366,14 @@ namespace Greenshot.UI
             PopulateTriggers(recipe);
             bool startSwitchedOff = IsAiProposal || request.StartSwitchedOff;
             var previousApproval = prev?.GetApproval(recipe?.Id);
-            PopulateTriggerItems(recipe, defaultOn: !startSwitchedOff, previousApproval, request.PreviousRecord != null && ApprovalMode != RecipeApprovalMode.Modified);
+            if (request.SuggestedApproval != null)
+            {
+                PopulateTriggerItems(recipe, defaultOn: true, request.SuggestedApproval, keepPrevious: true);
+            }
+            else
+            {
+                PopulateTriggerItems(recipe, defaultOn: !startSwitchedOff, previousApproval, request.PreviousRecord != null && ApprovalMode != RecipeApprovalMode.Modified);
+            }
             PopulateSteps(recipe);
 
             // Gated actions: one switch per kind, all of them have to be allowed
@@ -364,7 +390,8 @@ namespace Greenshot.UI
                         // A review keeps what was allowed; otherwise external commands are always asked, the rest is pre-selected for what the user imports themselves
                         IsChecked = ApprovalMode == RecipeApprovalMode.ReVerify && previousApproval != null
                             ? previousApproval.IsGateAllowed(group.Key)
-                            : !startSwitchedOff && group.Key != RecipeGateType.ExternalCommand && group.Key != RecipeGateType.Custom
+                            : request.IsOwnEdit && previousApproval?.IsGateAllowed(group.Key) == true ||
+                              !startSwitchedOff && group.Key != RecipeGateType.ExternalCommand && group.Key != RecipeGateType.Custom
                     };
                     item.Targets.AddRange(group.Select(a => "• " + RecipeDescriber.DescribeGatedAction(a)).Distinct());
                     item.PropertyChanged += (_, _) => UpdateApproveEnabled();

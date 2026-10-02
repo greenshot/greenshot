@@ -77,6 +77,21 @@ namespace Greenshot.Recipes
         private readonly Dictionary<string, CaptureRecipe> _recipes = new Dictionary<string, CaptureRecipe>(StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<string, FileSystemWatcher> _fileWatchers = new Dictionary<string, FileSystemWatcher>(StringComparer.OrdinalIgnoreCase);
 
+        /// <summary>
+        /// Recipe files changed on disk which wait to be checked (debounced: editors write files in several steps)
+        /// </summary>
+        private readonly Dictionary<string, Timer> _changedFileTimers = new Dictionary<string, Timer>(StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// The content (hash) of a changed file the user was already asked about, not asked again
+        /// </summary>
+        private readonly Dictionary<string, string> _askedForChangedFile = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// Wait after the last change of a file before asking, ms
+        /// </summary>
+        private const int ChangedFileDelay = 1500;
+
         public event EventHandler RecipesChanged;
 
         // Thread-safe: the first access can come from the UI thread and an IPC or pipeline thread at the same time,
@@ -514,6 +529,7 @@ namespace Greenshot.Recipes
                         FileSystemEventHandler handler = (s, e) =>
                         {
                             Log.InfoFormat("Detected change on disk for recipe file '{0}' ({1}).", e.FullPath, e.ChangeType);
+                            ScheduleChangedFileCheck(e.FullPath);
                         };
 
                         watcher.Changed += handler;
@@ -531,6 +547,154 @@ namespace Greenshot.Recipes
             {
                 Log.Warn($"Failed to initialize FileSystemWatcher for '{filePath}'", ex);
             }
+        }
+
+        /// <summary>
+        /// A recipe file changed on disk: check it shortly after the last change
+        /// </summary>
+        private void ScheduleChangedFileCheck(string filePath)
+        {
+            lock (_changedFileTimers)
+            {
+                if (_changedFileTimers.TryGetValue(filePath, out var timer))
+                {
+                    timer.Change(ChangedFileDelay, Timeout.Infinite);
+                    return;
+                }
+                _changedFileTimers[filePath] = new Timer(_ =>
+                {
+                    lock (_changedFileTimers)
+                    {
+                        if (_changedFileTimers.TryGetValue(filePath, out var done))
+                        {
+                            done.Dispose();
+                            _changedFileTimers.Remove(filePath);
+                        }
+                    }
+                    CheckChangedFile(filePath);
+                }, null, ChangedFileDelay, Timeout.Infinite);
+            }
+        }
+
+        /// <summary>
+        /// A recipe file Greenshot uses was changed outside Greenshot (Greenshot's own saves are approved before they are written):
+        /// ask now, not when the recipe runs the next time.
+        /// </summary>
+        private void CheckChangedFile(string filePath)
+        {
+            try
+            {
+                string fullPath = Path.GetFullPath(filePath);
+                bool inUse;
+                lock (_recipes)
+                {
+                    inUse = _recipes.Values.Any(r => !string.IsNullOrEmpty(r.FilePath) && string.Equals(Path.GetFullPath(r.FilePath), fullPath, StringComparison.OrdinalIgnoreCase));
+                }
+                if (!inUse || !File.Exists(fullPath) || RecipeTrustStore.IsRecipeApproved(fullPath, out string currentHash, out _))
+                {
+                    return;
+                }
+                lock (_askedForChangedFile)
+                {
+                    if (_askedForChangedFile.TryGetValue(fullPath, out var askedHash) && string.Equals(askedHash, currentHash, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return;
+                    }
+                    _askedForChangedFile[fullPath] = currentHash;
+                }
+                Log.InfoFormat("Recipe file '{0}' was changed outside Greenshot, asking for approval.", fullPath);
+                UiDispatcher.Current.InvokeAsync(() => LoadRecipeFromFile(fullPath, interactiveApproval: true, forceApprovalPrompt: false)).FireAndLog("Approval of a changed recipe file");
+            }
+            catch (Exception ex)
+            {
+                Log.Warn($"Could not check the changed recipe file '{filePath}'.", ex);
+            }
+        }
+
+        public RecipeValidationResult SaveRecipeToFile(CaptureRecipe recipe, string filePath)
+        {
+            var result = new RecipeValidationResult();
+            if (recipe == null || string.IsNullOrWhiteSpace(filePath))
+            {
+                result.AddError("No recipe or file to save to.");
+                return result;
+            }
+
+            string fullPath = Path.GetFullPath(filePath);
+            recipe.FilePath = fullPath;
+            // The bytes which are approved are the bytes which are written
+            string content = RecipeSerializer.Serialize(recipe);
+            byte[] bytes = new UTF8Encoding(false).GetBytes(content);
+            string contentHash = RecipeTrustStore.ComputeSha256(bytes);
+
+            var validation = RecipeValidator.Validate(recipe);
+            RecipeApproval approval = null;
+            if (validation.IsValid)
+            {
+                var record = RecipeTrustStore.GetTrustRecord(fullPath);
+                var previousApproval = record?.GetApproval(recipe.Id);
+                var approvedVersion = RecipeEditApproval.FindRecipe(record?.ApprovedContent, recipe.Id);
+                approval = RecipeEditApproval.Create(recipe, validation, approvedVersion, previousApproval, GetBuiltInRecipe(recipe.Id) != null, out var decision);
+                if (decision.IsNeeded)
+                {
+                    Log.InfoFormat("The change of recipe '{0}' needs the user's decision: {1}", recipe.Id, string.Join(" ", decision.Reasons));
+                    var request = CreateApprovalRequest(recipe, fullPath, content, contentHash, validation);
+                    // The user is the author: no "switched off" start like for a file an AI tool wrote
+                    request.StartSwitchedOff = false;
+                    request.OwnEditReasons = decision.Reasons;
+                    request.SuggestedApproval = new RecipeApproval { RecipeId = recipe.Id, ApprovedTriggers = approval.ApprovedTriggers.Concat(decision.TriggerKeys).ToList() };
+                    if (request.PreviousContent == null && !string.IsNullOrEmpty(record?.ApprovedContent))
+                    {
+                        request.PreviousContent = record.ApprovedContent;
+                    }
+                    approval = RequestInteractiveApproval(request);
+                    if (approval == null)
+                    {
+                        result.AddError("The recipe was not saved, its changes were not approved.");
+                        return result;
+                    }
+                }
+                approval.RecipeId = recipe.Id;
+                // Recorded before writing, so the change on disk is known as Greenshot's own
+                RecipeTrustStore.RecordApproval(fullPath, contentHash, approval, content, recipeName: recipe.Name, recipeVersion: recipe.Version);
+            }
+
+            try
+            {
+                string directory = Path.GetDirectoryName(fullPath);
+                if (!string.IsNullOrEmpty(directory))
+                {
+                    Directory.CreateDirectory(directory);
+                }
+                File.WriteAllBytes(fullPath, bytes);
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Could not save the recipe '{recipe.Id}' to '{fullPath}'.", ex);
+                result.AddError($"Could not save the recipe: {ex.Message}");
+                return result;
+            }
+            SetupWatcherForFile(fullPath);
+
+            if (approval != null)
+            {
+                RecipeApprovalPolicy.Apply(recipe, approval);
+            }
+            recipe.ProposedBy = null;
+            lock (_recipes)
+            {
+                bool isBuiltIn = _builtInRecipes.ContainsKey(recipe.Id);
+                recipe.IsBuiltIn = isBuiltIn;
+                recipe.IsOverridden = isBuiltIn;
+            }
+            RegisterRecipe(recipe);
+            foreach (var warning in validation.Warnings) result.AddWarning(warning);
+            if (!validation.IsValid)
+            {
+                // Saved as work in progress: it is approved when it is loaded the next time
+                foreach (var error in validation.Errors) result.AddWarning(error);
+            }
+            return result;
         }
 
         public RecipeValidationResult LoadRecipeFromFile(string filePath)
@@ -875,6 +1039,53 @@ namespace Greenshot.Recipes
             return false;
         }
 
+        public RecipeDetails GetRecipeDetails(string recipeId)
+        {
+            var recipe = GetRecipeById(recipeId);
+            if (recipe == null)
+            {
+                return null;
+            }
+            var details = new RecipeDetails
+            {
+                WhatItDoes = RecipeDescriber.DescribeSteps(recipe).Select(l => l.IsDetail ? "    " + l.Text : l.Text).ToList(),
+                Triggers = RecipeDescriber.DescribeTriggers(recipe).Select(t =>
+                {
+                    var trigger = recipe.Triggers[int.Parse(t.Key.Substring(0, t.Key.IndexOf(':')))];
+                    bool isBrowser = t.Key.EndsWith(RecipeApprovalPolicy.BrowserInvocationSuffix);
+                    bool on = isBrowser ? trigger.IsActive && trigger.IsBrowserInvocationApproved : trigger.IsActive;
+                    string state = t.IsDisabled ? "disabled" : on ? "on" : "off, not approved";
+                    return $"{t.Label} ({state})";
+                }).ToList(),
+                ProposedBy = recipe.ProposedBy
+            };
+
+            if (!string.IsNullOrEmpty(recipe.FilePath))
+            {
+                var record = RecipeTrustStore.GetTrustRecord(recipe.FilePath);
+                if (record != null)
+                {
+                    details.ApprovedAt = record.ApprovedAt.ToLocalTime();
+                    details.ApprovedHash = record.Sha256Hash;
+                    details.IsApprovalCurrent = string.Equals(RecipeTrustStore.ComputeSha256(recipe.FilePath), record.Sha256Hash, StringComparison.OrdinalIgnoreCase);
+                    var approval = record.GetApproval(recipe.Id);
+                    details.Permissions = approval?.AllowedGates?.Select(RecipeApprovalPolicy.GetGateName).ToList() ?? new List<string>();
+                }
+            }
+
+            var builtIn = recipe.IsOverridden ? GetBuiltInRecipe(recipe.Id) : null;
+            if (builtIn != null)
+            {
+                var current = recipe.Clone();
+                current.FilePath = null;
+                current.IsBuiltIn = builtIn.IsBuiltIn;
+                current.IsOverridden = builtIn.IsOverridden;
+                current.IsEnabled = builtIn.IsEnabled;
+                details.BuiltInDiff = RecipeTextDiff.ToUnifiedText(RecipeSerializer.Serialize(builtIn), RecipeSerializer.Serialize(current));
+            }
+            return details;
+        }
+
         public RecipeValidationResult ReviewApproval(string recipeId)
         {
             var recipe = GetRecipeById(recipeId);
@@ -893,6 +1104,11 @@ namespace Greenshot.Recipes
                 var disabled = GetDisabledRecipeIds();
                 foreach (var kvp in _builtInRecipes)
                 {
+                    // The file which replaced it isn't loaded again after a restart
+                    if (_recipes.TryGetValue(kvp.Key, out var current) && current.IsOverridden)
+                    {
+                        RemoveRecipeFileFromConfig(current.FilePath);
+                    }
                     var restored = kvp.Value.Clone();
                     restored.IsEnabled = !disabled.Contains(kvp.Key);
                     _recipes[kvp.Key] = restored;

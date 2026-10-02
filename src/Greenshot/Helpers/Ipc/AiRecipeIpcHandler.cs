@@ -535,6 +535,8 @@ namespace Greenshot.Helpers.Ipc
         private static async Task<string> SaveAsync(RecipeManager recipeManager, string filePath, byte[] bytes, string content, string contentHash, RecipeApproval approval,
             AiToolClient client, CaptureRecipe recipe, CancellationToken cancellationToken)
         {
+            // Recorded before writing, so the change on disk is known as Greenshot's own and doesn't ask again
+            RecipeTrustStore.RecordApproval(filePath, contentHash, approval, content, RecipeTrustRecord.AiOriginPrefix + (client.DisplayName ?? client.ExePath), recipe.Name, recipe.Version);
             try
             {
                 string directory = Path.GetDirectoryName(filePath);
@@ -550,7 +552,6 @@ namespace Greenshot.Helpers.Ipc
                 return $"The user approved the recipe, but Greenshot could not save it: {ex.Message}";
             }
 
-            RecipeTrustStore.RecordApproval(filePath, contentHash, approval, content, RecipeTrustRecord.AiOriginPrefix + (client.DisplayName ?? client.ExePath), recipe.Name, recipe.Version);
             Log.InfoFormat("Saved the recipe '{0}' proposed by {1} to '{2}'.", recipe.Id, client, filePath);
 
             // Loads what is on disk now: when the file changed since it was written, the hash doesn't match and nothing is loaded

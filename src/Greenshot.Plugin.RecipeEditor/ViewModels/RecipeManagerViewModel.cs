@@ -44,6 +44,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             UnloadCommand = new RelayCommand(ExecuteUnload, () => CanUnload);
             TestRunCommand = new RelayCommand(() => AsyncCommand.Run(ExecuteTestRunAsync, "Recipe test run"));
             ReviewApprovalCommand = new RelayCommand(ExecuteReviewApproval, () => HasFilePath);
+            DetailsCommand = new RelayCommand(ExecuteShowDetails);
         }
 
         public string Id => Recipe.Id;
@@ -187,6 +188,22 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         /// </summary>
         public ICommand ReviewApprovalCommand { get; }
 
+        /// <summary>
+        /// Shows what the recipe does, its triggers, its approval and the changes against the built-in recipe it replaces
+        /// </summary>
+        public ICommand DetailsCommand { get; }
+
+        private void ExecuteShowDetails()
+        {
+            var details = _recipeManager?.GetRecipeDetails(Recipe.Id);
+            if (details == null) return;
+            var window = new Dialogs.RecipeDetailsWindow(Recipe, details)
+            {
+                Owner = Application.Current?.Windows.OfType<Window>().FirstOrDefault(w => w.IsActive)
+            };
+            window.ShowDialog();
+        }
+
         private void ExecuteReviewApproval()
         {
             if (!HasFilePath || _recipeManager == null) return;
@@ -279,6 +296,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             LoadRecipeFromFileCommand = new RelayCommand(ExecuteLoadRecipeFromFile);
             CreateNewRecipeCommand = new RelayCommand(ExecuteCreateNewRecipe);
             ReloadAllCommand = new RelayCommand(ExecuteReloadAll);
+            ResetAllCommand = new RelayCommand(ExecuteResetAll, () => AllRecipes.Any(r => r.IsOverridden));
             CloseCommand = new RelayCommand(() => RequestClose?.Invoke());
 
             LoadRecipes();
@@ -327,6 +345,24 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         public ICommand LoadRecipeFromFileCommand { get; }
         public ICommand CreateNewRecipeCommand { get; }
         public ICommand ReloadAllCommand { get; }
+
+        /// <summary>
+        /// Brings back every built-in recipe a file replaces
+        /// </summary>
+        public ICommand ResetAllCommand { get; }
+
+        private void ExecuteResetAll()
+        {
+            var replaced = AllRecipes.Where(r => r.IsOverridden).Select(r => r.Name).ToList();
+            if (replaced.Count == 0) return;
+            if (MessageBox.Show($"Bring back the built-in version of these recipes?\n\n{string.Join("\n", replaced)}", "Reset All to Default",
+                    MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+            {
+                return;
+            }
+            _recipeManager?.ResetAllToDefault();
+            LoadRecipes();
+        }
         public ICommand CloseCommand { get; }
 
         public void LoadRecipes()

@@ -1191,8 +1191,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
 
             try
             {
-                RecipeSerializer.SaveToFile(ActiveRecipe, ActiveRecipe.FilePath);
-                _recipeManager?.RegisterRecipe(ActiveRecipe);
+                if (!SaveActiveRecipeTo(ActiveRecipe.FilePath)) return;
                 IsDirty = false;
                 StatusMessage = $"Saved recipe to {Path.GetFileName(ActiveRecipe.FilePath)}";
             }
@@ -1200,6 +1199,27 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             {
                 MessageBox.Show($"Failed to save recipe:\n{ex.Message}", "Error Saving Recipe", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        /// <summary>
+        /// Saves the recipe through the recipe manager, which renews its approval for exactly the saved content (and asks only when
+        /// the change adds something that needs a decision). False when it wasn't saved.
+        /// </summary>
+        private bool SaveActiveRecipeTo(string filePath)
+        {
+            if (_recipeManager == null)
+            {
+                RecipeSerializer.SaveToFile(ActiveRecipe, filePath);
+                return true;
+            }
+            var result = _recipeManager.SaveRecipeToFile(ActiveRecipe, filePath);
+            if (!result.IsValid)
+            {
+                MessageBox.Show(string.Join("\n", result.Errors), "Recipe Not Saved", MessageBoxButton.OK, MessageBoxImage.Warning);
+                StatusMessage = "The recipe was not saved.";
+                return false;
+            }
+            return true;
         }
 
         public void SaveAsRecipe()
@@ -1219,9 +1239,7 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             {
                 try
                 {
-                    ActiveRecipe.FilePath = dlg.FileName;
-                    RecipeSerializer.SaveToFile(ActiveRecipe, dlg.FileName);
-                    _recipeManager?.RegisterRecipe(ActiveRecipe);
+                    if (!SaveActiveRecipeTo(dlg.FileName)) return;
                     IsDirty = false;
                     StatusMessage = $"Saved recipe to {Path.GetFileName(dlg.FileName)}";
                 }

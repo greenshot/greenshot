@@ -91,6 +91,18 @@ namespace Greenshot.UI
         /// </summary>
         public bool StartSwitchedOff { get; set; }
 
+        /// <summary>
+        /// The user saved the recipe in Greenshot's recipe editor: the reasons why the change needs a decision, null otherwise
+        /// </summary>
+        public IReadOnlyList<string> OwnEditReasons { get; set; }
+
+        /// <summary>
+        /// For an own edit: the switches as they will be (unchanged triggers keep theirs, the new ones the user added are on)
+        /// </summary>
+        public RecipeApproval SuggestedApproval { get; set; }
+
+        public bool IsOwnEdit => OwnEditReasons != null;
+
         public bool IsAiProposal => !string.IsNullOrEmpty(ProposedByName);
     }
 

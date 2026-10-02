@@ -243,7 +243,9 @@
                             <Button Content="✨ New Recipe" Style="{StaticResource DlgBtn}" Command="{Binding CreateNewRecipeCommand}"
                                     ToolTip="Create a new capture recipe in the Visual Editor" Margin="0,0,6,0"/>
                             <Button Content="🔄 Reload All" Style="{StaticResource DlgBtn}" Command="{Binding ReloadAllCommand}"
-                                    ToolTip="Reload configured recipe files from disk"/>
+                                    ToolTip="Reload configured recipe files from disk" Margin="0,0,6,0"/>
+                            <Button Content="↩ Reset All" Style="{StaticResource DlgBtn}" Command="{Binding ResetAllCommand}"
+                                    ToolTip="Bring back the built-in version of every recipe a file replaces"/>
                         </StackPanel>
                     </Grid>
 
@@ -357,6 +359,8 @@
                                                 ToolTip="Open recipe in Visual Editor canvas" Margin="0,0,6,0"/>
                                         <Button Content="▶ Test Run" Style="{StaticResource DlgBtn}" Command="{Binding TestRunCommand}"
                                                 ToolTip="Test execute capture recipe in Greenshot" Margin="0,0,6,0"/>
+                                        <Button Content="ℹ Details" Style="{StaticResource DlgBtn}" Command="{Binding DetailsCommand}"
+                                                ToolTip="What the recipe does, its triggers, its approval and the changes against the built-in recipe" Margin="0,0,6,0"/>
                                         <Button Content="🛡 Permissions" Style="{StaticResource DlgBtn}" Command="{Binding ReviewApprovalCommand}"
                                                 ToolTip="Switch the recipe's triggers and permissions on or off"
                                                 Visibility="{Binding HasFilePath, Converter={StaticResource BoolToVis}}" Margin="0,0,6,0"/>
