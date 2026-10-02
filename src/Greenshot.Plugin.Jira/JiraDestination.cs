@@ -21,7 +21,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -80,7 +79,6 @@ public sealed class JiraIconProvider : IIconProvider
     private const string Prefix = "jira:";
     private const string IssuePrefix = Prefix + "issue:";
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(typeof(JiraIconProvider));
-    private static readonly ComponentResourceManager Resources = new ComponentResourceManager(typeof(JiraPlugin));
 
     /// <summary>
     /// The icon of the Jira server (or the Jira logo)
@@ -131,7 +129,7 @@ public sealed class JiraIconProvider : IIconProvider
             }
         }
 
-        return (Image) Resources.GetObject("Jira");
+        return EmbeddedResources.GetImage(typeof(JiraPlugin), "Jira");
     }
 }
 

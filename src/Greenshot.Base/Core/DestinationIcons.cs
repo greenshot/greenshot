@@ -20,7 +20,6 @@
  */
 
 using System;
-using System.ComponentModel;
 using System.Drawing;
 using System.Globalization;
 using System.Linq;
@@ -118,7 +117,7 @@ namespace Greenshot.Base.Core
                 }
                 else if (iconKey.StartsWith("resource:", StringComparison.Ordinal))
                 {
-                    // The resource manager creates a new image every time
+                    // A new image is created every time
                     image = GreenshotResources.GetImage(iconKey.Substring("resource:".Length));
                 }
                 else
@@ -145,17 +144,18 @@ namespace Greenshot.Base.Core
     }
 
     /// <summary>
-    /// <see cref="IIconProvider"/> for the images in the resources of a (plugin) type: key "prefix:ResourceName".
+    /// <see cref="IIconProvider"/> for the images in the embedded resources of a (plugin) type: key "prefix:ResourceName".
+    /// See <see cref="EmbeddedResources"/> for the naming of the resources.
     /// </summary>
     public sealed class ResourceIconProvider : IIconProvider
     {
         private readonly string _prefix;
-        private readonly ComponentResourceManager _resources;
+        private readonly Type _resourceType;
 
         public ResourceIconProvider(string prefix, Type resourceType)
         {
             _prefix = (prefix ?? throw new ArgumentNullException(nameof(prefix))) + ":";
-            _resources = new ComponentResourceManager(resourceType ?? throw new ArgumentNullException(nameof(resourceType)));
+            _resourceType = resourceType ?? throw new ArgumentNullException(nameof(resourceType));
         }
 
         public string KeyFor(string resourceName) => _prefix + resourceName;
@@ -164,8 +164,8 @@ namespace Greenshot.Base.Core
 
         public Task<Image> GetIconAsync(string iconKey, CancellationToken cancellationToken)
         {
-            // The resource manager creates a new image every time, the caller owns it
-            return Task.FromResult(_resources.GetObject(iconKey.Substring(_prefix.Length)) as Image);
+            // A new image is created every time, the caller owns it
+            return Task.FromResult(EmbeddedResources.GetImage(_resourceType, iconKey.Substring(_prefix.Length)));
         }
     }
 }

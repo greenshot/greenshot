@@ -26,7 +26,6 @@
     <PackageReference Include="Svg" Version="3.4.8" />
     <PackageReference Include="Dapplo.Ini" Version="1.1.6" />
     <PackageReference Include="Dapplo.Ini.Generator" Version="1.1.6" />
-    <PackageReference Include="System.Resources.Extensions" Version="10.0.12" />
     <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.19041.1" />
     <Reference Include="Accessibility" />
     <Reference Include="CustomMarshalers" />
@@ -41,6 +40,8 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="log4net-embedded.xml" />
+    <!-- The images and icons of GreenshotResources, see EmbeddedResources for the naming -->
+    <EmbeddedResource Include="Resources\GreenshotResources\*.*" LogicalName="Greenshot.Base.Core.GreenshotResources.%(Filename)" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Update="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="5.6.0" />

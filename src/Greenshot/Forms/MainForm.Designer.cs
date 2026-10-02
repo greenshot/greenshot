@@ -55,7 +55,6 @@ namespace Greenshot.Forms {
 		/// </summary>
 		private void InitializeComponent() {
 			this.components = new System.ComponentModel.Container();
-			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
 			this.contextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.contextmenu_capturearea = new ToolStripMenuItem();
 			this.contextmenu_capturelastregion = new ToolStripMenuItem();
@@ -110,7 +109,7 @@ namespace Greenshot.Forms {
 			// 
 			// contextmenu_capturearea
 			// 
-			this.contextmenu_capturearea.Image = ((System.Drawing.Image)(resources.GetObject("contextmenu_capturearea.Image")));
+			this.contextmenu_capturearea.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(MainForm), "contextmenu_capturearea.Image");
 			this.contextmenu_capturearea.Name = "contextmenu_capturearea";
 			this.contextmenu_capturearea.ShortcutKeyDisplayString = "Print";
 			this.contextmenu_capturearea.Size = new System.Drawing.Size(170, 22);
@@ -119,7 +118,7 @@ namespace Greenshot.Forms {
 			// contextmenu_capturelastregion
 			// 
 			this.contextmenu_capturelastregion.Enabled = false;
-			this.contextmenu_capturelastregion.Image = ((System.Drawing.Image)(resources.GetObject("contextmenu_capturelastregion.Image")));
+			this.contextmenu_capturelastregion.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(MainForm), "contextmenu_capturelastregion.Image");
 			this.contextmenu_capturelastregion.Name = "contextmenu_capturelastregion";
 			this.contextmenu_capturelastregion.ShortcutKeyDisplayString = "Shift + Print";
 			this.contextmenu_capturelastregion.Size = new System.Drawing.Size(170, 22);
@@ -127,7 +126,7 @@ namespace Greenshot.Forms {
 			// 
 			// contextmenu_capturewindow
 			// 
-			this.contextmenu_capturewindow.Image = ((System.Drawing.Image)(resources.GetObject("contextmenu_capturewindow.Image")));
+			this.contextmenu_capturewindow.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(MainForm), "contextmenu_capturewindow.Image");
 			this.contextmenu_capturewindow.Name = "contextmenu_capturewindow";
 			this.contextmenu_capturewindow.ShortcutKeyDisplayString = "Alt + Print";
 			this.contextmenu_capturewindow.Size = new System.Drawing.Size(170, 22);
@@ -135,7 +134,7 @@ namespace Greenshot.Forms {
 			// 
 			// contextmenu_capturefullscreen
 			// 
-			this.contextmenu_capturefullscreen.Image = ((System.Drawing.Image)(resources.GetObject("contextmenu_capturefullscreen.Image")));
+			this.contextmenu_capturefullscreen.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(MainForm), "contextmenu_capturefullscreen.Image");
 			this.contextmenu_capturefullscreen.Name = "contextmenu_capturefullscreen";
 			this.contextmenu_capturefullscreen.ShortcutKeyDisplayString = "Ctrl + Print";
 			this.contextmenu_capturefullscreen.Size = new System.Drawing.Size(170, 22);
@@ -159,14 +158,14 @@ namespace Greenshot.Forms {
 			// 
 			// contextmenu_captureclipboard
 			// 
-			this.contextmenu_captureclipboard.Image = ((System.Drawing.Image)(resources.GetObject("contextmenu_captureclipboard.Image")));
+			this.contextmenu_captureclipboard.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(MainForm), "contextmenu_captureclipboard.Image");
 			this.contextmenu_captureclipboard.Name = "contextmenu_captureclipboard";
 			this.contextmenu_captureclipboard.Size = new System.Drawing.Size(170, 22);
 			this.contextmenu_captureclipboard.Click += new System.EventHandler(this.CaptureClipboardToolStripMenuItemClick);
 			// 
 			// contextmenu_openfile
 			// 
-			this.contextmenu_openfile.Image = ((System.Drawing.Image)(resources.GetObject("contextmenu_openfile.Image")));
+			this.contextmenu_openfile.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(MainForm), "contextmenu_openfile.Image");
 			this.contextmenu_openfile.Name = "contextmenu_openfile";
 			this.contextmenu_openfile.Size = new System.Drawing.Size(170, 22);
 			this.contextmenu_openfile.Click += new System.EventHandler(this.OpenFileToolStripMenuItemClick);
@@ -195,7 +194,7 @@ namespace Greenshot.Forms {
 			// 
 			// contextmenu_settings
 			// 
-			this.contextmenu_settings.Image = ((System.Drawing.Image)(resources.GetObject("contextmenu_settings.Image")));
+			this.contextmenu_settings.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(MainForm), "contextmenu_settings.Image");
 			this.contextmenu_settings.Name = "contextmenu_settings";
 			this.contextmenu_settings.Size = new System.Drawing.Size(170, 22);
 			this.contextmenu_settings.Click += new System.EventHandler(this.Contextmenu_SettingsClick);
@@ -207,14 +206,14 @@ namespace Greenshot.Forms {
 			// 
 			// contextmenu_help
 			// 
-			this.contextmenu_help.Image = ((System.Drawing.Image)(resources.GetObject("contextmenu_help.Image")));
+			this.contextmenu_help.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(MainForm), "contextmenu_help.Image");
 			this.contextmenu_help.Name = "contextmenu_help";
 			this.contextmenu_help.Size = new System.Drawing.Size(170, 22);
 			this.contextmenu_help.Click += new System.EventHandler(this.Contextmenu_HelpClick);
 			// 
 			// contextmenu_donate
 			// 
-			this.contextmenu_donate.Image = ((System.Drawing.Image)(resources.GetObject("contextmenu_donate.Image")));
+			this.contextmenu_donate.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(MainForm), "contextmenu_donate.Image");
 			this.contextmenu_donate.Name = "contextmenu_donate";
 			this.contextmenu_donate.Size = new System.Drawing.Size(170, 22);
 			this.contextmenu_donate.Click += new System.EventHandler(this.Contextmenu_DonateClick);
@@ -232,7 +231,7 @@ namespace Greenshot.Forms {
 			// 
 			// contextmenu_exit
 			// 
-			this.contextmenu_exit.Image = ((System.Drawing.Image)(resources.GetObject("contextmenu_exit.Image")));
+			this.contextmenu_exit.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(MainForm), "contextmenu_exit.Image");
 			this.contextmenu_exit.Name = "contextmenu_exit";
 			this.contextmenu_exit.Size = new System.Drawing.Size(170, 22);
 			this.contextmenu_exit.Click += new System.EventHandler(this.Contextmenu_ExitClick);

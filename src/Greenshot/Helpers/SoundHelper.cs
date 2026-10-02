@@ -20,8 +20,6 @@
  */
 
 using System;
-using System.Reflection;
-using System.Resources;
 using System.IO;
 using Dapplo.Windows.Multimedia;
 using Greenshot.Base.Core;
@@ -38,6 +36,10 @@ namespace Greenshot.Helpers
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(SoundHelper));
         private static readonly ICoreConfiguration CoreConfig = IniConfigRegistry.GetSection<ICoreConfiguration>();
+        /// <summary>
+        /// The name of the embedded resource with the default sound (sounds\camera.wav)
+        /// </summary>
+        private const string CameraSoundResource = "Greenshot.Sounds.camera";
         private static byte[] _soundBuffer;
 
         public static void Initialize()
@@ -46,8 +48,7 @@ namespace Greenshot.Helpers
             {
                 try
                 {
-                    ResourceManager resources = new ResourceManager("Greenshot.Sounds", Assembly.GetExecutingAssembly());
-                    _soundBuffer = (byte[]) resources.GetObject("camera");
+                    _soundBuffer = EmbeddedResources.GetBytes(typeof(SoundHelper).Assembly, CameraSoundResource);
 
                     if (CoreConfig.NotificationSound != null && CoreConfig.NotificationSound.EndsWith(".wav"))
                     {

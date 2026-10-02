@@ -77,8 +77,6 @@ namespace Greenshot.Editor.Forms
         private static readonly IEditorConfiguration EditorConfiguration = IniConfigHelper.EnsureSection<IEditorConfiguration>(() => new EditorConfigurationImpl());
         private static readonly ICoreConfiguration CoreConfiguration = IniConfigHelper.EnsureSection<ICoreConfiguration>(() => new CoreConfigurationImpl());
 
-        private System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ImageEditorForm));
-
         private static readonly List<string> IgnoreDestinations = new()
         {
             nameof(WellKnownDestinations.Picker),
@@ -1646,11 +1644,11 @@ if (!IsDisposed && !Disposing && IsHandleCreated)
             Image icon;
             if (stepLabels <= 20)
             {
-                icon = (Image)resources.GetObject($"btnStepLabel{stepLabels:00}.Image");
+                icon = EmbeddedResources.GetImage(typeof(ImageEditorForm), $"btnStepLabel{stepLabels:00}.Image");
             }
             else
             {
-                icon = (Image)resources.GetObject("btnStepLabel20+.Image");
+                icon = EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnStepLabel20+.Image");
             }
 
             btnStepLabel.Image = icon;

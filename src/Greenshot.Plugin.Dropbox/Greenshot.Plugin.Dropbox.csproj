@@ -11,6 +11,8 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Dropbox.gif" />
+    <!-- Loaded with EmbeddedResources.GetImage(typeof(DropboxPlugin), "Dropbox") -->
+    <EmbeddedResource Include="Dropbox.png" LogicalName="Greenshot.Plugin.Dropbox.DropboxPlugin.Dropbox" />
   </ItemGroup>
 
   <ItemGroup>

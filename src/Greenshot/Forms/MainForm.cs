@@ -757,8 +757,7 @@ namespace Greenshot.Forms
                 (now.Month == 3 && now.Day > 13 && now.Day < 21))
             {
                 // birthday
-                var resources = new ComponentResourceManager(typeof(MainForm));
-                contextmenu_donate.Image = (Image) resources.GetObject("contextmenu_present.Image");
+                contextmenu_donate.Image = EmbeddedResources.GetImage(typeof(MainForm), "contextmenu_present.Image");
             }
 
             UpdateRecipesMenu();

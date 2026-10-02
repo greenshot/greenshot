@@ -98,7 +98,9 @@
     <EmbeddedResource Include="Forms\MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Sounds.resx" />
+    <!-- Images and sounds, loaded with EmbeddedResources (non string .resx entries would need System.Resources.Extensions) -->
+    <EmbeddedResource Include="Resources\MainForm\*.png" LogicalName="Greenshot.Forms.MainForm.%(Filename)" />
+    <EmbeddedResource Include="sounds\camera.wav" LogicalName="Greenshot.Sounds.camera" />
   </ItemGroup>
 
   <ItemGroup>

@@ -49,7 +49,6 @@ public class JiraPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepProv
 {
     private static readonly ILog Log = LogManager.GetLogger(typeof(JiraPlugin));
     private IJiraConfiguration _config;
-    private ComponentResourceManager _resources;
     private ToolStripMenuItem _itemPlugInConfig;
     private JiraConnector _jiraConnector;
 
@@ -71,7 +70,6 @@ public class JiraPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepProv
         services.AddConfiguration(section);
         _config = section;
 
-        _resources = new ComponentResourceManager(typeof(JiraPlugin));
         // The connector needs the loaded configuration
         services.AddServices(() =>
         {
@@ -136,7 +134,7 @@ public class JiraPlugin : IGreenshotPlugin, IConfigurablePlugin, IRecipeStepProv
 
         _itemPlugInConfig = new ToolStripMenuItem
         {
-            Image = (Image) _resources?.GetObject("Jira"),
+            Image = EmbeddedResources.GetImage(typeof(JiraPlugin), "Jira"),
             Text = PluginUtils.GetQuicklinkText("Jira"),
             Visible = _config?.QuicklinkEnabled ?? false
         };

@@ -363,7 +363,7 @@ namespace Greenshot.Editor.Forms
 			this.btnCursor.CheckOnClick = true;
 			this.btnCursor.CheckState = System.Windows.Forms.CheckState.Checked;
 			this.btnCursor.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.btnCursor.Image = ((System.Drawing.Image)(resources.GetObject("btnCursor.Image")));
+			this.btnCursor.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnCursor.Image");
 			this.btnCursor.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnCursor.Name = "btnCursor";
 			this.btnCursor.Click += new System.EventHandler(this.BtnCursorClick);
@@ -376,7 +376,7 @@ namespace Greenshot.Editor.Forms
 			// 
 			this.btnRect.CheckOnClick = true;
 			this.btnRect.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.btnRect.Image = ((System.Drawing.Image)(resources.GetObject("btnRect.Image")));
+			this.btnRect.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnRect.Image");
 			this.btnRect.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnRect.Name = "btnRect";
 			this.btnRect.Click += new System.EventHandler(this.BtnRectClick);
@@ -385,7 +385,7 @@ namespace Greenshot.Editor.Forms
 			// 
 			this.btnEllipse.CheckOnClick = true;
 			this.btnEllipse.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.btnEllipse.Image = ((System.Drawing.Image)(resources.GetObject("btnEllipse.Image")));
+			this.btnEllipse.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnEllipse.Image");
 			this.btnEllipse.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnEllipse.Name = "btnEllipse";
 			this.btnEllipse.Click += new System.EventHandler(this.BtnEllipseClick);
@@ -394,7 +394,7 @@ namespace Greenshot.Editor.Forms
 			// 
 			this.btnLine.CheckOnClick = true;
 			this.btnLine.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.btnLine.Image = ((System.Drawing.Image)(resources.GetObject("btnLine.Image")));
+			this.btnLine.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnLine.Image");
 			this.btnLine.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnLine.Name = "btnLine";
 			this.btnLine.Click += new System.EventHandler(this.BtnLineClick);
@@ -403,7 +403,7 @@ namespace Greenshot.Editor.Forms
 			// 
 			this.btnArrow.CheckOnClick = true;
 			this.btnArrow.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.btnArrow.Image = ((System.Drawing.Image)(resources.GetObject("btnArrow.Image")));
+			this.btnArrow.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnArrow.Image");
 			this.btnArrow.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnArrow.Name = "btnArrow";
 			this.btnArrow.Click += new System.EventHandler(this.BtnArrowClick);
@@ -411,7 +411,7 @@ namespace Greenshot.Editor.Forms
 			// btnFreehand
 			// 
 			this.btnFreehand.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.btnFreehand.Image = ((System.Drawing.Image)(resources.GetObject("btnFreehand.Image")));
+			this.btnFreehand.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnFreehand.Image");
 			this.btnFreehand.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnFreehand.Name = "btnFreehand";
 			this.btnFreehand.Click += new System.EventHandler(this.BtnFreehandClick);
@@ -420,7 +420,7 @@ namespace Greenshot.Editor.Forms
 			// 
 			this.btnText.CheckOnClick = true;
 			this.btnText.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.btnText.Image = ((System.Drawing.Image)(resources.GetObject("btnText.Image")));
+			this.btnText.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnText.Image");
 			this.btnText.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnText.Name = "btnText";
 			this.btnText.Click += new System.EventHandler(this.BtnTextClick);
@@ -429,7 +429,7 @@ namespace Greenshot.Editor.Forms
 			// 
 			this.btnSpeechBubble.CheckOnClick = true;
 			this.btnSpeechBubble.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.btnSpeechBubble.Image = ((System.Drawing.Image)(resources.GetObject("btnSpeechBubble.Image")));
+			this.btnSpeechBubble.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnSpeechBubble.Image");
 			this.btnSpeechBubble.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnSpeechBubble.Name = "btnSpeechBubble";
 			this.btnSpeechBubble.Click += new System.EventHandler(this.BtnSpeechBubbleClick);
@@ -438,7 +438,7 @@ namespace Greenshot.Editor.Forms
 			// 
 			this.btnStepLabel.CheckOnClick = true;
 			this.btnStepLabel.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.btnStepLabel.Image = ((System.Drawing.Image)(resources.GetObject("btnStepLabel01.Image")));
+			this.btnStepLabel.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnStepLabel01.Image");
 			this.btnStepLabel.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnStepLabel.Name = "btnStepLabel";
 			this.btnStepLabel.Click += new System.EventHandler(this.BtnStepLabelClick);
@@ -458,7 +458,7 @@ namespace Greenshot.Editor.Forms
 			// btnHighlight
 			// 
 			this.btnHighlight.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.btnHighlight.Image = ((System.Drawing.Image)(resources.GetObject("btnHighlight.Image")));
+			this.btnHighlight.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnHighlight.Image");
 			this.btnHighlight.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnHighlight.Name = "btnHighlight";
 			this.btnHighlight.Click += new System.EventHandler(this.BtnHighlightClick);
@@ -466,7 +466,7 @@ namespace Greenshot.Editor.Forms
 			// btnObfuscate
 			// 
 			this.btnObfuscate.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.btnObfuscate.Image = ((System.Drawing.Image)(resources.GetObject("btnObfuscate.Image")));
+			this.btnObfuscate.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnObfuscate.Image");
 			this.btnObfuscate.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnObfuscate.Name = "btnObfuscate";
 			this.btnObfuscate.Click += new System.EventHandler(this.BtnObfuscateClick);
@@ -483,7 +483,7 @@ namespace Greenshot.Editor.Forms
 									this.removeTransparencyToolStripMenuItem,
 									this.obfuscateTextToolStripMenuItem
 									});
-			this.toolStripSplitButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripSplitButton1.Image")));
+			this.toolStripSplitButton1.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "toolStripSplitButton1.Image");
 			this.toolStripSplitButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.toolStripSplitButton1.Name = "toolStripSplitButton1";
 			this.toolStripSplitButton1.ShowDropDownArrow = true;
@@ -524,7 +524,7 @@ namespace Greenshot.Editor.Forms
 			this.btnResize.Name = "btnResize";
 			this.btnResize.Click += new System.EventHandler(this.BtnResizeClick);
 			this.btnResize.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.btnResize.Image = ((System.Drawing.Image)(resources.GetObject("btnResize.Image")));
+			this.btnResize.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnResize.Image");
 			this.btnResize.ImageTransparentColor = System.Drawing.Color.Magenta;
 			// 
 			// toolStripSeparator13
@@ -534,7 +534,7 @@ namespace Greenshot.Editor.Forms
 			// btnCrop
 			// 
 			this.btnCrop.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.btnCrop.Image = ((System.Drawing.Image)(resources.GetObject("btnCrop.Image")));
+			this.btnCrop.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnCrop.Image");
 			this.btnCrop.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnCrop.Name = "btnCrop";
 			this.btnCrop.Click += new System.EventHandler(this.BtnCropClick);
@@ -542,7 +542,7 @@ namespace Greenshot.Editor.Forms
 			// rotateCwToolstripButton
 			// 
 			this.rotateCwToolstripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.rotateCwToolstripButton.Image = ((System.Drawing.Image)(resources.GetObject("rotateCwToolstripButton.Image")));
+			this.rotateCwToolstripButton.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "rotateCwToolstripButton.Image");
 			this.rotateCwToolstripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.rotateCwToolstripButton.Name = "rotateCwToolstripButton";
 			this.rotateCwToolstripButton.Click += new System.EventHandler(this.RotateCwToolstripButtonClick);
@@ -550,7 +550,7 @@ namespace Greenshot.Editor.Forms
 			// rotateCcwToolstripButton
 			// 
 			this.rotateCcwToolstripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.rotateCcwToolstripButton.Image = ((System.Drawing.Image)(resources.GetObject("rotateCcwToolstripButton.Image")));
+			this.rotateCcwToolstripButton.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "rotateCcwToolstripButton.Image");
 			this.rotateCcwToolstripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.rotateCcwToolstripButton.Name = "rotateCcwToolstripButton";
 			this.rotateCcwToolstripButton.Click += new System.EventHandler(this.RotateCcwToolstripButtonClick);
@@ -604,7 +604,7 @@ namespace Greenshot.Editor.Forms
 			// undoToolStripMenuItem
 			// 
 			this.undoToolStripMenuItem.Enabled = false;
-			this.undoToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("undoToolStripMenuItem.Image")));
+			this.undoToolStripMenuItem.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "undoToolStripMenuItem.Image");
 			this.undoToolStripMenuItem.Name = "undoToolStripMenuItem";
 			this.undoToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Z)));
 			this.undoToolStripMenuItem.Text = "Undo";
@@ -613,7 +613,7 @@ namespace Greenshot.Editor.Forms
 			// redoToolStripMenuItem
 			// 
 			this.redoToolStripMenuItem.Enabled = false;
-			this.redoToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("redoToolStripMenuItem.Image")));
+			this.redoToolStripMenuItem.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "redoToolStripMenuItem.Image");
 			this.redoToolStripMenuItem.Name = "redoToolStripMenuItem";
 			this.redoToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Y)));
 			this.redoToolStripMenuItem.Text = "Redo";
@@ -626,7 +626,7 @@ namespace Greenshot.Editor.Forms
 			// cutToolStripMenuItem
 			// 
 			this.cutToolStripMenuItem.Enabled = false;
-			this.cutToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("cutToolStripMenuItem.Image")));
+			this.cutToolStripMenuItem.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "cutToolStripMenuItem.Image");
 			this.cutToolStripMenuItem.Name = "cutToolStripMenuItem";
 			this.cutToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.X)));
 			this.cutToolStripMenuItem.Click += new System.EventHandler(this.CutToolStripMenuItemClick);
@@ -634,7 +634,7 @@ namespace Greenshot.Editor.Forms
 			// copyToolStripMenuItem
 			// 
 			this.copyToolStripMenuItem.Enabled = false;
-			this.copyToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("copyToolStripMenuItem.Image")));
+			this.copyToolStripMenuItem.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "copyToolStripMenuItem.Image");
 			this.copyToolStripMenuItem.Name = "copyToolStripMenuItem";
 			this.copyToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.C)));
 			this.copyToolStripMenuItem.Click += new System.EventHandler(this.CopyToolStripMenuItemClick);
@@ -642,7 +642,7 @@ namespace Greenshot.Editor.Forms
 			// pasteToolStripMenuItem
 			// 
 			this.pasteToolStripMenuItem.Enabled = false;
-			this.pasteToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("pasteToolStripMenuItem.Image")));
+			this.pasteToolStripMenuItem.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "pasteToolStripMenuItem.Image");
 			this.pasteToolStripMenuItem.Name = "pasteToolStripMenuItem";
 			this.pasteToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.V)));
 			this.pasteToolStripMenuItem.Click += new System.EventHandler(this.PasteToolStripMenuItemClick);
@@ -664,7 +664,7 @@ namespace Greenshot.Editor.Forms
 			// 
 			// preferencesToolStripMenuItem
 			// 
-			this.preferencesToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("preferencesToolStripMenuItem.Image")));
+			this.preferencesToolStripMenuItem.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "preferencesToolStripMenuItem.Image");
 			this.preferencesToolStripMenuItem.Name = "preferencesToolStripMenuItem";
 			this.preferencesToolStripMenuItem.Click += new System.EventHandler(this.PreferencesToolStripMenuItemClick);
 			// 
@@ -706,49 +706,49 @@ namespace Greenshot.Editor.Forms
 			// 
 			// addRectangleToolStripMenuItem
 			// 
-			this.addRectangleToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("addRectangleToolStripMenuItem.Image")));
+			this.addRectangleToolStripMenuItem.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "addRectangleToolStripMenuItem.Image");
 			this.addRectangleToolStripMenuItem.Name = "addRectangleToolStripMenuItem";
 			this.addRectangleToolStripMenuItem.Click += new System.EventHandler(this.AddRectangleToolStripMenuItemClick);
 			// 
 			// addEllipseToolStripMenuItem
 			// 
-			this.addEllipseToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("addEllipseToolStripMenuItem.Image")));
+			this.addEllipseToolStripMenuItem.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "addEllipseToolStripMenuItem.Image");
 			this.addEllipseToolStripMenuItem.Name = "addEllipseToolStripMenuItem";
 			this.addEllipseToolStripMenuItem.Click += new System.EventHandler(this.AddEllipseToolStripMenuItemClick);
 			// 
 			// drawLineToolStripMenuItem
 			// 
-			this.drawLineToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("drawLineToolStripMenuItem.Image")));
+			this.drawLineToolStripMenuItem.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "drawLineToolStripMenuItem.Image");
 			this.drawLineToolStripMenuItem.Name = "drawLineToolStripMenuItem";
 			this.drawLineToolStripMenuItem.Click += new System.EventHandler(this.DrawLineToolStripMenuItemClick);
 			// 
 			// drawArrowToolStripMenuItem
 			// 
-			this.drawArrowToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("drawArrowToolStripMenuItem.Image")));
+			this.drawArrowToolStripMenuItem.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "drawArrowToolStripMenuItem.Image");
 			this.drawArrowToolStripMenuItem.Name = "drawArrowToolStripMenuItem";
 			this.drawArrowToolStripMenuItem.Click += new System.EventHandler(this.DrawArrowToolStripMenuItemClick);
 			// 
 			// drawFreehandToolStripMenuItem
 			// 
-			this.drawFreehandToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("drawFreehandToolStripMenuItem.Image")));
+			this.drawFreehandToolStripMenuItem.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "drawFreehandToolStripMenuItem.Image");
 			this.drawFreehandToolStripMenuItem.Name = "drawFreehandToolStripMenuItem";
 			this.drawFreehandToolStripMenuItem.Click += new System.EventHandler(this.DrawFreehandToolStripMenuItemClick);
 			// 
 			// addTextBoxToolStripMenuItem
 			// 
-			this.addTextBoxToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("addTextBoxToolStripMenuItem.Image")));
+			this.addTextBoxToolStripMenuItem.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "addTextBoxToolStripMenuItem.Image");
 			this.addTextBoxToolStripMenuItem.Name = "addTextBoxToolStripMenuItem";
 			this.addTextBoxToolStripMenuItem.Click += new System.EventHandler(this.AddTextBoxToolStripMenuItemClick);
 			// 
 			// addSpeechBubbleToolStripMenuItem
 			// 
-			this.addSpeechBubbleToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("btnSpeechBubble.Image")));
+			this.addSpeechBubbleToolStripMenuItem.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnSpeechBubble.Image");
 			this.addSpeechBubbleToolStripMenuItem.Name = "addSpeechBubbleToolStripMenuItem";
 			this.addSpeechBubbleToolStripMenuItem.Click += new System.EventHandler(this.AddSpeechBubbleToolStripMenuItemClick);
 			// 
 			// addCounterToolStripMenuItem
 			// 
-			this.addCounterToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("btnStepLabel01.Image")));
+			this.addCounterToolStripMenuItem.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnStepLabel01.Image");
 			this.addCounterToolStripMenuItem.Name = "addCounterToolStripMenuItem";
 			this.addCounterToolStripMenuItem.Click += new System.EventHandler(this.AddCounterToolStripMenuItemClick);
 			// 
@@ -765,7 +765,7 @@ namespace Greenshot.Editor.Forms
 			// removeObjectToolStripMenuItem
 			// 
 			this.removeObjectToolStripMenuItem.Enabled = false;
-			this.removeObjectToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("removeObjectToolStripMenuItem.Image")));
+			this.removeObjectToolStripMenuItem.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "removeObjectToolStripMenuItem.Image");
 			this.removeObjectToolStripMenuItem.Name = "removeObjectToolStripMenuItem";
 			this.removeObjectToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.Delete;
 			this.removeObjectToolStripMenuItem.Click += new System.EventHandler(this.RemoveObjectToolStripMenuItemClick);
@@ -844,7 +844,7 @@ namespace Greenshot.Editor.Forms
 			// 
 			// helpToolStripMenuItem1
 			// 
-			this.helpToolStripMenuItem1.Image = ((System.Drawing.Image)(resources.GetObject("helpToolStripMenuItem1.Image")));
+			this.helpToolStripMenuItem1.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "helpToolStripMenuItem1.Image");
 			this.helpToolStripMenuItem1.Name = "helpToolStripMenuItem1";
 			this.helpToolStripMenuItem1.ShortcutKeys = System.Windows.Forms.Keys.F1;
 			this.helpToolStripMenuItem1.Click += new System.EventHandler(this.HelpToolStripMenuItem1Click);
@@ -886,7 +886,7 @@ namespace Greenshot.Editor.Forms
 			// btnSave
 			// 
 			this.btnSave.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.btnSave.Image = ((System.Drawing.Image)(resources.GetObject("btnSave.Image")));
+			this.btnSave.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnSave.Image");
 			this.btnSave.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnSave.Name = "btnSave";
 			this.btnSave.Click += new System.EventHandler(this.BtnSaveClick);
@@ -894,7 +894,7 @@ namespace Greenshot.Editor.Forms
 			// btnClipboard
 			// 
 			this.btnClipboard.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.btnClipboard.Image = ((System.Drawing.Image)(resources.GetObject("btnClipboard.Image")));
+			this.btnClipboard.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnClipboard.Image");
 			this.btnClipboard.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnClipboard.Name = "btnClipboard";
 			this.btnClipboard.Click += new System.EventHandler(this.BtnClipboardClick);
@@ -902,7 +902,7 @@ namespace Greenshot.Editor.Forms
 			// btnPrint
 			// 
 			this.btnPrint.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.btnPrint.Image = ((System.Drawing.Image)(resources.GetObject("btnPrint.Image")));
+			this.btnPrint.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnPrint.Image");
 			this.btnPrint.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnPrint.Name = "btnPrint";
 			this.btnPrint.Text = "Print";
@@ -916,7 +916,7 @@ namespace Greenshot.Editor.Forms
 			// 
 			this.btnDelete.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.btnDelete.Enabled = false;
-			this.btnDelete.Image = ((System.Drawing.Image)(resources.GetObject("btnDelete.Image")));
+			this.btnDelete.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnDelete.Image");
 			this.btnDelete.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnDelete.Name = "btnDelete";
 			this.btnDelete.Click += new System.EventHandler(this.BtnDeleteClick);
@@ -929,7 +929,7 @@ namespace Greenshot.Editor.Forms
 			// 
 			this.btnCut.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.btnCut.Enabled = false;
-			this.btnCut.Image = ((System.Drawing.Image)(resources.GetObject("btnCut.Image")));
+			this.btnCut.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnCut.Image");
 			this.btnCut.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnCut.Name = "btnCut";
 			this.btnCut.Click += new System.EventHandler(this.BtnCutClick);
@@ -938,7 +938,7 @@ namespace Greenshot.Editor.Forms
 			// 
 			this.btnCopy.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.btnCopy.Enabled = false;
-			this.btnCopy.Image = ((System.Drawing.Image)(resources.GetObject("btnCopy.Image")));
+			this.btnCopy.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnCopy.Image");
 			this.btnCopy.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnCopy.Name = "btnCopy";
 			this.btnCopy.Click += new System.EventHandler(this.BtnCopyClick);
@@ -947,7 +947,7 @@ namespace Greenshot.Editor.Forms
 			// 
 			this.btnPaste.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.btnPaste.Enabled = false;
-			this.btnPaste.Image = ((System.Drawing.Image)(resources.GetObject("btnPaste.Image")));
+			this.btnPaste.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnPaste.Image");
 			this.btnPaste.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnPaste.Name = "btnPaste";
 			this.btnPaste.Click += new System.EventHandler(this.BtnPasteClick);
@@ -956,7 +956,7 @@ namespace Greenshot.Editor.Forms
 			// 
 			this.btnUndo.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.btnUndo.Enabled = false;
-			this.btnUndo.Image = ((System.Drawing.Image)(resources.GetObject("btnUndo.Image")));
+			this.btnUndo.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnUndo.Image");
 			this.btnUndo.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnUndo.Name = "btnUndo";
 			this.btnUndo.Click += new System.EventHandler(this.BtnUndoClick);
@@ -965,7 +965,7 @@ namespace Greenshot.Editor.Forms
 			// 
 			this.btnRedo.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.btnRedo.Enabled = false;
-			this.btnRedo.Image = ((System.Drawing.Image)(resources.GetObject("btnRedo.Image")));
+			this.btnRedo.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnRedo.Image");
 			this.btnRedo.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnRedo.Name = "btnRedo";
 			this.btnRedo.Click += new System.EventHandler(this.BtnRedoClick);
@@ -977,7 +977,7 @@ namespace Greenshot.Editor.Forms
 			// btnSettings
 			// 
 			this.btnSettings.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.btnSettings.Image = ((System.Drawing.Image)(resources.GetObject("btnSettings.Image")));
+			this.btnSettings.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnSettings.Image");
 			this.btnSettings.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnSettings.Name = "btnSettings";
 			this.btnSettings.Click += new System.EventHandler(this.BtnSettingsClick);
@@ -993,7 +993,7 @@ namespace Greenshot.Editor.Forms
 			// btnHelp
 			// 
 			this.btnHelp.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.btnHelp.Image = ((System.Drawing.Image)(resources.GetObject("btnHelp.Image")));
+			this.btnHelp.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnHelp.Image");
 			this.btnHelp.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnHelp.Name = "btnHelp";
 			this.btnHelp.Text = "Help";
@@ -1052,7 +1052,7 @@ namespace Greenshot.Editor.Forms
 			this.obfuscateModeButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
 									this.pixelizeToolStripMenuItem,
 									this.blurToolStripMenuItem});
-			this.obfuscateModeButton.Image = ((System.Drawing.Image)(resources.GetObject("obfuscateModeButton.Image")));
+			this.obfuscateModeButton.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "obfuscateModeButton.Image");
 			this.obfuscateModeButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.obfuscateModeButton.Name = "obfuscateModeButton";
 			this.obfuscateModeButton.SelectedTag = FilterContainer.PreparedFilter.BLUR;
@@ -1061,13 +1061,13 @@ namespace Greenshot.Editor.Forms
 			this.obfuscateModeButton.DropDownItemClicked += FilterPresetDropDownItemClicked;
 			// pixelizeToolStripMenuItem
 			// 
-			this.pixelizeToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("pixelizeToolStripMenuItem.Image")));
+			this.pixelizeToolStripMenuItem.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "pixelizeToolStripMenuItem.Image");
 			this.pixelizeToolStripMenuItem.Name = "pixelizeToolStripMenuItem";
 			this.pixelizeToolStripMenuItem.Tag = FilterContainer.PreparedFilter.PIXELIZE;
 			// 
 			// blurToolStripMenuItem
 			// 
-			this.blurToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("blurToolStripMenuItem.Image")));
+			this.blurToolStripMenuItem.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "blurToolStripMenuItem.Image");
 			this.blurToolStripMenuItem.Name = "blurToolStripMenuItem";
 			this.blurToolStripMenuItem.Tag = FilterContainer.PreparedFilter.BLUR;
 
@@ -1080,7 +1080,7 @@ namespace Greenshot.Editor.Forms
 									this.verticalCropModeToolStripMenuItem,
 									this.horizontalCropModeToolStripMenuItem,
 									this.autoCropModeToolStripMenuItem});
-			this.cropModeButton.Image = ((System.Drawing.Image)(resources.GetObject("btnCrop.Image")));
+			this.cropModeButton.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnCrop.Image");
 			this.cropModeButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.cropModeButton.Name = "cropModeButton";
 			this.cropModeButton.SelectedTag = CropContainer.CropModes.Default;
@@ -1089,28 +1089,28 @@ namespace Greenshot.Editor.Forms
 			// 
 			// defaultCropStyleToolStripMenuItem
 			// 
-			this.defaultCropModeToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("btnCrop.Image")));
+			this.defaultCropModeToolStripMenuItem.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnCrop.Image");
 			this.defaultCropModeToolStripMenuItem.Name = "defaultCropModeToolStripMenuItem";
 			this.defaultCropModeToolStripMenuItem.Tag = CropContainer.CropModes.Default;
 
 			// 
 			// verticalCropStyleToolStripMenuItem
 			// 
-			this.verticalCropModeToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("CropVertical.Image")));
+			this.verticalCropModeToolStripMenuItem.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "CropVertical.Image");
 			this.verticalCropModeToolStripMenuItem.Name = "verticalCropModeToolStripMenuItem";
 			this.verticalCropModeToolStripMenuItem.Tag = CropContainer.CropModes.Vertical;
 
 			// 
 			// horizontalCropStyleToolStripMenuItem
 			// 
-			this.horizontalCropModeToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("CropHorizontal.Image")));
+			this.horizontalCropModeToolStripMenuItem.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "CropHorizontal.Image");
 			this.horizontalCropModeToolStripMenuItem.Name = "horizontalCropModeToolStripMenuItem";
 			this.horizontalCropModeToolStripMenuItem.Tag = CropContainer.CropModes.Horizontal;
 
 			// 
 			// autoCropModeToolStripMenuItem
 			// 
-			this.autoCropModeToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("AutoCrop.Image")));
+			this.autoCropModeToolStripMenuItem.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "AutoCrop.Image");
 			this.autoCropModeToolStripMenuItem.Name = "autoCropModeToolStripMenuItem";
 			this.autoCropModeToolStripMenuItem.Tag = CropContainer.CropModes.AutoCrop;
 
@@ -1123,7 +1123,7 @@ namespace Greenshot.Editor.Forms
 									this.areaHighlightMenuItem,
 									this.grayscaleHighlightMenuItem,
 									this.magnifyMenuItem});
-			this.highlightModeButton.Image = ((System.Drawing.Image)(resources.GetObject("highlightModeButton.Image")));
+			this.highlightModeButton.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "highlightModeButton.Image");
 			this.highlightModeButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.highlightModeButton.Name = "highlightModeButton";
 			this.highlightModeButton.SelectedTag = FilterContainer.PreparedFilter.TEXT_HIGHTLIGHT;
@@ -1132,25 +1132,25 @@ namespace Greenshot.Editor.Forms
 			// 
 			// textHighlightMenuItem
 			// 
-			this.textHighlightMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("textHighlightMenuItem.Image")));
+			this.textHighlightMenuItem.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "textHighlightMenuItem.Image");
 			this.textHighlightMenuItem.Name = "textHighlightMenuItem";
 			this.textHighlightMenuItem.Tag = FilterContainer.PreparedFilter.TEXT_HIGHTLIGHT;
 			// 
 			// areaHighlightMenuItem
 			// 
-			this.areaHighlightMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("areaHighlightMenuItem.Image")));
+			this.areaHighlightMenuItem.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "areaHighlightMenuItem.Image");
 			this.areaHighlightMenuItem.Name = "areaHighlightMenuItem";
 			this.areaHighlightMenuItem.Tag = FilterContainer.PreparedFilter.AREA_HIGHLIGHT;
 			// 
 			// grayscaleHighlightMenuItem
 			// 
-			this.grayscaleHighlightMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("grayscaleHighlightMenuItem.Image")));
+			this.grayscaleHighlightMenuItem.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "grayscaleHighlightMenuItem.Image");
 			this.grayscaleHighlightMenuItem.Name = "grayscaleHighlightMenuItem";
 			this.grayscaleHighlightMenuItem.Tag = FilterContainer.PreparedFilter.GRAYSCALE;
 			// 
 			// magnifyMenuItem
 			// 
-			this.magnifyMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("magnifyMenuItem.Image")));
+			this.magnifyMenuItem.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "magnifyMenuItem.Image");
 			this.magnifyMenuItem.Name = "magnifyMenuItem";
 			this.magnifyMenuItem.Tag = FilterContainer.PreparedFilter.MAGNIFICATION;
 			// 
@@ -1158,7 +1158,7 @@ namespace Greenshot.Editor.Forms
 			// 
 			this.btnFillColor.BackColor = System.Drawing.Color.Transparent;
 			this.btnFillColor.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.btnFillColor.Image = ((System.Drawing.Image)(resources.GetObject("btnFillColor.Image")));
+			this.btnFillColor.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnFillColor.Image");
 			this.btnFillColor.Name = "btnFillColor";
 			this.btnFillColor.SelectedColor = System.Drawing.Color.Transparent;
 			// 
@@ -1166,7 +1166,7 @@ namespace Greenshot.Editor.Forms
 			// 
 			this.btnLineColor.BackColor = System.Drawing.Color.Transparent;
 			this.btnLineColor.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.btnLineColor.Image = ((System.Drawing.Image)(resources.GetObject("btnLineColor.Image")));
+			this.btnLineColor.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnLineColor.Image");
 			this.btnLineColor.Name = "btnLineColor";
 			this.btnLineColor.SelectedColor = System.Drawing.Color.FromArgb(((int)(((byte)(203)))), ((int)(((byte)(222)))), ((int)(((byte)(250)))));
 			// 
@@ -1266,7 +1266,7 @@ namespace Greenshot.Editor.Forms
 			// 
 			this.fontBoldButton.CheckOnClick = true;
 			this.fontBoldButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.fontBoldButton.Image = ((System.Drawing.Image)(resources.GetObject("fontBoldButton.Image")));
+			this.fontBoldButton.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "fontBoldButton.Image");
 			this.fontBoldButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.fontBoldButton.Name = "fontBoldButton";
 			this.fontBoldButton.Text = "Bold";
@@ -1276,7 +1276,7 @@ namespace Greenshot.Editor.Forms
 			// 
 			this.fontItalicButton.CheckOnClick = true;
 			this.fontItalicButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.fontItalicButton.Image = ((System.Drawing.Image)(resources.GetObject("fontItalicButton.Image")));
+			this.fontItalicButton.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "fontItalicButton.Image");
 			this.fontItalicButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.fontItalicButton.Name = "fontItalicButton";
 			this.fontItalicButton.Text = "Italic";
@@ -1289,7 +1289,7 @@ namespace Greenshot.Editor.Forms
 									this.alignMiddleToolStripMenuItem,
 									this.alignBottomToolStripMenuItem});
 			this.textVerticalAlignmentButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.textVerticalAlignmentButton.Image = ((System.Drawing.Image)(resources.GetObject("btnAlignMiddle.Image")));
+			this.textVerticalAlignmentButton.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnAlignMiddle.Image");
 			this.textVerticalAlignmentButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.textVerticalAlignmentButton.Name = "textVerticalAlignmentButton";
 			this.textVerticalAlignmentButton.SelectedTag = System.Drawing.StringAlignment.Center;
@@ -1298,21 +1298,21 @@ namespace Greenshot.Editor.Forms
 			// alignTopToolStripMenuItem
 			// 
 			this.alignTopToolStripMenuItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.ImageAndText;
-			this.alignTopToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("btnAlignTop.Image")));
+			this.alignTopToolStripMenuItem.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnAlignTop.Image");
 			this.alignTopToolStripMenuItem.Name = "alignTopToolStripMenuItem";
 			this.alignTopToolStripMenuItem.Tag = System.Drawing.StringAlignment.Near;
 			// 
 			// alignMiddleToolStripMenuItem
 			// 
 			this.alignMiddleToolStripMenuItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.ImageAndText;
-			this.alignMiddleToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("btnAlignMiddle.Image")));
+			this.alignMiddleToolStripMenuItem.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnAlignMiddle.Image");
 			this.alignMiddleToolStripMenuItem.Name = "alignMiddleToolStripMenuItem";
 			this.alignMiddleToolStripMenuItem.Tag = System.Drawing.StringAlignment.Center;
 			// 
 			// alignBottomToolStripMenuItem
 			// 
 			this.alignBottomToolStripMenuItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.ImageAndText;
-			this.alignBottomToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("btnAlignBottom.Image")));
+			this.alignBottomToolStripMenuItem.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnAlignBottom.Image");
 			this.alignBottomToolStripMenuItem.Name = "alignBottomToolStripMenuItem";
 			this.alignBottomToolStripMenuItem.Tag = System.Drawing.StringAlignment.Far;
 			// 
@@ -1492,7 +1492,7 @@ namespace Greenshot.Editor.Forms
 									this.arrowHeadEndMenuItem,
 									this.arrowHeadBothMenuItem,
 									this.arrowHeadNoneMenuItem});
-			this.arrowHeadsDropDownButton.Image = ((System.Drawing.Image)(resources.GetObject("arrowHeadsDropDownButton.Image")));
+			this.arrowHeadsDropDownButton.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "arrowHeadsDropDownButton.Image");
 			this.arrowHeadsDropDownButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.arrowHeadsDropDownButton.Name = "arrowHeadsDropDownButton";
 			this.arrowHeadsDropDownButton.SelectedTag = ArrowContainer.ArrowHeadCombination.END_POINT;
@@ -1502,7 +1502,7 @@ namespace Greenshot.Editor.Forms
 			// arrowHeadStartMenuItem
 			// 
 			this.arrowHeadStartMenuItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.ImageAndText;
-			this.arrowHeadStartMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("arrowHeadStartMenuItem.Image")));
+			this.arrowHeadStartMenuItem.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "arrowHeadStartMenuItem.Image");
 
 			this.arrowHeadStartMenuItem.Name = "arrowHeadStartMenuItem";
 			this.arrowHeadStartMenuItem.Tag = ArrowContainer.ArrowHeadCombination.START_POINT;
@@ -1510,7 +1510,7 @@ namespace Greenshot.Editor.Forms
 			// arrowHeadEndMenuItem
 			// 
 			this.arrowHeadEndMenuItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.ImageAndText;
-			this.arrowHeadEndMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("arrowHeadEndMenuItem.Image")));
+			this.arrowHeadEndMenuItem.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "arrowHeadEndMenuItem.Image");
 
 			this.arrowHeadEndMenuItem.Name = "arrowHeadEndMenuItem";
 			this.arrowHeadEndMenuItem.Tag = ArrowContainer.ArrowHeadCombination.END_POINT;
@@ -1518,7 +1518,7 @@ namespace Greenshot.Editor.Forms
 			// arrowHeadBothMenuItem
 			// 
 			this.arrowHeadBothMenuItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.ImageAndText;
-			this.arrowHeadBothMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("arrowHeadBothMenuItem.Image")));
+			this.arrowHeadBothMenuItem.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "arrowHeadBothMenuItem.Image");
 
 			this.arrowHeadBothMenuItem.Name = "arrowHeadBothMenuItem";
 			this.arrowHeadBothMenuItem.Tag = ArrowContainer.ArrowHeadCombination.BOTH;
@@ -1526,7 +1526,7 @@ namespace Greenshot.Editor.Forms
 			// arrowHeadNoneMenuItem
 			// 
 			this.arrowHeadNoneMenuItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.ImageAndText;
-			this.arrowHeadNoneMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("arrowHeadNoneMenuItem.Image")));
+			this.arrowHeadNoneMenuItem.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "arrowHeadNoneMenuItem.Image");
 
 			this.arrowHeadNoneMenuItem.Name = "arrowHeadNoneMenuItem";
 			this.arrowHeadNoneMenuItem.Tag = ArrowContainer.ArrowHeadCombination.NONE;
@@ -1535,7 +1535,7 @@ namespace Greenshot.Editor.Forms
 			// 
 			this.shadowButton.CheckOnClick = true;
 			this.shadowButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.shadowButton.Image = ((System.Drawing.Image)(resources.GetObject("shadowButton.Image")));
+			this.shadowButton.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "shadowButton.Image");
 			this.shadowButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.shadowButton.Name = "shadowButton";
 			// 
@@ -1550,7 +1550,7 @@ namespace Greenshot.Editor.Forms
 			// btnConfirm
 			// 
 			this.btnConfirm.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.btnConfirm.Image = ((System.Drawing.Image)(resources.GetObject("btnConfirm.Image")));
+			this.btnConfirm.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnConfirm.Image");
 			this.btnConfirm.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnConfirm.Name = "btnConfirm";
 			this.btnConfirm.Text = "Confirm";
@@ -1559,7 +1559,7 @@ namespace Greenshot.Editor.Forms
 			// btnCancel
 			// 
 			this.btnCancel.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.btnCancel.Image = ((System.Drawing.Image)(resources.GetObject("btnCancel.Image")));
+			this.btnCancel.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnCancel.Image");
 			this.btnCancel.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnCancel.Name = "btnCancel";
 			this.btnCancel.Text = "Cancel";
@@ -1571,13 +1571,13 @@ namespace Greenshot.Editor.Forms
             // 
             // closeAllToolStripMenuItem
             // 
-            this.closeAllToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("closeToolStripMenuItem.Image")));
+            this.closeAllToolStripMenuItem.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "closeToolStripMenuItem.Image");
 			this.closeAllToolStripMenuItem.Name = "closeAllToolStripMenuItem";
 			this.closeAllToolStripMenuItem.Click += new System.EventHandler(this.CloseAllToolStripMenuItemClick);
             // 
             // closeToolStripMenuItem
             // 
-            this.closeToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("closeToolStripMenuItem.Image")));
+            this.closeToolStripMenuItem.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "closeToolStripMenuItem.Image");
             this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
             this.closeToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.F4)));
             this.closeToolStripMenuItem.Click += new System.EventHandler(this.CloseToolStripMenuItemClick);
@@ -1606,7 +1606,7 @@ namespace Greenshot.Editor.Forms
 									this.alignCenterToolStripMenuItem,
 									this.alignRightToolStripMenuItem});
 			this.textHorizontalAlignmentButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.textHorizontalAlignmentButton.Image = ((System.Drawing.Image)(resources.GetObject("btnAlignCenter.Image")));
+			this.textHorizontalAlignmentButton.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnAlignCenter.Image");
 			this.textHorizontalAlignmentButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.textHorizontalAlignmentButton.Name = "textHorizontalAlignmentButton";
 			this.textHorizontalAlignmentButton.SelectedTag = System.Drawing.StringAlignment.Center;
@@ -1615,21 +1615,21 @@ namespace Greenshot.Editor.Forms
 			// alignLeftToolStripMenuItem
 			// 
 			this.alignLeftToolStripMenuItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.ImageAndText;
-			this.alignLeftToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("btnAlignLeft.Image")));
+			this.alignLeftToolStripMenuItem.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnAlignLeft.Image");
 			this.alignLeftToolStripMenuItem.Name = "alignLeftToolStripMenuItem";
 			this.alignLeftToolStripMenuItem.Tag = System.Drawing.StringAlignment.Near;
 			// 
 			// alignCenterToolStripMenuItem
 			// 
 			this.alignCenterToolStripMenuItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.ImageAndText;
-			this.alignCenterToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("btnAlignCenter.Image")));
+			this.alignCenterToolStripMenuItem.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnAlignCenter.Image");
 			this.alignCenterToolStripMenuItem.Name = "alignCenterToolStripMenuItem";
 			this.alignCenterToolStripMenuItem.Tag = System.Drawing.StringAlignment.Center;
 			// 
 			// alignRightToolStripMenuItem
 			// 
 			this.alignRightToolStripMenuItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.ImageAndText;
-			this.alignRightToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("btnAlignRight.Image")));
+			this.alignRightToolStripMenuItem.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "btnAlignRight.Image");
 			this.alignRightToolStripMenuItem.Name = "alignRightToolStripMenuItem";
 			this.alignRightToolStripMenuItem.Tag = System.Drawing.StringAlignment.Far;
 			// 
@@ -1664,7 +1664,7 @@ namespace Greenshot.Editor.Forms
 			// 
 			// zoomInMenuItem
 			// 
-			this.zoomInMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("zoomInMenuItem.Image")));
+			this.zoomInMenuItem.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "zoomInMenuItem.Image");
 			this.zoomInMenuItem.Name = "zoomInMenuItem";
 			this.zoomInMenuItem.ShortcutKeyDisplayString = "Ctrl++";
 			this.zoomInMenuItem.Size = new System.Drawing.Size(209, 22);
@@ -1673,7 +1673,7 @@ namespace Greenshot.Editor.Forms
 			// 
 			// zoomOutMenuItem
 			// 
-			this.zoomOutMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("zoomOutMenuItem.Image")));
+			this.zoomOutMenuItem.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "zoomOutMenuItem.Image");
 			this.zoomOutMenuItem.Name = "zoomOutMenuItem";
 			this.zoomOutMenuItem.ShortcutKeyDisplayString = "Ctrl+-";
 			this.zoomOutMenuItem.Size = new System.Drawing.Size(209, 22);
@@ -1687,7 +1687,7 @@ namespace Greenshot.Editor.Forms
 			// 
 			// zoomBestFitMenuItem
 			// 
-			this.zoomBestFitMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("zoomBestFitMenuItem.Image")));
+			this.zoomBestFitMenuItem.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "zoomBestFitMenuItem.Image");
 			this.zoomBestFitMenuItem.Name = "zoomBestFitMenuItem";
 			this.zoomBestFitMenuItem.ShortcutKeyDisplayString = "Ctrl+9";
 			this.zoomBestFitMenuItem.Size = new System.Drawing.Size(209, 22);
@@ -1738,7 +1738,7 @@ namespace Greenshot.Editor.Forms
 			// 
 			// zoomActualSizeMenuItem
 			// 
-			this.zoomActualSizeMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("zoomActualSizeMenuItem.Image")));
+			this.zoomActualSizeMenuItem.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "zoomActualSizeMenuItem.Image");
 			this.zoomActualSizeMenuItem.Name = "zoomActualSizeMenuItem";
 			this.zoomActualSizeMenuItem.ShortcutKeyDisplayString = "Ctrl+0";
 			this.zoomActualSizeMenuItem.Size = new System.Drawing.Size(209, 22);
@@ -1792,7 +1792,7 @@ namespace Greenshot.Editor.Forms
 			// zoomStatusDropDownBtn
 			// 
 			this.zoomStatusDropDownBtn.DropDown = this.zoomMenuStrip;
-			this.zoomStatusDropDownBtn.Image = ((System.Drawing.Image)(resources.GetObject("zoomStatusDropDownBtn.Image")));
+			this.zoomStatusDropDownBtn.Image = global::Greenshot.Base.Core.EmbeddedResources.GetImage(typeof(ImageEditorForm), "zoomStatusDropDownBtn.Image");
 			this.zoomStatusDropDownBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.zoomStatusDropDownBtn.Name = "zoomStatusDropDownBtn";
 			this.zoomStatusDropDownBtn.Size = new System.Drawing.Size(64, 22);
