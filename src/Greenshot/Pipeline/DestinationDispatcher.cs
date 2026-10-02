@@ -34,6 +34,7 @@ using Greenshot.Base.Core.FileFormat;
 using Greenshot.Base.Interfaces;
 using Greenshot.Base.Interfaces.Plugin;
 using Greenshot.Base.Pipeline;
+using Greenshot.Base.Recipes;
 using Greenshot.Base.Threading;
 using Greenshot.Destinations;
 using Greenshot.Editor.Destinations;
@@ -87,8 +88,18 @@ namespace Greenshot.Pipeline
             var userInteraction = context.UserInteraction;
             var source = await payload.GetExportSourceAsync(context.Ui, cancellationToken).ConfigureAwait(false);
 
+            // Extensions on the BeforeDestination slot run for each destination, on its own copy of the capture
+            var chains = context.Recipe?.DestinationChains ?? Array.Empty<ExtensionChain>();
+
             // If Destination Picker is in the list, let the user pick
             var picker = destinationList.FirstOrDefault(d => nameof(WellKnownDestinations.Picker).Equals(d.Designation, StringComparison.OrdinalIgnoreCase));
+            if (picker != null && chains.Count > 0)
+            {
+                // The picked destination must be known before the extensions run, so the picker is shown here
+                context.LogStep("Dispatching to Picker destination, with extensions per destination.");
+                await PickAndExportAsync(context, source, captureDetails, userInteraction, chains, showNotify, cancellationToken).ConfigureAwait(false);
+                return;
+            }
             if (picker != null)
             {
                 context.LogStep("Dispatching to Picker destination.");
@@ -137,7 +148,7 @@ namespace Greenshot.Pipeline
 
                 context.LogStep($"Calling destination: {destination.Descriptor?.DisplayName}");
                 Log.InfoFormat("Calling destination {0}", destination.Designation);
-                var result = await ExportAsync(context, destinationToUse, source, captureDetails, userInteraction, cancellationToken).ConfigureAwait(false);
+                var result = await ExportWithChainsAsync(context, destinationToUse, destination.Designation, source, captureDetails, userInteraction, chains, showNotify, false, cancellationToken).ConfigureAwait(false);
                 if (result.Status == ExportStatus.Failed)
                 {
                     // Keep the capture, so the user can open it in the editor (notification click)
@@ -154,10 +165,75 @@ namespace Greenshot.Pipeline
             }
         }
 
-        private static async Task<ExportResult> ExportAsync(CaptureFlowContext context, IDestination destination, IExportSource source, ICaptureDetails captureDetails, IUserInteraction userInteraction,
-            CancellationToken cancellationToken)
+        /// <summary>
+        /// Shows the destination picker until an export succeeds or the user closes it; the extensions run for the picked destination
+        /// </summary>
+        private static async Task PickAndExportAsync(CaptureFlowContext context, IExportSource source, ICaptureDetails captureDetails, IUserInteraction userInteraction,
+            IReadOnlyList<ExtensionChain> chains, bool showNotify, CancellationToken cancellationToken)
         {
-            var result = await DestinationExporter.ExportAsync(destination, source, captureDetails, false, userInteraction, cancellationToken).ConfigureAwait(false);
+            var choices = DestinationHelper.GetAllDestinations()
+                .Where(d => !nameof(WellKnownDestinations.Picker).Equals(d.Designation, StringComparison.OrdinalIgnoreCase) && d.IsAvailableFor(captureDetails))
+                .ToList();
+            while (true)
+            {
+                var picked = await userInteraction.PickDestinationAsync(choices, captureDetails, cancellationToken).ConfigureAwait(false);
+                if (picked == null)
+                {
+                    context.LogStep("The destination picker was closed.");
+                    return;
+                }
+
+                var result = await ExportWithChainsAsync(context, picked, picked.Designation, source, captureDetails, userInteraction, chains, showNotify, true, cancellationToken).ConfigureAwait(false);
+                if (result.IsSucceeded)
+                {
+                    return;
+                }
+                // Export cancelled or failed: the problem was shown, the picker comes again
+            }
+        }
+
+        /// <summary>
+        /// Exports to the destination: when extensions run for it (BeforeDestination), they change a copy of the capture,
+        /// which is exported instead, so the other destinations get the capture without them.
+        /// </summary>
+        private static async Task<ExportResult> ExportWithChainsAsync(CaptureFlowContext context, IDestination destination, string designation, IExportSource source, ICaptureDetails captureDetails,
+            IUserInteraction userInteraction, IReadOnlyList<ExtensionChain> chains, bool showNotify, bool manuallyInitiated, CancellationToken cancellationToken)
+        {
+            var applicable = chains?.Where(c => c.RunsFor(designation)).ToList() ?? new List<ExtensionChain>();
+            if (applicable.Count == 0)
+            {
+                return await ExportAsync(context, destination, source, captureDetails, userInteraction, cancellationToken, manuallyInitiated).ConfigureAwait(false);
+            }
+
+            // Disposed with the flow, unless the destination keeps it (the editor)
+            var copyContext = context.CreateBranchContext();
+            var engine = new DagExecutionEngine(StepRegistry.Instance.CreateStep, StepRegistry.Instance.GetContract);
+            foreach (var chain in applicable)
+            {
+                copyContext.LogStep($"Running extension '{chain.Extension.Name ?? chain.Extension.Id}' for destination '{designation}'.");
+                await engine.ExecuteAsync(chain.Flow, copyContext, cancellationToken).ConfigureAwait(false);
+                if (copyContext.IsAborted)
+                {
+                    Log.WarnFormat("Extension '{0}' failed for destination '{1}' ({2}), exporting the capture without it.", chain.Extension.Id, designation, copyContext.AbortReason);
+                    return await ExportAsync(context, destination, source, captureDetails, userInteraction, cancellationToken, manuallyInitiated).ConfigureAwait(false);
+                }
+            }
+
+            var copySurface = copyContext.Payload?.EnsureSurface();
+            if (showNotify && copySurface != null)
+            {
+                copySurface.SurfaceMessage -= SurfaceMessageReceived;
+                copySurface.SurfaceMessage += SurfaceMessageReceived;
+            }
+            var copySource = await copyContext.Payload.GetExportSourceAsync(context.Ui, cancellationToken).ConfigureAwait(false);
+            var copyDetails = copyContext.Payload.RawCapture?.CaptureDetails ?? copySurface?.CaptureDetails ?? captureDetails;
+            return await ExportAsync(copyContext, destination, copySource, copyDetails, userInteraction, cancellationToken, manuallyInitiated).ConfigureAwait(false);
+        }
+
+        private static async Task<ExportResult> ExportAsync(CaptureFlowContext context, IDestination destination, IExportSource source, ICaptureDetails captureDetails, IUserInteraction userInteraction,
+            CancellationToken cancellationToken, bool manuallyInitiated = false)
+        {
+            var result = await DestinationExporter.ExportAsync(destination, source, captureDetails, manuallyInitiated, userInteraction, cancellationToken).ConfigureAwait(false);
             if (result.KeepsCapture)
             {
                 // The editor shows the surface now: the flow must not dispose it

@@ -212,6 +212,13 @@ namespace Greenshot.Base.Recipes
             return Expressions.ExpressionEvaluator.Instance.Evaluate(EnabledExpression, context, false);
         }
 
+        /// <summary>
+        /// Provenance: the id of the extension which put this node into a composed recipe, null for the recipe's own nodes.
+        /// Set only by <see cref="RecipeComposer"/>, never read from a file.
+        /// </summary>
+        [Newtonsoft.Json.JsonIgnore]
+        public string ContributedBy { get; set; }
+
         public RecipeNodeConfig Clone()
         {
             var clone = new RecipeNodeConfig
@@ -221,6 +228,9 @@ namespace Greenshot.Base.Recipes
                 Name = Name,
                 Enabled = Enabled,
                 EnabledExpression = EnabledExpression,
+                OnErrorNodeId = OnErrorNodeId,
+                OnErrorRecipeId = OnErrorRecipeId,
+                ContributedBy = ContributedBy,
                 Parameters = new Dictionary<string, object>(Parameters, StringComparer.OrdinalIgnoreCase)
             };
             return clone;

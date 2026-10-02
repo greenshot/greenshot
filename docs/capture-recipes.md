@@ -503,7 +503,91 @@ default). Changing a value therefore doesn't change the file and doesn't ask for
   `${option...}`). A `String` option can't be used by a step which needs an approval (external commands, uploads, files),
   so a typed text never ends up in a command line, an upload address or a file path.
 - **Greenshot Light** has no recipe files; it shows only the options of its built-in recipes.
+- **Templates**: a `String` option with `"format": "template"` holds a text with `${...}` in it, e.g. a caption
+  `"Captured on ${now:yyyy-MM-dd}"`; it is evaluated where the option is used (options can't be used inside it).
 
+### Recipe Extensions (`"kind": "extension"`)
+An extension is a small flow which Greenshot puts into other recipes, the built-in ones included, without copying or
+replacing them: for example a border before the export of every capture. Recipes and extensions share one file type
+(`.gsrecipe.json`), told apart by `"kind": "recipe"` (the default) or `"kind": "extension"`. Both have `nodes`,
+`flow`, `options` and `requires`; a recipe adds `triggers` and `concurrency`, an extension adds `extends` and `when`.
+
+```json
+{
+  "kind": "extension",
+  "id": "ext_border",
+  "name": "Border",
+  "extends": { "recipes": [ "*capture" ], "slot": "BeforeExport", "order": 200 },
+  "options": [
+    { "key": "enabled", "type": "Boolean", "default": false, "label": "Add a border", "quickSettings": true },
+    { "key": "width", "type": "Integer", "default": 2, "min": 1, "max": 50, "label": "Width (px)", "enabledWhen": "enabled" },
+    { "key": "color", "type": "Color", "default": "#000000", "label": "Color", "enabledWhen": "enabled" }
+  ],
+  "nodes": [
+    { "id": "border", "stepType": "Effect", "parameters": { "effect": "Border", "width": "${option.width}", "color": "${option.color}" } }
+  ],
+  "flow": { "startNodes": [ "border" ] }
+}
+```
+
+**Slots.** Extensions go into named slots, never next to node ids: a slot is a `Slot` node a recipe places in its flow,
+it does nothing itself. No slot, no extension; nothing is inferred.
+
+| Slot | Where |
+|---|---|
+| `AfterCapture` | After the capture and the selection, before the processors |
+| `BeforeExport` | After the processors, before the destinations: the image is final |
+| `AfterExport` | After the destinations |
+| `BeforeDestination` | Run by the export steps (Destinations and the pickers) once per destination, on its own copy of the capture |
+
+The built-in capture recipes (region, window, active window, full screen, last region, clipboard and the browser
+extension) have `AfterCapture`, `BeforeExport` and `AfterExport`, and so does a new recipe in the recipe editor. Opening
+a file, OCR and the AI tools have no slots.
+
+```json
+{ "id": "before_export", "stepType": "Slot", "parameters": { "name": "BeforeExport", "accept": "all" } }
+```
+
+`accept` is `"all"` (the default), `"none"` or a list of extension ids.
+
+**Where an extension goes.** `extends.recipes` takes recipe ids, `"*"` (every recipe with the slot) or `"*capture"`
+(recipes with a Source step and a destination). AI tool recipes are only extended when named by id. Several extensions
+on one slot run by `order`, then by id. In Settings > Recipes the user narrows it down: "Apply to: all captures / only
+these recipes" and "except these recipes"; an extension on `BeforeDestination` also gets "Only for these destinations".
+
+**The flow of an extension** runs between In (its `startNodes`) and Out: a transition to `"Out"` ends the extension and
+the recipe goes on, as does a node without a next node. It can use any steps, decisions and forks included, with these
+limits: no triggers, no Source step, destinations only at `AfterExport`, no slots (an extension can't extend another
+extension), and every branch of a decision leads to a node or to `"Out"`, with an `"else"` branch. It can't change,
+remove or reorder the nodes of the recipe.
+
+**`when`** is an optional expression evaluated at the slot, e.g. `"${payload.width > 800}"`; when it is false the
+extension is skipped for that run.
+
+**Switching.** An extension with a Boolean option `enabled` is switched with it (Settings > Recipes, or the quick
+settings when the option has `"quickSettings": true`); without one it is always on. Its options are stored like recipe
+options (`[RecipeOptions]`, as `<extension id>.<option key>`). The keys `applyTo`, `onlyRecipes`, `exceptRecipes` and
+`onlyDestinations` are taken by the settings every extension has.
+
+**How it runs.** When the recipes load and when an option changes, Greenshot composes each recipe with the extensions
+which are switched on for it: the slot node is replaced by the extensions' nodes, which get prefixed ids
+(`ext_border/border`) and a tag naming the extension (shown in the log). In their nodes `${option.width}` reads the
+extension's own options. The recipe file and its approval don't change. Settings > Recipes shows which extensions
+change which recipe.
+
+**Built-in extensions**, all off until switched on, at `BeforeExport` of the capture recipes:
+
+| Extension | Options | Steps | Order |
+|---|---|---|---|
+| Caption | on/off, text (template, default `${now:yyyy-MM-dd HH:mm:ss}`), above or below, font size, text and bar color | Effect ResizeCanvas + Text annotation | 100 |
+| Border | on/off, width 1–50 px (default 2), color (default black) | Effect Border | 200 |
+| Drop shadow | on/off, size, darkness, offset | Effect DropShadow | 300 |
+
+So the border goes around the caption bar and the shadow falls outside the border. Greenshot Light has them too.
+
+> [!NOTE]
+> Until extension files get their own approval, Greenshot only uses the built-in extensions; a file with
+> `"kind": "extension"` is not loaded yet.
 ---
 
 ## 6. Complete Recipe Examples

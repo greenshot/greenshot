@@ -75,6 +75,17 @@ namespace Greenshot.Recipes
 
         private readonly Dictionary<string, CaptureRecipe> _builtInRecipes = new Dictionary<string, CaptureRecipe>(StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<string, CaptureRecipe> _recipes = new Dictionary<string, CaptureRecipe>(StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// The recipe extensions; until extension files are supported only the built-in ones
+        /// </summary>
+        private readonly Dictionary<string, RecipeExtension> _extensions = new Dictionary<string, RecipeExtension>(StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// The composed (effective) recipes by recipe id, with the recipe they were composed from: rebuilt when recipes or option values change
+        /// </summary>
+        private readonly System.Collections.Concurrent.ConcurrentDictionary<string, (CaptureRecipe Base, CaptureRecipe Composed)> _composed =
+            new System.Collections.Concurrent.ConcurrentDictionary<string, (CaptureRecipe Base, CaptureRecipe Composed)>(StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<string, FileSystemWatcher> _fileWatchers = new Dictionary<string, FileSystemWatcher>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
@@ -102,14 +113,130 @@ namespace Greenshot.Recipes
         public RecipeManager()
         {
             InitializeDefaultRecipes();
+            InitializeBuiltInExtensions();
             LoadConfiguredRecipeFiles();
+            // An extension switched on or off, or set to other recipes, changes the composed recipes
+            RecipeOptionStore.ValuesChanged += (sender, args) => RecomposeRecipes();
             NotifyRecipesChanged();
+        }
+
+        private void InitializeBuiltInExtensions()
+        {
+            foreach (var extension in BuiltInExtensions.Create())
+            {
+                RegisterExtension(extension);
+            }
+        }
+
+        /// <summary>
+        /// Adds an extension after checking it; an invalid one is not added
+        /// </summary>
+        public RecipeValidationResult RegisterExtension(RecipeExtension extension)
+        {
+            var result = RecipeValidator.Validate(extension);
+            if (extension?.Extends?.Recipes != null)
+            {
+                lock (_extensions)
+                {
+                    foreach (var target in extension.Extends.Recipes.Where(t => t != null && _extensions.ContainsKey(t.Trim()) && !string.Equals(t.Trim(), extension.Id, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        result.AddError($"Extension '{extension.Id}' targets the extension '{target}'; an extension can't extend another extension.");
+                    }
+                }
+            }
+            if (!result.IsValid)
+            {
+                Log.Error($"Recipe extension '{extension?.Id}' is not used: {string.Join("; ", result.Errors)}");
+                return result;
+            }
+
+            lock (_extensions)
+            {
+                _extensions[extension.Id] = extension;
+            }
+            RecomposeRecipes();
+            return result;
+        }
+
+        public IReadOnlyList<RecipeExtension> GetAllExtensions()
+        {
+            lock (_extensions)
+            {
+                return _extensions.Values.ToList();
+            }
+        }
+
+        public RecipeExtension GetExtensionById(string id)
+        {
+            if (string.IsNullOrEmpty(id)) return null;
+            lock (_extensions)
+            {
+                return _extensions.TryGetValue(id, out var extension) ? extension : null;
+            }
+        }
+
+        public CaptureRecipe GetEffectiveRecipe(CaptureRecipe recipe)
+        {
+            if (recipe == null || recipe.IsComposed) return recipe;
+            if (recipe.Id != null && _composed.TryGetValue(recipe.Id, out var entry) && ReferenceEquals(entry.Base, recipe))
+            {
+                return entry.Composed;
+            }
+
+            var composed = Compose(recipe);
+            if (recipe.Id != null)
+            {
+                _composed[recipe.Id] = (recipe, composed);
+            }
+            return composed;
+        }
+
+        /// <summary>
+        /// The extensions which currently change the recipe (switched on, for this recipe)
+        /// </summary>
+        public IReadOnlyList<RecipeExtension> GetExtensionsChanging(string recipeId)
+        {
+            var recipe = GetRecipeById(recipeId);
+            return recipe == null ? Array.Empty<RecipeExtension>() : GetEffectiveRecipe(recipe).AppliedExtensions ?? Array.Empty<RecipeExtension>();
+        }
+
+        private CaptureRecipe Compose(CaptureRecipe recipe)
+        {
+            try
+            {
+                var composed = RecipeComposer.Compose(recipe, GetAllExtensions(), RecipeExtensionSettings.FromStore);
+                if (!ReferenceEquals(composed, recipe))
+                {
+                    Log.DebugFormat("Recipe '{0}' runs with the extension(s) {1}.", recipe.Id, string.Join(", ", composed.AppliedExtensions.Select(e => e.Id)));
+                }
+                return composed;
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Couldn't add the extensions to recipe '{recipe.Id}', it runs without them.", ex);
+                return recipe;
+            }
+        }
+
+        /// <summary>
+        /// Composes the recipes again: after they were loaded and when an option value changed
+        /// </summary>
+        private void RecomposeRecipes()
+        {
+            _composed.Clear();
+            foreach (var recipe in GetAllRecipes())
+            {
+                GetEffectiveRecipe(recipe);
+            }
         }
 
         private void InitializeDefaultRecipes()
         {
             // Read the disabled recipes once, not per recipe
             var disabled = GetDisabledRecipeIds();
+
+            // The capture recipes get the standard slots (AfterCapture, BeforeExport, AfterExport), so the extensions
+            // (border, drop shadow, caption, ...) can add their steps; opening a file, OCR and the AI tools have none.
 
             // 1. Interactive Region Capture
             var regionRecipe = new CaptureRecipe(
@@ -130,6 +257,7 @@ namespace Greenshot.Recipes
                 .AddTransition("feedback", "scan_post")
                 .AddTransition("scan_post", "export")
                 .AddTransition("export", "notify");
+            RecipeStepConfig.AddStandardSlots(regionRecipe, "scan_post", "export");
             RegisterBuiltIn(regionRecipe, disabled);
 
             // 2. Interactive Window Capture
@@ -151,6 +279,7 @@ namespace Greenshot.Recipes
                 .AddTransition("feedback", "scan_post")
                 .AddTransition("scan_post", "export")
                 .AddTransition("export", "notify");
+            RecipeStepConfig.AddStandardSlots(windowRecipe, "scan_post", "export");
             RegisterBuiltIn(windowRecipe, disabled);
 
             // 3. Active Window Capture
@@ -168,6 +297,7 @@ namespace Greenshot.Recipes
                 .AddTransition("feedback", "processors")
                 .AddTransition("processors", "export")
                 .AddTransition("export", "notify");
+            RecipeStepConfig.AddStandardSlots(activeWindowRecipe, "processors", "export");
             RegisterBuiltIn(activeWindowRecipe, disabled);
 
             // 4. Full Screen Capture
@@ -185,6 +315,7 @@ namespace Greenshot.Recipes
                 .AddTransition("feedback", "processors")
                 .AddTransition("processors", "export")
                 .AddTransition("export", "notify");
+            RecipeStepConfig.AddStandardSlots(fullScreenRecipe, "processors", "export");
             RegisterBuiltIn(fullScreenRecipe, disabled);
 
             // 5. Last Region Capture
@@ -202,6 +333,7 @@ namespace Greenshot.Recipes
                 .AddTransition("feedback", "processors")
                 .AddTransition("processors", "export")
                 .AddTransition("export", "notify");
+            RecipeStepConfig.AddStandardSlots(lastRegionRecipe, "processors", "export");
             RegisterBuiltIn(lastRegionRecipe, disabled);
 
             // 6. Clipboard Import
@@ -213,6 +345,7 @@ namespace Greenshot.Recipes
                 .AddNode(RecipeStepConfig.CreateDestinations("export", new[] { "Editor" }));
             clipboardRecipe.Flow = new RecipeFlowConfig("acquire")
                 .AddTransition("acquire", "export");
+            RecipeStepConfig.AddStandardSlots(clipboardRecipe, "export", "export");
             RegisterBuiltIn(clipboardRecipe, disabled);
 
             // 7. File Import
@@ -257,6 +390,7 @@ namespace Greenshot.Recipes
                 .AddTrigger(TriggerConfig.CreateExtension(name: "Default Browser Extension Trigger"));
             extensionRecipe.Flow = new RecipeFlowConfig("acquire")
                 .AddTransition("acquire", "export");
+            RecipeStepConfig.AddStandardSlots(extensionRecipe, "export", "export");
             RegisterBuiltIn(extensionRecipe, disabled);
 
             RegisterAiToolRecipes(disabled);
@@ -1057,6 +1191,7 @@ namespace Greenshot.Recipes
 
         private void NotifyRecipesChanged()
         {
+            RecomposeRecipes();
             var triggerManager = SimpleServiceProvider.Current.GetInstance<Greenshot.Base.Triggers.ITriggerManager>(isOptional: true) as Triggers.TriggerManager ?? Triggers.TriggerManager.Instance;
             triggerManager?.SyncRecipeTriggers(GetAllRecipes());
             RecipesChanged?.Invoke(this, EventArgs.Empty);

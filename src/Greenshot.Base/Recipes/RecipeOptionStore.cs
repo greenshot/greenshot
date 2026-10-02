@@ -51,18 +51,18 @@ namespace Greenshot.Base.Recipes
         public static string StorageKey(string recipeId, string optionKey) => $"{recipeId}.{optionKey}";
 
         /// <summary>
-        /// The current value of the option of the recipe: the stored value, or the default of the option
+        /// The current value of the option of the recipe or extension: the stored value, or the default of the option
         /// </summary>
-        public static object GetValue(CaptureRecipe recipe, RecipeOption option)
+        public static object GetValue(FlowDefinition owner, RecipeOption option)
         {
             if (option == null) return null;
-            if (recipe?.Id == null) return option.GetDefaultValue();
+            if (owner?.Id == null) return option.GetDefaultValue();
 
             string raw;
             lock (SyncLock)
             {
                 var values = ReadValues();
-                if (values == null || !values.TryGetValue(StorageKey(recipe.Id, option.Key), out raw))
+                if (values == null || !values.TryGetValue(StorageKey(owner.Id, option.Key), out raw))
                 {
                     return option.GetDefaultValue();
                 }
@@ -73,19 +73,45 @@ namespace Greenshot.Base.Recipes
                 return value;
             }
 
-            Log.WarnFormat("The value '{0}' of option '{1}' of recipe '{2}' doesn't fit the option, using the default.", raw, option.Key, recipe.Id);
+            Log.WarnFormat("The value '{0}' of option '{1}' of '{2}' doesn't fit the option, using the default.", raw, option.Key, owner.Id);
             return option.GetDefaultValue();
         }
 
         /// <summary>
         /// The current value of the option with the key, false when the recipe doesn't declare it
         /// </summary>
-        public static bool TryGetValue(CaptureRecipe recipe, string optionKey, out object value)
+        public static bool TryGetValue(FlowDefinition recipe, string optionKey, out object value)
         {
             value = null;
-            var option = recipe?.FindOption(optionKey);
+            if (!TryResolve(recipe, optionKey, out var owner, out var option)) return false;
+            value = GetValue(owner, option);
+            return true;
+        }
+
+        /// <summary>
+        /// Finds the option a key (as in ${option.key}) means: an option of the recipe, or "extension.key" for an option of an
+        /// extension the recipe was composed with (the composer writes the nodes of an extension that way).
+        /// </summary>
+        public static bool TryResolve(FlowDefinition recipe, string optionKey, out FlowDefinition owner, out RecipeOption option)
+        {
+            owner = null;
+            option = null;
+            if (recipe == null || string.IsNullOrEmpty(optionKey)) return false;
+
+            option = recipe.FindOption(optionKey);
+            if (option != null)
+            {
+                owner = recipe;
+                return true;
+            }
+
+            int dot = optionKey.IndexOf('.');
+            if (dot <= 0 || !(recipe is CaptureRecipe composed) || composed.AppliedExtensions == null) return false;
+            string extensionId = optionKey.Substring(0, dot);
+            var extension = composed.AppliedExtensions.FirstOrDefault(e => string.Equals(e?.Id, extensionId, StringComparison.OrdinalIgnoreCase));
+            option = extension?.FindOption(optionKey.Substring(dot + 1));
             if (option == null) return false;
-            value = GetValue(recipe, option);
+            owner = extension;
             return true;
         }
 

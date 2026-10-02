@@ -40,6 +40,17 @@ namespace Greenshot.Base.Recipes
         CaptureRecipe GetRecipeById(string id);
 
         /// <summary>
+        /// The recipe extensions (border, drop shadow, ...), whether switched on or not
+        /// </summary>
+        IReadOnlyList<RecipeExtension> GetAllExtensions();
+
+        /// <summary>
+        /// The recipe as it runs: with the switched on extensions in its slots (see <see cref="RecipeComposer"/>).
+        /// The recipe itself when no extension changes it.
+        /// </summary>
+        CaptureRecipe GetEffectiveRecipe(CaptureRecipe recipe);
+
+        /// <summary>
         /// Registers or updates a recipe.
         /// </summary>
         void RegisterRecipe(CaptureRecipe recipe);

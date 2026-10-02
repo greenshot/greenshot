@@ -107,15 +107,30 @@ namespace Greenshot.Base.Recipes
         public bool QuickSettings { get; set; }
 
         /// <summary>
-        /// A hint for the settings how a String is meant, e.g. "dateTime" for a .NET date and time format
+        /// A hint how a String is meant, e.g. "dateTime" for a .NET date and time format, or <see cref="FormatTemplate"/>
         /// </summary>
         public string Format { get; set; }
+
+        /// <summary>
+        /// <see cref="Format"/> of a String option whose value is a template: ${...} in the value is evaluated where the
+        /// option is used, e.g. "Captured ${now:yyyy-MM-dd}" (options of the recipe can't be used in it)
+        /// </summary>
+        public const string FormatTemplate = "template";
+
+        [JsonIgnore]
+        public bool IsTemplate => Type == ContractDataType.String && string.Equals(Format, FormatTemplate, StringComparison.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// The description for the settings, translated when it is a language key
+        /// </summary>
+        [JsonIgnore]
+        public string DisplayDescription => RecipeText.Translate(Description);
 
         /// <summary>
         /// The text for the settings
         /// </summary>
         [JsonIgnore]
-        public string DisplayLabel => string.IsNullOrWhiteSpace(Label) ? Key : Label;
+        public string DisplayLabel => string.IsNullOrWhiteSpace(Label) ? Key : RecipeText.Translate(Label);
 
         /// <summary>
         /// The default value as a value of the option type, or the neutral value of the type when there is no valid default
@@ -261,7 +276,7 @@ namespace Greenshot.Base.Recipes
         public string Label { get; set; }
 
         [JsonIgnore]
-        public string DisplayLabel => string.IsNullOrWhiteSpace(Label) ? Value : Label;
+        public string DisplayLabel => string.IsNullOrWhiteSpace(Label) ? Value : RecipeText.Translate(Label);
 
         public RecipeOptionChoice Clone() => (RecipeOptionChoice)MemberwiseClone();
 

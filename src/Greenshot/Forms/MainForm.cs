@@ -1427,12 +1427,16 @@ namespace Greenshot.Forms
         /// </summary>
         private void AddRecipeQuickSettings()
         {
-            List<CaptureRecipe> recipes;
+            List<FlowDefinition> recipes;
             try
             {
-                recipes = RecipeManager.Instance.GetAllRecipes()
+                // The extensions (border, drop shadow, caption, ...) first, then the recipes
+                var manager = RecipeManager.Instance;
+                recipes = manager.GetAllExtensions()
+                    .OrderBy(e => e.Extends?.Order ?? 0).ThenBy(e => e.Id, StringComparer.OrdinalIgnoreCase)
+                    .Cast<FlowDefinition>()
+                    .Concat(manager.GetAllRecipes().OrderBy(r => r.Name, StringComparer.CurrentCultureIgnoreCase))
                     .Where(r => r?.Options != null && r.Options.Any(o => o != null && o.QuickSettings))
-                    .OrderBy(r => r.Name, StringComparer.CurrentCultureIgnoreCase)
                     .ToList();
             }
             catch (Exception ex)
@@ -1445,7 +1449,7 @@ namespace Greenshot.Forms
             {
                 var recipeList = new ToolStripMenuSelectList("recipe:" + recipe.Id, true, this)
                 {
-                    Text = recipe.Name ?? recipe.Id
+                    Text = RecipeText.Translate(recipe.Name ?? recipe.Id)
                 };
                 foreach (var option in recipe.Options.Where(o => o != null && o.QuickSettings))
                 {

@@ -1542,6 +1542,8 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
             recipe.Flow = new RecipeFlowConfig("acquire")
                 .AddTransition("acquire", "feedback")
                 .AddTransition("feedback", "export");
+            // New recipes accept extensions (border, drop shadow, caption, ...) like the built-in capture recipes
+            RecipeStepConfig.AddStandardSlots(recipe, "export", "export");
 
             ErrorTransitions.Clear();
             _openedFromContent = null;
