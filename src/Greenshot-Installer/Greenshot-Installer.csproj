@@ -74,6 +74,8 @@
     <SetEnvironmentVariableTask Name="BuildVersionSimple" Value="$(BuildVersionSimple)" />
     <SetEnvironmentVariableTask Name="BuildVersionEnhanced" Value="$(NuGetPackageVersion)" />
     <Exec Command="if not &quot;$(CertumThumbprint)&quot; == &quot;&quot; signtool.exe sign /sha1 &quot;$(CertumThumbprint)&quot; /tr http://time.certum.pl /td sha256 /fd sha256 /v &quot;$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)\Greenshot.exe&quot;" />
+    <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildThisFileDirectory)scripts\check-core-files.ps1&quot; -OutputDir &quot;$(SolutionDir)Greenshot\bin\$(Configuration)\$(TargetFramework)&quot; -CoreFilesIss &quot;$(MSBuildThisFileDirectory)includes\core-files.iss&quot;" />
+    <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildThisFileDirectory)scripts\check-core-files.ps1&quot; -OutputDir &quot;$(SolutionDir)Greenshot\bin\$(Configuration)-Light\$(TargetFramework)&quot; -CoreFilesIss &quot;$(MSBuildThisFileDirectory)includes\core-files.iss&quot;" />
     <Exec Command="echo Building installer" />
     <Exec Command="$(PkgTools_InnoSetup)\tools\ISCC.exe -q $(SolutionDir)$(ProjectName)\setup.iss" />
     <Exec Command="echo Building light-installer" />
