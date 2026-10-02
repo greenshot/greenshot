@@ -1,4 +1,4 @@
-1 ICON "..\\Greenshot\\icons\\applicationIcon\\Greenshot-Proxy.ico"
+1 ICON "..\\Greenshot\\icons\\applicationIcon\\Greenshot-cli.ico"
 
 1 VERSIONINFO
 FILEVERSION 1,4,0,0
@@ -14,11 +14,11 @@ BEGIN
         BLOCK "040904b0"
         BEGIN
             VALUE "CompanyName", "Greenshot"
-            VALUE "FileDescription", "Greenshot Proxy"
+            VALUE "FileDescription", "Greenshot command line"
             VALUE "FileVersion", "1.4.0.0"
-            VALUE "InternalName", "greenshot-proxy"
+            VALUE "InternalName", "greenshot-cli"
             VALUE "LegalCopyright", "Copyright (C) 2007-2026 Thomas Braun, Jens Klingen, Robin Krom"
-            VALUE "OriginalFilename", "greenshot-proxy.exe"
+            VALUE "OriginalFilename", "greenshot.com"
             VALUE "ProductName", "Greenshot"
             VALUE "ProductVersion", "1.4.0.0"
         END

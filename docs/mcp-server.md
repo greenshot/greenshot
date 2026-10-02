@@ -106,7 +106,14 @@ Example: the built-in `capture_window` recipe as JSON.
   screenshot API, and make sure the user's consent goes to a named program. An AI tool started through `node.exe`
   (e.g. an npm-installed client) is identified as Node.js.
 
-## Build and use
+## Download
+
+`greenshot-mcp.exe` is not part of the installer or the portable version, it is a separate download on the
+[releases page](https://github.com/greenshot/greenshot/releases): `Greenshot-MCP-<version>-win-x64.zip`. Use the one
+with the same version as Greenshot and extract `greenshot-mcp.exe` into the directory of `Greenshot.exe` (e.g.
+`C:\Program Files\Greenshot`). Greenshot only accepts `greenshot-mcp.exe` from its own directory.
+
+## Build
 
 ```
 dotnet publish src/Greenshot.Mcp -c Release -r win-x64
@@ -123,8 +130,7 @@ Debug build of Greenshot, add that directory to `AiToolsMcpServerPaths` in green
 
 Every MCP client starts `greenshot-mcp.exe` itself (stdio), so it only needs the path of the executable. The examples
 use the default install location `C:\Program Files\Greenshot\greenshot-mcp.exe`; in JSON files the backslashes are
-doubled. The installer doesn't include `greenshot-mcp.exe` yet: until it does, copy the published executable (see
-above) next to `Greenshot.exe`. Restart the AI tool or reload its MCP servers after changing a configuration file.
+doubled. Restart the AI tool or reload its MCP servers after changing a configuration file.
 
 The first time the AI tool uses a Greenshot tool, Greenshot asks whether that program may use it. The answer is
 stored in the Greenshot settings (General, AI tools), where it can be removed again.

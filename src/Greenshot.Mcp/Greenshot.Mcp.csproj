@@ -13,6 +13,7 @@
     <OutputType>Exe</OutputType>
     <AssemblyName>greenshot-mcp</AssemblyName>
     <RootNamespace>Greenshot.Mcp</RootNamespace>
+    <ApplicationIcon>..\Greenshot\icons\applicationIcon\Greenshot-MCP.ico</ApplicationIcon>
     <Nullable>enable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
     <InvariantGlobalization>true</InvariantGlobalization>

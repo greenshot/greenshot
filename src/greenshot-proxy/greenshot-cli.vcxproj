@@ -149,7 +149,7 @@
     <ClCompile Include="main_cli.c" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="greenshot-proxy.rc" />
+    <ResourceCompile Include="greenshot-cli.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
