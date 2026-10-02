@@ -328,6 +328,141 @@ namespace Greenshot.Recipes
             return true;
         }
 
+        public RecipeValidationResult SaveExtensionToFile(RecipeExtension extension, string filePath)
+        {
+            var result = new RecipeValidationResult();
+            if (!RecipeFilesSupported)
+            {
+                result.AddError("Greenshot Light doesn't save automatic step files.");
+                return result;
+            }
+            if (extension == null || string.IsNullOrWhiteSpace(filePath))
+            {
+                result.AddError("No automatic step or file to save to.");
+                return result;
+            }
+
+            string fullPath = Path.GetFullPath(filePath);
+            extension.FilePath = fullPath;
+            // The bytes which are approved are the bytes which are written
+            string content = RecipeSerializer.Serialize(extension);
+            byte[] bytes = new System.Text.UTF8Encoding(false).GetBytes(content);
+            string contentHash = RecipeTrustStore.ComputeSha256(bytes);
+
+            var validation = ValidateExtension(extension);
+            if (!validation.IsValid)
+            {
+                foreach (var error in validation.Errors) result.AddError(error);
+                return result;
+            }
+
+            var record = RecipeTrustStore.GetTrustRecord(fullPath);
+            var previousApproval = record?.GetApproval(extension.Id);
+            var approved = FindApprovedExtension(GetApprovedContent(record, fullPath), extension.Id);
+            var reasons = GetExtensionSaveReasons(extension, validation, previousApproval, approved);
+            RecipeApproval approval;
+            if (reasons.Count > 0)
+            {
+                Log.InfoFormat("The change of automatic step '{0}' needs the user's decision: {1}", extension.Id, string.Join(" ", reasons));
+                var request = CreateExtensionApprovalRequest(extension, fullPath, content, contentHash, validation);
+                request.StartSwitchedOff = false;
+                request.OwnEditReasons = reasons;
+                approval = RequestInteractiveApproval(request);
+                if (approval == null)
+                {
+                    result.AddError("The automatic step was not saved, its changes were not approved.");
+                    return result;
+                }
+            }
+            else
+            {
+                approval = new RecipeApproval { RecipeId = extension.Id, AllowedGates = previousApproval?.AllowedGates?.ToList() ?? new List<Greenshot.Base.Pipeline.RecipeGateType>() };
+            }
+            approval.RecipeId = extension.Id;
+            // Recorded before writing, so the change on disk is known as Greenshot's own
+            RecipeTrustStore.RecordApproval(fullPath, contentHash, approval, content, recipeName: extension.Name, recipeVersion: extension.Version);
+
+            try
+            {
+                string directory = Path.GetDirectoryName(fullPath);
+                if (!string.IsNullOrEmpty(directory))
+                {
+                    Directory.CreateDirectory(directory);
+                }
+                File.WriteAllBytes(fullPath, bytes);
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Could not save the automatic step '{extension.Id}' to '{fullPath}'.", ex);
+                result.AddError($"Could not save the automatic step: {ex.Message}");
+                return result;
+            }
+            SetupWatcherForFile(fullPath);
+
+            extension.ProposedBy = null;
+            extension.IsBuiltIn = false;
+            lock (_extensions)
+            {
+                extension.IsOverridden = _builtInExtensions.ContainsKey(extension.Id);
+                _extensions[extension.Id] = extension;
+            }
+            AddRecipeFileToConfig(fullPath);
+            NotifyRecipesChanged();
+            foreach (var warning in validation.Warnings) result.AddWarning(warning);
+            return result;
+        }
+
+        /// <summary>
+        /// Why saving an extension from the editor needs the user's decision; empty when its approval is renewed without asking
+        /// </summary>
+        private IReadOnlyList<string> GetExtensionSaveReasons(RecipeExtension extension, RecipeValidationResult validation, RecipeApproval previousApproval, RecipeExtension approved)
+        {
+            var reasons = new List<string>();
+            bool replacesBuiltIn;
+            lock (_extensions)
+            {
+                replacesBuiltIn = _builtInExtensions.ContainsKey(extension.Id);
+            }
+            if (previousApproval == null || approved == null)
+            {
+                reasons.Add(replacesBuiltIn ? "It replaces a built-in automatic step." : "It is a new automatic step, which changes other recipes.");
+            }
+            else
+            {
+                if (!SameReach(approved, extension))
+                {
+                    reasons.Add("It changes other recipes than before (which recipes or where).");
+                }
+                var newGates = RecipeApprovalPolicy.GetMissingGates(validation, previousApproval);
+                if (newGates.Count > 0)
+                {
+                    reasons.Add($"It needs a new permission: {string.Join(", ", newGates.Select(RecipeApprovalPolicy.GetGateName))}.");
+                }
+            }
+            return reasons;
+        }
+
+        private static bool SameReach(RecipeExtension a, RecipeExtension b)
+        {
+            var targetsA = new HashSet<string>(a.Extends?.Recipes?.Select(t => t.Trim()) ?? Enumerable.Empty<string>(), StringComparer.OrdinalIgnoreCase);
+            var targetsB = new HashSet<string>(b.Extends?.Recipes?.Select(t => t.Trim()) ?? Enumerable.Empty<string>(), StringComparer.OrdinalIgnoreCase);
+            return targetsA.SetEquals(targetsB) && a.SlotName == b.SlotName;
+        }
+
+        private static RecipeExtension FindApprovedExtension(string content, string extensionId)
+        {
+            if (string.IsNullOrEmpty(content) || !IsExtensionContent(content)) return null;
+            try
+            {
+                var extension = RecipeSerializer.DeserializeExtension(content, validate: false);
+                return string.Equals(extension.Id, extensionId, StringComparison.OrdinalIgnoreCase) ? extension : null;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
         public bool UnregisterExtension(string extensionId)
         {
             var extension = GetExtensionById(extensionId);

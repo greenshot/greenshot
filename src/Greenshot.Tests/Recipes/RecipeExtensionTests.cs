@@ -624,6 +624,77 @@ namespace Greenshot.Tests.Recipes
         }
 
         [Fact]
+        public void Editor_EditsAnAutomaticStep_BetweenInAndOut()
+        {
+            var editor = new Greenshot.Plugin.RecipeEditor.ViewModels.RecipeEditorViewModel();
+            var caption = BuiltInExtensions.CreateCaption();
+            editor.OpenExtension(caption);
+
+            Assert.True(editor.IsExtensionMode);
+            Assert.Equal(RecipeSlots.BeforeDestination, editor.ExtensionSlot);
+            Assert.Equal(RecipeExtension.TargetCaptures, editor.ExtensionTargets);
+            var inNode = editor.Nodes.Single(n => n.IsInNode);
+            Assert.Single(editor.Nodes, n => n.IsOutNode);
+            Assert.True(editor.Connections.Any(c => c.SourceNode == inNode && c.TargetNode.Id == "position"), string.Join(", ", editor.Connections.Select(c => $"{c.SourceNode?.Id}->{c.TargetNode?.Id}")) + " starts=" + string.Join(",", editor.ActiveRecipe.Flow.StartNodes));
+            // In and Out are not steps of the automatic step
+            Assert.DoesNotContain(editor.ActiveRecipe.Nodes, n => n.Id == "In" || n.Id == "Out");
+
+            // Insert a step after In: it becomes the start step, the old start follows it
+            editor.SelectedNode = inNode;
+            editor.AddStep(WellKnownStepTypes.Effect);
+            var effect = editor.SelectedNode;
+            editor.ExtensionWhen = "${payload.width > 10}";
+            editor.ExtensionTargets = "recipe_region, recipe_window";
+
+            editor.ToggleJsonView();
+            var saved = RecipeSerializer.DeserializeExtension(editor.RawJsonText, validate: false);
+            Assert.Equal(new[] { effect.Id }, saved.Flow.StartNodes);
+            Assert.Equal(new[] { "position" }, saved.Flow.Transitions[effect.Id]);
+            Assert.Equal("${payload.width > 10}", saved.When);
+            Assert.Equal(new[] { "recipe_region", "recipe_window" }, saved.Extends.Recipes);
+            Assert.Equal(caption.Options.Count, saved.Options.Count);
+            Assert.True(RecipeValidator.Validate(saved).IsValid, RecipeValidator.Validate(saved).ToString());
+
+            // A connection to Out is a transition to "Out"
+            var outNode = editor.Nodes.Single(n => n.IsOutNode);
+            editor.Connect(editor.Nodes.Single(n => n.Id == "text_top").OutputPort, outNode.InputPort);
+            editor.SyncRecipeTransitions();
+            Assert.Contains(RecipeExtension.OutNode, editor.ActiveRecipe.Flow.Transitions["text_top"]);
+
+            // Opening a recipe leaves the automatic step
+            editor.ActiveRecipe = CreateCaptureRecipe();
+            Assert.False(editor.IsExtensionMode);
+            Assert.DoesNotContain(editor.Nodes, n => n.IsBoundary);
+        }
+
+        [Fact]
+        public void Editor_DeclaresOptions()
+        {
+            var editor = new Greenshot.Plugin.RecipeEditor.ViewModels.RecipeEditorViewModel();
+            editor.ActiveRecipe = CreateCaptureRecipe("recipe_test_options");
+            editor.AddOption();
+            var option = Assert.Single(editor.RecipeOptions);
+            option.Key = "width";
+            option.Type = nameof(ContractDataType.Integer);
+            option.DefaultText = "4";
+            option.MinText = "1";
+            option.MaxText = "20";
+            var declared = Assert.Single(editor.ActiveRecipe.Options);
+            Assert.Equal("width", declared.Key);
+            Assert.Equal(ContractDataType.Integer, declared.Type);
+            Assert.Equal(4, declared.DefaultValue);
+            Assert.Equal(20m, declared.Max);
+
+            option.Type = nameof(ContractDataType.Enum);
+            option.ChoicesText = "small = Small\nlarge";
+            Assert.Equal(new[] { "small", "large" }, declared.Choices.Select(c => c.Value));
+            Assert.Equal("Small", declared.Choices[0].Label);
+
+            option.RemoveCommand.Execute(null);
+            Assert.Null(editor.ActiveRecipe.Options);
+        }
+
+        [Fact]
         public void BuiltInExtensions_DontChangeTheRecipesUntilSwitchedOn()
         {
             var manager = new RecipeManager();

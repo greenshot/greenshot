@@ -50,6 +50,12 @@ namespace Greenshot.Base.Recipes
         bool UnregisterExtension(string extensionId);
 
         /// <summary>
+        /// Saves an extension (from the recipe editor) to its file and uses it: its approval is renewed for the saved content,
+        /// the user is asked when the change needs a decision (a new extension, it changes more recipes, a new permission)
+        /// </summary>
+        RecipeValidationResult SaveExtensionToFile(RecipeExtension extension, string filePath);
+
+        /// <summary>
         /// The recipe as it runs: with the switched on extensions in its slots (see <see cref="RecipeComposer"/>).
         /// The recipe itself when no extension changes it.
         /// </summary>

@@ -854,6 +854,8 @@
                         <!-- Actions Toolbar -->
                         <StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Left" Margin="15,0,0,0">
                             <Button Content="New" Style="{StaticResource ToolbarBtn}" Command="{Binding NewRecipeCommand}" ToolTip="Create new recipe"/>
+                            <Button Content="New Automatic Step" Style="{StaticResource ToolbarBtn}" Command="{Binding NewExtensionCommand}"
+                                    ToolTip="Create a new automatic step: steps Greenshot adds to other recipes (like the built-in border)"/>
                             <Button Content="Open..." Style="{StaticResource ToolbarBtn}" Command="{Binding OpenRecipeCommand}" ToolTip="Open recipe file from disk"/>
                             <Button Content="Save" Style="{StaticResource ToolbarBtn}" Command="{Binding SaveRecipeCommand}" ToolTip="Save current recipe"/>
                             <Button Content="Save As..." Style="{StaticResource ToolbarBtn}" Command="{Binding SaveAsCommand}" ToolTip="Save recipe to new file"/>
@@ -3308,8 +3310,115 @@
                                              Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}"
                                              Padding="6,4" Margin="0,2,0,10"/>
 
-                                    <!-- Start Steps / Entry Points -->
+                                    <!-- Automatic step: where it goes -->
+                                    <Border Background="{Binding CardBackgroundBrush}" BorderBrush="{Binding AccentBrush}" BorderThickness="1" CornerRadius="6" Padding="10,8" Margin="0,0,0,12"
+                                            Visibility="{Binding IsExtensionMode, Converter={StaticResource BoolToVis}}">
+                                        <StackPanel>
+                                            <TextBlock Text="AUTOMATIC STEP" FontWeight="Bold" FontSize="10" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                            <TextBlock Text="Greenshot adds these steps to other recipes. Connect them between In and Out on the canvas; switch the automatic step on in Settings &gt; Recipes."
+                                                       FontSize="10" Foreground="{Binding TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                                            <TextBlock Text="Recipes: ids, * (every recipe with the slot) or *capture, separated by commas" FontSize="11" Foreground="{Binding TextSecondaryBrush}"/>
+                                            <TextBox Text="{Binding ExtensionTargets, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" FontFamily="Consolas"
+                                                     Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" Padding="6,4" Margin="0,2,0,8"/>
+                                            <TextBlock Text="Slot (where in the recipes)" FontSize="11" Foreground="{Binding TextSecondaryBrush}"/>
+                                            <ComboBox ItemsSource="{Binding ExtensionSlotNames}" SelectedItem="{Binding ExtensionSlot, Mode=TwoWay}" Margin="0,2,0,8"/>
+                                            <TextBlock Text="Order (several on one slot run by order, then by id)" FontSize="11" Foreground="{Binding TextSecondaryBrush}"/>
+                                            <TextBox Text="{Binding ExtensionOrder, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+                                                     Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" Padding="6,4" Margin="0,2,0,8"/>
+                                            <TextBlock Text="Only when (optional), e.g. ${payload.width &gt; 800}" FontSize="11" Foreground="{Binding TextSecondaryBrush}"/>
+                                            <TextBox Text="{Binding ExtensionWhen, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" FontFamily="Consolas"
+                                                     Background="{Binding CardBackgroundBrush}" Foreground="{Binding TextPrimaryBrush}" Padding="6,4" Margin="0,2,0,8"/>
+                                            <TextBlock Text="{Binding ExtensionReachText}" FontSize="10" FontStyle="Italic" TextWrapping="Wrap" Foreground="{Binding TextSecondaryBrush}"/>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <!-- Options: values the user sets once in Settings > Recipes, read by the steps with ${option.key} -->
                                     <Border Background="{Binding CardBackgroundBrush}" BorderBrush="{Binding CardBorderBrush}" BorderThickness="1" CornerRadius="6" Padding="10,8" Margin="0,0,0,12">
+                                        <StackPanel>
+                                            <Grid Margin="0,0,0,4">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="OPTIONS" FontWeight="Bold" FontSize="10" Foreground="{Binding TextSecondaryBrush}" VerticalAlignment="Center"/>
+                                                <Button Grid.Column="1" Content="+ Option" Style="{StaticResource ToolbarBtn}" Command="{Binding AddOptionCommand}"/>
+                                            </Grid>
+                                            <TextBlock Text="Values the user sets once in Settings &gt; Recipes (switches and choices also in the quick settings). The steps read them with ${option.key}."
+                                                       FontSize="10" Foreground="{Binding TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,6"/>
+                                            <ItemsControl ItemsSource="{Binding RecipeOptions}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Border BorderBrush="{Binding DataContext.CardBorderBrush, RelativeSource={RelativeSource AncestorType=Window}}" BorderThickness="0,1,0,0" Padding="0,6,0,4">
+                                                            <Grid>
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="70"/>
+                                                                    <ColumnDefinition Width="*"/>
+                                                                </Grid.ColumnDefinitions>
+                                                                <Grid.RowDefinitions>
+                                                                    <RowDefinition Height="Auto"/>
+                                                                    <RowDefinition Height="Auto"/>
+                                                                    <RowDefinition Height="Auto"/>
+                                                                    <RowDefinition Height="Auto"/>
+                                                                    <RowDefinition Height="Auto"/>
+                                                                    <RowDefinition Height="Auto"/>
+                                                                    <RowDefinition Height="Auto"/>
+                                                                </Grid.RowDefinitions>
+                                                                <Grid.Resources>
+                                                                    <Style TargetType="TextBlock">
+                                                                        <Setter Property="FontSize" Value="11"/>
+                                                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                                                        <Setter Property="Foreground" Value="{Binding DataContext.TextSecondaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                                    </Style>
+                                                                    <Style TargetType="TextBox">
+                                                                        <Setter Property="Margin" Value="0,1"/>
+                                                                        <Setter Property="Padding" Value="4,2"/>
+                                                                        <Setter Property="Background" Value="{Binding DataContext.CardBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                                        <Setter Property="Foreground" Value="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                                    </Style>
+                                                                </Grid.Resources>
+                                                                <TextBlock Grid.Row="0" Text="Key"/>
+                                                                <DockPanel Grid.Row="0" Grid.Column="1">
+                                                                    <Button DockPanel.Dock="Right" Content="🗑" Style="{StaticResource ToolbarBtn}" Command="{Binding RemoveCommand}" ToolTip="Remove the option" Margin="4,0,0,0"/>
+                                                                    <TextBlock DockPanel.Dock="Right" Text="{Binding UsageText}" FontFamily="Consolas" FontSize="10" Margin="6,0,0,0"/>
+                                                                    <TextBox Text="{Binding Key, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" FontFamily="Consolas"/>
+                                                                </DockPanel>
+                                                                <TextBlock Grid.Row="1" Text="Type"/>
+                                                                <ComboBox Grid.Row="1" Grid.Column="1" ItemsSource="{Binding TypeNames}" SelectedItem="{Binding Type, Mode=TwoWay}" Margin="0,1"/>
+                                                                <TextBlock Grid.Row="2" Text="Label"/>
+                                                                <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding Label, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"/>
+                                                                <TextBlock Grid.Row="3" Text="Default"/>
+                                                                <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding DefaultText, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"/>
+                                                                <TextBlock Grid.Row="4" Text="Range" Visibility="{Binding IsNumber, Converter={StaticResource BoolToVis}}"/>
+                                                                <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Horizontal" Visibility="{Binding IsNumber, Converter={StaticResource BoolToVis}}">
+                                                                    <TextBox Width="60" Text="{Binding MinText, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" ToolTip="Smallest value"/>
+                                                                    <TextBlock Text=" – " />
+                                                                    <TextBox Width="60" Text="{Binding MaxText, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" ToolTip="Largest value"/>
+                                                                </StackPanel>
+                                                                <TextBlock Grid.Row="5" Text="Choices" VerticalAlignment="Top" Margin="0,3,0,0" Visibility="{Binding IsEnum, Converter={StaticResource BoolToVis}}"/>
+                                                                <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding ChoicesText, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" AcceptsReturn="True" MinHeight="40"
+                                                                         ToolTip="One per line: value, or value = label" Visibility="{Binding IsEnum, Converter={StaticResource BoolToVis}}"/>
+                                                                <WrapPanel Grid.Row="6" Grid.Column="1" Margin="0,2,0,0">
+                                                                    <CheckBox Content="Quick settings" IsChecked="{Binding QuickSettings, Mode=TwoWay}" Margin="0,0,10,0"
+                                                                              IsEnabled="{Binding CanBeQuickSetting}" Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                                    <CheckBox Content="Template (${...} in the value)" IsChecked="{Binding IsTemplate, Mode=TwoWay}" Margin="0,0,10,0"
+                                                                              Foreground="{Binding DataContext.TextPrimaryBrush, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                                    <StackPanel Orientation="Horizontal">
+                                                                        <TextBlock Text="Only when " />
+                                                                        <TextBox Width="90" Text="{Binding EnabledWhen, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" FontFamily="Consolas"
+                                                                                 ToolTip="The key of a Boolean option: this option can only be changed while that one is on"/>
+                                                                    </StackPanel>
+                                                                </WrapPanel>
+                                                            </Grid>
+                                                        </Border>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <!-- Start Steps / Entry Points -->
+                                    <Border Background="{Binding CardBackgroundBrush}" BorderBrush="{Binding CardBorderBrush}" BorderThickness="1" CornerRadius="6" Padding="10,8" Margin="0,0,0,12"
+                                            Visibility="{Binding IsRecipeMode, Converter={StaticResource BoolToVis}}">
                                         <StackPanel>
                                             <TextBlock Text="START STEPS (ENTRY POINTS)" FontWeight="Bold" FontSize="10" Foreground="{Binding TextSecondaryBrush}" Margin="0,0,0,4"/>
                                             <TextBlock Text="Select one or more entry steps. Multiple start steps execute concurrently in parallel when triggered."
@@ -3330,10 +3439,10 @@
                                         </StackPanel>
                                     </Border>
 
-                                    <Separator Background="{Binding CardBorderBrush}" Margin="0,6,0,12"/>
+                                    <Separator Background="{Binding CardBorderBrush}" Margin="0,6,0,12" Visibility="{Binding IsRecipeMode, Converter={StaticResource BoolToVis}}"/>
 
                                     <!-- Triggers Header & Action Bar -->
-                                    <Grid Margin="0,0,0,8">
+                                    <Grid Margin="0,0,0,8" Visibility="{Binding IsRecipeMode, Converter={StaticResource BoolToVis}}">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="Auto"/>
@@ -3343,7 +3452,7 @@
                                     </Grid>
 
                                     <!-- Quick Add Buttons -->
-                                    <WrapPanel Margin="0,0,0,10">
+                                    <WrapPanel Margin="0,0,0,10" Visibility="{Binding IsRecipeMode, Converter={StaticResource BoolToVis}}">
                                         <Button Content="+ Hotkey" Style="{StaticResource ToolbarBtn}" Command="{Binding AddTriggerCommand}" CommandParameter="Hotkey" Margin="0,0,4,4"/>
                                         <Button Content="+ Context Menu" Style="{StaticResource ToolbarBtn}" Command="{Binding AddTriggerCommand}" CommandParameter="ContextMenu" Margin="0,0,4,4"/>
                                         <Button Content="+ Editor" Style="{StaticResource ToolbarBtn}" Command="{Binding AddTriggerCommand}" CommandParameter="Editor" Margin="0,0,4,4"/>
@@ -3356,7 +3465,7 @@
                                     </WrapPanel>
 
                                     <!-- Triggers List -->
-                                    <ItemsControl ItemsSource="{Binding Triggers}">
+                                    <ItemsControl ItemsSource="{Binding Triggers}" Visibility="{Binding IsRecipeMode, Converter={StaticResource BoolToVis}}">
                                         <ItemsControl.ItemTemplate>
                                            <DataTemplate>
                                                 <Border Background="{Binding DataContext.CardBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"

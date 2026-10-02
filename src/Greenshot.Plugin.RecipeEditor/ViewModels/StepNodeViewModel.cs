@@ -1484,6 +1484,18 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
         public bool IsSlot => IsStepType(WellKnownStepTypes.Slot);
 
         /// <summary>
+        /// Automatic step: where it starts (its connections are the start steps); not a step of the flow
+        /// </summary>
+        public bool IsInNode => IsStepType(RecipeEditorViewModel.InNodeId);
+
+        /// <summary>
+        /// Automatic step: where it ends and the recipe goes on (connections to it lead to "Out"); not a step of the flow
+        /// </summary>
+        public bool IsOutNode => IsStepType(RecipeExtension.OutNode);
+
+        public bool IsBoundary => IsInNode || IsOutNode;
+
+        /// <summary>
         /// Slot: the names of the extensions which plug in (set by the editor, which knows the recipe and the extensions)
         /// </summary>
         public Func<StepNodeViewModel, IReadOnlyList<string>> SlotExtensionsProvider { get; set; }
@@ -3717,6 +3729,10 @@ namespace Greenshot.Plugin.RecipeEditor.ViewModels
                         return $"Dynamic Destination ({dDests}, {dTime})";
                     case WellKnownStepTypes.Notification:
                         return NotificationShow ? "Notification: shown" : "Notification: hidden";
+                    case RecipeEditorViewModel.InNodeId:
+                        return "Where the automatic step starts: connect it to the first step(s)";
+                    case RecipeExtension.OutNode:
+                        return "Where the automatic step ends and the recipe goes on";
                     case WellKnownStepTypes.Slot:
                         return string.Equals(SlotAccept, RecipeSlots.AcceptAll, StringComparison.OrdinalIgnoreCase)
                             ? $"Slot {SlotName}: automatic steps are added here"

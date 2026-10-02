@@ -523,7 +523,12 @@ namespace Greenshot.UI
                 HeaderTitle = "Automatic Step Review";
                 HeaderDescription = "Change what this automatic step may do. \"Keep as Is\" or closing the window changes nothing.";
             }
-            else if (!request.IsOwnEdit)
+            else if (request.IsOwnEdit)
+            {
+                HeaderDescription = "You saved this automatic step in the recipe editor. Most changes are approved without asking, but this one needs your decision: " +
+                                    string.Join(" ", request.OwnEditReasons);
+            }
+            else
             {
                 WindowTitleSubtitle = " — Automatic Step Approval";
                 HeaderTitle = "Automatic Step File Detected";
