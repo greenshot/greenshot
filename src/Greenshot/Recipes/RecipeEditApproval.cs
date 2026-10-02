@@ -23,7 +23,10 @@ using System.Collections.Generic;
 using System.Linq;
 using Greenshot.Base.Recipes;
 using Greenshot.Base.Triggers;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
 
 namespace Greenshot.Recipes
 {
@@ -53,6 +56,16 @@ namespace Greenshot.Recipes
     /// </summary>
     public static class RecipeEditApproval
     {
+        /// <summary>
+        /// Triggers are compared as they are written to a recipe file: a trigger read from a file has camel-cased parameter names
+        /// </summary>
+        private static readonly JsonSerializer TriggerComparer = JsonSerializer.Create(new JsonSerializerSettings
+        {
+            NullValueHandling = NullValueHandling.Ignore,
+            ContractResolver = new CamelCasePropertyNamesContractResolver(),
+            Converters = { new StringEnumConverter() }
+        });
+
         /// <summary>
         /// The approval for the edited recipe
         /// </summary>
@@ -140,14 +153,14 @@ namespace Greenshot.Recipes
             {
                 return -1;
             }
-            var token = JToken.FromObject(trigger);
+            var token = JToken.FromObject(trigger, TriggerComparer);
             for (int i = 0; i < oldTriggers.Count; i++)
             {
                 if (used.Contains(i) || oldTriggers[i] == null)
                 {
                     continue;
                 }
-                if (JToken.DeepEquals(token, JToken.FromObject(oldTriggers[i])))
+                if (JToken.DeepEquals(token, JToken.FromObject(oldTriggers[i], TriggerComparer)))
                 {
                     return i;
                 }
